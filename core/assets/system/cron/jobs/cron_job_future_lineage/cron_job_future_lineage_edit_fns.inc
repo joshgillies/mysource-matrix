@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage_edit_fns.inc,v 1.9 2004/11/02 03:32:23 mmcintyre Exp $
+* $Id: cron_job_future_lineage_edit_fns.inc,v 1.10 2004/12/03 15:29:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -69,7 +69,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 		$o->openField('Delete Link');
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'minor');
 		$link_options = Array(0 => '');
-		foreach($links as $link) {
+		foreach ($links as $link) {
 			$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 			if (is_null($parent)) continue;
 			$link_options[$link['linkid']] = 'Link #'.$link['linkid'].' - Parent : '.$parent->name.' (#'.$parent->id.')';

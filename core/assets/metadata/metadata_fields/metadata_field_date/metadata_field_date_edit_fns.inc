@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.12 2004/11/04 02:38:51 gsherwood Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.13 2004/12/03 15:29:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -174,7 +174,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 				$res = $mm->generateKeywordReplacements($asset, $keys, false); // just return value
 
-				foreach($res as $key => $val) {
+				foreach ($res as $key => $val) {
 					$default = strtotime($val);
 				}
 		}
@@ -407,7 +407,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				$res = $mm->generateKeywordReplacements($asset, $keys, false); // just return value
-				foreach($res as $key => $val) $values['value'] = strtotime($val);
+				foreach ($res as $key => $val) $values['value'] = strtotime($val);
 			}
 
 			$field = $this->_getEpochDateTimeField($asset, $prefix, $values['value']);

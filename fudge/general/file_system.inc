@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.27 2004/10/14 03:58:32 arailean Exp $
+* $Id: file_system.inc,v 1.28 2004/12/03 15:43:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -62,7 +62,7 @@ function get_file_type($filename)
 function is_image($filename)
 {
 
-	switch(get_file_type($filename)) {
+	switch (get_file_type($filename)) {
 		case 'jpg'  :
 		case 'jpeg' :
 		case 'gif'  :
@@ -167,7 +167,7 @@ function easy_filesize($size)
 function increment_filename($name,$spacer='')
 {
 	require_once dirname(__FILE__).'/../general/general.inc';
-	if(strpos($name,'.') !== false) {
+	if (strpos($name,'.') !== false) {
 		$ext = get_file_type($name);
 		return increment_name(substr($name,0,-strlen($ext)-1),$spacer).'.'.$ext;
 	} else {
@@ -200,7 +200,7 @@ function list_files($dir='', $fullpath=false)
 
 	if (!is_dir($dir)) return Array();
 
-	$files = array();
+	$files = Array();
 	if ($handle = opendir($dir)) {
 		while (($file = readdir($handle)) !== false) {
 			if ($file == '.' || $file == '..') continue;
@@ -233,7 +233,7 @@ function list_dirs($dir, $fullpath=false)
 {
 	if (!is_dir($dir)) return Array();
 
-	$dirs = array();
+	$dirs = Array();
 	if ($handle = opendir($dir)) {
 		while (($subdir = readdir($handle)) !== false) {
 			if ($subdir == '.' || $subdir == '..') continue;
@@ -261,9 +261,9 @@ function create_directory($path)
 	$branches = explode('/', $path);
 	$trunk = '';
 	$old_umask = umask(0);
-	for($i = 0, $count = count($branches); $i < $count; $i++) {
+	for ($i = 0, $count = count($branches); $i < $count; $i++) {
 		$trunk .= $branches[$i].'/';
-		if(file_exists($trunk)) continue;
+		if (file_exists($trunk)) continue;
 		if (!mkdir(substr($trunk,0,-1), 0775)) {
 			trigger_error('Unable to create directory: '.$trunk, E_USER_WARNING);
 			clearstatcache();
@@ -327,7 +327,7 @@ function clear_directory($path)
 		return false;
 	}
 	$dir = opendir($path);
-	while(false !== ($filename = readdir($dir))) {
+	while (false !== ($filename = readdir($dir))) {
 		if ($filename == '.' || $filename == '..') continue;
 		$filename = $path . '/' . $filename;
 		if (is_dir($filename)) {
@@ -365,25 +365,25 @@ function copy_directory($path, $new_path)
 		clearstatcache();
 		return false;
 	}
-	if(file_exists($new_path)) {
-		if(!is_dir($new_path)) {
+	if (file_exists($new_path)) {
+		if (!is_dir($new_path)) {
 			trigger_error($new_path.' exists but is not a directory (for copying into).');
 			clearstatcache();
 			return false;
 		}
 	} else {
-		if(!create_directory($new_path)) {
+		if (!create_directory($new_path)) {
 			clearstatcache();
 			return false;
 		}
 	}
 	// Copy the contents
 	$dir = opendir($path);
-	while(false !== ($filename = readdir($dir))) {
+	while (false !== ($filename = readdir($dir))) {
 		if ($filename == '.' || $filename == '..') continue;
 		$full_filename = $path . '/' . $filename;
 		if (is_dir($full_filename)) {
-			if(!copy_directory($full_filename, $new_path.'/'.$filename)) {
+			if (!copy_directory($full_filename, $new_path.'/'.$filename)) {
 				clearstatcache();
 				return false;
 			}

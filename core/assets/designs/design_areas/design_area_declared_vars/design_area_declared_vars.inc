@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_declared_vars.inc,v 1.11 2003/11/26 00:50:56 gsherwood Exp $
+* $Id: design_area_declared_vars.inc,v 1.12 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -80,12 +80,12 @@ class Design_Area_Declared_Vars extends Design_Area
 	function getDeclaredVarAttributes() 
 	{
 		$attrs = Array();
-		foreach($this->vars['declared_vars']['value'] as $name => $data) {
+		foreach ($this->vars['declared_vars']['value'] as $name => $data) {
 			$type = basename($data['type']); // just to make sure they aren't attempting to be a bit tricky
 			// do include,so it doesn't die if it ain't there
 			require_once SQ_ATTRIBUTES_PATH.'/'.$type.'/'.$type.'.inc';
 			$attr_class = 'Asset_Attribute_'.$type;
-			if(!class_exists($attr_class)) {
+			if (!class_exists($attr_class)) {
 				trigger_error('Attribute Type "'.$type.'" not found for "'.$name.'"', E_USER_WARNING);
 				continue;
 			}

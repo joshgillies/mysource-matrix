@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_orphaned_assets.php,v 1.3 2004/11/29 02:10:22 gsherwood Exp $
+* $Id: system_integrity_orphaned_assets.php,v 1.4 2004/12/03 15:42:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -204,12 +204,12 @@ foreach ($assets as $assetid => $type_code) {
 		}
 	}
 
-	if($errors) {			// no links
+	if ($errors) {			// no links
 		printUpdateStatus('FAILED');
 		continue;
 	}
 
-	if(empty($links)) {			// no links
+	if (empty($links)) {			// no links
 		if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($map_asset, $asset, SQ_LINK_TYPE_2, 'Orphaned Asset')) {
 			printUpdateStatus('FAILED');
 			continue;

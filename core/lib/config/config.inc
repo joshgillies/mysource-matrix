@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.15 2004/06/21 01:19:49 mnyeholt Exp $
+* $Id: config.inc,v 1.16 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -93,7 +93,7 @@ class Config extends MySource_Object
 
 		$changed_vars = Array();
 		ob_start();
-		foreach($this->config_vars as $var_name => $data) {
+		foreach ($this->config_vars as $var_name => $data) {
 
 			$current_value = (defined($var_name)) ? constant($var_name) : $data['default'];
 			if ($data['editable'] && isset($vars[$var_name]) && $current_value !== $vars[$var_name]) {
@@ -127,7 +127,7 @@ class Config extends MySource_Object
 			do {
 				$i++;
 				$old_version = $this->config_file.'.'.$i;
-			} while(file_exists($old_version));
+			} while (file_exists($old_version));
 
 			if (!copy($this->config_file, $old_version)) {
 				return false;
@@ -146,7 +146,7 @@ class Config extends MySource_Object
 		if ($changed_vars && $send_message) {
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$message_body = '';
-			foreach($changed_vars as $var_name => $values) {
+			foreach ($changed_vars as $var_name => $values) {
 				$message_body .= $var_name.' changed from '.var_export($values['old'], true).' to '.var_export($values['new'], true)."\n";
 			}
 			$config_name = ucwords(str_replace('_', ' ', get_class($this)));

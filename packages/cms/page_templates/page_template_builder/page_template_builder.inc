@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_template_builder.inc,v 1.4 2004/12/03 02:53:27 tbarrett Exp $
+* $Id: page_template_builder.inc,v 1.5 2004/12/03 15:37:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -214,8 +214,8 @@ class Page_Template_Builder extends Page
 
 		$fields = Array();
 		
-		foreach($matches as $bc_fields) {
-			switch(count($bc_fields)) {
+		foreach ($matches as $bc_fields) {
+			switch (count($bc_fields)) {
 				// eg. #Text Field(50x3)#
 				// everything specified - freeform text, size specified
 				case 10:
@@ -295,7 +295,7 @@ class Page_Template_Builder extends Page
 			echo $res;
 			echo $this->paintPrintButton($res);
 			$bc_asset = null;
-			foreach($this->getCreateLocations() as $assetid => $link_type) {
+			foreach ($this->getCreateLocations() as $assetid => $link_type) {
 				$under_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_null($bc_asset)) {
 					$bc_asset =& $this->createBodycopy(date('d M Y H:i:s'), '', $res, $under_asset);
@@ -372,7 +372,7 @@ class Page_Template_Builder extends Page
 			$output .= '<input type="hidden" name="ADDITIONAL_LOCATIONS" value="'.$additional_locs.'" />';
 		}
 
-		foreach($q_fields as $q_field) {
+		foreach ($q_fields as $q_field) {
 
 			$field_name = $prefix.'_'.strtolower(str_replace(' ','_',$q_field['name']));
 			
@@ -391,7 +391,7 @@ class Page_Template_Builder extends Page
 					ob_start();
 					
 					if ($max_length > 39) {
-						foreach($q_field['values'] as $key => $q_value) {				
+						foreach ($q_field['values'] as $key => $q_value) {				
 							radio_button($field_name, $key, false);
 							echo $q_value.'<br/>';
 						}
@@ -405,7 +405,7 @@ class Page_Template_Builder extends Page
 				// multiple select, check boxes always
 				case '{':
 					ob_start();
-					foreach($q_field['values'] as $key => $q_value) {				
+					foreach ($q_field['values'] as $key => $q_value) {				
 						check_box($field_name.'[]', $key, false);
 						echo $q_value.'<br/>';
 					}
@@ -474,7 +474,7 @@ class Page_Template_Builder extends Page
 		$q_fields = $this->getQuestionFields();
 		$prefix = $this->type().'_'.$this->id;
 				
-		foreach($q_fields as $q_field) {
+		foreach ($q_fields as $q_field) {
 			$rep = $q_field['raw'];
 			$field_name = $prefix.'_'.strtolower(str_replace(' ','_',$q_field['name']));
 			

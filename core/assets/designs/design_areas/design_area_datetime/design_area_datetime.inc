@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_datetime.inc,v 1.6 2003/11/26 00:50:56 gsherwood Exp $
+* $Id: design_area_datetime.inc,v 1.7 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,7 +49,7 @@ class Design_Area_DateTime extends Design_Area
 	function printArea(&$design) 
 	{
 		$format = addslashes($this->attr('format'));
-		switch($this->attr('datetime')) {
+		switch ($this->attr('datetime')) {
 			case 'updated' :
 				$datetime = '$ASSET->updated';
 				break;

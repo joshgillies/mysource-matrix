@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.31 2004/09/15 07:05:30 gsherwood Exp $
+* $Id: selection.inc,v 1.32 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -247,7 +247,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 			$options = array_reverse($options);
 		}
 
-		if (!empty($this->_params['multiple']) && !is_array($this->value)) {
+		if (!empty($this->_params['multiple']) && !is_Array($this->value)) {
 			$value = $this->_str2ar($this->value);
 		} else { 
 			$value = $this->value;
@@ -302,7 +302,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 						} else {
 							?>
 							<td>&nbsp;
-								<input type="checkbox" name="<?php echo $prefix."[$i]"; ?>" value="<?php echo $key; ?>"<?php echo ((is_array($value) && in_array($key, $value)) ? ' checked' : ''); ?>>
+								<input type="checkbox" name="<?php echo $prefix."[$i]"; ?>" value="<?php echo $key; ?>"<?php echo ((is_Array($value) && in_Array($key, $value)) ? ' checked' : ''); ?>>
 								<?php echo $val?>
 							</td>
 							<?php
@@ -334,7 +334,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		if (!isset($_REQUEST[$prefix.'_posted'])) return false;
 		$value = (isset($_REQUEST[$prefix])) ? $_REQUEST[$prefix] : '';
 
-		if (is_array($value)) $value = $this->_ar2str($value);
+		if (is_Array($value)) $value = $this->_ar2str($value);
 
 		if ($this->value != $value && $this->setValue($value)) {
 			$this->processed = true;
@@ -357,7 +357,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	{
 		$options = $this->_params['options'];
 
-		if (is_array($value)) $value = $this->_ar2str($value);
+		if (is_Array($value)) $value = $this->_ar2str($value);
 		$value = trim((string) $value);
 		if ($value == '') return true;
 
@@ -366,8 +366,8 @@ class Asset_Attribute_Selection extends Asset_Attribute
 			if (!isset($options[$value])) return false;
 		} else {
 			$new_value = $this->_str2ar($value);
-			if (!is_array($new_value)) return false;
-			$return_value = array();
+			if (!is_Array($new_value)) return false;
+			$return_value = Array();
 			foreach ($new_value as $key) {
 				if (isset($options[$key])) $return_value[] = $key;
 			}
@@ -385,7 +385,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	* The return value not only contains the indexable values, but also the number of
 	* times they occur in this attributes value
 	*
-	* @return array(string => int)
+	* @return Array(string => int)
 	* @access public
 	*/
 	function getKeyData()
@@ -399,14 +399,14 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	* Returns an array of the current value with the individual selection values as keys 
 	* and the display names as values
 	*
-	* @return array(scalar => scalar)
+	* @return Array(scalar => scalar)
 	* @access public
 	*/
 	function getValueArray()
 	{
 		$value = $this->_str2ar($this->value);
 		$value_arr = Array();
-		foreach($value as $k) $value_arr[$k] = $this->_params['options'][$k];
+		foreach ($value as $k) $value_arr[$k] = $this->_params['options'][$k];
 		return $value_arr;
 
 	}//end getValueArray()

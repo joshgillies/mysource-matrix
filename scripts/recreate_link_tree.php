@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: recreate_link_tree.php,v 1.6 2003/11/26 00:51:16 gsherwood Exp $
+* $Id: recreate_link_tree.php,v 1.7 2004/12/03 15:42:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -56,7 +56,7 @@ if (DB::isError($all)) {
 }
 
 $index = Array();
-foreach($all as $data) {
+foreach ($all as $data) {
 	$majorid = $data['majorid'];
 	unset($data['majorid']);
 	if (!isset($index[$majorid])) $index[$majorid] = Array();
@@ -69,7 +69,7 @@ function recurse_tree_create($majorid, $path) {
 	static $e = 0;
 	$e++;
 	#if ($e > 100) return; // cheap recursion check
-	foreach($index[$majorid] as $i => $data) {
+	foreach ($index[$majorid] as $i => $data) {
 		#printf("e : % 3d, i : % 3d, Majorid : % 3d, Minorid : % 3d, Linkid : % 3d\n", $e, $i, $majorid, $data['minorid'], $data['linkid']);
 		$kid_path = $path.asset_link_treeid_convert($i, 1);
 		$sql =	'INSERT INTO sq_asset_link_tree '.

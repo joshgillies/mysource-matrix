@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.26 2004/11/18 04:49:33 gsherwood Exp $
+* $Id: hipo_job_edit_status.inc,v 1.27 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -89,7 +89,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 		// metadata regeneration threshhold HIPO config entry
 		$o->openField('Edit Status Threshold');
 
-		if($write_access) {
+		if ($write_access) {
 			text_box($class.'[SQ_HIPO_EDIT_STATUS_THRESHOLD]', SQ_HIPO_EDIT_STATUS_THRESHOLD, 5);
 		} else {
 			echo SQ_HIPO_EDIT_STATUS_THRESHOLD;

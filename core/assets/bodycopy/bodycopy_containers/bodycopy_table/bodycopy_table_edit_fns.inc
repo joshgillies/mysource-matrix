@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.13 2004/08/31 11:33:51 brobertson Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.14 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -71,12 +71,12 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 						switch (rowid) {
 							<?php
-							for($i = 0; $i < count($table_rows); $i++) {
+							for ($i = 0; $i < count($table_rows); $i++) {
 								?>
 								case <?php echo $i?> :
 									switch (cellid) {
 										<?php
-										for($x = 0; $x < count($table_rows[$i]); $x++) {
+										for ($x = 0; $x < count($table_rows[$i]); $x++) {
 											if (isset($table_rows[$i]['cells'][$x])) $table_rows[$i]['cells'][$x]->printBackendJsData($x);
 										}
 										?>
@@ -274,16 +274,16 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 		echo "\n<table{$attribute_list}>\n";
 
-		for($i = 0; $i < count($table_rows); $i++) {
+		for ($i = 0; $i < count($table_rows); $i++) {
 			$attribute_list = '';
-			foreach($table_rows[$i]['attributes'] as $name => $val) {
+			foreach ($table_rows[$i]['attributes'] as $name => $val) {
 				if ($val == '') continue;
 				$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 			}
 
 			echo "\t<tr{$attribute_list}>\n";
 			// now print the cell contents
-			for($x = 0; $x < count($table_rows[$i]['cells']); $x++) {
+			for ($x = 0; $x < count($table_rows[$i]['cells']); $x++) {
 				$table_rows[$i]['cells'][$x]->paint($asset, '', $generating);
 			}
 			echo "\t</tr>\n";
@@ -338,8 +338,8 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		// need to find out if there's any colspans used at all. We can't handle
 		// column reshuffles if there is.
 		$colspans_in_row = false;
-		for($i = 0; $i < count($table_rows); $i++) {
-			for($x = 0; $x < count($table_rows[$i]['cells']); $x++) {
+		for ($i = 0; $i < count($table_rows); $i++) {
+			for ($x = 0; $x < count($table_rows[$i]['cells']); $x++) {
 				if ($table_rows[$i]['cells'][$x]->colspan() > 1) {
 					$colspans_in_row = true;
 					break;
@@ -361,9 +361,9 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		// with all the extra stuff around it. This lets each cell have 
 		// proper row and colspan stuff in the editing interface.
 		$num_rows = count($table_rows);
-		for($i = 0; $i < $num_rows; $i++) {
+		for ($i = 0; $i < $num_rows; $i++) {
 			$attribute_list = '';
-			foreach($table_rows[$i]['attributes'] as $name => $val) {
+			foreach ($table_rows[$i]['attributes'] as $name => $val) {
 				if ($val == '') continue;
 				$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 			}
@@ -372,7 +372,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			<tr<?php echo $attribute_list?>>
 				<?php
 				$num_cols = count($table_rows[$i]['cells']);
-				for($x = 0; $x < $num_cols; $x++) {
+				for ($x = 0; $x < $num_cols; $x++) {
 					$cell = $table_rows[$i]['cells'][$x];
 					?>
 					<td valign="top" colspan="<?php echo $cell->colspan(); ?>" style="border: 1px dashed #C0C0C0;">
@@ -427,7 +427,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		$attribute_list = '';
 		$table_rows = $asset->attr('rows');
 		
-		foreach($table_rows[$i]['attributes'] as $name => $val) {
+		foreach ($table_rows[$i]['attributes'] as $name => $val) {
 			if ($val == '') continue;
 			$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 		}
@@ -555,10 +555,10 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		$rows = $asset->attr('rows');
 		
 		
-		for($rowid = 0; $rowid < count($rows); $rowid++) {
+		for ($rowid = 0; $rowid < count($rows); $rowid++) {
 			if (!empty($bc_saved[$prefix][$asset->id]['rows'][$rowid]['attributes'])) {
 				// save any changed row attributes
-				foreach($bc_saved[$prefix][$asset->id]['rows'][$rowid]['attributes'] as $name => $value) {
+				foreach ($bc_saved[$prefix][$asset->id]['rows'][$rowid]['attributes'] as $name => $value) {
 					$name = strtolower($name);
 					if (!isset($rows[$rowid]['attributes'][$name]) || $rows[$rowid]['attributes'][$name] != $value) {
 						$rows[$rowid]['attributes'][$name] = $value;
@@ -575,7 +575,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 				// check to see if any cells from this row need their colspans changed
 				if (isset($bc_saved[$prefix][$asset->id]['rows'][$rowid]['cells'])) {
-					foreach($bc_saved[$prefix][$asset->id]['rows'][$rowid]['cells'] as $cellid => $cell_data) {
+					foreach ($bc_saved[$prefix][$asset->id]['rows'][$rowid]['cells'] as $cellid => $cell_data) {
 
 						if (isset($rows[$rowid]['cells'][$cellid])) {
 
@@ -650,11 +650,11 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 									if ($colspaning > $current_span && $spanable_cells >= 1) {
 										// check for more colspans first
 										$colspan_error = 0;
-										for($i = ($cellid + 1); $i <= ($cellid + ($colspaning - $current_span)); $i++) {
+										for ($i = ($cellid + 1); $i <= ($cellid + ($colspaning - $current_span)); $i++) {
 											if ($rows[$rowid]['cells'][$i]->colspan() > 1) $colspan_error = 1;
 										}
 										if ($colspan_error == 0) {
-											for($i = ($cellid + 1); $i <= ($cellid + ($colspaning - $current_span)); $i++) {
+											for ($i = ($cellid + 1); $i <= ($cellid + ($colspaning - $current_span)); $i++) {
 												if ($this->deleteCell($asset, $rows, $rowid, ($cellid+1), true)) {
 													$rows_updated = true;
 												} else {
@@ -671,7 +671,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 									} else if ($colspaning < $current_span) {
 										// decreasing the colspan
 									
-										for($i = 0; $i < ($current_span - $colspaning); $i++) {
+										for ($i = 0; $i < ($current_span - $colspaning); $i++) {
 											if ($this->insertCell($asset, $rows, $rowid, $cellid, false, true)) {
 												$rows_updated = true;
 											} else {
@@ -694,7 +694,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			}//end if we are the row that submitted the form
 
 			// now update the cells
-			for($i = 0; $i < count($rows[$rowid]['cells']); $i++) {
+			for ($i = 0; $i < count($rows[$rowid]['cells']); $i++) {
 				if ($rows[$rowid]['cells'][$i]->processCell($asset, $prefix, $asset->id, $rowid, $i, $bc_saved)) $rows_updated = true;
 			}
 
@@ -720,7 +720,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 		// process any special actions if we are the  table that submitted the form
 		if (!$skip_table_editing && !empty($bc_data) && $bc_data['tableid'] == $asset->id && $bc_name == $prefix) {
-			switch($bc_action) {
+			switch ($bc_action) {
 				case 'insert_table_row' :
 					if ($this->insertRow($asset, $bc_data['rowid'], $bc_data['before'])) $updated = true;
 				break;
@@ -783,9 +783,9 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		if (!$before) $rowid++;
 
 		// move all the rows up one position
-		for($i = count($rows); $i > $rowid; $i--) {
+		for ($i = count($rows); $i > $rowid; $i--) {
 			$rows[$i] = $rows[$i - 1];
-			for($x = 0; $x < count($rows[$i]['cells']); $x++) {
+			for ($x = 0; $x < count($rows[$i]['cells']); $x++) {
 				$rows[$i]['cells'][$x]->updateContentType($asset, $i, $x);
 			}
 		}
@@ -799,7 +799,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 		// create the cells and set their properties to
 		// the properties of the cells above/below
-		for($i = 0; $i < count($rows[$compareid]['cells']); $i++) {
+		for ($i = 0; $i < count($rows[$compareid]['cells']); $i++) {
 			$rows[$rowid]['cells'][$i] = new Bodycopy_Table_Cell();
 			foreach ($rows[$compareid]['cells'][$i]->attributes as $name => $val) {
 				$rows[$rowid]['cells'][$i]->setAttribute($name,$val);
@@ -830,15 +830,15 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		if (isset($rows[$rowid]) && count($rows) > 1) {
 
 			// delete all the cells in the row so they can clean up
-			for($i = 0; $i < count($rows[$rowid]['cells']); $i++) {
+			for ($i = 0; $i < count($rows[$rowid]['cells']); $i++) {
 				$rows[$rowid]['cells'][$i]->delete($asset);
 			}
 
 			// move all the rows down one position
-			for($i = $rowid; $i < count($rows) - 1; $i++) {
+			for ($i = $rowid; $i < count($rows) - 1; $i++) {
 				// let the cells know that they are moving to a new rowid
 				$rows[$i] = $rows[$i + 1];
-				for($x = 0; $x < count($rows[$i]['cells']); $x++) {
+				for ($x = 0; $x < count($rows[$i]['cells']); $x++) {
 					$rows[$i]['cells'][$x]->updateContentType($asset, $i, $x);
 				}
 			}
@@ -873,7 +873,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 		// if there ain't no changes, die
 		$changes = false;
-		foreach($row_order as $new_place => $old_place) $changes |= ($new_place != $old_place);
+		foreach ($row_order as $new_place => $old_place) $changes |= ($new_place != $old_place);
 		if (!$changes) return false;
 
 		// if there is a conflict in the number of rows, die
@@ -881,8 +881,8 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 		$new_array = Array();
 
-		for($i = 0; $i < count($row_order); $i++) {
-			for($x = 0; $x < count($rows[$i]['cells']); $x++) {
+		for ($i = 0; $i < count($row_order); $i++) {
+			for ($x = 0; $x < count($rows[$i]['cells']); $x++) {
 				$rows[$i]['cells'][$x]->updateContentType($asset, $row_order[$i], $x);
 			}
 			$new_array[$i] = $rows[$row_order[$i]];
@@ -910,17 +910,17 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	{
 		// if there ain't no changes, die
 		$changes = false;
-		foreach($col_order as $new_place => $old_place) $changes |= ($new_place != $old_place);
+		foreach ($col_order as $new_place => $old_place) $changes |= ($new_place != $old_place);
 		if (!$changes) return false;
 
 		$rows = $asset->attr('rows');
 		
-		for($r = 0; $r < count($rows); $r++) {
+		for ($r = 0; $r < count($rows); $r++) {
 			// if there is a conflict in the number of cells, die
 			if (count($rows[$r]['cells']) != count(array_unique($col_order))) return false;
 
 			$new_array = Array();
-			for($i = 0; $i < count($col_order); $i++) {
+			for ($i = 0; $i < count($col_order); $i++) {
 				$rows[$r]['cells'][$i]->updateContentType($asset, $r, $col_order[$i]);
 				$new_array[$i] = $rows[$r]['cells'][$col_order[$i]];
 			}
@@ -950,7 +950,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 		// we dont know how to do this ourselves, so just get
 		// every row to insert a new cell and it can handle checking
-		for($r = 0; $r < count($rows); $r++) {
+		for ($r = 0; $r < count($rows); $r++) {
 			if (!$this->insertCell($asset, $rows, $r, $cellid, $before)) return false;
 		}
 
@@ -975,7 +975,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 		// we dont know how to do this ourselves, so just get
 		// every row to delete the cell and it can handle checking
-		for($r = 0; $r < count($rows); $r++) {
+		for ($r = 0; $r < count($rows); $r++) {
 			if (!$this->deleteCell($asset, $rows, $r, $cellid)) return false;
 		}
 
@@ -1004,7 +1004,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			// check for colspan's in this row - colspan's will muck things up
 			$colspan_error = 0;
 			$colspaning = 0;
-			for($i = 0; $i < count($rows[$rowid]['cells']); $i++) {
+			for ($i = 0; $i < count($rows[$rowid]['cells']); $i++) {
 				if ($rows[$rowid]['cells'][$i]->colspan() > 1) { 
 					$colspan_error = 1;
 				}
@@ -1012,7 +1012,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			if ($colspan_error == 1) {
 				// work out the correct cellid for the id passed in
 				$real_cellid = 0;
-				for($i = 0; $i < count($rows[$rowid]['cells']); $i++) {
+				for ($i = 0; $i < count($rows[$rowid]['cells']); $i++) {
 					if ($colspaning >= $cellid) break;
 					$colspaning += intval($rows[$rowid]['cells'][$i]->colspan());
 					if (intval($rows[$rowid]['cells'][$i]->colspan()) == 0) $colspaning++;
@@ -1024,7 +1024,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				
 				// lets try and find out how many cells are before the cell we are looking at
 				$colspaning = 0;
-				for($i = 0; $i < $real_cellid; $i++) {
+				for ($i = 0; $i < $real_cellid; $i++) {
 					$colspaning += intval($rows[$rowid]['cells'][$i]->colspan());
 					if (intval($rows[$rowid]['cells'][$i]->colspan()) == 0) $colspaning++;
 				}
@@ -1072,7 +1072,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		if (!$before) $cellid++;
 
 		// move all the cells up one position
-		for($i = count($rows[$rowid]['cells']); $i > $cellid; $i--) {
+		for ($i = count($rows[$rowid]['cells']); $i > $cellid; $i--) {
 			$rows[$rowid]['cells'][$i] = $rows[$rowid]['cells'][$i - 1];
 			$rows[$rowid]['cells'][$i]->updateContentType($asset, $rowid, $i);
 		}
@@ -1114,7 +1114,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			// check for colspan's in this row - colspan's will muck things up
 			$colspan_error = 0;
 			$colspaning = 0;
-			for($i = 0; $i < count($rows[$rowid]['cells']); $i++) {
+			for ($i = 0; $i < count($rows[$rowid]['cells']); $i++) {
 				if ($rows[$rowid]['cells'][$i]->colspan() > 1) {
 					$colspan_error = 1;
 				}
@@ -1123,7 +1123,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			if ($colspan_error == 1) {
 				// work out the correct cellid for the id passed in
 				$real_cellid = 0;
-				for($i = 0; $i < count($rows[$rowid]['cells']); $i++) {
+				for ($i = 0; $i < count($rows[$rowid]['cells']); $i++) {
 					if ($colspaning >= $cellid) break;
 					$colspaning += intval($rows[$rowid]['cells'][$i]->colspan());
 					if (intval($rows[$rowid]['cells'][$i]->colspan()) == 0) $colspaning++;
@@ -1150,7 +1150,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			if (!$rows[$rowid]['cells'][$cellid]->delete($table, $rowid, $cellid)) return false;
 
 			// move all the cells down one position
-			for($i = $cellid; $i < count($rows[$rowid]['cells']) - 1; $i++) {
+			for ($i = $cellid; $i < count($rows[$rowid]['cells']) - 1; $i++) {
 				$rows[$rowid]['cells'][$i] = $rows[$rowid]['cells'][$i + 1];
 				$rows[$rowid]['cells'][$i]->updateContentType($table, $rowid, $i);
 			}
@@ -1178,10 +1178,10 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	function maxCols($table_rows, $add_colspans=true)
 	{
 		$max = 0;
-		for($i = 0; $i < count($table_rows); $i++) {
+		for ($i = 0; $i < count($table_rows); $i++) {
 			$num = 0;
 			if (empty($table_rows[$i]['cells'])) continue;
-			for($x = 0; $x < count($table_rows[$i]['cells']); $x++) {
+			for ($x = 0; $x < count($table_rows[$i]['cells']); $x++) {
 				if ($add_colspans) {
 					$num += $table_rows[$i]['cells'][$x]->colspan();
 				} else {

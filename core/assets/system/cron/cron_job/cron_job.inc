@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.19 2004/11/18 05:00:41 gsherwood Exp $
+* $Id: cron_job.inc,v 1.20 2004/12/03 15:29:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -279,7 +279,7 @@ class Cron_Job extends Asset
 	*/
 	function whenTypeName($type)
 	{
-		switch($type) {
+		switch ($type) {
 			case 'OO' : return 'One Off';
 			case 'HR' : return 'Hourly';
 			case 'DL' : return 'Daily';
@@ -304,7 +304,7 @@ class Cron_Job extends Asset
 	*/
 	function whenWeekDayName($wday)
 	{
-		switch((int) $wday) {
+		switch ((int) $wday) {
 			case 0 : return 'Sunday';
 			case 1 : return 'Monday';
 			case 2 : return 'Tuesday';
@@ -332,7 +332,7 @@ class Cron_Job extends Asset
 	{
 		$when_arr = Cron_Job::getWhenArr($this->attr('when'));
 		$ret_val = ($inc_type) ? Cron_Job::whenTypeName($when_arr['type']).' at ' : '';
-		switch($when_arr['type']) {
+		switch ($when_arr['type']) {
 			case 'OO' :
 				$ret_val .= $when_arr['hour'].':'.$when_arr['minute'].' on '.$when_arr['day'].'/'.$when_arr['month'].'/'.$when_arr['year'];
 				break;
@@ -377,7 +377,7 @@ class Cron_Job extends Asset
 		if ($when_str) {
 			$when_arr['type'] = substr($when_str, 0, 2);
 			$offset = 3;
-			switch($when_arr['type']) {
+			switch ($when_arr['type']) {
 				case 'OO' :
 					$when_arr['year'] = substr($when_str, $offset, 4);
 					$offset += 5;
@@ -574,7 +574,7 @@ class Cron_Job extends Asset
 			$err_msg  = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', '[SYSTEM_ROOT]'), $err_msg);
 
 			$err_name = '';
-			switch($err_no) {
+			switch ($err_no) {
 				case E_USER_ERROR	: $err_name = SQ_SYSTEM_SHORT_NAME.' Error';	break;
 				case E_USER_WARNING	: $err_name = SQ_SYSTEM_SHORT_NAME.' Warning';	break;
 				case E_USER_NOTICE	: $err_name = SQ_SYSTEM_SHORT_NAME.' Notice';	break;
@@ -597,7 +597,7 @@ class Cron_Job extends Asset
 			$lines = explode("\n", $err_msg);
 			$len = 7 + strlen($err_file);
 			$len = max($len, 7 + strlen($err_line));
-			foreach($lines as $line) $len = max($len, strlen($line));
+			foreach ($lines as $line) $len = max($len, strlen($line));
 			$len += 2;
 			$str =	'+'.str_repeat('-', $len)."+\n".
 					'| '.$err_name.str_repeat(' ', $len - 2 - strlen($err_name))." |\n".
@@ -605,7 +605,7 @@ class Cron_Job extends Asset
 					'| File : '.$err_file.str_repeat(' ', $len - 9 - strlen($err_file))." |\n".
 					'| Line : '.$err_line.str_repeat(' ', $len - 9 - strlen($err_line))." |\n".
 					'|'.str_repeat('-', $len)."|\n";
-			foreach($lines as $line) {
+			foreach ($lines as $line) {
 				$str .=  '| '.$line.str_repeat(' ', $len - 2 - strlen($line))." |\n";
 			}
 
@@ -696,7 +696,7 @@ class Cron_Job extends Asset
 		$month_loops = ($when['day']    < $start['mday']   || ($when['day']   == $start['mday']  && $day_loops));
 		$year_loops  = ($when['month']  < $start['mon']    || ($when['month'] == $start['mon']   && $month_loops));
 
-		switch($when['type']) {
+		switch ($when['type']) {
 			// Hourly
 			case 'HR' :
 					// if we need to loop over until the next hour
@@ -759,18 +759,18 @@ class Cron_Job extends Asset
 					if ($year_loops) {
 
 						// add the rest of the months this year
-						for($i = $start['mon']; $i <= 12; $i++) {
+						for ($i = $start['mon']; $i <= 12; $i++) {
 							$add['days'] += days_in_month($i, $start['year']);
 						}
 						// add the months for next year
-						for($i = 1; $i < $when['month']; $i++) {
+						for ($i = 1; $i < $when['month']; $i++) {
 							$add['days'] += days_in_month($i, $start['year'] + 1);
 						}
 
 					} else {
 
 						// add the months between
-						for($i = $start['mon']; $i < $when['month']; $i++) {
+						for ($i = $start['mon']; $i < $when['month']; $i++) {
 							$add['days'] += days_in_month($i, $start['year']);
 						}
 

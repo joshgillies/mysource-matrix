@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_metadata.inc,v 1.10 2004/11/08 03:42:02 mmcintyre Exp $
+* $Id: hipo_job_regenerate_metadata.inc,v 1.11 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -117,7 +117,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 		// metadata regeneration threshhold HIPO config entry
 		$o->openField('Metadata Regeneration Threshold');
 
-		if($write_access) {
+		if ($write_access) {
 			text_box($class.'[SQ_HIPO_REGENERATE_METADATA_THRESHOLD]', SQ_HIPO_REGENERATE_METADATA_THRESHOLD, 5);
 		} else {
 			echo SQ_HIPO_REGENERATE_METADATA_THRESHOLD;

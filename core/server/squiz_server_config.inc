@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: squiz_server_config.inc,v 1.5 2004/01/16 11:49:18 brobertson Exp $
+* $Id: squiz_server_config.inc,v 1.6 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -116,7 +116,7 @@ class Squiz_Server_Config extends Config
 		$o->openSection('Squiz Server Configuration');
 
 			$o->openField('System Root');
-			if($write_access) {
+			if ($write_access) {
 				text_box($class.'[SQ_SERVER_SYSTEM_ROOT]', SQ_SERVER_SYSTEM_ROOT, 60);
 			} else {
 				echo SQ_SERVER_SYSTEM_ROOT;
@@ -124,21 +124,21 @@ class Squiz_Server_Config extends Config
 			$o->note('This is the path to the local Squiz Server\'s base directory');
 
 			$o->openField('System ID');
-			if($write_access) {
+			if ($write_access) {
 				text_box($class.'[SQ_SERVER_SYSTEMID]', SQ_SERVER_SYSTEMID, 30);
 			} else {
 				echo SQ_SERVER_SYSTEMID;
 			}
 
 			$o->openField('Domain');
-			if($write_access) {
+			if ($write_access) {
 				text_box($class.'[SQ_SERVER_DOMAIN]', SQ_SERVER_DOMAIN, 30);
 			} else {
 				echo SQ_SERVER_DOMAIN;
 			}
 
 			$o->openField('Port');
-			if($write_access) {
+			if ($write_access) {
 				text_box($class.'[SQ_SERVER_PORT]', SQ_SERVER_PORT, 10);
 			} else {
 				echo SQ_SERVER_PORT;

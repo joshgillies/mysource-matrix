@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_linked_css.inc,v 1.5 2004/09/07 10:52:20 brobertson Exp $
+* $Id: design_area_linked_css.inc,v 1.6 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -54,7 +54,7 @@ class Design_Area_Linked_Css extends Design_Area
 		// if they are trying to set the type_codes, split the string
 		if ($name == 'type_codes') {
 			if (!is_array($value)) $value = preg_split('/[ ,]+/', (string) $value);
-			foreach($value as $type_code) {
+			foreach ($value as $type_code) {
 				if (!$GLOBALS['SQ_SYSTEM']->am->installed($type_code)) {
 					trigger_error('Asset Type "'.$type_code.'" is not installed in this system, unable to set "type_codes"', E_USER_WARNING);
 					return false;

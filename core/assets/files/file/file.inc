@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.74 2004/11/30 23:46:52 gsherwood Exp $
+* $Id: file.inc,v 1.75 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -489,7 +489,7 @@ class File extends Asset
 
 				$root_url = '';
 
-				foreach($root_urls as $tmp_url) {
+				foreach ($root_urls as $tmp_url) {
 					if (substr($data['url'], 0, strlen($tmp_url)) == $tmp_url) {
 						$root_url = $tmp_url;
 						continue;
@@ -582,7 +582,7 @@ class File extends Asset
 	*/
 	function processBackend(&$o, &$link)
 	{
-		switch($_POST['asset_action']) {
+		switch ($_POST['asset_action']) {
 			case 'create' :
 				$this->_tmp['uploading_file'] = 1;
 				$ei = &$this->getEI();

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.59 2004/11/25 11:32:15 brobertson Exp $
+* $Id: package_manager.inc,v 1.60 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -379,9 +379,9 @@ class Package_Manager extends MySource_Object
 		$asset_types = array_keys($this->assets);
 		$install_order = Array();
 
-		while($last_count = count($asset_types)) {
+		while ($last_count = count($asset_types)) {
 
-			for($i = 0; $i < count($asset_types); $i++) {
+			for ($i = 0; $i < count($asset_types); $i++) {
 				
 				$type_code = $asset_types[$i];
 				
@@ -458,7 +458,7 @@ class Package_Manager extends MySource_Object
 		$root = &$output->addRoot('tmp', '');
 		$str  = '';
 
-		for(reset($this->assets); null !== ($type_code = key($this->assets)); next($this->assets)) {
+		for (reset($this->assets); null !== ($type_code = key($this->assets)); next($this->assets)) {
 			if (in_array($type_code, $deferred)) continue;
 			
 			$attrs = Array(	'type_code'			=> $type_code,
@@ -482,14 +482,14 @@ class Package_Manager extends MySource_Object
 
 			$ei = new Asset_Edit_Interface($type_code);
 			$screens = $ei->getScreens();
-			for(reset($screens); null !== ($code_name = key($screens)); next($screens)) {
+			for (reset($screens); null !== ($code_name = key($screens)); next($screens)) {
 				$type_node->addChild('screen', $screens[$code_name]['name'], Array('code_name' => $code_name));
 			}
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 			$as =& new $type_code();
 			$ef = &$as->getEditFns();
-			for(reset($ef->static_screens); null !== ($code_name = key($ef->static_screens)); next($ef->static_screens)) {
+			for (reset($ef->static_screens); null !== ($code_name = key($ef->static_screens)); next($ef->static_screens)) {
 				if ($code_name == 'details') continue;
 				$type_node->addChild('screen', $ef->static_screens[$code_name]['name'], Array('code_name' => $code_name));
 			}
@@ -529,11 +529,11 @@ class Package_Manager extends MySource_Object
 			return ($need_feedback) ? Array(true, null) : true;
 		}
 
-		for($i = 0; $i < count($info['requirements']['requirement']); $i++) {
+		for ($i = 0; $i < count($info['requirements']['requirement']); $i++) {
 			$req = &$info['requirements']['requirement'][$i];
 
 			$ok = false;
-			switch($req['@type']) {
+			switch ($req['@type']) {
 				case 'package' :
 					$installed_version = $GLOBALS['SQ_SYSTEM']->db->getOne('SELECT version FROM '.SQ_TABLE_PREFIX.'pkg WHERE code_name = '.$GLOBALS['SQ_SYSTEM']->db->quote($req['code']['value']));
 					if (DB::isError($installed_version)) trigger_error($installed_version->getMessage()."\n".$installed_version->getUserInfo(), E_USER_ERROR);
@@ -554,7 +554,7 @@ class Package_Manager extends MySource_Object
 					break;
 
 				case 'system' :
-					switch($req['code']['value']) {
+					switch ($req['code']['value']) {
 						case 'System' :
 							$ok = version_compare(SQ_SYSTEM_VERSION, $req['version']['value'], '>=');
 							break;
@@ -610,7 +610,7 @@ class Package_Manager extends MySource_Object
 
 		$arr = Array();
 
-		while(isset($this->assets[$type_code]) && $this->assets[$type_code]['parent_type'] != 'asset') {
+		while (isset($this->assets[$type_code]) && $this->assets[$type_code]['parent_type'] != 'asset') {
 			$type_code = $this->assets[$type_code]['parent_type'];
 			$arr[]     = $type_code;
 		}
@@ -618,7 +618,7 @@ class Package_Manager extends MySource_Object
 		// if we are inheriting from something else then go find it from the installed list
 		if (!isset($this->assets[$type_code])) {
 			$new_arr = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
-			foreach($new_arr as $type_code) $arr[] = $type_code;
+			foreach ($new_arr as $type_code) $arr[] = $type_code;
 
 		} else {
 			$arr[] = 'asset';

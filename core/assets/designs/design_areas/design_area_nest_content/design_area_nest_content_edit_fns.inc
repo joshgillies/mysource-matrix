@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content_edit_fns.inc,v 1.8 2003/12/17 04:29:05 mmcintyre Exp $
+* $Id: design_area_nest_content_edit_fns.inc,v 1.9 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -55,7 +55,7 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 			$type_codes = $asset->attr('type_codes');
 			$type_code_restrictions = Array();
 			if (is_array($type_codes)) {
-				foreach($type_codes as $type_code) $type_code_restrictions[$type_code] = 'D';
+				foreach ($type_codes as $type_code) $type_code_restrictions[$type_code] = 'D';
 			}
 			asset_finder($prefix.'_assetid', $asset->_getNestAssetInfo('minorid'), $type_code_restrictions);
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.42 2004/12/01 05:40:51 tbarrett Exp $
+* $Id: design_area_edit_fns.inc,v 1.43 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -141,9 +141,9 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 		$is_nested = ($nest_level > 0);
 
-		while($next_tag = $this->_tagToParse($file_contents, $cur_pos)) {
+		while ($next_tag = $this->_tagToParse($file_contents, $cur_pos)) {
 			// append the string before this current pos to the array
-			$parsed[]  =  array('_type' => 'HTML',
+			$parsed[]  =  Array('_type' => 'HTML',
 								'contents' => substr($file_contents, $start_pos, $cur_pos - $start_pos)
 								);
 
@@ -190,7 +190,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 						$die_str .= (empty($tag['operation'])) ? '' : '_'.$tag['operation'];
 
-						foreach($tag['attributes'] as $name => $value) $die_str .= ' '.$name.'="'.$value.'"';
+						foreach ($tag['attributes'] as $name => $value) $die_str .= ' '.$name.'="'.$value.'"';
 
 						$die_str .= "&gt;\n";
 
@@ -214,7 +214,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		// then it must be the root level
 		if (!$is_nested) {
 			// so append the rest of the html code to the array
-			$parsed[] = array(
+			$parsed[] = Array(
 							'_type' => 'HTML',
 							'contents' => substr ($file_contents, $cur_pos),
 							);
@@ -429,7 +429,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function _parserCleanupContents(&$contents)
 	{
-		for($i = 0; $i < count($contents); $i++) {
+		for ($i = 0; $i < count($contents); $i++) {
 			if ($contents[$i]['_type'] == 'HTML' && $this->_isWhitespace($contents[$i]['contents'])) {
 				array_splice($contents, $i, 1);
 				$i--;
@@ -481,7 +481,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		// process the set operations of the element
 		$remove_indexes = Array();
 		$var_references = Array();
-		foreach($contents as $index => $element) {
+		foreach ($contents as $index => $element) {
 
 			if ($element['_type'] != 'TAG' || $element['operation'] != 'set') continue;
 
@@ -531,7 +531,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		// Now remove the elems
 		// reverse the order so we don't throw the numbers out of whack by removing one from the start
 		rsort($remove_indexes, SORT_NUMERIC);
-		foreach($remove_indexes as $i) {
+		foreach ($remove_indexes as $i) {
 			array_splice($contents, $i, 1);
 		}
 
@@ -574,7 +574,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	{
 		$parent_types = $asset->getTypeAncestors(false);
 		array_unshift($parent_types, $asset->type());
-		for($i = 0, $total = count($parent_types); $i < $total; $i++) {
+		for ($i = 0, $total = count($parent_types); $i < $total; $i++) {
 
 			$file = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($parent_types[$i], 'dir').'/default_'.$content_type.'_contents.html';
 			if (file_exists($file)) {
@@ -623,7 +623,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	function _outputContents($contents, &$asset, &$design)
 	{
 		// right, just loop over the contents and output each of the elements
-		foreach($contents as $index => $element) {
+		foreach ($contents as $index => $element) {
 
 			if ($element['_type'] == 'HTML') {
 				echo $element['contents'];
@@ -651,12 +651,12 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function _outputElement($element, &$asset, &$design)
 	{
-		switch($element['operation']) {
+		switch ($element['operation']) {
 			case 'print' :
 				// if there isn't a id_name we are using the current asset
 				if (empty($element['attributes']['id_name']) && empty($element['attributes']['var'])) {
 					$attr_str = '';
-					foreach($element['attributes'] as $k => $v) $attr_str .= $k.'="'.$v.'"';
+					foreach ($element['attributes'] as $k => $v) $attr_str .= $k.'="'.$v.'"';
 					trigger_error('Print tag found without id_name or var attributes, ignoring print operation<br> Attributes : '.$attr_str, E_USER_WARNING);
 					return false;
 				}
@@ -715,26 +715,26 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		$text = '';
 		$vars = $this->getSetableVars($asset);
 		require_once SQ_FUDGE_PATH.'/general/general.inc';
-		foreach($vars as $name => $data) {
+		foreach ($vars as $name => $data) {
 			$text .= '<'.$this->tag_name.'_SET name="'.$name.'"';
 
 			// if this is this a var reference ?
 			if (!empty($asset->vars['var_references']['value'][$name])) {
 				$text .= ' id_name="'.htmlentities($asset->vars['var_references']['value'][$name]['id_name']).'" var="'.htmlentities($asset->vars['var_references']['value'][$name]['var']).'"';
 			} else {
-				$text .= ' value="'.htmlentities_array($data['value']).'"';
+				$text .= ' value="'.htmlentities_Array($data['value']).'"';
 			}
 			$text .= " />\n";
 		}
 
-		foreach($asset->vars['contents']['value'] as $data) {
-			switch($data['_type']) {
+		foreach ($asset->vars['contents']['value'] as $data) {
+			switch ($data['_type']) {
 				case 'HTML' : 
 					$text .= $data['contents'];
 					break;
 				case 'TAG' : 
 					$text .= '<'.$this->tag_name.'_'.strtoupper($data['operation']);
-					foreach($data['attributes'] as $k => $v) $text .= ' '.$k.'="'.htmlentities($v).'"';
+					foreach ($data['attributes'] as $k => $v) $text .= ' '.$k.'="'.htmlentities($v).'"';
 					$text .= ' />';
 					break;
 			}// end switch

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_show_if.inc,v 1.3 2004/12/01 11:50:31 brobertson Exp $
+* $Id: design_area_show_if.inc,v 1.4 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Avi Miller <Avi Miller@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.4 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,7 +62,7 @@ class Design_Area_Show_If extends Design_Area
 		$then_contents = '';
 		$else_contents = '';
 
-		foreach($then as $index => $element) {
+		foreach ($then as $index => $element) {
 			$edit_fns = $this->getEditFns();
 			if ($element['_type'] != 'TAG') {
 				$then_contents .= $element['contents'];
@@ -75,7 +75,7 @@ class Design_Area_Show_If extends Design_Area
 			ob_end_clean();
 		}
 
-		foreach($else as $index => $element) {
+		foreach ($else as $index => $element) {
 			$edit_fns = $this->getEditFns();
 			if ($element['_type'] != 'TAG') {
 				$else_contents .= $element['contents'];

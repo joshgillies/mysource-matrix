@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.13 2004/11/30 01:17:13 arailean Exp $
+* $Id: text.inc,v 1.14 2004/12/03 15:43:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package Fudge
 * @subpackage Text
 */
@@ -57,8 +57,8 @@ function replace_keywords($text, &$replacements)
 		return $r;
 	}
 	if (!empty($replacements)) {
-		foreach($replacements as $keyword => $replacement) {
-			if($keyword == '') continue;
+		foreach ($replacements as $keyword => $replacement) {
+			if ($keyword == '') continue;
 			$text = str_replace("%$keyword%", $replacement, $text);
 		}
 	}

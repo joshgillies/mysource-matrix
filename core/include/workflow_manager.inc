@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.58 2004/11/25 01:12:32 gsherwood Exp $
+* $Id: workflow_manager.inc,v 1.59 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -286,7 +286,7 @@ class Workflow_Manager extends MySource_Object
 				return Array();
 			}
 
-			for(reset($workflows); null !== ($k = key($workflows)); next($workflows)) {
+			for (reset($workflows); null !== ($k = key($workflows)); next($workflows)) {
 				$workflows[$k] = (is_null($workflows[$k])) ? '' : unserialize($workflows[$k]);
 			}
 
@@ -562,7 +562,7 @@ class Workflow_Manager extends MySource_Object
 				if (!isset($cond_data['complete'])) $cond_data['complete'] = false;
 				if (!isset($cond_data['published_by'])) $cond_data['published_by'] = Array();
 
-				if(empty($cond_data['published_by'])) {
+				if (empty($cond_data['published_by'])) {
 					// nobody has approved this, so it cant be finished
 					if ($step_data['logic'] == 'all') {
 						$continue = false;

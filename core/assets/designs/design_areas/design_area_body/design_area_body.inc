@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_body.inc,v 1.14 2004/11/30 22:20:16 lwright Exp $
+* $Id: design_area_body.inc,v 1.15 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -70,7 +70,7 @@ class Design_Area_Body extends Design_Area
 			}
 		';
 
-		switch($format) {
+		switch ($format) {
 			case 'text':
 				// text - text only design - strip images, embeds and objects
 				echo '

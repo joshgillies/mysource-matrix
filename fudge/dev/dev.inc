@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: dev.inc,v 1.13 2004/09/01 01:30:54 arailean Exp $
+* $Id: dev.inc,v 1.14 2004/12/03 15:43:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -107,7 +107,7 @@ function inject_beef()
 	list($msec, $sec) = explode(" ",microtime());
 	$BAM = ((double) $sec) + ((double) $msec); // Record time (note we ignore time spent IN this function)
 	global $SPEED_CHECK_LAST_HIT, $SPEED_CHECK_TOTAL;
-	if($SPEED_CHECK_LAST_HIT) {
+	if ($SPEED_CHECK_LAST_HIT) {
 		$elapsed = $BAM - $SPEED_CHECK_LAST_HIT;
 		$SPEED_CHECK_TOTAL += $elapsed;
 		$check = sprintf("%.5f / %.5f",$elapsed,$SPEED_CHECK_TOTAL);
@@ -199,7 +199,7 @@ function speed_check($str="")
 	$BAM = ((double) $sec) + ((double) $msec); // Record time (note we ignore time spent IN this function)
 
 	global $SPEED_CHECK_LAST_HIT, $SPEED_CHECK_TOTAL;
-	if($SPEED_CHECK_LAST_HIT) {
+	if ($SPEED_CHECK_LAST_HIT) {
 		$elapsed = $BAM - $SPEED_CHECK_LAST_HIT;
 		$SPEED_CHECK_TOTAL += $elapsed;
 		echo("<table cellpadding=0 cellspacing=0 border=0 bgcolor=\"#ffff88\"><tr><td><p style=\"color:red;font-weight:bold;font-family:sans-serif;font-size:13px;\">".sprintf("%.5f&nbsp;/&nbsp;%.5f",$elapsed,$SPEED_CHECK_TOTAL)."&nbsp;&nbsp;$str</p></td></tr></table>");
@@ -232,17 +232,17 @@ function mem_check($print=null, $return_value=false, $start_over=false)
 	$mem = '';
 	if (is_null($print) || in_array('current', $print)) $mem = $hit.' KB';
 
-	if($MEM_CHECK_LAST_HIT) {
+	if ($MEM_CHECK_LAST_HIT) {
 		if (is_null($print) || in_array('change', $print)) {
-			if($hit > $MEM_CHECK_LAST_HIT) $mem .= " (+ ".($hit - $MEM_CHECK_LAST_HIT)." KB)";
-			if($hit < $MEM_CHECK_LAST_HIT) $mem .= " (- ".($MEM_CHECK_LAST_HIT - $hit)." KB)";
+			if ($hit > $MEM_CHECK_LAST_HIT) $mem .= " (+ ".($hit - $MEM_CHECK_LAST_HIT)." KB)";
+			if ($hit < $MEM_CHECK_LAST_HIT) $mem .= " (- ".($MEM_CHECK_LAST_HIT - $hit)." KB)";
 		}
 	}
 
-	if($MEM_CHECK_FIRST_HIT) {
+	if ($MEM_CHECK_FIRST_HIT) {
 		if (is_null($print) || in_array('total', $print)) {
-			if($hit > $MEM_CHECK_FIRST_HIT) $mem .= " [+ ".($hit - $MEM_CHECK_FIRST_HIT)." KB TOTAL]";
-			if($hit < $MEM_CHECK_FIRST_HIT) $mem .= " [- ".($MEM_CHECK_FIRST_HIT - $hit)." KB TOTAL]";
+			if ($hit > $MEM_CHECK_FIRST_HIT) $mem .= " [+ ".($hit - $MEM_CHECK_FIRST_HIT)." KB TOTAL]";
+			if ($hit < $MEM_CHECK_FIRST_HIT) $mem .= " [- ".($MEM_CHECK_FIRST_HIT - $hit)." KB TOTAL]";
 		}
 	} else {
 		$MEM_CHECK_FIRST_HIT = $hit;
@@ -274,7 +274,7 @@ function print_function_list()
 	echo "<b>User-defined</b><br>";
 	$f = get_defined_functions();
 	print_r ($f["user"]);
-	foreach(get_declared_classes() as $class) {
+	foreach (get_declared_classes() as $class) {
 		echo "<b>Class Methods: $class</b><br>";
 		print_r(get_class_methods($class));
 	}
@@ -295,12 +295,12 @@ function print_function_list()
 */
 function pts_spew($i,$s)
 {
-	if($i != (int) $i || !file_exists("/dev/pts/$i")) {
+	if ($i != (int) $i || !file_exists("/dev/pts/$i")) {
 		trigger_error("Can't spew to pts, \"$i\" is not a valid pts number.", E_USER_WARNING);
 		return;
 	}
 	require_once(dirname(__FILE__).'/../general/file_system.inc');
-	if(!string_to_file("$s\n","/dev/pts/$i")) {
+	if (!string_to_file("$s\n","/dev/pts/$i")) {
 		trigger_error("Try ensuring that /dev/pts/[your_pts_number] is writable by the web server.<br>$ w  # To find your pts<br>$ chmod a+w /dev/pts/[your_pts_number]<br>", E_USER_WARNING);
 	}
 

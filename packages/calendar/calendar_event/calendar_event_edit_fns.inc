@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.21 2004/09/13 00:24:07 tbarrett Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.22 2004/12/03 15:36:53 brobertson Exp $
 * $prefix:  $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.21 $ - 1.0
+* @version $Revision: 1.22 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -265,7 +265,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 		<select class="sq-form-field" name="<?php echo $prefix; ?>_month" id="<?php echo $prefix; ?>_month" <?php echo $attrs_code; ?>>
 		<?php
 		$currentMonth = date('n', $timestamp);
-		foreach(range(1, 12) as $monthNumber) {
+		foreach (range(1, 12) as $monthNumber) {
 			echo '		<option '.(($monthNumber == $currentMonth) ? ' selected="selected" ' : '').'value="'.$monthNumber.'">'.DateTime_Field::shortMonth($monthNumber)."</option>\n";
 		}
 		?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_asset.inc,v 1.8 2004/11/18 04:49:33 gsherwood Exp $
+* $Id: hipo_job_clone_asset.inc,v 1.9 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -158,7 +158,7 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 		// metadata regeneration threshhold HIPO config entry
 		$o->openField('Clone Asset Threshold');
 
-		if($write_access) {
+		if ($write_access) {
 			text_box($class.'[SQ_DUPE_ASSET_THRESHOLD]',SQ_DUPE_ASSET_THRESHOLD, 2);
 		} else {
 			echo SQ_DUPE_ASSET_THRESHOLD;

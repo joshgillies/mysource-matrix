@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.10 2004/11/18 05:00:42 gsherwood Exp $
+* $Id: cron_job_future_lineage.inc,v 1.11 2004/12/03 15:29:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -125,7 +125,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		// we need to make sure that we can cope with the possibility of
 		// changing the lineage of a type that is used by the parent class
 		// EG, 'user' for the running user
-		for(reset($links[SQ_LINK_NOTICE]); (NULL !== ($type = key($links[SQ_LINK_NOTICE]))); next($links[SQ_LINK_NOTICE])) {
+		for (reset($links[SQ_LINK_NOTICE]); (NULL !== ($type = key($links[SQ_LINK_NOTICE]))); next($links[SQ_LINK_NOTICE])) {
 			if ($links[SQ_LINK_NOTICE][$type]['card'] != 'M') {
 				$links[SQ_LINK_NOTICE][$type]['card'] = (int) $links[SQ_LINK_NOTICE][$type]['card'] + 1;
 			}
@@ -387,7 +387,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		$all_jobs = &$cron_mgr->getJobs(__CLASS__, false);
 
 		$dates = Array();
-		for($i = 0, $total = count($all_jobs); $i < $total; $i++) {
+		for ($i = 0, $total = count($all_jobs); $i < $total; $i++) {
 
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($all_jobs[$i]->id, SQ_LINK_NOTICE, 'asset', false, 'minor_asset');
 			if (!empty($link) && $link['minorid'] == $asset->id) {
@@ -399,7 +399,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		asort($dates, SORT_STRING);
 		$assets_jobs = Array();
 
-		foreach($dates as $i => $date) {
+		foreach ($dates as $i => $date) {
 			$assets_jobs[] = &$all_jobs[$i];
 		}// end for
 

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.22 2004/11/26 04:24:44 arailean Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.23 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -131,9 +131,9 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		$init_layer_height = 500;
 
 		// all available content types
-		$content_types = array();
+		$content_types = Array();
 		$types = $am->getAssetTypeHierarchy('content_type');
-		foreach ($types as $type => $type_data) $content_types[$type] = array('name' => $type_data['name']);
+		foreach ($types as $type => $type_data) $content_types[$type] = Array('name' => $type_data['name']);
 
 		?>
 		<input type="hidden" name="bodycopy_action" value="">
@@ -278,8 +278,8 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 			function bodycopy_data_exists(args) {
 				var str = 'bodycopy_saved';
-				for(var i = 0; i < args.length; i++) {
-					switch(typeof(args[i])) {
+				for (var i = 0; i < args.length; i++) {
+					switch (typeof(args[i])) {
 						case "number" :
 							str += '[' + args[i] + ']';
 						break;
@@ -527,7 +527,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		if ($bc_name == $prefix || isset($bc_saved[$prefix])) {
 			// perform some bodycopy level actions
 			if ($bc_name == $prefix) {
-				switch($bc_action) {
+				switch ($bc_action) {
 					case 'insert_container' :
 						if ($this->insertContainer($asset, $bc_data['container_type'], $bc_data['containerid'], $bc_data)) $updated = true;
 					break;

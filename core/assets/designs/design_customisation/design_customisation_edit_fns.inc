@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation_edit_fns.inc,v 1.28 2004/11/18 05:05:08 gsherwood Exp $
+* $Id: design_customisation_edit_fns.inc,v 1.29 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -95,7 +95,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		
-		foreach($_POST[$prefix.'_remove_customisation'] as $id_name) {
+		foreach ($_POST[$prefix.'_remove_customisation'] as $id_name) {
 			$parents_link = $parent_design->getDesignAreaLink($id_name, 'design');
 			if (empty($parents_link)) continue;
 
@@ -161,7 +161,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$map  = Array();
-		foreach($_POST[$prefix.'_customise'] as $id_name) {
+		foreach ($_POST[$prefix.'_customise'] as $id_name) {
 			$link = $asset->getDesignAreaLink($id_name);
 			if (is_null($link)) continue;
 			$da = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code'], false);
@@ -241,7 +241,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 	function _updateDesignAreaLink(&$asset, $data)
 	{
 		$da_links = $asset->getDesignAreaLink();
-		foreach($da_links as $da_link) {
+		foreach ($da_links as $da_link) {
 			$id_name = $da_link['value'];
 			// skip this design area if it is not in the list of design areas to update
 			if (empty($data[$id_name])) continue;
@@ -268,7 +268,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		}// end foreach
 
 		$customisation_links = &$GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
-		foreach($customisation_links as $customisation_link) {
+		foreach ($customisation_links as $customisation_link) {
 			$customisation = &$GLOBALS['SQ_SYSTEM']->am->getAsset($customisation_link['minorid'], $customisation_link['minor_type_code']);
 			if (is_null($customisation)) continue;
 			if (!$this->_updateDesignAreaLink($customisation, $data)) return false;
@@ -305,7 +305,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		<?php
 		uasort($links, Array(get_class($this), 'linkCompare'));
 		$current_type = '';
-		foreach($links as $link) {
+		foreach ($links as $link) {
 			$da = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 
 			if ($da->attr('id_name') == '') {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: esec_processor.inc,v 1.4 2004/10/22 06:51:11 dofford Exp $
+* $Id: esec_processor.inc,v 1.5 2004/12/03 15:37:42 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -40,7 +40,7 @@
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -52,7 +52,7 @@ class Esec_Processor
 	var $response;
 
 	// returned response details
-	var $eps_v3plus_responses = array(
+	var $eps_v3plus_responses = Array(
 		'ref-id',			//= referenceID
 		'auth-id',			//= authorisationID
 		'message',			//= message
@@ -62,7 +62,7 @@ class Esec_Processor
 		'settlement-date'	//= bank settlement date
 	);
 
-	var $card_types = array (
+	var $card_types = Array(
 		"visa"      => "visa",
 		"mastercard"=> "mastercard",
 		"bankcard"  => "bankcard",
@@ -71,7 +71,7 @@ class Esec_Processor
 		"jcb"       => "jcb"
 	);
 
-	var $test_card_numbers = array (
+	var $test_card_numbers = Array (
 		"testsuccess" => "Test Success",
 		"testfailure" => "Test Failure",
 		"testtimeout" => "Test Timeout"
@@ -188,9 +188,9 @@ class Esec_Processor
 	* @access private
 	* @return void
 	*/
-	function set_array($name, $value) {
-		if (!is_array($this->parameters[$name])) {
-			$this->parameters[$name] = array();
+	function set_Array($name, $value) {
+		if (!is_Array($this->parameters[$name])) {
+			$this->parameters[$name] = Array();
 		}
 		$this->parameters[$name][] = $value;
 	}//end set()
@@ -465,11 +465,11 @@ class Esec_Processor
 	*/
 	function setRedirectURL($value, $email=false)
 	{
-		if ($email && is_array($this->get('EPS_RESULTURL'))) {
+		if ($email && is_Array($this->get('EPS_RESULTURL'))) {
 			// mailto is only valid if we already have an email address
 			$value = 'mailto:'.$value;
 		}
-		$this->set_array('EPS_RESULTURL', $value);
+		$this->set_Array('EPS_RESULTURL', $value);
 
 	}//end setCardName()
 

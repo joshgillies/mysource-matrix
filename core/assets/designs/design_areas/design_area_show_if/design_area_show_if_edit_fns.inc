@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_show_if_edit_fns.inc,v 1.2 2004/11/10 10:55:02 amiller Exp $
+* $Id: design_area_show_if_edit_fns.inc,v 1.3 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.2 $ - 1.0
+* @version $Revision: 1.3 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,7 +82,7 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 		}
 		
 		// see if our asset element has any then/else elements in it
-		foreach($contents as $index => $element) {
+		foreach ($contents as $index => $element) {
 			if ($element['_type'] != 'TAG') continue;
 
 			switch ($element['operation']) {
@@ -146,7 +146,7 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function _outputElement($element, &$asset, &$design)
 	{
-		switch($element['operation']) {
+		switch ($element['operation']) {
 			case 'then' :
 				if ($then_contents = $asset->attr('then_contents')) {
 					$asset->_tmp['outputting_then_section'] = true;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.162 2004/11/18 04:51:27 gsherwood Exp $
+* $Id: asset_map.inc,v 1.163 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.162 $
+* @version $Revision: 1.163 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -594,10 +594,10 @@ class Asset_Map
 		$output = new XML_Tree();
 		$root = &$output->addRoot('options', '');
 
-		for($i = 0; $i < count($input->root->children); $i++) {
+		for ($i = 0; $i < count($input->root->children); $i++) {
 			$name = $input->root->children[$i]->attributes['name'];
 			$top_level = &$root->addChild('item', '', Array('text' => $name, 'value'  => ''));
-			switch($name) {
+			switch ($name) {
 				case 'add' :
 					$user_type = get_class($GLOBALS['SQ_SYSTEM']->user);
 					$hier = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeHierarchy('', $user_type);
@@ -666,7 +666,7 @@ class Asset_Map
 		$link  = '';
 		$frame = '';
 
-		switch($input->root->attributes['cmd']) {
+		switch ($input->root->attributes['cmd']) {
 			case 'add' :
 
 				$attr = $input->root->attributes;
@@ -730,7 +730,7 @@ class Asset_Map
 			default :
 				$this->_error('URL Name "'.$input->root->attributes['name'].'" not defined');
 				return;
-		}// end switch()
+		}// end switch ()
 
 		if (empty($link) || empty($frame)) {
 			$this->_error('Empty XML Attributes for getting URL from server');
@@ -1001,7 +1001,7 @@ class Asset_Map
 		$output = new XML_Tree();
 		$root = &$output->addRoot('mail');
 
-		for($i = 0, $total = count($messages); $i < $total; $i++) {
+		for ($i = 0, $total = count($messages); $i < $total; $i++) {
 			$attrs = $messages[$i];
 			unset($attrs['subject']);
 			unset($attrs['body']);

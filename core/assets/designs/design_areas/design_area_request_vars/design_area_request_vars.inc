@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_request_vars.inc,v 1.1 2004/11/15 22:54:24 lwright Exp $
+* $Id: design_area_request_vars.inc,v 1.2 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,11 +49,11 @@ class Design_Area_Request_Vars extends Design_Area
 	*/
 	/*function attr($name) 
 	{
-		if(in_array($name, Array('method','id_name'))) {
+		if (in_array($name, Array('method','id_name'))) {
 			return $this->vars[$name]['value'];
 		}
 	
-		switch($this->vars['method']['value']) {
+		switch ($this->vars['method']['value']) {
 			case 'get':
 				$target_vars =& $_GET;
 			break;
@@ -98,7 +98,7 @@ class Design_Area_Request_Vars extends Design_Area
 	*/
 	function printVar($var, $args)
 	{
-		switch($this->vars['method']['value']) {
+		switch ($this->vars['method']['value']) {
 			case 'get':
 				$target_vars = '$_GET';
 			break;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.29 2004/11/23 05:43:05 lwright Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.30 2004/12/03 15:37:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -141,7 +141,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	{
 		$options = split("\r\n", $this->attr('options'));
 		// remove empty options
-		foreach(array_keys($options) as $k) {
+		foreach (array_keys($options) as $k) {
 			if ($options[$k] == "") {
 				unset($options[$k]);
 			}

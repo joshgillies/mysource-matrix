@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.90 2004/11/23 22:05:53 tbarrett Exp $
+* $Id: backend_outputter.inc,v 1.91 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',       4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -323,7 +323,7 @@ class Backend_Outputter
 	{
 		$msg = trim($msg);
 		// if the type is valid and there is a message
-		if(strlen($msg)) {
+		if (strlen($msg)) {
 			$this->_messages[] = Array('type' => $type, 'msg' => $msg);
 		}
 
@@ -897,7 +897,7 @@ class Backend_Outputter
 	{
 		if ($this->_raw_opened) $this->closeRaw();
 		// close all sections
-		while(!empty($this->_section_stack)) $this->closeSection();
+		while (!empty($this->_section_stack)) $this->closeSection();
 
 		if ($this->_redirect) {
 			// save the messages so they come through on the next page
@@ -908,7 +908,7 @@ class Backend_Outputter
 		$this->_paintHeader();
 
 		if (!$this->_redirect) {
-			for($i = 0; $i < count($this->_contents); $i++) {
+			for ($i = 0; $i < count($this->_contents); $i++) {
 				$this->_paintSection($this->_contents[$i]);
 			}
 		}// end if
@@ -945,7 +945,7 @@ class Backend_Outputter
 	function _paintHeader()
 	{
 		if (!headers_sent()) {
-			if($this->_charset) {
+			if ($this->_charset) {
 				header("Content-type: text/html; charset=$this->_charset");
 			} else {
 				$default_charset = 'iso-8859-1';
@@ -959,13 +959,13 @@ class Backend_Outputter
 			<?php
 
 			$this->_paintCssInclude($this->filesPath('css/edit.css'));
-			foreach($this->_css_includes as $file) $this->_paintCssInclude($file);
+			foreach ($this->_css_includes as $file) $this->_paintCssInclude($file);
 
 			$this->_paintJsInclude(sq_web_path('lib').'/html_form/html_form.js');
 			$this->_paintJsInclude(sq_web_path('lib').'/js/general.js');
 			$this->_paintJsInclude(sq_web_path('lib').'/js/debug.js');
 			$this->_paintJsInclude(sq_web_path('lib').'/js/edit.js');
-			foreach($this->_js_includes as $file) $this->_paintJsInclude($file);
+			foreach ($this->_js_includes as $file) $this->_paintJsInclude($file);
 		?>
 			<script language="Javascript" type="text/javascript">
 			<!--
@@ -983,7 +983,7 @@ class Backend_Outputter
 						require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 						$msgs = new XML_Tree();
 						$msgs_root = &$msgs->addRoot('messages');
-						foreach($this->_messages as $data) {
+						foreach ($this->_messages as $data) {
 							$msg_body = "<p>".htmlentities(nl2br($data['msg'])). "</p>";
 							$msg_body .= "<font color=\"#333333\">".$GLOBALS['SQ_SYSTEM']->datetime()."<font>";
 							$msgs_root->addChild('message', $msg_body, Array('type' => get_bit_names('SQ_BO_MSG_', $data['type'])));
@@ -995,7 +995,7 @@ class Backend_Outputter
 						<?php
 					}//end if messages
 
-					foreach($this->_on_load_calls as $call) {
+					foreach ($this->_on_load_calls as $call) {
 						echo "\n".$call;
 					}
 
@@ -1022,7 +1022,7 @@ class Backend_Outputter
 					}
 
 			<?php
-				foreach($this->_on_submit_calls as $call) {
+				foreach ($this->_on_submit_calls as $call) {
 					echo $call.";\n";
 				}
 			?>
@@ -1034,7 +1034,7 @@ class Backend_Outputter
 				}//end form_on_submit()
 
 			<?php
-				foreach($this->_preload_imgs as $file) {
+				foreach ($this->_preload_imgs as $file) {
 					?>
 					preload_image('<?php echo $file;?>');
 					<?php
@@ -1049,7 +1049,7 @@ class Backend_Outputter
 		<form action="<?php echo $this->_action.$this->_anchor;?>" id="main_form" name="main_form" method="post" enctype="multipart/form-data" onSubmit="javascript: return form_on_submit();">
 	<?php
 		hidden_field('process_form', '1');
-		foreach($this->_hidden_fields as $name => $value) hidden_field($name, $value);
+		foreach ($this->_hidden_fields as $name => $value) hidden_field($name, $value);
 
 		if ($this->_heading || count($this->_screens) || count($this->_static_screens)) {
 			?>
@@ -1190,8 +1190,8 @@ class Backend_Outputter
 					<table cellspacing="0" cellpadding="0" border="0" width="100%">
 			<?php
 
-			for($j = 0; $j < count($section['areas']); $j++) {
-				switch($section['areas'][$j]['area_type']) {
+			for ($j = 0; $j < count($section['areas']); $j++) {
+				switch ($section['areas'][$j]['area_type']) {
 					case 'section' :
 						?>
 							<tr>

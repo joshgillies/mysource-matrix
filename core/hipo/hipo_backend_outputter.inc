@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_backend_outputter.inc,v 1.6 2004/06/25 04:05:41 gsherwood Exp $
+* $Id: hipo_backend_outputter.inc,v 1.7 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -83,7 +83,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 	function _paintHeader()
 	{
 		if (!headers_sent()) {
-			if($this->_charset) {
+			if ($this->_charset) {
 				header("Content-type: text/html; charset=$this->_charset");
 			} else {
 				$default_charset = 'iso-8859-1';
@@ -98,20 +98,20 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 
 				$this->_paintCssInclude($this->filesPath('css/edit.css'));
 				$this->_paintCssInclude($this->filesPath('css/hipo.css'));
-				foreach($this->_css_includes as $file) $this->_paintCssInclude($file);
+				foreach ($this->_css_includes as $file) $this->_paintCssInclude($file);
 
 				$this->_paintJsInclude(sq_web_path('lib').'/html_form/html_form.js');
 				$this->_paintJsInclude(sq_web_path('lib').'/js/general.js');
 				$this->_paintJsInclude(sq_web_path('lib').'/js/debug.js');
 				$this->_paintJsInclude(sq_web_path('lib').'/js/edit.js');
-				foreach($this->_js_includes as $file) $this->_paintJsInclude($file);
+				foreach ($this->_js_includes as $file) $this->_paintJsInclude($file);
 				?>
 				<script language="Javascript" type="text/javascript">
 				<!--
 					var ON_LOAD_TIME_OUT = null;
 					function page_on_load() {
 						<?php
-						foreach($this->_on_load_calls as $call) {
+						foreach ($this->_on_load_calls as $call) {
 							echo "\n".$call;
 						}
 						?>
@@ -129,7 +129,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 						<td align="center">
 						<form name="<?php echo $this->_form_data['form_name']; ?>" method="post" action="<?php echo $this->_form_data['url']; ?>">
 					<?php
-					foreach($this->_hidden_fields as $name => $value) hidden_field($name, $value);
+					foreach ($this->_hidden_fields as $name => $value) hidden_field($name, $value);
 
 	}//end _paintHeader()
 
@@ -213,8 +213,8 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 					<table cellspacing="0" cellpadding="0" border="0" width="100%">
 			<?php
 
-			for($j = 0; $j < count($section['areas']); $j++) {
-				switch($section['areas'][$j]['area_type']) {
+			for ($j = 0; $j < count($section['areas']); $j++) {
+				switch ($section['areas'][$j]['area_type']) {
 					case 'section' :
 						?>
 							<tr>

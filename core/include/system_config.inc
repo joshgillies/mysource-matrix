@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.39 2004/09/03 15:56:48 brobertson Exp $
+* $Id: system_config.inc,v 1.40 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -157,7 +157,7 @@ class System_Config extends Config
 			if (isset($vars['SQ_CONF_SYSTEM_ROOT_URLS'])) {
 				$vars['SQ_CONF_SYSTEM_ROOT_URLS'] = str_replace("\r", '', $vars['SQ_CONF_SYSTEM_ROOT_URLS']);
 			}
-			foreach(Array('SQ_CONF_MAX_IDLE_TIME', 'SQ_CONF_REFRESH_INTERVAL', 'SQ_CONF_LOCK_LENGTH') as $var_name) {
+			foreach (Array('SQ_CONF_MAX_IDLE_TIME', 'SQ_CONF_REFRESH_INTERVAL', 'SQ_CONF_LOCK_LENGTH') as $var_name) {
 				if (isset($vars[$var_name])) {
 					$vars[$var_name] = max(60, (int) $vars[$var_name]);
 				}
@@ -181,7 +181,7 @@ class System_Config extends Config
 	*/
 	function _paintConfigVar($var_name, $value)
 	{
-		switch($var_name) {
+		switch ($var_name) {
 			case 'SQ_CONF_PEAR_PATH' :
 				if (!parent::_paintConfigVar($var_name, $value)) return false;
 				if ($value) {
@@ -231,7 +231,7 @@ class System_Config extends Config
 			case 'SQ_CONF_SYSTEM_ROOT_URLS' :
 				$lines = explode("\n", $value);
 				$value = '';
-				foreach($lines as $line) if (trim($line) != '') $value .= trim($line)."\n";
+				foreach ($lines as $line) if (trim($line) != '') $value .= trim($line)."\n";
 				return parent::_paintConfigVar($var_name, trim($value));
 			break;
 
@@ -299,35 +299,35 @@ class System_Config extends Config
 		$o->openSection('System Settings');
 
 			$o->openField('System Name');
-			if($write_access) {
+			if ($write_access) {
 				text_box($class.'[SQ_CONF_SYSTEM_NAME]', SQ_CONF_SYSTEM_NAME, 30);
 			} else {
 				echo SQ_CONF_SYSTEM_NAME;
 			}
 
 			$o->openField('System Owner');
-			if($write_access) {
+			if ($write_access) {
 				text_box($class.'[SQ_CONF_SYSTEM_OWNER]', SQ_CONF_SYSTEM_OWNER, 30);
 			} else {
 				echo SQ_CONF_SYSTEM_OWNER;
 			}
 
 			$o->openField('System Root URLs');
-			if($write_access) {
+			if ($write_access) {
 				text_area($class.'[SQ_CONF_SYSTEM_ROOT_URLS]', SQ_CONF_SYSTEM_ROOT_URLS, 80, 4);
 			} else {
 				echo nl2br(SQ_CONF_SYSTEM_ROOT_URLS);
 			}
 
 			$o->openField('System Backend Suffix');
-			if($write_access) {
+			if ($write_access) {
 				text_box($class.'[SQ_CONF_BACKEND_SUFFIX]', SQ_CONF_BACKEND_SUFFIX, 15);
 			} else {
 				echo nl2br(SQ_CONF_BACKEND_SUFFIX);
 			}
 
 			$o->openField('System Simple Edit Suffix');
-			if($write_access) {
+			if ($write_access) {
 				text_box($class.'[SQ_CONF_LIMBO_SUFFIX]', SQ_CONF_LIMBO_SUFFIX, 15);
 			} else {
 				echo nl2br(SQ_CONF_LIMBO_SUFFIX);
@@ -345,14 +345,14 @@ class System_Config extends Config
 		$o->openSection('Email Settings');
 
 			$o->openField('Default Email');
-			if($write_access) {
+			if ($write_access) {
 				text_box($class.'[SQ_CONF_DEFAULT_EMAIL]', SQ_CONF_DEFAULT_EMAIL, 50);
 			} else {
 				echo SQ_CONF_DEFAULT_EMAIL;
 			}
 
 			$o->openField('Tech Email');
-			if($write_access) {
+			if ($write_access) {
 				text_box($class.'[SQ_CONF_TECH_EMAIL]', SQ_CONF_TECH_EMAIL, 50);
 			} else {
 				echo SQ_CONF_TECH_EMAIL;
@@ -363,7 +363,7 @@ class System_Config extends Config
 		$o->openSection('Login/Session Settings');
 
 			$o->openField('Max Login Attempts', '', 'Zero (0) is unlimited attempts');
-			if($write_access && $is_root) {
+			if ($write_access && $is_root) {
 				text_box($class.'[SQ_CONF_MAX_LOGIN_ATTEMPTS]', SQ_CONF_MAX_LOGIN_ATTEMPTS, 5, 5);
 			} else {
 				echo SQ_CONF_MAX_LOGIN_ATTEMPTS;
@@ -371,14 +371,14 @@ class System_Config extends Config
 
 			$o->openField('Max Idle Time', '', 'In seconds - Min: 60 or zero (0) for unlimited idle time');
 
-			if($write_access && $is_root) {
+			if ($write_access && $is_root) {
 				text_box($class.'[SQ_CONF_MAX_IDLE_TIME]', SQ_CONF_MAX_IDLE_TIME, 10, 10);
 			} else {
 				echo SQ_CONF_MAX_IDLE_TIME;
 			}
 
 			$o->openField('Allow IP Change', '', 'Allow the IP of a user to fluctuate?');
-			if($write_access && $is_root) {
+			if ($write_access && $is_root) {
 				combo_box($class.'[SQ_CONF_ALLOW_IP_CHANGE]', Array('1' => 'Yes', '0' => 'No'), false, SQ_CONF_ALLOW_IP_CHANGE);
 			} else {
 				echo (SQ_CONF_ALLOW_IP_CHANGE) ? 'Yes' : 'No';
@@ -390,14 +390,14 @@ class System_Config extends Config
 		$o->openSection('Intervals');
 
 			$o->openField('Refresh Interval', '', 'How long (in seconds) between refreshes of the top (header) frame - this frame keeps the lock on long edits and checks for new mail - Min: 60');
-			if($write_access) {
+			if ($write_access) {
 				text_box($class.'[SQ_CONF_REFRESH_INTERVAL]', SQ_CONF_REFRESH_INTERVAL, 5, 5);
 			} else {
 				echo SQ_CONF_REFRESH_INTERVAL;
 			}
 
 			$o->openField('Lock Length', '', 'The length of time after which a lock is considered to have expired. In seconds - Min: 60');
-			if($write_access) {
+			if ($write_access) {
 				text_box($class.'[SQ_CONF_LOCK_LENGTH]', SQ_CONF_LOCK_LENGTH, 5, 5);
 			} else {
 				echo SQ_CONF_LOCK_LENGTH;
@@ -409,21 +409,21 @@ class System_Config extends Config
 		$o->openSection('Error/Debug Settings');
 
 			$o->openField('Log Errors');
-			if($write_access && $is_root) {
+			if ($write_access && $is_root) {
 				combo_box($class.'[SQ_CONF_LOG_ERRORS]', Array('1' => 'Yes', '0' => 'No'), false, SQ_CONF_LOG_ERRORS);
 			} else {
 				echo (SQ_CONF_LOG_ERRORS) ? 'Yes' : 'No';
 			}
 
 			$o->openField('Hide Errors on the Frontend');
-			if($write_access && $is_root) {
+			if ($write_access && $is_root) {
 				combo_box($class.'[SQ_CONF_ERRORS_HIDE_FRONTEND]', Array('1' => 'Yes', '0' => 'No'), false, SQ_CONF_ERRORS_HIDE_FRONTEND);
 			} else {
 				echo (SQ_CONF_ERRORS_HIDE_FRONTEND) ? 'Yes' : 'No';
 			}
 
 			$o->openField('Debug Settings');
-			if($write_access && $is_root) {
+			if ($write_access && $is_root) {
 				?>
 				<script language="JavaScript" type="text/javascript">
 				<!--
@@ -446,12 +446,12 @@ class System_Config extends Config
 				</script>
 				<?php
 				hidden_field($class.'[SQ_CONF_DEBUG]', SQ_CONF_DEBUG);
-				foreach($this->debug_options as $bit => $desc) {
+				foreach ($this->debug_options as $bit => $desc) {
 					check_box($class.'_SQ_CONF_DEBUG_'.$bit, $bit, (bool)(SQ_CONF_DEBUG & $bit), 'set_conf_debug(this.checked, '.$bit.');');
 					echo $desc, "<br />\n";
 				}
 			} else {
-				foreach($this->debug_options as $bit => $desc) {
+				foreach ($this->debug_options as $bit => $desc) {
 					?>
 					<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo (SQ_CONF_DEBUG & $bit) ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
 					<?php 
@@ -466,7 +466,7 @@ class System_Config extends Config
 
 			$o->openField('Default Frontend Language');
 			require SQ_FUDGE_PATH.'/standards_lists/languages.inc';
-			if($write_access) {
+			if ($write_access) {
 				combo_box($class.'[SQ_CONF_DEFAULT_FRONTEND_LANGUAGE]', $standards_lists_languages, false, SQ_CONF_DEFAULT_FRONTEND_LANGUAGE);
 			} else {
 				echo $standards_lists_languages[SQ_CONF_DEFAULT_FRONTEND_LANGUAGE];
@@ -474,7 +474,7 @@ class System_Config extends Config
 
 			$o->openField('Default Character Set');
 			require SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
-			if($write_access) {
+			if ($write_access) {
 				combo_box($class.'[SQ_CONF_DEFAULT_CHARACTER_SET]', $standards_lists_character_sets, false, SQ_CONF_DEFAULT_CHARACTER_SET);
 			} else {
 				echo $standards_lists_character_sets[SQ_CONF_DEFAULT_CHARACTER_SET];

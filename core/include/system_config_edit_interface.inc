@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.6 2004/09/27 23:44:07 gsherwood Exp $
+* $Id: system_config_edit_interface.inc,v 1.7 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -108,7 +108,7 @@ class System_Config_Edit_Interface extends MySource_Object
 		$o->setCurrentScreen($current_location.'config_screen='.rawurlencode($active_screen));
 
 
-		switch($active_screen) {
+		switch ($active_screen) {
 			case 'system_config' :
 			case 'squiz_server_config' :
 			case 'hipo_config' :
@@ -116,7 +116,7 @@ class System_Config_Edit_Interface extends MySource_Object
 
 				$config = null;
 
-				switch($active_screen) {
+				switch ($active_screen) {
 					case 'system_config' :
 						require_once SQ_INCLUDE_PATH.'/system_config.inc';
 						$config = new System_Config();
@@ -284,7 +284,7 @@ class System_Config_Edit_Interface extends MySource_Object
 
 			// go through and work out which vars have changed
 			$changed_vars = Array();
-			foreach($preferences as $type_code => $pref_data) {
+			foreach ($preferences as $type_code => $pref_data) {
 				foreach ($pref_data as $var_name => $var_data) {
 					$current_value = $preferences[$type_code][$var_name]['default'];
 					$new_value = $new_preferences[$type_code][$var_name]['default'];
@@ -303,7 +303,7 @@ class System_Config_Edit_Interface extends MySource_Object
 			if ($changed_vars) {
 				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$message_body = '';
-				foreach($changed_vars as $var_name => $values) {
+				foreach ($changed_vars as $var_name => $values) {
 					$message_body .= ucwords(str_replace('_', ' ', $values['type_code'])).' preference variable "'.$var_name.'" changed from '.var_export($values['old'], true).' to '.var_export($values['new'], true)."\n";
 				}
 				$message = $ms->newMessage(Array(), 'System Preferences Updated', $message_body, 'prefs.system');

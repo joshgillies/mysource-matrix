@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_stalks.inc,v 1.16 2004/08/12 07:12:00 mnyeholt Exp $
+* $Id: design_area_menu_stalks.inc,v 1.17 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -63,7 +63,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 	function setAttrValue($name, $value)
 	{
 		// make sure the aligment is lower case
-		switch($name) { 
+		switch ($name) { 
 			case 'prefix_with_divider' :
 			case 'suffix_with_divider' :
 				trigger_error('The divider is not used by the "'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').'" therefore the setting of "'.$name.'" has no effect', E_USER_NOTICE);
@@ -162,7 +162,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 #			pre_echo("Lineage Assetid : $'.$this->attr('id_name').'_lineage_assetid");
 			$num_kids = count($GLOBALS[\'MENU_DATA\'][$parentid]);
 			$i = 0;
-			foreach($GLOBALS[\'MENU_DATA\'][$parentid] as $'.$this->attr('id_name').'_row) {
+			foreach ($GLOBALS[\'MENU_DATA\'][$parentid] as $'.$this->attr('id_name').'_row) {
 				$i++;
 				$end = ($i == $num_kids);
 				// if not live, we have to get the proper object, sorry

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.3 2004/11/09 22:50:44 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.4 2004/12/03 15:37:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -133,7 +133,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 		$ok = true;
 		if ($existing_file) {
-			switch($this->attr('overwrite_rule')) {
+			switch ($this->attr('overwrite_rule')) {
 				case 'D':
 					$form->active_submission->setError('There was an error uploading the file for File Upload question "'.$this->attr('name').'" - file already exists in path');
 					$ok = false;
@@ -144,7 +144,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 				case 'R':
 					include_once SQ_FUDGE_PATH.'/general/file_system.inc';
-					while($existing_file) {					
+					while ($existing_file) {					
 						$file['name'] = increment_filename($file['name']);
 						$existing_file = $db->getOne('select a.assetid from sq_asset a join sq_asset_link l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($file['name']));
 					}

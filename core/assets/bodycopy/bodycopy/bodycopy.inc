@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.15 2004/12/01 05:59:04 tbarrett Exp $
+* $Id: bodycopy.inc,v 1.16 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -230,7 +230,7 @@ class Bodycopy extends Asset
 	function paintBackend(&$o)
 	{
 		if (!isset($_REQUEST['asset_ei_screen'])) return parent::paintBackend($o);
-		switch($_REQUEST['asset_ei_screen']) {
+		switch ($_REQUEST['asset_ei_screen']) {
 			case 'show_popup' :
 				require_once(dirname(__FILE__).'/popups/'.trim($_REQUEST['popup_file']));
 				exit();
@@ -251,7 +251,7 @@ class Bodycopy extends Asset
 	function printFrontend()
 	{
 		if (!isset($_REQUEST['asset_ei_screen'])) return parent::printFrontend($o);
-		switch($_REQUEST['asset_ei_screen']) {
+		switch ($_REQUEST['asset_ei_screen']) {
 			case 'show_popup' :
 				require_once(dirname(__FILE__).'/popups/'.trim($_REQUEST['popup_file']));
 				exit();

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_edit_fns.inc,v 1.10 2004/07/07 01:05:29 lwright Exp $
+* $Id: form_question_rule_edit_fns.inc,v 1.11 2004/12/03 15:37:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -109,7 +109,7 @@ class Form_Question_Rule_Edit_Fns extends Asset_Edit_Fns
 				bam('here');
 				if (empty($link)) continue;
 				bam($link);
-				if(in_array($link['minorid'], $_POST['delete_rule'])) { 
+				if (in_array($link['minorid'], $_POST['delete_rule'])) { 
 					$asset->deleteLink($link['linkid']);
 				}
 			}

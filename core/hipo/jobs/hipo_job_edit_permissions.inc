@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.31 2004/11/18 04:49:33 gsherwood Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.32 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -126,7 +126,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 		// metadata regeneration threshhold HIPO config entry
 		$o->openField('Permissions Threshold');
 
-		if($write_access) {
+		if ($write_access) {
 			text_box($class.'[SQ_HIPO_PERMISSIONS_THRESHOLD]', SQ_HIPO_PERMISSIONS_THRESHOLD, 5);
 			$o->note('Value will be divided by number of affected permissions');
 		} else {

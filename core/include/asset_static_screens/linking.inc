@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.8 2004/11/18 04:48:01 gsherwood Exp $
+* $Id: linking.inc,v 1.9 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -289,7 +289,7 @@ function processLinking(&$owner, &$o, &$ei)
 			if (!empty($fl_jobs)) {
 
 				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_mgr->id, 'links')) {
-					for($i = 0; $i < count($fl_jobs); $i++) {
+					for ($i = 0; $i < count($fl_jobs); $i++) {
 						if (in_array($fl_jobs[$i]->id, $_POST[$prefix.'_remove_fl'])) {
 							if ($cron_mgr->removeJob($fl_jobs[$i])) {
 								$is_updated = true;
@@ -308,7 +308,7 @@ function processLinking(&$owner, &$o, &$ei)
 
 		$fl = new Cron_Job_Future_Lineage();
 		$edit_fns = $fl->getEditFns();
-		if($fl->setAssetInLink($owner, 'minor') && $edit_fns->processInLineBackend($fl, $o, $prefix.'_new_fl')) {
+		if ($fl->setAssetInLink($owner, 'minor') && $edit_fns->processInLineBackend($fl, $o, $prefix.'_new_fl')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			if ($cron_mgr->addJob($fl, $GLOBALS['SQ_SYSTEM']->user)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');

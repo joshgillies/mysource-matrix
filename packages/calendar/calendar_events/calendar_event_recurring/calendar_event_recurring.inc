@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.48 2004/12/03 03:29:41 lwright Exp $
+* $Id: calendar_event_recurring.inc,v 1.49 2004/12/03 15:36:53 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.48 $ - 1.0
+* @version $Revision: 1.49 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -920,7 +920,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		$db = $GLOBALS['SQ_SYSTEM']->db;
 	
 		$date_values = Array();
-		foreach(Array('start_date', 'end_date') as $date_comp) {
+		foreach (Array('start_date', 'end_date') as $date_comp) {
 			$date_values += get_date_components($this->attr($date_comp), $date_comp.'_');
 		}
 		
@@ -951,7 +951,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			}
 		} else {
 			// now quote everything except null values
-			foreach(array_keys($date_values) as $key) {
+			foreach (array_keys($date_values) as $key) {
 				$date_values[$key] = (is_null($date_values[$key]) ? 'null' : 	$db->quote($date_values[$key]));						
 			}
 		

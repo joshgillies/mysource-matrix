@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: esec_processor_SSL_interface.inc,v 1.1 2004/10/22 06:51:11 dofford Exp $
+* $Id: esec_processor_SSL_interface.inc,v 1.2 2004/12/03 15:37:42 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/esec_processor.inc';
 * Esec payment gateway processing object.
 * Implements a 'Web Redirect Model' or 'Web Proxy Model' scenario
 *
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -60,13 +60,13 @@ class Esec_Processor_SSL_Interface extends Esec_Processor
 	* @return string
 	*/
 	function generate_redirect_URL() {
-		$query_string = array();
+		$query_string = Array();
 		foreach ($this->parameters as $name => $value) {
 			if ($name == 'EPS_MERCHANT') {
 				$merchant_id = $value;
 			}
-			if (is_array($value)) {
-				foreach($value as $v) {
+			if (is_Array($value)) {
+				foreach ($value as $v) {
 					$query_string[] = $name.'='.urlencode($v);
 				}
 			} else {

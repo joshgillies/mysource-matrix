@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_colourise_image.inc,v 1.16 2003/12/12 17:01:29 brobertson Exp $
+* $Id: design_area_colourise_image.inc,v 1.17 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -56,7 +56,7 @@ class Design_Area_Colourise_Image extends Design_Area
 		if ($name == 'black_colour' || $name == 'white_colour' 
 			|| stristr($name, 'from_colour') || stristr($name, 'to_colour')) {
 			$new_value = $this->vars['colours']['value'];
-			if(!is_array($new_value)) $new_value = Array();
+			if (!is_array($new_value)) $new_value = Array();
 			$new_value[$name] = $value;
 			$name = 'colours';
 			$value = $new_value;

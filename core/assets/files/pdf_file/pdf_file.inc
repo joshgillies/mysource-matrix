@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file.inc,v 1.8 2004/11/29 02:14:16 gsherwood Exp $
+* $Id: pdf_file.inc,v 1.9 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -125,7 +125,7 @@ class PDF_File extends File
 		}
 		
 		unlink($tmp_file);
-		if(!$output) {
+		if (!$output) {
 			return $keydata;
 		}
 

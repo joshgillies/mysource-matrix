@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.29 2004/09/07 10:52:21 brobertson Exp $
+* $Id: design_customisation.inc,v 1.30 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -250,8 +250,8 @@ class Design_Customisation extends Design
 
 				// Basically we do a search through our links and see if the design areas (ie the id_names)
 				// are pointing to the same assetid or not to ascertain whether we have customised this area or not
-				foreach($our_links as $our_link) {
-					foreach($parents_links as $parents_link) {
+				foreach ($our_links as $our_link) {
+					foreach ($parents_links as $parents_link) {
 						// if the id_names are the same
 						if ($our_link['value'] == $parents_link['value']) {
 							// if the id's are different, we have customised this one
@@ -324,11 +324,11 @@ class Design_Customisation extends Design
 		$added_id_names  = array_diff(array_keys($parent_da_links), array_keys($this_da_links));
 
 		// now remove any unused design area customisations
-		foreach($remove_id_names as $id_name) {
+		foreach ($remove_id_names as $id_name) {
 			if (!$this->deleteLink($this_da_links[$id_name]['linkid'])) return false;
 		}// end foreach
 
-		foreach($added_id_names as $id_name) {
+		foreach ($added_id_names as $id_name) {
 			$da = &$am->getAsset($parent_da_links[$id_name]['minorid'], $parent_da_links[$id_name]['minor_type_code'], true);
 			if (is_null($da)) continue;
 			$this->createLink($da, SQ_LINK_TYPE_3, $id_name, null, '1');
@@ -337,7 +337,7 @@ class Design_Customisation extends Design
 		//// THIRD, let's update the customised, but not specialised, design areas ////
 
 		$links = $this->getCustomisedAreas();
-		foreach($links as $link) {
+		foreach ($links as $link) {
 			$da = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($da)) continue;
 			// you specialised ? well, buddy, you're on your own

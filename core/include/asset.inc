@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.337 2004/11/30 01:17:53 arailean Exp $
+* $Id: asset.inc,v 1.338 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.337 $
+* @version $Revision: 1.338 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -575,7 +575,7 @@ class Asset extends MySource_Object
 		assert_valid_db_result($this->vars);
 
 		if ($this->_ser_attrs && $this->vars) {
-			for(reset($this->vars); NULL !== ($name = key($this->vars)); next($this->vars)) {
+			for (reset($this->vars); NULL !== ($name = key($this->vars)); next($this->vars)) {
 				if ($this->vars[$name]['type'] != 'serialise') continue;
 				$this->vars[$name]['value'] = @unserialize($this->vars[$name]['value']);
 			}
@@ -1070,7 +1070,7 @@ class Asset extends MySource_Object
 	{
 		if (!$this->id) return false;
 
-		switch($number) {
+		switch ($number) {
 			case 'major' : $part_num = 0; break;
 			case 'minor' : $part_num = 1; break;
 			case 'micro' : $part_num = 2; break;
@@ -1162,7 +1162,7 @@ class Asset extends MySource_Object
 	function setLanguages($languages)
 	{
 		$set_languages = implode(',', $languages);
-		if($set_languages == $this->languages) return false;
+		if ($set_languages == $this->languages) return false;
 
 		$old_languages = $this->languages;
 		$this->languages = $set_languages;
@@ -1192,7 +1192,7 @@ class Asset extends MySource_Object
 	*/
 	function setCharset($charset)
 	{
-		if($charset == $this->charset) return false;
+		if ($charset == $this->charset) return false;
 		$old_charset = $this->charset;
 		$this->charset = $charset;
 		if (!$this->_updated()) {
@@ -1227,7 +1227,7 @@ class Asset extends MySource_Object
 		}
 
 		$force_secure = ($force_secure) ? '1' : '0';
-		if($force_secure == $this->force_secure) return false;
+		if ($force_secure == $this->force_secure) return false;
 		$old_force_secure = $this->force_secure;
 		$this->force_secure = $force_secure;
 		if (!$this->_updated()) {
@@ -1325,7 +1325,7 @@ class Asset extends MySource_Object
 		if ($num_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($this->id, 'major')) {
 
 			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL);
-			foreach($links as $link) {
+			foreach ($links as $link) {
 				if ($GLOBALS['SQ_SYSTEM']->am->canLinkToType($tmp, $link['minor_type_code'], $link['link_type'], 0, $link['is_exclusive']) !== true) {
 					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 					trigger_error('Unable to cast "'.$this->name.'" to "'.$new_type_code.'",<br>"'.$link['minor_type_code'].'" assets are not allowed to be "'.link_type_name($link['link_type']).'" linked to "'.$new_type_code.'" assets.', E_USER_WARNING);
@@ -1341,7 +1341,7 @@ class Asset extends MySource_Object
 		if ($num_links) {
 
 			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL, '', true, 'minor');
-			foreach($links as $link) {
+			foreach ($links as $link) {
 				$parent = &$am->getAsset($link['majorid'], $link['major_type_code']);
 				if (is_null($parent)) continue;
 				if (($err_msg = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $new_type_code, $link['link_type'], $link['linkid'], $link['is_exclusive'])) !== true) {
@@ -1363,7 +1363,7 @@ class Asset extends MySource_Object
 		$common_var_list = array_intersect($current_var_list, $new_var_list);
 
 		if ($common_var_list) {
-			foreach($common_var_list as $var_name) {
+			foreach ($common_var_list as $var_name) {
 				$current_id = $this->vars[$var_name]['attrid'];
 				$new_id = $tmp->vars[$var_name]['attrid'];
 
@@ -1383,7 +1383,7 @@ class Asset extends MySource_Object
 
 		if ($deletes_var_list) {
 			$deletes_attributeids = '';
-			foreach($deletes_var_list as $var_name) $deletes_attributeids .= (($deletes_attributeids) ? ',' : '').$db->quote($this->vars[$var_name]['attrid']);
+			foreach ($deletes_var_list as $var_name) $deletes_attributeids .= (($deletes_attributeids) ? ',' : '').$db->quote($this->vars[$var_name]['attrid']);
 
 			$where_cond = ' assetid = '.$db->quote($this->id).'
 							AND attrid IN ('.$deletes_attributeids.')';
@@ -1869,7 +1869,7 @@ class Asset extends MySource_Object
 		// lock type not known ? bugger off
 		if (empty($current_locks)) return false;
 
-		foreach($current_locks as $lock) {
+		foreach ($current_locks as $lock) {
 			if (empty($lock)) continue;
 			$user = null;
 			if ($lock['userid']) {
@@ -2126,7 +2126,7 @@ class Asset extends MySource_Object
 		$ms->openLog();
 
 		$changedArray = Array();
-		foreach($this->_tmp['vars_set'] as $var_name => $var_data) {
+		foreach ($this->_tmp['vars_set'] as $var_name => $var_data) {
 			$attr_id = $this->vars[$var_name]['attrid'];
 
 			// if this is a unique attribute then let's make sure that this isn't already set
@@ -2864,8 +2864,8 @@ class Asset extends MySource_Object
 			return;
 		}
 
-		if($this->charset) header("Content-type: text/html; charset=$this->charset");
-		if($this->languages) header("Content-language: $this->languages");
+		if ($this->charset) header("Content-type: text/html; charset=$this->charset");
+		if ($this->languages) header("Content-language: $this->languages");
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$url = strip_url(current_url(false, true));
@@ -3000,7 +3000,7 @@ class Asset extends MySource_Object
 	{
 		$ei = &$this->getEI();
 
-		switch($_POST['asset_action']) {
+		switch ($_POST['asset_action']) {
 			case 'create' :
 				if ($ei->process($this, $o, true)) {
 					return (bool) $this->create($link);
@@ -3173,7 +3173,7 @@ class Asset extends MySource_Object
 			// now we need to check that none of our parents have
 			// any nav kids that are also using this path name
 			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_WEB_PATHS, '', null, 'minor');
-			for($i = 0; $i < count($parents); $i++) {
+			for ($i = 0; $i < count($parents); $i++) {
 				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
 				if (is_null($parent)) continue;
 				$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($parent, $inserts, $this->id);
@@ -3194,7 +3194,7 @@ class Asset extends MySource_Object
 		}
 
 		// Now insert the paths
-		foreach($save_paths as $sort_order => $path) {
+		foreach ($save_paths as $sort_order => $path) {
 
 			$values = Array('path'       => $path,
 							'assetid'    => $this->id,
@@ -3254,7 +3254,7 @@ class Asset extends MySource_Object
 			return $this->_tmp['lookups'];
 		} else {
 			$ret_val = Array();
-			foreach($this->_tmp['lookups'] as $data) $ret_val[] = $data[$field];
+			foreach ($this->_tmp['lookups'] as $data) $ret_val[] = $data[$field];
 			return $ret_val;
 		}
 
@@ -3284,7 +3284,7 @@ class Asset extends MySource_Object
 			$result = $db->query($sql.$where);
 			assert_valid_db_result($result);
 
-			while(null !== ($row = $result->fetchRow())) {
+			while (null !== ($row = $result->fetchRow())) {
 				if (!isset($this->_tmp['design_lookups'][$row['url']])) $this->_tmp['design_lookups'][$row['url']] = Array();
 				$this->_tmp['design_lookups'][$row['url']][$row['name']] = $row['designid'];
 			}
@@ -3352,7 +3352,7 @@ class Asset extends MySource_Object
 
 			$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3, 'design', false);
 			$our_designs = Array();
-			foreach($our_design_links as $link) {
+			foreach ($our_design_links as $link) {
 				if (preg_match('/^(system_design|user_design)::.*$/', $link['value'])) {
 					$our_designs[$link['value']] = $link['minorid'];
 				}// end if
@@ -3363,7 +3363,7 @@ class Asset extends MySource_Object
 			$done_urls    = Array();
 			$done_parents = Array();
 
-			for($i = 0; $i < count($parents); $i++) {
+			for ($i = 0; $i < count($parents); $i++) {
 				if (in_array($parents[$i]['majorid'], $done_parents)) continue;
 				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
 				if (is_null($parent)) continue;
@@ -3372,8 +3372,8 @@ class Asset extends MySource_Object
 				$parent_designs = $parent->getDesignLookups();
 
 				$parent_urls    = $parent->getLookups();
-				for($j = 0, $num_parent_urls = count($parent_urls); $j < $num_parent_urls; $j++) {
-					for($k = 0; $k < $num_paths; $k++) {
+				for ($j = 0, $num_parent_urls = count($parent_urls); $j < $num_parent_urls; $j++) {
+					for ($k = 0; $k < $num_paths; $k++) {
 						$new_url = $parent_urls[$j]['url'].'/'.$paths[$k];
 						if (isset($done_urls[$new_url])) continue;
 
@@ -3399,12 +3399,12 @@ class Asset extends MySource_Object
 						// get any of our parent's designs that we haven't overridden
 						$designs = $our_designs;
 						if (!empty($parent_designs[$parent_urls[$j]['url']])) {
-							foreach($parent_designs[$parent_urls[$j]['url']] as $name => $designid) {
+							foreach ($parent_designs[$parent_urls[$j]['url']] as $name => $designid) {
 								if (isset($designs[$name])) continue;
 								$designs[$name] = $designid;
 							}
 						}
-						foreach($designs as $name => $designid) {
+						foreach ($designs as $name => $designid) {
 							$values = Array('url'      => $new_url,
 											'name'     => $name,
 											'designid' => $designid,
@@ -3614,11 +3614,9 @@ class Asset extends MySource_Object
 	{
 		$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 		if (!$sm) return false;
-
 		return $sm->getAssetWeightings($this->id);
 
 	}//end getWeightings()
-
 
 }//end class
 

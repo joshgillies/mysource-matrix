@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_declared_vars_edit_fns.inc,v 1.18 2004/05/03 06:19:30 gsherwood Exp $
+* $Id: design_area_declared_vars_edit_fns.inc,v 1.19 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,7 +53,7 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 		$vars = Array();
 		$declared_vars = Array();
 		// firstly let's check to see if all the design areas have unique names
-		foreach($contents as $index => $element) {
+		foreach ($contents as $index => $element) {
 			if ($element['_type'] != 'TAG' || $element['operation'] != 'declare') continue;
 
 			// if there is a name and it's not the the same type as the current design area
@@ -112,9 +112,9 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 	function createParseString(&$asset)
 	{
 		$text = '';
-		foreach($asset->vars['declared_vars']['value'] as $name => $data) {
+		foreach ($asset->vars['declared_vars']['value'] as $name => $data) {
 			$text .= '<'.$this->tag_name.'_DECLARE name="'.htmlentities($name).'"';
-			foreach($data as $k => $v) $text .= ' '.$k.'="'.htmlentities($v).'"';
+			foreach ($data as $k => $v) $text .= ' '.$k.'="'.htmlentities($v).'"';
 			$text .= " />\n";
 		}// end foreach
 
@@ -133,7 +133,7 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 	function paintDecVars(&$asset, &$o, $prefix) 
 	{
 		$attrs = $asset->getDeclaredVarAttributes();
-		foreach($attrs as $name => $attr) {
+		foreach ($attrs as $name => $attr) {
 			$o->openField($name);
 			if ($asset->writeAccess('attributes')) {
 				$attr->paint($prefix);
@@ -160,7 +160,7 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 		$save = false;
 		$attrs = $asset->getDeclaredVarAttributes();
 		$declared_vars = $asset->attr('declared_vars');
-		foreach($attrs as $name => $attr) {
+		foreach ($attrs as $name => $attr) {
 			$attr->process($prefix);
 			if ($attr->processed) {
 				$declared_vars[$name]['value'] = $attr->value;

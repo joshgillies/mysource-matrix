@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.14 2004/11/18 04:48:01 gsherwood Exp $
+* $Id: settings.inc,v 1.15 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,7 +46,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 */
 function paintSettings(&$owner, &$o, &$ei)
 {
-	if(!($file = $ei->_findFile('static_screen_settings'))) return;
+	if (!($file = $ei->_findFile('static_screen_settings'))) return;
 	$prefix = $owner->getPrefix();
 
 	$created = false;
@@ -63,7 +63,7 @@ function paintSettings(&$owner, &$o, &$ei)
 		$o->closeSection();
 	}
 
-	for($i = 0; $i < count($root->children); $i++) {
+	for ($i = 0; $i < count($root->children); $i++) {
 		$section = &$root->children[$i];
 
 		// if we are in limbo and this section is not to be printed in limbo - dont print it
@@ -72,7 +72,7 @@ function paintSettings(&$owner, &$o, &$ei)
 		$o->openSection($section->attributes['name']);
 
 		if (!($num_fields = count($section->children))) continue;
-		for($j = 0; $j < $num_fields; $j++) {
+		for ($j = 0; $j < $num_fields; $j++) {
 			$field = &$section->children[$j];
 
 			// should we print the note for the field or not
@@ -302,12 +302,12 @@ function paintSettings(&$owner, &$o, &$ei)
 							$user = &$am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
 
 							$types = array_merge($am->getTypeAncestors($owner->type()), $am->getTypeDescendants($owner->type()));
-							for($i = 0; $i < count($types); $i++) $types[$i] = $db->quote($types[$i]);
+							for ($i = 0; $i < count($types); $i++) $types[$i] = $db->quote($types[$i]);
 							$type_code_cond = 'IN ('.implode(', ', $types).')';
 
 							$user_types = $am->getTypeAncestors($user->type());
 							$user_types[] = $user->type();
-							for($i = 0; $i < count($user_types); $i++) $user_types[$i] = $db->quote($user_types[$i]);
+							for ($i = 0; $i < count($user_types); $i++) $user_types[$i] = $db->quote($user_types[$i]);
 							$user_type_cond = 'IN ('.implode(', ', $user_types).')';
 
 							$sql = 'SELECT type_code
@@ -361,7 +361,7 @@ function paintSettings(&$owner, &$o, &$ei)
 										);
 
 					$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_LINK_TYPE_3, 'design', false);
-					foreach($our_design_links as $link) {
+					foreach ($our_design_links as $link) {
 						if (preg_match('/^(system_design|user_design)::.*$/', $link['value'])) {
 							$our_designs[$link['value']] = $link['minorid'];
 						}// end if
@@ -372,8 +372,8 @@ function paintSettings(&$owner, &$o, &$ei)
 
 					// If we have a user design that is only effectively set, then we need to add it to the our_designs
 					// array otherwise it doesn't appear below...
-					foreach($design_lookups as $url => $designs) {
-						foreach($designs as $design_name => $designid) {
+					foreach ($design_lookups as $url => $designs) {
+						foreach ($designs as $design_name => $designid) {
 							if (!isset($our_designs[$design_name])) $our_designs[$design_name] = 0;
 						}
 					}
@@ -381,7 +381,7 @@ function paintSettings(&$owner, &$o, &$ei)
 					// now add the blank one that they can customise
 					$our_designs['user_design::'] = 0;
 
-					foreach($our_designs as $design_name => $designid) {
+					foreach ($our_designs as $design_name => $designid) {
 
 						$matches = Array();
 						preg_match('/^(system|user)_design::(.*)$/', $design_name, $matches);
@@ -412,7 +412,7 @@ function paintSettings(&$owner, &$o, &$ei)
 						if (!$new_user_design) {
 
 							$effective_designs = Array();
-							foreach($design_lookups as $url => $designs) {
+							foreach ($design_lookups as $url => $designs) {
 								if (empty($designs[$design_name])) continue;
 								$effective_designs[$url] = $designs[$design_name];
 							}

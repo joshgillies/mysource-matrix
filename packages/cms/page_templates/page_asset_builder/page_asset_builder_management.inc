@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.17 2004/11/26 05:59:34 tbarrett Exp $
+* $Id: page_asset_builder_management.inc,v 1.18 2004/12/03 15:37:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -349,7 +349,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 				
 				// convert the fixed create locations by adding the link types
 				$old_create_locations = $asset->attr('create_location');
-				if (!array($old_create_locations)) $old_create_locations = Array(0 => $old_create_locations);
+				if (!Array($old_create_locations)) $old_create_locations = Array(0 => $old_create_locations);
 				$fixed_create_locations = Array();
 				foreach ($old_create_locations as $assetid => $null) {
 					$fixed_create_locations[$assetid] = $old_link_type;
@@ -360,7 +360,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 				if ($asset->attr('create_location_optional')) {
 					$old_input_style = ($asset->attr('create_location_type') == 'select') ? 'dropdown' : 'radio';
 					$old_selectable_locations = array_values($asset->attr('create_location_optional'));
-					if (!is_array($old_selectable_locations)) $old_selectable_locations = Array($old_selectable_locations);
+					if (!is_Array($old_selectable_locations)) $old_selectable_locations = Array($old_selectable_locations);
 					$old_allow_multiple = $asset->attr('create_location_multiple') ? 1 : 0;
 					$selectable_locations_set_details = Array();
 					$location_details = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($old_selectable_locations);
@@ -395,7 +395,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 								$new_rule['values'][] = $value;
 							}
 						}
-						if (is_array($rule_details['_create_locations_'])) {
+						if (is_Array($rule_details['_create_locations_'])) {
 							foreach ($rule_details['_create_locations_'] as $assetid) {
 								$new_rule['locations'][] = $assetid;
 								$new_rule['link_types'][] = $old_link_type;

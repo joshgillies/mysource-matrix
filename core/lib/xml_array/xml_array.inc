@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_array.inc,v 1.11 2004/07/06 00:35:44 lwright Exp $
+* $Id: xml_array.inc,v 1.12 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -244,7 +244,7 @@ class XML_Array extends XML_Parser
 		// Now add the attributes to the element, which is the one
 		// on the top of the ptrs stack
 		$i = count($this->_path_ptrs) - 1;
-		for(reset($attribs); null !== ($k = key($attribs)); next($attribs)) {
+		for (reset($attribs); null !== ($k = key($attribs)); next($attribs)) {
 			$this->_path_ptrs[$i]['@'.$k] = $attribs[$k];
 		}
 

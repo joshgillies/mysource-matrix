@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.230 2004/11/24 05:35:14 tbarrett Exp $
+* $Id: asset_edit_interface.inc,v 1.231 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.230 $
+* @version $Revision: 1.231 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -97,14 +97,14 @@ class Asset_Edit_Interface extends MySource_Object
 
 		$this->_dirs = Array($asset_dir);
 		$parent_type = $this->_type_code;
-		while(($parent_type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($parent_type, 'parent_type')) != 'asset') {
+		while (($parent_type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($parent_type, 'parent_type')) != 'asset') {
 			$this->_dirs[] = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($parent_type, 'dir');
 		}
 
 		// add the default for Asset
 		$this->_dirs[] = SQ_INCLUDE_PATH.'/asset_edit';
 
-		if(!($file = $this->_findFile('screens'))) return;
+		if (!($file = $this->_findFile('screens'))) return;
 
 		$input = new XML_Tree($file);
 		$root  = &$input->getTreeFromFile();
@@ -243,7 +243,7 @@ class Asset_Edit_Interface extends MySource_Object
 			$need_force_locks  = false;
 			$can_force_locks   = true;
 			$do_the_limbo_lock = true;
-			foreach($locks as $lock_type => $lock) {
+			foreach ($locks as $lock_type => $lock) {
 
 				if (empty($lock)) {
 					$have_all_locks = false;
@@ -326,7 +326,7 @@ class Asset_Edit_Interface extends MySource_Object
 //				}
 
 				$class = 'sq-backend-table-cell-alt';
-				foreach($locks as $lock_type => $lock) {
+				foreach ($locks as $lock_type => $lock) {
 					$class = ($class == 'sq-backend-table-cell') ? 'sq-backend-table-cell-alt' : 'sq-backend-table-cell';
 					?>
 					<tr>
@@ -455,7 +455,7 @@ class Asset_Edit_Interface extends MySource_Object
 		} else {
 
 			// try and find the file with the screen details
-			if(!($file = $this->_findFile('screen_'.$active_screen))) return;
+			if (!($file = $this->_findFile('screen_'.$active_screen))) return;
 
 			$force_unlock_on_commit = $this->_screens[$active_screen]['force_unlock'];
 
@@ -504,7 +504,7 @@ class Asset_Edit_Interface extends MySource_Object
 		} else {
 			if (SQ_IN_LIMBO) {
 				$url_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL();
-				foreach($url_lineage as $asset_info) $asset_path[] = $asset_info['assetid'];
+				foreach ($url_lineage as $asset_info) $asset_path[] = $asset_info['assetid'];
 			} else {
 				// asset map didn't send one (e.g initial matrix loading)
 				// pretend it did by making a singleton set of the owner
@@ -697,7 +697,7 @@ class Asset_Edit_Interface extends MySource_Object
 			$prefix = $owner->getPrefix();
 
 			// Loop over the sections
-			for($i = 0; $i < count($root->children); $i++) {
+			for ($i = 0; $i < count($root->children); $i++) {
 				$section = &$root->children[$i];
 				// if we are in limbo and this section is not to be printed in limbo - dont print it
 				if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) continue;
@@ -730,7 +730,7 @@ class Asset_Edit_Interface extends MySource_Object
 					$section_note = null;
 
 					// Loop over the fields
-					for($j = 0; $j < $num_fields; $j++) {
+					for ($j = 0; $j < $num_fields; $j++) {
 
 						$field = &$section->children[$j];
 
@@ -1003,7 +1003,7 @@ class Asset_Edit_Interface extends MySource_Object
 			$current_location = $o->getCurrentLocation();
 			$current_location .= (strstr($current_location, '?')) ? '&' : '?';
 
-			for(reset($this->_screens); null !== ($code = key($this->_screens)); next($this->_screens)) {
+			for (reset($this->_screens); null !== ($code = key($this->_screens)); next($this->_screens)) {
 				if (!$lm->hasLayout($owner->type(), $code)) continue;
 				$o->addScreen($current_location.'asset_ei_screen='.rawurlencode($code), $this->_screens[$code]['name']);
 			}
@@ -1130,7 +1130,7 @@ class Asset_Edit_Interface extends MySource_Object
 			} else {
 
 				// Loop over the fields
-				for($j = 0; $j < $num_fields; $j++) {
+				for ($j = 0; $j < $num_fields; $j++) {
 					$field = &$section->children[$j];
 
 					if ($field->name != 'field') {
@@ -1349,7 +1349,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 				// try and find the file to print user defined
 				$file = $this->_findFile('screen_'.$active_screen);
-				if(!$file) return false;
+				if (!$file) return false;
 
 			}// end if
 
@@ -1365,7 +1365,7 @@ class Asset_Edit_Interface extends MySource_Object
 				$prefix = $owner->getPrefix();
 
 				// Loop over the sections
-				for($i = 0; $i < count($root->children); $i++) {
+				for ($i = 0; $i < count($root->children); $i++) {
 					$section = &$root->children[$i];
 					// if we are in limbo and this section is not to be printed in limbo - dont print it
 
@@ -1398,7 +1398,7 @@ class Asset_Edit_Interface extends MySource_Object
 					// they must just be normal fields
 					} else {
 						// Loop over the fields
-						for($j = 0; $j < $num_fields; $j++) {
+						for ($j = 0; $j < $num_fields; $j++) {
 							$field = &$section->children[$j];
 
 							if ($field->name == 'note') {
@@ -1504,7 +1504,7 @@ class Asset_Edit_Interface extends MySource_Object
 			if (preg_match('/^(.+):(.*)$/', $wa, $matches)) {
 				// got to have writeAccess at least (this checks for locks as well)
 				if ($owner->writeAccess($matches[2])) {
-					switch($matches[1]) {
+					switch ($matches[1]) {
 						case 'root' :
 							if ($GLOBALS['SQ_SYSTEM']->userRoot()) $access |= SQ_EI_WRITE;
 							break;
@@ -1540,7 +1540,7 @@ class Asset_Edit_Interface extends MySource_Object
 			// otherwise attempt to find read access
 			} else {
 				$ra = (empty($node->attributes['read_access'])) ? 'read' : $node->attributes['read_access'];
-				switch($ra) {
+				switch ($ra) {
 					case 'root' :
 						if ($GLOBALS['SQ_SYSTEM']->userRoot()) $access |= SQ_EI_READ;
 						break;
@@ -1627,14 +1627,14 @@ class Asset_Edit_Interface extends MySource_Object
 		$file_name = 'edit_interface_'.$file_name.'.xml';
 
 		$file = '';
-		for($i = 0; $i < count($this->_dirs); $i++) {
+		for ($i = 0; $i < count($this->_dirs); $i++) {
 			if (file_exists($this->_dirs[$i].'/'.$file_name)) {
 				$file = $this->_dirs[$i].'/'.$file_name;
 				break;
 			}
 		}
 
-		if(!$file) {
+		if (!$file) {
 			trigger_error($file_name.' not found for Asset Type "'.$this->_type_code.'"', E_USER_WARNING);
 			return false;
 		}
@@ -1667,13 +1667,13 @@ class Asset_Edit_Interface extends MySource_Object
 		}
 
 		// Loop over the sections
-		for($i = 0; $i < count($root->children); $i++) {
+		for ($i = 0; $i < count($root->children); $i++) {
 			$section = &$root->children[$i];
 			if ($section->name != 'section') continue;
 
 			$create_sections[$section->attributes['name']] = Array();
 			// Loop over the fields
-			for($j = 0; $j < count($section->children); $j++) {
+			for ($j = 0; $j < count($section->children); $j++) {
 				$field = &$section->children[$j];
 				if ($field->name != 'field') continue;
 

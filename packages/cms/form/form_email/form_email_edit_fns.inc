@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.37 2004/11/05 00:25:18 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.38 2004/12/03 15:37:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -175,7 +175,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 					$i = 0;
 					$elements =& $sub_asset->getSummary();
-					foreach($elements as $element) {
+					foreach ($elements as $element) {
 						$i++;
 
 						if ($i % 2 == 1) { ?>
@@ -344,7 +344,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	{
 		if (!$_POST[$prefix.'_export_switch']) return true;
 		$export_type = isset($_POST[$prefix.'_export_format']) ? $_POST[$prefix.'_export_format'] : '';
-		switch($export_type) {
+		switch ($export_type) {
 			case 'csv':
 				$this->processExportCSV($asset, $o, $prefix);
 			break;
@@ -430,7 +430,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 					$elements = &$this->_generateSubmissionList($root);
 	
-					foreach($elements as $element) {
+					foreach ($elements as $element) {
 						$logs[$sub_id][$element['id']] = $element['content'];
 						if (!isset($headers[$element['id']])) {
 							$headers[$element['id']] = $element['name'];
@@ -443,7 +443,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 						$this_child =& $kids[$k];
 						if ($this_child->name == 'section') {
 							$elements = &$this->_generateSubmissionList($this_child);
-							foreach($elements as $element) {
+							foreach ($elements as $element) {
 								$logs[$sub_id][$element['id']] = $element['content'];
 								if (!isset($headers[$element['id']])) {
 									$headers[$element['id']] = $element['name'];
@@ -552,7 +552,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			$this_child =& $kids[$k];
 			$child_id = $this_child->getAttribute('id');
 			$child_name = $this_child->getAttribute('name');
-			switch($this_child->name) {
+			switch ($this_child->name) {
 				case 'section':
 				break;
 
@@ -702,7 +702,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	*/
 	function paintAddSelectiveEmailRule(&$asset, &$o, $prefix)
 	{
-		if(!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return false;
 		check_box($prefix.'_new_se_rule', '1', false);
 		echo ' New Rule';
 
@@ -723,7 +723,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	*/
 	function processAddSelectiveEmailRule(&$asset, &$o, $prefix)
 	{
-		if(!isset($_REQUEST[$prefix.'_new_se_rule'])) return false;
+		if (!isset($_REQUEST[$prefix.'_new_se_rule'])) return false;
 		$all_se = $asset->attr('selective_emails');
 
 		// pull out a new index for this question
@@ -989,7 +989,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	*/
 	function paintAddRulePart(&$asset, &$o, $prefix)
 	{
-		if(!$asset->adminAccess('attributes')) return false;
+		if (!$asset->adminAccess('attributes')) return false;
 		if (!isset($_REQUEST[$prefix.'_se_active_ruleid'])) return false;
 
 		// we cleared the asset finder for adding a new rule part
@@ -1005,7 +1005,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 			$rule_codes = $active_question->getAllowedRules();
 			$type_codes = Array();
-			foreach	($rule_codes as $rule_code) {
+			foreach ($rule_codes as $rule_code) {
 				$type_code = 'form_question_rule_type_'.$rule_code;
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 				$attributes = eval('return '.$type_code.'::getAttributes();');
@@ -1293,7 +1293,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	*/
 	function processActiveSend(&$asset, &$o, $prefix)
 	{
-		if(!$asset->adminAccess('attributes')) return false;
+		if (!$asset->adminAccess('attributes')) return false;
 		if (!isset($_REQUEST[$prefix.'_se_active_ruleid']) || !isset($_POST[$prefix.'_address'])) return false;
 
 		$ruleid = $_REQUEST[$prefix.'_se_active_ruleid'];

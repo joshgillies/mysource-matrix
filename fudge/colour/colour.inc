@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: colour.inc,v 1.12 2003/11/26 00:51:17 gsherwood Exp $
+* $Id: colour.inc,v 1.13 2004/12/03 15:43:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -522,7 +522,7 @@ class Colour
 		$b = max(0,min(1,$input['b']));
 		$min = min($r,$g,$b);
 		$max = max($r,$g,$b);
-		if(!$max) { // Black
+		if (!$max) { // Black
 			return Array('h' => -1, 's' => 0, 'v' => 0);
 		}
 		$delta = $max - $min;
@@ -542,7 +542,7 @@ class Colour
 			$h = 4 + ($r - $g) / $delta;
 		}
 		$h *= 60; // degrees
-		if($h < 0) $h += 360;
+		if ($h < 0) $h += 360;
 		return Array('h' => $h, 's' => $s, 'v' => $v);
 	}
 
@@ -576,7 +576,7 @@ class Colour
 		$q  = $v * (1 - $s * $f );
 		// $tq is the colour in between, assuming we're heading up
 		$t  = $v * (1 - $s * (1 - $f ));
-		switch($i) {
+		switch ($i) {
 			case 0: // Between red and yellow
 				$r = $v;
 				$g = $t;
@@ -837,11 +837,11 @@ class Colour
 	function hsvAdjust($input,$h,$s,$v) 
 	{
 		$hsv = Colour::htmlToHsv($input);
-		if($h != 0) {
+		if ($h != 0) {
 			$h = $h % 360.0;
-			if($h < 0) $h = 360.0 + $h;
+			if ($h < 0) $h = 360.0 + $h;
 			$hsv['h'] += $h;
-			while($hsv['h'] > 360.0) $hsv['h'] -= 360.0;
+			while ($hsv['h'] > 360.0) $hsv['h'] -= 360.0;
 		}
 		if ($s != 0) {
 			if ($s > 0) $hsv['s'] += $s * (1 - $hsv['s']);
@@ -870,13 +870,13 @@ class Colour
 		$a    = Colour::htmlToHsv($a);
 		$b    = Colour::htmlToHsv($b);
 		$r['h'] = $b['h'] - $a['h'];
-		if(abs($r['h']) > 180.0) {
-			if($r['h'] > 0) $r['h'] -= 360.0;
+		if (abs($r['h']) > 180.0) {
+			if ($r['h'] > 0) $r['h'] -= 360.0;
 			else          $r['h'] += 360.0;
 		}
-		if($b['s'] > $a['s'])	$r['s'] = $b['s'] / (1 - $a['s']) - $a['s'];
+		if ($b['s'] > $a['s'])	$r['s'] = $b['s'] / (1 - $a['s']) - $a['s'];
 		else					$r['s'] = ($b['s'] - $a['s']) / $a['s'];
-		if($b['v'] > $a['v'])	$r['v'] = $b['v'] / (1 - $a['v']) - $a['v'];
+		if ($b['v'] > $a['v'])	$r['v'] = $b['v'] / (1 - $a['v']) - $a['v'];
 		else					$r['v'] = ($b['v'] - $a['v']) / $a['v'];
 		return $r;
 	}
@@ -902,7 +902,7 @@ class Colour
 
 		$shift           = Array();
 		$closeness_total = Array();
-		foreach($map as $from => $to) {
+		foreach ($map as $from => $to) {
 			if (!$tolerance) {
 				if ($from == $input_html) {
 					return $to;

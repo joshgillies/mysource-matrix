@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.4 2004/11/18 04:53:00 gsherwood Exp $
+* $Id: file_versioning.inc,v 1.5 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -354,7 +354,7 @@ class File_Versioning
 
 		// Make sure that the name is OK
 		$bits = explode('/', $rep_file);
-		foreach($bits as $bit) {
+		foreach ($bits as $bit) {
 			// convert to upper for case insensitiveness
 			if (strtoupper($bit) == '.FFV') {
 				trigger_error('Unable to add file "'.$real_file.'" to path "'.$rep_path.'", name or somewhere in path is ".FFV"', E_USER_NOTICE);
@@ -647,7 +647,7 @@ class File_Versioning
 				return false;
 			}
 
-			if(empty($ver_info)) {
+			if (empty($ver_info)) {
 				trigger_error('File "'.$rep_file.'" does not have an available version for "'.$nice_date.'"', E_USER_NOTICE);
 				$this->_releaseFile($info['fileid']);
 				return false;

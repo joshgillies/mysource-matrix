@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: get_design_area_setable_attrs.php,v 1.3 2003/12/16 18:23:31 brobertson Exp $
+* $Id: get_design_area_setable_attrs.php,v 1.4 2004/12/03 15:42:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -68,9 +68,9 @@ $all_design_area_types = array_diff($design_area_types, $design_types);
 
 $design_areas = Array();
 // now remove all design areas that are not instantiable
-foreach($all_design_area_types as $type_code) {
+foreach ($all_design_area_types as $type_code) {
 	#pre_echo($type_code.' : '.$am->getTypeInfo($type_code, 'instantiable'));
-	if($am->getTypeInfo($type_code, 'instantiable')) $design_areas[] = $type_code;
+	if ($am->getTypeInfo($type_code, 'instantiable')) $design_areas[] = $type_code;
 }
 
 sort($design_areas);
@@ -108,7 +108,7 @@ if (!SQ_PHP_CLI) {
 <?php
 }// endif
 
-foreach($design_areas as $type_code) {
+foreach ($design_areas as $type_code) {
 
 	$am->includeAsset($type_code);
 	$da = new $type_code();
@@ -137,7 +137,7 @@ foreach($design_areas as $type_code) {
 
 	ksort($setable_vars);
 
-	foreach($setable_vars as $var_name => $info) {
+	foreach ($setable_vars as $var_name => $info) {
 		$attr = $da->getAttribute($var_name);
 		$desc = $attr->description;
 
@@ -145,7 +145,7 @@ foreach($design_areas as $type_code) {
 			if (!SQ_PHP_CLI) $desc .= '<pre>';
 			else $desc .= "\n";
 			$desc .= "Options : \n";
-			foreach($attr->_params['options'] as $value => $text) { 
+			foreach ($attr->_params['options'] as $value => $text) { 
 				$desc .= $value.' => '.$text."\n";
 			}
 			if (!SQ_PHP_CLI) $desc .= '</pre>';

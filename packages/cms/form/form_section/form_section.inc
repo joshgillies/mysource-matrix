@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.29 2004/11/23 23:39:44 lwright Exp $
+* $Id: form_section.inc,v 1.30 2004/12/03 15:37:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -139,7 +139,7 @@ class Form_Section extends Bridge
 			array_push($links, array_shift($old_links));
 		}
 
-		foreach(array_keys($links) as $i) {
+		foreach (array_keys($links) as $i) {
 
 			$link =& $links[$i];
 

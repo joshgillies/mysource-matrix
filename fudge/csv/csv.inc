@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv.inc,v 1.4 2004/10/22 04:25:46 lwright Exp $
+* $Id: csv.inc,v 1.5 2004/12/03 15:43:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -91,7 +91,7 @@ class CSV {
 	*/
 	function CSV($filepath='')
 	{
-		if($filepath) $this->setFilepath($filepath);
+		if ($filepath) $this->setFilepath($filepath);
 
 	}//end constructor
 
@@ -166,7 +166,7 @@ class CSV {
 	*/
 	function setFilepath($filepath='')
 	{
-		if($filepath) {
+		if ($filepath) {
 			// full path to this file
 			$this->filepath = $filepath;
 
@@ -198,7 +198,7 @@ class CSV {
 	*/
 	function setHeader($header='')
 	{
-		if($header) {
+		if ($header) {
 			// set custom headers
 			header($header);
 		} else {
@@ -219,27 +219,27 @@ class CSV {
 	*/
 	function export()
 	{
-		if(!$this->filepath) {
+		if (!$this->filepath) {
 			// no file to write to.....lets send the header and then the file
 			$this->setHeader();
 		} else {
-			if(!$fp = fopen($this->filepath,'w')) {
+			if (!$fp = fopen($this->filepath,'w')) {
 				trigger_error('Unable to open file "'.$this->filepath.'" for writing', E_USER_WARNING);
 				return;
 			}
 		}
-		if($this->field_headers) {
+		if ($this->field_headers) {
 			$line = $this->formatLine($this->field_headers, $this->deliminator);
-			if(isset($fp)) {
+			if (isset($fp)) {
 				fputs($fp, $line."\n");
 			} else {
 				echo $line."\n";
 			}
 		}
 
-		foreach($this->values as $value) {
+		foreach ($this->values as $value) {
 			$line = $this->formatLine($value, $this->deliminator);
-			if(isset($fp)) {
+			if (isset($fp)) {
 				fputs($fp, $line."\n");
 			} else {
 				echo $line."\n";
@@ -261,9 +261,9 @@ class CSV {
 	function import($start_at=1, $lines=0)
 	{
 		// can only import from a file
-		if(!$this->filepath) return;
+		if (!$this->filepath) return;
 
-		if(!$fp = fopen($this->filepath,'r')) {
+		if (!$fp = fopen($this->filepath,'r')) {
 			trigger_error('Unable to open file "'.$this->filepath.'" for reading', E_USER_WARNING);
 			return;
 		}
@@ -274,7 +274,7 @@ class CSV {
 		$line_count = 0;
 		$lines_done = 0;
 
-		while(($tmp = fgetcsv($fp, 65535, $this->deliminator)) != null) {
+		while (($tmp = fgetcsv($fp, 65535, $this->deliminator)) != null) {
 			$line_count++;
 			if ($line_count >= $start_at) {
 				$this->values[] = $tmp;
@@ -300,11 +300,11 @@ class CSV {
 	function formatLine(&$array, $deliminator=',')
 	{
 		$line = '';
-		foreach($array as $val) {
-			if(is_array($val)) {
+		foreach ($array as $val) {
+			if (is_array($val)) {
 				$line .= '"'.$this->formatLine($val,$deliminator).'"'.$deliminator;
 			} else {
-				if(ereg("[$deliminator\"\n\r]", $val)) {
+				if (ereg("[$deliminator\"\n\r]", $val)) {
 					$val = '"'.str_replace('"', '""', $val).'"';
 				}
 				$line .= $val.$deliminator;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: var_serialise.inc,v 1.8 2003/11/26 00:51:19 gsherwood Exp $
+* $Id: var_serialise.inc,v 1.9 2004/12/03 15:43:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -88,7 +88,7 @@ function _var_serialise(&$var, $indent)
 	$str = '';
 	$type = strtolower(gettype($var));
 
-	switch($type) {
+	switch ($type) {
 		// normal vars
 		case 'string'  :
 			if (strpos($var, $GLOBALS['VAR_SERIALISE_STRING_ESCAPE_CHAR']) !== FALSE) {
@@ -113,7 +113,7 @@ function _var_serialise(&$var, $indent)
 		// recursive vars
 		case 'array'   :
 			$str .= '<val_type>'.$type."</val_type>\n";
-			for(reset($var); NULL !== ($k = key($var)); next($var)) {
+			for (reset($var); NULL !== ($k = key($var)); next($var)) {
 				$sub_str = _var_serialise($var[$k], $indent.' ');
 				if ($sub_str === false) return false;
 				if (is_string($k)) {
@@ -194,7 +194,7 @@ function _var_unserialise(&$lines, &$i, $indent)
 		$i++;
 		$val = Array();
 		// while the indent is still the same unserialise our contents
-		while(isset($lines[$i]) && $indent.' ' == substr($lines[$i], 0, $indent_len + 1)) {
+		while (isset($lines[$i]) && $indent.' ' == substr($lines[$i], 0, $indent_len + 1)) {
 			list($var, $key) = _var_unserialise($lines, $i, $indent.' ');
 			$val[$key] = $var;
 			$i++;

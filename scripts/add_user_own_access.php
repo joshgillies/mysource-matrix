@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: add_user_own_access.php,v 1.1 2004/06/17 00:49:48 lwright Exp $
+* $Id: add_user_own_access.php,v 1.2 2004/12/03 15:42:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -84,7 +84,7 @@ foreach ($assets as $assetid => $type_code) {
 	}
 
 	$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'asset', false, 'major', '', 1);
-	foreach($links as $link) {
+	foreach ($links as $link) {
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($link['minorid'], 'permissions')) {
 			printUpdateStatus('SUB LOCK');
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);

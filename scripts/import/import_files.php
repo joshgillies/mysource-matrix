@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_files.php,v 1.1 2004/09/06 06:45:27 amiller Exp $
+* $Id: import_files.php,v 1.2 2004/12/03 15:42:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -68,7 +68,7 @@ foreach ($import_dirs as $import_dir) {
 	$files = list_files($import_path);
 	$GLOBALS['SQ_INSTALL'] = true;
 	foreach ($files as $filename) {
-		switch(strtolower(substr($filename, -4))) {
+		switch (strtolower(substr($filename, -4))) {
 			case '.doc' :
 			case '.dot' :
 				$new_asset_type = 'word_doc';

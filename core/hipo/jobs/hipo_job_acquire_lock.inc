@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_lock.inc,v 1.34 2004/11/11 23:56:28 gsherwood Exp $
+* $Id: hipo_job_acquire_lock.inc,v 1.35 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -97,7 +97,7 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 		// metadata regeneration threshhold HIPO config entry
 		$o->openField('Acquire Lock Threshold');
 
-		if($write_access) {
+		if ($write_access) {
 			text_box($class.'[SQ_HIPO_ACQUIRE_LOCK_THRESHOLD]', SQ_HIPO_ACQUIRE_LOCK_THRESHOLD, 5);
 		} else {
 			echo SQ_HIPO_ACQUIRE_LOCK_THRESHOLD;
@@ -297,7 +297,7 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 			}
 
 			if (!is_null($asset)) {
-				foreach($this->_running_vars['lock_types'] as $lock_type) {
+				foreach ($this->_running_vars['lock_types'] as $lock_type) {
 					$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, $lock_type, $this->_running_vars['assetid'], $this->_running_vars['forceably_acquire']);
 				}
 				$step_data['message'] = 'Acquiring Lock on "'.$asset->name.'"';

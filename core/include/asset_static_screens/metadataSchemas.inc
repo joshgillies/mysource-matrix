@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadataSchemas.inc,v 1.6 2004/11/18 04:48:01 gsherwood Exp $
+* $Id: metadataSchemas.inc,v 1.7 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,7 +51,7 @@ function paintInlineMetadataSchemas(&$owner, &$o, &$ei)
 	$schemas = $mm->getSchemas($owner->id);
 
 	$direct = Array();
-	foreach($schemas as $schemaid => $granted) {
+	foreach ($schemas as $schemaid => $granted) {
 		if (!isset($direct[$granted])) $direct[$granted] = Array();
 		$direct[$granted][] = $schemaid;
 	}
@@ -74,7 +74,7 @@ function paintInlineMetadataSchemas(&$owner, &$o, &$ei)
 
 			<?php
 			foreach ($direct as $granted => $schemaids) {
-				foreach($schemaids as $schemaid) {
+				foreach ($schemaids as $schemaid) {
 					if ($schemaid) {
 						$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 						if (!$schema->id || !is_a($schema, 'metadata_schema')) continue;
@@ -125,7 +125,7 @@ function paintMetadataSchemas(&$owner, &$o, &$ei)
 	$schemas = $mm->getSchemas($owner->id);
 
 	$direct = Array();
-	foreach($schemas as $schemaid => $granted) {
+	foreach ($schemas as $schemaid => $granted) {
 		if (!isset($direct[$granted])) $direct[$granted] = Array();
 		$direct[$granted][] = $schemaid;
 	}
@@ -147,7 +147,7 @@ function paintMetadataSchemas(&$owner, &$o, &$ei)
 					?>
 				</tr>
 			<?php
-			foreach($schemaids as $schemaid) {
+			foreach ($schemaids as $schemaid) {
 				if ($schemaid) {
 					$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 					if (!$schema->id || !is_a($schema, 'metadata_schema')) continue;

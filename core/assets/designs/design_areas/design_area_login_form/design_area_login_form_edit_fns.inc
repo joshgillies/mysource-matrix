@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form_edit_fns.inc,v 1.9 2004/05/07 15:48:00 brobertson Exp $
+* $Id: design_area_login_form_edit_fns.inc,v 1.10 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -55,7 +55,7 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 
 		$indexes = Array('login' => -1, 'logout' => -1);
 		// see if our page element has any sub's in it 
-		foreach($contents as $index => $element) {
+		foreach ($contents as $index => $element) {
 			if ($element['_type'] != 'TAG') continue;
 			if ($element['operation'] != 'login_section' && $element['operation'] != 'logout_section') continue;
 
@@ -77,11 +77,11 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 
 		// OK, get the lowest/first index so that we can replace that one and remove the other from the contents array
 		$lowest_index = count($contents);
-		foreach($indexes as $i) {
+		foreach ($indexes as $i) {
 			if ($i >= 0 && $lowest_index > $i) $lowest_index = $i;
 		}
 
-		foreach($indexes as $i) {
+		foreach ($indexes as $i) {
 			if ($i < 0) continue;
 			if ($lowest_index == $i) {
 				// Now what we do is morph it so that this element doesn't contain all the un-necessary contents stuff
@@ -136,7 +136,7 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function _outputElement($element, &$asset, &$design)
 	{
-		switch($element['operation']) {
+		switch ($element['operation']) {
 			case 'sections' :
 				$login_contents  = $asset->attr('login_contents');
 				$logout_contents = $asset->attr('logout_contents');

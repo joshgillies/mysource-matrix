@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_edit_fns.inc,v 1.4 2004/09/07 10:52:21 brobertson Exp $
+* $Id: design_css_edit_fns.inc,v 1.5 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -143,16 +143,16 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 
 		$var_ref_values = Array();
 		$da_refs = Array();
-		foreach($design_area_links as $link) {
+		foreach ($design_area_links as $link) {
 			$da = &$asset->getDesignArea($link['value']);
 			if (is_null($da)) continue;
 
 			$da_var_refs = $da->getVarReferences();
-			for(reset($da_var_refs); null !== ($id_name = key($da_var_refs)); next($da_var_refs)) {
+			for (reset($da_var_refs); null !== ($id_name = key($da_var_refs)); next($da_var_refs)) {
 				$var_da = &$asset->getDesignArea($id_name);
 				if (is_null($var_da)) continue;
 				if (!isset($var_ref_values[$id_name])) $var_ref_values[$id_name] = Array();
-				foreach($da_var_refs[$id_name] as $var) {
+				foreach ($da_var_refs[$id_name] as $var) {
 					// does this var want the whole design area ?
 					if ($var === '') {
 						$da_refs[] = $id_name;
@@ -169,7 +169,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		}// end foreach
 
 		// OK, now that we have all the var reference values we can just set them for all the DA's
-		foreach($design_area_links as $link) {
+		foreach ($design_area_links as $link) {
 			$da = &$asset->getDesignArea($link['value']);
 			if (is_null($da)) continue;
 			$da->setVarReferenceValues($var_ref_values);
@@ -177,7 +177,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 
 		// Now that all the all the DA's have their vars set, we can do the DA output ones
 		$da_ref_values = Array();
-		foreach($da_refs as $id_name) {
+		foreach ($da_refs as $id_name) {
 			$da = &$asset->getDesignArea($id_name);
 			if (is_null($da)) continue;
 			ob_start();
@@ -188,7 +188,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		}// end foreach
 
 		// OK, now that we have all the da reference values we can just set them for all the DA's
-		foreach($design_area_links as $link) {
+		foreach ($design_area_links as $link) {
 			$da = &$asset->getDesignArea($link['value']);
 			if (is_null($da)) continue;
 			$da->setVarReferenceValues($da_ref_values);
@@ -329,7 +329,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 
 		// Now create the links to our design areas
 		$da_links = $asset->getDesignAreaLink();
-		foreach($da_links as $link) {
+		foreach ($da_links as $link) {
 			$da = &$am->getAsset($link['minorid'], $link['minor_type_code'], true);
 			if (is_null($da)) continue;
 			if (!$clone->createLink($da, SQ_LINK_TYPE_3, $link['value'], null, '1')) {
@@ -389,7 +389,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		$customisation_links = &$GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'design_css_customisation', true, 'major', 'customisation');
 		if ($customisation_links) {
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
-			foreach($customisation_links as $link) {
+			foreach ($customisation_links as $link) {
 				$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($customisation)) continue;
 				echo '# ', $customisation->id, '&nbsp;&nbsp;<a href="', $customisation->getBackendHref(), '">', $customisation->name, '</a><br>';

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.28 2004/11/18 05:08:03 gsherwood Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.29 2004/12/03 15:29:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -215,7 +215,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
-			if($edit_fns->processInlineOptionInterface($section, $o)) $updated = true;
+			if ($edit_fns->processInlineOptionInterface($section, $o)) $updated = true;
 		}
 
 		// delete any sections that need deleting

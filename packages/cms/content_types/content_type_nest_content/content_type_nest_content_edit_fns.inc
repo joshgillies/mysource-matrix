@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.23 2004/08/19 05:16:03 gsherwood Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.24 2004/12/03 15:37:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -149,7 +149,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		}
 
 		$form_tags = Array('form', 'input' , 'select', 'option', 'textarea');
-		foreach($form_tags as $tag) {
+		foreach ($form_tags as $tag) {
 			if (stristr($asset_contents, '<'.$tag) !== false) {
 				?>
 				<span class="sq-backend-warning">
@@ -183,7 +183,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	{
 		echo '<'.'?php'."\n";
 		?>
-		if(!isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'])) $GLOBALS['SQ_NEST_CONTENT_PAINTED'] = Array();
+		if (!isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'])) $GLOBALS['SQ_NEST_CONTENT_PAINTED'] = Array();
 
 		if (!isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][<?php echo $nested_asset->id?>])) {
 			$GLOBALS['SQ_NEST_CONTENT_PAINTED'][<?php echo $nested_asset->id?>] = 1;

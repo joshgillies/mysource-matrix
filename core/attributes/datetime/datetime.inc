@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.23 2004/11/10 03:22:58 gsherwood Exp $
+* $Id: datetime.inc,v 1.24 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -143,7 +143,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 		// if nothing was found, define some defaults of our own
 		if (empty($this->_edit_params['show'])) {
 			$this->_edit_params['show'] = Array('y','m','d','h','i','s');
-			foreach($this->_edit_params['show'] as $u) {
+			foreach ($this->_edit_params['show'] as $u) {
 				$this->_edit_params['style'][$u] = 's';
 			}
 		}
@@ -351,13 +351,13 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 
 		$field = new Datetime_Field('blah', $date_field_value, $this->_edit_params);
 		$units = $field->strToUnitsArray($date_field_value);
-		foreach(Array('y', 'm', 'd') as $u) if ($units[$u] == -1) return -1;
+		foreach (Array('y', 'm', 'd') as $u) if ($units[$u] == -1) return -1;
 
 		// now we know that we can formulate a date
 		$strtotime = $units['m'].'/'.$units['d'].'/'.$units['y'];
 
 		$dotime = true;
-		foreach(Array('h', 'i', 's') as $u) if ($units[$u] == -1) $dotime = false;
+		foreach (Array('h', 'i', 's') as $u) if ($units[$u] == -1) $dotime = false;
 		if ($dotime) $strtotime .= ' '.$units['h'].':'.$units['i'].':'.$units['s'];
 
 		return strtotime($strtotime);

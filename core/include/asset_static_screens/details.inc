@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.7 2004/07/23 07:13:21 mmcintyre Exp $
+* $Id: details.inc,v 1.8 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,7 +46,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 */
 function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 {
-	if(!($file = $ei->_findFile('static_screen_details'))) return false;
+	if (!($file = $ei->_findFile('static_screen_details'))) return false;
 
 	$prefix = $owner->getPrefix();
 	$print_commit_button = false;
@@ -58,7 +58,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 		return;
 	}
 
-	for($i = 0; $i < count($root->children); $i++) {
+	for ($i = 0; $i < count($root->children); $i++) {
 		
 		$section = &$root->children[$i];
 
@@ -74,7 +74,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 
 		if (!($num_fields = count($section->children))) continue;
 
-		for($j = 0; $j < $num_fields; $j++) {
+		for ($j = 0; $j < $num_fields; $j++) {
 			$field = &$section->children[$j];
 
 			switch (strtolower($field->attributes['code'])) {
@@ -142,7 +142,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 							</tr>
 						<?php
 
-						for($i = 0; $i < count($fs_jobs); $i++) {
+						for ($i = 0; $i < count($fs_jobs); $i++) {
 						?>
 							<tr>
 								<td class="sq-backend-table-cell">
@@ -364,7 +364,7 @@ function processDetails(&$owner, &$o, &$ei)
 			if (!empty($fs_jobs)) {
 
 				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_mgr->id, 'links')) {
-					for($i = 0; $i < count($fs_jobs); $i++) {
+					for ($i = 0; $i < count($fs_jobs); $i++) {
 						if (in_array($fs_jobs[$i]->id, $_POST[$prefix.'_remove_fs'])) {
 							if ($cron_mgr->removeJob($fs_jobs[$i])) {
 								$is_updated = true;

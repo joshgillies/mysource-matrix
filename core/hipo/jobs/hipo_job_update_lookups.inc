@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.21 2004/11/18 04:49:33 gsherwood Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.22 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -94,7 +94,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 		// metadata regeneration threshhold HIPO config entry
 		$o->openField('Lookups Updating Threshold');
 
-		if($write_access) {
+		if ($write_access) {
 			text_box($class.'[SQ_HIPO_LOOKUPS_THRESHOLD]', SQ_HIPO_LOOKUPS_THRESHOLD, 5);
 		} else {
 			echo SQ_HIPO_LOOKUPS_THRESHOLD;
@@ -188,7 +188,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 		$todo_assetids = $this->_running_vars['assetids'];
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		
-		foreach($this->_running_vars['assetids'] as $assetid) {
+		foreach ($this->_running_vars['assetids'] as $assetid) {
 			
 			$where = 'l.minorid = '.$db->quote($assetid);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');

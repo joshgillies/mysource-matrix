@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.38 2004/11/18 04:42:55 gsherwood Exp $
+* $Id: asset_edit_fns.inc,v 1.39 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -122,7 +122,7 @@ class Asset_Edit_Fns extends MySource_Object
 
 		$paths = $asset->getWebPaths();
 
-		foreach($paths as $path) {
+		foreach ($paths as $path) {
 			if ($wa) text_box($prefix.'_paths[]', $path, 25);
 			else echo $path;
 			echo '<br/>';
@@ -175,7 +175,7 @@ class Asset_Edit_Fns extends MySource_Object
 		if (empty($urls)) {
 			echo 'There are no URLs associated with this Asset';
 		} else {
-			foreach($urls as $data) {
+			foreach ($urls as $data) {
 				if ($data['http'])  echo 'http://'.$data['url'], '<br/>';
 				if ($data['https']) echo 'https://'.$data['url'], '<br/>';
 			}
@@ -269,7 +269,7 @@ class Asset_Edit_Fns extends MySource_Object
 					$weighting = '0';
 				}	
 			}
-			if(!isset($weightings[$component]['default']))
+			if (!isset($weightings[$component]['default']))
 				$weightings[$component]['default'] = '0';
 		}
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.124 2004/12/03 05:37:41 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.125 2004/12/03 15:36:53 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.124 $ - 1.0
+* @version $Revision: 1.125 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -226,7 +226,7 @@ class Page_Calendar extends Page_Asset_Listing
 	{
 		if ($name == 'types') {
 			$type_codes = array_flip(array_merge($GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('calendar_event_single'), 'calendar_event_single', $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('calendar_event_recurring'), 'calendar_event_recurring'));
-			foreach($type_codes as $key => $val) {
+			foreach ($type_codes as $key => $val) {
 				$type_codes[$key] = 1;
 			}
 			return $type_codes;
@@ -955,7 +955,7 @@ class Page_Calendar extends Page_Asset_Listing
 				$click_to_add_code = ($click_to_add_ab) ? ' onclick="addEvent(\''.$event_link_date.'\', \'*\');" style="cursor: pointer; cursor: hand"' : '';
 				echo '<td id="'.$id.'_allday"'.$click_to_add_code.'>';
 				if (empty($col_events['all_day'])) echo '&nbsp;';
-				foreach($col_events['all_day'] as $assetid => $event) {
+				foreach ($col_events['all_day'] as $assetid => $event) {
 					$assetid = strtok($assetid,':');
 					$event_class = $root_nodes[$event['root_node']]['class_name'];
 					$onclick_code = $show_event_links ? ' onclick="clickChild(this);"' : '';
@@ -1084,7 +1084,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$event_class = '';
 			uasort($root_node_treeids, create_function('$a,$b', 'return strlen($b)-strlen($a);'));
 
-			foreach($root_node_treeids as $root_node_assetid => $root_node_treeid) {
+			foreach ($root_node_treeids as $root_node_assetid => $root_node_treeid) {
 				if (substr($details['treeid'], 0, strlen($root_node_treeid)) === $root_node_treeid) {				
 					// if this root node has a formatting style, use it and shove off
 					if ($root_nodes[$root_node_assetid]['class_name'] != '') {
@@ -1330,7 +1330,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 		$event_lists = Array();
 
-		foreach(array_values($events) as $event) {
+		foreach (array_values($events) as $event) {
 			if (empty($event['start_date_hours'])) continue; // no-time event
 			$event_start_time = $event['start_date_hours'] * 60 + $event['start_date_minutes'];
 			if (is_null($event['end_date_hours']) || is_null($event['end_date_minutes'])) {
@@ -1341,7 +1341,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$event_start_section = floor(($event_start_time - $start_time) / $spacing);
 			$event_end_section = (ceil(($event_end_time - $start_time) / $spacing) - 1);
 
-			for($i = $event_start_section; $i <= min($end_section, $event_end_section); $i++) {
+			for ($i = $event_start_section; $i <= min($end_section, $event_end_section); $i++) {
 				if ((!is_null($root_node)) && ($event['root_node'] != $root_node)) {
 					continue;
 				}
@@ -1537,7 +1537,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 		foreach (range(1, 12) as $month_num) {
 			$res[$month_num] = Array();
-			foreach(range(1, days_in_month($month_num, $year)) as $dom) {
+			foreach (range(1, days_in_month($month_num, $year)) as $dom) {
 				$res[$month_num][$dom] = Array();
 			}
 		}
@@ -1753,7 +1753,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$ts += $time_partition;
 		}
 		$partitions = array_flip($partition_keys);
-		foreach($partitions as $key => $val) $partitions[$key] = Array();
+		foreach ($partitions as $key => $val) $partitions[$key] = Array();
 		$partitions['all_day'] = Array();
 
 		$res = Array();
@@ -1791,7 +1791,7 @@ class Page_Calendar extends Page_Asset_Listing
 		}
 
 		foreach ($res as $date => $events) {
-			foreach($partition_keys as $partition) process_exceptions($res[$date][$partition]);
+			foreach ($partition_keys as $partition) process_exceptions($res[$date][$partition]);
 		}
 		return $res;
 
@@ -1885,7 +1885,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$ts += $time_partition;
 		}
 		$partitions = array_flip($partition_keys);
-		foreach($partitions as $key => $val) $partitions[$key] = Array();
+		foreach ($partitions as $key => $val) $partitions[$key] = Array();
 		$partitions['all_day'] = Array();
 
 		$res = $partitions;
@@ -1938,7 +1938,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$ts += $time_partition;
 		}
 		$partitions = array_flip($partition_keys);
-		foreach($partitions as $key => $val) $partitions[$key] = Array();
+		foreach ($partitions as $key => $val) $partitions[$key] = Array();
 		$partitions['all_day'] = Array();
 
 		$events = &$this->getDayEvents($date);
@@ -1958,7 +1958,7 @@ class Page_Calendar extends Page_Asset_Listing
 			// get class to use for root node
 			$col = (isset($res['other']) ? 'other' : false);
 
-			foreach($root_node_treeids as $root_node_assetid => $root_node_treeid) {
+			foreach ($root_node_treeids as $root_node_assetid => $root_node_treeid) {
 				if (substr($details['treeid'], 0, strlen($root_node_treeid)) === $root_node_treeid) {
 					if (in_array($root_node_assetid, $columnise_by_root)) {
 						$col = $root_node_assetid;
@@ -1987,8 +1987,8 @@ class Page_Calendar extends Page_Asset_Listing
 		foreach ($res as $root_node => $null) {
 			$max_events = 1;
 			$rrn = Array();
-			foreach($res[$root_node] as $key => $null) {
-				foreach($res[$root_node][$key] as $id => $null) {
+			foreach ($res[$root_node] as $key => $null) {
+				foreach ($res[$root_node][$key] as $id => $null) {
 					$rrn[] = &$res[$root_node][$key][$id];
 				}
 			}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_file_versioning.php,v 1.6 2004/11/16 05:58:31 lwright Exp $
+* $Id: upgrade_file_versioning.php,v 1.7 2004/12/03 15:42:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -54,7 +54,7 @@ if (!$root_user->comparePassword($root_password)) {
 $db = &$GLOBALS['SQ_SYSTEM']->db;
 
 // rename each file versioning related table
-foreach(Array('file_versioning_file', 'file_versioning_file_history', 'file_versioning_file_lock') as $table_name) {
+foreach (Array('file_versioning_file', 'file_versioning_file_history', 'file_versioning_file_lock') as $table_name) {
 	printName('Rename "'.$table_name.'"');
 	
 	// find out of the table exists by trying to run a query on it and see whether it

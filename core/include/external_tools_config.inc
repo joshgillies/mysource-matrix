@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.4 2004/09/28 04:10:53 gsherwood Exp $
+* $Id: external_tools_config.inc,v 1.5 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -174,21 +174,21 @@ class External_Tools_Config extends Config
 		$o->openSection('Activate External Tools');
 		
 			$o->openField('Enable HTML Tidy', '', '');
-			if($write_access && $is_root) {
+			if ($write_access && $is_root) {
 				combo_box($class.'[SQ_TOOL_HTML_TIDY_ENABLED]', Array('1' => 'Yes', '0' => 'No'), false, SQ_TOOL_HTML_TIDY_ENABLED);
 			} else {
 				echo (SQ_TOOL_HTML_TIDY_ENABLED) ? 'Yes' : 'No';
 			}
 			
 			$o->openField('Enable pdftohtml', '', '');
-			if($write_access && $is_root) {
+			if ($write_access && $is_root) {
 				combo_box($class.'[SQ_TOOL_PDFTOHTML_ENABLED]', Array('1' => 'Yes', '0' => 'No'), false, SQ_TOOL_PDFTOHTML_ENABLED);
 			} else {
 				echo (SQ_TOOL_PDFTOHTML_ENABLED) ? 'Yes' : 'No';
 			}
 			
 			$o->openField('Enable Antiword', '', '');
-			if($write_access && $is_root) {
+			if ($write_access && $is_root) {
 				combo_box($class.'[SQ_TOOL_ANTIWORD_ENABLED]', Array('1' => 'Yes', '0' => 'No'), false, SQ_TOOL_ANTIWORD_ENABLED);
 			} else {
 				echo (SQ_TOOL_ANTIWORD_ENABLED) ? 'Yes' : 'No';

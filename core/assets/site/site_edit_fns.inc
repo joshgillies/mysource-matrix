@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.44 2004/06/09 13:10:55 brobertson Exp $
+* $Id: site_edit_fns.inc,v 1.45 2004/12/03 15:29:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -79,7 +79,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 		$urlids = Array();
 
-		for(reset($urls); null !== ($urlid = key($urls)); next($urls)) {
+		for (reset($urls); null !== ($urlid = key($urls)); next($urls)) {
 			$this->_paintURL($o, $prefix, $urlid, $urls[$urlid], $wa);
 			$urlids[] = $urlid;
 		}// end for
@@ -103,13 +103,13 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 			function site_url_check() {
 
-				for(var j = 0; j < site_url_urlids.length; j++) {
+				for (var j = 0; j < site_url_urlids.length; j++) {
 					var urlid = site_url_urlids[j];
 					// if there isn't any value in the url box, it doesn't matter
 					var url = get_form_element_value("<?php echo $prefix; ?>_urls[" + urlid + "][url]");
 					if (url.length) {
 						var found = false;
-						for(var i = 0; i < site_url_protos.length; i++) {
+						for (var i = 0; i < site_url_protos.length; i++) {
 							if (get_form_element_value("<?php echo $prefix; ?>_urls[" + urlid + "][protocols][" + i + "]")) {
 								found = true;
 								break;
@@ -126,7 +126,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 					// remove all the protocols
 					} else {
-						for(var i = 0; i < site_url_protos.length; i++) {
+						for (var i = 0; i < site_url_protos.length; i++) {
 							var proto = get_form_element("<?php echo $prefix; ?>_urls[" + urlid + "][protocols][" + i + "]");
 							proto.checked = false;
 						}// end if
@@ -173,7 +173,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 				?>
 				</td>
 		<?php
-			for($k = 0; $k < count($this->protos); $k++) {
+			for ($k = 0; $k < count($this->protos); $k++) {
 			?>
 				<td class="sq-backend-data">
 				<?php
@@ -215,13 +215,13 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		$post = $_POST[$prefix.'_urls'];
 
 		$urls = Array();
-		for(reset($post); null !== ($urlid = key($post)); next($post)) {
+		for (reset($post); null !== ($urlid = key($post)); next($post)) {
 			
 			$url = trim($post[$urlid]['url']);
 			// if there is a url or some selected protocols, then let's save it
 			if ($url && !empty($post[$urlid]['protocols'])) {
 				$urls[$urlid] = Array('url' => $post[$urlid]['url']);
-				for($k = 0; $k < count($this->protos); $k++) {
+				for ($k = 0; $k < count($this->protos); $k++) {
 					$urls[$urlid][$this->protos[$k]] = (int) in_array($this->protos[$k], $post[$urlid]['protocols']);
 				}
 			}

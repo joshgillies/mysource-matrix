@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.55 2004/11/24 02:58:06 tbarrett Exp $
+* $Id: asset_management.inc,v 1.56 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -943,7 +943,7 @@ class Asset_Management extends MySource_Object
 			trigger_error($components->getMessage().'<br/>'.$components->getUserInfo(), E_USER_ERROR);
 		}
 
-		foreach($this->components as $component => $data) {
+		foreach ($this->components as $component => $data) {
 			if (!isset($components[$component])) {
 				$components[$component] = Array(
 					'description'		=> isset($data['description']) ? $data['description'] : $component,

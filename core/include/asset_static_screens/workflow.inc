@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.10 2004/11/18 04:48:01 gsherwood Exp $
+* $Id: workflow.inc,v 1.11 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -56,7 +56,7 @@ function paintInlineWorkflow(&$owner, &$o, &$ei)
 	$o->openSection('Workflow Schemas');
 
 	$direct = Array();
-	foreach($schemas as $schemaid => $granted) {
+	foreach ($schemas as $schemaid => $granted) {
 		if (!isset($direct[$granted])) $direct[$granted] = Array();
 		$direct[$granted][] = $schemaid;
 	}
@@ -76,7 +76,7 @@ function paintInlineWorkflow(&$owner, &$o, &$ei)
 
 	if (!empty($direct)) {
 		foreach ($direct as $granted => $schemaids) {
-			foreach($schemaids as $schemaid) {
+			foreach ($schemaids as $schemaid) {
 				if ($schemaid) {
 					$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 					if (!$schema->id || !is_a($schema, 'workflow_schema')) continue;
@@ -127,7 +127,7 @@ function paintInlineWorkflow(&$owner, &$o, &$ei)
 */
 function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 {
-	if(!($file = $ei->_findFile('static_screen_workflow'))) return false;
+	if (!($file = $ei->_findFile('static_screen_workflow'))) return false;
 
 	$prefix = $owner->getPrefix();
 	$print_commit_button = false;
@@ -144,7 +144,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 		return false;
 	}
 
-	for($i = 0; $i < count($root->children); $i++) {
+	for ($i = 0; $i < count($root->children); $i++) {
 
 		$section = &$root->children[$i];
 
@@ -163,7 +163,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 
 		if (!($num_fields = count($section->children))) continue;
 
-		for($j = 0; $j < $num_fields; $j++) {
+		for ($j = 0; $j < $num_fields; $j++) {
 			$field = &$section->children[$j];
 
 			switch (strtolower($field->attributes['code'])) {
@@ -529,7 +529,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 				case 'workflow_schemas' :
 
 					$direct = Array();
-					foreach($schemas as $schemaid => $granted) {
+					foreach ($schemas as $schemaid => $granted) {
 						if (!isset($direct[$granted])) $direct[$granted] = Array();
 						$direct[$granted][] = $schemaid;
 					}
@@ -555,7 +555,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 										?>
 									</tr>
 								<?php
-								foreach($schemaids as $schemaid) {
+								foreach ($schemaids as $schemaid) {
 									if ($schemaid) {
 										$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 										if (!$schema->id || !is_a($schema, 'workflow_schema')) continue;

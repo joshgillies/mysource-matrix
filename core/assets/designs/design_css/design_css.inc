@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.5 2004/09/07 10:52:21 brobertson Exp $
+* $Id: design_css.inc,v 1.6 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -138,7 +138,7 @@ class Design_Css extends Design
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_css_customisation', true, 'major', 'customisation');
-			foreach($customisation_links as $link) {
+			foreach ($customisation_links as $link) {
 				$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($customisation)) continue;
 
@@ -198,7 +198,7 @@ class Design_Css extends Design
 		if (is_a($minor, 'file')) {
 
 			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_css_customisation', true, 'major', 'customisation');
-			foreach($customisation_links as $link) {
+			foreach ($customisation_links as $link) {
 				$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($customisation)) continue;
 
@@ -308,7 +308,7 @@ class Design_Css extends Design
 	*/
 	function printVar($var, $args)
 	{
-		switch($var) {
+		switch ($var) {
 			case 'css_header' :
 echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 	  Content (c) Copyright <?php echo SQ_CONF_SYSTEM_OWNER."\n"; ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.69 2004/12/03 03:18:54 lwright Exp $
+* $Id: form.inc,v 1.70 2004/12/03 15:37:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -151,7 +151,7 @@ class Form extends Bridge
 		if (!isset($this->_tmp['getLinks'][$assetid][$side_of_link])) {
 
 			// We also need the REAL asset links here, so we can access the form sections
-			$links = array();
+			$links = Array();
 
 			// but we also need question shadow asset links
 			$entries = $this->getQuestions();
@@ -202,7 +202,7 @@ class Form extends Bridge
 			array_push($links, array_shift($old_links));
 		}
 
-		foreach(array_keys($links) as $i) {
+		foreach (array_keys($links) as $i) {
 
 			$link =& $links[$i];
 
@@ -247,7 +247,7 @@ class Form extends Bridge
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
 	*
-	* @return array(int => string)	returns an array of assetids and their type code
+	* @return Array(int => string)	returns an array of assetids and their type code
 	* @access public
 	* @see Asset_Manager::getChildren()
 	*/
@@ -255,7 +255,7 @@ class Form extends Bridge
 	{
 		if (!is_numeric($assetid)) return Array();
 
-		if (!is_array($type_code)) {
+		if (!is_Array($type_code)) {
 			if (empty($type_code)) $type_code = Array();
 			else $type_code = Array($type_code);
 		}
@@ -293,7 +293,7 @@ class Form extends Bridge
 				}
 			} else {
 				$type_desc = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code) + Array($type_code);
-				if (in_array($data['question_type_code'], $type_desc)) {
+				if (in_Array($data['question_type_code'], $type_desc)) {
 					$children[$this->id.':q'.$questionid] = $data['question_type_code'];
 				}
 			}
@@ -319,7 +319,7 @@ class Form extends Bridge
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
-	* @return array(int)
+	* @return Array(int)
 	* @access public
 	* @see Asset_Manager::getParents()
 	*/
@@ -329,8 +329,8 @@ class Form extends Bridge
 		if (!is_numeric($assetid)) return Array($this->id);
 
 		$parents = Array();
-		if (!is_array($type_code)) $type_code = Array($type_code);
-		if (!in_array('form_section', $type_code) && !in_array('form', $type_code)) return Array();
+		if (!is_Array($type_code)) $type_code = Array($type_code);
+		if (!in_Array('form_section', $type_code) && !in_Array('form', $type_code)) return Array();
 
 		if (!isset($this->_tmp['getParents'][$assetid])) {
 			// this is so we get the sections as we go
@@ -385,7 +385,7 @@ class Form extends Bridge
 	* get the question links attached to this form
 	*
 	* @access public
-	* @return array(link)
+	* @return Array(link)
 	*/
 	function &getQuestions($force=false)
 	{
@@ -554,7 +554,7 @@ class Form extends Bridge
 	* get a specific question
 	*
 	* @access public
-	* @return array(link)
+	* @return Array(link)
 	*/
 	function getQuestionByID($questionid)
 	{
@@ -568,7 +568,7 @@ class Form extends Bridge
 	* get specific question by order
 	*
 	* @access public
-	* @return array(link)
+	* @return Array(link)
 	*/
 	function &getQuestionByOrder($orderid)
 	{
@@ -604,7 +604,7 @@ class Form extends Bridge
 	* @param &object $asset the form asset
 	*
 	* @access public
-	* @return &array(object form_section)
+	* @return &Array(object form_section)
 	*/
 	function &getSections()
 	{
@@ -641,7 +641,7 @@ class Form extends Bridge
 	* @param &object $asset the form asset
 	*
 	* @access public
-	* @return array(link)
+	* @return Array(link)
 	*/
 	function getSectionLinks()
 	{
@@ -713,7 +713,7 @@ class Form extends Bridge
 			return false;			
 		}
 		
-		if (in_array('attributes', $components) || in_array('all', $components)) {
+		if (in_Array('attributes', $components) || in_Array('all', $components)) {
 			$sort_order = $this->attr('sort_order');
 			$sort_order = str_replace($this->id.':q', $clone->id.':q', $sort_order);
 			
@@ -1157,7 +1157,7 @@ class Form extends Bridge
 		if (isset($this->active_submission)) {
 			$errors = $this->active_submission->getErrors();
 			?><ul><?php
-			foreach($errors as $error) {
+			foreach ($errors as $error) {
 				?><li><?php echo $error ?></li><?php
 			}
 			?></ul><?php
@@ -1185,7 +1185,7 @@ class Form extends Bridge
 		// unattached questions first
 		$sort_order = $this->attr('sort_order');
 
-		foreach($sort_order as $sort_order_index => $assetid) {
+		foreach ($sort_order as $sort_order_index => $assetid) {
 
 			// check to see whether this belongs to us (if it isn't then perhaps a section took care)
 			if ($this->id == strtok($assetid, ':')) {
@@ -1203,7 +1203,7 @@ class Form extends Bridge
 
 			$sort_order = $section->attr('sort_order');
 
-			foreach($sort_order as $sort_order_index => $assetid) {
+			foreach ($sort_order as $sort_order_index => $assetid) {
 
 				// check to see whether this belongs to the section
 				if ($section->id == strtok($assetid, ':')) {
@@ -1242,7 +1242,7 @@ class Form extends Bridge
 		// unattached questions first
 		$sort_order = $this->attr('sort_order');
 
-		foreach($sort_order as $sort_order_index => $assetid) {
+		foreach ($sort_order as $sort_order_index => $assetid) {
 
 			// check to see whether this belongs to us (if it isn't then perhaps a section took care)
 			if ($this->id == strtok($assetid, ':')) {
@@ -1267,7 +1267,7 @@ class Form extends Bridge
 
 			$sort_order = $section->attr('sort_order');
 
-			foreach($sort_order as $sort_order_index => $assetid) {
+			foreach ($sort_order as $sort_order_index => $assetid) {
 
 				// check to see whether this belongs to the section
 				if ($section->id == strtok($assetid, ':')) {
@@ -1375,7 +1375,7 @@ class Form extends Bridge
 
 		// run this always (instead of an 'else') because it may have been nulled out by prev block
 		if (is_null($log_id)) {
-			for($i=1;;$i++) {		// loop through possible files (to be replaced by attribute?)
+			for ($i=1;;$i++) {		// loop through possible files (to be replaced by attribute?)
 			$filename = $filename_base.$i.'.xml';
 				if (!file_exists($filename)) {	// file doesn't exist, sweet
 					break;
@@ -1445,7 +1445,7 @@ class Form extends Bridge
 
 		$bodycopies = Array();
 		foreach ($bodycopy_links as $link_info) {
-			if (in_array($link_info['minorid'], $parents)) {
+			if (in_Array($link_info['minorid'], $parents)) {
 				$bodycopies[] = $link_info['value'];
 			}
 		}

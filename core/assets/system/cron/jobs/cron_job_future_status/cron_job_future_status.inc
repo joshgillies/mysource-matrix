@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.18 2004/06/18 13:56:13 brobertson Exp $
+* $Id: cron_job_future_status.inc,v 1.19 2004/12/03 15:29:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -90,7 +90,7 @@ class Cron_Job_Future_Status extends Cron_Job
 		// we need to make sure that we can cope with the possibility of
 		// changing the status of a type that is used by the parent class
 		// EG, 'user' for the running user
-		for(reset($links[SQ_LINK_NOTICE]); (NULL !== ($type = key($links[SQ_LINK_NOTICE]))); next($links[SQ_LINK_NOTICE])) {
+		for (reset($links[SQ_LINK_NOTICE]); (NULL !== ($type = key($links[SQ_LINK_NOTICE]))); next($links[SQ_LINK_NOTICE])) {
 			if ($links[SQ_LINK_NOTICE][$type]['card'] != 'M') {
 				$links[SQ_LINK_NOTICE][$type]['card'] = (int) $links[SQ_LINK_NOTICE][$type]['card'] + 1;
 			}
@@ -137,7 +137,7 @@ class Cron_Job_Future_Status extends Cron_Job
 	*/
 	function setAttrValue($name, $value)
 	{
-		switch($name) {
+		switch ($name) {
 			case 'status' :
 				$value = (int) $value;
 				if (!in_array($value, array_keys($this->_getAllStatii()))) {
@@ -192,7 +192,7 @@ class Cron_Job_Future_Status extends Cron_Job
 		if (empty($descs)) {
 			$descs['']  = '[Select Status]';
 			$statii = Cron_Job_Future_Status::_getAllStatii();
-			foreach($statii as $value => $code) { 
+			foreach ($statii as $value => $code) { 
 				$code = strtolower($code);
 				$status_code = 'asset_status_'.$code;
 				require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
@@ -326,7 +326,7 @@ class Cron_Job_Future_Status extends Cron_Job
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);
 
 		$dates = Array();
-		for($i = 0, $total = count($all_jobs); $i < $total; $i++) {
+		for ($i = 0, $total = count($all_jobs); $i < $total; $i++) {
 			
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($all_jobs[$i]->id, SQ_LINK_NOTICE, 'asset', false, 'updating');
 			if (!empty($link) && $link['minorid'] == $asset->id) {
@@ -338,7 +338,7 @@ class Cron_Job_Future_Status extends Cron_Job
 		asort($dates, SORT_STRING);
 		$assets_jobs = Array();
 
-		foreach($dates as $i => $date) {
+		foreach ($dates as $i => $date) {
 			$assets_jobs[] = &$all_jobs[$i];
 		}// end for
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_edit_fns.inc,v 1.16 2004/11/18 05:08:03 gsherwood Exp $
+* $Id: workflow_schema_edit_fns.inc,v 1.17 2004/12/03 15:29:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -167,7 +167,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 			$step = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 			if (is_null($step)) continue;
 			$edit_fns = $step->getEditFns();
-			if($edit_fns->processInlineOptionInterface($step, $o)) $updated = true;
+			if ($edit_fns->processInlineOptionInterface($step, $o)) $updated = true;
 		}
 
 		// delete any steps that need deleting

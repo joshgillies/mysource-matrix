@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.77 2004/08/05 03:43:52 gsherwood Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.78 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -83,7 +83,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		$o->addFormActionGetVar('am_section', $_REQUEST['am_section']);
 		$o->addHiddenField('am_form_submitted', '1');
 
-		switch($_REQUEST['am_section']) {
+		switch ($_REQUEST['am_section']) {
 
 			case 'add_asset' :
 
@@ -252,7 +252,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 		$locks = $this->am->getLockInfo($asset->id, $_GET['sq_lock_type'], true, true);
 		$got_locks = false;
-		foreach($locks as $lock_type => $lock) {
+		foreach ($locks as $lock_type => $lock) {
 			if (!empty($lock)) {
 				$got_locks = true;
 				break;
@@ -297,7 +297,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 			</tr>
 		<?php
 
-		foreach($locks as $lock_type => $lock) {
+		foreach ($locks as $lock_type => $lock) {
 			if (empty($lock)) continue;
 			// if this lock is held the current user, we aren't really forcing this one
 			if ($lock['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserId()) continue;

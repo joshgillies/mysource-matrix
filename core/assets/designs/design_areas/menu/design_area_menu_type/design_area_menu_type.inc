@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.55 2004/11/18 05:05:08 gsherwood Exp $
+* $Id: design_area_menu_type.inc,v 1.56 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -77,13 +77,13 @@ class Design_Area_Menu_Type extends Design_Area
 				trigger_error('Setting "'.$name.'" unable to be set, three elements in name not found', E_USER_WARNING);
 				return false;
 			}
-			switch($split[2]) {
+			switch ($split[2]) {
 				case 'normal'    :
 				case 'hierarchy' :
 				case 'current'   :
 					$new_value = $this->vars['settings']['value'];
-					if(!is_array($new_value)) $new_value = Array();
-					if(!isset($new_value[$split[1]])) $new_value[$split[1]] = Array();
+					if (!is_array($new_value)) $new_value = Array();
+					if (!isset($new_value[$split[1]])) $new_value[$split[1]] = Array();
 					$new_value[$split[1]][$split[2]] = $value;
 					$name  = 'settings';
 					$value = $new_value;
@@ -96,7 +96,7 @@ class Design_Area_Menu_Type extends Design_Area
 
 		// if they are trying to set a level, so some validation
 		} else if ($name == 'level') {
-			switch(strtolower($value)) {
+			switch (strtolower($value)) {
 				case 'top';
 					$value = 0;
 				break;
@@ -160,9 +160,9 @@ class Design_Area_Menu_Type extends Design_Area
 		$sub_menu = &$this->getSubMenu();
 		if (!is_null($sub_menu)) {
 			$sub_var_refs = $sub_menu->getVarReferences();
-			for(reset($sub_var_refs); null !== ($id_name = key($sub_var_refs)); next($sub_var_refs)) {
+			for (reset($sub_var_refs); null !== ($id_name = key($sub_var_refs)); next($sub_var_refs)) {
 				if (!isset($var_refs[$id_name])) $var_refs[$id_name] = Array();
-				foreach($sub_var_refs[$id_name] as $var) {
+				foreach ($sub_var_refs[$id_name] as $var) {
 					if (in_array($var, $var_refs[$id_name])) continue;
 					$var_refs[$id_name][] = $var;
 				}// end foreach
@@ -185,7 +185,7 @@ class Design_Area_Menu_Type extends Design_Area
 	{
 		$settings = $this->attr('settings');
 		$settings_changed = false;
-		foreach($this->vars['var_references']['value'] as $var_name => $info) {
+		foreach ($this->vars['var_references']['value'] as $var_name => $info) {
 			// if this is a setting and it is available in the var_ref_values
 			if (substr($var_name, 0, 9) == 'settings.' && isset($var_ref_values[$info['id_name']][$info['var']])) {
 				// The name is in the form 'settings.[var_name].[setting type]'
@@ -374,11 +374,11 @@ class Design_Area_Menu_Type extends Design_Area
 			{
 				$assetids = Array();
 				$majorids_str = \'\';
-				foreach($majorids as $id) {
+				foreach ($majorids as $id) {
 					if (empty($GLOBALS[\'MENU_DATA\'][$id])) {
 						$majorids_str .= $id.\',\';
 					} else {
-						foreach($GLOBALS[\'MENU_DATA\'][$id] as $row) {
+						foreach ($GLOBALS[\'MENU_DATA\'][$id] as $row) {
 							$assetids[] = (int) $row[\'assetid\'];
 						}
 					}
@@ -398,7 +398,7 @@ class Design_Area_Menu_Type extends Design_Area
 						} else {
 							$userids = $GLOBALS[\'SQ_SYSTEM\']->am->getParents($GLOBALS[\'SQ_SYSTEM\']->user->id, \'user_group\', false);
 							array_push($userids, 0, $GLOBALS[\'SQ_SYSTEM\']->user->id);
-							for(reset($userids); null !== ($i = key($userids)); next($userids)) $userids[$i] = $db->quote($userids[$i]);
+							for (reset($userids); null !== ($i = key($userids)); next($userids)) $userids[$i] = $db->quote($userids[$i]);
 							$USERIDS_COND = \'AND p.userid  IN (\'.implode(\',\', $userids).\')\';
 						}
 					} else {
@@ -568,8 +568,8 @@ class Design_Area_Menu_Type extends Design_Area
 				// we got php code ? OK, we need to use a switch statement
 				if ($this->_settingHasPHPCode($setting_name)) {
 					$settings = $this->attr('settings');
-					echo '<', '?php switch($'.$this->attr('id_name').'_current_setting){ ';
-					foreach($settings[$setting_name] as $case => $value) {
+					echo '<', '?php switch ($'.$this->attr('id_name').'_current_setting){ ';
+					foreach ($settings[$setting_name] as $case => $value) {
 						echo 'case \''.addslashes($case).'\' : ?','>', $value, '<','?php break; ';
 					}
 					echo '}// end switch ?', '>';
@@ -600,7 +600,7 @@ class Design_Area_Menu_Type extends Design_Area
 
 			}
 
-			switch($var) {
+			switch ($var) {
 				case 'assetid' :
 					if ($id_name) {
 						echo '<', '?php echo $'.$id_name.'_row[\'assetid\']; ?', '>';
@@ -687,7 +687,7 @@ class Design_Area_Menu_Type extends Design_Area
 		$settings = $this->attr('settings');
 		// OK we need out find out if any of the values for this setting have PHP code that needs to be
 		$has_php_code = false;
-		foreach($settings[$setting_name] as $case => $value) {
+		foreach ($settings[$setting_name] as $case => $value) {
 			// we know that this will be the long format because only our design areas have put this in
 			if (strpos($value, '<'.'?php') !== false) return true;
 		}
@@ -705,7 +705,7 @@ class Design_Area_Menu_Type extends Design_Area
 		$settings = $this->attr('settings');
 		// OK we need out find out if any of the values for this setting have PHP code that needs to be
 		$names = array_keys($settings);
-		foreach($names as $setting_name) {
+		foreach ($names as $setting_name) {
 			// we don't want any of the settings that need to be processed
 			if ($this->_settingHasPHPCode($setting_name)) {
 				unset($settings[$setting_name]);

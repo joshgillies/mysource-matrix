@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_management_folder.inc,v 1.9 2004/11/18 05:00:42 gsherwood Exp $
+* $Id: system_management_folder.inc,v 1.10 2004/12/03 15:29:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -202,7 +202,7 @@ class System_Management_Folder extends Folder
 		$allowed_links[SQ_LINK_TYPE_1] = Array();
 
 		$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
-		foreach($packages as $data) {
+		foreach ($packages as $data) {
 			$package = $data['code_name'];
 			if ($package == '__core__') { 
 				require_once SQ_CORE_PACKAGE_PATH.'/package_manager_core.inc';
@@ -213,7 +213,7 @@ class System_Management_Folder extends Folder
 			}
 
 			eval('$sys_asset_types = '.$class.'::getSystemAssetTypes();');
-			foreach($sys_asset_types as $type_code) {
+			foreach ($sys_asset_types as $type_code) {
 					$allowed_links[SQ_LINK_TYPE_1][$type_code] = Array('card' => '1', 'exclusive' => true);
 			}//end foreach
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.32 2004/11/25 10:49:24 brobertson Exp $
+* $Id: cron_manager.inc,v 1.33 2004/12/03 15:29:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -313,7 +313,7 @@ class Cron_Manager extends Asset
 	{
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3, $type_code, $strict_type_code, 'major', null, null, true);
 		$jobs = Array();
-		foreach($links as $link) {
+		foreach ($links as $link) {
 			$job = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($job)) continue;
 			$jobs[] = &$job;
@@ -480,7 +480,7 @@ class Cron_Manager extends Asset
 
 					$ms->openQueue();
 					$remove_jobs = Array();
-					foreach($jobs as $job_info) {
+					foreach ($jobs as $job_info) {
 
 						$cron_job = &$am->getAsset($job_info['assetid'], $job_info['type_code']);
 						if (is_null($cron_job)) continue;
@@ -546,7 +546,7 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 
 					// give it three seconds to get the lock
 					$lock_count = 0;
-					while(1) {
+					while (1) {
 						if ($acquired = $GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attr_links', 0, true)) {
 							break;
 						} elseif ($lock_count < 3) {
@@ -562,7 +562,7 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 
 						$this->setAttrValue('run_check', 0);
 						if (!empty($remove_jobs)) {
-							foreach($remove_jobs as $linkid) {
+							foreach ($remove_jobs as $linkid) {
 								$this->deleteLink($linkid);
 							}
 						}// end if
@@ -672,8 +672,8 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 		// formatted some values of the date vars
 		$end_f  = Array();
 		$start_f = Array();
-		foreach(Array('minutes', 'hours', 'wday', 'mday', 'mon', 'year') as $field) {
-			switch($field) {
+		foreach (Array('minutes', 'hours', 'wday', 'mday', 'mon', 'year') as $field) {
+			switch ($field) {
 				case 'wday': $places = 1; break;
 				case 'year': $places = 4; break;
 				default    : $places = 2; break;
@@ -805,7 +805,7 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 					)';
 
 		if (!empty($ignore_jobs)) {
-			for($i = 0; $i < count($ignore_jobs); $i++) $ignore_jobs[$i] = $db->quote($ignore_jobs[$i]);
+			for ($i = 0; $i < count($ignore_jobs); $i++) $ignore_jobs[$i] = $db->quote($ignore_jobs[$i]);
 			$where .= ' AND a.assetid NOT IN ('.implode(',', $ignore_jobs).')';
 		}
 
@@ -873,7 +873,7 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 			$err_msg  = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', '[SYSTEM_ROOT]'), $err_msg);
 
 			$err_name = '';
-			switch($err_no) {
+			switch ($err_no) {
 				case E_USER_ERROR	: $err_name = SQ_SYSTEM_SHORT_NAME.' Error';	break;
 				case E_USER_WARNING	: $err_name = SQ_SYSTEM_SHORT_NAME.' Warning';	break;
 				case E_USER_NOTICE	: $err_name = SQ_SYSTEM_SHORT_NAME.' Notice';	break;
@@ -896,7 +896,7 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 			$lines = explode("\n", $err_msg);
 			$len = 7 + strlen($err_file);
 			$len = max($len, 7 + strlen($err_line));
-			foreach($lines as $line) $len = max($len, strlen($line));
+			foreach ($lines as $line) $len = max($len, strlen($line));
 			$len += 2;
 			$str =	'+'.str_repeat('-', $len)."+\n".
 					'| '.$err_name.str_repeat(' ', $len - 2 - strlen($err_name))." |\n".
@@ -904,7 +904,7 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 					'| File : '.$err_file.str_repeat(' ', $len - 9 - strlen($err_file))." |\n".
 					'| Line : '.$err_line.str_repeat(' ', $len - 9 - strlen($err_line))." |\n".
 					'|'.str_repeat('-', $len)."|\n";
-			foreach($lines as $line) {
+			foreach ($lines as $line) {
 				$str .=  '| '.$line.str_repeat(' ', $len - 2 - strlen($line))." |\n";
 			}
 

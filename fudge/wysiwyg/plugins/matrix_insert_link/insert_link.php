@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.25 2004/11/10 22:38:32 gsherwood Exp $
+* $Id: insert_link.php,v 1.26 2004/12/03 15:43:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -122,7 +122,7 @@ if (!isset($_GET['new_window'])) {
 				param["new_window_options"] = new Object();
 				param["new_window_options"]["width"]  = form_element_value(f.width);
 				param["new_window_options"]["height"] = form_element_value(f.height);
-				for(var i=0; i < new_window_bool_options.length; i++) {
+				for (var i=0; i < new_window_bool_options.length; i++) {
 					param["new_window_options"][new_window_bool_options[i]] = (f.elements[new_window_bool_options[i]].checked) ? 1 : 0;
 				}
 
@@ -165,7 +165,7 @@ if (!isset($_GET['new_window'])) {
 				f.height.disabled = disable;
 				f.width.style.backgroundColor  = bg_colour;
 				f.height.style.backgroundColor = bg_colour;
-				for(var i=0; i < new_window_bool_options.length; i++) {
+				for (var i=0; i < new_window_bool_options.length; i++) {
 					f.elements[new_window_bool_options[i]].disabled = disable;
 				}
 			};
@@ -325,7 +325,7 @@ if (!isset($_GET['new_window'])) {
 																		<tr>
 																		<?php
 																			$count = 0;
-																			foreach($new_window_bool_options as $var => $name) {
+																			foreach ($new_window_bool_options as $var => $name) {
 																				$count++;
 																			?> 
 																					<td width="33%">

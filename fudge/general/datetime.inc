@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.32 2004/10/06 01:51:54 lwright Exp $
+* $Id: datetime.inc,v 1.33 2004/12/03 15:43:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -117,7 +117,7 @@ function easy_time_total($secs=0, $full_format=false, $return_array=false)
 			$str .= $num_days.' day'.(($num_days > 1) ? 's' : '');
 		}
 
-		if($num_hours) {
+		if ($num_hours) {
 			// if there are no days don't need a joiner
 			if (!$num_days) $joiner = '';
 			// else if there aren't any minutes or seconds so join with " and "
@@ -128,7 +128,7 @@ function easy_time_total($secs=0, $full_format=false, $return_array=false)
 			$str .= $joiner.$num_hours.' hour'.(($num_hours > 1) ? 's' : '');
 		}
 
-		if($num_minutes) {
+		if ($num_minutes) {
 			// if there are no days or hours don't need a joiner
 			if (!$num_days && !$num_hours) $joiner = '';
 			// else if there aren't any seconds so join with " and "
@@ -139,7 +139,7 @@ function easy_time_total($secs=0, $full_format=false, $return_array=false)
 			$str .= $joiner.$num_minutes.' minute'.(($num_minutes > 1) ? 's' : '');
 		}
 
-		if($num_seconds) {
+		if ($num_seconds) {
 			// if there are no days, hours or minutes don't need a joiner
 			if (!$num_days && !$num_hours && !$num_minutes) $joiner = '';
 			// else must be something preceding us so join with " and "
@@ -158,7 +158,7 @@ function easy_time_total($secs=0, $full_format=false, $return_array=false)
 			$str .= $num_days.' day'.(($num_days > 1) ? 's' : '');
 		}
 
-		if($num_hours) {
+		if ($num_hours) {
 			// if there are no days don't need a joiner
 			if (!$num_days) $joiner = '';
 			// else we must be following the days so if there minutes or seconds we have a space
@@ -175,7 +175,7 @@ function easy_time_total($secs=0, $full_format=false, $return_array=false)
 			$str .= $joiner.$num_hours;
 		}
 
-		if($num_minutes || ($num_hours && $num_seconds)) {
+		if ($num_minutes || ($num_hours && $num_seconds)) {
 
 			// if there are no days or hours don't need a joiner
 			if (!$num_days && !$num_hours) $joiner = '';
@@ -200,7 +200,7 @@ function easy_time_total($secs=0, $full_format=false, $return_array=false)
 			}
 		}
 
-		if($num_seconds) {
+		if ($num_seconds) {
 			// if there are no days or hours don't need a joiner
 			if (!$num_days && !$num_hours && !$num_minutes) $joiner = '';
 			// else if there hours the have a colon
@@ -291,7 +291,7 @@ function days_in_month($month, $year)
 	if (is_null($month)) $month = (int) date('n');
 	if (is_null($year))  $year  = (int) date('Y');
 
-	switch($month) {
+	switch ($month) {
 		case  2 : // Feb
 			return (is_leap_year($year)) ? 29 : 28;
 
@@ -557,7 +557,7 @@ function weekday_dates_in_month($weekday, $month, $year)
 	do {
 		$days[] = date('d', $day);
 		$day = strtotime('+1 week', $day);
-	} while((int) date('n', $day) == $month);
+	} while ((int) date('n', $day) == $month);
 
 	return $days;
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.7 2004/03/02 15:11:57 brobertson Exp $
+* $Id: file_versioning.inc,v 1.8 2004/12/03 15:43:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -116,7 +116,7 @@ class File_Versioning
 
 		// defined the $table var from the include
 		require_once $db_file;
-		foreach($tables as $table) {
+		foreach ($tables as $table) {
 			$result = $db->query($table);
 			if (DB::isError($result)) {
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
@@ -314,7 +314,7 @@ class File_Versioning
 					WHERE fileid = '.$this->_db->quote($fileid);
 		$insert = 'INSERT INTO fudge_file_versioning_file_lock (fileid) VALUES ('.$this->_db->quote($fileid).')';
 		// we will attempt a maxmimum of 4 times
-		for($i = 0; $i < $this->num_lock_attempts; $i++) {
+		for ($i = 0; $i < $this->num_lock_attempts; $i++) {
 
 			$result = $this->_db->getOne($select);
 			if (DB::isError($result)) {
@@ -399,7 +399,7 @@ class File_Versioning
 
 		// Make sure that the name is OK
 		$bits = explode('/', $rep_file);
-		foreach($bits as $bit) {
+		foreach ($bits as $bit) {
 			// convert to upper for case insensitiveness
 			if (strtoupper($bit) == '.FFV') {
 				trigger_error('Unable to add file "'.$real_file.'" to path "'.$rep_path.'", name or somewhere in path is ".FFV"', E_USER_NOTICE);
@@ -692,7 +692,7 @@ class File_Versioning
 				return false;
 			}
 
-			if(empty($ver_info)) {
+			if (empty($ver_info)) {
 				trigger_error('File "'.$rep_file.'" does not have an available version for "'.$nice_date.'"', E_USER_NOTICE);
 				$this->_releaseFile($info['fileid']);
 				return false;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_stalks_edit_fns.inc,v 1.8 2003/12/16 18:19:51 brobertson Exp $
+* $Id: design_area_menu_stalks_edit_fns.inc,v 1.9 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -101,7 +101,7 @@ class Design_Area_Menu_Stalks_Edit_Fns extends Design_Area_Menu_Recursive_Edit_F
 		$bg_rgb = Colour::htmlToRgb($bg_colour, false);
 		$fg_rgb = Colour::htmlToRgb($fg_colour, false);
 
-		foreach(Array('stalk', 'arrow', 'branch', 'endbranch') as $image_name) {
+		foreach (Array('stalk', 'arrow', 'branch', 'endbranch') as $image_name) {
 
 			// create the image
 			$img = ImageCreate(($image_name == 'arrow') ? $asset->arrow_width : $w, $h);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage.inc,v 1.6 2004/04/13 01:00:43 gsherwood Exp $
+* $Id: design_area_asset_lineage.inc,v 1.7 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,7 +53,7 @@ class Design_Area_Asset_Lineage extends Design_Area
 	function printVar($var, $args, $value_prefix='', $value_suffix='')
 	{
 
-		switch($var) {
+		switch ($var) {
 			case 'assetid' :
 				echo '<', '?php echo $ASSET_LINEAGE[$'.$this->attr('id_name').'_i][\'assetid\']; ?', '>';
 			break;

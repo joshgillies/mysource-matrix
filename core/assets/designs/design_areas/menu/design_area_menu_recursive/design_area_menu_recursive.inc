@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_recursive.inc,v 1.18 2003/12/16 18:08:22 brobertson Exp $
+* $Id: design_area_menu_recursive.inc,v 1.19 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,7 +51,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 	function setAttrValue($name, $value)
 	{
 		// make sure the aligment is lower case
-		switch($name) { 
+		switch ($name) { 
 			case 'show_subs' :
 				trigger_error('The "'.$name.'" attribute has no effect in a "'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').'", use the "min_num_levels" and "max_num_levels" attributes', E_USER_NOTICE);
 				break;
@@ -129,7 +129,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 #			pre_echo("Lineage Assetid : $'.$this->attr('id_name').'_lineage_assetid");
 			$num_kids = count($GLOBALS[\'MENU_DATA\'][$parentid]);
 			$i = 0;
-			foreach($GLOBALS[\'MENU_DATA\'][$parentid] as $'.$this->attr('id_name').'_row) {
+			foreach ($GLOBALS[\'MENU_DATA\'][$parentid] as $'.$this->attr('id_name').'_row) {
 				$i++;
 				$end = ($i == $num_kids);
 				// if not live, we have to get the proper object, sorry
@@ -222,7 +222,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 
 		echo '
 #pre_echo("NR:  ".$'.$this->attr('id_name').'_num_repeats);
-		for($'.$this->attr('id_name').'_i = 0; $'.$this->attr('id_name').'_i < $'.$this->attr('id_name').'_num_repeats; $'.$this->attr('id_name').'_i++) {
+		for ($'.$this->attr('id_name').'_i = 0; $'.$this->attr('id_name').'_i < $'.$this->attr('id_name').'_num_repeats; $'.$this->attr('id_name').'_i++) {
 
 		';
 

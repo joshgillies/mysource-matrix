@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_edit_fns.inc,v 1.13 2003/12/03 23:11:37 gsherwood Exp $
+* $Id: cron_job_edit_fns.inc,v 1.14 2004/12/03 15:29:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -95,7 +95,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 
 		$days = Array('--' => '--');
 		if ($repeating) {
-			for($i = 0; $i <= 6; $i++) $days[(string) $i] = Cron_Job::whenWeekDayName($i);
+			for ($i = 0; $i <= 6; $i++) $days[(string) $i] = Cron_Job::whenWeekDayName($i);
 		}
 		for ($i = 1; $i <= 31; $i++) $days[str_pad($i, 2, '0', STR_PAD_LEFT)] = str_pad($i, 2, '0', STR_PAD_LEFT);
 		if ($write_access) {
@@ -131,7 +131,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 		if ($write_access) {
 			if (count($hours_mins['hours']) > 1) {
 				$hours = Array('--' => '--');
-				foreach($hours_mins['hours'] as $i) $hours[$i] = $i;
+				foreach ($hours_mins['hours'] as $i) $hours[$i] = $i;
 				combo_box($prefix.'_hour', $hours, false, $when_arr['hour']);
 			} else {
 				echo $hours_mins['hours'][0];
@@ -146,7 +146,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 		if ($write_access) {
 			if (count($hours_mins['mins']) > 1) {
 				$mins = Array('--' => '--');
-				foreach($hours_mins['mins'] as $i) $mins[$i] = $i;
+				foreach ($hours_mins['mins'] as $i) $mins[$i] = $i;
 				combo_box($prefix.'_minute', $mins, false, $when_arr['minute']);
 			} else {
 				echo $hours_mins['mins'][0];
@@ -181,9 +181,9 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 		$when_str = '';
 		$type_prefix = ($one_off) ? 'OO' : '';
 
-		foreach(Array('year', 'month', 'day', 'hour', 'minute') as $field) {
+		foreach (Array('year', 'month', 'day', 'hour', 'minute') as $field) {
 			if ($_POST[$prefix.'_'.$field] != '--') {
-				switch($field) {
+				switch ($field) {
 					case 'year' :
 						$when_str .= $_POST[$prefix.'_'.$field].'-';
 						break;

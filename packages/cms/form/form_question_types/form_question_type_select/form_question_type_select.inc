@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.25 2004/11/23 05:43:04 lwright Exp $
+* $Id: form_question_type_select.inc,v 1.26 2004/12/03 15:37:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -117,7 +117,7 @@ class Form_Question_Type_Select extends Form_Question
 	{
 		$options = split("\r\n", $this->attr('options'));
 		// remove empty options
-		foreach(array_keys($options) as $k) {
+		foreach (array_keys($options) as $k) {
 			if ($options[$k] == "") {
 				unset($options[$k]);
 			}

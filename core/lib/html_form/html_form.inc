@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.67 2004/12/01 12:46:32 brobertson Exp $
+* $Id: html_form.inc,v 1.68 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -290,8 +290,8 @@ function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras=''
 		$name .= '[]';
 	}
 
-	if (!is_array($contents)) $contents = Array($contents);
-	if (!is_array($defaults)) $defaults = Array($defaults);
+	if (!is_Array($contents)) $contents = Array($contents);
+	if (!is_Array($defaults)) $defaults = Array($defaults);
 
 	echo	'<select name="', htmlspecialchars($name), '" ',
 			'id="', htmlspecialchars($name), '" ',
@@ -299,14 +299,14 @@ function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras=''
 			$extras,
 			'>';
 
-	foreach($contents as $key => $value) {
+	foreach ($contents as $key => $value) {
 		if ($maxlength) {
 			$value = str_replace('&nbsp;', ' ', $value);  // we don't want a space to take 6 chars do we ?
 			if (strlen($value) > $maxlength) $value = substr($value, 0, $maxlength - 3).'...';
 		}
 		$value = str_replace(' ', '&nbsp;', htmlspecialchars($value));
 		echo	'<option value="', htmlspecialchars($key), '"',
-				((in_array((string) $key, $defaults)) ? ' selected="selected"' : ''),
+				((in_Array((string) $key, $defaults)) ? ' selected="selected"' : ''),
 				'>',
 				$value,
 				'</option>';
@@ -383,7 +383,7 @@ function date_box($name, $default_timestamp=null, $show_time=true, $extras='')
 	trigger_error('*cough*, date_box has not been fully converted - "Calendar::" references and maybe we should be using the datetime_field ?', E_USER_WARNING);
 	return '';
 
-	if(!$default_timestamp) $default_timestamp = Calendar::get_next_time_period();
+	if (!$default_timestamp) $default_timestamp = Calendar::get_next_time_period();
 
 	// if we aren't showing the time set the timestamp to start of day
 	if (!$show_time) $default_timestamp = Calendar::get_day_start($default_timestamp);
@@ -398,19 +398,19 @@ function date_box($name, $default_timestamp=null, $show_time=true, $extras='')
 	$extras .= ' onchange="javascript: check_date(\''.$name.'\', '.(($show_time) ? 'true':'false').');"';
 	hidden_field($name, $default_timestamp);
 
-	$days = array();
+	$days = Array();
 	for ($i = 1; $i <= 31; $i++) $days[$i] = $i;
 	combo_box('day_'.$name, $days, $default['mday'], $extras);
 
-	$months = array();
+	$months = Array();
 	for ($i = 1; $i <= 12; $i++) $months[$i] = date('M', mktime(0,0,0,$i,1,2000));
 	combo_box('month_'.$name, $months, $default['mon'], $extras);
 
-	$years = array();
+	$years = Array();
 	for ($i = $start_year; $i <= $end_year; $i++) $years[$i] = $i;
 	combo_box('year_'.$name, $years, $default['year'], $extras);
 
-	if($show_time) {
+	if ($show_time) {
 
 		echo '&nbsp;&nbsp;';
 		time_box('hour_'.$name, $default['hours'], 'min_'.$name, $default['minutes'], $extras);
@@ -429,12 +429,12 @@ function time_box($hours_name, $hours, $mins_name, $mins, $extras='')
 	trigger_error('*cough*, time_box has not been fully converted - maybe we should be using the datetime_field ?', E_USER_WARNING);
 	return '';
 
-	$hours_list = array('0' => '12am', '1' => ' 1am', '2' => ' 2am', '3' => ' 3am', '4' => ' 4am', '5' => ' 5am', '6' => ' 6am', '7' => ' 7am', '8' => ' 8am', '9' => ' 9am', '10' => '10am', '11' => '11am',
+	$hours_list = Array('0' => '12am', '1' => ' 1am', '2' => ' 2am', '3' => ' 3am', '4' => ' 4am', '5' => ' 5am', '6' => ' 6am', '7' => ' 7am', '8' => ' 8am', '9' => ' 9am', '10' => '10am', '11' => '11am',
 				  '12' => '12pm', '13' => ' 1pm', '14' => ' 2pm', '15' => ' 3pm', '16' => ' 4pm', '17' => ' 5pm', '18' => ' 6pm', '19' => ' 7pm', '20' => ' 8pm', '21' => ' 9pm', '22' => '10pm', '23' => '11pm');
 	combo_box($hours_name, $hours_list, $hours, $extras);
 
-	$mins_list = array();
-	for($i = 0; $i < 60; $i++) {
+	$mins_list = Array();
+	for ($i = 0; $i < 60; $i++) {
 		$mins_list[$i] = sprintf(':%02d', $i);
 	}
 	combo_box($mins_name, $mins_list, $mins, $extras);
@@ -473,7 +473,7 @@ function get_file_upload_info($name)
 	$nice_name = str_replace('_', ' ', $name);
 
 	// if something went wrong, sorry bad luck
-	switch($_FILES[$name]['error']) {
+	switch ($_FILES[$name]['error']) {
 
 		case UPLOAD_ERR_NO_FILE :
 			return Array();
@@ -535,11 +535,11 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 	//// if we get this far the file on the server OK ////
 
 	// Are we worried about the extension ?
-	if(count($extensions)) {
+	if (count($extensions)) {
 		$exts = Array();
-		foreach($extensions as $v) $exts[] = strtolower($v);
+		foreach ($extensions as $v) $exts[] = strtolower($v);
 		$ext = strtolower(substr(strrchr($info['name'],"."), 1));
-		$in_arr = in_array($ext, $exts);
+		$in_arr = in_Array($ext, $exts);
 
 		// see $restrict_exts documentation in function header
 		if (($restrict_exts && !$in_arr) || (!$restrict_exts && $in_arr)) {
@@ -588,10 +588,10 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 	******* Have left this out for now - BCR *******
 
 	// if this filename already exists and we aren't to overwrite, rename it
-	if(file_exists($dest . '/' . $name) && !$overwrite) {
-		while(file_exists($dest . '/' . $name)) {
+	if (file_exists($dest . '/' . $name) && !$overwrite) {
+		while (file_exists($dest . '/' . $name)) {
 			$pos = strrpos($name, '.');
-			if(!$pos) $pos = strlen($name);
+			if (!$pos) $pos = strlen($name);
 			$name = increment_name(substr($name,0,$pos)).(substr($name,$pos));
 			$thefile_name = $name;
 		}
@@ -626,13 +626,13 @@ function get_type_codes_string($type_codes)
 		switch ($flag) {
 			case 'A' :
 				$ancestors = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
-				foreach($ancestors as $ancestor) {
+				foreach ($ancestors as $ancestor) {
 					$all_type_codes[] = $ancestor;
 				}
 			break;
 			case 'D' :
 				$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code);
-				foreach($descendants as $descendant) {
+				foreach ($descendants as $descendant) {
 					$all_type_codes[] = $descendant;
 				}
 			break;
@@ -701,10 +701,10 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 	text_box($safe_name.'_label', $label, 30, 0, false, 'class="sq-form-asset-finder" onfocus="javascript: this.tmp = this.value;" onblur="javascript: this.value = this.tmp;"');
 	normal_button($safe_name.'_change_btn', 'Change', $map_frame.'.asset_finder_change_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes).'\', '.$done_fn.');');
 
-	if (in_array('clear', $buttons)) {
+	if (in_Array('clear', $buttons)) {
 		normal_button($safe_name.'_clear_btn', 'Clear', $map_frame.'.asset_finder_clear_btn_press(\''.$name.'\', \''.$safe_name.'\');');
 	}
-	if (in_array('reset', $buttons)) {
+	if (in_Array('reset', $buttons)) {
 		normal_button($safe_name.'_reset_btn', 'Reset', $map_frame.'.asset_finder_reset_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.$assetid.'\', \''.addslashes($label).'\');');
 	}
 
@@ -750,7 +750,7 @@ function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $m
 
 	$safe_name = 'sq_asset_finder_'.preg_replace('/[^A-Za-z0-9]/', '_', $name);
 	$type_codes_string = get_type_codes_string($type_codes);
-	echo '<input type="button" value="More..." onclick="addNewAssetFinder(this, \''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes_string).'\', \''.htmlentities($map_frame_exp).'\', '.$done_fn.', '.(in_array('clear', $buttons) ? 'true' : 'false').')" />';
+	echo '<input type="button" value="More..." onclick="addNewAssetFinder(this, \''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes_string).'\', \''.htmlentities($map_frame_exp).'\', '.$done_fn.', '.(in_Array('clear', $buttons) ? 'true' : 'false').')" />';
 	echo '<br />';
 	echo '</div>';
 
@@ -851,12 +851,12 @@ function validate_security_key()
 */
 function var_to_hidden_field($var, $name='')
 {
-	if(is_array($var) || is_object($var)) {
-		foreach($var as $k => $v) {
+	if (is_Array($var) || is_object($var)) {
+		foreach ($var as $k => $v) {
 			var_to_hidden_field($v, (($name) ? $name.'['.$k.']': $k));
 		}
 	} else {
-		if($name) hidden_field($name, $var);
+		if ($name) hidden_field($name, $var);
 	}
 
 }// end var_to_hidden_field()

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area.inc,v 1.35 2004/11/18 05:05:08 gsherwood Exp $
+* $Id: design_area.inc,v 1.36 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -118,7 +118,7 @@ class Design_Area extends Asset
 	{
 		if (parent::processBackend($o, $link)) {
 			$designs = &$this->getDesigns();
-			for($i = 0, $max = count($designs); $i < $max; $i++) {
+			for ($i = 0, $max = count($designs); $i < $max; $i++) {
 				$designs[$i]->generateDesignFile(false);
 			}// end for
 
@@ -143,7 +143,7 @@ class Design_Area extends Asset
 	{
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3, 'design', false, 'minor');
 		$designs = Array();
-		foreach($links as $link) {
+		foreach ($links as $link) {
 			$designs[] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code'], true);
 		}
 		return $designs;
@@ -159,7 +159,7 @@ class Design_Area extends Asset
 	function getVarReferences()
 	{
 		$var_refs = Array();
-		foreach($this->vars['var_references']['value'] as $var_name => $info) {
+		foreach ($this->vars['var_references']['value'] as $var_name => $info) {
 			if (!isset($var_refs[$info['id_name']])) $var_refs[$info['id_name']] = Array();
 			$var_refs[$info['id_name']][] = $info['var'];
 		}// end foreach
@@ -179,7 +179,7 @@ class Design_Area extends Asset
 	function setVarReferenceValues($var_ref_values)
 	{
 		if (!isset($this->_tmp['var_reference_values'])) $this->_tmp['var_reference_values'] = Array();
-		foreach($this->vars['var_references']['value'] as $var_name => $info) {
+		foreach ($this->vars['var_references']['value'] as $var_name => $info) {
 			if (isset($var_ref_values[$info['id_name']][$info['var']])) {
 				$this->_tmp['var_reference_values'][$var_name] = $var_ref_values[$info['id_name']][$info['var']];
 			}

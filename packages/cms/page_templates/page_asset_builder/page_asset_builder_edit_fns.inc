@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.23 2004/11/26 05:59:34 tbarrett Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.24 2004/12/03 15:37:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -183,7 +183,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			} else {
 				$is_multiple = (count($asset->attr('create_type')) > 1);
 				if ($is_multiple) echo '<ul>';
-				foreach(array_keys($asset->attr('create_type')) as $create_type) {
+				foreach (array_keys($asset->attr('create_type')) as $create_type) {
 					$info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($create_type);
 					if ($is_multiple) echo '<li>';
 					echo $info['name'];

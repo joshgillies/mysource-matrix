@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.248 2004/11/22 05:35:10 lwright Exp $
+* $Id: asset_manager.inc,v 1.249 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -169,7 +169,7 @@ class Asset_Manager extends MySource_Object
 
 		$type_code_level = (int) $this->getTypeInfo($type_code, 'lvl');
 
-		foreach($inserts as $inherited_type_code) {
+		foreach ($inserts as $inherited_type_code) {
 			$inherited_type_code_level = ($inherited_type_code == 'asset') ? 0 : (int) $this->getTypeInfo($inherited_type_code, 'lvl');
 			$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'ast_typ_inhd
 					(inhd_type_code, type_code, inhd_type_code_lvl, type_code_lvl)
@@ -180,7 +180,7 @@ class Asset_Manager extends MySource_Object
 			assert_valid_db_result($result);
 		}
 
-		foreach($deletes as $inherited_type_code) {
+		foreach ($deletes as $inherited_type_code) {
 			$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd
 					WHERE inhd_type_code = '.$db->quote($inherited_type_code).'
 					  AND type_code = '.$db->quote($type_code);
@@ -188,7 +188,7 @@ class Asset_Manager extends MySource_Object
 			assert_valid_db_result($result);
 		}
 
-		foreach($updates as $inherited_type_code) {
+		foreach ($updates as $inherited_type_code) {
 			$inherited_type_code_level = ($inherited_type_code == 'asset') ? 0 : (int) $this->getTypeInfo($inherited_type_code, 'lvl');
 			$sql = 'UPDATE '.SQ_TABLE_PREFIX.'ast_typ_inhd
 					SET inhd_type_code_lvl = '.$db->quote($inherited_type_code_level).',
@@ -252,7 +252,7 @@ class Asset_Manager extends MySource_Object
 			$field_info_array = $db->tableInfo(SQ_TABLE_PREFIX.'ast_typ');
 			$field_found = false;
 
-			foreach($field_info_array as $field_info) {
+			foreach ($field_info_array as $field_info) {
 				if ($field_info['name'] == $field) {
 					$field_found = true;
 					break;
@@ -283,7 +283,7 @@ class Asset_Manager extends MySource_Object
 			// as the field from the database so we know what field belongs to what typecode
 			$columns = 'type_code, '.$db->quoteIdentifier($field);
 
-			for($i = 0; $i < $num_type_codes; $i++) {
+			for ($i = 0; $i < $num_type_codes; $i++) {
 				if (!is_string($type_code[$i])) {
 					trigger_error('Type code "'.$type_code[$i].'" is not a string', E_USER_WARNING);
 					unset($type_code[$i]);
@@ -432,7 +432,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$offspring = Array();
-		foreach($type_codes as $type_code) {
+		foreach ($type_codes as $type_code) {
 			$parent = $this->_asset_types[$type_code]['parent_type'];
 			if (!isset($offspring[$parent])) $offspring[$parent] = Array();
 			$offspring[$parent][] = $type_code;
@@ -448,7 +448,7 @@ class Asset_Manager extends MySource_Object
 	{
 		if (empty($offspring[$base_type_code])) return Array();
 		$arr = Array();
-		for($i = 0; $i < count($offspring[$base_type_code]); $i++) {
+		for ($i = 0; $i < count($offspring[$base_type_code]); $i++) {
 			$type = $offspring[$base_type_code][$i];
 			$arr[$type] = Array('name' => $this->_asset_types[$type]['name'],
 								'subs' => $this->_recurseGetAssetTypeHierarchy($offspring, $type)
@@ -485,7 +485,7 @@ class Asset_Manager extends MySource_Object
 
 			$type_code_cond = '';
 			if (is_array($type_code)) {
-				for($i = 0; $i < count($type_code); $i++) $type_code[$i] = $db->quote($type_code[$i]);
+				for ($i = 0; $i < count($type_code); $i++) $type_code[$i] = $db->quote($type_code[$i]);
 				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
 			} else {
 				$type_code_cond = '= '.$db->quote($type_code);
@@ -943,7 +943,7 @@ class Asset_Manager extends MySource_Object
 
 			$type_code_cond = '';
 			if (is_array($type_code)) {
-				for($i = 0; $i < count($type_code); $i++) $type_code[$i] = $db->quote($type_code[$i]);
+				for ($i = 0; $i < count($type_code); $i++) $type_code[$i] = $db->quote($type_code[$i]);
 				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
 			} else {
 				$type_code_cond = '= '.$db->quote($type_code);
@@ -1364,7 +1364,7 @@ class Asset_Manager extends MySource_Object
 		$can_force = ($force) ? $asset->canForceablyAcquireLock($lock_type) : false;
 		$lock_updated = false;
 
-		foreach($current_locks as $lock_type => $lock) {
+		foreach ($current_locks as $lock_type => $lock) {
 
 			if (!empty($lock) && $lock['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
 				// the user is asking to acquire a lock they already had
@@ -1380,7 +1380,7 @@ class Asset_Manager extends MySource_Object
 
 			// special case where the current user is actually
 			// removing the current lock and taking it for themselves
-			if(!empty($lock) && $can_force) {
+			if (!empty($lock) && $can_force) {
 
 				// attempt to remove the lock
 				if (!$this->releaseLock($assetid, $lock_type)) {
@@ -1396,7 +1396,7 @@ class Asset_Manager extends MySource_Object
 				$user = &$this->getAsset($lock['userid']);
 
 				$locked_assetids = Array((int) $assetid);
-				foreach($lock['chained_assets'] as $row) $locked_assetids[] = $row['assetid'];
+				foreach ($lock['chained_assets'] as $row) $locked_assetids[] = $row['assetid'];
 
 				foreach ($locked_assetids as $locked_assetid) {
 					$locked_asset = &$this->getAsset($locked_assetid);
@@ -1473,7 +1473,7 @@ class Asset_Manager extends MySource_Object
 
 		$can_force = $asset->canForceablyAcquireLock($lock_type);
 
-		foreach($current_locks as $lock_type => $lock) {
+		foreach ($current_locks as $lock_type => $lock) {
 			if (empty($lock)) continue;
 
 			// is this asset already locked by someone else and we can't forceably acquire it, piss off
@@ -1520,7 +1520,7 @@ class Asset_Manager extends MySource_Object
 
 		$success = true;
 
-		foreach(array_keys($current_locks) as $lock_type) {
+		foreach (array_keys($current_locks) as $lock_type) {
 
 			if (true !== ($err_msg = $GLOBALS['SQ_SYSTEM']->updateLock('asset.'.$assetid.'.'.$lock_type, $expires))) {
 				trigger_error('Cannot update lock on asset #'.$assetid.', '.$err_msg, E_USER_NOTICE);
@@ -1556,13 +1556,13 @@ class Asset_Manager extends MySource_Object
 		$lock_types = $this->getLockTypes($assetid, $lock_type);
 
 		$locks = Array();
-		foreach($lock_types as $lock_type) {
+		foreach ($lock_types as $lock_type) {
 			$lock = $GLOBALS['SQ_SYSTEM']->getLockInfo('asset.'.$assetid.'.'.$lock_type, $full_chain, $check_expires);
 			if (!empty($lock)) {
 				$lock['lock_type']      = $lock_type;
 				$lock['source_assetid'] = preg_replace('|^asset\.(.*)\.[\w]+$|', '\1', $lock['source_lockid']);
 				if ($full_chain) {
-					for(reset($lock['chained_assets']); NULL !== ($k = key($lock['chained_assets'])); next($lock['chained_assets'])) {
+					for (reset($lock['chained_assets']); NULL !== ($k = key($lock['chained_assets'])); next($lock['chained_assets'])) {
 						$lock['chained_assets'][$k]['assetid'] = preg_replace('/^asset\.([0-9]+(:.+)?)\..*$/', '\1', $lock['chained_assets'][$k]['lockid']);
 						$lock['chained_assets'][$k]['source_assetid'] = preg_replace('/^asset\.([0-9]+(:.+)?)\..*$/', '\1', $lock['chained_assets'][$k]['source_lockid']);
 					}
@@ -1601,7 +1601,7 @@ class Asset_Manager extends MySource_Object
 			if (!isset($this->_tmp['lock_types'][$assetid][$lock_type])) return Array();
 			$bits = bit_elements($this->_tmp['lock_types'][$assetid][$lock_type]);
 			$lock_types = Array();
-			foreach($bits as $bit) {
+			foreach ($bits as $bit) {
 				if (false !== ($k = array_search($bit, $this->_tmp['lock_types'][$assetid]))) {
 					$lock_types[] = $k;
 				}
@@ -1609,7 +1609,7 @@ class Asset_Manager extends MySource_Object
 			return $lock_types;
 		} else {
 			$lock_types = Array();
-			foreach($this->_tmp['lock_types'][$assetid] as $lock_type => $bit) {
+			foreach ($this->_tmp['lock_types'][$assetid] as $lock_type => $bit) {
 				if (preg_match('/^0*10*$/', decbin($bit))) {
 					$lock_types[] = $lock_type;
 				}
@@ -1665,7 +1665,7 @@ class Asset_Manager extends MySource_Object
 
 			$type_code_cond = '';
 			if (is_array($type_code)) {
-				for(reset($type_code); null !== ($i = key($type_code)); next($type_code)) $type_code[$i] = $db->quote($type_code[$i]);
+				for (reset($type_code); null !== ($i = key($type_code)); next($type_code)) $type_code[$i] = $db->quote($type_code[$i]);
 				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
 			} else {
 				$type_code_cond = '= '.$db->quote($type_code);
@@ -2080,7 +2080,7 @@ class Asset_Manager extends MySource_Object
 
 			$type_code_cond = '';
 			if (is_array($type_code)) {
-				for(reset($type_code); null !== ($i = key($type_code)); next($type_code)) $type_code[$i] = $db->quote($type_code[$i]);
+				for (reset($type_code); null !== ($i = key($type_code)); next($type_code)) $type_code[$i] = $db->quote($type_code[$i]);
 				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
 			} else {
 				$type_code_cond = '= '.$db->quote($type_code);
@@ -2327,11 +2327,11 @@ class Asset_Manager extends MySource_Object
 		$assetids  = Array();
 		$majorids_str = '';
 		$exclude_str = implode(',', $exclude_list);
-		foreach($majorids as $id) {
+		foreach ($majorids as $id) {
 			if (empty($tree_data[$id])) {
 				$majorids_str .= $id.',';
 			} else {
-				foreach($tree_data[$id] as $row) {
+				foreach ($tree_data[$id] as $row) {
 					$assetids[] = (int) $row['assetid'];
 				}
 			}
@@ -2348,7 +2348,7 @@ class Asset_Manager extends MySource_Object
 				} else {
 					$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
 					array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
-					for(reset($userids); null !== ($i = key($userids)); next($userids)) $userids[$i] = $db->quote($userids[$i]);
+					for (reset($userids); null !== ($i = key($userids)); next($userids)) $userids[$i] = $db->quote($userids[$i]);
 					$USERIDS_COND = 'AND p.userid  IN ('.implode(',', $userids).')';
 				}
 			} else {
@@ -2515,7 +2515,7 @@ class Asset_Manager extends MySource_Object
 
 			$type_code_cond = '';
 			if (is_array($type_code)) {
-				for($i = 0; $i < count($type_code); $i++) $type_code[$i] = $db->quote($type_code[$i]);
+				for ($i = 0; $i < count($type_code); $i++) $type_code[$i] = $db->quote($type_code[$i]);
 				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
 			} else {
 				$type_code_cond = '= '.$db->quote($type_code);
@@ -2592,7 +2592,7 @@ class Asset_Manager extends MySource_Object
 		// First, we should check that we don't already have a link of this type
 		$current_links = $this->getLinks($major->id, $link_type, $minor->type());
 		$num_curr_links = count($current_links);
-		for($i = 0; $i < $num_curr_links; $i++) {
+		for ($i = 0; $i < $num_curr_links; $i++) {
 			// it already exists, so we don't need to do anything
 			if ($current_links[$i]['minorid'] == $minor->id && $current_links[$i]['value'] == $value) {
 				// if we are trashing the asset and it is already in the trash, just
@@ -3064,7 +3064,7 @@ class Asset_Manager extends MySource_Object
 		//     and only one user, but because 'user' is an 'asset' we need to check for any 'user' references
 		//     before we check for any 'asset' references
 		$type = '';
-		for($i = 0; $i < count($types); $i++) {
+		for ($i = 0; $i < count($types); $i++) {
 			$type = $types[$i];
 			if (!empty($allowed_links[$link_type][$type])) break;
 		}
@@ -3179,7 +3179,7 @@ class Asset_Manager extends MySource_Object
 				$perms = Array(SQ_PERMISSION_ADMIN, SQ_PERMISSION_WRITE, SQ_PERMISSION_READ);
 				foreach ($perms as $perm) {
 					$all_permissions = $this->getPermission($minor->id, $perm, null, false, false, true);
-					foreach($all_permissions as $userid => $granted) {
+					foreach ($all_permissions as $userid => $granted) {
 						// we are deliberatly not checking for the return value here
 						// because if for some reason the permission can't be set that is really just
 						// bad luck
@@ -3703,7 +3703,7 @@ class Asset_Manager extends MySource_Object
 		}// end if
 
 		$ret_val = Array();
-		foreach($this->_tmp['permission_cache'][$assetid][$storage_name] as $data) {
+		foreach ($this->_tmp['permission_cache'][$assetid][$storage_name] as $data) {
 
 			if ($granted === false && $data['granted'] != '0') {
 				continue;
@@ -3956,7 +3956,7 @@ class Asset_Manager extends MySource_Object
 			$sections = explode('/', $url);
 			$option  = '';
 			$url_condition = ' IN (';
-			foreach($sections as $piece) {
+			foreach ($sections as $piece) {
 				$url_condition .= (($option) ? ',' : '').$db->quote($option.$piece);
 				$option .= $piece.'/';
 			}
@@ -4233,7 +4233,7 @@ class Asset_Manager extends MySource_Object
 			$str = '';
 			// so much for SQL standards...
 			$concat = ($db->phptype == 'mysql') ? 'CONCAT(l.url, '.$db->quote('/').')' : 'l.url || '.$db->quote('/');
-			foreach(array_values($url_bits) as $bit) {
+			foreach (array_values($url_bits) as $bit) {
 				$str .= $bit.'/';
 				$sql .= ' +
 				(CASE WHEN SUBSTRING('.$concat.' FROM 1 FOR '.strlen($str).') = '.$db->quote($str).' THEN 1 ELSE 0 END)';
@@ -4411,7 +4411,7 @@ class Asset_Manager extends MySource_Object
 		// get all our nav children
 		$childids = Array();
 		$my_kids = $this->getLinks($major->id, SQ_SC_LINK_WEB_PATHS, '', null, 'major');
-		for($j = 0; $j < count($my_kids); $j++) {
+		for ($j = 0; $j < count($my_kids); $j++) {
 			if ($my_kids[$j]['minorid'] == $ignore_assetid) continue;
 			$childids[] = $db->quote($my_kids[$j]['minorid']);
 		}
@@ -4545,7 +4545,7 @@ class Asset_Manager extends MySource_Object
 				if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 					$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
 					array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
-					for(reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+					for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 						$userids[$i] = $db->quote($userids[$i]);
 					}
 					$userid_cond = ' AND p.userid  IN ('.implode(',', $userids).')';
@@ -4563,7 +4563,7 @@ class Asset_Manager extends MySource_Object
 
 			$type_code_cond = '';
 			if (is_array($type_code)) {
-				for(reset($type_code); null !== ($i = key($type_code)); next($type_code)) $type_code[$i] = $db->quote($type_code[$i]);
+				for (reset($type_code); null !== ($i = key($type_code)); next($type_code)) $type_code[$i] = $db->quote($type_code[$i]);
 				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
 			} else {
 				$type_code_cond = '= '.$db->quote($type_code);
@@ -4680,7 +4680,7 @@ class Asset_Manager extends MySource_Object
 				if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 					$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
 					array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
-					for(reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+					for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 						$userids[$i] = $db->quote($userids[$i]);
 					}
 					$userid_cond = ' AND p.userid  IN ('.implode(',', $userids).')';
@@ -4700,7 +4700,7 @@ class Asset_Manager extends MySource_Object
 
 			$type_code_cond = '';
 			if (is_array($type_code)) {
-				for(reset($type_code); null !== ($i = key($type_code)); next($type_code)) $type_code[$i] = $db->quote($type_code[$i]);
+				for (reset($type_code); null !== ($i = key($type_code)); next($type_code)) $type_code[$i] = $db->quote($type_code[$i]);
 				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
 			} else {
 				$type_code_cond = '= '.$db->quote($type_code);

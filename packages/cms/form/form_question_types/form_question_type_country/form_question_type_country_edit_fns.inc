@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_country_edit_fns.inc,v 1.6 2004/04/29 05:19:40 lwright Exp $
+* $Id: form_question_type_country_edit_fns.inc,v 1.7 2004/12/03 15:37:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -73,7 +73,7 @@ class Form_Question_Type_Country_Edit_Fns extends Form_Question_Type_Select_Edit
 			if (count($selected_options)) {
 				// gather all the names of the countries available
 				$sel_option_names = Array();
-				foreach($selected_options as $selected_option) {
+				foreach ($selected_options as $selected_option) {
 					$sel_option_names[] = $options[$selected_option];
 				}
 				echo implode('<br />', $sel_option_names);

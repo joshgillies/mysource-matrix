@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.45 2004/12/01 04:35:10 gsherwood Exp $
+* $Id: file_edit_fns.inc,v 1.46 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -152,7 +152,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		// make sure the new web path is not already is use
 		if ($asset->name != $name) {
 			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', null, 'minor');
-			for($i = 0; $i < count($parents); $i++) {
+			for ($i = 0; $i < count($parents); $i++) {
 				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
 				if (is_null($parent)) continue;
 				$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($parent, Array($name), $asset->id);

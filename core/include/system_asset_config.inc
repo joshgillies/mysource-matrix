@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_config.inc,v 1.12 2004/08/19 05:43:27 gsherwood Exp $
+* $Id: system_asset_config.inc,v 1.13 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -87,14 +87,14 @@ class System_Asset_Config extends Config
 	*/
 	function _paintConfigVar($var_name, $value)
 	{
-		switch($var_name) {
+		switch ($var_name) {
 			case 'PRINT_SYSTEM_ASSETS' :
 
 				$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
 
 				$system_assets = Array();
 				// GET THE ASSETIDS FOR ALL THE $system_assets types
-				foreach($packages as $data) {
+				foreach ($packages as $data) {
 
 					$package = $data['code_name'];
 
@@ -108,7 +108,7 @@ class System_Asset_Config extends Config
 
 					eval('$sys_asset_types = '.$class.'::getSystemAssetTypes();');
 
-					foreach($sys_asset_types as $type_code) {
+					foreach ($sys_asset_types as $type_code) {
 						$assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($type_code);
 						if (count($assetids) != 1) {
 							// MARCUS - silence this warning, it's no longer really needed.

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_raw_html_prefs.inc,v 1.2 2004/06/18 11:37:35 brobertson Exp $
+* $Id: content_type_raw_html_prefs.inc,v 1.3 2004/12/03 15:37:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -82,7 +82,7 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
 						<td class="sq-backend-table-header" nowrap="nowrap">Width</td>
 						<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
-						if($have_lock && $is_admin) {
+						if ($have_lock && $is_admin) {
 							text_box('prefs[SQ_RAW_HTML_SIZE][width]', $html_size['width']);
 						} else {
 							echo $html_size['width'];
@@ -94,7 +94,7 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
 						<td class="sq-backend-table-header" nowrap="nowrap">Height</td>
 						<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
-						if($have_lock && $is_admin) {
+						if ($have_lock && $is_admin) {
 							text_box('prefs[SQ_RAW_HTML_SIZE][height]', $html_size['height']);
 						} else {
 							echo $html_size['height'];

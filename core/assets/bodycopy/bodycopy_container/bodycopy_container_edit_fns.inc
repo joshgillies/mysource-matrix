@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.19 2004/11/18 05:02:28 gsherwood Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.20 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -173,7 +173,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			$attributes_updated = false;
 			$attributes = $asset->attr('attributes');
 			if (isset($bc_data[$prefix][$asset->id]['attributes'])) {
-				foreach($bc_data[$prefix][$asset->id]['attributes'] as $name => $value) {
+				foreach ($bc_data[$prefix][$asset->id]['attributes'] as $name => $value) {
 					if ($name == 'identifier') {
 						if ($asset->setAttrValue('name', $value)) $updated = true;
 					} else {
@@ -183,7 +183,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			}
 			if (isset($bc_saved[$prefix][$asset->id]['attributes'])) {
 				
-				foreach($bc_saved[$prefix][$asset->id]['attributes'] as $name => $value) {
+				foreach ($bc_saved[$prefix][$asset->id]['attributes'] as $name => $value) {
 					if ($name == 'identifier') {
 						if ($asset->setAttrValue('name', $value)) $updated = true;
 					} else {
@@ -280,8 +280,8 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 			// delete existing notice links that are no longer being used
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			foreach($notice_links as $link_data) {
-				if (!in_array($link_data['minorid'], $replace_assetids)) {
+			foreach ($notice_links as $link_data) {
+				if (!in_Array($link_data['minorid'], $replace_assetids)) {
 					if (!$asset->deleteLink($link_data['linkid'])) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
@@ -290,8 +290,8 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			}
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-			foreach($replace_assetids as $assetid) {
-				if (!in_array($assetid, $existing_links)) {
+			foreach ($replace_assetids as $assetid) {
+				if (!in_Array($assetid, $existing_links)) {
 					$ereg_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					if ($ereg_asset->id) {
 					
@@ -410,9 +410,9 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		$init_layer_height = 500;
 
 		// all available content types
-		$content_types = array();
+		$content_types = Array();
 		$types = $am->getAssetTypeHierarchy('content_type');
-		foreach ($types as $type => $type_data) $content_types[$type] = array('name' => $type_data['name']);
+		foreach ($types as $type => $type_data) $content_types[$type] = Array('name' => $type_data['name']);
 
 		?>
 		<input type="hidden" name="bodycopy_action" value="">
@@ -556,8 +556,8 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 			function bodycopy_data_exists(args) {
 				var str = 'bodycopy_saved';
-				for(var i = 0; i < args.length; i++) {
-					switch(typeof(args[i])) {
+				for (var i = 0; i < args.length; i++) {
+					switch (typeof(args[i])) {
 						case "number" :
 							str += '[' + args[i] + ']';
 						break;

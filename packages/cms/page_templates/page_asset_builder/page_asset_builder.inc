@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.41 2004/11/30 03:30:16 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.42 2004/12/03 15:37:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -801,7 +801,7 @@ class Page_Asset_Builder extends Page
 			if (!is_array($create_types)) $create_types = Array($create_types);
 
 			$i = 0;
-			foreach($create_types as $create_type => $value) {
+			foreach ($create_types as $create_type => $value) {
 				$prefix = $this->type().'_'.$this->id.'_type_'.$create_type;
 				?><div id="<?php echo $prefix ?>" style="display:<?php echo ($i==0) ? 'block' : 'none' ?>">
 				<?php
@@ -850,7 +850,7 @@ class Page_Asset_Builder extends Page
 				?>
 					<div class="sq-asset-builder-header">
 				<?php
-				foreach($create_types as $create_type) {
+				foreach ($create_types as $create_type) {
 					$prefix = $this->type().'_'.$this->id.'_type_'.$create_type;
 					?>
 						<div class="sq-asset-builder-tab<?php echo ($i == 0) ? '-active' : ''; ?>" id="<?php echo $prefix.'_tab'; ?>">
@@ -969,7 +969,7 @@ class Page_Asset_Builder extends Page
 			// send a report to the system error log
 			if (ini_get('log_errors')) {
 				$err_name = '';
-				switch($err_no) {
+				switch ($err_no) {
 					case E_USER_ERROR	: $err_name = SQ_SYSTEM_SHORT_NAME.' Error';	break;
 					case E_USER_WARNING	: $err_name = SQ_SYSTEM_SHORT_NAME.' Warning';	break;
 					case E_USER_NOTICE	: $err_name = SQ_SYSTEM_SHORT_NAME.' Notice';	break;

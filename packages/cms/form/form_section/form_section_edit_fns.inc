@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.29 2004/10/19 22:48:59 lwright Exp $
+* $Id: form_section_edit_fns.inc,v 1.30 2004/12/03 15:37:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -182,11 +182,11 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 				$questions = &$asset->getQuestions();
 				$sort_order = $asset->attr('sort_order');
 
-				if(!empty($sort_order)) {
+				if (!empty($sort_order)) {
 					// sort order is based upon shadow asset id (eg. '87:q1'), not just question id - this 	
 					// will allow sections to be sorted in later
 					$i = 0;
-					foreach($sort_order as $sort_id => $assetid) {
+					foreach ($sort_order as $sort_id => $assetid) {
 					$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					if (is_null($q)) continue;
 					$href = $q->getBackendHref('details');
@@ -242,7 +242,7 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 		$prefix = $asset->getPrefix();
 
 		if (isset($_POST[$prefix . '_order']['delete'])) {
-			foreach(array_keys($_POST[$prefix . '_order']['delete']) as $sort_order) {
+			foreach (array_keys($_POST[$prefix . '_order']['delete']) as $sort_order) {
 				$question = $asset->getQuestionByOrder($sort_order);
 				$asset->deleteQuestion($question);
 				unset($_POST[$prefix . '_order']['reorder'][$sort_order]);
@@ -281,7 +281,7 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 		$question_types = $am->getTypeDescendants('form_question');
 		$questions = Array();
 
-		foreach	($question_types as $question) {
+		foreach ($question_types as $question) {
 			$q = str_replace('form_question_type', '', $question);
 			$q = str_replace('_', ' ', $q);
 			$q = trim(ucwords($q));
@@ -391,13 +391,13 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 	function generateGenericSection(&$asset)
 	{
 		$sort_order = $asset->attr('sort_order');
-		if(empty($sort_order)) return;
+		if (empty($sort_order)) return;
 
 		$output = '<h3>'.$asset->attr('name').'</h3>';	
 
 		$output .= '<table width="'.$asset->attr('section_width').'">';
 
-		foreach($sort_order as $i => $assetid) {
+		foreach ($sort_order as $i => $assetid) {
 			$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			// skip over if asset doesn't exist anymore
 			if (is_null($q)) continue;

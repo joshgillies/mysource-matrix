@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form.inc,v 1.11 2004/08/08 23:04:54 mmcintyre Exp $
+* $Id: design_area_login_form.inc,v 1.12 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,7 +53,7 @@ class Design_Area_Login_Form extends Design_Area
 	{
 
 		// make sure that this var is being painted only within it's valid sections
-		switch($var) {
+		switch ($var) {
 			case 'form_open' :
 			case 'form_close' :
 			case 'submit_button' :
@@ -77,7 +77,7 @@ class Design_Area_Login_Form extends Design_Area
 		// this is needed by a couple of vars
 		$referer = '(isset($_POST[\'SQ_LOGIN_REFERER\']) ? $_POST[\'SQ_LOGIN_REFERER\'] : (empty($_SERVER[\'HTTP_REFERER\']) ? \'\' : $_SERVER[\'HTTP_REFERER\']))';
 
-		switch($var) {
+		switch ($var) {
 			case 'login_heading' :
 				echo '<', '?php if (!empty($GLOBALS[\'SQ_LOGIN_FORM\'])) { echo ', $this->_escapeVar('$GLOBALS[\'SQ_LOGIN_FORM\'][\'heading\']', $args), '; } ?', '>';
 				break;
@@ -135,7 +135,7 @@ class Design_Area_Login_Form extends Design_Area
 			case 'username_box' :
 				require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 				$extras = 'onFocus="javascript: this.select();"';
-				foreach($args As $k => $v) {
+				foreach ($args As $k => $v) {
 					if ($k = 'size') continue;
 					$extras .= ' '.$k.'="'.htmlspecialchars($v).'"';
 				}
@@ -157,7 +157,7 @@ class Design_Area_Login_Form extends Design_Area
 			case 'password_box' :
 				require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 				$extras = 'onFocus="javascript: this.select();"';
-				foreach($args As $k => $v) {
+				foreach ($args As $k => $v) {
 					if ($k = 'size') continue;
 					$extras .= ' '.$k.'="'.htmlspecialchars($v).'"';
 				}
@@ -167,7 +167,7 @@ class Design_Area_Login_Form extends Design_Area
 			case 'submit_button' :
 				require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 				$extras = '';
-				foreach($args As $k => $v) {
+				foreach ($args As $k => $v) {
 					if ($k == 'value') continue;
 					$extras .= ' '.$k.'="'.htmlspecialchars($v).'"';
 				}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_recursive_edit_fns.inc,v 1.18 2003/12/16 18:08:22 brobertson Exp $
+* $Id: design_area_menu_recursive_edit_fns.inc,v 1.19 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -84,7 +84,7 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 	*/
 	function _outputElement($element, &$asset, &$design)
 	{
-		switch($element['operation']) {
+		switch ($element['operation']) {
 			case 'asset' :
 
 				echo '<', '?php

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: maps.inc,v 1.5 2004/11/10 06:48:34 mnyeholt Exp $
+* $Id: maps.inc,v 1.6 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -110,7 +110,7 @@ class Maps extends MySource_Object
 		$o->setCurrentScreen($current_location.'maps_screen='.rawurlencode($active_screen));
 
 
-		switch($active_screen) {
+		switch ($active_screen) {
 
 			case 'patches' :
 				if (!empty($_POST['form_posted'])) $this->processPatches($o);

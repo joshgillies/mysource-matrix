@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.59 2004/12/01 04:35:56 gsherwood Exp $
+* $Id: mysource.inc,v 1.60 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -417,7 +417,7 @@ class MySource
 	*/
 	function _processGlobalActions()
 	{
-		switch($_REQUEST['SQ_ACTION']) {
+		switch ($_REQUEST['SQ_ACTION']) {
 			case 'login' :
 				// if this person is already logged in, don't bother trying again because
 				// we will only be giving them an incorrect login key error
@@ -835,7 +835,7 @@ class MySource
 	*/
 	function &getMessagingService()
 	{
-		if(!isset($this->ms) || get_class($this->ms) != 'messaging_service') {
+		if (!isset($this->ms) || get_class($this->ms) != 'messaging_service') {
 			require_once SQ_INCLUDE_PATH.'/messaging_service.inc';
 			$this->ms = new Messaging_Service();
 		}
@@ -853,7 +853,7 @@ class MySource
 	*/
 	function &getFileVersioning()
 	{
-		if(!isset($this->fv) || get_class($this->fv) != 'file_versioning') {
+		if (!isset($this->fv) || get_class($this->fv) != 'file_versioning') {
 			require_once SQ_LIB_PATH.'/file_versioning/file_versioning.inc';
 			$this->changeDatabaseConnection('db'); // just to make sure
 			$this->fv = new File_Versioning(SQ_DATA_PATH.'/file_repository', $this->db);
@@ -873,7 +873,7 @@ class MySource
 	*/
 	function &getHipoHerder()
 	{
-		if(!isset($this->hh) || get_class($this->hh) != 'hipo_herder') {
+		if (!isset($this->hh) || get_class($this->hh) != 'hipo_herder') {
 			require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_herder.inc';
 			$this->hh = new Hipo_Herder();
 		}
@@ -891,7 +891,7 @@ class MySource
 	*/
 	function &getMetadataManager()
 	{
-		if(!isset($this->mm) || get_class($this->mm) != 'metadata_manager') {
+		if (!isset($this->mm) || get_class($this->mm) != 'metadata_manager') {
 			require_once SQ_INCLUDE_PATH.'/metadata_manager.inc';
 			$this->mm = new Metadata_Manager();
 		}
@@ -909,7 +909,7 @@ class MySource
 	*/
 	function &getWorkflowManager()
 	{
-		if(!isset($this->wm) || get_class($this->wm) != 'workflow_manager') {
+		if (!isset($this->wm) || get_class($this->wm) != 'workflow_manager') {
 			require_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
 			$this->wm = new Workflow_Manager();
 		}
@@ -926,7 +926,7 @@ class MySource
 	*/
 	function &getEventManager()
 	{
-		if(!isset($this->em) || get_class($this->em) != 'event_manager') {
+		if (!isset($this->em) || get_class($this->em) != 'event_manager') {
 			require_once SQ_INCLUDE_PATH.'/event_manager.inc';
 			$this->em = new Event_Manager();
 		}
@@ -948,7 +948,7 @@ class MySource
 	*/
 	function changeDatabaseConnection($conn)
 	{
-		switch($conn){
+		switch ($conn){
 			case 'db'  :
 				if (empty($this->_db_conns[$conn])) {
 					$this->_db_conns[$conn] = DB::connect(SQ_CONF_DB_DSN);

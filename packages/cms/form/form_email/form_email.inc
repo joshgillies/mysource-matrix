@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.34 2004/11/18 05:11:34 gsherwood Exp $
+* $Id: form_email.inc,v 1.35 2004/12/03 15:37:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -169,7 +169,7 @@ class Form_Email extends Form
 			$staf = unserialize($this->attr('staf_format'));
 			$staf = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $staf);
 			$sel = $this->attr('selective_emails');
-			foreach($sel as $key => $null) {
+			foreach ($sel as $key => $null) {
 				$sel[$key]['address'] = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $sel[$key]['address']);
 				$sel[$key]['assetid'] = str_replace($this->id.':q', $clone->id.':q', $sel[$key]['assetid']);
 			}
@@ -500,7 +500,7 @@ class Form_Email extends Form
 					// parse addresses into an array in case multiples are sent
 					$addresses = preg_split('/[\s;,]+/',$sel_email['address']);
 
-					switch($sel_email['send']) {
+					switch ($sel_email['send']) {
 						case 'recipient':
 							$recipients	= array_merge($recipients, $addresses);
 						break;

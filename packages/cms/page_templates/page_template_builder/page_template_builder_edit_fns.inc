@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_template_builder_edit_fns.inc,v 1.3 2004/12/03 02:53:27 tbarrett Exp $
+* $Id: page_template_builder_edit_fns.inc,v 1.4 2004/12/03 15:37:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -119,7 +119,7 @@ class Page_Template_Builder_Edit_Fns extends Page_Edit_Fns
 				</td>
 				<?php
 
-				foreach($fields as $qf) {
+				foreach ($fields as $qf) {
 					?>
 						<tr>
 							<td class="sq-backend-table-cell">

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring_edit_fns.inc,v 1.14 2004/12/03 03:31:21 lwright Exp $
+* $Id: calendar_event_recurring_edit_fns.inc,v 1.15 2004/12/03 15:36:53 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.14 $ - 1.0
+* @version $Revision: 1.15 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -168,7 +168,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 		$interval = '';
 		
 		// do this so it doesn't give undefined index errors in the switch if nothing is set
-		if(empty($_REQUEST[$prefix.'_frequency_type'])) $_REQUEST[$prefix.'_frequency_type'] = '';
+		if (empty($_REQUEST[$prefix.'_frequency_type'])) $_REQUEST[$prefix.'_frequency_type'] = '';
 		
 		switch ($_REQUEST[$prefix.'_frequency_type']) {
 			case 'DED':

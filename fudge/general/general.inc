@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.24 2004/08/11 01:04:12 gsherwood Exp $
+* $Id: general.inc,v 1.25 2004/12/03 15:43:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -67,9 +67,9 @@ function gpc_stripslashes($var)
 */
 function stripslashes_array(&$array, $strip_keys=false)
 {
-	if(is_string($array)) return stripslashes($array);
+	if (is_string($array)) return stripslashes($array);
 	$keys_to_replace = Array();
-	foreach($array as $key => $value) {
+	foreach ($array as $key => $value) {
 		if (is_string($value)) {
 			$array[$key] = stripslashes($value);
 		} elseif (is_array($value)) {
@@ -81,7 +81,7 @@ function stripslashes_array(&$array, $strip_keys=false)
 		}
 	}
 	// now replace any of the keys that needed strip slashing
-	foreach($keys_to_replace as $from => $to) {
+	foreach ($keys_to_replace as $from => $to) {
 		$array[$to]   = &$array[$from];
 		unset($array[$from]);
 	}
@@ -103,7 +103,7 @@ function htmlentities_array(&$array, $encode_keys=false)
 {
 	if (is_string($array)) return htmlentities($array);
 	$keys_to_replace = Array();
-	foreach($array as $key => $value) {
+	foreach ($array as $key => $value) {
 		if (is_string($value)) {
 			$array[$key] = htmlentities($value);
 		} else if (is_array($value)) {
@@ -115,7 +115,7 @@ function htmlentities_array(&$array, $encode_keys=false)
 		}
 	}
 	// now replace any of the keys that needed encoding
-	foreach($keys_to_replace as $from => $to) {
+	foreach ($keys_to_replace as $from => $to) {
 		$array[$to] = &$array[$from];
 		unset($array[$from]);
 	}
@@ -136,7 +136,7 @@ function htmlentities_array(&$array, $encode_keys=false)
 function array_remove_element($v, &$a)
 {
 	if (!is_array($a) || empty($a)) return false;
-	if(in_array($v,$a)) {
+	if (in_array($v,$a)) {
 		unset($a[array_search($v,$a)]);
 		return true;
 	}
@@ -159,12 +159,12 @@ function random_password($length)
 	$vowels     = 'aeiou';
 	$password   = '';
 	global $RANDOM_PASSWORD_SEED;
-	while($length > 0) {
+	while ($length > 0) {
 		$RANDOM_PASSWORD_SEED += $length;
 		$seed = $RANDOM_PASSWORD_SEED + $length + ((int)(100000 * (double)microtime())) + time();
 		srand($seed);
 		$password .= $consonants[rand(0,strlen($consonants)-1)];
-		if($length > 1) {
+		if ($length > 1) {
 			srand($seed);
 			$password .= $vowels[rand(0,strlen($vowels)-1)];
 		}
@@ -192,7 +192,7 @@ function ellipsisize($string, $length)
 	$length += 2; // add 2 because an elipsis is 3 chars long
 	$on = true;
 	$j = 0;
-	for($i = 0; $i < $full_length; $i++) {
+	for ($i = 0; $i < $full_length; $i++) {
 		if ($j == $length - 2)	$chophere = $i;
 		if ($on) {
 			if ($string[$i] == '<') $on = false;
@@ -222,13 +222,13 @@ function ellipsisize($string, $length)
 */
 function increment_name($name='', $spacer='')
 {
-	for($i = strlen($name) - 1; $i > 0; $i--) {
-		if(!ereg("[^a-zA-Z0-9]",$name[$i])) break;
+	for ($i = strlen($name) - 1; $i > 0; $i--) {
+		if (!ereg("[^a-zA-Z0-9]",$name[$i])) break;
 	} $trailing_whitespace = substr($name,$i+1);
-	for($j = $i; $j > 0; $j--) {
-		if(!ereg("[0-9]",$name[$j])) break;
+	for ($j = $i; $j > 0; $j--) {
+		if (!ereg("[0-9]",$name[$j])) break;
 	} $int = substr($name,$j+1,$i-$j);
-	if(!$int) return substr($name,0,$j+1).$spacer.(2).$trailing_whitespace;
+	if (!$int) return substr($name,0,$j+1).$spacer.(2).$trailing_whitespace;
 	return substr($name,0,$j+1).($int+1).$trailing_whitespace;
 
 }//end increment_name()
@@ -245,7 +245,7 @@ function increment_name($name='', $spacer='')
 function generate_security_key($key_len)
 {
 	$k = random_password($key_len);
-	if($key_len>10){$gl=Array('YmxhaXI=','Z3JlZw==','bWFyYw==','ZG9t');
+	if ($key_len>10){$gl=Array('YmxhaXI=','Z3JlZw==','bWFyYw==','ZG9t');
 	$g=base64_decode($gl[rand(0,(count($gl)-1))]);$pos=rand(1,($key_len-strlen($g)));
 	$k=substr($k,0,$pos).$g.substr($k,($pos+strlen($g)));}
 	return $k;
@@ -282,8 +282,8 @@ function security_key_image($word, $w, $h, $bg='FFFFFF', $text='000000', $border
 		// create an image we will use to print the characters on and then
 		// another image $zoom times bigger where we will print the larger
 		// zoomed text for easier reading
-		$test_im  = @imagecreate($w, $h) or die ("Cannot Initialize new GD image stream");
-		$final_im = @imagecreate(($w * $zoom), ($h * $zoom)) or die ("Cannot Initialize new GD image stream");
+		$test_im  = @imagecreate($w, $h) || die ("Cannot Initialize new GD image stream");
+		$final_im = @imagecreate(($w * $zoom), ($h * $zoom)) || die ("Cannot Initialize new GD image stream");
 
 		// create some colours we will use in the image
 		// NOTE: The first colour allocated is used for the background

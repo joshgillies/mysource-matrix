@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: dependants.inc,v 1.2 2004/01/16 11:45:56 brobertson Exp $
+* $Id: dependants.inc,v 1.3 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -50,7 +50,7 @@ function paintDependants(&$owner, &$o, &$ei)
 
 	$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($owner->id, 'all');
 	$locks_acquired = Array();
-	foreach($locks as $lock_type => $lock) {
+	foreach ($locks as $lock_type => $lock) {
 		if (!empty($lock)) $locks_acquired[] = ucwords(str_replace('_', ' ', $lock_type));
 	}
 	$lock_message = '';
@@ -132,7 +132,7 @@ function _recursePaintDependants(&$owner, &$asset, &$o, $levels=1, $print_stalks
 
 		$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($dep_asset->id, 'all');
 		$locks_acquired = Array();
-		foreach($locks as $lock_type => $lock) {
+		foreach ($locks as $lock_type => $lock) {
 			if (!empty($lock)) $locks_acquired[] = ucwords(str_replace('_', ' ', $lock_type));
 		}
 		$lock_message = '';

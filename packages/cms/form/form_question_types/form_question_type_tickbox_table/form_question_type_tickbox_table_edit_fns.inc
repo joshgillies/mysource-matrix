@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_table_edit_fns.inc,v 1.2 2004/10/13 22:29:43 lwright Exp $
+* $Id: form_question_type_tickbox_table_edit_fns.inc,v 1.3 2004/12/03 15:37:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -92,7 +92,7 @@ class Form_Question_Type_Tickbox_Table_Edit_Fns extends Form_Question_Edit_Fns
 
 		$table = array_get_index($_REQUEST,$myprefix,false);
 
-		if (!$table or empty($table)) return false;
+		if (!$table || empty($table)) return false;
 		//last table row is an artifact, remove it.
 		array_pop($table);
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.8 2004/11/18 04:48:01 gsherwood Exp $
+* $Id: permissions.inc,v 1.9 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -72,7 +72,7 @@ function paintInlinePermissions(&$owner, &$o, &$ei)
 		$permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, null, false, false, true);
 
 		$direct = Array();
-		foreach($permissions as $userid => $granted) {
+		foreach ($permissions as $userid => $granted) {
 			if (!isset($direct[$granted])) $direct[$granted] = Array();
 			$direct[$granted][] = $userid;
 		}
@@ -81,7 +81,7 @@ function paintInlinePermissions(&$owner, &$o, &$ei)
 
 		if (!empty($direct)) {
 			foreach ($direct as $granted => $userids) {
-				foreach($userids as $userid) {
+				foreach ($userids as $userid) {
 					if ($userid) {
 						$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 						if (!$user->id || (!is_a($user, 'user') && !is_a($user, 'user_group'))) continue;
@@ -139,7 +139,7 @@ function paintPermissions(&$owner, &$o, &$ei)
 		$permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, null, false, false, true);
 
 		$direct = Array();
-		foreach($permissions as $userid => $granted) {
+		foreach ($permissions as $userid => $granted) {
 			if (!isset($direct[$granted])) $direct[$granted] = Array();
 			$direct[$granted][] = $userid;
 		}
@@ -162,7 +162,7 @@ function paintPermissions(&$owner, &$o, &$ei)
 					</tr>
 				<?php
 
-				foreach($userids as $userid) {
+				foreach ($userids as $userid) {
 					$valid_user = true;
 
 					if ($userid) {

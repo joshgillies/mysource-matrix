@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_prefs.inc,v 1.4 2004/11/01 21:49:50 tbarrett Exp $
+* $Id: content_type_wysiwyg_prefs.inc,v 1.5 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -91,7 +91,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 						<td class="sq-backend-table-header" nowrap="nowrap">Body Type</td>
 						<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
-						if($have_lock && $is_admin) {
+						if ($have_lock && $is_admin) {
 							combo_box('prefs[SQ_WYSIWYG_STYLE][body_type]', Array('div' => 'DIV', 'iframe' => 'iFrame'), false, $wysiwyg_style['body_type']);
 						} else {
 							echo $wysiwyg_style['body_type'];
@@ -104,7 +104,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 						<td class="sq-backend-table-header" nowrap="nowrap">Width</td>
 						<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
-						if($have_lock && $is_admin) {
+						if ($have_lock && $is_admin) {
 							text_box('prefs[SQ_WYSIWYG_STYLE][width]', $wysiwyg_style['width']);
 						} else {
 							echo $wysiwyg_style['width'];
@@ -116,7 +116,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 						<td class="sq-backend-table-header" nowrap="nowrap">Height</td>
 						<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
-						if($have_lock && $is_admin) {
+						if ($have_lock && $is_admin) {
 							text_box('prefs[SQ_WYSIWYG_STYLE][height]', $wysiwyg_style['height']);
 						} else {
 							echo $wysiwyg_style['height'];
@@ -135,7 +135,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 				$plugins = explode('|', $this->pref_vars['SQ_WYSIWYG_PLUGINS']['default']);
 				$all = in_array('all', $plugins);
 
-				if($have_lock && $is_admin) {
+				if ($have_lock && $is_admin) {
 					require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 					$all_plugins = list_dirs(SQ_FUDGE_PATH.'/wysiwyg/plugins');
 					foreach ($all_plugins as $plugin_name) {

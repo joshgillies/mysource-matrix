@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.17 2004/11/18 04:49:33 gsherwood Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.18 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -95,7 +95,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 		// metadata regeneration threshhold HIPO config entry
 		$o->openField('Purge Trash Threshold');
 
-		if($write_access) {
+		if ($write_access) {
 			text_box($class.'[SQ_HIPO_PURGE_TRASH_THRESHOLD]', SQ_HIPO_PURGE_TRASH_THRESHOLD, 5);
 		} else {
 			echo SQ_HIPO_PURGE_TRASH_THRESHOLD;

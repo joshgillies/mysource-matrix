@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_fns.inc,v 1.5 2004/11/18 05:00:41 gsherwood Exp $
+* $Id: system_asset_fns.inc,v 1.6 2004/12/03 15:29:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -76,7 +76,7 @@ function system_asset_fns_create_cleanup(&$asset)
 {
 	// remove any write and admin permissions that have been set on this asset and it's dependants
 	$assetids = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($asset->id);
-	foreach($assetids as $assetid) {
+	foreach ($assetids as $assetid) {
 		foreach (Array(SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
 			$unset_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($assetid, $perm, null, false, false, true);
 			foreach ($unset_perms as $userid => $access) {

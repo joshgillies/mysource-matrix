@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 * 
-* $Id: install.inc,v 1.27 2004/11/18 04:35:47 gsherwood Exp $
+* $Id: install.inc,v 1.28 2004/12/03 15:42:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -96,7 +96,7 @@ function uninstall_asset_types()
 	$packages_installed = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
 
 	if (!empty($packages_installed)) {
-		foreach($packages_installed as $package_array) {
+		foreach ($packages_installed as $package_array) {
 			$package = $package_array['code_name'];
 
 			// core package is something else
@@ -129,7 +129,7 @@ function uninstall_asset_types()
 		// check those asset types that are still going to be there after uninstall
 		// to see whether it depended on something that is being deleted... if it is then
 		// we have massive problems and should bail
-		foreach(array_diff($all_asset_types,$asset_types) as $asset_type) {
+		foreach (array_diff($all_asset_types,$asset_types) as $asset_type) {
 			$asc = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($asset_type);
 			$deleted_parents = array_intersect($asset_types, $asc);
 
@@ -149,7 +149,7 @@ function uninstall_asset_types()
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// now actually delete the types
-		foreach($asset_types as $asset_type) {
+		foreach ($asset_types as $asset_type) {
 			// delete the types
 			$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'ast_typ WHERE type_code = '.$db->quote($asset_type);
 
@@ -217,7 +217,7 @@ function uninstall_packages()
 	if (!empty($packages_installed)) {
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		foreach($packages_installed as $package_array) {
+		foreach ($packages_installed as $package_array) {
 			$package = $package_array['code_name'];
 
 			// never delete the core package!
@@ -294,8 +294,7 @@ function install_core($package_list=Array())
 				$GLOBALS['SQ_SYSTEM_ASSETS'] = Array();
 			}
 			return true;
-		}
-		else {
+		} else {
 			$assets = $package_list['core'];
 			// If it wasn't an array at the core index, just make it empty
 			if (!is_array($assets)) {

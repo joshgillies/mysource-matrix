@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.11 2004/11/24 04:29:08 tbarrett Exp $
+* $Id: limbo_outputter.inc,v 1.12 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -80,7 +80,7 @@ class Limbo_Outputter extends Backend_Outputter
 	{
 		if ($this->_raw_opened) $this->closeRaw();
 		// close all sections
-		while(!empty($this->_section_stack)) $this->closeSection();
+		while (!empty($this->_section_stack)) $this->closeSection();
 		$this->_paintBodyHeader();
 		?><div id="sq_backend_sections"><?php
 		if (!$this->_redirect) $this->paintSections();
@@ -99,7 +99,7 @@ class Limbo_Outputter extends Backend_Outputter
 	*/
 	function paintSections()
 	{
-		for($i = 0; $i < count($this->_contents); $i++) {
+		for ($i = 0; $i < count($this->_contents); $i++) {
 			$this->_paintSection($this->_contents[$i]);
 		}
 
@@ -114,7 +114,7 @@ class Limbo_Outputter extends Backend_Outputter
 	function _paintHeader()
 	{
 		if (!headers_sent()) {
-			if($this->_charset) {
+			if ($this->_charset) {
 				header("Content-type: text/html; charset=$this->_charset");
 			} else {
 				$default_charset = 'iso-8859-1';
@@ -123,12 +123,12 @@ class Limbo_Outputter extends Backend_Outputter
 		}
 
 		$this->_paintCssInclude($this->filesPath('css/edit.css'));
-		foreach($this->_css_includes as $file) $this->_paintCssInclude($file);
+		foreach ($this->_css_includes as $file) $this->_paintCssInclude($file);
 
 		$this->_paintJsInclude(sq_web_path('lib').'/html_form/html_form.js');
 		$this->_paintJsInclude(sq_web_path('lib').'/js/debug.js');
 		$this->_paintJsInclude(sq_web_path('lib').'/js/edit.js');
-		foreach($this->_js_includes as $file) $this->_paintJsInclude($file);
+		foreach ($this->_js_includes as $file) $this->_paintJsInclude($file);
 		
 		?>
 		<script language="Javascript" type="text/javascript">
@@ -145,7 +145,7 @@ class Limbo_Outputter extends Backend_Outputter
 			function page_on_load() {
 
 				<?php
-				foreach($this->_on_load_calls as $call) {
+				foreach ($this->_on_load_calls as $call) {
 					echo "\n".$call;
 				}//end foreach
 
@@ -165,7 +165,7 @@ class Limbo_Outputter extends Backend_Outputter
 				}
 
 				<?php
-					foreach($this->_on_submit_calls as $call) {
+					foreach ($this->_on_submit_calls as $call) {
 					?>
 						<?php echo $call;?>;
 					<?php
@@ -179,7 +179,7 @@ class Limbo_Outputter extends Backend_Outputter
 			}// end form_on_submit()
 
 			<?php
-			foreach($this->_preload_imgs as $file) {
+			foreach ($this->_preload_imgs as $file) {
 			?>
 				preload_image('<?php echo $file;?>');
 			<?php
@@ -349,8 +349,8 @@ class Limbo_Outputter extends Backend_Outputter
 					<table cellspacing="0" cellpadding="0" border="0" width="100%">
 			<?php
 
-			for($j = 0; $j < count($section['areas']); $j++) {
-				switch($section['areas'][$j]['area_type']) {
+			for ($j = 0; $j < count($section['areas']); $j++) {
+				switch ($section['areas'][$j]['area_type']) {
 					case 'section' :
 						?>
 							<tr>
@@ -490,7 +490,7 @@ class Limbo_Outputter extends Backend_Outputter
 		<?php
 
 		hidden_field('process_form', '1');
-		foreach($this->_hidden_fields as $name => $value) hidden_field($name, $value);
+		foreach ($this->_hidden_fields as $name => $value) hidden_field($name, $value);
 
 	}//end _paintBodyHeader()
 

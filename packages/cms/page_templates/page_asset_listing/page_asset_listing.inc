@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.41 2004/12/01 12:56:34 brobertson Exp $
+* $Id: page_asset_listing.inc,v 1.42 2004/12/03 15:37:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -815,7 +815,7 @@ class Page_Asset_Listing extends Page
 							// see whether the keywords in it require asset loading or not
 							$bc_keywords = retrieve_keywords_replacements($formats[$type_code]);
 							$needs_asset[$type_code] = false;
-							foreach($bc_keywords as $keyword) {
+							foreach ($bc_keywords as $keyword) {
 								if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields)))) {
 									$needs_asset[$type_code] = true;
 									break;
@@ -842,7 +842,7 @@ class Page_Asset_Listing extends Page
 						// see whether the keywords in it require asset loading or not
 						$bc_keywords = retrieve_keywords_replacements($default_format);
 						$needs_asset['default'] = false;
-						foreach($bc_keywords as $keyword) {
+						foreach ($bc_keywords as $keyword) {
 							if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields)))) {
 								$needs_asset['default'] = true;
 								break;

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox_edit_fns.inc,v 1.11 2004/06/24 05:16:35 lwright Exp $
+* $Id: design_area_searchbox_edit_fns.inc,v 1.12 2004/12/03 15:38:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 * @see Design_Area_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.11 $ - 1.0
+* @version $Revision: 1.12 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -177,10 +177,10 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 			}
 
 			$options = Array();
-			foreach($fields as $field_name => $field) {
+			foreach ($fields as $field_name => $field) {
 				$field_description = $fields[$field_name];
 				$field_description = $field_name." ";
-				switch($field['type']) {
+				switch ($field['type']) {
 					case 'include_all':		$field_description .= '(include all)';		break;
 					case 'asset_attrib':	$field_description .= '(asset attribute)';	break;
 					case 'exclude':			$field_description .= '(exclude)';			break;

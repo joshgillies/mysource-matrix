@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table.inc,v 1.8 2004/11/18 05:02:28 gsherwood Exp $
+* $Id: bodycopy_table.inc,v 1.9 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once(dirname(__FILE__).'/bodycopy_table_cell.inc');
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -155,9 +155,9 @@ class Bodycopy_Table extends Bodycopy_Container
 		}
 		$rows = $this->attr('rows');
 
-		for($i = 0; $i < count($rows); $i++) {
+		for ($i = 0; $i < count($rows); $i++) {
 			// now print the cell contents
-			for($j = 0; $j < count($rows[$i]['cells']); $j++) {
+			for ($j = 0; $j < count($rows[$i]['cells']); $j++) {
 				$old_linkid = $rows[$i]['cells'][$j]->attributes['linkid'];
 				$old_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($old_linkid, $old_asset->id);
 				if (empty($old_link)) continue;
@@ -165,7 +165,7 @@ class Bodycopy_Table extends Bodycopy_Container
 				if (isset($map[$old_link['minorid']])) {
 					$new_assetid = $map[$old_link['minorid']];
 
-					foreach($our_links as $our_link) {
+					foreach ($our_links as $our_link) {
 						if ($our_link['minorid'] == $new_assetid) {
 							$rows[$i]['cells'][$j]->attributes['linkid'] = $our_link['linkid'];
 							break;

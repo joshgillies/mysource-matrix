@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.32 2004/11/15 02:03:27 gsherwood Exp $
+* $Id: wysiwyg.inc,v 1.33 2004/12/03 15:43:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -938,7 +938,7 @@ class wysiwyg {
 		// replace out special form tags back with real form tags
 		$html = preg_replace('|<HTMLAREA_FORM ([^>]*?)>(.*?)</HTMLAREA_FORM>|is', '<FORM \\1>\\2</FORM>', $html);
 
-		for(reset($this->_loaded_plugins); null !== ($k = key($this->_loaded_plugins)); next($this->_loaded_plugins)) {
+		for (reset($this->_loaded_plugins); null !== ($k = key($this->_loaded_plugins)); next($this->_loaded_plugins)) {
 			$plugin =& $this->_loaded_plugins[$k];
 			$plugin->process($html);
 		}

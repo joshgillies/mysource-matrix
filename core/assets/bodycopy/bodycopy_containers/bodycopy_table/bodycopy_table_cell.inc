@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_cell.inc,v 1.9 2004/11/18 05:02:28 gsherwood Exp $
+* $Id: bodycopy_table_cell.inc,v 1.10 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -188,7 +188,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 		$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
 
 		echo "\t\t<td";
-		foreach($this->attributes as $name => $val) {
+		foreach ($this->attributes as $name => $val) {
 			if ($val == '') continue;
 			if ($name == 'linkid') continue;
 			if ($name == 'content_type') continue;
@@ -245,7 +245,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 	{
 		$attribute_list = '';
 		$colspaning = 0;
-		foreach($this->attributes as $name => $val) {
+		foreach ($this->attributes as $name => $val) {
 			if ($val == '') continue;
 			if (strtolower($name) == 'nowrap') {
 				if ($val) $attribute_list .= ' nowrap';
@@ -306,7 +306,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 		if (!$content_type->saveAttributes()) return false;
 
 		if (isset($bc_saved[$prefix][$tableid]['rows'][$rowid]['cells'][$cellid]['attributes'])) {
-			foreach($bc_saved[$prefix][$tableid]['rows'][$rowid]['cells'][$cellid]['attributes'] as $name => $value) {
+			foreach ($bc_saved[$prefix][$tableid]['rows'][$rowid]['cells'][$cellid]['attributes'] as $name => $value) {
 				if ($name == 'type') {
 					// changing the content type of this cell
 					if ($this->_updateCellType($table, $value)) $updated = true;

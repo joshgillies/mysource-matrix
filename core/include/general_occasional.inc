@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.37 2004/09/26 23:31:20 mmcintyre Exp $
+* $Id: general_occasional.inc,v 1.38 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -45,9 +45,9 @@ function link_type_name($type)
 {
 	$names = get_bit_names('SQ_LINK_', $type);
 
-	if (is_array($names)) {
+	if (is_Array($names)) {
 		$str = '';
-		for($i = 0; $i < count($names); $i++) {
+		for ($i = 0; $i < count($names); $i++) {
 			$str .= $names[$i];
 			if ($i < count($names) - 2) {
 				$str .= ', ';
@@ -74,7 +74,7 @@ function link_type_name($type)
 function permission_type_name($type)
 {
 	$name = get_bit_names('SQ_PERMISSION_', $type, false, true);
-	if (is_array($name)) return 'Unknown';
+	if (is_Array($name)) return 'Unknown';
 	return ucwords(strtolower($name));
 
 }//end permission_type_name()
@@ -102,8 +102,8 @@ function get_bit_names($prefix, $bit_value, $force_array=false, $exact_value=fal
 
 	$names = Array();
 
-	foreach($constants as $name => $value) {
-		if (preg_match('/^'.$prefix.'(.*)$/', $name, $matches) && in_array($value, $bit_values)) {
+	foreach ($constants as $name => $value) {
+		if (preg_match('/^'.$prefix.'(.*)$/', $name, $matches) && in_Array($value, $bit_values)) {
 			$names[] = $matches[1];
 		}
 	}
@@ -128,7 +128,7 @@ function get_constant_values($prefix)
 	$constants = get_defined_constants();
 
 	$names = Array();
-	foreach($constants as $name => $value) {
+	foreach ($constants as $name => $value) {
 		if (preg_match('/^'.$prefix.'(.*)$/', $name, $matches)) {
 			$names[$name] = $value;
 		}
@@ -253,7 +253,7 @@ function asset_link_treeid_convert($value, $encode)
 		$str = (string) $value;
 		$len = strlen($str);
 		$x = pow(SQ_CONF_ASSET_TREE_BASE, $len - 1);
-		for($i = 0; $i < $len; $i++) { 
+		for ($i = 0; $i < $len; $i++) { 
 			if (($d = array_search($str{$i}, $digits)) === FALSE) return null;
 			$num += $x * $d;
 			$x = $x / SQ_CONF_ASSET_TREE_BASE;
@@ -270,13 +270,13 @@ function asset_link_treeid_convert($value, $encode)
 *
 * @param array	$paths	array of web paths to check
 *
-* @return array(string)
+* @return Array(string)
 * @access public
 */
 function make_valid_web_paths($paths)
 {
 	$valid_paths = Array();
-	foreach($paths as $path) {
+	foreach ($paths as $path) {
 		$path = trim($path);
 
 		// get rid of paths that are the same as the backend suffix
@@ -300,7 +300,7 @@ function make_valid_web_paths($paths)
 		$path = preg_replace('/[^a-zA-Z0-9\-$_@.!*~(),]/', '',  $path);
 		
 		// ignore blanks
-		if ($path !== '' && !in_array($path, $valid_paths)) $valid_paths[] = $path;
+		if ($path !== '' && !in_Array($path, $valid_paths)) $valid_paths[] = $path;
 	}
 	return $valid_paths;
 
@@ -353,8 +353,8 @@ function merge_preferences($prefs1, $prefs2)
 */
 function make_tooltip($tag, $text, $title='')
 {
-	$text  = str_replace(array("\n", "\r"), '', nl2br(addslashes(htmlspecialchars($text))));
-	$title = str_replace(array("\n", "\r"), '', nl2br(addslashes(htmlspecialchars($title))));
+	$text  = str_replace(Array("\n", "\r"), '', nl2br(addslashes(htmlspecialchars($text))));
+	$title = str_replace(Array("\n", "\r"), '', nl2br(addslashes(htmlspecialchars($title))));
 	return '<span onmouseover="javascript: tooltip.show(this, \''.$text.'\', \''.$title.'\');" onmouseout="javascript: tooltip.hide();">'.$tag.'</span>';
 
 }//end make_tooltip()

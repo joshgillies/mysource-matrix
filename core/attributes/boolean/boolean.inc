@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: boolean.inc,v 1.25 2004/09/15 04:22:57 gsherwood Exp $
+* $Id: boolean.inc,v 1.26 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -237,7 +237,7 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 		$new_value = (int) $value;
 		if ((string) $new_value != (string) $value) {
 			// check for strings that mean the same as true and false
-			switch(strtolower((string) $value)) {
+			switch (strtolower((string) $value)) {
 				case 'true' :
 				case 't'    :
 				case 'yes'  :

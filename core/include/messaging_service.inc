@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.31 2004/11/18 04:39:52 gsherwood Exp $
+* $Id: messaging_service.inc,v 1.32 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -103,7 +103,7 @@ class Messaging_Service extends MySource_Object
 			// this is the last queue
 			return $this->send($msgs);
 		} else {
-			foreach($msgs as $msg) {
+			foreach ($msgs as $msg) {
 				array_push($this->_levels['queues'][count($this->_levels['queues']) - 1], $msg);
 			}
 			return true;
@@ -200,7 +200,7 @@ class Messaging_Service extends MySource_Object
 			return true;
 
 		} else {
-			foreach($msgs as $msg) {
+			foreach ($msgs as $msg) {
 				array_push($this->_levels['logs'][count($this->_levels['logs']) - 1], $msg);
 			}
 			return true;
@@ -392,11 +392,11 @@ class Messaging_Service extends MySource_Object
 
 		if (!is_null($type)) $where .= ' AND m.type = '.$db->quote($type);
 		if (!empty($statii)) {
-			for($i = 0; $i < count($statii); $i++) $statii[$i] = $db->quote($statii[$i]);
+			for ($i = 0; $i < count($statii); $i++) $statii[$i] = $db->quote($statii[$i]);
 			$where .= ' AND m.status IN ('.implode(', ', $statii).')';
 		}
 		if (!empty($messageids)) {
-			for($i = 0; $i < count($messageids); $i++) $messageids[$i] = $db->quote($messageids[$i]);
+			for ($i = 0; $i < count($messageids); $i++) $messageids[$i] = $db->quote($messageids[$i]);
 			$where .= ' AND m.msgid IN ('.implode(', ', $messageids).')';
 		}
 		if (!empty($parameters)) {

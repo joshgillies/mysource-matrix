@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_colourise_image_edit_fns.inc,v 1.13 2003/12/16 18:22:17 brobertson Exp $
+* $Id: design_area_colourise_image_edit_fns.inc,v 1.14 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -111,7 +111,7 @@ class Design_Area_Colourise_Image_Edit_Fns extends Design_Area_Edit_Fns
 
 				$colour_map = Array();
 				$i = 1;
-				while(isset($colours['from_colour_'.$i]) && isset($colours['to_colour_'.$i])) {
+				while (isset($colours['from_colour_'.$i]) && isset($colours['to_colour_'.$i])) {
 					$colour_map[$colours['from_colour_'.$i]] = $colours['to_colour_'.$i];
 					$i++;
 				}
@@ -149,10 +149,10 @@ class Design_Area_Colourise_Image_Edit_Fns extends Design_Area_Edit_Fns
 
 		// Add the emulated black_colour, white_colour, to_colour_1, from_colour_2, ... vars into the vars array
 #		pre_echo($asset->vars['colours']['value']);
-		foreach($asset->vars['colours']['value'] as $name => $value) {
+		foreach ($asset->vars['colours']['value'] as $name => $value) {
 			$vars[$name] = Array('value' => $value);
 		}
-		foreach($asset->vars['var_references']['value'] as $name => $data) {
+		foreach ($asset->vars['var_references']['value'] as $name => $data) {
 			if (strstr($name, '_colour')) $vars[$name] = $data;
 		}
 		return $vars;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.37 2004/11/18 05:05:08 gsherwood Exp $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.38 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -74,7 +74,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		if (!$this->_setVariables($asset, $contents)) return false;
 		$settings = $asset->attr('settings');
 		// Now just make sure that current, hierarchy and normal entries all exist for the settings
-		for(reset($settings); NULL !== ($name = key($settings)); next($settings)) {
+		for (reset($settings); NULL !== ($name = key($settings)); next($settings)) {
 			if (!isset($settings[$name]['normal'])) {
 				trigger_error('Setting "'.$name.'" has no corresponding "normal", in "'.$asset->name.'" design area', E_USER_WARNING);
 				return false;
@@ -97,7 +97,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		$divider_index	= -1;
 		$sub_index		= -1;
 		// see if our asset element has any sub's in it
-		foreach($contents as $index => $element) {
+		foreach ($contents as $index => $element) {
 			if ($element['_type'] != 'TAG') continue;
 
 			switch ($element['operation']) {
@@ -107,7 +107,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 					// if there is nothing to do get out of here :)
 					if ($element['self_terminating'] || empty($element['contents'])) break;
 
-					foreach($element['contents'] as $sub_element_index => $sub_element) {
+					foreach ($element['contents'] as $sub_element_index => $sub_element) {
 						if ($sub_element['_type'] != 'TAG' || $sub_element['operation'] != 'sub') continue;
 
 						$sub_index = $sub_element_index;
@@ -270,7 +270,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function _outputElement($element, &$asset, &$design)
 	{
-		switch($element['operation']) {
+		switch ($element['operation']) {
 			case 'asset' :
 
 				if ($divider_contents = $asset->attr('divider_contents')) {
@@ -325,7 +325,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 				echo '
 
-				foreach($GLOBALS[\'MENU_DATA\']['.$parent_assetid_name.'] as $'.$asset->attr('id_name').'_row) {
+				foreach ($GLOBALS[\'MENU_DATA\']['.$parent_assetid_name.'] as $'.$asset->attr('id_name').'_row) {
 					$'.$asset->attr('id_name').'_current_setting = ($'.$asset->attr('id_name').'_lineage_assetid == $'.$asset->attr('id_name').'_row[\'assetid\']) ? $'.$asset->attr('id_name').'_lineage_setting : \'normal\';
 				?', '>';
 				if ($asset_contents = $asset->attr('asset_contents')) {

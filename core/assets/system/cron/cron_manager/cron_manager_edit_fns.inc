@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.15 2004/06/08 04:19:59 mnyeholt Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.16 2004/12/03 15:29:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -144,12 +144,12 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 						'YR' => Array(),
 					);
 
-			for($i = 0, $total = count($jobs); $i < $total; $i++) {
+			for ($i = 0, $total = count($jobs); $i < $total; $i++) {
 				$w = $jobs[$i]->attr('when');
 				$whens[substr($w, 0, 2)][$i] = $jobs[$i]->attr('when');
 			}
 
-			for(reset($whens); NULL !== ($type = key($whens)); next($whens)) {
+			for (reset($whens); NULL !== ($type = key($whens)); next($whens)) {
 				if (empty($whens[$type])) continue;
 				asort($whens[$type], SORT_STRING);
 				$o->openField(Cron_Job::whenTypeName($type), 'new_line');
@@ -173,7 +173,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 					?>
 					</tr>
 				<?php
-				foreach($whens[$type] as $i => $when) {
+				foreach ($whens[$type] as $i => $when) {
 				?>
 					<tr>
 						<td class="sq-backend-table-cell">
@@ -251,7 +251,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 		$jobs = &$asset->getJobs('cron_job', false);
 		if (empty($jobs)) return false;
 
-		for($i = 0, $total = count($jobs); $i < $total; $i++) {
+		for ($i = 0, $total = count($jobs); $i < $total; $i++) {
 			if (in_array($jobs[$i]->id, $_POST[$prefix.'_remove_jobs'])) {
 				$asset->removeJob($jobs[$i]);
 			}

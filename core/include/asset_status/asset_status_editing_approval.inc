@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing_approval.inc,v 1.9 2003/11/26 00:51:11 gsherwood Exp $
+* $Id: asset_status_editing_approval.inc,v 1.10 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -87,7 +87,7 @@ class Asset_Status_Editing_Approval extends Asset_Status_Pending_Approval
 
 		// change some of the status codes to relect that we are safe editing
 		foreach ($statii as $code => $name) {
-			switch($code) {
+			switch ($code) {
 				case SQ_STATUS_APPROVED :
 					$return_statii[SQ_STATUS_EDITING_APPROVED] = $name;
 					break;

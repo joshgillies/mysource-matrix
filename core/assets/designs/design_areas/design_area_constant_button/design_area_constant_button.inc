@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_constant_button.inc,v 1.17 2004/03/30 10:30:18 brobertson Exp $
+* $Id: design_area_constant_button.inc,v 1.18 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -79,7 +79,7 @@ class Design_Area_Constant_Button extends Design_Area
 	*/
 	function printVar($var, $args, $value_prefix='', $value_suffix='')
 	{
-		switch($var) {
+		switch ($var) {
 			case 'href' :
 				$assetid = (int) $this->attr('assetid');
 

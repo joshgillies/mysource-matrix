@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox.inc,v 1.14 2004/06/30 05:56:58 tbarrett Exp $
+* $Id: design_area_searchbox.inc,v 1.15 2004/12/03 15:38:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 *
 */
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.14 $ - 1.0
+* @version $Revision: 1.15 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -89,7 +89,7 @@ class Design_Area_Searchbox extends Design_Area
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$asset =& $am->getAsset($assetid);
 
-		switch($var) {
+		switch ($var) {
 
 			case 'form_start' :
 				echo '<'.'?php $asset = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$asset->id.', "'.$asset->type().'"); ?'.'>'."\n";

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.16 2004/11/26 04:24:44 arailean Exp $
+* $Id: bodycopy_container.inc,v 1.17 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,7 +82,7 @@ class Bodycopy_Container extends Asset
 
 		if (!isset($_REQUEST['asset_ei_screen'])) return parent::paintBackend($o);
 
-		switch($_REQUEST['asset_ei_screen']) {
+		switch ($_REQUEST['asset_ei_screen']) {
 			case 'show_popup' :
 				// Find out where the popups are located. (under bodycopy)
 				$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');

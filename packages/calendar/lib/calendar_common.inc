@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.10 2004/12/03 03:32:14 lwright Exp $
+* $Id: calendar_common.inc,v 1.11 2004/12/03 15:36:53 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -60,7 +60,7 @@ function build_single_event_query_base(&$trees)
 		if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 			$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
 			array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
-			for(reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 				$userids[$i] = $db->quote($userids[$i]);
 			}
 			$userid_cond = ' AND p.userid  IN ('.implode(',', $userids).')';
@@ -122,7 +122,7 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null)
 		if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 			$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
 			array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
-			for(reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 				$userids[$i] = $db->quote($userids[$i]);
 			}
 			$userid_cond = ' AND p.userid  IN ('.implode(',', $userids).')';
@@ -139,7 +139,7 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null)
 	
 	$sql_freqs = Array();
 
-	switch($view) {
+	switch ($view) {
 		case 'day' :
 			$last_day = $now['ds'];
 			$now['month_length'] = days_in_month($month, $year);
@@ -459,7 +459,7 @@ function build_tree_clause($treeids)
 {
 	$db =& $GLOBALS['SQ_SYSTEM']->db;
 	$tree_options = Array();
-	foreach($treeids as $treeid) {
+	foreach ($treeids as $treeid) {
 		$tree_options[] .= '(SUBSTRING(t.treeid FROM 1 FOR '.strlen($treeid).') LIKE '.$db->quote($treeid.'%').')';
 	}
 	return '('.implode(' OR ', $tree_options).')';
@@ -484,7 +484,7 @@ function &get_treeids(&$root_nodes)
 	$sql = "SELECT a.assetid, t.treeid \n FROM ".SQ_TABLE_RUNNING_PREFIX."ast a JOIN (".SQ_TABLE_RUNNING_PREFIX."ast_lnk l JOIN ".SQ_TABLE_RUNNING_PREFIX."ast_lnk_tree t ON l.linkid = t.linkid) ON l.minorid = a.assetid \n WHERE a.assetid IN (";
 
 	// quote the root nodes manually before we implode the thing
-	foreach($quoted_root_nodes as $k => $root_node) {
+	foreach ($quoted_root_nodes as $k => $root_node) {
 		$quoted_root_nodes[$k] = $db->quote($quoted_root_nodes[$k]);
 	}
 	$sql .= implode(', ', $quoted_root_nodes).')';
@@ -537,7 +537,7 @@ function build_case_statement($col_name, &$trees)
 function &expand_event_list(&$events, $first_day, $last_day, $day_start_time='00:00', $day_end_time='23:59') 
 {
 	$res = Array();
-	foreach(array_keys($events) as $key) {
+	foreach (array_keys($events) as $key) {
 		$event =& $events[$key];
 		if ($event['type_code'] == 'calendar_event_recurring') {
 			expand_recurring_event($res, $event, $key, $first_day, $last_day, $day_start_time, $day_end_time);
@@ -594,7 +594,7 @@ function expand_single_event(&$result_list, &$event, $assetid, $first_day, $last
 			if ($first_day <= $event_start_date) {
 				// insert first day
 				$result_list[$assetid.':'.$i] = Array();
-				for(reset($event); null !== ($k = key($event)); next($event)) {
+				for (reset($event); null !== ($k = key($event)); next($event)) {
 					$result_list[$assetid.':'.$i][$k] = $event[$k];
 				}
 				$result_list[$assetid.':'.$i]['start_date_year'] = date('Y', $start_time);
@@ -621,7 +621,7 @@ function expand_single_event(&$result_list, &$event, $assetid, $first_day, $last
 			while ($inter_date <= $last_inter_date) {
 				$inter_time = iso8601_ts($inter_date.' 12:00:00');
 				$result_list[$assetid.':'.$i] = Array();
-				for(reset($event); null !== ($k = key($event)); next($event)) {
+				for (reset($event); null !== ($k = key($event)); next($event)) {
 					$result_list[$assetid.':'.$i][$k] = $event[$k];
 				}
 				$result_list[$assetid.':'.$i]['start_date_year'] = date('Y', $inter_time);
@@ -644,7 +644,7 @@ function expand_single_event(&$result_list, &$event, $assetid, $first_day, $last
 			if ($event_end_date <= $last_day) {
 				// insert the last day
 				$result_list[$assetid.':'.$i] = Array();
-				for(reset($event); null !== ($k = key($event)); next($event)) {
+				for (reset($event); null !== ($k = key($event)); next($event)) {
 					$result_list[$assetid.':'.$i][$k] = $event[$k];
 				}
 
@@ -666,7 +666,7 @@ function expand_single_event(&$result_list, &$event, $assetid, $first_day, $last
 			$start_date = date('Y-m-d', $start_time);
 			// single day
 			$result_list[$assetid.':'.$i] = Array();
-			for(reset($event); null !== ($k = key($event)); next($event)) {
+			for (reset($event); null !== ($k = key($event)); next($event)) {
 				$result_list[$assetid.':'.$i][$k] = $event[$k];
 			}
 			
@@ -734,7 +734,7 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 		$event_last_day = $event['stop_date'];
 	}
 
-	switch($event['frequency']{0}) {
+	switch ($event['frequency']{0}) {
 		case 'D':
 			$first_occur = add_days_to_iso($first_day, -$event['period']);
 		break;
@@ -777,7 +777,7 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 
 				if (($start_date >= $first_day) && ($start_date <= $last_day)) {
 					$result_list[$assetid.':'.$i] = Array();
-					for(reset($event); null !== ($k = key($event)); next($event)) {
+					for (reset($event); null !== ($k = key($event)); next($event)) {
 						$result_list[$assetid.':'.$i][$k] = $event[$k];
 					}
 					
@@ -801,7 +801,7 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 					if (($inter_date >= $first_day) && ($inter_date <= $last_day)) {
 					
 						$result_list[$assetid.':'.$i] = Array();
-						for(reset($event); null !== ($k = key($event)); next($event)) {
+						for (reset($event); null !== ($k = key($event)); next($event)) {
 							$result_list[$assetid.':'.$i][$k] = $event[$k];
 						}
 
@@ -827,7 +827,7 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 
 				if (($end_date >= $first_day) && ($end_date <= $last_day)) {
 					$result_list[$assetid.':'.$i] = Array();
-					for(reset($event); null !== ($k = key($event)); next($event)) {
+					for (reset($event); null !== ($k = key($event)); next($event)) {
 						$result_list[$assetid.':'.$i][$k] = $event[$k];
 					}
 					
@@ -853,7 +853,7 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 				// single day
 				if (($start_date >= $first_day) && ($start_date <= $last_day)) {
 					$result_list[$assetid.':'.$i] = Array();
-					for(reset($event); null !== ($k = key($event)); next($event)) {
+					for (reset($event); null !== ($k = key($event)); next($event)) {
 						$result_list[$assetid.':'.$i][$k] = $event[$k];
 					}
 
@@ -882,7 +882,7 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 			
 			if (($start_date >= $first_day) && ($start_date <= $last_day)) {
 				$result_list[$assetid.':'.$i] = Array();
-				for(reset($event); null !== ($k = key($event)); next($event)) {
+				for (reset($event); null !== ($k = key($event)); next($event)) {
 					$result_list[$assetid.':'.$i][$k] = $event[$k];
 				}
 				
@@ -993,7 +993,7 @@ function get_date_components($iso, $prefix='')
 		list($this_date['year'], $this_date['mon'], $this_date['mday'], $this_date['hours'], $this_date['minutes'], $this_date['seconds']) = sscanf($iso, '%4s-%2s-%2s %2s:%2s:%2s');						
 	
 		// any dashed out sections should be nulled out instead
-		foreach(array_keys($this_date) as $iso_part) {
+		foreach (array_keys($this_date) as $iso_part) {
 			if ($this_date[$iso_part] == str_repeat('-', ($iso_part == 'year' ? 4 : 2))) $this_date[$iso_part] = null;
 		}
 	
@@ -1052,7 +1052,7 @@ function get_date_components($iso, $prefix='')
 	
 	// now dump them into the array we were passed in the first place
 	$res = Array();
-	foreach(array_keys($this_date) as $iso_part) {
+	foreach (array_keys($this_date) as $iso_part) {
 		$res[$prefix.$iso_part] = is_null($this_date[$iso_part]) ? null : intval($this_date[$iso_part]);
 	}
 	return $res;	
@@ -1076,7 +1076,7 @@ function quoted_descendants($type_code)
 	$type_codes = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code);
 	$type_codes[] = $type_code;
 	
-	foreach($type_codes as $tc_key => $tc_value) {
+	foreach ($type_codes as $tc_key => $tc_value) {
 		$type_codes[$tc_key] = $db->quote($tc_value);
 	}
 	

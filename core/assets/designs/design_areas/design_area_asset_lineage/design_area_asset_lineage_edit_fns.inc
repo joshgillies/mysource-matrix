@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage_edit_fns.inc,v 1.10 2004/08/02 01:26:37 mnyeholt Exp $
+* $Id: design_area_asset_lineage_edit_fns.inc,v 1.11 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -75,7 +75,7 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 		$asset_index	= -1;
 		$divider_index	= -1;
 		// see if our page element has any sub's in it
-		foreach($contents as $index => $element) {
+		foreach ($contents as $index => $element) {
 			if ($element['_type'] != 'TAG') continue;
 
 			switch ($element['operation']) {
@@ -149,7 +149,7 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function _outputElement($element, &$asset, &$design)
 	{
-		switch($element['operation']) {
+		switch ($element['operation']) {
 			case 'asset' :
 
 				// because the page lineage array contains the site index, all we need to do to have or not have
@@ -191,7 +191,7 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 
 				echo '<', '?php
 
-				for($'.$asset->attr('id_name').'_i = '.$start_index.', $'.$asset->attr('id_name').'_total = '.$total.';
+				for ($'.$asset->attr('id_name').'_i = '.$start_index.', $'.$asset->attr('id_name').'_total = '.$total.';
 					$'.$asset->attr('id_name').'_i < $'.$asset->attr('id_name').'_total;
 					$'.$asset->attr('id_name').'_i++) {
 					';

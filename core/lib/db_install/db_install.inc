@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.8 2004/12/03 00:33:14 gsherwood Exp $
+* $Id: db_install.inc,v 1.9 2004/12/03 15:33:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -127,7 +127,7 @@ function db_install($xml_file, $quiet=false)
 						break;
 					case 'type_variations' :
 						// check for varitions of the column type for his database
-						for($l = 0; $l < count($column_var->children); $l++) {
+						for ($l = 0; $l < count($column_var->children); $l++) {
 							$variation = &$column_var->children[$l];
 							if ($variation->name == $db->phptype) {
 								$type = $variation->content;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.75 2004/11/22 21:56:30 tbarrett Exp $
+* $Id: design.inc,v 1.76 2004/12/03 15:29:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -140,7 +140,7 @@ class Design extends Design_Area
 	{
 		if (!parent::_linksUpdated()) return false;
 		if (isset($this->_tmp['design_areas'])) {
-			foreach(array_keys($this->_tmp['design_areas']) as $id_name) unset($this->_tmp['design_areas'][$id_name]);
+			foreach (array_keys($this->_tmp['design_areas']) as $id_name) unset($this->_tmp['design_areas'][$id_name]);
 		}
 		return true;
 
@@ -213,7 +213,7 @@ class Design extends Design_Area
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
-			foreach($customisation_links as $link) {
+			foreach ($customisation_links as $link) {
 				$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($customisation)) continue;
 
@@ -273,7 +273,7 @@ class Design extends Design_Area
 		if (is_a($minor, 'file')) {
 
 			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
-			foreach($customisation_links as $link) {
+			foreach ($customisation_links as $link) {
 				$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($customisation)) continue;
 
@@ -323,7 +323,7 @@ class Design extends Design_Area
 		foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
 		$file_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_unique($file_link_ids));
 
-		foreach($file_link_info as $file_info) {
+		foreach ($file_link_info as $file_info) {
 			if ($file_info['name'] == $filename) {
 				return $GLOBALS['SQ_SYSTEM']->am->getAsset($file_info['assetid'], $file_info['type_code']);
 			}
@@ -351,7 +351,7 @@ class Design extends Design_Area
 
 		$return_values = Array();
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		foreach($file_link_info as $file_info) {
+		foreach ($file_link_info as $file_info) {
 			if (get_file_type($file_info['name']) == 'css') {
 				$return_values[$file_info['assetid']] = $file_info['name'];
 			}
@@ -438,7 +438,7 @@ class Design extends Design_Area
 	*/
 	function processBackend(&$o, &$link)
 	{
-		switch($_POST['asset_action']) {
+		switch ($_POST['asset_action']) {
 			case 'edit' :
 				$this->_tmp['update_customisations'] = false;
 				if (parent::processBackend($o, $link)) {
@@ -474,7 +474,7 @@ class Design extends Design_Area
 	{
 		$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		foreach($customisation_links as $link) {
+		foreach ($customisation_links as $link) {
 			$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($customisation)) continue;
 			if ($acquired = $GLOBALS['SQ_SYSTEM']->am->acquireLock($customisation->id, 'all')) {
@@ -497,7 +497,7 @@ class Design extends Design_Area
 	*/
 	function printVar($var, $args)
 	{
-		switch($var) {
+		switch ($var) {
 			case 'html_header' :
 echo '<!--   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 	  Content (c) Copyright <?php echo SQ_CONF_SYSTEM_OWNER."\n"; ?>
@@ -568,7 +568,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 			case 'asset_link' :
 				$link_fn = 'getHref';
 				if (!empty($args['full_url'])) {
-					switch($args['full_url']) {
+					switch ($args['full_url']) {
 						case 'yes'  :
 						case 'true' :
 						case '1'    : 
@@ -579,7 +579,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 				
 				$aqs = false;
 				if (!empty($args['append_query_string'])) {
-					switch($args['append_query_string']) {
+					switch ($args['append_query_string']) {
 						case 'yes'  :
 						case 'true' :
 						case '1'    : 
@@ -590,7 +590,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 
 				$sqs = false;
 				if (!empty($args['start_query_string'])) {
-					switch($args['start_query_string']) {
+					switch ($args['start_query_string']) {
 						case 'yes'  :
 						case 'true' :
 						case '1'    : 
@@ -610,7 +610,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 
 			case 'current_user' :
 				if (empty($args['attr'])) $args['attr'] = 'name';
-				switch($args['attr']) {
+				switch ($args['attr']) {
 					case 'username'   : 
 					case 'first_name' : 
 					case 'last_name'  : 
@@ -729,7 +729,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 		if ($do_customisations) {
 			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
-			foreach($customisation_links as $link) {
+			foreach ($customisation_links as $link) {
 				$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($customisation)) continue;
 				$customisation->generateDesignFile(true);

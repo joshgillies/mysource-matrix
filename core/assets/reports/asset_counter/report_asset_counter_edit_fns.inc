@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_counter_edit_fns.inc,v 1.2 2004/10/26 01:31:01 arailean Exp $
+* $Id: report_asset_counter_edit_fns.inc,v 1.3 2004/12/03 15:29:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -237,7 +237,7 @@ HEREDOC;
 
 
 				// sort the table
-				switch($sort_by) {
+				switch ($sort_by) {
 					case('count'):
 						$target_array = $counts;
 					break;

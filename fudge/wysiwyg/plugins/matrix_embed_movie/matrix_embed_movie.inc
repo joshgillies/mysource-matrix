@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_embed_movie.inc,v 1.16 2004/01/16 01:06:48 gsherwood Exp $
+* $Id: matrix_embed_movie.inc,v 1.17 2004/12/03 15:43:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -98,7 +98,7 @@ class matrix_embed_movie extends wysiwyg_plugin {
 						fragment.appendChild(div.firstChild);
 					}
 				} else if (HTMLArea.is_ie) {
-					if(range.length) {
+					if (range.length) {
 						if (range.item(0).tagName == "IMG" && range.item(0).getAttribute('sq_embeded') == "1") {
 							is_file = true;
 							var embed_tag = range.item(0);
@@ -202,7 +202,7 @@ class matrix_embed_movie extends wysiwyg_plugin {
 		$matches = Array();
 		preg_match_all('|(<img[^\>]+sq_embeded="1"([^\>]+)?>)|i', $html, $matches);
 
-		foreach($matches[1] as $match) {
+		foreach ($matches[1] as $match) {
 			$old_html = $match;
 
 			$match = strtolower($match);
@@ -214,7 +214,7 @@ class matrix_embed_movie extends wysiwyg_plugin {
 			preg_match_all('|\s+([^=]+)="([^"]+)"|', $match, $pieces);
 
 			$movie_vars = Array();
-			for(reset($pieces[1]); NULL !== ($k = key($pieces[1])); next($pieces[1])) {
+			for (reset($pieces[1]); NULL !== ($k = key($pieces[1])); next($pieces[1])) {
 				$var_name  = trim($pieces[1][$k]);
 				$var_value = trim($pieces[2][$k]);
 				$movie_vars[$var_name] = $var_value;
@@ -236,7 +236,7 @@ class matrix_embed_movie extends wysiwyg_plugin {
 				preg_match_all('|([^\s:]+):\s([^\s;]+);?|i', $style, $style_pieces);
 
 				$style_vars = Array();
-				for(reset($style_pieces[1]); NULL !== ($k = key($style_pieces[1])); next($style_pieces[1])) {
+				for (reset($style_pieces[1]); NULL !== ($k = key($style_pieces[1])); next($style_pieces[1])) {
 					$var_name  = trim($style_pieces[1][$k]);
 					$var_value = trim($style_pieces[2][$k]);
 					$style_vars[$var_name] = $var_value;

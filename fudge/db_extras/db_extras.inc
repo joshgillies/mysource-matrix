@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_extras.inc,v 1.10 2003/11/26 00:51:18 gsherwood Exp $
+* $Id: db_extras.inc,v 1.11 2004/12/03 15:43:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -55,7 +55,7 @@
 function db_extras_subquery(&$db, $sql, $subs, $default_value=null)
 {
 
-	switch($db->phptype) {
+	switch ($db->phptype) {
 		// Sub Query Compatable DB's
 		case 'pgsql' :
 
@@ -114,7 +114,7 @@ function db_extras_subquery(&$db, $sql, $subs, $default_value=null)
 function db_extras_insert_select(&$db, $insert, $select)
 {
 
-	switch($db->phptype) {
+	switch ($db->phptype) {
 		// INSERT INTO ... SELECT FROM Compatable DB's
 		case 'pgsql' :
 

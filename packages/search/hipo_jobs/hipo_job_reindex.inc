@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.6 2004/11/15 00:48:41 lwright Exp $
+* $Id: hipo_job_reindex.inc,v 1.7 2004/12/03 15:38:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -94,7 +94,7 @@ class HIPO_Job_ReIndex extends HIPO_Job
 		// metadata regeneration threshhold HIPO config entry
 		$o->openField('Reindexing Threshold');
 
-		if($write_access) {
+		if ($write_access) {
 			text_box($class.'[SQ_HIPO_REINDEX_THRESHOLD]', SQ_HIPO_REINDEX_THRESHOLD, 5);
 		} else {
 			echo SQ_HIPO_REINDEX_THRESHOLD;

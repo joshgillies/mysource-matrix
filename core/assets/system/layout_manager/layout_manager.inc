@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager.inc,v 1.9 2004/11/25 10:49:24 brobertson Exp $
+* $Id: layout_manager.inc,v 1.10 2004/12/03 15:29:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.9 $ - 0.1
+* @version $Revision: 1.10 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -151,7 +151,7 @@ class Layout_Manager extends Asset
 		// if there are no layouts directly applied for this type code will
 		// will check the type ancestors to look for one
 		if (!isset($layouts[$type_code]) || (!empty($screen) && !isset($layouts[$type_code][$screen]))) {
-			if(null === ($type_code = $this->getAncestorLayoutTypeCode($type_code, $screen))) return $null;
+			if (null === ($type_code = $this->getAncestorLayoutTypeCode($type_code, $screen))) return $null;
 		}
 
 		// no layouts defined for this type_code's screens

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.10 2003/11/26 00:51:18 gsherwood Exp $
+* $Id: image.inc,v 1.11 2004/12/03 15:43:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -155,7 +155,7 @@ class Image
 		$encoder = '';
 
 		// Check we have the right decoder
-		switch(get_file_type($input)) {
+		switch (get_file_type($input)) {
 			case 'gif':
 				$decoder = 'giftopnm';
 				$encoder = 'pnmtogif';
@@ -177,23 +177,23 @@ class Image
 		$needed_programs[] = $encoder;
 		$needed_programs[] = $decoder;
 
-		foreach($needed_programs as $p) {
+		foreach ($needed_programs as $p) {
 			$code = 0;
 			system("$p /? 2> /dev/null",$code);
-			if($code != 1) {
+			if ($code != 1) {
 				trigger_error('Unable to resize image, required external program could not be found: '.$p, E_USER_WARNING);
 				$die = true;
 			}
 		}
-		if($die) return false;
+		if ($die) return false;
 
 		$options = '';
 
-		if($w) $options .= ' -w $w';
-		if($h) $options .= ' -h $h';
+		if ($w) $options .= ' -w $w';
+		if ($h) $options .= ' -h $h';
 
 		$err = `(cat $input | $decoder | $scaler $options | $encoder > $output) 2>&1; echo $?`;
-		if($err > 0) {
+		if ($err > 0) {
 			trigger_error("There seem to have been problems resizing the image\n\n$input\n\nto\n\n$output:\n\n".htmlspecialchars($err));
 			unlink($output);
 			return false;
@@ -208,8 +208,8 @@ class Image
 //		
 //		list($old_w, $old_h) = getimagesize($input);
 //
-//		if($new_w <= 0) $new_w = $old_w;
-//		if($new_h <= 0) $new_h = $old_h;
+//		if ($new_w <= 0) $new_w = $old_w;
+//		if ($new_h <= 0) $new_h = $old_h;
 //
 //		$old_image = image_from_file($input);
 //		$new_image = ImageCreateTrueColor($new_w, $new_h);
@@ -230,9 +230,9 @@ class Image
 	*/
 	function fromFile($input) 
 	{
-		switch(get_file_type($input)) {
+		switch (get_file_type($input)) {
 			case 'gif' :
-				if ($image = ImageCreateFromGif($input)) return $image;
+				if ($image = ImageCreateFromGif ($input)) return $image;
 				else trigger_error('Unable to open GIF : '.$input);
 				break;
 			case 'png' :
@@ -265,9 +265,9 @@ class Image
 	function toFile($image, $output, $jpeg_quality=80) 
 	{
 		// Output result to file
-		switch(get_file_type($output)) {
+		switch (get_file_type($output)) {
 			case 'gif' :
-				if (imageGIF($image, $output)) return true;
+				if (imageGif ($image, $output)) return true;
 				break;
 			case 'png' :
 				if (imagePNG($image, $output)) return true;
