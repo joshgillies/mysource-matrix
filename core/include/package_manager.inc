@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.46 2004/06/25 04:03:36 gsherwood Exp $
+* $Id: package_manager.inc,v 1.47 2004/07/01 14:36:50 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -656,6 +656,21 @@ class Package_Manager extends MySource_Object
 
 
 	/**
+	* Returns an array of all the asset types in the package that are to be treated as system assets
+	* NOTE: Assets will be installed in the order they appear in this list
+	*
+	* @return Array()
+	* @access public
+	* @static
+	*/
+	function getSystemAssetTypes()
+	{
+		return Array();
+
+	}//end getSystemAssetTypes()
+
+
+	/**
 	* Installs System Assets for this package
 	*
 	* @return int the number of system assets created (-1 reserved for error)
@@ -666,12 +681,11 @@ class Package_Manager extends MySource_Object
 		$GLOBALS['SQ_INSTALL'] = true;
 
 		// check for any system assets that have not yet been installed and install them if required
-		$sys_asset_cfg = new System_Asset_Config();
 		$updated = false;
 		$assets_created = 0;
 
 		$system_assets = $GLOBALS['SQ_SYSTEM_ASSETS'];
-		foreach (array_intersect($sys_asset_cfg->system_asset_types, array_keys($this->assets)) as $type) {
+		foreach ($this->getSystemAssetTypes() as $type) {
 			if (!isset($system_assets[$type])) {
 				$function = 'create'.str_replace('_','',$type);
 				$new_system_asset = &$this->$function();
@@ -685,7 +699,11 @@ class Package_Manager extends MySource_Object
 		}
 
 		// regen the system assets file if needed
-		if ($updated) $sys_asset_cfg->save(Array(), false);
+		if ($updated) {
+			require_once SQ_INCLUDE_PATH.'/system_asset_config.inc';
+			$sys_asset_cfg = new System_Asset_Config();
+			$sys_asset_cfg->save(Array(), false);
+		}
 
 		$GLOBALS['SQ_INSTALL'] = false;
 

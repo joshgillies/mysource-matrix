@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.47 2004/05/26 05:24:33 gsherwood Exp $
+* $Id: mysource.inc,v 1.48 2004/07/01 14:36:50 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1768,6 +1768,8 @@ class MySource
 	* Returns some information about the currently installed packages.
 	*
 	* Returns the code name, version, name and description for each of the currently installed packages
+	* NOTE: do NOT ever cache the results of this function within the function because some parts of the install
+	*       require the most up-to-date info about which packages are installed.
 	*
 	* @return boolean
 	* @access public

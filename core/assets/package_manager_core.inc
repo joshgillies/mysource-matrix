@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.5 2004/06/15 01:02:28 mnyeholt Exp $
+* $Id: package_manager_core.inc,v 1.6 2004/07/01 14:36:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -136,6 +136,33 @@ class Package_Manager_Core extends Package_Manager
 
 
 	//--        FUNCTIONS TO CREATE SYSTEM ASSETS        --//
+
+
+	/**
+	* Returns an array of all the asset types in the package that are to be treated as system assets
+	* NOTE: Assets will be installed in the order they appear in this list
+	*
+	* @return Array()
+	* @access public
+	* @static
+	*/
+	function getSystemAssetTypes()
+	{
+		return Array(
+					'root_folder',
+					'trash_folder',
+					'system_management_folder',
+					'system_user_group',
+					'root_user',
+					'authentication_folder',
+					'cron_manager',
+					'layout_manager',
+					'remap_manager',
+					'designs_folder',
+					'login_design',
+				);
+
+	}//end getSystemAssetTypes()
 
 
 	/**

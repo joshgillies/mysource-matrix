@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_search.inc,v 1.5 2004/06/21 22:50:02 mnyeholt Exp $
+* $Id: package_manager_search.inc,v 1.6 2004/07/01 14:37:02 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,6 +49,23 @@ class Package_Manager_Search extends Package_Manager
 		$this->Package_Manager();
 
 	}//end constructor
+
+
+	/**
+	* Returns an array of all the asset types in the package that are to be treated as system assets
+	* NOTE: Assets will be installed in the order they appear in this list
+	*
+	* @return Array()
+	* @access public
+	* @static
+	*/
+	function getSystemAssetTypes()
+	{
+		return Array(
+					'search_manager',
+				);
+
+	}//end getSystemAssetTypes()
 
 
 	/**
