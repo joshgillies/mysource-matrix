@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.22 2004/06/25 08:12:57 lwright Exp $
+* $Id: form_email.inc,v 1.23 2004/06/25 09:22:25 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -212,6 +212,10 @@ class Form_Email extends Form
 		// return false if there is no-one to send to
 		if (empty($current_value['to'])) return false;
 
+		// get the form info (in both formats)
+		$info = $this->getFormInfo(true);
+		$info_text = $this->getFormInfo(false);
+
 		// get the form summary
 		ob_start();
 		$this->printSummary(true);
@@ -238,7 +242,7 @@ class Form_Email extends Form
 
 		$email_format_attr->sendMail($reps);
 
-		return true;
+		return true; 
 
 	}//end mailRecipients()
 
