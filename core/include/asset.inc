@@ -1179,7 +1179,7 @@ class Asset extends Resolve_Object
 		$current_lock = $this->getLockInfo();
 		if (empty($current_lock)) return true;
 
-		if (empty($expires)) $expires = ts_iso8601((time() + (10 * 60)));
+		if (empty($expires)) $expires = ts_iso8601((time() + (5 * 60)));
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 

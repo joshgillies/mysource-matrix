@@ -178,11 +178,17 @@ class Backend extends Resolve_Object
 		?>
 		<script language="JavaScript" type="text/javascript">
 			var REFRESH_UPDATE = <?php echo (int) SQ_CONF_REFRESH_INTERVAL ?>; // number of seconds before refreshing frame
+
+			function reloadFooter() {
+				REFRESH_LOCATION = '<?php echo $this->getBackendUrl('footer');?>&current_assetid=' + top.main.document.main_form.backend_assetid.value;
+				document.location = REFRESH_LOCATION;
+			}
 		</script>
 		<?php
 
 		if (isset($_SESSION['last_refresh'])) {
 
+			// check for updates to the asset tree
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 			$sql = 'SELECT assetid 
@@ -206,6 +212,17 @@ class Backend extends Resolve_Object
 		}// end if
 
 		$_SESSION['last_refresh'] = time();
+
+		
+		// refresh lock held on current page
+		if (isset($_GET['current_assetid']) && !empty($_GET['current_assetid'])) {
+			$current_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_GET['current_assetid'], '', true);
+			if ($current_asset->id) {
+				$lock = $current_asset->getLockInfo();
+				if (!empty($lock)) $current_asset->updateLock();
+			}
+		}
+
 
 		// check for any new internal messages
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
@@ -332,7 +349,7 @@ class Backend extends Resolve_Object
 		</table>
 		<?php
 
-		$this->out->addOnLoad('setTimeout("document.location.reload();", REFRESH_UPDATE * 1000);');
+		$this->out->addOnLoad('setTimeout("reloadFooter()", REFRESH_UPDATE * 1000);');
 
 		$this->out->closeRaw();
 
@@ -370,8 +387,10 @@ class Backend extends Resolve_Object
 	{
 
 		if (!isset($_GET['backend_section'])) $_GET['backend_section'] = '';
+		if (!isset($_GET['assetid']))         $_GET['assetid'] = '';
 
 		$this->out->addFormActionGetVar('backend_section', $_GET['backend_section']);
+		$this->out->addHiddenField('backend_assetid', $_GET['assetid']);
 
 		switch($_GET['backend_section']) {
 			case 'config' :
