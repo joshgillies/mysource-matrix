@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.61 2004/12/06 14:38:09 brobertson Exp $
+* $Id: site.inc,v 1.62 2004/12/06 22:35:28 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -502,7 +502,7 @@ class Site extends Folder
 			$design_name = 'system_design::frontend';
 		}
 
-		$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, $design_name);
+		$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($asset_url, $design_name);
 
 
 		if (empty($result)) {
