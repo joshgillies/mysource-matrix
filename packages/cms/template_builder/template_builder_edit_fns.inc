@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: template_builder_edit_fns.inc,v 1.2 2004/11/02 05:03:37 lwright Exp $
+* $Id: template_builder_edit_fns.inc,v 1.3 2004/11/02 05:30:38 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -190,7 +190,7 @@ class Template_Builder_Edit_Fns extends Page_Edit_Fns
 	{
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
-		?><p><b>Note:</b> all links to newly created bodycopies will be of TYPE_2; that is, they will appear in the asset map of the Administration interface, but not on the frontend.</p><?php
+		?><p><b>Note:</b> all links to newly created bodycopies will be of TYPE_2; that is, they will appear in the asset map of the Administration interface, but not in navigation (menus, etc.) on the frontend.</p><?php
 
 		$write_access = $asset->writeAccess('attributes');
 		$locations = $asset->attr('create_locations');
