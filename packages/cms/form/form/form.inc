@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.55 2004/10/13 03:11:15 arailean Exp $
+* $Id: form.inc,v 1.56 2004/10/13 06:50:50 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -968,16 +968,14 @@ class Form extends Bridge
 	function processForm()
 	{
 		$questions = &$this->getQuestions();
-		$keys = array_keys($questions);
-		foreach ($keys as $key) {
+		foreach (array_keys($questions) as $key) {
 			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$key);
 			$question->submission_errors =& $this->submission_errors;
 			$question->processForm();
 		}
 
 		$sections = &$this->getSections();
-		$keys = array_keys($sections);
-		foreach ($keys as $key) {
+		foreach (array_keys($sections) as $key) {
 			$section =& $sections[$key];
 			// there is still no problem with the section sharing the form's active submission
 			$section->active_submission =& $this->active_submission;
@@ -986,9 +984,10 @@ class Form extends Bridge
 		}
 
 		// check to see if there is an error with the form
-		$this->_tmp['is_error'] = !empty($this->submission_errors);
+		$status = empty($this->submission_errors);
+		$this->_tmp['is_error'] = !$status;
 
-		return !$this->_tmp['is_error'];
+		return $status;
 
 	}//end processForm()
 
