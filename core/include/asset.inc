@@ -2154,13 +2154,15 @@ class Asset extends MySource_Object
 			// if we are in workflow no editing allowed
 			// except by those users who can currently approve the asset
 			if ($this->status & SQ_SC_STATUS_PENDING) {
-				$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-				$publishers = $wfm->whoCanPublish($this->id);
-				if (in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) return true;
-				if (empty($publishers)) {
-					// nobody can publish - great
-					// better let admins take a punt
-					return $this->adminAccess($assetids, false);
+				if ($perm < SQ_PERMISSION_ADMIN) {
+					$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+					$publishers = $wfm->whoCanPublish($this->id);
+					if (in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) return true;
+					if (empty($publishers)) {
+						// nobody can publish - great
+						// better let admins take a punt
+						return $this->adminAccess($assetids, false);
+					}
 				}
 				return false;
 			}
