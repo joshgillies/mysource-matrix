@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cal_navigator.js,v 1.3 2004/09/13 01:25:58 dbaranovskiy Exp $
+* $Id: cal_navigator.js,v 1.4 2004/09/13 02:10:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -43,7 +43,8 @@ function Calendar(varname, divname, width, height, year, month, day)
 	this.selday = (typeof(day) == "undefined")?dt.getDate():day;
 	this.month = (typeof(month) == "undefined")?dt.getMonth():month - 1;
 	this.year = (typeof(year) == "undefined")?dt.getFullYear():year;
-	this.varname = varname;
+	this.prefix = varname;
+	this.varname = varname + "_cal";
 	this.divname = divname;
 	this.week_start = 1;
 	this.mon_names = new Array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");
@@ -454,7 +455,7 @@ function c_dayClick(day, mon, year)
 {
 	if (this.onDayClick != null)
 	{
-		this.onDayClick(day, mon, year);
+		this.onDayClick(day, mon, year, this.prefix);
 		if (this.popup) this.hide();
 	}
 
@@ -475,7 +476,7 @@ function c_monthClick(day, mon, year)
 {
 	if (this.onMonthClick != null)
 	{
-		this.onMonthClick(day, mon, year);
+		this.onMonthClick(day, mon, year, this.prefix);
 		if (this.popup) this.hide();
 	}
 
@@ -496,7 +497,7 @@ function c_weekClick(day, mon, year)
 {
 	if (this.onWeekClick != null)
 	{
-		this.onWeekClick(day, mon, year);
+		this.onWeekClick(day, mon, year, this.prefix);
 		if (this.popup) this.hide();
 	}
 
@@ -517,7 +518,7 @@ function c_yearClick(day, mon, year)
 {
 	if (this.onYearClick != null)
 	{
-		this.onYearClick(day, mon, year);
+		this.onYearClick(day, mon, year, this.prefix);
 		if (this.popup) this.hide();
 	}
 
