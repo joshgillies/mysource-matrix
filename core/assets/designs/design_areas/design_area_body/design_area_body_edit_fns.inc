@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_body_edit_fns.inc,v 1.8 2004/04/08 02:19:53 gsherwood Exp $
+* $Id: design_area_body_edit_fns.inc,v 1.9 2004/07/06 23:20:01 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,23 +38,6 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 */
 class Design_Area_Body_Edit_Fns extends Design_Area_Edit_Fns
 {
-
-	
-	/**
-	* Loops through the contents array and creates the necessary objects
-	*
-	* @param object Asset	$asset		the asset to which we belong
-	* @param array			$contents	the contents array we generated with _parseString()
-	*
-	* @return boolean
-	* @access private
-	*/
-	function _processContents(&$asset, &$contents) 
-	{
-		$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = true;
-		return true;
-		
-	}//end _processContents()
 
 	
 }//end class

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_body.inc,v 1.9 2003/11/26 00:50:55 gsherwood Exp $
+* $Id: design_area_body.inc,v 1.10 2004/07/06 23:20:01 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,7 +49,29 @@ class Design_Area_Body extends Design_Area
 	*/
 	function printArea(&$design)
 	{
-		echo '<','?php if (SQ_IN_LIMBO) $ASSET->printLimbo(); else $ASSET->printBody(); ?','>';
+		$format = $this->attr('format');
+		echo '<','?php if (SQ_IN_LIMBO) {$ASSET->printLimbo();} else {';
+		switch($format) {
+			case 'text':
+				// text - text only design - strip images, embeds and objects
+				echo 'ob_start();',
+					 '$ASSET->printBody();',
+				     '$body = ob_get_contents();',
+					 'ob_end_clean();',
+					 '$body = preg_replace(\'|\<img(.*)\>|\',\'\',$body);',
+					 '$body = preg_replace(\'|\\<embed(.*)\>(.*)</embed>|\',\'\',$body);',
+					 '$body = preg_replace(\'|\\<object(.*)\>(.*)</object>|\',\'\',$body);',
+				     'echo $body;';
+				break;
+
+			case 'html':
+			default:
+				// default = html - just print the body as usual
+				echo '$ASSET->printBody();';
+				break;
+
+		}
+		echo '} ?','>';
 		return true;
 
 	}//end printArea()

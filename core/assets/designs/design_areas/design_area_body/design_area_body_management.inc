@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_body_management.inc,v 1.6 2003/11/26 00:50:55 gsherwood Exp $
+* $Id: design_area_body_management.inc,v 1.7 2004/07/06 23:20:01 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,5 +37,27 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 */
 class Design_Area_Body_Management extends Asset_Management
 {
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function Design_Area_Body_Management(&$pm)
+	{
+		$this->Asset_Management($pm);
+
+		$this->vars = Array(
+							'format' => Array(
+								'added'			=> '0.1',
+								'type'			=> 'text',
+								'default'		=> 'html',
+								'description'	=> 'Format that the body tag is printed as (text, HTML, etc)',
+							),
+						);
+
+	}//end Design_Area_Body_Management()
+
+
 }//end class
 ?>
