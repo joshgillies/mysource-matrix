@@ -21,7 +21,7 @@ div#calendarTable table td { text-align: left; padding: 0px }
 div#calendarTable table th { text-align: center; padding: 1px }
 #calendarTable table { margin-left: auto; margin-right: auto; } 
 #calendarTable div { margin: 0px }
-#calendarTable td div.eventText { margin: 2px 0.25ex 0px 0.25ex; text-align: center; padding: 0px}
+#calendarTable td div.eventText { margin: 0px 0px 0px 1px; text-align: center; padding: 0px; font-size: 70%;}
 .calendarNavLink, a.calendarNavLink:hover, a.calendarNavLink:visited { text-decoration: none; font-weight: bold; color: blue }
 div#calendarList { text-align: left; width: 80ex; margin-left: auto; margin-right: auto}
 
@@ -126,7 +126,7 @@ table#week { border: 1px solid #173e57; background-color: white; border-collapse
 #week th.columnLabel a, #week th.columnLabel a:visited, #week th.columnLabel a:hover { text-decoration: none; font-weight: bold; color: black }
 
 /* Event DIVs (root-node-specific classes will also apply) */
- #week td div.event { margin: 0px;}
+ #week td div.event { margin: 0px; border: 1px solid black; }
 
 /* Event Links (root-node-specific classes will also apply) */
 #week .event, #week a.event:visited, #week a.event:hover { text-decoration: none } 
@@ -150,7 +150,7 @@ table#day { border: 1px solid #173e57; background-color: white; border-collapse:
 
 
 /* Event DIVs (root-node-specific classes will also apply) */
-#day td div.event {  }
+#day td div.event { border: 1px solid black; }
 
 /* Event Links (root-node-specific classes will also apply) */
 #day .event, #day a.event:visited, #day a.event:hover { text-decoration: none } 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.106 2004/10/19 05:48:46 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.107 2004/10/25 04:23:56 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.106 $ - 1.0
+* @version $Revision: 1.107 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -185,7 +185,7 @@ class Page_Calendar extends Page_Asset_Listing
 			return false;
 		}
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($content_asset->id, 'attributes')) {
-			trigger_error('Asset Builder Upgrade [to 0.4] Failed - Unable to Acquire Lock on "'.$asset->name.'" (#'.$asset->id.')', E_USER_WARNING);
+			trigger_error('Couldn\t get lock on page contents, couldn\'t create', E_USER_WARNING);
 			return false;
 		}
 		$content_asset->setAttrValue('html', '<h2 style="text-align: center">%calendar_title%</h2><p style="text-align: center">%prev_link%&nbsp;&nbsp;&nbsp;&nbsp;%up_link%&nbsp;&nbsp;&nbsp;&nbsp;%next_link%</p>%calendar_contents%');
@@ -899,11 +899,13 @@ class Page_Calendar extends Page_Asset_Listing
 	{
 		$partition_time = intval($this->attr('day_partition_time'));
 		$partition_height = $this->attr('day_partition_height');
+
 		$root_nodes = $this->_getRootNodes();
 		$this->_printClickChildScript();
-		$width = $this->attr('table_column_width');
-		$layout_maps = $events; // nb array copy
-		foreach ($layout_maps as $date => $times_events) {
+		$width = ($table_id == 'day') ? $this->attr('day_column_width') : $this->attr('table_column_width');
+		$layout_maps =  Array();
+		foreach ($events as $date => $times_events) {
+			$layout_maps[$date] = Array();
 			foreach (array_keys($times_events) as $time) {
 				$layout_maps[$date][$time] = Array();
 			}
@@ -929,7 +931,7 @@ class Page_Calendar extends Page_Asset_Listing
 		  }
 		//-->
 		</script>
-		<table id="<?php echo $table_id; ?>" border="0" cellspacing="0" cellpadding="0" summary="events in this <?php echo $table_id ?>">
+		<table id="<?php echo $table_id; ?>" border="0" cellspacing="0" cellpadding="0" summary="events in this <?php echo $table_id ?>" style="width: <?php echo ($width * count($events)) + 65; ?>px">
 		<?php
 		if (!empty($column_names)) {
 			// if we have several columns, print the column headers
@@ -997,7 +999,7 @@ class Page_Calendar extends Page_Asset_Listing
 				$time_key = sprintf('%02d:%02d', $current_hour, $current_mins);
 				if ($show_event_links && is_iso8601($id)) $_REQUEST['SQ_CALENDAR_DATE'] = $id;
 				?>
-				<td <?php echo $mouseup_code; ?> id="<?php echo $id.'_'.$time_key ?>" <?php echo empty($col_events[$time_key]) ? 'onclick="addEvent(\''.$_REQUEST['SQ_CALENDAR_DATE'].'\', \''.$time_key.'\');"' : ''; ?> style="<?php echo $width; ?>px; height: <?php echo $partition_height; ?>px;">
+				<td <?php echo $mouseup_code; ?> id="<?php echo $id.'_'.$time_key ?>" <?php echo empty($col_events[$time_key]) ? 'onclick="addEvent(\''.$_REQUEST['SQ_CALENDAR_DATE'].'\', \''.$time_key.'\');"' : ''; ?> style="<?php echo $width; ?>px; height: <?php echo $partition_height; ?>px; padding-left: 1px">
 				<?php
 					echo $this->_getTimedTableCellContents($col_events[$time_key], $show_event_links, $root_nodes, ($current_mins + ($current_hour * 60)), $partition_time, $partition_height, $div_width / $col_events['_overlap_'], $layout_maps[$id], $mousedown_code);
 				?>
@@ -1041,8 +1043,11 @@ class Page_Calendar extends Page_Asset_Listing
 
 		foreach ($events as $assetid => $details) {
 			reset($layout_map);
-			$tom = 0;
-			while (($tom < 10) && (key($layout_map) != $time_label)) {  next($layout_map); $tom++;}
+			$dont_overdo_it = 0;
+			while (($dont_overdo_it < 20) && (key($layout_map) != $time_label)) {  
+				next($layout_map); 
+				$dont_overdo_it++;
+			}
 			$horizontal_index = 0;
 			while (isset($layout_map[$time_label][$horizontal_index])) $horizontal_index++;
 			for ($i=0; $i < ceil(($details['end_date_minutes'] + $details['end_date_hours']*60 - $details['start_date_minutes']-$details['start_date_hours']*60) / $partition_time); $i++) {
@@ -1062,6 +1067,16 @@ class Page_Calendar extends Page_Asset_Listing
 			$event_height = ($event_duration / $partition_time) * $cell_height;
 			if ($event_height < 0) continue;
 
+			// Now for a bit o good old browser sniffing.  Spoons ready.  Mmmm.
+			// IE and Opera (wrongly) build their borders inwards from the specified element height & width.  
+			// Mozilla and other more CSS compliant browsers build them outwards from the element width.
+			// Therefore if we are using a compliant browser we want to subtract the borders from the
+			// height for correct alignment.  We assume 1px borders since we will specify that in the style
+			// attribute of the div.
+			if ((strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') === false) && (strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') === false)) {
+				$event_height -= 2;
+			} 
+
 			// get class to use for div
 			$root_node_treeids = get_treeids($root_nodes);
 			$event_class = '';
@@ -1078,12 +1093,11 @@ class Page_Calendar extends Page_Asset_Listing
 			}
 			
 			// other layout things
-			$zero_length_code = $event_height ? '' : 'border-style: dashed; border-width: 2px; border-bottom: 0px; border-left: 0px; border-right: 0px; height: 0px; padding-top: 0px; background-color: transparent;';
+			$zero_length_code = $event_height ? '' : 'border-style: dashed; border-bottom: 0px; border-left: 0px; border-right: 0px; padding-top: 0px; background-color: transparent;';
 			$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand;' : '';
-			$inner_margin_top = $event_height ? 1 : 0;
 			$onclick_code = $show_event_links ? 'onclick="clickChild(this);"' : '';
-			$inner_width = ($event_width * 0.96) - 0.25;
-			$current_mousedown_code = ($details['type_code'] != 'calendar_event_recurring') ? $mousedown_code : '';
+			$inner_width = $event_width - 4;
+			$current_mousedown_code = ($details['type_code'] != 'calendar_event_recurring') ? $mousedown_code : 'onmousedown="var a=2; return true;"';
 
 			$current_mouse_over_out_code = '';
 			if (isset($details['description']) && !empty($details['description'])) {
@@ -1091,8 +1105,11 @@ class Page_Calendar extends Page_Asset_Listing
 				$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')" onmouseout="stopTrailingPopup(\'event_'.$assetid.'_description\')"';
 			}
 
-			$res .= '<div id="'.$assetid.'" '.$current_mousedown_code.' '.$current_mouse_over_out_code.' class='.$event_class.' event" style="float:left; position: absolute; width: '.$event_width.'px; margin-left: '.$event_left_margin.'px; margin-top: '.$event_top_margin.'px; height: '.$event_height.'px; '.$cursor_code.' '.$zero_length_code.'" '.$onclick_code.'><div class="eventText" style="position: absolute; width: '.$inner_width.'px; border: none; margin-top: '.$inner_margin_top.'px background-color: transparent">';
-			$res .= $show_event_links ? '<a onmousedown="this.parentNode.mousedown();" class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'&amp;SQ_CALENDAR_EVENT_ID='.$real_assetid.'">' : '<span class="event '.$event_class.'">';
+			$res .= '<div id="'.$assetid.'" '.$current_mousedown_code.' '.$current_mouse_over_out_code.' class="'.$event_class.' event" style="float: left; position: absolute; width: '.($event_width-1).'px; margin-left: '.$event_left_margin.'px; margin-top: '.$event_top_margin.'px; height: '.$event_height.'px; border-width: 1px; '.$cursor_code.' '.$zero_length_code.'" '.$onclick_code.'>';
+
+			$res .= '<div class="eventText" style="z-index: 30; position: absolute; width: '.$inner_width.'px; border: none;  background-color: transparent" onmousedown="alert(\'div clicked\'); this.parentNode.onmousedown(); return false;">';
+
+			$res .= $show_event_links ? '<a style="z-index: 1" onmousedown="alert(\'link clicked\');" class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'&amp;SQ_CALENDAR_EVENT_ID='.$real_assetid.'">' : '<span class="event '.$event_class.'">';
 			$res .= $details['name'];
 			$res .= $show_event_links ? '</a>' : '</span>';
 			$res .= '</div></div>';
@@ -1872,6 +1889,7 @@ class Page_Calendar extends Page_Asset_Listing
 					$res['all_day'][$id] = $details;
 				} else {
 					$event_ts = $details['start_date_hours'] * 60 + $details['start_date_minutes'];
+					$event_end_ts = $details['end_date_hours'] * 60 + $details['end_date_minutes'];
 					// start-of-table / end-of-table adjustments to make sure that those events
 					// partly outside the bounds of the table are (a) kept inside the table and
 					// (b) show on the table in the first place (in case of start time adjustment)
@@ -1894,7 +1912,7 @@ class Page_Calendar extends Page_Asset_Listing
 				}
 			}
 		}
-		$res['_overlap_'] = $this->_countOverlappingEvents($events);
+		$res['_overlap_'] = $this->_countOverlappingEvents($events, $first_time, $last_time, $time_partition);
 		return $res;
 
 	}//end getDayEventsByTime()

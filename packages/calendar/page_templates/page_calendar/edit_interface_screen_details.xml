@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.14 2004/09/14 06:24:39 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.15 2004/10/25 04:23:56 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -123,14 +123,14 @@
 			</function_call>
 		</field>
 		<field attribute="month_column_width">
-			<display_name>Width of columns (ex)</display_name>
+			<display_name>Width of columns (px)</display_name>
 			<note></note>
-			<float width="6" />
+			<int width="6" />
 		</field>
 		<field attribute="month_row_height">
-			<display_name>Height of rows (ex)</display_name>
+			<display_name>Height of rows (px)</display_name>
 			<note></note>
-			<float width="6" />
+			<int width="6" />
 		</field>
 	</section>
 
@@ -176,14 +176,19 @@
 			<selection /> 
 		</field>
 		<field attribute="day_partition_height">
-			<display_name>Height of Day Partitions (ex)</display_name>
+			<display_name>Height of Day Partitions (px)</display_name>
 			<note></note>
-			<float width="6" />
+			<int width="6" />
 		</field>
 		<field attribute="table_column_width">
-			<display_name>Width of columns (ex)</display_name>
+			<display_name>Width of WEEK columns (px)</display_name>
 			<note />
-			<float width="6" />
+			<int width="6" />
+		</field>
+		<field attribute="day_column_width">
+			<display_name>Width of DAY columns (px)</display_name>
+			<note />
+			<int width="6" />
 		</field>
 		<field attribute="asset_builder_page">
 			<display_name>Event Input Page</display_name>

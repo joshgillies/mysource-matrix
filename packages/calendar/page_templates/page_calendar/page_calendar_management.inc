@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.24 2004/09/15 23:21:41 tbarrett Exp $
+* $Id: page_calendar_management.inc,v 1.25 2004/10/25 04:23:56 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.24 $ - 1.0
+* @version $Revision: 1.25 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -116,20 +116,24 @@ class Page_Calendar_Management extends Asset_Management
 
 		$this->vars['day_partition_height'] = Array(
 													'added'			=> '0.1',
-													'type'			=> 'float',
-													'default'		=> '4.0',
-													'description'   => 'The height of each day interval\'s row in the table, in \'ex\'es',
-													'parameters'	=> Array('decimal_places' => 2)
+													'type'			=> 'int',
+													'default'		=> '20',
+													'description'   => 'The height of each day interval\'s row in the week and day tables, in pixels',
 												   );	
 
 		$this->vars['table_column_width'] = Array(
 													'added'			=> '0.1',
-													'type'			=> 'float',
-													'default'		=> '15.0',
-													'description'   => 'The width of each column in the day and week display tables, in \'ex\'es',
-													'parameters'	=> Array('decimal_places' => 2)
+													'type'			=> 'int',
+													'default'		=> '110',
+													'description'   => 'The width of each column in the WEEK table, in pixels',
 												   );	
 										
+		$this->vars['day_column_width'] = Array(
+													'added'			=> '0.1',
+													'type'			=> 'int',
+													'default'		=> '110',
+													'description'   => 'The width of each column in the DAY table, in pixels',
+												   );	
 
 		$this->vars['columnise_day_view_by_root_node'] = Array(
 																'added'		=> '0.2',
@@ -185,18 +189,16 @@ class Page_Calendar_Management extends Asset_Management
 
 		$this->vars['month_column_width']	= Array(
 													'added'			=> '0.1',
-													'type'			=> 'float',
-													'default'		=> '10.0',
-													'description'   => 'The width of the columns in the month calendar table, in \'ex\'es',
-													'parameters'	=> Array('decimal_places' => 2)
+													'type'			=> 'int',
+													'default'		=> '90',
+													'description'   => 'The width of the columns in the month calendar table, in pixels',
 											);
 												   
 		$this->vars['month_row_height']		= Array(
 													'added'			=> '0.1',
-													'type'			=> 'float',
-													'default'		=> '7.0',
-													'description'   => 'The height of the rows in the month calendar table, in \'ex\'es',
-													'parameters'	=> Array('decimal_places' => 2)
+													'type'			=> 'int',
+													'default'		=> '70',
+													'description'   => 'The height of the rows in the month calendar table, in pixels',
 											);
 		
 		$this->vars['up_link_text'] = Array(
@@ -333,11 +335,56 @@ class Page_Calendar_Management extends Asset_Management
 			} else {
 				return parent::_updateOwnedAttribute($name, $curr_attr);
 			}
+		} elseif (in_array($name, Array('day_partition_height', 'table_column_width', 'month_column_width', 'month_row_height')) && ($this->_am->getTypeInfo($this->getAssetType(), 'version') == '0.3'))  {
+			if (!parent::_updateOwnedAttribute($name, $curr_attr)) {
+				bam("Already upgraded?");
+				return false;
+			}
+
+			// stop it from being run twice
+			static $already_run = Array();
+			if (isset($already_run[$name])) {
+				bam("NOT RUNNING AGAIN");
+				return true;
+			}
+			$already_run[$name] = 1;
+			// in v0.3 these attributes changed from exes to pixels, so we need to adjust their values
+			// we make the assumption that there are 8 pixels in an ex.
+			$sql = 'UPDATE '.SQ_TABLE_PREFIX.'asset_attribute_value SET custom_value = CAST((CAST (custom_value AS INTEGER) * 8) AS INTEGER) WHERE attributeid='.$this->_db->quote($curr_attr['attributeid']);
+			$res = $this->_db->query($sql);
+			if (!assert_valid_db_result($res)) return false;
+			bam("RETURNING TRUE");
+			return true;
 		} else {
 			return parent::_updateOwnedAttribute($name, $curr_attr);
 		}
 
 	}//end _updateOwnedAttribute()
+
+	function _upgrade($current_version) 
+	{
+		// first do things as normal
+		$res = parent::_upgrade($current_version);
+
+		static $upgrade_already_run = false;
+		if ($upgrade_already_run) return $res;
+		$upgrade_already_run = true;
+
+		if ($current_version < 0.3) {
+			// set values for our new attribute, the day column width, according to the old col width
+			// that was shared between day and week
+			$all_assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('page_calendar', false);
+			foreach ($all_assetids as $assetid) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset->setAttrValue('day_column_width', $asset->attr('table_column_width'));
+				$asset->saveAttributes();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($assetid);
+			}
+		}
+
+		return $res;
+	}
+			
 
 
 }//end class
