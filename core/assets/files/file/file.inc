@@ -69,8 +69,8 @@ class File extends Asset
 	function _getAllowedLinks()
 	{
 		return Array(SQ_LINK_EXCLUSIVE => Array(),
-					 SQ_LINK_UNITE     => Array('thumbnail' => 'M'),
-					 SQ_LINK_USES      => Array(),
+					 SQ_LINK_UNITE     => Array(),
+					 SQ_LINK_USES      => Array('thumbnail' => '1'),
 					 SQ_LINK_NOTICE    => Array()
 					);
 
@@ -107,6 +107,49 @@ class File extends Asset
 
 
 	/**
+	* Set the value for the passed variable to the passed value
+	* If the user changes the name of this file, we also need
+	* to update the file system
+	*
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setAttrValue($name, &$value)
+	{
+		$uploading_file = (!empty($this->_tmp['uploading_file'])) ? true : false;
+		if ($name == 'name' && !$uploading_file) {
+			$old_filename = $this->attr('name');
+			$old_ext = strtolower(substr(strrchr($old_filename,'.'), 1));
+			$new_ext = strtolower(substr(strrchr($value,'.'), 1));
+			if (trim($old_ext) != '' && $old_ext != $new_ext) {
+				trigger_error('Can can not change the extension of the file. Upload a new file to change the extension.', E_USER_WARNING);
+				$value = $old_filename;
+				return false;
+			}
+			if (!is_file($this->data_path.'/'.$old_filename)) {
+				trigger_error('Current file not found. Upload a file before renaming.', E_USER_WARNING);
+				$value = $old_filename;
+				return false;
+			}
+		}
+
+		if (parent::setAttrValue($name, $value) && $name == 'name' && !$uploading_file) {
+			if (!rename($this->data_path.'/'.$old_filename, $this->data_path.'/'.$value)) {
+				trigger_error('Failed renaming file, try again.', E_USER_WARNING);
+				parent::setAttrValue($name, $old_filename);
+				return false;
+			}
+		}
+
+		return true;
+
+	}//end setAttrValue()
+
+
+	/**
 	* Prints out the frontend for this file with no design
 	*
 	* @return void
@@ -139,16 +182,14 @@ class File extends Asset
 	{
 		// check for an existing file
 		$existing = Array();
-		$existing_files = list_files($this->data_path);
-		foreach ($existing_files as $filename) {
-			if (preg_match('/^uploaded_file(.[^.]+)?$/', $filename)) {
-				$existing['path'] = $this->data_path.'/'.$filename;
-				$existing['filename'] = $filename;
-				$existing['modified'] = filectime($existing['path']);
-				$existing['size'] = filesize($existing['path']);
-				break;
-			}
+		$path = $this->data_path.'/'.$this->attr('name');
+		if (is_file($path)) {
+			$existing['path'] = $path;
+			$existing['filename'] = $this->attr('name');
+			$existing['modified'] = filectime($existing['path']);
+			$existing['size'] = filesize($existing['path']);
 		}
+
 		return $existing;
 	}//end _getExistingFile()
 

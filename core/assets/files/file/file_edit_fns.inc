@@ -52,6 +52,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 				<b>Current File</b><br>
 				<b>Size:</b> <?php echo easy_filesize($existing['size'])?><br>
 				<b>Updated:</b> <?php echo readable_datetime($existing['modified'])?><br>
+				</p>
 			<?php
 		}
 		return true;
@@ -91,25 +92,89 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		$dest = $asset->data_path;
 		create_directory($dest);
 
-		// delete existing uploaded file
-		$existing_files = list_files($asset->data_path);
-		foreach ($existing_files as $filename) {
-			if (preg_match('/^uploaded_file(.[^.]+)?$/', $filename)) {
-				unlink($asset->data_path.'/'.$filename);
+		// delete existing uploaded file if it exists
+		if (is_file($asset->data_path.'/'.$asset->attr('name'))) {
+			if (!unlink($asset->data_path.'/'.$asset->attr('name'))) {
+				trigger_error('Failed deleting existing file', E_USER_WARNING);
+				return false;
 			}
 		}
 
 		// copy over the new uploaded file
-		if (!copy($info['tmp_name'], $dest.'/uploaded_file'.(($ext) ? '.'.$ext : ''))) {
+		if (!copy($info['tmp_name'], $dest.'/'.$name)) {
 			trigger_error('Failed copying uploaded file to destination directory', E_USER_WARNING);
 			return false;
 		}
 
 		// set the name of the file to the newly uploaded one
+		$asset->_tmp['uploading_file'] = true;
 		$asset->setAttrValue('name', $name);
+		unset($asset->_tmp['uploading_file']);
 		
 		return true;
 	}//end processFileUpload()
+
+
+	function paintThumbnail(&$asset, &$o, $prefix)
+	{
+		// get the current thumbnail if there is one
+		$thumb_link = $asset->getLink(SQ_LINK_USES, 'thumbnail', true, 'thumbnail');
+		if (!empty($thumb_link)) {
+			$thumb = $GLOBALS['SQ_SYSTEM']->am->getAsset($thumb_link['minorid'], '', true);
+			$existing = $thumb->_getExistingFile();
+			if (!empty($existing)) {
+				?> 
+					<p style="font-size: 7pt">
+					<b>Current Thumbnail</b><br>
+					<b>Filename:</b> <?php echo $thumb->attr('name')?><br>
+					<b>Size:</b> <?php echo easy_filesize($existing['size'])?><br>
+					<b>Updated:</b> <?php echo readable_datetime($existing['modified'])?><br>
+					</p>
+				<?php
+			} else {
+				?> 
+					<p style="font-size: 7pt">
+					<b>Current Thumbnail</b><br>
+					<b>Filename:</b> <?php echo $thumb->attr('name')?><br>
+					<b>Note:</b> <i>No file has been uploaded for this thumbnail</i>
+					</p>
+				<?php
+			}
+		}
+
+		?>
+		<input type="text" name="<?php echo $prefix?>_thumbid" value="">
+		<?php
+	}
+
+	
+	function processThumbnail(&$asset, $prefix)
+	{
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		
+		$thumbid = (int) $_POST[$prefix.'_thumbid'];
+		if (!$thumbid) return true;
+
+		$thumb = $am->getAsset($thumbid, '', true);
+		if (!$thumb->id || get_class($thumb) != 'thumbnail') {
+			return false;
+		}
+		
+		// get the current thumbnail if there is one
+		$thumb_link = $asset->getLink(SQ_LINK_USES, 'thumbnail', true, 'thumbnail');
+		
+		// return if they are trying to set the thumb to the current thumb
+		if ($thumb_link['minorid'] == $thumb->id) return true;
+
+		if (!empty($thumb_link)) {
+			if (!$asset->deleteLink($thumb_link['linkid'])) return false;
+		}
+
+		// create new link to thumbnail
+		$asset->createLink($thumb, SQ_LINK_USES, 'thumbnail');
+
+		return true;
+	}
 
 }//end class
 ?>

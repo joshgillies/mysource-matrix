@@ -13,13 +13,5 @@
 				<process_function name="processFileUpload" />
 			</function_call>
 		</field>
-		<field>
-			<display_name>Thumbnail</display_name>
-			<note />
-			<function_call>
-				<paint_function   name="paintThumbnail"   />
-				<process_function name="processThumbnail" />
-			</function_call>
-		</field>
 	</section>
 </contents>
