@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_herder.inc,v 1.20 2003/10/07 02:42:56 brobertson Exp $
+* $Id: hipo_herder.inc,v 1.21 2003/10/08 00:52:17 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -318,7 +318,7 @@ class HIPO_Herder extends MySource_Object
 						<table>
 							<tr>
 								<td>
-<pre style="font-size : 3px;">
+<pre style="font-size : 1px;">
 <?php
 if (!empty($done_hipo)) {
 	echo '<span style="color:#000000;">'.implode("\n", $done_hipo)."</span>\n";
