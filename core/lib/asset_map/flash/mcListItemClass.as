@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcListItemClass.as,v 1.28 2003/10/27 22:39:55 dwong Exp $
+* $Id: mcListItemClass.as,v 1.29 2003/10/27 23:24:49 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -68,16 +68,6 @@ mcListItemClass.prototype = new NestedMouseMovieClip(true, NestedMouseMovieClip.
 
 mcListItemClass.prototype.setParent = function(parent_item_name) 
 {
-	var parentItem = this._parent[parent_item_name];
-	
-	if (parentItem != undefined) {
-		this.lineage_path = parentItem.lineage_path.clone();
-		this.lineage_path.push(this.assetid);
-	} else {
-		this.lineage_path = Array(this.assetid);
-	}
-
-	this.parent_item_name = parent_item_name;
 }//end setParent()
 
 mcListItemClass.prototype.getParentAssetid = function() 
@@ -95,9 +85,19 @@ mcListItemClass.prototype.setLink = function(link)
 	this.text_field.text = this.getText();
 }//end setLink()
 
-mcListItemClass.prototype.setAsset = function(asset) 
+mcListItemClass.prototype.setAsset = function(asset, parent_item_name) 
 {
-//	trace(asset);
+	var parentItem = this._parent[parent_item_name];
+	
+	if (parentItem != undefined) {
+		this.lineage_path = parentItem.lineage_path.clone();
+		this.lineage_path.push(asset.assetid);
+	} else {
+		this.lineage_path = Array(asset.assetid);
+	}
+
+	this.parent_item_name = parent_item_name;
+
 	asset.addListener(this);
 	this.asset				= asset;
 	this.assetid			= asset.assetid;
@@ -107,11 +107,14 @@ mcListItemClass.prototype.setAsset = function(asset)
 	this.asset_status		= asset.status;
 
 	if (asset.paths.length == 0) {
-		if (asset.url != '')
+		if (asset.url != '') {
 			this.preview_url		= asset.url;
+		} else {
+			this.preview_url		= parentItem.preview_url;
+		}
 	} else {
 		if (this.parent_item_name != 'li') {
-			var parent_preview_url	= this._parent[this.parent_item_name].preview_url;
+			var parent_preview_url	= parentItem.preview_url;
 			if (parent_preview_url != undefined)
 				this.preview_url		= parent_preview_url + "/" + asset.paths[0]; // choose arbitrary web path
 		} else {
@@ -154,11 +157,9 @@ mcListItemClass.prototype.getText = function()
 mcListItemClass.prototype.setInfo = function(asset, link, parent_name) 
 {
 //	trace (this + "::mcListItemClass.setInfo (" + asset + ", " + link + ", " + parent_name + " )");
-	this.setAsset(asset);
 	this.setLink(link);
-	this.setParent(parent_name);
+	this.setAsset(asset, parent_name);
 
-	trace(this.lineage_path);
 }//end setInfo()
 
 mcListItemClass.prototype.getKidState = function() 

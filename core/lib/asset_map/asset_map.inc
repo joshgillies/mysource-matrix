@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_map.inc,v 1.94 2003/10/27 22:39:53 dwong Exp $
+* $Id: asset_map.inc,v 1.95 2003/10/27 23:24:48 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,7 +53,7 @@ class Asset_Map
 		}
 
 		$flash_vars = 'server_exec_path='.rawurlencode($backend->getBackendUrl('asset_map_request')).
-					  '&action_bar_path='.rawurlencode($backend->getBackendUrl().'&backend_section=am&am_section=edit_asset&assetid=%assetid%&asset_path=%asset_path%&asset_ei_screen=%action%').
+					  '&action_bar_path='.rawurlencode($backend->getBackendUrl().'&backend_section=am&am_section=edit_asset&assetid=%assetid%&sq_asset_path=%asset_path%&asset_ei_screen=%action%').
 					  '&inbox_path='.rawurlencode($inbox_url).
 					  '&url_frame=main';
 
