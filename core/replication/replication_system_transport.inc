@@ -18,12 +18,9 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_transport.inc,v 1.1.2.2 2004/02/13 17:18:58 brobertson Exp $
+* $Id: replication_system_transport.inc,v 1.1.2.3 2004/02/14 17:44:52 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
-
-require_once SQ_DATA_PATH.'/private/conf/squiz_server.inc';
-require_once SQ_SERVER_SYSTEM_ROOT.'/code/squiz_server_client.inc';
 
 
 /**
@@ -31,7 +28,7 @@ require_once SQ_SERVER_SYSTEM_ROOT.'/code/squiz_server_client.inc';
 *
 * Purpose
 *
-*    Base Classes to handle the authentication of connections between Master Server and Slaves
+*    Base Classes to handle the transport of date between Master and Slave Systems
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
@@ -41,25 +38,52 @@ class Replication_System_Transport extends MySource_Object
 {
 
 	/**
-	* buffer size for socket_read
+	* buffer size for socket_read and fread
 	* @var integer
 	*/
-	var $_read_buffer_size = 128;
+	var $_read_buffer_size = 4096;
 
 	/**
-	* the file (socket) descriptor
+	* the socket file descriptor
 	* @var resource
 	*/
-	var $_fd = null;
+	var $_sd = null;
+
+	/**
+	* Path to store any files that are downloaded
+	* @var string
+	*/
+	var $_data_path = '';
 
 
 	/**
 	* Constructor
+	*
+	* @param string	$data_path	the path to store any files that are downloaded
+	*
 	*/
-	function Replication_System_Transport()
+	function Replication_System_Transport($data_path)
 	{
 		$this->MySource_Object();
+		$this->_data_path = $data_path;
 	}//end constructor
+
+
+	/**
+	* Returns an array of var names in the object that are to saved if this object get's serialised
+	*
+	* @return Array
+	* @access private
+	*/
+	function __sleep()
+	{
+		$vars = parent::__sleep();
+		$k = array_search('_sd', $vars);
+		if ($k !== false) unset($vars[$k]);
+		$k = array_search('_data_path', $vars);
+		if ($k !== false) unset($vars[$k]);
+		return $vars;
+	}//end __sleep()
 
 
 	/**
@@ -86,7 +110,7 @@ class Replication_System_Transport extends MySource_Object
 	function extractParams()
 	{
 		return Array();
-	
+
 	}//end extractParams()
 
 
@@ -102,8 +126,29 @@ class Replication_System_Transport extends MySource_Object
 	function loadParams($params)
 	{
 		return true;
-	
+
 	}//end loadParams()
+
+
+	/**
+	* Set's the socket to be used when communicating on this transport method
+	*
+	* @param resource $sd	the socket resource we are using for connections
+	*
+	* @access public
+	* @return boolean	success or not
+	*/
+	function setSocketFd($sd)
+	{
+		if (!is_resource($sd)) {
+			trigger_error('Passed argument is not a resource', E_USER_WARNING);
+			return false;
+		}
+
+		$this->_sd = $sd;
+		return true;
+
+	}// end setSocketFd()
 
 
 	/**
@@ -112,83 +157,52 @@ class Replication_System_Transport extends MySource_Object
 	* @access   public
 	* @return string    $error    last error
 	*/
-	function getLastSocketError($fd=null)
+	function getLastSocketError()
 	{
-		$lastError = (is_resource($fd)) ? socket_last_error($fd) : socket_last_error();
+		$lastError = (is_resource($this->_sd)) ? socket_last_error($this->_sd) : socket_last_error();
 		return 'Msg: '.socket_strerror($lastError).' / Code: '.$lastError;
 
 	}// end getLastSocketError()
 
 
 	/**
-	* read from a socket and return the data
+	* returns the host and port string of the active socket
 	*
-	* @param resource	$fd			the socket file desriptor resource to read from
-	* @param int		$length		the number of bytes to attempt to read in
-	*
-	* @return null|string	the data read from the socket will be put returned
-	*						NULL will be returned if there is an error
-	* @access private
+	* @return string    "[host]:[port]"
+	* @access public
 	*/
-	function _readFromSocket($fd, $length)
+	function getPeerInfo()
 	{
-		// make sure we start with empty string
-		$data_str  = '';
-		$num_bytes = 0;
+		if (is_resource($this->_sd)) {
+			socket_getpeername($this->_sd, $peer_host='', $peer_port='');
+			return $peer_host.':'.$peer_port;
+		} else {
+			return '';
+		}
 
-		$bytes_to_read = min($length, $this->_read_buffer_size);
-
-		// read data from socket
-		while($buf = @socket_read($fd, $bytes_to_read, PHP_BINARY_READ)) {
-			if ($buf === false) {
-				socket_getpeername($fd, $peer_host='', $peer_port='');
-				trigger_error('Error Reading from '.$peer_host.':'.$peer_port.' ('.$this->getLastSocketError($fd).').', E_USER_WARNING);
-				return null;
-			}
-
-			// connection was closed
-			if ($buf == '') {
-				break;
-
-			} else {
-
-				$num_bytes += strlen($buf);
-				$data_str .= $buf;
-
-				// we found the end string, strip it and break out of here
-				if ($num_bytes >= $length) {
-					break;
-				}
-
-			}// end if
-
-			$bytes_to_read = min($length - $num_bytes, $this->_read_buffer_size);
-
-		}// end while
-
-		return $num_bytes;
-
-	}// end _readFromSocket()
+	}// end getPeerInfo()
 
 
 	/**
 	* Send data to a client
 	*
-	* @param resource	$fd				the socket file desriptor resource to write to
 	* @param string		$data_str		the data to send down the line
 	* @param int		&$bytes_written	the number of bytes actually written to the pipe
 	*
 	* @return boolean	indicating whether all bytes were written to the socket or not
 	* @access private
 	*/
-	function _writeToSocket($fd, $data_str, &$bytes_written)
+	function _writeToSocket($data_str, &$bytes_written)
 	{
+		if (!is_resource($this->_sd)) {
+			trigger_error('Unable to write to socket : socket doesn\'t exist', E_USER_WARNING);
+			return false;
+		}
 		$bytes_written = 0;
-		while($data_str) {
-			$bytes = @socket_write($fd, $data_str);
+		while($data_str != '') {
+			$bytes = @socket_write($this->_sd, $data_str);
 			if ($bytes === false) {
-				socket_getpeername($fd, $peer_host='', $peer_port='');
-				trigger_error('Error writing to '.$peer_host.':'.$peer_port.' ('.$this->getLastSocketError($fd).').', E_USER_WARNING);
+				trigger_error('Error writing to '.$this->getPeerInfo().' : '.$this->getLastSocketError(), E_USER_WARNING);
 				return false;
 			}
 			$data_str = substr($data_str, $bytes);
@@ -202,37 +216,309 @@ class Replication_System_Transport extends MySource_Object
 
 
 	/**
-	* Read from the socket
+	* Writes a variable to the socket
 	*
-	* @param resource	$fd		the socket file desriptor resource to read from
-	* @param int		$length		the number of bytes to attempt to read in
+	* @param mixed		$data	the data that needs to be sent to the remote system
 	*
-	* @return null|string	NULL on error, otherwise the data from the sender is returned
-	*
+	* @return boolean	indicating whether the contents were written successfully
 	* @access public
 	*/
-	function read($fd, $length)
+	function writeVar($data)
 	{
-		return $this->_readFromSocket($fd, $length);
+		if (!is_resource($this->_sd)) {
+			trigger_error('Unable to write to socket : socket doesn\'t exist', E_USER_WARNING);
+			return false;
+		}
+
+		$contents = serialize($data);
+		$headers  =  "Type: variable\n"
+					."Length: ".strlen($contents)."\n"
+					."\n";
+
+		return $this->_writeToSocket($headers.$contents, $bytes_written=0);
+
+	}// end writeVar()
+
+
+	/**
+	* Writes a file to the socket
+	*
+	* @param string		$source			Source filename, path from the SYSTEM ROOT
+	*
+	* @return boolean	indicating whether the contents were written successfully
+	* @access public
+	*/
+	function writeFile($source)
+	{
+		if (!is_resource($this->_sd)) {
+			trigger_error('Unable to write to socket : socket doesn\'t exist', E_USER_WARNING);
+			return false;
+		}
+
+		$source_file = SQ_SYSTEM_ROOT.'/'.$source;
+		if (!file_exists($source_file) || !is_readable($source_file)) {
+			trigger_error('Unable to write file to socket : Source file doesn\'t exist or is not readable', E_USER_WARNING);
+			return false;
+		}
+
+		// NOTE: If the file that is being transferred is over 2GB in size then there could be issues because
+		// of the way PHP uses signed int's see filesize() man page for defails
+
+		$headers  =  "Type: file\n"
+					."Length: ".filesize($source_file)."\n"
+					."Filename: ".basename($source)."\n"
+					."\n";
+
+		$bytes_written = 0;
+		if (!$this->_writeToSocket($headers, $bytes_written)) return false;
+
+		$fd = fopen($source_file, 'rb');
+		do {
+
+			$data = fread($handle, $this->_read_buffer_size);
+			if (strlen($data) == 0) break;
+
+			if (!$this->_writeToSocket($data, $bytes_written)) return false;
+
+		} while(true);
+
+		return true;
+
+	}// end writeFile()
+
+
+	/**
+	* Read from a socket and return the data
+	*
+	* @param int	$length		the number of bytes to attempt to read in
+	* @param int	$read_type	type of read as specified by socket_read(), currently PHP_BINARY_READ | PHP_NORMAL_READ
+	*
+	* @return false|string	the data read from the socket will be put returned
+	*						FALSE will be returned if there is an error
+	* @access private
+	*/
+	function _readFromSocket($length, $read_type)
+	{
+		if (!is_resource($this->_sd)) {
+			trigger_error('Unable to read from socket : socket doesn\'t exist', E_USER_WARNING);
+			return false;
+		}
+		// make sure we start with empty string
+		$data_str  = '';
+		$num_bytes = 0;
+
+		$bytes_to_read = min($length, $this->_read_buffer_size);
+
+		// read data from socket
+		while($buf = @socket_read($this->_sd, $bytes_to_read, $read_type)) {
+			if ($buf === false) {
+				trigger_error('Error Reading from '.$this->getPeerInfo().' : '.$this->getLastSocketError(), E_USER_WARNING);
+				return false;
+			}
+
+			// connection was closed
+			if ($buf == '') {
+				break;
+
+			} else {
+
+				$num_bytes += strlen($buf);
+				$data_str .= $buf;
+
+				// if we are going to be stopping at a new line, then if the last char is a newline
+				// break out of here
+				if ($read_type == PHP_NORMAL_READ && substr($buf, -1) == "\n") {
+					break;
+				}
+
+				// we have go enough data now, so break out of here
+				if ($num_bytes >= $length) {
+					break;
+				}
+
+			}// end if
+
+			$bytes_to_read = min($length - $num_bytes, $this->_read_buffer_size);
+
+		}// end while
+
+		return $data_str;
+
+	}// end _readFromSocket()
+
+	
+	/**
+	* Read a variable from the socket
+	*
+	* @param mixed		&$data	the retrieved variable will be placed in this reference
+	*
+	* @return boolean	indicating success
+	* @access public
+	*/
+	function read(&$data, &$headers)
+	{
+		// first thing to do is get the headers
+		$headers = $this->_readHeaders();
+		if ($headers === false) return false;
+
+		switch($headers['type']) {
+			case 'variable' :
+				return $this->_readVar($data, $headers);
+				break;
+			case 'file' :
+				return $this->_readFile($data, $headers);
+				break;
+			default :
+				trigger_error('Error reading from '.$this->getPeerInfo().' : Unknown read type "'.$headers['type'].'"', E_USER_WARNING);
+				return false;
+		}
 
 	}// end read()
 
 
 	/**
-	* Send data to a socket
+	* Reads the headers of the socket, leaving the contents as next thing to read 
+	* Also guarantees that there is a Type and Length header
 	*
-	* @param resource	$fd		the socket file desriptor resource to read from
-	* @param mixed		$data	the data that needs to be sent to the server
+	* @param mixed		&$data	the retrieved variable will be placed in this reference
 	*
-	* @return boolean	indicating whether all bytes were written to the socket or not
-	* @access public
+	* @return Array()	Array('lowercase header' => 'value') - false on error
+	* @access private
 	*/
-	function write($fd, $data)
+	function _readHeaders()
 	{
-		return false;
+		$headers = Array();
+		do {
+			$line = $this->_readFromSocket($this->_buffer_size, PHP_NORMAL_READ);
+			if ($line === false) return false;
+			// end of the headers ? OK outa here
+			if ($line == "\n") break;
 
-	}// end write()
+			if (preg_match('/^([^:]+): (.*)%/', trim($line), $matches=null)) {
+				$headers[strtolower($match[1])] = $match[2];
+			}
 
+		} while(true);
+
+		if (isset($headers['length'])) $headers['length'] = (int) $headers['length'];
+		if (empty($headers['type']) || empty($headers['length'])) {
+			trigger_error('Error reading headers from '.$this->getPeerInfo().' : Both the Type and Length headers need to exist', E_USER_WARNING);
+			return false;
+		}
+
+		return $headers;		
+
+	}// end _readHeaders()
+
+
+	/**
+	* Read a variable from the socket
+	*
+	* @param mixed		&$data	the retrieved variable will be placed in this reference
+	*
+	* @return boolean	indicating success
+	* @access private
+	* @see read()
+	*/
+	function _readVar(&$data, $headers)
+	{
+		$contents = $this->_readFromSocket($headers['length'], PHP_BINARY_READ);
+		if ($contents === false) return false;
+
+		$data = unserialize($contents);
+		if ($data === false) {
+			// OK if they had serialise a variable with the value false, $data would also be false, so
+			// let's serialise a false var and see if that equals $contents, if so everything is cool
+			$false_ser = serialize(false);
+			if ($contents != $false_ser) {
+				return false;
+			}
+		}
+
+		return true;
+
+	}// end _readVar()
+
+
+	/**
+	* Read a file from the socket
+	*
+	* @param mixed		&$filename	where the retrieved file has been placed
+	*
+	* @return boolean	indicating success
+	* @access private
+	* @see read()
+	*/
+	function _readFile(&$filename, $headers)
+	{
+		if (!isset($headers['filename'])) {
+			trigger_error('Error reading file from '.$this->getPeerInfo().' : No filename header', E_USER_WARNING);
+			return false;
+		}
+
+		$dest_file     = $this->_data_path.'/'.$headers['filename'];
+		$dest_tmp_file = $this->_data_path.'/.'.$headers['filename'];
+
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		// make sure the directory exists
+		if (!create_directory($this->_data_path)) {
+			trigger_error('Error reading file from '.$this->getPeerInfo().' : Unable to create data dir', E_USER_WARNING);
+			return false;
+		}
+
+		$abort_write = false;
+		$bytes_written = 0;
+		$fd = fopen($dest_tmp_file, 'wb');
+		do {
+			$bytes_to_read = min($bytes_left, $this->_read_buffer_size);
+
+			$data = $this->_readFromSocket($bytes_to_read, PHP_BINARY_READ);
+			if ($data === false) {
+				trigger_error('Error reading file from '.$this->getPeerInfo().' : invalid data from socket', E_USER_WARNING);
+				return false;
+			}
+
+			if ($data == '') break;
+
+			$bytes_to_write = strlen($data);
+			while($data != '') {
+				$bytes  = fwrite($fd, $data);
+				if ($bytes_written === false) {
+					$abort_write = true;
+					break 2;
+				}
+				$data = substr($data, $bytes);
+				$bytes_written += $bytes;
+			}// end while
+
+			// we have go enough data now, so break out of here
+			if ($bytes_written >= $headers['length']) {
+				break;
+			}
+
+		} while(true);
+
+		fclose($fd);
+
+		if ($abort_write) {
+			trigger_error('Error reading file from '.$this->getPeerInfo().' : Unable write temporary destination file '.$dest_tmp_file, E_USER_WARNING);
+			unlink($dest_tmp_file);
+			return false;
+		}
+
+		$om = umask(0000);
+		chmod($dest_tmp_file, 0664);
+		umask($om);
+
+		if (!rename($dest_tmp_file, $dest_file)) {
+			trigger_error('Error reading file from '.$this->getPeerInfo().' : Unable rename temporary destination file '.$dest_tmp_file.' to '.$dest_file, E_USER_WARNING);
+			unlink($dest_tmp_file);
+			return false;
+		}
+
+		return true;
+
+	}// end _readFile()
 
 }//end class
 
