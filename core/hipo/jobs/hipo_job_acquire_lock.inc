@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_lock.inc,v 1.26 2004/01/22 10:44:24 brobertson Exp $
+* $Id: hipo_job_acquire_lock.inc,v 1.27 2004/02/02 23:05:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -244,15 +244,13 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 		if (!isset($this->_running_vars['dependants_only']) || !empty($this->_running_vars['dependants_only'])) {
 			$this->_running_vars['dependants_only'] = false;
 			$child_assets = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($asset->id);
-			$child_assets[$asset->id] = $asset->type();
 		} else {
 			// get locks for all children
 			$this->_running_vars['dependants_only'] = true;
 			$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
-			$child_assets[$asset->id] = $asset->type();
 		}
-
 		$this->_running_vars['todo_assetids'] = $child_assets;
+		$this->_running_vars['done_root']     = false;
 
 		if (!isset($this->_running_vars['forceably_acquire'])) {
 			$this->_running_vars['forceably_acquire'] = false;
@@ -301,11 +299,19 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 	*/
 	function processLocking(&$step_data, $prefix)
 	{
-		if (!empty($this->_running_vars['todo_assetids'])) {
-			$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));
-			$asset_type = $this->_running_vars['todo_assetids'][$assetid];
-			unset($this->_running_vars['todo_assetids'][$assetid]);
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
+		if (!empty($this->_running_vars['todo_assetids']) || !$this->_running_vars['done_root']) {
+
+			if (empty($this->_running_vars['done_assetids'])) {
+				// make sure we process the root asset first
+				$assetid = $this->_running_vars['assetid'];
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$this->_running_vars['done_root'] = true;
+			} else {
+				$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));
+				$asset_type = $this->_running_vars['todo_assetids'][$assetid];
+				unset($this->_running_vars['todo_assetids'][$assetid]);
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
+			}
 
 			if (!is_null($asset)) {
 				foreach($this->_running_vars['lock_types'] as $lock_type) {
