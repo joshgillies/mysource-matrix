@@ -63,6 +63,47 @@ function array_contents(&$array, $max_depth=0, $ignore_ints=false, $depth=0)
 */
 function ascii_chart(){for($i=0;$i<256;$i++)echo(($i==0)?"<table><tr>":"")."<td>$i:</td><td>".chr($i)."</td><td>&nbsp;</td>".((7==($i%8))?"</tr><tr>":"").(($i==255)?"</tr></table>":"");}
 
+
+/**
+* Inject some beef into your day
+*
+* @access public
+* @see pre_echo()
+*/
+function inject_beef()
+{
+	$check = '';
+	list($msec, $sec) = explode(" ",microtime());
+	$BAM = ((double) $sec) + ((double) $msec); // Record time (note we ignore time spent IN this function)
+	global $SPEED_CHECK_LAST_HIT, $SPEED_CHECK_TOTAL;
+	if($SPEED_CHECK_LAST_HIT) {
+		$elapsed = $BAM - $SPEED_CHECK_LAST_HIT;
+		$SPEED_CHECK_TOTAL += $elapsed;
+		$check = sprintf("%.5f / %.5f",$elapsed,$SPEED_CHECK_TOTAL);
+	}
+
+	list($msec, $sec) = explode(" ",microtime());
+	$SPEED_CHECK_LAST_HIT = ((double) $sec) + ((double) $msec); #initialize
+
+	$len = strlen($check);
+	if (!$len) return;
+
+	static $i;
+	$i++;
+	$string = "
+		.--,       ".str_repeat(' ',$len)."       ,--.
+		l_/ \     _".str_repeat('_',$len)."_     / \_J
+		 \   `-./__".str_repeat('_',$len)."__\.-'   /
+		  `.   .---".str_repeat('-',$len)."----.  .'
+			`-/    ".str_repeat(' ',$len)."     \'
+			  |    ".$check."     |
+			   `.__".str_repeat('_',$len)."___.'
+	";
+	pre_echo($string);
+
+}//end inject_beef()
+
+
 /**
 * Alias for {@link pre_echo()}
 * courtesy of Agi
@@ -73,7 +114,8 @@ function ascii_chart(){for($i=0;$i<256;$i++)echo(($i==0)?"<table><tr>":"")."<td>
 function bam($x='BAM!', $max_depth=0, $style='')
 {
 	pre_echo($x, $max_depth, $style);
-}
+
+}//end bam()
 
 
 /**
@@ -111,6 +153,7 @@ function pre_echo($x, $max_depth=0, $style='')
 
 }//end pre_echo()
 
+
 /**
 * For optimisaiton, this little function lets you track down the slow bits.
 *
@@ -131,7 +174,9 @@ function speed_check($str="")
 	}
 	list($msec, $sec) = explode(" ",microtime());
 	$SPEED_CHECK_LAST_HIT = ((double) $sec) + ((double) $msec); #initialize
+
 }// end speed_check()
+
 
 /**
 * Returns or prints out the memory usage for hte current script
@@ -174,7 +219,9 @@ function mem_check($return_value=false)
 	if ($return_value) {
 		return $mem;
 	}
+
 }// end mem_check()
+
 
 /**
 * Print a list of all user defined functions, both procedural and in classes
@@ -200,6 +247,7 @@ function print_function_list()
 
 }//end print_function_list()
 
+
 /**
 * Spews out a string to a PTS
 *
@@ -219,7 +267,7 @@ function pts_spew($i,$s) {
 	if(!string_to_file("$s\n","/dev/pts/$i")) {
 		trigger_error("Try ensuring that /dev/pts/[your_pts_number] is writable by the web server.<br>$ w  # To find your pts<br>$ chmod a+w /dev/pts/[your_pts_number]<br>", E_USER_WARNING);
 	}
-}// end pts_spew()
 
+}// end pts_spew()
 
 ?>
