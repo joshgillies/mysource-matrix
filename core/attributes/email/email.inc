@@ -25,7 +25,7 @@ class Asset_Attribute_Email extends Asset_Attribute_Text
 	* @param mixed	$value			the current value for the element
 	*
 	*/
-	function Asset_Attribute_Email($attributeid, $value) 
+	function Asset_Attribute_Email($attributeid=0, $value=null) 
 	{
 		$this->Asset_Attribute_Text($attributeid, $value);
 		$this->_params['max_length'] = 0; // can't have a max length for an email address

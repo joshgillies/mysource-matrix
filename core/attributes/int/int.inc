@@ -25,7 +25,7 @@ class Asset_Attribute_Int extends Asset_Attribute
 	* @param mixed	$value			the current value for the element
 	*
 	*/
-	function Asset_Attribute_Int($attributeid, $value) 
+	function Asset_Attribute_Int($attributeid=0, $value=null) 
 	{
 		$this->Asset_Attribute($attributeid, $value);
 	}// end constructor
@@ -56,7 +56,7 @@ class Asset_Attribute_Int extends Asset_Attribute
 	*/
 	function paint($prefix) 
 	{
-		include_once SQ_LIB_PATH.'/html_form/html_form.inc';
+		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		text_box($prefix.'_'.$this->name, (int) $this->value, $this->_edit_params['width'], 0, 'onFocus="javascript: this.__sq_init_value = this.value;" onChange="javascript: if (isNaN(parseInt(this.value))) { this.value = this.__sq_init_value; alert(\'This is an integer field.\\nUnable to accept non-digit characters in this field.\'); } else { this.value = parseInt(this.value); } "');
 	}
 

@@ -25,7 +25,7 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 	* @param mixed	$value			the current value for the element
 	*
 	*/
-	function Asset_Attribute_Password($attributeid, $value) 
+	function Asset_Attribute_Password($attributeid=0, $value=null) 
 	{
 		$this->Asset_Attribute_Text($attributeid, $value);
 	}// end constructor
@@ -39,7 +39,7 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 	*/
 	function paint($prefix) 
 	{
-		include_once SQ_LIB_PATH.'/html_form/html_form.inc';
+		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 		// NOTE: we deliberatly don't set the value
 		password_box($prefix.'_'.$this->name.'_one', '', $this->_edit_params['width'], $this->_params['max_length']);

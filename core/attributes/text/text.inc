@@ -25,7 +25,7 @@ class Asset_Attribute_Text extends Asset_Attribute
 	* @param mixed	$value			the current value for the element
 	*
 	*/
-	function Asset_Attribute_Text($attributeid, $value) 
+	function Asset_Attribute_Text($attributeid=0, $value=null) 
 	{
 		$this->Asset_Attribute($attributeid, $value, Array('max_length' => 0));
 	}// end constructor
@@ -58,7 +58,7 @@ class Asset_Attribute_Text extends Asset_Attribute
 	*/
 	function paint($prefix) 
 	{
-		include_once SQ_LIB_PATH.'/html_form/html_form.inc';
+		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 		if($this->_edit_params['height'] > 1) {
 			text_area($prefix.'_'.$this->name, $this->value, $this->_edit_params['width'], $this->_edit_params['height'], $this->_params['max_length']);
