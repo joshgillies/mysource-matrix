@@ -17,11 +17,11 @@ fi
 
 echo -n "Fixing supervise scripts for your environment "
 sed < supervise/run > supervise/run.tmp \
--e "s%WEBUSER=\".*\"%WEBUSER=\"$WEBUSER\"%" && mv supervise/run.tmp supervise/run
+-e "s%WEBUSER=\".*\"%WEBUSER=\"$webuser\"%" && mv supervise/run.tmp supervise/run
 echo -n "."
 
 sed < supervise/log/run > supervise/log/run.tmp \
--e "s%WEBUSER=\".*\"%WEBUSER=\"$WEBUSER\"%" && mv supervise/log/run.tmp supervise/log/run
+-e "s%WEBUSER=\".*\"%WEBUSER=\"$webuser\"%" && mv supervise/log/run.tmp supervise/log/run
 echo -n "."
 
 chmod 755 supervise/{,log}/run
