@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.6 2004/09/13 23:12:12 arailean Exp $
+* $Id: page_remote_content.inc,v 1.6.2.1 2004/11/02 21:53:02 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once 'HTTP/Client/CookieManager.php';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.6.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -112,12 +112,10 @@ class Page_Remote_Content extends Page
 
 		if (!$fetch_url) return;
 
-		$fetch_url	= urldecode($fetch_url);
-
 		$Fetch_URL	= &new Net_URL($fetch_url);
 
 		// let's see if we're getting any variables in the get string
-		// so we can pass them back to the  original page ..
+		// so we can pass them back to the  original page .
 		unset($_GET['sq_remote_page_action']);
 		unset($_GET['sq_remote_page_url']);
 		unset($_POST['sq_remote_page_action']);
@@ -128,7 +126,6 @@ class Page_Remote_Content extends Page
 				$Fetch_URL->addQueryString($key, $data);
 			}
 		}
-
 
 		////// Remote Communication Section. Using HTTP_Request PEAR package
 
@@ -174,11 +171,11 @@ class Page_Remote_Content extends Page
 		$_SESSION['SQ_REMOTE_COOKIE_MANAGER'] = serialize($Cookie_Manager);
 
 		// check if there was an error of type 4xx or 5xx in the HTTP response
-		$is_errror = preg_match("/^[45].*?/", $HTTP_Request->getResponseCode());
+		$is_error = preg_match("/^[45].*?/", $HTTP_Request->getResponseCode());
 
 		// exit on error, checking for object because if it is true, than it is
 		// a PEAR error object
-		if (!$result || is_object($result) || $is_errror) {
+		if (!$result || PEAR::isError($result) || $is_error) {
 			return false;
 		}
 
@@ -408,6 +405,10 @@ REGEX;
 
 		// start building full URL
 		$full_url = $parsed_fetch_url['scheme'].'://'.$parsed_fetch_url['host'];
+		if (isset($parsed_fetch_url['port'])) {
+			$full_url .= ':'.$parsed_fetch_url['port'];
+		}
+
 		if (strlen($url) && $url{0} == '/') { // Its an absolute path
 			$full_url .= $url;
 		} else {
