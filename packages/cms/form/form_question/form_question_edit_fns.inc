@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_edit_fns.inc,v 1.18 2004/05/10 00:20:38 lwright Exp $
+* $Id: form_question_edit_fns.inc,v 1.19 2004/06/16 04:53:16 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -80,7 +80,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 
 		$desc = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_codes, 'description');
 
-		$admin_access = $asset->adminAccess('all');
+		$admin_access = $asset->writeAccess('attributes');
 		$prefix = $asset->getPrefix();
 		?>
 				<table class="sq-backend-table">
@@ -130,7 +130,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 							<td class="sq-backend-table-cell">
 								<?php if (!$attributes['no_comparison']) {
 									// only print if we need to compare with something
-									if ($asset->writeAccess('all')) {
+									if ($asset->writeAccess('attributes')) {
 										if ($asset->isSelection() && !$attributes['force_text']) {
 											$options = $asset->getOptions();
 											combo_box($rule_prefix.'_value', array_merge(Array(' ' => '------ Please Select ------'), $options), 
@@ -247,7 +247,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintAddRule(&$asset, &$o, $prefix)
 	{
-		if(!$asset->adminAccess('attributes')) return false;
+		if(!$asset->writeAccess('attributes')) return false;
 
 		$rule_codes = $asset->getAllowedRules();
 		$type_codes = Array();
@@ -309,8 +309,46 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	function paintLockMessage(&$asset, &$o, $prefix)
 	{
 		$section_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_formid);
+
+		$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($section_asset->id, 'attributes', true);
+		$lock  = $locks['attributes'];
+
+		$full_write_access = $section_asset->writeAccess('');
+		$acquire_lock_access = $section_asset->canLiveEdit('attributes');
+
+		if (empty($lock)) {
+			if ($full_write_access && $acquire_lock_access) {
+				echo '<p class="sq-backend-unlocked">The "Attributes" lock to the '.(is_a($section_asset, 'form_section') ? 'Form Section' : 'Form').' is currently not held.</p>';
+			} else {
+				echo 'You do not have access to edit "'.$owner->name.'".';
+			}
+
+		} else {
+			// this asset is currently locked so display message to the user
+			$user    = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+			$editing = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_assetid']);
+	
+			if (SQ_ROLLBACK_VIEW) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
+			else $now = time();
+
+			if (is_null($lock['expires'])) {
+				$expires_in = 'The lock is being held indefinitely and will not expire. The lock must be released manually or be forceably acquired by a System Administrator.';
+			} else {
+				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+				$expires_in = easy_time_total(($lock['expires'] - $now), true);
+				if (!$expires_in) $expires_in = '1 second';
+				$expires_in = 'The lock is due to expire in '.$expires_in;
+			}
+
+			?>
+			<p class="sq-backend-locked-by-<?php echo ($GLOBALS['SQ_SYSTEM']->currentUser($user)) ? 'user' : 'someone-else'; ?>">
+			The "Attributes" lock to the <?php echo is_a($section_asset, 'form_section') ? 'Form Section' : 'Form' ?> is held by user "<?php echo $user->name; ?>" at "<?php echo $editing->name; ?>".<br/>
+			<?php echo $expires_in; ?>
+			</p>
+			<?php
+
+		}// end if
 ?>
-<p>This asset is currently <b><i><?php echo $asset->writeAccess('attributes') ? 'locked' : 'unlocked'; ?></i></b>.</p>
 
 <p>Locking for this asset is controlled by its parent form<?php if (is_a($section_asset, 'form_section')) { echo ' section'; } ?>. Click to access this asset: <?php 
 
