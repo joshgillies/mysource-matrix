@@ -27,7 +27,7 @@ function submit_button($name, $value, $on_click='', $extras='')
 	if ($name == 'submit') trigger_error('Rename your Submit button, so as not use "submit"', E_USER_ERROR);
 	if ($on_click) $extras .= ' onClick="javascript: '.htmlspecialchars($on_click).' "';
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
-	echo '<input type="submit" name="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
+	echo '<input type="submit" name="', htmlspecialchars($name), '" id="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
 
 }//end submit_button()
 
