@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table.inc,v 1.11 2005/03/03 00:42:02 gsherwood Exp $
+* $Id: bodycopy_table.inc,v 1.12 2005/03/21 06:16:13 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once(dirname(__FILE__).'/bodycopy_table_cell.inc');
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,32 +51,6 @@ class Bodycopy_Table extends Bodycopy_Container
 		$this->Bodycopy_Container($assetid);
 
 	}//end constructor
-
-
-	/**
-	* Create this asset
-	*
-	* @param array	&$link		information used to create the initial link
-	* @param array	$bc_data	bodycopy data submitted to help create this table
-	*
-	* @see Asset::create()
-	* @return mixed int or false
-	* @access public
-	*/
-	function create(&$link, $bc_data)
-	{
-		$name = trim($this->attr('name'));
-		if ($name == '') {
-			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
-			return false;
-		}
-
-		// store this data for later use during the create process in _createAdditional()
-		$this->_tmp['bodycopy_create_data'] = $bc_data;
-
-		return parent::create($link);
-
-	}//end create()
 
 
 	/**

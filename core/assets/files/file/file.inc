@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.87 2005/02/24 21:54:44 gsherwood Exp $
+* $Id: file.inc,v 1.88 2005/03/21 06:23:20 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.88 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,6 +52,94 @@ class File extends Asset
 		$this->Asset($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Create this asset
+	*
+	* @param array	&$link	information used to create the initial link
+	* @param array	$info	info about the uploaded file
+	*
+	* @see Asset::create()
+	* @return mixed int or false
+	* @access public
+	*/
+	function create(&$link, $info=Array())
+	{
+		$this->_tmp['file_create_data'] = $info;
+
+		$name = trim($this->attr('name'));
+		if ($name == '') {
+			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
+			return false;
+		}
+
+		// check that a file was uploaded at least and that it succeeded
+		if (empty($info)) $info = get_file_upload_info($this->getPrefix());
+		if ($info === false || empty($info)) {
+			$edit = $this->getEditFns();
+			$info = $edit->getChosenFileInfo($this->getPrefix());
+			if ($info === false || empty($info)) {
+				trigger_error('File upload failed. Unable to create '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
+				return false;
+			}
+		}
+
+		// make the info array look like a result from getExistingFile()
+		if (!isset($info['path'])) $info['path'] = array_get_index($info, 'tmp_name', '');
+		if (!isset($info['filename'])) $info['filename'] = array_get_index($info, 'name', '');
+		if (!$this->validFile($info)) return false;
+
+		// check that we are not going to have web path conflicts
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$valid_names = make_valid_web_paths(Array($info['name']));
+		$name = array_shift($valid_names);
+
+		// make sure the new web path is not already is use
+		$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], Array($name));
+		if (!empty($bad_paths)) {
+			trigger_error('Unable to create file with name "'.$name.'", web path already exists?', E_USER_WARNING);
+			return false;
+		}
+
+		$this->setAttrValue('name', $name);
+
+		return parent::create($link);
+
+	}//end create()
+
+
+	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* File assets commit their uploaded file to the file system
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _createAdditional(&$link)
+	{
+		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) return false;
+		
+		$edit = $this->getEditFns();
+		
+		// we need to fudge a few attributes to make sure we can
+		// process the file upload in the middle of creation
+		$this->_tmp['uploading_file'] = 1;
+		$prefix = $this->type().'_0';
+		$o = &$GLOBALS['SQ_SYSTEM']->backend->out;
+		$info = $this->_tmp['file_create_data'];
+
+		$ret_val = $edit->processFileChooser($this, $o, $prefix);
+		$ret_val |= $edit->processFileUpload($this, $o, $prefix, $info);
+
+		$this->saveAttributes();
+		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
+		return $ret_val;
+
+	}//end _createAdditional()
 
 
 	/**
@@ -259,94 +347,6 @@ class File extends Asset
 		return true;
 
 	}//end processStatusChange()
-
-
-	/**
-	* Create this asset
-	*
-	* @param array()	&$link	information used to create the initial link
-	* @param array()	$info	info about the uploaded file
-	*
-	* @see Asset::create()
-	* @return mixed int or false
-	* @access public
-	*/
-	function create(&$link, $info=Array())
-	{
-		$this->_tmp['file_create_data'] = $info;
-
-		$name = trim($this->attr('name'));
-		if ($name == '') {
-			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
-			return false;
-		}
-
-		// check that a file was uploaded at least and that it succeeded
-		if (empty($info)) $info = get_file_upload_info($this->getPrefix());
-		if ($info === false || empty($info)) {
-			$edit = $this->getEditFns();
-			$info = $edit->getChosenFileInfo($this->getPrefix());
-			if ($info === false || empty($info)) {
-				trigger_error('File upload failed. Unable to create '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
-				return false;
-			}
-		}
-
-		// make the info array look like a result from getExistingFile()
-		if (!isset($info['path'])) $info['path'] = array_get_index($info, 'tmp_name', '');
-		if (!isset($info['filename'])) $info['filename'] = array_get_index($info, 'name', '');
-		if (!$this->validFile($info)) return false;
-
-		// check that we are not going to have web path conflicts
-		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		$valid_names = make_valid_web_paths(Array($info['name']));
-		$name = array_shift($valid_names);
-
-		// make sure the new web path is not already is use
-		$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], Array($name));
-		if (!empty($bad_paths)) {
-			trigger_error('Unable to create file with name "'.$name.'", web path already exists?', E_USER_WARNING);
-			return false;
-		}
-
-		$this->setAttrValue('name', $name);
-
-		return parent::create($link);
-
-	}//end create()
-
-
-	/**
-	* Perform any additional processing required during the creation of this asset
-	*
-	* File assets commit their uploaded file to the file system
-	*
-	* @param array	&$link	information used to create the initial link
-	*
-	* @access private
-	* @return boolean
-	*/
-	function _createAdditional(&$link)
-	{
-		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) return false;
-		
-		$edit = $this->getEditFns();
-		
-		// we need to fudge a few attributes to make sure we can
-		// process the file upload in the middle of creation
-		$this->_tmp['uploading_file'] = 1;
-		$prefix = $this->type().'_0';
-		$o = &$GLOBALS['SQ_SYSTEM']->backend->out;
-		$info = $this->_tmp['file_create_data'];
-
-		$ret_val = $edit->processFileChooser($this, $o, $prefix);
-		$ret_val |= $edit->processFileUpload($this, $o, $prefix, $info);
-
-		$this->saveAttributes();
-		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
-		return $ret_val;
-
-	}//end _createAdditional()
 
 
 	/**

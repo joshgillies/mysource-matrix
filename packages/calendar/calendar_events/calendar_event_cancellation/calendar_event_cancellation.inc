@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation.inc,v 1.15 2005/01/13 22:26:48 gsherwood Exp $
+* $Id: calendar_event_cancellation.inc,v 1.16 2005/03/21 06:26:05 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * which replaces the cancelled instance may be linked to it.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -55,46 +55,37 @@ class Calendar_Event_Cancellation extends Calendar_Event
 
 
 	/**
-	* Create this asset
+	* Perform any pre-validation required during the creation of this asset
 	*
-	* The return value will be:<br/>
-	* <ul>
-	*   <li>FALSE if the asset was not created</li>
-	*   <li>the ID of the newly created link if the asset and intital link were created</li>
-	*   <li>TRUE if the asset was created but $link was empty</li>
-	* </ul>
+	* Cancellation events ensure their link data is correct and they are synchronized
 	*
-	* @param Array	&$link	information used to create the initial link<br/>
+	* @param array	&$link	information used to create the initial link
 	*
-	* @return mixed int or false
-	* @access public
+	* @access private
+	* @return boolean
 	*/
-	function create(&$link)
+	function _preCreateCheck(&$link)
 	{
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$parent = &$link['asset'];
+		if (!parent::_preCreateCheck($link)) return false;
+
 		if (!($link['value'] = $this->getStartDate())) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			trigger_error('You need to specify a start date before you can call create() for a modification event', E_USER_WARNING);
 			return false;
 		}
+
+		$parent = &$link['asset'];
 		if (!is_a($parent, 'calendar_event_recurring')) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			trigger_error('Recurring Event Cancellations can only be created underneath recurring events', E_USER_WARNING);
 			return false;
 		}
+
 		if (!$this->synchronizeWithParent($parent)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-		if ($res = parent::create($link)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return $res;
-		} else {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return $res;
-		}
-	}//end create()
+
+		return true;
+
+	}//end _preCreateCheck()
 
 
 	/**

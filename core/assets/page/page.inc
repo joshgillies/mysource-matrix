@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page.inc,v 1.7 2004/12/06 14:38:09 brobertson Exp $
+* $Id: page.inc,v 1.8 2005/03/21 06:23:20 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,16 +54,19 @@ class Page extends Asset
 
 
 	/**
-	* Create this asset
+	* Perform any pre-validation required during the creation of this asset
+	*
+	* Pages ensure a name and short_name has been set before they are created
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @return mixed int or false
-	* @access public
-	* @see Asset::create()
+	* @access private
+	* @return boolean
 	*/
-	function create(&$link)
+	function _preCreateCheck(&$link)
 	{
+		if (!parent::_preCreateCheck($link)) return false;
+
 		$name = trim($this->attr('name'));
 		if ($name == '') {
 			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
@@ -73,9 +76,9 @@ class Page extends Asset
 		// if the short name hasn't been set then short and long names are the same to begin with
 		if (trim($this->attr('short_name')) == '') $this->setAttrValue('short_name', $name);
 
-		return parent::create($link);
+		return true;
 
-	}//end create()
+	}//end _preCreateCheck()
 
 
 	/**

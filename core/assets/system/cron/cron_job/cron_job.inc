@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.24 2005/03/17 23:02:15 amiller Exp $
+* $Id: cron_job.inc,v 1.25 2005/03/21 06:20:17 gsherwood Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,24 +59,27 @@ class Cron_Job extends Asset
 
 
 	/**
-	* Create this asset
+	* Perform any pre-validation required during the creation of this asset
+	*
+	* Cron jobs ensure a type and time has been set before they are created
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @return mixed int or false
-	* @access public
-	* @see Asset::create()
+	* @access private
+	* @return boolean
 	*/
-	function create(&$link)
+	function _preCreateCheck(&$link)
 	{
+		if (!parent::_preCreateCheck($link)) return false;
+
 		if (!$this->attr('type') || !$this->attr('when')) {
 			trigger_error('A type and a when time need to be set for a cron job to be created', E_USER_ERROR);
 			return false;
 		}
 
-		return parent::create($link);
+		return true;
 
-	}//end create()
+	}//end _preCreateCheck()
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: folder.inc,v 1.36 2004/12/06 14:38:09 brobertson Exp $
+* $Id: folder.inc,v 1.37 2005/03/21 06:23:20 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,25 +53,28 @@ class Folder extends Asset
 
 
 	/**
-	* Create this asset
+	* Perform any pre-validation required during the creation of this asset
+	*
+	* Folders ensure a name has been set before they are created
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @return mixed int or false
-	* @access public
-	* @see Asset::create()
+	* @access private
+	* @return boolean
 	*/
-	function create(&$link)
+	function _preCreateCheck(&$link)
 	{
+		if (!parent::_preCreateCheck($link)) return false;
+
 		$name = trim($this->attr('name'));
 		if ($name == '') {
 			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
 			return false;
 		}
 
-		return parent::create($link);
+		return true;
 
-	}//end create()
+	}//end _preCreateCheck()
 
 
 	/**

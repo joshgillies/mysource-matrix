@@ -19,10 +19,9 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.18 2004/12/09 02:56:14 gsherwood Exp $
+* $Id: bodycopy.inc,v 1.19 2005/03/21 06:16:13 gsherwood Exp $
 *
 */
-
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 
@@ -33,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -132,17 +131,37 @@ class Bodycopy extends Asset
 	*/
 	function create(&$link, $bc_data=Array())
 	{
-		$name = trim($this->attr('name'));
-		if ($name == '') {
-			trigger_error('Unable to create a Bodycopy with a blank name', E_USER_WARNING);
-			return false;
-		}
 		// store this data for later use during the create process in _createAdditional()
 		$this->_tmp['bodycopy_create_data'] = $bc_data;
 
 		return parent::create($link);
 
 	}//end create()
+
+
+	/**
+	* Perform any pre-validation required during the creation of this asset
+	*
+	* Bodycopies ensure a name has been set before they are created
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _preCreateCheck(&$link)
+	{
+		if (!parent::_preCreateCheck($link)) return false;
+
+		$name = trim($this->attr('name'));
+		if ($name == '') {
+			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
+			return false;
+		}
+
+		return true;
+
+	}//end _preCreateCheck()
 
 
 	/**

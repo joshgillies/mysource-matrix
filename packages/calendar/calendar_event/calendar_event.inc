@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.41 2005/01/14 06:00:37 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.42 2005/03/21 06:26:05 gsherwood Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -59,26 +59,28 @@ class Calendar_Event extends Asset
 
 
 	/**
-	* Create this asset
+	* Perform any pre-validation required during the creation of this asset
+	*
+	* Calendar events ensure a name has been set before they are created
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @return mixed int or boolean	the link ID or the create status if no link
-	* @access public
-	* @see Asset::create()
+	* @access private
+	* @return boolean
 	*/
-	function create(&$link)
+	function _preCreateCheck(&$link)
 	{
-		// should not be able to create an event with a blank name
+		if (!parent::_preCreateCheck($link)) return false;
+
 		$name = $this->attr('name');
 		if ($name == '') {
 			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
 			return false;
 		}
 
-		return parent::create($link);
+		return true;
 
-	}//end create()
+	}//end _preCreateCheck()
 
 
 	/**

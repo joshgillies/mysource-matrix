@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.82 2005/03/02 16:35:57 gnoel Exp $
+* $Id: user.inc,v 1.83 2005/03/21 06:23:20 gsherwood Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,16 +58,19 @@ class User extends Asset
 
 
 	/**
-	* Create this asset
+	* Perform any pre-validation required during the creation of this asset
+	*
+	* Users ensure a username and password has been set before they are created
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @return mixed int or false
-	* @access public
-	* @see Asset::create()
+	* @access private
+	* @return boolean
 	*/
-	function create(&$link)
+	function _preCreateCheck(&$link)
 	{
+		if (!parent::_preCreateCheck($link)) return false;
+
 		$username = trim($this->attr('username'));
 		$password = $this->attr('password');
 
@@ -76,9 +79,9 @@ class User extends Asset
 			return false;
 		}
 
-		return parent::create($link);
+		return true;
 
-	}//end create()
+	}//end _preCreateCheck()
 
 
 	/**

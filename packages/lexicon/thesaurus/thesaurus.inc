@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.7 2005/01/29 15:24:32 brobertson Exp $
+* $Id: thesaurus.inc,v 1.8 2005/03/21 06:27:44 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -77,36 +77,21 @@ class Thesaurus extends Asset
 
 
 	/**
-	* Create this asset
+	* Perform any additional processing required during the creation of this asset
 	*
-	* @param array()	&$link	information used to create the initial link
+	* Thesaurii create their data directory when created
 	*
-	* @see Asset::create()
-	* @return mixed int or false
-	* @access public
+	* @param array	&$link	information used to create the initial link
+	*
+	* @access private
+	* @return boolean
 	*/
-	function create(&$link)
+	function _createAdditional(&$link)
 	{
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$linkid = parent::create($link);
+		if (!parent::_createAdditional($link)) return false;
+		return create_directory($this->data_path);
 
-		if (!$linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
-
-		if (!create_directory($this->data_path)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return $linkid;
-
-	}//end create()
-
+	}//end _createAdditional()
 
 
 	/**

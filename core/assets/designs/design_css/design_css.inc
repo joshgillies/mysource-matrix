@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.7 2004/12/06 14:38:08 brobertson Exp $
+* $Id: design_css.inc,v 1.8 2005/03/21 06:23:20 gsherwood Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,16 +55,19 @@ class Design_Css extends Design
 
 
 	/**
-	* Create this asset
+	* Perform any pre-validation required during the creation of this asset
 	*
-	* @param array()	&$link	information used to create the initial link
+	* CSS Files ensure their name is valid before they are created
 	*
-	* @see Asset::create()
-	* @return mixed int or false
-	* @access public
+	* @param array	&$link	information used to create the initial link
+	*
+	* @access private
+	* @return boolean
 	*/
-	function create(&$link)
+	function _preCreateCheck(&$link)
 	{
+		if (!parent::_preCreateCheck($link)) return false;
+
 		$new_name = strtolower(trim($this->attr('id_name')));
 
 		// no ampersands in css file name
@@ -81,9 +84,9 @@ class Design_Css extends Design
 
 		$this->setAttrValue('id_name', $new_name);
 
-		return parent::create($link);
+		return true;
 
-	}//end create()
+	}//end _preCreateCheck()
 
 
 	/*

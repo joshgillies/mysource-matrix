@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_single.inc,v 1.10 2005/01/13 22:26:48 gsherwood Exp $
+* $Id: calendar_event_single.inc,v 1.11 2005/03/21 06:26:05 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -54,16 +54,19 @@ class Calendar_Event_Single extends Calendar_Event
 
 
 	/**
-	* Create this asset
+	* Perform any pre-validation required during the creation of this asset
 	*
-	* @param Array	&$link	information used to create the initial link
+	* Single events ensure their name reflects their association with cancellations
 	*
-	* @return mixed int or boolean	the link ID or the create status if no link
-	* @access public
-	* @see Asset::create()
+	* @param array	&$link	information used to create the initial link
+	*
+	* @access private
+	* @return boolean
 	*/
-	function create(&$link)
+	function _preCreateCheck(&$link)
 	{
+		if (!parent::_preCreateCheck($link)) return false;
+
 		$parent = &$link['asset'];
 		if ($parent->type() == 'calendar_event_cancellation') {
 			if (!$this->attr('name')) {
@@ -75,9 +78,10 @@ class Calendar_Event_Single extends Calendar_Event
 				}
 			}
 		}
-		return parent::create($link);
 
-	}//end create()
+		return true;
+
+	}//end _preCreateCheck()
 
 
 	/**

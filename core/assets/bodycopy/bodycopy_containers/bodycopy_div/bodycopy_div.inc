@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div.inc,v 1.10 2005/01/20 13:07:31 brobertson Exp $
+* $Id: bodycopy_div.inc,v 1.11 2005/03/21 06:16:13 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,31 +52,6 @@ class Bodycopy_Div extends Bodycopy_Container
 		$this->Bodycopy_Container($assetid);
 
 	}//end constructor
-
-
-	/**
-	* Create this asset
-	*
-	* @param array	&$link		information used to create the initial link
-	* @param array	$bc_data	bodycopy data submitted to help create this div
-	*
-	* @return mixed int or false
-	* @access public
-	*/
-	function create(&$link, $bc_data)
-	{
-		$name = trim($this->attr('name'));
-		if ($name == '') {
-			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
-			return false;
-		}
-
-		// store this data for later use during the create process in _createAdditional()
-		$this->_tmp['bodycopy_create_data'] = $bc_data;
-
-		return parent::create($link);
-
-	}//end create()
 
 
 	/**
