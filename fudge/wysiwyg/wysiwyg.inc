@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.31 2004/11/04 01:29:16 gsherwood Exp $
+* $Id: wysiwyg.inc,v 1.32 2004/11/15 02:03:27 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -662,6 +662,7 @@ class wysiwyg {
 <?php $this->print_plugin_form_submit()?>
 					
 					// retrieve the HTML
+					html = this.make_relative_hrefs(html);
 					this._textArea.value = escape(html);
 				};
 			</script>
