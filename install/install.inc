@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.29 2004/12/06 14:38:13 brobertson Exp $
+* $Id: install.inc,v 1.30 2004/12/14 00:28:44 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -229,7 +229,7 @@ function uninstall_packages()
 
 			if (!$exists) {
 				// folder or the package manager does not exist, safe to delete
-				$sql = 'DELETE FROM sq_package WHERE code_name = '.$db->quote($package);
+				$sql = 'DELETE FROM sq_pkg WHERE code_name = '.$db->quote($package);
 				$result = $db->query($sql);
 				if (DB::isError($result)) {
 					trigger_error('SQL error while deleting package "'.$package.'": ' .$result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
