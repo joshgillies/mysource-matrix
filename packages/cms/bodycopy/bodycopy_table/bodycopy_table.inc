@@ -51,17 +51,17 @@ class Bodycopy_Table extends Asset
 
 		if (parent::create()) {
 
-			$this->setAttrValue('name', $name);
-
 			for ($i = 0; $i < $num_rows; $i++) {
 				$rows[$i] = Array();
 				$rows[$i]['attributes'] = Array();
 				$rows[$i]['cells']		= Array();
 				for ($x = 0; $x < $num_cols; $x++) {
 					$rows[$i]['cells'][$x]	= new Bodycopy_Table_Cell();
+					$rows[$i]['cells'][$x]->setContentType($this, 'wysiwyg', $i, $x);
 				}
 			}
 
+			$this->setAttrValue('name', $name);
 			$this->setAttrValue('rows',$rows);
 			$this->setAttrValue('attributes',$attributes);
 			

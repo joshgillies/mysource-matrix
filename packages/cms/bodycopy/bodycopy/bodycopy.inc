@@ -46,7 +46,7 @@ class Bodycopy extends Asset
 		if (parent::create()) {
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy_table');
-			$bodycopy_table = new Bodycopy_Table();
+			$bodycopy_table =& new Bodycopy_Table();
 			if (!$bodycopy_table->create('Table 1')) die();
 			$this->createLink($bodycopy_table,SQ_LINK_UNITE,'',1);
 			$this->setAttrValue('name', $name);

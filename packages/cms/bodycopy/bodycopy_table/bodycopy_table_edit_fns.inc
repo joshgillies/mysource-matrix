@@ -220,7 +220,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 
 			// print the buttons for the cells in the row
 			for($x = 0; $x < count($table_rows[$i]['cells']); $x++) {
-				$table_rows[$i]['cells'][$x]->paintCell($prefix, $asset->id, $i, $x);
+				$table_rows[$i]['cells'][$x]->paintCell($asset, $prefix, $asset->id, $i, $x);
 			}
 			?>
 			</tr>
@@ -266,7 +266,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			<?php
 				// now print the cell contents
 				for($x = 0; $x < count($table_rows[$i]['cells']); $x++) {
-					$table_rows[$i]['cells'][$x]->paint(true);
+					$table_rows[$i]['cells'][$x]->paint($asset, $prefix);
 				}
 			?>
 			</tr>
@@ -285,8 +285,8 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the interface for editing this table
 	*
-	* @param object Asset	&$asset	the table whose interface we are painting
-	* @param string			$prefix	prefix for the form elements
+	* @param object BodyCopy_Table	&$asset	the table whose interface we are painting
+	* @param string					$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -411,7 +411,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 											}
 											if ($colspan_error == 0) {
 												for($i = ($cellid + 1); $i <= ($cellid + ($colspaning - $current_span)); $i++) {
-													if ($this->deleteCell($rows, $rowid, ($cellid+1), true)) {
+													if ($this->deleteCell($asset, $rows, $rowid, ($cellid+1), true)) {
 														$rows_updated = true;
 													} else {
 														// deleteCell failed
@@ -518,6 +518,9 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		// move all the rows up one position
 		for($i = count($rows); $i > $rowid; $i--) {
 			$rows[$i] = $rows[$i - 1];
+			for($x = 0; $x < count($rows[$i]['cells']); $x++) {
+				$rows[$i]['cells'][$x]->updateContentType($asset, $i, $x);
+			}
 		}
 
 		if ($rowid <= $compareid) $compareid++;
@@ -534,7 +537,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			foreach ($rows[$compareid]['cells'][$i]->attributes as $name => $val) {
 				$rows[$rowid]['cells'][$i]->set_attribute($name,$val);
 			}
-			// set the contentType of the cell
+			$rows[$rowid]['cells'][$i]->setContentType($asset, 'wysiwyg', $rowid, $i);
 		}
 
 		$asset->setAttrValue('rows',$rows);
@@ -559,9 +562,18 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		// make sure it exists
 		if ($rows[$rowid] && count($rows) > 1) {
 
+			// delete all the cells in the row so they can clean up
+			for($i = 0; $i < count($rows[$rowid]['cells']); $i++) {
+				$rows[$rowid]['cells'][$i]->delete($asset);
+			}
+
 			// move all the rows down one position
 			for($i = $rowid; $i < count($rows) - 1; $i++) {
+				// let the cells know that they are moving to a new rowid
 				$rows[$i] = $rows[$i + 1];
+				for($x = 0; $x < count($rows[$i]['cells']); $x++) {
+					$rows[$i]['cells'][$x]->updateContentType($asset, $i, $x);
+				}
 			}
 
 			// remove the last element
@@ -601,7 +613,11 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		if (count($rows) != count(array_unique($row_order))) return false;
 
 		$new_array = Array();
+
 		for($i = 0; $i < count($row_order); $i++) {
+			for($x = 0; $x < count($rows[$i]['cells']); $x++) {
+				$rows[$i]['cells'][$x]->updateContentType($asset, $row_order[$i], $x);
+			}
 			$new_array[$i] = $rows[$row_order[$i]];
 		}
 		
@@ -638,6 +654,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 
 			$new_array = Array();
 			for($i = 0; $i < count($col_order); $i++) {
+				$rows[$r]['cells'][$i]->updateContentType($asset, $r, $col_order[$i]);
 				$new_array[$i] = $rows[$r]['cells'][$col_order[$i]];
 			}
 			// now assign the new ordered array
@@ -653,9 +670,9 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Insert a new column in all rows, before or after the passed columnid
 	*
-	* @param object Asset	&$asset	the table object
-	* @param int			$cellid	the id of the column that we are inserting before/after
-	* @param boolean		$before	insert before the passed cellid?
+	* @param object BodyCopy_Table	&$asset	the table object
+	* @param int					$cellid	the id of the column that we are inserting before/after
+	* @param boolean				$before	insert before the passed cellid?
 	*
 	* @return boolean
 	* @access public
@@ -667,7 +684,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		// we dont know how to do this ourselves, so just get
 		// every row to insert a new cell and it can handle checking
 		for($r = 0; $r < count($rows); $r++) {
-			if (!$this->insertCell($rows, $r, $cellid, $before)) return false;
+			if (!$this->insertCell($asset, $rows, $r, $cellid, $before)) return false;
 		}
 
 		$asset->setAttrValue('rows',$rows);
@@ -679,8 +696,8 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Deletes a column from all rows, before or after the passed columnid
 	*
-	* @param object Asset	&$asset	the table object
-	* @param int			$cellid	the id of the column that we are deleting
+	* @param object BodyCopy_Table	&$asset	the table object
+	* @param int					$cellid	the id of the column that we are deleting
 	*
 	* @return boolean
 	* @access public
@@ -692,7 +709,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		// we dont know how to do this ourselves, so just get
 		// every row to delete the cell and it can handle checking
 		for($r = 0; $r < count($rows); $r++) {
-			if (!$this->deleteCell($rows, $r, $cellid)) return false;
+			if (!$this->deleteCell($asset, $rows, $r, $cellid)) return false;
 		}
 
 		$asset->setAttrValue('rows',$rows);
@@ -713,7 +730,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function insertCell(&$rows, $rowid, $cellid, $before=true, $colspan=false)
+	function insertCell(&$asset, &$rows, $rowid, $cellid, $before=true, $colspan=false)
 	{
 		if (!$colspan) {
 
@@ -790,6 +807,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		// move all the cells up one position
 		for($i = count($rows[$rowid]['cells']); $i > $cellid; $i--) {
 			$rows[$rowid]['cells'][$i] = $rows[$rowid]['cells'][$i - 1];
+			$rows[$rowid]['cells'][$i]->updateContentType($asset, $rowid, $i);
 		}
 
 		if ($cellid <= $compareid) $compareid++;
@@ -803,7 +821,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			if (strtolower($name) == 'colspan') continue;
 			$rows[$rowid]['cells'][$cellid]->set_attribute($name,$val);
 		}
-		// set contentType of new cell
+		$rows[$rowid]['cells'][$cellid]->setContentType($asset, 'wysiwyg', $rowid, $cellid);
 
 		return true;
 
@@ -813,6 +831,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Delete the passed table cell from the array
 	*
+	* @param object BodyCopy_Table	&$asset	the table object
 	* @param array		&$rows		a reference to the rows attribute of the table
 	* @param int		$rowid		the id of the row we are deleting from
 	* @param int		$cellid		the id of the cell we are deleting
@@ -821,7 +840,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function deleteCell(&$rows, $rowid, $cellid, $colspan=false)
+	function deleteCell(&$table, &$rows, $rowid, $cellid, $colspan=false)
 	{
 		if (!$colspan) {
 
@@ -861,11 +880,12 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		// make sure cell exists
 		if ($rows[$rowid]['cells'][$cellid] && count($rows[$rowid]['cells']) > 1) {
 			// do any clean up
-			$rows[$rowid]['cells'][$cellid]->delete();
+			$rows[$rowid]['cells'][$cellid]->delete($table, $rowid, $cellid);
 
 			// move all the cells down one position
 			for($i = $cellid; $i < count($rows[$rowid]['cells']) - 1; $i++) {
 				$rows[$rowid]['cells'][$i] = $rows[$rowid]['cells'][$i + 1];
+				$rows[$rowid]['cells'][$i]->updateContentType($table, $rowid, $i);
 			}
 
 			// remove the last element

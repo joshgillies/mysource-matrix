@@ -45,13 +45,61 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 
 
 	/**
-	* Delete this bastard
+	* Sets the type of the cells content for editing
+	*
+	* @param object BodyCopy_Table	&$table	the table object
+	* @param string					$type	the type of the cells content
+	* @param integer				$rowid	the row the cell is in
+	* @param integer				$cellid	the id of the cell
 	*
 	* @return boolean
 	* @access public
 	*/
-	function delete()
+	function setContentType(&$table, $type, $rowid, $cellid)
 	{
+		$full_type = "content_type_{$type}";
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset($full_type);
+		$content_type = new $full_type();
+		if (!$content_type->create('Row '.($rowid+1).' Cell '.($cellid+1))) return false;
+		$this->attributes['linkid'] = $table->createLink($content_type, SQ_LINK_UNITE);
+		$this->attributes['content_type'] = $type;
+		return true;
+	}
+
+
+	/**
+	* Update the link between the cells contentType and the table
+	* From time to time it may be nescessary to add or remove rows or columns.
+	* We need to make sure when any change happens in the table that the 
+	* name remains relevant to where the cell is in the table.
+	*
+	* @param object BodyCopy_Table	&$table	the table object
+	* @param integer				$new_rowid	the row the cell is going in
+	* @param integer				$new_cellid	the column the cell is going in
+	*
+	* @return boolean
+	* @access public
+	*/
+	function updateContentType(&$table, $new_rowid, $new_cellid)
+	{
+		$link = $table->getLinkById($this->attributes['linkid']);
+		$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
+		if (!$content_type->setAttrValue('name', 'Row '.($new_rowid+1).' Cell '.($new_cellid+1))) return false;
+		return true;
+	}
+
+
+	/**
+	* Delete this bastard
+	*
+	* @param object BodyCopy_Table	&$table	the table object
+	*
+	* @return boolean
+	* @access public
+	*/
+	function delete(&$table)
+	{
+		if (!$table->deleteLink($this->attributes['linkid'])) return false;
 		unset($this->attributes);
 		$this = new BodyCopy_Table_Cell();
 		return true;
@@ -88,10 +136,13 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 	/**
 	* Prints the content of this cell complete with TD tag
 	*
+	* @param object BodyCopy_Table	&$table	the table object
+	*
 	* @return void
 	* @access public
 	*/
-	function paint() {
+	function paint(&$table, $prefix)
+	{
 		echo '<td';
 		foreach($this->attributes as $name => $val) {
 			if ($val == '') continue;
@@ -102,7 +153,11 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 			}
 		}
 		echo '>';
-		echo 'cell contents';
+		$link = $table->getLinkById($this->attributes['linkid']);
+		$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
+		$content_edit = $content_type->getEditFns();
+		$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
+		$content_edit->paintBackend($content_type, $content_prefix);
 		echo '</td>';
 	}
 
@@ -110,15 +165,16 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 	/**
 	* Prints the backend interface for this table cell
 	*
-	* @param string	$prefix		prefix for form elements
-	* @param int	$tableid	the id of the table this cell is in
-	* @param int	$rowid		the id of the row this cell is in
-	* @param int	$cellid		the id of this cell
+	* @param object BodyCopy_Table	&$table	the table object
+	* @param string					$prefix		prefix for form elements
+	* @param int					$tableid	the id of the table this cell is in
+	* @param int					$rowid		the id of the row this cell is in
+	* @param int					$cellid		the id of this cell
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintCell($prefix, $tableid, $rowid, $cellid)
+	function paintCell(&$table, $prefix, $tableid, $rowid, $cellid)
 	{
 		$attribute_list = '';
 		$colspaning = 0;
