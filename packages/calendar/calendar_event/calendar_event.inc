@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.34.2.3 2004/12/30 05:57:33 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.34.2.4 2005/01/09 23:56:31 tbarrett Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.34.2.3 $
+* @version $Revision: 1.34.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.21.2.1 2004/12/16 05:50:40 tbarrett Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.21.2.2 2005/01/09 23:56:46 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.21.2.1 $
+* @version $Revision: 1.21.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -182,7 +182,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 						echo 'For each list entry, ';
 						combo_box($prefix.'_list_entry_types['.$category.']', $listing_entry_options, 0,  $current_list_entry_types[$category], 0);
 					} elseif (strpos($current_views[$category], 'list') !== FALSE) {
-						echo 'foo';
+						echo 'each entry shows  '.$listing_entry_options[$current_list_entry_types[$category]];
 					} else {
 						echo '&nbsp;';
 					}?>

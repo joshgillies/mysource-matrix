@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_single.inc,v 1.7 2004/09/02 01:09:25 tbarrett Exp $
-* $Name: not supported by cvs2svn $
+* $Id: calendar_event_single.inc,v 1.7.6.1 2005/01/09 23:56:43 tbarrett Exp $
+*
 */
 
 require_once  dirname(__FILE__).'/../../calendar_event/calendar_event.inc';
@@ -28,12 +28,12 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event.inc';
 * Calendar_Event_Single
 *
 * Purpose
-*     
+*
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.7 $ - 1.0
+* @version $Revision: 1.7.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -50,7 +50,7 @@ class Calendar_Event_Single extends Calendar_Event
 	{
 		$this->Calendar_Event($assetid);
 
-	}//end Calendar_Event_Single()
+	}//end constructor
 
 
 	/**
@@ -62,12 +62,12 @@ class Calendar_Event_Single extends Calendar_Event
 	* @access public
 	* @see Asset::create()
 	*/
-	function create(&$link) 
+	function create(&$link)
 	{
 		$parent = &$link['asset'];
 		if ($parent->type() == 'calendar_event_cancellation') {
 			if (!$this->attr('name')) {
-				$this->setAttrValue('name', 'Rescheduled: '.$parent->attr('name'));
+				$this->setAttrValue('name', str_replace('Cancelled', 'Rescheduled from ', $parent->attr('name')));
 			} else {
 				$good_words = array_intersect(explode(' ', strtolower($this->attr('name'))), Array('changed', 'moved', 'rescheduled'));
 				if (empty($good_words)) {
@@ -95,17 +95,22 @@ class Calendar_Event_Single extends Calendar_Event
 				<td><b>Event Name</b></td>
 				<td><?php echo $this->attr('name'); ?></td>
 			</tr>
-			<?php 
+			<?php
 				if ($recurring_events = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', false)) {
 					$root_url = array_values($GLOBALS['SQ_SYSTEM']->am->getRootURL());
 					if (is_array($root_url)) $root_url = $root_url[0];
 				?>
 			<tr>
 				<td><b>Replaces cancellation</b></td>
-				<td><?php 
+				<td><?php
 					// get the parent recurring event asset
 					$recurring_event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_events[0]);
-					echo '<a href="'.$root_url.'?a='.$recurring_events[0].'">'.$recurring_event->attr('name').'</a>';
+					if (isset($_REQUEST['SQ_CALENDAR_EVENT_ID'])) {
+						$cancellation_href = replace_query_string_vars(Array('SQ_CALENDAR_EVENT_ID' => $recurring_events[0], 'SQ_CALENDAR_EVENT_ACTION' => null));
+					} else {
+						$cancellation_href = $root_url.'?a='.$recurring_events[0];
+					}
+					echo '<a href="'.$cancellation_href.'">'.$recurring_event->attr('name').'</a>';
 				?></td>
 			</tr>
 			<?php

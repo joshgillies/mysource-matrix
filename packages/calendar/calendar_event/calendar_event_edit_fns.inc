@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.22.2.2 2004/12/30 05:57:33 tbarrett Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.22.2.3 2005/01/09 23:56:31 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.22.2.2 $
+* @version $Revision: 1.22.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -238,9 +238,12 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 					break;
 				}
 				$end_date_value = ts_iso8601($end_ts);
+				if (!isset($_REQUEST[$prefix.'_start_time_enabled'])) {
+					$end_date_value = substr($end_date_value, 0, 10).' --:--:--';
+				}
 			} else {
 				if (!$this->_validateDateTimeFields($prefix, '_end')) return false;
-				if (isset($_REQUEST[$prefix.'_end_time_enabled'])) {
+				if (isset($_REQUEST[$prefix.'_end_time_enabled']) && isset($_REQUEST[$prefix.'_start_time_enabled'])) {
 					$end_date_value = $_REQUEST[$prefix.'_end_year'] .'-'
 						. sprintf("%02d", $_REQUEST[$prefix.'_end_month']) .'-'
 						. sprintf("%02d", $_REQUEST[$prefix.'_end_day']).' '

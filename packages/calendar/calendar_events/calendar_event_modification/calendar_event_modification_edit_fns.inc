@@ -18,10 +18,9 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification_edit_fns.inc,v 1.6 2004/11/18 23:09:50 gsherwood Exp $
-* $prefix:  $
+* $Id: calendar_event_modification_edit_fns.inc,v 1.6.2.1 2005/01/09 23:56:40 tbarrett Exp $
+*
 */
-
 
 require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.inc';
 
@@ -32,7 +31,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.6 $ - 1.0
+* @version $Revision: 1.6.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -48,12 +47,12 @@ class Calendar_Event_Modification_Edit_Fns extends Calendar_Event_Edit_Fns
 	{
 		$this->Calendar_Event_Edit_Fns();
 
-	}//end Calendar_Event_Modification_Edit_Fns()
+	}//end constructor
 
 
 	/**
 	* Paint the form for entering the start date and time for this modification
-	* event, ie the start date and time for the recurring event instance that it 
+	* event, ie the start date and time for the recurring event instance that it
 	* modifies.
 	*
 	* @param object Calendar_Event_Modification	&$asset			the event to print the form for
@@ -62,7 +61,7 @@ class Calendar_Event_Modification_Edit_Fns extends Calendar_Event_Edit_Fns
 	*
 	* @access public
 	*/
-	function paintDateTimeChooser(&$asset, &$o, $prefix) 
+	function paintDateTimeChooser(&$asset, &$o, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
 			$start_date_attr = $asset->getAttribute('start_date');
@@ -72,7 +71,7 @@ class Calendar_Event_Modification_Edit_Fns extends Calendar_Event_Edit_Fns
 			echo $asset->getFriendlyDatesAndTimes();
 		}
 
-	}//end paintDateChooser()
+	}//end paintDateTimeChooser()
 
 
 	/**
@@ -85,11 +84,11 @@ class Calendar_Event_Modification_Edit_Fns extends Calendar_Event_Edit_Fns
 	* @return boolean	Whether the update was successful
 	* @access public
 	*/
-	function processDateTimeChooser(&$asset, &$o, $prefix) 
+	function processDateTimeChooser(&$asset, &$o, $prefix)
 	{
 		return $this->processStartEndChooser($asset, $o, $prefix);
 
-	}//end processSingleStartEndChooser
+	}//end processDateTimeChooser()
 
 
 	/**
@@ -128,8 +127,8 @@ class Calendar_Event_Modification_Edit_Fns extends Calendar_Event_Edit_Fns
 	*
 	* @return boolean	Whether the update was successful
 	* @access public
-	*/	
-	function processRecurringEventChooser(&$asset, &$o, $prefix) 
+	*/
+	function processRecurringEventChooser(&$asset, &$o, $prefix)
 	{
 		// not doing anything here; the field is processed in saveAttributes() because
 		// we need an ID first

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.35.2.3 2004/12/30 03:20:52 tbarrett Exp $
+* $Id: page_calendar_management.inc,v 1.35.2.4 2005/01/09 23:56:46 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.35.2.3 $
+* @version $Revision: 1.35.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */

@@ -18,10 +18,9 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_single_edit_fns.inc,v 1.6 2004/11/18 23:09:50 gsherwood Exp $
-* $prefix:  $
+* $Id: calendar_event_single_edit_fns.inc,v 1.6.2.1 2005/01/09 23:56:43 tbarrett Exp $
+*
 */
-
 
 require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.inc';
 
@@ -32,7 +31,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $ - 1.0
+* @version $Revision: 1.6.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -48,7 +47,7 @@ class Calendar_Event_Single_Edit_Fns extends Calendar_Event_Edit_Fns
 		$this->Calendar_Event_Edit_Fns();
 		$this->static_screens['details']['force_unlock'] = false;
 
-	}//end Calendar_Event_Single_Edit_Fns()
+	}//end constructor
 
 
 	/**
@@ -64,13 +63,15 @@ class Calendar_Event_Single_Edit_Fns extends Calendar_Event_Edit_Fns
 	* @param string						$prefix			the prefix to use for form field names
 	*
 	* @access public
+	* @return boolean	Whether a submitable interface has been printed
 	*/
-	function paintSingleStartEndChooser(&$asset, &$o, $prefix) 
+	function paintSingleStartEndChooser(&$asset, &$o, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
 			return $this->paintStartEndChooser($asset, $prefix, Array());
 		} else {
 			echo $asset->getFriendlyDatesAndTimes();
+			return false;
 		}
 
 	}//end paintSingleStartEndChooser()
@@ -86,11 +87,11 @@ class Calendar_Event_Single_Edit_Fns extends Calendar_Event_Edit_Fns
 	* @return boolean	Whether the update was successful
 	* @access public
 	*/
-	function processSingleStartEndChooser(&$asset, &$o, $prefix) 
+	function processSingleStartEndChooser(&$asset, &$o, $prefix)
 	{
 		return $this->processStartEndChooser($asset, $o, $prefix);
 
-	}//end processSingleStartEndChooser
+	}//end processSingleStartEndChooser()
 
 
 }//end class

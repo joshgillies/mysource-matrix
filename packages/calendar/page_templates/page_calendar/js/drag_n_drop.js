@@ -234,3 +234,22 @@
     }
 
   }//end getMousePosition()
+
+
+    var flashing = '';
+    function toggleFlashing(id) {
+       elt = document.getElementById(id);
+       if (flashing == elt) {
+         flashing = '';
+         elt.style.borderStyle = 'solid';
+       } else {
+         flashing = elt;
+         doFlash();
+       }
+    }
+    function doFlash() {
+       if (flashing != '') {
+          flashing.style.borderStyle = (flashing.style.borderStyle.indexOf('none') != -1) ? 'dotted' : 'none';
+          window.setTimeout('doFlash();', 300);
+       }
+    }

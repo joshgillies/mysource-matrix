@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_management.inc,v 1.3.6.1 2004/12/30 05:57:33 tbarrett Exp $
+* $Id: calendar_event_management.inc,v 1.3.6.2 2005/01/09 23:56:31 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3.6.1 $
+* @version $Revision: 1.3.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
