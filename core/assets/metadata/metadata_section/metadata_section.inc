@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section.inc,v 1.11 2004/03/26 15:31:34 brobertson Exp $
+* $Id: metadata_section.inc,v 1.12 2004/12/21 16:55:46 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -60,7 +60,7 @@ class Metadata_Section extends Folder
 	function _getAllowedLinks()
 	{
 		return Array(SQ_LINK_TYPE_1 => Array(),
-					 SQ_LINK_TYPE_2 => Array('metadata_field' => Array('card' => 'M', 'exclusive' => false)),
+					 SQ_LINK_TYPE_2 => Array('metadata_field' => Array('card' => 'M', 'exclusive' => true)),
 					 SQ_LINK_TYPE_3 => Array(),
 					 SQ_LINK_NOTICE => Array()
 					);
