@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.26 2004/08/20 03:42:48 gsherwood Exp $
+* $Id: text.inc,v 1.27 2004/09/01 01:21:45 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -162,7 +162,7 @@ class Asset_Attribute_Text extends Asset_Attribute
 	function paint($prefix, $read_only=false)
 	{
 		if ($read_only) {
-			echo nl2br($this->value);
+			echo htmlspecialchars(nl2br($this->value));
 			return;
 		}
 
