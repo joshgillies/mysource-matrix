@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.4.2.2 2004/03/02 16:00:40 brobertson Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.4.2.3 2004/03/18 16:07:01 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -191,7 +191,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT t.treeid
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid ';
+				FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_link_tree t INNER JOIN '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_link l ON t.linkid = l.linkid ';
 		$where = 'l.minorid = '.$db->quote($trash->id);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
@@ -269,7 +269,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 					// outside the trash folder so we dont delete it if it is being used
 					// somewhere else outside the trash
 					$sql = 'SELECT l.linkid 
-							FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid ';
+							FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_link_tree t INNER JOIN '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_link l ON t.linkid = l.linkid ';
 					$where = 'l.minorid='.$db->quote($link_info['assetid']).' 
 							  AND t.treeid NOT LIKE '.$db->quote($this->_running_vars['trash_treeid'].'%').' 
 							  AND (l.link_type & '.$db->quote(SQ_SC_LINK_SIGNIFICANT).') > 0';
