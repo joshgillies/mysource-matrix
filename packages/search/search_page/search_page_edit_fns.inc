@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.14 2004/02/12 11:24:46 brobertson Exp $
+* $Id: search_page_edit_fns.inc,v 1.15 2004/02/12 22:16:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page/page_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.14 $ - 1.0
+* @version $Revision: 1.15 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -461,9 +461,9 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 					}
 
 					// not printing the combo box unless there is something to show
-					if ($search_type != ''){
+					if ($search_type != '') {
 
-						$type_attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($search_type, Array('attributeid'));
+						$type_attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($search_type, Array('name', 'type'));
 
 						echo " <b>Attr:</b> ";
 						$typeAttrs = Array();
