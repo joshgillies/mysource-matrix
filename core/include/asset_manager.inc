@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.265 2005/02/11 05:36:01 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.266 2005/02/14 19:30:34 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.265 $
+* @version $Revision: 1.266 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1216,7 +1216,7 @@ class Asset_Manager extends MySource_Object
 		$orig_links = $this->getLinks($source->id, SQ_LINK_TYPE_3 | SQ_LINK_NOTICE, '', true, 'major', null, false, null);
 		foreach ($orig_links as $orig_link) {
 			$asset = &$this->getAsset($orig_link['minorid'], $orig_link['minor_type_code']);
-			$linkid = $clone->createLink($asset, $orig_link['link_type'], $orig_link['value'], $orig_link['sort_order'], $orig_link['is_dependant'], $link['is_exclusive']);
+			$linkid = $clone->createLink($asset, $orig_link['link_type'], $orig_link['value'], $orig_link['sort_order'], $orig_link['is_dependant'], $orig_link['is_exclusive']);
 
 			if (!$linkid) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
