@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.24 2004/10/15 01:28:27 dbaranovskiy Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.25 2004/10/18 22:47:19 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -223,7 +223,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	*/
 	function getAllowedRules() {
 		return Array('select_limit', 'selection');
-	
+
 	}//end getAllowedRules()
 
 

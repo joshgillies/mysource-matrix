@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.30 2004/10/14 05:48:36 lwright Exp $
+* $Id: form_email.inc,v 1.31 2004/10/18 22:47:47 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -51,7 +51,7 @@ class Form_Email extends Form
 	function Form_Email($assetid=0)
 	{
 		$this->Form($assetid);
-	
+
 	}//end constructor
 
 
@@ -91,13 +91,13 @@ class Form_Email extends Form
 	function _getName($short_name=false)
 	{
 		return $this->attr('name');
-	
+
 	}//end _getName()
 
 
 	/**
 	* Prints the standard form i.e not a wizard
-	* 
+	*
 	* @access public
 	* @return boolean
 	*/
@@ -134,7 +134,7 @@ class Form_Email extends Form
 	/**
 	* Return form information (site name, site id, page name, page id, url, submission date)
 	*
-	* @param boolean	$html	return html formatted or not 
+	* @param boolean	$html	return html formatted or not
 	*
 	* @access public
 	* @return string $information
@@ -142,10 +142,10 @@ class Form_Email extends Form
 	function getFormInfo($html = false)
 	{
 		$info = parent::getFormInfo();
-		$title = 'Form Information'; 
+		$title = 'Form Information';
 		$information  = ($html) ? '<b>'.$title.'</b><br />' : $title."\n\n";
 		$information .= ($html) ? "<table>" : '';
-		
+
 		foreach ($info as $name => $value) {
 			$information .= ($html) ? '<tr><td valign="top">'.ucwords(str_replace('_', ' ', $name)).'</td>' : ucwords(str_replace('_', ' ', $name))." : ";
 			$information .= ($html) ? '<td valign="top">'.$value.'</td></tr>' : $value."\n";
@@ -195,7 +195,7 @@ class Form_Email extends Form
 		// replacements of question responses
 		$questions = &$this->getQuestions();
 		$sections = &$this->getSections();
-				
+
 		foreach ($questions as $q_id => $question) {
 			$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 			$q_name = $q_asset->attr('name');
@@ -220,10 +220,10 @@ class Form_Email extends Form
 
 		// substitute generic keywords with email format-specific keywords
 		$current_value['html_format'] = str_replace(
-			Array('%form_info%', '%form_summary%'), 
+			Array('%form_info%', '%form_summary%'),
 			Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
 		$current_value['text_format'] = str_replace(
-			Array('%form_info%', '%form_summary%'), 
+			Array('%form_info%', '%form_summary%'),
 			Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
 
 		$email_format_attr->value = serialize($current_value);
@@ -234,10 +234,10 @@ class Form_Email extends Form
 
 	}//end mailReceipt()
 
-	
+
 	/**
 	* Send mail to recipients set in the backend
-	* 
+	*
 	* @access public
 	* @return boolean
 	*/
@@ -274,7 +274,7 @@ class Form_Email extends Form
 		// replacements of question responses
 		$questions = &$this->getQuestions();
 		$sections = &$this->getSections();
-		
+
 		foreach ($questions as $q_id => $question) {
 			$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 			$q_name = $q_asset->attr('name');
@@ -290,7 +290,7 @@ class Form_Email extends Form
 				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary($this->active_submission[$q_asset->id]);
 			}
 		}
-		
+
 		// substitute generic keywords with email format-specific keywords
 		$current_value['html_format'] = str_replace(
 			Array('%form_info%',      '%form_summary%'),
@@ -350,7 +350,7 @@ class Form_Email extends Form
 		// replacements of question responses
 		$questions = &$this->getQuestions();
 		$sections = &$this->getSections();
-		
+
 		foreach ($questions as $q_id => $question) {
 			$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 			$q_name = $q_asset->attr('name');
@@ -366,7 +366,7 @@ class Form_Email extends Form
 				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary($this->active_submission[$q_asset->id]);
 			}
 		}
-		
+
 		$email_format_attr = $this->getAttribute('staf_format');
 
 		// append the 'To:' address with the address from the e-mail field
@@ -375,10 +375,10 @@ class Form_Email extends Form
 
 		// substitute generic keywords with email format-specific keywords
 		$current_value['html_format'] = str_replace(
-			Array('%form_info%', '%form_summary%'), 
+			Array('%form_info%', '%form_summary%'),
 			Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
 		$current_value['text_format'] = str_replace(
-			Array('%form_info%', '%form_summary%'), 
+			Array('%form_info%', '%form_summary%'),
 			Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
 
 		$email_format_attr->value = serialize($current_value);
@@ -409,7 +409,7 @@ class Form_Email extends Form
 
 		for (reset($selective_emails); null !== ($k = key($selective_emails)); next($selective_emails)) {
 			$sel_email =& $selective_emails[$k];
-			
+
 			// check to see whether it is valid in the first place
 			$valid = true;
 
@@ -424,7 +424,7 @@ class Form_Email extends Form
 				// ANY then we start with a Fail and exit on the first Pass.
 				$require_all = ($sel_email['require'] == 'all');
 				$passed = ($require_all ? true : false);
-				
+
 				// find the rule parts
 				$rule_parts =& $sel_email['rules'];
 
@@ -512,7 +512,7 @@ class Form_Email extends Form
 		// replacements of question responses
 		$questions = &$this->getQuestions();
 		$sections = &$this->getSections();
-		
+
 		foreach ($questions as $q_id => $question) {
 			$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 			$q_name = $q_asset->attr('name');
@@ -528,7 +528,7 @@ class Form_Email extends Form
 				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary($this->active_submission[$q_asset->id]);
 			}
 		}
-		
+
 		// recipient emails
 		if (!empty($recipients)) {
 			// only send one of each type of email to each recipient
@@ -538,15 +538,15 @@ class Form_Email extends Form
 
 			// substitute generic keywords with email format-specific keywords
 			$current_value = @unserialize($email_format->value);
-		
+
 			if (!empty($current_value)) {
 				$current_value['to'] = $recipients;
 
 				$current_value['html_format'] = str_replace(
-					Array('%form_info%', '%form_summary%'), 
+					Array('%form_info%', '%form_summary%'),
 					Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
 				$current_value['text_format'] = str_replace(
-					Array('%form_info%', '%form_summary%'), 
+					Array('%form_info%', '%form_summary%'),
 					Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
 
 				$email_format->value = serialize($current_value);
@@ -569,10 +569,10 @@ class Form_Email extends Form
 				$current_value['to'] = $receipts;
 
 				$current_value['html_format'] = str_replace(
-					Array('%form_info%', '%form_summary%'), 
+					Array('%form_info%', '%form_summary%'),
 					Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
 				$current_value['text_format'] = str_replace(
-					Array('%form_info%', '%form_summary%'), 
+					Array('%form_info%', '%form_summary%'),
 					Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
 
 				$email_format->value = serialize($current_value);
@@ -595,10 +595,10 @@ class Form_Email extends Form
 				$current_value['to'] = $stafs;
 
 				$current_value['html_format'] = str_replace(
-					Array('%form_info%', '%form_summary%'), 
+					Array('%form_info%', '%form_summary%'),
 					Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
 				$current_value['text_format'] = str_replace(
-					Array('%form_info%', '%form_summary%'), 
+					Array('%form_info%', '%form_summary%'),
 					Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
 
 				$email_format->value = serialize($current_value);
