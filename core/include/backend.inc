@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: backend.inc,v 1.62 2003/10/10 06:49:25 brobertson Exp $
+* $Id: backend.inc,v 1.63 2003/10/14 01:51:08 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -234,7 +234,7 @@ class Backend extends MySource_Object
 			$html = '
 			<table class="sq-backend-new-message-table">
 				<tr>
-					<td rowspan="2" valign="middle" class="sq-backend-new-message-cell"><img src="'.$this->out->filesPath('/images/icons/mail.gif').'" width="31" height="33" border="0" alt="" /></td>
+					<td rowspan="2" valign="middle" class="sq-backend-new-message-cell"><img src="'.$this->out->filesPath('/images/icons/mail.png').'" width="31" height="33" border="0" alt="" /></td>
 					<td class="sq-backend-new-message-heading" nowrap>New Messages</td>
 					<td class="sq-backend-new-message-heading" align="right">[<a class="sq-backend-new-message-body" href="#" onClick="Javascript: parent.top.header.cancelMsgDiv(); return false;">x</a>]</td>
 				</tr>
@@ -373,27 +373,37 @@ class Backend extends MySource_Object
 					$options = Array();
 					if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 						$options[] = Array(
-										'url' => $this->getBackendUrl('main').'&backend_section=config',
-										'title' => 'System Config',
-										'icon' => 'swish.gif',
+										'url'    => $this->getBackendUrl('main').'&backend_section=config',
+										'target' => 'main',
+										'title'  => 'System Config',
+										'icon'   => 'system_config.png',
 										);
 					}
 
 					if ($GLOBALS['SQ_SYSTEM']->userRoot()) {
 						$options[] = Array(
-										'url' => $this->getBackendUrl('main').'&backend_section=hipo_herder',
-										'title' => 'HIPO Herder',
-										'icon' => 'swish.gif',
+										'url'    => $this->getBackendUrl('main').'&backend_section=hipo_herder',
+										'target' => 'main',
+										'title'  => 'HIPO Herder',
+										'icon'   => 'hipo_herder.png',
 										);
 					}
 					$options[] = Array(
-									'url' => $this->getBackendUrl('main').'&backend_section=am',
-									'title' => 'Asset Tree',
-									'icon' => 'swish.gif',
+									'url'    => $this->getBackendUrl('main').'&backend_section=am',
+									'target' => 'main',
+									'title'  => 'Asset Tree',
+									'icon'   => 'asset_tree.png',
+									);
+
+					$options[] = Array(
+									'url'    => $_SERVER['PHP_SELF'].'?SQ_ACTION=logout',
+									'target' => '_top',
+									'title'  => 'Logout',
+									'icon'   => 'logout.png',
 									);
 
 					foreach($options as $option) {
-						?><a target="main" href="<?php echo $option['url'];?>"><img src="<?php echo $this->out->filesPath('/images/icons/'.$option['icon']); ?>" width="20" height="20" border="0" alt="<?php echo htmlspecialchars($option['title']);?>" /></a>&nbsp;&nbsp;<?php
+						?><a href="<?php echo $option['url'];?>" target="<?php echo $option['target'];?>"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $this->out->filesPath('/images/icons/header/'.$option['icon']); ?>", "20", "20", "<?php echo htmlspecialchars($option['title']);?>");</script></a>&nbsp;&nbsp;<?php
 					}
 
 				?>
