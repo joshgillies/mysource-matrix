@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_sub_asset_listing_edit_fns.inc,v 1.8 2003/11/18 15:43:38 brobertson Exp $
+* $Id: page_sub_asset_listing_edit_fns.inc,v 1.9 2003/11/21 04:59:48 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -239,7 +239,6 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processCurrentAssetTypes(&$asset, &$o, $prefix)
 	{
-
 		$customised = $asset->attr('customised');
 		$types = $asset->attr('types');
 		$folder = &$asset->getFolder('type_formats');
@@ -257,12 +256,12 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 						unset($customised[$key]);
 
 						// we also want to send the bodycopy to the trash
-						$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', false, $type);
+						$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $type);
 						if (empty($link)) {
 							trigger_error('Format for type '.$type.' not found', E_USER_WARNING);
 						}
 						// back up in your trash with the resurection
-						$asset->deleteLink($link['linkid']);
+						$folder->deleteLink($link['linkid']);
 					}
 				}
 			}
