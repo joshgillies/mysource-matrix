@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.24 2004/08/06 01:25:42 lwright Exp $
+* $Id: form_section_edit_fns.inc,v 1.25 2004/08/06 02:15:20 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -207,7 +207,7 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 								?><td align="center" width="100" class="sq-backend-table-cell"><?php
 								check_box($prefix.'_order[delete]['.$i.']');
 								?></td>
-								<td align="center" width="100" class="sq-backend-table-cell"><?php if ($i != 0) { ?><a href="#" onclick="sortOrderMoveUp(<?php echo $i ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web.images/icons/up_arrow.png');?>", "16", "16", "Move Up");</script></a><?php } ?>
+								<td align="center" width="100" class="sq-backend-table-cell"><?php if ($i != 0) { ?><a href="#" onclick="sortOrderMoveUp(<?php echo $i ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web.images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a><?php } ?>
 								<?php if ($i != count($questions)-1) { ?><a href="#" onclick="sortOrderMoveDown(<?php echo $i ?>); return false;"><img src="<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>" width="16" height="16" border="0"alt="Move Down" /></a><?php } ?>
 							</td>
 							<?php
