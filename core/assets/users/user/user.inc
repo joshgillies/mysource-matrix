@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.62 2003/11/23 21:46:00 gsherwood Exp $
+* $Id: user.inc,v 1.63 2003/11/25 05:52:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -66,7 +66,7 @@ class User extends Asset
 		$username = trim($this->attr('username'));
 		$password = $this->attr('password');
 
-		if ($username == '' || $password = '') {
+		if ($username == '' || $password == '') {
 			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' without a username and password', E_USER_WARNING);
 			return false;
 		}
@@ -137,8 +137,6 @@ class User extends Asset
 	function setAttrValue($name, $value)
 	{
 		// if this is the password, encrypt it
-		// BUT not if we have been created,
-		// otherwise when we try and save to DB in create() it encrypts the encrypted version
 		if ($name == 'password') {
 			$value = crypt($value); // let salt be generated
 		}
@@ -162,7 +160,6 @@ class User extends Asset
 	*/
 	function comparePassword($entered_password)
 	{
-
 		$password = $this->attr('password');
 
 		if (!trim($password)) {
