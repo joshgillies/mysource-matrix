@@ -1,5 +1,5 @@
 <?php
-/**
+/** 
 * +--------------------------------------------------------------------+
 * | Squiz.net Open Source Licence                                      |
 * +--------------------------------------------------------------------+
@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.79 2004/09/14 06:24:39 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.80 2004/09/14 06:30:13 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.79 $ - 1.0
+* @version $Revision: 1.80 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */

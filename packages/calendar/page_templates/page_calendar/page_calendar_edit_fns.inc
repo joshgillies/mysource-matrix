@@ -1,5 +1,5 @@
 <?php
-/**
+/** 
 * +--------------------------------------------------------------------+
 * | Squiz.net Open Source Licence                                      |
 * +--------------------------------------------------------------------+
@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.14 2004/09/14 06:24:39 tbarrett Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.15 2004/09/14 06:30:13 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.14 $ - 1.0
+* @version $Revision: 1.15 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
