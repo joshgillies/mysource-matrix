@@ -2680,8 +2680,8 @@ class Asset extends Resolve_Object
 				return false;
 			}
 
-			// We are going to set the treeid nodes that this link is associated with to zero so that we can
-			// find it as a gap when we createLink() later on
+			// We are going to set the treeid nodes that this link is associated 
+			// with to zero so that we can find it as a gap when we createLink() later on
 			$sql = 'UPDATE sq_asset_link_tree
 					   SET linkid = 0
 					WHERE linkid = '.$db->quote($linkid);
@@ -2770,8 +2770,12 @@ class Asset extends Resolve_Object
 
 		// cant link to the new parent if it is in the trash
 		if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($new_parent->id)) {
-			trigger_error('Unable to Move Asset, new parent (Asset #"'.$new_parent->id.'") is in the trash');
-			return;
+			// check if the trash link is the only significant link left
+			$links = $new_parent->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'minor');
+			if (count($links) == 1) {
+				trigger_error('Unable to Move Asset, new parent (Asset #"'.$new_parent->id.'") is in the trash');
+				return;
+			}
 		}
 
 		// if you dont have write access to this asset you cant delete any links
@@ -3986,6 +3990,7 @@ class Asset extends Resolve_Object
 			$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
 
 			$parents = $this->getLinks(SQ_LINK_SIGNIFICANT, '', null, 'minor');
+			$done_urls = Array();
 			for($i = 0; $i < count($parents); $i++) {
 				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
 				if (is_null($parent)) continue;
@@ -3993,10 +3998,12 @@ class Asset extends Resolve_Object
 				$parent_urls = $parent->getLookups();
 				for($j = 0; $j < count($parent_urls); $j++) {
 					for($k = 0; $k < count($paths); $k++) {
+						$new_url = $parent_urls[$j]['url'].'/'.$paths[$k];
+						if (in_array($new_url, $done_urls)) continue;
 						$sql = 'INSERT INTO sq_asset_lookup
 								(url, assetid, root_urlid, designid)
 								VALUES
-								('.$db->quote($parent_urls[$j]['url'].'/'.$paths[$k]).',
+								('.$db->quote($new_url).',
 								'.$db->quote($this->id).',
 								'.$db->quote($parent_urls[$j]['root_urlid']).',
 								'.$db->quote(($designid) ? $designid : $parent_urls[$j]['designid']).')';
@@ -4005,6 +4012,7 @@ class Asset extends Resolve_Object
 							trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 							return false;
 						}
+						$done_urls[] = $new_url;
 					}// end for paths
 				}// end for parent_urls
 

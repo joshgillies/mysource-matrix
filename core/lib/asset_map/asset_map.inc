@@ -23,7 +23,7 @@ class Asset_Map
 	*/
 	function Asset_Map()
 	{
-	}
+	}//end constructor
 
 
 	/**
@@ -739,11 +739,6 @@ class Asset_Map
 		$new_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
 		if (is_null($new_parent)) {
 			$this->_error('Unable to Create New Link, new parent (Asset #"'.$input->root->attributes['to_parent_assetid'].'") not found');
-			return;
-		}
-
-		if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($input->root->attributes['to_parent_assetid'])) {
-			$this->_error('Unable to Create New Link, new parent (Asset #"'.$input->root->attributes['to_parent_assetid'].'") is in the trash');
 			return;
 		}
 
