@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.49 2004/07/12 23:27:02 lwright Exp $
+* $Id: mysource.inc,v 1.50 2004/08/06 02:39:31 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -281,6 +281,7 @@ class MySource
 
 					if (!$rm->paintPageNotFoundRemap()) {
 						// last resort, display little green error
+						header('HTTP/1.0 404 Not Found');
 						trigger_error('URL "'.$url.'" not found', E_USER_NOTICE);
 					}
 				}//end if !load remap
