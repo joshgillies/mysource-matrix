@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.1 2005/02/17 06:34:47 rhoward Exp $
+* $Id: trigger_manager.inc,v 1.2 2005/02/18 03:17:15 arailean Exp $
 *
 */
 
@@ -48,7 +48,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -197,7 +197,6 @@ class Trigger_Manager extends Asset
 	function broadcastEvent($event_name, &$broadcaster, $parameters=null)
 	{
 		if (!$this->attr('enabled')) {
-			error_log("Trigger Manager is DISABLED, event '$event_name' was not handled");
 			return true;
 		}
 
@@ -222,26 +221,6 @@ class Trigger_Manager extends Asset
 			$trigger_data = $this->_db2trigger($trigger);
 			$status = $this->_executeTrigger($trigger_data['data'], $state);
 
-			switch ($status) {
-				case SQ_TRIG_RESULT_FAILURE:
-					$status_message = "FAILURE (even though the trigger was supposed to run, some of the required actions could not be performed)";
-				break;
-
-				case SQ_TRIG_RESULT_SUCCESS:
-					$status_message = "SUCCESS";
-				break;
-
-				case SQ_TRIG_RESULT_INVALID:
-					$status_message = "INVALID (Trigger components could not be loaded)";
-				break;
-
-				case SQ_TRIG_RESULT_FALSE:
-				default:
-					$status_message = "FALSE (Trigger was not required)";
-				break;
-
-			}
-			error_log("TRIGGER MANAGER: event '$event_name' handled by trigger '${trigger_data['name']}' and returned status: $status_message");
 		}
 
 		return true;
