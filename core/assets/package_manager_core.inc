@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.1 2004/02/10 16:07:01 brobertson Exp $
+* $Id: package_manager_core.inc,v 1.2 2004/02/10 16:07:52 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -121,6 +121,9 @@ class Package_Manager_Core extends Package_Manager
 				return false;
 			}
 		}// end foreach
+
+
+		// Now we can do the normal package update 
 		if (!parent::updatePackageDetails()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
