@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.60 2004/12/03 15:33:23 brobertson Exp $
+* $Id: mysource.inc,v 1.60.2.1 2005/03/04 00:51:37 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -646,6 +646,17 @@ class MySource
 					$pref_1 = merge_preferences($pref_1, $pref_2);
 					$pref_2 = null;
 				}
+			}
+			// If we haven't included the global preferences yet, but the pref_1 array
+			// HASN'T got the preference set (ie the group defined preference doesn't
+			// know anything about what preference we want), include and merge
+			// the global preferences here as a last ditch attempt to get the pref
+			if (!$included_global && !isset($pref_1[$pref])) {
+				include SQ_DATA_PATH.'/private/conf/preferences.inc';
+				$included_global = true;
+				// merge the preference files
+				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+				$pref_1 = merge_preferences($pref_1, $preferences);
 			}
 		} else {
 			if (is_file(SQ_DATA_PATH.'/private/conf/preferences.inc')) {
