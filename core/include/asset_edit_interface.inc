@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.249 2005/03/30 00:40:11 lwright Exp $
+* $Id: asset_edit_interface.inc,v 1.250 2005/03/30 03:51:13 lwright Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.249 $
+* @version $Revision: 1.250 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1928,23 +1928,20 @@ class Asset_Edit_Interface extends MySource_Object
 
 
 	/**
-	* Find the closest applicable static screen and return the root node
+	* Find the closest applicable screen and return the root node
 	*
 	* Probably need a better way of doing this, but basically this is what it
 	* does:
-	* 1. Looks for a localised static screen for the asset, NOT including the
-	*    fall-back base asset
-	* 2. Looks for a non-localised version in the asset's directory - it could
-	*    be empty which would make a localised version a waste (and if a
-	*    partial version is there it *should* be localised in any case)
-	* 3. Repeat (1) but allow use of the localised version of the base asset
-	* 4. Last resort: repeat (2) but allow use of the base asset's non-localised
-	*    version
+	* 1. Looks for the closest screen structure file, if it is EMPTY then
+	*    return the empty file - we don't need any localised stuff
+	* 2. If it is not empty, we then look for the closest language file - 
+	*    even if a partial version of a parent is there it *should* be
+	*    localised in any case
 	*
 	* @param string	$screen_name	the whole screen name (including the
-	*								'static_screen_' part)
+	*								'screen_' or 'static_screen_' part)
 	*
-	* @return object XML_Tree_Node	the root node of the static screen, or NULL
+	* @return object XML_Tree_Node	the root node of the screen, or NULL
 	*								on error or if none found
 	* @access public
 	*/
