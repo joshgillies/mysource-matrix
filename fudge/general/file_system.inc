@@ -134,7 +134,7 @@ function readable_datetime($then='') {
 * @see Fudge::general::increment_name()
 */
 function increment_filename($name,$spacer='') {
-	require_once dirname(__FILE__).'../general/general.inc';
+	require_once dirname(__FILE__).'/../general/general.inc';
 	if(strpos($name,'.') !== false) {
 		$ext = get_file_type($name);
 		return increment_name(substr($name,0,-strlen($ext)-1),$spacer).'.'.$ext;

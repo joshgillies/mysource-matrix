@@ -1986,6 +1986,13 @@ class Asset extends Resolve_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
+		// check for web path conflicts with the new parents children
+		$paths = $minor->getWebPaths();
+		$bad_paths = $this->_webPathsInUse($paths);
+		if (!empty($bad_paths)) {
+			return 'Cannot create link from '.$this->name.' (# '.$this->id.') to '.$minor->name.' (# '.$minor->id.'), path(s) "'.implode('", "', $bad_paths).'" already in use by one of the siblings of "'.$this->name.'"';
+		}
+
 		// if this link is a significant link, then we need to make sure that this
 		// minor asset doesn't already have an exclusive link from anything
 		// and that we aren't moving under ourselves
@@ -3896,25 +3903,16 @@ class Asset extends Resolve_Object
 		$save_paths = Array();
 
 		// make sure these paths are compliant
-		foreach($paths as $path) {
-			$path = preg_replace('/\\s+/', '_', $path);
-			// Taken (in part) from info here -> http://www.w3.org/Addressing/URL/5_URI_BNF.html
-			$path = preg_replace('/[^a-zA-Z0-9\-$_@.&!*(),]/', '',  $path);
-			$path = trim($path);
-			// ignore blanks
-			if ($path && !in_array($path, $save_paths)) $save_paths[] = $path;
-		}// end foreach
+		$save_paths = $this->_makeValidWebPaths($paths);
 
 		// if there is no difference in the arrays (including in the sort order), then there is nothing to do
-		if (!array_diff_assoc($save_paths, $current_paths)) return true;
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		if (!array_diff_assoc($save_paths, $current_paths) &&
+			!array_diff_assoc($current_paths, $save_paths)) return true;
 
 		//// CHECK INSERTED PATHS ////
 		// to make sure that they path name is not in use by any of our siblings
 		$inserts = array_diff($save_paths, $current_paths);
 		if (!empty($inserts)) {
-
 			// now we need to check that none of our parents have
 			// any nav kids that are also using this path name
 			$siblingids = Array();
@@ -3922,38 +3920,15 @@ class Asset extends Resolve_Object
 			for($i = 0; $i < count($parents); $i++) {
 				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
 				if (is_null($parent)) continue;
-				// get all the nav siblings
-				$parent_kids = $parent->getLinks(SQ_LINK_SIGNIFICANT, '', null, 'major');
-				for($j = 0; $j < count($parent_kids); $j++) {
-					if ($parent_kids[$j]['minorid'] == $this->id) continue;
-					$siblingids[] = $db->quote($parent_kids[$j]['minorid']);
+				$bad_paths = $parent->_webPathsInUse($inserts);
+				if (!empty($bad_paths)) {
+					trigger_error('Path(s) "'.implode('", "', $bad_paths).'" already in use by one of the siblings of "'.$parent->name.'"', E_USER_WARNING);
+					return false;
 				}
 			}
-
-			$sibling_paths = Array();
-
-			if (count($siblingids)) {
-				$db_quote_inserts = Array();
-				foreach($inserts as $v) $db_quote_inserts[] = $db->quote($v);
-				$sql = 'SELECT path
-						FROM sq_asset_path
-						WHERE assetid IN ('.implode(',', $siblingids).')
-						  AND path    IN ('.implode(',', $db_quote_inserts).')';
-
-				$sibling_paths = $db->getCol($sql);
-				if (DB::isError($sibling_paths)) {
-					trigger_error($sibling_paths->getMessage().'<br/>'.$sibling_paths->getUserInfo(), E_USER_ERROR);
-					return false;
-				}
-
-				if (!empty($sibling_paths)) {
-					trigger_error('Path "'.implode('", "', $sibling_paths).'" already in use by one of the siblings of "'.$this->name.'"', E_USER_WARNING);
-					return false;
-				}// end if
-
-			}// end if sublings
-
 		}// end if inserts
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// Remove all the old paths
 		$sql = 'DELETE FROM sq_asset_path
@@ -3995,6 +3970,92 @@ class Asset extends Resolve_Object
 		}
 
 	}// end saveWebPaths()
+
+
+	/**
+	* Returns an array of the passed web paths made valid
+	*
+	* @param array		$paths					array of web paths to check
+	*
+	* @return array(string)
+	* @access protected
+	*/
+	function _makeValidWebPaths($paths=Array())
+	{
+		$valid_paths = Array();
+		foreach($paths as $path) {
+			$path = preg_replace('/\\s+/', '_', $path);
+			// Taken (in part) from info here -> http://www.w3.org/Addressing/URL/5_URI_BNF.html
+			$path = preg_replace('/[^a-zA-Z0-9\-$_@.&!*(),]/', '',  $path);
+			$path = trim($path);
+			// ignore blanks
+			if ($path && !in_array($path, $valid_paths)) $valid_paths[] = $path;
+		}
+		return $valid_paths;
+	}//end _makeValidWebPaths()
+
+
+	/**
+	* Returns an array of the passed web paths that are currently in use by any of our siblings
+	*
+	* @param array		$paths					array of web paths to check
+	* @param boolean	$return_alternatives	return all paths but replace the bad paths
+	*											with a valid alternative
+	*
+	* @return array(string)
+	* @access protected
+	*/
+	function _webPathsInUse($paths=Array(), $return_alternatives=false)
+	{
+		if (empty($paths)) return Array();
+		$return_paths = Array();
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// get all our nav siblings
+		$siblingids = Array();
+		$my_kids = $this->getLinks(SQ_LINK_SIGNIFICANT, '', null, 'major');
+		for($j = 0; $j < count($my_kids); $j++) {
+			if ($my_kids[$j]['minorid'] == $this->id) continue;
+			$siblingids[] = $db->quote($my_kids[$j]['minorid']);
+		}
+
+		$sibling_paths = Array();
+
+		if (count($siblingids)) {
+			$db_quote_paths = Array();
+			foreach($paths as $v) $db_quote_paths[] = $db->quote($v);
+			$sql = 'SELECT path
+					FROM sq_asset_path
+					WHERE assetid IN ('.implode(',', $siblingids).')';
+
+			$sibling_paths = $db->getCol($sql);
+			if (DB::isError($sibling_paths)) {
+				trigger_error($sibling_paths->getMessage().'<br/>'.$sibling_paths->getUserInfo(), E_USER_ERROR);
+				return false;
+			}
+		}
+
+		foreach ($paths as $path) {
+			if (in_array($path, $sibling_paths)) {
+				if ($return_alternatives) {
+					// find a good path to use
+					include_once SQ_FUDGE_PATH.'/general/file_system.inc';
+					$new_path = $path;
+					while (in_array($new_path, $sibling_paths)) {
+						// increment the path using numerials
+						$new_path = increment_filename($new_path);
+					}
+					$path = $new_path;
+				}
+				$return_paths[] = $path;
+			} else if ($return_alternatives) {
+				$return_paths[] = $path;
+			}
+		}
+
+		return $return_paths;
+	}//end _webPathsInUse()
 
 
 	/**

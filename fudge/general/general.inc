@@ -120,4 +120,27 @@ function ellipsisize($string, $length)
 	return $string;
 }// end ellipsisize()
 
+
+/**
+* Takes a string and looks for an integer at the end of it
+* It tries to incrememnt this integer, if it can't find one, it appends "2"
+* The option spacer only works if no int is already present - good for starting a trend
+*
+* @param string	$name	the original name of the file
+* @param string $spacer	the char(s) to put between the end of the name and the numeral
+*
+* @return string
+*/
+function increment_name($name='', $spacer='')
+{
+	for($i = strlen($name) - 1; $i > 0; $i--) {
+		if(!ereg("[^a-zA-Z0-9]",$name[$i])) break;
+	} $trailing_whitespace = substr($name,$i+1);
+	for($j = $i; $j > 0; $j--) {
+		if(!ereg("[0-9]",$name[$j])) break;
+	} $int = substr($name,$j+1,$i-$j);
+	if(!$int) return substr($name,0,$j+1).$spacer.(2).$trailing_whitespace;
+	return substr($name,0,$j+1).($int+1).$trailing_whitespace;
+}//end increment_name()
+
 ?>
