@@ -1,0 +1,7 @@
+<contents>
+	<section name="Scheduled Jobs">
+		<function_call>
+			<paint_function   name="paintJobs"   />
+		</function_call>
+	</section>
+</contents>
