@@ -65,7 +65,7 @@ class Root_User extends User
 		return $ret_val;
 
 
-	}#end create()
+	}//end create()
 
 	/*
 	* Set the value for the passed variable to the passed value
@@ -81,7 +81,7 @@ class Root_User extends User
 
 		return parent::setAttrValue($name, $value);
 
-	}#end setAttrValue()
+	}//end setAttrValue()
 
-}#end class
+}//end class
 ?>

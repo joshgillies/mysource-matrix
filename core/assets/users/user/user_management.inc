@@ -47,7 +47,7 @@ class User_Management extends Asset_Management
 												'type'      => 'date',    'default'   => ''
 												)
 							);
-	}#end constructor
+	}//end constructor
 
 	/**
 	* Install
@@ -59,7 +59,7 @@ class User_Management extends Asset_Management
 		pre_echo($this->getAssetType().' Specific install stuff here');
 		return $ok;
 
-	}#end install
+	}//end install
 
 
 	function _upgrade($current_version) {
@@ -69,7 +69,7 @@ class User_Management extends Asset_Management
 
 		return $ok;
 
-	}#end upgrade()
+	}//end upgrade()
 
-}#end class
+}//end class
 ?>

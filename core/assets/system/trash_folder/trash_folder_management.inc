@@ -22,7 +22,7 @@ class Trash_Folder_Management extends Asset_Management
 	{
 		$this->Asset_Management(&$pm);
 
-	}#end constructor
+	}//end constructor
 
-}#end class
+}//end class
 ?>

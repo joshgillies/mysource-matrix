@@ -70,7 +70,8 @@ class Config extends Resolve_Object
 
 	var $user_db_details	= array('name'=>'','host'=>'','login'=>'','password'=>'','querylog'=>'');
 	
-	#var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
+	
+var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 */
 
 	/**
@@ -126,7 +127,7 @@ class Config extends Resolve_Object
 				$str .= "ini_set('include_path', \$inc_dir);\n\n";
 			}
 
-		}#end foreach
+		}//end foreach
 
 		$str .= "?>\n";
 
@@ -148,17 +149,18 @@ class Config extends Resolve_Object
 		return string_to_file($str, $this->config_file);
 	}
 
-	  ##################################
-	 # Lets print the conf backend    #
-	##################################
+	/**
+	* Lets print the conf backend
+	*
+	* @param object Backend	$backend	Reference to the backend object
+	*/
 	function printBackend(&$backend) {
 
 		$o = &$backend->out;
 
 
-		#$this->save(get_defined_constants());
-
 /*
+		#$this->save(get_defined_constants());
 		 ###################################################
 		# SECUIRTY - Only let in those who have permission
 		if (!$SESSION->logged_in()) {
@@ -404,9 +406,9 @@ class Config extends Resolve_Object
 		$o->setSubHeading(SQ_CONF_SYSTEM_NAME);
 		$o->addHiddenField('action');
 	
+/*
 		 ########################################
 		# this stuff comes from the config file
-/*
 		$superusers  = &$this->superusers['all'];
 		$webmasters  = &$this->superusers['web'];
 		$usermasters = &$this->superusers['user'];
@@ -488,8 +490,8 @@ class Config extends Resolve_Object
 
 		}#end if user_root
 */
-		 ##########################################
-		# login and session timeout configuration
+
+		// login and session timeout configuration
 		$o->openSection('Login/Session Settings');
 		$o->openField('Max Login Attempts', '', 'Zero (0) is unlimited attempts');
 		if(superuser()) {
@@ -658,8 +660,8 @@ class Config extends Resolve_Object
 //			$backend->print_commit_button('Commit',"if (confirm('Commit this information to the system?')) { document.edit.action.value='Commit';document.edit.submit(); }");
 //		}
 
-	}#end print_backend()
+	}//end print_backend()
 
-}#end class
+}//end class
 
 ?>

@@ -37,6 +37,7 @@ class Asset_Management extends Resolve_Object
 	var $_db;
 
 	/**
+	* @var array
 	* Holds all the vars used for this Asset in the form
 	* Array(var_name => Array(
 	*						'added'     => '0.0.1',
@@ -45,6 +46,7 @@ class Asset_Management extends Resolve_Object
 	*						'default'   => '',
 	*						'update_fn' => 'update_var_name'
 	*						)
+	*		)
 	*/
 	var $vars;
 

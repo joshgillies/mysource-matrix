@@ -27,7 +27,7 @@ class Folder_Management extends Asset_Management
 												'type'      => 'text', 'default'   => ''
 												)
 							);
-	}#end constructor
+	}//end constructor
 
-}#end class
+}//end class
 ?>

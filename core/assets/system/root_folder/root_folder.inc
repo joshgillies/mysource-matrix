@@ -59,7 +59,7 @@ class Root_Folder extends Folder
 		$this->_in_create = false;
 		return $ret_val;
 
-	}#end create()
+	}//end create()
 
 	/*
 	* Set the value for the passed variable to the passed value
@@ -75,7 +75,7 @@ class Root_Folder extends Folder
 
 		return parent::setAttrValue($name, $value);
 
-	}#end setAttrValue()
+	}//end setAttrValue()
 
-}#end class
+}//end class
 ?>
