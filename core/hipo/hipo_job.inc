@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.34 2003/11/18 15:37:32 brobertson Exp $
+* $Id: hipo_job.inc,v 1.35 2003/11/23 21:53:32 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -823,7 +823,6 @@ class HIPO_Job extends MySource_Object
 	*/
 	function process()
 	{
-
 		if ($this->userid != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
 			trigger_error('You cannot process "'.$result['job_type'].'" HIPO job that you do not own', E_USER_WARNING);
 			return false;

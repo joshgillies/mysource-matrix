@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.28 2003/11/18 15:37:32 brobertson Exp $
+* $Id: hipo_herder.inc,v 1.29 2003/11/23 21:53:32 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -52,12 +52,12 @@ class HIPO_Herder extends MySource_Object
 	*/
 	var $ho = null;
 
-
 	/**
 	* @var integer
 	* the current threshold value
 	*/
 	var $threshold = 0;
+
 
 	/**
 	* Constructor
@@ -129,7 +129,8 @@ class HIPO_Herder extends MySource_Object
 				return $null;
 			}
 
-		}// endif
+		}//end if
+
 		return $this->_jobs[$code_name];
 
 	}//end getJobStack()
@@ -536,7 +537,7 @@ class HIPO_Herder extends MySource_Object
 				break;
 		}// end switch
 
-	}// end serverSigHandler()
+	}//end serverSigHandler()
 
 
 	/**
@@ -567,7 +568,10 @@ class HIPO_Herder extends MySource_Object
 		if ($job_threshold > 0) {
 			if (($this->threshold + $job_threshold) <= SQ_HIPO_TOTAL_THRESHOLD) {
 				$this->threshold += $job_threshold;
-				return $init_hipo->freestyle();
+				set_error_handler(Array(&$init_hipo, '_errorHandler'));
+				$init_hipo->freestyle();
+				restore_error_handler();
+				return $init_hipo->_hipo_vars['errors'];
 			}
 		}
 
@@ -596,7 +600,7 @@ class HIPO_Herder extends MySource_Object
 	*									(can be left blank to use the current URL when the
 	*									HIPO jobs were queued)
 	*
-	* @return string
+	* @return string | Array()
 	* @access public
 	*/
 	function runQueuedJobs($on_complete_url='')
@@ -666,9 +670,34 @@ class HIPO_Herder extends MySource_Object
 
 
 	/**
+	* Run the HIPO Job right now
+	*
+	* @param string	$job_type	the type of job (hipo_job_BLAH)
+	* @param array	$vars		HIPO vars to send to the job
+	*
+	* @return Array()
+	* @access public
+	*/
+	function freestlyeHipo($job_type, $vars=Array())
+	{
+		require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/'.$job_type.'.inc';
+		$init_hipo = new $job_type();
+		$init_hipo->setRunningVars($vars);
+
+		// prepare() check the integrity of the the running vars
+		if (!$init_hipo->prepare()) return false;
+		set_error_handler(Array(&$init_hipo, '_errorHandler'));
+		$init_hipo->freestyle();
+		restore_error_handler();
+		return $init_hipo->_hipo_vars['errors'];
+
+	}//end freestlyeHipo()
+
+
+	/**
 	* Print out the backend interface for the Herder
 	*
-	* @param object Backend	$backend	Reference to the backend object
+	* @param object Backend	$backend	reference to the backend object
 	*
 	* @return void
 	*/
