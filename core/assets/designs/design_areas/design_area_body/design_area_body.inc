@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_body.inc,v 1.15 2004/12/03 15:29:22 brobertson Exp $
+* $Id: design_area_body.inc,v 1.15.2.1 2005/01/11 04:35:57 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -72,12 +72,24 @@ class Design_Area_Body extends Design_Area
 
 		switch ($format) {
 			case 'text':
-				// text - text only design - strip images, embeds and objects
+			case 'low_bandwidth':
+				// text only design - strip images, embeds and objects
 				echo '
 					$body = preg_replace(\'|\<img([^\>]*)\>|Ui\',\'\',$body);
 					$body = preg_replace(\'|\\<embed(.*)\>(.*)</embed>|i\',\'\',$body);
 					$body = preg_replace(\'|\\<object(.*)\>(.*)</object>|i\',\'\',$body);
 					';
+				if ($format == 'low_bandwidth') {
+					// low bandwidth design - strip images, embeds, objects, and additional whitespace
+					echo '
+						$body = preg_replace(\'|\s+|\', \' \', $body);
+						$body = str_replace(\'<br />\', \'<br/>\', $body);
+						$body = str_replace(\'<br/>\', "\n", $body);
+						$body = preg_replace(\'|\n\s+|\', "\n", $body);
+						$body = preg_replace(\'|[\n]+|\', "\n", $body);
+						$body = str_replace("\n", \'<br/>\', $body);
+						';
+				}
 			break;
 		}
 
