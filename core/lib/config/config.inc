@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.13 2004/01/21 00:47:36 gsherwood Exp $
+* $Id: config.inc,v 1.14 2004/01/22 13:06:02 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -110,6 +110,7 @@ class Config extends MySource_Object
 			}
 
 			if (!$this->_paintConfigVar($var_name, $value)) {
+				ob_end_clean();
 				return false;
 			}
 
