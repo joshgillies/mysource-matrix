@@ -82,9 +82,11 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 	// if we are in XML output type then, send our error as XML
 	if ($GLOBALS['SQ_OUTPUT_TYPE'] == 'xml') {
 	
+		$msg = "$err_msg\nFile: $err_file\nLine:$err_line";
+
 		include_once 'XML/Tree.php';
 		$output = new XML_Tree();
-		$root = &$output->addRoot('error', $err_msg);
+		$root = &$output->addRoot('error', $msg);
 		header("Content-Type: text/xml");
 		$output->dump();
 
