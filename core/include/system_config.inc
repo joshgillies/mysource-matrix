@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.17 2003/11/26 00:51:11 gsherwood Exp $
+* $Id: system_config.inc,v 1.18 2003/12/22 23:17:08 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -82,6 +82,9 @@ class System_Config extends Config
 		// Internationalisation Settings
 		'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'	=> Array('editable' => 1, 'default' => 'en'),
 		'SQ_CONF_DEFAULT_CHARACTER_SET'		=> Array('editable' => 1, 'default' => 'iso-8859-1'),
+		
+		// Allow IP to fluctuate ?
+		'SQ_CONF_ALLOW_IP_CHANGE'			=> Array('editable' => 1, 'default' => '0'),
 
 	);
 
