@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg.inc,v 1.3 2003/12/16 12:19:31 brobertson Exp $
+* $Id: content_type_wysiwyg.inc,v 1.4 2004/01/22 02:49:42 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -50,20 +50,6 @@ class Content_Type_WYSIWYG extends Content_Type
 		$this->Content_Type($assetid);
 
 	}//end constructor
-
-
-	/**
-	* Returns true if there is no content in the wysiwyg
-	*
-	* @access public
-	* @return boolean
-	*/
-	function isEmpty()
-	{
-		$html = trim($this->attr('html'));
-		return empty($html);
-
-	}//end isEmpty()
 
 
 }//end class
