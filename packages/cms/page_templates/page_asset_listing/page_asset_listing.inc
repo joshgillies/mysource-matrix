@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.7 2004/02/10 22:05:43 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.8 2004/02/12 01:31:49 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -361,12 +361,12 @@ class Page_Asset_Listing extends Page
 				$todo = $chunks[($result_page-1)];
 
 				// previous page link
-				if ($result_page <= 1) $replacements['previous_page'] = 'Previous';
-				else $replacements['previous_page'] = '<a href="'.$this->getURL().'?result_page='.($result_page-1).'">Previous</a>';
+				if ($result_page <= 1) $replacements['previous_page'] = $this->attr('prev_page_text');
+				else $replacements['previous_page'] = '<a href="'.$this->getURL().'?result_page='.($result_page-1).'">'.$this->attr('prev_page_text').'</a>';
 
 				// next page link
-				if ($result_page >= count($chunks)) $replacements['next_page'] = 'Next';
-				else $replacements['next_page'] = '<a href="'.$this->getURL().'?result_page='.($result_page+1).'">Next</a>';
+				if ($result_page >= count($chunks)) $replacements['next_page'] = $this->attr('next_page_text');
+				else $replacements['next_page'] = '<a href="'.$this->getURL().'?result_page='.($result_page+1).'">'.$this->attr('next_page_text').'</a>';
 
 				// list of pages and links to them
 				$page_list = '';
@@ -397,7 +397,7 @@ class Page_Asset_Listing extends Page
 				if ($result_letter > 65) {
 					for ($i = ($result_letter-1); $i >= 65; $i--) {
 						if (isset($todo[strtolower(chr($i))])) {
-							$replacements['previous_page'] = '<a href="'.$this->getURL().'?result_page='.chr($i).'">Previous</a>';
+							$replacements['previous_page'] = '<a href="'.$this->getURL().'?result_page='.chr($i).'">'.$this->attr('prev_page_text').'</a>';
 							break;
 						}
 					}
@@ -408,7 +408,7 @@ class Page_Asset_Listing extends Page
 				if ($result_letter < 90) {
 					for ($i = ($result_letter+1); $i <= 90; $i++) {
 						if (isset($todo[strtolower(chr($i))])) {
-							$replacements['next_page'] = '<a href="'.$this->getURL().'?result_page='.chr($i).'">Next</a>';
+							$replacements['next_page'] = '<a href="'.$this->getURL().'?result_page='.chr($i).'">'.$this->attr('next_page_text').'</a>';
 							break;
 						}
 					}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_management.inc,v 1.2 2004/02/10 16:32:41 brobertson Exp $
+* $Id: page_asset_listing_management.inc,v 1.3 2004/02/12 01:31:49 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -105,6 +105,18 @@ class Page_Asset_Listing_Management extends Asset_Management
 										'added'   => '0.0.1',
 										'type'    => 'int',
 										'default' => 0,
+										);
+
+		$this->vars['prev_page_text']	= Array(
+										'added'   => '0.0.1',
+										'type'    => 'text',
+										'default' => 'Previous'
+										);
+
+		$this->vars['next_page_text']	= Array(
+										'added'   => '0.0.1',
+										'type'    => 'text',
+										'default' => 'Next'
 										);
 	
 
