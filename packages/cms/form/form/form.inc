@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.53.2.5 2004/11/02 22:32:19 lwright Exp $
+* $Id: form.inc,v 1.53.2.5.2.1 2004/12/19 23:11:04 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.53.2.5 $
+* @version $Revision: 1.53.2.5.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -635,23 +635,17 @@ class Form extends Bridge
 	*/
 	function getSectionLinks()
 	{
-		if (empty($this->tmp['section_links'])) {
-			$this->tmp['section_links'] = Array();
+		// This is what one would find in Asset_Manager::&getAsset() except we can't call that,
+		// lest we spin off into an infinite loop involving OUR &getAsset().
 
-			// This is what one would find in Asset_Manager::&getAsset() except we can't call that,
-			// lest we spin off into an infinite loop involving OUR &getAsset().
+		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($this->id, SQ_LINK_TYPE_2, 'form_section', true, 'major', '', '0', '0');
+		if (empty($query)) return Array();
+		$query['select'] .= ', l.majorid';		// we need the major id too
 
-			$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($this->id, SQ_LINK_TYPE_2, 'form_section', true, 'major', '', '0', '0');
-			if (empty($query)) return Array();
-			$query['select'] .= ', l.majorid';		// we need the major id too
-
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
-			$result = $db->getAll(implode(' ', $query));
-			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-			$this->tmp['section_links'] = &$result;
-		}
-
-		return (!empty($this->tmp['section_links'])) ? $this->tmp['section_links'] : Array();
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$result = $db->getAll(implode(' ', $query));
+		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+		$this->tmp['section_links'] = &$result;
 
 	}//end getSectionLinks()
 
