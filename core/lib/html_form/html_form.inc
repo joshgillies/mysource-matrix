@@ -391,7 +391,7 @@ function get_file_upload_info($name)
 
 	}//end switch
 
-	if (!is_uploaded_file($_FILES[$name]['tmp_name'])) return false;
+	if (empty($_FILES[$name]['name']) || !is_uploaded_file($_FILES[$name]['tmp_name'])) return false;
 
 	return $_FILES[$name];
 
