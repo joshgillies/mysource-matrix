@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.83 2004/01/20 02:37:18 mmcintyre Exp $
+* $Id: backend.inc,v 1.84 2004/01/20 05:25:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -501,7 +501,7 @@ class Backend extends MySource_Object
 						if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 							$options[] = Array(
 											'url'    => $this->getBackendUrl('main').'&backend_section=config',
-											'target' => 'main',
+											'target' => 'sq_main',
 											'title'  => 'System Configuration',
 											'icon'   => 'system_config.png',
 											);
@@ -510,7 +510,7 @@ class Backend extends MySource_Object
 						if ($GLOBALS['SQ_SYSTEM']->userRoot()) {
 							$options[] = Array(
 											'url'    => $this->getBackendUrl('main').'&backend_section=hipo_herder',
-											'target' => 'main',
+											'target' => 'sq_main',
 											'title'  => 'HIPO Herder',
 											'icon'   => 'hipo_herder.png',
 											);
@@ -518,7 +518,7 @@ class Backend extends MySource_Object
 
 						$options[] = Array(
 										'url'     => $this->getBackendUrl('main').'&backend_section=am',
-										'target'  => 'main',
+										'target'  => 'sq_main',
 										'title'   => 'Asset Tree',
 										'icon'    => 'asset_tree.png',
 										);
