@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.65 2003/11/26 00:51:04 gsherwood Exp $
+* $Id: user.inc,v 1.66 2003/11/27 03:15:26 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -139,6 +139,12 @@ class User extends Asset
 		// if this is the password, encrypt it
 		if ($name == 'password') {
 			$value = crypt($value); // let salt be generated
+
+		} else if ($name == 'username') {
+			if (trim($value) == '') {
+				trigger_error('Username cannot be blank', E_USER_WARNING);
+				return false;
+			}
 		}
 
 		if (!parent::setAttrValue($name, $value)) return false;
