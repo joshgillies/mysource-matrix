@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.6 2004/09/13 23:12:12 arailean Exp $
+* $Id: page_remote_content.inc,v 1.7 2004/10/20 07:38:25 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once 'HTTP/Client/CookieManager.php';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -174,11 +174,11 @@ class Page_Remote_Content extends Page
 		$_SESSION['SQ_REMOTE_COOKIE_MANAGER'] = serialize($Cookie_Manager);
 
 		// check if there was an error of type 4xx or 5xx in the HTTP response
-		$is_errror = preg_match("/^[45].*?/", $HTTP_Request->getResponseCode());
+		$is_error = preg_match("/^[45].*?/", $HTTP_Request->getResponseCode());
 
 		// exit on error, checking for object because if it is true, than it is
 		// a PEAR error object
-		if (!$result || is_object($result) || $is_errror) {
+		if (!$result || PEAR::isError($result) || $is_error) {
 			return false;
 		}
 
