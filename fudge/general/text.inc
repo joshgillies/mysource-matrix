@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.8.2.1 2004/10/15 06:40:18 arailean Exp $
+* $Id: text.inc,v 1.8.2.2 2004/11/05 05:00:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8.2.1 $
+* @version $Revision: 1.8.2.2 $
 * @package Fudge
 * @subpackage Text
 */
@@ -80,7 +80,7 @@ function retrieve_keywords_replacements($text, $additional='')
 {
 	$matches = Array();
 	$additional = preg_replace('|(.)|', '\\\\\1', $additional);
-	preg_match_all ('/%([a-zA-Z_\-0-9'.$additional.']+)%/', $text, $matches, PREG_PATTERN_ORDER);
+	preg_match_all ('/%([a-zA-Z_\-0-9\.'.$additional.']+)%/', $text, $matches, PREG_PATTERN_ORDER);
 	return (count($matches)) ? $matches[1] : Array();
 
 }//end retrieve_keywords_replacements()
