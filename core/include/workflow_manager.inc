@@ -46,7 +46,7 @@ class Workflow_Manager extends Resolve_Object
 	*
 	* @var array
 	*/
-	var $_current_workflows = Array();
+	var $current_workflows = Array('running' => Array(), 'complete' => Array());
 
 	/**
 	* Logic strings that are valid for steps
@@ -148,7 +148,7 @@ class Workflow_Manager extends Resolve_Object
 		foreach ($result as $workflow) {
 			$steps = unserialize($workflow['workflow']);
 			$storage_name = (($workflow['complete']) ? 'complete' : 'running');
-			$this->_current_workflows[$storage_name][$workflow['workflowid']] = Array('steps' => $steps, 'current_step' => 0);
+			$this->current_workflows[$storage_name][$workflow['workflowid']] = Array('steps' => $steps, 'current_step' => 0);
 
 			// if the workflow is not complete, work out what step we are up to
 			if (!$workflow['complete']) $this->_loadCurrentStep($workflow['workflowid']);
@@ -161,10 +161,10 @@ class Workflow_Manager extends Resolve_Object
 	function _loadCurrentStep($workflowid)
 	{
 		// if there are no current workflows running, how can someone publish?
-		if (!isset($this->_current_workflows['running'][$workflowid])) return false;
+		if (!isset($this->current_workflows['running'][$workflowid])) return false;
 
 		// run through and work out what step we are up to
-		$workflow =& $this->_current_workflows['running'][$workflowid];
+		$workflow =& $this->current_workflows['running'][$workflowid];
 		$continue = false;
 		for (reset($workflow['steps']); null !== ($stepid = key($workflow['steps'])); next($workflow['steps'])) {
 			$step_data =& $workflow['steps'][$stepid];
@@ -215,31 +215,35 @@ class Workflow_Manager extends Resolve_Object
 					$logic_string = 'if ('.$completed_conds.' '.$step_data['logic'].' ) { $completed = true; }';
 					eval($logic_string);
 
-					if ($completed) break;
-					else continue;
+					if ($completed) {
+						// this step is completed
+						// so move to the next one
+						break;
+					} else {
+						// step is not finsihed yet so move
+						// to the next condition
+						$continue = false;
+						continue;
+					}
 				}
 			}
 			if (!$continue) break;
 		}
-		if ($continue) {
-			$completed = false;
-			$logic_string = 'if ('.$completed_conds.' '.$step_data['logic'].' ) { $completed = true; }';
-			eval($logic_string);
-			if ($completed) $workflow['current_step'] = 0;
-		}
+		
+		if ($continue) $workflow['current_step'] = 0;
 	}
 
 
 	function whoCanPublish($group=false)
 	{
 		// if there are no current workflows running, we are not waiting for anyone
-		if (!isset($this->_current_workflows['running']) || empty($this->_current_workflows['running'])) return Array();
+		if (!isset($this->current_workflows['running']) || empty($this->current_workflows['running'])) return Array();
 
 		// these will be the people who can approve this asset
 		// at this point in the workflow
 		$can_publish = Array();
 
-		foreach ($this->_current_workflows['running'] as $workflowid => $workflow) {
+		foreach ($this->current_workflows['running'] as $workflowid => $workflow) {
 			if ($group) {
 				$can_publish[$workflowid] = $this->_whoCanPublishWorkflow($workflowid);
 				array_unique($can_publish[$workflowid]);
@@ -256,12 +260,12 @@ class Workflow_Manager extends Resolve_Object
 	function _whoCanPublishWorkflow($workflowid)
 	{
 		// if this workflow is not running, we are not waiting for anyone
-		if (!isset($this->_current_workflows['running'][$workflowid])) return Array();
+		if (!isset($this->current_workflows['running'][$workflowid])) return Array();
 
 		// these will be the people who can approve this asset
 		// at this point in the workflow
 		$can_publish = Array();
-		$workflow =& $this->_current_workflows['running'][$workflowid];
+		$workflow =& $this->current_workflows['running'][$workflowid];
 
 		for (reset($workflow['steps']); null !== ($stepid = key($workflow['steps'])); next($workflow['steps'])) {
 			$step_data =& $workflow['steps'][$stepid];
@@ -306,8 +310,8 @@ class Workflow_Manager extends Resolve_Object
 	function recordPublish($publisher)
 	{
 		// if there are no current workflows running, how can someone publish?
-		if (!isset($this->_current_workflows['running']) || empty($this->_current_workflows['running'])) return false;
-		$cw =& $this->_current_workflows['running'];
+		if (!isset($this->current_workflows['running']) || empty($this->current_workflows['running'])) return false;
+		$cw =& $this->current_workflows['running'];
 		$updated = false;
 
 		for (reset($cw); null !== ($workflowid = key($cw)); next($cw)) {
@@ -345,12 +349,12 @@ class Workflow_Manager extends Resolve_Object
 			if ($workflow_updated) {
 				$this->_loadCurrentStep($workflowid);
 				if ($workflow['current_step'] === 0) {
-					$this->_current_workflows['completed'][$workflowid] = $this->_current_workflows['running'][$workflowid];
-					unset($this->_current_workflows['running'][$workflowid]);
-					if (empty($this->_current_workflows['running'])) {
+					$this->current_workflows['complete'][$workflowid] = $this->current_workflows['running'][$workflowid];
+					unset($this->current_workflows['running'][$workflowid]);
+					if (empty($this->current_workflows['running'])) {
 						// we finished all our workflows.. YAY!!
 						// now we can publish this asset
-						bam('ALL WORKFLOWS COMPLETED :)');
+						$this->state = 'complete';
 						return true;
 					}
 					prev($cw);
@@ -402,7 +406,7 @@ class Workflow_Manager extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		switch ($this->state) {
-			case 'new'      :
+			case 'new' :
 				// a brand new direct workflow to save
 				$sql = 'INSERT INTO sq_asset_workflow
 						(assetid, workflow)
@@ -416,7 +420,7 @@ class Workflow_Manager extends Resolve_Object
 
 				return true;
 				break;
-			case 'idle'       :
+			case 'idle' :
 				// updating an existing direct workflow
 				$sql = 'UPDATE sq_asset_workflow
 						SET workflow = '.$db->quote($steps).'
@@ -433,17 +437,44 @@ class Workflow_Manager extends Resolve_Object
 			case 'running' :
 				// updating existing running workflows
 				$db = &$GLOBALS['SQ_SYSTEM']->db;
-				foreach ($this->_current_workflows['running'] as $workflowid => $workflow) {
-					$steps = serialize($workflow['steps']);
-					$sql = 'UPDATE sq_asset_running_workflow
-							SET complete = 0, workflow = '.$db->quote($steps).'
-							WHERE workflowid = '.$db->quote($workflowid);
+				if (!empty($this->current_workflows['running'])) {
+					foreach ($this->current_workflows['running'] as $workflowid => $workflow) {
+						$steps = serialize($workflow['steps']);
+						$sql = 'UPDATE sq_asset_running_workflow
+								SET complete = 0, workflow = '.$db->quote($steps).'
+								WHERE workflowid = '.$db->quote($workflowid);
 
-					$result = $db->query($sql);
-					if (DB::isError($result)) {
-						trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-						return false;
+						$result = $db->query($sql);
+						if (DB::isError($result)) {
+							trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+							return false;
+						}
 					}
+				}
+				if (!empty($this->current_workflows['complete'])) {
+					foreach ($this->current_workflows['complete'] as $workflowid => $workflow) {
+						$steps = serialize($workflow['steps']);
+						$sql = 'UPDATE sq_asset_running_workflow
+								SET complete = 1, workflow = '.$db->quote($steps).'
+								WHERE workflowid = '.$db->quote($workflowid);
+
+						$result = $db->query($sql);
+						if (DB::isError($result)) {
+							trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+							return false;
+						}
+					}
+				}
+				break;
+			case 'complete' :
+				// all workflows are completed
+				$sql = 'DELETE FROM sq_asset_running_workflow
+						WHERE workflowid LIKE '.$db->quote($this->_asset->id.'~%');
+
+				$result = $db->query($sql);
+				if (DB::isError($result)) {
+					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+					return false;
 				}
 				break;
 		}
