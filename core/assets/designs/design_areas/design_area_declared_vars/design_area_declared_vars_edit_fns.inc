@@ -99,9 +99,15 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 		$attrs = $asset->getDeclaredVarAttributes();
 		foreach($attrs as $name => $attr) {
 			$o->openField($name);
-			$attr->paint($prefix);
+			if ($asset->writeAccess()) {
+				$attr->paint($prefix);
+			} else {
+				echo $attr->value;
+			}
 			if ($asset->vars['declared_vars']['value'][$name]['description']) $o->note($asset->vars['declared_vars']['value'][$name]['description']);
-		}
+
+		}// end foreach
+
 	}// end paintSpecialisation()
 
 	/**

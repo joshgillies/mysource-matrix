@@ -27,6 +27,7 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function paintImageUpload(&$asset, &$o, $prefix)
 	{
+		if (!$asset->writeAccess()) return false;
 		file_upload($prefix);
 		?>
 		<div style="font-size: 7pt">
@@ -118,9 +119,8 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 			No Image Uploaded
 		<?php
 		} else {
-			$size = getimagesize($asset->data_path.'/'.$image);
 		?>
-			<img src="<?php echo sq_web_path('data').'/'.$asset->type().'/'.$asset->id.'/'.$image; ?>" <?php echo $size[3];?> alt="Custom Image">
+			<a href="<?php echo sq_web_path('data').'/'.$asset->type().'/'.$asset->id.'/'.$image; ?>" target="_blank"><?php echo $image; ?></a>
 		<?php
 		}
 		return true;
