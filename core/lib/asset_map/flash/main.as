@@ -1,10 +1,50 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: main.as,v 1.45 2003/10/13 01:37:37 dwong Exp $
+* $Id: main.as,v 1.46 2003/10/13 04:22:36 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
+var minVersion = [6,0,40,0];
+// Check versions
+
+var versionStrings = this.$version.split(" ");
+trace(versionStrings);
+var versionNums = versionStrings[1].split(",");
+var isVersionCurrent = true;
+for(var i = 0; i < minVersion.length; ++i) {
+	if (versionNums[i] == undefined) {
+		isVersionCurrent = false;
+		break;
+	} else if (parseInt(versionNums[i]) < minVersion[i]) {
+		isVersionCurrent = false;
+		break;
+	}
+}
+
+if (!isVersionCurrent) {
+	_root.createTextField('error', 1, 0, 0, 50, 50);
+	var textFormat = new TextFormat();
+	textFormat.bold = true;
+	textFormat.font = 'Arial';
+	textFormat.color = 0xffffff;
+	textFormat.align = 'center';
+
+	_root.error.multiline = true;
+	_root.error.wordWrap = true;
+	_root.error.selectable = false;
+
+	_root.error.setNewTextFormat(textFormat);
+
+	_root.error.text = 'Flash Player Version ' + minVersion.join(',') + ' is required\n(your version: ' + versionNums.join(',') + ')';
+	
+	_root.error._width = Stage.width;
+	_root.error._x = 0;
+	_root.error._y = (Stage.height - _root.error._height) / 2;
+	return;
+}
+
+	
 
 // Set this to make sure
 Stage.scaleMode = "noScale";
@@ -64,7 +104,6 @@ XML.prototype.ignoreWhite = true;
 ///////////////////////////////////////////////////
 
 // minimum version of flash needed to run 
-var minVersion = [6,0,40];
 
 // the height of the messages bar at the bottom of the screen
 _root.MSG_BAR_HEIGHT = 130;
@@ -92,25 +131,6 @@ _root.MAIL_MSG_BG_COLOURS = {
   ///////////////////////////////////////////////////
  // ALL INITIALISATION STUFF                      //
 ///////////////////////////////////////////////////
-
-// Check versions
-
-var versionStrings = this.$version.split(" ");
-trace(versionStrings);
-var versionNums = versionStrings[1].split(",");
-var isVersionCurrent = true;
-for(var i = 0; i < minVersion.length; ++i) {
-	if (versionNums[i] == undefined) {
-		isVersionCurrent = false;
-		break;
-	} else if (parseInt(versionNums[i]) < minVersion[i]) {
-		isVersionCurrent = false;
-		break;
-	}
-}
-
-if (!isVersionCurrent)
-	return;
 
 // for testing from the Flash IDE 
 if (_root.server_exec_path == undefined) {
