@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form_ecommerce.inc,v 1.2 2004/10/17 23:23:59 arailean Exp $
+* $Id: page_custom_form_ecommerce.inc,v 1.3 2004/11/18 05:15:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,50 +32,38 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_custom_form/page_custom_
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
 class Page_Custom_Form_Ecommerce extends Page_Custom_Form
 {
 
-	/**
-	* Create this asset
-	*
-	* @param array()	&$link	information used to create the initial link
-	*
-	* @see Asset::create()
-	* @return mixed int or false
-	* @access public
-	*/
-	function create(&$link)
-	{
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$linkid = Page::create($link);
 
-		if (!$linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
+	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* Ecommerce form creates a form when it is created
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _createAdditional(&$link)
+	{
+		if (!page::_createAdditional($link)) return false;
 
 		// create a new form_ecommerce (form with emailing abilities)
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('form_ecommerce');
 		$form = new Form_Ecommerce();
-		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
+		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 		$form->setAttrValue('name', 'Ecommerce Form Contents');
-		if (!$form->create($copy_link)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
+		return $form->create($copy_link);
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+	}//end _createAdditional()
 
-		return $linkid;
-
-	}//end create()
 
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality

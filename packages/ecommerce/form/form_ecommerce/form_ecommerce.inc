@@ -18,17 +18,17 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.6 2004/10/17 23:31:34 dbaranovskiy Exp $
+* $Id: form_ecommerce.inc,v 1.7 2004/11/18 05:15:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
 require_once SQ_PACKAGES_PATH.'/cms/form/form_email/form_email.inc';
-
 require_once SQ_FUDGE_PATH.'/general/www.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 /**
 * Form_Ecommerce
+*
 * Form that can have e-commerce dollar value rules assigned to it and later
 * processed using an attached payment gateway. Uses Form-email's emailing
 * mechanisms. Relies on session variables for communication with the
@@ -37,12 +37,13 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
 class Form_Ecommerce extends Form_Email
 {
+
 	/**
 	* confirm view request index ($_REQUEST['view_name'])
 	* @var string
@@ -78,15 +79,14 @@ class Form_Ecommerce extends Form_Email
 	/**
 	* Check if question type can be used for e-commerce
 	*
-	* @param string $type   question type code
+	* @param string $type	question type code
 	*
 	* @access public
 	* @return true
 	*/
-	function _isAllowedQuestionType($type = '')
+	function _isAllowedQuestionType($type='')
 	{
-
-		switch($type){
+		switch ($type) {
 			case('form_question_type_numeric'):
 			case('form_question_type_select'):
 			case('form_question_type_option_list'):
@@ -96,7 +96,6 @@ class Form_Ecommerce extends Form_Email
 
 			default:
 				return false;
-
 		}
 
 	}//end _isAllowedQuestionType()
@@ -105,27 +104,26 @@ class Form_Ecommerce extends Form_Email
 	/**
 	* Return question rule for e-commerce form
 	*
-	* @param string $name   question type code
+	* @param string $name	question type code
 	*
 	* @access public
 	* @return boolean
 	*/
-	function _getEcommerceRule($name = '')
+	function _getEcommerceRule($name='')
 	{
-
 		// get e-commerce rules
 		$e_questions = $this->attr('rules');
 		$result = array_get_index($e_questions, $name, false);
 		return $result;
 
-	}//end _isEcommerceRule()
+	}//end _getEcommerceRule()
 
 
 	/**
 	* Save one rule
 	*
-	* @param string $name   rule name - question id
-	* @param mixed $value   rule contents
+	* @param string $name	rule name - question id
+	* @param mixed $value	rule contents
 	*
 	* @access private
 	* @return boolean
@@ -134,8 +132,7 @@ class Form_Ecommerce extends Form_Email
 	{
 		$rules = $this->attr('rules');
 
-		if (!isset($rules[$name]))
-			return false;
+		if (!isset($rules[$name])) return false;
 
 		$rules[$name] = $value;
 		$this->setAttrValue('rules', $rules);
@@ -205,9 +202,9 @@ class Form_Ecommerce extends Form_Email
 						$this->finishForm();
 						return true;
 					}
-			}
+			}//end switch
 
-		}
+		}//end if
 
 		// print the initial form
 		$this->printForm();
@@ -217,7 +214,7 @@ class Form_Ecommerce extends Form_Email
 
 
 	/**
-	* prints current form
+	* Prints current form
 	*
 	* @access public
 	* @return void
@@ -245,9 +242,7 @@ class Form_Ecommerce extends Form_Email
 	{
 		// get gateway's response
 		$response = array_get_index($this->_tmp, 'GATEWAY_RESPONSE', false);
-		if (!$response) {
-			return;
-		}
+		if (!$response) return;
 
 		$order = $this->_readOrder($response['REFERENCE']);
 		$this->_deleteOrderFile($response['REFERENCE']);
@@ -256,7 +251,7 @@ class Form_Ecommerce extends Form_Email
 
 		$this->emailAndLog();
 
-	}//end processReceipt()
+	}//end _processReceipt()
 
 
 	/**
@@ -265,9 +260,8 @@ class Form_Ecommerce extends Form_Email
 	* @access public
 	* @return string
 	*/
-	function _getReceiptHeader($asHTML = true)
+	function _getReceiptHeader($as_html=true)
 	{
-		// start out with empty header
 		$header = '';
 
 		// get response from the gateway
@@ -277,9 +271,9 @@ class Form_Ecommerce extends Form_Email
 		}
 
 		// today
-		$date = date("F j, Y, g:i a");
+		$date = date('F j, Y, g:i a');
 
-		if ($asHTML) {
+		if ($as_html) {
 			$header =<<<HEREDOC
 			<table class="ecom_header_table">
 				<tr>
@@ -312,7 +306,7 @@ HEREDOC;
 
 		return $header;
 
-	}
+	}//end _getReceiptHeader()
 
 
 	/**
@@ -389,33 +383,32 @@ HEREDOC;
 	* @access public
 	* @return void
 	*/
-	function printSummary($asHTML = false)
+	function printSummary($as_html=false)
 	{
-		echo $this->_getReceiptHeader($asHTML);
-		echo $this->_getReceipt($asHTML);
-		if ($asHTML) {
-			echo "<br /><br />";
+		echo $this->_getReceiptHeader($as_html);
+		echo $this->_getReceipt($as_html);
+		if ($as_html) {
+			echo '<br /><br />';
 		} else {
 			echo "\n\n";
 		}
-		parent::printSummary($asHTML);
-	}
+		parent::printSummary($as_html);
+
+	}//end printSummary()
 
 
 	/**
-	* format reciept values into table for nice output
+	* Format reciept values into table for nice output
 	*
 	* @access private
 	* @return string
 	*/
-	function _getReceipt($asHTML = true)
+	function _getReceipt($as_html=true)
 	{
-		$order = array_get_index($this->_tmp,'order');
-		if (empty($order)) {
-			return false;
-		}
+		$order = array_get_index($this->_tmp, 'order');
+		if (empty($order)) return false;
 
-		if ($asHTML) {
+		if ($as_html) {
 			$receipt_fmt   = '<hr /><table class="sq_ecomTable">%s%s</table><hr />';
 			$order_row_fmt = '<tr class="sq_ecomTableItemRow"><td class="sq_ecomTableItemName">%s</td><td class="sq_ecomTableItemValue" align="right">%01.2f</td></tr>';
 			$total_row_fmt = '<tr class="sq_ecomTableTotalRow"><td class="sq_ecomTableTotalName" align="right">%s</td><td class="sq_ecomTableTotalValue" align="right">$%01.2f</td></tr>';
@@ -427,10 +420,10 @@ HEREDOC;
 
 		$rows = '';
 		foreach ($order['items'] as $item) {
-			$rows .= sprintf($order_row_fmt,$item['name'],$item['price']);
+			$rows .= sprintf($order_row_fmt, $item['name'], $item['price']);
 		}
 
-		$total   = sprintf($total_row_fmt,'Total:',$order['total']);
+		$total   = sprintf($total_row_fmt, 'Total:', $order['total']);
 		$receipt = sprintf($receipt_fmt, $rows, $total);
 
 		return $receipt;
@@ -444,15 +437,14 @@ HEREDOC;
 	* @access private
 	* @return array
 	*/
-	function _makeOrder() {
-
+	function _makeOrder()
+	{
 		$total = 0;
 
 		$questions  = $this->getAllQuestionAssets();
 		$ecom_items = Array();
 
-		foreach ($questions as $id => $question)
-		{
+		foreach ($questions as $id => $question) {
 			if (($rule = $this->_getEcommerceRule($id)) !== false) {
 				$question_title = $question->attr('name');
 				// if it is a selection question, we ask the question to
@@ -467,9 +459,9 @@ HEREDOC;
 							$total += $ecom_item['price'];
 						}
 					}
-				// if it is not a question with options, we get the submission directly
-				// we assume that it is a numeric question
 				} else {
+					// if it is not a question with options, we get the submission directly
+					// we assume that it is a numeric question
 					$ecom_item['name']  = $question_title;
 					$ecom_item['price'] = $this->active_submission[$id];
 
@@ -481,9 +473,7 @@ HEREDOC;
 		}
 
 		// proceed only if there is e-commerce value generated by this form
-		if (empty($ecom_items) || $total <= 0){
-			return false;
-		}
+		if (empty($ecom_items) || $total <= 0) return false;
 
 		$order['items'] = $ecom_items;
 		$order['total'] = $total;
@@ -497,7 +487,7 @@ HEREDOC;
 
 
 	/**
-	* saves order into file, to prevent losing information in case of session dying
+	* Save order into file, to prevent losing information in case of session dying
 	*
 	* @access private
 	* @return boolean
@@ -512,14 +502,14 @@ HEREDOC;
 
 
 	/**
-	* reads order from the file
+	* Read order from the file
 	*
 	* @param	$order_no	id of the saved file
 	*
 	* @access private
 	* @return array
 	*/
-	function _readOrder($order_no = false)
+	function _readOrder($order_no=false)
 	{
 		$filename = $this->_getOrderFileName($order_no);
 		$order = file_to_string($filename);
@@ -531,15 +521,15 @@ HEREDOC;
 
 
 	/**
-	* delete file with order.
-	* @see _readOrder()
+	* Delete file with order
 	*
 	* @param	$order_no	id of the saved file
 	*
 	* @access private
 	* @return boolean
+	* @see _readOrder()
 	*/
-	function _deleteOrderFile($order_no = false)
+	function _deleteOrderFile($order_no=false)
 	{
 		$filename = $this->_getOrderFileName($order_no);
 		unlink($filename);
@@ -547,26 +537,25 @@ HEREDOC;
 
 	}//end _deleteOrderFile()
 
+
 	/**
-	* returns file name for order file
-	* @see _saveOrder()
-	* @see _readOrder()
-	* @see _deleteOrderFile()
+	* Return file name for order file
 	*
 	* @param	$order_no	id of the saved file
 	*
 	* @access private
 	* @return string
+	* @see _saveOrder()
+	* @see _readOrder()
+	* @see _deleteOrderFile()
 	*/
-	function _getOrderFileName($order_no = false)
+	function _getOrderFileName($order_no=false)
 	{
 		$order_path = $this->data_path.'/tmp_orders';
 
-		if (!is_dir($order_path)) {	// doesn't exist = create it
-			mkdir($order_path);
-		}
+		if (!is_dir($order_path)) mkdir($order_path);
 
-		if (!$order_no){
+		if (!$order_no) {
 			$order_no = $GLOBALS['SQ_SYSTEM']->getUniqueSessionKey();
 		}
 
@@ -575,36 +564,40 @@ HEREDOC;
 	}//end _getOrderFileName()
 
 
-	/////// Overwritten parent functions to do nothing ///////
 	function mailRecipients()
 	{
 		return true;
 
-	}//end mailRecipients
+	}//end mailRecipients()
+
 
 	function mailReceipt()
 	{
 		return true;
 
-	}//end mailReceipt
+	}//end mailReceipt()
+
 
 	function sendToFriends()
 	{
 		return true;
 
-	}//end sendToFriends
+	}//end sendToFriends()
+
 
 	function runSelectiveEmails()
 	{
 		return true;
 
-	}//end runSelectiveEmails
+	}//end runSelectiveEmails()
+
 
 	function logSubmission()
 	{
 		return true;
 
-	}//end logSubmission
+	}//end logSubmission()
+
 
 }//end class
 

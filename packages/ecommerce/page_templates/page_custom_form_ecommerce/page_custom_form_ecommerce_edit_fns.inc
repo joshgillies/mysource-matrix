@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form_ecommerce_edit_fns.inc,v 1.2 2004/10/17 23:23:59 arailean Exp $
+* $Id: page_custom_form_ecommerce_edit_fns.inc,v 1.3 2004/11/18 05:15:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_custom_form/page_custom_
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -73,4 +73,5 @@ class Page_Custom_Form_Ecommerce_Edit_Fns extends Page_Custom_Form_Edit_Fns
 
 
 }//end class
+
 ?>
