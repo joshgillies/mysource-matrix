@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.35.2.1 2004/11/10 03:16:57 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.35.2.1.2.1 2004/12/22 21:39:09 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -764,15 +764,19 @@ class Page_Asset_Listing extends Page
 
 		$formats         = Array();
 		$is_default      = Array();
-		$needs_asset	 = Array();
-		$assets_info	 = Array();
+		$needs_asset     = Array();
+		$assets_info     = Array();
 		$folder          = &$this->getFolder('type_formats');
 		$type_folder_id  = $folder->id;
 		$default_format  = '';
 		$customised      = $this->attr('customised');
+		$mm              = NULL;
 		$keywords        = Array();
-		$asset_info_fields = Array('assetid','type_code','version','name','short_name','status','languages','charset','force_secure','created','created_userid','updated','updated_userid','published','published_userid'); 
-		$mm		 = NULL;
+
+		$asset_info_fields = Array('assetid','type_code','version','name','short_name',
+								   'status','languages','charset','force_secure','created',
+								   'created_userid','updated','updated_userid','published','published_userid');
+
 
 		foreach ($todo as $assetid => $type_code) {
 
@@ -780,7 +784,7 @@ class Page_Asset_Listing extends Page
 
 			if (!isset($wanted_types[$type_code])) continue;
 
-			if (!in_array($type_code, $formats)) {
+			if (!isset($formats[$type_code])) {
 				if (in_array($type_code, $customised)) {
 					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($type_folder_id, SQ_LINK_TYPE_2, 'bodycopy', true, $type_code);
 					// maybe they deleted the bodycopy
@@ -796,7 +800,7 @@ class Page_Asset_Listing extends Page
 							// see whether the keywords in it require asset loading or not
 							$bc_keywords = retrieve_keywords_replacements($formats[$type_code]);
 							$needs_asset[$type_code] = false;
-							foreach($bc_keywords as $keyword) {
+							foreach ($bc_keywords as $keyword) {
 								if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields)))) {
 									$needs_asset[$type_code] = true;
 									break;
@@ -810,7 +814,7 @@ class Page_Asset_Listing extends Page
 				} else {
 					$is_default[] = $type_code;
 				}
-			}// end if
+			}//end if type_code format not loaded
 
 			if (in_array($type_code, $is_default)) {
 				if (!$default_format) {
@@ -823,7 +827,7 @@ class Page_Asset_Listing extends Page
 						// see whether the keywords in it require asset loading or not
 						$bc_keywords = retrieve_keywords_replacements($default_format);
 						$needs_asset['default'] = false;
-						foreach($bc_keywords as $keyword) {
+						foreach ($bc_keywords as $keyword) {
 							if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields)))) {
 								$needs_asset['default'] = true;
 								break;
@@ -838,7 +842,8 @@ class Page_Asset_Listing extends Page
 			} else {
 				$contents = $formats[$type_code];
 				$this_needs_asset = $needs_asset[$type_code];
-			}
+			}//end if using default format
+
 			if ($this_needs_asset) {
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_null($asset)) continue;
@@ -850,7 +855,7 @@ class Page_Asset_Listing extends Page
 						$keywords['asset_contents']['value'] = ob_get_contents();
 					ob_end_clean();
 				}
-					
+
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
 			} else {
@@ -858,7 +863,7 @@ class Page_Asset_Listing extends Page
 				foreach ($assets_info[$assetid] as $field => $value) {
 					$keywords['asset_'.$field]['value'] = $value;
 				}
-			}
+			}//end if needs asset
 
 			if (preg_match_all('|%asset_metadata_([^%]+)%|is', $contents, $matches)) {
 				if (is_null($mm)) $mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
