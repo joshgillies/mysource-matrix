@@ -9,7 +9,8 @@ require_once SQ_INCLUDE_PATH.'/resolve_object.inc';
 require_once SQ_INCLUDE_PATH.'/config.inc';
 require_once SQ_INCLUDE_PATH.'/resolve_object.inc';
 
-define('SQ_CONF_DB_DSN',    'mysql://root@localhost/blair_resolve');
+define('SQ_CONF_DB_DSN',           'mysql://root@localhost/blair_resolve');
+define('SQ_CONF_SYSTEM_ROOT_URLS', 'http://beta.squiz.net/blair');
 #define('SQ_CONF_PEAR_PATH', '/usr/local/pear/share/pear');
 
 $cfg = new Config();
