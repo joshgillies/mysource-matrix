@@ -34,39 +34,60 @@ class Messaging_Service extends Resolve_Object
 	/**
 	* Sends an internal message
 	*
-	* @param int	$to			userid of the recipient
-	* @param int	$from		userid of the sender
-	* @param string	$subject	subject of the message
-	* @param string	$body		main body of the message
-	* @param string	$priority	message priority (see constants for SQ_MSG_PRIOIRTY_*)
-	* @param string	$status		status of the message (see constants for SQ_MSG_*)
-	* @param array	$parameters	array of parameters to use for special messages
+	* @param array(int)	$to			array of users or user groups
+	* @param int		$from		userid of the sender
+	* @param string		$subject	subject of the message
+	* @param string		$body		main body of the message
+	* @param string		$priority	message priority (see constants for SQ_MSG_PRIOIRTY_*)
+	* @param string		$status		status of the message (see constants for SQ_MSG_*)
+	* @param array		$parameters	array of parameters to use for special messages
 	*
 	* @return boolean
 	* @access public
 	*/
-	function sendMessage($to, $from, $subject, $body, $priority=SQ_MSG_PRIORITY_NORMAL, $status=SQ_MSG_UNREAD, $parameters=Array())
+	function sendMessage($to=Array(), $from, $subject, $body, $priority=SQ_MSG_PRIORITY_NORMAL, $status=SQ_MSG_UNREAD, $parameters=Array())
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		// welcome to sequences, they are cool, see the PEAR::DB docs for more info
-		$messageid = $db->nextId('sq_sequence_internal_message');
-		if (DB::isError($messageid)) trigger_error($messageid->getMessage().'<br/>'.$messageid->getUserInfo(), E_USER_ERROR);
 
 		$now = time();
 		$parameters = serialize($parameters);
 
-		$sql = 'INSERT INTO sq_internal_message
-				(messageid, userto, userfrom, subject, body, priority, status, sent, parameters)
-				VALUES
-				('.$db->quote($messageid).','.$to.', '.$from.', '.$db->quote($subject).', '.$db->quote($body).', '.$db->quote($priority).', '.$db->quote($status).', '.$db->quote(ts_iso8601($now)).', '.$db->quote($parameters).')';
+		$send_to = Array();
+		$to_types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeInfo($to, Array('user', 'user_group'), false);
+		foreach ($to_types as $assetid => $types) {
+			if (in_array('user_group', $types)) {
+				$group = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				if ($group->id) $send_to = array_merge($send_to, $group->getChildren(Array('user'), false));
+			} else {
+				$send_to[] = $assetid;
+			}
+		}
+		$send_to = array_unique($send_to);
 
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		foreach ($send_to as $userid) {
+			$messageid = $db->nextId('sq_sequence_internal_message');
+			if (DB::isError($messageid)) {
+				trigger_error($messageid->getMessage().'<br/>'.$messageid->getUserInfo(), E_USER_ERROR);
+			}
+
+			$sql = 'INSERT INTO sq_internal_message
+					(messageid, userto, userfrom, subject, body, priority, status, sent, parameters)
+					VALUES
+					('.$db->quote($messageid).','.$userid.', '.$from.', '.$db->quote($subject).', 
+					 '.$db->quote($body).', '.$db->quote($priority).', '.$db->quote($status).', 
+					 '.$db->quote(ts_iso8601($now)).', '.$db->quote($parameters).')';
+
+			$result = $db->query($sql);
+			if (DB::isError($result)) {
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->db->query('ROLLBACK');
+				return false;
+			}
 		}
 
+		$GLOBALS['SQ_SYSTEM']->db->query('COMMIT');
 		return true;
 
 	}//end sendMessage()
