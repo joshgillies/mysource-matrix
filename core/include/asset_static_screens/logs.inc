@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.3 2004/02/05 05:58:49 gsherwood Exp $
+* $Id: logs.inc,v 1.4 2004/08/09 09:16:17 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -65,7 +65,7 @@ function paintLogs(&$owner, &$o, &$ei)
 	$o->openSection('Logged Messages');
 		$o->openField('Log Type');
 			$type_options = Array();
-			foreach ($log_types as $type) $type_options[$type] = ucwords(str_replace('.', ' ', $type));
+			foreach ($log_types as $type) $type_options[$type] = ucwords(str_replace(Array('.', '_'), ' ', $type));
 			combo_box('sq_backend_log_type', $type_options, false, $active_log_type);
 			echo '&nbsp;';
 			normal_button($prefix.'_go', 'View', 'submit_form()');
