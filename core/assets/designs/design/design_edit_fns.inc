@@ -228,7 +228,11 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			if (empty($element['attributes']['print'])) $element['attributes']['print'] = 'yes';
 
 			$edit_fns = $design_areas[$element['attributes']['id_name']]->getEditFns();
-			$edit_fns->_processContents($design_areas[$element['attributes']['id_name']], $element['contents']);
+			if (!$edit_fns->_processContents($design_areas[$element['attributes']['id_name']], $element['contents'])) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+
 
 			// if they want this design area to be printed then what we need to do is alter the contents
 			// array to become a _PRINT operation
