@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: history.inc,v 1.1 2003/12/02 04:43:25 gsherwood Exp $
+* $Id: history.inc,v 1.2 2004/01/15 00:16:45 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,7 +39,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 */
 function paintHistory(&$owner, &$o, &$ei)
 {
-	if (!$owner->writeAccess('')) return false;
+	$write_access = $owner->writeAccess('');
 
 	// prefix for all the form vars
 	$prefix = $owner->getPrefix();
@@ -75,7 +75,13 @@ function paintHistory(&$owner, &$o, &$ei)
 			<td class="sq-backend-table-header">Version Duration</td>
 			<td class="sq-backend-table-header">Time Since Version</td>
 			<td class="sq-backend-table-header" align="center">Version</td>
-			<td class="sq-backend-table-header" align="center">View</td>
+			<?php
+			if ($write_access) {
+				?>
+				<td class="sq-backend-table-header" align="center">View</td>
+				<?php
+			}
+			?>
 		</tr>
 	<?php
 
@@ -111,15 +117,21 @@ function paintHistory(&$owner, &$o, &$ei)
 			<td class="<?php echo $class; ?>"><?php echo date('d/m/Y H:i:s', strtotime($from)); ?> - <?php echo $to; ?></td>
 			<td class="<?php echo $class; ?>"><?php echo $ago; ?></td>
 			<td class="<?php echo $class; ?>" align="center"><?php echo $data['version']; ?></td>
-			<td class="<?php echo $class; ?>" align="center">
 			<?php
-				if ($show_view_btn) {
-					echo submit_button($prefix.'_rollback_mode', ' View ', 'this.form.'.$prefix.'_rollback_version.value = \''.$data['version'].'\'');
-				} else {
-					echo '&nbsp;';
-				}
+			if ($write_access) {
+				?>
+				<td class="<?php echo $class; ?>" align="center">
+					<?php
+					if ($show_view_btn) {
+						echo submit_button($prefix.'_rollback_mode', ' View ', 'this.form.'.$prefix.'_rollback_version.value = \''.$data['version'].'\'');
+					} else {
+						echo '&nbsp;';
+					}
+					?>
+				</td>
+				<?php
+			}
 			?>
-			</td>
 		</tr>
 		<?php
 	}
@@ -130,6 +142,8 @@ function paintHistory(&$owner, &$o, &$ei)
 
 	$o->closeField();
 	$o->closeSection();
+
+	return false;
 
 }//end paintHistory()
 
