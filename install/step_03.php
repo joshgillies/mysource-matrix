@@ -1,6 +1,6 @@
 <?php
 /**
-* Install Step 2
+* Install Step 3
 *
 * Purpose
 *
@@ -37,7 +37,10 @@ if(version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
 	trigger_error('<i>'.SQ_SYSTEM_LONG_NAME.'</i> requires PHP Version '.SQ_REQUIRED_PHP_VERSION.'.<br/> You may need to upgrade.<br/> Your current version is '.PHP_VERSION, E_USER_ERROR);
 }
 
-
+// Re-generate the HIPO Config to make sure that we get any new defines that may have been issued
+require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_config.inc';
+$hipo_cfg = new HIPO_Config();
+$hipo_cfg->save(Array(), false);
 
 
 $db = &$GLOBALS['SQ_SYSTEM']->db;
