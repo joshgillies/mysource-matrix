@@ -1,0 +1,44 @@
+PERMISSIONS
+------------------------------
+Three types of access:
+Read, Write, Publish
+
+Publish access incorporates workflow management (user defined).
+
+Once an asset is live (example: page), write access will let you safe-edit or dupe the asset.
+If safe-editing, the workflow process must be followed from the begining before publishing.
+
+The publishing workflow will be, at least, a single person (in a user group with publish access on the asset) to approve/publish the asset (make live)
+
+If a user with publish access wants to edit a live page, three situations may occur:
+1. If their is no workflow defined in the system, anyone with publish access to an asset can live edit
+2. If their is workflow, but their are no other concerned users for workflow, the publisher can live edit. An example is if the workflow for the asset says that someone in UserGroup1 must approve the work before publishing, and this publisher is in UserGroup1.
+3. If their is workflow defined, and there are other users concerned with this workflow anywhere in the workflow process, the publisher may not live edit. They can only safe-edit the asset, which then goes through the workflow process as normal (which they may be a part of).
+
+These permissions are set and stored on a per asset level. Their is no inheritance of permissions down a tree.
+Premissions can be set for an asset or can be applied to an asset and all its children down the tree (mass permission action).
+When an asset is created, it will duplicate the permissions of the major asset in that first significant link and have these permissions applied to it. Eg. Creating page under site will result in page having same permissions as the site initially.
+
+
+MASS PERMISSION ACTION
+-------------------------------
+When applying permissions to an asset and all its children recursivly down a tree, an intermediate step is introduced.
+The system will go through all assets down the tree until running out of assets or until it hits the original asset again.
+The system will check these assets for any other significant links (exclusive, unite, uses) of potentially affected assets and warn the user that this change will affect other links in the system.
+The user will then have the option of de-selecting the some/all of the affected assets before proceeding. They can also choose to back out of the action.
+NOTE: All permission changes will be able to be rolled back.
+NOTE: Deleting an asset will also have this intemediate step.
+
+
+BODYCOPY
+-------------------------------
+Bodycopy will be an asset.
+Tables in a bodycopy will be assets. The bodycopy will manage these tables.
+Rows and cells will NOT be assets. The table asset will havndle the creation and maintanence of rows and cells within it.
+Content Types (such as WYSIWYG) will be assets. A content type will be linked to a table. The value field of the link will contain information the table will use to determine which cell the content is for (eg: row,2,cell,4)
+
+
+DOCUMENTATION
+-------------------------------
+Need to create a document for developers detailing the API of any frontend accessable asset.
+For example: all frontend editable asset must have a print_body function.
