@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.10 2005/02/16 00:06:44 lwright Exp $
+* $Id: listing_engine_management.inc,v 1.11 2005/02/16 00:10:48 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -280,7 +280,7 @@ class Listing_Engine_Management extends Asset_Management
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		
 		foreach($attrs as $attrid => $attr) {
-			$sql = 'INSERT INTO '.SQ_TABLE_RUNNING_PREFIX.'ast_attr (attrid, '.implode(',', array_keys($attr)).') VALUES ('.$db->quote($attrid).', ';
+			$sql = 'INSERT INTO '.SQ_TABLE_RUNNING_PREFIX.'ast_attr ('.implode(',', array_keys($attr)).') VALUES (';
 			
 			$fields_quoted = Array();
 			foreach($attr as $field_name => $field) {
