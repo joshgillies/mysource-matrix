@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.37 2004/09/22 23:59:58 lwright Exp $
+* $Id: internal_message.inc,v 1.38 2004/11/18 04:40:47 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -122,18 +122,13 @@ class Internal_Message extends MySource_Object
 		if (!$messageid) return false;
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql   = 'SELECT messageid, userto, userfrom, subject, body, type, sent, priority, status, parameters
-				    FROM '.SQ_TABLE_RUNNING_PREFIX.'internal_message ';
-		$where = 'messageid = '.$db->quote($messageid);
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+		$sql   = 'SELECT msgid, userto, userfrom, subject, body, type, sent, priority, status, parameters
+				  FROM '.SQ_TABLE_PREFIX.'internal_msg WHERE msgid = '.$db->quote($messageid);
 
-		$result = $db->getRow($sql.$where);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
+		$result = $db->getRow($sql);
+		assert_valid_db_result($result);
 
-		$this->id         = $result['messageid'];
+		$this->id         = $result['msgid'];
 		$this->to         = Array($result['userto']);
 		$this->from       = $result['userfrom'];
 		$this->subject    = $result['subject'];
@@ -281,7 +276,7 @@ class Internal_Message extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			// log a message for the system so it is not deleted
-			$messageid = $db->nextId('sq_sequence_internal_message');
+			$messageid = $db->nextId('sq_internal_msg');
 			if (DB::isError($messageid)) {
 				trigger_error($messageid->getMessage().'<br/>'.$messageid->getUserInfo(), E_USER_ERROR);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -289,21 +284,10 @@ class Internal_Message extends MySource_Object
 			}
 
 			$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $this->body);
-			$values = Array('messageid'  => $messageid,
-							'userto'     => 0,
-							'userfrom'   => $this->from,
-							'subject'    => $this->subject,
-							'body'       => $log_body,
-							'type'       => $this->type,
-							'priority'   => $this->priority,
-							'status'     => $this->status,
-							'sent'       => $this->sent,
-							'parameters' => $param_string
-							);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('internal_message', $values)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
+
+			$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'internal_msg (msgid, userto, userfrom, subject, body, type, priority, status, sent, parameters) VALUES ('.$db->quote($messageid).', 0, '.$db->quote($this->from).', '.$db->quote($this->subject).', '.$db->quote($log_body).', '.$db->quote($this->type).', '.$db->quote($this->priority).', '.$db->quote($this->status).', '.$db->quote($this->sent).', '.$db->quote($param_string).')';
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
@@ -373,28 +357,16 @@ class Internal_Message extends MySource_Object
 				$log_body = preg_replace('|<SQ_MSG_LINK[^>]*?href="([^"]+)"[^>]*?>(.*?)</SQ_MSG_LINK>|', '<a href="#" onClick="self.parent.location=\'\\1\'; return false;">\\2</a>', $body);
 
 				// log the internal message
-				$messageid = $db->nextId('sq_sequence_internal_message');
+				$messageid = $db->nextId('sq_internal_msg');
 				if (DB::isError($messageid)) {
 					trigger_error($messageid->getMessage().'<br/>'.$messageid->getUserInfo(), E_USER_ERROR);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
 
-				$values = Array('messageid'  => $messageid,
-								'userto'     => $userid,
-								'userfrom'   => $this->from,
-								'subject'    => $this->subject,
-								'body'       => $log_body,
-								'type'       => $this->type,
-								'priority'   => $this->priority,
-								'status'     => $this->status,
-								'sent'       => $this->sent,
-								'parameters' => $param_string
-								);
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('internal_message', $values)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
+				$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'internal_msg (msgid, userto, userfrom, subject, body, type, priority, status, sent, parameters) VALUES ('.$db->quote($messageid).', '.$db->quote($userid).', '.$db->quote($this->from).', '.$db->quote($this->subject).', '.$db->quote($log_body).', '.$db->quote($this->type).', '.$db->quote($this->priority).', '.$db->quote($this->status).', '.$db->quote($this->sent).', '.$db->quote($param_string).')';
+				$result = $db->query($sql);
+				assert_valid_db_result($result);
 
 				// now send an email as well
 				require_once SQ_FUDGE_PATH.'/general/www.inc';
@@ -459,7 +431,7 @@ class Internal_Message extends MySource_Object
 				.'Contact '.SQ_CONF_SYSTEM_OWNER.' ('.SQ_CONF_TECH_EMAIL.') for support.';
 		return $header.$body.$footer;
 
-	} // end formatEmail()
+	}//end formatEmail()
 
 
 	/**
@@ -514,7 +486,7 @@ class Internal_Message extends MySource_Object
 		</html>
 		<?php
 
-	}// end printBody()
+	}//end printBody()
 
 
 	/**
@@ -643,8 +615,10 @@ class Internal_Message extends MySource_Object
 	function delete()
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$where_cond = 'messageid='.$db->quote($this->id);
-		return $GLOBALS['SQ_SYSTEM']->rollbackDelete('internal_message', $where_cond);
+		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'internal_msg WHERE msgid='.$db->quote($this->id);
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+		return true;
 
 	}//end delete()
 
@@ -662,9 +636,10 @@ class Internal_Message extends MySource_Object
 		if (!$this->id) return false;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$where = 'messageid='.$db->quote($this->id);
-		$values = Array('status' => $db->quote($status));
-		return $GLOBALS['SQ_SYSTEM']->rollbackUpdate('internal_message', $values, $where);
+		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'internal_msg SET status = '.$db->quote($status).' WHERE msgid = '.$db->quote($this->id);
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+		return true;
 
 	}//end updateStatus()
 
