@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.37 2004/03/01 18:23:40 brobertson Exp $
+* $Id: mysource.inc,v 1.38 2004/03/11 15:31:12 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -320,7 +320,7 @@ class MySource
 			}
 
 			$sql = 'SELECT ld.designid, a.type_code
-					FROM sq_asset_lookup_design ld INNER JOIN sq_asset a ON ld.designid = a.assetid
+					FROM '.SQ_TABLE_PREFIX.'asset_lookup_design ld INNER JOIN '.SQ_TABLE_PREFIX.'asset a ON ld.designid = a.assetid
 					WHERE ld.url  = '.$db->quote(strip_url(current_url(false, true))).'
 					  AND ld.name = '.$db->quote('system_design::login');
 			$result = $db->getRow($sql);
@@ -1079,7 +1079,7 @@ class MySource
 	{
 		// trim off a current prefix keyword if it exists
 		$where = trim($where);
-		if (strtoupper(substr($where, 0, strlen($prefix))) == strtoupper($prefix)) $where = substr($where, 5);
+		if (strtoupper(substr($where, 0, strlen($prefix))) == strtoupper($prefix)) $where = substr($where, strlen($prefix));
 
 
 		if (!SQ_ROLLBACK_VIEW) {
@@ -1162,7 +1162,7 @@ class MySource
 		$insert = ' INSERT INTO '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.'
 					('.SQ_TABLE_PREFIX.'effective_from, '.SQ_TABLE_PREFIX.'effective_to, '.$col_string.') ';
 		$select = ' SELECT '.$this->db->quote(ts_iso8601($from_time)).', NULL, '.$col_string.'
-					FROM sq_'.$table_name.'
+					FROM '.SQ_TABLE_PREFIX.$table_name.'
 					WHERE '.$where_cond;
 
 		$this->doTransaction('BEGIN');
