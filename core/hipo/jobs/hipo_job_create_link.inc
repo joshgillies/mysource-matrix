@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_link.inc,v 1.12 2004/01/22 00:35:34 diarandine Exp $
+* $Id: hipo_job_create_link.inc,v 1.13 2004/01/22 10:32:31 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -159,21 +159,6 @@ class HIPO_Job_Create_Link extends HIPO_Job
 		$this->HIPO_Job($code_name);
 
 	}//end constructor
-
-
-	/**
-	* Paints backend of this job
-	*
-	* @param object Backend_Outputter	&$o			reference to the backend outputter
-	* @param string						$class		calling class name
-	*
-	* @return void
-	* @access private
-	*/
-	function paintConfig(&$o, &$class)
-	{
-		return;
-	}//end paintConfig()
 
 
 	/**
