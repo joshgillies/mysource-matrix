@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.77 2005/02/11 03:24:19 amiller Exp $
+* $Id: user.inc,v 1.78 2005/02/22 22:57:35 lwright Exp $
 *
 */
 
@@ -29,10 +29,14 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * User
 *
 * Purpose
+*     Processing interfaces for the (standard) user asset - one that can log in
+*     but has no backend editing privileges. This also defines the baseline
+*     interface for all user assets in the system (whether they be standard,
+*     backend, system admin, etc).
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -44,10 +48,10 @@ class User extends Asset
 	* Constructor
 	*
 	* @param int	$assetid	the asset id to be loaded
-	*
-	*/
+	**/
 	function User($assetid=0)
 	{
+		$this->_ser_attrs = true;
 		$this->Asset($assetid);
 
 	}//end constructor
@@ -187,8 +191,9 @@ class User extends Asset
 		// if this is the password, encrypt it
 		if ($name == 'password') {
 			$value = crypt($value); // let salt be generated
+
 		} else if ($name == 'username') {
-			if (!$this->_catchBlankSetUserName($value)) {
+			if (!$this->_catchBlankSetUserName(trim($value))) {
 				trigger_error('Username cannot be blank', E_USER_WARNING);
 				return false;
 			}
@@ -327,11 +332,7 @@ class User extends Asset
 
 
 	/**
-	* Check if this user can be set as the current user
-	*
-	* By default this is tied to whether the user can log in or not, but
-	* sometimes this is not what we want (eg. a public user needs to be set
-	* as current user but should not login).
+	* Can we set this as the current user?
 	*
 	* @return boolean
 	* @access public
@@ -342,7 +343,7 @@ class User extends Asset
 	
 	}//end canSetAsCurrentUser()
 	
-	
+
 	/**
 	* Gets an array of groups that this user is in
 	*
@@ -357,8 +358,77 @@ class User extends Asset
 			$_SESSION['sq_user_groups'] = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->currentUserId(), Array('user', 'user_group'), false));
 		}
 		return $_SESSION['sq_user_groups'];
-
+		
 	}//end getGroups()
+
+	
+	/**
+	* Gets an array of groups that satisfy user conditions
+	*
+	* Returns an array of all the Groups where we have met the
+	* User Conditions associated with this Group for this User
+	*
+	* @return array $groups array of group asset ids
+	* @access public
+	*/
+	function getUserGroups()
+	{
+		$groups = array();
+		$groupids = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'user_group', true);
+		
+		foreach($groupids as $key => $value) {
+			
+			//if we pass the conditions, let us belong to this group
+			if($this->_belongsToGroup($key)) {
+				array_push($groups, intval($key));
+			}
+		}
+
+		return $groups;
+		
+	}
+
+	
+	/**
+	* Verify if a user belongs to a given group
+	*
+	* Here is where we call the user conditions and certify
+	* the result. When a new user condition is added, please
+	* add the specifics for calling it here
+	*
+	* @param string $group_assetid  assetid of the group in question
+	* @access private
+	* @return boolean true if were allowed to belong to this gorup
+	*/
+	function _belongsToGroup($group_assetid)
+	{
+		$restrictions = $this->attr('restrictions');
+		
+		// if this group isnt in the restrictions array
+		// then we just belong to it and so return
+		if(!in_array($group_assetid, array_keys($restrictions))) {
+			return true;
+		}
+		
+		// for each restriction associated to this group
+		foreach($restrictions[$group_assetid] as $restriction) {
+			
+			// grab the condition name, make an object
+			$condition_type_code = $restriction['name'];
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($condition_type_code);
+			$condition = new $condition_type_code();
+			
+			$match = $condition->evaluate($this, $restriction['condition_data']);
+					
+			// they don't match up, then get the hell out of mah group!!
+			if($match != $restriction['match']) return false;
+			
+		}
+		
+		//if we got this far, we've passed all restrictions
+		return true;
+	
+	}//end _belongsToGroup()
 
 
 	/**
@@ -444,7 +514,7 @@ class User extends Asset
 	}//end printBody()
 
 
-	/**
+		/**
 	* Catches blank username/password combination made during create()
 	*
 	* Override this and return true if a specific subclass wants to skip this check
@@ -452,12 +522,12 @@ class User extends Asset
 	* @param string	$username	the passed user name
 	* @param string $password	the passed pass
 	*
-	* @return boolean	true == valid
+	* @return boolean	overridden so always returns true
 	* @access public
 	*/
 	function _catchBlankUserNamePass($username, $password)
 	{
-		return ($username != '') && ($password != '');
+		return (($username != '') && ($password != ''));
 		
 	}//end _catchBlankUserNamePass()
 	
@@ -469,15 +539,15 @@ class User extends Asset
 	*
 	* @param string	$username	the passed user name
 	* 
-	* @return boolean	true == valid
+	* @return boolean	overridden so always returns true
 	* @access public
 	*/
 	function _catchBlankSetUserName($username)
 	{
-		return trim($username) != '';
+		return ($username != '');
 		
 	}//end _catchBlankSetUserName()
-
+	
 	
 }//end class
 

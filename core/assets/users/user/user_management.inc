@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_management.inc,v 1.22 2005/01/20 13:07:39 brobertson Exp $
+* $Id: user_management.inc,v 1.23 2005/02/22 22:57:35 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -72,6 +72,12 @@ class User_Management extends Asset_Management
 								'added'     => '0.1',
 								'type'      => 'email',
 								'default'   => '',
+							),
+							
+							'restrictions'  => Array(
+								'added' => '0.2',
+								'type'  => 'serialise',
+								'default'   => Array(),
 							),
 						);
 

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.17 2005/01/20 13:07:39 brobertson Exp $
-*
+* $Id: edit_interface_screen_details.xml,v 1.18 2005/02/22 22:57:35 lwright Exp $
+* $Name: not supported by cvs2svn $
 */
 -->
 
@@ -51,4 +51,5 @@
 			<email width="25" />
 		</field>
 	</section>
+	
 </contents>
