@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.33 2004/06/28 04:25:13 mnyeholt Exp $
+* $Id: system_config.inc,v 1.34 2004/06/28 05:35:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -310,7 +310,7 @@ class System_Config extends Config
 				echo nl2br(SQ_CONF_BACKEND_SUFFIX);
 			}
 
-			$o->openField('System Limbo Suffix');
+			$o->openField('System Simple Edit Suffix');
 			if($write_access) {
 				text_box($class.'[SQ_CONF_LIMBO_SUFFIX]', SQ_CONF_LIMBO_SUFFIX, 15);
 			} else {
