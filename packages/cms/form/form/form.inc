@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.90 2005/03/21 06:25:31 gsherwood Exp $
+* $Id: form.inc,v 1.91 2005/03/31 06:52:20 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1151,6 +1151,10 @@ class Form extends Asset
 			$section->processForm();
 		}
 
+		// set complete flag when no error
+		if (!$this->active_submission->isError()) {
+			$this->active_submission->setAttrValue('complete', true);
+		}
 		$this->active_submission->saveAttributes();
 
 		// check to see if there is an error with the form
