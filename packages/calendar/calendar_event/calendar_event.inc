@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.40 2005/01/06 05:37:33 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.41 2005/01/14 06:00:37 tbarrett Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -615,7 +615,7 @@ class Calendar_Event extends Asset
 				if (isset($_REQUEST['SQ_CALENDAR_OLD_LOC']) && !empty($_REQUEST['SQ_CALENDAR_OLD_LOC'])) {
 					$old_link = &$GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($_REQUEST['SQ_CALENDAR_OLD_LOC'], $this->id);
 					if (empty($old_link)) {
-						trigger_error('Cannot find old link, cannot move event', E_USER_WARNING);
+						trigger_error('Cannot find old link from asset '.$_REQUEST['SQ_CALENDAR_OLD_LOC'].' to asset '.$this->id.', cannot move event', E_USER_WARNING);
 						return '';
 					}
 					if (!$GLOBALS['SQ_SYSTEM']->am->moveLink($old_link['linkid'], $_REQUEST['SQ_CALENDAR_NEW_LOC'], $old_link['link_type'], -1)) {

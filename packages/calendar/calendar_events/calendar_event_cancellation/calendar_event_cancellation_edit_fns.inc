@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation_edit_fns.inc,v 1.8 2005/01/13 22:26:48 gsherwood Exp $
+* $Id: calendar_event_cancellation_edit_fns.inc,v 1.9 2005/01/14 06:00:38 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -63,7 +63,7 @@ class Calendar_Event_Cancellation_Edit_Fns extends Calendar_Event_Edit_Fns
 	{
 		if ($asset->writeAccess('attributes')) {
 			?>
-			<script language="JavaScript" type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/calendar_event/js/date_chooser.js'?>"></script>
+			<script type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/calendar_event/js/date_chooser.js'?>"></script>
 			<?php
 			$ts = iso8601_ts($asset->attr('start_date'));
 			if ($ts == -1) $ts = 0;

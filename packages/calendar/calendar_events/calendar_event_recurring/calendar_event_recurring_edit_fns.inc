@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring_edit_fns.inc,v 1.17 2004/12/06 17:31:33 brobertson Exp $
+* $Id: calendar_event_recurring_edit_fns.inc,v 1.18 2005/01/14 06:00:38 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -71,7 +71,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 
 		if ($asset->writeAccess('attributes')) {
 			?>
-		<script language="JavaScript" type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/calendar_event_recurring/js/frequency_chooser.js'?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/calendar_event_recurring/js/frequency_chooser.js'?>"></script>
 		<table border="0" cellpadding="0" cellspacing="0" width="100%">
 			<tr style="height: 11ex">
 				<td style="width: 12ex; vertical-align: top">

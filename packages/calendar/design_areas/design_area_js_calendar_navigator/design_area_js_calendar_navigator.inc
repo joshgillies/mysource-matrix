@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_js_calendar_navigator.inc,v 1.4 2004/11/18 23:09:50 gsherwood Exp $
+* $Id: design_area_js_calendar_navigator.inc,v 1.5 2005/01/14 06:00:38 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -64,10 +64,11 @@ class Design_Area_JS_Calendar_Navigator extends Design_Area
 
 				// generate javascript even handlers
 				?>
-				<script language="Javascript" type="text/javascript">
-					function frameRedirect(url) 
+				<script type="text/javascript">
+				//<![CDATA[
+					function frameRedirect(url)
 					{
-					    basetags = document.getElementsByTagName(\'base\');
+						basetags = document.getElementsByTagName(\'base\');
 						if (basetags.length != 0) {
 							switch (basetags[0].target) {
 								case \'_parent\':
@@ -88,7 +89,7 @@ class Design_Area_JS_Calendar_Navigator extends Design_Area
 						} else {
 							document.location.href = url;
 						}
-					}								
+					}
 					function onDayClick(day, mon, year)
 					{
 						frameRedirect("<?php echo($target_url);?>?SQ_CALENDAR_VIEW=day&SQ_CALENDAR_DATE=" + DateConvert2MySQL(day, mon, year));
@@ -108,6 +109,7 @@ class Design_Area_JS_Calendar_Navigator extends Design_Area
 					{
 						frameRedirect("<?php echo($target_url);?>?SQ_CALENDAR_VIEW=year&SQ_CALENDAR_DATE=" + DateConvert2MySQL(day, mon, year));
 					}
+				//]]>
 				</script>
 				<?php
 

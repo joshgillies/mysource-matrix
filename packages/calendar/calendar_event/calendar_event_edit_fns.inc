@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.30 2005/01/06 04:39:54 tbarrett Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.31 2005/01/14 06:00:37 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -69,7 +69,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 		$end_disabled_array = $end_disabled_code ? Array('disabled'=>'disabled') : Array();
 
 		?>
-		<script language="JavaScript" type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/calendar_event/js/date_chooser.js'?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/calendar_event/js/date_chooser.js'?>"></script>
 
 		<!-- start -->
 		<table border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 1ex">

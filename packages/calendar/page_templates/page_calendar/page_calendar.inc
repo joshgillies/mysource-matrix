@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.143 2005/01/06 05:37:34 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.144 2005/01/14 06:00:38 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.143 $
+* @version $Revision: 1.144 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1356,7 +1356,7 @@ class Page_Calendar extends Page_Asset_Listing
 		return '
 
 		<!-- GENERAL CALENDAR PAGE JAVASCRIPT, ALWAYS PRESENT -->
-			<script language="JavaScript" type="text/javascript">
+			<script type="text/javascript">
 			<!--
 			var formSubmitted = false;
 
