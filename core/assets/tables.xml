@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.9 2005/02/17 06:12:51 rhoward Exp $
+* $Id: tables.xml,v 1.10 2005/02/21 11:35:48 brobertson Exp $
 *
 */
 -->
@@ -720,6 +720,12 @@
 				</column>
 				<column name="value" allow_null="0">
 					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="inhd" allow_null="0">
+					<type>CHAR(1)</type>
 					<type_variations />
 					<default />
 					<description />

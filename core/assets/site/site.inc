@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.64 2005/02/16 13:28:48 brobertson Exp $
+* $Id: site.inc,v 1.65 2005/02/21 11:35:51 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -400,6 +400,7 @@ class Site extends Folder
 				$values = Array('url'      => $urls[$urlid]['url'],
 								'name'     => $name,
 								'value'    => $designid,
+								'inhd'     => '0',
 								);
 				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lookup_value', $values)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
