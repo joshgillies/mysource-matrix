@@ -19,7 +19,7 @@ class Design_Customisation extends Design
 	/**
 	* Constructor
 	*
-	* @param int    $assetid      the asset id to be loaded
+	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
 	function Design_Customisation($assetid=0) 
@@ -186,6 +186,7 @@ class Design_Customisation extends Design
 
 	}//end updateFromParent()
 
+
 	/**
 	* Returns the file system path to the directory holding uploaded files
 	* Because we are a customisation, the path that we return is the one that the 
@@ -213,6 +214,7 @@ class Design_Customisation extends Design
 		}
 
 	}//end filePath()
+
 
 	/**
 	* Returns the path that has to be appended to the sq_web_path('data') to

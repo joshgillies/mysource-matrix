@@ -18,13 +18,13 @@ class Login_Design extends Design
 	/**
 	* Constructor
 	*
-	* @param int    $assetid      the asset id to be loaded
+	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
 	function Login_Design($assetid=0)
 	{
 		$this->Design_Area($assetid);
-	}
+	}//end constructor
 
 
 	/**
@@ -70,6 +70,7 @@ class Login_Design extends Design
 
 
 	}//end create()
+
 
 	/**
 	* Restores/Resets the design for this to the installed defaults
@@ -118,7 +119,8 @@ class Login_Design extends Design
 
 	}// end restoreLoginDesign()
 
-	/*
+
+	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
 	* @see Asset::_getAllowLinks()

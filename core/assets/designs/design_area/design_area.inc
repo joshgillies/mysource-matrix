@@ -18,7 +18,7 @@ class Design_Area extends Asset
 	/**
 	* Constructor
 	*
-	* @param int    $assetid      the asset id to be loaded
+	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
 	function Design_Area($assetid=0)
