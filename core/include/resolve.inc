@@ -103,24 +103,21 @@ class Resolve
 		// we are on the frontend
 		} else {
 
-		//	require_once SQ_INCLUDE_PATH.'/frontend.inc';
-		//	$GLOBALS['SQ_FRONTEND'] = new Frontend();
-		//	$GLOBALS['SQ_FRONTEND']->paint();
-			echo "FRONT END";
 			speed_check();
-
 			$url      = $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
 			$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http';
 
+			speed_check('one');
 			$asset = &$this->am->getAssetFromURL($_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'], $protocol, true, false);
-			pre_echo("Active Asset : ".$asset->name);
-			echo '<a href="http://beta.squiz.net/blair_resolve/_edit/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=6&asset_ei_screen=paths">click</a>';
+#			pre_echo("Active Asset : ".$asset->name);
+			speed_check('two');
+			$asset->printFrontend();
 
-//			$asset = &$this->am->getAsset(4);
-//			pre_echo("Active Asset : ".$asset->name);
-//			$done = $asset->deleteWebPath('users');
-//			pre_echo('Success : '.$done);
-			speed_check();
+#			$asset = &$this->am->getAsset(4);
+#			pre_echo("Active Asset : ".$asset->name);
+#			$done = $asset->deleteWebPath('users');
+#			pre_echo('Success : '.$done);
+			speed_check('total');
 			echo "\n\n\n";
 
 		}//end if
@@ -198,7 +195,7 @@ class Resolve
 	*/
 	function generateLoginKey()
 	{
-		require_once SQ_SQUIZLIB_PATH.'/general/general.inc';
+		require_once SQ_FUDGE_PATH.'/general/general.inc';
 		return $_SESSION['SQ_LOGIN_KEY'] = random_password(20);
 	}
 

@@ -91,7 +91,7 @@ function restrict_data_path($restricted, $dir)
 		trigger_error('Unable to move "'.$from_dir.'" to "'.$to_dir.'", "'.$to_dir.'" already exists and is not a directory', E_USER_WARNING);
 		return false;
 	} else {
-		require_once SQ_SQUIZLIB_PATH.'/general/file_system.inc';
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		// make sure that the parent of the to directory exists, other wise the rename will fail
 		// try and rename from_dir to to_dir
 		if (!create_directory(dirname($to_dir))) {

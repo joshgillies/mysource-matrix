@@ -88,6 +88,20 @@ class Asset extends Resolve_Object
 	}//end type();
 
 	/**
+	* Function to return's the suffix  a data path for a particular asset.
+	*
+	* @param object Asset	$asset
+	*
+	* @returns string
+	* @access public
+	*/
+	function getDataPathSuffix($asset)
+	{
+		return (($asset->_restricted) ? '' : 'un').'restricted/'.$asset->type().'/'.$asset->id;
+	}
+
+
+	/**
 	* Create this asset
 	*
 	* @return boolean
@@ -168,7 +182,6 @@ class Asset extends Resolve_Object
 			return;
 		}
 
-		$this->_data_path = $GLOBALS['SQ_SYSTEM']->am->getDataPath($this);
 		$this->_loadVars();
 
 	}//end load()
@@ -181,6 +194,8 @@ class Asset extends Resolve_Object
 	*/
 	function _loadVars() 
 	{
+		// firstly let's setup the data path
+		$this->_data_path = SQ_DATA_PATH.'/'.(($this->_restricted) ? '' : 'un').'restricted/'.$this->type().'/'.$this->id;
 
 		// Right, now we need to get any values that this asset has customised
 		$this->vars = Array();
@@ -280,12 +295,12 @@ class Asset extends Resolve_Object
 	{
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT linkid, majorid, minorid, link_type, value, sort_order, last_updated, last_userid
+		$sql = 'SELECT linkid, majorid, minorid, link_type, value, sort_order
 				FROM sq_asset_link
 				WHERE majorid = '.$db->quote($this->id).'
 				  AND linkid = '.$db->quote($linkid);
 
-		error_log("\n".$sql);
+#		error_log("\n".$sql);
 
 		$result = $db->getRow($sql);
 		if (DB::isError($result)) 
@@ -320,7 +335,7 @@ class Asset extends Resolve_Object
 		if ($strict_type_code) {
 			$sql .= ' AND a.type_code = '.$db->quote($type_code);
 		} else {
-			require_once SQ_SQUIZLIB_PATH.'/db_extras/db_extras.inc';
+			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 			$sql .= ' AND (a.type_code = '.$db->quote($type_code).' OR a.type_code IN (~SQ0~))';
 			$subs = Array( 'SELECT type_code
 							FROM sq_asset_type_inherited
@@ -329,6 +344,8 @@ class Asset extends Resolve_Object
 		}
 
 		if ($value !== null) $sql .= '  AND l.value = '.$db->quote($value);
+
+		$sql .= ' ORDER BY l.sort_order';
 
 #		pre_echo($sql);
 
@@ -349,7 +366,7 @@ class Asset extends Resolve_Object
 	* @param int	$link_types			integer that can be the product of bitwise operations on the SQ_LINK_* constants
 	* @param string	$type_code			the type of asset that is linked (eg 'Page', 'File', etc);
 	* @param bool	$strict_type_code	whether we are finding assets that are just a $type_code or $type_code and any of it's sub-classes
-	* @param string $side_of_link		Which side of the link this asset is on ('major' or 'minor')
+	* @param string $side_of_link		Which side of the link this (the current) asset is on ('major' or 'minor')
 	*
 	* @return Array()
 	* @access public
@@ -372,7 +389,7 @@ class Asset extends Resolve_Object
 			if ($strict_type_code) {
 				$sql .= ' AND a.type_code = '.$db->quote($type_code);
 			} else {
-				require_once SQ_SQUIZLIB_PATH.'/db_extras/db_extras.inc';
+				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 				$sql .= ' AND (a.type_code = '.$db->quote($type_code).' OR a.type_code IN (~SQ0~))';
 				$subs = Array( 'SELECT type_code
 								FROM sq_asset_type_inherited
@@ -447,7 +464,7 @@ class Asset extends Resolve_Object
 
 		if (!is_a($minor, 'Asset')) {
 			trigger_error('Minor is not an asset, unable to create link', E_USER_WARNING);
-			return false;
+			return 0;
 		}
 
 		// First, we should check that we don't already have a link of this type
@@ -457,21 +474,21 @@ class Asset extends Resolve_Object
 			// it already exists, so we don't need to do anything
 			if ($current_links[$i]['minorid'] == $minor->id && $current_links[$i]['value'] == $value) {
 				trigger_error('Link Already Exists', E_USER_WARNING);
-				return true;
+				return $current_links[$i]['linkid'];
 			}
 		}//end for
 
 		// check if we are allowed to link to these type of assets
 		if (($err_msg = $this->canLinkToType($minor->type(), $link_type)) !== true) {
 			trigger_error($err_msg, E_USER_WARNING);
-			return false;
+			return 0;
 		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		// if this link is a nav link, then we need to make sure that this
+		// if this link is a significant link, then we need to make sure that this
 		// minor asset doesn't already have an exclusive link from anything
-		if ($link_type & SQ_LINK_NAV) {
+		if ($link_type & SQ_LINK_SIGNIFICANT) {
 			$sql = 'SELECT majorid
 					FROM sq_asset_link
 					WHERE minorid   = '.$db->quote($minor->id).'
@@ -482,13 +499,13 @@ class Asset extends Resolve_Object
 			$majorid = $db->getOne($sql);
 			if (DB::isError($majorid)) {
 				trigger_error($majorid->getMessage().'<br/>'.$majorid->getUserInfo(), E_USER_WARNING);
-				return false;
+				return 0;
 			}
 
 			if ($majorid) {
 				$major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($majorid);
 				trigger_error('Asset "'.$minor->name.'" (Asset #'.$minor->id.') cannot be linked to "'.$this->name.'" (Asset #'.$this->id.') it is exclusively linked to Asset #'.$majorid.' ("'.$major->name.'")', E_USER_WARNING);
-				return false;
+				return 0;
 			}
 			
 		}//end if
@@ -501,7 +518,7 @@ class Asset extends Resolve_Object
 		$row = $db->getRow($sql);
 		if (DB::isError($row)) {
 			trigger_error($row->getMessage().'<br/>'.$row->getUserInfo(), E_USER_WARNING);
-			return false;
+			return 0;
 		}
 
 		$max = ($row['count'] > 0) ? (int) $row['max'] + 1 : 0;
@@ -512,7 +529,7 @@ class Asset extends Resolve_Object
 		$linkid = $db->nextId('sq_sequence_asset_link');
 		if (DB::isError($linkid)) {
 			trigger_error($linkid->getMessage().'<br/>'.$linkid->getUserInfo(), E_USER_WARNING);
-			return false;
+			return 0;
 		}
 
 		$sql = 'INSERT INTO sq_asset_link
@@ -521,12 +538,12 @@ class Asset extends Resolve_Object
 				('.$db->quote($linkid).', '.$db->quote($this->id).', '.$db->quote($minor->id).', '.$db->quote($link_type).', '
 				.$db->quote($value).', '.$db->quote($sort_order).', '.$db->quote(ts_iso8601(time())).', '.$db->quote($GLOBALS['SQ_SYSTEM']->currentUserId()).')';
 
-		error_log($sql);
+#		error_log($sql);
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
+			return 0;
 		}
 
 		// move the sort_order for all the other assets up one
@@ -535,12 +552,12 @@ class Asset extends Resolve_Object
 				WHERE majorid     = '.$db->quote($this->id).'
 				  AND sort_order >= '.$db->quote($sort_order).'
 				  AND linkid != '.$db->quote($linkid);
-		error_log($sql);
+#		error_log($sql);
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
+			return 0;
 		}
 
 		return $linkid;
@@ -591,7 +608,8 @@ class Asset extends Resolve_Object
 
 		// if we are only allowed one of these links and we already have our one link, bugger off
 		if ($allowed_links[$link_type][$type] == 1 && $num_curr_links > 0) {
-			return 'Assets of Type "'.$this->type().'" can only have one "'.$link_type.'" link to a "'.$type.'"';
+			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+			return 'Assets of Type "'.$this->type().'" can only have one "'.link_type_name($link_type).'" link to a "'.$type.'"';
 		}//end if
 
 		// if we get this far all is OK
@@ -617,6 +635,7 @@ class Asset extends Resolve_Object
 
 		return Array(SQ_LINK_EXCLUSIVE => Array(),
 					 SQ_LINK_UNITE     => Array(),
+					 SQ_LINK_USES      => Array(),
 					 SQ_LINK_NOTICE    => Array()
 					);
 
@@ -671,7 +690,7 @@ class Asset extends Resolve_Object
 				WHERE linkid    = '.$db->quote($linkid).'
 				  AND majorid   = '.$db->quote($this->id);
 
-		error_log($sql);
+#		error_log($sql);
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
@@ -698,7 +717,7 @@ class Asset extends Resolve_Object
 					  AND sort_order <= '.$db->quote($sort_order);
 		}
 
-		error_log($sql);
+#		error_log($sql);
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
@@ -866,7 +885,7 @@ class Asset extends Resolve_Object
 	function attr($name) 
 	{
 		if (!isset($this->vars[$name])) {
-			trigger_error('Attribute "'.$name.'" not found for Asset"'.$this->type().'"', E_USER_WARNING);
+			trigger_error('Attribute "'.$name.'" not found for Asset "'.$this->name.'"', E_USER_WARNING);
 			return null;
 		}
 		return $this->vars[$name]['value'];
@@ -907,6 +926,45 @@ class Asset extends Resolve_Object
 
 	}//end getAttribute()
 
+	/**
+	* Prints out the Frontend for this asset
+	* it's up to the kids to override
+	*
+	* @access public
+	*/
+	function printFrontend() 
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$url = preg_replace('/\/+$/', '', $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']);
+		$sql = 'SELECT designid
+				FROM sq_asset_lookup
+				WHERE url     = '.$db->quote($url).'
+				  AND assetid = '.$db->quote($this->id);
+		$designid = $db->getOne($sql);
+		if (DB::isError($designid)) {
+			trigger_error($designid->getMessage().'<br/>'.$designid->getUserInfo(), E_USER_ERROR);
+		}
+
+		// we have found the design to use
+		if ($designid) {
+			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($designid);
+			$design->paint($this);
+		// shit we can't find a design, oh well let's just print out our body
+		} else {
+			$this->printBody();
+		}
+
+	}// end printFrontend()
+
+	/**
+	* Called by the design to print the body of this asset
+	* it's up to the kids to override
+	*
+	* @access public
+	*/
+	function printBody() 
+	{
+	}// end printBody()
 
 	/**
 	* prints out the backend interface for the asset
@@ -1091,9 +1149,9 @@ class Asset extends Resolve_Object
 		}// end if
 
 		unset($this->_tmp['paths']);
-		unset($this->_tmp['urls']);
+		unset($this->_tmp['lookups']);
 
-		if ($this->_updateWebURLs()) {
+		if ($this->_updateLookups()) {
 			$GLOBALS['SQ_SYSTEM']->db->query('COMMIT');
 			return true;
 		} else {
@@ -1101,79 +1159,80 @@ class Asset extends Resolve_Object
 			return false;
 		}
 
-	}// end saveWebPath()
+	}// end saveWebPaths()
 
 	/**
-	* returns a list of urls that point to this asset
+	* returns a list of lookup information associated with this asset
 	*
-	* @param boolean	$inc_urlid	return the root urlid with the url
+	* @param string	$field	if only one field is required pass it's name through (url, root_urlid, designid)
 	*
 	* @return Array()
 	* @access public
 	*/
-	function getWebURLs($inc_urlid=false) 
+	function getLookups($field='') 
 	{
-		if (!isset($this->_tmp['urls'])) {
+		if (!isset($this->_tmp['lookups'])) {
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
-			$sql = 'SELECT url, root_urlid
-					FROM sq_asset_url_lookup
+			$sql = 'SELECT url, root_urlid, designid
+					FROM sq_asset_lookup
 					WHERE assetid = '.$db->quote($this->id);
 			$result = $db->getAll($sql);
 			if (DB::isError($result)) {
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-				$this->_tmp['urls'] = Array();
+				$this->_tmp['lookups'] = Array();
 			} else {
-				$this->_tmp['urls'] = $result;
+				$this->_tmp['lookups'] = $result;
 			}
 
 		}// end if
 
-		if ($inc_urlid) {
-			return $this->_tmp['urls'];
+		if (!$field) {
+			return $this->_tmp['lookups'];
 		} else {
 			$ret_val = Array();
-			for($i = 0; $i < count($this->_tmp['urls']); $i++) $ret_val[] = $this->_tmp['urls'][$i]['url'];
+			foreach($this->_tmp['lookups'] as $data) $ret_val[] = $data[$field];
 			return $ret_val;
 		}
 
-	}// end getWebURLs()
+	}// end getLookups()
 
 	/**
-	* Called to force an update of this assets URLs
+	* Called to force an update of this assets lookup information
 	*
 	* @return boolean
 	* @access public
 	*/
-	function updateWebURLs() 
+	function updateLookups() 
 	{
 		$GLOBALS['SQ_SYSTEM']->db->query('BEGIN');
-		if ($this->_updateWebURLs()) {
+		if ($this->_updateLookups()) {
 			$GLOBALS['SQ_SYSTEM']->db->query('COMMIT');
 			return true;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->db->query('ROLLBACK');
 			return false;
 		}
-	}// end updateWebURLs
+	}// end updateLookups
 			
 	/**
-	* Fn that does the real processing of updateWebURLs(), separated to allow for the DB transaction stuff
+	* Fn that does the real processing of updateLookups(), separated to allow for the DB transaction stuff
 	* Will be called by parent assets recursively on their kids so not 'really' private
-	* and by the addWebPaths() and deleteWebPaths() so that their transaction calls can wrap around it
+	* and by the saveWebPaths() so that their transaction calls can wrap around it
 	*
 	* @return boolean
 	* @access private
+	* @see Asset::updateLookups(),  Asset::saveWebPaths()
 	*/
-	function _updateWebURLs() 
+	function _updateLookups() 
 	{
 
 		$paths = $this->getWebPaths();
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		unset($this->_tmp['urls']);
+		unset($this->_tmp['lookups']);
 
 		// Remove all the old URLs
-		$sql = 'DELETE FROM sq_asset_url_lookup
+		$sql = 'DELETE FROM sq_asset_lookup
 				WHERE assetid = '.$db->quote($this->id);
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
@@ -1184,19 +1243,27 @@ class Asset extends Resolve_Object
 		// if we have paths then do some url inserting
 		if (count($paths)) {
 
+			$design_link = $this->getLink(SQ_LINK_USES, 'design', false);
+			$designid = ($design_link === null) ? 0 : $design_link['minorid'];
+
 			$parents = $this->getLinks(SQ_LINK_NAV, '', null, 'minor');
 			for($i = 0; $i < count($parents); $i++) {
 				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
 				if (is_null($parent)) continue;
 
-				$parent_urls = $parent->getWebURLs(true);
+				$parent_urls = $parent->getLookups();
+				pre_echo($parent_urls);
 
 				for($j = 0; $j < count($parent_urls); $j++) {
 					for($k = 0; $k < count($paths); $k++) {
-						$sql = 'INSERT INTO sq_asset_url_lookup
-								(url, assetid, root_urlid)
+						$sql = 'INSERT INTO sq_asset_lookup
+								(url, assetid, root_urlid, designid)
 								VALUES
-								('.$db->quote($parent_urls[$j]['url'].'/'.$paths[$k]).', '.$db->quote($this->id).', '.$db->quote($parent_urls[$j]['urlid']).')';
+								('.$db->quote($parent_urls[$j]['url'].'/'.$paths[$k]).', 
+								'.$db->quote($this->id).', 
+								'.$db->quote($parent_urls[$j]['root_urlid']).', 
+								'.$db->quote(($designid) ? $designid : $parent_urls[$j]['designid']).')';
+
 						$result = $db->query($sql);
 						if (DB::isError($result)) {
 							trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
@@ -1214,7 +1281,7 @@ class Asset extends Resolve_Object
 			$kid = &$GLOBALS['SQ_SYSTEM']->am->getAsset($kids[$i]['minorid'], $kids[$i]['type_code']);
 			if (is_null($kid)) continue;
 
-			if (!$kid->_updateWebURLs()) {
+			if (!$kid->_updateLookups()) {
 				return false;
 			}
 			
@@ -1223,7 +1290,7 @@ class Asset extends Resolve_Object
 
 		return true;
 
-	}// end _updateWebURLs()
+	}// end _updateLookups()
 
 	/**
 	* returns the Edit_Fns object appropriate for whatever asset type we are

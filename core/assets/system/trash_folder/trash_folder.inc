@@ -89,7 +89,7 @@ class Trash_Folder extends Folder
 	* @return Array
 	* @access public
 	*/
-	function getLink($linkid)
+	function getLinkById($linkid)
 	{
 
 		$linkid = (int) $linkid;
@@ -114,27 +114,31 @@ class Trash_Folder extends Folder
 
 	/*
 	* For a normal Asset returns all links to this asset, but for trash returns all the assets who are not minor's
-	* in nav links to any other asset
+	* in significant links to any other asset
 	*
-	* @param int    $link_types  will only ever be a bitmask that includes matches SQ_LINK_NAV
-	* @param string $asset_type  the type of asset that is linked (eg 'Page', 'File', etc);
-	* @param string $ret_type    flag to the structure of the return array - only relevant when $asset_type is blank
-	*                            'T' = sorted/structured by type 
-	*                                  eg Array('folder' => array(link1, link2, ..), 'user' => Array(link3, link4, ..))
-	*                            'S' = sorted by name, single array 
-	*                                  eg Array(link1, link2, ..)
+	* @param int    $link_types			will only ever be a bitmask that matches SQ_LINK_SIGNIFICANT
+	* @param string $type_code			the type of asset that is linked (eg 'Page', 'File', etc);
+	* @param bool	$strict_type_code	whether we are finding assets that are just a $type_code or $type_code and any of it's sub-classes
+	* @param string $side_of_link		Which side of the link this asset is on ('major' or 'minor')
+	*
 	* @see Asset::getLinks()
 	*
 	* @return Array()
 	* @access public
 	*/
-	function getLinks($link_types, $asset_type='', $ret_type='T') {
+	function getLinks($link_types, $type_code='', $strict_type_code=true, $side_of_link='major') 
+	{
 
-		// because we are only collecting assets with no SQ_LINK_EXCLUSIVE or SQ_LINK_UNITE links
+		// if we are after the side that we are the minor party in, then call Asset::getLinks() like normal
+		if ($side_of_link == 'minor') {
+			return parent::getLinks($link_types, $asset_type, $strict_type_code, $side_of_link);
+		}
+
+		// because we are only collecting assets with no EXCLUSIVE, UNITE or USES links
 		// if the requested type doesn't contain these piss off
-		if (($link_types & (SQ_LINK_NAV)) == 0) return Array();
+		if (($link_types & (SQ_LINK_SIGNIFICANT)) == 0) return Array();
 
-		require_once SQ_SQUIZLIB_PATH.'/db_extras/db_extras.inc';
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -142,12 +146,24 @@ class Trash_Folder extends Folder
 		$sql = 'SELECT a.assetid as minorid, a.type_code
 				FROM sq_asset a 
 				WHERE a.assetid != 1
-				  AND a.assetid NOT IN (~SQ0~) '
-				.(empty($asset_type) ? '' : ' AND a.type_code = '.$db->quote($asset_type))
-				.' ORDER BY a.name';
+				  AND a.assetid NOT IN (~SQ0~) ';
+
 		$subs = Array( 'SELECT l.minorid
 						FROM sq_asset_link l
-						WHERE (l.link_type & '.$db->quote(SQ_LINK_NAV).') > 0');
+						WHERE (l.link_type & '.$db->quote(SQ_LINK_SIGNIFICANT).') > 0');
+
+		if ($type_code) {
+			if ($strict_type_code) {
+				$sql .= ' AND a.type_code = '.$db->quote($type_code);
+			} else {
+				$sql .= ' AND (a.type_code = '.$db->quote($type_code).' OR a.type_code IN (~SQ1~))';
+				$subs[] = 'SELECT type_code
+							FROM sq_asset_type_inherited
+							WHERE inherited_type_code = '.$db->quote($type_code);
+			}
+		}// end if
+
+		$sql .= ' ORDER BY a.name';
 
 		$sql = db_extras_subquery($db, $sql, $subs);
 		if (DB::isError($sql)) 
@@ -156,29 +172,20 @@ class Trash_Folder extends Folder
 #		pre_echo($sql);
 #		error_log("\n".$sql);
 
-		$result = $db->query($sql);
+		$result = $db->getAll($sql);
 		if (DB::isError($result)) 
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
-		$ret_arr = Array();
-		$by_type = ($ret_type == 'T');
-		$count   = 0;
-		while (null !== ($row = $result->fetchRow())) {
+		// create the extra fields
+		for($i = 0, $count = count($result); $i < $count; $i++) {
 			// make the link id the negative of the assetid as this will be unique in the trash anyway
-			$row['linkid']     =  -1 * (int) $row['minorid']; 
-			$row['link_type']  = SQ_LINK_UNITE;
-			$row['value']      = '';
-			$row['sort_order'] = $count++;
-			if ($by_type) {
-				if (!isset($ret_arr[$row['type_code']])) $ret_arr[$row['type_code']] = Array();
-				$ret_arr[$row['type_code']][] = $row;
-			} else {
-				$ret_arr[] = $row;
-			}
+			$result[$i]['linkid']     =  -1 * (int) $result[$i]['minorid']; 
+			$result[$i]['link_type']  = SQ_LINK_UNITE;
+			$result[$i]['value']      = '';
+			$result[$i]['sort_order'] = $i;
 		}//end while
-		$result->free();
 
-		return $ret_arr;
+		return $result;
 
 	}//end getLinks()
 
@@ -200,7 +207,7 @@ class Trash_Folder extends Folder
 		// if the requested type doesn't contain these piss off
 		if (($link_types & (SQ_LINK_NAV)) == 0) return Array();
 
-		require_once SQ_SQUIZLIB_PATH.'/db_extras/db_extras.inc';
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 

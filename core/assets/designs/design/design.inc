@@ -100,7 +100,6 @@ class Design extends Design_Area
 
 	}// end processBackend()
 
-
 	/*
 	* Outputs the var either as straight HTML or PHP code, depending on the type
 	*
@@ -113,10 +112,10 @@ class Design extends Design_Area
 		switch($var) {
 			case 'html_header' :
 				echo '
-				<!--   <?php echo SQ_CONF_SYSTEM_NAME; ?>
-					  Content © Copyright <?php echo SQ_CONF_SYSTEM_OWNER; ?>
-					Running <?php echo SQ_SYSTEM_LONG_NAME; ?> - <?php echo SQ_SYSTEM_URL; ?>
-				   Developed by Squiz  - http://www.squiz.net
+				<!--   <?php echo SQ_CONF_SYSTEM_NAME; ?> 
+					  Content © Copyright <?php echo SQ_CONF_SYSTEM_OWNER; ?> 
+					Running <?php echo SQ_SYSTEM_LONG_NAME; ?> - <?php echo SQ_SYSTEM_URL; ?> 
+				   Developed by Squiz  - http://www.squiz.net 
 				  © Copyright <?php echo date(\'Y\') ?>. All rights reserved.
 				  Page generated: <?php $time = getdate(); echo $time[\'mday\'], \' \', $time[\'month\'], \' \', $time[\'year\']; ?>
 				-->
@@ -138,6 +137,26 @@ class Design extends Design_Area
 		}// end switch
 
 	}//end printVar()
+
+
+	/*
+	* Paints out our design
+	*
+	* @param object Asset	$ASSET	the asset that we are going to print the body for
+	*
+	* @access public
+	*/
+	function paint(&$ASSET) 
+	{
+		// this works because we know that all design areas are not going to be restricted
+		$DATA_PATH   = SQ_WWW_BASE_DIR.'/__data';
+		$FILE_PREFIX = $DATA_PATH.'/'.$this->type().'/'.$this->id.'/files';
+
+		// Now we just include the design file to get it to print.
+		speed_check();
+		require_once $this->_data_path.'/design_file.php';
+		speed_check();
+	}//end paint()
 
 
 }//end class

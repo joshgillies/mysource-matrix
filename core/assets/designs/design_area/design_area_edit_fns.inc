@@ -452,18 +452,18 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 			if ($element['_type'] != 'TAG' || $element['operation'] != 'set') continue;
 
-			// if there is no value set or both the id_name and attribute vars are empty
+			// if there is no 'value' set or both the 'id_name' and 'var' vars are empty
 			// we don't know what we can do, so barf in their direction
-			if (!isset($element['attributes']['value']) && (empty($element['attributes']['id_name']) || empty($element['attributes']['attribute']))) {
+			if (!isset($element['attributes']['value']) && (empty($element['attributes']['id_name']) || empty($element['attributes']['var']))) {
 				trigger_error('Unable to set "'.$element['attributes']['name'].'" in "'.$this->attr('id_name').'". Either a value must be set or both the id_name and name attributes must be set', E_USER_WARNING);
 
 			// so it's a reference to another variable ?
-			} elseif (!empty($element['attributes']['id_name']) && !empty($element['attributes']['attribute'])) {
+			} elseif (!empty($element['attributes']['id_name']) && !empty($element['attributes']['var'])) {
 
 				// just set this so we remember what is happening when it comes to painting
 				$asset->var_references[$element['attributes']['name']] = Array(
 																				'id_name' => $element['attributes']['id_name'],
-																				'var'     => $element['attributes']['attribute']
+																				'var'     => $element['attributes']['var']
 																				);
 
 			// we must be a normal value, so set it

@@ -5,24 +5,39 @@
 			<note />
 			<text width="12" height="1" />
 		</field>
+		<field>
+			<display_name>Site Design</display_name>
+			<note>The Design that is to be used as the default for this site</note>
+			<function_call>
+				<paint_function   name="paintDesign"   />
+				<process_function name="processDesign" />
+			</function_call>
+		</field>
 	</section>
-	<!-- 
-	<section name="Special Links">
-		<field attribute="index">
+	<section name="Special Page Links">
+		<field>
 			<display_name>Index</display_name>
 			<note>The Asset that gets printed by default when no additional path is provided</note>
-			<text width="12" height="1" />
+			<function_call>
+				<paint_function   name="paintIndexPage"   />
+				<process_function name="processIndexPage" />
+			</function_call>
 		</field>
-		<field attribute="forbidden">
+		<field>
 			<display_name>Forbidden</display_name>
 			<note>The Asset that gets printed when a user attempts to access an asset that they do not have permission to see</note>
-			<text width="12" height="1" />
+			<function_call>
+				<paint_function   name="paintForbiddenPage"   />
+				<process_function name="processForbiddenPage" />
+			</function_call>
 		</field>
-		<field attribute="not_found">
+		<field>
 			<display_name>Not Found</display_name>
 			<note>The Asset that gets printed when the URI that the user has entered does not exist</note>
-			<text width="12" height="1" />
+			<function_call>
+				<paint_function   name="paintNotFoundPage"   />
+				<process_function name="processNotFoundPage" />
+			</function_call>
 		</field>
 	</section>
-	-->
 </contents>

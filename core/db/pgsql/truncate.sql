@@ -5,6 +5,7 @@ TRUNCATE sq_asset_link;
 TRUNCATE sq_asset_type;
 TRUNCATE sq_asset_type_inherited;
 TRUNCATE sq_asset_urls;
+TRUNCATE sq_asset_lookup;
 TRUNCATE sq_package;
 DROP SEQUENCE sq_sequence_asset_attribute_seq;
 DROP SEQUENCE sq_sequence_asset_seq;

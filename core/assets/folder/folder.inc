@@ -75,9 +75,10 @@ class Folder extends Asset
 	function _getAllowedLinks() 
 	{
 
-		return Array(SQ_LINK_EXCLUSIVE => Array('asset' => 'M'),
-					 SQ_LINK_UNITE     => Array('asset' => 'M'),
-					 SQ_LINK_NOTICE    => Array('asset' => 'M')
+		return Array(SQ_LINK_EXCLUSIVE => Array('asset'  => 'M'),
+					 SQ_LINK_UNITE     => Array('asset'  => 'M'),
+					 SQ_LINK_USES      => Array('design' => '1'),
+					 SQ_LINK_NOTICE    => Array('asset'  => 'M')
 					);
 
 	}//end _getAllowedLinks()

@@ -381,7 +381,7 @@ class Package_Manager extends Resolve_Object
 			$str .= $type_node->get();
 
 		}// end for
-		require_once SQ_SQUIZLIB_PATH.'/general/file_system.inc';
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		return string_to_file($str, SQ_DATA_PATH.'/asset_map/'.$this->package.'.xml');
 
 	}//end _createAssetMapScreensXML()

@@ -406,7 +406,7 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 
 	// the destination doesn't exist
 	} else {
-		require_once SQ_SQUIZLIB_PATH.'/general/file_system.inc';
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		$parent = dirname($dest);
 		// if the parent isn't a directory, can we create it ?
 		if (!is_dir($parent) && !create_directory($parent)) {

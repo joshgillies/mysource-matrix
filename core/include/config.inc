@@ -146,7 +146,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 		}
 		
 		print_r($str);
-		require_once SQ_SQUIZLIB_PATH.'/general/file_system.inc';
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		return string_to_file($str, $this->config_file);
 	}
 

@@ -358,7 +358,7 @@ class Asset_Manager extends Resolve_Object
 				WHERE type_code = '.$db->quote($type_code);
 
 		if (!$strict) {
-			require_once SQ_SQUIZLIB_PATH.'/db_extras/db_extras.inc';
+			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 			$sql .= '   OR type_code IN (~SQ0~)';
 			$subs = Array( 'SELECT type_code
 							FROM sq_asset_type_inherited
@@ -375,19 +375,6 @@ class Asset_Manager extends Resolve_Object
 		return $result;
 
 	}//end getTypeAssetids()
-
-	/**
-	* Function to return a data path for a particular asset.
-	*
-	* @param object Asset	$asset
-	*
-	* @returns string
-	* @access public
-	*/
-	function getDataPath($asset)
-	{
-		return SQ_DATA_PATH.'/'.(($asset->_restricted) ? '' : 'un').'restricted/'.$asset->type().'/'.$asset->id;
-	}
 
 	/**
 	* prints out the interface for viewing and customising asset types
@@ -700,12 +687,11 @@ class Asset_Manager extends Resolve_Object
 		}
 
 		$sql = 'SELECT l.url, l.assetid
-				FROM sq_asset_url_lookup l '.$extra_table.'
+				FROM sq_asset_lookup l '.$extra_table.'
 				WHERE l.url IN ('.$in_str.')
 				'.$extra_where.'
 				ORDER BY CHARACTER_LENGTH(l.url) DESC
 				LIMIT 1';
-		pre_echo($sql);
 		$row = $db->getRow($sql);
 		if (DB::isError($row)) trigger_error($row->getMessage().'<br/>'.$row->getUserInfo(), E_USER_ERROR);
 

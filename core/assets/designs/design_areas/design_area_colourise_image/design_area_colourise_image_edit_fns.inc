@@ -25,8 +25,8 @@ class Design_Area_Colourise_Image_Edit_Fns extends Design_Area_Edit_Fns
 	* @access private
 	*/
 	function createImage(&$asset, &$design) {
-		require_once SQ_SQUIZLIB_PATH.'/general/file_system.inc';
-		require_once SQ_SQUIZLIB_PATH.'/image/image.inc';
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		require_once SQ_FUDGE_PATH.'/image/image.inc';
 
 		$source = $design->_data_path.'/files/'.$asset->attr('image');
 		$dest   = $asset->_data_path.'/colourised_'.$asset->attr('image');
@@ -52,8 +52,8 @@ class Design_Area_Colourise_Image_Edit_Fns extends Design_Area_Edit_Fns
 
 				$colours = Array();
 				$i = 1;
-				while(!empty($asset->colours['from_colour_'.$i]) && !empty($asset->colours['to_colour_'.$i])) {
-					$colours[$asset->colours['from_colour_'.$i]] = $asset->colours['to_colour_'.$i];
+				while(@$asset->attr('from_colour_'.$i) && @$asset->attr('to_colour_'.$i)) {
+					$colours[$asset->attr('from_colour_'.$i)] = $asset->attr('to_colour_'.$i);
 					$i++;
 				}
 

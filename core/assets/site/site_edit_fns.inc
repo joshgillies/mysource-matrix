@@ -177,5 +177,205 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	}// end processURLS()
 
 
+	/**
+	* Paint the interface for setting the design for this site
+	*
+	* @param object Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintDesign(&$asset, &$o, $prefix) 
+	{
+
+		$design_link = $asset->getLink(SQ_LINK_USES, 'design');
+		$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
+
+		$designs = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('design');
+		$contents = Array();
+		foreach($designs as $id) {
+			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($id, 'design', true);
+			if (is_null($design)) continue;
+			$contents[$design->id] = $design->name;
+		}
+
+		combo_box($prefix.'_designid', $contents, false, $designid);
+
+	}// end paintDesign
+
+	/**
+	* Processes the setting of the Design for this site
+	*
+	* @param object Asset				$owner	the asset whose interface we are painting
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processDesign(&$asset, $prefix) 
+	{
+		$design_link = $asset->getLink(SQ_LINK_USES, 'design');
+		$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
+
+		$new_designid = $_POST[$prefix.'_designid'];
+
+		// if they are the same then there is nothing to do.
+		if ($designid == $new_designid) return true;
+
+		// if there is an exist entry delete it
+		if ($designid) {
+			if (!$asset->deleteLink($design_link['linkid'])) return false;
+		}
+
+		$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_designid, 'design');
+		if (is_null($design)) return false;
+
+		if ($asset->createLink($design, SQ_LINK_USES)) {
+			$asset->updateLookups();
+			return true;
+		} else {
+			return false;
+		}
+
+	}// end processDesign()
+
+
+	/**
+	* Paint the interface for setting the $page_type page for this site
+	*
+	* @param string			$page_type	the type of page this is, ie the string in the value field of the link
+	* @param object Asset	$owner		the asset whose interface we are painting
+	* @param string			$prefix		prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintPageSelection($page_type, &$asset, $prefix) 
+	{
+		$pages = $asset->getLinks(SQ_LINK_NAV, 'page', false);
+
+		if (!count($pages)) {
+			echo '<i>There are no Pages that are children of this site.</i>';
+			hidden_field($prefix.'_'.$page_type, '0');
+			return;
+		}
+		
+		$selected = 0;
+		$contents = Array();
+		foreach($pages as $info) {
+			$page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($info['minorid'], $info['type_code'], true);
+			if (is_null($page)) continue;
+			if ($info['value'] == $page_type) $selected = $page->id;
+			$contents[$page->id] = $page->name;
+		}
+
+		combo_box($prefix.'_'.$page_type, $contents, false, $selected);
+
+	}// end paintPageSelection()
+
+	/**
+	* Processes the setting of the index page for this site
+	*
+	* @param string			$page_type	the type of page this is, ie the string in the value field of the link
+	* @param object Asset	$owner	the asset whose interface we are painting
+	* @param string			$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processPageSelection($page_type, &$asset, $prefix) 
+	{
+		trigger_error('Processing of '.$page_type.' page not done', E_USER_NOTICE);
+	}
+
+	/**
+	* Paint the interface for setting the index page for this site
+	*
+	* @param object Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintIndexPage(&$asset, &$o, $prefix) 
+	{
+		$this->paintPageSelection('index', $asset, $prefix);
+	}// end paintIndexPage
+
+	/**
+	* Processes the setting of the index page for this site
+	*
+	* @param object Asset				$owner	the asset whose interface we are painting
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processIndexPage(&$asset, $prefix) 
+	{
+		$this->processPageSelection('index', $asset, $prefix);
+	}
+
+	/**
+	* Paint the interface for setting the forbidden page for this site
+	*
+	* @param object Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintForbiddenPage(&$asset, &$o, $prefix) 
+	{
+		$this->paintPageSelection('forbidden', $asset, $prefix);
+	}// end paintForbiddenPage
+
+	/**
+	* Processes the setting of the forbidden page for this site
+	*
+	* @param object Asset				$owner	the asset whose interface we are painting
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processForbiddenPage(&$asset, $prefix) 
+	{
+		$this->processPageSelection('forbidden', $asset, $prefix);
+	}
+
+	/**
+	* Paint the interface for setting the not found page for this site
+	*
+	* @param object Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintNotFoundPage(&$asset, &$o, $prefix) 
+	{
+		$this->paintPageSelection('not found', $asset, $prefix);
+	}// end paintNotFoundPage
+
+	/**
+	* Processes the setting of the not found page for this site
+	*
+	* @param object Asset				$owner	the asset whose interface we are painting
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processNotFoundPage(&$asset, $prefix) 
+	{
+		$this->processPageSelection('not found', $asset, $prefix);
+	}
+
 }//end class
 ?>

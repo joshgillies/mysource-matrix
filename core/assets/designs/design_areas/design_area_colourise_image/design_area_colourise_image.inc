@@ -45,8 +45,6 @@ class Design_Area_Colourise_Image extends Design_Area
 	function setAttrValue($name, $value) 
 	{
 
-		pre_echo($name.' set '.$value);
-
 		// if this is one of the colour attributes then let's grab the value, add it the 
 		// $this->colours and then save that array
 		if ($name == 'black_colour' || $name == 'white_colour' 
@@ -91,15 +89,15 @@ class Design_Area_Colourise_Image extends Design_Area
 		$image = $edit_fns->createImage($this, $design);
 		if (!$image) return;
 
-		$data_path = ($this->_restricted) ? 'RESTRICTED_DATA_PATH' : 'DATA_PATH';
+		$image = $this->type().'/'.$this->id.'/'.$image;
 
 		// if they only want us to echo out the filename
 		if ($this->attr('filename_only')) {
-			echo '<', '?php echo $', $data_path, '; ?>/', $image;
+			echo '<', '?php echo $DATA_PATH; ?>/', $image;
 
 		// else print out a full tag
 		} else {
-			echo '<img src="<', '?php echo $', $data_path, '; ?>/', $image, '" ', $this->attr('extra'), '>';
+			echo '<img src="<', '?php echo $DATA_PATH; ?>/', $image, '" ', $this->attr('extra'), '>';
 
 		}
 

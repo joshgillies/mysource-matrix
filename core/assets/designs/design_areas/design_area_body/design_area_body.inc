@@ -23,11 +23,7 @@ class Design_Area_Body extends Design_Area
 	*/
 	function printArea(&$design) 
 	{
-		echo "<", "?php\n";
-		?> 
-			echo 'BODY GOES HERE';
-		<?php
-		echo "\n?", ">";
+		echo '<', '?php $ASSET->printBody(); ?', '>';
 	}//end printArea()
 
 }//end class

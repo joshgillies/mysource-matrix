@@ -1,6 +1,6 @@
 <?php
 
-require_once SQ_SQUIZLIB_PATH.'/db_extras/db_extras.inc';
+require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 
 /**

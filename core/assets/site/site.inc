@@ -29,7 +29,7 @@ class Site extends Folder
 	/*
 	* returns the urls for this site
 	*
-	* @see Asset::updateWebURLs()
+	* @see Asset::updateLookups()
 	*/
 	function getWebPaths($url=false) 
 	{
@@ -44,7 +44,7 @@ class Site extends Folder
 	*
 	* @return boolean
 	* @access public
-	* @see Asset::updateWebURLs()
+	* @see Asset::updateLookups()
 	*/
 	function addWebPath($url) 
 	{
@@ -58,40 +58,12 @@ class Site extends Folder
 	*
 	* @return boolean
 	* @access public
-	* @see Asset::updateWebURLs()
+	* @see Asset::updateLookups()
 	*/
 	function deleteWebPath($url) 
 	{
 		return false;
 	}// end deleteWebPath()
-
-	/**
-	* returns a list of urls that point to this asset
-	*
-	* @param boolean	$inc_urlid	return the root urlid with the url
-	*
-	* @return Array()
-	* @access public
-	*/
-	function getWebURLs($inc_urlid=false) 
-	{
-		$urls = $this->getSiteURLs();
-		$ret_val = Array();
-		if ($inc_urlid) {
-			for(reset($urls); null !== ($urlid = key($urls)); next($urls)) {
-				$ret_val[] = Array('url' => $urls[$urlid]['url'],
-									'urlid' => $urlid
-									);
-			}
-		} else {
-			for(reset($urls); null !== ($urlid = key($urls)); next($urls)) {
-				$ret_val[] = $urls[$urlid]['url'];
-			}
-		}
-
-		return $ret_val;
-
-	}// end getWebURLs()
 
 	/**
 	* returns a list of urls that point to this asset
@@ -224,7 +196,7 @@ class Site extends Folder
 
 		unset($this->_tmp['urls_info']);
 
-		if ($this->_updateWebURLs()) {
+		if ($this->_updateLookups()) {
 			$db->query('COMMIT');
 			return true;
 		} else {
@@ -235,21 +207,22 @@ class Site extends Folder
 	}// end saveWebURLs()
 	
 	/**
-	* Fn that does the real processing of updateWebURLs(), separated to allow for the DB transaction stuff
+	* Fn that does the real processing of updateLookups(), separated to allow for the DB transaction stuff
 	* Will be called by parent assets recursively on their kids so not 'really' private
-	* and by the addWebURLs() and deleteWebURLs() so that their transaction calls can wrap around it
+	* and by the saveWebURLs() so that their transaction calls can wrap around it
 	*
 	* @return boolean
 	* @access private
-	* @see Asset::_updateWebURLs();
+	* @see Asset::_updateLookups(), Asset::updateLookups(), Asset::saveWebPaths()
 	*/
-	function _updateWebURLs() 
+	function _updateLookups() 
 	{
+		pre_echo("UPDATE LOOKUPS");
 		$urls = $this->getSiteURLs();
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// Remove all the old URLs
-		$sql = 'DELETE FROM sq_asset_url_lookup
+		$sql = 'DELETE FROM sq_asset_lookup
 				WHERE assetid = '.$db->quote($this->id);
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
@@ -257,12 +230,21 @@ class Site extends Folder
 			return false;
 		}
 
-		// if we have paths then do some url inserting
+		$design_link = $this->getLink(SQ_LINK_USES, 'design', false);
+		$designid = ($design_link === null) ? 0 : $design_link['minorid'];
+
+		pre_echo("DESIGN ID : $designid");
+
+		// if we have urls then do some url inserting
 		for(reset($urls); null !== ($urlid = key($urls)); next($urls)) {
-			$sql = 'INSERT INTO sq_asset_url_lookup
-					(url, assetid, root_urlid)
+			$sql = 'INSERT INTO sq_asset_lookup
+					(url, assetid, root_urlid, designid)
 					VALUES
-					('.$db->quote($urls[$urlid]['url']).', '.$db->quote($this->id).', '.$db->quote($urlid).')';
+					('.$db->quote($urls[$urlid]['url']).', 
+					'.$db->quote($this->id).', 
+					'.$db->quote($urlid).', 
+					'.$db->quote($designid).')';
+			pre_echo($sql);
 			$result = $db->query($sql);
 			if (DB::isError($result)) {
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
@@ -275,12 +257,24 @@ class Site extends Folder
 		for($i = 0; $i < count($kids); $i++) {
 			$kid = &$GLOBALS['SQ_SYSTEM']->am->getAsset($kids[$i]['minorid'], $kids[$i]['type_code']);
 			if (is_null($kid)) continue;
-			if (!$kid->_updateWebURLs()) return false;
+			if (!$kid->_updateLookups()) return false;
 		}// end for kids
 
 		return true;
 
-	}// end _updateWebURLs()
+	}// end _updateLookups()
+
+	/**
+	* Called by the design to print the body of this asset
+	* it's up to the kids to override
+	*
+	* @access public
+	*/
+	function printBody() 
+	{
+		echo "SITE CONTENTS HERE";
+	}// end printBody()
+
 
 }//end class
 ?>

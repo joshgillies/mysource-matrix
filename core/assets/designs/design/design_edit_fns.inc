@@ -43,7 +43,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		$info = get_file_upload_info($prefix.'_parse_file');
 		if (!empty($info)) {
-			require_once SQ_SQUIZLIB_PATH.'/general/file_system.inc';
+			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			$str = file_to_string($info['tmp_name']);
 			$contents = $this->_parseString($str, true);
 #			pre_echo("Contents : ".($contents === null));
@@ -52,7 +52,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			if ($contents !== null) {
 #				pre_echo("PROCESS CONTENTS");
 				if ($this->_processContents($asset, $contents)) {
-					pre_echo("CREATE DESIGN FILE");
+#					pre_echo("CREATE DESIGN FILE");
 					$this->createDesignFile($asset, $contents);
 				}
 			}
@@ -143,7 +143,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		}// end foreach
 
-pre_echo($id_names);
+#pre_echo($id_names);
 
 		$design_areas = Array();
 
@@ -229,7 +229,7 @@ pre_echo($id_names);
 	{
 
 		$design_area_links = $asset->getDesignAreaLink();
-		pre_echo($design_area_links);
+#		pre_echo($design_area_links);
 
 		foreach($design_area_links as $link) {
 			$da = &$asset->getDesignArea($link['value']);
@@ -240,8 +240,8 @@ pre_echo($id_names);
 				if ($var_da === null) continue;
 				$vars[$var_name] = $var_da->attr($info['var']);
 			}// end foreach
-			pre_echo('-------------------');
-			pre_echo($vars);
+#			pre_echo('-------------------');
+#			pre_echo($vars);
 			$da->setVarReferenceValues($vars);
 		}// end foreach
 
@@ -255,7 +255,7 @@ pre_echo($id_names);
 		pre_echo("STR : \n".$str);
 		if (!$str) return false;
 
-		require_once SQ_SQUIZLIB_PATH.'/general/file_system.inc';
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		$file = $asset->_data_path.'/design_file.php';
 		pre_echo($file);
 		return string_to_file($str, $file);

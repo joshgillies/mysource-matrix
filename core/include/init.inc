@@ -19,10 +19,10 @@ define('SQ_INIT_OB_LEVEL', ob_get_level());
 * We mustn't forget to update this (until someone
 * comes up with an automated method)
 */
-define('SQ_SYSTEM_VERSION',	'0.1.0');
+define('SQ_SYSTEM_VERSION',		'0.1.1');
 define('SQ_SYSTEM_SHORT_NAME',	'Resolve');
 define('SQ_SYSTEM_LONG_NAME',	'Squiz Resolve v'.SQ_SYSTEM_VERSION);
-define('SQ_SYSTEM_URL',		'http://www.squiz.net/');
+define('SQ_SYSTEM_URL',			'http://www.squiz.net/');
 
 define('SQ_REQUIRED_PHP_VERSION',   '4.3.0');
 
@@ -38,14 +38,14 @@ define('SQ_LIB_PATH',			SQ_SYSTEM_ROOT.'/core/lib');
 define('SQ_DATA_PATH',			SQ_SYSTEM_ROOT.'/data');
 define('SQ_PACKAGES_PATH',		SQ_SYSTEM_ROOT.'/packages');
 define('SQ_WEB_PATH',			SQ_SYSTEM_ROOT.'/core/web');
-define('SQ_SQUIZLIB_PATH',		SQ_SYSTEM_ROOT.'/squizlib');
+define('SQ_FUDGE_PATH',			SQ_SYSTEM_ROOT.'/fudge');
 
 // include the main system config file
 require_once SQ_DATA_PATH.'/conf/main.inc';
 
 
 // Load general everyday handy functions for developers
-require_once SQ_LIB_PATH.'/dev/dev.inc';
+require_once SQ_FUDGE_PATH.'/dev/dev.inc';
 
 // nice little boolean to use for testing whether we happen to be in the backend or not
 define('SQ_IN_BACKEND', (basename($_SERVER['PHP_SELF']) == SQ_CONF_BACKEND_SUFFIX));
@@ -79,11 +79,14 @@ if(version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
 /*
 * LINK TYPES - used with bitwise operators
 */
-define('SQ_LINK_EXCLUSIVE', 1);
-define('SQ_LINK_UNITE',     2);
-define('SQ_LINK_NOTICE',    4);
-define('SQ_LINK_NAV',       3); // short hand for EXCLUSIVE | UNITE
-define('SQ_LINK_ANY',       7); // what all the others add up to
+define('SQ_LINK_EXCLUSIVE',    1); // minor can only be SIGNIFICANT linked to major, and is a child of major
+define('SQ_LINK_UNITE',        2); // minor is a child of major, but can be linked to many major's
+define('SQ_LINK_NOTICE',       4); // for information purposes only, used to register href's from one asset to another so that deletions can warn of impending issues
+define('SQ_LINK_USES',         8); // minor asset is used by the major asset, but it is not something that is in the navigation, minor can be linked to many major's
+
+define('SQ_LINK_ANY',         15); // what all the main link types add up to
+define('SQ_LINK_NAV',          3); // short hand for EXCLUSIVE | UNITE
+define('SQ_LINK_SIGNIFICANT', 11); // short hand for EXCLUSIVE | UNITE | USES
 
 // Create the system object
 require_once SQ_INCLUDE_PATH.'/resolve.inc';

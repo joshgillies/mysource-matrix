@@ -76,9 +76,9 @@ class Asset_Edit_Fns extends Resolve_Object
 	*/
 	function paintURLs(&$asset, &$o, $prefix) 
 	{
-		$urls = $asset->getWebURLs();
+		$urls = $asset->getLookups('url');
 		foreach($urls as $url) {
-			echo '<a target="_blank" href="'.$url.'">'.$url.'</a><br/>';
+			echo $url, '<br/>';
 		}
 		
 	}// end paintURLs()
