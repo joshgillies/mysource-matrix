@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_edit_fns.inc,v 1.7 2004/08/20 06:22:19 gsherwood Exp $
+* $Id: ldap_bridge_edit_fns.inc,v 1.8 2004/10/07 04:44:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -185,9 +185,7 @@ class LDAP_Bridge_Edit_Fns extends Bridge_Edit_Fns
 			</tr>
 		<?php
 
-		$info = $user->getUserData();
-		for ($i = 0; $i < $info['count']; $i++) {
-			$field_name = $info[$i];
+		foreach ($user->vars as $field_name => $field_data) {
 			if (isset($current['show'][$field_name])) {
 				$show = true;
 				$display_name = $current['show'][$field_name];

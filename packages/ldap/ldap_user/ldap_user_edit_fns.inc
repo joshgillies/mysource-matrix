@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user_edit_fns.inc,v 1.3 2004/03/19 05:34:04 gsherwood Exp $
+* $Id: ldap_user_edit_fns.inc,v 1.4 2004/10/07 04:44:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -75,7 +75,7 @@ class Ldap_User_Edit_Fns extends Backend_User_Edit_Fns
 	*/
 	function paintDetails(&$asset, &$o, $prefix)
 	{
-		$info = $asset->getUserData();
+		$info = $asset->vars;
 		if (empty($info)) return;
 		
 		if (!$asset->_ldapid) return Array();
@@ -86,16 +86,13 @@ class Ldap_User_Edit_Fns extends Backend_User_Edit_Fns
 		if (!isset($show['show'])) $show = Array();
 		else $show = $show['show'];
 		
-		for ($i = 0; $i < $info['count']; $i++) {
-			if (!isset($show[$info[$i]])) continue;
-			$field_name = $show[$info[$i]];
-
-			if ($info[$info[$i]]['count'] > 1) $field_name .= ' ('.$info[$info[$i]]['count'].' values)';
+		foreach ($info as $field_name => $field_data) {
+			if (!isset($show[$field_name])) continue;
+			$count = count($field_data);
+			if ($count > 1) $field_name .= ' ('.$count.' values)';
 			$o->openField($field_name);
-			unset($info[$info[$i]]['count']);
-			foreach ($info[$info[$i]] as $id => $value) {
-				echo $value.'<br/>';
-			}
+				echo implode('<br />', $field_data);
+			$o->closeField();
 		}
 
 		// no committing allowed

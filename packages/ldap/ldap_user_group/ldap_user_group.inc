@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user_group.inc,v 1.3 2004/08/18 04:20:33 gsherwood Exp $
+* $Id: ldap_user_group.inc,v 1.4 2004/10/07 04:44:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -70,6 +70,12 @@ class Ldap_User_Group extends User_Group
 		$this->status = $ldap->status;
 		$this->version = '0.1';
 
+		foreach ($data as $key => $value) {
+			if (!is_array($value)) continue;
+			if (isset($value['count'])) unset($value['count']);
+			$this->vars[$key] = $value;
+		}
+
 		// set the data paths
 		$this->data_path = $ldap->data_path.'/'.$data['dn'];
 		$this->data_path_suffix = $ldap->data_path_suffix.'/'.$data['dn'];
@@ -89,35 +95,6 @@ class Ldap_User_Group extends User_Group
 		return Array();
 
 	}//end _getAllowedLinks()
-
-
-	/**
-	* Get an array of attribute data for this group
-	*
-	* @return array
-	* @access public
-	*/
-	function getGroupData()
-	{
-		$id_parts = explode(':', $this->id);
-		$ldapid = $id_parts[0];
-		$shadowid = $id_parts[1];
-
-		$ldap_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($ldapid);
-		if (is_null($ldap_asset)) return Array();
-
-		require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
-		$ldap = $ldap_asset->connectToLdap();
-		$result = $ldap->search($shadowid,'(objectClass=*)');
-		if (!$result) return Array();
-		$info = $ldap->getEntries($result);
-
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($ldap);
-
-		if (!isset($info[0])) return Array();
-		else return $info[0];
-
-	}//end getGroupData()
 
 
 }//end class

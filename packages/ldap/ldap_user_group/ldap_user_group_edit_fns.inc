@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user_group_edit_fns.inc,v 1.1 2004/02/06 03:12:38 gsherwood Exp $
+* $Id: ldap_user_group_edit_fns.inc,v 1.2 2004/10/07 04:44:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -75,17 +75,15 @@ class Ldap_User_Group_Edit_Fns extends User_Group_Edit_Fns
 	*/
 	function paintDetails(&$asset, &$o, $prefix)
 	{
-		$info = $asset->getGroupData();
+		$info = $asset->vars;
 		if (empty($info)) return;
 
-		for ($i = 0; $i < $info['count']; $i++) {
-			$field_name = $info[$i];
-			if ($info[$info[$i]]['count'] > 1) $field_name .= ' ('.$info[$info[$i]]['count'].' values)';
+		foreach ($info as $field_name => $field_data) {
+			$count = count($field_data);
+			if ($count > 1) $field_name .= ' ('.$count.' values)';
 			$o->openField($field_name);
-			unset($info[$info[$i]]['count']);
-			foreach ($info[$info[$i]] as $id => $value) {
-				echo $value.'<br/>';
-			}
+				echo implode('<br />', $field_data);
+			$o->closeField();
 		}
 
 		// no committing allowed
