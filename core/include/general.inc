@@ -329,6 +329,7 @@ function current_url($inc_protocol=true, $strip_backend_suffix=false)
 function current_protocol()
 {
 	return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http';
+
 }// end current_protocol()
 
 
@@ -345,6 +346,7 @@ function strip_url($url, $strip_protocol=false)
 	$re = '/^([a-z]+:\/\/)?(.*)$/';
 	preg_match($re, $url, $matches);
 	return (($strip_protocol) ? '' : $matches[1]).preg_replace(Array('/\\/+$/', '/\\/\\/+/'), Array('', '/'), $matches[2]);
+
 }// end strip_url()
 
 
@@ -394,7 +396,8 @@ function iso8601_ts($iso8601)
 		(int) substr($iso8601,8,2),
 		(int) substr($iso8601,0,4)
 	);
-}
+
+}//end iso8601_ts()
 
 
 /**
@@ -407,6 +410,7 @@ function iso8601_ts($iso8601)
 function ts_iso8601($timestamp)
 {
 	return date('Y-m-d H:i:s',$timestamp);
-}
+
+}//end ts_iso8601()
 
 ?>
