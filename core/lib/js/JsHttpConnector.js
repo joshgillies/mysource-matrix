@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: JsHttpConnector.js,v 1.2 2005/01/20 13:10:35 brobertson Exp $
+* $Id: JsHttpConnector.js,v 1.3 2005/02/28 00:31:38 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 * This object wraps around the browser's JsHttpConnectorRequest object and enables
 * communication between web pages and servers using JavaScript.
 *
-* JsHttpConnectorRequest has a number of functions that support XML parsing of the
+* XMLHttpRequest has a number of functions that support XML parsing of the
 * server's response; you can get to these by using 
 * JsHttpConnector.request().xmlFunctionBlah()
 *
