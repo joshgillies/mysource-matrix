@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.26 2005/03/23 02:58:25 arailean Exp $
+* $Id: cron_job.inc,v 1.27 2005/03/24 05:08:55 arailean Exp $
 *
 */
 
@@ -40,7 +40,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -650,7 +650,7 @@ class Cron_Job extends Asset
 			// send a report to the system error log
 			if (ini_get('log_errors')) {
 				$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-				$GLOBALS['SQ_SYSTEM']->logErrorMessage($err_msg, $err_no, $err_file, $err_line, $cron_mgr->error_log_file_name);
+				log_error($err_msg, $err_no, $err_file, $err_line, $cron_mgr->error_log_file_name);
 			}
 
 			// if they haven't put tags in the err msg assume it to be plain text

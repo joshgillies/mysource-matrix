@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.45 2005/03/23 02:58:25 arailean Exp $
+* $Id: cron_manager.inc,v 1.46 2005/03/24 05:05:14 arailean Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -852,7 +852,7 @@ class Cron_Manager extends Asset
 			// send a report to the system error log
 			if (ini_get('log_errors')) {
 				$text_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
-				$GLOBALS['SQ_SYSTEM']->logErrorMessage($text_msg, $err_no, $err_file, $err_line, $this->error_log_file_name);
+				log_error($text_msg, $err_no, $err_file, $err_line, $this->error_log_file_name);
 			}
 
 			// if they haven't put tags in the err msg assume it to be plain text

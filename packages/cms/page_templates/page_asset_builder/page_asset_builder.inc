@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.49 2005/03/23 02:58:26 arailean Exp $
+* $Id: page_asset_builder.inc,v 1.50 2005/03/24 05:05:15 arailean Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -973,7 +973,7 @@ class Page_Asset_Builder extends Page
 
 			// send a report to the system error log
 			if (ini_get('log_errors')) {
-				$GLOBALS['SQ_SYSTEM']->logErrorMessage($text_msg, $err_no, $err_file, $err_line);
+				log_error($text_msg, $err_no, $err_file, $err_line);
 			}
 
 			$this->_errors[] = $text_msg;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.61 2005/03/23 22:57:15 ndvries Exp $
+* $Id: hipo_job.inc,v 1.62 2005/03/24 05:05:14 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -1029,7 +1029,7 @@ class HIPO_Job extends MySource_Object
 				case 'web' :
 					// if we have reached a new step, that uses a different running mode to ourselves, then change our running mode
 					// pre_echo(__FUNCTION__."::".__LINE__.">>>>>>>>>>>>>>>>> RESET RUNNING MODE TO web <<<<<<<<<<<<<<<<<<<");
-					$GLOBALS['SQ_SYSTEM']->logErrorMessage("The Squiz Server reset the running mode to WEB for User ID #".$GLOBALS['SQ_SYSTEM']->currentUserId()." and Job ".$this->source_code_name);
+					log_error("The Squiz Server reset the running mode to WEB for User ID #".$GLOBALS['SQ_SYSTEM']->currentUserId()." and Job ".$this->source_code_name);
 					return $this->setRunningMode('web');
 				break;
 
@@ -1449,7 +1449,7 @@ class HIPO_Job extends MySource_Object
 
 			// send a report to the system error log
 			if (ini_get('log_errors')) {
-				$GLOBALS['SQ_SYSTEM']->logErrorMessage($text_msg, $err_no, $err_file, $err_line);
+				log_error($text_msg, $err_no, $err_file, $err_line);
 			}
 
 			$msg = $text_msg;
