@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.4 2004/10/15 03:24:33 lwright Exp $
+* $Id: form_ecommerce.inc,v 1.5 2004/10/15 03:30:19 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -363,9 +363,12 @@ HEREDOC;
 			$gateway_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($gateway);
 			$gateway_asset_url = $gateway_asset->getURL();
 
-			echo '<br /><input type="button" value="     Confirm Order     " onclick="document.location.href=\''.$gateway_asset_url.'\'" /><input type="button" value="Cancel" onclick="document.location.href=\''.$_SERVER['PHP_SELF'].'\'">';
-		} else {
+			$confirm_button = $this->attr('confirm_button_name');
+			$cancel_button  = $this->attr('cancel_button_name');
 
+			echo '<br /><input type="button" value="'.$confirm_button.'" onclick="document.location.href=\''.$gateway_asset_url.'\'" /><input type="button" value="'.$cancel_button.'" onclick="document.location.href=\''.$_SERVER['PHP_SELF'].'\'">';
+
+		} else {
 			// if there's nothing to process, treat input as a normal form
 			unset($this->_tmp['order']);
 			$this->emailAndLog();

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_management.inc,v 1.1.1.1 2004/10/13 01:31:47 arailean Exp $
+* $Id: form_ecommerce_management.inc,v 1.2 2004/10/15 03:30:19 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -60,6 +60,20 @@ class Form_Ecommerce_Management extends Asset_Management
 				'type'			=> 'assetid',
 				'default'		=> '',
 				'description'   => 'Gateway Asset that will process the e-commerce transaction',
+			),
+
+			'confirm_button_name' => Array(
+				'added'			=> '0.1',
+				'type'			=> 'text',
+				'default'		=> 'Confirm and proceed to payment',
+				'description'   => 'Name of the button for confirming the order',
+			),
+
+			'cancel_button_name' => Array(
+				'added'			=> '0.1',
+				'type'			=> 'text',
+				'default'		=> 'Go back to form',
+				'description'   => 'Name of the button for cancellig the order',
 			),
 
 		);

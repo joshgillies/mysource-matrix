@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1.1.1 2004/10/13 01:31:47 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2004/10/15 03:30:19 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -35,11 +35,25 @@
 
 	</section>
 
+	<section name="Confirmation Button Names" write_access="write:attributes">
+		<field attribute="confirm_button_name">
+			<display_name>Confirm Button</display_name>
+			<note>If you do not supply anything here, "Confirm and proceed to payment" will be used</note>
+			<text width="35" height="1" />
+		</field>
+
+		<field attribute="cancel_button_name">
+			<display_name>Cancel Button</display_name>
+			<note>If you do not supply anything here, "Go Back" will be used</note>
+			<text width="35" height="1" />
+		</field>
+	</section>
+
 	<section name="Payment Gateway" write_access="write:attributes">
 
 		<field write_access="write:attributes"  attribute="gateway_assetid">
-			<display_name>Gateway Processor</display_name>
-			<note />
+			<display_name>Linked Gateway</display_name>
+			<note>In order for the form to display e-commerce functionality it has to be linked to an e-commerce gateway. Otherwise it will act as a normal custom form.</note>
 
 			<assetid type_codes="payment_gateway:D" />
 		</field>
