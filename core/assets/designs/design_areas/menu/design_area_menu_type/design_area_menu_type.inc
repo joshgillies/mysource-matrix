@@ -362,22 +362,30 @@ class Design_Area_Menu_Type extends Design_Area
 						// public users
 						$USERIDS_COND = \'AND p.userid = 0\';
 					}
+
+					if (!empty($USERIDS_COND)) {
+						$USERIDS_COND .= \'
+										  GROUP BY a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path
+										  HAVING MIN(p.access) = 1\';
+					}
 				}
 
 				$sql    = \'SELECT DISTINCT a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path
 						   FROM \'.SQ_TABLE_RUNNING_PREFIX.\'asset a
 						     INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'asset_link l ON a.assetid = l.minorid
-						     INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'asset_path pt ON a.assetid = pt.assetid
+						     INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'asset_path pt ON a.assetid = pt.assetid \';
+				if (!empty($USERIDS_COND)) {
+				$sql   .= \'
 						     INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'asset_permission p ON a.assetid = p.assetid \';
+				}
 				$where  = \'l.majorid IN (\'.implode(\',\', $majorids).\')
-						     AND (l.link_type & \'.$db->quote(SQ_SC_LINK_FRONTEND_NAV).\') > 0 \'.$USERIDS_COND;
+						     AND (l.link_type & \'.$db->quote(SQ_SC_LINK_FRONTEND_NAV).\') > 0 \';
 				$where  = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'a\');
 				$where  = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'l\');
 				$where  = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'p\');
 				$where  = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'pt\');
+				$where .= " $USERIDS_COND ";
 				$where .= \'
-						   GROUP BY a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path
-						   HAVING MIN(p.access) = 1
 						   ORDER BY l.majorid, l.sort_order\';
 
 				$result = $db->query($sql.$where);
