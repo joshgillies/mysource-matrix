@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.59 2003/11/27 03:46:32 gsherwood Exp $
+* $Id: design_edit_fns.inc,v 1.60 2003/12/12 16:54:48 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -447,7 +447,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			if ($element['_type'] != 'TAG' || $element['operation'] != 'area') continue;
 
 			// if there isn't any print var, default to 'yes'
-			if (empty($element['attributes']['print'])) $element['attributes']['print'] = 'yes';
+			if (!isset($element['attributes']['print'])) $element['attributes']['print'] = 'yes';
 
 			$edit_fns = $design_areas[$element['attributes']['id_name']]->getEditFns();
 			if (!$edit_fns->_processContents($design_areas[$element['attributes']['id_name']], $element['contents'])) {
@@ -462,18 +462,22 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 			// if they want this design area to be printed then what we need to do is alter the contents
 			// array to become a _PRINT operation
-			if ($element['attributes']['print'] == 'yes') {
-				// Now what we do is morph it so that this element is now a print tag
-				$contents[$index] = Array(
-											'_type' => 'TAG',
-											'attributes'  => Array ('id_name' => $element['attributes']['id_name']),
-											'operation' => 'print',
-											'self_terminating' => 1
-										);
-			// otherwise we just remove it as there is nothing for us to do with it anymore
-			} else {
-				$remove_indexes[] = $index;
-			}
+			switch($element['attributes']['print']) {
+				case 'yes'  : 
+				case 'true' : 
+				case '1'    : 
+					// Now what we do is morph it so that this element is now a print tag
+					$contents[$index] = Array(
+												'_type' => 'TAG',
+												'attributes'  => Array ('id_name' => $element['attributes']['id_name']),
+												'operation' => 'print',
+												'self_terminating' => 1
+											);
+					break;
+				// otherwise we just remove it as there is nothing for us to do with it anymore
+				default : 
+					$remove_indexes[] = $index;
+			}// end switch
 
 		}//end foreach
 
