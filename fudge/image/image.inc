@@ -95,7 +95,7 @@ class Image
 
 		// Replace colours in palette
 		for ($i = 0; $i < $palette_size; $i++) {
-			$colour = imagecolorsforindex ($image, $i);
+			$colour = imageColorsForIndex($image, $i);
 			// Convert to HTML colour
 			$colour = Colour::rgb_to_html(Colour::rgb($colour['red'],$colour['green'],$colour['blue']));
 			$rgb = Colour::html_to_rgb(Colour::remap($colour,$colour_map,$tolerance));
