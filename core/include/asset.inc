@@ -543,7 +543,7 @@ class Asset extends Resolve_Object
 	* @return Array()
 	* @access public
 	*/
-	function getLink($link_type, $type_code, $strict_type_code=true, $value=null, $side_of_link='major')
+	function getLink($link_type, $type_code='', $strict_type_code=true, $value=null, $side_of_link='major')
 	{
 		if ($side_of_link != 'major' && $side_of_link != 'minor')
 			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
@@ -559,15 +559,17 @@ class Asset extends Resolve_Object
 				  AND l.'.$other_side.'id   = a.assetid
 				  AND l.link_type = '.$db->quote($link_type);
 
-		if ($strict_type_code) {
-			$sql .= ' AND a.type_code = '.$db->quote($type_code);
-		} else {
-			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-			$sql .= ' AND (a.type_code = '.$db->quote($type_code).' OR a.type_code IN (~SQ0~))';
-			$subs = Array( 'SELECT type_code
-							FROM sq_asset_type_inherited
-							WHERE inherited_type_code = '.$db->quote($type_code));
-			$sql = db_extras_subquery($db, $sql, $subs);
+		if ($type_code) {
+			if ($strict_type_code) {
+				$sql .= ' AND a.type_code = '.$db->quote($type_code);
+			} else {
+				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+				$sql .= ' AND (a.type_code = '.$db->quote($type_code).' OR a.type_code IN (~SQ0~))';
+				$subs = Array( 'SELECT type_code
+								FROM sq_asset_type_inherited
+								WHERE inherited_type_code = '.$db->quote($type_code));
+				$sql = db_extras_subquery($db, $sql, $subs);
+			}
 		}
 
 		if (!is_null($value)) $sql .= '  AND l.value = '.$db->quote($value);
@@ -1363,7 +1365,8 @@ class Asset extends Resolve_Object
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'SELECT path
 					FROM sq_asset_path
-					WHERE assetid = '.$db->quote($this->id);
+					WHERE assetid = '.$db->quote($this->id).'
+					ORDER BY sort_order';
 
 			$result = $db->getCol($sql);
 			if (DB::isError($result)) {
@@ -1390,26 +1393,29 @@ class Asset extends Resolve_Object
 	function saveWebPaths($paths)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$db->query('BEGIN');
 
 		$current_paths = $this->getWebPaths();
 		$save_paths = Array();
 
 		// make sure these paths are compliant
-		for($i = 0; $i < count($paths); $i++) {
-			$path = preg_replace('/\\s+/', '_', $paths[$i]);
+		foreach($paths as $path) {
+			$path = preg_replace('/\\s+/', '_', $path);
 			// Taken (in part) from info here -> http://www.w3.org/Addressing/URL/5_URI_BNF.html
 			$path = preg_replace('/[^a-zA-Z0-9\-$_@.&!*(),]/', '',  $path);
 			$path = trim($path);
 			// ignore blanks
-			if ($path) $save_paths[] = $path;
-		}
+			if ($path && !in_array($path, $save_paths)) $save_paths[] = $path;
+		}// end foreach
 
+		// if there is no difference in the arrays (including in the sort order), then there is nothing to do
+		if (!array_diff_assoc($save_paths, $current_paths)) return;
+			
+		$db->query('BEGIN');
 
-		//// INSERT ANY NEW PATHS ////
-		$inserts = array_values(array_diff($save_paths, $current_paths));
-
-		if (count($inserts)) {
+		//// CHECK INSERTED PATHS ////
+		// to make sure that they path name is not in use by any of our siblings
+		$inserts = array_diff($save_paths, $current_paths);
+		if (!empty($inserts)) {
 
 			// now we need to check that none of our parents have
 			// any nav kids that are also using this path name
@@ -1429,7 +1435,7 @@ class Asset extends Resolve_Object
 
 			if (count($siblingids)) {
 				$db_quote_inserts = Array();
-				foreach($inserts as $k => $v) $db_quote_inserts[$k] = $db->quote($v);
+				foreach($inserts as $v) $db_quote_inserts[] = $db->quote($v);
 				$sql = 'SELECT path
 						FROM sq_asset_path
 						WHERE assetid IN ('.implode(',', $siblingids).')
@@ -1441,42 +1447,40 @@ class Asset extends Resolve_Object
 					return false;
 				}
 
-			}// end if
-
-			foreach($inserts as $path) {
-
-				if (in_array($path, $sibling_paths)) {
-					trigger_error('Path "'.$path.'" already in use for one of the siblings of "'.$this->name.'"', E_USER_WARNING);
+				if (!empty($sibling_paths)) {
+					trigger_error('Path "'.implode('", "', $sibling_paths).'" already in use by one of the siblings of "'.$this->name.'"', E_USER_WARNING);
 					return false;
-				}
-				$sql = 'INSERT INTO sq_asset_path
-						(path, assetid)
-						VALUES
-						('.$db->quote($path).', '.$db->quote($this->id).')';
-				$result = $db->query($sql);
-				if (DB::isError($result)) {
-					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-					return false;
-				}
+				}// end if
 
-			}// end foreach
+			}// end if sublings
 
-		}// end if
+		}// end if inserts
 
-		//// NOW DELETE ANY OLD PATHS ////
-		$deletes = array_diff($current_paths, $save_paths);
+		// Remove all the old paths
+		$sql = 'DELETE FROM sq_asset_path
+				WHERE assetid = '.$db->quote($this->id);
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			$GLOBALS['SQ_SYSTEM']->db->query('ROLLBACK');
+			return false;
+		}
 
-		foreach($deletes as $path) {
-			// Remove all the old URLs
-			$sql = 'DELETE FROM sq_asset_path
-					WHERE path    = '.$db->quote($path).'
-					  AND assetid = '.$db->quote($this->id);
+		// Now insert the paths
+		foreach($save_paths as $sort_order => $path) {
+
+			$sql = 'INSERT INTO sq_asset_path
+					(path, assetid, sort_order)
+					VALUES
+					('.$db->quote($path).', '.$db->quote($this->id).', '.$db->quote($sort_order).')';
 			$result = $db->query($sql);
 			if (DB::isError($result)) {
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+				$GLOBALS['SQ_SYSTEM']->db->query('ROLLBACK');
 				return false;
 			}
-		}// end if
+
+		}// end foreach
 
 		unset($this->_tmp['paths']);
 		unset($this->_tmp['lookups']);
@@ -1635,7 +1639,7 @@ class Asset extends Resolve_Object
 		return new $class_name();
 	}// end getEditFns()
 
-	/*
+	/**
 	* Returns the href for getting to the nearest backend for this asset
 	*
 	* @param string	$screen	the screen that you want displayed when the asset is loaded
@@ -1645,7 +1649,35 @@ class Asset extends Resolve_Object
 	function getBackendHref($screen='')
 	{
 		return sq_web_path('edit').'/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid='.$this->id.'&asset_ei_screen='.$screen;
-	}//end getBackendUrl()
+	}//end getBackendHref()
+
+	/**
+	* Returns the href for getting to the nearest backend for this asset
+	* NOTE: Not complete yet, will work for testing purposes but not done properly
+	*
+	*
+	* @param string	$screen	the screen that you want displayed when the asset is loaded
+	*
+	* @access public
+	*/
+	function getHref()
+	{
+	$sql = 'SELECT l.url, u.http
+			FROM sq_asset_lookup l INNER JOIN sq_asset_url u ON l.root_urlid = u.urlid
+			WHERE l.assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id).' 
+			LIMIT 1';
+
+		$result = $GLOBALS['SQ_SYSTEM']->db->getRow($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			return '';
+		}
+		if (empty($result)) {
+			return '';
+		} else {
+			return (($result['http']) ? 'http' : 'https').'://'.$result['url'];
+		}
+	}//end getHref()
 
 }//end class
 ?>
