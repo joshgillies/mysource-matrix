@@ -56,6 +56,9 @@ if (_root.server_exec_path == undefined) {
 if (_root.action_bar_path == undefined) {
 	_root.action_bar_path = "http://beta.squiz.net/blair_resolve/_edit/?SQ_BACKEND_PAGE=main&assetid=%assetid%&action=%action%";
 }
+if (_root.action_bar_frame == undefined) {
+	_root.action_bar_frame = "main";
+}
 
 
 

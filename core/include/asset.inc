@@ -894,6 +894,7 @@ class Asset extends Resolve_Object
 
 	/*
 	* prints out the backend interface for the asset
+	* it's up to the kids to override
 	*
 	* @param object Backend $backend
 	*
@@ -901,7 +902,9 @@ class Asset extends Resolve_Object
 	*/
 	function printBackend(&$backend) 
 	{
-		// it's up to the kids
+		$backend->out->openRaw();
+		echo ucwords(str_replace('_', ' ', get_class($this))).' Backend Interface Not Done';
+		$backend->out->closeRaw();
 	}// end printBackend()
 
 	/*

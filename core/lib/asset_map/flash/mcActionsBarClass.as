@@ -114,10 +114,11 @@ mcActionsBarClass.prototype.setSize = function(w, h)
 mcActionsBarClass.prototype.buttonPressed = function(action)
 {
 
-	var url = new String(_root.action_bar_path);
-	url = url.replace("%assetid%", escape(this.current_assetid))
-	url = url.replace("%action%", escape(action));
-	trace("ACTION BAR URL : " + url);
+	var link = new String(_root.action_bar_path);
+	link = link.replace("%assetid%", escape(this.current_assetid))
+	link = link.replace("%action%", escape(action));
+	trace("ACTION BAR link : " + link);
+	getURL(link, _root.action_bar_frame);
 
 }
 

@@ -348,45 +348,63 @@ class Asset_Manager extends Resolve_Object
 				$parent = &$this->getAsset($_GET['parent_assetid']);
 				if (is_null($parent)) {
 					trigger_error('Parent Asset #'.$_GET['parent_assetid'].' not found', E_USER_WARNING);
-				} else {
+					break;
+				} 
 
-					// make sure that we are allowed to link this type to the parent
-					if (($err_msg = $parent->canLinkToType($_GET['type_code'], $_GET['link_type'])) !== true) {
-						trigger_error($err_msg, E_USER_WARNING);
+				// make sure that we are allowed to link this type to the parent
+				if (($err_msg = $parent->canLinkToType($_GET['type_code'], $_GET['link_type'])) !== true) {
+					trigger_error($err_msg, E_USER_WARNING);
+					break;
+				} 
+
+				$o->addFormActionGetVar('parent_assetid', $_GET['parent_assetid']);
+				$o->addFormActionGetVar('pos',            $_GET['pos']);
+				$o->addFormActionGetVar('type_code',      $_GET['type_code']);
+				$o->addFormActionGetVar('link_type',      $_GET['link_type']);
+
+				$o->addHiddenField('am_form_submitted', '1');
+
+				$this->includeAsset($_GET['type_code']);
+				$asset = new $_GET['type_code']();
+
+				// if the form has been submitted then, process it
+				// and if that is successfull, then create the link to the parent asset
+				if (!empty($_POST['am_form_submitted']) && $asset->processBackend()) {
+					$o->addMessage(SQ_BO_MSG_NOTICE, 'New '.$this->_asset_types[$_GET['type_code']]['name'].' "'.$asset->name.'" created');
+					$this->registerAsset($asset);
+					if ($parent->createLink($asset, $_GET['link_type'], '', $_GET['pos'])) {
+						$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" successfully linked to "'.$parent->name.'"');
+						$o->addOnLoad('top.sidenav.reload_asset("'.$_GET['parent_assetid'].'");');
 					} else {
+						$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" was not able to be linked to "'.$parent->name.'", it can be found in the trash folder');
+					}
 
-						$o->addFormActionGetVar('parent_assetid', $_GET['parent_assetid']);
-						$o->addFormActionGetVar('pos',            $_GET['pos']);
-						$o->addFormActionGetVar('type_code',      $_GET['type_code']);
-						$o->addFormActionGetVar('link_type',      $_GET['link_type']);
+				} else {
+					$asset->printBackend($backend);
 
-						$o->addHiddenField('am_form_submitted', '1');
-
-						$this->includeAsset($_GET['type_code']);
-						$asset = new $_GET['type_code']();
-
-						// if the form has been submitted then, process it
-						// and if that is successfull, then create the link to the parent asset
-						if (!empty($_POST['am_form_submitted']) && $asset->processBackend()) {
-							$o->addMessage(SQ_BO_MSG_NOTICE, 'New '.$this->_asset_types[$_GET['type_code']]['name'].' "'.$asset->name.'" created');
-							$this->registerAsset($asset);
-							if ($parent->createLink($asset, $_GET['link_type'], '', $_GET['pos'])) {
-								$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" successfully linked to "'.$parent->name.'"');
-								$o->addOnLoad('top.sidenav.reload_asset("'.$_GET['parent_assetid'].'");');
-							} else {
-								$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" was not able to be linked to "'.$parent->name.'", it can be found in the trash folder');
-							}
-
-						} else {
-							$asset->printBackend($backend);
-
-						}// end if
-					}//end if
 				}// end if
 
 				break;
 
-			case 'am' :
+			case 'edit_asset' :
+
+				$o->openRaw();
+					pre_echo('GET  : ');
+					pre_echo($_GET);
+					pre_echo('POST : ');
+					pre_echo($_POST);
+				$o->closeRaw();
+
+				$asset = &$this->getAsset($_GET['assetid']);
+				if (is_null($asset)) {
+					trigger_error('Asset #'.$_GET['assetid'].' not found', E_USER_WARNING);
+					break;
+				} 
+
+				$asset->printBackend($backend);
+
+				break;
+
 			default   :
 				$this->_printAssetList($o);
 
