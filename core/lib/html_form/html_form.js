@@ -17,13 +17,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.35 2005/02/16 04:13:45 tbarrett Exp $
+* $Id: html_form.js,v 1.36 2005/04/01 04:22:59 tbarrett Exp $
 *
 */
 
 /*
 * Some useful functions for dealing with the form through javascript
-* Specific to Resolve, but easy to pull out for other use
+* Specific to Resolve (aka Matrix), but easy to pull out for other use
 *
 */
 
@@ -659,3 +659,78 @@ function disable_buttons()
 
 }//end disable_buttons()
 
+
+//--         FUNCTIONS FOR MULTI-ASSET-TYPES CHOOSER         --//
+
+
+function prependClearButton(elt, inherit)
+{
+	newButton = document.createElement('input');
+	newButton.type = 'button';
+	newButton.value = 'Clear';
+	if (inherit) {
+		newButton.onclick = new Function("resetLastSelect(this); clearLastCheckbox(this);");
+	} else {
+		newButton.onclick = new Function("resetLastSelect(this)");
+	}
+	elt.parentNode.insertBefore(newButton, elt);
+}
+
+function prependTypeSelector(elt, inherit)
+{
+	var lastSelect = elt.previousSibling;
+	while (lastSelect.tagName != 'SELECT') {
+		lastSelect = lastSelect.previousSibling;
+	}
+	elt.parentNode.insertBefore(document.createElement('br'), elt);
+	elt.parentNode.insertBefore(lastSelect.cloneNode(true), elt);
+}
+
+function prependInheritSelector(elt)
+{
+	hiddenField = elt.previousSibling;
+	while ((hiddenField.tagName != 'INPUT') || (hiddenField.type.toUpperCase() != 'HIDDEN')) {
+		hiddenField = hiddenField.previousSibling;
+	}
+	checkbox = elt.previousSibling;
+	while ((checkbox.tagName != 'INPUT') || (checkbox.type.toUpperCase() != 'CHECKBOX')) {
+		checkbox = checkbox.previousSibling;
+	}
+	newHiddenField = hiddenField.cloneNode(true);
+	newHiddenField.value = '0';
+	newCheckbox = checkbox.cloneNode(true);
+	newCheckbox.checked = 0;
+	newText = document.createTextNode('inherit ');
+	elt.parentNode.insertBefore(newHiddenField, elt);
+	elt.parentNode.insertBefore(newCheckbox, elt);
+	elt.parentNode.insertBefore(newText, elt);
+}
+
+function resetLastSelect(elt)
+{
+	select = elt.previousSibling;
+	while (select.tagName != 'SELECT') {
+		select = select.previousSibling;
+	}
+	select.selectedIndex = 0;
+}
+
+function toggleLastHiddenField(checkbox)
+{
+	hiddenField = checkbox.previousSibling;
+	while (!(hiddenField.tagName == 'INPUT') && (hiddenField.type.toUpperCase == 'HIDDEN')) {
+		hiddenField = hiddenField.previousSibling;
+	}
+	hiddenField.value = checkbox.checked ? '1' : '0';
+}
+
+function clearLastCheckbox(elt)
+{
+	checkbox = elt.previousSibling;
+	while ((checkbox.tagName != 'INPUT') || (checkbox.type.toUpperCase() != 'CHECKBOX')) {
+		checkbox = checkbox.previousSibling;
+	}
+	if (checkbox.checked) {
+		checkbox.click();
+	}
+}

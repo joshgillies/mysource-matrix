@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.74 2005/02/03 22:28:08 rhoward Exp $
+* $Id: html_form.inc,v 1.75 2005/04/01 04:22:59 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -48,7 +48,7 @@ function submit_button($name, $value, $on_click='', $extras='')
 	// Make sure that they don't use 'submit' as the form field, because it clashes
 	// with the submit() fn that the form has
 	if ($name == 'submit') trigger_error('Rename your Submit button, so as not use "submit"', E_USER_ERROR);
-	if ($on_click) $extras .= ' onclick="javascript: '.htmlspecialchars($on_click).' "';
+	if ($on_click) $extras .= ' onclick="'.htmlspecialchars($on_click).' "';
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo '<input type="submit" name="', htmlspecialchars($name), '" id="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
 
@@ -71,7 +71,7 @@ function reset_button($name, $value, $on_click='', $extras='')
 	// Make sure that they don't use 'reset' as the form field, because it clashes
 	// with the reset() fn that the form has
 	if ($name == 'reset') trigger_error('Rename your Reset button, so as not use "reset"', E_USER_ERROR);
-	if ($on_click) $extras .= ' onclick="javascript: '.htmlspecialchars($on_click).' "';
+	if ($on_click) $extras .= ' onclick="'.htmlspecialchars($on_click).' "';
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo '<input type="reset" name="', htmlspecialchars($name), '" id="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
 
@@ -81,9 +81,9 @@ function reset_button($name, $value, $on_click='', $extras='')
 /**
 * Prints a normal form button
 *
-* @param string	$name		the form name to use for the submit button
-* @param string	$value		the text that should be displayed for the submit button
-* @param string	$on_click	any JS that should be executed when the user confirms after the warning
+* @param string	$name		the form name to use for the button
+* @param string	$value		the text that should be displayed for the button
+* @param string	$on_click	JS to execute when the button is clicked
 * @param string	$extras		any input field attributes that should be placed in the <input ... > tag
 *
 * @return void
@@ -91,7 +91,7 @@ function reset_button($name, $value, $on_click='', $extras='')
 */
 function normal_button($name, $value, $on_click='', $extras='')
 {
-	if ($on_click) $extras .= ' onclick="javascript: '.htmlspecialchars($on_click).' "';
+	if ($on_click) $extras .= ' onclick="'.htmlspecialchars($on_click).' "';
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo '<input type="button" name="', htmlspecialchars($name), '" id="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
 
@@ -140,7 +140,7 @@ function text_box($name, $value, $size='', $max='', $hide_value=false, $extras='
 			'value="', htmlspecialchars($value), '" ',
 			(($size)   ? 'size="'.$size.'" '     : ''),
 			(($max)    ? 'maxlength="'.$max.'" ' : ''),
-			(($hide_value) ? 'onfocus="Javascript: if (this.value == \''.htmlspecialchars($value).'\') { this.value = \'\'; }" onblur="Javascript: if (this.value == \'\') { this.value=\''.htmlspecialchars($value).'\'; }" ' : ''),
+			(($hide_value) ? 'onfocus="if (this.value == \''.htmlspecialchars($value).'\') { this.value = \'\'; }" onblur="if (this.value == \'\') { this.value=\''.htmlspecialchars($value).'\'; }" ' : ''),
 			$extras,
 			' />';
 
@@ -169,8 +169,8 @@ function int_text_box($name, $value, $allow_negative=true, $size='', $max='', $h
 
 		$allow_negative = $allow_negative ? 'true' : 'false';
 		$javascript ='
-			onKeyUp="javascript: validate_numeric_text_field(this, '.$allow_negative.');"
-			onChange="javascript: validate_numeric_text_field(this, '.$allow_negative.');"
+			onkeyup="validate_numeric_text_field(this, '.$allow_negative.');"
+			onchange="validate_numeric_text_field(this, '.$allow_negative.');"
 		';
 
 		text_box($name, $value, $size, $max, $hide_value, $javascript.$extras);
@@ -253,7 +253,7 @@ function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
 */
 function radio_button($name, $value='1', $checked=false, $on_click='', $extras='')
 {
-	if ($on_click) $extras .= ' onclick="javascript: '.htmlspecialchars($on_click).' "';
+	if ($on_click) $extras .= ' onclick="'.htmlspecialchars($on_click).' "';
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo	'<input type="radio" ',
 			'name="', htmlspecialchars($name), '" ',
@@ -279,7 +279,7 @@ function radio_button($name, $value='1', $checked=false, $on_click='', $extras='
 */
 function check_box($name, $value='1', $checked=false, $on_click='', $extras='')
 {
-	if ($on_click) $extras .= ' onclick="javascript: '.htmlspecialchars($on_click).' "';
+	if ($on_click) $extras .= ' onclick="'.htmlspecialchars($on_click).' "';
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo	'<input type="checkbox" ',
 			'name="', htmlspecialchars($name), '" ',
@@ -370,8 +370,8 @@ function colour_box($name, $default='000000', $allow_blanks=false, $button_text=
 	static $initialised = false;
 	if (!$initialised) {
 		?>
-		<script language="JavaScript" src="<?php echo sq_web_path('lib')?>/html_form/colour_picker.js"></script>
-		<script language="JavaScript" type="text/javascript">var colour_change_image_dir='<?php echo sq_web_path('lib');?>/web/images/'</script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib')?>/html_form/colour_picker.js"></script>
+		<script type="text/javascript">var colour_change_image_dir='<?php echo sq_web_path('lib');?>/web/images/'</script>
 		<?php
 		$initialised = true;
 	}
@@ -384,7 +384,7 @@ function colour_box($name, $default='000000', $allow_blanks=false, $button_text=
 
 	if ($show_text_box) {
 		$extras  = ' id="colour_box_'.$name.'" style="font-family: courier;"'
-				 . ' onchange="javascript: this.value = check_colour(this.value, '.(($allow_blanks) ? 'true' : 'false').');"';
+				 . ' onchange="this.value = check_colour(this.value, '.(($allow_blanks) ? 'true' : 'false').');"';
 
 		if ($show_current_colour) $extras .= ' show_colour_change(\''.addslashes($name).'\');';
 		text_box($name, $default, 7, 6, false, $extras);
@@ -427,7 +427,7 @@ function date_box($name, $default_timestamp=null, $show_time=true, $extras='')
 	$end_year   = max($default['year'], $start_year) + 10;
 
 
-	$extras .= ' onchange="javascript: check_date(\''.$name.'\', '.(($show_time) ? 'true':'false').');"';
+	$extras .= ' onchange="check_date(\''.$name.'\', '.(($show_time) ? 'true':'false').');"';
 	hidden_field($name, $default_timestamp);
 
 	$days = Array();
@@ -461,8 +461,7 @@ function time_box($hours_name, $hours, $mins_name, $mins, $extras='')
 	trigger_error('*cough*, time_box has not been fully converted - maybe we should be using the datetime_field ?', E_USER_WARNING);
 	return '';
 
-	$hours_list = Array('0' => '12am', '1' => ' 1am', '2' => ' 2am', '3' => ' 3am', '4' => ' 4am', '5' => ' 5am', '6' => ' 6am', '7' => ' 7am', '8' => ' 8am', '9' => ' 9am', '10' => '10am', '11' => '11am',
-				  '12' => '12pm', '13' => ' 1pm', '14' => ' 2pm', '15' => ' 3pm', '16' => ' 4pm', '17' => ' 5pm', '18' => ' 6pm', '19' => ' 7pm', '20' => ' 8pm', '21' => ' 9pm', '22' => '10pm', '23' => '11pm');
+	$hours_list = Array('0' => '12am', '1' => ' 1am', '2' => ' 2am', '3' => ' 3am', '4' => ' 4am', '5' => ' 5am', '6' => ' 6am', '7' => ' 7am', '8' => ' 8am', '9' => ' 9am', '10' => '10am', '11' => '11am', '12' => '12pm', '13' => ' 1pm', '14' => ' 2pm', '15' => ' 3pm', '16' => ' 4pm', '17' => ' 5pm', '18' => ' 6pm', '19' => ' 7pm', '20' => ' 8pm', '21' => ' 9pm', '22' => '10pm', '23' => '11pm');
 	combo_box($hours_name, $hours_list, $hours, $extras);
 
 	$mins_list = Array();
@@ -710,12 +709,12 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 	hidden_field($name.'[url]', '');
 	// call the js function to set where the finder frame is
 	?>
-		<script language="javascript" type="text/javascript">
+		<script type="text/javascript">
 			<?php echo $map_frame; ?>.set_finder(<?php echo $finder_frame; ?>);
 		</script>
 	<?php
 
-	text_box($safe_name.'_label', $label, 30, 0, false, 'readonly="readonly" class="sq-form-asset-finder" onfocus="javascript: this.tmp = this.value;" onblur="javascript: this.value = this.tmp;"');
+	text_box($safe_name.'_label', $label, 30, 0, false, 'readonly="readonly" class="sq-form-asset-finder" onfocus="this.tmp = this.value;" onblur="this.value = this.tmp;"');
 
 	// don't display the buttons when in limbo
 	if (!SQ_IN_LIMBO) {
@@ -806,14 +805,15 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=false, $bg='F
 
 	// we need to store these vars in the session so we can get the
 	// system to print the security image for us
-	$security_vars = Array(	'key'           => $password,
-							'width'         => $img_width,
-							'height'        => $img_height,
-							'bg_colour'     => $bg,
-							'text_colour'   => $text,
-							'border_colour' => $border,
-							'zoom'          => $zoom
-						  );
+	$security_vars = Array(
+						'key'			=> $password,
+						'width'			=> $img_width,
+						'height'		=> $img_height,
+						'bg_colour'		=> $bg,
+						'text_colour'	=> $text,
+						'border_colour'	=> $border,
+						'zoom'			=> $zoom,
+					 );
 	$_SESSION['SQ_SYSTEM_SECURITY_KEY'] = $security_vars;
 
 	// generate the url to get the security image to print
@@ -833,7 +833,7 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=false, $bg='F
 			<td valign="top"><img id="sq_security_key" src="<?php echo $img_url; ?>" border="0" /></td>
 		</tr>
 		<tr>
-			<td class="sq-backend-data" colspan="<?php echo (($img_on_newline) ? '1' : '2'); ?>"><i>Can't read the security key? <a href="#" onclick="Javascript: var img = document.getElementById('sq_security_key'); img.src = '<?php echo $img_url; ?>&regen_key=1'; return false;">Click here to get a new key</a>.</i></td>
+			<td class="sq-backend-data" colspan="<?php echo (($img_on_newline) ? '1' : '2'); ?>"><i>Can't read the security key? <a href="#" onclick="var img = document.getElementById('sq_security_key'); img.src = '<?php echo $img_url; ?>&regen_key=1'; return false;">Click here to get a new key</a>.</i></td>
 		</tr>
 	</table>
 	<?php
@@ -860,7 +860,7 @@ function validate_security_key()
 
 
 /**
-* Takes a variable and outputs as many hidden fields as possible to recreate it
+* Takes a variable and outputs as many hidden fields as necessary to recreate it
 *
 * @param string	$name			the form name to use for the field
 * @param int	$assetid		current value for this field
@@ -881,6 +881,71 @@ function var_to_hidden_field($var, $name='')
 	}
 
 }//end var_to_hidden_field()
+
+
+/**
+* Print an interface widget to choose asset type(s)
+*
+* If $show_inherit_checkbox=false, then $_REQUEST[$name] will be type code, or array of type codes.
+* Otherwise it will be an Array('type_code' => (Array of) type code(s), 'inherit' => (Array of) 1(s) or 0(s))
+*
+* @param string		$name					Name for the field
+* @param boolean	$multiple				Whether we want to be able to choose several types
+* @param boolean	$instatiable			Do we want instantiable or non-instantiable assets? (null means both)
+* @param boolean	$system_accessible		Do we want to include assets that only have system access?
+* @param boolean	$show_inherit_checkbox	Do we want to show a checkbox for inheriting from a type?
+*
+* @access public
+* @return void
+*/
+function asset_type_chooser($name, $multiple=false, $defaults=Array(), $instantiable=null, $system_accessible=false, $show_inherit_checkbox=false)
+{
+	$types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes($instantiable, !$system_accessible);
+	foreach ($types as $code => $details) $types[$code] = $details['name'];
+	asort($types);
+	if ($multiple) {
+		$types = Array(''=>'') + $types;
+		if ($show_inherit_checkbox) {
+			foreach ($defaults['type_code'] as $i => $type_code) {
+				if (empty($type_code)) continue;
+				combo_box($name.'[type_code][]', $types, false, $type_code);
+				hidden_field($name.'[inherit][]', $defaults['inherit'][$i]);
+				check_box('', 1, $defaults['inherit'][$i], 'toggleLastHiddenField(this)');
+				echo 'inherit ';
+				normal_button('', 'Clear', 'resetLastSelect(this)');
+				echo '<br />';
+			}
+			combo_box($name.'[type_code][]', $types, false, '');
+			hidden_field($name.'[inherit][]', 0);
+			check_box('', 1, false, 'toggleLastHiddenField(this)');
+			echo 'inherit ';
+			normal_button('', 'Clear', 'resetLastSelect(this); clearLastCheckbox(this);');
+			normal_button('', 'More...', 'prependTypeSelector(this); prependInheritSelector(this); prependClearButton(this, true)');
+		} else {
+			foreach ($defaults as $default) {
+				if (!empty($default)) {
+					combo_box($name.'[]', $types, false, $default);
+					normal_button('', 'Clear', 'resetLastSelect(this)');
+					echo '<br />';
+				}
+			}
+			combo_box($name.'[]', $types, false, '');
+			normal_button('', 'Clear', 'resetLastSelect(this)');
+			normal_button('', 'More...', 'prependTypeSelector(this); prependClearButton(this, false)');
+		}
+		echo '<br />';
+	} else {
+		if ($show_inherit_checkbox) {
+			combo_box($name.'[type_code]', $types, false, $defaults['type_code']);
+			hidden_field($name.'[inherit]', $defaults['inherit']);
+			check_box('', 1, $defaults['inherit'], 'toggleLastHiddenField(this)');
+			echo 'inherit ';
+		} else {
+			combo_box($name, $types, false, $defaults);
+		}
+	}
+
+}//end asset_type_chooser()
 
 
 ?>
