@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.70.2.9 2005/02/22 05:09:49 lwright Exp $
+* $Id: form.inc,v 1.70.2.10 2005/02/25 05:23:33 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.70.2.9 $
+* @version $Revision: 1.70.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1449,10 +1449,14 @@ class Form extends Bridge
 		$submission = new Form_Submission();
 		$copy_link  = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'is_dependant' => 1, 'is_exclusive' => 1);
 		
+		// need to create this no matter what, even if other users have the
+		// links lock
+		$GLOBALS['SQ_INSTALL'] = true;
 		if (!$submission->create($copy_link)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
+		$GLOBALS['SQ_INSTALL'] = false;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return $submission;
