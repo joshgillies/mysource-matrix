@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.2 2004/05/18 03:07:35 gsherwood Exp $
+* $Id: email_format.inc,v 1.3 2004/05/19 06:42:34 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -190,7 +190,15 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				var div = document.getElementById("<?php echo $prefix; ?>_current_" + type);
 				
 				var current_emails = div.innerHTML;
-				var email_array = current_emails.split("<br>");
+
+				lastIndex = i = 0;
+				arrIndex = 0;
+				email_array = new Array();
+				while(-1 != (i = current_emails.toLowerCase().indexOf("<br>", lastIndex))) {
+					email_array[arrIndex] = current_emails.substring(lastIndex, i);
+					arrIndex++;
+					lastIndex = i+4;
+				}
 				
 				var new_div_content = '';
 				var new_value_content = '';
