@@ -158,7 +158,7 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 			function '.$asset->attr('id_name').'_recursive_fn($level, $links, $'.$asset->attr('id_name').'_base_url, $depth=Array())
 			{
 				global $RECURSIVE_MENU_PAGE_LINEAGE;
-				static $'.$asset->attr('id_name').'_settings = '.var_export($asset->attr('settings'), true).';
+				static $'.$asset->attr('id_name').'_settings = '.var_export($asset->_getSettingsArray(), true).';
 
 				$am = &$GLOBALS[\'SQ_SYSTEM\']->am;
 				$blank_src    = sq_web_path(\'lib\').\'/web/images/blank.gif\';

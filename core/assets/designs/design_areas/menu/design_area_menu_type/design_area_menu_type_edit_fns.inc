@@ -221,7 +221,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		}// end if
 
 		echo '
-			$'.$asset->attr('id_name').'_settings = '.var_export($asset->attr('settings'), true).';
+			$'.$asset->attr('id_name').'_settings = '.var_export($asset->_getSettingsArray(), true).';
 			$'.$asset->attr('id_name').'_parent = &$am->getAsset($PAGE_LINEAGE[$'.$asset->attr('id_name').'_level][\'assetid\'], $PAGE_LINEAGE[$'.$asset->attr('id_name').'_level][\'type_code\']);
 			if (!is_null($'.$asset->attr('id_name').'_parent)) {
 				$'.$asset->attr('id_name').'_links = $'.$asset->attr('id_name').'_parent->getLinks(SQ_LINK_NAV'.$this->_getLinksExtra($asset).');

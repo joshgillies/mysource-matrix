@@ -40,7 +40,10 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 
 			if (!isset($element['attributes']['description'])) $element['attributes']['description'] = '';
 
-			trigger_error('NEED TO MAKE SURE THAT THE TYPE IS VALID HERE', E_USER_NOTICE);
+			if (empty($GLOBALS[__CLASS__.__FUNCTION__])) {
+				trigger_error('NEED TO MAKE SURE THAT THE TYPE IS VALID HERE', E_USER_NOTICE);
+				$GLOBALS[__CLASS__.__FUNCTION__] = 1;
+			}
 
 			$name = preg_replace('/[^a-z0-9_]/i', '_', $element['attributes']['name']);
 

@@ -120,7 +120,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	function _processContents(&$asset, $contents)
 	{
 		$id_names = Array();
-		// firstly let's check to see if all the design areas have unique names
+		//// FIRST, let's check to see if all the design areas have unique names
 		foreach($contents as $index => $element) {
 			if ($element['_type'] != 'TAG' || $element['operation'] != 'area') continue;
 
@@ -148,7 +148,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		}// end foreach
 
-		//// FIRST, let's remove any design area links that we aren't going to be using any more ////
+		//// SECOND, let's remove any design area links that we aren't going to be using any more ////
 
 		$existing_da_links = $asset->getDesignAreaLink();
 		$existing_id_names = Array();
@@ -164,7 +164,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		}// end foreach
 
 
-		//// SECOND, let's validate the design areas that we are going to use ////
+		//// THIRD, let's validate the design areas that we are going to use ////
 
 		$design_areas = Array();
 
@@ -249,23 +249,64 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		$design_area_links = $asset->getDesignAreaLink();
 
+		// Firstly we need to set all the var_reference variables so that when the design areas are
+		// printed they can work correctly
+		//
+		// This is a two stage process, one to set any normal vars and two to set any vars that want DA 
+		// output
+
+		$var_ref_values = Array();
+		$da_refs = Array();
 		foreach($design_area_links as $link) {
 			$da = &$asset->getDesignArea($link['value']);
 			if (is_null($da)) continue;
-			$var_ref_values = Array();
-			$var_refs = $da->getVarReferences();
-			for(reset($var_refs); null !== ($id_name = key($var_refs)); next($var_refs)) {
+			$da_var_refs = $da->getVarReferences();
+			for(reset($da_var_refs); null !== ($id_name = key($da_var_refs)); next($da_var_refs)) {
 				$var_da = &$asset->getDesignArea($id_name);
 				if (is_null($var_da)) continue;
+				if (!isset($var_ref_values[$id_name])) $var_ref_values[$id_name] = Array();
+				foreach($da_var_refs[$id_name] as $var) {
+					// does this var want the whole design area ? 
+					if ($var === '') {
+						$da_refs[] = $id_name;
+					// else just a normal var (make sure we don't have it already)
+					} elseif (!isset($var_ref_values[$id_name][$var])) {
+						$var_ref_values[$id_name][$var] = $var_da->attr($var);
 
-				$var_ref_values[$id_name] = Array();
-				foreach($var_refs[$id_name] as $var) {
-					$var_ref_values[$id_name][$var] = $var_da->attr($var);
-				}
+					}// end if
+
+				}// end foreach
+
 			}// end foreach
 
+		}// end foreach
+
+		// OK, now that we have all the var reference values we can just set them for all the DA's
+		foreach($design_area_links as $link) {
+			$da = &$asset->getDesignArea($link['value']);
+			if (is_null($da)) continue;
 			$da->setVarReferenceValues($var_ref_values);
 		}// end foreach
+
+		// Now that all the all the DA's have their vars set, we can do the DA output ones
+		$da_ref_values = Array();
+		foreach($da_refs as $id_name) {
+			$da = &$asset->getDesignArea($id_name);
+			if (is_null($da)) continue;
+			ob_start();
+			$da->printArea($asset);
+			// NOTE: format like this because we are calling setVarReferenceValues()
+			$da_ref_values[$id_name] = Array('' => ob_get_contents());
+			ob_end_clean();
+		}// end foreach
+
+		// OK, now that we have all the da reference values we can just set them for all the DA's
+		foreach($design_area_links as $link) {
+			$da = &$asset->getDesignArea($link['value']);
+			if (is_null($da)) continue;
+			$da->setVarReferenceValues($da_ref_values);
+		}// end foreach
+
 
 		$pre_str = '<?php 
 		$FILE_PREFIX = $DATA_PATH.\'/'.addslashes($asset->webFileSuffix('')).'\'; 

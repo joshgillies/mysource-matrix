@@ -90,8 +90,9 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 
 
-		// lets just make sure they aren't trying to be tricky
-		// and do some processing we don't know about
+		// lets just make sure they aren't trying to be tricky and do some processing we don't know about
+		// if there are issues with this, then maybe some regular expressions could be used, but for now
+		// LEAVE THIS ALONE, DO NOT TOUCH - BCR
 		$file_contents = str_replace('<'.'?', '&lt;?', $file_contents);
 		$file_contents = str_replace('?'.'>', '?&gt;', $file_contents);
 
@@ -465,13 +466,8 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 			if ($element['_type'] != 'TAG' || $element['operation'] != 'set') continue;
 
-			// if there is no 'value' set or both the 'id_name' and 'var' vars are empty
-			// we don't know what we can do, so barf in their direction
-			if (!isset($element['attributes']['value']) && (empty($element['attributes']['id_name']) || empty($element['attributes']['var']))) {
-				trigger_error('Unable to set "'.$element['attributes']['name'].'" in "'.$this->attr('id_name').'". Either a value must be set or both the id_name and name attributes must be set', E_USER_WARNING);
-
-			// so it's a reference to another variable ?
-			} elseif (!empty($element['attributes']['id_name']) && !empty($element['attributes']['var'])) {
+			// Is this a reference to another variable ?
+			if (!empty($element['attributes']['id_name']) && !empty($element['attributes']['var'])) {
 
 				// just set this so we remember what is happening when it comes to painting
 				$var_references[$element['attributes']['name']] = Array(
@@ -479,14 +475,28 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 																		'var'     => $element['attributes']['var']
 																		);
 
+			// Do we want a whole design areas value ?
+			} elseif (!empty($element['attributes']['id_name'])) {
+
+				// just set this so we remember what is happening when it comes to painting
+				$var_references[$element['attributes']['name']] = Array(
+																		'id_name' => $element['attributes']['id_name'],
+																		'var'     => ''
+																		);
+
 			// we must be a normal value, so set it
-			} else {
+			} elseif (isset($element['attributes']['value'])) {
 				// if this holds an image, then remove any image roots before saving
 				if (stristr($element['attributes']['name'], 'image')) {
 					$element['attributes']['value'] = $this->_removeFileRoot($element['attributes']['value']);
 				}
 
 				if (!$asset->setAttrValue($element['attributes']['name'], $element['attributes']['value'])) return false;
+
+			// else something is amiss and we don't know what we can do, so barf in their direction
+			} else {
+				trigger_error('Unable to set "'.$element['attributes']['name'].'" in "'.$asset->attr('id_name').'". Either a value must be set or both the id_name and name attributes must be set', E_USER_WARNING);
+
 
 			}// endif
 

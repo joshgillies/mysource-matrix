@@ -108,8 +108,11 @@ class Design_Area_Menu_Type extends Design_Area
 		if (substr($name, 0, 9) == 'settings.') {
 			// The name is in the form 'settings.[var_name].[setting type]'
 			$split = explode('.', $name);
-			if (count($split) == 3 && isset($this->vars['settings']['value'][$split[1]][$split[2]])) {
-				return $this->vars['settings']['value'][$split[1]][$split[2]];
+			if (count($split) == 3) {
+				$settings = $this->attr('settings'); // do this so that any var references will be taken into account
+				if (isset($settings[$split[1]][$split[2]])) {
+					return $settings[$split[1]][$split[2]];
+				}
 			}// end if
 		}// end if
 
@@ -153,11 +156,33 @@ class Design_Area_Menu_Type extends Design_Area
 	*/
 	function setVarReferenceValues($var_ref_values)
 	{
+		$settings = $this->attr('settings');
+		$settings_changed = false;
+		foreach($this->vars['var_references']['value'] as $var_name => $info) {
+			// if this is a setting and it is available in the var_ref_values
+			if (substr($var_name, 0, 9) == 'settings.' && isset($var_ref_values[$info['id_name']][$info['var']])) {
+				// The name is in the form 'settings.[var_name].[setting type]'
+				$split = explode('.', $var_name);
+				if (count($split) == 3) {
+					if (!isset($settings[$split[1]])) $settings[$split[1]] = Array();
+					$settings[$split[1]][$split[2]] = $var_ref_values[$info['id_name']][$info['var']];
+					$settings_changed = true;
+				}// end if
+			}// end if
+		}// end foreach
+
+		if ($settings_changed) {
+			$this->_tmp['var_reference_values']['settings'] = $settings;
+		}
+
+		// send our custom array to the parent fn
 		parent::setVarReferenceValues($var_ref_values);
 		$sub_menu = &$this->getSubMenu();
 		if (!is_null($sub_menu)) {
+			// now send the original array to the sub
 			$sub_menu->setVarReferenceValues($var_ref_values);
 		}// end if
+
 	}//end setVarReferenceValues();
 
 
@@ -212,8 +237,10 @@ class Design_Area_Menu_Type extends Design_Area
 	*/
 	function settingExists($name)
 	{
-		return !empty($this->vars['settings']['value'][$name]);
+		$settings = $this->attr('settings'); // do like this to take into account var refs
+		return !empty($settings[$name]);
 	}//end settingExists()
+
 
 	/*
 	* Outputs the var either as straight HTML or PHP code, depending on the type
@@ -232,7 +259,26 @@ class Design_Area_Menu_Type extends Design_Area
 			// The name is in the form 'settings.[var_name].[setting type]'
 			list(,$setting_name) = explode('.', $var, 2);
 			if ($setting_name && $this->settingExists($setting_name)) {
-				echo '<', '?php echo $'.$this->attr('id_name').'_settings[\''.$setting_name.'\'][$'.$this->attr('id_name').'_current_setting]; ?', '>';
+
+				// we got php code ? OK, we need to use a switch statement
+				if ($this->_settingHasPHPCode($setting_name)) {
+					$settings = $this->attr('settings');
+					ob_start();
+					echo '<', '?php switch($'.$this->attr('id_name').'_current_setting){ ';
+					foreach($settings[$setting_name] as $case => $value) {
+						echo 'case \''.addslashes($case).'\' : ?>'.$value.'<?php break; ';
+					}
+					echo '}// end switch ?', '>';
+					error_log(ob_get_contents());
+					ob_end_flush();
+
+				// no php code ? cool, we can read from the array
+				} else {
+					echo '<', '?php echo $'.$this->attr('id_name').'_settings[\''.$setting_name.'\'][$'.$this->attr('id_name').'_current_setting]; ?', '>';
+
+				}// end if
+
+
 			}// end if
 		} else {
 
@@ -260,6 +306,45 @@ class Design_Area_Menu_Type extends Design_Area
 		}// end if
 
 	}//end printVar()
+
+
+	/*
+	* Returns the settings array that will be need to be var_exported
+	*
+	* @access public
+	*/
+	function _settingHasPHPCode($setting_name)
+	{
+		$settings = $this->attr('settings');
+		// OK we need out find out if any of the values for this setting have PHP code that needs to be 
+		$has_php_code = false;
+		foreach($settings[$setting_name] as $case => $value) {
+			// we know that this will be the long format because only our design areas have put this in
+			if (strpos($value, '<'.'?php') !== false) return true;
+		}// end if
+
+	}//end _settingHasPHPCode()
+
+	/*
+	* Returns the settings array that will be need to be var_exported
+	*
+	* @access public
+	*/
+	function _getSettingsArray()
+	{
+		$settings = $this->attr('settings');
+		// OK we need out find out if any of the values for this setting have PHP code that needs to be 
+		$names = array_keys($settings);
+		foreach($names as $setting_name) {
+			// we know that this will be the long format because only our design areas have put this in
+			if ($this->_settingHasPHPCode($setting_name)) {
+				unset($settings[$setting_name]);
+			}
+		}// end if
+
+		return $settings;
+
+	}//end _getSettingsArray()
 
 
 }//end class

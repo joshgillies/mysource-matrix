@@ -22,7 +22,7 @@ class Design_Area extends Asset
 	*/
 	function Design_Area($assetid=0)
 	{
-		$this->_ser_atrs   = true; // we have serialize type vars
+		$this->_ser_atrs   = true; // we have serialise type vars
 		// No design area is going to be restricted
 		$this->_restricted = false;
 		$this->Asset($assetid);
@@ -137,9 +137,11 @@ class Design_Area extends Asset
 	*/
 	function setVarReferenceValues($var_ref_values)
 	{
-		$this->_tmp['var_reference_values'] = Array();
+		if (!isset($this->_tmp['var_reference_values'])) $this->_tmp['var_reference_values'] = Array();
 		foreach($this->vars['var_references']['value'] as $var_name => $info) {
-			$this->_tmp['var_reference_values'][$var_name] = $var_ref_values[$info['id_name']][$info['var']];
+			if (isset($var_ref_values[$info['id_name']][$info['var']])) {
+				$this->_tmp['var_reference_values'][$var_name] = $var_ref_values[$info['id_name']][$info['var']];
+			}
 		}// end foreach
 
 	}//end setVarReferenceValues();

@@ -44,6 +44,7 @@ class Design_Area_Colourise_Image extends Design_Area
 
 	}//end setAttrValue()
 
+
 	/**
 	* Easy way to get the value of an attribute
 	*
