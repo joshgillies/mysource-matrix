@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.42 2004/03/24 23:32:55 gsherwood Exp $
+* $Id: mysource.inc,v 1.43 2004/04/08 09:59:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -994,7 +994,11 @@ class MySource
 		// cat trans.log | awk '{ print $3 }' | sort | uniq -c # number of calls in a fn
 		// cat trans.log | awk '{ print $5 }' | sort | uniq -c # total number of each type of call
 		#$bt = debug_backtrace();
-		#error_log('TRANS : '.$bt[1]['class'].'::'.$bt[1]['function'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/trans.log');
+		#if (isset($bt[1])) {
+		#	error_log('TRANS : '.$bt[1]['class'].'::'.$bt[1]['function'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
+		#} else {
+		#	error_log('TRANS : '.$bt[0]['file'].'::'.$bt[0]['line'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
+		#}
 		switch (strtolower($type)) {
 			case 'begin'    :
 				$this->tm->begin($this->_db_stack[count($this->_db_stack) - 1]);
