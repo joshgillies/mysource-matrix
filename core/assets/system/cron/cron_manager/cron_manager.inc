@@ -41,7 +41,7 @@ class Cron_Manager extends Asset
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT count(*) FROM sq_asset WHERE type_code = '.$db->quote($this->type());
+		$sql = 'SELECT COUNT(*) FROM sq_asset WHERE type_code = '.$db->quote($this->type());
 		$exists = $db->getOne($sql);
 		if (DB::isError($exists)) trigger_error($exists->getMessage().'<br/>'.$exists->getUserInfo(), E_USER_ERROR);
 
@@ -49,8 +49,6 @@ class Cron_Manager extends Asset
 			trigger_error('Unable to create another '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').', you are only allowed one', E_USER_WARNING);
 			return false;
 		}
-
-		$this->setAttrValue('name', 'Trash');
 
 		$ret_val = parent::create($link);
 		unset($this->_tmp[__CLASS__.'_in_create']);
