@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.17 2004/08/19 05:50:57 gsherwood Exp $
+* $Id: search_page_management.inc,v 1.18 2004/09/02 01:13:24 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -69,6 +69,12 @@ class Search_Page_Management extends Asset_Management
 				'type'			=> 'text',
 				'default'		=> 'Search',
 				'description'	=> 'Text that would appear on the search page submit button',
+			),
+			'sis_button_text' => Array (
+				'added'			=> '0.5',
+				'type'			=> 'text',
+				'default'		=> 'Search',
+				'description'	=> 'Text that would appear on the search in search submit button',
 			),
 			'fields' => Array(
 				'added'			=> '0.1',

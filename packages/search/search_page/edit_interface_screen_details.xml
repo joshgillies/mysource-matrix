@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.13 2004/08/19 05:50:57 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.14 2004/09/02 01:13:24 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -54,6 +54,14 @@
 		</field>
 	</section>
 	<section name="Display Options">
+		<field write_access="write:links">
+			<display_name>Search Forms</display_name>
+			<note>Search forms that require customising for the search page</note>
+			<function_call>
+				<paint_function   name="paintCustomiseSearchForms" />
+				<process_function name="processCustomiseSearchForms" />
+			</function_call>
+		</field>
 		<field attribute="results_per_page" read_access="" write_access="write:attributes" >
 			<display_name>Results Per Page</display_name>
 			<note>The default results per page.</note>
@@ -65,8 +73,13 @@
 			<text />
 		</field>
 		<field attribute="submit_button_text" read_access="" write_access="write:attributes" >
-			<display_name>Submit button text</display_name>
+			<display_name>Search button text</display_name>
 			<note>This text will appear on the submit button of this search page</note>
+			<text />
+		</field>
+		<field attribute="sis_button_text" read_access="" write_access="write:attributes" >
+			<display_name>Search in search button text</display_name>
+			<note>This text will appear on the submit button of the search within search form</note>
 			<text />
 		</field>
 		<field attribute="sort_by" read_access="" write_access="write:attributes" >

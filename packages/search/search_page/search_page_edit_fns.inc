@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.27 2004/08/19 05:50:57 gsherwood Exp $
+* $Id: search_page_edit_fns.inc,v 1.28 2004/09/02 01:13:24 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.27 $ - 1.0
+* @version $Revision: 1.28 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -46,6 +46,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 	{
 		$this->Page_Edit_Fns();
 		$this->static_screens['details']['lock_type'] = 'content';
+		$this->static_screens['details']['force_unlock'] = false;
 
 	}//end Search_Page_Edit_Fns()
 
@@ -955,6 +956,159 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 		}//end switch
 
 	}//end paintFieldParameters()
+	
+	
+	/**
+	* Paints the interface to customise the search forms
+	*
+	* @param object Search_Page			&$asset	the search page asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCustomiseSearchForms(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('links');
+
+		$search_bodycopy_link = &$asset->getFormatBodycopyLink('search_form');
+		$sis_bodycopy_link    = &$asset->getFormatBodycopyLink('sis_form'); //search in search
+		$search_customised    = !empty($search_bodycopy_link) && $search_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
+		$sis_customised       = !empty($sis_bodycopy_link) && $sis_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
+		
+		?>
+			<table>
+				<tr>
+					<td>Customise search form</td>
+					<td>
+						<?php 
+							if (!$write_access) {
+								echo ($search_customised) ? 'Yes' : 'No';
+							} else {
+								check_box($prefix.'_search_form', 1, $search_customised);
+							}
+						?>
+					</td>
+				</tr>
+				<tr>
+					<td>Customise search within search form</td>
+					<td>
+						<?php 
+							if (!$write_access) {
+								echo ($sis_customised) ? 'Yes' : 'No';
+							} else {
+								check_box($prefix.'_sis_form', 1, $sis_customised);
+							}
+						?>
+					</td>
+				</tr>
+			</table>
+		<?php
+
+		return $write_access;
+
+	}//end paintCustomiseSearchForms()
+
+
+	/**
+	* Processes the interface to customise the search forms
+	*
+	* @param object Search_Page			&$asset	the search page asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processCustomiseSearchForms(&$asset, &$o, $prefix)
+	{
+		$format_folder = &$asset->getFormatFolder();
+
+		$forms = Array(
+			'Default Search'   => 'search_form',
+			'Search In Search' => 'sis_form'
+		);
+
+		$bodycopies_visible = false;
+
+		foreach ($forms as $form_name => $value) {
+			if (isset($_POST[$prefix.'_'.$value])) {
+				
+				if (is_null($format_folder)) {
+					// create the folder if it does not exist
+		
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
+					$format_folder = new Folder();
+					$copy_link = Array('asset' => &$asset, 'value' => 'format_folder', 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
+		
+					$format_folder->setAttrValue('name', 'Search Forms');
+		
+					if (!$format_folder->create($copy_link)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						trigger_error('Could not create the format folder', E_USER_WARNING);
+						return false;
+					}
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				}
+				
+				$bodycopy = &$asset->getFormatBodycopy($value);
+
+				if (is_null($bodycopy)) {
+
+					// if there is no bodycopy here, then we want to create it
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+					$bodycopy = new Bodycopy();
+					$copy_link = Array('asset' => &$format_folder, 'value' => $value, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
+
+					$bodycopy->setAttrValue('name', $form_name);
+
+					if (!$bodycopy->create($copy_link)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						trigger_error('Could not create the '.$form_name.' bodycopy', E_USER_WARNING);
+						return false;
+					}
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				} else {
+					$bodycopy_link = $asset->getFormatBodycopyLink($value);
+					if ($bodycopy_link['link_type'] != SQ_LINK_TYPE_2) {
+						if (!$GLOBALS['SQ_SYSTEM']->am->updateLink($bodycopy_link['linkid'], SQ_LINK_TYPE_2)) {
+							trigger_error('Could not update the link type for bodycopy '.$form_name, E_USER_WARNING);
+							return false;
+						}
+					}
+				}
+				$bodycopies_visible = true;
+
+			} else {
+				$bodycopy_link = $asset->getFormatBodycopyLink($value);
+				if (!empty($bodycopy_link['link_type']) && $bodycopy_link['link_type'] != SQ_LINK_TYPE_3) {
+					if (!$GLOBALS['SQ_SYSTEM']->am->updateLink($bodycopy_link['linkid'], SQ_LINK_TYPE_3)) {
+						trigger_error('Could not update the link type for bodycopy '.$form_name, E_USER_WARNING);
+						return false;
+					}
+				}
+			}//end if isset
+		}//end foreach
+
+
+		// if none of the bodycopies are visible, the hide the folder as well
+		$folder_link_type = SQ_LINK_TYPE_3;
+		if ($bodycopies_visible) $folder_link_type = SQ_LINK_TYPE_2;
+		
+		$folder_link = $asset->getFormatFolderLink();
+		if (!empty($folder_link['link_type']) && $folder_link['link_type'] != $folder_link_type) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->updateLink($folder_link['linkid'], $folder_link_type)) {
+				trigger_error('Could not update the link type for the format folder', E_USER_WARNING);
+				return false;
+			}
+		}
+
+		return false;
+
+	}//end processCustomiseSearchForms()
 
 
 }//end class

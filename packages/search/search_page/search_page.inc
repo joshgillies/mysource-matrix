@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.51 2004/08/25 02:16:05 gsherwood Exp $
+* $Id: search_page.inc,v 1.52 2004/09/02 01:13:24 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,60 +38,64 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc'; // for the meda
 * @author  Dominic Wong <dwong@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.51 $ - 1.0
+* @version $Revision: 1.52 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
 class Search_Page extends Page
 {
+
 	/**
-	* An array of bodycopies and their names that are attached underneath this page asset.
-	* @var Array()
+	* An array of bodycopies and their names that are attached underneath this page asset
+	* @var array
 	*/
 	var $bodycopies = Array (
-		'initial'			=> 'Initial Search Page Layout',
-		'results'			=> 'Results Page Layout',
-		'result_element'	=> 'Result Element Layout',
-	);
+							'initial'			=> 'Initial Search Page Layout',
+							'results'			=> 'Results Page Layout',
+							'result_element'	=> 'Result Element Layout',
+							);
 
 	/**
-	* An array of default parameters.
+	* An array of default parameters
 	*
-	* @var Array()
+	* @var array
 	*/
-	var $defaults = Array (
-		'query_width'	=> 25,
-	);
+	var $defaults = Array ('query_width' => 25);
 
+	/**
+	* An array of keywords replacements that can be used in this page
+	*
+	* @var array
+	*/
 	var $keywords = Array(
-						'initial' => Array(
-							'submit_button'		=> Array('description' => '<input type="button" value="Search" />', 'type' => 'special'),
-							'results_per_page'	=> Array('description' => '<input type="text" value="Results per page" />', 'type' => 'special'),
-												),
-						'results' => Array(
-							'result_list'				=> Array('description' => 'List of search results', 'type' => 'block'),
-							'result_count'				=> Array('description' => 'Number of results found', 'type' => 'inline'),
-							'current_result_page'		=> Array('description' => 'Page of results we are on', 'type' => 'inline'),
-							'total_result_pages'		=> Array('description' => 'Total number of result pages', 'type' => 'inline'),
-							'result_page_index'			=> Array('description' => 'List of result pages', 'type' => 'inline'),
-							'previous_result_page_link'	=> Array('description' => 'Previous', 'type' => 'inline'),
-							'next_result_page_link'		=> Array('description' => 'Next', 'type' => 'inline'),
-							'initial_layout'			=> Array('description' => 'New search', 'type' => 'block'),
-							'category_list_linked'		=> Array('description' => 'Linked list of categories', 'type' => 'inline'),
-												),
-						'result_element' => Array(
-							'score'						=> Array('description' => 'Result score', 'type' => 'inline'),
-							'result_number'				=> Array('description' => 'No.', 'type' => 'inline'),
-							'asset_id'					=> Array('description' => 'Asset ID', 'type' => 'inline'),
-							'asset_name'				=> Array('description' => 'Name of the asset', 'type' => 'inline'),
-							'asset_name_linked'			=> Array('description' => 'Name of the asset (linked)', 'type' => 'inline'),
-							'asset_short_name'			=> Array('description' => 'Short name of the asset', 'type' => 'inline'),
-							'asset_short_name_linked'	=> Array('description' => 'Short name of the asset (linked)', 'type' => 'inline'),
-							'asset_url'					=> Array('description' => 'URL of the asset', 'type' => 'inline'),
-							'asset_lineage'				=> Array('description' => 'Lineage to the asset', 'type' => 'inline'),
-							'asset_lineage_linked'		=> Array('description' => 'Lineage to the asset (linked)', 'type' => 'inline'),
-												),
-						);
+		'initial' => Array(
+			'submit_button'		=> Array('description' => '<input type="button" value="Search" />', 'type' => 'special'),
+			'results_per_page'	=> Array('description' => '<input type="text" value="Results per page" />', 'type' => 'special'),
+								),
+		'results' => Array(
+			'result_list'				=> Array('description' => 'List of search results', 'type' => 'block'),
+			'result_count'				=> Array('description' => 'Number of results found', 'type' => 'inline'),
+			'current_result_page'		=> Array('description' => 'Page of results we are on', 'type' => 'inline'),
+			'total_result_pages'		=> Array('description' => 'Total number of result pages', 'type' => 'inline'),
+			'result_page_index'			=> Array('description' => 'List of result pages', 'type' => 'inline'),
+			'previous_result_page_link'	=> Array('description' => 'Previous', 'type' => 'inline'),
+			'next_result_page_link'		=> Array('description' => 'Next', 'type' => 'inline'),
+			'initial_layout'			=> Array('description' => 'New search', 'type' => 'block'),
+			'category_list_linked'		=> Array('description' => 'Linked list of categories', 'type' => 'inline'),
+								),
+		'result_element' => Array(
+			'score'						=> Array('description' => 'Result score', 'type' => 'inline'),
+			'result_number'				=> Array('description' => 'No.', 'type' => 'inline'),
+			'asset_id'					=> Array('description' => 'Asset ID', 'type' => 'inline'),
+			'asset_name'				=> Array('description' => 'Name of the asset', 'type' => 'inline'),
+			'asset_name_linked'			=> Array('description' => 'Name of the asset (linked)', 'type' => 'inline'),
+			'asset_short_name'			=> Array('description' => 'Short name of the asset', 'type' => 'inline'),
+			'asset_short_name_linked'	=> Array('description' => 'Short name of the asset (linked)', 'type' => 'inline'),
+			'asset_url'					=> Array('description' => 'URL of the asset', 'type' => 'inline'),
+			'asset_lineage'				=> Array('description' => 'Lineage to the asset', 'type' => 'inline'),
+			'asset_lineage_linked'		=> Array('description' => 'Lineage to the asset (linked)', 'type' => 'inline'),
+								),
+		);
 
 
 	/**
@@ -111,7 +115,7 @@ class Search_Page extends Page
 	/**
 	* Create this asset
 	*
-	* @param array()	&$link	information used to create the initial link
+	* @param array	&$link	information used to create the initial link
 	*
 	* @see Asset::create()
 	* @return mixed int or false
@@ -219,6 +223,8 @@ class Search_Page extends Page
 	{
 		$page_links = parent::_getAllowedLinks();
 		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => count($this->bodycopies), 'exclusive' => true);
+		$page_links[SQ_LINK_TYPE_2]['folder'] = Array('card' => 1, 'exclusive' => false);
+		$page_links[SQ_LINK_TYPE_3]['folder'] = Array('card' => 1, 'exclusive' => false);
 		$page_links[SQ_LINK_NOTICE]['asset'] = Array('card' => 'M', 'exclusive' => false);
 		return $page_links;
 
@@ -270,16 +276,19 @@ class Search_Page extends Page
 	*/
 	function printBody()
 	{
+		$mode = array_get_index($_REQUEST, 'mode', 'initial');
+		if (!isset($_SESSION['SQ_LAST_SEARCH'][$this->id])) {
+			$_SESSION['SQ_LAST_SEARCH'][$this->id] = Array();
+		} else {
+			if ($mode != 'sis') $_SESSION['SQ_LAST_SEARCH'][$this->id] = Array();
+		}
+		
 		// get the corresponding bodycopy attached to us
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-		$mode =& $_REQUEST['mode'];
-		if (!isset($mode)) $mode = 'initial';
 
-		$current_result_page =& $_REQUEST['current_result_page'];
-		$results_per_page =& $_REQUEST['results_per_page'];
+		$current_result_page = array_get_index($_REQUEST, 'current_result_page', 0);
+		$results_per_page    = array_get_index($_REQUEST, 'results_per_page', $this->attr('results_per_page'));
 
-		if (!isset($current_result_page)) $current_result_page = 0;
-		if (!isset($results_per_page)) $results_per_page = $this->attr('results_per_page');
 		?>
 		<form name="search_form" method="get" action="<?php echo $this->getUrl(); ?>">
 			<input type="hidden" name="mode" value="<?php echo $mode; ?>" />
@@ -288,8 +297,10 @@ class Search_Page extends Page
 			<?php
 			switch ($mode) {
 				case 'results':
+				case 'sis'    :
 					$this->printResultsBody();
-					break;
+				break;
+
 				case 'initial':
 				default:
 					echo $this->getBodycopyContents('initial', $this->getInitialBodyReplacements());
@@ -434,6 +445,315 @@ class Search_Page extends Page
 
 
 	/**
+	* Returns the replacement for the specified field
+	*
+	* @param string $field name the name of the field to get the replacement for
+	*
+	* @return string
+	* @access public
+	*/
+	function getFieldReplacement($field_name)
+	{
+		
+		$query_var = $field_name.'_query';
+		$fields = $this->attr('fields');
+		$query = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $query_var, '');
+
+		ob_start();
+
+			if ($fields[$field_name]['type'] == 'metadata') {
+
+				$assetid = $fields[$field_name]['params']['metadata_field']['assetid'];
+				$am = &$GLOBALS['SQ_SYSTEM']->am;
+				$asset = &$am->getAsset($assetid);
+				$params = $asset->vars;
+
+				if (isset($params['format'])) { // metadata Date field
+					// don't ask me why I'm doing this
+					$temp_name = $query_var.'__';
+					$field = $this->getEpochDateTimeField("$temp_name", $asset);
+					$field->processField(); // showing value if any
+					$field->printField();
+				} else if (isset($params['multi_line'])) { // normal metadata TEXT field
+					// using same defintion as for a simple field, but will have to revise later...
+					text_box("queries_$query_var", $query, $this->defaults['query_width']);
+				} else if (isset($params['select_options'])) { // metadata dropdown selection
+					$select_options = $params['select_options']['value'];
+					$select_options = array_reverse($select_options);
+					$select_options[''] = '- Please select -';
+					$select_options = array_reverse($select_options);
+					combo_box('queries_'.$query_var, $select_options, false, $query);
+				}
+
+			} else if ($fields[$field_name]['type'] == 'asset_attrib') {
+
+				$search_styles = $this->attr('search_styles');
+
+				// [0] - name, [1] - type, [2] - id
+				$attr_parts = explode('__', $fields[$field_name]['params']['type_attr']);
+
+				// if this is a boolean field, we want to make sure
+				// the default value is '_' instead of a blank string
+				// so the correct option is selected for '-- Leave Empty --'
+				if ($attr_parts[1] == 'boolean') if ($query == '') $query = '_';
+
+				require_once SQ_ATTRIBUTES_PATH.'/'.$attr_parts[1].'/'.$attr_parts[1].'.inc';
+				$attr_class = 'Asset_Attribute_'.$attr_parts[1]; // attr name
+				$attribute = new $attr_class($attr_parts[2], $query); // attr id
+
+				if (!empty($search_styles) && isset($search_styles[$attribute->name])) {
+					$attribute->_edit_params = $search_styles[$attribute->name];
+				}
+
+				if ($attr_parts[1] == 'selection') {
+					if (empty($attribute->_params['multiple'])) {
+						$attribute->_params['options'] = array_reverse($attribute->_params['options']);
+						$attribute->_params['options']['_'] = '-- Leave Empty --';
+						$attribute->_params['options'] = array_reverse($attribute->_params['options']);
+					}
+				}
+
+				$attribute->paint('queries_'.$query_var, false, false);
+
+			} else {
+
+				// not a metadata field, just a normal text field
+				text_box('queries_'.$query_var, $query, $this->defaults['query_width']);
+
+			}
+
+			$replacement = ob_get_contents();
+
+		ob_end_clean();
+
+		return $replacement;
+
+	}//end getFieldReplacement()
+
+
+	/**
+	* Returns the replacement for the specified field in a search in search form
+	*
+	* @param string $field name the name of the field to get the replacement for
+	*
+	* @return string
+	* @access public
+	*/
+	function getSisFieldReplacement($field_name)
+	{
+		$query_var = $field_name.'_query';
+		$query = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $query_var, '');
+		$query_var = $field_name.'_query_sis';
+
+		$fields = $this->attr('fields');
+
+		ob_start();
+
+			if ($fields[$field_name]['type'] == 'metadata') {
+
+				$assetid = $fields[$field_name]['params']['metadata_field']['assetid'];
+				$am = &$GLOBALS['SQ_SYSTEM']->am;
+				$asset = &$am->getAsset($assetid);
+				$params = $asset->vars;
+
+				if (isset($params['format'])) {
+					// metadata date field
+					$temp_name = $query_var.'__';
+					$field = $this->getEpochDateTimeField("$temp_name", $asset);
+					
+					// showing value if any
+					$field->processField();
+					$field->printField();
+				} else if (isset($params['multi_line'])) {
+					// normal metadata text field
+					text_box('queries_'.$query_var, '', $this->defaults['query_width']);
+				} else if (isset($params['select_options'])) {
+					// metadata dropdown selection
+					$select_options = $params['select_options']['value'];
+					if (empty($query) || !isset($select_options[$query])) {
+						$select_options = array_reverse($select_options);
+						$select_options[''] = '- Please select -';
+						$select_options = array_reverse($select_options);
+						combo_box('queries_'.$query_var, $select_options, false, $query);
+					} else {
+						echo $select_options[$query];
+					}
+				}
+
+			} else if ($fields[$field_name]['type'] == 'asset_attrib') {
+
+				$search_styles = $this->attr('search_styles');
+				$read_only = false;
+
+				// [0] - name, [1] - type, [2] - id
+				$attr_parts = explode('__', $fields[$field_name]['params']['type_attr']);
+
+				// if this is a boolean field, we want to make sure
+				// the default value is '_' instead of a blank string
+				// so the correct option is selected for '-- Leave Empty --'
+				if ($attr_parts[1] == 'boolean') if ($query == '') $query = '_';
+
+				require_once SQ_ATTRIBUTES_PATH.'/'.$attr_parts[1].'/'.$attr_parts[1].'.inc';
+				$attr_class = 'Asset_Attribute_'.$attr_parts[1]; // attr name
+				$attribute = new $attr_class($attr_parts[2], $query); // attr id
+
+				if (!empty($search_styles) && isset($search_styles[$attribute->name])) {
+					$attribute->_edit_params = $search_styles[$attribute->name];
+				}
+				
+				switch ($attr_parts[1]) {
+					case 'selection' :
+						if (empty($attribute->_params['multiple'])) {
+							if (isset($attribute->_params['options'][$query])) {
+								$read_only = true;
+							} else {
+								$attribute->_params['options'] = array_reverse($attribute->_params['options']);
+								$attribute->_params['options']['_'] = '-- Leave Empty --';
+								$attribute->_params['options'] = array_reverse($attribute->_params['options']);
+							}
+						} else {
+							if (!empty($query)) {
+								echo '<div class="search_current_options">';
+								foreach ($query as $option) {
+									if (!isset($attribute->_params['options'][$option])) continue;
+									echo $attribute->_params['options'][$option].'<br />';
+									unset($attribute->_params['options'][$option]);
+								}
+								echo '</div>';
+							}
+						}
+					break;
+
+					case 'boolean' :
+						if ($query != '_') $read_only = true;
+					break;
+
+					case 'text' :
+						$attribute->value = '';
+					break;
+				}//end switch
+				
+				$attribute->paint('queries_'.$query_var, $read_only, false);
+
+			} else {
+
+				// not a metadata field, just a normal text field
+				text_box('queries_'.$query_var, '', $this->defaults['query_width']);
+
+			}
+
+			$replacement = ob_get_contents();
+
+		ob_end_clean();
+
+		return $replacement;
+
+	}//end getSisFieldReplacement()
+
+
+	/**
+	* Returns replacements that that are common to the bodycopies
+	*
+	* @param string $keyword the keyword of the wanted replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getGeneralReplacement($keyword)
+	{
+		$replacement = '';
+		switch ($keyword) {
+
+			case 'search_button' :
+			case 'submit_button' :
+				$replacement  = '<input type="submit" onclick="
+					document.search_form.current_result_page.value=\'0\';
+					document.search_form.mode.value = \'results\';
+					return true;
+				" value="'. $this->attr('submit_button_text').'" />';
+			break;
+
+			case 'search_in_search_button' :
+				$replacement  = '<input type="submit" onclick="
+					document.search_form.current_result_page.value=\'0\';
+					document.search_form.mode.value = \'sis\';
+					return true;
+				" value="'. $this->attr('sis_button_text').'" />';
+			break;
+
+			case 'search_form':
+				$bodycopy_link = $this->getFormatBodycopyLink('search_form');
+
+				if (!empty($bodycopy_link) && $bodycopy_link['link_type'] == SQ_LINK_TYPE_2) {
+					$replacements = $this->getFormFormatReplacements('search_form');
+					$replacement = $this->getFormFormatContents('search_form', $replacements);
+				} else {
+					$replacement = '';
+				}
+			break;
+
+			case 'search_in_search_form':
+				$bodycopy_link = $this->getFormatBodycopyLink('sis_form');
+
+				if (!empty($bodycopy_link) && $bodycopy_link['link_type'] == SQ_LINK_TYPE_2) {
+					$replacements = $this->getFormFormatReplacements('sis_form');
+					$replacement = $this->getFormFormatContents('sis_form', $replacements);
+				} else {
+					$replacement = '';
+				}
+			break;
+
+			case 'category_list' :
+				$category = (isset($_REQUEST['search_category'])) ? $_REQUEST['search_category'] : '';
+				$categories = $this->attr('categories');
+				if (!empty($categories)) {
+					$options = Array('' => $this->attr('no_category_text'));
+					foreach ($categories as $key => $data) $options[$key] = $data['name'];
+					ob_start();
+						combo_box('search_category', $options, false, $category);
+						$replacement = ob_get_contents();
+					ob_end_clean();
+				} else {
+					$replacement = '';
+				}
+			break;
+
+			case 'sort_by' :
+				$sort_by = (isset($_REQUEST['sort_by'])) ? $_REQUEST['sort_by'] : $this->attr('sort_by');
+				$sort_attr = $this->getAttribute('sort_by');
+				ob_start();
+					combo_box('sort_by', $sort_attr->_params['options'], false, $sort_by);
+					$replacement = ob_get_contents();
+				ob_end_clean();
+			break;
+
+			case 'reverse_sort' :
+				$reverse = (isset($_REQUEST['reverse_sort'])) ? $_REQUEST['reverse_sort'] : $this->attr('reverse_sort');
+				ob_start();
+					combo_box('reverse_sort', Array('1' => 'Yes', '0' => 'No'), false, $reverse);
+					$replacement = ob_get_contents();
+				ob_end_clean();
+			break;
+
+			case 'results_per_page' :
+				$results_per_page = $_REQUEST['results_per_page'];
+				$replacement = '<input type="text" onchange="
+					document.search_form.results_per_page.value = this.value;
+				" value="'.$results_per_page.'" />';
+			break;
+
+			default :
+				$replacement = "%$keyword%";
+			break;
+
+		}//end switch
+
+		return $replacement;
+
+	}//end getGeneralReplacement()
+
+
+	/**
 	* Prints the initial bodycopy
 	*
 	* @return void
@@ -445,144 +765,15 @@ class Search_Page extends Page
 		$keywords = $bodycopy->getKeywords();
 		$replaces = Array();
 
-		$results_per_page     = $_REQUEST['results_per_page'];
-		$current_results_page = $_REQUEST['current_result_page'];
-
 		$fields = $this->attr('fields');
-
-		$queries = Array();
-		foreach($_REQUEST as $key => $value) {
-			if (substr($key, 0, 8) == 'queries_') {
-				$suffix = substr($key, 8);
-				$queries[$suffix] = $_REQUEST[$key];
-			}
-		}
 
 		foreach ($keywords as $keyword) {
 
 			$replacement =& $replaces[$keyword];
 			if (ereg('(.+)_query', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
-
-				$query_var = $matches[1]."_query";
-				$query =& $queries[$query_var];
-				if (!isset($query)) $query = '';
-
-				ob_start();
-
-					// Finding out what kind of field is it
-					$test_ind = $matches[1];
-	
-					if ($fields[$test_ind]['type'] == 'metadata') {
-	
-						$assetid = $fields[$test_ind]['params']['metadata_field']['assetid'];
-						$am = &$GLOBALS['SQ_SYSTEM']->am;
-						$asset = &$am->getAsset($assetid);
-						$params = $asset->vars;
-	
-							if (isset($params['format'])) { // metadata Date field
-								// don't ask me why I'm doing this
-								$temp_name = $query_var . "__";
-								$field = $this->getEpochDateTimeField("$temp_name", $asset);
-								$field->processField(); // showing value if any
-								$field->printField();
-							} else if (isset($params['multi_line'])) { // normal metadata TEXT field
-								// using same defintion as for a simple field, but will have to revise later...
-								text_box("queries_$query_var", $query, $this->defaults['query_width']);
-							} else if (isset($params['select_options'])) { // metadata dropdown selection
-								$select_options = $params['select_options']['value'];
-								$select_options[''] = "- Please select -";
-								combo_box("queries_$query_var", $select_options, false, $query);
-							}
-	
-					} else if ($fields[$test_ind]['type'] == 'asset_attrib') {
-	
-						$search_styles = $this->attr('search_styles');
-	
-						// [0] - name, [1] - type, [2] - id
-						$attr_parts = explode("__", $fields[$test_ind]['params']['type_attr']);
-	
-						require_once SQ_ATTRIBUTES_PATH.'/'.$attr_parts[1].'/'.$attr_parts[1].'.inc';
-						$attr_class = 'Asset_Attribute_'.$attr_parts[1]; // attr name
-						$attribute = new $attr_class($attr_parts[2], $query); // attr id
-	
-						if (!empty($search_styles) && isset($search_styles[$attribute->name])) {
-							$attribute->_edit_params = $search_styles[$attribute->name];
-						}
-	
-						if ($attr_parts[1] == 'selection') {
-							if (empty($attribute->_params['multiple'])) {
-								$attribute->_params['options'] = array_reverse($attribute->_params['options']);
-								$attribute->_params['options']['_'] = '-- Leave Empty --';
-								$attribute->_params['options'] = array_reverse($attribute->_params['options']);
-							}
-						}
-	
-						$attribute->paint("queries_$query_var", false, false); 
-	
-					} else {
-	
-						// not a metadata field, just a normal text field
-						text_box("queries_$query_var", $query, $this->defaults['query_width']);
-	
-					}
-	
-					$replacement = ob_get_contents();
-
-				ob_end_clean();
-
+				$replacement = $this->getFieldReplacement($matches[1]);
 			} else {
-
-				switch ($keyword) {
-					case 'submit_button' :
-						$replacement  = '<input type="submit" onclick="
-							document.search_form.current_result_page.value=\'0\';
-							document.search_form.mode.value = \'results\';
-							return true;
-						" value="'. $this->attr("submit_button_text") .'" />';
-					break;
-					
-					case 'category_list' :
-						$category = (isset($_REQUEST['search_category'])) ? $_REQUEST['search_category'] : '';
-						$categories = $this->attr('categories');
-						if (!empty($categories)) {
-							$options = Array('' => $this->attr('no_category_text'));
-							foreach ($categories as $key => $data) $options[$key] = $data['name'];
-							ob_start();
-								combo_box('search_category', $options, false, $category);
-								$replacement = ob_get_contents();
-							ob_end_clean();
-						} else {
-							$replacement = '';
-						}
-					break;
-					
-					case 'sort_by' :
-						$sort_by = (isset($_REQUEST['sort_by'])) ? $_REQUEST['sort_by'] : $this->attr('sort_by');
-						$sort_attr = $this->getAttribute('sort_by');
-						ob_start();
-							combo_box('sort_by', $sort_attr->_params['options'], false, $sort_by);
-							$replacement = ob_get_contents();
-						ob_end_clean();
-					break;
-
-					case 'reverse_sort' :
-						$reverse = (isset($_REQUEST['reverse_sort'])) ? $_REQUEST['reverse_sort'] : $this->attr('reverse_sort');
-						ob_start();
-							combo_box('reverse_sort', Array('1' => 'Yes', '0' => 'No'), false, $reverse);
-							$replacement = ob_get_contents();
-						ob_end_clean();
-					break;
-
-					case 'results_per_page' :
-						$replacement = '<input type="text" onchange="
-							document.search_form.results_per_page.value = this.value;
-						" value="'.$results_per_page .'" />';
-					break;
-
-					default :
-						$replacement = "%$keyword%";
-					break;
-				}//end switch
+				$replacement = $this->getGeneralReplacement($keyword);
 			}
 
 		}//end foreach keywords
@@ -593,9 +784,85 @@ class Search_Page extends Page
 
 
 	/**
+	* Returns the keyword replacements for the specified format bodycopy
+	*
+	* @param string $form_name the name of the form to get the replacements for
+	*
+	* @return Array()
+	* @access public
+	*/
+	function getFormFormatReplacements($form_name)
+	{
+		$bodycopy = &$this->getFormatBodycopy($form_name);
+		if (is_null($bodycopy)) return Array();
+
+		$fields = $this->attr('fields');
+		$keywords = $bodycopy->getKeywords();
+
+		$replacements = Array();
+		foreach ($keywords as $keyword) {
+			if (ereg('(.+)_query', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+				if ($form_name == 'sis_form') {
+					$replacements[$keyword] = $this->getSisFieldReplacement($matches[1]);
+				} else {
+					$replacements[$keyword] = $this->getFieldReplacement($matches[1]);
+				}
+			} else {
+				
+				if ($form_name == 'sis_form') {
+					switch ($keyword) {
+						case 'category_list':
+							$category = (isset($_REQUEST['search_category'])) ? $_REQUEST['search_category'] : '';
+							$categories = $this->attr('categories');
+							$replacements[$keyword] = ($category) ? $categories[$category]['name'] : $this->attr('no_category_text');
+						break;
+
+						default :
+							$replacements[$keyword] = $this->getGeneralReplacement($keyword);
+						break;
+					}
+				} else {
+					$replacements[$keyword] = $this->getGeneralReplacement($keyword);
+				}
+			}
+		}//end foreach
+
+		return $replacements;
+
+	}//end getFormFormatReplacements()
+
+
+	/**
+	* Returns the contents of the specified bodycopy with its keywords
+	* replaced with the specified replacements
+	*
+	* @param string 	$form_name 		the name of the format to get the contents for
+	* @param Array		$replacements 	the array of replacements to replace in the content
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormFormatContents($form_name, $replacements)
+	{
+		$bodycopy = &$this->getFormatBodycopy($form_name);
+		if (is_null($bodycopy)) return '';
+		
+		$bodycopy->setKeywordReplacements($replacements);
+
+		ob_start();
+			$bodycopy->printBody();
+			$html = ob_get_contents();
+		ob_end_clean();
+
+		return $html;
+
+	}//end getFormFormatContents()
+
+
+	/**
 	* Keyword-replaces for the results mode.
 	*
-	* @param Array	$results	the results returned
+	* @param array	$results	the results returned
 	*
 	* @return void
 	* @access private
@@ -703,17 +970,18 @@ class Search_Page extends Page
 				case 'initial_layout':
 					$replacement = $this->getBodycopyContents('initial', $this->getInitialBodyReplacements());
 				break;
-
+				
 				default:
 					if (substr($keyword, -7) == '_linked') {
 						if ($keyword == 'category_list_linked') {
 							// printing the list of seach categories
 							$categories = $this->attr('categories');
 							if (!empty($categories)) {
-								$current_category = (isset($_REQUEST['search_category'])) ? $_REQUEST['search_category'] : '';
+								$current_category = array_get_index($_REQUEST, 'search_category', '');
 								if (!empty($current_category) && !isset($categories[$current_category])) $current_category = '';
 								
 								$base_url = $_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'];
+								$base_url = preg_replace('|([&?])mode=([^&]+)|', '\\1mode=results', $base_url);
 								$base_url = preg_replace('|&search_category=([^&]+)?|', '', $base_url);
 								$base_url .= '&search_category=';
 								ob_start();
@@ -787,8 +1055,10 @@ class Search_Page extends Page
 							
 							if (!empty($options)) {
 								$query_key = 'queries_'.$query_var.'_query';
-								$current_value = (isset($_REQUEST[$query_key])) ? $_REQUEST[$query_key] : '_';
+								$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $query_var.'_query', '_');
+								
 								$base_url = $_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'];
+								$base_url = preg_replace('|([&?])mode=([^&]+)|', '\\1mode=results', $base_url);
 								$base_url = preg_replace('|&'.$query_key.'=([^&]+)?|', '', $base_url);
 								$base_url .= '&'.$query_key.'=';
 								
@@ -818,7 +1088,9 @@ class Search_Page extends Page
 							}
 						}//end if category links
 
-					}//end if linked query var
+					} else {
+						$replacement = $this->getGeneralReplacement($keyword);
+					}// end if linked
 				break;
 			}//end switch
 
@@ -927,17 +1199,20 @@ class Search_Page extends Page
 		$sm = &$am->getSystemAsset('search_manager');
 
 		$fields = $this->attr('fields');
-		if (is_scalar($fields)) $fields = unserialize($fields);
+
+		$mode = array_get_index($_REQUEST, 'mode', 'results');
+	
+		$suffix = ($mode == 'results') ? '_query' : '_query_sis';
 
 		$queries = Array();
 		foreach($_REQUEST as $key => $value) {
 			$matches = Array();
-			preg_match('|^queries_(.*_query).*$|', $key, $matches);
+			preg_match('|^queries_(.*)'.$suffix.'$|', $key, $matches);
 			if (empty($matches)) continue;
-			$queries[$matches[1]] = $value;
+			$queries[$matches[1].'_query'] = $value;
 		}
 
-		// check if there are medatadata date fields
+		// check if there are medatadata date fields|
 		foreach (array_keys($_REQUEST) as $req_key) {
 			if (ereg('(.+)__value', $req_key, $query_match)) {
 				$newind = $query_match[1];
@@ -946,6 +1221,47 @@ class Search_Page extends Page
 				$queries[$newind] = $_REQUEST[$reqind];
 			}
 		}
+
+		if ($mode == 'sis') {
+			$last_search = $_SESSION['SQ_LAST_SEARCH'][$this->id];
+
+			foreach ($queries as $query_var => $value) {
+
+				if (is_scalar($value)) $value = trim($value);
+				$field_name = substr($query_var, 0, -6);
+
+				if ($fields[$field_name]['type'] == 'asset_attrib') {
+					// if this is a selection or boolean attribute, the value may actually be
+					// an '_' - indicating that it is not searched, but we want to remove this and
+					// use our own value
+					$attr_parts = explode('__', $fields[$field_name]['params']['type_attr']);
+					if ($attr_parts[1] == 'selection' || $attr_parts[1] == 'boolean') {
+						if (isset($last_search[$query_var]) && $last_search[$query_var] == '_') {
+							$last_search[$query_var] = '';
+						}
+					}
+				}
+
+				if (!isset($last_search[$query_var]) || $last_search[$query_var] == '') {
+					$last_search[$query_var] = $value;
+				} else {
+					// trim the current value before we append more words to it
+					if (is_scalar($last_search[$query_var])) {
+						$last_search[$query_var] = trim($last_search[$query_var]);
+					}
+					if (!is_array($value)) {
+						$last_search[$query_var] .= ' '.$value;
+					} else {
+						$last_search[$query_var] = array_merge($value, $last_search[$query_var]);
+					}
+				}
+			}
+			$queries = $last_search;
+		}
+
+		// save the search terms into the session so that we can use them for
+		// search within search results
+		$_SESSION['SQ_LAST_SEARCH'][$this->id] = $queries;
 
 		// search category
 		$category = (isset($_REQUEST['search_category'])) ? $_REQUEST['search_category'] : '';
@@ -961,6 +1277,7 @@ class Search_Page extends Page
 			if ($value == '') continue;
 			if ($value == '_') continue; // for boolean submissions...
 
+			if (!isset($fields[substr($query_var, 0, -6)])) continue;
 			$field = $fields[substr($query_var, 0, -6)];
 			
 			// checking if the boolean value needs adjustments
@@ -1038,6 +1355,84 @@ class Search_Page extends Page
 		return $search_info;
 
 	}//end populateBaseSearchInfo()
+
+
+	/**
+	* Returns the link for the format folder
+	*
+	* @return Array()
+	* @access public
+	*/
+	function getFormatFolderLink()
+	{
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'folder', true);
+		return (!empty($link)) ? $link[0] : Array();
+
+	}//end getFormatFolderLink()
+
+
+	/**
+	* Returns the format folder where the format bodycopies live
+	*
+	* @return &object asset
+	* @access public
+	*/
+	function &getFormatFolder()
+	{
+		$link = $this->getFormatFolderLink();
+		if (empty($link)) {
+			$null = null;
+			return $null;
+		}
+
+		$folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		return $folder;
+
+	}//end getFormatFolder()
+
+
+	/**
+	* Returns the link for a bodycopy with the specified link value
+	*
+	* @param string $link_value the link value of the link of the wanted bodycopy
+	*
+	* @return Array()
+	* @access public
+	*/
+	function getFormatBodycopyLink($link_value)
+	{
+		$format_folder = &$this->getFormatFolder();
+		if (is_null($format_folder)) return Array();
+
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinks($format_folder->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'bodycopy', true, 'major', $link_value);
+		return (!empty($link)) ? $link[0] : Array();
+
+	}//end getFormatBodycopyLink()
+
+
+	/**
+	* Returns the format bodycopy with the specifed link value
+	*
+	* If the bodycopy does not exist, or it have a link type 3, null is returned
+	* as either no format has been customised, or the format feature has been disbled
+	*
+	* @param string $link_value the link value of the wanted bodycopy
+	*
+	* @return &object asset
+	* @access public
+	*/
+	function &getFormatBodycopy($link_value)
+	{
+		$bodycopy_link = $this->getFormatBodycopyLink($link_value);
+		if (empty($bodycopy_link)) {
+			$null = null;
+			return $null;
+		}
+
+		$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+		return $bodycopy;
+	
+	}//end getFormatBodycopy()
 
 
 	/**
