@@ -67,13 +67,6 @@ function db_extras_subquery(&$db, $sql, $subs) {
 
 	}#end switch
 
-}// end db_extras_sub_query
-
-
-
-
-
-
-
+}// end db_extras_subquery
 
 ?>
