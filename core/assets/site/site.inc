@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.53 2004/02/26 02:54:09 diarandine Exp $
+* $Id: site.inc,v 1.54 2004/03/12 05:17:29 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -459,31 +459,51 @@ class Site extends Folder
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$this->name.'</i>');
 			return;
 		}
-
 		$index_page = &$this->getSpecialPage('index');
 		if (is_null($index_page)) {
 			trigger_error('No Index Page Set for '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' "'.$this->name.'" (Id #'.$this->id.')', E_USER_NOTICE);
 			return;
 		}
+		$this->paintAsset($index_page);
+		
 
+	}//end printFrontend()
+
+
+	/**
+	* Paints an asset with the design that this site
+	* has currently applied to it. 
+	*
+	* If no design can be found fo
+	* this site, the page will be displayed without the design
+	*
+	* @param object &Asset $asset the asset to paint
+	* 
+	* @return void
+	* @access public
+	*/
+	function paintAsset(&$asset)
+	{
+		if (is_null($asset)) return;
+		
 		// check that the user has read access to the index page
-		if (!$index_page->readAccess()) {
+		if (!$asset->readAccess()) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$this->name.'</i>');
 			return;
 		}
 
-		if($index_page->charset)   header("Content-type: text/html; charset=$this->charset");
-		if($index_page->languages) header("Content-language: $this->languages");
+		if($asset->charset)   header("Content-type: text/html; charset=$this->charset");
+		if($asset->languages) header("Content-language: $this->languages");
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$url = strip_url(current_url(false, true));
+		$url = strip_url($this->getURL(), true);
 
 		$sql = 'SELECT ld.designid, a.type_code
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_design ld ON l.url = ld.url
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON ld.designid = a.assetid
 				';
-		$where ='l.assetid  = '.$db->quote($index_page->id).'
+		$where ='l.assetid  = '.$db->quote($asset->id).'
 				  AND ld.url  LIKE '.$db->quote($url.'%').'
 				  AND ld.name    = '.$db->quote('system_design::frontend');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ld');
@@ -491,6 +511,7 @@ class Site extends Folder
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$sql .= $where.' LIMIT 1';
 		$result = $db->getRow($sql);
+		
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 		}
@@ -499,14 +520,14 @@ class Site extends Folder
 		if ($result) {
 			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
 			if (SQ_IN_LIMBO) $design->paint($this);
-			else $design->paint($index_page);
+			else $design->paint($asset);
 		// shit we can't find a design, oh well let's just print out our body
 		} else {
-			$index_page->printBody();
+			$asset->printBody();
 		}
-
-	}//end printFrontend()
-
+		
+	}//end paintAsset()
+	
 
 	/**
 	* Called by the design to print the body of this asset when in limbo
