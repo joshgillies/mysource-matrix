@@ -69,9 +69,27 @@ class wysiwyg_plugin {
 		$this->buttons[$id]['tooltip']  = $tooltip;
 		$this->buttons[$id]['textmode'] = $textmode;
 		$this->buttons[$id]['position'] = $position;
-		$this->buttons[$id]['context'] = $context;
+		$this->buttons[$id]['context']  = $context;
 
 	}//end _add_button()
+
+
+	function _open_menu($id, $tooltip, $textmode, $position, $context='')
+	{
+		$this->buttons[$id]['command']    = 'htmlarea-menu-'.$id;
+		$this->buttons[$id]['tooltip']    = $tooltip;
+		$this->buttons[$id]['textmode']   = $textmode;
+		$this->buttons[$id]['position']   = $position;
+		$this->buttons[$id]['context']    = $context;
+		$this->buttons[$id]['menu_start'] = true;
+
+	}//end _open_menu()
+
+	function _close_menu($id)
+	{
+		$this->buttons['menu_end_'.$id]['menu_end'] = true;
+
+	}//end _close_menu()
 
 	
 	/**

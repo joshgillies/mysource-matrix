@@ -19,14 +19,14 @@
 /* Toolbar Buttons */
 
 .htmlarea-button {
-	background:		#656565;
-	color:			#656565;
+	background:		#5A5A5A;
+	color:			#5A5A5A;
 	border:			1px solid;
 	padding:		1px;
 	margin:			0px;
 	width:			20px;
 	height:			22px;
-	border-color:	#656565 #656565 #656565 #656565;
+	border-color:	#5A5A5A #5A5A5A #5A5A5A #5A5A5A;
 }
 
 .htmlarea-buttonHover {
@@ -46,6 +46,32 @@
 .htmlarea-buttonDisabled {
 }
 
+
+/* Toolbar Menus */
+
+.htmlarea-menu {
+	background:			#5A5A5A;
+	padding:			2px 2px;
+	border:				1px solid #DDDDDD;
+	white-space:		nowrap;
+}
+
+.htmlarea-menuRow {
+	background:			#5A5A5A;
+	border:				0px
+	padding:			0px 0px;
+	border-collapse:	collapse;
+}
+
+.htmlarea-menuText {
+	background:			#5A5A5A;
+	font-size:			10px;
+	color:				#FFFFFF;
+	font-family:		Verdana, sans-serif;
+	white-space:		nowrap;
+	vertical-align:		middle;
+	padding:			1px 1px;
+}
 
 
 /* Toolbar Select Boxes */

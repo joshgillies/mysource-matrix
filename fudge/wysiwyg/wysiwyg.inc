@@ -179,6 +179,8 @@ class wysiwyg {
 						this._editMode = "wysiwyg";
 						this._initialised = false;
 						this._timerToolbar = null;
+						this._toolbarObjects = Array();
+						this._toolbarMenus = Array();
 						this._tmp = Array();
 <?php $this->print_plugin_vars() ?>
 					}
@@ -286,7 +288,7 @@ class wysiwyg {
 					};
 
 					// appends a new button to toolbar
-					function createButton(txt) {
+					function createButton(container, txt) {
 						// the element that will be created
 						var el = null;
 						var btn = null;
@@ -370,6 +372,7 @@ class wysiwyg {
 							// the image is loaded once and then the server is not hit again
 							var buttonID = editor._uniqueID + "_" + txt;
 							buttonID = buttonID.toLowerCase();
+							el.id = buttonID + "_span";
 							document.write("<img src=\"" + editor.imgURL("toolbar.png") + "\" id=\"" + buttonID + "\">");
 							var img = document.getElementById(buttonID);
 
@@ -392,7 +395,7 @@ class wysiwyg {
 							el = createSelect(txt);
 						}
 						if (el) {
-							innerToolbar.appendChild(el);
+							container.appendChild(el);
 						} else {
 							alert("FIXME: Unknown toolbar item: " + txt);
 						}
@@ -405,7 +408,47 @@ class wysiwyg {
 					for (var i in this.config.toolbar) {
 						var group = this.config.toolbar[i];
 						for (var j in group) {
-							createButton(group[j]);
+							var menu = group[j];
+							if (menu.length < 1) {
+								continue;
+							} else if (menu.length == 1) {
+								createButton(innerToolbar, menu[0]);
+							} else {
+								var div = document.createElement("div");
+								editor._toolbar.appendChild(div);
+								div.style.display = "none";
+								div.style.position = "absolute";
+								div.className = "htmlarea-menu";
+								div.id = menu[0] + "_menu";
+
+								createButton(innerToolbar, menu[0]);
+								this.config.btnList[menu[0]][0] = "htmlarea-showmenu-" + menu[0];
+
+								for (var x in menu) {
+									if (x == 0) { continue; }
+
+									var table = document.createElement("table");
+									var tb_body = document.createElement("tbody");
+									var tb_row = document.createElement("tr");
+									var tb_cell = document.createElement("td");
+									table.appendChild(tb_body);
+									tb_body.appendChild(tb_row);
+									tb_row.appendChild(tb_cell);
+
+									table.className = "htmlarea-menuRow";
+									createButton(tb_cell, menu[x])
+									
+									tb_cell = document.createElement("td");
+									tb_cell.className = "htmlarea-menuText";
+									tb_row.appendChild(tb_cell);
+
+									var title = document.createTextNode(this.config.btnList[menu[x]][1]);
+									tb_cell.appendChild(title);
+
+									div.appendChild(table);
+								}
+								this._toolbarMenus[div.id] = div;
+							}
 						}
 					}
 				};
@@ -581,11 +624,47 @@ class wysiwyg {
 					if (typeof cmd == "function") {
 						return cmd(this, txt);
 					}
-					switch (cmd.toLowerCase()) {
-<?php $this->print_plugin_button_clicks()?>
-						default:
-							this._execCommand(btn[0], false, "");
-						break;
+					
+					if (/htmlarea-showmenu-/.test(cmd.toLowerCase())) {
+						re = new RegExp("htmlarea-showmenu-");
+						var menuID = cmd.replace(re, "");
+						var menu = document.getElementById(menuID + "_menu");
+						
+						if (menu.style.display == "none") {
+							// hide all menus that are showing
+							for (var x in this._toolbarMenus) {
+								this._toolbarMenus[x].style.display = "none";
+							}
+
+							menu.style.display = "block";
+
+							var buttonID = editor._uniqueID + "_" + menuID + "_span";
+							buttonID = buttonID.toLowerCase();
+							var button = document.getElementById(buttonID);
+
+							if (HTMLArea.is_ie) {
+								menu.style.pixelTop = button.offsetTop + 23;
+								menu.style.pixelLeft = button.offsetLeft;
+							} else {
+								menu.style.top = button.offsetTop + 23;
+								menu.style.left = button.offsetLeft;
+							}
+						} else {
+							menu.style.display = "none";
+						}
+						
+					} else {
+						// hide all menus that are showing
+						for (var x in this._toolbarMenus) {
+							this._toolbarMenus[x].style.display = "none";
+						}
+
+						switch (cmd.toLowerCase()) {
+	<?php $this->print_plugin_button_clicks()?>
+							default:
+								this._execCommand(btn[0], false, "");
+							break;
+						}
 					}
 					this.updateToolbar();
 					return false;
@@ -638,9 +717,17 @@ class wysiwyg {
 					}
 
 					// update the toolbar state after some time
-					setTimeout(function() {
-						editor.updateToolbar();
-					}, 50);
+					// if we are not just generally typing
+					if (!keyEvent || (keyEvent && ev.ctrlKey)) {
+						// hide all menus that are showing
+						for (var x in this._toolbarMenus) {
+							this._toolbarMenus[x].style.display = "none";
+						}
+
+						setTimeout(function() {
+							editor.updateToolbar();
+						}, 50);
+					}
 				};
 
 				// retrieve the HTML
@@ -814,14 +901,21 @@ class wysiwyg {
 							<?php
 							if (!empty($this->plugins)) {
 								$buttons_done = 0;
-								$orphaned = array();
+								$orphaned = Array();
 								$output = '';
 								foreach ($this->plugins as $name => $plugin) {
 									if (count($plugin->buttons) > 1) {
 										// a group of buttons
 										$output .= "[ ";
-										foreach ($plugin->buttons as $id => $button) if ($id) $output .= '"'.$id.'", ';
-										$output .= '"separator" ],'."\n\t\t\t\t\t\t\t";
+										foreach ($plugin->buttons as $id => $button) {
+											if (isset($button['menu_end'])) {
+												$output .= ' ], ';
+												continue;
+											}
+											if (isset($button['menu_start'])) $output .= '[ ';
+											if ($id) $output .= '["'.$id.'"], ';
+										}
+										$output .= '["separator"] ],'."\n\t\t\t\t\t\t\t";
 									} else {
 										foreach ($plugin->buttons as $id => $button) $orphaned[] = $id;
 									}
@@ -829,7 +923,7 @@ class wysiwyg {
 
 								if (!empty($orphaned)) {
 									$output .= "[ ";
-									foreach ($orphaned as $id) $output .= '"'.$id.'", ';
+									foreach ($orphaned as $id) $output .= '["'.$id.'"], ';
 									$output = trim($output,', ');
 									$output .= ' ],'."\n\t\t\t\t\t\t\t";
 								}
@@ -845,8 +939,9 @@ class wysiwyg {
 						$output = '';
 						foreach ($this->plugins as $name => $plugin) {
 							foreach ($plugin->buttons as $id => $button) {
+								if (isset($button['menu_end'])) continue;
 								if (!$button['command']) continue;
-									$output .= "$id:".str_repeat(' ',19 - strlen($id))."[\"".$button['command']."\",".str_repeat(' ',25 - strlen($button['command']))."\"".$button['tooltip']."\",".str_repeat(' ',25 - strlen($button['tooltip']))."".$button['textmode'].",     ".(($button['textmode'] === 'true') ? ' ' : '')."".$button['position'].", \"".$button['context']."\"],\n\t\t\t\t\t\t";
+								$output .= "$id:".str_repeat(' ',30 - strlen($id))."[\"".$button['command']."\",".str_repeat(' ',30 - strlen($button['command']))."\"".$button['tooltip']."\",".str_repeat(' ',30 - strlen($button['tooltip']))."".$button['textmode'].",     ".(($button['textmode'] === 'true') ? ' ' : '')."".$button['position'].", \"".$button['context']."\"],\n\t\t\t\t\t\t";
 							}
 						}
 						$output = trim($output,"\t\n,");
