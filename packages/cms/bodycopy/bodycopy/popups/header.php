@@ -1,3 +1,15 @@
+<?php
+/**
+* Header Pop-Up
+*
+* Purpose
+*
+* @author  Greg Sherwood <greg@squiz.net>
+* @version $Version$ - 1.0
+* @package Resolve_Packages
+* @subpackage cms
+*/
+?>
 <html>
 <head>
 <style type="text/css">

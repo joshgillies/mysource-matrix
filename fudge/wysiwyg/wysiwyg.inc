@@ -11,7 +11,8 @@
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Fudge::wysiwyg
+* @package Fudge
+* @subpackage wysiwyg
 */
 class wysiwyg {
 

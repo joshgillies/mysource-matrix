@@ -12,7 +12,8 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Fudge::wysiwyg
+* @package Fudge
+* @subpackage wysiwyg
 */
 class view_source extends wysiwyg_plugin {
 

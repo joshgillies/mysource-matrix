@@ -10,7 +10,8 @@ require_once SQ_CORE_PACKAGE_PATH.'/user/user_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve::packages::__core__
+* @package Resolve_Packages
+* @subpackage __core__
 */
 class Backend_User_Edit_Fns extends User_Edit_Fns
 {

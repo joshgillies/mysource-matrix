@@ -1,4 +1,13 @@
 <?php
+/**
+* Init File
+*
+* The file that needs to be included to do anything
+*
+* @author  Blair Robertson <blair@squiz.net>
+* @version $Version$ - 1.0
+* @package Resolve
+*/
 
 /*
 * Set the level of PHP reported errors

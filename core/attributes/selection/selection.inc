@@ -15,7 +15,8 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve::attributes
+* @package Resolve
+* @subpackage attributes
 */
 class Asset_Attribute_Selection extends Asset_Attribute
 {

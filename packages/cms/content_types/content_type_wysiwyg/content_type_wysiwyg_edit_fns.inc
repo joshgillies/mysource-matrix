@@ -11,7 +11,8 @@ require_once dirname(__FILE__).'/../../content_type/content_type_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve::packages::cms
+* @package Resolve_Packages
+* @subpackage cms
 */
 class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 {

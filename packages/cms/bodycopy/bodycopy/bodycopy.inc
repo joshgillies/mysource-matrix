@@ -10,7 +10,8 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve::packages::cms
+* @package Resolve_Packages
+* @subpackage cms
 */
 class Bodycopy extends Asset
 {

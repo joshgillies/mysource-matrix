@@ -9,7 +9,8 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve::packages::cms
+* @package Resolve_Packages
+* @subpackage cms
 */
 class Content_Type_Nest_Content_Management extends Asset_Management
 {

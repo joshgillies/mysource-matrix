@@ -1,4 +1,13 @@
 <?php
+/**
+* Install Step 2
+*
+* Purpose
+*
+* @author  Blair Robertson <blair@squiz.net>
+* @version $Version$ - 1.0
+* @package Resolve
+*/
 
 if (empty($_GET['SYSTEM_ROOT']) || !is_dir($_GET['SYSTEM_ROOT'])) {
 	?>

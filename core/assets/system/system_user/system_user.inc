@@ -11,7 +11,8 @@ require_once SQ_CORE_PACKAGE_PATH.'/backend_user/backend_user.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve::packages::__core__
+* @package Resolve_Packages
+* @subpackage __core__
 */
 class System_User extends Backend_User
 {

@@ -1,4 +1,13 @@
 <?php
+/**
+* Login Form
+*
+* Purpose
+*
+* @author  Blair Robertson <blair@squiz.net>
+* @version $Version$ - 1.0
+* @package Resolve
+*/
 
 function print_login($heading, $message) { 
 

@@ -8,7 +8,8 @@
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve::packages::cms
+* @package Resolve_Packages
+* @subpackage cms
 */
 class BodyCopy_Table_Cell extends Resolve_Object {
 

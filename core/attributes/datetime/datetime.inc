@@ -23,7 +23,8 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve::attributes
+* @package Resolve
+* @subpackage attributes
 */
 class Asset_Attribute_DateTime extends Asset_Attribute
 {

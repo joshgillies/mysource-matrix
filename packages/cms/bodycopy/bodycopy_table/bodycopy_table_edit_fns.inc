@@ -13,7 +13,8 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve::packages::cms
+* @package Resolve_Packages
+* @subpackage cms
 */
 class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 {

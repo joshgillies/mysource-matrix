@@ -1,3 +1,14 @@
+<?php
+/**
+* WYSIWYG Plugin - Insert Image Pop-up
+*
+*
+* @author  Greg Sherwood <greg@squiz.net>
+* @version $Version$ - 1.0
+* @package Fudge
+* @subpackage wysiwyg
+*/
+?>
 <html style="width: 398; height: 218">
 	<head>
 		<title>Insert Image</title>

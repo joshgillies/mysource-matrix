@@ -9,7 +9,8 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve::packages::__core__
+* @package Resolve_Packages
+* @subpackage __core__
 */
 class User_Management extends Asset_Management
 {

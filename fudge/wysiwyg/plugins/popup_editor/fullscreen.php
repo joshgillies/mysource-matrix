@@ -1,4 +1,14 @@
 <?php
+/**
+* WYSIWYG Full Screen Editor
+*
+*
+* @author  Greg Sherwood <greg@squiz.net>
+* @version $Version$ - 1.0
+* @package Fudge
+* @subpackage wysiwyg
+*/
+
 include_once('../../wysiwyg.inc');
 ?>
 

@@ -11,7 +11,8 @@ require_once 'XML/Tree.php';
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve::lib
+* @package Resolve
+* @subpackage lib
 */
 class Asset_Map
 {

@@ -10,7 +10,8 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve::attributes
+* @package Resolve
+* @subpackage attributes
 */
 class Asset_Attribute_Serialise extends Asset_Attribute
 {

@@ -1,5 +1,14 @@
 <?php
-
+/**
+* Insert Table Pop-Up
+*
+* Purpose
+*
+* @author  Greg Sherwood <greg@squiz.net>
+* @version $Version$ - 1.0
+* @package Resolve_Packages
+* @subpackage cms
+*/
 include(dirname(__FILE__)."/header.php");
 ?> 
 <script language="JavaScript">
