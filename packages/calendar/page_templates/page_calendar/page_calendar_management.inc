@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.22 2004/09/14 06:30:13 tbarrett Exp $
+* $Id: page_calendar_management.inc,v 1.23 2004/09/15 00:06:51 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.22 $ - 1.0
+* @version $Revision: 1.23 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -320,7 +320,7 @@ class Page_Calendar_Management extends Asset_Management
 				$asset->saveAttributes();
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($id, 'attributes');
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($id);
-			}	
+			}
 
 			// delete the old customised values which should now take the default value
 			$value_keys = Array();
@@ -329,9 +329,10 @@ class Page_Calendar_Management extends Asset_Management
 			return true;
 		} else {
 			return parent::_updateOwnedAttribute($name, $curr_attr);
-		}	
+		}
 
 	}//end _updateOwnedAttribute()
+
 
 }//end class
 
