@@ -63,7 +63,8 @@ class Page extends Asset
 
 		// set an initial web path
 		$initial_path = strtolower($name);
-		$valid_paths = $this->_makeValidWebPaths(Array($initial_path));
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$valid_paths = makeValidWebPaths(Array($initial_path));
 		$good_paths = $link['asset']->_webPathsInUse($valid_paths, true);
 		if (!$this->saveWebPaths($good_paths)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');

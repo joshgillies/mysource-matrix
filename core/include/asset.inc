@@ -4159,7 +4159,8 @@ class Asset extends Resolve_Object
 		$save_paths = Array();
 
 		// make sure these paths are compliant
-		$save_paths = $this->_makeValidWebPaths($paths);
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$save_paths = makeValidWebPaths($paths);
 
 		// if there is no difference in the arrays (including in the sort order), then there is nothing to do
 		if (!array_diff_assoc($save_paths, $current_paths) &&
@@ -4226,38 +4227,6 @@ class Asset extends Resolve_Object
 		}
 
 	}// end saveWebPaths()
-
-
-	/**
-	* Returns an array of the passed web paths made valid
-	*
-	* @param array		$paths					array of web paths to check
-	*
-	* @return array(string)
-	* @access protected
-	*/
-	function _makeValidWebPaths($paths=Array())
-	{
-		$valid_paths = Array();
-		foreach($paths as $path) {
-			// get rid of paths that are the same as the backend suffix
-			if ($path == SQ_CONF_BACKEND_SUFFIX) {
-				trigger_error('Cannot set web path to "'.$path.'", this is reserved for backend access', E_USER_WARNING);
-				continue;
-			}
-
-			// no spaces in web paths
-			$path = preg_replace('/\\s+/', '_', $path);
-			
-			// Taken (in part) from info here -> http://www.w3.org/Addressing/URL/5_URI_BNF.html
-			$path = preg_replace('/[^a-zA-Z0-9\-$_@.&!*(),]/', '',  $path);
-			$path = trim($path);
-			
-			// ignore blanks
-			if ($path && !in_array($path, $valid_paths)) $valid_paths[] = $path;
-		}
-		return $valid_paths;
-	}//end _makeValidWebPaths()
 
 
 	/**

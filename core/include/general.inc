@@ -213,6 +213,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 }//end sq_error_handler
 
+
 /**
 * Returns the web path for different sections of the system
 *
@@ -283,7 +284,8 @@ function sq_web_path($path='base')
 * Returns the current URL for this page, including the protocol
 *
 * @param bool	$inc_protocol			include the protocol in the return var
-* @param bool	$strip_backend_suffix	if currently in the backend this causes the backend suffix to be removed
+* @param bool	$strip_backend_suffix	if currently in the backend this causes the backend 
+*										suffix to be removed
 *
 * @return string
 */
@@ -324,6 +326,7 @@ function strip_url($url, $strip_protocol=false)
 	preg_match($re, $url, $matches);
 	return (($strip_protocol) ? '' : $matches[1]).preg_replace(Array('/\\/+$/', '/\\/\\/+/'), Array('', '/'), $matches[2]);
 }// end strip_url()
+
 
 /**
 * Takes an integer and returns an array of numbers representing the active
@@ -372,6 +375,7 @@ function iso8601_ts($iso8601)
 		substr($iso8601,0,4)
 	);
 }
+
 
 /**
 * Takes a unix timestamp for it and returns an ISO-8601 compliant date-time string

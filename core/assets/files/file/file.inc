@@ -208,7 +208,8 @@ class File extends Asset
 		}
 
 		// check that we are not going to have web path conflicts
-		$valid_names = $this->_makeValidWebPaths(Array($info['name']));
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$valid_names = makeValidWebPaths(Array($info['name']));
 		$name = array_shift($valid_names);
 
 		// make sure the new web path is not already is use

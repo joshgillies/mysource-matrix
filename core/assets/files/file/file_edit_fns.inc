@@ -105,7 +105,8 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		// assetid will not be set if we are creating
 		if (!$asset->id) return true;
 
-		$valid_names = $asset->_makeValidWebPaths(Array($info['name']));
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$valid_names = makeValidWebPaths(Array($info['name']));
 		$name = array_shift($valid_names);
 
 		// make sure the new web path is not already is use
