@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.57.2.2 2004/03/03 19:39:18 brobertson Exp $
+* $Id: file.inc,v 1.57.2.3 2004/03/04 16:43:56 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -477,7 +477,7 @@ class File extends Asset
 			$site = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (is_null($site)) continue;
 			$urls = $site->getSiteURLS();
-			foreach($urls as $urlid => $data) {
+			foreach($urls as $data) {
 
 				$root_url = '';
 
@@ -507,7 +507,7 @@ class File extends Asset
 						'assetid'    => $this->id,
 						'http'       => ($this->force_secure) ? '0' : $url_data['http'],
 						'https'      => $url_data['https'],
-						'root_urlid' => 0,
+						'root_urlid' => '',
 					);
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup', $values)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
