@@ -238,9 +238,10 @@ class Site extends Folder
 		// if we have urls then do some url inserting
 		for(reset($urls); null !== ($urlid = key($urls)); next($urls)) {
 			$sql = 'INSERT INTO sq_asset_lookup
-					(url, assetid, root_urlid, designid)
+					(url, linkid, assetid, root_urlid, designid)
 					VALUES
 					('.$db->quote($urls[$urlid]['url']).', 
+					 0,
 					'.$db->quote($this->id).', 
 					'.$db->quote($urlid).', 
 					'.$db->quote($designid).')';

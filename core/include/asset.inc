@@ -1586,9 +1586,10 @@ class Asset extends Resolve_Object
 				for($j = 0; $j < count($parent_urls); $j++) {
 					for($k = 0; $k < count($paths); $k++) {
 						$sql = 'INSERT INTO sq_asset_lookup
-								(url, assetid, root_urlid, designid)
+								(url, linkid, assetid, root_urlid, designid)
 								VALUES
 								('.$db->quote($parent_urls[$j]['url'].'/'.$paths[$k]).',
+								'.$db->quote($parents[$i]['linkid']).',
 								'.$db->quote($this->id).',
 								'.$db->quote($parent_urls[$j]['root_urlid']).',
 								'.$db->quote(($designid) ? $designid : $parent_urls[$j]['designid']).')';
