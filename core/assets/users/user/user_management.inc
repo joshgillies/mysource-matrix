@@ -49,11 +49,6 @@ class User_Management extends Asset_Management
 								'type'      => 'email',
 								'default'   => '',
 							),
-							'expiry_date' => Array(
-								'added'     => '0.1',
-								'type'      => 'datetime',
-								'default'   => '---------- --:--:--',
-							),
 						);
 	}//end constructor
 

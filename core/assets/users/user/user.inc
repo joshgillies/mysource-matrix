@@ -291,13 +291,6 @@ class User extends Asset
 		// check that this user is live
 		if ($this->status & SQ_SC_STATUS_NOT_LIVE) return false;
 
-		// check that this user has not expired
-		$expires = $this->attr('expiry_date');
-		if ($expires != '---------- --:--:--') {
-			$now = date('Y-m-d h:i:s');
-			if ($expires <= $now) return false;
-		}
-
 		// check that this user is not only in the trash
 		if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id, true)) return false;
 
