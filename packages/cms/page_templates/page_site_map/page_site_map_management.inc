@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_site_map_management.inc,v 1.1 2003/10/07 04:01:07 mmcintyre Exp $
+* $Id: page_site_map_management.inc,v 1.2 2003/10/07 05:28:44 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -61,6 +61,11 @@ class Page_Site_Map_Management extends Asset_Management
 									'added'		=> '0.0.1',
 									'type'		=> 'serialise',
 									'default'	=> Array(),
+							),
+							'icons'		=> Array(
+								'added'		=> '0.0.1',
+								'type'		=> 'boolean',
+								'default'	=> false,
 							),
 						);
 

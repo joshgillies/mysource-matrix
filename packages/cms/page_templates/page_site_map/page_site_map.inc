@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_site_map.inc,v 1.2 2003/10/07 05:17:11 mmcintyre Exp $
+* $Id: page_site_map.inc,v 1.3 2003/10/07 05:28:44 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -162,7 +162,10 @@ class Page_Site_Map extends Page
 					<td <?php echo $bg; ?>>
 					<img src="<?php echo sq_web_path('lib').'/web/images/'.$image2; ?>" width="20" height="20" border="0" alt="branch" /></td>
 					<td >
-						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']); ?>", "16", "16", "");</script>&nbsp;&nbsp;<a href="<?php echo $url?>"><?php echo $data['name'];?></a>
+						<?php if ($this->attr('icons')) { ?>
+							<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']); ?>", "16", "16", "");</script>&nbsp;&nbsp;
+						<?php } ?>
+						<a href="<?php echo $url?>"><?php echo $data['name'];?></a>
 					</td>
 				</tr>
 			<?php
