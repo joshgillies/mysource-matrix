@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.10 2004/02/27 03:31:39 gsherwood Exp $
+* $Id: page_asset_builder.inc,v 1.11 2004/03/02 22:49:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -221,7 +221,7 @@ class Page_Asset_Builder extends Page
 	*/
 	function printBody()
 	{
-		$this->_current_state = 'logged_in';
+		$this->_current_state = '';
 		$current_user = &$GLOBALS['SQ_SYSTEM']->user;
 
 		set_error_handler(Array(&$this, '_errorHandler'));
@@ -243,10 +243,14 @@ class Page_Asset_Builder extends Page
 		// that extend this one, but we wont need it any more - so chuck it out
 		if (isset($this->_tmp['created_asset'])) unset($this->_tmp['created_asset']);
 
-		if (is_null($current_user)) {
-			// this person is not logged in, so we should let them log in
-			$this->_current_state = 'not_logged_in';
-			$this->_loadLoginReplacements();
+		if (empty($this->_current_state)) {
+			if (is_null($current_user)) {
+				// this person is not logged in, so we should let them log in
+				$this->_current_state = 'not_logged_in';
+				$this->_loadLoginReplacements();
+			} else {
+				$this->_current_state = 'logged_in';
+			}
 		}
 
 		$fn = '_load'.$this->_default_state.'Replacements';
@@ -498,7 +502,7 @@ class Page_Asset_Builder extends Page
 			<table border="0">
 				<tr>
 					<td valign="top">Username</td>
-					<td valign="top"><?php echo text_box('SQ_LOGIN_USERNAME', (isset($_POST['SQ_LOGIN_USERNAME']) ? $_POST['SQ_LOGIN_USERNAME'] : 'Enter your username here'), 25, 0, (isset($_POST['SQ_LOGIN_USERNAME']) ? false : true), 'title="Username"'); ?></td>
+					<td valign="top"><?php echo text_box('SQ_LOGIN_USERNAME', (isset($_POST['SQ_LOGIN_USERNAME'])) ? $_POST['SQ_LOGIN_USERNAME'] : 'Enter your username here', 25, 0, (isset($_POST['SQ_LOGIN_USERNAME'])) ? false : true, 'title="Username"'); ?></td>
 				</tr>
 				<tr>
 					<td valign="top">Password</td>
