@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.67 2003/11/18 15:37:33 brobertson Exp $
+* $Id: backend_outputter.inc,v 1.68 2003/11/21 05:29:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -191,7 +191,15 @@ class Backend_Outputter
 	*/
 	function addFormActionGetVar($name, $value, $persistant=false)
 	{
-		$this->_action .= ((strstr($this->_action, '?')) ? '&' : '?').rawurlencode($name).'='.rawurlencode($value);
+		// first check if we can replace an existing GET var with our new value
+		$new_action = preg_replace('|([&\?])'.rawurlencode($name).'=([^&]+)?(&)?|', '\\1'.rawurlencode($name).'='.rawurlencode($value).'\\3', $this->_action);
+
+		if ($new_action == $this->_action) {
+			$this->_action .= ((strstr($this->_action, '?')) ? '&' : '?').rawurlencode($name).'='.rawurlencode($value);
+		} else {
+			$this->_action = $new_action;
+		}
+		
 		if ($persistant) $this->_persistant_get_vars[$name] = $value;
 
 	}//end addFormActionGetVar()
