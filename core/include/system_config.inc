@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: system_config.inc,v 1.8 2003/10/06 23:35:39 brobertson Exp $
+* $Id: system_config.inc,v 1.9 2003/10/07 02:36:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -182,6 +182,8 @@ class System_Config extends Config
 	* Lets print the conf backend
 	*
 	* @param object Backend	$backend	Reference to the backend object
+	*
+	* @return void
 	*/
 	function paintBackend(&$backend)
 	{
@@ -197,7 +199,6 @@ class System_Config extends Config
 		$lock = $GLOBALS['SQ_SYSTEM']->getLockInfo(get_class($this));
 		$have_lock = (!empty($lock) && $GLOBALS['SQ_SYSTEM']->currentUserId() == $lock['userid']);
 
-		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		$o = &$backend->out;
 
 		if (!empty($_POST['config_posted'])) {
