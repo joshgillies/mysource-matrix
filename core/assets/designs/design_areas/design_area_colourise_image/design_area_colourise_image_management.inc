@@ -34,7 +34,7 @@ class Design_Area_Colourise_Image_Management extends Asset_Management
 							'colours' => Array(
 								'added'       => '0.0.1',
 								'type'        => 'serialise',
-								'default'     => '',
+								'default'     => Array(),
 								'description' => 'Associative Array of colours that are going to be used in the converison process'
 							),
 							'filename_only' => Array(
