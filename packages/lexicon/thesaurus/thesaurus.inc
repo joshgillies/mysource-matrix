@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.3 2004/11/30 01:29:10 arailean Exp $
+* $Id: thesaurus.inc,v 1.4 2004/12/02 21:50:19 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -606,7 +606,7 @@ class Thesaurus extends Asset
 	*
 	* @param string name    exact entity name
 	* @access public
-	* @return
+	* @return array
 	*/
 	function getEntityByName($name='')
 	{
@@ -1319,7 +1319,7 @@ class Thesaurus extends Asset
 	*
 	* @param integer $id    entity id
 	* @access public
-	* @return
+	* @return boolean
 	*/
 	function isBadId($id)
 	{
@@ -1393,7 +1393,7 @@ class Thesaurus extends Asset
 	* Erases the contents of a thesaurus
 	*
 	* @access public
-	* @return
+	* @return boolean
 	*/
 	function erase()
 	{
@@ -1456,7 +1456,7 @@ class Thesaurus extends Asset
 	* Get the path to the imported xml file
 	*
 	* @access public
-	* @return
+	* @return string
 	*/
 	function getImportPath()
 	{
