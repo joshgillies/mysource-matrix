@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.3 2004/08/19 05:45:10 gsherwood Exp $
+* $Id: page_standard.inc,v 1.4 2004/09/02 04:41:15 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -291,34 +291,21 @@ class Page_Standard extends Page
 
 
 	/**
-	* Acquire any locks that are needed for editing, based on a set of custom keywords
+	* Return any locks that are needed for editing, based on a set of custom keywords
 	*
 	* @param array	$keywords	the keywords to govern what locks are required
 	*
-	* @return boolean
+	* @return array
 	* @access public
 	*/
-	function acquireEditingLocks($keywords)
+	function getEditingLocks($keywords)
 	{
-		if (!is_array($keywords) || empty($keywords)) return false;
-		$acquire = false;
-		foreach ($keywords as $keyword) {
-			switch ($keyword) {
-				case 'contents' :
-					$bodycopy = &$this->getBodycopy();
-					if (is_null($bodycopy)) continue;
-					// we need the 'links' lock to edit the bodycopy
-					$vars = Array('assetid' => $bodycopy->id, 'lock_type' => 'content', 'forceably_acquire' => false);
-					$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-					$hh->queueHipo('hipo_job_acquire_lock', $vars);
-					$acquire = true;
-				break;
-			}//end switch
-		}//end foreach 
+		$locks = Array();
+		if (!is_array($keywords) || empty($keywords)) return Array();
+		if (!in_array('content', $keywords)) return Array();
+		return Array('links', 'attributes');
 
-		return $acquire;
-
-	}//end acquireEditingLocks()
+	}//end getEditingLocks()
 
 
 	/**
