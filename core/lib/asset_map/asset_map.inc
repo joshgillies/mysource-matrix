@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.131 2004/04/21 00:33:01 lwright Exp $
+* $Id: asset_map.inc,v 1.132 2004/04/21 01:18:57 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -414,8 +414,15 @@ class Asset_Map
 
 		// gather links for shadowed assets - only if asset descends from a bridge
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
-		$type_code = $asset_info[$assetid]['type_code'];
-		$is_a_bridge = (array_search('bridge', $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code)) !== false);
+		$is_a_bridge = false;
+		if (isset($asset_info[$assetid]['type_code'])) {
+			$type_code = $asset_info[$assetid]['type_code'];
+			$is_a_bridge = in_array('bridge', $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code));
+		} else if (strpos($assetid, ':') !== false) {
+			// this is a shadow asset itself, so it will work the same way as a bridge
+			$is_a_bridge = true;
+		}
+
 		if ($is_a_bridge) {
 			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
 			foreach ($links as $link_data) {
