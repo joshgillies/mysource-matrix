@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_hcl_edit_fns.inc,v 1.1 2004/01/13 05:53:59 diarandine Exp $
+* $Id: page_hcl_edit_fns.inc,v 1.2 2004/01/13 10:40:55 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -58,16 +58,17 @@ class Page_HCL_Edit_Fns extends Page_Edit_Fns
 	* @return boolean
 	* @access private
 	*/
-	function paintRootNode(&$asset, &$o, $prefix) {
+	function paintRootNode(&$asset, &$o, $prefix) 
+	{
 
 		if (!$asset->writeAccess('links')) return false; // if details page is not locked, do not proceed
 
 		$rootid	= $asset->attr('rootid'); // get the attr rootid if available
 
 		if (empty($rootid)) {
-				asset_finder($prefix.'_rootid'); // if $rootid is null, then just display select box
-			} else {
-				asset_finder($prefix.'_rootid', $rootid); // otherwise display which root node is selected
+			asset_finder($prefix.'_rootid'); // if $rootid is null, then just display select box
+		} else {
+			asset_finder($prefix.'_rootid', $rootid); // otherwise display which root node is selected
 		}
 		
 		return true;
@@ -85,7 +86,8 @@ class Page_HCL_Edit_Fns extends Page_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function processRootNode(&$asset, &$o, $prefix) {
+	function processRootNode(&$asset, &$o, $prefix) 
+	{
 
 		if (isset($_POST[$prefix.'_rootid']['assetid'])) {
 			$asset->setAttrValue('rootid', $_POST[$prefix.'_rootid']['assetid']);
@@ -108,7 +110,8 @@ class Page_HCL_Edit_Fns extends Page_Edit_Fns
 	* @return boolean
 	* @access private
 	*/
-	function paintHCLSchemas(&$asset, &$o, $prefix) {
+	function paintHCLSchemas(&$asset, &$o, $prefix) 
+	{
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am; // instantiating Asset Manager
 		if (!$asset->writeAccess('links')) return false; // if details page is not locked, do not proceed
@@ -121,29 +124,29 @@ class Page_HCL_Edit_Fns extends Page_Edit_Fns
 			<table border="1" cellpadding="2" cellspacing="0" class="sq-backend-table">
 		<?
 			
-			if (isset($schemas)) {
+		if (isset($schemas)) {
 
-				echo "<tr><td class=\"sq-backend-table-header\"><b>Schema name</b></td><td width=50 class=\"sq-backend-table-header\"><b>Delete ?</b></td></tr>\n";
+			echo "<tr><td class=\"sq-backend-table-header\"><b>Schema name</b></td><td width=50 class=\"sq-backend-table-header\"><b>Delete ?</b></td></tr>\n";
 
-				foreach ($schemas as $schema_id) {
+			foreach ($schemas as $schema_id) {
+			
+				$schema_asset = &$am->getAsset($schema_id); 
+				if (is_null($schema_asset)) continue;
+				$schema_name = $schema_asset->attr('name');
 				
-					$schema_asset = &$am->getAsset($schema_id); 
-					if (is_null($schema_asset)) continue;
-					$schema_name = $schema_asset->attr('name');
-					
-					echo "<tr><td class=\"sq-backend-table-cell\">".$schema_name."</td><td class=\"sq-backend-table-cell\">\n";
-						check_box($prefix.'_schemas[]', $schema_id); 
-				    echo "</td></tr>\n";
+				echo "<tr><td class=\"sq-backend-table-cell\">".$schema_name."</td><td class=\"sq-backend-table-cell\">\n";
+					check_box($prefix.'_schemas[]', $schema_id); 
+				echo "</td></tr>\n";
 
-				} // end foreach schemas
+			} // end foreach schemas
 
-			} else {
-				echo "<tr><td colspan=\"2\" class=\"sq-backend-table-cell\">There are currently no Metadata schemas in this list</td></tr>\n";
-			}
+		} else {
+			echo "<tr><td colspan=\"2\" class=\"sq-backend-table-cell\">There are currently no Metadata schemas in this list</td></tr>\n";
+		}
 
-			echo "<tr><td colspan=\"2\" class=\"sq-backend-table-cell\">Add schema: "; 
-				asset_finder($prefix.'_newschema', 0, Array('metadata_schema' => 'I')); 
-			echo "</td></tr></table>\n";
+		echo "<tr><td colspan=\"2\" class=\"sq-backend-table-cell\">Add schema: "; 
+			asset_finder($prefix.'_newschema', 0, Array('metadata_schema' => 'I')); 
+		echo "</td></tr></table>\n";
 
 		return true;
 
@@ -160,7 +163,8 @@ class Page_HCL_Edit_Fns extends Page_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function processHCLSchemas(&$asset, &$o, $prefix) {
+	function processHCLSchemas(&$asset, &$o, $prefix)
+	{
 
 		if (!isset($_POST[$prefix.'_newschema']['assetid'])) return false;
 		$new_schema  = $_POST[$prefix.'_newschema']['assetid']; // submitted root id

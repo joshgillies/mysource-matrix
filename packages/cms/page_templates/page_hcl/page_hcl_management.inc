@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_hcl_management.inc,v 1.1 2004/01/13 05:53:59 diarandine Exp $
+* $Id: page_hcl_management.inc,v 1.2 2004/01/13 10:40:55 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -65,7 +65,6 @@ class Page_HCL_Management extends Page_Management
 											),
 											'multiple' => false,
 										),
-
 										'default' => 2,
 							),
 		);
