@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.11 2004/02/27 01:13:53 diarandine Exp $
+* $Id: search_page_management.inc,v 1.12 2004/06/02 00:26:32 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -48,7 +48,7 @@ class Search_Page_Management extends Asset_Management
 		$this->vars = Array(
 			'root_assetid' => Array(
 				'added'			=> '0.1',
-				'type'			=> 'int',
+				'type'			=> 'assetid',
 				'default'		=> '',
 				'description'	=> 'The asset ID of the root asset on which searches are based on.',
 			),

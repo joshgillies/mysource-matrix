@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox_management.inc,v 1.5 2004/02/24 01:56:19 gsherwood Exp $
+* $Id: design_area_searchbox_management.inc,v 1.6 2004/06/02 00:26:32 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.5 $ - 1.0
+* @version $Revision: 1.6 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -49,8 +49,8 @@ class Design_Area_SearchBox_Management extends Asset_Management
 		$this->vars = Array(
 			'search_page_assetid' => Array (
 				'added'			=> '0.1',
-				'type'			=> 'int',
-				'default'		=> '0',
+				'type'			=> 'assetid',
+				'default'		=> '',
 				'description'	=> 'Search Page where queries are deferred to and results displayed on.'
 			),
 			'submit_button' => Array (
@@ -61,7 +61,7 @@ class Design_Area_SearchBox_Management extends Asset_Management
 			),
 			'submit_image_assetid' => Array(
 				'added'			=> '0.1',
-				'type'			=> 'int',
+				'type'			=> 'assetid',
 				'default'		=> '',
 				'description'	=> 'Image Icon Asset'
 			),
