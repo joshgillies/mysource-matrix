@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: esec_processor.inc,v 1.1.1.1 2004/10/13 01:31:48 arailean Exp $
+* $Id: esec_processor.inc,v 1.2 2004/10/14 01:04:06 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,12 +34,15 @@ require_once 'HTTP/Request.php';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
 class Esec_Processor
 {
+
+	var $_url = "https://sec.aba.net.au/cgi-bin/service/authint";
+
 	var $parameters;
 
 	var $response;
@@ -53,7 +56,11 @@ class Esec_Processor
 		"jcb"       => "jcb"
 	);
 
-	var $_url = "https://sec.aba.net.au/cgi-bin/service/authint";
+	var $test_card_numbers = array (
+		"testsuccess" => "testsuccess",
+		"testfailure" => "testfailure",
+		"testtimeout" => "testtimeout",
+	);
 
 	var $_status_codes = Array (
 		'00' => 'approved',
@@ -195,6 +202,19 @@ class Esec_Processor
 
 
 	/**
+	* Get Charge Amount
+	*
+	* @access public
+	* @return string
+	*/
+	function getAmount()
+	{
+		return $this->get('EPS_AMOUNT');
+
+	}//end getAmount()
+
+
+	/**
 	* returns array of possible card types
 	*
 	* @access public
@@ -208,21 +228,28 @@ class Esec_Processor
 
 
 	/**
+	* Get array of valid card numbers for testing
+	*
+	* @access public
+	* @return array
+	*/
+	function getTestCardNumbers()
+	{
+		return $this->test_card_numbers;
+
+	}//end getTestCardNumbers()
+
+
+	/**
 	* sets card type
 	*
 	* @param	$type	type of the card
 	*
 	* @access public
-	* @return boolean
+	* @return void
 	*/
 	function setCardType($type) {
-		$success = isset($this->card_types[$type]);
-
-		if ($success) {
-			$this->set('EPS_CARDTYPE', $type);
-		}
-
-		return $success;
+		$this->set('EPS_CARDTYPE', $type);
 
 	}//end setCardType()
 
@@ -436,6 +463,7 @@ class Esec_Processor
 	*/
 	function setTest()
 	{
+		$this->setMerchant('test');
 		$this->set('EPS_TEST',     'true');
 		$this->set('EPS_CARDTYPE', 'testcard');
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_esec_management.inc,v 1.1.1.1 2004/10/13 01:31:48 arailean Exp $
+* $Id: payment_gateway_esec_management.inc,v 1.2 2004/10/14 01:04:06 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -52,6 +52,15 @@ class Payment_Gateway_Esec_Management extends Asset_Management
 				'description'   => 'Gateway Merchant ID for the e-commerce transaction',
 			),
 
+			'test_mode' => Array(
+				'added'			=> '0.1',
+				'type'			=> 'boolean',
+				'default'		=> false,
+				'description'   => 'Turn this ON for test mode',
+				'parameters' => Array(
+					'allow_empty' => false
+				),
+			),
 		);
 
 	}//end constructor

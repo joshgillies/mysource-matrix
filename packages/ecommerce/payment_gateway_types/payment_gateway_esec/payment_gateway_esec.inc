@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_esec.inc,v 1.1.1.1 2004/10/13 01:31:48 arailean Exp $
+* $Id: payment_gateway_esec.inc,v 1.2 2004/10/14 01:04:06 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once dirname(__FILE__).'/esec_processor.inc';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -85,6 +85,10 @@ class Payment_Gateway_Esec extends Payment_Gateway
 		$Esec = new Esec_Processor();
 		$card_types = $Esec->getCardTypes();
 
+		// format the amount
+		$Esec->setAmount($amount);
+		$amount = $Esec->getAmount();
+
 		$card_info = array_get_index($_SESSION, 'SQ_ECOM_CARDINFO', false);
 		if (!$card_info) {
 			$card_info = Array(
@@ -111,6 +115,22 @@ class Payment_Gateway_Esec extends Payment_Gateway
 			$form_contents_select .= '<option value="'.$type.'"'.$selected.'>'.$type.'</option>';
 		}
 
+		// set variables for test mode
+		if ($this->attr('test_mode')){
+
+			$form_contents .= '<h2 style="color: red">TEST MODE</h2>';
+
+			$test_card_numbers = $Esec->getTestCardNumbers();
+			$card_number = '<select name="'.$card.'[number]">';
+			foreach ($test_card_numbers as $number) {
+				$selected = ($card_info['number'] == $number)?' selected="selected"':'';
+				$card_number .= '<option value="'.$number.'"'.$selected.'>'.$number.'</option>';
+			}
+			$card_number .= '</select>';
+		} else {
+			$card_number = '<input name="'.$card.'[number]" value="'.$card_info['number'].' />';
+		}
+
 
 		$datapath = sq_web_path('data').'/asset_types/payment_gateway_esec/files';
 
@@ -130,7 +150,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 				</tr>
 				<tr>
 					<td>Number</td>
-					<td><input name="{$card}[number]" value="{$card_info['number']}" /></td>
+					<td>$card_number</td>
 				</tr>
 				<tr>
 					<td>Expiry Date (MM/YY)</td>
@@ -146,7 +166,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 				</tr>
 				<tr>
 					<td>&nbsp;</td>
-					<td><input type="submit" value="   Pay   " /><input type="reset" value="Reset" /><input type="submit" name="{$prefix}_action" value="Cancel" /></td>
+					<td><input type="submit" value="                  Pay                  " /><input type="reset" value="Reset" /><input type="submit" name="{$prefix}_action" value="Cancel" /></td>
 				</tr>
 			</table>
 		</form>
@@ -180,7 +200,9 @@ FORMBODY;
 		$Esec->setCardExpiryYear($card_info['year']);
 		$Esec->setCardName($card_info['name']);
 
-		$Esec->setTest();
+		if ($this->attr('test_mode')){
+			$Esec->setTest();
+		}
 
 		$success = $Esec->process();
 
@@ -192,7 +214,12 @@ FORMBODY;
 			$this->_tmp['is_error']         = true;
 			$this->_tmp['error_message']    = $Esec->explainStatus();
 		} else {
-			$response['STATUS'] = $Esec->explainStatus();
+			$status = $Esec->explainStatus();
+			if ($this->attr('test_mode')){
+				$status = '*** TEST MODE (do not honour) *** : '.$status;
+			}
+
+			$response['STATUS'] = $status;
 			$_SESSION['SQ_ECOM_RESPONSE']   = $response;
 		}
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1.1.1 2004/10/13 01:31:48 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2004/10/14 01:04:06 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -35,10 +35,21 @@
 			<note />
 			<text width="35" height="1" />
 		</field>
+	</section>
+
+	<section name="Identifiers" write_access="write:attributes">
 		<field attribute="merchant_id">
 			<display_name>Merchant ID</display_name>
 			<note />
 			<text width="35" height="1" />
+		</field>
+	</section>
+
+	<section name="Testing Mode" write_access="write:attributes">
+		<field attribute="test_mode">
+			<display_name>Test Mode</display_name>
+			<note>Turn this switch ON for testing purposes. This will set the merchant ID to test among other things. When turned on, the gateway screen will display that it is in testing mode.</note>
+			<boolean true_text="ON" false_text="OFF" />
 		</field>
 	</section>
 </contents>
