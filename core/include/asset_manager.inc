@@ -333,7 +333,7 @@ if (!empty($type_code)) $sql .= 'INNER JOIN sq_asset pa ON pl.minorid = pa.asset
 				$sql = db_extras_subquery($db, $sql, Array($sub));
 			}
 		}// end if
-bam($sql);
+
 		$parents = $db->getCol($sql);
 
 		if (DB::isError($parents)) {
@@ -435,12 +435,14 @@ bam($sql);
 		switch(strtolower($name)) {
 			case 'root_folder' :
 				return $this->getAsset(1);
-			case 'root_user' :
-				return $this->getAsset(2);
 			case 'trash_folder' :
-				return $this->getAsset(3);
+				return $this->getAsset(2);
 			case 'system_user_group' :
+				return $this->getAsset(3);
+			case 'user_folder' :
 				return $this->getAsset(4);
+			case 'root_user' :
+				return $this->getAsset(5);
 			default :
 				trigger_error('System Asset Name "'.$name.'" not known', E_USER_ERROR);
 		}

@@ -60,6 +60,10 @@ if (SQ_IN_BACKEND && substr($_SERVER['PHP_SELF'], -1) != '/') {
 $GLOBALS['SQ_OUTPUT_TYPE'] = 'html';
 
 
+// we are not installing anything
+$GLOBALS['SQ_INSTALL'] = false;
+
+
 // Load general functions, including the error handler
 require_once SQ_INCLUDE_PATH.'/general.inc';
 ini_set('display_errors', 1); // we'll manage whether to display the errors or not in the error_handler

@@ -785,7 +785,7 @@ class Asset extends Resolve_Object
 		if (!$this->id) return false;
 
 		// if you dont have write access to this asset you cant create any links
-		if (!$this->writeAccess()) {
+		if (!$GLOBALS['SQ_INSTALL'] && !$this->writeAccess()) {
 			return 'Cannot create link, permission denied';
 		}
 

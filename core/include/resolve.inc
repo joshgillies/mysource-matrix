@@ -194,7 +194,7 @@ class Resolve
 	function userRoot()
 	{
 		if (!$this->user->id) return false;
-		if (get_class($this->user) == 'root_user' && $this->user->id == 2) return true;
+		if (get_class($this->user) == 'root_user' && $this->user->id == 5) return true;
 		return false;
 	}
 

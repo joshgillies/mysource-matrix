@@ -197,7 +197,9 @@ class Package_Manager extends Resolve_Object
 			return;
 		}
 
-		foreach($install_order as $type_code) {
+		//foreach($install_order as $type_code) {
+		for (reset($install_order); null !== ($k = key($install_order)); next($install_order)) {
+			$type_code =& $install_order[$k];
 
 #			pre_echo('Updating : '.$type_code);
 			// now we simply call the management class for this object

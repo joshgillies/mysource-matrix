@@ -1,5 +1,5 @@
 <?php
-
+$_GET['SYSTEM_ROOT'] = dirname(dirname(__FILE__));
 if (empty($_GET['SYSTEM_ROOT']) || !is_dir($_GET['SYSTEM_ROOT'])) {
 	?>
 		<div style="background-color: red; color: white; font-weight: bold;">
@@ -22,6 +22,9 @@ $GLOBALS['SQ_SYSTEM']->db->createSequence('sq_sequence_asset_attribute');
 $GLOBALS['SQ_SYSTEM']->db->createSequence('sq_sequence_asset_url');
 $GLOBALS['SQ_SYSTEM']->db->createSequence('sq_sequence_internal_message');
 
+// Let everyone know we are installing
+$GLOBALS['SQ_INSTALL'] = true;
+
 require_once(SQ_INCLUDE_PATH.'/package_manager.inc');
 $pm = new Package_Manager('__core__');
 if (!$pm->updatePackageDetails()) exit(1);
@@ -35,53 +38,63 @@ if (is_null($root_folder)) {
 
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('root_folder');
 	$root_folder = new Root_Folder();
-	if (!$root_folder->create(Array())) die();
+	if (!$root_folder->create(Array())) die('ROOT FOLDER NOT CREATED');
 	pre_echo('Root Folder Asset Id : '.$root_folder->id);
 	if ($root_folder->id != 1) {
 		trigger_error('Major Problem: The new Root Folder Asset was not given assetid #1. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
 	}
 
-	$GLOBALS['SQ_SYSTEM']->am->includeAsset('root_user');
-	$root_user = new Root_User();
-	$root_user->id = 2;
-
-	// set the current user object to the root user so we can finish
-	// the install process without permission denied errors
-	$GLOBALS['SQ_SYSTEM']->user = $root_user;
-
-	// Create some useful folders
-	$users_folder = new Folder();
-	$root_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_UNITE);
-	if (!$users_folder->create($root_link, 'Users')) die();
-	$users_folder->createLink($root_user, SQ_LINK_UNITE);
-
-
-	pre_echo('Root User Asset Id : '.$root_user->id);
-	if ($root_user->id != 2) {
-		trigger_error('Major Problem: The new Root User Asset was not given assetid #2. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
-	}
-	if (!$root_user->create(Array(), 'root@'.$_SERVER['HTTP_HOST'])) die();
-
 
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('trash_folder');
 	$trash_folder = new Trash_Folder();
 	$trash_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_EXCLUSIVE);
-	if (!$trash_folder->create($trash_link)) die();
+	if (!$trash_folder->create($trash_link)) die('TRASH FOLDER NOT CREATED');
 	pre_echo('Trash Asset Id : '.$trash_folder->id);
-	if ($trash_folder->id != 3) {
-		trigger_error('Major Problem: The new Trash Asset was not given assetid #3. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
+	if ($trash_folder->id != 2) {
+		trigger_error('Major Problem: The new Trash Asset was not given assetid #2. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
 	}
 
 
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('system_user_group');
 	$system_group = new System_User_Group();
 	$system_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_EXCLUSIVE);
-	if (!$system_group->create($system_link)) die();
+	if (!$system_group->create($system_link)) die('SYSTEM ADMIN GROUP NOT CREATED');
 	pre_echo('System Administrators User Group Asset Id : '.$system_group->id);
-	if ($system_group->id != 4) {
-		trigger_error('Major Problem: The new System Administrators User Group Asset was not given assetid #4. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
+	if ($system_group->id != 3) {
+		trigger_error('Major Problem: The new System Administrators User Group Asset was not given assetid #3. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
 	}
 	$system_group->grantPermission($root_user->id, 'A');
+
+
+	// Create users folder
+	$users_folder = new Folder();
+	$root_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_UNITE);
+	if (!$users_folder->create($root_link, 'Users')) die('USERS FOLDER NOT CREATED');
+	pre_echo('User Folder Asset Id : '.$users_folder->id);
+	if ($users_folder->id != 4) {
+		trigger_error('Major Problem: The new User Folder Asset was not given assetid #5. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
+	}
+
+	// Create the root user
+	$GLOBALS['SQ_SYSTEM']->am->includeAsset('root_user');
+	$root_user = new Root_User();
+	$user_link = Array('asset' => &$users_folder, 'link_type' => SQ_LINK_UNITE);
+	if (!$root_user->create($user_link, 'root@'.$_SERVER['HTTP_HOST'])) die('ROOT USER NOT CREATED');
+	pre_echo('Root User Asset Id : '.$root_user->id);
+	if ($root_user->id != 5) {
+		trigger_error('Major Problem: The new Root User Asset was not given assetid #5. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
+	}
+
+	// From here on in, the user needs to be logged in to create assets and links
+	$GLOBALS['SQ_INSTALL'] = false;
+
+	// set the current user object to the root user so we can finish
+	// the install process without permission denied errors
+	$GLOBALS['SQ_SYSTEM']->user = $root_user;
+
+	// move the root user into the users folder
+	#if (!$root_folder->deleteLink($root_user_linkid)) die ('ROOT USER MOVE FAILED');
+	#if (!$users_folder->createLink($root_user, SQ_LINK_UNITE)) die ('ROOT USER MOVE FAILED');
 
 }// end if
 

@@ -170,7 +170,7 @@ class Asset_Management extends Resolve_Object
 		// now add the attributes
 		$all_vars = $this->_getAllVars();
 		for (reset($all_vars); null !== ($k = key($all_vars)); next($all_vars)) {
-			$name = $all_vars[$k];
+			$name =& $all_vars[$k];
 			if (!$this->_addAttribute($name)) return false;
 		}
 
