@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.50 2004/01/16 00:40:28 mmcintyre Exp $
+* $Id: html_form.inc,v 1.51 2004/01/20 03:44:15 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -602,10 +602,15 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 * @return void
 * @access public
 */
-function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sidenav', $done_fn='null')
+function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sidenav', $done_fn='null')
 {
-	$finder_frame = (empty($map_frame)) ? 'parent.top' : 'parent.top.main';
-	$map_frame = trim('top.'.$map_frame, '.');
+	$finder_frame = (empty($map_frame)) ? 'parent.top' : 'parent.frames["sq_main"]';
+	
+	if (!empty($map_frame)) {
+		$map_frame = trim('parent.frames["'.$map_frame.'"]', '.');
+	} else {
+		$map_frame = 'top';
+	}
 	
 	$all_type_codes = Array();
 	$am = &$GLOBALS['SQ_SYSTEM']->am;
