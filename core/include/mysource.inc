@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.51 2004/08/09 09:12:47 brobertson Exp $
+* $Id: mysource.inc,v 1.52 2004/08/26 01:59:02 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -168,8 +168,28 @@ class MySource
 		if (!SQ_PHP_CLI) {
 			session_name('SQ_SYSTEM_SESSION');
 			session_save_path(SQ_SYSTEM_ROOT.'/cache');
+			
+			$session_set = false;
+			if (isset($_GET['SESSION_KEY']) && isset($_GET['SESSION_ID'])) {
+				session_id($_GET['SESSION_ID']);
+				$session_set = true;
+			}
+
 			session_start();
 
+			// check to see if the session key is the same as that used to login
+			if ($session_set && $this->getUniqueSessionKey() != $_GET['SESSION_KEY']) {
+				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$log_body = 'Possible attempt to steal session detected!';
+				$log = $ms->newMessage(Array(), 'Security Alert', $log_body, 'system.security.alert');
+				$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
+				$log->parameters['sessionid'] = session_id();
+				$log->parameters['userid'] = $_SESSION['userid'];
+				$log->send();
+
+				exit();
+			}
+			
 			// process rollback view mode global actions here so setting the rollback vars below
 			if (!empty($_REQUEST['SQ_ACTION']) && strpos($_REQUEST['SQ_ACTION'], 'rollback_view') === 0) {
 				$this->_processGlobalActions();
@@ -264,7 +284,7 @@ class MySource
 					// if we can get a site from the url, 
 					// try to delegate the 404 to its not found page
 
-					if (!empty($root_url) && !empty($root_url[current_protocol()])) {
+					if (!empty($root_url)) {
 						$site = &$this->am->getAsset($root_url['assetid'], 'site');
 						if (!is_null($site)) {
 							$page = &$site->getSpecialPage('not_found');
@@ -281,7 +301,6 @@ class MySource
 
 					if (!$rm->paintPageNotFoundRemap()) {
 						// last resort, display little green error
-						header('HTTP/1.0 404 Not Found');
 						trigger_error('URL "'.$url.'" not found', E_USER_NOTICE);
 					}
 				}//end if !load remap
@@ -359,6 +378,28 @@ class MySource
 		require_once SQ_INCLUDE_PATH.'/login.inc';
 
 	}//end printLogin()
+
+
+	/**
+	* Returns a unique session key
+	*
+	* the key can be used to strengthen the sending of the 
+	* session id as a $_GET variable
+	*
+	* @return string
+	* @access public
+	*/
+	function getUniqueSessionKey()
+	{
+		$key =  $GLOBALS['_SESSION']['userid'].
+				$GLOBALS['_SESSION']['user_type_code'].
+				$GLOBALS['_SESSION']['SQ_LOGIN_KEY'];
+
+		if (!SQ_CONF_ALLOW_IP_CHANGE) $key .= $GLOBALS['_SESSION']['remote_addr'];
+
+		return md5($key);
+
+	}//end getUniqueSessionKey()
 
 
 	/**
