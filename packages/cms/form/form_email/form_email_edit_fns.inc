@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.32 2004/09/10 00:51:26 mnyeholt Exp $
+* $Id: form_email_edit_fns.inc,v 1.33 2004/09/21 00:35:17 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1312,5 +1312,45 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	}//end processActiveSend()
 
 
+	/**
+	* Paint a note giving instructions for complex formatting
+	*
+	* @param object Form				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintKeywordReplacementText(&$asset, &$o, $prefix)
+	{
+		?>
+		<p>In addition to the simple formatting options shown underneath each email, you can use the same keyword replacements as is available for the Thank You bodycopy. Click here for a <a href="#" onClick="javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/form/popups/thank_you_keywords.php?assetid=<?php echo $asset->id ?>', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520')">list of keywords available for use in emails</a>.<br/></p>
+
+		<?php
+		return true;
+
+	}//end paintKeywordReplacementText()
+
+	
+	/**
+	* Process the note giving instructions for keyword replacements
+	*
+	* Nothing to process, so return false always.
+	*
+	* @param object Metadata_Field		$asset	the asset to which we belong
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean (false always)
+	* @access public
+	*/
+	function processKeywordReplacementText(&$asset, &$o, $prefix)
+	{
+		return false;
+
+	}//end processKeywordReplacementText()
+	
+	
 }//end class
 ?>

@@ -18,12 +18,22 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_recipient.xml,v 1.11 2004/08/23 01:17:02 gsherwood Exp $
+* $Id: edit_interface_screen_recipient.xml,v 1.12 2004/09/21 00:35:17 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <contents>
+	<section name="Keyword Replacements">
+		<field>
+			<display_name>Note</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintKeywordReplacementText"   />
+				<process_function name="processKeywordReplacementText" />
+			</function_call>
+		</field>
+	</section>
 	<section name="Recipient Options">
 		<field attribute="recipient_emails_format">
 			<display_name>Recipient Emails</display_name>
