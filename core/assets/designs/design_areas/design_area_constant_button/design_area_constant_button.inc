@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_constant_button.inc,v 1.16 2004/03/30 04:20:38 gsherwood Exp $
+* $Id: design_area_constant_button.inc,v 1.17 2004/03/30 10:30:18 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -58,7 +58,7 @@ class Design_Area_Constant_Button extends Design_Area
 		// if there is an assetid then do some prep work before printing the area
 		if (!empty($assetid)) {
 			echo '<', '?php
-			$constant_btn_'.$this->attr('id_name').'_url = $am->getAssetURL('.$assetid.').((SQ_LIMBO_EDITING) ? \'/_edit\' : \'\');
+			$constant_btn_'.$this->attr('id_name').'_url = $am->getAssetURL('.$assetid.').((SQ_LIMBO_EDITING) ? \'/\'.SQ_CONF_LIMBO_SUFFIX : \'\');
 			?', '>';
 		}// end if
 
