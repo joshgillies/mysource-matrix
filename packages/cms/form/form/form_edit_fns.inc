@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.28 2004/06/16 05:55:31 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.29 2004/06/21 06:49:55 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -238,7 +238,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 					$i = 0;
 					foreach($sort_order as $sort_id => $assetid) {
 					$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-					$href = $q->getBackendHref('contents');
+					$href = $q->getBackendHref('details');
 					?>
 						<tr>
 							<td class="sq-backend-table-cell">
@@ -742,7 +742,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 			$output .= ($asset->attr('question_col_width')) ? ' width="'.$asset->attr('question_col_width').'">' : '>';
 			$output .= $q->getVal('title');
 			if ($q->getVal('note')) {
-				$output .= '<br><span style="font-size:80%">'.$q->getVal('note').'</span>';
+				$output .= '<br><span style="font-size:'.($asset->attr('note_size') ? $asset->attr('note_size') : '80%').'">'.$q->getVal('note').'</span>';
 			}
 			$output .= '</td><td';
 			$output .= ($asset->attr('answer_col_width')) ? ' width="'.$asset->attr('answer_col_width').'">' : '>';
