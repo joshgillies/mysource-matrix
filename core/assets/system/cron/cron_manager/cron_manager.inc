@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.34 2004/12/06 14:38:10 brobertson Exp $
+* $Id: cron_manager.inc,v 1.35 2004/12/15 05:28:14 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,7 +61,7 @@ class Cron_Manager extends Asset
 	/**
 	* Create this asset
 	*
-	* @param array()	&$link	information used to create the initial link
+	* @param array	&$link	information used to create the initial link
 	*
 	* @see Asset::create()
 	* @return mixed int or false
@@ -74,7 +74,7 @@ class Cron_Manager extends Asset
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
-			if (!system_asset_fns_create_cleanup($this))  {
+			if (!system_asset_fns_create_cleanup($this)) {
 				$linkid = false;
 			}
 		}
@@ -91,7 +91,7 @@ class Cron_Manager extends Asset
 
 
 	/**
-	* Returns name of the asset
+	* Return a name to use to describe this instance of the asset
 	*
 	* @param bool	$short_name	whether or not we are after the shortname or the full name
 	*
@@ -106,7 +106,7 @@ class Cron_Manager extends Asset
 
 
 	/**
-	* Returns an array of all the permitted links type, the type asset and the cardinality
+	* Return an array of all the permitted links type, the type asset and the cardinality
 	*
 	* @see Asset::_getAllowLinks()
 	* @return array
@@ -124,7 +124,7 @@ class Cron_Manager extends Asset
 
 
 	/**
-	* Returns a list of lock types available for this asset type
+	* Return a list of lock types available for this asset type
 	*
 	* @return Array()
 	* @access public
@@ -152,7 +152,7 @@ class Cron_Manager extends Asset
 
 
 	/**
-	* Morph's this asset to either one of it's parent type or one of it's children types
+	* Morph this asset to either one of it's parent type or one of it's children types
 	* Only succeeds if $type_code asset's is allowed to link to all children that this asset has
 	*
 	* @param string	$new_type_code	the new type_code to attempt to cast this asset to
@@ -203,7 +203,7 @@ class Cron_Manager extends Asset
 		if (!$GLOBALS['SQ_SYSTEM']->userRoot()) {
 			trigger_error('Unable to set "'.$name.'". You can only set the attributes of the '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' if you are the Root User', E_USER_WARNING);
 			return false;
-		}//end if
+		}
 
 		// the refresh time has some restrictions on it, because otherwise painting the when box would be a pain
 		if ($name == 'refresh_time') {
@@ -224,13 +224,20 @@ class Cron_Manager extends Asset
 					trigger_error('You can only have a refresh time of over one hour if it\'s a multiple of an hour ('.$one_hour.' seconds) and the number of hours divides evenly into one day', E_USER_WARNING);
 					return false;
 				}
-
-			// if we less than an hour we must divide evenly into an hour
-			} else if ($one_hour % $value) {
-				trigger_error('You can only have a refresh time of under one hour if it divides evenly into one hour ('.$one_hour.' seconds)', E_USER_WARNING);
-				return false;
+			} else {
+				// if we less than an hour we must divide evenly into an hour
+				if ($one_hour % $value) {
+					trigger_error('You can only have a refresh time of under one hour if it divides evenly into one hour ('.$one_hour.' seconds)', E_USER_WARNING);
+					return false;
+				}
 			}
-		}//endi f
+		}//end if setting refresh_time
+		
+		// if we are setting the last run time and the epoc has not been set yet,
+		// assume the last run was the first run and set the epoc
+		if ($name == 'last_run' && $this->attr('epoch') == 0) {
+			$this->setAttrValue('epoch', $value);
+		}
 
 		return parent::setAttrValue($name, $value);
 
@@ -253,23 +260,13 @@ class Cron_Manager extends Asset
 			return false;
 		}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
+		$job->setAttrValue('running_as', $user->id);
 		$link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'is_exclusive' => '1');
-		$success = false;
-		if ($job->create($link)) {
-			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($job->id, 'links')) {
-				$success = $job->setRunningUser($user);
-				$GLOBALS['SQ_SYSTEM']->am->releaseLock($job->id, 'links');
-			}
-		}
-
-		if ($success) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		} else {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-		}
-		return $success;
+		$sq_install = array_get_index($GLOBALS, 'SQ_INSTALL', false);
+		$GLOBALS['SQ_INSTALL'] = true;
+		$linkid = $job->create($link);
+		if (!$sq_install) unset($GLOBALS['SQ_INSTALL']);
+		return ($linkid > 0);
 
 	}//end addJob()
 
@@ -277,7 +274,7 @@ class Cron_Manager extends Asset
 	/**
 	* Removes a job form the cron manager
 	*
-	* @param object Cron_Job	$job		a reference to the cron job to add to add to the system
+	* @param object Cron_Job	$job	a reference to the cron job to add to add to the system
 	*
 	* @return boolean
 	* @access public
@@ -292,7 +289,11 @@ class Cron_Manager extends Asset
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->id, $job->id);
 		if (empty($link)) return false;
 
-		return $this->deleteLink($link['linkid']);
+		$sq_install = array_get_index($GLOBALS, 'SQ_INSTALL', false);
+		$GLOBALS['SQ_INSTALL'] = true;
+		$success = $this->deleteLink($link['linkid']);
+		if (!$sq_install) unset($GLOBALS['SQ_INSTALL']);
+		return $success;
 
 	}//end removeJob()
 
@@ -300,24 +301,27 @@ class Cron_Manager extends Asset
 	/**
 	* Returns an array of cron jobs that are active under cron manager
 	*
+	* Returns an array of references to the selected cron job type
+	*
 	* @param string|array	$type_code			the type of cron job, if an array returns link if matches any
 	*											of the array values
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
-	* @return Array() returns an array of references to the selected cron job type
+	* @return array
 	* @see Asset::getLinks()
 	* @access public
 	*/
 	function getJobs($type_code='cron_job', $strict_type_code=true)
 	{
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3, $type_code, $strict_type_code, 'major', null, null, true);
+
 		$jobs = Array();
 		foreach ($links as $link) {
 			$job = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($job)) continue;
 			$jobs[] = &$job;
-		}//end foreach
+		}
 
 		return $jobs;
 
@@ -364,7 +368,7 @@ class Cron_Manager extends Asset
 
 
 	/**
-	* Run's the jobs that need executing in the system
+	* Run the jobs that need executing in the system
 	*
 	* @return void
 	* @access public
@@ -424,11 +428,10 @@ class Cron_Manager extends Asset
 
 			} else {
 				trigger_error('Unable to acquire lock of "'.$this->name.'"', E_USER_WARNING);
-
 			}
 
-		// we aren't already running
 		} else {
+			// we aren't already running
 
 			// OK using the epoch time and the the refresh time figure when the this period "really" started
 			$epoch        = (int) $this->attr('epoch');
@@ -450,8 +453,8 @@ class Cron_Manager extends Asset
 					// then we need to add one hour to this run's time
 					// otherwise we need to drop an hour
 					$this_run += ($epoch_in_dst) ? +3600 : -3600;
-				}//end if
-			}//end if
+				}
+			}
 
 			// now get the lock, set the running flag and reset the run_check
 			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes', 0, true) && $this->setAttrValue('running', true) && $this->setAttrValue('run_check', 0) && $this->saveAttributes()) {
@@ -465,13 +468,12 @@ class Cron_Manager extends Asset
 				$last_run = (int) $this->attr('last_run');
 				$next_run = $this_run + $refresh_time;
 
-#pre_echo("Get Jobs : ".date('d/m/Y H:i:s', $last_run).", ".date('d/m/Y H:i:s', $this_run));
 				$jobs = $this->getJobsToRun($last_run, $this_run);
-#pre_echo("JOBS : ".var_export($jobs, true));
 
 				// holds the number of times that a job has failed
 				// Array([assetid] => [number of failed runs]);
 				$failed_runs = Array();
+
 				// holds the assetids for jobs to ignore - because they have failed to many times
 				// Array([assetid]);
 				$ignore_jobs = Array();
@@ -485,20 +487,20 @@ class Cron_Manager extends Asset
 						$cron_job = &$am->getAsset($job_info['assetid'], $job_info['type_code']);
 						if (is_null($cron_job)) continue;
 
-echo "RUN    : ".$cron_job->id.' .... '.$cron_job->name."\n";
+						echo "RUN    : ".$cron_job->id.' .... '.$cron_job->name."\n";
 
 						$result = $cron_job->run();
 
 						require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $result, true))."\n\n";
+						echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $result, true))."\n\n";
 
-						// We have been asked to remove this cron job
+						// we have been asked to remove this cron job
 						if ($result & SQ_CRON_JOB_REMOVE) {
 							$remove_jobs[] = $job_info['linkid'];
 							$ignore_jobs[] = $cron_job->id;
 
-						// If they want to have another go
-						} elseif ($result & SQ_CRON_JOB_RETRY) {
+						} else if ($result & SQ_CRON_JOB_RETRY) {
+							// they want to have another go
 
 							// if they resulted in an error, we need to check this hasn't happened before
 							if ($result & SQ_CRON_JOB_ERROR) {
@@ -531,8 +533,8 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 
 							}//end if error
 
-						// they don't want another go but they don't want to be removed either ? just ignore them
 						} else {
+							// they don't want another go but they don't want to be removed either ? just ignore them
 							$ignore_jobs[] = $cron_job->id;
 
 						}//end if
@@ -549,23 +551,21 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 					while (1) {
 						if ($acquired = $GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attr_links', 0, true)) {
 							break;
-						} elseif ($lock_count < 3) {
+						} else if ($lock_count < 3) {
 							$lock_count++;
 							sleep(1);
 						} else {
 							break;
 						}
-					};
+					}
 
 					// now update this last run time, so that we know for next time
 					if ($acquired) {
 
 						$this->setAttrValue('run_check', 0);
 						if (!empty($remove_jobs)) {
-							foreach ($remove_jobs as $linkid) {
-								$this->deleteLink($linkid);
-							}
-						}//end if
+							foreach ($remove_jobs as $linkid) $this->deleteLink($linkid);
+						}
 
 						$this->saveAttributes();
 
@@ -582,9 +582,7 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 						$next_run += $refresh_time;
 					}
 
-#pre_echo("Get Jobs : ".date('d/m/Y H:i:s', $last_run).", ".date('d/m/Y H:i:s', $this_run));
 					$jobs = $this->getJobsToRun($last_run, $this_run, $ignore_jobs);
-#pre_echo("JOBS : ".var_export($jobs, true));
 
 				}//end while
 
@@ -599,8 +597,8 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 					trigger_error('Unable to acquire lock of "'.$this->name.'", aborting run', E_USER_WARNING);
 				}
 
-			// else aquire or set running failed
 			} else {
+				// aquire or set running failed
 				trigger_error('Unable to acquire lock and set running flag of "'.$this->name.'", aborting run', E_USER_WARNING);
 
 			}//end if aquire lock
@@ -619,7 +617,7 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 	*
 	* @param int		$start_ts		the starting timestamp of the time period
 	* @param int		$end_ts			the ending timestamp of the time period
-	* @param Array(int)	$ignore_jobs	a list of assetids to ignore
+	* @param array(int)	$ignore_jobs	a list of assetids to ignore
 	*
 	* @return Array()
 	* @access public
@@ -629,8 +627,6 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-#		pre_echo("START : ".date('d M Y H:i',$start_ts)."\nEND   : ".date('d M Y H:i',$end_ts)."\n");
 
 		if ($end_ts < $start_ts) {
 			trigger_error('The start time is after the end time', E_USER_WARNING);
@@ -663,20 +659,20 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 		// if it is over the number of days last year, then it is over a year ago
 		$over_one_year_ago = ($time_since_last_run >= ($days_last_year * $one_day));
 
-#		pre_echo("over_one_hour_ago  : $over_one_hour_ago");
-#		pre_echo("over_one_day_ago   : $over_one_day_ago");
-#		pre_echo("over_one_week_ago  : $over_one_week_ago");
-#		pre_echo("over_one_month_ago : $over_one_month_ago");
-#		pre_echo("over_one_year_ago  : $over_one_year_ago");
-
 		// formatted some values of the date vars
 		$end_f  = Array();
 		$start_f = Array();
 		foreach (Array('minutes', 'hours', 'wday', 'mday', 'mon', 'year') as $field) {
 			switch ($field) {
-				case 'wday': $places = 1; break;
-				case 'year': $places = 4; break;
-				default    : $places = 2; break;
+				case 'wday':
+					$places = 1;
+				break;
+				case 'year':
+					$places = 4;
+				break;
+				default :
+					$places = 2;
+				break;
 			}
 			$end_f[$field]  = str_pad($end[$field], $places, '0', STR_PAD_LEFT);
 			$start_f[$field] = str_pad($start[$field], $places, '0', STR_PAD_LEFT);
@@ -734,8 +730,6 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 									$build_up['year']['all']),
 		);
 
-		#pre_echo(var_export($build_up, true));
-
 		$type = 'all';
 
 		if ($over_one_hour_ago) {
@@ -785,7 +779,7 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 		$one_off = preg_replace('/%[ABCD]%/', 'OO=', $build_up['one_off']['all']);
 
 		$sql   = 'SELECT l.linkid, a.assetid, a.type_code
-				  FROM sq_asset_link l
+				  FROM sq_ast_lnk l
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.minorid = a.assetid
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val av ON a.assetid = av.assetid
 						INNER JOIN '.SQ_TABLE_PREFIX.'ast_attr at ON av.attrid = at.attrid ';
@@ -830,8 +824,8 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 	/**
 	* Used by usort() in getJobsToRun() to sort the results in the proper order for execution
 	*
-	* @param Array()	$a	first value to compare
-	* @param Array()	$b	second value to compare
+	* @param array	$a	first value to compare
+	* @param array	$b	second value to compare
 	*
 	* @return int	negative means $a is before $b, zero means $a == $b, positive means $b is before $a
 	* @see getJobsToRun()
@@ -861,7 +855,6 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 	*/
 	function _errorHandler($err_no, $err_msg, $err_file, $err_line)
 	{
-
 		$terminate = ((E_USER_ERROR | E_ERROR) & $err_no);
 
 		// if the function didn't have an '@' prepended OR if we are about to terminate
@@ -942,5 +935,7 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 
 	}//end _errorHandler()
 
+
 }//end class
+
 ?>
