@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_anchor.inc,v 1.2 2004/05/27 06:45:10 gsherwood Exp $
+* $Id: matrix_insert_anchor.inc,v 1.3 2004/09/09 02:09:28 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -164,6 +164,11 @@ class matrix_insert_anchor extends wysiwyg_plugin {
 				var strPage = "<?php echo $this->get_popup_href('insert_anchor.php')?>?&name=" + escape(currArgs["name"]) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
 				this._popupDialog("matrixInsertAnchor", strPage, 360, 180, true, function(param) {
+					if (!param) { 
+						// user must have pressed Cancel
+						return false;
+					}
+					
 					if (param["name"] != "") {
 		
 						var html = '<a name="' + param["name"] + '"';
