@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.50 2004/09/13 04:26:46 lwright Exp $
+* $Id: tables.xml,v 1.51 2004/09/28 03:46:30 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -92,9 +92,7 @@
 			</column>
 			<column name="status" allow_null="0">
 				<type>INT</type>
-				<type_variations>
-					<mysql>SMALLINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default>1</default>
 				<description />
 			</column>
@@ -118,49 +116,37 @@
 			</column>
 			<column name="created" allow_null="0">
 				<type>TIMESTAMP</type>
-				<type_variations>
-					<mysql>DATETIME</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="created_userid" allow_null="0">
 				<type>VARCHAR(255)</type>
-				<type_variations>
-					<mysql>VARCHAR(140)</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="updated" allow_null="0">
 				<type>TIMESTAMP</type>
-				<type_variations>
-					<mysql>DATETIME</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="updated_userid" allow_null="0">
 				<type>VARCHAR(255)</type>
-				<type_variations>
-					<mysql>VARCHAR(140)</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="published" allow_null="1">
 				<type>TIMESTAMP</type>
-				<type_variations>
-					<mysql>DATETIME</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="published_userid" allow_null="1">
 				<type>VARCHAR(255)</type>
-				<type_variations>
-					<mysql>VARCHAR(140)</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -192,9 +178,7 @@
 		<columns>
 			<column name="linkid" allow_null="0">
 				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -212,9 +196,7 @@
 			</column>
 			<column name="link_type" allow_null="0">
 				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -226,9 +208,7 @@
 			</column>
 			<column name="sort_order" allow_null="0">
 				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default>0</default>
 				<description />
 			</column>
@@ -246,17 +226,13 @@
 			</column>
 			<column name="updated" allow_null="0">
 				<type>TIMESTAMP</type>
-				<type_variations>
-					<mysql>DATETIME</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="updated_userid" allow_null="0">
 				<type>VARCHAR(255)</type>
-				<type_variations>
-					<mysql>VARCHAR(140)</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -288,25 +264,19 @@
 		<columns>
 			<column name="treeid" allow_null="0">
 				<type>TEXT</type>
-				<type_variations>
-					<mysql>VARCHAR(200)</mysql>
-				</type_variations>
+				<type_variations />
 				<default>''</default>
 				<description />
 			</column>
 			<column name="linkid" allow_null="0">
 				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="num_immediate_kids" allow_null="0">
 				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -371,9 +341,7 @@
 			</column>
 			<column name="level" allow_null="0">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>SMALLINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -408,9 +376,7 @@
 		<columns>
 			<column name="attributeid" allow_null="0">
 				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -452,9 +418,7 @@
 			</column>
 			<column name="parameters_value" allow_null="1">
 				<type>TEXT</type>
-				<type_variations>
-					<mysql>LONGTEXT</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -505,9 +469,7 @@
 			</column>
 			<column name="attributeid" allow_null="0">
 				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -549,105 +511,79 @@
 			</column>
 			<column name="period" allow_null="0">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>TINYINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="start_date_seconds" allow_null="1">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>TINYINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="start_date_minutes" allow_null="1">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>TINYINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="start_date_hours" allow_null="1">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>TINYINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="start_date_mday" allow_null="1">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>TINYINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="start_date_rmday" allow_null="1">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>TINYINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="start_date_wday" allow_null="1">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>TINYINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="start_date_wdom" allow_null="1">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>TINYINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="start_date_rwdom" allow_null="1">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>TINYINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="start_date_mon" allow_null="1">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>TINYINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="start_date_year" allow_null="1">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>SMALLINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="start_date_yday" allow_null="1">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>SMALLINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="start_date_ryday" allow_null="1">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>SMALLINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -671,97 +607,73 @@
 			</column>
 			<column name="end_date_seconds" allow_null="1">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>TINYINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="end_date_minutes" allow_null="1">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>TINYINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="end_date_hours" allow_null="1">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>TINYINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="end_date_mday" allow_null="1">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>TINYINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="end_date_rmday" allow_null="1">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>TINYINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="end_date_wday" allow_null="1">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>TINYINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="end_date_wdom" allow_null="1">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>TINYINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="end_date_rwdom" allow_null="1">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>TINYINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="end_date_mon" allow_null="1">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>TINYINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="end_date_year" allow_null="1">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>SMALLINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="end_date_yday" allow_null="1">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>SMALLINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="end_date_ryday" allow_null="1">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>SMALLINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -801,17 +713,13 @@
 		<columns>
 			<column name="owning_attributeid" allow_null="0">
 				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="custom_value" allow_null="0">
 				<type>TEXT</type>
-				<type_variations>
-					<mysql>VARCHAR(251)</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -846,17 +754,13 @@
 			</column>
 			<column name="inherited_type_code_level" allow_null="0">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>SMALLINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="type_code_level" allow_null="0">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>SMALLINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -880,9 +784,7 @@
 		<columns>
 			<column name="urlid" allow_null="0">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>SMALLINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -894,9 +796,7 @@
 			</column>
 			<column name="url" allow_null="0">
 				<type>TEXT</type>
-				<type_variations>
-					<mysql>VARCHAR(255)</mysql>
-				</type_variations>
+				<type_variations />
 				<default>''</default>
 				<description />
 			</column>
@@ -933,17 +833,13 @@
 			</column>
 			<column name="assetid" allow_null="0">
 				<type>VARCHAR(255)</type>
-				<type_variations>
-					<mysql>VARCHAR(140)</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="sort_order" allow_null="0">
 				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default>0</default>
 				<description />
 			</column>
@@ -960,9 +856,7 @@
 		<columns>
 			<column name="url" allow_null="0">
 				<type>TEXT</type>
-				<type_variations>
-					<mysql>VARCHAR(221)</mysql>
-				</type_variations>
+				<type_variations />
 				<default>''</default>
 				<description />
 			</column>
@@ -980,17 +874,13 @@
 			</column>
 			<column name="assetid" allow_null="0">
 				<type>VARCHAR(255)</type>
-				<type_variations>
-					<mysql>VARCHAR(140)</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="root_urlid" allow_null="0">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>SMALLINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -1006,9 +896,7 @@
 		<columns>
 			<column name="url" allow_null="0">
 				<type>TEXT</type>
-				<type_variations>
-					<mysql>VARCHAR(221)</mysql>
-				</type_variations>
+				<type_variations />
 				<default>''</default>
 				<description />
 			</column>
@@ -1038,25 +926,19 @@
 		<columns>
 			<column name="url" allow_null="0">
 				<type>TEXT</type>
-				<type_variations>
-					<mysql>VARCHAR(221)</mysql>
-				</type_variations>
+				<type_variations />
 				<default>''</default>
 				<description>The URL that is remapping to another URL</description>
 			</column>
 			<column name="remap_url" allow_null="0">
 				<type>TEXT</type>
-				<type_variations>
-					<mysql>VARCHAR(221)</mysql>
-				</type_variations>
+				<type_variations />
 				<default>''</default>
 				<description>The (hopefully) valid URL that is being remapped to</description>
 			</column>
 			<column name="expires" allow_null="1">
 				<type>TIMESTAMP</type>
-				<type_variations>
-					<mysql>DATETIME</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description>The time when this remap expires. Should be cleaned up after this time.</description>
 			</column>
@@ -1072,25 +954,19 @@
 		<columns>
 			<column name="assetid" allow_null="0">
 				<type>VARCHAR(255)</type>
-				<type_variations>
-					<mysql>VARCHAR(140)</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="userid" allow_null="0">
 				<type>VARCHAR(255)</type>
-				<type_variations>
-					<mysql>VARCHAR(140)</mysql>
-				</type_variations>
+				<type_variations />
 				<default>0</default>
 				<description />
 			</column>
 			<column name="permission" allow_null="0">
 				<type>INT</type>
-				<type_variations>
-					<mysql>SMALLINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default>0</default>
 				<description />
 			</column>
@@ -1114,17 +990,13 @@
 		<columns>
 			<column name="userid" allow_null="0">
 				<type>VARCHAR(255)</type>
-				<type_variations>
-					<mysql>VARCHAR(140)</mysql>
-				</type_variations>
+				<type_variations />
 				<default>'0'</default>
 				<description />
 			</column>
 			<column name="type_code" allow_null="0">
 				<type>VARCHAR(255)</type>
-				<type_variations>
-					<mysql>VARCHAR(140)</mysql>
-				</type_variations>
+				<type_variations />
 				<default>'0'</default>
 				<description>The type code of the asset type which we are restricting access to. Set to NULL to allow access to all asset types.</description>
 			</column>
@@ -1167,9 +1039,7 @@
 			</column>
 			<column name="metadata" allow_null="0">
 				<type>TEXT</type>
-				<type_variations>
-					<mysql>LONGTEXT</mysql>
-				</type_variations>
+				<type_variations />
 				<default>''</default>
 				<description />
 			</column>
@@ -1192,9 +1062,7 @@
 		<columns>
 			<column name="assetid" allow_null="0">
 				<type>VARCHAR(255)</type>
-				<type_variations>
-					<mysql>VARCHAR(140)</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -1206,9 +1074,7 @@
 			</column>
 			<column name="workflow" allow_null="1">
 				<type>TEXT</type>
-				<type_variations>
-					<mysql>LONGTEXT</mysql>
-				</type_variations>
+				<type_variations />
 				<default>NULL</default>
 				<description />
 			</column>
@@ -1237,17 +1103,13 @@
 			</column>
 			<column name="complete" allow_null="0">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>SMALLINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default>0</default>
 				<description />
 			</column>
 			<column name="workflow" allow_null="0">
 				<type>TEXT</type>
-				<type_variations>
-					<mysql>LONGTEXT</mysql>
-				</type_variations>
+				<type_variations />
 				<default>''</default>
 				<description />
 			</column>
@@ -1263,25 +1125,19 @@
 		<columns>
 			<column name="messageid" allow_null="0">
 				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="userto" allow_null="0">
 				<type>VARCHAR(255)</type>
-				<type_variations>
-					<mysql>VARCHAR(140)</mysql>
-				</type_variations>
+				<type_variations />
 				<default>0</default>
 				<description />
 			</column>
 			<column name="userfrom" allow_null="0">
 				<type>VARCHAR(255)</type>
-				<type_variations>
-					<mysql>VARCHAR(140)</mysql>
-				</type_variations>
+				<type_variations />
 				<default>0</default>
 				<description />
 			</column>
@@ -1293,9 +1149,7 @@
 			</column>
 			<column name="body" allow_null="0">
 				<type>TEXT</type>
-				<type_variations>
-					<mysql>LONGTEXT</mysql>
-				</type_variations>
+				<type_variations />
 				<default>''</default>
 				<description />
 			</column>
@@ -1307,17 +1161,13 @@
 			</column>
 			<column name="sent" allow_null="0">
 				<type>TIMESTAMP</type>
-				<type_variations>
-					<mysql>DATETIME</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="priority" allow_null="0">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>SMALLINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default>3</default>
 				<description />
 			</column>
@@ -1329,9 +1179,7 @@
 			</column>
 			<column name="parameters" allow_null="0">
 				<type>TEXT</type>
-				<type_variations>
-					<mysql>LONGTEXT</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description>Any params needed for search or jut making sense of the message in the form "key:value;key:value" eg. assetid:4;attributeid:12</description>
 			</column>
@@ -1359,9 +1207,7 @@
 			</column>
 			<column name="running" allow_null="0">
 				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default>0</default>
 				<description>Flag to indicate if the HIPO Job has started running yet</description>
 			</column>
@@ -1379,41 +1225,31 @@
 			</column>
 			<column name="hipo_vars" allow_null="0">
 				<type>TEXT</type>
-				<type_variations>
-					<mysql>LONGTEXT</mysql>
-				</type_variations>
+				<type_variations />
 				<default>''</default>
 				<description />
 			</column>
 			<column name="options" allow_null="0">
 				<type>TEXT</type>
-				<type_variations>
-					<mysql>LONGTEXT</mysql>
-				</type_variations>
+				<type_variations />
 				<default>''</default>
 				<description />
 			</column>
 			<column name="steps" allow_null="0">
 				<type>TEXT</type>
-				<type_variations>
-					<mysql>LONGTEXT</mysql>
-				</type_variations>
+				<type_variations />
 				<default>''</default>
 				<description />
 			</column>
 			<column name="running_vars" allow_null="0">
 				<type>TEXT</type>
-				<type_variations>
-					<mysql>LONGTEXT</mysql>
-				</type_variations>
+				<type_variations />
 				<default>''</default>
 				<description />
 			</column>
 			<column name="last_updated" allow_null="0">
 				<type>TIMESTAMP</type>
-				<type_variations>
-					<mysql>DATETIME</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -1429,9 +1265,7 @@
 		<columns>
 			<column name="value" allow_null="0">
 				<type>VARCHAR(255)</type>
-				<type_variations>
-					<mysql>VARCHAR(160)</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description>Value of the keydata.</description>
 			</column>
@@ -1443,25 +1277,19 @@
 			</column>
 			<column name="component" allow_null="1">
 				<type>VARCHAR(255)</type>
-				<type_variations>
-					<mysql>VARCHAR(160)</mysql>
-				</type_variations>
+				<type_variations />
 				<default>''</default>
 				<description>Which component of the asset this keydata applies to (e.g. attribute:23) </description>
 			</column>
 			<column name="type" allow_null="0">
 				<type>VARCHAR(255)</type>
-				<type_variations>
-					<mysql>VARCHAR(160)</mysql>
-				</type_variations>
+				<type_variations />
 				<default>'word'</default>
 				<description>The type of the keydata (e.g. 'date', 'word', 'number').</description>
 			</column>
 			<column name="score" allow_null="0">
 				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default>0</default>
 			</column>
 		</columns>
@@ -1499,17 +1327,13 @@
 			</column>
 			<column name="component" allow_null="1">
 				<type>VARCHAR(255)</type>
-				<type_variations>
-					<mysql>VARCHAR(160)</mysql>
-				</type_variations>
+				<type_variations />
 				<default>''</default>
 				<description>The component.</description>
 			</column>
 			<column name="weighting" allow_null="0">
 				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default>0</default>
 				<description>The weighting. </description>
 			</column>
@@ -1531,17 +1355,13 @@
 		<columns>
 			<column name="type_code" allow_null="0">
 				<type>VARCHAR(255)</type>
-				<type_variations>
-					<mysql>VARCHAR(160)</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description>The type code of the asset type to which this component weighting applies to.</description>
 			</column>
 			<column name="component" allow_null="0">
 				<type>VARCHAR(255)</type>
-				<type_variations>
-					<mysql>VARCHAR(160)</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description>The component.</description>
 			</column>
@@ -1553,9 +1373,7 @@
 			</column>
 			<column name="weighting" allow_null="0">
 				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default>0</default>
 				<description>The weighting.</description>
 			</column>
@@ -1596,9 +1414,7 @@
 			</column>
 			<column name="expires" allow_null="1">
 				<type>TIMESTAMP</type>
-				<type_variations>
-					<mysql>DATETIME</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description>NULL indicates no expiry time</description>
 			</column>
@@ -1624,9 +1440,7 @@
 			</column>
 			<column name="installed" allow_null="0">
 				<type>TIMESTAMP</type>
-				<type_variations>
-					<mysql>DATETIME</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description />
 			</column>
