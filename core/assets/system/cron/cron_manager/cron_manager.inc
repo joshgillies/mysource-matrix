@@ -236,10 +236,11 @@ class Cron_Manager extends Asset
 
 		$link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'exclusive' => '1');
 		if ($job->create($link)) {
-			if ($job->setRunningUser($user)) {
+			if ($job->acquireLock() && $job->setRunningUser($user)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				return true;
 			}
+			$job->releaseLock();
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');

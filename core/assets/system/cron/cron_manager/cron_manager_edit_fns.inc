@@ -82,9 +82,15 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 						<td class="sq-backend-field">
 							Details
 						</td>
+					<?php
+						if ($asset->writeAccess()) {
+						?>
 						<td class="sq-backend-field" style="text-align: center;">
 							Delete ?
 						</td>
+						<?php
+						}// end if
+					?>
 					</tr>
 				<?php
 				foreach($whens[$type] as $i => $when) {
@@ -116,16 +122,21 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 								</tr>
 							</table>
 						</td>
-						<td class="sq-backend-data" style="text-align: center;">
 					<?php
-						if ($jobs[$i]->canDelete()) {
-							check_box($prefix.'_remove_jobs[]', $jobs[$i]->id);
-						} else {
-							echo '&nbsp;';
+						if ($asset->writeAccess()) {
+						?>
+						<td class="sq-backend-data" style="text-align: center;">
+						<?php
+							if ($asset->writeAccess() && $jobs[$i]->canDelete()) {
+								check_box($prefix.'_remove_jobs[]', $jobs[$i]->id);
+							} else {
+								echo '&nbsp;';
+							}// end if
+						?>
+						</td>
+						<?php
 						}// end if
 					?>
-						</td>
-
 					</tr>
 				<?php
 				}// end foreach
@@ -155,6 +166,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	function processJobs(&$asset, &$o, $prefix)
 	{
 		if (empty($_POST[$prefix.'_remove_jobs'])) return false;
+		if (!$asset->writeAccess()) return false;
 
 		$jobs = &$asset->getJobs('cron_job', false);
 		if (empty($jobs)) return false;
