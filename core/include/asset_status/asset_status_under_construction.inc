@@ -12,7 +12,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    UNDER_CONSTRUCTION -> PENDING_APROVAL  if there is a workflow and user has write access
 *    UNDER_CONSTRUCTION -> LIVE             if no workflow and user is an admin OR
 *                                           there is workflow but current user's approval will complete
-*                                           the workflow
+*                                           the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
@@ -83,11 +83,15 @@ class Asset_Status_Under_Construction extends Asset_Status
 					$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
 				}
 			} else {
-				// so we have workflows, but none of them are running
-				// so lets see what will happen if this user approves
-				// to determine if they can live edit
+				// so we have workflows, but none of them are running so lets see what will happen 
+				// if this user approves to determine if they can live edit
 				$wf_complete = $wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId());
-				if ($wf_complete) $statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
+
+				// we also need to check what if all the required metadata fields are completed
+				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+				$m_complete = $mm->requiredFieldsComplete($this->owner->id);
+
+				if ($wf_complete && $m_complete) $statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
 				else $statii[SQ_STATUS_PENDING_APPROVAL] = 'Make Live';
 			}
 		}//end if workflow running

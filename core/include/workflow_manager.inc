@@ -53,28 +53,33 @@ class Workflow_Manager extends Resolve_Object
 	*/
 	function getSchemas($assetid, $access=null, $running=false)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$storage_access = ((is_null($access)) ? 2 : (int) $access);
+		if (!isset($this->_tmp['schemas'][(int)$assetid][$storage_access][(int)$running])) {
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = '  SELECT DISTINCT schemaid, access
-				  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_workflow ';
-		$where = 'assetid = '.$db->quote($assetid);
-		if ($running) $where .= ' AND workflow IS NOT NULL';
-		if (!is_null($access) || $running) $where .= ' AND access = '.$db->quote((($access) ? '1' : '0'));
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+			$sql = '  SELECT DISTINCT schemaid, access
+					  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_workflow ';
+			$where = 'assetid = '.$db->quote($assetid);
+			if ($running) $where .= ' AND workflow IS NOT NULL';
+			if (!is_null($access) || $running) $where .= ' AND access = '.$db->quote((($access) ? '1' : '0'));
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-		$result = $db->getAll($sql.$where);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return Array();
+			$result = $db->getAll($sql.$where);
+			if (DB::isError($result)) {
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				return Array();
+			}
+
+			$schemas = Array();
+			foreach ($result as $data) {
+				if (is_null($access)) $schemas[$data['schemaid']] = $data['access'];
+				else $schemas[] = $data['schemaid'];
+			}
+
+			$this->_tmp['schemas'][(int)$assetid][$storage_access][(int)$running] = $schemas;
 		}
 
-		$schemas = Array();
-		foreach ($result as $data) {
-			if (is_null($access)) $schemas[$data['schemaid']] = $data['access'];
-			else $schemas[] = $data['schemaid'];
-		}
-
-		return $schemas;
+		return $this->_tmp['schemas'][(int)$assetid][$storage_access][(int)$running];
 
 	}//end getSchemas()
 
@@ -149,6 +154,7 @@ class Workflow_Manager extends Resolve_Object
 			return false;
 		}
 
+		unset($this->_tmp['schemas'][(int)$assetid]);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
@@ -191,6 +197,7 @@ class Workflow_Manager extends Resolve_Object
 			return false;
 		}
 
+		unset($this->_tmp['schemas'][(int)$assetid]);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
@@ -200,60 +207,52 @@ class Workflow_Manager extends Resolve_Object
 	/**
 	* Get the workflow values set for an asset on a particular schema or all schemas
 	*
+	* The asset and schema DO NOT get loaded in this function. This level of checking is
+	* not really needed here but that is not the real reason. In the useSystemVersion()
+	* function of asset.inc publishers of the workflow are asked for - resulting in this
+	* function being called. If the asset is loaded again, an infinite loop will occur because
+	* this function is called BEFORE the original asset has been stored in the factory.
+	*
 	* @param int	$assetid	the ID of the asset to get workflow for
 	* @param int	$schemaid	the ID of the schema to get workflow for (NULL for all workflows)
 	*
 	* @access public
 	* @return array( schemaid => workflow_array )
+	* @see Asset::useSystemVersion
 	*/
 	function getSchemaWorkflows($assetid, $schemaid=null)
 	{
-		$assetid  = (int) $assetid;
+		$assetid = (int) $assetid;
 
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-		if (is_null($asset)) {
-			trigger_error('Failed getting workflow, Asset #'.$assetid.' does not exist', E_USER_WARNING);
-			return false;
+		if (!isset($this->_tmp['schema_workflows'][$assetid])) {
+
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+			$sql = '  SELECT schemaid, workflow
+					  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_workflow ';
+			$where = 'assetid = '.$db->quote($assetid).'
+						AND access = 1';
+			if (!is_null($schemaid)) $where .= ' AND schemaid = '.$db->quote($schemaid);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+
+			$workflows = $db->getAssoc($sql.$where, false, Array(), DB_FETCHMODE_ASSOC);
+			if (DB::isError($workflows)) {
+				trigger_error($workflows->getMessage().'<br />'.$workflows->getUserInfo(), E_USER_WARNING);
+				return Array();
+			}
+
+			for(reset($workflows); null !== ($k = key($workflows)); next($workflows)) {
+				$workflows[$k] = (is_null($workflows[$k])) ? '' : unserialize($workflows[$k]);
+			}
+
+			$this->_tmp['schema_workflows'][$assetid] = $workflows;
 		}
 
 		if (!is_null($schemaid)) {
-			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
-			if (is_null($schema)) {
-				trigger_error('Failed getting workflow, Schema #'.$schemaid.' does not exist', E_USER_WARNING);
-				return false;
-			}
-
-			if (!is_a($schema, 'workflow_schema')) {
-				trigger_error('Failed getting workflow, "'.$schema->name.'" (Asset #'.$schemaid.') is not a workflow schema', E_USER_WARNING);
-				return false;
-			}
-
-			// check that the schema we are getting workflow for is actually set
-			$schemas = $this->getSchemas($assetid, true);
-			if (!in_array($schemaid, $schemas)) return Array();
+			if (!isset($this->_tmp['schema_workflows'][$assetid][$schemaid])) return Array();
+			return $this->_tmp['schema_workflows'][$assetid][$schemaid];
 		}
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$sql = '  SELECT schemaid, workflow
-				  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_workflow ';
-		$where = 'assetid = '.$db->quote($asset->id).'
-				    AND access = 1';
-		if (!is_null($schemaid)) $where .= ' AND schemaid = '.$db->quote($schemaid);
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-
-		$workflows = $db->getAssoc($sql.$where);
-		if (DB::isError($workflows)) {
-			trigger_error($workflows->getMessage().'<br />'.$workflows->getUserInfo(), E_USER_WARNING);
-			return Array();
-		}
-
-		for(reset($workflows); null !== ($k = key($workflows)); next($workflows)) {
-			$workflows[$k] = (is_null($workflows[$k])) ? '' : unserialize($workflows[$k]);
-		}
-
-		if (!is_null($schemaid)) return $workflows[$schemaid];
-		return $workflows;
+		return $this->_tmp['schema_workflows'][$assetid];
 
 	}//end getSchemaWorkflows()
 
@@ -309,6 +308,8 @@ class Workflow_Manager extends Resolve_Object
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
+
+			$this->_tmp['schema_workflows']['assetid'][$schemaid] = $workflow[$schema->name];
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -368,13 +369,10 @@ class Workflow_Manager extends Resolve_Object
 	*/
 	function _whoCanPublishWorkflow($assetid, $schemaid)
 	{
-		// if this workflow is not running, we are not waiting for anyone
-		$running_schemas = $this->getSchemas($assetid, true, true);
-		if (!in_array($schemaid, $running_schemas)) return Array();
-
 		// these will be the people who can approve this asset at this point in the workflow
 		$can_publish = Array();
 		$workflow = $this->getSchemaWorkflows($assetid, $schemaid);
+		if (!isset($workflow['steps'])) return Array();
 
 		for (reset($workflow['steps']); null !== ($stepid = key($workflow['steps'])); next($workflow['steps'])) {
 			$step_data =& $workflow['steps'][$stepid];
@@ -415,7 +413,7 @@ class Workflow_Manager extends Resolve_Object
 				}
 
 				if (!$complete) {
-					$can_publish = array_merge($can_publish, array_diff($can_publish_cond, $cond_data['published_by']));
+					$can_publish = array_merge($can_publish, array_diff($can_publish_cond, array_keys($cond_data['published_by'])));
 				}
 			}
 		}
@@ -552,6 +550,8 @@ class Workflow_Manager extends Resolve_Object
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_workflow', $values, $where)) {
 				return false;
 			}
+
+			$this->_tmp['schema_workflows'][$assetid][$schemaid] = $workflow;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -587,6 +587,7 @@ class Workflow_Manager extends Resolve_Object
 		for (reset($schema_workflows); null !== ($schemaid = key($schema_workflows)); next($schema_workflows)) {
 			if (!in_array($schemaid, $running_schemas)) continue;
 			$workflow =& $schema_workflows[$schemaid];
+			if ($workflow['complete']) return true;
 			if (!$this->_recordPublish($workflow, $publisher)) return false;
 			if (!$workflow['complete']) return false;
 		}
@@ -638,7 +639,7 @@ class Workflow_Manager extends Resolve_Object
 				if (in_array($publisher, $can_publish)) {
 					if (!isset($cond_data['published_by'])) $cond_data['published_by'] = Array();
 					// if the publisher has not already published
-					if (!in_array($publisher, $cond_data['published_by'])) {
+					if (!isset($cond_data['published_by'][$publisher])) {
 						$cond_data['published_by'][$publisher] = time();
 						$workflow_updated = true;
 					}

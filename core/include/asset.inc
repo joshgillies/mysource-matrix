@@ -729,7 +729,16 @@ class Asset extends Resolve_Object
 	*/
 	function useSystemVersion()
 	{
-		return (($this->status & SQ_SC_STATUS_SAFE_EDITING) && !$this->writeAccess(Array(), false));
+		if (!isset($this->_tmp['use_system_version'])) {
+			$usv = (($this->status & SQ_SC_STATUS_SAFE_EDITING) && !$this->writeAccess(Array(), false));
+			if ($usv && $GLOBALS['SQ_SYSTEM']->currentUserId()) {
+				$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+				$publishers = $wfm->whoCanPublish($this->id);
+				if (!empty($publishers) && in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) $usv = false;
+			}
+			$this->_tmp['use_system_version'] = $usv;
+		}
+		return $this->_tmp['use_system_version'];
 
 	}//end useSystemVersion()
 
@@ -1960,11 +1969,17 @@ class Asset extends Resolve_Object
 	{
 		if (!$this->id) return true;
 
+		// if the asset is in the middle of workflow and the current user
+		// can approve the asset, we really need to give them read access to it
+		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$publishers = $wfm->whoCanPublish($this->id);
+		if (!empty($publishers) && in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) return true;
+
 		// if asset is not live or asset does not give public read access
 		// we really need to check for write access
 		if ($this->status < SQ_STATUS_LIVE ||
 			!$this->_checkPermissionAccess(SQ_PERMISSION_READ, Array('0'))) {
-			// if we are in rollback vie wmode, bypass extra write access checks or we
+			// if we are in rollback view wmode, bypass extra write access checks or we
 			// we always be returning false here (writeAccess returns false)
 			if (SQ_ROLLBACK_VIEW) return $this->_checkPermissionAccess(SQ_PERMISSION_WRITE, $assetids);
 			return $this->writeAccess($assetids, false);
@@ -2034,10 +2049,10 @@ class Asset extends Resolve_Object
 		if (!$this->id) return true;
 		if ($this->status != SQ_STATUS_LIVE) return true;
 
-		require_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
-		$wfm = new Workflow_Manager($this);
+		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$schemas = $wfm->getSchemas($this->id, true);
 
-		if (empty($wfm->steps) && empty($wfm->inherited_workflows)) {
+		if (empty($schemas)) {
 			// no workflow set for this asset at all, so anyone with admin
 			// access can live edit the asset
 			return $this->checkAccess(SQ_PERMISSION_ADMIN, Array(), $effective);
@@ -2045,8 +2060,8 @@ class Asset extends Resolve_Object
 
 		// if there is workflow defined for this asset, the current user
 		// must be the only concerned user to be able to live edit
-		$status = $wfm->testPublish($GLOBALS['SQ_SYSTEM']->currentUserId());
-		if ($status == 'complete') return $this->checkAccess(SQ_PERMISSION_WRITE, Array(), $effective);
+		$wf_complete = $wfm->testPublish($this->id, $GLOBALS['SQ_SYSTEM']->currentUserId());
+		if ($wf_complete) return $this->checkAccess(SQ_PERMISSION_WRITE, Array(), $effective);
 
 		return false;
 
@@ -2069,7 +2084,7 @@ class Asset extends Resolve_Object
 
 	/**
 	* Returns true if at least one of the passed assetids has the passed permission
-	* Can perform effective access check based on current status and lock
+	* Can perform effective access check based on current status, lock, workflow, and metadata
 	* NOTE: Only for write and above access
 	*
 	* @param int		$perm		the permission to check access for
@@ -2086,24 +2101,35 @@ class Asset extends Resolve_Object
 			trigger_error(__CLASS__.'::'.__FUNCTION__.' is not to be used for read access', E_USER_ERROR);
 		}
 		if ($effective) {
-			// if we are in workflow, no editing allowed
-			if ($this->status & SQ_SC_STATUS_PENDING) return false;
-
-			// if we are in a state of total approval, no editing allowed
-			if ($this->status & SQ_SC_STATUS_ALL_APPROVED) return false;
-
-			// if the asset is archived, no editing allowed
-			if ($this->status & SQ_STATUS_ARCHIVED) return false;
-
-			// effective access is only valid for the current user
-			if (!empty($assetids)) return false;
-
 			$lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id);
 			// if there is no lock you can't edit
 			if (empty($lock)) return false;
 
 			// if the lock is not owned by the current user they can't edit
 			if ($lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserid()) return false;
+
+			// if we are in workflow no editing allowed
+			// except by those users who can currently approve the asset
+			if ($this->status & SQ_SC_STATUS_PENDING) {
+				$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+				$publishers = $wfm->whoCanPublish($this->id);
+				if (in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) return true;
+				if (empty($publishers)) {
+					// nobody can publish - great
+					// better let admins take a punt
+					return $this->adminAccess($assetids, false);
+				}
+				return false;
+			}
+
+			// if we are in a state of total approval no editing allowed
+			if ($this->status & SQ_SC_STATUS_ALL_APPROVED) return false;
+
+			// if the asset is archived no editing allowed
+			if ($this->status & SQ_STATUS_ARCHIVED) return false;
+
+			// effective access is only valid for the current user
+			if (!empty($assetids)) return false;
 
 			// otherwise they can edit if they have permission access
 			return $this->_checkPermissionAccess($perm);
@@ -2157,7 +2183,7 @@ class Asset extends Resolve_Object
 		$common = array_intersect($assetids, $grants);
 		return (!empty($common));
 
-	}//end _checkDbAccess()
+	}//end _checkPermissionAccess()
 
 
 //--        PAINTING        --//

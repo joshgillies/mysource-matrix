@@ -128,56 +128,69 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			if (!is_null($asset)) {
-				foreach ($this->_running_vars['schema_changes'] as $set_data) {
-					if ($set_data['schemaid']) {
-						$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($set_data['schemaid']);
-						if (is_null($schema)) $schema_name = 'Unknown Schema';
-						else                  $schema_name = $schema->name;
-					} else {
-						continue;
-					}
+				// if this asset does not allow the user to set metadata values then
+				// I think its okay to assume that we dont need to set any schemas
+				// because nothing is ever going to get filled in - thus required
+				// fields with defaults will always be blank
+				if ($mm->allowsMetadata($asset->id)) {
 
-					$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-
-					if ($set_data['previous_access'] === null) {
-						// to edit this schema, there must not currently be a schema set
-						// at all - either grant OR deny - for this asset
-						$schemas = $mm->getSchemas($asset->id, $set_data['access']);
-						if (isset($schemas[$set_data['schemaid']])) {
-							$new_access     = ($set_data['access']) ? 'apply' : 'deny';
-							$current_access = ($schemas[$set_data['schemaid']]) ? 'applied' : 'denied';
-							$this->_addError('Could not '.$new_access.' schema "'.$schema_name.'" on "'.$asset->name.'" because this asset already has this schema '.$current_access.'. The current schema setting for "'.$asset->name.'" has been retained.', true);
+					foreach ($this->_running_vars['schema_changes'] as $set_data) {
+						if ($set_data['schemaid']) {
+							$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($set_data['schemaid']);
+							if (is_null($schema)) $schema_name = 'Unknown Schema';
+							else                  $schema_name = $schema->name;
+						} else {
 							continue;
 						}
-					} else {
-						// we need to have a schema set and the access level be the same
-						$schemas = $mm->getSchemas($asset->id);
-						if (!isset($schemas[$set_data['schemaid']])) {
-							continue;
-						} elseif ($schemas[$set_data['schemaid']] != $set_data['previous_access']) {
-							$new_access     = ($set_data['previous_access']) ? 'revoke'  : 'apply';
-							$current_access = ($set_data['previous_access']) ? 'applied' : 'denied';
-							$this->_addError('Could not '.$new_access.' schema "'.$schema_name.'" on "'.$asset->name.'" because this asset already has this schema '.$current_access.'. The current schema setting for "'.$asset->name.'" has been retained.', true);
-							continue;
+
+						$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+
+						if ($set_data['previous_access'] === null) {
+							// to edit this schema, there must not currently be a schema set
+							// at all - either grant OR deny - for this asset
+							$schemas = $mm->getSchemas($asset->id, $set_data['access']);
+							if (isset($schemas[$set_data['schemaid']])) {
+								$new_access     = ($set_data['access']) ? 'apply' : 'deny';
+								$current_access = ($schemas[$set_data['schemaid']]) ? 'applied' : 'denied';
+								$this->_addError('Could not '.$new_access.' schema "'.$schema_name.'" on "'.$asset->name.'" because this asset already has this schema '.$current_access.'. The current schema setting for "'.$asset->name.'" has been retained.', true);
+								continue;
+							}
+						} else {
+							// we need to have a schema set and the access level be the same
+							$schemas = $mm->getSchemas($asset->id);
+							if (!isset($schemas[$set_data['schemaid']])) {
+								continue;
+							} elseif ($schemas[$set_data['schemaid']] != $set_data['previous_access']) {
+								$new_access     = ($set_data['previous_access']) ? 'revoke'  : 'apply';
+								$current_access = ($set_data['previous_access']) ? 'applied' : 'denied';
+								$this->_addError('Could not '.$new_access.' schema "'.$schema_name.'" on "'.$asset->name.'" because this asset already has this schema '.$current_access.'. The current schema setting for "'.$asset->name.'" has been retained.', true);
+								continue;
+							}
+						}
+
+						switch ($set_data['access']) {
+							case -1 :
+								// delete a schema
+								$mm->deleteSchema($asset->id, $set_data['schemaid']);
+							break;
+
+							case 0  :
+							case 1  :
+								// deny a schema
+								// apply a permission
+								$mm->setSchema($asset->id, $set_data['schemaid'], $set_data['access']);
+							break;
 						}
 					}
 
-					switch ($set_data['access']) {
-						case -1 :
-							// delete a schema
-							$mm->deleteSchema($asset->id, $set_data['schemaid']);
-						break;
+					$step_data['message'] = 'Editing Metadata Schemas for "'.$asset->name.'"';
 
-						case 0  :
-						case 1  :
-							// deny a schema
-							// apply a permission
-							$mm->setSchema($asset->id, $set_data['schemaid'], $set_data['access']);
-						break;
-					}
-				}
+				} else {
+					$step_data['message'] = 'Skipping "'.$asset->name.'" as it does not require metadata';
 
-				$step_data['message'] = 'Editing Metadata Schemas for "'.$asset->name.'"';
+				}//end if metadata screen exists
+
+				
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
 			} else {

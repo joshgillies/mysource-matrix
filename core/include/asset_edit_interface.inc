@@ -189,6 +189,11 @@ class Asset_Edit_Interface extends Resolve_Object
 		$write_access      = $owner->writeAccess();
 		$full_write_access = $owner->writeAccess(Array(), false);
 
+		// do they have access to acquire the lock?
+		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$publishers = $wfm->whoCanPublish($owner->id);
+		$acquire_lock_access = in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers);
+
 		// do we print the commit button (ie. have we printed an editable interface?)
 		$print_commit_button = false;
 
@@ -241,7 +246,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 					}
 				}
-			} else if ($full_write_access) {
+			} else if ($full_write_access || $acquire_lock_access) {
 				$write_access = false;
 				hidden_field('sq_acquire_by_force', '0');
 				submit_button('sq_acquire_lock', 'Acquire Lock');
@@ -473,7 +478,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		} else {
 
 			// if we dont have write access, piss off
-			if ($owner->id && !$owner->writeAccess(Array(), false)) {
+			if ($owner->id && !$owner->writeAccess()) {
 				$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit <i>'.$owner->name.'</i>');
 				return false;
 			}
@@ -1633,7 +1638,13 @@ class Asset_Edit_Interface extends Resolve_Object
 			foreach ($schema_workflows as $schemaid => $workflow) {
 				if (!in_array($schemaid, $running_schemas)) continue;
 
-				$o->openSection('Running workflow - '.$workflow['schema_name']);
+				$schema_title = "Running Workflow - ".$workflow['schema_name'];
+				if (isset($workflow['complete']) && $workflow['complete']) {
+					$schema_title .= ' [<span style="color:#008800">Completed</span>]';
+				} else {
+					$schema_title .= ' [<span style="color:#880000">Not Completed</span>]';
+				}
+				$o->openSection($schema_title);
 
 				foreach ($workflow['steps'] as $stepid => $step_data) {
 					$section_title = "Step $stepid - ".$step_data['step_name'];
@@ -1683,8 +1694,8 @@ class Asset_Edit_Interface extends Resolve_Object
 							<td bgcolor="#F0F0F0" class="sq-backend-data">
 						<?php
 						if (isset($wfm->_valid_cond_logic[$cond_data['logic']])) {
-							// a special type of require statement
-							$cond_logic = $cond_data['require'];
+							// a special type of logic statement
+							$cond_logic = $cond_data['logic'];
 							$cond_logic_num = '';
 						} else {
 							if ($cond_data['logic'] != 'all') {
@@ -1749,7 +1760,24 @@ class Asset_Edit_Interface extends Resolve_Object
 			}// end foreach
 
 		} else {
+			// there is no running workflow so admin access can be set
 			$admin_access = $owner->adminAccess(Array(), true, false);
+		}
+
+		// lets show some workflow warnings about metadata if we need to
+		if ($owner->status & SQ_SC_STATUS_PENDING) {
+			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			$m_complete = $mm->requiredFieldsComplete($owner->id);
+			if (!$m_complete) {
+				$o->openSection('Metadata Warning');
+					$o->openField('&nbsp;');
+						?>
+						<p class="sq-backend-data"><span style="color:#880000"><b>WARNING:</b></span> "<?php echo $owner->name; ?>" is currently in an approval process but some required metadata fields are not yet compelete. These fields must be completed before "<?php echo $owner->name; ?>" can become 'Approved' to go live.</p>
+						<p class="sq-backend-data">These metadata fields can be completed by any editor or administrator of "<?php echo $owner->name; ?>" by going to the <a href="<?php echo $owner->getBackendHref('metadata'); ?>">Metadata screen</a>.</p>
+						<?php
+					$o->closeField();
+				$o->closeSection();
+			}
 		}
 
 		$o->openSection('Workflow Schemas');
@@ -2261,12 +2289,6 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function processMetadata(&$owner, &$o)
 	{
-		// if we dont have write access, piss off
-		if ($owner->id && !$owner->writeAccess(Array(), false)) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit the metadata for <i>'.$owner->name.'</i>');
-			return false;
-		}
-
 		// if we dont have write access, dont process anything
 		if (!$owner->writeAccess(Array(), true, false)) return false;
 

@@ -72,15 +72,25 @@ class Asset_Status_Live_Approval extends Asset_Status
 		$running_schemas = $wfm->getSchemas($this->owner->id, true, true);
 
 		if (!empty($running_schemas)) {
+			$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+
 			// check to see if the user logged in can publish
 			$publishers = $wfm->whoCanPublish($this->owner->id);
 
-			$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
-			if (in_array($userid, $publishers)) {
+			// if nobody can publish we better let admins do it
+			$admin_access = $this->owner->adminAccess(Array(), false);
+
+			if (in_array($userid, $publishers) || $admin_access) {
 				// the current user can approve this asset to keep the workflow going
 				$wf_complete = $wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId());
-				if ($wf_complete) $statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
-				else $statii[SQ_STATUS_LIVE_APPROVAL] = 'Approve Review';
+
+				// we also need to check what if all the required metadata fields are completed
+				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+				$m_complete = $mm->requiredFieldsComplete($this->owner->id);
+
+				if ($wf_complete && $m_complete) $statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
+				else if (in_array($userid, $publishers)) $statii[SQ_STATUS_LIVE_APPROVAL] = 'Approve Review';
+
 				$statii[SQ_STATUS_EDITING] = 'Safe Edit';
 			}
 		} else {
@@ -145,17 +155,32 @@ class Asset_Status_Live_Approval extends Asset_Status
 			$running_schemas = $wfm->getSchemas($this->owner->id, true, true);
 			if (!empty($running_schemas)) {
 			
-				// we are doing a workflow and someone has just approved the asset, so record this
-				if (!$wfm->recordPublish($this->owner->id, $current_userid)) {
-					trigger_error('Review approval by user '.$current_userid.' not set in processStatusChange', E_USER_WARNING);
-					return false;
-				}
+				// if we are trying to approve this asset, we might not actually be a person
+				// in the workflow process - sounds weird (I know) but this could be a plain old
+				// admin that is trying to approve because metadata is now complete.
+				// the result is that this workflow process may already be complete
+				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+				$m_complete = $mm->requiredFieldsComplete($this->owner->id);
 
-				// if the workflow process is now complete, we can go ahead and clear out the schemas
-				if ($wfm->isWorkflowComplete($this->owner->id)) {
+				if ($wfm->isWorkflowComplete($this->owner->id) && $m_complete && ($new_status & SQ_STATUS_LIVE)) {
 					if (!$wfm->cancelWorkflow($this->owner->id)) {
-						trigger_error('Workflow cancel failed', E_USER_WARNING);
+						trigger_error('Workflow completion failed', E_USER_WARNING);
 						return false;
+					}
+				} else {
+					// we are doing a workflow and someone has just approved the asset, so record this
+					if (!$wfm->recordPublish($this->owner->id, $current_userid)) {
+						trigger_error('Approval by user '.$current_userid.' not set in processStatusChange for "'.$this->owner->name.'"', E_USER_WARNING);
+						return false;
+					}
+
+					// if the workflow process is now complete, we can go ahead and clear out the schemas
+					// as long as all our metadata is also complete
+					if ($wfm->isWorkflowComplete($this->owner->id) && $m_complete && ($new_status & SQ_STATUS_LIVE)) {
+						if (!$wfm->cancelWorkflow($this->owner->id)) {
+							trigger_error('Workflow completion failed', E_USER_WARNING);
+							return false;
+						}
 					}
 				}
 
