@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: assetid.inc,v 1.5 2004/09/08 04:17:47 gsherwood Exp $
+* $Id: assetid.inc,v 1.6 2004/09/10 07:10:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -120,8 +120,8 @@ class Asset_Attribute_Assetid extends Asset_Attribute
 	*/
 	function process($prefix)
 	{
-		if (!isset($_POST[$prefix]['assetid'])) return false;
-		$value = (int) $_POST[$prefix]['assetid'];
+		if (!isset($_REQUEST[$prefix]['assetid'])) return false;
+		$value = (int) $_REQUEST[$prefix]['assetid'];
 		if ($this->value != $value && $this->setValue($value)) {
 			$this->processed = true;
 		} else {

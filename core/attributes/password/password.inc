@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: password.inc,v 1.18 2004/09/08 04:17:48 gsherwood Exp $
+* $Id: password.inc,v 1.19 2004/09/10 07:10:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -113,11 +113,11 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 	*/
 	function process($prefix)
 	{
-		if (!isset($_POST[$prefix.'_one']) && !isset($_POST[$prefix.'_two'])) return false;
+		if (!isset($_REQUEST[$prefix.'_one']) && !isset($_REQUEST[$prefix.'_two'])) return false;
 		$this->processed = false;
 
-		$one = $_POST[$prefix.'_one'];
-		$two = $_POST[$prefix.'_two'];
+		$one = $_REQUEST[$prefix.'_one'];
+		$two = $_REQUEST[$prefix.'_two'];
 
 		$this->validateValue($one);
 		$this->validateValue($two);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: boolean.inc,v 1.23 2004/09/09 00:06:47 arailean Exp $
+* $Id: boolean.inc,v 1.24 2004/09/10 07:10:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -211,8 +211,8 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	*/
 	function process($prefix)
 	{
-		if (!isset($_POST[$prefix])) return false;
-		$value = $_POST[$prefix];
+		if (!isset($_REQUEST[$prefix])) return false;
+		$value = $_REQUEST[$prefix];
 		if ($this->value != $value && $this->setValue($value)) {
 			$this->processed = true;
 		} else {

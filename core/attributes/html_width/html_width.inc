@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_width.inc,v 1.4 2004/09/08 04:17:47 gsherwood Exp $
+* $Id: html_width.inc,v 1.5 2004/09/10 07:10:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -108,12 +108,12 @@ class Asset_Attribute_HTML_Width extends Asset_Attribute
 	*/
 	function process($prefix)
 	{
-		if (!isset($_POST[$prefix])) return false;
+		if (!isset($_REQUEST[$prefix])) return false;
 
-		if ($_POST[$prefix.'_pct'] == 1) {
-			$value = (int) $_POST[$prefix].'%';
+		if ($_REQUEST[$prefix.'_pct'] == 1) {
+			$value = (int) $_REQUEST[$prefix].'%';
 		} else {
-			$value = (int) $_POST[$prefix];
+			$value = (int) $_REQUEST[$prefix];
 		}
 
 		if ((string)$this->value != $value && $this->setValue($value)) {

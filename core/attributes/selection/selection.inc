@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.29 2004/09/08 03:58:46 gsherwood Exp $
+* $Id: selection.inc,v 1.30 2004/09/10 07:10:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -238,7 +238,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	function paint($prefix, $read_only=false)
 	{
 		$options = $this->_params['options'];
-		if ($this->_params['allow_empty']) {
+		if ($this->_params['allow_empty'] && !$this->_params['multiple']) {
 			if (empty($this->_edit_params['empty_text'])) $this->_edit_params['empty_text'] = '-- Leave Empty --';
 			$options = array_reverse($options);
 			$options[''] = $this->_edit_params['empty_text'];
@@ -329,8 +329,8 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	function process($prefix)
 	{
 		require_once SQ_FUDGE_PATH.'/general/general.inc';
-		if (!isset($_POST[$prefix.'_posted'])) return false;
-		$value = (isset($_POST[$prefix])) ? $_POST[$prefix] : '';
+		if (!isset($_REQUEST[$prefix.'_posted'])) return false;
+		$value = (isset($_REQUEST[$prefix])) ? $_REQUEST[$prefix] : '';
 
 		if (is_array($value)) $value = $this->_ar2str($value);
 
@@ -355,6 +355,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	{
 		$options = $this->_params['options'];
 
+		if (is_array($value)) $value = $this->_ar2str($value);
 		$value = trim((string) $value);
 		if ($value == '') return true;
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.8 2004/09/08 04:17:47 gsherwood Exp $
+* $Id: email_format.inc,v 1.9 2004/09/10 07:10:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -326,10 +326,10 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 	*/
 	function process($prefix)
 	{
-		if (!isset($_POST[$prefix.'_to']) &&
-			!isset($_POST[$prefix.'_from']) &&
-			!isset($_POST[$prefix.'_subject']) &&
-			!isset($_POST[$prefix.'_text_body'])) {
+		if (!isset($_REQUEST[$prefix.'_to']) &&
+			!isset($_REQUEST[$prefix.'_from']) &&
+			!isset($_REQUEST[$prefix.'_subject']) &&
+			!isset($_REQUEST[$prefix.'_text_body'])) {
 			return false;
 		}
 
@@ -337,12 +337,12 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 		$wysiwyg = &$this->_createEditor($prefix);
 		$value['html_format'] = $wysiwyg->process();;
-		$value['text_format'] = (isset($_POST[$prefix.'_text_body'])) ? $_POST[$prefix.'_text_body'] : '';
+		$value['text_format'] = (isset($_REQUEST[$prefix.'_text_body'])) ? $_REQUEST[$prefix.'_text_body'] : '';
 		$value['to'] = Array();
 
 		$to = Array();
-		if (isset($_POST[$prefix.'_to'])) {
-			$to = explode(';', trim($_POST[$prefix.'_to']));
+		if (isset($_REQUEST[$prefix.'_to'])) {
+			$to = explode(';', trim($_REQUEST[$prefix.'_to']));
 			// make sure the emails are valid
 			foreach ($to as $email) {
 				$email = trim($email);
@@ -351,8 +351,8 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			}
 		}
 
-		$value['from']    = (isset($_POST[$prefix.'_from'])) ? $_POST[$prefix.'_from'] : '';
-		$value['subject'] = (isset($_POST[$prefix.'_subject'])) ? $_POST[$prefix.'_subject'] : '';
+		$value['from']    = (isset($_REQUEST[$prefix.'_from'])) ? $_REQUEST[$prefix.'_from'] : '';
+		$value['subject'] = (isset($_REQUEST[$prefix.'_subject'])) ? $_REQUEST[$prefix.'_subject'] : '';
 		
 		$this->processed = $this->setValue($value);
 

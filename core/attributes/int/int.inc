@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: int.inc,v 1.23 2004/09/08 04:17:48 gsherwood Exp $
+* $Id: int.inc,v 1.24 2004/09/10 07:10:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -141,8 +141,8 @@ class Asset_Attribute_Int extends Asset_Attribute
 	*/
 	function process($prefix)
 	{
-		if (!isset($_POST[$prefix])) return false;
-		$value = (int) $_POST[$prefix];
+		if (!isset($_REQUEST[$prefix])) return false;
+		$value = (int) $_REQUEST[$prefix];
 		if ($this->value != $value && $this->setValue($value)) {
 			$this->processed = true;
 		} else {

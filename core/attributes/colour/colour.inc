@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: colour.inc,v 1.16 2004/09/08 04:17:47 gsherwood Exp $
+* $Id: colour.inc,v 1.17 2004/09/10 07:10:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -96,8 +96,8 @@ class Asset_Attribute_Colour extends Asset_Attribute
 	*/
 	function process($prefix)
 	{
-		if (!isset($_POST[$prefix])) return false;
-		$value = $_POST[$prefix];
+		if (!isset($_REQUEST[$prefix])) return false;
+		$value = $_REQUEST[$prefix];
 		if ($this->value != $value && $this->setValue($value)) {
 			$this->processed = true;
 		} else {
