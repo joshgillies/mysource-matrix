@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit.js,v 1.9 2003/10/06 23:35:53 brobertson Exp $
+* $Id: edit.js,v 1.10 2003/10/08 04:50:07 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -25,7 +25,7 @@ function sq_process_key_down() {
 		case "s" :
 			// emulate pressing of the commit button
 			top.main.document.focus();
-			sq_submit_edit_form();
+			submit_form();
 		break;
 
 		case "v" :
