@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_01.php,v 1.25 2004/02/24 15:35:15 brobertson Exp $
+* $Id: step_01.php,v 1.26 2004/05/19 04:05:18 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,7 +53,6 @@ define('SQ_CONF_PEAR_PATH', SQ_SYSTEM_ROOT.'/php_includes');
 define('SQ_CONF_ASSET_TREE_BASE', 36);
 define('SQ_CONF_ASSET_TREE_SIZE', 4);
 define('SQ_CONF_ROLLBACK_ENABLED', '0');
-define('SQ_CONF_INDEXING_ENABLED', '0');
 define('SQ_CONF_DEFAULT_EMAIL', 'brobertson@squiz.net');
 define('SQ_CONF_TECH_EMAIL',    'brobertson@squiz.net');
 

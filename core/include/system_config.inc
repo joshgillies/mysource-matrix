@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.24 2004/02/10 15:44:15 brobertson Exp $
+* $Id: system_config.inc,v 1.25 2004/05/19 04:05:30 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -58,9 +58,6 @@ class System_Config extends Config
 
 		// Rollback Settings
 		'SQ_CONF_ROLLBACK_ENABLED'			=> Array('editable' => 0, 'default' => '0'),
-
-		// Indexing Settings
-		'SQ_CONF_INDEXING_ENABLED'			=> Array('editable' => 0, 'default' => '0'),
 
 //// START EDITABLE SETTINGS ////
 		// System Settings

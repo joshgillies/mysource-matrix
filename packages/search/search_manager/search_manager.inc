@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.1 2004/05/13 04:05:26 lwright Exp $
+* $Id: search_manager.inc,v 1.2 2004/05/19 04:05:31 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.1 $ - 0.1
+* @version $Revision: 1.2 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -208,7 +208,6 @@ class Search_Manager extends Asset
 	*/
 	function addKeyData($assetid, &$keydata)
 	{
-		if (!SQ_CONF_INDEXING_ENABLED) return true;
 		if (!is_array($keydata)) return false;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
