@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_lock.inc,v 1.32 2004/09/16 10:59:41 brobertson Exp $
+* $Id: hipo_job_acquire_lock.inc,v 1.33 2004/11/08 03:42:02 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -61,6 +61,7 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 												),
 						'running_mode'     => 'server',
 						'auto_step'        => true,
+						'allow_cancel'     => true,
 						'percent_done'     => 0,
 						'complete'         => false,
 						'message'          => '',

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.15 2004/09/16 11:01:00 brobertson Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.16 2004/11/08 03:42:02 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -58,6 +58,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 												),
 						'running_mode'     => 'server',
 						'auto_step'        => true,
+						'allow_cancel'     => true,
 						'percent_done'     => 0,
 						'complete'         => false,
 						'message'          => '',

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_link.inc,v 1.21 2004/11/02 03:29:39 mmcintyre Exp $
+* $Id: hipo_job_create_link.inc,v 1.22 2004/11/08 03:42:02 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -68,6 +68,7 @@ class HIPO_Job_Create_Link extends HIPO_Job
 						'running_mode'	=> 'web',
 						'auto_step'		=> false,
 						'skip_step'		=> false,
+						'allow_cancel'	=> true,
 						'percent_done'	=> 0,
 						'complete'		=> false,
 						'message'		=> '',
@@ -80,6 +81,7 @@ class HIPO_Job_Create_Link extends HIPO_Job
 						'running_mode'	=> 'server',
 						'auto_step'		=> true,
 						'skip_step'		=> false,
+						'allow_cancel'	=> true,
 						'percent_done'	=> 0,
 						'complete'		=> false,
 						'message'		=> '',
@@ -93,6 +95,7 @@ class HIPO_Job_Create_Link extends HIPO_Job
 						'running_mode'	=> 'web',
 						'auto_step'		=> false,
 						'skip_step'		=> false,
+						'allow_cancel'	=> false,
 						'percent_done'	=> 0,
 						'complete'		=> false,
 						'message'		=> '',
@@ -105,6 +108,7 @@ class HIPO_Job_Create_Link extends HIPO_Job
 						'running_mode'	=> 'server',
 						'auto_step'		=> true,
 						'skip_step'		=> false,
+						'allow_cancel'	=> false,
 						'percent_done'	=> 0,
 						'complete'		=> false,
 						'message'		=> '',
@@ -117,6 +121,7 @@ class HIPO_Job_Create_Link extends HIPO_Job
 						'running_mode'	=> 'server',
 						'auto_step'		=> true,
 						'skip_step'		=> false,
+						'allow_cancel'	=> false,
 						'percent_done'	=> 0,
 						'complete'		=> false,
 						'message'		=> '',
@@ -129,6 +134,7 @@ class HIPO_Job_Create_Link extends HIPO_Job
 						'running_mode'	=> 'server',
 						'auto_step'		=> true,
 						'skip_step'		=> false,
+						'allow_cancel'	=> false,
 						'percent_done'	=> 0,
 						'complete'		=> false,
 						'message'		=> '',
@@ -142,6 +148,7 @@ class HIPO_Job_Create_Link extends HIPO_Job
 						'running_mode'	=> 'web',
 						'auto_step'		=> true,
 						'skip_step'		=> false,
+						'allow_cancel'	=> false,
 						'percent_done'	=> 0,
 						'complete'		=> false,
 						'message'		=> '',
@@ -483,6 +490,11 @@ class HIPO_Job_Create_Link extends HIPO_Job
 		$o->openSection('Note');
 			$o->openField('&nbsp;');
 				$o->addHiddenField('link_completed', '0');
+				
+				if (isset($this->_running_vars['assetid'])) {
+					echo '<p><b>Asset "'.$asset->name.'" has been successfully linked under "'.$parent->name.'".</b></p>';
+				}
+				
 				?>
 				<p>The permissions, workflow schemas, and metadata schemas of "<?php echo $parent->name; ?>" are shown below.</p>
 

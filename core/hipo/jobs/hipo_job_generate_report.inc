@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_generate_report.inc,v 1.1 2004/07/06 03:31:54 gsherwood Exp $
+* $Id: hipo_job_generate_report.inc,v 1.2 2004/11/08 03:42:02 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -58,6 +58,7 @@ class HIPO_Job_Generate_Report extends HIPO_Job
 												),
 						'running_mode'     => 'server',
 						'auto_step'        => true,
+						'allow_cancel'     => true,
 						'percent_done'     => 0,
 						'complete'         => false,
 						'message'          => '',
