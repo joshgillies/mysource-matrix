@@ -1,0 +1,47 @@
+<!--
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: edit_interface_screen_details.xml,v 1.1 2003/10/07 04:01:07 mmcintyre Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
+			<text width="12" height="1" />
+		</field>
+		<field attribute="columns">
+			<display_name>Number of Columns</display_name>
+			<note></note>
+			<int width="3" />
+		</field>
+		<field attribute="levels">
+			<display_name>Number of Levels</display_name>
+			<note>Enter 0 for all levels</note>
+			<int width="3" />
+		</field>
+		<field attribute="stalks">
+			<display_name>Print Stalks</display_name>
+			<note />
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+		<field attribute="top_level">
+			<display_name>Print Stalks at The Top Level</display_name>
+			<note />
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+		<field>
+			<display_name>Exclude List</display_name>
+			<note>List of pages Currently Excluded</note>
+			<function_call>
+				<paint_function   name="paintExcludeList"   />
+				<process_function name="processExcludeList" />
+			</function_call>
+		</field>
+
+	</section>
+</contents>

@@ -1,0 +1,192 @@
+<?php
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: page_site_map.inc,v 1.1 2003/10/07 04:01:07 mmcintyre Exp $
+* $Name: not supported by cvs2svn $
+*/
+
+
+require_once dirname(__FILE__).'/../../page/page.inc';
+
+/**
+* Page_Standard
+*
+* Purpose
+*
+*
+* @author  Marc McIntyre <mmcintyre@squiz.net>
+* @version $Version$ - 1.0
+* @package MySource_Matrix_Packages
+* @subpackage cms
+*/
+class Page_Site_Map extends Page
+{
+
+	/**
+	* Constructor
+	*
+	* @param int	$assetid	the asset id to be loaded
+	*
+	*/
+	function Page_Site_Map($assetid=0)
+	{
+		$this->_ser_attrs = true;
+		$this->Page($assetid);
+
+	}//end constructor
+
+
+	/**
+	* Create this asset
+	*
+	* @param array()	&$link	information used to create the initial link
+	*
+	* @see Asset::create()
+	* @return mixed int or false
+	* @access public
+	*/
+	function create(&$link)
+	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$linkid = parent::create($link);
+
+		if (!$linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return $linkid;
+
+	}//end create()
+
+
+
+	/**
+	* Called by the design to print the body of this asset
+	* it's up to the kids to override
+	*
+	* @access public
+	* @return boolean
+	*/
+	function printBody()
+	{		
+		// firstly, get the sites that this page belongs to
+		$site_info = $GLOBALS['SQ_SYSTEM']->am->getRootURL();
+		if (empty($site_info)) return false;
+
+		$siteid = $site_info['assetid']; 
+		$levels = ($this->attr('levels') != 0) ? $this->attr('levels') : null;
+
+		$page_data = $GLOBALS['SQ_SYSTEM']->am->getAssetTree($siteid, $levels, array_keys($this->attr('exclude_list')));
+		$assetids = Array();
+
+		foreach ($page_data as $assetid => $data) {
+			$assetids[] = $assetid;
+			$assetids = array_merge($assetids, array_keys($data));
+		}
+		global $SQ_SITE_MAP_ASSET_URLS;
+		
+		$SQ_SITE_MAP_ASSET_URLS = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($assetids);
+
+		?>
+		<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib').'/js/edit.js' ?>"></script>
+		
+		<?php
+		// figure out the columns for the site map
+		$num_columns = ($this->attr('columns') > 0) ? $this->attr('columns') : 1;
+		$num_pages = count(array_keys($page_data[$siteid]));
+
+		$num_chunks = ceil($num_pages / $num_columns);
+		// CHUNK chunk CHUNK chunk CHUNK it up!
+		$chunks = array_chunk($page_data[$siteid], $num_chunks, true);
+		unset($page_data[$siteid]);
+		?>
+		<table cellpadding="0" cellspacing="0" border="0">
+			 <tr>
+			
+			<?php
+			foreach ($chunks as $chunk) {
+				?><td valign="top"><?php
+				$sub_chunk = Array();
+				$sub_chunk[$siteid] = $chunk;
+				$sub_chunk = $sub_chunk + $page_data;
+				$this->_recursePrintAssetList($sub_chunk, $siteid, $this->attr('top_level'), $this->attr('stalks'));
+				unset($sub_chunk);
+				?></td><?php
+			}
+			?>
+
+			</tr>
+		</table>
+		<?php
+		
+	}// end printBody()
+
+
+	/**
+	* recursively prints a tree of the passed in data
+	*
+	* @param &Array		$page_data		the data to print in a tree structure
+	* @param integer	$parent			the parent that we are currently at
+	* @param boolean	$top_level		if TRUE the stalks printed at the top level
+	* @param boolean	$generating		if TRUE content will be generated for a content file
+	* @param boolean	$stalks			if TRUE stalks are printed
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _recursePrintAssetList(&$page_data, $parent, $top_level=false, $stalks=true, $generating=false)
+	{
+		if (!$generating) {
+			global $SQ_SITE_MAP_ASSET_URLS;
+		}
+		?>
+			<table cellpadding="0" cellspacing="0" border="0">
+		<?php
+			$num_kids = count($page_data[$parent]);
+			$i = 0;
+			foreach ($page_data[$parent] as $data) {
+				$end = ($i == $num_kids - 1);
+				$image1 = (!$top_level || !$stalks) ? 'blank.gif' : 'tree/stalk.gif';
+				$image2 = (!$top_level || !$stalks) ? 'blank.gif' : 'tree/branch.gif';
+
+				$bg = ($end) ? '' : 'background="'.sq_web_path('lib').'/web/images/'.$image1.'"';
+			
+				$url = ($generating) ? '<'.'?php echo $SQ_SITE_MAP_ASSET_URLS[$data[\'assetid\']] ?'.'>' : $SQ_SITE_MAP_ASSET_URLS[$data['assetid']];
+			?>
+				<tr>
+					<td class="sq-backend-data" <?php echo $bg; ?>>
+					<img src="<?php echo sq_web_path('lib').'/web/images/'.$image2; ?>" width="20" height="20" border="0" alt="branch" /></td>
+					<td class="sq-backend-data">
+						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']); ?>", "16", "16", "");</script>&nbsp;&nbsp;<a href="<?php echo $url?>"> <?php echo $data['name'];?></a>
+					</td>
+				</tr>
+			<?php
+				if (!empty($page_data[$data['assetid']])) {
+				?>
+					<tr>
+						<td class="sq-backend-data" <?php echo $bg; ?>><img src="<?php echo sq_web_path('lib').'/web/images/blank.gif'; ?>" width="1" height="1" alt="blank" /></td>
+						<td class="sq-backend-data">
+					<?php
+						$this->_recursePrintAssetList($page_data, $data['assetid'], true, $stalks, $generating);
+					?>
+						</td>
+					</tr>
+				<?php
+				}//end if
+
+				$i++;
+			}//end foreach
+		?>
+			</table>
+		<?php
+
+		return true;
+
+	}// end _printAssetTypeList()
+
+}//end class
+?>
