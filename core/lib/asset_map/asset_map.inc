@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.106 2003/11/18 15:37:34 brobertson Exp $
+* $Id: asset_map.inc,v 1.107 2003/11/21 03:06:18 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -764,6 +764,12 @@ class Asset_Map
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($asset)) {
 				$this->_error('Unable to Move Asset, asset to be moved (Asset #"'.$link['minorid'].'") not found');
+				return;
+			}
+
+			// check if we are allowed to delete this link
+			if (($err_msg = $old_parent->canDeleteLink($link['linkid'])) !== true) {
+				$this->_error($err_msg);
 				return;
 			}
 
