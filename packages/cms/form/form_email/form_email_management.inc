@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_management.inc,v 1.14 2004/06/11 04:20:44 lwright Exp $
+* $Id: form_email_management.inc,v 1.15 2004/07/07 01:05:29 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -54,14 +54,14 @@ class Form_Email_Management extends Asset_Management
 													'type'		=> 'email_format',
 													'default'	=> Array(),
 
-									), // end recipient_emails
+									),//end recipient_emails
 
 							'receipt_field' => Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'assetid',
 													'default'	=> '',
 
-									), // end recipient_emails
+									),//end recipient_emails
 
 							'receipt'				=> Array(
 													'added'		=> '0.0.1',
@@ -80,79 +80,79 @@ class Form_Email_Management extends Asset_Management
 													'type'		=> 'text',
 													'default'	=> '',
 
-									), // end receipt_from_address
+									),//end receipt_from_address
 
 							'receipt_subject' => Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'text',
 													'default'	=> '',
 
-									), // end receipt_subject
+									),//end receipt_subject
 							
 							'receipt_body' => Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'text',
 													'default'	=> '',
 
-									), // end receipt_subject
+									),//end receipt_subject
 							
 							'receipt_allow_html' => Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'boolean',
 													'default'	=> false,
-									), // end receipt_allow_html
+									),//end receipt_allow_html
 							
 							'receipt_send_answers' => Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'boolean',
 													'default'	=> false,
-									), // end receipt_send_answers
+									),//end receipt_send_answers
 							
 							'recipient_emails_format' => Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'email_format',
 													'default'	=> Array(),
 
-									), // end recipient_emails
+									),//end recipient_emails
 									
 							'recipient_emails' => Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'text',
 													'default'	=> '',
 
-									), // end recipient_emails
+									),//end recipient_emails
 
 							'recipient_body'	=> Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'text',
 													'default'	=> '',
 
-									), // end recipient_body
+									),//end recipient_body
 
 							'recipient_subject'	=> Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'text',
 													'default'	=> '',
 
-									), // end recipient_subject
+									),//end recipient_subject
 							
 							'recipient_allow_html' => Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'boolean',
 													'default'	=> false,
-									), // end recipient_allow_html
+									),//end recipient_allow_html
 
 							'recipient_send_info' => Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'boolean',
 													'default'	=> false,
-									), // end recipient_send_info
+									),//end recipient_send_info
 
 							'recipient_send_answers' => Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'boolean',
 													'default'	=> false,
-									), // end recipient_send_answers
+									),//end recipient_send_answers
 
 								/// STAF (Send To A Friend) ///
 							'staf_field' => Array(
@@ -160,14 +160,14 @@ class Form_Email_Management extends Asset_Management
 													'type'		=> 'assetid',
 													'default'	=> '',
 
-									), // end staf_field
+									),//end staf_field
 
 							'staf_format' => Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'email_format',
 													'default'	=> Array(),
 
-									), // end recipient_emails
+									),//end recipient_emails
 
 							'staf_from_address'	=> Array(
 													'added'		=> '0.0.1',

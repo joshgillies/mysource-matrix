@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.22 2004/07/07 01:00:36 lwright Exp $
+* $Id: form_section_edit_fns.inc,v 1.23 2004/07/07 01:05:29 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -216,7 +216,7 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 						</tr>
 					<?php
 					$i++;
-					}// end foreach data
+					}//end foreach data
 				}
 				?>
 				</table>
@@ -337,9 +337,9 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 					return false;
 				}
 				$curr_question_count++;
-			} // end for
+			}//end for
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		} // end if
+		}//end if
 		
 		return true;
 

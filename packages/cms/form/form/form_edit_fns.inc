@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.36 2004/07/07 01:00:35 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.37 2004/07/07 01:05:29 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -266,7 +266,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 						</tr>
 					<?php
 					$i++;
-					}// end foreach data
+					}//end foreach data
 				}
 				?>
 				</table>
@@ -441,8 +441,8 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 					return false;
 				}
 				$curr_question_count++;
-			} // end for
-		} // end if
+			}//end for
+		}//end if
 		
 		return true;
 
@@ -517,7 +517,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 			// regen the content file
 			$asset->_updated();
 
-		} // end for
+		}//end for
 
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -675,7 +675,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 					trigger_error('could not find a section with order '.$section, E_USER_NOTICE);
 				}
 				$output = str_replace($search, $replacement, $output);
-			} // end foreach
+			}//end foreach
 			return $output;
 		} 
 		return false;
@@ -714,9 +714,9 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 					$replacement = '';
 				}
 				$output = str_replace($search, $replacement, $output);
-			} // end for
+			}//end for
 			return $output;
-		} // end if			
+		}//end if			
 		return false;
 
 	}//end processQuestionReplacements()

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_comparison.inc,v 1.16 2004/06/22 00:19:53 lwright Exp $
+* $Id: form_question_rule_type_comparison.inc,v 1.17 2004/07/07 01:05:29 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -215,7 +215,7 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 				}
 			}
 		$code .= 'submission_errors[i] = "'.addslashes($error).'"; i++;'; // add submission error
-		$code .= '}';	// END of js if
+		$code .= '}';	//end of js if
 
 		return $code;
 

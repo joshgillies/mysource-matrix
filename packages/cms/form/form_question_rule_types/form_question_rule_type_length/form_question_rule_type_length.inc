@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_length.inc,v 1.4 2004/06/22 00:20:32 lwright Exp $
+* $Id: form_question_rule_type_length.inc,v 1.5 2004/07/07 01:05:29 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -208,7 +208,7 @@ class Form_Question_Rule_Type_Length extends Form_Question_Rule
 				$error = $q_asset->name.' '.$operators[$operator].' '.$compare_value . ' characters in length';
 			}
 		$code .= 'submission_errors[i] = "'.addslashes($error).'"; i++;'; // add submission error
-		$code .= '}';	// END of js if
+		$code .= '}';	//end of js if
 
 		return $code;
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.23 2004/07/07 01:00:36 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.24 2004/07/07 01:05:29 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -197,7 +197,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 							if (($i < count($elements)) && ($i % 2 == 0)) { ?>
 								</tr><tr>
 						<?php }
-						}	// end-if sub_expanded
+						}	//end-if sub_expanded
 		
 						?></tr><?php
 		

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_edit_fns.inc,v 1.23 2004/07/07 01:00:36 lwright Exp $
+* $Id: form_question_edit_fns.inc,v 1.24 2004/07/07 01:05:29 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -165,7 +165,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 						</tr>
 					<?php
 					$i++;
-					}// end foreach data
+					}//end foreach data
 				}
 				?>
 				</table>
@@ -347,7 +347,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 			</p>
 			<?php
 
-		}// end if
+		}//end if
 		?>
 
 		<p>Locking for this asset is controlled by its parent form<?php if (is_a($section_asset, 'form_section')) { echo ' section'; } ?>. Click to access this asset: <?php $href = $section_asset->getBackendHref('contents'); ?><a href="<?php echo $href?>"><?php echo $section_asset->_getName() ?></a></p><?php

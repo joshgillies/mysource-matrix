@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_found_in.inc,v 1.12 2004/06/22 00:20:32 lwright Exp $
+* $Id: form_question_rule_type_found_in.inc,v 1.13 2004/07/07 01:05:29 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -178,7 +178,7 @@ class Form_Question_Rule_Type_Found_In extends Form_Question_Rule
 				$error = $q_asset->name.' must '. (($operator) ? '' : 'not') .' be found in \''.$compare_value.'\'';
 			}
 		echo 'submission_errors[i] = "'.addslashes($error).'"; i++;'; // add submission error
-		echo '}';	// END of js if
+		echo '}';	//end of js if
 		return true;
 
 	}//end generateJSCode()

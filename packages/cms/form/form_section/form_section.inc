@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.21 2004/07/07 01:00:36 lwright Exp $
+* $Id: form_section.inc,v 1.22 2004/07/07 01:05:29 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -474,7 +474,7 @@ class Form_Section extends Bridge
 				}
 				unset($form);
 			}
-		} // end if
+		}//end if
 
 		return true;
 

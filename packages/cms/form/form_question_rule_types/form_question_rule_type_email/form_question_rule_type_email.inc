@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_email.inc,v 1.11 2004/06/15 23:15:07 lwright Exp $
+* $Id: form_question_rule_type_email.inc,v 1.12 2004/07/07 01:05:29 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -168,7 +168,7 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 		$error = $q_asset->name.' must '. (($operator) ? '' : 'not ') .'be an valid e-mail address';
 
 		$code .= 'submission_errors[i] = "'.addslashes($error).'"; i++;'; // add submission error
-		$code .= '}';	// END of js if
+		$code .= '}';	//end of js if
 		return $code;
 
 	}//end generateJSCode()

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_integer.inc,v 1.5 2004/06/21 06:54:51 lwright Exp $
+* $Id: form_question_rule_type_integer.inc,v 1.6 2004/07/07 01:05:29 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -173,7 +173,7 @@ class Form_Question_Rule_Type_Integer extends Form_Question_Rule
 		$error = $q_asset->name.' must '. (($operator) ? '' : 'not ') .'be an integer';
 
 		$code .= 'submission_errors[i] = "'.addslashes($error).'"; i++;'; // add submission error
-		$code .= '}';	// END of js if
+		$code .= '}';	//end of js if
 		return $code;
 
 	}//end generateJSCode()
