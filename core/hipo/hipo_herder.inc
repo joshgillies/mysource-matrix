@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.30 2003/11/26 00:51:08 gsherwood Exp $
+* $Id: hipo_herder.inc,v 1.31 2003/12/18 04:31:07 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -228,18 +228,17 @@ class HIPO_Herder extends MySource_Object
 		$onload = '';
 		$delay  = false;
 		$auto_step = false;
+		$form_name = 'main_form';
 
 		// if the source job is null it means that an abort finally finished
 		// (we couldn't get here otherwise) so print that and get out of here
 		if (is_null($source_job)) {
-			$form_name = 'HIPO_abort';
 			$url = $_POST['aborting_hipo_url'];
 			$onload = 'self.location = "'.$url.'";';
 			$auto_step = true;
 			$percent_done = 100;
 		} else {
 
-			$form_name = 'HIPO_'.preg_replace('/[^a-zA-Z0-9_]/i', '_', $source_job->code_name);
 			$url = $this->getProcessURL($source_job->code_name);
 			$auto_step = $source_job->auto_step();
 
