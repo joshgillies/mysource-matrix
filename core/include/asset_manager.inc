@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.209 2004/05/14 05:58:54 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.210 2004/05/20 23:15:12 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -211,13 +211,35 @@ class Asset_Manager extends MySource_Object
 	* @param array|string	$type_code	the code name (or array of code names) for the asset that you want to check
 	* @param string			$field		if exists, returns this information from the array for this specific field
 	*
-	* @return mixed
+	* @return mixed - on success: field value if field specified, array of field values if field blank
+	*				  on failure: null if field specified, empty array otherwise
 	* @access public
 	*/
 	function getTypeInfo($type_code, $field='')
 	{
 		$do_query = false;
 
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// need to do some checking on the field to make sure it's in the table
+		// but only do it if the field is specified
+		if (!empty($field)) {
+			$field_info_array = $db->tableInfo(SQ_TABLE_PREFIX.'asset_type');
+			$field_found = false;
+
+			foreach($field_info_array as $field_info) {
+				if ($field_info['name'] == $field) {
+					$field_found = true;
+					break;
+				}
+			}
+
+			// field not found
+			if (!$field_found) {
+				trigger_error('Field "'.$field.'" is not a valid field', E_USER_WARNING);
+				return ($field) ? null : Array();
+			}
+		}		
 
 		// multiple typecodes
 		if (is_array($type_code)) {
@@ -234,9 +256,8 @@ class Asset_Manager extends MySource_Object
 
 			// if there are multiple type_codes we need to select the type_code as well
 			// as the field from the database so we know what field belongs to what typecode
-			$columns = 'type_code, '.$field;
+			$columns = 'type_code, '.$db->quoteIdentifier($field);
 
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			for($i = 0; $i < $num_type_codes; $i++) {
 				if (!is_string($type_code[$i])) {
 					trigger_error('Type code "'.$type_code[$i].'" is not a string', E_USER_WARNING);
@@ -261,7 +282,7 @@ class Asset_Manager extends MySource_Object
 
 		// just a single typecode
 		} else {
-			$columns = $field;
+			$columns = $db->quoteIdentifier($field);
 
 			if (!is_string($type_code)) {
 				trigger_error('Type code "'.$type_code.'" is not a string', E_USER_WARNING);
@@ -274,7 +295,6 @@ class Asset_Manager extends MySource_Object
 			}
 			if ($field && !isset($this->_asset_types[$type_code][$field])) {
 				$do_query = true;
-				$db = &$GLOBALS['SQ_SYSTEM']->db;
 				$type_code_cond = '= '.$db->quote($type_code);
 			}
 		}// end if
@@ -619,7 +639,7 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns a reference to the asset represented by the passed assetid
 	*
-	* @param int		$assetid		the asset id to be loaded
+	* @param mixed		$assetid		(int | string) the asset id to be loaded
 	* @param string		$type_code		if this exists then this object is used to
 	*									load the asset, if not then the DB is queried
 	*									to find out the asset type
@@ -631,7 +651,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function &getAsset($assetid, $type_code='', $mute_errors=false)
 	{
-		if (empty($assetid) || is_object($assetid)) {
+		if (empty($assetid) || (!is_int($assetid) && !is_string($assetid))) {
 			if (!$mute_errors) trigger_error('Could not get asset - assetid is empty', E_USER_WARNING);
 			$null = null; // do this because of return by reference
 			return $null;
@@ -1204,6 +1224,12 @@ class Asset_Manager extends MySource_Object
 	*/
 	function acquireLock($assetid, $lock_type, $source_assetid=0, $force=false, $expires=0)
 	{
+		// type-check lock type BEFORE we get asset, otherwise we're just wasting time allocating it
+		if (empty($lock_type) || !is_string($lock_type)) {
+			trigger_error('A lock type must be specified when acquiring locks for asset #' . $assetid, E_USER_WARNING);
+			return false;
+		}
+
 		$asset = &$this->getAsset($assetid);
 		if (is_null($asset)) return false;
 
@@ -1310,6 +1336,13 @@ class Asset_Manager extends MySource_Object
 	*/
 	function releaseLock($assetid, $lock_type)
 	{
+
+		// type-check lock type BEFORE we get asset, otherwise we're just wasting time allocating it
+		if (empty($lock_type) || !is_string($lock_type)) {
+			trigger_error('A lock type must be specified when acquiring locks for asset #' . $assetid, E_USER_WARNING);
+			return false;
+		}
+
 		$current_locks = $this->getLockInfo($assetid, $lock_type, true, false);
 		if (empty($current_locks)) return true;
 
@@ -1633,6 +1666,11 @@ class Asset_Manager extends MySource_Object
 
 		if (!$assetid || is_object($assetid)) {
 			trigger_error('Cannot get link by assetid - no assetid given', E_USER_WARNING);
+			return Array();
+		}
+
+		if (!$other_assetid || is_object($other_assetid)) {
+			trigger_error('Cannot get link by assetid - no assetid given for other side of link', E_USER_WARNING);
 			return Array();
 		}
 
@@ -2101,7 +2139,6 @@ class Asset_Manager extends MySource_Object
 				$children = $children + $this->getDependantChildren($all_links[$k]['minorid'],$type_code, $strict_type_code);
 			}
 
-
 			$this->forgetAsset($asset);
 		}
 
@@ -2460,6 +2497,15 @@ class Asset_Manager extends MySource_Object
 	function createAssetLink(&$major, &$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0')
 	{
 		if (!$major->id) return 0;
+		if (!is_null($sort_order)) $sort_order = (int)$sort_order;
+
+		$original_link_type = $link_type;
+		$link_type = (int)$link_type;
+		if ($link_type != $original_link_type) {
+			trigger_error('Unable to create link, invalid link type specified', E_USER_WARNING);
+			return 0;
+		}
+
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		if (!is_a($minor, 'Asset')) {
@@ -2470,8 +2516,6 @@ class Asset_Manager extends MySource_Object
 		// prepare the link - do the minor first because the major gets the final say in linking
 		$minor->prepareLink($major, 'minor', $link_type, $value, $sort_order, $dependant, $exclusive);
 		$major->prepareLink($minor, 'major', $link_type, $value, $sort_order, $dependant, $exclusive);
-
-		$link_type = (int) $link_type;
 
 		if (!($link_type & SQ_SC_LINK_SIGNIFICANT) && $dependant) {
 			trigger_error('In order for a link to be dependant it must also be a significant link', E_USER_WARNING);
@@ -2956,6 +3000,19 @@ class Asset_Manager extends MySource_Object
 	*/
 	function canLinkToType(&$major, $type_code, $link_type, $ignore_linkid=0, $exclusive=0)
 	{
+		// type checking
+		if (!is_a($major, 'asset')) {
+			return 'Variable passed in major asset parameter is not an asset object';
+		}
+
+		if (!is_string($type_code)) {
+			return 'Variable passed in type code parameter is not a string';
+		}
+
+		if (!is_numeric($link_type)) {
+			return 'Variable passed in link type parameter is not numeric';
+		}
+
 		// get the minor assets parents and add it's type to the front of the indexed array
 		$types = $this->getTypeAncestors($type_code);
 		array_unshift($types, $type_code);
@@ -2991,7 +3048,12 @@ class Asset_Manager extends MySource_Object
 
 		// if we are only allowed up to a certain number of these links
 		if ($allowed_links[$link_type][$type]['card'] != 'M') {
-			$num_curr_links = $this->countLinks($major->id, 'major', $link_type, $type, true, $ignore_linkid);
+
+			// default strict to false
+			$strict = isset($allowed_links[$link_type][$type]['strict']) ? $allowed_links[$link_type][$type]['strict'] : false;
+
+			// *** trial code 
+			$num_curr_links = $this->countLinks($major->id, 'major', $link_type, $type, $strict, $ignore_linkid);
 			//  and we already have our quota of links, bugger off
 			if ($num_curr_links >= (int) $allowed_links[$link_type][$type]['card']) {
 				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -3258,7 +3320,24 @@ class Asset_Manager extends MySource_Object
 		}
 
 		// now check that the new parent exists
-		$new_parent = &$this->getAsset($to_parentid);
+		if (!is_int($to_parentid) && !is_string($to_parentid)) {
+			trigger_error('Unable to Move Asset, new parents ID is invalid', E_USER_WARNING);
+			return 0;
+		}
+
+		// link type must be numeric (ie. an int, or a numeric string)
+		if (!is_numeric($link_type)) {
+			trigger_error('Unable to Move Asset, link type specified must be numeric', E_USER_WARNING);
+			return 0;
+		}
+
+		// parent position type must be numeric
+		if (!is_numeric($to_parent_pos)) {
+			trigger_error('Unable to Move Asset, parent position specified must be numeric', E_USER_WARNING);
+			return 0;
+		}
+
+		$new_parent = &$this->getAsset($to_parentid, '', true);
 		if (is_null($new_parent)) {
 			trigger_error('Unable to Move Asset, new parent (Asset #"'.$to_parentid.'") not found', E_USER_WARNING);
 			return 0;
