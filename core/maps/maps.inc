@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: maps.inc,v 1.13 2005/02/04 04:31:31 mnyeholt Exp $
+* $Id: maps.inc,v 1.14 2005/02/20 23:01:16 mnyeholt Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define('SQ_MAPS_INSTALLED'  , 'I');
 *    Looks aftet the automated patching of the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -160,7 +160,7 @@ class Maps extends MySource_Object
 		$installed_patches = Array();
 		if ($handle = opendir(SQ_DATA_PATH.'/private/maps/downloaded_patches')) {
 			while (false !== ($patchid = readdir($handle))) {
-				if (!preg_match('|^[0-9]{12}$|', $patchid)) continue;
+				if (!preg_match('|^\w*[0-9]{12}$|', $patchid)) continue;
 				$patch_details = $this->getPatchDetails($patchid);
 
 				// is this an installed patch or not ?
@@ -187,7 +187,7 @@ class Maps extends MySource_Object
 		// so we can at least reverse them out and try again
 		if ($handle = opendir(SQ_DATA_PATH.'/private/maps/installed_patches')) {
 			while (false !== ($patchid = readdir($handle))) {
-				if (!preg_match('|^[0-9]{12}$|', $patchid)) continue;
+				if (!preg_match('|^\w*[0-9]{12}$|', $patchid)) continue;
 				
 				$patch_details = $this->getPatchDetails($patchid);
 				if (!isset($db_patches[$patchid])) {
@@ -374,9 +374,10 @@ class Maps extends MySource_Object
 		if (!empty($info)) {
 
 			// if this is a tar archive, extract it
-			if (preg_match('|^[0-9]{12}\.tar$|', $info['name'])) {
+			if (preg_match('|^\w*[0-9]{12}\.tar$|', $info['name'])) {
 				// work out the patchid to see if it is already installed
-				$patchid = substr($info['name'], 0, 12);
+				// $patchid = substr($info['name'], -12, 12);
+				$patchid = $info['name'];
 				if (is_dir(SQ_DATA_PATH.'/private/maps/downloaded_patches/'.$patchid)) {
 					trigger_error('A patch with the same ID has already been uploaded', E_USER_WARNING);
 				} else {
@@ -816,7 +817,8 @@ class Maps extends MySource_Object
 			}//end switch
 		}//end foreach
 
-		$released = substr($patchid, 0, 4).'-'.substr($patchid, 4, 2).'-'.substr($patchid, 6, 2).' '.substr($patchid, 8, 2).':'.substr($patchid, 10, 2).':00';
+		$patch_time = substr($patchid, -12);
+		$released = substr($patch_time, 0, 4).'-'.substr($patch_time, 4, 2).'-'.substr($patch_time, 6, 2).' '.substr($patch_time, 8, 2).':'.substr($patch_time, 10, 2).':00';
 		$patch_info['released'] = date('F j, Y, g:i a', strtotime($released));
 
 		return $patch_info;
