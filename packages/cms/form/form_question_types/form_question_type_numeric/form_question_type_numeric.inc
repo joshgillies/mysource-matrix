@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_numeric.inc,v 1.3 2004/05/05 07:10:14 lwright Exp $
+* $Id: form_question_type_numeric.inc,v 1.4 2004/06/22 00:44:22 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -81,22 +81,64 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 
 		if (isset($_POST[$this->id])) {
 			$val = $_POST[$this->id];
-			if (!is_numeric($val)) {
-			  $form->submission_errors[] = '"'.$this->attr('name').'" must be a valid number';
-			  return false;
-			} elseif ($this->attr('is_int') && ($val != intval($val))) {
-			  $form->submission_errors[] = '"'.$this->attr('name').'" must be a valid integer';
-			  return false;
+
+			// Add Force Numeric in any case
+			$req_rule = Array('rule_code' => 'numeric', 'operator' => 1);
+			array_push($this->vars['rules']['value'], $req_rule);
+
+			// Add Force Integer if required
+			if ($this->attr('is_int')) {
+				$req_rule = Array('rule_code' => 'integer', 'operator' => 1);
+				array_push($this->vars['rules']['value'], $req_rule);
 			}
 
 			$form->active_submission[$this->id] = $val;
 
 			parent::processForm();
+
+			if ($this->attr('is_int')) {						// Remove Force Integer
+				array_pop($this->vars['rules']['value']);
+			}
+			array_pop($this->vars['rules']['value']);			// Remove Force Numeric in any case
+
 		}
 		
 		return true;
 	
 	}//end processForm()
+
+	
+	/**
+	* writes JavaScript code for client side validation
+	* 
+	* This function assumes the skeleton of a JS validation function has been created around this code
+	* with a form variable named 'form' passed (this is done when generating the content file).
+	*
+	* @access public
+	* @return string the javascript code used for client-side validation
+	*/
+	function generateJSCode()
+	{
+		// Add Force Numeric in any case
+		$req_rule = Array('rule_code' => 'numeric', 'operator' => 1);
+		array_push($this->vars['rules']['value'], $req_rule);
+
+		// Add Force Integer if required
+		if ($this->attr('is_int')) {
+			$req_rule = Array('rule_code' => 'integer', 'operator' => 1);
+			array_push($this->vars['rules']['value'], $req_rule);
+		}
+
+		$code = parent::generateJSCode();
+
+		if ($this->attr('is_int')) {						// Remove Force Integer
+			array_pop($this->vars['rules']['value']);
+		}
+		array_pop($this->vars['rules']['value']);			// Remove Force Numeric in any case
+
+		return $code;
+
+	}//end generateJSCode()
 
 
 }//end class
