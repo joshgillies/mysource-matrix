@@ -65,6 +65,23 @@ class Root_User extends System_User
 
 
 	/**
+	* Morph's this asset to either one of it's parent type or one of it's children types
+	* Only succeeds if $type_code asset's is allowed to link to all children that this asset has
+	*
+	* @param string	$new_type_code	the new type_code to attempt to cast this asset to
+	*
+	* @return bool
+	* @access public
+	*/
+	function morph($new_type_code)
+	{
+		// you cant morph a bloody root user... GEZZZ get serious
+		return false;
+
+	}//end morph()
+
+
+	/**
 	* Can this asset have its last significant link removed (putting it in the trash)?
 	*
 	* @return boolean
@@ -73,6 +90,7 @@ class Root_User extends System_User
 	function canDelete()
 	{
 		return false;
+
 	}//end canDelete()
 
 
@@ -83,9 +101,11 @@ class Root_User extends System_User
 	* @return boolean
 	* @access public
 	*/
-	function canLogin() {
+	function canLogin()
+	{
 		return true;
-	}
+
+	}//end canLogin()
 
 
 	/**
@@ -93,7 +113,8 @@ class Root_User extends System_User
 	*
 	* @param string		$name				the name of the attribute
 	* @param string		$value				the new value of the attribute
-	* @param boolean	$dont_run_updated	if true this->_updated() won't be run (THIS IS ONLY EVER CALLED FROM Asset::create())
+	* @param boolean	$dont_run_updated	if true this->_updated() won't be run 
+	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
