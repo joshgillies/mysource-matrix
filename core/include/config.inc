@@ -140,7 +140,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 	*
 	* @param object Backend	$backend	Reference to the backend object
 	*/
-	function printBackend(&$backend) {
+	function paintBackend(&$backend) {
 
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		$o = &$backend->out;
@@ -648,7 +648,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 		if (true || superuser()) {
 			$o->openSection('Packages');
 			$o->openField('List', 'top');
-			//$XTRAS->printBackend($backend);
+			//$XTRAS->paintBackend($backend);
 		}
 	
 		if(true || superuser('web')) {
