@@ -1,0 +1,48 @@
+<!--
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: edit_interface_screen_details.xml,v 1.1 2003/10/10 04:23:12 mmcintyre Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
+			<text width="12" height="1" />
+		</field>
+	</section>
+	<section name="Default Format">
+		<field>
+			<display_name>Edit Default Format</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintDefaultFormatLink"  />
+				<process_function name="processDefaultFormatLink" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Current Asset Types">
+		<field>
+			<display_name>Current Asset Types</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintCurrentAssetTypes"   />
+				<process_function name="processCurrentAssetTypes" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Add Asset Types">
+		<field>
+			<display_name>Add Asset Types</display_name>
+			<note>Asset Types that the Asset Listing Will Show</note>
+			<function_call>
+				<paint_function   name="paintAddAssetType"   />
+				<process_function name="processAddAssetType" />
+			</function_call>
+		</field>
+	</section>
+</contents>
