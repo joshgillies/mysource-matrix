@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_management.inc,v 1.1.1.1 2004/07/21 04:31:53 lwright Exp $
+* $Id: calendar_event_management.inc,v 1.2 2004/07/22 04:30:21 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1.1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -54,12 +54,12 @@ class Calendar_Event_Management extends Asset_Management
 							'description' => Array(
 												'added'       => '0.0.1',
 												'type'        => 'text',  'default'   => '',
-												'description' => 'A longer description of the event (this is mainly used when viewing an event\'s detail)',
+												'description' => 'Description of the event',
 												),
 							'start_date' => Array(
 												'added'       => '0.0.1',
 												'type'        => 'datetime',
-												'default'     => '---------- --:--:--',
+												'default'     => '2003-01-01 --:--:--',
 												'parameters'  => Array('allow_null' => true,
 																	  'show'       => Array(
 																		'd','m','y','h','i'
@@ -71,8 +71,8 @@ class Calendar_Event_Management extends Asset_Management
 							'end_date' => Array(
 												'added'       => '0.0.1',
 												'type'        => 'datetime',
-												'default'   => '---------- --:--:--',
-												'parameters' => Array('allow_null' => true),
+												'default'     => '---------- --:--:--',
+												'parameters'  => Array('allow_null' => true),
 												'description' => 'The ending date and/or time of the event',
 												'update_fn'   => '',
 												),
