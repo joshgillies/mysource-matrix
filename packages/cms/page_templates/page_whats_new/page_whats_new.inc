@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.6 2004/10/13 06:17:27 amiller Exp $
+* $Id: page_whats_new.inc,v 1.7 2004/11/10 03:18:15 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -211,6 +211,27 @@ class Page_Whats_New extends Page_Asset_Listing
 		return $children;
 
 	}//end getAssetList()
+	
+	
+	/**
+	* Work out the unique cache key to represent the current page
+	*
+	* @return string
+	* @access private
+	*/
+	function _getCacheKey()
+	{
+		$cache_key = parent::_getCacheKey();
+
+		$ranges = $this->attr('date_ranges');
+		if (!empty($ranges) && isset($_REQUEST['asset_'.$this->id.'_date_range']) && isset($ranges[$_REQUEST['asset_'.$this->id.'_date_range']])) {
+			// add our date range ID to the unique cache key
+			$cache_key .= ':'.$_REQUEST['asset_'.$this->id.'_date_range'];
+		}
+		
+		return $cache_key;
+
+	}//end _getCacheKey()
 
 
 	/**
@@ -224,7 +245,6 @@ class Page_Whats_New extends Page_Asset_Listing
 		$replacements = Array();
 
 		// get a list of keywords that are in the format bodycopy
-
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
 		if (empty($bodycopy_link)) return Array();
 
