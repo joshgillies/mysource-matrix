@@ -18,11 +18,9 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.5 2003/11/26 00:51:29 gsherwood Exp $
+* $Id: edit_interface_screens.xml,v 1.6 2004/06/24 23:17:53 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
-<screens>
-	<screen code_name="contents" display_name="Section Contents" icon="web" />
-</screens>
+<screens />

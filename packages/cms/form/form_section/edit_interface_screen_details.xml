@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.6 2004/05/10 04:09:35 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.7 2004/06/24 23:17:53 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -29,6 +29,41 @@
 			<display_name>Name</display_name>
 			<note>Defines the name of the form section</note>
 			<text width="12" height="1" />
+		</field>
+	</section>
+	<section name="Questions" write_access="write:attributes">
+		<field>
+			<display_name>Current Questions</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintQuestionLinks"   />
+				<process_function name="processQuestionLinks" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Add Questions</display_name>
+			<note>Select the question type and the number of questions to add</note>
+			<function_call>
+				<paint_function   name="paintAddQuestions"   />
+				<process_function name="processAddQuestions" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Section Widths" write_access="write:attributes">
+		<field attribute="section_width">
+			<display_name>Section Width</display_name>
+			<note>The section will be this width when printed on the frontend. This can be a number of pixels or a percentage of the form width</note>
+			<html_width />
+		</field>
+		<field attribute="question_col_width">
+			<display_name>Question Width</display_name>
+			<note>The width of the column for question names. This can be a number of pixels or a percentage of the section width</note>
+			<html_width />
+		</field>
+		<field attribute="answer_col_width">
+			<display_name>Answer Width</display_name>
+			<note>The width of the column for the question answer fields. This can be a number of pixels or a percentage of the section width</note>
+			<html_width />
 		</field>
 	</section>
 </contents>
