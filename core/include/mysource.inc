@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.50 2004/08/06 02:39:31 lwright Exp $
+* $Id: mysource.inc,v 1.51 2004/08/09 09:12:47 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -264,7 +264,7 @@ class MySource
 					// if we can get a site from the url, 
 					// try to delegate the 404 to its not found page
 
-					if (!empty($root_url)) {
+					if (!empty($root_url) && !empty($root_url[current_protocol()])) {
 						$site = &$this->am->getAsset($root_url['assetid'], 'site');
 						if (!is_null($site)) {
 							$page = &$site->getSpecialPage('not_found');
