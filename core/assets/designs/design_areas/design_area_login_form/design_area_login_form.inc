@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form.inc,v 1.8 2003/11/26 00:50:56 gsherwood Exp $
+* $Id: design_area_login_form.inc,v 1.9 2003/12/12 18:43:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -161,7 +161,7 @@ class Design_Area_Login_Form extends Design_Area
 					if ($k = 'size') continue;
 					$extras .= ' '.$k.'="'.htmlspecialchars($v).'"';
 				}
-				password_box('SQ_LOGIN_PASSWORD', '', empty($args['size']) ? 10 : $args['size'], 0, 'onFocus="javascript: this.select();"');
+				password_box('SQ_LOGIN_PASSWORD', '', empty($args['size']) ? 10 : $args['size'], 0, $extras);
 				break;
 
 			case 'submit_button' :
