@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.27 2004/05/25 04:01:13 gsherwood Exp $
+* $Id: system_config.inc,v 1.28 2004/05/25 04:04:07 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -338,7 +338,7 @@ class System_Config extends Config
 				echo SQ_CONF_MAX_IDLE_TIME;
 			}
 
-			$o->openField('Allow IP Change');
+			$o->openField('Allow IP Change', '', 'Allow the IP of a user to fluctuate?');
 			if($write_access && $is_root) {
 				combo_box($class.'[SQ_CONF_ALLOW_IP_CHANGE]', Array('1' => 'Yes', '0' => 'No'), false, SQ_CONF_ALLOW_IP_CHANGE);
 			} else {
