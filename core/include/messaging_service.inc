@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.24 2004/02/06 03:09:54 gsherwood Exp $
+* $Id: messaging_service.inc,v 1.25 2004/03/03 18:37:59 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -429,13 +429,14 @@ class Messaging_Service extends MySource_Object
 	*
 	* @param int	$messageid		id of the message the you want to get
 	*
-	* @return object Internal_Message
+	* @return object Internal_Message	NULL on error or Internal_Message
 	* @access public
 	*/
 	function getMessageById($messageid)
 	{
 		$message = $this->newMessage();
-		if ($messageid) $message->load($messageid);
+		$message->load($messageid);
+		if (!$message->id) return null;
 		return $message;
 
 	}//end getMessageById()
