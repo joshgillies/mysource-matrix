@@ -17,16 +17,16 @@ class Transaction_Manager extends Resolve_Object
 	/**
 	* Lets us know if we have rolled back
 	*
-	* @var string()
+	* @var Array(boolean)
 	*/
-	var $_rollback;
+	var $_rollback = Array();
 
 	/**
-	* How many levels of transactions we are deep
+	* How many levels of transactions we are deep for each db connection
 	*
-	* @var string()
+	* @var Array(int)
 	*/
-	var $_levels;
+	var $_levels = Array();
 
 
 	/**
@@ -36,20 +36,20 @@ class Transaction_Manager extends Resolve_Object
 	function Transaction_Manager()
 	{
 		$this->Resolve_Object();
-		$this->_rollback = false;
-		$this->_levels = 0;
 	}//end constructor
 
 
 	/**
 	* Returns whether we are in a transaction or not
 	*
+	* @param $db_name	The name of the database object in the $GLOBALS['SQ_SYSTEM'] object
+	*
 	* @return boolean
 	* @access public
 	*/
-	function inTransaction()
+	function inTransaction($db_name)
 	{
-		return ($this->_levels > 0);
+		return !empty($this->_levels[$db_name]);
 	}//end inTransaction()
 
 
@@ -57,13 +57,17 @@ class Transaction_Manager extends Resolve_Object
 	* Begins a transaction
 	* Only does a real begin if this is the first begin
 	*
+	* @param $db_name	The name of the database object in the $GLOBALS['SQ_SYSTEM'] object
+	*
 	* @return boolean
 	* @access public
 	*/
-	function begin()
+	function begin($db_name)
 	{
-		$this->_levels++;
-		if ($this->_levels == 1) {
+		if (isset($this->_levels[$db_name])) $this->_levels[$db_name]++;
+		else $this->_levels[$db_name] = 1;
+
+		if ($this->_levels[$db_name] == 1) {
 			// first time we have started a transaction
 			$result = $GLOBALS['SQ_SYSTEM']->db->query('BEGIN');
 			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
@@ -76,22 +80,28 @@ class Transaction_Manager extends Resolve_Object
 	* Commits a transaction
 	* Only does a real commit if this is the last commit
 	*
+	* @param $db_name	The name of the database object in the $GLOBALS['SQ_SYSTEM'] object
+	*
 	* @return boolean
 	* @access public
 	*/
-	function commit()
+	function commit($db_name)
 	{
-		if ($this->_rollback) {
+		if (empty($this->_levels[$db_name])) {
+			trigger_error('Unable to Commit, No Transaction is Open', E_USER_WARNING);
+			return false;
+		}
+
+		if (!empty($this->_rollback[$db_name])) {
 			trigger_error('Unable to Commit, Transaction has already been aborted', E_USER_WARNING);
 			$this->rollback();
 			return false;
 		}
-		$this->_levels--;
-		if ($this->_levels == 0) {
+		$this->_levels[$db_name]--;
+		if ($this->_levels[$db_name] == 0) {
 			// this is the last commit
 			$result = $GLOBALS['SQ_SYSTEM']->db->query('COMMIT');
 			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-			$this->_rollback = false;
 		}
 		return true;
 	}//end commit()
@@ -101,18 +111,24 @@ class Transaction_Manager extends Resolve_Object
 	* Rolls back all open transactions
 	* Only does a real rollback if this is the last rollback
 	*
+	* @param $db_name	The name of the database object in the $GLOBALS['SQ_SYSTEM'] object
+	*
 	* @return boolean
 	* @access public
 	*/
-	function rollback()
+	function rollback($db_name)
 	{
-		$this->_rollback = true;
-		$this->_levels--;
-		if ($this->_levels == 0) {
+		if (empty($this->_levels[$db_name])) {
+			trigger_error('Unable to Commit, No Transaction is Open', E_USER_WARNING);
+			return false;
+		}
+
+		$this->_rollback[$db_name] = true;
+		$this->_levels[$db_name]--;
+		if ($this->_levels[$db_name] == 0) {
 			// this is the last rollback
 			$result = $GLOBALS['SQ_SYSTEM']->db->query('ROLLBACK');
 			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-			$this->_rollback = false;
 		}
 		return true;
 	}//end rollback()
