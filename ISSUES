@@ -2,8 +2,11 @@
 | ISSUES BRINGING ACROSS WITH CURRENT MYSOURCE FUNCTIONALITY                             |
 +----------------------------------------------------------------------------------------+
 
-- Safe Edit
-
 - Max # of Pages
 
 
++----------------------------------------------------------------------------------------+
+| GENERAL ISSUES                                                                         |
++----------------------------------------------------------------------------------------+
+- MySQL - because of it's max key size of 255, there is reduced length on things like 
+          URLs and the treeids
