@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.20 2005/02/14 15:08:10 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.21 2005/02/14 23:54:02 lwright Exp $
 *
 */
 -->
@@ -62,11 +62,6 @@
 				<process_function name="processCustomiseSearchForms" />
 			</function_call>
 		</field>
-		<field attribute="results_per_page" read_access="" write_access="write:attributes" >
-			<display_name>Results Per Page</display_name>
-			<note>The default results per page.</note>
-			<int width="5" />
-		</field>
 		<field attribute="lineage_seperator" read_access="" write_access="write:attributes" >
 			<display_name>Lineage Seperator</display_name>
 			<note>Seperator to use when printing the lineage to a search result asset.</note>
@@ -83,16 +78,14 @@
 			<text />
 		</field>
 	</section>
-	<section name="Sort Options">
-		<field attribute="sort_by" read_access="" write_access="write:attributes" >
-			<display_name>Sort By</display_name>
-			<note>The order in which assets are sorted</note>
-			<selection />
-		</field>
-		<field attribute="reverse_sort" read_access="" write_access="write:attributes" >
-			<display_name>Reverse Sort</display_name>
-			<note>Sorts results in reverse order</note>
-			<boolean true_text="Yes" false_text="No" />
+	<section name="List Position Settings" write_access="write:attributes">
+		<field>
+			<display_name>Asset Positions</display_name>
+			<note>You can configure the list to include certain assets at specific positions, even if they would not normally be included in the list.</note>
+			<function_call>
+				<paint_function   name="paintAssetPositions"   />
+				<process_function name="processAssetPositions" />
+			</function_call>
 		</field>
 	</section>
 	<section name="Synonym Search Options" show_if="thesaurusInstalled">
