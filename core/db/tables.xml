@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.50 2004/09/13 04:26:46 lwright Exp $
+* $Id: tables.xml,v 1.50.2.1 2004/10/05 03:51:21 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -552,7 +552,7 @@
 				<type_variations>
 					<mysql>TINYINT UNSIGNED</mysql>
 				</type_variations>
-				<default />
+				<default>1</default>
 				<description />
 			</column>
 			<column name="start_date_seconds" allow_null="1">
