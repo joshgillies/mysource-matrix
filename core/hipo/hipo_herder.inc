@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_herder.inc,v 1.22 2003/10/10 06:49:24 brobertson Exp $
+* $Id: hipo_herder.inc,v 1.23 2003/10/17 01:34:15 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -722,7 +722,7 @@ if (!empty($todo_hipo)) {
 		}// endif
 
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-		$o->setHeading('HIPO Herder', 'create');
+		$o->setHeading('HIPO Herder', '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$o->filesPath('/images/icons/header/hipo_herder.png').'", "20", "20", "HIPO Icon");</script>');
 		$o->addHiddenField('herder_posted', '1');
 
 		// lets tell the user if the asset is locked for editing
