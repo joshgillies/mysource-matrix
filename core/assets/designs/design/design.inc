@@ -189,7 +189,7 @@ class Design extends Design_Area
 				  © Copyright <?php echo date(\'Y\') ?>. All rights reserved.
 				  Page generated: <?php echo date(\'d F Y\'); ?>
 				-->
-				<script language="javascript" type="text/javascript"  src="<?php echo sq_web_path(\'lib\'); ?>/web/js/general.js"></script>
+				<script language="javascript" type="text/javascript"  src="<?php echo sq_web_path(\'lib\'); ?>/js/general.js"></script>
 				<link rel="stylesheet" type="text/css"  href="<?php echo sq_web_path(\'lib\'); ?>/web/css/general.css"></script>
 				';
 
