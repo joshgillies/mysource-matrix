@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_recursive.inc,v 1.17 2003/11/26 00:50:56 gsherwood Exp $
+* $Id: design_area_menu_recursive.inc,v 1.18 2003/12/16 18:08:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,30 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_t
 */
 class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 {
+
+	/**
+	* Set the value for the passed variable to the passed value
+	*
+	* @param string		$name				the name of the attribute
+	* @param string		$value				the new value of the attribute
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setAttrValue($name, $value)
+	{
+		// make sure the aligment is lower case
+		switch($name) { 
+			case 'show_subs' :
+				trigger_error('The "'.$name.'" attribute has no effect in a "'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').'", use the "min_num_levels" and "max_num_levels" attributes', E_USER_NOTICE);
+				break;
+
+		}// end switch
+
+		return parent::setAttrValue($name, $value);
+
+	}//end setAttrValue()
+
 
 	/**
 	* Performs any outputting needed to by all design areas of this menu type
@@ -119,11 +143,11 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 
 			?', '>
 			';
-		if ($page_contents = $this->attr('page_contents')) {
+		if ($asset_contents = $this->attr('asset_contents')) {
 			$edit_fns = $this->getEditFns();
-			$asset->_tmp['outputting_page_section'] = true;
-			if (!$edit_fns->_outputContents($page_contents, $this, $design)) return false;
-			unset($asset->_tmp['outputting_page_section']);
+			$asset->_tmp['outputting_asset_section'] = true;
+			if (!$edit_fns->_outputContents($asset_contents, $this, $design)) return false;
+			unset($asset->_tmp['outputting_asset_section']);
 		}//	end if
 		echo '
 			<', '?php
@@ -206,7 +230,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 		// and only the current lineage thereafter
 		if ($this->attr('min_num_levels') > 0) {
 			// if we have no parent, or they only want us to display on current,
-			// then for the first round we need to read from the page lineage
+			// then for the first round we need to read from the asset lineage
 			if (is_null($parent_menu) || $parent_menu->attr('show_subs') == 'on_current') {
 				$min_levels_extra_cond = '$'.$this->attr('id_name').'_i > 0 &&';
 			} else {
@@ -248,7 +272,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 	*/
 	function printVar($var, $args, $value_prefix='', $value_suffix='')
 	{
-		if ($var == 'page_short_name' && $this->attr('ellipsis_length') > 0) {
+		if ($var == 'asset_short_name' && $this->attr('ellipsis_length') > 0) {
 			$value_prefix = 'ellipsisize('.$value_prefix;
 			$value_suffix = $value_suffix.', '.$this->attr('ellipsis_length').' - (2 * $depth_count))';
 		}// end if

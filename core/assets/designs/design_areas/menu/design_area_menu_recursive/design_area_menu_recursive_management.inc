@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_recursive_management.inc,v 1.10 2003/11/26 00:50:56 gsherwood Exp $
+* $Id: design_area_menu_recursive_management.inc,v 1.11 2003/12/16 18:08:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -50,7 +50,7 @@ class Design_Area_Menu_Recursive_Management extends Asset_Management
 								'added'			=> '0.0.1',
 								'type'			=> 'int',
 								'default'		=> 0,
-								'description'	=> 'The minimum number of levels into the hierarchy to show'
+								'description'	=> 'The minimum number of levels into the hierarchy to always show. Set to zero to emulate "show_subs" == "on_current", set to number greater than zero to be "show_sub" == "always" for that many levels'
 							),
 							'max_num_levels' => Array(
 								'added'			=> '0.0.1',

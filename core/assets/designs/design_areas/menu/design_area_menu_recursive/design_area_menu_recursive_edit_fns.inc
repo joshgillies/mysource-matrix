@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_recursive_edit_fns.inc,v 1.17 2003/11/26 00:50:56 gsherwood Exp $
+* $Id: design_area_menu_recursive_edit_fns.inc,v 1.18 2003/12/16 18:08:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -66,7 +66,7 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 	*/
 	function _processSubMenu(&$asset, &$contents)
 	{
-		// we just want to ignore any stupid sub menu's in our page contents
+		// we just want to ignore any stupid sub menu's in our asset contents
 		trigger_error('You are unable to set sub menu\'s on the recursive menu type', E_USER_WARNING);
 		return false;
 	}// end _processSubMenu()
@@ -85,7 +85,7 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 	function _outputElement($element, &$asset, &$design)
 	{
 		switch($element['operation']) {
-			case 'page' :
+			case 'asset' :
 
 				echo '<', '?php
 				';
