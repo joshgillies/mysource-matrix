@@ -272,7 +272,7 @@ class Site extends Folder
 	*/
 	function printBody() 
 	{
-		echo "SITE CONTENTS HERE";
+		echo "SITE CONTENTS HERE<br><br><br><br><br><br><br><br><br><br><br><br>";
 	}// end printBody()
 
 

@@ -5,5 +5,5 @@
 
 grep -rsn "[^&]\$GLOBALS\[.\?SQ_SYSTEM.\?\]->get" *
 grep -rsn "[^&]\$GLOBALS\[.\?SQ_SYSTEM.\?\]->db;" *
-grep -rsn "[^&]\$GLOBALS\[.\?SQ_SYSTEM.\?\]->am->getAsset(" *
+grep -rsn "[^&]\$[^$]*->getAsset(" *
 
