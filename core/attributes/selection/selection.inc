@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.19 2004/03/03 23:50:35 gsherwood Exp $
+* $Id: selection.inc,v 1.20 2004/03/04 03:25:33 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -258,6 +258,9 @@ class Asset_Attribute_Selection extends Asset_Attribute
 			if ($add) {
 				combo_box($prefix.'_'.$this->name, $options, !empty($this->_params['multiple']), $this->value, $this->_edit_params['height']);
 			} else {
+				if (empty($this->_params['multiple'])) { // only if it's a single selection box
+					$options['_'] = '-- Select one --';
+				}
 				combo_box($prefix, $options, !empty($this->_params['multiple']), $this->value, $this->_edit_params['height']);
 			}
 		} else {
