@@ -438,10 +438,34 @@ class Asset extends Resolve_Object
 
 		}// end if parent links
 
-		// What we first need to do is get all the vars that aren't available in the new type and delete them
+		
 		$current_var_list = array_keys($this->vars);
 		$new_var_list     = array_keys($tmp->vars);
 
+		// Get all the common vars and update the attribute ids to the new values
+		// so the asset gets to keep the common values already set
+		$common_var_list = array_intersect($current_var_list, $new_var_list);
+
+		if ($common_var_list) {
+			foreach($common_var_list as $var_name) {
+				$current_id = $this->vars[$var_name]['attributeid'];
+				$new_id = $tmp->vars[$var_name]['attributeid'];
+
+				// now update attributeid
+				$sql = 'UPDATE sq_asset_attribute_value
+						SET attributeid = '.$new_id.'
+						WHERE assetid = '.$db->quote($this->id).'
+						  AND attributeid = '.$current_id;
+				$result = $db->query($sql);
+				if (DB::isError($result)) {
+					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+					$db->query('ROLLBACK');
+					return false;
+				}
+			}
+		}// end if common var list
+		
+		// Get all the vars that aren't available in the new type and delete them
 		$deletes_var_list = array_diff($current_var_list, $new_var_list);
 
 		if ($deletes_var_list) {
@@ -459,8 +483,6 @@ class Asset extends Resolve_Object
 				$db->query('ROLLBACK');
 				return false;
 			}
-
-
 		}// end if delete var list
 
 		$sql = 'UPDATE sq_asset
