@@ -1,9 +1,9 @@
 <?php
 
-require_once SQ_INCLUDE_PATH.'/asset.inc';
+require_once dirname(__FILE__).'/../../page/page.inc';
 
 /**
-* Page
+* Page_Standard
 *
 * Purpose
 *
@@ -12,7 +12,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * @version $Version$ - 1.0
 * @package Resolve::packages::cms
 */
-class Page extends Asset
+class Page_Standard extends Page
 {
 
 	/**
@@ -21,9 +21,9 @@ class Page extends Asset
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Page($assetid=0) 
+	function Page_Standard($assetid=0) 
 	{
-		$this->Asset($assetid);
+		$this->Page($assetid);
 	}
 
 
@@ -40,15 +40,17 @@ class Page extends Asset
 		$name = trim($name);
 
 		if ($name == '') {
-			trigger_error('Unable to create a Page with a blank name', E_USER_WARNING);
+			trigger_error('Unable to create a Standard Page with a blank name', E_USER_WARNING);
 			return false;
 		}
 
-		if (parent::create()) {
+		if (parent::create($name)) {
 			
-			// short and long names are the same to begin with
-			$this->setAttrValue('short_name', $name);
-			$this->setAttrValue('name', $name);
+			// add a bodycopy to this page when creating
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+			$bodycopy = new Bodycopy();
+			if (!$bodycopy->create('Page Contents')) die();
+			$this->createLink($bodycopy,SQ_LINK_EXCLUSIVE);
 			
 			return true;
 
@@ -67,11 +69,9 @@ class Page extends Asset
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_EXCLUSIVE => Array(),
-					 SQ_LINK_UNITE     => Array('page' => 'M', 'file' => 'M'),
-					 SQ_LINK_USES      => Array(),
-					 SQ_LINK_NOTICE    => Array('page' => 'M')
-					);
+		$page_links = parent::_getAllowedLinks();
+		$page_links[SQ_LINK_EXCLUSIVE]['bodycopy'] = 'M';
+		return $page_links;
 
 	}//end _getAllowedLinks()
 
@@ -85,21 +85,8 @@ class Page extends Asset
 	function processBackend()
 	{
 		switch($_POST['asset_action']) {
-			case 'create' :
-				$ei = &$this->getEI();
-				$ei->process($this, true);
-
-				$name = $this->getAttribute('name');
-				if ($name->processed) {
-					return $this->create($name->value);
-				} else {
-					return false;
-				}
-				break;
-
 			default :
 				return parent::processBackend();
-
 		}// end switch
 
 	}// end processBackend()
@@ -113,24 +100,13 @@ class Page extends Asset
 	*/
 	function printBody()
 	{
-		echo '';
+		// get the bodycopy attached to us
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+		$bodycopy_data = $this->getLink(SQ_LINK_EXCLUSIVE, 'bodycopy');
+		$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['type_code']);
+		$bodycopy->printBody();
 	}// end printBody()
 
 
-	/**
-	* Returns name of the asset
-	*
-	* @param boolean	$short_name	whether or not we are after the short name or the full name
-	*
-	* @see Asset::_getName()
-	* @access public
-	*/
-	function _getName($short_name=false)
-	{
-		return (($short_name) ? $this->attr('short_name') : $this->attr('name'));
-
-	}//end _getName();
-
-
-}#end class
+}//end class
 ?>
