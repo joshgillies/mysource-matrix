@@ -616,7 +616,9 @@ class Backend_Outputter
 					$msgs = new XML_Tree();
 					$msgs_root = &$msgs->addRoot('messages');
 					foreach($this->_messages as $data) {
-						$msgs_root->addChild('message', $GLOBALS['SQ_SYSTEM']->datetime()."\n".$data['msg'], Array('type' => get_bit_names('SQ_BO_MSG_', $data['type'])));
+						$msg_body = "<p>".htmlentities(nl2br($data['msg'])). "</p>";
+						$msg_body .= "<font color=\"#333333\">".$GLOBALS['SQ_SYSTEM']->datetime()."<font>";
+						$msgs_root->addChild('message', $msg_body, Array('type' => get_bit_names('SQ_BO_MSG_', $data['type'])));
 					}
 					?>
 					if (top.sidenav && top.sidenav.add_messages) {
