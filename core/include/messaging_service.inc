@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: messaging_service.inc,v 1.20 2003/09/26 05:26:31 brobertson Exp $
+* $Id: messaging_service.inc,v 1.21 2003/09/30 02:25:42 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -223,6 +223,7 @@ class Messaging_Service extends MySource_Object
 	* @param Array(int)	$to			an array of user or group IDs to send this message to
 	* @param string		$subject	the subject of the message (keep it short)
 	* @param string		$body		the main body of the message
+	* @param string		$type		the log type of this message (if any)
 	*
 	* @return object Interal_Message
 	* @access public
