@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.68.2.1 2004/12/06 01:33:39 lwright Exp $
+* $Id: html_form.inc,v 1.68.2.2 2004/12/09 04:52:38 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -698,7 +698,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 		</script>
 	<?php
 
-	text_box($safe_name.'_label', $label, 30, 0, false, 'class="sq-form-asset-finder" onfocus="javascript: this.tmp = this.value;" onblur="javascript: this.value = this.tmp;"');
+	text_box($safe_name.'_label', $label, 30, 0, false, 'readonly="readonly" class="sq-form-asset-finder" onfocus="javascript: this.tmp = this.value;" onblur="javascript: this.value = this.tmp;"');
 
 	if (!SQ_IN_LIMBO) {
 		normal_button($safe_name.'_change_btn', 'Change', $map_frame.'.asset_finder_change_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes).'\', '.$done_fn.');');
