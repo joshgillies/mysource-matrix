@@ -118,10 +118,12 @@ class Asset_Edit_Interface extends Resolve_Object
 		$current_location = $o->getCurrentLocation();
 		$current_location .= (strstr($current_location, '?')) ? '&' : '?';
 
-		// if there are no screens, piss off
-		for(reset($this->_screens); null !== ($code = key($this->_screens)); next($this->_screens)) {
-			$o->addScreen($current_location.'asset_ei_screen='.rawurlencode($code), $this->_screens[$code]['name']);
-		}// end for
+		// add all the screens to the combo, but only if we aren't creating the object
+		if (!$creating) {
+			for(reset($this->_screens); null !== ($code = key($this->_screens)); next($this->_screens)) {
+				$o->addScreen($current_location.'asset_ei_screen='.rawurlencode($code), $this->_screens[$code]['name']);
+			}// end for
+		}
 
 		$create_sections = Array();
 		$active_screen = (empty($_GET['asset_ei_screen'])) ? $this->_default_screen : $_GET['asset_ei_screen'];
@@ -186,7 +188,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				for($j = 0; $j < $num_fields; $j++) {
 					$field = &$section->children[$j];
 					// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
-					if ($field->name != 'field'  || ($creating && !in_array($field->attributes['attribute'], $create_sections[$section->attributes['name']]))) continue;
+					if ($field->name != 'field' || ($creating && (empty($field->attributes['attribute']) || !in_array($field->attributes['attribute'], $create_sections[$section->attributes['name']])))) continue;
 
 					if ($field->children[0]->name != 'display_name') {
 						trigger_error('Display Name for "'.$field->attributes['attribute'].'" not found', E_USER_WARNING);
