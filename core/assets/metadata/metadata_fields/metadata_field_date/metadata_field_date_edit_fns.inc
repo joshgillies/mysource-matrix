@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.1 2004/02/03 03:27:42 diarandine Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.2 2004/02/03 04:29:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -63,7 +63,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	{
 		// only if we are printing the default value
 		if (is_null($value)) {
-			$value = (int) $asset->attr('epoch');
+			$value = (int) $asset->attr('default');
 		}
 
 		$epoch_date = getdate($value);
