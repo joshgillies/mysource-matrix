@@ -42,6 +42,19 @@ class Inbox extends Asset
 
 
 	/**
+	* Called by the design to print the body of this asset
+	*
+	* @access public
+	*/
+	function printBody()
+	{
+		$edit = $this->getEditFns();
+		$null = '';
+		$edit->paintMail($this, $null, 'inbox');
+	}// end printBody()
+
+
+	/**
 	* Returns name of the asset
 	*
 	* @param boolean	$short_name	whether or not we are after the short name or the full name
