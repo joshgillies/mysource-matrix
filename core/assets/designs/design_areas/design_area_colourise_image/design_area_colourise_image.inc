@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_colourise_image.inc,v 1.17 2004/12/03 15:29:22 brobertson Exp $
+* $Id: design_area_colourise_image.inc,v 1.17.2.1 2005/03/08 02:32:26 rhoward Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -109,7 +109,7 @@ class Design_Area_Colourise_Image extends Design_Area
 
 		// else print out a full tag
 		} else {
-			echo '<img src="<', '?php echo $DATA_PATH; ?', '>/', $image, '" ', $this->attr('extra'), '>';
+			echo '<img src="<', '?php echo $DATA_PATH; ?', '>/', $image, '" ', $this->attr('extra'), ' />';
 		}
 
 		return true;
