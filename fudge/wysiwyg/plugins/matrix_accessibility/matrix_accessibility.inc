@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_accessibility.inc,v 1.4 2004/09/09 03:34:17 amiller Exp $
+* $Id: matrix_accessibility.inc,v 1.5 2004/09/23 00:43:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,8 +51,8 @@ class matrix_accessibility extends wysiwyg_plugin {
 	function matrix_accessibility(&$wysiwyg)
 	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
-		$this->_add_button('matrixabbr','MatrixAbbr','Insert Abbreviation','false','30');
-		$this->_add_button('matrixacronym','MatrixAcronym','Insert Acronym','false','31');
+		$this->_add_button('matrixabbr','MatrixAbbr','Insert Abbreviation','false','55');
+		$this->_add_button('matrixacronym','MatrixAcronym','Insert Acronym','false','56');
 	}//end constructor()
 	
 		/**
