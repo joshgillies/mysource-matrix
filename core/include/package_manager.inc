@@ -372,12 +372,13 @@ class Package_Manager extends Resolve_Object
 		$str  = '';
 
 		for(reset($this->assets); null !== ($type_code = key($this->assets)); next($this->assets)) {
-			$attrs = Array(	'type_code'		 => $type_code,
-							'name'			 => $this->assets[$type_code]['name'],
-							'version'		 => $this->assets[$type_code]['version'],
-							'instantiable'	 => $this->assets[$type_code]['instantiable'],
-							'allowed_access' => $this->assets[$type_code]['allowed_access'],
-							'parent_type'	 => $this->assets[$type_code]['parent_type']
+			$attrs = Array(	'type_code'			=> $type_code,
+							'name'				=> $this->assets[$type_code]['name'],
+							'version'			=> $this->assets[$type_code]['version'],
+							'instantiable'		=> $this->assets[$type_code]['instantiable'],
+							'allowed_access'	=> $this->assets[$type_code]['allowed_access'],
+							'parent_type'		=> $this->assets[$type_code]['parent_type'],
+							'flash_menu_path'	=> $this->assets[$type_code]['flash_menu_path'],
 						);
 
 			$type_node = &$root->addChild('type', '', $attrs);

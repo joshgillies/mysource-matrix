@@ -746,7 +746,8 @@ class Asset_Management extends Resolve_Object
 																	'description'     => $info['description']['value'],
 																	'instantiable'    => ($info['instantiable']['value'] == 'yes') ? 1 : 0,
 																	'allowed_access'  => $info['allowed_access']['value'],
-																	'parent_type'     => $info['parent_type']['value']
+																	'parent_type'     => $info['parent_type']['value'],
+																	'flash_menu_path' => (isset($info['flash_menu_path']['value'])) ? $info['flash_menu_path']['value'] : '',
 																);
 
 		}//end if
