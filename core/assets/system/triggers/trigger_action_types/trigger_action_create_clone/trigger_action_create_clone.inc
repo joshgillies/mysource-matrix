@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_clone.inc,v 1.5 2005/03/01 00:25:30 arailean Exp $
+* $Id: trigger_action_create_clone.inc,v 1.6 2005/03/06 21:49:43 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -200,7 +200,7 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 			combo_box($prefix.'[is_exclusive]', $is_exclusive_list, false, $is_exclusive, null, $form_element_extras);
 			echo ' to the parent.<br />';
 			check_box($prefix.'[disallow_duplicates]', '1', $disallow_duplicates, null, $form_element_extras);
-			echo ' Do not create if a clone with the same name and link type exists.';
+			echo ' Do not create if a clone with the same name and asset type already exists.';
 		return ob_get_clean();
 
 	}//end getInterface()
