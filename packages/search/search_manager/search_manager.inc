@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.22 2004/09/14 05:14:13 gsherwood Exp $
+* $Id: search_manager.inc,v 1.23 2004/09/20 01:24:17 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.22 $ - 0.1
+* @version $Revision: 1.23 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -867,7 +867,7 @@ class Search_Manager extends Asset
 		if (is_null($total_asset_scores)) {
 			$total_asset_scores = Array();
 		} else {
-			if (empty($search_inof['sort_by'])) {
+			if (empty($search_info['sort_by'])) {
 				// sorting by relevance, so ensure the sort_by score is the same as the actual search score
 				for (reset($total_asset_scores); null !== ($assetid = key($total_asset_scores)); next($total_asset_scores)) {
 					$total_asset_scores[$assetid]['sort_by'] = $total_asset_scores[$assetid]['search_score'];
