@@ -206,7 +206,7 @@ mcListItemClass.prototype.onPress = function()
 	this._parent.selectItem(this);
 	// try the kids, but it they don't want it then set the interval for the actions bar
 	if (!super.onPress()) {
-		this.actions_bar_interval = setInterval(this, "showActionsBar", 500);
+		this.actions_bar_interval = setInterval(this, "showActionsBar", 200);
 	}
 	return true;
 }// end onPress()
