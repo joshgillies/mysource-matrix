@@ -22,7 +22,7 @@ class Messaging_Service_Config extends Config
 		'SQ_MS_LOG_TO_FILE_BLACK_LIST'   => Array('editable' => 1, 'default' => ''),
 		'SQ_MS_LOG_TO_DB_WHITE_LIST'     => Array('editable' => 1, 'default' => '*'),
 		'SQ_MS_LOG_TO_DB_BLACK_LIST'     => Array('editable' => 1, 'default' => ''),
-		'SQ_MS_SEND_MAIL_WHITE_LIST'     => Array('editable' => 1, 'default' => '*'),
+		'SQ_MS_SEND_MAIL_WHITE_LIST'     => Array('editable' => 1, 'default' => ''),
 		'SQ_MS_SEND_MAIL_BLACK_LIST'     => Array('editable' => 1, 'default' => ''),
 	);
 
