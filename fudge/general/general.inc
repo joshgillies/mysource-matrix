@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.25 2004/12/03 15:43:04 brobertson Exp $
+* $Id: general.inc,v 1.25.2.1 2004/12/07 05:13:25 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -282,8 +282,8 @@ function security_key_image($word, $w, $h, $bg='FFFFFF', $text='000000', $border
 		// create an image we will use to print the characters on and then
 		// another image $zoom times bigger where we will print the larger
 		// zoomed text for easier reading
-		$test_im  = @imagecreate($w, $h) || die ("Cannot Initialize new GD image stream");
-		$final_im = @imagecreate(($w * $zoom), ($h * $zoom)) || die ("Cannot Initialize new GD image stream");
+		$test_im  = @imagecreate($w, $h) or die ("Cannot Initialize new GD image stream");
+		$final_im = @imagecreate(($w * $zoom), ($h * $zoom)) or die ("Cannot Initialize new GD image stream");
 
 		// create some colours we will use in the image
 		// NOTE: The first colour allocated is used for the background
