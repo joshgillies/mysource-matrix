@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.31 2003/11/26 00:50:54 gsherwood Exp $
+* $Id: design_area_edit_fns.inc,v 1.32 2003/12/12 02:18:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -132,10 +132,10 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		// replace any imported stylesheet links with a print operation for the image prefix
 		$e = '/(@import[\s]*url\()files\\/([^\)]*)(\)[^;]*;)/i';
 		$file_contents = preg_replace($e, '\\1<'.$this->tag_name.'_PRINT id_name=\'__global__\' var=\'file_path\' filename=\'\\2\' />\\3', $file_contents);
-		
+
 		// replace any style background urls with a print operation for the image prefix
-		$e = '/(background)(-image)?([\s]*:[\s]*url\()files\\/([^\)]*)(\)[^;]*;)/i';
-		$file_contents = preg_replace($e, '\\1\\2\\3<'.$this->tag_name.'_PRINT id_name=\'__global__\' var=\'file_path\' filename=\'\\4\' />\\5', $file_contents);
+		$e = '/([A-za-z\-]+)([\s]*:[\s]*url\()files\\/([^\)]*)(\)[^;]*;)/i';
+		$file_contents = preg_replace($e, '\\1\\2<'.$this->tag_name.'_PRINT id_name=\'__global__\' var=\'file_path\' filename=\'\\3\' />\\4', $file_contents);
 
 
 		// lets just make sure they aren't trying to be tricky and do some processing we don't know about
