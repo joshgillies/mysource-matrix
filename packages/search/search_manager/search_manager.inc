@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.18 2004/08/19 05:49:43 gsherwood Exp $
+* $Id: search_manager.inc,v 1.19 2004/09/02 06:34:28 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.18 $ - 0.1
+* @version $Revision: 1.19 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,8 +47,8 @@ class Search_Manager extends Asset
 	*/
 	function Search_Manager($assetid=0)
 	{
+		$this->_ser_attrs = true;
 		$this->Asset($assetid);
-
 	}// end constructor
 
 
@@ -121,7 +121,7 @@ class Search_Manager extends Asset
 	function canClone()
 	{
 		return false;
-	
+
 	}//end canClone()
 
 
@@ -140,7 +140,7 @@ class Search_Manager extends Asset
 		// don't run if indexing turned OFF
 		if (!$this->attr('indexing')) return false;
 
-		// if this is reindexed then there is an infinite recursion!!!
+		// if search manager is reindexed then there is an infinite recursion!!!
 		if ($broadcaster->id == $this->id) return false;
 
 		$component = isset($vars['component']) ? $vars['component'] : null;
@@ -161,8 +161,8 @@ class Search_Manager extends Asset
 		return true;
 
 	}//end onRequireReindex()
-	
-	
+
+
 	/**
 	* Event fired when an asset gets deleted. We want to flush ank key data in the index table
 	*
@@ -177,10 +177,10 @@ class Search_Manager extends Asset
 	{
 		if (is_null($broadcaster)) return;
 		$this->flushKeyData($broadcaster->id);
-	
+
 	}//end onAssetDeleted()
-	
-	
+
+
 	/**
 	* Flush the keydata for an asset
 	*
@@ -206,8 +206,8 @@ class Search_Manager extends Asset
 		}
 
 	}//end flushKeyData()
-	
-	
+
+
 	/**
 	* Adds keydata for an asset
 	*
@@ -234,8 +234,10 @@ class Search_Manager extends Asset
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$param_data = Array();
-		for (reset($keydata); null !== ($i = key($keydata)); next($keydata)) {
-			$datum =& $keydata[$i];
+
+		$keys = array_keys($keydata);
+		foreach ($keys as $key) {
+			$datum =& $keydata[$key];
 			if ($datum['type'] == 'date') {
 				// convert to ISO 8601 date format Y-m-d H:i:s if not already
 				if (!(ereg('[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}', $datum['type']))) {
@@ -244,10 +246,18 @@ class Search_Manager extends Asset
 			} else if ($datum['type'] == 'text') {
 				$datum['value'] = strtolower($datum['value']);
 			}
+
+			$word = $datum['value'];
+
+			// filter noise words
+			if ($this->isWordIndexable($word)) continue;
+
 			array_push($param_data, Array($datum['value'], $datum['type'], $datum['component'], $datum['score']));
+
 		}
 
 		if (empty($param_data)) return false;
+
 		$st = $db->prepare(
 			'INSERT INTO '.SQ_TABLE_PREFIX.'asset_indexing(value, type, assetid, component, score)
 			 VALUES (?, ?, '.$db->quote($assetid).', ?, ?)');
@@ -261,8 +271,26 @@ class Search_Manager extends Asset
 		return true;
 
 	}//end addKeyData()
-	
-	
+
+
+	/**
+	* Check if the word is indexable
+	*
+	* Check is performed according to the current indexing parameters
+	*
+	* @param string		$word	word to index
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isWordIndexable($word)
+	{
+		$min_length = $this->attr('min_word_length');
+		return ((strlen($word) < $min_length) || ($this->isNoiseWord($word))) && (!$this->isWhiteWord($word));
+
+	}//end isWordIndexable()
+
+
 	/**
 	* Sets the default component weighting for a particular asset type
 	*
@@ -329,8 +357,8 @@ class Search_Manager extends Asset
 		}
 
 	}//end setComponentWeighting()
-	
-	
+
+
 	/**
 	* Retrieves weightings for this asset and its components - loads on demand.
 	*
@@ -373,7 +401,7 @@ class Search_Manager extends Asset
 
 	}// end getAssetWeightings()
 
-	
+
 //--        METADATA INDEXING        --//
 
 
@@ -476,7 +504,7 @@ class Search_Manager extends Asset
 
 	}//end getMetadataKeyData()
 
-	
+
 //--        KEYWORD EXTRACTION        --//
 
 
@@ -497,8 +525,8 @@ class Search_Manager extends Asset
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT LOWER(value) as keyword, SUM(score) as total_score 
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_indexing 
+		$sql = 'SELECT LOWER(value) as keyword, SUM(score) as total_score
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_indexing
 				WHERE assetid = '.$db->quote($asset->id).
 				  ($include_metadata ? '' : ' AND component NOT LIKE '.$db->quote('metadata:%')).'
 				GROUP BY keyword ORDER BY total_score DESC';
@@ -564,7 +592,7 @@ class Search_Manager extends Asset
 		if (isset($search_info['search_statuses'])) $search_cache_key .= implode(':', $search_info['search_statuses']);
 		if (isset($search_info['search_types']))    $search_cache_key .= implode(':', $search_info['search_types']);
 		if (isset($search_info['sort_by']))         $search_cache_key .= $search_info['sort_by'];
-		
+
 		// we need the cache manager to cache the results of queries
 		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 
@@ -594,10 +622,10 @@ class Search_Manager extends Asset
 							AND ai.component = '.$db->quote('attr:'. $attr_info['params']['searchtype'].':'.$attr_parts[0]).'
 							AND (ai.value LIKE '.$db->quote('%'.$word.'%').')
 							GROUP BY ai.assetid';
-	
+
 						$result = $db->getAssoc($sql);
 						if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-						
+
 						$cm->saveToCache($this, $search_cache_key.'asset_attrib'.$word, serialize($result));
 					} else {
 						$result = unserialize($result);
@@ -627,10 +655,10 @@ class Search_Manager extends Asset
 						$sql = $start_sql.'
 							AND (ai.value LIKE '.$db->quote('%'.$word.'%').')
 							GROUP BY ai.assetid';
-	
+
 						$result = $db->getAssoc($sql);
 						if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-						
+
 						$cm->saveToCache($this, $search_cache_key.'include_all'.$word, serialize($result));
 					} else {
 						$result = unserialize($result);
@@ -702,10 +730,10 @@ class Search_Manager extends Asset
 								AND ai.component = '.$db->quote('metadata:'.(int)$attr_info['params']['metadata_field']['assetid']).'
 								AND ai.value LIKE '.$like.'
 								GROUP BY ai.assetid';
-	
+
 						$result = $db->getAssoc($sql);
 						if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-						
+
 						$cm->saveToCache($this, $search_cache_key.'metadata'.$like, serialize($result));
 					} else {
 						$result = unserialize($result);
@@ -713,7 +741,7 @@ class Search_Manager extends Asset
 
 					if (is_null($field_asset_scores)) $field_asset_scores = $result;
 					else $field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, 'AND');
-				
+
 				}
 
 				if (is_null($total_asset_scores)) $total_asset_scores = $field_asset_scores;
@@ -740,7 +768,7 @@ class Search_Manager extends Asset
 				}
 			}
 		}
-		
+
 		if (is_null($total_asset_scores)) {
 			$total_asset_scores = Array();
 		} else {
@@ -761,8 +789,8 @@ class Search_Manager extends Asset
 		return $total_asset_scores;
 
 	}//end processSearch()
-	
-	
+
+
 	/**
 	* Processes a basic search request without search terms
 	*
@@ -791,11 +819,11 @@ class Search_Manager extends Asset
 							'.SQ_TABLE_PREFIX.'asset_link al2,
 							'.SQ_TABLE_PREFIX.'asset a';
 		if ($user_restrictions) $search_sql .= ', '.SQ_TABLE_PREFIX.'asset_permission ap ';
-							
+
 		$search_sql .= ' WHERE ';
 
 		if ($user_restrictions) $search_sql .= 'a.assetid = ap.assetid AND ';
-		
+
 		$search_sql .= ' al1.majorid = '.$db->quote($search_info['root_assetid']).'
 						 AND al1.linkid  = alt1.linkid
 						 AND alt2.treeid LIKE '.$concat.'
@@ -863,7 +891,7 @@ class Search_Manager extends Asset
 			$search_results = $db->getAssoc($search_sql);
 			assert_valid_db_result($search_results);
 		}
-		
+
 		return $search_results;
 
 	}//end processBasicSearch()
@@ -885,10 +913,10 @@ class Search_Manager extends Asset
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->currentUserId() || (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()));
-		
+
 		// sorting by relevance by default
 		$sort_string = 'SUM(ai.score)';
-		
+
 		if (isset($search_info['sort_by'])) {
 			$valid_sort_fields = Array('name', 'short_name', 'created', 'updated', 'published', 'type_code');
 			if (in_array($search_info['sort_by'], $valid_sort_fields)) {
@@ -898,7 +926,7 @@ class Search_Manager extends Asset
 		}
 
 		$concat = ($db->phptype == 'mysql') ? 'CONCAT(alt1.treeid, '.$db->quote('%').')' : '(alt1.treeid || '.$db->quote('%').')';
-		
+
 		$sql = Array();
 
 		$sql['select'] = 'SELECT DISTINCT(ai.assetid), SUM(ai.score) as search_score, '.$sort_string.' AS sort_by';
@@ -910,11 +938,11 @@ class Search_Manager extends Asset
 							'.SQ_TABLE_PREFIX.'asset_link al2,
 							'.SQ_TABLE_PREFIX.'asset a';
 		if ($user_restrictions) $sql['from'] .= ', '.SQ_TABLE_PREFIX.'asset_permission ap ';
-							
+
 		$sql['where'] = 'WHERE ';
 
 		if ($user_restrictions) $sql['where'] .= 'a.assetid = ap.assetid AND ';
-		
+
 		$sql['where'] .= '  a.assetid = ai.assetid
 							AND al1.majorid = '.$db->quote($search_info['root_assetid']).'
 							AND al1.linkid  = alt1.linkid
@@ -967,7 +995,7 @@ class Search_Manager extends Asset
 			$sql['where'] .= ' AND ap.permission >= '.$db->quote(SQ_PERMISSION_READ).'
 							AND ap.access = 1';
 		}
-		
+
 		return $sql;
 
 	}//end constructBaseSearchQuery()
@@ -1022,6 +1050,60 @@ class Search_Manager extends Asset
 		return $out_asset_scores;
 
 	}//end combineAssetScores()
+
+
+	/**
+	* Return an array of noise words
+	*
+	* @return array
+	* @access public
+	*/
+	function getNoiseWords()
+	{
+		return $this->attr('noise_word_list');
+
+	}//end getNoiseWords()
+
+
+	/**
+	* Return an array of white words
+	*
+	* @return array
+	* @access public
+	*/
+	function getWhiteWords()
+	{
+		return $this->attr('white_word_list');
+
+	}//end getWhiteWords()
+
+
+	/**
+	* Return true if word is in noise words
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isNoiseWord($word)
+	{
+		$words = $this->attr('noise_word_list');
+		return isset($words[$word]);
+
+	}//end isNoiseWord()
+
+
+	/**
+	* Return true if word is in white words
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isWhiteWord($word)
+	{
+		$words = $this->attr('white_word_list');
+		return isset($words[$word]);
+
+	}//end isWhiteWord()
 
 
 }//end class
