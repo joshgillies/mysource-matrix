@@ -24,22 +24,23 @@ class Root_User extends User
 	*/
 	var $_in_create = false;
 
+
 	/**
 	* Constructor
 	*
-	* @param int    $assetid      the asset id to be loaded
+	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Root_User($assetid=0) 
+	function Root_User($assetid=0)
 	{
 		$this->User($assetid);
 	}
 
 
-	/*
+	/**
 	* Create this asset
 	*
-	* @param string $email
+	* @param string	$email
 	*
 	* @return boolean
 	* @access public
@@ -64,10 +65,10 @@ class Root_User extends User
 		$this->_in_create = false;
 		return $ret_val;
 
-
 	}//end create()
 
-	/*
+
+	/**
 	* Set the value for the passed variable to the passed value
 	*
 	* @access public

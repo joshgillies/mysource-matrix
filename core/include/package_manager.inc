@@ -53,6 +53,7 @@ class Package_Manager extends Resolve_Object
 	*/
 	var $_full_path;
 
+
 	/**
 	* Constructor
 	*
@@ -92,7 +93,8 @@ class Package_Manager extends Resolve_Object
 
 	}//end constructor
 
-	/*
+
+	/**
 	* Checks to see if the installation/upgrade of this package is able to go ahead.
 	*
 	* @return boolean
@@ -135,7 +137,8 @@ class Package_Manager extends Resolve_Object
 
 	}//end checkPackageDetails()
 
-	/*
+
+	/**
 	* Installs/Updates the passed package in the system
 	*
 	* @access public
@@ -232,7 +235,8 @@ class Package_Manager extends Resolve_Object
 
 	}//end updatePackageDetails()
 
-	/*
+
+	/**
 	* Recursivly searches through the passed package's directory for asset.xml files
 	* and enter's them into the $this->assets array with the details
 	*
@@ -276,7 +280,7 @@ class Package_Manager extends Resolve_Object
 	}//end _recurseLoadPackageAssets()
 
 
-	/*
+	/**
 	* Generates an array holding the type_codes for the order in which
 	* the assets should be installed in order to respect the heirarchy
 	* defined in the asset.xml files
@@ -348,7 +352,8 @@ class Package_Manager extends Resolve_Object
 
 	}//end _getInstallOrder()
 
-	/*
+
+	/**
 	* Generates a segment of an XML document for the Asset_Map.inc to use to send to the 
 	* flash
 	*
@@ -388,13 +393,14 @@ class Package_Manager extends Resolve_Object
 	}//end _createAssetMapScreensXML()
 
 
-	/*
+	/**
 	* checks the requirements of the passed asset.xml file
 	* see checkRequirements() for more info
 	*
-	* @param string  $file              the code name for the asset that you want to check
-	* @param boolean $need_feedback
-	* @param array   $ignore_assets     if the requirement is an asset, but is in this list, the requirement is considered to have passed
+	* @param string		$file				the code name for the asset that you want to check
+	* @param boolean	$need_feedback
+	* @param array		$ignore_assets		if the requirement is an asset, but is in this list, 
+	*										the requirement is considered to have passed
 	*
 	* @return mixed
 	* @access public
@@ -477,7 +483,8 @@ class Package_Manager extends Resolve_Object
 
 	}//end checkRequirementsFromFile()
 
-	/*
+
+	/**
 	* Returns an array of all assets types that are parents for the passed asset
 	* that is in the this package
 	*
@@ -516,7 +523,7 @@ class Package_Manager extends Resolve_Object
 	}//end getParentList()
 
 
-	/*
+	/**
 	* Returns an array of asset information or a specific piece of information
 	*
 	* @param string $type_code  the code name for the asset that you want to check

@@ -7,9 +7,7 @@ require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 * Asset_Management
 *
 * Purpose
-*
 *    Looks after the installing and upgrading of an asset
-*
 *
 *    !IMPORTANT! Only to be used by the Package_Manager
 *
@@ -50,6 +48,7 @@ class Asset_Management extends Resolve_Object
 	*/
 	var $vars;
 
+
 	/**
 	* Constructor
 	*
@@ -61,10 +60,10 @@ class Asset_Management extends Resolve_Object
 		$this->_db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$this->vars = Array();
-
 	}
 
-	/*
+
+	/**
 	* Returns the asset type that this management class is working for
 	*
 	* @access public
@@ -76,6 +75,7 @@ class Asset_Management extends Resolve_Object
 		return substr($class, 0, strlen($class) - 11);
 
 	}//end getAssetType()
+
 
 	/**
 	* This get's run to intall/upgrade the asset that this management class represents
@@ -93,6 +93,7 @@ class Asset_Management extends Resolve_Object
 		}
 
 	}//end update()
+
 
 	/**
 	* Install
@@ -142,7 +143,7 @@ class Asset_Management extends Resolve_Object
 	/**
 	* Upgrade
 	*
-	* @param string $current_version	the version of the asset that is currenly installed
+	* @param string	$current_version	the version of the asset that is currenly installed
 	*
 	* @return boolean
 	* @access public
@@ -178,9 +179,7 @@ class Asset_Management extends Resolve_Object
 		// now inform the asset manager that this asset is available for use
 		$this->_am->refreshAssetType($this->getAssetType());
 
-
 		// now update the attributes
-
 		$sql = 'SELECT name
 				FROM sq_asset_attribute
 				WHERE type_code = '.$this->_db->quote($this->getAssetType());
@@ -198,13 +197,12 @@ class Asset_Management extends Resolve_Object
 
 		}//end for
 
-
-
 		return true;
 
 	}//end upgrade()
 
-	/*
+
+	/**
 	* Returns an array of editing options for this asset type
 	*
 	* @return Array
@@ -239,15 +237,14 @@ class Asset_Management extends Resolve_Object
 
 		return $editing_options;
 
-
 	}//end _getEditingOptions()
 
 
-	/*
+	/**
 	* Returns all the variable names that are available for this asset type
 	* - any inherited vars and those defined in this management class
 	*
-	* @return Array(string);
+	* @return Array(string)
 	* @access public
 	*/
 	function _getAllVars()
@@ -265,7 +262,8 @@ class Asset_Management extends Resolve_Object
 
 	}// end _getAllVars()
 
-	/*
+
+	/**
 	* Adds an attribute to this asset's collection
 	*
 	* @param string $name  the name of the attribute to add
@@ -321,7 +319,6 @@ class Asset_Management extends Resolve_Object
 		// else one of our parents has defined the an attribute of this type before
 		// so we are really just overriding the default value for this asset type
 		} else {
-
 
 			// OK, what's happening is that the asset type that is represented by the min level
 			// is the owner of the attribute, so from there we get all the attribute information
@@ -405,11 +402,11 @@ class Asset_Management extends Resolve_Object
 	}//end _addAttribute()
 
 
-	/*
+	/**
 	* Updates an attribute in this asset's set
 	*
-	* @param string $name				the name of the attribute to update
-	* @param string $current_version	the version of the asset that is currenly installed
+	* @param string	$name				the name of the attribute to update
+	* @param string	$current_version	the version of the asset that is currenly installed
 	*
 	* @return boolean
 	* @access private
@@ -459,10 +456,10 @@ class Asset_Management extends Resolve_Object
 	}//end _updateAttribute()
 
 
-	/*
+	/**
 	* Updates an attribute that this asset owns (ie the first time it is defined is by this asset)
 	*
-	* @param string	$name				the name of the attribute to update
+	* @param string	$name	the name of the attribute to update
 	*
 	* @return boolean
 	* @access private
@@ -508,7 +505,8 @@ class Asset_Management extends Resolve_Object
 
 	}//end _updateOwnedAttribute()
 
-	/*
+
+	/**
 	* Updates an attribute that this asset doesn't own but has set the default value on
 	*
 	* @param string	$name		the name of the attribute to update
@@ -556,12 +554,13 @@ class Asset_Management extends Resolve_Object
 
 	}//end _updateDefaultAttribute()
 
-	/*
+
+	/**
 	* Returns the information from the passed asset.xml
 	* This function can be called without creating an instance of the class
 	* ie $info = Asset_Management::getAssetInfo($file);
 	*
-	* @param string $file  the asset.xml file path
+	* @param string	$file	the asset.xml file path
 	*
 	* @return Array
 	* @access public
@@ -611,7 +610,8 @@ class Asset_Management extends Resolve_Object
 
 	}//end getAssetInfo()
 
-	/*
+
+	/**
 	* Used by the XML_Array()
 	*
 	* @see XML_Array::XML_Array()

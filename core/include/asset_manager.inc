@@ -4,7 +4,6 @@
 * Asset_Manager
 *
 * Purpose
-*
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
@@ -29,6 +28,7 @@ class Asset_Manager extends Resolve_Object
 	*/
 	var $_assets = Array();
 
+
 	/**
 	* Constructor
 	*
@@ -38,6 +38,7 @@ class Asset_Manager extends Resolve_Object
 		$this->Resolve_Object();
 		$this->_loadAssetTypes();
 	}
+
 
 	/**
 	* Loads all the assets types into the asset array
@@ -54,18 +55,19 @@ class Asset_Manager extends Resolve_Object
 		$result = $db->query($sql);
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
-		$this->_asset_types = Array();
 		while (null !== ($row = $result->fetchRow())) {
 			$this->_asset_types[$row['type_code']] = $row;
 		}//end while
+		
 		$result->free();
-
 	}
 
 	/**
 	* Refreshes the passed asset types data in the assets array
 	* Also updates the sq_asset_type_inherited table so as to have all
 	* links pointing correctly
+	*
+	* @param string	$type_code	the code name for the asset type that you want to refresh
 	*
 	* @access public
 	*/
@@ -114,6 +116,7 @@ class Asset_Manager extends Resolve_Object
 
 	}//end refreshAssetType()
 
+
 	/**
 	* Returns whether the passed asset is installed in the system or not
 	*
@@ -126,6 +129,7 @@ class Asset_Manager extends Resolve_Object
 		return isset($this->_asset_types[$type_code]);
 	}//end installed()
 
+
 	/**
 	* Returns an array of type codes that are installed in the system
 	*
@@ -137,11 +141,12 @@ class Asset_Manager extends Resolve_Object
 		return array_keys($this->_asset_types);
 	}//end getInfo()
 
+
 	/**
 	* Returns an array of asset information or a specific piece of information
 	*
-	* @param string $type_code  the code name for the asset that you want to check
-	* @param string $field      if exists returns this information from the array for this specific field
+	* @param string	$type_code	the code name for the asset that you want to check
+	* @param string	$field		if exists, returns this information from the array for this specific field
 	*
 	* @return mixed
 	* @access public
@@ -178,7 +183,8 @@ class Asset_Manager extends Resolve_Object
 	* Returns an array representing the class hierarchy for the asset types, either for whole system
 	* or for under the the passed asset type
 	*
-	* @param string base_type_code	the asset type's hierarchy to return
+	* @param string	$base_type_code		the asset type's hierarchy to return
+	* @param bool	$ignore_system_only	
 	*
 	* @return array
 	* @access public
@@ -230,7 +236,7 @@ class Asset_Manager extends Resolve_Object
 	/**
 	* Includes the class file for the passed asset
 	*
-	* @param string $type_code  the code name for the asset that you want to check
+	* @param string	$type_code	the code name for the asset that you want to check
 	*
 	* @access public
 	*/
@@ -245,11 +251,13 @@ class Asset_Manager extends Resolve_Object
 
 	}//end includeAsset()
 
+
 	/**
 	* Returns an array of all assets types that are parents for the passed asset
 	*
 	* @param string		$type_code		the code name for the asset that you want to check
-	* @param boolean	$include_asset	when true adds the "Asset" type to the parent list, even though it's an unistantiable object
+	* @param boolean	$include_asset	when true adds the "Asset" type to the parent list,
+	*									even though it's an unistantiable object
 	*
 	* @access public
 	*/
@@ -280,12 +288,15 @@ class Asset_Manager extends Resolve_Object
 
 	}//end getParentList()
 
+
 	/**
-	* returns a reference to the asset represented by the passed assetid
+	* Returns a reference to the asset represented by the passed assetid
 	*
 	* @param int		$assetid		the asset id to be loaded
-	* @param string		$type_code		if this exists then this object is used to load the asset, if not then the DB is queried to find out the asset type
-	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because you can't use the '@' operator when returning by reference
+	* @param string		$type_code		if this exists then this object is used to 
+	*									load the asset, if not then the DB is queried to find out the asset type
+	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
+	*									you can't use the '@' operator when returning by reference
 	*
 	* @access public
 	*/
@@ -320,11 +331,12 @@ class Asset_Manager extends Resolve_Object
 
 	}//end getAsset()
 
+
 	/**
-	* registers the passed object in the store, for others to get
-	* used when a new record has just been "create()d"
+	* Registers the passed object in the store, for others to get
+	* Used when a new record has just been "create()d"
 	*
-	* @param object Asset $obj  the asset to be registered
+	* @param object Asset	&$obj	the asset to be registered
 	*
 	* @access public
 	*/
@@ -338,10 +350,11 @@ class Asset_Manager extends Resolve_Object
 
 	}//end registerAsset();
 
+
 	/**
-	* unregisters the passed object from the store, 
+	* Unregisters the passed object from the store
 	*
-	* @param object Asset $obj  the asset to be registered
+	* @param object Asset	&$obj	the asset to be unregistered
 	*
 	* @access public
 	*/
@@ -353,13 +366,18 @@ class Asset_Manager extends Resolve_Object
 
 	}//end unRegisterAsset();
 
+
 	/**
-	* returns list of all assetids of a certain type
+	* Returns list of all assetids of a certain type
 	*
-	* @param string		$type_code		if this exists then this object is used to load the asset, if not then the DB is queried to find out the asset type
-	* @param boolean	$strict			whether we are finding assets that are just a $type_code or $type_code and any of it's sub-classes
-	* @param boolean	$include_type	if false returns Array(assetid, assetid, ...), if true returns returns Array(assetid => asset_type, assetid => asset_type, ...)
-	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because you can't use the '@' operator when returning by reference
+	* @param string		$type_code		if this exists then this object is used to load the asset,
+	*									if not then the DB is queried to find out the asset type
+	* @param boolean	$strict			whether we are finding assets that are just a $type_code 
+	*									or $type_code and any of it's sub-classes
+	* @param boolean	$include_type	if false returns Array(assetid, assetid, ...), if true
+	*									returns Array(assetid => asset_type, assetid => asset_type, ...)
+	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because 
+	*									you can't use the '@' operator when returning by reference
 	*
 	* @access public
 	*/
@@ -390,10 +408,11 @@ class Asset_Manager extends Resolve_Object
 
 	}//end getTypeAssetids()
 
+
 	/**
-	* prints out the interface for viewing and customising asset types
+	* Prints out the interface for viewing and customising asset types
 	*
-	* @param object Backend $backend
+	* @param object Backend &$backend
 	*
 	* @access public
 	*/
@@ -484,7 +503,7 @@ class Asset_Manager extends Resolve_Object
 
 
 	/**
-	* prints out the interface for viewing and customising asset types
+	* Prints out the interface for viewing and customising asset types
 	*
 	* @param object Backend_Outputter $o
 	* @param object DB $db
@@ -665,14 +684,17 @@ class Asset_Manager extends Resolve_Object
 
 	}//end _printAssetList()
 
+
 	/**
-	* returns a reference to the asset that has the passed url
-	* if no url is passed the current (aka PHP_SELF) one is used
+	* Returns a reference to the asset that has the passed url
+	* If no url is passed the current (aka PHP_SELF) one is used
 	*
 	* @param string		$protocol		the protocol to match -> null means it is ignored
 	* @param string		$url			the urls to check for -> null defaults it to current url
-	* @param boolean	$exact_match	when true only returns an asset if there is an exact match on the url, if false searches back along the URL path for the asset that matches
-	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because you can't use the '@' operator when returning by reference
+	* @param boolean	$exact_match	when true only returns an asset if there is an exact match on the url,
+	*									if false searches back along the URL path for the asset that matches
+	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because you can't
+	*									use the '@' operator when returning by reference
 	*
 	* @return object Asset | null
 	* @access public
@@ -680,7 +702,7 @@ class Asset_Manager extends Resolve_Object
 	function &getAssetFromURL($protocol=null, $url=null, $exact_match=true, $mute_errors=false)
 	{
 
-		if (is_null($url))		$url = $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
+		if (is_null($url)) $url = $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
 		// remove any trailing slashes
 		$url = preg_replace('/\/+$/', '', $url);
 
@@ -731,12 +753,13 @@ class Asset_Manager extends Resolve_Object
 
 	}//end getAssetFromURL()
 
+
 	/**
-	* returns an array of assetid's in the order that they propogate out from the site url
-	* if no url is passed the current (aka PHP_SELF) one is used
+	* Returns an array of assetid's in the order that they propogate out from the site url
+	* If no url is passed the current (aka PHP_SELF) one is used
 	*
-	* @param string		$protocol		the protocol to match -> null means it is ignored
-	* @param string		$url			the urls to check for -> null defaults it to current url
+	* @param string		$protocol	the protocol to match -> null means it is ignored
+	* @param string		$url		the urls to check for -> null defaults it to current url
 	*
 	* @return Array
 	* @access public
@@ -744,7 +767,7 @@ class Asset_Manager extends Resolve_Object
 	function getLineageFromURL($protocol=null, $url=null)
 	{
 
-		if (is_null($url))		$url = $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
+		if (is_null($url)) $url = $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
 		// remove any trailing slashes
 		$url = preg_replace('/\/+$/', '', $url);
 
