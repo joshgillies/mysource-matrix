@@ -375,7 +375,10 @@ class HIPO_Job extends Resolve_Object
 
 		// Second let's decide, depening on the circumstances, whether to delete or update
 		$delete = false;
-		if ($this->complete()) {
+		// if we have aborted, delete right now
+		if ($this->_hipo_vars['aborted']) {
+			$delete = true;
+		} else if ($this->complete()) {
 			// if we are running from the web, we can delete the DB entry
 			// because we are now done with it
 			if ($this->_current_mode == 'web') {
@@ -417,19 +420,6 @@ class HIPO_Job extends Resolve_Object
 
 
 	/**
-	* Cancel the HIPO and cleanup
-	*
-	* @return boolean
-	* @access public
-	*/
-	function abort()
-	{
-		$this->_hipo_vars['aborted'] = true;
-		return $this->_save();
-	}//end abort()
-
-
-	/**
 	* Whether we want to auto_step in the paint mode for this job or not
 	*
 	* @return boolean
@@ -466,7 +456,7 @@ class HIPO_Job extends Resolve_Object
 
 		return false;
 
-	}//end abort()
+	}//end auto_step()
 
 
 	/**
@@ -557,51 +547,99 @@ class HIPO_Job extends Resolve_Object
 	*/
 	function process()
 	{
-		if (!empty($_POST['cancel_hipo'])) {
-			// they want to stop all processing and cancel the HIPO
-			if (!$this->abort()) return false;
-			$this->setOption('auto_complete', true);
-			$this->_hipo_vars['current_step'] = count($this->_steps);
-			return true;
-		}
 
-		$step = $this->_hipo_vars['current_step'];
+		if (!$this->_hipo_vars['aborted']) {
+			$step = $this->_hipo_vars['current_step'];
+			if ($this->_steps[$step]['running_mode'] != $this->_hipo_vars['running_mode']) {
 
-		if ($this->_steps[$step]['running_mode'] != $this->_hipo_vars['running_mode']) {
+				if ($this->_steps[$step]['running_mode'] == 'server' && SQ_HIPO_USE_SERVER) {
+					// we have reached a step that requires server processing, but we are not yet
+					// running in server mode (ie. we are not running on the HIPO server) - so lets
+					// put a call through the HIPO phone to the server
+					trigger_error('CONNECT TO HIPO SERVER HERE AND WAIT FOR ACK', E_USER_NOTICE);
 
-			if ($this->_steps[$step]['running_mode'] == 'server' && SQ_HIPO_USE_SERVER) {
-				// we have reached a step that requires server processing, but we are not yet
-				// running in server mode (ie. we are not running on the HIPO server) - so lets
-				// put a call through the HIPO phone to the server
-				trigger_error('CONNECT TO HIPO SERVER HERE AND WAIT FOR ACK', E_USER_NOTICE);
+				// this should never happen, because of what happens in initialise()
+				} else {
+					trigger_error('Something is not right with this HIPO, please consult your system administrator', E_USER_ERROR);
+				}
 
 			} else {
-				trigger_error('SET RUN MODE', E_USER_NOTICE);
-				$this->_hipo_vars['running_mode'] = $this->_steps[$step]['running_mode'];
-			}
 
-		} else {
+				// if we are is a display mode different from the running mode, we should not be
+				// doing any processing or saving - so just return true here
+				if ($this->_current_mode != $this->_hipo_vars['running_mode']) return true;
 
-			// if we are is a display mode different from the running mode, we should not be
-			// doing any processing or saving - so just return true here
-			if ($this->_current_mode != $this->_hipo_vars['running_mode']) return true;
-
-			// call the correct process function based on the running mode
-			$fn = 'process'.ucfirst($this->_hipo_vars['running_mode']);
-			$prefix = $this->code_name.'step'.$step;
-			set_error_handler(Array(&$this, '_errorHandler'));
-			if (!$this->$fn($this->_steps[$step], $prefix)) {
-				$this->abort();
+				// call the correct process function based on the running mode
+				$fn = 'process'.ucfirst($this->_hipo_vars['running_mode']);
+				$prefix = $this->code_name.'step'.$step;
+				set_error_handler(Array(&$this, '_errorHandler'));
+				if (!$this->$fn($this->_steps[$step], $prefix)) {
+					restore_error_handler();
+					return false;
+				}
 				restore_error_handler();
-				return false;
-			}
-			restore_error_handler();
 
+			}//end if
 		}//end if
 
 		return $this->_save();
 
 	}//end process()
+
+
+	/**
+	* Cancel the HIPO and cleanup
+	*
+	* @return boolean
+	* @access public
+	*/
+	function abort()
+	{
+		if ($this->source_code_name != $this->code_name) {
+			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$source_job = &$hh->getJob($this->source_code_name);
+			if (is_null($source_job) || ($source_job->source_code_name != $source_job->code_name)) return;
+			$source_job->abort();
+		}
+
+		// if aborting through a web script, but the processing is running on the server we need to inform the server to abort
+		if ($this->_current_mode == 'web' && $this->_hipo_vars['running_mode'] == 'server') {
+			trigger_error('CONNECT TO HIPO SERVER HERE AND SEND ABORT', E_USER_NOTICE);
+
+		// otherwise we can just do what needs to be done
+		} else {
+
+			$this->jobAborted();
+
+			$step = $this->_hipo_vars['current_step'];
+			$step_data = (isset($this->_steps[$step])) ? $this->_steps[$step] : Array();
+			if (!empty($step_data['hipo_job']) && !empty($step_data['hipo_job']['code_name']) && !empty($step_data['hipo_job']['job_type'])) {
+				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hipo = &$hh->getJob($step_data['hipo_job']['code_name'], $step_data['hipo_job']['job_type']);
+				if (!is_null($hipo)) {
+					$hipo->jobAborted();
+				}
+
+			}// end if
+
+		}// end if
+
+	}//end abort()
+
+
+	/**
+	* Called to do any clean-up for this job
+	*
+	* @return boolean
+	* @access public
+	*/
+	function jobAborted()
+	{
+		$this->setOption('auto_complete', true);
+		$this->_hipo_vars['aborted'] = true;
+		return $this->_save();
+
+	}//end jobAborted()
 
 
 	/**

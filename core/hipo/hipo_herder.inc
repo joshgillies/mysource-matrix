@@ -116,12 +116,27 @@ class HIPO_Herder extends Resolve_Object
 
 		$source_job = &$this->getJob($_GET['hipo_source_code_name']);
 		if (is_null($source_job)) {
-			trigger_error('Unable to find a source job with the codename "'.$_GET['hipo_source_code_name'].'"', E_USER_WARNING);
-			return false;
+			// if we aren't actually waiting for an aborted hipo to remove itself then, display an error
+			if (empty($_POST['aborting_hipo'])) {
+				trigger_error('Unable to find a source job with the codename "'.$_GET['hipo_source_code_name'].'"', E_USER_WARNING);
+				return false;
+			// else the server has finally killed the job so we are now done
+			} else {
+				return true;
+			}
+		}
+
+		// they want to stop all processing and cancel the HIPO
+		if (!empty($_POST['cancel_hipo'])) {
+			$source_job->abort();
+			$_POST['aborting_hipo'] = $source_job->code_name;
+			$_POST['aborting_hipo_url'] = $source_job->getOption('on_complete_url');
+			return true;
 		}
 
 		if (!$source_job->process()) {
 			trigger_error('HIPO failed to process', E_USER_WARNING);
+			$source_job->abort();
 			return false;
 
 		}
@@ -138,29 +153,39 @@ class HIPO_Herder extends Resolve_Object
 	*/
 	function paintWeb()
 	{
+		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+
 		if (empty($_GET['hipo_source_code_name'])) {
 			trigger_error('HIPO source codename not specified', E_USER_WARNING);
 			return false;
 		}
 
 		$source_job = &$this->getJob($_GET['hipo_source_code_name']);
-		if (is_null($source_job)) {
+		if (is_null($source_job) && empty($_POST['aborting_hipo'])) {
 			trigger_error('Unable to find a source job with the codename "'.$_GET['hipo_source_code_name'].'"', E_USER_WARNING);
 			return false;
 		}
 
-		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-
-		$form_name = 'HIPO_'.$source_job->code_name;
-		$url = $this->getProcessURL($source_job->code_name);
-		$auto_step = $source_job->auto_step();
-
-		if ($auto_step) {
-			if ($source_job->complete()) $onload = 'onLoad="javascript: self.location=\''.$url.'\'";';
-			else $onload = 'onLoad="javascript: document.'.$form_name.'.submit();"';
+		// if the source job is null it means that an abort finally finished 
+		// (we couldn't get here otherwise) so print that and get out of here
+		if (is_null($source_job)) {
+			$form_name = 'HIPO_abort';
+			$url = $_POST['aborting_hipo_url'];
+			$onload = 'onLoad="javascript: self.location=\''.$url.'\'";';
 		} else {
-			$onload = '';
-		}
+
+			$form_name = 'HIPO_'.$source_job->code_name;
+			$url = $this->getProcessURL($source_job->code_name);
+			$auto_step = $source_job->auto_step();
+
+			if ($auto_step) {
+				if ($source_job->complete()) $onload = 'onLoad="javascript: self.location=\''.$url.'\'";';
+				else $onload = 'onLoad="javascript: document.'.$form_name.'.submit();"';
+			} else {
+				$onload = '';
+			}
+
+		} // end if
 
 		?>
 		<html>
@@ -218,13 +243,19 @@ class HIPO_Herder extends Resolve_Object
 								<table border="0" cellspacing="2" cellpadding="2" width="100%" height="100%">
 									<tr>
 										<td>
-										<?php
+									<?php
+
+									// if we aren't waiting for an abort, print the progress stuff
+									if (empty($_POST['aborting_hipo'])) {
+
 										// Paint the source job, this will take care of any sub jobs if needed
 										$source_job->paint();
 
 										$buttons_to_print = Array();
 										if (!$source_job->complete()) {
-											hidden_field('cancel_hipo', '0');
+											// basically what happens here is that if cancel has already been pressed we increment the counter
+											// this means that the cancel button only get's pressed once
+											hidden_field('cancel_hipo', (empty($_POST['cancel_hipo'])) ? 0 : ((int) $_POST['cancel_hipo'] + 1));
 											$buttons_to_print['cancel'] = Array('value' => 'Cancel', 'action' => 'if (confirm("Are you sure you want to cancel?")) { this.form.cancel_hipo.value = "1"; this.form.submit(); }');
 										}
 
@@ -253,7 +284,23 @@ class HIPO_Herder extends Resolve_Object
 											</p>
 											<?php
 										}// end if
-										?>
+
+									// we are aborting from the server
+									} else {
+
+										hidden_field('aborting_hipo',     $_POST['aborting_hipo']);
+										hidden_field('aborting_hipo_url', $_POST['aborting_hipo_url']);
+
+										// if the source job is null it means that an abort finally finished 
+										// (we couldn't get here otherwise) so print that and get out of here
+										if (is_null($source_job)) {
+											echo 'Abort Complete';
+										} else {
+											echo 'Aborting...';
+										}
+
+									}// end if
+									?>
 										</td>
 									</tr>
 								</table>
