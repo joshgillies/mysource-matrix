@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.2 2004/01/20 05:38:53 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.3 2004/01/23 05:42:49 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -339,7 +339,7 @@ class Page_Asset_Listing extends Page
 					$query['select'] .= ', SUBSTRING(a.'.$sort_by.', 1, 1) AS first_letter';
 
 					$db = &$GLOBALS['SQ_SYSTEM']->db;
-					$children = $db->getAssoc(implode(' ', $query));
+					$children = $db->getAssoc(implode(' ', $query), true, Array(), DB_FETCHMODE_ASSOC);
 					if (DB::isError($children)) {
 						trigger_error($children->getMessage().'<br/>'.$children->getUserInfo(), E_USER_ERROR);
 						return;
