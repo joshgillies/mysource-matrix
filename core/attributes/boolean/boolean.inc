@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: boolean.inc,v 1.27 2005/01/20 13:10:34 brobertson Exp $
+* $Id: boolean.inc,v 1.28 2005/03/03 03:04:52 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,9 @@
 require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 
 /**
-* Boolean Asset Attribute
+* Boolean Asset Attribute Type
+*
+* The raw value of attributes of this type is '1' for true, '0' for false or '' for empty
 *
 * parameters => Array(
 *                     'allow_empty' => [true|false]
@@ -37,7 +39,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <boolean true_text="true" false_text="false" empty_text="maybe" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
