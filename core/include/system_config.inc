@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: system_config.inc,v 1.6 2003/10/02 05:53:39 brobertson Exp $
+* $Id: system_config.inc,v 1.7 2003/10/03 00:01:02 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -115,7 +115,15 @@ class System_Config extends Config
 				unset($vars['SQ_CONF_ERRORS_HIDE_FRONTEND']);
 			}//end if 
 
-			if (isset($vars['SQ_CONF_SYSTEM_ROOT_URLS'])) $vars['SQ_CONF_SYSTEM_ROOT_URLS'] = str_replace("\r", '', $vars['SQ_CONF_SYSTEM_ROOT_URLS']);
+			// Now do some validation
+			if (isset($vars['SQ_CONF_SYSTEM_ROOT_URLS'])) {
+				$vars['SQ_CONF_SYSTEM_ROOT_URLS'] = str_replace("\r", '', $vars['SQ_CONF_SYSTEM_ROOT_URLS']);
+			}
+			foreach(Array('SQ_CONF_MAX_IDLE_TIME', 'SQ_CONF_REFRESH_INTERVAL', 'SQ_CONF_LOCK_LENGTH') as $var_name) {
+				if (isset($vars[$var_name])) {
+					$vars[$var_name] = max(60, (int) $vars[$var_name]);
+				}
+			}
 
 		}// end if
 
@@ -233,7 +241,7 @@ class System_Config extends Config
 		<table border="0" cellspacing="3" cellpadding="1">
 			<tr>
 				<td valign="top" width="30">
-					<script language="Javascript">sqPrintIcon("<?php echo sq_web_path('lib'); ?>/web/images/icons/<?php echo ((empty($lock)) ? 'un' : ''); ?>locked.png", "16", "16", "");</script>
+					<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/<?php echo ((empty($lock)) ? 'un' : ''); ?>locked.png", "16", "16", "");</script>
 				</td>
 				<td valign="top">
 					<?php
@@ -338,7 +346,7 @@ class System_Config extends Config
 
 		$o->openSection('Intervals');
 
-			$o->openField('Refresh Interval', '', 'How long (in seconds) between refreshes of the top (header) frame - this frame keeps the lock on long edits and checks for new mail');
+			$o->openField('Refresh Interval', '', 'How long (in seconds) between refreshes of the top (header) frame - this frame keeps the lock on long edits and checks for new mail - Min: 60');
 			if($have_lock) {
 				text_box('config[SQ_CONF_REFRESH_INTERVAL]', SQ_CONF_REFRESH_INTERVAL, 5, 5);
 			} else {
