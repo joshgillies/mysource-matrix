@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.38 2004/05/03 02:39:02 gsherwood Exp $
+* $Id: design_area_edit_fns.inc,v 1.39 2004/05/11 23:19:11 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -86,7 +86,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		$file_contents = str_replace(Array("\r\n", "\r"), "\n", $file_contents);
 
 		// replace any image roots with a print operation for the image prefix
-		$e = '|mysource_files\/([a-zA-Z0-9\._]+)|i';
+		$e = '|mysource_files\/([a-zA-Z0-9\._\-]+)|i';
 		$file_contents = preg_replace($e, '<'.$this->tag_name.'_PRINT id_name=\'__global__\' var=\'file_path\' filename=\'\\1\' />', $file_contents);
 
 		// replace any './[folder/filename]' with '[folder/filename]'
