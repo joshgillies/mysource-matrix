@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_contain.inc,v 1.11 2004/06/15 23:15:07 lwright Exp $
+* $Id: form_question_rule_type_contain.inc,v 1.12 2004/06/21 06:54:51 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -74,7 +74,7 @@ class Form_Question_Rule_Type_Contain extends Form_Question_Rule
 	*/
 	function processForm(&$q_asset, $operator, &$comparison)
 	{
-		if (!$q_asset->active_submission) return false;
+		if (!isset($q_asset->active_submission)) return false;
 		$answer = $q_asset->getValue();
 
 		// comparison sent is a question asset!!

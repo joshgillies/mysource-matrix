@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_select_limit.inc,v 1.2 2004/06/15 23:15:07 lwright Exp $
+* $Id: form_question_rule_type_select_limit.inc,v 1.3 2004/06/21 06:54:51 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -128,7 +128,7 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 	*/
 	function processForm(&$q_asset, $operator, &$comparison)
 	{
-		if (!$q_asset->active_submission) return false;
+		if (!isset($q_asset->active_submission)) return false;
 		$answer = $q_asset->getValue();
 
 		$operators = eval('return '.__CLASS__.'::_getOperators();');	// get private operator texts

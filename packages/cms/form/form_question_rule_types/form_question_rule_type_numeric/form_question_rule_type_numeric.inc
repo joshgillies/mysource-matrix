@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_numeric.inc,v 1.9 2004/06/15 23:15:07 lwright Exp $
+* $Id: form_question_rule_type_numeric.inc,v 1.10 2004/06/21 06:54:51 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -106,7 +106,7 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 	*/
 	function processForm(&$q_asset, $operator)
 	{
-		if (!$q_asset->active_submission) return false;
+		if (!isset($q_asset->active_submission)) return false;
 
 		$answer   = $q_asset->active_submission[$q_asset->id];
 
