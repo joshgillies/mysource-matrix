@@ -32,7 +32,6 @@ class Design_Area_Custom_Image extends Design_Area
 	*/
 	function printArea(&$design) 
 	{
-		error_log("PRINT AREA CALLED");
 		$image_path = $this->data_path.'/'.$this->attr('image');
 		// return true because it just means that they haven't uploaded the file yet
 		if (!file_exists($image_path)) return true;
