@@ -1,5 +1,5 @@
 <?php
-define('SQ_SYSTEM_VERSION', '3.1.0 RC2 b10');
+define('SQ_SYSTEM_VERSION', '3.1.0 RC2 b11');
 define('SQ_SYSTEM_SHORT_NAME',     'MySource');
 define('SQ_SYSTEM_LONG_NAME',      'Squiz MySource v'.SQ_SYSTEM_VERSION.' (Matrix)');
 define('SQ_SYSTEM_URL',            'http://matrix.squiz.net/');
