@@ -605,6 +605,7 @@ class Asset_Manager extends Resolve_Object
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code 
 	*											or $type_code and any of it's sub-classes
 	*
+	* @return Array	returns an array of assetids
 	* @access public
 	*/
 	function getChildren($assetid, $type_code='', $strict_type_code=true)
