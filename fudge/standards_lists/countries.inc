@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: countries.inc,v 1.4 2003/11/26 00:51:19 gsherwood Exp $
+* $Id: countries.inc,v 1.5 2004/12/17 01:45:00 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -222,6 +222,7 @@ $standards_lists_countries = Array( 'af' => 'Afghanistan',
 									'st' => 'Sao Tome and Principe',
 									'sa' => 'Saudi Arabia',
 									'sn' => 'Senegal',
+									'yu' => 'Serbia and Montenegro',
 									'sc' => 'Seychelles',
 									'sl' => 'Sierra Leone',
 									'sg' => 'Singapore',
@@ -270,7 +271,6 @@ $standards_lists_countries = Array( 'af' => 'Afghanistan',
 									'wf' => 'Wallis and Futuna Islands',
 									'eh' => 'Western Sahara',
 									'ye' => 'Yemen',
-									'yu' => 'Yugoslavia',
 									'zr' => 'Zaire',
 									'zm' => 'Zambia',
 									'zw' => 'Zimbabwe'
