@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2003/12/29 00:22:48 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8 2004/02/19 02:26:24 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -55,6 +55,16 @@
 			<display_name>Lineage Seperator</display_name>
 			<note>Seperator to use when printing the lineage to a search result asset.</note>
 			<text />
+		</field>
+	</section>
+	<section name="Search Field Styles">
+		<field read_access="" write_access="write:attributes">
+			<display_name>Styles</display_name>
+			<note></note>
+			<function_call>
+				<paint_function name="paintStyles" />
+				<process_function name="processStyles" />
+			</function_call>
 		</field>
 	</section>
 </contents>
