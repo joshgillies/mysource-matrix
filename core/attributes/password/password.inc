@@ -54,7 +54,6 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 	*
 	* @param string	prefix	prefix for the form element
 	*
-	* @return boolean
 	* @access public
 	*/
 	function process($prefix)
@@ -69,9 +68,9 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 		if ($one == $two) {
 			$this->value = $one;
 			$this->processed = true;
-			return true;
 		} else {
 			trigger_error('Password and confirmation don\'t match', E_USER_WARNING);
+			$this->processed = false;
 		}
 	}// end process()
 
