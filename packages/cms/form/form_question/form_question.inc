@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question.inc,v 1.9 2003/09/26 05:26:41 brobertson Exp $
+* $Id: form_question.inc,v 1.10 2003/09/26 06:02:40 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,14 @@ class Form_Question extends Asset
 	* the section_id that this question belongs to
 	* @var integer
 	*/
-	var $section_id   = 0;
+	var $section_id  = 0;
+
+
+	/**
+	* the current submission id
+	* @var object
+	*/
+	var $active_submission = null;
 
 
 	/**
@@ -88,16 +95,17 @@ class Form_Question extends Asset
 	function _updated()
 	{
 		if (!parent::_updated()) return false;
-
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'form_section', true, 'minor');
+		if (SQ_IN_BACKEND) {
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'form_section', true, 'minor');
 		
-		if (!empty($link[0])) {
-			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link[0]['majorid'], $link[0]['major_type_code']);
-			if (is_null($section)) return false;
-			return $section->fileRegeneration();
+			if (!empty($link[0])) {
+				$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link[0]['majorid'], $link[0]['major_type_code']);
+				if (is_null($section)) return false;
+				return $section->fileRegeneration();
+			}
 		}
 		return true;
-
+		
 	} // end _updated()
 
 
@@ -136,16 +144,19 @@ class Form_Question extends Asset
 	* @access public
 	* @return boolean
 	*/
-	function processForm(&$submission)
+	function processForm()
 	{
 		$rules = &$this->getRules();
+		$this->active_submission->setProcessed($this->id);
+
 		if (!count($rules)) return false;
 
 		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
 			$rule =& $rules[$k];
 			// let the rule know what question it belongs to
 			$rule->my_question_id = $this->id;
-			$rule->processForm($submission, $this->id, $this->attr('name')); 
+			$rule->active_submission = &$this->active_submission;
+			$rule->processForm($this->id, $this->attr('name')); 
 		}
 		return true;
 	
@@ -265,7 +276,7 @@ class Form_Question extends Asset
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->countLinks($this->id, 'major', SQ_LINK_TYPE_3, 'form_question_rule', false);
 	
-	}// end getRuleCount()
+	} // end getRuleCount()
 
 
 	/**
@@ -338,7 +349,64 @@ class Form_Question extends Asset
 	{
 		return $answer;
 	
-	} // end getSummary
+	} // end getSummary()
+
+
+	/**
+	* returns TRUE if the question that this rule belongs to is a selection type question
+	*
+	* @access public
+	* @return boolean
+	*/
+	function isSelection()
+	{
+		foreach ($this->getSelectionTypeQuestions() as $types) {
+			if (is_a($this, $types)) {
+				return true;
+			}
+		}
+		return false;
+	
+	} // end isSelection()
+
+	/**
+	* returns a list of question types that are selections
+	* the rule uses this information to see if it should be displaying
+	* any more information in the rule itself
+	*
+	* @access public
+	* @return Array()
+	*/
+	function getSelectionTypeQuestions()
+	{
+		$questions = Array(
+			'form_question_type_select',
+			'form_question_type_tickbox',
+		);
+
+		return $questions;
+	
+	} // end getSelectionTypeQuestions()
+
+
+	/**
+	* returns the section name that this question belongs to
+	*
+	* @access public
+	* @return string
+	*/
+	function getMySectionName()
+	{
+
+		if (!$this->section_name) {
+			list($this->section_id) = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'form_section', true);
+			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->section_id, 'form_section');
+			$this->section_name = $section->name;
+		}
+		echo $section->name.'<------section name';
+		return $this->section_name;	
+
+	} // end getMySectionName()
 
 }//end class
 ?>
