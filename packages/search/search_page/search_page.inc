@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.32 2004/02/23 05:55:16 diarandine Exp $
+* $Id: search_page.inc,v 1.33 2004/02/26 02:46:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc'; // for the meda
 * @author  Dominic Wong <dwong@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.32 $ - 1.0
+* @version $Revision: 1.33 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -720,15 +720,12 @@ class Search_Page extends Page
 			$field = $fields[substr($query_var, 0, -6)];
 			
 			// checking if the boolean value needs adjustments
-			if (isset($field['params'])) { // this is an attribute field...
-				if (strpos($field['params']['type_attr'], 'boolean') !== false) { // and it is boolean...
+			if ($field['type'] == 'asset_attrib') {
+				if (strpos($field['params']['type_attr'], 'boolean') !== false) {
 					// we need to convert the value into a word representation, 
 					// since indexing service will not operate just 0 or 1
-					if ($value == 0) {
-						$value = 'false';
-					} else {
-						$value = 'true';
-					}
+					if ($value == 0) $value = 'false';
+					else $value = 'true';
 				}
 			}
 
