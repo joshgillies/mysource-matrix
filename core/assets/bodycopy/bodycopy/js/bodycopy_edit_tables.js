@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_tables.js,v 1.3 2004/05/26 06:54:13 gsherwood Exp $
+* $Id: bodycopy_edit_tables.js,v 1.4 2004/06/24 03:29:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -28,7 +28,7 @@ function bodycopy_insert_table(bodycopy_name, tableid, before) {
 	bodycopy_current_edit["data"]["containerid"]    = tableid;
 	bodycopy_current_edit["data"]["container_type"] = 'table';
 	bodycopy_current_edit["data"]["before"]         = before;
-	bodycopy_show_popup("insert_table.php", 300, 220);
+	bodycopy_show_popup("insert_table.php", 300, 240);
 }// end bodycopy_insert_table()
 
 function bodycopy_save_insert_table(cols, rows, attributes) {

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_div.php,v 1.5 2004/02/18 18:19:16 brobertson Exp $
+* $Id: insert_div.php,v 1.6 2004/06/24 03:29:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,8 +33,13 @@
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
+header("Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0");
+header("Pragma: no-cache");
+header("Expires: ". gmdate("D, d M Y H:i:s",time()-3600) . " GMT");
+
 include(dirname(__FILE__)."/header.php");
-?> 
+?>
+<script type="text/javascript" language="javascript" src="<?php echo sq_web_path('lib')?>/js/general.js"></script>
 <script language="JavaScript" type="text/javascript">
 
 	function popup_init() {
@@ -45,32 +50,33 @@ include(dirname(__FILE__)."/header.php");
 		var data = new Object();
 		data["identifier"]  = owner.form_element_value(f.identifier);
 		data["layout_type"] = owner.form_element_value(f.layout_type);
+		data["css_class"]   = owner.form_element_value(f.css_class);
 		owner.bodycopy_save_insert_div(data);
 	}
 
 </script>
-<table border="0" width="100%">
+
+<div class="title" style="text-align: right;">Insert DIV</div>
+
 <form name="main_form">
-	<tr>
-		<td nowrap class="bodycopy-popup-heading">Insert DIV&nbsp;</td>
-	</tr>
-	<tr>
-		<td>
-			<hr>
-		</td>
-	</tr>
+<input type="hidden" name="bodycopy_name" value="">
+<input type="hidden" name="divid" value="">
+<table width="100%" border="0">
 	<tr>
 		<td>
-			<table border="0" cellpadding="0" cellspacing="4">
+		<fieldset>
+			<legend><b>Identification</b></legend>
+			<table style="width:100%">
 				<tr>
-					<td>&nbsp;</td>
-					<td class="bodycopy-popup-heading">Identifier:</td>
-					<td>
-						<input type="text" name="identifier" value="" size="15">
-					</td>
+					<td class="label">Name:</td>
+					<td><input type="text" name="identifier" value="" size="15"></td>
 				</tr>
+			</table>
+		</fieldset>
+		<fieldset>
+			<legend><b>Style Information</b></legend>
+			<table style="width:100%">
 				<tr>
-					<td>&nbsp;</td>
 					<td class="bodycopy-popup-heading">Presentation:</td>
 					<td>
 						<select name="layout_type">
@@ -80,20 +86,24 @@ include(dirname(__FILE__)."/header.php");
 						</select>
 					</td>
 				</tr>
+				<tr>
+					<td class="label">Class:</td>
+					<td><input type="text" name="css_class" value="" size="15"></td>
+				</tr>
 			</table>
+		</fieldset>
 		</td>
 	</tr>
 	<tr>
 		<td>
-			<hr>
+		<div style="text-align: right;">
+		<button type="button" name="ok" onClick="javascript: popup_save(this.form)">OK</button>
+		&nbsp;
+		<button type="button" name="cancel" onClick="javascript: popup_close();">Cancel</button>
+		</div>
 		</td>
 	</tr>
-	<tr>
-		<td align="center">
-			<input type="button" name="save_button" value="Save" onclick="javascript: popup_save(this.form)">
-			<input type="button" value="Cancel" onclick="javascript: popup_close();">
-		</td>
-	</tr>
-</form>
 </table>
-<?php include(dirname(__FILE__)."/footer.php"); ?>
+</form>
+
+<?php include(dirname(__FILE__)."/footer.php"); ?> 
