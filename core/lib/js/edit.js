@@ -17,9 +17,9 @@
 ## File: web/edit/edit.js
 ## Desc: Common Javascript functions for backend forms.
 ## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/js/edit.js,v $
-## $Revision: 1.4 $
+## $Revision: 1.5 $
 ## $Author: gsherwood $
-## $Date: 2003/09/12 05:52:38 $
+## $Date: 2003/09/15 06:53:15 $
 #######################################################################
 */
 
@@ -59,12 +59,15 @@ function sqProcessKeyDown() {
 
 
 // Submit the edit form after a bit of checking
-function sqSubmitEditForm() {
-
+function sqSubmitEditForm(noProcess) {
 	frm = document.main_form;
-	if (frm.sq_submit_pressed.value == '0') {
-		frm.sq_submit_pressed.value = '1';
-		frm.sq_release_lock.value = frm.sq_release_lock_on_submit.value;
+
+	// make sure the form is not processed
+	if (noProcess != null) frm.am_form_submitted.value = '0';
+	
+	if (!frm.sq_submit_pressed || frm.sq_submit_pressed.value == '0') {
+		if (frm.sq_submit_pressed) { frm.sq_submit_pressed.value = '1'; }
+		if (frm.sq_release_lock_on_submit) { frm.sq_release_lock.value = frm.sq_release_lock_on_submit.value; }
 		frm.onsubmit();
 		frm.submit();
 	}
@@ -74,8 +77,8 @@ function sqSubmitEditForm() {
 
 function sqPrintIcon (strPath, intWidth, intHeight, strAlt) {
 	if (document.all) {
-		document.write ('<span style="height:'+intHeight+'px;width:'+intWidth+'px; filter:progid:DXImageTransform.Microsoft.AlphaImageLoader (src=\''+strPath+'.png\', sizingMethod=\'scale\')"></span>');
+		document.write ('<span style="height:'+intHeight+'px;width:'+intWidth+'px; filter:progid:DXImageTransform.Microsoft.AlphaImageLoader (src=\''+strPath+'\', sizingMethod=\'scale\')"></span>');
 	} else {
-		document.write('<img src="'+strPath+'.png" width="'+intWidth+'" height="'+intHeight+'" border="0" alt="'+strAlt+'" />');
+		document.write('<img src="'+strPath+'" width="'+intWidth+'" height="'+intHeight+'" border="0" alt="'+strAlt+'" />');
 	}
 }
