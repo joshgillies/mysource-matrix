@@ -307,7 +307,6 @@ class Backend_Outputter
 	{
 		if ($this->_raw_opened) $this->closeRaw();
 		if ($this->_section_opened) $this->closeSection();
-		if (!trim($heading)) $heading = '&nbsp;';
 		$this->_section_count = count($this->_contents);
 
 		$this->_contents[$this->_section_count] = Array('type'    => 'normal',
@@ -454,12 +453,12 @@ class Backend_Outputter
 			foreach($this->_js_includes as $file) {
 				$this->_paintJsInclude($file);
 			}//end foreach
-		?>
-
+		?> 
 			<script language="Javascript" type="text/javascript">
 			<!--
 
 				function page_on_load() {
+
 			<?php
 				if (count($this->_messages)) {
 					require_once 'XML/Tree.php';
@@ -469,24 +468,28 @@ class Backend_Outputter
 					foreach($this->_messages as $data) {
 						$msgs_root->addChild('message', $GLOBALS['SQ_SYSTEM']->datetime()."\n".$data['msg'], Array('type' => get_bit_names('SQ_BO_MSG_', $data['type'])));
 					}
-					echo 'top.sidenav.add_messages("'.str_replace("\n", "\\n", addslashes($msgs->get())).'");';
+					?> 
+					if (top.sidenav != undefined) {
+						top.sidenav.add_messages("<?php echo str_replace("\n", "\\n", addslashes($msgs->get())); ?>");
+					}
+					<?php
 				}// end if messages
 
 				foreach($this->_on_load_calls as $call) {
 					echo "\n".$call;
 				}//end foreach
 
-			?>
+			?> 
 				}// end page_on_load()
 
 				function form_on_submit() {
 			<?php
 				foreach($this->_on_submit_calls as $call) {
-				?>
+				?> 
 					<?php echo $call;?>;
 				<?php
 				}//end foreach
-			?>
+			?> 
 					// basically if they get this far then we can submit
 					return true;
 					
@@ -494,12 +497,11 @@ class Backend_Outputter
 
 			<?php
 				foreach($this->_preload_imgs as $file) {
-				?>
-
+				?> 
 					preload_image('<?php echo $file;?>');
 				<?php
 				}//end foreach
-			?>
+			?> 
 
 			// -->
 			</script>
@@ -530,7 +532,7 @@ class Backend_Outputter
 //		}
 //
 		if ($this->_heading || count($this->_screens)) {
-			?>
+			?> 
 			<table width="100%" cellpadding="3" cellspacing="0" border="0">
 				<tr>
 					<td class="sq-backend-heading">
@@ -563,9 +565,14 @@ class Backend_Outputter
 				echo $this->_contents[$i]['contents'];
 			} else {
 		
-			?>
+			?> 
 				<a name="section_<?php echo $i;?>"></a>
+				<!-- <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%" background="<?php echo $this->filesPath('images/section_dots.gif');?>"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="1" /></td></tr></table> -->
 				<table width="100%" cellpadding="3" cellspacing="0" border="0">
+			<?php
+
+				if ($this->_contents[$i]['heading']) {
+				?> 
 					<tr>
 						<td class="sq-backend-sectionheading" colspan="2">
 							<?php if ($this->_contents[$i]['icon']) { ?>
@@ -574,12 +581,14 @@ class Backend_Outputter
 							<span ><?php echo $this->_contents[$i]['heading'];?></span>
 						</td>
 					</tr>
-			<?php
+				<?php
+				} // endif 
+
 				for($j = 0; $j < count($this->_contents[$i]['fields']); $j++) {
 					$field = &$this->_contents[$i]['fields'][$j];
 					switch ($field['format']) {
 						case 'new_line' :
-							?>
+							?> 
 								<tr>
 									<td nowrap valign="top" class="sq-backend-field" colspan="2">
 										<a name="field_<?php echo $i.'_'.$j;?>"></a>
@@ -588,14 +597,14 @@ class Backend_Outputter
 								</tr>
 								<tr>
 									<td valign="top" class="sq-backend-data" colspan="2">
-										<table cellpadding="5" cellspacing="0" border="0">
+										<table cellpadding="0" cellspacing="0" border="0">
 											<tr>
-												<td width="5"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="5" height="1"/></td>
-												<td width="100%">
+												<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="5" height="1"/></td>
+												<td width="100%" valign="top" class="sq-backend-data">
 												<?php
 													echo $field['contents'];
 													if ($field['note']) $this->note($field['note']);
-												?>
+												?> 
 												</td>
 											</tr>
 										</table>
@@ -604,8 +613,21 @@ class Backend_Outputter
 							<?php
 							break;
 
+						case 'commit' :
+						?> 
+							<tr>
+								<td width="100%" valign="top" class="sq-backend-data" style="text-align: right;" colspan="2">
+								<?php
+									echo $field['contents'];
+									if ($field['note']) $this->note($field['note']);
+								?> 
+								</td>
+							</tr>
+							<?php
+							break;
+
 						default :
-						?>
+						?> 
 							<tr>
 								<td nowrap valign="top" class="sq-backend-field">
 									<a name="field_<?php echo $i.'_'.$j;?>"></a>
@@ -615,7 +637,7 @@ class Backend_Outputter
 								<?php
 									echo $field['contents'];
 									if ($field['note']) $this->note($field['note']);
-								?>
+								?> 
 								</td>
 							</tr>
 						<?php
@@ -623,16 +645,16 @@ class Backend_Outputter
 
 				}//end for
 
-				// if this ain't the last section, add a spacer
-				if ($i < count($this->_contents) - 1) {
-				?> 
-					<tr><td class="sq-backend-field" colspan="2">&nbsp;</td></tr>
-				<?php
-				}// end if
-			?>	
+			?> 
 				</table>
 				<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%" background="<?php echo $this->filesPath('images/section_dots.gif');?>"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="1" /></td></tr></table>
 			<?php
+				// if this ain't the last section, add a spacer
+				if ($i < count($this->_contents) - 1) {
+				?> 
+					<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td></tr></table>
+				<?php
+				}// end if
 
 			}//end if
 
