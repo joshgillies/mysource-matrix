@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_transport.inc,v 1.1.2.12 2004/02/26 15:48:04 brobertson Exp $
+* $Id: replication_system_transport.inc,v 1.1.2.13 2004/02/26 16:40:15 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,6 +49,18 @@ class Replication_System_Transport extends MySource_Object
 	*/
 	var $_sd = null;
 
+	/**
+	* the host at the other end of $_sd
+	* @var string
+	*/
+	var $_s_host = '';
+
+	/**
+	* the port at the other end of $_sd
+	* @var int
+	*/
+	var $_s_port = 0;
+	
 	/**
 	* Path to store any files that are downloaded
 	* @var string
@@ -146,6 +158,7 @@ class Replication_System_Transport extends MySource_Object
 		}
 
 		$this->_sd = $sd;
+		socket_getpeername($this->_sd, $this->_s_host, $this->_s_port);
 		return true;
 
 	}// end setSocketFd()
@@ -165,6 +178,8 @@ class Replication_System_Transport extends MySource_Object
 		if (is_null($this->_sd)) return true;
 		if ($close_connection) socket_close($this->_sd);
 		$this->_sd = null;
+		$this->_s_host = '';
+		$this->_s_port = 0;
 		return true;
 
 	}// end removeSocketFd()
@@ -195,9 +210,8 @@ class Replication_System_Transport extends MySource_Object
 	function getPeerInfo($host_only=false)
 	{
 		if (is_resource($this->_sd)) {
-			socket_getpeername($this->_sd, $peer_host='', $peer_port='');
-			if ($host_only) return $peer_host;
-			else return $peer_host.':'.$peer_port;
+			if ($host_only) return $this->_s_host;
+			else return $this->_s_host.':'.$this->_s_port;
 		} else {
 			return '';
 		}
