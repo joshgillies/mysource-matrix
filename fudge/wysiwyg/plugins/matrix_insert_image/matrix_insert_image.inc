@@ -46,12 +46,13 @@ class matrix_insert_image extends wysiwyg_plugin {
 				var sel = this._getSelection();
 				var range = this._createRange(sel);
 
-				var url    = "";
-				var align  = "";
-				var alt    = "";
-				var hspace = "";
-				var vspace = "";
-				var border = "0";
+				var url      = "";
+				var align    = "";
+				var alt      = "";
+				var hspace   = "";
+				var vspace   = "";
+				var border   = "0";
+				var imageid  = "0";
 				var is_image = false;
 
 				// loop through and try and find a selected image tag

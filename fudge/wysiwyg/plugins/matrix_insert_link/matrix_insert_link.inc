@@ -51,6 +51,7 @@ class matrix_insert_link extends wysiwyg_plugin {
 
 				// OK, let's create the current args array that we'll pass to the dialog
 				var currArgs = new Object();
+				currArgs["assetid"] = "0";
 				currArgs["url"] = "http://";
 				currArgs["status_text"] = "";
 				currArgs["new_window"]  = 0;
