@@ -92,15 +92,34 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	*/
 	function paint($prefix, $read_only=false)
 	{
+		$options = $this->_params['options'];
+		if($this->_edit_params['multiple']) $this->value = $this->_str2ar($this->value);
+
 		if ($read_only) {
-			echo 'hi';
+			if (empty($this->value)) return;
+			if($this->_edit_params['multiple']) {
+				echo '<ul>';
+				foreach ($this->value as $k) {
+					if (!isset($options[$k])) continue;
+					echo '<li class="sq-backend-data">'.$options[$k].'</li>';
+				}
+				echo '</ul>';
+			} else {
+				if (!isset($options[$this->value])) {
+					// may have a value left over from when we
+					// were a mutiple selection field
+					$value = $this->_str2ar($this->value);
+					if (!isset($options[$value[0]])) return;
+					echo $options[$value[0]];
+				} else {
+					echo $options[$this->value];
+				}
+			}
 			return;
 		}
 		
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		$options = $this->_params['options'];
-
-		if($this->_edit_params['multiple']) $this->value = $this->_str2ar($this->value);
+		
 		if($this->_edit_params['style'] == 'list') {
 			combo_box($prefix.'_'.$this->name, $options, $this->_edit_params['multiple'], $this->value, $this->_edit_params['height']);
 		} else {
