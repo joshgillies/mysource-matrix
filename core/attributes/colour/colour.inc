@@ -30,7 +30,8 @@ class Asset_Attribute_Colour extends Asset_Attribute
 		$this->Asset_Attribute($attributeid, $value);
 	}// end constructor
 
-	/*
+
+	/**
 	* Prints the interface for filling in a value
 	*
 	* @param string	$prefix	prefix for the form element
@@ -41,10 +42,11 @@ class Asset_Attribute_Colour extends Asset_Attribute
 	{
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		colour_box($prefix.'_'.$this->name, $this->value);
-	}
+	}// end paint()
 
-	/*
-	* Prints the interface for filling in a value
+
+	/**
+	* Processes the interface for filling in a value
 	*
 	* @param string	prefix	prefix for the form element
 	*
@@ -52,14 +54,30 @@ class Asset_Attribute_Colour extends Asset_Attribute
 	*/
 	function process($prefix)
 	{
-		$value = preg_replace('/[^0-9a-f]/', '0', (string) $_POST[$prefix.'_'.$this->name]);
-		if ($this->value != $value) {
-			$this->value = $value;
+		$value = $_POST[$prefix.'_'.$this->name];
+		if ($this->value != $value && $this->setValue($value)) {
 			$this->processed = true;
 		} else {
 			$this->processed = false;
 		}
 	}// end process()
+
+
+	/**
+	* Ensure the attribute being set is a valid colour
+	*
+	* @param mixed	&$value	value to be validated
+	*
+	* @return boolean
+	* @access public
+	*/
+	function validateValue(&$value)
+	{
+		$value = trim($value);
+		$new_value = preg_replace('/[^0-9a-f]/', '0', (string) $value);
+		if ($new_value != $value) return false;
+		return true;
+	}//end validateValue()
 
 }//end class
 
