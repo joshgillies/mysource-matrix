@@ -77,10 +77,10 @@ _root.LIST_ITEM_BG_COLOURS = {
 
 /* for testing from the Flash IDE */
 if (_root.server_exec_path == undefined) {
-	_root.server_exec_path = "http://beta.squiz.net/blair_resolve/_edit/?SQ_BACKEND_PAGE=asset_map_request";
+	_root.server_exec_path = "http://beta.squiz.net/blair/_edit/?SQ_BACKEND_PAGE=asset_map_request";
 }
 if (_root.action_bar_path == undefined) {
-	_root.action_bar_path = "http://beta.squiz.net/blair_resolve/_edit/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=%assetid%&asset_ei_screen=%action%";
+	_root.action_bar_path = "http://beta.squiz.net/blair/_edit/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=%assetid%&asset_ei_screen=%action%";
 }
 if (_root.action_bar_frame == undefined) {
 	_root.action_bar_frame = "main";
