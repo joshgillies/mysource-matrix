@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.14 2004/08/27 02:56:58 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.15 2004/08/29 23:12:51 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.14 $ - 1.0
+* @version $Revision: 1.15 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -557,7 +557,7 @@ class Calendar_Event extends Asset
 		$date_values = Array();
 		foreach(Array('start_date', 'end_date') as $date_comp) {
 			$iso = $this->attr($date_comp);
-			
+						
 			if (iso8601_time_component($iso) === false) {
 				if (($date_comp == 'end_date') && (iso8601_date_component($iso) !== false)) {
 					$iso = ts_iso8601(iso8601_ts(substr($iso,0,10)) + 86400);
@@ -569,6 +569,8 @@ class Calendar_Event extends Asset
 				$iso = substr($iso,0,16).':00';
 			}
 			
+			// save the ISO date components, then get the rest
+			$date_values[$date_comp.'_iso'] = substr($iso,0,10);
 			$date_values += $this->getDateComponents($iso, $date_comp.'_');
 		}
 		
