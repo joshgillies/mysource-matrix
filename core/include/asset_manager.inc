@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.213 2004/06/02 15:43:49 brobertson Exp $
+* $Id: asset_manager.inc,v 1.214 2004/06/04 06:32:04 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -281,17 +281,10 @@ class Asset_Manager extends MySource_Object
 
 		// just a single typecode
 		} else {
+			assert_type($type_code, 'string', 'Type code "'.$type_code.'" is not a string');
+			assert_isset_array_index($this->_asset_types, $type_code, 'Asset "'.$type_code.'" is not installed on the system');
+
 			$columns = $db->quoteIdentifier($field);
-
-			if (!is_string($type_code)) {
-				trigger_error('Type code "'.$type_code.'" is not a string', E_USER_WARNING);
-				return ($field) ? null : Array();
-			}
-
-			if (!isset($this->_asset_types[$type_code])) {
-				trigger_error('Asset "'.$type_code.'" is not installed on the system', E_USER_WARNING);
-				return ($field) ? null : Array();
-			}
 			if ($field && !isset($this->_asset_types[$type_code][$field])) {
 				$do_query = true;
 				$type_code_cond = '= '.$db->quote($type_code);
@@ -507,7 +500,8 @@ class Asset_Manager extends MySource_Object
 	*/
 	function includeAsset($type_code)
 	{
-		assert_isset($this->_asset_types[$type_code], 'Asset "'.$type_code.'" is not installed on the system, unable to include it\'s Source File');
+		$error_msg = 'Asset "'.$type_code.'" is not installed on the system, unable to include its source file';
+		assert_isset_array_index($this->_asset_types, $type_code, $error_msg);
 		require_once SQ_SYSTEM_ROOT.'/'.$this->_asset_types[$type_code]['dir'].'/'.$type_code.'.inc';
 
 	}//end includeAsset()
@@ -525,7 +519,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getTypeAncestors($type_code, $include_asset=true)
 	{
-		assert_isset($this->_asset_types[$type_code], 'Asset Type "'.$type_code.'" is not installed on the system');
+		assert_isset_array_index($this->_asset_types, $type_code, 'Asset Type "'.$type_code.'" is not installed on the system');
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$result = $db->getCol('SELECT inherited_type_code
@@ -551,7 +545,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getTypeDescendants($type_code)
 	{
-		assert_isset($this->_asset_types[$type_code], 'Asset Type "'.$type_code.'" is not installed on the system');
+		assert_isset_array_index($this->_asset_types, $type_code, 'Asset Type "'.$type_code.'" is not installed on the system');
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$result = $db->getCol('SELECT type_code
@@ -662,17 +656,15 @@ class Asset_Manager extends MySource_Object
 						if (!$mute_errors) trigger_error('Asset #'.$assetid.' does not exist', E_USER_WARNING);
 						return $this->_assets[$assetid]['object'];
 					}
-				}//end if
+				}
 
 				if (!isset($this->_asset_types[$type_code])) {
 					if (!$mute_errors) trigger_error('Asset Type "'.$type_code.'" is not installed on this system', E_USER_WARNING);
 				} else {
 					$this->includeAsset($type_code);
 					$this->_assets[$assetid]['object'] = new $type_code($assetid);
-					// make sure of the asset is correct
 					if (empty($this->_assets[$assetid]['object']->id)) $this->_assets[$assetid]['object'] = null;
-
-				}//end if
+				}
 
 			}//end if
 
@@ -1610,6 +1602,7 @@ class Asset_Manager extends MySource_Object
 	function getLinkByAsset($assetid, $other_assetid, $link_types=null, $value=null, $side_of_link='major', $force_array=false)
 	{
 		assert_valid_assetid($assetid);
+		assert_valid_assetid($other_assetid);
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
 
 		if (!$other_assetid || is_object($other_assetid)) {
@@ -2915,14 +2908,13 @@ class Asset_Manager extends MySource_Object
 
 		// if we are only allowed up to a certain number of these links
 		if ($allowed_links[$link_type][$type]['card'] != 'M') {
-
 			$num_curr_links = $this->countLinks($major->id, 'major', $link_type, $type, true, $ignore_linkid);
 			//  and we already have our quota of links, bugger off
 			if ($num_curr_links >= (int) $allowed_links[$link_type][$type]['card']) {
 				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 				return '"'.$this->getTypeInfo($major->type(), 'name').'" Assets can only have '.((int) $allowed_links[$link_type][$type]['card']).' "'.link_type_name($link_type).'" link(s) to a "'.$type.'"';
 			}
-		}//end if
+		}
 
 		// if we get this far all is OK
 		return true;
