@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.18 2004/09/02 01:13:24 gsherwood Exp $
+* $Id: search_page_management.inc,v 1.19 2004/09/14 01:48:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -106,6 +106,15 @@ class Search_Page_Management extends Asset_Management
 				'default'		=> Array(),
 				'description'	=> 'Styles of the search fields',
 			),
+			'use_picker' => Array (
+				'added'			=> '0.6',
+				'type'			=> 'boolean',
+				'default'		=> false,
+				'description'	=> 'Use the JS date picker or not',
+				'parameters' => Array(
+									'allow_empty' => false
+									),
+			),
 			'logic' => Array(
 				'added'			=> '0.1',
 				'type'			=> 'selection',
@@ -116,6 +125,8 @@ class Search_Page_Management extends Asset_Management
 						'AND'	=> 'Match on ALL fields', 
 						'OR'	=> 'Match on at least ONE field',
 					),
+					'multiple' => false,
+					'allow_empty' => false,
 				),
 			),
 			'sort_by' => Array(
@@ -133,6 +144,8 @@ class Search_Page_Management extends Asset_Management
 						'published'		=> 'Last published date',
 						'type_code'		=> 'Asset Type',
 					),
+					'multiple' => false,
+					'allow_empty' => false,
 				),
 			),
 			'reverse_sort' => Array(
@@ -140,6 +153,9 @@ class Search_Page_Management extends Asset_Management
 				'type'			=> 'boolean',
 				'default'		=> false,
 				'description'	=> 'Reverses the sort order field',
+				'parameters' => Array(
+										'allow_empty' => false
+										),
 			),
 		);
 
@@ -187,6 +203,51 @@ class Search_Page_Management extends Asset_Management
 			}
 			bam('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.1');
 		}//end version 0.1 upgrade
+		
+		if ($current_version == '0.5') {
+			// version 0.5->0.6
+			// changed the format of the fields array
+			bam('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.5');
+			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren(1, $this->getAssetType(), false);
+			foreach ($children as $assetid => $type) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				if (is_null($asset)) continue;
+
+				$fields = $asset->attr('fields');
+
+				$new_fields = Array();
+				foreach ($fields as $field_name => $field_data) {
+					// strip out the additional name field
+					if (isset($field_data['name'])) unset($field_data['name']);
+					
+					// metadata fields need their params reworked
+					if ($field_data['type'] == 'metadata') {
+						$field_data['params'] = Array('assetid' => $field_data['params']['metadata_field']['assetid']);
+					}
+					
+					if ($field_data['type'] == 'asset_attrib') {
+						$new_params = Array();
+						$new_params['asset_type'] = $field_data['params']['searchtype'];
+						
+						// [0] - name, [1] - type, [2] - id
+						$attr_parts = explode('__', $field_data['params']['type_attr']);
+						$new_params['attrid'] = $attr_parts[2];
+		
+						$field_data['params'] = $new_params;
+					}
+					
+					$new_fields[$field_name] = $field_data;
+				}
+				$asset->setAttrValue('fields', $new_fields);
+				if (!$asset->saveAttributes()) { 
+					trigger_error('Search Page Upgrade [to 0.6] failed - Couldn\'t save attributes', E_USER_WARNING);
+					return false;
+				}
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}
+			bam('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.5');
+		}//end version 0.1 upgrade
 
 		return true;
 
@@ -203,16 +264,16 @@ class Search_Page_Management extends Asset_Management
 	{
 		return Array(
 				Array(
-					'event_name'				 => 'requestKeywords',
-					'broadcast_type_code'		 => 'content_type_wysiwyg',
+					'event_name'                 => 'requestKeywords',
+					'broadcast_type_code'        => 'content_type_wysiwyg',
 					'broadcast_strict_type_code' => true,
-					'options'	=> Array(
-						'side_of_link'		=> 'major',
-						'indirect'			=> true,
-						'exclusive'			=> null,
-						'dependant'			=> 1,
-						'value'				=> '',
-						'link_type'			=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
+					'options' => Array(
+						'side_of_link'  => 'major',
+						'indirect'      => true,
+						'exclusive'     => null,
+						'dependant'     => 1,
+						'value'         => '',
+						'link_type'     => SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
 					),
 				),
 		);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.14 2004/09/02 01:13:24 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.15 2004/09/14 01:48:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -82,6 +82,8 @@
 			<note>This text will appear on the submit button of the search within search form</note>
 			<text />
 		</field>
+	</section>
+	<section name="Sort Options">
 		<field attribute="sort_by" read_access="" write_access="write:attributes" >
 			<display_name>Sort By</display_name>
 			<note>The order in which assets are sorted</note>

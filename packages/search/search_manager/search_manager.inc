@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.20 2004/09/02 07:01:09 arailean Exp $
+* $Id: search_manager.inc,v 1.21 2004/09/14 01:48:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.20 $ - 0.1
+* @version $Revision: 1.21 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,7 +49,8 @@ class Search_Manager extends Asset
 	{
 		$this->_ser_attrs = true;
 		$this->Asset($assetid);
-	}// end constructor
+
+	}//end constructor
 
 
 	/**
@@ -68,7 +69,7 @@ class Search_Manager extends Asset
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
-			if (!system_asset_fns_create_cleanup($this))  {
+			if (!system_asset_fns_create_cleanup($this)) {
 				$linkid = false;
 			}
 		}
@@ -121,7 +122,7 @@ class Search_Manager extends Asset
 	function canClone()
 	{
 		return false;
-
+	
 	}//end canClone()
 
 
@@ -140,14 +141,16 @@ class Search_Manager extends Asset
 		// don't run if indexing turned OFF
 		if (!$this->attr('indexing')) return false;
 
-		// if search manager is reindexed then there is an infinite recursion!!!
+		// if search manager is reindexed then there is infinite recursion!!!
 		if ($broadcaster->id == $this->id) return false;
 
 		$component = isset($vars['component']) ? $vars['component'] : null;
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		// get dependent parents - but put broadcaster first
-		$changed_assetids = Array($broadcaster->id) + $am->getDependantParents($broadcaster->id);
+		$changed_assetids = Array($broadcaster->id);
+		$inform_parents = array_get_index($vars, 'inform_parents', true);
+		if ($inform_parents) $changed_assetids += $am->getDependantParents($broadcaster->id);
 
 		// for each of parents+current asset, refresh key data for specified component
 		foreach ($changed_assetids as $assetid) {
@@ -161,8 +164,8 @@ class Search_Manager extends Asset
 		return true;
 
 	}//end onRequireReindex()
-
-
+	
+	
 	/**
 	* Event fired when an asset gets deleted. We want to flush ank key data in the index table
 	*
@@ -177,10 +180,10 @@ class Search_Manager extends Asset
 	{
 		if (is_null($broadcaster)) return;
 		$this->flushKeyData($broadcaster->id);
-
+	
 	}//end onAssetDeleted()
-
-
+	
+	
 	/**
 	* Flush the keydata for an asset
 	*
@@ -206,8 +209,8 @@ class Search_Manager extends Asset
 		}
 
 	}//end flushKeyData()
-
-
+	
+	
 	/**
 	* Adds keydata for an asset
 	*
@@ -253,7 +256,6 @@ class Search_Manager extends Asset
 			if ($this->isWordIndexable($word)) continue;
 
 			array_push($param_data, Array($datum['value'], $datum['type'], $datum['component'], $datum['score']));
-
 		}
 
 		if (empty($param_data)) return false;
@@ -289,8 +291,8 @@ class Search_Manager extends Asset
 		return ((strlen($word) < $min_length) || ($this->isNoiseWord($word))) && (!$this->isWhiteWord($word));
 
 	}//end isWordIndexable()
-
-
+	
+	
 	/**
 	* Sets the default component weighting for a particular asset type
 	*
@@ -357,8 +359,8 @@ class Search_Manager extends Asset
 		}
 
 	}//end setComponentWeighting()
-
-
+	
+	
 	/**
 	* Retrieves weightings for this asset and its components - loads on demand.
 	*
@@ -401,7 +403,7 @@ class Search_Manager extends Asset
 
 	}// end getAssetWeightings()
 
-
+	
 //--        METADATA INDEXING        --//
 
 
@@ -472,13 +474,13 @@ class Search_Manager extends Asset
 						$value = $field->attr('default');
 					}
 
-					$force_processing = 1; //will tell the function to process values in any case
+					$force_processing = 1; // will tell the function to process values in any case
 
 					// check field_type to define the indexing way
 					if ($field_type == 'metadata_field_date') {
 
-						$mydate = date("d:m:Y:h:i:s", $value);
-						$asset->buildKeyData($keydata, $mydate, 'text', 'metadata:'. $field->id, $field->attr('weighting') * 1, $force_processing);
+						$mydate = date('Y-m-d H:i:s', $value);
+						$asset->buildKeyData($keydata, $mydate, 'datetime', 'metadata:'. $field->id, $field->attr('weighting') * 1, $force_processing);
 
 					} else {
 
@@ -504,7 +506,7 @@ class Search_Manager extends Asset
 
 	}//end getMetadataKeyData()
 
-
+	
 //--        KEYWORD EXTRACTION        --//
 
 
@@ -592,7 +594,7 @@ class Search_Manager extends Asset
 		if (isset($search_info['search_statuses'])) $search_cache_key .= implode(':', $search_info['search_statuses']);
 		if (isset($search_info['search_types']))    $search_cache_key .= implode(':', $search_info['search_types']);
 		if (isset($search_info['sort_by']))         $search_cache_key .= $search_info['sort_by'];
-
+		
 		// we need the cache manager to cache the results of queries
 		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 
@@ -611,32 +613,110 @@ class Search_Manager extends Asset
 
 			foreach($search_info['asset_attrib'] as $attr_name => $attr_info) {
 
-				if ($attr_info['params']['searchtype'] == '') continue;
-				$attr_parts = explode('__', $attr_info['params']['type_attr']); // exploding the name
+				if ($attr_info['params']['asset_type'] == '') continue;
+				$attribute = $GLOBALS['SQ_SYSTEM']->am->getAttribute($attr_info['params']['attrid']);
+				if (is_null($attribute)) continue;
+
 				$field_asset_scores = null;
 
-				foreach ($attr_info['words'] as $word) {
-					$result = $cm->loadFromCache($this, $search_cache_key.'asset_attrib'.$word);
-					if (empty($result)) {
-						$sql = $start_sql.'
-							AND ai.component = '.$db->quote('attr:'. $attr_info['params']['searchtype'].':'.$attr_parts[0]).'
-							AND (ai.value LIKE '.$db->quote('%'.$word.'%').')
-							GROUP BY ai.assetid';
+				switch ($attribute->type()) {
+					case 'datetime' :
+						$from = array_get_index($attr_info['words'], 'from', '---------- --:--:--');
+						$to   = array_get_index($attr_info['words'], 'to', '---------- --:--:--');
 
-						$result = $db->getAssoc($sql);
-						if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+						$where = '';
+						if ($from != '---------- --:--:--') $where .= ' AND ai.value >= '.$db->quote($from);
+						if ($to != '---------- --:--:--') $where .= ' AND ai.value <= '.$db->quote($to);
+						if (empty($where)) continue;
+						if (empty($where)) continue;
 
-						$cm->saveToCache($this, $search_cache_key.'asset_attrib'.$word, serialize($result));
-					} else {
-						$result = unserialize($result);
-					}
+						$result = $cm->loadFromCache($this, $search_cache_key.'asset_attrib'.$from.'_'.$to);
+						if (empty($result)) {
+							$sql = $start_sql.'
+									AND ai.type = '.$db->quote('datetime').'
+									AND ai.component = '.$db->quote('attr:'. $attr_info['params']['asset_type'].':'.$attribute->name).'
+									'.$where.'
+									GROUP BY ai.assetid';
 
-					if (is_null($field_asset_scores)) $field_asset_scores = $result;
-					else $field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, 'AND');
-				}
+							$result = $db->getAssoc($sql);
+							assert_valid_db_result($result);
+							
+							$cm->saveToCache($this, $search_cache_key.'asset_attrib'.$from.'_'.$to, serialize($result));
+						} else {
+							$result = unserialize($result);
+						}
+	
+						if (is_null($field_asset_scores)) $field_asset_scores = $result;
+						else $field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, 'AND');
+					break;
+
+					default :
+						foreach ($attr_info['words'] as $word) {
+							$result = $cm->loadFromCache($this, $search_cache_key.'asset_attrib'.$word);
+							if (empty($result)) {
+								$sql = $start_sql.'
+									AND ai.component = '.$db->quote('attr:'. $attr_info['params']['asset_type'].':'.$attribute->name).'
+									AND (ai.value LIKE '.$db->quote('%'.$word.'%').')
+									GROUP BY ai.assetid';
+			
+								$result = $db->getAssoc($sql);
+								assert_valid_db_result($result);
+								
+								$cm->saveToCache($this, $search_cache_key.'asset_attrib'.$word, serialize($result));
+							} else {
+								$result = unserialize($result);
+							}
+		
+							if (is_null($field_asset_scores)) $field_asset_scores = $result;
+							else $field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, 'AND');
+						}
+					break;
+				}//end switch attribute type
 
 				if (is_null($total_asset_scores)) $total_asset_scores = $field_asset_scores;
 				else $total_asset_scores = $this->combineAssetScores($total_asset_scores, $field_asset_scores, $search_info['logic']);
+			}
+		}
+
+
+		  //////////////////////////
+		 //  SEARCH ASSET DATES  //
+		//////////////////////////
+		if (isset($search_info['asset_date'])) {
+
+			$valid_dates = Array('created', 'updated', 'published');
+
+			foreach($search_info['asset_date'] as $attr_name => $attr_info) {
+
+				if (!isset($attr_info['params']['date_type'])) continue;
+				if (!in_array($attr_info['params']['date_type'], $valid_dates)) continue;
+
+				$from = array_get_index($attr_info['words'], 'from', '---------- --:--:--');
+				$to   = array_get_index($attr_info['words'], 'to', '---------- --:--:--');
+
+				$where = '';
+				if ($from != '---------- --:--:--') $where .= ' AND ai.value >= '.$db->quote($from);
+				if ($to != '---------- --:--:--') $where .= ' AND ai.value <= '.$db->quote($to);
+				if (empty($where)) continue;
+
+				$result = $cm->loadFromCache($this, $search_cache_key.'asset_date'.$from.'_'.$to);
+				if (empty($result)) {
+					$sql = $start_sql.'
+							AND ai.type = '.$db->quote('datetime').'
+							AND ai.component = '.$db->quote('__'.$attr_info['params']['date_type'].'__').'
+							'.$where.'
+							GROUP BY ai.assetid';
+
+					$result = $db->getAssoc($sql);
+					assert_valid_db_result($result);
+					
+					$cm->saveToCache($this, $search_cache_key.'asset_date'.$from.'_'.$to, serialize($result));
+				} else {
+					$result = unserialize($result);
+				}
+
+				if (is_null($total_asset_scores)) $total_asset_scores = $result;
+				else $total_asset_scores = $this->combineAssetScores($total_asset_scores, $result, $search_info['logic']);
 			}
 		}
 
@@ -655,10 +735,10 @@ class Search_Manager extends Asset
 						$sql = $start_sql.'
 							AND (ai.value LIKE '.$db->quote('%'.$word.'%').')
 							GROUP BY ai.assetid';
-
+	
 						$result = $db->getAssoc($sql);
-						if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-
+						assert_valid_db_result($result);
+						
 						$cm->saveToCache($this, $search_cache_key.'include_all'.$word, serialize($result));
 					} else {
 						$result = unserialize($result);
@@ -681,73 +761,71 @@ class Search_Manager extends Asset
 
 			foreach($search_info['metadata'] as $attr_name => $attr_info) {
 
-				if ($attr_info['params']['metadata_field']['assetid'] <= 0) continue;
+				if ($attr_info['params']['assetid'] <= 0) continue;
+				$metadata_field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($attr_info['params']['assetid']);
+				if (is_null($metadata_field)) continue;
 
 				$field_asset_scores = null;
-				foreach ($attr_info['words'] as $word) {
+				
+				switch (get_class($metadata_field)) {
+					case 'metadata_field_date' :
+						$from = array_get_index($attr_info['words'], 'from', '---------- --:--:--');
+						$to   = array_get_index($attr_info['words'], 'to', '---------- --:--:--');
 
-					if (!is_array($word)) {
+						$where = '';
+						if ($from != '---------- --:--:--') $where .= ' AND ai.value >= '.$db->quote($from);
+						if ($to != '---------- --:--:--') $where .= ' AND ai.value <= '.$db->quote($to);
+						if (empty($where)) continue;
 
-						$like = $db->quote('%'.$word.'%');
+						$result = $cm->loadFromCache($this, $search_cache_key.'metadata'.$from.'_'.$to);
+						if (empty($result)) {
+							$sql = $start_sql.'
+									AND ai.type = '.$db->quote('datetime').'
+									AND ai.component = '.$db->quote('metadata:'.(int)$attr_info['params']['assetid']).'
+									'.$where.'
+									GROUP BY ai.assetid';
 
-					} else {
+							$result = $db->getAssoc($sql);
+							assert_valid_db_result($result);
+							
+							$cm->saveToCache($this, $search_cache_key.'metadata'.$from.'_'.$to, serialize($result));
+						} else {
+							$result = unserialize($result);
+						}
+	
+						if (is_null($field_asset_scores)) $field_asset_scores = $result;
+						else $field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, 'AND');
+					break;
 
-						// we are processing a date field
-						$value = $word;
-
-						$myday = $value['d'];
-						if (strlen($myday) == 1) $myday = '0'.$myday;
-						if (empty($myday) || $myday == '--') $myday = '__';
-
-						$mymonth = $value['m'];
-						if (strlen($mymonth) == 1) $mymonth = '0'.$mymonth;
-						if (empty($mymonth) || $mymonth == '--') $mymonth = '__';
-
-						$myyear = $value['y'];
-						if (empty($myyear) || $myyear == '--') $myyear = '__';
-
-						$myhour = $value['h'];
-						if (strlen($myhour) == 1) $myhour = '0'.$myhour;
-						if (empty($myhour) || $myhour == '--') $myhour = '__';
-
-						$myminute = $value['i'];
-						if (strlen($myminute) == 1) $myminute = '0'.$myminute;
-						if (empty($myminute) || $myminute == '--') $myminute = '__';
-
-						$mysecond = $value['s'];
-						if (strlen($mysecond) == 1) $mysecond = '0'.$mysecond;
-						if (empty($mysecond) || $mysecond == '--') $mysecond = '__';
-
-						$like = $myday.':'.$mymonth.':'.$myyear.':'.$myhour.':'.$myminute.':'.$mysecond;
-						if ($like == '__:__:__:__:__:__') continue;
-						$like = $db->quote($like);
-					}
-
-					$result = $cm->loadFromCache($this, $search_cache_key.'metadata'.$like);
-					if (empty($result)) {
-						$sql = $start_sql.'
-								AND ai.type = '.$db->quote('text').'
-								AND ai.component = '.$db->quote('metadata:'.(int)$attr_info['params']['metadata_field']['assetid']).'
-								AND ai.value LIKE '.$like.'
-								GROUP BY ai.assetid';
-
-						$result = $db->getAssoc($sql);
-						if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-
-						$cm->saveToCache($this, $search_cache_key.'metadata'.$like, serialize($result));
-					} else {
-						$result = unserialize($result);
-					}
-
-					if (is_null($field_asset_scores)) $field_asset_scores = $result;
-					else $field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, 'AND');
-
+					default :
+						foreach ($attr_info['words'] as $word) {
+							$result = $cm->loadFromCache($this, $search_cache_key.'metadata'.$word);
+							if (empty($result)) {
+								$sql = $start_sql.'
+										AND ai.type = '.$db->quote('text').'
+										AND ai.component = '.$db->quote('metadata:'.(int)$attr_info['params']['assetid']).'
+										AND ai.value LIKE '.$db->quote('%'.$word.'%').'
+										GROUP BY ai.assetid';
+			
+								$result = $db->getAssoc($sql);
+								assert_valid_db_result($result);
+								
+								$cm->saveToCache($this, $search_cache_key.'metadata'.$word, serialize($result));
+							} else {
+								$result = unserialize($result);
+							}
+		
+							if (is_null($field_asset_scores)) $field_asset_scores = $result;
+							else $field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, 'AND');
+						}//end foreach word
+					break;
 				}
 
 				if (is_null($total_asset_scores)) $total_asset_scores = $field_asset_scores;
 				else $total_asset_scores = $this->combineAssetScores($total_asset_scores, $field_asset_scores, $search_info['logic']);
 			}
 		}
+
 
 		  /////////////////////////////
 		 //  SEARCH EXCLUDE FIELDS  //
@@ -789,8 +867,8 @@ class Search_Manager extends Asset
 		return $total_asset_scores;
 
 	}//end processSearch()
-
-
+	
+	
 	/**
 	* Processes a basic search request without search terms
 	*
@@ -819,11 +897,11 @@ class Search_Manager extends Asset
 							'.SQ_TABLE_PREFIX.'asset_link al2,
 							'.SQ_TABLE_PREFIX.'asset a';
 		if ($user_restrictions) $search_sql .= ', '.SQ_TABLE_PREFIX.'asset_permission ap ';
-
+							
 		$search_sql .= ' WHERE ';
 
 		if ($user_restrictions) $search_sql .= 'a.assetid = ap.assetid AND ';
-
+		
 		$search_sql .= ' al1.majorid = '.$db->quote($search_info['root_assetid']).'
 						 AND al1.linkid  = alt1.linkid
 						 AND alt2.treeid LIKE '.$concat.'
@@ -891,7 +969,7 @@ class Search_Manager extends Asset
 			$search_results = $db->getAssoc($search_sql);
 			assert_valid_db_result($search_results);
 		}
-
+		
 		return $search_results;
 
 	}//end processBasicSearch()
@@ -913,10 +991,10 @@ class Search_Manager extends Asset
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->currentUserId() || (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()));
-
+		
 		// sorting by relevance by default
 		$sort_string = 'SUM(ai.score)';
-
+		
 		if (isset($search_info['sort_by'])) {
 			$valid_sort_fields = Array('name', 'short_name', 'created', 'updated', 'published', 'type_code');
 			if (in_array($search_info['sort_by'], $valid_sort_fields)) {
@@ -926,7 +1004,7 @@ class Search_Manager extends Asset
 		}
 
 		$concat = ($db->phptype == 'mysql') ? 'CONCAT(alt1.treeid, '.$db->quote('%').')' : '(alt1.treeid || '.$db->quote('%').')';
-
+		
 		$sql = Array();
 
 		$sql['select'] = 'SELECT DISTINCT(ai.assetid), SUM(ai.score) as search_score, '.$sort_string.' AS sort_by';
@@ -938,11 +1016,11 @@ class Search_Manager extends Asset
 							'.SQ_TABLE_PREFIX.'asset_link al2,
 							'.SQ_TABLE_PREFIX.'asset a';
 		if ($user_restrictions) $sql['from'] .= ', '.SQ_TABLE_PREFIX.'asset_permission ap ';
-
+							
 		$sql['where'] = 'WHERE ';
 
 		if ($user_restrictions) $sql['where'] .= 'a.assetid = ap.assetid AND ';
-
+		
 		$sql['where'] .= '  a.assetid = ai.assetid
 							AND al1.majorid = '.$db->quote($search_info['root_assetid']).'
 							AND al1.linkid  = alt1.linkid
@@ -995,7 +1073,7 @@ class Search_Manager extends Asset
 			$sql['where'] .= ' AND ap.permission >= '.$db->quote(SQ_PERMISSION_READ).'
 							AND ap.access = 1';
 		}
-
+		
 		return $sql;
 
 	}//end constructBaseSearchQuery()

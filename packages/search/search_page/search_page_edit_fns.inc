@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.28 2004/09/02 01:13:24 gsherwood Exp $
+* $Id: search_page_edit_fns.inc,v 1.29 2004/09/14 01:48:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.28 $ - 1.0
+* @version $Revision: 1.29 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -230,68 +230,296 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintFields(&$asset, &$o, $prefix)
 	{
+		$write_access = $asset->writeAccess('attributes');
 		$fields = $asset->attr('fields');
-		if (is_scalar($fields))
-			$fields = unserialize($fields);
 
 		$query_types = Array(
-			'include_all'	=> 'Include All',
-			'asset_attrib'	=> 'Asset attribute', // added for testing new features
-			'exclude'		=> 'Exclude',
-			'metadata'		=> 'Metadata'
+			'include_all'  => 'Include all',
+			'exclude'      => 'Exclude',
+			'asset_attrib' => 'Asset attribute',
+			'asset_date'   => 'Asset date',
+			'metadata'     => 'Metadata'
 		);
 
 		$i = 0;
+		
+		$o->openSection('Standard Search Fields');
+		$o->openField('');
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header">Name</td>
+				<td class="sq-backend-table-header" style="width: 200px;">Name</td>
 				<td class="sq-backend-table-header">Type</td>
-				<td class="sq-backend-table-header">Parameters</td>
 				<?php
-				if ($asset->writeAccess('attributes')) {
-					echo "<td class=\"sq-backend-table-header\">Delete?</td>";
+				if ($write_access) {
+					?><td class="sq-backend-table-header" style="width: 200px;">Delete ?</td><?php
 				}
 				?>
 			</tr>
 			<?php
-			foreach (array_values($fields) as $field_name => $field_data) {
-				echo "<tr>";
-				if ($asset->writeAccess('attributes')) {
-					?>
-					<tr>
-						<td class="sq-backend-data"><?php text_box($prefix.'_fields[' .$i. '][name]', $field_data['name'])?></td>
-						<td class="sq-backend-data"><?php combo_box($prefix.'_fields[' .$i .'][type]', $query_types, false, $field_data['type'])?></td>
-						<td class="sq-backend-data"><?php $this->paintFieldParameters($asset, $prefix."_fields[$i]", $field_data)?></td>
-						<td class="sq-backend-data"><?php check_box($prefix.'_deleted_fields['. $i. ']') ?></td>
-					</tr>
+			foreach ($fields as $field_name => $field_data) {
+				if ($field_data['type'] != 'include_all' && $field_data['type'] != 'exclude') continue;
+				?>
+				<tr>
+					<td class="sq-backend-data" style="padding: 4px;">
+						<?php
+							if ($write_access) text_box($prefix.'_fields['.$i.'][name]', $field_name);
+							else echo $field_name;
+						?>
+					</td>
+					<td class="sq-backend-data"><?php echo $query_types[$field_data['type']] ?></td>
 					<?php
-				} else {
+					if ($write_access) {
+						?>
+						<td class="sq-backend-data">
+							<?php
+								hidden_field($prefix.'_fields['.$i.'][type]', $field_data['type']);
+								check_box($prefix.'_deleted_fields['.$i.']')
+							?>
+						</td>
+						<?php
+					}
 					?>
-					<tr>
-						<td class="sq-backend-data"><?php echo $field_data['name'] ?></td>
-						<td class="sq-backend-data"><?php echo $query_types[$field_data['type']] ?></td>
-						<td class="sq-backend-data"><?php $this->paintFieldParameters($asset, $prefix."_fields[$i]", $field_data)?></td>
-					</tr>
-					<?php
-				}
-				echo "</li>";
+				</tr>
+				<?php
 				$i++;
-			}
+			}//end foreach field
+			?>
+		</table>
+		<?php
+	
+		$o->closeField();
+		$o->closeSection();
+		$o->openSection('Attribute Search Fields');
+		$o->openField('');
+
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<td class="sq-backend-table-header" style="width: 200px;">Name</td>
+				<td class="sq-backend-table-header">Asset Type</td>
+				<td class="sq-backend-table-header">Attribute</td>
+				<?php
+				if ($write_access) {
+					?><td class="sq-backend-table-header" style="width: 200px;">Delete ?</td><?php
+				}
+				?>
+			</tr>
+			<?php
+			foreach ($fields as $field_name => $field_data) {
+				if ($field_data['type'] != 'asset_attrib') continue;
+				?>
+				<tr>
+					<td class="sq-backend-data" style="padding: 4px;">
+						<?php
+							if ($write_access) text_box($prefix.'_fields['.$i.'][name]', $field_name);
+							else echo $field_name;
+						?>
+					</td>
+					<td class="sq-backend-data">
+						<?php
+						if (!isset($field_data['params'])) $field_data['params'] = Array();
+						$search_types = $asset->attr('search_types');
+						$search_type = array_get_index($field_data['params'], 'asset_type', '0');
+		
+						if (!empty($search_types)) {
+							if ($write_access) {
+								$options = Array('' => '- type -');
+								foreach ($search_types as $type) $options[$type] = $type;
+								combo_box($prefix.'_fields['.$i.'][params][asset_type]', $options, false, $search_type);
+							} else {
+								echo $search_type;
+							}
+						}
+						?>
+					</td>
+					<td>
+						<?php
+						// printing out attribute selection combo box
+						if (!isset($field_data['params']['attrid']) || empty($search_type)) {
+							$selected_attr = '';
+						} else {
+							$selected_attr = $field_data['params']['attrid'];
+						}
+		
+						if (!empty($search_type)) {
+							
+							$asset_type_attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($search_type, Array('attributeid', 'name'));
+		
+							if ($write_access) {
+								$type_attrs = Array('' => '- attribute -');
+								foreach ($asset_type_attrs as $attr_id => $attr_name) {
+									$type_attrs[$attr_id] = $attr_name;
+								}
+								combo_box($prefix.'_fields['.$i.'][params][attrid]', $type_attrs, false, $selected_attr);
+							} else {
+								echo $asset_type_attrs[$selected_attr];
+							}
+						}
+						?>
+					</td>
+					<?php
+					if ($write_access) {
+						?>
+						<td class="sq-backend-data">
+							<?php
+								hidden_field($prefix.'_fields['.$i.'][type]', $field_data['type']);
+								check_box($prefix.'_deleted_fields['.$i.']')
+							?>
+						</td>
+						<?php
+					}
+					?>
+				</tr>
+				<?php
+				$i++;
+			}//end foreach fields
+			?>
+		</table>
+		<?php
+
+
+		$o->closeField();
+		$o->closeSection();
+		$o->openSection('Asset Date Search Fields');
+		$o->openField('');
+
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<td class="sq-backend-table-header" style="width: 200px;">Name</td>
+				<td class="sq-backend-table-header">Date Type</td>
+				<?php
+				if ($write_access) {
+					?><td class="sq-backend-table-header" style="width: 200px;">Delete ?</td><?php
+				}
+				?>
+			</tr>
+			<?php
+			foreach ($fields as $field_name => $field_data) {
+				if ($field_data['type'] != 'asset_date') continue;
+				?>
+				<tr>
+					<td class="sq-backend-data" style="padding: 4px;">
+						<?php
+							if ($write_access) text_box($prefix.'_fields['.$i.'][name]', $field_name);
+							else echo $field_name;
+						?>
+					</td>
+					<td class="sq-backend-data">
+						<?php
+						if (!isset($field_data['params'])) $field_data['params'] = Array();
+						$date_types = Array(''          => '-- select date --',
+											'created'   => 'Created',
+											'updated'   => 'Updated',
+											'published' => 'Published',
+											);
+						$date_type = array_get_index($field_data['params'], 'date_type', '');
+		
+						if ($write_access) {
+							combo_box($prefix.'_fields['.$i.'][params][date_type]', $date_types, false, $date_type);
+						} else {
+							echo $date_types[$date_type];
+						}
+						?>
+					</td>
+					<?php
+					if ($write_access) {
+						?>
+						<td class="sq-backend-data">
+							<?php
+								hidden_field($prefix.'_fields['.$i.'][type]', $field_data['type']);
+								check_box($prefix.'_deleted_fields['.$i.']')
+							?>
+						</td>
+						<?php
+					}
+					?>
+				</tr>
+				<?php
+				$i++;
+			}//end foreach fields
+			?>
+		</table>
+		<?php
+	
+		$o->closeField();
+		$o->closeSection();
+		$o->openSection('Metadata Search Fields');
+		$o->openField('');
+
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<td class="sq-backend-table-header" style="width: 200px;">Name</td>
+				<td class="sq-backend-table-header">Metadata Field</td>
+				<?php
+				if ($write_access) {
+					?><td class="sq-backend-table-header" style="width: 200px;">Delete ?</td><?php
+				}
+				?>
+			</tr>
+			<?php
+			foreach ($fields as $field_name => $field_data) {
+				if ($field_data['type'] != 'metadata') continue;
+				?>
+				<tr>
+					<td class="sq-backend-data" style="padding: 4px;">
+						<?php
+							if ($write_access) text_box($prefix.'_fields['.$i.'][name]', $field_name);
+							else echo $field_name;
+						?>
+					</td>
+					<td class="sq-backend-data">
+						<?php
+						if (!isset($field_data['params'])) $field_data['params'] = Array();
+						$metadata_field = array_get_index($field_data['params'], 'assetid', '0');
+
+						if ($write_access) {
+							asset_finder($prefix.'_fields['.$i.'][params][metadata_field]', $metadata_field, Array('metadata_field' => 'D'));
+						} else {
+							if ($metadata_field > 0) {
+								$field_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field);
+								if (!is_null($metadata_field)) echo $field_asset->name.' #'.$field_asset->id;
+								else echo 'No metadata field specified';
+							} else {
+								echo 'No metadata field specified';
+							}
+						}
+						?>
+					</td>
+					<?php
+					if ($write_access) {
+						?>
+						<td class="sq-backend-data">
+							<?php
+								hidden_field($prefix.'_fields['.$i.'][type]', $field_data['type']);
+								check_box($prefix.'_deleted_fields['.$i.']')
+							?>
+						</td>
+						<?php
+					}
+					?>
+				</tr>
+				<?php
+				$i++;
+			}//end foreach fields
 			?>
 		</table>
 		<br />
 		<?php
 
+		$o->closeField();
+		$o->closeSection();
 		if ($asset->writeAccess('attributes')) {
 			$o->closeField();
 			$i++;
 			$o->openField('Add Field');
 				echo 'Name: ';
-				text_box($prefix."_fields[$i][name]", '', 15);
+				text_box($prefix.'_fields['.$i.'][name]', '', 15);
 				echo ' Type: ';
-				combo_box($prefix.'_fields['. $i .'][type]', $query_types, false, 'include_all');
-			// field close by asset_edit_interface
+				combo_box($prefix.'_fields['.$i.'][type]', $query_types, false, 'include_all');
+			// field closed by asset_edit_interface
 		}
 
 		return true;
@@ -312,30 +540,26 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processFields(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) {
-			return false;
-		}
-		$changed = false;
-		$fields = $asset->attr('fields');
+		if (!$asset->writeAccess('attributes')) return false;
 
-		if (is_scalar($fields))
-			$fields = unserialize($fields);
-
-		$fields_post =& $_POST[$prefix.'_fields'];
-
-		$deleted_fields =& $_POST[$prefix.'_deleted_fields'];
+		$fields_post = array_get_index($_POST, $prefix.'_fields', Array());
+		$deleted_fields = array_get_index($_POST, $prefix.'_deleted_fields', Array());
 
 		$fields = Array();
-		//return $asset->setAttrValue('fields', $fields);
-
-		if(isset($fields_post) && count($fields_post) > 0) {
+		if (!empty($fields_post)) {
 			foreach ($fields_post as $i => $field_data) {
-				if (isset($deleted_fields[$i]))
-					continue;
-				if($field_data['name'] == '')
-					continue;
-				if (isset($fields[$field_data['name']]))
-					continue;
+				if (isset($deleted_fields[$i])) continue;          // remove deleted fields
+				if ($field_data['name'] == '') continue;           // remove fields with no name
+				if (isset($fields[$field_data['name']])) continue; // ensure no duplicate names
+				
+				// metadata needs to rework the params array
+				if ($field_data['type'] == 'metadata') {
+					$fieldid = 0;
+					if (isset($field_data['params'])) {
+						$fieldid = array_get_index($field_data['params']['metadata_field'], 'assetid', '');
+					}
+					$field_data['params'] = Array('assetid' => $fieldid);
+				}
 
 				$fields[$field_data['name']] = $field_data;
 			}
@@ -489,49 +713,32 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 
 		foreach ($fields as $field) {
 
-		  if ($field['type'] == 'asset_attrib' && isset($field['params']['type_attr'])) {
+			if ($field['type'] == 'asset_attrib') {
+	
+				if (!isset($field['params']['attrid'])) continue;
+				$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($field['params']['attrid']);
+				if (is_null($attribute)) continue;
+				
+				// if this is a boolean or selection field, we want to make sure blank options are allowed
+				if ($attribute->type() == 'boolean' || $attribute->type() == 'selection') {
+					$attribute->_params['allow_empty'] = true;
+				}
+	
+				if (!empty($search_styles) && isset($search_styles[$attribute->id])) {
+					$attribute->_edit_params = $search_styles[$attribute->id];
+				}
+	
+				echo '<p>';
+				$attribute->paintEditParams($prefix.'_'.$attribute->id, $write_access);
+				echo '</p>';
 
-			// [0] - name, [1] - type, [2] - id
-			$attr_parts = explode("__", $field['params']['type_attr']);
-			if (empty($attr_parts[1]) || empty($attr_parts[2])) continue;
+			}//end if asset attribute
 
-			require_once SQ_ATTRIBUTES_PATH.'/'.$attr_parts[1].'/'.$attr_parts[1].'.inc';
-			$attr_class = 'Asset_Attribute_'.$attr_parts[1];
-			$attribute = new $attr_class($attr_parts[2], null);
-
-			if (!empty($search_styles) && isset($search_styles[$attribute->name])) {
-				$attribute->_edit_params = $search_styles[$attribute->name];
-			}
-
-			echo '<p>';
-			$attribute->paintEditParams($prefix, $write_access);
-			if (in_array(get_class($attribute), Array('asset_attribute_boolean', 'asset_attribute_selection'))) {
-				?>
-				<br />
-				<table class="sq-backend-table">
-					<tr>
-						<td class="sq-backend-section-heading" style="width: 100px;">Not Selected Text</td>	
-						<td class="sq-backend-table-cell">
-							<?php
-							$current_value = (isset($search_styles[$attribute->name]['search_not_selected_text'])) ? $search_styles[$attribute->name]['search_not_selected_text'] : '';
-							if ($write_access) {
-								text_box($prefix.'_'.$attribute->name.'_not_selected', $current_value);
-							} else {
-								echo $current_value;
-							}
-							?>
-						</td>
-					</tr>
-				</table>
-				<?php
-			}
-			echo '<br /></p>';
-		  }
-		}
+		}//end foreach fields
 
 		return $write_access;
 
-	}//end paintStyles
+	}//end paintStyles()
 
 
 	/**
@@ -550,30 +757,16 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('attributes')) return false;
 
-		$search_styles = Array(); // assembling the new styles array
+		$search_styles = Array();
 
 		$fields = $asset->attr('fields');
 
 		foreach ($fields as $fieldname => $field) {
-		  if ($field['type'] == 'asset_attrib') {
-
-			if (empty($field['params']['type_attr'])) continue;
-
-			// [0] - name, [1] - type, [2] - id
-			$attr_parts = explode("__", $field['params']['type_attr']);
-			require_once SQ_ATTRIBUTES_PATH.'/'.$attr_parts[1].'/'.$attr_parts[1].'.inc';
-			$attr_class = 'Asset_Attribute_'.$attr_parts[1]; // attr name
-			$attribute = new $attr_class($attr_parts[2], null); // attr id
-
-			// processing attrs
-			$result = $attribute->processEditParams($prefix);
-			if (isset($_POST[$prefix.'_'.$attribute->name.'_not_selected'])) {
-				$result[$attribute->name]['search_not_selected_text'] = trim($_POST[$prefix.'_'.$attribute->name.'_not_selected']);
+			if ($field['type'] == 'asset_attrib') {
+				if (empty($field['params']['attrid'])) continue;
+				$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($field['params']['attrid']);
+				$search_styles[$attribute->id] = $attribute->processEditParams($prefix.'_'.$attribute->id);
 			}
-
-			// add result to the array which will be saved as $search_styles
-			$search_styles = array_merge($search_styles, $result);
-		  }
 		}
 
 		$asset->setAttrValue('search_styles', $search_styles);
@@ -847,115 +1040,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 	}//end processCustomiseCategory()
 
 
-	/**
-	* Paints the interface for the fields' parameters.
-	*
-	* @param object Search_Page			&$asset			the search page asset
-	* @param string						$field_prefix	The field prefix
-	* @param string						$field_data		field data passed from the caller
-	*
-	* @return boolean
-	* @access public
-	*
-	*/
-	function paintFieldParameters(&$asset, $field_prefix, $field_data)
-	{
-		switch ($field_data['type']) {
-
-			case 'metadata':
-				if (!isset($field_data['params']['metadata_field']['assetid'])) {
-					$metadata_field = 0;
-				} else {
-					$metadata_field = $field_data['params']['metadata_field']['assetid'];
-				}
-				if ($asset->writeAccess('attributes')) {
-					asset_finder($field_prefix. '[params][metadata_field]', $metadata_field, Array('metadata_field' => 'D'));
-				} else {
-					if ($metadata_field > 0) {
-						$field_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field);
-						echo $field_asset->name . ' #'. $field_asset->id;
-					} else {
-						echo 'No metadata field specified.';
-					}
-				}
-			break;
-
-			case 'asset_attrib':
-				// printing out attribute selection combo box
-				if (!isset($field_data['params']['searchtype'])) {
-					$search_type = '';
-				} else {
-					$search_type = $field_data['params']['searchtype'];
-				}
-
-				// getting array of searchable asset types from page attribute
-				$search_types = $asset->attr('search_types');
-
-				// getting the values for available types list
-				$avail_asset_types = & $GLOBALS['SQ_SYSTEM']->am->getTypeList();
-				$asset_types = Array();
-				foreach ($avail_asset_types as $type_key => $type_val) {
-					if (in_array($type_val, $search_types)) { // adding only searchable attributes
-						$asset_types[$type_val] = $type_val; // creating assoc array out of normal one
-					}
-				}
-
-				// displaying combo boxes...
-				$write_access = $asset->writeAccess('attributes'); 
-
-				// not printing the combo box unless there is something to show
-				if (!empty($asset_types)) {
-					if ($write_access) {
-						combo_box($field_prefix.'[params][searchtype]', $asset_types, false, $search_type);
-					} else {
-						echo $search_type;
-					}
-				}
-
-				// printing out attribute selection combo box
-				if (!isset($field_data['params']['type_attr']) || empty($search_type)) {
-					$selected_attr = '';
-				} else {
-					$selected_attr = $field_data['params']['type_attr'];
-				}
-
-				// not printing the combo box unless there is something to show
-				if (!empty($search_type)) {
-
-					if ($write_access) {
-						echo ' <b>Attr:</b> ';
-						
-						$asset_type_attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($search_type, Array('attributeid', 'name', 'type'));
-
-						$type_attrs = Array();
 	
-						$type_attrs[''] = '- attribute -';
-						foreach ($asset_type_attrs as $attr_id => $attr_params) {
-							// we could use $attr_type to check if it's wanted here
-							$attr_name = $attr_params['name'];
-							$attr_type = $attr_params['type'];
-							$attr_ind = $attr_name . "__" . $attr_type . "__" . $attr_id;
-							$type_attrs[$attr_ind] = $attr_name;
-						}
-	
-						combo_box($field_prefix.'[params][type_attr]', $type_attrs, false, $selected_attr);
-					} else {
-						echo ' - ';
-
-						// [0] - name, [1] - type, [2] - id
-						$attr_parts = explode('__', $selected_attr);
-						if (!empty($attr_parts[0]) && !empty($attr_parts[1])) {
-							echo $attr_parts[0].' ('.$attr_parts[1].')';
-						} else {
-							echo 'Undefined attribute';
-						}
-					}
-				}
-			break;
-
-		}//end switch
-
-	}//end paintFieldParameters()
 	
 	
 	/**
