@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.20 2004/08/03 06:54:42 lwright Exp $
+* $Id: page_asset_builder.inc,v 1.21 2004/08/10 02:07:37 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -676,12 +676,12 @@ class Page_Asset_Builder extends Page
 				?></a></div><?php
 				$i++;
 			}
+			hidden_field('ASSET_BUILDER_CREATE_TYPE', reset($create_types));
 			$this->_replacements['create_form'] = ob_get_contents().$this->_replacements['create_form'];
 			ob_end_clean();
 		}
 				
 		ob_start();
-			hidden_field('ASSET_BUILDER_CREATE_TYPE', reset($create_types));
 			?><input type="hidden" name="asset_action" value="create"><?php
 			$create_locations = $this->attr('create_location_optional');
 			if (empty($create_locations)) {
