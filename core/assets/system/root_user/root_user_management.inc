@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: root_user_management.inc,v 1.10 2003/11/26 00:51:02 gsherwood Exp $
+* $Id: root_user_management.inc,v 1.11 2004/02/10 03:56:07 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
-require_once SQ_INCLUDE_PATH.'/asset_management.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/users/user/user_management.inc';
 
 /**
 * Root_User_Management
@@ -35,8 +35,9 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Root_User_Management extends Asset_Management
+class Root_User_Management extends User_Management
 {
+
 
 	/**
 	* Constructor
@@ -44,9 +45,11 @@ class Root_User_Management extends Asset_Management
 	*/
 	function Root_User_Management(&$pm)
 	{
-		$this->Asset_Management($pm);
+		$this->User_Management($pm);
 
 	}//end constructor
 
+
 }//end class
+
 ?>
