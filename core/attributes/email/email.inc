@@ -87,6 +87,7 @@ class Asset_Attribute_Email extends Asset_Attribute_Text
 	function validateValue($value)
 	{
 		$value = trim($value);
+		if ($value == '') return true;
 		$new_value = (string)$value;
 		if ($new_value != $value) return false;
 		if (!valid_email($value)) return false;
