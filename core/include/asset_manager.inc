@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.218 2004/06/10 01:14:43 lwright Exp $
+* $Id: asset_manager.inc,v 1.219 2004/06/16 23:54:37 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3680,16 +3680,18 @@ class Asset_Manager extends MySource_Object
 
 		// if we dont have an userid, we are deleting public access
 		if ($permission != SQ_PERMISSION_WORKFLOW && !empty($userid)) {
+			// LTW[17-06-2004] - if the permission is in the database then we know that it must have
+			// been set up correctly, and if an user or LDAP user's asset has been deleted then we
+			// know we want it out. So we'll use getAssetInfo() instead which does not throw an
+			// assertion, just instead just gives an empty array
+			$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), 'user', false);
+
 			// check that the passed userid is a user or user_group
-			$user = &$this->getAsset($userid, '', true);
-			if (!$user->id) {
-				trigger_error('Cannot delete permission for an asset that does not exist', E_USER_WARNING);
-				return false;
-			} else if (!is_a($user, 'user') && !is_a($user, 'user_group')) {
-				trigger_error('Cannot delete permission for asset type "'.$user->type().'", not a user or user group', E_USER_WARNING);
-				return false;
+			if (empty($user_info)) {
+				$user_name = 'Unknown User';
+			} else {
+				$user_name = $user_info[$userid]['name'];
 			}
-			$user_name = $user->name;
 		} else if ($permission == SQ_PERMISSION_WORKFLOW) {
 			$user_name = 'Asset Workflow';
 		} else {
