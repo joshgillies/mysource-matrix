@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.58 2005/03/16 23:08:48 ndvries Exp $
+* $Id: hipo_job.inc,v 1.59 2005/03/17 06:15:21 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -1085,7 +1085,7 @@ class HIPO_Job extends MySource_Object
 						require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/'.$job_type.'.inc';
 					}
 					else {
-						require_once $hipo_vars.'/'.$job_type.'.inc';
+						require_once $hipo_vars['job_dir'].'/'.$job_type.'.inc';
 					}
 
 					$init_hipo = new $job_type();
@@ -1095,7 +1095,7 @@ class HIPO_Job extends MySource_Object
 						$init_hipo->setOption($k, $v);
 					}
 					foreach ($hipo_vars as $k => $v) {
-						$hipo_vars->setHipoVar($k, $v);
+						$init_hipo->setHipoVar($k, $v);
 					}
 
 					$code_name = $init_hipo->initialise($this->source_code_name);
