@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.18 2004/11/08 22:55:46 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.19 2004/11/25 00:32:31 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -263,8 +263,8 @@ class LDAP_Bridge extends Bridge
 								 'minor_type_code' => $type,
 								 'value'           => '',
 								 'link_type'       => SQ_LINK_TYPE_1,
-								 'dependant'       => false,
-								 'exclusive'       => false,
+								 'is_dependant'    => false,
+								 'is_exclusive'    => false,
 								 'sort_order'      => $i,
 								);
 				$i++;
@@ -317,14 +317,29 @@ class LDAP_Bridge extends Bridge
 			// the attribute mappings to the LDAP schemas
 			$attrs = $this->attr('attributes');
 
-			$groups = $data[$attrs['mo']];
-			if (!$groups['count']) {
-				$ldap->disconnect();
-				return Array();
+			$mo_groups = Array();
+			if (isset($data[$attrs['mo']])) {
+				$mo_groups = $data[$attrs['mo']];
+				if (!$mo_groups['count']) {
+					$mo_groups = Array();
+				}
+				unset($mo_groups['count']);
 			}
-			unset($groups['count']);
 
-			foreach ($groups as $group_name) {
+			// also add in groups based on our DN
+			$ou_groups = Array();
+			$matches = Array();
+			$reg_expression = '|ou=([^,]+),(.*)|';
+			$reg_string = $assetid;
+			while ($reg_string != '') {
+				preg_match_all($reg_expression, $reg_string, $matches);
+				if (empty($matches[1])) break;
+				$reg_string = array_shift($matches[2]);
+				$ou_groups[array_shift($matches[1])] = $reg_string;
+			}
+
+
+			foreach ($mo_groups as $group_name) {
 				switch ($this->attr('system_type')) {
 					case 'openldap' :
 						$result = $ldap->search($this->attr('root_dn'),'(&(|(objectClass=organizationalUnit)(objectClass=groupOfNames))('.$attrs['ou'].'='.$group_name.'))');
@@ -337,9 +352,15 @@ class LDAP_Bridge extends Bridge
 				if ($group_data['count'] > 0) $parents[] = $this->id.':'.$group_data[0]['dn'];
 			}
 
-			$ldap->disconnect();
+			foreach ($ou_groups as $group_name => $group_dn) {
+				$result = $ldap->search($attrs['ou'].'='.$group_name.','.$group_dn,'(&(objectClass=organizationalUnit)('.$attrs['ou'].'='.$group_name.'))');
+				$group_data = $ldap->getEntries($result);
+				if ($group_data['count'] > 0) $parents[] = $this->id.':'.$group_data[0]['dn'];
+			}
 
+			$ldap->disconnect();
 			$this->_tmp['getParents'][$assetid] = $parents;
+
 		}//end if not cached
 
 		return $this->_tmp['getParents'][$assetid];
