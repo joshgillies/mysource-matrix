@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_design_linking.php,v 1.1 2004/12/24 03:02:00 gsherwood Exp $
+* $Id: upgrade_design_linking.php,v 1.2 2005/02/16 09:11:57 brobertson Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Convert TYPE_3 linked designs to NOTICE
 *
 * @author  Greg Sherwood <greg@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -61,26 +61,26 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 // first update the sq_ast_lnk table
 printName('Converting asset links');
-$sql = 'UPDATE sq_ast_lnk SET link_type = 8
+$sql = 'UPDATE sq_ast_lnk SET link_type = '.SQ_LINK_NOTICE.'
 		WHERE minorid IN (
 						  SELECT a.assetid FROM sq_ast a INNER JOIN sq_ast_lnk l ON a.assetid = l.minorid
-						  WHERE l.link_type = 4
+						  WHERE l.link_type = '.SQ_LINK_TYPE_3.'
 						    AND a.type_code IN (\'design\', \'design_customisation\')
 						  )
-		  AND link_type = 4';
+		  AND link_type = '.SQ_LINK_TYPE_3;
 $result = $db->query($sql);
 assert_valid_db_result($result);
 printUpdateStatus('OK');
 
 // now do the rollback version of the table
 printName('Converting asset rollback links');
-$sql = 'UPDATE sq_rb_ast_lnk SET link_type = 8
+$sql = 'UPDATE sq_rb_ast_lnk SET link_type = '.SQ_LINK_NOTICE.'
 		WHERE minorid IN (
 						  SELECT a.assetid FROM sq_rb_ast a INNER JOIN sq_rb_ast_lnk l ON a.assetid = l.minorid
-						  WHERE l.link_type = 4
+						  WHERE l.link_type = '.SQ_LINK_TYPE_3.'
 						    AND a.type_code IN (\'design\', \'design_customisation\')
 						  )
-		  AND link_type = 4';
+		  AND link_type = '.SQ_LINK_TYPE_3;
 $result = $db->query($sql);
 assert_valid_db_result($result);
 printUpdateStatus('OK');
@@ -90,7 +90,7 @@ printName('Converting link tree');
 $sql = 'SELECT DISTINCT t.treeid
 		FROM sq_ast_lnk l INNER JOIN sq_ast a ON l.minorid = a.assetid
 		  INNER JOIN sq_ast_lnk_tree t ON t.linkid = l.linkid
-		WHERE l.link_type = 8
+		WHERE l.link_type = '.SQ_LINK_NOTICE.'
 		  AND a.type_code IN (\'design\', \'design_customisation\')';
 $treeids = $db->getCol($sql);
 assert_valid_db_result($result);
@@ -111,7 +111,7 @@ printName('Converting rollback link tree');
 $sql = 'SELECT DISTINCT t.treeid
 		FROM sq_rb_ast_lnk l INNER JOIN sq_rb_ast a ON l.minorid = a.assetid
 		  INNER JOIN sq_rb_ast_lnk_tree t ON t.linkid = l.linkid
-		WHERE l.link_type = 8
+		WHERE l.link_type = '.SQ_LINK_NOTICE.'
 		  AND a.type_code IN (\'design\', \'design_customisation\')';
 $treeids = $db->getCol($sql);
 assert_valid_db_result($result);
