@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.165 2003/10/16 07:35:10 brobertson Exp $
+* $Id: asset_edit_interface.inc,v 1.166 2003/10/17 01:31:43 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -365,11 +365,13 @@ class Asset_Edit_Interface extends MySource_Object
 
 		// set correct page headings based on what we are doing
 		if (!$creating) {
-			$page_heading = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name').
-							' - '.$owner->name.' (version '.$owner->version.')';
+			$page_heading = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name')
+								.' - '.$owner->name.' (version '.$owner->version.')';
 		} else {
 			$page_heading = 'Create new '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name');
 		}
+
+		$o->setHeading($page_heading, '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($this->_type_code).'", "16", "16", "");</script>');
 
 		// set a preview url to use
 		$o->addHiddenField('sq_preview_url', $owner->getUrl());
@@ -377,7 +379,7 @@ class Asset_Edit_Interface extends MySource_Object
 		// check the active screen for special system defined static screens
 		$file = null;
 		if (isset($this->_edit_fns->static_screens[$active_screen])) {
-			$o->setHeading($page_heading);
+			$o->setSubHeading($this->_edit_fns->static_screens[$active_screen]['name']);
 
 			// if we are not creating, paint the system defined bit of this tab
 			if (!$creating) {
@@ -403,7 +405,8 @@ class Asset_Edit_Interface extends MySource_Object
 
 			$force_unlock_on_commit = $this->_screens[$active_screen]['force_unlock'];
 
-			$o->setHeading($page_heading.' - '.$this->_screens[$active_screen]['name'], $this->_screens[$active_screen]['icon']);
+			$o->setSubHeading($this->_screens[$active_screen]['name']);
+
 		}// end if
 
 		if ($file) {
