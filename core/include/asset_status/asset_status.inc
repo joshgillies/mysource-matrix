@@ -14,6 +14,12 @@ class Asset_Status extends Resolve_Object
 {
 
 	/**
+	* The actual status id that this status represents
+	* @var int
+	*/
+	var $status_tag = 0;
+
+	/**
 	* The asset who we belong to
 	* @var object Asset
 	*/
@@ -79,6 +85,9 @@ class Asset_Status extends Resolve_Object
 	{
 		// we need write access to do any changes
 		if (!$this->owner->readAccess()) return false;
+
+		// if the new status is the same as our status, we can handle this
+		if ($new_status == $this->status_tag) return true;
 
 		// make sure we can actually set this status
 		$valid_statii = $this->getAvailableStatii();

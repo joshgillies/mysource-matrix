@@ -25,6 +25,7 @@ class Asset_Status_Archived extends Asset_Status
 	function Asset_Status_Archived(&$owner)
 	{
 		$this->Asset_Status($owner);
+		$this->status_tag = SQ_STATUS_ARCHIVED;
 
 	}//end constructor
 

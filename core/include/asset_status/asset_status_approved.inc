@@ -26,6 +26,7 @@ class Asset_Status_Approved extends Asset_Status
 	function Asset_Status_Approved(&$owner)
 	{
 		$this->Asset_Status($owner);
+		$this->status_tag = SQ_STATUS_APPROVED;
 
 	}//end constructor
 

@@ -29,6 +29,7 @@ class Asset_Status_Editing extends Asset_Status
 	function Asset_Status_Editing(&$owner)
 	{
 		Asset_Status::Asset_Status($owner);
+		$this->status_tag = SQ_STATUS_EDITING;
 
 	}//end constructor
 

@@ -31,6 +31,7 @@ class Asset_Status_Live_Approval extends Asset_Status
 	function Asset_Status_Live_Approval(&$owner)
 	{
 		$this->Asset_Status($owner);
+		$this->status_tag = SQ_STATUS_LIVE_APPROVAL;
 
 	}//end constructor
 

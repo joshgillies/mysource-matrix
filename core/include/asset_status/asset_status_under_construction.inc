@@ -29,6 +29,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 	function Asset_Status_Under_Construction(&$owner)
 	{
 		$this->Asset_Status($owner);
+		$this->status_tag = SQ_STATUS_UNDER_CONSTRUCTION;
 
 	}//end constructor
 

@@ -28,6 +28,7 @@ class Asset_Status_Live extends Asset_Status
 	function Asset_Status_Live(&$owner)
 	{
 		$this->Asset_Status($owner);
+		$this->status_tag = SQ_STATUS_LIVE;
 
 	}//end constructor
 
