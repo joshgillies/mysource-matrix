@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: maps.inc,v 1.12 2005/02/04 03:18:50 mnyeholt Exp $
+* $Id: maps.inc,v 1.13 2005/02/04 04:31:31 mnyeholt Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define('SQ_MAPS_INSTALLED'  , 'I');
 *    Looks aftet the automated patching of the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -229,12 +229,28 @@ class Maps extends MySource_Object
 								echo 'There are no patches available to be installed';
 							} else {
 								?>
+								<script language="javascript" type="text/javascript">
+								
+									/**
+									* Confirm whether to install a patch or not. If not, 
+									* make sure the checkbox is deselected
+									* @param 	object 	box	The checkbox to deselect
+									*/
+									function confirm_uploaded_patch_delete(box)
+									{
+										var warning='This will delete all files associated with this patch.';
+										
+										var res = confirm(warning);
+										
+										box.checked = res;
+									}
+								</script>
 								<table class="sq-backend-table">
 									<tr>
 										<td class="sq-backend-table-header">Description</td>
 										<td class="sq-backend-table-header" width="120">Released</td>
-										<td class="sq-backend-table-header" width="50" align="center">Delete</td>
 										<td class="sq-backend-table-header" width="50" align="center">Install</td>
+										<td class="sq-backend-table-header" width="50" align="center">Delete</td>
 									</tr>
 									<?php
 									foreach ($new_patches as $patchid => $patch_info) {
@@ -245,10 +261,10 @@ class Maps extends MySource_Object
 												<?php echo $patch_info['released']; ?>
 											</td>
 											<td class="sq-backend-table-cell" nowrap="nowrap" align="center">
-												<?php check_box('maps_delete_patch['.$patchid.']'); ?>
+												<?php check_box('maps_install_patch['.$patchid.']'); ?>
 											</td>
 											<td class="sq-backend-table-cell" nowrap="nowrap" align="center">
-												<?php check_box('maps_install_patch['.$patchid.']'); ?>
+												<?php check_box('maps_delete_patch['.$patchid.']', 1, false, 'confirm_uploaded_patch_delete(this)'); ?>
 											</td>
 										</tr>
 										<?php
@@ -278,11 +294,32 @@ class Maps extends MySource_Object
 								echo 'There are no patches currently installed';
 							} else {
 								?>
+								<script language="javascript" type="text/javascript">
+								
+									/**
+									* Confirm whether to install a patch or not. If not, 
+									* make sure the checkbox is deselected
+									* @param 	object 	box	The checkbox to deselect
+									*/
+									function confirm_installed_patch_delete(box)
+									{
+										var warning='This will delete all files associated with this patch, '+
+													'but not the files that were installed by this patch. '+
+													'You must uninstall the patch to remove these files. '+
+													'Once deleted, this patch cannot be reinstalled without '+
+													'reuploading the patch files. Are you sure?';
+										
+										var res = confirm(warning);
+										
+										box.checked = res;
+									}
+								</script>
 								<table class="sq-backend-table">
 									<tr>
 										<td class="sq-backend-table-header">Description</td>
 										<td class="sq-backend-table-header" width="120">Install Date</td>
 										<td class="sq-backend-table-header" width="50" align="center">Uninstall</td>
+										<td class="sq-backend-table-header" width="50" align="center">Delete</td>
 									</tr>
 									<?php
 									foreach ($installed_patches as $patchid => $patch_info) {
@@ -297,6 +334,9 @@ class Maps extends MySource_Object
 													if ($patch_info['reversible']) check_box('maps_uninstall_patch['.$patchid.']');
 													else echo 'No';
 												?>
+											</td>
+											<td class="sq-backend-table-cell" nowrap="nowrap" align="center">
+												<?php check_box('maps_delete_installed_patch['.$patchid.']', 1, false, 'confirm_installed_patch_delete(this)') ?>
 											</td>
 										</tr>
 										<?php
@@ -376,6 +416,18 @@ class Maps extends MySource_Object
 			}
 		}
 
+		// retire the patch files for installed patches.
+		if (isset($_POST['maps_delete_installed_patch'])) {
+			foreach ($_POST['maps_delete_installed_patch'] as $patchid => $on) {
+				if ($on !== '1') continue;
+				if ($this->_retirePatch($patchid)) {
+					$deleted[$patchid] = 1;
+				} else {
+					trigger_error("Retiring of patch $patchid failed.", E_USER_WARNING);
+				}
+			}
+		}
+		
 		// uninstall patches
 		if (isset($_POST['maps_uninstall_patch'])) {
 			foreach ($_POST['maps_uninstall_patch'] as $patchid => $on) {
@@ -534,14 +586,15 @@ class Maps extends MySource_Object
 
 
 	/**
-	* Deletes a MAPs patch from the server
+	* Deletes an uploaded MAPs patch from the data/private/maps/available_patches
+	* directory.
 	*
 	* Checks if the patch is installed by querying the db. 
 	* If not, will delete its directory from the data/private/maps directory.
 	*
-	* @param 	int			$patchid	The id of the patch to be deleted.
+	* @param 	string		$patchid	The id of the patch to be deleted.
 	* @access 	private
-	* @return 	void
+	* @return 	boolean 			Whether deleting was successful.
 	*/
 	function _deletePatch($patchid)
 	{
@@ -551,8 +604,13 @@ class Maps extends MySource_Object
 				FROM ".SQ_TABLE_PREFIX."patches WHERE patchid=".$db->quote($patchid);
 		$db_patches = $db->getOne($sql);
 		
+		if (DB::isError($db_patches)) {
+			trigger_error($db_patches->getMessage().'<br/>'.$db_patches->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+		
 		if (strlen($db_patches)) {
-			trigger_error('You cannont delete an installed patch', E_USER_WARNING);
+			trigger_error('You cannot delete an installed patch', E_USER_WARNING);
 			return false;
 		}
 		
@@ -561,7 +619,6 @@ class Maps extends MySource_Object
 		
 		if (!is_dir($patch_path)) {
 			trigger_error("Could not find patch path $patch_path", E_USER_WARNING);
-			return false;
 		}
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
@@ -569,10 +626,62 @@ class Maps extends MySource_Object
 		// Okay, now remove the directory
 		if (!delete_directory($patch_path)) {
 			trigger_error("Patch $patch_path could not be deleted.", E_USER_WARNING);
-			return false;
 		}
 		
 		return true;
+	}//end _deletePatch
+	
+	
+	/**
+	* Retires a patch from the system
+	*
+	* If a patch has been hangning around for several weeks, and you're never going to
+	* uninstall it, you can retire all of its associated files. The contents of the patch
+	* remains on the server, however any backups or patch files are removed, as well as
+	* any information from the database
+	*
+	* @param 	string		$patchid 	The id of the patch to delete.
+	* @return 	boolean 				Whether deleting was successful.
+	*/
+	function _retirePatch($patchid)
+	{
+		$backup_path = SQ_DATA_PATH.'/private/maps/installed_patches/'.$patchid;
+		
+		// Check if the patch is in the database.
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$sql = "SELECT patchid, installed
+				FROM ".SQ_TABLE_PREFIX."patches WHERE patchid=".$db->quote($patchid);
+		$db_patches = $db->getOne($sql);
+		
+		if (DB::isError($db_patches)) {
+			trigger_error($db_patches->getMessage().'<br/>'.$db_patches->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+		
+		
+		if (!strlen($db_patches)) {
+			trigger_error("Could not find patch $patchid in the database.", E_USER_WARNING);
+			// Just because it wasn't found, doesn't mean you shouldn't continue to delete the rest of it
+		}
+		
+		
+		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'patches WHERE patchid = '.$db->quote($patchid);
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			// dont actually die because we cant exactly abort at this point
+			// we'll sort it out later another way
+		}
+		
+		// remove the backup directory for this patch because we dont need that any more
+		require_once(SQ_FUDGE_PATH.'/general/file_system.inc');
+		if (!delete_directory($backup_path)) {
+			trigger_error('Unable to delete patch backup directory "'.$backup_path.'" - continuing', E_USER_WARNING);
+			// dont actually die because we cant exactly abort at this point
+			// we'll sort it out later another way
+		}
+				
+		return $this->_deletePatch($patchid);
 	}
 	
 	
