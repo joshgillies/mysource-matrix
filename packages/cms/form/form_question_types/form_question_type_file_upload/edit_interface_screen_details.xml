@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2004/11/09 04:16:17 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2004/11/09 22:34:17 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -64,17 +64,22 @@
 		</field>
 	    <field attribute="overwrite_rule">
 			<display_name>Overwrite Rule</display_name>
-			<note></note>
+			<note>Specify what action is to be taken if a File asset exists in the create location with the same name is uploaded</note>
 			<selection style="list" />
 		</field>
 	</section>
 	<section name="Complex Validation Rules" write_access="write:attributes">
 		<field>
+			<display_name>Note</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintFileSizeNote"   />
+				<process_function name="processFileSizeNote" />
+			</function_call>
+		</field>
+		<field>
 			<display_name>Question Rules</display_name>
-			<note>'Uploaded File Size' comparison values can be written in shorthand:&lt;br/&gt;
-				'KB' or 'K' for kilobytes&lt;br/&gt;
-				'MB' or 'M' for megabytes&lt;br/&gt;
-				'GB' or 'G' for gigabytes</note>
+			<note />
 			<function_call>
 				<paint_function   name="paintRules"   />
 				<process_function name="processRules" />
