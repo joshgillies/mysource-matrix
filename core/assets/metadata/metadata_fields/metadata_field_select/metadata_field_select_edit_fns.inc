@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.11 2004/12/06 14:38:09 brobertson Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.12 2004/12/21 17:21:09 brobertson Exp $
 *
 */
 
@@ -26,13 +26,13 @@
 require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.inc';
 
 /**
-* Metadata_Field_Text_Edit_Fns
+* Metadata_Field_Select_Edit_Fns
 *
 * Purpose
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,7 +46,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	*/
 	function Metadata_Field_Select_Edit_Fns()
 	{
-		Metadata_Field_Edit_Fns::Metadata_Field_Edit_Fns(); // calling super
+		$this->Metadata_Field_Edit_Fns();
 
 	}//end constructor
 
@@ -56,40 +56,54 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	*
 	* @param object Metadata_Field		&$asset			the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o				the outputter class
-	* @param array						$values			current metadata values set for this asset
+	* @param string						$value_str		the current value for this field in the asset (NOT $asset)
+	*													NULL means that there is no current value set
 	* @param boolean					$write_access	does the current user have write access to the asset
 	*													that we are setting metadata for (NOT THE SAME AS $asset)
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintInlineValueInterface(&$asset, &$o, $values, $write_access)
+	function paintInlineValueInterface(&$asset, &$o, $value_str, $write_access)
 	{
 		$prefix = $asset->getPrefix();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+
+		if (is_null($value_str)) {
+			$value = $asset->attr('default');
+			$value_components = $asset->attr('value_components');
+		} else {
+			$value='';
+			$value_components = $asset->attr('value_components');
+			Metadata_Field::decodeValueString($value_str, $value, $value_components);
+		}
 
 		$field_name = $asset->name;
 		if ($asset->attr('required')) $field_name .= ' <span style="color: #FF0000">*</span>';
 
 		$o->openField($field_name);
-			if (isset($values['value'])) $default = $values['value'];
-			else $default = $asset->attr('default');
-
+		
 			$select_options = $asset->attr('select_options');
 
-			if ($asset->attr('multiple')) $default = explode('; ', $default);
+			if ($asset->attr('multiple')) {
+				// if there is no value we need a blank array...not and array with one elemenr (a blank string)
+				if ($value == '') $value = Array();
+				else $value = explode('; ', $value);
+			}
+
 			if ($write_access && $asset->attr('editable')) {
-				combo_box($prefix.'_value', $select_options, $asset->attr('multiple'), $default);
+				combo_box($prefix.'_value', $select_options, $asset->attr('multiple'), $value);
 			} else {
-				if (empty($default)) {
-					echo '';
+				if ((is_array($value) && empty($value)) || (is_string($value) && $value == '')) {
+					echo '&nbsp;';
 				} else {
-					if (!is_array($default)) $default = Array($default);
-					$default_string = '';
-					foreach ($default as $option) $default_string .= $select_options[$option].'; ';
-					echo trim($default_string, '; ');
+					if (!is_array($value)) $value = Array($value);
+					$value_output = '';
+					foreach ($value as $option) $value_output .= $select_options[$option].'; ';
+					echo trim($value_output, '; ');
 				}
 			}
+
 		$o->closeField();
 
 		return true;
@@ -100,22 +114,24 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Process the interface for filling in metadata values
 	*
-	* @param object Metadata_Field	&$asset			the asset whose interface we are painting
-	* @param array					&$new_values	an array we can store the new values in
+	* @param object Metadata_Field	&$asset				the asset whose interface we are processing
+	* @param string					&$new_value_str		a string by reference that we can store the new values in
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processInlineValueInterface(&$asset, &$new_values)
+	function processInlineValueInterface(&$asset, &$new_value_str)
 	{
+		// nothing for us to do
+		if (!$asset->attr('editable')) return true;
+
 		$prefix = $asset->getPrefix();
 
-		$default = $asset->attr('default');
-		if ($asset->attr('editable')) {
-			$value = array_get_index($_POST, $prefix.'_value', '');
-			if (is_array($value)) $value = implode('; ', $value);
-			$new_values[$asset->name]['value'] = trim($value);
-		}
+		$value = array_get_index($_POST, $prefix.'_value', '');
+
+		if (is_array($value)) $value = implode('; ', $value);
+
+		$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
 
 		return true;
 
@@ -136,7 +152,6 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$select_options = $asset->attr('select_options');
-		$default = $asset->attr('default');
 
 		if (!empty($select_options)) {
 			?>

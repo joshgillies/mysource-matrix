@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.4 2004/12/06 14:38:09 brobertson Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.5 2004/12/21 17:19:36 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,7 +45,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	*/
 	function Metadata_Field_Text_Edit_Fns()
 	{
-		Metadata_Field_Edit_Fns::Metadata_Field_Edit_Fns();
+		$this->Metadata_Field_Edit_Fns();
 
 	}//end constructor
 
@@ -55,36 +55,43 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	*
 	* @param object Metadata_Field		&$asset			the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o				the outputter class
-	* @param array						$values			current metadata values set for this asset
+	* @param string						$value_str		the current value for this field in the asset (NOT $asset) 
+	*													NULL means that there is no current value set
 	* @param boolean					$write_access	does the current user have write access to the asset
 	*													that we are setting metadata for (NOT THE SAME AS $asset)
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintInlineValueInterface(&$asset, &$o, $values, $write_access)
+	function paintInlineValueInterface(&$asset, &$o, $value_str, $write_access)
 	{
 		$prefix = $asset->getPrefix();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+
+		if (is_null($value_str)) {
+			$value = $asset->attr('default');
+			$value_components = $asset->attr('value_components');
+		} else {
+			$value='';
+			$value_components = $asset->attr('value_components');
+			Metadata_Field::decodeValueString($value_str, $value, $value_components);
+		}
 
 		$field_name = $asset->name;
 		if ($asset->attr('required')) $field_name .= ' <span style="color: #FF0000">*</span>';
 
 		$o->openField($field_name);
-			if (isset($values['value'])) $default = $values['value'];
-			else $default = $asset->attr('default');
 
 			if ($asset->attr('editable')) {
 				if ($write_access) {
-					if ($asset->attr('multi_line')) text_area($prefix.'_value', $default, 45, 7);
-					else text_box($prefix.'_value', $default, 30);
+					if ($asset->attr('multi_line')) text_area($prefix.'_value', $value, 45, 7);
+					else text_box($prefix.'_value', $value, 30);
 				} else {
-					echo $default;
+					echo $value;
 				}
 
 				// now print value components
-				$current_vc = $asset->attr('value_components');
-				if (!empty($current_vc)) {
+				if (!empty($value_components)) {
 					echo '<br /><br />';
 					$num_per_row = 3;
 					$num_done = 0;
@@ -92,10 +99,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 					<table class="sq-backend-table">
 						<tr>
 							<?php
-							foreach ($current_vc as $vc_name => $vc_value) {
-								if (isset($values['value_components'][$vc_name])) {
-									$vc_value = $values['value_components'][$vc_name];
-								}
+							foreach ($value_components as $vc_name => $vc_value) {
 
 								if ($num_done >= $num_per_row) {
 									$num_done = 0;
@@ -112,27 +116,24 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 								$num_done++;
 							}
 							if ($num_done && $num_done != $num_per_row) {
-								for ($i = ($num_per_row - $num_done); $i > 0; $i--) echo'<td width="200" class="sq-backend-table-cell">&nbsp;</td>';
+								for ($i = ($num_per_row - $num_done); $i > 0; $i--) echo'<td width="150" class="sq-backend-table-cell">&nbsp;</td>';
 							}
 							?>
 						</tr>
 					</table>
 					<?php
-				}
+				}//end if
+
 			} else {
-				echo $default;
+				echo $value;
 
 				// now print value components
-				$current_vc = $asset->attr('value_components');
-				if (!empty($current_vc)) {
-					if (trim($default != '')) echo '<br />';
+				if (!empty($value_components)) {
+					if (trim($value != '')) echo '<br />';
 					?>
 					<table border="0" cellspacing="1" cellpadding="1">
 					<?php
-					foreach ($current_vc as $vc_name => $vc_value) {
-						if (isset($values['value_components'][$vc_name])) {
-							$vc_value = $values['value_components'][$vc_name];
-						}
+					foreach ($value_components as $vc_name => $vc_value) {
 						?>
 						<tr>
 							<td valign="top" align="right" class="sq-backend-data"><b><?php echo $vc_name; ?></b></td>
@@ -143,8 +144,10 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 					?>
 					</table>
 					<?php
-				}
-			}
+
+				}//endif
+
+			}//endif
 		$o->closeField();
 
 		return true;
@@ -155,32 +158,29 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Process the interface for filling in metadata values
 	*
-	* @param object Metadata_Field	&$asset			the asset whose interface we are painting
-	* @param array					&$new_values	an array we can store the new values in
+	* @param object Metadata_Field	&$asset				the asset whose interface we are processing
+	* @param string					&$new_value_str		a string by reference that we can store the new values in
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processInlineValueInterface(&$asset, &$new_values)
+	function processInlineValueInterface(&$asset, &$new_value_str)
 	{
+		// nothing for us to do
+		if (!$asset->attr('editable')) return true;
+
 		$prefix = $asset->getPrefix();
 
-		$default = $asset->attr('default');
-		if ($asset->attr('editable')) {
-			if (isset($_POST[$prefix.'_value'])) {
-				$new_values[$asset->name]['value'] = trim($_POST[$prefix.'_value']);
-			}
+		$value = array_get_index($_POST, $prefix.'_value', '');
+		$value_components = $asset->attr('value_components');
 
-			$current_vc = $asset->attr('value_components');
-			if (!empty($current_vc)) {
-				$new_values[$asset->name]['value_components'] = Array();
-				foreach ($current_vc as $vc_name => $vc_value) {
-					if (isset($_POST[$prefix.'_vc_value'][$vc_name])) {
-						$new_values[$asset->name]['value_components'][$vc_name] = trim($_POST[$prefix.'_vc_value'][$vc_name]);
-					}
-				}
+		for(reset($value_components); null !== ($vc_name = key($value_components)); next($value_components)) {
+			if (isset($_POST[$prefix.'_vc_value'][$vc_name])) {
+				$value_components[$vc_name] = str_replace(Array("\n", "\r"), Array(" ", ""), trim($_POST[$prefix.'_vc_value'][$vc_name]));
 			}
 		}
+
+		$new_value_str = Metadata_Field::encodeValueString(trim($value), $value_components);
 
 		return true;
 
