@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.1 2004/07/27 02:09:06 tbarrett Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.2 2004/07/27 04:15:38 lwright Exp $
 * $prefix:  $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -75,13 +75,13 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 			}
 			function processEndEnabledClick(elt, name) {
 				if (elt.checked) {
-					enableDateField('<?php echo $prefix; ?>_end'); 
-					if (isChecked('<?php echo $prefix; ?>_start_time_enabled')) {
-						enableTimeField('<?php echo $prefix; ?>_end'); 
+					enableDateField(name+'_end'); 
+					if (isChecked(name+'_start_time_enabled')) {
+						enableTimeField(name+'_end'); 
 					}
 				} else { 
-					disableDateField('<?php echo $prefix; ?>_end'); 
-					disableTimeField('<?php echo $prefix; ?>_end'); 
+					disableDateField(name+'_end'); 
+					disableTimeField(name+'_end'); 
 				}
 			}
 			function processStartTimeClick(elt, name) {
