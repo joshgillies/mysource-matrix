@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: password.inc,v 1.14 2003/11/27 03:04:48 gsherwood Exp $
+* $Id: password.inc,v 1.15 2003/12/01 05:16:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -155,7 +155,7 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 		$value = trim($value);
 		$new_value = (string)$value;
 		if ($new_value != $value) return false;
-		if ($this->_edit_params['min_length']) {
+		if (isset($this->_edit_params['min_length']) && $this->_edit_params['min_length']) {
 			if (strlen($value) < $this->_edit_params['min_length']) return false;
 		}
 		return true;
