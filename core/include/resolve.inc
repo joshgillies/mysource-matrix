@@ -776,15 +776,15 @@ class Resolve
 	*/
 	function constructRollbackWhereClause($where='', $table_alias=null, $prefix='WHERE')
 	{
-		// trim off a current "WHERE" keyword if it exists
+		// trim off a current prefix keyword if it exists
 		$where = trim($where);
-		if (strtoupper(substr($where, 0, 6)) == 'WHERE ') $where = substr($where, 5);
+		if (strtoupper(substr($where, 0, strlen($prefix))) == strtoupper($prefix)) $where = substr($where, 5);
 
 
 		if (!SQ_ROLLBACK_VIEW) {
 			// we are not in rollback view so we dont need anything special in the where clause
 			if (empty($where)) return '';
-			else return $prefix.' '.$where;
+			else return ' '.$prefix.' '.$where;
 		}
 
 		if (!is_null($table_alias)) $table_alias .= '.';
@@ -797,7 +797,7 @@ class Resolve
 				  AND ('.$table_alias.SQ_TABLE_PREFIX.'effective_to IS NULL
 					   OR '.$table_alias.SQ_TABLE_PREFIX.'effective_to > '.$this->db->quote($then).')';
 
-		return $prefix.' '.$where;
+		return ' '.$prefix.' '.$where;
 
 	}//end constructRollbackWhereClause()
 
