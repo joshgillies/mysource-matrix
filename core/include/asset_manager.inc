@@ -1503,44 +1503,47 @@ pre_echo($sql);
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$the_rest = array_diff($assetids, array_keys($return_urls));
-		$assetid_cond_array = $the_rest;
-		for($i = 0; $i < count($the_rest); $i++) $assetid_cond_array[$i] = $db->quote($assetid_cond_array[$i]);
-		$assetid_cond = 'IN ('.implode(', ', $assetid_cond_array).')';
 
-		$url_bits = explode('/', preg_replace('/\\/+$/', '', $base_url));
+		if (!empty($the_rest)) {
+			$assetid_cond_array = $the_rest;
+			for($i = 0; $i < count($the_rest); $i++) $assetid_cond_array[$i] = $db->quote($assetid_cond_array[$i]);
+			$assetid_cond = 'IN ('.implode(', ', $assetid_cond_array).')';
 
-		$where = 'l.assetid '.$assetid_cond;
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'u');
-		$sql = 'SELECT l.assetid, l.url, u.http, (';
+			$url_bits = explode('/', preg_replace('/\\/+$/', '', $base_url));
 
-		$str = '';
-		// so much for SQL standards...
-		$concat = ($db->phptype == 'mysql') ? 'CONCAT(l.url, '.$db->quote('/').')' : 'l.url || '.$db->quote('/');
-		foreach($url_bits as $i => $bit) {
-			$str .= $bit.'/';
-			$sql .= (($i) ? '+' : '').'
-			(CASE WHEN SUBSTRING('.$concat.' FROM 1 FOR '.strlen($str).') = '.$db->quote($str).' THEN 1 ELSE 0 END)';
-		}
+			$where = 'l.assetid '.$assetid_cond;
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'u');
+			$sql = 'SELECT l.assetid, l.url, u.http, (';
 
-		$sql .= '
-		) as weighting
-		FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_url u ON l.root_urlid = u.urlid
-		'.$where.' ORDER BY weighting DESC, l.url';
-
-		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-			return '';
-		}
-
-		foreach ($the_rest as $assetid) {
-			if (!isset($result[$assetid])) {
-				$this->_tmp['urls'][$assetid][$base_url] = '';
-			} else {
-				$this->_tmp['urls'][$assetid][$base_url] = (($result[$assetid][0][1]) ? 'http' : 'https').'://'.$result[$assetid][0][0];
+			$str = '';
+			// so much for SQL standards...
+			$concat = ($db->phptype == 'mysql') ? 'CONCAT(l.url, '.$db->quote('/').')' : 'l.url || '.$db->quote('/');
+			foreach($url_bits as $i => $bit) {
+				$str .= $bit.'/';
+				$sql .= (($i) ? '+' : '').'
+				(CASE WHEN SUBSTRING('.$concat.' FROM 1 FOR '.strlen($str).') = '.$db->quote($str).' THEN 1 ELSE 0 END)';
 			}
-			$return_urls[$assetid] = $this->_tmp['urls'][$assetid][$base_url];
+
+			$sql .= '
+			) as weighting
+			FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_url u ON l.root_urlid = u.urlid
+			'.$where.' ORDER BY weighting DESC, l.url';
+
+			$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
+			if (DB::isError($result)) {
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+				return '';
+			}
+
+			foreach ($the_rest as $assetid) {
+				if (!isset($result[$assetid])) {
+					$this->_tmp['urls'][$assetid][$base_url] = '';
+				} else {
+					$this->_tmp['urls'][$assetid][$base_url] = (($result[$assetid][0][1]) ? 'http' : 'https').'://'.$result[$assetid][0][0];
+				}
+				$return_urls[$assetid] = $this->_tmp['urls'][$assetid][$base_url];
+			}
 		}
 
 		if ($return_array) {
