@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.52 2005/03/28 23:11:25 gsherwood Exp $
+* $Id: system_config.inc,v 1.53 2005/03/29 01:51:13 arailean Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -71,7 +71,6 @@ class System_Config extends Config
 						'SQ_CONF_LOG_FILE_SYSTEM'			=> Array('editable' => 0, 'default' => 'system'),
 						'SQ_CONF_LOG_FILE_ERROR'			=> Array('editable' => 0, 'default' => 'error'),
 						'SQ_CONF_LOG_ERRORS'				=> Array('editable' => 1, 'default' => true),
-						'SQ_CONF_ROOT_IDENTIFIER'			=> Array('editable' => 0, 'default' => "[SYSTEM_ROOT]"),
 					   );
 
 	/**
