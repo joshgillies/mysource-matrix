@@ -1,7 +1,7 @@
 <?php
 
 ini_set('memory_limit', '8M');
-require_once '../include/init.inc';
+require_once dirname(dirname(__FILE__)).'/include/init.inc';
 
 
 $GLOBALS['SQ_SYSTEM']->start();
