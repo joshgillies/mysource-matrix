@@ -91,7 +91,7 @@ function serverExecXMLonLoad(success)
 	// we got an unexpected root node
 	} else if (this.__server_exec.root_node != '' && root.nodeName != this.__server_exec.root_node) {
 		_root.hideProgressBar();
-		_root.showDialog("Connection Failure to Server", "Please Try Again");
+		_root.showDialog("Connection Failure to Server", "Unexpected Root XML Node '" + root.nodeName + "', expecting '" + this.__server_exec.root_node + "'\nPlease Try Again");
 
 	// everything went well, load 'em up
 	} else {

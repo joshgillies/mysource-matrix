@@ -84,7 +84,6 @@ Array.prototype.remove_element = function(val)
 
 }// end Array.remove_element()
 
-
 /**
 * Returns an array of all values that are in the current array 
 * but not in passed array
@@ -93,11 +92,11 @@ Array.prototype.remove_element = function(val)
 *
 * @return Array
 */
-Array.prototype.diff(arr) 
+Array.prototype.diff = function(arr)
 {
 	var new_arr = new Array();
 	for (var i = 0; i < this.length; i++) {
-		if (arr2.search(this[i]) == null) {
+		if (arr.search(this[i]) == null) {
 			new_arr.push(this[i]);
 		}
 	}

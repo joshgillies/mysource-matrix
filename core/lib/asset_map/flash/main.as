@@ -11,8 +11,8 @@ Stage.align = "TL";
 #include "externalCall.as"
 #include "serverExec.as"
 #include "assetType.as"
-#include "asset.as"
 #include "assetLink.as"
+#include "asset.as"
 #include "assetManager.as"
 #include "mcMenuContainerClass.as"
 #include "mcMenuItemClass.as"
@@ -70,4 +70,3 @@ _root.attachMovie("mcOptionsBoxID", "options_box", 22);
 
 // Call resize to setup intial sizes of things
 _root.stageResizeListener.onResize();
-

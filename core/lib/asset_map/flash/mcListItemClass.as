@@ -3,6 +3,7 @@
 function mcListItemClass()
 {
 	this.parent_item_name = "";
+	this.linkid    = "";
 	this.assetid   = "";
 	this.type_code = "";
 	this.pos       = 0;
@@ -37,19 +38,31 @@ mcListItemClass.prototype.setParent = function(parent_item_name)
 	this.parent_item_name = parent_item_name;
 }
 
+mcListItemClass.prototype.getParentAssetid = function() 
+{
+	return _root.asset_manager.asset_links[this.linkid].majorid;
+}
+
+
+
+mcListItemClass.prototype.setLinkId = function(linkid) 
+{
+	this.linkid = linkid
+}
+
 mcListItemClass.prototype.setAsset = function(asset) 
 {
 	this.setInfo(asset);
-	asset.addListener(this);
+	link.addListener(this);
 }
 
 mcListItemClass.prototype.setInfo = function(asset) 
 {
 	this.assetid   = asset.assetid;
 	this.type_code = asset.type_code;
-	this.text_field.text = this._name + ' ' + asset.name;
+	this.text_field.text = this._name + ' [' + this.assetid + '] ' + asset.name;
 
-	if (!asset.kids.length) {
+	if (!asset.links.length) {
 		this.setKidState("none");
 	} else if (!this.expanded()) {
 		this.setKidState("plus");

@@ -2,10 +2,10 @@
 // Create the Class
 function AssetLink(linkid, majorid, minorid, link_type) 
 {
-	this.majorid    = 0;
-	this.linkid     = 0;
-	this.minorid    = 0;
-	this.link_type  = 0;
+	this.linkid     = linkid;
+	this.majorid    = majorid;
+	this.minorid    = minorid;
+	this.link_type  = link_type;
 }
 
 AssetLink.prototype.toString = function()
@@ -17,7 +17,7 @@ AssetLink.prototype.toString = function()
 }
 
 
-AssetLink.prototype.toString = function()
+AssetLink.prototype.clone = function()
 {
 	return new AssetLink(this.linkid, this.majorid, this.minorid, this.link_type)
 }
@@ -33,10 +33,10 @@ AssetLink.prototype.toString = function()
 AssetLink.prototype.equals = function(other_obj) 
 {
 	if (other_obj instanceof AssetLink) {
-		return (this.linkid    = other_obj.linkid && 
-				this.majorid   = other_obj.majorid &&
-				this.minorid   = other_obj.minorid &&
-				this.link_type = other_obj.link_type);
+		return (this.linkid    == other_obj.linkid && 
+				this.majorid   == other_obj.majorid &&
+				this.minorid   == other_obj.minorid &&
+				this.link_type == other_obj.link_type);
 	}
 	return false;
 }

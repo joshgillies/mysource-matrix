@@ -19,7 +19,7 @@ ASBroadcaster.initialize(Asset.prototype);
 
 Asset.prototype.toString = function()
 {
-	return "AssetId: " + this.assetid + 
+	return  "AssetId: " + this.assetid + 
 			", Type Code: " + this.type_code + 
 			", Name: " + this.name + 
 			", Links: " + this.links;
@@ -52,7 +52,21 @@ Asset.prototype.getLinkAssetids = function()
 {
 	var assetids = new Array();
 	for(var i = 0; i < this.links.length; i++) {
-		assetids.push(this.links[i].assetid);
+		assetids[i] = _root.asset_manager.asset_links[this.links[i]].minorid;
 	}
+	trace("Asset Link IDS : " + assetids);
 	return assetids;
+}
+
+/**
+* Returns the position in the links array of the passed link
+* Returns NULL if not found
+*
+* @param int	linkid
+*
+* @return int
+*/
+Asset.prototype.linkPos = function(linkid)
+{
+	return this.links.search(linkid);
 }

@@ -472,28 +472,39 @@ class Asset_Map
 	function _moveAsset(&$input) 
 	{
 
-		$old_parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($input->root->attributes['from_parent_assetid']);
-		if (is_null($old_parent)) {
-			$this->_error('Unable to Move Asset, existing parent (Asset #"'.$input->root->attributes['from_parent_assetid'].'") not found');
+		$link = $GLOBALS['SQ_RESOLVE']->am->getLink($input->root->attributes['linkid']);
+		if (empty($link)) {
+			$this->_error('Unable to Move Asset, Link #"'.$input->root->attributes['linkid'].'") not found');
 			return;
 		}
 
-		$asset = &$GLOBALS['SQ_RESOLVE']->am->getAsset($input->root->attributes['assetid']);
-		if (is_null($asset)) {
-			$this->_error('Unable to Move Asset, asset to be moved (Asset #"'.$input->root->attributes['assetid'].'") not found');
+		$old_parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($link['majorid']);
+		if (is_null($old_parent)) {
+			$this->_error('Unable to Move Asset, existing parent (Asset #"'.$link['majorid'].'") not found');
 			return;
 		}
+
+		$linkid = null;
 
 
 		// if the from and to parentids are the same we are realy just altering the sort order for a parent
-		if ($input->root->attributes['from_parent_assetid'] == $input->root->attributes['to_parent_assetid']) {
+		if ($link['majorid'] == $input->root->attributes['to_parent_assetid']) {
 
 			// Let's just move the link
-			if (!$old_parent->moveLinkPos($asset, SQ_LINK_UNITE, '', $input->root->attributes['to_parent_pos'])) {
+			if (!$old_parent->moveLinkPos($link['linkid'], $input->root->attributes['to_parent_pos'])) {
 				return;
 			}
 
+			$linkid = $link['linkid'];
+
 		} else {
+
+			$asset = &$GLOBALS['SQ_RESOLVE']->am->getAsset($link['minorid']);
+			if (is_null($asset)) {
+				$this->_error('Unable to Move Asset, asset to be moved (Asset #"'.$link['minorid'].'") not found');
+				return;
+			}
+
 
 			$new_parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($input->root->attributes['to_parent_assetid']);
 			if (is_null($new_parent)) {
@@ -502,22 +513,62 @@ class Asset_Map
 			}
 
 			// First let's try and create the new link, if there are any issues then it will cryout for us
-			if (!$new_parent->createLink($asset, SQ_LINK_UNITE, '', $input->root->attributes['to_parent_pos'])) {
+			$linkid = $new_parent->createLink($asset, SQ_LINK_UNITE, '', $input->root->attributes['to_parent_pos']);
+			if (!$linkid) {
 				return;
 			}
 
 			// Now let's try and delete the old link
-	//		if (!$new_parent->deleteLink($asset, SQ_LINK_UNITE, '', $input->root->attributes['pos'])) {
-	//			return;
-	//		}
+			$old_parent->deleteLink($link['linkid']);
 
 		}// end if
 
 		$output = new XML_Tree();
-		$root = &$output->addRoot('success', '');
+		$root = &$output->addRoot('success', '', Array('linkid' => $linkid));
 		$this->_send($output);
 
 	}// end _moveAsset()
+
+
+	/*
+	* Attempts to create a new link
+	*
+	* @param object XML_Tree $input	the request info from the Flash
+	*
+	* @access private
+	*/
+	function _newLink(&$input) 
+	{
+
+		$link = $GLOBALS['SQ_RESOLVE']->am->getLink($input->root->attributes['linkid']);
+		if (empty($link)) {
+			$this->_error('Unable to Create New Link, existing Link #"'.$input->root->attributes['linkid'].'") not found');
+			return;
+		}
+
+		$asset = &$GLOBALS['SQ_RESOLVE']->am->getAsset($link['minorid']);
+		if (is_null($asset)) {
+			$this->_error('Unable to Create New Link, asset to be moved (Asset #"'.$link['minorid'].'") not found');
+			return;
+		}
+
+		$new_parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($input->root->attributes['to_parent_assetid']);
+		if (is_null($new_parent)) {
+			$this->_error('Unable to Create New Link, new parent (Asset #"'.$input->root->attributes['to_parent_assetid'].'") not found');
+			return;
+		}
+
+		// First let's try and create the new link, if there are any issues then it will cryout for us
+		$linkid = $new_parent->createLink($asset, SQ_LINK_UNITE, '', $input->root->attributes['to_parent_pos']);
+		if (!$linkid) {
+			return;
+		}
+
+		$output = new XML_Tree();
+		$root = &$output->addRoot('success', '', Array('linkid' => $linkid));
+		$this->_send($output);
+
+	}// end _newLink()
 
 
 

@@ -7,8 +7,13 @@ function AssetManager()
 {
 	// holds all the asset types that are available in the system
 	this.types  = new Object();
-	// holds all the assets that have been referenced in this container
+
+	// holds all the assets that have been referenced
 	this.assets = new Object();
+
+	// holds all the assets links that have been referenced
+	this.asset_links = new Object();
+
 
 	// a temp object that can hold any run-time data
 	this.tmp = new Object();
@@ -143,8 +148,8 @@ AssetManager.prototype.loadAssets = function(assetids, call_back_obj, call_back_
 			if (load_new_links && this.assets[load_assetids[i]] != undefined) {
 				for(var j = 0; j < this.assets[load_assetids[i]].links.length; j++) {
 					var link_elem = xml.createElement("child");
-					link_elem.attributes.linkid  = this.assets[load_assetids[i]].links[j].linkid;
-					link_elem.attributes.assetid = this.assets[load_assetids[i]].links[j].assetid;
+					link_elem.attributes.linkid  = this.assets[load_assetids[i]].links[j];
+					link_elem.attributes.assetid = this.asset_links[this.assets[load_assetids[i]].links[j]].minorid;
 					asset_elem.appendChild(link_elem);
 				}
 			}// end if
@@ -152,7 +157,7 @@ AssetManager.prototype.loadAssets = function(assetids, call_back_obj, call_back_
 			cmd_elem.appendChild(asset_elem);
 		}// end for
 
-//		trace(xml);
+		trace(xml);
 
 		// start the loading process
 		var exec_indentifier = _root.server_exec.init_exec(xml, this, "loadAssetsFromXML", "assets");
@@ -185,30 +190,33 @@ AssetManager.prototype.loadAssetsFromXML = function(xml, exec_indentifier)
 		// get a reference to the child node
 		var asset_node = xml.firstChild.childNodes[i];
 		if (asset_node.nodeName.toLowerCase() == "asset") {
+			var assetid = asset_node.attributes.assetid;
+
 
 			var links = new Array();
 
 			for (var j = 0; j < asset_node.childNodes.length; j++) {
-				var link = new AssetLink(asset_node.childNodes[j].attributes.linkid, 
-										asset_node.childNodes[j].attributes.majorid, 
-										asset_node.childNodes[j].attributes.minorid, 
-										asset_node.childNodes[j].attributes.link_type);
-				links.push(link);
+				var linkid = asset_node.childNodes[j].attributes.linkid;
+				this.asset_links[linkid] = new AssetLink(linkid, 
+														 assetid, 
+														 asset_node.childNodes[j].attributes.minorid, 
+														 asset_node.childNodes[j].attributes.link_type);
+				links.push(linkid);
 			}
 
 			// only create if it doesn't already exist
-			if (this.assets[asset_node.attributes.assetid] == undefined) {
-				this.assets[asset_node.attributes.assetid] = new Asset();
+			if (this.assets[assetid] == undefined) {
+				this.assets[assetid] = new Asset();
 
 			// take backup before we update
 			} else {
-				old_assets[asset_node.attributes.assetid] = this.assets[asset_node.attributes.assetid].clone();
+				old_assets[assetid] = this.assets[assetid].clone();
 			}
 
-			this.assets[asset_node.attributes.assetid].setInfo(asset_node.attributes.assetid, asset_node.attributes.type_code, asset_node.attributes.name, links);
-//			trace(this.assets[asset_node.attributes.assetid]);
+			this.assets[assetid].setInfo(assetid, asset_node.attributes.type_code, asset_node.attributes.name, links);
+//			trace(this.assets[assetid]);
 
-			new_assets[asset_node.attributes.assetid] = this.assets[asset_node.attributes.assetid];
+			new_assets[assetid] = this.assets[assetid];
 
 		}//end if
 	}//end for
