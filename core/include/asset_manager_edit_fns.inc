@@ -209,10 +209,15 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 		// they have posted what they want to duplicate ?
 		if (!empty($_POST['duplicate_assetid'])) {
-			pre_echo($_POST);
 			$asset = &$this->am->getAsset($vars['assetid']);
 			$dependant_linkids = $asset->getDependantLinkIds();
 			$tree = $this->_getAllChildLinks($vars['assetid']);
+
+			?><table border="1"><tr><td valign="top"><?php
+			pre_echo($_POST);
+			?></td><td valign="top"><?php
+			pre_echo($tree);
+			?></td></tr></table><?php
 
 //			foreach($dependant_linkids as $linkid) {
 //				if (empty($_POST['duplicate_assetid']
@@ -251,7 +256,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 					WHERE t.treeid LIKE '.$db->quote($treeid.'%').'
 					  AND t.treeid > '.$db->quote($treeid).'
 					ORDER BY t.treeid';
-	#pre_echo($sql);
+	pre_echo($sql);
 			$this->_tmp['child_links'][$assetid] = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
 			if (DB::isError($this->_tmp['child_links'][$assetid])) {
 				trigger_error($this->_tmp['child_links'][$assetid]->getMessage().'<br/>'.$this->_tmp['child_links'][$assetid]->getUserInfo(), E_USER_ERROR);
@@ -284,7 +289,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 					<?php echo $asset->short_name, ' - Id #', $asset->id; ?>
 				</td>
 			</tr>
-			</table>
+		</table>
 		<?php
 
 		if (!empty($tree)) {
@@ -303,6 +308,8 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 						if (clicked_elem.checked) {
 							while (tmp_treeid.length > 0) {
 								var elem = get_form_element("duplicate_treeid[" + tmp_treeid + "]");
+								// this may be a dependant link , which is a hidden field
+								if (element.type != 'checkbox') continue;
 								elem.checked = true;
 								tmp_treeid = tmp_treeid.substr(0, tmp_treeid.length - <?php echo SQ_CONF_ASSET_TREE_SIZE; ?>);
 							}
@@ -311,6 +318,8 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 						for(var i = 0; i < DUPLICATE_TREEIDS.length; i++) {
 							if (treeid == DUPLICATE_TREEIDS[i].substr(0, treeid.length)) {
 								var elem = get_form_element("duplicate_treeid[" + DUPLICATE_TREEIDS[i] + "]");
+								// this may be a dependant link , which is a hidden field
+								if (element.type != 'checkbox') continue;
 								elem.checked = clicked_elem.checked;
 							}
 						}
@@ -373,6 +382,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 					<?php 
 						if ($tree[$treeid]['dependant']) {
 							echo '&nbsp;';
+							hidden_field('duplicate_treeid['.$treeid.']', $tree[$treeid]['assetid']);
 						} else {
 							// have we submitted this before ? if so and they checked, select it again for them
 							check_box('duplicate_treeid['.$treeid.']', $tree[$treeid]['assetid'], !empty($_POST['duplicate_treeid'][$treeid]), 'duplicate_treeid_check("'.$treeid.'");'); 

@@ -951,6 +951,7 @@ class Asset extends Resolve_Object
 	*/
 	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0')
 	{
+
 		if (!$this->id) return 0;
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
@@ -1331,13 +1332,14 @@ class Asset extends Resolve_Object
 	* to occur but not cause integrity issues during script execution
 	* returns true it it's successfull
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _linksUpdated()
 	{
 		if (!$this->_updated()) return false;
 		unset($this->_tmp['dependant_links']);
+		return true;
 	}//end _linksUpdated()
 
 
