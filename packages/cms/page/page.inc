@@ -8,7 +8,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * Purpose
 *
 *
-* @author  Blair Robertson <blair@squiz.net>
+* @author  Greg Sherwoood <greg@squiz.net>
 * @version $Version$ - 1.0
 * @package Resolve::packages::cms
 */
@@ -26,10 +26,11 @@ class Page extends Asset
 		$this->Asset($assetid);
 	}
 
-	/*
+
+	/**
 	* Create this asset
 	*
-	* @param string $name   the name of this folder
+	* @param string	$name	the name of this page
 	*
 	* @return boolean
 	* @access public
@@ -39,19 +40,21 @@ class Page extends Asset
 		$name = trim($name);
 
 		if ($name == '') {
-			trigger_error('Unable to create a Folder with a blank name', E_USER_WARNING);
+			trigger_error('Unable to create a Page with a blank name', E_USER_WARNING);
 			return false;
 		}
 
 		if (parent::create()) {
 			
+			// add a bodycopy to this page when creating
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 			$bodycopy = new Bodycopy();
 			if (!$bodycopy->create('Page Contents')) die();
 			$this->createLink($bodycopy,SQ_LINK_EXCLUSIVE);
 			
-			$this->setAttrValue('short_name',   $name);
-			$this->setAttrValue('name',   $name);
+			// short and long names are the same to begin with
+			$this->setAttrValue('short_name', $name);
+			$this->setAttrValue('name', $name);
 			
 			return true;
 
@@ -63,30 +66,29 @@ class Page extends Asset
 
 
 	/**
-	* Returns an array of all the permitted links type, the type asset and the cardinality
+	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
 	* @see Asset::_getAllowLinks()
 	* @access private
 	*/
-	function _getAllowedLinks() {
-
+	function _getAllowedLinks()
+	{
 		return Array(SQ_LINK_EXCLUSIVE => Array('bodycopy' => 'M'),
 					 SQ_LINK_UNITE     => Array('page' => 'M', 'file' => 'M'),
 					 SQ_LINK_NOTICE    => Array('page' => 'M')
 					);
 
-	}#end _getAllowedLinks()
+	}//end _getAllowedLinks()
 
 
 	/*
-	* processes a backend submission from this asset, returns true if all OK
+	* Processes a backend submission from this asset, returns true if all OK
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processBackend() 
+	function processBackend()
 	{
-
 		switch($_POST['asset_action']) {
 			case 'create' :
 				$ei = &$this->getEI();
@@ -108,15 +110,18 @@ class Page extends Asset
 	}// end processBackend()
 
 
-	/*
+	/**
 	* Returns name of the asset
+	*
+	* @param boolean	$short_name	whether or not we are after the short name or the full name
 	*
 	* @see Asset::_getName()
 	* @access public
 	*/
-	function _getName() 
+	function _getName($short_name=false)
 	{
-		return $this->attr('name');
+		return (($short_name) ? $this->attr('short_name') : $this->attr('name'));
+
 	}//end _getName();
 
 

@@ -7,7 +7,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @see Asset_Management
 *
-* @author  Blair Robertson <blair@squiz.net>
+* @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
 * @package Resolve::packages::cms
 */
@@ -39,6 +39,7 @@ class Page_Management extends Asset_Management
 	/**
 	* Install
 	*
+	* @access public
 	*/
 	function _install()
 	{
@@ -49,6 +50,14 @@ class Page_Management extends Asset_Management
 	}//end install
 
 
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
 	function _upgrade($current_version)
 	{
 
@@ -69,15 +78,6 @@ class Page_Management extends Asset_Management
 		return $ok;
 
 	}//end upgrade()
-
-	function update_short_name()
-	{
-
-		pre_echo('UPDATE SHORT NAME');
-
-		return true;
-
-	}//end update_short_name()
 
 }//end class
 ?>
