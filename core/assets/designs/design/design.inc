@@ -60,6 +60,7 @@ class Design extends Design_Area
 		return false;
 	}//end moveLinkPos()
 
+
 	/**
 	* Called whenever any type of link is changed, allows caching of objects, links and other stuff 
 	* to occur but not cause integrity issues during script execution
@@ -76,6 +77,7 @@ class Design extends Design_Area
 		}
 		return true;
 	}//end _linksUpdated()
+
 
 	/**
 	* Returns the link information for the design area with the given id_name or all design area links
@@ -254,8 +256,8 @@ class Design extends Design_Area
 	*/
 	function paint(&$ASSET)
 	{
-		$DATA_PATH   = sq_web_path('data'); // this works because we know that all design areas are not going to be restricted
-		$LIB_PATH    = sq_web_path('lib');
+		$DATA_PATH = sq_web_path('data'); // this works because we know that all design areas are not going to be restricted
+		$LIB_PATH  = sq_web_path('lib');
 		// Now we just include the design file to get it to print.
 		speed_check();
 		require_once $this->data_path.'/design_file.php';
