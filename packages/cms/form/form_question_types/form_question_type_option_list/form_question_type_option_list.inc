@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_option_list.inc,v 1.6.2.1 2004/10/12 03:36:45 lwright Exp $
+* $Id: form_question_type_option_list.inc,v 1.6.2.2 2004/10/17 23:19:51 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -80,7 +80,7 @@ class Form_Question_Type_Option_List extends Form_Question_Type_Tickbox_List
 	* @return Array(string => string)
 	*/
 	function getAllowedRules() {
-		return Array('selection');
+		return Array('comparison');
 	
 	}//end getAllowedRules()
 	
