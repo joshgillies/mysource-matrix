@@ -17,10 +17,6 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 class Form extends Asset
 {
 
-
-	/**
-	* @var
-	*/
 	var $active_submission = '';
 
 	/**
