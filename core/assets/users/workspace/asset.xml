@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.10 2005/01/20 13:07:39 brobertson Exp $
+* $Id: asset.xml,v 1.11 2005/03/01 16:14:43 brobertson Exp $
 *
 */
 -->
@@ -29,7 +29,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
 	<package>__core__</package>
 	<type_code>workspace</type_code>
-	<version>0.1</version>
+	<version>0.2</version>
 	<name>Workspace</name>
 	<description>A general workspace for a user to create, edit and store works in progress</description>
 	<instantiable>yes</instantiable>
@@ -39,6 +39,10 @@
 		<requirement type="system">
 			<code>System</code>
 			<version>0.1.0</version>
+		</requirement>
+		<requirement type="asset">
+			<code>user</code>
+			<version>0.3</version>
 		</requirement>
 	</requirements>
 	<flash_menu_path/>

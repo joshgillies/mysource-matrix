@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workspace_management.inc,v 1.12 2005/01/20 13:07:39 brobertson Exp $
+* $Id: workspace_management.inc,v 1.13 2005/03/01 16:14:43 brobertson Exp $
 *
 */
 
@@ -30,55 +30,12 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Workspace_Management extends Asset_Management
 {
-
-	/**
-	* Constructor
-	*
-	*/
-	function Workspace_Management(&$pm)
-	{
-		$this->Asset_Management($pm);
-
-		$this->vars = Array('name' => Array(
-											'added'     => '0.1',
-											'type'      => 'text',
-											'default'   => ''
-											),
-							);
-
-	}//end constructor
-
-
-	/**
-	* returns an array with information about the events that the workspace is listening for
-	*
-	* @access public
-	* @return boolean
-	*/
-	function getEventList()
-	{
-		return Array(
-				Array(
-					'event_name'                 => 'usernameUpdated',
-					'broadcast_type_code'        => 'user',
-					'broadcast_strict_type_code' => false,
-					'options'	=> Array(
-						'side_of_link' => 'major',
-						'indirect'     => false,
-						'is_exclusive' => null,
-						'is_dependant' => 1,
-						'value'        => '',
-						'link_type'    => SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
-					),
-				),
-		);
-	}//end getEventList()
 
 }//end class
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workspace.inc,v 1.25 2004/12/06 14:38:11 brobertson Exp $
+* $Id: workspace.inc,v 1.26 2005/03/01 16:14:43 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,59 +49,6 @@ class Workspace extends Folder
 		$this->Folder($assetid);
 
 	}//end constructor
-
-
-	/**
-	* Create this asset
-	*
-	* The return value will be:<br/>
-	* <ul>
-	*   <li>FALSE if the asset was not created</li>
-	*   <li>the ID of the newly created link if the asset and intital link were created</li>
-	*   <li>TRUE if the asset was created but $link was empty</li>
-	* </ul>
-	*
-	* @param Array	&$link	information used to create the initial link<br/>
-	* <PRE>
-	* Array ('asset'         => [ref major asset to create link under],
-	*        'link_type'     => SQ_LINK_?,
-	*        'value'         => [link value],
-	*        'sort_order'    => [link sort order],
-	*        'is_dependant'  => [0|1],
-	*        'is_exclusive'  => [0|1]
-	*        )
-	* </PRE>
-	*
-	* @return mixed int or false
-	* @access public
-	*/
-	function create(&$link)
-	{
-		$username = $link['asset']->attr('username');
-
-		// check that we are not going to have web path conflicts
-		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		$valid_names = make_valid_web_paths(Array($username));
-		$name = array_shift($valid_names);
-
-		// we should theretically not be able to get into here
-		if ($name != $username) {
-			trigger_error('Username is not Unique', E_USER_WARNING);
-			return false;
-		}
-
-		// make sure the new web path is not already is use
-		$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], Array($name));
-		if (!empty($bad_paths)) {
-			trigger_error('Unable to create file with name "'.$name.'", web path already exists?', E_USER_WARNING);
-			return false;
-		}
-
-		$this->setAttrValue('name', '~'.$username);
-
-		return parent::create($link);
-
-	}//end create()
 
 
 	/**
@@ -180,89 +127,6 @@ class Workspace extends Folder
 		}
 
 	}//end _checkPermissionAccess()
-
-
-	/**
-	* Called by the design to print the body of this asset
-	*
-	* @access public
-	*/
-	function printBody()
-	{
-		bam('WORKSPACE printBody(): NOT DONE YET');
-
-	}//end printBody()
-
-
-	/**
-	* Returns name of the asset
-	*
-	* @param boolean	$short_name	whether or not we are after the short name or the full name
-	*
-	* @see Asset::_getName()
-	* @access private
-	*/
-	function _getName($short_name=false)
-	{
-		return 'Workspace';
-
-	}//end _getName()
-
-
-	/**
-	* event listener function that gets called when the user of this workspace gets updated
-	*
-	* @param &object Asset	$asset	the asset that triggered the event
-	* @param Array			$vars	some information passed about the user
-	*
-	* @return boolean
-	* @access public
-	*/
-	function onUsernameUpdated(&$broadcaster, $vars=Array())
-	{
-		if (empty($vars)) return false;
-		if (!isset($vars['username'])) return false;
-		if (!$this->setAttrValue('name', '~'.$vars['username'])) return false;
-
-		return $this->saveAttributes(false);
-
-	}//end onUsernameUpdated()
-
-
-	/**
-	* Set the value of an attribute
-	*
-	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
-	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
-	*
-	* @return boolean
-	* @access public
-	*/
-	function saveAttributes($dont_run_updated=false)
-	{
-		if (!$this->id) return true;
-
-		$is_old_path = false;
-		if (isset($this->_tmp['vars_set']['name']['old_value'])) {
-			$is_old_path = true;
-			$old_path = $this->_tmp['vars_set']['name']['old_value'];
-		}
-		$new_path = $this->attr('name');
-
-		// try and set the new filename - return false if it fails
-		if (!parent::saveAttributes($dont_run_updated)) return false;
-
-		// the name has changed so we need to save the web paths
-		if (!$this->saveWebPaths(Array($new_path))) {
-			trigger_error('Failed updating web path. Path already exists?', E_USER_WARNING);
-			if ($is_old_path) parent::setAttrValue('name', $old_path);
-			return false;
-		}
-
-		return parent::saveAttributes($dont_run_updated);
-
-	}//end saveAttributes()
-
 
 }//end class
 
