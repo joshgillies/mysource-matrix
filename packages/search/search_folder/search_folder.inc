@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.12 2005/02/14 23:41:37 lwright Exp $
+* $Id: search_folder.inc,v 1.13 2005/03/18 06:05:54 arailean Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -91,7 +91,7 @@ class Search_Folder extends Asset
 		return $null;
 	}//end getAsset()
 
-	
+
 	/**
 	* Return all links that this asset has to other assets
 	*
@@ -125,13 +125,14 @@ class Search_Folder extends Asset
 			$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 			$search_info = Array();
 			$search_info['limit'] = 100;
+			$search_info['assetid'] = $this->id;
 			$search_info['logic'] = (isset($settings['logic'])) ? strtoupper($settings['logic']) : 'AND';
 
 			if (empty($type_code)) {
 				$search_info['search_types'] = (isset($settings['types'])) ? $settings['types'] : Array();
 			} else {
 				if (!is_array($type_code)) $type_code = Array($type_code);
-				
+
 				// handle new search manager 'inherited types' rules
 				$type_code = array_flip($type_code);
 				foreach($type_code as $this_type_code => $value) {
@@ -206,6 +207,7 @@ class Search_Folder extends Asset
 			$search_info['search_types'] = (isset($settings['types'])) ? $settings['types'] : Array();
 			$search_info['search_statuses'] = (isset($settings['statuses'])) ? $settings['statuses'] : Array();
 			$search_info['root_assetid'] = (isset($settings['root']) && $settings['root']) ? $settings['root'] : 1;
+			$search_info['assetid'] = $this->id;
 
 			// if we have not selected to search any types or statuses, we are going to return no results
 			if (empty($search_info['search_types'])) return Array();
@@ -273,7 +275,7 @@ class Search_Folder extends Asset
 
 	}//end getParents()
 
-	
+
 	/**
 	* Get all asset ids that are below the passed assetid in the various trees in which it exists
 	*
