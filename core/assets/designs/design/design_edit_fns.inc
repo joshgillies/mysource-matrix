@@ -48,7 +48,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$str = file_to_string($parse_file);
 			$contents = $this->_parseString($str, true);
 
-			if ($contents !== null) {
+			if (!is_null($contents)) {
 				if ($this->_processContents($asset, $contents)) {
 					$this->createDesignFile($asset, $contents);
 				}
@@ -147,14 +147,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$da = &$asset->getDesignArea($id_name);
 
 			// if it's a different type, then convert them
-			if ($da !== null && $da->type() !== $design_area) {
+			if (!is_null($da) && $da->type() !== $design_area) {
 				$link = &$asset->getDesignAreaLink($id_name, false);
 				if (!$asset->deleteLink($link['linkid'])) return false;
 				$da = null; // do this so a new version will be created
 			}
 
 			// if it doesn't exist, create it
-			if ($da === null) {
+			if (is_null($da)) {
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($design_area);
 				$da = new $design_area();
 				if ($da->create($id_name)) {
@@ -226,11 +226,11 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		foreach($design_area_links as $link) {
 			$da = &$asset->getDesignArea($link['value']);
-			if ($da === null) continue;
+			if (is_null($da)) continue;
 			$vars = Array();
 			foreach($da->var_references as $var_name => $info) {
 				$var_da = &$asset->getDesignArea($info['id_name']);
-				if ($var_da === null) continue;
+				if (is_null($var_da)) continue;
 				$vars[$var_name] = $var_da->attr($info['var']);
 			}// end foreach
 #			pre_echo('-------------------');
@@ -447,6 +447,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		if (!empty($_POST[$prefix.'_new_customisation'])) {
 			if ($new_name = trim($_POST[$prefix.'_new_customisation_name'])) {
+
+				$dupe = &$asset->duplicate();
+				if (!is_null($dupe)) {
 
 				echo "DO DUPE HERE<br>";
 				echo "SET ID NAME HERE<br>";

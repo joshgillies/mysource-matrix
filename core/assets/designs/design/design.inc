@@ -72,7 +72,7 @@ class Design extends Design_Area
 		if (empty($this->_tmp['design_areas'][$id_name])) {
 			if (!isset($this->_tmp['design_areas'])) $this->_tmp['design_areas'] = Array();
 			$link = $this->getDesignAreaLink($id_name);
-			if ($link === null) {
+			if (is_null($link)) {
 				$this->_tmp['design_areas'][$id_name] = null;
 			} else {
 				$this->_tmp['design_areas'][$id_name] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code'], true);

@@ -101,7 +101,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		$cur_pos    = 0;
 		$nest_level = 0;
 		$contents = $this->_parseStringContents($file_contents, $cur_pos, $nest_level);
-		if ($contents !== null) {
+		if (!is_null($contents)) {
 			$this->_parserCleanupContents($contents);
 		}
 
@@ -160,7 +160,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 					$nest_level++;
 					$tag['contents'] = $this->_parseStringContents($file_contents, $cur_pos, $nest_level);
 					// if something went wrong, bail out
-					if ($tag['contents'] === null) return null;
+					if (is_null($tag['contents'])) return null;
 
 					// if this instance of the functions nest level is the same as the global one
 					// then the recursive call found e terminate tag, so remove it

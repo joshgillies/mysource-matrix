@@ -231,7 +231,7 @@ class Site extends Folder
 		}
 
 		$design_link = $this->getLink(SQ_LINK_USES, 'design', false);
-		$designid = ($design_link === null) ? 0 : $design_link['minorid'];
+		$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
 
 		pre_echo("DESIGN ID : $designid");
 
