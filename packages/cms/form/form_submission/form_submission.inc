@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_submission.inc,v 1.9 2003/09/26 05:26:42 brobertson Exp $
+* $Id: form_submission.inc,v 1.10 2003/09/26 06:07:59 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -113,10 +113,11 @@ class Form_Submission extends Asset
 	*/
 	function setAnswer($id, $value)
 	{
+		echo 'setting answer';
 		$a = $this->attr('attributes');
 		if (empty($a['answers'])) $a['answers'] = Array();
 		
-		$a['answers'][$id]['answer']    = $value;		
+		$a['answers'][$id]['answer'] = $value;		
 		
 		if (!$this->setAttrValue('attributes', $a)) {
 			return false;
@@ -138,7 +139,7 @@ class Form_Submission extends Asset
 	function setError($error)
 	{
 		$a = $this->attr('attributes');
-		if (!$a['is_error']) $a['is_error'] = true;
+		if (!isset($a['is_error']) || !$a['is_error']) $a['is_error'] = true;
 		if (!isset($a['errors'])) $a['errors'] = Array();
 		$a['errors'][] = $error;
 		
@@ -265,5 +266,51 @@ class Form_Submission extends Asset
 		return $a['summary'];
 	
 	} // end getSummary()
+
+
+	/**
+	* sets a question to signify that it has been processed
+	*
+	* @param integer $question_id the question id to set
+	*
+	* @access public
+	* @return boolean
+	*/
+	function setProcessed($question_id)
+	{
+		$a = $this->attr('attributes');
+		if (!isset($a['processed']))  $a['processed'] = Array();
+
+		$a['processed'][$question_id] = true;
+
+		if (!$this->setAttrValue('attributes', $a)) {
+			return false;
+		}
+		echo 'in setProcessed';
+		$this->saveAttributes();
+
+		return true;
+ 
+	} // end setProcessed()
+
+
+	/**
+	* returns TRUE if a question has been processed
+	* 
+	* @param integer $question_id the question id to check
+	* 
+	* @access public
+	* @return boolean
+	*/
+	function isProcessed($question_id)
+	{
+		$a = $this->attr('attributes');
+		if (isset($a['processed'][$question_id]) && $a['processed'][$question_id]) {
+			return true;
+		}
+		return false;
+
+	} // end isProcessed()
+
 } // end class
 ?>
