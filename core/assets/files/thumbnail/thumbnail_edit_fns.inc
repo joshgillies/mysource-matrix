@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thumbnail_edit_fns.inc,v 1.22 2005/01/17 17:44:57 brobertson Exp $
+* $Id: thumbnail_edit_fns.inc,v 1.23 2005/02/08 12:45:29 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -80,7 +80,7 @@ class Thumbnail_Edit_Fns extends Image_Edit_Fns
 				<tr>
 					<td valign="top"><?php $asset->printImageTag('Click CURRENT FILE to view the latest version of this thumbnail'); ?></td>
 					<td valign="top">
-					<?php file_edit_fns::printExistingFileInfo($asset); ?>
+					<?php File_Edit_Fns::printExistingFileInfo($asset); ?>
 					<b>Dimensions:</b> <?php echo $existing['width'].' x '.$existing['height']?> pixels<br/>
 					</td>
 				</tr>
