@@ -197,14 +197,14 @@ class Backend extends Resolve_Object
 			<script language="Javascript" type="text/javascript">
 				var msgDiv = null;
 				var screenMenu = null;
-				var delay = 30;          // milliseconds between movements.
+				var delay = 30;     // milliseconds between movements.
 				var myTimer = null;
-				var counter = null;      // number of times to move the div
+				var counter = null; // number of times to move the div
 				var divTop = 0;
 				var divLeft = 0;
 				var smTop = 0;
 				var smLeft = 0;
-				var refreshUpdate = 120; // number of seconds before refreshing frame
+				var refreshUpdate = <?php echo SQ_CONF_REFRESH_INTERVAL ?>; // number of seconds before refreshing frame
 
 				function moveIt(x) {
 					divTop += x;
