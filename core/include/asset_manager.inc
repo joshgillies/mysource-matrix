@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.116 2003/09/26 05:26:31 brobertson Exp $
+* $Id: asset_manager.inc,v 1.117 2003/09/26 05:47:02 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -485,6 +485,7 @@ class Asset_Manager extends MySource_Object
 	*									you can't use the '@' operator when returning by reference
 	*
 	* @access public
+	* @return &object Asset or null on error
 	*/
 	function &getAsset($assetid, $type_code='', $mute_errors=false)
 	{
