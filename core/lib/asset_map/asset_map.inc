@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.112.2.3 2004/03/02 18:36:53 brobertson Exp $
+* $Id: asset_map.inc,v 1.112.2.4 2004/03/09 13:13:46 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,8 +49,16 @@ class Asset_Map
 
 	}//end constructor
 
-	function stripSystemid($id) { return str_replace("0'", '', $id); } 
-	function replaceSystemid($id) { return "0'".$id; } 
+	function stripSystemid($id) { 
+		if ($id == "0'1") return '1';
+
+		list($systemid, $assetid) = explode("'", $id);
+		return sprintf('%04d', (9999 - (int) $id)).$assetid; 
+	}
+	function replaceSystemid($id) { 
+		$systemid = (9999 - (int) substr($id, 0, 4));
+		return $systemid."'".substr($id, 4); 
+	}
 
 	/**
 	* Print out the code for the asset map
@@ -761,7 +769,7 @@ $input->root->attributes['linkid'] = $this->replaceSystemid($input->root->attrib
 			$this->_error('Unable to Clone Asset, asset to be cloned (Asset #"'.$link['minorid'].'") not found');
 			return;
 		}
-	
+
 		// check to see if the root asset chosen can be cloned
 		if (!$asset->canClone()) {
 			$this->_error('Unable to Clone Asset '.$asset->name.', Assets of type '.(ucwords(str_replace('_', ' ', $asset->type()))).' cannot be cloned');
