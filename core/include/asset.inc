@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.259 2003/11/21 05:28:45 gsherwood Exp $
+* $Id: asset.inc,v 1.260 2003/11/25 21:11:06 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -816,6 +816,16 @@ class Asset extends MySource_Object
 		// delete from the asset table
 		$where_cond = 'assetid = '.$db->quote($this->id);
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset', $where_cond)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		// delete the attributes
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_attribute_value', $where_cond)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_attribute_unique_value', $where_cond)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -2364,6 +2374,19 @@ class Asset extends MySource_Object
 		return $this->checkAccess(SQ_PERMISSION_ADMIN, $lock_type, $assetids);
 
 	}//end adminAccess()
+
+
+	/**
+	* Determine if the current user is allowed into this asset's backend interface
+	*
+	* @return boolean
+	* @access public
+	*/
+	function backendAccess()
+	{
+		return is_a($GLOBALS['SQ_SYSTEM']->user, 'backend_user');
+
+	}//end backendAccess()
 
 
 	/**
