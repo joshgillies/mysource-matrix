@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.6 2004/08/05 00:22:10 lwright Exp $
+* $Id: page_calendar.inc,v 1.7 2004/08/05 02:54:45 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $ - 1.0
+* @version $Revision: 1.7 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -72,7 +72,7 @@ class Page_Calendar extends Page_Asset_Listing
 			break;
 
 			case 'week':
-				$this->printWeekView(2004,2,26);
+				$this->printWeekView(2004,7,27);
 				//printWeekView();
 			break;
 
@@ -154,15 +154,28 @@ class Page_Calendar extends Page_Asset_Listing
 		
 		$result = $db->getAll($sql);
 		
+		foreach($result as $key => $result_item) {
+			$start_time = (iso8601_time_component($result_item['start_date']) === false ? '00:00:00' : str_replace('-','0',iso8601_time_component($result_item['start_date'])));
+			$end_time = (iso8601_time_component($result_item['end_date']) === false ? (iso8601_time_component($result_item['start_date']) === false ? '24:00:00' : $start_time) : str_replace('-','0',iso8601_time_component($result_item['end_date'])));
+			$result[$key] = array_merge($result_item, Array(
+												'start_date' => $start_time,
+												'end_date' => $end_time,));
+		}
+		
 		list($start_time_h, $start_time_m) = explode(':', $this->attr('day_view_start_time'));
 		list($end_time_h, $end_time_m) = explode(':', $this->attr('day_view_end_time'));
 		$appt_spacing = intval($this->attr('appointment_spacing'));
 		
-				foreach($result as $result_item) {
+		foreach($result as $result_item) {
 					
-						echo '<br/><b>'.$result_item['name'].'</b>';
+			echo '<br/><b>'.$result_item['name'].'</b> running ';
+			if (($result_item['start_date'] == '00:00:00') && ($result_item['end_date'] == '24:00:00')) {
+				echo 'all day';
+			} else {
+				echo $result_item['start_date'].' to '.$result_item['end_date'];
+			}
 					
-				}?>
+		}?>
 			<table>
 			<?php for($i = $start_time_h * 60 + $start_time_m; $i < $end_time_h * 60 + $end_time_m; $i += $appt_spacing) { ?>
 				<tr>
@@ -172,6 +185,7 @@ class Page_Calendar extends Page_Asset_Listing
 			<?php } ?>
 			</table>
 		<?php
+		
 	}//end printDayView()
 
 	
@@ -184,6 +198,7 @@ class Page_Calendar extends Page_Asset_Listing
 	function printWeekView($year, $month, $day)
 	{
 		/* pseudo-code version of this method...
+		
 		 * first bit as for day, yada yada yada
 		 *
 		 * [FOR SINGLE EVENTS - IGNORE TIME COMPONENTS:]
@@ -217,6 +232,29 @@ class Page_Calendar extends Page_Asset_Listing
 		 */
 		 
 	
+		
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		
+		// base sql query FOR SINGLE EVENTS (holy crap... O_O')
+		$sql = 'select a.name, a.assetid, v.custom_value as start_date, v1.custom_value as end_date from ((('.SQ_TABLE_RUNNING_PREFIX.'asset a join '.SQ_TABLE_PREFIX.'asset_attribute atr on a.type_code = atr.type_code) join '.SQ_TABLE_PREFIX.'asset_attribute atr1 on a.type_code = atr1.type_code) left join '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v on atr.attributeid = v.attributeid and a.assetid = v.assetid) left join '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v1 on atr1.attributeid = v1.attributeid and a.assetid = v1.assetid where atr.name = '.$db->quote('start_date').' and atr1.name = '.$db->quote('end_date').' and a.type_code = '.$db->quote('calendar_event_single').' and (((substring(v.custom_value from 1 for 10) BETWEEN '.$db->quote($this->_buildDate($year,$month,$day)).' AND '.$db->quote($this->_buildDate($year,$month,$day + 6)).') and v1.custom_value IS NULL) OR (substring(v.custom_value from 1 for 10) < '.$db->quote($this->_buildDate($year,$month,$day + 7)).' and substring(v1.custom_value from 1 for 10) >= '.$db->quote($this->_buildDate($year,$month,$day)).'))';
+		
+		$result = $db->getAll($sql);
+		$final_result = Array();
+			
+		foreach($result as $result_item) {
+			for($loop_day = $day; $loop_day < $day + 7; $loop_day++) {
+				$iso_date = $this->_buildDate($year,$month,$loop_day);
+				if(empty($final_result[$iso_date])) $final_result[$iso_date] = Array();
+				if ((iso8601_date_component($result_item['start_date']) == $iso_date && is_null($result_item['end_date'])) || (iso8601_date_component($result_item['start_date']) <= $iso_date && iso8601_date_component($result_item['end_date']) >= $iso_date)) {	
+					$start_time = (iso8601_time_component($result_item['start_date']) === false ? '00:00:00' : str_replace('-','0',iso8601_time_component($result_item['start_date'])));
+					$end_time = (iso8601_time_component($result_item['end_date']) === false ? (iso8601_time_component($result_item['start_date']) === false ? '24:00:00' : $start_time) : str_replace('-','0',iso8601_time_component($result_item['end_date'])));
+					$final_result[$iso_date][] = array_merge($result_item, Array(
+														'start_date' => $start_time,
+														'end_date' => $end_time,));
+				}
+			}	
+		}
+		
 		list($start_time_h, $start_time_m) = explode(':', $this->attr('day_view_start_time'));
 		$start_time_h = 8; $start_time_m = 30;
 		list($end_time_h, $end_time_m) = explode(':', $this->attr('day_view_end_time'));
@@ -231,7 +269,8 @@ class Page_Calendar extends Page_Asset_Listing
 		<table width="100%">
 		<tr>
 		<th>Time</th>
-		<?php for($i = $first_wday; $i < $first_wday + 7; $i++) { ?><th align="center" width="<?php echo intval(100 / 7) ?>%"><?php echo $days_of_week[$i % 7]; ?> <?php echo date('jS', mktime(0,0,0,$month,$day + $i - $first_wday,$year)) ?></th><?php } ?>
+		<?php for($i = $first_wday; $i < $first_wday + 7; $i++) { ?><th align="center" width="<?php echo intval(100 / 7) ?>%"><?php echo $days_of_week[$i % 7]; ?> <?php echo date('jS', mktime(0,0,0,$month,$day + $i - $first_wday,$year)) ?><br/>
+		<?php pre_echo($final_result[$this->_buildDate($year,$month,$day + $i - $first_wday)]) ?></th><?php } ?>
 		</tr>
 		<?php for($i = $start_time_h * 60 + $start_time_m; $i < $end_time_h * 60 + $end_time_m; $i += $appt_spacing) { ?>
 			<tr>
@@ -240,6 +279,7 @@ class Page_Calendar extends Page_Asset_Listing
 			</tr>
 		<?php } ?>
 		</table><?php
+		
 	}//end printWeekView()
 
 
@@ -353,6 +393,10 @@ class Page_Calendar extends Page_Asset_Listing
 	/**
 	* Builds a full or partial ISO8601 format date (for use in database searching)
 	*
+	* This function uses mktime() to construct the date, therefore months/days outside the
+	* valid range will be quietly handled as mktime() would (eg. params of 2004,8,32 would
+	* return the date 2004-09-01). This is done mainly to simplify the week view script
+	*
 	* @param int	$year	year of date
 	* @param int	$month  the month
 	* @param int	$day	the day (optional)
@@ -362,10 +406,14 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function _buildDate($year, $month, $day=null)
 	{
-		$str = str_pad($year, 4, '0', STR_PAD_LEFT).'-'.str_pad($month, 2, '0', STR_PAD_LEFT);
-		if (!is_null($day)) {
-			$str .= '-'.str_pad($day, 2, '0', STR_PAD_LEFT);
+		$date_value = mktime(0,0,0,$month,(is_null($day) ? 1 : $day), $year);
+		
+		if (is_null($day)) {
+			return date('Y-m', $date_value);
+		} else {
+			return date('Y-m-d', $date_value);
 		}
+		
 		return $str;
 		
 	}//end _buildDate()
