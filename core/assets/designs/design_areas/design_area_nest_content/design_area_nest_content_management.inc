@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content_management.inc,v 1.5 2003/11/26 00:50:56 gsherwood Exp $
+* $Id: design_area_nest_content_management.inc,v 1.6 2003/12/15 19:10:00 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,7 +51,7 @@ class Design_Area_Nest_Content_Management extends Asset_Management
 								'added'			=> '0.0.1',
 								'type'			=> 'serialise',
 								'default'		=> Array(),
-								'description'   => 'Comma or space separated list of type codes to restrict the flash menu to display, these types are not strict however so any sub-types of these will also be valid'
+								'description'   => 'A list of type codes to restrict the asset selection to, these types are not strict however so any sub-types of these will also be valid. While this is a "serialise" attribute it can be set using a comma or space separated list of type codes',
 							),
 						);
 

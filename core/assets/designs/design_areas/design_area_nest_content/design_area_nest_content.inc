@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content.inc,v 1.11 2003/11/26 00:50:56 gsherwood Exp $
+* $Id: design_area_nest_content.inc,v 1.12 2003/12/15 19:10:00 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,8 +51,16 @@ class Design_Area_Nest_Content extends Design_Area
 	function setAttrValue($name, $value)
 	{
 		// if they are trying to set the type_codes, split the string
-		if ($name == 'type_codes' && !is_array($value)) {
-			$value = preg_split('/[ ,]+/', (string) $value);
+		if ($name == 'type_codes') {
+			if (!is_array($value)) {
+				$value = preg_split('/[ ,]+/', (string) $value);
+			}
+			foreach($value as $type_code) {
+				if (!$GLOBALS['SQ_SYSTEM']->am->installed($type_code)) {
+					trigger_error('Asset Type "'.$type_code.'" is not installed in this system, unable to set "type_codes"', E_USER_WARNING);
+					return false;
+				}
+			}// end foreach
 
 		}// end if
 
