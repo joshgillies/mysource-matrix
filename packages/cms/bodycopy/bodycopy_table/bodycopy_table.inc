@@ -81,6 +81,7 @@ class Bodycopy_Table extends Asset
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+		$old_status = $this->status;
 		if (!parent::processStatusChange($new_status, $real_status=0)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
@@ -89,15 +90,17 @@ class Bodycopy_Table extends Asset
 		// if we have just gone live from safe editing, we need to
 		// create our notice links again so we dont have leftovers from
 		// when we were safe editing and thus not deleting links we removed
-		$edit = $this->getEditFns();
-		if (!$edit->generateContentFile($this)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+		if ($this->status == SQ_STATUS_LIVE && ($old_status & SQ_STATUS_SAFE_EDITING)) {
+			$edit = $this->getEditFns();
+			if (!$edit->generateContentFile($this)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
-	}
+	}//end processStatusChange()
 
 
 	/**
