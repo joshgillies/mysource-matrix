@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.48 2004/07/08 02:01:27 lwright Exp $
+* $Id: workflow_manager.inc,v 1.49 2004/09/15 04:30:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -400,6 +400,69 @@ class Workflow_Manager extends MySource_Object
 		return $can_publish;
 
 	}//end whoCanPublish()
+
+
+	/**
+	* Notifies people in the workflow that want to know when the asset goes live
+	*
+	* @param int	$assetid	the ID of the asset that has gone live
+	* @param int	$old_status	the status the asset is changing from
+	*
+	* @return boolean
+	* @access public
+	*/
+	function notifyOnLive($assetid, $old_status)
+	{
+		// we dont have to notify people for silent workflow assets
+		if ($this->silentWorkflowParty($assetid)) return true;
+		
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (is_null($asset)) {
+			trigger_error('Failed to notify, asset #'.$assetid.' does not exist', E_USER_WARNING);
+			return false;
+		}
+
+		// if there are no workflows, we dont notify anyone
+		$schemas = $this->getSchemas($assetid, true);
+		if (empty($schemas)) return true;
+		
+		// these will be the people who to notify (some may be groups)
+		$notify = Array();
+
+		foreach ($schemas as $schemaid) {
+			$conditions = $GLOBALS['SQ_SYSTEM']->am->getChildren($schemaid, 'workflow_step_condition');
+			foreach ($conditions as $cond_id => $type_code) {
+				$condition = &$GLOBALS['SQ_SYSTEM']->am->getAsset($cond_id, 'workflow_step_condition');
+				if (is_null($condition)) continue;
+				if ($condition->attr('notify')) {
+					// the user or group in this condition wants to be notified
+					$notify[] = $condition->attr('userid');
+				}
+			}
+		}
+
+		if (!empty($notify)) {
+			$notify = array_unique($notify);
+			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+
+			$msg = $ms->newMessage($notify);
+			$msg->subject = 'Asset Made Live';
+			$msg->type    = 'asset.status.notify';
+			$msg->body    = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name').' "'.$asset->name.'" has gone live from '.get_status_description($old_status);
+			
+			// create a link for navigation to the workflow screen for this asset
+			$asset_url = $asset->getURL();
+			if (!empty($asset_url)) {
+				$msg->body .= "\n\n".'You can view the asset <SQ_MSG_LINK href="'.$asset_url.'">here</SQ_MSG_LINK>.';
+			}
+
+			$msg->parameters['assetid'] = $asset->id;
+			$ms->enqueueMessage($msg);
+		}
+		
+		return true;
+
+	}//end notifyOnLive()
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live_approval.inc,v 1.23 2004/09/14 04:31:42 lwright Exp $
+* $Id: asset_status_live_approval.inc,v 1.24 2004/09/15 04:30:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -45,6 +45,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 */
 class Asset_Status_Live_Approval extends Asset_Status
 {
+
 
 	/**
 	* Constructor
@@ -216,10 +217,12 @@ class Asset_Status_Live_Approval extends Asset_Status
 				}
 
 				if ($new_status == SQ_STATUS_LIVE) {
+					// notify people that the asset has gone live
+					$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+					if (!$wfm->notifyOnLive($this->owner->id, $this->status_tag)) return false;
+
 					// update the last published date
-					if (!$this->owner->setDate('published')) {
-						return false;
-					}
+					if (!$this->owner->setDate('published')) return false;
 				}
 
 				if ($new_status == SQ_STATUS_APPROVED) {

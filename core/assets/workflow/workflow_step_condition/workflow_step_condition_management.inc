@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_condition_management.inc,v 1.9 2004/06/07 05:42:39 gsherwood Exp $
+* $Id: workflow_step_condition_management.inc,v 1.10 2004/09/15 04:30:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 class Workflow_Step_Condition_Management extends Asset_Management
 {
 
+
 	/**
 	* Constructor
 	*
@@ -46,23 +47,34 @@ class Workflow_Step_Condition_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array('userid'    => Array(
-											'added'   => '0.1',
-											'type'    => 'assetid', 
-											'default' => 0,
-											),
-							'logic'     => Array(
-											'added'		=> '0.1',
-											'type'		=> 'text', 
-											'default'	=> '>=',
-											),
-							'logic_num' => Array(
-											'added'		=> '0.1',
-											'type'		=> 'int', 
-											'default'	=> 1,
-											)
+		$this->vars = Array(
+							'userid'	=>  Array (
+												'added'   => '0.1',
+												'type'    => 'assetid',
+												'default' => 0,
+												),
+							'logic'		=>  Array (
+												'added'   => '0.1',
+												'type'    => 'text',
+												'default' => '>=',
+												),
+							'logic_num'	=> Array (
+												'added'   => '0.1',
+												'type'    => 'int',
+												'default' => 1,
+												),
+							'notify'	=> Array (
+												'added'   => '0.2',
+												'type'    => 'boolean',
+												'default' => false,
+												'parameters' => Array(
+													'allow_empty' => false,
+													)
+												),
 							);
+
 	}//end constructor
+
 
 }//end class
 

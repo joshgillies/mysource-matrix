@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_condition_edit_fns.inc,v 1.12 2004/07/23 00:07:50 gsherwood Exp $
+* $Id: workflow_step_condition_edit_fns.inc,v 1.13 2004/09/15 04:30:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 */
 class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -80,6 +81,16 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 		<td class="sq-backend-table-cell"><?php echo '&nbsp;'.$user->name.' ['.$user->type()." : $user->id]";?></td>
 		<td class="sq-backend-table-cell">
 			<?php
+			$notify = $asset->attr('notify');
+			if (!$write_access) {
+				echo ($notify) ? 'Yes' : 'No';
+			} else {
+				check_box($prefix.'_notify', '1', $notify);
+			}
+			?>
+		</td>
+		<td class="sq-backend-table-cell">
+			<?php
 			if (!$write_access) {
 				if (is_a($user, 'user')) {
 					echo '&nbsp;';
@@ -100,7 +111,9 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 					echo ' member(s) must approve';
 				}
 			}
-		?></td><?php
+			?>
+		</td>
+		<?php
 
 		return true;
 
@@ -125,26 +138,28 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		// set the step condition logic
-		$cond_logic = '';
-		$cond_logic_num = '';
-		if (isset($_POST[$prefix.'_logic'])) {
-			$cond_logic = trim($_POST[$prefix.'_logic']);
+		$cond_logic = array_get_index($_POST, $prefix.'_logic');
+		if (!$asset->setAttrValue('logic', $cond_logic)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
 		}
+
 		if (isset($_POST[$prefix.'_logic_num']) && $cond_logic != 'all') {
 			$cond_logic_num = (!empty($_POST[$prefix.'_logic_num'])) ? (int) $_POST[$prefix.'_logic_num'] : 0;
 		} else {
 			$cond_logic_num = 0;
 		}
-
-		if (!$asset->setAttrValue('logic', $cond_logic)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
 		if (!$asset->setAttrValue('logic_num', $cond_logic_num)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
+		
+		$notify = (bool) array_get_index($_POST, $prefix.'_notify', false);
+		if (!$asset->setAttrValue('notify', $notify)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
 		if (!$asset->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
@@ -157,6 +172,17 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 	}//end processInlineOptionInterface()
 
 
+	/**
+	* Generate an array representing the workflow structure for the step condition at this point in time
+	*
+	* The generated array is a snap shot of the schema at a point in time that can get written
+	* to the database and used for publishing etc.
+	*
+	* @param object Asset	&$asset	the asset we are generating the array for
+	*
+	* @access public
+	* @return array
+	*/
 	function generateWorkflowArray($asset, &$workflow_array)
 	{
 		// work out the logic expression
@@ -168,7 +194,8 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 		$workflow_array[$publisher] = Array('logic' => $logic, 'published_by' => Array());
 
 		return true;
-	}
+
+	}//end generateWorkflowArray()
 
 
 }//end class

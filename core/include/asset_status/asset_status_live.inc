@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live.inc,v 1.17 2004/07/08 02:01:27 lwright Exp $
+* $Id: asset_status_live.inc,v 1.18 2004/09/15 04:30:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -42,6 +42,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 */
 class Asset_Status_Live extends Asset_Status
 {
+
 
 	/**
 	* Constructor

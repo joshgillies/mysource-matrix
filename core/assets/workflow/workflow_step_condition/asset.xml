@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.7 2003/11/26 00:51:05 gsherwood Exp $
+* $Id: asset.xml,v 1.8 2004/09/15 04:30:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -29,7 +29,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
 	<package>__core__</package>
 	<type_code>workflow_step_condition</type_code>
-	<version>0.1</version>
+	<version>0.2</version>
 	<name>Workflow Step Condition</name>
 	<description>Workflow Step Condition, define a a condition of a workflow step to be met before completion</description>
 	<instantiable>yes</instantiable>
