@@ -39,7 +39,6 @@ class User extends Asset
 	*/
 	function create(&$link)
 	{
-
 		$username = trim($this->attr('username'));
 		$password = $this->attr('password');
 
@@ -64,6 +63,7 @@ class User extends Asset
 		$inbox = new Inbox();
 		if (!$inbox->create($user_link)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
 			return false;
 		}
 
@@ -73,11 +73,13 @@ class User extends Asset
 		$workspace->setAttrValue('name', 'Workspace');
 		if (!$workspace->create($user_link)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
 			return false;
 		}
 
 		if (!$this->grantPermission($this->id, SQ_PERMISSION_ADMIN)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
 			return false;
 		}
 
@@ -120,8 +122,9 @@ class User extends Asset
 	{
 
 		trigger_error('CHECK USER INPUTS FOR USERNAME, PASSWORD ETC', E_USER_NOTICE);
-
-		if ($name == 'password') {
+		// if this is the password, encrypt it
+		// BUT not if we have been created, (otherwise when we try and save to DB in create() it encrypts the encrypted version)
+		if ($name == 'password' && $this->id) {
 			$value = crypt($value); // let salt be generated
 		}
 
