@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox_edit_fns.inc,v 1.14 2005/02/01 11:36:47 brobertson Exp $
+* $Id: design_area_searchbox_edit_fns.inc,v 1.15 2005/03/24 00:59:03 dheppell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 * @see Design_Area_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -170,7 +170,7 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 	function paintSearchFieldName(&$asset, &$o, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
-			$search_page = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->attr('search_page_assetid'));
+			$search_page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset->attr('search_page_assetid'));
 			$fields = $search_page->attr('fields');
 			if (is_scalar($fields)) {
 				$fields = unserialize($fields);

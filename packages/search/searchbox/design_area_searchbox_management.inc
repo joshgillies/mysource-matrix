@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox_management.inc,v 1.8 2004/12/06 14:44:15 brobertson Exp $
+* $Id: design_area_searchbox_management.inc,v 1.9 2005/03/24 00:59:03 dheppell Exp $
 *
 */
 
@@ -31,15 +31,17 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
 class Design_Area_SearchBox_Management extends Asset_Management
 {
+
+
 	/**
 	* Constructor
-	* 
+	*
 	* @access public
 	*/
 	function Design_Area_SearchBox_Management(&$pm)
@@ -47,48 +49,49 @@ class Design_Area_SearchBox_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-			'search_page_assetid' => Array (
-				'added'			=> '0.1',
-				'type'			=> 'assetid',
-				'default'		=> '',
-				'description'	=> 'Search Page where queries are deferred to and results displayed on.'
-			),
-			'submit_button' => Array (
-				'added'			=> '0.1',
-				'type'			=> 'boolean',
-				'default'		=> true,
-				'description'	=> 'Whether the search button is a button or an image.',
-				'parameters' => Array(
-									'allow_empty' => false
-									),
-			),
-			'submit_image_assetid' => Array(
-				'added'			=> '0.1',
-				'type'			=> 'assetid',
-				'default'		=> '',
-				'description'	=> 'Image Icon Asset'
-			),
-			'querybox_width'	=> Array(
-				'added'			=> '0.1',
-				'type'			=> 'int',
-				'default'		=> '5',
-				'description'	=> 'The width of the single query box.'
-			),
-			'field_name'		=> Array(
-				'added'			=> '0.1',
-				'type'			=> 'text',
-				'default'		=> '',
-				'description'	=> 'The field defined in the search page that this is attached to.',
-			),
-			'default_text'		=> Array(
-				'added'			=> '0.1',
-				'type'			=> 'text',
-				'default'		=> '',
-				'description'	=> 'The default text to display in the search box.',
-			),
-		);
+							'search_page_assetid'  => Array(
+															'added'       => '0.1',
+															'type'        => 'assetid',
+															'default'     => '',
+															'description' => 'Search Page where queries are deferred to and results displayed on.',
+															),
+							'submit_button'        => Array(
+															'added'       => '0.1',
+															'type'        => 'boolean',
+															'default'     => true,
+															'description' => 'Whether the search button is a button or an image.',
+															'parameters'  => Array(
+																				   'allow_empty' => false,
+																				   ),
+															),
+							'submit_image_assetid' => Array(
+															'added'       => '0.1',
+															'type'        => 'assetid',
+															'default'     => '',
+															'description' => 'Image Icon Asset',
+															),
+							'querybox_width'       => Array(
+															'added'       => '0.1',
+															'type'        => 'int',
+															'default'     => '5',
+															'description' => 'The width of the single query box.',
+															),
+							'field_name'           => Array(
+															'added'       => '0.1',
+															'type'        => 'text',
+															'default'     => '',
+															'description' => 'The field defined in the search page that this is attached to.',
+															),
+							'default_text'         => Array(
+															'added'       => '0.1',
+															'type'        => 'text',
+															'default'     => '',
+															'description' => 'The default text to display in the search box.',
+															),
+							);
 
 	}//end constructor
+
 
 }//end class
 ?>
