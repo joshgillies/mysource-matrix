@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.46 2003/11/26 00:51:13 gsherwood Exp $
+* $Id: html_form.inc,v 1.47 2003/12/17 04:55:51 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -636,7 +636,8 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $top_obj='top', $d
 
 	$safe_name = 'sq_asset_finder_'.preg_replace('/[^A-Za-z0-9]/', '_', $name);
 
-	hidden_field($name, $assetid);
+	hidden_field($name.'[assetid]', $assetid);
+	hidden_field($name.'[url]', '');
 	text_box($safe_name.'_label', $label, 30, 0, false, 'class="sq-form-asset-finder" onFocus="javascript: this.tmp = this.value;" onBlur="javascript: this.value = this.tmp;"');
 	normal_button($safe_name.'_change_btn', 'Change...', 'asset_finder_change_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.str_replace("\n", "\\n", addslashes($xml_type_codes->get())).'\', '.$top_obj.', '.$done_fn.');');
 	normal_button($safe_name.'_clear_btn', 'Clear', 'asset_finder_clear_btn_press(\''.$name.'\', \''.$safe_name.'\');');

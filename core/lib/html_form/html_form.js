@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.22 2003/11/26 00:51:13 gsherwood Exp $
+* $Id: html_form.js,v 1.23 2003/12/17 04:55:51 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -501,16 +501,17 @@ function asset_finder_change_btn_press(name, safe_name, type_codes_xml, top_obj,
 *
 * @param int	$assetid		the assetid that has been selected
 * @param int	$label			the name of the selected asset
+* @param int	$preview_url	the url of the asset as it is in the tree structure
 *
 * @access public
 */
-function asset_finder_done(assetid, label)
+function asset_finder_done(assetid, label, url)
 {
 	if (ASSET_FINDER_FIELD_NAME == null) return;
-
 	// if we get a -1 they cancelled, do nothing
 	if (assetid != -1) {
-		set_hidden_field(ASSET_FINDER_FIELD_NAME, assetid);
+		set_hidden_field(ASSET_FINDER_FIELD_NAME + '[assetid]', assetid);
+		set_hidden_field(ASSET_FINDER_FIELD_NAME + '[url]', url);
 		set_text_field(ASSET_FINDER_FIELD_SAFE_NAME + '_label', (assetid == 0) ? '' : label + ' (Id : #' + assetid + ')');
 	}
 	set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', 'Change...');
