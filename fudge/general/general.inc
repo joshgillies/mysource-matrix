@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.17 2004/03/01 05:44:28 gsherwood Exp $
+* $Id: general.inc,v 1.18 2004/04/01 03:59:20 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -43,6 +43,7 @@
 * @param mixed $var	the var to cleanup
 *
 * @return mixed
+* @access public
 */
 function gpc_stripslashes($var)
 {
@@ -61,7 +62,8 @@ function gpc_stripslashes($var)
 * @param array		$array			the array to stripslash
 * @param boolean	$strip_keys		whether or not to stripslash the keys as well
 *
-* @return Array()
+* @return array
+* @access public
 */
 function stripslashes_array(&$array, $strip_keys=false)
 {
@@ -89,11 +91,47 @@ function stripslashes_array(&$array, $strip_keys=false)
 
 
 /**
+* Convert html entities from an entire associative array
+*
+* @param array		$array			the array to htmlentities
+* @param boolean	$encode_keys	whether or not to htmlentities the keys as well
+*
+* @return array
+* @access public
+*/
+function htmlentities_array(&$array, $encode_keys=false)
+{
+	if(is_string($array)) return htmlentities($array);
+	$keys_to_replace = Array();
+	foreach($array as $key => $value) {
+		if (is_string($value)) {
+			$array[$key] = htmlentities($value);
+		} elseif (is_array($value)) {
+			htmlentities_array($array[$key], $encode_keys);
+		}
+
+		if ($encode_keys && $key != ($encoded_key = htmlentities($key))) {
+			$keys_to_replace[$key] = $encoded_key;
+		}
+	}
+	// now replace any of the keys that needed encoding
+	foreach($keys_to_replace as $from => $to) {
+		$array[$to] = &$array[$from];
+		unset($array[$from]);
+	}
+	return $array;
+
+}//end htmlentities_array()
+
+
+
+/**
 * Generates a random password from letters/digits
 *
 * @param int $length    the length of the password
 *
-* @return Array()
+* @return array
+* @access public
 */
 function random_password($length)
 {
@@ -127,6 +165,7 @@ function random_password($length)
 * @param int	$length    the length of the password
 *
 * @return string
+* @access public
 */
 function ellipsisize($string, $length)
 {
@@ -160,6 +199,7 @@ function ellipsisize($string, $length)
 * @param string $spacer	the char(s) to put between the end of the name and the numeral
 *
 * @return string
+* @access public
 */
 function increment_name($name='', $spacer='')
 {
@@ -180,8 +220,8 @@ function increment_name($name='', $spacer='')
 *
 * @param int	$key_len	the lenght of the random string to display in the image
 *
-* @access public
 * @return string
+* @access public
 */
 function generate_security_key($key_len)
 {
@@ -209,6 +249,7 @@ function generate_security_key($key_len)
 * @param int	$zoom	each character will be randomly zoomed between x1 and this figure
 *
 * @return void
+* @access public
 */
 function security_key_image($word, $w, $h, $bg='FFFFFF', $text='000000', $border='000000', $zoom=1)
 {
@@ -277,5 +318,6 @@ function security_key_image($word, $w, $h, $bg='FFFFFF', $text='000000', $border
 	}
 
 }//end security_key_image()
+
 
 ?>
