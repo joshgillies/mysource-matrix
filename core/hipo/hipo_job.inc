@@ -71,6 +71,7 @@ class HIPO_Job extends MySource_Object
 	/**
 	* Zero Indexed Array of steps to perform in this HIPO
 	* Form :
+	* <code>
 	* Array(
 	*		Array(
 	*			'name'			=> [name of the step],
@@ -92,6 +93,7 @@ class HIPO_Job extends MySource_Object
 	*		),
 	*		...
 	* );
+	* </code>
 	* @var array()
 	*/
 	var $_steps = Array();
@@ -172,6 +174,10 @@ class HIPO_Job extends MySource_Object
 	*/
 	function setRunningVars($vars)
 	{
+		if (!is_array($vars)) {
+			trigger_error('Running Vars needs to be an array', E_USER_WARNING);
+			return;
+		}
 		$this->_running_vars = $vars;
 
 	}//end setRunningVars()
@@ -256,9 +262,24 @@ class HIPO_Job extends MySource_Object
 		$this->_hipo_vars['initialise_mode'] = $this->_current_mode;
 		$this->_hipo_vars['running_mode']    = $this->_current_mode;
 
+		if (empty($source_code_name)) {
+			$source_initialise_mode = $this->_current_mode;
+		} else {
+			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$source_job = &$hh->getJob($source_code_name);
+			if (is_null($source_job) || ($source_job->source_code_name != $source_job->code_name)) return '';
+			$source_initialise_mode = $source_job->getInitialiseMode();
+		}
+
 		for($i = 0; $i < count($this->_steps); $i++) {
-			// if we aren't using the server make sure that all the steps are changed accordingly
-			if (!SQ_HIPO_USE_SERVER) {
+			// if we are starting from a server script but this job needs the web to run, 
+			// then we are fucked, so get out of here
+			if ($source_initialise_mode == 'server' && $this->_steps[$i]['running_mode'] == 'web') {
+				trigger_error('You can\'t run a hipo job that requires a "web" running mode when it\'s is being initialised from the server', E_USER_WARNING);
+				return '';
+			// if we aren't using the server and we are in a web script
+			// make sure that all the steps are changed accordingly
+			} else if ($this->_current_mode == 'web' && !SQ_HIPO_USE_SERVER) {
 				$this->_steps[$i]['running_mode'] = 'web';
 
 			} else if ($this->_steps[$i]['running_mode'] == 'server' && empty($this->_steps[$i]['auto_step'])) {
@@ -447,6 +468,18 @@ class HIPO_Job extends MySource_Object
 	}// end _getSubJob();
 
 
+	/**
+	* Returns the mode that this task was initialised in
+	*
+	* @return string
+	* @access public
+	*/
+	function getInitialiseMode()
+	{
+		return $this->_hipo_vars['initialise_mode'];
+	}// end getInitialiseMode();
+
+	
 	/**
 	* Set the mode that we are running (ie processing) in
 	*
@@ -701,6 +734,7 @@ class HIPO_Job extends MySource_Object
 		// if we aren't using the server this should never happen (because of what happens in initialise())
 		} else {
 			trigger_error('Something is not right with this HIPO, please consult your system administrator', E_USER_ERROR);
+
 		}// endif
 
 	}//end process()
