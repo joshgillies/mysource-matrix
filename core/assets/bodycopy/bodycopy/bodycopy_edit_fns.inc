@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.15 2004/09/03 06:54:05 arailean Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.16 2004/09/06 05:25:19 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -365,9 +365,6 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			}
 		</style>
 
-		<!-- Begin Tooltip -->
-		<div id="bodycopyToolTipDiv" style="z-index:1000"></div>
-		<!-- End Tooltip -->
 
 		<!-- Begin Popup -->
 		<div id="bodycopyPopupDiv" style="z-index:1001">
@@ -475,6 +472,11 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 		?>
 		</table>
+		<!-- Begin Tooltip -->
+		<div id="bodycopyToolTipDiv" style="z-index:1000"></div>
+		<iframe scrolling="no" border="0" frameborder="0" id="hider" style="position:absolute;top:-200px;left:-110px;width:10px; height:30px;progid:DXImageTransform.Microsoft.Alpha(style=0, opacity=0)" src="about:blank"></iframe>
+		<table cellspacing="0" cellpadding="0" border="0" id="ToolBox" style="position:absolute;top:0px;left:0px;visibility:hidden;filter:progid:DXImageTransform.Microsoft.Fade(duration=0.5)"><tr><td id="ToolBoxTitle" style="padding:0px"></td></tr><tr><td id="ToolBoxContent" style="padding:2px"></td></tr></table>
+		<!-- End Tooltip -->
 		<?php
 
 		return $write_access;
