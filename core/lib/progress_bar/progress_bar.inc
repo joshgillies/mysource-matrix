@@ -183,14 +183,19 @@ class Progress_Bar
 	{
 		if (empty($_SESSION['progress_bar'])) $_SESSION['progress_bar'] = Array();
 
-		$vars = get_object_vars($this);
-		unset($vars['testing']);
-		unset($vars['_loaded']);
-		unset($vars['_url']);
-		unset($vars['_obj']);
-		unset($vars['_in_pop_up']);
-
-		$_SESSION['progress_bar'][$this->_key] = $vars;
+		// if we are done, remove our selves from the session
+		if ($this->_done || $this->_abort) {
+			unset($_SESSION['progress_bar'][$this->_key]);
+		// otherwise save as usual
+		} else {
+			$vars = get_object_vars($this);
+			unset($vars['testing']);
+			unset($vars['_loaded']);
+			unset($vars['_url']);
+			unset($vars['_obj']);
+			unset($vars['_in_pop_up']);
+			$_SESSION['progress_bar'][$this->_key] = $vars;
+		}// end if
 
 	}// end _save()
 
