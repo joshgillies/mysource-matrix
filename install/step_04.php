@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_04.php,v 1.1 2005/03/30 00:40:18 lwright Exp $
+* $Id: step_04.php,v 1.2 2005/03/30 01:09:57 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * Compiles languages on the system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -70,8 +70,12 @@ if (version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
 }
 
 // let everyone know we are installing
-// $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-$GLOBALS['SQ_INSTALL'] = true;
+$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
+// regenerate the configs
+if (!regenerate_configs()) {
+	trigger_error('Config Generation Failed', E_USER_ERROR);
+}
 
 $string_locales = Array();
 $asset_screen_dir = SQ_DATA_PATH.'/private/asset_types/asset/localised_screens';
@@ -204,5 +208,4 @@ foreach ($string_locales as $locale) {
 	build_locale_string_file($locale);
 }
 
-// $GLOBALS['SQ_SYSTEM']->restoreRunLevel()
-unset($GLOBALS['SQ_INSTALL']);
+$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
