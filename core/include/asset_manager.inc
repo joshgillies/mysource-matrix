@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.274 2005/02/22 13:50:29 brobertson Exp $
+* $Id: asset_manager.inc,v 1.275 2005/02/23 05:11:37 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.274 $
+* @version $Revision: 1.275 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -301,7 +301,7 @@ class Asset_Manager extends MySource_Object
 					unset($type_code[$i]);
 					unset($tmp[$i]);
 					continue;
-				} elseif (!isset($this->_asset_types[$type_code[$i]])) {
+				} else if (!isset($this->_asset_types[$type_code[$i]])) {
 					trigger_error('Asset "'.$type_code[$i].'" is not installed on the system', E_USER_WARNING);
 					unset($type_code[$i]);
 					unset($tmp[$i]);
@@ -317,8 +317,8 @@ class Asset_Manager extends MySource_Object
 			}//end for
 			$type_code_cond = 'IN ('.implode(', ', $tmp).')';
 
-		// just a single typecode
 		} else {
+			// just a single typecode
 			assert_type($type_code, 'string', 'Type code "'.$type_code.'" is not a string');
 			assert_isset_array_index($this->_asset_types, $type_code, 'Asset "'.$type_code.'" is not installed on the system');
 
@@ -327,10 +327,9 @@ class Asset_Manager extends MySource_Object
 				$do_query = true;
 				$type_code_cond = '= '.$db->quote($type_code);
 			}
-		}//end if
+		}//end if $type_code is an array
 
 		if ($do_query) {
-
 			$sql = 'SELECT '.$columns.'
 					FROM '.SQ_TABLE_PREFIX.'ast_typ
 					WHERE type_code '.$type_code_cond;
@@ -343,7 +342,6 @@ class Asset_Manager extends MySource_Object
 			} else {
 				$this->_asset_types[$type_code][$field] = $result[0][$field];
 			}
-
 		}//end if
 
 		if (is_array($type_code)) {
@@ -414,6 +412,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		return $default_weightings;
+
 	}//end getTypeDefaultWeightings()
 
 
@@ -449,13 +448,14 @@ class Asset_Manager extends MySource_Object
 			$parent = $this->_asset_types[$type_code]['parent_type'];
 			if (!isset($offspring[$parent])) $offspring[$parent] = Array();
 			$offspring[$parent][] = $type_code;
-		}//end for
+		}
 
 		$hier = $this->_recurseGetAssetTypeHierarchy($offspring, $base_type_code);
 
 		return $hier;
 
 	}//end getAssetTypeHierarchy()
+
 
 	function _recurseGetAssetTypeHierarchy($offspring, $base_type_code)
 	{
@@ -666,7 +666,6 @@ class Asset_Manager extends MySource_Object
 //--        ATTRIBUTES        --//
 
 
-
 	/**
 	* Returns an array of information about attributes
 	*
@@ -804,47 +803,39 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Returns a boolean as to whether the passed assetid refers to a valid asset in the system
+	* Determine if the passed assetid refers to a valid asset in the system
 	*
-	* @param int		$assetid	A single assetid
+	* Note that this will always return FALSE if you pass it a shadow asset
+	*
+	* @param int	$assetid	the ID of the asset we are going to the check for existence
 	*
 	* @return boolean
 	* @access public
 	*/
-	function isAsset($assetid)
+	function assetExists($assetid)
 	{
 		assert_valid_assetid($assetid);
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = '
-			SELECT
-				COUNT(assetid) as assets
-			FROM
-				!ast
-			WHERE
-				assetid = ?
-		';
+		$sql = 'SELECT assetid
+				FROM '.SQ_TABLE_PREFIX.'ast ';
 
-		$data = Array(
-			SQ_TABLE_PREFIX,
-			$assetid
-		);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quote($assetid));
 
 		// query the database, expect only one row
-		$result = $db->getRow($sql, $data);
-		// check result
-		assert_valid_db_result($result);
+		$db_assetid = $db->getOne($sql.$where);
+		assert_valid_db_result($db_assetid);
 
-		return ($result['assets'] == "0" ? false : true);
+		return ($db_assetid == $assetid);
 
-	}
+	}//end assetExists()
 
 
 	/**
 	* Registers the passed object in the store, for others to get
 	* Used when a new record has just been "create()d"
-	*
+	*cd ..
 	* @param object Asset	&$obj	the asset to be registered
 	*
 	* @see forgetAsset()
@@ -984,13 +975,15 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns an array of information about assets of the passed codes
 	*
+	* If one value in $field then the return value is Array(assetid => '[field]'), otherwise Array(assetid => Array())
+	*
 	* @param array(int)		$assetids			an array of assets to limit
 	* @param array|string	$type_code			an array of types codes to limit the results to
 	* @param boolean		$strict_type_code	ensure returned assets are of the passed type codes
 	* @param string			$field				single field from the asset table to return (along with the assetid)
 	*											Default is all fields
 	*
-	* @return Array()	if one value in $field then the return value is Array(assetid => '[field]'), otherwise Array(assetid => Array())
+	* @return array	
 	* @access public
 	*/
 	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=true, $field='')
