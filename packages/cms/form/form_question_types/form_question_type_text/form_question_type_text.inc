@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text.inc,v 1.18 2004/05/06 05:05:39 lwright Exp $
+* $Id: form_question_type_text.inc,v 1.19 2004/05/12 06:43:42 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -138,5 +138,19 @@ class Form_Question_Type_Text extends Form_Question
 	}//end processForm()
 
 	
+	/**
+	* returns an array of the types of rules 
+	*
+	* Returned array is 'short name' => 'full name'
+	*
+	* @access public
+	* @return Array(string => string)
+	*/
+	function getAllowedRules()
+	{
+		return Array('regexp', 'comparison', 'numeric', 'found_in', 'contain', 'length', 'email');
+
+	}//end getAllowedRules()
+
 }//end class
 ?>
