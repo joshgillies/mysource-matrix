@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.6 2004/07/19 00:48:08 mnyeholt Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.7 2004/07/19 01:02:14 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -348,7 +348,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 		// require library functions needed for drawing the bodycopy 
 		$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');
-		require_once SQ_SYSTEM_ROOT.'/'.$type_info['dir'].'/files/lib.php';
+		require_once SQ_SYSTEM_ROOT.'/'.$type_info['dir'].'/files/bodycopy_general.inc';
 		
 		?>
 		<table<?php echo $attribute_list?> background="<?php echo $bgimage?>" border="0" cellpadding="0" cellspacing="0" style="width:100%;">

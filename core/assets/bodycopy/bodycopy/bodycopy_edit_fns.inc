@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.8 2004/07/19 00:36:57 mnyeholt Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.9 2004/07/19 01:01:34 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -381,7 +381,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 		// require library functions needed for drawing the bodycopy 
 		$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');
-		require_once SQ_SYSTEM_ROOT.'/'.$type_info['dir'].'/files/lib.php';
+		require_once SQ_SYSTEM_ROOT.'/'.$type_info['dir'].'/files/bodycopy_general.inc';
 		
 		// for each container, print it's editing interface
 		$i = 0;
