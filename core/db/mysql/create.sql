@@ -131,7 +131,17 @@ CREATE TABLE sq_asset_permission (
   userid     INT      UNSIGNED NOT NULL DEFAULT 0,
   permission SMALLINT UNSIGNED NOT NULL DEFAULT 0,
   revoked    SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  extras     LONGTEXT,
   PRIMARY KEY(assetid, userid, permission, revoked)
+);
+
+
+DROP TABLE IF EXISTS sq_asset_workflow;
+CREATE TABLE sq_asset_workflow (
+  workflowid VARCHAR(100)      NOT NULL,
+  complete   SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  workflow   LONGTEXT          NOT NULL DEFAULT '',
+  PRIMARY KEY(workflowid)
 );
 
 
