@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.35 2004/02/06 03:09:54 gsherwood Exp $
+* $Id: mysource.inc,v 1.36 2004/02/27 03:30:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -537,7 +537,7 @@ class MySource
 	*/
 	function loginKey()
 	{
-		return $_SESSION['SQ_LOGIN_KEY'];
+		return (isset($_SESSION['SQ_LOGIN_KEY'])) ? $_SESSION['SQ_LOGIN_KEY'] : '';
 
 	}//end loginKey()
 
