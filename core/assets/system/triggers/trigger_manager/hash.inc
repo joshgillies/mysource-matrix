@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hash.inc,v 1.3 2005/03/01 00:25:31 arailean Exp $
+* $Id: hash.inc,v 1.4 2005/03/14 23:53:25 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 class Hash
@@ -170,7 +170,7 @@ class Hash
 	/**
 	* Sets the Asset Type field
 	*
-	* @param string     $asset_type     the raw link tree id of the asset (see asset_manager::getRawTreeIdByAsset)
+	* @param string     $asset_type     the raw link tree id of the asset (see asset_manager::getAssetTreeids)
 	* @param string     $propagation    '01' or '00'. Determines whether the we are checking for assets underneath a tree node, or just for an individual asset
 	*
 	* @access public

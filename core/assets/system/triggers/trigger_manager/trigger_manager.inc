@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.6 2005/03/01 00:25:31 arailean Exp $
+* $Id: trigger_manager.inc,v 1.7 2005/03/14 23:53:25 arailean Exp $
 *
 */
 
@@ -51,7 +51,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -312,7 +312,7 @@ class Trigger_Manager extends Asset
 		$state['immediate_children'] = $child_assets;
 
 		// uses type 1,2 and 3 only
-		$tmp_treeid = $am->getRawTreeIdByAsset($state['assetid'], true);
+		$tmp_treeid = $am->getAssetTreeids($state['assetid']);
 		if ($tmp_treeid) {
 			$state['treeid'] = $tmp_treeid;
 		} else {

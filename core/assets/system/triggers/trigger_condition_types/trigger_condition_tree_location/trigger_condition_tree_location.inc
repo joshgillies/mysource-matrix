@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_tree_location.inc,v 1.4 2005/03/01 00:25:31 arailean Exp $
+* $Id: trigger_condition_tree_location.inc,v 1.5 2005/03/14 23:53:25 arailean Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,7 +75,7 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 				return false;
 			} else {
 				if ($GLOBALS['SQ_SYSTEM']->am->assetExists($settings['assetid'])) {
-					$settings['treeid'] = $GLOBALS['SQ_SYSTEM']->am->getRawTreeIdByAsset($settings['assetid'], true);
+					$settings['treeid'] = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($settings['assetid']);
 				} else {
 					return false;
 				}
@@ -91,7 +91,7 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 		if (empty($state['treeid'])) {
 			// not stored, need to retrieve
 			$assetid = 0;
-			$state['treeid'] = $GLOBALS['SQ_SYSTEM']->am->getRawTreeIdByAsset($assetid, true);
+			$state['treeid'] = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($assetid);
 		}
 
 		if (!is_array($state['treeid'])) {
@@ -201,6 +201,8 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 	{
 		if (empty($request_data) || empty($request_data['assetid']['assetid'])) {
 			return false;
+		} else {
+			$assetid = $request_data['assetid']['assetid'];
 		}
 
 		if (empty($request_data['immed_child'])) {
@@ -213,15 +215,15 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
-		if (!$am->assetExists($request_data['assetid']['assetid'])) {
+		if (!$am->assetExists($assetid)) {
 			return false;
 		};
 
-		$treeid = $am->getRawTreeIdByAsset($request_data['assetid']['assetid']);
+		$treeid = $am->getAssetTreeids($assetid);
 
 		// request_data['assetid'] contains 'assetid' and 'url' - we only want the id
-		$settings['assetid']        = $request_data['assetid']['assetid'];
-		$settings['immed_child']    = $immed_child;
+		$settings['assetid']     = $assetid;
+		$settings['immed_child'] = $immed_child;
 
 		// only use the raw tree value in the hash
 		$hash->setLinkTree($treeid, $propagate);
