@@ -991,21 +991,6 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Generate a prefix to be used by paint() and process()
-	*
-	* @param object	Asset	$owner	the asset whose interface we are painting
-	*
-	* @return string
-	* @access public
-	*/
-	function getPrefix()
-	{
-		return $this->type().'_'.$this->id;
-
-	}//end getPrefix()
-
-
-	/**
 	* Get the type of the asset
 	*
 	* @return string
@@ -1033,66 +1018,6 @@ class Asset extends Resolve_Object
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($this->type(), $include_asset);
 
 	}//end getTypeAncestors()
-
-
-	/**
-	* Get all asset IDs that are above the asset in the various trees in which it exists
-	*
-	* @param string|array	$type_code			the type of asset that is linked
-	*											(eg 'Page', 'File', etc)
-	*											if an array returns link if matches any
-	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
-	*											or $type_code and any of it's sub-classes
-	*
-	* @return array(int)
-	* @access public
-	*/
-	function getParents($type_code='', $strict_type_code=true)
-	{
-		return $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, $type_code, $strict_type_code);
-
-	}//end getParents()
-
-
-	/**
-	* Get all asset IDs that are below the asset in the various trees in which it exists
-	*
-	* @param string|array	$type_code			the type of asset that is linked
-	*											(eg 'Page', 'File', etc)
-	*											if an array returns link if matches any
-	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
-	*											or $type_code and any of it's sub-classes
-	*
-	* @return array(int)
-	* @access public
-	*/
-	function getChildren($type_code='', $strict_type_code=true)
-	{
-		return $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, $type_code, $strict_type_code);
-
-	}//end getChildren()
-
-
-	/**
-	* Get all dependant children of an asset in the various tress in which it exists
-	*
-	* @param string|array	$type_code			the type of asset that is linked
-	*											(eg 'Page', 'File', etc)
-	*											if an array returns link if matches any
-	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
-	*											or $type_code and any of it's sub-classes
-	*
-	* @return array(int)
-	* @access public
-	*/
-	function getDependantChildren($type_code='', $strict_type_code=true)
-	{
-		return $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($this->id, $type_code, $strict_type_code);
-
-	}//end getChildren()
 
 
 	/**
@@ -1555,6 +1480,9 @@ class Asset extends Resolve_Object
 	}//end _morphCleanup()
 
 
+//--        LOCKING        --//
+
+
 	/**
 	* Can the current user forceably acquire the current lock on this asset?
 	*
@@ -1587,6 +1515,9 @@ class Asset extends Resolve_Object
 		return $can_acquire_lock;
 
 	}//end canForceablyAcquireLock()
+
+
+//--        LINKING        --//
 
 
 	/**
@@ -1846,6 +1777,66 @@ class Asset extends Resolve_Object
 		return $result;
 
 	}//end getLinks()
+
+
+	/**
+	* Get all asset IDs that are above the asset in the various trees in which it exists
+	*
+	* @param string|array	$type_code			the type of asset that is linked
+	*											(eg 'Page', 'File', etc)
+	*											if an array returns link if matches any
+	*											of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	*
+	* @return array(int)
+	* @access public
+	*/
+	function getParents($type_code='', $strict_type_code=true)
+	{
+		return $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, $type_code, $strict_type_code);
+
+	}//end getParents()
+
+
+	/**
+	* Get all asset IDs that are below the asset in the various trees in which it exists
+	*
+	* @param string|array	$type_code			the type of asset that is linked
+	*											(eg 'Page', 'File', etc)
+	*											if an array returns link if matches any
+	*											of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	*
+	* @return array(int)
+	* @access public
+	*/
+	function getChildren($type_code='', $strict_type_code=true)
+	{
+		return $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, $type_code, $strict_type_code);
+
+	}//end getChildren()
+
+
+	/**
+	* Get all dependant children of an asset in the various tress in which it exists
+	*
+	* @param string|array	$type_code			the type of asset that is linked
+	*											(eg 'Page', 'File', etc)
+	*											if an array returns link if matches any
+	*											of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	*
+	* @return array(int)
+	* @access public
+	*/
+	function getDependantChildren($type_code='', $strict_type_code=true)
+	{
+		return $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($this->id, $type_code, $strict_type_code);
+
+	}//end getChildren()
 
 
 	/**
@@ -2951,6 +2942,9 @@ class Asset extends Resolve_Object
 	}//end _updateLink()
 
 
+//--        ATTRIBUTES        --//
+
+
 	/**
 	* Save attributes set with setAttrValue to the database
 	*
@@ -3247,6 +3241,9 @@ class Asset extends Resolve_Object
 		return $this->_tmp['attributes'][$name];
 
 	}//end getAttribute()
+
+
+//--        PERMISSIONS        --//
 
 
 	/**
@@ -3686,6 +3683,9 @@ class Asset extends Resolve_Object
 	}//end _checkDbAccess()
 
 
+//--        PAINTING        --//
+
+
 	/**
 	* Prints out the Frontend for this asset
 	* it's up to the kids to override
@@ -3763,6 +3763,21 @@ class Asset extends Resolve_Object
 
 
 	/**
+	* Generate a prefix to be used by paint() and process()
+	*
+	* @param object	Asset	$owner	the asset whose interface we are painting
+	*
+	* @return string
+	* @access public
+	*/
+	function getPrefix()
+	{
+		return $this->type().'_'.$this->id;
+
+	}//end getPrefix()
+
+
+	/**
 	* Processes a backend submission from this asset, returns true if all OK
 	* Put's the array of processed attributes into $this->_tmp['process_attributes']
 	*
@@ -3791,6 +3806,41 @@ class Asset extends Resolve_Object
 		}// end switch
 
 	}// end processBackend()
+
+
+	/**
+	* Returns a reference to the edit interface for this asset type
+	*
+	* @return object Asset_Edit_Interface
+	* @access public
+	*/
+	function &getEI()
+	{
+		if (empty($this->_tmp['ei']) || get_class($this->_tmp['ei']) != 'asset_edit_interface') {
+			require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
+			$this->_tmp['ei'] = new Asset_Edit_Interface($this->type());
+		}
+		return $this->_tmp['ei'];
+
+	}// end getEI()
+
+
+	/**
+	* Returns the Edit_Fns object appropriate for whatever asset type we are
+	*
+	* @return object Asset_Edit_Fns
+	* @access public
+	*/
+	function getEditFns()
+	{
+		$class_name = $this->type().'_edit_fns';
+		require_once SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'dir').'/'.$class_name.'.inc';
+		return new $class_name();
+
+	}// end getEditFns()
+
+
+//--        URL's & HREF's        --//
 
 
 	/**
@@ -4032,6 +4082,9 @@ class Asset extends Resolve_Object
 	}//end _webPathsInUse()
 
 
+//--        LOOKUPS        --//
+
+
 	/**
 	* Returns a list of lookup information associated with this asset
 	*
@@ -4140,39 +4193,6 @@ class Asset extends Resolve_Object
 		return true;
 
 	}// end updateLookups()
-
-
-	/**
-	* Returns a reference to the edit interface for this asset type
-	*
-	* @return object Asset_Edit_Interface
-	* @access public
-	*/
-	function &getEI()
-	{
-		if (empty($this->_tmp['ei']) || get_class($this->_tmp['ei']) != 'asset_edit_interface') {
-			require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
-			$this->_tmp['ei'] = new Asset_Edit_Interface($this->type());
-		}
-		return $this->_tmp['ei'];
-
-	}// end getEI()
-
-
-	/**
-	* Returns the Edit_Fns object appropriate for whatever asset type we are
-	*
-	* @return object Asset_Edit_Fns
-	* @access public
-	*/
-	function getEditFns()
-	{
-		$class_name = $this->type().'_edit_fns';
-		require_once SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'dir').'/'.$class_name.'.inc';
-		return new $class_name();
-
-	}// end getEditFns()
-
 
 }//end class
 
