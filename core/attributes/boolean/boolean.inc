@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: boolean.inc,v 1.16 2004/03/10 23:51:56 gsherwood Exp $
+* $Id: boolean.inc,v 1.17 2004/05/21 01:56:01 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -251,6 +251,7 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	*/
 	function getKeyData()
 	{
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		//return get_word_counts($this->value); // -- NOTE: int values never get indexed, only 'words' !!!
 
 		if ($this->value == 0) {

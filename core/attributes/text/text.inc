@@ -18,12 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.22 2004/04/28 00:30:33 lwright Exp $
+* $Id: text.inc,v 1.23 2004/05/21 01:56:01 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
 require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
+
 
 /**
 * Text Asset Attribute
@@ -226,6 +227,7 @@ class Asset_Attribute_Text extends Asset_Attribute
 	*/
 	function getKeyData()
 	{
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		return get_word_counts(strtolower($this->value));
 
 	}//end getKeyData()
