@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.12 2005/02/21 11:40:09 brobertson Exp $
+* $Id: image_variety.inc,v 1.13 2005/03/02 21:11:41 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -621,7 +621,6 @@ class Image_Variety extends Asset
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$this->name.'</i>');
 			return;
 		}
-
 		$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
 		if (is_null($image)) return false;
 
