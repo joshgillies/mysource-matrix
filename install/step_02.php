@@ -1,11 +1,11 @@
-<?
+<?php
 
 if (empty($_GET['SYSTEM_ROOT']) || !is_dir($_GET['SYSTEM_ROOT'])) {
 	?>
 		<div style="background-color: red; color: white; font-weight: bold;">
 			You need to supply the path to the Resolve System as a query string variable called SYSTEM_ROOT		
 		</div>
-	<?
+	<?php
 	exit(1);
 }
 

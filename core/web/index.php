@@ -1,4 +1,4 @@
-<?
+<?php
 
 require_once '../include/init.inc';
 $GLOBALS['SQ_RESOLVE']->start();

@@ -1,4 +1,4 @@
-<?
+<?php
 
 /*
 * Strips the slashes from a variable if magic quotes is set for GPC

@@ -1,4 +1,4 @@
-<?
+<?php
 
 require_once 'DB.php';
 require_once SQ_INCLUDE_PATH.'/resolve_object.inc';

@@ -1,4 +1,4 @@
-<?
+<?php
 
 function print_login($heading, $message) { 
 
@@ -11,14 +11,14 @@ function print_login($heading, $message) {
 	?>
 	<html>
 	<head>
-		<title><? echo $heading ?></title>
-		<link rel="stylesheet" type="text/css" href="<?=SQ_WWW_LIB_DIR.'/web/css/edit.css'?>">
+		<title><?php echo $heading ?></title>
+		<link rel="stylesheet" type="text/css" href="<?php echo SQ_WWW_LIB_DIR; ?>/web/css/edit.css">
 	</head>
 	<body marginwidth="0" marginheight="0" leftmargin="0" topmargin="0" bgcolor="#ffffff" onLoad="javascript: document.login_prompt.elements['SQ_LOGIN_USERNAME'].focus();">
-	<form action="<?=$_SERVER['PHP_SELF'].$qry_string ?>" name="login_prompt" method="post" onSubmit="javascript: return (this.elements['SQ_LOGIN_USERNAME'].value.length > 0 && this.elements['SQ_LOGIN_PASSWORD'].value.length > 1);">
-	<input type="hidden" name="SQ_LOGIN_KEY"      value="<?=$GLOBALS['SQ_RESOLVE']->generateLoginKey()?>">
-	<input type="hidden" name="SQ_LOGIN_REFERER"  value="<?=$referer?>">
-	<?
+	<form action="<?php echo $_SERVER['PHP_SELF'].$qry_string ; ?>" name="login_prompt" method="post" onSubmit="javascript: return (this.elements['SQ_LOGIN_USERNAME'].value.length > 0 && this.elements['SQ_LOGIN_PASSWORD'].value.length > 1);">
+	<input type="hidden" name="SQ_LOGIN_KEY"      value="<?php echo $GLOBALS['SQ_RESOLVE']->generateLoginKey(); ?>">
+	<input type="hidden" name="SQ_LOGIN_REFERER"  value="<?php echo $referer; ?>">
+	<?php
 
 	/*
 	# Take all the post vars and whack em in the form - important ones will get overwitten
@@ -35,33 +35,33 @@ function print_login($heading, $message) {
 	<table width="400" cellpadding="1" cellspacing="0" border="0" align="center">
 		<tr>
 			<td class="sq-backend-heading">
-				<img src="<?=SQ_WWW_LIB_DIR.'/web/images/icons/swish.gif';?>" width="20" height="20" border="0" align="left" alt="<?=$heading?>" />
-				<?=$heading?>
+				<img src="<?php echo SQ_WWW_LIB_DIR; ?>/web/images/icons/swish.gif" width="20" height="20" border="0" align="left" alt="<?php echo $heading; ?>" />
+				<?php echo $heading; ?>
 			</td>
 		</tr>
 		<tr>
 			<td>
 				<table cellpadding="3" cellspacing="0" border="0" width="100%">
-				<? if ($msgs = $GLOBALS['SQ_RESOLVE']->messages()) { ?>
+				<?php if ($msgs = $GLOBALS['SQ_RESOLVE']->messages()) { ?>
 					<tr>
 						<td valign="top" class="sq-backend-warning">
-							<?=implode("<br/>", $msgs)?>
+							<?php echo implode("<br/>", $msgs); ?>
 						</td>
 					</tr>
-				<? } ?>
+				<?php } ?>
 					<tr>
 						<td valign="top" class="sq-backend-sectionheading" style="font-weight: bold;">
-					<? if ($GLOBALS['SQ_RESOLVE']->currentUserId()) { ?>
-							Currently logged in as: <?=$GLOBALS['SQ_RESOLVE']->user->name ?>
-					<? } else { ?>
+					<?php if ($GLOBALS['SQ_RESOLVE']->currentUserId()) { ?>
+							Currently logged in as: <?php echo $GLOBALS['SQ_RESOLVE']->user->name; ?>
+					<?php } else { ?>
 							Not currently logged in.
-					<? } ?>
+					<?php } ?>
 						</td>
 					</tr>
 					<tr>
 						<td valign="top" class="sq-backend-data">
 							<br/>
-							<?=$message ?>
+							<?php echo $message ; ?>
 							<br/><br/>
 						</td>
 					</tr>
@@ -70,7 +70,7 @@ function print_login($heading, $message) {
 							<table width="100%" border="0" cellspacing="0" cellpadding="3">
 								<tr>
 									<td rowspan="3" valign="bottom" class="sq-backend-field">
-										<input type="button" class="sq-backend-data" value="&lt;- Back" onclick="javascript: <?=(($referer) ? 'window.location=\''.addslashes($referer).'\'' : 'alert(\'Unable to derive go back\');')?>">&nbsp;
+										<input type="button" class="sq-backend-data" value="&lt;- Back" onclick="javascript: <?php echo (($referer) ? 'window.location=\''.addslashes($referer).'\'' : 'alert(\'Unable to derive where you came from\');'); ?>">&nbsp;
 									</td>
 									<td nowrap valign="top" class="sq-backend-field">
 										Login: 
@@ -113,7 +113,7 @@ function print_login($heading, $message) {
 	</form>
 	</body>
 	</html>
-<?
+<?php
 
 }// end print_login()
 

@@ -486,7 +486,7 @@ class Asset_Manager extends Resolve_Object
 
 				if (get_element_value('am_type_code')) {
 					
-					var type_codes = new Array("<? echo implode('", "', array_keys($this->_asset_types)); ?>");
+					var type_codes = new Array("<?php echo implode('", "', array_keys($this->_asset_types)); ?>");
 					var new_type_code = '';
 					var prompt_str = '';
 					do {
@@ -521,30 +521,30 @@ class Asset_Manager extends Resolve_Object
 		</script>
 		<table cellpadding="0" cellspacing="0" border="0">
 			<tr>
-				<td class="sq-backend-data"><img src="<?=$o->filesPath('/images/blank.gif');?>" width="1" height="20" border="0" alt="branch" /></td>
+				<td class="sq-backend-data"><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="20" border="0" alt="branch" /></td>
 				<td class="sq-backend-data">
 					&nbsp;Asset
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-data"><img src="<?=$o->filesPath('/images/blank.gif');?>" width="1" height="1" alt="blank" /></td>
+				<td class="sq-backend-data"><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="1" alt="blank" /></td>
 				<td class="sq-backend-data">
-			<?
+			<?php 
 				$this->_recursePrintAssetList($o, $offspring, 'asset');
 			?> 
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-data"><img src="<?=$o->filesPath('/images/blank.gif');?>" width="1" height="1" alt="blank" /></td>
+				<td class="sq-backend-data"><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="1" alt="blank" /></td>
 				<td class="sq-backend-data">
-			<?
+			<?php 
 				$o->submit_button('create_button', 'Create Custom Asset', 'return create_custom();');
 				$o->submit_button('edit_button', '- - - - - - - - - - - - -', 'if (this.value.substr(0, 4) == \'Edit\') { set_hidden_field(\'am_action\', \'edit\'); return true; } else { return false };');
 			?> 
 				</td>
 			</tr>
 		</table>
-	<?
+	<?php 
 
 	}// end printAssetList()
 
@@ -553,7 +553,7 @@ class Asset_Manager extends Resolve_Object
 
 	?> 
 		<table cellpadding="0" cellspacing="0" border="0">
-	<?
+	<?php 
 		$num_kids = count($offspring[$parent]);
 		for ($i = 0; $i < $num_kids; $i++) {
 
@@ -564,32 +564,32 @@ class Asset_Manager extends Resolve_Object
 			$bg = ($end) ? '' : 'background="'.$o->filesPath('/images/tree/stalk.gif').'"';
 		?> 
 			<tr>
-				<td class="sq-backend-data" <?=$bg?>><img src="<?=$o->filesPath('/images/tree/branch.gif');?>" width="20" height="20" border="0" alt="branch" /></td>
+				<td class="sq-backend-data" <?php echo $bg; ?>><img src="<?php echo $o->filesPath('/images/tree/branch.gif');?>" width="20" height="20" border="0" alt="branch" /></td>
 				<td class="sq-backend-data">
-				<? 
+				<?php 
 				$o->radio_button('am_type_code', $type_code, false, 'asset_checked(\''.addslashes($this->_asset_types[$type_code]['name']).'\', '.(($this->_asset_types[$type_code]['customisation']) ? 'true' : 'false').');');
 				?>
-					<span class="sq-backend-<?=($this->_asset_types[$type_code]['customisation']) ? 'custom-' : ''?>asset"><?=$this->_asset_types[$type_code]['name'].' ('.$type_code.')';?></span>
+					<span class="sq-backend-<?php echo ($this->_asset_types[$type_code]['customisation']) ? 'custom-' : ''?>asset"><?php echo $this->_asset_types[$type_code]['name'].' ('.$type_code.')';?></span>
 				</td>
 			</tr>
-		<?
+		<?php 
 			if (!empty($offspring[$type_code])) {
 			?> 
 				<tr>
-					<td class="sq-backend-data" <?=$bg?>><img src="<?=$o->filesPath('/images/blank.gif');?>" width="1" height="1" alt="blank" /></td>
+					<td class="sq-backend-data" <?php echo $bg; ?>><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="1" alt="blank" /></td>
 					<td class="sq-backend-data">
-				<?
+				<?php 
 					$this->_recursePrintAssetList($o, $offspring, $type_code);
 				?> 
 					</td>
 				</tr>
-			<?
+			<?php 
 			}//end if
 
 		}//end for
 	?> 
 		</table>
-	<?
+	<?php 
 
 	}//end _printAssetList()
 

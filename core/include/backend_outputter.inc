@@ -1,4 +1,4 @@
-<? 
+<?php 
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
@@ -422,9 +422,9 @@ class Backend_Outputter
 	?> 
 		<html>
 		<head>
-			<title><?=$this->_heading?></title>
+			<title><?php echo $this->_heading;?></title>
 			<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-		<?
+		<?php
 			$this->_paintCssInclude($this->filesPath('css/edit.css'));
 			foreach($this->_css_includes as $file) {
 				$this->_paintCssInclude($file);
@@ -445,21 +445,21 @@ class Backend_Outputter
 			<!--
 
 				function page_on_load() {
-			<?
+			<?php
 				foreach($this->_on_load_calls as $call) {
 				?>
-					<?=$call?>;
-				<?
+					<?php echo $call;?>;
+				<?php
 				}#end foreach
 			?>
 				}// end page_on_load()
 
 				function form_on_submit() {
-			<?
+			<?php
 				foreach($this->_on_submit_calls as $call) {
 				?>
-					<?=$call?>;
-				<?
+					<?php echo $call;?>;
+				<?php
 				}#end foreach
 			?>
 					// basically if they get this far then we can submit
@@ -467,12 +467,12 @@ class Backend_Outputter
 					
 				}// end form_on_submit()
 
-			<?
+			<?php
 				foreach($this->_preload_imgs as $file) {
 				?>
 
-					preload_image('<?=$file?>');
-				<?
+					preload_image('<?php echo $file;?>');
+				<?php
 				}#end foreach
 			?>
 
@@ -480,8 +480,8 @@ class Backend_Outputter
 			</script>
 		</head>
 		<body bgcolor="#ffffff" onLoad="javascript: page_on_load();" marginwidth="0" marginheight="0" topmargin="0" leftmargin="0">
-		<form action="<?=$this->_action.$this->_anchor?>" name="main_form" method="post" enctype="multipart/form-data" onSubmit="javascript: return form_on_submit();">
-	<?
+		<form action="<?php echo $this->_action.$this->_anchor;?>" name="main_form" method="post" enctype="multipart/form-data" onSubmit="javascript: return form_on_submit();">
+	<?php
 		foreach($this->_hidden_fields as $name => $value) {
 			$this->hidden_field($name, $value);
 		}#end foreach
@@ -515,14 +515,14 @@ class Backend_Outputter
 			<table width="100%" cellpadding="3" cellspacing="0" border="0">
 				<tr>
 					<td class="sq-backend-heading">
-					<? if ($this->_heading_icon) { ?>
-						<img src="<?=$this->filesPath('/images/icons/'.$this->_heading_icon.'.gif');?>" width="20" height="20" border="0" align="left" alt="<?=$this->_heading?>" />
-					<? } ?>
-						<?=$this->_heading?>
+					<?php if ($this->_heading_icon) { ?>
+						<img src="<?php echo $this->filesPath('/images/icons/'.$this->_heading_icon.'.gif');?>" width="20" height="20" border="0" align="left" alt="<?php echo $this->_heading;?>" />
+					<?php } ?>
+						<?php echo $this->_heading;?>
 					</td>
 				</tr>
 			</table>
-		<? 
+		<?php 
 		}
 		
 	}#end _paintHeader()
@@ -542,17 +542,17 @@ class Backend_Outputter
 			} else {
 		
 			?>
-				<a name="section_<?=$i?>"></a>
+				<a name="section_<?php echo $i;?>"></a>
 				<table width="100%" cellpadding="3" cellspacing="0" border="0">
 					<tr>
 						<td class="sq-backend-sectionheading" colspan="2">
-							<? if ($this->_contents[$i]['icon']) { ?>
-								<img src="<?=$this->filesPath('images/icons/'.$this->_contents[$i]['icon'].'.gif')?>" width="20" height="20" border="0" alt="<?=$this->_contents[$i]['heading']?>" align="left" />
-							<? } ?>
-							<span ><?=$this->_contents[$i]['heading']?></span>
+							<?php if ($this->_contents[$i]['icon']) { ?>
+								<img src="<?php echo $this->filesPath('images/icons/'.$this->_contents[$i]['icon'].'.gif');?>" width="20" height="20" border="0" alt="<?php echo $this->_contents[$i]['heading'];?>" align="left" />
+							<?php } ?>
+							<span ><?php echo $this->_contents[$i]['heading'];?></span>
 						</td>
 					</tr>
-			<?
+			<?php
 				for($j = 0; $j < count($this->_contents[$i]['fields']); $j++) {
 					$field = &$this->_contents[$i]['fields'][$j];
 					switch ($field['format']) {
@@ -560,17 +560,17 @@ class Backend_Outputter
 							?>
 								<tr>
 									<td nowrap valign="top" class="sq-backend-field" colspan="2">
-										<a name="field_<?=$i.'_'.$j;?>"></a>
-										<?=$field['name']?>
+										<a name="field_<?php echo $i.'_'.$j;?>"></a>
+										<?php echo $field['name'];?>
 									</td>
 								</tr>
 								<tr>
 									<td valign="top" class="sq-backend-data" colspan="2">
 										<table cellpadding="5" cellspacing="0" border="0">
 											<tr>
-												<td width="5"><img src="<?=$this->filesPath('images/blank.gif')?>" width="5" height="1"/></td>
+												<td width="5"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="5" height="1"/></td>
 												<td width="100%">
-												<?
+												<?php
 													echo $field['contents'];
 													if ($field['note']) $this->note($field['note']);
 												?>
@@ -579,24 +579,24 @@ class Backend_Outputter
 										</table>
 									</td>
 								</tr>
-							<?
+							<?php
 							break;
 
 						default :
 						?>
 							<tr>
 								<td nowrap valign="top" class="sq-backend-field">
-									<a name="field_<?=$i.'_'.$j;?>"></a>
-									<?=$field['name']?>
+									<a name="field_<?php echo $i.'_'.$j;?>"></a>
+									<?php echo $field['name'];?>
 								</td>
 								<td width="100%" valign="top" class="sq-backend-data">
-								<?
+								<?php
 									echo $field['contents'];
 									if ($field['note']) $this->note($field['note']);
 								?>
 								</td>
 							</tr>
-						<?
+						<?php
 					}#end switch
 
 				}#end for
@@ -605,12 +605,12 @@ class Backend_Outputter
 				if ($i < count($this->_contents) - 1) {
 				?> 
 					<tr><td class="sq-backend-field" colspan="2">&nbsp;</td></tr>
-				<?
+				<?php
 				}// end if
 			?>	
 				</table>
-				<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%" background="<?=$this->filesPath('images/section_dots.gif');?>"><img src="<?=$this->filesPath('images/blank.gif');?>" width="1" height="1" /></td></tr></table>
-			<?
+				<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%" background="<?php echo $this->filesPath('images/section_dots.gif');?>"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="1" /></td></tr></table>
+			<?php
 
 			}#end if
 
@@ -630,7 +630,7 @@ class Backend_Outputter
 		</form>
 		</body>
 		</html>
-	<?
+	<?php
 
 	}#end _paintFooter()		
 
@@ -675,8 +675,8 @@ class Backend_Outputter
 	function _paintCssInclude($file) 
 	{
 		?> 
-			<link rel="stylesheet" type="text/css" href="<?=$file?>" />
-		<?
+			<link rel="stylesheet" type="text/css" href="<?php echo $file;?>" />
+		<?php
 	}#end _paintCssInclude()
 
 	 #########################################################
@@ -684,8 +684,8 @@ class Backend_Outputter
 	function _paintJsInclude($file) 
 	{
 		?> 
-			<script type="text/javascript" language="javascript" src="<?=$file?>"></script>
-		<?
+			<script type="text/javascript" language="javascript" src="<?php echo $file;?>"></script>
+		<?php
 	}#end _paintJsInclude()
 
 	/**

@@ -106,28 +106,28 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			</script></table></table></table></table><br>
 			<table bgcolor="#c0c0c0" cellspacing="0" border="1" bordercolor="#ff0000">
 				<tr>
-					<td style="<?=$error_title?>">
-						<?=$err_name?> 
+					<td style="<?php echo $error_title; ?>">
+						<?php echo $err_name; ?> 
 					</td>
 				</tr>
 				<tr>
 					<td>
 						<table bgcolor="#dddddd" cellpadding="2" cellspacing="0" border="0">
 							<tr>
-								<td style="<?=$error_title?>" align="right">File:</td>
-								<td style="<?=$error_data?>"><?=$err_file?></td>
-								<td style="<?=$error_title?>" align="right">Line:</td>
-								<td style="<?=$error_data?>"><?=$err_line?></td>
+								<td style="<?php echo $error_title; ?>" align="right">File:</td>
+								<td style="<?php echo $error_data; ?>"><?php echo $err_file; ?></td>
+								<td style="<?php echo $error_title; ?>" align="right">Line:</td>
+								<td style="<?php echo $error_data; ?>"><?php echo $err_line; ?></td>
 							</tr>
 							<tr>
-								<td style="<?=$error_title?>" align="right">Message:</td>
-								<td style="<?=$error_data?>" colspan="3"><?=$err_msg?></td>
+								<td style="<?php echo $error_title; ?>" align="right">Message:</td>
+								<td style="<?php echo $error_data; ?>" colspan="3"><?php echo $err_msg; ?></td>
 							</tr>
 						</table>
 					</td>
 				</tr>
 			</table><br>
-		<?
+		<?php
 
 	}// end if
 

@@ -101,19 +101,19 @@ class Backend extends Resolve_Object
 	?>
 		<html>
 			<head>
-			<title><?=SQ_RESOLVE_LONG_NAME?> Backend</title>
+			<title><?php echo SQ_RESOLVE_LONG_NAME; ?> Backend</title>
 				<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 			</head>
 			<frameset rows="27,*,22" border="0" frameborder="0" framespacing="0">
-				<frame src="<?=$_SERVER['PHP_SELF']?>?SQ_BACKEND_PAGE=header" name="header" noresize scrolling="no" marginwidth="0" marginheight="0" border="0">
+				<frame src="<?php echo $_SERVER['PHP_SELF']; ?>?SQ_BACKEND_PAGE=header" name="header" noresize scrolling="no" marginwidth="0" marginheight="0" border="0">
 				<frameset cols="250,*" border="0" framespacing="2" frameborder="0">
-					  <frame src="<?=$_SERVER['PHP_SELF']?>?SQ_BACKEND_PAGE=sidenav" name="sidenav" marginwidth="0" marginheight="0" frameborder="0" border="0" scrolling="no">
-					  <frame src="<?=$_SERVER['PHP_SELF']?>?SQ_BACKEND_PAGE=main" name="main" marginwidth="0" marginheight="0" frameborder="0" border="0" scrolling="yes">
+					  <frame src="<?php echo $_SERVER['PHP_SELF'];?>?SQ_BACKEND_PAGE=sidenav" name="sidenav" marginwidth="0" marginheight="0" frameborder="0" border="0" scrolling="no">
+					  <frame src="<?php echo $_SERVER['PHP_SELF'];?>?SQ_BACKEND_PAGE=main" name="main" marginwidth="0" marginheight="0" frameborder="0" border="0" scrolling="yes">
 				</frameset>
-				<frame noresize src="<?=$_SERVER['PHP_SELF']?>?SQ_BACKEND_PAGE=footer" name="footer" scrolling="no" marginwidth="0" marginheight="0" border="0">
+				<frame noresize src="<?php echo $_SERVER['PHP_SELF'];?>?SQ_BACKEND_PAGE=footer" name="footer" scrolling="no" marginwidth="0" marginheight="0" border="0">
 			</frameset>
 		</html>
-	<?
+	<?php
 	}//end _printFrames()
 
 
@@ -134,7 +134,7 @@ class Backend extends Resolve_Object
 				<td class="sq-backend-header-cell">
 					<table cellpadding="0" border="0" cellspacing="0">
 						<tr>
-					<?
+					<?php
 						$this->_printHeaderItem('Resolve', $this->getBackendUrl('main').'&backend_section=mysource', 'swish');
 						$this->_printHeaderItem('Config',  $this->getBackendUrl('main').'&backend_section=config',   'config');
 					?>
@@ -146,27 +146,27 @@ class Backend extends Resolve_Object
 					<table cellpadding="0" border="0" cellspacing="0">
 						<tr>
 							<td align="right" valign="bottom" nowrap>
-								<div class="sq-backend-smallprint" style="font-size:10px; color:#ffffff"><b><?='$SESSION->user->name'?></b></div>
-								<div class="sq-backend-fineprint"  style="color:#ffffff"><?=date('d M Y H:i')?></div>
+								<div class="sq-backend-smallprint" style="font-size:10px; color:#ffffff"><b><?php echo '$SESSION->user->name'; ?></b></div>
+								<div class="sq-backend-fineprint"  style="color:#ffffff"><?php echo date('d M Y H:i'); ?></div>
 							</td>
-							<td valign="middle" align="center"><img src="<?=SQ_WWW_LIB_DIR?>/web/images/blank.gif" width="5" height="2" border="0"></td>
-							<td><a href="#" onclick="javascript: parent.location='./?' + get_element_value('query_string') + '&SQ_ACTION=logout'; return false;"><img src="<?=SQ_WWW_LIB_DIR?>/web/images/icons/logout.gif" width="20" height="20" border="0"></a></td>
-							<td><img src="<?=SQ_WWW_LIB_DIR?>/web/images/blank.gif" width="5" height="2" border="0"></td>
+							<td valign="middle" align="center"><img src="<?php echo SQ_WWW_LIB_DIR; ?>/web/images/blank.gif" width="5" height="2" border="0"></td>
+							<td><a href="#" onclick="javascript: parent.location='./?' + get_element_value('query_string') + '&SQ_ACTION=logout'; return false;"><img src="<?php echo SQ_WWW_LIB_DIR; ?>/web/images/icons/logout.gif" width="20" height="20" border="0"></a></td>
+							<td><img src="<?php echo SQ_WWW_LIB_DIR; ?>/web/images/blank.gif" width="5" height="2" border="0"></td>
 						</tr>
 					</table>
 				</td>
 			</tr>
 			<tr>
-				<td style="background-color: #259EC5" colspan="3"><img src="<?=SQ_WWW_LIB_DIR?>/web/images/blank.gif" width="1" height="1"></td>
+				<td style="background-color: #259EC5" colspan="3"><img src="<?php echo SQ_WWW_LIB_DIR; ?>/web/images/blank.gif" width="1" height="1"></td>
 			</tr>
 			<tr>
-				<td style="background-color: #212E61" colspan="3"><img src="<?=SQ_WWW_LIB_DIR?>/web/images/blank.gif" width="1" height="1"></td>
+				<td style="background-color: #212E61" colspan="3"><img src="<?php echo SQ_WWW_LIB_DIR; ?>/web/images/blank.gif" width="1" height="1"></td>
 			</tr>
 			<tr>
-				<td style="background-color: #ffffff" colspan="3"><img src="<?=SQ_WWW_LIB_DIR?>/web/images/blank.gif" width="1" height="1"></td>
+				<td style="background-color: #ffffff" colspan="3"><img src="<?php echo SQ_WWW_LIB_DIR; ?>/web/images/blank.gif" width="1" height="1"></td>
 			</tr>
 		</table>
-	<?
+	<?php
 
 		$this->out->closeRaw();
 
@@ -182,9 +182,9 @@ class Backend extends Resolve_Object
 	*/
 	function _printHeaderItem($label, $url, $icon) {
 		?> 
-		<td nowrap class="sq-backend-header-cell"><a target="main" href="<?=$url?>"><img src="<?=SQ_WWW_LIB_DIR?>/web/images/blank.gif" width="10" height="2" border="0" /><img src="<?=SQ_WWW_LIB_DIR?>/web/images/icons/<?=$icon?>.gif" width="20" height="20" border="0" /><img src="<?=SQ_WWW_LIB_DIR?>/web/images/blank.gif" width="3" height="2" border="0" /></a></td>
-		<td nowrap class="sq-backend-header-item"><a target="main" href="<?=$url?>" class="sq-backend-header-item"><?=$label?></a></td>
-		<?
+		<td nowrap class="sq-backend-header-cell"><a target="main" href="<?php echo $url;?>"><img src="<?php echo SQ_WWW_LIB_DIR; ?>/web/images/blank.gif" width="10" height="2" border="0" /><img src="<?php echo SQ_WWW_LIB_DIR; ?>/web/images/icons/<?php echo $icon;?>.gif" width="20" height="20" border="0" /><img src="<?php echo SQ_WWW_LIB_DIR; ?>/web/images/blank.gif" width="3" height="2" border="0" /></a></td>
+		<td nowrap class="sq-backend-header-item"><a target="main" href="<?php echo $url;?>" class="sq-backend-header-item"><?php echo $label;?></a></td>
+		<?php
 	}
 
 
@@ -199,10 +199,10 @@ class Backend extends Resolve_Object
 
 	?> 
 		<table width="100%" cellpadding="2" cellspacing="0" border="0">
-			<tr><td style="background-color: #212E61;"><img src="<?=SQ_WWW_LIB_DIR?>/web/images/blank.gif" width="1" height="1" /></td></tr>	
-			<tr><td style="background-color: #7A92AD; text-align: right;"><b><a href="<?=SQ_RESOLVE_URL?>" class="sq-backend-smallprint" target="_blank"><?=SQ_RESOLVE_LONG_NAME?></a></b></td></tr>
+			<tr><td style="background-color: #212E61;"><img src="<?php echo SQ_WWW_LIB_DIR; ?>/web/images/blank.gif" width="1" height="1" /></td></tr>	
+			<tr><td style="background-color: #7A92AD; text-align: right;"><b><a href="<?php echo SQ_RESOLVE_URL;?>" class="sq-backend-smallprint" target="_blank"><?php echo SQ_RESOLVE_LONG_NAME;?></a></b></td></tr>
 		</table>
-	<?
+	<?php
 
 		$this->out->closeRaw();
 
@@ -259,7 +259,7 @@ class Backend extends Resolve_Object
 				?>
 					<br>
 					<input type="button" value="click me" onCLick="javascript: var assetid = prompt('Enter the assetid', ''); if (assetid != null) {top.sidenav.reload_asset(assetid);}">
-				<?
+				<?php
 				$this->out->closeRaw();
 
 		}//end switch

@@ -1,4 +1,4 @@
-<?  
+<?php
 
 require_once SQ_LIB_PATH.'/general/general.inc';
 

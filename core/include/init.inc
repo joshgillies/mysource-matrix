@@ -1,4 +1,4 @@
-<?
+<?php
 
 /*
 * Set the level of PHP reported errors

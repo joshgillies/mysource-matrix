@@ -1,29 +1,4 @@
-<?  ##############################################
-   ### SQUIZLIB ------------------------------###
-  ##- Generic Include Files -- PHP4 ----------##
- #-- Copyright Squiz.net ---------------------#
-##############################################
-## This file is subject to version 1.0 of the
-## MySource License, that is bundled with
-## this package in the file LICENSE, and is
-## available at through the world-wide-web at
-## http://mysource.squiz.net/
-## If you did not receive a copy of the MySource
-## license and are unable to obtain it through
-## the world-wide-web, please contact us at
-## mysource@squiz.net so we can mail you a copy
-## immediately.
-##
-## File: dev/dev.inc
-## Desc: Functions designed to make life easier for a developer
-## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/dev/Attic/dev.inc,v $
-## $Revision: 1.3 $
-## $Author: brobertson $
-## $Date: 2003/02/25 04:25:14 $
-#######################################################################
-
-#---------------------------------------------------------------------#
-
+<?php
    ########################################################
   # Recursively prints array contents - works goodly on
  # associative arrays
@@ -78,7 +53,7 @@ function bam($x='BAM!', $max_depth=0, $style='') {
 ###############################################################################
 function pre_echo($x, $max_depth=0, $style='') {
 ?> 
-	<div align="left"><pre style="<?=$style?>font-family: courier, monospace;"><?
+	<div align="left"><pre style="<?php echo $style; ?>font-family: courier, monospace;"><?php
 	$type = gettype($x);
 	if ($type == "object" && !$max_depth) {
 		print_r($x);
@@ -93,7 +68,7 @@ function pre_echo($x, $max_depth=0, $style='') {
 
 	
 	?></pre></div>
-<?
+<?php
 
 }#end pre_echo()
 
@@ -113,23 +88,23 @@ function print_http_vars() {
 		{
 		?>
 			<HR>
-			<h2><? echo $var_name; ?></h2>
+			<h2><?php echo $var_name; ?></h2>
 			<table cellspacing=1 cellpadding=3 bgcolor=black>
-		<?
+		<?php
 			ksort ($$var_name);
 			reset ($$var_name);
 			while (list($key, $val) = each($$var_name))
 			{
 		?>
 				<tr>
-					<td align=left valign=top style="color: black; background-color: white;"><B><? echo $key; ?></B></td>
-					<td align=left valign=top style="color: black; background-color: white;"><? pre_echo($val, 0, 'color: black; background-color: white;'); ?></td>
+					<td align=left valign=top style="color: black; background-color: white;"><B><?php echo $key; ?></B></td>
+					<td align=left valign=top style="color: black; background-color: white;"><?php pre_echo($val, 0, 'color: black; background-color: white;'); ?></td>
 				</tr>
-		<?
+		<?php
 			} //end while
 		?>
 			</table>
-		<?
+		<?php
 		}// endif
 
 	}// end while

@@ -77,15 +77,15 @@ class Asset_Map
 		//-->
 		</SCRIPT>
 		<object id="asset_map" width="100%" height="100%" classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0">
-			 <param name="movie"   value="<?=SQ_WWW_LIB_DIR?>/asset_map/asset_map.swf">
+			 <param name="movie"   value="<?php echo SQ_WWW_LIB_DIR; ?>/asset_map/asset_map.swf">
 			 <param name="quality" value="high">
 			 <param name="scale"   value="noscale">
 			 <param name="salign"  value="lt">
 			 <param name="bgcolor" value="#ffffff">
-			 <param name="FlashVars" value="<?=$flash_vars?>">
-			 <embed src="<?=SQ_WWW_LIB_DIR?>/asset_map/asset_map.swf" FlashVars="<?=$flash_vars?>" id="asset_map" name="asset_map" quality="high" scale="noscale" salign="lt" bgcolor="#ffffff" width="100%" height="100%" swliveconnect="true" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"></embed>
+			 <param name="FlashVars" value="<?php echo $flash_vars; ?>">
+			 <embed src="<?php echo SQ_WWW_LIB_DIR; ?>/asset_map/asset_map.swf" FlashVars="<?php echo $flash_vars; ?>" id="asset_map" name="asset_map" quality="high" scale="noscale" salign="lt" bgcolor="#ffffff" width="100%" height="100%" swliveconnect="true" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"></embed>
 		</object>
-		<?
+		<?php
 	}//end paint()
 
 
