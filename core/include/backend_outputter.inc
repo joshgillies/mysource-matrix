@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.72 2003/11/27 03:56:37 gsherwood Exp $
+* $Id: backend_outputter.inc,v 1.73 2003/12/02 03:37:49 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -114,6 +114,42 @@ class Backend_Outputter
 
 	var $_charset = '';
 
+	/**
+	* If TRUE all output will be printed when paint is called
+	* @var boolean
+	*/
+	var $_buffering = true;
+
+	/**
+	* If TRUE there is a section opened (used when we are not buffering)
+	* @var boolean
+	*/
+	var $_is_open_section = false;
+
+	/**
+	* If TRUE there is a field opened (used when we are not buffering)
+	* @var boolean
+	*/
+	var $_is_open_field = false;
+
+	/**
+	* If type of the current field being painted (used when we are not buffering)
+	* @var string
+	*/
+	var $_current_field_type = '';
+
+	/**
+	* The note of the current field being printed (used when we are not buffering)
+	* @var string
+	*/
+	var $_current_field_note = '';
+
+	/**
+	* we need a seperate section counter for non-buffering
+	* @var integer
+	*/
+	var $_nb_section_count = 0;
+
 
 	/**
 	* Constructor
@@ -143,7 +179,24 @@ class Backend_Outputter
 											 'AssetStatusUpdate'
 											)
 								);
+
 	}//end constructor
+
+
+	/**
+	* Sets whether the backend output will buffer its output
+	*
+	* @param boolean $buffer if TRUE buffering will be turned on (on by default)
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setBuffering($buffer=true)
+	{
+		$this->_buffering = (bool) $buffer;
+		return true;
+
+	}//end setBuffer()
 
 
 	/**
@@ -477,7 +530,25 @@ class Backend_Outputter
 	function closeSection()
 	{
 		if (!is_null($this->_current_field)) $this->closeField();
-		$this->_closeSection();
+
+		if ($this->_buffering) {
+			$this->_closeSection();
+		} else {
+								?>
+								</td>
+							</tr>
+						</table>
+					</td>
+					<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
+				</tr>
+				</table>
+				<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td></tr></table>
+			<?
+			$this->_nb_section_count--;
+			if ($this->_nb_section_count == 0) {
+				$this->_is_open_section = false;
+			}
+		}
 
 	}//end closeSection()
 
@@ -485,33 +556,108 @@ class Backend_Outputter
 	/**
 	* Opens a section, with the passed initialise array
 	*
-	* @param Array		$init_arr
+	* @param Array		$init_arr	some initialising data
 	*
 	* @access private
 	*/
 	function _openSection($init_arr)
 	{
-		if (!is_null($this->_current_field)) $this->closeField();
-		if ($this->_raw_opened) $this->closeRaw();
+		if ($this->_is_open_field) $this->closeField();
 
-		$this->_section_count++;
-		$init_arr['section_count'] = $this->_section_count;
 
-		// Nothing in the stack ? we are in the top level
-		if (empty($this->_section_stack)) {
-			$j = count($this->_contents);
-			$this->_contents[$j] = $init_arr;
-			$this->_section_stack[] = &$this->_contents[$j];
+		if ($this->_buffering) {
+			if (!is_null($this->_current_field)) $this->closeField();
+			if ($this->_raw_opened) $this->closeRaw();
+			
+			$this->_section_count++;
+			$init_arr['section_count'] = $this->_section_count;
+
+			// Nothing in the stack ? we are in the top level
+			if (empty($this->_section_stack)) {
+				$j = count($this->_contents);
+				$this->_contents[$j] = $init_arr;
+				$this->_section_stack[] = &$this->_contents[$j];
+			} else {
+				$i = count($this->_section_stack) - 1;
+				$j = count($this->_section_stack[$i]['areas']);
+				$this->_section_stack[$i]['areas'][$j] = $init_arr;
+				$this->_section_stack[] = &$this->_section_stack[$i]['areas'][$j];
+			}
+
+			return 'section_'.$this->_section_count;
+		
 		} else {
-			$i = count($this->_section_stack) - 1;
-			$j = count($this->_section_stack[$i]['areas']);
-			$this->_section_stack[$i]['areas'][$j] = $init_arr;
-			$this->_section_stack[] = &$this->_section_stack[$i]['areas'][$j];
+			$this->_nbOpenSection($init_arr);
 		}
 
-		return 'section_'.$this->_section_count;
+	}//end _openSection()
 
-	}// end _openSection()
+
+	/**
+	* Opens a section without buffering
+	*
+	* @param Array		$init_arr	some initialising data
+	*
+	* @return void
+	* @access private
+	*/
+	function _nbOpenSection($init_arr)
+	{
+		$this->_nb_section_count++;
+
+		?>
+		<a name="section_<?php echo $this->_nb_section_count; ?>"></a>
+		<table width="100%" cellpadding="0" cellspacing="1" border="0">
+		<?php
+		if ($init_arr['heading']) {
+			if ($this->_is_open_section) {
+				// printing a nested section - needs to look a little different
+				?>
+				<tr>
+					<td class="sq-backend-section-subheading" colspan="3"><?php echo $init_arr['heading'];?></td>
+				</tr>
+				<?php
+			} else {
+				$this->_is_open_section = true;
+				// printing a top level section
+				?>
+				<tr>
+					<td colspan="3">
+						<table border="0" cellspacing="0" cellpadding="0" width="100%">
+							<tr>
+								<td class="sq-backend-section-heading" width="100%"><?php echo $init_arr['heading'];?></td>
+								<td><img src="<?php echo $this->filesPath('images/section_icon.gif');?>" width="27" height="21" /></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="3">
+						<table width="100%" cellpadding="0" cellspacing="0" border="0">
+							<tr>
+								<td width="100%" bgcolor="#B3B3B3"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="1" /></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<?php
+			}//endif
+		}//endif
+
+		// print the section seperator
+		?>
+		<tr>
+			<td colspan="3"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td>
+		</tr>
+		<tr>
+			<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
+			<td width="100%">
+				<table cellspacing="0" cellpadding="0" border="0" width="100%">
+					<tr>
+						<td width="100%" valign="top" colspan="3">
+		<?php
+
+	}//end _nbOpenSection()
 
 
 	/**
@@ -521,9 +667,28 @@ class Backend_Outputter
 	*/
 	function _closeSection()
 	{
-		array_pop($this->_section_stack);
+		if ($this->_buffering) {
+			array_pop($this->_section_stack);
+		} else {
+			$this->_nbCloseSection();
+		}
 
 	}//end _closeSection()
+
+
+	/**
+	* Closes a section without buffering
+	*
+	* @return void
+	* @access private
+	*/
+	function _nbCloseSection()
+	{
+		?>
+				</td>
+			</tr>
+		<?
+	}//end nbCloseSection()
 
 
 	/**
@@ -537,46 +702,173 @@ class Backend_Outputter
 	*/
 	function openField($name, $format='', $note='')
 	{
-		if (!is_null($this->_current_field)) $this->closeField();
-		if (empty($this->_section_stack)) $this->openSection();
-		if (!trim($name)) $name = '&nbsp;';
+		if ($this->_buffering) {
+			if (!is_null($this->_current_field)) $this->closeField();
+			if (empty($this->_section_stack)) $this->openSection();
+			if (!trim($name)) $name = '&nbsp;';
 
-		$this->_field_count++;
+			$this->_field_count++;
 
-		$stack_i = count($this->_section_stack) - 1;
-		$i = count($this->_section_stack[$stack_i]['areas']);
-		$this->_section_stack[$stack_i]['areas'][$i] = Array(
-															'area_type'		=> 'field',
-															'field_count'	=> $this->_field_count,
-															'name'			=> $name,
-															'format'		=> $format,
-															'note'			=> $note,
-															'contents'		=> '',
-														);
+			$stack_i = count($this->_section_stack) - 1;
+			$i = count($this->_section_stack[$stack_i]['areas']);
+			$this->_section_stack[$stack_i]['areas'][$i] = Array(
+																'area_type'		=> 'field',
+																'field_count'	=> $this->_field_count,
+																'name'			=> $name,
+																'format'		=> $format,
+																'note'			=> $note,
+																'contents'		=> '',
+															);
 
-		$this->_current_field = &$this->_section_stack[$stack_i]['areas'][$i];
-		ob_start();
+			$this->_current_field = &$this->_section_stack[$stack_i]['areas'][$i];
+			ob_start();
 
-		return 'field_'.$this->_field_count;
+			return 'field_'.$this->_field_count;
+	
+		} else {
+			// we are not buffering
+			$this->_nbOpenField($name, $format='', $note='');
+		}
 
-	}// end openField()
+	}//end openField()
+
+
+	/**
+	* prints a field without buffering (nb == non-buffering)
+	*
+	* @param string $name		label of the field
+	* @param string $format		format 'new_line' | 'blank' | 'commit' | ''
+	* @param string $note		a note to place with the field
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _nbOpenField($name, $format='', $note='')
+	{
+		if ($this->_is_open_field) $this->closeField();
+		$this->_is_open_field = true;
+
+		// store the format and note of the current field for future reference
+		$this->_current_field_type = $format;
+		$this->_current_field_note = $note;
+
+		switch ($format) {
+			case 'new_line' :
+				?>
+					<tr>
+						<td nowrap valign="top" class="sq-backend-field" colspan="3">
+							<a name="field_<?php echo $this->_field_count; ?>"></a>
+							<?php echo $name;?>
+						</td>
+					</tr>
+					<tr>
+						<td valign="top" class="sq-backend-data" colspan="3">
+							<table cellpadding="0" cellspacing="0" border="0">
+								<tr>
+									<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="5" height="1"/></td>
+									<td width="100%" valign="top" class="sq-backend-data">
+									<?php
+			break;
+
+			case 'commit' :
+				?>
+				<tr>
+					<td width="100%" valign="top" class="sq-backend-data" style="text-align: right;" colspan="3">
+					<?php
+			break;
+
+			case 'blank' :
+				// a blank field to be used just for formatting
+			break;
+
+			default :
+			?>
+				<tr>
+					<td nowrap valign="top" class="sq-backend-field">
+						<a name="field_<?php echo $this->_field_count; ?>"></a>
+						<?php echo $name;?>
+					</td>
+					<td width="10"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
+					<td width="100%" valign="top" class="sq-backend-data">
+					<?php
+		}//end switch
+
+	}//end _nbOpenField()
 
 
 	/**
 	* Closes a field
 	*
+	* @return void
 	* @access public
 	*/
 	function closeField()
 	{
-		if (is_null($this->_current_field)) return;
-		$this->_current_field['contents'] = ob_get_contents();
-		ob_end_clean();
-		// unset the reference before setting to null, so we don't blow away the field's array
-		unset($this->_current_field);
-		$this->_current_field = null;
+
+		if ($this->_buffering) {
+			if (is_null($this->_current_field)) return;
+			$this->_current_field['contents'] = ob_get_contents();
+			ob_end_clean();
+			// unset the reference before setting to null, so we don't blow away the field's array
+			unset($this->_current_field);
+			$this->_current_field = null;
+		} else {
+			$this->_nbCloseField();
+		}
 
 	}//end closeField()
+
+
+	/**
+	* Closes a field without buffering
+	* 
+	* @return boolean
+	* @access private
+	*/
+	function _nbCloseField()
+	{
+		$this->_is_open_field = false;
+
+		// We need to end the field that we started
+		// Because they all start differently, we have to end what we started
+		switch ($this->_current_field_type) {
+			
+			case 'new_line' :
+					if ($this->_current_field_note) $this->note($note);
+						?>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+				<?php
+
+			break;
+			
+			case 'commit' :
+					if ($this->_current_field_note) $this->note($note);
+							?>
+						</td>
+					</tr>
+				<?php
+			break;
+			
+			case 'blank' :
+				// a blank field to be used just for formatting
+			break;
+			
+			default :
+				if ($this->_current_field_note) $this->note($note);
+					?>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="3"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td>
+				</tr>
+				<?php
+		}//end switch
+
+	}//end _nbCloseField()
 
 
 	/**
@@ -596,8 +888,9 @@ class Backend_Outputter
 
 
 	/**
-	* paint the cached backend interface
+	* Paint the cached backend interface
 	*
+	* @return void
 	* @access public
 	*/
 	function paint()
@@ -622,12 +915,13 @@ class Backend_Outputter
 
 		$this->_paintFooter();
 
-	}//end paint();
+	}//end paint()
 
 
 	/**
 	* Returns the outputters painted contents as a string
 	*
+	* @return string
 	* @access public
 	*/
 	function getAsString()
@@ -636,6 +930,7 @@ class Backend_Outputter
 		$this->paint();
 		$str = ob_get_contents();
 		ob_end_clean();
+
 		return $str;
 
 	}//end getAsString()
@@ -644,6 +939,7 @@ class Backend_Outputter
 	/**
 	* Paint the header of the page
 	*
+	* @return void
 	* @access private
 	*/
 	function _paintHeader()
@@ -841,6 +1137,10 @@ class Backend_Outputter
 	/**
 	* Paint the passed section onto the page
 	*
+	* @param Array()	$section	an array with some infor about the section 
+	* @param integer	$depth		an indicator to the depth we are currently at used for nested sections
+	*
+	* @return void
 	* @access private
 	*/
 	function _paintSection($section, $depth=0)
