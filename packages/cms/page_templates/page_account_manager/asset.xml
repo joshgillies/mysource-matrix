@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.4 2004/08/11 07:09:30 tbarrett Exp $
+* $Id: asset.xml,v 1.5 2004/09/06 15:56:12 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -29,7 +29,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>cms</package>
 	<type_code>page_account_manager</type_code>
-	<version>0.3</version>
+	<version>0.4</version>
 	<name>Account Manager Page</name>
 	<description>Account Manager Page, users can edit their details, create accounts, join groups etc</description>
 	<instantiable>yes</instantiable>
@@ -38,7 +38,7 @@
 	<requirements>
 		<requirement type="asset">
 			<code>page_asset_builder</code>
-			<version>0.3</version>
+			<version>0.5</version>
 		</requirement>
 	</requirements>
 	<flash_menu_path>Pages</flash_menu_path>
