@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.4 2004/07/29 05:18:05 tbarrett Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.5 2004/07/29 05:54:53 tbarrett Exp $
 * $prefix:  $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $ - 1.0
+* @version $Revision: 1.5 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -208,7 +208,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 		?>
 		</select>
 		
-		<input class="sq-form-field" type="text" name="<?php echo $prefix; ?>_year" id="<?php echo $prefix; ?>_year" size="2" value="<?php echo date('Y', $timestamp); ?>" <?php echo $disabled_text; ?> onkeyup="if (validateFutureYear(this)) { <?php echo $onchange_code; ?> }" onfocus="this.select()" />
+		<input class="sq-form-field" type="text" name="<?php echo $prefix; ?>_year" id="<?php echo $prefix; ?>_year" size="5" value="<?php echo date('Y', $timestamp); ?>" <?php echo $disabled_text; ?> onkeyup="if (validateFutureYear(this)) { <?php echo $onchange_code; ?> }" onfocus="this.select()" />
 		<?php
 		return true;
 
