@@ -1,14 +1,158 @@
-function make2digits(num) {
-	if (num < 10) {
-		return "0"+parseInt(num);
-	} else {
-		return num;
+function msg(m) 
+{
+	document.getElementById('textmessage').value = m;
+}
+
+
+var currentField = null;
+var oldField = null;
+
+
+function processEndDateBlur(elt, prefix) 
+{
+	if (fieldGroupBlurred(elt)) {
+		updateDurationValues(prefix);
+		updateStartDate(prefix);
 	}
+
+}//end processEndDateBlur()
+
+
+function processStartDateBlur(elt, prefix)
+{
+	if (fieldGroupBlurred(elt)) {
+		msg('start field blurred');
+		updateEndDate(prefix);
+	}
+
+}//end processStartDateBlur()
+
+
+function updateEndDate(name) 
+{
+	endD = getDateFromField(name+'_end');
+	startD = getDateFromField(name+'_start');
+	if (endD < startD) {
+		setDateField(name+'_end', startD);
+	}
+	
+}//end updateEndDate()
+
+
+function updateStartDate(name) 
+{
+	endD = getDateFromField(name+'_end');
+	startD = getDateFromField(name+'_start');
+	if (endD < startD) {
+	  setDateField(name+'_start', endD);
+	}
+	  
+}//end updateStartDate()
+
+
+function updateDurationValues(prefix) 
+{
+	msg('updating '+prefix);
+	if (isChecked(prefix + '_start_time_enabled')) {
+		d = new Date(document.getElementById(prefix + '_start_year').value, document.getElementById(prefix + '_start_month').value-1, document.getElementById(prefix + '_start_day').value, ((parseInt(document.getElementById(prefix + '_start_hours').value)%12) + (12 * document.getElementById(prefix + '_start_is_pm').value)) % 24, document.getElementById(prefix + '_start_minutes').value, 0);
+	} else {
+		d = new Date(document.getElementById(prefix + '_start_year').value, document.getElementById(prefix + '_start_month').value-1, document.getElementById(prefix + '_start_day').value);
+	}
+	
+	if (isChecked(prefix + '_duration_enabled')) {		
+	
+		var newDate = new Date();
+		var addSeconds = 0;
+		switch(document.getElementById(prefix + '_duration_units').value) {
+			case 'd':
+				addSeconds = document.getElementById(prefix + '_duration').value * 86400;
+			break;
+			
+			case 'h':
+				addSeconds = document.getElementById(prefix + '_duration').value * 3600;
+			break;
+			
+			case 'i':
+				addSeconds = document.getElementById(prefix + '_duration').value * 60;
+			break;
+			
+		}
 		
-}//end make2digits()
+		// if only days - make sure 3 days becomes, say, 7-9th
+		if (!isChecked(prefix + '_end_time_enabled')) {
+			addSeconds -= 86400;
+		}
+		
+		newDate.setTime(d.valueOf() + addSeconds * 1000);
+		
+		document.getElementById(prefix + '_end_year').value = newDate.getFullYear();
+		document.getElementById(prefix + '_end_month').value = newDate.getMonth() + 1;
+		document.getElementById(prefix + '_end_day').value = newDate.getDate();
+			
+		if (isChecked(prefix + '_start_time_enabled')) {	
+			document.getElementById(prefix + '_end_hours').value = ((newDate.getHours() % 12 == 0) ? 12 : newDate.getHours() % 12);
+			document.getElementById(prefix + '_end_is_pm').selectedIndex = (newDate.getHours() >= 12);
+			document.getElementById(prefix + '_end_minutes').value = make2digits(newDate.getMinutes());
+		}
+	} else {
+		var endDate = new Date();
+		
+		if (isChecked(prefix + '_end_time_enabled')) {
+			endDate = new Date(document.getElementById(prefix + '_end_year').value, document.getElementById(prefix + '_end_month').value-1, document.getElementById(prefix + '_end_day').value, ((parseInt(document.getElementById(prefix + '_end_hours').value)%12) + (12 * document.getElementById(prefix + '_end_is_pm').value)) % 24, document.getElementById(prefix + '_end_minutes').value, 0);
+		} else {
+			endDate = new Date(document.getElementById(prefix + '_end_year').value, document.getElementById(prefix + '_end_month').value-1, document.getElementById(prefix + '_end_day').value);
+		}
+		
+		// number of minutes between the two dates - valueOf() is returned in milli-sec's,
+		// hence the extra division by 1000
+		var dateDiff = (endDate.valueOf() - d.valueOf()) / (1000 * 60);
+		if (!isChecked(prefix + '_end_time_enabled')) {
+			dateDiff += 1440;
+		}
+		
+		if ((dateDiff % 1440 == 0) && (dateDiff > 0)) {
+			document.getElementById(prefix + '_duration_units').value = 'd';
+			document.getElementById(prefix + '_duration').value = dateDiff / 1440;
+		} else if ((dateDiff % 60 == 0) && (dateDiff > 0)) {
+			document.getElementById(prefix + '_duration_units').value = 'h';
+			document.getElementById(prefix + '_duration').value = dateDiff / 60;
+		} else {
+			document.getElementById(prefix + '_duration_units').value = 'i';
+			document.getElementById(prefix + '_duration').value = dateDiff;
+		}
+		
+	}
+
+}//end updateDurationValues()
 
 
-function processEndEnabledClick(elt, name) {
+function processEndClick(box, prefix) 
+{
+	if (box.checked) {
+		enableDateField(prefix+'_end'); 
+		enableField(prefix+'_duration_enabled');
+		enableField(prefix+'_end_date_enabled');
+		enableField(prefix+'_duration_units');
+		enableField(prefix+'_duration');
+		enableField(prefix+'_end_time_enabled');
+		if (isChecked(prefix+'_end_time_enabled')) {
+			enableTimeField(prefix+'_end');
+		}
+	} else {
+		disableDateField(prefix+'_end'); 
+		disableTimeField(prefix+'_end');
+		disableField(prefix+'_duration_enabled');
+		disableField(prefix+'_end_date_enabled');
+		disableField(prefix+'_duration_units');
+		disableField(prefix+'_duration');
+		disableField(prefix+'_end_time_enabled');
+	}
+
+}//end processEndClick()
+
+
+function processEndEnabledClick(elt, name) 
+{
 	if (elt.value == 1) {
 		enableDateField(name+'_end'); 
 		if (isChecked(name+'_start_time_enabled')) {
@@ -22,7 +166,8 @@ function processEndEnabledClick(elt, name) {
 }//end processEndEnabledClick()
 
 
-function processStartTimeClick(elt, name) {
+function processStartTimeEnabledClick(elt, name) 
+{
 	if (elt.checked) {
 		enableTimeField(name+'_start');
 		if (isChecked(name+'_end_date_enabled')) {
@@ -35,7 +180,8 @@ function processStartTimeClick(elt, name) {
 }//end processStartTimeClick()
 
 
-function processEndTimeClick(elt, name) {
+function processEndTimeEnabledClick(elt, name) 
+{
 	if (elt.checked) {
 		enableTimeField(name+'_end'); 
 		enableDateField(name+'_end'); 
@@ -45,8 +191,83 @@ function processEndTimeClick(elt, name) {
 		disableTimeField(name+'_end'); 
 		disableTimeField(name+'_start');  
 	}
-	
+
 }//end processEndTimeClick()
+
+
+
+function processKeyEvent(elt) 
+{
+	if (!window.event) return;
+	key = window.event.keyCode; 
+	if ((key==43) && (elt.value==Number(elt.value))) {
+		if (elt.name.indexOf('year') != -1)				max_value = 2030;
+		else if (elt.name.indexOf('day') != -1)			max_value = 31;
+		else if (elt.name.indexOf('hours') != -1)		max_value = 23;
+		else if (elt.name.indexOf('minutes') != -1)		max_value = 59;
+		
+		
+		if (elt.value < max_value) {
+			elt.value=make2digits((Number(elt.value))+1);
+		}
+	    window.event.keyCode=null;
+		elt.select();
+	} 
+	if ((key==45) && (elt.value==Number(elt.value))) {
+		if (elt.name.indexOf('year') != -1)				min_value = 1970;
+		else if (elt.name.indexOf('day') != -1)			min_value = 1;
+		else if (elt.name.indexOf('hours') != -1)		min_value = 0;
+		else if (elt.name.indexOf('minutes') != -1)		min_value = 0;
+		
+		if (elt.value > min_value) {
+			elt.value=make2digits((Number(elt.value))-1); 
+		}
+		window.event.keyCode=null;
+		elt.select();
+  }
+  return true;
+  
+}//end processKeyEvent()
+
+
+function ______________HELPERS_____________() {}
+
+function make2digits(num) {
+	if (num < 10) {
+		return "0"+parseInt(num);
+	} else {
+		return num;
+	}
+		
+}//end make2digits()
+
+
+function fieldGroupBlurred(oldField) {
+	if ((currentField === null) || (oldField === null)) return true;
+	suffixes = Array('year','month','day','hours','minutes','is_pm');
+	for (i=0; i < suffixes.length; i++) {
+		if ((splitPoint = oldField.id.indexOf(suffixes[i])) != -1) {
+			baseName = oldField.id.substring(0, splitPoint-1);
+			break;
+		}
+	}
+	return (currentField.id.indexOf(baseName) == -1);
+
+}//end fieldGroupBlurred()
+
+
+function enableField(name) {
+	if ((elt = document.getElementById(name)) !== null) {
+		elt.disabled = 0;
+	}
+}
+
+
+function disableField(name) {
+	if ((elt = document.getElementById(name)) !== null) {
+		elt.disabled = 1;
+	}
+}
 
 
 var dateComponents = Array('_year','_month','_day');
@@ -119,6 +340,40 @@ function isChecked(id) {
 	}	
 }//end isChecked()
 
+function getDateFromField(name) {
+	d = new Date(document.getElementById(name+'_year').value, Number(document.getElementById(name+'_month').value)-1, document.getElementById(name+'_day').value);
+	hoursVal = parseInt(document.getElementById(name+'_hours').value);
+	if ((document.getElementById(name+'_is_pm').selectedIndex == 1) && (hoursVal < 12)) {
+		hoursVal += 12;
+	}
+	if ((document.getElementById(name+'_is_pm').selectedIndex === 0) && (hoursVal == 12)) {
+		hoursVal = 0;
+	}
+	d.setHours(hoursVal);
+	d.setMinutes(document.getElementById(name+'_minutes').value);
+	return d;
+	
+}//end getDateFromField()
+
+
+function setDateField(fieldName, dateVal) {
+	document.getElementById(fieldName+'_year').value = dateVal.getFullYear();
+	document.getElementById(fieldName+'_month').value = dateVal.getMonth()+1;
+	document.getElementById(fieldName+'_day').value = dateVal.getDate();
+	if ((hourElt = document.getElementById(fieldName+'_hours')) !== null) {
+		document.getElementById(fieldName+'_is_pm').selectedIndex = ((dateVal.getHours() >= 12) ? 1 : 0);
+		if (dateVal.getHours() % 12 === 0) {
+			hourElt.value = 12;
+		} else {
+			hourElt.value = dateVal.getHours() % 12;
+		}
+		document.getElementById(fieldName+'_minutes').value = make2digits(dateVal.getMinutes());
+	}
+	
+}//end setDateField()
+
+
+function ____________VALIDATION______________() {}
 
 function dayOK(elt) {
 	dayValue = parseInt(elt.value);
@@ -159,7 +414,7 @@ function validateYear(elt) {
 	}
 	return true;
 	
-}//end validateFutureYear()
+}//end validateYear()
 
 
 function minutesOK(elt) {
@@ -207,164 +462,4 @@ function validateHours(elt) {
 }//end validateHours()
 
 
-function getDateFromField(name) {
-	d = new Date(document.getElementById(name+'_year').value, Number(document.getElementById(name+'_month').value)-1, document.getElementById(name+'_day').value);
-	hoursVal = parseInt(document.getElementById(name+'_hours').value);
-	if ((document.getElementById(name+'_is_pm').selectedIndex == 1) && (hoursVal < 12)) {
-		hoursVal += 12;
-	}
-	if ((document.getElementById(name+'_is_pm').selectedIndex === 0) && (hoursVal == 12)) {
-		hoursVal = 0;
-	}
-	d.setHours(hoursVal);
-	d.setMinutes(document.getElementById(name+'_minutes').value);
-	return d;
-	
-}//end getDateFromField()
 
-
-function setDateField(fieldName, dateVal) {
-	document.getElementById(fieldName+'_year').value = dateVal.getFullYear();
-	document.getElementById(fieldName+'_month').value = dateVal.getMonth()+1;
-	document.getElementById(fieldName+'_day').value = dateVal.getDate();
-	if ((hourElt = document.getElementById(fieldName+'_hours')) !== null) {
-		document.getElementById(fieldName+'_is_pm').selectedIndex = ((dateVal.getHours() >= 12) ? 1 : 0);
-		if (dateVal.getHours() % 12 === 0) {
-			hourElt.value = 12;
-		} else {
-			hourElt.value = dateVal.getHours() % 12;
-		}
-		document.getElementById(fieldName+'_minutes').value = make2digits(dateVal.getMinutes());
-	}
-	
-}//end setDateField()
-
-
-function updateEndDate(name) {
-	endD = getDateFromField(name+'_end');
-	startD = getDateFromField(name+'_start');
-	//alert("Got end and start dates for updating end date");
-	if (endD < startD) {
-		setDateField(name+'_end', startD);
-	}
-	
-}//end updateEndDate()
-
-
-function updateStartDate(name) {
-	endD = getDateFromField(name+'_end');
-	startD = getDateFromField(name+'_start');
-	//alert("Got end and start dates for updating start date");
-	if (endD < startD) {
-	  setDateField(name+'_start', endD);
-	}
-	  
-}//end updateStartDate()
-
-
-function processKeyEvent(elt) {
-	if (!window.event) return;
-	key = window.event.keyCode; 
-	if ((key==43) && (elt.value==Number(elt.value))) {
-		if (elt.name.indexOf('year') != -1)				max_value = 2030;
-		else if (elt.name.indexOf('day') != -1)			max_value = 31;
-		else if (elt.name.indexOf('hours') != -1)		max_value = 23;
-		else if (elt.name.indexOf('minutes') != -1)		max_value = 59;
-		
-		
-		if (elt.value < max_value) {
-			elt.value=make2digits((Number(elt.value))+1);
-		}
-	    window.event.keyCode=null;
-		elt.select();
-	} 
-	if ((key==45) && (elt.value==Number(elt.value))) {
-		if (elt.name.indexOf('year') != -1)				min_value = 1970;
-		else if (elt.name.indexOf('day') != -1)			min_value = 1;
-		else if (elt.name.indexOf('hours') != -1)		min_value = 0;
-		else if (elt.name.indexOf('minutes') != -1)		min_value = 0;
-		
-		if (elt.value > min_value) {
-			elt.value=make2digits((Number(elt.value))-1); 
-		}
-		window.event.keyCode=null;
-		elt.select();
-  }
-  return true;
-  
-}//end processKeyEvent()
-
-
-function updateDurationValues(prefix) {
-	if (isChecked(prefix + '_start_time_enabled')) {
-		d = new Date(document.getElementById(prefix + '_start_year').value, document.getElementById(prefix + '_start_month').value-1, document.getElementById(prefix + '_start_day').value, ((parseInt(document.getElementById(prefix + '_start_hours').value)%12) + (12 * document.getElementById(prefix + '_start_is_pm').value)) % 24, document.getElementById(prefix + '_start_minutes').value, 0);
-	} else {
-		d = new Date(document.getElementById(prefix + '_start_year').value, document.getElementById(prefix + '_start_month').value-1, document.getElementById(prefix + '_start_day').value);
-	}
-	
-	if (isChecked(prefix + '_duration_enabled')) {		
-	
-		var newDate = new Date();
-		var addSeconds = 0;
-		switch(document.getElementById(prefix + '_duration_units').value) {
-			case 'd':
-				addSeconds = document.getElementById(prefix + '_duration').value * 86400;
-			break;
-			
-			case 'h':
-				addSeconds = document.getElementById(prefix + '_duration').value * 3600;
-			break;
-			
-			case 'i':
-				addSeconds = document.getElementById(prefix + '_duration').value * 60;
-			break;
-			
-		}
-		
-		// if only days - make sure 3 days becomes, say, 7-9th
-		if (!isChecked(prefix + '_end_time_enabled')) {
-			addSeconds -= 86400;
-		}
-		
-		newDate.setTime(d.valueOf() + addSeconds * 1000);
-		
-		document.getElementById(prefix + '_end_year').value = newDate.getFullYear();
-		document.getElementById(prefix + '_end_month').value = newDate.getMonth() + 1;
-		document.getElementById(prefix + '_end_day').value = newDate.getDate();
-			
-		if (isChecked(prefix + '_start_time_enabled')) {	
-			document.getElementById(prefix + '_end_hours').value = ((newDate.getHours() % 12 == 0) ? 12 : newDate.getHours() % 12);
-			document.getElementById(prefix + '_end_is_pm').selectedIndex = (newDate.getHours() >= 12);
-			document.getElementById(prefix + '_end_minutes').value = make2digits(newDate.getMinutes());
-		}
-	} else {
-		var endDate = new Date();
-		
-		if (isChecked(prefix + '_end_time_enabled')) {
-			endDate = new Date(document.getElementById(prefix + '_end_year').value, document.getElementById(prefix + '_end_month').value-1, document.getElementById(prefix + '_end_day').value, ((parseInt(document.getElementById(prefix + '_end_hours').value)%12) + (12 * document.getElementById(prefix + '_end_is_pm').value)) % 24, document.getElementById(prefix + '_end_minutes').value, 0);
-		} else {
-			endDate = new Date(document.getElementById(prefix + '_end_year').value, document.getElementById(prefix + '_end_month').value-1, document.getElementById(prefix + '_end_day').value);
-		}
-		
-		// number of minutes between the two dates - valueOf() is returned in milli-sec's,
-		// hence the extra division by 1000
-		var dateDiff = (endDate.valueOf() - d.valueOf()) / (1000 * 60);
-		if (!isChecked(prefix + '_end_time_enabled')) {
-			dateDiff += 1440;
-		}
-		
-		if ((dateDiff % 1440 == 0) && (dateDiff > 0)) {
-			document.getElementById(prefix + '_duration_units').value = 'd';
-			document.getElementById(prefix + '_duration').value = dateDiff / 1440;
-		} else if ((dateDiff % 60 == 0) && (dateDiff > 0)) {
-			document.getElementById(prefix + '_duration_units').value = 'h';
-			document.getElementById(prefix + '_duration').value = dateDiff / 60;
-		} else {
-			document.getElementById(prefix + '_duration_units').value = 'i';
-			document.getElementById(prefix + '_duration').value = dateDiff;
-		}
-		
-		
-	}
-
-}//end updateDurationValues()
