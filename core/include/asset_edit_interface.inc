@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.198 2004/01/23 00:52:12 mmcintyre Exp $
+* $Id: asset_edit_interface.inc,v 1.199 2004/02/04 06:31:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -279,7 +279,6 @@ class Asset_Edit_Interface extends MySource_Object
 				// even if we have all the locks for this screen, limbo might require more locks
 				// so acquire any more locks that might be needed
 				$this->acquireLimboLocks($owner, $o, $active_screen, $screen_lock_type);
-
 
 			} else {
 
@@ -810,12 +809,21 @@ class Asset_Edit_Interface extends MySource_Object
 		}//end if hasLayout
 
 		$locks = array_unique($locks);
+		$have_all_locks = true;
+		foreach ($locks as $lock_name) {
+			$lock_info = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($owner->id, $lock_name, true);
+			foreach ($lock_info as $lock_type => $lock_data) {
+				if ($lock_data['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserId()) $have_all_locks = false;
+			}
+		}
 
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		$vars = Array('assetid' => $owner->id, 'lock_type' => $locks, 'forceably_acquire' => false);
-		$hh->queueHipo('hipo_job_acquire_lock', $vars);
-		$url = $hh->runQueuedJobs();
-		if (!empty($url)) $o->setRedirect(strip_url(current_url()).'/?sq_redirect_url='.urlencode($url));
+		if (!$have_all_locks) {
+			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$vars = Array('assetid' => $owner->id, 'lock_type' => $locks, 'forceably_acquire' => false);
+			$hh->queueHipo('hipo_job_acquire_lock', $vars);
+			$url = $hh->runQueuedJobs();
+			if (!empty($url)) $o->setRedirect(strip_url(current_url()).'/?sq_redirect_url='.urlencode($url));
+		}
 
 	}//end acquireLimboLocks()
 
