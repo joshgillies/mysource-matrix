@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email.inc,v 1.16 2004/02/17 02:35:02 gsherwood Exp $
+* $Id: email.inc,v 1.17 2004/07/12 09:46:00 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * <!-- Sample Edit Interface XML Node -->
-*    <text width="40" height="4" password="0|1" />
+*    <email width="40" />
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
