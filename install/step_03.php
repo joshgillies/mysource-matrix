@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: step_03.php,v 1.14 2003/10/10 06:49:25 brobertson Exp $
+* $Id: step_03.php,v 1.15 2003/10/15 11:07:32 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -91,7 +91,7 @@ if (is_null($root_folder)) {
 	if ($root_folder->id != 1) {
 		trigger_error('Major Problem: The new Root Folder Asset was not given assetid #1. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
 	}
-
+	$GLOBALS['SQ_SYSTEM']->am->acquireLock($root_folder->id, 'all');
 
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('trash_folder');
 	$trash_folder = new Trash_Folder();
@@ -101,6 +101,7 @@ if (is_null($root_folder)) {
 	if ($trash_folder->id != 2) {
 		trigger_error('Major Problem: The new Trash Asset was not given assetid #2. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
 	}
+	$GLOBALS['SQ_SYSTEM']->am->acquireLock($trash_folder->id, 'all');
 
 
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('system_user_group');
@@ -111,6 +112,7 @@ if (is_null($root_folder)) {
 	if ($system_group->id != 3) {
 		trigger_error('Major Problem: The new System Administrators User Group Asset was not given assetid #3. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
 	}
+	$GLOBALS['SQ_SYSTEM']->am->acquireLock($system_group->id, 'all');
 
 
 	// Create the root user
@@ -130,9 +132,20 @@ if (is_null($root_folder)) {
 		trigger_error('Major Problem: The new Root User Asset was not given assetid #4. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
 	}
 
+	//// What we have to do here is release all locks on by user nobody, then re-acquire them when we become the root user below ////
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($root_user->id,		'all');
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($system_group->id,	'all');
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($trash_folder->id,	'all');
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($root_folder->id,	'all');
+
 	// set the current user object to the root user so we can finish
 	// the install process without permission denied errors
 	$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user);
+
+	$GLOBALS['SQ_SYSTEM']->am->acquireLock($root_folder->id,	'all');
+	$GLOBALS['SQ_SYSTEM']->am->acquireLock($trash_folder->id,	'all');
+	$GLOBALS['SQ_SYSTEM']->am->acquireLock($system_group->id,	'all');
+	$GLOBALS['SQ_SYSTEM']->am->acquireLock($root_user->id,		'all');
 
 
 	// Create the designs folder
@@ -144,6 +157,7 @@ if (is_null($root_folder)) {
 	if ($designs_folder->id != 7) {
 		trigger_error('Major Problem: The new Designs Folder Asset was not given assetid #7. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
 	}
+	$GLOBALS['SQ_SYSTEM']->am->acquireLock($designs_folder->id, 'all');
 
 	// Create the cron manager
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_manager');
@@ -154,6 +168,7 @@ if (is_null($root_folder)) {
 	if ($cron_manager->id != 8) {
 		trigger_error('Major Problem: The new Cron Manager Asset was not given assetid #8. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
 	}
+	$GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_manager->id, 'all');
 
 	// Create the login design
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('login_design');
@@ -165,6 +180,7 @@ if (is_null($root_folder)) {
 	if ($login_design->id != 9) {
 		trigger_error('Major Problem: The new Login Design Asset was not given assetid #9. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
 	}
+	$GLOBALS['SQ_SYSTEM']->am->acquireLock($login_design->id, 'all');
 
 	// Create the search manager
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('search_manager');
@@ -175,6 +191,11 @@ if (is_null($root_folder)) {
 	if ($search_manager->id != 13) {
 		trigger_error('Major Problem: The new Search Manager Asset was not given assetid #13. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
 	}
+	$GLOBALS['SQ_SYSTEM']->am->acquireLock($search_manager->id, 'all');
+
+
+
+	//// Now make sure that we release everything ////
 
 	$GLOBALS['SQ_SYSTEM']->am->releaseLock($search_manager->id,	'all');
 	$GLOBALS['SQ_SYSTEM']->am->releaseLock($login_design->id,	'all');
