@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.60 2005/03/30 05:11:43 arailean Exp $
+* $Id: step_03.php,v 1.61 2005/04/06 23:15:18 mmcintyre Exp $
 *
 */
 
@@ -43,7 +43,7 @@
 * would update all the asset types for core and cms only
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -99,6 +99,8 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 // get the list of functions used during install
 require_once $SYSTEM_ROOT.'/install/install.inc';
+
+$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 // firstly let's check that we are OK for the version
 if (version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
@@ -157,6 +159,8 @@ install_event_listeners();
 cache_asset_types();
 
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 /**
 * Gets a list of supplied package options from the command line arguments given

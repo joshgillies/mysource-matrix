@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.32 2005/03/30 00:40:17 lwright Exp $
+* $Id: install.inc,v 1.33 2005/04/06 23:15:17 mmcintyre Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -151,37 +151,24 @@ function uninstall_asset_types()
 		// now actually delete the types
 		foreach ($asset_types as $asset_type) {
 			// delete the types
-			$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'ast_typ WHERE type_code = '.$db->quote($asset_type);
+			$sql = 'DELETE FROM sq_ast_typ WHERE type_code = '.$db->quote($asset_type);
 
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
-			if (DB::isError($result)) {
-				trigger_error('SQL error while deleting asset type \''.$asset_type.'\': ' .$result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				exit(1);
-			}
 
 			// remove the inherited types
-			$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd
+			$sql = 'DELETE FROM sq_ast_typ_inhd
 					WHERE type_code = '.$db->quote($asset_type).'
 					  OR inhd_type_code = '.$db->quote($asset_type);
 
 			$result = $db->query($sql);
-			if (DB::isError($result)) {
-				trigger_error('SQL error while deleting asset type \''.$asset_type.'\': ' .$result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				exit(1);
-			}
+			assert_valid_db_result($result);
 
 			// remove the attributes
-			$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'ast_attr WHERE type_code = '.$db->quote($asset_type);
+			$sql = 'DELETE FROM sq_ast_attr WHERE type_code = '.$db->quote($asset_type);
 
-			$result = $db->query($sql);
-			if (DB::isError($result)) {
-				trigger_error('SQL error while deleting asset type \''.$asset_type.'\': ' .$result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				exit(1);
-			}
+			$SQ_PACKAGES_PATH = $db->query($sql);
+			assert_valid_db_result($SQ_PACKAGES_PATH);
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -232,11 +219,7 @@ function uninstall_packages()
 				// folder or the package manager does not exist, safe to delete
 				$sql = 'DELETE FROM sq_pkg WHERE code_name = '.$db->quote($package);
 				$result = $db->query($sql);
-				if (DB::isError($result)) {
-					trigger_error('SQL error while deleting package "'.$package.'": ' .$result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					exit(1);
-				}
+				assert_valid_db_result($result);
 
 				// remove its asset map file from the data directory
 				if (!unlink(SQ_DATA_PATH.'/private/asset_map/'.$package.'.xml')) {
@@ -325,19 +308,44 @@ function install_core($package_list=Array())
 
 
 /**
+* Returns the entire list of packages that exist in the package directory
+* 
+* @return array() the packages
+* @access public
+*/
+function get_package_list()
+{
+	$packages = Array();
+	$d = dir(SQ_PACKAGES_PATH);
+
+	while (false !== ($entry = $d->read())) {
+		if ($entry == '.' || $entry == '..') continue;
+		// if this is a directory, process it
+		if ($entry != 'CVS' && is_dir(SQ_PACKAGES_PATH.'/'.$entry)) {
+			$packages[] = $entry;
+		}
+	}
+	$d->close();
+	
+	return $packages;
+
+}//end get_package_list()
+
+
+/**
 * Install all the packages into the system. Uses the $packages(Assets) arrays
 * if defined to determine which assets to install. If a $package is defined,
 * then it checks to see if the list of assets is defined for that package. If
 * not, will install ALL assets.
 *
-* @param Array $packageList	An array of assets inside packages to install.
+* @param Array $package_assets	An array of assets inside packages to install.
 *								Requires that the package name be defined in
 *								the $packages array.
 								Array('package_name' => Array('assetname'),)
 * @return boolean
 * @access public
 */
-function install_packages($package_list=Array())
+function install_packages($package_assets=Array())
 {
 	// right now that we have sorted all that out we can install the packages
 	$d = dir(SQ_PACKAGES_PATH);
@@ -345,32 +353,27 @@ function install_packages($package_list=Array())
 	$deferred_packages = Array();
 
 	// Do we only install named packages?
-	$limit_packages = count($package_list);
-	while (false !== ($entry = $d->read())) {
-		if ($entry == '.' || $entry == '..') continue;
-		// if this is a directory, process it
-		if ($entry != 'CVS' && is_dir(SQ_PACKAGES_PATH.'/'.$entry)) {
-			// If the package isn't in the packages array, then just skip it.
-			$assets = Array();
-			if ($limit_packages) {
-				if (!isset($package_list[$entry])) {
-					echo "\nSkipping package $entry \n";
-					continue;
-				}
-				$assets = $package_list[$entry];
-				// If it wasn't an array at the core index, just quit.
-				if (!is_array($assets)) {
-					$assets = Array();
-				}
+	$limit_packages = count($package_assets);
+	$packages = get_package_list();
+	foreach ($packages as $package) {
+		$assets = Array();
+		if ($limit_packages) {
+			if (!isset($package_assets[$package])) {
+				echo "\nSkipping package $package \n";
+				continue;
 			}
-
-			$result = install_package($entry, $assets);
-			if (is_array($result)) {
-				$deferred_packages[$entry] = $result;
+			$assets = $package_assets[$package];
+			// If it wasn't an array at the core index, just quit.
+			if (!is_array($assets)) {
+				$assets = Array();
 			}
 		}
+
+		$result = install_package($package, $assets);
+		if (is_array($result)) {
+			$deferred_packages[$package] = $result;
+		}
 	}
-	$d->close();
 
 	return count($deferred_packages) ? $deferred_packages : true;
 
@@ -380,7 +383,7 @@ function install_packages($package_list=Array())
 /**
 * Installs a single package into the system.
 *
-* @param Array $packageAssets	An array of asset types to install for this
+* @param Array $package_assets	An array of asset types to install for this
 *								package.
 * @return mixed					void on success, otherwise an array of type_codes
 * 								of assets that couldn't be installed yet.
@@ -403,13 +406,6 @@ function install_package($package, $package_assets=Array())
 		return $result;
 	}
 
-	if (file_exists(SQ_PACKAGES_PATH.'/'.$package.'/tables.xml')) {
-		if (!db_install(SQ_PACKAGES_PATH.'/'.$package.'/tables.xml')) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error('PACKAGE TABLE INSTALL FAILURE', E_USER_ERROR);
-		}
-	}
-
 	$message_body = strtoupper($package)." PACKAGE ".(($result) ? "DONE SUCCESSFULLY" : "FAILED");
 	$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
 	$message->send();
@@ -421,8 +417,10 @@ function install_package($package, $package_assets=Array())
 		$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
 		$message->send();
 	}
+	
 	if ($result == -1) exit(1);
 	unset($pm);
+
 	return true;
 
 }//end install_package()

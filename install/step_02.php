@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.54 2005/03/21 06:25:03 gsherwood Exp $
+* $Id: step_02.php,v 1.55 2005/04/06 23:15:18 mmcintyre Exp $
 *
 */
 
@@ -28,15 +28,16 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix
 * @subpackage install
 */
+
 ini_set('memory_limit', -1);
 error_reporting(E_ALL);
 
 $SYSTEM_ROOT = '';
-// from cmd line
+
 if ((php_sapi_name() == 'cli')) {
 	if (isset($_SERVER['argv'][1])) $SYSTEM_ROOT = $_SERVER['argv'][1];
 	$err_msg = "You need to supply the path to the System Root as the first argument\n";
@@ -56,19 +57,27 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
-$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+require_once $SYSTEM_ROOT.'/install/install.inc';
+require_once SQ_LIB_PATH.'/db_install/db_install.inc';
+require_once SQ_INCLUDE_PATH.'/system_config.inc';
+require_once SQ_LIB_PATH.'/file_versioning/file_versioning.inc';
 require_once 'XML/Tree.php';
+
+
+$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
 $db = &$GLOBALS['SQ_SYSTEM']->db;
 
-// re-generate the config to make sure that we get any new defines that may have been issued
-require_once SQ_INCLUDE_PATH.'/system_config.inc';
+// Re-generate the Config to make sure that we get any new defines that may have been issued
+
 $cfg = new System_Config();
 $cfg->save(Array(), false);
 
-
 $cached_table_columns = Array();
 
-require_once SQ_LIB_PATH.'/db_install/db_install.inc';
+// we need to do this before starting the transaction because the
+// set_timestamp for postgres is required to start a transaction
+install_stored_procedures();
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -77,12 +86,26 @@ if (!db_install(SQ_CORE_PACKAGE_PATH.'/tables.xml')) {
 	trigger_error('TABLE INSTALL FAILURE', E_USER_ERROR);
 }
 
-require_once SQ_LIB_PATH.'/file_versioning/file_versioning.inc';
+// install any tables needed by the packages
+$packages = get_package_list();
+
+foreach ($packages as $package) {
+	$xml_file = SQ_PACKAGES_PATH.'/'.$package.'/tables.xml';
+	if (file_exists($xml_file)) {
+		if (!db_install($xml_file)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			trigger_error('TABLE INSTALL FAILURE', E_USER_ERROR);
+		}
+	}
+}
+
+// grant permissions to the tables for the secondary user
+grant_secondary_user_perms();
+
 if (!File_Versioning::initRepository($db)) {
 	trigger_error('Unable to initialise File Versioning Repository', E_USER_ERROR);
 }
 
-// its all good
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
