@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.245 2005/03/02 04:35:37 tbarrett Exp $
+* $Id: asset_edit_interface.inc,v 1.246 2005/03/10 02:21:50 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.245 $
+* @version $Revision: 1.246 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -941,7 +941,6 @@ class Asset_Edit_Interface extends MySource_Object
 							}//end if
 
 							if ($field->children[1]->name == 'note' && $field->children[1]->content) {
-								echo '<br/>&nbsp;';
 								$o->note($field->children[1]->content);
 							}
 
@@ -1379,7 +1378,6 @@ class Asset_Edit_Interface extends MySource_Object
 					}//end if
 
 					if ($field->children[1]->name == 'note' && $field->children[1]->content) {
-						echo '<br/>&nbsp;';
 						$o->note($field->children[1]->content);
 					}//end if
 				}//end for

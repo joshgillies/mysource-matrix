@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.99 2005/03/02 01:09:04 gsherwood Exp $
+* $Id: backend_outputter.inc,v 1.100 2005/03/10 02:21:50 tbarrett Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',       4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.99 $
+* @version $Revision: 1.100 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -865,7 +865,7 @@ class Backend_Outputter
 
 			default :
 				if ($this->_current_field_note) $this->note($note);
-					?>
+				?>
 					</td>
 				</tr>
 				<?php
@@ -1342,7 +1342,7 @@ class Backend_Outputter
 	function _paintJsInclude($file)
 	{
 		?>
-			<script type="text/javascript" language="javascript" src="<?php echo $file;?>"></script>
+			<script type="text/javascript" src="<?php echo $file;?>"></script>
 		<?php
 
 	}//end _paintJsInclude()
