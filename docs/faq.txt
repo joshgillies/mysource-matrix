@@ -30,3 +30,35 @@ Contributed by: Greg Sherwood <greg@squiz.net>
 Q. When setting force_unlock="false" in the edit_interface_screens.xml, the lock is still released after commiting.
 A. the correct value to force unlock is force_unlock="0"
 Contributed by: Marc McIntyre <mmcintyre@squiz.net>
+
++-----------------+
+| SYSTEM ADMIN    |
++-----------------+
+
+Q. What things do I need to do when I move/copy a system from one place to another ?
+A. There are several steps :
+  1. Create a backup with backup.sh in the current root directory, just in case :)
+
+  2. Copy everything under the system root from the old area to the new area
+
+  3. Create the new database, if applicable, and copy the existing data to it
+
+  4. Edit the [NEW SYSTEM ROOT]/data/private/conf/main.inc, alter :
+       - SQ_CONF_DB_DSN and SQ_CONF_DB2_DSN if the database has changed
+       - SQ_CONF_PEAR_PATH if this has changed
+       - SQ_CONF_SYSTEM_ROOT_URLS if any root urls have changed
+
+  5. Run [NEW SYSTEM ROOT]/scripts/system_move_update.php to update all the file version information
+
+  6. If you are running the HIPO Server, then you will need to update the server config, 
+     and get that re-read by the server. You may also need to edit [NEW SYSTEM ROOT]/data/private/conf/main.inc
+     if any of these settings have changed
+
+  7. If the Cron Jobs are running then the crontab entry will need to be edited/added for the new system root.
+     ****NOTE**** - You will need to reset the Epoch of the Cron Manager to the time that this new crontab 
+                    entry will be first run.
+
+That should be it, have fun
+Contributed by: Blair Roebrtson <brobertson@squiz.net>
+
+
