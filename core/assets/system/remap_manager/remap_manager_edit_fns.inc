@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.8 2004/06/18 01:49:16 lwright Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.9 2004/08/25 03:32:45 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $ - 1.0
+* @version $Revision: 1.9 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -255,7 +255,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 				$new_url     = trim($line_value[1]);
 				if (empty($old_url) || empty($new_url)) return false;
 
-				$expires = trim($line_value[2]);
+				$expires = array_key_exists(2, $line_value) ? trim($line_value[2]) : '';
 
 				if (empty($expires)) {
 					$int_expires = null;
