@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_email_address.inc,v 1.5 2004/06/22 01:26:17 lwright Exp $
+* $Id: form_question_type_email_address.inc,v 1.6 2004/06/22 04:04:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -99,12 +99,7 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 	
 	}//end processForm()
 
-		
-		return true;
-	
-	}//end processForm()
 
-	
 	/**
 	* writes JavaScript code for client side validation
 	* 
