@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.24 2004/09/07 00:52:29 gsherwood Exp $
+* $Id: form_section.inc,v 1.24.2.1 2004/10/15 03:13:19 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -533,6 +533,51 @@ class Form_Section extends Bridge
 	}//end fileRegeneration()
 
 
+	/**
+	* Clones certain specified components of the asset
+	*
+	* @param object asset &$clone the clone asset shell
+	* @param array			$components	the wanted components to clone eg.
+	*                       Array(
+	*                           'attributes',
+	*                           'metadata_shemas',
+	*                           'metadata',
+	*                           'workflow',
+	*                           'permissions',
+	*                           'data'
+	*                       );
+	*                       or alternately
+	*                       Array('all');
+	* 
+	* @return boolean
+	* @access public
+	* @see asset::cloneComponents()
+	*/
+	function cloneComponents(&$clone, $components)
+	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		
+		if (!parent::cloneComponents($clone, $components)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;			
+		}
+		
+		if (in_array('attributes', $components) || in_array('all', $components)) {
+			$sort_order = $this->attr('sort_order');
+			$sort_order = str_replace($this->id.':q', $clone->id.':q', $sort_order);
+						
+			// save the information
+			$clone->setAttrValue('sort_order', $sort_order);
+			$clone->saveAttributes();
+			
+		}
+		
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');		
+		return true;
+	
+	}//end cloneComponents()
+	
+	
 	/**
 	* returns the count of questions linked to this section
 	*
