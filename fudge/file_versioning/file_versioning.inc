@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.6 2003/11/26 00:51:18 gsherwood Exp $
+* $Id: file_versioning.inc,v 1.7 2004/03/02 15:11:57 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -45,7 +45,16 @@ define('FUDGE_FV_OLD_VERSION',      64);
 */
 class File_Versioning
 {
+	/**
+	* The path to our repository root
+	* @var string
+	*/
 	var $_dir;
+
+	/**
+	* the DB object that we will use to make all our calls through
+	* @var object Pear::DB
+	*/
 	var $_db;
 
 	/**
@@ -64,7 +73,7 @@ class File_Versioning
 	{
 		// if errors have occured, we can't be guaranteed that the system is integral, die
 		if (file_exists($dir.'/.FFV/error.log')) {
-			trigger_error('Unable to use File Versioning, an error occured and integrity needs to be restored, read '.$this->_dir.'/.FFV/error.log for more details, then remove this file', E_USER_ERROR);
+			trigger_error('Unable to use File Versioning, an error occured and integrity needs to be restored, read '.$dir.'/.FFV/error.log for more details, then remove this file', E_USER_ERROR);
 		}
 		$this->_dir = $dir;
 		$this->_db  = &$db;
@@ -190,7 +199,7 @@ class File_Versioning
 	* Returns either an error code or the info
 	*
 	* @param int	$fileid		the id of the file to retrieve
-	* @param int	$version	the version
+	* @param int	$version	the version, NULL to get the latest version
 	*
 	* @return Array()
 	* @access private
@@ -636,7 +645,7 @@ class File_Versioning
 	* @param string		$version	Check out this version of the file (null means latest version)
 	* @param string		$date		Check out the file as it was at this date (null means latest version) - doesn't override $version
 	*
-	* @return Array()
+	* @return mixed		Array of info about file, or FALSE on error
 	* @access private
 	* @see checkOut() output()
 	*/
