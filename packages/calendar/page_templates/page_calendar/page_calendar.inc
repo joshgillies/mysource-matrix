@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.87 2004/09/22 02:24:12 lwright Exp $
+* $Id: page_calendar.inc,v 1.88 2004/09/26 22:44:31 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.87 $ - 1.0
+* @version $Revision: 1.88 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -592,8 +592,7 @@ class Page_Calendar extends Page_Asset_Listing
 				for ($i=0; $i < $week_length; $i++) {
 					$day_name = $this->day_names[($week_start_day + $i) % 7];
 			?>
-					<th style="width: <?php echo $column_width; ?>ex"
-						class="dayLabel<?php echo (($day_name == 'Saturday') || ($day_name == 'Sunday')) ? 'Weekend' : ''; ?>">
+					<th style="width: <?php echo $column_width; ?>ex" class="dayLabel<?php echo (($day_name == 'Saturday') || ($day_name == 'Sunday')) ? 'Weekend' : ''; ?>">
 						<?php echo $day_name; ?>
 					</th>
 			<?php
@@ -838,7 +837,9 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function _getTitleList($events, $show_links=true) 
 	{
-		$details = $link = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($events));
+		$ids = Array();
+		foreach ($events as $key => $stuff) $ids[] = strtok($key, ':');
+		$details = $link = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($ids);
 		$res = '<ul>';
 		foreach ($details as $id => $data) {
 			$res .= '<li>';
@@ -853,19 +854,6 @@ class Page_Calendar extends Page_Asset_Listing
 	}//end _getTitleList()
 
 
-	/**
-	* Print a table with times within the day-starts-at to day-ends-at range, and columns
-	* as specified.
-	*
-	* @param string		$table_id			The id to use for the HTML table element
-	* @param Array		$column_names		A column_id=>name array of the columns in the table
-	* @param Array		$column_links		A column_id=>href of places to link column headers to
-	* @param Array		$events				A column_id=>array(hhmm=>array(events)) array of events to show
-	* @param boolean	$show_event_links	Whether to link the event names to the event view
-	*
-	* @return void
-	* @access private
-	*/
 	/**
 	* Print a table with times within the day-starts-at to day-ends-at range, and columns
 	* as specified.
@@ -899,7 +887,7 @@ class Page_Calendar extends Page_Asset_Listing
 			if ($ab_id = $this->attr('asset_builder_page')) {
 			?>
 				  loc = "<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetHref($this->attr('asset_builder_page')); ?>?SQ_CALENDAR_DATE="+date;
-				  if (time != '*') loc += '&amp;SQ_CALENDAR_TIME='+time+'&amp;SQ_CALENDAR_DURATION=<?php echo $this->attr('day_partition_time');?>_min';
+				  if (time != '*') loc += '&SQ_CALENDAR_TIME='+time+'&SQ_CALENDAR_DURATION=<?php echo $this->attr('day_partition_time');?>_min';
 				  document.location = loc;
 			<?php
 			}
@@ -934,14 +922,14 @@ class Page_Calendar extends Page_Asset_Listing
 		list($current_hour, $current_mins) = explode(':', $this->attr('day_starts_at'));
 		list($end_hour, $end_mins) = explode(':', $this->attr('day_ends_at'));
 		?>
-			<tr>
-			<th style="height: <?php echo $partition_height; ?>ex;" class="timeLabel">*</th>
+			<tr style="height: <?php echo $partition_height; ?>ex;">
+			<th class="timeLabel">*</th>
 			<?php
 			// print the "all day" events
 			foreach ($column_names as $id => $name) {
 				$col_events = $events[$id];
 				$event_link_date = is_iso8601($id) ? $id : $_REQUEST['SQ_CALENDAR_DATE'];
-				echo '<td style="height: '.$partition_height.'ex;" '.$mouseup_code.' id="'.$id.'_allday"'. (empty($col_events['all_day']) ? 'onclick="addEvent(\''.$event_link_date.'\', \'*\');"' : '').'>';
+				echo '<td '.$mouseup_code.' id="'.$id.'_allday"'. (empty($col_events['all_day']) ? 'onclick="addEvent(\''.$event_link_date.'\', \'*\');"' : '').'>';
 				if (empty($col_events['all_day'])) echo '&nbsp;';
 				foreach($col_events['all_day'] as $assetid => $event) {
 					$assetid = strtok($assetid,':');
@@ -949,8 +937,12 @@ class Page_Calendar extends Page_Asset_Listing
 					$onclick_code = $show_event_links ? ' onclick="clickChild(this);"' : '';
 					$cursor_code = $show_event_links ? ' cursor: pointer; cursor: hand' : '';
 					$current_mousedown_code = ($event['type_code'] != 'calendar_event_recurring') ? $mousedown_code : '';
-
-					echo '<div id="'.$assetid.'" '.$current_mousedown_code.' style="margin: 0px 0px 1px 0px; text-align: center; padding: 0px; width: '. $width*0.98.'ex;'.$cursor_code.'" class="'.$event_class.' event"'.$onclick_code.'>';
+					$current_mouse_over_out_code = '';
+					if (isset($event['description']) && !empty($event['description'])) {
+						echo '<div id="event_'.$assetid.'_description" class="popup">'.$event['description'].'</div>';
+						$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')" onmouseout="stopTrailingPopup(\'event_'.$assetid.'_description\')"';
+					}
+					echo '<div id="'.$assetid.'" '.$current_mousedown_code.' '.$current_mouse_over_out_code.' style="margin: 0px 0px 1px 0px; text-align: center; padding: 0px; width: '. $width*0.98.'ex;'.$cursor_code.'" class="'.$event_class.' event"'.$onclick_code.'>';
 					echo $show_event_links ? '<a class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$assetid.'&amp;SQ_CALENDAR_DATE='.$event_link_date.'">' : '<span class="event '.$event_class.'">';
 					echo $event['name'];
 					echo $show_event_links ? '</a>' : '</span>';
@@ -963,15 +955,15 @@ class Page_Calendar extends Page_Asset_Listing
 		<?php
 		while (($current_hour*60 + $current_mins) < ($end_hour*60 + $end_mins)) {
 			?>
-			<tr>
-				<th style="height: <?php echo $partition_height; ?>ex;" class="timeLabel"><?php echo sprintf('%d:%02d', (($current_hour % 12 == 0) ? 12 : ($current_hour % 12)), $current_mins); ?></th>
+			<tr style="height: <?php echo $partition_height; ?>ex;">
+				<th class="timeLabel"><?php echo sprintf('%d:%02d', (($current_hour % 12 == 0) ? 12 : ($current_hour % 12)), $current_mins); ?></th>
 			<?php
 			foreach ($column_names as $id => $name) {
 				$col_events = $events[$id];
 				$time_key = sprintf('%02d:%02d', $current_hour, $current_mins);
 				if ($show_event_links && is_iso8601($id)) $_REQUEST['SQ_CALENDAR_DATE'] = $id;
 				?>
-				<td style="height: <?php echo $partition_height; ?>ex;" <?php echo $mouseup_code; ?> id="<?php echo $id.'_'.$time_key ?>" <?php echo empty($col_events[$time_key]) ? 'onclick="addEvent(\''.$_REQUEST['SQ_CALENDAR_DATE'].'\', \''.$time_key.'\');"' : ''; ?> style="<?php echo $width; ?>ex">
+				<td <?php echo $mouseup_code; ?> id="<?php echo $id.'_'.$time_key ?>" <?php echo empty($col_events[$time_key]) ? 'onclick="addEvent(\''.$_REQUEST['SQ_CALENDAR_DATE'].'\', \''.$time_key.'\');"' : ''; ?> style="<?php echo $width; ?>ex">
 				<?php
 					echo $this->_getTimedTableCellContents($col_events[$time_key], $show_event_links, $root_nodes, ($current_mins + ($current_hour * 60)), $partition_time, $partition_height, $div_width, $mousedown_code);
 				?>
@@ -988,7 +980,7 @@ class Page_Calendar extends Page_Asset_Listing
 		</table>
 		<?php
 
-	}//end _printTimedTable()
+	}//end printTimedTable()
 
 
 	/**
@@ -1027,7 +1019,7 @@ class Page_Calendar extends Page_Asset_Listing
 			// other layout things
 			$zero_length_code = $event_height ? '' : 'border-style: dashed; border-width: 2px; border-bottom: 0px; border-left: 0px; border-right: 0px; height: 0px; padding-top: 0px; background-color: transparent;';
 			$event_left_margin = $event_width * 0.02;
-			$inner_width = $event_width * 0.95;
+			$inner_width = ($event_width * 0.96) - 0.25;
 			$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand;' : '';
 			$inner_margin_top = $event_height ? 1 : 0;
 			$onclick_code = $show_event_links ? 'onclick="clickChild(this);"' : '';
@@ -1692,32 +1684,31 @@ class Page_Calendar extends Page_Asset_Listing
 
 		// build date restriction SQL
 		$today_date_stamp = floor(strtotime($date.' 12:00:00 GMT')/86400);
-		$date_sql = '('.$today_date_stamp.' BETWEEN cd.start_date_ds AND cd.end_date_ds)';
+		$date_sql = '(('.$today_date_stamp.' = cd.start_date_ds) OR ('.$today_date_stamp.' BETWEEN cd.start_date_ds AND cd.end_date_ds))';
 
 		// combine with the common SQL for single events and get result from DB
 		$sql = $this->_buildSingleEventQuery($trees).' AND '.$date_sql.' AND '.$tree_sql;
 		$single_result = $db->getAssoc($sql);
 		assert_valid_db_result($single_result);
-		
+
 		// GET RECURRING EVENTS:
 
 		// combine tree sql with the common SQL for recurring events and get result from DB
 		$sql = $this->_buildRecurringEventQuery($trees, 'day', $date).' AND '.$tree_sql;
 		$recur_result = $db->getAssoc($sql);
-		assert_valid_db_result($single_result);
+		assert_valid_db_result($recur_result);
 
 		// PUT IT ALL TOGETHER:
 		
 		$res = $single_result + $recur_result;
-		$res =& $this->_expandEventList($res, $date, $date);
 
-		$this->_processExceptions($res);
-		
 		if ($this->attr('enable_description_popups')) {
 			$descriptions = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('description', 'calendar_event', array_keys($res));
 			foreach ($descriptions as $assetid => $description) $res[$assetid]['description'] = $description;
 		}
 
+		$res =& $this->_expandEventList($res, $date, $date);
+		$this->_processExceptions($res);
 		return $res;
 
 	}//end getDayEvents()
@@ -1867,20 +1858,15 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function _buildRecurringEventQuery(&$trees, $view, $iso) 
 	{
-		$iso_ts = iso8601_ts($iso);
 		list($year,$month,$day) = sscanf(substr($iso,0,10), '%4d-%2d-%2d');
 		if (!$month) $month = 12;
 		if (!$day) $day = days_in_month($month, $year);
-		$iso_ds = floor(strtotime("$year-$month-$day 12:00:00 GMT") / 86400);
 
-		$weekday = date('w', $iso_ts);
-		$wdom_list = weekday_dates_in_month($weekday, $month, $year);
-		$wdom = array_search($day, $wdom_list) + 1;
-		$rwdom = count($wdom_list) - $wdom + 1;
-		$ms = $year * 12 + $month;
+		$now = Calendar_Event::getDateComponents(sprintf('%04d-%02d-%02d', $year, $month, $day));
+		$wdom_list = weekday_dates_in_month($now['wday'], $month, $year);
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
-
+	
 		$sql =
 		'SELECT a.assetid, a.type_code, a.name, ('.$this->_buildCaseStatement('t.treeid',$trees).") as root_node, cd.* \nFROM (".SQ_TABLE_RUNNING_PREFIX.'asset a join ('.SQ_TABLE_RUNNING_PREFIX.'asset_link l join '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid) join '.SQ_TABLE_RUNNING_PREFIX."calendar_date_value cd on a.assetid = cd.assetid \nWHERE (a.type_code = ".$db->quote('calendar_event_recurring').") \nAND ";
 
@@ -1888,33 +1874,73 @@ class Page_Calendar extends Page_Asset_Listing
 
 		switch($view) {
 			case 'day' :
-				$last_day = $iso_ds;
+				$last_day = $now['ds'];
+				$now['month_length'] = days_in_month($month, $year);
+				$now['month_start_wday'] = date('w', strtotime(sprintf('%04d-%02d-%02d', $year, $month, 1)));
+				$now['month_end_wday'] = date('w', strtotime(sprintf('%04d-%02d-%02d', $year, $month, $now['month_length'])));
+				$prev_month_length = date('t', strtotime('-1 month', $now['ts']));
+				$prev_month_start_wday = date('w', strtotime(sprintf('%04d-%02d-%02d', $year, $month, 1).' -1 month'));
+				$prev_month_end_wday = date('w', strtotime(sprintf('%04d-%02d-%02d', $year, $month, 1).' -1 day'));
+				if ($db->phptype == 'mysql') {
+					$make_timestamp_func = create_function('$y, $m, $d', 'return "UNIX_TIMESTAMP(CONCAT($y,\'-\',$m,\'-\',$d))";');
+				} else {
+					$make_timestamp_func = create_function('$y, $m, $d', 'return "EXTRACT(epoch from TIMESTAMP (\'$y\' || \'-\' || \'$m\' || \'-\' || \'$d\'))";');
+				}
 
-				if ((date('w', $iso_ts) != 0) && (date('w', $iso_ts) != 6)) {
+				if (($now['wday'] != 0) && ($now['wday'] != 6)) {
 					$sql_freqs[] = 'frequency = '.$db->quote('DWD');
 				}
 
-				$sql_freqs[] = '(frequency = '.$db->quote('DED').' AND mod(('.$db->quote($iso_ds).' - start_date_ds), period) BETWEEN 0 and coalesce(end_date_ds - start_date_ds,0))';
+				$sql_freqs[] = '(frequency = '.$db->quote('DED').' AND mod(('.$db->quote($now['ds']).' - start_date_ds), period) BETWEEN 0 and coalesce(end_date_ds - start_date_ds,0))';
 
-				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' AND mod(('.$db->quote($iso_ds).' - start_date_ds), period*7) BETWEEN 0 and coalesce(end_date_ds - start_date_ds,0))';
+				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' AND mod(('.$db->quote($now['ds']).' - start_date_ds), (period*7)) BETWEEN 0 and coalesce(end_date_ds - start_date_ds,0))';
 
-				$sql_freqs_m = Array();
-
-				// every X months on xth of the month
-				$sql_freqs_m[] = '(frequency = '.$db->quote('MFN').' AND ('.$db->quote(intval($day)).' = start_date_mday))';
-
-				// every X months on xth weekday of the month ('2nd Thursday')
-				$sql_freqs_m[] = '(frequency = '.$db->quote('MFW').' AND ('.$db->quote(date('w', $iso_ts)).' = start_date_wday) and ('.$db->quote($wdom).' = start_date_wdom))';
-
-				// every X months on xth last of the month
-				$sql_freqs_m[] = '(frequency = '.$db->quote('MRN').' AND ('.$db->quote(days_in_month(substr($iso,5,2), substr($iso,0,4)) - intval(substr($iso,8,2)) + 1).' = start_date_rmday))';
-
-				// every X months on xth last weekday of the month
-				$sql_freqs_m[] = '(frequency = '.$db->quote('MRW').' AND ('.$db->quote($rwdom).' = start_date_rwdom))';
-
-				// combine all the month rules together and add a period clause
-				$sql_freqs[] = '(('.implode(' OR ', $sql_freqs_m).') AND ((MOD(('.$db->quote($ms).' - start_date_ms), period) = 0) OR (mod(('.$db->quote($iso_ds).' - start_date_ds), period) BETWEEN 0 and coalesce(end_date_ds - start_date_ds,0))))';
-
+				$sql_freqs[] = '
+				(SUBSTRING(frequency FROM 1 FOR 1) = '.$db->quote('M').') AND (
+					(
+						/* there is an instance that starts in our month */
+					   ((('.$db->quote($now['ms']).' - start_date_ms) % period) = 0)
+					   AND (
+							/* our view date is between the start and end of the instance */
+							((frequency = '.$db->quote('MFN').') AND (('.$db->quote($now['mday']).' - start_date_mday) BETWEEN 0 AND (coalesce((end_date_ds - start_date_ds), 0))))
+							OR ((frequency = '.$db->quote('MRN').') AND ((start_date_rmday - '.$db->quote($now['rmday']).') BETWEEN 0 AND (coalesce((end_date_ds - start_date_ds), 0))))
+							OR ((frequency = '.$db->quote('MFW').') AND (('.$db->quote($now['mday']).' - (((start_date_wdom - 1) * 7) + ((start_date_wday + 7 - '.$now['month_start_wday'].') % 7) + 1)) BETWEEN 0 AND (coalesce((end_date_ds - start_date_ds), 0))))
+							OR ((frequency = '.$db->quote('MRW').') AND ((((start_date_rwdom - 1) * 7) + (('.($now['month_end_wday'] + 7).' - start_date_wday) % 7) + 1 - '.$now['rmday'].') BETWEEN 0 AND (coalesce((end_date_ds - start_date_ds), 0))))
+					  )
+					) OR (
+							/* An instance that started in a previous month doesnt end til a subsequent month */
+							((('.$now['ms'].' - start_date_ms) % period) < (('.$now['ms'].' - end_date_ms) % period))
+					) OR (
+						/* An instance ends this month */
+						((start_date_ms != end_date_ms) AND ((('.$now['ms'].' - end_date_ms) % period) = 0))
+					   AND (
+						   /* its end is PROBABLY after our view date - we can only be ~90% sure here */
+							((frequency = '.$db->quote('MFN').') 
+							   AND ((end_date_ds - start_date_ds + 1) >= ROUND(('.$db->quote($now['ts']).' - '.$make_timestamp_func('FLOOR((('.$now['year'].' * 12) + '.($now['mon']-1).' - (end_date_ms - start_date_ms)) / 12)', '(('.$now['mon'].' + 10 - (('.($now['ms']-1).' - start_date_ms) % period)) % 12) + 1', 'start_date_mday').') / 86400)))
+							OR ((frequency = '.$db->quote('MRN').')
+								AND ((end_date_ds - start_date_ds + 1) >= ROUND(('.$db->quote($now['ts']).' - '.$make_timestamp_func('FLOOR((('.$now['year'].' * 12) + '.($now['mon']-1).' - (end_date_ms - start_date_ms)) / 12)', '(('.$now['mon'].' + 10 - (('.($now['ms']-1).' - start_date_ms) % period)) % 12) + 1', '((start_date_mday + 3) - (FLOOR((start_date_mday + 3) / 31) * (start_date_mday + 3) % 31))').') / 86400)))
+							OR ((frequency = '.$db->quote('MFW').')
+								AND ((end_date_ds - start_date_ds + 1) >= ROUND(('.$db->quote($now['ts']).' - '.$make_timestamp_func('FLOOR((('.$now['year'].' * 12) + '.($now['mon']-1).' - (end_date_ms - start_date_ms)) / 12)', '(('.$now['mon'].' + 10 - (('.($now['ms']-1).' - start_date_ms) % period)) % 12) + 1', '(7 * start_date_wdom) - (FLOOR((7 * start_date_wdom) / 31) * ((7 * start_date_wdom) % 31))').') / 86400)))
+							OR ((frequency = '.$db->quote('MRW').')
+								AND ((end_date_ds - start_date_ds + 1) >= ROUND(('.$db->quote($now['ts']).' - '.$make_timestamp_func('FLOOR((('.$now['year'].' * 12) + '.($now['mon']-1).' - (end_date_ms - start_date_ms)) / 12)', '(('.$now['mon'].' + 10 - (('.($now['ms']-1).' - start_date_ms) % period)) % 12) + 1', '(31 - ((start_date_rwdom - 1) * 7))').') / 86400)))
+						)
+					) OR (
+							/* An instance that started last month has run into our month 
+							   even though its original instance was contained in only one month
+							   and it ends on/after our view date */
+							((('.$now['ms'].' - start_date_ms) % period) = 1)
+							   AND (
+								((frequency = '.$db->quote('MFN').') 
+									AND ((start_date_mday + (end_date_ds - start_date_ds)) - '.$prev_month_length.' >= '.$now['mday'].'))
+								OR ((frequency = '.$db->quote('MFD').')
+									AND (((((7 + '.$prev_month_start_wday.' - start_date_wday) % 7) + 1) + ((start_date_wdom - 1) * 7) + (end_date_ds - start_date_ds)) - '.$prev_month_length.' >= '.$now['mday'].'))
+								OR ((frequency = '.$db->quote('MRD').')
+										AND ((('.$prev_month_length.' - ((7 + '.$prev_month_end_wday.' - start_date_wday) % 7)) + (end_date_ds - start_date_ds)) - '.$prev_month_length.' >= '.$now['mday'].'))
+								)
+					 )
+				)';
+				echo '<div><a href="#" onclick="this.nextSibling.style.display = (this.nextSibling.style.display==\'block\' ? \'none\' : \'block\'); return false;">See Query</a><div style="display: none">';
+				echo '</div></div>';
 
 			break;
 
@@ -1927,33 +1953,31 @@ class Page_Calendar extends Page_Asset_Listing
 				$req_rev_next_week = (($days_in_month - $day + 1) % 7 != 1);
 				$req_next_month = ($day + 6 > $days_in_month);
 
-				$last_day = $iso_ds + 6;
+				$last_day = $now['ds'] + 6;
 
 				$sql_freqs[] = 'frequency = '.$db->quote('DWD');
 
 				// note: the slightly redundant "*1.0" is so Postgres interprets it as a
 				// double instead of an int, blowing away our attempts to use floor()
-				$sql_freqs[] = '(frequency = '.$db->quote('DED').' AND ((floor(('.$db->quote($iso_ds-1).' - start_date_ds) / (period*1.0)) < floor(('.$db->quote($iso_ds+6).' - start_date_ds) / (period*1.0))) or mod(('.$db->quote($iso_ds).' - start_date_ds), period) BETWEEN 0 and coalesce(end_date_ds - start_date_ds,0)))';
+				$sql_freqs[] = '(frequency = '.$db->quote('DED').' AND ((floor(('.$db->quote($now['ds']-1).' - start_date_ds) / (period*1.0)) < floor(('.$db->quote($now['ds']+6).' - start_date_ds) / (period*1.0))) or mod(('.$db->quote($now['ds']).' - start_date_ds), period) BETWEEN 0 and coalesce(end_date_ds - start_date_ds,0)))';
 
-				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' AND ((floor(('.$db->quote($iso_ds-1).' - start_date_ds)/(period*7.0)) < floor(('.$db->quote($iso_ds+6).' - start_date_ds)/(period*7.0))) or mod(('.$db->quote($iso_ds).' - start_date_ds), period) BETWEEN 0 and coalesce(end_date_ds - start_date_ds,0)))';
+				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' AND ((floor(('.$db->quote($now['ds']-1).' - start_date_ds)/(period*7.0)) < floor(('.$db->quote($now['ds']+6).' - start_date_ds)/(period*7.0))) or mod(('.$db->quote($now['ds']).' - start_date_ds), period) BETWEEN 0 and coalesce(end_date_ds - start_date_ds,0)))';
 
 				$sql_freqs_m = Array();
 
 				// every X months on xth of the month
-				//$this_month = 'start_date_mon = '.$db->quote($month);
-				//$days_in_month = days_in_month($month, $year);
 				$sql_freqs_m[] = '(frequency = '.$db->quote('MFN').' AND start_date_mday BETWEEN '.$db->quote(intval($day)).' AND '. $db->quote(min($day+6, $days_in_month)) .')';
 
 				// every X months on xth weekday of the month
-				$sql_freqs_m[] = '(frequency = '.$db->quote('MFW').' AND start_date_wdom IN ( '.$db->quote($wdom).($req_next_week ? ','.$db->quote($wdom+1) : '').'))';
+				$sql_freqs_m[] = '(frequency = '.$db->quote('MFW').' AND start_date_wdom IN ( '.$db->quote($now['wdom']).($req_next_week ? ','.$db->quote($now['wdom']+1) : '').'))';
 
 				// every X months on xth last day of the month
 				$sql_freqs_m[] = '(frequency = '.$db->quote('MRN').' AND start_date_rmday BETWEEN '.$db->quote(max($days_in_month - $day - 5, 1)).' AND '.$db->quote(intval($days_in_month - $day + 1)).')';
 
 				// every X months on xth last weekday of the month
-				$sql_freqs_m[] = '(frequency = '.$db->quote('MRW').' AND start_date_rwdom IN ( '.$db->quote($rwdom).($req_rev_next_week ? ','.$db->quote($rwdom-1) : '').'))';
+				$sql_freqs_m[] = '(frequency = '.$db->quote('MRW').' AND start_date_rwdom IN ( '.$db->quote($now['rwdom']).($req_rev_next_week ? ','.$db->quote($now['rwdom']-1) : '').'))';
 
-				$sql_freqs[] = '(('.implode("\n\t".' OR ', $sql_freqs_m).') AND (MOD('.$db->quote($ms).' - start_date_ms,period) = 0))';
+				$sql_freqs[] = '(('.implode("\n\t".' OR ', $sql_freqs_m).') AND (MOD('.$db->quote($now['ms']).' - start_date_ms,period) = 0))';
 
 				// rolling over to a new month? Oh crap :o
 				if($req_next_month) {
@@ -1966,7 +1990,7 @@ class Page_Calendar extends Page_Asset_Listing
 					}
 
 					$req_rev_next_week = (($day + 28) > days_in_month($new_month, $new_year));
-					$wdom_list = weekday_dates_in_month($weekday, $new_month, $new_year);
+					$wdom_list = weekday_dates_in_month($now['wday'], $new_month, $new_year);
 					$days_in_new_month = days_in_month($new_month,$new_year);
 
 					// wipe the table clean
@@ -1984,7 +2008,7 @@ class Page_Calendar extends Page_Asset_Listing
 					// every X months on xth last weekday of the month
 					$sql_freqs_m[] = '(frequency = '.$db->quote('MRW').' AND start_date_rwdom IN ( '.$db->quote(count($wdom_list)).($req_rev_next_week ? ','.$db->quote(count($wdom_list)-1) : '').'))';
 
-					$sql_freqs[] = '(('.implode("\n\t".' OR ', $sql_freqs_m).') AND (MOD('.$db->quote($ms+1).' - start_date_ms,period) = 0))';
+					$sql_freqs[] = '(('.implode("\n\t".' OR ', $sql_freqs_m).') AND (MOD('.$db->quote($now['ms']+1).' - start_date_ms,period) = 0))';
 				}
 
 				$sql_freqs[] = '(frequency IN ('.$db->quote('MFN').', '.$db->quote('MRN').') AND (end_date_ds - start_date_ds >= '.$day.'))';
@@ -1994,33 +2018,33 @@ class Page_Calendar extends Page_Asset_Listing
 			break;
 
 			case 'month' :
-				$last_day = $iso_ds + days_in_month($month,$year) - 1;
+				$last_day = $now['ds'] + days_in_month($month,$year) - 1;
 
 				$sql_freqs[] = '(frequency = '.$db->quote('DWD').')';
 
-				$sql_freqs[] = '(frequency = '.$db->quote('DED').' AND (floor(('.$db->quote($iso_ds-1).' - start_date_ds)/period) < floor(('.$db->quote($last_day).' - start_date_ds)/period)))';
+				$sql_freqs[] = '(frequency = '.$db->quote('DED').' AND (floor(('.$db->quote($now['ds']-1).' - start_date_ds)/period) < floor(('.$db->quote($last_day).' - start_date_ds)/period)))';
 
 				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' and period = 1)';
 
-				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' AND (floor(('.$db->quote($iso_ds-1).' - start_date_ds)/(period*7)) < floor('.$db->quote($last_day).' - start_date_ds)/(period*7)))';
+				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' AND (floor(('.$db->quote($now['ds']-1).' - start_date_ds)/(period*7)) < floor('.$db->quote($last_day).' - start_date_ds)/(period*7)))';
 
 				// all monthly views can be lumped together on this one
-				$sql_freqs[] = '(frequency LIKE '.$db->quote('M%').' AND (MOD(('.$db->quote($ms).' - start_date_ms), period) = 0))';
+				$sql_freqs[] = '(frequency LIKE '.$db->quote('M%').' AND (MOD(('.$db->quote($now['ms']).' - start_date_ms), period) = 0))';
 
 				$iso = $year.'-'.sprintf('%02d', $month).'-01';
 
 			break;
 
 			case 'year' :
-				$last_day = $iso_ds+364+is_leap_year($year);
+				$last_day = $now['ds']+364+is_leap_year($year);
 
 				$sql_freqs[] = 'frequency = '.$db->quote('DWD');
 
-				$sql_freqs[] = '(frequency = '.$db->quote('DED').' AND (floor(('.$db->quote($iso_ds-1). ' - start_date_ds)/period) < floor(('.$db->quote($last_day).' - start_date_ds)/period)))';
+				$sql_freqs[] = '(frequency = '.$db->quote('DED').' AND (floor(('.$db->quote($now['ds']-1). ' - start_date_ds)/period) < floor(('.$db->quote($last_day).' - start_date_ds)/period)))';
 
 				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' and period = 1)';
 
-				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' AND (floor(('.$db->quote($iso_ds-1).' - start_date_ds)/(period*7)) < floor(('.$db->quote($last_day).' - start_date_ds)/(period*7))))';
+				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' AND (floor(('.$db->quote($now['ds']-1).' - start_date_ds)/(period*7)) < floor(('.$db->quote($last_day).' - start_date_ds)/(period*7))))';
 
 				// all monthly views can be lumped together on this one
 				// but we need to do something like the 'every day' type thing to work out
@@ -2030,7 +2054,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 		}//end switch on $view
 
-		$sql .= '('.implode("\n OR ", $sql_freqs).')';
+		$sql .= '('.implode("\n\n OR \n\n ", $sql_freqs).')';
 
 		// stop date
 		$sql .= ' AND ('.$last_day.' >= start_date_ds)';
@@ -2303,7 +2327,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$i = 0;
 
 		while (($next_occur !== false) && ($next_occur <= $last_day)) {
-			
+
 			$next_occur_ds = round(iso8601_ts($next_occur) / 86400);
 			// days between occurrences
 			$difference = $next_occur_ds - $event['start_date_ds'];
@@ -2320,7 +2344,6 @@ class Page_Calendar extends Page_Asset_Listing
 					$end_date = date('Y-m-d', $end_time);
 
 					if (($start_date >= $first_day) && ($start_date <= $last_day)) {
-						
 						$result_list[$assetid.':'.$i] = array_merge($event, Array(
 							'start_date_year' => date('Y', $start_time), 'start_date_mon' => date('n', $start_time),
 							'start_date_mday' => date('j', $start_time),
@@ -2402,8 +2425,8 @@ class Page_Calendar extends Page_Asset_Listing
 
 			}
 			// get the next occurrence
-			$next_d = add_days_to_iso($next_occur, 1);
-			$next_occur = Calendar_Event_Recurring::getFirstOccurrenceAfter(add_days_to_iso($next_occur, 1), $event_start_date, $event['frequency'], $event['period'], $event_last_day);
+			$next_day = add_days_to_iso($next_occur, 1);
+			$next_occur = Calendar_Event_Recurring::getFirstOccurrenceAfter(add_days_to_iso($next_day, 1), $event_start_date, $event['frequency'], $event['period'], $event_last_day);
 
 		}//end while
 
@@ -2444,5 +2467,4 @@ class Page_Calendar extends Page_Asset_Listing
 	}//end _processExceptions()
 
 }//end class
-
 ?>

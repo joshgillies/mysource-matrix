@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.44 2004/09/22 06:57:02 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.45 2004/09/26 22:44:31 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.44 $ - 1.0
+* @version $Revision: 1.45 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -150,7 +150,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 			// Every 'x' months on the 'y'th weekday of the month (eg. 2nd Thursday)
 			case 'MFW':
-				$target_week_of_month = (int)($start_day / 7);
+				$target_week_of_month = (int)(($start_day - 1) / 7);
 				$target_day_of_week = date('w', iso8601_ts($start));
 				$res_day = ($target_week_of_month * 7) + 1;
 
@@ -161,17 +161,18 @@ class Calendar_Event_Recurring extends Calendar_Event
 					// we're in a valid month, but too late in it, so go to next valid month
 					increment_month($res_month, $res_year, $interval);
 				} elseif ((int)($after_day / 7) == $target_week_of_month) {
-					$res_day = $after_day;
+					$res_day = max($res_day, $after_day);
 				}
 
 				$month_length = days_in_month($res_month, $res_year);
 				
 				$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,$res_day);
-				
 				while (date('w', iso8601_ts($result)) != $target_day_of_week) {				
-					$res_day += (7 + $target_day_of_week - date('w', iso8601_ts($result)))  % 7;
+					$res_day += (7 + $target_day_of_week - date('w', iso8601_ts($result)) - 1)  % 7 + 1;
+
 					$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,$res_day);
 					if (($res_day > $month_length) || ($res_day > (($target_week_of_month+1) * 7))) {
+
 						// run out of days, so we'll have to start again in the next valid month
 						increment_month($res_month, $res_year, $interval);
 						$month_length = days_in_month($res_month, $res_year);
@@ -770,7 +771,6 @@ class Calendar_Event_Recurring extends Calendar_Event
 				$end_dates_agree = ((($occurrence_end_date) && isset($_REQUEST['event_end_date_enabled']) && (sprintf('%04d-%02d-%02d', $_REQUEST['event_end_year'], $_REQUEST['event_end_month'], $_REQUEST['event_end_day']) == $occurrence_end_date)) || ((!$occurrence_end_date && (!isset($_REQUEST['event_end_date_enabled'])))));
 
 				$end_times_agree = ((($end_time = $this->getEndTime()) && isset($_REQUEST['event_end_time_enabled']) &&  (sprintf('%02d:%02d', $_REQUEST['event_end_hours'], $_REQUEST['event_end_minutes']) == $end_time)) || ((!$this->getEndTime()) && (!isset($_REQUEST['event_end_time_enabled']))));
-				//bam("start dates agree: $start_dates_agree; start times agree: $start_times_agree; end dates agree: $end_dates_agree; end times agree: $end_times_agree");
 				if ($start_dates_agree && $start_times_agree && $end_dates_agree && $end_times_agree) {
 					$this->addModification($_REQUEST['SQ_CALENDAR_DATE'], $_REQUEST['event_description']);
 					$res = '<p>Event instance modified</p>';
