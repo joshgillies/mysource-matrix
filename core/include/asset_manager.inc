@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.279 2005/03/02 01:09:04 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.280 2005/03/08 05:29:19 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.279 $
+* @version $Revision: 1.280 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -988,7 +988,7 @@ class Asset_Manager extends MySource_Object
 	* If one value in $field then the return value is Array(assetid => '[field]'), otherwise Array(assetid => Array())
 	*
 	* @param array(int)		$assetids			an array of assets to limit
-	* @param array|string	$type_code			an array of types codes to limit the results to
+	* @param string|array	$type_code			an asset type code, or array of typecodes, to limit results to
 	* @param boolean		$strict_type_code	ensure returned assets are of the passed type codes
 	* @param string			$field				single field from the asset table to return (along with the assetid)
 	*											Default is all fields
