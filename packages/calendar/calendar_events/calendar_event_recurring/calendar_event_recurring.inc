@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.3 2004/07/28 23:47:03 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.4 2004/07/29 00:13:04 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.4 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -75,16 +75,20 @@ class Calendar_Event_Recurring extends Calendar_Event
 	/**
 	* Tells us whether this event has an occurrence on the specified date
 	*
-	* @param string		$date	the date we're interested in, in YYYY-MM-DD format
+	* @param string	$date	the date we're interested in, in YYYY-MM-DD format - default is
+	*						today's date (time can be passed in too but it will be stripped)
 	*
 	* @return boolean	true if this event occurs on the specified date
 	* @access public
 	*/
-	function hasOccurrenceOnDate($date) {
-		$start_ts = strtotime($this->getStartDate());
-		$query_ts = strtotime($date);		
-		$seconds_per_day = 60 * 60 * 24;
+	function hasOccurrenceOnDate($date=null) {
+		if (is_null($date)) $date = date('Y-m-d'); 
+		
 		$start_date = $this->getStartDate();
+		$start_ts = strtotime($start_date);
+		$query_ts = strtotime(substr($date,0,10));		
+		$seconds_per_day = 60 * 60 * 24;
+		
 		if ($query_ts < $start_ts) return false;
 		$freq_type = substr($this->attr('frequency'), 0, 3);
 		if ($interval = substr($this->attr('frequency'), 3))
@@ -182,7 +186,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	/**
 	* Returns this event's frequency in an easy-to-understand format
 	*
-	* @return string	this event's frequency in an easy-to-understand format
+	* @return string
 	* @access public
 	*/
 	function getFriendlyFrequency() {
@@ -190,6 +194,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		$interval = substr($this->attr('frequency'), 3);
 		$monthly_type = '';
 		switch ($freq_type) {
+			// every day (or x days)
 			case 'DED':
 				if ($interval) 
 					$res = "every $interval days";
@@ -197,6 +202,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 					$res = 'every day';
 			break;
 
+			// every weekday (or x weekdays)
 			case 'DWD':
 				if ($interval)
 					$res = "every $interval weekdays";
@@ -204,6 +210,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 					$res = 'every weekday';
 			break;
 
+			// every week (or x weeks)
 			case 'WEW':
 				if ($interval)
 					$res = "every $interval weeks";
@@ -211,17 +218,20 @@ class Calendar_Event_Recurring extends Calendar_Event
 					$res = 'every week';
 			break;
 
+			// every month (or x months) on the yth day of the month
 			case 'MFN':
 				$day = (int)substr($this->attr('start_date'), 8, 2);
 				$monthly_type = 'on the ' . add_ordinal_suffix($day) . ' day of the month';
 			break;
 
+			// every month (or x months) on the yth weekday of the month
 			case 'MFW':
 				$day = (int)substr($this->attr('start_date'), 8, 2);
 				$day_of_week = date('l', iso8601_ts($this->attr('start_date')));
 				$monthly_type = 'on the ' . add_ordinal_suffix((int)((($day-1) / 7) + 1)) . ' ' . $day_of_week . ' of the month';
 			break;
 
+			// every month (or x months) on the yth LAST day of the month
 			case 'MRN':
 				$day = (int)substr($this->attr('start_date'), 8, 2);
 				$month = (int)substr($this->attr('start_date'), 5, 2);
@@ -230,6 +240,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 				$monthly_type = 'on the ' . add_reverse_ordinal_suffix($month_length - $day + 1) . ' last day of the month';
 			break;
 
+			// every month (or x months) on the yth LAST weekday of the month
 			case 'MRW':
 				$day = (int)substr($this->attr('start_date'), 8, 2);
 				$day_of_week = date('l', iso8601_ts($this->attr('start_date')));
@@ -239,15 +250,19 @@ class Calendar_Event_Recurring extends Calendar_Event
 				$monthly_type = 'on the ' . add_reverse_ordinal_suffix((int)((($month_length - $day + 1) / 7) + 1)) . ' last ' . $day_of_week . ' of the month';
 			break;
 
+			// unknown frequency
 			default:
-				$res = 'ERROR:  freq is ' . $this->attr('frequency');
+				$res = 'Unknown frequency type "' . $this->attr('frequency') . '"';
 		}
+		
+		// set up final display string for monthly types 
 		if ($monthly_type) {
 			if ($interval)
 				$res = "every $interval months, $monthly_type";
 			else
 				$res = "every month, $monthly_type";
 		}
+		
 		$stop_date_attr = $this->getAttribute('stop_date');
 		if (($stop_timestamp = $stop_date_attr->getTimestamp()) == -1)
 			return "$res, until further notice";
