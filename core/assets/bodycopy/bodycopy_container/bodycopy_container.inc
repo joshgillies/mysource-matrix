@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.2 2003/12/16 12:16:42 brobertson Exp $
+* $Id: bodycopy_container.inc,v 1.3 2003/12/19 04:02:46 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -217,6 +217,25 @@ class Bodycopy_Container extends Asset
 					 );
 
 	}//end _getAllowedLinks()
+
+
+	/**
+	* Return a human readable description of the passed link
+	*
+	* @param int	$linkid	the link ID of the link to describe
+	*
+	* @return string
+	* @access public
+	*/
+	function describeLink($linkid)
+	{
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
+		if ($link['link_type'] == SQ_LINK_NOTICE) {
+			return 'Linked inside the content as a URL, image, or embedded movie';
+		}
+		return parent::describeLink($linkid);
+		
+	}//end describeLink()
 
 
 	/**
