@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_edit_fns.inc,v 1.7 2004/08/11 07:09:30 tbarrett Exp $
+* $Id: page_account_manager_edit_fns.inc,v 1.8 2004/08/11 23:21:12 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -114,7 +114,7 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	function processAddCreateType(&$asset, &$o, $prefix)
 	{
 		if (isset($_POST[$prefix.'_create_type'])) {
-			$type = trim($_POST[$prefix.'_create_type']);
+			$type = trim(array_shift(array_keys($_POST[$prefix.'_create_type'])));
 			if (empty($type)) return false;
 			$types = Array($type => true);
 			$asset->setAttrValue('create_type', $types);
