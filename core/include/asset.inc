@@ -253,7 +253,7 @@ class Asset extends Resolve_Object
 
 			// get the link so we can find out if it was dependant (cant rely on the info passed in
 			// because other assets may have changed what happens in createLink)
-			$new_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
+			$new_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id, 'minor');
 
 			// set permission on this asset that the parent has
 			foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
