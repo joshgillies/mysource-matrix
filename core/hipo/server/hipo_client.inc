@@ -61,7 +61,7 @@ class HIPO_Client extends HIPO_Server_Common
 			$this->disconnect();
 		}
 
-		$fd = @socket_create(AF_INET, SOCK_STREAM, 0);
+		$fd = socket_create(AF_INET, SOCK_STREAM, 0);
 		if (!$fd) {
 			trigger_error('Could not create socket : '.$this->getLastSocketError(), E_USER_WARNING);
 			return false;
@@ -70,7 +70,7 @@ class HIPO_Client extends HIPO_Server_Common
 		// adress may be reused
 		socket_set_option($fd, SOL_SOCKET, SO_REUSEADDR, 1);
 
-		if (!@socket_connect($fd, $this->_domain, $this->_port)) {
+		if (!socket_connect($fd, $this->_domain, $this->_port)) {
 			trigger_error('Could not connect : '.$this->getLastSocketError($fd), E_USER_WARNING);
 			socket_close($fd);
 			return false;
