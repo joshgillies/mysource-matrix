@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.31 2004/12/06 14:38:08 brobertson Exp $
+* $Id: design_customisation.inc,v 1.32 2005/01/14 01:00:43 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -379,13 +379,12 @@ class Design_Customisation extends Design
 		$file_link_ids = Array();
 		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', false);
 		foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
-
 		$file_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_unique($file_link_ids));
 		$file_link_urls = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($file_link_ids));
-
+		
 		foreach ($file_link_info as $minorid => $file_info) {
 			$file_url = $file_link_urls[$minorid];
-			if ($file_url == '') $file_url = "Javascript: alert('This URL for \'".$file_info['name']."\' does not exist');";
+			if ($file_url == '') $file_url = "Javascript: alert('No URL found for &quot;".$file_info['name']."&quot;; Design &quot;".$this->attr('id_name')."&quot; might not be linked under a site with a URL');";
 			$FILE_URLS[$file_info['name']] = $file_url;
 		}
 
@@ -399,7 +398,7 @@ class Design_Customisation extends Design
 
 		foreach ($css_link_info as $minorid => $css_info) {
 			$css_url = $css_link_urls[$minorid];
-			if ($css_url == '') $css_url = "Javascript: alert('This URL for \'".$file_info['name']."\' does not exist');";
+			if ($css_url == '') $css_url = "Javascript: alert('No URL found for &quot;".$file_info['name']."&quot;; Design &quot;".$this->attr('id_name')."&quot; might not be linked under a site with a URL');";
 			$CSS_URLS[$css_info['name']] = $css_url;
 		}
 
