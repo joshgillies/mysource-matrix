@@ -591,7 +591,7 @@ class Asset extends Resolve_Object
 		$result = $db->getRow($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-			return null;
+			return Array();
 		}
 
 		return $result;
