@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.263 2005/01/26 09:17:31 brobertson Exp $
+* $Id: asset_manager.inc,v 1.264 2005/02/01 11:19:12 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.263 $
+* @version $Revision: 1.264 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -344,6 +344,7 @@ class Asset_Manager extends MySource_Object
 		return ($field) ? $this->_asset_types[$type_code][$field] : $this->_asset_types[$type_code];
 
 	}//end getTypeInfo()
+
 
 	/**
 	* Retrieves the default component weightings for an asset type
@@ -931,18 +932,37 @@ class Asset_Manager extends MySource_Object
 	* Returns an array of information about assets of the passed codes
 	*
 	* @param array(int)		$assetids			an array of assets to limit
-	* @param array | string	$type_code			an array of types codes to limit the results to
+	* @param array|string	$type_code			an array of types codes to limit the results to
 	* @param boolean		$strict_type_code	ensure returned assets are of the passed type codes
+	* @param string			$field				single field from the asset table to return (along with the assetid)
+	*											Default is all fields
 	*
-	* @return Array( int => Array() )
+	* @return Array()	if one value in $field then the return value is Array(assetid => '[field]'), otherwise Array(assetid => Array())
 	* @access public
 	*/
-	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=true)
+	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=true, $field='')
 	{
 		assert_type($assetids, 'array');
 		if (empty($assetids)) return Array();
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// need to do some checking on the field to make sure it's in the table
+		// but only do it if the field is specified
+		if (!empty($field)) {
+			if (empty($this->_tmp['sq_tables'])) {
+				require SQ_DATA_PATH.'/private/db/table_columns.inc';
+				$this->_tmp['sq_tables'] = $tables;
+				unset($tables);
+			}
+
+			// field not found
+			if (!in_array($field, $this->_tmp['sq_tables']['ast']['columns'])) {
+				trigger_error('Field "'.$field.'" is not a valid field', E_USER_WARNING);
+				return Array();
+			}
+		}
+
 		$where = '';
 
 		for ($i = 0; $i < count($assetids); $i++) $assetids[$i] = $db->quote($assetids[$i]);
@@ -970,19 +990,29 @@ class Asset_Manager extends MySource_Object
 		}//end if
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		$sql = 'SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a '.$where.' ORDER BY a.assetid';
+		$sql = 'SELECT assetid, '.((empty($field)) ? '*' : $field) .'
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a 
+				'.$where.' 
+				ORDER BY a.assetid';
 
-		$result = $db->getAll($sql);
-		assert_valid_db_result($result);
+		if (empty($field)) {
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
 
-		$return_result = Array();
-		foreach (array_values($result) as $row) {
-			foreach ($row as $name => $value) {
-				$return_result[$row['assetid']][$name] = $value;
+			$return_result = Array();
+			while (null !== ($row = $result->fetchRow())) {
+				$return_result[$row['assetid']] = $row;
 			}
-		}
+			$result->free();
+			return $return_result;
 
-		return $return_result;
+		} else {
+
+			$result = $db->getAssoc($sql);
+			assert_valid_db_result($result);
+			return $result;
+
+		}// end if
 
 	}//end getAssetInfo()
 
@@ -1046,14 +1076,18 @@ class Asset_Manager extends MySource_Object
 	{
 		if (empty($assetids)) return Array();
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT v.assetid, coalesce(v.custom_val, at.default_val) as val FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val v JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr at ON at.attrid=v.attrid WHERE ';
+		$sql = 'SELECT v.assetid, COALESCE(v.custom_val, at.default_val) as val 
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val v JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr at ON at.attrid=v.attrid 
+				WHERE ';
 
 		// if asset type is set to 'asset' then skip owning type code checks
 		if ($asset_type != 'asset') $sql .= 'at.owning_type_code='.$db->quote($asset_type).' AND ';
 
 		$sql .= 'at.name='.$db->quote($attr_name).' AND v.assetid IN ('.implode(', ', $assetids).')';
+
 		$result = $db->getAssoc($sql);
 		assert_valid_db_result($result);
+
 		return $result;
 
 	}//end getAttributeValuesByName()
