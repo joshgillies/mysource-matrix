@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.24 2004/07/01 00:52:18 lwright Exp $
+* $Id: form_email.inc,v 1.25 2004/07/01 00:56:33 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -205,7 +205,7 @@ class Form_Email extends Form
 	*/
 	function mailRecipients()
 	{
-		$email_format_attr = $this->getAttribute('receipt_emails_format');
+		$email_format_attr = $this->getAttribute('recipient_emails_format');
 
 		$current_value = @unserialize($email_format_attr->value);
 
