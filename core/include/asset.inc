@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.338.2.1 2004/12/16 22:00:58 gsherwood Exp $
+* $Id: asset.inc,v 1.338.2.2 2004/12/22 23:41:43 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.338.2.1 $
+* @version $Revision: 1.338.2.2 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2952,7 +2952,6 @@ class Asset extends MySource_Object
 	*/
 	function printHead()
 	{
-		echo '<!-- HEAD PRINTED BY ASSET.INC -->';
 
 	}//end printHead()
 
