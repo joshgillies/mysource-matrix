@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: serialise.inc,v 1.7 2003/11/26 00:51:07 gsherwood Exp $
+* $Id: serialise.inc,v 1.8 2004/05/12 07:05:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 class Asset_Attribute_Serialise extends Asset_Attribute
 {
 
+
 	/**
 	* Constructor
 	*
@@ -49,6 +50,7 @@ class Asset_Attribute_Serialise extends Asset_Attribute
 	function Asset_Attribute_Serialise($attributeid=0, $value=null) 
 	{
 		$this->Asset_Attribute($attributeid, $value);
+
 	}// end constructor
 
 
@@ -71,6 +73,7 @@ class Asset_Attribute_Serialise extends Asset_Attribute
 		}
 		$value = serialize($value);
 		return true;
+
 	}//end validateValue()
 
 
