@@ -543,7 +543,7 @@ class Backend_Outputter
 		if ($this->_redirect) {
 			// save the messages so the come through on the next page
 			$_SESSION['backend_outputter_msgs'] = $this->_messages;
-			$this->addOnLoad($this->_redirect_target.'.location = "'.$this->_redirect.'";');
+			$this->addOnLoad($this->_redirect_target.'.location = "'.addslashes($this->_redirect).'";');
 		}
 
 		$this->_paintHeader();
