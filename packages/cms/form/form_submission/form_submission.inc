@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_submission.inc,v 1.10 2003/09/26 06:07:59 mmcintyre Exp $
+* $Id: form_submission.inc,v 1.11 2003/09/28 23:00:06 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -113,7 +113,6 @@ class Form_Submission extends Asset
 	*/
 	function setAnswer($id, $value)
 	{
-		echo 'setting answer';
 		$a = $this->attr('attributes');
 		if (empty($a['answers'])) $a['answers'] = Array();
 		
@@ -286,7 +285,6 @@ class Form_Submission extends Asset
 		if (!$this->setAttrValue('attributes', $a)) {
 			return false;
 		}
-		echo 'in setProcessed';
 		$this->saveAttributes();
 
 		return true;

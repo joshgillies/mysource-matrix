@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question.inc,v 1.10 2003/09/26 06:02:40 mmcintyre Exp $
+* $Id: form_question.inc,v 1.11 2003/09/28 23:00:06 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -403,7 +403,6 @@ class Form_Question extends Asset
 			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->section_id, 'form_section');
 			$this->section_name = $section->name;
 		}
-		echo $section->name.'<------section name';
 		return $this->section_name;	
 
 	} // end getMySectionName()

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_rule_type_comparison.inc,v 1.6 2003/09/26 06:04:13 mmcintyre Exp $
+* $Id: form_question_rule_type_comparison.inc,v 1.7 2003/09/28 23:00:06 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,32 +34,6 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 		$this->Form_Question_Rule($assetid);
 	
 	}// end Form_Question_Rule_Type_Email()
-
-
-	/**
-	* Create this asset
-	*
-	* @param array()	&$link	information used to create the initial link
-	*
-	* @see Asset::create()
-	* @return mixed int or false
-	* @access public
-	*/
-	function create(&$link)
-	{
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$linkid = parent::create($link);
-
-		if (!$linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return $linkid;
-
-	} // end create()
 
 
 	/**
@@ -168,8 +142,6 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 
 		// check to see if the comparison question has been processed yet
 		if (!$this->active_submission->isProcessed($comp_qid)) {
-			bam($this->active_submission);
-			echo 'the other question has not been processed<BR>';
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$message_body = 'Question '.$this->name .'(#'.$this->id.') was compared ';
 			$message = $ms->newMessage(Array(), 'Form Error', $message_body, 'asset.error');
@@ -184,7 +156,7 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 		
 		$comp_answer = $this->active_submission->getAnswer($comp_qid);
 		$operator = $this->attr('operator');
-		$answer = $this->attr('value');
+		$answer = $this->active_submission->getAnswer($this->my_question_id);
 
 		$my_question = &$this->getMyQuestion();
 
@@ -223,6 +195,7 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 					if ($my_question->isSelection()) {
 						$answer = $my_question->getAnswerByOffset($answer);
 					}
+
 					$query = 'return \''.$answer.'\''.$operator.'\''.$a.'\';';
 					if (eval($query)) {
 						$valid = true;
@@ -233,8 +206,8 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 				// we need to convert this question from a offset to an answer
 				if ($my_question->isSelection()) $answer = $my_question->getAnswerByOffset($answer);
 				if ($comp_question->isSelection()) $comp_answer = $comp_question->getAnswerByOffset($comp_answer);
-
 				$query = 'return \''.$answer.'\''.$operator.'\''.$comp_answer.'\';';
+
 				if (eval($query)) $valid = true;
 			}
 		}
@@ -243,7 +216,12 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 			return true;
 		} else {
 			if (is_array($comp_answer)) {
+				$comp_answer = $comp_question->getAnswerByOffset($comp_answer);
 				$comp_answer = implode(', ', $comp_answer);
+			} else {
+				if ($comp_question->isSelection()) {
+					$comp_answer = $comp_question->getAnswerByOffset($comp_answer);
+				}
 			}
 			$error = $my_question->name.' '.$operators[$operator].
 			' '.$comp_question->_getName().' in '.$comp_question->getMySectionName().' (\''.$comp_answer.'\')';
