@@ -175,8 +175,11 @@ class Workflow_Manager extends Resolve_Object
 
 			for (reset($step_data['conditions']); null !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
 				$cond_data =& $step_data['conditions'][$pub];
-
+				
+				// safety code
+				if (!isset($cond_data['complete'])) $cond_data['complete'] = false;
 				if (!isset($cond_data['published_by'])) $cond_data['published_by'] = Array();
+
 				if(empty($cond_data['published_by'])) {
 					// nobody has approved this, so it cant be finished
 					if ($step_data['logic'] == 'all') {
@@ -187,26 +190,31 @@ class Workflow_Manager extends Resolve_Object
 					}
 				}
 
-				$complete = false;
-				if ($cond_data['require'] == 'all') {
-					// lets work out what number 'ALL' represents
-					$can_publish_cond = Array();
-					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
-					if ($asset->id) {
-						if (is_a($asset, 'user')) {
-							$can_publish_cond[] = $asset->id;
-						} else if (is_a($asset, 'user_group')) {
-							$can_publish_cond = $asset->getChildren(Array('user'), false);
-						}
-					}
-					$cond_string = 'if ('.count($cond_data['published_by']).' >= '.count($can_publish_cond).') { $complete = true; }';
+				if ($cond_data['complete']) {
+					$complete = true;
 				} else {
-					$cond_string = 'if ('.count($cond_data['published_by']).' '.$cond_data['require'].') { $complete = true; }';
+					$complete = false;
+					if ($cond_data['require'] == 'all') {
+						// lets work out what number 'ALL' represents
+						$can_publish_cond = Array();
+						$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
+						if ($asset->id) {
+							if (is_a($asset, 'user')) {
+								$can_publish_cond[] = $asset->id;
+							} else if (is_a($asset, 'user_group')) {
+								$can_publish_cond = $asset->getChildren(Array('user'), false);
+							}
+						}
+						$cond_string = 'if ('.count($cond_data['published_by']).' >= '.count($can_publish_cond).') { $complete = true; }';
+					} else {
+						$cond_string = 'if ('.count($cond_data['published_by']).' '.$cond_data['require'].') { $complete = true; }';
+					}
+					eval($cond_string);
 				}
-				eval($cond_string);
 
 				if ($complete) {
 					// this condition has been completed
+					$cond_data['complete'] = true;
 					$continue = true;
 					$completed_conds++;
 					if ($step_data['logic'] == 'all') continue;
@@ -274,28 +282,33 @@ class Workflow_Manager extends Resolve_Object
 			for (reset($step_data['conditions']); null !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
 				$cond_data =& $step_data['conditions'][$pub];
 
-				// these are the people who have already approved this asset for publishing
+				// safety code
+				if (!isset($cond_data['complete'])) $cond_data['complete'] = false;
 				if (!isset($cond_data['published_by'])) $cond_data['published_by'] = Array();
 
-				$complete = false;
-				$can_publish_cond = Array();
-
-				// work out who can publish right now
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
-				if ($asset->id) {
-					if (is_a($asset, 'user')) {
-						$can_publish_cond[] = $asset->id;
-					} else if (is_a($asset, 'user_group')) {
-						$can_publish_cond = $asset->getChildren(Array('user'), false);
-					}
-				}
-
-				if ($cond_data['require'] == 'all') {
-					$cond_string = 'if ('.count($cond_data['published_by']).' >= '.count($can_publish_cond).') { $complete = true; }';
+				if ($cond_data['complete']) {
+					$complete = true;
 				} else {
-					$cond_string = 'if ('.count($cond_data['published_by']).' '.$cond_data['require'].') { $complete = true; }';
+					$complete = false;
+					$can_publish_cond = Array();
+
+					// work out who can publish right now
+					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
+					if ($asset->id) {
+						if (is_a($asset, 'user')) {
+							$can_publish_cond[] = $asset->id;
+						} else if (is_a($asset, 'user_group')) {
+							$can_publish_cond = $asset->getChildren(Array('user'), false);
+						}
+					}
+
+					if ($cond_data['require'] == 'all') {
+						$cond_string = 'if ('.count($cond_data['published_by']).' >= '.count($can_publish_cond).') { $complete = true; }';
+					} else {
+						$cond_string = 'if ('.count($cond_data['published_by']).' '.$cond_data['require'].') { $complete = true; }';
+					}
+					eval($cond_string);
 				}
-				eval($cond_string);
 
 				if (!$complete) {
 					$can_publish = array_merge($can_publish, array_diff($can_publish_cond, $cond_data['published_by']));
