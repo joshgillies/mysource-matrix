@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.4 2004/03/31 00:29:33 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.5 2004/03/31 04:25:27 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -327,6 +327,7 @@ class LDAP_Bridge extends Bridge
 		$children = Array();
 
 		foreach ($entries as $data) {
+			if ($data['dn'] == $assetid) continue;
 			if ((in_array('user_group', $type_code) || empty($type_code)) && in_array('organizationalunit', $data['objectclass'])) {
 				$children[$this->id.':'.$data['dn']] = 'ldap_user_group';
 			}
