@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.13 2003/11/26 00:51:32 gsherwood Exp $
+* $Id: search_page.inc,v 1.14 2003/12/02 03:55:25 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 * @see Page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.13 $ - 1.0
+* @version $Revision: 1.14 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -602,6 +602,8 @@ class Search_Page extends Page
 			$query_name = $query_match[1];
 			$field =& $fields[$query_name];
 
+			$concat = ($db->phptype == 'mysql') ? 'CONCAT(alt1.treeid, '.$db->quote('%').')' : '(alt1.treeid || '.$db->quote('%').')';
+
 			$start_sql = "SELECT ai.assetid, SUM(ai.score)
 				FROM " . 
 				SQ_TABLE_PREFIX . "asset_indexing ai,\n"	.
@@ -612,7 +614,7 @@ class Search_Page extends Page
 				"WHERE ".
 				"al1.majorid = " . $db->quote((int)$root_assetid)	.	// all links that root asset is a major in
 				" AND al1.linkid = alt1.linkid "					.	// all treeids with those links
-				" AND alt2.treeid LIKE alt1.treeid || '%' "			.	// all treeids that start with those treeids
+				" AND alt2.treeid LIKE ".$concat					.	// all treeids that start with those treeids
 				" AND alt2.linkid = al2.linkid "					.	// all links with those treeids
 				" AND ai.assetid = al2.minorid \n";					;	// and the indexing data for those assets
 
@@ -625,7 +627,6 @@ class Search_Page extends Page
 						$sql .= "GROUP BY ai.assetid";
 
 						$results = $db->getAssoc($sql);
-
 						if (is_null($field_asset_scores)) {
 							$field_asset_scores = $results;
 						} else {
