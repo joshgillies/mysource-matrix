@@ -19,3 +19,7 @@ SELECT SETVAL('sq_sequence_asset_attribute_seq', (SELECT COALESCE(MAX(attributei
 DROP SEQUENCE sq_sequence_asset_url_seq;
 CREATE SEQUENCE sq_sequence_asset_url_seq;
 SELECT SETVAL('sq_sequence_asset_url_seq', (SELECT COALESCE(MAX(urlid), 1) FROM sq_asset_url));
+
+DROP SEQUENCE sq_sequence_internal_message_seq;
+CREATE SEQUENCE sq_sequence_internal_message_seq;
+SELECT SETVAL('sq_sequence_internal_message_seq', (SELECT COALESCE(MAX(messageid), 1) FROM sq_internal_message));
