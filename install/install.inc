@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 * 
-* $Id: install.inc,v 1.16 2004/09/08 08:32:01 brobertson Exp $
+* $Id: install.inc,v 1.17 2004/09/14 01:42:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -329,7 +329,7 @@ function install_packages()
 	$d = dir(SQ_PACKAGES_PATH);
 	while (false !== ($entry = $d->read())) {
 		if ($entry == '.' || $entry == '..') continue;
-		# if this is a directory, process it
+		// if this is a directory, process it
 		if ($entry != 'CVS' && is_dir(SQ_PACKAGES_PATH.'/'.$entry)) {
 			require_once SQ_PACKAGES_PATH.'/'.$entry.'/package_manager_'.$entry.'.inc';
 			$class = 'package_manager_'.$entry;
