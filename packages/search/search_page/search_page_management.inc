@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.31 2005/02/16 23:20:19 lwright Exp $
+* $Id: search_page_management.inc,v 1.32 2005/03/08 05:37:01 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -132,9 +132,24 @@ class Search_Page_Management extends Asset_Management
 		// by relevance score
 		$this->vars['sort_by']		= Array(
 										'added'	=> '0.1',
-										'type'	=> 'text',
+										'type'	=> 'selection',
+										'parameters' => Array(
+											'options' => Array(
+												''=> '-- No Sorting --',
+												'assetid'=> 'ID',
+												'version'=> 'Version',
+												'name'=> 'Name',
+												'short_name'=> 'Short Name',
+												'created'=> 'Created Date',
+												'updated'=> 'Last Updated Date',
+												'published'=> 'Last Published Date',
+												'__attr__'=> 'Asset Attributes...',
+											),
+											'multiple' => false,
+											'allow_empty' => true,
+										),
 										'default' => ''
-										);
+									);
 										
 		// change default number of results per page to 10
 		$this->vars['num_per_page']	= Array(
