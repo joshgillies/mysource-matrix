@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: transaction_manager.inc,v 1.9.2.1 2004/03/16 16:55:34 brobertson Exp $
+* $Id: transaction_manager.inc,v 1.9.2.2 2004/04/08 16:06:46 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -50,6 +50,13 @@ class Transaction_Manager extends MySource_Object
 	* @var Array(int)
 	*/
 	var $_levels = Array();
+
+	/**
+	* How many real transactions we have opened in the execution (as in "BEGIN" calls to the DB)
+	* Only every increments, doesn't decrement
+	* @var int
+	*/
+	var $num_transactions = 0;
 
 
 	/**
@@ -94,6 +101,7 @@ class Transaction_Manager extends MySource_Object
 			// first time we have started a transaction
 			$result = $GLOBALS['SQ_SYSTEM']->db->query('BEGIN');
 			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			$this->num_transactions++;
 		}
 		return true;
 	}//end begin()
