@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_trigger_batch_events.inc,v 1.3 2005/03/23 22:57:15 ndvries Exp $
+* $Id: hipo_job_trigger_batch_events.inc,v 1.4 2005/03/23 22:57:15 ndvries Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */

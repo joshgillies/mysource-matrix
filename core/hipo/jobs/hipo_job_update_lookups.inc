@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.25 2005/02/24 05:27:17 dbaranovskiy Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.26 2005/03/23 22:57:15 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -51,19 +51,19 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	* @var Array
 	*/
 	var $_steps = Array(
-					Array(
-						'name'             => 'Updating Lookups',
-						'function_call'    => Array(
-												'process_function' => 'processLookups',
-												),
-						'running_mode'     => 'server',
-						'auto_step'        => true,
-						'allow_cancel'     => true,
-						'percent_done'     => 0,
-						'complete'         => false,
-						'message'          => '',
-					),
-				);
+						Array(
+							  'name'          => 'Updating Lookups',
+							  'function_call' => Array(
+													   'process_function' => 'processLookups',
+													   ),
+							  'running_mode'  => 'server',
+							  'auto_step'     => true,
+							  'allow_cancel'  => true,
+							  'percent_done'  => 0,
+							  'complete'      => false,
+							  'message'       => '',
+							  ),
+						);
 
 
 	/**
@@ -115,8 +115,8 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	function getConfigVars()
 	{
 		return Array(
-			'SQ_HIPO_LOOKUPS_THRESHOLD' => Array('editable' => 1, 'default' => 1),
-		);
+					 'SQ_HIPO_LOOKUPS_THRESHOLD' => Array('editable' => 1, 'default' => 1),
+					 );
 
 	}//end getConfigVars()
 
@@ -226,6 +226,8 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 
 		}// end foreach
 
+		assert_valid_db_result($todo_assets);
+
 		$this->_running_vars['todo_assetids'] = array_unique($todo_assets);
 		$this->_running_vars['done_assetids'] = Array();
 
@@ -275,6 +277,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 		return true;
 
 	}//end processLookups()
+
 
 }//end class
 
