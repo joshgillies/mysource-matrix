@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_email_address.inc,v 1.8 2004/07/02 11:11:59 brobertson Exp $
+* $Id: form_question_type_email_address.inc,v 1.9 2004/07/04 22:53:38 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -83,7 +83,6 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 		$form =& $this->getMySection();
 
 		if (isset($_POST[$this->id])) {
-
 			$val = $_POST[$this->id];
 			$form->active_submission[$this->id] = $val;
 

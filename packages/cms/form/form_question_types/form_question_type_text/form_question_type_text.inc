@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text.inc,v 1.21 2004/06/21 23:54:13 lwright Exp $
+* $Id: form_question_type_text.inc,v 1.22 2004/07/04 22:53:38 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -115,16 +115,8 @@ class Form_Question_Type_Text extends Form_Question
 		$missing = false;
 		$form =& $this->getMySection();
 
-		if (isset($_POST[$this->id])) {
-			$val = $_POST[$this->id];
-			if ($this->attr('required') && ($val == '')) {
-				$missing = true;
-			} else {
-				$form->active_submission[$this->id] = $val;
-			}
-		} else {
-			$missing = true;
-		}
+		$val = isset($_POST[$this->id]) ? $_POST[$this->id] : '';
+		$form->active_submission[$this->id] = $val;
 
 		if ($this->attr('required')) {
 			$req_rule = Array('rule_code' => 'comparison', 'operator' => '!=', 'value' => '');
@@ -186,15 +178,22 @@ class Form_Question_Type_Text extends Form_Question
 
 	/**
 	* returns an answer summary in XML format (suitable for submission logs)
-	* 
+	*
+	* @param mixed	$answer	the answer for the question
+	*
 	* @access public
-	* @return string
+	* @return string the summary XML
 	*/
 	function getXML($answer)
 	{
 		echo '<text_q id="'.addslashes($this->id).'"  name="'.addslashes($this->attr('name')).'">';
 		echo htmlspecialchars($answer);
 		echo '</text_q>';
+
+		$contents = ob_get_contents();
+		ob_end_clean();
+
+		return $contents;
 
 	}//end getXML()
 	

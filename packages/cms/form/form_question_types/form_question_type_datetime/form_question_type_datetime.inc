@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.11 2004/05/20 05:33:22 lwright Exp $
+* $Id: form_question_type_datetime.inc,v 1.12 2004/07/04 22:53:38 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -208,9 +208,6 @@ class Form_Question_Type_Datetime extends Form_Question
 	*/
 	function processForm()
 	{
-		parent::processForm();
-
-		if (!$this->active_submission) return false;
 		if (isset($_POST[$this->id.'value'])) {
 			// we need to create a variable for these value to pass by reference
 			$value = '';
@@ -219,6 +216,8 @@ class Form_Question_Type_Datetime extends Form_Question
 			$dt_field->processField();
 			$val = $_POST[$this->id.'value'];
 			$this->active_submission[$this->id] = ts_iso8601(mktime($val['h'], $val['i'], $val['s'], $val['m'], $val['d'], $val['y'])).(!isset($val['c']) ? '' : (' '.($val['c'] ? '1' : '0')));
+
+			parent::processForm();
 		}
 		
 		return true;
@@ -259,12 +258,16 @@ class Form_Question_Type_Datetime extends Form_Question
 
 	/**
 	* returns an answer summary in XML format (suitable for submission logs)
-	* 
+	*
+	* @param mixed	$answer	the answer for the question
+	*
 	* @access public
-	* @return string
+	* @return string the summary XML
 	*/
 	function getXML($answer)
 	{
+		ob_start();
+
 		$allow_circa = false;
 
 		$show_params = $this->attr('show');
@@ -285,6 +288,12 @@ class Form_Question_Type_Datetime extends Form_Question
 		echo $iso;
 
 		echo '</datetime_q>';
+
+		$contents = ob_get_contents();
+		ob_end_clean();
+
+		return $contents;
+
 	}//end getXML()
 	
 	

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.28 2004/06/22 00:54:59 lwright Exp $
+* $Id: form_question.inc,v 1.29 2004/07/04 22:53:37 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.28 $ - 1.0
+* @version $Revision: 1.29 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -665,15 +665,24 @@ class Form_Question extends Asset
 	
 	/**
 	* returns an answer summary in XML format (suitable for submission logs)
-	* 
+	*
+	* @param mixed	$answer	the answer for the question
+	*
 	* @access public
-	* @return string the summary XML
+	* @return string	the summary XML
 	*/
 	function getXML($answer)
 	{
+		ob_start();
+
 		echo '<text_q id="'.addslashes($this->id).'"  name="'.addslashes($this->attr('name')).'">';
 		echo htmlspecialchars($this->getSummary($answer));
 		echo '</text_q>';
+
+		$contents = ob_get_contents();
+		ob_end_clean();
+
+		return $contents;
 
 	}//end getXML()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_password.inc,v 1.9 2004/05/17 05:13:11 lwright Exp $
+* $Id: form_question_type_password.inc,v 1.10 2004/07/04 22:53:38 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -195,16 +195,25 @@ class Form_Question_Type_Password extends Form_Question
 
 	/**
 	* returns an answer summary in XML format (suitable for submission logs)
-	* 
+	*
+	* @param mixed	$answer	the answer for the question
+	*
 	* @access public
-	* @return string
+	* @return string the summary XML
 	*/
 	function getXML($answer)
 	{
+		ob_start();
+
 		// save as a text question for now, we may need a better idea here
 		echo '<text_q id="'.addslashes($this->id).'"  name="'.addslashes($this->attr('name')).'">';
 		echo htmlspecialchars($answer);
 		echo '</text_q>';
+
+		$contents = ob_get_contents();
+		ob_end_clean();
+
+		return $contents;
 
 	}//end getXML()
 	

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.19 2004/07/02 09:00:13 brobertson Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.20 2004/07/04 22:53:38 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -168,6 +168,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		}
 
 		$form =& $this->getMySection();
+		$form->active_submission[$this->id] = $val;
 
 		if ($this->attr('required')) {
 			$req_rule = Array('rule_code' => 'select_limit', 'operator' => '>=', 'value' => '1');
@@ -279,12 +280,16 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 
 	/**
 	* returns an answer summary in XML format (suitable for submission logs)
-	* 
+	*
+	* @param mixed	$answer	the answer for the question
+	*
 	* @access public
-	* @return string
+	* @return string the summary XML
 	*/
 	function getXML($answer)
 	{
+		ob_start();
+
 		echo '<select_q id="'.addslashes($this->id).'"  name="'.addslashes($this->attr('name')).'">';
 		if (!is_array($answer)) {
 			$answer = Array($answer);
@@ -294,6 +299,12 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 			echo '<option value="'.$a.'">'.htmlspecialchars($this->getAnswerByOffset($a)).'</option>';
 		}
 		echo '</select_q>';
+
+		$contents = ob_get_contents();
+		ob_end_clean();
+
+		return $contents;
+
 	}//end getXML()
 	
 	

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.18 2004/05/17 02:29:40 lwright Exp $
+* $Id: form_question_type_select.inc,v 1.19 2004/07/04 22:53:38 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -185,12 +185,16 @@ class Form_Question_Type_Select extends Form_Question
 
 	/**
 	* returns an answer summary in XML format (suitable for submission logs)
-	* 
+	*
+	* @param mixed	$answer	the answer for the question
+	*
 	* @access public
-	* @return string
+	* @return string the summary XML
 	*/
 	function getXML($answer)
 	{
+		ob_start();
+
 		echo '<select_q id="'.addslashes($this->id).'"  name="'.addslashes($this->attr('name')).'">';
 		if (!is_array($answer)) {
 			$answer = Array($answer);
@@ -200,6 +204,12 @@ class Form_Question_Type_Select extends Form_Question
 			echo '<option value="'.$a.'">'.htmlspecialchars($this->getAnswerByOffset($a)).'</option>';
 		}
 		echo '</select_q>';
+
+		$contents = ob_get_contents();
+		ob_end_clean();
+
+		return $contents;
+
 	}//end getXML()
 	
 	
