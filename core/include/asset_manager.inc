@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.289 2005/03/22 06:38:44 arailean Exp $
+* $Id: asset_manager.inc,v 1.290 2005/03/22 22:17:40 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.289 $
+* @version $Revision: 1.290 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -924,19 +924,8 @@ class Asset_Manager extends MySource_Object
 		}
 
 		if (empty($this->_system_assetids)) {
-			require_once SQ_INCLUDE_PATH.'/system_asset_config.inc';
-			$sys_asset_cfg = new System_Asset_Config();
-			// include the system asset config file
-			if (!file_exists($sys_asset_cfg->config_file)) {
-				// we called this too early
-				return false;
-			} else {
-				require $sys_asset_cfg->config_file;
-			}
-
-			$this->_system_assetids = $system_assets;
+			$this->_reloadSystemAssetList();
 		}
-
 
 		if (isset($this->_system_assetids[$name])) {
 			return $this->_system_assetids[$name];
@@ -946,6 +935,42 @@ class Asset_Manager extends MySource_Object
 		}
 
 	}//end getSystemAssetid()
+
+
+	/**
+	* Refreshes the list of cached system assets
+	*
+	* @return void
+	* @access private
+	*/
+	function _reloadSystemAssetList()
+	{
+		require_once SQ_INCLUDE_PATH.'/system_asset_config.inc';
+		$sys_asset_cfg = new System_Asset_Config();
+		// include the system asset config file
+		if (!file_exists($sys_asset_cfg->config_file)) {
+			// we called this too early
+			$system_assets = false;
+		} else {
+			require $sys_asset_cfg->config_file;
+		}
+
+		$this->_system_assetids = $system_assets;
+
+	}//end _reloadSystemAssetList()
+
+
+	/**
+	* Empties the cached list of system assets
+	*
+	* @return void
+	* @access public
+	*/
+	function resetSystemAssetList()
+	{
+		unset($this->_system_assetids);
+
+	}//end resetSystemAssetList()
 
 
 	/**
@@ -961,6 +986,10 @@ class Asset_Manager extends MySource_Object
 	*/
 	function isSystemAssetType($asset_type)
 	{
+		if (empty($this->_system_assetids)) {
+			$this->_reloadSystemAssetList();
+		}
+
 		return isset($this->_system_assetids[$asset_type]);
 
 	}//end isSystemAssetType()
