@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit.js,v 1.8 2003/10/02 23:59:27 brobertson Exp $
+* $Id: edit.js,v 1.9 2003/10/06 23:35:53 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,27 +38,6 @@ function sq_process_key_down() {
 	}//end switch
 
 }//end sq_process_key_down()
-
-
-// Submit the edit form after a bit of checking
-function sq_submit_edit_form(dont_process) {
-
-	// make sure the form is not processed
-	if (dont_process != null && dont_process) set_hidden_field('am_form_submitted', '0');
-	
-	var sq_submit_pressed = get_form_element('sq_submit_pressed');
-
-	if (sq_submit_pressed == null || sq_submit_pressed.value == '0') {
-		if (sq_submit_pressed != null) {
-			sq_submit_pressed.value = '1';
-		}
-		if (get_form_element('sq_release_lock_on_submit') != null) {
-			set_hidden_field('sq_release_lock',  get_form_element_value('sq_release_lock_on_submit'));
-		}
-		submit_form();
-	}
-
-}//end sq_submit_edit_form()
 
 
 // prints an icon using transparency in IE

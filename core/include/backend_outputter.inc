@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: backend_outputter.inc,v 1.55 2003/10/03 00:01:26 brobertson Exp $
+* $Id: backend_outputter.inc,v 1.56 2003/10/06 23:35:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -668,7 +668,13 @@ class Backend_Outputter
 
 				}// end page_on_load()
 
+				var SQ_FORM_SUBMITTED = false;
 				function form_on_submit() {
+					if (SQ_FORM_SUBMITTED) {
+						alert('The form has already been submitted, please wait ...');
+						return;
+					}
+
 			<?php
 				foreach($this->_on_submit_calls as $call) {
 				?>
@@ -676,7 +682,9 @@ class Backend_Outputter
 				<?php
 				}//end foreach
 			?>
+
 					// basically if they get this far then we can submit
+					SQ_FORM_SUBMITTED = true;
 					return true;
 
 				}// end form_on_submit()
@@ -696,6 +704,7 @@ class Backend_Outputter
 
 		<form action="<?php echo $this->_action.$this->_anchor;?>" name="main_form" method="post" enctype="multipart/form-data" onSubmit="javascript: return form_on_submit();">
 	<?php
+		hidden_field('process_form', '1');
 		foreach($this->_hidden_fields as $name => $value) {
 			hidden_field($name, $value);
 		}//end foreach
@@ -964,8 +973,8 @@ class Backend_Outputter
 			$this->openField('', 'commit');
 				hidden_field('sq_release_lock', 0);
 				hidden_field('sq_release_lock_on_submit', $release_lock);
-				hidden_field('sq_submit_pressed', 0);
-				normal_button('sq_commit_button', $value, 'sq_submit_edit_form()');
+				$this->addOnSubmit('set_hidden_field(\'sq_release_lock\',  get_form_element_value(\'sq_release_lock_on_submit\'));');
+				normal_button('sq_commit_button', $value, 'submit_form()');
 			$this->closeField();
 		$this->closeSection();
 

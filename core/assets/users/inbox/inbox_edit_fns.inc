@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: inbox_edit_fns.inc,v 1.23 2003/10/03 00:00:01 brobertson Exp $
+* $Id: inbox_edit_fns.inc,v 1.24 2003/10/06 23:35:53 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -179,7 +179,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					<?php
 					hidden_field('sq_internal_message_inbox_start', $start_printing_at);
 					if ($start_printing_at > 0) {
-						?><a style="text-decoration: none;" href="#" onClick="Javascript: set_hidden_field('sq_internal_message_inbox_start', '<?php echo $start_printing_at - $num_per_page; ?>'); sq_submit_edit_form(true); return false;"><?php
+						?><a style="text-decoration: none;" href="#" onClick="Javascript: set_hidden_field('sq_internal_message_inbox_start', '<?php echo $start_printing_at - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
 					} else {
 						?><span style="color: #BBBBBB"><?php
 					}
@@ -196,7 +196,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					
 					<?php
 					if (($start_printing_at + $num_per_page) < $num_messages) {
-						?><a style="text-decoration: none;" href="#" onClick="Javascript: set_hidden_field('sq_internal_message_inbox_start', '<?php echo $start_printing_at + $num_per_page; ?>'); sq_submit_edit_form(true); return false;"><?php
+						?><a style="text-decoration: none;" href="#" onClick="Javascript: set_hidden_field('sq_internal_message_inbox_start', '<?php echo $start_printing_at + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
 					} else {
 						?><span style="color: #BBBBBB"><?php
 					}
@@ -400,7 +400,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					<?php
 					hidden_field('sq_internal_message_trash_start', $start_printing_at);
 					if ($start_printing_at > 0) {
-						?><a style="text-decoration: none;" href="#" onClick="Javascript: set_hidden_field('sq_internal_message_trash_start', '<?php echo $start_printing_at - $num_per_page; ?>'); sq_submit_edit_form(true); return false;"><?php
+						?><a style="text-decoration: none;" href="#" onClick="Javascript: set_hidden_field('sq_internal_message_trash_start', '<?php echo $start_printing_at - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
 					} else {
 						?><span style="color: #BBBBBB"><?php
 					}
@@ -417,7 +417,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					
 					<?php
 					if (($start_printing_at + $num_per_page) < $num_messages) {
-						?><a style="text-decoration: none;" href="#" onClick="Javascript: set_hidden_field('sq_internal_message_trash_start', '<?php echo $start_printing_at + $num_per_page; ?>'); sq_submit_edit_form(true); return false;"><?php
+						?><a style="text-decoration: none;" href="#" onClick="Javascript: set_hidden_field('sq_internal_message_trash_start', '<?php echo $start_printing_at + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
 					} else {
 						?><span style="color: #BBBBBB"><?php
 					}

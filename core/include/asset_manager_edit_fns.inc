@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager_edit_fns.inc,v 1.56 2003/10/03 00:02:06 brobertson Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.57 2003/10/06 23:35:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -87,7 +87,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 				// if the form has been submitted then, process it
 				// and if that is successfull, then create the link to the parent asset
-				if (!empty($_POST['am_form_submitted'])) {
+				if (!empty($_POST['process_form']) && !empty($_POST['am_form_submitted'])) {
 
 					// start the transaction to create the asset and initial link
 					$link = Array('asset'		=> &$parent,
@@ -125,7 +125,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 				// if the form has been submitted then, process it
 				// and if that is successfull, then create the link to the parent asset
 				$link = Array();
-				if (!empty($_POST['am_form_submitted'])) {
+				if (!empty($_POST['process_form']) && !empty($_POST['am_form_submitted'])) {
 
 					$do_process_backend = true;
 
@@ -1175,7 +1175,7 @@ speed_check('FINISHED');
 				echo '<b><i>The security key entered was incorrect. The lock on "'.$asset->name.'" has not been forceably acquired. You may try again using the new security key displayed below.</i></b>';
 				$o->closeSection();
 			} else {
-				$o->addOnLoad('window.opener.top.main.main_form.sq_acquire_by_force.value = \'1\'; window.opener.top.main.main_form.sq_acquire_lock.value = \'1\'; window.opener.top.main.sq_submit_edit_form(); window.close();');
+				$o->addOnLoad('window.opener.top.main.set_hidden_field(\'sq_acquire_by_force\', \'1\'); window.opener.top.main.set_hidden_field(\'sq_acquire_lock\', \'1\'); window.opener.top.main.submit_form(); window.close();');
 				return;
 			}
 		}

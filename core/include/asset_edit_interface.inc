@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.155 2003/10/03 00:02:21 brobertson Exp $
+* $Id: asset_edit_interface.inc,v 1.156 2003/10/06 23:35:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1772,7 +1772,7 @@ class Asset_Edit_Interface extends MySource_Object
 					$o->openField('Log Message');
 						text_area($prefix.'_workflow_new_log_message', '', 60, 6);
 						echo '&nbsp;';
-						normal_button($prefix.'_workflow_status_update', 'Commit', 'sq_submit_edit_form()');
+						normal_button($prefix.'_workflow_status_update', 'Commit', 'submit_form()');
 						?>
 						<br/>You can enter a reason for your decision in the box above so that other approvers know why you have accepted or rejected the changes.
 						<br/><a href="<?php echo $owner->getBackendHref('logs'); ?>&sq_backend_log_type=asset.workflow&sq_workflow_log_version=<?php echo substr($owner->version, 0, strrpos($owner->version, '.'));?>">Click here to view the workflow message log</a> - a list of system generated workflow messages as well as any comments made by other approvers.
@@ -3106,7 +3106,7 @@ class Asset_Edit_Interface extends MySource_Object
 				foreach ($log_types as $type) $type_options[$type] = ucwords(str_replace('.', ' ', $type));
 				combo_box('sq_backend_log_type', $type_options, false, $active_log_type);
 				echo '&nbsp;';
-				normal_button($prefix.'_go', 'View', 'sq_submit_edit_form()');
+				normal_button($prefix.'_go', 'View', 'submit_form()');
 			$o->closeField();
 		$o->closeSection();
 
@@ -3188,7 +3188,7 @@ class Asset_Edit_Interface extends MySource_Object
 							<?php
 							hidden_field($prefix.'_start_at', $start_printing_at);
 							if ($start_printing_at > 0) {
-								?><a style="text-decoration: none;" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix; ?>_start_at', '<?php echo $start_printing_at - $num_per_page; ?>'); sq_submit_edit_form(true); return false;"><?php
+								?><a style="text-decoration: none;" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix; ?>_start_at', '<?php echo $start_printing_at - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
 							} else {
 								?><span style="color: #BBBBBB"><?php
 							}
@@ -3205,7 +3205,7 @@ class Asset_Edit_Interface extends MySource_Object
 							
 							<?php
 							if (($start_printing_at + $num_per_page) < $num_logs) {
-								?><a style="text-decoration: none;" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix; ?>_start_at', '<?php echo $start_printing_at + $num_per_page; ?>'); sq_submit_edit_form(true); return false;"><?php
+								?><a style="text-decoration: none;" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix; ?>_start_at', '<?php echo $start_printing_at + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
 							} else {
 								?><span style="color: #BBBBBB"><?php
 							}

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: system_config.inc,v 1.7 2003/10/03 00:01:02 brobertson Exp $
+* $Id: system_config.inc,v 1.8 2003/10/06 23:35:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -203,7 +203,7 @@ class System_Config extends Config
 		if (!empty($_POST['config_posted'])) {
 
 			$saved = false;
-			if (!empty($_POST['sq_submit_pressed'])) {
+			if (!empty($_POST['process_form']) && !empty($_POST['config'])) {
 				$saved = $this->save($_POST['config']);
 			}
 
@@ -268,10 +268,10 @@ class System_Config extends Config
 					<?php
 					if (!empty($lock)) {
 						if ($have_lock) {
-							submit_button('sq_manual_release_lock', 'Release Lock');
+							submit_button('sq_manual_release_lock', 'Release Lock', 'set_hidden_field("process_form", "0");');
 						}
 					} else {
-						submit_button('sq_acquire_lock', 'Lock');
+						submit_button('sq_acquire_lock', 'Lock', 'set_hidden_field("process_form", "0");');
 					}
 					?>
 				</td>
