@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area.inc,v 1.36 2004/12/03 15:29:22 brobertson Exp $
+* $Id: design_area.inc,v 1.36.2.1 2005/04/01 00:37:47 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 */
 class Design_Area extends Asset
 {
+
 
 	/**
 	* Constructor
@@ -91,6 +92,28 @@ class Design_Area extends Asset
 
 
 	/**
+	* Set the last updated info for this asset
+	*
+	* Call this function when the asset has been changed in some way so we can indicated in the
+	* asset table when the asset was last changed and who by. This function will also increment the micro
+	* version number for the asset.
+	*
+	* @param boolean	$update_parents	should we go through an update all our dependant parents as well ?
+	*									NOTE: this is passed to incrementVersion to let it know that the parents
+	*									should have their versions updated as well.
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _updated($update_parents=true)
+	{
+		// don't update the parent asset when this asset is updated as it starts a recusion
+		// that takes way too long
+		return parent::_updated(false);
+	}//end _updated()
+
+
+	/**
 	* Returns name of the asset
 	*
 	* @param bool	$short_name	whether or not we are after the shortname or the full name
@@ -102,7 +125,7 @@ class Design_Area extends Asset
 	{
 		return $this->attr('id_name');
 
-	}//end _getName();
+	}//end _getName()
 
 
 	/**
@@ -130,7 +153,7 @@ class Design_Area extends Asset
 
 		}// end if
 
-	}// end processBackend()
+	}//end processBackend()
 
 
 	/**
@@ -166,7 +189,7 @@ class Design_Area extends Asset
 
 		return $var_refs;
 
-	}//end getVarReferences();
+	}//end getVarReferences()
 
 
 	/**
@@ -185,7 +208,7 @@ class Design_Area extends Asset
 			}
 		}// end foreach
 
-	}//end setVarReferenceValues();
+	}//end setVarReferenceValues()
 
 
 	/**
@@ -204,7 +227,7 @@ class Design_Area extends Asset
 			return parent::attr($name);
 		}
 
-	}//end attr();
+	}//end attr()
 
 
 	/**
@@ -241,20 +264,20 @@ class Design_Area extends Asset
 	/**
 	* Escapes a simple var (if requested) that is going to be printed in the PHP
 	*
-	* @param string	$value	the value 
+	* @param string	$value	the value
 	* @param Array	$args	array of any extra arguments that existed in the print command
 	*
 	* @access public
 	*/
 	function _escapeVar($value, $args)
 	{
-		if (empty($args['escape']) || strtolower($args['escape']) == 'no') { 
+		if (empty($args['escape']) || strtolower($args['escape']) == 'no') {
 			return $value;
 		} else {
 			return 'addslashes('.$value.')';
 		}
 
-	}//end printVar()
+	}//end _escapeVar()
 
 
 }//end class
