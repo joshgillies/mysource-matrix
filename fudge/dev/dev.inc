@@ -23,7 +23,7 @@
 * @return string
 * @access public
 */
-function array_contents(&$array, $max_depth=0, $ignore_ints=false, $depth=0) 
+function array_contents(&$array, $max_depth=0, $ignore_ints=false, $depth=0)
 {
 	$string = $indent = "";
 	for ($i = 0; $i < $depth; $i++) $indent .= "\t";
@@ -70,7 +70,7 @@ function ascii_chart(){for($i=0;$i<256;$i++)echo(($i==0)?"<table><tr>":"")."<td>
 * @access public
 * @see pre_echo()
 */
-function bam($x='BAM!', $max_depth=0, $style='') 
+function bam($x='BAM!', $max_depth=0, $style='')
 {
 	pre_echo($x, $max_depth, $style);
 }
@@ -81,25 +81,33 @@ function bam($x='BAM!', $max_depth=0, $style='')
 *
 * @access public
 */
-function pre_echo($x, $max_depth=0, $style='') 
+function pre_echo($x, $max_depth=0, $style='')
 {
-?> 
-	<div align="left"><pre style="<?php echo $style; ?>font-family: courier, monospace;"><?php
+	if (isset($_SERVER['argv'])) {
+		echo "\n------------------------------------\n";
+	} else {
+		echo "\n", '<div align="left"><pre style="', $style, 'font-family: courier, monospace;">';
+	}
+
 	$type = gettype($x);
 	if ($type == "object" && !$max_depth) {
 		print_r($x);
 	} else {
 		if ($type == "object" || $type == "array") {
-			# get the contents, then 
+			# get the contents, then
 			if (!$max_depth) $max_depth = 10;
-			$x = array_contents($x, $max_depth); 
+			$x = array_contents($x, $max_depth);
 		}
-		echo htmlspecialchars(str_replace("\t", '    ', $x)); 
+		$x = str_replace("\t", '    ', $x);
+		echo (isset($_SERVER['argv'])) ? $x : htmlspecialchars($x);
 	}#end if
 
-	
-	?></pre></div>
-<?php
+	if (isset($_SERVER['argv'])) {
+		echo "\n------------------------------------\n";
+	} else {
+		echo '</pre></div>', "\n";
+	}
+
 }//end pre_echo()
 
 /**
@@ -109,9 +117,9 @@ function pre_echo($x, $max_depth=0, $style='')
 *
 * @access public
 */
-function speed_check($str="") 
+function speed_check($str="")
 {
-	list($msec, $sec) = explode(" ",microtime()); 
+	list($msec, $sec) = explode(" ",microtime());
 	$BAM = ((double) $sec) + ((double) $msec); // Record time (note we ignore time spent IN this function)
 
 	global $SPEED_CHECK_LAST_HIT, $SPEED_CHECK_TOTAL;
@@ -120,7 +128,7 @@ function speed_check($str="")
 		$SPEED_CHECK_TOTAL += $elapsed;
 		echo("<br><table cellpadding=0 cellspacing=0 border=0 bgcolor=#ffff88><tr><td><p style=\"color:red;font-weight:bold;font-family:sans-serif;font-size:13px;\">".sprintf("%.5f&nbsp;/&nbsp;%.5f",$elapsed,$SPEED_CHECK_TOTAL)."&nbsp;&nbsp;$str</td></tr></table><br>");
 	}
-	list($msec, $sec) = explode(" ",microtime()); 
+	list($msec, $sec) = explode(" ",microtime());
 	$SPEED_CHECK_LAST_HIT = ((double) $sec) + ((double) $msec); #initialize
 }// end speed_check()
 
@@ -135,7 +143,7 @@ function speed_check($str="")
 * @return string
 * @access public
 */
-function mem_check($return_value=false) 
+function mem_check($return_value=false)
 {
 	global $MEM_CHECK_LAST_HIT;
 	#$status = `cat /proc/\$PPID/status`;
@@ -173,7 +181,7 @@ function mem_check($return_value=false)
 *
 * @access public
 */
-function print_function_list() 
+function print_function_list()
 {
 	echo "<pre>";
 	foreach (get_loaded_extensions() as $extension) {
