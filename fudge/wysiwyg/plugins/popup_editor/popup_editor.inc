@@ -61,7 +61,7 @@ class popup_editor extends wysiwyg_plugin {
 	function paint() {
 
 		$query_string  = '?editor_name='.$this->wysiwyg->name;
-		$query_string .= '&editor_web_path='.$this->wysiwyg->web_path;
+		$query_string .= '&editor_web_path='.rawurlencode('../../');
 		$query_string .= '&editor_plugins=';
 		foreach ($this->wysiwyg->plugins as $name => $obj) {
 			if ($name == get_class($this)) continue;
