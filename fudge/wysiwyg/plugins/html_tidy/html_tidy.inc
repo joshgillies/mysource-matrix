@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.16 2004/04/06 14:03:02 brobertson Exp $
+* $Id: html_tidy.inc,v 1.17 2004/05/21 06:52:56 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -108,6 +108,8 @@ class HTML_Tidy extends Wysiwyg_Plugin {
 		$replace = Array("'"     , "'"    ,"-"     ,"-",     "...",   '"',     '"'     );
 		$html = str_replace($search, $replace, $html);
 
+		// replace unicode's URL '%u' character entities with their HTML entity equivs
+		$html = preg_replace('/%u([0-9A-Fa-f]{4})/', '&#x$1;', $html);
 
 		  /////////////////
 		 //  HTML TIDY  //
