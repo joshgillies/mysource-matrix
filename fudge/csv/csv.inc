@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv.inc,v 1.6.2.2 2005/01/03 22:46:39 gsherwood Exp $
+* $Id: csv.inc,v 1.6.2.3 2005/01/03 23:17:42 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *     A class used to create and parse CSV files
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6.2.2 $
+* @version $Revision: 1.6.2.3 $
 * @package Fudge
 * @subpackage CSV
 */
@@ -376,14 +376,14 @@ class CSV
 	function isUnique($string)
 	{
 		// can only import from a file
-		if (!$this->filepath) return;
+		if (!$this->filepath) return true;
 		
 		// check if the file even exists
-		if (!is_file($this->filepath)) return;
+		if (!is_file($this->filepath)) return true;
 
 		if (!$fp = fopen($this->filepath,'r')) {
 			trigger_error('Unable to open file "'.$this->filepath.'" for reading', E_USER_WARNING);
-			return;
+			return true;
 		}
 		
 		while (($tmp = fgetcsv($fp, 65535, $this->deliminator)) != null) {
