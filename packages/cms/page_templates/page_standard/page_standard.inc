@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.28 2003/11/21 05:08:26 mmcintyre Exp $
+* $Id: page_standard.inc,v 1.29 2003/11/21 05:29:25 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -187,8 +187,8 @@ class Page_Standard extends Page
 
 	/**
 	* Called by the design to print the body of this asset
-	* it's up to the kids to override
 	*
+	* @return void
 	* @access public
 	*/
 	function printBody()
@@ -202,6 +202,31 @@ class Page_Standard extends Page
 		$bodycopy->printBody();
 
 	}//end printBody()
+
+
+	/**
+	* Called by the design to print the body of this asset when in limbo
+	*
+	* Standard page puts its bodycopy up for editing instead of itself
+	*
+	* @return void
+	* @access public
+	*/
+	function printLimbo()
+	{
+		// get the bodycopy attached to us
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+		$bodycopy_data = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, null, 'major', '1');
+		if (empty($bodycopy_data)) return;
+
+		$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['minor_type_code']);
+		if (!is_null($bodycopy)) {
+			$GLOBALS['SQ_SYSTEM']->backend->out->addFormActionGetVar('assetid', $bodycopy->id);
+			$GLOBALS['SQ_SYSTEM']->backend->out->addHiddenField('backend_assetid', $bodycopy->id);
+			$bodycopy->printLimbo();
+		}
+
+	}//end printLimbo()
 
 
 	/**
