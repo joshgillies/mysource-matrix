@@ -129,7 +129,52 @@ class Asset_Edit_Interface extends Resolve_Object
 		}
 
 		// do we have write access?
-		$write_access = $owner->writeAccess();
+		$write_access = $owner->writeAccess(Array(), false);
+		$asset_locked = false;
+
+		// lets tell the user if the asset is locked for editing
+		// or if they can lock it to edit it
+		$o->openSection('Locking / Editing');
+		$o->openField('&nbsp;');
+		$lock = $owner->getLockInfo();
+		if (!empty($lock)) {
+			// this asset is currently locked
+			// so display message to the user
+			$asset_locked = true;
+			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+
+			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+			$expires_in = easy_time_total(($lock['expires'] - time()), true);
+			if (!$expires_in) $expires = '1 second';
+
+			echo '<p class="sq-form-field">"'.$owner->name.'" is currently locked for editing by user "'.$user->name.'". The lock is due to expire in '.$expires_in.'</p>';
+			
+			// lets work out if the current user has a high
+			// enough level of access to forceably aquire the lock
+			$can_aquire_lock = false;
+			if (!$GLOBALS['SQ_SYSTEM']->userRoot($user)) {
+				if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin($user)) {
+					// lock is held by a system admin, so need
+					// to be root to aquire this lock
+					if ($GLOBALS['SQ_SYSTEM']->userRoot()) $can_aquire_lock = true;
+				} else {
+					// need to be a system admin to aquire this lock
+					if ($GLOBALS['SQ_SYSTEM']->userRoot()) $can_aquire_lock = true;
+					else if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) $can_aquire_lock = true;
+				}
+			}
+
+			if ($can_aquire_lock) {
+				echo '<p class="sq-form-field">You can forceably aquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself. Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably aquired.</p>';
+
+				submit_button('aquire_lock', 'Aquire Lock');
+			}
+		} else if ($write_access) {
+			$write_access = false;
+			submit_button('aquire_lock', 'Aquire Lock');
+		} else {
+			echo 'You do not have access to edit "'.$owner->name.'".';
+		}
 
 		// if there are no screens or tabs, piss off
 		if (!count($this->_screens) && empty($this->_edit_fns->tabs)) return;
@@ -161,7 +206,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		if ($creating) {
 			list($create_sections, $active_screen) = $this->_getCreateSections();
 			if (!count($create_sections)) return;
-		}// end if creating
+		}
 
 		// make sure that we have the screen for next time
 		$o->addFormActionGetVar('asset_ei_screen', $active_screen);
@@ -280,8 +325,10 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		}// end if $file
 
-		$o->openSection();
-		$o->commitButton('Commit');
+		if (!$asset_locked) {
+			$o->openSection();
+			$o->commitButton('Commit');
+		}
 
 	}// end paint();
 
@@ -306,6 +353,21 @@ class Asset_Edit_Interface extends Resolve_Object
 		$create_sections = Array();
 		$active_screen = (empty($_GET['asset_ei_screen'])) ? 'details' : $_GET['asset_ei_screen'];
 
+		// aquire and release locks
+		if (!$creating) {
+			// try to aquire a lock on this asset?
+			if (isset($_POST['aquire_lock'])) {
+				if (!$owner->aquireLock()) {
+					trigger_error('Failed to aquire lock', E_USER_WARNING);
+				}
+			} else if (isset($_POST['commit'])) {
+				// committing changes means we release the lock
+				if (!$owner->releaseLock()) {
+					trigger_error('Failed to release lock', E_USER_WARNING);
+				}
+			}
+		}
+
 		// if we are creating open the create file to see which fields we are supposed to print out
 		if ($creating) {
 			list($create_sections, $active_screen) = $this->_getCreateSections();
@@ -324,7 +386,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			}
 
 			// if we dont have write access, dont process the rest of the screen
-			if ($owner->id && !$owner->writeAccess()) return Array();
+			if ($owner->id && !$owner->writeAccess(Array(), false)) return Array();
 
 			// try and find the file to print user defined
 			$file = @$this->_findFile('tab_'.$active_screen);
@@ -332,7 +394,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		} else {
 
 			// if we dont have write access, piss off
-			if ($owner->id && !$owner->writeAccess()) {
+			if ($owner->id && !$owner->writeAccess(Array(), false)) {
 				include SQ_INCLUDE_PATH.'/login.inc';
 				print_login('Login', 'You do not have permission to edit <i>'.$owner->name.'</i>');
 				return Array();
@@ -448,7 +510,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		$o->openField('Current');
 		echo '<i>'.$owner->getStatusDescription().'</i>';
-		
+
 		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
 		$wfm = new Workflow_Manager($owner);
 
@@ -457,13 +519,13 @@ class Asset_Edit_Interface extends Resolve_Object
 		switch ($wfm->state) {
 			case 'new' :
 			case 'idle' :
-				if ($owner->writeAccess()) {
+				if ($owner->writeAccess(Array(), false)) {
 					if ($owner->status != SQ_STATUS_LIVE) {
 						if (empty($wfm->steps) && empty($wfm->inherited_workflows)) {
 							// no direct workflows are set and
 							// no inherited workflows are set
 							// so anyone with admin access can publish
-							if ($owner->adminAccess()) {
+							if ($owner->adminAccess(Array(), false)) {
 								$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
 							}
 						} else {
@@ -514,8 +576,9 @@ class Asset_Edit_Interface extends Resolve_Object
 			$o->openField('Change?');
 			combo_box($prefix.'_change_status', $statii, false, $owner->status);
 		}
+		
 
-	}
+	}//end paintDetails()
 
 
 	/**
@@ -549,6 +612,8 @@ class Asset_Edit_Interface extends Resolve_Object
 		$prefix = $owner->type().'_'.$owner->id;
 		$perms = Array('Read' => SQ_PERMISSION_READ, 'Write' => SQ_PERMISSION_WRITE, 'Administrator' => SQ_PERMISSION_ADMIN);
 
+		$write_access = $owner->writeAccess();
+
 		foreach ($perms as $title => $perm) {
 			$inherited = false;
 			$direct    = false;
@@ -565,7 +630,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				if ($userid) continue;
 				if (in_array($owner->id, $locs)) $public = true;
 			}
-			if ($owner->writeAccess()) {
+			if ($write_access) {
 				check_box($prefix."_public[$perm]", 1, (($public) ? true : false));
 				hidden_field($prefix."_old_public[$perm]", (($public) ? '1' : '0'));
 				echo "&nbsp;Give $title access to all users?";
@@ -580,7 +645,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				<tr>
 					<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
 					<?php
-					if ($owner->writeAccess()) {
+					if ($write_access) {
 						?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Revoke ?</b></td><?php
 					}
 					?>
@@ -610,7 +675,7 @@ class Asset_Edit_Interface extends Resolve_Object
 						if ($userid) echo $asset->name.' ['.$asset->type()." : $userid] was set at $loc_string";
 						else echo "Public access was set at $loc_string";
 						?></td><?php
-					if ($owner->writeAccess()) {
+					if ($write_access) {
 						?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field"><?php
 						check_box($prefix.'_revoke_'.strtolower($title)."[$userid]")
 						?></td><?php
@@ -636,7 +701,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				<tr>
 					<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
 					<?php
-					if ($owner->writeAccess()) {
+					if ($write_access) {
 						?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Reinstate ?</b></td><?php
 					}
 					?>
@@ -655,7 +720,7 @@ class Asset_Edit_Interface extends Resolve_Object
 						else echo 'Public access';
 						?></td>
 					<?php
-					if ($owner->writeAccess()) {
+					if ($write_access) {
 						?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field"><?php
 						check_box($prefix.'_unrevoke_'.strtolower($title)."[$userid]")
 						?></td><?php
@@ -680,7 +745,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				<tr>
 					<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
 					<?php
-					if ($owner->writeAccess()) {
+					if ($write_access) {
 						?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Delete ?</b></td><?php
 					}
 					?>
@@ -695,7 +760,7 @@ class Asset_Edit_Interface extends Resolve_Object
 					<tr>
 						<td bgcolor="#F0F0F0" class="sq-form-field"><?php echo '&nbsp;'.$asset->name.' ['.$asset->type()." : $userid]";?></td>
 					<?php
-					if ($owner->writeAccess()) {
+					if ($write_access) {
 						?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field"><?php
 						check_box($prefix.'_delete_'.strtolower($title)."[$userid]")
 						?></td><?php
@@ -713,7 +778,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				?></table><?php
 			}
 
-			if ($owner->writeAccess()) {
+			if ($write_access) {
 				$o->openField('New?');
 				asset_finder($prefix.'_new_'.strtolower($title), 0, Array('user' => 'D', 'user_group' => 'D'));
 			}
@@ -733,14 +798,14 @@ class Asset_Edit_Interface extends Resolve_Object
 	function processPermissions(&$owner, &$o)
 	{
 		// if we dont have write access, piss off
-		if ($owner->id && !$owner->writeAccess()) {
+		if ($owner->id && !$owner->writeAccess(Array(), false)) {
 			include SQ_INCLUDE_PATH.'/login.inc';
 			print_login('Login', 'You do not have permission to edit <i>'.$owner->name.'</i>');
 			return false;
 		}
 
 		// need to have write access to do any of this
-		if ($owner->writeAccess()) {
+		if ($owner->writeAccess(Array(), false)) {
 			$prefix = $owner->type().'_'.$owner->id;
 			$perms = Array('Administrator' => SQ_PERMISSION_ADMIN, 'Write' => SQ_PERMISSION_WRITE, 'Read' => SQ_PERMISSION_READ);
 
@@ -748,11 +813,13 @@ class Asset_Edit_Interface extends Resolve_Object
 				// we need to check for write access each time because
 				// we may actually be revoking write access and then
 				// trying to put it back
-				if (!$owner->writeAccess()) continue;
+				if (!$owner->writeAccess(Array(), false)) continue;
 
 				// grant new access
-				$user = $_POST[$prefix.'_new_'.strtolower($title)];
-				if (!empty($user)) $owner->grantPermission($user, $perm);
+				if (isset($_POST[$prefix.'_new_'.strtolower($title)])) {
+					$user = $_POST[$prefix.'_new_'.strtolower($title)];
+					if (!empty($user)) $owner->grantPermission($user, $perm);
+				}
 
 				// delete direct access
 				if (isset($_POST[$prefix.'_delete_'.strtolower($title)])) {
@@ -775,13 +842,15 @@ class Asset_Edit_Interface extends Resolve_Object
 					}
 				}
 
-				// grant/revoke public access?
-				if (isset($_POST[$prefix.'_public'][$perm])) {
-					if($_POST[$prefix.'_old_public'][$perm] === '0') {
-						$owner->grantPermission('0', $perm);
+				// grant/revoke public access?\
+				if (isset($_POST[$prefix.'_old_public'][$perm])) {
+					if (isset($_POST[$prefix.'_public'][$perm])) {
+						if($_POST[$prefix.'_old_public'][$perm] === '0') {
+							$owner->grantPermission('0', $perm);
+						}
+					} else if ($_POST[$prefix.'_old_public'][$perm] === '1') {
+						$owner->revokePermission('0', $perm);
 					}
-				} else if ($_POST[$prefix.'_old_public'][$perm] === '1') {
-					$owner->revokePermission('0', $perm);
 				}
 			}
 		}
@@ -1155,7 +1224,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	function processWorkflow(&$owner, &$o)
 	{
 		// if we dont have write access, piss off
-		if ($owner->id && !$owner->writeAccess()) {
+		if ($owner->id && !$owner->writeAccess(Array(), false)) {
 			include SQ_INCLUDE_PATH.'/login.inc';
 			print_login('Login', 'You do not have permission to edit <i>'.$owner->name.'</i>');
 			return false;
@@ -1168,7 +1237,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		$prefix = $owner->type().'_'.$owner->id.'_workflow';
 
 		// revoking and reinstating inherited workflows
-		if ($owner->writeAccess()) {
+		if ($owner->writeAccess(Array(), false)) {
 			// unrevoke inherited workflow
 			if (isset($_POST[$prefix.'_unrevoke'])) {
 				foreach ($_POST[$prefix.'_unrevoke'] as $assetid => $on) {

@@ -391,10 +391,10 @@ class Asset extends Resolve_Object
 				include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
 				$wfm = new Workflow_Manager($this);
 
-				if ($wfm->state == 'new' && empty($wfm->steps) && empty($wfm->inherited_workflows)) {
+				if ($wfm->state != 'running' && empty($wfm->steps) && empty($wfm->inherited_workflows)) {
 					// no direct workflow, no inherited, and no running
 					// so anyone with admin access can make this live
-					if ($this->adminAccess()) {
+					if ($this->adminAccess(Array(), false)) {
 						$this->status = SQ_STATUS_LIVE;
 						break;
 					}
@@ -432,7 +432,7 @@ class Asset extends Resolve_Object
 					}
 
 				} else {
-					if (!$this->writeAccess()) return false;
+					if (!$this->writeAccess(Array(), false)) return false;
 
 					if ($this->status == SQ_STATUS_UNDER_CONSTRUCTION) {
 						// we are going to make this asset live
@@ -484,7 +484,7 @@ class Asset extends Resolve_Object
 				break;
 
 			case SQ_STATUS_EDITING :
-				if (!$this->writeAccess()) return false;
+				if (!$this->writeAccess(Array(), false)) return false;
 				if ($this->status == SQ_STATUS_LIVE) {
 					// we are safe editing
 					$this->status = SQ_STATUS_EDITING;
@@ -500,7 +500,7 @@ class Asset extends Resolve_Object
 
 				$publishers = $wfm->whoCanPublish();
 
-				if ($this->status == SQ_STATUS_LIVE && $this->adminAccess()) {
+				if ($this->status == SQ_STATUS_LIVE && $this->adminAccess(Array(), false)) {
 					// if we are currently live, we can set to
 					// under construction without problems
 					$this->status = SQ_STATUS_UNDER_CONSTRUCTION;
@@ -939,6 +939,141 @@ class Asset extends Resolve_Object
 	{
 		return true;
 	}//end canDelete()
+
+
+	/**
+	* Aquires a lock on this asset and its dependant assets
+	*
+	* @param int	$source		the id of the asset that started this locking process
+	* @param string	$expires	when the lock expires (yyyy-mm-dd hh:mm:ss)
+	*
+	* @return boolean
+	* @access public
+	*/
+	function aquireLock($source=0, $expires='')
+	{
+		// if we have no source, we are the asset aquiring the locks
+		if (!$source) $source = $this->id;
+		if (empty($expires)) $expires = date('Y-m-d H:i:s', (time() + (2 * 60)));
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// try and aquire locks on our dependants
+		$dependant_links = $this->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'major', null, 1);
+		if (!empty($dependant_links)) {
+			$am =& $GLOBALS['SQ_SYSTEM']->am;
+			foreach ($dependant_links as $link) {
+				$asset = &$am->getAsset($link['minorid']);
+				if (!$asset->aquireLock($source, $expires)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				}
+			}
+		}
+
+		// now try and get the lock on ourself
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'INSERT INTO sq_asset_lock
+				(assetid, source_asset, userid, expires)
+				VALUES
+				('.$db->quote($this->id).', '.$db->quote($source).', 
+				 '.$db->quote($GLOBALS['SQ_SYSTEM']->currentUserid()).', 
+				 '.$db->quote($expires).')';
+
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
+	}//end aquireLock();
+
+
+	/**
+	* Release the locks that this asset holds
+	*
+	* @return boolean
+	* @access public
+	*/
+	function releaseLock()
+	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'DELETE FROM sq_asset_lock
+				WHERE source_asset = '.$db->quote($this->id);
+
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
+	}//end aquireLock();
+
+
+	/**
+	* Returns an array of information about the current lock on this asset (if any)
+	*
+	* @return array
+	* @access public
+	*/
+	function getLockInfo()
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// just get the permissions set for this asset
+		$sql = 'SELECT * FROM sq_asset_lock
+				WHERE assetid = '.$db->quote($this->id);
+
+		$result = $db->getRow($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return Array();
+		}
+
+		if (!empty($result)) {
+			$result['expires'] = iso8601_ts($result['expires']);
+			if ($result['expires'] < time()) {
+				// this lock has expired
+				$this->cleanupLocks();
+				return Array();
+			}
+		}
+
+		return $result;
+	}//end getLockInfo()
+
+
+	/**
+	* Deletes the lock on this asset if it is expired
+	*
+	* @return array
+	* @access public
+	*/
+	function cleanupLocks()
+	{
+		$now = date('Y-m-d H:i:s');
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// just get the permissions set for this asset
+		$sql = 'DELETE FROM sq_asset_lock
+				WHERE source_asset = '.$db->quote($this->id).'
+				  AND expires < '.$db->quote($now);
+
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return Array();
+		}
+
+		return true;
+	}//end cleanupLock()
 
 
 	/**
@@ -2634,32 +2769,66 @@ class Asset extends Resolve_Object
 	/**
 	* Returns true if at least one of the passed assetids has write access to this asset
 	*
-	* @param array $assetids An array of user_group and/or user ids to check for write access
-	*						 If the array is empty, the current user will be checked
+	* @param array	$assetids	an array of user_group and/or user ids to check for write access
+	*							If the array is empty, the current user will be checked
+	* @param boolean $effective	effective access baed on locking and status
 	*
 	* @return boolean
 	* @access public
 	*/
-	function writeAccess($assetids=Array())
+	function writeAccess($assetids=Array(), $effective=true)
 	{
-		if ($this->status == SQ_STATUS_PENDING_APPROVAL || $this->status == SQ_STATUS_EDITING_APPROVAL) return false;
-		return $this->checkAccess(SQ_PERMISSION_WRITE, $assetids);
+		if ($effective) {
+			if ($this->status == SQ_STATUS_PENDING_APPROVAL || $this->status == SQ_STATUS_EDITING_APPROVAL) return false;
+
+			if (empty($assetids)) {
+				$lock = $this->getLockInfo();
+				if (!empty($lock)) {
+					// this asset is currently locked
+					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+					if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
+						return $this->checkAccess(SQ_PERMISSION_WRITE);
+					}
+					return false;
+				}
+			}
+		} else {
+			return $this->checkAccess(SQ_PERMISSION_WRITE, $assetids);
+		}
+
 	}//end writeAccess()
 
 
 	/**
 	* Returns true if at least one of the passed assetids has admin access to this asset
 	*
-	* @param array $assetids An array of user_group and/or user ids to check for admin access
-	*						 If the array is empty, the current user will be checked
+	* @param array	$assetids	an array of user_group and/or user ids to check for write access
+	*							If the array is empty, the current user will be checked
+	* @param boolean $effective	effective access baed on locking and status
 	*
 	* @return boolean
 	* @access public
 	*/
-	function adminAccess($assetids=Array())
+	function adminAccess($assetids=Array(), $effective=true)
 	{
-		if ($this->status == SQ_STATUS_PENDING_APPROVAL || $this->status == SQ_STATUS_EDITING_APPROVAL) return false;
-		return $this->checkAccess(SQ_PERMISSION_ADMIN, $assetids);
+		if ($effective) {
+			if ($this->status == SQ_STATUS_PENDING_APPROVAL || $this->status == SQ_STATUS_EDITING_APPROVAL) return false;
+
+			if (empty($assetids)) {
+				$lock = $this->getLockInfo();
+				if (!empty($lock)) {
+					// this asset is currently locked
+					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+					if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
+						return $this->checkAccess(SQ_PERMISSION_ADMIN);
+					}
+					return false;
+				}
+			}
+		} else {
+			return $this->checkAccess(SQ_PERMISSION_ADMIN, $assetids);
+		}
+
 	}//end adminAccess()
 
 
