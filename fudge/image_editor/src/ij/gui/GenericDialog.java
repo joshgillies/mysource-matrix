@@ -57,7 +57,7 @@ TextListener, FocusListener, ItemListener, KeyListener, AdjustmentListener {
 	public GenericDialog(String title) {
 		super();
 		setModal(true);
-		setSize(300, 200);
+		setSize(350, 230);
 		setTitle(title);
 		grid = new GridBagLayout();
 		c = new GridBagConstraints();

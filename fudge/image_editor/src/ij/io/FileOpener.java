@@ -39,7 +39,6 @@ public class FileOpener {
 			height = fi.height;
 		}
 		if (IJ.debugMode) IJ.log("FileOpener: "+fi);
-		System.out.println("FileOpener Constructor done");
 	}
 	
 	/** Opens the image and displays it. */
@@ -50,7 +49,6 @@ public class FileOpener {
 	/** Opens the image. Displays it if 'show' is
 	true. Returns an ImagePlus object if successful. */
 	public ImagePlus open(boolean show) {
-		System.out.println("Open() called");
 		ImagePlus imp=null;
 		Object pixels;
 		ProgressBar pb=null;

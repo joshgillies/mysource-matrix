@@ -31,7 +31,7 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 	public static final int CROSSHAIR = 999;
 
 
-	public static final int NUM_TOOLS = 12;
+	public static final int NUM_TOOLS = 14;
 
 	public static final int DIVIDER = 100;
 	public static final int SPARE = 101;
@@ -50,9 +50,7 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 		DIVIDER,
 		DROPPER,
 		DIVIDER,
-		MAGNIFIER,
-		HAND,
-		
+		MAGNIFIER
 	};
 		
 	private static final int SIZE = 22;
@@ -135,7 +133,6 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 	}
 
 	private void drawButton(Graphics g, int tool) {
-		System.out.println("Drawing button "+tool);
 		int i=0;
 		int offset = 0;
 		while ((i < BUTTON_SEQUENCE.length) && (BUTTON_SEQUENCE[i] != tool)) {
@@ -387,7 +384,6 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 
 	public void setTool(int tool) {
 		if (tool==current || tool<0 || tool>=NUM_TOOLS) {
-			System.out.println("Dodgy tool number "+tool);
 			return;
 		}
 		if ((FIRST_SELECT_TOOL <= tool) && (LAST_SELECT_TOOL >= tool)) {
@@ -402,8 +398,6 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 		g.dispose();
 		showMessage(current);
 		previous = current;
-		if (Recorder.record)
-			Recorder.record("setTool", current);
 		if (IJ.isMacOSX())
 			repaint();
 	}
@@ -442,15 +436,12 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 		int newTool = getToolFromCoord(x);
 		if (newTool == -1) return;
 		
-		System.out.println("new tools is "+newTool);
-
 		boolean doubleClick = newTool==current && (System.currentTimeMillis()-mouseDownTime)<=500;
  		mouseDownTime = System.currentTimeMillis();
 		if (!doubleClick) {
 			mpPrevious = current;
 			setTool(newTool);
 		} else {
-			System.out.println("double click");
 			ImagePlus imp = IJ.getInstance().getImagePlus();
 			switch (current) {
 				case FREEROI:
@@ -504,10 +495,9 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 	private int getToolFromCoord(int x) {
 		int offset = 0;
 		int i=0;
-		while (offset < x) {
+		while ((i != BUTTON_SEQUENCE.length) && (offset < x)) {
 			offset += getButtonWidth(BUTTON_SEQUENCE[i]);
 			i++;
-			if (i == BUTTON_SEQUENCE.length) return -1;
 		}
 		return BUTTON_SEQUENCE[i-1];
 	}

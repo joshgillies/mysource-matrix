@@ -205,7 +205,6 @@ public class ImageJ extends javax.swing.JApplet implements ActionListener,
 
     /** Starts executing a menu command in a separate thread. */
     void doCommand(String name) {
-		System.out.println("ImageJ is doingCommand()ing "+name);
 		new Executer(name, IJ.getInstance().getImagePlus());
     }
         
@@ -262,7 +261,6 @@ public class ImageJ extends javax.swing.JApplet implements ActionListener,
 	public void mouseEntered(MouseEvent e) {}
 
  	public void keyPressed(KeyEvent e) {
-		System.out.println("Key pressed "+e);
 		int keyCode = e.getKeyCode();
 		IJ.setKeyDown(keyCode);
 		hotkey = false;
@@ -289,7 +287,6 @@ public class ImageJ extends javax.swing.JApplet implements ActionListener,
 		if (imp!=null && !control && ((keyChar>=32 && keyChar<=255) || keyChar=='\b' || keyChar=='\n')) {
 			Roi roi = imp.getRoi();
 			if (roi instanceof TextRoi) {
-				System.out.println("have a text roi");
 				if ((flags & e.META_MASK)!=0 && IJ.isMacOSX()) return;
 				if (alt)
 					switch (keyChar) {
@@ -297,7 +294,6 @@ public class ImageJ extends javax.swing.JApplet implements ActionListener,
 						case 'A': keyChar = IJ.angstromSymbol; break;
 						default:
 					}
-				System.out.println("adding char");
 				((TextRoi)roi).addChar(keyChar);
 				return;
 			}

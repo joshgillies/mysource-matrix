@@ -119,7 +119,6 @@ public class Opener {
 	*/
 	public boolean open(String path) {
 		IJ.showStatus("Opening: " + path);
-		System.out.println("Trying to open file "+path);
 		
 		ImagePlus imp = openImage(path);
 
@@ -306,15 +305,12 @@ public class Opener {
 	}
 
 	ImagePlus openJpegOrGif(String dir, String name) {
-		System.out.println("Opening JPG");
 	   	ImagePlus imp = null;
 		Image img = Toolkit.getDefaultToolkit().getImage(dir+name);
- 		System.out.println(img);
 		if (img!=null) {
  			try {
  				imp = new ImagePlus(name, img);
  			} catch (IllegalStateException e) {
-				System.out.println("IllegalStateException");
 				return null; // error loading image				
  			} 
 		

@@ -276,8 +276,6 @@ public class TiffDecoder {
 		int numerator = getInt();
 		int denominator = getInt();
 		in.seek(saveLoc);
-		//System.out.println("numerator: "+numerator);
-		//System.out.println("denominator: "+denominator);
 		if (denominator!=0)
 			return (double)numerator/denominator;
 		else

@@ -194,7 +194,6 @@ class BMPDecoder {
                                 byte br = rawData[k];
                                 br >>= shift;
                                 byteData[j] = (byte)(br & mask);
-                                //System.out.println("Setting byteData[" + j + "]=" + Test.byteToHex(byteData[j]));
                                 j++;
                                 i++;
                                 if (i == w) return;

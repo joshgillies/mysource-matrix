@@ -18,7 +18,7 @@ import javax.swing.*;
 
 /** This class consists of static utility methods. */
 public class IJ {
-	public static boolean debugMode = true;
+	public static boolean debugMode = false;
 	    
     public static final char micronSymbol = (char)181;
     public static final char angstromSymbol = (char)197;
@@ -81,7 +81,7 @@ public class IJ {
 		}
 		catch (ClassNotFoundException e) {
 			if (IJ.getApplet()==null)
-				System.out.println("Plugin not found: " + className);
+				System.err.println("Plugin not found: " + className);
 		}
 		catch (InstantiationException e) {log("Unable to load plugin (ins)");}
 		catch (IllegalAccessException e) {log("Unable to load plugin, possibly \nbecause it is not public.");}
@@ -372,7 +372,7 @@ public class IJ {
 			ij.repaint();
 		}
 		else
-			System.out.println(msg);
+			System.err.println(msg);
 	}
 	
 	/** Displays a message in a dialog box with the specified title.

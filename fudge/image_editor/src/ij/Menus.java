@@ -31,16 +31,16 @@ public class Menus {
 	public static final char FILTERS_MENU = 'f';
 	public static final char TOOLS_MENU = 't';
 	public static final char UTILITIES_MENU = 'u';
-		
+
 	public static final int WINDOW_MENU_ITEMS = 5; // fixed items at top of Window menu
-	
+
 	public static final int NORMAL_RETURN = 0;
 	public static final int COMMAND_IN_USE = -1;
 	public static final int INVALID_SHORTCUT = -2;
 	public static final int SHORTCUT_IN_USE = -3;
 	public static final int NOT_INSTALLED = -4;
 	public static final int COMMAND_NOT_FOUND = -5;
-	
+
 	private static JMenuBar mbar;
 	private static JCheckBoxMenuItem gray8Item,gray16Item,gray32Item,
 			color256Item,colorRGBItem;
@@ -50,10 +50,10 @@ public class Menus {
 	private static Applet applet;
 	private static Hashtable demoImagesTable = new Hashtable();
 	private static String pluginsPath;
-	private static JMenu pluginsMenu, importMenu, saveAsMenu, shortcutsMenu, 
+	private static JMenu pluginsMenu, importMenu, saveAsMenu, shortcutsMenu,
 		aboutMenu, filtersMenu, toolsMenu, utilitiesMenu, optionsMenu;
 	private static Hashtable pluginsTable;
-	
+
 	static JMenu window;
 	int nPlugins;
 	private static Hashtable shortcuts = new Hashtable();
@@ -68,7 +68,7 @@ public class Menus {
 	private static Hashtable menusTable; // Submenus of Plugins menu
 	private int userPluginsIndex; // First user plugin or submenu in Plugins menu
 	private boolean addSorted;
-		
+
 	Menus(ImageJ ijInstance, JApplet appletInstance) {
 		ij = ijInstance;
 		applet = appletInstance;
@@ -77,14 +77,14 @@ public class Menus {
 	String addMenuBar() {
 		error = null;
 		pluginsTable = new Hashtable();
-		
+
 		JMenu file = new JMenu("File");
 		addItem(file, "Open Local", KeyEvent.VK_O, false);
 		importMenu = addSubMenu(file, "Import");
 		file.addSeparator();
 		//addItem(file, "Save Local",  KeyEvent.VK_S, false);
 		addItem(file, "Revert", KeyEvent.VK_R,  false);
-		
+
 		JMenu edit = new JMenu("Edit");
 		addItem(edit, "Undo", KeyEvent.VK_Z, false);
 		edit.addSeparator();
@@ -100,26 +100,26 @@ public class Menus {
 		edit.addSeparator();
 		addSubMenu(edit, "Selection");
 		optionsMenu = addSubMenu(edit, "Options");
-		
+
 		JMenu image = new JMenu("Image");
-		JMenu imageType = new JMenu("Type");
-			gray8Item = addCheckboxItem(imageType, "8-bit", "ij.plugin.Converter(\"8-bit\")");
-			gray16Item = addCheckboxItem(imageType, "16-bit", "ij.plugin.Converter(\"16-bit\")");
-			gray32Item = addCheckboxItem(imageType, "32-bit", "ij.plugin.Converter(\"32-bit\")");
-			color256Item = addCheckboxItem(imageType, "8-bit Color", "ij.plugin.Converter(\"8-bit Color\")");
-			colorRGBItem = addCheckboxItem(imageType, "RGB Color", "ij.plugin.Converter(\"RGB Color\")");
+		JMenu imageType = new JMenu("Set Type");
+			gray8Item = addCheckboxItem(imageType, "8-bit Greyscale", "ij.plugin.Converter(\"8-bit\")");
+			gray16Item = addCheckboxItem(imageType, "16-bit Greyscale", "ij.plugin.Converter(\"16-bit\")");
+			gray32Item = addCheckboxItem(imageType, "32-bit Greyscale", "ij.plugin.Converter(\"32-bit\")");
+			color256Item = addCheckboxItem(imageType, "8-bit Colour", "ij.plugin.Converter(\"8-bit Color\")");
+			colorRGBItem = addCheckboxItem(imageType, "RGB Colour", "ij.plugin.Converter(\"RGB Color\")");
 			imageType.add(new JMenuItem("-"));
 			image.add(imageType);
-			
+
 		image.addSeparator();
 		addSubMenu(image, "Adjust");
-		addSubMenu(image, "Color");
 		image.addSeparator();
+		addPlugInItem(image, "Set Size...", "ij.plugin.filter.Resizer", 0, false);
+		addPlugInItem(image, "Scale Size...", "ij.plugin.filter.Scaler", KeyEvent.VK_E, false);
+		addPlugInItem(image, "Resize Canvas", "ij.plugin.CanvasResizer", 0, false);
 		addPlugInItem(image, "Crop", "ij.plugin.filter.Resizer(\"crop\")", 0, false);
-		addPlugInItem(image, "Scale...", "ij.plugin.filter.Scaler", KeyEvent.VK_E, false);
 		addSubMenu(image, "Rotate");
-		image.addSeparator();
-		
+
 		JMenu process = new JMenu("Process");
 		addPlugInItem(process, "Smooth", "ij.plugin.filter.Filters(\"smooth\")", KeyEvent.VK_S, true);
 		addPlugInItem(process, "Sharpen", "ij.plugin.filter.Filters(\"sharpen\")", 0, false);
@@ -133,8 +133,8 @@ public class Menus {
 		addPlugInItem(process, "Subtract Background...", "ij.plugin.filter.BackgroundSubtracter", 0, false);
 		addItem(process, "Repeat Command", KeyEvent.VK_R, true);
 		JMenu help = new JMenu("Help");
-		addPlugInItem(help, "About ImageJ...", "ij.plugin.AboutBox", 0, false);
-				
+		addPlugInItem(help, "About Image Editor", "ij.plugin.AboutBox", 0, false);
+
 		mbar = new JMenuBar();
 		mbar.setBorder(BorderFactory.createMatteBorder(1, 1, 0, 1, Color.BLACK));
 		mbar.add(file);
@@ -144,12 +144,12 @@ public class Menus {
 		mbar.add(help);
 		if (ij!=null)
 			ij.setJMenuBar(mbar);
-		
+
 		if (jarError!=null)
 			error = error!=null?error+="\n"+jarError:jarError;
 		return error;
 	}
-	
+
 	// TB Removed keyboard shortcut support when moving to Swing
 	void addItem(JMenu menu, String label, int shortcut, boolean shift) {
 		if (menu==null)
@@ -179,13 +179,13 @@ public class Menus {
 		return item;
 	}
 
-	JMenu addSubMenu(JMenu menu, String name) 
+	JMenu addSubMenu(JMenu menu, String name)
 	{
 		String value;
 		String key = name.toLowerCase(Locale.US);
 		int index;
 		JMenu submenu=new JMenu(name.replace('_', ' '));
- 
+
 		index = key.indexOf(' ');
 		if (index > 0) {
 			key = key.substring(0, index);
@@ -250,7 +250,7 @@ public class Menus {
 		if (pluginsTable.get(command)!=null) {
 		}
 	}
-	
+
 	void addPluginsMenu() {
 		String value,label,className;
 		int index;
@@ -334,7 +334,7 @@ public class Menus {
 		}
 		installJarPlugins();
 	}
-	
+
 
 	/** Install plugins located in JAR files. */
 	void installJarPlugins() {
@@ -359,9 +359,9 @@ public class Menus {
 				try {if (lnr!=null) lnr.close();}
 				catch (IOException e) {}
 			}
-		}		
+		}
 	}
-	
+
 	/** Install a plugin located in a JAR file. */
 	void installJarPlugin(String jar, String s) {
 		//IJ.log(s);
@@ -425,7 +425,7 @@ public class Menus {
 		}
 		duplicateCommand = false;
 	}
-	
+
 	void addJarErrorHeading(String jar) {
 		if (!isJarErrorHeading) {
 				if (!jarError.equals(""))
@@ -446,10 +446,10 @@ public class Menus {
 		addItemSorted(pluginsMenu, menu, userPluginsIndex);
 		if (menusTable==null) menusTable = new Hashtable();
 		menusTable.put(submenuName, menu);
-		//IJ.log("getPluginsSubmenu: "+submenuName);        
+		//IJ.log("getPluginsSubmenu: "+submenuName);
 		return menu;
 	}
-	
+
 	String getSubmenuName(String jarPath) {
 		//IJ.log("getSubmenuName: "+jarPath);
 		int index = jarPath.lastIndexOf(File.separatorChar);
@@ -498,7 +498,7 @@ public class Menus {
 		catch (Exception e) {}
 		return null;
 	}
-	
+
 	/** Returns a list of the plugins with directory names removed. */
 	String[] getStrippedPlugins(String[] plugins) {
 		String[] plugins2 = new String[plugins.length];
@@ -511,7 +511,7 @@ public class Menus {
 		}
 		return plugins2;
 	}
-		
+
 	/** Returns a list of the plugins in the plugins menu. */
 	public static synchronized String[] getPlugins() {
 		String homeDir = Prefs.getHomeDir();
@@ -559,7 +559,7 @@ public class Menus {
 		StringSorter.sort(list);
 		return list;
 	}
-	
+
 	/** Looks for plugins and jar files in a subdirectory of the plugins directory. */
 	static void checkSubdirectory(String path, String dir, Vector v) {
 		if (dir.endsWith(".java"))
@@ -585,7 +585,7 @@ public class Menus {
 			}
 		}
 	}
-	
+
 	static String submenuName;
 	static JMenu submenu;
 
@@ -616,7 +616,7 @@ public class Menus {
 		pluginsTable.put(command, className);
 		nPlugins++;
 	}
-	
+
 	void installPopupMenu(ImageJ ij) {
 		String s;
 		int count = 0;
@@ -641,11 +641,11 @@ public class Menus {
 	public static JMenuBar getMenuBar() {
 		return mbar;
 	}
-		
+
 
 	/** Updates the Image/Type and Window menus. */
 	public static void updateMenus() {
-	
+
 		if (ij==null) return;
 		gray8Item.setState(false);
 		gray16Item.setState(false);
@@ -681,9 +681,9 @@ public class Menus {
 				colorRGBItem.setState(true);
 				break;
 		}
-		
+
 	}
-	
+
 	static boolean isColorLut(ImagePlus imp) {
 		ImageProcessor ip = imp.getProcessor();
 		IndexColorModel cm = (IndexColorModel)ip.getColorModel();
@@ -691,9 +691,9 @@ public class Menus {
 		int mapSize = cm.getMapSize();
 		byte[] reds = new byte[mapSize];
 		byte[] greens = new byte[mapSize];
-		byte[] blues = new byte[mapSize];	
-		cm.getReds(reds); 
-		cm.getGreens(greens); 
+		byte[] blues = new byte[mapSize];
+		cm.getReds(reds);
+		cm.getGreens(greens);
 		cm.getBlues(blues);
 		boolean isColor = false;
 		for (int i=0; i<mapSize; i++) {
@@ -705,30 +705,30 @@ public class Menus {
 		return isColor;
 	}
 
-	
+
 	/** Returns the path to the user plugins directory or
 		null if the plugins directory was not found. */
 	public static String getPlugInsPath() {
 		return pluginsPath;
 	}
 
-	   
+
 	/** Returns the hashtable that associates commands with plugins. */
 	public static Hashtable getCommands() {
 		return pluginsTable;
 	}
-		
+
 	/** Returns the hashtable that associates shortcuts with commands. The keys
 		in the hashtable are Integer keycodes, or keycode+200 for uppercase. */
 	public static Hashtable getShortcuts() {
 		return shortcuts;
 	}
-		
-	
+
+
 	public static JPopupMenu getPopupMenu() {
 		return popup;
 	}
-	
+
 	/** Adds a plugin based command to the end of a specified menu.
 	* @param plugin			the plugin (e.g. "Inverter_", "Inverter_("arg")")
 	* @param menuCode		PLUGINS_MENU, IMPORT_MENU, SAVE_AS_MENU or HOT_KEYS
@@ -746,14 +746,14 @@ public class Menus {
 			//else
 				return NORMAL_RETURN;
 		}
-		
+
 		if (commandInUse(command))
 			return COMMAND_IN_USE;
 		if (!validShortcut(shortcut))
 			return INVALID_SHORTCUT;
 		if (shortcutInUse(shortcut))
 			return SHORTCUT_IN_USE;
-			
+
 		JMenu menu;
 		switch (menuCode) {
 			case PLUGINS_MENU: menu = pluginsMenu; break;
@@ -793,7 +793,7 @@ public class Menus {
 		pluginsPrefs.addElement(menuCode+",\""+command+shortcut+"\","+plugin);
 		return NORMAL_RETURN;
 	}
-	
+
 	/** Deletes a command installed by installPlugin. */
 	public static int uninstallPlugin(String command) {
 		boolean found = false;
@@ -811,7 +811,7 @@ public class Menus {
 			return COMMAND_NOT_FOUND;
 
 	}
-	
+
 	public static boolean commandInUse(String command) {
 		if (pluginsTable.get(command)!=null)
 			return true;
@@ -847,7 +847,7 @@ public class Menus {
 			code = KeyEvent.VK_0+c-48;
 		return code;
 	}
-	
+
 	static boolean validShortcut(String shortcut) {
 		int len = shortcut.length();
 		if (shortcut.equals(""))

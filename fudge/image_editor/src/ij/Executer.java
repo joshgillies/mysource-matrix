@@ -113,7 +113,6 @@ public class Executer implements Runnable {
 		else {
 			Hashtable table = Menus.getCommands();
 			String plugIn = (String)table.get(cmd);
-			System.out.println("Looked up plugin is: "+plugIn);
 			if (plugIn!=null)
 				runPlugIn(cmd, plugIn);
 			else
@@ -124,7 +123,6 @@ public class Executer implements Runnable {
 
    /** Run commands that process images. */
     public void runImageCommand(String cmd, ImagePlus imp) {
-		System.out.println("Running image command "+cmd);
     	
     	if (imp!=null) {
 			if (!imp.lock())
@@ -143,13 +141,10 @@ public class Executer implements Runnable {
 				IJ.error("Unrecognized command: " + cmd);
 
 			imp.unlock();
-		} else {
-			System.out.println("Imp is null, command "+cmd+" not run");
-		}
+		} 
 	}
 
 	void runPlugIn(String cmd, String className) {
-		System.out.println("Running Plugin (executer.java), command is "+cmd);
 		String arg = "";
 		if (className.endsWith("\")")) {
 			// extract string argument (e.g. className("arg"))

@@ -70,8 +70,6 @@ public class ContrastAdjuster
 	*/
 	public void run(String arg)
 	{		ij = IJ.getInstance();
-		long startTime = System.currentTimeMillis();
-		System.out.println("Run starting at "+startTime);
 		SliderPane pane = null;
 		windowLevel = arg.equals("wl");
 		balance = arg.equals("balance");
@@ -89,12 +87,9 @@ public class ContrastAdjuster
 		instance = this;
 		IJ.register(ContrastAdjuster.class);
 
-		System.out.println("Registered with IJ after "+(System.currentTimeMillis() - startTime));
-
 		gridbag = new GridBagLayout();
 		c = new GridBagConstraints();
 		getContentPane().setLayout(gridbag);
-		System.out.println("Finished setting layout after "+(System.currentTimeMillis() - startTime));
 
 		// plot
 		c.gridx = 0;
@@ -104,9 +99,7 @@ public class ContrastAdjuster
 		c.anchor = GridBagConstraints.CENTER;
 		c.insets = new Insets(4, 4, 4, 4);
 		gridbag.setConstraints(plot, c);
-		System.out.println("Finished setting constraints for plot after "+(System.currentTimeMillis() - startTime));
 		getContentPane().add(plot);
-		System.out.println("Added plot after "+(System.currentTimeMillis() - startTime));
 
 		// min slider
 		if (!windowLevel) {
@@ -149,8 +142,6 @@ public class ContrastAdjuster
 			contrastSlider.addAdjustmentListener(this);
 			contrastSlider.setUnitIncrement(1);
 		}
-
-		System.out.println("Finished sliders after "+(System.currentTimeMillis() - startTime));
 
 		// color channel popup menu
 		if (balance) {
@@ -198,16 +189,12 @@ public class ContrastAdjuster
 		gridbag.setConstraints(panel, c);
 		getContentPane().add(panel);
 
-		System.out.println("Finished buttons after "+(System.currentTimeMillis() - startTime));
-
 		addKeyListener(ij);  // ImageJ handles keyboard shortcuts
 		setVisible(true);
-		System.out.println("finished showing after "+(System.currentTimeMillis() - startTime));
 
 		thread = new Thread(this, "ContrastAdjuster");
 		thread.start();
 		setup();
-		System.out.println("Run ending at "+System.currentTimeMillis());
 
 	}//end run()
 
@@ -1067,7 +1054,6 @@ class ContrastPlot extends Canvas implements MouseListener
 			histogram[mode] = hmax;
 		}
 		os = null;
-		System.out.println("SetHistogram took "+(System.currentTimeMillis() - startTime));
 
 	}
 
@@ -1076,7 +1062,6 @@ class ContrastPlot extends Canvas implements MouseListener
 	}
 
 	public void paint(Graphics g) {
-		System.out.println("ContrastPlot.paint starting at "+System.currentTimeMillis());
 		int x1, y1, x2, y2;
 		double scale = (double)WIDTH/(defaultMax-defaultMin);
 		double slope = 0.0;
@@ -1122,7 +1107,6 @@ class ContrastPlot extends Canvas implements MouseListener
 		g.drawLine(x1, y1, x2, y2);
 		g.drawLine(x2, HEIGHT-5, x2, HEIGHT);
 		g.drawRect(0, 0, WIDTH, HEIGHT);
-		System.out.println("ContrastPlot.paint ending at "+System.currentTimeMillis());
 	 }
 
 	public void mousePressed(MouseEvent e) {}
