@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.6 2005/02/15 03:10:03 lwright Exp $
+* $Id: listing_engine_management.inc,v 1.7 2005/02/15 05:25:33 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -286,6 +286,8 @@ class Listing_Engine_Management extends Asset_Management
 			foreach($attr as $field_name => $field) {
 				if (in_array($field_name, Array('owning_type_code', 'default_type_code', 'parameters_type_code'))) {
 					$fields_quoted[$field_name] = $db->quote($this->getAssetType());
+				} else if (in_array($field_name, Array('parameters', 'default', 'type'))) {
+					$fields_quoted[$field_name] = $db->quote($this->vars[$attr['name']][$field_name]);
 				} else {
 					$fields_quoted[$field_name] = $db->quote($field);
 				}
@@ -295,13 +297,15 @@ class Listing_Engine_Management extends Asset_Management
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 			
-			$sql = 'UPDATE '.SQ_TABLE_RUNNING_PREFIX.'ast_attr set
+			/*$sql = 'UPDATE '.SQ_TABLE_RUNNING_PREFIX.'ast_attr set
 			owning_type_code = '.$db->quote($this->getAssetType()).', 
 			default_type_code = '.$db->quote($this->getAssetType()).', 
 			parameters_type_code = '.$db->quote($this->getAssetType()).' 
+			parameters = '.$db->quote($this->getAssetType()).' 
+			default = '.$db->quote($this->getAssetType()).' 
 			WHERE name = '.$db->quote($attr['name']).' AND owning_type_code = '.$db->quote($attr['owning_type_code']);
 			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			assert_valid_db_result($result);*/
 		}
 				
 		return true;
