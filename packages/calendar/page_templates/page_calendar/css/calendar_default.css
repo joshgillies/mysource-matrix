@@ -102,7 +102,7 @@ table#month { border: 1px solid #173e57; background-color: #f8f8f8; border-colla
 #month td.eventDate { background-color: #d0ecf6; }
 
 /* Linked dates at top left of cells */
-#month td.eventDate a.dateLink, #month td.eventDate a.dateLink:visited, #month td.eventDate a.dateLink:hover { color: white; font-weight: bold; text-decoration: none; } 
+#month td.eventDate a.dateLink, #month td.eventDate a.dateLink:visited, #month td.eventDate a.dateLink:hover { color: black; font-weight: bold; text-decoration: none; } 
 
 /* Linked event names in cells (root-node-specific classes will also apply) */
 #month .event, #month a.event:visited, #month a.event:hover { font-size: 85%; font-weight: bold; text-decoration: none; padding: 0px 1px; text-align: center}
