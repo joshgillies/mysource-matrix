@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_herder.inc,v 1.25 2003/10/30 03:41:23 mmcintyre Exp $
+* $Id: hipo_herder.inc,v 1.26 2003/11/04 05:41:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ class HIPO_Herder extends MySource_Object
 	*/
 	function HIPO_Herder()
 	{
+
 	}//end constructor
 
 
@@ -225,220 +226,147 @@ class HIPO_Herder extends MySource_Object
 
 		} // end if
 
-		$hipo = Array(
-'                                                  $$$                                                                                                                                   ',
-'                                                 $$$$$$$                                                                                                                                ',
-'                                                $$$$$$$$                                                                                                                                ',
-'                                                $$$$   $$ $$$$$                                                                                                                         ',
-'                                                   $$$$$$$$$$$$$$$$$$        $$$$$                                                                                                      ',
-'                                                   $$$$$$$$$$$$$$$$$$$     $$$$$$$$$                                                                                      $             ',
-'                                                $$$$$$$$$$$$$$$$$$$$$$$$$$$   $$$                                                                                       $$$             ',
-'                                             $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$    $$$$$$$$$$                                                                        $$$$$             ',
-'                                           $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$        $$$$$$$$$$$$$$                         $$$$$$$$$$                                  $$$$$$            ',
-'               $$$$$$$$$$$$$$$          $$$$$$$$$$$$$$$$$  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$    $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$                           $$$$$$$$          ',
-'            $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ $$$$$$$$$$$$$$$$$$$$  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$                         $$$$$$$         ',
-'        $$$$$$ $$$$   $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$   $$$$$$$$$$$$$$$$$$$$$$$$$$$ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$                       $$$$$          ',
-'       $$$$$  $$$$$$$  $$$$$$$$$$      $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  $$$$$$$$$$$$$$$$$$$$$$$$$$$$  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$                      $$$$$          ',
-'      $$$$$$$$$     $$$$$$$$$$$$$$$$$$$$  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$                       $            ',
-'      $$$$$$$$$$$$   $$$$$$$$$$$$      $$ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$                     $            ',
-'      $$$$$$$$$$$$   $$$$$$$$$$$ $$$   $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$                      $           ',
-'      $$$$$$$$$$$$$$$$$$$$$$$$$ $$$$$  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$                      $          ',
-'      $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  $$$$$$$$$$$$$$$$$$$   $$$$$$ $$$$$$$$$$$$$$$$$$$$$$$$$$ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$                     $          ',
-'      $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$   $$$$$$$$$$$$$$$$$$$  $$$$$$ $$$$$$$$$$$$$$$$$$$$$$$$$$ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$                     $          ',
-'       $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  $$$$$$$$$$$$$$$$$$  $$$$$$  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$                    $          ',
-'         $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$      $$$$$$$$$$$$$$$$  $$$$$$  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$                    $          ',
-'               $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$         $$$$$$$$$$$$$$$$  $$$$$$  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$                    $          ',
-'              @@@            $$$$$$$$$$$$$$$$$$$$$$         @@     $$$$$$$$$$$$$$$  $$$$$$ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$               $          ',
-'              @@@@@@                                  @@@@@@@@@@    $$$$$$$$$$$$$$  $$$$$  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  $$$$$$$         $$           ',
-'              @@@@@@            @@@@@@@               @@@@@@@@@@@  $$$$$$$$$$$$$$  $$$$$  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$    $$$$$$$$$$$$$$$            ',
-'               @@@@@             @@@@@@              @@@@@@@@@@@@ $$$$$$$$$$$$$$$ $$$$$   $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$        $$$$$$$$$$             ',
-'                                 @@@@@@            @@@@@@@@@@@@@  $$$$$$$$$$$$$$ $$$$$ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$                               ',
-'                                                 @@@@@@@@@@@@@@  $$$$$$$$$$$$$  $$$$  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$                               ',
-'                                                @@@@@@@@@@@@@@@ $$$$$$$$$$$$$ $$$$   $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$                               ',
-'                                             @@@@@@@@@@@@@@@   $$$$$$$$$$$$  $$$   $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$                               ',
-'                                       @@@@@@@@@@@@@@@@@@@@   $$$$$$$$$$$  $$   $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$                                ',
-'                                    @@@@@@@@@@@@@@@@@@@@@   $$$$$$$$$$$$$     $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$                                ',
-'                                    @@@@@@@@@@@@@@@@@    $$$$$$$$$$$$      $$$$$$$   $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ $$$$$$$$$$$$$$$$$$$$$                                  ',
-'                                     @@@@@@@@@@     $$$$$$$$$$       $$$$$$   $$$$   $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  $$$$$$$$$$$$$$$$$$$$$$                                  ',
-'                                               $$$$$$$$$$$$$     $$$$$$$$$$   $$$$   $$$$$$$$$$$$$$$$$$$$   $$$$$$$$$$$$$$$$$   $$$$$$$$$$$$$$$$$$$$$                                   ',
-'                                    $$$$$$$$$$$$$$$$$$$$       $$$$$$$$$$$$$$   $$$  $$$$$$$$$$$$$$$$$$$$   $$$$$$$$$$$$$$$    $$$$$$$$$$$$$$$$$$$$                                     ',
-'                                             $$$$$$$$          $$$$$$$$$$$$$$$        $$$$$$$$$$$$$$$$$$$  $$$$$$$              $$$$$$$$$$$$$$$$$$                                      ',
-'                                                                $$$$$$$$$$$$$$$$$$$   $$$$$$$$$$$$$$$$$$                //////  $$$$$$$$$$$$$$$$$                                       ',
-'                                                                  $$$$$$$$$$$$$$$$$$  $$$$$$$$$$$$$$$$$     //////////////////  $$$$$$$$$$$$$$$$$                                       ',
-'                                                                  $$$$$$$$$$$$$$$$$$  $$$$$$$$$$$$$$$$$       ////////////////  $$$$$$$$$$$$$$$$$                                       ',
-'                                                                    $$$$$$$$$$$$$$$$   $$$$$$$$$$$$$$$         ///////////////   $$$$$$$$$$$$$$$$                                       ',
-'                                                                    $$$$$$$$$$$$$$$$   $$$$$$$$$$$$$$$         ////////////////  $$$$$$$$$$$$$$$                                        ',
-'                                                                     $$$$$$$$$$$$$$$   $$$$$$$$$$$$$$$           ///  /////////  $$$$  $$$$$$$$$                                        ',
-'                                                                        $    $$$$$$$  $  $$$$$$$$$$$$            /@@@   @@  ///  $  @@@      $$$                                        ',
-'                                                                     @@    @  $$$$$       $$    $$$$              @@@@  @@@  /   $  @@@@  @@@ $                                         ',
-'                                                                                       @@@   @@@$$$                                                                                     ',
-		);
+		$o = &$this->getBackendOutputter();
+		$o->setFormData($form_name, $url);
+		if ($auto_step) {
+			if ($delay) {
+				$o->addOnLoad('ON_LOAD_TIME_OUT = setTimeout("next_page();", 2000)');
+			} else {
+				$o->addOnLoad('next_page()');
+			}
+		}
+		
+		$o->openRaw();
+		?>
+		<script language="JavaScript" type="text/javascript">
+			function next_page() {
+				<?php echo $onload; ?>
+			}// end next_page()
 
-		$lines_done = floor(count($hipo) * $percent_done / 100);
-		$done_hipo = array_slice($hipo, 0, $lines_done);
-		$todo_hipo = ($lines_done < count($hipo)) ? array_slice($hipo, $lines_done) : Array();
+			function send_abort() {
+				if (ON_LOAD_TIME_OUT != null) {
+					clearTimeout(ON_LOAD_TIME_OUT);
+				}
+				if (confirm("Are you sure you want to cancel?")) {
+					document.<?php echo $form_name; ?>.cancel_hipo.value = "1";
+					document.<?php echo $form_name; ?>.submit();
+
+				} else {
+					next_page();
+				}
+			}// end send_abort();
+		</script>
+		<?php
+	
 
 		?>
-		<html>
-			<head>
-				<style>
-					pre {
-						color: #000000;
-					}
-					.sq-hipo-normal, p, td {
-						font-size: 10px;
-						font-family: Verdana;
-						color: #FFFFFF;
-					}
-					.sq-hipo-small {
-						font-size: 8px;
-						font-family: Verdana;
-						color: #FFFFFF;
-					}
-				</style>
-				<script language="JavaScript" type="text/javascript">
-					var ON_LOAD_TIME_OUT = null;
-					function init() {
-				<?php
-				if ($auto_step) {
-					if ($delay)  {
-				?>
-						ON_LOAD_TIME_OUT = setTimeout("next_page();", 2000);
-				<?php
-					} else {
-				?>
-							next_page();
-				<?php
-					}// end if
-				}// end if
-				?>
-					}// end init()
-
-					function next_page() {
-						//if (confirm('Refresh')) {
-						<?php echo $onload; ?>
-						//}
-					}// end next_page()
-
-					function send_abort() {
-						if (ON_LOAD_TIME_OUT != null) {
-							clearTimeout(ON_LOAD_TIME_OUT);
-						}
-						if (confirm("Are you sure you want to cancel?")) {
-							document.<?php echo $form_name; ?>.cancel_hipo.value = "1";
-							document.<?php echo $form_name; ?>.submit();
-
-						} else {
-							next_page();
-						}
-					}// end send_abort();
-				</script>
-			</head>
-			<body bgcolor="#FFFFFF" onLoad="javascript: init();" class="sq-hipo-normal">
-				<table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%"><tr><td valign="middle" align="center">
-				<form name="<?php echo $form_name; ?>" method="post" action="<?php echo $url; ?>">
-				<table border="0" cellspacing="2" cellpadding="0" width="90%" bgcolor="#000000">
+				<table border="0" cellspacing="0" cellpadding="0" width="500">
 					<tr>
-						<td align="center" valign="top" bgcolor="#E0E0E0" nowrap>
-						<table>
-							<tr>
-								<td>
-<pre style="font-size : 1px;">
-<?php
-if (!empty($done_hipo)) {
-	echo '<span style="color:#000000;">'.implode("\n", $done_hipo)."</span>\n";
-}
-if (!empty($todo_hipo)) {
-	echo '<span style="color:#999999;">'.implode("\n", $todo_hipo)."</span>\n";
-}
-?>
-</pre>
-								</td>
-							</tr>
-						</table>
-						</td>
-						<td valign="top" width="100%" bgcolor="#735B7D">
-						<table border="0" cellspacing="2" cellpadding="2" width="100%" height="100%">
-							<tr>
-								<td>
-							<?php
-								$buttons_to_print = Array();
+						<td class="sq-hipo-header">
+							<table class="sq-hipo-header">
+								<tr>
+									<td valign="middle" width="100%"><img src="<?php echo sq_web_path('lib').'/web/images/icons/hipo.gif'; ?>" width="71" height="26" alt="Powered by Highly Intensive Processing Object (HIPO) Technology" /></td>
+								</tr>
+								<?php
+								// if we have more than one step we need to "total" progress bar
+								$step = $source_job->_hipo_vars['current_step'];
+								$step_data = (isset($source_job->_steps[$step])) ? $source_job->_steps[$step] : Array();
 
-								// if we aren't waiting for an abort, print the progress stuff
-								if (empty($_POST['aborting_hipo'])) {
-
-									// Paint the source job, this will take care of any sub jobs if needed
-									$source_job->paint();
-
-									if (!$source_job->complete()) {
-										// basically what happens here is that if cancel has already been pressed we increment the counter
-										// this means that the cancel button only get's pressed once
-										hidden_field('cancel_hipo', (empty($_POST['cancel_hipo'])) ? 0 : ((int) $_POST['cancel_hipo'] + 1));
-										$buttons_to_print['cancel'] = Array('value' => 'Cancel', 'action' => 'send_abort();');
-									}
-
-									// print the NEXT or FINISH button if we are not auto stepping through the HIPO
-									if (!$auto_step) {
-										// they dont want us to refresh automatically, so we need to provide a manual NEXT button
-										$button_text = ($source_job->complete()) ? 'Finish' : 'Next >>';
-										$buttons_to_print['next'] = Array('value' => $button_text, 'action' => 'next_page();');
-									}
-
-								// we are aborting from the server
+								if ($step_data) {
+									$status_msg = $source_job->_hipo_name.' HIPO Progress';
 								} else {
+									// this step doesnt exist - probably reached the end of the HIPO
+									if ($source_job->complete()) $status_msg = $source_job->_hipo_name.' HIPO Complete';
+									else $status_msg = 'Unknown Error Occured';
+								}
 
-									hidden_field('aborting_hipo',     $_POST['aborting_hipo']);
-									hidden_field('aborting_hipo_url', $_POST['aborting_hipo_url']);
+								?>
+								<tr>
+									<td class="sq-hipo-header">
+										<?php $source_job->paintProgressBar($source_job->_hipo_vars['percent_done'], $status_msg, 'sq-hipo-header-progress-bar-label', 'sq-hipo-header-progress-bar-percent', 'sq-hipo-header-progress-bar-main', 'sq-hipo-header-progress-bar-done'); ?>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td class="sq-hipo-main" valign="top">
+						<?php
+						$buttons_to_print = Array();
 
-									// if the source job is null it means that an abort finally finished
-									// (we couldn't get here otherwise) so print that and get out of here
-									if (is_null($source_job)) {
-										echo 'Abort Complete';
-										$button_text = 'OK';
-									} else {
-										echo 'Aborting...';
-										$button_text = 'Next >>';
-									}
+						// if we aren't waiting for an abort, print the progress stuff
+						if (empty($_POST['aborting_hipo'])) {
 
-									// print the NEXT or FINISH button if we are not auto stepping through the HIPO
-									if (!$auto_step) {
-										// they dont want us to refresh automatically, so we need to provide a manual NEXT button
-										$buttons_to_print['next'] = Array('value' => $button_text, 'action' => 'next_page();');
-									}
+							// Paint the source job, this will take care of any sub jobs if needed
+							
+							$o->closeRaw();
+							$source_job->paint($o);
+							$o->openRaw();
 
-								}// end if
+							if (!$source_job->complete()) {
+								// basically what happens here is that if cancel has already been pressed we increment the counter
+								// this means that the cancel button only get's pressed once
+								hidden_field('cancel_hipo', (empty($_POST['cancel_hipo'])) ? 0 : ((int) $_POST['cancel_hipo'] + 1));
+								$buttons_to_print['cancel'] = Array('value' => 'Cancel', 'action' => 'send_abort();');
+							}
 
-								if (count($buttons_to_print)) {
-									?>
-									<p>
-									<table border="0" width="100%" cellspacing="2" cellpadding="1">
-										<tr>
-											<td width="100%">&nbsp;</td>
-										<?php
-										foreach ($buttons_to_print as $btn_code => $btn_data) {
-											?><td valign="top" align="center"><?php
-											normal_button($btn_code, $btn_data['value'], $btn_data['action']);
-											?></td><?php
-										}
-										?>
-										</tr>
-									</table>
-									</p>
-									<?php
-								}// end if
+							// print the NEXT or FINISH button if we are not auto stepping through the HIPO
+							if (!$auto_step) {
+								// they dont want us to refresh automatically, so we need to provide a manual NEXT button
+								$button_text = ($source_job->complete()) ? 'Finish' : 'Next >>';
+								$buttons_to_print['next'] = Array('value' => $button_text, 'action' => 'next_page();');
+							}
 
+						// we are aborting from the server
+						} else {
+
+							hidden_field('aborting_hipo',     $_POST['aborting_hipo']);
+							hidden_field('aborting_hipo_url', $_POST['aborting_hipo_url']);
+
+							// if the source job is null it means that an abort finally finished
+							// (we couldn't get here otherwise) so print that and get out of here
+							if (is_null($source_job)) {
+								echo 'Abort Complete';
+								$button_text = 'OK';
+							} else {
+								echo 'Aborting...';
+								$button_text = 'Next >>';
+							}
+
+							// print the NEXT or FINISH button if we are not auto stepping through the HIPO
+							if (!$auto_step) {
+								// they dont want us to refresh automatically, so we need to provide a manual NEXT button
+								$buttons_to_print['next'] = Array('value' => $button_text, 'action' => 'next_page();');
+							}
+
+						}// end if
+
+						if (count($buttons_to_print)) {
 							?>
-								</td>
-							</tr>
-						</table>
+							<p>
+							<table border="0" width="100%" cellspacing="2" cellpadding="1">
+								<tr>
+									<td width="100%">&nbsp;</td>
+								<?php
+								foreach ($buttons_to_print as $btn_code => $btn_data) {
+									?><td valign="top" align="center"><?php
+									normal_button($btn_code, $btn_data['value'], $btn_data['action']);
+									?></td><?php
+								}
+								?>
+								</tr>
+							</table>
+							</p>
+							<?php
+						}// end if
+						?>
 						</td>
 					</tr>
 				</table>
-				</form>
-				</td></tr></table>
-			</body>
-		</html>
 		<?php
+
+		$o->closeRaw();
+		$o->paint();
 
 
 	}//end paintWeb()

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_job_create_link.inc,v 1.2 2003/10/30 23:26:53 mmcintyre Exp $
+* $Id: hipo_job_create_link.inc,v 1.3 2003/11/04 05:41:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -58,7 +58,7 @@ class HIPO_Job_Create_Link extends HIPO_Job
 					Array( //1
 						'name'			=> 'Cascading Options',
 						'function_call'		=> Array(
-												'paint_function' => 'paintInterface',
+												'paint_function'   => 'paintInterface',
 												'process_function' => 'processInterface',
 												),
 						'running_mode'	=> 'web',
@@ -182,18 +182,20 @@ class HIPO_Job_Create_Link extends HIPO_Job
 	/**
 	* Paints the interface for accepting user input on what to cascade (permissions/metadata/workflow)
 	*
+	* @param array()							&$step_data	a reference to the array of information about the current step
+	* @param object Hipo_Backend_Outputter		&$o			the backend outputter class
+	* @param string								$prefix		prefix for form vars
+	*
 	* @access Public
 	* @return boolean
 	*/
-	function paintInterface()
+	function paintInterface(&$step_data, &$o, $prefix)
 	{
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		if (is_null($hh)) return false;
 
-		$o = &$hh->getBackendOutputter();
-
-		$o->addFormActionGetVar('link_assetid',  $this->_running_vars['assetid']);
-		$o->addFormActionGetVar('link_parentid', $this->_running_vars['parentid']);
+		$o->addHiddenField('link_assetid',  $this->_running_vars['assetid']);
+		$o->addHiddenField('link_parentid', $this->_running_vars['parentid']);
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
 		if (is_null($asset)) {
@@ -209,7 +211,7 @@ class HIPO_Job_Create_Link extends HIPO_Job
 
 		$o->openSection('Note');
 			$o->openField('&nbsp;');
-				hidden_field('link_completed', '0');
+				$o->addHiddenField('link_completed', '0');
 				?>
 				Press the <b><i>Cascade</i></b> button below if you want to cascade the permissions/workflow/metadata of "<?php echo $parent->name; ?>" down to "<?php echo $asset->name; ?>" and its children. To skip the cascading, press the <b><i>Skip</i></b> button below.<br/><br/>
 				The permission of the new parent "<?php echo $parent->name; ?>" are shown below. These changes will attempt to be set on "<?php echo $asset->name; ?>" and its children if you choose to cascade.<br/><br/>
@@ -219,7 +221,7 @@ class HIPO_Job_Create_Link extends HIPO_Job
 				$pe = $ei->paintInlinePermissions($parent, $o);
 				$wf = $ei->paintInlineWorkflow($parent, $o);
 				$ms = $ei->paintInlineMetadataSchemas($parent, $o);
-				hidden_field('form_submitted', 1);
+				$o->addHiddenField('form_submitted', 1);
 			$o->closeField();
 		$o->closeSection();
 		
@@ -227,11 +229,9 @@ class HIPO_Job_Create_Link extends HIPO_Job
 			$o->openField('', 'cascade');
 				echo ($pe) ? 'Permissions'.check_box('cascade[]', 'cascade_pe').'<br />' : '';
 				echo ($ms) ? 'Metadata Schemas'.check_box('cascade[]', 'cascade_ms').'<br />' : '';
-				echo ($wf) ? 'Work Flow'.check_box('cascade[]', 'cascade_wf').'<br />' : '';
-
+				echo ($wf) ? 'Workflow'.check_box('cascade[]', 'cascade_wf').'<br />' : '';
 			$o->closeField();
 		$o->closeSection();
-		$o->paint();
 		
 		return true;
 
@@ -239,7 +239,7 @@ class HIPO_Job_Create_Link extends HIPO_Job
 
 
 	/**
-	* processes the user's selections to cascade whatever, and skips those steps that they don't want to run
+	* Process the user's selections to cascade whatever, and skip those steps that they don't want to run
 	*
 	* @param	&Array	$step_data		the step data for this job
 	* @param	string	$prefix			prefix to be used with this job

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_job.inc,v 1.31 2003/10/30 23:26:40 mmcintyre Exp $
+* $Id: hipo_job.inc,v 1.32 2003/11/04 05:41:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -670,7 +670,7 @@ class HIPO_Job extends MySource_Object
 	* @return void
 	* @access public
 	*/
-	function paint()
+	function paint(&$o, $nested=false)
 	{
 		if ($this->_current_mode != 'web') {
 			trigger_error('You cannot paint the job when you are not in Web Mode', E_USER_WARNING);
@@ -681,22 +681,22 @@ class HIPO_Job extends MySource_Object
 		$step = $this->_hipo_vars['current_step'];
 		$step_data = (isset($this->_steps[$step])) ? $this->_steps[$step] : Array();
 
-		if ($step_data) {
-			$status_msg = $this->_steps[$step]['name'];
-		} else {
-			// this step doesnt exist - probably reached the end of the HIPO
-			if ($this->complete()) $status_msg = $this->_hipo_name.' HIPO Complete';
-			else                   $status_msg = 'Unknown Error Occured';
-		}
-
-		echo '<p>';
 		// if we have more than one step we need to "total" progress bar
-		if (count($this->_steps) > 1) {
-			$this->paintProgressBar($this->_hipo_vars['percent_done'], 'Total HIPO Progress - '.$status_msg);
-		} else {
-			echo '<b>'.$status_msg.'</b>';
+		if ($nested && count($this->_steps) > 1) {
+			if ($step_data) {
+				$status_msg = $this->_steps[$step]['name'];
+			} else {
+				// this step doesnt exist - probably reached the end of the HIPO
+				if ($this->complete()) $status_msg = 'Complete';
+				else                   $status_msg = 'Unknown Error Occured';
+			}
+
+			$o->openSection($this->_hipo_name);
+				$o->openField('&nbsp;');
+				$this->paintProgressBar($this->_hipo_vars['percent_done'], $this->_hipo_name.' HIPO Progress - '.$status_msg);
+				$o->closeField();
+			$o->closeSection();
 		}
-		echo '</p>';
 
 		// print the error report if there are errors
 		if ($this->complete() && !empty($this->_hipo_vars['errors'])) {
@@ -705,19 +705,20 @@ class HIPO_Job extends MySource_Object
 			echo '</p>';
 		}
 
-		echo '<p>';
 		if ($step_data) {
 
 			if (!empty($this->_steps[$step]['function_call'])) {
 				$fn = (empty($this->_steps[$step]['function_call']['paint_function'])) ? 'paintStepDefault' : $this->_steps[$step]['function_call']['paint_function'];
 				$prefix = $this->code_name.'step'.$step;
-				$this->$fn($this->_steps[$step], $prefix);
+				$this->$fn($this->_steps[$step], $o, $prefix);
 
 			} elseif (!empty($step_data['hipo_job'])) {
 
 				$sub_job = &$this->_getSubJob();
 				if (!is_null($sub_job)) {
-					$sub_job->paint();
+					$o->closeRaw();
+					$sub_job->paint($o, true);
+					$o->openRaw();
 				}// end if
 
 			} else {
@@ -726,7 +727,6 @@ class HIPO_Job extends MySource_Object
 			}// end if
 
 		}// end if
-		echo '</p>';
 
 	}//end paint()
 
@@ -1138,14 +1138,20 @@ class HIPO_Job extends MySource_Object
 	/**
 	* A default function for painting the progess of a step
 	*
-	* @param array()	&$step_data	a reference to the array of information about the current step
-	* @param string		$prefix		prefix for form vars
+	* @param array()							&$step_data	a reference to the array of information about the current step
+	* @param object Hipo_Backend_Outputter		&$o			the backend outputter class
+	* @param string								$prefix		prefix for form vars
 	*
+	* @return void
 	* @access public
 	*/
-	function paintStepDefault(&$step_data, $prefix)
+	function paintStepDefault(&$step_data, &$o, $prefix)
 	{
-		$this->paintProgressBar($step_data['percent_done'], $step_data['message']);
+		$o->openSection($step_data['name']);
+			$o->openField('&nbsp;');
+			$this->paintProgressBar($step_data['percent_done'], $step_data['message']);
+			$o->closeField();
+		$o->closeSection();
 
 	}//end paintStepDefault()
 
@@ -1153,39 +1159,36 @@ class HIPO_Job extends MySource_Object
 	/**
 	* Paint a progress bar for a HIPO
 	*
-	* @param float	$percent_done	the percentage of progress completed
-	* @param string	$message		a status message to display above the progress bar
-	* @param string	$colour			the colour to paint the progress bar
+	* @param float	$percent_done		the percentage of progress completed
+	* @param string	$message			a status message to display above the progress bar
+	* @param string	$label_class		the css class for the progress bar label ($message)
+	* @param string	$percent_class		the css class for the percentage done figure ($percentage)
+	* @param string	$bar_main_class		the css class for the base of the progress bar
+	* @param string	$bar_done_class		the css class for the completed part of the progress bar
 	*
 	* @return void
 	* @access public
 	*/
-	function paintProgressBar($percent_done, $message='', $colour='#412F49')
+	function paintProgressBar($percent_done, $message='', $label_class='sq-hipo-progress-bar-label', $percent_class='sq-hipo-progress-bar-percent', $bar_main_class='sq-hipo-progress-bar-main', $bar_done_class='sq-hipo-progress-bar-done')
 	{
 		?>
-		<table width="100%" border="0" cellspacing="2" cellpadding="1">
+		<table width="100%" border="0" cellspacing="0" cellpadding="0">
 			<tr>
-				<td style="vertical-align: bottom;"><b><?php echo nl2br($message); ?></b></td>
-				<td style="text-align: right; vertical-alignment: top;"><b><?php echo round($percent_done); ?>%</b></td>
+				<td class="<?php echo $label_class; ?>"><b><?php echo nl2br($message); ?></b></td>
+				<td class="<?php echo $percent_class; ?>"><b><?php echo round($percent_done); ?>%</b></td>
 			</tr>
 			<tr>
-				<td colspan="2" bgcolor="#412F49" width="100%">
-					<table bgcolor="#412F49" width="100%" cellspacing="1" cellpadding="0" border="0">
+				<td colspan="2"><img src="<?php echo sq_web_path('lib').'/web/images/blank.gif'; ?>" width="1" height="10" alt="blank" /></td>
+			<tr>
+				<td colspan="2" width="100%">
+					<table width="100%" cellspacing="0" cellpadding="0" border="0">
 						<tr>
-							<td width="100%" bgcolor="#FFFFFF">
-							<?php
-							if ($percent_done) {
-								?>
-								<table width="<?php echo round($percent_done); ?>%" cellspacing="0" cellpadding="0" border="0">
-									<tr>
-										<td bgcolor="<?php echo $colour; ?>">&nbsp;</td>
-									</tr>
-								</table>
-								<?php
-							} else {
-								?>&nbsp;<?php
-							}
-							?>
+							<td class="<?php echo $bar_main_class; ?>" width="100%">
+							<table width="<?php echo ($percent_done) ? round($percent_done) : '1'; ?>%" cellspacing="0" cellpadding="0" border="0">
+								<tr>
+									<td class="<?php echo $bar_done_class; ?>"><img src="<?php echo sq_web_path('lib').'/web/images/blank.gif'; ?>" width="1" height="8" alt="blank" /></td>
+								</tr>
+							</table>
 							</td>
 						</tr>
 					</table>

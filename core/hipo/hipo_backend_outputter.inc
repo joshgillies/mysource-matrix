@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_backend_outputter.inc,v 1.2 2003/10/30 22:30:29 mmcintyre Exp $
+* $Id: hipo_backend_outputter.inc,v 1.3 2003/11/04 05:41:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -24,6 +24,8 @@ require_once SQ_SYSTEM_ROOT.'/core/include/backend_outputter.inc';
 class Hipo_Backend_Outputter extends Backend_Outputter
 {
 
+	var $_form_data = Array();
+
 	/**
 	* Constructor
 	*
@@ -36,6 +38,16 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 		$this->Backend_Outputter();
 
 	}//end constructor
+
+
+	/**
+	* Set the form name and url to submit to
+	*/
+	function setFormData($form_name, $url)
+	{
+		$this->_form_data = Array('form_name' => $form_name, 'url' => $url);
+
+	}//end setFormData()
 
 
 	/**
@@ -55,131 +67,65 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 		}
 		?>
 		<html>
-		<head>
-			<title><?php echo $this->_heading; ?></title>
-			<?php
+			<head>
+				<title>HIPO Processing</title>
+				<?php
 
-			$this->_paintCssInclude($this->filesPath('css/hipo.css'));
-			foreach($this->_css_includes as $file) $this->_paintCssInclude($file);
+				$this->_paintCssInclude($this->filesPath('css/edit.css'));
+				$this->_paintCssInclude($this->filesPath('css/hipo.css'));
+				foreach($this->_css_includes as $file) $this->_paintCssInclude($file);
 
-			$this->_paintJsInclude(sq_web_path('lib').'/html_form/html_form.js');
-			$this->_paintJsInclude(sq_web_path('lib').'/js/general.js');
-			$this->_paintJsInclude(sq_web_path('lib').'/js/debug.js');
-			$this->_paintJsInclude(sq_web_path('lib').'/js/edit.js');
-			foreach($this->_js_includes as $file) $this->_paintJsInclude($file);
+				$this->_paintJsInclude(sq_web_path('lib').'/html_form/html_form.js');
+				$this->_paintJsInclude(sq_web_path('lib').'/js/general.js');
+				$this->_paintJsInclude(sq_web_path('lib').'/js/debug.js');
+				$this->_paintJsInclude(sq_web_path('lib').'/js/edit.js');
+				foreach($this->_js_includes as $file) $this->_paintJsInclude($file);
+				?>
+				<script language="Javascript" type="text/javascript">
+				<!--
+					var ON_LOAD_TIME_OUT = null;
+					function page_on_load() {
+						<?php
+						foreach($this->_on_load_calls as $call) {
+							echo "\n".$call;
+						}//end foreach
+						?>
+					}// end page_on_load()
+
+				// -->
+				</script>
+			</head>
+			<body bgcolor="#FFFFFF" onLoad="javascript: page_on_load();">
+				<table border="0" cellspacing="0" cellpadding="0" width="100%">
+					<tr>
+						<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="20" /></td>
+					</tr>
+					<tr>
+						<td align="center">
+						<form name="<?php echo $this->_form_data['form_name']; ?>" method="post" action="<?php echo $this->_form_data['url']; ?>">
+					<?php
+					foreach($this->_hidden_fields as $name => $value) hidden_field($name, $value);
+
+	}//end _paintHeader()
+
+
+	/**
+	* Paint the footer of the page
+	*
+	* @access private
+	*/
+	function _paintFooter()
+	{
 		?>
-			<script language="Javascript" type="text/javascript">
-			<!--
-				function page_on_load() {
-
-			<?php
-				if (isset($_SESSION['backend_outputter_msgs'])) {
-					$this->_messages = array_merge($this->_messages, $_SESSION['backend_outputter_msgs']);
-					$_SESSION['backend_outputter_msgs'] = Array();
-				}
-				if (count($this->_messages)) {
-					require_once 'XML/Tree.php';
-					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-					$msgs = new XML_Tree();
-					$msgs_root = &$msgs->addRoot('messages');
-					foreach($this->_messages as $data) {
-						$msg_body = "<p>".htmlentities(nl2br($data['msg'])). "</p>";
-						$msg_body .= "<font color=\"#333333\">".$GLOBALS['SQ_SYSTEM']->datetime()."<font>";
-						$msgs_root->addChild('message', $msg_body, Array('type' => get_bit_names('SQ_BO_MSG_', $data['type'])));
-					}
-					?>
-					if (top.sidenav && top.sidenav.add_messages) {
-						top.sidenav.add_messages("<?php echo str_replace("\n", "\\n", addslashes($msgs->get())); ?>");
-					}
-					<?php
-				}// end if messages
-
-				foreach($this->_on_load_calls as $call) {
-					echo "\n".$call;
-				}//end foreach
-
-			?>
-
-				}// end page_on_load()
-
-				var SQ_FORM_SUBMITTED = false;
-				function form_on_submit() {
-					if (SQ_FORM_SUBMITTED) {
-						alert('The form has already been submitted, please wait ...');
-						return;
-					}
-
-			<?php
-				foreach($this->_on_submit_calls as $call) {
-				?>
-					<?php echo $call;?>;
-				<?php
-				}//end foreach
-			?>
-
-					// basically if they get this far then we can submit
-					SQ_FORM_SUBMITTED = true;
-					return true;
-
-				}// end form_on_submit()
-
-			<?php
-				foreach($this->_preload_imgs as $file) {
-				?>
-					preload_image('<?php echo $file;?>');
-				<?php
-				}//end foreach
-			?>
-
-			// -->
-			</script>
-		</head>
-		<body bgcolor="#FFFFFF" onLoad="javascript: page_on_load();" marginwidth="0" marginheight="0" topmargin="0" leftmargin="0">
-
-		<form action="<?php echo $this->_action.$this->_anchor;?>" name="main_form" method="post" enctype="multipart/form-data" onSubmit="javascript: return form_on_submit();">
-	<?php
-		hidden_field('process_form', '1');
-		foreach($this->_hidden_fields as $name => $value) {
-			hidden_field($name, $value);
-		}//end foreach
-
-		if ($this->_heading || count($this->_screens) || count($this->_static_screens)) {
-			?>
-			<table width="100%" cellpadding="3" cellspacing="0" border="0">
-				<tr>
-					<td class="sq-backend-main-heading" bgcolor="#735B7D" valign="middle"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1"/><?php echo $this->_heading;?></td>
-					<td class="sq-backend-main-heading" style="text-align: right;">
-					<div id="sq_screen_menu_filler" style="display: none"></div>
-					<div id="sq_screen_menu">
-					<?php
-						if (empty($this->_screens) && empty($this->_static_screens)) {
-							echo '&nbsp;';
-						} else {
-							if (!empty($this->_screens)) {
-								$this->_screens = array_reverse($this->_screens);
-								$this->_screens['#'] = '------';
-								foreach (array_reverse($this->_static_screens) as $url => $code) {
-									$this->_screens[$url] = $code;
-								}
-								$this->_screens = array_reverse($this->_screens);
-							} else {
-								$this->_screens = $this->_static_screens;
-							}
-
-							combo_box('screen_menu', $this->_screens, false, $this->_current_screen, 1, 'id="screen_menu" onChange="javascript: self.location = form_element_value(this);"');
-							echo '&nbsp;';
-							normal_button('screen_menu_go', ' Go ', 'self.location = get_form_element_value("screen_menu");', 'id="screen_menu_go"');
-							echo '&nbsp;';
-						}
-					?>
-					</div>
+					</form>
 					</td>
 				</tr>
 			</table>
-			<?php
-		}// end if
+			</body>
+		</html>
+		<?php
 
-	}//end _paintHeader()
+	}//end _paintFooter()
 
 
 	/**
@@ -195,7 +141,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 
 		?>
 			<a name="section_<?php echo $section['section_count']; ?>"></a>
-			<table width="100%" cellpadding="0" cellspacing="1" border="0">
+			<table width="100%" cellpadding="0" cellspacing="0" border="0">
 			<?php
 			if ($section['heading']) {
 				if ($depth > 0) {
@@ -209,13 +155,20 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 					// printing a top level section
 					?>
 					<tr>
-						<td class="sq-backend-section-heading" colspan="3"><?php echo $section['heading'];?></td>
+						<td colspan="3">
+							<table border="0" cellspacing="0" cellpadding="0" width="100%">
+								<tr>
+									<td class="sq-backend-section-heading" width="100%"><?php echo $section['heading'];?></td>
+									<td><img src="<?php echo $this->filesPath('images/section_icon.gif');?>" width="27" height="21" /></td>
+								</tr>
+							</table>
+						</td>
 					</tr>
 					<tr>
 						<td colspan="3">
 							<table width="100%" cellpadding="0" cellspacing="0" border="0">
 								<tr>
-									<td width="100%" bgcolor="#000000"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="1" /></td>
+									<td width="100%" bgcolor="#B3B3B3"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="1" /></td>
 								</tr>
 							</table>
 						</td>
@@ -230,8 +183,8 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 				<td colspan="3"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td>
 			</tr>
 			<tr>
-				<td width="20"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="20" height="1" /></td>
-				<td colspan="2">
+				<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
+				<td width="100%">
 					<table cellspacing="0" cellpadding="0" border="0" width="100%">
 			<?php
 
@@ -329,6 +282,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 			?>
 					</table>
 				</td>
+				<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
 			</tr>
 			</table>
 			<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td></tr></table>
