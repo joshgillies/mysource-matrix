@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.43 2004/06/25 07:02:12 gsherwood Exp $
+* $Id: hipo_herder.inc,v 1.44 2004/07/08 00:41:56 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -139,7 +139,7 @@ class HIPO_Herder extends MySource_Object
 
 		return $this->_jobs[$code_name];
 
-	}//end getJobStack()
+	}//end getJob()
 
 
 	/**
