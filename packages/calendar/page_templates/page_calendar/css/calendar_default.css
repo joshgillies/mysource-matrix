@@ -23,10 +23,7 @@ div#calendarTable table th { text-align: center; padding: 1px }
 #calendarTable div { margin: 0px }
 .eventText { line-height: 1.0; margin: 2px 2px 0px 2px; margin-left: auto; margin-right: auto; text-align: center; padding: 0px}
 .calendarNavLink, a.calendarNavLink:hover, a.calendarNavLink:visited { text-decoration: none; font-weight: bold; color: blue }
-div#calendarList { text-align: left; width: auto; margin-left: auto; margin-right: auto}
-#calendarList * { width: auto }
-#calendarList div { width: auto }
-#div_content { width: auto }
+div#calendarList { text-align: left; width: 80ex; margin-left: auto; margin-right: auto}
 
 /**
  * YEAR TABLE RULES

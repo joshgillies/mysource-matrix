@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.28 2004/08/26 05:33:36 lwright Exp $
+* $Id: page_calendar.inc,v 1.29 2004/08/26 06:14:16 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.28 $ - 1.0
+* @version $Revision: 1.29 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -376,10 +376,10 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function getCalendarContents($cal_view, $cal_date, $event_id, $format) 
 	{
-		$res = '<div style="text-align: center"><div id="calendar'.((strpos($format, 'list') === 0) ? 'List' : 'Table').'">';
+		$res = '<div id="calendar'.(((strpos($format, 'list') === 0) || $cal_view == 'event') ? 'List' : 'Table').'">';
 		$func = 'get'.ucfirst($cal_view).'View';
 		$res .= ($cal_view == 'event') ? $this->$func($event_id) : $this->$func($cal_date, $format);
-		$res .= '</div></div>';
+		$res .= '</div>';
 		return $res;
 
 	}
@@ -1240,8 +1240,10 @@ class Page_Calendar extends Page_Asset_Listing
 		pre_echo($recur_result);
 		print '</span>';
 		
-		$res = array_merge($single_result, $recur_result);
-		
+		$res = $single_result + $recur_result;
+		print '<div style="border:3px solid blue">';
+		pre_echo($res);
+		print '</div>';		
 		$date_stamp = floor(iso8601_ts($date.' 12:00:00') / 86400);
 		
 		// reset the results so that those which go over multiple days are appropriately
@@ -1260,9 +1262,7 @@ class Page_Calendar extends Page_Asset_Listing
 			}
 		}
 		
-		print '<div style="border:3px solid blue">';
-		pre_echo($res);
-		print '</div>';
+
 		
 		return $res;
 	}
@@ -1525,16 +1525,16 @@ class Page_Calendar extends Page_Asset_Listing
 				$sql_freqs_m = Array();
 				  
 				// every X months on xth of the month
-				$sql_freqs_m[] = '(frequency LIKE '.$db->quote('MFN').' AND ('.$db->quote(intval($day)).' = start_date_mday))';
+				$sql_freqs_m[] = '(frequency = '.$db->quote('MFN').' AND ('.$db->quote(intval($day)).' = start_date_mday))';
 				  
 				// every X months on xth last of the month
-				$sql_freqs_m[] = '(frequency LIKE '.$db->quote('MFW').' AND ('.$db->quote(date('w', $iso_ts)).' = start_date_wday) and ('.$db->quote($wdom).' = start_date_wdom))';
+				$sql_freqs_m[] = '(frequency = '.$db->quote('MFW').' AND ('.$db->quote(date('w', $iso_ts)).' = start_date_wday) and ('.$db->quote($wdom).' = start_date_wdom))';
 				  
 				// every X months on xth last of the month
-				$sql_freqs_m[] = '(frequency LIKE '.$db->quote('MRN').' AND ('.$db->quote(days_in_month(substr($iso,5,2), substr($iso,0,4)) - intval(substr($iso,8,2)) + 1).' = start_date_rmday))';
+				$sql_freqs_m[] = '(frequency = '.$db->quote('MRN').' AND ('.$db->quote(days_in_month(substr($iso,5,2), substr($iso,0,4)) - intval(substr($iso,8,2)) + 1).' = start_date_rmday))';
 				  
 				// every X months on xth last of the month
-				$sql_freqs_m[] = '(frequency LIKE '.$db->quote('MRW').' AND ('.$db->quote($rwdom).' = start_date_rwdom))';
+				$sql_freqs_m[] = '(frequency = '.$db->quote('MRW').' AND ('.$db->quote($rwdom).' = start_date_rwdom))';
 				  
 				// combine all the month rules together and add a period clause
 				$sql_freqs[] = '(('.implode(' OR ', $sql_freqs_m).') AND MOD('.$db->quote($ms).' - start_date_ms,period) = 0)';
@@ -1572,16 +1572,16 @@ class Page_Calendar extends Page_Asset_Listing
 				} else {
 					$this_month = 'start_date_mon = '.$db->quote($month).' AND start_date_mday BETWEEN '.$db->quote($day).' AND '.$db->quote($day+6);
 				}
-				$sql_freqs_m[] = '(frequency LIKE '.$db->quote('MFN').' AND ('.$db->quote(intval($day)).' = start_date_mday))';
+				$sql_freqs_m[] = '(frequency = '.$db->quote('MFN').' AND ('.$db->quote(intval($day)).' = start_date_mday))';
 				  
 				// every X months on xth last of the month
-				$sql_freqs_m[] = '(frequency LIKE '.$db->quote('MFW').' AND ('.$db->quote($wdom).' = start_date_wdom))';
+				$sql_freqs_m[] = '(frequency = '.$db->quote('MFW').' AND ('.$db->quote($wdom).' = start_date_wdom))';
 				  
 				// every X months on xth last of the month
-				$sql_freqs_m[] = '(frequency LIKE '.$db->quote('MRN').' AND ('.$db->quote(days_in_month(substr($iso,5,2), substr($iso,0,4)) - intval(substr($iso,8,2)) + 1).' = start_date_rmday))';
+				$sql_freqs_m[] = '(frequency = '.$db->quote('MRN').' AND ('.$db->quote(days_in_month(substr($iso,5,2), substr($iso,0,4)) - intval(substr($iso,8,2)) + 1).' = start_date_rmday))';
 				  
 				// every X months on xth last of the month
-				$sql_freqs_m[] = '(frequency LIKE '.$db->quote('MRW').' AND ('.$db->quote($rwdom).' = start_date_rwdom))';
+				$sql_freqs_m[] = '(frequency = '.$db->quote('MRW').' AND ('.$db->quote($rwdom).' = start_date_rwdom))';
 				  
 				// combine all the month rules together and add a period clause
 				$sql_freqs[] = '(('.implode(' OR ', $sql_freqs_m).') AND MOD('.$db->quote($ms).' - start_date_ms,period) = 0)';
