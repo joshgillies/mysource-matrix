@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.12 2004/07/01 04:03:30 mmcintyre Exp $
+* $Id: search_manager.inc,v 1.13 2004/07/09 00:02:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.12 $ - 0.1
+* @version $Revision: 1.13 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -176,7 +176,7 @@ class Search_Manager extends Asset
 	function onAssetDeleted(&$broadcaster, $vars=Array())
 	{
 		if (is_null($broadcaster)) return;
-		$this->flushKeyData($broadcaster);
+		$this->flushKeyData($broadcaster->id);
 	
 	}//end onAssetDeleted()
 	
@@ -185,7 +185,7 @@ class Search_Manager extends Asset
 	* Flush the keydata for an asset
 	*
 	* @param int		$assetid	ID of the asset
-	* @param string	$component	the component to which the keydata pertains (e.g. metadata or attribute)
+	* @param string		$component	the component to which the keydata pertains (e.g. metadata or attribute)
 	*
 	* @return void
 	* @access public
