@@ -142,22 +142,22 @@ table#day { border: 2px solid purple; background-color: #eeeeee; border-collapse
  * These rules will be applied to all A and DIV elements that represent
  * events drawn from the relevant root nodes
  */
-.aqua, .aqua:visited, .aqua:hover { background-color: aqua; color: black; }
-.black, .black:visited, .black:hover { background-color: black; color: white; }
-.blue, .blue:visited, .blue:hover { background-color: blue; color: white; }
-.fuchsia, .fushia:visited, .fushia:hover { background-color: fuchsia; color: black; }
-.gray, .gray:visited, .gray:hover { background-color: gray; color: white; }
-.green, .green:visited, .green:hover { background-color: green; color: white; }
-.lime, .lime:visited, .lime:hover { background-color: lime; color: black; }
-.maroon, .maroon:visited, .maroon:hover { background-color: maroon; color: white; }
-.navy, .navy:visited, .navy:hover { background-color: navy; color: white; }
-.olive, .olive:visited, .olive:hover { background-color: olive; color: white; }
-.purple, .purple:visited, .purple:hover { background-color: purple; color: white; }
-.red, .red:visited, .red:hover { background-color: red; color: white; }
-.silver, .silver:visited, .silver:hover { background-color: silver; color: black; }
-.teal, .teal:visited, .teal:hover { background-color: teal; color: white; }
-.white, .white:visited, .white:hover { background-color: white; color: black; }
-.yellow, .yellow:visited, .yellow:hover { background-color: yellow; color: black; }
+#calendarTable .aqua, #calendarTable .aqua:visited, #calendarTable .aqua:hover { background-color: aqua; color: black; }
+#calendarTable .black, #calendarTable .black:visited, #calendarTable .black:hover { background-color: black; color: white; }
+#calendarTable .blue, #calendarTable .blue:visited, #calendarTable .blue:hover { background-color: blue; color: white; }
+#calendarTable .fuchsia, #calendarTable .fushia:visited, #calendarTable .fushia:hover { background-color: fuchsia; color: black; }
+#calendarTable .gray, #calendarTable .gray:visited, #calendarTable .gray:hover { background-color: gray; color: white; }
+#calendarTable .green, #calendarTable .green:visited, #calendarTable .green:hover { background-color: green; color: white; }
+#calendarTable .lime, #calendarTable .lime:visited, #calendarTable .lime:hover { background-color: lime; color: black; }
+#calendarTable .maroon, #calendarTable .maroon:visited, #calendarTable .maroon:hover { background-color: maroon; color: white; }
+#calendarTable .navy, #calendarTable .navy:visited, #calendarTable .navy:hover { background-color: navy; color: white; }
+#calendarTable .olive, #calendarTable .olive:visited, #calendarTable .olive:hover { background-color: olive; color: white; }
+#calendarTable .purple, #calendarTable .purple:visited, #calendarTable .purple:hover { background-color: purple; color: white; }
+#calendarTable .red, #calendarTable .red:visited, #calendarTable .red:hover { background-color: red; color: white; }
+#calendarTable .silver, #calendarTable .silver:visited, #calendarTable .silver:hover { background-color: silver; color: black; }
+#calendarTable .teal, #calendarTable .teal:visited, #calendarTable .teal:hover { background-color: teal; color: white; }
+#calendarTable .white, #calendarTable .white:visited, #calendarTable .white:hover { background-color: white; color: black; }
+#calendarTable .yellow, #calendarTable .yellow:visited, #calendarTable .yellow:hover { background-color: yellow; color: black; }
 
 /**
  * USER-DEFINED ROOT NODE RULES
