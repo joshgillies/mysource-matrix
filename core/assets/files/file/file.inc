@@ -142,11 +142,7 @@ class File extends Asset
 			return false;
 		}
 
-		if ($this->status == SQ_STATUS_LIVE && $new_status == SQ_STATUS_UNDER_CONSTRUCTION) {
-			// if we have cancelled our safe edit, we need to put things
-			// back to how they were
-			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		} else if ($this->status == SQ_STATUS_LIVE) {
+		if ($this->status == SQ_STATUS_LIVE && $old_status != SQ_STATUS_LIVE_APPROVAL) {
 			// if we have just gone live, so we need to move the latest version 
 			// of the file to the unrestricted directory to make it live
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
