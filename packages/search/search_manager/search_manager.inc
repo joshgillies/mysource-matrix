@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.40 2005/02/11 00:48:55 lwright Exp $
+* $Id: search_manager.inc,v 1.41 2005/02/11 11:30:41 brobertson Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -616,7 +616,7 @@ class Search_Manager extends Asset
 
 		// if searching is set by attribute then don't search in here - let
 		// other assets (ie. listing engine-derived assets) to handle it
-		if ($search_info['sort_by'] == '__attr__') $search_info['sort_by'] = '';
+		if (isset($search_info['sort_by']) && $search_info['sort_by'] == '__attr__') $search_info['sort_by'] = '';
 		
 		  ///////////////////////////////////
 		 //  CONSTRUCT BASE SEARCH QUERY  //
