@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.132 2004/04/21 01:18:57 gsherwood Exp $
+* $Id: asset_map.inc,v 1.133 2004/04/21 10:25:08 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -309,10 +309,11 @@ class Asset_Map
 		// just get the root's XML not the tree's, because it is part of bigger things and we dont want the version info
 		$current_user_xml = $root->get();
 
+		$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 		$attrs = Array(
-			'assetid'   => '1',
-			'type_code' => 'root_folder',
-			'name'      => 'Root Folder',
+			'assetid'   => $root_folder->id,
+			'type_code' => $root_folder->type(),
+			'name'      => $root_folder->name,
 		);
 		$root = &$output->addRoot('assets', '', $attrs);
 
