@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.20 2004/05/06 05:21:07 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.21 2004/05/06 05:24:39 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -547,9 +547,6 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 	*/
 	function generateStandardContentFile(&$asset)
 	{
-
-
-
 		// if there is no bodycopy contents, then just ask
 		// all the sections to print themselves
 		//$questions = &$asset->getQuestions();
