@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.282 2005/03/10 23:45:26 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.283 2005/03/14 23:50:53 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.282 $
+* @version $Revision: 1.283 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2502,76 +2502,43 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Returns the raw treeid of any links between the passed assetid and any of its parents
+	* Returns the treeids of any links between the passed assetid and any of its parents
 	*
 	* @param int			$assetid		the id of the asset passed
 	* @param int|array(int)	$link_type		the type(s) of wanted links, by default 1, 2, & 3
-	* @param boolean		$force_array	always return the information in an array, as though more than one lock has been requested
 	*
 	* @access public
 	* @return string
 	*/
-	function getRawTreeIdByAsset($assetid, $force_array=false, $link_type=Array(SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, SQ_LINK_TYPE_3))
+	function getAssetTreeids($assetid, $link_type=null)
 	{
 		assert_valid_assetid($assetid);
 
-		if (!is_array($link_type)) {
-			$link_type = Array($link_type);
+		if (empty($link_type)) {
+			$link_type = SQ_SC_LINK_SIGNIFICANT;
 		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql	 = 'SELECT treeid ';
-		$sql	.= 'FROM sq_ast_lnk l INNER JOIN sq_ast_lnk_tree t ';
-		$sql	.= 'ON l.linkid = t.linkid ';
+		$sql = '
+			SELECT t.treeid
+			FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
+				INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
+			ON l.linkid = t.linkid
+		';
 
-		$where	 = 'WHERE minorid = '.$db->quoteSmart($assetid);
+		$where  = ' WHERE l.minorid = '.$db->quoteSmart($assetid);
+		$where .= ' AND (l.link_type & '.$db->quote($link_type).' > 0)';
 
-		if (is_array($link_type) && !empty($link_type)) {
-			$where .= ' AND (';
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 
-			$ii = 0;
-			foreach ($link_type as $type) {
-				if ($ii == 0) {
-					$ii++;
-					$where .= 'link_type = '.$type;
-				}
-				else {
-					$where	.= ' OR link_type = '.$type;
-				}
-			}
-			$where .= ')';
-		}
-
-		$result = $db->query($sql.$where);
+		$result = $db->getCol($sql.$where);
 		assert_valid_db_result($result);
 
-		$assetids = Array();
+		return $result;
 
-		$ii = 0;
-
-		$return = Array();
-		while (DB_OK === $result->fetchInto($row)) {
-			if ($row['treeid']) {
-				array_push($return, $row['treeid']);
-				$ii++;
-			}
-		}
-		$result->free();
-
-		// If only one result, return it as a string if $force_array isn't set
-		if (!$force_array) {
-			if ($ii == 1 && $row['treeid']) {
-				$return = $row['treeid'];
-			}
-			if (empty($return)) {
-				$return = '';
-			}
-		}
-
-		return $return;
-
-	}//end getRawTreeIdByAsset()
+	}//end getAssetTreeids()
 
 
 	/**
