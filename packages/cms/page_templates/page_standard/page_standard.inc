@@ -61,7 +61,7 @@ class Page_Standard extends Page
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
+		return $linkid;
 
 	}//end create()
 
