@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.4 2004/11/16 04:42:38 lwright Exp $
+* $Id: db_install.inc,v 1.5 2004/11/16 05:39:22 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,7 +53,9 @@ function db_install($xml_file, $quiet=false)
 	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 	$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-
+	$tables_in_db = $db->getCol($db->getSpecialQuery('tables'));
+	assert_valid_db_result($tables_in_db);
+	
     // If this is MySQL we need to make sure that the table type is innodb
 	if ($db->phptype == 'mysql') {
 
@@ -99,7 +101,8 @@ function db_install($xml_file, $quiet=false)
 		$table_name = $table->attributes['name'];
 		$require_rollback = (($table->attributes['require_rollback'] == 1) ? true : false);
 
-		$table_exists  = (!empty($cached_table_columns[$table_name]));
+		$table_exists  = (!empty($cached_table_columns[$table_name])) || in_array(SQ_TABLE_PREFIX.$table_name, $tables_in_db);
+		
 		$table_changed = false;
 
 		// TODO: At some point in the future we could make it so that this script goes into an update and alter
@@ -337,7 +340,7 @@ function db_install($xml_file, $quiet=false)
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-
+		
 	}// end for
 
 	$cached_sequences_string = '<'.'?php $sequences = '.var_export($cached_sequences, true).'; ?'.'>';
