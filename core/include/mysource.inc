@@ -61,6 +61,11 @@ class MySource
 	var $mm;
 
 	/**
+	* @var object HIPO_Herder
+	*/
+	var $hh;
+
+	/**
 	* @var object Workflow_Manager
 	*/
 	var $wm;
