@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.10 2004/06/24 06:37:41 lwright Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.11 2004/07/19 00:46:14 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -88,9 +88,15 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	*/
 	function paintGenericBackend(&$bodycopy, &$o, $prefix)
 	{
-		// get all the containers linked to the bodycopy
-		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($bodycopy->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
-
+		// If the parent bodycopy class is itself, fudge the containers array
+		// so that the proper stuff gets drawn when putting out the javascript
+		// to edit.
+		if (is_a($bodycopy, 'bodycopy_div')) {
+			$containers = Array(Array('minorid'=>$bodycopy->id, 'minor_type_code'=>'bodycopy_div'));
+		} else {
+			$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($bodycopy->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
+		}
+		
 		?>
 		<script language="JavaScript" src="<?php echo sq_web_path('data').'/asset_types/bodycopy/js/bodycopy_edit_divs.js'?>"></script>
 
@@ -103,9 +109,10 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				if (!bodycopy_saved[bodycopy_name][divid]) {
 					bodycopy_saved[bodycopy_name][divid] = new Object();
 				}
+				
 				bodycopy_saved[bodycopy_name][divid]['attributes'] = bodycopy_data['attributes'];
 			}// end if divid
-
+			
 			form.elements['bodycopy_saved[' + bodycopy_name + '][' + divid + ']'].value = var_serialise(bodycopy_saved[bodycopy_name][divid]);
 		}// end serialise_div()
 
@@ -118,7 +125,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		function get_bodycopy_<?php echo $prefix?>_current_div_data(divid) {
 
 			retVal = new Object();
-
+			
 			switch (divid) {
 		<?php
 		// if we have tables get them to print the js data they need
@@ -252,6 +259,10 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			$content_type = null;
 			$content_prefix = '';
 		}
+		
+		// require library functions needed for drawing the bodycopy divs.
+		$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');
+		require_once SQ_SYSTEM_ROOT.'/'.$type_info['dir'].'/files/lib.php';
 
 		?>
 		<table<?php echo $attribute_list?> style="width:100%;">
@@ -360,7 +371,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		return true;
 
 	}//end _updateCellType()
-
+	
 
 }//end class
 
