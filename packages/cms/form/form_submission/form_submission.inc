@@ -258,6 +258,5 @@ class Form_Submission extends Asset
 		return $a['summary'];
 	
 	} // end getSummary()
-
 } // end class
 ?>
