@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_management.inc,v 1.1 2004/06/11 02:15:56 gsherwood Exp $
+* $Id: search_folder_management.inc,v 1.2 2004/07/06 07:18:40 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix_Packages
-* @subpackage ldap
+* @subpackage search
 */
 class Search_Folder_Management extends Asset_Management
 {
@@ -47,12 +47,7 @@ class Search_Folder_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array('name' => Array(
-											'added'     => '0.1',
-											'type'      => 'text',
-											'default'   => ''
-											),
-							'settings' => Array(
+		$this->vars = Array('settings' => Array(
 											'added'     => '0.1',
 											'type'      => 'serialise',
 											'default'   => Array()
