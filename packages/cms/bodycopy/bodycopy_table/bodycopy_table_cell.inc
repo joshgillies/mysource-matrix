@@ -83,7 +83,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 	function updateContentType(&$table, $new_rowid, $new_cellid)
 	{
 		$link = $table->getLinkById($this->attributes['linkid']);
-		$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
+		if (!$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code'])) return false;
 		if (!$content_type->setAttrValue('name', 'Row '.($new_rowid+1).' Cell '.($new_cellid+1))) return false;
 		return true;
 	}
@@ -192,7 +192,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 
 		// print out the edit buttons
 		?> 
-		<td class="bodycopy-edit" <?php echo ($colspaning > 0) ? 'colspan="'.$colspaning.'"' : '';?> id="<?php echo $prefix.'_cell_'.$tableid.'_'.$rowid.'_'.$cellid?>" align="right">
+		<td <?php echo ($colspaning > 0) ? 'colspan="'.$colspaning.'"' : '';?> id="<?php echo $prefix.'_cell_'.$tableid.'_'.$rowid.'_'.$cellid?>" align="right">
 			<?php
 			print_bodycopy_icon("Javascript: bodycopy_edit_table_cell_properties('$prefix', $tableid, $rowid, $cellid);", 'Edit Cell '.($cellid + 1).'\'s Properties', (($attribute_list) ? 'Current Properties :<br>'.$attribute_list : ''), 'edit_cell_properties');
 			?>
@@ -207,19 +207,29 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 	/**
 	* Process the backend interface for this table cell
 	*
-	* @param string	$prefix		prefix for form elements
-	* @param int	$tableid	the id of the table this cell is in
-	* @param int	$rowid		the id of the row this cell is in
-	* @param int	$cellid		the id of this cell
+	* @param object BodyCopy_Table	&$table		the table object
+	* @param string					$prefix		prefix for form elements
+	* @param integer				$tableid	the id of the table this cell is in
+	* @param integer				$rowid		the id of the row this cell is in
+	* @param integer				$cellid		the id of this cell
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processCell($prefix, $tableid, $rowid, $cellid)
+	function processCell(&$table, $prefix, $tableid, $rowid, $cellid)
 	{
 		global $bodycopy_action, $bodycopy_name, $bodycopy_data, $bodycopy_saved;
 		
 		$updated = false;
+
+		// update the contentType
+		$link = $table->getLinkById($this->attributes['linkid']);
+		if (empty($link)) return false;
+		$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
+		$content_edit = $content_type->getEditFns();
+		$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
+		$content_edit->processBackend($content_type, $content_prefix);
+
 		if (isset($bodycopy_saved[$prefix][$tableid]['rows'][$rowid]['cells'][$cellid]['attributes'])) {
 			foreach($bodycopy_saved[$prefix][$tableid]['rows'][$rowid]['cells'][$cellid]['attributes'] as $name => $value) {
 				if ($this->set_attribute($name, $value)) $updated = true;

@@ -152,7 +152,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		?>
 		<table<?php echo $attribute_list?> background="<?php echo $bgimage?>" border="0">
 			<tr> 
-				<td class="bodycopy-edit" align="center" background="" id="<?php echo $prefix.'_table_'.$asset->id;?>" width="4%">
+				<td align="center" background="" id="<?php echo $prefix.'_table_'.$asset->id;?>" width="4%">
 				<?php
 				print_bodycopy_icon("Javascript: bodycopy_edit_table_properties('$prefix', $asset->id);", 'Edit '.$asset->attr('name').'\'s Properties', (($popup_attribute_list) ? 'Current Properties :<br>'.$popup_attribute_list : ''), 'edit_table_properties');
 				?>
@@ -160,7 +160,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		<?php
 			for($i = 0; $i < $max_cols; $i++) {
 			?>
-				<td class="bodycopy-edit" align="center" background="" valign="middle">
+				<td align="center" background="" valign="middle">
 					<table border="0" cellspacing="0" cellpadding="0" width="100%">
 						<tr>
 							<td align="left">
@@ -201,7 +201,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			<?php
 			if ($i == 0) {
 				?>
-				<td class="bodycopy-edit" background="" nowrap align="center" width="1%">
+				<td background="" nowrap align="center" width="1%">
 				<?php
 					# can't reorder if only one row
 					if ($num_rows > 1) {
@@ -214,7 +214,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 				<?php
 			} else {
 			?>
-				<td class="bodycopy-edit" background="">&nbsp;</td>
+				<td background="">&nbsp;</td>
 			<?php
 			}
 
@@ -234,7 +234,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 
 			?> 
 			<tr<?php echo $attribute_list?>>
-				<td class="bodycopy-edit" align="center" background="" id="<?php echo $prefix.'_row_'.$asset->id.'_'.$i?>" height="100%">
+				<td align="center" background="" id="<?php echo $prefix.'_row_'.$asset->id.'_'.$i?>" height="100%">
 					<table border="0" cellspacing="0" cellpadding="0" height="100%">
 						<tr height="1%">
 							<td valign="top">
@@ -305,183 +305,184 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			if ($attributes_updated) $asset->setAttrValue('attributes',$attributes);
 		}
 
-		// only update if we are the table that submitted the form
-		if ((!empty($bodycopy_data) && $bodycopy_data['tableid'] == $asset->id && $prefix == $bodycopy_name) || count($bodycopy_saved[$prefix][$asset->id])) {
 
-			// update the rows
-			$rows_updated = false;
-			$rows = $asset->attr('rows');
-			for($rowid = 0; $rowid < count($rows); $rowid++) {
-				if (!empty($bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['attributes'])) {
-					// save any changed row attributes
-					foreach($bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['attributes'] as $name => $value) {
-						$name = strtolower($name);
-						if (!isset($rows[$rowid]['attributes'][$name]) || $rows[$rowid]['attributes'][$name] != $value) {
-							$rows[$rowid]['attributes'][$name] = $value;
-							$rows_updated = true;
-						}
-					}
-				}
-
-				// only update if we are the table row that submitted the form
-				if ((!empty($bodycopy_data['rowid']) && $bodycopy_data['rowid'] == $rowid && $prefix == $bodycopy_name) || isset($bodycopy_saved[$prefix][$asset->id]['rows'][$rowid])) {
-
-					$counter = 0;
-					$colspan_todo = Array();
-
-					// check to see if any cells from this row need their colspans changed
-					if (isset($bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'])) {
-						foreach($bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'] as $cellid => $cell_data) {
-
-							if (isset($rows[$rowid]['cells'][$cellid])) {
-
-								$current_span = $rows[$rowid]['cells'][$cellid]->colspan();
-								$colspaning   = $cell_data['attributes']['colspan'];
-									
-								// if the current span is '1' and the new span is '' then a cell is being created
-								// so we dont want to do anything
-								if ($current_span == 1 && trim($colspaning) == '') $colspaning = $current_span;
-								
-								// if the user left colspan blank, dont change anything
-								if (trim($colspaning) == '') {
-									$colspaning = $current_span; 
-									$bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = $current_span;
-								}
-								
-								// if the user entered a negative colspan - or '0', we can assume they want a colspan of '1'
-								if (intval($colspaning) <= 0) { 
-									$colspaning = 1; 
-									$bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = 1;
-								}
-							} else {
-								$colspaning = 0;
-								$current_span = 0;
-							}
-							
-							if ($colspaning != $current_span) {
-								// put this colspan into a todo list that we will do later
-								$colspan_todo[$counter]['cell']			= $cellid;
-								$colspan_todo[$counter]['colspaning']	= $colspaning;
-								$colspan_todo[$counter]['current_span'] = $current_span;
-								$counter++;
-							}
-						}
-
-						// doing the colspan thing
-
-						if (count($colspan_todo)) {
-
-							foreach ($colspan_todo as $colspan) {
-
-								$cellid = $colspan['cell'];
-								$colspaning = $colspan['colspaning'];
-								$current_span = $colspan['current_span'];
-
-								// if the current span is '1' and the new span is '' then a cell is being created
-								// so we dont want to do anything
-								if ($current_span == 1 && trim($colspaning) == '') $colspaning = $current_span;
-								
-								// if the user left colspan blank, dont change anything
-								if (trim($colspaning) == '') {
-									$colspaning = $current_span; 
-									$bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = $current_span;
-								}
-								
-								// if the user entered a negative colspan - or '0', we can assume they want a colspan of '1'
-								if (intval($colspaning) <= 0) {
-									$colspaning = 1; 
-									$bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = 1;
-								}
-						
-								if ($colspaning != $current_span) {
-
-									// make sure there are sufficient cells to create the colspan
-									$spanable_cells = count($rows[$rowid]['cells']) - ($cellid +1);
-									$needed_cells = ($colspaning - $current_span);
-								
-									if ($spanable_cells < $needed_cells) {
-										// dont end up changing the colspan at all
-										$bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = $current_span;
-									} else {
-										if ($colspaning > $current_span && $spanable_cells >= 1) {
-											// check for more colspans first
-											$colspan_error = 0;
-											for($i = ($cellid + 1); $i <= ($cellid + ($colspaning - $current_span)); $i++) {
-												if ($rows[$rowid]['cells'][$i]->colspan() > 1) $colspan_error = 1;
-											}
-											if ($colspan_error == 0) {
-												for($i = ($cellid + 1); $i <= ($cellid + ($colspaning - $current_span)); $i++) {
-													if ($this->deleteCell($asset, $rows, $rowid, ($cellid+1), true)) {
-														$rows_updated = true;
-													} else {
-														// deleteCell failed
-														// dont end up changing the colspan at al
-														$bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = $current_span;
-													}
-												}
-											} else {
-												// we are trying to colspan into another colspan
-												// dont end up changing the colspan at all
-												$bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = $current_span;
-											}
-										} else if ($colspaning < $current_span) {
-											// decreasing the colspan
-											for($i = 0; $i < ($current_span - $colspaning); $i++) {
-												$this->insertCell($rows, $rowid, $cellid, false, true);
-												$rows_updated = true;
-											}
-										}
-									}//end else
-
-								}//end if
-
-							}//end foreach
-
-						}//end if
-
-						// now update the cells
-						for($i = 0; $i < count($rows[$rowid]['cells']); $i++) {
-							if ($rows[$rowid]['cells'][$i]->processCell($prefix, $asset->id, $rowid, $i)) $rows_updated = true;
-						}
+		// update the rows
+		$rows_updated = false;
+		$rows = $asset->attr('rows');
+		for($rowid = 0; $rowid < count($rows); $rowid++) {
+			if (!empty($bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['attributes'])) {
+				// save any changed row attributes
+				foreach($bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['attributes'] as $name => $value) {
+					$name = strtolower($name);
+					if (!isset($rows[$rowid]['attributes'][$name]) || $rows[$rowid]['attributes'][$name] != $value) {
+						$rows[$rowid]['attributes'][$name] = $value;
+						$rows_updated = true;
 					}
 				}
 			}
+
+			// only update if we are the table row that submitted the form
+			if ((!empty($bodycopy_data['rowid']) && $bodycopy_data['rowid'] == $rowid && $prefix == $bodycopy_name) || isset($bodycopy_saved[$prefix][$asset->id]['rows'][$rowid])) {
+
+				$counter = 0;
+				$colspan_todo = Array();
+
+				// check to see if any cells from this row need their colspans changed
+				if (isset($bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'])) {
+					foreach($bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'] as $cellid => $cell_data) {
+
+						if (isset($rows[$rowid]['cells'][$cellid])) {
+
+							$current_span = $rows[$rowid]['cells'][$cellid]->colspan();
+							$colspaning   = $cell_data['attributes']['colspan'];
+								
+							// if the current span is '1' and the new span is '' then a cell is being created
+							// so we dont want to do anything
+							if ($current_span == 1 && trim($colspaning) == '') $colspaning = $current_span;
+							
+							// if the user left colspan blank, dont change anything
+							if (trim($colspaning) == '') {
+								$colspaning = $current_span; 
+								$bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = $current_span;
+							}
+							
+							// if the user entered a negative colspan - or '0', we can assume they want a colspan of '1'
+							if (intval($colspaning) <= 0) { 
+								$colspaning = 1; 
+								$bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = 1;
+							}
+						} else {
+							$colspaning = 0;
+							$current_span = 0;
+						}
+						
+						if ($colspaning != $current_span) {
+							// put this colspan into a todo list that we will do later
+							$colspan_todo[$counter]['cell']			= $cellid;
+							$colspan_todo[$counter]['colspaning']	= $colspaning;
+							$colspan_todo[$counter]['current_span'] = $current_span;
+							$counter++;
+						}
+					}
+
+					// doing the colspan thing
+
+					if (count($colspan_todo)) {
+
+						foreach ($colspan_todo as $colspan) {
+
+							$cellid = $colspan['cell'];
+							$colspaning = $colspan['colspaning'];
+							$current_span = $colspan['current_span'];
+
+							// if the current span is '1' and the new span is '' then a cell is being created
+							// so we dont want to do anything
+							if ($current_span == 1 && trim($colspaning) == '') $colspaning = $current_span;
+							
+							// if the user left colspan blank, dont change anything
+							if (trim($colspaning) == '') {
+								$colspaning = $current_span; 
+								$bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = $current_span;
+							}
+							
+							// if the user entered a negative colspan - or '0', we can assume they want a colspan of '1'
+							if (intval($colspaning) <= 0) {
+								$colspaning = 1; 
+								$bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = 1;
+							}
+					
+							if ($colspaning != $current_span) {
+
+								// make sure there are sufficient cells to create the colspan
+								$spanable_cells = count($rows[$rowid]['cells']) - ($cellid +1);
+								$needed_cells = ($colspaning - $current_span);
+							
+								if ($spanable_cells < $needed_cells) {
+									// dont end up changing the colspan at all
+									$bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = $current_span;
+								} else {
+									if ($colspaning > $current_span && $spanable_cells >= 1) {
+										// check for more colspans first
+										$colspan_error = 0;
+										for($i = ($cellid + 1); $i <= ($cellid + ($colspaning - $current_span)); $i++) {
+											if ($rows[$rowid]['cells'][$i]->colspan() > 1) $colspan_error = 1;
+										}
+										if ($colspan_error == 0) {
+											for($i = ($cellid + 1); $i <= ($cellid + ($colspaning - $current_span)); $i++) {
+												if ($this->deleteCell($asset, $rows, $rowid, ($cellid+1), true)) {
+													$rows_updated = true;
+												} else {
+													// deleteCell failed
+													// dont end up changing the colspan at al
+													$bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = $current_span;
+												}
+											}
+										} else {
+											// we are trying to colspan into another colspan
+											// dont end up changing the colspan at all
+											$bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = $current_span;
+										}
+									} else if ($colspaning < $current_span) {
+										// decreasing the colspan
+										for($i = 0; $i < ($current_span - $colspaning); $i++) {
+											$this->insertCell($rows, $rowid, $cellid, false, true);
+											$rows_updated = true;
+										}
+									}
+								}//end else
+
+							}//end if
+
+						}//end foreach
+
+					}//end if
+				}
+			}
+
+			// now update the cells
+			for($i = 0; $i < count($rows[$rowid]['cells']); $i++) {
+				if ($rows[$rowid]['cells'][$i]->processCell($asset, $prefix, $asset->id, $rowid, $i)) $rows_updated = true;
+			}
+
+			
 
 			// only set the rows attributes if any of the rows (or cells within) have changed
 			if ($rows_updated) $asset->setAttrValue('rows',$rows);
 
-			// process any special actions if we are the  table that submitted the form
-			if (!empty($bodycopy_data) && $bodycopy_data['tableid'] == $asset->id && $bodycopy_name == $prefix) {
-				switch($bodycopy_action) {
-					
-					case 'insert_table_row' :
-						$this->insertRow($asset, $bodycopy_data['rowid'], $bodycopy_data['before']);
-					break;
+		}
 
-					case 'delete_table_row' :
-						$this->deleteRow($asset, $bodycopy_data['rowid']);
-					break;
 
-					case 'edit_table_row_order' :
-						$this->reorderRows($asset, $bodycopy_data['row_order']);
-					break;
+		// process any special actions if we are the  table that submitted the form
+		if (!empty($bodycopy_data) && $bodycopy_data['tableid'] == $asset->id && $bodycopy_name == $prefix) {
+			switch($bodycopy_action) {
+				
+				case 'insert_table_row' :
+					$this->insertRow($asset, $bodycopy_data['rowid'], $bodycopy_data['before']);
+				break;
 
-					case 'insert_table_column' :
-						$this->insertColumn($asset, $bodycopy_data['colid'], $bodycopy_data['before']);
-					break;
+				case 'delete_table_row' :
+					$this->deleteRow($asset, $bodycopy_data['rowid']);
+				break;
 
-					case 'delete_table_column' :
-						$this->deleteColumn($asset, $bodycopy_data['colid']);
-					break;
+				case 'edit_table_row_order' :
+					$this->reorderRows($asset, $bodycopy_data['row_order']);
+				break;
 
-					case 'edit_table_col_order' :
-						$msg[] = $this->reorderColumns($asset, $bodycopy_data['col_order']);
-					break;
+				case 'insert_table_column' :
+					$this->insertColumn($asset, $bodycopy_data['colid'], $bodycopy_data['before']);
+				break;
 
-				}
+				case 'delete_table_column' :
+					$this->deleteColumn($asset, $bodycopy_data['colid']);
+				break;
+
+				case 'edit_table_col_order' :
+					$msg[] = $this->reorderColumns($asset, $bodycopy_data['col_order']);
+				break;
+
 			}
+		}
 
-		}//end if
 	
 	}//end processTable()
 
@@ -560,7 +561,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		$rows = $asset->attr('rows');
 
 		// make sure it exists
-		if ($rows[$rowid] && count($rows) > 1) {
+		if (isset($rows[$rowid]) && count($rows) > 1) {
 
 			// delete all the cells in the row so they can clean up
 			for($i = 0; $i < count($rows[$rowid]['cells']); $i++) {

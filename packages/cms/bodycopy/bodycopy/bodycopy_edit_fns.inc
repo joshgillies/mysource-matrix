@@ -128,6 +128,9 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				// pack up the passed object
 				form.bodycopy_data.value = var_serialise(bodycopy_data);
 
+				// need to call the onsubmit event explicitly or it will
+				// not get called when we do a form.submit()
+				form.onsubmit();
 				form.submit();
 			}// end bodycopy_submit()
 
@@ -273,8 +276,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			}
 		</script>
 
-
-		<STYLE TYPE="text/css">
+		<style type="text/css">
 			#bodycopyPopupDiv {
 				color: #fffff;
 				position:absolute; 
@@ -291,20 +293,16 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				height: 1px; 
 				visibility: hidden;
 			}
-			.bodycopy-edit {
-				background-color: #b0b0b0;
-			}
-		</STYLE>
+		</style>
 
 		<!-- Begin Tooltip -->
-		<div id="bodycopyToolTipDiv"></div>
+		<div id="bodycopyToolTipDiv" style="z-index:1000"></div>
 		<!-- End Tooltip -->
 
 		<!-- Begin Popup -->
-		<DIV ID="bodycopyPopupDiv">
-			<!-- LAYER NAME="bodycopyLayer" WIDTH="<?php echo $init_layer_width?>" HEIGHT="<?php echo $init_layer_height?>" CLIP="0,0,<?php echo $init_layer_width?>,<?php echo $init_layer_height?>"></LAYER -->
-			<IFRAME NAME="bodycopyFrame" ID="bodycopyFrame" SCROLLING="No" WIDTH="<?php echo $init_layer_width?>" HEIGHT="<?php echo $init_layer_height?>" MARGINWIDTH=0 MARGINHEIGHT=0 FRAMEBORDER="No"></IFRAME>
-		</DIV>
+		<div id="bodycopyPopupDiv" style="z-index:1001">
+			<iframe name="bodycopyFrame" id="bodycopyFrame" scrolling="no" width="<?php echo $init_layer_width?>" height="<?php echo $init_layer_height?>" marginwidth=0 marginheight=0 frameborder="no"></iframe>
+		</div>
 		<!-- End Popup -->
 
 		<script language="JavaScript">
@@ -384,7 +382,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			$table_edit = $table->getEditFns();
 		?> 
 			<tr>
-				<td class="bodycopy-edit">
+				<td>
 					<input type="hidden" name="bodycopy_saved[<?php echo $prefix?>][<?php echo $table->id?>]" value="">
 					<table border="0" cellspacing="0" cellpadding="0">
 						<tr>
@@ -415,7 +413,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		?>
 
 			<tr>
-				<td class="bodycopy-edit">
+				<td>
 					<table border="0" cellspacing="0" cellpadding="0">
 						<tr>
 							<td>
@@ -479,21 +477,19 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 		}
 
+		# get all the tables linked to this bodycopy
+		$tables = $asset->getLinks(SQ_LINK_UNITE, 'bodycopy_table');
+
+		foreach ($tables as $table_data) {
+			$table = &$am->getAsset($table_data['minorid'], $table_data['type_code']);
+			$table_edit = $table->getEditFns();
+			$table_edit->processTable($table, $prefix);
+		}
 
 		// only update if we are the bodycopy that submitted the form
 		if ($bodycopy_name == $prefix || count($bodycopy_saved[$prefix])) {
 
 			// update the tables
-
-			# get all the tables linked to this bodycopy
-			$tables = $asset->getLinks(SQ_LINK_UNITE, 'bodycopy_table');
-			
-			$i = 0;
-			foreach ($tables as $table_data) {
-				$table = &$am->getAsset($table_data['minorid'], $table_data['type_code']);
-				$table_edit = $table->getEditFns();
-				$table_edit->processTable($table, $prefix);
-			}
 
 			if ($bodycopy_name == $prefix) {
 				switch($bodycopy_action) {

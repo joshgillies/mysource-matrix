@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname(__FILE__).'/../../content_type/content_type_management.inc';
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
 * Content_Type_WYSIWYG_Management
@@ -11,7 +11,7 @@ require_once dirname(__FILE__).'/../../content_type/content_type_management.inc'
 * @version $Version$ - 1.0
 * @package Resolve::packages::cms
 */
-class Content_Type_WYSIWYG_Management extends Content_Type_Management
+class Content_Type_WYSIWYG_Management extends Asset_Management
 {
 
 	/**
@@ -20,13 +20,13 @@ class Content_Type_WYSIWYG_Management extends Content_Type_Management
 	*/
 	function Content_Type_WYSIWYG_Management(&$pm)
 	{
-		$this->Content_Type_Management($pm);
+		$this->Asset_Management($pm);
 
-		$this->vars = Array('name' => Array(
+		$this->vars = Array('html' => Array(
 											'added'     => '0.0.1',
 											'type'      => 'text',  'default'   => '',
 											'update_fn' => ''
-											),
+											)
 							);
 
 	}//end constructor

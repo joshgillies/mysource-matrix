@@ -18,7 +18,7 @@ class Content_Type_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Content_Type_WYSIWYG_Management(&$pm)
+	function Content_Type_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
 
