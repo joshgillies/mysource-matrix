@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_link.inc,v 1.17 2004/02/27 03:48:13 gsherwood Exp $
+* $Id: hipo_job_create_link.inc,v 1.18 2004/05/19 22:41:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -154,7 +154,7 @@ class HIPO_Job_Create_Link extends HIPO_Job
 	*
 	* @param string	$code_name		a unique codename the HIPO
 	*/
-	function HIPO_Job_Edit_Create_Link($code_name='')
+	function HIPO_Job_Create_Link($code_name='')
 	{
 		$this->HIPO_Job($code_name);
 
