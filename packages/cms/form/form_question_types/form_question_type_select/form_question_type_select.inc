@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.17 2004/05/10 00:27:00 lwright Exp $
+* $Id: form_question_type_select.inc,v 1.18 2004/05/17 02:29:40 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -101,6 +101,7 @@ class Form_Question_Type_Select extends Form_Question
 			//$html  = '<'.'?php $q = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$this->id.$suffix.', \''.$class.'\'); ?'.'>';
 			//$html .= '<'.'?php $q->active_submission =& $this->active_submission; $q->active_form =& $active_form; combo_box($q->id, $q->getOptions(), $q->attr(\'multiple\'), $q->getValue(), $q->attr(\'height\'), $q->attr(\'extra\')) ?'.'>';
 		//} else {
+
 			ob_start();
 			combo_box($this->id.$suffix, $this->getOptions(), $this->attr('multiple'), $value, $this->attr('height'), '');
 			$html = ob_get_contents();
@@ -120,7 +121,15 @@ class Form_Question_Type_Select extends Form_Question
 	*/
 	function getOptions()
 	{
-		return split("\r\n", $this->attr('options'));
+		$options = split("\r\n", $this->attr('options'));
+		// remove empty options
+		foreach(array_keys($options) as $k) {
+			if ($options[$k] == "") {
+				unset($options[$k]);
+			}
+		}
+
+		return $options;
 
 	}//end getoptions()
 
@@ -174,5 +183,25 @@ class Form_Question_Type_Select extends Form_Question
 	}//end getSummary()
 
 
+	/**
+	* returns an answer summary in XML format (suitable for submission logs)
+	* 
+	* @access public
+	* @return string
+	*/
+	function getXML($answer)
+	{
+		echo '<select_q id="'.addslashes($this->id).'"  name="'.addslashes($this->attr('name')).'">';
+		if (!is_array($answer)) {
+			$answer = Array($answer);
+		}
+
+		foreach ($answer as $a) {
+			echo '<option value="'.$a.'">'.htmlspecialchars($this->getAnswerByOffset($a)).'</option>';
+		}
+		echo '</select_q>';
+	}//end getXML()
+	
+	
 }//end class
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.16 2004/05/10 00:27:00 lwright Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.17 2004/05/17 02:29:52 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -138,7 +138,15 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	*/
 	function getOptions()
 	{
-		return split("\r\n", $this->attr('options'));
+		$options = split("\r\n", $this->attr('options'));
+		// remove empty options
+		foreach(array_keys($options) as $k) {
+			if ($options[$k] == "") {
+				unset($options[$k]);
+			}
+		}
+
+		return $options;
 	
 	}//end getOptions()
 
@@ -240,5 +248,25 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	}//end isSelected()
 
 
+	/**
+	* returns an answer summary in XML format (suitable for submission logs)
+	* 
+	* @access public
+	* @return string
+	*/
+	function getXML($answer)
+	{
+		echo '<select_q id="'.addslashes($this->id).'"  name="'.addslashes($this->attr('name')).'">';
+		if (!is_array($answer)) {
+			$answer = Array($answer);
+		}
+
+		foreach ($answer as $a) {
+			echo '<option value="'.$a.'">'.htmlspecialchars($this->getAnswerByOffset($a)).'</option>';
+		}
+		echo '</select_q>';
+	}//end getXML()
+	
+	
 }//end class
 ?>
