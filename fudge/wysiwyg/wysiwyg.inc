@@ -150,6 +150,7 @@ class wysiwyg {
 						this._uniqueID = textarea;
 						this._mode = "wysiwyg";
 						this._initialised = false;
+						this._tmp = Array();
 <?php $this->print_plugin_vars() ?>
 					}
 				};
@@ -349,7 +350,7 @@ class wysiwyg {
 				};
 
 				// updates enabled/disable/active state of the toolbar elements
-				HTMLArea.prototype.updateToolbar = function() {
+				HTMLArea.prototype.updateToolbar = function(allEnabled) {
 					var doc = this._doc;
 					var text = (this._mode == "textmode");
 					for (var i in this._toolbarObjects) {
@@ -359,7 +360,14 @@ class wysiwyg {
 							continue;
 						}
 						cmd = cmd.toLowerCase();
-						btn.state("enabled", !text || btn.text);
+
+						if (allEnabled == null) {
+							var btnEnabled = (!text || btn.text);
+						} else {
+							var btnEnabled = allEnabled;
+						}
+
+						btn.state("enabled", btnEnabled);
 						switch (cmd) {
 <?php $this->print_plugin_update_toolbar()?>
 							default:
