@@ -27,7 +27,8 @@ class Form_Question_Type_Select extends Form_Question
 	{
 		$this->_ser_attrs = true;
 		$this->Asset($assetid);
-	}
+
+	} // end Form_Question_Type_Select()
 
 
 	/**
@@ -53,37 +54,7 @@ class Form_Question_Type_Select extends Form_Question
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $linkid;
 
-	}//end create()
-
-
-	/**
-	* Creates a link between this asset and the passed asset, of a certain type
-	* and returns the linkid of the created link
-	*
-	* @return int
-	* @access public
-	* @see Asset::creatLink();
-	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0', $exclusive='0')
-	{
-		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
-
-	}// end createLink()
-
-
-	/**
-	* Returns TRUE if we can delete the passed link, or a string with the error msg
-	*
-	* @param int	$linkid	the link id of the link to remove
-	*
-	* @return mixed TRUE or error msg string
-	* @access public
-	*/
-	function canDeleteLink($linkid)
-	{
-		return parent::canDeleteLink($linkid);
-	
-	}//end canDeleteLink()
+	} // end create()
 
 
 	/**
@@ -94,36 +65,11 @@ class Form_Question_Type_Select extends Form_Question
 	*/
 	function _getAllowedLinks()
 	{
-		$links[SQ_LINK_TYPE_3]['form_question_rule_type_compare'] = Array('card' => '1', 'exclusive' => true);
-	//	$links[SQ_LINK_TYPE_3]['question_rule_type_email'] = Array('card' => '1', 'exclusive' => true);
+		$links[SQ_LINK_TYPE_3]['form_question_rule_type_comparison'] = Array('card' => '1', 'exclusive' => true);
+		
 		return $links;
 
 	}//end _getAllowedLinks()
-
-
-	/**
-	* Prints out the backend interface for the asset
-	*
-	* @param object Backend_Outputter $o
-	*
-	* @access public
-	*/
-	function paintBackend(&$o)
-	{
-		parent::paintBackend($o);
-	
-	}// end paintBackend()
-
-
-	/**
-	* Called by the design to print the body of this asset
-	*
-	* @access public
-	*/
-	function printBody()
-	{
-	
-	} // end printBody()
 
 
 	/**
@@ -156,8 +102,12 @@ class Form_Question_Type_Select extends Form_Question
 
 	
 	/**
+	* returns the current value of this question
 	*
+	* @param &object $submission the current submission object
 	*
+	* @access public
+	* @return mixed
 	*/
 	function getValue(&$submission)
 	{
@@ -174,8 +124,18 @@ class Form_Question_Type_Select extends Form_Question
 
 		} 
 		return $this->attr('default');
-	}
+	
+	} // end getValue()
 
+
+	/**
+	* returns the answer by its offset in the list
+	*
+	* @param Array|int $offset the offset(s) to the answers
+	*
+	* @access public
+	* @return mixed
+	*/
 	function getAnswerByOffset($offset = 0)
 	{
 		$options = $this->getOptions();
@@ -188,19 +148,30 @@ class Form_Question_Type_Select extends Form_Question
 		}
 		if (isset($options[$offset])) return $options[$offset];
 		return false;
-	}
 
-	function getOptions()
-	{
-		return split("\r\n", $this->attr('options'));
-	}
+	} // end getAnswerByOffset()
 
 
 	/**
+	* returns the options currently in the dropdown list
+	* 
+	* @access public
+	* @return Array()
+	*/
+	function getOptions()
+	{
+		return split("\r\n", $this->attr('options'));
+
+	} // end getoptions()
+
+
+	/**
+	* process this question in the form
 	*
+	* @param &object $submission the submission object
 	*
-	*
-	*
+	* @access public
+	* @return boolean
 	*/
 	function processForm(&$submission)
 	{
@@ -218,12 +189,17 @@ class Form_Question_Type_Select extends Form_Question
 		parent::processForm($submission);
 		
 		return true;
-	}
+
+	} // end processForm()
 
 
 	/**
+	* returns a summary for this question
 	*
-	*
+	* @param string $answer the answer to get the summary of 
+	* 
+	* @access public
+	* @return mixed
 	*/
 	function getSummary($answer)
 	{
@@ -236,7 +212,7 @@ class Form_Question_Type_Select extends Form_Question
 		} else {
 			return $this->getAnswerByOffset($answer);
 		}
-	}
+	} // end getSummary()
 
 
 }//end class
