@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.70 2004/12/08 12:56:43 brobertson Exp $
+* $Id: search_page.inc,v 1.71 2004/12/13 06:15:43 lwright Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1255,6 +1255,7 @@ class Search_Page extends Page
 					} else if (ereg('(.+)_query_synonyms$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
 						// synonym searching
+						$field_name = $matches[1];						
 						$suggestion_string = Array();
 						foreach ($this->_tmp['search_synonyms'][$field_name] as $word => $synonyms) {
 							foreach ($synonyms as $synonym) {
