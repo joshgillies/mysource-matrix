@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_screen_fields.xml,v 1.1.1.1 2003/10/08 01:20:58 dwong Exp $
+* $Id: edit_interface_screen_fields.xml,v 1.2 2003/11/14 00:39:58 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -17,13 +17,11 @@
 			</function_call>
 		</field>
 	</section>
-
 	<section name="Logical Grouping">
 		<field attribute="logic">
-			<display_name>Use AND / OR grouping</display_name>
-			<note />
-			<selection />
+			<display_name>Use AND / OR grouping</display_name> 
+			<note>Search logic does not apply to <b>Exclude</b> field types.</note>
+			<selection /> 
 		</field>
 	</section>
-
 </contents>

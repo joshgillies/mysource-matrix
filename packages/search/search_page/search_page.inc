@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: search_page.inc,v 1.6 2003/11/13 00:26:31 gsherwood Exp $
+* $Id: search_page.inc,v 1.7 2003/11/14 00:39:58 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -14,7 +14,7 @@
 * @see Page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.6 $ - 1.0
+* @version $Revision: 1.7 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -334,6 +334,7 @@ class Search_Page extends Page
 					break;
 
 					default:
+						$replacement = "%$keyword%";
 					break;
 				}
 			}
@@ -369,9 +370,9 @@ class Search_Page extends Page
 					$replacement = '';
 					$sub_resultids = array_slice(array_keys($results), $current_result_page * $results_per_page, $results_per_page);
 					foreach ($sub_resultids as $assetid) {
-						$result_element = $results[$assetid];
+						$score = $results[$assetid];
 						$new_element_html = $element_html;
-						$this->replaceResultElementKeywords($new_element_html, $assetid, $result_element);
+						$this->replaceResultElementKeywords($new_element_html, $assetid, $score);
 						$replacement .= $new_element_html;
 					}
 				break;
@@ -456,11 +457,11 @@ class Search_Page extends Page
 	* @access private
 	* @param string $html				The HTML to keyword replace.
 	* @param int	$assetid			The Asset ID of the result element.
-	* @param Array	$result_element		The result element array, containing the score
+	* @param Array	$score				The score
 	*
 	* @return void
 	*/
-	function replaceResultElementKeywords(&$html, $assetid, $result_element)
+	function replaceResultElementKeywords(&$html, $assetid, $score)
 	{
 		$keywords = retrieve_keywords_replacements($html);
 		$replaces = Array();
@@ -472,7 +473,7 @@ class Search_Page extends Page
 			$replacement =& $replaces[$keyword];
 			switch ($keyword) {
 				case 'score':
-					$replacement = $result_element['score'];
+					$replacement = $score;
 					break;
 
 				case 'asset_id':
@@ -555,121 +556,176 @@ class Search_Page extends Page
 		$queries = $_REQUEST['queries'];
 
 		$logic = $this->attr('logic');
+		
 		$root_assetid = $this->attr('root_assetid');
 		if ($root_assetid <= 0)
 			$root_assetid = 1;
 
-		$score_words = array();
+		$total_asset_scores = null;
+		$exclude_assetids = Array();
 
-		$asset_list_sql = '';
-		// lets create this bastard of an SQL query		
 		foreach($queries as $query_var => $value) {
 			if ($value == '')
 				continue;
 
 			$words = split(" +", strtolower($value));
 			foreach (array_keys($words) as $i) {
-				$word =& $words[$i];
-				$word = strtr($word, "*?", "%_");
-				if (ereg('^[A-z%_]+$', $word))
-					$word = addslashes($word);
+				// convert wildcard symbols to corresponding SQL wildcards
+				$words[$i] = strtr($words[$i], "*?", "%_"); 
+				
+				// preserve the wildcard symbols - i.e. don't quote them
+				if (ereg('^[A-z%_]+$', $words[$i]))
+					$words[$i] = addslashes($words[$i]);
 				else
-					unset($word);
+					unset($words[$i]);
 			}
 
+			// retrieve the search field for this query
 			ereg("(.+)_query", $query_var, $query_match);
 			$query_name = $query_match[1];
 			$field =& $fields[$query_name];
 
-
-			$search_sql = "SELECT DISTINCT ai.assetid
+			$start_sql = "SELECT ai.assetid, SUM(ai.score)
 				FROM " . 
 				SQ_TABLE_PREFIX . "asset_indexing ai,\n"	.
-				SQ_TABLE_PREFIX . "asset a,\n"				.
 				SQ_TABLE_PREFIX . "asset_link_tree alt1,\n"	.
 				SQ_TABLE_PREFIX . "asset_link_tree alt2,\n"	.
 				SQ_TABLE_PREFIX . "asset_link al1,\n"		.
 				SQ_TABLE_PREFIX . "asset_link al2\n"		.
 				"WHERE ".
-				"al1.minorid = " . $db->quote((int)$root_assetid)	.	// all links that root asset is a minor in
-				" AND al1.linkid = alt1.linkid "						.	// all treeids with those links
+				"al1.majorid = " . $db->quote((int)$root_assetid)	.	// all links that root asset is a major in
+				" AND al1.linkid = alt1.linkid "					.	// all treeids with those links
 				" AND alt2.treeid LIKE alt1.treeid || '%' "			.	// all treeids that start with those treeids
-				" AND alt2.linkid = al2.linkid "						.	// all links with those treeids
-				" AND ai.assetid = al2.minorid "						;	// and the indexing data for those assets
+				" AND alt2.linkid = al2.linkid "					.	// all links with those treeids
+				" AND ai.assetid = al2.minorid \n";					;	// and the indexing data for those assets
 
 			switch($field['type']) {
-				case 'include_all':
-				case 'include_any':
-					$score_words = array_merge($score_words, $words);
-					foreach (array_keys($words) as $i) {
-						if ($asset_list_sql != '') {
-							if ($field['type'] == 'include_all')
-								$asset_list_sql .= "\nINTERSECT\n";
-							if ($field['type'] == 'include_any')
-								$asset_list_sql .= "\nUNION\n";
-						}
-						$asset_list_sql .= "(" .$search_sql .
-							"AND ai.type = 'text' " .
-							"AND ai.value LIKE '"	. $words[$i] . 
-							"')";
-					}
+				case "include_all":
 
-				break;
-
-				
-				case 'exclude':
-
+					$field_asset_scores = null;
 					foreach ($words as $word) {
-						if ($asset_list_sql != '') {
-							$asset_list_sql .= "\nEXCEPT\n";
-						}
-						$asset_list_sql .= "(" .$search_sql .
-							"ai.type = 'text' AND 
-							(ai.value LIKE '". implode ("' OR ai.value LIKE '", $words) ."')
-							)";
+						$sql = $start_sql . "AND (ai.value LIKE '$word')\n";
+						$sql .= "GROUP BY ai.assetid";
+
+						$results = $db->getAssoc($sql);
+
+						if (is_null($field_asset_scores)) {
+							$field_asset_scores = $results;
+						} else {
+							$field_asset_scores = $this->combineAssetScores($field_asset_scores, $results, 'AND');
+						};
+					}
+
+					if (is_null($total_asset_scores)) {
+						$total_asset_scores = $field_asset_scores;
+					} else {
+						$total_asset_scores = $this->combineAssetScores($total_asset_scores, $field_asset_scores, $logic);
 					}
 
 				break;
-				
-				case 'metadata':	
-					$score_words = array_merge($score_words, $words);
+
+				case "exclude":
+					// ignore logic and remove these assetids from total_asset_scores at the end
+					$removing_assetids = Array();
+
+					$field_asset_scores = null;
+					foreach ($words as $word) {
+						$sql = $start_sql . "AND (ai.value LIKE '$word')\n";
+						$sql .= "GROUP BY ai.assetid";
+					
+						$results = $db->getAssoc($sql);
+						$exclude_assetids += array_keys($results);
+					}
+
+				break;
+
+				case "metadata":
 					if ($field['params']['metadata_field'] <= 0) 
 						break;
-					if ($asset_list_sql != '')
-						$asset_list_sql .= "\nINTERSECT\n";
 
-					$asset_list_sql .= "(" .$search_sql .
-							"AND ai.type = 'text' 
+					$field_asset_scores = null;
+					foreach ($words as $word) {
+						$sql = $start_sql . "AND (ai.type = 'text' 
 							AND ai.component = 'metadata:". (int)$field['params']['metadata_field'] . "' 
-							AND (ai.value LIKE '". implode ("' OR ai.value LIKE '", $words) ."'))";
-				break;
+							AND (ai.value LIKE '". implode ("' OR ai.value LIKE '", $words) ."'))\n";
+						$sql .= "GROUP BY ai.assetid";
+					
+
+						$results = $db->getAssoc($sql);
+
+						if (is_null($field_asset_scores)) {
+							$field_asset_scores = $results;
+						} else {
+							$field_asset_scores = $this->combineAssetScores($field_asset_scores, $results, 'AND');
+						};
+					}
+
+					if (is_null($total_asset_scores)) {
+						$total_asset_scores = $field_asset_scores;
+					} else {
+						$total_asset_scores = $this->combineAssetScores($total_asset_scores, $field_asset_scores, $logic);
+					}
 
 				default:
 				break;
-					
-			}
-		}
-		$sql = "SELECT a.assetid, a.type_code, SUM(ai.score) as score
-				FROM ($asset_list_sql) al, sq_asset_indexing ai, sq_asset a
-				WHERE a.assetid = ai.assetid AND ai.assetid = al.assetid AND (ai.value LIKE '". implode("' OR ai.value LIKE '", $score_words) ."')
-				GROUP BY a.assetid, a.type_code
-		";
+			}//end switch
 
-		if (empty($score_words))
-			return Array();
+		}//end for
 
-//		speed_check();
-		$results = $db->getAll($sql);
-//		speed_check("done with query");
-		$matches = array();
-		foreach($results as $result) {
-			$matches[$result['assetid']] = $result;
+		foreach ($exclude_assetids as $exclude_assetid) {
+			unset($total_asset_scores[$exclude_assetid]);
 		}
-		$results = $this->climbToAssetTypes($matches, array('file', 'page'));
-//		speed_check("climbing done");
 		
+		$results = $this->climbToAssetTypes($total_asset_scores, array('file', 'page'));
 		return $results;
 	} // end processSearch()
+
+	/**
+	 * Combines asset scores according to $logic.
+	 * 
+	 * @access private
+	 * @param	$asset_scores1		a mapping from assetids to scores
+	 * @param	$asset_scores2		a mapping from assetids to scores
+	 * @param	$logic				either 'AND' or 'OR"
+	 * @return	array				a mapping from assetids to combined scores
+	 */
+	function combineAssetScores($asset_scores1, $asset_scores2, $logic = 'AND') {
+		if (!is_array($asset_scores1) ||!is_array($asset_scores2))
+			return Array();
+
+		// find the intersection/union (depending on logic) of the assetids in field_asset_scores and results
+		$assets1 = array_keys($asset_scores1);
+		$assets2 = array_keys($asset_scores2);
+
+		$out_asset_scores = $asset_scores1;
+
+		if ($logic == "AND") {
+			$common_assets = array_intersect($assets1, $assets2);
+			// get the assets that are to be removed in field_asset_scores
+			$removed_assets = array_diff($assets1, $assets2);
+			
+			foreach ($removed_assets as $assetid) {
+				unset ($out_asset_scores[$assetid]);
+			}
+			
+			foreach ($common_assets as $assetid) {
+				if (isset($out_asset_scores[$assetid])) {
+					$out_asset_scores[$assetid] += $asset_scores2[$assetid];
+				} else {
+					$out_asset_scores[$assetid] = $asset_scores2[$assetid];
+				}
+			}
+		} elseif ($logic == "OR") {
+			foreach ($asset_scores2 as $assetid => $score) {
+				if (isset($out_asset_scores[$assetid])) {
+					$out_asset_scores[$assetid] += $asset_scores2[$assetid];
+				} else {
+					$out_asset_scores[$assetid] = $asset_scores2[$assetid];
+				}
+			}
+		}
+		return $out_asset_scores;
+	}//end combineAssetScores
 
 	/** 
 	* Resolves a result array to an array where the assets are elements and are one of the types specified.
@@ -696,6 +752,7 @@ class Search_Page extends Page
 		}
 
 		$assetTypes = array_merge($assetTypes, $newDescendantTypes);
+		$asset_info = $am->getAssetInfo(array_keys($matches));
 
 		// use matches as a queue, take head match if it is one of the asset types then add to out
 		// otherwise get parent links and add it to the end of the queue
@@ -703,51 +760,47 @@ class Search_Page extends Page
 		$scores = array(); // for sorting
 
 		while (count($matches)) {
+			// get next asset=>score mapping
 			$assetids = array_keys($matches);
 			$nextAssetId = $assetids[0];
-			$nextMatch = $matches[$nextAssetId];
+			$nextScore = $matches[$nextAssetId];
 			unset ($matches[$nextAssetId]);
+			if (!isset($asset_info[$nextAssetId])) {
+				$asset_info[$nextAssetId] = $am->getAssetInfo(Array($nextAssetId));
+			}
 
-			if (in_array($nextMatch['type_code'], $assetTypes)) {
+			$nextAssetInfo = $asset_info[$nextAssetId];
+			if (in_array($nextAssetInfo['type_code'], $assetTypes)) {
 				// could be added twice - check
 				if (isset($unsorted[$nextAssetId])) {
-					$nextMatch['score'] += $unsorted[$nextAssetId]['score'];
+					$unsorted[$nextAssetId] += $nextScore;
+				} else {
+					$unsorted[$nextAssetId] = $nextScore;
 				}
-
-				$unsorted[$nextAssetId] = $nextMatch;
-				$scores[$nextAssetId] = $nextMatch['score'];
+				$scores[$nextAssetId] = $nextScore;
 			} else {
 				// doesn't match one of the types, go up
 				
-				// if we are the root asset for this search, then don't go up from here
+				// if we are the root asset for this search, then stop
 				if ($nextAssetId == $this->attr('root_assetid'))
 					continue;
 
 				$parentLinks = $am->getLinks($nextAssetId, SQ_SC_LINK_ALL, '', false, 'minor', null, true);
+
 				foreach ($parentLinks as $parentLink) {
 					$parentAssetId = $parentLink['majorid'];
-					$parentMatch = $nextMatch;
-					unset($parentMatch['component']);
-
-					$parentMatch['type_code'] = $parentLink['major_type_code'];
-					$parentMatch['assetid'] = $parentLink['majorid'];
-
 					// does the parent already have a match - if so add scores
 					if (isset($matches[$parentAssetId])) {
-						$matches[$parentAssetId]['score'] += $parentMatch['score'];
+						$matches[$parentAssetId] += $nextScore;
 					} else {
-						$matches[$parentAssetId] = $parentMatch;
+						$matches[$parentAssetId] = $nextScore;
 					}
 				}
 			}
 		}
 		arsort($scores);
-		$sorted = Array();
-		foreach ($scores as $assetid => $score) {
-			$sorted[$assetid] =& $unsorted[$assetid];
-		}
 
-		return $sorted;
+		return $scores;
 	} // end climbToAssetTypes()
 
 }//end class

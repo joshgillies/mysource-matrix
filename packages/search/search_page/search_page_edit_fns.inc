@@ -3,7 +3,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: search_page_edit_fns.inc,v 1.3 2003/10/15 01:19:32 dwong Exp $
+* $Id: search_page_edit_fns.inc,v 1.4 2003/11/14 00:39:58 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -13,7 +13,7 @@
 * Edit functions for search page.
 *
 * @author  Dominic WOng <dwong@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.4 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -187,6 +187,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 			<?php
 			echo combo_box($prefix.'_fields['. $i .'][type]', $queryTypes, false, array());
 		}
+		return true;
 	} // end paintFields()
 
 	/**
