@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.88 2004/09/26 22:44:31 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.89 2004/09/27 01:54:57 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.88 $ - 1.0
+* @version $Revision: 1.89 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -632,13 +632,13 @@ class Page_Calendar extends Page_Asset_Listing
 			// print the full weeks
 			$num_full_weeks = floor(($month_length - $current_day) / 7);
 			for ($w = 0; $w < $num_full_weeks; $w++) {
-				echo '<tr style="height: '.$row_height.'ex">';
+				echo '<tr>';
 				for ($i=0; $i < $week_length; $i++) {
 					$_REQUEST['SQ_CALENDAR_DATE'] = sprintf('%04d-%02d-%02d', $year, $month, $current_day);
 					$contents = $this->_getMonthCellContents($events[$current_day], $show_event_links, $root_nodes, $column_width*0.99);
 					$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'weekend' : '';
 					$occupied_class = ($contents) ? 'eventDate' : '';
-					echo '<td class="date '.$occupied_class.' '.$weekend_class.'">';
+					echo '<td class="date '.$occupied_class.' '.$weekend_class.'" style="height: '.$row_height.'ex">';
 					if ($contents && $drill_down_view) echo '<a class="dateLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'">';
 					echo $current_day;
 					if ($contents && $drill_down_view) echo '</a><br />';
@@ -652,13 +652,13 @@ class Page_Calendar extends Page_Asset_Listing
 			// print the final week, if necessary
 			if ($current_day <= $month_length) {
 				$i = 0;
-				echo '<tr style="height: '.$row_height.'ex">';
+				echo '<tr>';
 				while ($current_day <= $month_length) {
 					$_REQUEST['SQ_CALENDAR_DATE'] = sprintf('%04d-%02d-%02d', $year, $month, $current_day);
 					$contents = $this->_getMonthCellContents($events[$current_day], $show_event_links, $root_nodes, $column_width*0.99);
 					$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'weekend' : '';
 					$occupied_class = ($contents) ? 'eventDate' : '';
-					echo '<td class="date '.$occupied_class.' '.$weekend_class.'">';
+					echo '<td class="date '.$occupied_class.' '.$weekend_class.'" style="height: '.$row_height.'ex">';
 					if ($contents && $drill_down_view) echo '<a class="dateLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'">';
 					echo $current_day;
 					if ($contents && $drill_down_view) echo '</a><br />';
@@ -2184,7 +2184,6 @@ class Page_Calendar extends Page_Asset_Listing
 
 		list($day_start_hours, $day_start_minutes) = sscanf($this->attr('day_starts_at'), '%02d:%02d');
 		list($day_end_hours, $day_end_minutes) = sscanf($this->attr('day_ends_at'), '%02d:%02d');
-
 		$i = 0;
 
 		if (!is_null($event['end_date_ds'])) {
@@ -2199,6 +2198,16 @@ class Page_Calendar extends Page_Asset_Listing
 
 				if ($first_day <= $event_start_date) {
 					// insert first day
+					$result_list[$assetid.':'.$i] = Array();
+					for(reset($event); null !== ($k = key($event)); next($event)) {
+						$result_list[$assetid.':'.$i][$k] = $event[$k];
+					}
+					$result_list[$assetid.':'.$i]['start_date_year'] = date('Y', $start_time);
+					$result_list[$assetid.':'.$i]['start_date_mon']  = date('n', $start_time);
+					$result_list[$assetid.':'.$i]['start_date_mday'] = date('j', $start_time);
+					$result_list[$assetid.':'.$i]['end_date_year']   = date('Y', $start_time);
+					$result_list[$assetid.':'.$i]['end_date_mon']    = date('n', $start_time);
+					$result_list[$assetid.':'.$i]['end_date_mday']   = date('j', $start_time);
 					$result_list[$assetid.':'.$i] = array_merge($event, Array(
 						'start_date_year' => date('Y', $start_time), 'start_date_mon' => date('n', $start_time),
 						'start_date_mday' => date('j', $start_time),
@@ -2210,19 +2219,23 @@ class Page_Calendar extends Page_Asset_Listing
 						}
 					$i++;
 				}
+
 				// insert intermediate days
 				$inter_date = date('Y-m-d', strtotime(max(add_days_to_iso($event_start_date, 1), $first_day),' +1 day'));
 				$last_inter_date = min($last_day, add_days_to_iso($event_end_date, -1));
 				while ($inter_date <= $last_inter_date) {
 					$inter_time = iso8601_ts($inter_date.' 12:00:00');
-					$result_list[$assetid.':'.$i] = array_merge($event, Array(
-						'start_date_year' => date('Y', $inter_time), 
-						'start_date_mon' => date('n', $inter_time),
-						'start_date_mday' => date('j', $inter_time),
-						'end_date_year' => date('Y', $inter_time), 
-						'end_date_mon' => date('n', $inter_time),
-						'end_date_mday' => date('j', $inter_time),
-						'partition_start' => $this->attr('day_starts_at')));
+					$result_list[$assetid.':'.$i] = Array();
+					for(reset($event); null !== ($k = key($event)); next($event)) {
+						$result_list[$assetid.':'.$i][$k] = $event[$k];
+					}
+					$result_list[$assetid.':'.$i]['start_date_year'] = date('Y', $inter_time);
+					$result_list[$assetid.':'.$i]['start_date_mon']  = date('n', $inter_time);
+					$result_list[$assetid.':'.$i]['start_date_mday'] = date('j', $inter_time);
+					$result_list[$assetid.':'.$i]['end_date_year']   = date('Y', $inter_time);
+					$result_list[$assetid.':'.$i]['end_date_mon']    = date('n', $inter_time);
+					$result_list[$assetid.':'.$i]['end_date_mday']   = date('j', $inter_time);
+
 					if (!is_null($result_list[$assetid.':'.$i]['start_date_hours'])) {
 						$result_list[$assetid.':'.$i]['start_date_hours'] = $day_start_hours;
 						$result_list[$assetid.':'.$i]['start_date_minutes'] = $day_start_minutes;
@@ -2235,12 +2248,17 @@ class Page_Calendar extends Page_Asset_Listing
 
 				if ($event_end_date <= $last_day) {
 					// insert the last day
-					$result_list[$assetid.':'.$i] = array_merge($event, Array(
-						'start_date_year' => date('Y', $end_time), 'start_date_mon' => date('n', $end_time),
-							'start_date_mday' => date('j', $end_time),
-						'end_date_year' => date('Y', $end_time), 'end_date_mon' => date('n', $end_time),
-							'end_date_mday' => date('j', $end_time),
-						'partition_start' => $this->attr('day_starts_at')));
+					$result_list[$assetid.':'.$i] = Array();
+					for(reset($event); null !== ($k = key($event)); next($event)) {
+						$result_list[$assetid.':'.$i][$k] = $event[$k];
+					}
+
+					$result_list[$assetid.':'.$i]['start_date_year'] = date('Y', $end_time);
+					$result_list[$assetid.':'.$i]['start_date_mon']  = date('n', $end_time);
+					$result_list[$assetid.':'.$i]['start_date_mday'] = date('j', $end_time);
+					$result_list[$assetid.':'.$i]['end_date_year']   = date('Y', $end_time);
+					$result_list[$assetid.':'.$i]['end_date_mon']    = date('n', $end_time);
+					$result_list[$assetid.':'.$i]['end_date_mday']   = date('j', $end_time);					
 					if (!is_null($result_list[$assetid.':'.$i]['start_date_hours'])) {
 						$result_list[$assetid.':'.$i]['start_date_hours'] = $day_start_hours;
 						$result_list[$assetid.':'.$i]['start_date_minutes'] = $day_start_minutes;
@@ -2252,23 +2270,37 @@ class Page_Calendar extends Page_Asset_Listing
 				$start_time = mktime(12, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
 				$start_date = date('Y-m-d', $start_time);
 				// single day
-				$result_list[$assetid.':'.$i] = array_merge($event, Array(
-					'start_date_year' => date('Y', $start_time), 'start_date_mon' => date('n', $start_time), 'start_date_mday' => date('j', $start_time),
-					'end_date_year' => date('Y', $start_time), 'end_date_mon' => date('n', $start_time),
-					'end_date_mday' => date('j', $start_time),
-					));
+				$result_list[$assetid.':'.$i] = Array();
+				for(reset($event); null !== ($k = key($event)); next($event)) {
+					$result_list[$assetid.':'.$i][$k] = $event[$k];
+				}
+				
+				$result_list[$assetid.':'.$i]['start_date_year'] = date('Y', $start_time);
+				$result_list[$assetid.':'.$i]['start_date_mon']  = date('n', $start_time);
+				$result_list[$assetid.':'.$i]['start_date_mday'] = date('j', $start_time);
+				$result_list[$assetid.':'.$i]['end_date_year']   = date('Y', $start_time);
+				$result_list[$assetid.':'.$i]['end_date_mon']    = date('n', $start_time);
+				$result_list[$assetid.':'.$i]['end_date_mday']   = date('j', $start_time);
+				
 				$i++;
 			}
 		} else {
 			$start_time = mktime(12, 0, 0,  $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
 			$start_date = date('Y-m-d', $start_time);
 			// single day in any case
-			$result_list[$assetid.':'.$i] = array_merge($event, Array(
-					'start_date_year' => date('Y', $start_time), 'start_date_mon' => date('n', $start_time), 'start_date_mday' => date('j', $start_time),
-					'end_date_ds' => round(iso8601_ts($assetid) / 86400),
-					'end_date_year' => date('Y', $start_time), 'end_date_mon' => date('n', $start_time),
-					'end_date_mday' => date('j', $start_time),
-					));
+			$result_list[$assetid.':'.$i] = Array();
+			for (reset($event); null !== ($k = key($event)); next($event)) {
+				$result_list[$assetid.':'.$i][$k] = $event[$k];
+			}
+			
+			$result_list[$assetid.':'.$i]['start_date_year'] = date('Y', $start_time);
+			$result_list[$assetid.':'.$i]['start_date_mon']  = date('n', $start_time);
+			$result_list[$assetid.':'.$i]['start_date_mday'] = date('j', $start_time);
+			$result_list[$assetid.':'.$i]['end_date_ds']     = round(iso8601_ts($start_time) / 86400);
+			$result_list[$assetid.':'.$i]['end_date_year']   = date('Y', $start_time);
+			$result_list[$assetid.':'.$i]['end_date_mon']    = date('n', $start_time);
+			$result_list[$assetid.':'.$i]['end_date_mday']   = date('j', $start_time);
+
 			$i++;
 
 		}
@@ -2344,11 +2376,18 @@ class Page_Calendar extends Page_Asset_Listing
 					$end_date = date('Y-m-d', $end_time);
 
 					if (($start_date >= $first_day) && ($start_date <= $last_day)) {
-						$result_list[$assetid.':'.$i] = array_merge($event, Array(
-							'start_date_year' => date('Y', $start_time), 'start_date_mon' => date('n', $start_time),
-							'start_date_mday' => date('j', $start_time),
-							'end_date_year' => date('Y', $start_time), 'end_date_mon' => date('n', $start_time),
-							'end_date_mday' => date('j', $start_time)));
+						$result_list[$assetid.':'.$i] = Array();
+						for(reset($event); null !== ($k = key($event)); next($event)) {
+							$result_list[$assetid.':'.$i][$k] = $event[$k];
+						}
+						
+						$result_list[$assetid.':'.$i]['start_date_year'] = date('Y', $start_time);
+						$result_list[$assetid.':'.$i]['start_date_mon']  = date('n', $start_time);
+						$result_list[$assetid.':'.$i]['start_date_mday'] = date('j', $start_time);
+						$result_list[$assetid.':'.$i]['end_date_year']   = date('Y', $start_time);
+						$result_list[$assetid.':'.$i]['end_date_mon']    = date('n', $start_time);
+						$result_list[$assetid.':'.$i]['end_date_mday']   = date('j', $start_time);
+					
 						if (!is_null($event['end_date_hours'])) {
 							list($result_list[$assetid.':'.$i]['end_date_hours'], $result_list[$assetid.':'.$i]['end_date_minutes']) = explode(':', $this->attr('day_ends_at'));
 							$result_list[$assetid.':'.$i]['end_date_ts'] = iso8601_ts($start_date.' '.$this->attr('day_ends_at').':00');
@@ -2360,13 +2399,20 @@ class Page_Calendar extends Page_Asset_Listing
 					for ($inter_time = $start_time + 86400; $inter_time < $end_time; $inter_time += 86400) {
 						$inter_date = date('Y-m-d', $inter_time);
 						if (($inter_date >= $first_day) && ($inter_date <= $last_day)) {
-							$result_list[$assetid.':'.$i] = array_merge($event, Array(
-								'start_date_year' => date('Y', $inter_time), 'start_date_mon' => date('n', $inter_time),
-								'start_date_mday' => date('j', $inter_time),
-								'end_date_year' => date('Y', $inter_time), 'end_date_mon' => date('n', $inter_time),
-								'end_date_mday' => date('j', $inter_time),
-								'partition_start' => $this->attr('day_starts_at')));
+						
+							$result_list[$assetid.':'.$i] = Array();
+							for(reset($event); null !== ($k = key($event)); next($event)) {
+								$result_list[$assetid.':'.$i][$k] = $event[$k];
+							}
 
+							$result_list[$assetid.':'.$i]['start_date_year'] = date('Y', $inter_time);
+							$result_list[$assetid.':'.$i]['start_date_mon']  = date('n', $inter_time);
+							$result_list[$assetid.':'.$i]['start_date_mday'] = date('j', $inter_time);
+							$result_list[$assetid.':'.$i]['end_date_year']   = date('Y', $inter_time);
+							$result_list[$assetid.':'.$i]['end_date_mon']    = date('n', $inter_time);
+							$result_list[$assetid.':'.$i]['end_date_mday']   = date('j', $inter_time);
+							$result_list[$assetid.':'.$i]['partition_start']   = $this->attr('day_starts_at');
+					
 							if (!is_null($event['start_date_hours'])) {
 								list($result_list[$assetid.':'.$i]['start_date_hours'], $result_list[$assetid.':'.$i]['start_date_minutes']) = explode(':', $this->attr('day_starts_at'));
 								$result_list[$assetid.':'.$i]['start_date_ts'] = iso8601_ts($inter_date.' '.$this->attr('day_starts_at').':00');
@@ -2380,12 +2426,18 @@ class Page_Calendar extends Page_Asset_Listing
 					}
 
 					if (($end_date >= $first_day) && ($end_date <= $last_day)) {
-						$result_list[$assetid.':'.$i] = array_merge($event, Array(
-							'start_date_year' => date('Y', $end_time), 'start_date_mon' => date('n', $end_time),
-								'start_date_mday' => date('j', $end_time),
-							'end_date_year' => date('Y', $end_time), 'end_date_mon' => date('n', $end_time),
-								'end_date_mday' => date('j', $end_time),
-							'partition_start' => $this->attr('day_starts_at')));
+						$result_list[$assetid.':'.$i] = Array();
+						for(reset($event); null !== ($k = key($event)); next($event)) {
+							$result_list[$assetid.':'.$i][$k] = $event[$k];
+						}
+						
+						$result_list[$assetid.':'.$i]['start_date_year'] = date('Y', $end_time);
+						$result_list[$assetid.':'.$i]['start_date_mon']  = date('n', $end_time);
+						$result_list[$assetid.':'.$i]['start_date_mday'] = date('j', $end_time);
+						$result_list[$assetid.':'.$i]['end_date_year']   = date('Y', $end_time);
+						$result_list[$assetid.':'.$i]['end_date_mon']    = date('n', $end_time);
+						$result_list[$assetid.':'.$i]['end_date_mday']   = date('j', $end_time);
+						$result_list[$assetid.':'.$i]['partition_start'] = $this->attr('day_starts_at');
 
 						if (!is_null($event['start_date_hours'])) {
 							list($result_list[$assetid.':'.$i]['start_date_hours'], $result_list[$assetid.':'.$i]['start_date_minutes']) = explode(':', $this->attr('day_starts_at'));
@@ -2400,11 +2452,19 @@ class Page_Calendar extends Page_Asset_Listing
 					$start_date = date('Y-m-d', $start_time);
 					// single day
 					if (($start_date >= $first_day) && ($start_date <= $last_day)) {
-						$result_list[$assetid.':'.$i] = array_merge($event, Array(
-							'start_date_year' => date('Y', $start_time), 'start_date_mon' => date('n', $start_time), 'start_date_mday' => date('j', $start_time),
-							'end_date_year' => date('Y', $start_time), 'end_date_mon' => date('n', $start_time),
-							'end_date_mday' => date('j', $start_time),
-							));
+						$result_list[$assetid.':'.$i] = Array();
+						for(reset($event); null !== ($k = key($event)); next($event)) {
+							$result_list[$assetid.':'.$i][$k] = $event[$k];
+						}
+
+						$result_list[$assetid.':'.$i]['start_date_year'] = date('Y', $start_time);
+						$result_list[$assetid.':'.$i]['start_date_mon']  = date('n', $start_time);
+						$result_list[$assetid.':'.$i]['start_date_mday'] = date('j', $start_time);
+						$result_list[$assetid.':'.$i]['end_date_ds']     = round(iso8601_ts($start_time) / 86400);
+						$result_list[$assetid.':'.$i]['end_date_year']   = date('Y', $start_time);
+						$result_list[$assetid.':'.$i]['end_date_mon']    = date('n', $start_time);
+						$result_list[$assetid.':'.$i]['end_date_mday']   = date('j', $start_time);
+
 						$i++;
 					}
 				}
@@ -2414,19 +2474,25 @@ class Page_Calendar extends Page_Asset_Listing
 				// single day in any case
 				
 				if (($start_date >= $first_day) && ($start_date <= $last_day)) {
-					$result_list[$assetid.':'.$i] = array_merge($event, Array(
-							'start_date_year' => date('Y', $start_time), 'start_date_mon' => date('n', $start_time), 'start_date_mday' => date('j', $start_time),
-							'end_date_ds' => round(iso8601_ts($assetid) / 86400),
-							'end_date_year' => date('Y', $start_time), 'end_date_mon' => date('n', $start_time),
-							'end_date_mday' => date('j', $start_time),
-							));
+					$result_list[$assetid.':'.$i] = Array();
+					for(reset($event); null !== ($k = key($event)); next($event)) {
+						$result_list[$assetid.':'.$i][$k] = $event[$k];
+					}
+					
+					$result_list[$assetid.':'.$i]['start_date_year'] = date('Y', $start_time);
+					$result_list[$assetid.':'.$i]['start_date_mon']  = date('n', $start_time);
+					$result_list[$assetid.':'.$i]['start_date_mday'] = date('j', $start_time);
+					$result_list[$assetid.':'.$i]['end_date_ds']     = round(iso8601_ts($start_time) / 86400);
+					$result_list[$assetid.':'.$i]['end_date_year']   = date('Y', $start_time);
+					$result_list[$assetid.':'.$i]['end_date_mon']    = date('n', $start_time);
+					$result_list[$assetid.':'.$i]['end_date_mday']   = date('j', $start_time);
+
 					$i++;
 				}
 
 			}
 			// get the next occurrence
-			$next_day = add_days_to_iso($next_occur, 1);
-			$next_occur = Calendar_Event_Recurring::getFirstOccurrenceAfter(add_days_to_iso($next_day, 1), $event_start_date, $event['frequency'], $event['period'], $event_last_day);
+			$next_occur = Calendar_Event_Recurring::getFirstOccurrenceAfter(add_days_to_iso($next_occur, 1), $event_start_date, $event['frequency'], $event['period'], $event_last_day);
 
 		}//end while
 
