@@ -3,7 +3,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: indexing_manager.inc,v 1.3 2003/10/14 05:29:28 dwong Exp $
+* $Id: indexing_manager.inc,v 1.4 2003/10/21 06:24:01 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -14,7 +14,7 @@
 
 *
 * @author  Dominic Wong<dwong@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.4 $ - 1.0
 * @package MySource_Matrix
 */
 class Indexing_Manager extends MySource_Object 
@@ -44,15 +44,19 @@ class Indexing_Manager extends MySource_Object
 		if ($assetid <= 0)
 			return;
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		// get dependent parents
+		$changed_assetids = $am->getDependantParents($assetid);
+		$changed_assetids[] = $assetid;
 
-		$this->flushKeyData($assetid, $component);
+		foreach ($changed_assetids as $assetid) {
+			$this->flushKeyData($assetid, $component);
 
-		$asset =& $am->getAsset($assetid);
-		$newKeyData =& $asset->getKeyData($component);
+			$asset =& $am->getAsset($assetid);
+			$newKeyData =& $asset->getKeyData($component);
 
-		$this->addKeyData($assetid, $newKeyData);
+			$this->addKeyData($assetid, $newKeyData);
+		}
 	} // end changed()
 
 	/**
@@ -151,6 +155,52 @@ class Indexing_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$results = $db->query($sql);
 	} // end addKeyDatum()
+
+	/** 
+	* Sets the default component weighting for a particular asset type. This does NOT create any new rows in defaults. 
+	* Make sure component exists.
+	*
+	* 
+	*/
+	function setComponentDefaultWeighting ($type_code, $component, $weighting)
+	{
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		if (strlen($component) == 0)
+			continue;
+
+		$sql = 'UPDATE '. SQ_TABLE_PREFIX .'asset_indexing_weightings_default
+				SET weighting = ' . $db->quote($weighting) .'
+				WHERE type_code = '. $db->quote($type_code) . ' AND component = '. $db->quote($component) ;
+	
+		$db->query($sql);
+
+	} // end setComponentDefaultWeighting()
+
+	/** 
+	* Sets the component weighting for a particular asset. 
+	*
+	* @param int $assetid				The asset id
+	* @param int $component				The component
+	* @param [null|int] $weighting		The weighting. If null, then this reverts back to the default for this asset's type.
+	*/
+	function setComponentWeighting ($assetid, $component, $weighting = null)
+	{
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'DELETE FROM '. SQ_TABLE_PREFIX .'asset_indexing_weightings 
+				WHERE assetid = '. $db->quote($assetid) . ' AND component = '. $db->quote($component) ;
+		$db->query($sql);
+		if (!is_null($weighting)) {
+			$sql = 'INSERT INTO '. SQ_TABLE_PREFIX .'asset_indexing_weightings(assetid, component, weighting) 
+					VALUES ('. 
+						$db->quote($assetid)				. ', ' .
+						$db->quote($component)				. ', ' .
+						$db->quote($weighting)	.
+					')';
+			$db->query($sql);
+		}
+
+	} // end setComponentWeighting()
 
 } // end class
 
