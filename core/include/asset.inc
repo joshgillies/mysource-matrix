@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.338.2.3 2004/12/23 06:13:09 tbarrett Exp $
+* $Id: asset.inc,v 1.338.2.4 2004/12/24 02:29:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.338.2.3 $
+* @version $Revision: 1.338.2.4 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3416,7 +3416,7 @@ class Asset extends MySource_Object
 
 			$num_paths = count($paths);
 
-			$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3, 'design', false);
+			$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'design', false);
 			$our_designs = Array();
 			foreach ($our_design_links as $link) {
 				if (preg_match('/^(system_design|user_design)::.*$/', $link['value'])) {

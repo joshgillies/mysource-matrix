@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.15 2004/12/03 15:33:23 brobertson Exp $
+* $Id: settings.inc,v 1.15.2.1 2004/12/24 02:29:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -360,7 +360,7 @@ function paintSettings(&$owner, &$o, &$ei)
 											'system_design::login'    => 0,
 										);
 
-					$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_LINK_TYPE_3, 'design', false);
+					$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_LINK_NOTICE, 'design', false);
 					foreach ($our_design_links as $link) {
 						if (preg_match('/^(system_design|user_design)::.*$/', $link['value'])) {
 							$our_designs[$link['value']] = $link['minorid'];
@@ -650,13 +650,13 @@ function processSettings(&$owner, &$o, &$ei)
 				$old_designid = 0;
 				$design_name .= strtolower($design_data['name']);
 
-				if ($GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_TYPE_3, 'design', false, $design_name)) {
+				if ($GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'design', false, $design_name)) {
 					trigger_error('Design Name "'.$design_data['name'].'" already in use', E_USER_WARNING);
 					continue;
 				}// end if
 
 			} else {
-				$old_design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_TYPE_3, 'design', false, $design_name);
+				$old_design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'design', false, $design_name);
 				$old_designid    = (empty($old_design_link)) ? 0 : $old_design_link['minorid'];
 
 			}// end if
@@ -681,7 +681,7 @@ function processSettings(&$owner, &$o, &$ei)
 					$designs_ok = false;
 					break;
 				}
-				if (!$owner->createLink($design, SQ_LINK_TYPE_3, $design_name)) {
+				if (!$owner->createLink($design, SQ_LINK_NOTICE, $design_name)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$designs_ok = false;
 					break;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.60.2.1 2004/12/06 22:36:15 gsherwood Exp $
+* $Id: site.inc,v 1.60.2.2 2004/12/24 02:29:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -371,7 +371,7 @@ class Site extends Folder
 			return false;
 		}
 
-		$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3, 'design', false);
+		$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'design', false);
 		$our_designs = Array();
 		foreach ($our_design_links as $link) {
 			if (preg_match('/^(system_design|user_design)::(.*)$/', $link['value'], $matches)) {
