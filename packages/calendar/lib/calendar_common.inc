@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.16 2004/12/10 06:39:03 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.17 2004/12/12 22:36:25 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -539,7 +539,8 @@ function &expand_event_list(&$events, $first_day, $last_day, $day_start_time='00
 	$res = Array();
 	foreach (array_keys($events) as $key) {
 		$event =& $events[$key];
-		if (($event['type_code'] == 'calendar_event_recurring') || in_array($event['type_code'], $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('calendar_event_recurring'))) {
+		$recurring_descandants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('calendar_event_recurring');
+		if (($event['type_code'] == 'calendar_event_recurring') || in_array($event['type_code'], $recurring_descandants)) {
 			expand_recurring_event($res, $event, $key, $first_day, $last_day, $day_start_time, $day_end_time);
 		} else {
 			expand_single_event($res, $event, $key, $first_day, $last_day, $day_start_time, $day_end_time);
