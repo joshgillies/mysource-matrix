@@ -331,7 +331,7 @@ class Backend extends Resolve_Object
 
 				if (top.main.document.body) {
 					msgDiv = top.main.document.getElementById("new_message_popup");
-					screenMenu = top.main.document.getElementById("screen_menu");
+					screenMenu = top.main.document.getElementById("sq_screen_menu");
 					if (msgDiv == null) {
 						msgDiv = top.main.document.createElement("div");
 						msgDiv.id = "new_message_popup";

@@ -610,6 +610,7 @@ class Backend_Outputter
 						<?php echo $this->_heading;?>
 					</td>
 					<td class="sq-backend-heading" style="text-align: right;">
+					<div id="sq_screen_menu">
 					<?php
 						if (empty($this->_screens) && empty($this->_static_screens)) {
 							echo '&nbsp;';
@@ -633,6 +634,7 @@ class Backend_Outputter
 							echo '&nbsp;';
 						}
 					?>
+					</div>
 					</td>
 				</tr>
 			</table>
