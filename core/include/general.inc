@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: general.inc,v 1.39 2003/10/14 02:06:33 brobertson Exp $
+* $Id: general.inc,v 1.40 2003/10/24 03:11:50 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -317,7 +317,10 @@ function sq_web_path($path='base')
 */
 function current_url($inc_protocol=true, $strip_backend_suffix=false)
 {
-	$url = (($inc_protocol) ? current_protocol().'://' : '').$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
+	// check to see if we are running as PHP CLI
+	$hostname = (SQ_PHP_CLI) ? $_SERVER['HOSTNAME'] : $_SERVER['HTTP_HOST'];
+
+	$url = (($inc_protocol) ? current_protocol().'://' : '').$hostname.$_SERVER['PHP_SELF'];
 	// if we are in the backend remove the suffix
 	if ($strip_backend_suffix && SQ_IN_BACKEND) {
 		$url = preg_replace('/'.SQ_CONF_BACKEND_SUFFIX.'\/?$/', '', $url);
