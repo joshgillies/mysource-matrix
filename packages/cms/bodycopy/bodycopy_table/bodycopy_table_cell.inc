@@ -34,14 +34,14 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 	* @return boolean
 	* @access public
 	*/
-	function set_attribute($name, $value)
+	function setAttribute($name, $value)
 	{
 		$name = strtolower($name);
 		if (!isset($this->attributes[$name])) $this->attributes[$name] = '';
 		if ($this->attributes[$name] == $value) return false;
 		$this->attributes[$name] = $value;
 		return true;
-	}//end set_attribute()
+	}//end setAttribute()
 
 
 	/**
@@ -252,7 +252,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 					if ($this->_updateCellType($table, $value)) $updated = true;
 					continue;
 				}
-				if ($this->set_attribute($name, $value)) $updated = true;
+				if ($this->setAttribute($name, $value)) $updated = true;
 			}
 		}
 		return $updated;
@@ -281,7 +281,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 		// then down
 		if (!$content_type->morph($new_type)) return false;
 
-		$this->set_attribute('content_type', $new_type);
+		$this->setAttribute('content_type', $new_type);
 
 		return true;
 	}

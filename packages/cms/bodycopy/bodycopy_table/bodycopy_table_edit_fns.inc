@@ -40,7 +40,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function set_attribute(&$attributes, $name, $value)
+	function setAttribute(&$attributes, $name, $value)
 	{
 		$name = strtolower($name);
 		if (empty($attributes[$name])) $attributes[$name] = '';
@@ -359,7 +359,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			$attributes_updated = false;
 			$attributes = $asset->attr('attributes');
 			foreach($bodycopy_saved[$prefix][$asset->id]['attributes'] as $name => $value) {
-				if ($this->set_attribute($attributes, $name, $value)) $attributes_updated = true;
+				if ($this->setAttribute($attributes, $name, $value)) $attributes_updated = true;
 			}
 			if ($attributes_updated) {
 				$asset->setAttrValue('attributes',$attributes);
@@ -626,7 +626,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		for($i = 0; $i < count($rows[$compareid]['cells']); $i++) {
 			$rows[$rowid]['cells'][$i] = new Bodycopy_Table_Cell();
 			foreach ($rows[$compareid]['cells'][$i]->attributes as $name => $val) {
-				$rows[$rowid]['cells'][$i]->set_attribute($name,$val);
+				$rows[$rowid]['cells'][$i]->setAttribute($name,$val);
 			}
 			$rows[$rowid]['cells'][$i]->setContentType($asset, 'wysiwyg', $rowid, $i);
 		}
@@ -879,7 +879,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 				// if this cell has colspan's already, we can just increase the colspan by 1
 				if ($rows[$rowid]['cells'][$cellid]->colspan() > 1 && !$dont_do_this) {
 					$colspaning = $rows[$rowid]['cells'][$cellid]->colspan() + 1;
-					$rows[$rowid]['cells'][$cellid]->set_attribute('colspan', $colspaning);
+					$rows[$rowid]['cells'][$cellid]->setAttribute('colspan', $colspaning);
 					return true;
 				}
 				
@@ -910,7 +910,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		// the properties of the cell to the left/right
 		foreach ($rows[$rowid]['cells'][$compareid]->attributes as $name => $val) {
 			if (strtolower($name) == 'colspan') continue;
-			$rows[$rowid]['cells'][$cellid]->set_attribute($name,$val);
+			$rows[$rowid]['cells'][$cellid]->setAttribute($name,$val);
 		}
 		$rows[$rowid]['cells'][$cellid]->setContentType($asset, 'wysiwyg', $rowid, $cellid);
 
@@ -962,7 +962,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 				// if this cell has colspan's already, we can just reduce the colspan by 1
 				if ($rows[$rowid]['cells'][$cellid]->colspan() > 1) {
 					$colspaning = $rows[$rowid]['cells'][$cellid]->colspan() - 1;
-					$rows[$rowid]['cells'][$cellid]->set_attribute('colspan', $colspaning);
+					$rows[$rowid]['cells'][$cellid]->setAttribute('colspan', $colspaning);
 					return true;
 				}
 			}
