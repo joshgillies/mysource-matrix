@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.244 2003/10/22 00:12:10 gsherwood Exp $
+* $Id: asset.inc,v 1.245 2003/10/22 01:17:18 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3172,7 +3172,7 @@ class Asset extends MySource_Object
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		if (is_null($this->_weightings)) {
 			// load the weightings
-			$sql = 'SELECT wd.component, wd.description, (w.weighting IS NULL) as default, COALESCE(w.weighting, wd.weighting) as weighting
+			$sql = 'SELECT wd.component, wd.description, (w.weighting IS NULL) as def, COALESCE(w.weighting, wd.weighting) as weighting
 					FROM
 						'. SQ_TABLE_PREFIX .'asset_indexing_weightings_default wd
 							LEFT OUTER JOIN '. SQ_TABLE_PREFIX. 'asset a
@@ -3182,13 +3182,18 @@ class Asset extends MySource_Object
 								a.assetid = w.assetid
 					WHERE
 						a.assetid = ' . $db->quote($this->id) ;
+
 			$results = $db->getAll($sql);
+			if (DB::isError($results)) {
+				trigger_error($results->getMessage().'<br/>'.$results->getUserInfo(), E_USER_ERROR);
+				return false;
+			}
 
 			$this->_weightings = Array();
 			foreach ($results as $result) {
 				$this->_weightings[$result['component']] =
 					Array(
-						'default' => ($result['default'] == 't')?1:0,
+						'default' => ($result['def'] == 't')?1:0,
 						'weighting' => $result['weighting'],
 						'description' => $result['description'],
 					);
