@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_contain.inc,v 1.8 2004/05/05 07:10:12 lwright Exp $
+* $Id: form_question_rule_type_contain.inc,v 1.9 2004/05/07 05:08:00 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -91,7 +91,7 @@ class Form_Question_Rule_Type_Contain extends Form_Question_Rule
 			if (is_a($comparison, 'form_question')) {
 				$error = $q_asset->name.' must '. (($operator) ? '' : 'not') .' contain the value \''.$comparison->getValue().'\' ('.$comparison->name.' in '.$comparison->getMySectionName().')';
 			} else {
-				$error = $q_asset->name.' must '. (($operator) ? '' : 'not') .' contain \''.$answer.'\'';
+				$error = $q_asset->name.' must '. (($operator) ? '' : 'not') .' contain \''.$comparison.'\'';
 			}
 			$q_asset->submission_errors[] = $error;
 			return false;
