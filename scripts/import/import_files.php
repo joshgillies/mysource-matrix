@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_files.php,v 1.6 2005/02/24 21:54:57 gsherwood Exp $
+* $Id: import_files.php,v 1.7 2005/03/21 06:28:39 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * be linked appropriately.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -54,6 +54,8 @@ $GLOBALS['SQ_SYSTEM']->am->includeAsset('image');
 $GLOBALS['SQ_SYSTEM']->am->includeAsset('pdf_file');
 $GLOBALS['SQ_SYSTEM']->am->includeAsset('word_doc');
 
+$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
 $import_dirs = list_dirs($import_home_dir, false);
 foreach ($import_dirs as $import_dir) {
 
@@ -66,7 +68,6 @@ foreach ($import_dirs as $import_dir) {
 
 	// get a list of all files in the import directory
 	$files = list_files($import_path);
-	$GLOBALS['SQ_INSTALL'] = true;
 	foreach ($files as $filename) {
 		switch (get_file_type($filename)) {
 			case 'doc' :
@@ -102,6 +103,6 @@ foreach ($import_dirs as $import_dir) {
 	}
 }
 
-unset($GLOBALS['SQ_INSTALL']);
+$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 ?>

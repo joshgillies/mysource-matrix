@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_move_update.php,v 1.9 2005/02/23 05:49:03 gsherwood Exp $
+* $Id: system_move_update.php,v 1.10 2005/03/21 06:28:39 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Small script to be run AFTER the system root directory is changed
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -59,8 +59,6 @@ function get_line($prompt='')
 }//end get_line()
 
 
-// Dont set SQ_INSTALL flag before this include because we want
-// a complete load now that the database has been created
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 if ((php_sapi_name() == 'cli')) {

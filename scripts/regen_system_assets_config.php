@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: regen_system_assets_config.php,v 1.5 2004/12/06 14:38:13 brobertson Exp $
+* $Id: regen_system_assets_config.php,v 1.6 2005/03/21 06:28:39 gsherwood Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 * that get updated and need this file generated
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -50,12 +50,10 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 	trigger_error($err_msg, E_USER_ERROR);
 }
 
-// Dont set SQ_INSTALL flag before this include because we want
-// a complete load now that the database has been created
+
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
-
-// Re-generate the System Config to make sure that we get any new defines that may have been issued
+// re-generate the System Config to make sure that we get any new defines that may have been issued
 require_once SQ_INCLUDE_PATH.'/system_asset_config.inc';
 $sys_asset_cfg = new System_Asset_Config();
 $sys_asset_cfg->save(Array(), true);

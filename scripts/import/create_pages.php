@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: create_pages.php,v 1.3 2004/12/06 14:38:13 brobertson Exp $
+* $Id: create_pages.php,v 1.4 2005/03/21 06:28:39 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 * @author  Avi Miller <avim@netspace.net.au>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -51,7 +51,7 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 // get the import file
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 $pages = file($import_file);
-$GLOBALS['SQ_INSTALL'] = true;
+$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 foreach ($pages as $pageline) {
 
 	// create an asset under the new parent of the correct type
@@ -74,6 +74,6 @@ foreach ($pages as $pageline) {
 	}
 }
 
-unset($GLOBALS['SQ_INSTALL']);
+$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 ?>
