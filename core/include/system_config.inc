@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.48 2005/03/11 03:56:20 gsherwood Exp $
+* $Id: system_config.inc,v 1.49 2005/03/21 06:14:12 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -50,7 +50,7 @@ class System_Config extends Config
 							 'SQ_CONF_PEAR_PATH'                 => Array('editable' => 0, 'default' => ''),
 							 'SQ_CONF_BACKEND_SUFFIX'            => Array('editable' => 1, 'default' => '_admin'),
 							 'SQ_CONF_LIMBO_SUFFIX'              => Array('editable' => 1, 'default' => '_edit'),
-							 'SQ_CONF_ASSET_TREE_BASE'           => Array('editable' => 0, 'default' => 64),
+							 'SQ_CONF_ASSET_TREE_BASE'           => Array('editable' => 0, 'default' => 36),
 							 'SQ_CONF_ASSET_TREE_SIZE'           => Array('editable' => 0, 'default' =>  4),
 							 'SQ_CONF_ROLLBACK_ENABLED'          => Array('editable' => 0, 'default' => '0'),
 							 'SQ_CONF_DEBUG'                     => Array('editable' => 1, 'default' => 0),
@@ -108,42 +108,51 @@ class System_Config extends Config
 	*/
 	function save($vars, $backup_existing=false, $send_message=true)
 	{
-		if (empty($GLOBALS['SQ_INSTALL'])) {
-
-			$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-			$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-
-			// if we dont have access, go away
-			if (!$is_admin) {
-				trigger_error('You need to be either the Root User or a System Administrator to save the '.$this->name, E_USER_WARNING);
-				return false;
-			}
-
-			// Now just make sure they aren't trying to set anything that they shouldn't
-			if (!$is_root) {
-				unset($vars['SQ_CONF_MAX_LOGIN_ATTEMPTS']);
-				unset($vars['SQ_CONF_MAX_IDLE_TIME']);
-				unset($vars['SQ_CONF_LOG_ERRORS']);
-				unset($vars['SQ_CONF_ERRORS_HIDE_FRONTEND']);
-				unset($vars['SQ_CONF_BACKEND_SUFFIX']);
-				unset($vars['SQ_CONF_LIMBO_SUFFIX']);
-				unset($vars['SQ_CONF_ROLLBACK_ENABLED']);
-			}//end if
-
-			// Now do some validation
-			if (isset($vars['SQ_CONF_SYSTEM_ROOT_URLS'])) {
-				$vars['SQ_CONF_SYSTEM_ROOT_URLS'] = str_replace("\r", '', $vars['SQ_CONF_SYSTEM_ROOT_URLS']);
-			}
-			if (isset($vars['SQ_CONF_MAX_IDLE_TIME']) && $vars['SQ_CONF_MAX_IDLE_TIME'] != '0') {
-				$vars['SQ_CONF_MAX_IDLE_TIME'] = max(60, (int) $vars['SQ_CONF_MAX_IDLE_TIME']);
-			}
-			foreach (Array('SQ_CONF_REFRESH_INTERVAL', 'SQ_CONF_LOCK_LENGTH') as $var_name) {
-				if (isset($vars[$var_name])) {
-					$vars[$var_name] = max(60, (int) $vars[$var_name]);
+		if (isset($GLOBALS['SQ_SYSTEM'])) {
+			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
+	
+				$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+				$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+	
+				// if we dont have access, go away
+				if (!$is_admin) {
+					trigger_error('You need to be either the Root User or a System Administrator to save the '.$this->name, E_USER_WARNING);
+					return false;
 				}
-			}
+			} else {
+				$is_root = true;
+				$is_admin = true;
+			}//end if checking permissions
+	
+			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_DATA_VALIDATION)) {
+	
+				// now just make sure they aren't trying to set anything that they shouldn't
+				if (!$is_root) {
+					unset($vars['SQ_CONF_MAX_LOGIN_ATTEMPTS']);
+					unset($vars['SQ_CONF_MAX_IDLE_TIME']);
+					unset($vars['SQ_CONF_LOG_ERRORS']);
+					unset($vars['SQ_CONF_ERRORS_HIDE_FRONTEND']);
+					unset($vars['SQ_CONF_BACKEND_SUFFIX']);
+					unset($vars['SQ_CONF_LIMBO_SUFFIX']);
+					unset($vars['SQ_CONF_ROLLBACK_ENABLED']);
+				}
+	
+				// now do some validation
+				if (isset($vars['SQ_CONF_SYSTEM_ROOT_URLS'])) {
+					$vars['SQ_CONF_SYSTEM_ROOT_URLS'] = str_replace("\r", '', $vars['SQ_CONF_SYSTEM_ROOT_URLS']);
+				}
+				if (isset($vars['SQ_CONF_MAX_IDLE_TIME']) && $vars['SQ_CONF_MAX_IDLE_TIME'] != '0') {
+					$vars['SQ_CONF_MAX_IDLE_TIME'] = max(60, (int) $vars['SQ_CONF_MAX_IDLE_TIME']);
+				}
+				foreach (Array('SQ_CONF_REFRESH_INTERVAL', 'SQ_CONF_LOCK_LENGTH') as $var_name) {
+					if (isset($vars[$var_name])) {
+						$vars[$var_name] = max(60, (int) $vars[$var_name]);
+					}
+				}
+	
+			}//end if validating values
 
-		}// end if
+		}//end if SQ_SYSTEM is set
 
 		return parent::save($vars, $backup_existing, $send_message);
 
@@ -253,7 +262,9 @@ class System_Config extends Config
 	function writeAccess()
 	{
 		if (!parent::writeAccess()) return false;
-		if (!empty($GLOBALS['SQ_INSTALL'])) return true;
+		if (!isset($GLOBALS['SQ_SYSTEM'])) return true;
+		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) return true;
+
 		// need to be root or a sys admin
 		return ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 

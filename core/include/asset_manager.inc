@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.287 2005/03/17 01:26:04 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.288 2005/03/21 06:14:12 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.287 $
+* @version $Revision: 1.288 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -66,7 +66,7 @@ class Asset_Manager extends MySource_Object
 	function Asset_Manager()
 	{
 		$this->MySource_Object();
-		if (empty($GLOBALS['SQ_INSTALL'])) $this->_loadAssetTypes();
+		$this->_loadAssetTypes();
 
 	}//end constructor
 
@@ -87,6 +87,12 @@ class Asset_Manager extends MySource_Object
 			include(SQ_DATA_PATH.'/private/db/asset_types.inc');
 			$this->_asset_types = $asset_types;
 		} else {
+			// if the table columns have not been cached, the database
+			// install has not been completed, so we cant get the types from the DB
+			if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) return;
+
+			// load the asset types from the DB, which will also cache
+			// them to the asset_types.inc file
 			$this->_asset_types = $this->getAssetTypes();
 		}
 
@@ -547,6 +553,7 @@ class Asset_Manager extends MySource_Object
 	{
 		$error_msg = 'Asset "'.$type_code.'" is not installed on the system, unable to include its source file';
 
+		$type_code = strtolower($type_code);
 		assert_isset_array_index($this->_asset_types, $type_code, $error_msg);
 		require_once SQ_SYSTEM_ROOT.'/'.$this->_asset_types[$type_code]['dir'].'/'.$type_code.'.inc';
 
@@ -1244,7 +1251,7 @@ class Asset_Manager extends MySource_Object
 		$null = null; // needed because we return by reference
 		if (!$source->id) return $null;
 
-		if (!isset($GLOBALS['SQ_INSTALL']) || !$GLOBALS['SQ_INSTALL']) {
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
 			$lock = $this->getLockInfo($source->id, 'all');
 			foreach ($lock as $lock_type => $lock_info) {
 				if (empty($lock_info)) {
@@ -1289,8 +1296,8 @@ class Asset_Manager extends MySource_Object
 			return $null;
 		}
 
-		if (!isset($GLOBALS['SQ_INSTALL']) || !$GLOBALS['SQ_INSTALL']) {
-			// Lock the new clone in the same chain as we are locked
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
+			// lock the new clone in the same chain as we are locked
 			if (!$this->acquireLock($clone->id, 'all', $source->id)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return $null;
@@ -1304,7 +1311,7 @@ class Asset_Manager extends MySource_Object
 			if (!isset($link['is_dependant']))  $link['is_dependant']  = 0;
 			if (!isset($link['is_exclusive']))  $link['is_exclusive']  = 0;
 
-			if (!isset($GLOBALS['SQ_INSTALL']) || !$GLOBALS['SQ_INSTALL']) {
+			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
 				// OK what we are going to do is make sure that the new parents lock is
 				// in the same chain as our current lock
 				$parent_lock = $this->getLockInfo($link['asset']->id, 'links');
@@ -2765,19 +2772,23 @@ class Asset_Manager extends MySource_Object
 			}
 		}//end for
 
-		// check if we are allowed to link to these type of assets
-		if (($err_msg = $major->canCreateLink($minor, $link_type, $exclusive)) !== true) {
-			trigger_error($err_msg, E_USER_WARNING);
-			return 0;
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_VALIDATION)) {
+			// check if we are allowed to link to these type of assets
+			if (($err_msg = $major->canCreateLink($minor, $link_type, $exclusive)) !== true) {
+				trigger_error($err_msg, E_USER_WARNING);
+				return 0;
+			}
 		}
 
-		// to create a link we need to lock the new parent, but we need to make sure
-		// we dont unlock it if it was already locked
-		$lock_info = @$this->getLockInfo($major->id, 'links');
-		$parent_was_locked = !empty($lock_info);
-		if (!$this->acquireLock($major->id, 'links')) {
-			trigger_error('Could not create new asset link - "links" lock not acquired on major asset "'.$major->name.'"', E_USER_WARNING);
-			return 0;
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
+			// to create a link we need to lock the new parent, but we need to make sure
+			// we dont unlock it if it was already locked
+			$lock_info = @$this->getLockInfo($major->id, 'links');
+			$parent_was_locked = !empty($lock_info);
+			if (!$this->acquireLock($major->id, 'links')) {
+				trigger_error('Could not create new asset link - "links" lock not acquired on major asset "'.$major->name.'"', E_USER_WARNING);
+				return 0;
+			}
 		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -3058,11 +3069,13 @@ class Asset_Manager extends MySource_Object
 			return 0;
 		}
 
-		// release locks depending on if the parent was locked before the link
-		if (!$parent_was_locked) {
-			if (!$this->releaseLock($major->id, 'links')) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return 0;
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
+			// release locks depending on if the parent was locked before the link
+			if (!$parent_was_locked) {
+				if (!$this->releaseLock($major->id, 'links')) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return 0;
+				}
 			}
 		}
 
@@ -3118,8 +3131,10 @@ class Asset_Manager extends MySource_Object
 		if (!$major->id) return false;
 
 		// if you dont have write access to this asset you cant create any links
-		if (empty($GLOBALS['SQ_INSTALL']) && !$major->writeAccess('')) {
-			return 'Cannot create link from '.$major->name.' (# '.$major->id.') to '.$minor->name.' (# '.$minor->id.'), permission denied (no write access to "'.$major->name.'")';
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
+			if (!$major->writeAccess('')) {
+				return 'Cannot create link from '.$major->name.' (# '.$major->id.') to '.$minor->name.' (# '.$minor->id.'), permission denied (no write access to "'.$major->name.'")';
+			}
 		}
 
 		if (!is_a($minor, 'Asset')) {
@@ -3418,10 +3433,12 @@ class Asset_Manager extends MySource_Object
 				return false;
 			}
 
-			if (($err_msg = $this->canLinkToType($major, $minor->type(), $link_type)) !== true) {
-				trigger_error('Unable to update link #'.$linkid.' ('.$err_msg.')', E_USER_WARNING);
-				$ms->abortLog();
-				return false;
+			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_VALIDATION)) {
+				if (($err_msg = $this->canLinkToType($major, $minor->type(), $link_type)) !== true) {
+					trigger_error('Unable to update link #'.$linkid.' ('.$err_msg.')', E_USER_WARNING);
+					$ms->abortLog();
+					return false;
+				}
 			}
 
 			// check for web path conflicts with the new parents children
@@ -3476,13 +3493,12 @@ class Asset_Manager extends MySource_Object
 
 			$message_body = 'The sort order of link #'.$linkid.' (between "'.$major->name.'" and "'.$minor->name.'") was successfully changed from '.$link['sort_order'].' to '.$sort_order;
 			$message = $ms->newMessage(Array(), 'Asset Link Sort Order Updated', $message_body, 'asset.linking.order');
-			$message->parameters['majorid']   = $major->id;
-			$message->parameters['minorid']   = $minor->id;
-			$message->parameters['linkid']    = $linkid;
+			$message->parameters['majorid'] = $major->id;
+			$message->parameters['minorid'] = $minor->id;
+			$message->parameters['linkid']  = $linkid;
 			$ms->logMessage($message);
 		}
 
-		// dickhead check
 		if (empty($set_clauses)) {
 			$ms->abortLog();
 			return true;
@@ -3583,26 +3599,28 @@ class Asset_Manager extends MySource_Object
 			return false;
 		}
 
-		// to delete a link we need to lock the old parent, but we need to make sure
-		// we dont unlock it if it was already locked
-		$lock_info = @$this->getLockInfo($major->id, 'links');
-		$parent_was_locked = !empty($lock_info);
-		if (!$this->acquireLock($major->id, 'links')) {
-			trigger_error('Could not delete asset link - "links" lock not acquired on major asset "'.$major->name.'"', E_USER_WARNING);
-			return 0;
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
+			// to delete a link we need to lock the old parent, but we need to make sure
+			// we dont unlock it if it was already locked
+			$lock_info = @$this->getLockInfo($major->id, 'links');
+			$parent_was_locked = !empty($lock_info);
+			if (!$this->acquireLock($major->id, 'links')) {
+				trigger_error('Could not delete asset link - "links" lock not acquired on major asset "'.$major->name.'"', E_USER_WARNING);
+				return 0;
+			}
 		}
 
-		// check if we are allowed to delete this link
-		if (($err_msg = $major->canDeleteLink($linkid)) !== true) {
-			trigger_error($err_msg, E_USER_WARNING);
-			return false;
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_VALIDATION)) {
+			// check if we are allowed to delete this link
+			if (($err_msg = $major->canDeleteLink($linkid)) !== true) {
+				trigger_error($err_msg, E_USER_WARNING);
+				return false;
+			}
 		}
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$minor = &$this->getAsset($link['minorid'], $link['minor_type_code']);
@@ -3723,11 +3741,13 @@ class Asset_Manager extends MySource_Object
 			return false;
 		}
 
-		// release locks depending on if the parent was locked before the link
-		if (!$parent_was_locked) {
-			if (!$this->releaseLock($major->id, 'links')) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
+			// release locks depending on if the parent was locked before the link
+			if (!$parent_was_locked) {
+				if (!$this->releaseLock($major->id, 'links')) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
 			}
 		}
 
@@ -3779,14 +3799,15 @@ class Asset_Manager extends MySource_Object
 	*
 	* This deletes its links to all its current parents, and creates a link for it in the trash folder
 	*
-	* @param int	$assetid	The asset to trash
+	* @param int	$assetid	the asset to trash
 	*
-	* @return boolean	Whether the asset was successfully trashed
+	* @return boolean
 	* @access public
 	*/
 	function trashAsset($assetid)
 	{
-		// first check that our parents are OK with it (always a good idea)
+		// trash requests are charged at $4.95 a minute
+		// please ask your parents for permission before trashing
 		$parent_links = $this->getLinks($assetid, SQ_SC_LINK_ALL, '', true, 'minor');
 		$locked = Array();
 		foreach ($parent_links as $link_details) {
@@ -3847,7 +3868,7 @@ class Asset_Manager extends MySource_Object
 	*									(NOTE: TRUE is only valid if $and_greater and
 	*									$expand_groups are false)
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function getPermission($assetid, $permission, $granted=null, $and_greater=true, $expand_groups=false, $all_info=false)

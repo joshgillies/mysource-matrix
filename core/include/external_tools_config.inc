@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.11 2005/03/02 01:09:04 gsherwood Exp $
+* $Id: external_tools_config.inc,v 1.12 2005/03/21 06:14:12 gsherwood Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -80,7 +80,7 @@ class External_Tools_Config extends Config
 	*/
 	function save($vars, $backup_existing=false, $send_message=true)
 	{
-		if (empty($GLOBALS['SQ_INSTALL'])) {
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
 			$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 			$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 
@@ -120,7 +120,8 @@ class External_Tools_Config extends Config
 	function writeAccess()
 	{
 		if (!parent::writeAccess()) return false;
-		if (!empty($GLOBALS['SQ_INSTALL'])) return true;
+		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) return true;
+
 		// need to be root or a sys admin
 		return ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 
