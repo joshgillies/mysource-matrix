@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_anchor.inc,v 1.1 2004/04/07 22:58:25 lwright Exp $
+* $Id: matrix_insert_anchor.inc,v 1.2 2004/05/27 06:45:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,7 +51,7 @@ class matrix_insert_anchor extends wysiwyg_plugin {
 	function matrix_insert_anchor(&$wysiwyg)
 	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
-		$this->_add_button('matrixcreateanchor','MatrixCreateAnchor','Insert Anchor','false','1');
+		$this->_add_button('matrixcreateanchor','MatrixCreateAnchor','Insert Anchor','false','30');
 	}//end constructor()
 
 
