@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bridge_edit_fns.inc,v 1.1 2004/02/06 05:54:01 gsherwood Exp $
+* $Id: bridge_edit_fns.inc,v 1.1.2.1 2004/02/18 14:36:27 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 

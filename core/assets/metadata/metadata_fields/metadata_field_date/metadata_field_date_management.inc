@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_management.inc,v 1.3 2004/02/16 23:32:39 gsherwood Exp $
+* $Id: metadata_field_date_management.inc,v 1.3.2.1 2004/02/18 14:36:28 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 

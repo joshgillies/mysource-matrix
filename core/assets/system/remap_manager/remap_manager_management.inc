@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_management.inc,v 1.1.2.1 2004/02/18 11:39:05 brobertson Exp $
+* $Id: remap_manager_management.inc,v 1.1.2.2 2004/02/18 14:36:28 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1.2.1 $ - 0.1
+* @version $Revision: 1.1.2.2 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
