@@ -58,6 +58,12 @@ class User extends Asset
 
 		$user_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
 
+		if (!$this->setPermission($this->id, SQ_PERMISSION_ADMIN, '1')) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
+		}
+
 		// create an inbox
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('inbox');
 		$inbox = new Inbox();
@@ -76,13 +82,6 @@ class User extends Asset
 			$this->id = 0;
 			return false;
 		}
-
-		if (!$this->setPermission($this->id, SQ_PERMISSION_ADMIN, '1')) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
-
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
