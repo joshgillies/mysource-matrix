@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_stalks.inc,v 1.13 2003/12/16 18:19:51 brobertson Exp $
+* $Id: design_area_menu_stalks.inc,v 1.14 2004/06/29 07:34:44 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -109,7 +109,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 
 		ob_start();
 		echo '
-				<td'.$cell_class.' valign="top"><img src="';
+				<td'.$cell_class.' valign="top"><img alt="" src="';
 		if ($use_blanks) {
 			echo '<', '?php $blank_src; ?', '>';
 		} else {
@@ -204,16 +204,16 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 					<td'.$cell_class.' valign="top"';
 
 					if ($use_blanks) {
-						echo '><img src="<', '?php $blank_src; ?', '>" width="'.$this->attr('indent').'" height="'.$this->attr('min_height').'"></td>';
+						echo '><img alt="" src="<', '?php $blank_src; ?', '>" width="'.$this->attr('indent').'" height="'.$this->attr('min_height').'"></td>';
 					} else {
 						// if there is the need to a stalk
 						// and if we are at the end of a sub listing and 
 						// not it the indent closest to the text (which will have the end branch)
 						echo '<', '?php
 						if ($depth[$j] && !($end && ($j == $depth_count - 1)))
-							echo \' background="\', $stalk_prefix, \'stalk.png"\';
+							echo \' style="background-image:url(\', $stalk_prefix, \'stalk.png); background-repeat: repeat-y;"\';
 
-						?', '>><img src="<', '?php
+						?', '>><img alt="" src="<', '?php
 						if ($j != $depth_count - 1) { 
 							echo $blank_src;
 						} elseif ($end) { 
@@ -222,7 +222,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 							echo $stalk_prefix, \'branch.png"\';
 						}
 
-						?', '>" width="'.$this->attr('indent').'" height="'.$this->attr('min_height').'"></td>';
+						?', '> width="'.$this->attr('indent').'" height="'.$this->attr('min_height').'"></td>';
 
 					}// end if $use_blanks
 		echo '
