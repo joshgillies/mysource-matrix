@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.44 2005/02/25 13:33:42 mkeehan Exp $
+* $Id: form_email_edit_fns.inc,v 1.45 2005/02/25 13:35:02 mkeehan Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -482,8 +482,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 				}//end while reading directories
 			closedir($handle);
-			}//end if directory exists
-		}//end if handle opened
+			}//end if handle opened
+		}//end if directory exists
 		
 
 		if ($header_row) {
