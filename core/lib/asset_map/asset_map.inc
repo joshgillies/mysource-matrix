@@ -695,7 +695,7 @@ class Asset_Map
 			unset($attrs['userto']);
 			$msg_node = &$root->addChild('message', '', $attrs);
 			$msg_node->addChild('subject', strip_tags($messages[$i]['subject']));
-			$msg_node->addChild('from', strip_tags($messages[$i]['short_name']));
+			$msg_node->addChild('from', strip_tags($messages[$i]['from_name']));
 			$msg_node->addChild('body', strip_tags($messages[$i]['body']));
 
 		}// endfor
