@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.31 2004/06/24 23:17:53 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.32 2004/06/25 00:10:38 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -69,7 +69,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		$sections = &$asset->getSections();
 
 		if (empty($sections)) {
-			echo 'This form does not have any sections';
+			echo 'This form does not contain any sections';
 			return false;
 		}
 
