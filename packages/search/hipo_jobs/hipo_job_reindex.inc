@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.3 2004/07/09 04:39:13 lwright Exp $
+* $Id: hipo_job_reindex.inc,v 1.4 2004/09/14 01:40:26 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -226,7 +226,7 @@ class HIPO_Job_ReIndex extends HIPO_Job
 
 			$step_data['message'] = 'Reindexing '. $asset->name;
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			$asset->informChanges();
+			$asset->informChanges(false);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 			// add this assetid to the done array 
