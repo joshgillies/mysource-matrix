@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_raw_html_edit_fns.inc,v 1.3 2004/09/30 04:37:36 gsherwood Exp $
+* $Id: content_type_raw_html_edit_fns.inc,v 1.3.2.1 2004/12/21 21:58:53 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -66,7 +66,7 @@ class Content_Type_Raw_HTML_Edit_Fns extends Content_Type_Edit_Fns
 			$size = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_RAW_HTML_SIZE');
 			$html = $asset->attr('html');
 			$html = str_replace('&lt;?php', '<?php', $html);
-			text_area($prefix.'_html', $html, $size['width'], $size['height']);
+			text_area($prefix.'_html', $html, $size['width'], $size['height'], 0, 'style="font-family: monospace"');		
 		}
 		return true;
 
