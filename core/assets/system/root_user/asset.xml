@@ -8,7 +8,7 @@
 	<name>Root User</name>
 	<description>Root User - aka System God</description>
 	<instantiable>yes</instantiable>
-	<system_only>yes</system_only>
+	<allowed_access>system</allowed_access>
 	<parent_type>system_user</parent_type>
 	<requirements>
 		<requirement type="asset">

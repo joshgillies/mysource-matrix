@@ -8,7 +8,7 @@
 	<name>Design</name>
 	<description>This is the base from which all designs can be parsed and created</description>
 	<instantiable>yes</instantiable>
-	<system_only>no</system_only>
+	<allowed_access>backend_user</allowed_access>
 	<parent_type>design_area</parent_type>
 	<requirements>
 		<requirement type="asset">

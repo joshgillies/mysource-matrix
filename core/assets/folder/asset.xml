@@ -8,7 +8,7 @@
 	<name>Folder</name>
 	<description>Folder Object, can link to ANY type of asset, therefore is useful for categorising the assets in the backend</description>
 	<instantiable>yes</instantiable>
-	<system_only>no</system_only>
+	<allowed_access>backend_user</allowed_access>
 	<parent_type>asset</parent_type>
 	<requirements />
 </asset_info>

@@ -8,7 +8,7 @@
 	<name>Trash Folder</name>
 	<description>Trash Folder, the folder where anything that is deleted is moved to before being completly removed</description>
 	<instantiable>yes</instantiable>
-	<system_only>yes</system_only>
+	<allowed_access>system</allowed_access>
 	<parent_type>folder</parent_type>
 	<requirements>
 		<requirement type="asset">

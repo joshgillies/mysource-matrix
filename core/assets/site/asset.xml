@@ -8,7 +8,7 @@
 	<name>Site</name>
 	<description>Sites are the base points for any frontend web system</description>
 	<instantiable>yes</instantiable>
-	<system_only>no</system_only>
+	<allowed_access>backend_user</allowed_access>
 	<parent_type>folder</parent_type>
 	<requirements />
 </asset_info>

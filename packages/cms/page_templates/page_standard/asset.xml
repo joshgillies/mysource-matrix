@@ -8,7 +8,7 @@
 	<name>Standard Page</name>
 	<description>Standard Page, contains a bodycopy for simple content</description>
 	<instantiable>yes</instantiable>
-	<system_only>no</system_only>
+	<allowed_access>backend_user</allowed_access>
 	<parent_type>page</parent_type>
 	<requirements>
 		<requirement type="asset">

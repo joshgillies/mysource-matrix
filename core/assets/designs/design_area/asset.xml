@@ -8,7 +8,7 @@
 	<name>Design Area</name>
 	<description>Design Area, without this nothing happens on the frontend</description>
 	<instantiable>no</instantiable>
-	<system_only>yes</system_only>
+	<allowed_access>system</allowed_access>
 	<parent_type>asset</parent_type>
 	<requirements />
 </asset_info>

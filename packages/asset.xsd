@@ -72,7 +72,7 @@
 			<xsd:element name="name"            type="dtype_name"/>
 			<xsd:element name="description"     type="dtype_description"/>
 			<xsd:element name="instantiable"    type="dtype_yes_no"/>
-			<xsd:element name="system_only"     type="dtype_yes_no"/>
+			<xsd:element name="allowed_access"  type="dtype_allowed_access"/>
 			<xsd:element name="parent_type"     type="dtype_type_code"/>
 			<xsd:element name="requirements"    type="dtype_requirements"/>
 		</xsd:sequence>

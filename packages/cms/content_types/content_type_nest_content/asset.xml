@@ -8,7 +8,7 @@
 	<name>Nest Content</name>
 	<description>Nest Content Content Type, nest the contents of another asset in a table cell</description>
 	<instantiable>yes</instantiable>
-	<system_only>yes</system_only>
+	<allowed_access>system</allowed_access>
 	<parent_type>content_type</parent_type>
 	<requirements>
 		<requirement type="asset">

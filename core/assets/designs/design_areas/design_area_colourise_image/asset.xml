@@ -8,7 +8,7 @@
 	<name>Colourise Image Design Area</name>
 	<description>This design area allows you to let the system user colourise images</description>
 	<instantiable>yes</instantiable>
-	<system_only>yes</system_only>
+	<allowed_access>system</allowed_access>
 	<parent_type>design_area</parent_type>
 	<requirements>
 		<requirement type="asset">

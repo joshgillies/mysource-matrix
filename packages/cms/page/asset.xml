@@ -8,7 +8,7 @@
 	<name>Page</name>
 	<description>Page Object, the base class for creating content</description>
 	<instantiable>no</instantiable>
-	<system_only>no</system_only>
+	<allowed_access>backend_user</allowed_access>
 	<parent_type>asset</parent_type>
 	<requirements>
 		<requirement type="system">

@@ -8,7 +8,7 @@
 	<name>Page</name>
 	<description>BodyCopy Table Object, create rows and cells to format content</description>
 	<instantiable>yes</instantiable>
-	<system_only>yes</system_only>
+	<allowed_access>system</allowed_access>
 	<parent_type>asset</parent_type>
 	<requirements>
 		<requirement type="asset">

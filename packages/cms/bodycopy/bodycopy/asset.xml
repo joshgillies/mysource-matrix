@@ -8,7 +8,7 @@
 	<name>Bodycopy</name>
 	<description>BodyCopy Object, create tables to format content</description>
 	<instantiable>yes</instantiable>
-	<system_only>yes</system_only>
+	<allowed_access>system</allowed_access>
 	<parent_type>asset</parent_type>
 	<requirements>
 		<requirement type="system">

@@ -299,7 +299,8 @@ class Asset_Map
 			$top_level = &$root->addChild('item', '', Array('text' => $name, 'value'  => ''));
 			switch($name) {
 				case 'add' :
-					$hier = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeHierarchy('', true);
+					$user_type = get_class($GLOBALS['SQ_SYSTEM']->user);
+					$hier = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeHierarchy('', $user_type);
 					$this->_recurseAddMenu($top_level, $hier);
 					break;
 

@@ -8,7 +8,7 @@
 	<name>Inbox</name>
 	<description>Check and manage the internal messages for a user</description>
 	<instantiable>yes</instantiable>
-	<system_only>yes</system_only>
+	<allowed_access>system</allowed_access>
 	<parent_type>asset</parent_type>
 	<requirements>
 		<requirement type="system">

@@ -8,7 +8,7 @@
 	<name>Declared Vars Design Area</name>
 	<description>This design area is used to let's you defined your own variables for use within a design using the _DECLARE tags in the parse file</description>
 	<instantiable>yes</instantiable>
-	<system_only>yes</system_only>
+	<allowed_access>system</allowed_access>
 	<parent_type>design_area</parent_type>
 	<requirements>
 		<requirement type="asset">

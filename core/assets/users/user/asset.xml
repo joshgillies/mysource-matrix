@@ -8,7 +8,7 @@
 	<name>User</name>
 	<description>User Object, if you want to do anything in the backend, you need to login and this is you object</description>
 	<instantiable>yes</instantiable>
-	<system_only>no</system_only>
+	<allowed_access>system_user</allowed_access>
 	<parent_type>asset</parent_type>
 	<requirements />
 </asset_info>

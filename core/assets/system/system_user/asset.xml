@@ -8,7 +8,7 @@
 	<name>System Administrator</name>
 	<description>System Administrator - one step from holiness</description>
 	<instantiable>yes</instantiable>
-	<system_only>no</system_only>
+	<allowed_access>root_user</allowed_access>
 	<parent_type>backend_user</parent_type>
 	<requirements>
 		<requirement type="asset">

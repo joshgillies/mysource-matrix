@@ -50,7 +50,7 @@ class Asset_Manager extends Resolve_Object
 		$this->_asset_types = Array();
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT type_code, version, name, instantiable, system_only, parent_type, dir, customisation
+		$sql = 'SELECT type_code, version, name, instantiable, allowed_access, parent_type, dir, customisation
 				FROM sq_asset_type';
 		$result = $db->query($sql);
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
@@ -75,7 +75,7 @@ class Asset_Manager extends Resolve_Object
 	{
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT type_code, version, name, instantiable, system_only, parent_type, dir, customisation
+		$sql = 'SELECT type_code, version, name, instantiable, allowed_access, parent_type, dir, customisation
 				FROM sq_asset_type
 				WHERE type_code = '.$db->quote($type_code);
 		$result = $db->getRow($sql);
@@ -184,22 +184,23 @@ class Asset_Manager extends Resolve_Object
 	* or for under the the passed asset type
 	*
 	* @param string	$base_type_code		the asset type's hierarchy to return
-	* @param bool	$ignore_system_only
+	* @param bool	$ignore_allowed_access
 	*
 	* @return array
 	* @access public
 	*/
-	function getAssetTypeHierarchy($base_type_code='asset', $ignore_system_only=false)
+	function getAssetTypeHierarchy($base_type_code='asset', $allowed_access='')
 	{
 
 		if (empty($base_type_code)) $base_type_code = 'asset';
 
 		$type_codes = Array();
-		if ($ignore_system_only) {
+		$allowed_access = trim($allowed_access);
+		if (!empty($ignore_allowed_access)) {
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'SELECT type_code
 					FROM sq_asset_type
-					WHERE system_only != 1';
+					WHERE allowed_access = '.$db->quote($allowed_access);
 			$type_codes = $db->getCol($sql);
 			if (DB::isError($type_codes)) trigger_error($type_codes->getMessage().'<br/>'.$type_codes->getUserInfo(), E_USER_ERROR);
 		} else {

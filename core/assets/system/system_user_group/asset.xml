@@ -8,7 +8,7 @@
 	<name>System Administrators</name>
 	<description>A user group to hold system administrators</description>
 	<instantiable>yes</instantiable>
-	<system_only>yes</system_only>
+	<allowed_access>root_user</allowed_access>
 	<parent_type>user_group</parent_type>
 	<requirements>
 		<requirement type="asset">
