@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: table_editing.inc,v 1.15 2004/01/20 23:55:50 gsherwood Exp $
+* $Id: table_editing.inc,v 1.16 2004/10/21 04:50:37 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -67,7 +67,7 @@ class Table_Editing extends WYSIWYG_Plugin {
 		
 		$this->_open_menu('columnfunctions', 'Column Functions','false','44','td');
 			$this->_add_button('insertcolumnbefore','InsertColumnBefore','Insert Column Before','false','44','td');
-			$this->_add_button('insertcolumnafter','InsertColumnAfter','Insert Column Afer','false','45','td');
+			$this->_add_button('insertcolumnafter','InsertColumnAfter','Insert Column After','false','45','td');
 			$this->_add_button('deletecolumn','DeleteColumn','Delete Column','false','46','td');
 			$this->_add_button('splitcolumn','SplitColumn','Split Column','false','46','td[colSpan!=1]');
 		$this->_close_menu('columnfunctions');
@@ -575,6 +575,7 @@ class Table_Editing extends WYSIWYG_Plugin {
 				var ref = tr.cells[index + (/after/.test(cmd.toLowerCase()) ? 1 : 0)];
 				var otd = editor._doc.createElement("td");
 				otd.innerHTML = mozbr;
+				if (typeof ref == 'undefined')  ref = null;
 				tr.insertBefore(otd, ref);
 			}
 			if (this.config._showborders){
