@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: login_design.inc,v 1.4 2004/03/01 19:50:04 brobertson Exp $
+* $Id: login_design.inc,v 1.5 2004/03/26 12:29:26 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -146,6 +146,16 @@ class Login_Design extends Design
 			return false;
 		}
 
+		$edit_fns = $this->getEditFns();
+		// First process the design
+		if (!$edit_fns->parseAndProcessFile($this)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		// Now use it to generate the design file
+		$this->generateDesignFile(false);
+
 		// make ourselves LIVE
 		if (!$this->processStatusChange(SQ_STATUS_LIVE)) {
 			trigger_error('Login design failed setting status to LIVE', E_USER_WARNING);
@@ -156,32 +166,23 @@ class Login_Design extends Design
 
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'all');
 
-		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'file', false);
-		foreach ($file_links as $link) {
-			$file = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($file->id, 'permissions')) {
+		$dependants = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($this->id);
+		foreach ($dependants as $dependantid => $dependant_type_code) {
+			$dep_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($dependantid, $dependant_type_code);
+			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($dep_asset->id, 'permissions')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
-			if (!$file->processStatusChange(SQ_STATUS_LIVE)) {
-				trigger_error('Login design failed setting status to LIVE for file', E_USER_WARNING);
+			if (!$dep_asset->processStatusChange(SQ_STATUS_LIVE)) {
+				trigger_error('Login design failed setting status to LIVE for asset "'.$dep_asset->name.'" (#'.$dep_asset->id.')', E_USER_WARNING);
 			}
-			if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($file->id, 0, SQ_PERMISSION_READ, '1')) {
-				trigger_error('Login design failed setting public read permission for file "'.$file->name.'"', E_USER_WARNING);
+			if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($dep_asset->id, 0, SQ_PERMISSION_READ, '1')) {
+				trigger_error('Login design failed setting public read permission for asset "'.$dep_asset->name.'" (#'.$dep_asset->id.')', E_USER_WARNING);
 			}
-			$GLOBALS['SQ_SYSTEM']->am->releaseLock($file->id, 'permissions');
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($file);
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($dep_asset->id, 'permissions');
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($dep_asset);
 		}
 
-		$edit_fns = $this->getEditFns();
-		// First process the design
-		if (!$edit_fns->parseAndProcessFile($this)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		// Now use it to generate the design file
-		$this->generateDesignFile(false);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
