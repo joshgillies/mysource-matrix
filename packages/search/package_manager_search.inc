@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_search.inc,v 1.4 2004/05/18 16:25:13 brobertson Exp $
+* $Id: package_manager_search.inc,v 1.5 2004/06/21 22:50:02 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -67,7 +67,8 @@ class Package_Manager_Search extends Package_Manager
 		if (!$search_manager->create($search_manager_link)) trigger_error('Search Manager NOT CREATED', E_USER_ERROR);
 		pre_echo('Search Manager Asset Id : '.$search_manager->id);
 	
-		trigger_error('You will have to run step_03.php again to set up the index weightings for the first time', E_USER_NOTICE);
+		// MARCUS - No longer need to trigger this error...
+		// trigger_error('You will have to run step_03.php again to set up the index weightings for the first time', E_USER_NOTICE);
 
 		$GLOBALS['SQ_SYSTEM_ASSETS']['search_manager'] = $search_manager->id;
 
