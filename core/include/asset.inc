@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.241 2003/10/21 06:22:32 dwong Exp $
+* $Id: asset.inc,v 1.242 2003/10/21 07:19:41 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3049,7 +3049,6 @@ class Asset extends MySource_Object
 	*/
 	function &getKeyData($component = false) 
 	{
-		bom("{$this->id} {$this->name} getKeyData");
 		// supply metadata
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$schemaids = $mm->getSchemas($this->id, 1); 
@@ -3057,7 +3056,6 @@ class Asset extends MySource_Object
 		$keyData = $mm->getMetadataKeyData($this->id, $schemaids);
 
 		$weightings = $this->getWeightings();
-		bom($weightings);
 		// supply name
 		if (!$component || $component == 'name') {
 			$value = $this->name;
@@ -3066,7 +3064,6 @@ class Asset extends MySource_Object
 			}
 		}
 
-		bom($keyData);
 		return $keyData;
 	} // end getKeyData()
 
@@ -3079,7 +3076,6 @@ class Asset extends MySource_Object
 	*/
 	function informChanges()
 	{
-		bom("informChanges {$this->id}");
 		if (!SQ_CONF_INDEXING_ENABLED)
 			return;
 
