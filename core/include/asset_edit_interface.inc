@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.188 2003/12/01 05:20:15 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.189 2003/12/02 03:36:16 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -171,16 +171,6 @@ class Asset_Edit_Interface extends MySource_Object
 		if (!count($this->_screens) && empty($this->_edit_fns->static_screens)) return;
 
 
-		  /////////////////////////////
-		 //  ALLOWED SCREEN ACCESS  //
-		/////////////////////////////
-		$check_screen_restrictions = !$owner->adminAccess('');
-		if ($check_screen_restrictions) {
-			$allowed_screens = $this->getAllowedScreens($owner);
-			if (isset($allowed_screens['0']['0'])) $check_screen_restrictions = false;
-		}
-
-
 		  /////////////////////
 		 //  ACTIVE SCREEN  //
 		/////////////////////
@@ -194,12 +184,6 @@ class Asset_Edit_Interface extends MySource_Object
 			$_REQUEST['asset_ei_screen'] = $active_screen;
 		} else {
 			$active_screen = $_REQUEST['asset_ei_screen'];
-		}
-
-		if ($check_screen_restrictions && !isset($allowed_screens[$active_screen])) {
-			// this user is not allowed to view the current screen
-			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access the <i>'.$active_screen.'</i> screen of "'.$owner->name.'"');
-			exit();
 		}
 
 		// make sure that we have the screen for next time
@@ -239,8 +223,6 @@ class Asset_Edit_Interface extends MySource_Object
 
 			$have_any_locks    = false;
 			$have_all_locks    = true;
-			$need_force_locks  = false;
-			$can_force_locks   = true;
 			$do_the_limbo_lock = true;
 			foreach($locks as $lock_type => $lock) {
 
@@ -256,14 +238,6 @@ class Asset_Edit_Interface extends MySource_Object
 					} else {
 						$have_all_locks = false;
 						$do_the_limbo_lock = false;
-
-						// this lock is held by someone else so check if we can forceable acquire it
-						$need_force_locks = true;
-						// does the current user has a high
-						// enough level of access to forceably acquire the lock
-						if (!$owner->canForceablyAcquireLock($lock_type)) {
-							$can_force_locks = false;
-						}
 					}
 				}// end if
 
@@ -276,15 +250,8 @@ class Asset_Edit_Interface extends MySource_Object
 				 //  LIMBO LOCKING  //
 				/////////////////////
 
-				// Limbo locking is special because we try to acquire the lock for them because we dont
-				// want to show them the complexity associated with the lock table.
-				// So lets go ahead now and try to acquire the default lock type for the screen we are on
 				if (!$have_all_locks) {
-					$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-					$vars = Array('assetid' => $owner->id, 'lock_type' => $screen_lock_type, 'forceably_acquire' => false);
-					$hh->queueHipo('hipo_job_acquire_lock', $vars);
-					$url = $hh->runQueuedJobs();
-					if (!empty($url)) $o->setRedirect(strip_url(current_url()).'/?sq_redirect_url='.urlencode($url));
+					$this->acquireLimboLocks($owner, $o, $active_screen, $screen_lock_type);
 				}
 
 			} else {
@@ -294,26 +261,7 @@ class Asset_Edit_Interface extends MySource_Object
 					// or if they can lock it to edit it
 					$o->openSection('Locking / Editing');
 					$o->openField('&nbsp;');
-
-					?><div style="margin-bottom: 4px;"><?php
-						if (!$have_all_locks) {
-							if ($need_force_locks) {
-								if ($can_force_locks) {
-									echo '<div class="sq-backend-locked-by-someone-else">You can forceably acquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself.<br>Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably acquired.</div>';
-								}
-							} else if ($full_write_access && $acquire_lock_access) {
-								echo 'Press the <i><b>Lock</b></i> button to lock "'.$owner->name.'" for editing. ';
-							}
-						}
-						if ($have_any_locks) echo 'Press the <i><b>Release Lock(s)</b></i> button to release the locks you hold on "'.$owner->name.'". ';
-						?>
-						<b><a href="#" onClick="Javascript: sq_toggle_lock_info();" id="sq_lock_info_toggle">Show Lock Details</a></b>
-					</div>
-					<?php
-
-
-					?>
-					<div id="sq_lock_info" style="display: none;">
+				?>
 					<table class="sq-backend-lock-table">
 						<tr>
 							<td class="sq-backend-lock-table-header" style="width: 20px;">
@@ -334,7 +282,8 @@ class Asset_Edit_Interface extends MySource_Object
 					$o->openRaw('');
 				}
 
-				
+				$need_force_locks = false;
+				$can_force_locks  = true;
 				$class = 'sq-backend-lock-table-cell-alt';
 				foreach($locks as $lock_type => $lock) {
 					if ($class == 'sq-backend-lock-table-cell') $class = 'sq-backend-lock-table-cell-alt';
@@ -358,7 +307,11 @@ class Asset_Edit_Interface extends MySource_Object
 								}
 
 							} else {
-								// this asset is currently locked so display message to the user
+								// this asset is currently locked
+								// so display message to the user
+								$user    = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+								$editing = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_assetid']);
+
 								if (SQ_ROLLBACK_VIEW) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
 								else $now = time();
 
@@ -378,6 +331,16 @@ class Asset_Edit_Interface extends MySource_Object
 								</p>
 								<?php
 
+								// if this lock is held by someone else, check if we can forceable acquire it
+								if (!$GLOBALS['SQ_SYSTEM']->currentUser($user)) {
+									$need_force_locks = true;
+									// does the current user has a high
+									// enough level of access to forceably acquire the lock
+									if (!$owner->canForceablyAcquireLock($lock_type)) {
+										$can_force_locks = false;
+									}
+								}
+
 							}// end if
 							?>
 						</td>
@@ -389,17 +352,18 @@ class Asset_Edit_Interface extends MySource_Object
 						</td>
 					</tr>
 				</table>
-				</div>
 
 				<?php
 
 				if (!$have_all_locks || $have_any_locks) {
-					?><div style="margin-top: 4px;"><?php
+					?><span style="float: right; margin-top: 2px; text-align: right;"><?php
 				}
 
 				if (!$have_all_locks) {
 					if ($need_force_locks) {
 						if ($can_force_locks) {
+							echo '<div class="sq-backend-locked-by-someone-else">You can forceably acquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself.<br>Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably acquired.</div>';
+
 							// they aren't going to do this without a fight though
 							// they'll have to go through our popup window first
 							$popup_url = '?SQ_BACKEND_PAGE=main&backend_section=am&ignore_frames=1&am_section=forceably_acquire_lock&assetid='.$owner->id.'&sq_lock_type='.$screen_lock_type;
@@ -407,22 +371,17 @@ class Asset_Edit_Interface extends MySource_Object
 							hidden_field('sq_lock_acquire_by_force', '0');
 							hidden_field('sq_lock_acquire', '0');
 							normal_button('sq_forceably_acquire_lock', 'Acquire Lock(s)', "window.open('$popup_url', 'sq_forceably_acquire_lock_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300');");
-							echo '&nbsp;';
 						}
 					} else if ($full_write_access && $acquire_lock_access) {
 						hidden_field('sq_lock_acquire_by_force', '0');
 						submit_button('sq_lock_acquire', 'Lock');
-						echo '&nbsp;';
 					}// end if
 				}
 
-				if ($have_any_locks) {
-					submit_button('sq_lock_release_manual', 'Release Lock(s)');
-					echo '&nbsp;';
-				}
+				if ($have_any_locks) submit_button('sq_lock_release_manual', 'Release Lock(s)');
 
 				if (!$have_all_locks || $have_any_locks) {
-					?></div><?php
+					?></span><?php
 				}
 
 				if (strtolower($screen_lock_type) != 'none') $o->closeSection();
@@ -543,6 +502,18 @@ class Asset_Edit_Interface extends MySource_Object
 		$GLOBALS['sq_preview_url'] = $preview_url;
 
 
+		// once we have a preview URL, we can paint the layout if there is one
+
+		  ////////////////
+		 /// LAYOUTS  ///
+		////////////////
+		if (SQ_IN_LIMBO && !$creating) {
+			$lm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
+			if (null !== ($layout = &$lm->getLayout($owner->type(), $active_screen))) {
+				return $this->paintLayout($owner, $o, $layout);
+			}
+		}
+
 		  //////////////////////////
 		 //  Navigation History  //
 		//////////////////////////
@@ -609,13 +580,11 @@ class Asset_Edit_Interface extends MySource_Object
 		// add all the screens to the combo, but only if we aren't creating the object
 		if (!$creating) {
 			for(reset($this->_screens); null !== ($code = key($this->_screens)); next($this->_screens)) {
-				if ($check_screen_restrictions && !isset($allowed_screens[$code])) continue;
 				$o->addScreen($current_location.'asset_ei_screen='.rawurlencode($code), $this->_screens[$code]['name']);
 			}
 
 			// add static screens for the asset
 			foreach ($this->_edit_fns->static_screens as $code_name => $data) {
-				if ($check_screen_restrictions && !isset($allowed_screens[$code_name])) continue;
 				$url = $current_location.'asset_ei_screen='.rawurlencode($code_name);
 				$o->addStaticScreen($url, $data['name']);
 			}
@@ -626,7 +595,6 @@ class Asset_Edit_Interface extends MySource_Object
 		}
 
 		$o->setCurrentScreen($current_location.'asset_ei_screen='.rawurlencode($active_screen));
-
 
 		if ($file) {
 			$input = new XML_Tree($file);
@@ -748,6 +716,320 @@ class Asset_Edit_Interface extends MySource_Object
 
 
 	/**
+	* Acquires any locks needed by limbo
+	*
+	* @param object Asset					&$owner				the owner of this interface
+	* @param object Backend_Outputter		&$o					the backend outputter
+	* @param string							$active_screen		the active screen we are on
+	* @param string							$screen_lock_type	the lock type of this screen
+	*
+	* @return boolean
+	* @access public
+	*/
+	function acquireLimboLocks(&$owner, &$o, $active_screen='details', $screen_lock_type='all')
+	{
+		$locks = Array($screen_lock_type);
+
+		$lm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
+		if ($lm->hasLayout($owner->type(), $active_screen)) {
+			
+			$layout = &$lm->getLayout($owner->type(), $active_screen);
+			if (is_null($layout)) return false;
+			$keywords = $layout->getLayoutKeywords();
+			if (isset($keywords['custom']) && !empty($keywords['custom'])) {
+				// acquire any locks that the owner needs to paint the layout
+				$owner->acquireEditingLocks($keywords['custom']);
+			}
+			
+			// if there are other screens used by the layout, then we need to acquire locks on those
+			// screens as well
+			if (isset($keywords['screens']) && !empty($keywords['screens'])) {
+				foreach (array_keys($keywords['screens']) as $screen) {
+					// default to 'all', so if lock type is left out a lock can still be gotten and the asset edited
+					$screen_lock_type = 'all';
+					if (isset($this->_edit_fns->static_screens[$screen])) {
+						if (!empty($this->_edit_fns->static_screens[$screen]['lock_type'])) {
+							$screen_lock_type = $this->_edit_fns->static_screens[$screen]['lock_type'];
+						}
+					} else {
+						// must be a normal screen
+						if (!empty($this->_screens[$screen]['lock_type'])) {
+							$screen_lock_type = $this->_screens[$screen]['lock_type'];
+						}
+					}// end if
+
+					$locks[] = $screen_lock_type;
+
+				}//end foreach
+			}//end if
+		}//end if hasLayout
+	
+		$locks = array_unique($locks);
+
+		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$vars = Array('assetid' => $owner->id, 'lock_type' => $locks, 'forceably_acquire' => false);
+		$hh->queueHipo('hipo_job_acquire_lock', $vars);
+		$url = $hh->runQueuedJobs();
+		if (!empty($url)) $o->setRedirect(strip_url(current_url()).'/?sq_redirect_url='.urlencode($url));
+
+	}//end acquireLimboLocks()
+
+
+	/**
+	* Prints limbo in a specified layout
+	* 
+	* @param &object Asset				$owner		the owner of this interface
+	* @param &object Backend_Outputter	$o			the backend outputter
+	* @param &object layout				$layout		the layout to be painted
+	* 
+	* @return boolean
+	* @access public
+	*/
+	function paintLayout(&$owner, &$o, &$layout)
+	{
+		$keywords = $layout->getLayoutKeywords();
+
+		// find what screens we need to process
+		$screens = array_merge(array_keys($keywords['screens']), array_keys($keywords['entire_screens']));
+		$screens = array_unique($screens);
+
+		$this->_tmp['layout_keyword_replacements'] = Array();
+
+		// let the backend outputter know that we want buffering turned off
+		$o->setBuffering(false);
+		// loop over the screens and get the xml file for each screen
+		// generate some keywords for each screen
+		foreach ($screens as $screen) {
+			if(!($file = $this->_findFile('screen_'.$screen))) return false;
+			$input = new XML_Tree($file);
+			$root  = &$input->getTreeFromFile();
+			if (PEAR::isError($root)) {
+				trigger_error('Unable to Read File : '.$file."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+				return;
+			}
+			$entire_screen = false;
+			if (in_array($screen, array_keys($keywords['entire_screens']))) $entire_screen = true;
+			$this->_getLayoutKeywordReplacements($root, $o, $owner, $keywords, $screen, $entire_screen);
+		}//end foreach
+
+		// if there are some custom keywords, get some replacements from the owner
+		if (isset($keywords['custom']) && !empty($keywords['custom'])) {
+
+			$custom_replacements = $owner->getCustomKeywordReplacements($keywords['custom']);
+			if (!empty($custom_replacements)) {
+				$replacements = Array();
+				// rebuild the keyword so the bodycopy can properly replace it
+				foreach ($custom_replacements as $keyword => $replacement) {
+					$replacements['__custom-'.$keyword] = $replacement;
+				}
+				$this->_tmp['layout_keyword_replacements'] = array_merge($this->_tmp['layout_keyword_replacements'], $replacements);
+			}//end if
+		}//end if
+
+		// turn buffering back on so the output is not malformed
+		$o->setBuffering(true);
+
+		$layout->setKeywordReplacements($this->_tmp['layout_keyword_replacements']);
+
+		// we need to open a raw section so that the form gets printed before the contents of the layout
+		$o->openRaw();
+		$layout->printBody();
+		$o->closeRaw();
+
+		return true;
+
+	}//end paintLayout()
+
+
+	/**
+	* Gets the keyword replacements to be used in the layout
+	*
+	* @param &object XML_Tree	$root				the root of the xml screen
+	* @param &object Asset		$owner				the owner of this asset
+	* @param Array				$layout_keywords	an array of keywords to get replacements for
+	* @param string				$screen				the name of the current screen
+	* @param boolean			$get_screen			if TRUE the entire screen will be captured into a replacement
+	* 
+	* @return boolean
+	* @access private
+	*/
+	function _getLayoutKeywordReplacements(&$root, &$o, &$owner, $layout_keywords, $screen='details', $get_screen=false)
+	{
+		$prefix = $owner->getPrefix();
+		$print_commit_button = false;
+
+		// start buffering anything and trash the content at the end
+		ob_start();
+		if ($get_screen) ob_start();
+
+		for ($i = 0; $i < count($root->children); $i++) {
+			
+			$section = &$root->children[$i];
+			
+			// find out if we have permission to print this section
+			$limbo_access = (isset($section->attributes['limbo_access']) && (int) $section->attributes['limbo_access'] == 1) ? true : false;
+	
+			// find out what we need to get in this loop
+			$get_section = false;
+			$section_name = strtolower(str_replace(' ', '_', $section->attributes['name']));
+			if (isset($layout_keywords['screens'][$screen]['sections'][$section_name])) {
+				$get_section = true;
+				$section_keyword = $layout_keywords['screens'][$screen]['sections'][$section_name];
+			}
+
+			if (!($num_fields = count($section->children))) continue;
+			$section_access = $this->_getAccess($owner, $section);
+			if (!($section_access & SQ_EI_READ)) continue;
+			
+			// if we are getting this section, start buffering output
+			if ($get_section) ob_start();
+			if ($get_section || $get_screen) $o->openSection($section->attributes['name']);
+
+			if ($section->children[0]->name == 'function_call' && ($get_section || $get_screen)) {
+
+				$paint_node = &$section->children[0]->children[0];
+
+				if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
+					$o->openField('');
+					echo 'Function not found for painting section "', $section->attributes['name'], '"';
+					$o->closeField();
+				} else {
+					if ($this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix)) {
+						$print_commit_button = true;
+					}
+				}
+
+			// they must just be normal fields
+			} else {
+			
+				// Loop over the fields
+				for($j = 0; $j < $num_fields; $j++) {
+					$field = &$section->children[$j];
+
+					if ($field->name != 'field') {
+						trigger_error('Expected "field" tag in section, found "'.$field->name.'"', E_USER_WARNING);
+						continue;
+					}
+
+					if ($field->children[0]->name != 'display_name') {
+						trigger_error('Display Name for "'.$field->attributes['attribute'].'" not found', E_USER_WARNING);
+						continue;
+					}
+					$field_access = $this->_getAccess($owner, $field, $section_access);
+					if (!($field_access & SQ_EI_READ)) continue;
+
+					if (!isset($field->attributes['format'])) $field->attributes['format'] = '';
+
+					// reset get_field
+					$get_field = false;
+
+					if (!empty($field->attributes['attribute'])) {
+
+						// find out what we need to get in this loop
+						if (isset($layout_keywords['screens'][$screen]['fields'][$field->attributes['attribute']])) {
+							$get_field = true;
+							$field_keyword = $layout_keywords['screens'][$screen]['fields'][$field->attributes['attribute']];
+						}
+						
+						// if we do not want anything in this loop, continue
+						if (!$get_field && !$get_section && !$get_screen) continue;
+
+						if ($field->name != 'field') continue;
+						$o->openField($field->children[0]->content, $field->attributes['format']);
+						
+						$attr = &$owner->getAttribute($field->attributes['attribute']);
+						if (is_null($attr)) continue;
+						if (!$attr->setEditParams($field->children[2])) continue;
+						// if this is not a wanted keyword, then continue on our way
+						if (isset($layout_keywords['screens'][$screen]['fields'][$field->attributes['attribute']])) 
+						
+						// start buffering for this field
+						if ($get_field) ob_start();
+						
+						$attr->paint($prefix, !(($field_access & SQ_EI_WRITE) && $limbo_access));
+						if (($field_access & SQ_EI_WRITE) && $limbo_access) $print_commit_button = true;
+
+						if ($field->children[1]->name == 'note' && $field->children[1]->content) {
+							$field->children[1]->content = str_replace('%description%', $attr->description, $field->children[1]->content);
+						}
+
+						// end buffering
+						if ($get_field) {
+							$this->_tmp['layout_keyword_replacements'][$field_keyword] = ob_get_contents();
+							ob_end_flush();
+						}
+						$o->closeField();
+
+					} else if ($field->children[2]->name == 'function_call') {
+
+						// find out what we need to get in this loop
+						if (isset($layout_keywords['screens'][$screen]['fields'][$field->attributes['keyword']])) {
+							$get_field = true;
+							$field_keyword = $layout_keywords['screens'][$screen]['fields'][$field->attributes['keyword']];
+						}
+			
+						$paint_node = &$field->children[2]->children[0];
+						// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
+						if ($field->name != 'field') continue;
+
+						$o->openField($field->children[0]->content, $field->attributes['format']);
+
+						if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
+							echo 'Function not found for painting';
+						} else {
+							if ($get_field) ob_start();
+
+							if ($this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix)) {
+								$print_commit_button = true;
+							}
+							// get a replacement for this field is there is a keyword for it
+							if ($get_field) {
+								$this->_tmp['layout_keyword_replacements'][$field_keyword] = ob_get_contents();
+								ob_end_flush();
+							}
+						}//end if
+
+						$o->closeField();
+
+					}// end if
+
+					if ($field->children[1]->name == 'note' && $field->children[1]->content) {
+						echo '<br/>&nbsp;';
+						$o->note($field->children[1]->content);
+					}//end if
+				}//end for
+			}//end if section == function_call
+			
+			if ($get_section || $get_screen) $o->closeSection();
+
+			if ($get_section) {
+				$this->_tmp['layout_keyword_replacements'][$section_keyword] = ob_get_contents();
+				ob_end_flush();
+			}
+		}//end for
+
+		if ($get_screen) {
+			$this->_tmp['layout_keyword_replacements'][$screen.'-'] = ob_get_contents();
+			ob_end_flush();
+		}
+
+		// we have printed an editable interface on a static screen - show the commit button
+		if ($print_commit_button && !isset($this->_tmp['layout_keyword_replacements']['commit_button'])) {
+			ob_start();
+			$o->commitButton('Commit', false);
+			$this->_tmp['layout_keyword_replacements']['commit_button'] = ob_get_contents();
+			ob_end_clean();
+		}
+		
+		// trash any sloppy seconds
+		ob_end_clean();
+
+		return true;
+
+	}//end getLayoutKeywordReplacements()
+
+
+	/**
 	* Processes the results of the form posting, returns true anything was processed/changed
 	*
 	* @param object Asset				$owner		the asset whose interface we are painting
@@ -759,166 +1041,180 @@ class Asset_Edit_Interface extends MySource_Object
 	*/
 	function process(&$owner, &$o, $creating)
 	{
+		// used to check if anything has bed saved
+		$saved = false;
+	
 		// if there are no screens or static screens, piss off
 		if (!count($this->_screens) && empty($this->_edit_fns->static_screens)) return false;
 
-		$ret_val = false;
-		$create_sections = Array();
-		$active_screen = (empty($_REQUEST['asset_ei_screen'])) ? 'details' : $_REQUEST['asset_ei_screen'];
-
-		// if we are creating open the create file to see which fields we are supposed to print out
-		if ($creating) {
-			list($create_sections, $active_screen) = $this->_getCreateSections(false);
-			if (!count($create_sections)) return false;
-		} else {
-			  /////////////////////////////
-			 //  ALLOWED SCREEN ACCESS  //
-			/////////////////////////////
-			if (!$owner->adminAccess('')) {
-				$allowed_screens = $this->getAllowedScreens($owner);
-
-				if (!isset($allowed_screens['0']['0']) && !isset($allowed_screens[$active_screen])) {
-					// this user is not allowed to view the current screen
-					$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access the <i>'.$active_screen.'</i> screen of "'.$owner->name.'"');
-					exit();
+		$current_screen = (empty($_REQUEST['asset_ei_screen'])) ? 'details' : $_REQUEST['asset_ei_screen'];
+		$screens =  Array($current_screen);
+		
+		if (!$creating) {
+			$lm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
+			$layout = &$lm->getLayout($owner->type(), $current_screen);
+			
+			// if we have a layout and there are some defined screen components, then these
+			// screens also need to be processed
+			if (!is_null($layout)) {
+				$keywords = $layout->getLayoutKeywords();
+				if (isset($keywords['screens']) && !empty($keywords['screens'])) {
+					$screens = array_unique(array_merge(array_keys($keywords['screens']), $screens));
+				}
+				// if there are some special keywords, we need to ask the owner to process them
+				if (isset($keywords['custom']) && !empty($keywords['custom'])) {
+					$owner->processCustomKeywords($keywords['custom']);
 				}
 			}
 		}
+		
+		foreach ($screens as $active_screen) {
 
-		// check the active screen for special system defined static screens
-		$file = null;
-		if (isset($this->_edit_fns->static_screens[$active_screen])) {
+			$ret_val = false;
+			$create_sections = Array();
 
-			// save the status for later so we can see if it changed
-			$old_status = $owner->status;
-
-			// process the system defined bit of this tab if we
-			// are not creating the asset
-			if (!$creating) {
-				$process_function = 'process'.ucfirst($active_screen);
-				if ($this->$process_function($owner, $o)) $ret_val = true;
+			// if we are creating open the create file to see which fields we are supposed to print out
+			if ($creating) {
+				list($create_sections, $active_screen) = $this->_getCreateSections(false);
+				if (!count($create_sections)) return false;
 			}
 
-			// try and find the file to print user defined
-			$file = @$this->_findFile('screen_'.$active_screen);
+			// check the active screen for special system defined static screens
+			$file = null;
+			if (isset($this->_edit_fns->static_screens[$active_screen])) {
 
-		} else {
+				// save the status for later so we can see if it changed
+				$old_status = $owner->status;
 
-			// must be a normal screen
-			if (empty($_REQUEST['asset_ei_screen']) || empty($this->_screens[$_REQUEST['asset_ei_screen']])) {
-				trigger_error('Active Screen unknown unable to process', E_USER_WARNING);
-				return false;
-			}
+				// process the system defined bit of this tab if we
+				// are not creating the asset
+				if (!$creating) {
+					$process_function = 'process'.ucfirst($active_screen);
+					if ($this->$process_function($owner, $o)) $ret_val = true;
+				}
 
-			// try and find the file to print user defined
-			$file = $this->_findFile('screen_'.$active_screen);
-			if(!$file) return false;
+				// try and find the file to print user defined
+				$file = @$this->_findFile('screen_'.$active_screen);
 
-		}// end if
+			} else {
 
-		if ($file && $owner->writeAccess('')) {
-			$input = new XML_Tree($file);
-			$root  = &$input->getTreeFromFile();
-			if (PEAR::isError($root)) {
-				trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
-				return false;
-			}
+				// must be a normal screen
+				if (empty($_REQUEST['asset_ei_screen']) || empty($this->_screens[$_REQUEST['asset_ei_screen']])) {
+					trigger_error('Active Screen unknown unable to process', E_USER_WARNING);
+					return false;
+				}
 
-			// prefix for all the form vars
-			$prefix = $owner->getPrefix();
+				// try and find the file to print user defined
+				$file = $this->_findFile('screen_'.$active_screen);
+				if(!$file) return false;
 
-			// Loop over the sections
-			for($i = 0; $i < count($root->children); $i++) {
-				$section = &$root->children[$i];
-				// if we are in limbo and this section is not to be printed in limbo - dont print it
-				if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) continue;
+			}// end if
 
-				// if this ain't a section, or if we are printing the create interface and this section
-				// is not included in that, ignore it
-				if ($section->name != 'section' || ($creating && empty($create_sections[$section->attributes['name']]))) continue;
+			if ($file && $owner->writeAccess('')) {
+				$input = new XML_Tree($file);
+				$root  = &$input->getTreeFromFile();
+				if (PEAR::isError($root)) {
+					trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+					return false;
+				}
 
-				if (!($num_fields = count($section->children))) continue;
+				// prefix for all the form vars
+				$prefix = $owner->getPrefix();
 
-				$section_access = $this->_getAccess($owner, $section);
-				if (!($section_access & SQ_EI_READ)) continue;
+				// Loop over the sections
+				for($i = 0; $i < count($root->children); $i++) {
+					$section = &$root->children[$i];
+					// if we are in limbo and this section is not to be printed in limbo - dont print it
 
-				// if this is section only has function call, then process accordingly
-				if ($section->children[0]->name == 'function_call') {
+					if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) continue;
 
-					$process_node = &$section->children[0]->children[1];
+					// if this ain't a section, or if we are printing the create interface and this section
+					// is not included in that, ignore it
+					if ($section->name != 'section' || ($creating && empty($create_sections[$section->attributes['name']]))) continue;
 
-					// if there is nothing declared there is nothing for us to do
-					if (empty($process_node->attributes['name'])) {
-						continue;
-					// There is something declared but the bloody thing doesn't exist - inform the Idiot
-					} elseif (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
-						trigger_error('Function not found for processing section "'.$section->attributes['name'].'"', E_USER_WARNING);
+					if (!($num_fields = count($section->children))) continue;
+
+					$section_access = $this->_getAccess($owner, $section);
+					if (!($section_access & SQ_EI_READ)) continue;
+
+					// if this is section only has function call, then process accordingly
+					if ($section->children[0]->name == 'function_call') {
+
+						$process_node = &$section->children[0]->children[1];
+
+						// if there is nothing declared there is nothing for us to do
+						if (empty($process_node->attributes['name'])) {
+							continue;
+						// There is something declared but the bloody thing doesn't exist - inform the Idiot
+						} elseif (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
+							trigger_error('Function not found for processing section "'.$section->attributes['name'].'"', E_USER_WARNING);
+						} else {
+							if ($this->_edit_fns->{$process_node->attributes['name']}($owner, $o, $prefix)) $ret_val = true;
+						}
+
+					// they must just be normal fields
 					} else {
-						if ($this->_edit_fns->{$process_node->attributes['name']}($owner, $o, $prefix)) $ret_val = true;
-					}
+						// Loop over the fields
+						for($j = 0; $j < $num_fields; $j++) {
+							$field = &$section->children[$j];
 
-				// they must just be normal fields
-				} else {
-					// Loop over the fields
-					for($j = 0; $j < $num_fields; $j++) {
-						$field = &$section->children[$j];
+							$field_access = $this->_getAccess($owner, $field, $section_access);
+							if (!($field_access & SQ_EI_WRITE)) continue;
 
-						$field_access = $this->_getAccess($owner, $field, $section_access);
-						if (!($field_access & SQ_EI_WRITE)) continue;
+							if (!empty($field->attributes['attribute'])) {
+								// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
+								if ($field->name != 'field' || ($creating && (empty($field->attributes['attribute']) || !in_array($field->attributes['attribute'], $create_sections[$section->attributes['name']])))) continue;
 
-						if (!empty($field->attributes['attribute'])) {
-							// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
-							if ($field->name != 'field' || ($creating && (empty($field->attributes['attribute']) || !in_array($field->attributes['attribute'], $create_sections[$section->attributes['name']])))) continue;
+								$attr = &$owner->getAttribute($field->attributes['attribute']);
+								if (is_null($attr)) continue;
+								if (!$attr->setEditParams($field->children[2])) continue;
 
-							$attr = &$owner->getAttribute($field->attributes['attribute']);
-							if (is_null($attr)) continue;
-							if (!$attr->setEditParams($field->children[2])) continue;
+								$revert_attr = $attr;
+								$attr->process($prefix);
+								if ($attr->processed && $owner->setAttrValue($attr->name, $attr->value)) {
+									$ret_val = true;
+								} else {
+									// processing failed so revert to old version
+									$attr = $revert_attr;
+								}
+								unset($revert_attr);
 
-							$revert_attr = $attr;
-							$attr->process($prefix);
-							if ($attr->processed && $owner->setAttrValue($attr->name, $attr->value)) {
-								$ret_val = true;
-							} else {
-								// processing failed so revert to old version
-								$attr = $revert_attr;
-							}
-							unset($revert_attr);
+							} else if ($field->children[2]->name == 'function_call') {
 
-						} else if ($field->children[2]->name == 'function_call') {
+								$process_node = &$field->children[2]->children[1];
 
-							$process_node = &$field->children[2]->children[1];
+								// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
+								if ($field->name != 'field' || ($creating && !in_array($process_node->attributes['name'], $create_sections[$section->attributes['name']]))) continue;
 
-							// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
-							if ($field->name != 'field' || ($creating && !in_array($process_node->attributes['name'], $create_sections[$section->attributes['name']]))) continue;
+								// if there is nothing declared there is nothing for use to do
+								if (empty($process_node->attributes['name'])) {
+									continue;
+								// There is something declared but the bloody thing doesn't exist - inform the Idiot
+								} elseif (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
+									trigger_error('Function not found for processing field "'.$section->attributes['name'].'/'.$field->children[0]->content.'"', E_USER_WARNING);
+								} else {
+									if ($this->_edit_fns->{$process_node->attributes['name']}($owner, $o, $prefix)) $ret_val = true;
+								}
 
-							// if there is nothing declared there is nothing for use to do
-							if (empty($process_node->attributes['name'])) {
-								continue;
-							// There is something declared but the bloody thing doesn't exist - inform the Idiot
-							} elseif (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
-								trigger_error('Function not found for processing field "'.$section->attributes['name'].'/'.$field->children[0]->content.'"', E_USER_WARNING);
-							} else {
-								if ($this->_edit_fns->{$process_node->attributes['name']}($owner, $o, $prefix)) $ret_val = true;
-							}
+							}// end if
 
-						}// end if
+						}// end for fields
 
-					}// end for fields
+					}// end if section funcion call
 
-				}// end if section funcion call
+				}// end for
 
-			}// end for
+			}// end if $file
 
-		}// end if $file
+			if ($ret_val) {
+				// some attributes have been updated, so save the asset
+				if ($owner->saveAttributes()) $saved = true;
+			} 
+		}//end foreach screens
 
-		if ($ret_val) {
-			// some attributes have been updated, so save the asset
-			return $owner->saveAttributes();
-		} else {
-			return false;
-		}
+		return $saved;
 
-	}// end process()
+	}// end process();
 
 
 	/**
@@ -1022,52 +1318,11 @@ class Asset_Edit_Interface extends MySource_Object
 
 		}// end if
 
+#		pre_echo($node->name.' -> '.$access);
+
 		return $access;
 
-	}//end _getAccess()
-
-
-	/**
-	* Get an array of the screens we are allowed to access for the asset we are painting
-	*
-	* @param object	Asset	$owner	the asset whose interface we are painting
-	*
-	* @return Array()
-	* @access public
-	*/
-	function getAllowedScreens(&$owner)
-	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		// get all the user groups that we exist in
-		$groups = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group');
-		if (empty($groups)) return Array();
-
-		for (reset($groups); NULL !== ($k = key($groups)); next($groups)) $groups[$k] = $db->quote($groups[$k]);
-
-		$sql = 'SELECT screen, section
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_editing_access ';
-		$where = 'userid IN ('.implode(',', $groups).')';
-		
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-		$where .= ' AND type_code = '.$db->quote('0').'
-					OR type_code IN (~SQ0~)';
-		$subs = Array( 'SELECT inherited_type_code
-						FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
-						WHERE type_code = '.$db->quote($owner->type()));
-		$where = db_extras_subquery($db, $where, $subs);
-		if (DB::isError($where)) trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
-		
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-
-		$allowed_screens = $db->getAssoc($sql.$where, false, Array(), DB_FETCHMODE_ASSOC, true);
-		if (DB::isError($allowed_screens)) {
-			trigger_error($allowed_screens->getMessage().'<br/>'.$allowed_screens->getUserInfo(), E_USER_ERROR);
-		}
-
-		return $allowed_screens;
-
-	}//end getAllowedScreens()
+	}// end _getAccess()
 
 
 	/**
