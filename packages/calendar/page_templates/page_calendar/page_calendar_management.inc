@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.20 2004/09/14 05:58:00 lwright Exp $
+* $Id: page_calendar_management.inc,v 1.21 2004/09/14 06:24:39 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.20 $ - 1.0
+* @version $Revision: 1.21 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -132,10 +132,10 @@ class Page_Calendar_Management extends Asset_Management
 										
 
 		$this->vars['columnise_day_view_by_root_node'] = Array(
-																'added'		=> '0.1',
-																'type'		=> 'boolean',
-																'default'	=> 'true',
-																'description' => 'whether to split the day view into columns according to the root node the event came from'
+																'added'		=> '0.2',
+																'type'		=> 'serialise',
+																'default'	=> Array(),
+																'description' => 'list of root nodes which should have their own columns in day view, and * if you want a column for events that don\'t belong in any other column'
 														);
 
 		$this->vars['week_starts_on']		= Array(
@@ -291,6 +291,47 @@ class Page_Calendar_Management extends Asset_Management
 	}//end getEventList()
 
 
+	/**
+	* Updates an attribute that this asset owns (ie the first time it is defined is by this asset)
+	*
+	* @param string	$name	the name of the attribute to update
+	* @param string	$curr_attr	the info for the attribute as it stands at the moment
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _updateOwnedAttribute($name, $curr_attr)
+	{
+		if (($name == 'columnise_day_view_by_root_node') && ($this->_am->getTypeInfo($this->getAssetType(), 'version') == '0.2')) {
+			// when upgrading from v0.1 to v0.2 the columnise_day_view_by_root_node attribute
+			// changed from a boolean, default true, to an array, default empty.
+
+			// find out which assets currently have a customised value for this attribute
+			$sql = 'SELECT v.assetid, v.attributeid FROM '.SQ_TABLE_PREFIX.'asset_attribute_value v JOIN '.SQ_TABLE_PREFIX.'asset_attribute at ON v.attributeid=at.attributeid WHERE at.name='.$this->_db->quote($name).' AND at.owning_type_code='.$this->_db->quote($this->getAssetType());
+			$customised_assetids = $this->_db->getAssoc($sql);
+			$all_assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('page_calendar', false);
+
+			parent::_updateOwnedAttribute($name, $curr_attr);
+			// create customised values for those assets that used to have the default value
+			foreach (array_diff($all_assetids, array_keys($customised_assetids)) as $id) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+				$GLOBALS['SQ_SYSTEM']->am->acquireLock($id, 'attributes');
+				$asset->setAttrValue('columnise_day_view_by_root_node', array_keys($asset->attr('root_nodes')));
+				$asset->saveAttributes();
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($id, 'attributes');
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($id);
+			}	
+
+			// delete the old customised values which should now take the default value
+			$value_keys = Array();
+			foreach ($customised_assetids as $assetid => $attrid) $value_keys[] = $attrid.'_'.$assetid;
+			$this->_db->query('DELETE FROM '.SQ_TABLE_PREFIX.'asset_attribute_value WHERE CONCAT(attributeid, '.$this->_db->quote('_').', assetid) in ('.implode(', ', $value_keys).')');
+			return true;
+		} else {
+			return parent::_updateOwnedAttribute($name, $curr_attr);
+		}	
+
+	}//end _updateOwnedAttribute()
 
 }//end class
 

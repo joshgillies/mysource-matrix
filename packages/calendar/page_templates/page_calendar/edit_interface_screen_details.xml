@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.13 2004/09/14 00:14:34 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.14 2004/09/14 06:24:39 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -39,7 +39,7 @@
 	<section name="Root Nodes" write_access="write:attributes">
 		<field>
 			<display_name />
-			<note>If some of the selected root nodes are descendants of others, an event will be categorised according to its &lt;b&gt;closest&lt;/b&gt; ancestor. If more than one ancestor exists on the same tree level, it will be formatted using the first root node listed</note>
+			<note></note>
 			<function_call>
 				<paint_function   name="paintRootNodes"   />
 				<process_function name="processRootNodes" />
@@ -206,10 +206,13 @@
 				<process_function name="processDayTitleFormat" />
 			</function_call>
 		</field>
-		<field attribute="columnise_day_view_by_root_node">
+		<field>
 			<display_name>Columnise by root node</display_name> 
-			<note>Whether to put entries in the day view into columns according to their root node</note>
-			<boolean />
+			<note>Choose the root nodes by which you want to columnise day views</note>
+			<function_call>
+				<paint_function name="paintColumnNodes" />
+				<process_function name="processColumnNodes" />
+			</function_call>
 		</field>
 	</section>
 

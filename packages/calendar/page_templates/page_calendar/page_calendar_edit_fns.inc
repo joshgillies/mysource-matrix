@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.13 2004/09/09 06:44:13 lwright Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.14 2004/09/14 06:24:39 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.13 $ - 1.0
+* @version $Revision: 1.14 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -781,6 +781,88 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		}
 	}//end _processTitleFormat()
 
+
+	/**
+	* Paint the interface that lets you choose which root nodes to columnise by in day view
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintColumnNodes(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$all_root_nodes = $asset->attr('root_nodes');
+		$current_column_nodes = $asset->attr('columnise_day_view_by_root_node');
+		$location_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($all_root_nodes));
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<td class="sq-backend-table-header">Root Node</td>
+				<td class="sq-backend-table-header">Show in Own Column?</td>
+			</tr>
+		<?php
+		foreach ($all_root_nodes as $id => $details) {
+			?>
+			<tr>
+				<td class="sq-backend-table-cell"><?php echo $location_info[$id]['name']; ?></td>
+				<td class="sq-backend-table-cell">
+					<?php
+						if ($write_access) {
+							check_box($prefix.'_root_nodes_columnised['.$id.']', '1', in_array($id, $current_column_nodes));
+						} else {
+							echo '<img src="'.sq_web_path('lib').'/web/images/'.(in_array($id, $current_column_nodes) ? 'tick' : 'cross').'.gif" width="15" height="15" />';
+						}
+					?>
+				</td>
+			</tr>
+			<?php
+		}
+		?>
+			<tr>
+				<td class="sq-backend-table-cell">'Other'</td>
+				<td class="sq-backend-table-cell">
+					<?php
+						if ($write_access) {
+							check_box($prefix.'_root_nodes_columnised[other]', '1', in_array('other', $current_column_nodes));
+						} else {
+							echo '<img src="'.sq_web_path('lib').'/web/images/'.(in_array('other', $current_column_nodes) ? 'tick' : 'cross').'.gif" width="15" height="15" />';
+						}
+					?>
+				</td>
+			</tr>
+		</table>
+		<?php
+	}
+
+
+	/**
+	* Process the interface that lets you choose which root nodes to columnise by in day view
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processColumnNodes(&$asset, &$o, $prefix)
+	{
+		$val = Array('other');
+		if (isset($_REQUEST[$prefix.'_root_nodes_columnised']) && is_array($_REQUEST[$prefix.'_root_nodes_columnised']))  {
+			if (!(isset($_REQUEST[$prefix.'_root_nodes_columnised']['other']) && $_REQUEST[$prefix.'_root_nodes_columnised']['other'])) { 
+				unset($val['other']);
+				unset($_REQUEST[$prefix.'_root_nodes_columnised']['other']);
+			}
+			foreach ($_REQUEST[$prefix.'_root_nodes_columnised'] as $id => $status) {
+				if ($status) $val[] = $id;
+			}
+		}
+		return $asset->setAttrValue('columnise_day_view_by_root_node', $val);
+	}
 	
 }//end class
 
