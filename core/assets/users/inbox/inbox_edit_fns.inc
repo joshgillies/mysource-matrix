@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.28 2003/11/28 03:38:37 gsherwood Exp $
+* $Id: inbox_edit_fns.inc,v 1.29 2003/12/01 05:17:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -244,12 +244,11 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	* @param object Asset				$asset	the asset to which we belong
 	* @param object	Backend_Outputter	$o		the outputter class
 	* @param string						$prefix	prefix for the form element
-	* @param array(string)				$info	info about the uploaded file
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processMail(&$asset, &$o, $prefix, $info=Array())
+	function processMail(&$asset, &$o, $prefix)
 	{
 		$msgs   = (isset($_POST[$prefix.'_messages'])) ? array_keys($_POST[$prefix.'_messages']) : Array();
 		$read   = (isset($_POST[$prefix.'_mark_as_read'])) ? array_keys($_POST[$prefix.'_mark_as_read']) : Array();
@@ -464,12 +463,11 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	* @param object Asset				$asset	the asset to which we belong
 	* @param object	Backend_Outputter	$o		the outputter class
 	* @param string						$prefix	prefix for the form element
-	* @param array(string)				$info	info about the uploaded file
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processTrash(&$asset, &$o, $prefix, $info=Array())
+	function processTrash(&$asset, &$o, $prefix)
 	{
 		$msgs    = (isset($_POST[$prefix.'_messages'])) ? array_keys($_POST[$prefix.'_messages']) : Array();
 		$recover = (isset($_POST[$prefix.'_recover'])) ? array_keys($_POST[$prefix.'_recover']) : Array();
