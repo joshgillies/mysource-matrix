@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: keyword_replace.inc,v 1.2 2003/12/12 03:36:38 gsherwood Exp $
+* $Id: keyword_replace.inc,v 1.3 2004/01/21 22:43:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -229,7 +229,7 @@ class Keyword_Replace extends WYSIWYG_Plugin {
 	*/
 	function set_contents(&$contents)
 	{
-		// replace the keywords with the special tags
+		// work out the special replace tags for all our keywords
 		$search = Array();
 		$replace = Array();
 		$counter = 0;
@@ -252,7 +252,15 @@ class Keyword_Replace extends WYSIWYG_Plugin {
 			$replace[$counter] = $default_string;
 			$counter++;
 		}
-		$contents = preg_replace($search, $replace, $contents);
+
+		// split the contents up into tags so we can replace keywords only
+		// if they are not within HTML tags (tags inside tags are a bad mix :)
+		$pieces = Array();
+		$new_contents = '';
+		preg_match_all('|(<[^>]+?>)([^<]+)|', $contents, $pieces);
+		foreach ($pieces[1] as $key => $value) $new_contents .= $value.preg_replace($search, $replace, $pieces[2][$key]);
+
+		$contents = $new_contents;
 
 	}//end set_contents()
 
