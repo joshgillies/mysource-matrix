@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.122 2004/12/01 06:01:18 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.123 2004/12/01 22:18:42 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.122 $ - 1.0
+* @version $Revision: 1.123 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -788,11 +788,12 @@ class Page_Calendar extends Page_Asset_Listing
 			if (array_values($this->attr('columnise_day_view_by_root_node')) != Array('*')) {
 				$root_nodes = array_keys($this->_getRootNodes());
 				$columns_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($this->attr('columnise_day_view_by_root_node'));
-				for (reset($columns_info); null !== ($k = key($columns_info)); next($columns_info)) {
+				foreach (array_keys($columns_info) as $k) {
 					if (!in_array($k, $root_nodes)) {
 						unset($columns_info[$k]);
-					}
+					} 
 				}
+
 				foreach ($columns_info as $id => $info) $column_names[$id] = $info['name'];
 				if (in_array('*', $this->attr('columnise_day_view_by_root_node'))) {
 					$column_names['*'] = ($this->attr('other_column_name') == '') ? 'Other' : $this->attr('other_column_name');
@@ -895,6 +896,7 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function _printTimedTable($table_id, $column_names, $column_links, $events, $show_event_links=false)
 	{
+		//foreach ($column_names as $id => $name) if (!isset($events[$id])) unset($column_names[$id]);
 		$partition_time = intval($this->attr('day_partition_time'));
 		$partition_height = $this->attr('day_partition_height');
 
@@ -916,9 +918,6 @@ class Page_Calendar extends Page_Asset_Listing
 		$mousedown_code = $dragging_enabled ? 'onmousedown="'.($popups_enabled ? 'stopTrailingPopup(); ' : '').'startDragging(this)"' : '';
 		$mouseup_code = $dragging_enabled ? 'onmouseup="if (stopDragging()!=\'no_move\') { formSubmitted=true; setTimeout(\'formSubmitted=false\', 100)}"' : '';
 
-		if ($dragging_enabled) $this->_printEventDraggingScript($table_id);
-		if ($popups_enabled) $this->_printPopupsScript();
-		if ($click_to_add_ab) $this->_printAddEventScript($click_to_add_ab);
 		?>
 		<table id="<?php echo $table_id; ?>" border="0" cellspacing="0" cellpadding="0" summary="events in this <?php echo $table_id ?>" style="width: <?php echo ($width * count($events)) + 65; ?>px">
 		<?php
@@ -1006,6 +1005,12 @@ class Page_Calendar extends Page_Asset_Listing
 		?>
 		</table>
 		<?php
+
+		// print all the javascript last so it doesn't screw up spacing in mozilla
+		if ($dragging_enabled) $this->_printEventDraggingScript($table_id);
+		if ($popups_enabled) $this->_printPopupsScript();
+		if ($click_to_add_ab) $this->_printAddEventScript($click_to_add_ab);
+
 			
 	}//end printTimedTable()
 
