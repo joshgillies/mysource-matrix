@@ -18,10 +18,9 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_management.inc,v 1.1 2004/01/20 03:41:45 gsherwood Exp $
+* $Id: page_asset_listing_management.inc,v 1.2 2004/02/10 16:32:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
-
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
@@ -36,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Page_Asset_Listing_Management extends Page_Management
+class Page_Asset_Listing_Management extends Asset_Management
 {
 
 	/**
@@ -45,7 +44,7 @@ class Page_Asset_Listing_Management extends Page_Management
 	*/
 	function Page_Asset_Listing_Management(&$pm)
 	{
-		$this->Page_Management($pm);
+		$this->Asset_Management($pm);
 
 		$this->vars['types']		= Array(
 										'added'   => '0.0.1',

@@ -18,12 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_password_management.inc,v 1.4 2003/12/16 12:13:05 brobertson Exp $
+* $Id: form_question_type_password_management.inc,v 1.5 2004/02/10 16:32:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
-
-require_once dirname(__FILE__).'/../../form_question/form_question_management.inc';
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
 * Form_Question_Type_Password_Management
@@ -35,7 +34,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_management.in
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Form_Question_Type_Password_Management extends Form_Question_Management
+class Form_Question_Type_Password_Management extends Asset_Management
 {
 
 	/**

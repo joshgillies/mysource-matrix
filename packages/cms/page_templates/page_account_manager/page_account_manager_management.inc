@@ -18,12 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_management.inc,v 1.5 2004/01/15 05:16:34 gsherwood Exp $
+* $Id: page_account_manager_management.inc,v 1.6 2004/02/10 16:32:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
-
-require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_builder/page_asset_builder_management.inc';
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
 * Page_Account_Manager_Management
@@ -34,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_builder/page_asset
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Page_Account_Manager_Management extends Page_Asset_Builder_Management
+class Page_Account_Manager_Management extends Asset_Management
 {
 
 	/**
@@ -43,7 +42,7 @@ class Page_Account_Manager_Management extends Page_Asset_Builder_Management
 	*/
 	function Page_Account_Manager_Management(&$pm)
 	{
-		$this->Page_Asset_Builder_Management($pm);
+		$this->Asset_Management($pm);
 
 		$this->vars['create_type']				= Array(
 														'added'     => '0.1',

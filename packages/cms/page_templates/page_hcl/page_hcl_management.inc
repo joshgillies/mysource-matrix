@@ -18,12 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_hcl_management.inc,v 1.3 2004/01/14 22:54:28 diarandine Exp $
+* $Id: page_hcl_management.inc,v 1.4 2004/02/10 16:32:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
-require_once SQ_PACKAGES_PATH.'/cms/page/page_management.inc';
-
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
 * Page_HCL_Management
@@ -35,7 +34,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page/page_management.inc';
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Page_HCL_Management extends Page_Management
+class Page_HCL_Management extends Asset_Management
 {
 	/**
 	* Constructor
@@ -43,7 +42,7 @@ class Page_HCL_Management extends Page_Management
 	*/
 	function Page_HCL_Management(&$pm)
 	{
-		$this->Page_Management($pm);
+		$this->Asset_Management($pm);
 
 		$this->vars = Array('type'	=> Array(
 										'added'	=> '0.0.1',

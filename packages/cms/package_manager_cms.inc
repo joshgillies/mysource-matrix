@@ -18,62 +18,37 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text_management.inc,v 1.9 2004/02/10 16:32:41 brobertson Exp $
+* $Id: package_manager_cms.inc,v 1.1 2004/02/10 16:32:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
-require_once SQ_INCLUDE_PATH.'/asset_management.inc';
+require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 
 /**
-* Form_Question_Type_Text_Management
+* Package_Manager_CMS
 *
-* @see Asset_Management
+* Purpose
+*    Manages the install and upgrade of the CMS package and CMS assets, 
+*    uses info gleened from the package.xml and asset.xml files
 *
-* @author  Marc McIntyre <mmcintyre@squiz.net>
+* @author  Blair Robertson <brobertson@squiz.net>
 * @version $Version$ - 1.0
-* @package MySource_Matrix_Packages
-* @subpackage cms
+* @package MySource_Matrix
 */
-class Form_Question_Type_Text_Management extends Asset_Management
+class Package_Manager_CMS extends Package_Manager
 {
 
 	/**
 	* Constructor
 	*
 	*/
-	function Form_Question_Type_Text_Management(&$pm)
+	function Package_Manager_CMS()
 	{
-		$this->Asset_Management($pm);
+		$this->_full_path = dirname(__FILE__);
+		$this->Package_Manager();
 
-		$this->vars = Array(
-							'default'	=> Array(
-									'added'		=> '0.0.1',
-									'type'		=> 'text',
-									'default'	=> '',
-								),
-							'width' => Array(
-									'added'     => '0.0.1',
-									'type'      => 'text',  
-									'default'   => '30',
-									),
-							'height' => Array(
-									'added'     => '0.0.1',
-									'type'      => 'text',  
-									'default'   => '1',
-									),
-							'max' => Array(
-									'added'     => '0.0.1',
-									'type'      => 'text',  
-									'default'   => '300',
-									),
-							'extra'			=> Array(
-									'added'     => '0.0.1',
-									'type'      => 'text',  
-									'default'   => '',
-									),
-								
-			);
 	}//end constructor
 
 }//end class
+
 ?>
