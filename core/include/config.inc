@@ -108,7 +108,10 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 			if ($var_name == 'SQ_CONF_PEAR_PATH' && !empty($value)) {
 				$str .= "\$sep = (substr(PHP_OS, 0, 3) == 'WIN') ? ';' : ':';\n";
 				$str .= "\$inc_dir = ini_get('include_path');\n";
-				$str .= "\$inc_dir .= ((substr(\$inc_dir, -1) == \$sep) ? '' : \$sep).SQ_CONF_PEAR_PATH;\n";
+				// basically, if the first entry is '.' (ie the current directory) leave that, 
+				// and insert the pear path just after that, otherwise just right at the front of the 
+				// include path
+				$str .= "\$inc_dir = (substr(\$inc_dir, 0, 2) == '.'.\$sep) ? '.'.\$sep.SQ_CONF_PEAR_PATH.\$sep.substr(\$inc_dir, 2): SQ_CONF_PEAR_PATH.\$sep.\$inc_dir;\n";
 				$str .= "ini_set('include_path', \$inc_dir);\n\n";
 			}
 
