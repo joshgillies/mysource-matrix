@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.36 2005/02/22 03:34:39 gsherwood Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.37 2005/02/22 06:37:34 ndvries Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -355,18 +355,6 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	* @return void
 	* @access public
 	*/
-	/*function getLockAssetDetails(&$job_type, &$running_vars, &$options)
-	{
-		$job_type = 'hipo_job_acquire_lock';
-
-		$options['auto_complete'] = true;
-
-		$running_vars['assetid']         = $this->_running_vars['assetid'];
-		$running_vars['lock_type']       = 'permissions';
-		$running_vars['dependants_only'] = false;
-
-	}//end getLockAssetDetails()*/
-
 	function getLockAssetDetails(&$job_type, &$running_vars, &$options)
 	{
 		$job_type = 'hipo_job_acquire_locks';
@@ -390,19 +378,6 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	* @return boolean
 	* @access public
 	*/
-	/*function releaseLocks(&$step_data, $prefix)
-	{
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
-		if (!is_null($asset)) {
-			$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'permissions');
-			$step_data['message'] = 'Releasing Locks';
-		}
-		$step_data['percent_done'] = 100;
-		$step_data['complete']     = true;
-		return true;
-
-	}//end releaseLocks()*/
-
 	function releaseLocks(&$step_data, $prefix)
 	{
 		if (!isset($this->_running_vars['re_lock_assets']))
