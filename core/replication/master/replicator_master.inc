@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replicator_master.inc,v 1.1.2.2 2004/02/13 18:27:39 brobertson Exp $
+* $Id: replicator_master.inc,v 1.1.2.3 2004/02/13 18:32:32 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,7 +49,7 @@ class Replicator_Master extends Replicator
 		$this->Replicator();
 
 		// make sure that we have the zero system id
-		if (SQ_SYSTEM_ID != 0) {
+		if (SQ_CONF_SYSTEM_ID != 0) {
 			trigger_error('This system is not able to be the Replicator Master if it does not have a SYSTEM_ID of 0 (zero)', E_USER_ERROR);
 		}
 
@@ -222,12 +222,8 @@ class Replicator_Master extends Replicator
 
 			case 'list' :
 
-				if (!isset($_SERVER['argv'][2])) {
-					$this->runPrintUsage($cmd);
-					return 1;
-				}// end if
-
-				switch($_SERVER['argv'][2]) {
+				$list_type = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : 'active';
+				switch($list_type) {
 					case 'all' :
 						$active  = true;
 						$retired = true;
@@ -250,6 +246,8 @@ class Replicator_Master extends Replicator
 					echo "No Remote Systems found\n";
 					return 0;
 				}
+
+				echo ucwords($list_type).' Remote Systems'."\n";
 
 				echo str_pad(' ID', 5, ' ', STR_PAD_LEFT).' : Name'."\n";
 				echo str_pad(' --', 5, ' ', STR_PAD_LEFT).'   ----'."\n";
@@ -350,11 +348,11 @@ class Replicator_Master extends Replicator
 					break;
 
 				case 'list' :
-					$lines[] = 'Usage : '.$prog.' list [all|active|retired]';
+					$lines[] = 'Usage : '.$prog.' list [active|retired|all]';
 					$lines[] = $descs[$cmd];
-					$lines[] = '  all     - list all active systems';
-					$lines[] = '  active  - list only active systems';
+					$lines[] = '  active  - list only active systems (default)';
 					$lines[] = '  retired - list only retired systems';
+					$lines[] = '  all     - list all active systems';
 					break;
 
 				case 'retire' :
