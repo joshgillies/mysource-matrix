@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.63 2004/11/18 05:10:23 gsherwood Exp $
+* $Id: search_page.inc,v 1.64 2004/11/22 22:50:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.63 $ - 1.0
+* @version $Revision: 1.64 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -264,7 +264,22 @@ class Search_Page extends Page
 	function printBody()
 	{
 		if (isset($_REQUEST['search_button'])) $_REQUEST['mode'] = 'results';
-		$mode = array_get_index($_REQUEST, 'mode', 'initial');
+		$mode = array_get_index($_REQUEST, 'mode', '');
+		
+		if (empty($mode)) {
+			// we dont know what button was pressed, so see if we have any query vars
+			// that show evidence that a search has been performed without submitting
+			// the button value
+			$queries = $this->_getSearchedQueries();
+			foreach ($queries as $field_name => $value) {
+				if (!empty($value)) {
+					$mode = 'results';
+					break;
+				}
+			}
+			$this->_tmp['searched_queries'] = $queries;
+		}
+		if (empty($mode)) $mode = 'initial';
 
 		if (!isset($_SESSION['SQ_LAST_SEARCH'][$this->id])) {
 			$_SESSION['SQ_LAST_SEARCH'][$this->id] = Array();
@@ -280,7 +295,6 @@ class Search_Page extends Page
 
 		?>
 		<form name="search_form" method="get" action="<?php echo $this->getUrl(); ?>">
-			<input type="hidden" name="mode" value="<?php echo $mode; ?>" />
 			<input type="hidden" name="current_result_page" value="<?php echo $current_result_page; ?>" />
 			<input type="hidden" name="results_per_page" value="<?php echo $results_per_page; ?>" />
 			<?php
@@ -1453,20 +1467,89 @@ class Search_Page extends Page
 	*/
 	function processSearch()
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$sm = &$am->getSystemAsset('search_manager');
+		$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 
 		$fields = $this->attr('fields');
-
-		$mode = array_get_index($_REQUEST, 'mode', 'results');
-
-		$suffix = ($mode == 'results') ? '_query' : '_query_sis';
 
 		// search category
 		$category = (isset($_REQUEST['search_category'])) ? $_REQUEST['search_category'] : '';
 		$categories = $this->attr('categories');
 		if (!empty($category) && !isset($categories[$category])) $category = '';
 
+		// save the search terms into the session so that we can use them for
+		// search within search results
+		$queries = $this->_getSearchedQueries();
+		$_SESSION['SQ_LAST_SEARCH'][$this->id] = $queries;
+
+		// get the basic search settings based on the current category (if any)
+		$search_info = $this->populateBaseSearchInfo($category);
+		
+		foreach ($queries as $field_name => $value) {
+
+			if (empty($value)) continue;
+
+			if ($fields[$field_name]['type'] == 'asset_attrib') {
+				$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['params']['attrid']);
+				if (!is_null($attribute) && $attribute->type() == 'boolean') {
+					// we need to convert the value into a word representation,
+					// since indexing service will not operate just 0 or 1
+					if ($value == '0') $value = 'false';
+					else if ($value == '1') $value = 'true';
+				}
+			}
+
+
+			if (!is_array($value)) {
+				$words = split(' +', strtolower($value));
+				foreach (array_keys($words) as $i) {
+					// convert wildcard symbols to corresponding SQL wildcards
+					$words[$i] = strtr($words[$i], '*?', '%_');
+
+					// if this is an email, skip the following check...
+					$at_pos  = strpos($words[$i], '@');
+					$dot_pos = strpos($words[$i], '.');
+					if ($at_pos === false && $dot_pos === false) {
+						// preserve the wildcard symbols - i.e. don't quote them
+						if (ereg('^[A-z%_]+$', $words[$i])) $words[$i] = addslashes($words[$i]);
+						else unset($words[$i]);
+					}
+				}
+			} else {
+				$words = $value;
+			}
+
+			$field_type = $fields[$field_name]['type'];
+			$search_info[$field_type][$field_name]['words'] = $words;
+			$search_info[$field_type][$field_name]['params'] = array_get_index($fields[$field_name], 'params', Array());
+
+			// add in the search logic for the field
+			$search_logic = strtoupper(array_get_index($_REQUEST, $field_name.'_query_logic', 'AND'));
+			if ($search_logic != 'AND' && $search_logic != 'OR') $search_logic = 'AND';
+			$search_info[$field_type][$field_name]['search_logic'] = $search_logic;
+
+		}//end foreach fields
+
+		return $sm->processSearch($search_info);
+
+	}//end processSearch()
+	
+	
+	/**
+	* Get an array of all search terms that have been submitted
+	*
+	* Also adjusts fields if we are performing a search within search by concating them
+	* with the terms used for the last search
+	*
+	* @return array
+	* @access private
+	*/
+	function _getSearchedQueries()
+	{
+		if (isset($this->_tmp['searched_queries'])) return $this->_tmp['searched_queries'];
+
+		$fields = $this->attr('fields');
+		$mode = array_get_index($_REQUEST, 'mode', 'results');
+		$suffix = ($mode == 'results') ? '_query' : '_query_sis';
 
 		$queries = Array();
 		foreach ($fields as $field_name => $field) {
@@ -1549,61 +1632,9 @@ class Search_Page extends Page
 			$queries = $last_search;
 		}
 
-		// save the search terms into the session so that we can use them for
-		// search within search results
-		$_SESSION['SQ_LAST_SEARCH'][$this->id] = $queries;
+		return $queries;
 
-		// get the basic search settings based on the current category (if any)
-		$search_info = $this->populateBaseSearchInfo($category);
-
-		foreach ($queries as $field_name => $value) {
-
-			if (empty($value)) continue;
-
-			if ($field['type'] == 'asset_attrib') {
-				$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($field['params']['attrid']);
-				if (!is_null($attribute) && $attribute->type() == 'boolean') {
-					// we need to convert the value into a word representation,
-					// since indexing service will not operate just 0 or 1
-					if ($value == '0') $value = 'false';
-					else if ($value == '1') $value = 'true';
-				}
-			}
-
-
-			if (!is_array($value)) {
-				$words = split(' +', strtolower($value));
-				foreach (array_keys($words) as $i) {
-					// convert wildcard symbols to corresponding SQL wildcards
-					$words[$i] = strtr($words[$i], '*?', '%_');
-
-					// if this is an email, skip the following check...
-					$at_pos  = strpos($words[$i], '@');
-					$dot_pos = strpos($words[$i], '.');
-					if ($at_pos === false && $dot_pos === false) {
-						// preserve the wildcard symbols - i.e. don't quote them
-						if (ereg('^[A-z%_]+$', $words[$i])) $words[$i] = addslashes($words[$i]);
-						else unset($words[$i]);
-					}
-				}
-			} else {
-				$words = $value;
-			}
-
-			$field_type = $fields[$field_name]['type'];
-			$search_info[$field_type][$field_name]['words'] = $words;
-			$search_info[$field_type][$field_name]['params'] = array_get_index($fields[$field_name], 'params', Array());
-
-			// add in the search logic for the field
-			$search_logic = strtoupper(array_get_index($_REQUEST, $field_name.'_query_logic', 'AND'));
-			if ($search_logic != 'AND' && $search_logic != 'OR') $search_logic = 'AND';
-			$search_info[$field_type][$field_name]['search_logic'] = $search_logic;
-
-		}//end foreach fields
-
-		return $sm->processSearch($search_info);
-
-	}//end processSearch()
+	}//end _getSearchedQueries()
 
 
 	/**
