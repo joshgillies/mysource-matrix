@@ -4,38 +4,38 @@
 	<link rel="stylesheet" type="text/css" href="files/styles.css">
 </head>
 <body marginwidth="0" marginheight="0" leftmargin="0" topmargin="0" bgcolor="#ffffff">
-<ResolveFX_AREA id_name="login_form" design_area="login_form">
+<MySource_AREA id_name="login_form" design_area="login_form">
 	<table height="100%" width="100%"cellspacing="0" cellpadding="0" border="0"><tr><td align="center" valign="middle">
 	<table width="400" cellpadding="1" cellspacing="1" border="0" align="center" bgcolor="#000000">
 		<tr>
 			<td class="sq-backend-heading" bgcolor="#FFFFFF">
-				<img src="files/swish.gif" width="20" height="20" border="0" align="left" alt="<ResolveFX_PRINT var='login_heading' />" />
-				<ResolveFX_PRINT var="login_heading" />
+				<img src="files/swish.gif" width="20" height="20" border="0" align="left" alt="<MySource_PRINT var='login_heading' />" />
+				<MySource_PRINT var="login_heading" />
 			</td>
 		</tr>
 		<tr>
 			<td bgcolor="#FFFFFF">
-			<ResolveFX_LOGIN_SECTION>
-				<ResolveFX_SET name="give_username_focus"		value="true" />
-				<ResolveFX_SET name="forward_www_vars"		value="true" />
-				<ResolveFX_PRINT var="form_open" />
+			<MySource_LOGIN_SECTION>
+				<MySource_SET name="give_username_focus"		value="true" />
+				<MySource_SET name="forward_www_vars"		value="true" />
+				<MySource_PRINT var="form_open" />
 				<table border="0" width="100%" cellspacing="0" cellpadding="0">
 					<tr>
 						<td>
 							<table cellpadding="3" cellspacing="0" border="0" width="100%">
 								<tr>
 									<td valign="top" class="sq-backend-warning">
-										<ResolveFX_PRINT var="system_messages" />
+										<MySource_PRINT var="system_messages" />
 									</td>
 								</tr>
 								<tr>
 									<td valign="top" class="sq-backend-sectionheading" style="font-weight: bold;">
-										Currently Logged in as : <ResolveFX_PRINT id_name="__global__" var="current_user" default="[Not Logged In]" attr="name" />
+										Currently Logged in as : <MySource_PRINT id_name="__global__" var="current_user" default="[Not Logged In]" attr="name" />
 									</td>
 								</tr>
 								<tr>
 									<td valign="top" class="sq-backend-data">
-										<ResolveFX_PRINT var="login_message" />
+										<MySource_PRINT var="login_message" />
 									</td>
 								</tr>
 								<tr>
@@ -43,13 +43,13 @@
 										<table width="100%" border="0" cellspacing="0" cellpadding="3">
 											<tr>
 												<td rowspan="3" valign="bottom" class="sq-backend-field">
-													<input type="button" class="sq-backend-data" value="&lt;- Back" onclick="javascript: var referer = '<ResolveFX_PRINT var='referer' escape='yes' />'; if (referer.length) { window.location = referer } else { alert('Unable to derive where you came from'); } ">&nbsp;
+													<input type="button" class="sq-backend-data" value="&lt;- Back" onclick="javascript: var referer = '<MySource_PRINT var='referer' escape='yes' />'; if (referer.length) { window.location = referer } else { alert('Unable to derive where you came from'); } ">&nbsp;
 												</td>
 												<td nowrap valign="top" class="sq-backend-field">
 													Username: 
 												</td>
 												<td width="100%" valign="top" class="sq-backend-data">
-													<ResolveFX_PRINT var="username_box" size="10" class="sq-backend-data" />
+													<MySource_PRINT var="username_box" size="10" class="sq-backend-data" />
 												</td>
 												<td rowspan="2" valign="bottom" align="right" class="sq-backend-field">
 													&nbsp;
@@ -60,7 +60,7 @@
 													Password: 
 												</td>
 												<td width="100%" valign="top" class="sq-backend-data">
-													<ResolveFX_PRINT var="password_box" size="10" class="sq-backend-data" />
+													<MySource_PRINT var="password_box" size="10" class="sq-backend-data" />
 												</td>
 											</tr>
 											<tr>
@@ -71,7 +71,7 @@
 													&nbsp;
 												</td>
 												<td valign="bottom" align="right" class="sq-backend-field">
-													<ResolveFX_PRINT var="submit_button" value="Login -&gt;" class="sq-backend-data" />
+													<MySource_PRINT var="submit_button" value="Login -&gt;" class="sq-backend-data" />
 												</td>
 											</tr>
 										</table>
@@ -81,12 +81,12 @@
 						</td>
 					</tr>
 				</table>
-				<ResolveFX_PRINT var="form_close" />
-			</ResolveFX_LOGIN_SECTION>
+				<MySource_PRINT var="form_close" />
+			</MySource_LOGIN_SECTION>
 			</td>
 		</tr>
 	</table>
 	</td></tr></table>
-</ResolveFX_AREA>
+</MySource_AREA>
 </body>
 </html>
