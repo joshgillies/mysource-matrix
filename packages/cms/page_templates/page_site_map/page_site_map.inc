@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_site_map.inc,v 1.1 2003/10/07 04:01:07 mmcintyre Exp $
+* $Id: page_site_map.inc,v 1.2 2003/10/07 05:17:11 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -81,6 +81,7 @@ class Page_Site_Map extends Page
 		$levels = ($this->attr('levels') != 0) ? $this->attr('levels') : null;
 
 		$page_data = $GLOBALS['SQ_SYSTEM']->am->getAssetTree($siteid, $levels, array_keys($this->attr('exclude_list')));
+
 		$assetids = Array();
 
 		foreach ($page_data as $assetid => $data) {
@@ -158,18 +159,18 @@ class Page_Site_Map extends Page
 				$url = ($generating) ? '<'.'?php echo $SQ_SITE_MAP_ASSET_URLS[$data[\'assetid\']] ?'.'>' : $SQ_SITE_MAP_ASSET_URLS[$data['assetid']];
 			?>
 				<tr>
-					<td class="sq-backend-data" <?php echo $bg; ?>>
+					<td <?php echo $bg; ?>>
 					<img src="<?php echo sq_web_path('lib').'/web/images/'.$image2; ?>" width="20" height="20" border="0" alt="branch" /></td>
-					<td class="sq-backend-data">
-						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']); ?>", "16", "16", "");</script>&nbsp;&nbsp;<a href="<?php echo $url?>"> <?php echo $data['name'];?></a>
+					<td >
+						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']); ?>", "16", "16", "");</script>&nbsp;&nbsp;<a href="<?php echo $url?>"><?php echo $data['name'];?></a>
 					</td>
 				</tr>
 			<?php
 				if (!empty($page_data[$data['assetid']])) {
 				?>
 					<tr>
-						<td class="sq-backend-data" <?php echo $bg; ?>><img src="<?php echo sq_web_path('lib').'/web/images/blank.gif'; ?>" width="1" height="1" alt="blank" /></td>
-						<td class="sq-backend-data">
+						<td <?php echo $bg; ?>><img src="<?php echo sq_web_path('lib').'/web/images/blank.gif'; ?>" width="1" height="1" alt="blank" /></td>
+						<td>
 					<?php
 						$this->_recursePrintAssetList($page_data, $data['assetid'], true, $stalks, $generating);
 					?>
@@ -177,7 +178,6 @@ class Page_Site_Map extends Page
 					</tr>
 				<?php
 				}//end if
-
 				$i++;
 			}//end foreach
 		?>
