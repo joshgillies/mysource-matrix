@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.242 2004/11/10 21:34:33 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.243 2004/11/10 21:38:22 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -4105,8 +4105,6 @@ class Asset_Manager extends MySource_Object
 		}
 
 		if (is_null($base_url)) $base_url = current_url(false, true);
-
-		//bam("Set base URL to $base_url");
 
 		$matches = Array();
 		if (!preg_match('/^(([a-z]+):\/\/)?(.*)$/', strip_url($base_url), $matches)) return ($return_array) ? Array() : '';
