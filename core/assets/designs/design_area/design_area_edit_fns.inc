@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.32 2003/12/12 02:18:37 gsherwood Exp $
+* $Id: design_area_edit_fns.inc,v 1.33 2003/12/16 18:36:59 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -752,7 +752,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	function createParseString(&$asset)
 	{
 		$text = '';
-		$vars = $this->_getSetableVars($asset);
+		$vars = $this->getSetableVars($asset);
 		foreach($vars as $name => $data) {
 			$text .= '<'.$this->tag_name.'_SET name="'.$name.'"';
 
@@ -795,7 +795,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* @access public
 	* @see createParseString()
 	*/
-	function _getSetableVars(&$asset)
+	function getSetableVars(&$asset)
 	{
 		$vars = $asset->vars;
 		unset($vars['id_name']);
@@ -804,7 +804,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		unset($vars['specialised']);
 		return $vars;
 
-	}//end _getSetableVars()
+	}//end getSetableVars()
 
 
 	/**
