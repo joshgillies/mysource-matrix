@@ -769,7 +769,11 @@ class MySource
 			require_once SQ_INCLUDE_PATH.'/transaction_manager.inc';
 			$this->tm = new Transaction_Manager();
 		}
-
+		// Use this when there is a transaction problem to create a log and then run this from the cmd line 
+		// and look for the fn with the odd number of calls
+		// cat trans.log | awk '{ print $3 }' | sort | uniq -c
+		#$bt = debug_backtrace();
+		#error_log('TRANS : '.$bt[1]['class'].'::'.$bt[1]['function'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/trans.log');
 		switch (strtolower($type)) {
 			case 'begin'    :
 				$this->tm->begin($this->_db_stack[count($this->_db_stack) - 1]);
