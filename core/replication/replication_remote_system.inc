@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_remote_system.inc,v 1.1.2.3 2004/02/14 19:51:10 brobertson Exp $
+* $Id: replication_remote_system.inc,v 1.1.2.4 2004/02/17 15:50:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -292,12 +292,23 @@ class Replication_Remote_System extends MySource_Object
 	}// end setTransportMethod()
 
 
+	/**
+	* Attempts to connect and authenticate with the remote system
+	*
+	* @return boolean	true on success
+	* @access public
+	*/
 	function connect()
 	{
+		if (trim($this->squiz_server['systemid']) == '' || trim($this->squiz_server['host']) == '' || (int) $this->squiz_server['port'] == 0) {
+			trigger_error('Unable to connect to Remote System "'.$this->id.'" : Remote Squiz Server settings incomplete', E_USER_WARNING);
+			return false;
+		}
+
 		require_once SQ_SYSTEM_ROOT.'/core/server/squiz_server_client_mysource3.inc';
 
 		$data = Array(
-					'systemid'	=> SQ_CONF_SYSTEM_ID, 
+					'systemid'	=> SQ_CONF_SYSTEM_ID,
 				);
 
 		$client = new Squiz_Server_Client_MySource3($this->squiz_server['systemid'], $this->squiz_server['host'], $this->squiz_server['port']);
@@ -307,7 +318,7 @@ class Replication_Remote_System extends MySource_Object
 			$client->disconnect();
 			return false;
 		}
-		
+
 		$ack = $client->read();
 		pre_echo("RESULT : $ack");
 		if ($ack != 'ack') {
@@ -315,7 +326,7 @@ class Replication_Remote_System extends MySource_Object
 			return false;
 		}
 
-		// OK, if we have got this far it means that we have connected OK, 
+		// OK, if we have got this far it means that we have connected OK,
 		// and we are now leaving the squiz server communication pipeline alone
 		// and using the transport method setup for this remote system
 		$this->transport->setSocketFd($client->getFd());
