@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap.inc,v 1.1.1.1 2004/02/06 09:25:44 brobertson Exp $
+* $Id: ldap.inc,v 1.2 2004/03/03 00:00:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -74,7 +74,7 @@ class Ldap
 	function Ldap($h=null, $p=null, $pass=null, $bdn='', $rdn='')
 	{
 		// if a host has been specified, connect
-		if (!is_null($h)) $this->connect($h, $p, $pass, $bdn, $rdn);
+		if (!is_null($h) && !empty($h)) $this->connect($h, $p, $pass, $bdn, $rdn);
 
 	}//end constructor
 
@@ -138,7 +138,10 @@ class Ldap
 	*/
 	function disconnect()
 	{
-		return ldap_close($this->ptr);
+		if ($this->ptr) {
+			return ldap_close($this->ptr);
+		}
+		return true;
 
 	}//end disconnect()
 
