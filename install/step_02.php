@@ -31,8 +31,8 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 // Let the asset manager know we are installing
 $GLOBALS['SQ_INSTALL'] = true;
 
-require_once 'XML/Tree.php';
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
+require_once 'XML/Tree.php';
 $db = &$GLOBALS['SQ_SYSTEM']->db;
 
 // Re-generate the Config to make sure that we get any new defines that may have been issued
