@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_email_address.inc,v 1.4 2004/05/07 05:07:03 lwright Exp $
+* $Id: form_question_type_email_address.inc,v 1.5 2004/06/22 01:26:17 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -83,20 +83,50 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 		$form =& $this->getMySection();
 
 		if (isset($_POST[$this->id])) {
-			$val = $_POST[$this->id];
-			if (!valid_email($val)) {
-			  $form->submission_errors[] = 'The question "'.$this->attr('name').'" must be answered with a valid e-mail address';
-			  return false;
-			}
 
 			$form->active_submission[$this->id] = $val;
 
+			// borrow a 'valid email address' rule
+			$req_rule = Array('rule_code' => 'valid_email', 'operator' => '1');
+			array_push($this->vars['rules']['value'], $req_rule);
+
 			parent::processForm();
+
+			array_pop($this->vars['rules']['value']);
 		}
 		
 		return true;
 	
 	}//end processForm()
+
+		
+		return true;
+	
+	}//end processForm()
+
+	
+	/**
+	* writes JavaScript code for client side validation
+	* 
+	* This function assumes the skeleton of a JS validation function has been created around this code
+	* with a form variable named 'form' passed (this is done when generating the content file).
+	*
+	* @access public
+	* @return string the javascript code used for client-side validation
+	*/
+	function generateJSCode()
+	{
+		// borrow a valid email rule
+		$req_rule = Array('rule_code' => 'valid_email', 'operator' => '1');
+		array_push($this->vars['rules']['value'], $req_rule);
+
+		$code = parent::generateJSCode();
+
+		array_pop($this->vars['rules']['value']);
+
+		return $code;
+
+	}//end generateJSCode()
 
 
 }//end class
