@@ -1,6 +1,158 @@
 MYSOURCE MATRIX CHANGELOG
 
-VERSION 3.0.0 RC2
+VERSION 3.2.0
+
+Featured Changes
+----------------------
+
+Asset Map Changes
+
+	A bug existed in previous releases that caused the asset map to freeze for 
+	several minutes during updates. This was found to be a problem with the 
+	communication between the MySource Matrix Javascript code and the asset map 
+	Java code. This release has changed the way in which the asset map handles 
+	automatic updating to work around the limitations of Javascript to Java 
+	communication.
+	
+	The result of these changes is that some updates, such as newly created 
+	assets, may take a few seconds longer to appear in the asset map. If you 
+	find that the asset map is not updating, please contact us through the 
+	MySource Matrix Bug Tracker or the MySource Matrix Support Forums.
+
+Layouts
+
+	This release adds the status section to the Details screen of the Layout 
+	asset. When using Layouts to define the simple editing interface, you must 
+	ensure that your editors have read access to the Layout asset. Permissions 
+	for layouts work in the same way as permissions for standard pages - if you 
+	don't have read access to the content, you cannot see it.
+	
+	For all layouts, ensure that your editors have been granted read access and 
+	that the Layout asset is Live. This will ensure your editors are able to 
+	use the simple editing interface correctly.
+
+Workflow Log Messages
+
+	The Workflow screen now listed the most recent workflow log messages, 
+	allowing editors to see approvals and rejections. The workflow logs also 
+	show the most recent messages entered by editors during approval or 
+	rejection of the asset.
+	
+	To add these logs to existing simple editing interface, add the keyword 
+	%workflow-F_workflow_logs% to the Layout that defines your simple editing 
+	Workflow screen. This will print the most recent logs in your simple 
+	editing interface. Like all simple editing keywords, the workflow logs 
+	keyword can also be included on any other screen of the simple editing 
+	interface, not just the Workflow screen.
+	
+	The workflow logs also contain a link to the Logs screen of the asset, so 
+	editors using the simple editing interface may be directed to this screen. 
+	A layout should be defined for the Logs screen to ensure that editors are 
+	able to navigate to other editing screens. You may wish to create a layout 
+	for the Logs screen that only displays the workflow logs, hiding the 
+	complexity of the logs screen from editors.
+
+New Global SQ_ACTION
+
+	MySource Matrix allows you to set custom designs, such as text only or low 
+	bandwidth, and create a link that will let your visitors switch designs 
+	for the duration of their visit. The new SQ_ACTION, clear_design_name, 
+	allows you to reset the design for the visitor to the default frontend 
+	design. Resetting the visitors design could be done in the following way:
+	
+	<a href="<MySource_PRINT id_name="__global__"
+	 var="asset_link"
+	 start_query_string="true" />SQ_ACTION=clear_design_name">reset design
+	</a>
+
+Complete Changelog:
+----------------------
+
+Core
++	Changed keyboard shortcuts (Alt + S, Alt + V) to use access keys so they work in non IE browsers
++	Publish information is now available as keywords in metadata fields
++	Published date for an asset is now available for metadata date fields
++	The created and published dates of assets can now be changed on the Settings screen
++	Improved handling of dates before 1970
++	Backend users can now create normal users
++	Bodycopy and Layout assets now have a permissions screen
++	Layouts now include a status section on their Details screen so they can be made live
++	Added '.' as a valid keyword replacement character
+-	Cloning now only clones a single asset and its dependant children, not all children
++	The most recent workflow log messages now appear on the workflow screen regardless of if workflow is running or not
+-	Removed the workflow metadata warning for assets that do not allow metadata
++	Improved editing interfaces for metadata selection fields
++	New global SQ_ACTION called clear_design_name that removes any user set designs in a session
++	HTML Tidy WYSIWYG plugin now removes more Microsoft Word tags
++	New script, scripts/system_integrity_run_tidy.php, that runs HTML Tidy (if enabled and configured) across all WYSIWYG cells in a system, or under a particular asset
+*	Fixed bug: some styles at the top of CSS files are not being shown in the WYSIWYG styles drop-down
+*	Fixed bug: internal messages from LDAP users don't show an icon when being viewed in a user's personal inbox
+*	Fixed bug: preview icon in top frame displays administration interface for assets with no preview URL when it should display a message
+*	Fixed bug: preview URL contains no_cache query var which stops the WYSIWYG from finding a design and styles
+*	Fixed bug: you cant add any options to newly created metadata select fields
+*	Fixed bug #102: asset map freezes for several minutes during updates
+*	Fixed bug #163: workflow approval during a safe edit does not check for incomplete metadata
+*	Fixed bug #169: you can delete a user's inbox and workspace
+*	Fixed bug #179: the published date for an asset is not being set when the asset goes live
+*	Fixed bug #180: design parse files are not visible in rollback view mode
+*	Fixed bug #199: asset map tries to fetch non-existing file workspace_icon.png
+*	Fixed bug #214: metadata and workflow entries for assets are not deleted when the trash is purged
+*	Fixed bug #216: read access is revoked when a user approves workflow when they should jut have write access revoked
+*	Fixed bug #225: edit contents screen does not reaquire editing locks in the simple editing interface
+*	Fixed bug #230: WYSIWYG toolbar does not resize when the WYSIWYG size is changed in the global preferences
+*	Fixed bug #232: workflow emails sent when an asset moves from 'up for review' to 'safe edit' are misleading
+*	Fixed bug #242: ctrl + K brings up the wrong WYSIWYG insert link dialog in IE
+*	Fixed bug #244: denied permission takes precedence over granted permissions during permission checks
+*	Fixed bug #245: when an option in the Option List attribute, or an address in the 'To' field of an Email Format attribute, contains a double quote, it breaks the Javascript code used in the 'Delete' link
+*	Fixed bug #269: keywords are not replaced in rollback view mode
+*	Fixed bug #286: content added in safe edit appears when safe edit is cancelled
+*	Fixed bug #303: submitting the WYSIWYG in source mode breaks internal links
+*	Fixed bug #304: you can't update the major version of site assets
+*	Fixed bug #309: asset finder is cancelled when top frame refreshes
+*	Fixed bug #326: links to local anchors are sometimes corrupted by the WYSIWYG editor
+*	Fixed bug #329: body design area's text-only mode doesn't recognise upper-case tags
+
+CMS
++	Added optional create locations to the Account Manager to bring it in line with the create location functionality provided in the Asset Builder (account manager)
++	What's New pages now have a 'Web Paths' and a 'Relevance Weightings' screen (what's new)
++	Improved handling for dates before 1970 and after 2030 for datetime questions (custom form)
++	New type of form question, Tickbox Table, to present a tickbox list of options (custom form)
+*	Fixed bug: caching of What's New pages does not work correctly with date ranges (what's new)
+*	Fixed bug: What's New pages don't reset pagination when changing date ranges (what's new)
+*	Fixed bug #182: explicitly clearing 'new rule part' asset finder on 'Selective Eemails' screen causes an error (custom form)
+*	Fixed bug #183: value comparison rules do not work with selection form questions (custom form)
+*	Fixed bug #186: date picker for What's New pages breaks out of nested content (what's new)
+*	Fixed bug #188: selective emails don't always expand keyword replacements in from/to addresses (custom form)
+*	Fixed bug #189: sort order of questions not carried across during a clone (custom form)
+*	Fixed bug #208: trying to link to the lcok section of a form question in a form section produces an error (custom form)
+*	Fixed bug #210: Remote Content pages strip non standard ports from URLs (remote content)
+*	Fixed bug #211: Remote content pages fail with more than one keyword when nesting a Panoptic search (remote content)
+*	Fixed bug #221: spelling mistake for non-generated Broken Links reports (broken links report)
+*	Fixed bug #223: javascript calendar does not work in IE for selecting dates in the admin interface (whats new)
+*	Fixed bug #229: Remote Content pages fail when nesting forms with 'action=' as part of the URL (remote content)
+*	Fixed bug #317: creating assets in the Asset Builder does not set URLs correctly if an asset is created under more than one location (asset builder)
+*	Fixed bug #324: if an email form question is set to optional, the valid email rule is still evaluated and will produce an error when the form is submitted if the field is blank (custom form)
+*	Fixed bug #325: if a numeric form question is set to optional, the valid number rule is still evaluated and will produce an error when the form is submitted if the field is blank (custom form)
+*	Fixed bug #334: Remote Content misunderstands ampersands in URLs - replicatable when nesting PHPBB (remote content)
+
+LDAP
++	Added groupOfNames as a valid group objectClass in LDAP Bridge
++	Improved support for Active Directory groups
++	New script to allow DN changes to be reflected in the current system configuration
+*	Fixed bug: custom field names, as specified on the LDAP Bridge, do not display properly when viewing an LDAP user's details
+*	Fixed bug #181: you cant reconfigure an LDAP Bridge is you get it wrong the first time because you can't get to the LDAP Bridge asset in the asset map due to errors
+
+Search
++	Search results no longer use non breaking spaces for seperating the list of result pages, allowing for wrapping of large result page lists (search page)
+-	Search button on the initial search page no longer uses Javascript (search page)
+*	Fixed bug: category linked lists and next/previous page links do not display correctly when changing from search within search mode to normal result mode (search page)
+*	Fixed bug #185: metadata selection fields do not display correct options in a search within search form (search page)
+*	Fixed bug #271: search folders show results even when no asset types or statuses have been selected for searching (search folder)
+*	Fixed bug #300: searching gives a query error in PostgreSQL when sorting by a field other than score (search page)
+
+================================================================================
+	
+VERSION 3.1.0 RC2
 
 Featured Changes
 ----------------------
