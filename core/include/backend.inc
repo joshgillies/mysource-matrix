@@ -162,6 +162,7 @@ class Backend extends Resolve_Object
 
 	}//end _printHeader()
 
+
 	/*
 	* Print out the bottom page
 	*
@@ -171,16 +172,134 @@ class Backend extends Resolve_Object
 	{
 		$this->out->openRaw();
 
-	?> 
+		// check for any new internal messages
+		$messages = $GLOBALS['SQ_SYSTEM']->ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, Array(SQ_MSG_UNREAD));
+		if (!empty($messages)) {
+			// found unread messages
+			$html = '
+			<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000">
+				<tr>
+					<td bgcolor="#F0F0F0">
+						<table>
+							<tr>
+								<td class="sq-backend-message-header">New Messages</td>
+							</tr>
+							<tr>
+								<td class="sq-backend-message-item" nowrap><a href="#" onClick="Javascript: alert(\\\'change flash to message view\\\');">'.$GLOBALS['SQ_SYSTEM']->user->_getName(false).' has '.count($messages).' new messages</a></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table>
+			';
+			$html = str_replace("\n", '', $html);
+			?>
+			<script language="Javascript" type="text/javascript">
+				var msgDiv = null;
+				var screenMenu = null;
+				var delay = 30;          // milliseconds between movements.
+				var myTimer = null;
+				var counter = null;      // number of times to move the div
+				var divTop = 0;
+				var divLeft = 0;
+				var smTop = 0;
+				var smLeft = 0;
+				var refreshUpdate = 120; // number of seconds before refreshing frame
+
+				function moveIt(x) {
+					divTop += x;
+					msgDiv.style.top = divTop + "px";
+					if (--counter < 0 && myTimer != null) {
+						clearInterval(myTimer);
+						setTimeout("hideMsgDiv()", 4000);
+					}
+				}
+
+				function hideIt() {
+					// IE tranparency
+					msgDiv.style.filter = "alpha(opacity=" + counter + ")";
+
+					// Mozilla transparency - DIV
+					var moz = '0.';
+					if (counter < 10) moz = moz + '0';
+					msgDiv.style.MozOpacity = moz + counter;
+					
+					// Mozilla transparency - SELECT
+					moz = '0.';
+					if ((100 - counter) < 10) moz = moz + '0';
+					if (screenMenu) screenMenu.style.MozOpacity = moz + (100 - counter);
+
+					if (--counter < 0 && myTimer != null) {
+						clearInterval(myTimer);
+						msgDiv.style.display = "none";
+						if (screenMenu) {
+							if (window.navigator.userAgent.indexOf('MSIE') > 0) { screenMenu.style.display = "block"; }
+							screenMenu.style.MozOpacity = "1";
+						}
+					}
+				}
+
+				function showMsgDiv() {
+					if (screenMenu) {
+						if (window.navigator.userAgent.indexOf('MSIE') > 0) { screenMenu.style.display = "none"; }
+						screenMenu.style.MozOpacity = "0";
+					}
+					msgDiv.style.display = "block";
+					counter = msgDiv.offsetHeight;
+					divTop = (counter * -1) + top.main.document.body.scrollTop;
+					divLeft = top.main.document.body.offsetWidth + top.main.document.body.scrollLeft - msgDiv.offsetWidth - 20;
+					msgDiv.style.top = divTop + "px";
+					msgDiv.style.left = divLeft + "px";
+
+					msgDiv.style.filter = "alpha(opacity=100)"; // IE transparency
+					msgDiv.style.MozOpacity = "1";              // Mozilla transparency
+
+					myTimer = setInterval("moveIt(1)", delay);
+				}
+
+				function hideMsgDiv() {
+					counter = 100;
+					myTimer = setInterval("hideIt()", delay);
+				}
+
+				if (top.main.document.body) {
+					msgDiv = top.main.document.getElementById("new_message_popup");
+					screenMenu = top.main.document.getElementById("screen_menu");
+					if (msgDiv == null) {
+						msgDiv = top.main.document.createElement("div");
+						msgDiv.id = "new_message_popup";
+						msgDiv.style.position = "absolute";
+						msgDiv.style.display = "block";
+						msgDiv.style.top = "-1000px";
+						msgDiv.style.left = "-1000px";
+						top.main.document.body.appendChild(msgDiv);
+					}
+
+					// set the contents of the div
+					msgDiv.innerHTML = '<?php echo $html?>';
+
+					setTimeout("showMsgDiv()", 200);
+				} else {
+					refreshUpdate = 2;
+				}
+			</script>
+			<?php
+		}
+		
+		?>
 		<table width="100%" cellpadding="2" cellspacing="0" border="0">
 			<tr><td style="background-color: #212E61;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1" /></td></tr>	
 			<tr><td style="background-color: #7A92AD;"><b><a href="<?php echo SQ_SYSTEM_URL;?>" class="sq-backend-smallprint" target="_blank"><?php echo SQ_SYSTEM_LONG_NAME;?></a></b></td></tr>
 		</table>
-	<?php
+		<script language="Javascript" type="text/javascript">
+			setTimeout("document.location.reload();", refreshUpdate * 1000);
+		</script>
+		<?php
 
 		$this->out->closeRaw();
 
 	}//end _printFooter()
+
 
 	/*
 	* Print out the Side Nav
