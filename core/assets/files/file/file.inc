@@ -492,8 +492,8 @@ class File extends Asset
 
 		$existing = $this->_getExistingFile();
 		if (!empty($existing)) {
-			require SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
-			require SQ_FUDGE_PATH.'/general/file_system.inc';
+			require_once SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
+			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			$ext = get_file_type($existing['filename']);
 			$type = (empty($standards_lists_mime_types[$ext])) ? 'text/plain' : $standards_lists_mime_types[$ext];
 			header('Cache-Control:');
