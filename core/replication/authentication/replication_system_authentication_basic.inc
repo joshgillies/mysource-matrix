@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_authentication_basic.inc,v 1.1.2.9 2004/02/14 21:40:17 brobertson Exp $
+* $Id: replication_system_authentication_basic.inc,v 1.1.2.10 2004/02/21 14:47:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -161,17 +161,13 @@ class Replication_System_Authentication_Basic extends Replication_System_Authent
 	{
 		$their_phrase = (SQ_REPLICATION_IS_MASTER) ? $this->slave_to_master_phrase : $this->master_to_slave_phrase;
 
-		if (!$transport->writeVar('Phrase:')) {
-			trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : Data Write Error', E_USER_WARNING);
-			return false;
-		}
-		if (!$transport->readVar($data=null,$headers=null)) {
-			trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : Data Read Error', E_USER_WARNING);
+		if (true !== ($err_msg = $transport->sendAndReceiveVar('Phrase:', $data=null, $headers=null))) {
+			trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : '.$err_msg, E_USER_WARNING);
 			return false;
 		}
 		if ($data != $their_phrase) {
 			trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : Supplied Phrase was incorrect', E_USER_WARNING);
-			// just being polite really, but we don't really care if it doesn't get there, we quitting anyway..
+			// just being polite really, but we don't really care if it doesn't get there, we are quitting anyway..
 			$transport->writeVar('Authentication Failed');
 			return false;
 		}
@@ -199,18 +195,11 @@ class Replication_System_Authentication_Basic extends Replication_System_Authent
 	{
 		$our_phrase   = (SQ_REPLICATION_IS_MASTER) ? $this->master_to_slave_phrase : $this->slave_to_master_phrase;
 
-		if (!$transport->readVar($data=null,$headers=null)) {
-			trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : Data Read Error', E_USER_WARNING);
+		if (true !== ($err_msg = $transport->receiveAndSendVar('Phrase:', $our_phrase))) {
+			trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : '.$err_msg, E_USER_WARNING);
 			return false;
 		}
-		if ($data != 'Phrase:') {
-			trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : Expecting "Phrase:", got "'.$data.'"', E_USER_WARNING);
-			return false;
-		}
-		if (!$transport->writeVar($our_phrase)) {
-			trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : Data Write Error', E_USER_WARNING);
-			return false;
-		}
+
 		if (!$transport->readVar($data=null,$headers=null)) {
 			trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : Data Read Error', E_USER_WARNING);
 			return false;
