@@ -3,7 +3,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: search_page_edit_fns.inc,v 1.2 2003/10/10 06:49:30 brobertson Exp $
+* $Id: search_page_edit_fns.inc,v 1.3 2003/10/15 01:19:32 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -13,7 +13,7 @@
 * Edit functions for search page.
 *
 * @author  Dominic WOng <dwong@squiz.net>
-* @version $Revision: 1.2 $ - 1.0
+* @version $Revision: 1.3 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -44,7 +44,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 	* @access public
 	* 
 	*/
-	function paintBackendRootAsset(&$asset, &$o, $prefix) 
+	function paintRootAsset(&$asset, &$o, $prefix) 
 	{
 		$name = $prefix."_root_asset";
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
@@ -61,7 +61,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 			}
 		}
 
-	} // end paintBackendRootAsset()
+	} // end paintRootAsset()
 
 	/**
 	* Processes the interface for choosing the root asset.
@@ -74,7 +74,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 	* @access public
 	* 
 	*/
-	function processBackendRootAsset(&$asset, &$o, $prefix) 
+	function processRootAsset(&$asset, &$o, $prefix) 
 	{
 		$name = $prefix."_root_asset";
 		$assetid = null;
@@ -82,8 +82,8 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 		if (isset($_REQUEST[$name])) {
 			$assetid = $_REQUEST[$name];
 		}
-		return $asset->setAttrValue('root_assetid', $_REQUEST[$name]);
-	} // end processBackendRootAsset()
+		return $asset->setAttrValue('root_assetid', $assetid);
+	} // end processRootAsset()
 
 
 	/**
@@ -252,7 +252,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 				if (!isset($metadata_field)) {
 					$metadata_field = '0';
 				}
-				if ($asset->writeAccess()) {
+				if ($asset->writeAccess('attributes')) {
 					asset_finder($fieldPrefix. '[params][metadata_field]', $metadata_field, Array('metadata_field' => 'D'));
 				} else {
 					if ($metadata_field > 0) {
