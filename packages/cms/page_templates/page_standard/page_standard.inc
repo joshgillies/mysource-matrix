@@ -114,7 +114,7 @@ class Page_Standard extends Page
 	function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => '1', 'exclusive' => true);
+		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 1, 'exclusive' => true);
 		return $page_links;
 
 	}//end _getAllowedLinks()
