@@ -1337,11 +1337,9 @@ class Asset_Edit_Interface extends Resolve_Object
 			$permissions = $owner->getPermission($perm, null, false, false, true);
 
 			$direct = Array();
-			foreach($permissions as $userid => $assets) {
-				foreach($assets as $assetid => $access) {
-					if (!isset($direct[$access])) $direct[$access] = Array();
-					$direct[$access][] = $userid;
-				}
+			foreach($permissions as $userid => $access) {
+				if (!isset($direct[$access])) $direct[$access] = Array();
+				$direct[$access][] = $userid;
 			}
 			ksort($direct);
 
