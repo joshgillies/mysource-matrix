@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: matrix_insert_link.inc,v 1.11 2003/09/26 05:26:38 brobertson Exp $
+* $Id: matrix_insert_link.inc,v 1.12 2003/10/20 04:37:56 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,11 +30,13 @@ class matrix_insert_link extends wysiwyg_plugin {
 	* @returns object Insert_Link
 	* @access  public
 	*/
-	function matrix_insert_link(&$wysiwyg) {
+	function matrix_insert_link(&$wysiwyg)
+	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
 		$this->_add_button('matrixcreatelink','MatrixCreateLink','Insert Link','false','32');
 		$this->_add_button('matrixunlink','Unlink','Remove Link','false','33');
-	}
+
+	}//end constructor()
 
 
 	/**
@@ -45,7 +47,8 @@ class matrix_insert_link extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function paint_generic() {
+	function paint_generic()
+	{
 		?>
 		<script type="text/javascript" language="Javascript">
 			var wysiwyg_editing = true; // just so that onclick link's don't execute in wysiwyg
@@ -91,64 +94,55 @@ class matrix_insert_link extends wysiwyg_plugin {
 					range = this._createRange(sel);
 				}// end if a control
 
-				if (HTMLArea.is_ie) {
-					var el = range.parentElement();
-				} else {
-					var el = range.cloneContents().childNodes[0];
-				}
-
-				var htmlText = editor.getSelectedHTML();
-				
-				var link_text = "";
-				var para_obj = null;
-
-				// if the parent element is not an anchor but the text starts with an anchor tag
-				// which happens when selecting images with existing links on them
-				// OR
-				// if the text starts with an img tag then try and get the parent
-				if ((el && el.nodeName != "A" && htmlText.search(/^<a/gi) > -1) || htmlText.search(/^<img/gi) > -1) {
-					if (el.parentNode && el.parentNode.nodeName == "A") {
-						el = el.parentNode;
-					} else if (sel.anchorNode.nodeName == "A") {
-						editor._selectElement(sel.anchorNode);
-						sel = this._getSelection();
-						range = this._createRange(sel);
-						el = range.cloneContents().childNodes[0];
+				var inside_html = '';
+				var current_a = this.getClosest("a");
+				if (current_a) {
+					if (HTMLArea.is_ie) {
+						inside_html = current_a.innerHTML;
+					} else {
+						this.selectNodeContents(current_a);
+						inside_html = editor.getSelectedHTML();
 					}
-				}// end if
-
-				if (HTMLArea.is_ie) {
-					var onClick = el.outerHTML;
+					this._selectElement(current_a);
 				} else {
-					var onClick = HTMLArea.getHTML(range.cloneContents());
+					inside_html = editor.getSelectedHTML();
 				}
+
+				sel = this._getSelection();
+				range = this._createRange(sel);
 
 				// Is this aready a link?
-				if (el && el.nodeName == "A") {
-					currArgs["url"] = el.href;
+				if (current_a) {
 
-					// OK, let's see if we are doing a window.open()
-					var e = 'onClick="javascript: if \\(!window\\.wysiwyg_editing\\) \\{ window\\.open\\(\'([^\']+)\', \'[0-9]+\', \'([^\']+)\'\\); \\}';
-					var re = new RegExp(e, "gi");
-					var results = re.exec(onClick);
+					var e = '^(\<a [^\>]+>)(.*)</a>$';
+					var re = new RegExp(e, "i");
+					var tag_html = editor.getSelectedHTML().replace(re, "$1");
+
+					var re = new RegExp("\n", "gi");
+					var tag_html = tag_html.replace(re, "");
+
+					currArgs["url"] = current_a.href;
+
+					re = new RegExp('if \\(!window\\.wysiwyg_editing\\)[\\s]+\\{[\\s]+window\\.open\\([\'"]([^\'"]+)[\'"], [\'"][0-9]+[\'"], [\'"]([^\'"]+)[\'"]\\);', "gi");
+					results = re.exec(tag_html);
 
 					if (results != null) {
 						currArgs["url"] = results[1];
 						currArgs["new_window"] = 1;
-						var options_str = results[2]; 
+						var options_str = results[2];
 
 						for(var i=0; i < NEW_WINDOW_OPTIONS.length; i++) {
 							e = NEW_WINDOW_OPTIONS[i] + "=([^,]+)";
 							re = new RegExp(e, "gi");
-							results = re.exec(options_str);
-							currArgs["new_window_options"][NEW_WINDOW_OPTIONS[i]] = (results != null) ? results[1] : "";
+							var res = re.exec(options_str);
+							currArgs["new_window_options"][NEW_WINDOW_OPTIONS[i]] = (res != null) ? res[1] : "";
 						}
-					}
+					}// end if
 
 
 					// OK, let's try and get the window.status text if any
 					re = new RegExp('onmouseover="([^"]+)"', "gi");
-					results = re.exec(onClick);
+					results = re.exec(tag_html);
 					if (results != null) {
 						var onmouseover = results[1];
 						re = new RegExp('window.status=\'(.+)\'; return true;', "gi");
@@ -161,8 +155,6 @@ class matrix_insert_link extends wysiwyg_plugin {
 					// because the editor automatically prepend the http:// business to 
 					// all relative urls remove it
 					currArgs["url"] = unescape(editor.make_relative_hrefs(currArgs["url"]));
-					// Get the text associated with this link
-					link_text = el.innerHTML;
 
 					// Get the assetid for the link if there is one
 					e = '(.*)(\\?a=)([0-9]+)(.*)';
@@ -173,19 +165,16 @@ class matrix_insert_link extends wysiwyg_plugin {
 				} else {
 
 					// convert all para tags to lowercase
-					link_text = htmlText.replace(/(<\/?)P/gi, "$1p");
+					var para_html = inside_html.replace(/(<\/?)P/gi, "$1p");
 					
 					// OK so we have some paragraph tags caught up in the mix, let's see what we can do with them
 					// because we don't want our href's going around paragraph tags
-					if (link_text.indexOf("<p") > -1) {
+					if (para_html.indexOf("<p") > -1) {
 
 						// if the position of the first tag is the same as the last then we have only one paragraph
 						// we don't want more than one paragraph because these can start or end from half-way through 
 						// a para, which would fuck up the formatting when we go to re-insert the text with the href
-						if (link_text.indexOf("<p") == link_text.lastIndexOf("<p")) {
-							alert('FIXME: format_link_para not done yet');
-							para_obj = format_link_para(link_text);
-						} else {
+						if (para_html.indexOf("<p") != para_html.lastIndexOf("<p")) {
 							alert("Please select only one paragraph to link at a time otherwise bad things happen.");
 							return;
 						}
@@ -201,11 +190,6 @@ class matrix_insert_link extends wysiwyg_plugin {
 					if (param && param["url"] != "") {
 		
 						var html = '';
-
-						if (para_obj != null) {
-							link_text = para_obj.html;
-							html += para_obj.start;
-						}
 
 						// if we have a new window, generate the new javascript url string
 						if (param["new_window"] == "1") {
@@ -226,13 +210,9 @@ class matrix_insert_link extends wysiwyg_plugin {
 						if (param["onClick"] != null && param["onClick"] != "") {
 							html += ' onClick="' + param["onClick"] + '"';
 						}
-						html += '>' + link_text + '</a>';
+						html += '>' + inside_html + '</a>';
 
-						if (para_obj != null) {
-							html += para_obj.end;
-						}
-
-						// Replace with new URL
+						// replace with new URL
 						editor.insertHTML(html, range);
 
 					}// end if param exists
@@ -242,7 +222,8 @@ class matrix_insert_link extends wysiwyg_plugin {
 			};
 		</script>
 		<?php
-	}
+
+	}//end paint_generic()
 
 
 	/**
@@ -251,13 +232,15 @@ class matrix_insert_link extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function print_plugin_button_click() {
+	function print_plugin_button_click()
+	{
 		?>
 		case "matrixcreatelink":
 			this._matrixInsertLink();
 		break;
 		<?php
-	}
+
+	}//end print_plugin_button_click()
 
 
 	/**
@@ -266,7 +249,8 @@ class matrix_insert_link extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function print_plugin_update_toolbar() {
+	function print_plugin_update_toolbar()
+	{
 		?>
 		case "matrixcreatelink":
 			if (allEnabled == null && this._tmp['disable_toolbar'] == true) {
@@ -275,8 +259,9 @@ class matrix_insert_link extends wysiwyg_plugin {
 			}
 		break;
 		<?php
-	}
 
-}
+	}//end print_plugin_update_toolbar()
+
+}//end class
 
 ?>

@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: utility.js,v 1.11 2003/09/26 05:26:37 brobertson Exp $
+* $Id: utility.js,v 1.12 2003/10/20 04:37:56 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -133,6 +133,23 @@ HTMLArea.prototype.getAllAncestors = function() {
 	}
 	a.push(this._docContent);
 	return a;
+};
+
+
+// retrieves the closest element having the specified tagName in the list of
+// ancestors of the current selection/caret.
+HTMLArea.prototype.getClosest = function(tagName) {
+	var ancestors = this.getAllAncestors();
+	var ret = null;
+	tagName = ("" + tagName).toLowerCase();
+	for (var i in ancestors) {
+		var el = ancestors[i];
+		if (el.tagName.toLowerCase() == tagName) {
+			ret = el;
+			break;
+		}
+	}
+	return ret;
 };
 
 
