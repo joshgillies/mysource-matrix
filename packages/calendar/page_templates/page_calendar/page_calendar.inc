@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.96 2004/10/07 06:12:04 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.97 2004/10/07 06:38:36 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.96 $ - 1.0
+* @version $Revision: 1.97 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1003,6 +1003,7 @@ class Page_Calendar extends Page_Asset_Listing
 	{
 
 		$res = '';
+		$cumulative_margin = $event_width * 0.02;
 		foreach ($events as $assetid => $details) {
 			$assetid_bits = current(explode(':', $assetid));
 			// get top position of div
@@ -1020,7 +1021,6 @@ class Page_Calendar extends Page_Asset_Listing
 
 			// other layout things
 			$zero_length_code = $event_height ? '' : 'border-style: dashed; border-width: 2px; border-bottom: 0px; border-left: 0px; border-right: 0px; height: 0px; padding-top: 0px; background-color: transparent;';
-			$event_left_margin = $event_width * 0.02;
 			$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand;' : '';
 			$inner_margin_top = $event_height ? 1 : 0;
 			$onclick_code = $show_event_links ? 'onclick="clickChild(this);"' : '';
@@ -1034,12 +1034,12 @@ class Page_Calendar extends Page_Asset_Listing
 				$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')" onmouseout="stopTrailingPopup(\'event_'.$assetid.'_description\')"';
 			}
 
-			$res .= '<div id="'.$assetid.'" '.$current_mousedown_code.' '.$current_mouse_over_out_code.' class='.$event_class.' event" style="float:left; position: absolute; width: '.$this_event_width.'ex; margin-left: '.$event_left_margin.'ex; margin-top: '.$event_top_margin.'ex; height: '.$event_height.'ex; '.$cursor_code.' '.$zero_length_code.'" '.$onclick_code.'><div class="eventText" style="position: absolute; width: '.$inner_width.'ex; border: none; margin-top: '.$inner_margin_top.'px background-color: transparent">';
+			$res .= '<div id="'.$assetid.'" '.$current_mousedown_code.' '.$current_mouse_over_out_code.' class='.$event_class.' event" style="float:left; position: absolute; width: '.$this_event_width.'ex; margin-left: '.$cumulative_margin.'ex; margin-top: '.$event_top_margin.'ex; height: '.$event_height.'ex; '.$cursor_code.' '.$zero_length_code.'" '.$onclick_code.'><div class="eventText" style="position: absolute; width: '.$inner_width.'ex; border: none; margin-top: '.$inner_margin_top.'px background-color: transparent">';
 			$res .= $show_event_links ? '<a class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'&amp;SQ_CALENDAR_EVENT_ID='.$assetid.'">' : '<span class="event '.$event_class.'">';
 			$res .= $details['name'];
 			$res .= $show_event_links ? '</a>' : '</span>';
-
 			$res .= '</div></div>';
+			$cumulative_margin += $this_event_width + 0.05;
 
 		}
 		return $res;
