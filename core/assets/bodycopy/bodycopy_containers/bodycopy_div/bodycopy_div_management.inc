@@ -2,7 +2,6 @@
 /**
 * +--------------------------------------------------------------------+
 * | Squiz.net Open Source Licence                                      |
-
 * +--------------------------------------------------------------------+
 * | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
 * +--------------------------------------------------------------------+
@@ -19,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_management.inc,v 1.5 2004/02/18 18:19:16 brobertson Exp $
+* $Id: bodycopy_div_management.inc,v 1.6 2004/10/25 06:49:54 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Bodycopy_Container_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

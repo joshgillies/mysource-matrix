@@ -2,7 +2,6 @@
 /**
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 * | Squiz.net Open Source Licence                                      |
-
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 * | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
@@ -19,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.1 2004/07/19 00:43:45 mnyeholt Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.2 2004/10/25 06:49:54 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
