@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.9 2004/02/20 01:18:46 diarandine Exp $
+* $Id: search_manager.inc,v 1.10 2004/02/23 05:51:18 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.9 $ - 0.1
+* @version $Revision: 1.10 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -122,6 +122,7 @@ class Search_Manager extends Asset
 	*/
 	function processSearch($search_info)
 	{
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$total_asset_scores = null;
 
@@ -181,6 +182,7 @@ class Search_Manager extends Asset
 				$field_asset_scores = null;
 
 				foreach ($attr_info['words'] as $word) {
+
 					$sql = $start_sql.'
 						AND ai.component = '.$db->quote('attr:'. $attr_info['params']['searchtype'].':'.$attr_parts[0]).'
 						AND (ai.value LIKE '.$db->quote('%'.$word.'%').')
@@ -380,6 +382,8 @@ class Search_Manager extends Asset
 	*/
 	function _climbToAssetTypes($matches, $assetTypes, $root_assetid)
 	{
+		if (!isset($matches) || is_null($matches)) { return Array(); } // do nothing if no results
+
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$unsorted = Array();
 
