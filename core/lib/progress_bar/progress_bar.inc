@@ -387,7 +387,7 @@ class Progress_Bar
 				$this->_obj->$fn($this);
 
 				// if we have finished the looping and there is no done fn,
-				// then we have done this step
+				// then we have done this step (do this so we don't need to waste a browser refresh)
 				if ($step['percent'] == 100.0 && is_null($step['done_fn'])) {
 					$step['done'] = true;
 					$this->_step++;
@@ -405,9 +405,11 @@ class Progress_Bar
 			}// end if
 
 		// we must be finished, run global done command
-		} elseif (!$this->_done && !is_null($this->_done_fn)) {
-			$fn = $this->_done_fn;
-			$this->_obj->$fn($this);
+		} elseif (!$this->_done) {
+			if (!is_null($this->_done_fn)) {
+				$fn = $this->_done_fn;
+				$this->_obj->$fn($this);
+			}
 			$this->_done = true;
 
 		}// end if
