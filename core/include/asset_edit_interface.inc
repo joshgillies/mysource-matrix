@@ -128,9 +128,11 @@ class Asset_Edit_Interface extends Resolve_Object
 			return;
 		}
 
+		// if there are no screens or tabs, piss off
+		if (!count($this->_screens) && empty($this->_edit_fns->tabs)) return;
+
 		// do we have write access?
 		$write_access = $owner->writeAccess(Array(), false);
-		$asset_locked = false;
 
 		// lets tell the user if the asset is locked for editing
 		// or if they can lock it to edit it
@@ -140,7 +142,6 @@ class Asset_Edit_Interface extends Resolve_Object
 		if (!empty($lock)) {
 			// this asset is currently locked
 			// so display message to the user
-			$asset_locked = true;
 			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
 
 			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
@@ -175,9 +176,6 @@ class Asset_Edit_Interface extends Resolve_Object
 		} else {
 			echo 'You do not have access to edit "'.$owner->name.'".';
 		}
-
-		// if there are no screens or tabs, piss off
-		if (!count($this->_screens) && empty($this->_edit_fns->tabs)) return;
 
 		$current_location = $o->getCurrentLocation();
 		$current_location .= (strstr($current_location, '?')) ? '&' : '?';
@@ -325,7 +323,13 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		}// end if $file
 
-		if (!$asset_locked) {
+
+		$statii = Array();
+		if (!$write_access) $statii = $owner->getAvailableStatii();
+
+		// if the user has write access or has the ability
+		// to alter the status of the asset, show the commit button
+		if ($write_access || !empty($statii)) {
 			$o->openSection();
 			$o->commitButton('Commit');
 		}
@@ -511,63 +515,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		$o->openField('Current');
 		echo '<i>'.$owner->getStatusDescription().'</i>';
 
-		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
-		$wfm = new Workflow_Manager($owner);
-
-		$statii = Array();
-
-		switch ($wfm->state) {
-			case 'new' :
-			case 'idle' :
-				if ($owner->writeAccess(Array(), false)) {
-					if ($owner->status != SQ_STATUS_LIVE) {
-						if (empty($wfm->steps) && empty($wfm->inherited_workflows)) {
-							// no direct workflows are set and
-							// no inherited workflows are set
-							// so anyone with admin access can publish
-							if ($owner->adminAccess(Array(), false)) {
-								$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
-							}
-						} else {
-							// so we have workflows, but none of them are running
-							// so lets see what will happen if this user approves
-							// to determine if they can live edit
-							$status = $wfm->testPublish($GLOBALS['SQ_SYSTEM']->currentUserId());
-							if ($status == 'complete') {
-								$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
-							} else {
-								$statii[SQ_STATUS_LIVE] = 'Make Live';
-							}
-						}
-					} else {
-						$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Place Under Construction';
-						$statii[SQ_STATUS_EDITING] = 'Safe Edit';
-					}
-				}
-				break;
-			case 'running' :
-				// workflows are currently running,
-				// so we are looking for publishers
-
-				// if this asset is currently pending approval, there
-				// must be a workflow in progress, so check to see if the
-				// user logged in can publish
-				$publishers = $wfm->whoCanPublish();
-				
-				$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
-				if (in_array($userid, $publishers)) {
-					// the current user can approve this asset
-					// to keep the workflow going
-					$status = $wfm->testPublish($GLOBALS['SQ_SYSTEM']->currentUserId());
-					if ($status == 'complete') {
-						$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
-					} else {
-						$statii[SQ_STATUS_LIVE] = 'Approve Changes';
-					}
-					$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Reject Changes';
-				}
-				break;
-		}
+		$statii = $owner->getAvailableStatii();
 
 		if (!empty($statii)) {
 			$statii = array_reverse($statii, true);

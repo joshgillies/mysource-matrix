@@ -330,7 +330,77 @@ class Asset extends Resolve_Object
 	function _getName($short_name=false)
 	{
 		return ucwords(str_replace('_', ' ', $this->type())).' #'.$this->id;
-	}//end _getName();
+	}//end _getName()
+
+
+	/**
+	* Returns an array of statii that the current user can set for this asset
+	* Value returned is a key => value array for a drop down
+	*
+	* @return array
+	* @access public
+	*/
+	function getAvailableStatii() {
+		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
+		$wfm = new Workflow_Manager($this);
+
+		$statii = Array();
+
+		switch ($wfm->state) {
+			case 'new' :
+			case 'idle' :
+				if ($this->writeAccess(Array(), false)) {
+					if ($this->status != SQ_STATUS_LIVE) {
+						if (empty($wfm->steps) && empty($wfm->inherited_workflows)) {
+							// no direct workflows are set and
+							// no inherited workflows are set
+							// so anyone with admin access can publish
+							if ($this->adminAccess(Array(), false)) {
+								$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
+							}
+						} else {
+							// so we have workflows, but none of them are running
+							// so lets see what will happen if this user approves
+							// to determine if they can live edit
+							$status = $wfm->testPublish($GLOBALS['SQ_SYSTEM']->currentUserId());
+							if ($status == 'complete') {
+								$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
+							} else {
+								$statii[SQ_STATUS_LIVE] = 'Make Live';
+							}
+						}
+					} else {
+						$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Place Under Construction';
+						$statii[SQ_STATUS_EDITING] = 'Safe Edit';
+					}
+				}
+				break;
+			case 'running' :
+				// workflows are currently running,
+				// so we are looking for publishers
+
+				// if this asset is currently pending approval, there
+				// must be a workflow in progress, so check to see if the
+				// user logged in can publish
+				$publishers = $wfm->whoCanPublish();
+				
+				$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+				if (in_array($userid, $publishers)) {
+					// the current user can approve this asset
+					// to keep the workflow going
+					$status = $wfm->testPublish($GLOBALS['SQ_SYSTEM']->currentUserId());
+					if ($status == 'complete') {
+						$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
+					} else {
+						$statii[SQ_STATUS_LIVE] = 'Approve Changes';
+					}
+					$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Reject Changes';
+				}
+				break;
+		}
+
+		return $statii;
+	}// end getAvailableStatii()
 
 	
 	/**
@@ -2780,6 +2850,7 @@ class Asset extends Resolve_Object
 					return false;
 				}
 			}
+			return false;
 		} else {
 			return $this->checkAccess(SQ_PERMISSION_WRITE, $assetids);
 		}
@@ -2813,6 +2884,7 @@ class Asset extends Resolve_Object
 					return false;
 				}
 			}
+			return false;
 		} else {
 			return $this->checkAccess(SQ_PERMISSION_ADMIN, $assetids);
 		}
