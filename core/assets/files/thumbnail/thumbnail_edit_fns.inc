@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thumbnail_edit_fns.inc,v 1.14 2003/11/18 15:37:26 brobertson Exp $
+* $Id: thumbnail_edit_fns.inc,v 1.15 2003/11/25 18:16:50 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,16 +38,6 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image_edit_fns.inc';
 */
 class Thumbnail_Edit_Fns extends Image_Edit_Fns
 {
-
-	/**
-	* Constructor
-	*
-	*/
-	function Thumbnail_Edit_Fns()
-	{
-		$this->Asset_Edit_Fns();
-	}//end constructor
-
 
 	/**
 	* Prints the interface for uploading a file
@@ -98,7 +88,7 @@ class Thumbnail_Edit_Fns extends Image_Edit_Fns
 		}
 
 		// check that the image dimensions are not greater than our limits
-		if (!$asset->validFile($info['tmp_name'])) return false;
+		if (!$asset->validFile($info['name'])) return false;
 
 		return parent::processFileUpload($asset, $o, $prefix, $info);
 
