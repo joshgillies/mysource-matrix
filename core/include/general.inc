@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.70 2005/03/23 10:24:48 brobertson Exp $
+* $Id: general.inc,v 1.71 2005/03/23 10:31:44 brobertson Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix
 */
 
@@ -77,43 +77,16 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			unset($bt);
 		}
 
-		$err_name = '';
+		$err_name = get_error_name($err_no);
 		$bg_colour = '';
 		switch ($err_no) {
-			case E_USER_ERROR:
-				$err_name = SQ_SYSTEM_SHORT_NAME.' Error';
-				$bg_colour = '#993333';
-			break;
-
-			case E_USER_WARNING:
-				$err_name = SQ_SYSTEM_SHORT_NAME.' Warning';
-				$bg_colour = '#DBA53B';
-			break;
-
-			case E_USER_NOTICE:
-				$err_name = SQ_SYSTEM_SHORT_NAME.' Notice';
-				$bg_colour = '#17AA92';
-			break;
-
-			case E_ERROR:
-				$err_name = 'PHP Error';
-				$bg_colour = '#0066CC';
-			break;
-
-			case E_WARNING:
-				$err_name = 'PHP Warning';
-				$bg_colour = '#0066CC';
-			break;
-
-			case E_NOTICE:
-				$err_name = 'PHP Notice';
-				$bg_colour = '#0066CC';
-			break;
-
-			default:
-				$err_name = 'Unknown Error Type - '.$err_no;
-				$bg_colour = '#FF0000';
-			break;
+			case E_USER_ERROR:		$bg_colour = '#993333';	break;
+			case E_USER_WARNING:	$bg_colour = '#DBA53B'; break;
+			case E_USER_NOTICE:		$bg_colour = '#17AA92';	break;
+			case E_ERROR:			$bg_colour = '#0066CC'; break;
+			case E_WARNING:			$bg_colour = '#0066CC'; break;
+			case E_NOTICE:			$bg_colour = '#0066CC'; break;
+			default:				$bg_colour = '#FF0000';	break;
 		}//end switch
 
 
@@ -301,6 +274,35 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 	if ($terminate) exit(1);
 
 }//end sq_error_handler()
+
+
+/**
+* Provides a human readable description of a PHP error code
+*
+* @param int	$error_code	PHP error code
+*
+* @return string
+* @access public
+*/
+function get_error_name($error_code)
+{
+	$name = '';
+
+	if (empty($error_code)) return $name;
+
+	switch ($error_code) {
+		case E_USER_ERROR   : $name = SQ_SYSTEM_SHORT_NAME.' Error';    break;
+		case E_USER_WARNING : $name = SQ_SYSTEM_SHORT_NAME.' Warning';  break;
+		case E_USER_NOTICE  : $name = SQ_SYSTEM_SHORT_NAME.' Notice';   break;
+		case E_ERROR        : $name = 'PHP Error';                      break;
+		case E_WARNING      : $name = 'PHP Warning';                    break;
+		case E_NOTICE       : $name = 'PHP Notice';                     break;
+		default             : $name = 'Unknown Error Type - '.$error_code;
+	}
+
+	return $name;
+
+}//end get_error_name()
 
 
 /**
@@ -668,37 +670,5 @@ function implements_interface($class, $interface)
 	return false;
 
 }//end implements_interface()
-
-
-/**
-* Provides a human readable description of a PHP error code
-*
-* @param int	$error_code	PHP error code
-*
-* @return string
-* @access public
-*/
-function get_error_name($error_code)
-{
-	$name = '';
-
-	if (empty($error_code)){
-		return $name;
-	}
-
-	switch ($error_code) {
-		case E_USER_ERROR   : $name = SQ_SYSTEM_SHORT_NAME.' Error';    break;
-		case E_USER_WARNING : $name = SQ_SYSTEM_SHORT_NAME.' Warning';  break;
-		case E_USER_NOTICE  : $name = SQ_SYSTEM_SHORT_NAME.' Notice';   break;
-		case E_ERROR        : $name = 'PHP Error';                      break;
-		case E_WARNING      : $name = 'PHP Warning';                    break;
-		case E_NOTICE       : $name = 'PHP Notice';                     break;
-		default             : $name = 'Unknown Error Type - '.$error_code;
-	}
-
-	return $name;
-
-}//end get_error_name()
-
 
 ?>
