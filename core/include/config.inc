@@ -35,13 +35,13 @@ class Config extends Resolve_Object
 		'SQ_CONF_SYSTEM_ADMIN_EMAIL'		=> Array('editable' => 1, 'default' => ''),
 		'SQ_CONF_SYSTEM_ROOT_URLS'			=> Array('editable' => 1, 'default' => ''),
 		'SQ_CONF_SUPER_USERS'				=> Array('editable' => 1, 'default' => ''),
-		'SQ_CONF_MAX_IDLE_TIME'				=> Array('editable' => 1, 'default' => '6000'),
-		'SQ_CONF_MAX_LOGIN_ATTEMPTS'		=> Array('editable' => 1, 'default' => '3'),
+		'SQ_CONF_MAX_IDLE_TIME'				=> Array('editable' => 1, 'default' => 6000),
+		'SQ_CONF_MAX_LOGIN_ATTEMPTS'		=> Array('editable' => 1, 'default' => 3),
 		'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'	=> Array('editable' => 1, 'default' => 'en'),
 		'SQ_CONF_DEFAULT_CHARACTER_SET'		=> Array('editable' => 1, 'default' => 'iso-8859-1'),
 		'SQ_CONF_ERRORS_HIDE_FRONTEND'		=> Array('editable' => 1, 'default' => '0'),
 		'SQ_CONF_ERRORS_LOG'				=> Array('editable' => 1, 'default' => '0'),
-		'SQ_CONF_REFRESH_INTERVAL'			=> Array('editable' => 1, 'default' => '120')
+		'SQ_CONF_REFRESH_INTERVAL'			=> Array('editable' => 1, 'default' => 120)
 	);
 
 
