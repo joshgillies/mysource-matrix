@@ -113,6 +113,13 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function paint(&$owner, &$o, $creating)
 	{
+		// if we dont have read access, piss off
+		if (!$owner->readAccess()) {
+			include SQ_INCLUDE_PATH.'/login.inc';
+			print_login('Login', 'You do not have permission to access <i>'.$owner->attr('name').'</i>');
+			return;
+		}
+
 		// if there are no screens, piss off
 		if (!count($this->_screens)) return;
 
@@ -135,7 +142,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		if ($creating) {
 			list($create_sections, $active_screen) = $this->_getCreateSections();
 			if (!count($create_sections)) return;
-		}// end if create
+		}// end if creating
 
 		$active_screen = (empty($_GET['asset_ei_screen'])) ? $this->_default_screen : $_GET['asset_ei_screen'];
 
@@ -418,10 +425,24 @@ class Asset_Edit_Interface extends Resolve_Object
 			$direct = false;
 
 			$o->openSection($title.' Access');
+			$users = $owner->getPermission($perm, false);
+
+			$o->openField('Public');
+			$public = false;
+			foreach ($users as $userid => $locs) {
+				if ($userid) continue;
+				if (in_array($owner->id, $locs)) $public = true;
+			}
+			if ($owner->writeAccess()) {
+				check_box($prefix."_public[$perm]", 1, (($public) ? true : false));
+				echo "&nbsp;Give $title access to all users?";
+			} else {
+				echo (($public) ? 'Yes' : 'No');
+			}
 
 			$o->openField('Inherited');
-			$users = $owner->getPermission($perm, false);
 			foreach ($users as $userid => $locs) {
+				if (!$userid) continue;
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 				if (!$asset->id || (!is_a($asset, 'user') && !is_a($asset, 'user_group'))) continue;
 				$loc_string = '';
@@ -441,6 +462,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 			$o->openField('Direct');
 			foreach ($users as $userid => $locs) {
+				if (!$userid) continue;
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 				if (!$asset->id || (!is_a($asset, 'user') && !is_a($asset, 'user_group'))) continue;
 				if (in_array($owner->id, $locs)) {
@@ -472,9 +494,14 @@ class Asset_Edit_Interface extends Resolve_Object
 		// need to have write access to do any of this
 		if ($owner->writeAccess()) {
 			$prefix = $owner->type().'_'.$owner->id;
-			$perms = Array('Read' => SQ_PERMISSION_READ, 'Write' => SQ_PERMISSION_WRITE, 'Administrator' => SQ_PERMISSION_ADMIN);
+			$perms = Array('Administrator' => SQ_PERMISSION_ADMIN, 'Write' => SQ_PERMISSION_WRITE, 'Read' => SQ_PERMISSION_READ);
 
 			foreach ($perms as $title => $perm) {
+				// we need to check for write access each time because
+				// we may actually be revoking write access and then
+				// trying to put it back
+				if (!$owner->writeAccess()) continue;
+
 				// grant new access
 				$user = $_POST[$prefix.'_new_'.strtolower($title)];
 				if (!empty($user)) $owner->grantPermission($user, $perm);
@@ -484,6 +511,13 @@ class Asset_Edit_Interface extends Resolve_Object
 					foreach ($_POST[$prefix.'_delete_'.strtolower($title)] as $userid => $on) {
 						$owner->revokePermission($userid, $perm);
 					}
+				}
+
+				// grant/revoke public access?
+				if (isset($_POST[$prefix.'_public'][$perm])) {
+					$owner->grantPermission('0', $perm);
+				} else {
+					$owner->revokePermission('0', $perm);
 				}
 			}
 		}
