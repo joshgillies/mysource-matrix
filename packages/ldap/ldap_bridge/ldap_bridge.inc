@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.9 2004/04/06 06:51:37 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.10 2004/04/06 23:04:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -251,7 +251,7 @@ class LDAP_Bridge extends Bridge
 			// the attribute mappings to the LDAP schemas
 			$attrs = $this->attr('attributes');
 
-			$groups = $data[$attrs['ou']];
+			$groups = $data[$attrs['mo']];
 			if (!$groups['count']) {
 				$ldap->disconnect();
 				return Array();
