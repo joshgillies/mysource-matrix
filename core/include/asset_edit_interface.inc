@@ -451,6 +451,9 @@ class Asset_Edit_Interface extends Resolve_Object
 		$prefix = $owner->type().'_'.$owner->id;
 
 		$o->openSection('Status');
+
+		$o->openField('Current');
+		echo '<i>'.$owner->getStatusDescription().'</i>';
 		
 		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
 		$wfm = new Workflow_Manager($owner);
@@ -459,12 +462,14 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		switch ($wfm->state) {
 			case 'idle' :
-				// no workflows are currently being
-				// run on this asset, so we can publish
-				if ($owner->status != SQ_STATUS_LIVE) {
-					$statii[SQ_STATUS_LIVE] = 'Make Live';
-				} else {
-					$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Place Under Construction';
+				if ($owner->writeAccess()) {
+					// no workflows are currently being
+					// run on this asset, so we can publish
+					if ($owner->status != SQ_STATUS_LIVE) {
+						$statii[SQ_STATUS_LIVE] = 'Make Live';
+					} else {
+						$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Place Under Construction';
+					}
 				}
 				break;
 			case 'running' :
@@ -481,12 +486,10 @@ class Asset_Edit_Interface extends Resolve_Object
 					// the current user can approve this asset
 					// to keep the workflow going
 					$statii[SQ_STATUS_LIVE] = 'Approve';
+					$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Reject - NOT DONE YET';
 				}
 				break;
 		}
-
-		$o->openField('Current');
-		echo '<i>'.$owner->getStatusDescription().'</i>';
 
 		if (!empty($statii)) {
 			$statii = array_reverse($statii, true);
@@ -495,20 +498,6 @@ class Asset_Edit_Interface extends Resolve_Object
 			$o->openField('Change?');
 			combo_box($prefix.'_change_status', $statii, false, $owner->status);
 		}
-		
-		
-		//$wfm->start();
-		//bam($wfm->whoCanPublish());
-
-		//bam($wfm->current_workflows);
-		//$wfm->recordPublish('49');
-		//$wfm->recordPublish('4');
-		//$wfm->recordPublish('16');
-		//$wfm->recordPublish('4');
-		//bam($wfm->current_workflows);
-
-		//bam($wfm->whoCanPublish());
-		//$wfm->save();
 
 	}
 
@@ -850,7 +839,7 @@ class Asset_Edit_Interface extends Resolve_Object
 						<tr>
 							<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
 							<td bgcolor="#DDDDDD" class="sq-form-field" width="270"><b>Group Logic</b></td>
-							<td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Approved?</b></td>
+							<td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Complete ?</b></td>
 						</tr>
 					<?php
 					foreach ($step_data['conditions'] as $pub => $cond_data) {
@@ -880,16 +869,20 @@ class Asset_Edit_Interface extends Resolve_Object
 
 							<td bgcolor="#F0F0F0" align="center" class="sq-form-field">
 							<?php
-								if (is_a($asset, 'user')) {
-									echo ((in_array($asset->id, $cond_data['published_by'])) ? 'Yes' : '&nbsp;');
+								if (isset($cond_data['complete']) && $cond_data['complete']) {
+									echo 'Yes';
 								} else {
-									if ($cond_logic_num) $user_count = $cond_logic_num;
-									else $user_count = count($asset->getChildren(Array('user'), false));
-									echo count($cond_data['published_by']).' of '.$user_count;
+									// do some extra checking
+									if (is_a($asset, 'user')) {
+										echo ((in_array($asset->id, $cond_data['published_by'])) ? 'Yes' : '&nbsp;');
+									} else {
+										if ($cond_logic_num) $user_count = $cond_logic_num;
+										else $user_count = count($asset->getChildren(Array('user'), false));
+										echo count($cond_data['published_by']).' of '.$user_count;
+									}
 								}
 							?>
 							</td>
-						
 						</tr>
 						
 						<?php
