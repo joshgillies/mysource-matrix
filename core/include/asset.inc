@@ -1197,24 +1197,15 @@ class Asset extends Resolve_Object
 					$asset = &$am->getAsset($link['majorid']);
 					if ($asset->status > $new_status) {
 						// we dont want to rollback, but we dont
-						// want to change our status for real,
-						// and we dont want to change our childrens statii
+						// want to change our status for real
 						return true;
 					}
 				}
 			}
 		}
 
-		// we are probably going to be sending some internal messages during this
-		// process, so we'll open a new queue here
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$ms->openQueue();
-
 		$status = &$this->getStatus();
-		if (!$status->processStatusChange($new_status)) {
-			$ms->abortQueue();
-			return false;
-		}
+		if (!$status->processStatusChange($new_status)) return false;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -1225,7 +1216,6 @@ class Asset extends Resolve_Object
 				if (!$this->incrementVersion('minor')) {
 					trigger_error('processStatusChange failed for asset "'.$this->name.'", version not updated', E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$ms->abortQueue();
 					return false;
 				}
 			}
@@ -1236,7 +1226,6 @@ class Asset extends Resolve_Object
 			$values = Array('status' => $db->quote($new_status));
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset', $values, $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$ms->abortQueue();
 				return false;
 			}
 
@@ -1251,26 +1240,7 @@ class Asset extends Resolve_Object
 			$this->_updated();
 		}
 
-		// try and process the change on our dependants
-		$dependant_links = $this->getLinks(SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
-		if (!empty($dependant_links)) {
-			$am = &$GLOBALS['SQ_SYSTEM']->am;
-			foreach ($dependant_links as $link) {
-				$asset = &$am->getAsset($link['minorid']);
-				if (!$asset->processStatusChange($new_status)) {
-					trigger_error('processStatusChange failed for asset "'.$this->name.'" trying to process dependant child "'.$asset->name.'"', E_USER_WARNING);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$ms->abortQueue();
-					return false;
-				}
-			}
-		}
-
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
-		// close the internal message queue and send the messages that
-		// were generated during this status change
-		$ms->closeQueue();
 
 		return true;
 

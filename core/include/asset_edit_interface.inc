@@ -839,9 +839,26 @@ class Asset_Edit_Interface extends Resolve_Object
 		///// IMMEDIATE STATUS CHANGES ////
 
 		if (isset($_POST[$prefix.'_change_status']) && (int) $_POST[$prefix.'_change_status'] > 0) {
-			if ($owner->processStatusChange($_POST[$prefix.'_change_status'])) {
+			
+			//// START HIPO PROCESSING ////
+			
+			$vars = Array('assetid' => $owner->id, 'new_status' => $_POST[$prefix.'_change_status']);
+			$codename = 'HIPO_edit_status';
+			$complete_url = $_SERVER['REQUEST_URI'];
+
+			require_once(SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_edit_status.inc');
+			$hipo = new HIPO_Job_Edit_Status();
+
+			$hipo->setRunningVars($vars);
+			$hipo->setOption('on_complete_url', $complete_url);
+
+			if ($hipo->initialise()) {
+				$url = $hipo->getProcessURL();
+				$o->setRedirect($url);
 				$is_updated = true;
 			}
+			
+			////  END HIPO PROCESSING  ////
 		}
 
 
