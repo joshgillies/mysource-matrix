@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.25 2004/01/13 01:33:34 mmcintyre Exp $
+* $Id: html_form.js,v 1.26 2004/01/16 00:41:04 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -57,6 +57,7 @@ function set_hidden_field(name, value)
 	}
 }// end set_hidden_field()
 
+
 /**
 * Convenience function for setting text fields in the form
 * NOTE: works the same way as a hidden field so just alias that fn
@@ -73,6 +74,7 @@ function set_text_field(name, value)
 		f.elements[name].value = value;
 	}
 }// end set_text_field()
+
 
 /**
 * Convenience function for setting button values fields in the form
@@ -122,7 +124,6 @@ function get_form_element_value(name)
 	var f = document.main_form;
 	return (f.elements[name]) ? form_element_value(f.elements[name]) : '';
 }// get_form_element_value()
-
 
 
 /**
@@ -246,6 +247,7 @@ function check_radio_button(element, field_val)
 
 }// end check_radio_button()
 
+
 /**
 * Sets the selected var in the combo box for the option with the passed value
 *
@@ -268,6 +270,7 @@ function highlight_combo_value(element, field_val) {
 	}// end for
 
 }// end highlight_combo_value()
+
 
 /**
 * Moves the selected elements in a select box (can be multi-select) up or down one place
@@ -446,164 +449,4 @@ function check_date(date_name, show_time)
 
 	return 1;
 
-}// end check_date();
-
-
-/**
-* Activated by the pressing of the "Change" button to start the asset finder mode in the flash menu
-*
-* @param string	$name			the name of the hidden field
-* @param string	$safe_name		the name prefix for all the other form elements associated with the
-* @param string	$type_codes_xml	xml containing type codes that we want to find
-* @param string	$top_obj		a reference to the top window so we can find the sidenav
-* @param string	$done_fn		a function to call when the asset finder is finished
-*
-* @access public
-*/
-var ASSET_FINDER_FIELD_NAME = null;
-var ASSET_FINDER_FIELD_SAFE_NAME = null;
-var ASSET_FINDER_TOP_OBJ = null;
-var ASSET_FINDER_DONE_FUNCTION = null;
-function asset_finder_change_btn_press(name, safe_name, type_codes_xml, top_obj, done_fn)
-{
-	var f = document.main_form;
-	ASSET_FINDER_TOP_OBJ = top_obj;
-	ASSET_FINDER_DONE_FUNCTION = done_fn;
-
-	if (ASSET_FINDER_FIELD_NAME != null && ASSET_FINDER_FIELD_NAME != name) {
-		alert('The asset finder is currently in use');
-		return;
-	}
-
-//	if (!ASSET_FINDER_TOP_OBJ.sidenav && !ASSET_FINDER_TOP_OBJ.sidenav.asset_finder_start) {
-//		alert('Unable to find flash');
-//	}
-
-	// no name ? we must be starting the asset finder
-	if (ASSET_FINDER_FIELD_NAME == null) {
-		ASSET_FINDER_FIELD_NAME = name;
-		ASSET_FINDER_FIELD_SAFE_NAME = safe_name;
-		asset_finder_start("asset_finder_done", type_codes_xml);
-		set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', 'Cancel');
-
-	// else we must be cancelling the asset finder
-	} else {
-		asset_finder_cancel();
-		set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', 'Change');
-		ASSET_FINDER_FIELD_NAME = null;
-		ASSET_FINDER_FIELD_SAFE_NAME = null;
-	}
-
-}// end asset_finder_change_btn_press()
-
-
-/**
-* Call-back fns that stops the asset finder
-*
-* @param int	$assetid		the assetid that has been selected
-* @param int	$label			the name of the selected asset
-* @param int	$preview_url	the url of the asset as it is in the tree structure
-*
-* @access public
-*/
-function asset_finder_done(assetid, label, url)
-{
-	if (ASSET_FINDER_FIELD_NAME == null) return;
-	// if we get a -1 they cancelled, do nothing
-	if (assetid != -1) {
-		set_hidden_field(ASSET_FINDER_FIELD_NAME + '[assetid]', assetid);
-		set_hidden_field(ASSET_FINDER_FIELD_NAME + '[url]', url);
-		set_text_field(ASSET_FINDER_FIELD_SAFE_NAME + '_label', (assetid == 0) ? '' : label + ' (Id : #' + assetid + ')');
-	}
-	set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', 'Change');
-	ASSET_FINDER_FIELD_NAME = null;
-	ASSET_FINDER_FIELD_SAFE_NAME = null;
-	if (ASSET_FINDER_DONE_FUNCTION !== null) ASSET_FINDER_DONE_FUNCTION();
-
-}// end asset_finder_done()
-
-
-/**
-* Starts the asset finder and lets the asset map know that we are now in asset finder mode
-* 
-* @param String $fn				the function to call when done
-* @param String $type_codes		the type codes to restrict the asset finder to
-*
-* @access public
-*/
-function asset_finder_start(fn, type_codes)
-{
-	var asset_mapObj = document.getElementById('sq_asset_map');
-
-	var params = new Array();
-	params["callback_fn"] = fn;
-	params["type_codes"] = type_codes;
-	
-	jsToJavaCall(asset_mapObj, 'asset_finder', 'assetFinderStarted', params);
-
-}//end asset_finder_start()
-
-
-/**
-* Alerts the asset map that asset finder mode has been canceled
-*
-* @access public
-*/
-function asset_finder_cancel() {
-	params = new Array();
-	var asset_mapObj = document.getElementById('sq_asset_map');
-	jsToJavaCall(asset_mapObj, 'asset_finder', 'assetFinderStopped', params);
-
-}//end asset_finder_cancel()
-
-
-/**
-* Activated by the pressing of the "Clear" button
-*
-* @param string	$name			the name of the hidden field
-* @param string	$safe_name		the name prefix for all the other form elements associated with the
-*
-* @access public
-*/
-function asset_finder_clear_btn_press(name, safe_name)
-{
-	set_hidden_field(name + '[assetid]', 0);
-	set_hidden_field(name + '[url]', '');
-	set_text_field(safe_name + '_label', '');
-
-}// end asset_finder_clear_btn_press()
-
-
-/**
-* Activated by the pressing of the "Reset" button
-*
-* @param string	$name			the name of the hidden field
-* @param string	$safe_name		the name prefix for all the other form elements associated with the
-*
-* @access public
-*/
-function asset_finder_reset_btn_press(name, safe_name, assetid, label)
-{
-	set_hidden_field(name + '[assetid]', assetid);
-	set_text_field(safe_name + '_label', label);
-
-}// end asset_finder_reset_btn_press()
-
-
-/**
-* Activated by on an unload event to cancel the asset finder if we are currently looking
-*
-* @access public
-*/
-function asset_finder_onunload()
-{
-	// got a name ? we must be finding assets, cancel it
-	if (ASSET_FINDER_FIELD_NAME != null) {
-		if (ASSET_FINDER_TOP_OBJ.sidenav && ASSET_FINDER_TOP_OBJ.sidenav.asset_finder_cancel) {
-			ASSET_FINDER_TOP_OBJ.sidenav.asset_finder_cancel();
-		}
-	}
-}// end asset_finder_onunload()
-
-ASSET_FINDER_OTHER_ONUNLOAD = (window.onunload) ? window.onunload : new Function;
-window.onunload = asset_finder_onunload;
+}// end check_date()
