@@ -59,7 +59,6 @@ include_once('../../wysiwyg.inc');
 		<form style="margin: 0px; border: 1px solid; border-color: threedshadow threedhighlight threedhighlight threedshadow;">
 			<?php
 			$wysiwyg = new wysiwyg('popup', $_REQUEST['editor_web_path']);
-			$wysiwyg->set_stylesheet('http://beta.squiz.net/nswrl/__data/site/design/1/images/styles.css');
 			$wysiwyg->set_width('100%');
 			$wysiwyg->set_height('100%');
 			foreach (explode('|',$_REQUEST['editor_plugins']) as $name) {

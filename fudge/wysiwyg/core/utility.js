@@ -483,8 +483,12 @@ HTMLArea.processStyle = function(params, element) {
 // receives an URL to the popup dialog and a function that receives one value;
 // this function will get called after the dialog is closed, with the return
 // value of the dialog.
-HTMLArea.prototype._popupDialog = function(code, url, width, height, action) {
-	openDialog(code, this.pluginURL(url), width, height, action);
+HTMLArea.prototype._popupDialog = function(code, url, width, height, modal, action, args) {
+	if (modal == true) {
+		openModalDialog(code, this.pluginURL(url), width, height, action, args)
+	} else {
+		openDialog(code, this.pluginURL(url), width, height, action, args);
+	}
 };
 
 

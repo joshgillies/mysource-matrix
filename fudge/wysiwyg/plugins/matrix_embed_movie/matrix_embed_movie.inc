@@ -115,7 +115,7 @@ class matrix_embed_movie extends wysiwyg_plugin {
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 				strPage = "<?php echo $this->get_popup_href('embed_movie.php')?>?f_fileid=" + escape(fileid) + "&f_width=" + escape(width) + "&f_height=" + escape(height) + "&f_auto_start=" + escape(auto_start) + "&f_show_controls=" + escape(show_controls) + "&f_embed_loop=" + escape(embed_loop) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>");
 
-				this._popupDialog("matrixEmbedMovie", strPage, 400, 300, function(param) {
+				this._popupDialog("matrixEmbedMovie", strPage, 400, 300, false, function(param) {
 					if (!param) { 
 						// user must have pressed Cancel
 						return false;

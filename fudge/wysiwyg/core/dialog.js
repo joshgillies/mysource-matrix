@@ -1,16 +1,17 @@
+// An array of dialogs that have been opened
+var dialogWins = new Array();
+
+/*******************************
+  BEGIN SEMI-MODAL DIALOG CODE 
+*******************************/
+
 //
 // An article about this code can be found at:
 // http://developer.netscape.com/viewsource/goodman_modal/goodman_modal.html
 //
 
-/***************************
-  BEGIN MODAL DIALOG CODE 
-****************************/
 // Global for brower version branching.
 var Nav4 = ((navigator.appName == "Netscape") && (parseInt(navigator.appVersion) == 4))
-
-// One object tracks the current modal dialog opened from this window.
-var dialogWins = new Array();
 
 // Generate a modal dialog.
 // Parameters:
@@ -24,6 +25,7 @@ function openDialog(code, url, width, height, returnFunc, args) {
 	if (!dialogWins[code] || !dialogWins[code].win || (dialogWins[code].win && dialogWins[code].win.closed)) {
 		// Initialize properties of the modal dialog object.
 		dialogWins[code] = new Object();
+		dialogWins[code].isModal = false;
 		dialogWins[code].returnFunc = returnFunc
 		dialogWins[code].returnedValue = ""
 		dialogWins[code].args = args
@@ -142,6 +144,32 @@ function finishChecking(code) {
 }
 
 
+/*****************************
+  END SEMI-MODAL DIALOG CODE
+*****************************/
+
+
+
 /**************************
-  END MODAL DIALOG CODE
+  BEGIN MODAL DIALOG CODE 
 **************************/
+
+
+// Though "Dialog" looks like an object, it isn't really an object.  Instead
+// it's just namespace for protecting global symbols.
+
+function openModalDialog(code, url, width, height, action, args) {
+	if (document.all) { // here we hope that Mozilla will never support document.all
+		var value =
+			showModalDialog(url, args, "resizable: no; help: no; status: no; scroll: no;");
+		if (action) {
+			action(value);
+		}
+	} else {
+		return openDialog(code, url, width, height, action, args)
+	}
+};
+
+/************************
+  END MODAL DIALOG CODE 
+************************/

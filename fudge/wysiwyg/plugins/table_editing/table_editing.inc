@@ -105,7 +105,7 @@ class table_editing extends wysiwyg_plugin {
 
 				var sel = this._getSelection();
 				var range = this._createRange(sel);
-				this._popupDialog("insertTable", "<?php echo $this->get_popup_href('insert_table.html')?>", 340, 240, function(param) {
+				this._popupDialog("insertTable", "<?php echo $this->get_popup_href('insert_table.html')?>", null, null, true, function(param) {
 					if (!param) { // user must have pressed Cancel
 						return false;
 					}
@@ -166,10 +166,6 @@ class table_editing extends wysiwyg_plugin {
 			HTMLArea.prototype._editTableProperties = function() {
 				var editor = this; // for nested functions
 
-				// disable the toolbar
-				this._tmp['disable_toolbar'] = true;
-				this.updateToolbar(false);
-
 				// retrieve existing values
 				var table = this.getClosest("table");
 
@@ -220,7 +216,7 @@ class table_editing extends wysiwyg_plugin {
 					"&f_borderWidth=" + escape(f_borderWidth) +
 					"&editor_name="   + escape("<?php echo $this->wysiwyg->name; ?>");
 
-				this._popupDialog("editTableProperties", strPage, 360, 370, function(params) {
+				this._popupDialog("editTableProperties", strPage, 360, 370, true, function(params) {
 					if (!params) {
 						// user must have pressed Cancel
 						return false;

@@ -4,23 +4,22 @@ $wysiwyg = null;
 $plugin = new wysiwyg_plugin($wysiwyg);
 ?>
 
-<html>
+<html style="width:360px; height:380px;">
 
 	<head>
 		<title>Edit Table Properties</title>
 		<script type="text/javascript" src="../../core/popup.js"></script>
+		<script type="text/javascript" src="../../core/dialog.js"></script>
 
 		<script type="text/javascript">
-			var parent_object = opener.editor_<?php echo $_REQUEST['editor_name']?>._object;
-
 			function colorPopup(id) {
 				var field = document.getElementById(id);
 				var span = document.getElementById(id + "_chooser");
 				var color = field.value;
 
-				var strPage = "<?php echo $plugin->get_popup_href('select_color.html', 'select_color')?>";
+				var strPage = "<?php echo $_SERVER['PHP_SELF'].'/../../'.$plugin->get_popup_href('select_color.html', 'select_color')?>";
 
-				parent_object._popupDialog("selectColor", strPage, 238, 182, function(color) {
+				openModalDialog("selectColor", strPage, 238, 163, function(color) {
 					if (color) {
 						span.style.backgroundColor = "#" + color;
 						field.value = color;
@@ -38,13 +37,6 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			function colorButton(id, classname) {
 				var btn = document.getElementById(id + "_button");
 				btn.className = classname;
-			};
-
-			window.opener.onFocus = function() { getFocus(); }
-			parent_object.onFocus = function() { getFocus(); }
-
-			function getFocus() {
-				setTimeout('self.focus()',100);
 			};
 
 			function Init() {
@@ -144,7 +136,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 
 	</head>
 
-	<body onLoad="Init(); if (opener) opener.blockEvents('editTableProperties')" onUnload="if (opener) opener.unblockEvents(); parent_object._tmp['disable_toolbar'] = false; parent_object.updateToolbar();">
+	<body onLoad="Init();">
 
 		<div class="title">Table Properties</div>
 
