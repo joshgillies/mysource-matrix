@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_select_limit.inc,v 1.8 2005/02/22 05:10:02 lwright Exp $
+* $Id: form_question_rule_type_select_limit.inc,v 1.9 2005/02/22 05:29:29 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 * @static
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -240,7 +240,7 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 		if (is_a($q_asset, 'form_question_type_select')) {
 			$loop_code = ' for(i=0; i<select.options.length; i++) {if (select.options[i].selected) {selectCount++;} }';
 		} else {			// tickbox (or option) list needs something else
-			$loop_code = 'for(i=0; i<select.elements.length; i++) {if (select.elements[i].checked) {selectCount++;} }';
+			$loop_code = 'for(i=0; i<select.length; i++) {if (select.elements[i].checked) {selectCount++;} }';
 		}
 
 		$code .= $loop_code;		// add loop code
