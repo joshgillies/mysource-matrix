@@ -1,5 +1,13 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <?xml-stylesheet href="../package.xsl" type="text/xsl"?>
+<!--
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: package.xml,v 1.2 2003/10/08 02:05:06 dwong Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
 
 <package_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../package.xsd">
 	<code_name>search</code_name>
