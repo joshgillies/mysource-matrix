@@ -3529,48 +3529,7 @@ class Asset extends Resolve_Object
 	*/
 	function getURL($base_url=null)
 	{
-		if (is_null($base_url)) $base_url = current_url(false);
-		if (!isset($this->_tmp['url'])) $this->_tmp['url'] = Array();
-
-		$base_url = strip_url($base_url, true);
-
-		if (!isset($this->_tmp['url'][$base_url])) {
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-#		pre_echo("BASE URL : $base_url");
-			$url_bits = explode('/', preg_replace('/\\/+$/', '', $base_url));
-
-			$sql = 'SELECT l.url, u.http, (';
-			$str = '';
-			// so much for SQL standards...
-			$concat = ($db->phptype == 'mysql') ? 'CONCAT(l.url, '.$db->quote('/').')' : 'l.url || '.$db->quote('/');
-			foreach($url_bits as $i => $bit) {
-				$str .= $bit.'/';
-				$sql .= (($i) ? '+' : '').'
-				(CASE WHEN SUBSTRING('.$concat.' FROM 1 FOR '.strlen($str).') = '.$db->quote($str).' THEN 1 ELSE 0 END)';
-			}
-
-			$sql .= '
-			) as weighting
-			FROM sq_asset_lookup l INNER JOIN sq_asset_url u ON l.root_urlid = u.urlid
-			WHERE l.assetid = '.$db->quote($this->id).'
-			ORDER BY weighting DESC, l.url
-			LIMIT 1';
-			$result = $db->getRow($sql);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-				return '';
-			}
-
-			if (empty($result)) {
-				$this->_tmp['url'][$base_url] = '';
-			} else {
-				$this->_tmp['url'][$base_url] = (($result['http']) ? 'http' : 'https').'://'.$result['url'];
-			}
-
-		}// end if !isset
-
-		return $this->_tmp['url'][$base_url];
+		$GLOBALS['SQ_SYSTEM']->am->getAssetURL($this->id, $base_url);
 
 	}//end getURL()
 
@@ -3585,22 +3544,7 @@ class Asset extends Resolve_Object
 	*/
 	function getHref($base_url=null)
 	{
-		if (is_null($base_url)) $base_url = current_url(false);
-		if (!isset($this->_tmp['href'])) $this->_tmp['href'] = Array();
-
-		$base_url = strip_url($base_url, true);
-
-		if (!isset($this->_tmp['href'][$base_url])) {
-			if ($url = $this->getURL($base_url)) {
-				require_once SQ_FUDGE_PATH.'/general/www.inc';
-				// delieratley don't strip url here because if there is any trailing slashes then 
-				// relative_href will work to accomodate them
-				$this->_tmp['href'][$base_url] = relative_href(current_url(), $url);
-			} else {
-				$this->_tmp['href'][$base_url] = '';
-			}
-		}// end if !isset
-		return $this->_tmp['href'][$base_url];
+		$GLOBALS['SQ_SYSTEM']->am->getAssetHref($this->id, $base_url);
 	}//end getHref()
 
 

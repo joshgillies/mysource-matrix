@@ -862,5 +862,91 @@ class Asset_Manager extends Resolve_Object
 		$edit_fns->paintBackend();
 	}//end paintBackend()
 
+
+	/**
+	* Returns the URL for an asset, closest to the $base_url
+	*
+	* @param int	$assetid	the id of the asset you want the url for
+	* @param string	$base_url	the url that we are want to match closest to
+	*
+	* @return string
+	* @access public
+	*/
+	function getAssetURL($assetid, $base_url=null)
+	{
+		if (is_null($base_url)) $base_url = current_url(false);
+		if (!isset($this->_tmp['urls'][$assetid])) $this->_tmp['urls'][$assetid] = Array();
+
+		$base_url = strip_url($base_url, true);
+
+		if (!isset($this->_tmp['urls'][$assetid][$base_url])) {
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+			$url_bits = explode('/', preg_replace('/\\/+$/', '', $base_url));
+
+			$sql = 'SELECT l.url, u.http, (';
+			$str = '';
+			// so much for SQL standards...
+			$concat = ($db->phptype == 'mysql') ? 'CONCAT(l.url, '.$db->quote('/').')' : 'l.url || '.$db->quote('/');
+			foreach($url_bits as $i => $bit) {
+				$str .= $bit.'/';
+				$sql .= (($i) ? '+' : '').'
+				(CASE WHEN SUBSTRING('.$concat.' FROM 1 FOR '.strlen($str).') = '.$db->quote($str).' THEN 1 ELSE 0 END)';
+			}
+
+			$sql .= '
+			) as weighting
+			FROM sq_asset_lookup l INNER JOIN sq_asset_url u ON l.root_urlid = u.urlid
+			WHERE l.assetid = '.$db->quote($assetid).'
+			ORDER BY weighting DESC, l.url
+			LIMIT 1';
+			$result = $db->getRow($sql);
+			if (DB::isError($result)) {
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+				return '';
+			}
+
+			if (empty($result)) {
+				$this->_tmp['urls'][$assetid][$base_url] = '';
+			} else {
+				$this->_tmp['urls'][$assetid][$base_url] = (($result['http']) ? 'http' : 'https').'://'.$result['url'];
+			}
+
+		}// end if !isset
+
+		return $this->_tmp['urls'][$assetid][$base_url];
+
+	}//end getAssetURL()
+
+
+	/**
+	* Returns the href for an asset closest to the $base_url, but relative to the current url
+	*
+	* @param int	$assetid	the id of the asset you want the href for
+	* @param string	$base_url	the url that we are want to match closest to
+	*
+	* @return string
+	* @access public
+	*/
+	function getAssetHref($assetid, $base_url=null)
+	{
+		if (is_null($base_url)) $base_url = current_url(false);
+		if (!isset($this->_tmp['hrefs'][$assetid])) $this->_tmp['hrefs'][$assetid] = Array();
+
+		$base_url = strip_url($base_url, true);
+
+		if (!isset($this->_tmp['hrefs'][$assetid][$base_url])) {
+			if ($url = $this->getAssetURL($assetid, $base_url)) {
+				require_once SQ_FUDGE_PATH.'/general/www.inc';
+				// delieratley don't strip url here because if there is any trailing slashes then 
+				// relative_href will work to accomodate them
+				$this->_tmp['hrefs'][$assetid][$base_url] = relative_href(current_url(), $url);
+			} else {
+				$this->_tmp['hrefs'][$assetid][$base_url] = '';
+			}
+		}// end if !isset
+		return $this->_tmp['hrefs'][$assetid][$base_url];
+	}//end getAssetHref()
+
 }//end class
 ?>
