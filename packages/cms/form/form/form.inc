@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.70 2004/12/03 15:37:19 brobertson Exp $
+* $Id: form.inc,v 1.70.2.1 2004/12/13 03:55:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.70.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -342,6 +342,27 @@ class Form extends Bridge
 	}//end getParents()
 
 
+	/**
+	* Returns TRUE if the passed minor asset can be linked to this asset, or a string with the error msg
+	*
+	* @param object Asset	$minor		the minor asset that we are linking to
+	* @param string			$link_type	the type of link this is
+	* @param int			$exclusive	the exclusive status of the link (gets passed to canLinkToType)
+	*
+	* @return mixed TRUE or error message string
+	* @access public
+	*/
+	function canCreateLink(&$minor, $link_type, $exclusive)
+	{
+		if (is_a($minor, 'form_submission')) {
+			return true;
+		}
+		
+		return parent::canCreateLink($minor, $link_type, $exclusive);
+		
+	}//end canCreateLink()
+	
+	
 	/**
 	* Set the last updated info for this asset
 	*
@@ -1073,7 +1094,7 @@ class Form extends Bridge
 			$section->processForm();
 		}
 
-		// bam ($this->active_submission);
+		$this->active_submission->saveAttributes();
 		
 		// check to see if there is an error with the form
 		$this->_tmp['is_error'] = $this->active_submission->isError();
