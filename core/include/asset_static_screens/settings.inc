@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.20 2005/02/16 22:12:33 amiller Exp $
+* $Id: settings.inc,v 1.21 2005/02/21 11:24:28 brobertson Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 */
 
@@ -400,7 +400,8 @@ function paintSettings(&$owner, &$o, &$ei)
 
 						if ($new_user_design) {
 							$o->openField('Design Code');
-							text_box($prefix.'_designs['.$design_name.'][name]', '', 20, 30);
+								text_box($prefix.'_designs['.$design_name.'][name]', '', 20, 30);
+							$o->closeField();
 						} else {
 							hidden_field($prefix.'_designs['.$design_name.'][name]', $design_name);
 							if ($design_type == 'user') {
@@ -672,7 +673,6 @@ function processSettings(&$owner, &$o, &$ei)
 					$designs_ok = false;
 					break;
 				}
-				$assets_affected_lookups[] = $old_designid;
 			}
 
 			if ($new_designid) {
