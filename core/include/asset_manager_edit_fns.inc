@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.73 2004/03/03 11:25:48 brobertson Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.74 2004/06/08 02:39:09 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -198,10 +198,6 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 				if (SQ_IN_LIMBO) $limbo_asset->printFrontend();
 				else $asset->paintBackend($this->backend->out);
 
-			break;
-
-			case 'duplicate' :
-				$this->_dupeAsset();
 			break;
 
 			case 'forceably_acquire_lock' :
