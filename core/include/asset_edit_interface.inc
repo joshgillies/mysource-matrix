@@ -219,6 +219,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				echo '<p class="sq-form-field">"'.$owner->name.'" is currently locked for editing by user "'.$user->name.'" at "'.$editing->name.'". The lock is due to expire in '.$expires_in.'</p>';
 
 				if ($GLOBALS['SQ_SYSTEM']->currentUser($user)) {
+
 					submit_button('sq_manual_release_lock', 'Release Lock');
 				} else {
 					// does the current user has a high
@@ -226,7 +227,11 @@ class Asset_Edit_Interface extends Resolve_Object
 					if ($owner->canForceablyAquireLock()) {
 						echo '<p class="sq-form-field">You can forceably aquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself. Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably aquired.</p>';
 
+						// they aren't going to do this without a fight though
+						// they'll have to go thorough our popup window first
 						$popup_url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=forceably_aquire_lock&assetid='.$owner->id;
+
+						hidden_field('sq_aquire_by_force', '0');
 						normal_button('sq_forceably_aquire_lock', 'Aquire Lock', 'window.open(\''.$popup_url.'\', \'sq_forceably_aquire_lock_popup\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300\');');
 
 					}
@@ -859,14 +864,12 @@ class Asset_Edit_Interface extends Resolve_Object
 	{
 		$prefix = $this->getPrefix($owner);
 		$perms = Array('Read' => SQ_PERMISSION_READ, 'Write' => SQ_PERMISSION_WRITE, 'Administrator' => SQ_PERMISSION_ADMIN);
-		$admin_access = $owner->adminAccess(Array(), true, false);
+		$admin_access = $owner->adminAccess();
 
 		foreach ($perms as $title => $perm) {
 			$o->openSection($title.' Access');
 
-#$o->openField('pre_echo');
 			$permissions = $owner->getPermission($perm, null, false, true, false, true);
-#pre_echo($permissions);
 
 			$inherited = $this->_getOverriddenInheritedPermissions($owner, $perm);
 			$direct = Array();
@@ -888,9 +891,6 @@ class Asset_Edit_Interface extends Resolve_Object
 
 			ksort($direct);
 			ksort($inherited);
-
-#pre_echo($direct);
-#pre_echo($inherited);
 
 			if (!empty($inherited)) {
 				$o->openField('Inherited', 'new_line');
@@ -1069,7 +1069,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		}
 
 		// if we dont have effective admin access, dont process anything
-		if (!$owner->adminAccess(Array(), true, false)) return false;
+		if (!$owner->adminAccess()) return false;
 
 		$prefix = $this->getPrefix($owner);
 		if (!isset($_POST[$prefix.'_permissions'])) return false;
@@ -1261,7 +1261,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			}// end foreach
 
 		} else {
-			$admin_access = $owner->adminAccess(Array(), true, false);
+			$admin_access = $owner->adminAccess();
 		}
 
 
@@ -1513,7 +1513,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		}
 
 		// if we dont have effective admin access, dont process anything
-		if (!$owner->adminAccess(Array(), true, false)) return false;
+		if (!$owner->adminAccess()) return false;
 
 		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
 		$wfm = new Workflow_Manager($owner);
