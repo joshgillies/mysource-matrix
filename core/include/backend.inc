@@ -251,7 +251,7 @@ class Backend extends Resolve_Object
 			<table border="0" cellspacing="2" cellpadding="2" bgcolor="#7B969C">
 				<tr>
 					<td bgcolor="#C7D0D9">
-						<table>
+						<table cellspacing="0" cellpadding="0" border="0">
 							<tr>
 								<td rowspan="2" valign="middle"><img src="'.$this->out->filesPath('/images/icons/mail.gif').'" width="31" height="33" border="0" alt="" /></td>
 								<td class="sq-backend-fineprint"><b>New Messages</b></td>
