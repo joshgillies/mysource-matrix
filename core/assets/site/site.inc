@@ -77,21 +77,19 @@ class Site extends Folder
 	/**
 	* Returns a list of urls that point to this asset
 	*
-	* @param boolean	$all_info	whether to return all the URL information (ie ports & protocols) or not
-	*
 	* @return Array()
 	* @access public
 	*/
 	function getSiteURLs()
 	{
 		if (!isset($this->_tmp['urls_info'])) {
-			$where = 'assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 			$sql = 'SELECT urlid, url, http, https
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_url
-					'.$where;
+					';
+			$where = 'assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-			$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql, true, array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
+			$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql.$where, true, array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
 			if (DB::isError($result)) {
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 				$this->_tmp['urls_info'] = Array();
@@ -291,12 +289,16 @@ class Site extends Folder
 			$values = Array(
 							'url'               => $urls[$urlid]['url'],
 							'assetid'           => $this->id,
+							'http'              => ($this->force_secure) ? '0' : $urls[$urlid]['http'],
+							'https'             => $urls[$urlid]['https'],
 							'root_urlid'        => $urlid,
 						);
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup', $values)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
+
+
 
 			foreach($our_designs as $name => $designid) {
 				$values = Array(

@@ -2,7 +2,7 @@
 	<section name="Web Urls">
 		<field>
 			<display_name>URLs</display_name>
-			<note/>
+			<note>If Force Secure is set (on the Settings Screen), then setting the HTTP option has no effect</note>
 			<function_call>
 				<paint_function   name="paintURLs"   />
 				<process_function name="processURLs" />
