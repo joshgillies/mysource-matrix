@@ -15,7 +15,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 * @package Fudge
 * @subpackage wysiwyg
 */
-class view_source extends wysiwyg_plugin {
+class View_Source extends Wysiwyg_Plugin {
 
 	/**
 	* Constructor
@@ -24,9 +24,11 @@ class view_source extends wysiwyg_plugin {
 	* @returns object View_Source
 	* @access  public
 	*/
-	function view_source() {
+	function View_Source()
+	{
 		$this->_add_button('htmlmode','HtmlMode','Toggle HTML Source','true','3');
-	}
+
+	}//end constructor
 
 
 	/**
@@ -35,13 +37,15 @@ class view_source extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function print_plugin_button_click() {
+	function print_plugin_button_click()
+	{
 		?>
 		case "htmlmode":
 			this.setMode(this._editMode != "textmode" ? "textmode" : "wysiwyg");
 		break;
 		<?php
-	}
+
+	}//end print_plugin_button_click()
 
 
 	/**
@@ -50,14 +54,16 @@ class view_source extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function print_plugin_update_toolbar() {
+	function print_plugin_update_toolbar()
+	{
 		?>
 		case "htmlmode":
 			btn.state("active", text);
 		break;
 		<?php
-	}
 
-}
+	}//end print_plugin_update_toolbar()
+
+}//end class
 
 ?>
