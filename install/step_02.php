@@ -11,10 +11,9 @@
 error_reporting(E_ALL);
 $SYSTEM_ROOT = '';
 // from cmd line
-if (isset($_SERVER['argv'])) {
+if ((php_sapi_name() == 'cli')) {
 	if (isset($_SERVER['argv'][1])) $SYSTEM_ROOT = $_SERVER['argv'][1];
 	$err_msg = "You need to supply the path to the Resolve System as the first argument\n";
-	$GLOBALS['SQ_OUTPUT_TYPE'] = 'text';
 
 } else { 
 	if (isset($_GET['SYSTEM_ROOT'])) $SYSTEM_ROOT = $_GET['SYSTEM_ROOT'];
@@ -95,7 +94,7 @@ if (is_null($root_folder)) {
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('root_user');
 	$root_user = new Root_User();
 	$user_link = Array('asset' => &$system_group, 'link_type' => SQ_LINK_TYPE_1);
-	$root_user->setAttrValue('email', 'root@'.(($_SERVER['argv']) ? $_SERVER['HOSTNAME'] : $_SERVER['HTTP_HOST']));
+	$root_user->setAttrValue('email', 'root@'.((SQ_PHP_CLI) ? $_SERVER['HOSTNAME'] : $_SERVER['HTTP_HOST']));
 	if (!$root_user->create($user_link)) die('ROOT USER NOT CREATED');
 	pre_echo('Root User Asset Id : '.$root_user->id);
 	if ($root_user->id != 4) {
@@ -123,6 +122,18 @@ if (is_null($root_folder)) {
 		trigger_error('Major Problem: The new Login Design Asset was not given assetid #8. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
 	}
 
+	// Create the cron manager
+	$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_manager');
+	$cron_manager = new Cron_Manager();
+	$cron_manager_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
+	if (!$cron_manager->create($cron_manager_link)) die('Cron Manager NOT CREATED');
+	pre_echo('Cron Manager Asset Id : '.$cron_manager->id);
+	if ($cron_manager->id != 10) {
+		trigger_error('Major Problem: The new Cron Manager Asset was not given assetid #10. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
+	}
+
+
+	$cron_manager->releaseLock();
 	$login_design->releaseLock();
 	$designs_folder->releaseLock();
 	$root_user->releaseLock();
@@ -155,7 +166,7 @@ if (is_null($root_folder)) {
 
 	// set the current user object to the root user so we can finish
 	// the install process without permission denied errors
-	$GLOBALS['SQ_SYSTEM']->user = $root_user;
+	$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user);
 
 }// end if
 
