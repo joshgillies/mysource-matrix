@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_management.inc,v 1.11 2004/09/08 04:00:00 gsherwood Exp $
+* $Id: form_question_management.inc,v 1.12 2004/10/11 06:38:34 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -48,17 +48,17 @@ class Form_Question_Management extends Asset_Management
 
 		$this->vars = Array('name' => Array(
 												'added'     => '0.0.1',
-												'type'      => 'text',  
+												'type'      => 'text',
 												'default'   => '',
 												),
 							'note' => Array(
 												'added'     => '0.0.1',
-												'type'      => 'text',  
+												'type'      => 'text',
 												'default'   => '',
 												),
 							'rules' => Array(
 												'added'     => '0.0.1',
-												'type'      => 'serialise',  
+												'type'      => 'serialise',
 												'default'   => Array(),
 												),
 							'special_info'	=> Array(
@@ -66,7 +66,7 @@ class Form_Question_Management extends Asset_Management
 														'type'		=> 'selection',
 														'default'	=> '',
 														'update_fn'	=> '',
-														'parameters'	=> Array(	
+														'parameters'	=> Array(
 															'options'	=> Array(
 																''			=> '--- No Special Information ---',
 																'name'		=> 'User\'s Name',
@@ -84,7 +84,7 @@ class Form_Question_Management extends Asset_Management
 														'type'		=> 'selection',
 														'default'	=> '',
 														'update_fn'	=> '',
-														'parameters'	=> Array(	
+														'parameters'	=> Array(
 														'options'	=> Array(
 															''			=> '--- No Auto Answer ---',
 															'name'		=> 'User\'s Name',
@@ -97,7 +97,7 @@ class Form_Question_Management extends Asset_Management
 														'allow_empty' => false,
 												),
 											),
-								
+
 									);
 	}//end constructor
 
