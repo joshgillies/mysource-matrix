@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.34 2004/01/22 23:09:36 gsherwood Exp $
+* $Id: design_area_edit_fns.inc,v 1.35 2004/04/01 03:59:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -754,6 +754,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	{
 		$text = '';
 		$vars = $this->getSetableVars($asset);
+		require_once SQ_FUDGE_PATH.'/general/general.inc';
 		foreach($vars as $name => $data) {
 			$text .= '<'.$this->tag_name.'_SET name="'.$name.'"';
 
@@ -761,8 +762,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 			if (!empty($asset->vars['var_references']['value'][$name])) {
 				$text .= ' id_name="'.htmlentities($asset->vars['var_references']['value'][$name]['id_name']).'" var="'.htmlentities($asset->vars['var_references']['value'][$name]['var']).'"';
 			} else {
-			pre_echo($name.':'.gettype($data['value']));
-				$text .= ' value="'.htmlentities($data['value']).'"';
+				$text .= ' value="'.htmlentities_array($data['value']).'"';
 			}
 			$text .= " />\n";
 		}
