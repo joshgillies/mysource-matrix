@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.9 2004/04/28 00:35:50 lwright Exp $
+* $Id: limbo_outputter.inc,v 1.10 2004/09/02 04:42:05 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -64,6 +64,7 @@ class Limbo_Outputter extends Backend_Outputter
 	*/
 	function addFormActionGetVar($name, $value, $persistant=false)
 	{
+		if ($persistant) return parent::addFormActionGetVar($name, $value, true);
 		return $this->addHiddenField($name, $value);
 
 	}//end addFormActionGetVar()
