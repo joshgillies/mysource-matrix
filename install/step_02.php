@@ -21,7 +21,7 @@ $GLOBALS['SQ_SYSTEM']->db->createSequence('sq_sequence_asset_link');
 $GLOBALS['SQ_SYSTEM']->db->createSequence('sq_sequence_asset_attribute');
 $GLOBALS['SQ_SYSTEM']->db->createSequence('sq_sequence_asset_url');
 
-include_once(SQ_INCLUDE_PATH.'/package_manager.inc');
+require_once(SQ_INCLUDE_PATH.'/package_manager.inc');
 $pm = new Package_Manager('__core__');
 if (!$pm->updatePackageDetails()) exit(1);
 
