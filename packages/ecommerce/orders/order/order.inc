@@ -1,0 +1,242 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +-------------------------------------------------------------------+
+*
+* $Id: order.inc,v 1.1 2005/01/21 00:05:06 lwright Exp $
+* $Name: not supported by cvs2svn $
+*/
+
+
+require_once SQ_PACKAGES_PATH.'/cms/form/form_submission/form_submission.inc';
+require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order_line/order_line.inc';
+
+/**
+* Order
+*
+* Purpose
+*
+*
+* @author  Luke Wright <lwright@squiz.net>
+* @version $Revision: 1.1 $
+* @package MySource_Matrix_Packages
+* @subpackage ecommerce
+*/
+class Order extends Form_Submission
+{
+
+	
+	/**
+	* Constructor
+	*
+	* @param string	$assetid	the assetid of the asset to load into this object
+	*
+	* @return void
+	* @access public
+	*/
+	function Order($assetid=0)
+	{
+		$this->_ser_attrs = true;
+		$this->Asset($assetid);
+		
+	}//end Order()
+	
+	/**
+	* Returns an array of all the permitted link type, the type asset and
+	 * the cardinality
+	 *
+	 * @see Asset::_getAllowLinks()
+	 * @access private
+	 */
+	function _getAllowedLinks()
+{
+		$order_links = parent::_getAllowedLinks();
+		$order_links[SQ_LINK_TYPE_3]['order_line'] = Array('card' => 'M');
+		return $order_links;
+		
+}//end _getAllowedLinks()
+	
+	
+	/**
+	* Calculate a simple total of this order
+	*
+	* @return double
+	* @access public
+	*/
+	function total()
+	{
+		$total = 0.0;
+		
+		$lines = $this->getLines();
+		foreach($lines as $assetid) {
+			$line =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$total += $line->attr('quantity') * $line->attr('price');
+		}
+		
+		return $total;
+		
+	}//end total()
+	
+	
+	/**
+	* Calculate a simple count of items of this order
+	*
+	* @return int
+	* @access public
+	*/
+	function itemCount()
+	{
+		$count = 0.0;
+		
+		$lines = $this->getLines();
+		foreach($lines as $assetid) {
+			$line =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$count += $line->attr('quantity');
+		}
+		
+		return $count;
+		
+	}//end itemCount()
+	
+	
+	/**
+	* Calculate a simple count of lines in this order
+	*
+	* @return int
+	* @access public
+	*/
+	function lineCount()
+	{
+		$lines = $this->getLines();		
+		return count($lines);
+		
+	}//end lineCount()
+	
+	
+	/**
+	* Gets an array of order lines residing underneath this asset
+	*
+	* Order lines are to be TYPE_3 linked to its parent order, as it does not
+	* need to be separately viewed on the backend
+	*
+	* @return Array(string)	an array of assetids
+	* @access public
+	*/
+	function getLines()
+	{
+		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3, 'order_line', false);
+	
+		$assetids = Array();
+		
+		foreach($links as $link) {
+			$assetids[] = $link['minorid'];
+		}
+		
+		return $assetids;
+		
+	}//end getLines()
+	
+	
+	/**
+	* Creates an Order Line asset and links it underneath this asset
+	*
+	* @param int $product_assetid   the assetid of the product this orderline represents
+	* @param int $price				the per item price of the product
+	* @param int $quantity			quantity of product requested   default: 1
+	*
+	* @return boolean				indicating success
+	* @access public
+	*/
+	function createLine($product_assetid, $price, $quantity=1)
+	{
+		// create and populate a new order line
+		$new_order_line = new Order_Line();
+		
+		$new_order_line->setAttrValue('quantity', $quantity);
+		$new_order_line->setAttrValue('price', $price);
+		$new_order_line->setAttrValue('product_assetid', $product_assetid);
+		
+		//prepare type 3 link between order and orderline
+		$link = array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'is_dependant' => 1, 'is_exclusive' =>  1);
+		
+		//attempt to link orderline to order
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$GLOBALS['SQ_INSTALL'] = true;
+
+		
+		if (!$new_order_line->create($link)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+		
+		$GLOBALS['SQ_INSTALL'] = false;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		
+	}//end createLine()
+	
+	
+	/**
+	* Build an order based on items in a cart
+	*
+	* @param object Ecommerce_Cart	&$cart		the cart to convert
+	* @param boolean				$clear_after	whether the cart should be
+	*												cleared after transferring
+	*
+	* @return boolean	indicating success
+	* @access public
+	*/
+	function buildLinesFromCart($cart_items, $clear_after=true)
+	{
+		//cart items is passed in straight from $_SESSION['sq_cart_contents']
+		
+		foreach($_SESSION['sq_cart_contents'] as $product_assetid => $product_info) {
+			$this->createLine($product_assetid, $product_info['price'], $product_info['quantity']);
+		}
+		
+		// are we clearing the cart afterwards
+		if ($clear_after) {
+			unset($_SESSION['sq_cart_contents']);
+		}
+		
+		return true;
+		
+	}//end buildLinesFromCart()
+	
+	
+	/**
+	* Create link for this asset
+	*
+	* Called when a form is processed and a link to this order is made
+	* to the ecom form
+	*
+	* @access pulic
+	*/
+	function create(&$link)
+	{
+		if (!($linkid = parent::create($link))) {
+			return 0;
+		}
+		
+		return $linkid;
+		
+	}//end create()
+
+
+}//end class
+
+?>
