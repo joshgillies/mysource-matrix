@@ -823,9 +823,10 @@ class Backend_Outputter
 	* @access public
 	*/
 	function commitButton($value='Commit', $release_lock=1) {
+		$release_lock = (int)$release_lock;
 		$this->openField('', 'commit');
 		hidden_field('sq_release_lock', 0);
-		submit_button('commit', $value, 'Javascript:this.form.sq_release_lock.value = '.$release_lock);
+		submit_button('commit', $value, 'this.form.sq_release_lock.value = \''.$release_lock.'\';');
 	}
 
 
