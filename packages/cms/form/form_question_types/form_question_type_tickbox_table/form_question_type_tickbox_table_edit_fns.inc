@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_table_edit_fns.inc,v 1.4 2004/12/06 14:41:39 brobertson Exp $
+* $Id: form_question_type_tickbox_table_edit_fns.inc,v 1.5 2004/12/09 05:16:49 gsherwood Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Form_Question_Type_Tickbox_Table_Edit_Fns extends Form_Question_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -47,22 +48,21 @@ class Form_Question_Type_Tickbox_Table_Edit_Fns extends Form_Question_Edit_Fns
 	{
 		$this->Form_Question_Edit_Fns();
 
-	}//end constructor
+	}//end Form_Question_Type_Tickbox_Table_Edit_Fns()
 
 
 	/**
-	* Admin Question Interface
+	* Paint the interface for editing the tickbox table options
 	*
-	* @param Object $asset  asset whose interface is being printed
-	* @param Object $o      backend outputter
-	* @param string $prefix unique prefix for this asset
+	* @param object	Asset 				$asset	asset whose interface is being printed
+	* @param object	Backend_Outputter	$o		backend outputter
+	* @param string 					$prefix	unique prefix for this asset
 	*
 	* @access public
 	* @return boolean
 	*/
 	function paintQuestionInterface(&$asset, &$o, $prefix)
 	{
-
 		$write_access = $asset->writeAccess('attributes');
 
 		if ($write_access) {
@@ -79,26 +79,28 @@ class Form_Question_Type_Tickbox_Table_Edit_Fns extends Form_Question_Edit_Fns
 
 
 	/**
-	* Admin Question Interface
+	* Process the interface for editing the tickbox table options
 	*
-	* @param Object $asset  asset whose input is being processed
-	* @param Object $o      backend outputter
-	* @param string $prefix unique prefix for this asset
+	* @param object	Asset 				$asset	asset whose interface is being processed
+	* @param object	Backend_Outputter	$o		backend outputter
+	* @param string						$prefix	unique prefix for this asset
 	*
 	* @access public
 	* @return boolean
 	*/
 	function processQuestionInterface(&$asset, &$o, $prefix)
 	{
-		$myprefix = $asset->getSafePrefix();
+		$safe_prefix = $asset->getSafePrefix();
 
-		$table = array_get_index($_REQUEST,$myprefix,false);
+		$table = array_get_index($_REQUEST, $safe_prefix, false);
 
 		if (!$table || empty($table)) return false;
-		//last table row is an artifact, remove it.
-		array_pop($table);
 
-		//last item in the first row an artifact, remove it
+		// the last table row is an artifact, remove it
+		array_pop($table);
+		if (empty($table)) return false;
+
+		// the last item in the first row an artifact, remove it
 		$header = array_shift($table);
 		array_pop($header);
 		array_unshift($table, $header);
@@ -109,5 +111,7 @@ class Form_Question_Type_Tickbox_Table_Edit_Fns extends Form_Question_Edit_Fns
 
 	}//end processQuestionInterface()
 
+
 }//end class
+
 ?>
