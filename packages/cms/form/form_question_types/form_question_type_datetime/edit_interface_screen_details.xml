@@ -1,0 +1,18 @@
+<!--
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: edit_interface_screen_details.xml,v 1.1 2003/09/28 22:50:00 mmcintyre Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<contents>
+	<section name="Details">
+	    <field attribute="name">
+			<display_name>Name</display_name>
+			<note>Defines the name of the form</note>
+			<text width="12" height="1" />
+		</field>
+	</section>
+</contents>

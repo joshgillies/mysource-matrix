@@ -1,0 +1,12 @@
+<!--
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: edit_interface_screens.xml,v 1.1 2003/09/28 22:50:00 mmcintyre Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<screens>
+	<screen code_name="contents" display_name="Question Contents" icon="web" />
+</screens>

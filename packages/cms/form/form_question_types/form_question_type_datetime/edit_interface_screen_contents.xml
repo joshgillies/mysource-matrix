@@ -1,0 +1,110 @@
+<!--
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: edit_interface_screen_contents.xml,v 1.1 2003/09/28 22:50:00 mmcintyre Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<contents>
+	<section name="Question Options">
+	    <field attribute="name">
+			<display_name>Title</display_name>
+			<note></note>
+			<text width="20" height="1" />
+		</field>
+		<field attribute="note">
+			<display_name>Note</display_name>
+			<note></note>
+			<text width="40" height="2" />
+		</field>
+		<field>
+			<display_name>Options</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintInterface"   />
+				<process_function name="processInterface" />
+			</function_call>
+		</field>
+		<field attribute="minimum">
+			<display_name>Minimum</display_name>
+			<note></note>
+			<datetime min="1970-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="0">
+				<show>
+					<y style="s" allow_null="1" />
+					<m style="s" allow_null="1" />
+					<d style="s" allow_null="1" />
+					<h style="s" allow_null="1" />
+					<i style="s" allow_null="1" />
+					<s style="s" allow_null="1" />
+				</show>
+			</datetime>
+		</field>
+		<field attribute="maximum">
+			<display_name>Maximum</display_name>
+			<note></note>
+			<datetime min="1970-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="0">
+				<show>
+					<y style="s" allow_null="1" />
+					<m style="s" allow_null="1" />
+					<d style="s" allow_null="1" />
+					<h style="s" allow_null="1" />
+					<i style="s" allow_null="1" />
+					<s style="s" allow_null="1" />
+				</show>
+			</datetime>
+		</field>
+		<field attribute="default">
+			<display_name>Default</display_name>
+			<note></note>
+			<datetime min="1970-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="0">
+				<show>
+					<y style="s" allow_null="1" />
+					<m style="s" allow_null="1" />
+					<d style="s" allow_null="1" />
+					<h style="s" allow_null="1" />
+					<i style="s" allow_null="1" />
+					<s style="s" allow_null="1" />
+				</show>
+			</datetime>
+		</field>
+		<field attribute="circa">
+			<display_name>Allow Circa</display_name>
+			<note></note>
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+		<field attribute="extra">
+			<display_name>Extras</display_name>
+			<note></note>
+			<text width="20" height="1" />
+		</field>
+	</section>
+	<section name="Add Rules">
+		<field>
+			<display_name>Rule</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintAddRule"   />
+				<process_function name="processAddRule" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Current Rules">
+		<field>
+			<display_name>Question Rules</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintRules"   />
+				<process_function name="processRules" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Special Information">
+		<field attribute="special_info">
+			<display_name>Special Information</display_name>
+			<note>Defines a special value form this question </note>
+			<selection style="list" />
+		</field>
+	</section>
+</contents>
