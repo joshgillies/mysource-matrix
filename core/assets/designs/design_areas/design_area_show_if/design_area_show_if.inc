@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_show_if.inc,v 1.2 2004/11/10 10:55:01 amiller Exp $
+* $Id: design_area_show_if.inc,v 1.3 2004/12/01 11:50:31 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Avi Miller <Avi Miller@squiz.net>
-* @version $Revision: 1.2 $ - 1.0
+* @version $Revision: 1.3 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,7 +56,7 @@ class Design_Area_Show_If extends Design_Area
 
 		echo '<','?php
 			$GLOBALS[\'SQ_SYSTEM\']->am->includeAsset(\'condition_'.$condition.'\');
-			if (condition_'.$condition.'::Evaluate($ASSET)) {
+			if (condition_'.$condition.'::evaluate($ASSET)) {
 		';
 		
 		$then_contents = '';
