@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_edit_fns.inc,v 1.4 2004/05/12 07:09:33 gsherwood Exp $
+* $Id: page_account_manager_edit_fns.inc,v 1.5 2004/07/16 04:56:17 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -61,7 +61,7 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Page_Standard_Edit_Fns()
+	function Page_Account_Manager_Edit_Fns()
 	{
 		$this->Page_Asset_Builder_Edit_Fns();
 
