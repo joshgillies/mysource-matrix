@@ -8,7 +8,6 @@ Stage.align = "TL";
 #include "stageResize.as"
 #include "general.as"
 #include "externalCall.as"
-#include "system.as"
 #include "serverExec.as"
 #include "assetType.as"
 #include "asset.as"
@@ -19,6 +18,7 @@ Stage.align = "TL";
 #include "mcPlusMinus.as"
 #include "mcListItemClass.as"
 #include "mcActionsBarClass.as"
+#include "mcOptionsBoxClass.as"
 
   ///////////////////////////////////////////////////
  // CONSTANTS                                     //
@@ -61,6 +61,10 @@ _root.attachMovie("mcMenuContainerID", "menu_container", 2);
 _root.attachMovie("mcListContainerID", "list_container", 1);
 // Now the actions bar
 _root.attachMovie("mcActionsBarID", "actions_bar", 3);
+
+// Now the dialog options box
+_root.attachMovie("mcOptionsBoxID", "options_box", 22);
+
 
 // Call resize to setup intial sizes of things
 _root.stageResizeListener.onResize();

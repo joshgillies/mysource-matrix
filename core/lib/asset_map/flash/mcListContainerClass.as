@@ -328,8 +328,8 @@ mcListContainerClass.prototype.onAssetReload = function(assetid, new_asset, old_
 
 	var deletes = array_diff(old_asset.kids, new_asset.kids);
 	var inserts = array_diff(new_asset.kids, old_asset.kids);
-	trace("Deletes  : " + deletes);
-	trace("Inserts  : " + inserts);
+//	trace("Deletes  : " + deletes);
+//	trace("Inserts  : " + inserts);
 
 	// if it's the root folder
 	if (assetid == 1) {
@@ -402,9 +402,9 @@ mcListContainerClass.prototype._reloadAssetListItem = function(assetid, item_nam
 			var kid_name = item_name + "_" + all_kids[j];
 			var new_kid_pos = pos + 1 + j;
 
-			for(var x = new_kid_pos; x < pos + all_kids.length; x++) {
+			for(var x = new_kid_pos; x <= pos + all_kids.length; x++) {
 				if (this.items_order[x].name == kid_name) {
-					trace(kid_name + " from " + x + " to " + new_kid_pos);
+					this.items_order[x].end_branch = (j == all_kids.length - 1);
 					if (x != new_kid_pos) {
 						var tmp = this.items_order[new_kid_pos];
 						this.items_order[new_kid_pos] = this.items_order[x];
@@ -571,8 +571,8 @@ mcListContainerClass.prototype.getItemPos = function(x, y, bleed_gaps)
 mcListContainerClass.prototype.posToAssetInfo = function(pos, where) 
 {
 
-	trace('Items Order : ' + this.items_order[pos].name);
-	trace('Parent  : ' + this[this.items_order[pos].name].parent_item_name);
+//	trace('Items Order : ' + this.items_order[pos].name);
+//	trace('Parent  : ' + this[this.items_order[pos].name].parent_item_name);
 
 	var pos_item = this[this.items_order[pos].name];
 	var parent_assetid = 0;
@@ -607,8 +607,8 @@ mcListContainerClass.prototype.posToAssetInfo = function(pos, where)
 
 	}// end if
 
-	trace('Parent Assetid : ' + parent_assetid);
-	trace('Relative Pos   : ' + relative_pos);
+//	trace('Parent Assetid : ' + parent_assetid);
+//	trace('Relative Pos   : ' + relative_pos);
 
 	return {parent_assetid: parent_assetid, pos: relative_pos};
 
@@ -716,7 +716,7 @@ mcListContainerClass.prototype.itemStartMove = function()
 	if (this.action != '') return false;
 
 	if (this.startMoveIndicator('itemEndMove')) {
-		trace("Start Item Move");
+//		trace("Start Item Move");
 		this.action = 'move';
 		// move to top of layers
 		this.selected_item.setMoveState("on");
@@ -728,20 +728,80 @@ mcListContainerClass.prototype.itemEndMove = function(pos, where)
 {
 	if (this.action != 'move') return;
 
-	trace("End Item Move");
+//	trace("End Item Move");
 
 	// if we actually moved
 	if (pos != this.selected_item.pos && pos != this.selected_item.pos + 1) {
 
 		trace("Move to Pos : " + pos + ", where : " + where);
 
+		var params = new Object();
+
+		params.selected_info = this.posToAssetInfo(this.selected_item.pos, "before");
+		params.moved_info    = this.posToAssetInfo(pos, where);
+
+		var params
+
+		// if the parent has changed during the move then we need to ask what we want done
+		if (params.selected_info.parent_assetid != params.moved_info.parent_assetid) {
+			_root.options_box.init("Move Type", "Are you moving this asset, or creating a new link ?", this, "itemMoveConfirm", params);
+			_root.options_box.addOption("new link",   "New Link");
+			_root.options_box.addOption("move asset", "Moving");
+			_root.options_box.show();
+
+		// otherwise just move it
+		} else {
+			this.itemMoveConfirm("move asset", params);
+
+		}// end if
+
+	} else {
+		// same as hitting cancel
+		this.itemMoveConfirm(null, {});
 	}// end if
 
-	this.selected_item.setMoveState("off");
+}// end itemEndMove()
 
+
+mcListContainerClass.prototype.itemMoveConfirm = function(move_type, params) 
+{
+	if (this.action != 'move') return;
+
+	// if they didn't hit cancel
+	if (move_type != null) { 
+		trace("End Item Move : move_type -> " + move_type);
+
+		var xml = new XML();
+		var cmd_elem = xml.createElement("command");
+		cmd_elem.attributes.action  = move_type;
+		cmd_elem.attributes.assetid             = this.selected_item.assetid;
+		cmd_elem.attributes.from_parent_assetid = params.selected_info.parent_assetid;
+		cmd_elem.attributes.to_parent_assetid   = params.moved_info.parent_assetid;
+		cmd_elem.attributes.to_parent_pos       = params.moved_info.pos;
+		xml.appendChild(cmd_elem);
+
+		trace(xml);
+
+		// start the loading process
+		var exec_identifier = _root.server_exec.init_exec(xml, this, "xmlMoveItem", "success");
+		if (this.tmp.move_asset == undefined) this.tmp.move_asset = new Object();
+		this.tmp.move_asset[exec_identifier] = params;
+		_root.server_exec.exec(exec_identifier, ((move_type == "move asset") ? "Moving Asset" : "Creating new link"));
+
+	}
+
+	this.selected_item.setMoveState("off");
 	this.action = '';
 
-}// end itemEndMove()
+}// end itemMoveConfirm()
+
+
+mcListContainerClass.prototype.xmlMoveItem = function(xml, exec_identifier)
+{
+	// get the asset manager to reload the assets
+	_root.asset_manager.reloadAssets([this.tmp.move_asset[exec_identifier].selected_info.parent_assetid, this.tmp.move_asset[exec_identifier].moved_info.parent_assetid]);
+
+}// end xmlMoveItem()
 
 
 mcListContainerClass.prototype.startMoveIndicator = function(on_end_fn) 
@@ -782,7 +842,7 @@ mcListContainerClass.prototype.endMoveIndicator = function()
 mcListContainerClass.prototype.onMouseMove = function() 
 {
 
-	if (this.action != '') {
+	if (this.move_indicator_on) {
 
 		var xm = this._xmouse;
 		var ym = this._ymouse;
@@ -848,8 +908,8 @@ mcListContainerClass.prototype.onMenuItemPress = function(action, info)
 
 	switch(action) {
 		case "add" :
-			trace('Add ' + info);
-			if (this.startMoveIndicator("execActionAddAsset")) {
+//			trace('Add ' + info);
+			if (this.startMoveIndicator("processAddAsset")) {
 				this.action = "add_asset";
 				this.tmp.exec_action = {type_code: info};
 			} else {
@@ -870,10 +930,10 @@ mcListContainerClass.prototype.onMenuItemPress = function(action, info)
 * @param boolean	in_gap	whether the indicator finished up in the gap at the end of the list
 *
 */
-mcListContainerClass.prototype.execActionAddAsset = function(pos, where) 
+mcListContainerClass.prototype.processAddAsset = function(pos, where) 
 {
 
-	trace("Add an asset of type '" + this.tmp.exec_action.type_code + "' to pos " + pos + ". Where ? " + where);
+//	trace("Add an asset of type '" + this.tmp.exec_action.type_code + "' to pos " + pos + ". Where ? " + where);
 	var info = this.posToAssetInfo(pos, where);
 
 	var xml = new XML();
@@ -885,15 +945,15 @@ mcListContainerClass.prototype.execActionAddAsset = function(pos, where)
 	cmd_elem.attributes.pos            = info.pos;
 	xml.appendChild(cmd_elem);
 
-	trace(xml);
+//	trace(xml);
 
 	// start the loading process
-	var exec_identifier = _root.server_exec.init_exec(xml, this, "execActionGoUrl", "url");
+	var exec_identifier = _root.server_exec.init_exec(xml, this, "xmlGotoUrl", "url");
 	_root.server_exec.exec(exec_identifier, "Sending Request");
 
 	this.action = '';
 
-}// end execActionAddAsset()
+}// end processAddAsset()
 
 
 
@@ -903,7 +963,7 @@ mcListContainerClass.prototype.execActionAddAsset = function(pos, where)
 * @param object xml	the xml object returned
 *
 */
-mcListContainerClass.prototype.execActionGoUrl = function(xml, exec_identifier)
+mcListContainerClass.prototype.xmlGotoUrl = function(xml, exec_identifier)
 {
 	var frame = xml.firstChild.attributes.frame;
 	var link  = xml.firstChild.firstChild.nodeValue;
@@ -911,27 +971,7 @@ mcListContainerClass.prototype.execActionGoUrl = function(xml, exec_identifier)
 	trace('getURL(' + link + ', ' + frame + ');');
 	getURL(link, frame);
 
-}// end execActionGoUrl()
-
-
-
-/**
-* Called by the javascript from the page containing the movie
-* Reloads the assetid in the params
-*
-* @param object params	an object of the params that have been passed in from the outside
-*
-*/
-mcListContainerClass.prototype.externReloadAsset = function(params)
-{
-	if (params.assetid == undefined || _root.asset_manager.assets[params.assetid] == undefined) {
-		_root.showDialog("External Reload Asset Error", "Asset #" + params.assetid + " not known");
-		return;
-	}
-
-	this.reloadAsset(params.assetid);
-
-}// end externReloadAsset()
+}// end xmlGotoUrl()
 
 
 Object.registerClass("mcListContainerID", mcListContainerClass);

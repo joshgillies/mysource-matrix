@@ -25,7 +25,7 @@ function AssetManager()
 	cmd_elem.attributes.action = "get asset types";
 	xml.appendChild(cmd_elem);
 
-	trace(xml);
+//	trace(xml);
 
 	// start the loading process
 	var exec_indentifier = _root.server_exec.init_exec(xml, this, "loadTypesFromXML", "asset_types");
@@ -42,7 +42,7 @@ function AssetManager()
 AssetManager.prototype.loadTypesFromXML = function(xml, exec_indentifier) 
 {
 
-	trace(xml);
+//	trace(xml);
 
 	for (var i = 0; i < xml.firstChild.childNodes.length; i++) {
 		// get a reference to the child node
@@ -66,7 +66,7 @@ AssetManager.prototype.loadTypesFromXML = function(xml, exec_indentifier)
 		}
 	}
 
-	for (var type_code in this.types) trace(this.types[type_code]);
+//	for (var type_code in this.types) trace(this.types[type_code]);
 
 	this.broadcastMessage("onAssetTypesLoaded");
 
@@ -114,7 +114,7 @@ AssetManager.prototype.loadAssets = function(assetids, call_back_obj, call_back_
 	if (force_reload !== true)  force_reload  = false;
 	if (load_new_kids !== true) load_new_kids = false;
 
-	var load_assetids = array_copy(assetids);
+	var load_assetids = array_unique(assetids);
 
 	if (!force_reload) {
 	    for (var i = 0; i < load_assetids.length; i++) {
@@ -125,7 +125,7 @@ AssetManager.prototype.loadAssets = function(assetids, call_back_obj, call_back_
 		}
 	}
 
-	trace('Load Assets : ' + load_assetids);
+//	trace('Load Assets : ' + load_assetids);
 
 	// if there are assets to load, get them from server
 	if (load_assetids.length) {
@@ -151,7 +151,7 @@ AssetManager.prototype.loadAssets = function(assetids, call_back_obj, call_back_
 			cmd_elem.appendChild(asset_elem);
 		}// end for
 
-		trace(xml);
+//		trace(xml);
 
 		// start the loading process
 		var exec_indentifier = _root.server_exec.init_exec(xml, this, "loadAssetsFromXML", "assets");
@@ -202,7 +202,7 @@ AssetManager.prototype.loadAssetsFromXML = function(xml, exec_indentifier)
 			}
 
 			this.assets[asset_node.attributes.assetid].setInfo(asset_node.attributes.assetid, asset_node.attributes.type_code, asset_node.attributes.name, kids);
-			trace(this.assets[asset_node.attributes.assetid]);
+//			trace(this.assets[asset_node.attributes.assetid]);
 
 			new_assets[asset_node.attributes.assetid] = this.assets[asset_node.attributes.assetid];
 
@@ -222,32 +222,33 @@ AssetManager.prototype.loadAssetsFromXML = function(xml, exec_indentifier)
 
 
 /**
-* Forces the re-retrieval of the passed assets information, including who it's kids are
+* Forces the re-retrieval of the assets information, including who it's kids are
 *
-* @param int assetid
+* @param Array(int) assetids
 *
 * @access public
 */
-AssetManager.prototype.reloadAsset = function(assetid) 
+AssetManager.prototype.reloadAssets = function(assetids) 
 {
-	if (this.assets[assetid] == undefined) return;
-	this.loadAssets([assetid], this, "reloadAssetLoaded", {assetid: assetid}, true, true);
+	this.loadAssets(assetids, this, "reloadAssetsLoaded", {assetids: assetids}, true, true);
 
-}// end reloadAsset()
+}// end reloadAssets()
 
 /**
-* Continuation of reloadAsset() after asset is loaded from server
+* Continuation of reloadAssets() after asset is loaded from server
 *
 * @param object params
 *
 * @access public
 */
-AssetManager.prototype.reloadAssetLoaded = function(params, new_assets, old_assets) 
+AssetManager.prototype.reloadAssetsLoaded = function(params, new_assets, old_assets) 
 {
-	if (this.assets[params.assetid] == undefined) return;
-	this.broadcastMessage("onAssetReload", params.assetid, new_assets[params.assetid], old_assets[params.assetid]);
+	for(var i = 0; i < params.assetids; i++) {
+		if (this.assets[params.assetids[i]] == undefined) return;
+		this.broadcastMessage("onAssetReload", params.assetids[i], new_assets[params.assetids[i]], old_assets[params.assetids[i]]);
+	}
 
-}// end reloadAssetLoaded()
+}// end reloadAssetsLoaded()
 
 
 /**
@@ -264,7 +265,7 @@ AssetManager.prototype.onExternalCall = function(cmd, params)
 	switch(cmd) {
 		case "reload_asset" :
 			if (params.assetid) {
-				this.reloadAsset(params.assetid);
+				this.reloadAssets([params.assetid]);
 			}
 		break;
 	}

@@ -41,7 +41,8 @@ class Asset_Map
 		<!--
 			var flash_InternetExplorer = navigator.appName.indexOf("Microsoft") != -1;
 			// Handle all the the FSCommand messages in a Flash movie
-			function asset_map_DoFSCommand(command, args) {
+			function asset_map_DoFSCommand(command, args) 
+			{
 				//var asset_mapObj = flash_InternetExplorer ? asset_map : document.asset_map;
 				if (command == "msgbox") {
 					alert(args);
@@ -62,7 +63,8 @@ class Asset_Map
 
 
 			// Reload the passed assetid in the flash
-			function reload_asset(assetid) {
+			function reload_asset(assetid) 
+			{
 				//var asset_mapObj = flash_InternetExplorer ? asset_map : document.asset_map;
 				var asset_mapObj = document.asset_map;
 				alert("Reload Assetid : " + assetid);
@@ -91,7 +93,8 @@ class Asset_Map
 	*
 	* @access private
 	*/
-	function _send($output) {
+	function _send($output) 
+	{
 		header("Content-Type: text/xml");
 		$output->dump();
 	}
@@ -104,7 +107,8 @@ class Asset_Map
 	*
 	* @access private
 	*/
-	function _error($msg) {
+	function _error($msg) 
+	{
 		$output = new XML_Tree();
 		$root = &$output->addRoot('error', $msg);
 		$this->_send($output);
@@ -119,6 +123,10 @@ class Asset_Map
 	*/
 	function process(&$backend)
 	{
+		// set the output type to XML, so any errors raised by the objects will be sent along in XML
+		$GLOBALS['SQ_OUTPUT_TYPE'] = 'xml';
+
+		error_log("BCR :\n".array_contents(file('php://input')));
 
 		$input = new XML_Tree('php://input');
 		$root  = &$input->getTreeFromFile();
@@ -137,17 +145,27 @@ class Asset_Map
 		switch($root->attributes['action']) {
 			case 'get assets' :
 				$this->_getAssets($input);
-			break;
+				break;
+
 			case 'menu items' :
 				$this->_getMenuItems($input);
-			break;
+				break;
+
 			case 'get asset types' :
 				$this->_getAssetTypes($input);
-			break;
+				break;
+
 			case 'get url' :
 				$this->_getURL($input, $backend);
-			break;
+				break;
 
+			case 'move asset' :
+				$this->_moveAsset($input);
+				break;
+
+			case 'new link' :
+				$this->_newLink($input);
+				break;
 
 			default :
 				$this->_error('Action "'.$root->attributes['action'].'" not defined');
@@ -165,9 +183,8 @@ class Asset_Map
 	*
 	* @access private
 	*/
-	function _getAssets(&$input) {
-
-#		error_log(array_contents(file('php://input')));
+	function _getAssets(&$input) 
+	{
 
 		$load_new_kids = !empty($input->root->attributes['load_new_kids']);
 
@@ -216,7 +233,8 @@ class Asset_Map
 	*
 	* @access private
 	*/
-	function _addAssetToXML(&$root, $assetid, $load_new_kids=false, $current_kids=Array()) {
+	function _addAssetToXML(&$root, $assetid, $load_new_kids=false, $current_kids=Array()) 
+	{
 
 		$asset = &$GLOBALS['SQ_RESOLVE']->am->getAsset($assetid, '', true);
 
@@ -260,7 +278,8 @@ class Asset_Map
 	*
 	* @access private
 	*/
-	function _getMenuItems(&$input) {
+	function _getMenuItems(&$input) 
+	{
 
 		$output = new XML_Tree();
 		$root = &$output->addRoot('options', '');
@@ -272,7 +291,7 @@ class Asset_Map
 				case 'add' :
 					$hier = $GLOBALS['SQ_RESOLVE']->am->getAssetTypeHierarchy('', true);
 					$this->_recurseAddMenu($top_level, $hier);
-				break;
+					break;
 
 				default :
 					$this->_error('Menu Item "'.$name.'" not defined');
@@ -326,7 +345,8 @@ class Asset_Map
 	*
 	* @access private
 	*/
-	function _getURL(&$input, &$backend) {
+	function _getURL(&$input, &$backend) 
+	{
 
 		$link  = '';
 		$framt = '';
@@ -359,7 +379,36 @@ class Asset_Map
 						.'&parent_assetid='.rawurlencode($attr['parent_assetid'])
 						.'&pos='.rawurlencode($attr['pos']);
 				$frame = 'main';
-			break;
+				break;
+
+			case 'move_asset' :
+				$attr = $input->root->attributes;
+				if (empty($attr['parent_assetid']) || !isset($attr['pos']) || empty($attr['type_code'])) {
+					$this->_error('Parent Asset Id, Relative Position and Asset Type need to be passed');
+					return;
+				}
+
+				$parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($attr['parent_assetid'], '', true);
+				if (is_null($parent)) {
+					$this->_error('Parent Asset #'.$attr['parent_assetid'].' not found');
+					return;
+				}
+
+				if (($err_msg = $parent->canLinkToType($attr['type_code'], SQ_LINK_UNITE)) !== true) {
+					$this->_error($err_msg);
+					return;
+				}
+
+				// if we get this far then it's all good
+				$link  = $backend->getBackendUrl()
+						.'&backend_section=am'
+						.'&am_section=add_asset'
+						.'&type_code='.rawurlencode($attr['type_code'])
+						.'&link_type='.rawurlencode(SQ_LINK_UNITE)
+						.'&parent_assetid='.rawurlencode($attr['parent_assetid'])
+						.'&pos='.rawurlencode($attr['pos']);
+				$frame = 'main';
+				break;
 
 			default :
 				$this->_error('URL Name "'.$input->root->attributes['name'].'" not defined');
@@ -386,7 +435,8 @@ class Asset_Map
 	*
 	* @access private
 	*/
-	function _getAssetTypes(&$input) {
+	function _getAssetTypes(&$input) 
+	{
 
 		$output = new XML_Tree();
 		$root = &$output->addRoot('asset_types', '');
@@ -410,6 +460,72 @@ class Asset_Map
 		$this->_send($output);
 
 	}// end _getMenuItems()
+
+
+	/*
+	* Attempts to move an asset from one position to another
+	*
+	* @param object XML_Tree $input	the request info from the Flash
+	*
+	* @access private
+	*/
+	function _moveAsset(&$input) 
+	{
+
+		// if the from and to parentids are the same we are realy just altering the sort order for a parent
+		if ($input->root->attributes['from_parent_assetid'] == $input->root->attributes['to_parent_assetid']) {
+
+			$parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($input->root->attributes['from_parent_assetid']);
+			if (is_null($old_parent)) {
+				$this->_error('Unable to Move Asset, existing parent (Asset #"'.$input->root->attributes['from_parent_assetid'].'") not found');
+				return;
+			}
+
+			// Let's just move the link
+			if (!$parent->moveLinkPos($asset, SQ_LINK_UNITE, '', $input->root->attributes['pos'])) {
+				return;
+			}
+
+		} else {
+
+			$old_parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($input->root->attributes['from_parent_assetid']);
+			if (is_null($old_parent)) {
+				$this->_error('Unable to Move Asset, existing parent (Asset #"'.$input->root->attributes['from_parent_assetid'].'") not found');
+				return;
+			}
+
+			$new_parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($input->root->attributes['to_parent_assetid']);
+			if (is_null($new_parent)) {
+				$this->_error('Unable to Move Asset, new parent (Asset #"'.$input->root->attributes['to_parent_assetid'].'") not found');
+				return;
+			}
+
+			$asset = &$GLOBALS['SQ_RESOLVE']->am->getAsset($input->root->attributes['assetid']);
+			if (is_null($asset)) {
+				$this->_error('Unable to Move Asset, asset to be moved (Asset #"'.$input->root->attributes['assetid'].'") not found');
+				return;
+			}
+
+			// First let's try and create the new link, if there are any issues then it will cryout for us
+			if (!$new_parent->createLink($asset, SQ_LINK_UNITE, '', $input->root->attributes['pos'])) {
+				return;
+			}
+
+
+			// Now let's try and delete the old link
+	//		if (!$new_parent->deleteLink($asset, SQ_LINK_UNITE, '', $input->root->attributes['pos'])) {
+	//			return;
+	//		}
+
+		}// end if
+
+		$output = new XML_Tree();
+		$root = &$output->addRoot('success', '');
+		$this->_send($output);
+
+	}// end _moveAsset()
+
+
 
 }//end class
 ?>

@@ -81,7 +81,6 @@ function serverExecXMLonLoad(success)
 	// something buggered up with the connection
 	if (!success || this.status != 0) {
 		_root.hideProgressBar();
-		trace(this);
 		_root.showDialog("Connection Failure to Server", "XML Status '" + this.status + "'\nPlease Try Again");
 
 	// something barfed server side

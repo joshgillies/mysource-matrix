@@ -22,7 +22,6 @@ mcMenuItemClass.prototype.setInfo = function(text, value, depth)
 
 mcMenuItemClass.prototype.show = function() 
 {
-	trace("Show " + this.text + ", Value : " + this.value);
 	if (this.kids.length) {
 		this.kids_arrow.gotoAndStop((this.depth == 0) ? "down" : "right");
 		this.kids_arrow._visible = true;

@@ -48,7 +48,6 @@ mcMenuContainerClass.prototype = new MovieClip();
 */
 mcMenuContainerClass.prototype.onAssetTypesLoaded = function()
 {
-	trace(' -- -- -- -- Create Menu -- -- -- -- -- ');
 	this.create();
 }
 
@@ -80,7 +79,7 @@ mcMenuContainerClass.prototype._recurseCreateAddMenu = function(kids, depth)
 	var item_names = new Array();
 
 	for (var i = 0; i < kids.length; i++) {
-		trace('AddMenu : ' + kids[i]);
+//		trace('AddMenu : ' + kids[i]);
 		var type = _root.asset_manager.types[kids[i]];
 
 		// Create any kids, also a check to see if we have any valid kids
