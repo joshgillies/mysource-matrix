@@ -152,6 +152,7 @@ class Cron_Job extends Asset
 	function setAttrValue($name, $value, $dont_run_updated=false)
 	{
 		if ($name == 'when') {
+
 			$value = (string) $value;
 			if ($this->attr('type') != 'one_off' && substr($value, 0, 3) == 'OO=') {
 				trigger_error('Only one_off type cron jobs can have their "when" attributes set to a "OO=" prefixed value', E_USER_NOTICE);
@@ -161,6 +162,27 @@ class Cron_Job extends Asset
 				trigger_error('one_off type cron jobs MUST have their "when" attributes set to a "OO=" prefixed value', E_USER_NOTICE);
 				return false;
 			}
+
+
+			// if this is a one off job
+			// then we need to make sure that it is happening on or before the 
+			// next time that the cron job is getting run
+			if ($this->attr('type') == 'one_off') {
+
+				$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+				if (is_null($cron_mgr)) return false;
+
+				$when = Cron_Job::getWhenArr($value);
+
+				$when_ts = mktime($when['hour'], $when['minute'], 0, $when['month'], $when['day'], $when['year']);
+
+				if ($when_ts < $cron_mgr->timeOfNextRun()) {
+					require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+					trigger_error('You cannot set a One Off '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' to be run before the next job run is scheduled (which is at '.easy_datetime($cron_mgr->timeOfNextRun()).')', E_USER_WARNING);
+					return false;
+				}
+			}
+
 		}// end if
 
 		return parent::setAttrValue($name, $value, $dont_run_updated);
@@ -185,6 +207,29 @@ class Cron_Job extends Asset
 	}// end setPermission()
 
 
+	/**
+	* Can this asset have its last significant link removed (putting it in the trash)?
+	* For Cron Jobs this can only be done by the running user or a sys admin
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canDelete()
+	{
+		$user = &$this->getRunningUser();
+		if (!is_null($user) && $GLOBALS['SQ_SYSTEM']->currentUser($user)) return true;
+
+		// if this is to be run as the root user, it can only be deleted by the root user
+		if (!is_null($user) && $GLOBALS['SQ_SYSTEM']->userRoot($user) && !$GLOBALS['SQ_SYSTEM']->userRoot()) return false;
+
+		// else root user or sys admins can delete
+		if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
+
+		return false;
+
+	}//end canDelete()
+
+	
 	/**
 	* Sets the user that this cron job is to run as while executing
 	*

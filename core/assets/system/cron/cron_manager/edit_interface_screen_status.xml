@@ -1,8 +1,27 @@
 <contents>
 	<section name="Running Status">
+		<field attribute="running" write_access="none">
+			<display_name>Running</display_name>
+			<note/>
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+		<field write_access="none">
+			<display_name>Last Run</display_name>
+			<note/>
+			<function_call>
+				<paint_function name="paintLastRun" />
+			</function_call>
+		</field>
+		<field attribute="run_check" write_access="none">
+			<display_name>Run Check</display_name>
+			<note>%description%</note>
+			<int width="5" />
+		</field>
+	</section>
+	<section name="Dead Lock Status" write_access="root" read_access="root">
 		<function_call>
-			<paint_function   name="paintCurrentRunStatus"   />
-			<process_function name="processCurrentRunStatus"   />
+			<paint_function   name="paintDeadLockStatus" />
+			<process_function name="processDeadLockStatus" />
 		</function_call>
 	</section>
 </contents>

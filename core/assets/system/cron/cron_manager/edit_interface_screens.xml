@@ -1,3 +1,4 @@
 <screens>
+	<screen code_name="options" display_name="Options" icon="page" />
 	<screen code_name="status" display_name="Running Status" icon="page" />
 </screens>

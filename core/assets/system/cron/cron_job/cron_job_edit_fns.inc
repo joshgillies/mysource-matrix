@@ -136,14 +136,6 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 
 		if (!isset($_POST[$prefix.'_minute'])) return false;
 
-		$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-		if (is_null($cron_mgr)) return false;
-
-		if ((int) $cron_mgr->attr('refresh_time') <= 0) {
-			echo 'Cron Refresh Time is unknown';
-			return;
-		}
-
 		$one_off = ($asset->attr('type') == 'one_off');
 		$repeating = !$one_off; // for easier reading
 
@@ -188,29 +180,6 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 			}// end if
 
 		}// end foreach
-
-		// if this is a one off job
-		// then we need to make sure that it is happening on or before the 
-		// next time that the cron job is getting run
-		if ($one_off) {
-			$when_ts = mktime(
-					(int) substr($when_str,11,2),
-					(int) substr($when_str,14,2),
-					(int) substr($when_str,17,2),
-					(int) substr($when_str,5,2),
-					(int) substr($when_str,8,2),
-					(int) substr($when_str,0,4)
-				);
-
-			#pre_echo($when_str);
-			#pre_echo(date('d M Y H:i',$when_ts));
-
-			if ($when_ts < $cron_mgr->timeOfNextRun()) {
-				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-				trigger_error('You cannot set a One Off '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name').' to be run before the next job run is scheduled (which is at '.easy_datetime($cron_mgr->timeOfNextRun()).')', E_USER_WARNING);
-				return false;
-			}
-		}
 
 		$when = $type_prefix.'='.$when_str;
 #		pre_echo('When : '.$when);

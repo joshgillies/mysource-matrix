@@ -2,6 +2,7 @@
 	<section name="Scheduled Jobs">
 		<function_call>
 			<paint_function   name="paintJobs"   />
+			<process_function name="processJobs"   />
 		</function_call>
 	</section>
 </contents>

@@ -177,6 +177,29 @@ class Cron_Manager extends Asset
 
 
 	/**
+	* Set the value for the passed variable to the passed value
+	*
+	* @param string		$name				the name of the attribute
+	* @param string		$value				the new value of the attribute
+	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
+	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setAttrValue($name, $value, $dont_run_updated=false)
+	{
+		if (!$GLOBALS['SQ_SYSTEM']->userRoot()) {
+			trigger_error('Unable to set "'.$name.'". You can only set the attributes of the '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' if you are the Root User', E_USER_WARNING);
+			return false;
+		}// end if
+
+		return parent::setAttrValue($name, $value, $dont_run_updated);
+		
+	}// end setAttrValue()
+
+
+	/**
 	* Sets a permission for the passed user or user_group
 	*
 	* @param int		$userid		the id of the user or user_group to add the permission for
@@ -295,12 +318,19 @@ class Cron_Manager extends Asset
 	*/
 	function run()
 	{
+		$start_time = time();
+
 		$old_log_errors = ini_set('log_errors', '1');
 		$old_error_log  = ini_set('error_log',  SQ_DATA_PATH.'/'.$this->error_log_path);
 		set_error_handler(Array(&$this, '_errorHandler'));
 
 		if (!empty($GLOBALS['SQ_SYSTEM']->tm) && $GLOBALS['SQ_SYSTEM']->tm->inTransaction()) {
-			trigger_error('The Cron Manager should not be '.__FUNCTION__.'() while nested within any transactions.<br>This stops each job from being independant of each other', E_USER_WARNING);
+			trigger_error('The Cron Manager should not be run() while nested within any transactions.<br>This stops each job from being independant of each other', E_USER_WARNING);
+			return;
+		}
+
+		if ($start_time < (int) $this->attr('epoch')) {
+			trigger_error('The Cron Manager run() aborted because it\'s Epoch is still in the future', E_USER_WARNING);
 			return;
 		}
 
@@ -346,6 +376,14 @@ class Cron_Manager extends Asset
 		// we aren't already running
 		} else {
 
+			// OK using the epoch time and the the refresh time figure when the this period "really" started
+			$secs = $start_time - (int) $this->attr('epoch');
+			$periods = floor($secs / (int) $this->attr('refresh_time'));
+			$this_run = (int) $this->attr('epoch') + ((int) $this->attr('refresh_time') * $periods);
+
+#pre_echo("RUN START : ".date('d/m/Y H:i:s', $this_run));
+
+
 			// now get the lock, set the running flag and reset the run_check
 			if ($this->acquireLock(0, true) && $this->setAttrValue('running', true) && $this->setAttrValue('run_check', 0)) {
 
@@ -356,11 +394,11 @@ class Cron_Manager extends Asset
 
 				// first get some times
 				$last_run = (int) $this->attr('last_run');
-				$this_run = time();
 				$next_run = $this_run + (int) $this->attr('refresh_time');
 
+#pre_echo("Get Jobs : ".date('d/m/Y H:i:s', $last_run).", ".date('d/m/Y H:i:s', $this_run));
 				$jobs = $this->getJobsToRun($last_run, $this_run);
-#				pre_echo("JOBS : ".var_export($jobs, true));
+#pre_echo("JOBS : ".var_export($jobs, true));
 
 				// holds the number of times that a job has failed
 				// Array([assetid] => [number of failed runs]);
@@ -378,12 +416,12 @@ class Cron_Manager extends Asset
 						$cron_job = &$am->getAsset($job_info['assetid'], $job_info['type_code']);
 						if (is_null($cron_job)) continue;
 
-#						echo "RUN    : ".$cron_job->id.' .... '.$cron_job->name."\n";
+#echo "RUN    : ".$cron_job->id.' .... '.$cron_job->name."\n";
 
 						$result = $cron_job->run();
 
 						require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-#						echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $result, true))."\n\n";
+#echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $result, true))."\n\n";
 
 						// We have been asked to remove this cron job
 						if ($result & SQ_CRON_JOB_REMOVE) {
@@ -460,14 +498,15 @@ class Cron_Manager extends Asset
 						$next_run += (int) $this->attr('refresh_time');
 					}
 
+#pre_echo("Get Jobs : ".date('d/m/Y H:i:s', $last_run).", ".date('d/m/Y H:i:s', $this_run));
 					$jobs = $this->getJobsToRun($last_run, $this_run, $ignore_jobs);
-#					pre_echo("JOBS : ".var_export($jobs, true));
+#pre_echo("JOBS : ".var_export($jobs, true));
 
 				}// end while
 
 				// now update this last run time, so that we know for next time
 				if ($this->acquireLock(0, true)) {
-					if ($this->setAttrValue('last_run', time()) && $this->setAttrValue('running', false)) {
+					if ($this->setAttrValue('last_run', $this_run) && $this->setAttrValue('running', false)) {
 						$this->releaseLock();
 					} else {
 						trigger_error('Unable to unset the last run and/or running flag of "'.$this->name.'", aborting run', E_USER_WARNING);

@@ -82,6 +82,25 @@ class Cron_Job_Future_Status extends Cron_Job
 
 
 	/**
+	* Can this asset have its last significant link removed (putting it in the trash)?
+	* For Cron Jobs this can only be done by the running user or a sys admin
+	* For Future Status Jobs, admins of the asset to update can also remove jobs
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canDelete()
+	{
+		if (parent::canDelete()) return true;
+
+		$asset = &$this->getAssetToUpdate();
+		if (!is_null($asset)) return $asset->adminAccess();
+		return false;
+
+	}//end canDelete()
+
+	
+	/**
 	* Set the value for the passed variable to the passed value
 	*
 	* @param string		$name				the name of the attribute

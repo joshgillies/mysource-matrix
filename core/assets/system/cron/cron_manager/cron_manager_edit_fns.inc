@@ -38,7 +38,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Prints the tasks interface
+	* Prints the jobs interface
 	*
 	* @param object Asset				&$asset	the owning asset
 	* @param object Backend_Outputter	&$o		the backend outputter
@@ -49,13 +49,13 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintJobs(&$asset, &$o, $prefix)
 	{
-		$o->openField('', 'new_line');
 		$jobs = &$asset->getJobs('cron_job', false);
 		if (empty($jobs)) {
-			echo 'No Jobs registered';
+			$o->openField('');
+			echo 'No Jobs Registered';
 		} else {
 
-			$whens = Array(	
+			$whens = Array(
 						'OO' => Array(),
 						'HR' => Array(),
 						'DL' => Array(),
@@ -69,42 +69,65 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 				$whens[substr($w, 0, 2)][$i] = $jobs[$i]->attr('when');
 			}
 
-
-			?>
-			<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
-				<tr>
-					<td bgcolor="#DDDDDD" class="sq-backend-field" style="font-weight: bold;">
-						&nbsp;
-					</td>
-					<td bgcolor="#DDDDDD" class="sq-backend-field" style="font-weight: bold;">
-						When
-					</td>
-					<td bgcolor="#DDDDDD" class="sq-backend-field" style="font-weight: bold;">
-						Name
-					</td>
-				</tr>
-			<?php
-
 			for(reset($whens); NULL !== ($type = key($whens)); next($whens)) {
 				if (empty($whens[$type])) continue;
 				asort($whens[$type], SORT_STRING);
-				#pre_echo($fs_links);
-				$print_type = true;
+				$o->openField(Cron_Job::whenTypeName($type), 'new_line');
+				?>
+				<table border="0" cellspacing="1" cellpadding="2" style="background-color: #000000;" width="100%">
+					<tr>
+						<td class="sq-backend-field">
+							When
+						</td>
+						<td class="sq-backend-field">
+							Details
+						</td>
+						<td class="sq-backend-field" style="text-align: center;">
+							Delete ?
+						</td>
+					</tr>
+				<?php
 				foreach($whens[$type] as $i => $when) {
 				?>
 					<tr>
-						<td class="sq-backend-field" style="font-weight: bold;">
-							<?php echo ($print_type) ? Cron_Job::whenTypeName($type) : '&nbsp;'; ?>
-						</td>
 						<td class="sq-backend-data">
 							<?php echo $jobs[$i]->readableWhen(false); ?>
 						</td>
 						<td class="sq-backend-data">
-							<?php echo $jobs[$i]->name; ?>
+							<table border="0" cellspacing="0" cellpadding="0">
+								<tr>
+									<td class="sq-backend-data" style="font-weight: bold; text-align: right;">
+										Name :&nbsp;
+									</td>
+									<td class="sq-backend-data">
+										<?php echo $jobs[$i]->name; ?>
+									</td>
+								</tr>
+								<tr>
+									<td class="sq-backend-data" style="font-weight: bold; text-align: right;">
+										Run As :&nbsp;
+									</td>
+									<td class="sq-backend-data">
+										<?php 
+											$user = &$jobs[$i]->getRunningUser(); 
+											echo $user->name.' (#'.$user->id.')';
+										?>
+									</td>
+								</tr>
+							</table>
 						</td>
+						<td class="sq-backend-data" style="text-align: center;">
+					<?php
+						if ($jobs[$i]->canDelete()) {
+							check_box($prefix.'_remove_jobs[]', $jobs[$i]->id);
+						} else {
+							echo '&nbsp;';
+						}// end if
+					?>
+						</td>
+
 					</tr>
 				<?php
-					$print_type = false;
 				}// end foreach
 			}// end for
 
@@ -120,6 +143,158 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
+	* Processes the jobs interface
+	*
+	* @param object Asset				&$asset	the owning asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processJobs(&$asset, &$o, $prefix)
+	{
+		if (empty($_POST[$prefix.'_remove_jobs'])) return false;
+
+		$jobs = &$asset->getJobs('cron_job', false);
+		if (empty($jobs)) return false;
+
+		for($i = 0, $total = count($jobs); $i < $total; $i++) {
+			if (in_array($jobs[$i]->id, $_POST[$prefix.'_remove_jobs'])) {
+				$asset->removeJob($jobs[$i]);
+			}
+		}
+
+		return true;
+
+	}//end processJobs()
+
+
+	/**
+	* Yes getting the date time field requires it's own function because it is so 
+	* fucking hard to set-up
+	*
+	* @param object Asset				&$asset	the owning asset
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return object DateTime_Field
+	* @access private
+	*/
+	function _getEpochDateTimeField(&$asset, $prefix)
+	{
+		require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
+		$epoch_date = getdate((int) $asset->attr('epoch'));
+
+		$value_arr = Array(
+					'y' => $epoch_date['year'],
+					'm' => $epoch_date['mon'],
+					'd' => $epoch_date['mday'],
+					'h' => $epoch_date['hours'],
+					'i' => $epoch_date['minutes'],
+					's' => $epoch_date['seconds'],
+				);
+
+		$date = getdate();
+		$parameters = Array(
+			'min'			=> '2003-01-01 00:00:00',
+			'max'			=> ($date['year'] + 1).'-12-31 23:59:59',
+			'allow_circa'	=> '0',
+			'print_format'	=> 'd/m/Y H:i:s',
+			'show'			=> Array('y', 'm', 'd', 'h', 'i', 's'),
+			'style'			=> Array(
+								'y' => 's',
+								'm' => 's',
+								'd' => 's',
+								'h' => 's',
+								'i' => 's',
+								's' => 's',
+							),
+		);
+
+		$value = '';
+		$field = new DateTime_Field($prefix.'_epoch', $value, $parameters);
+		$value = $field->unitsArrayToStr($value_arr);
+		$field->setValue($value);
+
+		return $field;
+
+	}// end _getEpochDateTimeField()
+
+
+	/**
+	* Prints the interface for editing the cron manager's Epoch
+	*
+	* @param object Asset				&$asset	the owning asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintEpoch(&$asset, &$o, $prefix)
+	{
+		$field = $this->_getEpochDateTimeField($asset, $prefix);
+
+		// take into account lock, plus only root can edit
+		if ($asset->writeAccess() && $GLOBALS['SQ_SYSTEM']->userRoot()) {
+			$field->printField();
+		} else {
+			echo $field->format();
+		}// end if
+
+		$attr = &$asset->getAttribute('epoch');
+		echo '<br/>&nbsp;';
+		$o->note($attr->description);
+
+	}// end paintEpoch()
+
+
+	/**
+	* Processes the interface for editing the cron manager's Epoch
+	*
+	* @param object Asset				&$asset	the owning asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processEpoch(&$asset, &$o, $prefix)
+	{
+		$field = $this->_getEpochDateTimeField($asset, $prefix);
+
+		// take into account lock, plus only root can edit
+		if ($asset->writeAccess() && $GLOBALS['SQ_SYSTEM']->userRoot()) {
+			if ($field->processField()) {
+				$value_arr = $field->strToUnitsArray($field->value);
+				$epoch = mktime($value_arr['h'], $value_arr['i'], $value_arr['s'], $value_arr['m'], $value_arr['d'], $value_arr['y']);		
+				return $asset->setAttrValue('epoch', $epoch);
+
+			}// end if
+		}// end if
+
+		return false;
+
+	}// end processEpoch()
+
+	
+	/**
+	* Prints the interface for showing when the cron manager last ran
+	*
+	* @param object Asset				&$asset	the owning asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintLastRun(&$asset, &$o, $prefix)
+	{
+		echo $GLOBALS['SQ_SYSTEM']->datetime((int) $asset->attr('last_run'));
+	}// end paintLastRun()
+
+
+	/**
 	* Prints the interface for showing whether the cron manager is currently running or not
 	*
 	* @param object Asset				&$asset	the owning asset
@@ -129,16 +304,11 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintCurrentRunStatus(&$asset, &$o, $prefix)
+	function paintDeadLockStatus(&$asset, &$o, $prefix)
 	{
-		$o->openField('Currently Running ?');
-		echo ($asset->attr('running')) ? 'Yes' : 'No';
-
 		// if we have a suspicion of being in DeadLock, then allow them to override
 		if ($GLOBALS['SQ_SYSTEM']->userRoot() && $asset->attr('running') && (int) $asset->attr('run_check') >= (int) $asset->attr('warn_after_num_run_checks')) {
-			$o->closeSection();
-			$o->openSection('<div class="sq-backend-warning" style="text-align: center;">POTENTIAL CRON MANAGER DEAD LOCK DETECTED</div>');
-			$o->openField('');
+			$o->openField('<div class="sq-backend-warning" style="text-align: center;">POTENTIAL CRON MANAGER DEAD LOCK DETECTED</div>', 'new_line');
 			if ($asset->writeAccess()) {
 				?>
 				<table border="0">
@@ -177,10 +347,15 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 				echo 'You need to aquire the lock in order resolve this issue';
 			}// end if
 
+		// else everything is OK
+		} else {
+			$o->openField('Cron Manager appears to be fine.', 'new_line');
+
 		}// end if run_check
 
 		return true;
-	}//end paintCurrentRunStatus()
+
+	}//end paintDeadLockStatus()
 
 
 	/**
@@ -193,7 +368,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processCurrentRunStatus(&$asset, &$o, $prefix)
+	function processDeadLockStatus(&$asset, &$o, $prefix)
 	{
 		if (empty($_POST[$prefix.'_force_remove_lock'])) return false;
 
@@ -213,7 +388,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		return false;
 
-	}// end processCurrentRunStatus()
+	}// end processDeadLockStatus()
 
 }//end class
 ?>

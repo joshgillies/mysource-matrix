@@ -1,0 +1,27 @@
+<contents>
+	<section name="Options" write_access="root" read_access="read">
+		<field>
+			<display_name>Epoch</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintEpoch" />
+				<process_function name="processEpoch" />
+			</function_call>
+		</field>
+		<field attribute="refresh_time">
+			<display_name>Refresh Time</display_name>
+			<note>%description%</note>
+			<int width="5" />
+		</field>
+		<field attribute="warn_after_num_run_checks">
+			<display_name>Warn After&lt;br&gt;Blocked Runs</display_name>
+			<note>%description%</note>
+			<int width="3" />
+		</field>
+		<field attribute="num_failed_attempts">
+			<display_name>Max Number of&lt;br&gt;Failed Attempts</display_name>
+			<note>%description%</note>
+			<int width="3" />
+		</field>
+	</section>
+</contents>
