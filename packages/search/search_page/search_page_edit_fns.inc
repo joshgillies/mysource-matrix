@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.18 2004/02/23 05:56:08 diarandine Exp $
+* $Id: search_page_edit_fns.inc,v 1.19 2004/02/27 05:44:54 diarandine Exp $
 */
 
 require_once SQ_PACKAGES_PATH.'/cms/page/page_edit_fns.inc';
@@ -100,41 +100,6 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 		return $asset->setAttrValue('root_assetid', $assetid);
 
 	}//end processRootAsset()
-
-
-	/**
-	* Paints the interface for restricting the asset types returned.
-	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
-	*
-	* @return void
-	* @access public
-	* 
-	*/
-	function paintAssetTypeRestriction(&$asset, &$o, $prefix)
-	{
-		?>Implement me!<?php
-
-	}//end paintAssetTypeRestriction()
-
-
-	/**
-	* Processes the interface for restricting the asset types returned.
-	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
-	*
-	* @return boolean
-	* @access public
-	* 
-	*/
-	function processAssetTypeRestriction(&$asset, &$o, $prefix)
-	{
-
-	}//end processAssetTypeRestriction()
 
 
 	/**

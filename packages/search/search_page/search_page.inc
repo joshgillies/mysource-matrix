@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.34 2004/02/27 01:13:53 diarandine Exp $
+* $Id: search_page.inc,v 1.35 2004/02/27 05:44:54 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc'; // for the meda
 * @author  Dominic Wong <dwong@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.34 $ - 1.0
+* @version $Revision: 1.35 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -477,6 +477,7 @@ class Search_Page extends Page
 				switch ($keyword) {
 					case 'submit_button':
 						$replacement  = '<input type="submit" onclick="
+							document.search_form.current_result_page.value=\'0\';
 							document.search_form.mode.value = \'results\';
 							return true;
 						" value="'. $this->attr("submit_button_text") .'" />';
