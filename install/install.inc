@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 * 
-* $Id: install.inc,v 1.21 2004/11/04 00:31:58 mnyeholt Exp $
+* $Id: install.inc,v 1.22 2004/11/04 01:18:06 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -440,6 +440,34 @@ function install_package($package, $package_assets=Array())
 	unset($pm);
 	return true;
 }//end install_package()
+
+
+/**
+* Try to install a list of deferred packages recursively until the list is
+* the same as the start.
+* 
+* @param array $packages 	the array of packages to attempt to install.
+* @return mixed 			an array of any failed installed packages, or true if it all 
+*							worked okay.
+* @access public
+*/
+function install_deferred($packages)
+{
+	$deferred = install_packages($packages);
+	
+	if ($deferred === true) {
+		return true;
+	}
+	
+	// If the arrays are identical, return the array.
+	if ($deferred == $packages) {
+		return $deferred;
+	}
+	
+	// The list should be smaller now...
+	return install_deferred($deferred);
+	
+}
 
 
 /**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.45 2004/11/04 00:31:58 mnyeholt Exp $
+* $Id: step_03.php,v 1.46 2004/11/04 01:18:06 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -83,10 +83,14 @@ uninstall_asset_types();
 uninstall_packages();
 install_core($package_list);
 $deferred = install_packages($package_list);
+
+
 // If there were deferred packages, try to reinstall them.
 if (is_array($deferred)) {
-	// try and install the deferred packages again.
-	$deferred = install_packages($deferred);
+	// try and install the deferred packages again in a loop until the result
+	// package is the same as the install package, at which point we know 
+	// the dependency has failed.
+	$deferred = install_deferred($deferred);
 	if (is_array($deferred)) {
 		trigger_error('The following assets could not be installed due to dependency failures (see previous warnings for details): '."\n".format_deferred($deferred), E_USER_ERROR);
 	}
@@ -99,6 +103,7 @@ install_event_listeners();
 install_packages($package_list);
 
 unset($GLOBALS['SQ_INSTALL']);
+
 
 
 /**
