@@ -32,7 +32,8 @@ class Backend extends MySource_Object
 	function Backend()
 	{
 		$this->MySource_Object();
-	}
+
+	}//end constructor()
 
 
 	/**
@@ -372,6 +373,10 @@ class Backend extends MySource_Object
 				</td>
 			</tr>
 		</table>
+		<script language="Javascript" type="text/javascript">
+			document.main_form.style.width = "100%";
+			document.main_form.style.height = "100%";
+		</script>
 		<?php
 
 		$this->out->closeRaw();

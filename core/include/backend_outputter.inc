@@ -667,13 +667,13 @@ class Backend_Outputter
 		?>
 		<table border="0" cellspacing="0" cellpadding="0">
 			<tr>
-				<td><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.png" width="10" height="1"></td>
+				<td><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="10" height="1"></td>
 				<td valign="top" width="100%">
 		<?php
 		}
 		?>
 
-		<form action="<?php echo $this->_action.$this->_anchor;?>" name="main_form" method="post" enctype="multipart/form-data" onSubmit="javascript: return form_on_submit();" style="width: 100%; height: 100%;">
+		<form action="<?php echo $this->_action.$this->_anchor;?>" name="main_form" method="post" enctype="multipart/form-data" onSubmit="javascript: return form_on_submit();">
 	<?php
 		foreach($this->_hidden_fields as $name => $value) {
 			hidden_field($name, $value);
@@ -683,7 +683,7 @@ class Backend_Outputter
 			?>
 			<table width="100%" cellpadding="3" cellspacing="0" border="0">
 				<tr>
-					<td class="sq-backend-heading" valign="middle"><img src="<?php echo sq_web_path('lib'); ?>/web/images/dash.png" width="10" height="5"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.png" width="5" height="1"><?php echo $this->_heading;?></td>
+					<td class="sq-backend-heading" valign="middle"><img src="<?php echo sq_web_path('lib'); ?>/web/images/dash.png" width="10" height="5"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1"><?php echo $this->_heading;?></td>
 					<td class="sq-backend-heading" style="text-align: right;">
 					<div id="sq_screen_menu">
 					<?php
