@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_server.inc,v 1.8 2003/09/29 06:27:25 brobertson Exp $
+* $Id: hipo_server.inc,v 1.9 2003/10/01 08:00:12 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -418,8 +418,8 @@ print_r($output);
 					$output['msg']     = 'No TaskID Supplied or invalid TaskID';
 
 				} else {
-					$child_pid = $this->_tasks[$client_data->attributes['taskid']];
-					if (posix_kill($child_pid, SIGTERM)) {
+					$child_pid = $this->_tasks[$client_data['taskid']];
+					if ($child_pid && posix_kill($child_pid, SIGTERM)) {
 						$output['result']    = 'ack';
 					} else {
 						$output['result']  = 'error';
