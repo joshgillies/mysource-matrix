@@ -61,5 +61,26 @@ class Image extends File
 	}//end validFile()
 
 
+	/**
+	* Get an array of some useful data about the existing uploaded file
+	*
+	* @return array(string)
+	* @access public
+	*/
+	function _getExistingFile()
+	{
+		$existing = parent::_getExistingFile();
+		if (!empty($path)) {
+			$size = getimagesize($existing['path']);
+			$existing['width']  = $size[0];
+			$existing['height'] = $size[1];
+		}
+		return $existing;
+
+	}//end _getExistingFile()
+
+
+
+
 }//end class
 ?>
