@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.43 2004/09/02 00:49:18 lwright Exp $
+* $Id: page_calendar.inc,v 1.44 2004/09/02 01:47:02 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.43 $ - 1.0
+* @version $Revision: 1.44 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2071,7 +2071,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$sql .= '('.implode("\n".' OR ', $sql_freqs).')';
 		
 		// stop date
-		$sql .= ' AND ('.$last_day.' > start_date_ds)';
+		$sql .= ' AND ('.$last_day.' >= start_date_ds)';
 		$sql .= ' AND (stop_date = '.$db->quote('----------').' OR stop_date >= '.$db->quote($iso).')';
 		return $sql;
 	
@@ -2085,10 +2085,10 @@ class Page_Calendar extends Page_Asset_Listing
 	* a possibility that one or both could be a database field. If you are planning to
 	* use constants in this function it is recommended that you $db->quote() them there.
 	*
-	* @param mixed	$date		either a UNIX timestamp or the name of a database field
-	*							which contains a UNIX timestamp
-	* @param mixed	$comp_date	same, but this should hold the date or more likely date
-	*							*field* it is being compared to
+	* @param mixed	$date		(int|string) either a UNIX timestamp or the name of a
+	*							database field which contains a UNIX timestamp
+	* @param mixed	$comp_date	(int|string) same, but this should hold the date or more
+	*`							likely date *field* it is being compared to
 	* @param int	$period		the number of days between each occurrence
 	*
 	* @return string	the query fragment
