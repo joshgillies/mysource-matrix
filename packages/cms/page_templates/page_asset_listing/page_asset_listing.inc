@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.43 2004/12/06 14:41:39 brobertson Exp $
+* $Id: page_asset_listing.inc,v 1.44 2004/12/22 21:37:08 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -783,15 +783,19 @@ class Page_Asset_Listing extends Page
 
 		$formats         = Array();
 		$is_default      = Array();
-		$needs_asset	 = Array();
-		$assets_info	 = Array();
+		$needs_asset     = Array();
+		$assets_info     = Array();
 		$folder          = &$this->getFolder('type_formats');
 		$type_folder_id  = $folder->id;
 		$default_format  = '';
 		$customised      = $this->attr('customised');
+		$mm              = NULL;
 		$keywords        = Array();
-		$asset_info_fields = Array('assetid','type_code','version','name','short_name','status','languages','charset','force_secure','created','created_userid','updated','updated_userid','published','published_userid');
-		$mm		 = NULL;
+
+		$asset_info_fields = Array('assetid','type_code','version','name','short_name',
+								   'status','languages','charset','force_secure','created',
+								   'created_userid','updated','updated_userid','published','published_userid');
+
 
 		foreach ($todo as $assetid => $type_code) {
 
@@ -799,7 +803,7 @@ class Page_Asset_Listing extends Page
 
 			if (!isset($wanted_types[$type_code])) continue;
 
-			if (!in_array($type_code, $formats)) {
+			if (!isset($formats[$type_code])) {
 				if (in_array($type_code, $customised)) {
 					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($type_folder_id, SQ_LINK_TYPE_2, 'bodycopy', true, $type_code);
 					// maybe they deleted the bodycopy
@@ -829,7 +833,7 @@ class Page_Asset_Listing extends Page
 				} else {
 					$is_default[] = $type_code;
 				}
-			}//end if
+			}//end if type_code format not loaded
 
 			if (in_array($type_code, $is_default)) {
 				if (!$default_format) {
@@ -857,7 +861,8 @@ class Page_Asset_Listing extends Page
 			} else {
 				$contents = $formats[$type_code];
 				$this_needs_asset = $needs_asset[$type_code];
-			}
+			}//end if using default format
+
 			if ($this_needs_asset) {
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_null($asset)) continue;
@@ -877,7 +882,7 @@ class Page_Asset_Listing extends Page
 				foreach ($assets_info[$assetid] as $field => $value) {
 					$keywords['asset_'.$field]['value'] = $value;
 				}
-			}
+			}//end if needs asset
 
 			if (preg_match_all('|%asset_metadata_([^%]+)%|is', $contents, $matches)) {
 				if (is_null($mm)) $mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
