@@ -1648,7 +1648,7 @@ class Asset extends Resolve_Object
 		if (empty($source)) $source = $this->id;
 		
 		if (is_null($expires)) {
-			$expires = 'NULL';
+			$expires = NULL;
 		} else {
 			$expires = (!$expires) ? (time() + SQ_CONF_LOCK_LENGTH) : (int) $expires;
 			$expires = ts_iso8601($expires);
