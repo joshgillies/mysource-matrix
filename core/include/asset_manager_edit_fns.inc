@@ -1029,9 +1029,9 @@ speed_check('FINISHED');
 			// check that they entered the correct security key
 			if ($_POST['forceably_aquire_lock_key'] != $_SESSION['forceably_aquire_lock_key']) {
 				// the security key entered is wrong
-				$o->openSection('Security Key Inncorrect');
+				$o->openSection('Security Key Incorrect');
 				$o->openField('&nbsp;');
-				echo '<b><i>The security key entered was inncorrect. The lock on "'.$asset->name.'" has not been forceably aquired. You may try again using the new security key displayed below.</i></b>';
+				echo '<b><i>The security key entered was incorrect. The lock on "'.$asset->name.'" has not been forceably aquired. You may try again using the new security key displayed below.</i></b>';
 				$o->closeSection();
 			} else {
 				if (!@$asset->aquireLock(0, true)) {
