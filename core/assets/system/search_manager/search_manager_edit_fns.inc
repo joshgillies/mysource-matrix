@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: search_manager_edit_fns.inc,v 1.2 2003/10/08 02:12:04 dwong Exp $
+* $Id: search_manager_edit_fns.inc,v 1.3 2003/10/13 06:41:53 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -14,13 +14,13 @@
 * @see Asset_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.2 $ - 1.0
+* @version $Revision: 1.3 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 
-
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+
 class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 {
 
@@ -44,7 +44,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function paintBackendAssetWeights(&$owner, &$o)
+	function paintAssetWeights(&$owner, &$o)
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
@@ -112,7 +112,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function processBackendAssetWeights(&$owner, $o)
+	function processAssetWeights(&$owner, $o)
 	{
 		// go through the list and apply the weights to the table
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -142,6 +142,49 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 			$o->addMessage(SQ_BO_MSG_NOTICE, "Weighting changed for attribute ". $attribute->name. " ($attributeid)");
 		}
 	} // end processBackendAssetWeights()
+
+	/** 
+	* Paints the interface for queuing a HIPO to reindex the system. 
+	* 
+	*
+	* @param object Search_Manager		&$asset the search manager asset
+	* @param object	Backend_Outputter	&$o
+	*
+	* @access public
+	* @returns boolean
+	*/
+	function paintReindexing(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) {
+			
+		} else {
+			asset_finder($prefix."_reindexing_root_assetid", '');
+		}
+	}
+
+	/** 
+	* Processes the interface for queuing a HIPO to reindex the system. 
+	* 
+	*
+	* @param object Search_Manager		&$asset the search manager asset
+	* @param object	Backend_Outputter	&$o
+	*
+	* @access public
+	* @returns boolean
+	*/
+	function processReindexing(&$asset, &$o, $prefix)
+	{
+		$root_assetid = $_POST[$prefix."_reindexing_root_assetid"];
+		if ($root_assetid > 0) {
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh->queueHipo('hipo_job_reindex', Array('root_assetid' => $root_assetid));
+			return true;
+		}
+
+		return false;
+	}
+
+	
 
 }//end class
 ?>

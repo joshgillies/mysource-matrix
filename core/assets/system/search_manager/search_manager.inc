@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: search_manager.inc,v 1.2 2003/10/08 02:12:04 dwong Exp $
+* $Id: search_manager.inc,v 1.3 2003/10/13 06:41:53 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -13,7 +13,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.2 $ - 0.1
+* @version $Revision: 1.3 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -107,7 +107,7 @@ class Search_Manager extends Asset
 					break;
 				}
 				$o->addHiddenField('asset_action', (($this->id) ? 'edit' : 'create'));
-				$edit_fns->paintBackendAssetWeights($this, $o);
+				$edit_fns->paintAssetWeights($this, $o);
 				break;
 
 			default:
@@ -126,13 +126,13 @@ class Search_Manager extends Asset
 	*
 	* @return boolean
 	* @access public
-	*/
+	*/	
 
 	function processBackend(&$o, $link)
 	{
-		if (isset($_POST['asset_action']) && $_POST['asset_action'] == 'edit') {
+		if (isset($_POST['asset_action']) && $_POST['asset_action'] == 'edit' && $_REQUEST['asset_ei_screen'] == 'weights') {
 			$edit_fns =& $this->getEditFns();
-			$edit_fns->processBackendAssetWeights($this, $o);
+			$edit_fns->processAssetWeights($this, $o);
 		} else {
 			parent::processBackend($o, $link);
 		}
