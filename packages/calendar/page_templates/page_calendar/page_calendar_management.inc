@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.23 2004/09/15 00:06:51 lwright Exp $
+* $Id: page_calendar_management.inc,v 1.24 2004/09/15 23:21:41 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.23 $ - 1.0
+* @version $Revision: 1.24 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -303,30 +303,36 @@ class Page_Calendar_Management extends Asset_Management
 	function _updateOwnedAttribute($name, $curr_attr)
 	{
 		if (($name == 'columnise_day_view_by_root_node') && ($this->_am->getTypeInfo($this->getAssetType(), 'version') == '0.2')) {
-			// when upgrading from v0.1 to v0.2 the columnise_day_view_by_root_node attribute
-			// changed from a boolean, default true, to an array, default empty.
+			$sql = 'SELECT type FROM sq_asset_attribute WHERE owning_type_code='.$this->_db->quote('page_calendar').' AND name='.$this->_db->quote('columnise_day_view_by_root_node');
+			$types = $this->_db->getCol($sql);
+			if (in_array('boolean', $types)) {
+				// when upgrading from v0.1 to v0.2 the columnise_day_view_by_root_node attribute
+				// changed from a boolean, default true, to an array, default empty.
 
-			// find out which assets currently have a customised value for this attribute
-			$sql = 'SELECT v.assetid, v.attributeid FROM '.SQ_TABLE_PREFIX.'asset_attribute_value v JOIN '.SQ_TABLE_PREFIX.'asset_attribute at ON v.attributeid=at.attributeid WHERE at.name='.$this->_db->quote($name).' AND at.owning_type_code='.$this->_db->quote($this->getAssetType());
-			$customised_assetids = $this->_db->getAssoc($sql);
-			$all_assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('page_calendar', false);
+				// find out which assets currently have a customised value for this attribute
+				$sql = 'SELECT v.assetid, v.attributeid FROM '.SQ_TABLE_PREFIX.'asset_attribute_value v JOIN '.SQ_TABLE_PREFIX.'asset_attribute at ON v.attributeid=at.attributeid WHERE at.name='.$this->_db->quote($name).' AND at.owning_type_code='.$this->_db->quote($this->getAssetType());
+				$customised_assetids = $this->_db->getAssoc($sql);
+				$all_assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('page_calendar', false);
 
-			parent::_updateOwnedAttribute($name, $curr_attr);
-			// create customised values for those assets that used to have the default value
-			foreach (array_diff($all_assetids, array_keys($customised_assetids)) as $id) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($id);
-				$GLOBALS['SQ_SYSTEM']->am->acquireLock($id, 'attributes');
-				$asset->setAttrValue('columnise_day_view_by_root_node', array_keys($asset->attr('root_nodes')));
-				$asset->saveAttributes();
-				$GLOBALS['SQ_SYSTEM']->am->releaseLock($id, 'attributes');
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($id);
+				parent::_updateOwnedAttribute($name, $curr_attr);
+				// create customised values for those assets that used to have the default value
+				foreach (array_diff($all_assetids, array_keys($customised_assetids)) as $id) {
+					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+					$GLOBALS['SQ_SYSTEM']->am->acquireLock($id, 'attributes');
+					$asset->setAttrValue('columnise_day_view_by_root_node', array_keys($asset->attr('root_nodes')));
+					$asset->saveAttributes();
+					$GLOBALS['SQ_SYSTEM']->am->releaseLock($id, 'attributes');
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($id);
+				}	
+
+				// delete the old customised values which should now take the default value
+				$value_keys = Array();
+				foreach ($customised_assetids as $assetid => $attrid) $value_keys[] = $attrid.'_'.$assetid;
+				$this->_db->query('DELETE FROM '.SQ_TABLE_PREFIX.'asset_attribute_value WHERE CONCAT(attributeid, '.$this->_db->quote('_').', assetid) in ('.implode(', ', $value_keys).')');
+				return true;
+			} else {
+				return parent::_updateOwnedAttribute($name, $curr_attr);
 			}
-
-			// delete the old customised values which should now take the default value
-			$value_keys = Array();
-			foreach ($customised_assetids as $assetid => $attrid) $value_keys[] = $attrid.'_'.$assetid;
-			$this->_db->query('DELETE FROM '.SQ_TABLE_PREFIX.'asset_attribute_value WHERE CONCAT(attributeid, '.$this->_db->quote('_').', assetid) in ('.implode(', ', $value_keys).')');
-			return true;
 		} else {
 			return parent::_updateOwnedAttribute($name, $curr_attr);
 		}
