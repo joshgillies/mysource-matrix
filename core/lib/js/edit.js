@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.18 2003/12/17 01:14:05 gsherwood Exp $
+* $Id: edit.js,v 1.19 2004/01/20 03:17:30 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -40,13 +40,13 @@ function sq_process_key_down() {
 	switch (key) {
 		case "s" :
 			// emulate pressing of the commit button
-			if (top.main) { top.main.document.focus(); }
+			if (parent.frames["sq_main"]) { parent.frames["sq_main"].document.focus(); }
 			submit_form();
 		break;
 
 		case "v" :
 			// preview the asset on the frontend in a new window
-			if (top.main) { top.main.document.focus(); }
+			if (parent.frames["sq_main"]) { parent.frames["sq_main"].document.focus(); }
 			if (document.main_form.sq_preview_url) {
 				preview_popup = window.open(document.main_form.sq_preview_url.value, 'preview', '');
 			}

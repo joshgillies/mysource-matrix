@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.112 2004/01/16 00:46:38 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.113 2004/01/20 03:16:29 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -77,7 +77,7 @@ class Asset_Map
 							'&sq_link_path=%link_path%'.
 							'&asset_ei_screen=%action%').
 					  '&inbox_path='.rawurlencode($inbox_url).
-					  '&url_frame=main';
+					  '&url_frame=sq_main';
 
 		?>
 		<script language="JavaScript" type="text/javascript">
@@ -580,7 +580,7 @@ class Asset_Map
 						.'&link_type='.rawurlencode($use_link_type)
 						.'&parent_assetid='.rawurlencode($attr['parent_assetid'])
 						.'&pos='.rawurlencode($attr['pos']);
-				$frame = 'main';
+				$frame = 'sq_main';
 				break;
 
 			default :

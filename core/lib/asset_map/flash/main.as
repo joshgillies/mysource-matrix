@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: main.as,v 1.54 2003/11/26 00:51:12 gsherwood Exp $
+* $Id: main.as,v 1.55 2004/01/20 03:17:06 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -173,7 +173,7 @@ if (_root.server_exec_path == undefined) {
 	_root.server_exec_path = "http://beta.squiz.net/dom_resolvefx/_edit/?SQ_BACKEND_PAGE=asset_map_request";
 }
 if (_root.url_frame == undefined) {
-	_root.url_frame = "main";
+	_root.url_frame = "sq_main";
 }
 if (_root.action_bar_path == undefined) {
 	_root.action_bar_path = "http://beta.squiz.net/dom_resolvefx/_edit/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=%assetid%&sq_asset_path=%asset_path%&sq_link_path=%link_path%&asset_ei_screen=%action%";
