@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_metadata.inc,v 1.17 2005/02/24 22:52:53 tbarrett Exp $
+* $Id: hipo_job_regenerate_metadata.inc,v 1.18 2005/03/16 00:28:15 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -50,43 +50,43 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	* @var Array
 	*/
 	var $_steps = Array(
-					Array(
-						'name'			=> 'Acquiring Metadata Locks',
-						'hipo_job'		=> Array(
-												'init_details_function' => 'getLockAssetDetails',
-												),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'allow_cancel'	=> true,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> 'Generating Metadata Files',
-						'function_call'	=> Array(
-												'process_function' => 'processMetadata',
-												),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'allow_cancel'	=> true,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> 'Releasing Metadata Locks',
-						'function_call'	=> Array(
-												'process_function' => 'releaseLocks',
-												),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'allow_cancel'	=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-				);
+						Array(
+							  'name'         => 'Acquiring Metadata Locks',
+							  'hipo_job'     => Array(
+													  'init_details_function' => 'getLockAssetDetails',
+													  ),
+							  'running_mode' => 'server',
+							  'auto_step'    => true,
+							  'allow_cancel' => true,
+							  'percent_done' => 0,
+							  'complete'     => false,
+							  'message'      => '',
+							  ),
+						Array(
+							  'name'          => 'Generating Metadata Files',
+							  'function_call' => Array(
+													   'process_function' => 'processMetadata',
+													   ),
+							  'running_mode'  => 'server',
+							  'auto_step'     => true,
+							  'allow_cancel'  => true,
+							  'percent_done'  => 0,
+							  'complete'      => false,
+							  'message'       => '',
+							  ),
+						Array(
+							  'name'          => 'Releasing Metadata Locks',
+							  'function_call' => Array(
+													   'process_function' => 'releaseLocks',
+													   ),
+							  'running_mode'  => 'server',
+							  'auto_step'     => true,
+							  'allow_cancel'  => false,
+							  'percent_done'  => 0,
+							  'complete'      => false,
+							  'message'       => '',
+							  ),
+						);
 
 
 	/**
@@ -137,9 +137,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	*/
 	function getConfigVars()
 	{
-		return Array(
-			'SQ_HIPO_REGENERATE_METADATA_THRESHOLD' => Array('editable' => 1, 'default' => 1),
-		);
+		return Array('SQ_HIPO_REGENERATE_METADATA_THRESHOLD' => Array('editable' => 1, 'default' => 1));
 
 	}//end getConfigVars()
 
@@ -155,7 +153,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	*/
 	function getCodeName()
 	{
-		return parent::getCodeName().'-'.$this->_running_vars['schemaid'];
+		return parent::getCodeName().'-'.md5(implode('-',$this->_running_vars['schemaids']));
 
 	}//end getCodeName()
 
@@ -202,14 +200,19 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	function prepare()
 	{
 		// to start regenerating metadata, we need to have a schema that has been updated
-		if (empty($this->_running_vars['schemaid'])) {
-			trigger_error('Cannot initialise Regenerate Metdata HIPO, no schemaID specified', E_USER_WARNING);
+		if (empty($this->_running_vars['schemaids'])) {
+			trigger_error('Cannot initialise Regenerate Metdata HIPO, no schemaID(s) specified', E_USER_WARNING);
 			return false;
 		}
 
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-		$this->_running_vars['todo_assetids'] = $mm->getSchemaAssets($this->_running_vars['schemaid'], true);
+
+		$this->_running_vars['todo_assetids'] = Array();
 		$this->_running_vars['done_assetids'] = Array();
+
+		foreach ($this->_running_vars['schemaids'] as $schemaid) {
+			$this->_running_vars['todo_assetids'] += $mm->getSchemaAssets($schemaid, true);
+		}
 
 		return parent::prepare();
 
@@ -227,9 +230,13 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	*/
 	function processMetadata(&$step_data, $prefix)
 	{
-		if (!empty($this->_running_vars['todo_assetids'])) {
+		if (!isset($this->_running_vars['process_metadata'])) {
+			$this->_running_vars['process_metadata'] = $this->_running_vars['todo_assetids'];
+		}
+
+		if (!empty($this->_running_vars['process_metadata'])) {
 			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-			$assetid = array_shift($this->_running_vars['todo_assetids']);
+			$assetid = array_shift($this->_running_vars['process_metadata']);
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			if (!is_null($asset)) {
@@ -246,11 +253,12 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 			$this->_running_vars['done_assetids'][] = $assetid;
 		}
 
-		if (empty($this->_running_vars['todo_assetids'])) {
+		if (empty($this->_running_vars['process_metadata'])) {
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = true;
+			unset($this->_running_vars['done_assetids']);
 		} else {
-			$total = count($this->_running_vars['todo_assetids']) + count($this->_running_vars['done_assetids']);
+			$total = count($this->_running_vars['process_metadata']) + count($this->_running_vars['done_assetids']);
 			$step_data['percent_done'] =(count($this->_running_vars['done_assetids']) / $total) * 100;
 			$step_data['complete']     = false;
 		}
@@ -281,11 +289,11 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 		foreach ($asset_info as $assetid => $info) $todo[$assetid] = $info['type_code'];
 
 		$running_vars = Array(
-							'assetids'          => array_keys($todo), 
-							'todo_assetids'     => $todo,
-							'lock_type'         => Array('metadata'),
-							'dependants_only'   => false,
-						);
+							  'assetids'        => array_keys($todo),
+							  'todo_assetids'   => $todo,
+							  'lock_type'       => Array('metadata'),
+							  'dependants_only' => false,
+							  );
 
 	}//end getLockAssetDetails()
 
@@ -301,13 +309,28 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	*/
 	function releaseLocks(&$step_data, $prefix)
 	{
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['schemaid']);
-		if (!is_null($asset)) {
-			$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'metadata');
-			$step_data['message'] = 'Releasing Locks';
+		if (!empty($this->_running_vars['todo_assetids'])) {
+			$assetid = array_shift($this->_running_vars['todo_assetids']);
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
+			if (!is_null($asset)) {
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'metadata');
+				$step_data['message'] = 'Releasing Locks on "'.$asset->name.'"';
+			}
+
+			$this->_running_vars['done_assetids'][] = $assetid;
 		}
-		$step_data['percent_done'] = 100;
-		$step_data['complete']     = true;
+
+		if (empty($this->_running_vars['todo_assetids'])) {
+			$step_data['percent_done'] = 100;
+			$step_data['complete']     = true;
+			unset($this->_running_vars['done_assetids']);
+		} else {
+			$total = count($this->_running_vars['todo_assetids']) + count($this->_running_vars['done_assetids']);
+			$step_data['percent_done'] =(count($this->_running_vars['done_assetids']) / $total) * 100;
+			$step_data['complete']     = false;
+		}
+
 		return true;
 
 	}//end releaseLocks()
