@@ -253,7 +253,6 @@ class Site extends Folder
 		$design_link = $this->getLink(SQ_LINK_USES, 'design', false, 'design');
 		$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
 		$login_design_link = $this->getLink(SQ_LINK_USES, 'design', false, 'login_design');
-		pre_echo($login_design_link);
 		$login_designid = (is_null($login_design_link)) ? 0 : $login_design_link['minorid'];
 
 		$urls = $this->getSiteURLs();
