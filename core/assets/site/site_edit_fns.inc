@@ -99,10 +99,12 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 #		pre_echo($urls);
 
 		for(reset($urls); null !== ($urlid = key($urls)); next($urls)) {
-			$this->_paintURL($o, $prefix, $urlid, $urls[$urlid]) ;
+			$this->_paintURL($o, $prefix, $urlid, $urls[$urlid], $asset->writeAccess());
 		}// end for
 
-		$this->_paintURL($o, $prefix, 0, Array('url' => '', 'protocols' => Array())) ;
+		if ($asset->writeAccess()) {
+			$this->_paintURL($o, $prefix, 0, Array('url' => '', 'protocols' => Array()), true) ;
+		}
 		?>
 		</table>
 		<?php
@@ -117,23 +119,38 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	* @param string						$prefix			prefix for the form element
 	* @param int						$i				the count for this URL
 	* @param Array						$url_info		the urls info
+	* @param boolean					$write_access	whether the user can edit this url
 	*
 	* @return boolean
 	* @access public
 	*/
-	function _paintURL(&$o, $prefix, $i, $url_info) 
+	function _paintURL(&$o, $prefix, $i, $url_info, $write_access) 
 	{
 
 		?>
 			<tr>
 				<td class="sq-backend-data">
-					<?php text_box($prefix.'_urls['.$i.'][url]',  $url_info['url'], 40, 0, 'onChange="javascript: site_url_url_change('.$i.');"'); ?>
+				<?php 
+					if ($write_access) { 
+						text_box($prefix.'_urls['.$i.'][url]',  $url_info['url'], 40, 0, 'onChange="javascript: site_url_url_change('.$i.');"');
+					} else {
+						echo $url_info['url'];
+					}
+				?>
 				</td>
 		<?php
 			for($k = 0; $k < count($this->protos); $k++) {
 			?>
 				<td class="sq-backend-data">
-					<?php check_box($prefix.'_urls['.$i.'][protocols]['.$k.']', $this->protos[$k], !empty($url_info[$this->protos[$k]]), 'site_url_protocol_click('.$i.');'); ?>
+				<?php 
+					if ($write_access) { 
+						check_box($prefix.'_urls['.$i.'][protocols]['.$k.']', $this->protos[$k], !empty($url_info[$this->protos[$k]]), 'site_url_protocol_click('.$i.');');
+					} else { 
+					?>
+						<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo empty($url_info[$this->protos[$k]]) ? 'cross' : 'tick'; ?>.gif" width="15" height="15" />
+					<?php
+					}
+				?>
 				</td>
 				<td class="sq-backend-data">
 					<?php echo strtoupper($this->protos[$k]); ?>
@@ -143,7 +160,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		?>
 			</tr>
 		<?php
-	}// _paintURL
+	}// end _paintURL()
 
 
 	/**
@@ -158,6 +175,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function processURLs(&$asset, &$o, $prefix) 
 	{
+		if (empty($_POST[$prefix.'_urls'])) return false;
 
 		$post = $_POST[$prefix.'_urls'];
 
@@ -206,7 +224,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		}
 		
 		$designs = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('design', false, true);
-		$contents = Array();
+		$contents = Array('0' => '');
 		foreach($designs as $id => $type_code) {
 			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($id, $type_code, true);
 			if (is_null($design)) continue;
@@ -233,27 +251,41 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		$design_link = $asset->getLink(SQ_LINK_USES, 'design', false);
 		$designid = (empty($design_link)) ? 0 : $design_link['minorid'];
 
-		if (empty($_POST[$prefix.'_designid'])) return false;
+		if (!isset($_POST[$prefix.'_designid'])) return false;
 
 		$new_designid = $_POST[$prefix.'_designid'];
 
 		// if they are the same then there is nothing to do.
 		if ($designid == $new_designid) return true;
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		// if there is an exist entry delete it
 		if ($designid) {
-			if (!$asset->deleteLink($design_link['linkid'])) return false;
-		}
+			if (!$asset->deleteLink($design_link['linkid'])) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+		}// end if
 
-		$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_designid);
-		if (is_null($design)) return false;
+		if ($new_designid) {
+			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_designid);
+			if (is_null($design)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+			if (!$asset->createLink($design, SQ_LINK_USES)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+			if (!$asset->updateLookups()) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+		}// end if
 
-		if ($asset->createLink($design, SQ_LINK_USES)) {
-			$asset->updateLookups();
-			return true;
-		} else {
-			return false;
-		}
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
 
 	}// end processDesign()
 

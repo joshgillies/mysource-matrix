@@ -31,7 +31,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		if (empty($customised_areas)) {
 			?> No Design Areas are customised yet. <?php
 		} else {
-			$this->_paintDesignAreaList($customised_areas, 'Remove Customisation ?', $prefix.'_remove_customisation', true, true);
+			$this->_paintDesignAreaList($customised_areas, 'Remove Customisation ?', $prefix.'_remove_customisation', $asset->writeAccess(), true, true);
 		}
 
 	}// end paintCustomisedDesignAreas()
@@ -55,6 +55,8 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 
 		$data = Array();
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		foreach($_POST[$prefix.'_remove_customisation'] as $id_name) {
 			$parents_link = $parent_design->getDesignAreaLink($id_name);
 			if (is_null($parents_link)) continue;
@@ -64,17 +66,15 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		}// end foreach
 
 		if ($data) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			pre_echo($data);
 			if ($this->_updateDesignAreaLink($asset, $data)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				$asset->_tmp['regenerate_design'] = true;
 			} else {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
 			}// end if
 		}// end if
 
-
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
 	}// end processCustomisedDesignAreas()
@@ -95,7 +95,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		if (empty($uncustomised_areas)) {
 			?> All Design Areas have been customised. <?php
 		} else {
-			$this->_paintDesignAreaList($uncustomised_areas, 'Customise ?', $prefix.'_customise');
+			$this->_paintDesignAreaList($uncustomised_areas, 'Customise ?', $prefix.'_customise', $asset->writeAccess());
 		}
 	}// end paintUnCustomisedDesignAreas()
 
@@ -115,6 +115,10 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 
 		$data = Array();
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$map  = Array();
+		$create_link = Array(); // because we have to bugger about with this a bit, don't link it anywhere yet
 		foreach($_POST[$prefix.'_customise'] as $id_name) {
 			$link = $asset->getDesignAreaLink($id_name);
 			if (is_null($link)) continue;
@@ -122,33 +126,26 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 			if (is_null($da)) continue;
 
 			// First let's duplicate the DA, ignoring the directory with the files
-			$map  = Array();
-			$create_link = Array(); // because we have to bugger about with this a bit, don't link it anywhere yet
 			$dupe = &$da->duplicate($create_link, $map, true, false);
-			if (is_null($dupe)) return false;
+			if (is_null($dupe)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
 
 			$data[$id_name] = $dupe->id;
 
 		}// end foreach
 
 		if ($data) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			pre_echo($data);
 			if ($this->_updateDesignAreaLink($asset, $data)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				$asset->_tmp['regenerate_design'] = true;
 			} else {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-
-				foreach($data as $id) {
-					$da = &$GLOBALS['SQ_SYSTEM']->am->getAsset($id);
-					if (is_null($da)) continue;
-					$da->delete();
-				}// end foreach
-
+				return false;
 			}// end if
 		}// end if
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
 	}// end processUnCustomisedDesignAreas()
@@ -171,7 +168,6 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		foreach($da_links as $da_link) {
 			$id_name = $da_link['value'];
 			if (empty($data[$id_name])) continue;
-			pre_echo('UPDATE '.$id_name);
 			// Now link our parents DA to the design customisation
 			if (!$asset->_updateLink($da_link['linkid'], $data[$id_name])) return false;
 
@@ -204,7 +200,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 	*
 	* @access private
 	*/
-	function _paintDesignAreaList($links, $check_box_col, $check_box_name, $link_name=false, $show_specialised=false)
+	function _paintDesignAreaList($links, $check_box_col, $check_box_name, $write_access, $link_name=false, $show_specialised=false)
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		?>
@@ -212,7 +208,9 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 			<tr>
 				<td class="sq-backend-data" width="25%"><b>Type</b></td>
 				<td class="sq-backend-data" width="25%"><b>Design Area</b></td>
+			<?php if ($write_access) { ?> 
 				<td class="sq-backend-data" width="25%" style="text-align: center;"><b><?php echo $check_box_col; ?></b></td>
+			<?php }// end if ?> 
 				<td class="sq-backend-data" width="25%" style="text-align: center;"><b><?php echo ($show_specialised) ? 'Specialised ?' : '&nbsp;'; ?></b></td>
 			</tr>
 		<?php
@@ -233,17 +231,19 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 					}
 				?>
 				</td>
-				<td class="sq-backend-data">
+				<td class="sq-backend-data" style="white-space: nowrap;">
 					<?php
 					echo $da->id, ' - ';
 					if ($link_name) echo '<a href="', $da->getBackendHref(), '">';
-					echo $da->attr('id_name');
+					echo $da->name;
 					if ($link_name) echo '</a>';
 					?>
 				</td>
+			<?php if ($write_access) { ?> 
 				<td class="sq-backend-data" style="text-align: center;">
 					<input type="checkbox" name="<?php echo $check_box_name; ?>[]" value="<?php echo $da->attr('id_name');; ?>">
 				</td>
+			<?php }// end if ?> 
 				<td class="sq-backend-data" style="text-align: center;">
 				<?php if ($show_specialised && $da->attr('specialised')) { ?> 
 					<img src="<?php echo sq_web_path('lib'); ?>/web/images/tick.gif" width="15" height="15" />
