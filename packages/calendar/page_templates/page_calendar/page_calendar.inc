@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.63 2004/09/10 05:42:18 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.64 2004/09/10 06:17:25 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.63 $ - 1.0
+* @version $Revision: 1.64 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1450,7 +1450,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 		foreach ($events as $id => $details) {
 			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
-			bam($id.' is occurs on '.$event_date);
+			
 			if (($event_date >= $cal_date) && ($event_date <= $last_day)) {
 				if (is_null($details['start_date_hours'])) {
 					$res[$event_date]['all_day'][$id] = $details;
@@ -1475,25 +1475,6 @@ class Page_Calendar extends Page_Asset_Listing
 		//bam ($res);
 
 		return $res;
-		foreach ($events as $day => $day_events) {
-			$res[$day] = $partitions; // nb assignment by copy
-			foreach ($day_events as $assetid => $details) {
-				$event_ts = $details['start_date_minutes']+ (60 * $details['start_date_hours']);
-				if (is_null($details['start_date_hours'])) {
-					// all day event we think
-					$res[$day]['all_day'][$assetid] = $details;
-				} else {
-					if ($event_ts < $start_ts) continue;
-					foreach ($partition_keys as $partition_ts => $key) {
-						if (($event_ts - $partition_ts) < $time_partition) {
-							$res[$day][$key][$assetid] = $details;
-							break;
-						}
-					}
-				}
-			}
-		}
-		return $res;
 
 	}//end getWeekEventsByDayAndTime()
 
@@ -1511,31 +1492,8 @@ class Page_Calendar extends Page_Asset_Listing
 
 		$single_result =& $this->_multipleDaySingleQuery($root_nodes, $date, 1);
 		$recur_result =& $this->_multipleDayRecurringQuery($root_nodes, $date, 'day');
-
-		$res = $single_result + $recur_result;
-		$res =& $this->_expandEventList($res, $date, $date);
-
-		$this->_processExceptions($res);
-
-		$date_stamp = floor(iso8601_ts($date.' 12:00:00') / 86400);
-
-		// reset the results so that those which go over multiple days are appropriately
-		//  handled
-		foreach(array_keys($res) as $key) {
-			$res_item =& $res[$key];
-			list($res_item['start_date_year'], $res_item['start_date_mon'], $res_item['start_date_mday']) = explode('-', $date);
-			list($res_item['end_date_year'], $res_item['end_date_mon'], $res_item['end_date_mday']) = explode('-', $date);
-			if ($date_stamp != $res_item['start_date_ds'] && !is_null($res_item['start_date_hours'])) {
-				list($res_item['start_date_hours'],$res_item['start_date_minutes']) = explode(':', $this->attr('day_starts_at'));
-				$res_item['start_date_ts'] = iso8601_ts($date.' '.$this->attr('day_starts_at').':00');
-			}
-			if ($date_stamp != $res_item['end_date_ds']) {
-				list($res_item['end_date_hours'],$res_item['end_date_minutes']) = explode(':', $this->attr('day_ends_at'));
-				$res_item['end_date_ts'] = iso8601_ts($date.' '.$this->attr('day_ends_at').':00');
-			}
-		}
-
-		return $res;
+						
+		return ($single_result + $recur_result);
 
 	}//end getDayEvents()
 
@@ -1550,7 +1508,7 @@ class Page_Calendar extends Page_Asset_Listing
 		if (!$first_time) $first_time = $this->attr('day_starts_at');
 		if (!$time_partition) $time_partition = $this->attr('day_partition_time');
 		if (!$last_time) $last_time = $this->attr('day_ends_at');
-		$events = $this->getDayEvents($date);
+		
 		$partition_keys = Array();
 		list($hour, $mins) = explode(':', $last_time);
 		$end_ts = $mins + (60 * $hour);
@@ -1566,17 +1524,24 @@ class Page_Calendar extends Page_Asset_Listing
 		$partitions['all_day'] = Array();
 
 		$res = $partitions;
-		foreach ($events as $assetid => $details) {
-			$event_ts = $details['start_date_minutes']+ (60 * $details['start_date_hours']);
-			if (is_null($details['start_date_hours'])) {
-				// all day event we think
-				$res['all_day'][$assetid] = $details;
-			} else {
-				if ($event_ts < $start_ts) continue;
-				foreach ($partition_keys as $partition_ts => $key) {
-					if (($event_ts - $partition_ts) < $time_partition) {
-						$res[$key][$assetid] = $details;
-						break;
+		
+		$plain_events = $this->getDayEvents($date);
+		$events =& $this->_expandEventList($plain_events, $date, $date);
+		
+				
+		foreach ($events as $id => $details) {
+			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
+			if (($event_date == $date)) {
+				if (is_null($details['start_date_hours'])) {
+					$res['all_day'][$id] = $details;
+				} else {
+					$event_ts = $details['start_date_hours'] * 60 + $details['start_date_minutes'];
+					if ($event_ts < $start_ts) continue;
+					foreach ($partition_keys as $partition_ts => $key) {
+						if (($event_ts - $partition_ts) < $time_partition) {
+							$res[$key][$id] = $details;
+							break;
+						}
 					}
 				}
 			}
@@ -1597,7 +1562,6 @@ class Page_Calendar extends Page_Asset_Listing
 		if (!$time_partition) $time_partition = $this->attr('day_partition_time');
 		if (!$last_time) $last_time = $this->attr('day_ends_at');
 		if (!$root_nodes) $root_nodes = array_keys($this->attr('root_nodes'));
-		$events = $this->getDayEvents($date);
 		$partition_keys = Array();
 		list($hour, $mins) = explode(':', $last_time);
 		$end_ts = $mins + (60 * $hour);
@@ -1611,21 +1575,27 @@ class Page_Calendar extends Page_Asset_Listing
 		$partitions = array_flip($partition_keys);
 		foreach($partitions as $key => $val) $partitions[$key] = Array();
 		$partitions['all_day'] = Array();
+	
+		$plain_events = $this->getDayEvents($date);
+		$events =& $this->_expandEventList($plain_events, $date, $date);
 
 		$res = Array();
-		foreach ($root_nodes as $node_id) $res[$node_id] = $partitions;
 
-		foreach ($events as $assetid => $details) {
-			$event_ts = $details['start_date_minutes']+ (60 * $details['start_date_hours']);
-			if (is_null($details['start_date_hours'])) {
-				// all day event we think
-				$res[$details['root_node']]['all_day'][$assetid] = $details;
-			} else {
-				if ($event_ts < $start_ts) continue;
-				foreach ($partition_keys as $partition_ts => $key) {
-					if (($event_ts - $partition_ts) < $time_partition) {
-						$res[$details['root_node']][$key][$assetid] = $details;
-						break;
+		foreach ($root_nodes as $node_id) $res[$node_id] = $partitions;		
+		
+		foreach ($events as $id => $details) {
+			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
+			if (($event_date == $date)) {
+				if (is_null($details['start_date_hours'])) {
+					$res[$details['root_node']]['all_day'][$id] = $details;
+				} else {
+					$event_ts = $details['start_date_hours'] * 60 + $details['start_date_minutes'];
+					if ($event_ts < $start_ts) continue;
+					foreach ($partition_keys as $partition_ts => $key) {
+						if (($event_ts - $partition_ts) < $time_partition) {
+							$res[$details['root_node']][$key][$id] = $details;
+							break;
+						}
 					}
 				}
 			}
@@ -1837,9 +1807,9 @@ class Page_Calendar extends Page_Asset_Listing
 					$sql_freqs[] = 'frequency = '.$db->quote('DWD');
 				}
 
-				$sql_freqs[] = '(frequency = '.$db->quote('DED').' AND mod('.$this->_dayDiffFragment($db->quote($iso_ds), 'start_date_ds').', period) BETWEEN 0 and (end_date_ds - start_date_ds))';
+				$sql_freqs[] = '(frequency = '.$db->quote('DED').' AND mod('.$this->_dayDiffFragment($db->quote($iso_ds), 'start_date_ds').', period) BETWEEN 0 and coalesce(end_date_ds - start_date_ds,0))';
 
-				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' AND mod('.$this->_dayDiffFragment($db->quote($iso_ds), 'start_date_ds').', period*7) BETWEEN 0 and (end_date_ds - start_date_ds))';
+				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' AND mod('.$this->_dayDiffFragment($db->quote($iso_ds), 'start_date_ds').', period*7) BETWEEN 0 and coalesce(end_date_ds - start_date_ds,0))';
 
 				$sql_freqs_m = Array();
 
@@ -1856,7 +1826,8 @@ class Page_Calendar extends Page_Asset_Listing
 				$sql_freqs_m[] = '(frequency = '.$db->quote('MRW').' AND ('.$db->quote($rwdom).' = start_date_rwdom))';
 
 				// combine all the month rules together and add a period clause
-				$sql_freqs[] = '(('.implode(' OR ', $sql_freqs_m).') AND MOD('.$db->quote($ms).' - start_date_ms,period) = 0)';
+				$sql_freqs[] = '(('.implode(' OR ', $sql_freqs_m).') AND (MOD('.$db->quote($ms).' - start_date_ms,period) = 0) OR mod('.$this->_dayDiffFragment($db->quote($iso_ds), 'start_date_ds').', period) BETWEEN 0 and coalesce(end_date_ds - start_date_ds,0))';
+			
 
 			break;
 
@@ -1877,9 +1848,9 @@ class Page_Calendar extends Page_Asset_Listing
 
 				// note: the slightly redundant "*1.0" is so Postgres interprets it as a
 				// double instead of an int, blowing away our attempts to use floor()
-				$sql_freqs[] = '(frequency = '.$db->quote('DED').' AND ((floor('.$this->_dayDiffFragment($db->quote($iso_ds-1), 'start_date_ds').'/(period*1.0)) < floor('. $this->_dayDiffFragment($db->quote($iso_ds+6), 'start_date_ds').'/(period*1.0))) or mod('.$this->_dayDiffFragment($db->quote($iso_ds), 'start_date_ds').', period) BETWEEN 0 and (end_date_ds - start_date_ds)))';
+				$sql_freqs[] = '(frequency = '.$db->quote('DED').' AND ((floor('.$this->_dayDiffFragment($db->quote($iso_ds-1), 'start_date_ds').'/(period*1.0)) < floor('. $this->_dayDiffFragment($db->quote($iso_ds+6), 'start_date_ds').'/(period*1.0))) or mod('.$this->_dayDiffFragment($db->quote($iso_ds), 'start_date_ds').', period) BETWEEN 0 and coalesce(end_date_ds - start_date_ds,0)))';
 
-				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' AND ((floor('.$this->_dayDiffFragment($db->quote($iso_ds-1), 'start_date_ds').'/(period*7.0)) < floor('. $this->_dayDiffFragment($db->quote($iso_ds+6), 'start_date_ds').'/(period*7.0))) or mod('.$this->_dayDiffFragment($db->quote($iso_ds), 'start_date_ds').', period) BETWEEN 0 and (end_date_ds - start_date_ds)))';
+				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' AND ((floor('.$this->_dayDiffFragment($db->quote($iso_ds-1), 'start_date_ds').'/(period*7.0)) < floor('. $this->_dayDiffFragment($db->quote($iso_ds+6), 'start_date_ds').'/(period*7.0))) or mod('.$this->_dayDiffFragment($db->quote($iso_ds), 'start_date_ds').', period) BETWEEN 0 and coalesce(end_date_ds - start_date_ds,0)))';
 
 				$sql_freqs_m = Array();
 
@@ -2076,7 +2047,10 @@ class Page_Calendar extends Page_Asset_Listing
 		}
 		$sql .= ' AND ('.implode(' OR ', $tree_sql).')';
 
+		print $sql;
+
 		$result = $db->getAssoc($sql);
+		bam($result);
 		assert_valid_db_result($result);
 		return $result;
 
@@ -2190,8 +2164,6 @@ class Page_Calendar extends Page_Asset_Listing
 		if (!is_null($event['end_date_ds'])) {
 			// end date is specified
 			if ($event['start_date_ds'] != $event['end_date_ds']) {
-				trigger_error('-- EXPANDING SINGLE EVENT ID:'.$event['name'].' --'."\n".
-					'End Date: Specified, Days: Multiple ('.$event['start_date_ds'].'-'.$event['end_date_ds'].')', E_USER_NOTICE);
 				// multiple day
 				$start_time = mktime(12, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
 				$start_date = date('Y-m-d', $start_time);
