@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.53.2.4 2004/10/18 23:48:00 lwright Exp $
+* $Id: form.inc,v 1.53.2.5 2004/11/02 22:32:19 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.53.2.4 $
+* @version $Revision: 1.53.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -179,9 +179,11 @@ class Form extends Bridge
 								);
 			}
 
-			if (!is_null($sort_by)) {
-				uasort($links, create_function('$a,$b','return $a["'.$sort_by.'"] > $b["'.$sort_by.'"];'));
+			if (is_null($sort_by)) {
+				$sort_by = 'sort_order';
 			}
+			
+			uasort($links, create_function('$a,$b','return $a["'.$sort_by.'"] < $b["'.$sort_by.'"];'));
 
 			$this->_tmp['getLinks'][$assetid][$side_of_link] = $links;
 
@@ -207,7 +209,6 @@ class Form extends Bridge
 		}
 
 		foreach(array_keys($links) as $i) {
-
 			$link =& $links[$i];
 
 			// mould it all to the asset map's liking
@@ -324,8 +325,7 @@ class Form extends Bridge
 		if (!is_numeric($assetid)) return Array($this->id);
 
 		$parents = Array();
-		if (!is_array($type_code
-			)) $type_code = Array($type_code);
+		if (!is_array($type_code)) $type_code = Array($type_code);
 		if (!in_array('form_section', $type_code) && !in_array('form', $type_code)) return Array();
 
 		if (!isset($this->_tmp['getParents'][$assetid])) {
