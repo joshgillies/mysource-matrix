@@ -344,16 +344,9 @@ class Resolve
 				}
 				$hipo_type = 'hipo_job_'.trim($_GET['hipo_action']);
 				require_once(SQ_SYSTEM_ROOT.'/core/hipo/jobs/'.$hipo_type.'.inc');
-				$hipo = new $hipo_type();
-				
-				if (!$hipo->load($_GET['hipo_codename'])) {
-					trigger_error('HIPO failed to load', E_USER_ERROR);
-				}
+				$hipo = new $hipo_type($_GET['hipo_codename']);
 
-				if (!$hipo->process()) {
-					trigger_error('HIPO failed to process', E_USER_ERROR);
-				}
-
+				if (!$hipo->process()) trigger_error('HIPO failed to process', E_USER_ERROR);
 				$hipo->paint();
 				exit();
 			break;
