@@ -15,6 +15,12 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 class Design_Edit_Fns extends Design_Area_Edit_Fns
 {
 
+	function Design_Edit_Fns() 
+	{
+		$this->Design_Area_Edit_Fns();
+		$this->tabs['details']['force_unlock'] = false;
+	}
+
 	/**
 	* Paint the interface for the parse file uploading
 	*
