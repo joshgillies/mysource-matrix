@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.14 2004/01/15 21:57:31 gsherwood Exp $
+* $Id: hipo_config.inc,v 1.15 2004/01/16 11:49:18 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,11 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 */
 class HIPO_Config extends Config
 {
+	/**
+	* Holds all the vars for this that config vars for this config
+	* In the form : Array([var name] => Array('editable' => [boolean], 'default' => [mixed scalar]))
+	* @var Array()
+	*/
 	var $config_vars = Array(
 		'SQ_HIPO_USE_SERVER'		=> Array('editable' => 1, 'default' => false),
 		'SQ_HIPO_TOTAL_THRESHOLD'	=> Array('editable' => 1, 'default' => 80),

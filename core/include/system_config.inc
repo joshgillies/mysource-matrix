@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.22 2004/01/15 21:57:31 gsherwood Exp $
+* $Id: system_config.inc,v 1.23 2004/01/16 11:49:18 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,20 +38,25 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 */
 class System_Config extends Config
 {
+	/**
+	* Holds all the vars for this that config vars for this config
+	* In the form : Array([var name] => Array('editable' => [boolean], 'default' => [mixed scalar]))
+	* @var Array()
+	*/
 	var $config_vars = Array(
 		'SQ_CONF_DB_DSN'					=> Array('editable' => 0, 'default' => ''),
 		'SQ_CONF_DB2_DSN'					=> Array('editable' => 0, 'default' => ''),
 		'SQ_CONF_PEAR_PATH'					=> Array('editable' => 0, 'default' => ''),
 		'SQ_CONF_BACKEND_SUFFIX'			=> Array('editable' => 0, 'default' => '_admin'),
 		'SQ_CONF_LIMBO_SUFFIX'				=> Array('editable' => 0, 'default' => '_edit'),
-/*
-* Fixed Size of the number of digits that each link trees entry can be, run
-*   pow(SQ_CONF_ASSET_TREE_BASE, SQ_CONF_ASSET_TREE_SIZE)
-* to get max number of possible link entries per node
-*/
+
+		// Fixed Size of the number of digits that each link trees entry can be, run
+		//    pow(SQ_CONF_ASSET_TREE_BASE, SQ_CONF_ASSET_TREE_SIZE)
+		// to get max number of possible link entries per node
 		'SQ_CONF_ASSET_TREE_BASE'			=> Array('editable' => 0, 'default' => 64),
 		'SQ_CONF_ASSET_TREE_SIZE'			=> Array('editable' => 0, 'default' =>  4),
 
+		// Rollback Settings
 		'SQ_CONF_ROLLBACK_ENABLED'			=> Array('editable' => 0, 'default' => '0'),
 
 		// Indexing Settings

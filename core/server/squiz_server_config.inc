@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: squiz_server_config.inc,v 1.4 2004/01/15 21:57:31 gsherwood Exp $
+* $Id: squiz_server_config.inc,v 1.5 2004/01/16 11:49:18 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,12 +38,18 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 */
 class Squiz_Server_Config extends Config
 {
+	/**
+	* Holds all the vars for this that config vars for this config
+	* In the form : Array([var name] => Array('editable' => [boolean], 'default' => [mixed scalar]))
+	* @var Array()
+	*/
 	var $config_vars = Array(
 		'SQ_SERVER_SYSTEM_ROOT'	=> Array('editable' => 1, 'default' => ''),
 		'SQ_SERVER_SYSTEMID'	=> Array('editable' => 1, 'default' => ''),
 		'SQ_SERVER_DOMAIN'		=> Array('editable' => 1, 'default' => ''),
 		'SQ_SERVER_PORT'		=> Array('editable' => 1, 'default' => 0),
 	);
+
 
 	/**
 	* Constructor
@@ -105,38 +111,33 @@ class Squiz_Server_Config extends Config
 		parent::paintBackend($o);
 
 		$write_access = $this->writeAccess();
-		
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-
 		$class = get_class($this);
-
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 
 		$o->openSection('Squiz Server Configuration');
 
-			$o->openField('Squiz Server System Root');
+			$o->openField('System Root');
 			if($write_access) {
 				text_box($class.'[SQ_SERVER_SYSTEM_ROOT]', SQ_SERVER_SYSTEM_ROOT, 60);
 			} else {
 				echo SQ_SERVER_SYSTEM_ROOT;
 			}
+			$o->note('This is the path to the local Squiz Server\'s base directory');
 
-			$o->openField('Squiz Server System ID');
+			$o->openField('System ID');
 			if($write_access) {
 				text_box($class.'[SQ_SERVER_SYSTEMID]', SQ_SERVER_SYSTEMID, 30);
 			} else {
 				echo SQ_SERVER_SYSTEMID;
 			}
 
-			$o->openField('Squiz Server Domain');
+			$o->openField('Domain');
 			if($write_access) {
 				text_box($class.'[SQ_SERVER_DOMAIN]', SQ_SERVER_DOMAIN, 30);
 			} else {
 				echo SQ_SERVER_DOMAIN;
 			}
 
-			$o->openField('Squiz Server Port');
+			$o->openField('Port');
 			if($write_access) {
 				text_box($class.'[SQ_SERVER_PORT]', SQ_SERVER_PORT, 10);
 			} else {
