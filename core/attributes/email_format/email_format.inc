@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.3 2004/05/19 06:42:34 lwright Exp $
+* $Id: email_format.inc,v 1.4 2004/05/19 23:18:14 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -79,10 +79,10 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		if ($read_only) {
 			?>
 			<script language="Javascript">
-				function emailFormatSwitchEditingMode() {
-					var textDiv = document.getElementById("<?php echo $prefix; ?>_text_format");
-					var htmlDiv = document.getElementById("<?php echo $prefix; ?>_html_format");
-					var formatSpan = document.getElementById("<?php echo $prefix; ?>_format_mode");
+				function emailFormatSwitchEditingMode(editor_name) {
+					var textDiv = document.getElementById(editor_name + "_text_format");
+					var htmlDiv = document.getElementById(editor_name + "_html_format");
+					var formatSpan = document.getElementById(editor_name + "_format_mode");
 				
 					if (htmlDiv.style.display == "none") {
 
@@ -127,7 +127,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 									<table>
 										<tr>
 											<td width="100%" align="left">
-												<a href="Javascript: emailFormatSwitchEditingMode();"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png", "16", "16", "");</script></a>
+												<a href="Javascript: emailFormatSwitchEditingMode('<? echo $prefix; ?>');"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png", "16", "16", "");</script></a>
 											</td>
 											<td align="right" nowrap="nowrap">
 												<span id="<?php echo $prefix; ?>_format_mode">Text Email Version</span>
@@ -163,21 +163,21 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$current_to_string = '';
 		$current_to = '';
 		foreach ($current_value['to'] as $email) {
-			$current_to_string .= '[ <a href="#" onclick="Javascript: emailFormatDeleteAddress(\''.$email.'\', \'to\'); return false;">del</a> ] '.$email.'<br>';
+			$current_to_string .= '[ <a href="#" onclick="Javascript: emailFormatDeleteAddress(\''.$email.'\', \''.$prefix.'\', \'to\'); return false;">del</a> ] '.$email.'<br>';
 			$current_to .= $email.' ';
 		}
 
 		?>
 		<script language="Javascript">
 
-			function emailFormatAddAddress(type) {
-				var value = document.getElementById("<?php echo $prefix; ?>_" + type);
-				var box = document.getElementById("<?php echo $prefix; ?>_new_" + type);
-				var div = document.getElementById("<?php echo $prefix; ?>_current_" + type);
+			function emailFormatAddAddress(editor_name, type) {
+				var value = document.getElementById(editor_name + "_" + type);
+				var box = document.getElementById(editor_name + "_new_" + type);
+				var div = document.getElementById(editor_name + "_current_" + type);
 				
 				if (box.value == "") return;
 
-				div.innerHTML += '[ <a href="#" onclick="Javascript: emailFormatDeleteAddress(\'' + box.value + '\', \'' + type + '\'); return false;">del</a> ] ' + box.value + '<br>';
+				div.innerHTML += '[ <a href="#" onclick="Javascript: emailFormatDeleteAddress(\'' + box.value + '\', \'' + editor_name + '\', \'' + type + '\'); return false;">del</a> ] ' + box.value + '<br>';
 				value.value += box.value + " ";
 				
 				box.value = "";
@@ -185,9 +185,9 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			}//end emailFormatAddAddress()
 
 
-			function emailFormatDeleteAddress(address, type) {
-				var value = document.getElementById("<?php echo $prefix; ?>_" + type);
-				var div = document.getElementById("<?php echo $prefix; ?>_current_" + type);
+			function emailFormatDeleteAddress(address, editor_name, type) {
+				var value = document.getElementById(editor_name + "_" + type);
+				var div = document.getElementById(editor_name + "_current_" + type);
 				
 				var current_emails = div.innerHTML;
 
@@ -220,10 +220,12 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			}//end emailFormatDeleteAddress()
 			
 			var initialisedEmailEditors = new Array();
-			function emailFormatSwitchEditingMode(editor) {
-				var textDiv = document.getElementById("<?php echo $prefix; ?>_text_body_div");
-				var htmlDiv = document.getElementById("<?php echo $prefix; ?>_html_body_div");
-				var formatSpan = document.getElementById("<?php echo $prefix; ?>_format_mode");
+			function emailFormatSwitchEditingMode(editor_name) {
+				var editor = eval('editor_' + editor_name);
+
+				var textDiv = document.getElementById(editor_name + "_text_body_div");
+				var htmlDiv = document.getElementById(editor_name + "_html_body_div");
+				var formatSpan = document.getElementById(editor_name + "_format_mode");
 			
 				if (htmlDiv.style.display == "none") {
 					var setDesignMode = true;
@@ -265,7 +267,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				<td align="right" valign="top"><b>To</b></td>
 				<td valign="top">
 					<?php text_box($prefix.'_new_to', '', 50); ?>
-					[ <a href="#" onclick="Javascript: emailFormatAddAddress('to'); return false;">add</a> ]<br/>
+					[ <a href="#" onclick="Javascript: emailFormatAddAddress('<? echo $prefix ?>', 'to'); return false;">add</a> ]<br/>
 					<div id="<?php echo $prefix; ?>_current_to"><?php echo $current_to_string; ?></div>
 					<span style="display:none;"><?php text_box($prefix.'_to', $current_to, 5); ?></span>
 				</td>
@@ -287,7 +289,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 								<table>
 									<tr>
 										<td width="100%" align="left">
-											<a href="Javascript: emailFormatSwitchEditingMode(editor_<?php echo $prefix; ?>);"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png", "16", "16", "");</script></a>
+											<a href="Javascript: emailFormatSwitchEditingMode('<?php echo $prefix; ?>');"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png", "16", "16", "");</script></a>
 										</td>
 										<td align="right" nowrap="nowrap">
 											<span id="<?php echo $prefix; ?>_format_mode">Text Email Version</span>
