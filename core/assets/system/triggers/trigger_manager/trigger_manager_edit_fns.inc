@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager_edit_fns.inc,v 1.10 2005/03/22 04:41:26 gsherwood Exp $
+* $Id: trigger_manager_edit_fns.inc,v 1.11 2005/03/30 04:54:54 arailean Exp $
 *
 */
 
@@ -33,12 +33,13 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -55,14 +56,14 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		$this->static_screens['details']['name'] ='Details';
 		$this->static_screens['details']['force_unlock'] = false;
 
-	}//end Trigger_Manager_Edit_Fns()
+	}//end constructor
 
 
 	/**
 	* Main Trigger Screen Display Controller
 	*
 	* Determines which Subscreen to display based on state info
-
+	*
 	* @param object Trigger_Manager &$tm trigger manager
 	* @param object Backend_Outputter   &$o     the outputter class
 	* @param string                     $prefix prefix for the form elements
@@ -750,7 +751,6 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		$trigger['name']        = array_get_index($edit_info, 'name');
 		$trigger['description'] = array_get_index($edit_info, 'description');
 		$trigger['active']      = array_get_index($edit_info, 'active');
-		$hash->setActive($trigger['active']);
 
 		// events
 		$raw_events = array_get_index($edit_data, 'events', Array());
@@ -772,10 +772,10 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		}
 		$new_condition_type = array_get_index($edit_data, 'new_condition');
 		if (!empty($new_condition_type)) {
-			$raw_conditions[] = Array(
-									  'type' => $new_condition_type,
-									  'new'  => true,
-									  );
+			$new_condition['type'] = $new_condition_type;
+			$new_condition['new']  = true;
+
+			$raw_conditions[] = $new_condition;
 		}
 		$processed_conditions = $this->_processRawConditionSet($tm, $raw_conditions, $hash);
 
@@ -791,15 +791,15 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		}
 		$new_action_type = array_get_index($edit_data, 'new_action');
 		if (!empty($new_action_type)) {
-			$raw_actions[] = Array(
-								   'type' => $new_action_type,
-								   'new'  => true,
-								  );
+			$new_action['type'] = $new_action_type;
+			$new_action['new']  = true;
+
+			$raw_actions[] = $new_action;
 		}
 
 		$processed_actions = $this->_processRawActionSet($tm, $raw_actions);
 
-		if (empty($processed_events) || empty($processed_actions)) {
+		if (empty($processed_events) || empty($processed_actions) || empty($trigger['active'])) {
 			$trigger['save_hash'] = false;
 		}
 
@@ -853,9 +853,9 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 			}
 
 			$processed_components[] = Array(
-											'type' => $type,
-											'data' => $settings,
-											);
+										'type'	=> $type,
+										'data'	=> $settings,
+									  );
 
 			if (!$status) {
 				trigger_error("Settings for Condition number $i ($type) could not be saved. Please make sure the input is complete.", E_USER_WARNING);
@@ -909,11 +909,11 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 			}
 
 			$processed_components[] = Array(
-											'type'               => $type,
-											'data'               => $settings,
-											'not_required'       => isset($component['not_required']),
-											'ignore_permissions' => isset($component['ignore_permissions']),
-											);
+										'type'					=> $type,
+										'data'					=> $settings,
+										'not_required'			=> isset($component['not_required']),
+										'ignore_permissions'	=> isset($component['ignore_permissions']),
+									  );
 
 			if (!$status) {
 				trigger_error("Settings for Action number $i ($type) could not be saved. Please make sure the input is complete.", E_USER_WARNING);
@@ -1116,11 +1116,11 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		// start up the HIPO
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array(
-					  'assets'             => $all_targets,
-					  'events'             => $events,
-					  'codename_target'    => $target_id,
-					  'codename_propagate' => ($propagate ? '1' : '0'),
-					  );
+					'assets'				=> $all_targets,
+					'events'				=> $events,
+					'codename_target'		=> $target_id,
+					'codename_propagate'	=> ($propagate ? '1' : '0'),
+				);
 		$hh->queueHipo('hipo_job_trigger_batch_events', $vars);
 
 		return true;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hash.inc,v 1.4 2005/03/14 23:53:25 arailean Exp $
+* $Id: hash.inc,v 1.5 2005/03/30 04:54:54 arailean Exp $
 *
 */
 
@@ -30,15 +30,18 @@
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 class Hash
 {
 
+	/**
+	* @var array	$hash	an array of all the components of this hash object
+	*/
 	var $hash;
 
-	/*
+	/**
 		// Allowed Hash Indices
 
 		event
@@ -51,8 +54,8 @@ class Hash
 		parent_type
 		childid
 		child_type
-		active <- reserved - no Condition should set this
 	*/
+
 
 	/**
 	* Constructor
@@ -61,7 +64,7 @@ class Hash
 	{
 		$this->hash = Array();
 
-	}//end Hash()
+	}//end constructor
 
 
 	/**
@@ -240,21 +243,6 @@ class Hash
 
 
 	/**
-	* Sets the Active field
-	*
-	* @param string     $active     '1' or '0'. Determines whether the trigger is enabled
-	*
-	* @access public
-	* @return void
-	*/
-	function setActive($active)
-	{
-		$this->hash['active'] = $active;
-
-	}//end setActive()
-
-
-	/**
 	* Takes the hash, checks it for empty fields filling in the blanks where necessary,
 	* and creates all possible combinations of its elements
 	*
@@ -267,14 +255,13 @@ class Hash
 
 		// define the defaults
 		$state_hash_defaults = Array(
-									'event'             => '',
-									'assetid'           => '',
-									'asset_type'        => '',
-									'treeid'            => '',
-									'tree_propagate'    => SQ_TRIG_TREE_NO_PROPAGATE,
-									'triggerid'         => '',
-									'active'            => SQ_TRIG_STATUS_DEFAULT,
-									);
+								'event'				=> '',
+								'assetid'			=> '',
+								'asset_type'		=> '',
+								'treeid'			=> '',
+								'tree_propagate'	=> SQ_TRIG_TREE_NO_PROPAGATE,
+								'triggerid'			=> '',
+							   );
 
 		// make sure every field has data, and that no fields are null
 		foreach ($state_hash_defaults as $defaults_id => $defaults_data) {

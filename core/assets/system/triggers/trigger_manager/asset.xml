@@ -20,7 +20,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2005/02/17 06:34:47 rhoward Exp $
+* $Id: asset.xml,v 1.2 2005/03/30 04:54:54 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -28,7 +28,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
 	<package>__core__</package>
 	<type_code>trigger_manager</type_code>
-	<version>0.1</version>
+	<version>0.2</version>
 	<name>Trigger Manager</name>
 	<description>Trigger Manager</description>
 	<instantiable>yes</instantiable>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.8 2005/03/21 06:21:10 gsherwood Exp $
+* $Id: trigger_manager.inc,v 1.9 2005/03/30 04:54:54 arailean Exp $
 *
 */
 
@@ -51,7 +51,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -122,11 +122,11 @@ class Trigger_Manager extends Asset
 	function _getAllowedLinks()
 	{
 		return Array(
-					 SQ_LINK_TYPE_1 => Array(),
-					 SQ_LINK_TYPE_2 => Array(),
-					 SQ_LINK_TYPE_3 => Array(),
-					 SQ_LINK_NOTICE => Array(),
-					 );
+				SQ_LINK_TYPE_1	=> Array(),
+				SQ_LINK_TYPE_2	=> Array(),
+				SQ_LINK_TYPE_3	=> Array(),
+				SQ_LINK_NOTICE	=> Array(),
+			   );
 
 	}//end _getAllowedLinks()
 
@@ -347,9 +347,6 @@ class Trigger_Manager extends Asset
 		$state_hash['parents']      = $state['immediate_parents'];
 		$state_hash['children']     = $state['immediate_children'];
 
-		// assume active triggers only
-		$state_hash['active'] = SQ_TRIG_STATUS_ACTIVE;
-
 		return $state_hash;
 
 	}//end _calculateStateHash()
@@ -432,13 +429,9 @@ class Trigger_Manager extends Asset
 		// compose query
 		$sql = 'SELECT DISTINCT "triggerid"
 				FROM '.SQ_TABLE_PREFIX.'trig_hash
-				WHERE (active = '.$db->quoteSmart($state_hash['active']).')
-					AND (event = '.$db->quoteSmart($state_hash['event']).'
-						 OR event = \'\')
-					AND (assetid = '.$db->quoteSmart($state_hash['assetid']).'
-						 OR assetid = \'\')
-					AND (asset_type = '.$db->quoteSmart($state_hash['asset_type']).'
-						 OR asset_type = \'\')
+				WHERE (event = '.$db->quoteSmart($state_hash['event']).' OR event = \'\')
+					AND (assetid = '.$db->quoteSmart($state_hash['assetid']).' OR assetid = \'\')
+					AND (asset_type = '.$db->quoteSmart($state_hash['asset_type']).' OR asset_type = \'\')
 					AND ('.$treeid_sql.')
 					AND ('.$parent_sql.')
 					AND ('.$child_sql.')';
@@ -669,7 +662,7 @@ class Trigger_Manager extends Asset
 		// prepare and save the hash
 		// the edit interface can set the optional 'save_hash' index to false, which will cause
 		// the hash not to be saved for this trigger, for whatever reason
-		if ($status && array_get_index($trigger, 'save_hash', true)) {
+		if ($status && array_get_index($trigger, 'save_hash', true) && $trigger_db['active']) {
 			$hash = array_get_index($trigger, 'state_hash');
 
 			if (empty($hash)) {
@@ -762,14 +755,13 @@ class Trigger_Manager extends Asset
 
 		// define the defaults
 		$state_hash_defaults = Array(
-									 'event'          => '',
-									 'assetid'        => '',
-									 'asset_type'     => '',
-									 'treeid'         => '',
-									 'tree_propagate' => SQ_TRIG_TREE_NO_PROPAGATE,
-									 'triggerid'      => '',
-									 'active'         => SQ_TRIG_STATUS_ACTIVE,
-									 );
+								'event'				=> '',
+								'assetid'			=> '',
+								'asset_type'		=> '',
+								'treeid'			=> '',
+								'tree_propagate'	=> SQ_TRIG_TREE_NO_PROPAGATE,
+								'triggerid'			=> '',
+							   );
 
 		// make sure every field has data, and that no fields are null
 		foreach ($state_hash_defaults as $defaults_id => $defaults_data) {
