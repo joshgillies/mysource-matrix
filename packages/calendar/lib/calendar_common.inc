@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.8 2004/11/22 04:19:09 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.9 2004/11/22 05:37:13 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,13 +30,12 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
 
 require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-require_once dirname(__FILE__).'/../calendar_events/calendar_event_recurring/calendar_event_recurring.inc';
 
 
 /**
@@ -55,15 +54,33 @@ function build_single_event_query_base(&$trees)
 	$type_codes = array_merge($type_codes, quoted_descendants('calendar_event_cancellation'));
 	$type_codes = array_merge($type_codes, quoted_descendants('calendar_event_modification'));
 	
-	return
-	'SELECT a.assetid, a.type_code, a.name, t.treeid, ('.build_case_statement('t.treeid',$trees).') AS root_node, cd.* FROM '.build_join_statements().' WHERE a.type_code IN ( '.implode(',', $type_codes).')';
+	$sql = 'SELECT a.assetid, a.type_code, a.name, t.treeid, ('.build_case_statement('t.treeid',$trees).') as root_node, p.granted as access, cd.* FROM '.build_join_statements().' WHERE a.type_code IN ( '.implode(',', $type_codes).')';
 
+	if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
+		if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+			$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
+			array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
+			for(reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+				$userids[$i] = $db->quote($userids[$i]);
+			}
+			$userid_cond = ' AND p.userid  IN ('.implode(',', $userids).')';
+		}
+	} else {
+		// public users
+		$userid_cond = ' AND p.userid = 0';
+	}
+	if (isset($userid_cond)) {
+		$sql .= $userid_cond.' AND p.granted = 1 AND (p.permission >= '.$db->quote(SQ_PERMISSION_WRITE).' OR (status >= '.$db->quote(SQ_STATUS_LIVE).' AND p.permission >= '.$db->quote(SQ_PERMISSION_READ).'))';
+	}
+	
+	return $sql;
+	
 }//end build_single_event_query_base()
 
 
 function build_join_statements()
 {
-	return '('.SQ_TABLE_RUNNING_PREFIX.'ast a JOIN ('.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t ON l.linkid = t.linkid) on l.minorid = a.assetid) JOIN '.SQ_TABLE_RUNNING_PREFIX.'cal_date_val cd ON a.assetid = cd.assetid';
+	return '(('.SQ_TABLE_RUNNING_PREFIX.'ast a INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON a.assetid = p.assetid) join ('.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l join '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t on l.linkid = t.linkid) on l.minorid = a.assetid) join '.SQ_TABLE_RUNNING_PREFIX.'cal_date_val cd on a.assetid = cd.assetid';
 
 }//end build_join_statements()
 
@@ -99,8 +116,27 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null)
 	$type_codes = quoted_descendants('calendar_event_recurring');
 
 	$sql =
-	'SELECT a.assetid, a.type_code, a.name, t.treeid, ('.build_case_statement('t.treeid',$trees).") AS root_node, cd.* \nFROM (".SQ_TABLE_RUNNING_PREFIX.'ast a JOIN ('.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t ON l.linkid = t.linkid) ON l.minorid = a.assetid) JOIN '.SQ_TABLE_RUNNING_PREFIX."cal_date_val cd ON a.assetid = cd.assetid \nWHERE (a.type_code = ".implode(',', $type_codes).") \nAND ";
+	'SELECT a.assetid, a.type_code, a.name, t.treeid, ('.build_case_statement('t.treeid',$trees).") as root_node, p.granted as access, cd.* \nFROM ". build_join_statements()." \nWHERE (a.type_code = ".implode(',', $type_codes).") \n";
 
+	if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
+		if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+			$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
+			array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
+			for(reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+				$userids[$i] = $db->quote($userids[$i]);
+			}
+			$userid_cond = ' AND p.userid  IN ('.implode(',', $userids).')';
+		}
+	} else {
+		// public users
+		$userid_cond = ' AND p.userid = 0';
+	}
+	// if user id condition is set - currently not set when user is root or system admin
+	if (isset($userid_cond)) {
+		$sql .= $userid_cond.' AND p.granted = 1 AND (p.permission >= '.$db->quote(SQ_PERMISSION_WRITE).' OR (status >= '.$db->quote(SQ_STATUS_LIVE).' AND p.permission >= '.$db->quote(SQ_PERMISSION_READ).'))';
+	}
+	$sql .= ' AND ';
+	
 	$sql_freqs = Array();
 
 	switch($view) {
@@ -687,6 +723,8 @@ function expand_single_event(&$result_list, &$event, $assetid, $first_day, $last
 */
 function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $last_day, $day_start_time, $day_end_time) 
 {
+	require_once dirname(__FILE__).'/../calendar_events/calendar_event_recurring/calendar_event_recurring.inc';
+
 	$event['expanded'] = 1;
 	$event_start_date = sprintf('%04d-%02d-%02d', $event['start_date_year'], $event['start_date_mon'], $event['start_date_mday']);
 	$event_end_date = sprintf('%04d-%02d-%02d', $event['end_date_year'], $event['end_date_mon'], $event['end_date_mday']);
