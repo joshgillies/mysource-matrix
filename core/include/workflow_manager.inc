@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: workflow_manager.inc,v 1.40 2003/10/27 23:37:53 mmcintyre Exp $
+* $Id: workflow_manager.inc,v 1.41 2003/11/11 04:40:27 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -593,7 +593,7 @@ class Workflow_Manager extends MySource_Object
 		$log->subject = 'Asset Changes Approved';
 		$log->body    = 'User "'.$user->name.'" has approved '.$asset_type.' "'.$asset->name.'" to go live.';
 		// create a link for navigation to the workflow screen for this asset
-		$log->body .= "\n\n".'A full report for the Workflow of "'.$asset->name.'" can be found on the <a href="#" onClick="self.parent.location=\''.$asset->getBackendHref('workflow').'\'; return false;">Workflow Screen.</a>';
+		$log->body .= "\n\n".'A full report for the Workflow of "'.$asset->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$asset->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>';
 		$log->parameters['assetid'] = $asset->id;
 		$log->parameters['version'] = substr($asset->version, 0, strrpos($asset->version, '.'));
 		$log->send();
@@ -620,7 +620,7 @@ class Workflow_Manager extends MySource_Object
 					$msg->subject = 'Workflow Approval Required';
 					$msg->body    = $asset_type.' "'.$asset->name.'" is currently in workflow and has progressed from step '.(int)$steps_before[$schemaid].' to step '.(int)$step.'.'."\n".'You are now required to approve or reject the changes made to "'.$asset->name.'" so the workflow process can continue.';
 					// create a link for navigation to the workflow screen for this asset
-					$msg->body .= "\n\n".'A full report for the Workflow of "'.$asset->name.'" can be found on the <a href="#" onClick="self.parent.location=\''.$asset->getBackendHref('workflow').'\'; return false;">Workflow Screen.</a>';
+					$msg->body .= "\n\n".'A full report for the Workflow of "'.$asset->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$asset->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>';
 					$msg->type    = 'asset.workflow.invitation';
 					$msg->parameters['assetid'] = $asset->id;
 					$msg->send();
@@ -837,7 +837,7 @@ class Workflow_Manager extends MySource_Object
 			$log->body    = $asset_type.' "'.$asset->name.'" is currently in workflow.'."\n".'You are now required to approve or reject the changes made to "'.$asset->name.'" so the workflow process can continue.';
 			
 			// create a link for navigation to the workflow screen for this asset
-			$log->body .= "\n\n".'A full report for the Workflow of "'.$asset->name.'" can be found on the <a href="#" onClick="self.parent.location=\''.$asset->getBackendHref('workflow').'\'; return false;">Workflow Screen.</a>';
+			$log->body .= "\n\n".'A full report for the Workflow of "'.$asset->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$asset->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>';
 			$log->type    = 'asset.workflow.invitation';
 			$log->parameters['assetid'] = $asset->id;
 			$log->send();
@@ -929,7 +929,7 @@ class Workflow_Manager extends MySource_Object
 			$msg->subject = 'Asset Changes Rejected';
 			$msg->body    = 'User "'.$user->name.'" has rejected the changes made to '.$asset_type.' "'.$asset->name.'". The workflow process has been cancelled.';
 			// create a link for navigation to the workflow screen for this asset
-			$msg->body .= "\n\n".'A full report for the Workflow of "'.$asset->name.'" can be found on the <a href="#" onClick="self.parent.location=\''.$asset->getBackendHref('workflow').'\'; return false;">Workflow Screen.</a>';
+			$msg->body .= "\n\n".'A full report for the Workflow of "'.$asset->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$asset->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>';
 			$msg->type    = 'asset.workflow.announce';
 			$msg->parameters['assetid'] = $asset->id;
 			$msg->send();

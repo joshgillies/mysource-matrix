@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: internal_message.inc,v 1.25 2003/10/27 23:37:16 mmcintyre Exp $
+* $Id: internal_message.inc,v 1.26 2003/11/11 04:40:27 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -220,8 +220,9 @@ class Internal_Message extends MySource_Object
 			require_once(SQ_INCLUDE_PATH.'/backend_outputter.inc');
 
 			// add the message to the session so the backend outputter picks it up next time
-			// it prints the messages - we cant reply on the backend outputter being us=
-			$_SESSION['backend_outputter_msgs'][] = Array('type' => SQ_BO_MSG_NOTICE, 'msg' => $this->body);
+			// it prints the messages - we cant reply on the backend outputter being us
+			$log_body = preg_replace('|<SQ_MSG_LINK[^>]*?>(.*?)</SQ_MSG_LINK>|', '\\1', $this->body);
+			$_SESSION['backend_outputter_msgs'][] = Array('type' => SQ_BO_MSG_NOTICE, 'msg' => $log_body);
 
 		}//end if logging message to flash
 
@@ -235,7 +236,8 @@ class Internal_Message extends MySource_Object
 				trigger_error('Unable to open log file for writing ['.SQ_DATA_PATH.'/private/logs/system.log'.']', E_USER_WARNING);
 			}
 
-			$log_line = '['.$this->sent.'] ['.$this->from.':'.$from_name.'] ['.$this->type.' - '.$param_string.'] ('.$this->subject.') - '.str_replace("\n", '<newline/>', $this->body)."\n";
+			$log_body = preg_replace('|<SQ_MSG_LINK[^>]*?>(.*?)</SQ_MSG_LINK>|', '\\1', $this->body);
+			$log_line = '['.$this->sent.'] ['.$this->from.':'.$from_name.'] ['.$this->type.' - '.$param_string.'] ('.$this->subject.') - '.str_replace("\n", '<newline/>', $log_body)."\n";
 
 			if (!fwrite($fp, $log_line)) {
 				trigger_error('Unable to write log to file ['.SQ_DATA_PATH.'/private/logs/system.log'.']', E_USER_WARNING);
@@ -276,11 +278,12 @@ class Internal_Message extends MySource_Object
 				return false;
 			}
 
+			$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $this->body);
 			$values = Array('messageid'  => $messageid,
 							'userto'     => 0,
 							'userfrom'   => $this->from,
 							'subject'    => $this->subject,
-							'body'       => $this->body,
+							'body'       => $log_body,
 							'type'       => $this->type,
 							'priority'   => $this->priority,
 							'status'     => $this->status,
@@ -335,8 +338,9 @@ class Internal_Message extends MySource_Object
 
 					// get the body with a header and a footer attached
 					$owner = SQ_CONF_SYSTEM_OWNER;
-					$text_body = $this->formatEmail($this->body, $owner, 'text');
-					$html_body = $this->formatEmail($this->body, $owner, 'html');
+					$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $this->body);
+					$text_body = $this->formatEmail($log_body, $owner, 'text');
+					$html_body = $this->formatEmail($log_body, $owner, 'html');
 		
 					$mime->setTXTBody(strip_tags($text_body));
 					$mime->setHTMLBody($html_body);
@@ -356,6 +360,7 @@ class Internal_Message extends MySource_Object
 				if (is_null($user)) continue;
 
 				$body = $this->formatBody($user);
+				$log_body = preg_replace('|<SQ_MSG_LINK[^>]*?href="([^"]+)"[^>]*?>(.*?)</SQ_MSG_LINK>|', '<a href="#" onClick="self.parent.location=\'\\1\'; return false;">\\2</a>', $body);
 
 				// log the internal message
 				$messageid = $db->nextId('sq_sequence_internal_message');
@@ -369,7 +374,7 @@ class Internal_Message extends MySource_Object
 								'userto'     => $userid,
 								'userfrom'   => $this->from,
 								'subject'    => $this->subject,
-								'body'       => $body,
+								'body'       => $log_body,
 								'type'       => $this->type,
 								'priority'   => $this->priority,
 								'status'     => $this->status,
@@ -386,8 +391,9 @@ class Internal_Message extends MySource_Object
 				$to_email = trim($user->attr('email'));
 				
 				// get the body with a header and a footer attached
-				$text_body = $this->formatEmail($body, $user, 'text');
-				$html_body = $this->formatEmail($body, $user, 'html');
+				$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $body);
+				$text_body = $this->formatEmail($log_body, $user, 'text');
+				$html_body = $this->formatEmail($log_body, $user, 'html');
 
 				$mime->setTXTBody(strip_tags($text_body));
 				$mime->setHTMLBody($html_body);

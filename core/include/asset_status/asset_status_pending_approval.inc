@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_status_pending_approval.inc,v 1.17 2003/10/24 02:44:53 mmcintyre Exp $
+* $Id: asset_status_pending_approval.inc,v 1.18 2003/11/11 04:40:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -141,7 +141,7 @@ class Asset_Status_Pending_Approval extends Asset_Status
 					$log->subject = 'Asset Changes Rejected';
 					$log->body    = 'User "'.$user->name.'" has rejected the changes made to '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'". The status of "'.$this->owner->name.'" has reverted to '.get_status_description($new_status);
 					// create a link for navigation to the workflow screen for this asset
-					$log->body .= "\n\n".'A full report for the Workflow of "'.$this->owner->name.'" can be found on the <a href="#" onClick="self.parent.location=\''.$this->owner->getBackendHref('workflow').'\'; return false;">Workflow Screen.</a>';
+					$log->body .= "\n\n".'A full report for the Workflow of "'.$this->owner->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>.';
 					$log->type    = 'asset.workflow';
 					$log->parameters['assetid'] = $this->owner->id;
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
@@ -191,7 +191,7 @@ class Asset_Status_Pending_Approval extends Asset_Status
 						$log = $ms->newMessage();
 						$log->subject = 'Workflow Completed';
 						$log->body    = 'The workflow process for '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" has been completed. "'.$this->owner->name.'" is now approved and can be made live by an administrator.';
-						$log->body .= "\n\n".'A full report for the Workflow of "'.$this->owner->name.'" can be found on the <a href="#" onClick="self.parent.location=\''.$this->owner->getBackendHref('workflow').'\'; return false;">Workflow Screen.</a>';
+						$log->body .= "\n\n".'A full report for the Workflow of "'.$this->owner->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>.';
 						$log->type    = 'asset.workflow';
 						$log->parameters['assetid'] = $this->owner->id;
 						$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_status_live.inc,v 1.11 2003/10/24 02:44:53 mmcintyre Exp $
+* $Id: asset_status_live.inc,v 1.12 2003/11/11 04:40:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -124,7 +124,7 @@ class Asset_Status_Live extends Asset_Status
 					$log->subject = 'Asset Up For Review';
 					$log->body    = 'User "'.$user->name.'" has placed '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" up for review. The workflow process has been started.';
 					// create a link for navigation to the workflow screen for this asset
-					$log->body .= "\n\n".'<a href="#" onClick="self.parent.location=\''.$this->owner->getBackendHref('workflow').'\'; return false;">Click here for the Workflow Screen for this Asset.</a>';
+					$log->body .= "\n\n".'<SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Click here for the Workflow Screen for this asset</SQ_MSG_LINK>.';
 					$log->type    = 'asset.workflow';
 					$log->parameters['assetid'] = $this->owner->id;
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
