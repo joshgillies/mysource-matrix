@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.19 2004/09/12 23:58:25 tbarrett Exp $
+* $Id: page_calendar_management.inc,v 1.20 2004/09/14 05:58:00 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.19 $ - 1.0
+* @version $Revision: 1.20 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -94,7 +94,7 @@ class Page_Calendar_Management extends Asset_Management
 		$this->vars['day_ends_at']	= Array(
 														'added'     => '0.1',
 														'type'      => 'text',
-														'default'   => '24:00',
+														'default'   => '23:59',
 														);
 														
 		
