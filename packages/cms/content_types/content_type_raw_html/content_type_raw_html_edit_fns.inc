@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_raw_html_edit_fns.inc,v 1.2 2004/09/24 01:21:08 gsherwood Exp $
+* $Id: content_type_raw_html_edit_fns.inc,v 1.2.2.1 2004/09/30 04:37:46 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -64,7 +64,9 @@ class Content_Type_Raw_HTML_Edit_Fns extends Content_Type_Edit_Fns
 	{
 		if ($asset->writeAccess('attributes')) {
 			$size = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_RAW_HTML_SIZE');
-			text_area($prefix.'_html', html_entity_decode($asset->attr('html')), $size['width'], $size['height']);
+			$html = $asset->attr('html');
+			$html = str_replace('&lt;?php', '<?php', $html);
+			text_area($prefix.'_html', $html, $size['width'], $size['height']);
 		}
 		return true;
 
@@ -84,7 +86,11 @@ class Content_Type_Raw_HTML_Edit_Fns extends Content_Type_Edit_Fns
 	function processBackend($link, &$asset, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
-			$html = htmlentities($_POST[$prefix.'_html']);
+			$html = $_POST[$prefix.'_html'];
+
+			// encode PHP so it doesnt get executed
+			$html = str_replace('<?php', '&lt;?php', $html);
+			
 			$current_html = $asset->attr('html');
 			if ($html != $current_html) {
 				if ($asset->setAttrValue('html', $html)) return true;
