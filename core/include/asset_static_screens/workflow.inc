@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.3 2004/01/16 11:45:56 brobertson Exp $
+* $Id: workflow.inc,v 1.3.2.1 2004/03/02 18:29:12 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -487,12 +487,12 @@ function processWorkflow(&$owner, &$o, &$ei)
 			if ($cascade_changes) {
 				// cascading access of some kind, so queue it up for the HIPO
 				$schema_vars[] = Array('access'          => (int)$post_data['new']['access'],
-									   'schemaid'        => (int)$post_data['new']['schemaid']['assetid'],
+									   'schemaid'        => $post_data['new']['schemaid']['assetid'],
 									   'previous_access' => null,
 									   );
 			} else {
 				// lets do this ourselves
-				if (!$wfm->setSchema($owner->id, (int)$post_data['new']['schemaid']['assetid'], (int)$post_data['new']['access'])) return $updated;
+				if (!$wfm->setSchema($owner->id, $post_data['new']['schemaid']['assetid'], (int)$post_data['new']['access'])) return $updated;
 			}
 		}
 	}
@@ -500,7 +500,6 @@ function processWorkflow(&$owner, &$o, &$ei)
 	// revoke [deny] schema (apply or deny can be revoked)
 	if (!empty($post_data['delete'])) {
 		foreach ($post_data['delete'] as $schemaid => $on) {
-			$schemaid = (int)$schemaid;
 			if ($cascade_changes) {
 				$schemas = $wfm->getSchemas($owner->id);
 				$current_access = $schemas[$schemaid];

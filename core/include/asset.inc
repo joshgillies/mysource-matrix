@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.270.2.2 2004/03/02 16:00:40 brobertson Exp $
+* $Id: asset.inc,v 1.270.2.3 2004/03/02 18:29:12 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,9 +38,9 @@ class Asset extends MySource_Object
 
 	/**
 	* The unique ID for this asset
-	* @var int
+	* @var string
 	*/
-	var $id = 0;
+	var $id = '';
 
 	/**
 	* The version number of the asset (x.x.x)
@@ -163,10 +163,10 @@ class Asset extends MySource_Object
 	/**
 	* Constructor
 	*
-	* @param int	$assetid	the asset id to be loaded
+	* @param string	$assetid	the asset id to be loaded
 	*
 	*/
-	function Asset($assetid=0)
+	function Asset($assetid='')
 	{
 		$this->MySource_Object();
 		if ($assetid) {
@@ -214,8 +214,13 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// welcome to sequences, they are cool, see the PEAR::DB docs for more info
-		$assetid = $db->nextId('sq_sequence_asset');
-		if (DB::isError($assetid)) trigger_error($assetid->getMessage().'<br/>'.$assetid->getUserInfo(), E_USER_ERROR);
+		$seq_assetid = $db->nextId('sq_sequence_asset');
+		if (DB::isError($seq_assetid)) trigger_error($seq_assetid->getMessage().'<br/>'.$seq_assetid->getUserInfo(), E_USER_ERROR);
+
+		// OK, I chose "'" as the separator for the specific purpose that it would break SQL if the assetid is not quoted
+		// I was going to use a dash, "-", but that would have been equated to a subtraction and that would have really been a shit to debug
+		$assetid = SQ_CONF_SYSTEM_ID.'\''.$seq_assetid;
+		unset($seq_assetid);
 
 		$name   = ucwords(str_replace('_', ' ', $this->type())).' #'.$assetid;
 		$now    = time();
@@ -231,7 +236,7 @@ class Asset extends MySource_Object
 						'created'        => ts_iso8601($now),
 						'created_userid' => $userid,
 						'updated'        => ts_iso8601($now),
-						'updated_userid' => $userid
+						'updated_userid' => $userid,
 						);
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset', $values)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -263,7 +268,7 @@ class Asset extends MySource_Object
 			$ms->abortLog();
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-			$this->id = 0;
+			$this->id = '';
 			return false;
 		}
 
@@ -273,7 +278,7 @@ class Asset extends MySource_Object
 			if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), SQ_PERMISSION_WRITE, true)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-				$this->id = 0;
+				$this->id = '';
 				return false;
 			}
 		}
@@ -291,7 +296,7 @@ class Asset extends MySource_Object
 			$ms->abortLog();
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-			$this->id = 0;
+			$this->id = '';
 			return false;
 		}
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
@@ -302,7 +307,7 @@ class Asset extends MySource_Object
 			$ms->abortLog();
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-			$this->id = 0;
+			$this->id = '';
 			return false;
 		}
 
@@ -319,13 +324,13 @@ class Asset extends MySource_Object
 				$ms->abortLog();
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-				$this->id = 0;
+				$this->id = '';
 				return false;
 			}
 
 			// if we are creating a dependant link, we need to make sure this new
 			// asset is locked in the same chain as the parent (ie, has the same source_assetid)
-			$source_assetid = 0;
+			$source_assetid = '';
 			if ($link['dependant']) {
 				$lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id, 'links');
 				$source_assetid = $lock['source_assetid'];
@@ -334,7 +339,7 @@ class Asset extends MySource_Object
 				$ms->abortLog();
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-				$this->id = 0;
+				$this->id = '';
 				return false;
 			}
 
@@ -360,7 +365,7 @@ class Asset extends MySource_Object
 				$ms->abortLog();
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-				$this->id = 0;
+				$this->id = '';
 				return false;
 			}
 
@@ -372,7 +377,7 @@ class Asset extends MySource_Object
 					$ms->abortLog();
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-					$this->id = 0;
+					$this->id = '';
 					return false;
 				}
 			} else if ($new_link['dependant']) {
@@ -385,7 +390,7 @@ class Asset extends MySource_Object
 							$ms->abortLog();
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-							$this->id = 0;
+							$this->id = '';
 							return false;
 					}
 				}
@@ -396,7 +401,7 @@ class Asset extends MySource_Object
 					$ms->abortLog();
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-					$this->id = 0;
+					$this->id = '';
 					return false;
 				}
 			}
@@ -405,12 +410,12 @@ class Asset extends MySource_Object
 				$ms->abortLog();
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-				$this->id = 0;
+				$this->id = '';
 				return false;
 			}
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$ms->closeLog();
-			return (int) $linkid;
+			return $linkid;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$ms->closeLog();
@@ -467,7 +472,7 @@ class Asset extends MySource_Object
 		// make sure the asset we are loading is of the same type as our class
 		if ($type_code != $this->type()) {
 			trigger_error('Asset #'.$assetid.' is not a '.$this->type(), E_USER_WARNING);
-			$this->id             = 0;
+			$this->id             = '';
 			$this->created        = null;
 			$this->created_userid = null;
 			$this->updated        = null;
@@ -2115,7 +2120,7 @@ class Asset extends MySource_Object
 
 			$where = 'attributeid '.$attr_id_cond;
 			$select_from = SQ_TABLE_PREFIX.'asset_attribute';
-			$values = Array('assetid'      => $this->id,
+			$values = Array('assetid'      => $db->quote($this->id),
 							'attributeid'  => 'attributeid',
 							'custom_value' => $value_cases
 							);

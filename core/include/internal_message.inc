@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.29.2.1 2004/02/18 11:39:06 brobertson Exp $
+* $Id: internal_message.inc,v 1.29.2.2 2004/03/02 18:29:12 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -44,7 +44,7 @@ class Internal_Message extends MySource_Object
 
 	/**
 	* An array of users or user groups to send the message to
-	* @var Array(int)
+	* @var Array(string)
 	*/
 	var $to = Array();
 
@@ -293,12 +293,15 @@ class Internal_Message extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			// log a message for the system so it is not deleted
-			$messageid = $db->nextId('sq_sequence_internal_message');
-			if (DB::isError($messageid)) {
-				trigger_error($messageid->getMessage().'<br/>'.$messageid->getUserInfo(), E_USER_ERROR);
+			$seq_messageid = $db->nextId('sq_sequence_internal_message');
+			if (DB::isError($seq_messageid)) {
+				trigger_error($seq_messageid->getMessage().'<br/>'.$seq_messageid->getUserInfo(), E_USER_ERROR);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
+
+			// See Asset::create() for reason for using "'" as separator
+			$messageid = SQ_CONF_SYSTEM_ID.'\''.$seq_messageid;
 
 			$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $this->body);
 			$values = Array('messageid'  => $messageid,
@@ -385,12 +388,15 @@ class Internal_Message extends MySource_Object
 				$log_body = preg_replace('|<SQ_MSG_LINK[^>]*?href="([^"]+)"[^>]*?>(.*?)</SQ_MSG_LINK>|', '<a href="#" onClick="self.parent.location=\'\\1\'; return false;">\\2</a>', $body);
 
 				// log the internal message
-				$messageid = $db->nextId('sq_sequence_internal_message');
-				if (DB::isError($messageid)) {
-					trigger_error($messageid->getMessage().'<br/>'.$messageid->getUserInfo(), E_USER_ERROR);
+				$seq_messageid = $db->nextId('sq_sequence_internal_message');
+				if (DB::isError($seq_messageid)) {
+					trigger_error($seq_messageid->getMessage().'<br/>'.$seq_messageid->getUserInfo(), E_USER_ERROR);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
+
+				// See Asset::create() for reason for using "'" as separator
+				$messageid = SQ_CONF_SYSTEM_ID.'\''.$seq_messageid;
 
 				$values = Array('messageid'  => $messageid,
 								'userto'     => $userid,
@@ -550,7 +556,7 @@ class Internal_Message extends MySource_Object
 	* Returns an array of users this message will be sent to
 	* That is, it expands the groups ids and returns a unique array of userids
 	*
-	* @return Array(int)
+	* @return Array(string)
 	* @access public
 	*/
 	function expandUsersTo()

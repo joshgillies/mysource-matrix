@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_config.inc,v 1.7.2.1 2004/02/18 11:39:06 brobertson Exp $
+* $Id: system_asset_config.inc,v 1.7.2.2 2004/03/02 18:29:12 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -111,7 +111,7 @@ class System_Asset_Config extends Config
 						trigger_error('Unable to find a single asset with a type_code "'.$type_code.'", system asset generation failed', E_USER_WARNING);
 						return false;
 					}
-					$system_assets[$type_code] = (int) $assetids[0];
+					$system_assets[$type_code] = $assetids[0];
 				}//end foreach
 				echo '$system_assets = ';
 				var_export($system_assets);

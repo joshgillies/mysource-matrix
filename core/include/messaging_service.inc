@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.23.2.1 2004/02/18 11:39:06 brobertson Exp $
+* $Id: messaging_service.inc,v 1.23.2.2 2004/03/02 18:29:12 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -236,10 +236,10 @@ class Messaging_Service extends MySource_Object
 	* but messages that want to utilise other options need to set these manually
 	* so as to not clutter this functions
 	*
-	* @param Array(int)	$to			an array of user or group IDs to send this message to
-	* @param string		$subject	the subject of the message (keep it short)
-	* @param string		$body		the main body of the message
-	* @param string		$type		the log type of this message (if any)
+	* @param Array(string)	$to			an array of user or group IDs to send this message to
+	* @param string			$subject	the subject of the message (keep it short)
+	* @param string			$body		the main body of the message
+	* @param string			$type		the log type of this message (if any)
 	*
 	* @return object Interal_Message
 	* @access public
@@ -313,7 +313,7 @@ class Messaging_Service extends MySource_Object
 	/**
 	* Gets all messages for the passed userid
 	*
-	* @param int			$userid			id of the user you are fetching messages for
+	* @param string			$userid			id of the user you are fetching messages for
 	* @param string			$type			the type of the message eg. asset.attributes
 	* @param array(string)	$statii			can limit returned messages to those with a status
 	*										in this array

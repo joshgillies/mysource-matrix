@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.43.2.1 2004/02/18 11:39:06 brobertson Exp $
+* $Id: workflow_manager.inc,v 1.43.2.2 2004/03/02 18:29:12 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -67,7 +67,7 @@ class Workflow_Manager extends MySource_Object
 	*
 	* Can also optionally get running workflows only.
 	*
-	* @param int		$assetid	the ID of the asset to get schemas for
+	* @param string		$assetid	the ID of the asset to get schemas for
 	* @param boolean	$access		type of access : null = all, true = applied, false = denied
 	* @param boolean	$running	only getting running workflows
 	*
@@ -77,7 +77,7 @@ class Workflow_Manager extends MySource_Object
 	function getSchemas($assetid, $access=null, $running=false)
 	{
 		$storage_access = ((is_null($access)) ? 2 : (int) $access);
-		if (!isset($this->_tmp['schemas'][(int)$assetid][$storage_access][(int)$running])) {
+		if (!isset($this->_tmp['schemas'][$assetid][$storage_access][(int)$running])) {
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 			$sql = '  SELECT DISTINCT schemaid, access
@@ -99,10 +99,10 @@ class Workflow_Manager extends MySource_Object
 				else $schemas[] = $data['schemaid'];
 			}
 
-			$this->_tmp['schemas'][(int)$assetid][$storage_access][(int)$running] = $schemas;
+			$this->_tmp['schemas'][$assetid][$storage_access][(int)$running] = $schemas;
 		}
 
-		return $this->_tmp['schemas'][(int)$assetid][$storage_access][(int)$running];
+		return $this->_tmp['schemas'][$assetid][$storage_access][(int)$running];
 
 	}//end getSchemas()
 
@@ -110,8 +110,8 @@ class Workflow_Manager extends MySource_Object
 	/**
 	* Apply a schema to or Deny from, an asset
 	*
-	* @param int		$assetid	the ID of the asset to set the schema on
-	* @param int		$schemaid	the ID of the schema to set
+	* @param string		$assetid	the ID of the asset to set the schema on
+	* @param string		$schemaid	the ID of the schema to set
 	* @param boolean	$access		is this schema applied (TRUE) or denied (FALSE)?
 	*
 	* @access public
@@ -119,8 +119,6 @@ class Workflow_Manager extends MySource_Object
 	*/
 	function setSchema($assetid, $schemaid, $access)
 	{
-		$assetid  = (int)  $assetid;
-		$schemaid = (int)  $schemaid;
 		$access   = (bool) $access;
 
 		$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
@@ -177,7 +175,7 @@ class Workflow_Manager extends MySource_Object
 			return false;
 		}
 
-		unset($this->_tmp['schemas'][(int)$assetid]);
+		unset($this->_tmp['schemas'][$assetid]);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
@@ -187,17 +185,14 @@ class Workflow_Manager extends MySource_Object
 	/**
 	* Remove a set schema from an asset
 	*
-	* @param int	$assetid	the ID of the asset to delete the schema from
-	* @param int	$schemaid	the ID of the schema to delete
+	* @param string	$assetid	the ID of the asset to delete the schema from
+	* @param string	$schemaid	the ID of the schema to delete
 	*
 	* @access public
 	* @return boolean
 	*/
 	function deleteSchema($assetid, $schemaid)
 	{
-		$assetid  = (int) $assetid;
-		$schemaid = (int) $schemaid;
-
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_error('Failed deleting workflow schema, Asset #'.$assetid.' does not exist', E_USER_WARNING);
@@ -220,7 +215,7 @@ class Workflow_Manager extends MySource_Object
 			return false;
 		}
 
-		unset($this->_tmp['schemas'][(int)$assetid]);
+		unset($this->_tmp['schemas'][$assetid]);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
@@ -236,8 +231,8 @@ class Workflow_Manager extends MySource_Object
 	* function being called. If the asset is loaded again, an infinite loop will occur because
 	* this function is called BEFORE the original asset has been stored in the factory.
 	*
-	* @param int	$assetid	the ID of the asset to get workflow for
-	* @param int	$schemaid	the ID of the schema to get workflow for (NULL for all workflows)
+	* @param string	$assetid	the ID of the asset to get workflow for
+	* @param mixed	$schemaid	the ID of the schema to get workflow for (NULL for all workflows)
 	*
 	* @access public
 	* @return array( schemaid => workflow_array )
@@ -245,8 +240,6 @@ class Workflow_Manager extends MySource_Object
 	*/
 	function getSchemaWorkflows($assetid, $schemaid='all')
 	{
-		$assetid = (int) $assetid;
-
 		if ($schemaid != 'all') {
 			// we are looking for a specific schema, but we might already have
 			// the information we need in the 'all' array
@@ -289,7 +282,7 @@ class Workflow_Manager extends MySource_Object
 	/**
 	* Set workflow values for an asset
 	*
-	* @param int	$assetid	the ID of the asset to set the values for
+	* @param string	$assetid	the ID of the asset to set the values for
 	* @param array	$workflow	the values to set
 	*
 	* @access public
@@ -297,8 +290,6 @@ class Workflow_Manager extends MySource_Object
 	*/
 	function setWorkflow($assetid, $workflow)
 	{
-		$assetid = (int) $assetid;
-
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_error('Failed setting workflow, Asset #'.$assetid.' does not exist', E_USER_WARNING);
@@ -353,11 +344,11 @@ class Workflow_Manager extends MySource_Object
 	* The publishers are based on the current step in the workflow
 	* so the users returned are only users who will affect the workflow at this point.
 	*
-	* @param int		$assetid	the ID of the asset to get publishers for
-	* @param int		$schemaid	the schema to get publishers for
+	* @param string		$assetid	the ID of the asset to get publishers for
+	* @param string		$schemaid	the schema to get publishers for
 	* @param boolean	$group		group the return value by workflowid
 	*
-	* @return array(int)
+	* @return array(string)
 	* @access public
 	*/
 	function whoCanPublish($assetid, $schemaid=null, $group=false)
@@ -392,10 +383,10 @@ class Workflow_Manager extends MySource_Object
 	* The publishers are based on the current step in the workflow
 	* so the users returned are only users who will affect the workflow at this point
 	*
-	* @param int	$assetid	the ID of the asset to get publishers for
-	* @param int	$schemaid	the id of the schema to find publishers for
+	* @param string	$assetid	the ID of the asset to get publishers for
+	* @param string	$schemaid	the id of the schema to find publishers for
 	*
-	* @return array(int)
+	* @return array(string)
 	* @access private
 	*/
 	function _whoCanPublishWorkflow($assetid, $schemaid)
@@ -550,15 +541,14 @@ class Workflow_Manager extends MySource_Object
 	/**
 	* Changes the running workflows for an asset to indicate that a user has approved the asset
 	*
-	* @param int	$assetid	the ID of the asset to set the approval for
-	* @param int	$publisher	the ID of the user who has approved
+	* @param string	$assetid	the ID of the asset to set the approval for
+	* @param string	$publisher	the ID of the user who has approved
 	*
 	* @return boolean
 	* @access public
 	*/
 	function recordPublish($assetid, $publisher)
 	{
-		$assetid = (int) $assetid;
 		$asset   = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_error('Failed recording workflow publish, Asset #'.$assetid.' does not exist', E_USER_WARNING);
@@ -764,16 +754,14 @@ class Workflow_Manager extends MySource_Object
 	* The generated array is a snap shot of the schema at a point in time that can get written
 	* to the database and used for publishing etc.
 	*
-	* @param int	$assetid	the ID of the asset to generate the fle for
+	* @param string	$assetid	the ID of the asset to generate the fle for
+	* @param string	$schemaid	the id of the schema to generate for
 	*
 	* @access public
 	* @return boolean
 	*/
 	function generateWorkflowArray($assetid, $schemaid)
 	{
-		$assetid  = (int) $assetid;
-		$schemaid = (int) $schemaid;
-
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_error('Failed getting workflow, Asset #'.$assetid.' does not exist', E_USER_WARNING);
@@ -804,14 +792,13 @@ class Workflow_Manager extends MySource_Object
 	/**
 	* Starts workflow by writing out all workflow arrays to the workflow table for the passed assetID
 	*
-	* @param int	$assetid	the ID of the asset to start workflow for
+	* @param string	$assetid	the ID of the asset to start workflow for
 	*
 	* @return boolean
 	* @access public
 	*/
 	function startWorkflow($assetid)
 	{
-		$assetid  = (int) $assetid;
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_error('Failed starting workflow, Asset #'.$assetid.' does not exist', E_USER_WARNING);
@@ -918,14 +905,13 @@ class Workflow_Manager extends MySource_Object
 	/**
 	* Cancel the currently running workflows for the passed asset
 	*
-	* @param int	$assetid	the ID of the asset to cancel workflow for
+	* @param string	$assetid	the ID of the asset to cancel workflow for
 	*
 	* @return boolean
 	* @access public
 	*/
 	function cancelWorkflow($assetid)
 	{
-		$assetid = (int) $assetid;
 		$asset   = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_error('Failed cancelling workflow, Asset #'.$assetid.' does not exist', E_USER_WARNING);
@@ -959,14 +945,13 @@ class Workflow_Manager extends MySource_Object
 	/**
 	* Completes the workflow by clearing out all the running workflows from the DB
 	*
-	* @param int	$assetid	the ID of the asset to complete workflow for
+	* @param string	$assetid	the ID of the asset to complete workflow for
 	*
 	* @return boolean
 	* @access public
 	*/
 	function completeWorkflow($assetid)
 	{
-		$assetid = (int) $assetid;
 		$asset   = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_error('Failed completing workflow, Asset #'.$assetid.' does not exist', E_USER_WARNING);
@@ -1004,14 +989,14 @@ class Workflow_Manager extends MySource_Object
 	* as the standard page. However, any tables can be shared and so they are not
 	* silent parties.
 	*
-	* @param int	$assetid	the ID of the asset to check
+	* @param string	$assetid	the ID of the asset to check
 	*
 	* @access public
 	* @return boolean
 	*/
 	function silentWorkflowParty($assetid)
 	{
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset((int) $assetid);
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) return true;
 		$edit_fns = $asset->getEditFns();
 		return !isset($edit_fns->static_screens['workflow']);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.164.2.2 2004/03/02 16:00:41 brobertson Exp $
+* $Id: asset_manager.inc,v 1.164.2.3 2004/03/02 18:29:12 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -408,7 +408,7 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns an array of assetid => inherited_types for assets of the passed codes
 	*
-	* @param array(int)		$assetids			an array of assets to limit
+	* @param array(string)	$assetids			an array of assets to limit
 	* @param array(string)	$type_code			an array of types codes to limit the results to
 	* @param boolean		$strict_type_code	ensure returned assets are of the passed type codes
 	*
@@ -764,7 +764,7 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns an array of information about assets of the passed codes
 	*
-	* @param array(int)		$assetids			an array of assets to limit
+	* @param array(string)	$assetids			an array of assets to limit
 	* @param array(string)	$type_code			an array of types codes to limit the results to
 	* @param boolean		$strict_type_code	ensure returned assets are of the passed type codes
 	*
@@ -1198,7 +1198,7 @@ class Asset_Manager extends MySource_Object
 
 				$user = &$this->getAsset($lock['userid']);
 
-				$locked_assetids = Array((int) $assetid);
+				$locked_assetids = Array($assetid);
 				foreach($lock['chained_assets'] as $row) $locked_assetids[] = $row['assetid'];
 
 				foreach ($locked_assetids as $locked_assetid) {
@@ -1274,7 +1274,7 @@ class Asset_Manager extends MySource_Object
 			if (empty($lock)) continue;
 
 			// is this asset already locked by someone else and we can't forceably acquire it, piss off
-			if ((int) $lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserid() && !$can_force) {
+			if ($lock['userid'] !== $GLOBALS['SQ_SYSTEM']->currentUserid() && !$can_force) {
 				$user = &$this->getAsset($lock['userid']);
 				trigger_error('You cannot release a lock that you do not own, the "'.$lock_type.'" lock on "'.$asset->name.'" is held by "'.$user->name.'"', E_USER_WARNING);
 				$success = false;
@@ -1360,11 +1360,11 @@ class Asset_Manager extends MySource_Object
 			$lock = $GLOBALS['SQ_SYSTEM']->getLockInfo('asset.'.$assetid.'.'.$lock_type, $full_chain, $check_expires);
 			if (!empty($lock)) {
 				$lock['lock_type']      = $lock_type;
-				$lock['source_assetid'] = (int) preg_replace('/^asset\.([0-9]+)\..*$/',      '\1', $lock['source_lockid']);
+				$lock['source_assetid'] = preg_replace('/^asset\.([0-9]+\'[0-9]+)\..*$/', '\1', $lock['source_lockid']);
 				if ($full_chain) {
 					for(reset($lock['chained_assets']); NULL !== ($k = key($lock['chained_assets'])); next($lock['chained_assets'])) {
-						$lock['chained_assets'][$k]['assetid'] = (int) preg_replace('/^asset\.([0-9]+)\..*$/', '\1', $lock['chained_assets'][$k]['lockid']);
-						$lock['chained_assets'][$k]['source_assetid'] = (int) preg_replace('/^asset\.([0-9]+)\..*$/', '\1', $lock['chained_assets'][$k]['source_lockid']);
+						$lock['chained_assets'][$k]['assetid'] = preg_replace('/^asset\.([0-9]+\'[0-9]+)\..*$/', '\1', $lock['chained_assets'][$k]['lockid']);
+						$lock['chained_assets'][$k]['source_assetid'] = preg_replace('/^asset\.([0-9]+\'[0-9]+)\..*$/', '\1', $lock['chained_assets'][$k]['source_lockid']);
 					}
 				}// endif
 			}// end if
@@ -1526,7 +1526,7 @@ class Asset_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT  l.linkid, l.value, l.link_type, l.sort_order, l.dependant, l.exclusive, ';
-		$where = 'l.linkid = '.$db->quote((int)$linkid);
+		$where = 'l.linkid = '.$db->quote($linkid);
 		if ($assetid > 0) {
 			$sql .= 'l.'.$other_side.'id, a.type_code as '.$other_side.'_type_code
 					 FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON  l.'.$other_side.'id = a.assetid';
@@ -1857,7 +1857,7 @@ class Asset_Manager extends MySource_Object
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
-	* @return array(int)
+	* @return array(string)
 	* @access public
 	*/
 	function getParents($assetid, $type_code='', $strict_type_code=true)
@@ -2085,15 +2085,15 @@ class Asset_Manager extends MySource_Object
 	* )
 	* </PRE>
 	*
-	* @param int|Array(int)	$majorids		the majorids to traverse the tree from
-	* @param integer		$levels			the number of levels to traverse (if null, traverse all levels)
-	* @param Array			$exclude_list	an array of assetid to exclude from the tree
-	* @param integer		$link_type		the type of wanted links
+	* @param string|Array(string)	$majorids		the majorids to traverse the tree from
+	* @param integer				$levels			the number of levels to traverse (if null, traverse all levels)
+	* @param Array					$exclude_list	an array of assetid to exclude from the tree
+	* @param integer				$link_type		the type of wanted links
 	*
 	* @access public
 	* @return Array()
 	*/
-	function  getAssetTree($majorids, $levels=null, $exclude_list=Array(), $link_type=SQ_SC_LINK_FRONTEND_NAV)
+	function getAssetTree($majorids, $levels=null, $exclude_list=Array(), $link_type=SQ_SC_LINK_FRONTEND_NAV)
 	{
 		$tree_data = Array();
 		if (!is_array($majorids)) $majorids = Array($majorids);
@@ -2106,11 +2106,11 @@ class Asset_Manager extends MySource_Object
 	/**
 	* does the work for getAssetTree
 	*
-	* @param int|Array(int)	$majorids		the majorids to traverse the tree from
-	* @param &Array			$tree_data		the data that is created recursively
-	* @param integer		$levels			the number of levels to traverse (if null, traverse all levels)
-	* @param Array			$exclude_list	an array of assetid to exclude from the tree
-	* @param integer		$link_type		the type of wanted links
+	* @param string|Array(string)	$majorids		the majorids to traverse the tree from
+	* @param &Array					$tree_data		the data that is created recursively
+	* @param integer				$levels			the number of levels to traverse (if null, traverse all levels)
+	* @param Array					$exclude_list	an array of assetid to exclude from the tree
+	* @param integer				$link_type		the type of wanted links
 	*
 	* @access private
 	* @return boolean
@@ -2120,6 +2120,12 @@ class Asset_Manager extends MySource_Object
 		// Stuff that is only needed once per design file
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
+		trigger_error('
+		CONSIDER THIS BROKEN. Two Things :
+			- need to quote the assetids
+			- there is probably a better way of doing this function, ie not recursing but using the actual asset_tree table', E_USER_WARNING);
+		return;
+
 		$assetids  = Array();
 		$majorids_str = '';
 		$exclude_str = implode(',', $exclude_list);
@@ -2128,7 +2134,7 @@ class Asset_Manager extends MySource_Object
 				$majorids_str .= $id.',';
 			} else {
 				foreach($tree_data[$id] as $row) {
-					$assetids[] = (int) $row['assetid'];
+					$assetids[] = $row['assetid'];
 				}
 			}
 		}
@@ -2144,8 +2150,8 @@ class Asset_Manager extends MySource_Object
 				if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 					$USERIDS_COND = '';
 				} else {
-					$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
-					array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
+					$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->currentUserId(), 'user_group', false);
+					array_push($userids, 0, $GLOBALS['SQ_SYSTEM']->currentUserId());
 					for(reset($userids); null !== ($i = key($userids)); next($userids)) $userids[$i] = $db->quote($userids[$i]);
 					$USERIDS_COND = 'AND p.userid  IN ('.implode(',', $userids).')';
 				}
@@ -2207,7 +2213,7 @@ class Asset_Manager extends MySource_Object
 				unset($asset);
 				if (!$read_access) continue;
 			}
-			$assetids[] = (int) $row['assetid'];
+			$assetids[] = $row['assetid'];
 			if (!isset($tree_data[$row['majorid']])) $tree_data[$row['majorid']] = Array();
 			$tree_data[$row['majorid']][$row['assetid']] = $row;
 
@@ -2496,12 +2502,16 @@ class Asset_Manager extends MySource_Object
 		if (is_null($sort_order) || (int) $sort_order > (int) $max || (int) $sort_order < 0) $sort_order = (int) $max;
 
 		// sequences are cool, see the PEAR::DB docs for more info
-		$linkid = $db->nextId('sq_sequence_asset_link');
-		if (DB::isError($linkid)) {
-			trigger_error($linkid->getMessage().'<br/>'.$linkid->getUserInfo(), E_USER_WARNING);
+		$seq_linkid = $db->nextId('sq_sequence_asset_link');
+		if (DB::isError($seq_linkid)) {
+			trigger_error($seq_linkid->getMessage().'<br/>'.$seq_linkid->getUserInfo(), E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return 0;
 		}
+
+		// See Asset::create() for reason for using "'" as separator
+		$linkid = SQ_CONF_SYSTEM_ID.'\''.$seq_linkid;
+		unset($seq_linkid);
 
 		// if this is a significant link, then do stuff with the tree
 		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
@@ -2620,7 +2630,6 @@ class Asset_Manager extends MySource_Object
 
 				// remove the current zeroed entries in the tree table,
 				// as we will be inserting over the top of them
-
 				$where_cond = 'treeid IN (~SQ0~)';
 
 				$concat = ($db->phptype == 'mysql')
@@ -3288,8 +3297,8 @@ class Asset_Manager extends MySource_Object
 		$link_type  = (int) $link_type;
 		$sort_order = (int) $sort_order;
 
-		$major = &$this->getAsset((int) $link['majorid'], $link['major_type_code']);
-		$minor = &$this->getAsset((int) $link['minorid'], $link['minor_type_code']);
+		$major = &$this->getAsset($link['majorid'], $link['major_type_code']);
+		$minor = &$this->getAsset($link['minorid'], $link['minor_type_code']);
 
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->openLog();
@@ -3459,7 +3468,7 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns an array of all user or user_group assets that have the passed permission for the passed asset
 	*
-	* @param int		$assetid		the assetid for asset whose permissions to get
+	* @param string		$assetid		the assetid for asset whose permissions to get
 	* @param string		$permission		the permission code you are getting
 	* @param boolean	$access			Type of Access : null = all, true = granted, false = denied
 	* @param boolean	$and_greater	get effective permission (eg read access = read
@@ -3554,8 +3563,8 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Sets a permission for the passed user or user_group
 	*
-	* @param int		$assetid	the assetid for asset whose permissions to set
-	* @param int		$userid		the id of the user or user_group to add the permission for
+	* @param string		$assetid	the assetid for asset whose permissions to set
+	* @param string		$userid		the id of the user or user_group to add the permission for
 	* @param string		$permission	the permission code you are adding
 	* @param boolean	$access		whether this permission grants access or not
 	*
@@ -3649,8 +3658,8 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Deletes a permission with the passed user or user_group
 	*
-	* @param int	$assetid		the assetid for asset whose permissions to delete
-	* @param int	$userid			the id of the user or user_group to remove the permission from
+	* @param string	$assetid		the assetid for asset whose permissions to delete
+	* @param string	$userid			the id of the user or user_group to remove the permission from
 	* @param string	$permission		the permission code you are deleting
 	*
 	* @return boolean
@@ -3658,8 +3667,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function deletePermission($assetid, $userid, $permission)
 	{
-		$assetid    = (int) $assetid;
-		$userid     = (int) $userid;
 		$permission = (int) $permission;
 
 		$asset = &$this->getAsset($assetid);
@@ -3926,12 +3933,12 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns the URL for an asset, closest to the $base_url
 	*
-	* @param int | array(int)	$assetids			the id of the asset you want the url for or an array
-	*												for a whole bunch of them
-	* @param string				$base_url			the url that we are want to match closest to
-	* @param boolean			$ignore_rollback	ignore rollback checks
+	* @param string|array(string)	$assetids			the id of the asset you want the url for or an array
+	*													for a whole bunch of them
+	* @param string					$base_url			the url that we are want to match closest to
+	* @param boolean				$ignore_rollback	ignore rollback checks
 	*
-	* @return mixed returns string if $assetids is an int and an array(int => string) if $assetids is an array
+	* @return mixed returns string url if $assetids is a scalar and an array([assetid] => [url]) if $assetids is an array
 	* @access public
 	*/
 	function getAssetURL($assetids, $base_url=null, $ignore_rollback=false)
@@ -4043,12 +4050,12 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns the href for an asset closest to the $base_url, but relative to the current url
 	*
-	* @param int | array(int)	$assetids			the id of the asset you want the href for or an array
-	*												for a whole bunch of them
-	* @param string				$base_url			the url that we are want to match closest to
-	* @param boolean			$ignore_rollback	ignore rollback checks
+	* @param string|array(string)	$assetids			the id of the asset you want the href for or an array
+	*													for a whole bunch of them
+	* @param string					$base_url			the url that we are want to match closest to
+	* @param boolean				$ignore_rollback	ignore rollback checks
 	*
-	* @return mixed returns string if $assetids is an in and an array(int => string) if $assetids is an array
+	* @return mixed returns string url if $assetids is a scalar and an array([assetid] => [url]) if $assetids is an array
 	* @access public
 	*/
 	function getAssetHref($assetids, $base_url=null, $ignore_rollback=false)

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.82.2.2 2004/03/02 16:00:41 brobertson Exp $
+* $Id: backend.inc,v 1.82.2.3 2004/03/02 18:29:12 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -76,6 +76,25 @@ class Backend extends MySource_Object
 	*/
 	function paint()
 	{
+
+		if (isset($_GET['SQ_BACKEND_PAGE']) && $_GET['SQ_BACKEND_PAGE'] == 'main') {
+			// temp hack to allow the flash to send stuff to the main screen with it's systemid-less assetids
+			if (strpos($_SERVER['HTTP_REFERER'], 'SQ_BACKEND_PAGE=sidenav') !== false) {
+				pre_echo($_GET);
+
+				foreach(Array('assetid', 'sq_asset_path', 'sq_link_path', 'parent_assetid') as $k) {
+					if (isset($_GET[$k]) && substr($_GET[$k], 0, 2) != "0'") 
+						$_GET[$k] = "0'".str_replace(',', ",0'", $_GET[$k]);
+					if (isset($_POST[$k]) && substr($_POST[$k], 0, 2) != "0'") 
+						$_POST[$k] = "0'".str_replace(',', ",0'", $_POST[$k]);
+					if (isset($_REQUEST[$k]) && substr($_REQUEST[$k], 0, 2) != "0'") 
+						$_REQUEST[$k] = "0'".str_replace(',', ",0'", $_REQUEST[$k]);
+				}
+				pre_echo($_SERVER['HTTP_REFERER']);
+				pre_echo($_REQUEST);
+			}
+		}
+
 		if (SQ_IN_LIMBO) {
 
 			if (!isset($_REQUEST['limbo_assetid'])) {

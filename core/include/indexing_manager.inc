@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: indexing_manager.inc,v 1.9.2.1 2004/02/18 11:39:06 brobertson Exp $
+* $Id: indexing_manager.inc,v 1.9.2.2 2004/03/02 18:29:12 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@
 * Handles requests for indexing keydata from searchable assets, and handles search requests.
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.9.2.1 $ - 1.0
+* @version $Revision: 1.9.2.2 $ - 1.0
 * @package MySource_Matrix
 */
 class Indexing_Manager extends MySource_Object

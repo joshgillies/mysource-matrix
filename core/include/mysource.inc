@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.34.2.4 2004/03/02 16:00:41 brobertson Exp $
+* $Id: mysource.inc,v 1.34.2.5 2004/03/02 18:29:12 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -256,7 +256,7 @@ class MySource
 		// we are on the frontend
 		} else {
 			// check for ./?a=xx type urls or normal
-			if (isset($_REQUEST['a'])) $asset = &$this->am->getAsset((int) $_REQUEST['a']);
+			if (isset($_REQUEST['a'])) $asset = &$this->am->getAsset($_REQUEST['a']);
 			else $asset = &$this->am->getAssetFromURL(current_protocol(), null, true, true);
 			if (is_null($asset)) {
 				$url = current_protocol().'://'.strip_url(current_url(false, true));
@@ -714,7 +714,7 @@ class MySource
 	*/
 	function currentUserId()
 	{
-		return ($this->user) ? $this->user->id : 0;
+		return ($this->user) ? $this->user->id : '';
 
 	}//end currentUserId()
 
