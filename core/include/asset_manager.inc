@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.252 2004/12/15 23:56:04 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.253 2004/12/16 04:52:29 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.252 $
+* @version $Revision: 1.253 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2793,7 +2793,7 @@ class Asset_Manager extends MySource_Object
 				$select_from = SQ_TABLE_PREFIX.'ast_lnk_tree t INNER JOIN '.SQ_TABLE_PREFIX.'ast_lnk l ON t.linkid = l.linkid';
 
 				$values = Array(
-							'treeid'   => $concat,
+							'treeid'   => '(t.treeid || '.$db->quote($free_childid).')',
 							'linkid'   => $db->quote($linkid),
 							'num_kids' => $db->quote($minor_tree['num_kids'])
 						);
@@ -3154,7 +3154,7 @@ class Asset_Manager extends MySource_Object
 
 			// add a rollback entry for the tree
 			$values = Array('num_kids' => 'num_kids - 1');
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_lnk_tree', $values, $where_cond)) {
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_lnk_tree', $values, 'treeid IN ('.$sub_sql.')')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
