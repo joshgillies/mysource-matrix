@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: assertions.inc,v 1.2 2004/05/28 06:39:06 lwright Exp $
+* $Id: assertions.inc,v 1.3 2004/05/28 07:00:51 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -443,7 +443,7 @@ function trigger_exception($msg, $silent=false, $fatal=false)
 	$file = $backtrace[1]['file'];
 	$error_type = ($fatal) ? E_USER_ERROR : E_USER_WARNING;
 
-	if (!$silent) trigger_error('[EXCEPTION] '.$msg.' (LINE '.$line.' IN '.$file.')', $error_type);
+	if (!$silent) trigger_error('[ASSERT EXCEPTION] '.$msg.' (LINE '.$line.' IN '.$file.')', $error_type);
 	if ($fatal) exit();
 
 }//end trigger_exception()
