@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.22 2004/08/27 01:56:55 tbarrett Exp $
+* $Id: datetime.inc,v 1.23 2004/08/27 06:56:36 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -330,12 +330,35 @@ function days_in_month($month, $year)
 */
 function increment_date(&$day, &$month, &$year, $days_to_add=1) 
 {
+	if ($days_to_sub < 0) {
+		decrement_date($day, $month, $year, -$days_to_sub);
+		return;
+	}
+	
 	$day += $days_to_add;
 	while ($day > days_in_month($month, $year)) {
 		$day = $day - days_in_month($month, $year);
 		increment_month($month, $year);
 	}
-}
+}//end increment_date()
+
+
+/**
+* Increments an ISO date by the specified number of days and returns the changed ISO
+*
+* @param string	$iso			ISO date component (YYYY-MM-DD)
+* @param int	$days_to_add	number of days to add to the date
+*
+* @return string
+* @access public
+*/
+function increment_iso_by_days($iso, $days_to_add=1) 
+{
+	list($year,$month,$day) = explode('-', $iso);
+	increment_days($year, $month, $day, $interval * $days_to_add);
+	return sprintf('%04d-%02d-%02d', $year, $month, $day);
+	
+}//end increment_iso_by_days()
 
 
 /**
@@ -351,12 +374,35 @@ function increment_date(&$day, &$month, &$year, $days_to_add=1)
 */
 function increment_month(&$month, &$year, $months_to_add=1) 
 {
+	if ($months_to_sub < 0) {
+		decrement_month($month, $year, -$months_to_sub);
+		return;
+	}
+	
 	$month += $months_to_add;
 	while ($month > 12) {
 		$month = $month - 12;
 		$year++;
 	}
-}
+}//end increment_month()
+
+
+/**
+* Increments an ISO date by the specified number of months and returns the changed ISO
+*
+* @param string	$iso			ISO year-month component (YYYY-MM)
+* @param int	$months_to_add	number of months to add to the date
+*
+* @return string
+* @access public
+*/
+function increment_iso_by_months($iso, $months_to_add=1) 
+{
+	list($year,$month) = explode('-', $iso);
+	increment_days($year, $month, $months_to_add);
+	return sprintf('%04d-%02d', $year, $month);
+	
+}//end increment_iso_by_months()
 
 
 /**
@@ -373,12 +419,17 @@ function increment_month(&$month, &$year, $months_to_add=1)
 */
 function decrement_date(&$day, &$month, &$year, $days_to_sub=1)
 {
+	if ($days_to_sub < 0) {
+		increment_date($day, $month, $year, -$days_to_sub);
+		return;
+	}
+	
 	$day = $day - $days_to_sub;
 	while ($day < 1) {
 		decrement_month($month, $year);
 		$day = days_in_month($month, $year) + $day;
 	}
-}
+}//end decrement_date()
 
 
 /**
@@ -394,12 +445,17 @@ function decrement_date(&$day, &$month, &$year, $days_to_sub=1)
 */
 function decrement_month(&$month, &$year, $months_to_sub=1) 
 {
+	if ($months_to_sub < 0) {
+		increment_month($month, $year, -$months_to_sub);
+		return;
+	}
+	
 	$month = $month - $months_to_sub;
 	while ($month < 1) {
 		$month = 12 + $month;
 		$year--;
 	}
-}
+}//end decrement_month()
 
 
 /**
