@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.33 2004/02/24 04:46:20 gsherwood Exp $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.34 2004/04/01 04:02:36 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 {
 
+	
 	/**
 	* Returns an array of vars that are setable, used to create the parseString
 	*
@@ -55,7 +56,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		unset($vars['divider_contents']);
 		return $vars;
 
-	}// end getSetableVars()
+	}//end getSetableVars()
 
 
 	/**
@@ -203,7 +204,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 		return $asset->setAttrValue('contents', $contents);
 
-	}// end _processContents()
+	}//end _processContents()
 
 
 	/**
@@ -255,7 +256,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 		return true;
 
-	}// end _processSubMenu()
+	}//end _processSubMenu()
 
 
 	/**
@@ -375,7 +376,62 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 				return parent::_outputElement($element, $asset, $design);
 		}// end switch
 
-	}// end _outputElement()
+	}//end _outputElement()
+	
+	
+	/**
+	* Prints the interface for setting the menu level
+	*
+	* @param object Asset				&$asset	the owning asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintLevel(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$current_level = $asset->attr('level');
+		$special_levels = Array(''   => '-- custom --',
+								'-2' => 'Children',
+								'-1' => 'Current',
+								'0'  => 'Top',
+								'1'  => 'Sub',
+								);
+		
+		if ($write_access) {
+			combo_box($prefix.'_special_level', $special_levels, false, $asset->attr('level'));
+			echo ' or ';
+			text_box($prefix.'_level', (!isset($special_levels[$current_level])) ? $current_level : '');
+		} else {
+			if (isset($special_levels[$current_level])) echo $special_levels[$current_level];
+			else echo $current_level;
+		}
+
+		return $write_access;
+
+	}//end paintLevel()
+
+
+	/**
+	* Processes the interface for setting the menu level
+	*
+	* @param object Asset				&$asset	the owning asset
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processLevel(&$asset, &$o, $prefix)
+	{
+		$special_level = (int) (isset($_POST[$prefix.'_special_level'])) ? $_POST[$prefix.'_special_level'] : '';
+		$custom_level  = (int) (isset($_POST[$prefix.'_level'])) ? $_POST[$prefix.'_level'] : '';
+		$level = (!empty($custom_level)) ? $custom_level : $special_level;
+		return $asset->setAttrValue('level', $level);
+
+	}//end processLevel()
 
 
 }//end class
