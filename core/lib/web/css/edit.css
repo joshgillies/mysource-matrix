@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit.css,v 1.19 2003/10/14 01:50:36 gsherwood Exp $
+* $Id: edit.css,v 1.20 2003/10/17 01:33:45 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ a.hover {
 
 /* HEADING STYLES */
 
-td.sq-backend-main-heading {
+td.sq-backend-main-heading, td.sq-backend-sub-heading {
 	background-color:	#725B7D;
 	color:				#FFFFFF;
 	font-family:		Verdana, Arial, Helvetica, sans-serif;
@@ -39,20 +39,11 @@ td.sq-backend-main-heading {
 	border-bottom:		1px solid #342939;
 }
 
-.sq-backend-heading {
-	color:			#000000;
-	font-family:	Verdana, Arial, Helvetica, sans-serif;
-	font-weight:	bolder;
-	font-size:		10px;
+td.sq-backend-sub-heading {
+	background-color:	#C8BDCB;
+	color:				#FFFFFF;
+	font-size:			12px;
 }
-
-.sq-backend-subheading {
-	color:			#000000;
-	font-family:	Verdana, Arial, Helvetica, sans-serif;
-	font-weight:	bold;
-	font-size:		11px;
-}
-
 
 
 /* GENERAL STYLES */
