@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetManager.java,v 1.4 2004/06/30 02:03:00 mmcintyre Exp $
+* $Id: AssetManager.java,v 1.5 2004/08/18 23:18:28 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -58,7 +58,7 @@ public class AssetManager implements ReloadAssetListener {
 	private String currentUserType;
 	
 	/** The current user's workspace id */
-	private String workspaceId;
+	private String workspaceId = "0";
 	
 	/** 
 	 * The root node of the folder, which is not always the root folder.
@@ -204,6 +204,27 @@ public class AssetManager implements ReloadAssetListener {
 	}
 	
 	/**
+	 * Creates the root folder asset at init time
+	 * 
+	 * @param childElement the childElement that represents the root asset
+	 * @return the Root AssetNode
+	 */
+	private AssetTreeNode createRootAsset(Element childElement) {
+		
+		String assetid  = MatrixToolkit.rawUrlDecode(childElement.getAttribute("assetid"));
+		String name     = MatrixToolkit.rawUrlDecode(childElement.getAttribute("name"));
+		String typeCode = childElement.getAttribute("type_code");
+		
+		AssetType type = getAssetType(typeCode);
+		Asset rootFolder = new Asset(assetid, name, type);
+		assets.put(assetid, rootFolder);
+		MutableTreeNode node = createAssetNode(rootFolder, null, "", 0);
+		rootNode = node;
+		
+		return (AssetTreeNode) node;
+	}
+	
+	/**
 	 * processes the AssetTypes XML element at init time and constructs
 	 * a store of asset types
 	 * 
@@ -264,27 +285,6 @@ public class AssetManager implements ReloadAssetListener {
 	}
 	
 	/**
-	 * Creates the root folder asset at init time
-	 * 
-	 * @param childElement the childElement that represents the root asset
-	 * @return the Root AssetNode
-	 */
-	private AssetTreeNode createRootAsset(Element childElement) {
-		
-		String assetid  = MatrixToolkit.rawUrlDecode(childElement.getAttribute("assetid"));
-		String name     = MatrixToolkit.rawUrlDecode(childElement.getAttribute("name"));
-		String typeCode = childElement.getAttribute("type_code");
-		
-		AssetType type = getAssetType(typeCode);
-		Asset rootFolder = new Asset(assetid, name, type);
-		assets.put(assetid, rootFolder);
-		MutableTreeNode node = createAssetNode(rootFolder, null, "", 0);
-		rootNode = node;
-		
-		return (AssetTreeNode) node;
-	}
-	
-	/**
 	 * Processes the Asset XML element and creates/updates a store of assets
 	 * 
 	 * @param childElement the XML element representing the Assets
@@ -314,6 +314,7 @@ public class AssetManager implements ReloadAssetListener {
 			
 			String linkid = MatrixToolkit.rawUrlDecode(
 					assetElement.getAttribute("linkid"));
+			
 			Asset asset = processAssetXML(assetElement, refresh);
 			
 			// if this is us (the parent) then continue
@@ -321,7 +322,7 @@ public class AssetManager implements ReloadAssetListener {
 				continue;
 			
 			if (!asset.hasNode(linkid)) {
-				createAssetNode(asset, parent, linkid, 0);
+				createAssetNode(asset, parent, linkid, count);
 				
 			// Sometimes, we load an asset that has already had some, but not
 			// all of its assets loaded previously. The asset knows about its
@@ -330,7 +331,7 @@ public class AssetManager implements ReloadAssetListener {
 				
 			} else if (!parent.hasNodeWithLinkId(linkid)) {
 				AssetTreeNode newNode = asset.createNode(linkid);
-				parent.insert(newNode, 0);
+				parent.insert(newNode, count);
 			}
 			count++;
 		}
@@ -419,7 +420,7 @@ public class AssetManager implements ReloadAssetListener {
 			linkids.add(linkid);
 			int sortOrder = Integer.parseInt(assetElement.getAttribute("sort_order"));
 			
-			// if we have shadow assets we no longer has any chidren because
+			// if we have shadow assets we no longer have any chidren because
 			// we just blew them all away. So we need to start again
 			
 			if (hasShadowAssets) {
@@ -546,7 +547,6 @@ public class AssetManager implements ReloadAssetListener {
 				String parentURL = parent.getPreviewURL();
 				if ((!parentURL.equals("")) && (!asset.getWebPath().equals("")))
 					node.setPreviewURL(parentURL + "/" + asset.getWebPath());
-				
 			}
 			parent.insert(node, index);
 		}
@@ -1074,8 +1074,13 @@ public class AssetManager implements ReloadAssetListener {
 		try {
 			response = MySource.INSTANCE.doRequest(xml);
 		} catch (IOException ioe) {
-			((AssetTree) tree).throwVisibleError(
+			if (tree != null) {
+				((AssetTree) tree).throwVisibleError(
 					"Error", "Could not do request: " + ioe.getMessage());
+			} else {
+				System.out.println(ioe.getMessage());
+				ioe.printStackTrace();
+			}
 		}
 		
 		return response;
