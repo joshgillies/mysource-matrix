@@ -23,7 +23,7 @@ class Cron_Job_Future_Status extends Cron_Job
 	*/
 	function Cron_Job_Future_Status($assetid=0)
 	{
-		$this->Asset($assetid);
+		$this->Cron_Job($assetid);
 	}
 
 
@@ -105,13 +105,11 @@ class Cron_Job_Future_Status extends Cron_Job
 	*
 	* @param string		$name				the name of the attribute
 	* @param string		$value				the new value of the attribute
-	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
-	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value, $dont_run_updated=false)
+	function setAttrValue($name, $value)
 	{
 		switch($name) {
 			case 'status' :
@@ -123,14 +121,12 @@ class Cron_Job_Future_Status extends Cron_Job
 				break;
 
 			case 'type' :
-				if (empty($this->_tmp[__CLASS__.'_in_create'])) {
-					trigger_error('You can\'t set the type of a future status cron job it can only be a one off event', E_USER_NOTICE);
-					return false;
-				}// end if
+				trigger_error('You can\'t set the type of a future status cron job it can only be a one off event', E_USER_NOTICE);
+				return false;
 				break;
 		}// end if
 
-		return parent::setAttrValue($name, $value, $dont_run_updated);
+		return parent::setAttrValue($name, $value);
 
 	}// end setAttrValue()
 
@@ -224,9 +220,9 @@ class Cron_Job_Future_Status extends Cron_Job
 
 
 	/**
-	* Gets the user that this cron job is to run as while executing
+	* Gets the asset that this cron job will be altering the status on
 	*
-	* @return mixed object User or NULL on error
+	* @return mixed object Asset or NULL on error
 	* @access public
 	*/
 	function &getAssetToUpdate()
