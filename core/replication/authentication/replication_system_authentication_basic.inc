@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_authentication_basic.inc,v 1.1.2.7 2004/02/14 21:09:47 brobertson Exp $
+* $Id: replication_system_authentication_basic.inc,v 1.1.2.8 2004/02/14 21:11:56 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -131,10 +131,7 @@ class Replication_System_Authentication_Basic extends Replication_System_Authent
 			if (!$this->_sendPhrase($transport)) return false;
 		}// end if
 
-trigger_error("ALL OK");
-pre_echo("ALL OK");
-		return false;
-
+		return true;
 
 	}//end authenticate()
 
