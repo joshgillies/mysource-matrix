@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: login_design.inc,v 1.5 2004/03/26 12:29:26 brobertson Exp $
+* $Id: login_design.inc,v 1.6 2004/08/09 04:00:02 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -107,25 +107,61 @@ class Login_Design extends Design
 		$source_dir = dirname(__FILE__).'/design_files';
 
 		$file_contents = file_to_string($source_dir.'/index.html');
-		if ($file_contents == '') {
+		if (empty($file_contents)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			trigger_error('Unable to restore login design - No parse file contents found', E_USER_WARNING);
 			return false;
 		}
 
 		$ef = $this->getEditFns();
-
+		
+		$parse_file = $this->data_path.'/parse.txt';
+		$file_exists = file_exists($parse_file);
+		
 		// OK what we are doing here is making sure that our MySource tags match up with what is being 
 		// expected by all design areas
 		$file_contents = str_replace(Array('<MySource', '</MySource'), Array('<'.$ef->tag_name, '</'.$ef->tag_name), $file_contents);
-		if (!string_to_file($file_contents, $this->data_path.'/parse.txt')) {
+		if (!string_to_file($file_contents, $parse_file)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			trigger_error('Unable to restore login design - save parse file contents failed', E_USER_WARNING);
 			return false;
 		}
+		
+		  /////////////////////
+		 ///File Versioning //
+		/////////////////////
+
+		// add the parse.txt file to the repository
+
+		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+
+		if (!$file_exists) {
+			// attempt to add the file to the repository
+			if (!$fv->add($this->data_path_suffix, $parse_file, '', false)) {
+				trigger_error('Failed adding design file version', E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+		} else {
+			// updating existing file
+			$file_status = $fv->upToDate($parse_file);
+			if (FUDGE_FV_MODIFIED & $file_status) {
+				if (!$fv->commit($parse_file, '', false)) {
+					trigger_error('Failed committing design file version', E_USER_WARNING);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+			}
+		}
+
+		// make sure we have the latest version of our file
+		if (!$fv->checkOut($this->data_path_suffix.'/parse.txt', $this->data_path)) {
+			trigger_error('Failed checking out latest version of design file', E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
 
 		// attach the files that we need for the login design
-		$ef = $this->getEditFns();
 		if ($handle = opendir($source_dir.'/files')) {
 			while (false !== ($file = readdir($handle))) {
 				// skip some "files" that we dont want to attach
@@ -146,9 +182,8 @@ class Login_Design extends Design
 			return false;
 		}
 
-		$edit_fns = $this->getEditFns();
 		// First process the design
-		if (!$edit_fns->parseAndProcessFile($this)) {
+		if (!$ef->parseAndProcessFile($this)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -182,7 +217,6 @@ class Login_Design extends Design
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($dep_asset->id, 'permissions');
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($dep_asset);
 		}
-
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
