@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.344 2004/12/23 05:40:40 tbarrett Exp $
+* $Id: asset.inc,v 1.345 2004/12/23 06:14:03 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.344 $
+* @version $Revision: 1.345 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2110,7 +2110,8 @@ class Asset extends MySource_Object
 	* @return mixed TRUE or error msg string
 	* @access public
 	*/
-	function couldDeleteLink($linkid) {
+	function couldDeleteLink($linkid) 
+	{
 		if (!$this->id) {
 			return 'Asset Not Created';
 		}
