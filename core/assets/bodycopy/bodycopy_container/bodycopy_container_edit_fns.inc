@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.27 2005/03/17 22:41:06 amiller Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.28 2005/04/01 00:15:01 ndvries Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -257,7 +257,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 	/**
 	* Creates and deletes NOTICE links based on the assets being linked to within the contents of this container
-	* For shadow assets it 
+	* For shadow assets it
 	*
 	* @param object Bodycopy_Container	&$asset		the container
 	* @param string | NULL				$ouytput	the content of the bodycopy container,
@@ -299,10 +299,12 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			// delete existing notice links that are no longer being used
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			foreach ($notice_links as $link_data) {
-				if (!in_array($link_data['minorid'], $replace_assetids)) {
-					if (!$asset->deleteLink($link_data['linkid'])) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
+				if ($link_data['value'] != 'thumbnail') {
+					if (!in_array($link_data['minorid'], $replace_assetids)) {
+						if (!$asset->deleteLink($link_data['linkid'])) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							return false;
+						}
 					}
 				}
 			}
@@ -387,7 +389,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			$url = preg_replace('|^http[s]?://|', '', $url);
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
-			$sql = 'SELECT value 
+			$sql = 'SELECT value
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value ';
 			$where = '    url = '.$db->quote($url).'
 					  AND name LIKE '.$db->quote('design::%');
