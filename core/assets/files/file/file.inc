@@ -65,17 +65,7 @@ class File extends Asset
 			return false;
 		}
 
-		// copy our file over to the restricted directory so we can work on it in security
-		$existing = $this->_getExistingFile();
-		$restricted = $this->data_path.'/'.$existing['filename'];
-		$unrestricted = $this->data_path_public.'/'.$existing['filename'];
-		if (!copy_file($unrestricted, $restricted)) {
-			trigger_error('Failed saving file "'.$this->name.'" to cache, file copy to unrestricted data directory failed', E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		// now we update our lookup tables to not use __data
+		// update our lookup tables to not use __data
 		if (!parent::_updateLookups()) {
 			trigger_error('Failed saving file "'.$this->name.'" to cache, failed updating lookups', E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -95,8 +85,8 @@ class File extends Asset
 	*/
 	function revertToSystemVersion()
 	{
-		// pretend we are uploading a file because we may be
-		// changing the name of the file
+		// pretend we are uploading a file because we may be changing the name of the file
+		// and we want to fool setAttributeValue
 		$this->_tmp['uploading_file'] = true;
 		if (!parent::revertToSystemVersion()) {
 			$this->_tmp['uploading_file'] = false;
@@ -106,10 +96,17 @@ class File extends Asset
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
-		// clear the restricted data directory to get rid of the new
-		// uploaded file we had there
+		// clear the private data directory to get rid of the new uploaded file we had there
 		if (!clear_directory($this->data_path)) {
 			trigger_error('Failed reverting file "'.$this->name.'" to system version, could not clear restricted data directory', E_USER_WARNING);
+			return false;
+		}
+
+		// check out the latest version of the file into the private data directory
+		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$existing = $this->_getExistingFile();
+		if (!$fv->checkOut($this->data_path_suffix.'/'.$existing['filename'], $this->data_path)) {
+			trigger_error('Failed reverting file "'.$this->name.'" to system version, could not check-out latest version of file', E_USER_WARNING);
 			return false;
 		}
 
@@ -174,8 +171,8 @@ class File extends Asset
 		}
 
 		if ($this->status == SQ_STATUS_LIVE && $old_status != SQ_STATUS_LIVE_APPROVAL) {
-			// if we have just gone live, so we need to move the latest version 
-			// of the file to the unrestricted directory to make it live
+			// if we have just gone live we need to check-out the latest version of
+			// our file into the public directory for everyone to use
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			
 			// clear out our unrestricted data directory
@@ -191,13 +188,11 @@ class File extends Asset
 				}
 			}
 
+			$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
 			$existing = $this->_getExistingFile();
-			$restricted = $this->data_path.'/'.$existing['filename'];
-			$unrestricted = $this->data_path_public.'/'.$existing['filename'];
 
-			// and move our file over
-			if (!move_file($restricted, $unrestricted)) {
-				trigger_error('Failed processing status change for file "'.$this->name.'", could move file to public data directory', E_USER_WARNING);
+			if (!$fv->checkOut($this->data_path_suffix.'/'.$existing['filename'], $this->data_path_public)) {
+				trigger_error('Failed processing status change for file "'.$this->name.'", could not check-out latest version of file', E_USER_WARNING);
 				return false;
 			}
 		}
@@ -294,24 +289,23 @@ class File extends Asset
 
 		$existing = $this->_getExistingFile();
 		if (!empty($existing)) {
-			$restricted = $this->data_path.'/'.$existing['filename'];
 			$unrestricted = $this->data_path_public.'/'.$existing['filename'];
 
 			if ($this->effectiveUnrestricted()) {
-				// we should be storing our file in the unrestrcited
+				// we should be storing our file in the public
 				// data directory for all the world to see
-				// so if our file is in the restricted directory... we need to move it
-				if (is_file($restricted)) {
-					if (!move_file($restricted, $unrestricted)) {
-						trigger_error('Update failed moving file from restricted to unrestricted', E_USER_WARNING);
+				if (!is_file($unrestricted)) {
+					$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+					if (!$fv->checkOut($this->data_path_suffix.'/'.$existing['filename'], $this->data_path_public)) {
+						trigger_error('Update failed checking-out latest version of file', E_USER_WARNING);
 						return false;
 					}
 				}
 			} else {
-				// need to make sure our file is in the restricted directory
+				// need to make sure our file is in the NOT in the public data directory
 				if (is_file($unrestricted)) {
-					if (!move_file($unrestricted, $restricted)) {
-						trigger_error('Update failed moving file from unrestricted to restricted', E_USER_WARNING);
+					if (!unlink($unrestricted)) {
+						trigger_error('Update failed deleting file from public data directory', E_USER_WARNING);
 						return false;
 					}
 				}
@@ -355,9 +349,7 @@ class File extends Asset
 
 		// Remove all the old URLs
 		$where = 'assetid = '.$db->quote($this->id);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup', $where)) {
-			return false;
-		}
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup', $where)) return false;
 
 		$save_urls = Array();
 
@@ -495,8 +487,37 @@ class File extends Asset
 				parent::setAttrValue($name, $old_filename, $dont_run_updated);
 				return false;
 			}
-			if (!rename($data_path.'/'.$old_filename, $data_path.'/'.$value)) {
+
+			//// FILE VERSIONING ////
+
+			$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+
+			// copy the file instead of a direct rename because removing the
+			// file from the repository will also remove it from the file system
+			if (!copy($data_path.'/'.$old_filename, $data_path.'/'.$value)) {
 				trigger_error('Failed renaming file, try again.', E_USER_WARNING);
+				parent::setAttrValue($name, $old_filename, $dont_run_updated);
+				return false;
+			}
+
+			// we are renaming the file, so we need to remove the old name from
+			// the repository and add the new one in
+			if (!$fv->remove($data_path.'/'.$old_filename, '', false)) {
+				trigger_error('Failed removing file from repository', E_USER_WARNING);
+				parent::setAttrValue($name, $old_filename, $dont_run_updated);
+				return false;
+			}
+
+			// attempt to add a new version of the file to the repository
+			if (!$fv->add($this->data_path_suffix, $this->data_path.'/'.$value, '', false)) {
+				trigger_error('Failed adding file version', E_USER_WARNING);
+				parent::setAttrValue($name, $old_filename, $dont_run_updated);
+				return false;
+			}
+
+			// make sure we have the latest version of our file
+			if (!$fv->checkOut($this->data_path_suffix.'/'.$value, $this->data_path)) {
+				trigger_error('Failed checking out latest version of file', E_USER_WARNING);
 				parent::setAttrValue($name, $old_filename, $dont_run_updated);
 				return false;
 			}
@@ -564,11 +585,7 @@ class File extends Asset
 	{
 		// check for an existing file
 		$existing = Array();
-		if (is_file($this->data_path.'/'.$this->attr('name'))) {
-			$path = $this->data_path.'/'.$this->attr('name');
-		} else {
-			$path = $this->data_path_public.'/'.$this->attr('name');
-		}
+		$path = $this->data_path.'/'.$this->attr('name');
 
 		if (is_file($path)) {
 			$existing['path'] = $path;

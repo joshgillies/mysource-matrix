@@ -124,10 +124,27 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-		// create the destination directory, if necessary
+		// create the destination directory, if necessary (NOTE that checking is internal for this)
 		create_directory($asset->data_path);
 
+
+		//// FILE VERSIONING ////
+
+		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$existing = $asset->_getExistingFile();
+
+		if ($asset->name != $name && !empty($existing)) {
+			// a new file with a new name means we need to remove the old
+			// one from the repository (NOTE that this doesnt actually 'remove' the
+			// files from the repository - just marks the branch as complete)
+			if (!$fv->remove($existing['path'], '', false)) {
+				trigger_error('Failed removing file from repository', E_USER_WARNING);
+				return false;
+			}
+		}
+
 		// delete existing uploaded file if it exists
+		$old_file_info = $asset->_getExistingFile();
 		if (is_file($asset->data_path.'/'.$asset->attr('name'))) {
 			if (!unlink($asset->data_path.'/'.$asset->attr('name'))) {
 				trigger_error('Failed deleting existing file', E_USER_WARNING);
@@ -140,7 +157,32 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			trigger_error('Failed copying uploaded file to destination directory', E_USER_WARNING);
 			return false;
 		}
-		
+
+		// if we are overwriting our current file with one that has the same name,
+		// we need to add a new version of the file to the repository
+		if ($asset->name == $name) {
+			$file_status = $fv->upToDate($asset->data_path.'/'.$name);
+			if (FUDGE_FV_MODIFIED & $file_status) {
+				if (!$fv->commit($asset->data_path.'/'.$name, '', false)) {
+					trigger_error('Failed adding file version', E_USER_WARNING);
+					return false;
+				}
+			}
+		} else {
+			// attempt to add the file to the repository
+			if (!$fv->add($asset->data_path_suffix, $asset->data_path.'/'.$name, '', false)) {
+				trigger_error('Failed adding file version', E_USER_WARNING);
+				return false;
+			}
+		}
+
+		// make sure we have the latest version of our file
+		if (!$fv->checkOut($asset->data_path_suffix.'/'.$name, $asset->data_path)) {
+			trigger_error('Failed checking out latest version of file', E_USER_WARNING);
+			return false;
+		}
+
+
 		if (!$asset->saveWebPaths(Array($name))) {
 			trigger_error('Failed saving web paths', E_USER_WARNING);
 			return false;
@@ -152,6 +194,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		unset($asset->_tmp['uploading_file']);
 
 		return true;
+
 	}//end processFileUpload()
 
 
@@ -198,6 +241,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		if ($asset->writeAccess()) asset_finder($prefix.'_thumbid', '', Array('thumbnail' => 'D'));
+
 	}//end paintThumbnail()
 
 
@@ -247,6 +291,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		$asset->createLink($thumb, SQ_LINK_TYPE_3, 'thumbnail');
 
 		return true;
+
 	}//end processThumbnail
 
 }//end class
