@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.22 2004/08/10 03:19:22 gsherwood Exp $
+* $Id: page_asset_builder.inc,v 1.23 2004/08/10 04:03:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -620,6 +620,7 @@ class Page_Asset_Builder extends Page
 			$o = new Limbo_Outputter();
 		
 			// print the create interface for the asset
+			?><input type="hidden" name="asset_action" value="create"><?php
 			$create_types = $this->attr('create_type');
 			if (!is_array($create_types)) $create_types = Array($create_types);
 			
@@ -641,6 +642,9 @@ class Page_Asset_Builder extends Page
 				$i++;
 			}
 
+			$create_type = array_shift(array_keys($create_types));
+			hidden_field('ASSET_BUILDER_CREATE_TYPE', $create_type);
+
 			// okay, open your eyes again
 			$contents = ob_get_contents();
 			$this->_replacements['create_form'] = $contents;
@@ -651,7 +655,8 @@ class Page_Asset_Builder extends Page
 			ob_start();
 				$create_types = array_keys($create_types);
 				?>
-				<script language="JavaScript"><!-- 
+				<script language="JavaScript">
+					<!-- 
 					var current_option = '<?php echo $this->type().'_'.$this->id.'_type_'.current($create_types) ?>';
 					
 					function showAssetBuilderTab(type_code)
@@ -662,36 +667,34 @@ class Page_Asset_Builder extends Page
 						document.getElementById(current_option).style.display = 'block';
 						document.getElementById(current_option+"_tab").className = 'sq-asset-builder-tab-active';
 						document.getElementById('ASSET_BUILDER_CREATE_TYPE').value = type_code;
+
 					}//end showAssetBuilderTab()
-					
-				// --></script>
+					// -->
+					</script>
 				<?php
 				$i = 0;
 				foreach($create_types as $create_type) {
 					$prefix = $this->type().'_'.$this->id.'_type_'.$create_type;
-				?><div class="sq-asset-builder-tab<? echo ($i == 0) ? '-active' : '' ?>" id="<?php echo $prefix.'_tab'; ?>">
-					<a href="#" onclick="showAssetBuilderTab('<?php echo $create_type ?>'); return false;"><?php 
-						$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($create_type, 'name');
-						echo $type_name;
-					?></a></div><?php
+					?>
+					<div class="sq-asset-builder-tab<?php echo ($i == 0) ? '-active' : ''; ?>" id="<?php echo $prefix.'_tab'; ?>">
+						<a href="#" onclick="showAssetBuilderTab('<?php echo $create_type ?>'); return false;">
+							<?php 
+							$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($create_type, 'name');
+							echo $type_name;
+							?>
+						</a>
+					</div>
+					<?php
 					$i++;
 				}
-				hidden_field('ASSET_BUILDER_CREATE_TYPE', reset($create_types));
-				$this->_replacements['create_form'] = ob_get_contents().$this->_replacements['create_form'];
-			ob_end_clean();
-		} else {
-			ob_start();
-				$create_type = array_pop(array_keys($create_types));
-				hidden_field('ASSET_BUILDER_CREATE_TYPE', $create_type);
 				$this->_replacements['create_form'] = ob_get_contents().$this->_replacements['create_form'];
 			ob_end_clean();
 		}
 
 		ob_start();
-			?><input type="hidden" name="asset_action" value="create"><?php
 			$create_locations = $this->attr('create_location_optional');
 			if (empty($create_locations)) {
-				;//bam('EMBEDDED ASSET MAP WILL GO HERE WITH AN ASSET FINDER');
+				// EMBEDDED ASSET MAP WILL GO HERE WITH AN ASSET FINDER
 			} else {
 				$options = Array();
 				$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($create_locations));
