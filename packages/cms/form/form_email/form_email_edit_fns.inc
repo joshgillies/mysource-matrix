@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.38.2.1 2005/02/21 14:27:02 gnoel Exp $
+* $Id: form_email_edit_fns.inc,v 1.38.2.2 2005/02/21 14:31:53 gnoel Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -133,7 +133,6 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		// search in the sub-logs directory for files that fit in the date range				
 		$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_submission'));
-		error_log($asset->id);
 		$assetid_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids);
 		
 		?><p><i>There are <b><?php echo count($assetids) ?></b> submissions during the time period specified above</i></p><?php
