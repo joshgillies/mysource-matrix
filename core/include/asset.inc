@@ -351,8 +351,14 @@ class Asset extends Resolve_Object
 			case SQ_STATUS_LIVE :
 				$description = 'Live';
 				break;
+			case SQ_STATUS_EDITING :
+				$description = 'Safe Editing';
+				break;
 			case SQ_STATUS_PENDING_APPROVAL   :
 				$description = 'Pending Approval';
+				break;
+			case SQ_STATUS_EDITING_APPROVAL   :
+				$description = 'Safe Editing Pending Approval';
 				break;
 			case SQ_STATUS_UNDER_CONSTRUCTION :
 				$description = 'Under Construction';
@@ -378,20 +384,25 @@ class Asset extends Resolve_Object
 
 		$wfm = null;
 		$old_status = $this->status;
+		$pending_statii = Array(SQ_STATUS_PENDING_APPROVAL, SQ_STATUS_EDITING_APPROVAL);
 
 		switch ($new_status) {
 			case SQ_STATUS_LIVE :
 				include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
 				$wfm = new Workflow_Manager($this);
 
-				if ($this->status == SQ_STATUS_PENDING_APPROVAL || $wfm->state == 'running') {
+				// if the workflow is running, check to make sure
+				// our current status reflects this
+				if ($wfm->state == 'running') {
+					if (!in_array($this->status, $pending_statii)) $this->status = SQ_STATUS_PENDING_APPROVAL;
+				}
+
+				if (in_array($this->status, $pending_statii)) {
 					// we are doing a workflow and someone has just
 					// approved the asset, so record this
 					if (!$wfm->recordPublish($GLOBALS['SQ_SYSTEM']->currentUserId())) {
 						trigger_error('Approval by user '.$GLOBALS['SQ_SYSTEM']->currentUserId().' not set in processStatusChange', E_USER_WARNING);
 					}
-
-					$this->status = SQ_STATUS_PENDING_APPROVAL;
 
 					if ($wfm->state == 'complete') {
 						// all workflows are done so we
@@ -404,10 +415,22 @@ class Asset extends Resolve_Object
 					// by starting the workflow process
 					$wfm->start();
 					$this->status = SQ_STATUS_PENDING_APPROVAL;
+
+				} else if ($this->status == SQ_STATUS_EDITING) {
+					// asset is currently safe editing
+					// so we need to start the workflow process
+					$wfm->start();
+					$this->status = SQ_STATUS_EDITING_APPROVAL;
 				}
 
 				$wfm->save();
+				break;
 
+			case SQ_STATUS_EDITING :
+				if ($this->status == SQ_STATUS_LIVE) {
+					// we are safe editing
+					$this->status = SQ_STATUS_EDITING;
+				}
 				break;
 
 			case SQ_STATUS_PENDING_APPROVAL :
@@ -418,7 +441,7 @@ class Asset extends Resolve_Object
 					// if we are currently live, we can set to
 					// under construction without problems
 					$this->status = SQ_STATUS_UNDER_CONSTRUCTION;
-				} else if ($this->status == SQ_STATUS_PENDING_APPROVAL) {
+				} else if (in_array($this->status, $pending_statii)) {
 					// we are currently in workflow and someone has decide
 					// to reject the changes and cancel the workflow
 					if ($wfm === null) {
@@ -426,11 +449,12 @@ class Asset extends Resolve_Object
 						$wfm = new Workflow_Manager($this);
 					}
 					
-					$this->status = SQ_STATUS_UNDER_CONSTRUCTION;
+					if ($this->status == SQ_STATUS_EDITING_APPROVAL) $this->status = SQ_STATUS_EDITING;
+					else $this->status = SQ_STATUS_UNDER_CONSTRUCTION;
 
 					if (!$wfm->cancel()) {
 						trigger_error('Workflow cancel failed', E_USER_WARNING);
-						$this->status = SQ_STATUS_PENDING_APPROVAL;
+						$this->status = $old_status;
 					}
 				}
 				break;
