@@ -18,12 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user_management.inc,v 1.1 2004/02/06 03:12:38 gsherwood Exp $
+* $Id: ldap_user_management.inc,v 1.2 2004/02/10 16:36:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
-
-require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user_management.inc';
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
 * Ldap_User_Management
@@ -34,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user_management.i
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
-class Ldap_User_Management extends Backend_User_Management
+class Ldap_User_Management extends Asset_Management
 {
 
 
@@ -44,7 +43,7 @@ class Ldap_User_Management extends Backend_User_Management
 	*/
 	function Ldap_User_Management(&$pm)
 	{
-		$this->Backend_User_Management($pm);
+		$this->Asset_Management($pm);
 
 	}//end constructor
 

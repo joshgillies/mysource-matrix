@@ -18,12 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ldap_management.inc,v 1.1 2004/02/06 03:11:19 gsherwood Exp $
+* $Id: authentication_ldap_management.inc,v 1.2 2004/02/10 16:36:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
-
-require_once SQ_CORE_PACKAGE_PATH.'/system/authentication/authentication/authentication_management.inc';
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
 * Authentication_LDAP_Management
@@ -35,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/authentication/authentication/authent
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
-class Authentication_LDAP_Management extends Authentication_Management
+class Authentication_LDAP_Management extends Asset_Management
 {
 
 
@@ -45,7 +44,7 @@ class Authentication_LDAP_Management extends Authentication_Management
 	*/
 	function Authentication_LDAP_Management(&$pm)
 	{
-		$this->Authentication_Management($pm);
+		$this->Asset_Management($pm);
 		$this->vars =	Array(
 							'name' => Array(
 								'default' => 'LDAP Authentication',

@@ -19,9 +19,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.7 2004/02/10 00:36:05 diarandine Exp $
+* $Id: search_page_management.inc,v 1.8 2004/02/10 16:34:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
+
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
 * Search_Page_Management
@@ -33,9 +35,7 @@
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
-
-require_once SQ_PACKAGES_PATH.'/cms/page/page_management.inc';
-class Search_Page_Management extends Page_Management
+class Search_Page_Management extends Asset_Management
 {
 
 	/**
@@ -44,7 +44,7 @@ class Search_Page_Management extends Page_Management
 	*/
 	function Search_Page_Management(&$pm)
 	{
-		$this->Page_Management($pm);
+		$this->Asset_Management($pm);
 
 		$this->vars = Array(
 			'root_assetid' => Array(
