@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_hcl_edit_fns.inc,v 1.5 2004/01/19 00:56:54 gsherwood Exp $
+* $Id: page_hcl_edit_fns.inc,v 1.6 2004/06/03 23:46:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -66,12 +66,10 @@ class Page_HCL_Edit_Fns extends Page_Edit_Fns
 		$write_access = $asset->writeAccess('links');
 
 		if (!$write_access) {
-			$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
-			if (!is_null($root_asset)) {
-				echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
-			} else {
-				echo 'No root node has been selected';
-			}
+			$root_asset = null;
+			if (!empty($root_link)) $root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
+			if (!is_null($root_asset)) echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
+			else echo 'No root node has been selected';
 		} else {
 			asset_finder($prefix.'_rootid', (!empty($root_link)) ? $root_link['minorid'] : '');
 		}
