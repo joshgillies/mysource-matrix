@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.18 2004/08/25 01:11:10 mmcintyre Exp $
+* $Id: insert_image.php,v 1.19 2004/10/25 23:26:23 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -55,9 +55,27 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 				__dlg_init("matrixInsertImage");
 			};
 
+			/**
+			* Add auto alternate text to selected image
+			*
+			* @return void
+			*/
+			function setAltText()
+			{
+				var path = document.getElementById("f_imageid[url]").value;
+				while (path.indexOf("/") >= 0) path = path.substring(path.indexOf("/") + 1);
+				ext = "";
+				i = path.length;
+				while (ext.charAt(0) != "." || i==0) ext = path.substring(i--);
+				path = path.substring(0, ++i);
+
+				document.getElementById("f_alt").value = path;
+
+			}//end setAltText()
+
+
 			function onOK() {
 				var required = {
-					//"f_url": "You must enter the URL",
 					"f_alt": "Please enter the alternate text"
 				};
 				for (var i in required) {
@@ -78,7 +96,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 					param[id] = el.value;
 				}
 
-				// Because the id of the f_image field has array references in it, 
+				// Because the id of the f_image field has array references in it,
 				// we can't get use getElementById, so do this...
 				param["f_imageid"] = document.main_form.elements["f_imageid[assetid]"].value;
 
@@ -119,7 +137,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 			}
 
 			/* fieldset styles */
-			fieldset { 
+			fieldset {
 				padding: 0px 10px 5px 5px;
 				width: 407px;
 				border-color: #725B7D;
@@ -162,8 +180,8 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 		</style>
 	</head>
 
-	<body onload="Javascript: Init();" onUnload="Javascript: asset_finder_onunload();">
-		
+	<body onload="Init();" onUnload="asset_finder_onunload();">
+
 		<div class="title">Insert Image</div>
 		<form action="" method="get" name="main_form">
 			<table width="100%">
@@ -185,7 +203,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 											<tr>
 												<td class="label" nowrap="nowrap">Image URL:</td>
 												<td>
-													<?php asset_finder('f_imageid', $_GET['f_imageid'], Array('image' => 'D'), ''); ?>
+													<?php asset_finder('f_imageid', $_GET['f_imageid'], Array('image' => 'D'), '', 'setAltText'); ?>
 												</td>
 											</tr>
 											<tr>
