@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live.inc,v 1.14 2003/11/26 00:51:11 gsherwood Exp $
+* $Id: asset_status_live.inc,v 1.15 2004/01/06 00:08:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -126,26 +126,33 @@ class Asset_Status_Live extends Asset_Status
 				$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 				$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
-				if (!$wfm->startWorkflow($this->owner->id)) {
-					trigger_error('Workflow failed to start for "'.$this->owner->name.'"', E_USER_WARNING);
-					return false;
-				}
-
 				// send an internal message
 				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
-				
-				if (!$wfm->silentWorkflowParty($this->owner->id)) { 
+
+				$schemas = $wfm->getSchemas($this->owner->id, true);
+				if (!empty($schemas)) {
+					if (!$wfm->startWorkflow($this->owner->id)) {
+						trigger_error('Workflow failed to start for "'.$this->owner->name.'"', E_USER_WARNING);
+						return false;
+					}
+				}
+
+				if (!$wfm->silentWorkflowParty($this->owner->id)) {
 					$log = $ms->newMessage();
 					$log->subject = 'Asset Up For Review';
-					$log->body    = 'User "'.$user->name.'" has placed '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" up for review. The workflow process has been started.';
-					// create a link for navigation to the workflow screen for this asset
-					$log->body .= "\n\n".'<SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Click here for the Workflow Screen for this asset</SQ_MSG_LINK>.';
-					$log->type    = 'asset.workflow';
+					$log->body    = 'User "'.$user->name.'" has placed '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" up for review.';
+					if (!empty($schemas)) {
+					$log->body .= ' The workflow process has been started.';
+						// create a link for navigation to the workflow screen for this asset
+						$log->body .= "\n\n".'<SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Click here for the Workflow Screen for this asset</SQ_MSG_LINK>.';
+					}
+					$log->type = 'asset.workflow';
 					$log->parameters['assetid'] = $this->owner->id;
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 					$log->send();
 				}
+
 			break;
 
 			case SQ_STATUS_EDITING :

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live_approval.inc,v 1.18 2003/11/26 00:51:11 gsherwood Exp $
+* $Id: asset_status_live_approval.inc,v 1.19 2004/01/06 00:08:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -140,46 +140,52 @@ class Asset_Status_Live_Approval extends Asset_Status
 	function processStatusChange($new_status)
 	{
 		if (!parent::processStatusChange($new_status)) return false;
-		
+
 		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
 		if ($new_status == SQ_STATUS_EDITING) {
-			// someone has rejected the changes, so we need to cancel the workflow
-			if (!$wfm->cancelWorkflow($this->owner->id)) {
-				trigger_error('Workflow cancel failed', E_USER_WARNING);
-				return false;
-			} else {
-				// we are safe editing
-				if (!$this->owner->saveSystemVersion()) {
-					trigger_error('Status change failed, could not save to cache', E_USER_WARNING);
+
+			$running_schemas = $wfm->getSchemas($this->owner->id, true, true);
+			if (!empty($running_schemas)) {
+				// someone has rejected the changes, so we need to cancel the workflow
+				if (!$wfm->cancelWorkflow($this->owner->id)) {
+					trigger_error('Workflow cancel failed', E_USER_WARNING);
 					return false;
-				}
-
-				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-
-				// send an internal message
-				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
-				
-				if (!$wfm->silentWorkflowParty($this->owner->id)) { 
-					$log = $ms->newMessage();
-					$log->subject = 'Asset Review Cancelled';
-					$log->body    = 'User "'.$user->name.'" has started a safe edit of '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" during a review. The review has been cancelled and the status of "'.$this->owner->name.'" is now '.get_status_description($new_status);
-					// create a link for navigation to the workflow screen for this asset
-					$log->body .= "\n\n".'A full report for the Workflow of "'.$this->owner->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>.';
-					$log->type    = 'asset.workflow';
-					$log->parameters['assetid'] = $this->owner->id;
-					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
-					$log->send();
 				}
 			}
 
+			// we are safe editing
+			if (!$this->owner->saveSystemVersion()) {
+				trigger_error('Status change failed, could not save to cache', E_USER_WARNING);
+				return false;
+			}
+
+			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+
+			// send an internal message
+			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
+
+			if (!$wfm->silentWorkflowParty($this->owner->id)) {
+				$log = $ms->newMessage();
+				$log->subject = 'Asset Review Cancelled';
+				$log->body    = 'User "'.$user->name.'" has started a safe edit of '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" during a review. The review has been cancelled and the status of "'.$this->owner->name.'" is now '.get_status_description($new_status);
+				if (!empty($running_schemas)) {
+					// create a link for navigation to the workflow screen for this asset
+					$log->body .= "\n\n".'A full report for the Workflow of "'.$this->owner->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>.';
+				}
+				$log->type = 'asset.workflow';
+				$log->parameters['assetid'] = $this->owner->id;
+				$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
+				$log->send();
+			}
+
 		} else {
-			
+
 			$running_schemas = $wfm->getSchemas($this->owner->id, true, true);
 			if (!empty($running_schemas)) {
-			
+
 				// if we are trying to approve this asset, we might not actually be a person
 				// in the workflow process - sounds weird (I know) but this could be a plain old
 				// admin that is trying to approve because metadata is now complete.
@@ -213,8 +219,8 @@ class Asset_Status_Live_Approval extends Asset_Status
 					// log an internal message
 					$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
-					
-					if (!$wfm->silentWorkflowParty($this->owner->id)) { 
+
+					if (!$wfm->silentWorkflowParty($this->owner->id)) {
 						$log = $ms->newMessage();
 						$log->subject = 'Review Completed';
 						$log->body    = 'The review process for '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" has been completed. "'.$this->owner->name.'" is now live.';
