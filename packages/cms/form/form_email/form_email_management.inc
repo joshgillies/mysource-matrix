@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_management.inc,v 1.12 2004/05/17 05:12:34 lwright Exp $
+* $Id: form_email_management.inc,v 1.13 2004/05/19 23:42:29 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,6 +49,20 @@ class Form_Email_Management extends Asset_Management
 		$this->vars = Array(
 						/// Receipt screen ///
 							
+							'receipt_emails_format' => Array(
+													'added'		=> '0.0.1',
+													'type'		=> 'email_format',
+													'default'	=> Array(),
+
+									), // end recipient_emails
+
+							'receipt_field' => Array(
+													'added'		=> '0.0.1',
+													'type'		=> 'assetid',
+													'default'	=> '',
+
+									), // end recipient_emails
+
 							'receipt'				=> Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'selection',
@@ -94,6 +108,13 @@ class Form_Email_Management extends Asset_Management
 													'default'	=> false,
 									), // end receipt_send_answers
 							
+							'recipient_emails_format' => Array(
+													'added'		=> '0.0.1',
+													'type'		=> 'email_format',
+													'default'	=> Array(),
+
+									), // end recipient_emails
+									
 							'recipient_emails' => Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'text',

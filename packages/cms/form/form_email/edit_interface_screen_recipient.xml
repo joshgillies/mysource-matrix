@@ -18,42 +18,42 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_recipient.xml,v 1.7 2004/04/23 07:28:07 lwright Exp $
+* $Id: edit_interface_screen_recipient.xml,v 1.8 2004/05/19 23:42:29 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <contents>
 	<section name="Recipient Options">
-		<field attribute="recipient_emails">
+		<field attribute="recipient_emails_format">
 			<display_name>Recipient Emails</display_name>
-			<note>Enter in the email addresses that you want to receive the form submissions (1 address per line).</note>
-			<text width="40" height="10" />
+			<note>If the 'To' field is empty then no e-mails will be sent. You may use the following keywords in any of the above fields:&lt;br /&gt;
+			&lt;ul&gt;
+			&lt;li&gt;%form_info% - a list of form information including the asset id, name and URL of the form, and the name and asset id of the site&lt;/li&gt;
+			&lt;li&gt;%form_summary% - a list of responses received from this submission&lt;/li&gt;
+			&lt;/ul&gt;
+			</note>
+			<email_format />
 		</field>
-		<field attribute="recipient_body">
-			<display_name>Recipient Email Body</display_name>
-			<note>Defines the body of the recipient email</note>
-			<text width="40" height="10" />
+	</section>
+	<section name="Receipt Options">
+		<field>
+			<display_name>Receipt Email Field</display_name>
+			<note>The address entered in this field will be used to send receipt e-mails. You may select from fields of E-mail Address type only. If this field is empty no receipt e-mails will be sent.</note>
+			<function_call>
+				<paint_function   name="paintReceiptField"   />
+				<process_function name="processReceiptField" />
+			</function_call>
 		</field>
-		<field attribute="recipient_subject">
-			<display_name>Recipient Subject</display_name>
-			<note>Defines the subject sent along with the recipient email</note>
-			<text width="30" height="1" />
-		</field>
-		<field attribute="recipient_allow_html">
-			<display_name>E-mail Format</display_name>
-			<note>Defines if HTML tags are allowed in the email body. If your e-mail viewer does not support HTML, select Plain Text</note>
-			<boolean true_text="HTML" false_text="Plain Text" />
-		</field>
-		<field attribute="recipient_send_info">
-			<display_name>Send Form Information</display_name>
-			<note>Defines if the Information is sent along with the email. Information includes the form title, the date of submission, the URL from which it was sent, the site name (and ID), and the page name (and ID). </note>
-			<boolean true_text="Send" false_text="Don't Send" />
-		</field>
-		<field attribute="recipient_send_answers">
-			<display_name>Send Form Answers</display_name>
-			<note>Defines if the answers are sent along with the receipt.</note>
-			<boolean true_text="Send" false_text="Don't Send" />
+		<field attribute="receipt_emails_format">
+			<display_name>Receipt Emails</display_name>
+			<note>Note that the validation email will always be sent to the address entered in the e-mail field specified above. You can use the 'To' address to specify additional email address that the notification should be additionally sent to. You may use the following keywords in any of the above fields:&lt;br /&gt;
+			&lt;ul&gt;
+			&lt;li&gt;%form_info% - a list of form information including the asset id, name and URL of the form, and the name and asset id of the site&lt;/li&gt;
+			&lt;li&gt;%form_summary% - a list of responses received from this submission&lt;/li&gt;
+			&lt;/ul&gt;
+			</note>
+			<email_format />
 		</field>
 	</section>
 </contents>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.16 2004/05/18 09:58:57 brobertson Exp $
+* $Id: form_email_edit_fns.inc,v 1.17 2004/05/19 23:42:29 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -594,6 +594,54 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		return $children;
 
 	}//end _generateSubmissionList()
+
+
+	/**
+	* Paints the interface for finding an asset to 
+	*
+	* @param &object Remap_Manager		$asset		the remap manager
+	* @param &object Backend_Outputter	$o			the backend outputter
+	* @param string						$prefix		a unique prefix for variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintReceiptField(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) return false;
+		$assetid = $asset->attr('receipt_field');
+		asset_finder($prefix.'_rec_field', $assetid, Array('form_question_type_email_address' => 'I'));
+
+		return true;
+
+	}//end paintReceiptField()
+	
+
+	/**
+	* Processes the interface for delegating 404 requests to
+	* an asset
+	*
+	* @param &object Remap_Manager		$asset		the remap manager
+	* @param &object Backend_Outputter	$o			the backend outputter
+	* @param string						$prefix		a unique prefix for variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processReceiptField(&$asset, &$o, $prefix)
+	{
+		if (!isset($_POST[$prefix.'_rec_field'])) return false;
+		$assetid = $_POST[$prefix.'_rec_field']['assetid'];
+
+		// add check that this is in the same form
+
+		// if we already have this as the not found asset, don't set it again
+		if ($assetid == $asset->attr('receipt_field')) return false;
+		if (!$asset->setAttrValue('receipt_field', $assetid)) return false;
+
+		return true;
+
+	}//end processReceiptField()
 
 
 }//end class

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.13 2004/05/17 05:12:34 lwright Exp $
+* $Id: form_email.inc,v 1.14 2004/05/19 23:42:29 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -105,9 +105,8 @@ class Form_Email extends Form
 	{
 		parent::finishForm();
 		$this->mailRecipients();
+		$this->mailReceipt();
 		$this->logSubmission();
-		//$this->mailReceipt();
-		//$this->SendToFriends();
 
 		return true;
 
@@ -147,23 +146,37 @@ class Form_Email extends Form
 	*/
 	function mailReceipt()
 	{
-		if (!$this->attr('receipt')) return false;
-		if (!$to_address = $this->getSpecialInformation('email')) return false;
+		$email_format = $this->attr('receipt_emails_format');
 
-		$from_address = $this->attr('receipt_from_address');
-		$subject      = ($this->attr('receipt_subject')) ? $this->attr('receipt_subject') : 'Form Submission';
-		$allow_html   = ($this->attr('receipt_allow_html')) ? true : false;
-		$body         = $this->attr('receipt_body');
-	
-		if ($this->attr('receipt_send_answers')) {
+		$email_field_assetid = $this->attr('receipt_field');
+
+		if (empty($email_field_assetid)) {
+			return false;
+		} else {
+			$email_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($email_field_assetid);
+			$address = $email_field->getValue();
+
+			// get the form info
+			$info = $this->getFormInfo(true);
+
+			// get the form summary
 			ob_start();
-			$this->printSummary($allow_html);
-			$body .= ob_get_contents();
+			$this->printSummary(true);
+			$body = ob_get_contents();
 			ob_end_clean();
+
+			$reps = Array('receipt_address' => $address, 'form_summary' => $body, 'form_info' => $info);
+
+			$email_format_attr = $this->getAttribute('receipt_emails_format');
+
+			// append the 'To:' address with the address from the e-mail field
+			$current_value = @unserialize($email_format_attr->value);
+			$current_value['to'][] = $address;
+			$email_format_attr->value = serialize($current_value);
+			pre_echo($email_format_attr);
+
+			$email_format_attr->sendMail($reps);
 		}
-		$extras = ($allow_html) ? "\nContent-Type: text/html; charset=iso-8859-1" : '';
-		
-		mail($to_address, $subject, $body, 'From :'.$from_address.$extras);
 
 		return true;
 
@@ -178,84 +191,29 @@ class Form_Email extends Form
 	*/
 	function mailRecipients()
 	{
+		$email_format = $this->attr('recipient_emails_format');
+
 		// return false if there is no-one to send to
-		if (!$this->attr('recipient_emails')) return false;
+		if (empty($email_format['to'])) return false;
 
-		$addresses = split("\r\n", $this->attr('recipient_emails'));
-		
-		$allow_html = ($this->attr('recipient_allow_html')) ? true : false;
-		$terminator = $allow_html ? '<BR />' : "\n"; // i'll be back
+		// get the form info
+		$info = $this->getFormInfo(true);
 
-		// if this email is in html, add some nice html tags
-		$body = ($allow_html) ? "<html>\n\t<head><title></title></head>\n\t</body>" : '';
-		$body .= $this->attr('recipient_body').$terminator.$terminator;
+		// get the form summary
+		ob_start();
+		$this->printSummary(true);
+		$body = ob_get_contents();
+		ob_end_clean();
 
-		// get the form info if they want it
-		if ($this->attr('recipient_send_info')) {
-			$body .= $this->getFormInfo($allow_html).$terminator;
-		}
 
-		// check to see if we want to send the answers to the recipient
-		if ($this->attr('recipient_send_answers')) {
-			ob_start();
-			$this->printSummary($allow_html);
-			$body .= ob_get_contents();
-			ob_end_clean();
-		}
-		$body .= $terminator.$terminator;
+		$reps = Array('form_summary' => $body, 'form_info' => $info);
 
-		// end the html
-		$body .= ($allow_html) ? "</body></table>" : '';
+		$email_format = $this->getAttribute('recipient_emails_format');
+		$email_format->sendMail($reps);
 
-		// send a html header if we need to
-		$extras = ($allow_html) ? "\nContent-Type: text/html; charset=iso-8859-1" : '';
-
-		$subject = ($this->attr('recipient_subject')) ? $this->attr('recipient_subject') : 'Form Submission';
-	
-		// special information address
-		//$si_address = $this->getSpecialInformation('email'); 
-		/*if ($si_address === '')*/ $si_address = false; 
-
-		// spam... baby, spam!
-		foreach ($addresses as $address) {
-			// make sure these are valid emails, otherwise, just strip them out
-			if (!valid_email(trim($address))) continue;
-			
-			$from_address = ($si_address) ? $si_address : trim($address);
-			mail(trim($address), $subject, $body, 'From: '.$from_address.$extras);
-		}
-		
 		return true;
 
 	}//end mailRecipients()
-
-
-	/**
-	* Sends a message to a friend if there is a special information field set up to do so
-	*
-	* @access public
-	* @return boolean
-	*/
-	function sendToFriends()
-	{
-		if ($friends = $this->getSpecialInformation('friend')) {
-			$message = $this->attr('staf_message');
-			$subject = ($this->attr('staf_subject')) ? $this->attr('staf_subject') : 'Message From a Friend';
-			$from_address = $this->attr('staf_from_address');
-
-			if (!$message) return false;
-
-			$friends = explode(',', $friends);
-
-			foreach ($friends as $friend) {
-				if (!valid_email(trim($friend))) continue;
-				mail(trim($friend), $subject, $message, 'From: '.$from_address);
-			}
-			return true;
-		}
-		return false;
-	
-	}//end sendToFriends()
 
 
 }//end class
