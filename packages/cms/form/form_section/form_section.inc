@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.19 2004/06/21 12:58:10 brobertson Exp $
+* $Id: form_section.inc,v 1.20 2004/06/30 00:47:00 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -212,10 +212,10 @@ class Form_Section extends Bridge
 		
 		$children = Array();
 
-		if (empty($this->tmp['questions'])) {
-			$this->getQuestions();
-		}
-		$entries = $this->tmp['questions'];
+		//if (empty($this->_tmp['questions'])) {
+		$entries = $this->getQuestions();
+		//
+		//$entries = $this->_tmp['questions'];
 
 		foreach ($entries as $questionid => $data) {
 			$children[$this->id.':q'.$questionid] = $data['question_type_code'];

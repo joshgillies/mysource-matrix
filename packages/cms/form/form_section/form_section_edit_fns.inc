@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.19 2004/06/24 05:15:06 lwright Exp $
+* $Id: form_section_edit_fns.inc,v 1.20 2004/06/30 00:47:00 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,6 +47,7 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 	function Form_Section_Edit_Fns()
 	{
 		$this->Bridge_Edit_Fns();
+		$this->static_screens['details']['force_unlock'] = false;
 
 	} // end Form_Section_Edit_Fns()
 
@@ -197,7 +198,7 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 					$i = 0;
 					foreach($sort_order as $sort_id => $assetid) {
 					$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-					$href = $q->getBackendHref('contents');
+					$href = $q->getBackendHref('details');
 					?>
 						<tr>
 							<td class="sq-backend-table-cell">
@@ -283,7 +284,7 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 	*/
 	function paintAddQuestions(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('links')) return false;
+		if (!$asset->writeAccess('attributes')) return false;
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$question_types = $am->getTypeDescendants('form_question');
