@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_management.inc,v 1.1 2004/07/28 01:25:32 lwright Exp $
+* $Id: calendar_event_management.inc,v 1.2 2004/08/12 06:52:58 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -42,7 +42,7 @@ class Calendar_Event_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Calendar_event_Management(&$pm)
+	function Calendar_Event_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
 
