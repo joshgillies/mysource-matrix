@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.14.2.1 2004/12/09 03:17:24 gsherwood Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.14.2.2 2005/04/01 07:04:14 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -99,7 +99,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 					break;
 		<?php
-	
+
 	}//end paintBackendJsData()
 
 
@@ -123,7 +123,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		} else {
 			$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($bodycopy->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
 		}
-		
+
 		?>
 		<script language="JavaScript" src="<?php echo sq_web_path('data').'/asset_types/bodycopy/js/bodycopy_edit_tables.js'?>"></script>
 
@@ -143,9 +143,9 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 					}
 					if (!bodycopy_saved[bodycopy_name][tableid]['rows'][rowid] && rowid != null) {
 						bodycopy_saved[bodycopy_name][tableid]['rows'][rowid] = new Object();
-					} 
+					}
 					if (cellid != null) {
-						if (!bodycopy_saved[bodycopy_name][tableid]['rows'][rowid]['cells']) { 
+						if (!bodycopy_saved[bodycopy_name][tableid]['rows'][rowid]['cells']) {
 							bodycopy_saved[bodycopy_name][tableid]['rows'][rowid]['cells'] = new Object();
 						}
 						bodycopy_saved[bodycopy_name][tableid]['rows'][rowid]['cells'][cellid] = bodycopy_data;
@@ -202,19 +202,19 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			if (tableid != -1) {
 				if (rowid != -1) {
 					if (cellid != -1) {
-						if (bodycopy_saved && 
-								bodycopy_saved["<?php echo $prefix?>"] && 
-								bodycopy_saved["<?php echo $prefix?>"][tableid] && 
+						if (bodycopy_saved &&
+								bodycopy_saved["<?php echo $prefix?>"] &&
+								bodycopy_saved["<?php echo $prefix?>"][tableid] &&
 								bodycopy_saved["<?php echo $prefix?>"][tableid]["rows"] &&
 								bodycopy_saved["<?php echo $prefix?>"][tableid]["rows"][rowid] &&
 								bodycopy_saved["<?php echo $prefix?>"][tableid]["rows"][rowid]["cells"] &&
 								bodycopy_saved["<?php echo $prefix?>"][tableid]["rows"][rowid]["cells"][cellid]) {
 							for (var key in bodycopy_saved["<?php echo $prefix?>"][tableid]["rows"][rowid]["cells"][cellid]) {
-								retVal[key] = var_serialise(bodycopy_saved["<?php echo $prefix?>"][tableid]["rows"][rowid]["cells"][cellid][key]); 
+								retVal[key] = var_serialise(bodycopy_saved["<?php echo $prefix?>"][tableid]["rows"][rowid]["cells"][cellid][key]);
 							}
 						}
 						return retVal;
-					} else { 
+					} else {
 						// editing row properties
 						if (bodycopy_data_exists(new Array('<?php echo $prefix?>', tableid, 'rows', rowid, 'attributes'))) {
 							retVal["attributes"] = var_serialise(bodycopy_saved["<?php echo $prefix?>"][tableid]["rows"][rowid]["attributes"]);
@@ -310,7 +310,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	function paintContainer(&$asset, &$o, $prefix)
 	{
 		if (!parent::paintContainer($asset, $o, $prefix)) return false;
-		
+
 		$table_rows = $asset->attr('rows');
 		$table_attributes = $asset->attr('attributes');
 
@@ -329,7 +329,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 					continue;
 				}
 				$popup_attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
-				// if this is the width and the value isn't a percentage, 
+				// if this is the width and the value isn't a percentage,
 				// then add 20 to it for the icons in the left column
 				if ($name == 'width' && !strstr($val, '%')) $val = (int) $val + 20;
 				$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
@@ -348,18 +348,18 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			}
 			if ($colspans_in_row) break;
 		}
-		
-		// require library functions needed for drawing the bodycopy 
+
+		// require library functions needed for drawing the bodycopy
 		$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');
 		require_once SQ_SYSTEM_ROOT.'/'.$type_info['dir'].'/files/bodycopy_general.inc';
-		
+
 		?>
 		<table<?php echo $attribute_list?> background="<?php echo $bgimage?>" border="0" cellpadding="0" cellspacing="0" style="width:100%;">
-			
+
 		<?php
-		
+
 		// For each defined cell, we're going to draw a special cell table
-		// with all the extra stuff around it. This lets each cell have 
+		// with all the extra stuff around it. This lets each cell have
 		// proper row and colspan stuff in the editing interface.
 		$num_rows = count($table_rows);
 		for ($i = 0; $i < $num_rows; $i++) {
@@ -369,7 +369,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 			}
 			?>
-			
+
 			<tr<?php echo $attribute_list?>>
 				<?php
 				$num_cols = count($table_rows[$i]['cells']);
@@ -380,14 +380,14 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 						<?php
 						// when painting a cell, it needs to know if there's more than 1 row or column too for drawing
 						// the delete row/col buttons
-						$this->_paintEditingCell($asset, $prefix, $x, $i, $table_rows[$i]['cells'][$x], $num_cols > 1, $num_rows > 1, !$colspans_in_row); 
+						$this->_paintEditingCell($asset, $prefix, $x, $i, $table_rows[$i]['cells'][$x], $num_cols > 1, $num_rows > 1, !$colspans_in_row);
 						?>
 					</td>
 					<?php
 				}//end for (each cell)
 				?>
 			</tr>
-			
+
 			<?php
 		}//end for
 
@@ -398,20 +398,20 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		return true;
 
 	}//end paintContainer()
-	
-	
+
+
 	/**
 	* Output a single cell from the table. Checks the cell's position in the
-	* table and draws extra icons as needed (ie the reorder columns/rows, 
+	* table and draws extra icons as needed (ie the reorder columns/rows,
 	* table properties etc).
-	* 
-	* the editing cells are made up of 4 regions; 
-		- Top left that is blank except for the first cell which contains a 
+	*
+	* the editing cells are made up of 4 regions;
+		- Top left that is blank except for the first cell which contains a
 		  table editing icon
 		- Top right which contains editing icons for the cell and column
 		- Bottom left which contains row editing icons
 		- Bottom right which contains the actual cell contents.
-	* 
+	*
 	* @param object 	$asset 		The parent table asset being edited
 	* @param string 	$prefix 	The prefix for this asset in a form
 	* @param int 		$x 			The x coordinate of this cell
@@ -427,13 +427,13 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	{
 		$attribute_list = '';
 		$table_rows = $asset->attr('rows');
-		
+
 		foreach ($table_rows[$i]['attributes'] as $name => $val) {
 			if ($val == '') continue;
 			$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 		}
-		
-		
+
+
 		?>
 		<table cellspacing="0" cellpadding="0" width="100%" height="100%">
 		<tbody valign="top">
@@ -455,7 +455,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 							continue;
 						}
 						$popup_attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
-						
+
 					}
 				}
 				print_bodycopy_icon("Javascript: bodycopy_edit_table_properties('$prefix', $asset->id, ".(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').");", 'Edit '.$asset->attr('name').'\'s Properties', (($popup_attribute_list) ? 'Current Properties :<br>'.$popup_attribute_list : ''), 'table_properties');
@@ -466,35 +466,35 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		?>
 		</td>
 		<?php
-		} 
+		}
 		?>
-		
+
 		<td style="border-bottom: 1px dashed #C0C0C0;" id="<?php echo $prefix.'_cell_'.$asset->id.'_'.$i.'_'.$x; ?>">
 		<!-- These next 3 icons float across to the right side -->
 		<span style="float: right;">
 		<?php
-		
+
 		if ($i==0) {
 			if (($x+$i) == 0 && $multiCol && $colReorder) {
 				print_bodycopy_icon("Javascript: bodycopy_edit_table_col_order('$prefix', $asset->id);", 'Reorder '.$asset->attr('name').'\'s Columns ?', '', 'reorder', '[Redorder Columns]');
-				
+
 			}
-		
+
 			// if there's more than one row, and we're on the first row, let the col be deleted.
-			if ($multiRow) {
+			if ($multiCol) {
 				print_bodycopy_icon("Javascript: bodycopy_delete_table_col('$prefix', $asset->id, $x);", 'Delete Column '.($x + 1).' ?', '', 'delete', '[Delete Column]');
 			}
-			
+
 			print_bodycopy_icon("Javascript: bodycopy_insert_table_col('$prefix', $asset->id, $x, false);", 'Insert New Column on Right', '', 'add', '[Add Column >>]');
 		}
-		
+
 		?> </span> <?php
-			
+
 		if ($i==0) {
 			print_bodycopy_icon("Javascript: bodycopy_insert_table_col('$prefix', $asset->id, $x, true);", 'Insert New Column on Left', '', 'add', '[<< Add Column]');
 		}
 		$cell->paintCell($asset, $prefix, $asset->id, $i, $x);
-		 
+
 		?>
 		</td>
 		</tr>
@@ -509,15 +509,15 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			}
 			echo '<br/>';
 			print_bodycopy_icon("Javascript: bodycopy_insert_table_row('$prefix', $asset->id,$i, true);", 'Insert a New Row Above', '', 'add', '[^ Add Row]');
-			
+
 			echo '<br/>';
 			print_bodycopy_icon("Javascript: bodycopy_edit_table_row_properties('$prefix', $asset->id,$i);", 'Edit Row '.($i + 1).'\'s Properties', (($attribute_list) ? 'Current Properties :<br>'.$attribute_list : ''), 'row_properties', '[Edit Row Properties]');
-			if ($multiRow > 1) {
+			if ($multiRow) {
 				echo '<br/>';
 				print_bodycopy_icon("Javascript: bodycopy_delete_table_row('$prefix', $asset->id, $i);", 'Delete Row '.($i + 1).' ?', '', 'delete', '[Delete Row]');
 			}
 			echo '<br/>';
-			print_bodycopy_icon("Javascript: bodycopy_insert_table_row('$prefix', $asset->id, $i, false);", 'Insert a New Row Below', '', 'add', '[v Add Row]'); 
+			print_bodycopy_icon("Javascript: bodycopy_insert_table_row('$prefix', $asset->id, $i, false);", 'Insert a New Row Below', '', 'add', '[v Add Row]');
 			?>
 		</td>
 		<?php
@@ -528,8 +528,8 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		</tr>
 		</tbody>
 		</table>
-		
-		<?php 
+
+		<?php
 	}
 
 
@@ -554,8 +554,8 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		// update the rows
 		$rows_updated = false;
 		$rows = $asset->attr('rows');
-		
-		
+
+
 		for ($rowid = 0; $rowid < count($rows); $rowid++) {
 			if (!empty($bc_saved[$prefix][$asset->id]['rows'][$rowid]['attributes'])) {
 				// save any changed row attributes
@@ -582,27 +582,27 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 							$current_span = $rows[$rowid]['cells'][$cellid]->colspan();
 							$colspaning   = $cell_data['attributes']['colspan'];
-								
+
 							// if the current span is '1' and the new span is '' then a cell is being created
 							// so we dont want to do anything
 							if ($current_span == 1 && trim($colspaning) == '') $colspaning = $current_span;
-							
+
 							// if the user left colspan blank, dont change anything
 							if (trim($colspaning) == '') {
-								$colspaning = $current_span; 
+								$colspaning = $current_span;
 								$bc_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = $current_span;
 							}
-							
+
 							// if the user entered a negative colspan - or '0', we can assume they want a colspan of '1'
-							if (intval($colspaning) <= 0) { 
-								$colspaning = 1; 
+							if (intval($colspaning) <= 0) {
+								$colspaning = 1;
 								$bc_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = 1;
 							}
 						} else {
 							$colspaning = 0;
 							$current_span = 0;
 						}
-						
+
 						if ($colspaning != $current_span) {
 							// put this colspan into a todo list that we will do later
 							$colspan_todo[$counter]['cell']			= $cellid;
@@ -624,26 +624,26 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 							// if the current span is '1' and the new span is '' then a cell is being created
 							// so we dont want to do anything
 							if ($current_span == 1 && trim($colspaning) == '') $colspaning = $current_span;
-							
+
 							// if the user left colspan blank, dont change anything
 							if (trim($colspaning) == '') {
-								$colspaning = $current_span; 
+								$colspaning = $current_span;
 								$bc_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = $current_span;
 							}
-							
+
 							// if the user entered a negative colspan - or '0', we can assume they want a colspan of '1'
 							if (intval($colspaning) <= 0) {
-								$colspaning = 1; 
+								$colspaning = 1;
 								$bc_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = 1;
 							}
-							
-					
+
+
 							if ($colspaning != $current_span) {
 
 								// make sure there are sufficient cells to create the colspan
 								$spanable_cells = count($rows[$rowid]['cells']) - ($cellid +1);
 								$needed_cells = ($colspaning - $current_span);
-							
+
 								if ($spanable_cells < $needed_cells) {
 									// dont end up changing the colspan at all
 									$bc_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = $current_span;
@@ -671,7 +671,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 										}
 									} else if ($colspaning < $current_span) {
 										// decreasing the colspan
-									
+
 										for ($i = 0; $i < ($current_span - $colspaning); $i++) {
 											if ($this->insertCell($asset, $rows, $rowid, $cellid, false, true)) {
 												$rows_updated = true;
@@ -779,7 +779,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		// before/after has
 		$num_cols = $this->maxCols($rows[$compareid], false);
 
-		// if they want to insert after the passed rowid what 
+		// if they want to insert after the passed rowid what
 		// they really mean is to insert before the next rowid
 		if (!$before) $rowid++;
 
@@ -853,7 +853,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		} elseif (count($rows) == 1) {
 			return false;
 		}
-	
+
 		return false;
 
 	}//end deleteRow()
@@ -888,7 +888,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			}
 			$new_array[$i] = $rows[$row_order[$i]];
 		}
-		
+
 		// now assign the new ordered array
 		$rows = $new_array;
 
@@ -915,7 +915,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		if (!$changes) return false;
 
 		$rows = $asset->attr('rows');
-		
+
 		for ($r = 0; $r < count($rows); $r++) {
 			// if there is a conflict in the number of cells, die
 			if (count($rows[$r]['cells']) != count(array_unique($col_order))) return false;
@@ -928,7 +928,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			// now assign the new ordered array
 			$rows[$r]['cells'] = $new_array;
 		}
-	
+
 		$asset->setAttrValue('rows',$rows);
 		return true;
 
@@ -1006,7 +1006,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			$colspan_error = 0;
 			$colspaning = 0;
 			for ($i = 0; $i < count($rows[$rowid]['cells']); $i++) {
-				if ($rows[$rowid]['cells'][$i]->colspan() > 1) { 
+				if ($rows[$rowid]['cells'][$i]->colspan() > 1) {
 					$colspan_error = 1;
 				}
 			}
@@ -1022,7 +1022,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 						$real_cellid++;
 					}
 				}
-				
+
 				// lets try and find out how many cells are before the cell we are looking at
 				$colspaning = 0;
 				for ($i = 0; $i < $real_cellid; $i++) {
@@ -1049,7 +1049,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				}
 
 				if ($cellid == 0 && $before) $dont_do_this = true;
-					
+
 				$cellid = $real_cellid;
 				if ($cellid < 0) $cellid = 0;
 
@@ -1059,16 +1059,16 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 					$rows[$rowid]['cells'][$cellid]->setAttribute('colspan', $colspaning);
 					return true;
 				}
-				
+
 			}
 		}
-	
+
 		// if the cell is greater than the number of cells we have set it to the last on
 		if ($cellid > count($rows[$rowid]['cells']) - 1) $cellid = count($rows[$rowid]['cells']) - 1;
 		if ($cellid < 0) $cellid = 0;
 		$compareid = $cellid;
 
-		// if they want to insert after the passed cell what 
+		// if they want to insert after the passed cell what
 		// they really mean is to insert before the next cell
 		if (!$before) $cellid++;
 
@@ -1189,7 +1189,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 					$num++;
 				}
 			}
-			if ($max < $num) $max = $num; 
+			if ($max < $num) $max = $num;
 		}
 		return (int)$max;
 
