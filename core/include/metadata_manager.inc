@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: metadata_manager.inc,v 1.9 2003/10/10 06:49:25 brobertson Exp $
+* $Id: metadata_manager.inc,v 1.10 2003/10/13 04:38:11 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -346,7 +346,16 @@ class Metadata_Manager extends MySource_Object
 
 	}//end setMetadata()
 
-
+	/** 
+	* Indexes metadata for an asset
+	* 
+	* @param Object		&$asset			The asset
+	* @param Array		&$metadata		The values for the metadata
+	* @param Array		&$schemaids		The schema IDs
+	* 
+	* @access private
+	* @return void
+	*/
 	function indexMetadata(&$asset, &$metadata, &$schemaids)
 	{
 		require_once SQ_FUDGE_PATH."/general/text.inc";
@@ -418,12 +427,22 @@ class Metadata_Manager extends MySource_Object
 
 		$im->addKeyData($asset->id, $keyData);
 		
-	}
+	} // end indexMetadata()
 
-	function indexDefaultMetadata(&$asset, $schemaid)
+	/** 
+	* Indexes the default metadata for an asset
+	* (implement me - dom)
+	* 
+	* @param Object		&$asset			The asset
+	* @param Array		&$schemaids		The schema IDs
+	* 
+	* @access private
+	* @return void 
+	*/
+	function indexDefaultMetadata(&$asset, $schemaids)
 	{
 		
-	}
+	} // end indexDefaultMetadata()
 
 	/**
 	* Check if all required fields have been completed for an asset
