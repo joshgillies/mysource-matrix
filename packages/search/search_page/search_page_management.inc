@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.12 2004/06/02 00:26:32 gsherwood Exp $
+* $Id: search_page_management.inc,v 1.13 2004/06/18 01:33:21 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -105,6 +105,51 @@ class Search_Page_Management extends Asset_Management
 	}//end constructor
 
 
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		if (!parent::_upgrade($current_version)) return false;
+
+		if ($current_version == '0.2') {
+			// this upgrade changed the root assetid from storing an assetid to storing a NOTICE link
+			// to the root assetid - that way if the root asset is purged it automatically deletes
+			// the association
+			bam('STARTING SEARCH PAGE UPGRADE - VERSION 0.2');
+			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren(1, $this->getAssetType(), false);
+			foreach ($children as $assetid => $type) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				if (is_null($asset)) continue;
+
+				// get the current root asset id and make sure it exists
+				$current_root_assetid = $asset->attr('root_assetid');
+				$root_asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($current_root_assetid));
+
+				// create the notice link
+				if (!empty($root_asset_info)) {
+					$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current_root_assetid);
+					if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $root_asset, SQ_LINK_NOTICE, 'root')) {
+						bam('SEARCH PAGE UPGRADE FAILED');
+						return false;
+					}
+				}
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}
+			bam('SEARCH PAGE UPGRADE COMPLETE - VERSION 0.2');
+		}//end version 0.2 upgrade
+
+		return true;
+
+	}//end _upgrade()
+	
+	
 	/**
 	* Return an array with information about the events that this page is listening for
 	*

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.39 2004/06/16 06:33:02 gsherwood Exp $
+* $Id: search_page.inc,v 1.40 2004/06/18 01:33:21 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc'; // for the meda
 * @author  Dominic Wong <dwong@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.39 $ - 1.0
+* @version $Revision: 1.40 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -198,8 +198,9 @@ class Search_Page extends Page
 	{
 		// the only reason why we would object to this link being
 		// deleted is if it is the bodycopy linked to us
-		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
-		if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the bodycopy and the search page';
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
+		
+		if ($bodycopy_link['minor_type_code'] == 'bodycopy' && !$GLOBALS['SQ_PURGING_TRASH']) return 'You can\'t delete the link between the search page and its bodycopies';
 
 		return parent::isDeletableLink($linkid);
 
@@ -216,11 +217,28 @@ class Search_Page extends Page
 	{
 		$page_links = parent::_getAllowedLinks();
 		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => count($this->bodycopies), 'exclusive' => true);
+		// added for root node
+		$page_links[SQ_LINK_NOTICE]['asset'] = Array('card' => 'M', 'exclusive' => false);
 		return $page_links;
 
 	}//end _getAllowedLinks()
 
 
+	/**
+	* Returns a list of lock types available for this asset type
+	*
+	* @return Array()
+	* @access public
+	*/
+	function lockTypes()
+	{
+		$lock_types = parent::lockTypes();
+		$lock_types['content'] = ($lock_types['attributes'] | $lock_types['links']);
+		return $lock_types;
+
+	}//end lockTypes()
+	
+	
 	/**
 	* Called by the design to print the body of this asset
 	*
@@ -659,8 +677,13 @@ class Search_Page extends Page
 					$first = true;
 					$found_root = false;
 					$parentAssetIds = $am->getParents($asset->id);
+
+					// searching for the root asset
+					$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
+					$root_assetid = empty($root_link) ? 0 : $root_link['minorid'];
+
 					foreach ($parentAssetIds as $parentAssetId) {
-						if ($parentAssetId == $this->attr('root_assetid')) $found_root = true;
+						if ($parentAssetId == $root_assetid) $found_root = true;
 						if (!$found_root) continue;
 						if (!$first) $replacement .= $this->attr('lineage_seperator');
 						$first = false;
@@ -757,7 +780,10 @@ class Search_Page extends Page
 		}
 
 		$search_info['logic'] = $this->attr('logic');
-		$search_info['root_assetid'] = ($this->attr('root_assetid') <= 0) ? 1 : $this->attr('root_assetid');
+
+		// searching for the root asset
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
+		$search_info['root_assetid'] = empty($root_link) ? 0 : $root_link['minorid'];
 		$search_info['search_types'] = $this->attr('search_types');
 
 		return $sm->processSearch($search_info);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.23 2004/06/16 06:33:02 gsherwood Exp $
+* $Id: search_page_edit_fns.inc,v 1.24 2004/06/18 01:33:21 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.23 $ - 1.0
+* @version $Revision: 1.24 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -42,64 +42,88 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Search_Page_Edit_fns()
+	function Search_Page_Edit_Fns()
 	{
 		$this->Page_Edit_Fns();
+		$this->static_screens['details']['lock_type'] = 'content';
 
-	}//end constructor
+	}//end Search_Page_Edit_Fns()
 
 
 	/**
-	* Paints the interface for choosing the root asset.
+	* Paints the root node selection box
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	Asset				&$rootid	asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for the html doc element name
 	*
-	* @return void
+	* @return boolean
 	* @access public
-	*
 	*/
 	function paintRootAsset(&$asset, &$o, $prefix)
 	{
-		$name = $prefix."_root_asset";
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'asset', false, 'root');
+		$write_access = $asset->writeAccess('links');
 
-		$assetid = $asset->attr('root_assetid');
-		if ($asset->writeAccess('attributes')) {
-			asset_finder($name, $assetid);
+		if (!$write_access) {
+			$root_asset = null;
+			if (!empty($root_link)) $root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
+			if (!is_null($root_asset)) echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
+			else echo 'No root node has been selected';
 		} else {
-			if ($assetid > 0) {
-				$rootAsset =& $am->getAsset($assetid);
-				echo "<a href=\"".$rootAsset->getBackendHref()."\">".$rootAsset->name."</a>";
-			} else {
-				echo "No root asset specified.";
-			}
+			asset_finder($prefix.'_rootid', (!empty($root_link)) ? $root_link['minorid'] : '');
 		}
+
+		return $write_access;
 
 	}//end paintRootAsset()
 
 
 	/**
-	* Processes the interface for choosing the root asset.
+	* Processes the value input from root node selection box
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	Asset				&$rootid	asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for the html doc element name
 	*
-	* @return boolean
+	* @return void
 	* @access public
-	*
 	*/
 	function processRootAsset(&$asset, &$o, $prefix)
 	{
-		$name = $prefix."_root_asset";
-		$assetid = null;
+		if (!isset($_POST[$prefix.'_rootid']['assetid'])) return false;
+		$new_root  = $_POST[$prefix.'_rootid']['assetid'];
 
-		if (isset($_REQUEST[$name])) {
-			$assetid = $_REQUEST[$name]['assetid'];
+		// getting existing root link
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, 'root');
+
+		// dont process anything if the root node has not changed
+		if (!empty($root_link) && $root_link['minorid'] == $new_root) return false;
+
+		$ok = true;
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// deleting old root link if any found...
+		if (!empty($root_link) && !$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
+			$ok = false;
+		} else if ($new_root) {
+			$root = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
+			if (!is_null($root)) {
+				if (!$asset->createLink($root, SQ_LINK_NOTICE, 'root')) {
+					$ok = false;
+					trigger_error('Failed adding new root node "'.$root->name.'" [#'.$root->id.']', E_USER_WARNING);
+				}
+			}
 		}
-		return $asset->setAttrValue('root_assetid', $assetid);
+
+		if ($ok) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			return true;
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
 
 	}//end processRootAsset()
 
@@ -121,7 +145,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 		if (is_scalar($fields))
 			$fields = unserialize($fields);
 
-		$queryTypes = Array(
+		$query_types = Array(
 			'include_all'	=> 'Include All',
 			'asset_attrib'	=> 'Asset attribute', // added for testing new features
 			'exclude'		=> 'Exclude',
@@ -142,23 +166,23 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 				?>
 			</tr>
 			<?php
-			foreach (array_values($fields) as $fieldName => $fieldData) {
+			foreach (array_values($fields) as $field_name => $field_data) {
 				echo "<tr>";
 				if ($asset->writeAccess('attributes')) {
 					?>
 					<tr>
-						<td class="sq-backend-data"><?php text_box($prefix.'_fields[' .$i. '][name]', $fieldData['name'])?></td>
-						<td class="sq-backend-data"><?php combo_box($prefix.'_fields[' .$i .'][type]', $queryTypes, false, $fieldData['type'])?></td>
-						<td class="sq-backend-data"><?php $this->paintFieldParameters($asset, $prefix."_fields[$i]", $fieldData)?></td>
+						<td class="sq-backend-data"><?php text_box($prefix.'_fields[' .$i. '][name]', $field_data['name'])?></td>
+						<td class="sq-backend-data"><?php combo_box($prefix.'_fields[' .$i .'][type]', $query_types, false, $field_data['type'])?></td>
+						<td class="sq-backend-data"><?php $this->paintFieldParameters($asset, $prefix."_fields[$i]", $field_data)?></td>
 						<td class="sq-backend-data"><?php check_box($prefix.'_deleted_fields['. $i. ']') ?></td>
 					</tr>
 					<?php
 				} else {
 					?>
 					<tr>
-						<td class="sq-backend-data"><?php echo $fieldData['name'] ?></td>
-						<td class="sq-backend-data"><?php echo $queryTypes[$fieldData['type']] ?></td>
-						<td class="sq-backend-data"><?php $this->paintFieldParameters($asset, $prefix."_fields[$i]", $fieldData)?></td>
+						<td class="sq-backend-data"><?php echo $field_data['name'] ?></td>
+						<td class="sq-backend-data"><?php echo $query_types[$field_data['type']] ?></td>
+						<td class="sq-backend-data"><?php $this->paintFieldParameters($asset, $prefix."_fields[$i]", $field_data)?></td>
 					</tr>
 					<?php
 				}
@@ -175,7 +199,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 			?>Add field (name): <?php
 			text_box($prefix."_fields[$i][name]", '', 15);
 			?><br />Query type: <?php
-			echo combo_box($prefix.'_fields['. $i .'][type]', $queryTypes, false, 'include_all');
+			echo combo_box($prefix.'_fields['. $i .'][type]', $query_types, false, 'include_all');
 		}
 
 		return true;
@@ -213,15 +237,15 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 		//return $asset->setAttrValue('fields', $fields);
 
 		if(isset($fields_post) && count($fields_post) > 0) {
-			foreach ($fields_post as $i => $fieldData) {
+			foreach ($fields_post as $i => $field_data) {
 				if (isset($deleted_fields[$i]))
 					continue;
-				if($fieldData['name'] == '')
+				if($field_data['name'] == '')
 					continue;
-				if (isset($fields[$fieldData['name']]))
+				if (isset($fields[$field_data['name']]))
 					continue;
 
-				$fields[$fieldData['name']] = $fieldData;
+				$fields[$field_data['name']] = $field_data;
 			}
 		}
 
@@ -442,29 +466,29 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 	* Paints the interface for the fields' parameters.
 	*
 	* @param object Search_Page			&$asset			the search page asset
-	* @param string						$fieldPrefix	The field prefix.
-	* @param string						$prefix	prefix for form elements
+	* @param string						$field_prefix	The field prefix
+	* @param string						$field_data		field data passed from the caller
 	*
 	* @return boolean
 	* @access public
 	*
 	*/
-	function paintFieldParameters(&$asset, $fieldPrefix, $fieldData)
+	function paintFieldParameters(&$asset, $field_prefix, $field_data)
 	{
-		switch ($fieldData['type']) {
+		switch ($field_data['type']) {
 
 			case 'metadata':
-				if (!isset($fieldData['params']['metadata_field']['assetid'])) {
+				if (!isset($field_data['params']['metadata_field']['assetid'])) {
 					$metadata_field = 0;
 				} else {
-					$metadata_field = $fieldData['params']['metadata_field']['assetid'];
+					$metadata_field = $field_data['params']['metadata_field']['assetid'];
 				}
 				if ($asset->writeAccess('attributes')) {
-					asset_finder($fieldPrefix. '[params][metadata_field]', $metadata_field, Array('metadata_field' => 'D'));
+					asset_finder($field_prefix. '[params][metadata_field]', $metadata_field, Array('metadata_field' => 'D'));
 				} else {
 					if ($metadata_field > 0) {
-						$fieldAsset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field);
-						echo $fieldAsset->name . ' #'. $fieldAsset->id;
+						$field_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field);
+						echo $field_asset->name . ' #'. $field_asset->id;
 					} else {
 						echo 'No metadata field specified.';
 					}
@@ -473,10 +497,10 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 
 			case 'asset_attrib':
 				// printing out attribute selection combo box
-				if (!isset($fieldData['params']['searchtype'])) {
+				if (!isset($field_data['params']['searchtype'])) {
 					$search_type = '';
 				} else {
-					$search_type = $fieldData['params']['searchtype'];
+					$search_type = $field_data['params']['searchtype'];
 				}
 
 				// getting array of searchable asset types from page attribute
@@ -484,10 +508,10 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 
 				// getting the values for available types list
 				$avail_asset_types = & $GLOBALS['SQ_SYSTEM']->am->getTypeList();
-				$assetTypes = Array();
+				$asset_types = Array();
 				foreach ($avail_asset_types as $type_key => $type_val) {
 					if (in_array($type_val, $search_types)) { // adding only searchable attributes
-						$assetTypes[$type_val] = $type_val; // creating assoc array out of normal one
+						$asset_types[$type_val] = $type_val; // creating assoc array out of normal one
 					}
 				}
 
@@ -495,15 +519,15 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 				if ($asset->writeAccess('attributes')) {
 
 					// not printing the combo box unless there is something to show
-					if (!empty($assetTypes)){
-						combo_box($fieldPrefix.'[params][searchtype]', $assetTypes, false, $search_type);
+					if (!empty($asset_types)){
+						combo_box($field_prefix.'[params][searchtype]', $asset_types, false, $search_type);
 					}
 
 					// printing out attribute selection combo box
-					if (!isset($fieldData['params']['type_attr']) || $search_type == '') {
+					if (!isset($field_data['params']['type_attr']) || $search_type == '') {
 						$selected_attr = '';
 					} else {
-						$selected_attr = $fieldData['params']['type_attr'];
+						$selected_attr = $field_data['params']['type_attr'];
 					}
 
 					// not printing the combo box unless there is something to show
@@ -512,17 +536,17 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 					$type_attrs = & $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($search_type, Array('attributeid', 'name', 'type'));
 
 						echo " <b>Attr:</b> ";
-						$typeAttrs = Array();
-						$typeAttrs[''] = "- attribute -";
+						$type_attrs = Array();
+						$type_attrs[''] = "- attribute -";
 						foreach ($type_attrs as $attr_id => $attr_params) {
 							// we could use $attr_type to check if it's wanted here
 							$attr_name = $attr_params['name'];
 							$attr_type = $attr_params['type'];
 							$attr_ind = $attr_name . "__" . $attr_type . "__" . $attr_id;
-							$typeAttrs[$attr_ind] = $attr_name;
+							$type_attrs[$attr_ind] = $attr_name;
 						}
 
-						combo_box($fieldPrefix.'[params][type_attr]', $typeAttrs, false, $selected_attr);
+						combo_box($field_prefix.'[params][type_attr]', $type_attrs, false, $selected_attr);
 					}
 
 				} else {

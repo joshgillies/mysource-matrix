@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.10 2004/03/03 00:38:58 diarandine Exp $
+* $Id: edit_interface_screen_details.xml,v 1.11 2004/06/18 01:33:21 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -36,7 +36,7 @@
 		</field>
 	</section>
 	<section name="Search Parameters">
-		<field read_access="" write_access="write:attributes">
+		<field read_access="" write_access="write:links">
 			<display_name>Root Asset</display_name>
 			<note>Searches will be restricted to trees rooted at this asset.</note>
 			<function_call>
