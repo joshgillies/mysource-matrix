@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.62 2004/09/10 04:32:55 arailean Exp $
+* $Id: page_calendar.inc,v 1.63 2004/09/10 05:42:18 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.62 $ - 1.0
+* @version $Revision: 1.63 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2242,8 +2242,6 @@ class Page_Calendar extends Page_Asset_Listing
 				$i++;
 
 			} else {
-				trigger_error('-- EXPANDING SINGLE EVENT ID:'.$event['name'].' --'."\n".
-					'End Date: Specified, Days: Single', E_USER_NOTICE);
 				$start_time = mktime(12, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
 				$start_date = date('Y-m-d', $start_time);
 				// single day
@@ -2255,8 +2253,6 @@ class Page_Calendar extends Page_Asset_Listing
 				$i++;
 			}
 		} else {
-			trigger_error('-- EXPANDING SINGLE EVENT ID:'.$event['name'].' --'."\n".
-					'End Date: Not Specified, Days: Single', E_USER_NOTICE);
 			$start_time = mktime(12, 0, 0,  $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
 			$start_date = date('Y-m-d', $start_time);
 			// single day in any case
