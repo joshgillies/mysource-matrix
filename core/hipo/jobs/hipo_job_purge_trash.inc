@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.7 2004/02/11 18:47:49 brobertson Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.8 2004/02/27 05:42:57 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -184,8 +184,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	{
 		$trash = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 		
-		require_once SQ_INCLUDE_PATH.'/asset_manager_edit_fns.inc';
-		$children = Asset_Manager_Edit_Fns::getAllChildLinks($trash->id);
+		$children = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($trash->id);
 		$children = array_reverse($children);
 
 		// work out the treeid of the trash asset for use later
