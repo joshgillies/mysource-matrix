@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map_edit_fns.inc,v 1.9 2004/06/16 06:12:06 mmcintyre Exp $
+* $Id: page_site_map_edit_fns.inc,v 1.10 2004/06/18 00:22:20 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -68,8 +68,6 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, 'root');
 		$write_access = $asset->writeAccess('links');
 
-		bam($root_link);
-		
 		if (!$write_access) {
 			$root_asset = null;
 			if (!empty($root_link)) $root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
