@@ -1704,6 +1704,7 @@ class Asset extends MySource_Object
 		} else {
 			return $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($linkid);
 		}
+
 	}//end deleteLink()
 
 
