@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.6 2005/03/02 21:16:43 brobertson Exp $
+* $Id: hipo_job_create_links.inc,v 1.7 2005/03/23 22:57:15 ndvries Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -60,114 +60,114 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	* @var Array
 	*/
 	var $_steps = Array(
-					Array( //0
-						'name'			=> 'Confirmation',
-						'function_call'		=> Array(
-												'paint_function'   => 'paintConfirmation',
-												'process_function' => 'processConfirmation',
-												),
-						'running_mode'	=> 'web',
-						'auto_step'		=> false,
-						'skip_step'		=> false,
-						'allow_cancel'	=> true,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array( //1
-						'name'			=> 'Creating Links',
-						'function_call'	=> Array(
-												'process_function' => 'processCreateLinks',
-												),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'skip_step'		=> false,
-						'allow_cancel'	=> true,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array( //2
-						'name'			=> 'Updating Lookups',
-						'hipo_job'		=> Array(
-												'init_details_function' => 'updateLookups',
-												),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'skip_step'		=> false,
-						'allow_cancel'	=> true,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array( //3
-						'name'			=> 'Cascading Options',
-						'function_call'		=> Array(
-												'paint_function'   => 'paintInterface',
-												'process_function' => 'processInterface',
-												),
-						'running_mode'	=> 'web',
-						'auto_step'		=> false,
-						'skip_step'		=> false,
-						'allow_cancel'	=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array( //4
-						'name'			=> 'Cascading Permissions',
-						'hipo_job'		=> Array(
-												'init_details_function' => 'CascadePermissions',
-												),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'skip_step'		=> false,
-						'allow_cancel'	=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array( //5
-						'name'			=> 'Cascading Metadata',
-						'hipo_job'		=> Array(
-												'init_details_function' => 'CascadeMetadata',
-												),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'skip_step'		=> false,
-						'allow_cancel'	=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array( //6
-						'name'			=> 'Cascading Workflow',
-						'hipo_job'		=> Array(
-												'init_details_function' => 'CascadeWorkflow',
-												),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'skip_step'		=> false,
-						'allow_cancel'	=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array( //7
-						'name'			=> 'Refreshing Asset Map',
-						'function_call'	=> Array(
-												'paint_function'   => 'paintRefresh',
-												'process_function' => 'processRefresh',
-												),
-						'running_mode'	=> 'web',
-						'auto_step'		=> true,
-						'skip_step'		=> false,
-						'allow_cancel'	=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-				);
+						Array(
+							  'name'          => 'Confirmation',
+							  'function_call' => Array(
+													   'paint_function'   => 'paintConfirmation',
+													   'process_function' => 'processConfirmation',
+													   ),
+							  'running_mode'  => 'web',
+							  'auto_step'     => false,
+							  'skip_step'     => false,
+							  'allow_cancel'  => true,
+							  'percent_done'  => 0,
+							  'complete'      => false,
+							  'message'       => '',
+							  ),
+						Array(
+							  'name'          => 'Creating Links',
+							  'function_call' => Array(
+													   'process_function' => 'processCreateLinks',
+													   ),
+							  'running_mode'  => 'server',
+							  'auto_step'     => true,
+							  'skip_step'     => false,
+							  'allow_cancel'  => true,
+							  'percent_done'  => 0,
+							  'complete'      => false,
+							  'message'       => '',
+							  ),
+						Array(
+							  'name'         => 'Updating Lookups',
+							  'hipo_job'     => Array(
+													  'init_details_function' => 'updateLookups',
+													  ),
+							  'running_mode' => 'server',
+							  'auto_step'    => true,
+							  'skip_step'    => false,
+							  'allow_cancel' => true,
+							  'percent_done' => 0,
+							  'complete'     => false,
+							  'message'      => '',
+							  ),
+						Array(
+							  'name'          => 'Cascading Options',
+							  'function_call' => Array(
+													   'paint_function'   => 'paintInterface',
+													   'process_function' => 'processInterface',
+													   ),
+							  'running_mode'  => 'web',
+							  'auto_step'     => false,
+							  'skip_step'     => false,
+							  'allow_cancel'  => false,
+							  'percent_done'  => 0,
+							  'complete'      => false,
+							  'message'       => '',
+							  ),
+						Array(
+							  'name'         => 'Cascading Permissions',
+							  'hipo_job'     => Array(
+													  'init_details_function' => 'CascadePermissions',
+													  ),
+							  'running_mode' => 'server',
+							  'auto_step'    => true,
+							  'skip_step'    => false,
+							  'allow_cancel' => false,
+							  'percent_done' => 0,
+							  'complete'     => false,
+							  'message'      => '',
+							  ),
+						Array(
+							  'name'         => 'Cascading Metadata',
+							  'hipo_job'     => Array(
+													  'init_details_function' => 'CascadeMetadata',
+													  ),
+							  'running_mode' => 'server',
+							  'auto_step'    => true,
+							  'skip_step'    => false,
+							  'allow_cancel' => false,
+							  'percent_done' => 0,
+							  'complete'     => false,
+							  'message'      => '',
+							  ),
+						Array(
+							  'name'         => 'Cascading Workflow',
+							  'hipo_job'     => Array(
+													  'init_details_function' => 'CascadeWorkflow',
+													  ),
+							  'running_mode' => 'server',
+							  'auto_step'    => true,
+							  'skip_step'    => false,
+							  'allow_cancel' => false,
+							  'percent_done' => 0,
+							  'complete'     => false,
+							  'message'      => '',
+							  ),
+						Array(
+							  'name'          => 'Refreshing Asset Map',
+							  'function_call' => Array(
+													   'paint_function'   => 'paintRefresh',
+													   'process_function' => 'processRefresh',
+													   ),
+							  'running_mode'  => 'web',
+							  'auto_step'     => true,
+							  'skip_step'     => false,
+							  'allow_cancel'  => false,
+							  'percent_done'  => 0,
+							  'complete'      => false,
+							  'message'       => '',
+							  ),
+						);
 
 
 	/**
@@ -175,7 +175,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	*
 	* @param string	$code_name		a unique codename the HIPO
 	*/
-	function HIPO_Job_Create_Link($code_name='')
+	function HIPO_Job_Create_Links($code_name='')
 	{
 		$this->HIPO_Job($code_name);
 
@@ -267,7 +267,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				$o->closeField();
 			$o->closeSection();
 
-		} elseif ($this->_running_vars['link_action'] == 'move') {
+		} else if ($this->_running_vars['link_action'] == 'move') {
 
 			// we are moving an asset
 			$o->openSection('Move Confirmation');
@@ -528,7 +528,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 		return true;
 
-	}//end processConfirmation()
+	}//end processCreateLinks()
 
 
 	/**
@@ -696,7 +696,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
 			$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->_running_vars['to_parent_assetid'], $perm, null, false, false, true);
 			foreach ($set_perms as $userid => $granted) {
-				$permission_vars[$perm][] = Array('granted'         => $granted,
+				$permission_vars[$perm][] = Array(
+												  'granted'         => $granted,
 												  'userid'          => $userid,
 												  'previous_access' => null,
 												  );
@@ -727,7 +728,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		$schema_vars = Array();
 
 		foreach ($schemas as $schemaid => $granted) {
-			$schema_vars[] = Array('granted'         => $granted,
+			$schema_vars[] = Array(
+								   'granted'         => $granted,
 								   'schemaid'        => $schemaid,
 								   'previous_access' => null,
 								   );
@@ -756,7 +758,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		$schema_vars = Array();
 
 		foreach ($schemas as $schemaid => $granted) {
-			$schema_vars[] = Array('granted'         => $granted,
+			$schema_vars[] = Array(
+								   'granted'         => $granted,
 								   'schemaid'        => $schemaid,
 								   'previous_access' => null,
 								   );
