@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
-* +--------------------------------------------------------------------+
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 * | Squiz.net Open Source Licence                                      |
-* +--------------------------------------------------------------------+
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 * | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
-* +--------------------------------------------------------------------+
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 * | This source file may be used subject to, and only in accordance    |
 * | with, the Squiz Open Source Licence Agreement found at             |
 * | http://www.squiz.net/licence.                                      |
@@ -17,9 +17,9 @@
 * | intellectual property rights in the modification, adaptation and   |
 * | enhancement to Squiz Pty Ltd for use and distribution under that   |
 * | licence.                                                           |
-* +--------------------------------------------------------------------+
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: package.xsl,v 1.4 2003/11/26 00:51:16 gsherwood Exp $
+* $Id: package.xsl,v 1.5 2004/05/18 16:22:54 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
