@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.17 2004/02/10 04:16:42 gsherwood Exp $
+* $Id: text.inc,v 1.18 2004/02/12 04:01:17 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,6 +53,10 @@ class Asset_Attribute_Text extends Asset_Attribute
 	{
 		$this->Asset_Attribute($attributeid, $value, Array('max_length' => 0));
 
+		// set default edit parameters
+		$this->_edit_params['width']  = 0;
+		$this->_edit_params['height'] = 1;
+
 	}//end constructor
 
 
@@ -69,8 +73,8 @@ class Asset_Attribute_Text extends Asset_Attribute
 	{
 		if (!parent::setEditParams($node)) return false;
 
-		$this->_edit_params['width']    = isset($node->attributes['width'])  ? (int) $node->attributes['width']  : 0;
-		$this->_edit_params['height']   = isset($node->attributes['height']) ? (int) $node->attributes['height'] : 1;
+		if (isset($node->attributes['width']))  $this->_edit_params['width']  = (int) $node->attributes['width'];
+		if (isset($node->attributes['height'])) $this->_edit_params['height'] = (int) $node->attributes['height'];
 
 		return true;
 
