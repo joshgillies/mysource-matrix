@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.11 2004/08/26 00:49:09 lwright Exp $
+* $Id: calendar_event.inc,v 1.12 2004/08/26 06:02:53 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.11 $ - 1.0
+* @version $Revision: 1.12 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -557,7 +557,6 @@ class Calendar_Event extends Asset
 		$date_values = Array();
 		foreach(Array('start_date', 'end_date') as $date_comp) {
 			$iso = $this->attr($date_comp);
-			pre_echo($iso);
 			
 			if (iso8601_time_component($iso) === false) {
 				if (($date_comp == 'end_date') && (iso8601_date_component($iso) !== false)) {
@@ -621,7 +620,6 @@ class Calendar_Event extends Asset
 	*/
 	function _splitAttributeDate(&$date_values, $attr, $iso, $prefix='')
 	{			
-		pre_echo($iso);
 		if ($this->vars[$attr]['type'] == 'datetime') {
 			
 			// we represent end-of-day as '24:00:00' as per ISO 8601, but strtotime()
