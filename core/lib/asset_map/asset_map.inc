@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.175 2005/03/16 10:38:54 brobertson Exp $
+* $Id: asset_map.inc,v 1.176 2005/03/31 04:28:58 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.175 $
+* @version $Revision: 1.176 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -404,7 +404,7 @@ class Asset_Map
 				$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p '.$p_where;
 			}
 
-			$sql .= ','.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l';
+			$sql .= ','.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree lt on l.linkid = lt.linkid';
 			$where = '	a.assetid = l.minorid AND ';
 
 			$where .= 'a.assetid = '.$db->quote($assetid);
