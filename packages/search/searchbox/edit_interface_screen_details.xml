@@ -1,0 +1,54 @@
+<!--
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: edit_interface_screen_details.xml,v 1.1.1.1 2003/10/08 01:20:58 dwong Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+<contents>
+	<section name="Details">
+		<field attribute="id_name">
+			<display_name>ID Name</display_name>
+			<note />
+			<text width="60" height="1" />
+		</field>
+	</section>
+
+	<section name="Search Page Configuration">
+		<field>
+			<display_name>Search Page</display_name>
+			<note />
+			<function_call>
+				<paint_function name="paintBackendSearchPage" />
+				<process_function name="processBackendSearchPage" />
+			</function_call>
+		</field>
+		<field show_if="hasValidSearchPage">
+			<display_name>Search Field Name</display_name>
+			<note>The field must be defined in the search page above.</note>
+			<function_call>
+				<paint_function name="paintSearchFieldName" />
+				<process_function name="processSearchFieldName" />
+			</function_call>
+		</field>
+		<field attribute="querybox_width">
+			<display_name>Query box width</display_name>
+			<note />
+			<int width="5" />
+		</field>
+		<field attribute="submit_button">
+			<display_name>Submit Button</display_name>
+			<note />
+			<boolean />
+		</field>
+		<field show_if="isSubmitButton">
+			<display_name>Submit Image</display_name>
+			<note />
+			<function_call>
+				<paint_function		name="paintBackendSubmitImage" />
+				<process_function	name="processBackendSubmitImage" />
+			</function_call>
+		</field>
+	</section>
+</contents>

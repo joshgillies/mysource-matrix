@@ -1,0 +1,29 @@
+<!--
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: edit_interface_screen_fields.xml,v 1.1.1.1 2003/10/08 01:20:58 dwong Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+<contents>
+	<section name="Field Configuration">
+		<field>
+			<display_name>Fields</display_name>
+			<note>Add search query fields here.</note>
+			<function_call>
+				<paint_function name="paintFields" />
+				<process_function name="processFields" />
+			</function_call>
+		</field>
+	</section>
+
+	<section name="Logical Grouping">
+		<field attribute="logic">
+			<display_name>Use AND / OR grouping</display_name>
+			<note />
+			<selection />
+		</field>
+	</section>
+
+</contents>

@@ -1,0 +1,47 @@
+<!--
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: edit_interface_screen_details.xml,v 1.1.1.1 2003/10/08 01:20:58 dwong Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Name</display_name>
+			<note />
+			<text width="15" />
+		</field>
+		<field attribute="short_name">
+			<display_name>Short Name</display_name>
+			<note />
+			<text width="15" />
+		</field>
+	</section>
+	<section name="Search Parameters">
+		<field>
+			<display_name>Root Asset</display_name>
+			<note>Searches will be restricted to trees rooted at this asset.</note>
+			<function_call>
+				<paint_function   name="paintBackendRootAsset" />
+				<process_function name="processBackendRootAsset" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Asset Types</display_name>
+			<note>Restrict search results to these asset types. Note: Not implemented yet. Asset types are currently restricted to site and page.</note>
+			<function_call>
+				<paint_function name="paintAssetTypeRestriction" />
+				<process_function name="processAssetTypeRestriction" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Display Options">
+		<field attribute="results_per_page">
+			<display_name>Results Per Page</display_name>
+			<note>The default results per page.</note>
+			<int width="5" />
+		</field>
+	</section>
+</contents>
