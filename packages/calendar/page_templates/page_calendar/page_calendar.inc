@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.102 2004/10/14 01:49:09 lwright Exp $
+* $Id: page_calendar.inc,v 1.103 2004/10/15 06:00:33 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.102 $ - 1.0
+* @version $Revision: 1.103 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -578,7 +578,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$column_width = $this->attr('month_column_width');
 			$row_height = $this->attr('month_row_height');
 			$week_start_day = $this->attr('week_starts_on');
-			$root_nodes = $this->attr('root_nodes');
+			$root_nodes = $this->_getRootNodes();
 			$root_node_keys = array_keys($root_nodes);
 			$week_length = 7;
 			$month_length = days_in_month($month, $year);
@@ -700,7 +700,7 @@ class Page_Calendar extends Page_Asset_Listing
 	function getWeekView($date, $format)
 	{
 		ob_start();
-		$root_nodes = $this->attr('root_nodes');
+		$root_nodes = $this->_getRootNodes();
 		$enabled_views = $this->attr('enabled_views');
 		if ($format == 'list_without_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
@@ -771,7 +771,13 @@ class Page_Calendar extends Page_Asset_Listing
 			$column_names = Array();
 			$column_links = Array();
 			if (array_values($this->attr('columnise_day_view_by_root_node')) != Array('other')) {
+				$root_nodes = array_keys($this->_getRootNodes());
 				$columns_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($this->attr('columnise_day_view_by_root_node'));
+				for (reset($columns_info); null !== ($k = key($columns_info)); next($columns_info)) {
+					if (!in_array($k, $root_nodes)) {
+						unset($columns_info[$k]);
+					}
+				}
 				foreach ($columns_info as $id => $info) $column_names[$id] = $info['name'];
 				if (in_array('other', $this->attr('columnise_day_view_by_root_node'))) $column_names['other'] = 'other';
 				$events = $this->getDayEventsByRootNodeAndTime($date);
@@ -872,7 +878,7 @@ class Page_Calendar extends Page_Asset_Listing
 	{
 		$partition_time = intval($this->attr('day_partition_time'));
 		$partition_height = $this->attr('day_partition_height');
-		$root_nodes = $this->attr('root_nodes');
+		$root_nodes = $this->_getRootNodes();
 		$this->_printClickChildScript();
 		$width = $this->attr('table_column_width');
 		$layout_maps = $events; // nb array copy
@@ -1367,7 +1373,23 @@ class Page_Calendar extends Page_Asset_Listing
 
 //--         FUNCTIONS TO EXTRACT EVENTS FROM DB        --//
 
-
+	
+	/**
+	* Returns the current root node attribute
+	*
+	* This is in its separate function so that if this page is subclassed it can
+	* place restrictions or additions on what root nodes are used.
+	*
+	* @return Array
+	* @access protected
+	*/
+	function _getRootNodes()
+	{
+		return $this->attr('root_nodes');
+	
+	}//end _getRootNodes()
+	
+	
 	/**
 	* Get the events to show in year view for the specified year
 	*
@@ -1378,7 +1400,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$res = Array();
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-		$root_nodes = $this->attr('root_nodes');
+		$root_nodes = $this->_getRootNodes();
 		$trees =&get_treeids($root_nodes);
 
 		if (empty($trees)) {
@@ -1489,7 +1511,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// get the where clauses ready for tree restrictions
-		$root_nodes = $this->attr('root_nodes');
+		$root_nodes = $this->_getRootNodes();
 		$trees =& get_treeids($root_nodes);
 
 		if (empty($trees)) {
@@ -1575,7 +1597,7 @@ class Page_Calendar extends Page_Asset_Listing
 		list($year,$month,$day) = sscanf($date, '%04d-%02d-%02d');
 
 		// get the treeid restriction SQL
-		$root_nodes = $this->attr('root_nodes');			
+		$root_nodes = $this->_getRootNodes();			
 		$trees = &get_treeids($root_nodes);
 
 		if (empty($trees)) {
@@ -1741,7 +1763,7 @@ class Page_Calendar extends Page_Asset_Listing
 		list($year,$month,$day) = sscanf($date, '%04d-%02d-%02d');
 
 		// build treeid restriction SQL
-		$root_nodes = $this->attr('root_nodes');
+		$root_nodes = $this->_getRootNodes();
 		$trees =& get_treeids($root_nodes);
 		
 		if (empty($trees)) {
