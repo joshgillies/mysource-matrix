@@ -71,6 +71,41 @@ function get_bit_names($prefix, $bit_value, $force_array=false)
 
 
 /**
+* Returns a description representing the passed or current status
+*
+* @param int	$status	the status to get the description for - leave blank
+*						to get the description for the current status of this asset
+*
+* @return string
+* @access public
+*/
+function getStatusDescription($status)
+{
+	$description = '';
+
+	switch ($status) {
+		case SQ_STATUS_LIVE :
+			$description = 'Live';
+			break;
+		case SQ_STATUS_EDITING :
+			$description = 'Safe Editing';
+			break;
+		case SQ_STATUS_PENDING_APPROVAL   :
+			$description = 'Pending Approval';
+			break;
+		case SQ_STATUS_EDITING_APPROVAL   :
+			$description = 'Safe Editing Pending Approval';
+			break;
+		case SQ_STATUS_UNDER_CONSTRUCTION :
+			$description = 'Under Construction';
+			break;
+	}
+
+	return $description;
+}//end getStatusDescription()
+
+
+/**
 * restricts or unrestricts a directory in the data path
 *
 * @param boolean	$restricted	Whether the directory is public or restricted access
