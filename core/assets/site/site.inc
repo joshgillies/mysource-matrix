@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.54 2004/03/12 05:17:29 mmcintyre Exp $
+* $Id: site.inc,v 1.55 2004/03/29 06:28:32 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -515,6 +515,11 @@ class Site extends Folder
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 		}
+
+		$asset_url = strip_url($asset->getURL(null, true), true);
+
+		global $ASSET_LINEAGE;
+		$ASSET_LINEAGE = $GLOBALS['SQ_SYSTEM']->am->getLineageFromUrl(null, $asset_url);
 
 		// we have found the design to use
 		if ($result) {

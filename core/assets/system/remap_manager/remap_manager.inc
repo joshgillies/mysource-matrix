@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.6 2004/03/17 22:17:24 gsherwood Exp $
+* $Id: remap_manager.inc,v 1.7 2004/03/29 06:28:11 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $ - 0.1
+* @version $Revision: 1.7 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -300,7 +300,11 @@ class Remap_Manager extends Asset
 		//send a 404 header
 		header("HTTP/1.0 404 Not Found");
 		
-		$url = $url = strip_url($this->getURL(), true);
+		$url = strip_url($this->getURL(), true);
+		$asset_url = strip_url($asset->getURL(null, true), true);
+
+		global $ASSET_LINEAGE;
+		$ASSET_LINEAGE = $GLOBALS['SQ_SYSTEM']->am->getLineageFromUrl(null, $asset_url);
 
 		$design = &$this->getDesign($asset, $url);
 		if (!is_null($design)) {
