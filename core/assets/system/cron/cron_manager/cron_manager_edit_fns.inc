@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.17 2004/12/06 14:38:10 brobertson Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.18 2005/02/28 02:42:39 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -137,6 +137,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			$whens = Array(
 						'OO' => Array(),
+						'ET' => Array(),
 						'HR' => Array(),
 						'DL' => Array(),
 						'WK' => Array(),

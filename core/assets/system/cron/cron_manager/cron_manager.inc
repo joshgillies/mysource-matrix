@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.39 2005/02/27 22:38:09 tbarrett Exp $
+* $Id: cron_manager.inc,v 1.40 2005/02/28 02:42:39 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -249,8 +249,7 @@ class Cron_Manager extends Asset
 	*
 	* @param object Cron_Job	$job		a reference to the cron job to add to add to the system
 	* @param object User		$user		a reference to the user that this job will run as
-	* @param string 			$link_type	type of the link between the cron
-	*                                       manager and the job
+	* @param string 			$link_type	type of the link between the cron manager and the job
 	*
 	* @return boolean
 	* @access public
@@ -316,8 +315,7 @@ class Cron_Manager extends Asset
 	*/
 	function getJobs($type_code='cron_job', $strict_type_code=true)
 	{
-		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3, $type_code, $strict_type_code, 'major', null, null, true);
-
+		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, $type_code, $strict_type_code, 'major', null, null, true);
 		$jobs = Array();
 		foreach ($links as $link) {
 			$job = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
