@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.7 2004/10/20 07:38:25 arailean Exp $
+* $Id: page_remote_content.inc,v 1.8 2004/10/22 06:51:03 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once 'HTTP/Client/CookieManager.php';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -408,6 +408,10 @@ REGEX;
 
 		// start building full URL
 		$full_url = $parsed_fetch_url['scheme'].'://'.$parsed_fetch_url['host'];
+		if (isset($parsed_fetch_url['port'])) {
+			$full_url .= ':'.$parsed_fetch_url['port'];
+		}
+
 		if (strlen($url) && $url{0} == '/') { // Its an absolute path
 			$full_url .= $url;
 		} else {
