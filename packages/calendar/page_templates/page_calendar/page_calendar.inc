@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.48 2004/09/03 06:53:11 lwright Exp $
+* $Id: page_calendar.inc,v 1.49 2004/09/03 07:09:11 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.48 $ - 1.0
+* @version $Revision: 1.49 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -106,7 +106,7 @@ class Page_Calendar extends Page_Asset_Listing
 	* List of abbreviated month names, in chronological order
 	* @var array
 	*/
-	var $month_names_short = Array(1=>'Jan', 2=>'Feb', 3=>'Mar', 4=>'Apr', 5=>'May', 6=>'Jun', 7=>'Jul', 8=>'Aug', 9=>'Sep', 10=>'Oct', 11=>'Nov', 12=>'Dec');
+	var $month_names_short = Array(1=>'Jan', 2=>'Feb', 3=>'Mar', 4=>'Apr', 5=>'May', 6=>'June', 7=>'July', 8=>'Aug', 9=>'Sept', 10=>'Oct', 11=>'Nov', 12=>'Dec');
 
 	/**
 	* An array of keywords that this asset makes available for use along with a default replacement
@@ -294,14 +294,7 @@ class Page_Calendar extends Page_Asset_Listing
 	function onRequestKeywords(&$broadcaster, $vars=Array())
 	{
 		parent::onRequestKeywords($broadcaster, $vars);
-		$vars['keywords']['event_link_begin'] = Array('name'    => 'Open Link to Event Display',
-											'default' => '&gt;open link&lt;',
-											'type'    => 'inline'
-											);
-		$vars['keywords']['event_link_end'] = Array('name'    => 'Close Link to Event Display',
-											'default' => '&gt;close link&lt;',
-											'type'    => 'inline'
-											);
+
 	}//end onRequestKeywords()
 
 	
@@ -1251,7 +1244,6 @@ class Page_Calendar extends Page_Asset_Listing
 		assert_valid_db_result($recurring_events);
 
 		$res = $single_events + $recurring_events;
-		bam(array_keys($res));
 		return $res;
 
 	}//end getMonthEvents

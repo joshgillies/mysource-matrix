@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.31 2004/09/03 05:22:15 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.32 2004/09/03 07:09:11 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.31 $ - 1.0
+* @version $Revision: 1.32 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -389,6 +389,38 @@ class Calendar_Event_Recurring extends Calendar_Event
 		return false;
 
 	}//end hasOccurrenceOnDate()
+
+
+	function getInstanceDates($date) 
+	{
+		$res = Array();
+		if ($this->hasOccurrenceOnDate($date)) {
+			$res['start'] = $date;
+		} else {
+			$period = substr($this->attr('frequency'), 3);
+			switch (substr($this->attr('frequency'), 0, 1)) {
+				case 'D':
+					$first_occur = increment_iso_by_days($date, -$period);
+				break;
+				
+				case 'W':
+					$first_occur = increment_iso_by_days($date, -$period);
+				break;
+				
+				case 'M':
+					$first_occur = increment_iso_by_months($date, -$period).'-'.date('d', $first_day);
+				break;
+				
+			}
+			$res['start'] = $this->getFirstOccurrenceAfter($first_occur);
+		}
+		$res['end'] = increment_iso_by_days($res['start'], $this->getDuration() / -86400);
+		if ($this->getStartTime()) $res['start'] .= ' '.$this->getStartTime();
+		if ($this->getEndTime()) $res['end'] .= ' '.$this->getEndTime();
+
+		return $res;
+
+	}//end getOccurrenceDates()
 	
 
 	/**
@@ -561,19 +593,43 @@ class Calendar_Event_Recurring extends Calendar_Event
 	*/
 	function getAssetKeywords($descriptions=false)
 	{
-		if (isset($_REQUEST['SQ_CALENDAR_DATE']) && ($exception_link = $this->getExceptionLink($_REQUEST['SQ_CALENDAR_DATE']))) {
-			bam("SPECIAL CASE: This asset has an exception today");
-			bam($exception_link);
-		}
 		$keywords = parent::getAssetKeywords($descriptions);
 		$keywords['event_frequency'] = Array('value'=> $this->getFriendlyFrequency());
+		unset($keywords['asset_attribute_frequency']);
 		$write_access = $this->writeAccess('');
-		$keywords['cancel_link'] = Array('value'=>($write_access ? $this->_getCancelLink() : ''));
-		$keywords['modify_link'] = Array('value'=>($write_access ? $this->_getModifyLink() : ''));
+
+		if (isset($_REQUEST['SQ_CALENDAR_DATE'])) {
+			if ($exception_link = $this->getExceptionLink($_REQUEST['SQ_CALENDAR_DATE'])) {
+				// we need to show the exception event
+				bam("SPECIAL CASE: This asset has an exception today");
+				bam($exception_link);
+			} else {
+				// we are showing a normal instance of this event
+				$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
+				$keywords['instance_start_datetime'] = Array('value'=>$instance_dates['start']);
+				$keywords['instance_end_datetime'] = Array('value'=>$instance_dates['end']);
+				$keywords['cancel_link'] = Array('value'=>($write_access ? $this->_getCancelLink() : '(cancel link)'));
+				$keywords['modify_link'] = Array('value'=>($write_access ? $this->_getModifyLink() : '(modify link)'));
+			}
+		} else {
+			// somehow we're just viewing the event by itself, so set the instance-specific
+			// keywords to blank for tidiness's sake
+			$keywords['instance_start_datetime'] = Array('value'=>'');
+			$keywords['instance_end_datetime'] = Array('value'=>'');
+			$keywords['cancel_link'] = Array('value'=>'');
+			$keywords['modify_link'] = Array('value'=>'');
+		}		
+
 		if ($descriptions) {
 			$keywords['event_frequency']['description'] = 'The frequency with which this event recurs';
-			$keywords['cancel_link']['description'] = 'A link to cancel this instance of the event';
-			$keywords['modify_link']['description'] = 'A link to modify this instance of the event';
+			$keywords['cancel_link']['description'] = 'Link to cancel this instance of the event';
+			$keywords['modify_link']['description'] = 'Link to modify this instance of the event';
+			$keywords['instance_start_datetime']['description'] = 'Start date/time of this instance of the event';
+			$keywords['instance_end_datetime']['description'] = 'End date/time of this instance of the event';
+			
+			// change the descriptions of Calendar Event's attributes just to make it clear
+			$keywords['event_start_datetime']['description'] = 'Start date/time of original instance';
+			$keywords['event_end_datetime']['description'] = 'End date/time of original instance';
 		}
 		return $keywords;
 
@@ -611,7 +667,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	function _getCancelLink()
 	{
 		if (isset($_REQUEST['SQ_CALENDAR_DATE']))	return '<a href="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=cancel1&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'" onclick="return confirm(\'Are you sure you want to cancel this instance?\');">Cancel this instance</a>';
-		else return '';
+		else return '(cancel link)';
 
 	}//end _getCancelLink()
 	
@@ -625,7 +681,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	function _getModifyLink()
 	{
 		if (isset($_REQUEST['SQ_CALENDAR_DATE']))	return '<a href="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=modify1&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'">Modify this instance</a>';
-		else return '';
+		else return '(modify link)';
 
 	}//end _getModifyLink()
 
