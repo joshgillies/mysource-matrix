@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replicator_master.inc,v 1.1.2.6 2004/02/14 21:42:12 brobertson Exp $
+* $Id: replicator_master.inc,v 1.1.2.7 2004/02/26 16:41:11 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -456,7 +456,6 @@ class Replicator_Master extends Replicator
 	function replicate($systemid, $client_fd)
 	{
 		// now I don't know why this is but without the sleep I was getting 'Connection reset by peer' errors
-		sleep(1);
 
 		if(!SQ_REPLICATION_IS_MASTER) {
 			$this->_log('This System is NOT designated as a Master System, why are we using a '.__CLASS__.' object', 'error');
@@ -482,14 +481,14 @@ class Replicator_Master extends Replicator
 
 		$this->_log("AUTHENTICATE WITH MASTER SERVER", 'debug');
 
-		if (!$slave->auth->authenticate($slave->transport, false)) {
+		if (!$slave->authenticate(false)) {
 			trigger_error('Unable to authenticate Slave Server', E_USER_WARNING);
 			$slave->transport->removeSocketFd(true);
 			$this->_restoreErrorHandler();
 			return;
 		}
 
-		$this->_log("AUTHENTICATED!!!!!!!!", 'debug');
+		$this->_log("SLAVE ".$slave->name." AUTHENTICATED!!!!!!!!", 'debug');
 
 		$this->_log("ASK 'What do you want ?'", 'debug');
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replicator_slave.inc,v 1.1.2.2 2004/02/14 21:17:38 brobertson Exp $
+* $Id: replicator_slave.inc,v 1.1.2.3 2004/02/26 16:46:09 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -241,9 +241,6 @@ class Replicator_Slave extends Replicator
 	*/
 	function replicate($systemid, $client_fd)
 	{
-		// now I don't know why this is but without the sleep I was getting 'Connection reset by peer' errors
-		sleep(1);
-
 		// now because of the nature of server rep and it never really being seen we are
 		// going to force the issue with logging errors and set the error log file
 		$old_log_errors = ini_set('log_errors', 1);
@@ -274,16 +271,14 @@ class Replicator_Slave extends Replicator
 
 		$this->_log("AUTHENTICATE WITH MASTER SERVER", 'debug');
 
-		if (!$ms->auth->authenticate($ms->transport, false)) {
+		if (!$ms->authenticate(false)) {
 			trigger_error('Unable to authenticate Master Server', E_USER_WARNING);
 			$ms->transport->removeSocketFd(true);
 			$this->_restoreErrorHandler();
 			return;
 		}
 
-		$this->_log("AUTHENTICATEd!!!!!!!!", 'debug');
-
-
+		$this->_log("AUTHENTICATED!!!!!!!!", 'debug');
 		$this->_log("ASK 'What do you want ?'", 'debug');
 
 		$ms->transport->removeSocketFd(true);
