@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_deleted_user_perms.php,v 1.2 2004/06/17 00:14:21 lwright Exp $
+* $Id: system_integrity_deleted_user_perms.php,v 1.3 2004/09/15 04:04:47 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -62,19 +62,12 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 	trigger_error("Failed login in as root user\n", E_USER_ERROR);
 }
 
-// go trough each wysiwyg in the system, lock it, validate it, unlock it
-$assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($ROOT_ASSETID, 'asset', false);
+
+$assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($ROOT_ASSETID);
 foreach ($assets as $assetid => $type_code) {
 	
 	$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 	printAssetName($asset);
-	
-	// try to lock the asset
-	if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'permissions')) {
-		printUpdateStatus('LOCK');
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-		continue;
-	}
 	
 	// what is in the permissions table?
 	$db =& $GLOBALS['SQ_SYSTEM']->db;
@@ -82,29 +75,29 @@ foreach ($assets as $assetid => $type_code) {
 	$perms_info = $db->getAll($sql);
 	assert_valid_db_result($perms_info);
 
-	$updates = false;
+	$deletes = Array();
 
-	foreach($perms_info as $perm_info) {
-		// Check that each user is in the asset table, if not then delete the permission
-		$user_avail = array_keys($GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($perm_info['userid']), 'user', false));
-	
-		if(empty($user_avail) && ($perm_info['userid'] != 0)) {
-			if (!$GLOBALS['SQ_SYSTEM']->am->deletePermission($asset->id, $perm_info['userid'], $perm_info['permission'])) {
-				printUpdateStatus('FAILED');
-				continue;
+	foreach ($perms_info as $perm_info) {
+		$user_avail = true;
+		if ($perm_info['userid'] != 0) {
+			$id_parts = explode(':', $perm_info['userid']);
+			if (isset($id_parts[1])) {
+				// we are looking at a shadow asset
+				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($perm_info['userid']);
+				$user_avail = !is_null($user);
+			} else {
+				// check that each user is in the asset table, if not then delete the permission
+				$asset_info = array_keys($GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($perm_info['userid'])));
+				$user_avail = !empty($asset_info);
 			}
-			$updates = true;
 		}
+	
+		if (!$user_avail) $deletes[] = $db->quote($perm_info['userid']);
 	}
 
-	// try to unlock the asset
-	if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'permissions')) {
-		printUpdateStatus('!!');
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-		continue;
-	}
-
-	if ($updates) {
+	if (!empty($deletes)) {
+		$where = 'userid IN ('.implode(', ', $deletes).')';
+		$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_permission', $where);
 		printUpdateStatus('OK');
 	} else {
 		printUpdateStatus('--');
@@ -127,7 +120,7 @@ foreach ($assets as $assetid => $type_code) {
 function printAssetName(&$asset)
 {
 	$str = $asset->name . ' [ # '. $asset->id. ' ]';
-	printf ('%s%'.(40 - strlen($str)).'s', $str,'');
+	printf ('%s%'.(80 - strlen($str)).'s', $str,'');
 	
 }//end printAssetName()
 
