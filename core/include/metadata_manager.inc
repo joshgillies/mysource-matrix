@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: metadata_manager.inc,v 1.11 2003/10/13 05:54:42 gsherwood Exp $
+* $Id: metadata_manager.inc,v 1.12 2003/10/14 05:31:05 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -304,7 +304,7 @@ class Metadata_Manager extends MySource_Object
 			return false;
 		}
 
-		if (!$asset->adminAccess('metadata')) {
+		if (!$asset->writeAccess('metadata')) {
 			trigger_error('Cannot set metadata for "'.$asset->name.'", permission denied', E_USER_WARNING);
 			return false;
 		}
