@@ -126,7 +126,7 @@ class File extends Asset
 	*/
 	function morph($new_type_code)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		$file_types = array_merge($am->getTypeAncestors($this->type(), false), $am->getTypeDescendants($this->type(), false));
 		
