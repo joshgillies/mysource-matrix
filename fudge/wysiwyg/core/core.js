@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: core.js,v 1.13 2003/09/26 05:26:37 brobertson Exp $
+* $Id: core.js,v 1.14 2003/10/03 05:14:29 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -71,8 +71,8 @@ HTMLArea.prototype.generate = function () {
 	textarea.parentNode.insertBefore(htmlarea, textarea);
 
 	// retrieve the HTML on submit
-	eval ('var otherOnSubmit_' + this._uniqueID + '= (textarea.form.onsubmit) ? textarea.form.onsubmit :  new Function;');
-	eval ('textarea.form.onsubmit = function() { editor._formSubmit(); otherOnSubmit_' + this._uniqueID + '(); };');
+	eval ('var otherOnSubmit_' + this._uniqueID + '= (textarea.form.onsubmit) ? textarea.form.onsubmit :  (function() {"return true;"});');
+	eval ('textarea.form.onsubmit = function() { editor._formSubmit(); return otherOnSubmit_' + this._uniqueID + '(); };');
 
 	// add a handler for the "back/forward" case -- on body.unload we save
 	// the HTML content into the original textarea.
