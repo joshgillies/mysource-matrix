@@ -88,20 +88,6 @@ class User extends Asset
 					);
 	}//end _getAllowedLinks()
 
-
-	/**
-	* Returns actual link info for all links that this asset (but not any of it's kids) deems as dependant
-	*
-	* @return Array()
-	* @access private
-	*/
-	function _getDependantLinks()
-	{
-		// we are dependant on our inbox and our workspace
-		return array_merge(parent::_getDependantLinks(), $this->getLinks(SQ_LINK_EXCLUSIVE, Array('inbox', 'workspace')));
-	}// end _getDependantLinks()
-
-
 	/**
 	* Set the value for the passed variable to the passed value
 	* Overwritten here to check inputs (username and password) and to

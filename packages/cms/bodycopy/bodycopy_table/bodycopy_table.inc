@@ -109,19 +109,6 @@ class Bodycopy_Table extends Asset
 
 
 	/**
-	* Returns actual link info for all links that this asset (but not any of it's kids) deems as dependant
-	*
-	* @return Array()
-	* @access private
-	*/
-	function _getDependantLinks()
-	{
-		// we are dependant on our inbox and our workspace
-		return array_merge(parent::_getDependantLinks(), $this->getLinks(SQ_LINK_SIGNIFICANT, 'content_type', false));
-	}// end _getDependantLinks()
-
-
-	/**
 	* Called by the design to print the body of this asset
 	*
 	* @access public
