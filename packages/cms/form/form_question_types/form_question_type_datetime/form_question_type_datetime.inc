@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.10 2004/05/17 05:13:11 lwright Exp $
+* $Id: form_question_type_datetime.inc,v 1.11 2004/05/20 05:33:22 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -282,7 +282,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		echo '<datetime_q id="'.addslashes($this->id).'"  name="'.addslashes($this->attr('name')).'"'.($circa ? ' circa="1"' : '').'>';
 
 		$iso = $date . 'T' . $time;
-		print $iso;
+		echo $iso;
 
 		echo '</datetime_q>';
 	}//end getXML()

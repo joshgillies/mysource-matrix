@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.34 2004/05/20 05:29:56 lwright Exp $
+* $Id: form.inc,v 1.35 2004/05/20 05:33:22 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -567,7 +567,7 @@ class Form extends Bridge
 		?>
 		<form name="<?php echo $prefix?>" enctype="multipart/form-data" action="<?php echo $_SERVER['PHP_SELF']?>" method="POST" <?php if ($this->attr('use_client_side')) { ?>
 		onsubmit="return beforeSubmit_<?php echo $prefix?>(this);"<?php }
-		print '>';
+		echo '>';
 
 		// check to see if there is a past submission that belongs to this user
 		// check to see if this form is set up to be a wizard or not
