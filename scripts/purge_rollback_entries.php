@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: purge_rollback_entries.php,v 1.3 2004/07/05 09:32:14 brobertson Exp $
+* $Id: purge_rollback_entries.php,v 1.4 2004/07/06 00:00:25 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -65,8 +65,8 @@ foreach ($tables as $tablename) {
 	echo 'Deleting records from '.$tablename.'... ';
 	
 	if (DB::isError($result)) {
-		trigger_error('DB Error:'.$result->getMessage(), E_USER_ERROR);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		trigger_error('DB Error:'.$result->getMessage(), E_USER_ERROR);
 	}
 
 	echo $db->affectedRows().' rows deleted'."\n";
