@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.142 2003/10/17 04:54:40 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.143 2003/10/17 05:52:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -596,25 +596,16 @@ class Asset_Manager extends MySource_Object
 	*/
 	function &getSystemAsset($name)
 	{
-		switch(strtolower($name)) {
-			case 'root_folder' :
-				return $this->getAsset(1, 'root_folder');
-			case 'trash_folder' :
-				return $this->getAsset(2, 'trash_folder');
-			case 'system_user_group' :
-				return $this->getAsset(3, 'system_user_group');
-			case 'root_user' :
-				return $this->getAsset(4, 'root_user');
-			case 'designs_folder' :
-				return $this->getAsset(7, 'designs_folder');
-			case 'cron_manager' :
-				return $this->getAsset(8, 'cron_manager');
-			case 'login_design' :
-				return $this->getAsset(9, 'login_design');
-			case 'search_manager' :
-				return $this->getAsset(13, 'search_manager');
-			default :
-				trigger_error('System Asset Name "'.$name.'" not known', E_USER_ERROR);
+		static $system_assets = null;
+		if (is_null($system_assets)) {
+			pre_echo("REQUIRE >>>");
+			// include the main system config file
+			require SQ_DATA_PATH.'/private/conf/system_assets.inc';
+		}
+		if (isset($system_assets[$name])) {
+			return $this->getAsset($system_assets[$name], $name);
+		} else {
+			trigger_error('System Asset Name "'.$name.'" not known', E_USER_ERROR);
 		}
 
 	}//end getSystemAsset()
