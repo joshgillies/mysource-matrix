@@ -3,7 +3,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: indexing_manager.inc,v 1.2 2003/10/08 02:18:35 dwong Exp $
+* $Id: indexing_manager.inc,v 1.3 2003/10/14 05:29:28 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -14,7 +14,7 @@
 
 *
 * @author  Dominic Wong<dwong@squiz.net>
-* @version $Revision: 1.2 $ - 1.0
+* @version $Revision: 1.3 $ - 1.0
 * @package MySource_Matrix
 */
 class Indexing_Manager extends MySource_Object 
@@ -105,7 +105,7 @@ class Indexing_Manager extends MySource_Object
 				if (!(ereg('[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}', $datum['type']))) {
 					$datum['value'] = date("Y-m-d H:i:s", strtotime($datum['value']));
 				}
-			} else if ($datum['type'] == 'word') {
+			} else if ($datum['type'] == 'text') {
 				$datum['value'] = strtolower($datum['value']);
 			}
 
@@ -125,12 +125,12 @@ class Indexing_Manager extends MySource_Object
 	  * @access private
 	  * @param int assetid Asset ID.
 	  * @param string $value The value of the keydata.
-	  * @param string $type	Type of the keydata - (e.g. 'word', 'date', 'number')
+	  * @param string $type	Type of the keydata - (e.g. 'text', 'date', 'number')
 	  * @param string $component The component of the asset to which this keydata pertains (defaults to '')
 	  * @returns void
 	*/
 
-	function addKeyDatum($assetid, $value, $type = 'word', $component = '') 
+	function addKeyDatum($assetid, $value, $type = 'text', $component = '') 
 	{
 		if (!$assetid || !$value)
 			return;
