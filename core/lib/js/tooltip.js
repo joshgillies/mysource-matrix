@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tooltip.js,v 1.3 2004/09/05 22:56:37 dbaranovskiy Exp $
+* $Id: tooltip.js,v 1.4 2004/10/21 04:41:55 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -75,6 +75,58 @@ function tt_print()
 /**
 * Attach tooltip to corresponding object and make it visible.
 *
+* @param	obj	HTML object which position we would like to know
+*
+* @return void
+* @access private
+*/
+function findPosX(obj)
+{
+	var curleft = 0;
+	if (obj.offsetParent)
+	{
+		while (obj.offsetParent)
+		{
+			curleft += obj.offsetLeft
+			obj = obj.offsetParent;
+		}
+	}
+	else if (obj.x)
+		curleft += obj.x;
+	return curleft;
+
+}//end findPosX()
+
+
+/**
+* Attach tooltip to corresponding object and make it visible.
+*
+* @param	obj	HTML object which position we would like to know
+*
+* @return void
+* @access private
+*/
+function findPosY(obj)
+{
+	var curtop = 0;
+	if (obj.offsetParent)
+	{
+		while (obj.offsetParent)
+		{
+			curtop += obj.offsetTop
+			obj = obj.offsetParent;
+		}
+	}
+	else if (obj.y)
+		curtop += obj.y;
+	return curtop;
+	
+}//end findPosY()
+
+
+/**
+* Attach tooltip to corresponding object and make it visible.
+*
 * @param	obj	HTML object which will be base for tooltip
 * @param	text	content of the tooltip (could be HTML)
 * @param	title	title of the tooltip [optional]
@@ -88,22 +140,9 @@ function tt_show(obj, text, title)
 
   this.print();
 
-  par = obj;
-
-  var left = par.offsetLeft;
-  var top = par.offsetTop;
-
-  while((typeof(par.parentNode)=="object") && (par.parentNode.tagName != "HTML"))
-  {
-   par = par.parentNode;
-   if (par.tagName!="TR" && par.tagName!="FORM")
-   {
-	 left += par.offsetLeft;
-	 top  += par.offsetTop;
-   }
-  }
+  var top = findPosY(obj);
   top += obj.offsetHeight;
-
+  var left = findPosX(obj);
   this.paint(top, left, text, title);
 
 }//end tt_show()
@@ -175,9 +214,7 @@ function tt_paint(top, left, text, title)
   if ((typeof(top) != "undefined") && (typeof(left) != "undefined"))
   {
 	var win_width = (window.innerWidth)?window.innerWidth:document.body.offsetWidth;
-	var win_height = (window.innerHeight)?window.innerHeight:document.body.offsetHeight;
 
-	if (tool_box.offsetHeight + top > win_height) top -= (tool_box.offsetHeight + top) - win_height;
 	if (tool_box.offsetWidth + left > win_width) left -= (tool_box.offsetWidth + left) - win_width;
 
 	tool_box.style.top 		= top + "px";
