@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.10 2004/09/09 01:41:06 amiller Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.11 2004/10/21 04:40:21 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -135,7 +135,6 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 				if ($iap || in_array('spell_checker', $ap))  $wysiwyg->add_plugin('spell_checker');
 				if ($iap || in_array('text_indicator', $ap)) $wysiwyg->add_plugin('text_indicator');
 				if ($iap || in_array('view_source', $ap))    $wysiwyg->add_plugin('view_source');
-				if ($iap || in_array('popup_editor', $ap))   $wysiwyg->add_plugin('popup_editor');
 				if ($iap || in_array('help', $ap))           $wysiwyg->add_plugin('help');
 			$wysiwyg->close_group();
 
