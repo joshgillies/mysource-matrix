@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: file.inc,v 1.50 2003/09/26 05:26:26 brobertson Exp $
+* $Id: file.inc,v 1.51 2003/09/26 06:57:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -298,39 +298,71 @@ class File extends Asset
 			return true;
 		}
 
-		$existing = $this->_getExistingFile();
-		if (!empty($existing)) {
-			$unrestricted = $this->data_path_public.'/'.$existing['filename'];
-
-			if ($this->effectiveUnrestricted()) {
-				// we should be storing our file in the public
-				// data directory for all the world to see
-				if (!is_file($unrestricted)) {
-					$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
-					if (!$fv->checkOut($this->data_path_suffix.'/'.$existing['filename'], $this->data_path_public)) {
-						trigger_error('Update failed checking-out latest version of file', E_USER_WARNING);
-						return false;
-					}
-				}
-			} else {
-				// need to make sure our file is in the NOT in the public data directory
-				if (is_file($unrestricted)) {
-					if (!unlink($unrestricted)) {
-						trigger_error('Update failed deleting file from public data directory', E_USER_WARNING);
-						return false;
-					}
-				}
-			}//end if effectiveUnrestricted
-
-			if (!$this->updateLookups()) {
-				return false;			
-			}
-
-		}// end if
-
-		return true;
+		return $this->_checkFileState();
 
 	}//end _updated()
+
+
+	/**
+	* Called when the any permission is updated for this asset
+
+	* @return boolean	whether everything is OK
+	* @access public
+	*/
+	function permissionsUpdated()
+	{
+		return $this->_checkFileState();
+
+	}// end permissionsUpdated()
+
+
+	/**
+	* Look's after the placing and removing of out files in the public directory
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _checkFileState()
+	{
+		$existing = $this->_getExistingFile();
+		if (empty($existing)) return true;
+
+		$unrestricted = $this->data_path_public.'/'.$existing['filename'];
+
+		$changed = false;
+
+		// if we should be storing our file in the public
+		// data directory for all the world to see
+		if ($this->effectiveUnrestricted()) {
+			$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+			// if there is no current file or if the current file is out of date, check out a fresh copy
+			if (!is_file($unrestricted) || ($fv->upToDate($unrestricted) & FUDGE_FV_OUT_OF_DATE)) {
+				if ($fv->checkOut($this->data_path_suffix.'/'.$existing['filename'], $this->data_path_public)) {
+					$changed = true;
+				} else {
+					trigger_error('Update failed checking-out latest version of file', E_USER_WARNING);
+					return false;
+				}
+			}
+		} else {
+			// need to make sure our file is in the NOT in the public data directory
+			if (is_file($unrestricted)) {
+				if (unlink($unrestricted)) {
+					$changed = true;
+				} else {
+					trigger_error('Update failed deleting file from public data directory', E_USER_WARNING);
+					return false;
+				}
+			}
+		}//end if effectiveUnrestricted
+
+		if ($changed) {
+			return $this->updateLookups();
+		} else {
+			return true;
+		}
+
+	}//end _checkFileState()
 
 
 	/**
