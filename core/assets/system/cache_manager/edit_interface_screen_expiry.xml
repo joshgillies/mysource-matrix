@@ -1,0 +1,46 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_expiry.xml,v 1.1 2004/08/19 05:42:41 gsherwood Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+<contents>
+	<section name="Select Asset Type" read_access="write:" write_access="write:attributes">
+		<field>
+			<display_name>Configure Type Code</display_name>
+			<note />
+			<function_call>
+				<paint_function name="paintChooseTypeCode" />
+				<process_function name="processChooseTypeCode" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Type Code Cache Management" read_access="write:" write_access="write:attributes">
+		<field>
+			<display_name>Caching Status</display_name>
+			<note />
+			<function_call>
+				<paint_function name="paintCustomiseTypeCodeCaching" />
+				<process_function name="processCustomiseTypeCodeCaching" />
+			</function_call>
+		</field>
+	</section>
+</contents>
