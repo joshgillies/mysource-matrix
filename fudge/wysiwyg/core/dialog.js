@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: dialog.js,v 1.9 2003/11/26 00:51:19 gsherwood Exp $
+* $Id: dialog.js,v 1.10 2004/10/21 04:43:44 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -25,7 +25,7 @@
 var dialogWins = new Array();
 
 /*******************************
-  BEGIN SEMI-MODAL DIALOG CODE 
+  BEGIN SEMI-MODAL DIALOG CODE
 *******************************/
 
 //
@@ -60,22 +60,22 @@ function openDialog(code, url, width, height, returnFunc, args) {
 		// Assemble window attributes and try to center the dialog.
 		if (Nav4) {
 			// Center on the main window.
-			dialogWins[code].left = window.screenX + 
+			dialogWins[code].left = window.screenX +
 			   ((window.outerWidth - dialogWins[code].width) / 2)
-			dialogWins[code].top = window.screenY + 
+			dialogWins[code].top = window.screenY +
 			   ((window.outerHeight - dialogWins[code].height) / 2)
-			var attr = "screenX=" + dialogWins[code].left + 
-			   ",screenY=" + dialogWins[code].top + ",resizable=no,width=" + 
+			var attr = "screenX=" + dialogWins[code].left +
+			   ",screenY=" + dialogWins[code].top + ",resizable=yes,scrollbars=yes,width=" +
 			   dialogWins[code].width + ",height=" + dialogWins[code].height
 		} else {
 			// The best we can do is center in screen.
 			dialogWins[code].left = (screen.width - dialogWins[code].width) / 2
 			dialogWins[code].top = (screen.height - dialogWins[code].height) / 2
-			var attr = "left=" + dialogWins[code].left + ",top=" + 
-			   dialogWins[code].top + ",resizable=no,width=" + dialogWins[code].width + 
+			var attr = "left=" + dialogWins[code].left + ",top=" +
+			   dialogWins[code].top + ",resizable=yes,scrollbars=yes,width=" + dialogWins[code].width +
 			   ",height=" + dialogWins[code].height
 		}
-		
+
 		// Generate the dialog and make sure it has focus.
 		dialogWins[code].win = window.open(dialogWins[code].url, dialogWins[code].name, attr)
 		dialogWins[code].win.focus()
@@ -84,7 +84,7 @@ function openDialog(code, url, width, height, returnFunc, args) {
 	}
 }
 
-// Event handler to inhibit Navigator form element 
+// Event handler to inhibit Navigator form element
 // and IE link activity when dialog window is active.
 function deadend(code) {
 	if (dialogWins[code] && dialogWins[code].win && !dialogWins[code].win.closed) {
@@ -93,7 +93,7 @@ function deadend(code) {
 	}
 }
 
-// Since links in IE4 cannot be disabled, preserve 
+// Since links in IE4 cannot be disabled, preserve
 // IE link onclick event handlers while they're "disabled."
 // Restore when re-enabling the main window.
 var IELinkClicks
@@ -131,7 +131,7 @@ function finishChecking(code) {
 
 
 /**************************
-  BEGIN MODAL DIALOG CODE 
+  BEGIN MODAL DIALOG CODE
 **************************/
 
 
@@ -141,7 +141,7 @@ function finishChecking(code) {
 function openModalDialog(code, url, width, height, action, args) {
 	if (document.all) { // here we hope that Mozilla will never support document.all
 		var value =
-			showModalDialog(url, args, "resizable: no; help: no; status: no; scroll: no;");
+			showModalDialog(url, args, "resizable: yes; help: no; status:no; scroll: yes; center:yes");
 		if (action) {
 			action(value);
 		}
@@ -151,5 +151,5 @@ function openModalDialog(code, url, width, height, action, args) {
 };
 
 /************************
-  END MODAL DIALOG CODE 
+  END MODAL DIALOG CODE
 ************************/
