@@ -185,7 +185,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		} else {
 			$active_screen = $_GET['asset_ei_screen'];
 		}
-		
+
 
 		$o->setCurrentScreen($current_location.'asset_ei_screen='.rawurlencode($active_screen));
 
@@ -634,6 +634,56 @@ class Asset_Edit_Interface extends Resolve_Object
 	}//end processDetails()
 
 
+
+	/**
+	* Returns an array of permissions that we would be inheriting if we hadn't set a specific entry ourselves
+	*
+	* @param object	Asset	$owner	the asset whose interface we are painting
+	* @param int			$perm	the permission to find the overriden perms for
+	* @param boolean		$access	Type of Access : null = all, true = granted, false = denied, 
+	*								Also alters the return type to be just the array for the passed access
+	*
+	* @return Array()
+	* @access private
+	* @see paintPermissions() 
+	* @see paintWorkflow()
+	*/
+	function _getOverriddenInheritedPermissions(&$owner, $perm, $access=null)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		// Now get the permissions that we would be inheriting if we hadn't set a specific entry ourselves
+		$sql = 'SELECT DISTINCT p.assetid, p.userid, p.access
+				FROM sq_asset_permission_lookup pl INNER JOIN sq_asset_permission p ON pl.permissionid = p.permissionid,
+					sq_asset_link l INNER JOIN sq_asset_link_tree t ON l.linkid = t.linkid
+				WHERE l.minorid = '.$db->quote($owner->id).'
+				  AND pl.stop_treeid = t.treeid
+				  AND pl.inc_stop = '.$db->quote('0').'
+				  AND p.permission = '.$db->quote($perm);
+		if      ($access === false) $sql .= ' AND p.access = '.$db->quote('0');
+		else if ($access === true)  $sql .= ' AND p.access = '.$db->quote('1');
+
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return Array();
+		}
+		$inherited = Array();
+		while (DB_OK === $result->fetchInto($row)) {
+			if (!isset($inherited[$row['access']])) $inherited[$row['access']] = Array();
+			if (!isset($inherited[$row['access']][$row['userid']])) $inherited[$row['access']][$row['userid']] = Array();
+			$inherited[$row['access']][$row['userid']][] = $row['assetid'];
+		}
+		$result->free();
+
+		if (is_null($access) || empty($inherited)) {
+			return $inherited;
+		} else {
+			return $inherited[(($access === true) ? '1' : '0')];
+		}
+
+	}// end _getOverriddenInheritedPermissions()
+
+
 	/**
 	* Paints the interface for managing permissions
 	*
@@ -648,8 +698,6 @@ class Asset_Edit_Interface extends Resolve_Object
 		$perms = Array('Read' => SQ_PERMISSION_READ, 'Write' => SQ_PERMISSION_WRITE, 'Administrator' => SQ_PERMISSION_ADMIN);
 		$admin_access = $owner->adminAccess(Array(), true, false);
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
 		foreach ($perms as $title => $perm) {
 			$o->openSection($title.' Access');
 
@@ -657,8 +705,8 @@ class Asset_Edit_Interface extends Resolve_Object
 			$permissions = $owner->getPermission($perm, false, true, null, false, true);
 #pre_echo($permissions);
 
+			$inherited = $this->_getOverriddenInheritedPermissions($owner, $perm);
 			$direct = Array();
-			$inherited = Array();
 			foreach($permissions as $userid => $assets) {
 				foreach($assets as $assetid => $access) {
 					// if this permission was set at this asset
@@ -674,26 +722,6 @@ class Asset_Edit_Interface extends Resolve_Object
 					}
 				}// end foreach
 			}// end foreach
-
-			// Now get the permissions that we would be inheriting if we hadn't set a specific entry ourselves
-			$sql = 'SELECT DISTINCT p.assetid, p.userid, p.access
-					FROM sq_asset_permission_lookup pl INNER JOIN sq_asset_permission p ON pl.permissionid = p.permissionid,
-						sq_asset_link l INNER JOIN sq_asset_link_tree t ON l.linkid = t.linkid
-					WHERE l.minorid = '.$db->quote($owner->id).'
-					  AND pl.stop_treeid = t.treeid
-					  AND p.permission = '.$db->quote($perm);
-			$result = $db->query($sql);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				return false;
-			}
-
-			while (DB_OK === $result->fetchInto($row)) {
-				if (!isset($inherited[$row['access']])) $inherited[$row['access']] = Array();
-				if (!isset($inherited[$row['access']][$row['userid']])) $inherited[$row['access']][$row['userid']] = Array();
-				$inherited[$row['access']][$row['userid']][] = $row['assetid'];
-			}
-			$result->free();
 
 			ksort($direct);
 			ksort($inherited);
@@ -778,7 +806,7 @@ class Asset_Edit_Interface extends Resolve_Object
 								} else {
 									echo 'No';
 								}// end if
-							
+
 							}// endif
 						?>
 							</td>
@@ -1075,105 +1103,114 @@ class Asset_Edit_Interface extends Resolve_Object
 
 
 		//// print the list of inherited workflows ////
-		$inherited = false;
-		$revoked   = false;
 
-		$o->openSection('Inherited Workflows');
-		$users    = $owner->getPermission(SQ_PERMISSION_WORKFLOW, false);
-		$inherits = $owner->getInheritedPermission(SQ_PERMISSION_WORKFLOW, array_keys($users));
-		$revokes  = $owner->getRevokedPermission(SQ_PERMISSION_WORKFLOW);
-		$revokes  = array_keys($revokes);
+		// Get all workflows with granted access (inherited and direct)
+		$users = $owner->getPermission(SQ_PERMISSION_WORKFLOW, false, true, true, false, false);
 
-		// this is the full list of workflows
-		$workflows = array_keys($users) + array_keys($inherits);
+		// Get all workflows above us that we must have revoked
+		$revoked = array_keys($this->_getOverriddenInheritedPermissions($owner, SQ_PERMISSION_WORKFLOW, true));
 
-		$o->openField('Inherited');
-		ob_start();
-		?>
-		<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
-			<tr>
-				<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
-				<?php
-				if ($admin_access) {
-					?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Revoke ?</b></td><?php
-				}
+		$inherits = (!empty($users) && (!in_array($owner->id, $users) || count($users) > 1));
+		$revokes  = (!empty($revoked));
+
+		if ($inherits || $revokes) {
+			$o->openSection('Inherited Workflows');
+
+			if ($inherits) {
+				$o->openField('Inherited');
 				?>
-			</tr>
-		<?php
-
-		foreach ($workflows as $assetid) {
-			if ($assetid == $owner->id) continue;
-			if (!empty($revokes) && in_array($assetid, $revokes)) continue;
-
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-			if (!$asset->id) continue;
-
-			?>
-			<tr>
-				<td bgcolor="#F0F0F0" class="sq-form-field"><?php
-				echo 'Workflow inherited from '.$asset->name.' ['.$asset->type()." : $assetid]";
-				?></td><?php
-			if ($admin_access) {
-				?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field"><?php
-				check_box($prefix."_revoke[$assetid]")
-				?></td><?php
-			}
-			?></tr><?php
-			$inherited = true;
-		}
-
-
-		if (!$inherited) {
-			ob_end_clean();
-			echo 'None';
-		} else {
-			ob_end_flush();
-			?></table><?php
-		}
-
-		$o->openField('Revoked');
-		ob_start();
-		?>
-		<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
-			<tr>
-				<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
+				<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+					<tr>
+						<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
+						<?php
+						if ($admin_access) {
+							?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Revoke ?</b></td><?php
+						}
+						?>
+					</tr>
 				<?php
-				if ($admin_access) {
-					?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Reinstate ?</b></td><?php
-				}
-				?>
-			</tr>
-		<?php
 
-		if (!empty($revokes)) {
-			foreach ($revokes as $assetid) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				if (!$asset->id) continue;
+				foreach ($users as $assetid) {
+					if ($assetid == $owner->id) continue;
+
+					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					if (is_null($asset)) continue;
 				?>
-				<tr>
-					<td bgcolor="#F0F0F0" class="sq-form-field"><?php
-					echo 'Workflow inherited from '.$asset->name.' ['.$asset->type()." : $assetid]";
-					?></td>
+					<tr>
+						<td bgcolor="#F0F0F0" class="sq-form-field">
+						<?php
+							echo 'Workflow inherited from '.$asset->name.' ['.$asset->type()." : $assetid]";
+						?>
+						</td>
+					<?php
+					if ($admin_access) {
+					?>
+						<td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field">
+						<?php
+							check_box($prefix."_revoke[$assetid]");
+						?>
+						</td>
+					<?php
+					}
+					?>
+					</tr>
 				<?php
-				if ($admin_access) {
-					?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field"><?php
-					check_box($prefix."_unrevoke[$assetid]")
-					?></td><?php
-				}
-				?></tr><?php
-				$revoked = true;
-			}
-		}
 
-		if (!$revoked) {
-			ob_end_clean();
-			echo 'None';
-		} else {
-			ob_end_flush();
-			?></table><?php
-		}
+				}// end foreach
+				?>
+				</table>
+			<?php
+			}//  end if inherited
 
-		$o->closeSection();
+			if ($revokes) {
+				$o->openField('Revoked');
+				?>
+				<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+					<tr>
+						<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
+						<?php
+						if ($admin_access) {
+							?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Reinstate ?</b></td><?php
+						}
+						?>
+					</tr>
+				<?php
+
+				foreach ($revoked as $assetid) {
+					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					if (is_null($asset)) continue;
+					?>
+					<tr>
+						<td bgcolor="#F0F0F0" class="sq-form-field">
+						<?php
+							echo 'Workflow inherited from '.$asset->name.' ['.$asset->type().' : '.$assetid.']';
+						?>
+						</td>
+					<?php 
+					if ($admin_access) {
+					?>
+						<td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field">
+						<?php
+							check_box($prefix.'_unrevoke['.$assetid.']');
+						?>
+						</td>
+					<?php
+					}// end if
+					?>
+					</tr>
+				<?php
+
+				}// end foreach
+
+				?>
+				</table>
+			<?php
+
+			}// end if revoked
+
+			$o->closeSection();
+
+		}// end if inherited section
 
 		//// now print the direct workflow for this asset ////
 		$o->openSection('Workflow set for this asset');
@@ -1324,14 +1361,14 @@ class Asset_Edit_Interface extends Resolve_Object
 		// unrevoke inherited workflow
 		if (isset($_POST[$prefix.'_unrevoke'])) {
 			foreach ($_POST[$prefix.'_unrevoke'] as $assetid => $on) {
-				$owner->reinstateRevokedPermission($assetid, SQ_PERMISSION_WORKFLOW);
+				if (!$owner->deletePermission($assetid, SQ_PERMISSION_WORKFLOW)) return false;
 			}
 		}
 
 		// revoke inherited workflow
 		if (isset($_POST[$prefix.'_revoke'])) {
 			foreach ($_POST[$prefix.'_revoke'] as $assetid => $on) {
-				$owner->revokeInheritedPermission($assetid, SQ_PERMISSION_WORKFLOW);
+				if (!$owner->setPermission($assetid, SQ_PERMISSION_WORKFLOW, '0')) return false;
 			}
 		}
 
