@@ -71,7 +71,7 @@ class text_indicator extends wysiwyg_plugin {
 		case "textindicator":
 			el = document.createElement("span");
 			el.appendChild(document.createTextNode("A"));
-			el.className = "indicator";
+			el.className = "htmlarea-indicator";
 			el.style.position = "relative";
 			el.style.top = -7;
 			el.title = HTMLArea.I18N.tooltips.textindicator;
