@@ -80,6 +80,7 @@ class Asset_Management extends Resolve_Object
 	/**
 	* This get's run to intall/upgrade the asset that this management class represents
 	*
+	* @return boolean
 	* @access public
 	*/
 	function update()
@@ -87,12 +88,50 @@ class Asset_Management extends Resolve_Object
 
 		// if the asset manager knows about it it is installed, so upgrade...
 		if ($this->_am->installed($this->getAssetType())) {
-			return $this->_upgrade($this->_am->getInfo($this->getAssetType(), 'version'));
+			if (!$this->_upgrade($this->_am->getInfo($this->getAssetType(), 'version'))) return false;
 		} else {
-			return $this->_install();
+			if (!$this->_install()) return false;
 		}
+		if (!$this->_updateFiles()) return false;
+		return true;
+
 
 	}//end update()
+
+
+	/**
+	* Copy files used by the asset to the data directory
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _updateFiles() {
+		
+		# get a list of files to copy
+		$file_list = $this->_getFileList();
+		if (empty($file_list)) return true;
+
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		
+		$to_dir_path = SQ_DATA_PATH.'/unrestricted/'.$this->getAssetType().'/files';
+		$from_dir_path = SQ_SYSTEM_ROOT.'/'.$this->_pm->getInfo($this->getAssetType(),'dir');
+		
+		# create the directory to store these files if it doesnt exist
+		# NOTE: The create_direcotyr function of file_system.inc handles this for us
+		create_directory($to_dir_path);
+		
+		# for each file, copy it over
+		foreach ($file_list as $file) {
+			$from = $from_dir_path.'/'.$file;
+			$to = $to_dir_path.'/'.$file;
+
+			# the copy_file function of file_system.inc will create the
+			# directory strucutre before copying
+			if (!copy_file($from, $to)) return false;
+		}
+
+		return true;
+	}
 
 
 	/**
@@ -261,6 +300,17 @@ class Asset_Management extends Resolve_Object
 		return $vars;
 
 	}// end _getAllVars()
+
+
+	/**
+	* Returns all files this asset wants installed/updated into the data directory
+	*
+	* @return Array(string)
+	* @access private
+	*/
+	function _getFileList() {
+		return Array();
+	}
 
 
 	/**
