@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.19 2004/07/04 22:53:38 lwright Exp $
+* $Id: form_question_type_select.inc,v 1.20 2004/07/27 00:59:56 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -95,18 +95,11 @@ class Form_Question_Type_Select extends Form_Question
 		if (!$suffix) $suffix = '';
 		// generate some php for the value, which can be used for both
 		// auto-answer and returning to saved forms
-		//if ($content_file) {
-			// use the class name, as we might be getting extended by a child class
-			//$class = get_class($this);
-			//$html  = '<'.'?php $q = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$this->id.$suffix.', \''.$class.'\'); ?'.'>';
-			//$html .= '<'.'?php $q->active_submission =& $this->active_submission; $q->active_form =& $active_form; combo_box($q->id, $q->getOptions(), $q->attr(\'multiple\'), $q->getValue(), $q->attr(\'height\'), $q->attr(\'extra\')) ?'.'>';
-		//} else {
-
-			ob_start();
-			combo_box($this->id.$suffix, $this->getOptions(), $this->attr('multiple'), $value, $this->attr('height'), '');
-			$html = ob_get_contents();
-			ob_end_clean();
-		//}
+		
+		ob_start();
+		combo_box($this->id.$suffix, $this->getOptions(), $this->attr('multiple'), $this->getValue(), $this->attr('height'), '');
+		$html = ob_get_contents();
+		ob_end_clean();
 		
 		return html_entity_decode($html);
 
