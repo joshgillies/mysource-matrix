@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.12 2004/08/19 02:16:36 gsherwood Exp $
+* $Id: page_asset_builder_management.inc,v 1.13 2004/09/02 03:43:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -59,7 +59,13 @@ class Page_Asset_Builder_Management extends Asset_Management
 													'type'       => 'int',
 													'default'    => 2,
 												);
-															
+
+		$this->vars['required_fields']			= Array(
+													'added'     => '0.1',
+													'type'      => 'serialise',
+													'default'   => Array(),
+													);
+
 		/**
 		* Locations under which created assets will always be linked
 		*	Array (assetid => link_type)
