@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_sub_asset_listing_edit_fns.inc,v 1.3 2003/10/10 06:00:09 mmcintyre Exp $
+* $Id: page_sub_asset_listing_edit_fns.inc,v 1.4 2003/10/10 06:14:07 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -52,7 +52,7 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 		$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($info);
 
 		echo 'The contents of the sub asset listing format can be '.
-			'replaced into the <a href="'.$href[$link['minorid']].'">Page Contents Bodycopy</a> by using the %body% keyword';
+			'replaced into the <a href="'.$href[$link['minorid']].'">Page Contents Bodycopy</a> by using the %sub_asset_listing% keyword';
 
 	}// end paintBodycopyInformation()
 

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_sub_asset_listing.inc,v 1.3 2003/10/10 06:00:09 mmcintyre Exp $
+* $Id: page_sub_asset_listing.inc,v 1.4 2003/10/10 06:14:07 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -222,7 +222,7 @@ class Page_Sub_Asset_Listing extends Page
 		ob_end_clean();
 
 		$body = &$this->getBodyReplacement();
-		$html = str_replace('%body%', $body, $html);
+		$html = str_replace('%sub_asset_listing%', $body, $html);
 		
 		echo $html;
 
@@ -314,7 +314,7 @@ class Page_Sub_Asset_Listing extends Page
 			}
 			$global_contents .= $contents;
 		}
-		return html_entity_decode($global_contents);
+		return $global_contents;
 
 	}// end getBodyReplacement()
 
