@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.4 2004/06/22 00:23:31 gsherwood Exp $
+* $Id: search_folder.inc,v 1.4.2.1 2004/11/08 04:05:56 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -96,8 +96,13 @@ class Search_Folder extends Bridge
 				if (!is_array($type_code)) $type_code = Array($type_code);
 				$search_info['search_types'] = $type_code;
 			}
+			// if we have not selected to search any types, we are going to return no results
+			if (empty($search_info['search_types'])) return Array();
 	
 			$search_info['search_statuses'] = (isset($settings['statuses'])) ? $settings['statuses'] : Array();
+			// if we have not selected to search any statuses, we are going to return no results
+			if (empty($search_info['search_statuses'])) return Array();
+			
 			$search_info['root_assetid'] = (isset($settings['root']) && $settings['root']) ? $settings['root'] : 1;
 	
 			if (!isset($settings['phrase']) || trim($settings['phrase']) == '') {
@@ -158,7 +163,11 @@ class Search_Folder extends Bridge
 			$search_info['search_types'] = (isset($settings['types'])) ? $settings['types'] : Array();
 			$search_info['search_statuses'] = (isset($settings['statuses'])) ? $settings['statuses'] : Array();
 			$search_info['root_assetid'] = (isset($settings['root']) && $settings['root']) ? $settings['root'] : 1;
-			
+
+			// if we have not selected to search any types or statuses, we are going to return no results
+			if (empty($search_info['search_types'])) return Array();
+			if (empty($search_info['search_statuses'])) return Array();
+
 			if (!isset($settings['phrase']) || trim($settings['phrase']) == '') {
 				$search_results = $sm->processBasicSearch($search_info);
 			} else {
