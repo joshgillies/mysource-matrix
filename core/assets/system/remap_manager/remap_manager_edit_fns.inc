@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.10 2004/11/18 05:00:42 gsherwood Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.11 2004/12/03 15:17:42 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $ - 1.0
+* @version $Revision: 1.11 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
