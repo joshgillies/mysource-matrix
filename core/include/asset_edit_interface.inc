@@ -2,7 +2,6 @@
 
 require_once 'XML/Tree.php';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-require_once SQ_FUDGE_PATH.'/general/general.inc';
 
 /**
 * Asset_Edit_Interface
@@ -381,7 +380,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		$statii = Array();
 		if (!$write_access && !$print_commit_button && $active_screen == 'details') $statii = $owner->getAvailableStatii();
 
-		// if the user has write access, has the ability to alter the status of the asset, 
+		// if the user has write access, has the ability to alter the status of the asset,
 		// or we have printed an editable interface on a static screen - show the commit button
 		if ($write_access || $print_commit_button || !empty($statii)) {
 			$o->commitButton('Commit', $force_unlock_on_commit);
@@ -609,6 +608,77 @@ class Asset_Edit_Interface extends Resolve_Object
 								combo_box($prefix.'_change_status', $statii, false, 0);
 							}
 							break;
+						case 'future_status' :
+
+							$o->openField('Future Statuses', 'new_line');
+							$fs_links = $owner->getLinks(SQ_LINK_NOTICE, 'cron_job_future_status', true, 'minor');
+							#pre_echo($fs_links);
+
+							$fs_jobs  = Array();
+							$fs_dates = Array();
+
+							foreach($fs_links as $link) {
+								$fs = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['type_code']);
+								if (is_null($fs)) continue;
+								$fs_jobs[$fs->id]  = &$fs;
+								$fs_dates[$fs->id] = &$fs->attr('when');
+							}
+
+							asort($fs_dates, SORT_STRING);
+
+							?>
+							<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+								<tr>
+									<td bgcolor="#DDDDDD" class="sq-form-field" style="font-weight: bold;">
+										Status
+									</td>
+									<td bgcolor="#DDDDDD" class="sq-form-field" style="font-weight: bold;">
+										When
+									</td>
+								<?php
+									if ($owner->adminAccess()) {
+									?>
+									<td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field" style="font-weight: bold;">
+										Delete ?
+									</td>
+									<?php
+									}// end if
+								?>
+								</tr>
+							<?php
+
+							foreach($fs_dates as $id => $date) {
+							?>
+								<tr>
+									<td bgcolor="#DDDDDD" class="sq-form-field">
+										<?php echo $fs_jobs[$id]->statusName(); ?>
+									</td>
+									<td bgcolor="#DDDDDD" class="sq-form-field">
+										<?php echo $fs_jobs[$id]->readableWhen(); ?>
+									</td>
+								<?php
+									if ($owner->adminAccess()) {
+									?>
+									<td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field" style="font-weight: bold;">
+										Delete ?
+									</td>
+									<?php
+									}// end if
+								?>
+								</tr>
+							<?php
+							}// end foreach
+
+							?>
+							</table>
+							<?php
+
+							$o->openField('New Future Statuses', 'new_line');
+							$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
+							$fs = new Cron_Job_Future_Status();
+							$edit_fns = $fs->getEditFns();
+							$edit_fns->paintOneLineBackend($fs, $o, $prefix.'_new_fs');
+							break;
 						default :
 							continue;
 							break;
@@ -644,11 +714,31 @@ class Asset_Edit_Interface extends Resolve_Object
 	{
 		$prefix = $this->getPrefix($owner);
 
-		if (isset($_POST[$prefix.'_change_status']) && $_POST[$prefix.'_change_status'] > 0) {
-			return $owner->processStatusChange($_POST[$prefix.'_change_status']);
-		} else {
-			return false;
+		$status_processed = false;
+
+		if (isset($_POST[$prefix.'_change_status']) && (int) $_POST[$prefix.'_change_status'] > 0) {
+			$status_processed = $owner->processStatusChange($_POST[$prefix.'_change_status']);
 		}
+
+		$future_status_processed = false;
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
+		$fs = new Cron_Job_Future_Status();
+		$edit_fns = $fs->getEditFns();
+		if ($edit_fns->processOneLineBackend($fs, $o, $prefix.'_new_fs')) {
+			$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+			if (!is_null($cron_mgr)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+				if ($cron_mgr->addJob($fs, $GLOBALS['SQ_SYSTEM']->user) && $fs->setAssetToUpdate($owner)) {
+					$fs->releaseLock();
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+					$future_status_processed = true;
+				} else {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				}
+			}
+		}
+
+		return ($status_processed || $future_status_processed);
 
 	}//end processDetails()
 
@@ -760,14 +850,14 @@ class Asset_Edit_Interface extends Resolve_Object
 							}
 							$o->closeSection();
 						break;
-						
+
 						case 'intl_character_set' :
 							if ($field->children[0]->name != 'display_name') $display_name = 'Character Set';
 							else $display_name = $field->children[0]->content;
 							$o->openSection($display_name);
 							$o->openField('Current');
 							require SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
-							
+
 							if ($owner->writeAccess()) {
 								$standards_lists_character_sets = array_reverse($standards_lists_character_sets);
 								$standards_lists_character_sets[''] = '** Use System Default **';
@@ -789,7 +879,7 @@ class Asset_Edit_Interface extends Resolve_Object
 							if ($field->children[0]->name != 'display_name') $display_name = 'New Type';
 							else $display_name = $field->children[0]->content;
 							$o->openField($display_name);
-							
+
 							if ($owner->adminAccess()) {
 								if ($owner->status != SQ_STATUS_UNDER_CONSTRUCTION) {
 									// cant morph an asset if it is not under construction
@@ -807,7 +897,7 @@ class Asset_Edit_Interface extends Resolve_Object
 									$user_types[] = $user->type();
 									for($i = 0; $i < count($user_types); $i++) $user_types[$i] = $db->quote($user_types[$i]);
 									$user_type_cond = 'IN ('.implode(', ', $user_types).')';
-									
+
 									$sql = 'SELECT type_code
 											FROM sq_asset_type
 											WHERE allowed_access '.$user_type_cond.'
@@ -903,7 +993,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		// add a new language
 		if (isset($_POST[$prefix.'_add_intl_language']) && !empty($_POST[$prefix.'_add_intl_language'])) {
 			$new_language = $_POST[$prefix.'_add_intl_language'];
-			if (!in_array($new_language, $current_langs)) $set_languages[] = gpc_stripslashes($new_language);
+			if (!in_array($new_language, $current_langs)) $set_languages[] = $new_language;
 		}
 
 		// check for delete languages
@@ -945,12 +1035,12 @@ class Asset_Edit_Interface extends Resolve_Object
 	*
 	* @param object	Asset	$owner	the asset whose interface we are painting
 	* @param int			$perm	the permission to find the overriden perms for
-	* @param boolean		$access	Type of Access : null = all, true = granted, false = denied, 
+	* @param boolean		$access	Type of Access : null = all, true = granted, false = denied,
 	*								Also alters the return type to be just the array for the passed access
 	*
 	* @return Array()
 	* @access private
-	* @see paintPermissions() 
+	* @see paintPermissions()
 	* @see paintWorkflow()
 	*/
 	function _getOverriddenInheritedPermissions(&$owner, $perm, $access=null)
@@ -1489,7 +1579,7 @@ class Asset_Edit_Interface extends Resolve_Object
 							echo 'Workflow inherited from '.$asset->name.' ['.$asset->type().' : '.$assetid.']';
 						?>
 						</td>
-					<?php 
+					<?php
 					if ($admin_access) {
 					?>
 						<td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field">
