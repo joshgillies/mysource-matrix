@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.32 2005/03/10 19:46:27 brobertson Exp $
+* $Id: image.inc,v 1.33 2005/03/30 17:08:06 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -272,7 +272,7 @@ class Image extends File
 	*													usually you only would set this to false if you are running
 	*													this multiple times and only want to save once at the end
 	*
-	* @return boolean
+	* @return false|int	false on error, shadow assetid on success
 	* @access public
 	*/
 	function saveVariety($variety, $recreate_image=true, $save_attrs=true)
@@ -365,7 +365,7 @@ class Image extends File
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
+		return $varietyid;
 
 	}//end saveVariety()
 

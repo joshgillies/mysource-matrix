@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.34 2005/02/11 17:19:43 brobertson Exp $
+* $Id: image_edit_fns.inc,v 1.35 2005/03/30 17:08:06 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -359,7 +359,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 		$edit_fns = $variety->getEditFns();
 		if (!$edit_fns->processInlineInterface($variety, $o, $prefix.'_new')) return false;
 
-		return $asset->saveVariety($variety);
+		return (bool) $asset->saveVariety($variety);
 
 	}//end processNewVariety()
 
@@ -546,15 +546,14 @@ class Image_Edit_Fns extends File_Edit_Fns
 	*/
 	function _recreateVarietyImages(&$asset)
 	{
+		$varieties = $asset->attr('varieties');
 		if (!empty($varieties)) {
 			foreach($varieties['data'] as $varid => $data)  {
 				$variety = &$asset->getAsset($varid);
 				if (is_null($variety)) continue;
-				$asset->saveVariety($variety, true, false);
+				$variety->updateImage();
 			}// end foreach
 		}// end if
-
-		$asset->saveAttributes();
 
 	}//end _recreateVarietyImages()
 
