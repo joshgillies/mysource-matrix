@@ -20,6 +20,12 @@ class Asset extends Resolve_Object
 	var $id = 0;
 
 	/**
+	* The version number of the asset (x.x.x)
+	* @var int
+	*/
+	var $verion = '';
+
+	/**
 	* String representation of this attribute
 	* @var string
 	*/
@@ -152,11 +158,12 @@ class Asset extends Resolve_Object
 		$name   = ucwords(str_replace('_', ' ', $this->type())).' #'.$assetid;
 		$now    = time();
 		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+		$initial_version = '0.0.0';
 
 		$sql = 'INSERT INTO sq_asset
-				(assetid, type_code, name, short_name, status, last_updated, last_userid)
+				(assetid, version, type_code, name, short_name, status, last_updated, last_userid)
 				VALUES
-				('.$db->quote($assetid).','.$db->quote($this->type()).', '.$db->quote($name).', '.$db->quote($name).', '.$db->quote(SQ_STATUS_UNDER_CONSTRUCTION).', '.$db->quote(ts_iso8601($now)).', '.$db->quote($userid).')';
+				('.$db->quote($assetid).','.$db->quote($initial_version).','.$db->quote($this->type()).', '.$db->quote($name).', '.$db->quote($name).', '.$db->quote(SQ_STATUS_UNDER_CONSTRUCTION).', '.$db->quote(ts_iso8601($now)).', '.$db->quote($userid).')';
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
@@ -166,6 +173,7 @@ class Asset extends Resolve_Object
 		}
 
 		$this->id           = $assetid;
+		$this->version      = $initial_version;
 		$this->name         = $name;
 		$this->short_name   = $name;
 		$this->status       = SQ_STATUS_UNDER_CONSTRUCTION;
@@ -292,11 +300,13 @@ class Asset extends Resolve_Object
 
 		$now    = time();
 		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+		// version number starts at 0.0.0 again because the dupe is a brand new asset
+		$initial_version = '0.0.0';
 
 		$sql = 'INSERT INTO sq_asset
-				(assetid, type_code, name, short_name, status, last_updated, last_userid)
+				(assetid, version, type_code, name, short_name, status, last_updated, last_userid)
 				VALUES
-				('.$db->quote($assetid).','.$db->quote($this->type()).', '.$db->quote($this->name.' - Duplicate').', '.$db->quote($this->short_name.' - Duplicate').', '.$db->quote(SQ_STATUS_UNDER_CONSTRUCTION).', '.$db->quote(ts_iso8601($now)).', '.$db->quote($userid).')';
+				('.$db->quote($assetid).','.$db->quote($initial_version).','.$db->quote($this->type()).', '.$db->quote($this->name.' - Duplicate').', '.$db->quote($this->short_name.' - Duplicate').', '.$db->quote(SQ_STATUS_UNDER_CONSTRUCTION).', '.$db->quote(ts_iso8601($now)).', '.$db->quote($userid).')';
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
@@ -331,8 +341,6 @@ class Asset extends Resolve_Object
 			if (!isset($link['sort_order'])) $link['sort_order'] = -1;
 			if (!isset($link['dependant']))  $link['dependant']  = 0;
 			if (!isset($link['exclusive']))  $link['exclusive']  = 0;
-
-#			pre_echo("DUPE LINK : ".$this->name);
 
 			// OK what we are going to do is make sure that the new parents lock is
 			// in the same chain as our current lock
@@ -786,7 +794,7 @@ class Asset extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// OK, the first thing to do is check we actually exist :)
-		$sql = 'SELECT assetid, name, short_name, status, languages, charset, type_code, last_updated, last_userid
+		$sql = 'SELECT assetid, version, name, short_name, status, languages, charset, type_code, last_updated, last_userid
 				FROM sq_asset
 				WHERE assetid = '.$db->quote($assetid);
 		$result = $db->getRow($sql, null, DB_FETCHMODE_ORDERED);
@@ -795,6 +803,7 @@ class Asset extends Resolve_Object
 		if (is_null($result)) return;
 
 		list($this->id,
+			 $this->version,
 			 $this->name,
 			 $this->short_name,
 			 $this->status,
@@ -900,6 +909,8 @@ class Asset extends Resolve_Object
 		// if we have an ID hit the DB
 		if ($this->id) {
 
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'UPDATE sq_asset
 					SET name         = '.$db->quote($name).',
@@ -913,13 +924,9 @@ class Asset extends Resolve_Object
 			$result = $db->query($sql);
 			if (DB::isError($result)) {
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
-
-			$old_name         = $this->name;
-			$old_short_name   = $this->short_name;
-			$old_last_updated = $this->last_updated;
-			$old_last_userid  = $this->last_userid;
 
 			$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetUpdate',
 												  Array( 'assetid'          => $this->id,
@@ -933,6 +940,15 @@ class Asset extends Resolve_Object
 														 'new_last_userid'  => $last_userid
 														));
 
+			// increment the micro version number
+			if (!$this->incrementVersion()) {
+				trigger_error('Failed updating "'.$this->name.'", version not incremented', E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
 		}// end if $this->id
 
 		$this->name         = $name;
@@ -943,6 +959,62 @@ class Asset extends Resolve_Object
 		return true;
 
 	}//end _updated();
+
+
+	/**
+	* Increments the version number of the asset based on the part of the version passed in
+	*
+	* @param string	$number	the part of the version to update (major|minor|micro)
+	*
+	* @return boolean
+	* @access public
+	*/
+	function incrementVersion($number='micro')
+	{
+		if (!$this->id) return false;
+
+		if      ($number == 'major') $part_num = 0;
+		else if ($number == 'minor') $part_num = 1;
+		else if ($number == 'micro') $part_num = 2;
+
+		// work out the new version number based on the part of the
+		// version that we have been asked to update (major|minor|micro)
+		$version_parts = explode('.', $this->version);
+		for (reset($version_parts); null !== ($k = key($version_parts)); next($version_parts)) {
+			$value =& $version_parts[$k];
+			$value = (int)$value;
+			if ($k == $part_num) $value++;
+			else if ($k > $part_num) $value = 0;
+		}
+
+		$new_version = implode('.', $version_parts);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'UPDATE sq_asset
+				SET version   = '.$db->quote($new_version).'
+				WHERE assetid = '.$db->quote($this->id);
+
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetVersionUpdate',
+											  Array( 'assetid'          => $this->id,
+													 'old_version'      => $this->version,
+													 'new_version'      => $new_version
+													));
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		$this->version = $new_version;
+		return true;
+
+	}//end incrementVersion()
 
 
 	/**
@@ -1006,7 +1078,7 @@ class Asset extends Resolve_Object
 	*/
 	function processStatusChange($new_status)
 	{
-		if ($this->status == $new_status) {
+		if ($this->status != $new_status) {
 			// if we are dependant minor assets, we can only change
 			// our status to a status higher than or equal to all
 			// the statii of our parents
@@ -1039,6 +1111,16 @@ class Asset extends Resolve_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($new_status != $this->status) {
+
+			// if we have just made this asset live, we update its minor version
+			if ($new_status == SQ_STATUS_LIVE) {
+				if (!$this->incrementVersion('minor')) {
+					trigger_error('processStatusChange failed for asset "'.$this->name.'", version not updated', E_USER_WARNING);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+			}
+
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'UPDATE sq_asset
 					SET status    = '.$db->quote($new_status).'

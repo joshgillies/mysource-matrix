@@ -9,6 +9,7 @@ CREATE TABLE sq_package (
 
 CREATE TABLE sq_asset (
   assetid        INT      UNSIGNED NOT NULL,
+  version        VARCHAR(20)       NOT NULL DEFAULT '0.0.0',
   name           VARCHAR(255)      NOT NULL DEFAULT '',
   short_name     VARCHAR(255)      NOT NULL DEFAULT '',
   status         SMALLINT UNSIGNED NOT NULL DEFAULT 1,

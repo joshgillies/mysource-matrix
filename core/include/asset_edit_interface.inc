@@ -251,10 +251,13 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		}// end if
 
+		$page_heading = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name').
+						' - '.$owner->name.' (version '.$owner->version.')';
+
 		// check the active screen for special system defined static screens
 		$file = null;
 		if (isset($this->_edit_fns->static_screens[$active_screen])) {
-			$o->setHeading($GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name'));
+			$o->setHeading($page_heading);
 
 			// if we are not creating, paint the system defined bit of this tab
 			if (!$creating) {
@@ -280,7 +283,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 			$force_unlock_on_commit = $this->_screens[$active_screen]['force_unlock'];
 
-			$o->setHeading($GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name').' - '.$this->_screens[$active_screen]['name'], $this->_screens[$active_screen]['icon']);
+			$o->setHeading($page_heading.' - '.$this->_screens[$active_screen]['name'], $this->_screens[$active_screen]['icon']);
 		}// end if
 
 		if ($file) {
@@ -684,7 +687,29 @@ class Asset_Edit_Interface extends Resolve_Object
 				for($j = 0; $j < $num_fields; $j++) {
 					$field = &$section->children[$j];
 
+					// should we print the note for the field or not
+					$print_note = true;
+
 					switch (strtolower($field->attributes['code'])) {
+						case 'version_current_version' :
+							if ($field->children[0]->name != 'display_name') $display_name = 'Current Version';
+							else $display_name = $field->children[0]->content;
+							$o->openField($display_name);
+							echo $owner->version;
+						break;
+
+						case 'version_update_verion' :
+							// have to have admin access to update the major version
+							if ($owner->adminAccess()) {
+								if ($field->children[0]->name != 'display_name') $display_name = 'Update Major Version ?';
+								else $display_name = $field->children[0]->content;
+								$o->openField($display_name);
+								check_box($prefix.'_version_update_version');
+							} else {
+								$print_note = false;
+							}
+						break;
+
 						case 'intl_languages' :
 							if ($field->children[0]->name != 'display_name') $display_name = 'Languages';
 							else $display_name = $field->children[0]->content;
@@ -825,7 +850,7 @@ class Asset_Edit_Interface extends Resolve_Object
 						break;
 					}
 
-					if ($field->children[1]->name == 'note' && $field->children[1]->content) {
+					if ($print_note && $field->children[1]->name == 'note' && $field->children[1]->content) {
 						$o->note($field->children[1]->content);
 					}
 				}// end for
@@ -854,6 +879,16 @@ class Asset_Edit_Interface extends Resolve_Object
 	function processSettings(&$owner, &$o)
 	{
 		$prefix = $this->getPrefix($owner);
+
+		//// VERSIONING ////
+		if ($owner->adminAccess()) {
+			if (isset($_POST[$prefix.'_version_update_version'])) {
+				if (!$owner->incrementVersion('major')) {
+					trigger_error('Failed updating major version of "'.$owner->name.'"', E_USER_WARNING);
+				}
+			}
+		}
+
 
 		//// LANGUAGES ////
 		$current_langs = $owner->getLanguages();
