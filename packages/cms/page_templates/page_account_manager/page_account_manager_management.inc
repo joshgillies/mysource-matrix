@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_management.inc,v 1.14 2004/09/08 01:23:36 gsherwood Exp $
+* $Id: page_account_manager_management.inc,v 1.15 2004/11/03 00:06:08 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -45,6 +45,8 @@ class Page_Account_Manager_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars['create_type']				= Array(
+														'added'     => '0.1',
+														'type'      => 'serialise',
 														'default'   => Array('user' => true),
 													);
 
