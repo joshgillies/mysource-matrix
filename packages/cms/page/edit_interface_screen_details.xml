@@ -5,5 +5,10 @@
 			<note />
 			<text width="12" height="1" />
 		</field>
+		<field attribute="short_name">
+			<display_name>Page Short Name</display_name>
+			<note />
+			<text width="12" height="1" />
+		</field>
 	</section>
 </contents>
