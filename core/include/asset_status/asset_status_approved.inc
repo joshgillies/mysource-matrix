@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_approved.inc,v 1.9 2003/11/26 00:51:11 gsherwood Exp $
+* $Id: asset_status_approved.inc,v 1.10 2004/07/06 02:20:39 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -112,6 +112,15 @@ class Asset_Status_Approved extends Asset_Status
 	function processStatusChange($new_status)
 	{
 		if (!parent::processStatusChange($new_status)) return false;
+
+		if ($new_status == SQ_STATUS_LIVE) {
+			// update the last published date
+			if (!$this->owner->setPublishedDate()) {
+				return false;
+			}
+		}
+		break;
+
 		return true;
 
 	}//end processStatusChange()

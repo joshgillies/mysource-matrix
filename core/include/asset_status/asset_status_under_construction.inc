@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.16 2003/11/26 00:51:11 gsherwood Exp $
+* $Id: asset_status_under_construction.inc,v 1.17 2004/07/06 02:20:39 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -139,46 +139,54 @@ class Asset_Status_Under_Construction extends Asset_Status
 
 		// so we know we can set the status but we need to
 		// do some workflow stuff if we are changing to PENDING APPROVAL
-		if ($new_status == SQ_STATUS_PENDING_APPROVAL) {
-			$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		switch ($new_status) {
+			case SQ_STATUS_PENDING_APPROVAL:
+				$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 
-			// we are going to make this asset live by starting the workflow process
-			$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+				// we are going to make this asset live by starting the workflow process
+				$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
-			if (!$wfm->startWorkflow($this->owner->id)) {
-				trigger_error('Workflow failed to start for "'.$this->owner->name.'"', E_USER_WARNING);
-				return false;
-			}
-
-			// if the user who wants this asset to go live can also
-			// approve it as part of workflow, let their action to make this
-			// asset live signal their intention to approve it as well
-			$publishers = $wfm->whoCanPublish($this->owner->id);
-			if (in_array($current_userid, $publishers)) {
-				if (!$wfm->recordPublish($this->owner->id, $current_userid)) {
-					trigger_error('Approval by user '.$current_userid.' not set in processStatusChange', E_USER_WARNING);
-					// dont die here because they can try to approve again later
+				if (!$wfm->startWorkflow($this->owner->id)) {
+					trigger_error('Workflow failed to start for "'.$this->owner->name.'"', E_USER_WARNING);
+					return false;
 				}
-			}
 
-			// log a message to let people know that workflow has started
-			$ms   = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
-			$asset_type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name');
+				// if the user who wants this asset to go live can also
+				// approve it as part of workflow, let their action to make this
+				// asset live signal their intention to approve it as well
+				$publishers = $wfm->whoCanPublish($this->owner->id);
+				if (in_array($current_userid, $publishers)) {
+					if (!$wfm->recordPublish($this->owner->id, $current_userid)) {
+						trigger_error('Approval by user '.$current_userid.' not set in processStatusChange', E_USER_WARNING);
+						// dont die here because they can try to approve again later
+					}
+				}
+
+				// log a message to let people know that workflow has started
+				$ms   = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
+				$asset_type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name');
 			
-			if (!$wfm->silentWorkflowParty($this->owner->id)) { 
-				$log = $ms->newMessage();
-				$log->subject = 'Workflow Started';
-				$log->body    = 'User "'.$user->name.'" has requested '.$asset_type.' "'.$this->owner->name.'" to go live from '.$this->getDescription().'.';
-				// create a link for navigation to the workflow screen for this asset
-				$log->body .= "\n\n".'A full report for the Workflow of "'.$this->owner->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>';
-				$log->type    = 'asset.workflow';
-				$log->parameters['assetid'] = $this->owner->id;
-				$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
-				$log->send();
-			}
+				if (!$wfm->silentWorkflowParty($this->owner->id)) { 
+					$log = $ms->newMessage();
+					$log->subject = 'Workflow Started';
+					$log->body    = 'User "'.$user->name.'" has requested '.$asset_type.' "'.$this->owner->name.'" to go live from '.$this->getDescription().'.';
+					// create a link for navigation to the workflow screen for this asset
+					$log->body .= "\n\n".'A full report for the Workflow of "'.$this->owner->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>';
+					$log->type    = 'asset.workflow';
+					$log->parameters['assetid'] = $this->owner->id;
+					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
+					$log->send();
+				}
+				break;
 
-		}//end if new status is PENDING_APPROVAL
+			case SQ_STATUS_LIVE:
+				// update the last published date
+				if (!$this->owner->setPublishedDate()) {
+					return false;
+				}
+				break;
+		}
 
 		return true;
 

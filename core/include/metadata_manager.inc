@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.42 2004/06/18 04:29:06 lwright Exp $
+* $Id: metadata_manager.inc,v 1.43 2004/07/06 02:20:39 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -749,6 +749,51 @@ class Metadata_Manager extends MySource_Object
 					echo '} else {'."\n";
 					echo '$metadata_replacements[\''.$keyword.'\'] = \'\';'."\n";
 					echo '}'."\n";
+
+				break;
+
+				// can't handle 'last published' stuff in the same way as created/updated because
+				// there is a chance that it has never been published
+				case 'asset_published' :
+					echo '$metadata_replacements[\''.$keyword.'\'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'Y-m-d H:i:s\', $metadata_asset->published);'."\n";
+				break;
+
+				case 'asset_published_short' :
+					echo '$metadata_replacements[\''.$keyword.'\'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'Y-m-d\', $metadata_asset->published);'."\n";
+				break;
+
+				case 'asset_published_readable' :
+					echo '$metadata_replacements[\''.$keyword.'\'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'d M Y g:ia\', $metadata_asset->published);'."\n";
+				break;
+
+				case 'asset_published_by_name' :
+					echo 'if (is_null($metadata_asset->published_userid)) {'."\n";
+					echo '$metadata_replacements[\''.$keyword.'\'] = \'Never Published\';'."\n";
+					echo '} else { if (!isset($metadata_published_by_user)) { 
+					$asset_info = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetInfo(Array($metadata_asset->published_userid));
+					if (!empty($asset_info)) {
+					$metadata_'.substr($keyword,6,7).'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid);'."\n}\n}\n";
+					echo 'if (!empty($metadata_published_by_user)) { ';
+					echo '$metadata_replacements[\''.$keyword.'\'] = $metadata_published_by_user->name;'."\n";
+					echo '} else {'."\n";
+					echo '$metadata_replacements[\''.$keyword.'\'] = \'System\';'."\n";
+					echo '}}'."\n";
+				break;
+
+				case 'asset_published_by_first_name' :
+				case 'asset_published_by_last_name'  :
+				case 'asset_published_by_email'      :
+					echo 'if (is_null($metadata_asset->published_userid)) {'."\n";
+					echo '$metadata_replacements[\''.$keyword.'\'] = \'\';'."\n";
+					echo '} else { if (!isset($metadata_published_by_user)) { 
+					$asset_info = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetInfo(Array($metadata_asset->published_userid));
+					if (!empty($asset_info)) {
+					$metadata_published_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid);'."\n}\n}\n";
+					echo 'if (!empty($metadata_published_by_user)) { ';
+					echo '$metadata_published_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid);'."\n";
+					echo '} else {'."\n";
+					echo '$metadata_replacements[\''.$keyword.'\'] = \'\';'."\n";
+					echo '}}'."\n";
 
 				break;
 

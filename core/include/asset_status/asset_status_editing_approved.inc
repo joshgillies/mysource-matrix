@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing_approved.inc,v 1.7 2003/11/26 00:51:11 gsherwood Exp $
+* $Id: asset_status_editing_approved.inc,v 1.8 2004/07/06 02:20:39 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -107,6 +107,10 @@ class Asset_Status_Editing_Approved extends Asset_Status_Approved
 		if ($new_status == SQ_STATUS_LIVE) {
 			// safe edit is finished, so we dont need the system version any more
 			if (!$this->owner->clearSystemVersion()) {
+				return false;
+			}
+			// update the last published date
+			if (!$this->owner->setPublishedDate()) {
 				return false;
 			}
 		}

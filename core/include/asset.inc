@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.310 2004/07/01 12:44:59 brobertson Exp $
+* $Id: asset.inc,v 1.311 2004/07/06 02:20:39 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -107,6 +107,18 @@ class Asset extends MySource_Object
 	* @var int
 	*/
 	var $updated_userid;
+
+	/**
+	* Timestamp of when this asset was last published (ie. made LIVE)
+	* @var int
+	*/
+	var $published;
+
+	/**
+	* Assetid for the user that last published this asset
+	* @var int
+	*/
+	var $published_userid;
 
 	/**
 	* The Vars that belong to this asset
@@ -222,31 +234,35 @@ class Asset extends MySource_Object
 		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		$initial_version = '0.0.0';
 
-		$values = Array('assetid'        => $assetid,
-						'version'        => $initial_version,
-						'type_code'      => $this->type(),
-						'name'           => $name,
-						'short_name'     => $name,
-						'status'         => SQ_STATUS_UNDER_CONSTRUCTION,
-						'created'        => ts_iso8601($now),
-						'created_userid' => $userid,
-						'updated'        => ts_iso8601($now),
-						'updated_userid' => $userid
+		$values = Array('assetid'          => $assetid,
+						'version'          => $initial_version,
+						'type_code'        => $this->type(),
+						'name'             => $name,
+						'short_name'       => $name,
+						'status'           => SQ_STATUS_UNDER_CONSTRUCTION,
+						'created'          => ts_iso8601($now),
+						'created_userid'   => $userid,
+						'updated'          => ts_iso8601($now),
+						'updated_userid'   => $userid,
+						'published'        => null,
+						'published_userid' => null,
 						);
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset', $values)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
-		$this->id             = $assetid;
-		$this->version        = $initial_version;
-		$this->name           = $name;
-		$this->short_name     = $name;
-		$this->status         = SQ_STATUS_UNDER_CONSTRUCTION;
-		$this->created        = $now;
-		$this->created_userid = $userid;
-		$this->updated        = $now;
-		$this->updated_userid = $userid;
+		$this->id               = $assetid;
+		$this->version          = $initial_version;
+		$this->name             = $name;
+		$this->short_name       = $name;
+		$this->status           = SQ_STATUS_UNDER_CONSTRUCTION;
+		$this->created          = $now;
+		$this->created_userid   = $userid;
+		$this->updated          = $now;
+		$this->updated_userid   = $userid;
+		$this->published        = null;	// because we've never been published before
+		$this->published_userid = null;
 
 		// log what happened
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
@@ -437,7 +453,7 @@ class Asset extends MySource_Object
 
 		// OK, the first thing to do is check we actually exist :)
 		$sql = 'SELECT assetid, type_code, version, name, short_name, status, languages, charset, force_secure,
-					created, created_userid, updated, updated_userid
+					created, created_userid, updated, updated_userid, published, published_userid
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset ';
 		$where = 'assetid = '.$db->quote($assetid);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
@@ -459,19 +475,27 @@ class Asset extends MySource_Object
 			 $this->created,
 			 $this->created_userid,
 			 $this->updated,
-			 $this->updated_userid) = $result;
-		$this->created = iso8601_ts($this->created);
-		$this->updated = iso8601_ts($this->updated);
+			 $this->updated_userid,
+			 $this->published,
+			 $this->published_userid) = $result;
+		$this->created   = iso8601_ts($this->created);
+		$this->updated   = iso8601_ts($this->updated);
+		if (!is_null($this->published)) {
+		  $this->published = iso8601_ts($this->published);
+		}
 		unset($result);
 
 		// make sure the asset we are loading is of the same type as our class
 		if ($type_code != $this->type()) {
 			trigger_error('Asset #'.$assetid.' is not a '.$this->type(), E_USER_WARNING);
-			$this->id             = 0;
-			$this->created        = null;
-			$this->created_userid = null;
-			$this->updated        = null;
-			$this->updated_userid = null;
+			$this->id               = 0;
+			$this->created          = null;
+			$this->created_userid   = null;
+			$this->updated          = null;
+			$this->updated_userid   = null;
+			$this->published        = null;
+			$this->published_userid = null;
+
 			return;
 		}
 
@@ -1704,6 +1728,52 @@ class Asset extends MySource_Object
 	}//end processStatusChange()
 
 
+	/**
+	* Sets the last published date of an asset to the appropriate date and time
+	*
+	* It is advised that this function be called only from those Asset Status classes which
+	* transition to LIVE status - plus not all transitions (from a cancelled Safe Edit, eg) may
+	* not be considered a 'publish'.
+	*
+	* @param int	$time	The time to set the published date to. If NULL then use current time
+	* @param int	$userid	The user ID to record as the one that published the asset.
+	*						If NULL then use the user that is currently logged in
+	*
+	* @access public
+	* @return boolean indicating success
+	*/
+	function setPublishedDate($time=null, $userid=null)
+	{
+		$db = $GLOBALS['SQ_SYSTEM']->db;
+
+		if ($userid == null) {
+			$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+		}
+
+		if ($time == null) {
+			$time = time();
+		}
+
+		// change the time to ISO8601 format
+		$time_iso = ts_iso8601($time);
+
+		// begin a transaction
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$where = 'assetid = '.$db->quote($this->id);
+		$values = Array('published' => $db->quote($time_iso),
+			            'published_userid' => $db->quote($userid));
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset', $values, $where)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return true;
+
+	}//end setPublishedDate()
+
 //--        LOCKING        --//
 
 
@@ -2327,6 +2397,10 @@ class Asset extends MySource_Object
 									'asset_updated_readable',
 									'asset_created_by_name',
 									'asset_updated_by_name',
+									'asset_published',
+									'asset_published_short',
+									'asset_published_readable',
+									'asset_published_by_name',
 									'asset_url',
 									'asset_href',
 									);
@@ -2349,14 +2423,18 @@ class Asset extends MySource_Object
 			$keywords['asset_name']['description']				= 'Full name of the asset';
 			$keywords['asset_short_name']['description']		= 'Short name of the asset';
 			$keywords['asset_version']['description']			= 'Version of the asset being displayed';
-			$keywords['asset_created']['description']			= 'The date and time the asset was created (dd/mm/yyyy hh:mm:ss)';
-			$keywords['asset_updated']['description']			= 'The date and time the asset was last updated (dd/mm/yyyy hh:mm:ss)';
-			$keywords['asset_created_short']['description']		= 'The date when the asset was created (dd/mm/yyyy)';
-			$keywords['asset_updated_short']['description']		= 'The date when the asset was last updated (dd/mm/yyyy)';
+			$keywords['asset_created']['description']			= 'The date and time the asset was created (yyyy-mm-dd hh:mm:ss)';
+			$keywords['asset_updated']['description']			= 'The date and time the asset was last updated (yyyy-mm-dd hh:mm:ss)';
+			$keywords['asset_published']['description']			= 'The date and time the asset was last published (yyyy-mm-dd hh:mm:ss)';
+			$keywords['asset_created_short']['description']		= 'The date when the asset was created (yyyy-mm-dd)';
+			$keywords['asset_updated_short']['description']		= 'The date when the asset was last updated (yyyy-mm-dd)';
+			$keywords['asset_published_short']['description']	= 'The date when the asset was last published (yyyy-mm-dd)';
 			$keywords['asset_created_readable']['description']	= 'The date when the asset was created (dd m yyyy h:mm[am pm])';
 			$keywords['asset_updated_readable']['description']	= 'The date when the asset was last updated (dd m yyyy h:mm[am pm])';
+			$keywords['asset_published_readable']['description'] = 'The date when the asset was last published (dd m yyyy h:mm[am pm])';
 			$keywords['asset_created_by_name']['description']	= 'The name of the user who created this asset';
 			$keywords['asset_updated_by_name']['description']	= 'The name of the user who last updated this asset';
+			$keywords['asset_published_by_name']['description']	= 'The name of the user who last published this asset';
 			$keywords['asset_url']['description']				= 'The absolute url to the asset';
 			$keywords['asset_href']['description']				= 'The relative href to the asset';
 		}
