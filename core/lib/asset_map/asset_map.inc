@@ -70,7 +70,7 @@ class Asset_Map
 			{
 				//var asset_mapObj = flash_InternetExplorer ? asset_map : document.asset_map;
 				var asset_mapObj = document.asset_map;
-				alert("Reload Assetid : " + assetid);
+				//alert("Reload Assetid : " + assetid);
 				flashExternalCall(asset_mapObj, 'reload_asset', {assetid: assetid});
 			}
 
@@ -79,7 +79,7 @@ class Asset_Map
 			{
 				//var asset_mapObj = flash_InternetExplorer ? asset_map : document.asset_map;
 				var asset_mapObj = document.asset_map;
-				alert("Add Message : " + xml);
+				//alert("Add Message : " + xml);
 				flashExternalCall(asset_mapObj, 'add_message', {msgs_xml: xml});
 			}
 
@@ -106,7 +106,7 @@ class Asset_Map
 	*/
 	function _send($output) 
 	{
-		error_log("XML OUT : \n".$output->get());
+#		error_log("XML OUT : \n".$output->get());
 		header("Content-Type: text/xml");
 		$output->dump();
 	}
@@ -138,8 +138,8 @@ class Asset_Map
 		// set the output type to XML, so any errors raised by the objects will be sent along in XML
 		$GLOBALS['SQ_OUTPUT_TYPE'] = 'xml';
 
-		require_once SQ_SQUIZLIB_PATH.'/general/file_system.inc';
-		error_log("XML IN :\n".file_to_string('php://input'));
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+#		error_log("XML IN :\n".file_to_string('php://input'));
 
 		$input = new XML_Tree('php://input');
 		$root  = &$input->getTreeFromFile();
