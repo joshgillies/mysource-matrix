@@ -447,7 +447,7 @@ class Asset_Map
 
 		$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
 		if (is_null($old_parent)) {
-			$this->_error('Unable to Move Asset, existing parent (Asset #"'.$link['majorid'].'") not found');
+			$this->_error('Unable to Move Asset, existing parent (Asset #"'.$input->root->attributes['from_parent_assetid'].'") not found');
 			return;
 		}
 
@@ -461,7 +461,7 @@ class Asset_Map
 
 
 		// if the from and to parentids are the same we are realy just altering the sort order for a parent
-		if ($link['majorid'] == $input->root->attributes['to_parent_assetid']) {
+		if ($old_parent->id == $input->root->attributes['to_parent_assetid']) {
 
 			// Let's just move the link
 			if (!$old_parent->moveLinkPos($link['linkid'], $input->root->attributes['to_parent_pos'])) {
@@ -515,7 +515,7 @@ class Asset_Map
 
 		$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
 		if (is_null($old_parent)) {
-			$this->_error('Unable to Create New Link, existing parent (Asset #"'.$link['majorid'].'") not found');
+			$this->_error('Unable to Create New Link, existing parent (Asset #"'.$input->root->attributes['from_parent_assetid'].'") not found');
 			return;
 		}
 
