@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: bodycopy_edit_fns.inc,v 1.41 2003/11/05 01:35:17 gsherwood Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.42 2003/11/07 01:45:15 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -81,6 +81,53 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	function paintBodycopy(&$asset, &$o, $prefix)
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
+
+		if (isset($GLOBALS['sq_preview_url'])) {
+			$url = $GLOBALS['sq_preview_url'];
+			$url = preg_replace('|^http[s]?://|', '', $url);
+
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$sql = 'SELECT designid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_design ';
+			$where = 'url='.$db->quote($url);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+
+			$designid = $db->getOne($sql.$where);
+			if ($designid) {
+				if (DB::isError($designid)) {
+					trigger_error($designid->getMessage().'<br/>'.$designid->getUserInfo(), E_USER_ERROR);
+				} else {
+					$design = &$am->getAsset($designid);
+					$stylesheets = $design->getStylesheets();
+
+					// save the ids of all the css files into a global var so the wysiwyg style
+					// drop down plugin can access this information without another querey
+					// we can also limit the stylesheets that are available to it here if we want
+					$GLOBALS['sq_bodycopy_cssids'] = array_keys($stylesheets);
+
+					$css_urls = $am->getAssetURL($GLOBALS['sq_bodycopy_cssids']);
+					?>
+					<style type="text/css">
+						/* import styles from the design for this asset */
+						<?php
+						foreach ($css_urls as $cssid => $css_url) {
+							?>@import url("<?php echo $css_url; ?>");<?php
+						}
+						?>
+					</style>
+					<?php
+					$am->forgetAsset($design);
+					unset($design);
+				}
+			} else {
+				?>
+				<p class="sq-backend-notice"><b>NOTE:</b> This asset does not have a design applied to it for the URL currently being edited [<b><?php echo $GLOBALS['sq_preview_url']; ?></b>]. No style information is available to use for content editing.</p>
+				<?php
+			}
+		} else {
+			?>
+			<p class="sq-backend-notice"><b>NOTE:</b> This asset does not have a preview URL or design applied to it in this context. No style information is available to use for content editing.</p>
+			<?php
+		}
 		
 		// get all the containers linked to this bodycopy
 		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
@@ -307,7 +354,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 						editor._iframe.style.width = "100%";
 						if (setDesignMode && HTMLArea.is_gecko) { editor._iframe.contentWindow.document.designMode = "on"; }
 						var iframeHeight = contentDiv.offsetHeight - editor._toolbar.offsetHeight - editor._statusBar.offsetHeight;
-						if (iframeHeight < 0) { iframeHeight = 400; }
+						if (iframeHeight < editor.config.height) { iframeHeight = editor.config.height; }
 						editor._iframe.style.height = iframeHeight + 'px';
 					}
 					contentDiv.style.display = "none"; // hide the contents
