@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.331 2004/11/11 02:20:41 gsherwood Exp $
+* $Id: asset.inc,v 1.332 2004/11/17 03:53:27 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -557,19 +557,16 @@ class Asset extends MySource_Object
 		$sql = '';
 		// if we have an id then we need to load with current vars
 		if ($this->id) {
-			$where = 'a.assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 			// PURPOSLY DONT ADD EXTRA CLAUSES FOR ASSET_ATTRIBUTE_VALUE BECAUSE WE WONT GET
 			// DEFAULT VALUES IF WE DO
 			$sql = 'SELECT atr.name, atr.attributeid, atr.type, COALESCE(v.custom_value, atr.default_value) AS value
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a
-							INNER JOIN '.SQ_TABLE_PREFIX.'asset_attribute atr ON a.type_code = atr.type_code
-							LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v
-								ON (atr.attributeid = v.attributeid AND a.assetid = v.assetid
-									'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'v', 'AND').')
-					'.$where;
-		// else just load all defaults
+					FROM '.SQ_TABLE_PREFIX.'asset_attribute atr
+					  LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v
+					    ON (atr.attributeid = v.attributeid AND v.assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id)
+						.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'v', 'AND').')
+					WHERE atr.type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->type());
 		} else {
+			// else just load all defaults
 			$sql = 'SELECT atr.name, atr.attributeid, atr.type, atr.default_value AS value
 					FROM '.SQ_TABLE_PREFIX.'asset_attribute atr
 					WHERE atr.type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->type());
