@@ -50,7 +50,23 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paint(&$asset, $generating=false)
 	{
-	}//end paint
+
+	}//end paint()
+
+
+	/**
+	* Prints any icons the content type needs next to the cell properties
+	*
+	* @param object Content_Type	&$asset	the content type object
+	* @param string					$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function paintBackendIcons(&$asset, $prefix)
+	{
+
+	}//end paintBackendIcons()
 
 
 }//end class

@@ -20,9 +20,9 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 * @access  public
 * @returns void
 */
-function print_bodycopy_icon($href, $heading, $desc, $icon, $extra='', $width='20', $height='20'){
+function print_bodycopy_icon($href, $heading, $desc, $icon, $extra='', $width='16', $height='16'){
 	?>
-	<a href="<?php echo $href?>" onmouseover="javascript: show_tooltip(event, '<?php echo addslashes(htmlspecialchars($heading))?>', '<?php echo addslashes(htmlspecialchars($desc))?>', null, 'bodycopyToolTipDiv'); return true;" onmouseout="javascript:hide_tooltip(); return true;" ><img src="<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/<?php echo $icon?>.gif" width="<?php echo $width?>" height="<?php echo $height?>" border="0" <?php echo $extra?>></a><?php
+	<a href="<?php echo $href?>" onmouseover="javascript: show_tooltip(event, '<?php echo addslashes(htmlspecialchars($heading))?>', '<?php echo addslashes(htmlspecialchars($desc))?>', null, 'bodycopyToolTipDiv'); return true;" onmouseout="javascript:hide_tooltip(); return true;" ><img src="<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/<?php echo $icon?>.png" width="<?php echo $width?>" height="<?php echo $height?>" border="0" <?php echo $extra?>></a><?php
 }// end print_bodycopy_icon()
 
 
@@ -341,6 +341,58 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 					eval(chgcell);
 				}
 			}
+
+			// This function switches the view between wysiwyg and
+			// page content for a wysiwyg editing field on the page
+			var initialisedEditors = new Array();
+			function switchEditingMode(contentDivID, editDivID, editor) {
+				var contentDiv = document.getElementById(contentDivID); // div with page contents
+				var editDiv = document.getElementById(editDivID);       // div with wysiwyg
+
+				if (editDiv.style.display == "none") { // the edit div is hidden
+					var setDesignMode = true;
+					
+					// initilise the wysiwg if this is the first time
+					// it is being shown - skip this otherwise
+					if (initialisedEditors[editor._uniqueID] == null) {
+						initialisedEditors[editor._uniqueID] = true;
+						editor.generate();
+						editor.updateToolbar(false);
+						setDesignMode = false;
+					} else if (editor._initialised != true) {
+						return;
+					}
+
+					editDiv.style.display = ""; // show the wysiwyg
+
+					// if we are using an iframe for this editor, we resize it
+					// and set its designMode property if we need to
+					if (editor._iframe) {
+						editor._iframe.style.width = "100%";
+						if (setDesignMode && HTMLArea.is_gecko) { editor._iframe.contentWindow.document.designMode = "on"; }
+						editor._iframe.style.height = contentDiv.offsetHeight - editor._toolbar.offsetHeight - editor._statusBar.offsetHeight;
+
+						var editCell = document.getElementById(editor._uniqueID + "_cell");
+						editCell.style.height = editor._iframe.offsetHeight;
+						editCell.height = editor._iframe.offsetHeight;
+						editor._iframe.style.height = editCell.offsetHeight - editor._toolbar.offsetHeight - editor._statusBar.offsetHeight;
+						editCell.style.height = editor._iframe.offsetHeight;
+						
+					}
+					contentDiv.style.display = "none"; // hide the contents
+				} else if (editor._initialised == true) {
+					// the content div is hidden and the
+					// wysiwyg editor has been initialised
+					contentDiv.innerHTML = editor.getHTML();
+					contentDiv.style.display = "";  // show the contents
+					editDiv.style.display = "none"; // hide the wysiwyg
+
+					if (editor._iframe) {
+						var editCell = document.getElementById(editor._uniqueID + "_cell");
+						editCell.style.height = "100%";
+					}
+				}
+			}
 		</script>
 
 		<style type="text/css">
@@ -455,10 +507,10 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 						<tr>
 							<td>
 							<?php
-							print_bodycopy_icon("Javascript: bodycopy_insert_table('$prefix', $i, true)", 'Insert Table', '', 'insert_table');
+							print_bodycopy_icon("Javascript: bodycopy_insert_table('$prefix', $i, true)", 'Insert Table', '', 'create_table');
 							?>
 							</td>
-							<td>
+							<td class="sq-backend-data">
 								&nbsp;&nbsp;Create New Table&nbsp;&nbsp;
 							</td>
 						</tr>
@@ -485,10 +537,10 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 						<tr>
 							<td>
 							<?php
-							print_bodycopy_icon("Javascript: bodycopy_insert_table('$prefix', $i, false)", 'Insert Table', '', 'insert_table');
+							print_bodycopy_icon("Javascript: bodycopy_insert_table('$prefix', $i, false)", 'Insert Table', '', 'create_table');
 							?>
 							</td>
-							<td>
+							<td class="sq-backend-data">
 								&nbsp;&nbsp;Create New Table&nbsp;&nbsp;
 							</td>
 						</tr>

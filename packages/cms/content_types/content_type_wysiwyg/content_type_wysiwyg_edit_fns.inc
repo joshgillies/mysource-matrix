@@ -43,17 +43,18 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 
 		$wysiwyg = new wysiwyg($prefix, sq_web_path('fudge').'/wysiwyg/');
 		$wysiwyg->set_body_type('div');
-		$wysiwyg->set_init_onload('yes');
+		$wysiwyg->set_init_onload(false);
 		$wysiwyg->set_show_status_bar(true);
 		//$wysiwyg->set_stylesheet('http://www.nswrl.com.au/__data/site/design/1/images/styles.css');
 		$wysiwyg->set_width('100%');
-		$wysiwyg->set_height('400');
+		$wysiwyg->set_height('100%');
 		$wysiwyg->add_plugin('format_text');
 		$wysiwyg->add_plugin('justify_text');
 		$wysiwyg->add_plugin('indenting');
 		$wysiwyg->add_plugin('listing');
 		$wysiwyg->add_plugin('general');
 		$wysiwyg->add_plugin('history');
+		$wysiwyg->add_plugin('table_editing');
 		$wysiwyg->add_plugin('select_color');
 		$wysiwyg->add_plugin('matrix_embed_movie');
 		$wysiwyg->add_plugin('matrix_insert_link');
@@ -65,7 +66,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 
 	}//end _createEditor()
 
-	
+
 	/**
 	* Prints the backend interface for this WYSIWYG editor
 	*
@@ -79,11 +80,30 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	{
 		if ($asset->writeAccess()) {
 			$wysiwyg = $this->_createEditor($asset, $prefix);
-			$wysiwyg->paint();
+			?>
+			<div style="display:none;" id="<?php echo $prefix?>_wysiwyg_div"><?php echo $wysiwyg->paint()?></div>
+			<div id="<?php echo $prefix?>_contents_div"><?php echo $this->paint($asset)?></div>
+			<?php
 		}
 		return true;
 
 	}//end paintBackend()
+
+
+	/**
+	* Prints any icons the content type needs next to the cell properties
+	*
+	* @param object Content_Type_WYSIWYG	&$asset	the wysiwyg content type object
+	* @param string							$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function paintBackendIcons(&$asset, $prefix)
+	{
+		print_bodycopy_icon("Javascript: switchEditingMode('".$prefix."_contents_div','".$prefix."_wysiwyg_div', editor_".$prefix.");", 'Edit Cell Contents', 'Switch between preview and edit mode', 'edit_mode');
+
+	}//end paintBackendIcons()
 
 
 	/**

@@ -1,7 +1,7 @@
 <contents>
 	<section name="Contents">
 		<field>
-			<display_name>BodyCopy</display_name>
+			<display_name></display_name>
 			<note></note>
 			<function_call>
 				<paint_function   name="paintBodycopy"   />

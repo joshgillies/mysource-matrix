@@ -153,6 +153,16 @@ class BodyCopy_Table_Cell extends MySource_Object {
 	*/
 	function paint(&$table, $prefix='', $generating=false)
 	{
+		if (!isset($this->attributes['linkid'])) return;
+
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attributes['linkid'], $table->id);
+		if (!empty($link)) {
+			$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		} else {
+			$content_type = null;
+		}
+		$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
+
 		echo "\t\t<td";
 		foreach($this->attributes as $name => $val) {
 			if ($val == '') continue;
@@ -164,20 +174,16 @@ class BodyCopy_Table_Cell extends MySource_Object {
 				echo ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 			}
 		}
-		echo ">\n";
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attributes['linkid'], $table->id);
-		if (!empty($link)) {
-			$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-		} else {
-			$content_type = null;
+		if (!$generating && $table->writeAccess()) {
+			echo ' style="border-bottom: 1px dotted #000000; border-right: 1px dotted #000000; padding: 2px; vertical-align:top;" id="'.$content_prefix.'_cell"';
 		}
+		echo ">\n";
 
 		if (is_null($content_type)) {
 			echo 'Content Type Asset Id : #'.$link['minorid'].' not found<br>Please contact your system administrator';
 		} else {
 			$content_edit = &$content_type->getEditFns();
 			if (!empty($prefix)) {
-				$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
 				$content_edit->paintBackend($content_type, $content_prefix);
 			} else {
 				ob_start();
@@ -226,9 +232,22 @@ class BodyCopy_Table_Cell extends MySource_Object {
 
 		// print out the edit buttons
 		?>
-		<td <?php echo ($colspaning > 0) ? 'colspan="'.$colspaning.'"' : '';?> id="<?php echo $prefix.'_cell_'.$tableid.'_'.$rowid.'_'.$cellid?>" align="right">
+		<td <?php echo ($colspaning > 0) ? 'colspan="'.$colspaning.'"' : '';?> align="right" nowrap>
 			<?php
-			print_bodycopy_icon("Javascript: bodycopy_edit_table_cell_properties('$prefix', $tableid, $rowid, $cellid);", 'Edit Cell '.($cellid + 1).'\'s Properties', (($attribute_list) ? 'Current Properties :<br>'.$attribute_list : ''), 'edit_cell_properties');
+			print_bodycopy_icon("Javascript: bodycopy_edit_table_cell_properties('$prefix', $tableid, $rowid, $cellid);", 'Edit Cell '.($cellid + 1).'\'s Properties', (($attribute_list) ? 'Current Properties :<br>'.$attribute_list : ''), 'cell_properties');
+
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attributes['linkid'], $table->id);
+			if (!empty($link)) {
+				$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			} else {
+				$content_type = null;
+			}
+
+			if (!is_null($content_type)) {
+				$content_edit = &$content_type->getEditFns();
+				$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
+				$content_edit->paintBackendIcons($content_type, $content_prefix);
+			}
 			?>
 		</td>
 		<?php

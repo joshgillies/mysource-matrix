@@ -37,30 +37,15 @@ class Bodycopy_Management extends Asset_Management
 	* @return array(string)
 	*/
 	function _getFileList() {
-		return Array('images/down_arrow.gif',
-					 'images/embedded_object.gif',
-					 'images/no_content.gif',
-					 'images/up_arrow.gif',
-					 'images/icons/copy.gif',
-					 'images/icons/delete.gif',
-					 'images/icons/edit_cell_properties.gif',
-					 'images/icons/edit_content.gif',
-					 'images/icons/edit.gif',
-					 'images/icons/edit_row_properties.gif',
-					 'images/icons/edit_table_properties.gif',
-					 'images/icons/insert_column_left.gif',
-					 'images/icons/insert_column_right.gif',
-					 'images/icons/insert.gif',
-					 'images/icons/insert_row_above.gif',
-					 'images/icons/insert_row_below.gif',
-					 'images/icons/insert_table.gif',
-					 'images/icons/new_page.gif',
-					 'images/icons/paste.gif',
-					 'images/icons/reorder_cols.gif',
-					 'images/icons/reorder_rows.gif',
-					 'images/icons/reorder_tables.gif',
-					 'images/icons/separator_horizontal.gif',
-					 'images/icons/separator_vertical.gif',
+		return Array(
+					 'images/icons/add.png',
+					 'images/icons/delete.png',
+					 'images/icons/reorder.png',
+					 'images/icons/create_table.png',
+					 'images/icons/table_properties.png',
+					 'images/icons/row_properties.png',
+					 'images/icons/cell_properties.png',
+					 'images/icons/edit_mode.png',
 					 'js/bodycopy_edit_tables.js'
 					 );
 	}//end _getFileList()
