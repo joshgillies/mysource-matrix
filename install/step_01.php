@@ -19,7 +19,8 @@ define('SQ_FUDGE_PATH',    SQ_SYSTEM_ROOT.'/fudge');
 require_once SQ_INCLUDE_PATH.'/mysource_object.inc';
 require_once SQ_INCLUDE_PATH.'/system_config.inc';
 
-define('SQ_CONF_DB_DSN', 'mysql://root@localhost/greg_matrix');
+define('SQ_CONF_DB_DSN',  'mysql://root@localhost/greg_matrix');
+define('SQ_CONF_DB2_DSN', 'mysql://root@localhost/greg_matrix');
 #define('SQ_CONF_DB_DSN', 'pgsql://brobertson@unix+localhost/blair_resolve');
 define('SQ_CONF_SYSTEM_ROOT_URLS', 'http://beta.squiz.net/greg');
 define('SQ_CONF_PEAR_PATH', SQ_SYSTEM_ROOT.'/php_includes');
