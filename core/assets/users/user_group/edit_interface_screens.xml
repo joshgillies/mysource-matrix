@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.2 2003/12/30 05:25:38 gsherwood Exp $
+* $Id: edit_interface_screens.xml,v 1.2.8.1 2005/03/31 05:50:32 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -26,4 +26,5 @@
 <screens>
 	<screen code_name="security" display_name="Security Restrictions" icon="edit" lock_type="security" force_unlock="0" />
 	<screen code_name="preferences" display_name="Preferences" icon="edit" lock_type="preferences" force_unlock="0" />
+	<screen code_name="paths" display_name="Web Paths" icon="web" lock_type="lookups"/>
 </screens>
