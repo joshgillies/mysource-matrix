@@ -25,8 +25,7 @@ if ((php_sapi_name() == 'cli')) {
 }
 
 if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	echo $err_msg;
-	exit(1);
+	trigger_error($err_msg, E_USER_ERROR);
 }
 
 // Let the asset manager know we are installing
@@ -159,7 +158,6 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 		if (DB::isError($result)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-			exit();
 		}
 
 
@@ -194,7 +192,6 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 			if (DB::isError($result)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-				exit();
 			}
 		}
 
@@ -216,7 +213,6 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 			if (DB::isError($result)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-				exit();
 			}
 
 			if ($require_rollback) {
@@ -225,7 +221,6 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 				if (DB::isError($result)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-					exit();
 				}
 			}
 		}
@@ -252,9 +247,8 @@ if (empty($cached_table_columns)) {
 	$input = new XML_Tree(SQ_SYSTEM_ROOT.'/core/db/tables.xml');
 	$root  = &$input->getTreeFromFile();
 	if (PEAR::isError($root)) {
-		trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_ERROR);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-		exit();
+		trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_ERROR);
 	}
 
 	for($i = 0; $i < count($root->children); $i++) {
@@ -292,7 +286,6 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 if (!string_to_file($cached_table_columns_string, SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 	$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 	trigger_error('Failed writing database table column cache file', E_USER_ERROR);
-	exit();
 }
 pre_echo("DATABASE TABLE COLUMN CACHING COMPLETE");
 
