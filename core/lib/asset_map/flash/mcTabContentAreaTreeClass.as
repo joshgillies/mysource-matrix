@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mcTabContentAreaTreeClass.as,v 1.19 2004/01/16 00:43:14 mmcintyre Exp $
+* $Id: mcTabContentAreaTreeClass.as,v 1.20 2004/01/16 03:09:15 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -143,10 +143,14 @@ mcTabContentAreaTreeClass.prototype.onExternalCall = function(cmd, params)
 		case "asset_finder" :
 			switch (params.action) {
 				case 'start' :
-					if (params.type_codes == null || params.type_codes.length <= 0) return;
-					var type_codes = params.type_codes.split('|');
-					this.startAssetFinder(type_codes);
+					var type_codes = new Array();
+					if (params.type_codes != "" && params.type_codes != "|") {
+						type_codes = params.type_codes.split('|');
+					}
 
+					
+					this.startAssetFinder(type_codes);
+					
 					break;
 				
 				case 'cancel' : 
