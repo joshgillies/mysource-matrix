@@ -17,9 +17,9 @@ class Design_Area_Constant_Button_Edit_Fns extends Design_Area_Edit_Fns
 {
 
 	/**
-	* Prints the interface for uploading a file
+	* Prints the interface for linking to an assetid
 	*
-	* @param object Image				&$asset	the file asset
+	* @param object Asset				&$asset	the owning asset
 	* @param object Backend_Outputter	&$o		the backend outputter
 	* @param string						$prefix	prefix for form elements
 	*
@@ -42,13 +42,13 @@ class Design_Area_Constant_Button_Edit_Fns extends Design_Area_Edit_Fns
 
 		}// end if
 		return true;
-	}//end paintLink()
+	}//end paintAssetid()
 
 
 	/**
-	* Processes the interface for uploading a file
+	* Processes the interface for linking to an asset
 	*
-	* @param object Image				&$asset	the file asset
+	* @param object Asset				&$asset	the owning asset
 	* @param object	Backend_Outputter	$o		the outputter class
 	* @param string						$prefix	prefix for form elements
 	*
@@ -63,7 +63,7 @@ class Design_Area_Constant_Button_Edit_Fns extends Design_Area_Edit_Fns
 
 		return $asset->setAttrValue('assetid', (int) $_POST[$prefix.'_assetid']);
 
-	}//end processAssetidLink()
+	}//end processAssetid()
 
 
 }//end class

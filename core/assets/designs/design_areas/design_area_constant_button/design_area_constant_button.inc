@@ -38,6 +38,7 @@ class Design_Area_Constant_Button extends Design_Area
 
 	}//end setAttrValue()
 
+
 	/*
 	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented
 	*
