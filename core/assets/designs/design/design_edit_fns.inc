@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.80 2005/02/25 04:45:51 gsherwood Exp $
+* $Id: design_edit_fns.inc,v 1.81 2005/02/28 01:34:56 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -597,20 +597,22 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		if (!isset($ASSET_LINEAGE) || empty($ASSET_LINEAGE)) $ASSET_LINEAGE = @$am->getLineageFromURL(null, null);
 
 		global $SQ_SITE_NETWORK, $SQ_PRIMARY_URL;
-		$site = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($ASSET_LINEAGE[0][\'assetid\'], $ASSET_LINEAGE[0][\'type_code\']);
-		if (!is_null($site)) {
-			$SQ_SITE_NETWORK = &$site->getSiteNetwork();
-			if (!is_null($SQ_SITE_NETWORK)) {
-				$SQ_PRIMARY_URL = $SQ_SITE_NETWORK->getPrimaryURL();
-				if (!empty($SQ_PRIMARY_URL)) {
-					if (sq_web_path(\'root_url\') != $SQ_PRIMARY_URL) {
-						require_once SQ_LIB_PATH.\'/session/pre_session.php\';
+		$SQ_PRIMARY_URL = \'\';
+		$SQ_SITE_NETWORK = null;
+
+		if (isset($ASSET_LINEAGE[0])) {
+			$site = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($ASSET_LINEAGE[0][\'assetid\'], $ASSET_LINEAGE[0][\'type_code\']);
+			if (!is_null($site)) {
+				$SQ_SITE_NETWORK = &$site->getSiteNetwork();
+				if (!is_null($SQ_SITE_NETWORK)) {
+					$SQ_PRIMARY_URL = $SQ_SITE_NETWORK->getPrimaryURL();
+					if (!empty($SQ_PRIMARY_URL)) {
+						if (sq_web_path(\'root_url\') != $SQ_PRIMARY_URL) {
+							require_once SQ_LIB_PATH.\'/session/pre_session.php\';
+						}
 					}
 				}
 			}
-		} else {
-			$SQ_PRIMARY_URL = \'\';
-			$SQ_SITE_NETWORK = null;
 		}
 
 		define(\'SQ_LIMBO_EDITING\', (SQ_IN_LIMBO && (!isset($_REQUEST[\'ignore_frames\']) || !$_REQUEST[\'ignore_frames\'])));
