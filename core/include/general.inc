@@ -1,16 +1,4 @@
-<? ##############################################
-  ### Resolve ---------------------- PHP4 ---###
- #-- Copyright (c) Squiz.net -----------------#
-##############################################
-##
-## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/include/general.inc,v $
-## $Revision: 1.3 $
-## $Author: brobertson $
-## $Date: 2003/02/13 06:15:27 $
-#######################################################################
-
-#---------------------------------------------------------------------#
-
+<?php
 
 /**
 * Function that gets set as the error_handler
@@ -28,10 +16,10 @@
 */
 function sq_error_handler($err_no, $err_msg, $err_file, $err_line) 
 {
-	# if the function had '@' prepended, do nothing
+	// if the function had '@' prepended, do nothing
 	if (!error_reporting()) return;
 
-	# Strip out the file path begining
+	// Strip out the file path begining
 	$err_file = str_replace(SQ_SYSTEM_ROOT, '[SYSTEM_ROOT]', $err_file);
 	$err_msg  = str_replace(SQ_SYSTEM_ROOT, '[SYSTEM_ROOT]', $err_msg);
 /*
@@ -48,8 +36,8 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 		$to_email = trim(strtolower(getenv('MySource_ReportErrorEmail')));
 		if ($to_email == '') {
-			# the environment variable is not set
-			# so we will use the mysource web master email
+			// the environment variable is not set
+			// so we will use the mysource web master email
 			global $INCLUDE_PATH;
 			include_once("$INCLUDE_PATH/config.inc");
 			$conf = &get_config('MySource');
@@ -93,23 +81,23 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			$err_name = 'Unknown Error Type - '.$err_no;
 			$bg_colour = '#0066CC';
 
-	}#end switch
+	}//end switch
 
 
-	# send a report to the system error log
+	// send a report to the system error log
 	if (SQ_CONF_ERRORS_LOG) {
 		$log_msg = date('D d/m/Y H:i:s').' ['.strtolower($err_name).'] ('.$err_file.':'.$err_line.') - '.$err_msg."\n";
 		$log_msg = str_replace('[SYSTEM_ROOT]', '', $log_msg);
 		error_log($log_msg, 3, SQ_SYSTEM_ROOT.'/cache/error.log');
 	}
 
-	# if we are in the frontend and we're not supposed to see the errors return;
+	// if we are in the frontend and we're not supposed to see the errors return;
 	if (!SQ_IN_BACKEND && SQ_CONF_ERRORS_HIDE_FRONTEND) {
 		return;
 	}
 
 
-	# OK, because we want our errors to actually be displayed, kill any output buffering
+	// OK, because we want our errors to actually be displayed, kill any output buffering
 	$buffers = Array();
 	while(ob_get_level() > 1) {
 		$buffers[] = ob_get_contents();
@@ -151,13 +139,13 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 		exit(1);
 	}
 
-	# now just restore any buffered output here - it's as though nothing ever happened :)
+	// now just restore any buffered output here - it's as though nothing ever happened :)
 	for($i = count($buffers) - 1; $i >= 0; $i--) {
 		ob_start();
 		echo $buffers[$i];
 	}		
 
-}#end sq_error_handler
+}//end sq_error_handler
 
 
 function superuser($blah='') { 
@@ -179,7 +167,7 @@ function superuser($blah='') {
 function bit_elements($num) 
 {
 
-	$num = (int) $num; # make sure it's an int
+	$num = (int) $num; // make sure it's an int
 	$count = 1;
 	$elems = Array();
 	while($num) {
