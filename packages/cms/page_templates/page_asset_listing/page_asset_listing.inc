@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.21 2004/04/22 01:24:10 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.22 2004/06/16 06:10:37 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
-require_once dirname(__FILE__).'/../../page/page.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 
 /**
 * Page_Asset_Listing

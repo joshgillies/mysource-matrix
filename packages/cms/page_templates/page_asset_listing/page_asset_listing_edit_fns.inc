@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_edit_fns.inc,v 1.5 2004/05/12 07:09:33 gsherwood Exp $
+* $Id: page_asset_listing_edit_fns.inc,v 1.6 2004/06/16 06:10:37 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
-require_once dirname(__FILE__).'/../../page/page_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 
 /**
 * Page_Asset_Listing_Edit_Fns
