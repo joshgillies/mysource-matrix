@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.78 2005/02/22 22:57:35 lwright Exp $
+* $Id: user.inc,v 1.79 2005/02/28 03:41:15 gsherwood Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -373,28 +373,27 @@ class User extends Asset
 	*/
 	function getUserGroups()
 	{
-		$groups = array();
+		$groups = Array();
 		$groupids = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'user_group', true);
-		
+
 		foreach($groupids as $key => $value) {
 			
-			//if we pass the conditions, let us belong to this group
+			// if we pass the conditions, let us belong to this group
 			if($this->_belongsToGroup($key)) {
 				array_push($groups, intval($key));
 			}
 		}
 
 		return $groups;
-		
-	}
+
+	}//end getUserGroups()
 
 	
 	/**
 	* Verify if a user belongs to a given group
 	*
-	* Here is where we call the user conditions and certify
-	* the result. When a new user condition is added, please
-	* add the specifics for calling it here
+	* Here is where we call the user conditions and certify the result.
+	* When a new user condition is added, please add the specifics for calling it here.
 	*
 	* @param string $group_assetid  assetid of the group in question
 	* @access private
@@ -403,13 +402,13 @@ class User extends Asset
 	function _belongsToGroup($group_assetid)
 	{
 		$restrictions = $this->attr('restrictions');
-		
+
 		// if this group isnt in the restrictions array
 		// then we just belong to it and so return
 		if(!in_array($group_assetid, array_keys($restrictions))) {
 			return true;
 		}
-		
+
 		// for each restriction associated to this group
 		foreach($restrictions[$group_assetid] as $restriction) {
 			
@@ -424,10 +423,10 @@ class User extends Asset
 			if($match != $restriction['match']) return false;
 			
 		}
-		
-		//if we got this far, we've passed all restrictions
+
+		// if we got this far, we've passed all restrictions
 		return true;
-	
+
 	}//end _belongsToGroup()
 
 
