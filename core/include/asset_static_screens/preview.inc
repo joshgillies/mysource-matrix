@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.5 2005/03/11 20:04:49 brobertson Exp $
+* $Id: preview.inc,v 1.6 2005/03/11 20:08:48 brobertson Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 
@@ -101,6 +101,7 @@ function paintPreview(&$owner, &$o, &$ei)
 			if ($url_pieces['host'] != $current_url['host']) $contains_diff_domain = true;
 
 			if (!empty($url_info['name'])) {
+				$design_name = $url_info['name'];
 				if (!preg_match('/^design::(system|user)::(.*)$/', $design_name, $matches)) continue;
 				if ($matches[1] == 'user') {
 					$preview_designs[$matches[2]] = ucwords(str_replace('_', ' ', $matches[2]));
