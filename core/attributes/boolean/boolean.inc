@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: boolean.inc,v 1.24 2004/09/10 07:10:23 gsherwood Exp $
+* $Id: boolean.inc,v 1.25 2004/09/15 04:22:57 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 * Boolean Asset Attribute
 *
 * parameters => Array(
-*                     'allow_empty' => 'allow_empty' => [true|false]
+*                     'allow_empty' => [true|false]
 *               )
 *
 *
