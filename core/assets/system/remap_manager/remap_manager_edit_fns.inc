@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.5 2004/02/18 18:19:16 brobertson Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.6 2004/03/12 05:21:30 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $ - 1.0
+* @version $Revision: 1.6 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -287,6 +287,53 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		return true;
 
 	}//end processAddRemapURLs()
+
+
+	/**
+	* Paints the interface for delegating 404 requests to
+	* an asset
+	*
+	* @param &object Remap_Manager		$asset		the remap manager
+	* @param &object Backend_Outputter	$o			the backend outputter
+	* @param string						$prefix		a unique prefix for variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAddPageNotFoundRemap(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) return false;
+		$assetid = $asset->attr('404_asset');
+		asset_finder($prefix.'_not_found', $assetid);
+
+		return true;
+
+	}//end paintAddPageNotFoundRemap()
+	
+
+	/**
+	* Processes the interface for delegating 404 requests to
+	* an asset
+	*
+	* @param &object Remap_Manager		$asset		the remap manager
+	* @param &object Backend_Outputter	$o			the backend outputter
+	* @param string						$prefix		a unique prefix for variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processAddPageNotFoundRemap(&$asset, &$o, $prefix)
+	{
+		if (!isset($_POST[$prefix.'_not_found'])) return false;
+		$assetid = $_POST[$prefix.'_not_found']['assetid'];
+
+		// if we already have this as the not found asset, don't set it again
+		if ($assetid == $asset->attr('404_asset')) return false;
+		if (!$asset->setAttrValue('404_asset', $assetid)) return false;
+
+		return true;
+
+	}//end processAddPageNotFoundRemap()
 
 
 }//end class
