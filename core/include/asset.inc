@@ -110,20 +110,6 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Function to return's the suffix  a data path for a particular asset.
-	*
-	* @param object Asset	$asset
-	*
-	* @returns string
-	* @access public
-	*/
-	function getDataPathSuffix($asset)
-	{
-		return (($asset->_restricted) ? '' : 'un').'restricted/'.$asset->type().'/'.$asset->id;
-	}
-
-
-	/**
 	* Create this asset
 	*
 	* @param Array	&$link		information used to create the initial link, Array ('asset' => [ref major asset to create link under], 'link_type' => SQ_LINK_?, 'value' => [link value], 'sort_order' => [link sort order], 'dependant' = [0|1])
