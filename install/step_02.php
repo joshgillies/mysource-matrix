@@ -38,7 +38,8 @@ if (is_null($root_folder)) {
 
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('root_folder');
 	$root_folder = new Root_Folder();
-	if (!$root_folder->create(Array())) die('ROOT FOLDER NOT CREATED');
+	$link = Array();
+	if (!$root_folder->create($link)) die('ROOT FOLDER NOT CREATED');
 	pre_echo('Root Folder Asset Id : '.$root_folder->id);
 	if ($root_folder->id != 1) {
 		trigger_error('Major Problem: The new Root Folder Asset was not given assetid #1. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
