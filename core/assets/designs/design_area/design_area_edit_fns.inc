@@ -622,7 +622,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 				if (empty($element['attributes']['var'])) {
 					// we don't want recursion, so only print if the id_obj is not the asset
 					if ($id_obj !== $asset) {
-						$id_obj->printArea($design);
+						if (!$id_obj->printArea($design)) return false;
 					}
 				} else {
 					$args = $element['attributes'];
