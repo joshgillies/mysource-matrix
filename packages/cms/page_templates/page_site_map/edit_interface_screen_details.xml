@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2003/11/26 01:06:29 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8 2004/01/19 06:00:20 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -37,6 +37,14 @@
 		</field>
 	</section>
 	<section name="Site Map Settings" write_access="write:attributes">
+		<field>
+			<display_name>Root Node</display_name>
+			<note>Leave blank to print the site map for the current site</note>
+			<function_call>
+				<paint_function   name="paintRootNode"  />
+				<process_function name="processRootNode" />
+			</function_call>
+		</field>
 		<field attribute="columns">
 			<display_name>Number of Columns</display_name>
 			<note></note>

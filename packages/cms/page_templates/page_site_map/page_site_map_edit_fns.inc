@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map_edit_fns.inc,v 1.5 2003/12/17 04:46:39 mmcintyre Exp $
+* $Id: page_site_map_edit_fns.inc,v 1.6 2004/01/19 06:00:20 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,11 +46,90 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 	function Page_Site_Map_Edit_Fns()
 	{
 		$this->Page_Edit_Fns();
-
-		// keep our lock after commiting
 		$this->static_screens['details']['force_unlock'] = false;
+		$this->static_screens['details']['lock_type'] = 'content';
 
 	}//end constructor
+
+
+	/**
+	* Paints the root node selection box
+	*
+	* @param object	Asset				&$rootid	asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintRootNode(&$asset, &$o, $prefix)
+	{
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, 'root');
+		$write_access = $asset->writeAccess('links');
+
+		if (!$write_access) {
+			$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
+			if (!is_null($root_asset)) {
+				echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
+			} else {
+				echo 'No root node has been selected. The site map will print the current site.';
+			}
+		} else {
+			asset_finder($prefix.'_rootid', (!empty($root_link)) ? $root_link['minorid'] : '');
+		}
+
+		return $write_access;
+
+	}//end paintRootNode()
+
+
+	/**
+	* Processes the value input from root node selection box
+	*
+	* @param object	Asset				&$rootid	asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for the html doc element name
+	*
+	* @return void
+	* @access public
+	*/
+	function processRootNode(&$asset, &$o, $prefix)
+	{
+		if (!isset($_POST[$prefix.'_rootid']['assetid'])) return false;
+		$new_root  = $_POST[$prefix.'_rootid']['assetid'];
+
+		// getting existing root link
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, 'root');
+
+		// dont process anything if the root node has not changed
+		if (!empty($root_link) && $root_link['minorid'] == $new_root) return false;
+
+		$ok = true;
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// deleting old root link if any found...
+		if (!empty($root_link) && !$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
+			$ok = false;
+		} else if ($new_root) {
+			$root = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
+			if (!is_null($root)) {
+				if (!$asset->createLink($root, SQ_LINK_NOTICE, 'root')) {
+					$ok = false;
+					trigger_error('Failed adding new root node "'.$root->name.'" [#'.$root->id.']', E_USER_WARNING);
+				}
+			}
+		}
+
+		if ($ok) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			return true;
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+	}//end processRootNode()
 
 
 	/**
