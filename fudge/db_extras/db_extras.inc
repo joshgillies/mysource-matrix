@@ -104,16 +104,18 @@ function db_extras_insert_select(&$db, $insert, $select)
 		// Non Compatiable DB's
 		default :
 
-			$result = $db->getAll($select, Array(), DB_FETCHMODE_ORDERED);
-			if (DB::isError($result)) return $result;
+			$select_values = $db->getAll($select, Array(), DB_FETCHMODE_ORDERED);
+			if (DB::isError($select_values)) return $select_values;
 
-			for ($i = 0, $total = count($result); $i < $total; $i++) {
+			for ($i = 0, $total = count($select_values); $i < $total; $i++) {
+				$field_total = count($select_values[$i]);
+				if (!$field_total) continue;
 				$sql = $insert.' VALUES (';
-				for ($j = 0, $field_total = count($result[$i]); $j < $field_total; $j++) {
-					$sql .= (($j) ? ',' : '').$db->quote($result[$i][$j]);
+				for ($j = 0; $j < $field_total; $j++) {
+					$sql .= (($j) ? ',' : '').$db->quote($select_values[$i][$j]);
 				}
 				$sql .= ')';
-				$result = $db->query($insert.' '.$select);
+				$result = $db->query($sql);
 				if (DB::isError($result)) return $result;
 			}
 
