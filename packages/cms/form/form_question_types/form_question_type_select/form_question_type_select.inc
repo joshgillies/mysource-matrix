@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.26 2004/12/03 15:37:19 brobertson Exp $
+* $Id: form_question_type_select.inc,v 1.26.2.1 2004/12/09 22:04:35 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -167,7 +167,6 @@ class Form_Question_Type_Select extends Form_Question
 			}
 			return implode(', ', $ans_str);
 		}
-		bam($this->active_submission);
 		return $this->getAnswerByOffset($answer);
 
 	}//end getSummary()
