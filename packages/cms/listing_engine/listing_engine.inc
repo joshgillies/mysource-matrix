@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.16 2005/02/17 21:32:55 lwright Exp $
+* $Id: listing_engine.inc,v 1.17 2005/02/18 04:08:03 lwright Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1059,7 +1059,7 @@ class Listing_Engine extends Page
 		$keywords['page_href'] = $this->getHref();
 		$keywords['asset_position'] = (array_get_index($_REQUEST, 'result_page', 1) - 1) * $this->attr('num_per_page') + $list_position;
 
-		$keywords = array_merge($keywords, $this->_getAdditionalKeywords());
+		$keywords['root_nodes'] = implode(',', $this->getRootNodes());
 		
 		$bodycopy->setKeywordReplacements($keywords);
 		$bodycopy->printBody();
@@ -1123,6 +1123,7 @@ class Listing_Engine extends Page
 		$keywords['asset_name_linked'] = 'Asset Name Linked';
 		$keywords['asset_short_name_linked'] = 'Asset Short Name Linked';
 		$keywords['asset_position'] = 'Asset Position';
+		$keywords['root_nodes'] = 'Root Nodes (Separated by Commas)';
 
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 
@@ -1167,12 +1168,26 @@ class Listing_Engine extends Page
 	}
 	
 	
-	function _getAdditionalKeywords()
+	/**
+	* Gets the list of current root nodes
+	*
+	* @return Array(string)
+	* @access public
+	*/
+	function getRootNodes()
 	{
-		return Array();
+		if (!isset($this->_tmp['root_asset_ids'])) {
+			$root_asset_ids = Array();
+			$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', false, 'major', 'root');
+			foreach ($root_links as $root_link) $root_asset_ids[] = (int)$root_link['minorid'];
 		
-	}//end _getAdditionalKeywords()
-	
+			$this->_tmp['root_asset_ids'] = $root_asset_ids;
+		}
+		
+		return $this->_tmp['root_asset_ids'];
+		
+		
+	}//end getRootNodes()
 	
 }//end class
 ?>
