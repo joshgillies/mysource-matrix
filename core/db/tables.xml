@@ -1,0 +1,860 @@
+<tables>
+	<table name="package" require_rollback="0">
+		<columns>
+			<column name="code_name" allow_null="0">
+				<type>VARCHAR(100)</type>
+				<type_variations />
+				<default>''</default>
+				<description />
+			</column>
+			<column name="version" allow_null="0">
+				<type>VARCHAR(10)</type>
+				<type_variations />
+				<default>'0.0.1'</default>
+				<description />
+			</column>
+			<column name="name" allow_null="0">
+				<type>VARCHAR(100)</type>
+				<type_variations />
+				<default>''</default>
+				<description />
+			</column>
+			<column name="description" allow_null="0">
+				<type>VARCHAR(255)</type>
+				<type_variations />
+				<default>''</default>
+				<description />
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="code_name" />
+			</primary_key>
+		</keys>
+		<indexes />
+	</table>
+	<table name="asset" require_rollback="1">
+		<columns>
+			<column name="assetid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="version" allow_null="0">
+				<type>VARCHAR(20)</type>
+				<type_variations />
+				<default>'0.0.0'</default>
+				<description />
+			</column>
+			<column name="name" allow_null="0">
+				<type>VARCHAR(255)</type>
+				<type_variations />
+				<default>''</default>
+				<description />
+			</column>
+			<column name="short_name" allow_null="0">
+				<type>VARCHAR(255)</type>
+				<type_variations />
+				<default>''</default>
+				<description />
+			</column>
+			<column name="status" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>SMALLINT UNSIGNED</mysql>
+				</type_variations>
+				<default>1</default>
+				<description />
+			</column>
+			<column name="languages" allow_null="0">
+				<type>VARCHAR(50)</type>
+				<type_variations />
+				<default>''</default>
+				<description />
+			</column>
+			<column name="charset" allow_null="0">
+				<type>VARCHAR(50)</type>
+				<type_variations />
+				<default>''</default>
+				<description />
+			</column>
+			<column name="type_code" allow_null="0">
+				<type>VARCHAR(100)</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="last_updated" allow_null="0">
+				<type>TIMESTAMP</type>
+				<type_variations>
+					<mysql>DATETIME</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="last_userid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="assetid" />
+			</primary_key>
+		</keys>
+		<indexes />
+	</table>
+	<table name="asset_link" require_rollback="1">
+		<columns>
+			<column name="linkid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="majorid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="minorid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="link_type" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="value" allow_null="0">
+				<type>VARCHAR(255)</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="sort_order" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default>0</default>
+				<description />
+			</column>
+			<column name="dependant" allow_null="0">
+				<type>CHAR(1)</type>
+				<type_variations />
+				<default>'0'</default>
+				<description />
+			</column>
+			<column name="exclusive" allow_null="0">
+				<type>CHAR(1)</type>
+				<type_variations />
+				<default>'0'</default>
+				<description />
+			</column>
+			<column name="last_updated" allow_null="0">
+				<type>TIMESTAMP</type>
+				<type_variations>
+					<mysql>DATETIME</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="last_userid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="linkid" />
+			</primary_key>
+			<unique_key>
+				<column name="minorid"   />
+				<column name="majorid"   />
+				<column name="link_type" />
+				<column name="value"     />
+			</unique_key>
+		</keys>
+		<indexes />
+	</table>
+	<table name="asset_link_tree" require_rollback="1">
+		<columns>
+			<column name="treeid" allow_null="0">
+				<type>TEXT</type>
+				<type_variations>
+					<mysql>VARCHAR(200)</mysql>
+				</type_variations>
+				<default>''</default>
+				<description />
+			</column>
+			<column name="linkid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="num_immediate_kids" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="treeid" />
+			</primary_key>
+		</keys>
+		<indexes>
+			<index>
+				<column name="linkid" />
+			</index>
+			<index>
+				<column name="num_immediate_kids" />
+			</index>
+		</indexes>
+	</table>
+	<table name="asset_type" require_rollback="0">
+		<columns>
+			<column name="type_code" allow_null="0">
+				<type>VARCHAR(100)</type>
+				<type_variations />
+				<default>''</default>
+				<description />
+			</column>
+			<column name="version" allow_null="0">
+				<type>VARCHAR(10)</type>
+				<type_variations />
+				<default>'0.0.1'</default>
+				<description />
+			</column>
+			<column name="name" allow_null="0">
+				<type>VARCHAR(100)</type>
+				<type_variations />
+				<default>''</default>
+				<description />
+			</column>
+			<column name="description" allow_null="0">
+				<type>VARCHAR(255)</type>
+				<type_variations />
+				<default>''</default>
+				<description />
+			</column>
+			<column name="instantiable" allow_null="0">
+				<type>CHAR(1)</type>
+				<type_variations />
+				<default>'0'</default>
+				<description />
+			</column>
+			<column name="allowed_access" allow_null="0">
+				<type>VARCHAR(100)</type>
+				<type_variations />
+				<default>'backend_user'</default>
+				<description />
+			</column>
+			<column name="parent_type" allow_null="0">
+				<type>VARCHAR(100)</type>
+				<type_variations />
+				<default>'asset'</default>
+				<description />
+			</column>
+			<column name="level" allow_null="0">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>SMALLINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="dir" allow_null="0">
+				<type>VARCHAR(255)</type>
+				<type_variations />
+				<default>'asset'</default>
+				<description />
+			</column>
+			<column name="customisation" allow_null="0">
+				<type>CHAR(1)</type>
+				<type_variations />
+				<default>'0'</default>
+				<description />
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="type_code" />
+			</primary_key>
+		</keys>
+		<indexes />
+	</table>
+	<table name="asset_attribute" require_rollback="0">
+		<columns>
+			<column name="attributeid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="type_code" allow_null="0">
+				<type>VARCHAR(100)</type>
+				<type_variations />
+				<default>''</default>
+				<description />
+			</column>
+			<column name="owning_type_code" allow_null="0">
+				<type>VARCHAR(100)</type>
+				<type_variations />
+				<default>''</default>
+				<description />
+			</column>
+			<column name="name" allow_null="1">
+				<type>VARCHAR(128)</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="type" allow_null="1">
+				<type>VARCHAR(128)</type>
+				<type_variations />
+				<default />
+				<description>There are different types of attributes.. classname</description>
+			</column>
+			<column name="parameters_type_code" allow_null="0">
+				<type>VARCHAR(100)</type>
+				<type_variations />
+				<default>''</default>
+				<description />
+			</column>
+			<column name="parameters_value" allow_null="1">
+				<type>TEXT</type>
+				<type_variations>
+					<mysql>LONGTEXT</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="default_type_code" allow_null="0">
+				<type>VARCHAR(100)</type>
+				<type_variations />
+				<default>''</default>
+				<description />
+			</column>
+			<column name="default_value" allow_null="0">
+				<type>TEXT</type>
+				<type_variations />
+				<default>''</default>
+				<description />
+			</column>
+			<column name="order_no" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default>0</default>
+				<description>Order this atribute appears in relation to others in its context</description>
+			</column>
+			<column name="description" allow_null="0">
+				<type>TEXT</type>
+				<type_variations />
+				<default>''</default>
+				<description />
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="attributeid" />
+			</primary_key>
+			<unique_key>
+				<column name="type_code" />
+				<column name="name"      />
+			</unique_key>
+		</keys>
+		<indexes />
+	</table>
+	<table name="asset_attribute_value" require_rollback="1">
+		<columns>
+			<column name="assetid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="attributeid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="custom_value" allow_null="0">
+				<type>TEXT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="assetid" />
+				<column name="attributeid" />
+			</primary_key>
+		</keys>
+		<indexes />
+	</table>
+	<table name="asset_type_inherited" require_rollback="0">
+		<columns>
+			<column name="inherited_type_code" allow_null="0">
+				<type>VARCHAR(100)</type>
+				<type_variations />
+				<default>''</default>
+				<description />
+			</column>
+			<column name="type_code" allow_null="0">
+				<type>VARCHAR(100)</type>
+				<type_variations />
+				<default>''</default>
+				<description />
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="inherited_type_code" />
+				<column name="type_code" />
+			</primary_key>
+		</keys>
+		<indexes />
+	</table>
+	<table name="asset_url" require_rollback="1">
+		<columns>
+			<column name="urlid" allow_null="0">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>SMALLINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="assetid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="url" allow_null="0">
+				<type>TEXT</type>
+				<type_variations>
+					<mysql>VARCHAR(255)</mysql>
+				</type_variations>
+				<default>''</default>
+				<description />
+			</column>
+			<column name="http" allow_null="0">
+				<type>CHAR(1)</type>
+				<type_variations />
+				<default>'0'</default>
+				<description />
+			</column>
+			<column name="https" allow_null="0">
+				<type>CHAR(1)</type>
+				<type_variations />
+				<default>'0'</default>
+				<description />
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="urlid" />
+			</primary_key>
+			<unique_key>
+				<column name="url" />
+			</unique_key>
+		</keys>
+		<indexes />
+	</table>
+	<table name="asset_path" require_rollback="1">
+		<columns>
+			<column name="path" allow_null="0">
+				<type>VARCHAR(255)</type>
+				<type_variations />
+				<default>''</default>
+				<description />
+			</column>
+			<column name="assetid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="sort_order" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default>0</default>
+				<description />
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="path" />
+				<column name="assetid" />
+			</primary_key>
+		</keys>
+		<indexes />
+	</table>
+	<table name="asset_lookup" require_rollback="1">
+		<columns>
+			<column name="url" allow_null="0">
+				<type>TEXT</type>
+				<type_variations>
+					<mysql>VARCHAR(255)</mysql>
+				</type_variations>
+				<default>''</default>
+				<description />
+			</column>
+			<column name="assetid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="root_urlid" allow_null="0">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>SMALLINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="designid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default>0</default>
+				<description />
+			</column>
+			<column name="login_designid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default>0</default>
+				<description />
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="url" />
+			</primary_key>
+		</keys>
+		<indexes />
+	</table>
+	<table name="asset_permission" require_rollback="1">
+		<columns>
+			<column name="permissionid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="assetid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="userid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default>0</default>
+				<description />
+			</column>
+			<column name="permission" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>SMALLINT UNSIGNED</mysql>
+				</type_variations>
+				<default>0</default>
+				<description />
+			</column>
+			<column name="access" allow_null="0">
+				<type>CHAR(1)</type>
+				<type_variations />
+				<default>'0'</default>
+				<description />
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="permissionid" />
+			</primary_key>
+			<unique_key>
+				<column name="assetid"    />
+				<column name="userid"     />
+				<column name="permission" />
+			</unique_key>
+		</keys>
+		<indexes />
+	</table>
+	<table name="asset_permission_lookup" require_rollback="1">
+		<columns>
+			<column name="permissionid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="start_treeid" allow_null="0">
+				<type>TEXT</type>
+				<type_variations>
+					<mysql>VARCHAR(200)</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="stop_treeid" allow_null="0">
+				<type>TEXT</type>
+				<type_variations>
+					<mysql>VARCHAR(200)</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="inc_stop" allow_null="0">
+				<type>CHAR(1)</type>
+				<type_variations />
+				<default>'0'</default>
+				<description>include the stop_treeid as part of this permission</description>
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="permissionid" />
+				<column name="start_treeid" />
+				<column name="stop_treeid"  />
+			</primary_key>
+		</keys>
+		<indexes />
+	</table>
+	<table name="asset_lock" require_rollback="1">
+		<columns>
+			<column name="assetid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="source_asset" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="userid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="expires" allow_null="0">
+				<type>TIMESTAMP</type>
+				<type_variations>
+					<mysql>DATETIME</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="assetid" />
+			</primary_key>
+		</keys>
+		<indexes />
+	</table>
+	<table name="asset_workflow" require_rollback="1">
+		<columns>
+			<column name="assetid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="workflow" allow_null="0">
+				<type>LONGTEXT</type>
+				<type_variations />
+				<default>''</default>
+				<description />
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="assetid" />
+			</primary_key>
+		</keys>
+		<indexes />
+	</table>
+	<table name="asset_running_workflow" require_rollback="1">
+		<columns>
+			<column name="workflowid" allow_null="0">
+				<type>VARCHAR(100)</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="complete" allow_null="0">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>SMALLINT UNSIGNED</mysql>
+				</type_variations>
+				<default>0</default>
+				<description />
+			</column>
+			<column name="workflow" allow_null="0">
+				<type>LONGTEXT</type>
+				<type_variations />
+				<default>''</default>
+				<description />
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="workflowid" />
+			</primary_key>
+		</keys>
+		<indexes />
+	</table>
+	<table name="internal_message" require_rollback="1">
+		<columns>
+			<column name="messageid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="userto" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default>0</default>
+				<description />
+			</column>
+			<column name="userfrom" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default>0</default>
+				<description />
+			</column>
+			<column name="subject" allow_null="0">
+				<type>VARCHAR(255)</type>
+				<type_variations />
+				<default>''</default>
+				<description />
+			</column>
+			<column name="body" allow_null="0">
+				<type>TEXT</type>
+				<type_variations>
+					<mysql>LONGTEXT</mysql>
+				</type_variations>
+				<default>''</default>
+				<description />
+			</column>
+			<column name="sent" allow_null="0">
+				<type>TIMESTAMP</type>
+				<type_variations>
+					<mysql>DATETIME</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="priority" allow_null="0">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>SMALLINT UNSIGNED</mysql>
+				</type_variations>
+				<default>3</default>
+				<description />
+			</column>
+			<column name="status" allow_null="0">
+				<type>CHAR(1)</type>
+				<type_variations />
+				<default>'U'</default>
+				<description />
+			</column>
+			<column name="parameters" allow_null="0">
+				<type>TEXT</type>
+				<type_variations>
+					<mysql>LONGTEXT</mysql>
+				</type_variations>
+				<default>''</default>
+				<description />
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="messageid" />
+			</primary_key>
+		</keys>
+		<indexes />
+	</table>
+</tables>
