@@ -298,7 +298,7 @@ class Progress_Bar
 	/**
 	* Set's the status message for the current step
 	*
-	* @param string	$status_msg
+	* @param string	$status_msg	the status message (whose newlines get converted to break tags)
 	*/
 	function setStatusMsg($status_msg)
 	{
@@ -575,8 +575,8 @@ class Progress_Bar
 
 					if (window.opener && window.opener.progress_bar_update) {
 						window.opener.progress_bar_update('<?php echo ($this->_step + 1); ?>',
-														'<?php echo addslashes($this->_steps[$this->_step]['title']); ?>',
-														'<?php echo addslashes($this->_steps[$this->_step]['status_msg']); ?>',
+														'<?php echo str_replace(Array("\n", "\r"), Array('\n', ''), addslashes($this->_steps[$this->_step]['title'])); ?>',
+														'<?php echo str_replace(Array("\n", "\r"), Array('\n', ''), addslashes($this->_steps[$this->_step]['status_msg'])); ?>',
 														'<?php echo round($this->_steps[$this->_step]['percent']); ?>'
 														);
 					}
@@ -617,10 +617,10 @@ class Progress_Bar
 					</td>
 				</tr>
 				<tr>
-					<td style="font-size: 10px; color: #000000; font-family: verdana; font-weight: bold;">
-						<?php echo $step['status_msg'];?>
+					<td style="font-size: 10px; color: #000000; font-family: verdana; font-weight: bold; vertical-align: bottom;">
+						<?php echo nl2br($step['status_msg']); ?>
 					</td>
-					<td style="font-size: 10px; color: #000000; font-family: verdana; font-weight: bold; text-align: right;">
+					<td style="font-size: 10px; color: #000000; font-family: verdana; font-weight: bold; text-align: right; vertical-alignment: top;">
 						<?php echo round($step['percent']); ?>%
 					</td>
 				</tr>
