@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.47 2004/08/19 01:19:23 gsherwood Exp $
+* $Id: tables.xml,v 1.48 2004/09/02 05:12:31 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -853,27 +853,27 @@
 				<type_variations>
 					<mysql>VARCHAR(140)</mysql>
 				</type_variations>
-				<default>0</default>
+				<default>'0'</default>
 				<description />
 			</column>
-			<column name="type_code" allow_null="1">
+			<column name="type_code" allow_null="0">
 				<type>VARCHAR(255)</type>
 				<type_variations>
 					<mysql>VARCHAR(140)</mysql>
 				</type_variations>
-				<default />
+				<default>'0'</default>
 				<description>The type code of the asset type which we are restricting access to. Set to NULL to allow access to all asset types.</description>
 			</column>
-			<column name="screen" allow_null="1">
+			<column name="screen" allow_null="0">
 				<type>VARCHAR(100)</type>
 				<type_variations />
-				<default />
+				<default>'0'</default>
 				<description>The screen we are restricting access to. Set to NULL to allow access to all screens.</description>
 			</column>
-			<column name="section" allow_null="1">
+			<column name="section" allow_null="0">
 				<type>VARCHAR(100)</type>
 				<type_variations />
-				<default />
+				<default>'0'</default>
 				<description>The section of the screen we are restricting access to. Set to NULL to allow access to all sections.</description>
 			</column>
 		</columns>
