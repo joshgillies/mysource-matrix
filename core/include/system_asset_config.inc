@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_config.inc,v 1.16 2005/03/02 01:09:04 gsherwood Exp $
+* $Id: system_asset_config.inc,v 1.17 2005/03/22 06:42:25 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation system asset config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 */
 class System_Asset_Config extends Config
@@ -123,6 +123,10 @@ class System_Asset_Config extends Config
 				echo '$system_assets = ';
 				var_export($system_assets);
 				echo "\n";
+
+				// update the list of system assets in the asset manager
+				$GLOBALS['SQ_SYSTEM']->am->_system_assetids = $system_assets;
+
 				return true;
 			break;
 
