@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.20 2004/10/06 01:00:43 gsherwood Exp $
+* $Id: asset_status_editing.inc,v 1.21 2004/11/18 04:48:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -163,10 +163,6 @@ class Asset_Status_Editing extends Asset_Status
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 					$log->send();
 				}
-				
-				// notify people that the asset has gone live
-				$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-				if (!$wfm->notifyOnLive($this->owner->id, $this->status_tag)) return false;
 
 				return true;
 
