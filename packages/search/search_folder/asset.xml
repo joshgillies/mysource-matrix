@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.6 2005/02/13 23:20:54 lwright Exp $
+* $Id: asset.xml,v 1.7 2005/02/14 23:41:37 lwright Exp $
 *
 */
 -->
@@ -29,7 +29,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
 	<package>search</package>
 	<type_code>search_folder</type_code>
-	<version>0.2</version>
+	<version>0.3</version>
 	<name>Search Folder</name>
 	<description>Provides a customisable quick search interface for the asset map</description>
 	<instantiable>yes</instantiable>

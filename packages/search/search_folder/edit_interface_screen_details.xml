@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2005/02/13 23:20:54 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2005/02/14 23:41:37 lwright Exp $
 *
 */
 -->
@@ -66,10 +66,18 @@
 		</field>
 		<field>
 			<display_name>Searched Asset Types</display_name>
-			<note>All inherited assets types of the types selected here will also be searched</note>
+			<note></note>
 			<function_call>
-				<paint_function   name="paintTypes"   />
-				<process_function name="processTypes" />
+				<paint_function   name="paintCurrentAssetTypes"   />
+				<process_function name="processCurrentAssetTypes" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Add Asset Type</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintAddAssetType"   />
+				<process_function name="processAddAssetType" />
 			</function_call>
 		</field>
 	</section>
