@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.52 2004/10/24 01:23:18 amiller Exp $
+* $Id: design_area_menu_type.inc,v 1.53 2004/10/27 14:10:27 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,7 +39,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 class Design_Area_Menu_Type extends Design_Area
 {
 
-	
+
 	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
@@ -383,7 +383,7 @@ class Design_Area_Menu_Type extends Design_Area
 						}
 					}
 				}
-				
+
 				if (empty($majorids_str)) return $assetids;
 
 				static $USERIDS_COND = null;
@@ -584,7 +584,7 @@ class Design_Area_Menu_Type extends Design_Area
 			}// end if
 		} else {
 
-			// if we are not in the asset looping section then we need to print the details of 
+			// if we are not in the asset looping section then we need to print the details of
 			// our parent asset - if we are not a sub menu there is nothing we can do
 			if (empty($this->_tmp['outputting_asset_section'])) {
 				$parent_menu = &$this->getParentMenu();
@@ -608,7 +608,7 @@ class Design_Area_Menu_Type extends Design_Area
 					break;
 
 				case 'asset_link' :
-					if ($id_name) { 
+					if ($id_name) {
 						echo '<', '?php echo $'.$id_name.'_urls[$'.$id_name.'_row[\'assetid\']].((SQ_LIMBO_EDITING) ? \'/\'.SQ_CONF_LIMBO_SUFFIX : \'\'); ?', '>';
 					}
 					break;
@@ -624,43 +624,27 @@ class Design_Area_Menu_Type extends Design_Area
 						echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$'.$id_name.'_row[\'name\']'.$value_suffix, $args), '; ?', '>';
 					}
 					break;
-					
+
 				case 'asset_name_linked' :
-					if ($id_name) {
-						echo '<', '?php switch ($'.$this->attr('id_name').'_current_setting) {'."\n";
-						echo 'case \'current\' :', '?', '>'."\n";
-						if ($this->attr('self_link')) echo '<', 'a href="','<', '?php echo $'.$id_name.'_urls[$'.$id_name.'_row[\'assetid\']].((SQ_LIMBO_EDITING) ? \'/\'.SQ_CONF_LIMBO_SUFFIX : \'\'); ?', '>', '">'."\n";
-						echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$'.$id_name.'_row[\'name\']'.$value_suffix, $args), '; ?', '>'."\n";
-						if ($this->attr('self_link')) echo '<', '/a', '>'."\n";
-						echo '<', '?php break;'."\n";
-						echo 'case \'normal\' :'."\n";
-						echo 'case \'hierarchy\' :'."\n";
-						echo '?', '>', '<', 'a href="','<', '?php echo $'.$id_name.'_urls[$'.$id_name.'_row[\'assetid\']].((SQ_LIMBO_EDITING) ? \'/\'.SQ_CONF_LIMBO_SUFFIX : \'\'); ?', '>', '">';
-						echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$'.$id_name.'_row[\'name\']'.$value_suffix, $args), '; ?', '>';
-						echo '<', '/a', '>';
-						echo '<', '?php ', 'break;';
-						echo '}// end switch ?', '>';			
-					}
-					break;
-					
 				case 'asset_short_name_linked' :
 					if ($id_name) {
-						echo '<', '?php switch ($'.$this->attr('id_name').'_current_setting) {'."\n";
-						echo 'case \'current\' :', '?', '>'."\n";
-						if ($this->attr('self_link')) echo '<', 'a href="','<', '?php echo $'.$id_name.'_urls[$'.$id_name.'_row[\'assetid\']].((SQ_LIMBO_EDITING) ? \'/\'.SQ_CONF_LIMBO_SUFFIX : \'\'); ?', '>', '">'."\n";
-						echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$'.$id_name.'_row[\'name\']'.$value_suffix, $args), '; ?', '>'."\n";
-						if ($this->attr('self_link')) echo '<', '/a', '>'."\n";
-						echo '<', '?php break;'."\n";
-						echo 'case \'normal\' :'."\n";
-						echo 'case \'hierarchy\' :'."\n";
-						echo '?', '>', '<', 'a href="','<', '?php echo $'.$id_name.'_urls[$'.$id_name.'_row[\'assetid\']].((SQ_LIMBO_EDITING) ? \'/\'.SQ_CONF_LIMBO_SUFFIX : \'\'); ?', '>', '">';
-						echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$'.$id_name.'_row[\'short_name\']'.$value_suffix, $args), '; ?', '>';
-						echo '<', '/a', '>';
-						echo '<', '?php ', 'break;';
-						echo '}// end switch ?', '>';						
-					}
+
+						$name_var = substr($var, 0, -7);
+
+						if ($this->attr('self_link')) {
+							echo '<a href="', $this->printVar('asset_link', Array()), '">', $this->printVar($name_var, Array(), $value_prefix, $value_suffix), '</a>';
+						} else {
+							echo '<', '?php ', "\n";
+							echo ' if ($'.$id_name.'_current_setting == \'current\') { ', "\n";
+							echo '?', '>', $this->printVar($name_var, Array(), $value_prefix, $value_suffix), '<', '?php ', "\n";
+							echo '} else { ', "\n";
+							echo '?', '><a href="', $this->printVar('asset_link', Array()), '">', $this->printVar($name_var, Array(), $value_prefix, $value_suffix), '</a><', '?php ', "\n";
+							echo '}// end if ?', '>';
+						}// end if
+
+					}// end if
 					break;
-					
+
 				case 'asset_thumbnail' :
 					if ($id_name) {
 						echo '<', '?php ';
@@ -672,7 +656,7 @@ class Design_Area_Menu_Type extends Design_Area
 						echo '?', '>';
 					}
 					break;
-				
+
 				case 'asset_thumbnail_url' :
 					if ($id_name) {
 						echo '<', '?php ';
