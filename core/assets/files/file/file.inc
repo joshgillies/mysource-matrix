@@ -100,7 +100,7 @@ class File extends Asset
 				if (!$this->create($link, 'temp')) return false;
 				$edit = $this->getEditFns();
 				unset($this->_tmp['uploading_file']);
-				return $edit->processFileUpload($this, 'new_file');
+				return $edit->processFileUpload($this, $o, 'new_file');
 				break;
 
 			default :

@@ -117,8 +117,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		// create the destination directory, if necessary
-		$dest = $asset->data_path;
-		create_directory($dest);
+		create_directory($asset->data_path);
 
 		// delete existing uploaded file if it exists
 		if (is_file($asset->data_path.'/'.$asset->attr('name'))) {
@@ -130,7 +129,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		// copy over the new uploaded file
-		if (!copy($info['tmp_name'], $dest.'/'.$name)) {
+		if (!move_uploaded_file($info['tmp_name'], $asset->data_path.'/'.$name)) {
 			trigger_error('Failed copying uploaded file to destination directory', E_USER_WARNING);
 			$asset->saveWebPaths(Array($asset->attr('name')));
 			return false;
