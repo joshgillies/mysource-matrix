@@ -52,79 +52,15 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $linkid;
 
-	}// end create()
+	} // end create()
 
 
 	/**
-	* Creates a link between this asset and the passed asset, of a certain type
-	* and returns the linkid of the created link
-	*
-	* @return int
-	* @access public
-	* @see Asset::creatLink();
-	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0', $exclusive='0')
-	{
-		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
-
-	}// end createLink()
-
-
-	/**
-	* Returns TRUE if we can delete the passed link, or a string with the error msg
-	*
-	* @param int	$linkid	the link id of the link to remove
-	*
-	* @return mixed TRUE or error msg string
-	* @access public
-	*/
-	function canDeleteLink($linkid)
-	{
-		return parent::canDeleteLink($linkid);
-
-	}//end canDeleteLink()
-
-
-	/**
-	* Returns an array of all the permitted link type, the type asset and the cardinality
-	*
-	* @see Asset::_getAllowLinks()
-	* @access private
-	*/
-	function _getAllowedLinks()
-	{
-		$page_links = parent::_getAllowedLinks();
-		return $page_links;
-
-	}//end _getAllowedLinks()
-
-
-	/**
-	* Prints out the backend interface for the asset
-	*
-	* @param object Backend_Outputter $o
+	* returns the operators 
 	*
 	* @access public
+	* @return Array()
 	*/
-	function paintBackend(&$o)
-	{
-		parent::paintBackend($o);
-	
-	}// end paintBackend()
-
-
-	/**
-	* Called by the design to print the body of this asset
-	*
-	* @access public
-	*/
-	function printBody()
-	{
-		return true;
-		
-	} // end printBody()
-
-
 	function getOperators()
 	{
 		$operators = Array(
@@ -137,7 +73,8 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 		);
 
 		return $operators;
-	}
+
+	} // getOperators
 
 
 	/**
