@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.267 2003/12/21 22:47:08 gsherwood Exp $
+* $Id: asset.inc,v 1.268 2003/12/29 01:04:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2322,16 +2322,22 @@ class Asset extends MySource_Object
 	function getAssetKeywords($descriptions=false)
 	{
 		$keywords = Array();
+		$default_keywords = Array(	'asset_name',
+									'asset_short_name',
+									'asset_version',
+									'asset_created',
+									'asset_updated',
+									'asset_created_short',
+									'asset_updated_short',
+									'asset_created_readable',
+									'asset_updated_readable',
+									'asset_url',
+									'asset_href',
+									);
 
-		$keywords['asset_name']['value']			= $this->name;
-		$keywords['asset_short_name']['value']		= $this->short_name;
-		$keywords['asset_version']['value']			= $this->version;
-		$keywords['asset_created']['value']			= date('d/m/Y H:i:s', $this->created);
-		$keywords['asset_updated']['value']			= date('d/m/Y H:i:s', $this->updated);
-		$keywords['asset_created_short']['value']	= date('d/m/Y', $this->created);
-		$keywords['asset_updated_short']['value']	= date('d/m/Y', $this->updated);
-		$keywords['asset_url']['value']				= $this->getUrl();
-		$keywords['asset_href']['value']			= $this->getHref();
+		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm_keywords = $mm->generateKeywordReplacements($this, $default_keywords, false);
+		foreach ($default_keywords as $keyword) $keywords[$keyword]['value'] = $mm_keywords[$keyword];
 
 		foreach ($this->vars as $name => $info) {
 			if ($info['type'] == 'serialise') continue;
@@ -2344,15 +2350,17 @@ class Asset extends MySource_Object
 		}
 
 		if ($descriptions) {
-			$keywords['asset_name']['description']			= 'Full name of the asset';
-			$keywords['asset_short_name']['description']	= 'Short name of the asset';
-			$keywords['asset_version']['description']		= 'Version of the asset being displayed';
-			$keywords['asset_created']['description']		= 'The date and time the asset was created (dd/mm/yyyy hh:mm:ss)';
-			$keywords['asset_updated']['description']		= 'The date and time the asset was last updated (dd/mm/yyyy hh:mm:ss)';
-			$keywords['asset_created_short']['description'] = 'The date when the asset was created (dd/mm/yyyy)';
-			$keywords['asset_updated_short']['description'] = 'The date when the asset was last updated (dd/mm/yyyy)';
-			$keywords['asset_url']['description']			= 'The absolute url to the asset';
-			$keywords['asset_href']['description']			= 'The relative href to the asset';
+			$keywords['asset_name']['description']				= 'Full name of the asset';
+			$keywords['asset_short_name']['description']		= 'Short name of the asset';
+			$keywords['asset_version']['description']			= 'Version of the asset being displayed';
+			$keywords['asset_created']['description']			= 'The date and time the asset was created (dd/mm/yyyy hh:mm:ss)';
+			$keywords['asset_updated']['description']			= 'The date and time the asset was last updated (dd/mm/yyyy hh:mm:ss)';
+			$keywords['asset_created_short']['description']		= 'The date when the asset was created (dd/mm/yyyy)';
+			$keywords['asset_updated_short']['description']		= 'The date when the asset was last updated (dd/mm/yyyy)';
+			$keywords['asset_created_readable']['description']	= 'The date when the asset was created (dd m yyyy h:mm[am pm])';
+			$keywords['asset_updated_readable']['description']	= 'The date when the asset was last updated (dd m yyyy h:mm[am pm])';
+			$keywords['asset_url']['description']				= 'The absolute url to the asset';
+			$keywords['asset_href']['description']				= 'The relative href to the asset';
 		}
 
 		return $keywords;
