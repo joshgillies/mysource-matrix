@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.34.2.5 2004/03/02 18:29:12 brobertson Exp $
+* $Id: mysource.inc,v 1.34.2.6 2004/03/03 19:19:44 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -792,9 +792,9 @@ class MySource
 	function &getFileVersioning()
 	{
 		if(!isset($this->fv) || get_class($this->fv) != 'file_versioning') {
-			require_once SQ_FUDGE_PATH.'/file_versioning/file_versioning.inc';
+			require_once SQ_SYSTEM_ROOT.'/core/file_versioning/file_versioning.inc';
 			$this->changeDatabaseConnection('db'); // just to make sure
-			$this->fv = new File_Versioning(SQ_DATA_PATH.'/file_repository', $this->db);
+			$this->fv = new File_Versioning($this->db);
 			$this->restoreDatabaseConnection();
 		}
 		return $this->fv;
