@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.100 2004/10/13 23:17:11 lwright Exp $
+* $Id: page_calendar.inc,v 1.101 2004/10/13 23:22:06 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.100 $ - 1.0
+* @version $Revision: 1.101 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1379,13 +1379,13 @@ class Page_Calendar extends Page_Asset_Listing
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$root_nodes = $this->attr('root_nodes');
+		$trees =&get_treeids($root_nodes);
 
-		if (empty($root_nodes)) {
-			trigger_error('WARNING: No root nodes are set for this Calendar Page', E_USER_WARNING);
+		if (empty($trees)) {
+			trigger_error('WARNING: No valid root nodes are set for this Calendar Page', E_USER_WARNING);
 			return Array();
 		}
-
-		$trees =&get_treeids($root_nodes);
+		
 		$tree_sql = build_tree_clause($trees);
 
 		// formulate the date restriction clauses
@@ -1490,13 +1490,13 @@ class Page_Calendar extends Page_Asset_Listing
 
 		// get the where clauses ready for tree restrictions
 		$root_nodes = $this->attr('root_nodes');
-		
-		if (empty($root_nodes)) {
-			trigger_error('WARNING: No root nodes are set for this Calendar Page', E_USER_WARNING);
+		$trees =& get_treeids($root_nodes);
+
+		if (empty($trees)) {
+			trigger_error('WARNING: No valid root nodes are set for this Calendar Page', E_USER_WARNING);
 			return Array();
 		}
 		
-		$trees =& get_treeids($root_nodes);
 		$tree_sql = build_tree_clause($trees);
 
 		// formulate the date restriction clauses
@@ -1575,14 +1575,14 @@ class Page_Calendar extends Page_Asset_Listing
 		list($year,$month,$day) = sscanf($date, '%04d-%02d-%02d');
 
 		// get the treeid restriction SQL
-		$root_nodes = $this->attr('root_nodes');
-		
-		if (empty($root_nodes)) {
-			trigger_error('WARNING: No root nodes are set for this Calendar Page', E_USER_WARNING);
+		$root_nodes = $this->attr('root_nodes');			
+		$trees = &get_treeids($root_nodes);
+
+		if (empty($trees)) {
+			trigger_error('WARNING: No valid root nodes are set for this Calendar Page', E_USER_WARNING);
 			return Array();
 		}
 		
-		$trees = &get_treeids($root_nodes);
 		$tree_sql = build_tree_clause($trees);
 
 		// get the single events
@@ -1742,13 +1742,13 @@ class Page_Calendar extends Page_Asset_Listing
 
 		// build treeid restriction SQL
 		$root_nodes = $this->attr('root_nodes');
-
-		if (empty($root_nodes)) {
-			trigger_error('WARNING: No root nodes are set for this Calendar Page', E_USER_WARNING);
+		$trees =& get_treeids($root_nodes);
+		
+		if (empty($trees)) {
+			trigger_error('WARNING: No valid root nodes are set for this Calendar Page', E_USER_WARNING);
 			return Array();
 		}
 		
-		$trees =& get_treeids($root_nodes);
 		$tree_sql = build_tree_clause($trees);
 
 		// GET SINGLE EVENTS:
