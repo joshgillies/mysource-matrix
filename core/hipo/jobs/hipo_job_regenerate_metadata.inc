@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_metadata.inc,v 1.8 2004/02/24 03:00:15 gsherwood Exp $
+* $Id: hipo_job_regenerate_metadata.inc,v 1.9 2004/09/16 11:01:00 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -210,27 +210,6 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 		return parent::prepare();
 	
 	}//end prepare()
-
-
-	/**
-	* Set up vars and database information that the HIPO will need to run
-	*
-	* The Regenerate Metdata HIPO also checks that there is an assetid to start this action on
-	* (the top most parent). It also saves a list of assets to perform this action on in the running vars.
-	*
-	* @param string	$source_code_name	the code name of another job that wants to use this job
-	*
-	* @return string	returns the code_name for the new job
-	* @access public
-	*/
-	function initialise($source_code_name=null)
-	{
-		if (!$this->is_prepared) {
-			$this->prepare();
-		}
-		return parent::initialise($source_code_name);
-
-	}//end initialise()
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_asset.inc,v 1.4 2004/08/02 06:05:42 mnyeholt Exp $
+* $Id: hipo_job_clone_asset.inc,v 1.5 2004/09/16 11:01:00 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -265,24 +265,6 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 		return parent::prepare();
 	
 	}//end prepare()
-
-
-	/**
-	* Set up vars and database information that the HIPO will need to run
-	*
-	* @param string	$source_code_name	the code name of another job that wants to use this job
-	*
-	* @return string	returns the code_name for the new job
-	* @access public
-	*/
-	function initialise($source_code_name=null)
-	{
-		if (!$this->is_prepared) {
-			$this->prepare();
-		}
-		return parent::initialise($source_code_name);
-
-	}//end initialise()
 
 	
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.23 2004/07/08 00:45:52 lwright Exp $
+* $Id: hipo_job_edit_status.inc,v 1.24 2004/09/16 11:01:00 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -195,27 +195,6 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 		return parent::prepare();
 	
 	}//end prepare()
-
-
-	/**
-	* Set up vars and database information that the HIPO will need to run
-	*
-	* The Edit Status HIPO also checks that there is an assetid to start this action on
-	* (the top most parent). It also saves a list of assets to perform this action on in the running vars.
-	*
-	* @param string	$source_code_name	the code name of another job that wants to use this job
-	*
-	* @return string	returns the code_name for the new job
-	* @access public
-	*/
-	function initialise($source_code_name=null)
-	{
-		if (!$this->is_prepared) {
-			$this->prepare();
-		}
-		return parent::initialise($source_code_name);
-
-	}//end initialise()
 
 
 	/**

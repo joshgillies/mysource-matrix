@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.4 2004/09/14 01:40:26 gsherwood Exp $
+* $Id: hipo_job_reindex.inc,v 1.5 2004/09/16 11:02:17 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -182,27 +182,6 @@ class HIPO_Job_ReIndex extends HIPO_Job
 
 
 	/**
-	* Set up vars and database information that the HIPO will need to run
-	*
-	* The Reindex HIPO also checks that there is an assetid to start this action on
-	* (the top most parent). It also saves a list of assets to perform this action on in the running vars.
-	*
-	* @param string	$source_code_name	the code name of another job that wants to use this job
-	*
-	* @return string	returns the code_name for the new job
-	* @access public
-	*/
-	function initialise($source_code_name=null)
-	{
-		if (!$this->is_prepared) {
-			$this->prepare();
-		}
-		return parent::initialise($source_code_name);
-
-	}//end initialise()
-
-
-	/**
 	* Re-index asset keydata for a single asset in the todo list
 	*
 	* @param array()	&$step_data	a reference to the array of information about the current step
@@ -216,7 +195,7 @@ class HIPO_Job_ReIndex extends HIPO_Job
 		if (!empty($this->_running_vars['todo_assetids'])) {
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
 			$sm =& $am->getSystemAsset('search_manager');
-			if (!$sm) return false;
+			if (is_null($sm)) return false;
 
 			// get next asset to reindex
 			$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.14 2004/06/04 06:28:40 gsherwood Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.15 2004/09/16 11:01:00 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -192,24 +192,6 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 		return parent::prepare();
 	
 	}//end prepare()
-
-
-	/**
-	* Set up vars and database information that the HIPO will need to run
-	*
-	* @param string	$source_code_name	the code name of another job that wants to use this job
-	*
-	* @return string	returns the code_name for the new job
-	* @access public
-	*/
-	function initialise($source_code_name=null)
-	{
-		if (!$this->is_prepared) {
-			$this->prepare();
-		}
-		return parent::initialise($source_code_name);
-
-	}//end initialise()
 
 
 	/**
