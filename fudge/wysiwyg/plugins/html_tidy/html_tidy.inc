@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.13 2003/11/26 00:51:20 gsherwood Exp $
+* $Id: html_tidy.inc,v 1.14 2003/11/27 22:31:33 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -97,6 +97,7 @@ class HTML_Tidy extends Wysiwyg_Plugin {
 	{
 		if (empty($html)) return;
 
+
 		  //////////////////////////////
 		 //  UNSUPPORTED CHARACTERS  //
 		//////////////////////////////
@@ -124,6 +125,22 @@ class HTML_Tidy extends Wysiwyg_Plugin {
 		exec($command, $tidy);
 		if (empty($tidy)) return;
 		$html = implode("\n", $tidy);
+
+
+		  ////////////////////
+		 //  MS WORD CRAP  //
+		////////////////////
+
+		// Remove weird tags MS Word leaves in its output
+		$html = preg_replace('|<([\w]+)([^>]+?)class="mso[^"]+"([^>]+)?>|is', '<\\1>', $html);
+		$html = preg_replace('|<([\w]+)([^>]+?)style="([^"]+)?mso([^"]+)?"([^>]+)?>|is', '<\\1>', $html);
+		$html = preg_replace('|<\/?\w+:[^>]*>|is', '', $html);
+		$html = preg_replace('|<font[^>]+>(.+?)</font>|is', '\\1', $html);
+		$html = preg_replace('|<span([^>]+?)lang=[^\s]+([^>]+?)xml:lang="[^\s]+">(.+?)</span>|is', '\\3', $html);
+		$html = preg_replace('|<\?xml[^>]+microsoft[^>]+\?>|is', '', $html);
+		$html = preg_replace('|<\/?\w+:[^>]*>|is', '', $html);
+		$html = preg_replace('|<\\?\??xml[^>]>|is', '', $html);
+
 
 	}//end process
 
