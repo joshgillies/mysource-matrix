@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<?xml-stylesheet href="../package.xsl" type="text/xsl"?>
+
+<package_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../package.xsd">
+	<code_name>cms</code_name>
+	<version>0.1</version>
+	<name>Content Management System Package</name>
+	<description>Core Package for anything to do with a CMS</description>
+</package_info>
