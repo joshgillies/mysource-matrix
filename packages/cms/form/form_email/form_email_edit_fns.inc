@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.13 2004/05/17 05:53:09 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.14 2004/05/17 06:35:26 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -87,9 +87,14 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$from = new Datetime_Field($prefix.'_from', $from_value, $parameters);
 		$to = new Datetime_Field($prefix.'_to', $to_value, $parameters);
 
+		echo 'View submissions from: ';
 		$from->printField();
 		echo ' to ';
 		$to->printField();
+
+		$o->closeField();
+
+		$o->openField('Submissions');
 
 		$from_value = explode('-',substr($from_value,0,10));
 		$to_value = explode('-',substr($to_value,0,10));
@@ -276,8 +281,6 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$from = new Datetime_Field($prefix.'_export_from', $from_value, $parameters);
 		$to = new Datetime_Field($prefix.'_export_to', $to_value, $parameters);
 
-		$o->openField('Date Range');
-
 		$from->printField();
 		echo ' to ';
 		$to->printField();
@@ -307,8 +310,6 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$o->openField('Download');
 
 		echo normal_button($prefix.'_export', 'Download File', 'this.form.'.$prefix.'_export_switch.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_export_switch.value = 0; return true;');
-
-		$o->closeField();
 
 		return true;
 
