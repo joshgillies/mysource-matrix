@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.16 2004/02/03 03:27:42 diarandine Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.17 2004/02/24 02:58:50 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -396,10 +396,8 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 		$oldWeighting = $asset->attr('weighting');
 		if($_POST['weighting_include']) {
-			if (isset($_POST['weighting']))
-				$newWeighting = max(0, $_POST['weighting']);
-			else
-				$newWeighting = 1;
+			if (isset($_POST['weighting'])) $newWeighting = max(0, $_POST['weighting']);
+			else $newWeighting = 1;
 		} else {
 			$newWeighting = -1;
 		}
@@ -462,12 +460,19 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function generateMetadata(&$asset, $values, &$keywords)
+	function generateMetadata(&$asset, &$values, &$keywords)
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 
-		if (isset($values['value'])) $default = $values['value'];
-		else $default = $asset->attr('default');
+		if (!isset($values['using_default'])) $values['using_default'] = false;
+		if (isset($values['value']) && !$values['using_default']) {
+			$default = $values['value'];
+			$values['using_default'] = false;
+		} else {
+			$default = $asset->attr('default');
+			$values['value'] = $default;
+			$values['using_default'] = true;
+		}
 
 		$keywords = array_merge($keywords, retrieve_keywords_replacements($default));
 
@@ -480,9 +485,11 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 		if (!empty($current_vc)) {
 			foreach ($current_vc as $vc_name => $vc_value) {
-				if (isset($values['value_components'][$vc_name])) {
-					$vc_value = $values['value_components'][$vc_name];
+				if (!isset($values['value_components'][$vc_name])) {
+					// install the default value
+					$values['value_components'][$vc_name] = $vc_value;
 				}
+				$vc_value = $values['value_components'][$vc_name];
 				$keywords = array_merge($keywords, retrieve_keywords_replacements($vc_value));
 				$value_string .= $vc_name.'='.$vc_value.'; ';
 			}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.19 2004/02/23 05:58:23 gsherwood Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.20 2004/02/24 02:58:50 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -146,11 +146,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 		if (!$asset->writeAccess('')) return false;
 
 		if (isset($_POST[$prefix.'_regenerate']) && $_POST[$prefix.'_regenerate']) {
-			//// START HIPO PROCESSING ////
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array('schemaid' => $asset->id);
 			$hh->queueHipo('hipo_job_regenerate_metadata', $vars);
-			////  END HIPO PROCESSING  ////
 		}
 
 		return true;
@@ -323,16 +321,26 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function generateMetadata(&$asset, $values, &$keywords)
+	function generateMetadata(&$asset, &$values, &$keywords)
 	{
 		echo "<!-- $asset->name //-->\n\n";
+
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', true, 'major', null, true);
+		$valid_sections = Array();
 		foreach ($current_links as $link) {
 			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
+			$valid_sections[] = $section->name;
+
 			$edit_fns = $section->getEditFns();
 			if (!isset($values['sections'][$section->name])) $values['sections'][$section->name] = Array();
 			if (!$edit_fns->generateMetadata($section, $values['sections'][$section->name], $keywords)) return false;
+		}
+
+		// remove any invalid sections from the values array
+		$sections = $values['sections'];
+		foreach ($sections as $section_name => $section_data) {
+			if (!in_array($section_name, $valid_sections)) unset($values['sections'][$section_name]);
 		}
 
 		return true;

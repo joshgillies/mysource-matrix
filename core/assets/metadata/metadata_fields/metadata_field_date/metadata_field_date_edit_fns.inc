@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.5 2004/02/16 23:35:01 gsherwood Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.6 2004/02/24 02:58:50 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -380,28 +380,38 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	* Output the complete metadata tag for this field
 	*
 	* @param object Metadata_Field	&$asset		the asset whose interface we are painting
-	* @param array					$values		the current metadata values
+	* @param array					&$values		the current metadata values
 	* @param array					&$keywords	an array we can put keywords in that need replacing
 	*
 	* @return boolean
 	* @access public
 	*/
-	function generateMetadata(&$asset, $values, &$keywords)
+	function generateMetadata(&$asset, &$values, &$keywords)
 	{
-		if (isset($values['value'])) $value = $values['value'];
-		else $value = $asset->attr('default');
+		if (!isset($values['using_default'])) $values['using_default'] = false;
+		if (isset($values['value']) && !$values['using_default']) {
+			$value = $values['value'];
+			$values['using_default'] = false;
+		} else {
+			$value = $asset->attr('default');
+			$values['value'] = $value;
+			$values['using_default'] = true;
+		}
 
 		$original = $value;
 
+		// we create a new array here to pass to our parent so we dont muck up the
+		// referenced timestamp values
+		$new_values = $values;
 		if (strpos($value, '%') === false) {
 			$field = $this->_getEpochDateTimeField($asset, '', $value);
-			$values['value'] = $field->format();
+			$new_values['value'] = $field->format();
 		} else {
-			$values['value'] = $value;
+			$new_values['value'] = $value;
 		}
 
 		ob_start();
-			parent::generateMetadata($asset, $values, $keywords);
+			parent::generateMetadata($asset, $new_values, $keywords);
 			$metadata_tag = ob_get_contents();
 		ob_end_clean();
 
