@@ -82,14 +82,14 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	{
 		// to start editing a status, we need to have an asset id to edit
 		if (!isset($this->_running_vars['assetid'])) {
-			trigger_error('Cannot initialise Acquire Locks HIPO, no start asset ID specified', E_USER_WARNING);
+			trigger_error('Cannot initialise Edit Status HIPO, no start asset ID specified', E_USER_WARNING);
 			return '';
 		}
 
 		// so we have an assetid to start at, but make sure it is a valid assetid
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
 		if (is_null($asset)) {
-			trigger_error('Cannot initialise Acquire Locks HIPO, invalid start asset ID specified ('.$this->_running_vars['assetid'].')', E_USER_WARNING);
+			trigger_error('Cannot initialise Edit Status HIPO, invalid start asset ID specified ('.$this->_running_vars['assetid'].')', E_USER_WARNING);
 			return '';
 		}
 
