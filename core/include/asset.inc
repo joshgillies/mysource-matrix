@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.361 2005/02/16 22:02:53 dbaranovskiy Exp $
+* $Id: asset.inc,v 1.362 2005/02/17 01:37:40 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.361 $
+* @version $Revision: 1.362 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -124,13 +124,13 @@ class Asset extends MySource_Object
 	* Timestamp of when this asset was last published (ie. made LIVE)
 	* @var int
 	*/
-	var $status_updated;
+	var $status_changed;
 
 	/**
 	* Assetid for the user that last published this asset
 	* @var int
 	*/
-	var $status_updated_userid;
+	var $status_changed_userid;
 	
 	/**
 	* Is this asset type able to be cached automatically by the system?
