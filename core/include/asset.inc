@@ -2684,7 +2684,6 @@ class Asset extends Resolve_Object
 							FROM sq_asset_link_tree t, sq_asset_permission_lookup pl
 							WHERE t.linkid = '.$db->quote($linkid).'
 							  AND pl.start_treeid LIKE '.$concat);
-							  error_log($subs[0]);
 			$where_cond = db_extras_subquery($db, $where_cond_string, $subs);
 			if (DB::isError($where_cond)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -3040,7 +3039,6 @@ class Asset extends Resolve_Object
 
 		if ($sort_order_changed) {
 			// move 'em up, higher
-			error_log('move higher');
 			if ($link['sort_order'] > $sort_order) {
 				$where = '  majorid = '.$db->quote($this->id).'
 							AND linkid <> '.$db->quote($linkid).'
@@ -3052,7 +3050,6 @@ class Asset extends Resolve_Object
 				}
 
 			} else {
-				error_log('move lower');
 				$where = '  majorid = '.$db->quote($this->id).'
 							AND linkid <> '.$db->quote($linkid).'
 							AND sort_order >= '.$db->quote($link['sort_order']).'
