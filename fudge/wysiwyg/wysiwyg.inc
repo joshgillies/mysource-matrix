@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.28 2003/11/26 00:51:19 gsherwood Exp $
+* $Id: wysiwyg.inc,v 1.29 2003/12/30 05:21:40 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1005,20 +1005,26 @@ class wysiwyg {
 							if (!empty($this->_plugins)) {
 								$output = '';
 								foreach ($this->_plugins as $plugin_group) {
-									$output .= "[ ";
-									foreach ($plugin_group as $name) {
-										$plugin = $this->_loaded_plugins[$name];
-										foreach ($plugin->buttons as $id => $button) {
-											if (isset($button['menu_end'])) {
-												$output .= ' ], ';
-												continue;
+									if (!empty($plugin_group)) {
+										$pre_group_output = $output;
+										$output .= "[ ";
+										$printed_buttons = false;
+										foreach ($plugin_group as $name) {
+											$plugin = $this->_loaded_plugins[$name];
+											foreach ($plugin->buttons as $id => $button) {
+												if (isset($button['menu_end'])) {
+													$output .= ' ], ';
+													continue;
+												}
+												if (isset($button['menu_start'])) $output .= '[ ';
+												if ($id) $output .= '["'.$id.'"], ';
+												$printed_buttons = true;
 											}
-											if (isset($button['menu_start'])) $output .= '[ ';
-											if ($id) $output .= '["'.$id.'"], ';
+											unset($plugin);
 										}
-										unset($plugin);
+										if ($printed_buttons) $output .= '["separator"] ],'."\n\t\t\t\t\t\t\t";
+										else $output = $pre_group_output;
 									}
-									$output .= '["separator"] ],'."\n\t\t\t\t\t\t\t";
 								}
 								$output = trim($output,"\t\n,");
 								echo $output;
