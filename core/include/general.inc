@@ -38,11 +38,11 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			break;
 		case E_USER_WARNING:
 			$err_name = 'Resolve Warning';
-			$bg_colour = '#993333';
+			$bg_colour = '#DBA53B';
 			break;
 		case E_USER_NOTICE:
 			$err_name = 'Resolve Notice';
-			$bg_colour = '#993333';
+			$bg_colour = '#17AA92';
 			break;
 		case E_ERROR:
 			$err_name = 'PHP Error';
@@ -58,7 +58,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			break;
 		default:
 			$err_name = 'Unknown Error Type - '.$err_no;
-			$bg_colour = '#0066CC';
+			$bg_colour = '#FF0000';
 
 	}//end switch
 
