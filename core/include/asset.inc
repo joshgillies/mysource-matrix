@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.266 2003/12/19 04:01:39 gsherwood Exp $
+* $Id: asset.inc,v 1.267 2003/12/21 22:47:08 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1223,7 +1223,23 @@ class Asset extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-		
+
+		// increment the minor version of all dependant parents because a 'part' of them
+		// has been updated - even though they havnt been updated directly
+		$dependant_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($this->id);
+		foreach ($dependant_parents as $parentid) {
+			$dep_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
+			if (!is_null($dep_parent)) {
+				if (!$dep_parent->incrementVersion()) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOABLS['SQ_SYSTEM']->am->forgetAsset($dep_parent);
+					trigger_error('Failed incrementing version of "'.$this->name.'" [#'.$this->id.'], version updated of dependant parent "'.$dep_parent->name.'" [#'.$dep_parent->id.'] failed.', E_USER_WARNING);
+					return false;
+				}
+			}
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($dep_parent);
+		}
+
 		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'AssetVersionUpdate',
 											  Array( 'old_version'      => $this->version,
