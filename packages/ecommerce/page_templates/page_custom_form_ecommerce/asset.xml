@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1.1.1 2004/10/13 01:31:48 arailean Exp $
+* $Id: asset.xml,v 1.2 2004/10/15 07:02:54 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -41,5 +41,5 @@
 			<version>0.1</version>
 		</requirement>
 	</requirements>
-	<flash_menu_path>Pages</flash_menu_path>
+	<flash_menu_path>E-Commerce</flash_menu_path>
 </asset_info>
