@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.20 2004/11/10 02:15:08 tbarrett Exp $
+* $Id: image_edit_fns.inc,v 1.21 2004/11/10 23:03:51 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -106,9 +106,9 @@ class Image_Edit_Fns extends File_Edit_Fns
 	function paintCreateEditor(&$asset, &$o, $prefix)
 	{
 		if (isset($_POST['imagej_submitted'])) {
-			?>
+		?>
 
-SQ_GO_TO: <?php echo current_url().$GLOBALS['SQ_SYSTEM']->am->getRootURL(); ?>?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&asset_ei_screen=<?php echo $_REQUEST['asset_ei_screen'] ?>&assetid=<?php echo $asset->id; ?>
+IMAGEJ_REDIRECT: <?php echo current_url(); ?>?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&asset_ei_screen=<?php echo $_REQUEST['asset_ei_screen'] ?>&assetid=<?php echo $asset->id; ?>
 
 			<?php
 		} elseif (!$asset->id) {
@@ -162,7 +162,7 @@ SQ_GO_TO: <?php echo current_url().$GLOBALS['SQ_SYSTEM']->am->getRootURL(); ?>?S
 		if (isset($_POST['imagej_submitted'])) {
 			?>
 
-SQ_GO_TO: <?php echo current_url().$GLOBALS['SQ_SYSTEM']->am->getRootURL(); ?>?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&asset_ei_screen=<?php echo $_REQUEST['asset_ei_screen'] ?>&assetid=<?php echo $asset->id; ?>
+IMAGEJ_REDIRECT: <?php echo current_url(); ?>?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&asset_ei_screen=<?php echo $_REQUEST['asset_ei_screen'] ?>&assetid=<?php echo $asset->id; ?>
 
 			<?php
 		} elseif ($asset->writeAccess('attributes')) {
