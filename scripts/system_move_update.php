@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_move_update.php,v 1.4 2004/11/02 00:26:08 mnyeholt Exp $
+* $Id: system_move_update.php,v 1.5 2004/11/16 21:49:09 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -124,14 +124,6 @@ $old_rep_path = preg_replace('|/+$|', '', $old_system_root).'/data/file_reposito
 $new_rep_path = preg_replace('|/+$|', '', $new_system_root).'/data/file_repository';
 
 pre_echo("OLD : $old_rep_path\nNEW : $new_rep_path");
-
-$db = &$GLOBALS['SQ_SYSTEM']->db;
-$sql = 'UPDATE fudge_file_versioning_file
-		SET repository = '.$db->quote($new_rep_path).'
-		WHERE repository = '.$db->quote($old_rep_path);
-pre_echo($sql);
-$result = $db->query($sql);
-if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
 recurse_find_ffv_files(SQ_DATA_PATH.'/private', $old_rep_path, $new_rep_path);
 recurse_find_ffv_files(SQ_DATA_PATH.'/public', $old_rep_path, $new_rep_path);
