@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: recreate_link_tree.php,v 1.9 2004/12/06 17:31:05 brobertson Exp $
+* $Id: recreate_link_tree.php,v 1.10 2005/02/23 05:49:03 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * 
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 
@@ -86,7 +86,9 @@ function recurse_tree_create($majorid, $path)
 		if (!empty($index[$data['minorid']])) recurse_tree_create($data['minorid'], $kid_path);
 	}
 	$e--;
+
 }//end recurse_tree_create()
+
 
 recurse_tree_create(1, '');
 

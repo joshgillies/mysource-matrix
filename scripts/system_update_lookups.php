@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_update_lookups.php,v 1.1 2005/02/21 12:08:03 brobertson Exp $
+* $Id: system_update_lookups.php,v 1.2 2005/02/23 05:49:03 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Upgrade the *_ast_lookup_design table to *_ast_lookup_value
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -60,7 +60,7 @@ $hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
 $sites = $am->getTypeAssetids('site', false, true);
 
-foreach($sites as $assetid => $type_code) {
+foreach ($sites as $assetid => $type_code) {
 	$site = &$am->getAsset($assetid, $type_code);
 	printName('Updating Lookups for "'.$site->name.'" #'.$site->id);
 

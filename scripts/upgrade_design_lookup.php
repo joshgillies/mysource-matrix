@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_design_lookup.php,v 1.3 2005/02/21 19:32:28 brobertson Exp $
+* $Id: upgrade_design_lookup.php,v 1.4 2005/02/23 05:49:03 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Upgrade the *_ast_lookup_design table to *_ast_lookup_value
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -104,7 +104,7 @@ $sql = 'SELECT url, name
 $design_lookups = $db->getAll($sql);
 assert_valid_db_result($design_lookups);
 
-foreach($design_lookups as $row) {
+foreach ($design_lookups as $row) {
 
 	// OK, this is a bit crass, but there isn't really anything else we can do...
 
@@ -138,7 +138,7 @@ $sql = 'SELECT '.SQ_TABLE_PREFIX.'eff_from, url, name, COUNT(*) as count
 $design_lookups = $db->getAll($sql);
 assert_valid_db_result($design_lookups);
 
-foreach($design_lookups as $row) {
+foreach ($design_lookups as $row) {
 
 	// OK, this is a bit crass, but there isn't really anything else we can do...
 
@@ -173,7 +173,7 @@ foreach($design_lookups as $row) {
 						INNER JOIN '.SQ_TABLE_ROLLBACK_PREFIX.'ast a ON ld.designid = a.assetid
 				WHERE ld.url = '.$db->quote($row['url']).'
 				  AND ld.name = '.$db->quote($row['name']);
-		foreach(Array('ld.', 'l.', 'a.') as $table_alias) {
+		foreach (Array('ld.', 'l.', 'a.') as $table_alias) {
 			$sql .= '
 				  AND '.$table_alias.SQ_TABLE_PREFIX.'eff_from <= '.$db->quote($row[SQ_TABLE_PREFIX.'eff_from']).'
 				  AND ('.$table_alias.SQ_TABLE_PREFIX.'eff_to IS NULL
@@ -207,7 +207,7 @@ unset($design_lookups);
 
 
 require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-foreach(Array(SQ_TABLE_PREFIX, SQ_TABLE_ROLLBACK_PREFIX) as $prefix) {
+foreach (Array(SQ_TABLE_PREFIX, SQ_TABLE_ROLLBACK_PREFIX) as $prefix) {
 
 	$extra = ($prefix == SQ_TABLE_ROLLBACK_PREFIX) ? ', sq_eff_from, sq_eff_to' : '';
 
@@ -235,7 +235,7 @@ printUpdateStatus('OK');
 
 //--        UPDATE VALUES FOR DESIGN LINKS        --//
 
-foreach(Array(SQ_TABLE_PREFIX, SQ_TABLE_ROLLBACK_PREFIX) as $prefix) {
+foreach (Array(SQ_TABLE_PREFIX, SQ_TABLE_ROLLBACK_PREFIX) as $prefix) {
 
 	$extra = ($prefix == SQ_TABLE_ROLLBACK_PREFIX) ? ', sq_eff_from, sq_eff_to' : '';
 

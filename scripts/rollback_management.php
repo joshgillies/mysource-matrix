@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.php,v 1.6 2004/12/23 13:30:14 brobertson Exp $
+* $Id: rollback_management.php,v 1.7 2005/02/23 05:49:03 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -288,9 +288,9 @@ function get_rollback_table_names()
 {
 	global $SYSTEM_ROOT;
 	$table_names = Array();
-	
+
 	$packages_installed = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
-	
+
 	if (empty($packages_installed)) return Array();
 
 	foreach ($packages_installed as $package_array) {
@@ -299,12 +299,12 @@ function get_rollback_table_names()
 		} else {
 			$table_file = SQ_PACKAGES_PATH.'/'.$package_array['code_name'].'/tables.xml';
 		}
-		
+
 		if (!file_exists($table_file)) continue;
-	
+
 		$tree = new XML_Tree($table_file);
 		$root = &$tree->getTreeFromFile();
-		
+
 		if ($root->name != 'schema' || $root->children[0]->name != 'tables') {
 			trigger_error('Invalid table schema for file "'.$table_file.'"', E_USER_ERROR);
 		}
@@ -343,3 +343,6 @@ function usage()
 	exit();
 
 }//end usage()
+
+
+?>

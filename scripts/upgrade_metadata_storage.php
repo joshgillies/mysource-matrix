@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_metadata_storage.php,v 1.1 2004/12/21 18:36:52 brobertson Exp $
+* $Id: upgrade_metadata_storage.php,v 1.2 2005/02/23 05:49:03 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Upgrade the wayt that the metadata storage is done.
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -74,7 +74,7 @@ echo "| UPDATING Metadata_Field_Date default values |\n";
 echo "+---------------------------------------------+\n";
 
 $date_fields = $am->getTypeAssetids('metadata_field_date', false, true);
-foreach($date_fields as $assetid => $type_code) {
+foreach ($date_fields as $assetid => $type_code) {
 	$asset = &$am->getAsset($assetid, $type_code);
 	if (is_null($asset)) continue;
 
@@ -147,7 +147,7 @@ while (null !== ($row = $result->fetchRow())) {
 
 	$new_metadata = Array();
 
-	for(reset($old_metadata); NULL !== ($schemaid = key($old_metadata)); next($old_metadata)) {
+	for (reset($old_metadata); NULL !== ($schemaid = key($old_metadata)); next($old_metadata)) {
 
 		$old_schema_data = unserialize(current($old_metadata));
 		if ($old_schema_data === false) continue;
@@ -156,14 +156,14 @@ while (null !== ($row = $result->fetchRow())) {
 		if (is_null($schema)) continue;
 
 		$sections = &$am->getChildren($schemaid, 'metadata_section', false);
-		foreach($sections as $sectionid => $section_type_code) {
+		foreach ($sections as $sectionid => $section_type_code) {
 			$section = &$am->getAsset($sectionid, $section_type_code);
 
 			// we don't have anything on this section? next!
 			if (empty($old_schema_data['sections'][$section->name])) continue;
 
 			$fields  = &$am->getChildren($sectionid, 'metadata_field', false);
-			foreach($fields as $fieldid => $field_type_code) {
+			foreach ($fields as $fieldid => $field_type_code) {
 				$field = &$am->getAsset($fieldid, $field_type_code);
 
 				// we don't have anything on this field? next!

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_run_tidy.php,v 1.3 2004/12/06 14:38:13 brobertson Exp $
+* $Id: system_integrity_run_tidy.php,v 1.4 2005/02/23 05:49:03 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Go through all WYSIWYG content types and re-run HTML Tidy
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -208,5 +208,6 @@ function printUpdateStatus($status)
 	echo " [ $status ] \n";
 
 }//end printUpdateStatus()
+
 
 ?>

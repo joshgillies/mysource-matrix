@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.56 2005/02/08 23:30:25 lwright Exp $
+* $Id: step_03.php,v 1.57 2005/02/23 05:49:19 gsherwood Exp $
 *
 */
 
@@ -43,7 +43,7 @@
 * would update all the asset types for core and cms only
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -76,12 +76,12 @@ if ((php_sapi_name() == 'cli')) {
 
 	$shortopt = '';
 	$longopt = Array('package=');
-	
-	$con  = new Console_Getopt; 
+
+	$con  = new Console_Getopt;
 	$args = $con->readPHPArgv();
 	array_shift($args);
 	$options = $con->getopt($args, $shortopt, $longopt);
-	
+
 	if (is_array($options[0])) {
 		$package_list = get_console_list($options[0]);
 	}
@@ -137,7 +137,7 @@ while ($run_install) {
 			trigger_error('The following assets could not be installed due to dependency failures (see previous warnings for details): '."\n".format_deferred_packages($deferred), E_USER_ERROR);
 		}
 	}
-	
+
 	if (!$search_installed && $GLOBALS['SQ_SYSTEM']->am->installed('search_manager')) {
 		bam('Search manager was installed for the first time'."\n".'Need to restart asset install to initialise search weightings...');
 	} else {
@@ -166,24 +166,24 @@ unset($GLOBALS['SQ_INSTALL']);
 function get_console_list($options)
 {
 	$list = Array();
-	
+
 	foreach ($options as $option) {
 		// if nothing set, skip this entry
 		if (!isset($option[0]) || !isset($option[1])) continue;
-		
+
 		if ($option[0] != '--package') continue;
-		
+
 		// Now process the list
 		$parts = split('-', $option[1]);
-		
+
 		$types = Array();
 		if (count($parts) == 2 && strlen($parts[1])) {
 			$types = split(',', $parts[1]);
 		}
-		
+
 		$list[$parts[0]] = $types;
 	}
-	
+
 	return $list;
 
 }//end get_console_list()

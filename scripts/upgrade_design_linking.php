@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_design_linking.php,v 1.2 2005/02/16 09:11:57 brobertson Exp $
+* $Id: upgrade_design_linking.php,v 1.3 2005/02/23 05:49:03 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Convert TYPE_3 linked designs to NOTICE
 *
 * @author  Greg Sherwood <greg@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -100,7 +100,7 @@ $update_sql = 'UPDATE sq_ast_lnk_tree SET linkid = 0 WHERE treeid = ';
 foreach ($treeids as $treeid) {
 	$result = $db->query($delete_sql.$db->quote($treeid.'%'));
 	assert_valid_db_result($result);
-	
+
 	$result = $db->query($update_sql.$db->quote($treeid));
 	assert_valid_db_result($result);
 }
@@ -121,7 +121,7 @@ $update_sql = 'UPDATE sq_rb_ast_lnk_tree SET linkid = 0 WHERE treeid = ';
 foreach ($treeids as $treeid) {
 	$result = $db->query($delete_sql.$db->quote($treeid.'%'));
 	assert_valid_db_result($result);
-	
+
 	$result = $db->query($update_sql.$db->quote($treeid));
 	assert_valid_db_result($result);
 }

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_move_update.php,v 1.8 2004/12/06 17:31:05 brobertson Exp $
+* $Id: system_move_update.php,v 1.9 2005/02/23 05:49:03 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Small script to be run AFTER the system root directory is changed
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -49,7 +49,7 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 	trigger_error($err_msg, E_USER_ERROR);
 }
 
-# simple fn to print a prompt and return what the user enters
+// simple fn to print a prompt and return what the user enters
 function get_line($prompt='')
 {
 	echo $prompt;
@@ -57,6 +57,7 @@ function get_line($prompt='')
 	return rtrim(fgets(STDIN, 4094));
 
 }//end get_line()
+
 
 // Dont set SQ_INSTALL flag before this include because we want
 // a complete load now that the database has been created
