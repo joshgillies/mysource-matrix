@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.4 2004/09/02 04:41:15 gsherwood Exp $
+* $Id: page_standard.inc,v 1.5 2004/09/02 04:44:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -303,7 +303,7 @@ class Page_Standard extends Page
 		$locks = Array();
 		if (!is_array($keywords) || empty($keywords)) return Array();
 		if (!in_array('content', $keywords)) return Array();
-		return Array('links', 'attributes');
+		return Array('content');
 
 	}//end getEditingLocks()
 
