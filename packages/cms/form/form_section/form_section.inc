@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.18 2004/05/05 06:59:23 lwright Exp $
+* $Id: form_section.inc,v 1.19 2004/06/21 12:58:10 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -584,7 +584,7 @@ class Form_Section extends Bridge
 	* @access private
 	* @return string
 	*/
-	function _getName($short_name = false)
+	function _getName($short_name=false)
 	{
 		return $this->attr('name');
 
