@@ -28,7 +28,7 @@ class Cron_Manager_Management extends Asset_Management
 								'added'			=> '0.0.1',
 								'type'			=> 'int',
 								'default'		=> 0,
-								'description'	=> 'The "first" run that the Cron Manager made (or will make) is at this time, this is used in conjunction with the refresh time to generate the times that the Operating System\'s Cron (or other scheduler) will be initiating a cron run, mainly so that if a current script that is already running runs over into that period it does the next periods work as well',
+								'description'	=> 'The GMT time of the "first" run that the Cron Manager made (or will make) was at this time, this is used in conjunction with the refresh time to generate the times that the Operating System\'s Cron (or other scheduler) will be initiating a cron run, mainly so that if a current script that is already running happens to run over into the next period it will run the jobs for that period as well',
 							),
 							'refresh_time' => Array(
 								'added'			=> '0.0.1',
