@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.12 2004/05/05 07:10:15 lwright Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.13 2004/05/06 04:47:16 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -177,7 +177,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	* @return Array(string => string)
 	*/
 	function getAllowedRules() {
-		return Array('select_limit');
+		return Array();
 	
 	}//end getAllowedRules()
 
