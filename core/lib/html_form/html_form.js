@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: html_form.js,v 1.18 2003/09/26 05:26:34 brobertson Exp $
+* $Id: html_form.js,v 1.19 2003/10/02 23:54:52 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -16,7 +16,7 @@
 *
 * @access public
 */
-function submit_form() 
+function submit_form()
 {
 	var f = document.main_form;
 	// make sure we clean any stuff up before we submit
@@ -33,7 +33,7 @@ function submit_form()
 *
 * @access public
 */
-function set_hidden_field(name, value) 
+function set_hidden_field(name, value)
 {
 	var f = document.main_form;
 	if (f.elements[name]) {
@@ -50,7 +50,13 @@ function set_hidden_field(name, value)
 *
 * @access public
 */
-set_text_field = set_hidden_field;
+function set_text_field(name, value)
+{
+	var f = document.main_form;
+	if (f.elements[name]) {
+		f.elements[name].value = value;
+	}
+}// end set_text_field()
 
 /**
 * Convenience function for setting button values fields in the form
@@ -72,7 +78,7 @@ set_button_value = set_hidden_field;
 * @return object Form_Element
 * @access public
 */
-function get_form_element(name) 
+function get_form_element(name)
 {
 	var f = document.main_form;
 
@@ -95,7 +101,7 @@ function get_form_element(name)
 * @return string
 * @access public
 */
-function get_form_element_value(name) 
+function get_form_element_value(name)
 {
 	var f = document.main_form;
 	return (f.elements[name]) ? form_element_value(f.elements[name]) : '';
@@ -105,7 +111,7 @@ function get_form_element_value(name)
 
 /**
 * Returns the value for any type of form element
-* if select box or group of radio buttons returns the selected/checked value(s) 
+* if select box or group of radio buttons returns the selected/checked value(s)
 *    -> for multi-select boxes returns an array of selected values
 * if array of any other type of elements returns the value of the first element in array
 *
@@ -114,7 +120,7 @@ function get_form_element_value(name)
 * @return string
 * @access public
 */
-function form_element_value(element) 
+function form_element_value(element)
 {
 	// if element doesn't exist, die
 	if (element == null) return "";
@@ -128,7 +134,7 @@ function form_element_value(element)
 				return element.options[element.selectedIndex].value;
 			}
 		break;
-		
+
 		case "select-multiple" :
 
 			if (element.selectedIndex >= 0) {
@@ -170,7 +176,7 @@ function form_element_value(element)
 			// if its an array of elements return the first ones value
 			if (element.length != null && element[0] != null) {
 				return element[0].value ;
-				
+
 			// else just return the value
 			} else {
 				return element.value;
@@ -191,7 +197,7 @@ function form_element_value(element)
 * @return string
 * @access public
 */
-function get_combo_text(element) 
+function get_combo_text(element)
 {
 	// just to make sure
 	if (element.type != "select-one" && element.type != "select-multiple") return '';
@@ -209,7 +215,7 @@ function get_combo_text(element)
 *
 * @access public
 */
-function check_radio_button(element, field_val) 
+function check_radio_button(element, field_val)
 {
 
 	for(var i = 0; i < element.length; i++) {
@@ -254,7 +260,7 @@ function highlight_combo_value(element, field_val) {
 *
 * @access public
 */
-function move_combo_selection(element, move_up) 
+function move_combo_selection(element, move_up)
 {
 
 	switch (element.type) {
@@ -297,7 +303,7 @@ function move_combo_selection(element, move_up)
 			}// end if selected index
 
 		break;
-		
+
 		case "select-multiple" :
 
 			if (move_up) {
@@ -365,7 +371,7 @@ function move_combo_selection(element, move_up)
 *
 * @access public
 */
-function check_date(date_name, show_time) 
+function check_date(date_name, show_time)
 {
 	var f = document.main_form;
 
@@ -430,7 +436,7 @@ function check_date(date_name, show_time)
 * Activated by the pressing of the "Change..." button to start the asset finder mode in the flash menu
 *
 * @param string	$name			the name of the hidden field
-* @param string	$safe_name		the name prefix for all the other form elements associated with the 
+* @param string	$safe_name		the name prefix for all the other form elements associated with the
 * @param string	$type_codes_xml	xml containing type codes that we want to find
 * @param string	$top_obj		a reference to the top window so we can find the sidenav
 * @param string	$done_fn		a function to call when the asset finder is finished
@@ -475,7 +481,7 @@ function asset_finder_change_btn_press(name, safe_name, type_codes_xml, top_obj,
 
 
 /**
-* Call-back fns that stops the asset finder 
+* Call-back fns that stops the asset finder
 *
 * @param int	$assetid		the assetid that has been selected
 * @param int	$label			the name of the selected asset
@@ -503,7 +509,7 @@ function asset_finder_done(assetid, label)
 * Activated by the pressing of the "Clear" button
 *
 * @param string	$name			the name of the hidden field
-* @param string	$safe_name		the name prefix for all the other form elements associated with the 
+* @param string	$safe_name		the name prefix for all the other form elements associated with the
 *
 * @access public
 */
@@ -519,7 +525,7 @@ function asset_finder_clear_btn_press(name, safe_name)
 * Activated by the pressing of the "Reset" button
 *
 * @param string	$name			the name of the hidden field
-* @param string	$safe_name		the name prefix for all the other form elements associated with the 
+* @param string	$safe_name		the name prefix for all the other form elements associated with the
 *
 * @access public
 */
