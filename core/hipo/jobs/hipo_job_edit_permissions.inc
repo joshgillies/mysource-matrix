@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.35 2005/02/21 04:09:13 ndvries Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.36 2005/02/22 03:34:39 gsherwood Exp $
 *
 */
 
@@ -29,19 +29,22 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * <pre>
 * Initial Running Vars :
-*    int    assetid             -  the assetid with whose children we are going to attempt to lock
-*    Array  permission_changes  -  the values that we are trying to set for our children, in the form :
+*    array  assets              -  the IDs of the assets we are modifying permissions for in the form :
+*                                  $assetids = Array([assetid] => Array(
+                                                                        'type_code' => [type_code],
+                                                                        ),
+*    array  permission_changes  -  the values that we are trying to set for our children, in the form :
 *                                  $changes = Array([perm] => Array (
-*                                                                       Array(
-*                                                                           'granted'         => $granted,
-*                                                                           'userid'          => $userid,
-*                                                                           'previous_access' => null,
-*                                                                      ),
+*                                                                    Array(
+*                                                                          'granted'         => $granted,
+*                                                                          'userid'          => $userid,
+*                                                                          'previous_access' => null,
+*                                                                          ),
 *                                                   ),
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -228,11 +231,8 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 			$child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
 			$child_assets[$assetid] = $asset_info[$assetid]['type_code'];
 		}
-		$child_assets = array_unique($child_assets);
 		$this->_running_vars['todo_assetids'] = $child_assets;
 		$this->_running_vars['done_assetids'] = Array();
-
-	//	$GLOBALS['SQ_SYSTEM']->setLastAction('system:edit_permission', 'Applying Permission', $this->_running_vars['assetid']);
 
 		return parent::prepare();
 
