@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.338.2.5 2004/12/24 03:23:52 gsherwood Exp $
+* $Id: asset.inc,v 1.338.2.6 2004/12/30 03:09:46 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.338.2.5 $
+* @version $Revision: 1.338.2.6 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2671,7 +2671,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function writeAccess($lock_type, $assetids=Array())
+	function writeAccess($lock_type='', $assetids=Array())
 	{
 		if (SQ_ROLLBACK_VIEW) return false;
 		if (!$this->id || !empty($GLOBALS['SQ_INSTALL'])) return true;
