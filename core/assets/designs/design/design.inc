@@ -443,7 +443,6 @@ class Design extends Design_Area
 	*/
 	function paint(&$ASSET, $FILE_URLS=Array())
 	{
-		inject_beef();
 		// generate an array of all the URLs we are going to need for the files in this design
 		$file_link_ids = Array();
 		$file_links = $this->getLinks(SQ_LINK_TYPE_2, 'file', false);
@@ -458,8 +457,6 @@ class Design extends Design_Area
 			if ($file_url == '') $file_url = "Javascript: alert('This URL for \'".$file_info['name']."\' does not exist');";
 			$FILE_URLS[$file_info['name']] = $system_root_url.'/?a='.$minorid;
 		}
-		bam($FILE_URLS);
-		inject_beef();
 
 		$DATA_PATH = sq_web_path('data'); // this works because we know that all design areas are not going to be restricted
 		$LIB_PATH  = sq_web_path('lib');
@@ -477,9 +474,9 @@ class Design extends Design_Area
 		}
 
 		// Now we just include the design file to get it to print
-		inject_beef();
+		speed_check();
 		require_once($file_path);
-		inject_beef();
+		speed_check();
 
 	}//end paint()
 
