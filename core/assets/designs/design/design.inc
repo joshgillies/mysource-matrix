@@ -18,7 +18,7 @@ class Design extends Design_Area
 	/**
 	* Constructor
 	*
-	* @param int    $assetid      the asset id to be loaded
+	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
 	function Design($assetid=0)
@@ -259,7 +259,7 @@ class Design extends Design_Area
 		$LIB_PATH  = sq_web_path('lib');
 		// Now we just include the design file to get it to print.
 		speed_check();
-		require_once $this->data_path.'/design_file.php';
+		require_once $this->data_path_unrestricted.'/design_file.php';
 		speed_check();
 	}//end paint()
 
@@ -297,7 +297,7 @@ class Design extends Design_Area
 	*/
 	function filePath($filename)
 	{
-		return $this->data_path.'/files/'.$filename;
+		return $this->data_path_unrestricted.'/files/'.$filename;
 	}//end filePath()
 
 	/**

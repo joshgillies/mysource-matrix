@@ -83,23 +83,23 @@ class Login_Design extends Design
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		if (!create_directory($this->data_path)) {
+		if (!create_directory($this->data_path_unrestricted)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
 		$source_dir = dirname(__FILE__).'/design_files';
-		if (!copy($source_dir.'/index.html', $this->data_path.'/parse.txt')) {
+		if (!copy($source_dir.'/index.html', $this->data_path_unrestricted.'/parse.txt')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
-		if (!copy($source_dir.'/index.html', $this->data_path.'/parse.txt')) {
+		if (!copy($source_dir.'/index.html', $this->data_path_unrestricted.'/parse.txt')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
-		if (!copy_directory($source_dir.'/files', $this->data_path.'/files')) {
+		if (!copy_directory($source_dir.'/files', $this->data_path_unrestricted.'/files')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}

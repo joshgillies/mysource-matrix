@@ -56,20 +56,23 @@ class Asset extends Resolve_Object
 	var $vars = Array();
 
 	/**
-	* Whether or not this asset is restricted
-	* Changes to this var's state probably should be made in _updated()
-	*
-	* @var boolean
-	*/
-	var $_restricted = true;
-
-	/**
 	* The current data path for this asset
-	* Changes to this var's state probably should be made in _updated()
+	* This always points to the restricted directory but may also
+	* point to the .sq_system directory within it
 	*
 	* @var string
 	*/
 	var $data_path = '';
+
+	/**
+	* The current unrestrcited data path for this asset
+	* This always points to the unrestricted directory but may also
+	* point to the .sq_system directory within it
+	* Only use this path for storage if the web server should serve the file
+	*
+	* @var string
+	*/
+	var $data_path_unrestricted = '';
 
 	/**
 	* Whether this asset has serialise attributes or not, basically a performance var
@@ -108,36 +111,55 @@ class Asset extends Resolve_Object
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
-		// make sure our data directory exists
+		// make sure our data directories exists
 		if (!create_directory($this->data_path)) {
-			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create data directory', E_USER_WARNING);
+			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create restricted data directory', E_USER_WARNING);
+			return false;
+		}
+		if (!create_directory($this->data_path_unrestricted)) {
+			trigger_error('Failed saving asset "'.$this->name.'" to unrestricted cache, could not create unrestricted data directory', E_USER_WARNING);
 			return false;
 		}
 
-		// make sure our system directory exists
+		// make sure our system directories exists
 		if (!create_directory($this->data_path.'/.sq_system')) {
-			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create system directory', E_USER_WARNING);
+			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create restricted system directory', E_USER_WARNING);
+			return false;
+		}
+		if (!create_directory($this->data_path_unrestricted.'/.sq_system')) {
+			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create unrestricted system directory', E_USER_WARNING);
 			return false;
 		}
 
-		// make sure there is nothing in the system directory
+		// make sure there is nothing in the system directories
 		if (!clear_directory($this->data_path.'/.sq_system')) {
-			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not clear system directory', E_USER_WARNING);
+			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not clear restricted system directory', E_USER_WARNING);
+			return false;
+		}
+		if (!clear_directory($this->data_path_unrestricted.'/.sq_system')) {
+			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not clear unrestricted system directory', E_USER_WARNING);
 			return false;
 		}
 
-		// save the object for later
+		// save the object for later (in the restricted directory)
 		if (!string_to_file(serialize($this), $this->data_path.'/.sq_system/.object_data')) {
 			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not write object data file', E_USER_WARNING);
 			return false;
 		}
 
-		// move all the other files in our data directory
-		// into the new system directory for later use
+		// move all the other files in our data directories
+		// into the new system directories for later use
 		$files_to_copy = list_files($this->data_path);
 		foreach ($files_to_copy as $filename) {
 			if (!copy_file($this->data_path.'/'.$filename, $this->data_path.'/.sq_system/'.$filename)) {
-				trigger_error('Failed saving asset "'.$this->name.'" to cache, could not copy file "'.$filename.'"', E_USER_WARNING);
+				trigger_error('Failed saving asset "'.$this->name.'" to cache, could not copy file "'.$filename.'" to restricted system directory', E_USER_WARNING);
+				return false;
+			}
+		}
+		$files_to_copy = list_files($this->data_path_unrestricted);
+		foreach ($files_to_copy as $filename) {
+			if (!copy_file($this->data_path_unrestricted.'/'.$filename, $this->data_path_unrestricted.'/.sq_system/'.$filename)) {
+				trigger_error('Failed saving asset "'.$this->name.'" to cache, could not copy file "'.$filename.'" to unrestricted system directory', E_USER_WARNING);
 				return false;
 			}
 		}
@@ -158,13 +180,13 @@ class Asset extends Resolve_Object
 
 		// make sure our data directory exists
 		if (!create_directory($this->data_path)) {
-			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create data directory', E_USER_WARNING);
+			trigger_error('Failed clearing system version of asset "'.$this->name.'", could not create data directory', E_USER_WARNING);
 			return false;
 		}
 
 		// make sure our system directory exists
 		if (!create_directory($this->data_path.'/.sq_system')) {
-			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create system directory', E_USER_WARNING);
+			trigger_error('Failed clearing system version of asset "'.$this->name.'", could not create system directory', E_USER_WARNING);
 			return false;
 		}
 
@@ -189,13 +211,13 @@ class Asset extends Resolve_Object
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		// make sure our data directory exists
-		if (!file_exists($this->data_path.'/.sq_system/.object_data')) {
-			trigger_error('Failed loading asset "'.$this->id.'" from cache, object data file "'.$this->data_path.'/.sq_system/.object_data'.'" not found', E_USER_WARNING);
+		if (!file_exists($this->data_path.'/.object_data')) {
+			trigger_error('Failed loading asset "'.$this->id.'" from cache, object data file "'.$this->data_path.'/.object_data'.'" not found', E_USER_WARNING);
 			return false;
 		}
 
 		$real_status = $this->status;
-		$this = unserialize(file_to_string($this->data_path.'/.sq_system/.object_data'));
+		$this = unserialize(file_to_string($this->data_path.'/.object_data'));
 		$this->status = $real_status;
 		return true;
 	}//end loadSystemVersion()
@@ -424,9 +446,7 @@ class Asset extends Resolve_Object
 		$result = $db->getRow($sql, null, DB_FETCHMODE_ORDERED);
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
-		if (is_null($result)) {
-			return;
-		}
+		if (is_null($result)) return;
 
 		list($this->id, $this->name, $this->short_name, $this->status, $type_code, $this->last_updated, $this->last_userid) = $result;
 		$this->last_updated = iso8601_ts($this->last_updated);
@@ -435,25 +455,38 @@ class Asset extends Resolve_Object
 		// make sure the asset we are loading is of the same type as our class
 		if ($type_code != $this->type()) {
 			trigger_error('Asset #'.$assetid.' is not a '.$this->type(), E_USER_WARNING);
-			$this->id   = null;
+			$this->id = null;
 			$this->last_updated = null;
 			$this->last_userid  = null;
 			return;
 		}
 
 		if ($this->useSystemVersion()) {
-			// let's setup the data path
-			$this->data_path = SQ_DATA_PATH.'/'.(($this->_restricted) ? '' : 'un').'restricted/'.$this->type().'/'.$this->id;
+			$this->_loadDataPaths();
 			if (!$this->loadSystemVersion()) {
 				trigger_error('Asset #'.$assetid.' failed loading from cache', E_USER_WARNING);
 				return;
 			}
-			$this->data_path .= '/.sq_system';
+			$this->_loadDataPaths();
 		} else {
 			$this->_loadVars();
 		}
 
 	}//end load()
+
+
+	/**
+	* Sets up the data paths for this asset
+	* Also takes into account if we are using a cached version
+	*
+	* @access private
+	*/
+	function _loadDataPaths()
+	{
+		$this->data_path = SQ_DATA_PATH.'/restricted/'.$this->type().'/'.$this->id;
+		$this->data_path_unrestricted = SQ_DATA_PATH.'/unrestricted/'.$this->type().'/'.$this->id;
+		if ($this->useSystemVersion()) $this->data_path .= '/.sq_system';
+	}//end _loadDataPaths()
 
 
 	/**
@@ -464,7 +497,7 @@ class Asset extends Resolve_Object
 	function _loadVars()
 	{
 		// let's setup the data path
-		$this->data_path = SQ_DATA_PATH.'/'.(($this->_restricted) ? '' : 'un').'restricted/'.$this->type().'/'.$this->id;
+		$this->_loadDataPaths();
 
 		// Right, now we need to get any values that this asset has customised
 		$this->vars = Array();
@@ -499,15 +532,16 @@ class Asset extends Resolve_Object
 	/**
 	* Set's the last updated info for this asset
 	*
+	* @return boolean
 	* @access private
 	*/
 	function _updated()
 	{
 
-		$last_updated	= time();
-		$last_userid	= $GLOBALS['SQ_SYSTEM']->currentUserId();
-		$name			= $this->_getName();
-		$short_name		= $this->_getName(true);
+		$last_updated = time();
+		$last_userid  = $GLOBALS['SQ_SYSTEM']->currentUserId();
+		$name         = $this->_getName();
+		$short_name   = $this->_getName(true);
 
 		// if we have an ID hit the DB
 		if ($this->id) { 
@@ -3590,6 +3624,19 @@ class Asset extends Resolve_Object
 
 
 	/**
+	* Returns true if this asset is effectivly readable by everyone
+	* This function is really just shorthand for getting public read access
+	*
+	* @return boolean
+	* @access public
+	*/
+	function effectiveUnrestricted()
+	{
+		return $this->readAccess(Array(0));
+	}//end effectiveUnrestricted()
+
+
+	/**
 	* Prints out the Frontend for this asset
 	* it's up to the kids to override
 	*
@@ -3598,6 +3645,7 @@ class Asset extends Resolve_Object
 	function printFrontend()
 	{
 		if (!$this->readAccess()) {
+			error_log('no read access');
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$this->name.'</i>');
 			return;
 		}
@@ -3775,6 +3823,7 @@ class Asset extends Resolve_Object
 				// get all the nav siblings
 				$parent_kids = $parent->getLinks(SQ_LINK_SIGNIFICANT, '', null, 'major');
 				for($j = 0; $j < count($parent_kids); $j++) {
+					if ($parent_kids[$j]['minorid'] == $this->id) continue;
 					$siblingids[] = $db->quote($parent_kids[$j]['minorid']);
 				}
 			}
@@ -3849,7 +3898,8 @@ class Asset extends Resolve_Object
 	/**
 	* Returns a list of lookup information associated with this asset
 	*
-	* @param string	$field	if only one field is required pass it's name through (url, root_urlid, designid)
+	* @param string	$field	if only one field is required pass it's name through 
+	*						(url, root_urlid, designid)
 	*
 	* @return Array()
 	* @access public
@@ -3902,7 +3952,8 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Fn that does the real processing of updateLookups(), separated to allow for the DB transaction stuff
+	* Fn that does the real processing of updateLookups()
+	* This is separated to allow for the DB transaction stuff
 	* Will be called by parent assets recursively on their kids so not 'really' private
 	* and by the saveWebPaths() so that their transaction calls can wrap around it
 	*
@@ -3973,7 +4024,6 @@ class Asset extends Resolve_Object
 
 		}// end for kids
 
-
 		return true;
 
 	}// end _updateLookups()
@@ -4032,6 +4082,20 @@ class Asset extends Resolve_Object
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getAssetHref($this->id, $base_url);
 	}//end getHref()
+
+
+	/**
+	* Returns the href for this asset closest to the $base_url, but relative to the current url 
+	*
+	* @param string	$base_url	the url that we are want to match closest to
+	*
+	* @return string
+	* @access public
+	*/
+	function getWebDataPath()
+	{
+		return '__data/'.$this->type().'/'.$this->id;
+	}//end getWebDataPath()
 
 
 }//end class

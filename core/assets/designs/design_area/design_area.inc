@@ -15,6 +15,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 */
 class Design_Area extends Asset
 {
+
 	/**
 	* Constructor
 	*
@@ -23,11 +24,9 @@ class Design_Area extends Asset
 	*/
 	function Design_Area($assetid=0)
 	{
-		$this->_ser_attrs   = true; // we have serialise type vars
-		// No design area is going to be restricted
-		$this->_restricted = false;
+		$this->_ser_attrs = true; // we have serialise type vars
 		$this->Asset($assetid);
-	}
+	}//end constructor
 
 	/**
 	* Create this asset
