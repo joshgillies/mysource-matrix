@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.11 2004/01/15 14:33:09 brobertson Exp $
+* $Id: config.inc,v 1.12 2004/01/15 21:51:24 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -186,7 +186,8 @@ class Config extends MySource_Object
 	{
 		if (!$this->canAcquireLock()) return 'You are not allowed to acquire the lock on '.$this->name;
 		return $GLOBALS['SQ_SYSTEM']->acquireLock(get_class($this));
-	}// end acquireLock()
+
+	}//end acquireLock()
 
 
 	/**
@@ -199,7 +200,8 @@ class Config extends MySource_Object
 	function canAcquireLock()
 	{
 		return true;
-	}// end canAcquireLock()
+
+	}//end canAcquireLock()
 
 
 	/**
@@ -212,7 +214,8 @@ class Config extends MySource_Object
 	function releaseLock()
 	{
 		return $GLOBALS['SQ_SYSTEM']->releaseLock(get_class($this));
-	}// end releaseLock()
+
+	}//end releaseLock()
 
 
 	/**
@@ -225,7 +228,8 @@ class Config extends MySource_Object
 	function getLockInfo()
 	{
 		return $GLOBALS['SQ_SYSTEM']->getLockInfo(get_class($this));
-	}// end getLockInfo()
+
+	}//end getLockInfo()
 
 
 	/**
@@ -240,7 +244,8 @@ class Config extends MySource_Object
 		if (!empty($lock_info) && $lock_info['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserId()) return true;
 		if (!empty($GLOBALS['SQ_INSTALL'])) return true;
 		return false;
-	}// end writeAccess()
+
+	}//end writeAccess()
 
 
 	/**
@@ -316,7 +321,7 @@ class Config extends MySource_Object
 
 		$o->closeSection();
 
-	}// end paintBackend()
+	}//end paintBackend()
 
 
 	/**
@@ -356,7 +361,6 @@ class Config extends MySource_Object
 		return $saved;
 
 	}//end processBackend()
-
 
 
 }//end class

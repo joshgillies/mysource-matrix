@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.20 2004/01/15 14:36:36 brobertson Exp $
+* $Id: system_config.inc,v 1.21 2004/01/15 21:51:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -206,7 +206,8 @@ class System_Config extends Config
 	{
 		// need to be root or a sys admin
 		return ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-	}// end canAcquireLock()
+
+	}//end canAcquireLock()
 
 
 	/**
@@ -220,7 +221,8 @@ class System_Config extends Config
 		if (!parent::writeAccess()) return false;
 		// need to be root or a sys admin
 		return ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-	}// end writeAccess()
+
+	}//end writeAccess()
 
 
 	/**
@@ -367,8 +369,7 @@ class System_Config extends Config
 
 		if ($write_access) $o->commitButton('Commit', true);
 
-
-	}// end paintBackend()
+	}//end paintBackend()
 
 
 }//end class
