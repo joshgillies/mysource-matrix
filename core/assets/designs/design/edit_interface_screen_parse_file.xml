@@ -1,0 +1,12 @@
+<contents>
+	<section name="Edit Parse File">
+		<field>
+			<display_name />
+			<note />
+			<function_call>
+				<paint_function   name="paintEditParseFile"   />
+				<process_function name="processEditParseFile" />
+			</function_call>
+		</field>
+	</section>
+</contents>

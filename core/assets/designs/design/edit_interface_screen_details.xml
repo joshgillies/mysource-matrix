@@ -8,6 +8,14 @@
 	</section>
 	<section name="Parse File" read_access="write">
 		<field>
+			<display_name>Manual</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintReparseFile"   />
+				<process_function name="processReparseFile" />
+			</function_call>
+		</field>
+		<field>
 			<display_name>Upload</display_name>
 			<note>All your images, stylesheets and javascript files &lt;b&gt;MUST&lt;/b&gt; be in the relative directory './files'</note>
 			<function_call>

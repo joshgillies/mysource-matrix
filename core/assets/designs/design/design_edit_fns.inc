@@ -48,7 +48,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 
 	/**
-	* Processes the URLs posted from the paintURLs fn above
+	* Processes the interface for the parse file uploading
 	*
 	* @param object Asset				$asset	the asset to which we belong
 	* @param object	Backend_Outputter	$o		the outputter class
@@ -86,14 +86,12 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				if (FUDGE_FV_MODIFIED & $file_status) {
 					if (!$fv->commit($parse_file, '', false)) {
 						trigger_error('Failed committing file version', E_USER_WARNING);
-						return false;
 					}
 				}
 			} else {
 				// attempt to add the parse file to the repository
 				if (!$fv->add($asset->data_path_suffix, $parse_file, '', false)) {
 					trigger_error('Failed adding parse file version', E_USER_WARNING);
-					return false;
 				}
 			}
 		}//end if file uploaded
@@ -107,6 +105,141 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		return $changes;
 
 	}// end processParseFile()
+
+
+	/**
+	* Paint the interface for the reparsing the current parse file
+	*
+	* @param object Asset				$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintReparseFile(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess()) {
+			$parse_file = $asset->data_path.'/parse.txt';
+			if (!is_file($parse_file)) {
+				echo 'Not available - no existing parse file available';
+			} else {
+				check_box($prefix.'_reparse');
+				echo ' Yes, manually reparse the existing file';
+			}
+		}
+		return true;
+
+	}// end paintReparseFile()
+
+
+	/**
+	* Processes the interface for the reparsing the current parse file
+	*
+	* @param object Asset				$asset	the asset to which we belong
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processReparseFile(&$asset, &$o, $prefix)
+	{
+		if (isset($_POST[$prefix.'_reparse'])) return $this->parseAndProcessFile($asset);
+		return false;
+
+	}// end processReparseFile()
+
+
+	/**
+	* Paint the interface for editing the parse file
+	*
+	* @param object Asset				$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintEditParseFile(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess()) {
+			$parse_file = $asset->data_path.'/parse.txt';
+			if (!is_file($parse_file)) {
+				echo 'You need to upload a parse file before you can edit it';
+				return true;
+			}
+
+			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+			$str = file_to_string($parse_file);
+			text_area($prefix.'_new_parse_file', str_replace("\t", "    ", $str), 120, 30);
+		} else {
+			echo 'You do not have access to edit the parse file for "'.$asset->name.'"';
+		}
+
+	}// end paintEditParseFile()
+
+
+	/**
+	* Processes the interface for the editing the parse file
+	*
+	* @param object Asset				$asset	the asset to which we belong
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processEditParseFile(&$asset, &$o, $prefix)
+	{
+		if (isset($_POST[$prefix.'_new_parse_file'])) {
+
+			$parse_file  = $asset->data_path.'/parse.txt';
+			$new_file    = $_POST[$prefix.'_new_parse_file'];
+
+			if (!is_file($parse_file)) return false;
+
+			$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+
+			// delete existing parse file
+			if (!unlink($parse_file)) {
+				trigger_error('Failed deleting existing parse file', E_USER_WARNING);
+				return false;
+			}
+
+			// copy over the uploaded file
+			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+			if (string_to_file($new_file, $parse_file)) {
+				// tell the asset to update the customisation at the end of the interface processing
+				$asset->_tmp['update_customisations'] = true;
+				$changes = $this->parseAndProcessFile($asset);
+
+				// add a new version to the repository
+				$file_status = $fv->upToDate($parse_file);
+				if (FUDGE_FV_MODIFIED & $file_status) {
+					if (!$fv->commit($parse_file, '', false)) {
+						trigger_error('Failed committing file version', E_USER_WARNING);
+					}
+				} else {
+					$changes = true;
+				}
+				
+			} else {
+				trigger_error('Failed writing parse file, trying to recover previous version from repository', E_USER_WARNING);
+			}
+
+			// make sure we have the latest version of our file
+			if (!$fv->checkOut($asset->data_path_suffix.'/parse.txt', $asset->data_path)) {
+				trigger_error('Failed checking out latest version of parse file', E_USER_WARNING);
+				return false;
+			}
+			
+			if ($changes) return $this->parseAndProcessFile($asset);
+		}
+
+		return false;
+
+	}// end processEditParseFile()
 
 
 	/**
