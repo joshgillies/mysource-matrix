@@ -49,7 +49,7 @@ mcProgressBarClass.prototype.show = function(desc)
 
 	if (!this.intervalid) {
 		if (this.order.length > 1) {
-			//this.intervalid = setInterval(this, 'setText', 500);
+			this.intervalid = setInterval(this, 'setText', 500);
 		} else {
 			this.setText();
 		}
