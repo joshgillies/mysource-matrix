@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.9 2004/08/09 00:19:45 lwright Exp $
+* $Id: page_calendar.inc,v 1.10 2004/08/09 00:46:41 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.9 $ - 1.0
+* @version $Revision: 1.10 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -608,21 +608,13 @@ class Page_Calendar extends Page_Asset_Listing
 	
 
 /**
-	* Returns the maximum number of overlapping events in a certain event list
-	* 
-	* This is meant to determine whether there are double and triple bookings (and adjust
-	* the display of the week or day view to suit), hence the other parameters. This
-	* method doesn't have much meaning outside the day (including resource day) and
-	* week views.
+	* Returns the number of $spacing minute periods between times
 	*
-	* @param Array	&$events	array of events containing at least start_date and
-	*							end_date indices which only contain a time component
-	*							(HH:MM:SS) as their value for both
-	* @param string	$start		Earliest time to check for overlaps (HH:MM)
-	* @param string	$end		Latest time to check for overlaps (HH:MM)
+	* @param string	$start		Start time (HH:MM)
+	* @param string	$end		End time (HH:MM)
 	* @param int	$spacing	Calendar spacing in MINUTES
 	
-	* @return mixed int			= 0 if events is not an array or is empty
+	* @return int
 	* @access private
 	*/
 	function _numPeriodsBetweenTimes($start, $end, $spacing)
