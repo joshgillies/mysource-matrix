@@ -23,37 +23,38 @@ class User_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array('username' => Array(
-												'added'     => '0.1',
-												'type'      => 'text', 
-												'default'   => '',
-												),
+		$this->vars =	Array(
+							'username' => Array(
+								'added'     => '0.1',
+								'type'      => 'text', 
+								'default'   => '',
+							),
 							'password' => Array(
-												'added'     => '0.1',
-												'type'      => 'password',
-												'default'   => '',
-												),
+								'added'     => '0.1',
+								'type'      => 'password',
+								'default'   => '',
+							),
 							'first_name' => Array(
-												'added'     => '0.1',
-												'type'      => 'text',
-												'default'   => '',
-												),
+								'added'     => '0.1',
+								'type'      => 'text',
+								'default'   => '',
+							),
 							'last_name' => Array(
-												'added'     => '0.1',
-												'type'      => 'text',
-												'default'   => '',
-												),
+								'added'     => '0.1',
+								'type'      => 'text',
+								'default'   => '',
+							),
 							'email'     => Array(
-												'added'     => '0.1',
-												'type'      => 'email',
-												'default'   => '',
-												),
+								'added'     => '0.1',
+								'type'      => 'email',
+								'default'   => '',
+							),
 							'expiry_date' => Array(
-												'added'     => '0.1',
-												'type'      => 'datetime',
-												'default'   => '---------- --:--:--',
-												)
-							);
+								'added'     => '0.1',
+								'type'      => 'datetime',
+								'default'   => '---------- --:--:--',
+							),
+						);
 	}//end constructor
 
 }//end class
