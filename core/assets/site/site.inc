@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.62 2004/12/06 22:35:28 gsherwood Exp $
+* $Id: site.inc,v 1.63 2004/12/24 02:29:36 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -371,7 +371,7 @@ class Site extends Folder
 			return false;
 		}
 
-		$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3, 'design', false);
+		$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'design', false);
 		$our_designs = Array();
 		foreach ($our_design_links as $link) {
 			if (preg_match('/^(system_design|user_design)::(.*)$/', $link['value'], $matches)) {
