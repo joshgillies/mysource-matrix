@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.74 2004/06/08 02:39:09 gsherwood Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.75 2004/06/09 04:50:06 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -366,7 +366,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		echo '&nbsp;';
 		submit_button('commit', 'Commit');
 
-	}// end _forceablyAcquireLock()
+	}//end _forceablyAcquireLock()
 
 
 	/**
@@ -481,7 +481,8 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 	<?php
 		$o->closeSection();
 
-	}// end printAssetList()
+	}//end printAssetList()
+
 
 	function _recursePrintAssetList(&$offspring, $parent)
 	{
@@ -522,7 +523,9 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		</table>
 	<?php
 
-	}//end _printAssetTypeList()
+	}//end _recursePrintAssetList()
+
 
 }//end class
+
 ?>

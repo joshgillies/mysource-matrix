@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: assertions.inc,v 1.6 2004/06/07 03:57:44 gsherwood Exp $
+* $Id: assertions.inc,v 1.7 2004/06/09 04:46:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -390,7 +390,7 @@ function assert_type($obj, $type, $msg='', $silent=false, $fatal=true)
 	}
 	return true;
 
-}//end assert_is_a()
+}//end assert_type()
 
 
 /**

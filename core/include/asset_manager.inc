@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.215 2004/06/08 02:36:56 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.216 2004/06/09 04:50:06 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -575,7 +575,7 @@ class Asset_Manager extends MySource_Object
 		require_once($file);
 		return class_exists('Asset_Attribute_'.$attr_type);
 
-	}//end _validateAttributeType()
+	}//end validateAttributeType()
 
 
 	/**
@@ -1038,7 +1038,7 @@ class Asset_Manager extends MySource_Object
 
 		return $clone;
 
-	}//end &_cloneAsset()
+	}//end _cloneAsset()
 
 
 	/**
@@ -2841,7 +2841,7 @@ class Asset_Manager extends MySource_Object
 
 		return true;
 
-	}// end canCreateLink()
+	}//end canCreateLink()
 
 
 	/**
@@ -2919,7 +2919,7 @@ class Asset_Manager extends MySource_Object
 		// if we get this far all is OK
 		return true;
 
-	}// canLinkToType()
+	}//end canLinkToType()
 
 
 	/**
@@ -4191,7 +4191,7 @@ class Asset_Manager extends MySource_Object
 		}
 		return $return_hrefs;
 
-	}// end getAssetBackendHref()
+	}//end getAssetBackendHref()
 
 
 	/**

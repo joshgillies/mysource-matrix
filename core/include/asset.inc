@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.301 2004/06/08 02:36:56 gsherwood Exp $
+* $Id: asset.inc,v 1.302 2004/06/09 04:46:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1205,7 +1205,7 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
-	}// end remapAssetids()
+	}//end remapAssetids()
 
 
 	/**
@@ -1583,7 +1583,7 @@ class Asset extends MySource_Object
 		}
 		return $this->_tmp['status_object'];
 
-	}//end &getStatus()
+	}//end getStatus()
 
 
 	/**
@@ -2384,7 +2384,7 @@ class Asset extends MySource_Object
 	{
 		return true;
 
-	}// processCustomKeywords()
+	}//end processCustomKeywords()
 
 
 
@@ -3259,7 +3259,7 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
-	}// end updateLookups()
+	}//end updateLookups()
 
 
 //--        INDEXING        --//
@@ -3420,7 +3420,7 @@ class Asset extends MySource_Object
 
 		return $sm->getAssetWeightings($this->id);
 
-	}// end getWeightings()
+	}//end getWeightings()
 
 
 }//end class
