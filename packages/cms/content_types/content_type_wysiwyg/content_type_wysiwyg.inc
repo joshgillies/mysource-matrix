@@ -23,7 +23,7 @@ class Content_Type_WYSIWYG extends Content_Type
 	*/
 	function Content_Type_WYSIWYG($assetid=0) 
 	{
-		$this->Asset($assetid);
+		$this->Content_Type($assetid);
 	}
 
 
