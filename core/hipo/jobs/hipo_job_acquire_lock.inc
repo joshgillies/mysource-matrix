@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_lock.inc,v 1.25 2004/01/22 00:35:34 diarandine Exp $
+* $Id: hipo_job_acquire_lock.inc,v 1.26 2004/01/22 10:44:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -81,6 +81,33 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 
 
 	/**
+	* Paints backend of this job
+	*
+	* @param object Backend_Outputter	&$o			reference to the backend outputter
+	* @param string						$class		calling class name
+	*
+	* @return void
+	* @access private
+	*/
+	function paintConfig(&$o, $class)
+	{
+		$write_access = $this->writeAccess();
+		
+		// metadata regeneration threshhold HIPO config entry
+		$o->openField('Acquire Lock Threshold');
+
+		if($write_access) {
+			text_box($class.'[SQ_HIPO_ACQUIRE_LOCK_THRESHOLD]', SQ_HIPO_ACQUIRE_LOCK_THRESHOLD, 5);
+		} else {
+			echo SQ_HIPO_ACQUIRE_LOCK_THRESHOLD;
+		}
+
+		$o->closeField();
+
+	}//end paintConfig()
+
+	
+	/**
 	* Sets some info about thresholds that this hipo requires.
 	*
 	* @return Array
@@ -95,33 +122,6 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 	}//end getConfigVars()
 
 	
-	/**
-	* Paints backend of this job
-	*
-	* @param object Backend_Outputter	&$o			reference to the backend outputter
-	* @param string						$class		calling class name
-	*
-	* @return void
-	* @access private
-	*/
-	function paintConfig(&$o, $class)
-	{
-			$write_access = $this->writeAccess();
-			
-			// metadata regeneration threshhold HIPO config entry
-			$o->openField('Acquire Lock Threshold');
-
-			if($write_access) {
-				text_box($class.'[SQ_HIPO_ACQUIRE_LOCK_THRESHOLD]', SQ_HIPO_ACQUIRE_LOCK_THRESHOLD, 5);
-			} else {
-				echo SQ_HIPO_ACQUIRE_LOCK_THRESHOLD;
-			}
-
-			$o->closeField();
-
-	}//end paintConfig()
-
-
 	/**
 	* Returns a unique codename the HIPO can use to ensure it is not being run twice
 	*
