@@ -205,7 +205,7 @@ class Backend extends MySource_Object
 
 		// check for any new internal messages
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, Array(SQ_MSG_UNREAD));
+		$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, null, Array(SQ_MSG_UNREAD));
 		if (!empty($messages)) {
 			// found unread messages
 			$html = '

@@ -25,7 +25,10 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 													  ),
 								'dependants'  => Array('name' => 'Dependants',
 													   'force_unlock' => true
-													  )
+													  ),
+								'logs'        => Array('name' => 'Logs',
+													   'force_unlock' => true
+													  ),
 								);
 
 

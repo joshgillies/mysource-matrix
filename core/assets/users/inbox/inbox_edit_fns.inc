@@ -61,7 +61,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		$user = &$asset->_getUser();
 
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$messages = $ms->getMessages($user->id, Array(SQ_MSG_UNREAD, SQ_MSG_READ), Array(), null, null, 'name');
+		$messages = $ms->getMessages($user->id, null, Array(SQ_MSG_UNREAD, SQ_MSG_READ), Array(), null, null, 'name');
 
 		if (empty($messages)) {
 			echo 'You have no messages';
@@ -282,7 +282,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		$user = &$asset->_getUser();
 
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$messages = $ms->getMessages($user->id, Array(SQ_MSG_DELETED), Array(), null, null, 'name');
+		$messages = $ms->getMessages($user->id, null, Array(SQ_MSG_DELETED), Array(), null, null, 'name');
 
 		if (empty($messages)) {
 			echo 'Your trash is empty';

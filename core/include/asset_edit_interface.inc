@@ -2411,22 +2411,22 @@ class Asset_Edit_Interface extends MySource_Object
 		?>
 		<table cellpadding="0" cellspacing="0" border="0" bgcolor="#E6E0EA" width="100%">
 			<tr>
-				<td class="sq-backend-data">
+				<td class="sq-backend-data" style="background-color:#E6E0EA">
 					<table cellpadding="0" cellspacing="0" border="0">
 						<tr>
-							<td class="sq-backend-data"><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="20" border="0" alt="" /></td>
-							<td class="sq-backend-data" nowrap>
+							<td class="sq-backend-data" style="background-color:#E6E0EA"><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="20" border="0" alt="" /></td>
+							<td class="sq-backend-data" nowrap style="background-color:#E6E0EA">
 								<a href="<?php echo $owner->getBackendHref('dependants'); ?>"><b><?php echo $owner->name; ?></b></a>
 							</td>
 						</tr>
 					</table>
 				</td>
 				<td><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="5" height="1" border="0" alt="" /></td>
-				<td class="sq-backend-data" valign="top" nowrap>
+				<td class="sq-backend-data" valign="top" nowrap style="background-color:#E6E0EA">
 					<?php echo $lock_message; ?>
 				</td>
 				<td background="<?php echo $o->filesPath('/images/tree/stalk.gif'); ?>"><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="1" border="0" alt="" /></td>
-				<td class="sq-backend-data" colspan="3" nowrap>
+				<td class="sq-backend-data" colspan="3" nowrap style="background-color:#E6E0EA">
 					<?php echo $owner->getStatusDescription(); ?>
 				</td>
 				<td width="100%">&nbsp;</td>
@@ -2505,7 +2505,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 			?>
 			<tr>
-				<td class="sq-backend-data">
+				<td class="sq-backend-data" style="background-color:#E6E0EA">
 					<table cellpadding="0" cellspacing="0" border="0">
 						<tr>
 							<?php
@@ -2516,27 +2516,27 @@ class Asset_Edit_Interface extends MySource_Object
 									$new_print_stalks_at[] = $x;
 								}
 								?>
-								<td class="sq-backend-data" <?php echo $stalk_bg; ?>><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="20" height="1" alt="blank" /></td>
+								<td class="sq-backend-data" <?php echo $stalk_bg; ?> style="background-color:#E6E0EA"><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="20" height="1" alt="blank" /></td>
 								<?php
 							}
 							?>
-							<td class="sq-backend-data" <?php echo $bg; ?>><img src="<?php echo $o->filesPath('/images/tree/branch.gif');?>" width="20" height="20" border="0" alt="branch" /></td>
-							<td class="sq-backend-data" nowrap>
+							<td class="sq-backend-data" <?php echo $bg; ?> style="background-color:#E6E0EA"><img src="<?php echo $o->filesPath('/images/tree/branch.gif');?>" width="20" height="20" border="0" alt="branch" /></td>
+							<td class="sq-backend-data" nowrap style="background-color:#E6E0EA">
 								&nbsp;<a href="<?php echo $dep_asset->getBackendHref('dependants'); ?>"><b><?php echo $dep_asset->name; ?></b></a>
 							</td>
 						</tr>
 					</table>
 				</td>
 				<td><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="5" height="1" border="0" alt="" /></td>
-				<td class="sq-backend-data" nowrap>
+				<td class="sq-backend-data" nowrap style="background-color:#E6E0EA">
 					<?php echo $lock_message; ?>
 				</td>
 				<td background="<?php echo $o->filesPath('/images/tree/stalk.gif'); ?>"><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="1" border="0" alt="" /></td>
-				<td class="sq-backend-data" valign="top" nowrap>
+				<td class="sq-backend-data" valign="top" nowrap style="background-color:#E6E0EA">
 					<?php echo $dep_asset->getStatusDescription(); ?>
 				</td>
 				<td><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="5" height="1" border="0" alt="" /></td>
-				<td class="sq-backend-data" nowrap>
+				<td class="sq-backend-data" nowrap style="background-color:#E6E0EA">
 					<?php echo $status_message; ?>
 				</td>
 			</tr>
@@ -2984,6 +2984,108 @@ class Asset_Edit_Interface extends MySource_Object
 		return true;
 
 	}//end processHistory()
+
+
+
+	/**
+	* Paints the interface for viewing logged information about the asset
+	*
+	* @param object	Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintLogs(&$owner, &$o)
+	{
+		// prefix for all the form vars
+		$prefix = $owner->getPrefix();
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql   = 'SELECT DISTINCT type FROM '.SQ_TABLE_RUNNING_PREFIX.'internal_message ';
+		$where = 'userto = 0';
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+
+		$log_types = $db->getCol($sql.$where);
+		if (DB::isError($log_types)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			trigger_error($log_types->getMessage().'<br/>'.$log_types->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		$active_log_type = (isset($_REQUEST[$prefix.'_log_type'])) ? $_REQUEST[$prefix.'_log_type'] : $log_types[0];
+		$o->openSection('Select Log Type');
+			$o->openField('Log Type');
+				$type_options = Array();
+				foreach ($log_types as $type) $type_options[$type] = $type;
+				combo_box($prefix.'_log_type', $type_options, false, $active_log_type);
+				echo '&nbsp;';
+				normal_button($prefix.'_go', 'View', 'sqSubmitEditForm()');
+			$o->closeField();
+		$o->closeSection();
+
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		switch ($active_log_type) {
+			case 'asset.linking' :
+				$minor_logs = $ms->getLogs($active_log_type, Array('minorid' => $owner->id));
+				$major_logs = $ms->getLogs($active_log_type, Array('majorid' => $owner->id));
+				$logs = array_merge($minor_logs, $major_logs);
+			break;
+
+			default :
+				$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id));
+			break;
+		}//end switch
+
+		if (empty($logs)) {
+			$o->openSection('There are no logged message of this type for "'.$owner->name.'"');
+			$o->closeSection();
+		} else {
+			$o->openSection('Logged Messages For "'.$owner->name.'"');
+				$o->openField('');
+					?>
+					<table class="sq-backend-table">
+						<tr>
+							<td class="sq-backend-table-header" nowrap width="120">Log Time</td>
+							<td class="sq-backend-table-header" nowrap width="120">Logged By</td>
+							<td class="sq-backend-table-header" width="100%">Message</td>
+						</tr>
+					<?php
+					foreach ($logs as $log_data) {
+						?>
+						<tr>
+							<td class="sq-backend-table-cell" nowrap><?php echo ts_iso8601($log_data['sent']); ?></td>
+							<td class="sq-backend-table-cell" nowrap><?php echo $log_data['from_name']; ?></td>
+							<td class="sq-backend-table-cell" width="100%"><b><?php echo $log_data['subject']; ?></b><br/><?php echo $log_data['body']; ?></td>
+						</tr>
+						<?php
+					}
+					?>
+					</table>
+					<?php
+				$o->closeField();
+			$o->closeSection();
+		}
+
+
+	}//end paintLogs()
+
+
+	/**
+	* Processes the interface for viewing logged information about the asset
+	*
+	* @param object	Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processLogs(&$owner, &$o)
+	{
+		return true;
+
+	}//end processLogs()
 
 
 	/**

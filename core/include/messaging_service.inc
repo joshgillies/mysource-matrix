@@ -290,6 +290,7 @@ class Messaging_Service extends MySource_Object
 	* Gets all messages for the passed userid
 	*
 	* @param int			$userid			id of the user you are fetching messages for
+	* @param string			$type			the type of the message eg. asset.attributes
 	* @param array(string)	$statii			can limit returned messages to those with a status
 	*										in this array
 	* @param array(int)		$messageids		can limit returned messages to those with a messageid
@@ -301,20 +302,19 @@ class Messaging_Service extends MySource_Object
 	* @param string			$get_user_name	[name|short_name], used to return the name/short_name
 	*										of the from user with the return, which will be returned
 	*										in the field 'from_name'. (NULL to ignore)
+	* @param array			$parameters		can limit returned messages to those with these params set
 	*
 	* @return array
 	* @access public
 	*/
-	function getMessages($userid, $statii=Array(), $messageids=Array(), $from=null, $to=null, $get_user_name=null)
+	function getMessages($userid, $type=null, $statii=Array(), $messageids=Array(), $from=null, $to=null, $get_user_name=null, $parameters=Array())
 	{
-		if (!$userid) return Array();
-
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		if (!is_null($get_user_name) && $get_user_name != 'name') 
 			$get_user_name = 'short_name';
 
-		$sql = 'SELECT m.messageid, m.userto, m.userfrom, m.subject, m.body, m.sent, m.priority, m.status, m.parameters';
+		$sql = 'SELECT m.messageid, m.userto, m.userfrom, m.subject, m.body, m.sent, m.priority, m.status, m.type, m.parameters';
 		if (is_string($get_user_name)) {
 			$sql .= ',
 					CASE
@@ -333,6 +333,7 @@ class Messaging_Service extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		}
 
+		if (!is_null($type)) $where .= ' AND m.type = '.$db->quote($type);
 		if (!empty($statii)) {
 			for($i = 0; $i < count($statii); $i++) $statii[$i] = $db->quote($statii[$i]);
 			$where .= ' AND m.status IN ('.implode(', ', $statii).')';
@@ -340,6 +341,11 @@ class Messaging_Service extends MySource_Object
 		if (!empty($messageids)) {
 			for($i = 0; $i < count($messageids); $i++) $messageids[$i] = $db->quote($messageids[$i]);
 			$where .= ' AND m.messageid IN ('.implode(', ', $messageids).')';
+		}
+		if (!empty($parameters)) {
+			foreach ($parameters as $param_key => $param_value) {
+				$where .= ' AND m.parameters LIKE '.$db->quote('%'.$param_key.':'.$param_value.';%');
+			}
 		}
 		if (!is_null($from)) $where .= ' AND m.sent >= '.$db->quote(ts_iso8601($from));
 		if (!is_null($to))   $where .= ' AND m.sent <= '.$db->quote(ts_iso8601($to));
@@ -360,6 +366,26 @@ class Messaging_Service extends MySource_Object
 		return $result;
 
 	}//end getMessages()
+
+
+	/**
+	* Get logged messages of the passed typed
+	*
+	* This is just a cut down version of getMessages so you can get logs without
+	* having to call getMessages will a bunch of Array() and NULL arguments
+	*
+	* @param string			$type			the type of the message eg. asset.attributes
+	* @param array			$parameters		can limit returned messages to those with these params set
+	*
+	* @return array
+	* @access public
+	* @see getMessages()
+	*/
+	function getLogs($type, $parameters=Array())
+	{
+		return $this->getMessages(0, $type, Array(), Array(), null, null, 'name', $parameters);
+
+	}//end getLogs()
 
 
 	/**

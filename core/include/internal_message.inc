@@ -196,7 +196,6 @@ class Internal_Message extends MySource_Object
 
 		$param_string = '';
 		foreach ($this->parameters as $key => $value) $param_string .= "$key:$value;";
-		$param_string = trim($param_string, '; ');
 
 
 		  ///////////////////////////
@@ -367,7 +366,7 @@ class Internal_Message extends MySource_Object
 	{
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$info = $ms->getMessages($this->to[0], Array(), Array($this->id), $this->from, null, 'name');
+		$info = $ms->getMessages($this->to[0], $this->type, Array(), Array($this->id), $this->from, null, 'name');
 		$info = $info[0];
 		?>
 		<html>

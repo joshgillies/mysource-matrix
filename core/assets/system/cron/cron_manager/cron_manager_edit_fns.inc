@@ -24,15 +24,16 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		$this->Asset_Edit_Fns();
 
-		$this->static_screens =	Array(
-									'details' => Array(
-										'name'			=> 'View Jobs',
-										'force_unlock'	=> true,
-									),
-								'permissions' => Array('name' => 'Permissions',
+		$this->static_screens = Array('details'     => Array('name' => 'View Jobs',
 													   'force_unlock' => true
+													),
+									  'permissions' => Array('name' => 'Permissions',
+													   'force_unlock' => true,
 													  ),
-								);
+									  'logs'        => Array('name' => 'Logs',
+													   'force_unlock' => true,
+													  ),
+									);
 
 	}//end constructor
 

@@ -38,6 +38,9 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 								'history'         => Array('name' => 'History',
 													   'force_unlock' => true
 													  ),
+								'logs'            => Array('name' => 'Logs',
+													   'force_unlock' => true
+													  ),
 								);
 
 

@@ -45,6 +45,9 @@ class Asset_Edit_Fns extends MySource_Object
 								'history'         => Array('name' => 'History',
 													   'force_unlock' => true
 													  ),
+								'logs'            => Array('name' => 'Logs',
+													   'force_unlock' => true
+													  ),
 								);
 
 

@@ -22,7 +22,10 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 	*/
 	var $static_screens = Array('details' => Array('name' => 'Purge Trash',
 												   'force_unlock' => true
-												   )
+												   ),
+								'logs'    => Array('name' => 'Logs',
+												   'force_unlock' => true
+												  ),
 								);
 
 
