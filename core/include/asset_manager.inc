@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.121 2003/10/02 23:27:36 brobertson Exp $
+* $Id: asset_manager.inc,v 1.122 2003/10/03 01:17:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3112,7 +3112,6 @@ class Asset_Manager extends MySource_Object
 
 			$where = 'l.assetid '.$assetid_cond;
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'u');
 			$sql = 'SELECT l.assetid, l.url, 
 				CASE WHEN l.'.$protocol.' = '.$db->quote(1).' THEN '.$db->quote($protocol).' ELSE '.$db->quote(($protocol == 'https') ? 'http' : 'https').' END as protocol,
 			(

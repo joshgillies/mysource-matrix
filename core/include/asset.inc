@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.228 2003/10/02 05:44:27 brobertson Exp $
+* $Id: asset.inc,v 1.229 2003/10/03 01:17:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2337,11 +2337,12 @@ class Asset extends MySource_Object
 			$sql = 'SELECT ld.designid, a.type_code
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
 							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_design ld ON l.url = ld.url
-							INNER JOIN sq_asset a ON ld.designid = a.assetid
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON ld.designid = a.assetid
 					';
 			$where ='l.assetid  = '.$db->quote($this->id).'
 					  AND ld.url  = '.$db->quote($url).'
 					  AND ld.name = '.$db->quote($design_name);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ld');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 			$sql .= $where;

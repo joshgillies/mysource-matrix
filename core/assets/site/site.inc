@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: site.inc,v 1.43 2003/09/26 05:26:27 brobertson Exp $
+* $Id: site.inc,v 1.44 2003/10/03 01:17:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -364,11 +364,12 @@ class Site extends Folder
 		$sql = 'SELECT ld.designid, a.type_code
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_design ld ON l.url = ld.url
-						INNER JOIN sq_asset a ON ld.designid = a.assetid
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON ld.designid = a.assetid
 				';
 		$where ='l.assetid  = '.$db->quote($index_page->id).'
 				  AND ld.url  LIKE '.$db->quote($url.'%').'
 				  AND ld.name    = '.$db->quote('system_design::frontend');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ld');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$sql .= $where.' LIMIT 1';
