@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.9 2004/05/26 06:54:52 gsherwood Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.10 2004/05/26 07:18:40 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -206,7 +206,6 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function generateContentFile(&$asset)
 	{
-		bam('GENERATE');
 		ob_start();
 			$this->paint($asset, true);
 			$output = ob_get_contents();
