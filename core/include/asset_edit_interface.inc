@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.151 2003/10/01 23:35:58 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.152 2003/10/02 00:13:55 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -642,6 +642,20 @@ class Asset_Edit_Interface extends MySource_Object
 	function _getAccess(&$owner, $node, $inherit_access=null)
 	{
 		$access = 0;
+
+		// check show if condition for this node
+		if (isset($node->attributes['show_if'])) {
+			$show_if_fn = $node->attributes['show_if'];
+			$edit_fns =& $owner->getEditFns();
+
+			if (method_exists($edit_fns, $show_if_fn)) {
+				if (!$edit_fns->$show_if_fn($owner))
+					return 0;
+			} else {
+				// if show if function doesn't exist, spew, then continue as normal
+				trigger_error('Error : Show If function for section '. $node->name. ' not found.', E_USER_ERROR);
+			}
+		}
 
 		// got to have writeAccess at least (this checks for locks as well)
 		if ($owner->writeAccess()) {
