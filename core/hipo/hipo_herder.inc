@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.33 2004/02/11 18:49:40 brobertson Exp $
+* $Id: hipo_herder.inc,v 1.34 2004/02/11 21:43:55 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -293,7 +293,7 @@ class HIPO_Herder extends MySource_Object
 				<table border="0" cellspacing="0" cellpadding="0" width="500">
 					<tr>
 						<td class="sq-hipo-header">
-							<table class="sq-hipo-header" border="1">
+							<table class="sq-hipo-header">
 								<tr>
 									<td valign="middle" width="100%"><img src="<?php echo sq_web_path('lib').'/web/images/icons/hipo.gif'; ?>" width="71" height="26" alt="Powered by Highly Intensive Processing Object (HIPO) Technology" /></td>
 								</tr>
