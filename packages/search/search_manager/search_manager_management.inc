@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_management.inc,v 1.1 2004/05/13 04:05:26 lwright Exp $
+* $Id: search_manager_management.inc,v 1.2 2004/05/20 04:48:35 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.1 $ - 0.1
+* @version $Revision: 1.2 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -44,6 +44,14 @@ class Search_Manager_Management extends Asset_Management
 	function Search_Manager_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
+		$this->vars = Array(
+			'indexing' => Array (
+				'added'			=> '0.1',
+				'type'			=> 'boolean',
+				'default'		=> false,
+				'description'	=> 'Turns indexing on or off'
+			),
+		);
 
 	}//end Search_Manager_Management()
 

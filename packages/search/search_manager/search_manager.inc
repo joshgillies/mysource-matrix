@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.2 2004/05/19 04:05:31 lwright Exp $
+* $Id: search_manager.inc,v 1.3 2004/05/20 04:48:35 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.2 $ - 0.1
+* @version $Revision: 1.3 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -137,7 +137,8 @@ class Search_Manager extends Asset
 	*/
 	function onRequestReindex(&$broadcaster, $vars=Array())
 	{
-		//print "Require Reindex is being run.";
+		// don't run if indexing turned OFF
+		if (!$this->attr('indexing')) return false;
 
 		// if this is reindexed then there is an infinite recursion!!!
 		if ($broadcaster->id == $this->id) return false;
@@ -176,6 +177,9 @@ class Search_Manager extends Asset
 	*/
 	function flushKeyData($assetid, $component=null)
 	{
+		// don't run if indexing turned OFF
+		if (!$this->attr('indexing')) return;
+
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'asset_indexing
 				WHERE assetid = '.$db->quote($assetid);
@@ -208,6 +212,8 @@ class Search_Manager extends Asset
 	*/
 	function addKeyData($assetid, &$keydata)
 	{
+		// don't run if indexing turned OFF
+		if (!$this->attr('indexing')) return false;
 		if (!is_array($keydata)) return false;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
