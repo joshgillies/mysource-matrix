@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_calendar.js,v 1.7 2005/01/20 13:33:11 brobertson Exp $
+* $Id: js_calendar.js,v 1.8 2005/03/03 02:11:58 tbarrett Exp $
 *
 */
 
@@ -54,11 +54,11 @@ function Calendar(varname, divname, width, height, year, month, day)
 	this.mon_names = new Array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");
 	this.day_names = new Array("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday");
 	this.day_name_length = 2;
-	this.popup = false;		//is the cal popup
+	this.popup = false;			//is the cal popup
 	this.imageURL = null;		//URL of image if it popup
-	this.fadeit = true;		//fade cal on show or not
+	this.fadeit = true;			//fade cal on show or not
 	this.scrollit = true;		//if fadeit == false scroll cal on show
-	
+
 	this.first_time = true;
 	this.time = null;
 	this.fade = 0;
@@ -82,7 +82,7 @@ function Calendar(varname, divname, width, height, year, month, day)
 	this.weekClick	= c_weekClick;
 	this.monthClick	= c_monthClick;
 	this.yearClick	= c_yearClick;
-	
+
 	this.onDayClick = null;
 	this.onWeekClick = null;
 	this.onMonthClick = null;
@@ -105,7 +105,7 @@ function c_show(e)
 	var div = document.getElementById(this.divname);
 	div.style.visibility = "hidden";
 	div.style.position = "absolute";
-	
+
 	div.style.left = e.clientX + "px";
 	var scrollX = "";
 	var scrollY = "";
@@ -116,7 +116,7 @@ function c_show(e)
 	div.style.left = scrollX + e.clientX + "px";
 	div.style.top  = scrollY + e.clientY + "px";
 
-	
+
 	div.innerHTML = this.output();
 	if (document.getElementById('ie_'+this.divname+'_iframe') == null && document.body.insertAdjacentHTML) {
 		var shadow = '<span id="ie_'+this.divname+'_shadow" style="background:#000000;position:absolute;top:0px;left:0px;filter:progid:DXImageTransform.Microsoft.blur(pixelradius=6, enabled=\'true\', makeshadow=\'true\', ShadowOpacity=0.7)"></span>';
@@ -124,7 +124,7 @@ function c_show(e)
 		document.body.insertAdjacentHTML('beforeEnd', iframe);
 		div.id = this.divname + "_old";
 		div.innerHTML = "";
-		
+
 		div = document.getElementById(this.divname);
 	}
 	if (document.body.insertAdjacentHTML) {
@@ -146,7 +146,7 @@ function c_show(e)
 		if (this.fadeit || this.scrollit) shadow.style.visibility	= "hidden";
 		else shadow.style.visibility	= "visible";
 	}
-	
+
 	if (this.fadeit) {
 		this.fade = 0;
 		this.fadeOn();
@@ -202,7 +202,7 @@ function c_scrollOn()
 	var cal_height = div.offsetHeight;
 	var cal_width  = div.offsetWidth;
 	if (this.scroll >= 100) {
-		this.time = null; 
+		this.time = null;
 		div.style.clip =  "rect(0px, "+cal_width+"px, "+cal_height+"px, 0px)";
 		if (document.body.insertAdjacentHTML){
 			document.getElementById('ie_'+this.divname+'_iframe').style.visibility = "visible";
@@ -229,8 +229,8 @@ function c_scrollOff()
 	var cal_height = div.offsetHeight;
 	var cal_width  = div.offsetWidth;
 	if (this.scroll <= 0) {
-		this.time = null; 
-		div.style.visibility = "hidden"; 
+		this.time = null;
+		div.style.visibility = "hidden";
 		if (document.body.insertAdjacentHTML){
 			document.getElementById('ie_'+this.divname+'_iframe').style.visibility = "hidden";
 			document.getElementById('ie_'+this.divname+'_shadow').style.visibility = "hidden";
@@ -255,7 +255,7 @@ function c_fadeOn()
 	var div = document.getElementById(this.divname);
 	div.style.visibility = "visible";
 	if (this.fade >= 100) {
-		this.time = null; 
+		this.time = null;
 		div.style.MozOpacity = 0.99;
 		div.style.filter= 'alpha(opacity=99)';
 		if (document.body.insertAdjacentHTML){
@@ -268,7 +268,7 @@ function c_fadeOn()
 	div.style.filter= 'alpha(opacity=' + this.fade + ')';
 	this.fade+=4;
 	this.time = setTimeout(this.varname+".fadeOn()",1);
-	
+
 }//end c_fadeOn()
 
 
@@ -284,7 +284,7 @@ function c_fadeOff()
 	var div = document.getElementById(this.divname);
 	if (this.fade <= 0) {
 		this.time = null;
-		div.style.visibility = "hidden"; 
+		div.style.visibility = "hidden";
 		if (document.body.insertAdjacentHTML){
 			document.getElementById('ie_'+this.divname+'_iframe').style.visibility = "hidden";
 			document.getElementById('ie_'+this.divname+'_shadow').style.visibility = "hidden";
@@ -295,7 +295,7 @@ function c_fadeOff()
 	div.style.filter= 'alpha(opacity=' + this.fade + ')';
 	this.fade-=4;
 	this.time = setTimeout(this.varname+".fadeOff()",1);
-	
+
 }//end c_fadeOff()
 
 
@@ -312,10 +312,10 @@ function c_draw()
 	var output = "";
 	if (!this.popup || !this.first_time) document.getElementById(this.divname).innerHTML = this.output();
 	else	if (this.imageURL != null) output = '<img src="' + this.imageURL + '" style="cursor:pointer" onclick="'+this.varname+'.show(event);">';
-	        else output = '<div style="width:20px;height:20px;background:#CCCCCC;border:solid 1px #DDDDDD;cursor:pointer" onclick="'+this.varname+'.show(event);"';
+			else output = '<div style="width:20px;height:20px;background:#CCCCCC;border:solid 1px #DDDDDD;cursor:pointer" onclick="'+this.varname+'.show(event);"';
 
 	if (this.popup && this.first_time) document.write(output);
-	
+
 	this.first_time = false;
 
 }//end c_draw()
@@ -414,22 +414,22 @@ function c_output()
 	dt.setMonth(this.month);
 	dt.setYear(this.year);
 	dt.setDate(1);
-	
+
 	var is_week_set  = this.onWeekClick  != null;
 	var is_day_set   = this.onDayClick   != null;
 	var is_month_set = this.onMonthClick != null;
 	var is_year_set  = this.onYearClick  != null;
-	
+
 	if (is_week_set) colspan = 6;
 	else colspan = 5;
 
 	//table difinition
 	var output = '<table class="cal" cellspacing="1" width="' + this.width + '" height="' + this.height + '">';
-	
+
 	//top bar for popup
 	if (this.popup)	output += '<tr style="height:1px"><td colspan="' + (colspan + 2) + '" align="right"><span class="cal_close" onclick="' + this.varname +'.hide();">&times;</span></td></tr>';
-	
-	
+
+
 	//month caption
 	output += '<tr style="height:1px"><td class="cal_arrow" onclick="' + this.varname +
 		'.setMonth(\'--\')" align="left">&laquo;</td><td class="cal_month" colspan="' + colspan + '" align="center" onclick="' +
@@ -628,9 +628,9 @@ function DateConvert2MySQL(day, mon, year)
 /**
 * Sets data for Calendar. Could use first param as MySQL format string
 *
-* @param	day	given day
-* @param	mon	given month
-* @param	year	given year
+* @param	year	given year OR MySQL-format complete date
+* @param	mon		given month
+* @param	day		given day
 *
 * @return void
 * @access public
@@ -664,17 +664,50 @@ function c_setDate(year, mon, day)
 */
 function attachOnLoad(func_name)
 {
-			var onload = document.body.getAttribute("onload") + ";" + func_name;
-			if (document.body.onload)
-			{
-				var onload_old = document.body.onload;
-				function onload_new()
-				{
-					onload_old();
-					eval(func_name+";");
-				}
-				document.body.onload = onload_new;
-			}
-			else document.body.setAttribute("onload", onload)
+	var onload = document.body.getAttribute("onload") + ";" + func_name;
+	if (document.body.onload)
+	{
+		var onload_old = document.body.onload;
+		function onload_new()
+		{
+			onload_old();
+			eval(func_name+";");
+		}
+		document.body.onload = onload_new;
+	}
+	else document.body.setAttribute("onload", onload)
 
 }//end attachOnLoad()
+
+
+/**
+* Perform a frame-sensitive redirect by respecting any <base> tags in the document
+*
+* @access public
+* @return void
+*/
+function frameRedirect(url)
+{
+	basetags = document.getElementsByTagName('base');
+	if (basetags.length != 0) {
+		switch (basetags[0].target) {
+			case '_parent':
+				window.parent.location = url;
+			  break;
+			case '_top':
+				window.top.location = url;
+				break;
+			case '_self':
+				document.location.href = url;
+				break;
+			case '_blank':
+				window.open(url, 'new', '');
+				break;
+			default:
+				window.top.frames[basetags[0].target].location = url;
+		}
+	} else {
+		document.location.href = url;
+	}
+
+}//end frameRedirect()
