@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.60 2004/11/18 05:08:03 gsherwood Exp $
+* $Id: site.inc,v 1.60.2.1 2004/12/06 22:36:15 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -502,7 +502,7 @@ class Site extends Folder
 			$design_name = 'system_design::frontend';
 		}
 
-		$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, $design_name);
+		$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($asset_url, $design_name);
 
 		
 		if (empty($result)) {
