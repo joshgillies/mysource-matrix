@@ -54,7 +54,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	{
 		$this->_type_code = $type_code;
 
-		$asset_dir = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getInfo($this->_type_code, 'dir');
+		$asset_dir = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'dir');
 		$class_name = $this->_type_code.'_edit_fns';
 		require_once $asset_dir.'/'.$class_name.'.inc';
 		$this->_edit_fns = new $class_name();
@@ -70,7 +70,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		$this->_dirs = Array($asset_dir);
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($this->_type_code, false);
 		foreach($parents as $parent_type) {
-			$this->_dirs[] = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getInfo($parent_type, 'dir');
+			$this->_dirs[] = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($parent_type, 'dir');
 		}
 
 		// add the default for Asset
@@ -169,7 +169,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		// check the active screen for special system defined tabs
 		$file = null;
 		if (isset($this->_edit_fns->tabs[$active_screen])) {
-			$o->setHeading($GLOBALS['SQ_SYSTEM']->am->getInfo($this->_type_code, 'name').' - '.$this->_edit_fns->tabs[$active_screen]['name'], $this->_edit_fns->tabs[$active_screen]['icon']);
+			$o->setHeading($GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name').' - '.$this->_edit_fns->tabs[$active_screen]['name'], $this->_edit_fns->tabs[$active_screen]['icon']);
 			$o->setCurrentTab($active_screen);
 			
 			// if we are not creating, paint the system defined bit of this tab
@@ -192,7 +192,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			// try and find the file with the screen details
 			if(!($file = $this->_findFile('screen_'.$active_screen))) return;
 
-			$o->setHeading($GLOBALS['SQ_SYSTEM']->am->getInfo($this->_type_code, 'name').' - '.$this->_screens[$active_screen]['name'], $this->_screens[$active_screen]['icon']);
+			$o->setHeading($GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name').' - '.$this->_screens[$active_screen]['name'], $this->_screens[$active_screen]['icon']);
 		}// end if
 
 		if ($file) {

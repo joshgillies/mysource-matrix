@@ -458,7 +458,7 @@ class Package_Manager extends Resolve_Object
 
 				case 'asset' :
 					if ($GLOBALS['SQ_SYSTEM']->am->installed($req['code']['value'])) {
-						$ok = version_compare($GLOBALS['SQ_SYSTEM']->am->getInfo($req['code']['value'], 'version'), $req['version']['value'], '>=');
+						$ok = version_compare($GLOBALS['SQ_SYSTEM']->am->getTypeInfo($req['code']['value'], 'version'), $req['version']['value'], '>=');
 					}
 					// if the test failed, but this asset is in this package, check it's version from that
 					if (!$ok && isset($this->assets[$req['code']['value']])) {
@@ -554,7 +554,7 @@ class Package_Manager extends Resolve_Object
 	* @return mixed
 	* @access public
 	*/
-	function getInfo($type_code, $field='')
+	function getTypeInfo($type_code, $field='')
 	{
 
 		if (!isset($this->assets[$type_code])) {
@@ -564,7 +564,7 @@ class Package_Manager extends Resolve_Object
 
 		return ($field) ? $this->assets[$type_code][$field] : $this->assets[$type_code];
 
-	}//end getInfo()
+	}//end getTypeInfo()
 
 }//end class
 ?>

@@ -88,7 +88,7 @@ class Asset_Management extends Resolve_Object
 
 		// if the asset manager knows about it it is installed, so upgrade...
 		if ($this->_am->installed($this->getAssetType())) {
-			if (!$this->_upgrade($this->_am->getInfo($this->getAssetType(), 'version'))) return false;
+			if (!$this->_upgrade($this->_am->getTypeInfo($this->getAssetType(), 'version'))) return false;
 		} else {
 			if (!$this->_install()) return false;
 		}
@@ -114,7 +114,7 @@ class Asset_Management extends Resolve_Object
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		
 		$to_dir_path = SQ_DATA_PATH.'/unrestricted/'.$this->getAssetType().'/files';
-		$from_dir_path = SQ_SYSTEM_ROOT.'/'.$this->_pm->getInfo($this->getAssetType(),'dir');
+		$from_dir_path = SQ_SYSTEM_ROOT.'/'.$this->_pm->getTypeInfo($this->getAssetType(),'dir');
 		
 		# create the directory to store these files if it doesnt exist
 		# NOTE: The create_direcotyr function of file_system.inc handles this for us
@@ -147,7 +147,7 @@ class Asset_Management extends Resolve_Object
 
 		// get how deep we are in the heirarchy
 		$level = count($this->_pm->getTypeAncestors($type_code));
-		$info = $this->_pm->getInfo($type_code);
+		$info = $this->_pm->geTypeInfo($type_code);
 
 		$sql = 'INSERT INTO sq_asset_type
 				(type_code, version, name, description, instantiable, allowed_access, parent_type, level, dir, customisation)
@@ -192,7 +192,7 @@ class Asset_Management extends Resolve_Object
 
 		// get how deep we are in the heirarchy
 		$level = count($this->_pm->getTypeAncestors($this->getAssetType()));
-		$info = $this->_pm->getInfo($this->getAssetType());
+		$info = $this->_pm->getTypeInfo($this->getAssetType());
 
 		$sql = 'UPDATE sq_asset_type
 				SET version         = '.$this->_db->quote($info['version']).',
