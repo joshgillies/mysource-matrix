@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.23 2004/09/26 23:56:06 gsherwood Exp $
+* $Id: asset_status_under_construction.inc,v 1.24 2004/10/07 05:42:13 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -198,7 +198,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 				if (!$wfm->notifyOnLive($this->owner->id, $this->status_tag)) return false;
 			
 				// update the last published date
-				if (!$this->owner->setDate('published')) return false;
+				if (!$this->owner->setDate('published', time())) return false;
 				break;
 		}
 

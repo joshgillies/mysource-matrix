@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live_approval.inc,v 1.27 2004/10/06 01:00:22 gsherwood Exp $
+* $Id: asset_status_live_approval.inc,v 1.28 2004/10/07 05:42:13 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -229,7 +229,7 @@ class Asset_Status_Live_Approval extends Asset_Status
 					if (!$wfm->notifyOnLive($this->owner->id, $this->status_tag)) return false;
 
 					// update the last published date
-					if (!$this->owner->setDate('published')) return false;
+					if (!$this->owner->setDate('published', time())) return false;
 				}
 
 				if ($new_status == SQ_STATUS_APPROVED) {
