@@ -44,7 +44,21 @@ class Resolve
 	*
 	* @var object User
 	*/
-	var $user;
+	var $user = null;
+
+	/**
+	* Whether the logged in user is the root user or not
+	*
+	* @var boolean
+	*/
+	var $_user_is_root = false;
+
+	/**
+	* Whether the logged in user is a system admin or not
+	*
+	* @var boolean
+	*/
+	var $_user_is_sys_admin = false;
 
 	/**
 	* Array of system messages
@@ -72,10 +86,6 @@ class Resolve
 	*/
 	function init()
 	{
-		session_name('SQ_SYSTEM_SESSION');
-		session_save_path(SQ_SYSTEM_ROOT.'/cache');
-		session_start();
-
 		$this->db = DB::connect(SQ_CONF_DB_DSN);
 		if (DB::isError($this->db)) {
 			trigger_error($this->db->getMessage(), E_USER_ERROR);
@@ -86,17 +96,29 @@ class Resolve
 		// initialise the asset manager as we are going to need it pretty much everywhere
 		$this->am = new Asset_Manager();
 
-		// If there is a userid in the session then someone is logged in,
-		// but make sure that the person is coming from the same machine as they logged in on
-		// so get a reference to them
-		if(!empty($_SESSION['userid']) && $_SESSION['remote_addr'] == $_SERVER['REMOTE_ADDR']) {
-			$this->user = &$this->am->getAsset($_SESSION['userid']);
-		} else {
-			$_SESSION['userid']				= 0;
-			$_SESSION['user_is_root']		= false;
-			$_SESSION['user_is_sys_admin']	= false;
-			$this->user = null;
-		}//end if
+		// running from the command line ? don't use cookies for session
+		if (!SQ_PHP_CLI) {
+			session_name('SQ_SYSTEM_SESSION');
+			session_save_path(SQ_SYSTEM_ROOT.'/cache');
+			session_start();
+
+			// If there is a userid in the session then someone is logged in,
+			// but make sure that the person is coming from the same machine as they logged in on
+			// so get a reference to them
+			if(!empty($_SESSION['userid']) && $_SESSION['remote_addr'] == $_SERVER['REMOTE_ADDR']) {
+				$this->user = &$this->am->getAsset($_SESSION['userid']);
+			} else {
+				$_SESSION['userid']				= 0;
+				$_SESSION['user_is_root']		= false;
+				$_SESSION['user_is_sys_admin']	= false;
+				$this->user = null;
+			}//end if
+
+			$this->user_is_root      = $_SESSION['user_is_root'];
+			$this->user_is_sys_admin = $_SESSION['user_is_sys_admin'];
+
+		}// end if
+
 
 		if (!empty($_GET['SQ_ACTION'])) {
 			$this->_processGlobalActions();
@@ -213,27 +235,21 @@ class Resolve
 					list($userid, $user_type) = User::find($_POST['SQ_LOGIN_USERNAME'], $_POST['SQ_LOGIN_PASSWORD']);
 					if ($userid) {
 						$user = &$this->am->getAsset($userid, $user_type);
-						// okay, we have a user, but we need to check that this user
-						// can actually login
-						if (!$user->canLogin()) {
-							$this->addMessage('User not found');
-						} else {
+						if ($this->setCurrentUser($user)) {
 							$_SESSION['userid']      = $userid;
 							$_SESSION['remote_addr'] = $_SERVER['REMOTE_ADDR'];
 							// generate a new login key so that when they try and login next
 							// they have to re-enter the details
 							$this->generateLoginKey();
 
-							$_SESSION['user_is_root']      = $this->userRoot($user);
-							$_SESSION['user_is_sys_admin'] = $this->userSystemAdmin($user);
-							$this->user = &$user;
-
+							$_SESSION['user_is_root']      = $this->user_is_root;
+							$_SESSION['user_is_sys_admin'] = $this->user_is_sys_admin;
+							break;
 						}
-						break;
-
-					} else {
-						$this->addMessage('User not found');
 					}
+
+					$this->addMessage('User not found');
+
 				} else {
 					// incorrect login key
 					$this->addMessage('Login Key incorrect');
@@ -264,6 +280,54 @@ class Resolve
 
 
 	/**
+	* Set's the current user of the system to this user, 
+	* SHOULD BE USED WITH CAUTION
+	*
+	* @param object User	$user	the user to check
+	*
+	* @access public
+	* @return boolean true on success
+	*/
+	function setCurrentUser(&$user)
+	{
+		// They can only become current user if they can login 
+		if (!$user->canLogin()) return false;
+
+		$this->user = &$user;
+		$this->user_is_root      = $this->userRoot($user);
+		$this->user_is_sys_admin = $this->userSystemAdmin($user);
+
+		return true;
+
+	}// end setCurrentUser()
+
+	/**
+	* Returns a boolean if the passed user is the logged in user
+	*
+	* @param object User	$user	the user to check
+	*
+	* @access public
+	*/
+	function currentUser($user)
+	{
+		return ($this->user && $this->user->id == $user->id);
+	}//end currentUser()
+
+
+	/**
+	* returns the userid of the current user, or zero if none present (ie frontend)
+	*
+	* @access public
+	*/
+	function currentUserId()
+	{
+		return ($this->user) ? (int) $this->user->id : 0;
+	}//end currentUserId()
+
+
+
+
+	/**
 	* Is the passed/current user the root user?
 	*
 	* @param object	$user	the user object you want to test for root access
@@ -273,7 +337,7 @@ class Resolve
 	*/
 	function userRoot($user=null)
 	{
-		if (is_null($user)) return $_SESSION['user_is_root'];
+		if (is_null($user)) return $this->user_is_root;
 		if (!$user->id) return false;
 		if (get_class($user) == 'root_user' && (int) $user->id == 4) return true;
 		return false;
@@ -290,7 +354,7 @@ class Resolve
 	*/
 	function userSystemAdmin($user=null)
 	{
-		if (is_null($user)) return $_SESSION['user_is_sys_admin'];
+		if (is_null($user)) return $this->user_is_sys_admin;
 		if (!$user->id) return false;
 		if (get_class($user) != 'system_user') return false;
 
@@ -391,30 +455,6 @@ class Resolve
 				break;
 		}
 	}//end doTransaction()
-
-
-	/**
-	* Returns a boolean if the passed user is the logged in user
-	*
-	* @param object User	$user	the user to check
-	*
-	* @access public
-	*/
-	function currentUser($user)
-	{
-		return ($this->user && $this->user->id == $user->id);
-	}//end currentUser()
-
-
-	/**
-	* returns the userid of the current user, or zero if none present (ie frontend)
-	*
-	* @access public
-	*/
-	function currentUserId()
-	{
-		return ($this->user) ? (int) $this->user->id : 0;
-	}//end currentUserId()
 
 
 	/**
