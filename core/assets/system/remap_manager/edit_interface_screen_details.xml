@@ -19,12 +19,12 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.3 2004/03/12 05:18:27 mmcintyre Exp $
+* $Id: edit_interface_screen_details.xml,v 1.4 2004/06/18 01:49:16 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 <contents>
-	<section name="404 Page Not Found Remappings" read_access="write:all" write_access="write:all">
+	<section name="404 Page Not Found Remappings" read_access="write:" write_access="write:all">
 		<field>
 			<display_name>404 Asset</display_name>
 			<note>All  requests for assets that cannot be remapped, will be delegated to this asset.</note>

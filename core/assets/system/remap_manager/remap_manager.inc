@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.9 2004/05/20 06:38:45 lwright Exp $
+* $Id: remap_manager.inc,v 1.10 2004/06/18 01:49:16 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $ - 0.1
+* @version $Revision: 1.10 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -99,6 +99,22 @@ class Remap_Manager extends Asset
 	}//end _getName();
 
 
+	/**
+	* Returns an array of all the permitted link type, the type asset and the cardinality
+	*
+	* @see Asset::_getAllowLinks()
+	* @access private
+	*/
+	function _getAllowedLinks()
+	{
+		$page_links = parent::_getAllowedLinks();
+		// added for root node
+		$page_links[SQ_LINK_NOTICE]['asset'] = Array('card' => 'M', 'exclusive' => false);
+		return $page_links;
+
+	}//end _getAllowedLinks()
+	
+	
 	/**
 	* Can this asset have its last significant link removed (putting it in the trash)?
 	*
@@ -279,9 +295,14 @@ class Remap_Manager extends Asset
 	*/
 	function &getPageNotFoundAsset()
 	{
-		$null = null;
-		if (!$this->attr('404_asset')) return null;
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('404_asset'));
+		// searching for the root asset
+		$link_to_404 = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, '404');
+
+		if (empty($link_to_404)) {
+			$asset = null;
+		} else {
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_to_404['minorid']);
+		}	
 		
 		return $asset;
 

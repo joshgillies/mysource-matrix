@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.7 2004/05/13 06:39:39 gsherwood Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.8 2004/06/18 01:49:16 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $ - 1.0
+* @version $Revision: 1.8 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -289,52 +289,83 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Paints the interface for delegating 404 requests to
-	* an asset
+	* Paints the root node selection box
 	*
-	* @param &object Remap_Manager		$asset		the remap manager
-	* @param &object Backend_Outputter	$o			the backend outputter
-	* @param string						$prefix		a unique prefix for variables
+	* @param object	Asset				&$rootid	asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for the html doc element name
 	*
 	* @return boolean
 	* @access public
 	*/
 	function paintAddPageNotFoundRemap(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
-		$assetid = $asset->attr('404_asset');
-		asset_finder($prefix.'_not_found', $assetid);
+		$link_to_404 = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'asset', false, '404');
+		$write_access = $asset->writeAccess('links');
 
-		return true;
+		if (!$write_access) {
+			$asset_404 = null;
+			if (!empty($link_to_404)) $asset_404 = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_to_404['minorid']);
+			if (!is_null($asset_404)) echo $asset_404->name . ' (Id: #' . $asset_404->id . ')';
+			else echo 'No root node has been selected';
+		} else {
+			asset_finder($prefix.'_404asset', (!empty($link_to_404)) ? $link_to_404['minorid'] : '');
+		}
+
+		return $write_access;
 
 	}//end paintAddPageNotFoundRemap()
-	
+
 
 	/**
-	* Processes the interface for delegating 404 requests to
-	* an asset
+	* Processes the value input from root node selection box
 	*
-	* @param &object Remap_Manager		$asset		the remap manager
-	* @param &object Backend_Outputter	$o			the backend outputter
-	* @param string						$prefix		a unique prefix for variables
+	* @param object	Asset				&$rootid	asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for the html doc element name
 	*
-	* @return boolean
+	* @return void
 	* @access public
 	*/
 	function processAddPageNotFoundRemap(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_not_found'])) return false;
-		$assetid = $_POST[$prefix.'_not_found']['assetid'];
+		if (!isset($_POST[$prefix.'_404asset']['assetid'])) return false;
+		$new_404_asset  = $_POST[$prefix.'_404asset']['assetid'];
 
-		// if we already have this as the not found asset, don't set it again
-		if ($assetid == $asset->attr('404_asset')) return false;
-		if (!$asset->setAttrValue('404_asset', $assetid)) return false;
+		// getting existing root link
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, '404');
 
-		return true;
+		// dont process anything if the root node has not changed
+		if (!empty($root_link) && $root_link['minorid'] == $new_404_asset) return false;
+
+		$ok = true;
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// deleting old root link if any found...
+		if (!empty($root_link) && !$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
+			$ok = false;
+		} else if ($new_404_asset) {
+			$root = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_404_asset);
+			if (!is_null($root)) {
+				if (!$asset->createLink($root, SQ_LINK_NOTICE, '404')) {
+					$ok = false;
+					trigger_error('Failed adding new 404 node "'.$root->name.'" [#'.$root->id.']', E_USER_WARNING);
+				}
+			}
+		}
+
+		if ($ok) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			return true;
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
 
 	}//end processAddPageNotFoundRemap()
-
-
+	
+	
 }//end class
 
 ?>
