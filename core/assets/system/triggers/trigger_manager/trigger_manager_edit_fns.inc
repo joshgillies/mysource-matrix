@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager_edit_fns.inc,v 1.5 2005/02/25 01:21:35 rhoward Exp $
+* $Id: trigger_manager_edit_fns.inc,v 1.6 2005/02/25 05:28:09 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,21 +75,6 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		return true;
 
 	}//end paintTriggerCount()
-
-
-	/**
-	* Prints debugging information about $_REQUEST and the currently active trigger in its on field
-	*
-	*/
-	function paintDebug(&$asset, &$o, $prefix)
-	{
-		$o->openField('');
-		minibam($_REQUEST, '$_REQUEST');
-		$active_id = array_get_index($this->_tmp, 'edit_id', false);
-		if ($active_id) {
-			minibam($asset->_loadTrigger($active_id), 'Active Trigger');
-		}
-	}//end paintDebug()
 
 
 	/**
@@ -1000,30 +985,34 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintBatching(&$tm, &$o, $prefix)
 	{
-		$o->openField('Target Node');
-		asset_finder($prefix.'[target_node]', array_get_index($this->_tmp, 'target_id'));
+		$write_access = $tm->writeAccess('attributes');
+		if ($write_access) {
+			$o->openField('Target Node');
+			asset_finder($prefix.'[target_node]', array_get_index($this->_tmp, 'target_id'));
 
-		$o->openField('Children');
-		check_box($prefix.'[include_children]', 'yes', array_get_index($this->_tmp, 'include_children', true));
-		echo "Include Children?";
+			$o->openField('Children');
+			check_box($prefix.'[include_children]', 'yes', array_get_index($this->_tmp, 'include_children', true));
+			echo "Include Children?";
 
-		$o->openField('Events');
-		$event_type_list = $tm->_getEventList();
-		$events = array_get_index($this->_tmp, 'selected_events');
-		// paint a tickbox list of all the events in the system
-		$event_prefix = $prefix.'[selected_events]';
-		foreach ($event_type_list as $e_type => $e_name) {
-			if (isset($events[$e_type])) {
-				$checked = true;
-			} else {
-				$checked = false;
+			$o->openField('Events');
+			$event_type_list = $tm->_getEventList();
+			$events = array_get_index($this->_tmp, 'selected_events');
+			// paint a tickbox list of all the events in the system
+			$event_prefix = $prefix.'[selected_events]';
+			foreach ($event_type_list as $e_type => $e_name) {
+				if (isset($events[$e_type])) {
+					$checked = true;
+				} else {
+					$checked = false;
+				}
+				check_box($event_prefix.'['.$e_type.']', $e_type, $checked);
+				echo $e_name;
+				echo "<br />";
 			}
-			check_box($event_prefix.'['.$e_type.']', $e_type, $checked);
-			echo $e_name;
-			echo "<br />";
+			return true;
+		} else {
+			return false;
 		}
-
-		return true;
 
 	}//end paintBatching()
 
