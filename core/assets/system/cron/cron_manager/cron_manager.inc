@@ -147,13 +147,8 @@ class Cron_Manager extends Asset
 	*/
 	function acquireLock($source=0, $force=false, $expires=null, $wait=false)
 	{
-if ($wait) $GLOBALS['BCR'] = true;
 		if (parent::acquireLock($source, $force, $expires)) return true;
-$i = 0;
 		while($wait) {
-$i++;
-pre_echo("WAIT : $i");
-if ($i >= 5) $GLOBALS['BCR'] = false;
 			sleep(1);
 			if (parent::acquireLock($source, $force, $expires, $wait)) return true;
 
@@ -231,6 +226,33 @@ if ($i >= 5) $GLOBALS['BCR'] = false;
 
 
 	/**
+	* Returns an array of cron jobs that are active under cron manager
+	*
+	* @param string|array	$type_code			the type of cron job, if an array returns link if matches any
+	*											of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	*
+	* @return Array() returns an array of references to the selected cron job type
+	* @see Asset::getLinks()
+	* @access public
+	*/
+	function getJobs($type_code='cron_job', $strict_type_code=true)
+	{
+		$links = $this->getLinks(SQ_LINK_TYPE_3, $type_code, $strict_type_code, 'major', null, null, true);
+		$jobs = Array();
+		foreach($links as $link) {
+			$job = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
+			if (is_null($job)) continue;
+			$jobs[] = &$job;
+		}// end foreach
+
+		return $jobs;
+
+	}// end getJobs()
+	
+
+	/**
 	* Returns the time of the next run of the cron manager
 	*
 	* @return int timestamp
@@ -239,12 +261,13 @@ if ($i >= 5) $GLOBALS['BCR'] = false;
 	function timeOfNextRun()
 	{
 		return (int) $this->attr('last_run') + (int) $this->attr('refresh_time');
-	}// end
+	}// end timeOfNextRun()
 
 
 	/**
 	* Run's the jobs that need executing in the system
 	*
+	* @return void
 	* @access public
 	*/
 	function run()
@@ -252,6 +275,11 @@ if ($i >= 5) $GLOBALS['BCR'] = false;
 		$old_log_errors = ini_set('log_errors', '1');
 		$old_error_log  = ini_set('error_log',  SQ_DATA_PATH.'/'.$this->error_log_path);
 		set_error_handler(Array(&$this, '_errorHandler'));
+
+		if (!empty($GLOBALS['SQ_SYSTEM']->tm) && $GLOBALS['SQ_SYSTEM']->tm->inTransaction()) {
+			trigger_error('The Cron Manager should not be '.__FUNCTION__.'() while nested within any transactions.<br>This stops each job from being independant of each other', E_USER_WARNING);
+			return;
+		}
 
 		// if we are currently running then we should just leave this alone
 		if ($this->attr('running')) {
@@ -262,8 +290,6 @@ if ($i >= 5) $GLOBALS['BCR'] = false;
 
 				$root_user  = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 				$sys_admins = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
-
-pre_echo("DEAD LOCK");
 
 				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$msg = $ms->newMessage();
@@ -286,12 +312,10 @@ pre_echo("DEAD LOCK");
 
 			// now update this last run time, so that we know for next time
 			if ($this->acquireLock(0, true, null, true)) {
-pre_echo("SET RUN CHECK : ".((int) $this->attr('run_check') + 1));
 				$this->setAttrValue('run_check', (int) $this->attr('run_check') + 1);
 				$this->releaseLock();
 
 			} else {
-
 				trigger_error('Unable to acquire lock of "'.$this->name.'"', E_USER_WARNING);
 
 			}
@@ -299,8 +323,8 @@ pre_echo("SET RUN CHECK : ".((int) $this->attr('run_check') + 1));
 		// we aren't already running
 		} else {
 
-			// now update this last run time, so that we know for next time
-			if ($this->acquireLock(0, true) && $this->setAttrValue('running', true)) {
+			// now get the lock, set the running flag and reset the run_check
+			if ($this->acquireLock(0, true) && $this->setAttrValue('running', true) && $this->setAttrValue('run_check', 0)) {
 
 				$this->releaseLock();
 
@@ -313,8 +337,7 @@ pre_echo("SET RUN CHECK : ".((int) $this->attr('run_check') + 1));
 				$next_run = $this_run + (int) $this->attr('refresh_time');
 
 				$jobs = $this->getJobsToRun($last_run, $this_run);
-				pre_echo("JOBS : ".var_export($jobs, true));
-
+#				pre_echo("JOBS : ".var_export($jobs, true));
 
 				// holds the number of times that a job has failed
 				// Array([assetid] => [number of failed runs]);
@@ -332,12 +355,12 @@ pre_echo("SET RUN CHECK : ".((int) $this->attr('run_check') + 1));
 						$cron_job = &$am->getAsset($job_info['assetid'], $job_info['type_code']);
 						if (is_null($cron_job)) continue;
 
-						echo "RUN    : ".$cron_job->id.' .... '.$cron_job->name."\n";
+#						echo "RUN    : ".$cron_job->id.' .... '.$cron_job->name."\n";
 
 						$result = $cron_job->run();
 
 						require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-						echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $result, true))."\n\n";
+#						echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $result, true))."\n\n";
 
 						// We have been asked to remove this cron job
 						if ($result & SQ_CRON_JOB_REMOVE) {
@@ -366,13 +389,13 @@ pre_echo("SET RUN CHECK : ".((int) $this->attr('run_check') + 1));
 									$sys_admins = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
 
 									$msg = $ms->newMessage();
-									$msg->subject = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($cron_job->type(), 'name').' Forced Failure';
-									$msg->body	  = 'The job "'.$this->name.'" (#'.$this->id.') has failed to run '.$this->attr('num_failed_attempts').' times.'."\n"
+									$msg->subject = 'FORCED FAILURE of '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($cron_job->type(), 'name');
+									$msg->body	  = 'The job "'.$cron_job->name.'" (#'.$cron_job->id.') has failed to run '.$this->attr('num_failed_attempts').' times.'."\n"
 													.'It will be removed from the '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' and will NOT be run again';
 									$msg->to   = Array($user->id, $root_user->id, $sys_admins->id);
 									$msg->from = 0; // a system message
 
-									$msg->send();
+									$ms->enqueueMessage($msg);
 
 								}// end if
 
@@ -394,7 +417,7 @@ pre_echo("SET RUN CHECK : ".((int) $this->attr('run_check') + 1));
 					// now update this last run time, so that we know for next time
 					if ($this->acquireLock(0, true, null, true)) {
 
-						$this->setAttrValue('run_check', (int) $this->attr('run_check') + 1);
+						$this->setAttrValue('run_check', 0);
 						if (!empty($remove_jobs)) {
 							foreach($remove_jobs as $linkid) {
 								$this->deleteLink($linkid);
@@ -415,14 +438,13 @@ pre_echo("SET RUN CHECK : ".((int) $this->attr('run_check') + 1));
 					}
 
 					$jobs = $this->getJobsToRun($last_run, $this_run, $ignore_jobs);
-					pre_echo("JOBS : ".var_export($jobs, true));
+#					pre_echo("JOBS : ".var_export($jobs, true));
 
 				}// end while
 
 				// now update this last run time, so that we know for next time
 				if ($this->acquireLock(0, true)) {
-					#if ($this->setAttrValue('last_run', time()) && $this->setAttrValue('running', false)) {
-					if ($this->setAttrValue('running', false)) {
+					if ($this->setAttrValue('last_run', time()) && $this->setAttrValue('running', false)) {
 						$this->releaseLock();
 					} else {
 						trigger_error('Unable to unset the last run and/or running flag of "'.$this->name.'", aborting run', E_USER_WARNING);
