@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.29 2003/12/17 01:13:23 gsherwood Exp $
+* $Id: edit.css,v 1.30 2003/12/18 04:32:39 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -41,6 +41,7 @@ a {
 a.hover {
 	color:	#4A3852;
 }
+
 
 
 /* HEADING STYLES */
@@ -78,9 +79,11 @@ td.sq-backend-nav-history {
 	border-bottom:		1px solid #342939;
 }
 
+
+
 /* GENERAL STYLES */
 
-.sq-backend-data, td.sq-backend-data, .sq-form-field {
+.sq-backend-data, .sq-backend-data p, td.sq-backend-data, .sq-form-field {
 	background-color:	#FFFFFF;
 	color:				#000000;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
