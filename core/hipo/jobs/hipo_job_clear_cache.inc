@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clear_cache.inc,v 1.4 2005/01/20 13:10:34 brobertson Exp $
+* $Id: hipo_job_clear_cache.inc,v 1.5 2005/03/23 22:57:15 ndvries Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -47,19 +47,19 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 	* @var Array
 	*/
 	var $_steps = Array(
-				Array(
-						'name'             => 'Clearing Cache',
-						'function_call'    => Array(
-												'process_function' => 'processClearCache',
-												),
-						'running_mode'     => 'server',
-						'auto_step'        => true,
-						'allow_cancel'     => true,
-						'percent_done'     => 0,
-						'complete'         => false,
-						'message'          => '',
-					),
-				);
+						Array(
+							  'name'          => 'Clearing Cache',
+							  'function_call' => Array(
+													   'process_function' => 'processClearCache',
+													   ),
+							  'running_mode'  => 'server',
+							  'auto_step'     => true,
+							  'allow_cancel'  => true,
+							  'percent_done'  => 0,
+							  'complete'      => false,
+							  'message'       => '',
+							  ),
+						);
 
 
 	/**
@@ -149,7 +149,7 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 
 	/**
 	* Performs the duties of this hipo, without showing any output on the frontend.
-	* 
+	*
 	* @return boolean
 	* @access public
 	*/
