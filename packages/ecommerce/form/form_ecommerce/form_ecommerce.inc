@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.7 2004/11/18 05:15:35 gsherwood Exp $
+* $Id: form_ecommerce.inc,v 1.8 2004/12/02 05:13:48 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -355,7 +355,7 @@ HEREDOC;
 
 			// save some data to session for the gateway asset
 			$_SESSION['SQ_ECOM_BACK_URL']   = $parent_page_url.'?'.$action_name.'='.$this->receipt_view.'&'.$this->getPrefix().'_submit=true';
-			$_SESSION['SQ_ECOM_REF_NO']     = $GLOBALS['SQ_SYSTEM']->getUniqueSessionKey();
+			$_SESSION['SQ_ECOM_REF_NO']     = session_id();
 			$_SESSION['SQ_ECOM_AMOUNT']     = $order['total'];
 
 			$gateway_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($gateway);
@@ -556,7 +556,7 @@ HEREDOC;
 		if (!is_dir($order_path)) mkdir($order_path);
 
 		if (!$order_no) {
-			$order_no = $GLOBALS['SQ_SYSTEM']->getUniqueSessionKey();
+			$order_no = session_id();
 		}
 
 		return $order_path.'/'.$order_no.'.tmp';
