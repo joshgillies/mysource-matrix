@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.11 2004/06/18 02:02:23 lwright Exp $
+* $Id: page_site_map.inc,v 1.12 2004/08/19 05:46:24 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -115,69 +115,83 @@ class Page_Site_Map extends Page
 	*/
 	function printBody()
 	{
-		$root_asset = null;
-		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'asset', false, 'root');
-		if (!empty($root_link)) {
-			$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid'], $root_link['minor_type_code']);
-		}
+		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cached_contents = $cm->loadFromCache($this, 'site_map');
+		
+		// if the cache is empty, go ahead and regenerate a new version
+		if (empty($cached_contents)) {
 
-		if (is_null($root_asset)) {
-			// firstly, get the sites that this page belongs to
-			$site_info = $GLOBALS['SQ_SYSTEM']->am->getRootURL();
-			if (empty($site_info)) return false;
-			$siteid = $site_info['assetid'];
-		} else {
-			$siteid = $root_asset->id;
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
-			unset($root_asset);
-		}
-
-		$levels = ($this->attr('levels') != 0) ? $this->attr('levels') : null;
-
-		$page_data = $GLOBALS['SQ_SYSTEM']->am->getAssetTree($siteid, $levels, array_keys($this->attr('exclude_list')));
-
-		$assetids = Array();
-
-		foreach ($page_data as $assetid => $data) {
-			$assetids[] = $assetid;
-			$assetids = array_merge($assetids, array_keys($data));
-		}
-		global $SQ_SITE_MAP_ASSET_URLS;
-
-		$SQ_SITE_MAP_ASSET_URLS = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($assetids);
-
-		?>
-		<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib').'/js/edit.js' ?>"></script>
-
-		<?php
-		// figure out the columns for the site map
-		$num_columns = ($this->attr('columns') > 0) ? $this->attr('columns') : 1;
-		if (empty($page_data)) return;
-		$num_pages = count(array_keys($page_data[$siteid]));
-
-		$num_chunks = ceil($num_pages / $num_columns);
-		// CHUNK chunk CHUNK chunk CHUNK it up!
-		$chunks = array_chunk($page_data[$siteid], $num_chunks, true);
-		unset($page_data[$siteid]);
-		?>
-		<table cellpadding="0" cellspacing="0" border="0">
-			 <tr>
-
-			<?php
-			foreach ($chunks as $chunk) {
-				?><td valign="top"><?php
-				$sub_chunk = Array();
-				$sub_chunk[$siteid] = $chunk;
-				$sub_chunk = $sub_chunk + $page_data;
-				$this->_recursePrintAssetList($sub_chunk, $siteid, $this->attr('top_level'), $this->attr('stalks'));
-				unset($sub_chunk);
-				?></td><?php
+			$root_asset = null;
+			$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'asset', false, 'root');
+			if (!empty($root_link)) {
+				$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid'], $root_link['minor_type_code']);
 			}
-			?>
+	
+			if (is_null($root_asset)) {
+				// firstly, get the sites that this page belongs to
+				$site_info = $GLOBALS['SQ_SYSTEM']->am->getRootURL();
+				if (empty($site_info)) return false;
+				$siteid = $site_info['assetid'];
+			} else {
+				$siteid = $root_asset->id;
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
+				unset($root_asset);
+			}
+	
+			$levels = ($this->attr('levels') != 0) ? $this->attr('levels') : null;
+	
+			$page_data = $GLOBALS['SQ_SYSTEM']->am->getAssetTree($siteid, $levels, array_keys($this->attr('exclude_list')));
+	
+			$assetids = Array();
+	
+			foreach ($page_data as $assetid => $data) {
+				$assetids[] = $assetid;
+				$assetids = array_merge($assetids, array_keys($data));
+			}
+			global $SQ_SITE_MAP_ASSET_URLS;
+	
+			$SQ_SITE_MAP_ASSET_URLS = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($assetids);
+	
+			ob_start();
+				?>
+				<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib').'/js/edit.js' ?>"></script>
+		
+				<?php
+				// figure out the columns for the site map
+				$num_columns = ($this->attr('columns') > 0) ? $this->attr('columns') : 1;
+				if (empty($page_data)) return;
+				$num_pages = count(array_keys($page_data[$siteid]));
+		
+				$num_chunks = ceil($num_pages / $num_columns);
+				// CHUNK chunk CHUNK chunk CHUNK it up!
+				$chunks = array_chunk($page_data[$siteid], $num_chunks, true);
+				unset($page_data[$siteid]);
+				?>
+				<table cellpadding="0" cellspacing="0" border="0">
+					 <tr>
+		
+					<?php
+					foreach ($chunks as $chunk) {
+						?><td valign="top"><?php
+						$sub_chunk = Array();
+						$sub_chunk[$siteid] = $chunk;
+						$sub_chunk = $sub_chunk + $page_data;
+						$this->_recursePrintAssetList($sub_chunk, $siteid, $this->attr('top_level'), $this->attr('stalks'));
+						unset($sub_chunk);
+						?></td><?php
+					}
+					?>
+		
+					</tr>
+				</table>
+				<?php
+				$cached_contents = ob_get_contents();
+				$cm->saveToCache($this, 'site_map', $cached_contents);
+			ob_end_clean();
 
-			</tr>
-		</table>
-		<?php
+		}//end if cached
+		
+		echo $cached_contents;
 
 	}//end printBody()
 
