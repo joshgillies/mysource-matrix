@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.16 2004/07/15 05:24:32 gsherwood Exp $
+* $Id: search_manager.inc,v 1.17 2004/08/16 03:00:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.16 $ - 0.1
+* @version $Revision: 1.17 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -851,7 +851,7 @@ class Search_Manager extends Asset
 		$search_results = Array();
 		if (isset($search_info['limit'])) {
 			// limiting the search results
-			$result = $db->limitQuery($search_sql, 1, $search_info['limit']);
+			$result = $db->limitQuery($search_sql, 0, $search_info['limit']);
 			assert_valid_db_result($result);
 
 			while ($result->fetchInto($row, DB_FETCHMODE_ASSOC)) {
