@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.48 2004/01/09 05:47:27 gsherwood Exp $
+* $Id: html_form.inc,v 1.49 2004/01/13 01:29:48 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -602,25 +602,24 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 */
 function asset_finder($name, $assetid=0, $type_codes=Array(), $top_obj='top', $done_fn='null')
 {
-	require_once 'XML/Tree.php';
-	$xml_type_codes = new XML_Tree();
-	$root = &$xml_type_codes->addRoot('type_codes');
+
+	$all_type_codes = Array();
 
 	$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 	foreach($type_codes as $type_code => $flag) {
-		$root->addChild('type_code', '', Array('name' => $type_code));
+		$all_type_codes[] = $type_code;
 		switch($flag) {
 			case 'A' : 
 				$ancestors = $am->getTypeAncestors($type_code);
 				foreach($ancestors as $ancestor) {
-					$root->addChild('type_code', '', Array('name' => $ancestor));
+					$all_type_codes[] = $ancestor;
 				}
 				break;
 			case 'D' : 
 				$descendants = $am->getTypeDescendants($type_code);
 				foreach($descendants as $descendant) {
-					$root->addChild('type_code', '', Array('name' => $descendant));
+					$all_type_codes[] = $descendant;
 				}
 				break;
 		}// end switch
@@ -636,10 +635,16 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $top_obj='top', $d
 
 	$safe_name = 'sq_asset_finder_'.preg_replace('/[^A-Za-z0-9]/', '_', $name);
 
+	if (count($all_type_codes) == 1) {
+		$type_codes = implode('', $all_type_codes).'|';
+	} else {
+		$type_codes = implode('|', $all_type_codes);
+	}
+
 	hidden_field($name.'[assetid]', $assetid);
 	hidden_field($name.'[url]', '');
 	text_box($safe_name.'_label', $label, 30, 0, false, 'class="sq-form-asset-finder" onFocus="javascript: this.tmp = this.value;" onBlur="javascript: this.value = this.tmp;"');
-	normal_button($safe_name.'_change_btn', 'Change...', 'asset_finder_change_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.str_replace("\n", "\\n", addslashes($xml_type_codes->get())).'\', '.$top_obj.', '.$done_fn.');');
+	normal_button($safe_name.'_change_btn', 'Change', 'asset_finder_change_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes).'\', '.$top_obj.', '.$done_fn.');');
 	normal_button($safe_name.'_clear_btn', 'Clear', 'asset_finder_clear_btn_press(\''.$name.'\', \''.$safe_name.'\');');
 	normal_button($safe_name.'_reset_btn', 'Reset', 'asset_finder_reset_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.$assetid.'\', \''.addslashes($label).'\');');
 
@@ -750,5 +755,58 @@ function var_to_hidden_field($var, $name='')
 
 }// end var_to_hidden_field()
 
+
+/**
+* To create the tags that embed the simple asset map into the matrix system
+*
+* NB. this function does not attempt to print any form tags. It is up the the printing entity to do this.
+* The form needs to be in the form: 
+*
+* &gt;form name="main_form"&lt;
+*    ...
+* &gt;/form&lt;
+*
+* The form name needs to be 'main_form'.
+*
+* @param string	$type		the type of asset map to embed, eg. simple, complex, etc. (there could be more later)
+* @param int	$width		the width of the asset map
+* @param int	$height		the height of the asset map
+*
+* @return void
+* @access public
+*/
+function embed_asset_map($type='simple', $width=200, $height=350)
+{
+	$classname = '';
+	$jarname = '';
+
+	// notice that the package name (the directory) should be the same as the jar name, so no need for
+	// another variable
+
+	// create some vars to what jar file to include, and also the class name in the jar
+	// that has the main function
+	switch ($type) {
+		case 'simple':
+			$classname = 'AssetMap';
+			$jarname = 'assetmap';
+		break;
+		case 'complex':
+			$classname = 'ComplexAssetMap';
+			$jarname = 'complexassetmap';
+		break;
+	}
+	
+	// TODO: <embed> tags for moz and netscape
+
+	?>
+		<object ID="sq_asset_map" WIDTH="<?php echo $width; ?>" HEIGHT="<?php echo $height; ?>" CLASSID="CLSID:8AD9C840-044E-11d1-B3E9-00805F499D93">
+			<param NAME="code" value="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" />
+			<param NAME="level" value="5" />
+			<param NAME="archive" value="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar" />
+			Java is not installed on your system
+		</object>
+	<?php
+
+}//end embed_simple_asset_map()
 
 ?>
