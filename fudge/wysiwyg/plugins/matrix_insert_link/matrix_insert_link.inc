@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.24.2.1 2004/11/10 22:23:07 gsherwood Exp $
+* $Id: matrix_insert_link.inc,v 1.24.2.2 2004/12/01 03:58:53 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -73,6 +73,23 @@ class matrix_insert_link extends wysiwyg_plugin {
 
 		<script type="text/javascript" language="Javascript">
 			var wysiwyg_editing = true; // just so that onclick link's don't execute in wysiwyg
+
+
+			HTMLArea.prototype._matrixUnLink = function() {
+				var editor = this; // for nested functions
+
+				var current_a = this.getClosest("a");
+
+				if (!current_a) return false;
+
+				var inside_html = current_a.innerHTML;
+				this.selectNodeContents(current_a);
+				var sel = this._getSelection();
+				var range = this._createRange(sel);
+
+				editor.insertHTML(inside_html, range);
+			}
+
 
 			// Called when the user clicks on "InsertImage" button
 			HTMLArea.prototype._matrixInsertLink = function() {
@@ -182,7 +199,7 @@ class matrix_insert_link extends wysiwyg_plugin {
 						needsHash = true;
 					}
 
-					// because the editor automatically prepend the http:// business to 
+					// because the editor automatically prepend the http:// business to
 					// all relative urls remove it
 					currArgs["url"] = unescape(editor.make_relative_hrefs(currArgs["url"]));
 
@@ -204,13 +221,13 @@ class matrix_insert_link extends wysiwyg_plugin {
 
 					// convert all para tags to lowercase
 					var para_html = inside_html.replace(/(<\/?)P/gi, "$1p");
-					
+
 					// OK so we have some paragraph tags caught up in the mix, let's see what we can do with them
 					// because we don't want our href's going around paragraph tags
 					if (para_html.indexOf("<p") > -1) {
 
 						// if the position of the first tag is the same as the last then we have only one paragraph
-						// we don't want more than one paragraph because these can start or end from half-way through 
+						// we don't want more than one paragraph because these can start or end from half-way through
 						// a para, which would fuck up the formatting when we go to re-insert the text with the href
 						if (para_html.indexOf("<p") != para_html.lastIndexOf("<p")) {
 							alert("Please select only one paragraph to link at a time otherwise bad things happen.");
@@ -229,7 +246,7 @@ class matrix_insert_link extends wysiwyg_plugin {
 
 				this._popupDialog("matrixInsertLink", strPage, 750, 440, true, function(param) {
 					if (param && param["url"] != "") {
-		
+
 						var html = '';
 
 						// if we have an advanced new window, generate the new javascript url string
@@ -300,6 +317,9 @@ class matrix_insert_link extends wysiwyg_plugin {
 		?>
 		case "matrixcreatelink":
 			this._matrixInsertLink();
+		break;
+		case "unlink":
+			this._matrixUnLink();
 		break;
 		<?php
 
