@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.4 2005/02/21 10:21:35 brobertson Exp $
+* $Id: hipo_job_create_links.inc,v 1.5 2005/02/24 22:18:08 gsherwood Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -218,7 +218,6 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			return '';
 		}
 
-	//	$GLOBALS['SQ_SYSTEM']->setLastAction('system:create_link', 'Creating Link', $this->_running_vars['assetid']);
 		return parent::initialise($source_code_name);
 
 	}//end initialise()
@@ -230,9 +229,9 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	* This allows the user to back out if they want to, as well as be presented
 	* with any information/warnings regarding the new link (eg. move to trash)
 	*
-	* @param array								&$step_data	a reference to the array of information about the current step
-	* @param object Hipo_Backend_Outputter		&$o			the backend outputter class
-	* @param string								$prefix		prefix for form vars
+	* @param array							&$step_data	a reference to the array of information about the current step
+	* @param object Hipo_Backend_Outputter	&$o			the backend outputter class
+	* @param string							$prefix		prefix for form vars
 	*
 	* @access Public
 	* @return boolean
@@ -402,11 +401,12 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 		$o->addHiddenField('form_submitted', 1);
 		return true;
+
 	}//end paintConfirmation()
 
 
 	/**
-	* Does nothing.
+	* Does nothing
 	*
 	* @param	&array	$step_data		the step data for this job
 	* @param	string	$prefix			prefix to be used with this job
@@ -474,7 +474,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($new_parent);
 			unset($new_parent);
 
-		} elseif ($this->_running_vars['link_action'] == 'move') {
+		} else if ($this->_running_vars['link_action'] == 'move') {
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($value['linkid'], $value['parentid']);
 
 			$linkid = $GLOBALS['SQ_SYSTEM']->am->moveLink($value['linkid'], $this->_running_vars['to_parent_assetid'], $link['link_type'], $this->_running_vars['to_parent_pos']);
@@ -534,9 +534,9 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	/**
 	* Paint the interface for accepting user input on what to cascade (permissions/metadata/workflow)
 	*
-	* @param array								&$step_data	a reference to the array of information about the current step
-	* @param object Hipo_Backend_Outputter		&$o			the backend outputter class
-	* @param string								$prefix		prefix for form vars
+	* @param array							&$step_data	a reference to the array of information about the current step
+	* @param object Hipo_Backend_Outputter	&$o			the backend outputter class
+	* @param string							$prefix		prefix for form vars
 	*
 	* @access public
 	* @return boolean
@@ -650,9 +650,10 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 
 	/**
-	* To be run as Step 1. This will run the Update Lookups before retrieving user input about cascading permissions etc.
+	* This will run the Update Lookups before retrieving user input about cascading permissions etc.
 	*
-	* Run before cascading because this is critical. Dont want them to bail out before doing this.
+	* Run as Step 1 (before cascading) because this step is critical.
+	* We dont want them to bail out before doing this.
 	*
 	* @param string		&$job_type
 	* @param array		&$running_vars
@@ -758,7 +759,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			$schema_vars[] = Array('granted'         => $granted,
 								   'schemaid'        => $schemaid,
 								   'previous_access' => null,
-						      );
+								   );
 		}
 		$running_vars['schema_changes'] = $schema_vars;
 		$running_vars['assets'] = $this->_running_vars['assets'];
@@ -769,9 +770,9 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	/**
 	* Refreshes the asset map to reflect the new link changes we made
 	*
-	* @param array								&$step_data	a reference to the array of information about the current step
-	* @param object Hipo_Backend_Outputter		&$o			the backend outputter class
-	* @param string								$prefix		prefix for form vars
+	* @param array							&$step_data	a reference to the array of information about the current step
+	* @param object Hipo_Backend_Outputter	&$o			the backend outputter class
+	* @param string							$prefix		prefix for form vars
 	*
 	* @access Public
 	* @return boolean
@@ -797,8 +798,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	/**
 	* Does nothing
 	*
-	* @param	&array	$step_data		the step data for this job
-	* @param	string	$prefix			prefix to be used with this job
+	* @param	&array	$step_data	the step data for this job
+	* @param	string	$prefix		prefix to be used with this job
 	*
 	* @access public
 	* @return boolean
