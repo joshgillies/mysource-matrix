@@ -42,7 +42,7 @@ class Design_Area_Menu_Normal extends Design_Area_Menu_Type
 		if (is_null($parent_menu) || $parent_menu->attr('show_subs') == 'on_current') {
 			echo '= \'.((int) $PAGE_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\']).\'';
 		} else {
-			echo 'IN (\'.implode(\',\', $'.$this->attr('id_name').'_assetids).\')';
+			echo 'IN (\'.implode(\',\', $'.$parent_menu->attr('id_name').'_assetids).\')';
 		}// end if
 
 		echo '
