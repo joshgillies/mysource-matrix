@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.54 2003/11/18 15:37:23 brobertson Exp $
+* $Id: design_edit_fns.inc,v 1.55 2003/11/21 01:29:25 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -567,12 +567,10 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$da->setVarReferenceValues($da_ref_values);
 		}// end foreach
 
-		$pre_str = '
-		<?php
+		$pre_str = '<?php
 		$am = &$GLOBALS[\'SQ_SYSTEM\']->am;
 		$ASSET_LINEAGE = @$am->getLineageFromURL(null, null, \'short_name\');
-		?>
-		';
+		?>';
 
 		$str = '';
 		ob_start();
