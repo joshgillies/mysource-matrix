@@ -189,6 +189,7 @@ class User extends Asset
 	function _getName($short_name=false)
 	{
 		return ($this->attr('first_name') || $this->attr('last_name')) ? $this->attr('first_name').' '.$this->attr('last_name') : $this->attr('username');
+
 	}//end _getName()
 
 
@@ -276,17 +277,19 @@ class User extends Asset
 		} else {
 			return parent::_checkPermissionAccess($perm, $assetids);
 		}
+
 	}//end checkAccess()
 
 
 	/**
-	* Returns true if this user can log in
+	* Check if this user can log in
 	* Note that this is not for backend logins only, it applys to all logins
 	*
 	* @return boolean
 	* @access public
 	*/
-	function canLogin() {
+	function canLogin()
+	{
 		// check that this user is live
 		if ($this->status & SQ_SC_STATUS_NOT_LIVE) return false;
 
@@ -294,7 +297,8 @@ class User extends Asset
 		if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id, true)) return false;
 
 		return true;
-	}
+
+	}//end canLogin()
 
 
 	/**

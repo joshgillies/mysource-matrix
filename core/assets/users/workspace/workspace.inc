@@ -25,6 +25,7 @@ class Workspace extends Folder
 	function Workspace($assetid=0)
 	{
 		$this->Folder($assetid);
+
 	}//end constructor
 
 
@@ -39,7 +40,8 @@ class Workspace extends Folder
 		$link = $this->getLink(SQ_LINK_TYPE_2, 'user', false, '', 'minor', '1');
 		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['type_code']);
 		return $user;
-	}
+
+	}//end _getUser()
 
 
 	/**
@@ -51,6 +53,7 @@ class Workspace extends Folder
 	function canDelete()
 	{
 		return false;
+
 	}//end canDelete()
 
 
@@ -87,6 +90,7 @@ class Workspace extends Folder
 		}
 
 		return false;
+
 	}//end checkAccess()
 
 
@@ -98,6 +102,7 @@ class Workspace extends Folder
 	function printBody()
 	{
 		bam('WORKSPACE printBody(): NOT DONE YET');
+
 	}// end printBody()
 
 
@@ -112,7 +117,9 @@ class Workspace extends Folder
 	function _getName($short_name=false)
 	{
 		return 'Workspace';
+
 	}//end _getName();
 
 }//end class
+
 ?>

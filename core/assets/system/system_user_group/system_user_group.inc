@@ -15,16 +15,18 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user_group/user_group.inc';
 */
 class System_User_Group extends User_Group
 {
+
 	/**
 	* Constructor
 	*
-	* @param int    $assetid      the asset id to be loaded
+	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function System_User_Group($assetid=0) 
+	function System_User_Group($assetid=0)
 	{
 		$this->User_Group($assetid);
-	}
+
+	}//end constructor
 
 
 	/**
@@ -52,8 +54,8 @@ class System_User_Group extends User_Group
 			trigger_error('Unable to create another System User Group, you are only allowed one', E_USER_WARNING);
 			return false;
 		}
-		
-		$this->setAttrValue('name', 'System Administrators'); 
+
+		$this->setAttrValue('name', 'System Administrators');
 		$ret_val = parent::create($link);
 		unset($this->_tmp[__CLASS__.'_in_create']);
 		return $ret_val;
@@ -76,7 +78,9 @@ class System_User_Group extends User_Group
 		trigger_error('Unable to duplicate System User Group, you are only allowed one', E_USER_WARNING);
 		$null = NULL; // 'cause we need to return by reference :)
 		return $null;
-	}
+
+	}//end duplicate()
+
 
 	/**
 	* Morph's this asset to either one of it's parent type or one of it's children types
@@ -92,7 +96,8 @@ class System_User_Group extends User_Group
 	{
 		trigger_error('Unable to morph System User Group', E_USER_WARNING);
 		return false;
-	}
+
+	}//end morph()
 
 
 	/**
@@ -100,7 +105,8 @@ class System_User_Group extends User_Group
 	*
 	* @param string		$name				the name of the attribute
 	* @param string		$value				the new value of the attribute
-	* @param boolean	$dont_run_updated	if true this->_updated() won't be run (THIS IS ONLY EVER CALLED FROM Asset::create())
+	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
+	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
@@ -127,6 +133,7 @@ class System_User_Group extends User_Group
 	function canDelete()
 	{
 		return false;
+
 	}//end canDelete()
 
 
@@ -146,7 +153,9 @@ class System_User_Group extends User_Group
 		// we have to be root to do anything in here
 		if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
 		return false;
+
 	}//end checkAccess()
 
 }//end class
+
 ?>
