@@ -267,7 +267,7 @@ class Resolve
 	{
 		if (is_null($user)) return $_SESSION['user_is_root'];
 		if (!$user->id) return false;
-		if (get_class($user) == 'root_user' && $user->id == 4) return true;
+		if (get_class($user) == 'root_user' && (int) $user->id == 4) return true;
 		return false;
 	}//end userRoot()
 
