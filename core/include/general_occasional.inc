@@ -203,7 +203,7 @@ function asset_link_treeid_convert($value, $encode)
 * @return array(string)
 * @access public
 */
-function makeValidWebPaths($paths=Array())
+function make_valid_web_paths($paths=Array())
 {
 	$valid_paths = Array();
 	foreach($paths as $path) {
@@ -224,6 +224,7 @@ function makeValidWebPaths($paths=Array())
 		if ($path && !in_array($path, $valid_paths)) $valid_paths[] = $path;
 	}
 	return $valid_paths;
+
 }//end makeValidWebPaths()
 
 ?>
