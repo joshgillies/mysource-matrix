@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.36 2004/06/03 04:16:30 lwright Exp $
+* $Id: form.inc,v 1.37 2004/06/09 23:59:56 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -216,10 +216,34 @@ class Form extends Bridge
 			else $type_code = Array($type_code);
 		}
 		
-		// this is so we get the sections as we go
-		$children = Asset::getChildren($assetid, $type_code, $strict_type_code, $sort_by);
-
 		$children = Array();
+
+		// this is so we get the sections as we go
+		// have to do this all in here because calling asset manager will bring on a vicious loop
+
+		$asset = &$this->getAsset($assetid);
+		if (is_a($asset, 'bridge') && ($assetid != $this->id)) {
+			$children = $asset->getChildren($assetid, $type_code, $strict_type_code, $sort_by);
+			$this->forgetAsset($asset);
+			return $children;
+		}
+
+		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $sort_by);
+		unset($asset);
+		if (empty($query)) return Array();
+
+		$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc(implode(' ', $query));
+		assert_valid_db_result($result);
+
+
+		if (!is_null($sort_by)) {
+			$children = Array();
+			foreach ($result as $assetid => $asset_info) $children[$assetid] = $asset_info['type_code'];
+		} else {
+			$children =& $result;
+		}
+
+		// now questions
 
 		$entries = $this->getQuestions();
 
