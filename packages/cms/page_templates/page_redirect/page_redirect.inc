@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_redirect.inc,v 1.6 2003/09/26 05:26:42 brobertson Exp $
+* $Id: page_redirect.inc,v 1.7 2003/11/13 04:44:06 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -45,9 +45,9 @@ class Page_Redirect extends Page
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(
-					SQ_LINK_NOTICE => Array('asset' => Array('card' => 'M', 'exclusive' => false)),
-				);
+		$page_links = parent::_getAllowedLinks();
+		$page_links[SQ_LINK_NOTICE]['asset'] = Array('card' => 'M', 'exclusive' => false);
+		return $page_links;
 
 	}//end _getAllowedLinks()
 
