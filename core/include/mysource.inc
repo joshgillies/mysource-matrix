@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mysource.inc,v 1.11 2003/10/10 06:49:25 brobertson Exp $
+* $Id: mysource.inc,v 1.12 2003/10/17 05:50:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -555,7 +555,7 @@ class MySource
 	{
 		if (is_null($user)) return $this->_user_is_root;
 		if (!$user->id) return false;
-		if (get_class($user) == 'root_user' && (int) $user->id == 4) return true;
+		if (get_class($user) == 'root_user') return true;
 		return false;
 
 	}//end userRoot()
