@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_management.inc,v 1.2 2004/10/15 03:30:19 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_ecommerce_management.inc,v 1.3 2005/01/20 13:22:21 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */

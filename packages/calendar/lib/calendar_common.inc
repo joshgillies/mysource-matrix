@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.22 2005/01/13 22:26:48 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: calendar_common.inc,v 1.23 2005/01/20 13:21:53 brobertson Exp $
+*
 */
 
 /*
@@ -30,7 +30,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */

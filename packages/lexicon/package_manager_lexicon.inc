@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_lexicon.inc,v 1.1.1.1 2004/10/27 23:05:50 tbarrett Exp $
-* $Name: not supported by cvs2svn $
+* $Id: package_manager_lexicon.inc,v 1.2 2005/01/20 13:21:22 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/package_manager.inc';
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleaned from the package.xml and asset.xml files
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.1.1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */

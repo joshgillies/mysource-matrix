@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: product_management.inc,v 1.1 2005/01/12 23:57:01 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: product_management.inc,v 1.2 2005/01/20 13:22:22 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_hcl.inc,v 1.6 2004/09/16 05:56:29 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_hcl.inc,v 1.7 2005/01/20 13:18:40 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 * Purpose
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */

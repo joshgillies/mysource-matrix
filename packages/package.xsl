@@ -19,8 +19,8 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: package.xsl,v 1.5 2004/05/18 16:22:54 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: package.xsl,v 1.6 2005/01/20 13:24:24 brobertson Exp $
+*
 */
 -->
 

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.14 2004/12/03 02:57:20 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_remote_content.inc,v 1.15 2005/01/20 13:18:40 brobertson Exp $
+*
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
@@ -36,7 +36,7 @@ require_once 'HTTP/Client/CookieManager.php';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item_management.inc,v 1.4 2005/01/13 22:32:50 amiller Exp $
+* $Id: news_item_management.inc,v 1.5 2005/01/20 13:20:01 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Version$ - 0.1
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */

@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: loader.js,v 1.2 2004/10/14 00:58:28 dbaranovskiy Exp $
-* $Name: not supported by cvs2svn $
+* $Id: loader.js,v 1.3 2005/01/20 13:22:22 brobertson Exp $
+*
 */
 
 /**

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user_group_edit_fns.inc,v 1.2 2004/10/07 04:44:35 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: ldap_user_group_edit_fns.inc,v 1.3 2005/01/20 13:19:50 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user_group/user_group_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */

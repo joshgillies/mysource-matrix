@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_browser.js,v 1.1 2004/11/30 01:29:10 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: thesaurus_browser.js,v 1.2 2005/01/20 13:21:22 brobertson Exp $
+*
 */
 
 var Browser = null;

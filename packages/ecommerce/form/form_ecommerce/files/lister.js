@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: lister.js,v 1.1.1.1 2004/10/13 01:31:48 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: lister.js,v 1.2 2005/01/20 13:22:22 brobertson Exp $
+*
 */
 
 /**

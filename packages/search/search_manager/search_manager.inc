@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.38 2005/01/13 22:28:14 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: search_manager.inc,v 1.39 2005/01/20 13:22:57 brobertson Exp $
+*
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */

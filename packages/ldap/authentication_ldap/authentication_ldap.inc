@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ldap.inc,v 1.1 2004/02/06 03:11:19 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: authentication_ldap.inc,v 1.2 2005/01/20 13:19:50 brobertson Exp $
+*
 */
 
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */

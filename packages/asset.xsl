@@ -19,8 +19,8 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xsl,v 1.8 2005/01/12 23:42:56 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: asset.xsl,v 1.9 2005/01/20 13:24:24 brobertson Exp $
+*
 */
 -->
 

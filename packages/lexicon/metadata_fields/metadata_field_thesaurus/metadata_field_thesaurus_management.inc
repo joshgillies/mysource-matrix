@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_management.inc,v 1.1 2004/11/30 01:29:10 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: metadata_field_thesaurus_management.inc,v 1.2 2005/01/20 13:21:22 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */

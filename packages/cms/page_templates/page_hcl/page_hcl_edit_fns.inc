@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_hcl_edit_fns.inc,v 1.7 2004/06/16 06:11:17 mmcintyre Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_hcl_edit_fns.inc,v 1.8 2005/01/20 13:18:40 brobertson Exp $
+*
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * Purpose
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
