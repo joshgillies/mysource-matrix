@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: backend.inc,v 1.60 2003/10/07 02:35:50 brobertson Exp $
+* $Id: backend.inc,v 1.61 2003/10/09 00:37:14 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -50,7 +50,7 @@ class Backend extends MySource_Object
 	*/
 	function getBackendUrl($target='main')
 	{
-		return $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE='.$target;
+		return current_url().'?SQ_BACKEND_PAGE='.$target;
 	}//end getBackendUrl()
 
 
