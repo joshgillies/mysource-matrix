@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form.inc,v 1.6 2003/11/18 15:37:25 brobertson Exp $
+* $Id: design_area_login_form.inc,v 1.7 2003/11/24 00:08:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -139,7 +139,7 @@ class Design_Area_Login_Form extends Design_Area
 					if ($k = 'size') continue;
 					$extras .= ' '.$k.'="'.htmlspecialchars($v).'"';
 				}
-				text_box('SQ_LOGIN_USERNAME', '', empty($args['size']) ? 10 : $args['size'], 0, $extras);
+				text_box('SQ_LOGIN_USERNAME', '', empty($args['size']) ? 10 : $args['size'], 0, false, $extras);
 				if ($this->attr('give_username_focus')) {
 					echo '<script language="javascript" type="text/javascript">
 						function set_'.$this->attr('id_name').'_username_box_focus() {

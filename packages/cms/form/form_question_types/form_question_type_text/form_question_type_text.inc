@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text.inc,v 1.10 2003/11/18 15:43:37 brobertson Exp $
+* $Id: form_question_type_text.inc,v 1.11 2003/11/24 00:08:06 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -130,7 +130,7 @@ class Form_Question_Type_Text extends Form_Question
 		
 		ob_start();
 		if ($height == 1) {
-			text_box($name, $value, $width, $max, $extras);
+			text_box($name, $value, $width, $max, false, $extras);
 		} else {
 			text_area($name, $value, $width, $height, $max, $extras);
 		}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.44 2003/11/22 00:58:04 mmcintyre Exp $
+* $Id: html_form.inc,v 1.45 2003/11/24 00:08:04 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -94,16 +94,19 @@ function hidden_field($name, $value='')
 /**
 * Prints a simple single line text box
 *
-* @param string	$name		the form name to use for the text box
-* @param string	$value		the text that should be pre-entered in the text box
-* @param int	$size		the width of the text box
-* @param int	$max		the maximum number of characters allowed in the text box
-* @param string	$extras		any input field attributes that should be placed in the <input ... > tag
+* @param string		$name			the form name to use for the text box
+* @param string		$value			the text that should be pre-entered in the text box
+* @param int		$size			the width of the text box
+* @param int		$max			the maximum number of characters allowed in the text box
+* @param boolean	$hide_value		use the default value as indicative text only (hide it onFocus and restore onBlur
+*									if needed) - useful if you want to use it as instructional text (as required by priority
+*									level 3 accessability standards)
+* @param string		$extras			any input field attributes that should be placed in the <input ... > tag
 *
 * @return void
 * @access public
 */
-function text_box($name, $value, $size='', $max='', $extras='')
+function text_box($name, $value, $size='', $max='', $hide_value=false, $extras='')
 {
 	$size = (int) $size;
 	$max  = (int) $max;
@@ -113,6 +116,7 @@ function text_box($name, $value, $size='', $max='', $extras='')
 			'value="', htmlspecialchars($value), '" ',
 			(($size)   ? 'size="'.$size.'" '     : ''),
 			(($max)    ? 'maxlength="'.$max.'" ' : ''),
+			(($hide_value) ? 'onFocus="if (this.value == \''.htmlspecialchars($value).'\') { this.value = \'\'; }" onBlur="if (this.value == \'\') { this.value=\''.htmlspecialchars($value).'\'; }" ' : ''),
 			$extras,
 			' />';
 
@@ -324,7 +328,7 @@ function colour_box($name, $default='000000', $allow_blanks=false, $button_text=
 				 . ' onChange="javascript: this.value = check_colour(this.value, '.(($allow_blanks) ? 'true' : 'false').');"';
 
 		if ($show_current_colour) $extras .= ' show_colour_change(\''.addslashes($name).'\');';
-		text_box($name, $default, 7, 6, $extras);
+		text_box($name, $default, 7, 6, false, $extras);
 	} else {
 		hidden_box($name, $default);
 	}
@@ -633,7 +637,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $top_obj='top', $d
 	$safe_name = 'sq_asset_finder_'.preg_replace('/[^A-Za-z0-9]/', '_', $name);
 
 	hidden_field($name, $assetid);
-	text_box($safe_name.'_label', $label, 30, 0, 'class="sq-form-asset-finder" onFocus="javascript: this.tmp = this.value;" onBlur="javascript: this.value = this.tmp;"');
+	text_box($safe_name.'_label', $label, 30, 0, false, 'class="sq-form-asset-finder" onFocus="javascript: this.tmp = this.value;" onBlur="javascript: this.value = this.tmp;"');
 	normal_button($safe_name.'_change_btn', 'Change...', 'asset_finder_change_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.str_replace("\n", "\\n", addslashes($xml_type_codes->get())).'\', '.$top_obj.', '.$done_fn.');');
 	normal_button($safe_name.'_clear_btn', 'Clear', 'asset_finder_clear_btn_press(\''.$name.'\', \''.$safe_name.'\');');
 	normal_button($safe_name.'_reset_btn', 'Reset', 'asset_finder_reset_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.$assetid.'\', \''.addslashes($label).'\');');

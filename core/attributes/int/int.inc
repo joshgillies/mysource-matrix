@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: int.inc,v 1.12 2003/11/18 15:37:31 brobertson Exp $
+* $Id: int.inc,v 1.13 2003/11/24 00:08:04 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -89,7 +89,7 @@ class Asset_Attribute_Int extends Asset_Attribute
 		}
 
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		text_box($prefix.'_'.$this->name, (int) $this->value, $this->_edit_params['width'], 0, 'onFocus="javascript: this.__sq_init_value = this.value;" onChange="javascript: if (isNaN(parseInt(this.value))) { this.value = this.__sq_init_value; alert(\'This is an integer field.\\nUnable to accept non-digit characters in this field.\'); } else { this.value = parseInt(this.value); } "');
+		text_box($prefix.'_'.$this->name, (int) $this->value, $this->_edit_params['width'], 0, false, 'onFocus="javascript: this.__sq_init_value = this.value;" onChange="javascript: if (isNaN(parseInt(this.value))) { this.value = this.__sq_init_value; alert(\'This is an integer field.\\nUnable to accept non-digit characters in this field.\'); } else { this.value = parseInt(this.value); } "');
 	}// end paint()
 
 

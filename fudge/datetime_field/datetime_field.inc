@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.8 2003/11/18 15:42:10 brobertson Exp $
+* $Id: datetime_field.inc,v 1.9 2003/11/24 00:08:05 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -204,10 +204,10 @@ class DateTime_Field {
 			// merge onChange local values with those coming in from extras
 			if (eregi('onchange *="|\'', $extras[$u])) {
 				$extra = eregi_replace ("onchange *=(\"|')", 'onChange=\1'.$onchange, $extras[$u]);
-				text_box($prefix.'['.$u.']',$value,$size,$size, $extra);
+				text_box($prefix.'['.$u.']', $value, $size, $size, false, $extra);
 				return;
 			} else {
-				text_box($prefix.'['.$u.']',$value,$size,$size, $extras[$u]);
+				text_box($prefix.'['.$u.']', $value, $size, $size, false, $extras[$u]);
 				return;
 			}
 		}
