@@ -84,8 +84,8 @@ class Asset_Attribute_Colour extends Asset_Attribute
 	{
 		$value = trim($value);
 		$new_value = preg_replace('/[^0-9a-f]/', '0', (string) $value);
-		if ($new_value != $value) return $new_value;
-		return $value;
+		if ($new_value != $value) return false;
+		return true;
 	}//end validateValue()
 
 }//end class
