@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation_edit_fns.inc,v 1.18 2003/11/18 15:37:26 brobertson Exp $
+* $Id: design_customisation_edit_fns.inc,v 1.19 2003/11/25 04:41:31 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -83,10 +83,9 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 
 		foreach($_POST[$prefix.'_remove_customisation'] as $id_name) {
 			$parents_link = $parent_design->getDesignAreaLink($id_name);
-			if (is_null($parents_link)) continue;
+			if (empty($parents_link)) continue;
 
 			$data[$id_name] = Array($parents_link['minorid'], $parents_link['minor_type_code']);
-
 		}// end foreach
 
 		if ($data && !$this->_updateDesignAreaLink($asset, $data)) {
@@ -269,6 +268,22 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		$current_type = '';
 		foreach($links as $link) {
 			$da = &$am->getAsset($link['minorid'], $link['minor_type_code']);
+			
+			if ($da->attr('id_name') == '') {
+				trigger_error('Design Area #'.$da->id.' does not have an id_name set. Attempting to recover.', E_USER_NOTICE);
+				foreach ($links as $link) {
+					if ($link['minorid'] == $da->id) {
+						if (!empty($link['value'])) {
+							$da->setAttrValue('id_name', $link['value']);
+							$da->saveAttributes();
+						} else {
+							trigger_error('Could not recover id_name for design area #'.$da->id, E_USER_WARNING);
+						}
+						break;
+					}
+				}
+			}
+
 			if (is_null($da)) continue;
 		?>
 			<tr>
