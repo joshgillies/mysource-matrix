@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.169 2004/01/27 04:13:43 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.170 2004/01/27 04:33:39 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1553,7 +1553,7 @@ class Asset_Manager extends MySource_Object
 		$query = $this->generateGetChildrenQuery($assetid, $type_code, $strict_type_code, $sort_by);
 		if (empty($query)) return Array();
 
-		$result = $db->getAssoc(implode(' ', $query), true, Array(), DB_FETCHMODE_DEFAULT);
+		$result = $db->getAssoc(implode(' ', $query));
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 			return Array();
