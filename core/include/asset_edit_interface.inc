@@ -117,19 +117,6 @@ class Asset_Edit_Interface extends Resolve_Object
 
 
 	/**
-	* Returns the prefix that will be used by paint() and process()
-	*
-	* @param object	Asset	$owner	the asset whose interface we are painting
-	*
-	* @access public
-	*/
-	function getPrefix(&$owner)
-	{
-		return $owner->type().'_'.$owner->id;
-	}
-
-
-	/**
 	* Paint's out the interface for the currently selected frame
 	*
 	* @param object	Asset				$owner		the asset whose interface we are painting
@@ -301,7 +288,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			}
 
 			// prefix for all the form vars
-			$prefix = $this->getPrefix($owner);
+			$prefix = $owner->getPrefix();
 
 			// Loop over the sections
 			for($i = 0; $i < count($root->children); $i++) {
@@ -479,7 +466,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			}
 
 			// prefix for all the form vars
-			$prefix = $this->getPrefix($owner);
+			$prefix = $owner->getPrefix();
 
 			// Loop over the sections
 			for($i = 0; $i < count($root->children); $i++) {
@@ -572,7 +559,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	{
 		if(!($file = $this->_findFile('static_screen_details'))) return;
 
-		$prefix = $this->getPrefix($owner);
+		$prefix = $owner->getPrefix();
 
 		if ($file) {
 			$input = new XML_Tree($file);
@@ -717,7 +704,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function processDetails(&$owner, &$o)
 	{
-		$prefix = $this->getPrefix($owner);
+		$prefix = $owner->getPrefix();
 
 		$status_processed = false;
 
@@ -762,7 +749,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	{
 		if(!($file = $this->_findFile('static_screen_settings'))) return;
 
-		$prefix = $this->getPrefix($owner);
+		$prefix = $owner->getPrefix();
 
 		if ($file) {
 			$input = new XML_Tree($file);
@@ -977,7 +964,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function processSettings(&$owner, &$o)
 	{
-		$prefix = $this->getPrefix($owner);
+		$prefix = $owner->getPrefix();
 
 		//// VERSIONING ////
 		if ($owner->adminAccess()) {
@@ -1102,7 +1089,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function paintPermissions(&$owner, &$o)
 	{
-		$prefix = $this->getPrefix($owner);
+		$prefix = $owner->getPrefix();
 		$perms = Array('Read' => SQ_PERMISSION_READ, 'Write' => SQ_PERMISSION_WRITE, 'Administrator' => SQ_PERMISSION_ADMIN);
 		$admin_access = $owner->adminAccess(Array(), true, false);
 
@@ -1313,7 +1300,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		// if we dont have admin access, dont process anything
 		if (!$owner->adminAccess(Array(), true, false)) return false;
 
-		$prefix = $this->getPrefix($owner);
+		$prefix = $owner->getPrefix();
 		if (!isset($_POST[$prefix.'_permissions'])) return false;
 
 		$perms = Array('Administrator' => SQ_PERMISSION_ADMIN, 'Write' => SQ_PERMISSION_WRITE, 'Read' => SQ_PERMISSION_READ);
@@ -1369,7 +1356,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function paintWorkflow(&$owner, &$o)
 	{
-		$prefix = $this->getPrefix($owner).'_workflow';
+		$prefix = $owner->getPrefix().'_workflow';
 
 		require_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
 		$wfm = new Workflow_Manager($owner, true, true, true);
@@ -1763,7 +1750,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		$wfm = new Workflow_Manager($owner);
 		if ($wfm->state == 'running') return false;
 
-		$prefix = $this->getPrefix($owner).'_workflow';
+		$prefix = $owner->getPrefix().'_workflow';
 
 		// unrevoke inherited workflow
 		if (isset($_POST[$prefix.'_unrevoke'])) {
@@ -2012,7 +1999,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	function paintLinking(&$owner, &$o, $allow_edit=true)
 	{
 		// prefix for all the form vars
-		$prefix = $this->getPrefix($owner);
+		$prefix = $owner->getPrefix();
 
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$o->openSection('Assets linking to "'.$owner->name.'"');
@@ -2146,7 +2133,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		if (!$owner->writeAccess(Array(), true, false)) return false;
 
 		// prefix for all the form vars
-		$prefix = $this->getPrefix($owner);
+		$prefix = $owner->getPrefix();
 
 		$done_something = false;
 		$asset_links = $owner->getLinks(SQ_SC_LINK_ALL, '', true, 'minor');
@@ -2181,7 +2168,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	function paintHistory(&$owner, &$o)
 	{
 		// prefix for all the form vars
-		$prefix = $this->getPrefix($owner);
+		$prefix = $owner->getPrefix();
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -2284,7 +2271,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	function processHistory(&$owner, &$o)
 	{
 		// prefix for all the form vars
-		$prefix = $this->getPrefix($owner);
+		$prefix = $owner->getPrefix();
 
 		if (isset($_POST[$prefix.'_rollback_mode']) && isset($_POST[$prefix.'_rollback_version'])) {
 			$version = $_POST[$prefix.'_rollback_version'];

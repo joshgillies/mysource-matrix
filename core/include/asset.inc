@@ -253,7 +253,7 @@ class Asset extends Resolve_Object
 
 	}//end create()
 
-
+	
 	/**
 	* Creates a duplicate of this asset.
 	* The only child assetst that are duplicated are the ones that are DEPENDANTLY linked to this asset
@@ -538,6 +538,19 @@ class Asset extends Resolve_Object
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' #'.$this->id;
 
 	}//end _getName()
+
+
+	/**
+	* Returns the prefix that will be used by paint() and process()
+	*
+	* @param object	Asset	$owner	the asset whose interface we are painting
+	*
+	* @access public
+	*/
+	function getPrefix()
+	{
+		return $this->type().'_'.$this->id;
+	}
 
 
 	/**
