@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.84 2005/02/10 04:44:33 lwright Exp $
+* $Id: form.inc,v 1.85 2005/02/22 05:10:02 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -697,12 +697,10 @@ class Form extends Asset
 	/**
 	* get the section links attached to this form
 	*
-	* @param &object $asset the form asset
-	*
 	* @access public
 	* @return Array(link)
 	*/
-	function getSectionLinks()
+	function &getSectionLinks()
 	{
 		// This is what one would find in Asset_Manager::&getAsset() except we can't call that,
 		// lest we spin off into an infinite loop involving OUR &getAsset().

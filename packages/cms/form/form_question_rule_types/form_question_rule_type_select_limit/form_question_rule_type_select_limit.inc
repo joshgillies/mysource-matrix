@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_select_limit.inc,v 1.7 2004/12/06 14:41:39 brobertson Exp $
+* $Id: form_question_rule_type_select_limit.inc,v 1.8 2005/02/22 05:10:02 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 * @static
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -210,7 +210,16 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 	{
 		$code = '';
 
-		$q_id = $q_asset->id . ($q_asset->attr('multiple') ? '[]' : '');
+		if (is_a($q_asset, 'form_question_type_select')) {
+			// selection list or derivative - check multiple attribute
+			$q_id = $q_asset->id . ($q_asset->attr('multiple') ? '[]' : '');
+		} else if (is_a($q_asset, 'form_question_type_option_list')) {
+			// option list - always single (*sniff* :`-( )
+			$q_id = $q_asset->id;	
+		} else {
+			// tickbox list - always multiple
+			$q_id = $q_asset->id.'[]';
+		}
 
 		$code .= 'var select = document.getElementById("'.$q_id.'"); ';
 
