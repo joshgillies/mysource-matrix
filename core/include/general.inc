@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.69 2005/03/23 10:15:15 brobertson Exp $
+* $Id: general.inc,v 1.70 2005/03/23 10:24:48 brobertson Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix
 */
 
@@ -273,6 +273,28 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			ob_start();
 			echo $buffers[$i];
 		}
+
+		// mail the tech email if there was a fatal error
+		if ($terminate) {
+
+			// if they haven't put tags in the err msg assume it to be plain text
+			$err_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
+
+			$str  = '*'.$err_name."*\n".
+					'File : '.$err_file."\n".
+					'Line : '.$err_line."\n".
+					"\n".
+					$err_msg."\n".
+					"------------------------------------------------------------------\n".
+					"*Root Urls*\n".
+					SQ_CONF_SYSTEM_ROOT_URLS."\n".
+					"------------------------------------------------------------------\n".
+					"*Back Trace*\n".
+					$bt_str."\n";
+
+			mail(SQ_CONF_TECH_EMAIL, '['.$err_name.'] '.SQ_CONF_SYSTEM_NAME, $str, 'From: '.SQ_CONF_TECH_EMAIL."\r\n");
+
+		}//end if
 
 	}// end error_reporting
 
