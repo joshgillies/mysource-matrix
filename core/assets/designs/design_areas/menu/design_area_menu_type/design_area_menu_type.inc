@@ -54,9 +54,9 @@ class Design_Area_Menu_Type extends Design_Area
 				return false;
 			}
 			switch($split[2]) {
-				case 'normal'    : 
-				case 'hierarchy' : 
-				case 'current'   : 
+				case 'normal'    :
+				case 'hierarchy' :
+				case 'current'   :
 					$new_value = $this->vars['settings']['value'];
 					if(!is_array($new_value)) $new_value = Array();
 					if(!isset($new_value[$split[1]])) $new_value[$split[1]] = Array();
@@ -65,7 +65,7 @@ class Design_Area_Menu_Type extends Design_Area
 					$value = $new_value;
 					break;
 
-				default : 
+				default :
 					trigger_error('Settings Type "'.$split[2].'" not known', E_USER_WARNING);
 					return false;
 			}// end switch
@@ -205,7 +205,7 @@ class Design_Area_Menu_Type extends Design_Area
 	* @return mixed Design_Area_Menu_Type or null
 	* @access public
 	*/
-	function &getSubMenu() 
+	function &getSubMenu()
 	{
 		$link = $this->getSubMenuLink();
 		if (empty($link)) {
@@ -240,7 +240,7 @@ class Design_Area_Menu_Type extends Design_Area
 
 
 	/**
-	* Called whenever any type of link is changed, allows caching of objects, links and other stuff 
+	* Called whenever any type of link is changed, allows caching of objects, links and other stuff
 	* to occur but not cause integrity issues during script execution
 	* returns true it it's successfull
 	*
@@ -372,7 +372,7 @@ class Design_Area_Menu_Type extends Design_Area
 					}
 				}
 
-				$sql    = \'SELECT DISTINCT a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path
+				$sql    = \'SELECT DISTINCT a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order
 						   FROM \'.SQ_TABLE_RUNNING_PREFIX.\'asset a
 						     INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'asset_link l ON a.assetid = l.minorid
 						     INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'asset_path pt ON a.assetid = pt.assetid \';
@@ -557,7 +557,7 @@ class Design_Area_Menu_Type extends Design_Area
 	function _settingHasPHPCode($setting_name)
 	{
 		$settings = $this->attr('settings');
-		// OK we need out find out if any of the values for this setting have PHP code that needs to be 
+		// OK we need out find out if any of the values for this setting have PHP code that needs to be
 		$has_php_code = false;
 		foreach($settings[$setting_name] as $case => $value) {
 			// we know that this will be the long format because only our design areas have put this in
@@ -574,7 +574,7 @@ class Design_Area_Menu_Type extends Design_Area
 	function _getSettingsArray()
 	{
 		$settings = $this->attr('settings');
-		// OK we need out find out if any of the values for this setting have PHP code that needs to be 
+		// OK we need out find out if any of the values for this setting have PHP code that needs to be
 		$names = array_keys($settings);
 		foreach($names as $setting_name) {
 			// we don't want any of the settings that need to be processed
