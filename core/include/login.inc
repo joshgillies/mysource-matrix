@@ -15,7 +15,7 @@
 	<title>Login</title>
 </head>
 <body marginwidth="0" marginheight="0" leftmargin="0" topmargin="0" bgcolor="#ffffff">
-<form action="<?php echo $_SERVER['PHP_SELF']; ?>?SQ_ACTION=login" name="login_prompt" method="post">
+<form action="<?php echo $_SERVER['PHP_SELF']; ?>?SQ_ACTION=login&FORCE_BACKUP_LOGIN=1" name="login_prompt" method="post">
 <input type="hidden" name="SQ_LOGIN_KEY" value="<?php echo $GLOBALS['SQ_SYSTEM']->generateLoginKey(); ?>">
 <p>
 Username: 
