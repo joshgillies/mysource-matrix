@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.264 2005/02/01 11:19:12 brobertson Exp $
+* $Id: asset_manager.inc,v 1.265 2005/02/11 05:36:01 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.264 $
+* @version $Revision: 1.265 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2554,10 +2554,8 @@ class Asset_Manager extends MySource_Object
 	* @param string			$value		the value that is to be associated with this link
 	* @param string			$sort_order	the position in the links list that this link should take,
 	*									if null or less than zero places at end of list
-	* @param string			$dependant	'0' / '1' on whether the this asset is dependant on the
-	*									asset that will be linked by this new link
-	* @param string			$exclusive	'0' / '1' on whether the this asset is linked exclusivly
-	*									to the asset that will be linked by this new link
+	* @param string			$dependant	'0' / '1' - whether the minor asset is dependant on the major
+	* @param string			$exclusive	'0' / '1' - whether the major asset is to be the minor's only parent
 	*
 	* @return int the linkid of the created link
 	* @access public
@@ -2922,7 +2920,8 @@ class Asset_Manager extends MySource_Object
 	* @param object Asset	$major		the major asset in the proposed link
 	* @param object Asset	$minor		the minor asset in the proposed link
 	* @param string			$link_type	the type of link that is proposed
-	* @param int			$exclusive	the exclusive status of the link (gets passed to canLinkToType)
+	* @param int			$exclusive	(0|1) whether this will be the only significant link 
+	*									with $minor as the minor asset
 	*
 	* @return mixed TRUE or error message string
 	* @access public
@@ -2993,11 +2992,12 @@ class Asset_Manager extends MySource_Object
 	* Returns TRUE if the supplied asset can have assets of the specified type linked under it
 	*
 	* @param object Asset	$major			the major asset that we are linking to
-	* @param string			$type_code		the type code that we want to check
-	* @param string			$link_type		the type of link to check
+	* @param string			$type_code		the type code of the proposed link
+	* @param string			$link_type		the type of the proposed link
 	* @param int			$ignore_linkid	if it gets down to the checking of the cardinality,
 	*										ignore the link represented by this link id
-	* @param int			$exclusive		the exclusive status of the link
+	* @param int			$exclusive		(0|1) whether this will be the only significant link 
+	*										with $minor as the minor asset
 	*
 	* @return mixed TRUE or error message string
 	* @access public
@@ -4004,7 +4004,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getRootURL($url=null)
 	{
-
 		if (is_null($url)) $url = current_url(false, true);
 		// remove any trailing slashes and double slashes
 		$url = strip_url($url);
@@ -4513,7 +4512,7 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Return all links that this asset has to other assets
+	* Return all links between the specified asset and other assets
 	*
 	* The return value is array consisting of a select statement, a from statement, a where clause
 	* (which may be blank is we are getting children of the root node) and an order by clause
@@ -4529,7 +4528,7 @@ class Asset_Manager extends MySource_Object
 	* 											of the array values
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
-	* @param string			$side_of_link		Which side of the link this (the current) asset
+	* @param string			$side_of_link		Which side of the link the specified asset
 	*											is on ('major' or 'minor')
 	* @param string			$value				The value for all the links must equal this (if not null)
 	* @param boolean		$dependant			The dependant status for all the links must be

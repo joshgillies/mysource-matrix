@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.357 2005/02/07 10:52:06 gnoel Exp $
+* $Id: asset.inc,v 1.358 2005/02/11 05:36:00 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.357 $
+* @version $Revision: 1.358 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1461,13 +1461,16 @@ class Asset extends MySource_Object
 
 
 	/**
-	* Add valid keywords for this asset to an array of keywords when asked
+	* Handle a request for available asset-type keywords
+	*
+	* We set $vars['my_keyword'] = 'my keyword desc' to tell the broadcaster
+	* what keywords are available for this asset type.
 	*
 	* @param &object Asset	$asset	the asset that triggered the event
 	* @param Array			$vars	the vars that get submitted by the broadcaster
 	*								we add keywords to the $vars['keywords'] array
 	*
-	* @return boolean
+	* @return void
 	* @access private
 	*/
 	function onRequestKeywords(&$broadcaster, $vars=Array())
@@ -2457,7 +2460,7 @@ class Asset extends MySource_Object
 	/**
 	* Get the value of an attribute
 	*
-	* @param string	$name the name of the attribute whos value you want to get
+	* @param string	$name the name of the attribute whose value you want to get
 	*
 	* @return mixed
 	* @access public
@@ -2474,7 +2477,7 @@ class Asset extends MySource_Object
 
 
 	/**
-	* Returns a reference to the actual attribute object, used for manipulting the object
+	* Returns a reference to the actual attribute object, used for manipulating the object
 	*
 	* @param string		$name			the name of the attribute
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed
@@ -2511,7 +2514,9 @@ class Asset extends MySource_Object
 
 
 	/**
-	* Return the keywords with their replacements
+	* Return the keywords for this asset type with their replacements for this asset instance
+	*
+	* This function is called in asset-listing situations like the asset listing, search page etc
 	*
 	* The return value is in the form:
 	* <pre>
