@@ -513,7 +513,7 @@ class Asset_Map
 				if (($err_msg = $parent->canLinkToType($attr['type_code'], SQ_LINK_UNITE)) !== true) {
 					$this->_error($err_msg);
 					return;
-				} else if (!$parent->writeAccess()) {
+				} else if (!$parent->writeAccess(Array(), false)) {
 					$this->_error('Cannot create link, permission denied');
 				}
 
@@ -600,14 +600,18 @@ class Asset_Map
 			// will handle that for us
 			$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 			if ($new_parent->id != $trash_folder->id) {
+				$new_parent->aquireLock();
 				$linkid = $new_parent->createLink($asset, SQ_LINK_UNITE, '', $input->root->attributes['to_parent_pos']);
+				$new_parent->releaseLock();
 				if (!$linkid) {
 					return;
 				}
 			}
 
 			// Now let's try and delete the old link
+			$old_parent->aquireLock();
 			$old_parent->deleteLink($link['linkid']);
+			$old_parent->releaseLock();
 
 		}// end if
 
@@ -653,7 +657,9 @@ class Asset_Map
 		}
 
 		// First let's try and create the new link, if there are any issues then it will cryout for us
+		$new_parent->aquireLock();
 		$linkid = $new_parent->createLink($asset, SQ_LINK_UNITE, '', $input->root->attributes['to_parent_pos']);
+		$new_parent->releaseLock();
 		if (!$linkid) {
 			return;
 		}
