@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user.inc,v 1.5.2.1 2004/10/07 04:48:49 gsherwood Exp $
+* $Id: ldap_user.inc,v 1.5.2.2 2004/11/04 05:04:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -69,9 +69,10 @@ class Ldap_User extends Backend_User
 		foreach ($data['objectclass'] as $class) {
 			$class = strtolower($class);
 			foreach ($ldap->_user_types as $key => $value) {
-				if ($class == $key) $this->name = $data[$attrs[$value]][0];
+				if ($class == $key && isset($attrs[$value])) $this->name = $data[$attrs[$value]][0];
 			}
 		}
+		if (empty($this->name)) $this->name = 'Unkown LDAP User';
 		$this->short_name = $this->name;
 		$this->status = $ldap->status;
 		$this->version = '0.1';
@@ -91,19 +92,19 @@ class Ldap_User extends Backend_User
 		$this->vars['dn']['value'] = $data['dn'];
 		$this->vars['dn']['type'] = 'text';
 		
-		if (isset($data[$attrs['uid']])) $this->vars['username']['value'] = $data[$attrs['uid']][0];
+		if (isset($attrs['uid']) && isset($data[$attrs['uid']])) $this->vars['username']['value'] = $data[$attrs['uid']][0];
 		else $this->vars['username']['value'] = $data['dn'];
 		$this->vars['username']['type'] = 'text';
 		
-		if (isset($data[$attrs['email']])) $this->vars['email']['value'] = $data[$attrs['email']][0];
+		if (isset($attrs['email']) && isset($data[$attrs['email']])) $this->vars['email']['value'] = $data[$attrs['email']][0];
 		else $this->vars['email']['value'] = '';
 		$this->vars['email']['type'] = 'text';
 
-		if (isset($data[$attrs['fn']])) $this->vars['first_name']['value'] = $data[$attrs['fn']][0];
+		if (isset($attrs['fn']) && isset($data[$attrs['fn']])) $this->vars['first_name']['value'] = $data[$attrs['fn']][0];
 		else $this->vars['first_name']['value'] = '';
 		$this->vars['first_name']['type'] = 'text';
 
-		if (isset($data[$attrs['sn']])) $this->vars['last_name']['value'] = $data[$attrs['sn']][0];
+		if (isset($attrs['sn']) && isset($data[$attrs['sn']])) $this->vars['last_name']['value'] = $data[$attrs['sn']][0];
 		else $this->vars['last_name']['value'] = '';
 		$this->vars['last_name']['type'] = 'text';
 	

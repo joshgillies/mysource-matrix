@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_edit_fns.inc,v 1.7.2.2 2004/11/02 04:00:15 gsherwood Exp $
+* $Id: ldap_bridge_edit_fns.inc,v 1.7.2.3 2004/11/04 05:04:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -85,6 +85,47 @@ class LDAP_Bridge_Edit_Fns extends Bridge_Edit_Fns
 
 
 	/**
+	* Paint a test connection to the LDAP bridge
+	*
+	* @param object LDAP_Bridge			&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintConnectionTest(&$asset, &$o, $prefix)
+	{
+		$conn = @$asset->connectToLdap();
+		if (is_null($conn->ptr)) {
+			// the conncection failed
+			echo '<span style="color: red"><b>Unable to connect</b></span>';
+		} else {
+			echo '<span style="color: green"><b>Connected</b></span>';
+		}
+		return false;
+
+	}//end paintConnectionTest()
+
+
+	/**
+	* Processes the interface for editing the test connection
+	*
+	* @param object LDAP_Bridge			&$asset	the asset to which we belong
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processConnectionTest(&$asset, &$o, $prefix)
+	{
+		return false;
+
+	}//end processConnectionTest()
+
+
+	/**
 	* Paint the interface for editing schema attributes
 	*
 	* @param object LDAP_Bridge			&$asset	the asset whose interface we are painting
@@ -140,7 +181,9 @@ class LDAP_Bridge_Edit_Fns extends Bridge_Edit_Fns
 		if (isset($_POST[$prefix.'_attributes'])) {
 			$new_attributes = Array();
 			foreach ($_POST[$prefix.'_attributes'] as $code => $name) {
-				$new_attributes[(string)$code] = (string)$name;
+				$name = (string)$name;
+				if (empty($name)) continue;
+				$new_attributes[(string)$code] = $name;
 			}
 			return $asset->setAttrValue('attributes', $new_attributes);
 		}
