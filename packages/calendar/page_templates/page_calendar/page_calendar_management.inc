@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.25 2004/10/25 04:23:56 tbarrett Exp $
+* $Id: page_calendar_management.inc,v 1.26 2004/10/28 04:34:19 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.25 $ - 1.0
+* @version $Revision: 1.26 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -335,16 +335,14 @@ class Page_Calendar_Management extends Asset_Management
 			} else {
 				return parent::_updateOwnedAttribute($name, $curr_attr);
 			}
-		} elseif (in_array($name, Array('day_partition_height', 'table_column_width', 'month_column_width', 'month_row_height')) && ($this->_am->getTypeInfo($this->getAssetType(), 'version') == '0.3'))  {
+		} elseif (in_array($name, Array('day_partition_height', 'table_column_width', 'month_column_width', 'month_row_height')) && ($curr_attr['type'] != 'int'))  {
 			if (!parent::_updateOwnedAttribute($name, $curr_attr)) {
-				bam("Already upgraded?");
 				return false;
 			}
 
 			// stop it from being run twice
 			static $already_run = Array();
 			if (isset($already_run[$name])) {
-				bam("NOT RUNNING AGAIN");
 				return true;
 			}
 			$already_run[$name] = 1;
@@ -353,7 +351,6 @@ class Page_Calendar_Management extends Asset_Management
 			$sql = 'UPDATE '.SQ_TABLE_PREFIX.'asset_attribute_value SET custom_value = CAST((CAST (custom_value AS INTEGER) * 8) AS INTEGER) WHERE attributeid='.$this->_db->quote($curr_attr['attributeid']);
 			$res = $this->_db->query($sql);
 			if (!assert_valid_db_result($res)) return false;
-			bam("RETURNING TRUE");
 			return true;
 		} else {
 			return parent::_updateOwnedAttribute($name, $curr_attr);
