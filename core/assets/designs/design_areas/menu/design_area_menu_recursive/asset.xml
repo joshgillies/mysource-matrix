@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.10 2003/11/26 00:50:56 gsherwood Exp $
+* $Id: asset.xml,v 1.11 2003/12/15 15:21:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -32,7 +32,7 @@
 	<version>0.1</version>
 	<name>Recursive Menu Design Area</name>
 	<description>Menuing design area used to allow the recursivly generate menus</description>
-	<instantiable>yes</instantiable>
+	<instantiable>no</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>design_area_menu_type</parent_type>
 	<requirements>
