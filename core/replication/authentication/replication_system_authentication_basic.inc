@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_authentication_basic.inc,v 1.1.2.5 2004/02/14 20:46:10 brobertson Exp $
+* $Id: replication_system_authentication_basic.inc,v 1.1.2.6 2004/02/14 20:53:57 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -163,6 +163,8 @@ pre_echo("ALL OK");
 		}
 		if ($data != $their_phrase) {
 			trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : Supplied Phrase was incorrect', E_USER_WARNING);
+			// just being polite really, but we don't really care if it doesn't get there, we quitting anyway..
+			$transport->writeVar('Phrase Incorrect');
 			return false;
 		}
 		if (!$transport->writeVar('Authenticated')) {
