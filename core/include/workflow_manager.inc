@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: workflow_manager.inc,v 1.35 2003/10/15 02:14:08 gsherwood Exp $
+* $Id: workflow_manager.inc,v 1.36 2003/10/15 03:36:07 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -230,8 +230,8 @@ class Workflow_Manager extends MySource_Object
 	function getSchemaWorkflows($assetid, $schemaid=null)
 	{
 		$assetid = (int) $assetid;
-
-		if (!isset($this->_tmp['schema_workflows'][$assetid]) || is_null($schemaid)) {
+		
+		if (!isset($this->_tmp['schema_workflows'][$assetid][(string)$schemaid])) {
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -241,7 +241,7 @@ class Workflow_Manager extends MySource_Object
 						AND access = 1';
 			if (!is_null($schemaid)) $where .= ' AND schemaid = '.$db->quote($schemaid);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-
+			
 			$workflows = $db->getAssoc($sql.$where, false, Array(), DB_FETCHMODE_ASSOC);
 			if (DB::isError($workflows)) {
 				trigger_error($workflows->getMessage().'<br />'.$workflows->getUserInfo(), E_USER_WARNING);
@@ -252,14 +252,14 @@ class Workflow_Manager extends MySource_Object
 				$workflows[$k] = (is_null($workflows[$k])) ? '' : unserialize($workflows[$k]);
 			}
 
-			$this->_tmp['schema_workflows'][$assetid] = $workflows;
+			$this->_tmp['schema_workflows'][$assetid][(string)$schemaid] = $workflows;
 		}
 
 		if (!is_null($schemaid)) {
-			if (!isset($this->_tmp['schema_workflows'][$assetid][$schemaid])) return Array();
-			return $this->_tmp['schema_workflows'][$assetid][$schemaid];
+			if (!isset($this->_tmp['schema_workflows'][$assetid][(string)$schemaid])) return Array();
+			return $this->_tmp['schema_workflows'][$assetid][(string)$schemaid];
 		}
-		return $this->_tmp['schema_workflows'][$assetid];
+		return $this->_tmp['schema_workflows'][$assetid][(string)$schemaid];
 
 	}//end getSchemaWorkflows()
 
@@ -342,7 +342,7 @@ class Workflow_Manager extends MySource_Object
 		// if there are no current workflows running, we are not waiting for anyone
 		$running_schemas = $this->getSchemas($assetid, true, true);
 		if (empty($running_schemas)) return Array();
-
+		
 		// these will be the people who can approve this asset
 		// at this point in the workflow
 		$can_publish = Array();
@@ -355,7 +355,7 @@ class Workflow_Manager extends MySource_Object
 				$can_publish = array_merge($can_publish, $this->_whoCanPublishWorkflow($assetid, $schemaid));
 			}
 		}
-
+		
 		if (!$group) $can_publish = array_unique($can_publish);
 		return $can_publish;
 
@@ -379,11 +379,11 @@ class Workflow_Manager extends MySource_Object
 		// these will be the people who can approve this asset at this point in the workflow
 		$can_publish = Array();
 		$workflow = $this->getSchemaWorkflows($assetid, $schemaid);
-		if (!isset($workflow['steps'])) return Array();
+		if (!isset($workflow[$schemaid]['steps'])) return Array();
 
-		for (reset($workflow['steps']); null !== ($stepid = key($workflow['steps'])); next($workflow['steps'])) {
-			$step_data =& $workflow['steps'][$stepid];
-			if ($stepid != $workflow['current_step']) continue;
+		for (reset($workflow[$schemaid]['steps']); null !== ($stepid = key($workflow[$schemaid]['steps'])); next($workflow[$schemaid]['steps'])) {
+			$step_data =& $workflow[$schemaid]['steps'][$stepid];
+			if ($stepid != $workflow[$schemaid]['current_step']) continue;
 
 			for (reset($step_data['conditions']);
 					null !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
@@ -424,7 +424,7 @@ class Workflow_Manager extends MySource_Object
 				}
 			}
 		}
-
+		
 		return array_unique($can_publish);
 
 	}//end _whoCanPublishWorkflow()
