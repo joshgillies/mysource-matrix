@@ -1,0 +1,20 @@
+<!--
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: edit_interface_screen_details.xml,v 1.1 2003/10/14 04:38:15 dwong Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+<contents>
+	<section name="Details">
+		<field read_access="write:" write_access="write:">
+			<display_name>Re-index Assets</display_name>
+			<note />
+			<function_call>
+				<paint_function		name="paintReindexing" />
+				<process_function	name="processReindexing" />
+			</function_call>
+		</field>
+	</section>
+</contents>
