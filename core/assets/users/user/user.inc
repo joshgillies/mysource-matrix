@@ -196,8 +196,12 @@ class User extends Asset
 				$username = $this->getAttribute('username');
 				$password = $this->getAttribute('password');
 				if ($username->processed && $password->processed) {
-#					pre_echo('$this->create('.$username->value.', '.$password->value.')');
-					return $this->create($link, $username->value, $password->value);
+					if (!$this->create($link, $username->value, $password->value)) return false;
+				
+					// users get admin permission of themselves so they
+					// can edit their details, manage their workspace, check their
+					// internal messages etc etc
+					return $this->grantPermission($this->id, SQ_PERMISSION_ADMIN);
 				} else {
 					return false;
 				}
