@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: site.inc,v 1.44 2003/10/03 01:17:22 gsherwood Exp $
+* $Id: site.inc,v 1.45 2003/10/13 07:16:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -122,12 +122,14 @@ class Site extends Folder
 	*/
 	function saveWebURLs($save_urls)
 	{
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$updated = false;
 		$processed_urlids = Array();
 		$current_urls = $this->getSiteURLs();
+		$system_root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 		for(reset($save_urls); null !== ($save_urlid = key($save_urls)); next($save_urls)) {
 
 			$curr_urlid = $save_urlid;
@@ -135,7 +137,36 @@ class Site extends Folder
 			// strip any extra slashes
 			$save_urls[$save_urlid]['url'] = strtolower(strip_url($save_urls[$save_urlid]['url'], true));
 
-			//// Firstly let's try and see if this URL is already in use by something ////
+			//// Firstly let's make sure all the paths after the domain are valid ////
+			$paths = explode('/', $save_urls[$save_urlid]['url']);
+			// remove the domain
+			array_shift($paths);
+			foreach($paths as $path) {
+				$clean_paths = make_valid_web_paths(Array($path));
+				$clean_path = (empty($clean_paths)) ? '' : $clean_paths[0];
+				if ($path != $clean_path) {
+					trigger_error('URL "'.$save_urls[$save_urlid]['url'].'" contains a path "'.$path.'" which was deemed to be not valid. '.(($clean_path != '') ? 'A valid version is "'.$clean_path.'"' : ''), E_USER_WARNING);
+					return false;
+				}
+
+			}// end foreach
+
+			//// Next let's see if this url based upon a root url ////
+
+			$found_root_url = false;
+			foreach($system_root_urls as $root_url) {
+				if (substr($save_urls[$save_urlid]['url'], 0, strlen($root_url)) == $root_url) {
+					$found_root_url = true;
+					break;
+				}
+			}
+
+			if (!$found_root_url) {
+				trigger_error('URL "'.$save_urls[$save_urlid]['url'].'" is not based upon an existing System Root URL', E_USER_WARNING);
+				return false;
+			}
+
+			//// Next let's try and see if this URL is already in use by something ////
 
 			$found = false;
 			for(reset($current_urls); null !== ($i = key($current_urls)); next($current_urls)) {
