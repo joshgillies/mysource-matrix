@@ -142,7 +142,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 	* @return void
 	* @access public
 	*/
-	function paint(&$table, $prefix=false)
+	function paint(&$table, $prefix='', $generating=false)
 	{
 		echo "\t\t<td";
 		foreach($this->attributes as $name => $val) {
@@ -158,13 +158,13 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 		echo ">\n";
 		$link = $table->getLinkById($this->attributes['linkid']);
 		$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
-		$content_edit = $content_type->getEditFns();
-		if ($prefix) {
+		$content_edit = &$content_type->getEditFns();
+		if (!$generating) {
 			$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
 			$content_edit->paintBackend($content_type, $content_prefix);
 		} else {
 			ob_start();
-			$content_edit->paint($content_type);
+			$content_edit->paint($content_type, $generating);
 			$cell_content = ob_get_contents();
 			ob_end_clean();
 

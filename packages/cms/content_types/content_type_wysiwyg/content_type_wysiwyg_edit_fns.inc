@@ -63,7 +63,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paint(&$asset) {
+	function paint(&$asset, $generating=false) {
 		echo $asset->attr('html');
 	}
 

@@ -21,7 +21,7 @@ class Bodycopy extends Asset
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Bodycopy($assetid=0) 
+	function Bodycopy($assetid=0)
 	{
 		$this->Asset($assetid);
 	}

@@ -35,18 +35,25 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	* @access public
 	*/
 	function paintBackend(&$asset, $prefix)
-	{
-		echo '<b>Nested AssetID:</b> ';
-		text_box($prefix.'_nested_assetid', $asset->attr('nested_assetid'), 10);
-		
+	{	
 		$nested_assetid = $asset->attr('nested_assetid');
 		$nested_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($nested_assetid, '', true);
 		if ($nested_asset->id) {
-			// print some details about the nested asset
-			echo ' <-- <i>'.$nested_asset->attr('name').' [ '.$nested_assetid.' ]</i><br>';
+			?> 
+				<p style="font-size: 7pt">
+				Currently nesting the contents of <i><?php echo $nested_asset->attr('name')?></i><br/>
+				<?php asset_finder($prefix.'_nested_assetid', '', Array('page' => 'D')); ?><br/>
+				<hr><b style="font-size: 7pt">The nested content is printed below</b><br/>
+				</p>
+			<?php
+		} else {
+			?> 
+				<p style="font-size: 7pt">No page has been selected<br/>
+				<?php asset_finder($prefix.'_nested_assetid', '', Array('page' => 'D')); ?>
+				</p>
+			<?php
 		}
 
-		echo '<br><b>The contents of the nested asset are printed below</b><hr>';
 		$this->paint($asset);
 		return true;
 	}
@@ -60,13 +67,69 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paint(&$asset) {
-		$nested_assetid = $asset->attr('nested_assetid');
+	function paint(&$asset, $generating=false)
+	{
 		// get the asset - we cant pass the type in because it could be anything
 		// we also mute errors because we check later on
+		$nested_assetid = $asset->attr('nested_assetid');
 		$nested_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($nested_assetid, '', true);
-		if (!$nested_asset->id) return;
+		if (!$nested_asset->id) return false;
+
+		if ($generating) {
+			$this->paintGenerated($asset, $nested_asset);
+			return true;
+		}
+
+		// keep track of what we have printed
+		//if(!isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'])) $GLOBALS['SQ_NEST_CONTENT_PAINTED'] = Array();
+
+		// if we have already printed this asset, dont print again or we will end up in an endless loop
+		if (isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$nested_asset->id])) {
+			unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$nested_asset->id]);
+			echo '<font color="red"><b>[ ** RECURSION WARNING ** ]<br/>You are nesting the content of this page inside itself</b></font>';
+			return true;
+		}
+
+		// record that we have printed this asset
+		// OKAY! so we havn't actually printed it yet, but we need to record that
+		// we have or we will just fall endlessly into printBody functions and
+		// never get back here again
+		$GLOBALS['SQ_NEST_CONTENT_PAINTED'][$nested_asset->id] = 1;
+
+		// and now actually print it
 		$nested_asset->printBody();
+
+		unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$nested_asset->id]);
+
+		return true;
+	}
+
+
+	/**
+	* Paints the content type as it should be cached
+	*
+	* @param object Bodycopy_Table	$asset	the table whose interface we are painting
+	*
+	* @return void
+	* @access public
+	*/
+	function paintGenerated(&$asset, &$nested_asset)
+	{
+		echo '<?php'."\n";
+		?>
+		if(!isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'])) $GLOBALS['SQ_NEST_CONTENT_PAINTED'] = Array();
+
+		if (!isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][<?php echo $nested_asset->id?>])) {
+			$GLOBALS['SQ_NEST_CONTENT_PAINTED'][<?php echo $nested_asset->id?>] = 1;
+			$nested_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset(<?php echo $nested_asset->id?>, '', true);
+			if ($nested_asset->id) $nested_asset->printBody();
+		} else {
+			echo '<font color="red"><b>[ ** RECURSION WARNING ** ]<br/>You are nesting the content of this page inside itself</b></font>';
+		}
+
+		unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][<?php echo $nested_asset->id?>]);
+		<?php
+		echo '?>'."\n";
 	}
 
 
@@ -83,20 +146,22 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	function processBackend($link, &$asset, $prefix)
 	{
 		$current_assetid = $asset->attr('nested_assetid');
-		$assetid = (isset($_POST[$prefix.'_nested_assetid'])) ? $_POST[$prefix.'_nested_assetid'] : 0;
-		if ($assetid != $current_assetid) {
-			if (!$asset->setAttrValue('nested_assetid', $assetid)) return false;
-			
-			// get the html contents of the nested asset so
-			// id we change the type of the cell, other content
-			// types can use the html
-			ob_start();
-			$this->paint($asset);
-			$html = ob_get_contents();
-			$asset->setAttrValue('html', $html);
-			ob_end_clean();
-			return true;
-			
+		$assetid = (isset($_POST[$prefix.'_nested_assetid'])) ? $_POST[$prefix.'_nested_assetid'] : '';
+		if (!empty($assetid)) {
+			if ($assetid != $current_assetid) {
+				if (!$asset->setAttrValue('nested_assetid', $assetid)) return false;
+				
+				// get the html contents of the nested asset so
+				// id we change the type of the cell, other content
+				// types can use the html
+				ob_start();
+				$this->paint($asset);
+				$html = ob_get_contents();
+				$asset->setAttrValue('html', $html);
+				ob_end_clean();
+				return true;
+				
+			}
 		}
 		return false;
 	}

@@ -110,7 +110,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function paint(&$asset)
+	function paint(&$asset, $generating=false)
 	{
 		$table_rows = $asset->attr('rows');
 		$table_attributes = $asset->attr('attributes');
@@ -141,7 +141,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			echo "\t<tr{$attribute_list}>\n";
 			// now print the cell contents
 			for($x = 0; $x < count($table_rows[$i]['cells']); $x++) {
-				$table_rows[$i]['cells'][$x]->paint($asset);
+				$table_rows[$i]['cells'][$x]->paint($asset, '', $generating);
 			}
 			echo "\t</tr>\n";
 		}
@@ -151,8 +151,8 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		return true;
 
 	}// end paint()
-	
-	
+
+
 	/**
 	* Paint the interface for editing this table
 	*
@@ -563,7 +563,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function generateContentFile(&$asset) {
 		ob_start();
-		$this->paint($asset);
+		$this->paint($asset, true);
 		$output = ob_get_contents();
 		ob_end_clean();
 		create_directory($asset->data_path);
