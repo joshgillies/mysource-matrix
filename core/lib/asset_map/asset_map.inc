@@ -83,11 +83,9 @@ class Asset_Map
 			// Reload the passed assetid in the flash
 			function refresh_internal_messages() 
 			{
-				alert('Do Refresh');
-//				//var asset_mapObj = flash_InternetExplorer ? asset_map : document.asset_map;
-//				var asset_mapObj = document.asset_map;
-//				//alert("Reload Assetid : " + assetid);
-//				jsToFlashCall(asset_mapObj, 'reload_asset', {assetid: assetid});
+				//var asset_mapObj = flash_InternetExplorer ? asset_map : document.asset_map;
+				var asset_mapObj = document.asset_map;
+				jsToFlashCall(asset_mapObj, 'refresh_mail', {});
 			}
 
 
@@ -168,7 +166,7 @@ class Asset_Map
 	*/
 	function _send($output) 
 	{
-#		error_log("XML OUT : \n".$output->get());
+		error_log("XML OUT : \n".$output->get());
 		header("Content-Type: text/xml");
 		$output->dump();
 	}
@@ -240,6 +238,10 @@ class Asset_Map
 
 			case 'new link' :
 				$this->_newLink($input);
+				break;
+
+			case 'get mail' :
+				$this->_getMail($input);
 				break;
 
 			default :
@@ -653,7 +655,44 @@ class Asset_Map
 
 	}// end _newLink()
 
+	/*
+	* Returns an list of the mail messages that the current user has had in the last 8 hours
+	*
+	* @param object XML_Tree $input	the request info from the Flash
+	*
+	* @access private
+	*/
+	function _getMail(&$input) 
+	{
+		if (!$GLOBALS['SQ_SYSTEM']->currentUserId()) {
+			$this->_error('No one is currently logged in, unable to get mail messages');
+			return;
+		}
 
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$from = time() - (8 * 3600); // 8 hours ago
+		$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), Array(SQ_MSG_UNREAD, SQ_MSG_READ), $from);
+
+		error_log(array_contents($messages));
+
+		$output = new XML_Tree();
+		$root = &$output->addRoot('mail');
+
+		for($i = 0, $total = count($messages); $i < $total; $i++) {
+			$attrs = $messages[$i];
+			unset($attrs['subject']);
+			unset($attrs['body']);
+			unset($attrs['parameters']);
+			unset($attrs['userto']);
+			$msg_node = &$root->addChild('message', '', $attrs);
+			$msg_node->addChild('subject', strip_tags($messages[$i]['subject']));
+			$msg_node->addChild('body', strip_tags($messages[$i]['body']));
+
+		}// endfor
+
+		$this->_send($output);
+
+	}// end _getMail()
 
 }//end class
 ?>
