@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.14 2004/05/06 05:05:39 lwright Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.15 2004/05/06 05:40:21 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -111,7 +111,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 			$html .= 'name="'.$this->id.(($multiple) ? '[]' : '').'" ';
 			$html .= 'value="'.htmlspecialchars($key).'"';
 
-			$defaults = $this->attr('default');
+			$defaults = isset($this->active_submission[$this->id]) ? $this->active_submission[$this->id] : $this->attr('default');
 
 			if (in_array($key, $defaults)) {
 				$html .= ' checked="checked"';
