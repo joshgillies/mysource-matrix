@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email.inc,v 1.17 2004/07/12 09:46:00 brobertson Exp $
+* $Id: email.inc,v 1.18 2004/09/03 15:02:35 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -88,8 +88,8 @@ class Asset_Attribute_Email extends Asset_Attribute_Text
 	*/
 	function process($prefix)
 	{
-		if (!isset($_POST[$prefix.'_'.$this->name])) return false;
-		$value = $_POST[$prefix.'_'.$this->name];
+		if (!isset($_POST[$prefix])) return false;
+		$value = (string) $_POST[$prefix];
 
 		if ($this->value != $value && $this->setValue($value)) {
 			$this->processed = true;
