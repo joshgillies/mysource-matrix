@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_found_in_edit_fns.inc,v 1.8 2003/11/26 00:51:28 gsherwood Exp $
+* $Id: form_question_rule_type_found_in_edit_fns.inc,v 1.9 2004/05/05 07:10:12 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 class Form_Question_Rule_Type_Found_In_Edit_Fns extends Form_Question_Rule_Edit_Fns
 {
 
+
 	/**
 	* Constructor
 	*
@@ -47,61 +48,8 @@ class Form_Question_Rule_Type_Found_In_Edit_Fns extends Form_Question_Rule_Edit_
 	{
 		$this->Form_Question_Rule_Edit_Fns();
 	
-	} // end Form_Question_Rule_Type_Found_In_Edit_Fns()
+	}//end Form_Question_Rule_Type_Found_In_Edit_Fns()
+
 	
-
-	/**
-	* paints a section in the question to change the options of this rule
-	* 
-	* @param object Form				&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
-	*
-	* @access public
-	* @return boolean
-	*/
-	function paintInlineBackend(&$asset, &$o, $prefix)
-	{
-		if (!$asset->writeAccess('attributes')) return false;
-
-		$contents = Array(
-			1 => 'Text Must Be Found In...',
-			0 => 'Text Must Not Be Found In...',
-		);
-
-		// table tags are printed in caller (form_question_edit_fns::printRules())
-		?>
-		<tr>
-			<td>
-				<?php combo_box($prefix.'_operator', $contents, false, $asset->attr('operator')); ?>
-			</td>
-			<td>
-			<?php
-				$q = &$asset->getMyQuestion();
-				if ($q->isSelection()) {
-					$asset->getOptionDropdownList();
-					echo '&nbsp;Or';
-				} else {
-					text_box($prefix.'_value', $asset->attr('value'));
-					echo '&nbsp;Or';
-				}
-			?>
-			</td>
-			<td>
-				Delete? <?php check_box('delete_rule[]', $asset->id); ?>
-			</td>
-		</tr>
-		<tr>
-		<td>&nbsp;</td>
-		  <td>
-			  <?php $asset->printAssetFinder($asset->attr('comparison_question_id')) ?>
-		  </td>
-		</tr>
-		<?php
-
-		return true;
-	
-	} // end paintInlineBackend()
-
 }//end class
 ?>

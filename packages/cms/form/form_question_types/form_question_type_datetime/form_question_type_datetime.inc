@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.6 2004/04/28 03:07:49 lwright Exp $
+* $Id: form_question_type_datetime.inc,v 1.7 2004/05/05 07:10:13 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,7 +51,7 @@ class Form_Question_Type_Datetime extends Form_Question
 	{
 		$this->Form_Question($assetid,$data);
 
-	} // end Form_Question_Type_Datetime()
+	}//end Form_Question_Type_Datetime()
 
 
 	/**
@@ -91,9 +91,10 @@ class Form_Question_Type_Datetime extends Form_Question
 			//.$this->id.', \''.get_class($this).'\'); '
 			//.' $q->active_submission =& $this->active_submission; ?'.'>';
 
-			//$value = '<'.'?php echo $q->getValue(); ?'.'>';
+			 //'<'.'?php echo $q->getValue(); ?'.'>';
 		//} else {
 			$html = '';
+			$value = $this->attr('default');
 		//}
 
 		if ($default) {
@@ -105,14 +106,19 @@ class Form_Question_Type_Datetime extends Form_Question
 			$parameters['show'] = Array();
 			$parameters['null'] = Array();
 			$parameters['style'] = Array();
-			$parameters['min'] = $this->attr('min');
-			$parameters['max'] = $this->attr('max');
-			$parameters['allow_circa'] = $this->attr('circa');
+			$parameters['min'] = $this->attr('minimum');
+			$parameters['max'] = $this->attr('maximum');
+
+			$show_params = $this->attr('show');
+			$text_params = $this->attr('text');
+			$null_params = $this->attr('null');
+
+			$parameters['allow_circa'] = $show_params['c'];
 
 			foreach ($elements as $attr => $t) {
-				$parameters['style'][$t] = ($this->attr($attr.'_text') ? 't' : 's');	
-				if ($this->attr($attr)) $parameters['show'][] = $t;
-				if ($this->attr($attr.'_null')) $parameters['null'][$t] = 1;
+				$parameters['style'][$t] = ($text_params[$t] ? 't' : 's');	
+				if ($show_params[$t]) $parameters['show'][] = $t;
+				if ($null_params[$t]) $parameters['null'][$t] = 1;
 			}
 		}
 
@@ -126,7 +132,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		// so we need to convert them back to proper php tags
 		return html_entity_decode($html);
 
-	} // end getAnswer()
+	}//end getAnswer()
 
 
 	/**
@@ -145,7 +151,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		$parameters['style'] = Array();
 		$parameters['min'] = '01-00-1970 00:00:00';
 		$parameters['max'] = '31-12-2035 23:59:59';
-		$parameters['allow_circa'] = 0;
+		$parameters['show']['c'] = 0;
 	
 		foreach ($elements as $attr => $t) {
 			$parameters['style'][$t] = 's';
@@ -155,7 +161,7 @@ class Form_Question_Type_Datetime extends Form_Question
 
 		return $parameters;
 
-	} // end getDefaultParameters()
+	}//end getDefaultParameters()
 	
 
 	/**
@@ -173,7 +179,21 @@ class Form_Question_Type_Datetime extends Form_Question
 			if ($answer) echo $answer;
 		}
 	
-	} // end getValue()
+	}//end getValue()
+
+
+	/**
+	* returns an array of the types of rules that are allowed upon this asset
+	*
+	* Returned array is 'short name' => 'full name'
+	*
+	* @access public
+	* @return Array(string => string)
+	*/
+	function getAllowedRules() {
+		return Array();
+	
+	}//end getAllowedRules()
 
 
 	/**
@@ -186,6 +206,8 @@ class Form_Question_Type_Datetime extends Form_Question
 	*/
 	function processForm()
 	{
+		parent::processForm();
+
 		if (!$this->active_submission) return false;
 		if (isset($_POST[$this->id.'value'])) {
 			// we need to create a variable for these value to pass by reference
@@ -194,13 +216,12 @@ class Form_Question_Type_Datetime extends Form_Question
 			$dt_field = new Datetime_Field($this->id, $value, $parameters);
 			$dt_field->processField();
 			$val = $_POST[$this->id.'value'];
-			$this->active_submission->setAnswer($this->id, $val);
-			$this->active_submission->setSummary($this->id, $this->attr('name'), $val, $this->section_id, $this->section_name);
+			$this->active_submission[$this->id] = ts_iso8601(mktime($val['h'], $val['i'], $val['s'], $val['m'], $val['d'], $val['y'])).(!isset($val['c']) ? '' : (' '.($val['c'] ? '1' : '0')));
 		}
 		
 		return true;
 	
-	} // end processForm()
+	}//end processForm()
 
 }//end class
 ?>

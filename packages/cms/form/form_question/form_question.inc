@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.19 2004/04/26 23:46:21 lwright Exp $
+* $Id: form_question.inc,v 1.20 2004/05/05 07:10:12 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,12 +39,17 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 class Form_Question extends Asset
 {
 
-	
+	/**
+	* the asset ID of the form or form section that the question belongs to
+	* @var int
+	*/
 	var $_formid = 0;
 
-
+	/**
+	* the shadow ID of the question - unique for each parent asset
+	* @var int
+	*/
 	var $_questionid = 0;
-
 
 	/**
 	* the name of the section that this question belongs to
@@ -68,10 +73,18 @@ class Form_Question extends Asset
 
 
 	/**
+	* array of submission errors
+	* @var object
+	*/
+	var $submission_errors = null;
+	
+	
+	/**
 	* the active form
 	* @var &object Form
 	*/
 	var $active_form = null;
+
 
 	/**
 	* Constructor
@@ -87,6 +100,9 @@ class Form_Question extends Asset
 		if (is_null($form)) return;
 		$this->_formid = $formid;
 		$this->_questionid = $data['questionid'];
+
+		$this->active_submission = &$form->active_submission;
+		$this->submission_errors = &$form->submission_errors;
 
 		// set the data paths
 		$this->data_path = $form->data_path.'/'.$data['questionid'];
@@ -123,7 +139,7 @@ class Form_Question extends Asset
 		//$this->vars['note']['value'] = $data['note'];
 		//$this->vars['note']['type'] = 'text';
 
-	} // end Form_Question()
+	}//end Form_Question()
 
 
 	/**
@@ -146,7 +162,7 @@ class Form_Question extends Asset
 
 		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid, 'form');
 
-		if (!$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] && !$this->writeAccess('attributes')) {
+		if (!$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] && !$form->writeAccess('attributes')) {
 			trigger_error('You do not have permission to save the attributes of "'.$this->name.'" (#'.$this->id.')', E_USER_WARNING);
 			return false;
 		}
@@ -162,6 +178,7 @@ class Form_Question extends Asset
 
 		// prepare for the 
 		$saved_vars = $this->vars;
+
 		unset($saved_vars['question_type_code']);
 
 		// open the transaction
@@ -197,7 +214,10 @@ class Form_Question extends Asset
 
 		$questions = &$form->getQuestions();
 		$questions[$this->_questionid]['attributes'] = $saved_vars_ser;
+		
+		$form->setAttrValue('questions', $questions);
 
+/*
 		$where = 'assetid = '.$db->quote($this->_formid).' and attributeid = '.$db->quote($form->vars['questions']['attributeid']);
 		$values = Array('custom_value' => $db->quote(serialize($questions)));
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_attribute_value', $values, $where)) {
@@ -205,7 +225,13 @@ class Form_Question extends Asset
 			$ms->abortLog();
 			return false;
 		}
+*/
 
+		if (!$form->saveAttributes()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$ms->abortLog();
+			return false;
+		}
 
 		// tell, the asset it has updated
 		if (!$dont_run_updated && !$this->_updated()) {
@@ -246,7 +272,7 @@ class Form_Question extends Asset
 
 		return true;
 		
-	} // end _updated()
+	}//end _updated()
 
 
 
@@ -273,7 +299,7 @@ class Form_Question extends Asset
 			case 'value' :
 				return $this->getValue();
 		}
-	} // end getVal()
+	}//end getVal()
 
 
 	/**
@@ -284,20 +310,35 @@ class Form_Question extends Asset
 	*/
 	function processForm()
 	{
-		//$this->active_submission->setProcessed($this->id);
-
-		/*if (!count($rules)) return false;
+		$rules = &$this->getRules();
+		$errors = false;						// blank sheet of code to start with
 
 		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
 			$rule =& $rules[$k];
-			// let the rule know what question it belongs to
-			$rule->my_question_id = $this->id;
-			$rule->active_submission = &$this->active_submission;
-			$rule->processForm($this->id, $this->attr('name')); 
-		}*/
+			$type_code = 'form_question_rule_type_' . $rule['name'];
+
+			if ($rule['comparison_question_id']) {
+				$comparison = &$GLOBALS['SQ_SYSTEM']->am->getAsset($rule['comparison_question_id']);
+			} else {
+				$comparison = $rule['value'];
+			}
+
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+			$attributes = eval('return '.$type_code.'::getAttributes();');
+
+			if (!$attributes['no_comparison']) {		// comparison value required!
+				$errors = $errors || eval('return '.$type_code.'::processForm($this, $rule["operator"], $comparison);');
+			} else {
+				$errors = $errors || eval('return '.$type_code.'::processForm($this, $rule["operator"]);');
+			}
+
+		}
+
+		if ($errors) return false;
+
 		return true;
 	
-	} // end processForm()
+	}//end processForm()
 
 
 	/**
@@ -308,26 +349,16 @@ class Form_Question extends Asset
 	*/
 	function getValue()
 	{
-		$form =& $this->getMySection();
-		if (!empty($form->active_submission)) {
+		if (!empty($this->active_submission[$this->id])) {
 			$answer = $this->active_submission[$this->id];
 			if ($answer) {
 				return $answer;
 			}
-		} else {
-			/*if ($this->attr('auto_answer')) {
-				if (!is_null($this->active_form)) {
-					$answer =  $this->active_form->getAutoAnswer($this->attr('auto_answer'));
-					if ($this->isSelection()) {
-						$answer = $this->getOffsetByAnswer($answer);
-					}
-					return $answer;
-				}
-			}*/
-			return $this->attr('default');
 		}
+
+		return $this->attr('default');
 	
-	} // end getValue()
+	}//end getValue()
 
 
 	/**
@@ -352,7 +383,7 @@ class Form_Question extends Asset
 
 		return false;
 
-	} // end getAnswerByOffset()
+	}//end getAnswerByOffset()
 
 
 	/**
@@ -371,7 +402,7 @@ class Form_Question extends Asset
 		if (in_array($answer, $options)) return array_search($answer, $options);
 
 
-	} // end getOffsetByAnswer()
+	}//end getOffsetByAnswer()
 
 
 	/**
@@ -381,7 +412,7 @@ class Form_Question extends Asset
 	{
 		return true;
 
-	} // end getAnswer()
+	}//end getAnswer()
 
 
 	/**
@@ -391,26 +422,69 @@ class Form_Question extends Asset
 	{	
 		return true;
 	
-	} // end generateError() 
+	}//end generateError() 
 
 
 	/**
-	* returns all the links to rules that this question has
+	* returns an array of the types of rules 
+	*
+	* Returned array is 'short name' => 'full name'
+	*
+	* @access public
+	* @return Array(string => string)
+	*/
+	function getAllowedRules() {
+		return Array('regexp', 'comparison', 'numeric', 'found_in', 'contain', 'length', 'email');
+	
+	}//end getAllowedRules()
+
+
+	/**
+	* adds a validation rule to this question
+	*
+	* @param string $rule_code the code of the rule that will be 
+	* @param mixed $rule_conditions any conditions or parameters attached to the rule
 	*
 	* @access public
 	* @return Array(link)
 	*/
-	function getRuleLinks()
+	function &addRule($rule_code, $operator, $value)
 	{
-		/*if (empty($this->tmp['rule_links'])) {
-			$this->tmp['rule_links'] = Array();
-			//$this->tmp['rule_links'] = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3, 'form_question_rule', false, 'major');	
-		}*/
-		return Array();
+		$rules = &$this->attr('rules');
+		$rules[] = Array('rule_code' => $rule_code, 'operator' => $operator, 'value' => $value);
+		$this->setAttrValue('rules', $rules);
+		$this->saveAttributes();
+		return $rules;
 	
-	} // end getRuleLinks()
-
-
+	}//end getRules()
+	
+	
+	/**
+	* removes a validation rule from this question
+	*
+	* @param Array $rule the rule that will be removed
+	*
+	* @access public
+	* @return Array(link)
+	*/
+	function &removeRule(&$deleted_rule)
+	{
+		/*$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$links = $this->getRuleLinks();
+		$rules = Array();
+		
+		foreach ($links as $link) {
+			$rules[] = &$am->getAsset($link['minorid'], $link['minor_type_code']);
+		}*/
+		$rules = &$this->attr('rules');
+		$rules = array_diff($rules, $deleted_rule);
+		$this->setAttrValue('rules', $rules);
+		$this->saveAttributes();
+		return $rules;
+	
+	}//end getRules()
+	
+	
 	/**
 	* returns all the rules that this question has
 	*
@@ -428,7 +502,7 @@ class Form_Question extends Asset
 		}*/
 		return $this->attr('rules');
 	
-	} // end getRules()
+	}//end getRules()
 
 
 	/**
@@ -439,10 +513,10 @@ class Form_Question extends Asset
 	*/
 	function getRuleCount()
 	{
-		return count($this->attr('rules'));
+		return count($this->getRules());
 		//return $GLOBALS['SQ_SYSTEM']->am->countLinks($this->id, 'major', SQ_LINK_TYPE_3, 'form_question_rule', false);
 	
-	} // end getRuleCount()
+	}//end getRuleCount()
 
 
 	/**
@@ -468,7 +542,7 @@ class Form_Question extends Asset
 		}
 		return parent::setAttrValue($name, $value, $dont_run_updated);
 		
-	}*/ // end setAttrValue()
+	}*///end setAttrValue()
 
 
 	/**
@@ -485,7 +559,7 @@ class Form_Question extends Asset
 		$this->section_id   = $id;
 		return true;
 	
-	} // end setSection()
+	}//end setSection()
 
 
 	/**
@@ -500,7 +574,7 @@ class Form_Question extends Asset
 	{
 		return $this->attr('name');
 	
-	} // end _getName()
+	}//end _getName()
 
 
 	/**
@@ -515,7 +589,7 @@ class Form_Question extends Asset
 	{
 		return $answer;
 	
-	} // end getSummary()
+	}//end getSummary()
 
 
 	/**
@@ -533,7 +607,7 @@ class Form_Question extends Asset
 		}
 		return false;
 	
-	} // end isSelection()
+	}//end isSelection()
 
 
 	/**
@@ -549,12 +623,13 @@ class Form_Question extends Asset
 		$questions = Array(
 			'form_question_type_select',
 			'form_question_type_tickbox_list',
+			'form_question_type_option_list',
 			'form_question_type_country',
 		);
 
 		return $questions;
 	
-	} // end getSelectionTypeQuestions()
+	}//end getSelectionTypeQuestions()
 
 	/**
 	* returns the section that this question belongs to (or form if not attached to a section)
@@ -570,7 +645,7 @@ class Form_Question extends Asset
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
 		return $asset;
 	
-	} // end getMySection()
+	}//end getMySection()
 
 
 	/**
@@ -587,8 +662,49 @@ class Form_Question extends Asset
 		}
 		return $this->section_name;
 
-	} // end getMySectionName()
+	}//end getMySectionName()
 
+	
+	/**
+	* writes JavaScript code for client side validation
+	* 
+	* This function assumes the skeleton of a JS validation function has been created around this code
+	* with a form variable named 'form' passed (this is done when generating the content file).
+	*
+	* @access public
+	* @return string
+	*/
+	function generateJSCode()
+	{
+		$rules = &$this->getRules();
+		$code = '';						// blank sheet of code to start with
 
-} // end class
+		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
+			$rule =& $rules[$k];
+			$type_code = 'form_question_rule_type_' . $rule['name'];
+
+			if ($rule['comparison_question_id']) {
+				$comparison = &$GLOBALS['SQ_SYSTEM']->am->getAsset($rule['comparison_question_id']);
+			} else {
+				$comparison = $rule['value'];
+			}
+
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+			$attributes = eval('return '.$type_code.'::getAttributes();');
+
+			if (!$attributes['no_comparison']) {		// comparison value required!
+				$code .= eval('return '.$type_code.'::generateJSCode($this, $rule["operator"], $comparison);');
+			} else {
+				$code .= eval('return '.$type_code.'::generateJSCode($this, $rule["operator"]);');
+			}
+
+			$code .= "\n";			// add a blank line to separate things inside the JS
+		}
+
+		return $code;
+
+	}//end generateJSCode()
+	
+	
+}//end class
 ?>

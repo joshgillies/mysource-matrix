@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_numeric.inc,v 1.2 2004/04/28 02:32:32 lwright Exp $
+* $Id: form_question_type_numeric.inc,v 1.3 2004/05/05 07:10:14 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -40,6 +40,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 class Form_Question_Type_Numeric extends Form_Question_Type_Text
 {
 
+
 	/**
 	* Constructor
 	*
@@ -51,7 +52,21 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 	{
 		$this->Form_Question_Type_Text($assetid, $data);
 
-	} // end Form_Question_Type_Numeric()
+	}//end Form_Question_Type_Numeric()
+
+
+	/**
+	* returns an array of the types of rules that are allowed upon this asset
+	*
+	* Returned array is 'short name' => 'full name'
+	*
+	* @access public
+	* @return Array(string => string)
+	*/
+	function getAllowedRules() {
+		return Array('comparison', 'integer', 'length');
+	
+	}//end getAllowedRules()
 
 
 	/**
@@ -75,11 +90,14 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 			}
 
 			$form->active_submission[$this->id] = $val;
+
+			parent::processForm();
 		}
 		
 		return true;
 	
-	} // end processForm()
+	}//end processForm()
+
 
 }//end class
 ?>

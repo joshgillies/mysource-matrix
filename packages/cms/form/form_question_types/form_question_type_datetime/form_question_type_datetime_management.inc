@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime_management.inc,v 1.6 2004/02/12 23:56:51 mmcintyre Exp $
+* $Id: form_question_type_datetime_management.inc,v 1.7 2004/05/05 07:10:13 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -45,9 +45,58 @@ class Form_Question_Type_Datetime_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array();
+	$this->vars = Array(
 
-	}//end constructor
+							'default'	=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'datetime',
+										'default'		=> '---------- --:--:--',
+									),
+
+							'extra'	=> Array(
+										'added'     => '0.0.1',
+										'type'      => 'text',  
+										'default'   => '',
+									),
+							'circa'	=> Array(
+										'added'     => '0.0.1',
+										'type'      => 'boolean',  
+										'default'   => false,
+									),
+							'show'	=> Array(
+										'added'     => '0.0.1',
+										'type'      => 'serialise',  
+										'default'   => Array('d' => 1, 'm' => 1, 'y' => 1, 'h' => 1, 'i' => 1, 's' => 1, 'c' => 0),
+									),
+							'null'	=> Array(
+										'added'     => '0.0.1',
+										'type'      => 'serialise',  
+										'default'   => Array('d' => 0, 'm' => 0, 'y' => 0, 'h' => 0, 'i' => 0, 's' => 0),
+									),
+							'text'	=> Array(
+										'added'     => '0.0.1',
+										'type'      => 'serialise',  
+										'default'   => Array('d' => 0, 'm' => 0, 'y' => 0, 'h' => 0, 'i' => 0, 's' => 0),
+									),
+							'minimum'	=> Array(	
+										'added'		=> '0.0.1',
+										'type'		=> 'datetime',
+										'default'		=> '---------- --:--:--',
+										'parameters' 	=> Array(
+											'show'	=> Array(
+												'd', 'y',	
+											),
+										),
+										
+									),
+							'maximum'	=> Array(	
+										'added'		=> '0.0.1',
+										'type'		=> 'datetime',
+										'default'		=> '---------- --:--:--',
+									),
+			);
+
+	}//end Form_Question_Type_Datetime_Management()
 
 }//end class
 ?>

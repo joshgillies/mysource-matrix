@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.9 2003/11/26 00:51:28 gsherwood Exp $
+* $Id: asset.xml,v 1.10 2004/05/05 07:10:12 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -29,16 +29,16 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>cms</package>
 	<type_code>form_question_rule_type_found_in</type_code>
-	<version>0.1</version>
+	<version>0.2</version>
 	<name>Form Question Rule - Found In</name>
 	<description>Text Found In</description>
-	<instantiable>yes</instantiable>
+	<instantiable>no</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>form_question_rule</parent_type>
 	<requirements>
 		<requirement type="asset">
 			<code>form</code>
-			<version>0.1</version>
+			<version>0.2</version>
 		</requirement>
 	</requirements>
 	<flash_menu_path/>

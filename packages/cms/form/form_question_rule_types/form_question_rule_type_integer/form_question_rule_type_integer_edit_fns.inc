@@ -1,10 +1,10 @@
-<!--
+<?php
 /**
-* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* +--------------------------------------------------------------------+
 * | Squiz.net Open Source Licence                                      |
-* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* +--------------------------------------------------------------------+
 * | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
-* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* +--------------------------------------------------------------------+
 * | This source file may be used subject to, and only in accordance    |
 * | with, the Squiz Open Source Licence Agreement found at             |
 * | http://www.squiz.net/licence.                                      |
@@ -16,13 +16,40 @@
 * | intellectual property rights in the modification, adaptation and   |
 * | enhancement to Squiz Pty Ltd for use and distribution under that   |
 * | licence.                                                           |
-* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* +--------------------------------------------------------------------+
 *
-* $Id: edit_interface_screens.xml,v 1.6 2004/05/05 07:10:14 lwright Exp $
+* $Id: form_question_rule_type_integer_edit_fns.inc,v 1.1 2004/05/05 07:10:13 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
--->
 
-<screens>
-	<screen code_name="contents" display_name="Question Contents" icon="web" lock_type="none" force_unlock="0" />
-</screens>
+
+require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edit_fns.inc';
+
+/**
+* Form_Question_Rule_Type_Integer_Edit_Fns
+*
+* Purpose
+*
+*
+* @author  Marc McIntyre <mmcintyre@squiz.net>
+* @version $Version$ - 1.0
+* @package MySource_Matrix_Packages
+* @subpackage cms
+*/
+class Form_Question_Rule_Type_Integer_Edit_Fns extends Form_Question_Rule_Edit_Fns
+{
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function Form_Question_Rule_Type_Integer_Edit_Fns()
+	{
+		$this->Form_Question_Rule_Edit_Fns();
+
+	}//end Form_Question_Rule_Type_Integer_Edit_Fns()
+
+	
+}//end class
+?>

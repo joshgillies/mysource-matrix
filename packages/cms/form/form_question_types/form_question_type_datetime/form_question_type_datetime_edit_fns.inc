@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime_edit_fns.inc,v 1.5 2004/04/23 07:28:07 lwright Exp $
+* $Id: form_question_type_datetime_edit_fns.inc,v 1.6 2004/05/05 07:10:13 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 {
 
+
 	/**
 	* Constructor
 	*
@@ -47,7 +48,8 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 	{
 		$this->Form_Question_Edit_Fns();
 
-	} // end Form_Question_Type_Datetime_Edit_Fns()
+	}//end Form_Question_Type_Datetime_Edit_Fns()
+
 
 	/**
 	* paint the interface for the datetime options
@@ -61,50 +63,59 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 	*/
 	function paintInterface(&$asset, &$o, $prefix)
 	{
+		$elements = Array('d' => 'Day', 'm' => 'Month', 'y' => 'Year', 'h' => 'Hour', 'i' => 'Minute', 's' => 'Second', 'c' => 'Circa');
+		
+		$show_params = $asset->attr('show');
+		$text_params = $asset->attr('text');
+		$null_params = $asset->attr('null');
+		
+		$edit = false;				// editing flag
+		if ($asset->writeAccess('attributes')) $edit = true;
 
-		if (!$asset->writeAccess('attributes')) return false;
 		?>
 			<table class="sq-backend-table">
 			  <tr>
-			    <td class="sq-backend-table-header">&nbsp;</td>
-				<td class="sq-backend-table-header">Day</td>
-				<td class="sq-backend-table-header">Month</td>
-				<td class="sq-backend-table-header">Year</td>
-				<td class="sq-backend-table-header">Hour</td>
-				<td class="sq-backend-table-header">Minute</td>
-				<td class="sq-backend-table-header">Second</td>
+			    <td width="16%" align="center" class="sq-backend-table-header">&nbsp;</td>
+				<td width="12%" align="center" class="sq-backend-table-header">Circa</td>
+				<td width="12%" align="center" class="sq-backend-table-header">Day</td>
+				<td width="12%" align="center" class="sq-backend-table-header">Month</td>
+				<td width="12%" align="center" class="sq-backend-table-header">Year</td>
+				<td width="12%" align="center" class="sq-backend-table-header">Hour</td>
+				<td width="12%" align="center" class="sq-backend-table-header">Minute</td>
+				<td width="12%" align="center" class="sq-backend-table-header">Second</td>
 			  </tr>
 			  <tr>
-			    <td>Show?</td>
-			    <td class="sq-backend-table-cell"><?php check_box($prefix.'_day', '1', $asset->attr('day'));     ?></td>
-				<td class="sq-backend-table-cell"><?php check_box($prefix.'_month', '1', $asset->attr('month')); ?></td>
-				<td class="sq-backend-table-cell"><?php check_box($prefix.'_year', '1', $asset->attr('year'));   ?></td>
-				<td class="sq-backend-table-cell"><?php check_box($prefix.'_hour', '1', $asset->attr('hour'));   ?></td>
-				<td class="sq-backend-table-cell"><?php check_box($prefix.'_min', '1', $asset->attr('min'));     ?></td>
-				<td class="sq-backend-table-cell"><?php check_box($prefix.'_sec', '1', $asset->attr('sec'));     ?></td>
+			    <td class="sq-backend-table-cell">Show?</td>
+			    <td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_c', '1', $show_params['c']);} else {print $show_params['c'] ? 'X' : '';} ?></td>
+				<td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_d', '1', $show_params['d']);} else {print $show_params['d'] ? 'X' : '';} ?></td>
+				<td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_m', '1', $show_params['m']);} else {print $show_params['m'] ? 'X' : '';} ?></td>
+				<td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_y', '1', $show_params['y']);} else {print $show_params['y'] ? 'X' : '';} ?></td>
+				<td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_h', '1', $show_params['h']);} else {print $show_params['h'] ? 'X' : '';} ?></td>
+				<td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_i', '1', $show_params['i']);} else {print $show_params['i'] ? 'X' : '';} ?></td>
+				<td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_s', '1', $show_params['s']);} else {print $show_params['s'] ? 'X' : '';} ?></td>
 			  </tr>
 			  <tr>
-			    <td>Allow Blank?</td>
-			    <td class="sq-backend-table-cell"><?php check_box($prefix.'_day_null', '1', $asset->attr('day_null'));     ?></td>
-			    <td class="sq-backend-table-cell"><?php check_box($prefix.'_month_null', '1', $asset->attr('month_null')); ?></td>
-		  	    <td class="sq-backend-table-cell"><?php check_box($prefix.'_year_null', '1', $asset->attr('year_null'));   ?></td>
-		  	    <td class="sq-backend-table-cell"><?php check_box($prefix.'_hour_null', '1', $asset->attr('hour_null'));   ?></td>
-			    <td class="sq-backend-table-cell"><?php check_box($prefix.'_min_null', '1', $asset->attr('min_null'));     ?></td>
-			    <td class="sq-backend-table-cell"><?php check_box($prefix.'_sec_null', '1', $asset->attr('sec_null'));     ?></td>
-			  </tr>
+			    <td colspan="2" class="sq-backend-table-cell">Allow Blank?</td>
+			    <td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_d_null', '1', $null_params['d']);} else {print $null_params['d'] ? 'X' : '';} ?></td>
+			    <td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_m_null', '1', $null_params['m']);} else {print $null_params['m'] ? 'X' : '';} ?></td>
+			    <td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_y_null', '1', $null_params['y']);} else {print $null_params['y'] ? 'X' : '';} ?></td>
+			    <td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_h_null', '1', $null_params['h']);} else {print $null_params['h'] ? 'X' : '';} ?></td>
+			    <td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_i_null', '1', $null_params['i']);} else {print $null_params['i'] ? 'X' : '';} ?></td>
+			    <td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_s_null', '1', $null_params['s']);} else {print $null_params['s'] ? 'X' : '';} ?></td>
+				</tr>
 			  <tr>
-			    <td>Text?</td>
-			    <td class="sq-backend-table-cell"><?php check_box($prefix.'_day_text', '1', $asset->attr('day_text'));     ?></td>
-			    <td class="sq-backend-table-cell"><?php check_box($prefix.'_month_text', '1', $asset->attr('month_text')); ?></td>
-		  	    <td class="sq-backend-table-cell"><?php check_box($prefix.'_year_text', '1', $asset->attr('year_text'));   ?></td>
-		  	    <td class="sq-backend-table-cell"><?php check_box($prefix.'_hour_text', '1', $asset->attr('hour_text'));   ?></td>
-			    <td class="sq-backend-table-cell"><?php check_box($prefix.'_min_text', '1', $asset->attr('min_text'));     ?></td>
-			    <td class="sq-backend-table-cell"><?php check_box($prefix.'_sec_text', '1', $asset->attr('sec_text'));     ?></td>
+			    <td colspan="2" class="sq-backend-table-cell">Display as Text Box?</td>
+			    <td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_d_text', '1', $text_params['d']);} else {print $text_params['d'] ? 'X' : '';} ?></td>
+			    <td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_m_text', '1', $text_params['m']);} else {print $text_params['m'] ? 'X' : '';} ?></td>
+			    <td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_y_text', '1', $text_params['y']);} else {print $text_params['y'] ? 'X' : '';} ?></td>
+			    <td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_h_text', '1', $text_params['h']);} else {print $text_params['h'] ? 'X' : '';} ?></td>
+			    <td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_i_text', '1', $text_params['i']);} else {print $text_params['i'] ? 'X' : '';} ?></td>
+			    <td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_s_text', '1', $text_params['s']);} else {print $text_params['s'] ? 'X' : '';} ?></td>
 			  </tr>
 			</table>
 
 		<?php
-	} // end paint interface()
+	}//end paintInterface()
 
 
 	/**
@@ -119,28 +130,54 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 	*/
 	function processInterface(&$asset, &$o, $prefix)
 	{
-		$elements = Array('day', 'month', 'year', 'hour', 'min', 'sec');
+		$elements = Array('d', 'm', 'y', 'h', 'i', 's');
+
+		$show_params = $asset->attr('show');
+		$text_params = $asset->attr('text');
+		$null_params = $asset->attr('null');
 
 		foreach ($elements as $e) {
 			$entities = Array('', '_null', '_text');
-			foreach ($entities as $entity)
-			if (isset($_POST[$prefix.'_'.$e.$entity])) {
-				if (!$asset->setAttrValue($e.$entity, $_POST[$prefix.'_'.$e.$entity])) {
-					return false;
+			foreach ($entities as $entity) {
+
+				if ($entity == '_null') {
+					$current_param =& $null_params;
+				} elseif ($entity == '_text') {
+					$current_param =& $text_params;
+				} else {
+					$current_param =& $show_params;
 				}
-			} else {
-				if (!$asset->setAttrValue($e.$entity, '')) {
-					return false;
+
+				if (isset($_POST[$prefix.'_'.$e.$entity])) {
+					$current_param[$e] = $_POST[$prefix.'_'.$e.$entity];
+				} else {
+					$current_param[$e] = '';
 				}
 			}
 		}
-		if (isset($_POST[$prefix.'_circa'])) {
-			if (!$asset->setAttrValue('circa', $_POST[$prefix.'_circa'])) return false;
+
+		if (isset($_POST[$prefix.'_c'])) {
+			$show_params['c'] = $_POST[$prefix.'_c'];
+		} else {
+			$show_params['c'] = '';
 		}
+
+		if (!$asset->setAttrValue('show', $show_params)) {
+			return false;
+		}
+		if (!$asset->setAttrValue('text', $text_params)) {
+			return false;
+		}
+		if (!$asset->setAttrValue('null', $null_params)) {
+			return false;
+		}
+
+
 
 		return true;
 
-	} // end processInterface()
+	}//end processInterface()
+
 
 }//end class
 ?>

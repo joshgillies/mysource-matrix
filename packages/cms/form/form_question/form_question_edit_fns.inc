@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_edit_fns.inc,v 1.13 2004/04/28 02:10:45 lwright Exp $
+* $Id: form_question_edit_fns.inc,v 1.14 2004/05/05 07:10:12 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,7 +49,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		// override static screens - only display details because the others don't apply
 		$this->static_screens = Array(	'details'		=> Array(
 															'name'			=> 'Details',
-															'force_unlock'	=> true,
+															'force_unlock'	=> false,
 															'lock_type'		=> 'none',
 															),
 									);
@@ -69,9 +69,105 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintRules(&$asset, &$o, $prefix)
 	{
+		if ($asset->getRuleCount() == 0) return false;
+
+		$rule_codes = $asset->getAllowedRules();
+		$type_codes = Array();
+
+		foreach	($rule_codes as $rule_code) {
+			$type_codes[] = 'form_question_rule_type_'.$rule_code;
+		}
+
+		$desc = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_codes, 'description');
+
+		$admin_access = $asset->adminAccess('all');
+		$prefix = $asset->getPrefix();
+		?>
+				<table class="sq-backend-table">
+					<tr>
+						<td class="sq-backend-table-header">
+							Rule
+						</td>
+						<td class="sq-backend-table-header">
+							Comparison Value
+						</td>
+						<?php
+						if ($admin_access) {
+							?><td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;">Delete ?</td>
+							<?php
+						}
+						?>
+					</tr>
+				<?php
+		$allowed_rules = &$asset->getAllowedRules();
+		$rules = &$asset->getRules();
+				if(!empty($rules)) {
+
+					// sort order is based upon shadow asset id (eg. '87:q1'), not just question id - this 	
+					// will allow sections to be sorted in later
+					$i = 0;
+					for (reset($rules); null !== ($k = key($rules)); next($rules)) {
+						$rule = &$rules[$k];
+						$type_code = 'form_question_rule_type_'.$rule['name'];
+
+						// get operators and attributes from a static call
+						$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+						$operators = eval('return '.$type_code.'::getOperators();');
+						$attributes = eval('return '.$type_code.'::getAttributes();');
+
+						// obtain a rule prefix
+						$rule_prefix = $prefix.'_r'.$k;
+					?>
+						<tr>
+							<td class="sq-backend-table-cell">
+								<?php if ($asset->writeAccess('attributes')) {
+									combo_box($rule_prefix.'_operator', $operators, 
+									false, $rule['operator']); 
+								} else {
+									echo $operators[$rule['operator']];
+								} ?>
+							</td>
+							<td class="sq-backend-table-cell">
+								<?php if (!$attributes['no_comparison']) {
+									// only print if we need to compare with something
+									if ($asset->writeAccess('all')) {
+										text_box($rule_prefix.'_value', $rule['value'], 30, 255);
+										// showing the asset finder?
+										if ($attributes['show_asset_finder']) {
+											echo ' Or<br />';
+											asset_finder($rule_prefix.'_cq_id', $rule['comparison_question_id'], Array('form_question' => 'D'));
+										}
+									} else {
+										// comparison question ID
+										if ($cqid = $rule['comparison_question_id']) {
+											$cq_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($cqid);
+											echo 'Value of "'.$cq_asset->name.'" ['.$cq_asset->type().' : '.$cqid . ']';
+										} else {
+											echo $rule['value'];
+										}
+									}
+								}?>
+							</td>
+						<?php
+							if ($admin_access) {
+								?><td align="center" width="100" class="sq-backend-table-cell"><?php
+								check_box($rule_prefix.'_delete');
+								?></td>
+							<?php
+						}
+						?>
+						</tr>
+					<?php
+					$i++;
+					}// end foreach data
+				}
+				?>
+				</table>
+		<?php
+
 		return true;
 
-	} // end paintRules()
+	}//end paintRules()
 	
 	
 	/**
@@ -88,15 +184,45 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	{
 		if ($asset->getRuleCount() == 0) return false;
 
-		/*$rules = &$asset->getRules();
-		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
-			$rule =& $rules[$k];
-			$edit = $rule->getEditFns();
-			$edit->processInlineBackend($rule, $o, $rule->getPrefix());
-		}*/
-		return true;
+		$rules = &$asset->getRules();
+		$prefix = $asset->getPrefix();
 
-	} // end processRules()
+		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
+			$rule = &$rules[$k];
+			$type = 'form_question_rule_type_'.$rule['name'];
+			$rule_prefix = $prefix.'_r'.$k;
+
+			if (isset($_POST[$rule_prefix.'_delete'])) {
+				unset($rules[$k]);
+				continue;	// don't perform anything more on this!
+			}
+
+			if (isset($_POST[$rule_prefix.'_operator'])) {
+				$rule['operator'] = $_POST[$rule_prefix.'_operator'];
+			}
+
+			if (isset($_POST[$rule_prefix.'_cq_id']) && ($_POST[$rule_prefix.'_cq_id']['assetid'] != 0)) {
+				// comparison question id overrides the static value!
+				if ($_POST[$rule_prefix.'_cq_id']['assetid'] == $asset->id) {
+				  trigger_error('Cannot compare "'.$asset->name.'" (# '.$asset->id.') with itself in a rule',  E_USER_WARNING);
+				  return false;
+				}
+
+				$rule['comparison_question_id'] = $_POST[$rule_prefix.'_cq_id']['assetid'];
+				$rule['value'] = '';
+			} elseif (!empty($_POST[$rule_prefix.'_value'])) {
+				// static value only specified - set c.q. ID to a duck
+				$rule['comparison_question_id'] = 0;
+				$rule['value'] = $_POST[$rule_prefix.'_value'];
+			}
+
+
+
+		}
+		$asset->setAttrValue('rules', $rules);
+		return $asset->saveAttributes();
+
+	}//end processRules()
 
 
 	/**
@@ -111,18 +237,17 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintAddRule(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('links')) return false;
+		if(!$asset->adminAccess('attributes')) return false;
 
-		/*$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$links = $asset->_getAllowedLinks();
+		$rule_codes = $asset->getAllowedRules();
 		$type_codes = Array();
-		foreach	($links[SQ_LINK_TYPE_3] as $type_code => $link) {
-			// make sure that this is a rule
-			if (substr($type_code, 0, 18) != 'form_question_rule') continue;
-			$type_codes[] = $type_code;
+
+		foreach	($rule_codes as $rule_code) {
+			$type_codes[] = 'form_question_rule_type_'.$rule_code;
 		}
-		$desc = $am->getTypeInfo($type_codes, 'description');
-		combo_box('rule', array_merge(Array(' ' => '------ Please Select ------'), $desc), false, '');*/
+
+		$desc = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_codes, 'description');
+		combo_box('rule', array_merge(Array(' ' => '------ Please Select ------'), $desc), false, '');
 		
 		return true;
 
@@ -141,25 +266,67 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processAddRule(&$asset, &$o, $prefix)
 	{
-		if (!trim($_POST['rule'])) return false;
+		$type_code = $_POST['rule'];
+		$rule_code = substr($type_code,24);
+		if (!trim($rule_code)) return false;
+
+		$rules = &$asset->getRules();
 		
-		/*$rule = $_POST['rule'];
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+		$operators = array_keys(eval('return '.$type_code.'::getOperators();'));
 
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$am->includeAsset($rule);
-			
-		$rule  = new $rule();
-		$copy_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_3, 'dependant' => 1, 'exclusive' => 1);
-		if (!$rule->create($copy_link)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');		*/
+		$rules[] = Array('name' => $rule_code,
+						 'operator' => $operators[0],
+						 'value' => '',
+						 'comparison_question_id' => 0);
+						 
+		$asset->setAttrValue('rules', $rules);
+		return $asset->saveAttributes();
 
+	}//end processAddRule()
+
+
+	/**
+	* Paint lock message telling the user to go to our parent to lock me
+	*
+	* @param object Form_Section		&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @return boolean false if no questions in this section, true otherwise
+	* @access public
+	*/
+	function paintLockMessage(&$asset, &$o, $prefix)
+	{
+		$section_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_formid);
+?>
+<p>This asset is currently <b><i><?php echo $asset->writeAccess('attributes') ? 'locked' : 'unlocked'; ?></i></b>.</p>
+
+<p>Locking for this asset is controlled by its parent form<?php if (is_a($section_asset, 'form_section')) { echo ' section'; } ?>. Click to access this asset: <?php 
+
+$href = $section_asset->getBackendHref('contents');
+?><a href="<?php echo $href?>"><?php echo $section_asset->_getName() ?></a></p><?php
 		return true;
 
-	} // end processAddRule()
+	}// end paintLockMessage()
+
+
+	/**
+	* Process lock message (no implementation)
+	*
+	* @param object Form_Section		&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @return boolean always true
+	* @access public
+	*/
+	function processLockMessage(&$asset, &$o, $prefix)
+	{
+		return true;
+
+	}// end processLockMessage()
+
 
 }// end class
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text.inc,v 1.16 2004/04/29 05:19:45 lwright Exp $
+* $Id: form_question_type_text.inc,v 1.17 2004/05/05 07:10:14 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -112,7 +112,7 @@ class Form_Question_Type_Text extends Form_Question
 	function processForm()
 	{		
 		$missing = false;
-			$form =& $this->getMySection();
+		$form =& $this->getMySection();
 
 		if (isset($_POST[$this->id])) {
 			$val = $_POST[$this->id];
@@ -124,6 +124,8 @@ class Form_Question_Type_Text extends Form_Question
 		} else {
 			$missing = true;
 		}
+
+		parent::processForm();
 
 		if ($missing) {
 			$form->submission_errors[] = 'The question "'.$this->attr('name').'" must be answered';

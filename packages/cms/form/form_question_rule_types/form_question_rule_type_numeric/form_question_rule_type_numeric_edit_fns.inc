@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_numeric_edit_fns.inc,v 1.7 2003/11/26 00:51:28 gsherwood Exp $
+* $Id: form_question_rule_type_numeric_edit_fns.inc,v 1.8 2004/05/05 07:10:13 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 class Form_Question_Rule_Type_Numeric_Edit_Fns extends Form_Question_Rule_Edit_Fns
 {
 
+
 	/**
 	* Constructor
 	*
@@ -48,43 +49,6 @@ class Form_Question_Rule_Type_Numeric_Edit_Fns extends Form_Question_Rule_Edit_F
 		$this->Form_Question_Rule_Edit_Fns();
 	}
 	
-	function paintInlineBackend(&$asset, &$o, $prefix)
-	{
-		if (!$asset->writeAccess('attributes')) return false;
-
-		$contents = Array(
-			1 => 'Must be Numeric',
-			0 => 'Must Not be Numeric',
-		);
-
-		// table tags are printed in caller (form_question_edit_fns::printRules())
-		?>
-		<tr>
-			<td>
-				<?php combo_box($prefix.'_operator', $contents, false, $asset->attr('operator')); ?>
-			</td>
-			<td>
-				&nbsp;
-			</td>
-			<td>
-				Delete? <?php check_box('delete_rule', $asset->id); ?>
-			</td>
-		</tr>
-		<?php
-	
-	} // end paintInlineBackend()
-
-	function processInlineBackend(&$asset, &$o, $prefix)
-	{
-		if ($this->processDelete()) return true;
-
-		if (isset($_POST[$prefix.'_operator'])) {
-			$asset->setAttrValue('operator', $_POST[$prefix.'_operator']);
-		}
-		return $asset->saveAttributes();
-
-	}// end processInlineBackend()
-
 
 }//end class
 ?>

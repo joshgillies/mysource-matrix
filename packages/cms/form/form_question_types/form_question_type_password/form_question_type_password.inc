@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_password.inc,v 1.7 2004/04/29 05:19:45 lwright Exp $
+* $Id: form_question_type_password.inc,v 1.8 2004/05/05 07:10:14 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -142,6 +142,8 @@ class Form_Question_Type_Password extends Form_Question
 	*/
 	function processForm()
 	{
+		parent::processForm();
+
 		$form = &$this->getMySection();
 		//if (!$form->active_submission) return false;
 				
@@ -162,6 +164,8 @@ class Form_Question_Type_Password extends Form_Question
 			}
 
 			$form->active_submission[$this->id] = $val;
+
+			parent::processForm();
 		}
 		
 		return true;

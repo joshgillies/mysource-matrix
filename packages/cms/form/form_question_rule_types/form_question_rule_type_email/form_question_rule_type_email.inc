@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_email.inc,v 1.8 2003/11/26 00:51:28 gsherwood Exp $
+* $Id: form_question_rule_type_email.inc,v 1.9 2004/05/05 07:10:12 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,6 +32,7 @@ require_once SQ_FUDGE_PATH .'/general/www.inc';
 * Purpose
 *
 *
+* @static
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix_Packages
@@ -39,6 +40,7 @@ require_once SQ_FUDGE_PATH .'/general/www.inc';
 */
 class Form_Question_Rule_Type_Email extends Form_Question_Rule
 {
+
 
 	/**
 	* Constructor
@@ -50,37 +52,74 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 	{
 		$this->Form_Question_Rule($assetid);
 	
-	}// end Form_Question_Rule_Type_Email()
+	}//end Form_Question_Rule_Type_Email()
 
 
 	/**
-	* returns true if the question is valid, otherwise 
-	* adds an error to the submission object, and return false
+	* Returns an array of definition variables in an array
+	*
+	* Since we are not instantiating the question rules, we do not have access to member variables
+	* (at least not until PHP5). So this overrides the usual attribute gathering function.
+	* Those methods wishing to override this function should call its parent first then modify the
+	* returned array.
+	*
+	* @access public
+	* @return array (string => mixed)
+	*/
+	function getAttributes()
+	{
+		$attrs = parent::getAttributes();
+		$attrs['no_comparison'] = true;
+		return $attrs;
+
+	}//end getAttributes()
+	
+	
+	/**
+	* Returns a list of operators for this rule type
+	*
+	* @access public
+	* @return array (mixed => string) an array of descriptions indexed by operator id (which can be
+	*                                 anything, generally string or (int)0|1 for a boolean value)
+	*/
+	function getOperators() 
+	{
+		return Array(1 => 'Must Be a Valid E-mail Address',
+			0 => 'Must Not Be a Valid E-mail Address');
+	
+	}//end getOperators()
+	
+	
+	/**
+	* processes the form question and returns true if it is valid
+	*
+	* Because the Form Question Rule classes will not be instantiable, this function MUST called
+	* statically.
 	* 
+	* @param object form_question	&$q_asset		reference to the question asset
+	* @param string					$operator		the operator being used to compare
+	*
 	* @see Form_Question_Rule::processForm()
-	*
-	* @param	int						$questionid		the id of the question this rule is linked to 
-	* @param string						$question_name	the name of the question (used for producing errors)
-	*
+
 	* @access public
 	* @return boolean
 	*/
-	function processForm($questionid, $question_name)
+	function processForm(&$q_asset, $operator)
 	{
-		$answer   = $this->active_submission->getAnswer($questionid);
-		$operator = ($this->attr('operator')) ? 1 : 0;
+		$answer   = $q_asset->active_submission[$q_asset->id];
 
 		$valid = valid_email($answer);
 
 		if ($valid == $operator) {
 			return true;
 		} else {
-			$error = $question_name.' must '. (($operator) ? '' : 'not') .' be a valid Email Address';
-			$this->active_submission->setError($error);
+			$error = $q_asset->name.' must '. (($operator) ? '' : 'not') .' be a valid Email Address';
+			$q_asset->submission_errors[] = $error;
 			return false;
 		}
 
-	}// end processForm()
+	}//end processForm()
 
-}// end class
+
+}//end class
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_found_in.inc,v 1.7 2003/11/26 00:51:28 gsherwood Exp $
+* $Id: form_question_rule_type_found_in.inc,v 1.8 2004/05/05 07:10:12 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,6 +31,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 * Purpose
 *
 *
+* @static
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix_Packages
@@ -38,6 +39,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 */
 class Form_Question_Rule_Type_Found_In extends Form_Question_Rule
 {
+
 
 	/**
 	* Constructor
@@ -49,80 +51,106 @@ class Form_Question_Rule_Type_Found_In extends Form_Question_Rule
 	{
 		$this->Form_Question_Rule($assetid);
 	
-	}// end Form_Question_Rule_Type_Found_In()
+	}//end Form_Question_Rule_Type_Found_In()
 
 
 	/**
-	* returns true if the question is valid, otherwise 
-	* adds an error to the submission object, and return false
-	* 
-	* @see Form_Question_Rule::processForm()
-	*
-	* @param	int						$questionid		the id of the question this rule is linked to 
-	* @param string						$question_name	the name of the question (used for producing errors)
+	* Returns a list of operators for this rule type
 	*
 	* @access public
-	* @return boolean
+	* @return array (mixed => string) an array of descriptions indexed by operator id (which can be
+	*                                 anything, generally string or (int)0|1 for a boolean value)
 	*/
-	function processForm($questionid, $question_name)
+	function getOperators() 
 	{
-		if (!$this->active_submission) return false;
-		
-		return $this->valueComparison();
-
-	}// end processForm()
-
-
-	/**
-	* returns TRUE if the two values evaluate with the current operator
-	*
-	* @param string		$answer			the left argument
-	* @param string		$comparison		the right argument
-	*
-	* @access public
-	* @return boolean
-	*/
-	function compareQuestionValues($answer, $comparison)
-	{
-		return (strpos($comparison, $answer) !== false) ? true : false; 
+		return Array(1 => 'Must be found in...',
+			0 => 'Must Not be found in...');
 	
-	} // end questionComparison()
+	}//end getOperators()
+	
+	
+	/**
+	* processes the form question and returns true if it is valid
+	*
+	* Because the Form Question Rule classes will not be instantiable, this function MUST called
+	* statically.
+	* 
+	* @param object form_question	&$q_asset		reference to the question asset
+	* @param string					$operator		the operator being used to compare
+	* @param mixed					&$comparison	either a value or a form_question asset (based on
+	*												comparison question id), being used to compare
+	*
+	* @see Form_Question_Rule::processForm()
+	* @access public
+	* @return boolean
+	*/
+	function processForm(&$q_asset, $operator, &$comparison)
+	{
+		if (!$q_asset->active_submission) return false;
+		$answer = $q_asset->getValue();
+
+		// comparison sent is a question asset!!
+		if (is_a($comparison, 'form_question')) {
+			$valid = (strpos($comparison->getValue(), $answer) !== false) ? 1 : 0;			
+		} else {	// sent just a value
+			$valid = (strpos($comparison, $answer) !== false) ? 1 : 0;
+		}
+
+		if ($valid == $operator) {
+			return true;
+		} else {
+			// tailor the error response depending
+			if (is_a($comparison, 'form_question')) {
+				$error = $q_asset->name.' must '. (($operator) ? '' : 'not') .' be found in the value \''.$comparison->getValue().'\' ('.$comparison->name.' in '.$comparison->getMySectionName().')';
+			} else {
+				$error = $q_asset->name.' must '. (($operator) ? '' : 'not') .' be found in \''.$comparison.'\'';
+			}
+			$q_asset->submission_errors[] = $error;
+			return false;
+		}
+	
+
+	}//end processForm()
 
 
 	/**
-	* returns an error message for comparing the answer with a value
-	*
-	* * @param string $answer the user's answer
-	*
-	* @access public
-	* @return string
-	*/
-	function generateComparisonError($answer)
-	{
-		$my_question = &$this->getMyQuestion();
-		$operator = $this->attr('operator');
-
-		return  $this->my_question->name.' must '. (($operator) ? '' : 'not') .' be found in \''.$answer.'\'';
-		
-	} // end generateComparisonError()
-
-
-	/**
-	* generates an error for question comparison
-	*
-	* @param &object Question	$question		the comparison question
-	* @param string				$comp_answer	the comparison answer
+	* writes JavaScript code for client side validation
+	* 
+	* @param object form_question	&$q_asset		reference to the question asset
+	* @param string					$operator		the operator being used to compare
+	* @param mixed					&$comparison	either a value or a form_question asset (based on
+	*												comparison question id), being used to compare
 	*
 	* @access public
-	* @return string
+	* @return boolean
 	*/
-	function generateQuestionComparisonError(&$comp_question, $comp_answer)
+	function generateJSCode(&$q_asset, $operator, &$comparison)
 	{
-		$operator = $this->attr('operator');
+		// this assumes the skeleton of a JS validation function has been created around this code
+		// with a 'form' variable defined (this should have been done when generating content file).
+		$code .= 'var answer = document.getElementById("'.$q_asset->id.'").value; ';
 
-		return $this->my_question->name.' must '. (($operator) ? '' : 'not') .' be found in the value \''.$comp_answer.'\' ('.$comp_question->name.' in '.$comp_question->getMySectionName().')';
+		if (is_a($comparison, 'form_question')) {
+			$compare_value = 'document.getElementById("'.$comparison->id.'").value; ';
+		} else {	// sent just a value
+			$compare_value = '"'.$comparison.'"';
+		}
 
-	} // end generateComparisonError()
+		$op = ($operator == 1) ? '!=' : '==';
 
-}// end class
+		// this is a form question - get its current value from the form then
+		echo 'if ('.$compare_value.'.indexOf(answer) '.$op.' -1) {';	// START of js if
+			if (is_a($comparison, 'form_question')) {
+					$error = $q_asset->name.' must '.(($operator) ? '' : 'not') .' be found in the value \''.$compare_value.'\' ('.$comparison->name.' in '.$comparison->getMySectionName().')';
+			} else {
+				$error = $q_asset->name.' must '. (($operator) ? '' : 'not') .' be found in \''.$compare_value.'\'';
+			}
+		echo 'submission_errors[i] = "'.addslashes($error).'"; i++;'; // add submission error
+		echo '}';	// END of js if
+		return true;
+
+	}//end generateJSCode()
+
+
+}//end class
 ?>

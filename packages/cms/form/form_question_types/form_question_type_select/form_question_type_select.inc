@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.14 2004/04/29 05:19:45 lwright Exp $
+* $Id: form_question_type_select.inc,v 1.15 2004/05/05 07:10:14 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -131,6 +131,8 @@ class Form_Question_Type_Select extends Form_Question
 		$form =& $this->getMySection();
 		$form->active_submission[$this->id] = $val;
 			
+		parent::processForm();
+
 		return true;
 
 	}//end processForm()

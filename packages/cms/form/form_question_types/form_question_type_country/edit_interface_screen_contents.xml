@@ -18,12 +18,22 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.6 2004/04/23 07:28:07 lwright Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.7 2004/05/05 07:10:13 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <contents>
+	<section name="Locking / Editing">
+	    <field>
+			<display_name></display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintLockMessage"   />
+				<process_function name="processLockMessage" />
+			</function_call>
+		</field>
+	</section>
 	<section name="Question Options">
 	    <field attribute="name">
 			<display_name>Title</display_name>

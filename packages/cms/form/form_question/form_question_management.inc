@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_management.inc,v 1.9 2003/12/16 12:13:04 brobertson Exp $
+* $Id: form_question_management.inc,v 1.10 2004/05/05 07:10:12 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -55,6 +55,11 @@ class Form_Question_Management extends Asset_Management
 												'added'     => '0.0.1',
 												'type'      => 'text',  
 												'default'   => '',
+												),
+							'rules' => Array(
+												'added'     => '0.0.1',
+												'type'      => 'serialise',  
+												'default'   => Array(),
 												),
 							'special_info'	=> Array(
 														'added'		=> '0.0.1',

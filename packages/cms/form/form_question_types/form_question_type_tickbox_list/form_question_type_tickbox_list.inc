@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.11 2004/04/29 05:19:45 lwright Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.12 2004/05/05 07:10:15 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -160,10 +160,26 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		}
 
 		$form->active_submission[$this->id] = $val;
+
+		parent::processForm();
 			
 		return true;
 
 	}//end processForm()
+
+
+	/**
+	* returns an array of the types of rules 
+	*
+	* Returned array is 'short name' => 'full name'
+	*
+	* @access public
+	* @return Array(string => string)
+	*/
+	function getAllowedRules() {
+		return Array('select_limit');
+	
+	}//end getAllowedRules()
 
 
 	/**

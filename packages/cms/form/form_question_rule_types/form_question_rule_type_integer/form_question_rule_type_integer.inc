@@ -18,15 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule.inc,v 1.10 2004/05/05 07:10:12 lwright Exp $
+* $Id: form_question_rule_type_integer.inc,v 1.1 2004/05/05 07:10:13 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
-require_once SQ_INCLUDE_PATH.'/asset.inc';
+require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc';
 
 /**
-* Form_Question_Rule
+* Form_Question_Rule_Type_Integer
 *
 * Purpose
 *
@@ -37,21 +37,23 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Form_Question_Rule extends Asset
+class Form_Question_Rule_Type_Integer extends Form_Question_Rule
 {
 
 
 	/**
 	* Constructor
 	*
+	* [Will we still need a constructor seeing we will only be calling this class statically?]
+	*
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Form_Question_Rule($assetid=0) 
+	function Form_Question_Rule_Type_Integer($assetid=0) 
 	{
-		$this->Asset($assetid);
-
-	}//end Form_Question_Rule()
+		$this->Form_Question_Rule($assetid);
+	
+	}//end Form_Question_Rule_Type_Integer()
 
 
 	/**
@@ -67,12 +69,13 @@ class Form_Question_Rule extends Asset
 	*/
 	function getAttributes()
 	{
-		return Array('no_comparison' => false,
-						'show_asset_finder' => true);
+		$attrs = parent::getAttributes();
+		$attrs['no_comparison'] = true;
+		return $attrs;
 
 	}//end getAttributes()
-
 	
+
 	/**
 	* Returns a list of operators for this rule type
 	*
@@ -80,33 +83,45 @@ class Form_Question_Rule extends Asset
 	* @return array (mixed => string) an array of descriptions indexed by operator id (which can be
 	*                                 anything, generally string or (int)0|1 for a boolean value)
 	*/
-	function getOperators()
+	function getOperators() 
 	{
-		return Array();
-
+		return Array(1 => 'Must Be an Integer',
+			0 => 'Must Not Be an Integer');
+	
 	}//end getOperators()
-
+	
 	
 	/**
-	* @abstract
+	* processes the form question and returns true if it is valid
+	*
+	* Because the Form Question Rule classes will not be instantiable, this function MUST called
+	* statically.
+	* 
+	* @param object form_question	&$q_asset		reference to the question asset
+	* @param string					$operator		the operator being used to compare
+	*
+	* @see Form_Question_Rule::processForm()
+	* @access public
+	* @return boolean
 	*/
 	function processForm(&$q_asset, $operator)
 	{
-		return true;
+		if (!$q_asset->active_submission) return false;
+
+		$answer   = $q_asset->active_submission[$q_asset->id];
+
+		$valid = (is_int($answer)) ? 1 : 0; 
+
+		if ($valid == $operator) {
+			return true;
+		} else {
+			$error = $q_asset->name.' must '. (($operator) ? '' : 'not') .' be an Integer';
+			$q_asset->submission_errors[] = $error;
+			return false;
+		}
 
 	}//end processForm()
 
 
-	/**
-	* @abstract
-	*/
-	function generateJSCode(&$q_asset, $operator)
-	{
-		return true;
-
-	}//end generateJSCode()
-	
-	
 }//end class
-
 ?>

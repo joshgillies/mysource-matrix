@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_numeric.inc,v 1.6 2003/11/26 00:51:28 gsherwood Exp $
+* $Id: form_question_rule_type_numeric.inc,v 1.7 2004/05/05 07:10:13 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,6 +31,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 * Purpose
 *
 *
+* @static
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix_Packages
@@ -39,8 +40,11 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 {
 
+
 	/**
 	* Constructor
+	*
+	* [Will we still need a constructor seeing we will only be calling this class statically?]
 	*
 	* @param int	$assetid	the asset id to be loaded
 	*
@@ -49,37 +53,75 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 	{
 		$this->Form_Question_Rule($assetid);
 	
-	}// end Form_Question_Rule_Type_Numeric()
+	}//end Form_Question_Rule_Type_Numeric()
 
 
 	/**
-	* returns true if the question is valid, otherwise 
-	* adds an error to the submission object, and return false
+	* Returns an array of definition variables in an array
+	*
+	* Since we are not instantiating the question rules, we do not have access to member variables
+	* (at least not until PHP5). So this overrides the usual attribute gathering function.
+	* Those methods wishing to override this function should call its parent first then modify the
+	* returned array.
+	*
+	* @access public
+	* @return array (string => mixed) an array of parameter values indexed by a parameter id
+	*/
+	function getAttributes()
+	{
+		$attrs = parent::getAttributes();
+		$attrs['no_comparison'] = true;
+		return $attrs;
+
+	}//end getAttributes()
+	
+
+	/**
+	* Returns a list of operators for this rule type
+	*
+	* @access public
+	* @return array (mixed => string) an array of descriptions indexed by operator id (which can be
+	*                                 anything, generally string or (int)0|1 for a boolean value)
+	*/
+	function getOperators() 
+	{
+		return Array(1 => 'Must Be Numeric',
+			0 => 'Must Not Be Numeric');
+	
+	}//end getOperators()
+	
+	
+	/**
+	* processes the form question and returns true if it is valid
+	*
+	* Because the Form Question Rule classes will not be instantiable, this function MUST called
+	* statically.
 	* 
+	* @param object form_question	&$q_asset		reference to the question asset
+	* @param string					$operator		the operator being used to compare
+	*
 	* @see Form_Question_Rule::processForm()
-	*
-	* @param	int						$questionid		the id of the question this rule is linked to 
-	* @param string						$question_name	the name of the question (used for producing errors)
-	*
 	* @access public
 	* @return boolean
 	*/
-	function processForm($questionid, $question_name)
+	function processForm(&$q_asset, $operator)
 	{
-		$answer   = $this->active_submission->getAnswer($questionid);
-		$operator = ($this->attr('operator')) ? 1 : 0;
+		if (!$q_asset->active_submission) return false;
 
-		(is_numeric($answer)) ? $valid = 1 : $valid = 0; 
+		$answer   = $active_submission[$q_asset->id];
+
+		$valid = (is_numeric($answer)) ? 1 : 0; 
 
 		if ($valid == $operator) {
 			return true;
 		} else {
-			$error = $question_name.' must '. (($operator) ? '' : 'not') .' be Numeric';
-			$this->active_submission->setError($error);
+			$error = $q_asset->name.' must '. (($operator) ? '' : 'not') .' be Numeric';
+			$q_asset->submission_errors[] = $error;
 			return false;
 		}
 
-	}// end processForm()
+	}//end processForm()
 
-}// end class
+
+}//end class
 ?>

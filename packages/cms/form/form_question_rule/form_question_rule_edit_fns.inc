@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_edit_fns.inc,v 1.8 2003/11/26 00:51:27 gsherwood Exp $
+* $Id: form_question_rule_edit_fns.inc,v 1.9 2004/05/05 07:10:12 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -117,7 +117,7 @@ class Form_Question_Rule_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		return false;
-	} // end processDelete()
+	}//end processDelete()
 
 }//end class
 ?>
