@@ -598,6 +598,7 @@ mcListItemContainerClass.prototype.selected = function(item)
 mcListItemContainerClass.prototype.startMove = function()
 {
 	if (this.action != "") return false;
+	if (this._parent._parent.finding_asset) return false;
 
 	if (this._parent.move_indicator.startIndicator(this, "endMove")) {
 		this.action = "move";
