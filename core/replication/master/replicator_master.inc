@@ -18,14 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replicator_master.inc,v 1.1.2.1 2004/02/13 17:18:58 brobertson Exp $
+* $Id: replicator_master.inc,v 1.1.2.2 2004/02/13 18:27:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
 require_once SQ_SYSTEM_ROOT.'/core/replication/replicator.inc';
 require_once SQ_SYSTEM_ROOT.'/data/private/conf/replication.inc';
 require_once SQ_SYSTEM_ROOT.'/core/replication/master/replication_remote_system.inc';
-
 
 /**
 * Replicator
@@ -62,7 +61,6 @@ class Replicator_Master extends Replicator
 	*
 	* @return boolean
 	* @access public
-	* @abstract
 	*/
 	function initialise()
 	{
@@ -463,25 +461,23 @@ class Replicator_Master extends Replicator
 			return;
 		}
 
-//			replicateMaster($systemid, $client_fd, true);
+		// now because of the nature of server rep and it never really being seen we are 
+		// going to force the issue with logging errors and set the error log file
+		$old_log_errors = ini_set('log_errors', 1);
+		$old_error_log  = ini_set('error_log', $this->_log_dir.'/error.log');
 
-//		} else {
-//			$this->_log("I AM A SLAVE, CHECK '$systemid' IS OUR MASTER", 'debug');
-//			// make sure we think we are talking to the right server
-//			if ($systemid != SQ_REPLICATION_MASTER_REPLICATION_SYSTEMID) {
-//				$this->_log('System called "'.$systemid.'" attempted to replicate with us, but it is not our master server', 'error');
-//				return;
-//			}
-//
-////			replicateSlave($client_fd, true);
-//
-//		}
+
+		$this->_log("IN REPLICATE FN : $systemid", 'debug');
+
+		$this->_log("I AM THE MASTER, CHECK '$systemid' IS KNOWN TO US", 'debug');
+
+//		replicateMaster($systemid, $client_fd, true);
+#function replicateMaster($systemid, $client_fd, $received_connection);
+
+		ini_set('log_errors', $old_log_errors);
+		ini_set('error_log', $old_error_log);
 
 	}// end replicate()
-
-
-//	function replicateMaster($systemid, $client_fd, $received_connection);
-//	function replicateSlave($client_fd, $received_connection);
 
 }//end class
 
