@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: utility.js,v 1.12 2003/10/20 04:37:56 gsherwood Exp $
+* $Id: utility.js,v 1.13 2003/11/05 01:36:09 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -93,7 +93,8 @@ HTMLArea.prototype._createTextRange = function(sel) {
 // make the selection the current element and its children
 HTMLArea.prototype._selectElement = function (element) {
 	if (document.selection) {
-		var range = document.body.createTextRange();
+		var selection = this._getSelection();
+		var range = this._createRange(selection);
 		range.moveToElementText(element);
 		range.select();
 	} else if (window.getSelection) {
