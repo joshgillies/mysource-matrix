@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: backend_outputter.inc,v 1.57 2003/10/10 06:49:25 brobertson Exp $
+* $Id: backend_outputter.inc,v 1.58 2003/10/17 01:31:11 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -54,8 +54,7 @@ class Backend_Outputter
 	// the page heading
 	var $_heading  = '';
 	var $_heading_icon = '';
-	var $_sub_heading  = '';
-	var $_sub_heading_icon = '';
+	var $_sub_heading = '';
 
 	// stylesheet files to include
 	var $_css_includes = Array();
@@ -194,8 +193,8 @@ class Backend_Outputter
 	/**
 	* Set the heading for page
 	*
-	* @param string $heading
-	* @param string $icon
+	* @param string $heading	the heading to display
+	* @param string $icon		the icon img tag (if any)
 	*
 	* @access public
 	*/
@@ -210,16 +209,14 @@ class Backend_Outputter
 	/**
 	* Set the sub heading for page
 	*
-	* @param string $heading
-	* @param string $icon
+	* @param string $heading	the heading to display
+	* @param string $icon		the icon img tag (if any)
 	*
 	* @access public
 	*/
 	function setSubHeading($heading, $icon='')
 	{
-		trigger_error('Sub Heading not outputting, fix in _paintHeader()', E_USER_WARNING);
 		$this->_sub_heading = trim($heading);
-		$this->_sub_heading_icon = $icon;
 
 	}//end setSubHeading()
 
@@ -297,8 +294,8 @@ class Backend_Outputter
 	/**
 	* Adds a screen options to the drop down
 	*
-	* @param string $url
-	* @param string $name
+	* @param string $url	the url to go to when this screen is selected
+	* @param string $name	the name to display in the drop down
 	*
 	* @access public
 	*/
@@ -714,8 +711,13 @@ class Backend_Outputter
 			?>
 			<table width="100%" cellpadding="3" cellspacing="0" border="0">
 				<tr>
-					<td class="sq-backend-main-heading" valign="middle"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1"/><?php echo $this->_heading;?></td>
-					<td class="sq-backend-main-heading" style="text-align: right;">
+				<?php if ($this->_heading_icon) { ?>
+					<td class="sq-backend-main-heading" style="vertical-align: middle; white-space: nowrap;"><?php echo $this->_heading_icon; ?></td>
+				<?php } else { ?>
+					<td class="sq-backend-main-heading" style="vertical-align: middle; white-space: nowrap;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1"/></td>
+				<?php } // end if ?>
+					<td class="sq-backend-main-heading" style="vertical-align: middle; white-space: nowrap;"><?php echo $this->_heading; ?></td>
+					<td class="sq-backend-main-heading" style="text-align: right;" width="100%">
 					<div id="sq_screen_menu_filler" style="display: none"></div>
 					<div id="sq_screen_menu">
 					<?php
@@ -741,6 +743,16 @@ class Backend_Outputter
 					?>
 					</div>
 					</td>
+				</tr>
+			</table>
+			<?php
+		}// end if
+
+		if ($this->_sub_heading) {
+			?>
+			<table width="100%" cellpadding="3" cellspacing="0" border="0">
+				<tr>
+					<td class="sq-backend-sub-heading" valign="middle"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1"/><?php echo $this->_sub_heading; ?></td>
 				</tr>
 			</table>
 			<?php
