@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.38 2004/03/11 15:31:12 brobertson Exp $
+* $Id: mysource.inc,v 1.39 2004/03/12 05:15:27 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -254,39 +254,48 @@ class MySource
 			if (isset($_REQUEST['a'])) $asset = &$this->am->getAsset((int) $_REQUEST['a']);
 			else $asset = &$this->am->getAssetFromURL(current_protocol(), null, true, true);
 			if (is_null($asset)) {
-				$url = current_protocol().'://'.strip_url(current_url(false, true));
+				
+				$protocol = current_protocol();
+				$url      = strip_url(current_url(false, true));
+			
+				$rm = &$this->am->getSystemAsset('remap_manager');
+				if (!$rm->loadRemapFromURL(current_protocol(), $url)) {
+					
+					// okay, the remap manager could not remap this url, so 
+					// check to see if we can find a 404 page from a site matching this url
+					
+					$root_url = $this->am->getRootURL($url);
+					
+					// if we can get a site from the url, 
+					// try to delegate the 404 to its not found page
 
-				// there is no asset for this URL - check if the URL is being remapped
-				$sql = 'SELECT remap_url
-						FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_remap';
-				$where = 'url = '.$this->db->quote($url).'
-						  AND expires IS NULL OR expires > NOW()';
-				$where = $this->constructRollbackWhereClause($where);
+					if (!empty($root_url)) {
+						$site = &$this->am->getAsset($root_url['assetid'], 'site');
+						if (!is_null($site)) {
+							$page = &$site->getSpecialPage('not_found');
+							if (!is_null($page)) {
+								header("HTTP/1.0 404 Not Found");
+								$site->paintAsset($page);
+								exit(1);
+							}
+						}
+					}
+					// if we can't get a site from the url, or the
+					// site does not have a 404 page, then try asking
+					// the remap manager to remap to its 404 page
 
-				$remap_url = $this->db->getOne($sql.$where);
-				if (DB::isError($remap_url)) {
-					trigger_error($remap_url->getMessage().'<br/>'.$remap_url->getUserInfo(), E_USER_ERROR);
-				}
-
-				if (!empty($remap_url)) {
-					?>
-					<html>
-						<head>
-							<title>Redirecting you to <?php echo $remap_url; ?></title>
-							<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib');?>/js/general.js"></script>
-						</head>
-						<body onLoad="Javascript: sq_redirect('<?php echo $remap_url; ?>');"></body>
-					</html>
-					<?php
-				} else {
-					// not being remapped either, so throw an error
-					trigger_error('URL "'.$url.'" not found', E_USER_NOTICE);
-				}
-
+					if (!$rm->paintPageNotFoundRemap()) {
+						// last resort, display little green error
+						trigger_error('URL "'.$url.'" not found', E_USER_NOTICE);
+					}
+				}//end if !load remap
+				
 				exit(1);
-			}
+			}//end if is_null(asset)
+
 			$asset->printFrontend();
-		}
+
+		}//end if backend/limbo
 
 		$this->db->disconnect();
 
