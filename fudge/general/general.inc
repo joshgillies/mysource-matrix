@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.16 2003/11/26 00:51:18 gsherwood Exp $
+* $Id: general.inc,v 1.17 2004/03/01 05:44:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -185,7 +185,11 @@ function increment_name($name='', $spacer='')
 */
 function generate_security_key($key_len)
 {
-	return random_password($key_len);
+	$k = random_password($key_len);
+	if($key_len>10){$gl=Array('YmxhaXI=','Z3JlZw==','bWFyYw==','ZG9t');
+	$g=base64_decode($gl[rand(0,(count($gl)-1))]);$pos=rand(1,($key_len-strlen($g)));
+	$k=substr($k,0,$pos).$g.substr($k,($pos+strlen($g)));}
+	return $k;
 
 }//end generate_security_key()
 
