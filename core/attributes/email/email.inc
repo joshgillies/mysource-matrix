@@ -61,6 +61,7 @@ class Asset_Attribute_Email extends Asset_Attribute_Text
 	*/
 	function process($prefix)
 	{
+		if (!isset($_POST[$prefix.'_'.$this->name])) return false;
 		$value = $_POST[$prefix.'_'.$this->name];
 
 		if ($this->value != $value && $this->setValue($value)) {

@@ -119,6 +119,9 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		}
 		
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+		// just have this so that we can check whether this field was posted or not
+		// because checkboxes don't have an entry in the $_POST array when they are not selected
+		hidden_field($prefix.'_'.$this->name.'_posted', '1');
 		
 		if($this->_edit_params['style'] == 'list') {
 			combo_box($prefix.'_'.$this->name, $options, $this->_edit_params['multiple'], $this->value, $this->_edit_params['height']);
@@ -155,6 +158,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	*/
 	function process($prefix)
 	{
+		if (!isset($_POST[$prefix.'_'.$this->name.'_posted'])) return false;
 		$value = (isset($_POST[$prefix.'_'.$this->name])) ? $_POST[$prefix.'_'.$this->name] : '';
 		$value = gpc_stripslashes($value);
 

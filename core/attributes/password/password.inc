@@ -66,6 +66,7 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 	*/
 	function process($prefix)
 	{
+		if (!isset($_POST[$prefix.'_'.$this->name.'_one']) && !isset($_POST[$prefix.'_'.$this->name.'_two'])) return false;
 		$this->processed = false;
 
 		$one = $_POST[$prefix.'_'.$this->name.'_one'];

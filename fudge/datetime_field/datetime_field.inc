@@ -275,8 +275,8 @@ class DateTime_Field {
 	*/
 	function processField()
 	{
-		${$this->prefix.'value'} = $_REQUEST[$this->prefix.'value'];
-		$input = ${$this->prefix.'value'};
+		if (!isset($_REQUEST[$this->prefix.'value'])) return false;
+		$input = $_REQUEST[$this->prefix.'value'];
 		$input = $this->unitsArrayToStr($input);
 		$this->validateValue($input);
 		if($this->value == $input) return false;

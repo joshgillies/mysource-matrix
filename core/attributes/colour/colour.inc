@@ -63,6 +63,7 @@ class Asset_Attribute_Colour extends Asset_Attribute
 	*/
 	function process($prefix)
 	{
+		if (!isset($_POST[$prefix.'_'.$this->name])) return false;
 		$value = $_POST[$prefix.'_'.$this->name];
 		if ($this->value != $value && $this->setValue($value)) {
 			$this->processed = true;
