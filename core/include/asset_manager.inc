@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.201 2004/04/15 08:13:20 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.202 2004/04/15 08:35:29 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -206,7 +206,7 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns an array of asset information or a specific piece of information
 	*
-	* @param Array|string	$type_code	the code name (or array of code names) for the asset that you want to check
+	* @param array|string	$type_code	the code name (or array of code names) for the asset that you want to check
 	* @param string			$field		if exists, returns this information from the array for this specific field
 	*
 	* @return mixed
@@ -1538,8 +1538,9 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getLinkById($linkid, $assetid=0, $side_of_link='major')
 	{
-		if ($side_of_link != 'major' && $side_of_link != 'minor')
+		if ($side_of_link != 'major' && $side_of_link != 'minor') {
 			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
+		}
 
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
@@ -1547,6 +1548,8 @@ class Asset_Manager extends MySource_Object
 
 		$sql = 'SELECT  l.linkid, l.value, l.link_type, l.sort_order, l.dependant, l.exclusive, ';
 		$where = 'l.linkid = '.$db->quote((int)$linkid);
+		
+		$assetid = (int) $assetid;
 		if ($assetid > 0) {
 			$sql .= 'l.'.$other_side.'id, a.type_code as '.$other_side.'_type_code
 					 FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON  l.'.$other_side.'id = a.assetid';
@@ -1597,7 +1600,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		if (!$assetid || is_object($assetid)) {
-			trigger_error('Cannot get link by assetid - no assetid giveb', E_USER_WARNING);
+			trigger_error('Cannot get link by assetid - no assetid given', E_USER_WARNING);
 			return Array();
 		}
 
@@ -3776,6 +3779,12 @@ class Asset_Manager extends MySource_Object
 	function &getAssetFromURL($protocol=null, $url=null, $exact_match=true, $mute_errors=false)
 	{
 		if (is_null($url)) $url = current_url(false, true);
+		if (!is_string($url)) {
+			trigger_error('Invalid URL specified - using current URL', E_USER_WARNING);
+			$null = null;
+			return $null;
+		}
+		
 		// remove any trailing slashes and double slashes
 		$url = strip_url($url);
 
