@@ -95,13 +95,11 @@ mcOptionsBoxClass.prototype._clear = function()
 /**
 * Displays the options box
 */
-mcOptionsBoxClass.prototype.show = function(state) 
+mcOptionsBoxClass.prototype.show = function() 
 {
 	this.heading_text.text_color = this.fg_colour;
 	this.summary_text.text_color = this.fg_colour;
 
-
-	this.clear();
 	var ypos = this.heading_text._y + this.heading_text._height + 5;
 
 	this.summary_text._y = ypos;

@@ -21,6 +21,8 @@ Stage.align = "TL";
 #include "mcListItemClass.as"
 #include "mcActionsBarClass.as"
 #include "mcOptionsBoxClass.as"
+#include "mcDialogBoxClass.as"
+#include "mcProgressBarClass.as"
 
   ///////////////////////////////////////////////////
  // CONSTANTS                                     //
@@ -45,17 +47,20 @@ if (server_exec_path == undefined) {
 	server_exec_path = "http://beta.squiz.net/blair_resolve/_edit/?SQ_BACKEND_PAGE=asset_map_request";
 }
 
-// Initialise any pop-ups
-_root.progress_bar._visible = false;
-_root.progress_bar.swapDepths(20);
-_root.progress_bar.stop();
-_root.dialog_box._visible = false;
-_root.dialog_box.swapDepths(21);
-_root.dialog_box.stop();
+// Add the dialog box
+_root.attachMovie("mcDialogBoxID", "dialog_box", 21);
+_root.dialog_box.hide();
+
+// Add the progress bar
+_root.attachMovie("mcProgressBarID", "progress_bar", 20);
+_root.progress_bar.hide();
+
+
 
 _root.server_exec = new ServerExec(server_exec_path);
 
 _root.asset_manager = new AssetManager();
+
 
 // Now attach the menu
 _root.attachMovie("mcMenuContainerID", "menu_container", 2);

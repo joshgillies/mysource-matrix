@@ -214,7 +214,6 @@ AssetManager.prototype.loadAssetsFromXML = function(xml, exec_indentifier)
 			}
 
 			this.assets[assetid].setInfo(assetid, asset_node.attributes.type_code, asset_node.attributes.name, links);
-//			trace(this.assets[assetid]);
 
 			new_assets[assetid] = this.assets[assetid];
 
@@ -255,14 +254,7 @@ AssetManager.prototype.reloadAssets = function(assetids)
 */
 AssetManager.prototype.reloadAssetsLoaded = function(params, new_assets, old_assets) 
 {
-
 	this.broadcastMessage("onAssetsReload", params.assetids, new_assets, old_assets);
-
-//	for(var i = 0; i < params.assetids.length; i++) {
-//		if (this.assets[params.assetids[i]] == undefined) return;
-//		this.broadcastMessage("onAssetReload", params.assetids[i], new_assets[params.assetids[i]], old_assets[params.assetids[i]]);
-//	}
-
 }// end reloadAssetsLoaded()
 
 

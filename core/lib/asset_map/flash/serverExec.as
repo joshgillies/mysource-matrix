@@ -61,7 +61,8 @@ ServerExec.prototype.init_exec = function(xml_cmd, on_load_obj, on_load_fn, root
 */
 ServerExec.prototype.exec = function(exec_identifier, desc)
 {
-	_root.showProgressBar(desc);
+	trace("SHOW PB");
+	this.xmls[exec_identifier].input.__server_exec.prog_bar_id = _root.progress_bar.show(desc);
 	this.xmls[exec_identifier].output.contentType = this.content_type;
 	this.xmls[exec_identifier].output.sendAndLoad(this.exec_path, this.xmls[exec_identifier].input);
 
@@ -80,24 +81,24 @@ function serverExecXMLonLoad(success)
 
 	// something buggered up with the connection
 	if (!success || this.status != 0) {
-		_root.hideProgressBar();
-		_root.showDialog("Connection Failure to Server", "XML Status '" + this.status + "'\nPlease Try Again");
+		_root.progress_bar.hide(this.__server_exec.prog_bar_id);
+		_root.dialog_box.show("Connection Failure to Server", "XML Status '" + this.status + "'\nPlease Try Again");
 
 	// something barfed server side
 	} else if (root.nodeName == "error") {
-		_root.hideProgressBar();
-		_root.showDialog("Server Error", root.firstChild.nodeValue);
+		_root.progress_bar.hide(this.__server_exec.prog_bar_id);
+		_root.dialog_box.show("Server Error", root.firstChild.nodeValue);
 
 	// we got an unexpected root node
 	} else if (this.__server_exec.root_node != '' && root.nodeName != this.__server_exec.root_node) {
-		_root.hideProgressBar();
-		_root.showDialog("Connection Failure to Server", "Unexpected Root XML Node '" + root.nodeName + "', expecting '" + this.__server_exec.root_node + "'\nPlease Try Again");
+		_root.progress_bar.hide(this.__server_exec.prog_bar_id);
+		_root.dialog_box.show("Connection Failure to Server", "Unexpected Root XML Node '" + root.nodeName + "', expecting '" + this.__server_exec.root_node + "'\nPlease Try Again");
 
 	// everything went well, load 'em up
 	} else {
 		trace('All OK -> ' + this.toString());
 		this.__server_exec.on_load_obj[this.__server_exec.on_load_fn](this, this.__server_exec.i);
-		_root.hideProgressBar();
+		_root.progress_bar.hide(this.__server_exec.prog_bar_id);
 
 	}// end if
 

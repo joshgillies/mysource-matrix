@@ -53,7 +53,7 @@ mcListItemClass.prototype.setLinkId = function(linkid)
 mcListItemClass.prototype.setAsset = function(asset) 
 {
 	this.setInfo(asset);
-	link.addListener(this);
+	asset.addListener(this);
 }
 
 mcListItemClass.prototype.setInfo = function(asset) 
@@ -62,10 +62,10 @@ mcListItemClass.prototype.setInfo = function(asset)
 	this.type_code = asset.type_code;
 	this.text_field.text = this._name + ' [' + this.assetid + '] ' + asset.name;
 
-	if (!asset.links.length) {
+	if (asset.links.length > 0) {
+		this.setKidState((this.expanded()) ? "minus" : "plus");
+	} else {
 		this.setKidState("none");
-	} else if (!this.expanded()) {
-		this.setKidState("plus");
 	}
 
 	this._drawBg();

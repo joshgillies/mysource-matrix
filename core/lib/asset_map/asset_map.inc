@@ -472,15 +472,15 @@ class Asset_Map
 	function _moveAsset(&$input) 
 	{
 
-		$link = $GLOBALS['SQ_RESOLVE']->am->getLink($input->root->attributes['linkid']);
-		if (empty($link)) {
-			$this->_error('Unable to Move Asset, Link #"'.$input->root->attributes['linkid'].'") not found');
+		$old_parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($input->root->attributes['from_parent_assetid']);
+		if (is_null($old_parent)) {
+			$this->_error('Unable to Move Asset, existing parent (Asset #"'.$link['majorid'].'") not found');
 			return;
 		}
 
-		$old_parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($link['majorid']);
-		if (is_null($old_parent)) {
-			$this->_error('Unable to Move Asset, existing parent (Asset #"'.$link['majorid'].'") not found');
+		$link = $old_parent->getLink($input->root->attributes['linkid']);
+		if (empty($link)) {
+			$this->_error('Unable to Move Asset, Link #"'.$input->root->attributes['linkid'].'") not found');
 			return;
 		}
 
@@ -540,7 +540,13 @@ class Asset_Map
 	function _newLink(&$input) 
 	{
 
-		$link = $GLOBALS['SQ_RESOLVE']->am->getLink($input->root->attributes['linkid']);
+		$old_parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($input->root->attributes['from_parent_assetid']);
+		if (is_null($old_parent)) {
+			$this->_error('Unable to Create New Link, existing parent (Asset #"'.$link['majorid'].'") not found');
+			return;
+		}
+
+		$link = $old_parent->getLink($input->root->attributes['linkid']);
 		if (empty($link)) {
 			$this->_error('Unable to Create New Link, existing Link #"'.$input->root->attributes['linkid'].'") not found');
 			return;

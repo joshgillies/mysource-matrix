@@ -324,8 +324,6 @@ mcListContainerClass.prototype._recurseHideKids = function(parent_assetid, paren
 mcListContainerClass.prototype.onAssetsReload = function(assetids, new_assets, old_assets) 
 {
 
-	trace("RELOAD ASSET ID : " + assetids);
-
 	for(var j = 0; j < assetids.length; j++) {
 
 		var assetid = assetids[j];
@@ -794,6 +792,7 @@ mcListContainerClass.prototype.itemMoveConfirm = function(move_type, params)
 		var xml = new XML();
 		var cmd_elem = xml.createElement("command");
 		cmd_elem.attributes.action              = move_type;
+		cmd_elem.attributes.from_parent_assetid = this.selected_item.getParentAssetid();
 		cmd_elem.attributes.linkid              = this.selected_item.linkid;
 		cmd_elem.attributes.to_parent_assetid   = params.moved_info.parent_assetid;
 		cmd_elem.attributes.to_parent_pos       = params.moved_info.pos;
@@ -941,7 +940,7 @@ mcListContainerClass.prototype.onMenuItemPress = function(action, info)
 				this.action = "add_asset";
 				this.tmp.exec_action = {type_code: info};
 			} else {
-				_root.showDialog("Unable to aquire the Move Indicator");
+				_root.dialog_box.show("Unable to aquire the Move Indicator", "");
 			}
 
 		break;
