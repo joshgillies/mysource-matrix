@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: InspectorGadget.java,v 1.2 2005/02/20 22:40:25 mmcintyre Exp $
+* $Id: InspectorGadget.java,v 1.3 2005/03/06 22:41:26 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -551,7 +551,11 @@ public class InspectorGadget 	extends 	JTable
 			MatrixStatusBar.setStatus("Loading children...");
 			SwingWorker worker = new SwingWorker() {
 				public Object construct() {
-					AssetManager.refreshAsset(node);
+					try {
+						AssetManager.refreshAsset(node);
+					} catch (IOException ioe) {
+						ioe.printStackTrace();	
+					}
 					MatrixStatusBar.setStatusAndClear("Success!", 1000);
 					TreePath path = tree.getPathToRoot(node);
 					populateInspector(path);
