@@ -51,6 +51,8 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		echo '<table>';
 		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
 			$rule =& $rules[$k];
+			// let the rule know what the id of the question is
+			$rule->my_question_id = $asset->id;
 			$edit = $rule->getEditFns();
 			$edit->paintInlineBackend($rule, $o, $rule->getPrefix());
 		}
@@ -74,9 +76,8 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	function processRules(&$asset, &$o, $prefix)
 	{
 		if ($asset->getRuleCount() == 0) return false;
-		
+
 		$rules = &$asset->getRules();
-		
 		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
 			$rule =& $rules[$k];
 			$edit = $rule->getEditFns();

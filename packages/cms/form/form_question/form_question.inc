@@ -136,6 +136,8 @@ class Form_Question extends Asset
 
 		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
 			$rule =& $rules[$k];
+			// let the rule know what question it belongs to
+			$rule->my_question_id = $this->id;
 			$rule->processForm($submission, $this->id, $this->attr('name')); 
 		}
 		return true;
