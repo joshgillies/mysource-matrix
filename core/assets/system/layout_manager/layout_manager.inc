@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager.inc,v 1.11 2004/12/06 14:38:10 brobertson Exp $
+* $Id: layout_manager.inc,v 1.12 2005/04/01 05:18:21 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -145,6 +145,10 @@ class Layout_Manager extends Asset
 	function &getLayout($type_code, $screen='')
 	{
 		$null = null; // for returning a reference
+
+		// layouts should only be used on the frontend
+		if (!SQ_IN_LIMBO) return null;
+
 		if ($type_code == '') return $null;
 		$layouts = $this->attr('layouts');
 
