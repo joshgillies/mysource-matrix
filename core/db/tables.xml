@@ -800,7 +800,7 @@
 		</keys>
 		<indexes />
 	</table>
-	<table name="HIPO_running_vars" require_rollback="0">
+	<table name="hipo_running_vars" require_rollback="0">
 		<columns>
 			<column name="code_name" allow_null="0">
 				<type>VARCHAR(100)</type>
