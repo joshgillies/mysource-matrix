@@ -672,121 +672,130 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function paintDetails(&$owner, &$o)
 	{
-		if(!($file = $this->_findFile('static_screen_details'))) return;
+		if(!($file = $this->_findFile('static_screen_details'))) return false;
 
 		$prefix = $owner->getPrefix();
 
-		if ($file) {
-			$input = new XML_Tree($file);
-			$root  = &$input->getTreeFromFile();
-			if (PEAR::isError($root)) {
-				trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
-				return;
-			}
+		$print_commit_button = false;
 
-			for($i = 0; $i < count($root->children); $i++) {
-				$section = &$root->children[$i];
+		$input = new XML_Tree($file);
+		$root  = &$input->getTreeFromFile();
+		if (PEAR::isError($root)) {
+			trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+			return;
+		}
 
-				$o->openSection($section->attributes['name']);
+		for($i = 0; $i < count($root->children); $i++) {
+			$section = &$root->children[$i];
 
-				if (!($num_fields = count($section->children))) continue;
-				for($j = 0; $j < $num_fields; $j++) {
-					$field = &$section->children[$j];
+			$o->openSection($section->attributes['name']);
 
-					switch (strtolower($field->attributes['code'])) {
-						case 'current' :
-							if ($field->children[0]->name != 'display_name') $display_name = 'Current';
+			if (!($num_fields = count($section->children))) continue;
+			for($j = 0; $j < $num_fields; $j++) {
+				$field = &$section->children[$j];
+
+				switch (strtolower($field->attributes['code'])) {
+					case 'current' :
+						if ($field->children[0]->name != 'display_name') $display_name = 'Current';
+						else $display_name = $field->children[0]->content;
+						$o->openField($display_name);
+						echo '<i>'.$owner->getStatusDescription().'</i>';
+						break;
+					case 'change' :
+						$statii = $owner->getAvailableStatii();
+
+						if (!empty($statii)) {
+							$print_commit_button = true;
+							$statii = array_reverse($statii, true);
+							$statii[0] = '';
+							$statii = array_reverse($statii, true);
+							if ($field->children[0]->name != 'display_name') $display_name = 'Change ?';
 							else $display_name = $field->children[0]->content;
 							$o->openField($display_name);
-							echo '<i>'.$owner->getStatusDescription().'</i>';
-							break;
-						case 'change' :
-							$statii = $owner->getAvailableStatii();
+							combo_box($prefix.'_change_status', $statii, false, 0);
+						}
+						break;
+					case 'future_status' :
 
-							if (!empty($statii)) {
-								$statii = array_reverse($statii, true);
-								$statii[0] = '';
-								$statii = array_reverse($statii, true);
-								if ($field->children[0]->name != 'display_name') $display_name = 'Change ?';
-								else $display_name = $field->children[0]->content;
-								$o->openField($display_name);
-								combo_box($prefix.'_change_status', $statii, false, 0);
-							}
-							break;
-						case 'future_status' :
+						$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
+						$fs_jobs = &Cron_Job_Future_Status::getActiveJobs($owner);
+						if (!empty($fs_jobs)) {
+							$o->openField('Future Statuses', 'new_line');
+							?>
+							<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+								<tr>
+									<td bgcolor="#DDDDDD" class="sq-backend-field" style="font-weight: bold;">
+										Status
+									</td>
+									<td bgcolor="#DDDDDD" class="sq-backend-field" style="font-weight: bold;">
+										When
+									</td>
+									<td bgcolor="#DDDDDD" align="center" class="sq-backend-field" style="font-weight: bold;">
+										Delete ?
+									</td>
+								</tr>
+							<?php
 
+							for($i = 0; $i < count($fs_jobs); $i++) {
+							?>
+								<tr>
+									<td class="sq-backend-data">
+										<?php echo $fs_jobs[$i]->statusName(); ?>
+									</td>
+									<td class="sq-backend-data">
+										<?php echo $fs_jobs[$i]->readableWhen(); ?>
+									</td>
+									<td align="center" class="sq-backend-data">
+								<?php
+									if ($fs_jobs[$i]->canDelete()) {
+										check_box($prefix.'_remove_fs[]', $fs_jobs[$i]->id);
+									} else {
+										echo '&nbsp;';
+									}// end if
+								?>
+									</td>
+								</tr>
+							<?php
+							}// end foreach
+
+							?>
+							</table>
+							<?php
+
+						}// end if
+
+						if ($owner->writeAccess(Array(), false)) {
+							$o->openField('New Future Statuses', 'new_line');
 							$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
-							$fs_jobs = &Cron_Job_Future_Status::getActiveJobs($owner);
-							if (!empty($fs_jobs)) {
-								$o->openField('Future Statuses', 'new_line');
-								?>
-								<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
-									<tr>
-										<td bgcolor="#DDDDDD" class="sq-backend-field" style="font-weight: bold;">
-											Status
-										</td>
-										<td bgcolor="#DDDDDD" class="sq-backend-field" style="font-weight: bold;">
-											When
-										</td>
-										<td bgcolor="#DDDDDD" align="center" class="sq-backend-field" style="font-weight: bold;">
-											Delete ?
-										</td>
-									</tr>
-								<?php
+							$fs = new Cron_Job_Future_Status();
+							$edit_fns = $fs->getEditFns();
+							$edit_fns->paintOneLineBackend($fs, $o, $prefix.'_new_fs');
 
-								for($i = 0; $i < count($fs_jobs); $i++) {
-								?>
-									<tr>
-										<td class="sq-backend-data">
-											<?php echo $fs_jobs[$i]->statusName(); ?>
-										</td>
-										<td class="sq-backend-data">
-											<?php echo $fs_jobs[$i]->readableWhen(); ?>
-										</td>
-										<td align="center" class="sq-backend-data">
-									<?php
-										if ($fs_jobs[$i]->canDelete()) {
-											check_box($prefix.'_remove_fs[]', $fs_jobs[$i]->id);
-										} else {
-											echo '&nbsp;';
-										}// end if
-									?>
-										</td>
-									</tr>
-								<?php
-								}// end foreach
+							$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+							?>
+							<div class="">
+								The Cron Manager runs every <?php echo $cron_mgr->readableRefreshTime(); ?>.<br>
+								The next time that it will run will be <?php echo $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun()); ?>
+							</div>
+							<?php
+							$print_commit_button = true;
+						}
+						break;
+					default :
+						continue;
+						break;
+				}
 
-								?>
-								</table>
-								<?php
-
-							}// end if
-
-							if ($owner->writeAccess(Array(), false)) {
-								$o->openField('New Future Statuses', 'new_line');
-								$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
-								$fs = new Cron_Job_Future_Status();
-								$edit_fns = $fs->getEditFns();
-								$edit_fns->paintOneLineBackend($fs, $o, $prefix.'_new_fs');
-							}
-							break;
-						default :
-							continue;
-							break;
-					}
-
-					if ($field->children[1]->name == 'note' && $field->children[1]->content) {
-						$o->note($field->children[1]->content);
-					}
-				}// end for
-
-				$o->closeSection();
-
+				if ($field->children[1]->name == 'note' && $field->children[1]->content) {
+					$o->note($field->children[1]->content);
+				}
 			}// end for
 
-		}// end if file
+			$o->closeSection();
 
-		return false;
+		}// end for
+
+		return $print_commit_button;
 
 	}//end paintDetails()
 
@@ -890,198 +899,195 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		$prefix = $owner->getPrefix();
 
-		if ($file) {
-			$input = new XML_Tree($file);
-			$root  = &$input->getTreeFromFile();
-			if (PEAR::isError($root)) {
-				trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
-				return;
-			}
+		$input = new XML_Tree($file);
+		$root  = &$input->getTreeFromFile();
+		if (PEAR::isError($root)) {
+			trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+			return;
+		}
 
-			if (empty($root->children)) {
-				$o->OpenSection('There are no settings for "'.$owner->name.'"');
-				$o->closeSection();
-			}
+		if (empty($root->children)) {
+			$o->OpenSection('There are no settings for "'.$owner->name.'"');
+			$o->closeSection();
+		}
 
-			for($i = 0; $i < count($root->children); $i++) {
-				$section = &$root->children[$i];
+		for($i = 0; $i < count($root->children); $i++) {
+			$section = &$root->children[$i];
 
-				$o->openSection($section->attributes['name']);
+			$o->openSection($section->attributes['name']);
 
-				if (!($num_fields = count($section->children))) continue;
-				for($j = 0; $j < $num_fields; $j++) {
-					$field = &$section->children[$j];
+			if (!($num_fields = count($section->children))) continue;
+			for($j = 0; $j < $num_fields; $j++) {
+				$field = &$section->children[$j];
 
-					// should we print the note for the field or not
-					$print_note = true;
+				// should we print the note for the field or not
+				$print_note = true;
 
-					switch (strtolower($field->attributes['code'])) {
-						case 'version_current_version' :
-							if ($field->children[0]->name != 'display_name') $display_name = 'Current Version';
+				switch (strtolower($field->attributes['code'])) {
+					case 'version_current_version' :
+						if ($field->children[0]->name != 'display_name') $display_name = 'Current Version';
+						else $display_name = $field->children[0]->content;
+						$o->openField($display_name);
+						echo $owner->version;
+					break;
+
+					case 'version_update_verion' :
+						// have to have admin access to update the major version
+						if ($owner->adminAccess()) {
+							if ($field->children[0]->name != 'display_name') $display_name = 'Update Major Version ?';
 							else $display_name = $field->children[0]->content;
 							$o->openField($display_name);
-							echo $owner->version;
-						break;
+							check_box($prefix.'_version_update_version');
+						} else {
+							$print_note = false;
+						}
+					break;
 
-						case 'version_update_verion' :
-							// have to have admin access to update the major version
-							if ($owner->adminAccess()) {
-								if ($field->children[0]->name != 'display_name') $display_name = 'Update Major Version ?';
-								else $display_name = $field->children[0]->content;
-								$o->openField($display_name);
-								check_box($prefix.'_version_update_version');
-							} else {
-								$print_note = false;
-							}
-						break;
+					case 'intl_languages' :
+						if ($field->children[0]->name != 'display_name') $display_name = 'Languages';
+						else $display_name = $field->children[0]->content;
+						$o->openSection($display_name);
 
-						case 'intl_languages' :
-							if ($field->children[0]->name != 'display_name') $display_name = 'Languages';
-							else $display_name = $field->children[0]->content;
-							$o->openSection($display_name);
+						require SQ_FUDGE_PATH.'/standards_lists/languages.inc';
 
-							require SQ_FUDGE_PATH.'/standards_lists/languages.inc';
+						if ($owner->writeAccess()) {
+							$standards_lists_languages = array_reverse($standards_lists_languages);
+							$standards_lists_languages[''] = '';
+							$standards_lists_languages = array_reverse($standards_lists_languages);
+							$o->openField('Add Language ?');
+							combo_box($prefix.'_add_intl_language', $standards_lists_languages, false, '');
+						}
 
-							if ($owner->writeAccess()) {
-								$standards_lists_languages = array_reverse($standards_lists_languages);
-								$standards_lists_languages[''] = '';
-								$standards_lists_languages = array_reverse($standards_lists_languages);
-								$o->openField('Add Language ?');
-								combo_box($prefix.'_add_intl_language', $standards_lists_languages, false, '');
-							}
-
-							$o->openField('Current');
-							$current_langs = $owner->getLanguages();
-							if (!empty($current_langs)) {
-								sort($current_langs);
+						$o->openField('Current');
+						$current_langs = $owner->getLanguages();
+						if (!empty($current_langs)) {
+							sort($current_langs);
+							?>
+							<table border="0">
+								<?php if ($owner->writeAccess()) {
 								?>
-								<table border="0">
+								<tr>
+									<td bgcolor="#DDDDDD" class="sq-backend-data">&nbsp;</td>
+									<td bgcolor="#DDDDDD" class="sq-backend-data"><b>Delete ?</b></td>
+								</tr>
+								<?php } ?>
+							<?php
+							foreach ($current_langs as $lang_code) {
+								?>
+								<tr>
+									<td bgcolor="#F0F0F0" class="sq-backend-data"><?php echo $standards_lists_languages[$lang_code]; ?></td>
 									<?php if ($owner->writeAccess()) {
 									?>
-									<tr>
-										<td bgcolor="#DDDDDD" class="sq-backend-data">&nbsp;</td>
-										<td bgcolor="#DDDDDD" class="sq-backend-data"><b>Delete ?</b></td>
-									</tr>
+									<td bgcolor="#F0F0F0" class="sq-backend-data" align="center"><?php check_box($prefix.'_rem_intl_language['.$lang_code.']'); ?></td>
 									<?php } ?>
+								</tr>
 								<?php
-								foreach ($current_langs as $lang_code) {
+							}
+							?></table><?php
+						} else {
+							echo '<i>No languages are currently set for "'.$owner->name.'"</i>';
+						}
+						$o->closeSection();
+					break;
+
+					case 'intl_character_set' :
+						if ($field->children[0]->name != 'display_name') $display_name = 'Character Set';
+						else $display_name = $field->children[0]->content;
+						$o->openSection($display_name);
+						$o->openField('Current');
+						require SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
+
+						if ($owner->writeAccess()) {
+							$standards_lists_character_sets = array_reverse($standards_lists_character_sets);
+							$standards_lists_character_sets[''] = '** Use System Default **';
+							$standards_lists_character_sets = array_reverse($standards_lists_character_sets);
+							combo_box($prefix.'_intl_character_set', $standards_lists_character_sets, false, $owner->charset);
+						} else {
+							if (isset($standards_lists_character_sets[$owner->charset])) {
+								echo $standards_lists_character_sets[$owner->charset];
+							} elseif ($owner->charset == '') {
+								echo '<i>No character set is currently set for "'.$owner->name.'"</i>';
+							} else {
+								echo '<i>Unkown character set "'.$owner->charset.'" is currently set for "'.$owner->name.'"</i>';
+							}
+						}
+						$o->closeSection();
+					break;
+
+					case 'morph_new_type' :
+						if ($field->children[0]->name != 'display_name') $display_name = 'New Type';
+						else $display_name = $field->children[0]->content;
+						$o->openField($display_name);
+
+						if ($owner->adminAccess()) {
+							if ($owner->status != SQ_STATUS_UNDER_CONSTRUCTION) {
+								// cant morph an asset if it is not under construction
+								echo '<i>An asset can only be morphed while Under Construction</i>';
+							} else {
+								$db = &$GLOBALS['SQ_SYSTEM']->db;
+								$am = &$GLOBALS['SQ_SYSTEM']->am;
+								$user = &$am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
+
+								$types = array_merge($am->getTypeAncestors($owner->type()), $am->getTypeDescendants($owner->type()));
+								for($i = 0; $i < count($types); $i++) $types[$i] = $db->quote($types[$i]);
+								$type_code_cond = 'IN ('.implode(', ', $types).')';
+
+								$user_types = $am->getTypeAncestors($user->type());
+								$user_types[] = $user->type();
+								for($i = 0; $i < count($user_types); $i++) $user_types[$i] = $db->quote($user_types[$i]);
+								$user_type_cond = 'IN ('.implode(', ', $user_types).')';
+
+								$sql = 'SELECT type_code
+										FROM '.SQ_TABLE_PREFIX.'asset_type
+										WHERE allowed_access '.$user_type_cond.'
+										  AND type_code '.$type_code_cond;
+
+								$result = $db->getCol($sql);
+								if (DB::isError($result)) {
+									trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+									return Array();
+								}
+
+								if (empty($result)) {
+									echo '<i>No types are available to morph this asset into</i>';
+								} else {
+									$morph_types = Array('' => '');
+									foreach ($result as $type_code) {
+										$code_name = str_replace('_', ' ', $type_code);
+										$code_name = ucwords($code_name);
+										$morph_types[$type_code] = $code_name;
+									}
+									combo_box($prefix.'_morph_new_type', $morph_types, false, '');
 									?>
-									<tr>
-										<td bgcolor="#F0F0F0" class="sq-backend-data"><?php echo $standards_lists_languages[$lang_code]; ?></td>
-										<?php if ($owner->writeAccess()) {
-										?>
-										<td bgcolor="#F0F0F0" class="sq-backend-data" align="center"><?php check_box($prefix.'_rem_intl_language['.$lang_code.']'); ?></td>
-										<?php } ?>
-									</tr>
+									<table border="0">
+										<tr>
+											<td class="sq-backend-data">To change the type of this asset, enter the 15 character string you see below into the box supplied, then press the Commit button</td>
+										</tr>
+										<tr>
+											<td valign="top"><?php security_key(15, 20, 2); ?></td>
+										</tr>
+									</table>
 									<?php
 								}
-								?></table><?php
-							} else {
-								echo '<i>No languages are currently set for "'.$owner->name.'"</i>';
 							}
-							$o->closeSection();
-						break;
+						} else {
+							echo '<i>You do not have access to morph this asset</i>';
+						}
+					break;
 
-						case 'intl_character_set' :
-							if ($field->children[0]->name != 'display_name') $display_name = 'Character Set';
-							else $display_name = $field->children[0]->content;
-							$o->openSection($display_name);
-							$o->openField('Current');
-							require SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
+					default :
+						continue;
+					break;
+				}
 
-							if ($owner->writeAccess()) {
-								$standards_lists_character_sets = array_reverse($standards_lists_character_sets);
-								$standards_lists_character_sets[''] = '** Use System Default **';
-								$standards_lists_character_sets = array_reverse($standards_lists_character_sets);
-								combo_box($prefix.'_intl_character_set', $standards_lists_character_sets, false, $owner->charset);
-							} else {
-								if (isset($standards_lists_character_sets[$owner->charset])) {
-									echo $standards_lists_character_sets[$owner->charset];
-								} elseif ($owner->charset == '') {
-									echo '<i>No character set is currently set for "'.$owner->name.'"</i>';
-								} else {
-									echo '<i>Unkown character set "'.$owner->charset.'" is currently set for "'.$owner->name.'"</i>';
-								}
-							}
-							$o->closeSection();
-						break;
-
-						case 'morph_new_type' :
-							if ($field->children[0]->name != 'display_name') $display_name = 'New Type';
-							else $display_name = $field->children[0]->content;
-							$o->openField($display_name);
-
-							if ($owner->adminAccess()) {
-								if ($owner->status != SQ_STATUS_UNDER_CONSTRUCTION) {
-									// cant morph an asset if it is not under construction
-									echo '<i>An asset can only be morphed while Under Construction</i>';
-								} else {
-									$db = &$GLOBALS['SQ_SYSTEM']->db;
-									$am = &$GLOBALS['SQ_SYSTEM']->am;
-									$user = &$am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
-
-									$types = array_merge($am->getTypeAncestors($owner->type()), $am->getTypeDescendants($owner->type()));
-									for($i = 0; $i < count($types); $i++) $types[$i] = $db->quote($types[$i]);
-									$type_code_cond = 'IN ('.implode(', ', $types).')';
-
-									$user_types = $am->getTypeAncestors($user->type());
-									$user_types[] = $user->type();
-									for($i = 0; $i < count($user_types); $i++) $user_types[$i] = $db->quote($user_types[$i]);
-									$user_type_cond = 'IN ('.implode(', ', $user_types).')';
-
-									$sql = 'SELECT type_code
-											FROM '.SQ_TABLE_PREFIX.'asset_type
-											WHERE allowed_access '.$user_type_cond.'
-											  AND type_code '.$type_code_cond;
-
-									$result = $db->getCol($sql);
-									if (DB::isError($result)) {
-										trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-										return Array();
-									}
-
-									if (empty($result)) {
-										echo '<i>No types are available to morph this asset into</i>';
-									} else {
-										$morph_types = Array('' => '');
-										foreach ($result as $type_code) {
-											$code_name = str_replace('_', ' ', $type_code);
-											$code_name = ucwords($code_name);
-											$morph_types[$type_code] = $code_name;
-										}
-										combo_box($prefix.'_morph_new_type', $morph_types, false, '');
-										?>
-										<table border="0">
-											<tr>
-												<td class="sq-backend-data">To change the type of this asset, enter the 15 character string you see below into the box supplied, then press the Commit button</td>
-											</tr>
-											<tr>
-												<td valign="top"><?php security_key(15, 20, 2); ?></td>
-											</tr>
-										</table>
-										<?php
-									}
-								}
-							} else {
-								echo '<i>You do not have access to morph this asset</i>';
-							}
-						break;
-
-						default :
-							continue;
-						break;
-					}
-
-					if ($print_note && $field->children[1]->name == 'note' && $field->children[1]->content) {
-						$o->note($field->children[1]->content);
-					}
-				}// end for
-
-				$o->closeSection();
-
+				if ($print_note && $field->children[1]->name == 'note' && $field->children[1]->content) {
+					$o->note($field->children[1]->content);
+				}
 			}// end for
 
-		}// end if file
+			$o->closeSection();
+
+		}// end for
 
 		return false;
 
