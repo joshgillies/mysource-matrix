@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_abbr.php,v 1.2 2004/09/09 02:47:15 amiller Exp $
+* $Id: insert_abbr.php,v 1.3 2004/09/09 03:15:07 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 
 ?>
 
-<html style="width: 360px; height: 200px;">
+<html style="width: 360px; height: 180px;">
 	<head>
 		<title>Insert Abbreviation</title>
 
@@ -169,42 +169,29 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 	<body onload="Javascript: Init();">
 		<div class="title">Insert Abbreviation</div>
 		<form action="" method="get" name="main_form">
-			<table>
+			<table width="100%" >
 				<tr>
-					<td valign="top">
-							<table width="100%">
-								<tr>
-									<td>
-										<table width="100%" cellspacing="0" cellpadding="0">
-											<tr>
-												<td valign="top" width="100%">
-													<fieldset>
-													<legend><b>General</b></legend>
-													<table style="width:100%">
-														<script type="text/javascript"> 
-															buildForm(); 
-														</script>
-													</table>
-													</fieldset>
-												</td>
-											</tr>
-										</table>
-									</td>
-								</tr>
-							</table>
-
-						<div style="margin-top: 5px; text-align: right;">
-						<hr />
-						<script type="text/javascript" language="javascript">
-						if (can_insert) {
-							document.write('<button type="button" name="ok" onclick="return onOK();">OK</button>');
-						};
-						</script>
-						<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
-						</div>
+					<td valign="top" width="100%">
+						<fieldset>
+						<legend><b>General</b></legend>
+						<table style="width:100%">
+							<script type="text/javascript"> 
+								buildForm(); 
+							</script>
+						</table>
+						</fieldset>
 					</td>
-				<tr>
-			</table>
+				</tr>
+			</table> 
+	
+			<div style="margin-top: 5px; margin-right: 5px; text-align: right;">
+				<script type="text/javascript" language="javascript">
+				if (can_insert) {
+					document.write('<button type="button" name="ok" onclick="return onOK();">OK</button>');
+				};
+				</script>
+				<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
+			</div>
 		</form>
 	</body>
 </html>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_accessibility.inc,v 1.2 2004/09/09 02:09:28 amiller Exp $
+* $Id: matrix_accessibility.inc,v 1.3 2004/09/09 03:15:07 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -163,7 +163,7 @@ class matrix_accessibility extends wysiwyg_plugin {
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 				var strPage = "<?php echo $this->get_popup_href('insert_abbr.php')?>?&title=" + escape(currArgs["title"]) + "&abbr=" + escape(inside_html) +"&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
-				this._popupDialog("matrixInsertAbbr", strPage, 360, 200, true, function(param) {
+				this._popupDialog("matrixInsertAbbr", strPage, 360, 180, true, function(param) {
 					if (!param) { 
 						// user must have pressed Cancel
 						return false;
@@ -275,7 +275,7 @@ class matrix_accessibility extends wysiwyg_plugin {
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 				var strPage = "<?php echo $this->get_popup_href('insert_acronym.php')?>?&title=" + escape(currArgs["title"]) + "&acronym=" + escape(inside_html) +"&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
-				this._popupDialog("matrixInsertAcronym", strPage, 360, 200, true, function(param) {
+				this._popupDialog("matrixInsertAcronym", strPage, 360, 180, true, function(param) {
 					if (!param) { 
 						// user must have pressed Cancel
 						return false;
