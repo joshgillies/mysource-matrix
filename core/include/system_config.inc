@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.26 2004/05/25 03:58:21 gsherwood Exp $
+* $Id: system_config.inc,v 1.27 2004/05/25 04:01:13 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -336,6 +336,13 @@ class System_Config extends Config
 				text_box($class.'[SQ_CONF_MAX_IDLE_TIME]', SQ_CONF_MAX_IDLE_TIME, 10, 10);
 			} else {
 				echo SQ_CONF_MAX_IDLE_TIME;
+			}
+
+			$o->openField('Allow IP Change');
+			if($write_access && $is_root) {
+				combo_box($class.'[SQ_CONF_ALLOW_IP_CHANGE]', Array('1' => 'Yes', '0' => 'No'), false, SQ_CONF_ALLOW_IP_CHANGE);
+			} else {
+				echo (SQ_CONF_ALLOW_IP_CHANGE) ? 'Yes' : 'No';
 			}
 
 		$o->closeSection();
