@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.61 2005/02/01 11:23:06 brobertson Exp $
+* $Id: metadata_manager.inc,v 1.62 2005/02/16 22:02:53 dbaranovskiy Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -736,7 +736,7 @@ class Metadata_Manager extends MySource_Object
 
 
 	/**
-	* Generate PHP code to replace a set of keywords
+	* Generate an array of keyword replacements, or the PHP code to generate it
 	*
 	* This function outputs the PHP required to generate all the keywords that
 	* it is passed. All PHP generated places values in an array called $metadata_replacements
@@ -814,21 +814,25 @@ class Metadata_Manager extends MySource_Object
 
 				case 'asset_created' :
 				case 'asset_updated' :
+				case 'asset_status_changed':
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'Y-m-d H:i:s\', $metadata_asset->'.substr($keyword,6).');'."\n";
 				break;
 
 				case 'asset_created_short' :
 				case 'asset_updated_short' :
+				case 'asset_status_changed_short':
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'Y-m-d\', $metadata_asset->'.substr($keyword,6,7).');'."\n";
 				break;
 
 				case 'asset_created_readable' :
 				case 'asset_updated_readable' :
+				case 'asset_status_changed_readable':
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'d M Y g:ia\', $metadata_asset->'.substr($keyword,6,7).');'."\n";
 				break;
 
 				case 'asset_created_by_name' :
 				case 'asset_updated_by_name' :
+				case 'asset_status_changed_by_name':
 					echo 'if (!isset($metadata_'.substr($keyword,6,7).'_by_user)) {
 					$asset_info = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetInfo(Array($metadata_asset->'.substr($keyword,6,7).'_userid));
 					if (!empty($asset_info)) {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.360 2005/02/16 13:39:43 brobertson Exp $
+* $Id: asset.inc,v 1.361 2005/02/16 22:02:53 dbaranovskiy Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.360 $
+* @version $Revision: 1.361 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -120,6 +120,18 @@ class Asset extends MySource_Object
 	*/
 	var $published_userid;
 
+	/**
+	* Timestamp of when this asset was last published (ie. made LIVE)
+	* @var int
+	*/
+	var $status_updated;
+
+	/**
+	* Assetid for the user that last published this asset
+	* @var int
+	*/
+	var $status_updated_userid;
+	
 	/**
 	* Is this asset type able to be cached automatically by the system?
 	* @var boolean
@@ -244,18 +256,20 @@ class Asset extends MySource_Object
 		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		$initial_version = '0.0.1';
 
-		$values = Array('assetid'          => $assetid,
-						'version'          => $initial_version,
-						'type_code'        => $this->type(),
-						'name'             => $name,
-						'short_name'       => $name,
-						'status'           => SQ_STATUS_UNDER_CONSTRUCTION,
-						'created'          => ts_iso8601($now),
-						'created_userid'   => $userid,
-						'updated'          => ts_iso8601($now),
-						'updated_userid'   => $userid,
-						'published'        => null,
-						'published_userid' => null,
+		$values = Array('assetid'               => $assetid,
+						'version'               => $initial_version,
+						'type_code'             => $this->type(),
+						'name'                  => $name,
+						'short_name'            => $name,
+						'status'                => SQ_STATUS_UNDER_CONSTRUCTION,
+						'created'               => ts_iso8601($now),
+						'created_userid'        => $userid,
+						'updated'               => ts_iso8601($now),
+						'updated_userid'        => $userid,
+						'published'             => null,
+						'published_userid'      => null,
+						'status_changed'        => ts_iso8601($now),
+						'status_changed_userid' => $userid,
 						);
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast', $values)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -263,17 +277,19 @@ class Asset extends MySource_Object
 			return false;
 		}
 
-		$this->id               = $assetid;
-		$this->version          = $initial_version;
-		$this->name             = $name;
-		$this->short_name       = $name;
-		$this->status           = SQ_STATUS_UNDER_CONSTRUCTION;
-		$this->created          = $now;
-		$this->created_userid   = $userid;
-		$this->updated          = $now;
-		$this->updated_userid   = $userid;
-		$this->published        = null;
-		$this->published_userid = null;
+		$this->id                    = $assetid;
+		$this->version               = $initial_version;
+		$this->name                  = $name;
+		$this->short_name            = $name;
+		$this->status                = SQ_STATUS_UNDER_CONSTRUCTION;
+		$this->created               = $now;
+		$this->created_userid        = $userid;
+		$this->updated               = $now;
+		$this->updated_userid        = $userid;
+		$this->published             = null;
+		$this->published_userid      = null;
+		$this->status_changed        = $now;
+		$this->status_changed_userid = $userid;
 
 		// log what happened
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
@@ -459,8 +475,9 @@ class Asset extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// OK, the first thing to do is check we actually exist :)
-		$sql = 'SELECT assetid, type_code, version, name, short_name, status, languages, charset, force_secure,
-					created, created_userid, updated, updated_userid, published, published_userid
+		$sql = 'SELECT assetid, type_code, version, name, short_name, status, languages, 
+				charset, force_secure, created, created_userid, updated, updated_userid, 
+				published, published_userid, status_changed, status_changed_userid
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast ';
 		$where = 'assetid = '.$db->quote($assetid);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
@@ -484,9 +501,14 @@ class Asset extends MySource_Object
 			 $this->updated,
 			 $this->updated_userid,
 			 $this->published,
-			 $this->published_userid) = $result;
+			 $this->published_userid,
+			 $this->status_changed,
+			 $this->status_changed_userid) = $result;
 		$this->created   = iso8601_ts($this->created);
 		$this->updated   = iso8601_ts($this->updated);
+		if (!is_null($this->status_changed)) {
+			$this->status_changed = iso8601_ts($this->status_changed);
+		}
 		if (!is_null($this->published)) {
 		  $this->published = iso8601_ts($this->published);
 		}
@@ -495,13 +517,15 @@ class Asset extends MySource_Object
 		// make sure the asset we are loading is of the same type as our class
 		if ($type_code != $this->type()) {
 			trigger_error('Asset #'.$assetid.' is not a '.$this->type(), E_USER_WARNING);
-			$this->id               = 0;
-			$this->created          = null;
-			$this->created_userid   = null;
-			$this->updated          = null;
-			$this->updated_userid   = null;
-			$this->published        = null;
-			$this->published_userid = null;
+			$this->id                    = 0;
+			$this->created               = null;
+			$this->created_userid        = null;
+			$this->updated               = null;
+			$this->updated_userid        = null;
+			$this->published             = null;
+			$this->published_userid      = null;
+			$this->status_changed        = null;
+			$this->status_changed_userid = null;
 
 			return;
 		}
@@ -932,13 +956,13 @@ class Asset extends MySource_Object
 	/**
 	* Set the last updated info for this asset
 	*
-	* Call this function when the asset has been changed in some way so we can indicated in the
+	* Call this function when the asset has been changed in some way so we can indicate in the
 	* asset table when the asset was last changed and who by. This function will also increment the micro
 	* version number for the asset.
 	*
 	* @param boolean	$update_parents	should we go through an update all our dependant parents as well ?
-	*									NOTE: this is passed to incrementVersion to let it know that the parents
-	*									should have their versions updated as well.
+	*									NOTE: this is passed to incrementVersion to let it know that 
+	*									the parents should have their versions updated as well.
 	*
 	* @return boolean
 	* @access private
@@ -1728,23 +1752,28 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($new_status != $this->status) {
+			// the status has actually changed to a different one
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 			$where = 'assetid = '.$db->quote($this->id);
-			$values = Array('status' => $db->quote($new_status));
+			$values = Array('status'                => $db->quote($new_status),
+							'status_changed'        => $db->quote(ts_iso8601(time())),
+							'status_changed_userid' => $db->quote($GLOBALS['SQ_SYSTEM']->user->id),
+						   );
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast', $values, $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 
+			// broadcast event notifying of status change
 			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
-
 			$em->broadcastEvent($this, 'AssetStatusUpdate',
 												  Array('old_status' => $this->status,
 														'new_status' => $new_status,
 														));
 
+			// send message notifying of status change
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$message_body = 'The status of "'.$this->name.'" was successfully changed from "'.get_status_description($this->status).'" to "'.get_status_description($new_status).'"';
@@ -1754,6 +1783,7 @@ class Asset extends MySource_Object
 
 			$this->status = $new_status;
 			unset($this->_tmp['status_object']);
+			
 			$this->_updated();
 
 			// if we have just made this asset live, we update its minor version
@@ -2553,6 +2583,10 @@ class Asset extends MySource_Object
 						'asset_published_short',
 						'asset_published_readable',
 						'asset_published_by_name',
+						'asset_status_changed',
+						'asset_status_changed_short',
+						'asset_status_changed_readable',
+						'asset_status_changed_by_name',
 						'asset_url',
 						'asset_href',
 						'asset_thumbnail',
@@ -2583,16 +2617,20 @@ class Asset extends MySource_Object
 			$keywords['asset_version']['description']               = 'Version of the asset being displayed';
 			$keywords['asset_created']['description']               = 'The date and time the asset was created (yyyy-mm-dd hh:mm:ss)';
 			$keywords['asset_updated']['description']               = 'The date and time the asset was last updated (yyyy-mm-dd hh:mm:ss)';
+			$keywords['asset_status_updated']['description']        = 'The date and time the asset\'s status was last updated (yyyy-mm-dd hh:mm:ss)';
 			$keywords['asset_published']['description']             = 'The date and time the asset was last published (yyyy-mm-dd hh:mm:ss)';
 			$keywords['asset_created_short']['description']         = 'The date when the asset was created (yyyy-mm-dd)';
 			$keywords['asset_updated_short']['description']         = 'The date when the asset was last updated (yyyy-mm-dd)';
 			$keywords['asset_published_short']['description']       = 'The date when the asset was last published (yyyy-mm-dd)';
+			$keywords['asset_status_updated_short']['description']       = 'The date when the asset\'s status was last changed (yyyy-mm-dd)';
 			$keywords['asset_created_readable']['description']      = 'The date when the asset was created (dd m yyyy h:mm[am pm])';
 			$keywords['asset_updated_readable']['description']      = 'The date when the asset was last updated (dd m yyyy h:mm[am pm])';
 			$keywords['asset_published_readable']['description']    = 'The date when the asset was last published (dd m yyyy h:mm[am pm])';
+			$keywords['asset_status_changed_readable']['description'] = 'The date when the asset\'s status was last changed (dd m yyyy h:mm[am pm])';
 			$keywords['asset_created_by_name']['description']       = 'The name of the user who created this asset';
 			$keywords['asset_updated_by_name']['description']       = 'The name of the user who last updated this asset';
 			$keywords['asset_published_by_name']['description']     = 'The name of the user who last published this asset';
+			$keywords['asset_status_changed_by_name']['description'] = 'The name of the user who last changed the status of this asset';
 			$keywords['asset_url']['description']                   = 'The absolute url to the asset';
 			$keywords['asset_href']['description']                  = 'The relative href to the asset';
 			$keywords['asset_thumbnail']['description']             = 'The img tag for the thumbnail attached to the asset';
