@@ -51,6 +51,7 @@ mcMsgsBarMessageClass.prototype.getColour = function()
 */
 mcMsgsBarMessageClass.prototype.setInfo = function(type, text)
 {
+	type = type.toLowerCase();
 	switch(type) {
 		case "error"   :
 		case "warning" :

@@ -148,7 +148,7 @@ mcMsgsBarClass.prototype.addMessages = function(msgs)
 
 		this.msgs.push(name);
 		if (scroll_pos == null) scroll_pos = ypos;
-		if (msgs[i].type == "error" || msgs[i].type == "warning") {
+		if (this.scroll_content[name].type == "error" || this.scroll_content[name].type == "warning") {
 			open_bar = true;
 		}
 
