@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring_edit_fns.inc,v 1.2 2004/07/27 00:49:57 tbarrett Exp $
+* $Id: calendar_event_recurring_edit_fns.inc,v 1.3 2004/07/27 02:09:06 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
-require_once  dirname(__FILE__).'/../calendar_event/calendar_event_edit_fns.inc';
+require_once  dirname(__FILE__).'/../../event/calendar_event_edit_fns.inc';
 
 /**
 * Page_Edit_Fns
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../calendar_event/calendar_event_edit_fns.inc'
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $ - 1.0
+* @version $Revision: 1.3 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -342,7 +342,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 	*/
 	function processRecurringStartEndChooser(&$asset, &$o, $prefix)
 	{
-		parent::processSingleStartEndChooser($asset, $o, $prefix);
+		parent::processStartEndChooser($asset, $o, $prefix);
 
 	}//end processRecurringStartEndChooser()
 

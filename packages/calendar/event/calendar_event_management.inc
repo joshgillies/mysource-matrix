@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring_management.inc,v 1.3 2004/07/27 02:09:06 tbarrett Exp $
+* $Id: calendar_event_management.inc,v 1.1 2004/07/27 02:09:06 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,18 +31,18 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.1 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
-class Calendar_Event_Recurring_Management extends Asset_Management
+class Calendar_Event_Management extends Asset_Management
 {
 
 	/**
 	* Constructor
 	*
 	*/
-	function Calendar_Event_Recurring_Management(&$pm)
+	function Calendar_event_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
 
@@ -60,26 +60,21 @@ class Calendar_Event_Recurring_Management extends Asset_Management
 												'added'       => '0.0.1',
 												'type'        => 'datetime',
 												'default'     => '---------- --:--:--',
+												'parameters'  => Array('allow_null' => true,
+																	  'show'       => Array(
+																		'd','m','y','h','i'
+																		),
+																	 ),
 												'description' => 'The starting date and/or time of the event',
+												'update_fn'   => '',
 												),
 							'end_date' => Array(
 												'added'       => '0.0.1',
 												'type'        => 'datetime',
 												'default'     => '---------- --:--:--',
-												'description' => 'The ending date and/or time of the event',
-												),
-							'frequency' => Array(
-												'added'       => '0.0.1',
-												'type'        => 'text',
-												'default'     => '',
-												'description' => 'The frequency of the recurrence',
-												),
-							'stop_date' => Array(
-												'added'       => '0.0.1',
-												'type'        => 'datetime',
-												'default'     => '---------- --:--:--',
 												'parameters'  => Array('allow_null' => true),
-												'description' => 'No occurrences will occur after this date',
+												'description' => 'The ending date and/or time of the event',
+												'update_fn'   => '',
 												),
 							);
 
@@ -96,15 +91,11 @@ class Calendar_Event_Recurring_Management extends Asset_Management
 									'default_weighting' => '1',
 								),
 								'start_date' => Array (
-									'description'       => 'Start date and/or time of first occurrence',
+									'description'       => 'Start date and/or time',
 									'default_weighting' => '1',
 								),
 								'end_date' => Array (
-									'description'       => 'End date and/or time of first occurrence',
-									'default_weighting' => '1',
-								),
-								'stop_date' => Array (
-									'description'       => 'Stop date for recurrence',
+									'description'       => 'End date and/or time',
 									'default_weighting' => '1',
 								),
 							);
