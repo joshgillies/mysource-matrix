@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.116 2005/03/18 05:15:07 dheppell Exp $
+* $Id: backend.inc,v 1.117 2005/03/23 23:24:50 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.116 $
+* @version $Revision: 1.117 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -898,32 +898,61 @@ class Backend extends MySource_Object
 
 		?>
 		<style>
-			body { background: #342939; }
+			body {
+				background: #342939;
+				height: 100%;
+			}
 		</style>
+
 		<script language="Javascript" type="text/javascript">
+			var clickSize = 50;
 			var hidden = false;
-			var lastSize = "250,10,*";
+			var lastSize = "280,10,*";
 			var fset = top.document.getElementById('main_frameset');
 
-			function resizeFrame() {
+			function toggleFrame() {
 				if (hidden == false) {
 					lastSize = fset.cols;
 					fset.cols = "0,10,*";
 					hidden = true;
 				} else {
 					fset.cols = lastSize;
+					parent.resizeApplet(lastSize);
 					hidden = false;
 				}
 			}
+
+			function clickResize(dir)
+			{
+				colVars = fset.cols.split(/,/g);
+				colVars[0] *= 1;
+				if (dir == 'left') colVars[0] -= clickSize;
+				else if (dir == 'right') colVars[0] += clickSize;
+				fset.cols = colVars[0] + ",10,*";
+				resizeApplet(colVars[0]);
+			}
+
+			function resizeApplet(width)
+			{
+				top.self.sq_sidenav.document.getElementById("sq_asset_map").width = width - 5;
+			}
 		</script>
+
 		<table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%" background="<?php echo $this->out->filesPath('/images/flash_resizer/background.gif'); ?>">
 			<tr>
 				<td valign="top"><img src="<?php echo $this->out->filesPath('/images/flash_resizer/top.gif'); ?>" width="9" height="25" border="0" alt="" /></td>
 			</tr>
 			<tr height="100%">
-				<td valign="middle"><a class="sq-backend-header-item" style="padding: 0px;" href="#" onClick="Javascript: resizeFrame()"><img src="<?php echo $this->out->filesPath('/images/flash_resizer/bar.gif'); ?>" width="9" height="72" border="0" alt="<<" /></a></td>
+				<td valign="middle"><a class="sq-backend-header-item" style="padding: 0px;" href="#" onClick="Javascript: toggleFrame()"><img src="<?php echo $this->out->filesPath('/images/flash_resizer/bar.gif'); ?>" width="9" height="72" border="0" alt="<<" /></a></td>
+			</tr>
+			<tr height="100%">
+				<td valign="bottom"><a class="sq-backend-header-item" style="padding: 0px;" href="#" onClick="Javascript: clickResize('right')"><img src="<?php echo $this->out->filesPath('/images/flash_resizer/expand.gif'); ?>" width="9" height="26" border="0" alt=">" /></a></td>
+			</tr>
+			<tr height="100%">
+				<td valign="bottom"><a class="sq-backend-header-item" style="padding: 0px;" href="#" onClick="Javascript: clickResize('left')"><img src="<?php echo $this->out->filesPath('/images/flash_resizer/contract.gif'); ?>" width="9" height="26" border="0" alt="<" /></a></td>
 			</tr>
 		</table>
+
 		<script language="Javascript" type="text/javascript">
 			document.main_form.style.width = "100%";
 			document.main_form.style.height = "100%";
