@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_asset.inc,v 1.3 2004/08/02 05:33:01 mnyeholt Exp $
+* $Id: hipo_job_clone_asset.inc,v 1.4 2004/08/02 06:05:42 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -672,8 +672,7 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 			// need to find out the link type of the parent links. If ANY of
 			// them were type 2 links, make this link type type2 also for 
 			// safety's sake
-			$allLinks = SQ_LINK_TYPE_1|SQ_LINK_TYPE_2|SQ_LINK_TYPE_3|SQ_LINK_NOTICE;
-			$parent_links = &$GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, $allLinks, '', false, 'minor');
+			$parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_SC_LINK_ALL, '', false, 'minor');
 			
 			if (count($parent_links) > 0) {
 				foreach ($parent_links as $link_info) {
