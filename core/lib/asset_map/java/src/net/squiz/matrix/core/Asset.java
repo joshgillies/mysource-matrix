@@ -1,4 +1,25 @@
-
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: Asset.java,v 1.2 2005/03/06 22:45:31 mmcintyre Exp $
+*
+*/
 
 /**
  * :tabSize=4:indentSize=4:noTabs=false:
@@ -7,6 +28,7 @@
 package net.squiz.matrix.core;
 
 import net.squiz.matrix.matrixtree.*;
+import net.squiz.matrix.debug.*;
 import javax.swing.tree.*;
 import org.w3c.dom.*;
 import java.beans.*;
@@ -30,7 +52,6 @@ public class Asset implements MatrixConstants, Serializable {
 	private boolean accessible;
 	private String url = "";
 	private String webPath = "";
-	private int linkType = 0;
 	private boolean childrenLoaded = false;
 	private int numKids = 0;
 
@@ -54,7 +75,9 @@ public class Asset implements MatrixConstants, Serializable {
 	public Asset(Element assetElement, MatrixTreeNode parent, int index) {
 		this(MatrixToolkit.rawUrlDecode(assetElement.getAttribute("assetid")));
 		String linkid = processAssetXML(assetElement, true);
-		createNode(linkid, parent, index);
+		createNode(linkid, getLinkType(assetElement), parent, index);
+		// we need to tell the new node what its link type is
+		setLinkType(assetElement, linkid);
 	}
 	
 	public String toString() {
@@ -124,10 +147,6 @@ public class Asset implements MatrixConstants, Serializable {
 	public int getNumKids() {
 		return numKids;
 	}
-
-	public boolean isType2Link() {
-		return (linkType == 2);
-	}
 	
 	public void update(Element assetElement) {
 		processAssetXML(assetElement, false);
@@ -176,7 +195,7 @@ public class Asset implements MatrixConstants, Serializable {
 		int index) {
 			String linkid = processAssetXML(assetElement, false);
 			if (!parent.hasChildWithLinkid(linkid))
-				return createNode(linkid, parent, index);
+				return createNode(linkid, getLinkType(assetElement), parent, index);
 			return parent.getChildWithLinkid(linkid);
 	}
 
@@ -199,17 +218,47 @@ public class Asset implements MatrixConstants, Serializable {
 	public Iterator getTreeNodes() {
 		return nodes.iterator();
 	}
+	
+	/**
+	 * Returns the tree nodes with the specified linkid. If is possible for an
+	 * asset to have more than one linkid. This will occur when it has the same 
+	 * parent, but a different treeid in the tree.
+	 * @param linkid the linkid of the wanted nodes
+	 * @return the tree nodes with the specified linkid
+	 * @see getTreeNodes()
+	 */
+	public MatrixTreeNode[] getNodesWithLinkid(String linkid) {
+		Iterator nodes = getTreeNodes();
+		List wantedNodes = null;
+		while (nodes.hasNext()) {
+			MatrixTreeNode node = (MatrixTreeNode) nodes.next();
+			if (node.getLinkid().equals(linkid)) {
+				// lazily create
+				if (wantedNodes == null)
+					wantedNodes = new ArrayList();
+				wantedNodes.add(node);
+			}
+		}
+		if (wantedNodes == null) {
+			return new MatrixTreeNode[0];
+		} else {
+			return (MatrixTreeNode[]) wantedNodes.toArray(
+				new MatrixTreeNode[wantedNodes.size()]);
+		}
+	}
 
-	public void propagateNode(Asset childAsset, String linkid, int index) {
+	public void propagateNode(Asset childAsset, String linkid, int linkType, int index) {
 		Iterator nodeIterator = getTreeNodes();
+	
 		while (nodeIterator.hasNext()) {
 			MatrixTreeNode node = (MatrixTreeNode) nodeIterator.next();
 			MatrixTreeNode child = node.getChildWithLinkid(linkid);
+			
 			if (child == null) {
-				childAsset.createNode(linkid, node, index);
+				childAsset.createNode(linkid, linkType, node, index);
 			} else {
 				if (node.getIndex(child) != index) {
-					MatrixTreeModelBus.moveNode(child, node , index);
+					MatrixTreeModelBus.moveNode(child, node, index);
 				}
 			}
 		}
@@ -229,7 +278,11 @@ public class Asset implements MatrixConstants, Serializable {
 					MatrixTreeNode childNode
 						= (MatrixTreeNode) children.nextElement();
 					MatrixTreeNode newChild =
-						childNode.getAsset().createNode(childNode.getLinkid(), node);
+						childNode.getAsset().createNode(
+							childNode.getLinkid(),
+							childNode.getLinkType(),
+							node
+						);
 					// we only want to insert the nodes into the current tree
 					// that we are accessing to save on memory consumption
 					MatrixTree tree = MatrixTreeBus.getLastExpandedTree();
@@ -324,7 +377,6 @@ public class Asset implements MatrixConstants, Serializable {
 
 		if (create) {
 			this.name       = name;
-			this.linkType   = linkType;
 			this.accessible = accessible;
 			this.status     = status;
 			this.url        = url;
@@ -333,14 +385,21 @@ public class Asset implements MatrixConstants, Serializable {
 			this.type       = AssetManager.getAssetType(typeCode);
 		} else {
 			boolean refresh = false;
+			
+			// TODO: Change this back to what it was
+			boolean linkTypeChanged = setLinkType(linkType, linkid);
+			
+			if (linkTypeChanged)
+				Log.log("Link Type changed for asset "  + id, Asset.class);
+			
 			// the following properties require that an event
 			// is fired to notify that the nodes of this asset
 			// have visually changed
-			refresh |= hasName && setName(name);
-			refresh |= hasStatus && setStatus(status);
-			refresh |= hasLinkType && setLinkType(linkType);
+			refresh |= hasName       && setName(name);
+			refresh |= hasStatus     && setStatus(status);
+			refresh |= hasLinkType   && linkTypeChanged;
 			refresh |= hasAccessible && setAccessible(accessible);
-			refresh |= hasNumKids && setNumKids(numKids);
+			refresh |= hasNumKids    && setNumKids(numKids);
 
 			if (refresh)
 				nodesChanged();
@@ -354,11 +413,13 @@ public class Asset implements MatrixConstants, Serializable {
 
 	protected MatrixTreeNode createNode(
 		String linkid,
+		int linkType,
 		MatrixTreeNode parent,
 		int index) {
-			MatrixTreeNode node = createNode(linkid, parent);
-			if (parent != null)
+			MatrixTreeNode node = createNode(linkid, linkType, parent);
+			if (parent != null) {
 				MatrixTreeModelBus.insertNodeInto(node, parent, index);
+			}
 			return node;
 	}
 
@@ -370,14 +431,16 @@ public class Asset implements MatrixConstants, Serializable {
 	 * @param parent the parent of this node
 	 * @param index the index where this node
 	 */
-	protected MatrixTreeNode createNode(String linkid, MatrixTreeNode parent) {
+	protected MatrixTreeNode createNode(String linkid, int linkType, MatrixTreeNode parent) {
 		MatrixTreeNode node = new MatrixTreeNode(
 			this,
 			linkid,
+			linkType,
 			getNodeURL(parent),
 			webPath
 		);
 		nodes.add(node);
+		
 		return node;
 	}
 
@@ -425,6 +488,7 @@ public class Asset implements MatrixConstants, Serializable {
 			Iterator staleIterator = staleNodes.iterator();
 			while (staleIterator.hasNext()) {
 				MatrixTreeNode node = (MatrixTreeNode) staleIterator.next();
+				Log.log("removing " + node + " in Asset", Asset.class);
 				MatrixTreeModelBus.removeNodeFromParent(node);
 			}
 		}
@@ -475,43 +539,6 @@ public class Asset implements MatrixConstants, Serializable {
 		return nodeUrl;
 	}
 
-	/**
-	 * Refreshes an assets internals.
-	 *
-	 * @param name The name of the asset
-	 * @param status the status of the asset
-	 * @param linkType the link type of the asset
-	 * @param accessible if TRUE the asset is accessible
-	 * @param url the url for the asset
-	 * @param webPath the web path for this asset
-	 */
-	/*private void refresh(
-		String name,
-		int status,
-		int linkType,
-		boolean accessible,
-		String url,
-		String webPath,
-		int numKids) {
-
-			boolean refresh = false;
-			// the following properties require that an event
-			// is fired to notify that the nodes of this asset
-			// have visually changed
-			refresh |= setName(name);
-			refresh |= setStatus(status);
-			refresh |= setLinkType(linkType);
-			refresh |= setAccessible(accessible);
-			refresh |= setNumKids(numKids);
-
-			if (refresh)
-				nodesChanged();
-			if (setUrl(url))
-				updateUrls();
-			if (setWebPath(webPath))
-				updateWebPaths();
-	}*/
-
 	private boolean setNumKids(int count) {
 		if (numKids == count)
 			return false;
@@ -523,7 +550,6 @@ public class Asset implements MatrixConstants, Serializable {
 		if (name.equals(newName))
 			return false;
 		name = newName;
-		System.out.println("name changed for asset " + id);
 		return true;
 	}
 
@@ -531,23 +557,33 @@ public class Asset implements MatrixConstants, Serializable {
 		if (status == newStatus)
 			return false;
 		status = newStatus;
-		System.out.println("status changed for asset " + id);
 		return true;
 	}
+	
+	protected int getLinkType(Element assetElement) {
+		return Integer.parseInt(assetElement.getAttribute("link_type"));
+	}
+	
+	private boolean setLinkType(Element assetElement, String linkid) {
+		return setLinkType(getLinkType(assetElement), linkid);
+	}
 
-	private boolean setLinkType(int newLinkType) {
-		if (linkType == newLinkType)
-			return false;
-		linkType = newLinkType;
-		System.out.println("link type changed for asset " + id);
-		return true;
+	private boolean setLinkType(int newLinkType, String linkid) {
+		MatrixTreeNode[] nodes = getNodesWithLinkid(linkid);
+		boolean changed = false;
+		for (int i = 0; i < nodes.length; i++) {
+			if (nodes[i].getLinkType() != newLinkType) {
+				nodes[i].setLinkType(newLinkType);
+				changed = true;
+			}
+		}
+		return changed;
 	}
 
 	private boolean setAccessible(boolean isAccessible) {
 		if (accessible == isAccessible)
 			return false;
 		accessible = isAccessible;
-		System.out.println("accessibility changed for asset " + id);
 		return true;
 	}
 
@@ -555,7 +591,6 @@ public class Asset implements MatrixConstants, Serializable {
 		if (url.equals(newUrl))
 			return false;
 		url = newUrl;
-		System.out.println("url changed for asset " + id);
 		return true;
 	}
 
@@ -563,7 +598,6 @@ public class Asset implements MatrixConstants, Serializable {
 		if (webPath.equals(newWebPath))
 			return false;
 		webPath = newWebPath;
-		System.out.println("webpath changed for asset " + id);
 		return true;
 	}
 }
