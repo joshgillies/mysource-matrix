@@ -629,7 +629,6 @@ class Resolve
 					$this->db = &$this->_db_conns[$conn];
 
 				} else {
-					pre_echo('other db');
 					array_push($this->_db_stack, 'db');
 
 				}// end if
