@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content_edit_fns.inc,v 1.1 2004/09/01 01:42:28 arailean Exp $
+* $Id: page_remote_content_edit_fns.inc,v 1.2 2004/11/23 06:02:47 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,7 +49,6 @@ class Page_Remote_Content_Edit_Fns extends Page_Edit_Fns
 		$this->Page_Edit_Fns();
 
 	}//end constructor
-	
 
 }//end class
 
