@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.322 2004/09/07 00:52:28 gsherwood Exp $
+* $Id: asset.inc,v 1.323 2004/09/07 02:17:39 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -628,7 +628,11 @@ class Asset extends MySource_Object
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL, '', true, 'minor');
 		foreach ($links as $link) {
 			$major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
-			$major->deleteLink($link['linkid']);
+			if ($major != null) {
+				$major->deleteLink($link['linkid']);
+			} else {
+				trigger_error('Could not load asset with id '.$link['majorid'], E_USER_WARNING);
+			}
 		}
 
 		if ($release_lock) {
