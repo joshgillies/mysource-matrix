@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.35 2004/06/28 15:46:06 brobertson Exp $
+* $Id: system_config.inc,v 1.36 2004/07/08 23:38:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -58,7 +58,7 @@ class System_Config extends Config
 		'SQ_CONF_ASSET_TREE_SIZE'			=> Array('editable' => 0, 'default' =>  4),
 
 		// Rollback Settings
-		'SQ_CONF_ROLLBACK_ENABLED'			=> Array('editable' => 1, 'default' => '0'),
+		'SQ_CONF_ROLLBACK_ENABLED'			=> Array('editable' => 0, 'default' => '0'),
 
 		// Debug Settings - bit element
 		'SQ_CONF_DEBUG'						=> Array('editable' => 1, 'default' => 0),
@@ -333,12 +333,8 @@ class System_Config extends Config
 		
 		$o->openSection('Rollback Settings');
 
-			$o->openField('Enable Rollback');
-			if($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_ROLLBACK_ENABLED]', Array('1' => 'Yes', '0' => 'No'), false, SQ_CONF_ROLLBACK_ENABLED);
-			} else {
-				echo (SQ_CONF_ROLLBACK_ENABLED) ? 'Yes' : 'No';
-			}
+			$o->openField('Rollback Enabled', '', 'Rollback must be enabled and disabled using the "rollback_management.php" script in the MySource "scripts" directory');
+			echo (SQ_CONF_ROLLBACK_ENABLED) ? 'Yes' : 'No';
 
 		$o->closeSection();
 
