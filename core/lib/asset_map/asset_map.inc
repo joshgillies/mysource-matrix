@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.160 2004/08/26 01:52:35 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.161 2004/10/25 01:36:49 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the flash and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.161 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -89,7 +89,7 @@ class Asset_Map
 	* To create the tags that embed the simple asset map into the matrix system
 	*
 	* NB. this function does not attempt to print any form tags. It is up the the printing entity to do this.
-	* The form needs to be in the form: 
+	* The form needs to be in the form:
 	*
 	* &gt;form name="main_form"&lt;
 	*    ...
@@ -127,14 +127,14 @@ class Asset_Map
 
 		$root_url = sq_web_path('root_url');
 		if ($root_url{strlen($root_url) - 1} != '/') $root_url = $root_url.'/';
-		
+
 		// we want to use current_url()
 		require_once SQ_INCLUDE_PATH."/general.inc";
 		?>
 		<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib').'/js/detect.js' ?>"></script>
 		<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
 		<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/asset_map.js';?>"></script>
-		
+
 		<?php
 		ob_start();
 			?>
@@ -143,10 +143,10 @@ class Asset_Map
 				<param name="BACKEND_SUFFIX" value="<?php echo SQ_CONF_BACKEND_SUFFIX; ?>" />
 				<?php
 					if ($type == 'complex') {
-						
+
 						$user = &$GLOBALS['SQ_SYSTEM']->user;
 						$inbox_link = $GLOBALS['SQ_SYSTEM']->am->getLink($user->id, SQ_LINK_TYPE_2, 'inbox', true, null, 'major', '1');
-	
+
 						if (empty($inbox_link)) {
 							$inbox_url = $user->getBackendHref();
 						} else {
@@ -154,13 +154,13 @@ class Asset_Map
 							$inbox_url = $inbox_asset->getBackendHref('details');
 						}
 						$inbox_url = str_replace('.', '', $inbox_url);
-	
+
 						$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 						$new_messages = count($ms->getMessages($user->id, null, Array(SQ_MSG_UNREAD), Array(), null, null, 'short_name'));
-	
+
 						$details_url = $user->getBackendHref('details');
 						if ($details_url{0} == '.') $details_url = substr($details_url, 1);
-	
+
 						?>
 						  <param name="INBOX_URL" value="<?php echo rawurlencode($inbox_url); ?>" />
 						  <param name="NEW_MSGS" value="<?php echo $new_messages; ?>" />
@@ -175,7 +175,7 @@ class Asset_Map
 			<?php
 			$applet_tag = ob_get_contents();
 		ob_end_clean();
-		
+
 		if ($height <= 0) {
 			$height = "' + (document.body.offsetHeight - 60) + '";
 			$applet_tag = str_replace("\n", ' ', $applet_tag);
@@ -314,7 +314,7 @@ class Asset_Map
 
 		// just get the root's XML not the tree's, because it is part of bigger things and we dont want the version info
 		$current_user_xml = $root->get();
-		
+
 		$workspace = &$current_user->getWorkspace();
 		$workspace_xml = '';
 
@@ -325,7 +325,7 @@ class Asset_Map
 				'type_code'  => $workspace->type(),
 				'name'       => $workspace->name,
 				'status'     => $workspace->status,
-				'linkid'     => $workspace_link['linkid'], 
+				'linkid'     => $workspace_link['linkid'],
 				'sort_order' => $workspace_link['sort_order'],
 			);
 			$root = &$output->addRoot('workspace', '', $workspace_attrs);
@@ -344,13 +344,13 @@ class Asset_Map
 
 		// just get the root's XML not the tree's, because it is part of bigger things and we dont want the version info
 		$assets_xml = $root->get();
-		
+
 		header("Content-Type: text/xml");
 		ob_start();
 			echo "<initialisation>\n";
 			echo "<asset_types>\n";
 			$dir = SQ_DATA_PATH.'/private/asset_map';
-			
+
 			if ($d = @opendir($dir)) {
 				while (($file = readdir($d)) !== false) {
 					if (substr($file, -4) == '.xml') {
@@ -360,19 +360,19 @@ class Asset_Map
 				closedir($d);
 			}// end if
 			echo "</asset_types>\n";
-	
+
 			echo $current_user_xml;
 			echo $workspace_xml;
 			echo $assets_xml;
-	
+
 			echo "</initialisation>\n";
 			$out = ob_get_contents();
 		ob_end_clean();
 		echo $out;
 
 	}//end _doInitialise()
-	
-	
+
+
 	/**
 	* Appends the child assets of the specified asset in xml form
 	* to the specified node.
@@ -387,7 +387,7 @@ class Asset_Map
 	function _getChildAssets(&$root, $assetid, $include_parent=false)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		
+
 		$userid_cond = '';
 		if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
@@ -402,18 +402,18 @@ class Asset_Map
 			// public users
 			$userid_cond = ' AND p.userid = 0';
 		}
-		
+
 		// work out what protocol we are using to get here so we can get the most
 		// relevent protocol for the preview urls
 		$primary_protocol = current_protocol();
 		if (empty($primary_protocol)) $primary_protocol = 'http';
-		
+
 		if ($primary_protocol == 'http') {
 			$secondary_protocol = 'https';
 		} else {
 			$secondary_protocol = 'http';
 		}
-		
+
 		$sql  = 'SELECT a.assetid, a.short_name, a.type_code, a.status,
 					l.linkid, l.link_type, l.sort_order, lt.num_immediate_kids, u.url, ap.path,
 					CASE u.'.$primary_protocol.'
@@ -421,16 +421,16 @@ class Asset_Map
 						WHEN '.$db->quote('0').' THEN '.$db->quote($secondary_protocol).'
 					END AS protocol';
 		if (!empty($userid_cond)) $sql .= ', p.permission AS accessible';
-		
+
 		$u_where = 'a.assetid = u.assetid';
 		$u_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($u_where, 'u', 'ON');
 		$sql .= ' FROM (('.SQ_TABLE_RUNNING_PREFIX.'asset a LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_url u '.$u_where.')';
-		
-		
+
+
 		$ap_where = 'a.assetid = ap.assetid';
 		$ap_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($ap_where, 'ap', 'ON');
 		$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_path ap '.$ap_where.')';
-		
+
 		if (!empty($userid_cond)) {
 			$p_where = '(
 							a.assetid = p.assetid AND
@@ -484,14 +484,14 @@ class Asset_Map
 			// it may be able to handle this itself, lets check
 			if (method_exists($bridge, 'getAssetMapLinks')) {
 				$result = array_merge($result, $bridge->getAssetMapLinks());
-				
+
 			} else {
 				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
-				
+
 				foreach ($links as $link_data) {
 					// if the colon isn't there, this isn't a shadow asset; move on
 					if (strpos($link_data['minorid'], ':') === false) continue;
-	
+
 					// note that we pretend these assets have children so we dont have to actually
 					// load all their kids - we dont know what kind of speed hit we get for the different
 					// types of shadow assets
@@ -520,11 +520,11 @@ class Asset_Map
 				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset['assetid'], SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
 				$asset['num_immediate_kids'] = count($links);
 			}
-			
+
 			if (!in_array('accessible', array_keys($asset))) $asset['accessible'] = 1;
 			if (empty($asset['accessible']) || $asset['accessible'] < 1) $asset['accessible'] = 0;
 			if ($asset['accessible'] > 1) $asset['accessible'] = 1;
-			
+
 			if (!empty($asset['url'])) $asset['url'] = $asset['protocol'].'://'.$asset['url'];
 
 			$attrs = Array(
@@ -547,7 +547,7 @@ class Asset_Map
 
 	}//end _getChildAssets()
 
-	
+
 	/**
 	* Processes the get assets request and outputs the xml to startdard out
 	*
@@ -613,7 +613,7 @@ class Asset_Map
 			}// end $name switch
 
 		}// end children for
-		
+
 		$this->_send($output);
 
 	}//end _getMenuItems()
@@ -670,7 +670,7 @@ class Asset_Map
 
 		switch($input->root->attributes['cmd']) {
 			case 'add' :
-			
+
 				$attr = $input->root->attributes;
 				$parent_assetid = rawurldecode($attr['parent_assetid']);
 				if (empty($parent_assetid) || !isset($attr['pos']) || empty($attr['type_code'])) {
@@ -726,7 +726,7 @@ class Asset_Map
 						.'&parent_assetid='.$parent_assetid
 						.'&pos='.rawurlencode($attr['pos']);
 				$frame = 'sq_main';
-				
+
 				break;
 
 			default :
@@ -820,7 +820,7 @@ class Asset_Map
 							'old_parentid'  => $old_parent->id,
 							'link_type'     => $link['link_type'],
 							'to_parent_pos' => $input->root->attributes['to_parent_pos']);
-			
+
 			$hh->queueHipo('hipo_job_create_link', $vars);
 			////  END HIPO PROCESSING  ////
 
@@ -874,7 +874,7 @@ class Asset_Map
 			$this->_error('Unable to Clone Asset, asset to be cloned (Asset #"'.$link['minorid'].'") not found');
 			return;
 		}
-	
+
 		// check to see if the root asset chosen can be cloned
 		if (!$asset->canClone()) {
 			$this->_error('Unable to Clone Asset '.$asset->name.', Assets of type '.(ucwords(str_replace('_', ' ', $asset->type()))).' cannot be cloned');

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_edit_fns.inc,v 1.1 2004/07/06 03:31:17 gsherwood Exp $
+* $Id: report_edit_fns.inc,v 1.2 2004/10/25 01:37:42 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,8 +50,8 @@ class Report_Edit_Fns extends Bridge_Edit_Fns
 		$this->static_screens['details']['lock_type'] = 'content';
 
 	}//end constructor
-	
-	
+
+
 	/**
 	* Paint the interface for regenerating the report
 	*
@@ -70,7 +70,7 @@ class Report_Edit_Fns extends Bridge_Edit_Fns
 		} else {
 			echo '<b>This report has been generated</b><br />';
 		}
-	
+
 		if ($asset->writeAccess('attributes')) {
 			check_box($prefix.'_regenerate');
 			echo '&nbsp;Generate the latest version of this report';
@@ -79,8 +79,8 @@ class Report_Edit_Fns extends Bridge_Edit_Fns
 		return false;
 
 	}//end paintRegenerate()
-	
-	
+
+
 	/**
 	* Processes the interface for regenerating the report
 	*
@@ -217,8 +217,8 @@ class Report_Edit_Fns extends Bridge_Edit_Fns
 		echo 'This report does not contain a visual component';
 
 	}//end paintReport()
-	
-	
+
+
 	/**
 	* Processes the interface for viewing a report
 	*

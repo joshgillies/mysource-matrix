@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_broken_links_edit_fns.inc,v 1.7 2004/08/13 04:07:43 gsherwood Exp $
+* $Id: report_broken_links_edit_fns.inc,v 1.8 2004/10/25 01:36:25 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -102,29 +102,29 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 				$step_data['message'] = 'Skipping nest content cell '.$assetid;
 			} else {
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
-	
+
 				if (!is_null($asset)) {
 					$step_data['message'] = 'Generating broken links report...';
-					
+
 					$wysiwyg_html = $asset->attr('html');
-					
+
 					$master_matches = Array();
 					preg_match_all('%(href|src)=[\'"]([^\'\s"]*)%', $wysiwyg_html, $master_matches);
 					$matches = $master_matches[2];
-				
+
 					foreach ($matches as $match) {
 						// skip keywords
 						$keywords = retrieve_keywords_replacements($match);
 						if (count($keywords) == 1 && $match == '%'.$keywords[0].'%') continue;
-						
+
 						if (!$match) continue;
 						$link_valid = '0';
 						$link_description = '';
 						$link_type = '';
-	
+
 						$results = Array();
 						preg_match('|^\./\?a=([0-9]+)$|',$match, $results);
-	
+
 						$validated_results = false;
 						if (!empty($results)) {
 							$link_type = 'internal';
@@ -141,15 +141,15 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 								$validated_results = $this->validateExternalLink($match);
 							}
 						}
-						
+
 						if ($validated_results === false) continue;
-						
+
 						fwrite($temp_file, "\t<link assetid=\"".$asset->id."\" type=\"$link_type\" valid=\"".$validated_results['valid']."\">\n");
 						fwrite($temp_file, "\t\t<html>$match</html>\n");
 						fwrite($temp_file, "\t\t<description>".$validated_results['description']."</description>\n");
 						fwrite($temp_file, "\t</link>\n");
 					}//end foreach
-	
+
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 					unset($asset);
 
@@ -219,8 +219,8 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 		return Array('valid' => $valid, 'description' => $description);
 
 	}//end validateInternalLink()
-	
-	
+
+
 	/**
 	* Check the validity of an external link
 	*
@@ -233,7 +233,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 	{
 		// ignore bookmarks
 		if (substr($url, 0, 1) == '#') return false;
-		
+
 		$url_parts = @parse_url($url);
 		if (empty($url_parts['scheme'])) {
 			$description = 'The URL is missing a protocol';
@@ -247,7 +247,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 		} else {
 			if (empty($url_parts['path'])) $url_parts['path'] = '/';
 			if (empty($url_parts['port'])) $url_parts['port'] = '80';
-			
+
 			$url_path = $url_parts['path'];
 			if (!empty($url_parts['query'])) $url_path .= '?'.$url_parts['query'];
 
@@ -294,8 +294,8 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 		return Array('valid' => $valid, 'description' => $description);
 
 	}//end validateExternalLink()
-	
-	
+
+
 	/**
 	* Check the validity of an mailto
 	*
@@ -348,12 +348,12 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 			trigger_error('Unable to read report file : '.$report_path."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
 			return;
 		}
-		
+
 		$reported_links = Array( 'internal' => Array(),
 								 'external' => Array(),
 								 'mailto'   => Array(),
 								);
-		
+
 
 		foreach ($root->children as $link) {
 			if ($link->name != 'link') continue;
@@ -364,7 +364,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 				switch ($link_child->name) {
 					case 'html' :
 						$new_link['html'] = $link_child->content;
-						
+
 						// get the assetid from the html link
 						if ($link->attributes['type'] == 'internal') {
 							$to_assetid = preg_replace('|\./\?a=([0-9]+)|', '\\1', $link_child->content);
@@ -378,7 +378,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 					break;
 				}
 			}//end foreach
-			
+
 			$new_link['valid'] = $link->attributes['valid'];
 			$reported_links[$link->attributes['type']][$link->attributes['assetid']][] = $new_link;
 		}//end foreach
@@ -404,7 +404,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 					foreach ($reported_links['internal'] as $assetid => $links) {
 						foreach ($links as $link) {
 							$from_info = $this->_getAssetReportInfo($assetid);
-	
+
 							$to = null;
 							if ($link['data']) {
 								$to = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['data'], '', true);
@@ -504,7 +504,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 					foreach ($reported_links['external'] as $assetid => $links) {
 						foreach ($links as $link) {
 							$from_info = $this->_getAssetReportInfo($assetid);
-							
+
 							$to_string = '<a href="'.$link['data'].'" target="_blank" title="'.$link['data'].'">'.ellipsisize($link['data'], 50).'</a>';
 							?>
 							<tr>
@@ -611,8 +611,8 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 		$o->closeSection();
 
 	}//end paintReport()
-	
-	
+
+
 	/**
 	* Get reporting information about an asset
 	*
@@ -650,10 +650,10 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 				$asset_url = $asset->getBackendHref();
 				$asset_preview_url = $asset->getURL();
 			}
-			
+
 			include_once SQ_FUDGE_PATH.'/general/general.inc';
 			$asset_string = ellipsisize($asset_name, 40);
-			
+
 			$asset_string = '
 				<a href="'.$asset_preview_url.'" target="_blank" title="'.$asset_name.'">'.$asset_string.'</a>';
 		}
