@@ -206,7 +206,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 				break;
 
 			default   :
-				$this->_printAssetList();
+				$this->_printAssetTypeList();
 
 		}//end switch
 
@@ -1327,7 +1327,7 @@ speed_check('FINISHED');
 	*
 	* @access public
 	*/
-	function _printAssetList()
+	function _printAssetTypeList()
 	{
 		$o = &$this->backend->out;
 
@@ -1345,6 +1345,10 @@ speed_check('FINISHED');
 			$parent = $this->am->_asset_types[$type_code]['parent_type'];
 			if (!isset($offspring[$parent])) $offspring[$parent] = Array();
 			$offspring[$parent][] = $type_code;
+		}//end for
+
+		for (reset($offspring); null !== ($type_code = key($offspring)); next($offspring)) {
+			sort($offspring[$type_code]);
 		}//end for
 
 	?>
@@ -1470,7 +1474,7 @@ speed_check('FINISHED');
 		</table>
 	<?php
 
-	}//end _printAssetList()
+	}//end _printAssetTypeList()
 
 }//end class
 ?>
