@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.319 2004/08/26 01:36:32 tbarrett Exp $
+* $Id: asset.inc,v 1.320 2004/08/27 01:55:46 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1455,7 +1455,7 @@ class Asset extends MySource_Object
 	/**
 	* Returns TRUE if this type of asset can be cloned
 	*
-	* override this function if you do not want a particular type of asset to be cloned
+	* Override this function if you do not want a particular type of asset to be cloned
 	*
 	* @return boolean
 	* @access public
