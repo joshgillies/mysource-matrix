@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.194 2003/12/28 21:27:03 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.195 2004/01/06 05:46:32 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -174,7 +174,7 @@ class Asset_Edit_Interface extends MySource_Object
 		  /////////////////////////////
 		 //  ALLOWED SCREEN ACCESS  //
 		/////////////////////////////
-		$check_screen_restrictions = !($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+		$check_screen_restrictions = !$creating && (!($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()));
 		if ($check_screen_restrictions) {
 			$allowed_screens = $this->getAllowedScreens($owner);
 			if (isset($allowed_screens['0']['0'])) $check_screen_restrictions = false;
