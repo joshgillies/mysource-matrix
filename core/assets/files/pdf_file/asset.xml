@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<?xml-stylesheet href="../../../packages/asset.xsl" type="text/xsl"?>
+
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: asset.xml,v 1.1 2004/07/09 01:53:42 lwright Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
+	<package>__core__</package>
+	<type_code>pdf_file</type_code>
+	<version>0.1</version>
+	<name>PDF File</name>
+	<description>Specialised type of File asset for Portable Document Format (.pdf, a.k.a Adobe Acrobat) files.</description>
+	<instantiable>yes</instantiable>
+	<allowed_access>backend_user</allowed_access>
+	<parent_type>file</parent_type>
+	<requirements>
+		<requirement type="asset">
+			<code>file</code>
+			<version>0.1</version>
+		</requirement>
+	</requirements>
+	<flash_menu_path>Files</flash_menu_path>
+</asset_info>
