@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.33 2004/06/30 00:46:28 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.34 2004/06/30 00:57:02 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -116,7 +116,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 	function paintQuestionLinks(&$asset, &$o, $prefix)
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$admin_access = $asset->adminAccess('all');
+		$admin_access = $asset->writeAccess('attributes');
 		$prefix = $asset->getPrefix();
 
 		// include script for re-ordering questions
