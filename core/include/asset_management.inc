@@ -85,12 +85,12 @@ class Asset_Management extends Resolve_Object
 	function _install() 
 	{
 
-		$type_code = preg_replace('/[^a-z_]/i', '', $info['type_code']);
+		$type_code = preg_replace('/[^a-z_]/i', '', $this->getAssetType());
 
 		# get how deep we are in the heirarchy
-		$level = count($this->_pm->getParentList($this->getAssetType()));
+		$level = count($this->_pm->getParentList($type_code));
 
-		$info = $this->_pm->getInfo($this->getAssetType());
+		$info = $this->_pm->getInfo($type_code);
 		$sql = 'INSERT INTO sq_asset_type
 				(type_code, version, name, description, instantiable, parent_type, level, dir, customisation)
 				VALUES
@@ -106,7 +106,7 @@ class Asset_Management extends Resolve_Object
 		}
 
 		# now inform the asset manager that this asset is available for use
-		$this->_am->refreshAssetType($this->getAssetType());
+		$this->_am->refreshAssetType($type_code);
 
 		return $this->_updateVars();
 
