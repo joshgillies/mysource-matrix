@@ -34,6 +34,9 @@ class Backend_Outputter
 	// an array of fns to be called when the page loads
 	var $_on_load_calls = Array();
 
+	// an array assets that are going to be refreshed in the flash menu
+	var $_refreshing_assets = Array();
+
 	// the form action
 	var $_action  = '';
 
@@ -69,7 +72,7 @@ class Backend_Outputter
 	var $_img_button_count = 0;
 
 	// all the preload images names on the page and their preloaded images
-    // Array(name => img);
+	// Array(name => img);
 	var $_preload_imgs = Array();
 
 	var $_files_path;
@@ -762,14 +765,23 @@ class Backend_Outputter
 
 	
 	function onCreateLink($event_data=Array()) {
-		$this->addOnLoad('top.sidenav.reload_asset("'.$event_data['assetid'].'");');
+		if (!in_array($event_data['assetid'], $this->_refreshing_assets)) {
+			$this->addOnLoad('top.sidenav.reload_asset("'.$event_data['assetid'].'");');
+			$this->_refreshing_assets[] = $event_data['assetid'];
+		}
 	}
 	function onDeleteLink($event_data=Array()) {
-		$this->addOnLoad('top.sidenav.reload_asset("'.$event_data['assetid'].'");');
+		if (!in_array($event_data['assetid'], $this->_refreshing_assets)) {
+			$this->addOnLoad('top.sidenav.reload_asset("'.$event_data['assetid'].'");');
+			$this->_refreshing_assets[] = $event_data['assetid'];
+		}
 	}
 	function onAssetUpdate($event_data=Array()) {
-		if ($event_data['old_short_name'] != $event_data['new_short_name']) {
-			$this->addOnLoad('top.sidenav.reload_asset("'.$event_data['assetid'].'");');
+		if (!in_array($event_data['assetid'], $this->_refreshing_assets)) {
+			if ($event_data['old_short_name'] != $event_data['new_short_name']) {
+				$this->addOnLoad('top.sidenav.reload_asset("'.$event_data['assetid'].'");');
+			}
+			$this->_refreshing_assets[] = $event_data['assetid'];
 		}
 	}
 
