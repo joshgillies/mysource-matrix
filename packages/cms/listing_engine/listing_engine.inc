@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.3 2005/02/11 05:43:44 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.4 2005/02/14 23:36:17 lwright Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -593,7 +593,6 @@ class Listing_Engine extends Page
 	*/
 	function adjustAssetPositions(&$todo)
 	{
-		error_log('adjusting asset positions');
 		$asset_positions = $this->attr('asset_positions');
 
 		if (!empty($asset_positions)) {
@@ -963,7 +962,7 @@ class Listing_Engine extends Page
 					$this->_tmp['is_default'][] = $type_code;
 				}
 			}//end if type_code format not loaded
-	
+			
 			if (in_array($type_code, $this->_tmp['is_default'])) {
 				if (!$this->_tmp['default_format']) {
 					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', true, 'default_format');
@@ -1003,6 +1002,37 @@ class Listing_Engine extends Page
 					$keywords['asset_contents']['value'] = ob_get_contents();
 				ob_end_clean();
 			}
+			
+			// stuff carried over results body replacements
+			
+			$keywords['asset_name_linked']['value'] = '<a href="'.$asset->getUrl().'">'.$asset->name.'</a>';
+	
+			$keywords['asset_short_name_linked']['value'] = '<a href="'.$asset->getUrl().'">'.$asset->short_name.'</a>';
+		
+			$lineage = '';
+			$linked_lineage = '';
+			$first = true;
+			$found_root = false;
+			$parent_asset_ids = array_keys($am->getParents($asset->id));
+	
+			// searching for the root asset
+			$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
+			$root_assetid = empty($root_link) ? 0 : $root_link['minorid'];
+	
+			foreach ($parent_asset_ids as $parent_asset_id) {
+				if ($parent_asset_id == $root_assetid) $found_root = true;
+				if (!$found_root) continue;
+				if (!$first) $replacement .= $this->attr('lineage_seperator');
+				$first = false;
+				$ancestor_asset = &$am->getAsset($parent_asset_id);
+				$linked_lineage .= '<a href="'.$ancestor_asset->getUrl().'">'.$ancestor_asset->name.'</a>';
+				$lineage .= $ancestor_asset->name;
+				$am->forgetAsset($ancestor_asset);
+			}
+			$keywords['asset_lineage']['value'] = $lineage;
+			$keywords['asset_lineage_linked']['value'] = $linked_lineage;
+			error_log(print_r($keywords),true);
+			// end results body stuff
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			unset($asset);
@@ -1012,7 +1042,7 @@ class Listing_Engine extends Page
 				$keywords['asset_'.$field]['value'] = $value;
 			}
 		}//end if needs asset
-
+		bam($keywords);
 		if (preg_match_all('|%asset_metadata_([^%]+)%|is', $contents, $matches)) {
 			if (is_null($mm)) $mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			// get all the metadata keywords for this asset
@@ -1088,6 +1118,8 @@ class Listing_Engine extends Page
 			}
 		}
 		$keywords['asset_contents'] = 'Asset Contents';
+		$keywords['asset_name_linked'] = 'Asset Name Linked';
+		$keywords['asset_short_name_linked'] = 'Asset Short Name Linked';
 
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.77 2005/02/13 23:58:33 tbarrett Exp $
+* $Id: search_page.inc,v 1.78 2005/02/14 23:36:20 lwright Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1753,7 +1753,7 @@ class Search_Page extends Page
 	*/
 	function getFormatFolderLink()
 	{
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'folder', true);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'folder', true, 'major', 'format_folder');
 		return (!empty($link)) ? $link[0] : Array();
 
 	}//end getFormatFolderLink()
@@ -1790,9 +1790,11 @@ class Search_Page extends Page
 	function getFormatBodycopyLink($link_value)
 	{
 		$format_folder = &$this->getFormatFolder();
+		error_log(var_export($format_folder,true));
 		if (is_null($format_folder)) return Array();
 
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinks($format_folder->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'bodycopy', true, 'major', $link_value);
+		error_log(var_export($link,true));
 		return (!empty($link)) ? $link[0] : Array();
 
 	}//end getFormatBodycopyLink()
@@ -1835,21 +1837,46 @@ class Search_Page extends Page
 	*/
 	function onRequestKeywords(&$broadcaster, $vars=Array())
 	{
-		if (!isset($vars['keywords'])) return;
+		$keywords = parent::onRequestKeywords($broadcaster, $vars);
+		
+		if (!isset($vars['keywords'])) $vars['keywords'] = Array();
 
 		// lets work out which bodycopy the WYSIWYG cell that wants our keywords
 		// is in so we can return the correct keywords for the screen
-		$bodycopy_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy');
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
-
+		$bodycopy_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy');
+		
 		$bodycopies = Array();
+		$type_formats = Array();
+		
 		foreach ($bodycopy_links as $link_info) {
 			if (isset($parents[$link_info['minorid']])) {
 				$bodycopies[] = $link_info['value'];
 			}
 		}
-		if (empty($bodycopies)) return;
+		
+		// type folder links
+		$folder = &$this->getFolder();
+		
+		if (!is_null($folder)) {
+			$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
 
+			foreach ($type_links as $link_info) {
+				if (isset($parents[$link_info['minorid']])) {
+					$type_formats[] = $link_info['value'];
+				}
+			}
+		}
+		
+		if (empty($bodycopies) && empty($type_formats)) return;
+
+		// work out if forms are customised
+		$search_bodycopy_link = &$this->getFormatBodycopyLink('search_form');
+		$sis_bodycopy_link    = &$this->getFormatBodycopyLink('sis_form'); //search in search
+		error_log(var_export($search_bodycopy_link,true));
+		$search_customised    = !empty($search_bodycopy_link) && $search_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
+		$sis_customised       = !empty($sis_bodycopy_link) && $sis_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
+				
 		$keywords = Array();
 		foreach ($bodycopies as $bodycopy) {
 			if ($bodycopy == 'initial') {
@@ -1858,17 +1885,26 @@ class Search_Page extends Page
 				foreach ($fields as $field => $field_data) {
 					$keywords[$field.'_query'] = 'Search Field ('.$field.')';
 				}
-			} else if ($bodycopy == 'result_element') {
-				$default_keywords = $broadcaster->getAssetKeywords(true);
-				foreach ($default_keywords as $keyword => $info) {
-					$keywords[$keyword] = ucwords(str_replace('_', ' ', $keyword));
-				}
 			}
+			
 			foreach ($this->keywords[$bodycopy] as $keyword) {
 				$keywords[$keyword] = ucwords(str_replace('_', ' ', $keyword));
 			}
+			
+			// customised forms
+			if ($search_customised) $keywords['search_form'] = 'Search Form';
+			if ($sis_customised) {
+				$keywords['search_form'] = 'Search Form';
+				$keywords['search_in_search_form'] = 'Search in Search Form';
+				$keywords['search_in_search_button'] = 'Search in Search Button';
+			}
 		}
-
+		
+		foreach($type_formats as $type_format) {
+			$keywords['result_number'] = 'Result Number';
+			$keywords['score'] = 'Search Score';
+		}
+		
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 
 	}//end onRequestKeywords()

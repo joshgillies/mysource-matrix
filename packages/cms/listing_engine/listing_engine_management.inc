@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.2 2005/02/11 03:34:39 lwright Exp $
+* $Id: listing_engine_management.inc,v 1.3 2005/02/14 23:36:17 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -146,44 +146,153 @@ class Listing_Engine_Management extends Asset_Management
 	*/
 	function _install()
 	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		
 		$search_page_fields = Array('lineage_seperator');
 		
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		if (!parent::_install()) return false;
-		
-		// asset listing isn't here; we don't need to go through this rigmarole
-		if (!$GLOBALS['SQ_SYSTEM']->am->installed('page_asset_listing')) return true;
-		
 		bam('INSTALL LISTING ENGINE');
 		
-		$attr_names = Array();
-		$search_attr_names = Array();
+		$attributes = Array();
+		
 		foreach($this->vars as $attr_name => $attr_info) {
 			if (in_array($attr_name, $search_page_fields)) {
-				$search_attr_names[] = $db->quote($attr_name);
+				$result = $this->_hoardAttribute($attr_name, 'search_page');
 			} else {
-				$attr_names[] = $db->quote($attr_name);
+				$result = $this->_hoardAttribute($attr_name, 'page_asset_listing');
+			}
+			
+			foreach($result as $resultid => $result_info) {
+				$attributes[$resultid] = $result_info;
 			}
 		}
+		bam($attributes);
 		
-		$sql = 'UPDATE '.SQ_TABLE_RUNNING_PREFIX.'ast_attr SET owning_type_code = '.$db->quote($this->getAssetType()).', parameters_type_code = '.$db->quote($this->getAssetType()).' WHERE name IN ('.implode(', ', $attr_names).') AND owning_type_code = '.$db->quote('page_asset_listing');
-		
-		if (!$db->query($sql)) {
-			trigger_error('Unable to complete post-install script - ownership of attributes could not be transferred from asset listing');
+		$this->_removeAttributes($attributes);
+			
+		if (!parent::_install()) {
+			bam('INSTALL FAIL; JUMP OFF CLIFF');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');	
+			die;
 			return false;
 		}
 		
-		$sql = 'UPDATE '.SQ_TABLE_RUNNING_PREFIX.'ast_attr SET owning_type_code = '.$db->quote($this->getAssetType()).', parameters_type_code = '.$db->quote($this->getAssetType()).' WHERE name IN ('.implode(', ', $search_attr_names).') AND owning_type_code = '.$db->quote('search_page');
+		$this->_restoreAttributes($attributes);
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');		
 		
-		if (!$db->query($sql)) {
-			trigger_error('Unable to complete post-install script - ownership of attributes could not be transferred from search page');
-			return false;
+		return true;
+		
+	}//end _install()
+	
+	
+	function _upgrade($current_version)
+	{
+		$search_page_fields = Array('lineage_seperator');
+		
+		bam('UPGRADE LISTING ENGINE - from '.$current_version);
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		
+		
+		if (version_compare($current_version,'0.1','==')) {
+			$attributes = Array();
+		
+			foreach($this->vars as $attr_name => $attr_info) {
+				if (in_array($attr_name, $search_page_fields)) {
+					$result = $this->_hoardAttribute($attr_name, 'search_page');
+				} else {
+					$result = $this->_hoardAttribute($attr_name, 'page_asset_listing');
+				}
+				
+				foreach($result as $resultid => $result_info) {
+					$attributes[$resultid] = $result_info;
+				}
+			}
+			
+			$this->_removeAttributes($attributes);
+			if (!parent::_upgrade($current_version)) {
+				trigger_error('Failed upgrading listing engine (from 0.1)');
+				return false;
+			}
+			$this->_restoreAttributes($attributes);
 		}
 		
 		return true;
 		
 	}//end _upgrade()
 	
+	
+	function _hoardAttribute($attr_name, $from)
+	{
+		if (!$GLOBALS['SQ_SYSTEM']->am->installed($from)) return Array();
+		
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		
+		$sql = 'SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr WHERE name = '.$db->quote($attr_name).' AND owning_type_code = '.$db->quote($from);
+		
+		$result = $db->getAssoc($sql);
+		assert_valid_db_result($result);
+		
+		return $result;
+		
+	}//end _transferAttribute()
+	
+	
+	function _removeAttributes($attrs)
+	{
+		if (empty($attrs)) return true;
+		
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		
+		$attrs_quoted = Array();
+		foreach($attrs as $attr => $detail) {
+			$attrs_quoted[] = $attr; 
+		}
+		
+		$sql = 'DELETE FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr WHERE attrid IN ('.implode(', ', $attrs_quoted).')';
+		
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+		
+		return true;
+		
+	}//end _transferAttribute()
+	
+	
+	function _restoreAttributes($attrs)
+	{
+		if (empty($attrs)) return true;
+		
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		
+		foreach($attrs as $attrid => $attr) {
+			$sql = 'INSERT INTO '.SQ_TABLE_RUNNING_PREFIX.'ast_attr (attrid, '.implode(',', array_keys($attr)).') VALUES ('.$db->quote($attrid).', ';
+			
+			$fields_quoted = Array();
+			foreach($attr as $field_name => $field) {
+				if (in_array($field_name, Array('owning_type_code', 'default_type_code', 'parameters_type_code'))) {
+					$fields_quoted[$field_name] = $db->quote($this->getAssetType());
+				} else {
+					$fields_quoted[$field_name] = $db->quote($field);
+				}
+			}
+			
+			$sql .= implode(', ', $fields_quoted).')';
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+			
+			$sql = 'UPDATE '.SQ_TABLE_RUNNING_PREFIX.'ast_attr set
+			owning_type_code = '.$db->quote($this->getAssetType()).', 
+			default_type_code = '.$db->quote($this->getAssetType()).', 
+			parameters_type_code = '.$db->quote($this->getAssetType()).' 
+			WHERE name = '.$db->quote($attr['name']).' AND owning_type_code = '.$db->quote($attr['owning_type_code']);
+			bam($sql);
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+		}
+				
+		return true;
+		
+	}//end _transferAttribute()
 	
 }//end class
 

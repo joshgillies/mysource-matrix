@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.25 2005/02/13 23:58:33 tbarrett Exp $
+* $Id: search_page_management.inc,v 1.26 2005/02/14 23:36:20 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -51,18 +51,6 @@ class Search_Page_Management extends Asset_Management
 				'type'			=> 'serialise',
 				'default'		=> Array(),
 				'description'	=> 'Statuses that are being searched.',
-			),
-			'results_per_page' => Array (
-				'added'			=> '0.1',
-				'type'			=> 'int',
-				'default'		=> 10,
-				'description'	=> 'Default results per page when searching.',
-			),
-			'lineage_seperator' => Array (
-				'added'			=> '0.1',
-				'type'			=> 'text',
-				'default'		=> ' > ',
-				'description'	=> 'Seperator to use when printing the lineage to a search result asset.',
 			),
 			'submit_button_text' => Array (
 				'added'			=> '0.1',
