@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule.inc,v 1.10 2004/05/05 07:10:12 lwright Exp $
+* $Id: form_question_rule.inc,v 1.11 2004/05/06 00:33:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -102,7 +102,7 @@ class Form_Question_Rule extends Asset
 	*/
 	function generateJSCode(&$q_asset, $operator)
 	{
-		return true;
+		return '';
 
 	}//end generateJSCode()
 	
