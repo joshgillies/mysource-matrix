@@ -1,17 +1,19 @@
 <?php
 
 require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
-require_once SQ_FUDGE_PATH.'/general/general.inc';
 
 /**
 * Selection Asset Attribute
 *
-* 
+* parameters => Array(
+*                     'options'  => Array('value' => 'text name')
+*                     'multiple' => [true|false]
+*               )
 *
 *
 * <!-- Sample Edit Interface XML Node -->
-*   <selection style="list"  multiple="0" />
-*   <selection style="boxes" multiple="1" />
+*   <selection style="list"  />
+*   <selection style="boxes" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
@@ -31,6 +33,10 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	function Asset_Attribute_Selection($attributeid=0, $value=null) 
 	{
 		$this->Asset_Attribute($attributeid, $value);
+		if (!$attributeid) {
+			// Set Some default params for when we are loaded without an ID
+			$this->_params = Array('options'  => Array(), 'multiple' => false);
+		}
 	}// end constructor
 
 
@@ -48,7 +54,6 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		if (!parent::setEditParams($node)) return false;
 
 		$this->_edit_params['style']     = empty($node->attributes['style'])     ? 'list'  : $node->attributes['style'];
-		$this->_edit_params['multiple']  = empty($node->attributes['multiple'])  ? '0'     : $node->attributes['multiple'];
 		$this->_edit_params['height']    = empty($node->attributes['height'])    ? ''      : $node->attributes['height'];
 		$this->_edit_params['columns']   = empty($node->attributes['columns'])   ? '1'     : $node->attributes['columns'];
 		return true;
@@ -94,18 +99,12 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	function paint($prefix, $read_only=false)
 	{
 		$options = $this->_params['options'];
-		if($this->_edit_params['multiple']) $this->value = $this->_str2ar($this->value);
+		if(!empty($this->_params['multiple'])) $this->value = $this->_str2ar($this->value);
 
 		if ($read_only) {
 			if (empty($this->value)) return;
-			if($this->_edit_params['multiple']) {
-				echo '<ul>';
-				foreach ($this->value as $k) {
-					if (!isset($options[$k])) continue;
-					echo '<li class="sq-backend-data">'.$options[$k].'</li>';
-				}
-				echo '</ul>';
-			} else {
+
+			if(empty($this->_params['multiple'])) {
 				if (!isset($options[$this->value])) {
 					// may have a value left over from when we
 					// were a mutiple selection field
@@ -115,6 +114,15 @@ class Asset_Attribute_Selection extends Asset_Attribute
 				} else {
 					echo $options[$this->value];
 				}
+
+			} else {
+				echo '<ul>';
+				foreach ($this->value as $k) {
+					if (!isset($options[$k])) continue;
+					echo '<li class="sq-backend-data">'.$options[$k].'</li>';
+				}
+				echo '</ul>';
+
 			}
 			return;
 		}
@@ -125,19 +133,19 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		hidden_field($prefix.'_'.$this->name.'_posted', '1');
 		
 		if($this->_edit_params['style'] == 'list') {
-			combo_box($prefix.'_'.$this->name, $options, $this->_edit_params['multiple'], $this->value, $this->_edit_params['height']);
+			combo_box($prefix.'_'.$this->name, $options, !empty($this->_params['multiple']), $this->value, $this->_edit_params['height']);
 		} else {
 			echo ('<table cellpadding="0" cellspacing="0" border="0"><tr>');
 			reset($options);
 			$i = 0;
 			while(list($key,$val) = each($options)) {
-				if($this->_edit_params['multiple']) {
-					?><td>&nbsp;<input type="checkbox" name="<?php echo $prefix.'_'.$this->name."[$i]"?>" value="<?php echo $key?>"<?php
-					if(is_array($this->value) && in_array($key, $this->value)) echo ' checked';
-					?>><?php echo $val?></td><?php
-				} else {
+				if(empty($this->_params['multiple'])) {
 					?><td>&nbsp;<input type="radio" name="<?php echo $prefix.'_'.$this->name?>" value="<?php echo $key?>"<?php
 					if($key == $this->value) echo ' checked';
+					?>><?php echo $val?></td><?php
+				} else {
+					?><td>&nbsp;<input type="checkbox" name="<?php echo $prefix.'_'.$this->name."[$i]"?>" value="<?php echo $key?>"<?php
+					if(is_array($this->value) && in_array($key, $this->value)) echo ' checked';
 					?>><?php echo $val?></td><?php
 				}
 				if ((($i++) % $this->_edit_params['columns']) == ($this->_edit_params['columns'] - 1)) {
@@ -159,6 +167,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	*/
 	function process($prefix)
 	{
+		require_once SQ_FUDGE_PATH.'/general/general.inc';
 		if (!isset($_POST[$prefix.'_'.$this->name.'_posted'])) return false;
 		$value = (isset($_POST[$prefix.'_'.$this->name])) ? $_POST[$prefix.'_'.$this->name] : '';
 		$value = gpc_stripslashes($value);
@@ -191,7 +200,9 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		if ($value == '') return true;
 
 		// special case for multiple values
-		if($this->_edit_params['multiple']) {
+		if(empty($this->_params['multiple'])) {
+			if (!isset($options[$value])) return false;
+		} else {
 			$new_value = $this->_str2ar($value);
 			if (!is_array($new_value)) return false;
 			$return_value = array();
@@ -199,8 +210,6 @@ class Asset_Attribute_Selection extends Asset_Attribute
 				if (isset($options[$key])) $return_value[] = $key;
 			}
 			$value = $this->_ar2str($return_value);
-		} else {
-			if (!isset($options[$value])) return false;
 		}
 		
 		return true;
