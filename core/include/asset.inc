@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.261 2003/11/26 00:51:09 gsherwood Exp $
+* $Id: asset.inc,v 1.262 2003/12/02 03:37:15 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1759,6 +1759,21 @@ class Asset extends MySource_Object
 	}//end canForceablyAcquireLock()
 
 
+	/**
+	* Acquires any locks that are needed for editing, based on a set of custom keywords
+	*
+	* @param Array() $keywords the keywords to govern what locks are required
+	*
+	* @return boolean
+	* @access public
+	*/
+	function acquireEditingLocks($keywords)
+	{
+		return true;
+
+	}//end acquireEditingLocks()
+
+
 //--        LINKING        --//
 
 
@@ -2293,6 +2308,40 @@ class Asset extends MySource_Object
 		return $keywords;
 
 	}// end getAssetKeywords()
+
+
+	/**
+	* Gets replacements for keywords that are specific to this asset
+	*
+	* @param Array $keywords the keywords to get replacements for
+	*
+	* @return Array()
+	* @access public
+	*/
+	function getCustomKeywordReplacements($keywords=Array())
+	{
+		return Array();
+
+	}//end getCustomKeywordReplacements()
+
+	
+	/**
+	* processes anything that was previously printed for a custom keyword
+	*
+	* An example of this might be a keyword replacement for a bodycopy. When submitted, we need to process
+	* The bodycopy here
+	*
+	* @param Array $keywords the keywords that were originally printed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processCustomKeywords($keywords=Array())
+	{
+		return true;
+
+	}// processCustomKeywords()
+
 
 
 //--        PERMISSIONS/ACCESS        --//
