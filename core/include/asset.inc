@@ -79,13 +79,6 @@ class Asset extends Resolve_Object
 	*/
 	var $_ser_attrs = false;
 
-	/**
-	* A var for holding temporary data for this asset
-	*
-	* @var bool
-	*/
-	var $_tmp = Array();
-
 
 	/**
 	* Constructor
@@ -102,33 +95,6 @@ class Asset extends Resolve_Object
 			$this->_loadVars();
 		}
 	}
-
-
-	/**
-	* Perform some actions before the object is serialised
-	*
-	* @return void
-	* @access private
-	*/
-	function __sleep()
-	{
-		$object_vars = get_object_vars($this);
-		if (!is_array($object_vars)) $object_vars = Array();
-		unset($object_vars['_tmp']);
-		return array_keys($object_vars);
-	}//end __sleep()
-
-
-	/**
-	* Perform some actions after the object is unserialised
-	*
-	* @return void
-	* @access private
-	*/
-	function __wakeup()
-	{
-		$this->_tmp = Array();
-	}//end __wakeup()
 
 
 	/**
