@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.64 2005/03/02 17:16:32 brobertson Exp $
+* $Id: page_asset_listing.inc,v 1.65 2005/03/16 17:37:10 brobertson Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -474,6 +474,27 @@ class Page_Asset_Listing extends Listing_Engine
 		return $this->_tmp['root_asset_ids'];
 		
 	}//end getRootNodes()
+	
+	
+	/**
+	* Work out the unique cache key to represent the current page
+	*
+	* @return string
+	* @access private
+	*/
+	function _getCacheKey()
+	{
+		$cache_key = parent::_getCacheKey();
+
+		// if we don't have a cache key from the listing it's because we shouldn't be caching
+		if ($cache_key) {
+			// because the root nodes can be dynamic we need to cache the results based upon root node
+			$root_nodes = $this->getRootNodes();
+			$cache_key .= '-'.implode('-', $root_nodes);
+		}
+		return $cache_key;
+
+	}//end _getCacheKey()
 	
 	
 }//end class
