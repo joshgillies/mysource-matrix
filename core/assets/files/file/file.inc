@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.69 2004/09/07 00:52:28 gsherwood Exp $
+* $Id: file.inc,v 1.70 2004/09/29 01:07:32 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -442,22 +442,12 @@ class File extends Asset
 		unset($this->_tmp['url']);
 		unset($this->_tmp['href']);
 
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
 		// Remove all the old URLs
-		$subs = Array( 'SELECT url
-						FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
-						'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quote($this->id), 'l'));
+		$sub_sql = 'SELECT url
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
+					'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quote($this->id), 'l');
 
-		$where = 'url IN (~SQ0~)';
-		$where = db_extras_subquery($db, $where, $subs);
-		if (DB::isError($where)) {
-			trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup_design', $where)) {
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup_design', 'url IN ('.$sub_sql.')')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -488,7 +478,7 @@ class File extends Asset
 			if (is_null($site)) continue;
 			$urls = $site->getSiteURLS();
 
-			foreach($urls as $urlid => $data) {
+			foreach ($urls as $urlid => $data) {
 
 				$root_url = '';
 
