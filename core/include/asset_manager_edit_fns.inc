@@ -143,10 +143,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 						$code_name = $init_hipo->initialise();
 						if ($code_name) {
 							$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-							$hipo = &$hh->getJob($code_name, 'hipo_job_acquire_lock');
-							if (!is_null($hipo)) {
-								$o->setRedirect($hipo->getProcessURL());
-							}
+							if ($url = $hh->getProcessURL($code_name)) $o->setRedirect($url);
 						}
 						
 						////  END HIPO PROCESSING  ////
@@ -374,16 +371,16 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 			}// end foreach
 
 /*
-//			?><table border="1"><tr><td valign="top"><?php
+//			? ><table border="1"><tr><td valign="top">< ?php
 //			pre_echo($_POST['duplicate_treeids']);
 //			pre_echo($duplicate_treeids);
-//			?></td><td valign="top"><?php
+//			? ></td><td valign="top">< ?php
 //			pre_echo($effective_duplicate_treeids);
-//			?></td><td valign="top"><?php
+//			? ></td><td valign="top">< ?php
 //			pre_echo($tree);
-//			?></td><td valign="top"><?php
+//			? ></td><td valign="top">< ?php
 //			pre_echo($indexed_effective_duplicate_treeids);
-//			?></td></tr></table><?php
+//			? ></td></tr></table>< ?php
 */
 			// OK, what we have with the $effective_duplicate_treeids array is access to all the assets that
 			// we are going to duplicate to have to duplicate, with all the assets that they will create
@@ -1127,10 +1124,7 @@ speed_check('FINISHED');
 			$code_name = $init_hipo->initialise();
 			if ($code_name) {
 				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-				$hipo = &$hh->getJob($code_name, 'hipo_job_edit_permissions');
-				if (!is_null($hipo)) {
-					$o->setRedirect($hipo->getProcessURL());
-				}
+				if ($url = $hh->getProcessURL($code_name)) $o->setRedirect($url);
 			}
 			
 			////  END HIPO PROCESSING  ////

@@ -854,11 +854,8 @@ class Asset_Edit_Interface extends Resolve_Object
 			$code_name = $init_hipo->initialise();
 			if ($code_name) {
 				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-				$hipo = &$hh->getJob($code_name, 'hipo_job_edit_status');
-				if (!is_null($hipo)) {
-					$o->setRedirect($hipo->getProcessURL());
-					$is_updated = true;
-				}
+				if ($url = $hh->getProcessURL($code_name)) $o->setRedirect($url);
+				$is_updated = true;
 			}
 			
 			////  END HIPO PROCESSING  ////
@@ -1598,10 +1595,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			$code_name = $init_hipo->initialise();
 			if ($code_name) {
 				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-				$hipo = &$hh->getJob($code_name, 'hipo_job_edit_permissions');
-				if (!is_null($hipo)) {
-					$o->setRedirect($hipo->getProcessURL());
-				}
+				if ($url = $hh->getProcessURL($code_name)) $o->setRedirect($url);
 			}
 
 			////  END HIPO PROCESSING  ////
