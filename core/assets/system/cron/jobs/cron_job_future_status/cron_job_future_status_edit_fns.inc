@@ -36,7 +36,7 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintOneLineBackend(&$asset, &$o, $prefix)
+	function paintInLineBackend(&$asset, &$o, $prefix)
 	{
 		echo 'Set Status to ';
 		$descs = $asset->_getAllStatiiDescs();
@@ -48,7 +48,7 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 		echo ' at ';
 		$this->_paintWhenBox($asset, $o, $prefix);
 		return true;
-	}//end paintOneLineBackend()
+	}//end paintInLineBackend()
 
 
 	/**
@@ -61,14 +61,14 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processOneLineBackend(&$asset, &$o, $prefix)
+	function processInLineBackend(&$asset, &$o, $prefix)
 	{
 		if (!empty($_POST[$prefix.'_status']) && $asset->setAttrValue('status', $_POST[$prefix.'_status'])) {
 			return $this->_processWhenBox($asset, $o, $prefix);
 		}
 		return false;
 
-	}//end processOneLineBackend()
+	}//end processInLineBackend()
 
 
 }//end class
