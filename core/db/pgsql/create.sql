@@ -1,4 +1,4 @@
-DROP TABLE sq_package;
+
 CREATE TABLE sq_package (
   code_name     VARCHAR(100) NOT NULL DEFAULT '',
   version       VARCHAR(10)  NOT NULL DEFAULT '0.0.1',
@@ -8,7 +8,6 @@ CREATE TABLE sq_package (
 );
 
 
-DROP TABLE sq_asset;
 CREATE TABLE sq_asset (
   assetid        INT          NOT NULL,
   name           VARCHAR(255) NOT NULL DEFAULT '',
@@ -24,7 +23,6 @@ CREATE TABLE sq_asset (
 );
 
 
-DROP TABLE sq_asset_link;
 CREATE TABLE sq_asset_link (
   linkid        INT          NOT NULL,
   majorid       INT          NOT NULL,
@@ -40,21 +38,17 @@ CREATE TABLE sq_asset_link (
   UNIQUE(minorid, majorid, link_type, value)
 );
 
-DROP TABLE sq_asset_link_tree;
 CREATE TABLE sq_asset_link_tree (
   treeid              TEXT NOT NULL DEFAULT '',
   linkid              INT  NOT NULL,
   num_immediate_kids  INT  NOT NULL,
   PRIMARY KEY(treeid)
 );
-DROP INDEX sq_asset_link_tree_linkid;
 CREATE INDEX sq_asset_link_tree_linkid ON sq_asset_link_tree (linkid);
-DROP INDEX sq_asset_link_tree_num_immediate_kids;
 CREATE INDEX sq_asset_link_tree_num_immediate_kids ON sq_asset_link_tree (num_immediate_kids);
 
 
 
-DROP TABLE sq_asset_type;
 CREATE TABLE sq_asset_type (
   type_code       VARCHAR(100) NOT NULL DEFAULT '',
   version         VARCHAR(10)  NOT NULL DEFAULT '0.0.1',
@@ -70,7 +64,6 @@ CREATE TABLE sq_asset_type (
 );
 
 
-DROP TABLE sq_asset_attribute;
 CREATE TABLE sq_asset_attribute (
   attributeid            INT NOT NULL,
   type_code              VARCHAR(100) NOT NULL DEFAULT '',
@@ -87,7 +80,6 @@ CREATE TABLE sq_asset_attribute (
   UNIQUE(type_code,name)
 );
 
-DROP TABLE sq_asset_attribute_value;
 CREATE TABLE sq_asset_attribute_value (
   assetid       INT   NOT NULL,
   attributeid   INT   NOT NULL,
@@ -96,14 +88,12 @@ CREATE TABLE sq_asset_attribute_value (
 );
 
 
-DROP TABLE sq_asset_type_inherited;
 CREATE TABLE sq_asset_type_inherited (
   inherited_type_code VARCHAR(100) NOT NULL DEFAULT '',
   type_code           VARCHAR(100) NOT NULL DEFAULT '',
   PRIMARY KEY(inherited_type_code, type_code)
 );
 
-DROP TABLE sq_asset_url;
 CREATE TABLE sq_asset_url (
   urlid       SMALLINT NOT NULL,
   assetid     INT NOT NULL,
@@ -114,7 +104,6 @@ CREATE TABLE sq_asset_url (
   UNIQUE (url)
 );
 
-DROP TABLE sq_asset_path; 
 CREATE TABLE sq_asset_path (
   path       VARCHAR(255) NOT NULL DEFAULT '',
   assetid    INT NOT NULL,
@@ -122,7 +111,6 @@ CREATE TABLE sq_asset_path (
   PRIMARY KEY  (path, assetid)
 );
 
-DROP TABLE sq_asset_lookup;
 CREATE TABLE sq_asset_lookup (
   url             TEXT NOT NULL DEFAULT '',
   assetid         INT NOT NULL,
@@ -133,7 +121,6 @@ CREATE TABLE sq_asset_lookup (
 );
 
 
-DROP TABLE sq_asset_permission;
 CREATE TABLE sq_asset_permission (
   permissionid INT NOT NULL,
   assetid      INT NOT NULL,
@@ -145,7 +132,6 @@ CREATE TABLE sq_asset_permission (
 );
 
 
-DROP TABLE sq_asset_permission_lookup;
 CREATE TABLE sq_asset_permission_lookup (
   permissionid  INT NOT NULL,
   start_treeid  TEXT NOT NULL,
@@ -155,7 +141,6 @@ CREATE TABLE sq_asset_permission_lookup (
 );
 
 
-DROP TABLE sq_asset_lock;
 CREATE TABLE sq_asset_lock (
   assetid        INT       NOT NULL,
   source_asset   INT       NOT NULL,
@@ -165,14 +150,12 @@ CREATE TABLE sq_asset_lock (
 );
 
 
-DROP TABLE sq_asset_workflow;
 CREATE TABLE sq_asset_workflow (
   assetid   INT  NOT NULL,
   workflow  TEXT NOT NULL DEFAULT '',
   PRIMARY KEY(assetid)
 );
 
-DROP TABLE sq_asset_running_workflow;
 CREATE TABLE sq_asset_running_workflow (
   workflowid VARCHAR(100) NOT NULL,
   complete   SMALLINT     NOT NULL DEFAULT 0,
@@ -181,7 +164,6 @@ CREATE TABLE sq_asset_running_workflow (
 );
 
 
-DROP TABLE sq_internal_message;
 CREATE TABLE sq_internal_message (
   messageid  INT NOT NULL,
   userto     INT NOT NULL DEFAULT 0,

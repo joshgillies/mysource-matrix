@@ -1,4 +1,3 @@
-DROP TABLE IF EXISTS sq_package;
 CREATE TABLE sq_package (
   code_name     VARCHAR(100) NOT NULL DEFAULT '',
   version       VARCHAR(10)  NOT NULL DEFAULT '0.0.1',
@@ -8,7 +7,6 @@ CREATE TABLE sq_package (
 );
 
 
-DROP TABLE IF EXISTS sq_asset;
 CREATE TABLE sq_asset (
   assetid        INT      UNSIGNED NOT NULL,
   name           VARCHAR(255)      NOT NULL DEFAULT '',
@@ -24,7 +22,6 @@ CREATE TABLE sq_asset (
 );
 
 
-DROP TABLE IF EXISTS sq_asset_link;
 CREATE TABLE sq_asset_link (
   linkid        INT UNSIGNED NOT NULL,
   majorid       INT UNSIGNED NOT NULL,
@@ -40,21 +37,15 @@ CREATE TABLE sq_asset_link (
   UNIQUE real_pk (majorid, minorid, link_type, value)
 );
 
-DROP TABLE IF EXISTS sq_asset_link_tree;
 CREATE TABLE sq_asset_link_tree (
   treeid              VARCHAR(248) NOT NULL DEFAULT '',
   linkid              INT UNSIGNED NOT NULL,
   num_immediate_kids  INT UNSIGNED NOT NULL,
   PRIMARY KEY(treeid)
 );
-#DROP INDEX sq_asset_link_tree_linkid;
 CREATE INDEX sq_asset_link_tree_linkid ON sq_asset_link_tree (linkid);
-#DROP INDEX sq_asset_link_tree_num_immediate_kids;
 CREATE INDEX sq_asset_link_tree_num_immediate_kids ON sq_asset_link_tree (num_immediate_kids);
 
-
-
-DROP TABLE IF EXISTS sq_asset_type;
 CREATE TABLE sq_asset_type (
   type_code       VARCHAR(100) NOT NULL DEFAULT '',
   version         VARCHAR(10)  NOT NULL DEFAULT '0.0.1',
@@ -70,7 +61,6 @@ CREATE TABLE sq_asset_type (
 );
 
 
-DROP TABLE IF EXISTS sq_asset_attribute;
 CREATE TABLE sq_asset_attribute (
   attributeid            INT UNSIGNED NOT NULL,
   type_code              VARCHAR(100) NOT NULL DEFAULT '',
@@ -89,7 +79,6 @@ CREATE TABLE sq_asset_attribute (
   KEY(order_no)
 );
 
-DROP TABLE IF EXISTS sq_asset_attribute_value;
 CREATE TABLE sq_asset_attribute_value (
   assetid       INT UNSIGNED NOT NULL,
   attributeid   INT UNSIGNED NOT NULL,
@@ -98,14 +87,12 @@ CREATE TABLE sq_asset_attribute_value (
 );
 
 
-DROP TABLE IF EXISTS sq_asset_type_inherited;
 CREATE TABLE sq_asset_type_inherited (
   inherited_type_code VARCHAR(100) NOT NULL DEFAULT '',
   type_code           VARCHAR(100) NOT NULL DEFAULT '',
   PRIMARY KEY(inherited_type_code, type_code)
 );
 
-DROP TABLE IF EXISTS sq_asset_url;
 CREATE TABLE sq_asset_url (
   urlid       SMALLINT UNSIGNED NOT NULL,
   assetid     INT UNSIGNED NOT NULL,
@@ -116,7 +103,6 @@ CREATE TABLE sq_asset_url (
   UNIQUE (url)
 );
 
-DROP TABLE IF EXISTS sq_asset_path; 
 CREATE TABLE sq_asset_path (
   path       VARCHAR(255) NOT NULL DEFAULT '',
   assetid    INT UNSIGNED NOT NULL,
@@ -124,7 +110,6 @@ CREATE TABLE sq_asset_path (
   PRIMARY KEY  (path, assetid)
 );
 
-DROP TABLE IF EXISTS sq_asset_lookup;
 CREATE TABLE sq_asset_lookup (
   url             VARCHAR(255) NOT NULL DEFAULT '',
   assetid         INT NOT NULL,
@@ -135,7 +120,6 @@ CREATE TABLE sq_asset_lookup (
 );
 
 
-DROP TABLE IF EXISTS sq_asset_permission;
 CREATE TABLE sq_asset_permission (
   permissionid INT UNSIGNED NOT NULL,
   assetid      INT UNSIGNED NOT NULL,
@@ -147,7 +131,6 @@ CREATE TABLE sq_asset_permission (
 );
 
 
-DROP TABLE IF EXISTS sq_asset_permission_lookup;
 CREATE TABLE sq_asset_permission_lookup (
   permissionid  INT UNSIGNED NOT NULL,
   start_treeid  VARCHAR(248) NOT NULL,
@@ -157,7 +140,6 @@ CREATE TABLE sq_asset_permission_lookup (
 );
 
 
-DROP TABLE IF EXISTS sq_asset_lock;
 CREATE TABLE sq_asset_lock (
   assetid        INT      UNSIGNED NOT NULL,
   source_asset   INT      UNSIGNED NOT NULL,
@@ -167,14 +149,12 @@ CREATE TABLE sq_asset_lock (
 );
 
 
-DROP TABLE IF EXISTS sq_asset_workflow;
 CREATE TABLE sq_asset_workflow (
   assetid    INT      UNSIGNED NOT NULL,
   workflow   LONGTEXT          NOT NULL DEFAULT '',
   PRIMARY KEY(assetid)
 );
 
-DROP TABLE IF EXISTS sq_asset_running_workflow;
 CREATE TABLE sq_asset_running_workflow (
   workflowid VARCHAR(100)      NOT NULL,
   complete   SMALLINT UNSIGNED NOT NULL DEFAULT 0,
@@ -183,7 +163,6 @@ CREATE TABLE sq_asset_running_workflow (
 );
 
 
-DROP TABLE IF EXISTS sq_internal_message;
 CREATE TABLE sq_internal_message (
   messageid  INT UNSIGNED NOT NULL,
   userto     INT UNSIGNED NOT NULL DEFAULT 0,
