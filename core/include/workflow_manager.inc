@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.59 2004/12/03 15:33:23 brobertson Exp $
+* $Id: workflow_manager.inc,v 1.59.2.1 2005/02/22 23:41:22 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -716,6 +716,10 @@ class Workflow_Manager extends MySource_Object
 					$msg->body    = $asset_type.' "'.$asset->name.'" is currently in workflow and has progressed from step '.(int)$steps_before[$schemaid].' to step '.(int)$step.'.'."\n".'You are now required to approve or reject the changes made to "'.$asset->name.'" so the workflow process can continue.';
 					// create a link for navigation to the workflow screen for this asset
 					$msg->body .= "\n\n".'A full report for the Workflow of "'.$asset->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$asset->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>';
+					$asset_url = $asset->getURL();
+					if (!empty($asset_url)) {
+						$msg->body .= "\n".' You can also <SQ_MSG_LINK href="'.$asset_url.'">preview this asset.</SQ_MSG_LINK>';
+					}
 					$msg->type    = 'asset.workflow.invitation';
 					$msg->parameters['assetid'] = $asset->id;
 					$msg->send();
