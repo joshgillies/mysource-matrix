@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.299 2004/06/07 04:03:33 gsherwood Exp $
+* $Id: asset.inc,v 1.300 2004/06/07 04:53:57 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -629,6 +629,13 @@ class Asset extends MySource_Object
 			return false;
 		}
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_attribute_unique_value', $where_cond)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		// delete any permissions we have assigned to us or are assigned to
+		$where_cond = 'assetid = '.$db->quote($this->id). 'OR userid = '.$db->quote($this->id);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_permission', $where_cond)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
