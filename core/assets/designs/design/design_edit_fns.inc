@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.68 2004/04/19 11:50:46 brobertson Exp $
+* $Id: design_edit_fns.inc,v 1.69 2004/06/18 03:40:45 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -85,6 +85,10 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function processParseFile(&$asset, &$o, $prefix)
 	{
+		// make sure a file was uploaded before processing it
+		$upload_info = get_file_upload_info($prefix.'_parse_file');
+		if (empty($upload_info)) return false;
+		
 		$parse_file  = $asset->data_path.'/parse.txt';
 		$changes     = false;
 		$new_version = false;
