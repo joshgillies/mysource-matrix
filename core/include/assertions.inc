@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: assertions.inc,v 1.5 2004/06/01 00:25:35 lwright Exp $
+* $Id: assertions.inc,v 1.6 2004/06/07 03:57:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -330,7 +330,7 @@ function assert_isset($test, $msg='', $silent=false, $fatal=true)
 * @access public
 * @return boolean
 */
-function assert_isset_array_index($test, $index, $msg, $silent=false, $fatal=true)
+function assert_isset_array_index($test, $index, $msg='', $silent=false, $fatal=true)
 {
 	assert_type($test, 'array');
 
