@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.2 2005/01/20 13:07:32 brobertson Exp $
+* $Id: asset.xml,v 1.3 2005/03/16 13:50:26 brobertson Exp $
 *
 */
 -->
@@ -30,7 +30,7 @@
 	<package>__core__</package>
 	<type_code>design_area_head</type_code>
 	<version>0.1</version>
-	<name>head Design Area</name>
+	<name>Head Design Area</name>
 	<description>This is the design area that lets assets print stuff in the head of the HTML document</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
