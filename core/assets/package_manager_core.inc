@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.16 2005/02/07 05:02:47 gsherwood Exp $
+* $Id: package_manager_core.inc,v 1.17 2005/02/17 06:15:16 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 */
 class Package_Manager_Core extends Package_Manager
@@ -177,6 +177,7 @@ class Package_Manager_Core extends Package_Manager
 					'root_user',
 					'authentication_folder',
 					'cron_manager',
+					'trigger_manager',
 					'layout_manager',
 					'remap_manager',
 					'cache_manager',
@@ -361,6 +362,30 @@ class Package_Manager_Core extends Package_Manager
 		return $cron_manager;
 
 	}//end createCronManager()
+
+
+	/**
+	* Create the trigger manager system asset
+	*
+	* @return object Trigger_Manager
+	* @access public
+	*/
+	function &createTriggerManager()
+	{
+		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['system_management_folder']);
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('trigger_manager');
+		$trigger_manager = new Trigger_Manager();
+		$trigger_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
+		if (!$trigger_manager->create($trigger_manager_link)) {
+			trigger_error('Trigger Manager NOT CREATED', E_USER_ERROR);
+		}
+		pre_echo('Trigger Manager Asset Id : '.$trigger_manager->id);
+
+		$GLOBALS['SQ_SYSTEM_ASSETS']['trigger_manager'] = $trigger_manager->id;
+		return $trigger_manager;
+
+	}//end createTriggerManager()
 
 
 	/**
