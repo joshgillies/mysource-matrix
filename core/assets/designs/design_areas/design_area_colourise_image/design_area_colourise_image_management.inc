@@ -20,7 +20,7 @@ class Design_Area_Colourise_Image_Management extends Asset_Management
 	*/
 	function Design_Area_Colourise_Image_Management(&$pm)
 	{
-		$this->Asset_Management(&$pm);
+		$this->Asset_Management($pm);
 
 		$this->vars = Array(
 							'id_name'   => Array(
@@ -32,9 +32,10 @@ class Design_Area_Colourise_Image_Management extends Asset_Management
 								'default'   => ''
 							),
 							'colours' => Array(
-								'added'     => '0.0.1',
-								'type'      => 'text',
-								'default'   => ''
+								'added'       => '0.0.1',
+								'type'        => 'array',
+								'default'     => '',
+								'description' => 'Associative Array of colours that are going to be used in the converison process'
 							),
 							'filename_only' => Array(
 								'added'     => '0.0.1',

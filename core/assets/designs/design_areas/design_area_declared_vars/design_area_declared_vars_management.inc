@@ -20,16 +20,17 @@ class Design_Area_Declared_Vars_Management extends Asset_Management
 	*/
 	function Design_Area_Declared_Vars_Management(&$pm)
 	{
-		$this->Asset_Management(&$pm);
+		$this->Asset_Management($pm);
 
 		$this->vars = Array(
 							'id_name'   => Array(
 								'default'   => 'Design Name'
 							),
-							'declared_vars' => Array(
-								'added'     => '0.0.1',
-								'type'      => 'text',
-								'default'   => ''
+							'declared_vars'   => Array(
+								'added'       => '0.0.1',
+								'type'        => 'array',
+								'default'     => Array(),
+								'description' => 'Holds the names for all variables that are "references" to values in other'
 							),
 						);
 

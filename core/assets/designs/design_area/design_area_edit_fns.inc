@@ -62,8 +62,8 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		$file_contents = preg_replace($e, '\\1', $file_contents);
 
 		// replace any image roots with a print operation for the image prefix
-		$e = '/(((src)|(background))=")files([^"]*")/i';
-		$file_contents = preg_replace($e, '\\1<'.SQ_SYSTEM_SHORT_NAME.'_PRINT id_name=\'__global__\' var=\'file_prefix\' />\\5', $file_contents);
+		$e = '/(((src)|(background))=")files\\/([^"]*)(")/i';
+		$file_contents = preg_replace($e, '\\1<'.SQ_SYSTEM_SHORT_NAME.'_PRINT id_name=\'__global__\' var=\'file_path\' filename=\'\\5\' />\\6', $file_contents);
 
 		//// DEAL WITH STYLESHEETS ////
 
@@ -81,8 +81,8 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		$file_contents = preg_replace($e, '\\1', $file_contents);
 
 		// replace any image roots with a print operation for the image prefix
-		$e = '/(<link[^>]*href=")files([^"]*")/i';
-		$file_contents = preg_replace($e, '\\1<'.SQ_SYSTEM_SHORT_NAME.'_PRINT id_name=\'__global__\' var=\'file_prefix\' />\\2', $file_contents);
+		$e = '/(<link[^>]*href=")files\\/([^"]*)(")/i';
+		$file_contents = preg_replace($e, '\\1<'.SQ_SYSTEM_SHORT_NAME.'_PRINT id_name=\'__global__\' var=\'file_path\' filename=\'\\2\' />\\3', $file_contents);
 
 
 
@@ -97,7 +97,6 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		$file_contents = preg_replace('/<\\/'.SQ_SYSTEM_SHORT_NAME.'/i', '</'.SQ_SYSTEM_SHORT_NAME, $file_contents);
 
 		// create the super array from the tags
-
 		$cur_pos    = 0;
 		$nest_level = 0;
 		$contents = $this->_parseStringContents($file_contents, $cur_pos, $nest_level);
@@ -274,13 +273,13 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 
 		// if the next character is an underscore then we have a special operation tag
-		if ($file_contents[$cur_pos] == '_') {
+		if ($file_contents{$cur_pos} == '_') {
 			$cur_pos++;
 			$tag['operation'] = '';
 			// while this isn't the end of the tag and it's not some white space,
 			// append to operation
-			while ($file_contents[$cur_pos] != '>' && !$this->_isWhitespace($file_contents[$cur_pos])) {
-				$tag['operation'] .= $file_contents[$cur_pos];
+			while ($file_contents{$cur_pos} != '>' && !$this->_isWhitespace($file_contents{$cur_pos})) {
+				$tag['operation'] .= $file_contents{$cur_pos};
 				$cur_pos++;
 
 			}//end while
@@ -290,49 +289,49 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 		}//end if specific operation
 
-		while ($file_contents[$cur_pos] != '>' || $in_quote) {
+		while ($file_contents{$cur_pos} != '>' || $in_quote) {
 
-			$escape_slash = (!$in_quote && $file_contents[$cur_pos] == '/');
+			$escape_slash = (!$in_quote && $file_contents{$cur_pos} == '/');
 			if (!$escape_slash) {
 				// if we are not currenly getting any thing and we happen to fall upon
 				// a non-whitespace charater then let's assume its an attribute name
 				// and start getting it
-				if (!$currently_getting && !$this->_isWhitespace($file_contents[$cur_pos])) {
+				if (!$currently_getting && !$this->_isWhitespace($file_contents{$cur_pos})) {
 					$currently_getting = 'name';
 				}
 
 
 				if ($currently_getting == 'name') {
 					// if this is the equals sign then time to change to getting the value
-					if ($file_contents[$cur_pos] == '=') {
+					if ($file_contents{$cur_pos} == '=') {
 						$currently_getting = 'value';
 						$current_value = '';
 
 					// if its whitespace then they fucked up so discard this name
-					} elseif ($this->_isWhitespace($file_contents[$cur_pos])) {
+					} elseif ($this->_isWhitespace($file_contents{$cur_pos})) {
 						$currently_getting = '';
 						$current_name = '';
 					// must be a character, append to name
 					} else {
-						$current_name .= $file_contents[$cur_pos];
+						$current_name .= $file_contents{$cur_pos};
 					}
 
 				} else if ($currently_getting == 'value') {
 
 					// if the current value is blank, we are not in a quote and this char is a quote
 					// then we must be starting a new value
-					$is_quote = ($file_contents[$cur_pos] == '\'' || $file_contents[$cur_pos] == '"');
+					$is_quote = ($file_contents{$cur_pos} == '\'' || $file_contents{$cur_pos} == '"');
 					if (!$current_value && !$in_quote && $is_quote) {
-						$in_quote = $file_contents[$cur_pos];
+						$in_quote = $file_contents{$cur_pos};
 					
 					// if we're not in a quote, then this value doesn't have quotes around it
 					// so just keep going until we hit some whitespace
-					} else if (!$in_quote && !$this->_isWhitespace($file_contents[$cur_pos])) {
-						$current_value .= $file_contents[$cur_pos];
+					} else if (!$in_quote && !$this->_isWhitespace($file_contents{$cur_pos})) {
+						$current_value .= $file_contents{$cur_pos};
 					
 					// if we are in a quote and this char is not that quote, append
-					} else if ($in_quote && $file_contents[$cur_pos] != $in_quote) {
-						$current_value .= $file_contents[$cur_pos];
+					} else if ($in_quote && $file_contents{$cur_pos} != $in_quote) {
+						$current_value .= $file_contents{$cur_pos};
 					
 					// else we are either not in a quote and have hit some white space
 					// or we are in a quote and have found a another quote of the same char
@@ -426,9 +425,10 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	*
 	* @access private
 	*/
-	function _processContents(&$asset, &$contents) 
+	function _processContents(&$asset, $contents) 
 	{
 		$this->_setVariables($asset, $contents);
+		$asset->setAttrValue('contents', $contents);
 	}// end _processContents()
 
 
@@ -448,6 +448,8 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	function _setVariables(&$asset, &$contents)
 	{
 		// process the set operations of the element
+		$remove_indexes = Array();
+		$var_references = Array();
 		foreach($contents as $index => $element) {
 
 			if ($element['_type'] != 'TAG' || $element['operation'] != 'set') continue;
@@ -461,7 +463,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 			} elseif (!empty($element['attributes']['id_name']) && !empty($element['attributes']['var'])) {
 
 				// just set this so we remember what is happening when it comes to painting
-				$asset->var_references[$element['attributes']['name']] = Array(
+				$var_references[$element['attributes']['name']] = Array(
 																				'id_name' => $element['attributes']['id_name'],
 																				'var'     => $element['attributes']['var']
 																				);
@@ -477,11 +479,20 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 			}// endif
 
-			// we can remove it from the element now that we have set it
-			// we can do and not affect the loop because foreach works on a copy
-			unset($contents[$index]);
+			$remove_indexes[] = $index;
 
 		}//end foreach
+
+		$asset->setAttrValue('var_references', $var_references);
+
+		// Now remove the elems
+		// reverse the order so we don't throw the numbers out of whack by removing one from the start
+		rsort($remove_indexes, SORT_NUMERIC);
+		foreach($remove_indexes as $i) {
+			array_splice($contents, $i, 1);
+		}
+
+
 
 	}//end _setVariables()
 
@@ -502,53 +513,52 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* Outputs the PHP/HTML code that will hopefully form part of the creating the design file
 	*
 	* @param object Asset	$asset		the asset to which we belong
-	* @param array			$contents	the contents array we generated with _parseString()
 	* @param object Design	$design		the design object that is painting us
 	*
 	* @return boolean
 	* @access private
 	*/
-	function _createDesignFileOutput(&$asset, &$contents, &$design) 
+	function _createDesignFileOutput(&$asset, &$design) 
 	{
-
-
 		// firstly let's check to see if all the design areas have unique names
-		foreach($contents as $index => $element) {
+		foreach($asset->vars['contents']['value'] as $index => $element) {
 
-#pre_echo('=============================');
 			if ($element['_type'] == 'HTML') {
-#pre_echo($element['contents']);
 				echo $element['contents'];
 			} else {
 
 				switch($element['operation']) {
 					case 'print' :
-#						pre_echo($element);
-
-						unset($id_obj); // unset, then set to null 
-						$id_obj = null; // so that we don't kill the object that we previously referenced :)
+						unset($id_obj); // } unset, then set to null so that we don't kill
+						$id_obj = null; // } the object that we were previously referenced :)
 						// if there isn't a id_name we are using the current asset
 						if (empty($element['attributes']['id_name'])) {
 							$id_obj = &$asset;
 						// this is the global design var ?
 						} elseif ($element['attributes']['id_name'] == '__global__') {
 							$id_obj = &$design;
-						// this is the global design var ?
+						// otherwise we have to find the design area
 						} else {
 							$id_obj = &$design->getDesignArea($element['attributes']['id_name']);
+							if (is_null($id_obj)) {
+								trigger_error('Design Area "'.$element['attributes']['id_name'].'" not found, ignoring print operation', E_USER_WARNING);
+								continue;
+							}
 						}
 
 						if (empty($element['attributes']['var'])) {
 							$id_obj->printArea($design);
 						} else {
-#							pre_echo("PRINT ELEMENT : ".get_class($id_obj)."--->".$element['attributes']['var']);
-							$id_obj->printVar($element['attributes']['var']);
+							$args = $element['attributes'];
+							unset($args['id_name']);
+							unset($args['var']);
+							$id_obj->printVar($element['attributes']['var'], $args);
 						}// endif
 
 					break;
 
 					default :
-						trigger_error('Tag Operation "'.$element['operation'].'" unknown');
+						trigger_error('Tag Operation "'.$element['operation'].'" unknown', E_USER_WARNING);
 				}
 
 			}// end if
@@ -558,6 +568,35 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		return true;
 		
 	}// end _createDesignFileOutput()
+
+
+	/**
+	*
+	* @param object Asset				$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintSpecialisation(&$asset, &$o, $prefix) 
+	{
+		text_area($prefix.'_specialisation', '', 80, 20);
+	}// end paintSpecialisation()
+
+	/**
+	*
+	* @param object Asset	$asset	the asset to which we belong
+	* @param string			$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processSpecialisation(&$asset, $prefix) 
+	{
+		pre_echo("SPECIALISATION : \n".$_POST[$prefix.'_specialisation']);
+
+	}// end processSpecialisation()
 
 }//end class
 ?>

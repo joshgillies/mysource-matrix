@@ -23,9 +23,10 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 	*
 	* @access private
 	*/
-	function _processContents(&$asset, &$contents) 
+	function _processContents(&$asset, $contents) 
 	{
 		$vars = Array();
+		$declared_vars = Array();
 		// firstly let's check to see if all the design areas have unique names
 		foreach($contents as $index => $element) {
 			if ($element['_type'] != 'TAG' || $element['operation'] != 'declare') continue;
@@ -40,17 +41,77 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 
 			trigger_error('NEED TO MAKE SURE THAT THE TYPE IS VALID HERE', E_USER_NOTICE);
 
-			$asset->declared_vars[$element['attributes']['name']] = Array(
-																'type'        => $element['attributes']['type'],
-																'value'       => $element['attributes']['value'],
-																'description' => $element['attributes']['description'],
-																);
+			$name = preg_replace('/[^a-z0-9_]/i', '_', $element['attributes']['name']);
+
+			if ($name != $element['attributes']['name']) {
+				trigger_error('Declared Variable "'.$element['attributes']['name'].'" in "'.$asset->attr('id_name').'" contained illegal characters and has been changed to "'.$name.'"', E_USER_WARNING);
+			}
+
+			$declared_vars[$name] = Array(
+											'type'        => $element['attributes']['type'],
+											'value'       => $element['attributes']['value'],
+											'description' => $element['attributes']['description'],
+											);
 		}// end foreach
 
 		// now make sure we save our changes
-		$asset->setAttrValue('declared_vars', serialize($asset->declared_vars));
+		$asset->setAttrValue('declared_vars', $declared_vars);
+
+		// NOTE: we deliberately don't set the 'contents' as is done in other design areas
 	
 	}// end _processContents()
+
+	/**
+	*
+	* @param object Asset				$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintDecVars(&$asset, &$o, $prefix) 
+	{
+		$attrs = $asset->getDeclaredVarAttributes();
+		foreach($attrs as $name => $attr) {
+			$o->openField($name);
+			$attr->paint($prefix);
+			if ($asset->vars['declared_vars']['value'][$name]['description']) $o->note($asset->vars['declared_vars']['value'][$name]['description']);
+		}
+	}// end paintSpecialisation()
+
+	/**
+	*
+	* @param object Asset	$asset	the asset to which we belong
+	* @param string			$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processDecVars(&$asset, $prefix) 
+	{
+		pre_echo("PROCESS DEC VARS");
+		$save = false;
+		$attrs = $asset->getDeclaredVarAttributes();
+		$declared_vars = $asset->attr('declared_vars');
+		foreach($attrs as $name => $attr) {
+			$attr->process($prefix);
+			if ($attr->processed) {
+				$declared_vars[$name]['value'] = $attr->value;
+				$save = true;
+			}
+		}
+
+		if ($save) {
+			// now make sure we save our changes
+			$asset->setAttrValue('declared_vars', $declared_vars);
+			$asset->_tmp['regenerate_design'] = true;
+			return true;
+		} else {
+			return false;
+		}
+
+	}// end processDecVars()
 
 }//end class
 ?>

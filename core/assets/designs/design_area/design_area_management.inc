@@ -20,12 +20,29 @@ class Design_Area_Management extends Asset_Management
 	*/
 	function Design_Area_Management(&$pm)
 	{
-		$this->Asset_Management(&$pm);
+		$this->Asset_Management($pm);
 
 		$this->vars = Array('id_name' => Array(
 								'added'     => '0.0.1',
 								'type'      => 'text',
 								'default'   => ''
+								),
+							'contents' => Array(
+								'added'     => '0.0.1',
+								'type'      => 'array',
+								'default'   => '',
+								'description' => 'Holds the processed contents array'
+								),
+							'var_references' => Array(
+								'added'     => '0.0.1',
+								'type'      => 'array',
+								'default'   => '',
+								'description' => 'Holds the names for all variables that are "references" to values in other'
+								),
+							'specialised' => Array(
+								'added'     => '0.0.1',
+								'type'      => 'int',
+								'default'   => 0
 								)
 							);
 

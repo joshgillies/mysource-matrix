@@ -14,24 +14,6 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 */
 class Design_Area_Colourise_Image extends Design_Area
 {
-	/**
-	* Associative Array of colours that are going to be used in the converison process
-	* @var Array();
-	*/
-	var $colours = Array();
-
-	/**
-	* Load the asset represented by the passed asset id
-	*
-	* @param int    $assetid      the asset id to be loaded
-	*
-	* @access public
-	*/
-	function load($assetid)
-	{
-		parent::load($assetid);
-		if ($this->vars['colours']['value']) $this->colours = unserialize($this->vars['colours']['value']);
-	}// end load()
 
 	/**
 	* Set the value for the passed variable to the passed value
@@ -49,9 +31,9 @@ class Design_Area_Colourise_Image extends Design_Area
 		// $this->colours and then save that array
 		if ($name == 'black_colour' || $name == 'white_colour' 
 			|| stristr($name, 'from_colour') || stristr($name, 'to_colour')) {
-			$this->colours[$name] = $value;
+			$this->vars['colours']['value'][$name] = $value;
 			$name = 'colours';
-			$value = serialize($this->colours);
+			$value = $this->vars['colours']['value'];
 		}
 
 		return parent::setAttrValue($name, $value);
@@ -68,10 +50,10 @@ class Design_Area_Colourise_Image extends Design_Area
 	*/
 	function attr($name) 
 	{
-		if (empty($this->colours[$name])) {
+		if (empty($this->vars['colours']['value'][$name])) {
 			return parent::attr($name);
 		} else { 
-			return $this->colours[$name];
+			return $this->vars['colours']['value'][$name];
 		}
 	}//end attr();
 

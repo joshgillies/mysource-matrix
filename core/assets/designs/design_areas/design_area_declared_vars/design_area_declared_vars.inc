@@ -14,21 +14,6 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 */
 class Design_Area_Declared_Vars extends Design_Area
 {
-	
-	var $declared_vars = Array();
-
-	/**
-	* Load the asset represented by the passed asset id
-	*
-	* @param int    $assetid      the asset id to be loaded
-	*
-	* @access public
-	*/
-	function load($assetid)
-	{
-		parent::load($assetid);
-		if ($this->vars['declared_vars']['value']) $this->declared_vars = unserialize($this->vars['declared_vars']['value']);
-	}//end load()
 
 	/**
 	* Easy way to get the value of an attribute
@@ -40,24 +25,38 @@ class Design_Area_Declared_Vars extends Design_Area
 	*/
 	function attr($name) 
 	{
-		if (empty($this->declared_vars[$name])) {
+		if (empty($this->vars['declared_vars']['value'][$name])) {
 			return parent::attr($name);
 		} else { 
-			return $this->declared_vars[$name]['value'];
+			return $this->vars['declared_vars']['value'][$name]['value'];
 		}
 	}//end attr();
 
 	/*
-	* Outputs the var either as straight HTML or PHP code, depending on the type
+	* Returns an array of Asset_Attribute object, one foreach declared var
 	*
-	* @param string	$var	the name of the var to print out
-	*
+	* @return Array(object Asset_Attribute)
 	* @access public
 	*/
-	function printVar($var) 
+	function getDeclaredVarAttributes() 
 	{
-		echo $this->declared_vars[$var]['value'];
-	}//end printVar()
+		$attrs = Array();
+		foreach($this->vars['declared_vars']['value'] as $name => $data) {
+			$type = basename($data['type']); // just to make sure they aren't attempting to be a bit tricky
+			// do include,so it doesn't die if it ain't there
+			include_once SQ_ATTRIBUTES_PATH.'/'.$type.'/'.$type.'.inc';
+			$attr_class = 'Asset_Attribute_'.$type;
+			if(!class_exists($attr_class)) {
+				trigger_error('Attribute Type "'.$type.'" not found for "'.$name.'"', E_USER_WARNING);
+				continue;
+			}
+			$attrs[$name] = new $attr_class(0, $data['value']);
+			$attrs[$name]->name = $name;
+		}
+
+		return $attrs;
+		
+	}//end getDeclaresVarAttributes()
 
 
 }//end class

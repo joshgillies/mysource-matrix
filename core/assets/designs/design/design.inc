@@ -20,7 +20,7 @@ class Design extends Design_Area
 	* @param int    $assetid      the asset id to be loaded
 	*
 	*/
-	function Design($assetid=0) 
+	function Design($assetid=0)
 	{
 		$this->Design_Area($assetid);
 	}
@@ -31,18 +31,45 @@ class Design extends Design_Area
 	* @see Asset::_getAllowLinks()
 	* @access private
 	*/
-	function _getAllowedLinks() 
+	function _getAllowedLinks()
 	{
 		return Array(SQ_LINK_EXCLUSIVE => Array(),
-					 SQ_LINK_UNITE     => Array(),
-					 SQ_LINK_USES      => Array('design_area' => 'M'),
+					 SQ_LINK_UNITE     => Array('design_customisation' => 'M'),
+					 SQ_LINK_USES      => Array('design_area'          => 'M'),
 					 SQ_LINK_NOTICE    => Array()
 					);
 
 	}//end _getAllowedLinks()
 
 
-	/*
+	/**
+	* Moves a link from one place in this assets links order to another position
+	*
+	* @param int	$linkid		the link id of the link to move about
+	* @param string $sort_order	the position in the links list that this link should take, if less than zero places at end of list
+	*
+	* @return boolean
+	* @access public
+	* @see Asset::moveLinkPos()
+	*/
+	function moveLinkPos($linkid, $sort_order=-1)
+	{
+		trigger_error('Links under Designs are system controlled and therefore cannot be moved', E_USER_WARNING);
+		return false;
+	}//end moveLinkPos()
+
+	/**
+	* Called whenever any type of link is changed, allows caching of objects, links and other stuff 
+	* to occur but not cause integrity issues during script execution
+	*
+	* @access private
+	*/
+	function _linksUpdated()
+	{
+		foreach(array_keys($this->_tmp['design_areas']) as $id_name) unset($this->_tmp['design_areas'][$id_name]);
+	}//end _linksUpdated()
+
+	/**
 	* Returns the link information for the design area with the given id_name or all design areas
 	*
 	* @param string	$id_name		the id of the design area to get, if blank returns links for all design areas
@@ -50,24 +77,24 @@ class Design extends Design_Area
 	* @return Array | null
 	* @access public
 	*/
-	function getDesignAreaLink($id_name='') 
+	function getDesignAreaLink($id_name='')
 	{
 		if ($id_name) {
 			return @$this->getLink(SQ_LINK_USES, 'design_area', false, $id_name);
 		} else {
 			return @$this->getLinks(SQ_LINK_USES, 'design_area', false);
 		}
-	}//end getDesignArea()
+	}//end getDesignAreaLink()
 
-	/*
+	/**
 	* Returns a design area for the given id_name
 	*
 	* @param string	$id_name		the id of the design area to get
 	*
-	* @return Design_Area | null
+	* @return object Design_Area | null
 	* @access public
 	*/
-	function &getDesignArea($id_name) 
+	function &getDesignArea($id_name)
 	{
 		if (empty($this->_tmp['design_areas'][$id_name])) {
 			if (!isset($this->_tmp['design_areas'])) $this->_tmp['design_areas'] = Array();
@@ -75,48 +102,73 @@ class Design extends Design_Area
 			if (is_null($link)) {
 				$this->_tmp['design_areas'][$id_name] = null;
 			} else {
-				$this->_tmp['design_areas'][$id_name] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code'], true);
+				$this->_tmp['design_areas'][$id_name] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
 			}
 		}
 		return $this->_tmp['design_areas'][$id_name];
 	}//end getDesignArea()
 
 
-	/*
+	/**
 	* processes a backend submission from this asset, returns true if all OK
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processBackend() 
+	function processBackend()
 	{
-		// set this
-		$this->tmp['need_file_parse'] = false;
-		// now process as usual
-		parent::processBackend();
-		// and if anything was set that gives us cause for a re-parse, execute the parse
-		if($this->tmp['need_file_parse']) {
-			trigger_error("Parsing Not Done", E_USER_NOTICE);
-		}// end switch
+		$this->_tmp['regenerate_design'] = false;
+		$this->_tmp['update_customisations'] = false;
+		$processed = parent::processBackend();
+		if ($processed) {
+
+			// regenerate the design, 
+			// but don't do the customisations if they have yet to be updated 
+			// (they will be regenerated during the update process anyway)
+			if ($this->_tmp['regenerate_design'])     $this->generateDesignFile(!$this->_tmp['update_customisations']);
+			if ($this->_tmp['update_customisations']) $this->_updateCustomisations();
+			
+		}// end if
+
+		return $processed;
 
 	}// end processBackend()
 
-	/*
-	* Outputs the var either as straight HTML or PHP code, depending on the type
+	/**
+	* Updates each of our customisations from ourselves
+	*
+	* @access private
+	*/
+	function _updateCustomisations()
+	{
+		$customisation_links = &$this->getLinks(SQ_LINK_UNITE, 'design_customisation', true, 'major', 'customisation');
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		foreach($customisation_links as $link) {
+			$customisation = &$am->getAsset($link['minorid'], $link['type_code']);
+			if (is_null($customisation)) continue;
+			$customisation->updateFromParent($this);
+		}// end foreach
+
+	}// end _updateCustomisations()
+
+
+	/**
+	* Outputs the either as straight HTML or PHP code for the var, depending on the type
 	*
 	* @param string	$var	the name of the var to print out
+	* @param Array	$args	array of any extra arguments that existed in the print command
 	*
 	* @access public
 	*/
-	function printVar($var) 
+	function printVar($var, $args)
 	{
 		switch($var) {
 			case 'html_header' :
 				echo '
-				<!--   <?php echo SQ_CONF_SYSTEM_NAME; ?> 
-					  Content © Copyright <?php echo SQ_CONF_SYSTEM_OWNER; ?> 
-					Running <?php echo SQ_SYSTEM_LONG_NAME; ?> - <?php echo SQ_SYSTEM_URL; ?> 
-				   Developed by Squiz  - http://www.squiz.net 
+				<!--   <?php echo SQ_CONF_SYSTEM_NAME; ?>
+					  Content © Copyright <?php echo SQ_CONF_SYSTEM_OWNER; ?>
+					Running <?php echo SQ_SYSTEM_LONG_NAME; ?> - <?php echo SQ_SYSTEM_URL; ?>
+				   Developed by Squiz  - http://www.squiz.net
 				  © Copyright <?php echo date(\'Y\') ?>. All rights reserved.
 				  Page generated: <?php $time = getdate(); echo $time[\'mday\'], \' \', $time[\'month\'], \' \', $time[\'year\']; ?>
 				-->
@@ -129,8 +181,14 @@ class Design extends Design_Area
 			case 'html_footer' :
 				break;
 
-			case 'file_prefix' :
-				echo '<?php echo $FILE_PREFIX;?>';
+			case 'site_name' :
+			case 'page_name' :
+			case 'page_title' :
+				echo '"', ucwords(str_replace('_', ' ', $var)), '" NOT PROGRAMMED YET';
+				break;
+
+			case 'file_path' :
+				echo '<?php echo $DATA_PATH;?>/'.$this->webFileSuffix($args['filename']);
 				break;
 
 			default :
@@ -140,25 +198,73 @@ class Design extends Design_Area
 	}//end printVar()
 
 
-	/*
+	/**
 	* Paints out our design
 	*
 	* @param object Asset	$ASSET	the asset that we are going to print the body for
 	*
 	* @access public
 	*/
-	function paint(&$ASSET) 
+	function paint(&$ASSET)
 	{
 		// this works because we know that all design areas are not going to be restricted
 		$DATA_PATH   = SQ_WWW_BASE_DIR.'/__data';
-		$FILE_PREFIX = $DATA_PATH.'/'.$this->type().'/'.$this->id.'/files';
-
 		// Now we just include the design file to get it to print.
 		speed_check();
-		require_once $this->_data_path.'/design_file.php';
+		require_once $this->data_path.'/design_file.php';
 		speed_check();
 	}//end paint()
 
+	/**
+	* (Re)Generates the design file
+	*
+	* @param bool	$do_customisations	Generate design files for any customisations
+	*
+	* @access public
+	*/
+	function generateDesignFile($do_customisations=true)
+	{
+		$edit_fns = $this->getEditFns();
+		$edit_fns->createDesignFile($this);
+
+		if ($do_customisations) {
+			$customisation_links = &$this->getLinks(SQ_LINK_UNITE, 'design_customisation', true, 'major', 'customisation');
+			$am = &$GLOBALS['SQ_SYSTEM']->am;
+			foreach($customisation_links as $link) {
+				$customisation = &$am->getAsset($link['minorid'], $link['type_code']);
+				if (is_null($customisation)) continue;
+				$customisation->generateDesignFile(true);
+			}// end foreach
+		}// end if
+
+	}//end generateDesignFile()
+
+	/**
+	* Returns the file system path to the uploaded file
+	*
+	* @param string	$filename	the filename to return the path to
+	*
+	* @return string
+	* @access public
+	*/
+	function filePath($filename)
+	{
+		return $this->data_path.'/files/'.$filename;
+	}//end filePath()
+
+	/**
+	* Returns the path that has to be appended to the SQ_WWW_BASE_DIR.'/__data' to
+	* get access to the file for this design
+	*
+	* @param string	$filename	the filename to return the path to
+	*
+	* @return string
+	* @access public
+	*/
+	function webFileSuffix($filename)
+	{
+		return $this->type().'/'.$this->id.'/files/'.$filename;
+	}//end webFilesSuffix()
 
 }//end class
 ?>

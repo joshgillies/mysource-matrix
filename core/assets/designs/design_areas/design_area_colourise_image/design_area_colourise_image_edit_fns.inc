@@ -28,10 +28,10 @@ class Design_Area_Colourise_Image_Edit_Fns extends Design_Area_Edit_Fns
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		require_once SQ_FUDGE_PATH.'/image/image.inc';
 
-		$source = $design->_data_path.'/files/'.$asset->attr('image');
-		$dest   = $asset->_data_path.'/colourised_'.$asset->attr('image');
+		$source = $design->filePath($asset->attr('image'));
+		$dest   = $asset->data_path.'/colourised_'.$design->id.'_'.$asset->attr('image');
 
-		create_directory($asset->_data_path);
+		create_directory($asset->data_path);
 
 		// check the source file exists
 		if (!file_exists($source)) {

@@ -6,19 +6,27 @@
 			<text width="60" height="1" />
 		</field>
 	</section>
-	<section name="Parse File">
-		<field>
-			<display_name>Upload</display_name>
-			<note>All your images, stylesheets and javascript files &lt;b&gt;MUST&lt;/b&gt; be in the relative directory './files'</note>
+	<section name="Design Areas">
+		<field format="new_line">
+			<display_name>Customised</display_name>
+			<note/>
 			<function_call>
-				<paint_function   name="paintParseFile"   />
-				<process_function name="processParseFile" />
+				<paint_function   name="paintCustomisedDesignAreas"   />
+				<process_function name="processCustomisedDesignAreas" />
+			</function_call>
+		</field>
+		<field format="new_line">
+			<display_name>Un-Customised</display_name>
+			<note/>
+			<function_call>
+				<paint_function   name="paintUnCustomisedDesignAreas"   />
+				<process_function name="processUnCustomisedDesignAreas" />
 			</function_call>
 		</field>
 	</section>
-	<section name="Associated Files">
+	<section name="Customise Associated Files">
 		<field>
-			<display_name>Current</display_name>
+			<display_name>Currently&lt;br /&gt;Customised</display_name>
 			<note/>
 			<function_call>
 				<paint_function   name="paintCurrentFiles"   />

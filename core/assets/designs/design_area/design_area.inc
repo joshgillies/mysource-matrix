@@ -15,12 +15,6 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 class Design_Area extends Asset
 {
 	/**
-	* Holds the names for all variables that are "references" to values in other 
-	* @var Array();
-	*/
-	var $var_references = Array();
-
-	/**
 	* Whether the vars in this design area are static - ie they are going to change when viewing difference pages
 	* @var boolean
 	*/
@@ -34,6 +28,7 @@ class Design_Area extends Asset
 	*/
 	function Design_Area($assetid=0)
 	{
+		$this->_arr_atrs   = true; // we have array type vars
 		// No design area is going to be restricted
 		$this->_restricted = false;
 		$this->Asset($assetid);
@@ -85,24 +80,17 @@ class Design_Area extends Asset
 	*/
 	function processBackend() 
 	{
+		$this->_tmp['regenerate_design'] = false;
+		$processed = parent::processBackend();
+		if ($processed && $this->_tmp['regenerate_design']) {
+			$designs = &$this->getDesigns();
+			for($i = 0, $max = count($designs); $i < $max; $i++) {
+				pre_echo("REGEN FOR ".$designs[$i]->id." - ".$designs[$i]->name);
+				$designs[$i]->generateDesignFile(false);
+			}// end for
+		}// end if
 
-		switch($_POST['asset_action']) {
-			case 'create' :
-				$ei = &$this->getEI();
-				$ei->process($this, true);
-
-				$id_name = $this->getAttribute('id_name');
-				if ($id_name->processed) {
-					return $this->create($id_name->value);
-				} else {
-					return false;
-				}
-				break;
-
-			default :
-				return parent::processBackend();
-
-		}// end switch
+		return $processed;
 
 	}// end processBackend()
 
@@ -115,10 +103,10 @@ class Design_Area extends Asset
 	*/
 	function &getDesigns() 
 	{
-		$links = $this->getLinks(SQ_LINK_USES, 'design', true, 'minor');
+		$links = $this->getLinks(SQ_LINK_USES, 'design', false, 'minor');
 		$designs = Array();
 		foreach($links as $link) {
-			$designs[] = &$GLOBALS['SQ_RESOLVE']->am->getAsset($link['majorid'], 'design', true);
+			$designs[] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['type_code'], true);
 		}
 		return $designs;
 	}//end getDesigns()
@@ -145,10 +133,10 @@ class Design_Area extends Asset
 	*/
 	function attr($name) 
 	{
-		if (empty($this->_tmp['var_reference_values'][$name])) {
-			return parent::attr($name);
-		} else { 
+		if (isset($this->_tmp['var_reference_values'][$name])) {
 			return $this->_tmp['var_reference_values'][$name];
+		} else { 
+			return parent::attr($name);
 		}
 	}//end attr();
 
@@ -167,10 +155,11 @@ class Design_Area extends Asset
 	* Outputs the var either as straight HTML or PHP code, depending on the type
 	*
 	* @param string	$var	the name of the var to print out
+	* @param Array	$args	array of any extra arguments that existed in the print command
 	*
 	* @access public
 	*/
-	function printVar($var) 
+	function printVar($var, $args)
 	{
 		echo $this->attr($var);
 	}//end printVar()

@@ -11,23 +11,16 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @version $Version$ - 1.0
 * @package Resolve::packages::__core__
 */
-class Design_Management extends Asset_Management
+class Design_Customisation_Management extends Asset_Management
 {
 
 	/**
 	* Constructor
 	*
 	*/
-	function Design_Management(&$pm)
+	function Design_Customisation_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
-
-		$this->vars = Array(
-							'id_name'   => Array(
-								'default'   => 'Design Name'
-							)
-						);
-
 	}//end constructor
 
 }//end class

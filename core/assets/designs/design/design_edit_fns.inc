@@ -25,7 +25,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintParseFile(&$asset, &$o, $prefix) 
+	function paintParseFile(&$asset, &$o, $prefix)
 	{
 		file_upload($prefix.'_parse_file');
 	}// end paintParseFile()
@@ -39,18 +39,21 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processParseFile(&$asset, $prefix) 
+	function processParseFile(&$asset, $prefix)
 	{
-		$parse_file = $asset->_data_path.'/parse.txt';
+		$parse_file = $asset->data_path.'/parse.txt';
 
 		if (commit_file_upload($prefix.'_parse_file', $parse_file, true)) {
+			// tell the asset to update the customisation at the end of the interface processing
+			$asset->_tmp['update_customisations'] = true;
+
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			$str = file_to_string($parse_file);
 			$contents = $this->_parseString($str, true);
 
 			if (!is_null($contents)) {
 				if ($this->_processContents($asset, $contents)) {
-					$this->createDesignFile($asset, $contents);
+					$asset->_tmp['regenerate_design'] = true;
 				}
 			}
 		}
@@ -65,7 +68,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	* @return Array
 	* @access private
 	*/
-	function _parseString($file_contents) 
+	function _parseString($file_contents)
 	{
 
 		// convert the head and body tags to lowercase
@@ -113,7 +116,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	* @return boolean
 	* @access private
 	*/
-	function _processContents(&$asset, &$contents) 
+	function _processContents(&$asset, $contents)
 	{
 		$id_names = Array();
 		// firstly let's check to see if all the design areas have unique names
@@ -127,7 +130,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			}//end if
 
 			$element['attributes']['design_area'] = 'design_area_'.strtolower($element['attributes']['design_area']);
-			
+
 			// if there is a name and it's not the the same type as the current design area
 			if (isset($id_names[$element['attributes']['id_name']])) {
 				trigger_error('All design areas MUST have a unique id_name, "'.$element['attributes']['id_name'].'" is used at least twice', E_USER_WARNING);
@@ -138,9 +141,25 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		}// end foreach
 
+		//// FIRST, let's remove any design area links that we aren't going to be using any more ////
+
+		$existing_da_links = $asset->getDesignAreaLink();
+		$existing_id_names = Array();
+		foreach ($existing_da_links as $link) $existing_id_names[$link['value']] = $link['linkid'];
+
+		$removed_id_names = array_diff(array_keys($existing_id_names), array_keys($id_names));
+		
+		// now remove any unused design area customisations
+		foreach($removed_id_names as $id_name) {
+			if (!$asset->deleteLink($existing_id_names[$id_name])) return false;
+		}// end foreach
+
+
+		//// SECOND, let's validate the design areas that we are going to use ////
+
 		$design_areas = Array();
 
-		// now let's check to see if any existing design areas exists 
+		// now let's check to see if any existing design areas exists
 		// and check if they are the same type as the one in the contents
 		foreach($id_names as $id_name => $design_area) {
 
@@ -150,6 +169,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			if (!is_null($da) && $da->type() !== $design_area) {
 				$link = &$asset->getDesignAreaLink($id_name, false);
 				if (!$asset->deleteLink($link['linkid'])) return false;
+				unset($da); // unset so we don't set the value or all ref's to null
 				$da = null; // do this so a new version will be created
 			}
 
@@ -175,20 +195,18 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			// if there isn't any print var, default to 'yes'
 			if (empty($element['attributes']['print'])) $element['attributes']['print'] = 'yes';
 
-
 			$edit_fns = $design_areas[$element['attributes']['id_name']]->getEditFns();
-
 			$edit_fns->_processContents($design_areas[$element['attributes']['id_name']], $element['contents']);
 
 			// if they want this design area to be printed then what we need to do is alter the contents
 			// array to become a _PRINT operation
 			if ($element['attributes']['print'] == 'yes') {
-				// NOw what we do is morph it so that this element is now a print tag
+				// Now what we do is morph it so that this element is now a print tag
 				$contents[$index] = Array(
 											'_type' => 'TAG',
 											'attributes'  => Array ('id_name' => $element['attributes']['id_name']),
 											'operation' => 'print',
-											'self_terminating' => 1 
+											'self_terminating' => 1
 										);
 			// otherwise we just remove it as there is nothing for us to do with it anymore
 			} else {
@@ -198,37 +216,39 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		}//end foreach
 
 		// Now remove the elems
-		// reverse the order so we don't through the numbers out of whack by removing one from the start
+		// reverse the order so we don't throw the numbers out of whack by removing one from the start
 		rsort($remove_indexes, SORT_NUMERIC);
 		foreach($remove_indexes as $i) {
 			array_splice($contents, $i, 1);
 		}
 
-		return true;
+		// now just set the contents and we are away...
+		return $asset->setAttrValue('contents', $contents);
 
-		
 	}// end _processContents()
 
 
 	/**
-	* Creates the accumulated single (hopefully) design file for this design
+	* Creates the (hopefully ;) single accumulated design file for this design
 	*
 	* @param object Asset	$asset		the asset to which we belong
-	* @param array			$contents	the contents array we generated with _parseString()
 	*
 	* @access private
 	*/
-	function createDesignFile(&$asset, &$contents) 
+	function createDesignFile(&$asset)
 	{
 
 		$design_area_links = $asset->getDesignAreaLink();
-#		pre_echo($design_area_links);
+
+		pre_echo('------- Design : '.$asset->attr('id_name').' ------------');
 
 		foreach($design_area_links as $link) {
 			$da = &$asset->getDesignArea($link['value']);
 			if (is_null($da)) continue;
 			$vars = Array();
-			foreach($da->var_references as $var_name => $info) {
+#			pre_echo('------- '.$da->attr('id_name').' ------------');
+#			pre_echo($da->var_references);
+			foreach($da->vars['var_references']['value'] as $var_name => $info) {
 				$var_da = &$asset->getDesignArea($info['id_name']);
 				if (is_null($var_da)) continue;
 				$vars[$var_name] = $var_da->attr($info['var']);
@@ -238,18 +258,25 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$da->setVarReferenceValues($vars);
 		}// end foreach
 
+		$pre_str = '<?php $FILE_PREFIX = $DATA_PATH.\'/'.addslashes($asset->webFileSuffix('')).'\'; ?>';
+
 		$str = '';
 		ob_start();
-		if ($this->_createDesignFileOutput($asset, $contents, $asset)) {
+		if ($this->_createDesignFileOutput($asset, $asset)) {
 			$str = ob_get_contents();
 		}
 		ob_end_clean();
 
-		pre_echo("STR : \n".$str);
+#		pre_echo("STR : \n".$str);
 		if (!$str) return false;
+		pre_echo("STR EXISTS");
+
+
+		$str = $pre_str."\n\n".$str;
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		$file = $asset->_data_path.'/design_file.php';
+		create_directory($asset->data_path);
+		$file = $asset->data_path.'/design_file.php';
 		pre_echo($file);
 		return string_to_file($str, $file);
 
@@ -265,19 +292,21 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintCurrentFiles(&$asset, &$o, $prefix) 
+	function paintCurrentFiles(&$asset, &$o, $prefix)
 	{
-		$files_dir = $asset->_data_path.'/files';
+		$files_dir = $asset->data_path.'/files';
 		$files = Array();
-		$d = dir($files_dir);
-		while (false !== ($entry = $d->read())) {
-			if (is_dir($d->path.'/'.$entry)) continue;
-			if (is_file($d->path.'/'.$entry)) {
-				$files[] = $entry;
+		$d = @dir($files_dir);
+		if ($d !== FALSE) {
+			while (false !== ($entry = $d->read())) {
+				if (is_dir($d->path.'/'.$entry)) continue;
+				if (is_file($d->path.'/'.$entry)) {
+					$files[] = $entry;
+				}
 			}
+			$d->close();
+			sort($files);
 		}
-		$d->close();
-		sort($files);
 		?>
 		<table cellspacing="2" cellpadding="2" border="0">
 			<tr>
@@ -285,13 +314,13 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				<td class="sq-backend-data"><i>Last Modified</i></td>
 				<td class="sq-backend-data"><i>Remove ?</i></td>
 			</tr>
-		<?php
+ 		<?php
 		foreach($files as $file) {
 			$mod_time = filemtime($files_dir.'/'.$file);
 		?>
 			<tr>
 				<td class="sq-backend-data">
-					<?php echo $file; ?>
+					<a href="<?php echo SQ_WWW_BASE_DIR.'/__data/'.$asset->webFileSuffix($file); ?>" target="_blank"><?php echo $file; ?></a>
 				</td>
 				<td class="sq-backend-data">
 					<?php echo $GLOBALS['SQ_SYSTEM']->datetime($mod_time); ?>
@@ -302,7 +331,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			</tr>
 		<?php
 
-		}#end for
+		}// end for
 
 		if (empty($files)) {
 		?>
@@ -310,7 +339,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				<td class="sq-backend-data" colspan="3">No Files Uploaded</td>
 			</tr>
 		<?php
-		}#end if
+		}// end if
 		?>
 		</table>
 		<?php
@@ -325,11 +354,12 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processCurrentFiles(&$asset, $prefix) 
+	function processCurrentFiles(&$asset, $prefix)
 	{
 		if (empty($_POST[$prefix.'_remove_files'])) return;
+		$asset->_tmp['regenerate_design'] = true;
 		foreach($_POST[$prefix.'_remove_files'] as $file) {
-			$full_file = $asset->_data_path.'/files/'.$file;
+			$full_file = $asset->data_path.'/files/'.$file;
 			unlink($full_file);
 		}
 		return true;
@@ -345,9 +375,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintNewFiles(&$asset, &$o, $prefix) 
+	function paintNewFiles(&$asset, &$o, $prefix)
 	{
-		for($i = 0; $i < 5; $i++) {
+		for($i = 0; $i < 2; $i++) {
 			file_upload($prefix.'_assoc_file_'.$i);
 			echo "<br>\n";
 		}
@@ -361,28 +391,30 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processNewFiles(&$asset, $prefix) 
+	function processNewFiles(&$asset, $prefix)
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
-		$files_dir = $asset->_data_path.'/files';
+		$files_dir = $asset->data_path.'/files';
 		// attempt to create it (if it doesn't already exist)
 		if (!create_directory($files_dir)) return false;
 
-		for($i = 0; $i < 5; $i++) {
+		for($i = 0; $i < 2; $i++) {
 			$info = get_file_upload_info($prefix.'_assoc_file_'.$i);
 			if (empty($info)) continue;
 
+			$asset->_tmp['regenerate_design'] = true;
+
 			// if this is a tar archive, extract it
-			if (preg_match('/\\.tar\\.gz$/', $info['name']) 
-				|| preg_match('/\\.tgz$/', $info['name']) 
+			if (preg_match('/\\.tar\\.gz$/', $info['name'])
+				|| preg_match('/\\.tgz$/', $info['name'])
 				|| preg_match('/\\.tar$/', $info['name']) ) {
 
 				require_once 'Archive/Tar.php';
 				$tar_ball = new Archive_Tar($info['tmp_name']);
 				if (($contents = $tar_ball->listContent()) != 0) {
 
-					// Basically we want to make sure that all the files in the 
+					// Basically we want to make sure that all the files in the
 					// tar ball end up in a single directory, so we have to fuck about with the extracting a bit
 					$extract_list = Array();
 					foreach($contents as $entry) {
@@ -429,7 +461,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintNewCustomisation(&$asset, &$o, $prefix) 
+	function paintNewCustomisation(&$asset, &$o, $prefix)
 	{
 		check_box($prefix.'_new_customisation');
 		text_box($prefix.'_new_customisation_name', $asset->name.' - Customisation', 40);
@@ -443,19 +475,31 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processNewCustomisation(&$asset, $prefix) 
+	function processNewCustomisation(&$asset, $prefix)
 	{
-		if (!empty($_POST[$prefix.'_new_customisation'])) {
-			if ($new_name = trim($_POST[$prefix.'_new_customisation_name'])) {
+		if (empty($_POST[$prefix.'_new_customisation']) || !($new_name = trim($_POST[$prefix.'_new_customisation_name']))) return false;
 
-				$dupe = &$asset->duplicate();
-				if (!is_null($dupe)) {
+		// First let's duplicate ourselves, ignoring the directory with the files
+		$dupe = &$asset->duplicate(false);
+		if (is_null($dupe)) return false;
 
-				echo "DO DUPE HERE<br>";
-				echo "SET ID NAME HERE<br>";
+		// Now let's morph the dupe into a design customisation
+		if (!$dupe->morph('design_customisation')) return false;
 
-			}
-		}
+		// and link it back to ourselves
+		$asset->createLink($dupe, SQ_LINK_UNITE, 'customisation');
+		$dupe->setAttrValue('id_name', $new_name);
+
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+
+		// Now create the links to our design areas
+		$da_links = $asset->getDesignAreaLink();
+		foreach($da_links as $link) {
+			$da = &$am->getAsset($link['minorid'], $link['type_code'], true);
+			if (is_null($da)) continue;
+			$dupe->createLink($da, SQ_LINK_USES, $link['value']);
+		}// end foreach
+
 	}// end processNewCustomisation()
 
 	/**
@@ -467,16 +511,16 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintCurrentCustomisations(&$asset, &$o, $prefix) 
+	function paintCurrentCustomisations(&$asset, &$o, $prefix)
 	{
-		$customisation_links = &$asset->getLinks(SQ_LINK_UNITE, 'design');
+		$customisation_links = &$asset->getLinks(SQ_LINK_UNITE, 'design_customisation', true, 'major', 'customisation');
 		if ($customisation_links) {
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
 			foreach($customisation_links as $link) {
-				if ($link['value'] != 'customisation') continue;
 				$customisation = &$am->getAsset($link['minorid'], $link['type_code']);
 				if (is_null($customisation)) continue;
-				echo "# ".$customisation->id." - ".$customisation->name."<br>\n";
+				echo '# ', $customisation->id, '&nbsp;&nbsp;<a href="', $customisation->getBackendHref(), '">', $customisation->name, '</a><br>';
+
 			}
 
 		} else {

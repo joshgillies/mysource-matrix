@@ -1,3 +1,4 @@
 <screens>
-	<screen code_name="details" display_name="Details" icon="edit" default="1" />
+	<screen code_name="details"    display_name="Details"    icon="page" default="1" />
+	<screen code_name="specialise" display_name="Specialise" icon="page" />
 </screens>
