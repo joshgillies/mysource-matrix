@@ -190,9 +190,10 @@ class User extends Asset
 				  AND av.assetid      = a.assetid
 				  and av.custom_value = '.$db->quote($username);
 
-		$subs = Array( 'SELECT type_code FROM sq_asset_type_inherited 
-						WHERE inherited_type_code = '.$db->quote($type_code).'
-						   OR type_code = '.$db->quote($type_code));
+		$subs = Array( 'SELECT type_code 
+						FROM sq_asset_type_inherited 
+						WHERE inherited_type_code = '.$db->quote($type_code)
+						);
 
 		$sql = db_extras_subquery($db, $sql, $subs);
 

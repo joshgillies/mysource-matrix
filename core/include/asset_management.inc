@@ -248,6 +248,7 @@ class Asset_Management extends Resolve_Object
 		$sql = 'SELECT DISTINCT atr.name
 				FROM sq_asset_type_inherited i, sq_asset_attribute atr
 				WHERE i.type_code = '.$this->_db->quote($this->getAssetType()).'
+				  AND i.inherited_type_code != '.$this->_db->quote($this->getAssetType()).'
 				  AND i.inherited_type_code = atr.type_code';
 
 		$parent_vars = $this->_db->getCol($sql);
@@ -288,6 +289,7 @@ class Asset_Management extends Resolve_Object
 		$sql = 'SELECT COUNT(*) as count, MIN(at.level) as min, MAX(at.level) as max
 				FROM sq_asset_type_inherited i, sq_asset_attribute atr, sq_asset_type at
 				WHERE i.type_code = '.$this->_db->quote($type_code).'
+				  AND i.inherited_type_code != '.$this->_db->quote($type_code).'
 				  AND i.inherited_type_code = atr.type_code
 				  AND atr.name = '.$this->_db->quote($name).'
 				  AND atr.type_code = at.type_code';
@@ -305,6 +307,7 @@ class Asset_Management extends Resolve_Object
 			$sql = 'SELECT a.type_code
 					FROM sq_asset_type_inherited i, sq_asset_attribute a
 					WHERE i.inherited_type_code = '.$this->_db->quote($type_code).'
+					  AND i.type_code != '.$this->_db->quote($type_code).'
 					  AND i.type_code = a.type_code
 					  AND a.name = '.$this->_db->quote($name);
 			$children = $this->_db->getCol($sql);
@@ -348,6 +351,7 @@ class Asset_Management extends Resolve_Object
 							atr.parameters_type_code, atr.default_type_code, atr.default_value, atr.description
 					FROM sq_asset_type_inherited i, sq_asset_attribute atr, sq_asset_type at
 					WHERE i.type_code = '.$this->_db->quote($type_code).'
+					  AND i.inherited_type_code != '.$this->_db->quote($type_code).'
 					  AND i.inherited_type_code = atr.type_code
 					  AND atr.name = '.$this->_db->quote($name).'
 					  AND atr.type_code = at.type_code
@@ -655,6 +659,7 @@ class Asset_Management extends Resolve_Object
 		$subs = Array( 'SELECT atr.attributeid
 						FROM sq_asset_type_inherited i, sq_asset_attribute atr
 						WHERE i.inherited_type_code = '.$this->_db->quote($new_type_code).'
+						  AND i.type_code != '.$this->_db->quote($new_type_code).'
 						  AND i.type_code = atr.type_code
 						  AND atr.'.$field.'_type_code = '.$this->_db->quote($old_type_code).'
 						  AND atr.name = '.$this->_db->quote($name));

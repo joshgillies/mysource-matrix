@@ -1046,13 +1046,15 @@ class Asset extends Resolve_Object
 	/**
 	* Returns an array of all assets types that this asset extends from
 	*
-	* @param string $code_name  the code name for the asset that you want to check
+	* @param boolean	$include_asset	when true adds the "Asset" type to the parent list,
+	*									even though it's an unistantiable object
 	*
+	* @see Asset_Manager::getTypeAncestors()
 	* @access public
 	*/
-	function getTypeAncestors()
+	function getTypeAncestors($include_asset=true)
 	{
-		return $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($this->type());
+		return $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($this->type(), $include_asset);
 	}//end getTypeAncestors()
 
 
@@ -1441,7 +1443,7 @@ class Asset extends Resolve_Object
 				$sql .= ' AND a.type_code '.$type_code_cond;
 			} else {
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-				$sql .= ' AND (a.type_code '.$type_code_cond.' OR a.type_code IN (~SQ0~))';
+				$sql .= ' AND a.type_code IN (~SQ0~)';
 				$subs = Array( 'SELECT type_code
 								FROM sq_asset_type_inherited
 								WHERE inherited_type_code '.$type_code_cond );
@@ -1515,7 +1517,7 @@ class Asset extends Resolve_Object
 				$sql .= ' AND a.type_code '.$type_code_cond;
 			} else {
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-				$sql .= ' AND (a.type_code '.$type_code_cond.' OR a.type_code IN (~SQ0~))';
+				$sql .= ' AND a.type_code IN (~SQ0~)';
 				$subs = Array( 'SELECT type_code
 								FROM sq_asset_type_inherited
 								WHERE inherited_type_code '.$type_code_cond );
@@ -1581,7 +1583,7 @@ class Asset extends Resolve_Object
 				$extra_where .= ' AND a.type_code '.$type_code_cond;
 			} else {
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-				$extra_where .= ' AND (a.type_code '.$type_code_cond.' OR a.type_code IN (~SQ0~))';
+				$extra_where .= ' AND a.type_code IN (~SQ0~)';
 				$subs = Array( 'SELECT type_code
 								FROM sq_asset_type_inherited
 								WHERE inherited_type_code '.$type_code_cond );
@@ -1903,7 +1905,7 @@ class Asset extends Resolve_Object
 
 			}// end if
 
-#			pre_echo("Free Childid : ".$free_childid);
+#pre_echo("Free Childid : ".$free_childid);
 
 			$insert = 'INSERT INTO sq_asset_link_tree (treeid, linkid)';
 
@@ -1962,7 +1964,6 @@ class Asset extends Resolve_Object
 				}
 
 			}// end if
-
 
 		}// end if significant link
 
@@ -2366,6 +2367,7 @@ class Asset extends Resolve_Object
 				trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
 				return false;
 			}
+
 
 			$result = $db->query($sql);
 			if (DB::isError($result)) {

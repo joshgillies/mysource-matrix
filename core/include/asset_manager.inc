@@ -87,7 +87,7 @@ class Asset_Manager extends Resolve_Object
 			$this->_asset_types[$result['type_code']] = $result;
 		}
 
-		$parents = Array();
+		$parents = Array($type_code);
 		$tmp_type_code = $type_code;
 		while($this->_asset_types[$tmp_type_code]['parent_type'] != 'asset') {
 			// this should NEVER happen, if it does DIE
@@ -200,7 +200,7 @@ class Asset_Manager extends Resolve_Object
 	* @return array
 	* @access public
 	*/
-	function getAssetTypeHierarchy($base_type_code='asset', $allowed_access='')
+	function getAssetTypeHierarchy($base_type_code='', $allowed_access='')
 	{
 
 		if (empty($base_type_code)) $base_type_code = 'asset';
@@ -260,7 +260,9 @@ class Asset_Manager extends Resolve_Object
 		if (empty($assetids)) return Array();
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT a.assetid, at.inherited_type_code FROM sq_asset a INNER JOIN sq_asset_type_inherited at ON a.type_code = at.type_code WHERE ';
+		$sql = 'SELECT a.assetid, at.inherited_type_code 
+				FROM sq_asset a INNER JOIN sq_asset_type_inherited at ON a.type_code = at.type_code 
+				WHERE ';
 
 		for($i = 0; $i < count($assetids); $i++) $assetids[$i] = $db->quote($assetids[$i]);
 		$sql .= 'a.assetid IN ('.implode(', ', $assetids).')';
@@ -279,7 +281,7 @@ class Asset_Manager extends Resolve_Object
 				$sql .= ' AND a.type_code '.$type_code_cond;
 			} else {
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-				$sql .= ' AND (a.type_code '.$type_code_cond.' OR a.type_code IN (~SQ0~))';
+				$sql .= ' AND a.type_code IN (~SQ0~)';
 				$subs = Array( 'SELECT type_code
 								FROM sq_asset_type_inherited
 								WHERE inherited_type_code '.$type_code_cond );
@@ -335,7 +337,7 @@ class Asset_Manager extends Resolve_Object
 				$sql .= ' AND a.type_code '.$type_code_cond;
 			} else {
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-				$sql .= ' AND (a.type_code '.$type_code_cond.' OR a.type_code IN (~SQ0~))';
+				$sql .= ' AND a.type_code IN (~SQ0~)';
 				$subs = Array( 'SELECT type_code
 								FROM sq_asset_type_inherited
 								WHERE inherited_type_code '.$type_code_cond );
@@ -418,8 +420,9 @@ class Asset_Manager extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$result = $db->getCol('SELECT inherited_type_code
 								FROM sq_asset_type_inherited
-								WHERE type_code = '.$db->quote($type_code)
-								.(($include_asset) ? '' : ' AND inherited_type_code != '.$db->quote('asset'))
+								WHERE type_code = '.$db->quote($type_code).'
+								  AND inherited_type_code != '.$db->quote($type_code).'
+								'.(($include_asset) ? '' : ' AND inherited_type_code != '.$db->quote('asset'))
 								);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
@@ -446,7 +449,9 @@ class Asset_Manager extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$result = $db->getCol('SELECT type_code
 								FROM sq_asset_type_inherited
-								WHERE inherited_type_code = '.$db->quote($type_code));
+								WHERE inherited_type_code = '.$db->quote($type_code).'
+								  AND type_code != '.$db->quote($type_code)
+								);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 			return Array();
@@ -493,7 +498,7 @@ class Asset_Manager extends Resolve_Object
 				$sql .= ' AND pa.type_code '.$type_code_cond;
 			} else {
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-				$sql .= ' AND (pa.type_code '.$type_code_cond.' OR pa.type_code IN (~SQ0~))';
+				$sql .= ' AND pa.type_code IN (~SQ0~)';
 				$sub = 'SELECT type_code
 						FROM sq_asset_type_inherited
 						WHERE inherited_type_code '.$type_code_cond;
@@ -570,7 +575,7 @@ class Asset_Manager extends Resolve_Object
 				$sql .= 'a.type_code '.$type_code_cond;
 			} else {
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-				$sql .= '(a.type_code '.$type_code_cond.' OR a.type_code IN (~SQ0~))';
+				$sql .= 'a.type_code IN (~SQ0~)';
 				$sub = 'SELECT type_code
 						FROM sq_asset_type_inherited
 						WHERE inherited_type_code '.$type_code_cond;
@@ -731,11 +736,13 @@ class Asset_Manager extends Resolve_Object
 
 		$sql = 'SELECT assetid'.(($include_type) ? ', type_code' : '').'
 				FROM sq_asset
-				WHERE type_code = '.$db->quote($type_code);
+				WHERE ';
 
-		if (!$strict) {
+		if ($strict) {
+			$sql .= 'type_code = '.$db->quote($type_code);
+		} else {
 			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-			$sql .= '   OR type_code IN (~SQ0~)';
+			$sql .= 'type_code IN (~SQ0~)';
 			$subs = Array( 'SELECT type_code
 							FROM sq_asset_type_inherited
 							WHERE inherited_type_code = '.$db->quote($type_code));
