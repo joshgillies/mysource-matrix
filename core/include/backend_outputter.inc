@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.76 2004/01/20 02:37:39 mmcintyre Exp $
+* $Id: backend_outputter.inc,v 1.77 2004/03/25 15:19:50 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -990,7 +990,7 @@ class Backend_Outputter
 						}
 						?>
 						if (parent.frames["sq_sidenav"] && parent.frames["sq_sidenav"].add_messages) {
-							parent.frames["sq_sidenav"].add_messages("<?php echo str_replace("\n", "\\n", addslashes($msgs->get())); ?>");
+							parent.frames["sq_sidenav"].add_messages("<?php echo str_replace(Array("\r\n", "\n", "\r"), "\\n", addslashes($msgs->get())); ?>");
 						}
 						<?php
 					}// end if messages
