@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.253 2004/12/16 04:52:29 lwright Exp $
+* $Id: asset_manager.inc,v 1.254 2004/12/20 03:23:32 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.253 $
+* @version $Revision: 1.254 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4514,7 +4514,9 @@ class Asset_Manager extends MySource_Object
 			$order_by = 'ORDER BY a.'.$sort_by;
 			if ($sort_by != 'type_code') {
 				$select .= ', a.'.$sort_by.' AS sort_value';
-				$group_by .= ', a.'.$sort_by;
+				if (!empty($group_by)) {
+					$group_by .= ', a.'.$sort_by;
+				}
 			}
 		}
 
