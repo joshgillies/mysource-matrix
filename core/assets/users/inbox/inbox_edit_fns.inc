@@ -67,11 +67,11 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				}
 				?>
 				<tr>
-					<td class="sq-backend-message-item" bgcolor="#FFFFFF"><?php echo $from_name?></td>
-					<td class="sq-backend-message-item" bgcolor="#FFFFFF"><?php echo $data['subject']?></td>
-					<td class="sq-backend-message-item" bgcolor="#FFFFFF"><?php echo $data['body']?></td>
-					<td class="sq-backend-message-item" bgcolor="#FFFFFF" width="130"><?php echo $data['sent']?></td>
-					<td class="sq-backend-message-item" bgcolor="#FFFFFF" align="middle"><?php echo $data['priority']?></td>
+					<td class="sq-backend-message-item" bgcolor="#FFFFFF"><?php echo $from_name;?></td>
+					<td class="sq-backend-message-item" bgcolor="#FFFFFF"><?php echo $data['subject'];?></td>
+					<td class="sq-backend-message-item" bgcolor="#FFFFFF"><?php echo $data['body'];?></td>
+					<td class="sq-backend-message-item" bgcolor="#FFFFFF" width="130"><?php echo $GLOBALS['SQ_SYSTEM']->datetime($data['sent']); ?></td>
+					<td class="sq-backend-message-item" bgcolor="#FFFFFF" align="middle"><?php echo $data['priority']; ?></td>
 					<td bgcolor="#FFFFFF" align="middle">
 						<input type="checkbox" name="<?php echo $prefix.'_mark_as_read['.$data['messageid'].']'?>" value="1"<?php echo (($data['status'] == SQ_MSG_READ) ? ' checked' : '')?>>
 					</td>
