@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_management.inc,v 1.10 2005/02/13 23:58:31 tbarrett Exp $
+* $Id: page_whats_new_management.inc,v 1.11 2005/02/15 00:04:30 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -82,12 +82,12 @@ class Page_Whats_New_Management extends Asset_Management
 					'type'		=> 'serialise',
 					'default'	=> Array(),
 					),
-				
+
 		);
-		
-		
+
+
 	}//end constructor
-	
+
 	/**
 	* Return an array with information about the events that the what new asset is listening for
 	*

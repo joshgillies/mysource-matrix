@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2005/02/13 23:20:51 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8 2005/02/15 00:04:30 lwright Exp $
 *
 */
 -->
@@ -125,16 +125,6 @@
 		</field>
 	</section>
 	<section name="Sorting" write_access="write:attributes">
-		<field attribute="sort_by">
-			<display_name>Sort By</display_name>
-			<note>&lt;b&gt;NOTE:&lt;/b&gt; If using the A-Z listing format, please select only 'Name' or 'Short Name' from the list. Selecting another value for force sorting by 'Name'. This field has no effect in Random listing mode.</note>
-			<selection style="list" />
-		</field>
-		<field attribute="reverse_sort">
-			<display_name>Reverse Sort</display_name>
-			<note>&lt;b&gt;NOTE:&lt;/b&gt; This option is only valid when using the standard list format.</note>
-			<boolean true_text="Yes" false_text="No" />
-		</field>
 		<field attribute="num_per_page">
 			<display_name>Assets Per Page</display_name>
 			<note>Set to '0' (zero) to list all assets on the same page.&lt;br/&gt;&lt;b&gt;NOTE:&lt;/b&gt; This option is only valid when using the standard list format.

@@ -18,11 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.38 2005/02/14 23:36:20 lwright Exp $
+* $Id: search_page_edit_fns.inc,v 1.39 2005/02/14 23:58:00 lwright Exp $
 *
 */
 
-require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
+require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 
 /**
 * Search_Page_Edit_Fns
@@ -30,11 +30,11 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
-class Search_Page_Edit_Fns extends Page_Edit_Fns
+class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 {
 
 
@@ -44,7 +44,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 	*/
 	function Search_Page_Edit_Fns()
 	{
-		$this->Page_Edit_Fns();
+		$this->Listing_Engine_Edit_Fns();
 		$this->static_screens['details']['lock_type'] = 'content';
 		$this->static_screens['details']['force_unlock'] = false;
 
@@ -319,7 +319,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 					<td class="sq-backend-data">
 						<?php
 						if (!isset($field_data['params'])) $field_data['params'] = Array();
-						$search_types = $asset->attr('search_types');
+						$search_types = $asset->attr('types');
 						$search_type = array_get_index($field_data['params'], 'asset_type', '0');
 
 						if (!empty($search_types)) {
@@ -352,7 +352,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 									$type_attrs[$attr_id] = $attr_name;
 								}
 								combo_box($prefix.'_fields['.$i.'][params][attrid]', $type_attrs, false, $selected_attr);
-							} else {
+							} elseif ($selected_attr != '') {
 								echo $asset_type_attrs[$selected_attr];
 							}
 						}
@@ -1198,22 +1198,6 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
-	* Return true if the thesaurus asset type is installed
-	*
-	* @param object Asset	$asset  the asset whose interface we are painting
-	* @param string			$prefix	the prefix for this asset
-	*
-	* @return boolean
-	* @access public
-	*/
-	function thesaurusInstalled(&$asset, $prefix)
-	{
-		return $GLOBALS['SQ_SYSTEM']->am->installed('thesaurus');
-
-	}// end thesaurusInstalled()
-
-
-	/**
 	* Paints the thesaurus asset selection box
 	*
 	* @param object	Asset				&$rootid	asset being painted
@@ -1295,6 +1279,21 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 	}//end processThesaurusAsset()
 
 
+	/**
+	* Get the possible 'sort by' options
+	*
+	* @return Array(string => string)
+	* @access protected
+	*/
+	function _getSortByOptions(&$asset)
+	{
+		$options = parent::_getSortByOptions($asset);
+		$options[''] = 'Relevance';
+		return $options;
+		
+	}//end _getSortByOptions()
+	
+	
 }//end class
 
 ?>
