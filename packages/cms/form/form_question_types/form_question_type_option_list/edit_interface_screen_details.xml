@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2004/06/17 04:45:14 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2004/06/21 07:00:41 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -74,6 +74,24 @@
 			<display_name>Required Entry?</display_name>
 			<note>If required, at least one radio button must be selected before the form can be submitted</note>
 			<boolean true_text="Required" false_text="Optional" />
+		</field>
+	</section>
+	<section name="Complex Validation Rules" write_access="write:attributes">
+		<field>
+			<display_name>Question Rules</display_name>
+			<note>When the value of an asset is specified as the comparison value, it takes precedence over any static value entered</note>
+			<function_call>
+				<paint_function   name="paintRules"   />
+				<process_function name="processRules" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Add Rule</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintAddRule"   />
+				<process_function name="processAddRule" />
+			</function_call>
 		</field>
 	</section>
 </contents>
