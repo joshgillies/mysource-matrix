@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: tables.xml,v 1.25 2003/10/14 04:57:13 dwong Exp $
+* $Id: tables.xml,v 1.26 2003/10/21 06:21:51 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -440,11 +440,6 @@
 				<type_variations />
 				<default>''</default>
 				<description />
-			</column>
-			<column name="weighting" allow_null = "0">
-				<type>INT</type>
-				<default>0</default>
-				<description>This is the weight for use when calculating relevance in searches.</description>
 			</column>
 		</columns>
 		<keys>
@@ -1118,6 +1113,93 @@
 				<column name="type" />
 			</index>
 			<index>
+				<column name="component" />
+			</index>
+		</indexes>
+	</table>
+	<table name="asset_indexing_weightings" require_rollback="0">
+		<columns>
+			<column name="assetid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description>ID of the asset to which this component-weighting applies to.</description>
+			</column>
+			<column name="component" allow_null="1">
+				<type>VARCHAR(255)</type>
+				<type_variations>
+					<mysql>VARCHAR(160)</mysql>
+				</type_variations>
+				<default>''</default>
+				<description>The component.</description>
+			</column>
+			<column name="weighting" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default>0</default>
+				<description>The weighting. </description>
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="assetid" />
+				<column name="component" />
+			</primary_key>
+		</keys>
+		<indexes>
+			<index>
+				<column name="assetid" />
+				<column name="component" />
+			</index>
+		</indexes>
+	</table>
+	<table name="asset_indexing_weightings_default" require_rollback="0">
+		<columns>
+			<column name="type_code" allow_null="0">
+				<type>VARCHAR(255)</type>
+				<type_variations>
+					<mysql>VARCHAR(160)</mysql>
+				</type_variations>
+				<default />
+				<description>The type code of the asset type to which this component weighting applies to.</description>
+			</column>
+			<column name="component" allow_null="0">
+				<type>VARCHAR(255)</type>
+				<type_variations>
+					<mysql>VARCHAR(160)</mysql>
+				</type_variations>
+				<default />
+				<description>The component.</description>
+			</column>
+			<column name="description" allow_null="1">
+				<type>TEXT</type>
+				<type_variations />
+				<default></default>
+				<description />
+			</column>
+			<column name="weighting" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default>0</default>
+				<description>The weighting.</description>
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="type_code" />
+				<column name="component" />
+				<column name="weighting" />
+			</primary_key>
+		</keys>
+		<indexes>
+			<index>
+				<column name="type_code" />
 				<column name="component" />
 			</index>
 		</indexes>
