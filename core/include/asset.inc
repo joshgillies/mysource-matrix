@@ -333,6 +333,7 @@ class Asset extends Resolve_Object
 			 $this->created_userid,
 			 $this->last_updated,
 			 $this->last_userid) = $result;
+		$this->created = iso8601_ts($this->created);
 		$this->last_updated = iso8601_ts($this->last_updated);
 		unset($result);
 
