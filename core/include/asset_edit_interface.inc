@@ -151,6 +151,10 @@ class Asset_Edit_Interface extends Resolve_Object
 				if (!$expires_in) $expires = '1 second';
 
 				echo '<p class="sq-form-field">"'.$owner->name.'" is currently locked for editing by user "'.$user->name.'". The lock is due to expire in '.$expires_in.'</p>';
+
+				if ($GLOBALS['SQ_SYSTEM']->currentUser($user)) {
+					submit_button('release_lock', 'Release Lock');
+				}
 				
 				// does the current user has a high
 				// enough level of access to forceably aquire the lock
@@ -522,7 +526,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		if (isset($_POST[$prefix.'_change_status']) && $_POST[$prefix.'_change_status'] > 0) {
 			$owner->processStatusChange($_POST[$prefix.'_change_status']);
 		}
-	}
+	}//end processDetails()
 
 
 	/**
@@ -1220,6 +1224,129 @@ class Asset_Edit_Interface extends Resolve_Object
 
 	}//end processWorkflow()
 
+
+	/**
+	* Paints the interface for viewing locking details
+	*
+	* @param object	Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintLocking(&$owner, &$o)
+	{
+		$o->openSection('Current Lock Status');
+		$o->openField('&nbsp;');
+
+		$lock_message = '';
+		$lock = $owner->getLockInfo();
+		if (!empty($lock)) {
+			// this asset is currently locked
+			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+
+			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+			$expires_in = easy_time_total(($lock['expires'] - time()));
+			if (!$expires_in) $expires = '1 second';
+
+			$lock_message = '<span style="color:red"><b>[LOCKED]</b></span> by "'.$user->name.'". Expires in '.$expires_in.'';
+		} else {
+			$lock_message = '<span style="color:green"><b>[UNLOCKED]</b></span>';
+		}
+
+		?>
+		<table cellpadding="0" cellspacing="0" border="0">
+			<tr>
+				<td class="sq-backend-data"><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="20" border="0" alt="branch" /></td>
+				<td class="sq-backend-data">
+					<?php echo $owner->name.' '.$lock_message; ?>
+				</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-data"><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="1" alt="blank" /></td>
+				<td class="sq-backend-data"><?php $this->_recursePaintLocking($owner, $o); ?></td>
+			</tr>
+		</table>
+		<?php
+		
+		return true;
+	}//end paintLocking()
+
+
+	/**
+	* Paints an asset dependancy tree with stalks and locking info
+	*
+	* @param object	Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	*
+	* @return void
+	* @access public
+	*/
+	function _recursePaintLocking(&$asset, &$o)
+	{
+		?>
+		<table cellpadding="0" cellspacing="0" border="0">
+		<?php
+		$dependant_links = $asset->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'major', null, 1);
+		$num_kids = count($dependant_links);
+		for ($i = 0; $i < $num_kids; $i++) {
+			$dep_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($dependant_links[$i]['minorid']);
+			$end = ($i == $num_kids - 1);
+			$bg = ($end) ? '' : 'background="'.$o->filesPath('/images/tree/stalk.gif').'"';
+
+			$lock_message = '';
+			$lock = $dep_asset->getLockInfo();
+			if (!empty($lock)) {
+				// this asset is currently locked
+				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+
+				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+				$expires_in = easy_time_total(($lock['expires'] - time()));
+				if (!$expires_in) $expires = '1 second';
+
+				$lock_message = '<span style="color:red"><b>[LOCKED]</b></span> by "'.$user->name.'". Expires in '.$expires_in.'';
+			} else {
+				$lock_message = '<span style="color:green"><b>[UNLOCKED]</b></span>';
+			}
+
+			?>
+			<tr>
+				<td class="sq-backend-data" <?php echo $bg; ?>><img src="<?php echo $o->filesPath('/images/tree/branch.gif');?>" width="20" height="20" border="0" alt="branch" /></td>
+				<td class="sq-backend-data">
+					<a href="<?php echo $dep_asset->getBackendHref('locking'); ?>"><?php echo $dep_asset->name; ?></a>&nbsp;<?php echo $lock_message; ?>
+				</td>
+			</tr>
+			<?php
+			$child_deps = $dep_asset->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'major', null, 1);
+			if (!empty($child_deps)) {
+				?>
+				<tr>
+					<td class="sq-backend-data" <?php echo $bg; ?>><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="1" alt="blank" /></td>
+					<td class="sq-backend-data"><?php $this->_recursePaintLocking($dep_asset, $o); ?></td>
+				</tr>
+				<?php
+			}
+		}
+		?>
+		</table>
+		<?php
+	}
+
+
+	/**
+	* Processes the interface for viewing locking
+	* Note that this function doesnt do anything
+	*
+	* @param object	Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o			the outputter class
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processLocking(&$owner, &$o)
+	{
+		return false;
+	}//end processLocking()
 
 
 	/**

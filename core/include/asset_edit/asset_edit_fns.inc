@@ -26,6 +26,9 @@ class Asset_Edit_Fns extends Resolve_Object
 											  ),
 						'workflow'    => Array('name' => 'Workflow',
 											   'icon' => 'web'
+											  ),
+						'locking'    => Array('name' => 'Locking',
+											  'icon' => 'preview'
 											  )
 					  );
 
