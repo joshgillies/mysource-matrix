@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.26 2004/09/09 00:53:51 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.27 2004/09/09 01:23:50 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.26 $ - 1.0
+* @version $Revision: 1.27 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -597,7 +597,7 @@ class Calendar_Event extends Asset
 			break;
 		}
 
-	}//end processEventAction();		
+	}//end processEventAction()	
 
 
 	/*
