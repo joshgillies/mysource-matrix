@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.29 2005/01/17 17:55:13 brobertson Exp $
+* $Id: image_edit_fns.inc,v 1.30 2005/01/18 05:50:25 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -96,15 +96,15 @@ class Image_Edit_Fns extends File_Edit_Fns
 		$save_attrs = false;
 		$info = $asset->getExistingFile();
 		if (!empty($info)) {
-			if ((int) $info['width'] != (int) $this->attr('width')) {
+			if ((int) $info['width'] != (int) $asset->attr('width')) {
 				$save_attrs = true;
 				if (!$asset->setAttrValue('width', $info['width'])) return false;
 			}
-			if ((int) $info['height'] != (int)  $this->attr('height')) {
+			if ((int) $info['height'] != (int) $asset->attr('height')) {
 				$save_attrs = true;
 				if (!$asset->setAttrValue('height', $info['height'])) return false;
 			}
-			if ((int) $info['size'] != (int) $this->attr('size')) {
+			if ((int) $info['size'] != (int) $asset->attr('size')) {
 				$save_attrs = true;
 				if (!$asset->setAttrValue('size', $info['size'])) return false;
 			}
