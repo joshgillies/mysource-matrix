@@ -71,13 +71,13 @@ class Asset extends Resolve_Object
 	* Timestamp of when this asset was last updated
 	* @var int
 	*/
-	var $last_updated;
+	var $updated;
 
 	/**
 	* Assetid for the last user that updated this asset
 	* @var int
 	*/
-	var $last_userid;
+	var $updated_userid;
 
 	/**
 	* The Vars that belong to this asset
@@ -189,8 +189,8 @@ class Asset extends Resolve_Object
 						'status'         => SQ_STATUS_UNDER_CONSTRUCTION,
 						'created'        => ts_iso8601($now),
 						'created_userid' => $userid,
-						'last_updated'   => ts_iso8601($now),
-						'last_userid'    => $userid
+						'updated'        => ts_iso8601($now),
+						'updated_userid' => $userid
 						);
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset', $values)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -204,8 +204,8 @@ class Asset extends Resolve_Object
 		$this->status         = SQ_STATUS_UNDER_CONSTRUCTION;
 		$this->created        = $now;
 		$this->created_userid = $userid;
-		$this->last_updated   = $now;
-		$this->last_userid    = $userid;
+		$this->updated        = $now;
+		$this->updated_userid = $userid;
 
 		// set the attribute values that have been stored temporarily
 		if (!$this->saveAttributes(true)) {
@@ -311,7 +311,7 @@ class Asset extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// OK, the first thing to do is check we actually exist :)
-		$sql = 'SELECT assetid, version, name, short_name, status, languages, charset, type_code, created, created_userid, last_updated, last_userid
+		$sql = 'SELECT assetid, version, name, short_name, status, languages, charset, type_code, created, created_userid, updated, updated_userid
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset ';
 		$where = 'assetid = '.$db->quote($assetid);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
@@ -331,10 +331,10 @@ class Asset extends Resolve_Object
 			 $type_code,
 			 $this->created,
 			 $this->created_userid,
-			 $this->last_updated,
-			 $this->last_userid) = $result;
+			 $this->updated,
+			 $this->updated_userid) = $result;
 		$this->created = iso8601_ts($this->created);
-		$this->last_updated = iso8601_ts($this->last_updated);
+		$this->updated = iso8601_ts($this->updated);
 		unset($result);
 
 		// make sure the asset we are loading is of the same type as our class
@@ -343,8 +343,8 @@ class Asset extends Resolve_Object
 			$this->id = null;
 			$this->created        = null;
 			$this->created_userid = null;
-			$this->last_updated   = null;
-			$this->last_userid    = null;
+			$this->updated        = null;
+			$this->updated_userid = null;
 			return;
 		}
 
@@ -495,8 +495,8 @@ class Asset extends Resolve_Object
 						'status'         => SQ_STATUS_UNDER_CONSTRUCTION,
 						'created'        => ts_iso8601($now),
 						'created_userid' => $userid,
-						'last_updated'   => ts_iso8601($now),
-						'last_userid'    => $userid
+						'updated'        => ts_iso8601($now),
+						'updated_userid' => $userid
 						);
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset', $values)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -913,8 +913,8 @@ class Asset extends Resolve_Object
 	*/
 	function _updated()
 	{
-		$last_updated = time();
-		$last_userid  = $GLOBALS['SQ_SYSTEM']->currentUserId();
+		$updated = time();
+		$updated_userid  = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		$name         = $this->_getName();
 		$short_name   = $this->_getName(true);
 
@@ -930,8 +930,8 @@ class Asset extends Resolve_Object
 							'short_name'   => $db->quote($short_name),
 							'languages'    => $db->quote($this->languages),
 							'charset'      => $db->quote($this->charset),
-							'last_updated' => $db->quote(ts_iso8601($last_updated)),
-							'last_userid'  => $db->quote($last_userid)
+							'updated' => $db->quote(ts_iso8601($updated)),
+							'updated_userid'  => $db->quote($updated_userid)
 							);
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset', $values, $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -944,10 +944,10 @@ class Asset extends Resolve_Object
 														 'new_name'         => $name,
 														 'old_short_name'   => $this->short_name,
 														 'new_short_name'   => $short_name,
-														 'old_last_updated' => $this->last_updated,
-														 'new_last_updated' => $last_updated,
-														 'old_last_userid'  => $this->last_userid,
-														 'new_last_userid'  => $last_userid
+														 'old_updated' => $this->updated,
+														 'new_updated' => $updated,
+														 'old_updated_userid'  => $this->updated_userid,
+														 'new_updated_userid'  => $updated_userid
 														));
 
 			// increment the micro version number
@@ -963,8 +963,8 @@ class Asset extends Resolve_Object
 
 		$this->name         = $name;
 		$this->short_name   = $short_name;
-		$this->last_updated = $last_updated;
-		$this->last_userid  = $last_userid;
+		$this->updated = $updated;
+		$this->updated_userid  = $updated_userid;
 
 		return true;
 
@@ -2443,16 +2443,16 @@ class Asset extends Resolve_Object
 		}
 
 		// and finally insert the link
-		$values = Array('linkid'       => $linkid,
-						'majorid'      => $this->id,
-						'minorid'      => $minor->id,
-						'link_type'    => $link_type,
-						'value'        => $value,
-						'sort_order'   => $sort_order,
-						'dependant'    => (($dependant) ? '1' : '0'),
-						'exclusive'    => (($exclusive) ? '1' : '0'),
-						'last_updated' => ts_iso8601(time()),
-						'last_userid'  => $GLOBALS['SQ_SYSTEM']->currentUserId()
+		$values = Array('linkid'         => $linkid,
+						'majorid'        => $this->id,
+						'minorid'        => $minor->id,
+						'link_type'      => $link_type,
+						'value'          => $value,
+						'sort_order'     => $sort_order,
+						'dependant'      => (($dependant) ? '1' : '0'),
+						'exclusive'      => (($exclusive) ? '1' : '0'),
+						'updated'        => ts_iso8601(time()),
+						'updated_userid' => $GLOBALS['SQ_SYSTEM']->currentUserId()
 						);
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_link', $values)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -2903,8 +2903,8 @@ class Asset extends Resolve_Object
 		// dickhead check
 		if (empty($set_clauses)) return true;
 
-		$set_clauses['last_userid']  = $db->quote($GLOBALS['SQ_SYSTEM']->currentUserId());
-		$set_clauses['last_updated'] = $db->quote(ts_iso8601(time()));
+		$set_clauses['updated_userid']  = $db->quote($GLOBALS['SQ_SYSTEM']->currentUserId());
+		$set_clauses['updated'] = $db->quote(ts_iso8601(time()));
 		$where = '  linkid      = '.$db->quote($linkid).'
 					AND majorid = '.$db->quote($this->id);
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link', $set_clauses, $where)) {

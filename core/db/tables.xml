@@ -103,7 +103,7 @@
 				<default />
 				<description />
 			</column>
-			<column name="last_updated" allow_null="0">
+			<column name="updated" allow_null="0">
 				<type>TIMESTAMP</type>
 				<type_variations>
 					<mysql>DATETIME</mysql>
@@ -111,7 +111,7 @@
 				<default />
 				<description />
 			</column>
-			<column name="last_userid" allow_null="0">
+			<column name="updated_userid" allow_null="0">
 				<type>INT</type>
 				<type_variations>
 					<mysql>INT UNSIGNED</mysql>
@@ -187,7 +187,7 @@
 				<default>'0'</default>
 				<description />
 			</column>
-			<column name="last_updated" allow_null="0">
+			<column name="updated" allow_null="0">
 				<type>TIMESTAMP</type>
 				<type_variations>
 					<mysql>DATETIME</mysql>
@@ -195,7 +195,7 @@
 				<default />
 				<description />
 			</column>
-			<column name="last_userid" allow_null="0">
+			<column name="updated_userid" allow_null="0">
 				<type>INT</type>
 				<type_variations>
 					<mysql>INT UNSIGNED</mysql>
