@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.13 2004/07/09 00:02:23 gsherwood Exp $
+* $Id: search_manager.inc,v 1.14 2004/07/15 04:51:50 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.13 $ - 0.1
+* @version $Revision: 1.14 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -478,6 +478,41 @@ class Search_Manager extends Asset
 
 	
 //--        SEARCH PROCESSING        --//
+
+
+	/**
+	* Extracts keywords from the indexing table and ranks them in order of descending importance
+	*
+	* @param object Asset	&$asset	The asset whose keywords are to be extracted
+	* @param boolean	$include_metadata	If false, metadata components are excluded
+	* @param boolean	$include_scores	Determines whether scores are returned (true) or just
+	*									the keywords (false). Affects return value.
+	*
+	* @return Array	depends on $include_scores:
+	*				false: Array(string) containing keywords ordered in decreasing total score
+	*				true: Array(string => int) score array indexed by keyword, ordered same way
+	* @access public
+	*/
+	function extractKeywords(&$asset, $include_metadata=false, $include_scores=false)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = 'SELECT value, SUM(score) as total_score 
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_indexing 
+				    WHERE assetid='.$db->quote($asset->id).
+				   ($include_metadata ? '' : ' AND component NOT LIKE "metadata:%"').
+				   ' GROUP BY value ORDER BY total_score DESC';
+
+		$result = $db->getAssoc($sql);
+		assert_valid_db_result($result);
+
+		if ($include_scores) {
+			return $result;				// return result with scores
+		} else {
+			return array_keys($result);	// just return the keywords
+		}
+
+	}//end extractKeywords()
 
 
 	/**
