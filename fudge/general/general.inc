@@ -32,8 +32,8 @@ function gpc_stripslashes($var)
 /**
 * Strips the slashes from an entire associative array
 *
-* @param array $array           the array to stripslash
-* @param boolean $strip_keys    whether or not to stripslash the keys as well
+* @param array		$array			the array to stripslash
+* @param boolean	$strip_keys		whether or not to stripslash the keys as well
 *
 * @return Array()
 */
