@@ -10,7 +10,7 @@ import java.util.*;
 import ij.io.*;
 import java.beans.*; //property change stuff
 
-public class ServerSubmitter implements ActionListener 
+public class ServerSubmitter implements ActionListener
 {
 	public static final String CONFIRM_PREFIX = "OK";
 	public static final String ERROR_PREFIX = "ERROR";
@@ -26,7 +26,7 @@ public class ServerSubmitter implements ActionListener
 	/**
 	* Constructor
 	*/
-	ServerSubmitter(ImageJ ij) 
+	ServerSubmitter(ImageJ ij)
 	{
 		this.ij = ij;
 
@@ -36,7 +36,7 @@ public class ServerSubmitter implements ActionListener
 	/**
 	* Handle the clicking of the Submit button
 	*/
-	public void actionPerformed(ActionEvent ev) 
+	public void actionPerformed(ActionEvent ev)
 	{
 
 		// get the file data to send
@@ -80,7 +80,7 @@ public class ServerSubmitter implements ActionListener
 				}
 				progressDialog.setTitle("Waiting for server response...");
 				progressDialog.goIndeterminate();
-				while (progress != -1) { 
+				while (progress != -1) {
 					try { sleep(100); } catch (Exception e) {}
 				}
 				progressDialog.setVisible(false);
@@ -107,7 +107,7 @@ public class ServerSubmitter implements ActionListener
 	/**
 	* Get GIF data for the specified ImagePlus
 	*/
-	public byte[] getGif(ImagePlus imp) 
+	public byte[] getGif(ImagePlus imp)
 	{
 		try {
 			FileInfo fi = imp.getFileInfo();
@@ -129,7 +129,7 @@ public class ServerSubmitter implements ActionListener
 	/**
 	* Get JPEG data for the specified ImagePlus
 	*/
-	public byte[] getJpeg(ImagePlus imp) 
+	public byte[] getJpeg(ImagePlus imp)
 	{
 		JpegWriter jpr = new JpegWriter();
 		return jpr.getJpegContents(imp);
@@ -140,7 +140,7 @@ public class ServerSubmitter implements ActionListener
 	/**
 	* Show an error dialog
 	*/
-	void showError(String msg) 
+	void showError(String msg)
 	{
 		JOptionPane.showMessageDialog(ij, msg, "Upload Error", JOptionPane.ERROR_MESSAGE);
 
@@ -150,7 +150,7 @@ public class ServerSubmitter implements ActionListener
 	/**
 	* Set the displayed progress
 	*/
-	synchronized void setProgress(int val) 
+	synchronized void setProgress(int val)
 	{
 		progress = val;
 
@@ -160,7 +160,7 @@ public class ServerSubmitter implements ActionListener
 	/**
 	* Get the progress to display
 	*/
-	synchronized int getProgress() 
+	synchronized int getProgress()
 	{
 		return progress;
 
@@ -170,7 +170,7 @@ public class ServerSubmitter implements ActionListener
 	/**
 	* Hide the progress indicator, redirect the browser to the supplied URL
 	*/
-	synchronized void finish(String tempFileName) 
+	synchronized void finish(String tempFileName)
 	{
 		progress = -1;
 		this.tempFileName = tempFileName;
@@ -210,7 +210,7 @@ class ServerSubmitterThread extends Thread
 	/**
 	* Constructor
 	*/
-	ServerSubmitterThread(ServerSubmitter ms, byte[] fileData, String fileName, URL submitURL) 
+	ServerSubmitterThread(ServerSubmitter ms, byte[] fileData, String fileName, URL submitURL)
 	{
 		this.ms = ms;
 		this.fileData = fileData;
@@ -224,7 +224,7 @@ class ServerSubmitterThread extends Thread
 	/**
 	* Get the string that represents a POST field in the HTTP message
 	*/
-	private String getPostComponent(String name, String val) 
+	private String getPostComponent(String name, String val)
 	{
 		return "\r\n--"+boundary+"\r\nContent-Disposition: form-data; name=\""+name+"\"\r\n\r\n"+val;
 
@@ -234,16 +234,16 @@ class ServerSubmitterThread extends Thread
 	/**
 	* Do the uploading
 	*/
-	public void run() 
+	public void run()
 	{
 		// get the file component head
 		String fileFieldName = ms.getParameter("FILE_FIELD_NAME");
 		if (fileFieldName == null) fileFieldName = "file_0";
 		StringBuffer fileHeader = new StringBuffer();
-        fileHeader.append("--" + boundary + "\r\n");
-        fileHeader.append("Content-Disposition: form-data; name=\""+fileFieldName+"\"; fileName=\""+fileName+"\"\r\n");
-        fileHeader.append("Content-Type: application/octet-stream");
-        fileHeader.append("\r\n\r\n");
+		fileHeader.append("--" + boundary + "\r\n");
+		fileHeader.append("Content-Disposition: form-data; name=\""+fileFieldName+"\"; fileName=\""+fileName+"\"\r\n");
+		fileHeader.append("Content-Type: application/octet-stream");
+		fileHeader.append("\r\n\r\n");
 
 		// get the other POST components and the tail
 		StringBuffer tail = new StringBuffer();
@@ -278,7 +278,7 @@ class ServerSubmitterThread extends Thread
 		try {
 
 			sock = new Socket(submitURL.getHost(), (-1 == submitURL.getPort())?80:submitURL.getPort());
-		    dataout = new DataOutputStream(new BufferedOutputStream(sock.getOutputStream()));
+			dataout = new DataOutputStream(new BufferedOutputStream(sock.getOutputStream()));
 			datain  = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 
 			// send the header
@@ -315,7 +315,7 @@ class ServerSubmitterThread extends Thread
 			URL redirectLocation;
 			String error = null;
 			//StringBuffer sb = new StringBuffer();
-			while ((line != null)) { 
+			while ((line != null)) {
 				//sb.append(line + "\n");
 				if (line.indexOf("403 Forbidden") != -1) {
 					error = "Server returned 403 forbidden.  You don't seem to have access to the system";
@@ -406,11 +406,11 @@ class ServerSubmitterThread extends Thread
 	/**
 	* Get the random string to use as a boundary between message parts
 	*/
-	private String getBoundary() 
+	private String getBoundary()
 	{
 		char[] allChars = new String("1234567890abcdefghijklmnopqrstuvwxyz").toCharArray();
 		int len = allChars.length - 1;
-		return "-----------------------------" 
+		return "-----------------------------"
 			+ allChars[(int)(Math.random() * len)]
 			+ allChars[(int)(Math.random() * len)]
 			+ allChars[(int)(Math.random() * len)]
@@ -437,44 +437,46 @@ class ServerSubmitProgressDialog extends JFrame
 
 	/**
 	* Constructor - create and show the dialog
-	* 
+	*
 	* @param	max		The maximum value for the progressbar
 	*/
-	ServerSubmitProgressDialog(int max) 
+	ServerSubmitProgressDialog(int max)
 	{
-    	super();
+		super();
 		progressBar = new JProgressBar(0, max);
 		progressBar.setStringPainted(true);
 		progressBar.setValue(0);
-        getContentPane().add(progressBar);
+		getContentPane().add(progressBar);
 		setSize(400, 80);
 		validate();
+		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+		setLocation((screen.width /	2) - 200, (screen.height / 2) -	40;
 		setVisible(true);
 		toFront();
 		repaint();
 
 	}//end ServerSubmitProgressDialog()
-	
+
 
 	/**
 	* Set the value shown by the ProgressBar
 	*/
-	void setValue(int val) 
+	void setValue(int val)
 	{
 		progressBar.setValue(val);
 		repaint();
-	
+
 	}//end setValue()
 
 
 	/**
 	* Put the ProgressBar into indeterminate mode (ie something is happening but no progress shown)
 	*/
-	void goIndeterminate() 
+	void goIndeterminate()
 	{
 		progressBar.setIndeterminate(true);
 		progressBar.setStringPainted(false);
-	
+
 	}//end goIndeterminate()
 
 
