@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.89 2005/03/23 05:28:08 arailean Exp $
+* $Id: mysource.inc,v 1.90 2005/03/23 05:33:54 arailean Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1071,6 +1071,31 @@ class MySource
 	}//end getTriggerManager()
 
 
+	/**
+	* Get the Log Manager
+	*
+	* @access public
+	* @return object Trigger_Manager
+	*/
+	function &getLogManager()
+	{
+		$am = &$this->am;
+		if ((!isset($this->log_manager) || (get_class($this->log_manager) != 'log_manager')) && $am->isSystemAssetType('log_manager')) {
+			$this->log_manager = &$am->getSystemAsset('log_manager');
+		}
+
+		// this is a bypass to allow logging while Log Manager asset has not been installed yet
+		// necessary during installation, because we want ALL the log entries to be handled by the log manager,
+		// not only those that appeared after it was installed.
+		if (is_null($this->log_manager)){
+			return new Log_Manager();
+		}
+
+		return $this->log_manager;
+
+	}//end getLogManager()
+
+
 //--        RUN LEVELS        --//
 
 
@@ -1150,31 +1175,6 @@ class MySource
 		return ($security_system & $current_run_level);
 
 	}//end runLevelEnables()
-
-
-	/**
-	* Get the Log Manager
-	*
-	* @access public
-	* @return object Trigger_Manager
-	*/
-	function &getLogManager()
-	{
-		$am = &$this->am;
-		if ((!isset($this->log_manager) || (get_class($this->log_manager) != 'log_manager')) && $am->isSystemAssetType('log_manager')) {
-			$this->log_manager = &$am->getSystemAsset('log_manager');
-		}
-
-		// this is a bypass to allow logging while Log Manager asset has not been installed yet
-		// necessary during installation, because we want ALL the log entries to be handled by the log manager,
-		// not only those that appeared after it was installed.
-		if (is_null($this->log_manager)){
-			return new Log_Manager();
-		}
-
-		return $this->log_manager;
-
-	}//end getLogManager()
 
 
 //--        DATABASE        --//
@@ -1981,7 +1981,8 @@ class MySource
 		$message = str_replace(SQ_CONF_ROOT_IDENTIFIER, '', $message);
 
 		$lm = &$this->getLogManager();
-		return $lm->log($log_name, $message, $level);
+
+		return $lm->log($log_name, $message, $level, false);
 
 	}//end logErrorMessage()
 
