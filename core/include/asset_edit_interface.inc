@@ -138,7 +138,7 @@ class Asset_Edit_Interface extends MySource_Object
 		// if we dont have read access, piss off
 		if ($owner->id && !$owner->readAccess()) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$owner->name.'</i>');
-			return;
+			exit();
 		}
 
 		// if there are no screens or static screens, piss off
@@ -506,7 +506,7 @@ class Asset_Edit_Interface extends MySource_Object
 			// if we dont have write access, piss off
 			if ($owner->id && !$owner->writeAccess()) {
 				$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit <i>'.$owner->name.'</i>');
-				return false;
+				exit();
 			}
 
 			// must be a normal screen
@@ -853,7 +853,7 @@ class Asset_Edit_Interface extends MySource_Object
 	* @param object	Backend_Outputter	$o		the outputter class
 	* @param string						$prefix	prefix for form vars
 	*
-	* @return boolean
+	* @return array of statii shown in the drop down
 	* @access public
 	*/
 	function _paintStatusChange(&$owner, &$o, $prefix)
@@ -866,6 +866,8 @@ class Asset_Edit_Interface extends MySource_Object
 			$statii = array_reverse($statii, true);
 			combo_box($prefix.'_change_status', $statii, false, 0);
 		}
+
+		return $statii;
 
 	}//end _paintStatusChange()
 
@@ -899,7 +901,9 @@ class Asset_Edit_Interface extends MySource_Object
 			if ($code_name) {
 				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				if ($url = $hh->getProcessURL($code_name)) $o->setRedirect($url);
-				$is_updated = true;
+				return true;
+			} else {
+				return false;
 			}
 
 			////  END HIPO PROCESSING  ////
@@ -1601,7 +1605,7 @@ class Asset_Edit_Interface extends MySource_Object
 		// if we dont have admin access, piss off
 		if ($owner->id && !$owner->adminAccess(Array(), false)) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit the permissions for <i>'.$owner->name.'</i>');
-			return false;
+			exit();
 		}
 
 		// if we dont have admin access, dont process anything
@@ -1735,23 +1739,29 @@ class Asset_Edit_Interface extends MySource_Object
 			// cant edit workflow when workflow is currently running
 			$admin_access = false;
 
-			$o->openSection('Current Workflow Progress');
-				$o->openField('Note');
-					?>
-					<p class="sq-backend-data">Workflow for this asset is currently in progress. To approve or reject the changes use the <i>Change Status</i> drop down below. You may also enter a log message in the box below.
-					<?php
-				$o->closeField();
+			$o->openSection('Workflow for this asset is currently in progress');
 				$o->openField('Change Status?');
-					$this->_paintStatusChange($owner, $o, $prefix);
+					$available_statii = $this->_paintStatusChange($owner, $o, $prefix);
+					?><span class="sq-backend-fineprint"><?php
+					if (!empty($available_statii)) {
+						echo '<br/>Change the status to approve or reject the changes made to this asset';
+					} else {
+						echo '<i>You cannot approve or reject changes at this time</i>';
+					}
+					?></span><?php
 				$o->closeField();
-				$o->openField('Log Message');
-					text_area($prefix.'_workflow_new_log_message', '', 60, 6);
-					echo '&nbsp;';
-					normal_button($prefix.'_workflow_status_update', 'Commit', 'sqSubmitEditForm()');
-					?>
-					<br/><a href="<?php echo $owner->getBackendHref('logs'); ?>&sq_backend_log_type=asset.workflow&sq_workflow_log_version=<?php echo substr($owner->version, 0, strrpos($owner->version, '.'));?>">Click here to view workflow message logs</a>
-					<?php
-				$o->closeField();
+				if (!empty($available_statii)) {
+					$o->openField('Log Message');
+						text_area($prefix.'_workflow_new_log_message', '', 60, 6);
+						echo '&nbsp;';
+						normal_button($prefix.'_workflow_status_update', 'Commit', 'sqSubmitEditForm()');
+						?>
+						<br/>You can enter a reason for your decision in the box above so that other approvers know why you have accepted or rejected the changes.
+						<br/><a href="<?php echo $owner->getBackendHref('logs'); ?>&sq_backend_log_type=asset.workflow&sq_workflow_log_version=<?php echo substr($owner->version, 0, strrpos($owner->version, '.'));?>">Click here to view the workflow message log</a> - a list of system generated workflow messages as well as any comments made by other approvers.
+						<?php
+					$o->closeField();
+				}
+
 			$o->closeSection();
 
 			$schema_workflows = $wfm->getSchemaWorkflows($owner->id);
@@ -2051,7 +2061,10 @@ class Asset_Edit_Interface extends MySource_Object
 
 		// from here on in, if we dont have admin access - piss off
 		if ($owner->id && !$owner->adminAccess(Array(), false)) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit the workflow schemas for <i>'.$owner->name.'</i>');
+			if (!$updated) {
+				$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit the workflow schemas for <i>'.$owner->name.'</i>');
+				exit();
+			}
 			return $updated;
 		}
 
@@ -2266,7 +2279,7 @@ class Asset_Edit_Interface extends MySource_Object
 		// if we dont have admin access, piss off
 		if ($owner->id && !$owner->adminAccess(Array(), false)) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit the metadata schemas for <i>'.$owner->name.'</i>');
-			return false;
+			exit();
 		}
 
 		// if we dont have admin access, dont process anything
@@ -2374,7 +2387,7 @@ class Asset_Edit_Interface extends MySource_Object
 	{
 		$prefix = $owner->getPrefix();
 
-		$write_access = $owner->writeAccess(Array(), true, false);
+		$write_access = $owner->writeAccess(Array(), true, false); 
 
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$schemas = $mm->getSchemas($owner->id, true);
@@ -2891,7 +2904,7 @@ class Asset_Edit_Interface extends MySource_Object
 		// if we dont have admin access, piss off
 		if ($owner->id && !$owner->writeAccess(Array(), false)) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit the links of <i>'.$owner->name.'</i>');
-			return false;
+			exit();
 		}
 
 		// if we dont have effective write access, dont process anything
