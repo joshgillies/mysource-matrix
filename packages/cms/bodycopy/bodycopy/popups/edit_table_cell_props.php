@@ -63,90 +63,63 @@ include(dirname(__FILE__)."/header.php");
 		owner.bodycopy_save_table_cell_properties(data);
 	}
 </script>
-<table width="100%" border="0">
+
+<div class="title">Table Cell Properties</div>
+
 <form name="main_form">
-	<tr>
-		<td nowrap class="bodycopy-popup-heading">Edit Table Cell Properties&nbsp;</td>
-	</tr>
+<table width="100%" border="0">
 	<tr>
 		<td>
-			<hr>
-		</td>
-	</tr>
-	<tr>
-		<td>
-			<table border="0" cellpadding="0" cellspacing="4">
+			<table width="100%" cellspacing="0" cellpadding="0">
 				<tr>
-					<td>&nbsp;</td>
-					<td class="bodycopy-popup-heading">Width :</td>
-					<td valign="middle">
-						<input type="text" name="width" value="" size="5">
+					<td valign="top" width="50%">
+						<fieldset>
+						<legend><b>Layout</b></legend>
+						<table style="width:100%">
+							<tr>
+								<td class="label">Width:</td>
+								<td><input type="text" name="width" value="" size="5"></td>
+							</tr>
+							<tr>
+								<td class="label">Height:</td>
+								<td><input type="text" name="height" value="" size="5"></td>
+							</tr>
+							<tr>
+								<td class="label">Colspan:</td>
+								<td><input type="text" name="colspan" value="" size="5"></td>
+							</tr>
+						</table>
+						</fieldset>
 					</td>
-				</tr>
-				<tr>
 					<td>&nbsp;</td>
-					<td class="bodycopy-popup-heading">Height :</td>
-					<td valign="middle">
-						<input type="text" name="height" value="" size="5">
-					</td>
-				</tr>
-				<tr>
-					<td>&nbsp;</td>
-					<td class="bodycopy-popup-heading">Colspan :</td>
-					<td valign="middle">
-						<input type="text" name="colspan" value="" size="5">
-					</td>
-				</tr>
-				<tr>
-					<td>&nbsp;</td>
-					<td class="bodycopy-popup-heading">Background Colour :</td>
-					<td valign="middle">
-						<?php colour_box('bgcolor', '', true, '*',true, false, false);?>
-					</td>
-				</tr>
-				<tr>
-					<td>&nbsp;</td>
-					<td class="bodycopy-popup-heading">Alignment :</td>
-					<td valign="middle">
-						<select name="align">
-							<option value=""      >
-							<option value="left"  >Left
-							<option value="center">Centre
-							<option value="right" >Right
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<td>&nbsp;</td>
-					<td class="bodycopy-popup-heading">Vertical Alignment :</td>
-					<td valign="middle">
-						<select name="valign">
-							<option value=""        >
-							<option value="middle"  >Middle
-							<option value="top"     >Top
-							<option value="bottom"  >Bottom
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<td>&nbsp;</td>
-					<td class="bodycopy-popup-heading">No Text Wrap :</td>
-					<td valign="middle">
-						<select name="nowrap">
-							<option value="">Off
-							<option value="on">On
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<td>&nbsp;</td>
-					<td class="bodycopy-popup-heading">Cell Type :</td>
-					<td valign="middle">
-						<select name="type">
-							<option value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
-							<option value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
-							<option value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
-						</select>
+					<td valign="top" width="50%">
+						<fieldset>
+						<legend><b>Alignment</b></legend>
+						<table style="width:100%">
+							<tr>
+								<td class="label">Horizontal:</td>
+								<td>
+								<select name="align">
+									<option value=""      >
+									<option value="left"  >Left
+									<option value="center">Centre
+									<option value="right" >Right
+								</select>
+								</td>
+							</tr>
+							<tr>
+								<td class="label">Vertical:</td>
+								<td>
+								<select name="valign">
+									<option value=""        >
+									<option value="middle"  >Middle
+									<option value="top"     >Top
+									<option value="bottom"  >Bottom
+								</select>
+								</td>
+							</tr>
+						</table>
+						</fieldset>
 					</td>
 				</tr>
 			</table>
@@ -154,15 +127,55 @@ include(dirname(__FILE__)."/header.php");
 	</tr>
 	<tr>
 		<td>
-			<hr>
+			<fieldset>
+			<legend><b>Cell Styles / Colours</b></legend>
+			<table style="width:100%">
+				<tr>
+					<td class="label">Background Colour:</td>
+					<td><?php colour_box('bgcolor', '', true, '*',true, false, false);?></td>
+				</tr>
+				<tr>
+					<td class="label">No Text Wrap:</td>
+					<td>
+					<select name="nowrap">
+						<option value="">Off
+						<option value="on">On
+					</select>
+					</td>
+				</tr>
+			</table>
+			</fieldset>
 		</td>
 	</tr>
 	<tr>
-		<td align="center">
-			<input type="button" value="Save" onclick="javascript: save_props(this.form)">
-			<input type="button" value="Cancel" onclick="javascript: popup_close();">
+		<td>
+			<fieldset>
+			<legend><b>Cell Type</b></legend>
+			<table style="width:100%">
+				<tr>
+					<td class="label">Cell Type:</td>
+					<td>
+					<select name="type">
+						<option value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
+						<option value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
+						<option value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
+					</select>
+					</td>
+				</tr>
+			</table>
+			</fieldset>
 		</td>
 	</tr>
-</form>
+	<tr>
+		<td>
+			<div style="text-align: right;">
+			<button type="button" name="ok" onClick="javascript: save_props(this.form)">OK</button>
+			&nbsp;
+			<button type="button" name="cancel" onClick="javascript: popup_close();">Cancel</button>
+			</div>
+		</td>
+	</tr>
 </table>
+</form>
+
 <?php include(dirname(__FILE__)."/footer.php"); ?> 

@@ -236,7 +236,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		?>
 		<table<?php echo $attribute_list?> background="<?php echo $bgimage?>" border="0" cellpadding="0" cellspacing="0" style="width:100%;">
 			<tr> 
-				<td align="center" background="" id="<?php echo $prefix.'_table_'.$asset->id;?>" width="4%" style="border-top: 1px dotted #000000; border-right: 1px dotted #000000; border-left: 1px dotted #000000;">
+				<td align="center" background="" id="<?php echo $prefix.'_table_'.$asset->id;?>" width="4%" style="border-top: 1px dashed #C0C0C0; border-right: 1px dashed #C0C0C0; border-left: 1px dashed #C0C0C0;">
 				<?php
 				print_bodycopy_icon("Javascript: bodycopy_edit_table_properties('$prefix', $asset->id);", 'Edit '.$asset->attr('name').'\'s Properties', (($popup_attribute_list) ? 'Current Properties :<br>'.$popup_attribute_list : ''), 'table_properties');
 				?>
@@ -244,7 +244,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		<?php
 			for($i = 0; $i < $max_cols; $i++) {
 			?>
-				<td align="center" background="" valign="middle" style="border-top: 1px dotted #000000; border-right: 1px dotted #000000; border-bottom: 1px dotted #000000;" id="<?php echo $prefix.'_cell_'.$asset->id.'_0_'.$i; ?>">
+				<td align="center" background="" valign="middle" style="border-top: 1px dashed #C0C0C0; border-right: 1px dashed #C0C0C0; border-bottom: 1px dashed #C0C0C0;" id="<?php echo $prefix.'_cell_'.$asset->id.'_0_'.$i; ?>">
 					<table border="0" cellspacing="0" cellpadding="0" width="100%">
 						<tr>
 							<td align="left" nowrap>
@@ -279,7 +279,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 				</td>
 			<?php
 				if ($i < ($max_cols-1)) {
-					?><td style="border-right: 1px dotted #000000" width="1%"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="10" height="1"></td><?php
+					?><td style="border-right: 1px dashed #C0C0C0" width="1%"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="10" height="1"></td><?php
 				}
 			}
 			?>
@@ -291,11 +291,11 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			if ($i > 0) {
 				?>
 				<tr>
-					<td style="border-left: 1px dotted #000000; border-right: 1px dotted #000000; border-bottom: 1px dotted #000000;">&nbsp;</td>
+					<td style="border-left: 1px dashed #C0C0C0; border-right: 1px dashed #C0C0C0; border-bottom: 1px dashed #C0C0C0;">&nbsp;</td>
 					<?php
 					for($x = 0; $x < count($table_rows[$i]['cells']); $x++) {
 						?>
-						<td style="border-right: 1px dotted #000000; border-bottom: 1px dotted #000000;" id="<?php echo $prefix.'_cell_'.$asset->id.'_'.$i.'_'.$x; ?>">
+						<td style="border-right: 1px dashed #C0C0C0; border-bottom: 1px dashed #C0C0C0;" id="<?php echo $prefix.'_cell_'.$asset->id.'_'.$i.'_'.$x; ?>">
 							<table border="0" cellspacing="0" cellpadding="0" width="100%">
 								<tr>
 									<td align="left" nowrap>
@@ -318,7 +318,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 						</td>
 						<?php
 						if ($x < count($table_rows[$i]['cells'])-1) {
-							?><td style="border-right: 1px dotted #000000" width="1%"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="10" height="1"></td><?php
+							?><td style="border-right: 1px dashed #C0C0C0" width="1%"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="10" height="1"></td><?php
 						}
 					}//end for (each cell)
 					?>
@@ -335,7 +335,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			?>
 
 			<tr<?php echo $attribute_list?>>
-				<td align="center" background="" id="<?php echo $prefix.'_row_'.$asset->id.'_'.$i?>" height="100%" style="border-left: 1px dotted #000000; border-right: 1px dotted #000000; border-bottom: 1px dotted #000000;" >
+				<td align="center" background="" id="<?php echo $prefix.'_row_'.$asset->id.'_'.$i?>" height="100%" style="border-left: 1px dashed #C0C0C0; border-right: 1px dashed #C0C0C0; border-bottom: 1px dashed #C0C0C0;" >
 					<table border="0" cellspacing="0" cellpadding="0" height="100%">
 						<?php
 						if ($i == 0) {
@@ -385,7 +385,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 				for($x = 0; $x < count($table_rows[$i]['cells']); $x++) {
 					$table_rows[$i]['cells'][$x]->paint($asset, $prefix);
 					if ($x < count($table_rows[$i]['cells'])-1) {
-						?><td style="border-right: 1px dotted #000000" width="1%"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="10" height="1"></td><?php
+						?><td style="border-right: 1px dashed #C0C0C0" width="1%"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="10" height="1"></td><?php
 					}
 				}
 			?>

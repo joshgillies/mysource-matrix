@@ -52,74 +52,129 @@ include(dirname(__FILE__)."/header.php");
 	}
 
 </script>
-<table width="100%" border="0">
+
+<div class="title">
+	<table border="0" cellspacing="0" cellpadding="0">
+		<tr>
+			<td><a href="javascript: owner.bodycopy_delete_table(document.main_form.bodycopy_name.value, document.main_form.tableid.value);"><img src="<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/delete.png" width="16" height="16" border="0"></a></td>
+			<td class="title" width="100%" align="right">Table Properties</td>
+		</tr>
+	</table>
+</div>
+
 <form name="main_form">
-	<input type="hidden" name="bodycopy_name" value="">
-	<input type="hidden" name="tableid" value="">
+<input type="hidden" name="bodycopy_name" value="">
+<input type="hidden" name="tableid" value="">
+<table width="100%" border="0">
 	<tr>
-		<td nowrap align="left">
-		<a href="javascript: owner.bodycopy_delete_table(document.main_form.bodycopy_name.value, document.main_form.tableid.value);"><img src="<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/delete.gif" width="20" height="20" border="0"></a></td>
-		<td nowrap class="bodycopy-popup-heading">Edit Table Properties&nbsp;</td>
-	</tr>
-	<tr>
-		<td colspan="2">
-			<hr>
+		<td>
+		<fieldset>
+			<legend><b>Identification</b></legend>
+			<table style="width:100%">
+				<tr>
+					<td class="label">Name:</td>
+					<td><input type="text" name="table_name" value="" size="15"></td>
+				</tr>
+			</table>
+		</fieldset>
 		</td>
 	</tr>
 	<tr>
-		<td colspan="2">
-			<table border="0" cellpadding="0" cellspacing="4">
+		<td>
+			<table width="100%" cellspacing="0" cellpadding="0">
 				<tr>
+					<td valign="top" width="50%">
+						<fieldset>
+						<legend><b>Layout</b></legend>
+						<table style="width:100%">
+							<tr>
+								<td class="label">Width:</td>
+								<td><input type="text" name="width" value="" size="5"></td>
+							</tr>
+							<tr>
+								<td class="label">Height:</td>
+								<td><input type="text" name="height" value="" size="5"></td>
+							</tr>
+							<tr>
+								<td class="label">Alignment:</td>
+								<td>
+								<select name="align">
+									<option value=""      >
+									<option value="left"  >Left
+									<option value="center">Centre
+									<option value="right" >Right
+								</select>
+								</td>
+							</tr>
+						</table>
+						</fieldset>
+					</td>
 					<td>&nbsp;</td>
-					<td class="bodycopy-popup-heading">Name :</td>
-					<td valign="middle">
-						<input type="text" name="table_name" value="" size="15">
+					<td valign="top" width="50%">
+						<fieldset>
+						<legend><b>Spacing and Padding</b></legend>
+						<table style="width:100%">
+							<tr>
+								<td class="label">Spacing:</td>
+								<td>
+								<select name="cellspacing">
+									<option value="" >
+									<option value="0">0
+									<option value="1">1
+									<option value="2">2
+									<option value="3">3
+									<option value="4">4
+									<option value="5">5
+									<option value="6">6
+									<option value="7">7
+									<option value="8">8
+									<option value="9">9
+									<option value="10">10
+								</select>
+								</td>
+							</tr>
+							<tr>
+								<td class="label">Padding:</td>
+								<td>
+								<select name="cellpadding">
+									<option value="" >
+									<option value="0">0
+									<option value="1">1
+									<option value="2">2
+									<option value="3">3
+									<option value="4">4
+									<option value="5">5
+									<option value="6">6
+									<option value="7">7
+									<option value="8">8
+									<option value="9">9
+									<option value="10">10
+								</select>
+								</td>
+							</tr>
+						</table>
+						</fieldset>
 					</td>
 				</tr>
-				<tr>
-					<td>&nbsp;</td>
-					<td class="bodycopy-popup-heading">Width :</td>
-					<td valign="middle">
-						<input type="text" name="width" value="" size="5">
-					</td>
-				</tr>
-				<tr>
-					<td>&nbsp;</td>
-					<td class="bodycopy-popup-heading">Height :</td>
-					<td valign="middle">
-						<input type="text" name="height" value="" size="5">
-					</td>
-				</tr>
-				<tr>
-					<td>&nbsp;</td>
-					<td class="bodycopy-popup-heading">Background Colour :</td>
-					<td valign="middle">
-						<?php colour_box('bgcolor', '', true, '*',true, false, false);?>
-					</td>
-				</tr>
-				<tr>
-					<td>&nbsp;</td>
-					<td class="bodycopy-popup-heading">Background Image :</td>
-					<td valign="middle">
-						<input type="text" name="background" value="" size="5">
-					</td>
-				</tr>
-				<tr>
-					<td>&nbsp;</td>
-					<td class="bodycopy-popup-heading">Alignment :</td>
-					<td valign="middle">
-						<select name="align">
-							<option value=""      >
-							<option value="left"  >Left
-							<option value="center">Centre
-							<option value="right" >Right
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<td>&nbsp;</td>
-					<td class="bodycopy-popup-heading">Border :</td>
-					<td valign="middle">
+			</table>
+		</td>
+	</tr>
+	<tr>
+		<td width="100%">
+			<fieldset>
+			<legend><b>Table Styles / Colours</b></legend>
+				<table width="100%">
+					<tr>
+						<td class="label">Background Colour:</td>
+						<td><?php colour_box('bgcolor', '', true, '*',true, false, false);?></td>
+					</tr>
+					<tr>
+						<td class="label">Background Image:</td>
+						<td><input type="text" name="background" value="" size="5"></td>
+					</tr>
+					<tr>
+						<td class="label" valign="top">Border:</td>
+						<td valign="top">
 						<select name="border">
 							<option value="" >
 							<option value="0">0
@@ -134,62 +189,22 @@ include(dirname(__FILE__)."/header.php");
 							<option value="9">9
 							<option value="10">10
 						</select>
-					</td>
-				</tr>
-				<tr>
-					<td>&nbsp;</td>
-					<td class="bodycopy-popup-heading">Cell Spacing :</td>
-					<td valign="middle">
-						<select name="cellspacing">
-							<option value="" >
-							<option value="0">0
-							<option value="1">1
-							<option value="2">2
-							<option value="3">3
-							<option value="4">4
-							<option value="5">5
-							<option value="6">6
-							<option value="7">7
-							<option value="8">8
-							<option value="9">9
-							<option value="10">10
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<td>&nbsp;</td>
-					<td class="bodycopy-popup-heading">Cell Padding :</td>
-					<td valign="middle">
-						<select name="cellpadding">
-							<option value="" >
-							<option value="0">0
-							<option value="1">1
-							<option value="2">2
-							<option value="3">3
-							<option value="4">4
-							<option value="5">5
-							<option value="6">6
-							<option value="7">7
-							<option value="8">8
-							<option value="9">9
-							<option value="10">10
-						</select>
-					</td>
-				</tr>
-			</table>
+						</td>
+					</tr>
+				</table>
+			</fieldset>
 		</td>
 	</tr>
 	<tr>
 		<td>
-			<hr>
+		<div style="text-align: right;">
+		<button type="button" name="ok" onClick="javascript: popup_save(this.form)">OK</button>
+		&nbsp;
+		<button type="button" name="cancel" onClick="javascript: popup_close();">Cancel</button>
+		</div>
 		</td>
 	</tr>
-	<tr>
-		<td align="center">
-			<input type="button" value="Save"   onClick="javascript: popup_save(this.form)">
-			<input type="button" value="Cancel" onClick="javascript: popup_close();">
-		</td>
-	</tr>
-</form>
 </table>
+</form>
+
 <?php include(dirname(__FILE__)."/footer.php"); ?> 

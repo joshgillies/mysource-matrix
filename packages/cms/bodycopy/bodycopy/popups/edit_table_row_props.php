@@ -34,45 +34,37 @@ include(dirname(__FILE__)."/header.php");
 		owner.bodycopy_save_table_row_properties(data);
 	}
 </script>
-<table width="100%" border="0" class="bodycopy-popup-table">
+
+<div class="title">Table Row Properties</div>
+
 <form name="main_form">
-	<tr>
-		<td nowrap class="bodycopy-popup-heading">Edit Table Row Properties&nbsp;</td>
-	</tr>
-	<tr>
-		<td><hr></td>
-	</tr>
+<table width="100%" border="0" class="bodycopy-popup-table">
 	<tr>
 		<td>
+			<fieldset>
+			<legend>Properties</legend>
 			<table border="0" cellpadding="0" cellspacing="4">
 				<tr>
-					<td>&nbsp;</td>
-					<td class="bodycopy-popup-heading">Height :</td>
-					<td valign="middle">
-						<input type="text" name="height" value="" size="5">
-					</td>
+					<td class="label">Height :</td>
+					<td><input type="text" name="height" value="" size="5"></td>
 				</tr>
 				<tr>
-					<td>&nbsp;</td>
-					<td class="bodycopy-popup-heading">Background Colour :</td>
-					<td valign="middle">
-						<?php colour_box('bgcolor', '', true, '*',true, false, false);?>
-					</td>
+					<td class="label">Background Colour :</td>
+					<td><?php colour_box('bgcolor', '', true, '*',true, false, false);?></td>
 				</tr>
 			</table>
+			</fieldset>
 		</td>
 	</tr>
 	<tr>
 		<td>
-			<hr>
+			<div style="text-align: right;">
+			<button type="button" name="ok" onClick="javascript: save_props(this.form)">OK</button>
+			&nbsp;
+			<button type="button" name="cancel" onClick="javascript: popup_close();">Cancel</button>
+			</div>
 		</td>
 	</tr>
-	<tr>
-		<td align="center">
-			<input type="button" value="Save" onclick="javascript: save_props(this.form)">
-			<input type="button" value="Cancel" onclick="javascript: popup_close();">
-		</td>
-	</tr>
-</form>
 </table>
+</form>
 <?php include(dirname(__FILE__)."/footer.php"); ?> 

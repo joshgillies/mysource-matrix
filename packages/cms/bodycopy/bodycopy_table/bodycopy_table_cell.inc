@@ -175,7 +175,7 @@ class BodyCopy_Table_Cell extends MySource_Object {
 			}
 		}
 		if (!$generating && $table->writeAccess()) {
-			echo ' style="border-bottom: 1px dotted #000000; border-right: 1px dotted #000000; padding: 2px; vertical-align:top;" id="'.$content_prefix.'_cell"';
+			echo ' style="border-bottom: 1px dashed #C0C0C0; border-right: 1px dashed #C0C0C0; padding: 2px; vertical-align:top;" id="'.$content_prefix.'_cell"';
 		}
 		echo ">\n";
 

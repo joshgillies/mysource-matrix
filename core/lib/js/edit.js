@@ -17,9 +17,9 @@
 ## File: web/edit/edit.js
 ## Desc: Common Javascript functions for backend forms.
 ## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/js/edit.js,v $
-## $Revision: 1.3 $
+## $Revision: 1.4 $
 ## $Author: gsherwood $
-## $Date: 2003/08/20 05:29:59 $
+## $Date: 2003/09/12 05:52:38 $
 #######################################################################
 */
 
@@ -70,3 +70,12 @@ function sqSubmitEditForm() {
 	}
 
 }//end sqSubmitEditForm()
+
+
+function sqPrintIcon (strPath, intWidth, intHeight, strAlt) {
+	if (document.all) {
+		document.write ('<span style="height:'+intHeight+'px;width:'+intWidth+'px; filter:progid:DXImageTransform.Microsoft.AlphaImageLoader (src=\''+strPath+'.png\', sizingMethod=\'scale\')"></span>');
+	} else {
+		document.write('<img src="'+strPath+'.png" width="'+intWidth+'" height="'+intHeight+'" border="0" alt="'+strAlt+'" />');
+	}
+}
