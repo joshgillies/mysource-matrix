@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.13 2004/06/03 04:16:30 lwright Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.14 2004/06/16 05:54:55 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -44,19 +44,19 @@
 	</section>
 	<section name="Sections">
 		<field>
-			<display_name>Current Sections</display_name>
-			<note></note>
-			<function_call>
-				<paint_function   name="paintSectionLinks"   />
-				<process_function name="processSectionLinks" />
-			</function_call>
-		</field>
-		<field>
 			<display_name>Add Sections</display_name>
-			<note></note>
+			<note>Select the number of sections to add</note>
 			<function_call>
 				<paint_function   name="paintAddSections"   />
 				<process_function name="processAddSections" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Current Sections</display_name>
+			<note>Click on a section's name to display that section</note>
+			<function_call>
+				<paint_function   name="paintSectionLinks"   />
+				<process_function name="processSectionLinks" />
 			</function_call>
 		</field>
 	</section>
