@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.226 2004/11/18 04:39:52 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.227 2004/11/18 04:44:32 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.226 $
+* @version $Revision: 1.227 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -122,7 +122,6 @@ class Asset_Edit_Interface extends MySource_Object
 
 			$this->_screens[$code_name] = Array(
 												'name'			=> $root->children[$i]->attributes['display_name'],
-												'use_tab'		=> ($root->children[$i]->attributes['use_tab'] == 'true') ? $root->children[$i]->attributes['use_tab'] : false,
 												'force_unlock'	=> ($force_unlock != '0'),
 												'lock_type'		=> (isset($root->children[$i]->attributes['lock_type'])) ? $root->children[$i]->attributes['lock_type'] : '',
 											);
@@ -669,12 +668,12 @@ class Asset_Edit_Interface extends MySource_Object
 			foreach ($this->_edit_fns->static_screens as $code_name => $data) {
 				if ($check_screen_restrictions && !isset($allowed_screens[$code_name])) continue;
 				$url = $current_location.'asset_ei_screen='.rawurlencode($code_name);
-				$o->addStaticScreen($url, $data['name'], $data['use_tab']);
+				$o->addStaticScreen($url, $data['name']);
 			}
 			
 			for (reset($this->_screens); null !== ($code = key($this->_screens)); next($this->_screens)) {
 				if ($check_screen_restrictions && !isset($allowed_screens[$code])) continue;
-				$o->addScreen($current_location.'asset_ei_screen='.rawurlencode($code), $this->_screens[$code]['name'], $this->_screens[$code]['use_tab']);
+				$o->addScreen($current_location.'asset_ei_screen='.rawurlencode($code), $this->_screens[$code]['name']);
 			}
 		} else {
 			// if we are creating open the create file to see which fields we are supposed to print out
