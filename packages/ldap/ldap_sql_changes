@@ -1,0 +1,214 @@
+MYSQL - sq_asset_editing_access
+----------------------------------
+ALTER TABLE sq_asset_editing_access DROP PRIMARY KEY;
+ALTER TABLE sq_asset_editing_access CHANGE COLUMN userid userid VARCHAR(140) NOT NULL DEFAULT '0';
+ALTER TABLE sq_asset_editing_access CHANGE COLUMN type_code type_code VARCHAR(140) NOT NULL;
+ALTER TABLE sq_asset_editing_access ADD PRIMARY KEY(userid, type_code, screen, section);
+
+ALTER TABLE sq_rollback_asset_editing_access DROP PRIMARY KEY;
+ALTER TABLE sq_rollback_asset_editing_access CHANGE COLUMN userid userid VARCHAR(140) NOT NULL DEFAULT '0';
+ALTER TABLE sq_rollback_asset_editing_access CHANGE COLUMN type_code type_code VARCHAR(140) NOT NULL;
+ALTER TABLE sq_rollback_asset_editing_access ADD PRIMARY KEY(sq_effective_from, userid, type_code, screen, section);
+
+
+PSQL - sq_asset_editing_access
+----------------------------------
+ALTER TABLE sq_asset_editing_access ADD COLUMN temp VARCHAR(255);
+UPDATE sq_asset_editing_access SET temp = userid;
+ALTER TABLE sq_asset_editing_access DROP COLUMN userid;
+ALTER TABLE sq_asset_editing_access RENAME COLUMN temp TO userid;
+ALTER TABLE sq_asset_editing_access ALTER COLUMN userid SET DEFAULT '0';
+ALTER TABLE sq_asset_editing_access ALTER COLUMN userid SET NOT NULL;
+
+ALTER TABLE sq_asset_editing_access ADD PRIMARY KEY (userid, type_code, screen, section);
+
+
+ALTER TABLE sq_rollback_asset_editing_access ADD COLUMN temp VARCHAR(255);
+UPDATE sq_rollback_asset_editing_access SET temp = userid;
+ALTER TABLE sq_rollback_asset_editing_access DROP COLUMN userid;
+ALTER TABLE sq_rollback_asset_editing_access RENAME COLUMN temp TO userid;
+ALTER TABLE sq_rollback_asset_editing_access ALTER COLUMN userid SET DEFAULT '0';
+ALTER TABLE sq_rollback_asset_editing_access ALTER COLUMN userid SET NOT NULL;
+
+ALTER TABLE sq_rollback_asset_editing_access ADD PRIMARY KEY (sq_effective_from, userid, type_code, screen, section);
+
+
+
+
+MYSQL - sq_asset_permission
+----------------------------------
+ALTER TABLE sq_asset_permission DROP PRIMARY KEY;
+ALTER TABLE sq_asset_permission CHANGE COLUMN assetid assetid VARCHAR(140) NOT NULL DEFAULT '0';
+ALTER TABLE sq_asset_permission CHANGE COLUMN userid userid VARCHAR(140) NOT NULL DEFAULT '0';
+ALTER TABLE sq_asset_permission ADD PRIMARY KEY(assetid, userid, permission);
+
+ALTER TABLE sq_rollback_asset_permission DROP PRIMARY KEY;
+ALTER TABLE sq_rollback_asset_permission CHANGE COLUMN assetid assetid VARCHAR(140) NOT NULL DEFAULT '0';
+ALTER TABLE sq_rollback_asset_permission CHANGE COLUMN userid userid VARCHAR(140) NOT NULL DEFAULT '0';
+ALTER TABLE sq_rollback_asset_permission ADD PRIMARY KEY(sq_effective_from, assetid, userid, permission);
+
+
+PSQL - sq_asset_permission
+----------------------------------
+ALTER TABLE sq_asset_permission ADD COLUMN temp VARCHAR(255);
+UPDATE sq_asset_permission SET temp = assetid;
+ALTER TABLE sq_asset_permission DROP COLUMN assetid;
+ALTER TABLE sq_asset_permission RENAME COLUMN temp TO assetid;
+ALTER TABLE sq_asset_permission ALTER COLUMN assetid SET DEFAULT '0';
+ALTER TABLE sq_asset_permission ALTER COLUMN assetid SET NOT NULL;
+
+ALTER TABLE sq_asset_permission ADD COLUMN temp VARCHAR(255);
+UPDATE sq_asset_permission SET temp = userid;
+ALTER TABLE sq_asset_permission DROP COLUMN userid;
+ALTER TABLE sq_asset_permission RENAME COLUMN temp TO userid;
+ALTER TABLE sq_asset_permission ALTER COLUMN userid SET DEFAULT '0';
+ALTER TABLE sq_asset_permission ALTER COLUMN userid SET NOT NULL;
+
+ALTER TABLE sq_asset_permission ADD PRIMARY KEY (assetid, userid, permission);
+
+
+ALTER TABLE sq_rollback_asset_permission ADD COLUMN temp VARCHAR(255);
+UPDATE sq_rollback_asset_permission SET temp = assetid;
+ALTER TABLE sq_rollback_asset_permission DROP COLUMN assetid;
+ALTER TABLE sq_rollback_asset_permission RENAME COLUMN temp TO assetid;
+ALTER TABLE sq_rollback_asset_permission ALTER COLUMN assetid SET DEFAULT '0';
+ALTER TABLE sq_rollback_asset_permission ALTER COLUMN assetid SET NOT NULL;
+
+ALTER TABLE sq_rollback_asset_permission ADD COLUMN temp VARCHAR(255);
+UPDATE sq_rollback_asset_permission SET temp = userid;
+ALTER TABLE sq_rollback_asset_permission DROP COLUMN userid;
+ALTER TABLE sq_rollback_asset_permission RENAME COLUMN temp TO userid;
+ALTER TABLE sq_rollback_asset_permission ALTER COLUMN userid SET DEFAULT '0';
+ALTER TABLE sq_rollback_asset_permission ALTER COLUMN userid SET NOT NULL;
+
+ALTER TABLE sq_rollback_asset_permission ADD PRIMARY KEY (sq_effective_from, assetid, userid, permission);
+
+
+
+
+MYSQL - sq_lock
+----------------------------------
+ALTER TABLE sq_lock CHANGE COLUMN userid userid VARCHAR(140) NOT NULL DEFAULT '0';
+
+
+PSQL - sq_lock
+----------------------------------
+ALTER TABLE sq_lock ADD COLUMN temp VARCHAR(255);
+UPDATE sq_lock SET temp = userid;
+ALTER TABLE sq_lock DROP COLUMN userid;
+ALTER TABLE sq_lock RENAME COLUMN temp TO userid;
+ALTER TABLE sq_lock ALTER COLUMN userid SET DEFAULT '0';
+ALTER TABLE sq_lock ALTER COLUMN userid SET NOT NULL;
+
+
+
+
+MYSQL - sq_asset
+----------------------------------
+ALTER TABLE sq_asset CHANGE COLUMN created_userid created_userid VARCHAR(140) NOT NULL DEFAULT '0';
+ALTER TABLE sq_asset CHANGE COLUMN updated_userid updated_userid VARCHAR(140) NOT NULL DEFAULT '0';
+
+ALTER TABLE sq_rollback_asset CHANGE COLUMN created_userid created_userid VARCHAR(140) NOT NULL DEFAULT '0';
+ALTER TABLE sq_rollback_asset CHANGE COLUMN updated_userid updated_userid VARCHAR(140) NOT NULL DEFAULT '0';
+
+
+PSQL - sq_asset
+----------------------------------
+ALTER TABLE sq_asset ADD COLUMN temp VARCHAR(255);
+UPDATE sq_asset SET temp = created_userid;
+ALTER TABLE sq_asset DROP COLUMN created_userid;
+ALTER TABLE sq_asset RENAME COLUMN temp TO created_userid;
+ALTER TABLE sq_asset ALTER COLUMN created_userid SET DEFAULT '0';
+ALTER TABLE sq_asset ALTER COLUMN created_userid SET NOT NULL;
+
+ALTER TABLE sq_asset ADD COLUMN temp VARCHAR(255);
+UPDATE sq_asset SET temp = updated_userid;
+ALTER TABLE sq_asset DROP COLUMN updated_userid;
+ALTER TABLE sq_asset RENAME COLUMN temp TO updated_userid;
+ALTER TABLE sq_asset ALTER COLUMN updated_userid SET DEFAULT '0';
+ALTER TABLE sq_asset ALTER COLUMN updated_userid SET NOT NULL;
+
+
+ALTER TABLE sq_rollback_asset ADD COLUMN temp VARCHAR(255);
+UPDATE sq_rollback_asset SET temp = created_userid;
+ALTER TABLE sq_rollback_asset DROP COLUMN created_userid;
+ALTER TABLE sq_rollback_asset RENAME COLUMN temp TO created_userid;
+ALTER TABLE sq_rollback_asset ALTER COLUMN created_userid SET DEFAULT '0';
+ALTER TABLE sq_rollback_asset ALTER COLUMN created_userid SET NOT NULL;
+
+ALTER TABLE sq_rollback_asset ADD COLUMN temp VARCHAR(255);
+UPDATE sq_rollback_asset SET temp = updated_userid;
+ALTER TABLE sq_rollback_asset DROP COLUMN updated_userid;
+ALTER TABLE sq_rollback_asset RENAME COLUMN temp TO updated_userid;
+ALTER TABLE sq_rollback_asset ALTER COLUMN updated_userid SET DEFAULT '0';
+ALTER TABLE sq_rollback_asset ALTER COLUMN updated_userid SET NOT NULL;
+
+
+
+
+MYSQL - sq_internal_message
+----------------------------------
+ALTER TABLE sq_internal_message CHANGE COLUMN userto userto VARCHAR(140) NOT NULL DEFAULT '0';
+ALTER TABLE sq_internal_message CHANGE COLUMN userfrom userfrom VARCHAR(140) NOT NULL DEFAULT '0';
+
+ALTER TABLE sq_rollback_internal_message CHANGE COLUMN userto userto VARCHAR(140) NOT NULL DEFAULT '0';
+ALTER TABLE sq_rollback_internal_message CHANGE COLUMN userfrom userfrom VARCHAR(140) NOT NULL DEFAULT '0';
+
+
+PSQL - sq_internal_message
+----------------------------------
+ALTER TABLE sq_internal_message ADD COLUMN temp VARCHAR(255);
+UPDATE sq_internal_message SET temp = userto;
+ALTER TABLE sq_internal_message DROP COLUMN userto;
+ALTER TABLE sq_internal_message RENAME COLUMN temp TO userto;
+ALTER TABLE sq_internal_message ALTER COLUMN userto SET DEFAULT '0';
+ALTER TABLE sq_internal_message ALTER COLUMN userto SET NOT NULL;
+
+ALTER TABLE sq_internal_message ADD COLUMN temp VARCHAR(255);
+UPDATE sq_internal_message SET temp = userfrom;
+ALTER TABLE sq_internal_message DROP COLUMN userfrom;
+ALTER TABLE sq_internal_message RENAME COLUMN temp TO userfrom;
+ALTER TABLE sq_internal_message ALTER COLUMN userfrom SET DEFAULT '0';
+ALTER TABLE sq_internal_message ALTER COLUMN userfrom SET NOT NULL;
+
+
+ALTER TABLE sq_rollback_internal_message ADD COLUMN temp VARCHAR(255);
+UPDATE sq_rollback_internal_message SET temp = userto;
+ALTER TABLE sq_rollback_internal_message DROP COLUMN userto;
+ALTER TABLE sq_rollback_internal_message RENAME COLUMN temp TO userto;
+ALTER TABLE sq_rollback_internal_message ALTER COLUMN userto SET DEFAULT '0';
+ALTER TABLE sq_rollback_internal_message ALTER COLUMN userto SET NOT NULL;
+
+ALTER TABLE sq_rollback_internal_message ADD COLUMN temp VARCHAR(255);
+UPDATE sq_rollback_internal_message SET temp = userfrom;
+ALTER TABLE sq_rollback_internal_message DROP COLUMN userfrom;
+ALTER TABLE sq_rollback_internal_message RENAME COLUMN temp TO userfrom;
+ALTER TABLE sq_rollback_internal_message ALTER COLUMN userfrom SET DEFAULT '0';
+ALTER TABLE sq_rollback_internal_message ALTER COLUMN userfrom SET NOT NULL;
+
+
+
+
+MYSQL - sq_asset_link
+----------------------------------
+ALTER TABLE sq_asset_link CHANGE COLUMN updated_userid updated_userid VARCHAR(140) NOT NULL DEFAULT '0';
+
+ALTER TABLE sq_rollback_asset_link CHANGE COLUMN updated_userid updated_userid VARCHAR(140) NOT NULL DEFAULT '0';
+
+
+PSQL - sq_asset_link
+----------------------------------
+ALTER TABLE sq_asset_link ADD COLUMN temp VARCHAR(255);
+UPDATE sq_asset_link SET temp = updated_userid;
+ALTER TABLE sq_asset_link DROP COLUMN updated_userid;
+ALTER TABLE sq_asset_link RENAME COLUMN temp TO updated_userid;
+ALTER TABLE sq_asset_link ALTER COLUMN updated_userid SET DEFAULT '0';
+ALTER TABLE sq_asset_link ALTER COLUMN updated_userid SET NOT NULL;
+
+
+ALTER TABLE sq_rollback_asset_link ADD COLUMN temp VARCHAR(255);
+UPDATE sq_rollback_asset_link SET temp = updated_userid;
+ALTER TABLE sq_rollback_asset_link DROP COLUMN updated_userid;
+ALTER TABLE sq_rollback_asset_link RENAME COLUMN temp TO updated_userid;
+ALTER TABLE sq_rollback_asset_link ALTER COLUMN updated_userid SET DEFAULT '0';
+ALTER TABLE sq_rollback_asset_link ALTER COLUMN updated_userid SET NOT NULL;
