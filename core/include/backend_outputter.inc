@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.96 2005/02/14 19:32:53 brobertson Exp $
+* $Id: backend_outputter.inc,v 1.97 2005/02/21 10:36:22 brobertson Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',       4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.96 $
+* @version $Revision: 1.97 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1151,7 +1151,7 @@ class Backend_Outputter
 			<a name="section_<?php echo $section['section_count']; ?>"></a>
 			<table id="backend_section_<?php echo $section['section_count']; ?>" width="100%" cellpadding="0" cellspacing="1" border="0">
 			<?php
-			if ($section['heading']) {
+			if ($section['heading'] != '') {
 				if ($depth > 0) {
 					// printing a nested section - needs to look a little different
 					?>
