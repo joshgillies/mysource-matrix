@@ -15,10 +15,7 @@ include(dirname(__FILE__)."/header.php");
 		f.width.value		= (data['width']	  == null) ? "" : data['width'];
 		f.height.value		= (data['height']	  == null) ? "" : data['height'];
 		f.bgcolor.value		= (data['bgcolor']	  == null) ? "" : data['bgcolor'];
-		//var bgimage			= (data['background'] == null) ? "" : data['background'];
-		//bgfileid = bgimage.substr(5,bgimage.length);
-		//f.background.value = bgimage;
-		//owner.highlightComboElement(f.fileid,      bgfileid);
+		f.background.value	= (data['background'] == null) ? "" : data['background'];
 		owner.highlight_combo_value(f.align,	   data['align']);
 		owner.highlight_combo_value(f.border,	   data['border']);
 		owner.highlight_combo_value(f.cellspacing, data['cellspacing']);
@@ -34,34 +31,13 @@ include(dirname(__FILE__)."/header.php");
 		data["width"]			= owner.element_value(f.width);
 		data["height"]			= owner.element_value(f.height);
 		data["bgcolor"]			= owner.element_value(f.bgcolor);
-		//data["background"]		= owner.element_value(f.background);
+		data["background"]		= owner.element_value(f.background);
 		data["align"]			= owner.element_value(f.align);
 		data["border"]			= owner.element_value(f.border);
 		data["cellspacing"]		= owner.element_value(f.cellspacing);
 		data["cellpadding"]		= owner.element_value(f.cellpadding);
 		owner.bodycopy_save_table_properties(data);
 	}
-
-	/*
-	function set_file_url(f, changed) {
-
-		var fileid = "";
-		if (changed == "fileid") {
-			fileid = f.fileid.options[f.fileid.selectedIndex].value;
-		} else if (changed == "other_fileid") {
-			fileid = f.other_fileid.value;
-			f.fileid.options[0].selected = true;
-		} else {
-		}
-
-		if (fileid != "") {
-			f.background.value = "./?f=" + fileid;
-		} else {
-			f.background.value = "";
-		}
-
-	}// end set_file_url()
-	*/
 
 </script>
 <table width="100%" border="0">
@@ -102,39 +78,13 @@ include(dirname(__FILE__)."/header.php");
 						<?php colour_box('bgcolor', '', true, '*',true, false, false);?>
 					</td>
 				</tr>
-				<!-- <tr>
+				<tr>
 					<td>&nbsp;</td>
 					<td class="bodycopy-popup-heading">Background Image :</td>
 					<td valign="middle">
-						<input type="hidden" name="background" value="">
-						<?php
-							/*
-							# let's see if the passed URL can help us with a fileid
-							if (ereg("^\\./\\?f=([0-9]+)", $url, $regs)){
-								$fileid = $regs[1];
-							}#end if
-
-							$web  = &get_web_system();
-							$page = &$web->get_page($pageid);
-
-							if ($page->id) $fileids = &$page->file_index;
-							else $fileids = Array();
-
-							$files = Array("" => "");
-
-							if ($fileids) {
-								foreach($fileids as $id) {
-									$file = &$page->get_file($id);
-									if (is_image($file->filename)) {
-										$files[$id] = $file->filename;
-									}#end if
-								}#end foreach
-							}#end if
-							echo combo_box("fileid", $files, $fileid, "onChange=\"javascript: set_file_url(this.form, 'fileid');\"",20);
-							*/
-						?>
+						<input type="text" name="background" value="" size="5">
 					</td>
-				</tr> -->
+				</tr>
 				<tr>
 					<td>&nbsp;</td>
 					<td class="bodycopy-popup-heading">Alignment :</td>

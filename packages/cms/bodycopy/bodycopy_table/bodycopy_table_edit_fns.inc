@@ -122,10 +122,8 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			$val = $table_attributes[$name];
 			if ($val == '') continue;
 			if ($name == 'background') {
-				#$web = &get_web_system();
-				#$file = &$web->get_file(substr($val, 5));
-				#$bgimage = $file->get_href();
-				#$popup_attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $file->filename).'"';
+				$file = $GLOBALS['SQ_SYSTEM']->am->getAsset($val);
+				if ($file->id) $bgimage = $file->getURL();
 				continue;
 			}
 			$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
@@ -179,10 +177,9 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 				$val = $table_attributes[$name];
 				if ($val == '') continue;
 				if ($name == 'background') {
-					#$web = &get_web_system();
-					#$file = &$web->get_file(substr($val, 5));
-					#$bgimage = $file->get_href();
-					#$popup_attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $file->filename).'"';
+					$file = $GLOBALS['SQ_SYSTEM']->am->getAsset($val);
+					if ($file->id) $popup_attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $file->attr('name')).'"';
+					$bgimage = $file->getURL();
 					continue;
 				}
 				$popup_attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
