@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.25 2004/12/10 04:16:44 tbarrett Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.26 2004/12/10 04:24:47 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -120,7 +120,14 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* 
+	* Check all the date/time components are present and correct, and convert to 24hr format
+	*
+	* @param string		$prefix		The form field prefix
+	* @param string		$component	Which component of the start/end we are checking
+	*
+	* @return boolean	whether the date was OK
+	* @access private
+	*/
 	function _validateDateTimeFields($prefix, $component)
 	{
 		if (isset($_REQUEST[$prefix.$component.'_time_enabled'])) {
@@ -162,6 +169,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 				return false;
 			}
 		}
+		return true;
 
 	}//end _validateDateTimeFields()
 
@@ -199,7 +207,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 	function getStartEndChooserResult($prefix)
 	{
 		// begin with the start time
-		$this->_validateDateTimeFields($prefix, '_start');
+		if (!$this->_validateDateTimeFields($prefix, '_start')) return false;
 		$start_date_value = $_REQUEST[$prefix.'_start_year'] .'-'
 			. sprintf("%02d", $_REQUEST[$prefix.'_start_month']) .'-'
 			. sprintf("%02d", $_REQUEST[$prefix.'_start_day']).' ';
@@ -232,7 +240,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 				}
 				$end_date_value = ts_iso8601($end_ts);
 			} else {
-				$this->_validateDateTimeFields($prefix, '_end');
+				if (!$this->_validateDateTimeFields($prefix, '_end')) return false;
 				if (isset($_REQUEST[$prefix.'_end_time_enabled'])) {
 					$end_date_value = $_REQUEST[$prefix.'_end_year'] .'-'
 						. sprintf("%02d", $_REQUEST[$prefix.'_end_month']) .'-'
