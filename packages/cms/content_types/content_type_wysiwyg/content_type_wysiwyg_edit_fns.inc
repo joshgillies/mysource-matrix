@@ -27,6 +27,42 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 
 	}//end constructor
 
+
+	/**
+	* Sets the various params for this WYSIWYG editor
+	*
+	* @param object Content_Type_WYSIWYG	&$asset	the wysiwyg content type object
+	* @param string							$prefix	prefix for form elements
+	*
+	* @return object WYSIWYG
+	* @access private
+	*/
+	function _createEditor(&$asset, $prefix)
+	{
+		$html = $asset->attr('html');
+
+		$wysiwyg = new wysiwyg($prefix, sq_web_path('fudge').'/wysiwyg/');
+		$wysiwyg->set_body_type('div');
+		$wysiwyg->set_init_onload('yes');
+		//$wysiwyg->set_stylesheet('http://www.nswrl.com.au/__data/site/design/1/images/styles.css');
+		$wysiwyg->set_width('100%');
+		$wysiwyg->add_plugin('format_text');
+		$wysiwyg->add_plugin('justify_text');
+		$wysiwyg->add_plugin('indenting');
+		$wysiwyg->add_plugin('listing');
+		$wysiwyg->add_plugin('general');
+		$wysiwyg->add_plugin('history');
+		$wysiwyg->add_plugin('select_color');
+		$wysiwyg->add_plugin('matrix_embed_movie');
+		$wysiwyg->add_plugin('matrix_insert_link');
+		$wysiwyg->add_plugin('matrix_insert_image');
+		$wysiwyg->add_plugin('view_source');
+		$wysiwyg->set_contents($html);
+		//$wysiwyg->add_plugin('popup_editor');
+		return $wysiwyg;
+
+	}//end _createEditor()
+
 	
 	/**
 	* Prints the backend interface for this WYSIWYG editor
@@ -40,23 +76,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	function paintBackend(&$asset, $prefix)
 	{
 		if ($asset->writeAccess()) {
-			$wysiwyg = new wysiwyg($prefix, sq_web_path('fudge').'/wysiwyg/');
-			$wysiwyg->set_body_type('div');
-			$wysiwyg->set_init_onload('yes');
-			$wysiwyg->set_contents($asset->attr('html'));
-			//$wysiwyg->set_stylesheet('http://www.nswrl.com.au/__data/site/design/1/images/styles.css');
-			$wysiwyg->set_width('100%');
-			$wysiwyg->add_plugin('format_text');
-			$wysiwyg->add_plugin('justify_text');
-			$wysiwyg->add_plugin('indenting');
-			$wysiwyg->add_plugin('listing');
-			$wysiwyg->add_plugin('general');
-			$wysiwyg->add_plugin('history');
-			$wysiwyg->add_plugin('select_color');
-			$wysiwyg->add_plugin('matrix_insert_link');
-			$wysiwyg->add_plugin('matrix_insert_image');
-			$wysiwyg->add_plugin('view_source');
-			//$wysiwyg->add_plugin('popup_editor');
+			$wysiwyg = $this->_createEditor($asset, $prefix);
 			$wysiwyg->paint();
 		}
 		return true;
@@ -74,7 +94,9 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	*/
 	function paint(&$asset, $generating=false)
 	{
-		echo $asset->attr('html');
+		$html = $asset->attr('html');
+		$html = preg_replace('|(<SQ_WYSIWYG_EDITOR[^>]*?>)(.*?)(</SQ_WYSIWYG_EDITOR>)|si', '$2', $html);
+		echo $html;
 
 	}//end paint()
 
@@ -91,11 +113,14 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	*/
 	function processBackend($link, &$asset, $prefix)
 	{
-		$current_html = $asset->attr('html');
-		$html = (isset($_POST[$prefix])) ? $_POST[$prefix] : '';
-		$html = trim($html);
-		if ($html != $current_html) {
-			if ($asset->setAttrValue('html', $html)) return true;
+		if ($asset->writeAccess()) {
+			$wysiwyg = $this->_createEditor($asset, $prefix);
+			$html = $wysiwyg->process();
+
+			$current_html = $asset->attr('html');
+			if ($html != $current_html) {
+				if ($asset->setAttrValue('html', $html)) return true;
+			}
 		}
 		return false;
 
