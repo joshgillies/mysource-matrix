@@ -26,7 +26,7 @@ class Asset_Attribute extends Resolve_Object
 	var $name = '';
 
 	/**
-	* Parameters for processing/calculating this attribute
+	* Parameters for processing/calculating/validating this attribute
 	* @var Array()
 	*/
 	var $_params = Array();
@@ -190,6 +190,7 @@ class Asset_Attribute extends Resolve_Object
 		}
 		return true;
 	}
+
 
 }//end class
 ?>
