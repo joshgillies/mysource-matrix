@@ -144,7 +144,7 @@ class Backend extends Resolve_Object
 				<td nowrap class="sq-backend-header-cell"><a target="main" href="<?php echo $url;?>"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="2" height="2" border="0" /><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/swish.gif" width="20" height="20" border="0" /><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="3" height="2" border="0" /></a></td>
 				<td nowrap class="sq-backend-header-item"><a target="main" href="<?php echo $url;?>" class="sq-backend-header-item"><?php echo SQ_SYSTEM_SHORT_NAME; ?></a></td>
 				<td class="sq-backend-header-cell" align="right">
-					<div class="sq-backend-smallprint" style="font-size:10px; color:#ffffff"><b><?php echo $GLOBALS['SQ_SYSTEM']->user->_getName(false); ?></b></div>
+					<div class="sq-backend-smallprint" style="font-size:10px; color:#ffffff"><b><?php echo $GLOBALS['SQ_SYSTEM']->user->name; ?></b></div>
 					<div class="sq-backend-fineprint"  style="color:#ffffff"><?php echo date('d M Y'); ?></div>
 				</td>
 				<td class="sq-backend-header-cell"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="2" border="0"></td>
@@ -197,7 +197,7 @@ class Backend extends Resolve_Object
 							<tr>
 								<td class="sq-backend-message-item" nowrap>
 								<a href="#" onClick="Javascript: if (parent.top.sidenav.top.sidenav && parent.top.sidenav.top.sidenav.refresh_internal_messages) { parent.top.sidenav.top.sidenav.refresh_internal_messages(); }; return false;">
-									'.$GLOBALS['SQ_SYSTEM']->user->_getName(false).' has '.count($messages).' new messages
+									'.$GLOBALS['SQ_SYSTEM']->user->name.' has '.count($messages).' new messages
 								</a>
 								</td>
 							</tr>

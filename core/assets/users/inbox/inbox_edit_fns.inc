@@ -61,7 +61,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				if ($data['userfrom']) {
 					// work out who the sender was
 					$from = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data['userfrom']);
-					$from_name = $from->_getName(false);
+					$from_name = $from->name;
 				} else {
 					$from_name = SQ_SYSTEM_SHORT_NAME.' System';
 				}
@@ -172,7 +172,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				$from = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data['userfrom']);
 				?>
 				<tr>
-					<td class="sq-backend-message-item" bgcolor="#FFFFFF"><?php echo $from->_getName(false)?></td>
+					<td class="sq-backend-message-item" bgcolor="#FFFFFF"><?php echo $from->name?></td>
 					<td class="sq-backend-message-item" bgcolor="#FFFFFF"><?php echo $data['subject']?></td>
 					<td class="sq-backend-message-item" bgcolor="#FFFFFF"><?php echo $data['body']?></td>
 					<td class="sq-backend-message-item" bgcolor="#FFFFFF" width="130"><?php echo $data['sent']?></td>

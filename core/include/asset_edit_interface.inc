@@ -116,7 +116,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		// if we dont have read access, piss off
 		if ($owner->id && !$owner->readAccess()) {
 			include SQ_INCLUDE_PATH.'/login.inc';
-			print_login('Login', 'You do not have permission to access <i>'.$owner->_getName(false).'</i>');
+			print_login('Login', 'You do not have permission to access <i>'.$owner->name.'</i>');
 			return;
 		}
 
@@ -286,7 +286,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		// if we dont have read access, piss off
 		if ($owner->id && !$owner->writeAccess()) {
 			include SQ_INCLUDE_PATH.'/login.inc';
-			print_login('Login', 'You do not have permission to edit <i>'.$owner->_getName(false).'</i>');
+			print_login('Login', 'You do not have permission to edit <i>'.$owner->name.'</i>');
 			return;
 		}
 
@@ -471,14 +471,14 @@ class Asset_Edit_Interface extends Resolve_Object
 					if ($locid == $owner->id) continue;
 					$loc = &$GLOBALS['SQ_SYSTEM']->am->getAsset($locid);
 					if (!$loc->id) continue;
-					$loc_string .= $loc->_getName(false).', ';
+					$loc_string .= $loc->name.', ';
 				}
 				$loc_string = trim($loc_string, ', ');
 				if (!empty($loc_string)) {
 					?>
 					<tr>
 						<td bgcolor="#F0F0F0" class="sq-form-field"><?php 
-						if ($userid) echo $asset->_getName(false).' ['.$asset->type()." : $userid] was set at $loc_string";
+						if ($userid) echo $asset->name.' ['.$asset->type()." : $userid] was set at $loc_string";
 						else echo "Public access was set at $loc_string";
 						?></td><?php
 					if ($owner->writeAccess()) {
@@ -522,7 +522,7 @@ class Asset_Edit_Interface extends Resolve_Object
 					?>
 					<tr>
 						<td bgcolor="#F0F0F0" class="sq-form-field"><?php 
-						if ($userid) echo $asset->_getName(false).' ['.$asset->type()." : $userid]";
+						if ($userid) echo $asset->name.' ['.$asset->type()." : $userid]";
 						else echo 'Public access';
 						?></td>
 					<?php
@@ -564,7 +564,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				if (in_array($owner->id, $locs)) {
 					?>
 					<tr>
-						<td bgcolor="#F0F0F0" class="sq-form-field"><?php echo '&nbsp;'.$asset->_getName(false).' ['.$asset->type()." : $userid]";?></td>
+						<td bgcolor="#F0F0F0" class="sq-form-field"><?php echo '&nbsp;'.$asset->name.' ['.$asset->type()." : $userid]";?></td>
 					<?php
 					if ($owner->writeAccess()) {
 						?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field"><?php
