@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.26 2004/07/07 00:34:47 gsherwood Exp $
+* $Id: form_email.inc,v 1.27 2004/07/28 22:47:56 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -131,8 +131,8 @@ class Form_Email extends Form
 		$information .= ($html) ? "<table>" : '';
 		
 		foreach ($info as $name => $value) {
-			$information .= ($html) ? '<tr><td>'.ucwords(str_replace('_', ' ', $name)).'</td>' : ucwords(str_replace('_', ' ', $name))." : ";
-			$information .= ($html) ? '<td>'.$value.'</td></tr>' : $value."\n";
+			$information .= ($html) ? '<tr><td valign="top">'.ucwords(str_replace('_', ' ', $name)).'</td>' : ucwords(str_replace('_', ' ', $name))." : ";
+			$information .= ($html) ? '<td valign="top">'.$value.'</td></tr>' : $value."\n";
 		}
 		$information .= ($html) ? "</table>" : '';
 		return $information;
