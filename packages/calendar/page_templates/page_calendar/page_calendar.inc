@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.91 2004/09/27 04:16:07 lwright Exp $
+* $Id: page_calendar.inc,v 1.92 2004/09/28 03:10:09 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.91 $ - 1.0
+* @version $Revision: 1.92 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1553,6 +1553,8 @@ class Page_Calendar extends Page_Asset_Listing
 			foreach ($descriptions as $assetid => $description) $res[$assetid]['description'] = $description;
 		}
 
+
+
 		return $res;
 
 	}//end getWeekEvents()
@@ -1566,8 +1568,9 @@ class Page_Calendar extends Page_Asset_Listing
 	function getWeekEventsByDay($date)
 	{
 		$res = Array();
+		$days_to_show = $this->attr('week_view_show_days');
 		for ($i = iso8601_ts($date); $i <= iso8601_ts($date) + 6*86400; $i += 86400) {
-			$res[iso8601_date_component(ts_iso8601($i))] = Array();
+			if ($days_to_show[date('w', $i)]) $res[iso8601_date_component(ts_iso8601($i))] = Array();
 		}
 
 		$week_start_day = $this->attr('week_starts_on');
@@ -1581,7 +1584,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 		foreach ($events as $id => $details) {
 			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
-			if (($event_date >= $cal_date) && ($event_date <= $last_day)) {
+			if (isset($res[$event_date])) {
 				$res[$event_date][$id] = $details;
 			}
 		}
@@ -1603,6 +1606,7 @@ class Page_Calendar extends Page_Asset_Listing
 	{
 		if (!$first_time) $first_time = $this->attr('day_starts_at');
 		if (!$time_partition) $time_partition = $this->attr('day_partition_time');
+		$days_to_show = $this->attr('week_view_show_days');
 
 		if (!$last_time) $last_time = $this->attr('day_ends_at');
 		$partition_keys = Array();
@@ -1628,7 +1632,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$last_day = iso8601_date_component(ts_iso8601(iso8601_ts($cal_date) + 6*86400));
 
 		for ($i = iso8601_ts($cal_date); $i <= iso8601_ts($cal_date) + 6*86400; $i += 86400) {
-			$res[iso8601_date_component(ts_iso8601($i))] = $partitions;
+			if ($days_to_show[date('w', $i)]) $res[iso8601_date_component(ts_iso8601($i))] = $partitions;
 		}
 
 
@@ -1638,7 +1642,7 @@ class Page_Calendar extends Page_Asset_Listing
 		foreach ($events as $id => $details) {
 			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
 
-			if (($event_date >= $cal_date) && ($event_date <= $last_day)) {
+			if (isset($res[$event_date])) {
 				if (is_null($details['start_date_hours'])) {
 					$res[$event_date]['all_day'][$id] = $details;
 				} else {
