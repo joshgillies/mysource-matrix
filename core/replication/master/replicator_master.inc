@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replicator_master.inc,v 1.1.2.4 2004/02/14 12:38:13 brobertson Exp $
+* $Id: replicator_master.inc,v 1.1.2.5 2004/02/14 19:46:10 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -444,6 +444,8 @@ class Replicator_Master extends Replicator
 
 	/**
 	* The Replicate fn, called from the Squiz Server Process Object
+	* Basically if this is called it means that a Slave Server initated a connection to us.
+	* So once we authenticate that it is a slave server that we know, we essentially say "what do you want?"
 	*
 	* @param string		$systemid		the systemid of the system that we are replicating with
 	* @param resource	$client_fd		the client socket resource
