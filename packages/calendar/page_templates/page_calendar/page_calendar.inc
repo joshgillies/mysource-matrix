@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.136 2004/12/29 05:13:05 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.137 2004/12/29 05:37:53 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.136 $
+* @version $Revision: 1.137 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1045,8 +1045,9 @@ class Page_Calendar extends Page_Asset_Listing
 				if (empty($col_events['all_day'])) echo '&nbsp;';
 				foreach ($col_events['all_day'] as $assetid => $event) {
 					$assetid = strtok($assetid,':');
+					$event_href = $this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$assetid.'&amp;SQ_CALENDAR_DATE='.$event_link_date;
 					$event_class = $root_nodes[$event['root_node']]['class_name'];
-					$onclick_code = $show_event_links ? ' onclick="clickChild(this);"' : '';
+					$onclick_code = $show_event_links ? ' onclick="sq_cal_redirect(\''.$event_href.'\')"' : '';
 					$cursor_code = $show_event_links ? ' cursor: pointer; cursor: hand' : '';
 					$current_mouse_up_down_code = (($event['type_code'] != 'calendar_event_recurring') && (!isset($event['expanded']))) ? $mousedown_code.' '.$mouseup_code : 'onmousedown="statusBarMsg(\'Recurring, multi-day and trimmed events cannot be dragged\')" onmouseup="statusBarMsg(\'\');"';
 					$current_mouse_over_out_code = '';
@@ -1055,9 +1056,17 @@ class Page_Calendar extends Page_Asset_Listing
 						$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')" onmouseout="stopTrailingPopup()"';
 					}
 					echo '<div id="'.$assetid.'" '.$current_mouse_up_down_code.' '.$current_mouse_over_out_code.' style="margin: 0px 0px 1px 0px; text-align: center; padding: 0px; width: '.($width-2).'px;'.$cursor_code.'" class="'.$event_class.' event"'.$onclick_code.'>';
-					echo $show_event_links ? '<a class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$assetid.'&amp;SQ_CALENDAR_DATE='.$event_link_date.'">' : '<span class="event '.$event_class.'">';
-					echo $event['name'];
-					echo $show_event_links ? '</a>' : '</span>';
+					
+					// only show links if we want click-through and drag-n-drop is not enabled
+					// otherwise the click-through is facilitated by javascript only
+					$label = $event['name'];
+					if ($show_event_links && empty($current_mouse_over_out_code)) {
+						$label = '<a class="event '.$event_class.'"  href="'.$event_href.'">'.$label.'</a>';
+					} else {
+						$label = '<span class="event '.$event_class.'">'.$label.'</span>';
+					}
+					echo $label;
+
 					echo '</div>';
 				}
 				echo '</td>';
@@ -1150,7 +1159,7 @@ class Page_Calendar extends Page_Asset_Listing
 				next($layout_map);
 			}
 
-			$event_left_margin = $event_width * $horizontal_index + 0.05;
+			$event_left_margin = ($event_width * $horizontal_index);
 			// get top position of div
 			$event_ts = $details['start_date_minutes'] + (60 * $details['start_date_hours']);
 			$end_ts = $details['end_date_minutes'] + (60 * $details['end_date_hours']);
@@ -1190,10 +1199,13 @@ class Page_Calendar extends Page_Asset_Listing
 				$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')"  onmouseout="stopTrailingPopup()"';
 			}
 
-			$res .= '<div id="'.$assetid.'" '.$current_mouse_up_down_code.' '.$current_mouse_over_out_code.' class="'.$event_class.' event" style="float: left; position: absolute; width: '.($event_width-1).'px; margin-left: '.$event_left_margin.'px; margin-top: '.$event_top_margin.'px; height: '.$event_height.'px; border-width: 1px; '.$cursor_code.' '.$zero_length_code.'" '.$onclick_code.'>';
+			$res .= '<div id="'.$assetid.'" '.$current_mouse_up_down_code.' '.$current_mouse_over_out_code.' class="'.$event_class.' event" style="float: left; position: absolute; width: '.($event_width-3).'px; margin-left: '.$event_left_margin.'px; margin-top: '.$event_top_margin.'px; height: '.$event_height.'px; border-width: 1px; '.$cursor_code.' '.$zero_length_code.'" '.$onclick_code.'>';
 
 			$res .= '<div class="eventText" style="z-index: 30; position: absolute; width: '.$inner_width.'px; border: none;  background-color: transparent">';
 	
+			// if drag-n-drop is enabled, click-through-to-event-view is supported
+			// via javascript only, because otherwise the link elements cause trouble
+			// with the dragging
 			$label = $details['name'];
 			if ($show_event_links && empty($current_mouse_up_down_code)) {
 				$label = '<a class="event '.$event_class.'" href="'.$event_href.'">'.$label.'</a>';
@@ -1203,7 +1215,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$res .= $label;
 
 			$res .= '</div></div>';
-			$event_left_margin += $event_width + 0.05;
+			$event_left_margin += $event_width;
 
 		}
 		return $res;
@@ -1226,7 +1238,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$res = '';
 		foreach ($events as $assetid => $details) {
 			$event_class = (isset($root_nodes[$details['root_node']]['class_name'])) ? $root_nodes[$details['root_node']] ['class_name'] : '';
-			$onclick_code = ''; //$show_event_link ? ' onclick="clickChild(this); "' : '';
+			$onclick_code =$show_event_link ? ' onclick="clickChild(this); "' : '';
 			$cursor_code = $show_event_link ? 'cursor: pointer; cursor: hand;' : '';
 
 			$current_mouse_over_out_code = '';
