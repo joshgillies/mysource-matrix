@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.60 2003/12/12 16:54:48 brobertson Exp $
+* $Id: design_edit_fns.inc,v 1.61 2004/02/01 22:52:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -573,7 +573,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		$pre_str = '<?php
 		$am = &$GLOBALS[\'SQ_SYSTEM\']->am;
-		$ASSET_LINEAGE = @$am->getLineageFromURL(null, null, \'short_name\');
+		$ASSET_LINEAGE = @$am->getLineageFromURL(null, null);
 		?>';
 
 		$str = '';
