@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.35 2005/01/19 22:35:48 lwright Exp $
+* $Id: form_section.inc,v 1.36 2005/01/20 03:59:15 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -345,6 +345,30 @@ class Form_Section extends Asset
 		return $this->attr('questions');
 
 	}//end getQuestions()
+
+
+	/**
+	* get the question assets attached to this section
+	*
+	* @access public
+	* @return array
+	*/
+	function &getQuestionAssets()
+	{
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$result = Array();
+
+		$questions = $this->attr('questions');
+		if (!empty($questions)) {
+			foreach ($questions as $q_id => $question) {
+				$id           = $this->id.':q'.$q_id;
+				$result[$id]  = $am->getAsset($id);
+			}
+		}
+
+		return $result;
+
+	}//end getQuestionAssets()
 
 
 	/**
