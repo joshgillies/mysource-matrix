@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.35 2004/09/15 00:36:47 mmcintyre Exp $
+* $Id: page_asset_listing.inc,v 1.35.2.1 2004/11/10 03:16:57 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -269,19 +269,8 @@ class Page_Asset_Listing extends Page
 		// grouping by letter makes this template an A-Z listing of assets
 		$group_by = $this->attr('group_by');
 
-		// we work out what screen we are on here so we can correctly cache the screen with a unique ID
-		// note that we never cache the results of a random asset listing for obvious reasons
-		$cache_key = '';
-		switch ($group_by) {
-			case 'number' :
-				$cache_key = (isset($_REQUEST['result_page'])) ? (int)$_REQUEST['result_page'] : 1;
-				if ($cache_key <= 0) $cache_key = 1;
-			break;
-
-			case 'letter' :
-				$cache_key = (isset($_REQUEST['result_page'])) ? $_REQUEST['result_page'] : 'A';
-			break;
-		}
+		// we need a unique cache key to represent the current result page
+		$cache_key = $this->_getCacheKey();
 		
 		$cached_contents = '';
 		if (!empty($cache_key)) {
@@ -312,6 +301,8 @@ class Page_Asset_Listing extends Page
 
 			// if there are no children available, just print the page bodycopy
 			if (empty($children)) {
+				$replacements = $this->getKeywordReplacements();
+				$format_bodycopy->setKeywordReplacements($replacements);
 				$format_bodycopy->printBody();
 				return;
 			}
@@ -467,6 +458,34 @@ class Page_Asset_Listing extends Page
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
 
 	}//end printBody()
+
+
+	/**
+	* Work out the unique cache key to represent the current page
+	*
+	* @return string
+	* @access private
+	*/
+	function _getCacheKey()
+	{
+		$group_by = $this->attr('group_by');
+
+		// we work out what screen we are on here so we can correctly cache the screen with a unique ID
+		// note that we never cache the results of a random asset listing for obvious reasons
+		$cache_key = '';
+		switch ($group_by) {
+			case 'number' :
+				$cache_key = (isset($_REQUEST['result_page'])) ? (int)$_REQUEST['result_page'] : 1;
+				if ($cache_key <= 0) $cache_key = 1;
+			break;
+
+			case 'letter' :
+				$cache_key = (isset($_REQUEST['result_page'])) ? $_REQUEST['result_page'] : 'A';
+			break;
+		}
+		return $cache_key;
+
+	}//end _getCacheKey()
 
 
 	/**
