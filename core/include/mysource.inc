@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.73 2005/02/17 06:10:06 rhoward Exp $
+* $Id: mysource.inc,v 1.74 2005/02/18 07:18:13 amiller Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix
 */
 class MySource
@@ -973,7 +973,7 @@ class MySource
 	{
 		$tm = &$this->getTriggerManager();
 		if (!empty($tm)) {
-			$tm->broadcastEvent($event_name, &$broadcaster, $parameters);
+			$tm->broadcastEvent($event_name, $broadcaster, $parameters);
 		}
 
 	}//end broadcastTriggerEvent()
