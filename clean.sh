@@ -2,7 +2,7 @@
 #/**
 #* Copyright (c) 2003 - Squiz Pty Ltd
 #*
-#* $Id: clean.sh,v 1.8 2003/09/29 08:00:08 brobertson Exp $
+#* $Id: clean.sh,v 1.9 2003/10/16 05:20:09 brobertson Exp $
 #* $Name: not supported by cvs2svn $
 #*/
 
@@ -54,9 +54,7 @@ case "${DB_PHPTYPE}" in
 		if [ "${DB_PORT}" != "" ]; then
 			args="${args} -P ${DB_PORT}";
 		fi
-set -x;
 		mysql ${args} -e "SHOW TABLES;" -s -N "${DB_DATABASE}" | sed 's/^.*$/DROP TABLE &;/' | mysql ${args} "${DB_DATABASE}"
-set +x;
 	;;
 
 	"pgsql")
