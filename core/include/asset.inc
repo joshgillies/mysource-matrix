@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.233 2003/10/13 05:10:38 mmcintyre Exp $
+* $Id: asset.inc,v 1.234 2003/10/14 05:28:52 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3039,7 +3039,7 @@ class Asset extends MySource_Object
 	*
 	* @param array ref $keydata A reference to the keydata array being built
 	* @param string $value The key data value
-	* @param string $type The key data type, defaults to 'word' (e.g. word, date, number, etc.)
+	* @param string $type The key data type, defaults to 'text' (e.g. text, date, number, etc.)
 	* @param string $component The component to which this data pertains to 
 	* @returns void
 	*/
