@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.5 2004/06/17 00:50:32 lwright Exp $
+* $Id: permissions.inc,v 1.6 2004/06/21 23:47:56 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -161,42 +161,40 @@ function paintPermissions(&$owner, &$o, &$ei)
 						?>
 					</tr>
 				<?php
-				$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($userids, 'user', false);
 
 				foreach($userids as $userid) {
 					$valid_user = true;
+
 					if ($userid) {
-
-						if (!isset($user_info[$userid])) {
+						$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid, '', true);
+						if (is_null($user)) {
 							$valid_user = false;
-						} else {
-							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
-							if (!$user->id || (!is_a($user, 'user') && !is_a($user, 'user_group'))) continue;
+						} elseif (!$user->id || (!is_a($user, 'user') && !is_a($user, 'user_group'))) {
+							continue;
 						}
-
 					}
-				?>
+					?>
 					<tr>
 						<td class="sq-backend-table-cell">
-					<?php
-						if (!$valid_user) {
-							echo ('<span class="sq-backend-warning"><b>Deleted user or user group</b> ['.$userid.']</span>');
-						} else {
-							echo (($userid) ? $user->name.' ['.$user->type().' : '.$userid.']' : 'Public Access');
-						}
-					?>
+							<?php
+							if (!$valid_user) {
+								echo ('<span class="sq-backend-warning"><b>Deleted user or user group</b> ['.$userid.']</span>');
+							} else {
+								echo (($userid) ? $user->name.' ['.$user->type().' : '.$userid.']' : 'Public Access');
+							}
+							?>
 						</td>
-					<?php
+						<?php
 						if ($admin_access) {
 							?><td align="center" width="100" class="sq-backend-table-cell"><?php
 							check_box($prefix.'_permissions['.$perm.'][delete]['.$userid.']');
 							?></td><?php
 						}
-					?>
+						?>
 					</tr>
-				<?php
+					<?php
 				}// end foreach data
-			?>
+				?>
 				</table>
 				<br>
 			<?php
