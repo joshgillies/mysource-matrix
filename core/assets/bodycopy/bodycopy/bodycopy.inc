@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.9 2004/06/18 13:56:12 brobertson Exp $
+* $Id: bodycopy.inc,v 1.10 2004/07/16 06:15:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -230,6 +230,27 @@ class Bodycopy extends Asset
 		}// end switch
 
 	}//end paintBackend()
+	
+	
+	/**
+	* Prints out the Frontend for this asset
+	*
+	* @return void
+	* @access public
+	*/
+	function printFrontend()
+	{
+		if (!isset($_REQUEST['asset_ei_screen'])) return parent::printFrontend($o);
+		switch($_REQUEST['asset_ei_screen']) {
+			case 'show_popup' :
+				require_once(dirname(__FILE__).'/popups/'.trim($_REQUEST['popup_file']));
+				exit();
+			default :
+				return parent::printFrontend($o);
+
+		}// end switch
+
+	}//end printFrontend()
 
 
 	/**

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.6 2004/06/24 07:04:00 gsherwood Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.7 2004/07/16 06:15:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -266,6 +266,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				file += '&page_height=' + page_h;
 				file += '&body_extra=';
 				file += '&browser=' + ((is_dom) ? "dom" : ((is_ie4up) ? "ie" : "ns"));
+				file += '&assetid=<?php echo $asset->id; ?>';
 
 				bodycopy_popup.w = w;
 				bodycopy_popup.h = h;
