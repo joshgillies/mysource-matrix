@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_comparison.inc,v 1.14 2004/06/21 06:54:51 lwright Exp $
+* $Id: form_question_rule_type_comparison.inc,v 1.15 2004/06/21 23:56:18 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -106,7 +106,12 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 					$options = &$q_asset->getOptions();
 					$comparison = '"'.$options[(int)$comparison].'"';
 				}
-				$error = $q_asset->name.' '.$operators[$operator].' '.$comparison;
+				// special case for "not equal to empty string" which is basically 'Is Required' rule
+				if (($operator == '!=') || ($compare_value == '')) {
+					$error = $q_asset->name.' must be filled in';
+				} else {
+					$error = $q_asset->name.' '.$operators[$operator].' '.$compare_value;
+				}
 			}
 			$q_asset->submission_errors[] = $error;
 			return false;
@@ -190,7 +195,12 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 					$options = &$q_asset->getOptions();
 					$compare_value = '"'.$options[(int)$comparison].'"';
 				}
-				$error = $q_asset->name.' '.$operators[$operator].' '.$compare_value;
+				// special case for "not equal to empty string" which is basically 'Is Required' rule
+				if (($operator == '!=') || ($compare_value == '')) {
+					$error = $q_asset->name.' must be filled in';
+				} else {
+					$error = $q_asset->name.' '.$operators[$operator].' '.$compare_value;
+				}
 			}
 		$code .= 'submission_errors[i] = "'.addslashes($error).'"; i++;'; // add submission error
 		$code .= '}';	// END of js if
