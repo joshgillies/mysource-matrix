@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: www.inc,v 1.5 2003/09/26 05:26:36 brobertson Exp $
+* $Id: www.inc,v 1.6 2003/10/03 04:10:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -44,7 +44,7 @@ function relative_href($from,$to)
 	}
 
 	// Different first directories? Root path!
-	if($from_bits[2] != $to_bits[2]) {
+	if(empty($from_bits[2]) || empty($to_bits[2]) || $from_bits[2] != $to_bits[2]) {
 		// Shift off protocol and domain
 		array_splice($to_bits,   0, 2);
 		return '/'.implode('/', $to_bits);
