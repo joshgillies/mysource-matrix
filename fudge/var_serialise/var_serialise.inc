@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /**
 * Var Serialise
@@ -18,95 +18,105 @@
 * @subpackage var_serialise
 */
 
+####################### THIS NEEDS TO BE FINISHED - JS NEEDS TO BE UPDATED
+
+$GLOBALS['VAR_SERIALISE_STRING_ESCAPE_CHAR']      = chr(27);
+$GLOBALS['VAR_SERIALISE_STRING_ESCAPE_FROM_LIST'] = Array("\r", "\n", '/', '<', '>');
+$GLOBALS['VAR_SERIALISE_STRING_ESCAPE_TO_LIST']   = Array(
+														$GLOBALS['VAR_SERIALISE_STRING_ESCAPE_CHAR'].'r',
+														$GLOBALS['VAR_SERIALISE_STRING_ESCAPE_CHAR'].'n',
+														$GLOBALS['VAR_SERIALISE_STRING_ESCAPE_CHAR'].'/',
+														$GLOBALS['VAR_SERIALISE_STRING_ESCAPE_CHAR'].'<',
+														$GLOBALS['VAR_SERIALISE_STRING_ESCAPE_CHAR'].'>',
+													);
+
 /**
-* This is a dummy fn to get the copy of the var then pass that copy by 
+* This is a dummy fn to get the copy of the var then pass that copy by
 * reference to _var_serialise() fn that may alter the var with escaping
 *
 * @param mixed	$var			the var to serialise
 * @param bool	$string_escape	whether the string should be escaped, useful for pasting straight into JS vars
 *
-* @return string
+* @return string|false	returns false on error
 * @access public
 */
-function var_serialise($var, $string_escape=false) {
-	$str = _var_serialise($var);
-	if ($string_escape) {
+function var_serialise($var, $string_escape=false)
+{
+	$str = _var_serialise($var, '');
+	if ($str !== false && $string_escape) {
 		$str = str_replace("\n", "\\n", addslashes($str));
 	}
 	return $str;
+
 }//end var_serialise()
+
 
 /**
 * Actual recursive workhorse of var_serialise()
 *
 * @param mixed	$var			the var to serialise
 *
-* @return string
+* @return string|false	returns false on error
 * @access private
 */
-function _var_serialise(&$var) {
+function _var_serialise(&$var, $indent)
+{
 
-	if (func_num_args() == 3) {
-		$name   = func_get_arg(1);
-		$indent = func_get_arg(2);
-	} else {
-		$indent = '';
-	}
-
-	$str = "";
-	$type = gettype($var);
+	$str = '';
+	$type = strtolower(gettype($var));
 
 	switch($type) {
 		// normal vars
-		case "string"  :
-			$var = str_replace('~', '~~', $var);
-			$var = str_replace('<', '~l~', $var);
-			$var = str_replace('>', '~g~', $var);
-			$var = str_replace("\n", '<lf>', $var);
-			$var = str_replace("\r", '<cr>', $var);
-		case "integer" :
-		case "double"  :
-			if (isset($name)) {
-				$str .= $indent.'<name_type>'.gettype($name).'</name_type><name>'.$name.'</name>';
-			}//end if
+		case 'string'  :
+			if (strpos($var, $GLOBALS['VAR_SERIALISE_STRING_ESCAPE_CHAR']) !== FALSE) {
+				trigger_error('Your data contained the escape character (ASCII Code '.ord($GLOBALS['VAR_SERIALISE_STRING_ESCAPE_CHAR']).'), this has been removed', E_USER_NOTICE);
+				$var = str_replace($GLOBALS['VAR_SERIALISE_STRING_ESCAPE_CHAR'], '', $var);
+			}
+			$var = str_replace($GLOBALS['VAR_SERIALISE_STRING_ESCAPE_FROM_LIST'], $GLOBALS['VAR_SERIALISE_STRING_ESCAPE_TO_LIST'], $var);
+			// fall through on purpose
+		case 'integer' :
+		case 'double'  :
 			$str .= '<val_type>'.$type.'</val_type><val>'.$var."</val>\n";
-		break;
+			break;
 
-		case "boolean" :
-			if (isset($name)) {
-				$str .= $indent.'<name_type>'.gettype($name).'</name_type><name>'.$name.'</name>';
-			}//end if
+		case 'null'    :
+			$str .= '<val_type>'.$type."</val_type><val></val>\n";
+			break;
+
+		case 'boolean' :
 			$str .= '<val_type>'.$type.'</val_type><val>'.(($var) ? 1 : 0)."</val>\n";
-		break;
-
+			break;
 
 		// recursive vars
-
-		case "array"   :
-			if (isset($name)) {
-				$str .= $indent.'<name_type>'.gettype($name).'</name_type><name>'.$name.'</name>';
-			}//end if
+		case 'array'   :
 			$str .= '<val_type>'.$type."</val_type>\n";
 			for(reset($var); NULL !== ($k = key($var)); next($var)) {
-				$str .= _var_serialise($var[$k], $k, $indent.' ');
+				$sub_str = _var_serialise($var[$k], $indent.' ');
+				if ($sub_str === false) return false;
+				if (is_string($k)) {
+					if (strpos($k, $GLOBALS['VAR_SERIALISE_STRING_ESCAPE_CHAR']) !== FALSE) {
+						trigger_error('Your data contained the escape character (ASCII Code '.ord($GLOBALS['VAR_SERIALISE_STRING_ESCAPE_CHAR']).'), this has been removed', E_USER_NOTICE);
+						$k = str_replace($GLOBALS['VAR_SERIALISE_STRING_ESCAPE_CHAR'], '', $k);
+					}
+					$k = str_replace($GLOBALS['VAR_SERIALISE_STRING_ESCAPE_FROM_LIST'], $GLOBALS['VAR_SERIALISE_STRING_ESCAPE_TO_LIST'], $k);
+				}
+				$str .= $indent.' <name_type>'.strtolower(gettype($k)).'</name_type><name>'.$k.'</name>'.$sub_str;
 			}//end for
 
 		break;
 
-		case "NULL" :
-			$str .= $indent."\n";
-		break;
-
 		default :
-			echo "<hr><b>Unable to serialise a var of type '$type'</b><hr>\n";
+			trigger_error('Unable to serialise a var of type "'.$type.'"', E_USER_WARNING);
+			return false;
 	}//end switch
-	
+
 	return $str;
 
 }//end _var_serialise()
 
+
 /**
-* This is a dummy fn to get the copy of the var then pass that copy by 
+* This is a dummy fn to get the copy of the var then pass that copy by
 * reference to _var_unserialise() fn that may alter the var with escaping
 *
 * @param mixed	$str			the var to unserialise
@@ -114,14 +124,15 @@ function _var_serialise(&$var) {
 * @return string
 * @access public
 */
-function var_unserialise($str) {
-	$str = str_replace("\r\n", "\n", $str);
-	$str = str_replace("\r", "\n", $str);
+function var_unserialise($str)
+{
+	$str   = str_replace(Array("\r\n", "\r"), "\n", $str);
 	$lines = explode("\n", trim($str));
 	$i = 0;
-	list($var, $name) = _var_unserialise($lines, $i);
+	list($var, $name) = _var_unserialise($lines, $i, '');
 	return $var;
 }//end var_unserialise()
+
 
 /**
 * Actual recursive workhorse of var_unserialise()
@@ -130,23 +141,26 @@ function var_unserialise($str) {
 * @param int			$i		the current line that we are on
 * @param string			$indent	the current indent (depth)
 *
-* @return string
+* @return Array($var, $name)
 * @access private
 */
-function _var_unserialise(&$lines, &$i, $indent='') {
-
+function _var_unserialise(&$lines, &$i, $indent)
+{
 	$str = &$lines[$i];
 
-	// if it's blank then return NULL
-	if ($str == "") return Array(NULL, NULL);
+	// if it's blank then return null
+	if ($str == $indent) return Array(null, null);
 
-	$name_type = "";
-	$name      = NULL;
+	$name_type = '';
+	$name      = null;
 
 	$e = '/^'.$indent.'<name_type>(.*)<\/name_type><name>(.*)<\/name>(.*)$/';
 	if (preg_match($e, $str, $matches)) {
 		$name_type = $matches[1];
 		$name      = $matches[2];
+		if ($name_type == 'string') {
+			$name = str_replace($GLOBALS['VAR_SERIALISE_STRING_ESCAPE_TO_LIST'], $GLOBALS['VAR_SERIALISE_STRING_ESCAPE_FROM_LIST'], $name);
+		}
 		$str       = $matches[3];
 		settype($name, $name_type);
 	}//end if
@@ -168,8 +182,8 @@ function _var_unserialise(&$lines, &$i, $indent='') {
 
 	}//end if
 
-	$val_type = "";
-	$val      = NULL;
+	$val_type = '';
+	$val      = null;
 
 	$e = '/^<val_type>(.*)<\/val_type><val>(.*)<\/val>$/';
 	if (preg_match($e, $str, $matches)) {
@@ -179,12 +193,8 @@ function _var_unserialise(&$lines, &$i, $indent='') {
 		settype($val, $val_type);
 
 		// if this is a string then we need to reverse the escaping process
-		if ($val_type == "string") {
-			$val = str_replace('<cr>', "\r", $val);
-			$val = str_replace('<lf>', "\n", $val);
-			$val = str_replace('~g~', '>', $val);
-			$val = str_replace('~l~', '<', $val);
-			$val = str_replace('~~', '~', $val);
+		if ($val_type == 'string') {
+			$val = str_replace($GLOBALS['VAR_SERIALISE_STRING_ESCAPE_TO_LIST'], $GLOBALS['VAR_SERIALISE_STRING_ESCAPE_FROM_LIST'], $val);
 		}//end if
 
 	}//end if

@@ -17,71 +17,101 @@
 * @subpackage var_serialise
 */
 
+var VAR_SERIALISE_STRING_ESCAPE_CHAR      = String.fromCharCode(27);
+var VAR_SERIALISE_STRING_ESCAPE_FROM_LIST = ["\r", '>', "\n", '/', '<'];
+var VAR_SERIALISE_STRING_ESCAPE_TO_LIST   = [
+												VAR_SERIALISE_STRING_ESCAPE_CHAR + 'r',
+												VAR_SERIALISE_STRING_ESCAPE_CHAR + '>',
+												VAR_SERIALISE_STRING_ESCAPE_CHAR + 'n',
+												VAR_SERIALISE_STRING_ESCAPE_CHAR + '/',
+												VAR_SERIALISE_STRING_ESCAPE_CHAR + '<'
+											];
+
+
+// Pre-Compile the Regular Expressions that we are going to need for these searches
+var VAR_SERIALISE_STRING_ESCAPE_CHAR_REG_EXP      = new RegExp(VAR_SERIALISE_STRING_ESCAPE_CHAR, 'g');
+var VAR_SERIALISE_STRING_ESCAPE_FROM_LIST_REG_EXP = new Array(VAR_SERIALISE_STRING_ESCAPE_FROM_LIST.length);
+var VAR_SERIALISE_STRING_ESCAPE_TO_LIST_REG_EXP   = new Array(VAR_SERIALISE_STRING_ESCAPE_TO_LIST.length);
+
+// if this is a string then we need to reverse the escaping process
+for(var i = 0; i < VAR_SERIALISE_STRING_ESCAPE_FROM_LIST.length; i++) {
+	VAR_SERIALISE_STRING_ESCAPE_FROM_LIST_REG_EXP[i] = new RegExp(VAR_SERIALISE_STRING_ESCAPE_FROM_LIST[i], 'g');
+	VAR_SERIALISE_STRING_ESCAPE_TO_LIST_REG_EXP[i] = new RegExp(VAR_SERIALISE_STRING_ESCAPE_TO_LIST[i], 'g');
+}
+
  // this is a dummy fn to get the copy of the value then pass that copy by 
 // reference to _var_serialise() fn that may alter the var with escaping
-function var_serialise(value) {
-	return _var_serialise(value);
+function var_serialise(value) 
+{
+	return _var_serialise(value, '');
 }//end var_serialise()
 
-function _var_serialise(value, name, indent) {
-
-	if (indent == null) indent = '';
-
+function _var_serialise(value, indent) 
+{
 	var str = "";
-	var type = gettype(value);
+	var type = gettype(value).toLowerCase();
 
 	switch(type) {
 		// normal vars
 		case "string"  :
-			value = value.replace(/~/g, '~~');
-			value = value.replace(/</g, '~l~');
-			value = value.replace(/>/g, '~g~');
-			value = value.replace(/\n/g, '<lf>');
-			value = value.replace(/\r/g, '<cr>');
+
+			if (VAR_SERIALISE_STRING_ESCAPE_CHAR_REG_EXP.test(value)) {
+				alert('Your data contained the escape character (ASCII Code ' + VAR_SERIALISE_STRING_ESCAPE_CHAR.charCodeAt(0) + '), this has been removed');
+				value = value.replace(VAR_SERIALISE_STRING_ESCAPE_CHAR_REG_EXP, '');
+			}
+
+			for(var i = 0; i < VAR_SERIALISE_STRING_ESCAPE_FROM_LIST.length; i++) {
+				value = value.replace(VAR_SERIALISE_STRING_ESCAPE_FROM_LIST_REG_EXP[i], VAR_SERIALISE_STRING_ESCAPE_TO_LIST[i]);
+			}
+
 		case "integer" :
 		case "double"  :
-			if (name != null) {
-				str += indent + '<name_type>' + gettype(name) + '</name_type><name>' + name + '</name>';
-			}//end if
 			str += '<val_type>' + type + '</val_type><val>' + value + '</val>\n';
-		break;
+			break;
+
+		case "null" :
+			str += '<val_type>' + type + '</val_type><val></val>\n';
+			break;
+
 
 		case "boolean" :
-			if (name != null) {
-				str += indent + '<name_type>' + gettype(name) + '</name_type><name>' + name + '</name>';
-			}//end if
 			str += '<val_type>' + type + '</val_type><val>' + ((value) ? 1 : 0) + '</val>\n';
-		break;
+			break;
 
 
 		// recursive vars
 		case "array"   :
-			if (name != null) {
-				str += indent + '<name_type>' + gettype(name) + '</name_type><name>' + name + '</name>';
-			}//end if
 			str += '<val_type>' + type + '</val_type>\n';
 			for(var k in value) {
-				str += _var_serialise(value[k], k, indent + ' ');
+				var sub_str = _var_serialise(value[k], indent + ' ');
+				if (sub_str == false) return false;
+
+				if (VAR_SERIALISE_STRING_ESCAPE_CHAR_REG_EXP.test(k)) {
+					alert('Your data contained the escape character (ASCII Code ' + VAR_SERIALISE_STRING_ESCAPE_CHAR.charCodeAt(0) + '), this has been removed');
+					k = k.replace(VAR_SERIALISE_STRING_ESCAPE_CHAR_REG_EXP, '');
+				}
+
+				for(var i = 0; i < VAR_SERIALISE_STRING_ESCAPE_FROM_LIST.length; i++) {
+					k = k.replace(VAR_SERIALISE_STRING_ESCAPE_FROM_LIST_REG_EXP[i], VAR_SERIALISE_STRING_ESCAPE_TO_LIST[i]);
+				}
+
+				str += indent + ' <name_type>' + gettype(k).toLowerCase() + '</name_type><name>' + k + '</name>' + sub_str;
+
 			}//end for
 
-		break;
-
-		case "NULL" :
-			if (name != null) {
-				str += indent + '<name_type>' + gettype(name) + '</name_type><name>' + name + '</name>';
-			}//end if
-			str += '\n';
-		break;
+			break;
 
 		default :
-			//echo "<hr><b>Unable to serialise a var of type '$type'</b><hr>\n";
+			alert('Unable to serialise a var of type "' + type + '"');
+			return false;
 	}//end switch
 	
 	return str;
 
 }//end _var_serialise()
 
-function gettype(value) {
+function gettype(value) 
+{
 
 	if (value == null) return 'NULL';
 	var type = typeof(value);
@@ -110,7 +140,8 @@ function gettype(value) {
  // this is a dummy fn to get the copy of the var then pass that copy by 
 // reference to _var_unserialise() fn that may alter the var with escaping
 var VAR_UNSERIALISE_I = 0;
-function var_unserialise(str) {
+function var_unserialise(str) 
+{
 	var lines_str = str.replace(/\r\n/g, '\n');
 	lines_str = lines_str.replace(/\r/g, '\n');
 	// if the last char is a new line remove it
@@ -119,15 +150,14 @@ function var_unserialise(str) {
 	}
 	var lines = lines_str.split("\n");
 	VAR_UNSERIALISE_I = 0;
-	var results = _var_unserialise(lines);
+	var results = _var_unserialise(lines, '');
 	return results[0];
 }//end var_unserialise()
 
  // the fn that actually does the unserialising
 // returns an arrey with the value and the name of the variable
-function _var_unserialise(lines, indent) {
-
-	if (indent == null) indent = '';
+function _var_unserialise(lines, indent) 
+{
 
 	var str = lines[VAR_UNSERIALISE_I];
 
@@ -188,25 +218,27 @@ function settype(value, type) {
 	switch(type) {
 		case "integer" :
 			val = parseInt(value);
-		break;
+			break;
 		
 		case "double" :
 			val = parseFloat(value);
-		break;
+			break;
 
 		case "boolean" :
 			val = (value) ? true : false;
-		break;
+			break;
 
 		case "string" :
-			val = value;
+			val = value.toString();
 			// if this is a string then we need to reverse the escaping process
-			val = val.replace(/<cr>/g, "\r");
-			val = val.replace(/<lf>/g, "\n");
-			val = val.replace(/~g~/g, '>');
-			val = val.replace(/~l~/g, '<');
-			val = val.replace(/~~/g, '~');
-		break;
+			for(var i = 0; i < VAR_SERIALISE_STRING_ESCAPE_FROM_LIST.length; i++) {
+				val = val.replace(VAR_SERIALISE_STRING_ESCAPE_TO_LIST_REG_EXP[i], VAR_SERIALISE_STRING_ESCAPE_FROM_LIST[i]);
+			}
+			break;
+
+		case "null" :
+			val = null;
+			break;
 
 		default : 
 			val = value;
