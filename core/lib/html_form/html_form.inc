@@ -360,10 +360,7 @@ function file_upload($name, $extras='')
 */
 function get_file_upload_info($name)
 {
-	if (empty($_FILES[$name])) {
-		trigger_error('"'.$name.'" is not a valid file upload', E_USER_WARNING);
-		return false;
-	}
+	if (empty($_FILES[$name])) return false;
 
 	$nice_name = str_replace('_', ' ', $name);
 
