@@ -1,4 +1,5 @@
-<?  ##############################################
+<?php  
+    ##############################################
    ### SQUIZLIB ------------------------------###
   ##- Generic Include Files -- PHP4 ----------##
  #-- Copyright Squiz.net ---------------------#
@@ -17,9 +18,9 @@
 ## Desc: PHP functions that serialise/unserialise an variables, so 
 ##       they can be passed between Javascript and PHP
 ## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/fudge/var_serialise/var_serialise.inc,v $
-## $Revision: 1.1.1.1 $
+## $Revision: 1.2 $
 ## $Author: brobertson $
-## $Date: 2003/03/21 00:48:01 $
+## $Date: 2003/04/07 01:30:40 $
 #######################################################################
 
  # this is a dummy fn to get the copy of the var then pass that copy by 
