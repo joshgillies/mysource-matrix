@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.67 2005/03/21 06:03:22 gsherwood Exp $
+* $Id: general.inc,v 1.68 2005/03/23 02:58:23 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix
 */
 
@@ -65,15 +65,15 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 		$num_errors++;
 
 		// Strip out the file path begining
-		$err_file = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', '[SYSTEM_ROOT]'), $err_file);
-		$err_msg  = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', '[SYSTEM_ROOT]'), $err_msg);
+		$err_file = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', SQ_CONF_ROOT_IDENTIFIER), $err_file);
+		$err_msg  = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', SQ_CONF_ROOT_IDENTIFIER), $err_msg);
 
 		// if this is a serious error, do a backtrace
 		$bt_str = '';
 		if (($err_no & ~E_USER_NOTICE) && (SQ_CONF_DEBUG & 2)) {
 			require_once SQ_FUDGE_PATH.'/dev/dev.inc';
 			$bt = debug_backtrace();
-			$bt_str = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', '[SYSTEM_ROOT]'), array_contents($bt, 3));
+			$bt_str = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', SQ_CONF_ROOT_IDENTIFIER), array_contents($bt, 3));
 			unset($bt);
 		}
 
@@ -120,9 +120,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 		// send a report to the system error log
 		if (ini_get('log_errors')) {
 			$text_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
-			$log_msg  = date('D d/m/Y H:i:s').' ['.strtolower($err_name).'] ('.$err_file.':'.$err_line.') - '.$text_msg;
-			$log_msg  = str_replace('[SYSTEM_ROOT]', '', $log_msg);
-			error_log($log_msg);
+			$GLOBALS['SQ_SYSTEM']->logErrorMessage($text_msg, $err_no, $err_file, $err_line);
 		}
 
 		// OK, because we want our errors to actually be displayed, kill any output buffering
@@ -646,6 +644,37 @@ function implements_interface($class, $interface)
 	return false;
 
 }//end implements_interface()
+
+
+/**
+* Provides a human readable description of a PHP error code
+*
+* @param int	$error_code	PHP error code
+*
+* @return string
+* @access public
+*/
+function get_error_name($error_code)
+{
+	$name = '';
+
+	if (empty($error_code)){
+		return $name;
+	}
+
+	switch ($error_code) {
+		case E_USER_ERROR   : $name = SQ_SYSTEM_SHORT_NAME.' Error';    break;
+		case E_USER_WARNING : $name = SQ_SYSTEM_SHORT_NAME.' Warning';  break;
+		case E_USER_NOTICE  : $name = SQ_SYSTEM_SHORT_NAME.' Notice';   break;
+		case E_ERROR        : $name = 'PHP Error';                      break;
+		case E_WARNING      : $name = 'PHP Warning';                    break;
+		case E_NOTICE       : $name = 'PHP Notice';                     break;
+		default             : $name = 'Unknown Error Type - '.$error_code;
+	}
+
+	return $name;
+
+}//end get_error_name()
 
 
 ?>
