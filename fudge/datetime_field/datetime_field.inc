@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.21 2004/09/21 07:05:36 lwright Exp $
+* $Id: datetime_field.inc,v 1.22 2004/09/30 03:03:40 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -57,7 +57,7 @@ class DateTime_Field {
 	* <code>
 	* Array(
 	*	// datetime elements to show 
-	* 	'show'			=> Array(['d'],['m'],['y'],['h'],['i'],['s']),
+	* 	'show'			=> Array(['d'],['m'],['y'],['h'],['i'],['s'],['a']),
 	*	// style of each of the elements (s = select box, t = textbox)
 	* 	'style'			=> Array(
 	* 							['d' => '[s|t]',]
@@ -75,6 +75,7 @@ class DateTime_Field {
 	* 							['h' => '...',]
 	* 							['i' => '...',]
 	* 							['s' => '...',]
+								['a' => '...',]
 	* 						),
 	*	// datetime elements to allow a null element for
 	* 	'null'			=> Array(['d'],['m'],['y'],['h'],['i'],['s']),
@@ -171,12 +172,12 @@ class DateTime_Field {
 		if ($this->getParam('allow_circa')) {
 			combo_box($this->prefix.'[c]', Array('0'=>'','1'=>'circa.'), false, $this->getUnit('c'));
 		}
-		foreach (Array('d','m','y','h','i','s') as $t) {
+		foreach (Array('d','m','y','h','i','s','a') as $t) {
 			$u = $this->getUnit($t);
 
 			if (in_array($t,$show)) {
 				$this->inputBox($t,$this->prefix,$u,in_array($t,$null));
-			} else {
+			} elseif ($t != 'a') {
 				echo '<input type="hidden" name="'.$this->prefix.'['.$t.']" value="'.$u.'" />';
 			}
 			if ($t == 'y') echo ' ';
@@ -216,7 +217,7 @@ class DateTime_Field {
 
 		if($allow_null && (!strlen($value) || $value == '--')) {
 			$value = '--';
-		} else {
+		} elseif ($u != 'a') {
 			$value = (int) $value;
 		}
 
@@ -226,7 +227,7 @@ class DateTime_Field {
 			$increment = $increments[$u];
 		}
 
-		if($input_style[$u] == 's') { // select box
+		if (($u == 'a') || ($input_style[$u] == 's')) { // select box
 			if($allow_null) $options = array('--' => '--');
 			else            $options = array();
 
@@ -313,17 +314,28 @@ class DateTime_Field {
 					}
 					for($i = (int) $min; $i <= $max; $i += $increment) $options[$i] = sprintf('%02d',$i);
 					break;
-
+				case 'a':
+					// more than 1 day difference, or less than 1 day but crossing a day boundary, or less than 1 day but crossing midday
+					if ((($diff['y'] > 0) || ($diff['m'] > 0) || ($diff['d'] > 1) || (($diff['d'] == 1) && ($diff['h'] == 0)) ) || ($diff['d'] == 1) || (($this->getUnit('h', $min_array) < 12) && ($this->getUnit('h', $max_array) >= 12))) {
+						$options = Array('am'=>'am', 'pm'=>'pm');
+					// just a morning or afternoon
+					} else {
+						$options = ($min < 12) ? Array('am'=>'am') : Array('pm'=>'pm');
+					} 
+					break;						
 			}
 			combo_box($prefix.'['.$u.']', $options, false, $value, 0, $extras[$u]);
 			return;
-		} elseif($input_style[$u] == 't' || 1) { // plain text
+		} else { // plain text
 			$size = (($u=='y')?4:2);
 			if($allow_null) {
 				$onchange = "value=parseInt(value);if(isNaN(value)){value='--';}else{value=Math.min($max,Math.max($min,isNaN(value)?0:value));}";
 			} else {
 				$onchange = "value=parseInt(value);value=Math.min($max,Math.max($min,isNaN(value)?0:value));";
 			}
+			
+			// minutes value should always be 2 digits
+			if ($u == 'i') $value = sprintf('%02d', $value);
 
 			// merge onChange local values with those coming in from extras
 			if (eregi('onchange *="|\'', $extras[$u])) {
@@ -351,7 +363,12 @@ class DateTime_Field {
 	*/
 	function getUnit($unit, $value='')
 	{
-		if(!strlen($value)) $value = $this->value;
+		if (!strlen($value)) {
+			$value = $this->value;
+			$use_am_pm = in_array('a', $this->getParam('show'));
+		} else {
+			$use_am_pm = false;
+		}
 		
 		// seperate value into date and time
 		$ar_value = explode(' ',$value);
@@ -367,7 +384,8 @@ class DateTime_Field {
 
 		// seperate time into hour, minute, second
 		$ar_time = explode(':',$time);
-		$h = (isset($ar_time[0])) ? $ar_time[0] : '';
+		$a = (isset($ar_time[0]) && ($ar_time[0] >= 12)) ? 'pm' : 'am';
+		$h = (isset($ar_time[0])) ? ($use_am_pm ? (((($ar_time[0] % 12) + 11) % 12) + 1) : $ar_time[0]) : '';
 		$i = (isset($ar_time[1])) ? $ar_time[1] : '';
 		$s = (isset($ar_time[2])) ? $ar_time[2] : '';
 
@@ -547,14 +565,11 @@ class DateTime_Field {
 		// Now we can assume we have an array of units values to verify
 		$min = $this->getParam('min');
 		$max = $this->getParam('max');
-
 		$value_str = $this->unitsArraytoStr($value);
 		if ($value_str != '---------- --:--:--') {
-			// compare the 
 			$value_substr = Array(
 								'y' =>  0, 'm' =>  5, 'd' =>  8,
 								'h' => 11, 'i' => 14, 's' => 17);
-								
 			foreach(array_keys($value_substr) as $value_part) {
 				$substr_length = ($value_part == 'y') ? 4 : 2;
 				if($value[$value_part] == -1) {
@@ -631,6 +646,11 @@ class DateTime_Field {
 	*/
 	function unitsArrayToStr($v)
 	{
+		// convert from 12hr to 24hr if necessary
+		if (isset($v['a']) && !empty($v['a'])) {
+			$v['h'] = ($v['h'] % 12) + (($v['a'] == 'pm') ? 12 : 0);
+		}
+
 		$r = (($v['y'] < 0 || !strlen($v['y']) || $v['y']{0} == '-') ? '----' : sprintf('%04d', $v['y'])).'-'
 			.(($v['m'] < 0 || !strlen($v['m']) || $v['m']{0} == '-') ?  '--'  : sprintf('%02d', $v['m'])).'-'
 			.(($v['d'] < 0 || !strlen($v['d']) || $v['d']{0} == '-') ?  '--'  : sprintf('%02d', $v['d'])).' '
