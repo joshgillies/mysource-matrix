@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.288 2004/04/15 08:13:20 gsherwood Exp $
+* $Id: asset.inc,v 1.289 2004/04/19 01:08:33 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -665,140 +665,6 @@ class Asset extends MySource_Object
 		return true;
 
 	}//end delete()
-
-
-	/**
-	* Returns TRUE if this type of asset can be cloned
-	*
-	* override this function if you do not want a particular type of asset to be cloned
-	*
-	* @return boolean
-	* @access public
-	*/
-	function canClone()
-	{
-		return true;
-	
-	}//end canClone()
-
-
-	/**
-	* Takes a clone shell and clones the sources required components to the clone shell
-	*
-	* @param &object Asset	$clone		the clone shell
-	* @param array			$components	the wanted components to clone eg.
-	*                       Array(
-	*                           'attributes',
-	*                           'metadata_shemas',
-	*                           'metadata',
-	*                           'workflow',
-	*                           'permissions',
-	*                           'data'
-	*                       );
-	*                       or alternately
-	*                       Array('all');
-	*
-	* @return boolean
-	* @access public
-	*/
-	function cloneComponents(&$clone, $components)
-	{
-		if (!is_array($components) || empty($components)) return false;
-		if (is_null($clone)) return false;
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		  //////////////////
-		 /// ATTRIBUTES ///
-		//////////////////
-
-		if (in_array('attributes', $components) || in_array('all', $components)) {
-			// Now we set all the attributes
-			foreach ($this->vars as $name => $data) {
-				if (!$clone->setAttrValue($name, $data['value'])) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-			}
-			$clone->saveAttributes();
-		}//end if attributes
-
-		  ///////////////////
-		 /// PERMISSIONS ///
-		///////////////////
-
-		if (in_array('permissions', $components) || in_array('all', $components)) {
-			foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
-				$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, null, false, false, true);
-				foreach ($set_perms as $userid => $access) {
-					if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($clone->id, $userid, $perm, $access)) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
-					}
-				}
-			}//end foreach
-		}//end if permissions
-
-		  ////////////////
-		 /// METADATA ///
-		////////////////
-
-		if (in_array('metadata_schemas', $components) || in_array('all', $components)) {
-			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-			// apply the schemas and metadata from the cloner to the clonee
-			$schemas = $mm->getSchemas($this->id);
-			foreach ($schemas as $schemaid => $access) {
-				if (!$mm->setSchema($clone->id, $schemaid, $access)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-				if (in_array('metadata', $components) || in_array('all', $components)) {
-					$metadata = $mm->getSchemaMetadata($this->id, $schemaid);
-					if (!empty($metadata)) {
-						if (!$mm->setSchemaMetadata($clone->id, $schemaid, $metadata)) {
-							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-							return false;
-						}
-					}
-				}
-			}//end foreach
-		}//end if metadata
-
-		  ////////////////
-		 /// WORKFLOW ///
-		////////////////
-
-		if (in_array('workflow', $components) || in_array('all', $components)) {
-			$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-			$schemas = $wfm->getSchemas($this->id);
-			foreach ($schemas as $schemaid => $access) {
-				if (!$wfm->setSchema($clone->id, $schemaid, $access)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-			}//end foreach
-		}//end if workflow
-
-		  ////////////////
-		 /// DATA DIR ///
-		////////////////
-
-		if (in_array('data', $components) || in_array('all', $components)) {
-			// OK if we got this far let's copy the directory (if it exists)
-			if (is_dir($this->data_path)) {
-				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-				if (!copy_directory($this->data_path, $clone->data_path)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-			}
-		}//end if data
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
-		return true;
-
-	}//end cloneComponents()
 
 
 	/**
@@ -1539,6 +1405,154 @@ class Asset extends MySource_Object
 		$vars['keywords'] = array_merge($vars['keywords'], $this->_available_keywords);
 		
 	}//end onRequestKeywords()
+
+
+//--        CLONING        --//
+
+
+	/**
+	* Returns TRUE if this type of asset can be cloned
+	*
+	* override this function if you do not want a particular type of asset to be cloned
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canClone()
+	{
+		return true;
+	
+	}//end canClone()
+
+
+	/**
+	* Takes a clone shell and clones the sources required components to the clone shell
+	*
+	* @param &object Asset	$clone		the clone shell
+	* @param array			$components	the wanted components to clone eg.
+	*                       Array(
+	*                           'attributes',
+	*                           'metadata_shemas',
+	*                           'metadata',
+	*                           'workflow',
+	*                           'permissions',
+	*                           'data'
+	*                       );
+	*                       or alternately
+	*                       Array('all');
+	*
+	* @return boolean
+	* @access public
+	*/
+	function cloneComponents(&$clone, $components)
+	{
+		if (!is_array($components) || empty($components)) return false;
+		if (is_null($clone)) return false;
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+
+		  ///////////////////
+		 /// PERMISSIONS ///
+		///////////////////
+
+		if (in_array('permissions', $components) || in_array('all', $components)) {
+			$GLOBALS['SQ_INSTALL'] = true;
+			$this->_tmp[__CLASS__.'_in_create_cascading'] = true;
+			foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
+				$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, null, false, false, true);
+				foreach ($set_perms as $userid => $access) {
+					if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($clone->id, $userid, $perm, $access)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						unset($this->_tmp[__CLASS__.'_in_create_cascading']);
+						unset($GLOBALS['SQ_INSTALL']);
+						return false;
+					}
+				}
+			}//end foreach
+			unset($this->_tmp[__CLASS__.'_in_create_cascading']);
+			unset($GLOBALS['SQ_INSTALL']);
+		}//end if permissions
+
+
+		  //////////////////
+		 /// ATTRIBUTES ///
+		//////////////////
+
+		if (in_array('attributes', $components) || in_array('all', $components)) {
+			// Now we set all the attributes
+			foreach ($this->vars as $name => $data) {
+				if (!$clone->setAttrValue($name, $data['value'])) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+			}
+			$clone->saveAttributes();
+		}//end if attributes
+
+
+		  ////////////////
+		 /// METADATA ///
+		////////////////
+
+		if (in_array('metadata_schemas', $components) || in_array('all', $components)) {
+			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			// apply the schemas and metadata from the cloner to the clonee
+			$schemas = $mm->getSchemas($this->id);
+			foreach ($schemas as $schemaid => $access) {
+				if (!$mm->setSchema($clone->id, $schemaid, $access)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+				if (in_array('metadata', $components) || in_array('all', $components)) {
+					$metadata = $mm->getSchemaMetadata($this->id, $schemaid);
+					if (!empty($metadata)) {
+						if (!$mm->setSchemaMetadata($clone->id, $schemaid, $metadata)) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							return false;
+						}
+					}
+				}
+			}//end foreach
+		}//end if metadata
+
+
+		  ////////////////
+		 /// WORKFLOW ///
+		////////////////
+
+		if (in_array('workflow', $components) || in_array('all', $components)) {
+			$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+			$schemas = $wfm->getSchemas($this->id);
+			foreach ($schemas as $schemaid => $access) {
+				if (!$wfm->setSchema($clone->id, $schemaid, $access)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+			}//end foreach
+		}//end if workflow
+
+
+		  ////////////////
+		 /// DATA DIR ///
+		////////////////
+
+		if (in_array('data', $components) || in_array('all', $components)) {
+			// OK if we got this far let's copy the directory (if it exists)
+			if (is_dir($this->data_path)) {
+				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+				if (!copy_directory($this->data_path, $clone->data_path)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+			}
+		}//end if data
+
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
+
+	}//end cloneComponents()
 
 
 //--        STATUS        --//
@@ -2489,6 +2503,7 @@ class Asset extends MySource_Object
 
 	/**
 	* Returns true if the current user could live edit this asset if they had the lock
+	*
 	* Live edit means the asset is currently SQ_STATUS_LIVE but this
 	* user can edit the asset without going through a safe edit
 	* NOTE: will return false if asset is not currently live
@@ -2526,7 +2541,6 @@ class Asset extends MySource_Object
 
 	/**
 	* Returns true if this asset is effectivly readable by everyone
-	*
 	*
 	* @return boolean
 	* @access public
@@ -2571,7 +2585,7 @@ class Asset extends MySource_Object
 			// if there is no lock or
 			if (empty($locks)) return false;
 
-			foreach($locks as $lock) {
+			foreach ($locks as $lock) {
 				// if any one of these locks is not owned by the current user they can't edit
 				if (empty($lock) || $lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserId()) return false;
 			}
@@ -2638,7 +2652,7 @@ class Asset extends MySource_Object
 
 		$grants  = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, true);
 		$revokes = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, false, false);
-		
+
 		// has their access been revoked at all?
 		if (!empty($revokes)) {
 			$revoked = array_intersect($assetids, $revokes);
