@@ -449,25 +449,28 @@ class Asset_Manager extends Resolve_Object
 
 				// if the form has been submitted then, process it
 				// and if that is successfull, then create the link to the parent asset
-				if (!empty($_POST['am_form_submitted']) && $asset->processBackend()) {
-					$o->addMessage(SQ_BO_MSG_NOTICE, 'New '.$this->_asset_types[$_GET['type_code']]['name'].' "'.$asset->name.'" created');
-					$this->registerAsset($asset);
-					if ($parent->createLink($asset, $_GET['link_type'], '', $_GET['pos'])) {
+				if (!empty($_POST['am_form_submitted'])) {
+					
+					// start the transaction to create the asset and initial link
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+					$success = $asset->processBackend();
+					
+					if ($success && $parent->createLink($asset, $_GET['link_type'], '', $_GET['pos'])) {
+					
+						$o->addMessage(SQ_BO_MSG_NOTICE, 'New '.$this->_asset_types[$_GET['type_code']]['name'].' "'.$asset->name.'" created');
 						$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" successfully linked to "'.$parent->name.'"');
+						$this->registerAsset($asset);
+						$o->addFormActionGetVar('am_section', 'edit_asset');
+						$o->addFormActionGetVar('assetid', $asset->id);
+						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
 					} else {
-						$o->addMessage(SQ_BO_MSG_WARNING, '"'.$asset->name.'" was not able to be linked to "'.$parent->name.'", it can be found in the trash folder');
-						list($trashid) = $this->getTypeAssetids('trash_folder');
-						// broadcast that a link has been created.
-						// Normally the createLink function would do this for us, but it failed
-						// so we will broadcast our own event to say that a new link has been
-						// create to the trash folder
-						$GLOBALS['SQ_SYSTEM']->broadcastEvent('CreateLink', Array('assetid' => $trashid));
+						// the asset was not created fully or linking failed
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					}
+				}
 
-				} else {
-					$asset->paintBackend($backend);
-
-				}// end if
+				$asset->paintBackend($backend);
 
 				break;
 
@@ -510,7 +513,6 @@ class Asset_Manager extends Resolve_Object
 	*/
 	function _printAssetList(&$o)
 	{
-
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 		if (!empty($_REQUEST['am_action'])) {
