@@ -44,6 +44,12 @@ class Asset extends Resolve_Object
 	var $status;
 
 	/**
+	* Current status of the asset as an object - for processing
+	* @var int
+	*/
+	var $status_object = null;
+
+	/**
 	* Current languages set for the asset
 	* @var string
 	*/
@@ -1019,15 +1025,14 @@ class Asset extends Resolve_Object
 	*/
 	function &getStatus()
 	{
-		if (!isset($this->_tmp['status_object'])) {
-			// work out the name of our status file
-			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-			$status_code = get_bit_names('SQ_STATUS_', $this->status);
-			$status_code = 'asset_status_'.strtolower($status_code);
-			require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
-			$this->_tmp['status_object'] = new $status_code($this);
-		}
-		return $this->_tmp['status_object'];
+		if (!is_null($this->status_object)) return $status_object;
+		
+		// work out the name of our status file
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$status_code = get_bit_names('SQ_STATUS_', $this->status);
+		$status_code = 'asset_status_'.strtolower($status_code);
+		require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
+		return new $status_code($this);
 
 	}//end &getStatus()
 
@@ -1135,7 +1140,6 @@ class Asset extends Resolve_Object
 														));
 
 			$this->status = $new_status;
-			unset($this->_tmp['status_object']);
 			$this->_updated();
 		}
 
@@ -4201,7 +4205,8 @@ class Asset extends Resolve_Object
 	*/
 	function getBackendHref($screen='')
 	{
-		return sq_web_path('edit').'/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid='.$this->id.'&asset_ei_screen='.$screen;
+		$href = $GLOBALS['SQ_SYSTEM']->am->getAssetHref(Array($this->id => $screen));
+		return $href[$this->id];
 
 	}//end getBackendHref()
 
