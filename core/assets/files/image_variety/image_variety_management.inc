@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety_management.inc,v 1.1 2005/01/17 17:57:40 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: image_variety_management.inc,v 1.2 2005/01/17 18:01:49 brobertson Exp $
+*
 */
 
 
@@ -30,10 +30,10 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @see Asset_Management
 *
-* @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $
+* @author  Blair Robertson <brobertson@squiz.co.uk>
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
-* @subpackage cms
+* @subpackage __core__
 */
 class Image_Variety_Management extends Asset_Management
 {
