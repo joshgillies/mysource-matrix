@@ -3,7 +3,7 @@
 * | MySource Matrix - Instructional Document                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.txt,v 1.7 2004/04/26 15:06:05 brobertson Exp $
+* $Id: install.txt,v 1.8 2004/06/01 14:14:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -179,4 +179,5 @@ Once you have your system up and running then one of the first things that you n
 
 Restart apache, and everything should be right to go.
 
-Visit http://yourdomain.com/_edit/ and log in.
+Visit http://yourdomain.com/_admin/ and log in.
+
