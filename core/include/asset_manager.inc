@@ -358,6 +358,7 @@ class Asset_Manager extends Resolve_Object
 							$this->registerAsset($asset);
 							if ($parent->createLink($asset, $_GET['link_type'], '', $_GET['pos'])) {
 								$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" successfully linked to "'.$parent->name.'"');
+								$o->addOnLoad('top.sidenav.reload_asset("'.$_GET['parent_assetid'].'");');
 							} else {
 								$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" was not able to be linked to "'.$parent->name.'", it can be found in the trash folder');
 							}

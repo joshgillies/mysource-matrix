@@ -256,6 +256,10 @@ class Backend extends Resolve_Object
 
 				$this->out->openRaw();
 				echo "NOT DONE, slacker";
+				?>
+					<br>
+					<input type="button" value="click me" onCLick="javascript: var assetid = prompt('Enter the assetid', ''); if (assetid != null) {top.sidenav.reload_asset(assetid);}">
+				<?
 				$this->out->closeRaw();
 
 		}//end switch

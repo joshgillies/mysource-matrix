@@ -105,13 +105,18 @@ class Backend_Outputter
 	}#end setRedirect()
 
 
-	 ############################################
-	# add an onLoad call, something JS that
-	# needs to be executed write after the page finishes loading
+	/**
+	* add an onLoad call, something JS that needs to be executed right 
+	* after the page finishes loading
+	*
+	* @param string $call	JS code to execute
+	*
+	* @access public
+	*/
 	function addOnLoad($call) 
 	{
 		$this->_on_load_calls[] = $call;
-	}#end addOnSubmit()
+	}//end addOnLoad()
 
 	
 	/**
@@ -375,13 +380,16 @@ class Backend_Outputter
 		if ($this->_redirect) {
 			// save the messages so the come through on the next page
 			$_SESSION['backend_outputter_msgs'] = $this->_messages;
-			header('Location: '.$this->_redirect);
+			$this->addOnLoad('_self.location = "'.$this->_redirect.'";');
+		}
 
-		} else {
-			$this->_paintHeader();
+		$this->_paintHeader();
+
+		if (!$this->_redirect) {
 			$this->_paintContents();
-			$this->_paintFooter();
 		}// end if
+
+		$this->_paintFooter();
 		
 	}#end paint();
 
@@ -410,7 +418,7 @@ class Backend_Outputter
 	*/
 	function _paintHeader() 
 	{
-	
+
 	?> 
 		<html>
 		<head>
