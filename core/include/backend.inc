@@ -61,7 +61,7 @@ class Backend extends Resolve_Object
 		
 		} else {
 
-			$this->out = new Backend_Outputter();
+			$this->out =& new Backend_Outputter();
 			$this->out->addFormActionGetVar('SQ_BACKEND_PAGE', $_GET['SQ_BACKEND_PAGE']);
 
 			switch($_GET['SQ_BACKEND_PAGE']) {
@@ -219,11 +219,11 @@ class Backend extends Resolve_Object
 			case 'config' :
 				require_once SQ_INCLUDE_PATH.'/config.inc';
 				$cfg = new Config();
-				$cfg->printBackend($this);
+				$cfg->paintBackend($this);
 			break;
 
 			case 'am' :
-				$GLOBALS['SQ_SYSTEM']->am->printBackend($this);
+				$GLOBALS['SQ_SYSTEM']->am->paintBackend($this);
 			break;
 
 			default :
