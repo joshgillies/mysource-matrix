@@ -109,12 +109,6 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		$name = $info['name'];
 		$ext = strtolower(substr(strrchr($name,'.'), 1));
 
-		// make sure its not too large
-		if ((int)$asset->attr('max_filesize') && $info['size'] > (int)$asset->attr('max_filesize')) {
-			trigger_error('Uploaded file was above allowed filesize', E_USER_WARNING);
-			return false;
-		}
-
 		// make sure the new web path is not already is use
 		if (!@$asset->saveWebPaths(Array($name))) {
 			trigger_error('Failed updating web path, file not uploaded. Path already exists?', E_USER_WARNING);
@@ -189,7 +183,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-		asset_finder($prefix.'_thumbid', ((isset($thumb->id)) ? $thumb->id : ''), Array('thumbnail'));
+		asset_finder($prefix.'_thumbid', '', Array('thumbnail' => 'D'));
 	}//end paintThumbnail()
 
 
