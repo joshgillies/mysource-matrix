@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.13 2004/05/12 07:09:33 gsherwood Exp $
+* $Id: page_account_manager.inc,v 1.14 2004/05/20 03:53:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -118,6 +118,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 			}
 		}
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
 	}//end saveAttributes()
