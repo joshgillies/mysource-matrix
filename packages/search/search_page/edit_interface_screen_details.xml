@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.15 2004/09/14 01:48:21 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.16 2004/12/08 04:11:49 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -93,6 +93,16 @@
 			<display_name>Reverse Sort</display_name>
 			<note>Sorts results in reverse order</note>
 			<boolean true_text="Yes" false_text="No" />
+		</field>
+	</section>
+	<section name="Synonym Search Options">
+		<field write_access="write:links">
+			<display_name>Thesaurus Asset</display_name>
+			<note>The thesaurus asset selected here will be used for synonym searching. If none is selected then synonym searching will not be available</note>
+			<function_call>
+				<paint_function   name="paintThesaurusAsset" />
+				<process_function name="processThesaurusAsset" />
+			</function_call>
 		</field>
 	</section>
 </contents>

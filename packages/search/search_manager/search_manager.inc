@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.32 2004/12/06 23:10:37 lwright Exp $
+* $Id: search_manager.inc,v 1.33 2004/12/08 04:11:44 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1025,11 +1025,44 @@ class Search_Manager extends Asset
 
 
 	/**
+	* Checks a word against a thesaurus asset for synonyms
+	*
+	* @param string				$word		the word being checked
+	* @param object Thesaurus	$thesaurus	thesaurus asset being used
+	*
+	* @return Array(string)	the list of suggestions
+	* @access public
+	*/
+	function findSynonymsForWord($word, &$thesaurus)
+	{
+		if (!is_a($thesaurus, 'thesaurus')) {
+			// why did you pass us a lemon instead of a thesaurus?
+			trigger_error('The asset "'.$thesaurus->getName().' (Id: #'.$thesaurus->id.') is not a Thesaurus asset, cannot use to find synonyms', E_USER_WARNING);
+			return Array();
+		}
+	
+		$entity = $thesaurus->getEntityByName($word);
+	
+		if (empty($entity)) {
+			return Array();
+		}
+		
+		$relation = $thesaurus->getRelationByName('Synonyms');	
+		
+		return $thesaurus->getChildEntitiesInRelation($relation['id'], $entity['id']);
+	
+	}//end findSynonymsForWord()
+	
+	
+	/**
 	* Spell-checks a word and returns a list of suggestions if available
 	*
 	* This function checks for the existence of the pSpell extension. If it does
 	* not exist (eg. Windows server), or an error otherwise occurs in the loading
 	* of the pSpell instance, we will proceed as if no suggestions are available.
+	*
+	* @param string	$word		the word to be checked
+	* @param string $language	the language to be used to spell-check
 	*
 	* @return Array(string)	the list of suggestions, one considered most relevant
 	*						by pSpell in index zero, and so on

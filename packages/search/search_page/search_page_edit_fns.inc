@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.31 2004/12/06 14:44:15 brobertson Exp $
+* $Id: search_page_edit_fns.inc,v 1.32 2004/12/08 04:11:49 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1194,6 +1194,88 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 		return false;
 
 	}//end processCustomiseSearchForms()
+
+
+	/**
+	* Paints the thesaurus asset selection box
+	*
+	* @param object	Asset				&$rootid	asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintThesaurusAsset(&$asset, &$o, $prefix)
+	{
+		$link_value = 'thesaurus';
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'asset', false, $link_value);
+
+		$write_access = $asset->writeAccess('links');
+
+		if (!$write_access) {
+			$root_asset = null;
+			if (!empty($root_link)) $root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
+			if (!is_null($root_asset)) echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
+			else echo 'No thesaurus asset has been selected';
+		} else {
+			asset_finder($prefix.'_thesaurusid', (!empty($root_link)) ? $root_link['minorid'] : '', Array('thesaurus' => 'D'));
+		}
+
+		return $write_access;
+
+	}//end paintThesaurusAsset()
+
+
+	/**
+	* Processes the value input from thesaurus asset selection box
+	*
+	* @param object	Asset				&$rootid	asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for the html doc element name
+	*
+	* @return void
+	* @access public
+	*/
+	function processThesaurusAsset(&$asset, &$o, $prefix)
+	{
+		if (!isset($_POST[$prefix.'_thesaurusid']['assetid'])) return false;
+		$new_root  = $_POST[$prefix.'_thesaurusid']['assetid'];
+
+		// getting existing root link
+		$link_value = 'thesaurus';
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, $link_value);
+
+		// dont process anything if the root node has not changed
+		if (!empty($root_link) && $root_link['minorid'] == $new_root) return false;
+
+		$ok = true;
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// deleting old root link if any found...
+		if (!empty($root_link) && !$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
+			$ok = false;
+		} else if ($new_root) {
+			$root = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
+
+			if (!is_null($root)) {
+				if (!$asset->createLink($root, SQ_LINK_NOTICE, $link_value)) {
+					$ok = false;
+					trigger_error('Failed adding new root node "'.$root->name.'" [#'.$root->id.']', E_USER_WARNING);
+				}
+			}
+		}
+
+		if ($ok) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			return true;
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+	}//end processRootAsset()
 
 
 }//end class
