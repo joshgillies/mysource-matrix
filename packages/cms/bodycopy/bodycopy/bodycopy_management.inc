@@ -30,13 +30,15 @@ class Bodycopy_Management extends Asset_Management
 							);
 	}//end constructor
 
+
 	/**
 	* Gets a list of all files that the bodycopy wants web accessable
 	*
 	* @access private
 	* @return array(string)
 	*/
-	function _getFileList() {
+	function _getFileList()
+	{
 		return Array(
 					 'images/icons/add.png',
 					 'images/icons/delete.png',
@@ -48,7 +50,9 @@ class Bodycopy_Management extends Asset_Management
 					 'images/icons/edit_mode.png',
 					 'js/bodycopy_edit_tables.js'
 					 );
+
 	}//end _getFileList()
 
 }//end class
+
 ?>
