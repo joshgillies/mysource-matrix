@@ -97,7 +97,7 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 			$pb->setOption('auto_close', true);
 			$pb->setOption('on_complete_url', $o->getCurrentLocation().'&'.$prefix.'_purge_complete=1');
 
-			$pb->addStep('Aquiring Locks', '_purgeTrashStepLock', null, '_purgeTrashStepLockDone');
+			$pb->addStep('Acquiring Locks', '_purgeTrashStepLock', null, '_purgeTrashStepLockDone');
 			$pb->addStep('Purging Trashed Assets', '_purgeTrashStep', null, '_purgeTrashStepDone');
 		}
 
