@@ -18,12 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.32 2004/12/09 06:18:39 gsherwood Exp $
+* $Id: form_section_edit_fns.inc,v 1.33 2005/01/17 18:27:39 brobertson Exp $
 *
 */
 
-
-require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge_edit_fns.inc';
+require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 /**
@@ -33,11 +32,11 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Form_Section_Edit_Fns extends Bridge_Edit_Fns
+class Form_Section_Edit_Fns extends Asset_Edit_Fns
 {
 
 	/**
@@ -46,7 +45,7 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 	*/
 	function Form_Section_Edit_Fns()
 	{
-		$this->Bridge_Edit_Fns();
+		$this->Asset_Edit_Fns();
 		$this->static_screens['details']['force_unlock'] = false;
 
 	}//end constructor

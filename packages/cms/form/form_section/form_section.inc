@@ -18,12 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.31 2004/12/06 14:41:39 brobertson Exp $
+* $Id: form_section.inc,v 1.32 2005/01/17 18:27:39 brobertson Exp $
 *
 */
 
-
-require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge.inc';
+require_once SQ_INCLUDE_PATH.'/asset.inc';
 
 /**
 * Form_Section
@@ -32,11 +31,12 @@ require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Form_Section extends Bridge
+register_implementation('form', 'bridge');
+class Form_Section extends Asset
 {
 
 	/**
@@ -80,7 +80,7 @@ class Form_Section extends Bridge
 	function Form_Section($assetid=0)
 	{
 		$this->_ser_attrs = true;
-		$this->Bridge($assetid);
+		$this->Asset($assetid);
 
 	}//end constructor
 
@@ -88,7 +88,7 @@ class Form_Section extends Bridge
 	/**
 	* Returns a reference to the asset represented by the passed assetid
 	*
-	* @param int		$assetid		the asset id to be loaded
+	* @param int		$shadowid		the shadow part asset id to be loaded (i.e part after the ':')
 	* @param string		$type_code		if this exists then this object is used to
 	*									load the asset, if not then the DB is queried
 	*									to find out the asset type
@@ -313,12 +313,27 @@ class Form_Section extends Bridge
 
 
 	/**
+	* Returns an array of assetid's + info in the order that they propogate out from THIS BRIDGE'S url
+	*
+	* @param string	$assetid	the id of the last asset in the lineage
+	* @param string	$protocol	the protocol to match -> null means it is ignored
+	* @param string	$url		the urls to check for -> null defaults it to current url
+	*
+	* @return array
+	* @access public
+	*/
+	function getLineageFromURL($assetid, $protocol, $url)
+	{
+	}//end getLineageFromURL()
+
+
+	/**
 	* get the section links attached to this form
 	*
 	* @access public
 	* @return array(link)
 	*/
-	function &getQuestions($force=false)
+	function getQuestions($force=false)
 	{
 		return $this->attr('questions');
 
@@ -391,7 +406,7 @@ class Form_Section extends Bridge
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$questions = &$this->getQuestions();
+		$questions = $this->getQuestions();
 		if ($this->attr('next_questionid') > 0) {
 			$new_key = $this->attr('next_questionid');
 		} else if (empty($questions)) {
@@ -440,7 +455,7 @@ class Form_Section extends Bridge
 		if ($question->_questionid == 0) return false;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$questions = &$this->getQuestions();
+		$questions = $this->getQuestions();
 
 		unset($questions[$question->_questionid]);
 
@@ -596,7 +611,7 @@ class Form_Section extends Bridge
 	*/
 	function getQuestionCount()
 	{
-		$questions = &$this->getQuestions();
+		$questions = $this->getQuestions();
 		return count($questions);
 
 	}//end getQuestionCount()
@@ -610,7 +625,7 @@ class Form_Section extends Bridge
 	*/
 	function processForm()
 	{
-		$questions = &$this->getQuestions();
+		$questions = $this->getQuestions();
 		for (reset($questions); null !== ($k = key($questions)); next($questions)) {
 			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$k);
 			$question->active_submission =& $this->active_submission;
@@ -647,7 +662,7 @@ class Form_Section extends Bridge
 	*/
 	function generateJSCode()
 	{
-		$questions = &$this->getQuestions();
+		$questions = $this->getQuestions();
 		$code = '';						// blank sheet of code to start with
 
 		foreach ($questions as $q_id => $question) {
