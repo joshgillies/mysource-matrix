@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replicator.inc,v 1.1.2.1 2004/01/21 18:43:56 brobertson Exp $
+* $Id: replicator.inc,v 1.1.2.2 2004/01/21 18:59:28 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -280,13 +280,12 @@ class Replicator extends Replication_Communication
 
 
 	/**
-	* THE Replicate fn, called 
+	* The Replicate fn, called from the Squiz Server Process Object
 	*
 	* @param string		$systemid		the systemid of the system that we are replicating with
 	* @param resource	$client_fd		the client socket resource
 	* 
-	* @return Array('[code_name]' => '[Display Name]');
-	* @static
+	* @return void
 	* @access public
 	*/
 	function replicate($systemid, $client_fd)
@@ -294,11 +293,26 @@ class Replicator extends Replication_Communication
 		$this->_log("IN REPLICATE FN : $systemid", 'debug');
 		if(SQ_REPLICATION_IS_MASTER) {
 			$this->_log("I AM THE MASTER, CHECK '$systemid' IS KNOWN TO US", 'debug');
+
+//			replicateMaster($systemid, $client_fd, true);
+
 		} else {
-			$this->_log("I AM A SLAVE, CHECK '$systemid' IS KNOWN TO US", 'debug');
+			$this->_log("I AM A SLAVE, CHECK '$systemid' IS OUR MASTER", 'debug');
+			// make sure we think we are talking
+			if ($systemid != SQ_REPLICATION_MASTER_REPLICATION_SYSTEMID) {
+				$this->_log('System called "'.$systemid.'" attempted to replicate with us, but it is not our master server', 'error');
+				return;
+			}
+
+//			replicateSlave($client_fd, true);
+
 		}
 
 	}// end getClassesFromDir()
+
+
+//	function replicateMaster($systemid, $client_fd, $received_connection);
+//	function replicateSlave($client_fd, $received_connection);
 
 }//end class
 
