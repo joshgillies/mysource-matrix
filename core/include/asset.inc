@@ -1707,7 +1707,7 @@ class Asset extends Resolve_Object
 	*/
 	function releaseLock()
 	{
-		$current_lock = $this->getLockInfo(false);
+		$current_lock = $this->getLockInfo(false, false);
 		if (empty($current_lock)) return true;
 
 		// is this asset already locked by someone else and we can't forceably aquire it, piss off
@@ -1774,16 +1774,17 @@ class Asset extends Resolve_Object
 	/**
 	* Returns an array of information about the current lock on this asset (if any)
 	*
+	* @param boolean	$full_chain		return the info for every asset in the lock chain
 	* @param boolean	$check_expires	check the expiry date and cleanup the lock if it has expired
 	*
 	* @return array
 	* @access public
 	*/
-	function getLockInfo($check_expires=true)
+	function getLockInfo($full_chain=false, $check_expires=true)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		// just get the permissions set for this asset
+		// just get the lock for this asset
 		$sql = 'SELECT assetid, source_asset, userid, expires
 				FROM sq_asset_lock
 				WHERE assetid = '.$db->quote($this->id);
@@ -1802,6 +1803,27 @@ class Asset extends Resolve_Object
 			}
 		}
 
+		if ($full_chain) {
+			$result['chained_assets'] = Array();
+			$source_assetid = $result['source_asset'];
+			// just get the permissions set for this asset
+			$sql = 'SELECT assetid, source_asset, userid, expires
+					FROM sq_asset_lock
+					WHERE source_asset = '.$db->quote($source_assetid).'
+					  AND assetid <> '.$db->quote($this->id);
+
+			$to_do = $db->getAll($sql);
+			if (DB::isError($to_do)) {
+				trigger_error($to_do->getMessage().'<br/>'.$to_do->getUserInfo(), E_USER_WARNING);
+				return Array();
+			}
+
+			foreach ($to_do as $lock_row) {
+				$lock_row['expires'] = iso8601_ts($lock_row['expires']);
+				$result['chained_assets'][$lock_row['assetid']] = $lock_row;
+			}
+		}
+
 		return $result;
 
 	}//end getLockInfo()
@@ -1815,7 +1837,7 @@ class Asset extends Resolve_Object
 	*/
 	function cleanupLocks()
 	{
-		$current_lock = $this->getLockInfo(false);
+		$current_lock = $this->getLockInfo(false, false);
 		if (empty($current_lock)) return true;
 
 		$now = date('Y-m-d H:i:s');
