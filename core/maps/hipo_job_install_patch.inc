@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_install_patch.inc,v 1.7 2004/12/30 23:49:01 mnyeholt Exp $
+* $Id: hipo_job_install_patch.inc,v 1.8 2005/02/07 01:03:44 mnyeholt Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -459,6 +459,10 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 				} else if ($versions['old_version'] == $versions['new_version']) {
 					// if the new and old versions are the same, make sure the
 					// package version is at least that of the required version.
+					if (!is_file($package_path)) {
+						trigger_error('This patch can only be applied to version '.$versions['old_version'].' of package "'.strtoupper($package_code).'", but it does not appear to be installed.', E_USER_ERROR);
+						return false;
+					}
 					require_once $package_path;
 					$package = new $package_class();
 
@@ -471,7 +475,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 
 				} else {
 					if (!is_file($package_path)) {
-						trigger_error('This patch can only be applied to version '.$versions['old_version'].' of package "'.strtoupper($package_code).'" (current version is '.$package->version.')', E_USER_ERROR);
+						trigger_error('This patch can only be applied to version '.$versions['old_version'].' of package "'.strtoupper($package_code).'", but it does not appear to be installed.', E_USER_ERROR);
 						return false;
 					}
 					require_once $package_path;
