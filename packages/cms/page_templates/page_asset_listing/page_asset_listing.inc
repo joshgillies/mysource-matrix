@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.63 2005/02/18 04:08:03 lwright Exp $
+* $Id: page_asset_listing.inc,v 1.64 2005/03/02 17:16:32 brobertson Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -274,7 +274,9 @@ class Page_Asset_Listing extends Listing_Engine
 						$links = array_merge($links, $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset_id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, $side_of_link, null, null, null, (substr($sort_by,0,2) == '__' ? 'name' : $sort_by), SQ_PERMISSION_READ));
 					}
 					foreach ($links as $link_info) $assets_to_list[$link_info[$link_type.'id']] = $link_info[$link_type.'_type_code'];
-					$assets_to_list = $this->sortAssetList($assets_to_list, $sort_by, array_keys($wanted_types));
+					if ($sort_by) {
+						$assets_to_list = $this->sortAssetList($assets_to_list, $sort_by, array_keys($wanted_types));
+					}
 				break;
 
 				case 'letter' :
@@ -312,7 +314,9 @@ class Page_Asset_Listing extends Listing_Engine
 							$assets_to_list = $assets_to_list + $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset_id, array_keys($wanted_types), false, (substr($sort_by,0,2) == '__' ? 'name' : $sort_by), SQ_PERMISSION_READ);
 						}
 					}
-					$assets_to_list = $this->sortAssetList($assets_to_list, $sort_by);
+					if ($sort_by) {
+						$assets_to_list = $this->sortAssetList($assets_to_list, $sort_by);
+					}
 				break;
 
 				case 'letter' :
@@ -411,7 +415,7 @@ class Page_Asset_Listing extends Listing_Engine
 							'page_list'     => 'Page List',
 							'page_number' => 'Page Number',
 							'asset_count' => 'Total Assets Listed',
-							'page_asset_count' => 'Assets Listed This Page',
+							'page_asset_count' => 'Total Assets Listed This Page',
 							'first_asset_position' => 'First Asset on Page\'s Position Number',
 							'last_asset_position' => 'Last Asset on Page\'s Position Number',
 							'root_nodes'	=> 'Root Nodes (Separated by Commas)',
