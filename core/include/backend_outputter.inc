@@ -114,6 +114,7 @@ class Backend_Outputter
 
 	/**
 	* Set the redirect for the page
+	*/
 	function setRedirect($link)
 	{
 		$this->_redirect = trim($link);
@@ -461,7 +462,7 @@ class Backend_Outputter
 		if ($this->_redirect) {
 			// save the messages so the come through on the next page
 			$_SESSION['backend_outputter_msgs'] = $this->_messages;
-			$this->addOnLoad('_self.location = "'.$this->_redirect.'";');
+			$this->addOnLoad('self.location = "'.$this->_redirect.'";');
 		}
 
 		$this->_paintHeader();
