@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.21 2003/11/18 15:37:34 brobertson Exp $
+* $Id: mysource.inc,v 1.22 2003/11/21 05:29:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -143,7 +143,8 @@ class MySource
 	*/
 	function MySource()
 	{
-	}// end constructor
+
+	}//end constructor
 
 
 	/**
@@ -213,7 +214,7 @@ class MySource
 		// process any global actions we have
 		if (!empty($_GET['SQ_ACTION'])) $this->_processGlobalActions();
 
-	}// end init()
+	}//end init()
 
 
 	/**
@@ -223,11 +224,12 @@ class MySource
 	*/
 	function start()
 	{
-		if (SQ_IN_BACKEND) {
+		if (SQ_IN_BACKEND || SQ_IN_LIMBO) {
 			if ($this->user) {
 				if (is_a($this->user, 'backend_user')) {
 					require_once SQ_INCLUDE_PATH.'/backend.inc';
 					$backend = new Backend();
+					$this->backend =& $backend;
 					$backend->paint();
 				} else {
 					$this->paintLogin('Login', 'You need to be a backend user in order to access the backend');
@@ -310,7 +312,7 @@ class MySource
 		if ($this->_msgs) echo implode('<br />', $this->_msgs);
 		require_once SQ_INCLUDE_PATH.'/login.inc';
 
-	}// end printLogin()
+	}//end printLogin()
 
 
 	/**
@@ -322,6 +324,10 @@ class MySource
 	{
 		switch($_GET['SQ_ACTION']) {
 			case 'login' :
+				// if this person is already logged in, don't bother trying again because
+				// we will only be giving them an incorrect login key error
+				if (!is_null($this->user)) return;
+
 				if (isset($_POST['SQ_LOGIN_KEY']) && isset($_POST['SQ_LOGIN_USERNAME']) && 
 					isset($_POST['SQ_LOGIN_PASSWORD']) && $this->loginKey() == $_POST['SQ_LOGIN_KEY']) {
 					$this->am->includeAsset('user');
@@ -530,7 +536,7 @@ class MySource
 
 		return true;
 
-	}// end setCurrentUser()
+	}//end setCurrentUser()
 
 
 	/**
@@ -564,7 +570,7 @@ class MySource
 
 		return true;
 
-	}// end setCurrentUser()
+	}//end setCurrentUser()
 
 
 	/**
@@ -748,7 +754,7 @@ class MySource
 
 
 	/**
-	* get the Event Manager
+	* Get the Event Manager
 	*
 	* @access public
 	* @return object Event_Manager
@@ -819,11 +825,11 @@ class MySource
 				trigger_error('Database Connection Type "'.$conn.'" unknown', E_USER_WARNING);
 		}// end switch
 
-	}// end changeDatabaseConnection()
+	}//end changeDatabaseConnection()
 
 
 	/**
-	* Restores the active DB connection to the previous one
+	* Restore the active DB connection to the previous one
 	*
 	* @return void
 	* @access public
@@ -840,13 +846,14 @@ class MySource
 			$this->db = &$this->_db_conns[$conn];
 		}
 
-	}// end restoreDatabaseConnection()
+	}//end restoreDatabaseConnection()
 
 
 	/**
-	* Begins, Commits, or Rolls back a transaction
-	* Call as many times as you like
-	* Ensures the transaction manager has been created
+	* Begin, Commit, or Rollback a transaction
+	*
+	* Call as many times as you like.
+	* Ensures the transaction manager has been created.
 	*
 	* @param string	$type	the type of transaction to do (begin, commit, roolback)
 	*
