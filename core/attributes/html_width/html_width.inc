@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_width.inc,v 1.1 2004/04/23 07:29:27 lwright Exp $
+* $Id: html_width.inc,v 1.2 2004/06/11 00:24:10 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -135,10 +135,13 @@ class Asset_Attribute_HTML_Width extends Asset_Attribute
 	*/
 	function validateValue(&$value)
 	{
-		$value = trim($value);
-		$new_value = (int)$value;
-		if ($new_value != $value) return false;
-		return true;
+		if (preg_match('/^[0-9a-f]+%?$/i', (string) $value)) {
+			return true;
+		} else if (!empty($this->_params['allow_blanks']) && strlen($value) == 0) {
+			return true;
+		} else {
+			return false;
+		}
 
 	}//end validateValue()
 
