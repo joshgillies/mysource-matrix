@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.58 2004/09/22 00:31:23 lwright Exp $
+* $Id: search_page.inc,v 1.58.2.1 2004/09/27 05:39:41 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.58 $ - 1.0
+* @version $Revision: 1.58.2.1 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1176,8 +1176,7 @@ class Search_Page extends Page
 				case 'result_page_index':
 					$replacement = '';
 					for ($i = 0; $i < $total_pages; $i++) {
-						if ($replacement != '')
-							$replacement .= '&nbsp;';
+						if ($replacement != '') $replacement .= ' ';
 
 						if ($i == $current_result_page) {
 							$replacement .= "<b>".($i + 1)."</b>";
