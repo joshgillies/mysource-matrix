@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_link.inc,v 1.20 2004/09/24 00:49:02 gsherwood Exp $
+* $Id: hipo_job_create_link.inc,v 1.21 2004/11/02 03:29:39 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -261,21 +261,7 @@ class HIPO_Job_Create_Link extends HIPO_Job
 
 				$o->openField('&nbsp;');
 					if ($new_parent->id == $trash_folder->id) {
-						?>
-						<table width="100%">
-							<tr>
-								<td valign="top">
-									<?php
-									$o->addJsInclude(sq_web_path('lib').'/asset_map/javaExternalCall.js');
-									$o->addJsInclude(sq_web_path('fudge').'/var_serialise/var_serialise.js');
-									$o->addJsInclude(sq_web_path('lib').'/html_form/html_form.js');
-									include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
-									$asset_map = new Asset_Map();
-									$asset_map->embed_asset_map('simple', 200, 350);
-									?>
-								</td>
-								<td width="100%" valign="top"><p>Please confirm that you are moving "<?php echo $asset->name; ?>" to the trash.</p>
-						<?php
+						echo '<p>Please confirm that you are moving "'.$asset->name.'" to the trash.</p>';
 					} else {
 						echo '<p>Please confirm that you are moving "'.$asset->name.'" from under "'.$parent->name.'" to under "'.$new_parent->name.'".</p>';
 					}
@@ -283,12 +269,7 @@ class HIPO_Job_Create_Link extends HIPO_Job
 
 					if ($new_parent->id == $trash_folder->id) {
 						echo '<p>When "'.$asset->name.'" is moved to the trash, any URLs that it currently has will be broken. Use the asset finder below to select another asset to remap the URLs of "'.$asset->name.'" to. If you do not want to remap the URLs, just leave the field empty.</p>';
-						asset_finder($prefix.'_remap_new_url', null, Array(), '');
-						?>
-								</td>
-							</tr>
-						</table>
-						<?php
+						asset_finder($prefix.'_remap_new_url', null, Array(), 'sq_sidenav', true);
 					}
 				$o->closeField();
 
