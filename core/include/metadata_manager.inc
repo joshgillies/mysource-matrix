@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.22.2.5 2004/03/02 18:29:12 brobertson Exp $
+* $Id: metadata_manager.inc,v 1.22.2.6 2004/03/16 16:55:34 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -885,7 +885,7 @@ class Metadata_Manager extends MySource_Object
 						}
 						$value = replace_keywords($value, $replacements);
 
-						$word_counts = get_word_counts($value);
+						$word_counts = get_word_counts(strtolower($value));
 
 						foreach ($word_counts as $word => $count) {
 							$asset->buildKeyData($keydata, $word, 'text', 'metadata:'. $field->id, $field->attr('weighting') * $count, $force_processing);

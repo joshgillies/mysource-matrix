@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_constant_button.inc,v 1.14.2.1 2004/03/02 18:35:51 brobertson Exp $
+* $Id: design_area_constant_button.inc,v 1.14.2.2 2004/03/16 16:55:34 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -58,12 +58,7 @@ class Design_Area_Constant_Button extends Design_Area
 		// if there is an assetid then do some prep work before printing the area
 		if (!empty($assetid)) {
 			echo '<', '?php
-			$constant_btn_'.$this->attr('id_name').'_asset = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$assetid.');
-			if (is_null($constant_btn_'.$this->attr('id_name').'_asset)) {
-				$constant_btn_'.$this->attr('id_name').'_url = \'\';
-			} else {
-				$constant_btn_'.$this->attr('id_name').'_url = $constant_btn_'.$this->attr('id_name').'_asset->getHref();
-			}// end if
+			$constant_btn_'.$this->attr('id_name').'_url = $am->getAssetURL('.$assetid.');
 			?', '>';
 		}// end if
 

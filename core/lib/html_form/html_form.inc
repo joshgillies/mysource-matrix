@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.50.2.2 2004/03/02 18:32:49 brobertson Exp $
+* $Id: html_form.inc,v 1.50.2.3 2004/03/16 16:55:34 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -112,11 +112,12 @@ function text_box($name, $value, $size='', $max='', $hide_value=false, $extras='
 	$max  = (int) $max;
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo	'<input type="text" ',
+			'id="', htmlspecialchars($name), '" ',
 			'name="', htmlspecialchars($name), '" ',
 			'value="', htmlspecialchars($value), '" ',
 			(($size)   ? 'size="'.$size.'" '     : ''),
 			(($max)    ? 'maxlength="'.$max.'" ' : ''),
-			(($hide_value) ? 'onFocus="if (this.value == \''.htmlspecialchars($value).'\') { this.value = \'\'; }" onBlur="if (this.value == \'\') { this.value=\''.htmlspecialchars($value).'\'; }" ' : ''),
+			(($hide_value) ? 'onfocus="Javascript: if (this.value == \''.htmlspecialchars($value).'\') { this.value = \'\'; }" onblur="Javascript: if (this.value == \'\') { this.value=\''.htmlspecialchars($value).'\'; }" ' : ''),
 			$extras,
 			' />';
 

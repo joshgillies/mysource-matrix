@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.7.2.4 2004/03/02 18:35:13 brobertson Exp $
+* $Id: search_manager.inc,v 1.7.2.5 2004/03/16 16:55:34 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.7.2.4 $ - 0.1
+* @version $Revision: 1.7.2.5 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -164,6 +164,21 @@ class Search_Manager extends Asset
 							AND ap.assetid  = ai.assetid
 							AND a.status  >= '.$db->quote(SQ_STATUS_LIVE);
 
+		$type_code_cond = '';
+		$type_codes = array_keys($search_info['search_types']);
+		for($i = 0; $i < count($type_codes); $i++) $type_codes[$i] = $db->quote($type_codes[$i]);
+		$type_code_cond = 'IN ('.implode(', ', $type_codes).')';
+
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+		$start_sql .= ' AND a.type_code IN (~SQ0~)';
+		$subs = Array( 'SELECT type_code
+						FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
+						WHERE inherited_type_code '.$type_code_cond );
+		$start_sql = db_extras_subquery($db, $start_sql, $subs);
+		if (DB::isError($start_sql)) {
+			trigger_error($start_sql->getMessage().'<br/>'.$start_sql->getUserInfo(), E_USER_ERROR);
+		}
+
 		$userid_cond = '';
 		if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
@@ -226,7 +241,7 @@ class Search_Manager extends Asset
 					$sql = $start_sql.'
 						AND (ai.value LIKE '.$db->quote('%'.$word.'%').')
 						GROUP BY ai.assetid';
-
+					
 					$result = $db->getAssoc($sql);
 					if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
@@ -327,9 +342,10 @@ class Search_Manager extends Asset
 				}
 			}
 		}
-
-
-		return $this->_climbToAssetTypes($total_asset_scores, $search_info['search_types'], $search_info['root_assetid']);
+		
+		if (is_null($total_asset_scores)) $total_asset_scores = Array();
+		else arsort($total_asset_scores);
+		return $total_asset_scores;
 
 	}//end processSearch()
 
@@ -381,84 +397,6 @@ class Search_Manager extends Asset
 		return $out_asset_scores;
 
 	}//end combineAssetScores()
-
-
-	/**
-	* Resolves a result array to an array where the assets are elements and are one of the types specified.
-	*
-	* @param string		$matches		matches returned from processSearch()
-	* @param Array		$assetTypes		types allowed
-	*
-	* @return Array
-	* @access private
-	* @see Search_Page::processSearch()
-	*/
-	function _climbToAssetTypes($matches, $assetTypes, $root_assetid)
-	{
-		if (!isset($matches) || is_null($matches)) { return Array(); } // do nothing if no results
-
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$unsorted = Array();
-
-		// expand out asset types to include each asset type's descendants
-		$newDescendantTypes = Array();
-		foreach ($assetTypes as $assetType) {
-			$descendantTypes = $am->getTypeDescendants($assetType);
-			foreach($descendantTypes as $descendantAssetType) $newDescendantTypes[] = $descendantAssetType;
-		}
-
-		$assetTypes = array_merge($assetTypes, $newDescendantTypes);
-
-		$asset_info = $am->getAssetInfo(array_keys($matches));
-
-		// use matches as a queue, take head match if it is one of the asset types then add to out
-		// otherwise get parent links and add it to the end of the queue
-
-		$scores = Array(); // for sorting
-
-		while (count($matches)) {
-			// get next asset => score mapping
-			$assetids = array_keys($matches);
-			$nextAssetId = $assetids[0];
-			$nextScore = $matches[$nextAssetId];
-			unset ($matches[$nextAssetId]);
-			if (!isset($asset_info[$nextAssetId])) {
-				$info = $am->getAssetInfo(Array($nextAssetId));
-				$asset_info[$nextAssetId] = $info[$nextAssetId];
-			}
-
-			$nextAssetInfo = $asset_info[$nextAssetId];
-			if (in_array($nextAssetInfo['type_code'], $assetTypes)) {
-				
-				// could be added twice - check
-				if (isset($unsorted[$nextAssetId])) $unsorted[$nextAssetId] += $nextScore;
-				else $unsorted[$nextAssetId] = $nextScore;
-
-				$scores[$nextAssetId] = $nextScore;
-
-			} else {
-
-				// doesn't match one of the types, go up
-
-				// if we are the root asset for this search, then stop
-				if ($nextAssetId == $root_assetid) continue;
-
-				$parentLinks = $am->getLinks($nextAssetId, SQ_SC_LINK_ALL, '', false, 'minor', null, true);
-
-				foreach ($parentLinks as $parentLink) {
-					$parentAssetId = $parentLink['majorid'];
-
-					// does the parent already have a match - if so add scores
-					if (isset($matches[$parentAssetId])) $matches[$parentAssetId] += $nextScore;
-					else $matches[$parentAssetId] = $nextScore;
-				}
-			}
-		}
-
-		arsort($scores);
-		return $scores;
-
-	}//end _climbToAssetTypes()
 
 
 }//end class

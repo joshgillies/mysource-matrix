@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: transaction_manager.inc,v 1.9 2003/11/26 00:51:11 gsherwood Exp $
+* $Id: transaction_manager.inc,v 1.9.2.1 2004/03/16 16:55:34 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -142,7 +142,7 @@ class Transaction_Manager extends MySource_Object
 	function rollback($db_name)
 	{
 		if (empty($this->_levels[$db_name])) {
-			trigger_error('Unable to Commit, No Transaction is Open', E_USER_WARNING);
+			trigger_error('Unable to Rollback, No Transaction is Open', E_USER_WARNING);
 			return false;
 		}
 

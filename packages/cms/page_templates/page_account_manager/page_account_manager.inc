@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.6.2.2 2004/03/02 16:02:22 brobertson Exp $
+* $Id: page_account_manager.inc,v 1.6.2.3 2004/03/16 16:56:00 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -150,7 +150,10 @@ class Page_Account_Manager extends Page_Asset_Builder
 					$default_screen = $aei->_default_screen;
 					if (empty($default_screen)) $default_screen = 'details';
 
-					if (!isset($allowed_screens[$default_screen])) {
+					$check_screen_restrictions = (!($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()));
+					if ($check_screen_restrictions) if (isset($allowed_screens['0']['0'])) $check_screen_restrictions = false;
+				
+					if ($check_screen_restrictions && !isset($allowed_screens[$default_screen])) {
 						$this->_replacements['edit_details_invite'] = '<p>You do not have access to edit your details.</p>';
 						$current_user->printBody();
 					} else {
@@ -204,6 +207,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 						if ($this->attr('create_status') >= SQ_STATUS_LIVE) {
 							$this->_current_state = 'create_login';
 							$_POST['SQ_LOGIN_USERNAME'] = $this->_tmp['created_asset']->attr('username');
+							$this->_loadLoginReplacements();
 						} else {
 							$this->_current_state = 'create_no_login';
 						}

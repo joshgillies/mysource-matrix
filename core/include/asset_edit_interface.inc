@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.196.2.3 2004/03/09 13:17:54 brobertson Exp $
+* $Id: asset_edit_interface.inc,v 1.196.2.4 2004/03/16 16:55:34 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -565,6 +565,12 @@ class Asset_Edit_Interface extends MySource_Object
 		  ////////////////
 		 /// LAYOUTS  ///
 		////////////////
+		// if we are ignoring frames - normally because we are editing in limbo, we want
+		// to make sure we keep this setting for the future before we use layouts to print the interface
+		if (isset($_REQUEST['ignore_frames']) && $_REQUEST['ignore_frames']) {
+			$o->addHiddenField('ignore_frames', '1');		
+		}
+
 		// once we have a preview URL, we can paint the layout if there is one
 		// paint the layout now, if needed
 		if ($paint_layout) {

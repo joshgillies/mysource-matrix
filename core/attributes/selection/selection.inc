@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.14.2.3 2004/02/26 18:22:38 brobertson Exp $
+* $Id: selection.inc,v 1.14.2.4 2004/03/16 16:55:34 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -366,7 +366,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	*/
 	function getKeyData()
 	{
-		return get_word_counts($this->value);
+		return get_word_counts(strtolower($this->value));
 
 	}//end getKeyData()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.21.2.4 2004/03/02 16:06:14 brobertson Exp $
+* $Id: search_page.inc,v 1.21.2.5 2004/03/16 16:58:20 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc'; // for the meda
 * @author  Dominic Wong <dwong@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.21.2.4 $ - 1.0
+* @version $Revision: 1.21.2.5 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -460,6 +460,14 @@ class Search_Page extends Page
 						$attribute->_edit_params = $search_styles[$attribute->name];
 					}
 
+					if ($attr_parts[1] == 'selection') {
+						if (empty($attribute->_params['multiple'])) {
+							$attribute->_params['options'] = array_reverse($attribute->_params['options']);
+							$attribute->_params['options']['_'] = '-- Leave Empty --';
+							$attribute->_params['options'] = array_reverse($attribute->_params['options']);
+						}
+					}
+
 					$attribute->paint("queries[$query_var]", false, false); 
 
 				} else {
@@ -520,6 +528,11 @@ class Search_Page extends Page
 
 		$total_pages = ceil(count($results) / $results_per_page);
 
+		$queries = '';
+		foreach ($_REQUEST['queries'] as $q_name => $q_value) {
+			$queries .= '&queries%5B'.urlencode($q_name).'%5D='.urlencode($q_value);
+		}
+
 		foreach ($keywords as $keyword) {
 			$replacement =& $replaces[$keyword];
 
@@ -556,13 +569,7 @@ class Search_Page extends Page
 						if ($i == $current_result_page) {
 							$replacement .= "<b>".($i + 1)."</b>";
 						} else {
-
-							$js = '
-								document.search_form.current_result_page.value = '.$i.';
-								document.search_form.submit();
-								return false;
-							';
-							$replacement .= "<a href=\"". $this->getURL(). "\" onClick='$js'>".($i + 1)."</a>";
+							$replacement .= '<a href="'.$this->getURL().'?mode=results&current_result_page='.$i.'&results_per_page='.$results_per_page.$queries.'">'.($i + 1)."</a>";
 						}
 					}
 				break;
@@ -572,13 +579,7 @@ class Search_Page extends Page
 						$replacement = 'Previous';
 						break;
 					}
-
-					$js = '
-						document.search_form.current_result_page.value--;
-						document.search_form.submit();
-						return false;
-					';
-					$replacement = '<a href="'. $this->getURL() .'" onClick=\''.$js .'\'>Previous</a>';
+					$replacement .= '<a href="'.$this->getURL().'?mode=results&current_result_page='.($current_result_page - 1).'&results_per_page='.$results_per_page.$queries.'">Previous</a>';
 				break;
 
 				case 'next_result_page_link':
@@ -586,13 +587,7 @@ class Search_Page extends Page
 						$replacement = 'Next';
 						break;
 					}
-
-					$js = '
-						document.search_form.current_result_page.value++;
-						document.search_form.submit();
-						return false;
-					';
-					$replacement = '<a href="'. $this->getURL() .'" onClick=\''.$js .'\'>Next</a>';
+					$replacement .= '<a href="'.$this->getURL().'?mode=results&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries.'">Next</a>';
 				break;
 
 				case 'initial_layout':
@@ -630,6 +625,10 @@ class Search_Page extends Page
 
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$replaces = $mm->generateKeywordReplacements($asset, $keywords, false);
+		$asset_keywords = $asset->getAssetKeywords();
+		foreach ($asset_keywords as $key => $data) {
+			if (in_array($key, $keywords)) $replaces[$key] = $data['value'];
+		}
 
 		foreach ($keywords as $keyword) {
 			$replacement =& $replaces[$keyword];

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.164.2.5 2004/03/04 16:42:43 brobertson Exp $
+* $Id: asset_manager.inc,v 1.164.2.6 2004/03/16 16:55:34 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -722,7 +722,7 @@ class Asset_Manager extends MySource_Object
 	{
 		static $system_assets = null;
 		if (is_null($system_assets)) {
-			// include the main system config file
+			// include the system asset config file
 			require SQ_DATA_PATH.'/private/conf/system_assets.inc';
 		}
 		if (isset($system_assets[$name])) {
@@ -744,17 +744,16 @@ class Asset_Manager extends MySource_Object
 	*/
 	function canPurgeAsset(&$asset)
 	{
-		if ($asset->id <= SQ_NUM_RESERVED_ASSETIDS) {
-			// this asset is a direct system asset
-			// so we can not purge this asset
-			return false;
-		}
+		// check if we are trying to purge a system asset
+		require SQ_DATA_PATH.'/private/conf/system_assets.inc';
+		$system_asset_ids = array_values($system_assets);
+		if (in_array($asset->id, $system_asset_ids)) return false;
 
 		// if we get to here, it is not one of the
 		// system assets, but it may be dependantly linked to one
 		// so lets check for that
-		$parents = $this->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', null, 'minor', '', 1);
-		for($i = 0; $i < count($parents); $i++) if ($parents[$i]['majorid'] <= SQ_NUM_RESERVED_ASSETIDS) return false;
+		$parents = $this->getDependantParents($asset->id);
+		for($i = 0; $i < count($parents); $i++) if (in_array($parents[$i]['majorid'], $system_asset_ids)) return false;
 
 		return true;
 
@@ -765,7 +764,7 @@ class Asset_Manager extends MySource_Object
 	* Returns an array of information about assets of the passed codes
 	*
 	* @param array(string)	$assetids			an array of assets to limit
-	* @param array(string)	$type_code			an array of types codes to limit the results to
+	* @param array | string	$type_code			an array of types codes to limit the results to
 	* @param boolean		$strict_type_code	ensure returned assets are of the passed type codes
 	*
 	* @return Array( int => Array() )
@@ -773,6 +772,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=true)
 	{
+		if (!is_array($assetids)) return Array();
 		if (empty($assetids)) return Array();
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -800,14 +800,15 @@ class Asset_Manager extends MySource_Object
 								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 								WHERE inherited_type_code '.$type_code_cond );
 				$where = db_extras_subquery($db, $where, $subs);
-				if (DB::isError($where))
+				if (DB::isError($where)) {
 					trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
+				}
 			}
 		}// end if
-
+		
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$sql = 'SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a '.$where.' ORDER BY a.assetid';
-
+		
 		$result = $db->getAll($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);

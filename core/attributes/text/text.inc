@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.16.2.2 2004/02/26 18:22:38 brobertson Exp $
+* $Id: text.inc,v 1.16.2.3 2004/03/16 16:55:34 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -226,7 +226,7 @@ class Asset_Attribute_Text extends Asset_Attribute
 	*/
 	function getKeyData()
 	{
-		return get_word_counts($this->value);
+		return get_word_counts(strtolower($this->value));
 
 	}//end getKeyData()
 

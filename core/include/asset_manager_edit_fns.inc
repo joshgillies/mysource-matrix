@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.68.2.2 2004/03/02 16:00:41 brobertson Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.68.2.3 2004/03/16 16:55:34 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -143,10 +143,8 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 				}
 				if (SQ_IN_LIMBO) {
 					$limbo_asset = &$this->am->getAsset($_REQUEST['limbo_assetid']);
-					if (!is_null($limbo_asset)) {
-						trigger_error('No Asset found for Id #'.$_REQUEST['limbo_assetid'], E_USER_WARNING);
-						return;
-					}
+					// if the limbo asset is invalid, just use the current asset
+					if (is_null($limbo_asset)) $limbo_asset = &$asset;
 					$o->addFormActionGetVar('limbo_assetid', $limbo_asset->id);
 				}
 

@@ -2,7 +2,6 @@
 /**
 * +--------------------------------------------------------------------+
 * | Squiz.net Open Source Licence                                      |
-
 * +--------------------------------------------------------------------+
 * | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
 * +--------------------------------------------------------------------+
@@ -19,10 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.2.2.3 2004/03/02 18:35:13 brobertson Exp $
+* $Id: remap_manager.inc,v 1.2.2.4 2004/03/16 16:55:34 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
+require_once SQ_INCLUDE_PATH.'/asset.inc';
 
 /**
 * Remap_Manager
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2.2.3 $ - 0.1
+* @version $Revision: 1.2.2.4 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -213,6 +213,162 @@ class Remap_Manager extends Asset
 
 	}//end remapAllURLs()
 
+
+	/**
+	* Attempts to redirect a url to its remapped url
+	* If the remap manager is unsuccessful in doing so, it will return false
+	*
+	* @param string		$protocol	the protocol that the url is using
+	* @param string		$url		the url to remap from
+	*
+	* @return boolean
+	* @access public
+	*/
+	function loadRemapFromURL($protocol=null, $url=null)
+	{
+		if (is_null($protocol)) $protocol = current_protocol();
+		if (is_null($url)) $url = strip_url(current_url(false, true));
+
+		$url = $protocol.'://'.$url;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = 'SELECT remap_url
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_remap';
+		$where = 'url = '.$db->quote($url).'
+				  AND expires IS NULL OR expires > NOW()';
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+
+		$remap_url = $db->getOne($sql.$where);
+		
+		if (DB::isError($remap_url)) {
+			trigger_error($remap_url->getMessage().'<br/>'.$remap_url->getUserInfo(), E_USER_ERROR);
+		}
+
+		// if we have a remap url, display it
+		if (!empty($remap_url)) {
+			header("HTTP/1.0 301 Moved Permanently");
+			?>
+			<html>
+				<head>
+					<title>Redirecting you to <?php echo $remap_url; ?></title>
+					<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib');?>/js/general.js"></script>
+				</head>
+				<body onLoad="Javascript: sq_redirect('<?php echo $remap_url; ?>');"></body>
+			</html>
+			<?php
+
+			return true;
+		}
+
+		return false;
+
+	}//end loadRemapFromURL
+
+
+	/**
+	* Returns the asset that has been chosen to 
+	* delegate 404 Not found requests
+	*
+	* @return &object asset or null
+	* @access public
+	*/
+	function &getPageNotFoundAsset()
+	{
+		$null = null;
+		if (!$this->attr('404_asset')) return null;
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('404_asset'));
+		
+		return $asset;
+
+	}//end getPageNotFoundAsset()
+
+
+	/**
+	* Paints the page not found asset
+	* 
+	* If a design can be found for the asset, it will
+	* be painted as well, otherwise justs the contents of
+	* the asset are painted.
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintPageNotFoundRemap()
+	{
+		$asset = &$this->getPageNotFoundAsset();
+		if (is_null($asset)) return false;
+		
+		//send a 404 header
+		header("HTTP/1.0 404 Not Found");
+		
+		$url = $url = strip_url($this->getURL(), true);
+
+		$design = &$this->getDesign($asset, $url);
+		if (!is_null($design)) {
+			$design->paint($asset);
+			return true;
+		} 
+		// get the first design for this asset
+		$design = &$this->getDesign($asset);
+		if (!is_null($design)) {
+			$design->paint($asset);
+			return true;
+		}
+		// give up, and just paint the asset
+		// without a design
+		$asset->printFrontend();
+	
+		return true;
+	
+	}//end paintPageNotFoundRemap()
+	
+
+	/**
+	* Returns the design that this asset currently has applied to it.
+	*
+	* Pass in null as $url to return the first design asset associated
+	* with the asset's id
+	*
+	* @param object &Asset $asset 	the asset to get the design for
+	* @param $url 					the url of the asset
+	*
+	* @return &object Asset
+	* @access public
+	*/
+	function &getDesign(&$asset, $url=null)
+	{
+		$null = null;
+		if (is_null($asset)) return $null;
+		
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'SELECT ld.designid, a.type_code
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_design ld ON l.url = ld.url
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON ld.designid = a.assetid
+				';
+		$where ='l.assetid  = '.$db->quote($asset->id);
+		if (!is_null($url)) $where .= ' AND ld.url  LIKE '.$db->quote($url.'%');
+		$where .= ' AND ld.name    = '.$db->quote('system_design::frontend');
+		
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ld');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		$sql .= $where.' LIMIT 1';
+
+		$result = $db->getRow($sql);
+		
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			return $null;
+		}
+		
+		if ($result) {
+			return $GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
+		}
+		return $null;
+	
+	}//end getDesign()
+	
 
 }//end class
 

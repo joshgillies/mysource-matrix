@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: indexing_manager.inc,v 1.9.2.2 2004/03/02 18:29:12 brobertson Exp $
+* $Id: indexing_manager.inc,v 1.9.2.3 2004/03/16 16:55:34 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@
 * Handles requests for indexing keydata from searchable assets, and handles search requests.
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.9.2.2 $ - 1.0
+* @version $Revision: 1.9.2.3 $ - 1.0
 * @package MySource_Matrix
 */
 class Indexing_Manager extends MySource_Object
@@ -51,11 +51,12 @@ class Indexing_Manager extends MySource_Object
 	* Signify that the keydata should be flushed and freshly retrieved
 	*
 	* @param int		$assetid	ID of the asset
+	* @param string		$component	the component to which the keydata pertains (e.g. metadata or attribute) 
 	*
 	* @return void
 	* @access public
 	*/
-	function changed($assetid)
+	function changed($assetid, $component=null)
 	{
 		if (!$assetid) return;
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
@@ -65,11 +66,9 @@ class Indexing_Manager extends MySource_Object
 		$changed_assetids[] = $assetid;
 
 		foreach ($changed_assetids as $assetid) {
-			$this->flushKeyData($assetid);
-
+			$this->flushKeyData($assetid, $component);
 			$asset = &$am->getAsset($assetid);
-			$new_key_data = $asset->getKeyData();
-
+			$new_key_data = $asset->getKeyData($component);
 			$this->addKeyData($assetid, $new_key_data);
 		}
 
@@ -80,15 +79,17 @@ class Indexing_Manager extends MySource_Object
 	* Flush the keydata for an asset
 	*
 	* @param int		$assetid	ID of the asset
+	* @param string	$component	the component to which the keydata pertains (e.g. metadata or attribute)
 	*
 	* @return void
 	* @access public
 	*/
-	function flushKeyData($assetid)
+	function flushKeyData($assetid, $component=null)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'asset_indexing
 				WHERE assetid = '.$db->quote($assetid);
+		if (!is_null($component)) $sql .= ' AND component = '.$db->quote($component);
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
@@ -112,33 +113,42 @@ class Indexing_Manager extends MySource_Object
 	*				), ...
 	*		)
 	* </pre>
-	* @access private
-	* @returns void
+	* @return boolean
+	* @access public
 	*/
 	function addKeyData($assetid, &$keydata)
 	{
-		if (!is_array($keydata)) return;
+		if (!SQ_CONF_INDEXING_ENABLED) return true;
+		if (!is_array($keydata)) return false;
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$paramData = array();
-		foreach($keydata as $i => $datum) {
-			// convert to ISO 8601 date format Y-m-d H:i:s if not already
+		$param_data = Array();
+		for (reset($keydata); null !== ($i = key($keydata)); next($keydata)) {
 			$datum =& $keydata[$i];
 			if ($datum['type'] == 'date') {
+				// convert to ISO 8601 date format Y-m-d H:i:s if not already
 				if (!(ereg('[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}', $datum['type']))) {
 					$datum['value'] = date('Y-m-d H:i:s', strtotime($datum['value']));
 				}
 			} else if ($datum['type'] == 'text') {
 				$datum['value'] = strtolower($datum['value']);
 			}
-			array_push($paramData, Array($datum['value'], $datum['type'], $datum['component'], $datum['score']));
+			array_push($param_data, Array($datum['value'], $datum['type'], $datum['component'], $datum['score']));
 		}
 
+		if (empty($param_data)) return false;
 		$st = $db->prepare(
 			'INSERT INTO '.SQ_TABLE_PREFIX.'asset_indexing(value, type, assetid, component, score)
 			 VALUES (?, ?, '.$db->quote($assetid).', ?, ?)');
 
-		$db->executeMultiple($st, $paramData);
+		$result = $db->executeMultiple($st, $param_data);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		return true;
 
 	}//end addKeyData()
 
