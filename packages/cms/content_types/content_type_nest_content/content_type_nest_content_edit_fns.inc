@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.16 2004/01/19 22:21:00 gsherwood Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.17 2004/01/19 22:48:20 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -248,7 +248,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	{
 		$nested_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', true, 'nested_asset');
 		if (!empty($nested_link)) {
-			return &$GLOBALS['SQ_SYSTEM']->am->getAsset($nested_link['minorid'], $nested_link['minor_type_code'], true);
+			return $GLOBALS['SQ_SYSTEM']->am->getAsset($nested_link['minorid'], $nested_link['minor_type_code'], true);
 		} else {
 			return null;
 		}
