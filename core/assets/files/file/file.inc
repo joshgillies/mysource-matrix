@@ -30,6 +30,123 @@ class File extends Asset
 
 
 	/**
+	* Saves a copy of this asset at this point in time
+	* This copy gets used when the asset is live and the user does not have write access
+	*
+	* @return boolean
+	* @access public
+	*/
+	function saveSystemVersion()
+	{
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
+		// make sure our data directory exists
+		if (!create_directory($this->data_path)) {
+			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create restricted data directory', E_USER_WARNING);
+			return false;
+		}
+
+		// make sure our system directory exists
+		if (!create_directory($this->data_path.'/.sq_system')) {
+			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create restricted system directory', E_USER_WARNING);
+			return false;
+		}
+
+		// make sure there is nothing in the system directory
+		if (!clear_directory($this->data_path.'/.sq_system')) {
+			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not clear restricted system directory', E_USER_WARNING);
+			return false;
+		}
+
+		// save the object for later (in the restricted directory)
+		if (!string_to_file(serialize($this), $this->data_path.'/.sq_system/.object_data')) {
+			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not write object data file', E_USER_WARNING);
+			return false;
+		}
+
+		// copy our file over to the restricted directory so we can work on it in security
+		$existing = $this->_getExistingFile();
+		$restricted = $this->data_path.'/'.$existing['filename'];
+		$unrestricted = $this->data_path_unrestricted.'/'.$existing['filename'];
+		if (!copy_file($unrestricted, $restricted)) {
+			trigger_error('Failed saving file "'.$this->name.'" to cache, file copy to unrestricted data directory failed', E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		// now we update our lookup tables to not use __data
+		if (!parent::_updateLookups()) {
+			trigger_error('Failed saving file "'.$this->name.'" to cache, failed updating lookups', E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		return true;
+	}//end saveSystemVersion()
+
+
+	/**
+	* Processes the changes required when a new status is set
+	*
+	* @param int	$new_status		the new status to set for this asset
+	* @param int	$real_status	the new status is not always the status that gets
+	*								set because of workflow and other things, so this
+	*								status represents the actual status that will be set
+	*								if know (will only be know if this function was called
+	*								from a dependant parent)
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processStatusChange($new_status, $real_status=0)
+	{
+		// let ourselves know not to do any extra updating
+		$this->_tmp['IGNORE_UPDATE'] = true;
+		$old_status = $this->status;
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		
+		if (!parent::processStatusChange($new_status, $real_status=0)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		// if we have just gone live from safe editing, we need to
+		// move the latest version of the file to the unrestricted
+		// directory to make it live
+		if ($this->status == SQ_STATUS_LIVE && ($old_status & SQ_STATUS_SAFE_EDITING)) {
+			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+			
+			// clear out our unrestricted data directory
+			if (!clear_directory($this->data_path_unrestricted)) {
+				trigger_error('Failed processing status change for file "'.$this->name.'", could not clear unrestricted data directory', E_USER_WARNING);
+				return false;
+			}
+
+			$existing = $this->_getExistingFile();
+			$restricted = $this->data_path.'/'.$existing['filename'];
+			$unrestricted = $this->data_path_unrestricted.'/'.$existing['filename'];
+
+			// and move our file over
+			if (!move_file($restricted, $unrestricted)) {
+				trigger_error('Failed processing status change for file "'.$this->name.'", could mvoe file to unrestricted data directory', E_USER_WARNING);
+				return false;
+			}
+		}
+
+		// update our lookups to use __data again
+		$this->_updateLookups();
+
+		// update manually
+		unset($this->_tmp['IGNORE_UPDATE']);
+		$this->_updated();
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
+	}//end processStatusChange()
+
+
+	/**
 	* Create this asset
 	*
 	* @param array()	&$link	information used to create the initial link
@@ -75,6 +192,146 @@ class File extends Asset
 					);
 
 	}//end _getAllowedLinks()
+
+
+	/**
+	* Set's the last updated info for this asset
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _updated()
+	{
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
+		if (!parent::_updated()) return false;
+
+		if ($this->status & SQ_STATUS_SAFE_EDITING || isset($this->_tmp['IGNORE_UPDATE'])) {
+			unset($this->_tmp['IGNORE_UPDATE']);
+			return true;
+		}
+
+		$existing = $this->_getExistingFile();
+		$restricted = $this->data_path.'/'.$existing['filename'];
+		$unrestricted = $this->data_path_unrestricted.'/'.$existing['filename'];
+
+		if ($this->effectiveUnrestricted()) {
+			// we should be storing our file in the unrestrcited
+			// data directory for all the world to see
+			// so if our file is in the restricted directory... we need to move it
+			if (is_file($restricted)) {
+				if (!move_file($restricted, $unrestricted)) {
+					trigger_error('Update failed moving file from restricted to unrestricted', E_USER_WARNING);
+					return false;
+				}
+			}
+		} else {
+			// need to make sure our file is in the restricted directory
+			if (is_file($unrestricted)) {
+				if (!move_file($unrestricted, $restricted)) {
+					trigger_error('Update failed moving file from unrestricted to restricted', E_USER_WARNING);
+					return false;
+				}
+			}
+		}//end if effectiveUnrestricted
+
+		$this->_updateLookups();
+
+		return true;
+	}//end _updated()
+
+
+	/**
+	* Fn that does the real processing of updateLookups()
+	* This is separated to allow for the DB transaction stuff
+	* Will be called by parent assets recursively on their kids so not 'really' private
+	* and by the saveWebPaths() so that their transaction calls can wrap around it
+	*
+	* @return boolean
+	* @access private
+	* @see Asset::updateLookups(), Asset::saveWebPaths()
+	*/
+	function _updateLookups()
+	{
+		if (!$this->effectiveUnrestricted() || ($this->status & SQ_STATUS_SAFE_EDITING)) {
+			// this file is either in a safe edit or restricted
+			// so we dont worry about __data paths
+			return parent::_updateLookups();
+		}
+
+		$existing = $this->_getExistingFile();
+		$web_path = $this->getWebDataPath().'/'.$existing['filename'];
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		unset($this->_tmp['lookups']);
+		unset($this->_tmp['url']);
+		unset($this->_tmp['href']);
+
+		// Remove all the old URLs
+		$sql = 'DELETE FROM sq_asset_lookup
+				WHERE assetid = '.$db->quote($this->id);
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			return false;
+		}
+
+		$save_urls = Array();
+
+		$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
+
+		$sql = 'SELECT urlid, url FROM sq_asset_url';
+		$base_urls = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC);
+		if (DB::isError($base_urls)) {
+			trigger_error($base_urls->getMessage().'<br/>'.$base_urls->getUserInfo(), E_USER_ERROR);
+			return false;
+		}
+
+		$parents = $this->getLinks(SQ_LINK_SIGNIFICANT, '', null, 'minor');
+		for($i = 0; $i < count($parents); $i++) {
+			$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
+			if (is_null($parent)) continue;
+
+			$parent_urls = $parent->getLookups();
+
+			for($j = 0; $j < count($parent_urls); $j++) {
+				$urlid = $parent_urls[$j]['root_urlid'];
+				if (!isset($base_urls[$urlid])) continue;
+				$base_url = $base_urls[$urlid];
+
+				// now find the root url that matches the base url
+				foreach ($root_urls as $root_url) {
+					// strip out the http[s] business
+					$root_url = preg_replace('|http[s]?://|', '', $root_url);
+					if (strpos($base_url, $root_url) === 0) break;
+					else $root_url = '';
+				}
+
+				// now $root_url has the closest url or is blank
+				if (trim($root_url) == '') continue;
+
+				$save_urls[$root_url.'/'.$web_path] = $parent_urls[$j];
+			}
+		}
+
+		foreach ($save_urls as $url => $url_data) {
+			$sql = 'INSERT INTO sq_asset_lookup
+					(url, assetid, root_urlid, designid)
+					VALUES
+					('.$db->quote($url).',
+					'.$db->quote($this->id).',
+					'.$db->quote($url_data['root_urlid']).',
+					'.$db->quote('0').')';
+			$result = $db->query($sql);
+			if (DB::isError($result)) {
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				return false;
+			}
+		}
+
+		return true;
+	}//end _updateLookups()
 
 
 	/**
@@ -131,6 +388,12 @@ class File extends Asset
 	*/
 	function setAttrValue($name, $value, $dont_run_updated=false)
 	{
+		if (is_file($this->data_path.'/'.$this->attr('name'))) {
+			$data_path = $this->data_path;
+		} else {
+			$data_path = $this->data_path_unrestricted;
+		}
+	
 		$uploading_file = (!empty($this->_tmp['uploading_file'])) ? true : false;
 		if ($name == 'name' && !$uploading_file) {
 			$old_filename = $this->attr('name');
@@ -141,7 +404,7 @@ class File extends Asset
 				$value = $old_filename;
 				return false;
 			}
-			if (!is_file($this->data_path.'/'.$old_filename)) {
+			if (!is_file($data_path.'/'.$old_filename)) {
 				trigger_error('Current file not found. Upload a file before renaming.', E_USER_WARNING);
 				$value = $old_filename;
 				return false;
@@ -149,12 +412,12 @@ class File extends Asset
 		}
 
 		if (parent::setAttrValue($name, $value, $dont_run_updated) && $name == 'name' && !$uploading_file) {
-			if (!@$this->saveWebPaths(Array($value))) {
+			if (!$this->saveWebPaths(Array($value))) {
 				trigger_error('Failed updating web path. Path already exists?', E_USER_WARNING);
 				parent::setAttrValue($name, $old_filename, $dont_run_updated);
 				return false;
 			}
-			if (!rename($this->data_path.'/'.$old_filename, $this->data_path.'/'.$value)) {
+			if (!rename($data_path.'/'.$old_filename, $data_path.'/'.$value)) {
 				trigger_error('Failed renaming file, try again.', E_USER_WARNING);
 				parent::setAttrValue($name, $old_filename, $dont_run_updated);
 				return false;
@@ -174,6 +437,11 @@ class File extends Asset
 	*/
 	function printFrontend()
 	{
+		if (!$this->readAccess()) {
+			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$this->name.'</i>');
+			return;
+		}
+
 		$existing = $this->_getExistingFile();
 		if (!empty($existing)) {
 			$stats = getimagesize($existing['path']);
@@ -199,7 +467,12 @@ class File extends Asset
 	{
 		// check for an existing file
 		$existing = Array();
-		$path = $this->data_path.'/'.$this->attr('name');
+		if (is_file($this->data_path.'/'.$this->attr('name'))) {
+			$path = $this->data_path.'/'.$this->attr('name');
+		} else {
+			$path = $this->data_path_unrestricted.'/'.$this->attr('name');
+		}
+error_log("EXISTING FILE PATH: $path");
 		if (is_file($path)) {
 			$existing['path'] = $path;
 			$existing['filename'] = $this->attr('name');
