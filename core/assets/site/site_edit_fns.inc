@@ -200,14 +200,11 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 		//// START HIPO PROCESSING ////
 
-		$vars = Array('assetid' => $asset->id);
-		$complete_url = $_SERVER['REQUEST_URI'];
-
 		require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_update_lookups.inc';
 		$init_hipo = new HIPO_Job_Update_Lookups();
 
-		$init_hipo->setRunningVars($vars);
-		$init_hipo->setOption('on_complete_url', $complete_url);
+		$init_hipo->setRunningVars(Array('assetids' => Array($asset->id)));
+		$init_hipo->setOption('on_complete_url', $_SERVER['REQUEST_URI']);
 
 		$code_name = $init_hipo->initialise();
 		if ($code_name) {
