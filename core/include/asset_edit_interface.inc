@@ -621,7 +621,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			$public = false;
 			foreach ($users as $userid => $locs) {
 				if ($userid) continue;
-				if (in_array($owner->id, $locs)) $public = true;
+				if (in_array($owner->id, array_keys($locs))) $public = true;
 			}
 			if ($admin_access) {
 				check_box($prefix."_public[$perm]", 1, (($public) ? true : false));
@@ -629,6 +629,15 @@ class Asset_Edit_Interface extends Resolve_Object
 				echo "&nbsp;Give $title access to all users?";
 			} else {
 				echo (($public) ? 'Yes' : 'No');
+			}
+
+			// this is the full list of inherited permissions
+			$full_inherits = $inherits;
+			foreach ($users as $userid => $locs) {
+				foreach ($locs as $locid => $treeid) {
+					$full_inherits[$userid][] = $locid;
+					$full_inherits[$userid] = array_unique($full_inherits[$userid]);
+				}
 			}
 
 			$o->openField('Inherited');
@@ -645,7 +654,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				</tr>
 			<?php
 
-			foreach ($inherits + $users as $userid => $locs) {
+			foreach ($full_inherits as $userid => $locs) {
 				if (isset($revokes[$userid])) continue;
 				if ($userid) {
 					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
@@ -685,7 +694,6 @@ class Asset_Edit_Interface extends Resolve_Object
 				ob_end_flush();
 				?></table><?php
 			}
-
 
 			$o->openField('Revoked');
 			ob_start();
@@ -748,7 +756,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				if (!$userid) continue;
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 				if (!$asset->id || (!is_a($asset, 'user') && !is_a($asset, 'user_group'))) continue;
-				if (in_array($owner->id, $locs)) {
+				if (in_array($owner->id, array_keys($locs))) {
 					?>
 					<tr>
 						<td bgcolor="#F0F0F0" class="sq-form-field"><?php echo '&nbsp;'.$asset->name.' ['.$asset->type()." : $userid]";?></td>
@@ -837,7 +845,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				}
 			}
 
-			// grant/revoke public access?\
+			// grant/revoke public access?
 			if (isset($_POST[$prefix.'_old_public'][$perm])) {
 				if (isset($_POST[$prefix.'_public'][$perm])) {
 					if($_POST[$prefix.'_old_public'][$perm] === '0') {

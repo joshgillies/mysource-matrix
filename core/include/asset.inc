@@ -1735,6 +1735,11 @@ class Asset extends Resolve_Object
 		for($i = 0; $i < $num_curr_links; $i++) {
 			// it already exists, so we don't need to do anything
 			if ($current_links[$i]['minorid'] == $minor->id && $current_links[$i]['value'] == $value) {
+				// if we are trashing the asset and it is already in the trash, just
+				// pretend that we created the link
+				$trash = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
+				if ($trash->id == $this->id) return true;
+
 				trigger_error('Link Already Exists', E_USER_WARNING);
 				return $current_links[$i]['linkid'];
 			}
@@ -1747,7 +1752,7 @@ class Asset extends Resolve_Object
 			return 0;
 		}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('begin');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// make sure the sort order is in a valid range
@@ -1905,8 +1910,6 @@ class Asset extends Resolve_Object
 
 			}// end if
 
-#pre_echo("Free Childid : ".$free_childid);
-
 			$insert = 'INSERT INTO sq_asset_link_tree (treeid, linkid)';
 
 			// if we don't have any existing tree entries then
@@ -1929,7 +1932,6 @@ class Asset extends Resolve_Object
 				$select = 'SELECT '.$concat.', '.$db->quote($linkid).'
 							FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid
 							WHERE l.minorid = '.$db->quote($this->id);
-
 				$result = db_extras_insert_select($db, $insert, $select);
 				if (DB::isError($result)) {
 					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
@@ -1953,8 +1955,6 @@ class Asset extends Resolve_Object
 							WHERE pl.minorid = '.$db->quote($this->id).'
 							  AND ct.treeid LIKE '.$db->quote($minor_treeid.'%').'
 							  AND ct.treeid > '.$db->quote($minor_treeid);
-
-#pre_echo($select);
 
 				$result = db_extras_insert_select($db, $insert, $select);
 				if (DB::isError($result)) {
@@ -2977,7 +2977,7 @@ class Asset extends Resolve_Object
 						? 'CONCAT(pp.userid, '.$db->quote('~').', pp.permission, '.$db->quote('~').', MAX(pt.treeid))' 
 						: 'pp.userid || '.$db->quote('~').' || pp.permission || '.$db->quote('~').' || MAX(pt.treeid)';
 
-				$sql = 'SELECT DISTINCT p.userid, p.assetid
+				$sql = 'SELECT DISTINCT p.userid, p.assetid, t.treeid
 						FROM sq_asset_link l
 						  INNER JOIN sq_asset_link_tree t ON l.linkid = t.linkid 
 						  INNER JOIN sq_asset_permission p ON l.minorid = p.assetid
@@ -3014,10 +3014,17 @@ class Asset extends Resolve_Object
 						  AND revoked = 0';
 			}
 
-			$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			$db_result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
+			if (DB::isError($db_result)) {
+				trigger_error($db_result->getMessage().'<br/>'.$db_result->getUserInfo(), E_USER_WARNING);
 				return Array();
+			}
+
+			$result = Array();
+			foreach($db_result as $userid => $locs) {
+				foreach ($locs as $loc) {
+					$result[$userid][$loc[0]] = $loc[1];
+				}
 			}
 
 			// cache the result for next time
@@ -3161,7 +3168,8 @@ class Asset extends Resolve_Object
 	* Returns an array of all user or user_group assets that have the passed permission for this asset
 	*
 	* @param string		$permission		the permission code you are getting
-	* @param boolean	$and_greater	get effective permission (eg read access = read or write or admin)
+	* @param boolean	$and_greater	get effective permission 
+	*									(eg read access = read or write or admin)
 	* @param boolean	$and_inherited	get permission from parents as well
 	*
 	* @return array(int)
@@ -3197,6 +3205,7 @@ class Asset extends Resolve_Object
 
 	/**
 	* Returns true if at least one of the passed assetids has the passed permission
+	* Can perform effective access check based on current status and lock
 	*
 	* @param int		$perm		the permission to check access for
 	* @param array		$assetids	An array of user_group and/or user ids to check for permission
@@ -3229,6 +3238,17 @@ class Asset extends Resolve_Object
 	}//end checkAccess()
 
 
+	/**
+	* Returns true if at least one of the passed assetids has the passed permission
+	* Does not check current status of lock
+	*
+	* @param int	$perm		the permission to check access for
+	* @param array	$assetids	An array of user_group and/or user ids to check for permission
+	*							If the array is empty, the current user will be checked
+	*
+	* @return boolean
+	* @access public
+	*/
 	function _checkPermissionAccess($perm, $assetids=Array())
 	{
 		if (empty($assetids) && $GLOBALS['SQ_SYSTEM']->user->id) {
