@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.42 2005/02/15 01:05:39 arailean Exp $
+* $Id: general_occasional.inc,v 1.43 2005/02/16 05:58:42 dbaranovskiy Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix
 */
 
@@ -225,6 +225,26 @@ function get_status_colour($status)
 	return $colour;
 
 }//end get_status_colour()
+
+
+/**
+* Returns an array showing the names of all statuses
+*
+*
+* @return array
+* @access public
+*/
+function get_status_names()
+{
+	$res = Array();
+	$statuses = get_constant_values('SQ_STATUS_');
+	foreach ($statuses as $name => $value) {
+		$res[$value] = ucwords(strtolower(str_replace(Array('SQ_STATUS_', '_'), Array('', ' '), $name)));
+	}
+
+	return $res;
+
+}//end get_status_names()
 
 
 /**
