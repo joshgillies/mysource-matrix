@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.50 2004/11/04 02:38:51 gsherwood Exp $
+* $Id: metadata_manager.inc,v 1.51 2004/11/08 00:02:39 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -379,7 +379,7 @@ class Metadata_Manager extends MySource_Object
 
 		$metadata = unserialize($metadata);
 		if (!is_array($metadata)) $metadata = Array();
-		
+
 		if (empty($metadata) && $allow_defaults) {
 			// no metadata is stored in the database, so get the default values
 			$metadata = $this->getMetadataDefaultValues($schemaid);
@@ -388,8 +388,8 @@ class Metadata_Manager extends MySource_Object
 		return $metadata;
 
 	}//end getSchemaMetadata()
-	
-	
+
+
 	/**
 	* Get the default metadata values for a particular schema
 	*
@@ -405,7 +405,7 @@ class Metadata_Manager extends MySource_Object
 			trigger_error('Failed getting default metadata, schema #'.$schemaid.' does not exist', E_USER_WARNING);
 			return Array();
 		}
-		
+
 		$edit_fns = $schema->getEditFns();
 		return $edit_fns->getMetadataDefaultValues($schema);
 
@@ -494,7 +494,7 @@ class Metadata_Manager extends MySource_Object
 		$schemaids = $this->getSchemas($asset->id, true);
 		if (empty($schemaids)) return false;
 
-		
+
 		foreach ($schemaids as $schemaid) {
 			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			if (!isset($metadata[$schema->name])) continue;
@@ -523,7 +523,7 @@ class Metadata_Manager extends MySource_Object
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
+
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 
@@ -730,7 +730,7 @@ class Metadata_Manager extends MySource_Object
 				case 'asset_href' :
 					echo '$metadata_replacements[\''.$keyword.'\'] = $metadata_asset->getHref();'."\n";
 				break;
-				
+
 				case 'asset_thumbnail' :
 					echo 'if ($metadata_asset->id) {';
 					echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($metadata_asset->id, SQ_LINK_NOTICE, \'thumbnail\', true, \'thumbnail\');'."\n";
@@ -762,7 +762,7 @@ class Metadata_Manager extends MySource_Object
 
 				case 'asset_created_by_name' :
 				case 'asset_updated_by_name' :
-					echo 'if (!isset($metadata_'.substr($keyword,6,7).'_by_user)) { 
+					echo 'if (!isset($metadata_'.substr($keyword,6,7).'_by_user)) {
 					$asset_info = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetInfo(Array($metadata_asset->'.substr($keyword,6,7).'_userid));
 					if (!empty($asset_info)) {
 					$metadata_'.substr($keyword,6,7).'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.substr($keyword,6,7).'_userid);'."\n}\n}\n";
@@ -779,7 +779,7 @@ class Metadata_Manager extends MySource_Object
 				case 'asset_updated_by_first_name' :
 				case 'asset_updated_by_last_name'  :
 				case 'asset_updated_by_email'      :
-					echo 'if (!isset($metadata_'.substr($keyword,6,7).'_by_user)) { 
+					echo 'if (!isset($metadata_'.substr($keyword,6,7).'_by_user)) {
 					$asset_info = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetInfo(Array($metadata_asset->'.substr($keyword,6,7).'_userid));
 					if (!empty($asset_info)) {
 					$metadata_'.substr($keyword,6,7).'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.substr($keyword,6,7).'_userid,\'\', true);'."\n}\n}\n";
@@ -808,7 +808,7 @@ class Metadata_Manager extends MySource_Object
 				case 'asset_published_by_name' :
 					echo 'if (is_null($metadata_asset->published_userid)) {'."\n";
 					echo '$metadata_replacements[\''.$keyword.'\'] = \'Never Published\';'."\n";
-					echo '} else { if (!isset($metadata_published_by_user)) { 
+					echo '} else { if (!isset($metadata_published_by_user)) {
 					$asset_info = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetInfo(Array($metadata_asset->published_userid));
 					if (!empty($asset_info)) {
 					$metadata_published_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid);'."\n}\n}\n";
@@ -824,7 +824,7 @@ class Metadata_Manager extends MySource_Object
 				case 'asset_published_by_email'      :
 					echo 'if (is_null($metadata_asset->published_userid)) {'."\n";
 					echo '$metadata_replacements[\''.$keyword.'\'] = \'\';'."\n";
-					echo '} else { if (!isset($metadata_published_by_user)) { 
+					echo '} else { if (!isset($metadata_published_by_user)) {
 					$asset_info = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetInfo(Array($metadata_asset->published_userid));
 					if (!empty($asset_info)) {
 					$metadata_published_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid);'."\n}\n}\n";
@@ -888,7 +888,7 @@ class Metadata_Manager extends MySource_Object
 							case 'published':
 								if (empty($offset)) $date = '$metadata_asset->'.$key;
 								else $date = 'strtotime(\''.$offset.'\', $metadata_asset->'.$key.')';
-								
+
 								echo '$metadata_replacements[\'asset_'.$key.'\'] = date(\''.$format.'\', '.$date.');'."\n";
 							break;
 							default:
@@ -927,6 +927,24 @@ class Metadata_Manager extends MySource_Object
 		return $this->generateContentFile($assetid, true);
 
 	}//end regenerateMetadata()
+
+
+	/**
+	* Removes the metadata entries for the specified asset
+	*
+	* @param string	$assetid	the assetid of the asset to purge
+	*
+	* @return boolean
+	* @access public
+	*/
+	function purgeMetadata($assetid)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$where_cond = 'assetid='.$db->quote($assetid);
+
+		return $GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_metadata', $where_cond);
+
+	}//end deleteMetadata()
 
 
 }//end class
