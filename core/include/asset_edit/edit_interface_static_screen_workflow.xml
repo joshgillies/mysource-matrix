@@ -18,13 +18,17 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_static_screen_workflow.xml,v 1.1 2004/04/22 04:00:44 gsherwood Exp $
+* $Id: edit_interface_static_screen_workflow.xml,v 1.2 2004/11/04 01:06:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <contents>
 	<section name="Running Workflows">
+		<field code="workflow_metadata_warning">
+			<display_name />
+			<note />
+		</field>
 		<field code="workflow_status_change">
 			<display_name />
 			<note />
@@ -37,7 +41,7 @@
 			<display_name />
 			<note />
 		</field>
-		<field code="workflow_metadata_warning">
+		<field code="workflow_logs">
 			<display_name />
 			<note />
 		</field>
