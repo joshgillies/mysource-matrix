@@ -116,7 +116,7 @@ class Folder extends Asset
 		switch($_POST['asset_action']) {
 			case 'create' :
 				return $this->create($_POST['name']);
-			break;
+				break;
 
 			default :
 				return false;

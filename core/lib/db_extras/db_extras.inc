@@ -42,7 +42,7 @@ function db_extras_subquery(&$db, $sql, $subs) {
 			$sql = str_replace($find, $subs, $sql);
 			return $sql;
 
-		break;
+			break;
 
 		// Non-Sub Query Compatiable DB's
 		default :

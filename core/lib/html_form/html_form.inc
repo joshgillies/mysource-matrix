@@ -252,16 +252,16 @@ function commit_file_upload($file, $dest, $overwrite=false)
 		case UPLOAD_ERR_FORM_SIZE :
 			$this->addMessage(SQ_MSG_ERROR, 'The uploaded file "'.$nice_name.'" was only partially uploaded.');
 			return '';
-		break;
+			break;
 
 		case UPLOAD_ERR_PARTIAL :
 			$this->addMessage(SQ_MSG_ERROR, 'The uploaded file "'.$nice_name.'" was only partially uploaded.');
 			return '';
-		break;
+			break;
 
 		case UPLOAD_ERR_NO_FILE :
 			return '';
-		break;
+			break;
 
 	}//end switch
 
