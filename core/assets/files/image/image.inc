@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.16 2004/11/29 02:14:15 gsherwood Exp $
+* $Id: image.inc,v 1.17 2004/12/23 22:01:15 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -92,11 +92,14 @@ class Image extends File
 	*/
 	function _getExistingFile()
 	{
-		$existing = parent::_getExistingFile();
-		if (!empty($existing['path'])) {
-			$size = getimagesize($existing['path']);
-			$existing['width']  = $size[0];
-			$existing['height'] = $size[1];
+		static $existing = null;
+		if (is_null($existing)) {
+			$existing = parent::_getExistingFile();
+			if (!empty($existing['path'])) {
+				$size = getimagesize($existing['path']);
+				$existing['width']  = $size[0];
+				$existing['height'] = $size[1];
+			}
 		}
 		return $existing;
 
@@ -125,6 +128,44 @@ class Image extends File
 
 	}//end printImageTag()
 
+
+	/**
+	* Return the keywords with their replacements
+	*
+	* The return value is in the form:
+	* <pre>
+	* Array(
+	*     'name' => Array (
+	*          'value' => 'page',
+	*          'description' => 'the asset name',
+	*     ),
+	* )
+	* </pre>
+	*
+	* @param boolean $descriptions if TRUE descriptions will be included in the array
+	*
+	* @access public
+	* @return Array(mixed)
+	*/
+	function getAssetKeywords($descriptions=false)
+	{
+		$keywords = parent::getAssetKeywords($descriptions);
+
+		$existing = $this->_getExistingFile();
+		if (!isset($existing['height'])) $existing['height'] = '0';
+		if (!isset($existing['width'])) $existing['width'] = '0';
+		$keywords['image_width'] = Array('value' => $existing['width']);
+		$keywords['image_height'] = Array('value' => $existing['height']);
+		
+		if ($descriptions) {
+			$keywords['image_width']['description'] = 'Width of the image in pixels';
+			$keywords['image_height']['description'] = 'Height of the image in pixels';
+		}
+
+		return $keywords;
+
+	}//end getAssetKeywords()
+	
 
 }//end class
 
