@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form.inc,v 1.13 2004/11/24 02:47:59 arailean Exp $
+* $Id: page_custom_form.inc,v 1.13.2.1 2005/03/17 03:27:23 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -97,7 +97,7 @@ class Page_Custom_Form extends Page
 	/**
 	* print out headers or HTML that the asset requires to be printed before the design
 	*
-	* @return void
+	* @return boolean	indicating success (currently always true)
 	* @access public
 	*/
 	function printFrontend()
@@ -109,9 +109,13 @@ class Page_Custom_Form extends Page
 			trigger_error('Could not locate the form asset for Custom Form "'.$this->name.'"', E_USER_ERROR);
 			return false;
 		}
-		$form->printFrontend();
 
-		return true;
+		if (!$form->printFrontend()) {
+			trigger_error('Form container for "'.$this->_getName().'" (Id: #'.$this->id.') could not print frontend');
+			return false;
+		}
+		
+		return parent::printFrontend();
 
 	}
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.70.2.10 2005/02/25 05:23:33 lwright Exp $
+* $Id: form.inc,v 1.70.2.11 2005/03/17 03:27:22 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.70.2.10 $
+* @version $Revision: 1.70.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -754,7 +754,13 @@ class Form extends Bridge
 	/**
 	* print out headers or HTML that the asset requires to be printed before the design
 	*
-	* @return void
+	* We have to do a little bit of trickery here to make sure that the design
+	* printed, and the global asset variables printed out, are for the form
+	* PAGE, rather than the form CONTENTS. Hence, this printFrontend() doesn't
+	* go back to its parent to print the design, allowing the form to do
+	* exactly that.
+	*
+	* @return boolean	indicating success (currently always true)
 	* @access public
 	*/
 	function printFrontend()
@@ -774,7 +780,7 @@ class Form extends Bridge
 			$this->setFormCookie($this->active_submission->id, $this->attr('cookie_time'));
 		}
 	
-		return parent::printFrontend();
+		return true;
 		
 	}//end printFrontend()
 	
