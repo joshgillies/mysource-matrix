@@ -46,7 +46,7 @@ mcMenuContainerClass.prototype.create = function(arr)
 		cmd_elem.appendChild(opt);
 	}
 
-	// start the loading process, if it returns true loading was initiated
+	// start the loading process
 	_root.server_exec.exec(xml, this, "loadItems", "options", "Loading Menu");
 
 }

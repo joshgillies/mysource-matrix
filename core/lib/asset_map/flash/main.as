@@ -1,5 +1,11 @@
 
+// Set this to make sure
+Stage.scaleMode = "noScale";
+Stage.align = "TL";
+
+
 #include "test.as"
+#include "stageResize.as"
 #include "general.as"
 #include "serverExec.as"
 #include "asset.as"
@@ -23,7 +29,12 @@ _root.LIST_ITEM_END_BRANCH_GAP = 10;
   ///////////////////////////////////////////////////
  // ALL INITIALISATION STUFF                      //
 ///////////////////////////////////////////////////
-server_exec_path = "http://beta.squiz.net/blair_resolve/_edit/?SQ_BACKEND_PAGE=asset_map_request";
+if (server_exec_path == undefined) {
+	server_exec_path = "http://beta.squiz.net/blair_resolve/_edit/?SQ_BACKEND_PAGE=asset_map_request";
+}
+trace("Server Exec Path : " + server_exec_path);
+
+
 
 // Initialise any pop-ups
 _root.progress_bar._visible = false;
@@ -33,11 +44,10 @@ _root.dialog_box._visible = false;
 _root.dialog_box.swapDepths(21);
 _root.dialog_box.stop();
 
+// Call resize to setup intial sizes of things
+_root.stageResizeListener.onResize();
+
 server_exec = new serverExec(server_exec_path);
-
-
-
-
 
 
 // Now attach the menu

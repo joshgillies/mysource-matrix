@@ -79,7 +79,7 @@ mcListContainerClass.prototype.showKids = function(parent_assetid)
 
 		trace(xml);
 
-		// start the loading process, if it returns true loading was initiated
+		// start the loading process
 		_root.server_exec.exec(xml, this, "loadKids", "assets", "Loading Assets");
 		this.tmp.parent_assetid = parent_assetid;
 	}
@@ -401,6 +401,8 @@ mcListContainerClass.prototype.posToAssetInfo = function(pos, in_gap)
 	trace('Parent Assetid : ' + parent_assetid);
 	trace('Relative Pos   : ' + relative_pos);
 
+	return {parent_assetid: parent_assetid, pos: relative_pos};
+
 }// end posToAssetInfo()
 
 
@@ -650,14 +652,41 @@ mcListContainerClass.prototype.execActionAddAsset = function(pos, in_gap)
 	trace("Add an asset of type '" + this.tmp.exec_action.type_code + "' to pos " + pos + ". In Gap ? " + in_gap);
 	var info = this.posToAssetInfo(pos, in_gap);
 
+	var xml = new XML();
+	var cmd_elem = xml.createElement("command");
+	cmd_elem.attributes.action  = "get url";
+	cmd_elem.attributes.cmd     = "add";
+	cmd_elem.attributes.type_code      = this.tmp.exec_action.type_code;
+	cmd_elem.attributes.parent_assetid = info.parent_assetid;
+	cmd_elem.attributes.pos            = info.pos;
+	xml.appendChild(cmd_elem);
 
+	trace(xml);
 
-
+	// start the loading process
+	_root.server_exec.exec(xml, this, "execActionGoUrl", "url", "Sending Request");
 
 	this.action = '';
 
 }// end execActionAddAsset()
 
 
-Object.registerClass("mcListContainerID", mcListContainerClass);
 
+/**
+* call back fn used by the execAction*() fns to after they sedn their urls requests to the server
+*
+* @param object xml	the xml object returned
+*
+*/
+mcListContainerClass.prototype.execActionGoUrl = function(xml)
+{
+	var frame = xml.firstChild.attributes.frame;
+	var link  = xml.firstChild.firstChild.nodeValue;
+
+	trace('getURL(' + link + ', ' + frame + ');');
+	getURL(link, frame);
+
+}// end execActionGoUrl()
+
+
+Object.registerClass("mcListContainerID", mcListContainerClass);
