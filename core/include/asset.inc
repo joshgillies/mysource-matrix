@@ -740,7 +740,7 @@ class Asset extends Resolve_Object
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		// open the transaction
-		$db->query('BEGIN');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// is this new type one of our decendents or ancestors?
 		$sql = 'SELECT COUNT(*)
@@ -765,7 +765,7 @@ class Asset extends Resolve_Object
 				if ($tmp->canLinkToType($link['type_code'], $link['link_type']) !== true) {
 					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 					trigger_error('Unable to cast "'.$this->name.'" to "'.$new_type_code.'",<br>"'.$link['type_code'].'" assets are not allowed to be "'.link_type_name($link['link_type']).'" linked to "'.$new_type_code.'" assets.', E_USER_WARNING);
-					$db->query('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
 			}// end foreach
@@ -782,7 +782,7 @@ class Asset extends Resolve_Object
 				if (($err_msg = $parent->canLinkToType($new_type_code, $link['link_type'], $link['linkid'])) !== true) {
 					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 					trigger_error('Unable to cast "'.$this->name.'" to "'.$new_type_code.'", "'.$parent->name.'" (Asset # '.$parent->id.') cannot be linked to the new Asset - ('.$err_msg.')', E_USER_WARNING);
-					$db->query('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
 			}// end foreach
@@ -810,7 +810,7 @@ class Asset extends Resolve_Object
 				$result = $db->query($sql);
 				if (DB::isError($result)) {
 					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-					$db->query('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
 			}
@@ -831,7 +831,7 @@ class Asset extends Resolve_Object
 			$result = $db->query($sql);
 			if (DB::isError($result)) {
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				$db->query('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 		}// end if delete var list
@@ -843,7 +843,7 @@ class Asset extends Resolve_Object
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			$db->query('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
@@ -869,12 +869,12 @@ class Asset extends Resolve_Object
 		// All is OK so override ourselves with the temporary
 		if ($all_ok) {
 			$this = $tmp;
-			$db->query('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			return true;
 
 		// bugger some thing went wrong
 		} else {
-			$db->query('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 
 		}// end if
@@ -1391,7 +1391,6 @@ class Asset extends Resolve_Object
 							FROM sq_asset_link
 							WHERE minorid = '.$db->quote($minor->id));
 			$sql = db_extras_subquery($db, $sql, $subs);
-#			pre_echo($sql);
 			if (DB::isError($sql)) {
 				trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
 				return 'Database Error';
@@ -1494,7 +1493,6 @@ class Asset extends Resolve_Object
 					FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid
 					WHERE l.minorid = '.$db->quote($this->id).'
 					LIMIT 1';
-#			pre_echo($sql);
 			$existing_treeid = $db->getOne($sql);
 			if (DB::isError($existing_treeid)) {
 				trigger_error($existing_treeid->getMessage().'<br/>'.$existing_treeid->getUserInfo(), E_USER_WARNING);
@@ -1519,7 +1517,6 @@ class Asset extends Resolve_Object
 					WHERE l.minorid = '.$db->quote($minor->id).'
 					LIMIT 1';
 
-#			pre_echo($sql);
 			$minor_treeid = $db->getOne($sql);
 			if (DB::isError($minor_treeid)) {
 				trigger_error($minor_treeid->getMessage().'<br/>'.$minor_treeid->getUserInfo(), E_USER_WARNING);
@@ -1540,7 +1537,6 @@ class Asset extends Resolve_Object
 					  AND CHARACTER_LENGTH(ct.treeid) = '.(strlen($existing_treeid) + SQ_CONF_ASSET_TREE_SIZE).'
 					  AND ct.linkid = 0
 					LIMIT 1';
-#			pre_echo($sql);
 			$free_childid = $db->getOne($sql);
 			if (DB::isError($free_childid)) {
 				trigger_error($free_childid->getMessage().'<br/>'.$free_childid->getUserInfo(), E_USER_WARNING);
@@ -1554,7 +1550,6 @@ class Asset extends Resolve_Object
 						WHERE ct.treeid LIKE '.$db->quote($existing_treeid.'%').'
 						  AND ct.treeid > '.$db->quote($existing_treeid).'
 						  AND CHARACTER_LENGTH(ct.treeid) = '.(strlen($existing_treeid) + SQ_CONF_ASSET_TREE_SIZE);
-#				pre_echo($sql);
 				$free_childid = $db->getOne($sql);
 				if (DB::isError($free_childid)) {
 					trigger_error($free_childid->getMessage().'<br/>'.$free_childid->getUserInfo(), E_USER_WARNING);
@@ -1612,7 +1607,6 @@ class Asset extends Resolve_Object
 						return 0;
 					}
 				}
-#				pre_echo($sql);
 				$result = $db->query($sql);
 				if (DB::isError($result)) {
 					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
@@ -1630,7 +1624,6 @@ class Asset extends Resolve_Object
 			// we are the root folder, so do a simple insert
 			if ((string) $existing_treeid == '') {
 				$sql = $insert.' VALUES ('.$db->quote($free_childid).', '.$db->quote($linkid).')';
-#				pre_echo($sql);
 				$result = $db->query($sql);
 				if (DB::isError($result)) {
 					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
@@ -1681,7 +1674,6 @@ class Asset extends Resolve_Object
 
 			}// end if
 
-#			pre_echo("OK");
 
 		}// end if significant link
 
@@ -1706,7 +1698,6 @@ class Asset extends Resolve_Object
 				.$db->quote($value).', '.$db->quote($sort_order).', '.$db->quote(($dependant) ? '1' : '0').', '.$db->quote(ts_iso8601(time())).', 
 				'.$db->quote($GLOBALS['SQ_SYSTEM']->currentUserId()).')';
 
-#		pre_echo($sql);
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
@@ -1932,8 +1923,6 @@ class Asset extends Resolve_Object
 				WHERE linkid    = '.$db->quote($linkid).'
 				  AND majorid   = '.$db->quote($this->id);
 
-#		pre_echo($sql);
-
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
@@ -2062,14 +2051,13 @@ class Asset extends Resolve_Object
 			if (DB::isError($sql)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
-				return 0;
+				return false;
 			}
-#			pre_echo($sql);
 			$result = $db->query($sql);
 			if (DB::isError($result)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				return 0;
+				return false;
 			}
 
 		}// end if significant link
@@ -2150,7 +2138,7 @@ class Asset extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// open the transaction
-		$db->query('BEGIN');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$attributeid = $this->vars[$name]['attributeid'];
 
@@ -2183,7 +2171,7 @@ class Asset extends Resolve_Object
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
-			$db->query('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
@@ -2192,12 +2180,12 @@ class Asset extends Resolve_Object
 
 		// tell, the asset it has updated
 		if (!$this->_updated()) {
-			$db->query('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
 		// If we get this far, then it's all OK
-		$db->query('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return true;
 
@@ -2841,7 +2829,7 @@ class Asset extends Resolve_Object
 	function printFrontend()
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$url = preg_replace('/\/+$/', '', $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']);
+		$url = strip_url(current_url(false));
 		$sql = 'SELECT l.designid, a.type_code
 				FROM sq_asset_lookup l, sq_asset a
 				WHERE l.designid = a.assetid
@@ -2994,7 +2982,7 @@ class Asset extends Resolve_Object
 		// if there is no difference in the arrays (including in the sort order), then there is nothing to do
 		if (!array_diff_assoc($save_paths, $current_paths)) return;
 
-		$db->query('BEGIN');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		//// CHECK INSERTED PATHS ////
 		// to make sure that they path name is not in use by any of our siblings
@@ -3046,7 +3034,7 @@ class Asset extends Resolve_Object
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-			$GLOBALS['SQ_SYSTEM']->db->query('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
@@ -3060,7 +3048,7 @@ class Asset extends Resolve_Object
 			$result = $db->query($sql);
 			if (DB::isError($result)) {
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-				$GLOBALS['SQ_SYSTEM']->db->query('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 
@@ -3072,10 +3060,10 @@ class Asset extends Resolve_Object
 		unset($this->_tmp['href']);
 
 		if ($this->_updateLookups()) {
-			$GLOBALS['SQ_SYSTEM']->db->query('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			return true;
 		} else {
-			$GLOBALS['SQ_SYSTEM']->db->query('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
@@ -3126,12 +3114,12 @@ class Asset extends Resolve_Object
 	*/
 	function updateLookups()
 	{
-		$GLOBALS['SQ_SYSTEM']->db->query('BEGIN');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		if ($this->_updateLookups()) {
-			$GLOBALS['SQ_SYSTEM']->db->query('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			return true;
 		} else {
-			$GLOBALS['SQ_SYSTEM']->db->query('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 	}// end updateLookups
@@ -3177,18 +3165,15 @@ class Asset extends Resolve_Object
 				if (is_null($parent)) continue;
 
 				$parent_urls = $parent->getLookups();
-
 				for($j = 0; $j < count($parent_urls); $j++) {
 					for($k = 0; $k < count($paths); $k++) {
 						$sql = 'INSERT INTO sq_asset_lookup
-								(url, linkid, assetid, root_urlid, designid)
+								(url, assetid, root_urlid, designid)
 								VALUES
 								('.$db->quote($parent_urls[$j]['url'].'/'.$paths[$k]).',
-								'.$db->quote($parents[$i]['linkid']).',
 								'.$db->quote($this->id).',
 								'.$db->quote($parent_urls[$j]['root_urlid']).',
 								'.$db->quote(($designid) ? $designid : $parent_urls[$j]['designid']).')';
-
 						$result = $db->query($sql);
 						if (DB::isError($result)) {
 							trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
@@ -3246,18 +3231,25 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Returns the URL for this asset, closest to the current url
+	* Returns the URL for this asset, closest to the $base_url
+	*
+	* @param string	$base_url	the url that we are want to match closest to
 	*
 	* @return string
 	* @access public
 	*/
-	function getURL()
+	function getURL($base_url=null)
 	{
+		if (is_null($base_url)) $base_url = current_url(false);
+		if (!isset($this->_tmp['url'])) $this->_tmp['url'] = Array();
 
-		if (!isset($this->_tmp['url'])) {
+		$base_url = strip_url($base_url, true);
+
+		if (!isset($this->_tmp['url'][$base_url])) {
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-			$url_bits = explode('/', preg_replace('/\\/+$/', '', current_url(false)));
+#		pre_echo("BASE URL : $base_url");
+			$url_bits = explode('/', preg_replace('/\\/+$/', '', $base_url));
 
 			$sql = 'SELECT l.url, u.http, (';
 			$str = '';
@@ -3266,51 +3258,60 @@ class Asset extends Resolve_Object
 			foreach($url_bits as $i => $bit) {
 				$str .= $bit.'/';
 				$sql .= (($i) ? '+' : '').'
-				(CASE WHEN SUBSTRING('.$concat.' FROM 0 FOR '.strlen($str).') = '.$db->quote($str).' THEN 1 ELSE 0 END)';
+				(CASE WHEN SUBSTRING('.$concat.' FROM 1 FOR '.strlen($str).') = '.$db->quote($str).' THEN 1 ELSE 0 END)';
 			}
 
 			$sql .= '
 			) as weighting
 			FROM sq_asset_lookup l INNER JOIN sq_asset_url u ON l.root_urlid = u.urlid
 			WHERE l.assetid = '.$db->quote($this->id).'
-			ORDER BY weighting DESC
+			ORDER BY weighting DESC, l.url
 			LIMIT 1';
-
 			$result = $db->getRow($sql);
 			if (DB::isError($result)) {
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 				return '';
 			}
+
 			if (empty($result)) {
-				$this->_tmp['url'] = '';
+				$this->_tmp['url'][$base_url] = '';
 			} else {
-				$this->_tmp['url'] = (($result['http']) ? 'http' : 'https').'://'.$result['url'];
+				$this->_tmp['url'][$base_url] = (($result['http']) ? 'http' : 'https').'://'.$result['url'];
 			}
 
 		}// end if !isset
 
-		return $this->_tmp['url'];
+		return $this->_tmp['url'][$base_url];
 
 	}//end getURL()
 
 
 	/**
-	* Returns the relative href for this asset, closest to the current url
+	* Returns the href for this asset closest to the $base_url, but relative to the current url 
+	*
+	* @param string	$base_url	the url that we are want to match closest to
 	*
 	* @return string
 	* @access public
 	*/
-	function getHref()
+	function getHref($base_url=null)
 	{
-		if (!isset($this->_tmp['href'])) {
-			require_once SQ_FUDGE_PATH.'/general/www.inc';
-			if ($url = $this->getURL()) {
-				$this->_tmp['href'] = relative_href(current_url(), $url);
+		if (is_null($base_url)) $base_url = current_url(false);
+		if (!isset($this->_tmp['href'])) $this->_tmp['href'] = Array();
+
+		$base_url = strip_url($base_url, true);
+
+		if (!isset($this->_tmp['href'][$base_url])) {
+			if ($url = $this->getURL($base_url)) {
+				require_once SQ_FUDGE_PATH.'/general/www.inc';
+				// delieratley don't strip url here because if there is any trailing slashes then 
+				// relative_href will work to accomodate them
+				$this->_tmp['href'][$base_url] = relative_href(current_url(), $url);
 			} else {
-				$this->_tmp['href'] = '';
+				$this->_tmp['href'][$base_url] = '';
 			}
 		}// end if !isset
-		return $this->_tmp['href'];
+		return $this->_tmp['href'][$base_url];
 	}//end getHref()
 
 

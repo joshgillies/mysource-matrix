@@ -265,7 +265,7 @@ class Asset_Manager extends Resolve_Object
 		$sql .= 'a.assetid IN ('.implode(', ', $assetids).')';
 
 		if (!empty($type_code)) {
-			
+
 			$type_code_cond = '';
 			if (is_array($type_code)) {
 				for($i = 0; $i < count($type_code); $i++) $type_code[$i] = $db->quote($type_code[$i]);
@@ -295,7 +295,7 @@ class Asset_Manager extends Resolve_Object
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return Array();
 		}
-		
+
 		return $result;
 	}//end getAssetTypeInfo()
 
@@ -336,7 +336,7 @@ class Asset_Manager extends Resolve_Object
 		}
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$result = $db->getCol('SELECT inherited_type_code
-								FROM sq_asset_type_inherited 
+								FROM sq_asset_type_inherited
 								WHERE type_code = '.$db->quote($type_code)
 								.(($include_asset) ? '' : ' AND inherited_type_code != '.$db->quote('asset'))
 								);
@@ -364,7 +364,7 @@ class Asset_Manager extends Resolve_Object
 		}
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$result = $db->getCol('SELECT type_code
-								FROM sq_asset_type_inherited 
+								FROM sq_asset_type_inherited
 								WHERE inherited_type_code = '.$db->quote($type_code));
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
@@ -411,7 +411,7 @@ class Asset_Manager extends Resolve_Object
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 				$sql .= ' AND (pa.type_code '.$type_code_cond.' OR pa.type_code IN (~SQ0~))';
 				$sub = 'SELECT type_code
-						FROM sq_asset_type_inherited 
+						FROM sq_asset_type_inherited
 						WHERE inherited_type_code '.$type_code_cond;
 				$sql = db_extras_subquery($db, $sql, Array($sub));
 			}
@@ -488,7 +488,7 @@ class Asset_Manager extends Resolve_Object
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 				$sql .= '(a.type_code '.$type_code_cond.' OR a.type_code IN (~SQ0~))';
 				$sub = 'SELECT type_code
-						FROM sq_asset_type_inherited 
+						FROM sq_asset_type_inherited
 						WHERE inherited_type_code '.$type_code_cond;
 				$sql = db_extras_subquery($db, $sql, Array($sub));
 			}
@@ -665,9 +665,9 @@ class Asset_Manager extends Resolve_Object
 	function &getAssetFromURL($protocol=null, $url=null, $exact_match=true, $mute_errors=false)
 	{
 
-		if (is_null($url)) $url = $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
-		// remove any trailing slashes
-		$url = preg_replace('/\/+$/', '', $url);
+		if (is_null($url)) $url = current_url(false);
+		// remove any trailing slashes and double slashes
+		$url = strip_url($url);
 
 		if (!is_null($protocol) && $protocol != 'https') $protocol = 'http';
 
@@ -717,6 +717,41 @@ class Asset_Manager extends Resolve_Object
 
 	}//end getAssetFromURL()
 
+
+	/**
+	* Returns the information from the sq_asset_url table for the root url closest to the passed URL
+	* i.e. returns the info for the site closest to this url
+	* If no url is passed the current (aka PHP_SELF) one is used
+	*
+	* @param string		$url		the urls to check for (excluding protocol) -> null defaults it to current url
+	*
+	* @return Array
+	* @access public
+	*/
+	function getRootURL($url=null)
+	{
+
+		if (is_null($url)) $url = current_url(false);
+		// remove any trailing slashes and double slashes
+		$url = strip_url($url);
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// so much for SQL standards...
+		$concat = ($db->phptype == 'mysql') ? 'CONCAT(url, '.$db->quote('%').')' : '(url || '.$db->quote('%').')';
+		$sql = 'SELECT urlid, assetid, url, http, https
+				FROM sq_asset_url
+				WHERE '.$db->quote($url).' LIKE '.$concat.'
+				ORDER BY url DESC
+				LIMIT 1';
+		$result = $db->getRow($sql);
+		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+
+		return $result;
+
+	}//end getRootURL()
+
+
 	/**
 	* Returns an array of assetid's in the order that they propogate out from the site url
 	* If no url is passed the current (aka PHP_SELF) one is used
@@ -730,22 +765,20 @@ class Asset_Manager extends Resolve_Object
 	function getLineageFromURL($protocol=null, $url=null)
 	{
 
-		if (is_null($url)) $url = $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
-		// remove any trailing slashes
-		$url = preg_replace('/\/+$/', '', $url);
+		if (is_null($url)) $url = current_url(false);
+		// remove any trailing slashes and double slashes
+		$url = strip_url($url);
 
 		if (!is_null($protocol) && $protocol != 'https') $protocol = 'http';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sections = explode('/', $url);
-		$option  = '';
-		$url_condition = ' IN (';
-		foreach($sections as $piece) {
-			$url_condition .= (($option) ? ',' : '').$db->quote($option.$piece);
-			$option .= $piece.'/';
+		// get the root(site) url for this url
+		$root_url = $this->getRootURL($url);
+		if (empty($root_url)) {
+			trigger_error('Unable to find an lineage for the URL "'.$fancy_url.'", no root url was found', E_USER_WARNING);
+			return Array();
 		}
-		$url_condition .= ') ';
 
 		$extra_table = '';
 		$extra_where = '';
@@ -754,12 +787,14 @@ class Asset_Manager extends Resolve_Object
 			$extra_where = ' AND l.root_urlid = u.urlid AND u.'.$protocol.' = '.$db->quote(1);
 		}
 
+		$concat = ($db->phptype == 'mysql') ? 'CONCAT(l.url, '.$db->quote('%').')' : '(l.url || '.$db->quote('%').')';
 		$sql = 'SELECT l.url, l.assetid, a.name, a.type_code
-				FROM sq_asset_lookup l, sq_asset a '.$extra_table.'
-				WHERE l.url '.$url_condition.'
-				AND l.assetid = a.assetid
+				FROM sq_asset_lookup l INNER JOIN sq_asset a ON l.assetid = a.assetid
+				'.$extra_table.'
+				WHERE l.root_urlid = '.$db->quote((int) $root_url['urlid']).'
+				  AND '.$db->quote($url).' LIKE '.$concat.'
 				'.$extra_where.'
-				ORDER BY CHARACTER_LENGTH(l.url) ASC';
+				ORDER BY l.url ASC';
 		$result = $db->getAll($sql);
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
@@ -767,9 +802,27 @@ class Asset_Manager extends Resolve_Object
 		if (empty($result) || $result[count($result) - 1]['url'] != $url) {
 			$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
 			trigger_error('Unable to find an lineage for the URL "'.$fancy_url.'"', E_USER_WARNING);
-			return null;
+			return Array();
 
 		} else {
+
+			// if there is only one entry then this is the site root, so for completeness
+			// we will manually add in the index page to the index
+			if (count($result) == 1) {
+				$site = $this->getAsset($result[0]['assetid'], $result[0]['type_code']);
+				if (is_null($site)) {
+					return Array();
+				}
+				$index_page = $site->getSpecialPage('index');
+				if (!is_null($index_page)) {
+					$result[] = Array ('url'		=> $result[0]['url'],
+										'assetid'	=> $index_page->id,
+										'name'		=> $index_page->name,
+										'type_code'	=> $index_page->type()
+									);
+				}// end if
+			}// end if
+
 			return $result;
 		}// end if
 

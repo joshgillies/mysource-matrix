@@ -32,6 +32,12 @@ class Design_Area_Menu_Type_Management extends Asset_Management
 								'type'			=> 'serialise',
 								'default'		=> Array()
 
+							),
+							'type_codes' => Array(
+								'added'			=> '0.0.1',
+								'type'			=> 'serialise',
+								'default'		=> Array(),
+								'description'   => 'Comma or space separated list of type codes to restrict the menu to display, these types are not strict however so any sub-types of these will also be valid'
 							)
 						);
 

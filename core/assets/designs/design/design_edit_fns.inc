@@ -158,7 +158,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		
 		// now remove any unused design area customisations
 		foreach($removed_id_names as $id_name) {
-			if (!$asset->deleteLink($existing_id_names[$id_name])) return false;
+			if (!$asset->deleteLink($existing_id_names[$id_name])) {
+				trigger_error(__LINE__." -- ".$id_name); return false;
+			}
 		}// end foreach
 
 
@@ -175,7 +177,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			// if it's a different type, then convert them
 			if (!is_null($da) && $da->type() !== $design_area) {
 				$link = &$asset->getDesignAreaLink($id_name, false);
-				if (!$asset->deleteLink($link['linkid'])) return false;
+				if (!$asset->deleteLink($link['linkid'])) {
+					return false;
+				}
 				unset($da); // unset so we don't set the value or all ref's to null
 				$da = null; // do this so a new version will be created
 			}
@@ -248,13 +252,19 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		foreach($design_area_links as $link) {
 			$da = &$asset->getDesignArea($link['value']);
 			if (is_null($da)) continue;
-			$vars = Array();
-			foreach($da->vars['var_references']['value'] as $var_name => $info) {
-				$var_da = &$asset->getDesignArea($info['id_name']);
+			$var_ref_values = Array();
+			$var_refs = $da->getVarReferences();
+			for(reset($var_refs); null !== ($id_name = key($var_refs)); next($var_refs)) {
+				$var_da = &$asset->getDesignArea($id_name);
 				if (is_null($var_da)) continue;
-				$vars[$var_name] = $var_da->attr($info['var']);
+
+				$var_ref_values[$id_name] = Array();
+				foreach($var_refs[$id_name] as $var) {
+					$var_ref_values[$id_name][$var] = $var_da->attr($var);
+				}
 			}// end foreach
-			$da->setVarReferenceValues($vars);
+
+			$da->setVarReferenceValues($var_ref_values);
 		}// end foreach
 
 		$pre_str = '<?php 

@@ -112,7 +112,7 @@ class Site extends Folder
 	{
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$db->query('BEGIN');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$processed_urlids = Array();
 		$current_urls = $this->getSiteURLs();
@@ -120,8 +120,8 @@ class Site extends Folder
 
 			$curr_urlid = $save_urlid;
 
-			// remove any trailing slashes
-			$save_urls[$save_urlid]['url'] = strtolower(preg_replace('/\/+$/', '', $save_urls[$save_urlid]['url']));
+			// strip any extra slashes
+			$save_urls[$save_urlid]['url'] = strtolower(strip_url($save_urls[$save_urlid]['url']));
 
 			//// Firstly let's try and see if this URL is already in use by something ////
 
@@ -151,7 +151,7 @@ class Site extends Folder
 						  AND assetid = '.$db->quote($this->id);
 				$result = $db->query($sql);
 				if (DB::isError($result)) {
-					$db->query('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 					return false;
 				}// end if
@@ -160,7 +160,7 @@ class Site extends Folder
 
 				$curr_urlid = $db->nextId('sq_sequence_asset_url');
 				if (DB::isError($curr_urlid)) {
-					$db->query('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					trigger_error($curr_urlid->getMessage().'<br/>'.$new_urlid->getUserInfo(), E_USER_ERROR);
 				}
 
@@ -173,7 +173,7 @@ class Site extends Folder
 						'.$db->quote($save_urls[$save_urlid]['https']).')';
 				$result = $db->query($sql);
 				if (DB::isError($result)) {
-					$db->query('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 					return false;
 				}
@@ -192,7 +192,7 @@ class Site extends Folder
 					WHERE urlid = '.$db->quote($urlid);
 			$result = $db->query($sql);
 			if (DB::isError($result)) {
-				$db->query('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 				return false;
 			}
@@ -202,15 +202,15 @@ class Site extends Folder
 		unset($this->_tmp['urls_info']);
 
 		if ($this->_updateLookups()) {
-			$db->query('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			return true;
 		} else {
-			$db->query('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
 	}// end saveWebURLs()
-	
+
 
 	/**
 	* Fn that does the real processing of updateLookups(), separated to allow for the DB transaction stuff
@@ -223,11 +223,15 @@ class Site extends Folder
 	*/
 	function _updateLookups() 
 	{
-		pre_echo("UPDATE LOOKUPS");
-		$urls = $this->getSiteURLs();
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
+		unset($this->_tmp['lookups']);
+		unset($this->_tmp['url']);
+		unset($this->_tmp['href']);
+
 		// Remove all the old URLs
+
 		$sql = 'DELETE FROM sq_asset_lookup
 				WHERE assetid = '.$db->quote($this->id);
 		$result = $db->query($sql);
@@ -239,33 +243,36 @@ class Site extends Folder
 		$design_link = $this->getLink(SQ_LINK_USES, 'design', false);
 		$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
 
-		pre_echo("DESIGN ID : $designid");
+		$index_link = $this->getSpecialPageLink('index');
+		// we can only create urls if we have an index page set
+		// because we set that assets id as the one attached to our urls in the lookup
+		if(!empty($index_link)) {
+			$urls = $this->getSiteURLs();
+			// if we have urls then do some url inserting
+			for(reset($urls); null !== ($urlid = key($urls)); next($urls)) {
+				$sql = 'INSERT INTO sq_asset_lookup
+						(url, assetid, root_urlid, designid)
+						VALUES
+						('.$db->quote($urls[$urlid]['url']).', 
+						'.$db->quote($this->id).', 
+						'.$db->quote($urlid).', 
+						'.$db->quote($designid).')';
+				$result = $db->query($sql);
+				if (DB::isError($result)) {
+					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+					return false;
+				}
+			}// end for urls
 
-		// if we have urls then do some url inserting
-		for(reset($urls); null !== ($urlid = key($urls)); next($urls)) {
-			$sql = 'INSERT INTO sq_asset_lookup
-					(url, linkid, assetid, root_urlid, designid)
-					VALUES
-					('.$db->quote($urls[$urlid]['url']).', 
-					 0,
-					'.$db->quote($this->id).', 
-					'.$db->quote($urlid).', 
-					'.$db->quote($designid).')';
-			pre_echo($sql);
-			$result = $db->query($sql);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-				return false;
-			}
-		}// end for urls
+			// recusively call the kids update
+			$kids = $this->getLinks(SQ_LINK_NAV);
+			for($i = 0; $i < count($kids); $i++) {
+				$kid = &$GLOBALS['SQ_SYSTEM']->am->getAsset($kids[$i]['minorid'], $kids[$i]['type_code']);
+				if (is_null($kid)) continue;
+				if (!$kid->_updateLookups()) return false;
+			}// end for kids
 
-		// recusively call the kids update
-		$kids = $this->getLinks(SQ_LINK_NAV, '', 'major');
-		for($i = 0; $i < count($kids); $i++) {
-			$kid = &$GLOBALS['SQ_SYSTEM']->am->getAsset($kids[$i]['minorid'], $kids[$i]['type_code']);
-			if (is_null($kid)) continue;
-			if (!$kid->_updateLookups()) return false;
-		}// end for kids
+		}// end if
 
 		return true;
 
@@ -280,9 +287,10 @@ class Site extends Folder
 	*/
 	function printBody()
 	{
-		$link = $this->getSpecialPageLink('index');
-		$index_page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code'], true);
+		$index_page = &$this->getSpecialPage('index');
+		if (is_null($index_page)) return;
 		$index_page->printBody();
+
 	}// end printBody()
 
 
@@ -310,6 +318,25 @@ class Site extends Folder
 		}// end switch
 
 	}//end getSpecialPageLink()
+
+
+	/**
+	* Returns the special page asset (index, not_found, forbidden)
+	*
+	* @param string	$page	the page that the user wants
+	*
+	* @return object Asset
+	* @access public
+	*/
+	function &getSpecialPage($page)
+	{
+		$link = $this->getSpecialPageLink($page);
+		if (empty($link)) return null;
+
+		return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
+
+	}//end getSpecialPage()
+
 
 }//end class
 ?>

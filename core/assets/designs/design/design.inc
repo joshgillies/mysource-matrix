@@ -69,8 +69,9 @@ class Design extends Design_Area
 	function _linksUpdated()
 	{
 		if (!parent::_linksUpdated()) return false;
-		if (!isset($this->_tmp['design_areas'])) return;
-		foreach(array_keys($this->_tmp['design_areas']) as $id_name) unset($this->_tmp['design_areas'][$id_name]);
+		if (isset($this->_tmp['design_areas'])) {
+			foreach(array_keys($this->_tmp['design_areas']) as $id_name) unset($this->_tmp['design_areas'][$id_name]);
+		}
 		return true;
 	}//end _linksUpdated()
 
@@ -104,7 +105,7 @@ class Design extends Design_Area
 		if (empty($this->_tmp['design_areas'][$id_name])) {
 			if (!isset($this->_tmp['design_areas'])) $this->_tmp['design_areas'] = Array();
 			$link = $this->getDesignAreaLink($id_name);
-			if (is_null($link)) {
+			if (empty($link)) {
 				$this->_tmp['design_areas'][$id_name] = null;
 			} else {
 				$this->_tmp['design_areas'][$id_name] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
@@ -206,8 +207,8 @@ class Design extends Design_Area
 				  © Copyright <?php echo date(\'Y\') ?>. All rights reserved.
 				  Page generated: <?php $time = getdate(); echo $time[\'mday\'], \' \', $time[\'month\'], \' \', $time[\'year\']; ?>
 				-->
-				<script language="javascript" type="text/javascript"  src="<?php echo $LIB_PATH; ?>/js/general.js"></script>
-				<link rel="stylesheet" type="text/css"  href="<?php echo $LIB_PATH; ?>/css/general.css"></script>
+				<script language="javascript" type="text/javascript"  src="<?php echo sq_web_path(\'lib\'); ?>/web/js/general.js"></script>
+				<link rel="stylesheet" type="text/css"  href="<?php echo sq_web_path(\'lib\'); ?>/web/css/general.css"></script>
 				';
 
 				break;

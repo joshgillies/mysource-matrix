@@ -69,10 +69,8 @@ class Design_Area_Menu_Type extends Design_Area
 					return false;
 			}// end switch
 
-		}// end if
-
 		// if they are trying to set a level, so some validation
-		if ($name == 'level') {
+		} else if ($name == 'level') {
 			switch(strtolower($value)) {
 				case 'top';
 					$value = 0;
@@ -83,6 +81,10 @@ class Design_Area_Menu_Type extends Design_Area
 				default :
 					$value = max(0, (int) $value);
 			}// end switch
+
+		// if they are trying to set the type_codes, split the string
+		} else if ($name == 'type_codes') {
+			$value = preg_split('/[ ,]+/', $value);
 
 		}// end if
 
@@ -115,6 +117,49 @@ class Design_Area_Menu_Type extends Design_Area
 		return parent::attr($name);
 
 	}//end attr();	
+
+
+	/**
+	* Returns an array of Array(id_name => Array(var)) for all var references that are needed by this design area
+	*
+	* @access public
+	*/
+	function getVarReferences()
+	{
+		$var_refs = parent::getVarReferences();
+		$sub_menu = &$this->getSubMenu();
+		if (!is_null($sub_menu)) {
+			$sub_var_refs = $sub_menu->getVarReferences();
+			for(reset($sub_var_refs); null !== ($id_name = key($sub_var_refs)); next($sub_var_refs)) {
+				if (!isset($var_refs[$id_name])) $var_refs[$id_name] = Array();
+				foreach($sub_var_refs[$id_name] as $var) {
+					if (in_array($var, $var_refs[$id_name])) continue;
+					$var_refs[$id_name][] = $var;
+				}// end foreach
+			}// end foreach
+		}// end if
+
+		return $var_refs;
+
+	}//end getVarReferences();
+
+
+	/**
+	* Set's the values for the var references values (registered in $this->var_references)
+	*
+	* @param array $var_ref_values	array of values - Array(id_name => Array(var => [value]))
+	*
+	* @access public
+	*/
+	function setVarReferenceValues($var_ref_values)
+	{
+		parent::setVarReferenceValues($var_ref_values);
+		$sub_menu = &$this->getSubMenu();
+		if (!is_null($sub_menu)) {
+			$sub_menu->setVarReferenceValues($var_ref_values);
+		}// end if
+	}//end setVarReferenceValues();
+
 
 	/*
 	* Returns the link to the sub menu for this menu (if any)
@@ -198,7 +243,7 @@ class Design_Area_Menu_Type extends Design_Area
 
 			switch($var) {
 				case 'page_link' :
-					echo '<?', 'php echo $'.$this->attr('id_name').'_kid->getHref(); ?', '>';
+					echo '<?', 'php echo $'.$this->attr('id_name').'_kid->getHref($'.$this->attr('id_name').'_base_url); ?', '>';
 					break;
 
 				case 'page_short_name' :

@@ -331,12 +331,12 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			$page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_'.$page_type]);
 			return (bool) $asset->createLink($page, SQ_LINK_USES, $page_type);
 		} else {
-			$GLOBALS['SQ_SYSTEM']->db->query('BEGIN');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			if ($asset->_updateLink($link['linkid'], $_POST[$prefix.'_'.$page_type])) {
-				$GLOBALS['SQ_SYSTEM']->db->query('COMMIT');
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				return true;
 			} else {
-				$GLOBALS['SQ_SYSTEM']->db->query('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}// end if
 		}// end if

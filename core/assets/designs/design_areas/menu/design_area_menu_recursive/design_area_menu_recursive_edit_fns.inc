@@ -59,8 +59,7 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 
 		echo '<', '?php
 			// because we need to be able to get to these with the recurse fn
-			$GLOBALS[\'PAGE_LINEAGE\'] = &$PAGE_LINEAGE;
-			$GLOBALS[\'ASSET\'] = &$ASSET;
+			$GLOBALS[\'RECURSIVE_MENU_PAGE_LINEAGE\'] = &$PAGE_LINEAGE;
 		?', '>';
 
 		$GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN'] = true;
@@ -156,9 +155,9 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 				}
 				echo '
 
-			function '.$asset->attr('id_name').'_recursive_fn($level, $links, $depth=Array())
+			function '.$asset->attr('id_name').'_recursive_fn($level, $links, $'.$asset->attr('id_name').'_base_url, $depth=Array())
 			{
-				global $PAGE_LINEAGE;
+				global $RECURSIVE_MENU_PAGE_LINEAGE;
 				static $'.$asset->attr('id_name').'_settings = '.var_export($asset->attr('settings'), true).';
 
 				$am = &$GLOBALS[\'SQ_SYSTEM\']->am;
@@ -169,24 +168,9 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 				$depth[] = true; 
 				$depth_count = count($depth);
 
-				// if this menu is for the first level of the menu then the 
-				// $ASSET could very well be a site asset in which case we need to set the details
-				// to represent it\'s index page
-				// if the asset that is printing this body is a site, 
-				// then use it\'s index page for the lineage asset
-				if ($level == 0 && $GLOBALS[\'ASSET\']->type() == \'site\') { 
-					$index_link = $GLOBALS[\'ASSET\']->getSpecialPageLink(\'index\');
-					$'.$asset->attr('id_name').'_lineage_assetid = (empty($index_link)) ? 0 : $index_link[\'minorid\'];
-					$'.$asset->attr('id_name').'_lineage_setting = \'current\';
+				$'.$asset->attr('id_name').'_lineage_assetid = (empty($RECURSIVE_MENU_PAGE_LINEAGE[$level + 1])) ? 0 : $RECURSIVE_MENU_PAGE_LINEAGE[$level + 1][\'assetid\'];
+				$'.$asset->attr('id_name').'_lineage_setting = (count($RECURSIVE_MENU_PAGE_LINEAGE) - 1 == $level + 1) ? \'current\' : \'hierarchy\';
 
-				} else {
-					$'.$asset->attr('id_name').'_lineage_assetid = (empty($PAGE_LINEAGE[$level + 1])) ? 0 : $PAGE_LINEAGE[$level + 1][\'assetid\'];
-					$'.$asset->attr('id_name').'_lineage_setting = (count($PAGE_LINEAGE) - 1 == $level + 1) ? \'current\' : \'hierarchy\';
-
-				}// end if level == 0 and asset type == site
-				';
-
-				echo '
 #				pre_echo("Lineage Setting : $'.$asset->attr('id_name').'_lineage_setting");
 #				pre_echo("Lineage Assetid : $'.$asset->attr('id_name').'_lineage_assetid");
 				for($i = 0, $num_links = count($links); $i < $num_links; $i++) {
@@ -283,10 +267,10 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 			}
 			echo '
 					if ('.$recurse_condition.') {
-						$'.$asset->attr('id_name').'_kid_links = $'.$asset->attr('id_name').'_kid->getLinks(SQ_LINK_NAV);
+						$'.$asset->attr('id_name').'_kid_links = $'.$asset->attr('id_name').'_kid->getLinks(SQ_LINK_NAV'.$this->_getLinksExtra($asset).');
 						if (!empty($'.$asset->attr('id_name').'_kid_links)) {
 							if ($end) $depth[$depth_count - 1] = false;
-							'.$asset->attr('id_name').'_recursive_fn($level + 1, $'.$asset->attr('id_name').'_kid_links, $depth);
+							'.$asset->attr('id_name').'_recursive_fn($level + 1, $'.$asset->attr('id_name').'_kid_links, $'.$asset->attr('id_name').'_kid->getURL($'.$asset->attr('id_name').'_base_url), $depth);
 						}// end if kid links
 
 					} // end if current_setting != normal
@@ -297,9 +281,17 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 
 			';
 
+			$parent_menu = &$asset->getParentMenu();
+			if (is_null($parent_menu)) {
+				$base_url_string = '$'.$asset->attr('id_name').'_base_url';
+			// we are a sub menu
+			} else {
+				$base_url_string = '$'.$parent_menu->attr('id_name').'_kid->getURL($'.$parent_menu->attr('id_name').'_base_url)';
+			}// end if
+
 			echo '
 
-			'.$asset->attr('id_name').'_recursive_fn($'.$asset->attr('id_name').'_level, $'.$asset->attr('id_name').'_links);
+			'.$asset->attr('id_name').'_recursive_fn($'.$asset->attr('id_name').'_level, $'.$asset->attr('id_name').'_links, '.$base_url_string.');
 
 			?', '> ';
 

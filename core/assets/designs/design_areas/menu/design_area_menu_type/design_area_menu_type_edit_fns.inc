@@ -200,7 +200,8 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		$this->_initDesignFileOutput();
 
 		echo '<', '?php
-		$'.$asset->attr('id_name').'_level = '.((int) $asset->attr('level')).';
+		$'.$asset->attr('id_name').'_level    = '.((int) $asset->attr('level')).';
+		$'.$asset->attr('id_name').'_base_url = (empty($PAGE_LINEAGE)) ? \'\' : $PAGE_LINEAGE['.((int) $asset->attr('level')).'][\'url\'];
 		';
 
 		$parent_menu = &$asset->getParentMenu();
@@ -223,7 +224,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 			$'.$asset->attr('id_name').'_settings = '.var_export($asset->attr('settings'), true).';
 			$'.$asset->attr('id_name').'_parent = &$am->getAsset($PAGE_LINEAGE[$'.$asset->attr('id_name').'_level][\'assetid\'], $PAGE_LINEAGE[$'.$asset->attr('id_name').'_level][\'type_code\']);
 			if (!is_null($'.$asset->attr('id_name').'_parent)) {
-				$'.$asset->attr('id_name').'_links = $'.$asset->attr('id_name').'_parent->getLinks(SQ_LINK_NAV);
+				$'.$asset->attr('id_name').'_links = $'.$asset->attr('id_name').'_parent->getLinks(SQ_LINK_NAV'.$this->_getLinksExtra($asset).');
 				if (!empty($'.$asset->attr('id_name').'_links)) {
 		?', '>';
 		if (!parent::_createDesignFileOutput($contents, $asset, $design)) return false;
@@ -252,33 +253,11 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		switch($element['operation']) {
 			case 'page' :
-				echo '<', '?php ';
+				echo '<', '?php 
 
-				// if this menu is for the first level of the menu then the 
-				// $ASSET could very well be a site asset in which case we need to set the details
-				// to represent it's index page
-				if ($asset->attr('level') == 0) {
-					echo '
-				// if the asset that is printing this body is a site, 
-				// then use it\'s index page for the lineage asset
-				if ($ASSET->type() == \'site\') { 
-					$'.$asset->attr('id_name').'_link = $ASSET->getSpecialPageLink(\'index\');
-					$'.$asset->attr('id_name').'_lineage_assetid = (empty($'.$asset->attr('id_name').'_link)) ? 0 : $'.$asset->attr('id_name').'_link[\'minorid\'];
-					$'.$asset->attr('id_name').'_lineage_setting = \'current\';
-				} else {';
-				}// end if
+				$'.$asset->attr('id_name').'_lineage_assetid = (empty($PAGE_LINEAGE[$'.$asset->attr('id_name').'_level + 1])) ? 0 : $PAGE_LINEAGE[$'.$asset->attr('id_name').'_level + 1][\'assetid\'];
+				$'.$asset->attr('id_name').'_lineage_setting = (count($PAGE_LINEAGE) - 1 == $'.$asset->attr('id_name').'_level + 1) ? \'current\' : \'hierarchy\';
 
-				echo '
-					$'.$asset->attr('id_name').'_lineage_assetid = (empty($PAGE_LINEAGE[$'.$asset->attr('id_name').'_level + 1])) ? 0 : $PAGE_LINEAGE[$'.$asset->attr('id_name').'_level + 1][\'assetid\'];
-					$'.$asset->attr('id_name').'_lineage_setting = (count($PAGE_LINEAGE) - 1 == $'.$asset->attr('id_name').'_level + 1) ? \'current\' : \'hierarchy\';
-				';
-				if ($asset->attr('level') == 0) {
-				echo '
-				}// end if asset type == site
-				';
-				}// end if
-
-				echo '
 #				pre_echo("Lineage Setting : $'.$asset->attr('id_name').'_lineage_setting");
 #				pre_echo("Lineage Assetid : $'.$asset->attr('id_name').'_lineage_assetid");
 				foreach($'.$asset->attr('id_name').'_links as $'.$asset->attr('id_name').'_data) { 
@@ -307,6 +286,21 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		}// end switch
 
 	}// end _outputElement()
+
+
+	/**
+	* Returns a string for the end of the asset->getLinks() calls if they have requested that the type codes be restricted
+	*
+	* @param object Asset	$asset		the asset to which we belong
+	*
+	* @return string
+	* @access private
+	*/
+	function _getLinksExtra(&$asset) 
+	{
+		$type_codes = $asset->attr('type_codes');
+		return empty($type_codes) ? '' : ', '.var_export($type_codes, true).', false';
+	}// end _getLinksExtra()
 
 }//end class
 ?>

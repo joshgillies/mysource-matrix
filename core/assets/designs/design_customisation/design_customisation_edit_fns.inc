@@ -64,13 +64,13 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		}// end foreach
 
 		if ($data) {
-			$GLOBALS['SQ_SYSTEM']->db->query('BEGIN');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			pre_echo($data);
 			if ($this->_updateDesignAreaLink($asset, $data)) {
-				$GLOBALS['SQ_SYSTEM']->db->query('COMMIT');
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				$asset->_tmp['regenerate_design'] = true;
 			} else {
-				$GLOBALS['SQ_SYSTEM']->db->query('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			}// end if
 		}// end if
 
@@ -132,13 +132,13 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		}// end foreach
 
 		if ($data) {
-			$GLOBALS['SQ_SYSTEM']->db->query('BEGIN');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			pre_echo($data);
 			if ($this->_updateDesignAreaLink($asset, $data)) {
-				$GLOBALS['SQ_SYSTEM']->db->query('COMMIT');
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				$asset->_tmp['regenerate_design'] = true;
 			} else {
-				$GLOBALS['SQ_SYSTEM']->db->query('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 
 				foreach($data as $id) {
 					$da = &$GLOBALS['SQ_SYSTEM']->am->getAsset($id);

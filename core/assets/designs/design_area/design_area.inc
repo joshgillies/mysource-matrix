@@ -85,7 +85,6 @@ class Design_Area extends Asset
 		if ($processed && $this->_tmp['regenerate_design']) {
 			$designs = &$this->getDesigns();
 			for($i = 0, $max = count($designs); $i < $max; $i++) {
-				pre_echo("REGEN FOR ".$designs[$i]->id." - ".$designs[$i]->name);
 				$designs[$i]->generateDesignFile(false);
 			}// end for
 		}// end if
@@ -110,17 +109,41 @@ class Design_Area extends Asset
 		return $designs;
 	}//end getDesigns()
 
+
 	/**
-	* Set's the values for the var references values (registered in $this->var_references)
-	*
-	* @param array $values	array of values - Array(name => value)
+	* Returns an array of Array(id_name => Array(var)) for all var references that are needed by this design area
 	*
 	* @access public
 	*/
-	function setVarReferenceValues($values)
+	function getVarReferences()
 	{
-		$this->_tmp['var_reference_values'] = $values;
+		$var_refs = Array();
+		foreach($this->vars['var_references']['value'] as $var_name => $info) {
+			if (!isset($var_refs[$info['id_name']])) $var_refs[$info['id_name']] = Array();
+			$var_refs[$info['id_name']][] = $info['var'];
+		}// end foreach
+
+		return $var_refs;
+
+	}//end getVarReferences();
+
+
+	/**
+	* Set's the values for the var references values (registered in $this->var_references)
+	*
+	* @param array $var_ref_values	array of values - Array(id_name => Array(var => [value]))
+	*
+	* @access public
+	*/
+	function setVarReferenceValues($var_ref_values)
+	{
+		$this->_tmp['var_reference_values'] = Array();
+		foreach($this->vars['var_references']['value'] as $var_name => $info) {
+			$this->_tmp['var_reference_values'][$var_name] = $var_ref_values[$info['id_name']][$info['var']];
+		}// end foreach
+
 	}//end setVarReferenceValues();
+
 
 	/**
 	* Easy way to get the value of an attribute
