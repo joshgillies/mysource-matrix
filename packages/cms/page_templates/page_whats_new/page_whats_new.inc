@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.3 2004/09/15 00:38:36 mmcintyre Exp $
+* $Id: page_whats_new.inc,v 1.4 2004/09/15 01:25:28 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -299,7 +299,7 @@ class Page_Whats_New extends Page_Asset_Listing
 	*/
 	function getContentsKeywords()
 	{
-		$keywords = parent::getContentKeywords();
+		$keywords = parent::getContentsKeywords();
 		$keywords['date_range_list'] = Array(
 					'name'    => 'Date Range List',
 					'default' => 'Date Range List', 
@@ -310,6 +310,7 @@ class Page_Whats_New extends Page_Asset_Listing
 					'default' => 'Date Range List Linked', 
 					'type'    => 'inline'
 				);
+
 		return $keywords;
 
 	}//end getContentsKeywords()
