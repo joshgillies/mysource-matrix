@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.45 2004/05/27 00:27:19 gsherwood Exp $
+* $Id: hipo_job.inc,v 1.46 2004/06/18 03:42:30 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -524,7 +524,7 @@ class HIPO_Job extends MySource_Object
 
 		$this->code_name        = $code_name;
 		$this->source_code_name = $result['source_code_name'];
-		$this->userid           = (int) $result['userid'];
+		$this->userid           = $result['userid'];
 		$this->_hipo_vars       = unserialize($result['hipo_vars']);
 		$this->_options         = unserialize($result['options']);
 		$this->_steps           = unserialize($result['steps']);
