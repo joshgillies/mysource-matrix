@@ -104,7 +104,7 @@ class Messaging_Service extends Resolve_Object
 	* @param array(string)	$stati			can limit returned messages to those with a status in this array
 	* @param int			$from			timestamp that every msg returned must be this time or after (NULL to ignore)
 	* @param int			$to				timestamp that every msg returned must be this time or before (NULL to ignore)
-	* @param string			$get_from_name	[name|short_name], used to return the name/short_name of the from user with the return. (NULL to ignore)
+	* @param string			$get_from_name	[name|short_name], used to return the name/short_name of the from user with the return, which will be returned in the field 'from_name'. (NULL to ignore)
 	*
 	* @return array
 	* @access public
@@ -118,7 +118,13 @@ class Messaging_Service extends Resolve_Object
 		if (!is_null($get_user_name) && $get_user_name != 'name') $get_user_name = 'short_name';
 
 		$sql = 'SELECT m.messageid, m.userto, m.userfrom, m.subject, m.body, m.sent, m.priority, m.status, m.parameters';
-		if (is_string($get_user_name)) $sql .= ', a.'.$get_user_name;
+		if (is_string($get_user_name)) {
+			$sql .= ', 
+					CASE 
+						WHEN a.'.$get_user_name.' IS NULL AND m.userfrom = 0 THEN '.$db->quote(SQ_SYSTEM_SHORT_NAME.' System').'
+						ELSE a.'.$get_user_name.'
+					END as from_name';
+		}
 		$sql .= ' FROM sq_internal_message m';
 		if (is_string($get_user_name)) $sql .= ' LEFT OUTER JOIN sq_asset a ON m.userfrom = a.assetid';
 
@@ -131,7 +137,7 @@ class Messaging_Service extends Resolve_Object
 		if (!is_null($to))   $sql .= ' AND m.sent <= '.$db->quote(ts_iso8601($to));
 
 		$sql .= ' ORDER BY m.status DESC, m.sent DESC';
-
+		
 		$result = $db->getAll($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
