@@ -220,10 +220,17 @@ class Internal_Message extends Resolve_Object
 		<html>
 			<head>
 				<style>
-					.sq-message-item {
+					.sq-message-item, .sq-message-item-msg {
 						color:           #000000;
 						font-family:     Verdana, Arial, Helvetica, sans-serif;
 						font-size:       10px;
+						text-decoration: none;
+					}
+					.sq-message-item-msg {
+						color:           #000000;
+						font-family:     courier new, fixed;
+						font-size:       11px;
+						white-space:     pre;
 						text-decoration: none;
 					}
 				</style>
@@ -249,9 +256,7 @@ class Internal_Message extends Resolve_Object
 						</td>
 					</tr>
 					<tr height="100%">
-						<td valign="top" class="sq-message-item" bgcolor="#FFFFFF" width="100%">
-							<?php echo $info['body']; ?>
-						</td>
+						<td valign="top" class="sq-message-item-msg" bgcolor="#FFFFFF" width="100%"><pre><?php echo $info['body']; ?></pre></td>
 					</tr>
 				</table>
 			</body>
