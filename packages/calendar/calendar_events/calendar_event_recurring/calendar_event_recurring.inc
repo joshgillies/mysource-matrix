@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.4 2004/07/29 00:13:04 lwright Exp $
+* $Id: calendar_event_recurring.inc,v 1.5 2004/07/29 02:18:43 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.4 $ - 1.0
+* @version $Revision: 1.5 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -282,6 +282,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	{
 		$links = parent::_getAllowedLinks();
 		$links[SQ_LINK_TYPE_2]['calendar_event_modification'] = Array('card' => 'M', 'exclusive' => false);
+		$links[SQ_LINK_TYPE_2]['calendar_event_cancellation'] = Array('card' => 'M', 'exclusive' => false);
 		return $links;
 
 	}//end _getAllowedLinks()
