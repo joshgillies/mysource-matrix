@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.1 2003/12/02 03:31:47 mmcintyre Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.2 2003/12/03 23:51:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -170,10 +170,13 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	function paint(&$asset, $generating=false)
 	{
 		$div_attributes = $asset->attr('attributes');
+		if (!isset($div_attributes['layout_type'])) $div_attributes['layout_type'] = 'div';
 
 		$attribute_list = '';
 
 		for (reset($div_attributes); $name = key($div_attributes); next($div_attributes)) {
+			if ($name == 'layout_type') continue;
+
 			$val = $div_attributes[$name];
 			if ($val == '') continue;
 			if ($name == 'css_class') $name = 'class';
@@ -186,7 +189,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 		}
 
-		echo "\n<div{$attribute_list}>\n";
+		echo "\n<".strtolower($div_attributes['layout_type']).$attribute_list.">\n";
 
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'content_type', false, 'div_contents', 'major', true);
 
@@ -200,7 +203,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			}
 		}
 
-		echo "\n</div>\n";
+		echo "\n</".strtolower($div_attributes['layout_type']).">\n";
 
 		return true;
 

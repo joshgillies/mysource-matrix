@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_div_props.php,v 1.1 2003/12/02 03:31:47 mmcintyre Exp $
+* $Id: edit_div_props.php,v 1.2 2003/12/03 23:51:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,13 +51,15 @@ include(dirname(__FILE__)."/header.php");
 
 		f.divid.value = owner.bodycopy_current_edit["data"]["divid"];
 		f.bodycopy_name.value = owner.bodycopy_current_edit["bodycopy_name"];
+		owner.highlight_combo_value(f.layout_type, data['layout_type']);
 
 	}// end popup_init()
 
 	function popup_save(f) {
 		var data = new Object();
-		data["identifier"] = owner.form_element_value(f.identifier);
-		data["css_class"]  = owner.form_element_value(f.css_class);
+		data["identifier"]   = owner.form_element_value(f.identifier);
+		data["css_class"]    = owner.form_element_value(f.css_class);
+		data["layout_type"]  = owner.form_element_value(f.layout_type);
 		owner.bodycopy_save_div_properties(data);
 	}
 
@@ -90,6 +92,15 @@ include(dirname(__FILE__)."/header.php");
 		<fieldset>
 			<legend><b>Style Information</b></legend>
 			<table style="width:100%">
+				<tr>
+					<td class="bodycopy-popup-heading">Presentation:</td>
+					<td>
+						<select name="layout_type">
+							<option value="div" >Block-level</option>
+							<option value="span">Inline</option>
+						</select>
+					</td>
+				</tr>
 				<tr>
 					<td class="label">Class:</td>
 					<td><input type="text" name="css_class" value="" size="15"></td>

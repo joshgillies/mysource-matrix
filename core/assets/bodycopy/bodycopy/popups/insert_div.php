@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_div.php,v 1.1 2003/12/02 03:31:47 mmcintyre Exp $
+* $Id: insert_div.php,v 1.2 2003/12/03 23:51:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -42,7 +42,8 @@ include(dirname(__FILE__)."/header.php");
 
 	function popup_save(f) {
 		var data = new Object();
-		data["identifier"] = owner.form_element_value(f.identifier);
+		data["identifier"]  = owner.form_element_value(f.identifier);
+		data["layout_type"] = owner.form_element_value(f.layout_type);
 		owner.bodycopy_save_insert_div(data);
 	}
 
@@ -65,6 +66,16 @@ include(dirname(__FILE__)."/header.php");
 					<td class="bodycopy-popup-heading">Identifier:</td>
 					<td>
 						<input type="text" name="identifier" value="" size="15">
+					</td>
+				</tr>
+				<tr>
+					<td>&nbsp;</td>
+					<td class="bodycopy-popup-heading">Presentation:</td>
+					<td>
+						<select name="layout_type">
+							<option value="div" >Block-level</option>
+							<option value="span">Inline</option>
+						</select>
 					</td>
 				</tr>
 			</table>
