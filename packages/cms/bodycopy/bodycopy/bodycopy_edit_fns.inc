@@ -2,7 +2,6 @@
 
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
-require_once SQ_FUDGE_PATH.'/general/general.inc';
 
 
 /**
@@ -524,10 +523,10 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		
 		// do some thing for the first time we print a bodycopy on this page
 		if (empty($_BODYCOPY['update_initialised'])) {
-			$bodycopy_action = (empty($_POST['bodycopy_action'])) ? ''      : gpc_stripslashes($_POST['bodycopy_action']);
-			$bodycopy_name   = (empty($_POST['bodycopy_name']))   ? ''      : gpc_stripslashes($_POST['bodycopy_name']);
-			$bodycopy_data   = (empty($_POST['bodycopy_data']))   ? Array() : gpc_stripslashes($_POST['bodycopy_data']);
-			$bodycopy_saved  = (empty($_POST['bodycopy_saved']))  ? Array() : gpc_stripslashes($_POST['bodycopy_saved']);
+			$bodycopy_action = (empty($_POST['bodycopy_action'])) ? ''      : $_POST['bodycopy_action'];
+			$bodycopy_name   = (empty($_POST['bodycopy_name']))   ? ''      : $_POST['bodycopy_name'];
+			$bodycopy_data   = (empty($_POST['bodycopy_data']))   ? Array() : $_POST['bodycopy_data'];
+			$bodycopy_saved  = (empty($_POST['bodycopy_saved']))  ? Array() : $_POST['bodycopy_saved'];
 	
 			if (empty($bodycopy_data) && empty($bodycopy_saved)) return false;
 

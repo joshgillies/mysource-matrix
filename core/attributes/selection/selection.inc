@@ -170,7 +170,6 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		require_once SQ_FUDGE_PATH.'/general/general.inc';
 		if (!isset($_POST[$prefix.'_'.$this->name.'_posted'])) return false;
 		$value = (isset($_POST[$prefix.'_'.$this->name])) ? $_POST[$prefix.'_'.$this->name] : '';
-		$value = gpc_stripslashes($value);
 
 		if(is_array($value)) {
 			$value = $this->_ar2str($value);

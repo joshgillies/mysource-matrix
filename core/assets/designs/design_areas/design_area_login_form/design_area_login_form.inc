@@ -88,9 +88,8 @@ class Design_Area_Login_Form extends Design_Area
 				if ($this->attr('forward_www_vars')) {
 					echo '<', '?php
 					// Take all the post vars and whack em in the form - important ones are removed
-					require_once SQ_FUDGE_PATH.\'/general/general.inc\';
 					require_once SQ_LIB_PATH.\'/html_form/html_form.inc\';
-					$'.$this->attr('id_name').'_post_vars = gpc_stripslashes($_POST);
+					$'.$this->attr('id_name').'_post_vars = $_POST;
 					unset($'.$this->attr('id_name').'_post_vars[\'SQ_LOGIN_USERNAME\']);
 					unset($'.$this->attr('id_name').'_post_vars[\'SQ_LOGIN_PASSWORD\']);
 					unset($'.$this->attr('id_name').'_post_vars[\'SQ_LOGIN_KEY\']);

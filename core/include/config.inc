@@ -30,6 +30,8 @@ class Config extends Resolve_Object
 		'SQ_CONF_ASSET_TREE_BASE'			=> Array('editable' => 0, 'default' => 64),
 		'SQ_CONF_ASSET_TREE_SIZE'			=> Array('editable' => 0, 'default' =>  4),
 
+
+
 		'SQ_CONF_SYSTEM_NAME'				=> Array('editable' => 1, 'default' => 'Resolve System'),
 		'SQ_CONF_SYSTEM_OWNER'				=> Array('editable' => 1, 'default' => ''),
 		'SQ_CONF_SYSTEM_ADMIN_EMAIL'		=> Array('editable' => 1, 'default' => ''),
@@ -223,7 +225,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 						# add superusers	
 						#################
 						#
-						$user_searches = split("[ \t\r\n\,]+",gpc_stripslashes($superuser_search));
+						$user_searches = split("[ \t\r\n\,]+", $superuser_search);
 						foreach($user_searches as $login) {
 							# security & empty var check
 							if (trim($login) != '') {
@@ -242,7 +244,6 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 						# update web database details 
 						###############################
 						#
-						$web_db_details = gpc_stripslashes($web_db_details);
 						$backend->add_message($this->set_web_db_details($web_db_details['name'],
 																		$web_db_details['host'],
 																		$web_db_details['login'],
@@ -253,8 +254,6 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 						# update user database details
 						###############################
 						#
-						$user_db_details     = gpc_stripslashes($user_db_details);
-						$user_authentication = gpc_stripslashes($user_authentication);
 
 						$backend->add_message($this->set_user_db_details(
 								$user_db_details['name'],
@@ -309,7 +308,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 						# add web masters	
 						##################
 						#
-						$user_searches = split("[ \t\r\n\,]+", gpc_stripslashes($webmaster_search));
+						$user_searches = split("[ \t\r\n\,]+", $webmaster_search);
 						foreach($user_searches as $login) {
 							# security and empty var check
 							if (trim($login) != '') {
@@ -327,7 +326,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 						# add user masters	
 						###################
 						#
-						$user_searches = split("[ \t\r\n\,]+", gpc_stripslashes($usermaster_search));
+						$user_searches = split("[ \t\r\n\,]+", $usermaster_search);
 						foreach($user_searches as $login) {
 							# security and empty string check
 							if (trim($login) != '') {
@@ -343,12 +342,12 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 
 
 						# Update other config vars
-						$backend->add_message($this->set_system_name(gpc_stripslashes($system_name)));
-						$backend->add_message($this->set_system_owner(gpc_stripslashes($system_owner)));
-						$backend->add_message($this->set_webmaster_email(gpc_stripslashes($webmaster_email)));
-						$backend->add_message($this->set_backend_message_box_focus(gpc_stripslashes($backend_message_box_focus)));
+						$backend->add_message($this->set_system_name(($system_name)));
+						$backend->add_message($this->set_system_owner(($system_owner)));
+						$backend->add_message($this->set_webmaster_email(($webmaster_email)));
+						$backend->add_message($this->set_backend_message_box_focus(($backend_message_box_focus)));
 
-						$backend->add_message($this->set_backend_log_messages(gpc_stripslashes($backend_log_messages)));
+						$backend->add_message($this->set_backend_log_messages(($backend_log_messages)));
 
 						$upload_result = process_image_upload('backend_brand_image', get_data_path(true, 'backend_brand_image'), false);
 						$backend->add_message($upload_result['message']);
@@ -364,32 +363,32 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 					}#end if superuser
 
 					if (superuser()) {
-						$backend->add_message($this->set_max_login_attempts(gpc_stripslashes($max_login_attempts)));
-						$backend->add_message($this->set_max_idle_time(gpc_stripslashes($max_idle_time)));
-						$backend->add_message($this->set_log_visitors(gpc_stripslashes($log_visitors)));
-						$backend->add_message($this->set_log_remote_hosts(gpc_stripslashes($log_remote_hosts)));
-						$backend->add_message($this->set_batch_delete(gpc_stripslashes($batch_delete)));
-						$backend->add_message($this->set_batch_dupe(gpc_stripslashes($batch_dupe)));
+						$backend->add_message($this->set_max_login_attempts(($max_login_attempts)));
+						$backend->add_message($this->set_max_idle_time(($max_idle_time)));
+						$backend->add_message($this->set_log_visitors(($log_visitors)));
+						$backend->add_message($this->set_log_remote_hosts(($log_remote_hosts)));
+						$backend->add_message($this->set_batch_delete(($batch_delete)));
+						$backend->add_message($this->set_batch_dupe(($batch_dupe)));
 					}
 					
 					if(superuser('web')) {
 						
-						$backend->add_message($this->set_default_table_cell_type(gpc_stripslashes($default_table_cell_type)));
-						$backend->add_message($this->set_default_language(gpc_stripslashes(implode(',',$default_language))));
-						$backend->add_message($this->set_default_charset(gpc_stripslashes($default_charset)));
-						$backend->add_message($this->set_moderate_caching(gpc_stripslashes($moderate_caching)));
+						$backend->add_message($this->set_default_table_cell_type(($default_table_cell_type)));
+						$backend->add_message($this->set_default_language((implode(',',$default_language))));
+						$backend->add_message($this->set_default_charset(($default_charset)));
+						$backend->add_message($this->set_moderate_caching(($moderate_caching)));
 
-						$backend->add_message($this->set_illegal_filetypes(gpc_stripslashes($illegal_filetypes)));
-						$backend->add_message($this->set_check_db_mbstrings(gpc_stripslashes($check_db_mbstrings)));
-						$backend->add_message($this->set_site_backend_dhtml_navigation(gpc_stripslashes($site_backend_dhtml_navigation)));
+						$backend->add_message($this->set_illegal_filetypes(($illegal_filetypes)));
+						$backend->add_message($this->set_check_db_mbstrings(($check_db_mbstrings)));
+						$backend->add_message($this->set_site_backend_dhtml_navigation(($site_backend_dhtml_navigation)));
 					}
 
 					if(superuser()) {
 						#if($this->virtual_paths) {
-						$backend->add_message($this->set_backend_suffix(gpc_stripslashes($backend_suffix)));
+						$backend->add_message($this->set_backend_suffix(($backend_suffix)));
 						#} 
-						$backend->add_message($this->set_virtual_paths(gpc_stripslashes($virtual_paths)));
-						$backend->add_message($this->set_strict_url_matching(gpc_stripslashes($strict_url_matching)));
+						$backend->add_message($this->set_virtual_paths(($virtual_paths)));
+						$backend->add_message($this->set_strict_url_matching(($strict_url_matching)));
 					}
 					break;
 
