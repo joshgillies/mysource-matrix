@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.53.2.5.2.5 2005/02/10 04:43:29 lwright Exp $
+* $Id: form.inc,v 1.53.2.5.2.6 2005/02/22 03:24:18 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.53.2.5.2.5 $
+* @version $Revision: 1.53.2.5.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -662,7 +662,7 @@ class Form extends Bridge
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$result = $db->getAll(implode(' ', $query));
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-		$this->tmp['section_links'] = &$result;
+		return $result;
 
 	}//end getSectionLinks()
 
