@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_deleted_user_perms.php,v 1.1 2004/06/16 23:52:23 lwright Exp $
+* $Id: system_integrity_deleted_user_perms.php,v 1.2 2004/06/17 00:14:21 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -88,7 +88,7 @@ foreach ($assets as $assetid => $type_code) {
 		// Check that each user is in the asset table, if not then delete the permission
 		$user_avail = array_keys($GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($perm_info['userid']), 'user', false));
 	
-		if(empty($user_avail)) {
+		if(empty($user_avail) && ($perm_info['userid'] != 0)) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->deletePermission($asset->id, $perm_info['userid'], $perm_info['permission'])) {
 				printUpdateStatus('FAILED');
 				continue;
