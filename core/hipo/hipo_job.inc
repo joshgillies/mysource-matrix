@@ -24,7 +24,7 @@ class HIPO_Job extends Resolve_Object
 	* The code name of the hipo job that this job is being run under
 	* @var string
 	*/
-	var $_source_code_name = '';
+	var $source_code_name = '';
 
 	/**
 	* The name of this HIPO job (should not be modified by code)
@@ -158,27 +158,6 @@ class HIPO_Job extends Resolve_Object
 
 
 	/**
-	* Return the URL that will continue the processing of the HIPO
-	*
-	* If the HIPO is finsihed, the URL returned will be the on_complete_url in the
-	* _options array of the HIPO so that the HIPO can redirect back to where it started
-	*
-	* @return string
-	* @access public
-	*/
-	function getProcessURL()
-	{
-		if ($this->complete()) {
-			// this HIPO is finsihed
-			return $this->_options['on_complete_url'];
-		} else {
-			return $_SERVER['PHP_SELF'].'?SQ_ACTION=hipo&hipo_source_code_name='.$this->_source_code_name;
-		}
-
-	}//end getProcessURL()
-
-
-	/**
 	* Returns the vars that the HIPO steps use
 	*
 	* @return Array()
@@ -224,6 +203,25 @@ class HIPO_Job extends Resolve_Object
 		$this->_options[$name] = $value;
 
 	}// end setOption()
+
+
+	/**
+	* Returns one of the global options for the HIPO
+	*
+	* @param string	$name		name of the option
+	*
+	* @return mixed
+	* @access public
+	*/
+	function getOption($name)
+	{
+		if (!isset($this->_options[$name])) {
+			trigger_error('HIPO Option "'.$name.'" not known', E_USER_WARNING);
+			return null;
+		}
+		return $this->_options[$name];
+
+	}// end getOption()
 
 
 	/**
@@ -340,12 +338,12 @@ class HIPO_Job extends Resolve_Object
 			return false;
 		}
 
-		$this->code_name         = $code_name;
-		$this->_source_code_name = $result['source_code_name'];
-		$this->_hipo_vars        = unserialize($result['hipo_vars']);
-		$this->_options          = unserialize($result['options']);
-		$this->_steps            = unserialize($result['steps']);
-		$this->_running_vars     = unserialize($result['running_vars']);
+		$this->code_name        = $code_name;
+		$this->source_code_name = $result['source_code_name'];
+		$this->_hipo_vars       = unserialize($result['hipo_vars']);
+		$this->_options         = unserialize($result['options']);
+		$this->_steps           = unserialize($result['steps']);
+		$this->_running_vars    = unserialize($result['running_vars']);
 
 		return true;
 
@@ -389,7 +387,7 @@ class HIPO_Job extends Resolve_Object
 
 				// The idea here is that if we are the top hipo job AND we were initialised in a web script
 				// then we need to leave the DB entry so that the refreshing we script can get the data one last time
-				if ($this->code_name != $this->_source_code_name || $this->_hipo_vars['initialise_mode'] != 'web') {
+				if ($this->code_name != $this->source_code_name || $this->_hipo_vars['initialise_mode'] != 'web') {
 					$delete = true;
 				}
 
@@ -433,6 +431,38 @@ class HIPO_Job extends Resolve_Object
 
 
 	/**
+	* Whether we want to auto_step in the paint mode for this job or not
+	*
+	* @return boolean
+	* @access public
+	*/
+	function auto_step()
+	{
+		$step = $this->_hipo_vars['current_step'];
+		if ($this->complete()) {
+			// if we are complete, but there are errors, we need to pause for them to be seen
+			if (!empty($this->_hipo_vars['errors'])) return false;
+			else return $this->_options['auto_complete'];
+
+		} elseif (!empty($this->_steps[$step]['function_call'])) {
+			return $this->_steps[$step]['auto_step'];
+
+		// if we are processing a sub job, it's it's decision whether to auto step or not
+		} elseif (!empty($this->_steps[$step]['hipo_job'])) {
+			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hipo = &$hh->getJob($step_data['hipo_job']['code_name'], $step_data['hipo_job']['job_type']);
+			if (is_null($hipo)) return false;
+
+			return $hipo->auto_step();
+
+		}// end if
+
+		return false;
+
+	}//end abort()
+
+
+	/**
 	* Paint information about the process of the HIPO
 	*
 	* This function calls the paint function for the step currently being run and also outputs
@@ -443,159 +473,66 @@ class HIPO_Job extends Resolve_Object
 	*/
 	function paint()
 	{
+		if ($this->_current_mode != 'web') {
+			trigger_error('You cannot paint the job when you are not in Web Mode', E_USER_WARNING);
+			return;
+		} 
+
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		$step = $this->_hipo_vars['current_step'];
+		$step_data = (isset($this->_steps[$step])) ? $this->_steps[$step] : Array();
 
-		$form_name = 'HIPO_'.$this->code_name;
-		$url = $this->getProcessURL();
-		$auto_step = false;
-
-		if (!isset($this->_steps[$step])) {
+		if ($step_data) {
+			$status_msg = $this->_steps[$step]['name'];
+		} else {
 			// this step doesnt exist - probably reached the end of the HIPO
 			if ($this->complete()) $status_msg = $this->_hipo_name.' HIPO Complete';
-			else                  $status_msg = 'Unknown Error Occured';
-			$auto_step = $this->_options['auto_complete'];
-		} else {
-			$fn = $this->_steps[$step]['function_call']['paint_function'];
-			$status_msg = $this->_steps[$step]['name'];
-			$auto_step  = $this->_steps[$step]['auto_step'];
+			else                   $status_msg = 'Unknown Error Occured';
 		}
 
-		if ($this->complete() && !empty($this->_hipo_vars['errors'])) $auto_step = false;
-
-		if ($auto_step) {
-			if ($this->complete()) $onload = 'onLoad="self.location=\''.$url.'\'"';
-			else $onload = 'onLoad="document.'.$form_name.'.submit()"';
+		if ($this->complete()) {
+			echo '<p><b>'.$status_msg.'</b></p>';
+			// print the error report if there are errors
+			if (!empty($this->_hipo_vars['errors'])) {
+				echo '<p>';
+				$this->_paintErrorReport();
+				echo '</p>';
+			}
 		} else {
-			$onload = '';
+			echo '<p>';
+			$this->paintProgressBar($this->_hipo_vars['percent_done'], '#412F49', 'Total HIPO Progress - '.$status_msg);
+			echo '</p>';
 		}
-
 		?>
-		<html>
-			<head>
-				<style>
-					.sq-hipo-normal, p, td {
-						font-size: 10px;
-						font-family: Verdana;
-						color: #FFFFFF;
+
+		<p>
+		<?php
+		if ($step_data) {
+
+			if (!empty($this->_steps[$step]['function_call'])) {
+				$fn = $this->_steps[$step]['function_call']['process_function'];
+				$prefix = $this->code_name.'step'.$step;
+				$this->$fn($this->_steps[$step], $prefix);
+
+			} elseif (!empty($step_data['hipo_job'])) {
+
+				if (!empty($step_data['hipo_job']['code_name']) && !empty($step_data['hipo_job']['job_type'])) {
+					$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+					$hipo = &$hh->getJob($step_data['hipo_job']['code_name'], $step_data['hipo_job']['job_type']);
+					if (!is_null($hipo)) {
+						$hipo->paint();
 					}
-					.sq-hipo-small {
-						font-size: 8px;
-						font-family: Verdana;
-						color: #FFFFFF;
-					}
-				</style>
-			</head>
-			<body bgcolor="#FFFFFF" <?php echo $onload;?> class="sq-hipo-normal">
-				<form name="<?php echo $form_name; ?>" method="post" action="<?php echo $url; ?>">
-				<input type="hidden" name="cancel_hipo" value="0">
-				<table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%">
-					<tr>
-						<td valign="middle" align="center">
-						<table border="0" cellspacing="2" cellpadding="0" width="90%" bgcolor="#000000">
-							<tr>
-								<td valign="top" bgcolor="#E0E0E0" nowrap>
-								<table>
-									<tr>
-										<td>
-<pre style="color:#412F49; font-size:11px;">
-<b>
-            _,..,_ (, )
-         .,'      `,./
-       .' :`.----.': `,
-      :   : ^    ^ :   ;
-     :   :  6    6  :   ;
-     :   :          :   ;
-     :   :    __    :   ;
-      :   `:'.--.`:'   ;
-       `.  : o  o :  .'
-        :   `----'   :
-        : .  :'`:  . :
-        `.:.'    `.:.'
-   Powered by HIPO Technology
-    ( packed with ::Fudge:: )
-</b>
-</pre>
-										</td>
-									</tr>
-								</table>
-								</td>
-								<td valign="top" width="100%" bgcolor="#735B7D">
-								<table border="0" cellspacing="2" cellpadding="2" width="100%" height="100%">
-									<tr>
-										<td>
-										<p>
-										<?php
-										if (count($this->_steps) > 1) {
-											$this->paintProgressBar($this->_hipo_vars['percent_done'], '#412F49', 'Total HIPO Progress - '.$status_msg);
-										} else {
-											echo '<b>'.$status_msg.'</b>';
-										}
-										?></p><?php
 
-										// print the error report if there are errors
-										if ($this->complete() && !empty($this->_hipo_vars['errors'])) {
-											?><p><?php
-											$this->_paintErrorReport();
-											?></p><?php
-										}
-										?>
+				}// end if
 
-										<p>
-										<?php
-										if (isset($this->_steps[$step])) {
-											$prefix = $this->code_name.'step'.$step;
-											$this->$fn($this->_steps[$step], $prefix);
-										}
-										?>
-										</p>
+			} else {
+				trigger_error('Step '.$this->_hipo_vars['current_step'].' does not have any processing ability specified', E_USER_WARNING);
 
-										<?php
-										$buttons_to_print = Array();
+			}// end if
 
-										if (!$this->complete()) {
-											$buttons_to_print['cancel'] = Array('value' => 'Cancel', 'action' => "if (confirm('Are you sure you want to cancel?')) { this.form.cancel_hipo.value = '1'; this.form.submit(); }");
-										}
-
-										// print the NEXT or FINSIH button if we are not auto stepping through the HIPO
-										if (!$auto_step) {
-											if ($this->complete()) $button_text = 'Finish';
-											else                  $button_text = 'Next >>';
-											// they dont want us to refresh automatically, so we need to provide a manual NEXT button
-											$buttons_to_print['next'] = Array('value' => $button_text, 'action' => 'this.form.submit()');
-										}
-
-										if (count($buttons_to_print)) {
-											?>
-											<p>
-											<table border="0" width="100%" cellspacing="2" cellpadding="1">
-												<tr>
-													<td width="100%">&nbsp;</td>
-												<?php
-												foreach ($buttons_to_print as $btn_code => $btn_data) {
-													?><td valign="top" align="center"><?php
-													normal_button($btn_code, $btn_data['value'], $btn_data['action']);
-													?></td><?php
-												}
-												?>
-												</tr>
-											</table>
-											</p>
-											<?php
-										}
-										?>
-										</td>
-									</tr>
-								</table>
-								</td>
-							</tr>
-						</table>
-						</td>
-					</tr>
-				</table>
-				</form>
-			</body>
-		</html>
+		}// end if
+		?>
+		</p>
 		<?php
 
 	}//end paint()
@@ -679,7 +616,7 @@ class HIPO_Job extends Resolve_Object
 			$fn = $step_data['function_call']['process_function'];
 			return $this->$fn($step_data, $prefix);
 
-		} elseif (!empty($step_data['hipo_job']['init_details_function'])) {
+		} elseif (!empty($step_data['hipo_job'])) {
 
 			if (empty($step_data['hipo_job']['code_name']) || empty($step_data['hipo_job']['job_type'])) {
 				$fn = $step_data['hipo_job']['init_details_function'];
@@ -745,7 +682,7 @@ class HIPO_Job extends Resolve_Object
 			}
 			return true;
 
-		} elseif (!empty($step_data['hipo_job']['init_details_function'])) {
+		} elseif (!empty($step_data['hipo_job'])) {
 
 			$fn = $step_data['hipo_job']['init_details_function'];
 			// First let's get the info needed to create this
@@ -762,8 +699,11 @@ class HIPO_Job extends Resolve_Object
 
 			$code_name = $init_hipo->initialise($this->code_name);
 			if (!$code_name) return false;
-
 			unset($init_hipo);
+
+			$step_data['hipo_job']['code_name'] = $code_name;
+			$step_data['hipo_job']['job_type']  = $job_type;
+			$this->_save();
 
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$hipo = &$hh->getJob($code_name, $job_type);

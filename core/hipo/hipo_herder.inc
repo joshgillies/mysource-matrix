@@ -78,6 +78,30 @@ class HIPO_Herder extends Resolve_Object
 
 
 	/**
+	* Return the URL that will continue the processing of the HIPO
+	*
+	* If the HIPO is finsihed, the URL returned will be the on_complete_url in the
+	* _options array of the HIPO so that the HIPO can redirect back to where it started
+	*
+	* @return string
+	* @access public
+	*/
+	function getProcessURL($code_name)
+	{
+		$hipo = &$this->getJob($code_name);
+		if (is_null($hipo)) return '';
+
+		if ($hipo->complete()) {
+			// this HIPO is finsihed
+			return $hipo->getOption('on_complete_url');
+		} else {
+			return $_SERVER['PHP_SELF'].'?SQ_ACTION=hipo&hipo_source_code_name='.$hipo->source_code_name;
+		}
+
+	}//end getProcessURL()
+
+	
+	/**
 	* Called by the web script to inform the hipo manager that it can start processing
 	*
 	* @return boolean
@@ -125,7 +149,123 @@ class HIPO_Herder extends Resolve_Object
 			return false;
 		}
 
-		$source_job->paint();
+		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+
+		$form_name = 'HIPO_'.$source_job->code_name;
+		$url = $this->getProcessURL($source_job->code_name);
+		$auto_step = $source_job->auto_step();
+		$auto_step = false;
+
+		if ($auto_step) {
+			if ($source_job->complete()) $onload = 'onLoad="javascript: self.location=\''.$url.'\'"';
+			else $onload = 'onLoad="javascript: document.'.$form_name.'.submit()"';
+		} else {
+			$onload = '';
+		}
+
+		?>
+		<html>
+			<head>
+				<style>
+					.sq-hipo-normal, p, td {
+						font-size: 10px;
+						font-family: Verdana;
+						color: #FFFFFF;
+					}
+					.sq-hipo-small {
+						font-size: 8px;
+						font-family: Verdana;
+						color: #FFFFFF;
+					}
+				</style>
+			</head>
+			<body bgcolor="#FFFFFF" <?php echo $onload;?> class="sq-hipo-normal">
+				<form name="<?php echo $form_name; ?>" method="post" action="<?php echo $url; ?>">
+				<table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%">
+					<tr>
+						<td valign="middle" align="center">
+						<table border="0" cellspacing="2" cellpadding="0" width="90%" bgcolor="#000000">
+							<tr>
+								<td valign="top" bgcolor="#E0E0E0" nowrap>
+								<table>
+									<tr>
+										<td>
+<pre style="color:#412F49; font-size:11px;">
+<b>
+            _,..,_ (, )
+         .,'      `,./
+       .' :`.----.': `,
+      :   : ^    ^ :   ;
+     :   :  6    6  :   ;
+     :   :          :   ;
+     :   :    __    :   ;
+      :   `:'.--.`:'   ;
+       `.  : o  o :  .'
+        :   `----'   :
+        : .  :'`:  . :
+        `.:.'    `.:.'
+   Powered by HIPO Technology
+    ( packed with ::Fudge:: )
+</b>
+</pre>
+										</td>
+									</tr>
+								</table>
+								</td>
+								<td valign="top" width="100%" bgcolor="#735B7D">
+								<table border="0" cellspacing="2" cellpadding="2" width="100%" height="100%">
+									<tr>
+										<td>
+										<?php
+										// Paint the source job, this will take care of any sub jobs if needed
+										$source_job->paint();
+
+										$buttons_to_print = Array();
+										if (!$source_job->complete()) {
+											hidden_field('cancel_hipo', '0');
+											$buttons_to_print['cancel'] = Array('value' => 'Cancel', 'action' => 'if (confirm("Are you sure you want to cancel?")) { this.form.cancel_hipo.value = "1"; this.form.submit(); }');
+										}
+
+										// print the NEXT or FINISH button if we are not auto stepping through the HIPO
+										if (!$auto_step) {
+											// they dont want us to refresh automatically, so we need to provide a manual NEXT button
+											$button_text = ($source_job->complete()) ? 'Finish' : 'Next >>';
+											$buttons_to_print['next'] = Array('value' => $button_text, 'action' => 'this.form.submit()');
+										}
+
+										if (count($buttons_to_print)) {
+											?>
+											<p>
+											<table border="0" width="100%" cellspacing="2" cellpadding="1">
+												<tr>
+													<td width="100%">&nbsp;</td>
+												<?php
+												foreach ($buttons_to_print as $btn_code => $btn_data) {
+													?><td valign="top" align="center"><?php
+													normal_button($btn_code, $btn_data['value'], $btn_data['action']);
+													?></td><?php
+												}
+												?>
+												</tr>
+											</table>
+											</p>
+											<?php
+										}// end if
+										?>
+										</td>
+									</tr>
+								</table>
+								</td>
+							</tr>
+						</table>
+						</td>
+					</tr>
+				</table>
+				</form>
+			</body>
+		</html>
+		<?php
+
 
 	}//end paintWeb()
 
@@ -211,7 +351,7 @@ class HIPO_Herder extends Resolve_Object
 		unset($this->_tmp['prepared_server']);
 
 		while(!$source_job->complete()) {
-			if (!$hipo->process()) return false;
+			if (!$source_job->process()) return false;
 		}// end while
 
 		return true;
