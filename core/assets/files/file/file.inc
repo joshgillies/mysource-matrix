@@ -117,6 +117,40 @@ class File extends Asset
 
 
 	/**
+	* Morph's this asset to either one of it's parent type or one of it's children types
+	* Only succeeds if $type_code asset's is allowed to link to all children that this asset has
+	*
+	* @param string	$new_type_code	the new type_code to attempt to cast this asset to
+	*
+	* @return bool
+	* @access public
+	*/
+	function morph($new_type_code)
+	{
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+
+		$file_types = array_merge($am->getTypeAncestors($this->type(), false), $am->getTypeDescendants($this->type(), false));
+		
+		if (in_array($new_type_code, $file_types)) {
+			// we are morphing into another file type, so check that the actual
+			// file currently uploaded is not going to conflict with the new type
+			$am->includeAsset($new_type_code);
+			$tmp = new $new_type_code();
+			$existing = $this->_getExistingFile();
+			if (!empty($existing)) {
+				if (!$tmp->validFile($existing['path'])) {
+					trigger_error('Cannot morph "'.$this->name.'" to type "'.$new_type_code.'", currently uploaded file "'.$existing['filename'].'" is not a valid '.$new_type_code.' file (see above error)', E_USER_WARNING);
+					return false;
+				}
+			}
+			unset($tmp);
+		}
+
+		return parent::morph($new_type_code);
+	}
+
+
+	/**
 	* Processes the changes required when a new status is set
 	*
 	* @param int	$new_status		the new status to set for this asset
@@ -475,6 +509,21 @@ class File extends Asset
 		return true;
 
 	}//end setAttrValue()
+
+
+	/**
+	* Checks a file on the file system to see if it can be used as a file
+	*
+	* @param string	$file_path	the path of the file we are checking
+	*
+	* @return boolean
+	* @access public
+	*/
+	function validFile($file_path)
+	{
+		return true;
+
+	}//end validFile()
 
 
 	/**

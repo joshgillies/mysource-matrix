@@ -29,10 +29,36 @@ class Image extends File
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Image($assetid=0) 
+	function Image($assetid=0)
 	{
 		$this->File($assetid);
+
 	}//end constructor
+
+
+	/**
+	* Checks a file on the file system to see if it can be used as an image
+	*
+	* @param string	$file_path	the path of the file we are checking
+	*
+	* @return boolean
+	* @access public
+	*/
+	function validFile($file_path)
+	{
+		if (!parent::validFile($file_path)) return false;
+
+		// check that the extension is allowed
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		$ext = get_file_type($file_path);
+		if (!in_array($ext, $this->allowed_extensions)) {
+			$edit_fns = $this->getEditFns();
+			trigger_error('Uploaded file is not an image. Image files must be of type '.$edit_fns->_getExtensionString($this->allowed_extensions, 'or'), E_USER_WARNING);
+			return false;
+		}
+		return true;
+
+	}//end validFile()
 
 
 }//end class

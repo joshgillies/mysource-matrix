@@ -23,6 +23,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 	function Image_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
+
 	}//end constructor
 
 
@@ -30,11 +31,12 @@ class Image_Edit_Fns extends File_Edit_Fns
 	* Get a formatted string of extensions (eg 1,2,3 and 4)
 	*
 	* @param array(string)	$extensions	array of extensions to format
+	* @param string			$glue		word used to join last extension to the string (and, or etc)
 	*
 	* @return string
 	* @access public
 	*/
-	function _getExtensionString($extensions)
+	function _getExtensionString($extensions, $glue='and')
 	{
 		if (empty($extensions) || !is_array($extensions)) return '';
 		
@@ -45,7 +47,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 			$ext = $extensions[$i];
 			if ($i != 0 && ($i+1) == $count) {
 				// the last in the list
-				$retval .= ' and ';
+				$retval .= " $glue ";
 			} else if ($i != 0) {
 				$retval .= ', ';
 			}
@@ -53,6 +55,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 		}
 		
 		return $retval;
+
 	}//end _getExtensionString()
 
 
@@ -101,12 +104,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 		}
 
 		// check that the extension is allowed
-		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		$ext = get_file_type($info['name']);
-		if (!in_array($ext, $asset->allowed_extensions)) {
-			trigger_error('Uploaded file was not an image, You may only upload files of type '.$this->_getExtensionString($asset->allowed_extensions), E_USER_WARNING);
-			return false;
-		}
+		if (!$this->validFile($info['name'])) return false;
 
 		return parent::processFileUpload($asset, $o, $prefix, $info);
 

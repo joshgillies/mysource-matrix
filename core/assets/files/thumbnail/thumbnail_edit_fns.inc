@@ -15,19 +15,6 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image_edit_fns.inc';
 */
 class Thumbnail_Edit_Fns extends Image_Edit_Fns
 {
-	
-	/**
-	* The maxium width a thumbnail can have (in pixels)
-	* @var int
-	*/
-	var $max_width  = 100;
-
-	/**
-	* The maxium height a thumbnail can have (in pixels)
-	* @var int
-	*/
-	var $max_height = 100;
-
 
 	/**
 	* Constructor
@@ -56,12 +43,13 @@ class Thumbnail_Edit_Fns extends Image_Edit_Fns
 
 			?>
 			<br/><span style="font-size: 7pt"><b>Note:</b> You may only upload files of type <?php echo $this->_getExtensionString($asset->allowed_extensions)?>
-			<br/><b>Note:</b> Image size is restricted to a maximum of <?php echo $this->max_width.' x '.$this->max_height?> pixels</span>
+			<br/><b>Note:</b> Image size is restricted to a maximum of <?php echo $asset->max_width.' x '.$asset->max_height?> pixels</span>
 			<?php
 		}
 
 		$this->_printExistingFileInfo($asset);
 		return true;
+
 	}//end paintFileUpload()
 
 
@@ -87,15 +75,12 @@ class Thumbnail_Edit_Fns extends Image_Edit_Fns
 		}
 
 		// check that the image dimensions are not greater than our limits
-		$size = @getimagesize($info['tmp_name']);
-		if (!empty($size) && ($size[0] > $this->max_width || $size[1] > $this->max_height)) {
-			trigger_error('Uploaded file was too large. You may only upload a file no more than '.$this->max_width.' x '.$this->max_height.' pixels', E_USER_WARNING);
-			return false;
-		}
+		if (!$this->validFile($info['tmp_name'])) return false;
 
 		return parent::processFileUpload($asset, $o, $prefix, $info);
 
 	}//end processFileUpload()
 
 }//end class
+
 ?>
