@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_asset_type.inc,v 1.2 2005/03/01 00:25:31 arailean Exp $
+* $Id: trigger_condition_asset_type.inc,v 1.3 2005/03/02 01:16:23 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -106,7 +106,7 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 
 		// asset type selector
 		// get a list of all asset types in the system, sort in alphabetical order
-		$asset_types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes(true);
+		$asset_types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes();
 		foreach ($asset_types as $type => $info) {
 			$asset_types[$type] = $info['name'];
 		}
