@@ -142,8 +142,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	{
 		// if we dont have read access, piss off
 		if ($owner->id && !$owner->readAccess()) {
-			include SQ_INCLUDE_PATH.'/login.inc';
-			print_login('Login', 'You do not have permission to access <i>'.$owner->name.'</i>');
+			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$owner->name.'</i>');
 			return;
 		}
 
@@ -406,8 +405,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 			// if we dont have write access, piss off
 			if ($owner->id && !$owner->writeAccess(Array(), false)) {
-				include SQ_INCLUDE_PATH.'/login.inc';
-				print_login('Login', 'You do not have permission to edit <i>'.$owner->name.'</i>');
+				$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit <i>'.$owner->name.'</i>');
 				return false;
 			}
 
@@ -762,8 +760,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	{
 		// if we dont have admin access, piss off
 		if ($owner->id && !$owner->adminAccess(Array(), false)) {
-			include SQ_INCLUDE_PATH.'/login.inc';
-			print_login('Login', 'You do not have permission to edit the permissions for <i>'.$owner->name.'</i>');
+			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit the permissions for <i>'.$owner->name.'</i>');
 			return false;
 		}
 
@@ -1191,8 +1188,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	{
 		// if we dont have admin access, piss off
 		if ($owner->id && !$owner->adminAccess(Array(), false)) {
-			include SQ_INCLUDE_PATH.'/login.inc';
-			print_login('Login', 'You do not have permission to edit the workflow of <i>'.$owner->name.'</i>');
+			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit the workflow of <i>'.$owner->name.'</i>');
 			return false;
 		}
 

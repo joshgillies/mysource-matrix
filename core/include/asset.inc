@@ -1145,7 +1145,7 @@ class Asset extends Resolve_Object
 
 		// if we have no source, we are the asset aquiring the locks
 		if (!$source) $source = $this->id;
-		if (empty($expires)) $expires = ts_iso8601((time() + (5 * 60)));
+		if (empty($expires)) $expires = ts_iso8601((time() + (45 * 60)));
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -3040,7 +3040,7 @@ class Asset extends Resolve_Object
 	}//end checkAccess()
 
 
-	function _checkPermissionAccess($perm, $assetid=Array())
+	function _checkPermissionAccess($perm, $assetids=Array())
 	{
 		if (empty($assetids) && $GLOBALS['SQ_SYSTEM']->user->id) {
 			// if we are the root user, we can do anything
@@ -3120,6 +3120,11 @@ class Asset extends Resolve_Object
 	*/
 	function printFrontend()
 	{
+		if (!$this->readAccess()) {
+			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$this->name.'</i>');
+			return;
+		}
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$url = strip_url(current_url(false));
 		$sql = 'SELECT l.designid, a.type_code

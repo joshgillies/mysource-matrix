@@ -63,7 +63,7 @@ class Resolve
 	}// end constructor
 
 
-	function init() 
+	function init()
 	{
 		session_name('SQ_SYSTEM_SESSION');
 		session_save_path(SQ_SYSTEM_ROOT.'/cache');
@@ -113,8 +113,7 @@ class Resolve
 				$backend = new Backend();
 				$backend->paint();
 			} else {
-				include SQ_INCLUDE_PATH.'/login.inc';
-				print_login('Login', 'You need to login before you can access the backend');
+				$this->paintLogin('Login', 'You need to login before you can access the backend');
 			}
 
 		// we are on the frontend
@@ -139,6 +138,63 @@ class Resolve
 		$this->db->disconnect();
 
 	}//end start()
+
+
+	/**
+	* Paints the login form, based upon which url we are currently at
+	*
+	* @param string	$heading	a heading to print on the form
+	* @param string	$msg		a msg to print with the form
+	*
+	* @access public
+	*/
+	function paintLogin($heading, $msg)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		header("HTTP/1.0 403 Forbidden");
+		$GLOBALS['SQ_LOGIN_FORM'] = Array('paint' => 'login', 'heading' => $heading, 'msg' => $msg);
+
+		$current_asset = &$this->am->getAssetFromURL(null, null, true, true);
+		// if we can't find a current asset, use the root folder
+		if (is_null($current_asset)) {
+			$current_asset = &$this->am->getSystemAsset('root_folder');
+			if (is_null($current_asset)) {
+				trigger_error('Unable to get Root Folder Asset', E_USER_ERROR);
+			}
+		}
+
+		$sql = 'SELECT l.login_designid, a.type_code
+				FROM sq_asset_lookup l, sq_asset a
+				WHERE l.login_designid = a.assetid
+				  AND l.url = '.$db->quote(strip_url(current_url(false, true)));
+		$result = $db->getRow($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+		}
+
+		// we have found the design to use
+		if ($result) {
+			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['login_designid'], $result['type_code']);
+			if (!is_null($design)) {
+				$design->paint($current_asset);
+				return;
+			}
+		} 
+
+		// OK, use the system login form
+		$design = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('login_design');
+		if (!is_null($design)) {
+			$design->paint($current_asset);
+			return;
+		}
+
+		// shit we can't find a design, something has well and truly F@#ked up,
+		// resort to our backup
+		if ($this->_msgs) echo implode('<br />', $this->_msgs);
+		require_once SQ_INCLUDE_PATH.'/login.inc';
+
+	}// end printLogin()
 
 
 	/**
@@ -189,7 +245,7 @@ class Resolve
 	/**
 	* Is the passed/current user the root user?
 	*
-	* @param object	&$user	the user object you want to test for root access
+	* @param object	$user	the user object you want to test for root access
 	*
 	* @return boolean
 	* @access public
@@ -206,7 +262,7 @@ class Resolve
 	/**
 	* Is the passed/current user a system administrator?
 	*
-	* @param object	&$user	the user object you want to test for sysadmin access
+	* @param object	$user	the user object you want to test for sysadmin access
 	*
 	* @return boolean
 	* @access public
@@ -225,7 +281,7 @@ class Resolve
 		return false;
 	}//end userSystemAdmin()
 
-	
+
 	/**
 	* Allows an object to listen to an event in the system and be notifies of it
 	* Internally, classes boradcast events which the objects listening get
@@ -382,7 +438,7 @@ class Resolve
 	*/
 	function messages()
 	{
-		return $this->_msgs;
+		return (empty($this->_msgs)) ? Array() : $this->_msgs;
 	}//end messages()
 
 

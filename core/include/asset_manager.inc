@@ -617,6 +617,10 @@ class Asset_Manager extends Resolve_Object
 				return $this->getAsset(3, 'system_user_group');
 			case 'root_user' :
 				return $this->getAsset(4, 'root_user');
+			case 'designs_folder' :
+				return $this->getAsset(7, 'designs_folder');
+			case 'login_design' :
+				return $this->getAsset(8, 'login_design');
 			default :
 				trigger_error('System Asset Name "'.$name.'" not known', E_USER_ERROR);
 		}
@@ -682,7 +686,7 @@ class Asset_Manager extends Resolve_Object
 	function &getAssetFromURL($protocol=null, $url=null, $exact_match=true, $mute_errors=false)
 	{
 
-		if (is_null($url)) $url = current_url(false);
+		if (is_null($url)) $url = current_url(false, true);
 		// remove any trailing slashes and double slashes
 		$url = strip_url($url);
 
