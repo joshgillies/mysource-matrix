@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.58.2.1 2004/09/27 05:39:41 gsherwood Exp $
+* $Id: search_page.inc,v 1.58.2.2 2004/10/15 06:08:35 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.58.2.1 $ - 1.0
+* @version $Revision: 1.58.2.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -136,11 +136,11 @@ class Search_Page extends Page
 
 		foreach ($this->bodycopies as $value => $name) {
 			$copy_link = Array(
-				'asset' => &$this,
-				'link_type' => SQ_LINK_TYPE_2,
+				'asset'        => &$this,
+				'link_type'    => SQ_LINK_TYPE_2,
 				'dependant' => 1,
 				'exclusive' => 1,
-				'value'		=> $value
+				'value'        => $value
 			);
 
 			$bodycopy = new Bodycopy();
@@ -204,7 +204,7 @@ class Search_Page extends Page
 		// the only reason why we would object to this link being
 		// deleted is if it is the bodycopy linked to us
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
-		
+
 		if ($bodycopy_link['minor_type_code'] == 'bodycopy' && !$GLOBALS['SQ_PURGING_TRASH']) return 'You can\'t delete the link between the search page and its bodycopies';
 
 		return parent::isDeletableLink($linkid);
@@ -251,8 +251,8 @@ class Search_Page extends Page
 		}
 
 	}//end describeLink()
-	
-	
+
+
 	/**
 	* Returns a list of lock types available for this asset type
 	*
@@ -266,8 +266,8 @@ class Search_Page extends Page
 		return $lock_types;
 
 	}//end lockTypes()
-	
-	
+
+
 	/**
 	* Called by the design to print the body of this asset
 	*
@@ -281,7 +281,7 @@ class Search_Page extends Page
 		} else {
 			if ($mode != 'sis') $_SESSION['SQ_LAST_SEARCH'][$this->id] = Array();
 		}
-		
+
 		// get the corresponding bodycopy attached to us
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 
@@ -375,8 +375,8 @@ class Search_Page extends Page
 		return $html;
 
 	}//end getBodycopyContents()
-	
-	
+
+
 	/**
 	* Get a datetime field for painting and processing
 	*
@@ -427,18 +427,18 @@ class Search_Page extends Page
 			$from = iso8601_ts($current_value['from']);
 			$from_string = date('j M Y', $from);
 		}
-		
+
 		$to_string = '';
 		if ($current_value['to'] != '---------- --:--:--') {
 			$to = iso8601_ts($current_value['to']);
 			$to_string = date('j M Y', $to);
 		}
-		
+
 		if (empty($from_string) && empty($to_string)) return;
 
 		if (empty($from_string)) echo 'prior to ';
 		else echo $from_string;
-		
+
 		if (empty($to_string)) {
 			echo ' onwards';
 		} else {
@@ -463,7 +463,7 @@ class Search_Page extends Page
 	{
 		if (!isset($current_value['from'])) $current_value['from'] = '---------- --:--:--';
 		if (!isset($current_value['to']))   $current_value['to']   = '---------- --:--:--';
-		
+
 		if ($this->attr('use_picker')) {
 			require_once SQ_LIB_PATH.'/js_calendar/js_calendar.inc';
 			if (!JS_Calendar::isInit()) {
@@ -542,8 +542,8 @@ class Search_Page extends Page
 		<?php
 
 	}//end _printDateRange()
-	
-	
+
+
 	/**
 	* Print a date range selection
 	*
@@ -558,10 +558,10 @@ class Search_Page extends Page
 
 		$field = $this->_getDateField($field_name.'_from');
 		if ($field->processField()) $result['from'] = $field->value;
-		
+
 		$field = $this->_getDateField($field_name.'_to');
 		if ($field->processField())	$result['to'] = $field->value;
-		
+
 		return $result;
 
 	}//end _processDateRange()
@@ -604,13 +604,13 @@ class Search_Page extends Page
 								$selection->paint('queries_'.$query_var);
 							break;
 						}//end switch
-	
+
 					}//end if metadata asset exists
 				break;
 
 				case 'asset_attrib' :
 					$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['params']['attrid']);
-					
+
 					if ($attribute->type() == 'datetime') {
 
 						$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
@@ -622,16 +622,16 @@ class Search_Page extends Page
 						if ($attribute->type() == 'boolean' || $attribute->type() == 'selection') {
 							$attribute->_params['allow_empty'] = true;
 						}
-	
+
 						// set the current value of the search field
 						$attribute->setValue($query);
-	
+
 						// give the attribute our custom search styles if we have them
 						$search_styles = $this->attr('search_styles');
 						if (isset($search_styles[$attribute->id])) {
 							$attribute->_edit_params = $search_styles[$attribute->id];
 						}
-	
+
 						$attribute->paint('queries_'.$query_var, false);
 					}
 				break;
@@ -649,7 +649,7 @@ class Search_Page extends Page
 			}//end switch field type
 
 			$replacement = ob_get_contents();
-			
+
 
 		ob_end_clean();
 
@@ -693,7 +693,7 @@ class Search_Page extends Page
 							case 'metadata_field_select' :
 								$selection = $asset->getSelectionAttribute();
 								$value = Array();
-								
+
 								$read_only = false;
 
 								if (empty($selection->_params['multiple'])) {
@@ -711,18 +711,18 @@ class Search_Page extends Page
 										echo '</div>';
 									}
 								}
-								
+
 								$selection->paint('queries_'.$query_var, $read_only);
 							break;
 						}//end switch
-	
+
 					}//end if metadata asset exists
 				break;
 
 				case 'asset_attrib' :
 					$read_only = false;
 					$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['params']['attrid']);
-					
+
 					if ($attribute->type() == 'datetime') {
 
 						$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
@@ -734,13 +734,13 @@ class Search_Page extends Page
 						if ($attribute->type() == 'boolean' || $attribute->type() == 'selection') {
 							$attribute->_params['allow_empty'] = true;
 						}
-	
+
 						// give the attribute our custom search styles if we have them
 						$search_styles = $this->attr('search_styles');
 						if (isset($search_styles[$attribute->id])) {
 							$attribute->_edit_params = $search_styles[$attribute->id];
 						}
-						
+
 						switch ($attribute->type()) {
 							case 'selection' :
 								if (empty($attribute->_params['multiple'])) {
@@ -759,16 +759,16 @@ class Search_Page extends Page
 									}
 								}
 							break;
-		
+
 							case 'boolean' :
 								if ($query != '') $read_only = true;
 							break;
-		
+
 							case 'text' :
 								$attribute->value = '';
 							break;
 						}//end switch
-	
+
 						$attribute->paint('queries_'.$query_var, $read_only);
 					}
 				break;
@@ -832,14 +832,14 @@ class Search_Page extends Page
 								$selection->paint('queries_'.$query_var, true);
 							break;
 						}//end switch
-	
+
 					}//end if metadata asset exists
 				break;
 
 				case 'asset_attrib' :
 					$read_only = false;
 					$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['params']['attrid']);
-					
+
 					if ($attribute->type() == 'datetime') {
 
 						$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
@@ -851,15 +851,15 @@ class Search_Page extends Page
 						if ($attribute->type() == 'boolean' || $attribute->type() == 'selection') {
 							$attribute->_params['allow_empty'] = true;
 						}
-	
+
 						// give the attribute our custom search styles if we have them
 						$search_styles = $this->attr('search_styles');
 						if (isset($search_styles[$attribute->id])) {
 							$attribute->_edit_params = $search_styles[$attribute->id];
 						}
-						
+
 						$attribute->value = $query;
-	
+
 						$attribute->paint('queries_'.$query_var, true);
 					}
 				break;
@@ -1047,7 +1047,7 @@ class Search_Page extends Page
 					$replacements[$keyword] = $this->getFieldReplacement($matches[1]);
 				}
 			} else {
-				
+
 				if ($form_name == 'sis_form') {
 					switch ($keyword) {
 						case 'category_list':
@@ -1085,7 +1085,7 @@ class Search_Page extends Page
 	{
 		$bodycopy = &$this->getFormatBodycopy($form_name);
 		if (is_null($bodycopy)) return '';
-		
+
 		$bodycopy->setKeywordReplacements($replacements);
 
 		ob_start();
@@ -1108,6 +1108,7 @@ class Search_Page extends Page
 	*/
 	function getResultsBodyReplacements(&$results)
 	{
+		$mode = array_get_index($_REQUEST, 'mode', 'results');
 		$bodycopy =& $this->getBodycopy('results');
 		$keywords = $bodycopy->getKeywords();
 		$replaces = Array();
@@ -1137,11 +1138,11 @@ class Search_Page extends Page
 					$replacement = '';
 					$sub_resultids = array_slice(array_keys($results), $current_result_page * $results_per_page, $results_per_page);
 					$result_num = $current_result_page * $results_per_page;
-					
+
 					$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 					foreach ($sub_resultids as $assetid) {
 						$result_num++;
-						
+
 						$element_contents = $cm->loadFromCache($this, $assetid);
 						if (empty($element_contents)) {
 							$element_replacements = $this->getResultElementBodyReplacements($assetid);
@@ -1181,7 +1182,7 @@ class Search_Page extends Page
 						if ($i == $current_result_page) {
 							$replacement .= "<b>".($i + 1)."</b>";
 						} else {
-							$replacement .= '<a href="'.$this->getURL().'?mode=results&current_result_page='.$i.'&results_per_page='.$results_per_page.$queries.'">'.($i + 1)."</a>";
+							$replacement .= '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.$i.'&results_per_page='.$results_per_page.$queries.'">'.($i + 1)."</a>";
 						}
 					}
 				break;
@@ -1191,7 +1192,7 @@ class Search_Page extends Page
 						$replacement = 'Previous';
 						break;
 					}
-					$replacement = '<a href="'.$this->getURL().'?mode=results&current_result_page='.($current_result_page - 1).'&results_per_page='.$results_per_page.$queries.'">Previous</a>';
+					$replacement = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page - 1).'&results_per_page='.$results_per_page.$queries.'">Previous</a>';
 				break;
 
 				case 'next_result_page_link':
@@ -1199,47 +1200,48 @@ class Search_Page extends Page
 						$replacement = 'Next';
 						break;
 					}
-					$replacement = '<a href="'.$this->getURL().'?mode=results&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries.'">Next</a>';
+					$replacement = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries.'">Next</a>';
 				break;
 
 				case 'initial_layout':
 					$replacement = $this->getBodycopyContents('initial', $this->getInitialBodyReplacements());
 				break;
-				
+
 				default:
 					$fields = $this->attr('fields');
 
 					if (ereg('(.+)_query_logic$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
-						
+
 						$current_logic = array_get_index($_REQUEST, $keyword, 'AND');
 						$options = Array('AND' => 'all of the words', 'OR' => 'any of the words');
 						ob_start();
 							combo_box($keyword, $options, false, $current_logic);
 							$replacement = ob_get_contents();
 						ob_end_clean();
-						
+
 					} else if (ereg('(.+)_query_terms$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
 						$replacement = $this->getSearchedFieldReplacement($matches[1]);
-						
+
 					} else if (ereg('(.+)_query$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
-						
+
 						$replacement = $this->getFieldReplacement($matches[1]);
-						
+
 					} else if (substr($keyword, -7) == '_linked') {
-						
+
 						if ($keyword == 'category_list_linked') {
 							// printing the list of seach categories
 							$categories = $this->attr('categories');
 							if (!empty($categories)) {
 								$current_category = array_get_index($_REQUEST, 'search_category', '');
 								if (!empty($current_category) && !isset($categories[$current_category])) $current_category = '';
-								
+
 								$base_url = $_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'];
-								$base_url = preg_replace('|([&?])mode=([^&]+)|', '\\1mode=results', $base_url);
+								$base_url = preg_replace('|([&?])mode=([^&]+)|', '\\1mode='.$mode, $base_url);
 								$base_url = preg_replace('|&search_category=([^&]+)?|', '', $base_url);
 								$base_url = preg_replace('|&current_result_page=([^&]+)?|', '&current_result_page=0', $base_url);
 								$base_url .= '&search_category=';
+
 								ob_start();
 									?>
 									<div id="search_category_list">
@@ -1274,15 +1276,15 @@ class Search_Page extends Page
 							$fields = $this->attr('fields');
 
 							if ($fields[$query_var]['type'] == 'metadata') {
-			
+
 								$assetid = $fields[$query_var]['params']['metadata_field']['assetid'];
 								$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 								$params = $asset->vars;
 								// metadata dropdown selection
 								if (isset($params['select_options'])) $options = $params['select_options']['value'];
-			
+
 							} else if ($fields[$query_var]['type'] == 'asset_attrib') {
-			
+
 								$search_styles = $this->attr('search_styles');
 								$not_selected_text = '';
 
@@ -1302,13 +1304,13 @@ class Search_Page extends Page
 									$not_selected_text = array_get_index($search_styles[$attribute->id], 'empty_text');
 								}
 							}//end if an attribute
-							
+
 							if (!empty($options)) {
 								$query_key = 'queries_'.$query_var.'_query';
 								$current_value = (string) array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $query_var, '');
-								
+
 								$base_url = $_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'];
-								$base_url = preg_replace('|([&?])mode=([^&]+)|', '\\1mode=results', $base_url);
+								$base_url = preg_replace('|([&?])mode=([^&]+)|', '\\1mode='.$mode, $base_url);
 								$base_url = preg_replace('|&'.$query_key.'=([^&]+)?|', '', $base_url);
 								$base_url = preg_replace('|&current_result_page=([^&]+)?|', '&current_result_page=0', $base_url);
 								$base_url .= '&'.$query_key.'=';
@@ -1371,7 +1373,7 @@ class Search_Page extends Page
 
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$replaces = $mm->generateKeywordReplacements($asset, $keywords, false);
-		
+
 		$metadata_keywords = Array();
 		foreach ($keywords as $key) {
 			if (substr($key, 0, 15) == 'asset_metadata_') $metadata_keywords[$key] = substr($key, 15);
@@ -1453,9 +1455,9 @@ class Search_Page extends Page
 		$fields = $this->attr('fields');
 
 		$mode = array_get_index($_REQUEST, 'mode', 'results');
-	
+
 		$suffix = ($mode == 'results') ? '_query' : '_query_sis';
-		
+
 		// search category
 		$category = (isset($_REQUEST['search_category'])) ? $_REQUEST['search_category'] : '';
 		$categories = $this->attr('categories');
@@ -1473,11 +1475,11 @@ class Search_Page extends Page
 				case 'exclude' :
 					$queries[$field_name] = array_get_index($_REQUEST, $query_var, '');
 				break;
-				
+
 				case 'asset_date' :
 					$queries[$field_name] = $this->_processDateRange($query_var);
 				break;
-				
+
 				case 'asset_attrib' :
 					$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($field['params']['attrid']);
 					if (!is_null($attribute)) {
@@ -1492,7 +1494,7 @@ class Search_Page extends Page
 						}
 					}
 				break;
-				
+
 				case 'metadata' :
 					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($field['params']['assetid']);
 					if (!is_null($asset)) {
@@ -1546,15 +1548,13 @@ class Search_Page extends Page
 		// search within search results
 		$_SESSION['SQ_LAST_SEARCH'][$this->id] = $queries;
 
-
 		// get the basic search settings based on the current category (if any)
 		$search_info = $this->populateBaseSearchInfo($category);
-
 
 		foreach ($queries as $field_name => $value) {
 
 			if (empty($value)) continue;
-			
+
 			if ($field['type'] == 'asset_attrib') {
 				$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($field['params']['attrid']);
 				if (!is_null($attribute) && $attribute->type() == 'boolean') {
@@ -1588,7 +1588,7 @@ class Search_Page extends Page
 			$field_type = $fields[$field_name]['type'];
 			$search_info[$field_type][$field_name]['words'] = $words;
 			$search_info[$field_type][$field_name]['params'] = array_get_index($fields[$field_name], 'params', Array());
-			
+
 			// add in the search logic for the field
 			$search_logic = strtoupper(array_get_index($_REQUEST, $field_name.'_query_logic', 'AND'));
 			if ($search_logic != 'AND' && $search_logic != 'OR') $search_logic = 'AND';
@@ -1623,14 +1623,14 @@ class Search_Page extends Page
 		// sort settings can be user defined as well as being set in the backend
 		$search_info['sort_by']      = (isset($_REQUEST['sort_by'])) ? $_REQUEST['sort_by'] : $this->attr('sort_by');
 		$search_info['reverse_sort'] = (isset($_REQUEST['reverse_sort'])) ? $_REQUEST['reverse_sort'] : $this->attr('reverse_sort');
-		
+
 		$search_info['search_types'] = $this->attr('search_types');
 		if (!empty($category) && isset($categories[$category]['search_statuses'])) {
 			$search_info['search_statuses'] = $categories[$category]['search_statuses'];
 		} else {
 			$search_info['search_statuses'] = $this->attr('search_status');
 		}
-		
+
 		return $search_info;
 
 	}//end populateBaseSearchInfo()
@@ -1710,7 +1710,7 @@ class Search_Page extends Page
 
 		$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
 		return $bodycopy;
-	
+
 	}//end getFormatBodycopy()
 
 
