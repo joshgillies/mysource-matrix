@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.20 2004/10/15 05:18:26 mmcintyre Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.21 2004/11/12 04:36:25 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,6 +49,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 								'fixed'			=> 'All assets created will be linked under the following locations',
 								'selectable'	=> 'When creating a new asset, the user will asked to choose a location from each of the sets below',
 								'conditional'   => 'New assets will be linked under additional locations according to the rules below',
+								'additional'	=> 'If the variable ASSET_BUILDER_ADDITIONAL_LOCATIONS is set in the request, with value in the format </i>assetid;assetid;assetid <i>or </i>assetid-linktype;assetid-linktype<i> etc, and the assets referenced satisfy the following conditions, the created asset will also be linked under those locations',
 							);
 
 	/**
@@ -426,61 +427,22 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			</tr>
 			<tr>
 				<td class="sq-backend-table-cell">
-					<b>Current Location Options:</b>
-				</td>
-				<td class="sq-backend-table-cell">
-		<?php
-		if (!empty($data['locations'])) {
-			?>
-					<table class="sq-backend-table">
-						<tr>
-							<td class="sq-backend-table-header">ID</td>
-							<td class="sq-backend-table-header">Name</td>
-			<?php	if ($write_access) { 	?>
-							<td class="sq-backend-table-header">Delete</td>				
-			<?php	}	?>
-						</tr>
-		<?php
-			foreach ($data['locations'] as $id => $name) {
-			?>
-						<tr>
-							<td class="sq-backend-table-cell"><?php echo $id; ?></td>
-							<td class="sq-backend-table-cell"><?php echo $name ?></td>
-			<?php	if ($write_access) { 	?>
-							<td class="sq-backend-table-cell"><input type="checkbox" name="<?php echo $prefix.'_'.$code_name.'_delete_location_options[]'; ?>" id="<?php echo $prefix.'_'.$code_name.'_delete_location_options_'.$id; ?>" value="<?php echo $id; ?>"  class="sq-form-field" /></td>
-			<?php	}	?>
-						</tr>
-			<?php
-			}
-		?>
-					</table>
-		<?php
-
-		} else {
-			?>(no locations defined)<?php
-		}
-
-		?>
-				</td>
-			</tr>
-		<?php	if ($write_access) { 	?>
-			<tr>
-				<td class="sq-backend-table-cell">
-					<b>Add Location Option:</b>
+					<b>Location Options:</b>
 				</td>
 				<td class="sq-backend-table-cell">
 					<?php 
-						asset_finder($prefix.'_'.$code_name.'_new_location_options[0]', 0, $this->location_types); 
-						if (count($data['locations']) < 2) {
-							echo '<br />';
-							asset_finder($prefix.'_'.$code_name.'_new_location_options[1]', 0, $this->location_types); 
-							echo '<br />';
-							asset_finder($prefix.'_'.$code_name.'_new_location_options[2]', 0, $this->location_types); 
-						}
+						if ($write_access) {	
+							multiple_asset_finder($prefix.'_'.$code_name.'_location_options', array_keys($data['locations']), $this->location_types); 
+						} else {
+							echo '<ul style="margin: 1px 15px;">';
+							foreach ($data['locations'] as $assetid => $name) {
+								echo '<li>'.$name.' (ID #'.$assetid.')</li>';
+							}
+							echo '</ul>';
+						}	
 					?>
 				</td>
 			</tr>
-		<?php	}	?>
 			<tr>
 				<td class="sq-backend-table-cell">
 					<b>Link Type:</b>
@@ -602,7 +564,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processSelectableLocationSets(&$asset, &$o, $prefix)
 	{
-		
+	
 		$sets = $asset->attr('create_location_optional');
 
 		// see if there is a set to delete altogether
@@ -620,17 +582,10 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		// update the details for existing sets
 		foreach ($sets as $name => $details) {
 			$code_name = str_replace(' ', '_', strtolower($name));
-			// location options to delete?
-			if (isset($_POST[$prefix.'_'.$code_name.'_delete_location_options'])) {
-				if (is_array($delete_options = $_POST[$prefix.'_'.$code_name.'_delete_location_options'])) {
-					foreach ($delete_options as $id) {
-						unset($sets[$name]['locations'][$id]);
-					}
-				}
-			}
 
-			// location options to add?
-			if (is_array($new_options = array_values($_POST[$prefix.'_'.$code_name.'_new_location_options']))) {
+			// location options
+			if (is_array($new_options = array_values($_POST[$prefix.'_'.$code_name.'_location_options']))) {
+				$sets[$name]['locations'] = Array();
 				foreach ($new_options as $option) {
 					if (($new_loc_id = $option['assetid']) && (!in_array($new_loc_id, array_keys($sets[$name]['locations'])))) {
 						$sets[$name]['locations'][$new_loc_id] = ''; // we'll get the name in a sec
@@ -638,7 +593,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				}
 			}
 
-			// make sure the names are up to date
+			// get the names
 			$asset_infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($sets[$name]['locations']));
 			foreach ($asset_infos as $assetid => $asset_info) {
 				$sets[$name]['locations'][$assetid] = $asset_info['name'];
@@ -892,6 +847,207 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 	}//end processConditionalCreateLocations()
 
+	/**
+	* Paints info about additional create locations
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAdditionalLocationInfo(&$asset, &$o, $prefix)
+	{
+		echo '<p><i><b>'.$this->location_messages['additional'].'</b></i></p>';
+		return false;
+
+	}//end paintAdditionalLocationInfo()
+
+
+	/**
+	* Nothing
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processAdditionalLocationInfo(&$asset, &$o, $prefix)
+	{
+		return true;
+
+	}//end paintAdditionalLocationInfo()
+
+
+
+	/**
+	* Paints the interface for saying where additional create locations can come from
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAdditionalLocationParents(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes')) {
+			multiple_asset_finder($prefix.'_additional_location_parents', $asset->attr('additional_location_parents'), $this->location_types);
+		} else {
+			$infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($asset->attr('additional_location_parents'));
+			echo '<ul style="margin: 1px 15px;">';
+			foreach ($infos as $assetid => $info) {
+				echo '<li>'.$info['name'].' (ID #'.$assetid.')</li>';
+			}
+			echo '</ul>';
+		}
+		return true;
+
+	}//end paintAdditionalLocationParents()
+
+
+	/**
+	* Processes the interface for saying where additional create locations can come from
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processAdditionalLocationParents(&$asset, &$o, $prefix)
+	{
+		$new_parents = Array();
+		if (isset($_POST[$prefix.'_additional_location_parents']) && is_array($_POST[$prefix.'_additional_location_parents'])) {
+			foreach ($_POST[$prefix.'_additional_location_parents'] as $parent) {
+				if ($parent['assetid']) $new_parents[] = $parent['assetid'];
+			}
+		}
+		$asset->setAttrValue('additional_location_parents', $new_parents);
+
+	}//end processAdditionalLocationParents()
+
+
+	/**
+	* Paints the interface for saying what types of asset additional locations can be
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAdditionalLocationTypes(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) {
+			echo '<ul style="margin: 1px 15px;">';
+			foreach ($asset->attr('additional_location_types') as $type) {
+				echo '<li>'.ucwords(str_replace('_', ' ', $type)).'</li>';
+			}
+			echo '</ul>';
+		} else {
+			?>
+			<script type="text/javascript">
+			function cloneSelect(elt, prefix)
+			{
+				var index = 0;
+				while (document.getElementById(prefix+'_additional_location_types_'+index) != null) index++;
+				var newSelect = document.createElement('select');
+				newSelect.style.width = '30ex';
+				newSelect.name = prefix+'_additional_location_types['+index+']';
+				newSelect.id = prefix+'_additional_location_types_'+index;
+				for (var i=0; i < elt.length; i++) {
+					newOption = document.createElement('option');
+					newOption.value = elt.options[i].value;
+					newOption.appendChild(document.createTextNode(elt.options[i].text));
+					newSelect.appendChild(newOption);
+				}
+				return newSelect;
+			}
+			function makeClearButton(selectID)
+			{
+				newButton = document.createElement('input');
+				newButton.type = 'button';
+				newButton.value = 'Clear';
+				newButton.onclick = new Function('', "document.getElementById('"+selectID+"').selectedIndex = 0;");
+				return newButton;
+			}
+
+			function prependTypeSelector(elt, prefix)
+			{
+				newSelect = cloneSelect(document.getElementById(prefix+'_additional_location_types_0'), prefix);
+				clearButton = makeClearButton(newSelect.id);
+				elt.parentNode.insertBefore(document.createElement('br'), elt); 
+				elt.parentNode.insertBefore(newSelect, elt);
+				elt.parentNode.insertBefore(clearButton, elt);
+			}
+			</script>
+			<?php
+			$current_types = $asset->attr('additional_location_types');
+			$type_options = Array('') + $GLOBALS['SQ_SYSTEM']->am->getTypeList();
+			sort($type_options);
+
+			foreach ($current_types as $index => $type_code) {
+				$this->_printAdditionalLocationType($prefix, $index, $type_options, $type_code);
+			}
+			$this->_printAdditionalLocationType($prefix, count($current_types), $type_options, '');
+			echo '<input type="button" value="More..." onclick="prependTypeSelector(this, \''.$prefix.'\');" />';
+		}
+		return true;
+
+	}//end paintAdditionalLocationTypes()
+
+
+	/**
+	* Print an entry in the additinoal location types list
+	*
+	* @param	string	$prefix			The prefix for the list overall
+	* @param	int		$index			The array index to use for this entry in the list
+	* @param	array	$type_options	The asset type options to offer		
+	* @param	string	$current_value	The option that is currently selected
+	*
+	* @access	private
+	* @return	void
+	*/
+	function _printAdditionalLocationType($prefix, $index, $type_options, $current_value)
+	{
+		echo '<br /><select style="width: 30ex;" id="'.$prefix.'_additional_location_types_'.$index.'" name="'.$prefix.'_additional_location_types['.$index.']">';
+		foreach ($type_options as $type_code) {
+			echo '<option '.(($type_code == $current_value) ? 'selected="selected"' : '').' value="'.$type_code.'">'.ucfirst(str_replace('_', ' ', $type_code)).'</option>';
+		}
+		echo '</select>';
+		echo '<input type="button" value="Clear" onclick="document.getElementById(\''.$prefix.'_additional_location_types_'.$index.'\').selectedIndex = 0" />';
+
+	}//end _printAdditionalLocationType()
+
+
+	/**
+	* Processes the interface for saying what types of asset additional locations can be
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processAdditionalLocationTypes(&$asset, &$o, $prefix)
+	{
+		$new_types = Array();
+		if (isset($_POST[$prefix.'_additional_location_types']) && is_array($_POST[$prefix.'_additional_location_types'])) {
+			foreach ($_POST[$prefix.'_additional_location_types'] as $type) {
+				if ($type) $new_types[] = $type;
+			}
+		}
+		return $asset->setAttrValue('additional_location_types', array_unique($new_types));
+
+	}//end processAdditionalLocationTypes()
 
 
 //--         REQUIRED FIELDS SCREEN          --//

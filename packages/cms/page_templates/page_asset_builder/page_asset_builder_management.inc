@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.14 2004/09/08 01:23:37 gsherwood Exp $
+* $Id: page_asset_builder_management.inc,v 1.15 2004/11/12 04:36:25 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -133,6 +133,20 @@ class Page_Asset_Builder_Management extends Asset_Management
 															'added'     => '0.1',
 															'type'      => 'wysiwyg',
 															'default'   => '<p>The new asset was not created. Ensure you have entered all required information and try again.</p>',
+														);
+
+		/* Additional (query-fed) create locations must be children of one of these */
+		$this->vars['additional_location_parents']		= Array(
+															'added'		=> '0.5',
+															'type'		=> 'serialise',
+															'default'	=> Array(),
+														);
+
+		/* Additional (query-fed) create locations must be of one of these types */
+		$this->vars['additional_location_types']		= Array(
+															'added'		=> '0.5',
+															'type'		=> 'serialise',
+															'default'	=> Array(),
 														);
 
 	}//end constructor

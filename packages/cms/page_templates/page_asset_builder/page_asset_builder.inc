@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.32 2004/11/10 22:33:20 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.33 2004/11/12 04:36:25 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -278,6 +278,9 @@ class Page_Asset_Builder extends Page
 		<form name="asset_builder_<?php echo $this->id; ?>" method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>" enctype="multipart/form-data">
 			<?php
 			echo hidden_field('ASSET_BUILDER_ACTION', $this->_default_state);
+			if (isset($_REQUEST['ASSET_BUILDER_ADDITIONAL_LOCATIONS']) && (!empty($_REQUEST['ASSET_BUILDER_ADDITIONAL_LOCATIONS']))) {
+				echo hidden_field('ASSET_BUILDER_ADDITIONAL_LOCATIONS', $_REQUEST['ASSET_BUILDER_ADDITIONAL_LOCATIONS']);
+			}
 			$this->_printContents();
 			?>
 		</form>
@@ -618,12 +621,53 @@ class Page_Asset_Builder extends Page
 		if (is_array($selected_locs = $this->getSelectedCreateLocations())) {
 			return $this->getFixedCreateLocations() 
 				+ $selected_locs
-				+ $this->getRuleMatchCreateLocations($create_type);
+				+ $this->getRuleMatchCreateLocations($create_type)
+				+ $this->getAdditionalCreateLocations();
 		} else {
 			return false; // failed to select some compulsory selectable locations
 		}
 	
 	}//end _getAllCreateLocations()
+
+
+	function getAdditionalCreateLocations()
+	{
+		$res = Array();
+		if (isset($_REQUEST['ASSET_BUILDER_ADDITIONAL_LOCATIONS']) && !empty($_REQUEST['ASSET_BUILDER_ADDITIONAL_LOCATIONS'])) {
+			// Get the assetids and link types from the query
+			foreach (explode(';', $_REQUEST['ASSET_BUILDER_ADDITIONAL_LOCATIONS']) as $loc_code) {
+				if (false === strpos($loc_code, '-')) {
+					$link_type = SQ_LINK_TYPE_1;
+					$loc_id = $loc_code;
+				} else {
+					list($loc_id, $link_type) = explode('-', $loc_code);
+				}
+				if (!isset($res[$loc_id]) || ($res[$loc_id] > $link_type)) {
+					$res[$loc_id] = $link_type;
+				}
+			}
+			// check that the types and tree locations are valid
+			$infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($res));
+			$valid_types = $this->attr('additional_location_types');
+			$valid_parents = $this->attr('additional_location_parents');
+			foreach ($infos as $assetid => $info) {
+				if (!in_array($info['type_code'], $valid_types)) {
+					$matches = array_intersect($GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($info['type_code']), $valid_types);
+					if (empty($matches)) {
+						unset($res[$assetid]);
+					} else {
+						$valid_types[] = $info['type_code']; // save us looking it up again
+					}
+				}
+				if (!in_array($assetid, $valid_parents)) {
+					$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($assetid);
+					$matches = array_intersect($GLOBALS['SQ_SYSTEM']->am->getParents($assetid), $valid_parents);
+					if (empty($matches)) unset($res[$assetid]);
+				}
+			}
+		}
+		return $res;
+	}
 
 
 	/**

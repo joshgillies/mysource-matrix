@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_locations.xml,v 1.3 2004/08/11 07:18:56 tbarrett Exp $
+* $Id: edit_interface_screen_locations.xml,v 1.4 2004/11/12 04:36:25 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -51,6 +51,32 @@
 			<function_call>
 				<paint_function   name="paintConditionalCreateLocations"   />
 				<process_function name="processConditionalCreateLocations" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Additional Create Locations" write_access="write:attributes">
+		<field>
+			<display_name />
+			<note />
+			<function_call>
+				<paint_function		name="paintAdditionalLocationInfo" />
+				<process_function	name="processAdditionalLocationInfo" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Permitted Tree Locations</display_name>
+			<note>Create locations passed through the query will only be processed if they or one of their ancestor assets is listed above.</note>
+			<function_call>
+				<paint_function		name="paintAdditionalLocationParents" />
+				<process_function	name="processAdditionalLocationParents" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Permitted Asset Types</display_name>
+			<note>Create locations passed through the query will only be processed if their asset type or one of its ancestor types is listed above.</note>
+			<function_call>
+				<paint_function		name="paintAdditionalLocationTypes" />
+				<process_function	name="processAdditionalLocationTypes" />
 			</function_call>
 		</field>
 	</section>
