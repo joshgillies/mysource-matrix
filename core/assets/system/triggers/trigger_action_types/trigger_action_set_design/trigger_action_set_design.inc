@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_design.inc,v 1.3 2005/03/01 00:25:31 arailean Exp $
+* $Id: trigger_action_set_design.inc,v 1.4 2005/03/02 03:48:28 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,7 +82,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		// setting the default frontend design
-		$design_name = 'system_design::frontend';
+		$design_name = 'design::system::frontend';
 
 		// get all system_design::frontend links attached to the asset
 		$design_links = $am->getLinks($state['assetid'], SQ_LINK_NOTICE, 'design', false, 'major', $design_name);
