@@ -42,7 +42,7 @@ class Config extends Resolve_Object
 		'SQ_CONF_ERRORS_HIDE_FRONTEND'		=> Array('editable' => 1, 'default' => '0'),
 		'SQ_CONF_ERRORS_LOG'				=> Array('editable' => 1, 'default' => '0'),
 		'SQ_CONF_REFRESH_INTERVAL'			=> Array('editable' => 1, 'default' => 120),
-		'SQ_CONF_LOCK_LENGTH'				=> Array('editable' => 1, 'default' => 10)
+		'SQ_CONF_LOCK_LENGTH'				=> Array('editable' => 1, 'default' => 600)
 	);
 
 
