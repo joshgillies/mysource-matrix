@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.74 2005/02/18 07:18:13 amiller Exp $
+* $Id: mysource.inc,v 1.75 2005/02/21 18:58:46 brobertson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix
 */
 class MySource
@@ -144,6 +144,13 @@ class MySource
 	var $_user_is_sys_admin = false;
 
 	/**
+	* Whether the person using the system is a logged in user or not
+	*
+	* @var boolean
+	*/
+	var $_user_is_public = false;
+
+	/**
 	* Array of system messages
 	*
 	* @var Array(string)
@@ -237,11 +244,13 @@ class MySource
 				$this->user = &$this->getPublicUser();
 				$_SESSION['user_is_root']      = false;
 				$_SESSION['user_is_sys_admin'] = false;
+				$_SESSION['user_is_public']    = true;
 			}
 
 			$_SESSION['user_last_access'] = time();
 			$this->_user_is_root      = $_SESSION['user_is_root'];
 			$this->_user_is_sys_admin = $_SESSION['user_is_sys_admin'];
+			$this->_user_is_public    = $_SESSION['user_is_public'];
 
 			// if we are using the 'a' querystring arg, remove any trailing exclamation marks
 			// that are used as termination characters in different kinds of content
@@ -458,6 +467,7 @@ class MySource
 
 							$_SESSION['user_is_root']      = $this->_user_is_root;
 							$_SESSION['user_is_sys_admin'] = $this->_user_is_sys_admin;
+							$_SESSION['user_is_public']    = $this->_user_is_public;
 							$_SESSION['user_last_access']  = time();
 							return;
 						}
@@ -489,6 +499,8 @@ class MySource
 				$this->_user_is_root			= false;
 				$_SESSION['user_is_sys_admin']	= false;
 				$this->_user_is_sys_admin		= false;
+				$_SESSION['user_is_public']		= true;
+				$this->_user_is_public			= true;
 				$this->user = &$this->getPublicUser();
 				unset($_SESSION['user_last_access']);
 			break;
@@ -711,6 +723,7 @@ class MySource
 		$this->user = &$user;
 		$this->_user_is_root      = $this->userRoot($user);
 		$this->_user_is_sys_admin = $this->userSystemAdmin($user);
+		$this->_user_is_public    = $this->userPublic($user);
 
 		return true;
 
@@ -738,11 +751,13 @@ class MySource
 			$this->user = &$this->getPublicUser();
 			$this->_user_is_root      = false;
 			$this->_user_is_sys_admin = false;
+			$this->_user_is_public    = true;
 
 		} else {
 			$this->user = &$user;
 			$this->_user_is_root      = $this->userRoot($user);
 			$this->_user_is_sys_admin = $this->userSystemAdmin($user);
+			$this->_user_is_public    = $this->userPublic($user);
 		}
 
 		return true;
@@ -829,6 +844,24 @@ class MySource
 		return false;
 
 	}//end userSystemAdmin()
+
+
+	/**
+	* Is the passed/current user the public user?
+	*
+	* @param object	$user	the user object you want to test for root access
+	*
+	* @return boolean
+	* @access public
+	*/
+	function userPublic($user=null)
+	{
+		if (is_null($user)) return $this->_user_is_public;
+		if (!$user->id) return false;
+		if (get_class($user) == 'public_user') return true;
+		return false;
+
+	}//end userPublic()
 
 
 //--        GET MANAGERS        --//
