@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_edit_fns.inc,v 1.4 2004/12/09 02:56:14 gsherwood Exp $
+* $Id: content_type_edit_fns.inc,v 1.5 2004/12/09 03:08:11 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -69,7 +69,7 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function paint(&$asset, $prefix, $editing=true, $generating=false)
+	function paint(&$asset, $prefix, $editing=false, $generating=false)
 	{
 		echo $asset->attr('html');
 
