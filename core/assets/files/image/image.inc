@@ -20,7 +20,7 @@ class Image extends File
 	* All allowed extensions for an image
 	* @var Array(string)
 	*/
-	var $allowed_extensions = Array('gif', 'jpg', 'png');
+	var $allowed_extensions = Array('gif', 'jpg', 'jpeg', 'png');
 
 
 	/**
