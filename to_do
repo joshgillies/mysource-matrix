@@ -2,10 +2,14 @@
 |                            SHORT TERM ( < 3 weeks )                                    |
 +----------------------------------------------------------------------------------------+
 
+  CRITICAL :
+    - Check the escaping of content in PEAR::XML_Tree_Node
+
+
+
   - Users_Group Asset
   - Attribute Types
     - In Asset have diff update case for diff types of attr
-  
   - Unique Usernames (or attr values in general) across system
   - Flash Asset Tree
   - Customising Asset's
@@ -30,6 +34,7 @@
     Taking into account last comment on 
     http://www.php.net/manual/en/language.references.return.php
     and points in http://phplens.com/lens/php-book/optimizing-debugging-php.php 
+	- Global Stylesheets / Inheriting Designs ?
   - RollBack...
 
 +----------------------------------------------------------------------------------------+
