@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: metadata_field_edit_fns.inc,v 1.8 2003/10/07 06:49:17 dwong Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.9 2003/10/09 06:44:03 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -357,7 +357,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		$weighting = $asset->attr('weighting');
 
 		if ($asset->writeAccess()) {
-			echo combo_box('weighting_include', array(false => 'Do not include in searches', true => 'Include in searches'), false, ($weighting >= 0));
+			echo combo_box('weighting_include', array('0' => 'Do not include in searches', '1' => 'Include in searches'), false, ($weighting >= 0)?'1':'0');
 
 			if ($weighting >=0)
 				echo text_box('weighting', $weighting, 5);
@@ -379,7 +379,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 			return false;
 
 		$oldWeighting = $asset->attr('weighting');
-		if  ($_POST['weighting_include']) {
+		if($_POST['weighting_include']) {
 			if (isset($_POST['weighting']))
 				$newWeighting = max(0, $_POST['weighting']);
 			else
