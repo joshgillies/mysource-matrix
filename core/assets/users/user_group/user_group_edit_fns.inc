@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.12 2004/02/10 16:27:40 brobertson Exp $
+* $Id: user_group_edit_fns.inc,v 1.13 2004/04/19 01:40:13 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -253,7 +253,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 				$uc_types[$type] = ucwords(str_replace('_',' ', $type));
 			}
 
-			$o->openSection('Add New Type Restrictions');
+			$o->openSection('Grant Access to New Type');
 				$o->openField('&nbsp;');
 					combo_box($prefix.'_restrict_types', $uc_types, true, '', 6);
 				$o->closeField();
