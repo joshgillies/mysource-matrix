@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2003/10/10 04:23:12 mmcintyre Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2003/10/10 06:00:09 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -13,6 +13,16 @@
 			<display_name>Page Name</display_name>
 			<note />
 			<text width="12" height="1" />
+		</field>
+	</section>
+	<section name="Body Keyword Replacement">
+		<field>
+			<display_name>Body Keyword Replacement</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintBodycopyInformation"  />
+				<process_function name="processBodycopyInformation" />
+			</function_call>
 		</field>
 	</section>
 	<section name="Default Format">

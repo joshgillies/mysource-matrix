@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_sub_asset_listing_edit_fns.inc,v 1.2 2003/10/10 04:28:14 mmcintyre Exp $
+* $Id: page_sub_asset_listing_edit_fns.inc,v 1.3 2003/10/10 06:00:09 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,6 +34,40 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 
 	}//end constructor
 	
+	/**
+	* paints some information about replacing keywords
+	*
+	* @param object Form				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintBodycopyInformation(&$asset, &$o, $prefix)
+	{
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
+		if (empty($link)) return false;
+		$info = Array($link['minorid'] => 'contents');
+		$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($info);
+
+		echo 'The contents of the sub asset listing format can be '.
+			'replaced into the <a href="'.$href[$link['minorid']].'">Page Contents Bodycopy</a> by using the %body% keyword';
+
+	}// end paintBodycopyInformation()
+
+
+	/**
+	* does nothing (yet)
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processBodycopyInformation()
+	{
+		return true;
+
+	} // end processBodycopyInformation()
 
 	/**
 	* paints a link to the default format
@@ -47,7 +81,8 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintDefaultFormatLink(&$asset, &$o, $prefix)
 	{
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'default_format');
+		$folder = &$asset->getFolder('type_formats');
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'default_format');
 		if (empty($link)) return false;
 
 		$info = Array($link['minorid'] => 'contents');
@@ -85,13 +120,14 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 	function paintCurrentAssetTypes(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess()) return false;
-
+		$folder = &$asset->getFolder('type_formats');
+		
 		// do a check to see if any of the bodycopies have been removed manually
 		$customised = $asset->attr('customised');
 		if (!empty($customised)) {
 			$deleted = false;
 			foreach ($customised as $type) {
-				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', true, $type);
+				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $type);
 				if (empty($link)) {
 					$deleted = true;
 					$key = array_search($type, $customised, true);
@@ -132,7 +168,7 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 					</td>
 					<td class="sq-backend-table-cell">
 					<?php
-						$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', true, $type);
+						$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $type);
 						$is_customised = false;
 						if (!empty($link)) {
 							$is_customised = true;
@@ -188,6 +224,7 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 
 		$customised = $asset->attr('customised');
 		$types = $asset->attr('types');
+		$folder = &$asset->getFolder('type_formats');
 
 		// we are looking to see if any types have been removed
 		if (isset($_POST[$prefix.'_remove'])) {
@@ -202,7 +239,7 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 						unset($customised[$key]);
 
 						// we also want to send the bodycopy to the trash
-						$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', false, $type);
+						$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', false, $type);
 						if (empty($link)) {
 							trigger_error('Format for type '.$type.' not found', E_USER_WARNING);
 						}
@@ -228,7 +265,7 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 				$bodycopy = new Bodycopy();
-				$copy_link = Array('asset' => &$asset, 'value' => $type, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
+				$copy_link = Array('asset' => &$folder, 'value' => $type, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
 
 				$bodycopy->setAttrValue('name', ucwords(str_replace('_',' ', $type)).' Format');
 
@@ -247,7 +284,7 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 					// another dickhead check
 					if (isset($_POST[$prefix.'_remove']) && in_array($type, $_POST[$prefix.'_remove'])) continue;
 					
-					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', false, $type);
+					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', false, $type);
 					$asset->deleteLink($link['linkid']);
 					$key = array_search($type, $customised, true);
 					unset($customised[$key]);

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_sub_asset_listing.inc,v 1.2 2003/10/10 04:28:14 mmcintyre Exp $
+* $Id: page_sub_asset_listing.inc,v 1.3 2003/10/10 06:00:09 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -59,15 +59,38 @@ class Page_Sub_Asset_Listing extends Page
 
 		// add a bodycopy to this page when creating
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-		$bodycopy = new Bodycopy();
-		$copy_link = Array('asset' => &$this, 'value' => 'default_format' ,'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
 
-		$bodycopy->setAttrValue('name', 'Default Format');
-		if (!$bodycopy->create($copy_link)) {
+		$sub_assets= Array(
+			'type_formats' => 'folder',
+			'asset_formats' => 'folder',
+			'page_contents' => 'Bodycopy',
+		);
+		$type_formats = null;
+		foreach ($sub_assets as $name => $type) {
+			$asset = new $type();
+			$copy_link = Array('asset' => &$this, 'value' => $name ,'link_type' => SQ_LINK_TYPE_2, 'dependant' => 	1, 'exclusive' => 1);
+		
+			$asset->setAttrValue('name', ucwords(str_replace('_',' ', $name)));
+			if (!$asset->create($copy_link)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$this->id = 0;
+				return false;
+			}
+			if ($name == 'type_formats') {
+				$type_formats = $asset;
+			}
+		}
+		$asset = new Bodycopy();
+		$copy_link = Array('asset' => &$type_formats, 'value' => 'default_format' ,'link_type' => SQ_LINK_TYPE_2, 'dependant' => 	1, 'exclusive' => 1);
+		$asset->setAttrValue('name', 'Default Format');
+		
+		if (!$asset->create($copy_link)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$this->id = 0;
 			return false;
 		}
+
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $linkid;
@@ -107,9 +130,11 @@ class Page_Sub_Asset_Listing extends Page
 	{
 		// the only reason why we would object to this link being
 		// deleted is if it is the bodycopy linked to us
-		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', 'default_format', '1', '1');
-		if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the bodycopy and the standard page';
-
+		$bodycopies = Array('default_format', 'page_contents');
+		foreach ($bodycopies as $name) {
+			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', $name, '1', '1');
+			if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the '.ucwords(str_replace('_', ' ', $name)).' and the sub asset listing page';
+		}
 		return parent::canDeleteLink($linkid);
 
 	}//end canDeleteLink()
@@ -157,12 +182,60 @@ class Page_Sub_Asset_Listing extends Page
 
 
 	/**
+	* returns a reference to a folder linked to this asset determined by the passe in value on the link
+	*
+	* @param string $type the value on the link for this folder
+	*
+	* @access public
+	* @return &asset folder
+	*/
+	function &getFolder($type='type_formats')
+	{
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, $type);
+		if (empty($link)) return null;
+
+		$folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		if (is_null($folder)) return null; 
+
+		return $folder;
+
+	} // end getFolder
+
+
+	/**
 	* Called by the design to print the body of this asset
 	* it's up to the kids to override
 	*
 	* @access public
 	*/
 	function printBody()
+	{
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
+		if (empty($bodycopy_link)) return false;
+
+		$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+		if (is_null($bodycopy)) return false; 
+
+		ob_start();
+		$bodycopy->printBody();
+		$html = ob_get_contents();
+		ob_end_clean();
+
+		$body = &$this->getBodyReplacement();
+		$html = str_replace('%body%', $body, $html);
+		
+		echo $html;
+
+	}// end printBody() 
+
+
+	/**
+	* returns a replacement for the body keyword in the page contents bodycopy
+	*
+	* @access public
+	* @return &string
+	*/
+	function &getBodyReplacement() 
 	{
 		$wanted_types = $this->attr('types');
 		$children = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_BACKEND_NAV, $wanted_types, false);
@@ -174,15 +247,19 @@ class Page_Sub_Asset_Listing extends Page
 		$formats = Array();
 		$default_format = '';
 		$is_default = Array();
+		$folder = &$this->getFolder('type_formats');
+		$type_folder_id = $folder->id;
+		$global_contents = '';
 
 		foreach ($children as $info) {
 			$assetid = $info['minorid'];
 			$type_code = $info['minor_type_code'];
+			
 			$contents = '';
-
 			// check to see if this is a bodycopy that is used for a format
 			if (in_array(strtolower($info['value']), $wanted_types)) continue;
 			if (strtolower($info['value'] == 'default_format')) continue;
+			if (strtolower($info['value'] == 'page_contents')) continue;
 
 			// we need to work out if this child has an explicit format defined for it
 			// or if its relying on its ansestor's format
@@ -197,14 +274,14 @@ class Page_Sub_Asset_Listing extends Page
 			$keywords = $asset->getAssetKeywords();
 			if (!in_array($type_code, $formats)) {
 				if (in_array($type_code, $customised)) {
-					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, $type_code);
+					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($type_folder_id, SQ_LINK_TYPE_2, 'bodycopy', true, $type_code);
 					// maybe they deleted the bodycopy
 					if (!$link) {
 						$key = array_search($type_code, $customised, true);
 						unset($customised[$key]);
 						$is_default[] = $type_code;
 					} else {
-						$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
+						$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
 						if (!is_null($bodycopy)) {
 							ob_start();
 							$bodycopy->printBody();
@@ -219,8 +296,8 @@ class Page_Sub_Asset_Listing extends Page
 
 			if (in_array($type_code, $is_default)) {
 				if (!$default_format) {
-					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'default_format');
-					$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
+					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($type_folder_id, SQ_LINK_TYPE_2, 'bodycopy', true, 'default_format');
+					$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
 					if (!is_null($bodycopy)) {
 						ob_start();
 						$bodycopy->printBody();
@@ -233,13 +310,13 @@ class Page_Sub_Asset_Listing extends Page
 				$contents = $formats[$type_code];
 			}
 			foreach ($keywords as $keyword => $info) {
-
 				$contents = str_replace('%'.$keyword.'%', $info['value'], $contents);
 			}
-			echo html_entity_decode($contents);
+			$global_contents .= $contents;
 		}
+		return html_entity_decode($global_contents);
 
-	}// end printBody()
+	}// end getBodyReplacement()
 
 }//end class
 ?>
