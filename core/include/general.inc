@@ -367,12 +367,12 @@ function bit_elements($num)
 function iso8601_ts($iso8601)
 {
 	return mktime(
-		substr($iso8601,11,2),
-		substr($iso8601,14,2),
-		substr($iso8601,17,2),
-		substr($iso8601,5,2),
-		substr($iso8601,8,2),
-		substr($iso8601,0,4)
+		(int) substr($iso8601,11,2),
+		(int) substr($iso8601,14,2),
+		(int) substr($iso8601,17,2),
+		(int) substr($iso8601,5,2),
+		(int) substr($iso8601,8,2),
+		(int) substr($iso8601,0,4)
 	);
 }
 

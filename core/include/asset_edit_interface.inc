@@ -702,7 +702,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			$o->openSection($title.' Access');
 
 #$o->openField('pre_echo');
-			$permissions = $owner->getPermission($perm, false, true, null, false, true);
+			$permissions = $owner->getPermission($perm, null, false, true, false, true);
 #pre_echo($permissions);
 
 			$inherited = $this->_getOverriddenInheritedPermissions($owner, $perm);
@@ -1105,7 +1105,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		//// print the list of inherited workflows ////
 
 		// Get all workflows with granted access (inherited and direct)
-		$users = $owner->getPermission(SQ_PERMISSION_WORKFLOW, false, true, true, false, false);
+		$users = $owner->getPermission(SQ_PERMISSION_WORKFLOW, true, false, true, false, false);
 
 		// Get all workflows above us that we must have revoked
 		$revoked = array_keys($this->_getOverriddenInheritedPermissions($owner, SQ_PERMISSION_WORKFLOW, true));

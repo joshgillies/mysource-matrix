@@ -120,7 +120,7 @@ class Workflow_Manager extends Resolve_Object
 
 		if ($and_inherited) {
 			// now lets do the inherited workflows
-			$users = $this->_asset->getPermission(SQ_PERMISSION_WORKFLOW, false, true, true, false, false);
+			$users = $this->_asset->getPermission(SQ_PERMISSION_WORKFLOW, true, false, true, false, false);
 
 			foreach ($users as $assetid) {
 				if ($assetid == $this->_asset->id) continue;

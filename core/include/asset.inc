@@ -1047,7 +1047,7 @@ class Asset extends Resolve_Object
 					$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
 					$body = 'User "'.$user->name.'" has rejected the changes made to '.$this->type().' "'.$this->name.'". The status of "'.$this->name.'" has reverted to '.$this->getStatusDescription();
-					$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN, false, true)), 0, 'Asset Changes Rejected', $body);
+					$ms->sendMessage($this->getPermission(SQ_PERMISSION_ADMIN, true, false), 0, 'Asset Changes Rejected', $body);
 				}
 			}
 		}
@@ -1108,7 +1108,7 @@ class Asset extends Resolve_Object
 					$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
 					$body = 'User "'.$user->name.'" has approved '.$this->type().' "'.$this->name.'" to go live.';
-					$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN, false, true)), 0, 'Asset Changes Approved', $body);
+					$ms->sendMessage($this->getPermission(SQ_PERMISSION_ADMIN, true, false), 0, 'Asset Changes Approved', $body);
 
 					if ($wfm->state == 'complete') {
 						// all workflows are done so we
@@ -1118,7 +1118,7 @@ class Asset extends Resolve_Object
 
 						// send an internal message
 						$body = 'The workflow process for '.$this->type().' "'.$this->name.'" has been completed. "'.$this->name.'" is now live.';
-						$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN, false, true)), 0, 'Workflow Completed', $body);
+						$ms->sendMessage($this->getPermission(SQ_PERMISSION_ADMIN, true, false), 0, 'Workflow Completed', $body);
 					}
 
 				} else {
@@ -1163,7 +1163,7 @@ class Asset extends Resolve_Object
 							$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
 							$body = 'User "'.$user->name.'" has requested '.$this->type().' "'.$this->name.'" to go live from '.$this->getStatusDescription($old_status).'.';
-							$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN, false, true)), 0, 'Workflow Started', $body);
+							$ms->sendMessage($this->getPermission(SQ_PERMISSION_ADMIN, true, false), 0, 'Workflow Started', $body);
 						}
 					}
 				}
@@ -1224,7 +1224,7 @@ class Asset extends Resolve_Object
 							$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
 							$body = 'User "'.$user->name.'" has rejected the changes made to '.$this->type().' "'.$this->name.'". The status of "'.$this->name.'" has reverted to '.$this->getStatusDescription();
-							$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN, false, true)), 0, 'Asset Changes Rejected', $body);
+							$ms->sendMessage($this->getPermission(SQ_PERMISSION_ADMIN, true, false), 0, 'Asset Changes Rejected', $body);
 						}
 					}
 				}
@@ -1539,7 +1539,7 @@ class Asset extends Resolve_Object
 			foreach ($locked_ids as $locked) {
 				$locked_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($locked);
 				$body = 'User "'.$current_user->name.'" has forceably aquired the lock on '.$locked_asset->type().' "'.$locked_asset->name.'", formally held by user "'.$user->name.'".';
-				$to_list = array_keys($locked_asset->getPermission(SQ_PERMISSION_ADMIN));
+				$to_list = $locked_asset->getPermission(SQ_PERMISSION_ADMIN, true);
 				$to_list[] = $user->id;
 				$ms->sendMessage($to_list, 0, 'Asset Lock Forceably Aquired', $body);
 			}
@@ -2646,7 +2646,7 @@ class Asset extends Resolve_Object
 				// whatever it is inheriting right now so it keeps the while in the trash
 				$perms = Array(SQ_PERMISSION_ADMIN, SQ_PERMISSION_WRITE, SQ_PERMISSION_READ);
 				foreach ($perms as $perm) {
-					$userids = array_keys($minor->getPermission($perm, false));
+					$userids = $minor->getPermission($perm, true, false);
 					foreach($userids as $userid) $minor->grantPermission($userid, $perm);
 				}
 
@@ -3223,10 +3223,10 @@ class Asset extends Resolve_Object
 	* Returns an array of all user or user_group assets that have the passed permission for this asset
 	*
 	* @param string		$permission		the permission code you are getting
+	* @param boolean	$access			Type of Access : null = all, true = granted, false = denied
 	* @param boolean	$and_greater	get effective permission (eg read access = read
 	*									or write or admin)
 	* @param boolean	$and_inherited	Whether to get inherited permissions as well
-	* @param boolean	$access			Type of Access : null = all, true = granted, false = denied
 	* @param boolean	$expand_groups	expand user groups so only user ids get returned
 	*									(NOTE: only valid if $all_info is false)
 	* @param boolean	$all_info		when false fn just returns an array of userids for
@@ -3239,7 +3239,7 @@ class Asset extends Resolve_Object
 	* @return array()
 	* @access public
 	*/
-	function getPermission($permission, $and_greater=true, $and_inherited=true, $access=null, $expand_groups=false, $all_info=false)
+	function getPermission($permission, $access=null, $and_greater=true, $and_inherited=true, $expand_groups=false, $all_info=false)
 	{
 		$permission = (int) $permission;
 		// can't be and_greater with workflow
