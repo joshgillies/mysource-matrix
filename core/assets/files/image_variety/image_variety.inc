@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.13 2005/03/02 21:11:41 brobertson Exp $
+* $Id: image_variety.inc,v 1.14 2005/03/03 16:39:19 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -235,102 +235,104 @@ class Image_Variety extends Asset
 	* @access public
 	* @return boolean
 	*/
-	function createImage()
+	function updateImage()
 	{
-		// nothing to do if we are using an custom uploaded file
-		if ($this->attr('variety_type') != 'resize') return true;
-
-		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		require_once SQ_FUDGE_PATH.'/image/image_manip.inc';
-		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
-
-		if (!is_dir($this->data_path) && !create_directory($this->data_path)) return false;
-
 		$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
 		if (is_null($image)) return false;
 
-		$source_image_info = $image->getExistingFile();
-		if (empty($source_image_info)) return true;
+		if ($this->attr('variety_type') == 'resize') {
 
-		$ext = get_file_type($image->name);
+			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+			require_once SQ_FUDGE_PATH.'/image/image_manip.inc';
+			$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
-		$s_file = $source_image_info['path'];
+			if (!is_dir($this->data_path) && !create_directory($this->data_path)) return false;
 
-		$d_old_filename = $this->attr('filename');
-		$d_new_filename = $this->name.'.'.$ext;
-		$d_old_file     = $this->data_path.'/'.$d_old_filename;
-		$d_new_file     = $this->data_path.'/'.$d_new_filename;
-		$d_width        = (int) $this->attr('width');
-		$d_height       = (int) $this->attr('height');
+			$source_image_info = $image->getExistingFile();
+			if (empty($source_image_info)) return true;
 
-		// if either are blank calc the other to scale
-		switch($this->attr('constrain')) {
-			case 'width' :
-				if ($d_width <= 0) {
-					trigger_error('Cannot constrain to width if width is zero', E_USER_WARNING);
-					return false;
+			$ext = get_file_type($image->name);
+
+			$s_file = $source_image_info['path'];
+
+			$d_old_filename = $this->attr('filename');
+			$d_new_filename = $this->name.'.'.$ext;
+			$d_old_file     = $this->data_path.'/'.$d_old_filename;
+			$d_new_file     = $this->data_path.'/'.$d_new_filename;
+			$d_width        = (int) $this->attr('width');
+			$d_height       = (int) $this->attr('height');
+
+			// if either are blank calc the other to scale
+			switch($this->attr('constrain')) {
+				case 'width' :
+					if ($d_width <= 0) {
+						trigger_error('Cannot constrain to width if width is zero', E_USER_WARNING);
+						return false;
+					}
+
+					$d_height = round((int) $source_image_info['height'] * ($d_width / (int) $source_image_info['width']));
+					break;
+
+				case 'height' :
+					if ($d_height <= 0) {
+						trigger_error('Cannot constrain to height if height is zero', E_USER_WARNING);
+						return false;
+					}
+					$d_width  = round((int) $source_image_info['width']  * ($d_height / (int) $source_image_info['height']));
+					break;
+			}
+
+			if ($d_width <= 0 || $d_height <= 0) {
+				trigger_error('Both height and width needs to be greater than zero', E_USER_WARNING);
+				return false;
+			}
+
+			// if the filename has changed then we need to remove the old file
+			if ($d_old_filename != $d_new_filename) {
+				$this->deleteImage();
+
+			} else {
+				// make sure we have the latest version checked out if we are modifying the file
+				$up_to_date = $fv->upToDate($d_new_file);
+				if ($up_to_date & FUDGE_FV_OLD_VERSION) {
+					if (!$fv->checkOut($this->data_path_suffix.'/'.$d_new_filename, $this->data_path)) {
+						trigger_error('Update failed checking-out latest version of file', E_USER_WARNING);
+						return false;
+					}
 				}
 
-				$d_height = round((int) $source_image_info['height'] * ($d_width / (int) $source_image_info['width']));
-				break;
+			}// endif
 
-			case 'height' :
-				if ($d_height <= 0) {
-					trigger_error('Cannot constrain to height if height is zero', E_USER_WARNING);
-					return false;
-				}
-				$d_width  = round((int) $source_image_info['width']  * ($d_height / (int) $source_image_info['height']));
-				break;
-		}
+			if (!Image_Manip::resize($s_file, $d_new_file, $d_width, $d_height)) return false;
 
-		if ($d_width <= 0 || $d_height <= 0) {
-			trigger_error('Both height and width needs to be greater than zero', E_USER_WARNING);
-			return false;
-		}
-
-		// if the filename has changed then we need to remove the old file
-		if ($d_old_filename != $d_new_filename) {
-			$this->deleteImage();
-
-		} else {
-			// make sure we have the latest version checked out if we are modifying the file
 			$up_to_date = $fv->upToDate($d_new_file);
-			if ($up_to_date & FUDGE_FV_OLD_VERSION) {
+
+			// file not in repository
+			if ($up_to_date & FUDGE_FV_NOT_CHECKED_OUT) {
+				if (!$fv->add($this->data_path_suffix, $d_new_file, '', false)) return false;
+
 				if (!$fv->checkOut($this->data_path_suffix.'/'.$d_new_filename, $this->data_path)) {
 					trigger_error('Update failed checking-out latest version of file', E_USER_WARNING);
 					return false;
 				}
+
+			} elseif ($up_to_date & FUDGE_FV_MODIFIED) {
+				if (!$fv->commit($d_new_file, '', false)) return false;
+
 			}
 
-		}// endif
-
-		if (!Image_Manip::resize($s_file, $d_new_file, $d_width, $d_height)) return false;
-
-		$up_to_date = $fv->upToDate($d_new_file);
-
-		// file not in repository
-		if ($up_to_date & FUDGE_FV_NOT_CHECKED_OUT) {
-			if (!$fv->add($this->data_path_suffix, $d_new_file, '', false)) return false;
-
-			if (!$fv->checkOut($this->data_path_suffix.'/'.$d_new_filename, $this->data_path)) {
-				trigger_error('Update failed checking-out latest version of file', E_USER_WARNING);
-				return false;
+			// if the filename has changed then we need to upadte the look ups
+			if ($d_old_filename != $d_new_filename) {
+				if (!$this->setAttrValue('filename', $d_new_filename)) return false;
 			}
 
-		} elseif ($up_to_date & FUDGE_FV_MODIFIED) {
-			if (!$fv->commit($d_new_file, '', false)) return false;
+		}//end if
 
-		}
-
-		// if the filename has changed then we need to upadte the look ups
-		if ($d_old_filename != $d_new_filename) {
-			if (!$this->setAttrValue('filename', $d_new_filename)) return false;
-			if (!$this->updateLookups($image->usePublicPath())) return false;
-		}
+		if (!$this->updateLookups($image->usePublicPath())) return false;
 
 		return true;
 
-	}// end createImage()
+	}// end updateImage()
 
 
 	/**

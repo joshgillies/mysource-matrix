@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.30 2005/02/23 22:46:05 gsherwood Exp $
+* $Id: image.inc,v 1.31 2005/03/03 16:39:19 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -344,15 +344,15 @@ class Image extends File
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		// create the actual scaled image
+		// create the actual scaled image if necessary and add any lookups
 		if ($recreate_image) {
-			if (!$variety->createImage()) {
+			if (!$variety->updateImage()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 
 			}
 
-			// Now get the variables again because createImage() can update stuff
+			// Now get the variables again because updateImage() can update stuff
 			foreach($variety->vars as $attr_name => $attr_data) {
 				$varieties['data'][$varietyid][$attr_name] = $attr_data['value'];
 			}
@@ -479,6 +479,7 @@ class Image extends File
 		$use_public_path = $this->usePublicPath();
 
 		$varieties = $this->attr('varieties');
+error_log(print_r($varieties, 1));
 		if (!empty($varieties)) {
 			foreach($varieties['lookups'] as $varietyid) {
 				$variety = &$this->getAsset($varietyid);

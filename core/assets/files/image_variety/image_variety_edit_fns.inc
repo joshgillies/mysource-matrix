@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety_edit_fns.inc,v 1.6 2005/02/24 18:28:58 brobertson Exp $
+* $Id: image_variety_edit_fns.inc,v 1.7 2005/03/03 16:39:19 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -277,7 +277,6 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 
 		// if the filename has changed then we need to update the look ups
 		if (!$asset->setAttrValue('filename', $d_new_filename)) return false;
-		if (!$asset->updateLookups($image->usePublicPath())) return false;
 
 		return true;
 
