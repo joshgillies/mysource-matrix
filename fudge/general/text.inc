@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.10 2004/10/12 03:00:23 arailean Exp $
+* $Id: text.inc,v 1.11 2004/10/13 06:56:48 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -117,7 +117,7 @@ function get_word_counts($text, $split_regexp="[^A-z0-9]+", $word_match_regexp="
 
 
 /**
-* Escape quotes
+* Escape double quotes by reference
 *
 * @param string $subject
 */
