@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.1 2003/11/27 02:48:47 gsherwood Exp $
+* $Id: page_account_manager.inc,v 1.2 2003/12/03 04:50:49 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -434,9 +434,7 @@ class Page_Account_Manager extends Page
 
 			if (!is_null($current_user)) {
 				if ($current_user->processBackend($o, $link)) {
-					$o->openRaw();
 					$this->_replacements['edit_details_success'] = $this->attr('edit_details_success');
-					$o->closeRaw();
 				}
 			}
 
@@ -462,17 +460,8 @@ class Page_Account_Manager extends Page
 		$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['minor_type_code']);
 		if (is_null($bodycopy)) return;
 
-		ob_start();
-			$bodycopy->printBody();
-			$html = ob_get_contents();
-		ob_end_clean();
-		$html = replace_keywords($html, $this->_replacements);
-
-		// get rid of any keywords that have not been replaced
-		$blanks = retrieve_keywords_replacements($html);
-		$replacements = Array();
-		foreach ($blanks as $keyword) $replacements[$keyword] = '';
-		echo replace_keywords($html, $replacements);
+		$bodycopy->setKeywordReplacements($this->_replacements);
+		$bodycopy->printBody();
 
 	}//end _printContents()
 
