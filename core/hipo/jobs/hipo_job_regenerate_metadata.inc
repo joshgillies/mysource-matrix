@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_metadata.inc,v 1.12 2004/12/06 14:38:11 brobertson Exp $
+* $Id: hipo_job_regenerate_metadata.inc,v 1.13 2005/02/22 06:55:26 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -279,10 +279,12 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($this->_running_vars['todo_assetids']);
 		foreach ($asset_info as $assetid => $info) $todo[$assetid] = $info['type_code'];
 
-		$running_vars['assetid']         = $this->_running_vars['schemaid'];
-		$running_vars['todo_assetids']   = $todo;
-		$running_vars['lock_type']       = 'metadata';
-		$running_vars['dependants_only'] = false;
+		$running_vars = Array(
+							'assetids'          => Array($this->_running_vars['schemaid'],),
+							'todo_assetids'     => $todo,
+							'lock_type'         => 'metadata',
+							'dependants_only'   => false,
+						);
 
 	}//end getLockAssetDetails()
 
