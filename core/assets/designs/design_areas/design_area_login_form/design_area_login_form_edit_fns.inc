@@ -91,7 +91,7 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 	function _createDesignFileOutput($contents, &$asset, &$design)
 	{
 		$asset->_tmp['painting_section'] = '';
-		parent::_createDesignFileOutput($contents, $asset, $design);
+		return parent::_createDesignFileOutput($contents, $asset, $design);
 	}// end _createDesignFileOutput()
 
 
