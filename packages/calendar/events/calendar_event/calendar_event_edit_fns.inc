@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.6 2004/07/26 04:40:17 tbarrett Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.7 2004/07/27 00:51:33 tbarrett Exp $
 * $prefix:  $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $ - 1.0
+* @version $Revision: 1.7 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -48,6 +48,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 	function Calendar_Event_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
+		$this->static_screens['details']['force_unlock'] = false;
 
 	}//end Calendar_Event_Edit_Fns()
 
@@ -99,37 +100,37 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 			}
 			function processEndEnabledClick(elt, name) {
 				if (elt.checked) {
-					enableDateField('<?php echo $prefix; ?>End'); 
-					if (isChecked('<?php echo $prefix; ?>StartTimeEnabled')) {
-						enableTimeField('<?php echo $prefix; ?>End'); 
+					enableDateField('<?php echo $prefix; ?>_end'); 
+					if (isChecked('<?php echo $prefix; ?>_start_time_enabled')) {
+						enableTimeField('<?php echo $prefix; ?>_end'); 
 					}
 				} else { 
-					disableDateField('<?php echo $prefix; ?>End'); 
-					disableTimeField('<?php echo $prefix; ?>End'); 
+					disableDateField('<?php echo $prefix; ?>_end'); 
+					disableTimeField('<?php echo $prefix; ?>_end'); 
 				}
 			}
 			function processStartTimeClick(elt, name) {
 				if (elt.checked) {
-					enableTimeField(name+'Start');
-					if (isChecked(name+'EndDateEnabled')) {
-						enableTimeField(name+'End'); 
+					enableTimeField(name+'_start');
+					if (isChecked(name+'_end_date_enabled')) {
+						enableTimeField(name+'_end'); 
 					}
 				} else {
-					disableTimeField(name+'Start'); disableTimeField(name+'End');
+					disableTimeField(name+'_start'); disableTimeField(name+'_end');
 				}
 			}
 			function processEndTimeClick(elt, name) {
 				if (elt.checked) {
-					enableTimeField(name+'End'); 
-					enableDateField(name+'End'); 
-					checkBox(name+'EndDateEnabled'); 
-					enableTimeField(name+'Start'); 
+					enableTimeField(name+'_end'); 
+					enableDateField(name+'_end'); 
+					checkBox(name+'_end_date_enabled'); 
+					enableTimeField(name+'_start'); 
 				} else { 
-					disableTimeField(name+'End'); 
-					disableTimeField(name+'Start');  
+					disableTimeField(name+'_end'); 
+					disableTimeField(name+'_start');  
 				}
 			}
-			var dateComponents = Array('Year','Month','Day');
+			var dateComponents = Array('_year','_month','_day');
 			function enableDateField(name) {
 				for (i=0; i<dateComponents.length; i++) {
 					if ((elt = document.getElementById(name+dateComponents[i])) != null) {
@@ -145,16 +146,18 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 				}
 			}
 			function enableTimeField(name) {
-				document.getElementById(name+'Hours').disabled=0;
-				document.getElementById(name+'Minutes').disabled=0;
-				document.getElementById(name+'IsPm').disabled=0;
-				checkBox(name+'TimeEnabled');
+				if (document.getElementById(name+'_hours') == null)
+					alert("hours not found for " + name);
+				document.getElementById(name+'_hours').disabled=0;
+				document.getElementById(name+'_minutes').disabled=0;
+				document.getElementById(name+'_is_pm').disabled=0;
+				checkBox(name+'_time_enabled');
 			}
 			function disableTimeField(name) {
-				document.getElementById(name+'Hours').disabled=1;
-				document.getElementById(name+'Minutes').disabled=1;
-				document.getElementById(name+'IsPm').disabled=1;
-				uncheckBox(name+'TimeEnabled');
+				document.getElementById(name+'_hours').disabled=1;
+				document.getElementById(name+'_minutes').disabled=1;
+				document.getElementById(name+'_is_pm').disabled=1;
+				uncheckBox(name+'_time_enabled');
 			}
 			function checkBox(id) {
 				if ((elt = document.getElementById(id)) != null)
@@ -193,10 +196,10 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 				hoursValue = parseInt(elt.value);
 				if ((hoursValue > 12) && (hoursValue < 24)) {
 					elt.value = hoursValue - 12;
-					if ((pmElt = document.getElementById(elt.getAttribute('id').substring(0, elt.getAttribute('id').length-5)+'IsPm')) != null)
+					if ((pmElt = document.getElementById(elt.getAttribute('id').substring(0, elt.getAttribute('id').length-5)+'_is_pm')) != null)
 						pmElt.selectedIndex=1;
 					else
-						alert("Couldn't find " + substring(elt.getAttribute('id'), 0, elt.getAttribute('id').length-5)+'IsPm');
+						alert("Couldn't find " + substring(elt.getAttribute('id'), 0, elt.getAttribute('id').length-5)+'_is_pm');
 				}
 			}
 			function validateFutureYear(elt) {
@@ -213,44 +216,44 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 				}
 			}
 			function getDateFromField(name) {
-				d = new Date(document.getElementById(name+'Year').value, document.getElementById(name+'Month').value, document.getElementById(name+'Day').value);
-				hoursVal = parseInt(document.getElementById(name+'Hours').value);
-				if ((document.getElementById(name+'IsPm').selectedIndex == 1) && (hoursVal < 12)) {
+				d = new Date(document.getElementById(name+'_year').value, document.getElementById(name+'_month').value, document.getElementById(name+'_day').value);
+				hoursVal = parseInt(document.getElementById(name+'_hours').value);
+				if ((document.getElementById(name+'_is_pm').selectedIndex == 1) && (hoursVal < 12)) {
 					hoursVal += 12;
 				}
-				if ((document.getElementById(name+'IsPm').selectedIndex == 0) && (hoursVal == 12)) {
+				if ((document.getElementById(name+'_is_pm').selectedIndex == 0) && (hoursVal == 12)) {
 					hoursVal = 0;
 				}
 			    d.setHours(hoursVal);
-				d.setMinutes(document.getElementById(name+'Minutes').value);
+				d.setMinutes(document.getElementById(name+'_minutes').value);
 				return d;
 			}
 			function setDateField(fieldName, dateVal) {
-				document.getElementById(fieldName+'Year').value = dateVal.getFullYear();
-				document.getElementById(fieldName+'Month').value = dateVal.getMonth();
-				document.getElementById(fieldName+'Day').value = dateVal.getDate();
-				if ((hourElt = document.getElementById(fieldName+'Hours')) != null) {
-					document.getElementById(fieldName+'IsPm').selectedIndex = ((dateVal.getHours() >= 12) ? 1 : 0);
+				document.getElementById(fieldName+'_year').value = dateVal.getFullYear();
+				document.getElementById(fieldName+'_month').value = dateVal.getMonth();
+				document.getElementById(fieldName+'_day').value = dateVal.getDate();
+				if ((hourElt = document.getElementById(fieldName+'_hours')) != null) {
+					document.getElementById(fieldName+'_is_pm').selectedIndex = ((dateVal.getHours() >= 12) ? 1 : 0);
 					if (dateVal.getHours() == 0)
 						hourElt.value = 12;
 					else
 						hourElt.value = make2digits(dateVal.getHours());
-					document.getElementById(fieldName+'Minutes').value = dateVal.getMinutes();
+					document.getElementById(fieldName+'_minutes').value = dateVal.getMinutes();
 				}
 			}
 			function updateEndDate(name) {
-				endD = getDateFromField(name+'End');
-				startD = getDateFromField(name+'Start');
+				endD = getDateFromField(name+'_end');
+				startD = getDateFromField(name+'_start');
 				//alert("Got end and start dates for updating end date");
 				if (endD < startD)
-					setDateField(name+'End', startD);
+					setDateField(name+'_end', startD);
 			}
 			function updateStartDate(name) {
-				endD = getDateFromField(name+'End');
-				startD = getDateFromField(name+'Start');
+				endD = getDateFromField(name+'_end');
+				startD = getDateFromField(name+'_start');
 				//alert("Got end and start dates for updating start date");
 				if (endD < startD)
-				  setDateField(name+'Start', endD);
+				  setDateField(name+'_start', endD);
 			}
 		//-->
 		</script>
@@ -258,21 +261,21 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 			<tr>
 				<td class="sq-backend-data" style="text-align: right">Occurs on&nbsp;&nbsp;</td>
 				<td class="sq-backend-data">
-					<?php $this->printDateChooser($prefix.'Start', "updateEndDate('" . $prefix . "'); " . $onchange_code, ($asset->getStartDate() ? iso8601_ts($asset->attr('start_date')) : 0)); ?>
+					<?php $this->printDateChooser($prefix.'_start', "updateEndDate('" . $prefix . "'); " . $onchange_code, ($asset->getStartDate() ? iso8601_ts($asset->attr('start_date')) : 0)); ?>
 				</td>
 				<td class="sq-backend-data">
-					&nbsp;&nbsp;<?php $this->printTimeChooser($prefix.'Start', "updateEndDate('" . $prefix . "'); " .  $onchange_code, "processStartTimeClick(this, '$prefix'); ", ($asset->getStartTime() ? iso8601_ts($asset->attr('start_date')) : false)); ?>
+					&nbsp;&nbsp;<?php $this->printTimeChooser($prefix.'_start', "updateEndDate('" . $prefix . "'); " .  $onchange_code, "processStartTimeClick(this, '$prefix'); ", ($asset->getStartTime() ? iso8601_ts($asset->attr('start_date')) : false)); ?>
 				</td>
 			</tr>
 			<tr>
 				<td class="sq-backend-data" style="text-align: right">
-					<input type="checkbox" value="1" <?php if ($asset->getEndDate()) echo ' checked="checked" '; ?> id="<?php echo $prefix; ?>EndDateEnabled" name="<?php echo $prefix; ?>EndDateEnabled" onclick="processEndEnabledClick(this, '<?php echo $prefix; ?>')" onkeypress="processEndEnabledClick(this, '<?php echo $prefix; ?>')" />runs until&nbsp;&nbsp;
+					<input type="checkbox" value="1" <?php if ($asset->getEndDate()) echo ' checked="checked" '; ?> id="<?php echo $prefix; ?>_end_date_enabled" name="<?php echo $prefix; ?>_end_date_enabled" onclick="processEndEnabledClick(this, '<?php echo $prefix; ?>')" onkeypress="processEndEnabledClick(this, '<?php echo $prefix; ?>')" />runs until&nbsp;&nbsp;
 				</td>
 				<td class="sq-backend-data">
-					<?php $this->printDateChooser($prefix.'End',"updateStartDate('" . $prefix . "'); " .  $onchange_code, ($asset->getEndDate() ? iso8601_ts($asset->attr('end_date')) : false)); ?>
+					<?php $this->printDateChooser($prefix.'_end',"updateStartDate('" . $prefix . "'); " .  $onchange_code, ($asset->getEndDate() ? iso8601_ts($asset->attr('end_date')) : false)); ?>
 				</td>
 				<td class="sq-backend-data">
-					&nbsp;&nbsp;<?php $this->printTimeChooser($prefix.'End', "updateStartDate('" . $prefix . "'); " .  $onchange_code, "processEndTimeClick(this, '$prefix'); ", ($asset->getEndTime() ? iso8601_ts($asset->attr('end_date')) : false)); ?>
+					&nbsp;&nbsp;<?php $this->printTimeChooser($prefix.'_end', "updateStartDate('" . $prefix . "'); " .  $onchange_code, "processEndTimeClick(this, '$prefix'); ", ($asset->getEndTime() ? iso8601_ts($asset->attr('end_date')) : false)); ?>
 				</td>
 			</tr>
 		</table>
@@ -294,67 +297,67 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processSingleStartEndChooser(&$asset, &$o, $prefix) 
 	{
-		foreach (Array('Start', 'End') as $component) {
-			if (isset($_REQUEST[$prefix . $component . 'TimeEnabled'])) {
+		foreach (Array('_start', '_end') as $component) {
+			if (isset($_REQUEST[$prefix . $component . '_time_enabled'])) {
 				// interpret AM/PM values and covert to 24hr time
-				if ($_REQUEST[$prefix . $component . 'IsPm']) {
-					$_REQUEST[$prefix . $component . 'Hours'] += 12;
+				if ($_REQUEST[$prefix . $component . '_is_pm']) {
+					$_REQUEST[$prefix . $component . '_hours'] += 12;
 				} else {
-					if ($_REQUEST[$prefix . $component . 'Hours'] == 12) {
-						$_REQUEST[$prefix . $component . 'Hours'] = 0;
+					if ($_REQUEST[$prefix . $component . '_hours'] == 12) {
+						$_REQUEST[$prefix . $component . '_hours'] = 0;
 					}
 				}
-				$_REQUEST[$prefix . $component . 'Hours'] = (int)$_REQUEST[$prefix . $component . 'Hours'];
-				if (($_REQUEST[$prefix . $component . 'Hours'] < 0) || ($_REQUEST[$prefix . $component . 'Hours'] > 23)) {
+				$_REQUEST[$prefix . $component . '_hours'] = (int)$_REQUEST[$prefix . $component . '_hours'];
+				if (($_REQUEST[$prefix . $component . '_hours'] < 0) || ($_REQUEST[$prefix . $component . '_hours'] > 23)) {
 					trigger_error('You entered an invalid hour', E_USER_WARNING);
 					return false;
 				}
-				$_REQUEST[$prefix . $component . 'Minutes'] = (int)$_REQUEST[$prefix . $component . 'Minutes'];
-				if (($_REQUEST[$prefix . $component . 'Minutes'] < 0) || ($_REQUEST[$prefix . $component . 'Minutes'] > 59)) {
+				$_REQUEST[$prefix . $component . '_minutes'] = (int)$_REQUEST[$prefix . $component . '_minutes'];
+				if (($_REQUEST[$prefix . $component . '_minutes'] < 0) || ($_REQUEST[$prefix . $component . '_minutes'] > 59)) {
 					trigger_error('You entered an invalid minute', E_USER_WARNING);
 					return false;
 				}
 			}
-			if (isset($_REQUEST[$prefix . $component . 'Year'])) {
-				$_REQUEST[$prefix . $component . 'Year'] = (int)$_REQUEST[$prefix . $component . 'Year'];
-				if (($_REQUEST[$prefix . $component . 'Year'] < 1900) || ($_REQUEST[$prefix . $component . 'Year'] > 2100)) {
+			if (isset($_REQUEST[$prefix . $component . '_year'])) {
+				$_REQUEST[$prefix . $component . '_year'] = (int)$_REQUEST[$prefix . $component . '_year'];
+				if (($_REQUEST[$prefix . $component . '_year'] < 1900) || ($_REQUEST[$prefix . $component . '_year'] > 2100)) {
 					trigger_error('You entered an invalid year value', E_USER_WARNING);
 					return false;
 				}
-				$_REQUEST[$prefix . $component . 'Month'] = (int)$_REQUEST[$prefix . $component . 'Month'];
-				if (($_REQUEST[$prefix . $component . 'Month'] < 1) || ($_REQUEST[$prefix . $component . 'Month'] > 12)) {
+				$_REQUEST[$prefix . $component . '_month'] = (int)$_REQUEST[$prefix . $component . '_month'];
+				if (($_REQUEST[$prefix . $component . '_month'] < 1) || ($_REQUEST[$prefix . $component . '_month'] > 12)) {
 					trigger_error('You entered an invalid month value', E_USER_WARNING);
 					return false;
 				}
-				$_REQUEST[$prefix . $component . 'Day'] = (int)$_REQUEST[$prefix . $component . 'Day'];
-				if (($_REQUEST[$prefix . $component . 'Day'] < 1) || ($_REQUEST[$prefix . $component . 'Day'] > 31)) {
+				$_REQUEST[$prefix . $component . '_day'] = (int)$_REQUEST[$prefix . $component . '_day'];
+				if (($_REQUEST[$prefix . $component . '_day'] < 1) || ($_REQUEST[$prefix . $component . '_day'] > 31)) {
 					trigger_error('You entered an invalid day value', E_USER_WARNING);
 					return false;
 				}
 			}
 		}
 
-		$start_date_value = $_REQUEST[$prefix . 'StartYear'] .'-' 
-			. sprintf("%02d", $_REQUEST[$prefix . 'StartMonth']) .'-' 
-			. sprintf("%02d", $_REQUEST[$prefix . 'StartDay']) . ' ';
-		if (isset($_REQUEST[$prefix . 'StartTimeEnabled'])) {
-			$start_date_value .= sprintf("%02d", $_REQUEST[$prefix . 'StartHours']) . ':'
-									. sprintf("%02d", $_REQUEST[$prefix . 'StartMinutes']) . ':--';
+		$start_date_value = $_REQUEST[$prefix . '_start_year'] .'-' 
+			. sprintf("%02d", $_REQUEST[$prefix . '_start_month']) .'-' 
+			. sprintf("%02d", $_REQUEST[$prefix . '_start_day']) . ' ';
+		if (isset($_REQUEST[$prefix . '_start_time_enabled'])) {
+			$start_date_value .= sprintf("%02d", $_REQUEST[$prefix . '_start_hours']) . ':'
+									. sprintf("%02d", $_REQUEST[$prefix . '_start_minutes']) . ':--';
 		} else {
 			$start_date_value .= '--:--:--';
 		}
 
-		if (isset($_REQUEST[$prefix . 'EndTimeEnabled'])) {
-			$end_date_value = $_REQUEST[$prefix . 'EndYear'] .'-' 
-				. sprintf("%02d", $_REQUEST[$prefix . 'EndMonth']) .'-' 
-				. sprintf("%02d", $_REQUEST[$prefix . 'EndDay']) . ' '
-				. sprintf("%02d", $_REQUEST[$prefix . 'EndHours']) . ':'
-				. sprintf("%02d", $_REQUEST[$prefix . 'EndMinutes']) . ':--';
+		if (isset($_REQUEST[$prefix . '_end_time_enabled'])) {
+			$end_date_value = $_REQUEST[$prefix . '_end_year'] .'-' 
+				. sprintf("%02d", $_REQUEST[$prefix . '_end_month']) .'-' 
+				. sprintf("%02d", $_REQUEST[$prefix . '_end_day']) . ' '
+				. sprintf("%02d", $_REQUEST[$prefix . '_end_hours']) . ':'
+				. sprintf("%02d", $_REQUEST[$prefix . '_end_minutes']) . ':--';
 		} else {
-			if (isset($_REQUEST[$prefix . 'EndDateEnabled'])) {
-				$end_date_value = $_REQUEST[$prefix . 'EndYear'] .'-' 
-					. sprintf("%02d", $_REQUEST[$prefix . 'EndMonth']) .'-' 
-					. sprintf("%02d", $_REQUEST[$prefix . 'EndDay']) . ' '
+			if (isset($_REQUEST[$prefix . '_end_date_enabled'])) {
+				$end_date_value = $_REQUEST[$prefix . '_end_year'] .'-' 
+					. sprintf("%02d", $_REQUEST[$prefix . '_end_month']) .'-' 
+					. sprintf("%02d", $_REQUEST[$prefix . '_end_day']) . ' '
 					. '--:--:--';
 			} else {
 				$end_date_value = '---------- --:--:--';
@@ -383,9 +386,9 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 		$disabled_text = ($timestamp === false) ? ' disabled="disabled" ' : '';
 		if (!$timestamp) $timestamp = time();
 		?>
-		<input class="sq-form-field" style="width: 5ex" type="text" name="<?php echo $prefix; ?>Day" id="<?php echo $prefix; ?>Day" size="2" value="<?php echo date('d', $timestamp); ?>" <?php echo $disabled_text; ?> onchange="validateDay(this); <?php echo $onchange_code; ?>" onfocus="this.select()" />
+		<input class="sq-form-field" style="width: 5ex" type="text" name="<?php echo $prefix; ?>_day" id="<?php echo $prefix; ?>_day" size="2" value="<?php echo date('d', $timestamp); ?>" <?php echo $disabled_text; ?> onchange="validateDay(this); <?php echo $onchange_code; ?>" onfocus="this.select()" />
 		
-		<select class="sq-form-field" name="<?php echo $prefix; ?>Month" id="<?php echo $prefix; ?>Month" <?php echo $disabled_text; ?> onchange="<?php echo $onchange_code; ?>">
+		<select class="sq-form-field" name="<?php echo $prefix; ?>_month" id="<?php echo $prefix; ?>_month" <?php echo $disabled_text; ?> onchange="<?php echo $onchange_code; ?>">
 		<?php
 		$currentMonth = date('n', $timestamp);
 		foreach(range(1, 12) as $monthNumber) {
@@ -394,7 +397,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 		?>
 		</select>
 		
-		<input class="sq-form-field" type="text" name="<?php echo $prefix; ?>Year" id="<?php echo $prefix; ?>Year" size="2" value="<?php echo date('Y', $timestamp); ?>" <?php echo $disabled_text; ?> onchange="validateFutureYear(this); <?php echo $onchange_code; ?>" onfocus="this.select()" />
+		<input class="sq-form-field" type="text" name="<?php echo $prefix; ?>_year" id="<?php echo $prefix; ?>_year" size="2" value="<?php echo date('Y', $timestamp); ?>" <?php echo $disabled_text; ?> onchange="validateFutureYear(this); <?php echo $onchange_code; ?>" onfocus="this.select()" />
 		<?php
 		return true;
 
@@ -419,13 +422,13 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 		if (!$timestamp) $timestamp = time();
 
 		?>
-		<input class="sq-form-field" type="checkbox" value="1" <?php echo $checked_text; ?> name="<?php echo $prefix; ?>TimeEnabled" id="<?php echo $prefix; ?>TimeEnabled" onclick="<?php echo $onclick_code; ?>" onkeypress="<?php echo $onclick_code; ?>" />at
+		<input class="sq-form-field" type="checkbox" value="1" <?php echo $checked_text; ?> name="<?php echo $prefix; ?>_time_enabled" id="<?php echo $prefix; ?>_time_enabled" onclick="<?php echo $onclick_code; ?>" onkeypress="<?php echo $onclick_code; ?>" />at
 		
-		<input class="sq-form-field" style="width: 5ex" type="text" name="<?php echo $prefix; ?>Hours" id="<?php echo $prefix; ?>Hours" size="2" maxlength="2" value="<?php echo date('g', $timestamp); ?>" onchange="validateHours(this); <?php echo $onchange_code; ?>" <?php echo $disabled_text; ?> onfocus="this.select()" /> :
+		<input class="sq-form-field" style="width: 5ex" type="text" name="<?php echo $prefix; ?>_hours" id="<?php echo $prefix; ?>_hours" size="2" maxlength="2" value="<?php echo date('g', $timestamp); ?>" onchange="validateHours(this); <?php echo $onchange_code; ?>" <?php echo $disabled_text; ?> onfocus="this.select()" /> :
 		
-		<input class="sq-form-field" style="width: 5ex" type="text" name="<?php echo $prefix; ?>Minutes" id="<?php echo $prefix; ?>Minutes" size="2" maxlength="2" value="<?php echo date('i', $timestamp); ?>" onchange="validateMinutes(this); <?php echo $onchange_code; ?>" <?php echo $disabled_text; ?> onfocus="this.select()" />
+		<input class="sq-form-field" style="width: 5ex" type="text" name="<?php echo $prefix; ?>_minutes" id="<?php echo $prefix; ?>_minutes" size="2" maxlength="2" value="<?php echo date('i', $timestamp); ?>" onchange="validateMinutes(this); <?php echo $onchange_code; ?>" <?php echo $disabled_text; ?> onfocus="this.select()" />
 		
-		<select class="sq-form-field" name="<?php echo $prefix; ?>IsPm" id="<?php echo $prefix; ?>IsPm" onchange="<?php echo $onchange_code; ?>" <?php echo $disabled_text; ?> >
+		<select class="sq-form-field" name="<?php echo $prefix; ?>_is_pm" id="<?php echo $prefix; ?>_is_pm" onchange="<?php echo $onchange_code; ?>" <?php echo $disabled_text; ?> >
 			<option value="0" <?php echo (date('a', $timestamp)=='am') ? ' selected="selected" ' : ''; ?>>am</option>
 			<option value="1" <?php echo (date('a', $timestamp)=='pm') ? ' selected="selected" ' : ''; ?>>pm</option>
 		</select>
