@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.44 2004/02/02 04:33:06 gsherwood Exp $
+* $Id: general.inc,v 1.45 2004/02/10 16:42:14 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -167,6 +167,9 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 				} else {
 					echo $str;
 				}
+
+				// Uncomment below for debugging from cmdline
+				//error_log($str."\n".$bt_str."\n".str_repeat("=+", 50)."\n", 3, SQ_DATA_PATH.'/private/logs/back_traces.log');
 
 				break;
 
