@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.128 2003/10/07 07:40:18 dwong Exp $
+* $Id: asset_manager.inc,v 1.129 2003/10/07 23:16:21 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -604,7 +604,7 @@ class Asset_Manager extends MySource_Object
 			case 'cron_manager' :
 				return $this->getAsset(8, 'cron_manager');
 			case 'login_design' :
-				return $this->getAsset(10, 'login_design');
+				return $this->getAsset(9, 'login_design');
 			case 'search_manager' :
 				return $this->getAsset(13, 'search_manager');
 			default :
