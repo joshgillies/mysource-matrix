@@ -1,5 +1,12 @@
 <?php
 /**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: html_form.inc,v 1.41 2003/09/26 05:26:34 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
+/**
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>

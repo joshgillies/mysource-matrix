@@ -1,14 +1,14 @@
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: html_form.js,v 1.18 2003/09/26 05:26:34 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 /*
 * Some useful functions for dealing with the form through javascript
 * Specific to Resolve, but easy to pull out for other use
 *
-*
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-* $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/html_form/html_form.js,v $
-* $Revision: 1.17 $
-* $Author: brobertson $
-* $Date: 2003/09/09 04:39:38 $
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 */
 
 /**

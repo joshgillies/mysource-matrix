@@ -1,3 +1,10 @@
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: popup.js,v 1.6 2003/09/26 05:26:37 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 function __dlg_onclose(code) {
 	if (!document.all) {
 		if (opener.dialogWins[code] && opener.dialogWins[code].returnFunc) { opener.dialogWins[code].returnFunc(null); }

@@ -1,27 +1,10 @@
-//<!--
-/*  ##############################################
-   ### SQUIZLIB ------------------------------###
-  ##- Javascript Include Files - Javascript --##
- #-- Copyright Squiz.net ---------------------#
-##############################################
-## This file is subject to version 1.0 of the
-## MySource License, that is bundled with
-## this package in the file LICENSE, and is
-## available at through the world-wide-web at
-## http://mysource.squiz.net/
-## If you did not receive a copy of the MySource
-## license and are unable to obtain it through
-## the world-wide-web, please contact us at
-## mysource@squiz.net so we can mail you a copy
-## immediately.
-##
-## Desc: Ultimate client-side JavaScript client sniff. 
-## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/js/detect.js,v $
-## $Revision: 1.1.1.1 $
-## $Author: brobertson $
-## $Date: 2003/01/23 06:25:36 $
-#######################################################################
+/**
+* 
+*
+* $Id: detect.js,v 1.2 2003/09/26 05:26:34 brobertson Exp $
+* $Name: not supported by cvs2svn $
 */
+
 // Ultimate client-side JavaScript client sniff. Version 3.03
 // (C) Netscape Communications 1999-2001.  Permission granted to reuse and distribute.
 // Revised 17 May 99 to add is_nav5up and is_ie5up (see below).
@@ -228,4 +211,3 @@
 	// *** DOM Compatability ***
 	var is_dom = (document.getElementById) ? true : false;
 
-//--> end hide JavaScript

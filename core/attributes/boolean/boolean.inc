@@ -1,4 +1,11 @@
 <?php
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: boolean.inc,v 1.8 2003/09/26 05:26:30 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 
 require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 

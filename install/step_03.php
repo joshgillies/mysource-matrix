@@ -1,5 +1,12 @@
 <?php
 /**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: step_03.php,v 1.10 2003/09/26 05:26:34 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
+/**
 * Install Step 3
 *
 * Purpose

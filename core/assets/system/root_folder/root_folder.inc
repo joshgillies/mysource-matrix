@@ -1,4 +1,11 @@
 <?php
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: root_folder.inc,v 1.34 2003/09/26 05:26:27 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 
 require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 

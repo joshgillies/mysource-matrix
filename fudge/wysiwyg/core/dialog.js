@@ -1,3 +1,10 @@
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: dialog.js,v 1.6 2003/09/26 05:26:37 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 // An array of dialogs that have been opened
 var dialogWins = new Array();
 

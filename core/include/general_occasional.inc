@@ -1,5 +1,12 @@
 <?php
 /**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: general_occasional.inc,v 1.24 2003/09/26 05:26:31 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
+/**
 * General Functions that aren't going to be needed everytime
 * but are still very general fns
 *

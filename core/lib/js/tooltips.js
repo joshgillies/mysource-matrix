@@ -1,24 +1,11 @@
-/*  ##############################################
-   ### MySource ------------------------------###
-  ##- Tooltip Handler -------- Javascript ----##
- #-- Copyright Squiz.net ---------------------#
-##############################################
-## This file is subject to version 1.0 of the
-## MySource License, that is bundled with
-## this package in the file LICENSE, and is
-## available at through the world-wide-web at
-## http://mysource.squiz.net/
-## If you did not receive a copy of the MySource
-## license and are unable to obtain it through
-## the world-wide-web, please contact us at
-## mysource@squiz.net so we can mail you a copy
-## immediately.
-##
-## Desc: JS functions needed for the Tooltips for the backend
-## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/js/Attic/tooltips.js,v $
-## $Revision: 1.1.1.1 $
-## $Author: brobertson $
-## $Date: 2003/01/23 06:25:36 $
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: tooltips.js,v 1.2 2003/09/26 05:26:34 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
+/*
 #######################################################################
 ## Requires: layer_handler.js
 #######################################################################

@@ -1,3 +1,12 @@
+<!--
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: asset.xml,v 1.4 2003/09/26 05:26:26 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
 <?xml version='1.0' encoding='UTF-8' ?>
 <?xml-stylesheet href="../../../packages/asset.xsl" type="text/xsl"?>
 

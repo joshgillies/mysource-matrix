@@ -1,4 +1,11 @@
 <?php
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: cron_job_future_status.inc,v 1.11 2003/09/26 05:26:27 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 
 require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 

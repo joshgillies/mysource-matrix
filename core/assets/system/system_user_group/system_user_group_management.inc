@@ -1,4 +1,11 @@
 <?php
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: system_user_group_management.inc,v 1.4 2003/09/26 05:26:29 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 

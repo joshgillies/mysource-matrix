@@ -1,5 +1,12 @@
 <?php
 /**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: run.php,v 1.4 2003/09/26 05:26:30 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
+/**
 * Index File
 *
 * The one file through which everything runs

@@ -1,4 +1,13 @@
+<?php
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: colour_picker.php,v 1.3 2003/09/26 05:26:34 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+?>
 <!-- note: this version of the color picker is optimized for IE 5.5+ only -->
+
 
 <html>
 	<head>

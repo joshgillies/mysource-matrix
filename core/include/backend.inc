@@ -1,4 +1,11 @@
 <?php
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: backend.inc,v 1.57 2003/09/26 05:26:31 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 
 require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 

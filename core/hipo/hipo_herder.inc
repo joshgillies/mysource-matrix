@@ -1,4 +1,11 @@
 <?php
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: hipo_herder.inc,v 1.16 2003/09/26 05:26:31 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 
 require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 

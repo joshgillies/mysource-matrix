@@ -1,4 +1,11 @@
 <?php
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: hipo_job.inc,v 1.25 2003/09/26 05:26:31 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 
 // include the hipo system config file
 require_once SQ_DATA_PATH.'/private/conf/hipo.inc';

@@ -1,3 +1,10 @@
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: bodycopy_edit_tables.js,v 1.4 2003/09/26 05:26:40 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 function bodycopy_insert_table(bodycopy_name, tableid, before) {
 	bodycopy_current_edit["bodycopy_name"]   = bodycopy_name;
 	bodycopy_current_edit["data"]            = new Object();

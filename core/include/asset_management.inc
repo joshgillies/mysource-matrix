@@ -1,4 +1,11 @@
 <?php
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: asset_management.inc,v 1.42 2003/09/26 05:26:31 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 
 require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';

@@ -1,4 +1,11 @@
 <?php
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: asset_status_under_construction.inc,v 1.10 2003/09/26 05:26:31 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 
 /**

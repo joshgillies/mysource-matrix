@@ -1,4 +1,11 @@
 /**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: mcProgressBarClass.as,v 1.10 2003/09/26 05:26:32 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
+/**
 * This is an pop-up dialog box
 *
 */

@@ -1,4 +1,11 @@
 /**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: flashExternalCall.js,v 1.7 2003/09/26 05:26:32 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
+/**
 * This function works in partnership with the ExternalCall flash class.
 * What it allows is the execution of commands inside the flash that
 * you are unable to do normally.

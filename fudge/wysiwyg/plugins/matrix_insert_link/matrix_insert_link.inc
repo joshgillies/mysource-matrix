@@ -1,4 +1,11 @@
 <?php
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: matrix_insert_link.inc,v 1.11 2003/09/26 05:26:38 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 
 global $ROOT_PATH;
 include_once($ROOT_PATH.'wysiwyg_plugin.inc');

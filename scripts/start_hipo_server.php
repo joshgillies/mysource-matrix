@@ -1,5 +1,12 @@
 <?php
 /**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: start_hipo_server.php,v 1.4 2003/09/26 05:26:35 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
+/**
 * Start HIPO Server
 *
 *   Example script to start the HIPO Server

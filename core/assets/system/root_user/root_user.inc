@@ -1,4 +1,11 @@
 <?php
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: root_user.inc,v 1.28 2003/09/26 05:26:28 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 
 require_once SQ_CORE_PACKAGE_PATH.'/system/system_user/system_user.inc';
 

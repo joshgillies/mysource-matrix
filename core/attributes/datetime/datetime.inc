@@ -1,4 +1,11 @@
 <?php
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: datetime.inc,v 1.9 2003/09/26 05:26:30 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 
 require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';

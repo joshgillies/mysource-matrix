@@ -1,5 +1,12 @@
 <?php
 /**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: blank.php,v 1.5 2003/09/26 05:26:40 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
+/**
 * Blank Pop-Up
 *
 * Purpose

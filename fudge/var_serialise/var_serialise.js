@@ -1,4 +1,10 @@
-//<!-- // --
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: var_serialise.js,v 1.4 2003/09/26 05:26:37 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 /**
 * Var Serialise
 *
@@ -247,5 +253,3 @@ function settype(value, type) {
 	return val;
 
 }// end settype()
-
-// -->

@@ -1,3 +1,10 @@
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: serverExec.as,v 1.12 2003/09/26 05:26:32 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 
 /**
 * This class controls the sending and retrieval of data from the server in XML

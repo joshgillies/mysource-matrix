@@ -1,3 +1,10 @@
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: mcMsgsBarMessageClass.as,v 1.5 2003/09/26 05:26:32 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 
 // Create the Class
 function mcMsgsBarMessageClass()

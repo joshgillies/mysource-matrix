@@ -1,3 +1,10 @@
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: mcMenuClass.as,v 1.3 2003/09/26 05:26:32 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 function mcMenuClass() 
 {
 	//trace (this + "::mcMenuClass()");

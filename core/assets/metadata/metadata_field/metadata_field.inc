@@ -1,4 +1,11 @@
 <?php
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: metadata_field.inc,v 1.3 2003/09/26 05:26:26 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 

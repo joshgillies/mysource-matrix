@@ -1,3 +1,10 @@
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: assetType.as,v 1.8 2003/09/26 05:26:32 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 
 // Create the Class
 function AssetType(type_code, name, menu_path, version, instantiable, allowed_access, parent_type, edit_screens) 

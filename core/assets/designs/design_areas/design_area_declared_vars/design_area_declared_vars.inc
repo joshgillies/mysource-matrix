@@ -1,4 +1,11 @@
 <?php
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: design_area_declared_vars.inc,v 1.9 2003/09/26 05:26:24 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 
 require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 

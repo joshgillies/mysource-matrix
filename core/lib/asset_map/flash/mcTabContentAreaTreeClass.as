@@ -1,3 +1,10 @@
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: mcTabContentAreaTreeClass.as,v 1.13 2003/09/26 05:26:32 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 #include "mcMenuContainerClass.as"
 #include "mcListContainerClass.as"
 #include "mcAssetFinderHeading.as"

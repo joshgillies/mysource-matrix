@@ -1,4 +1,11 @@
 <?php
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: hipo_client.inc,v 1.4 2003/09/26 05:26:31 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 
 require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 require_once SQ_SYSTEM_ROOT.'/core/hipo/server/hipo_server_common.inc';

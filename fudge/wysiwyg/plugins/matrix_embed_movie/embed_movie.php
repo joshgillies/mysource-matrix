@@ -1,4 +1,11 @@
 <?php
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: embed_movie.php,v 1.3 2003/09/26 05:26:38 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 

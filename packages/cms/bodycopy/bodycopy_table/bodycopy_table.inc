@@ -1,4 +1,11 @@
 <?php
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: bodycopy_table.inc,v 1.41 2003/09/26 05:26:40 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once(dirname(__FILE__).'/bodycopy_table_cell.inc');

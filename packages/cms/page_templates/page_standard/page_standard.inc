@@ -1,4 +1,11 @@
 <?php
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: page_standard.inc,v 1.21 2003/09/26 05:26:42 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 
 require_once dirname(__FILE__).'/../../page/page.inc';
 

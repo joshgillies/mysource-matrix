@@ -1,3 +1,10 @@
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: colour_picker.js,v 1.2 2003/09/26 05:26:34 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 var colour_fields = new Array();
 var colour_pickers = new Array();
 var colour_picker_count = 0;

@@ -1,4 +1,11 @@
 <?php
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: content_type_nest_content.inc,v 1.10 2003/09/26 05:26:40 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 
 require_once dirname(__FILE__).'/../../content_type/content_type.inc';
 

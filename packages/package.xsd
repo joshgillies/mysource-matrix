@@ -1,3 +1,12 @@
+<!--
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: package.xsd,v 1.2 2003/09/26 05:26:35 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
 <?xml version="1.0"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 

@@ -1,4 +1,11 @@
 /**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: stageResize.as,v 1.11 2003/09/26 05:26:32 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
+/**
 * This listener looks after the resizing of the objects
 * on the stage when it is resized
 */

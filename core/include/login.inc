@@ -1,5 +1,12 @@
 <?php
 /**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: login.inc,v 1.10 2003/09/26 05:26:31 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
+/**
 * Absolute Last Resort Backup Login Form
 * Used only when no login design is found in the system (REALLY BAD SITUATION)
 *

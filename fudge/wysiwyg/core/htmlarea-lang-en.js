@@ -1,3 +1,10 @@
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: htmlarea-lang-en.js,v 1.3 2003/09/26 05:26:37 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 // I18N constants
 
 // LANG: "en", ENCODING: UTF-8 | ISO-8859-1

@@ -1,4 +1,11 @@
 /**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: mcTabButtonClass.as,v 1.6 2003/09/26 05:26:32 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
+/**
 * TabButton
 *
 * This is the code for a single instance of a tab button that is used by mcTabs

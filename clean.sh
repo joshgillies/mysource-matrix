@@ -1,4 +1,11 @@
 #!/bin/sh
+#/**
+#* Copyright (c) 2003 - Squiz Pty Ltd
+#*
+#* $Id: clean.sh,v 1.7 2003/09/26 05:26:24 brobertson Exp $
+#* $Name: not supported by cvs2svn $
+#*/
+
 # Creates a clean system by removing data and cache directories 
 # and clearing out the database and re-inserting the create script
 

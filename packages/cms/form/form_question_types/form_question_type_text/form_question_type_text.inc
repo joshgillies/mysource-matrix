@@ -1,4 +1,11 @@
 <?php
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: form_question_type_text.inc,v 1.6 2003/09/26 05:26:41 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 
 require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 

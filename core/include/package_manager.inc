@@ -1,4 +1,11 @@
 <?php
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: package_manager.inc,v 1.34 2003/09/26 05:26:31 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 
 require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';

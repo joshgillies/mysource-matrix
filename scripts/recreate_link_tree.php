@@ -1,5 +1,12 @@
 <?php
 /**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: recreate_link_tree.php,v 1.4 2003/09/26 05:26:35 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
+/**
 * Use this script to (re)create the link tree.
 * The main use of this script is recreate the treeids when the 
 * SQ_CONF_ASSET_TREE_BASE or SQ_CONF_ASSET_TREE_SIZE config options change

@@ -1,5 +1,12 @@
 <?php
 /**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: dev.inc,v 1.7 2003/09/26 05:26:36 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
+/**
 * Dev
 *
 * Purpose

@@ -1,4 +1,11 @@
 <?php
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: view_source.inc,v 1.6 2003/09/26 05:26:39 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
 
 global $ROOT_PATH;
 include_once($ROOT_PATH.'wysiwyg_plugin.inc');

@@ -1,24 +1,8 @@
-/*  ##############################################
-   ### MySource ------------------------------###
-  ##- Backend Edit file -- CSS ---------------##
- #-- Copyright Squiz.net ---------------------#
-##############################################
-## This file is subject to version 1.0 of the
-## MySource License, that is bundled with
-## this package in the file LICENSE, and is
-## available at through the world-wide-web at
-## http://mysource.squiz.net/
-## If you did not receive a copy of the MySource
-## license and are unable to obtain it through
-## the world-wide-web, please contact us at
-## mysource@squiz.net so we can mail you a copy
-## immediately.
-##
-## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/assets/designs/login_design/design_files/files/Attic/styles.css,v $
-## $Revision: 1.1 $
-## $Author: brobertson $
-## $Date: 2003/06/21 08:28:19 $
-#######################################################################
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: styles.css,v 1.2 2003/09/26 05:26:26 brobertson Exp $
+* $Name: not supported by cvs2svn $
 */
 
 body {

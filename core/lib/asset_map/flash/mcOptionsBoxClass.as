@@ -1,4 +1,11 @@
 /**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: mcOptionsBoxClass.as,v 1.6 2003/09/26 05:26:32 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+
+/**
 * This is an options box dialog that allows you to create an options pop-up
 * There is a call back fn for it that returns the value of the selected option
 * or null if cancel is selected
