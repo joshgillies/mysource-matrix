@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema.inc,v 1.10 2004/02/16 01:05:22 gsherwood Exp $
+* $Id: metadata_schema.inc,v 1.11 2004/02/18 04:36:31 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -172,7 +172,7 @@ class Metadata_Schema extends Folder
 			return 0;
 		}
 
-		if ($is_a($minor, 'metadata_section')) {
+		if (is_a($minor, 'metadata_section')) {
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array('schemaid' => $this->id);
 			$code_name = $hh->queueHipo('hipo_job_regenerate_metadata', $vars);
