@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: esec_processor_integration_interface.inc,v 1.1 2004/10/22 06:51:11 dofford Exp $
+* $Id: esec_processor_integration_interface.inc,v 1.2 2004/10/22 07:04:28 dofford Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,6 +30,7 @@
 * Mysource: xtras/sites/extensions/ecommerce_store/xtras/payment_gateway/esec
 */
 
+require_once 'HTTP/Request.php';
 require_once dirname(__FILE__).'/esec_processor.inc';
 
 /**
@@ -40,7 +41,7 @@ require_once dirname(__FILE__).'/esec_processor.inc';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
