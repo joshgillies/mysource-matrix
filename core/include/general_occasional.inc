@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.35 2004/08/05 00:01:41 lwright Exp $
+* $Id: general_occasional.inc,v 1.36 2004/09/14 16:33:58 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -341,6 +341,23 @@ function merge_preferences($prefs1, $prefs2)
 	return $merged_prefs;
 
 }//end merge_preferences()
+
+
+/**
+* Add a tooltip to a piece of code
+*
+* Given a tag or a piece of text, wraps it with a span
+*
+* @access public
+* @return string
+*/
+function make_tooltip($tag, $text, $title='')
+{
+	$text  = str_replace(array("\n", "\r"), '', nl2br(addslashes(htmlspecialchars($text))));
+	$title = str_replace(array("\n", "\r"), '', nl2br(addslashes(htmlspecialchars($title))));
+	return '<span onmouseover="javascript: tooltip.show(this, \''.$text.'\', \''.$title.'\');" onmouseout="javascript: tooltip.hide();">'.$tag.'</span>';
+
+}//end make_tooltip()
 
 
 ?>
