@@ -1473,6 +1473,14 @@ class Asset extends Resolve_Object
 					return false;
 				}
 
+				// this asset is destined for the trash, so we need to set its permissions to
+				// whatever it is inheriting right now so it keeps the while in the trash
+				$perms = Array(SQ_PERMISSION_ADMIN, SQ_PERMISSION_WRITE, SQ_PERMISSION_READ);
+				foreach ($perms as $perm) {
+					$userids = array_keys($minor->getPermission($perm, false));
+					foreach($userids as $userid) $minor->grantPermission($userid, $perm);
+				}
+
 				if (!$trash_folder->createLink($minor, SQ_LINK_UNITE)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
@@ -1699,7 +1707,7 @@ class Asset extends Resolve_Object
 	{
 
 		$assetid = (int) $assetid;
-		$current = &$this->getPermission($permission, false);
+		$current = &$this->getPermission($permission, false, false);
 		if (in_array($assetid, array_keys($current))) return false;
 
 		// if we dont have an assetid, we are granting public access
@@ -1762,7 +1770,7 @@ class Asset extends Resolve_Object
 	{
 
 		// make sure the permission is set before trying to delete
-		$current = &$this->getPermission($permission, false);
+		$current = &$this->getPermission($permission, false, false);
 		if (!in_array($assetid, array_keys($current))) return false;
 
 		// if we dont have an assetid, we are revoking public access
@@ -1824,29 +1832,32 @@ class Asset extends Resolve_Object
 	/**
 	* Returns an array of all user or user_group assets that have the passed permission for this asset
 	*
-	* @param string	$permission	the permission code you are getting
+	* @param string		$permission		the permission code you are getting
+	* @param boolean	$and_greater	get effective permission (eg read access = read or write or admin)
+	* @param boolean	$and_inherited	get permission from parents as well
 	*
 	* @return array(int)
 	* @access public
 	*/
-	function getPermission($permission, $and_greater=true)
+	function getPermission($permission, $and_greater=true, $and_inherited=true)
 	{
 		$permission = (int) $permission;
 
 		// return cached version if we can
-		if (isset($this->_tmp[(($and_greater) ? 'effective_' : '').'permissions'][$permission])) {
-			return $this->_tmp[(($and_greater) ? 'effective_' : '').'permissions'][$permission];
+		$storage_name =(($and_greater) ? 'effective_' : '').'permissions'.(($and_inherited) ? '_inherited' : '');
+		if (isset($this->_tmp[$storage_name][$permission])) {
+			return $this->_tmp[$storage_name][$permission];
 		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$parents = $this->getParents();
+		$parents = Array();
+		if ($and_inherited) $parents = $this->getParents();
 
 		// get the permissions
 		$in_string = '';
-		foreach ($parents as $parent) $in_string .= $db->quote($parent).', ';
+		if (!empty($parents)) foreach ($parents as $parent) $in_string .= $db->quote($parent).', ';
 		$in_string .= $db->quote($this->id); // check permission set by this asset
-		$in_string .= ", '0'";               // check public permissions
 
 		$sql = 'SELECT userid, assetid FROM sq_asset_permission
 				WHERE assetid IN ('.$in_string.')
@@ -1858,7 +1869,7 @@ class Asset extends Resolve_Object
 			return Array();
 		}
 
-		$this->_tmp[(($and_greater) ? 'effective_' : '').'permissions'][$permission] = $result;
+		$this->_tmp[$storage_name][$permission] = $result;
 		return $result;
 	}//end getPermission()
 
