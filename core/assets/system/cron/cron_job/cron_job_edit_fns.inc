@@ -57,6 +57,10 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 		$one_off = ($asset->attr('type') == 'one_off');
 		$repeating = !$one_off; // for easier reading
 
+
+		$cron_mgr_edit_fns = $cron_mgr->getEditFns();
+		$hours_mins = $cron_mgr_edit_fns->getWhenBoxHoursMins($cron_mgr, $one_off);
+
 		$when_str = $asset->attr('when');
 		$when_arr = Cron_Job::getWhenArr($when_str);
 
@@ -98,9 +102,14 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 		echo '&nbsp;&nbsp;&nbsp;';
 
 		if ($asset->writeAccess()) {
-			$hours = Array('--' => '--');
-			for ($i = 0; $i <= 23; $i++) $hours[str_pad($i, 2, '0', STR_PAD_LEFT)] = str_pad($i, 2, '0', STR_PAD_LEFT);
-			combo_box($prefix.'_hour', $hours, false, $when_arr['hour']);
+			if (count($hours_mins['hours']) > 1) {
+				$hours = Array('--' => '--');
+				foreach($hours_mins['hours'] as $i) $hours[$i] = $i;
+				combo_box($prefix.'_hour', $hours, false, $when_arr['hour']);
+			} else {
+				echo $hours_mins['hours'][0];
+				hidden_field($prefix.'_hour', $hours_mins['hours'][0]);
+			}
 		} else {
 			echo $when_arr['hour'];
 		}
@@ -108,14 +117,17 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 		echo '&nbsp;:&nbsp;';
 
 		if ($asset->writeAccess()) {
-			$mins = Array('--' => '--');
-			$refresh_mins = (int) $cron_mgr->attr('refresh_time') / 60;
-			for ($i = 0; $i <= 59; $i+= $refresh_mins) $mins[str_pad($i, 2, '0', STR_PAD_LEFT)] = str_pad($i, 2, '0', STR_PAD_LEFT);
-			combo_box($prefix.'_minute',  $mins, false, $when_arr['minute']);
+			if (count($hours_mins['mins']) > 1) {
+				$mins = Array('--' => '--');
+				foreach($hours_mins['mins'] as $i) $mins[$i] = $i;
+				combo_box($prefix.'_min', $mins, false, $when_arr['minute']);
+			} else {
+				echo $hours_mins['mins'][0];
+				hidden_field($prefix.'_minute', $hours_mins['mins'][0]);
+			}
 		} else {
 			echo $when_arr['minute'];
 		}
-
 
 	}//end _paintWhenBox()
 
