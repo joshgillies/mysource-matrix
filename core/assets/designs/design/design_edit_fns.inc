@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.81 2005/02/28 01:34:56 gsherwood Exp $
+* $Id: design_edit_fns.inc,v 1.82 2005/03/02 06:39:40 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -773,6 +773,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 	/**
 	* Creates a new file asset, populates it, and links it to $asset
+	*
 	* @param object Asset	$asset	the asset to link the file to
 	* @param array			$info	info about the uploaded file
 	*
@@ -803,7 +804,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$new_file->setAttrValue('name', $info['name']);
 			$design_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => 1, 'is_dependant' => 1);
 
-			if (!$new_file->create($design_link, $info)) return false;
+			return $new_file->create($design_link, $info);
 
 		} else {
 
@@ -817,7 +818,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				return true;
 			}
 			if ($lock_status === 1) $GLOBALS['SQ_SYSTEM']->am->releaseLock($new_file->id, 'attributes');
-			}
+		}
 
 		return false;
 
