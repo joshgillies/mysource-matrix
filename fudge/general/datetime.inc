@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.17 2004/08/05 00:01:42 lwright Exp $
+* $Id: datetime.inc,v 1.18 2004/08/05 01:58:40 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -388,11 +388,13 @@ function weekday_dates_in_month($weekday, $month, $year)
 *
 * @return mixed (string|boolean)	the date part (still in ISO format, YYYY-MM-DD)
 *									OR false if date passed is not valid ISO date
+*									   or has a null date part 
 * @access public
 */
 function iso8601_date_component($iso8601)
 {
-	if (!is_iso8601($iso8601)) return false;	
+	if (!is_iso8601($iso8601)) return false;
+	if (substr($iso8601,0,10) == '----------') return false;	
 	return substr($iso8601,0,10); 
 	
 }//end iso8601_date_component()
@@ -410,7 +412,8 @@ function iso8601_date_component($iso8601)
 function iso8601_time_component($iso8601)
 {
 	if (!is_iso8601($iso8601)) return false;
-	if (strlen($iso8601) < 13) return false;	
+	if (strlen($iso8601) < 13) return false;
+	if (substr($iso8601,11) == '--:--:--') return false; 	
 	return substr($iso8601,11); 
 	
 }//end iso8601_time_component()
