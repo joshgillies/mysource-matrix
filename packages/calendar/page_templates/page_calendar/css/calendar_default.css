@@ -32,23 +32,26 @@ div#calendarList { text-align: left; width: 80ex; margin-left: auto; margin-righ
  * or contain a date and event(s). Several of the following
  * rules could apply to a given cell.
  */
-table#year { border: 2px solid #EDEDED; background-color: white; border-collapse: collapse; font-family: sans-serif  }
+table#year { border: 1px solid #173e57; background-color: #f8f8f8; border-collapse: collapse; font-family: sans-serif  }
 
 /* Header cells */
-#year th  { border: 1px solid #f2f2f2; font-family: sans-serif}
+#year th  { border: 1px solid #c8c8c8; font-family: sans-serif}
 #year th.monthLabel { background-color: #017ca5; color: white; font-weight: bold; }
 #year th.monthLabel a, #year td.monthLabel a:visited, #year td.monthLabel a:hover { color: white; font-weight: bold; text-decoration: none; }
 #year th.dayLabel { background-color: #41afe0; color: white}
-#year th.dayLabelWeekend { background-color: #41afe0; }
+#year th.dayLabelWeekend { background-color: #93b0e6; }
 
 /* All data cells, including completely empty ones */
-#year td { text-align: center; border-top: 1px solid #e0e0e0; font-family: sans-serif; background-color: #f6f6f6}
+#year td { text-align: center; border-top: 1px solid #d8d8d8; font-family: sans-serif; }
 
 /* Cells with dates */
-#year td.date { background-color: white; border: 1px solid #EDEDED; text-align: center; color: black}
+#year td.date { background-color: white; text-align: center; color: black}
 
 /* Weekend Cells, with or without dates */
-#year td.weekend { background-color: #c0c0c0;  }
+#year td.weekend { background-color: #e6e6eb; border-left: 1px solid #e6e6eb; border-right: 1px solid #e6e6eb;  }
+
+/* Cells with dates, again, to make its borders overrule */
+#year td.date { border: 1px solid #c0c0c0; }
 
 /* Cells with events */
 #year td.eventDate { background-color: #d0ecf6; }
@@ -64,24 +67,24 @@ table#year { border: 2px solid #EDEDED; background-color: white; border-collapse
  * rules could apply to a given cell.
  */
 
-table#month { border: 2px solid purple; background-color: #eeeeee; border-collapse: collapse  }
-#month th  { border: 1px solid black; font-family: sans-serif }
+table#month { border: 1px solid #173e57; background-color: #f8f8f8; border-collapse: collapse  }
+#month th  { border: 1px solid #c8c8c8; font-family: sans-serif }
 
 /* Header Cells */
-#month th.dayLabel { background-color: #bbbbff; }
-#month th.dayLabelWeekend { background-color: #8888aa; }
+#month th.dayLabel { background-color: #41afe0; color: white}
+#month th.dayLabelWeekend { background-color: #93b0e6; }
 
 /* All data cells, including completely empty ones */
-#month td { padding-left: 2px; text-align: left; vertical-align: top; border: 1px solid black; font-family: sans-serif}
+#month td { padding-left: 2px; text-align: left; vertical-align: top; border: 1px solid #c0c0c0; font-family: sans-serif}
 
 /* Cells with dates */
 #month td.date { background-color: white; }
 
 /* Weekend Cells, with or without dates */
-#month td.weekend { background-color: #aaaaaa }
+#month td.weekend { background-color: #e6e6eb; }
 
 /* Cells with events */
-#month td.eventDate { background-color: red; }
+#month td.eventDate { background-color: #d0ecf6; }
 
 /* Linked dates at top left of cells */
 #month td.eventDate a.dateLink, #month td.eventDate a.dateLink:visited, #month td.eventDate a.dateLink:hover { color: white; font-weight: bold; text-decoration: none; } 
@@ -97,14 +100,15 @@ table#month { border: 2px solid purple; background-color: #eeeeee; border-collap
  * Data cells can contain DIVs that represent events
  */
 
-table#week { border: 2px solid purple; background-color: #eeeeee; border-collapse: collapse }
-#week td, #week th  { border: 1px solid black; font-family: sans-serif}
+table#week { border: 1px solid #173e57; background-color: white; border-collapse: collapse }
+#week td, #week th  { border: 1px solid #c0c0c0; font-family: sans-serif}
 #week td, #week th.timeLabel { vertical-align: top; }
 
 /* header cells */
-#week th { background-color: #dddddd; text-align: center; padding: 1px }
-#week th.columnLabel { vertical-align: middle; font-weight: bold; color: red }
-#week th.columnLabel a, #week th.columnLabel a:visited, #week th.columnLabel a:hover { text-decoration: none; font-weight: bold; color: red }
+#week th { background-color: #41afe0; text-align: center; padding: 1px }
+#week th.timeLabel { background-color: #017ca5; color: white }
+#week th.columnLabel { background-color: #41afe0; vertical-align: middle; font-weight: bold; color: black }
+#week th.columnLabel a, #week th.columnLabel a:visited, #week th.columnLabel a:hover { text-decoration: none; font-weight: bold; color: black }
 
 /* Event DIVs (root-node-specific classes will also apply) */
 #week td div { border: 1px solid black; }
@@ -120,14 +124,16 @@ table#week { border: 2px solid purple; background-color: #eeeeee; border-collaps
  * Data cells can contain DIVs that represent events
 **/
 
-table#day { border: 2px solid purple; background-color: #eeeeee; border-collapse: collapse  }
-#day td, #day th  { border: 1px solid black; font-family: sans-serif }
+table#day { border: 1px solid #173e57; background-color: white; border-collapse: collapse  }
+#day td, #day th  { border: 1px solid #c0c0c0; font-family: sans-serif }
 #day td, #day th.timeLabel { vertical-align: top; }
 
 /* header cells */
-#day th { background-color: #dddddd }
-#day th.columnLabel { vertical-align: middle; }
-#day th.columnLabel a, #day th.columnLabel a:visited, #day th.columnLabel a:hover { text-decoration: none; font-weight: bold }
+#day th { background-color: #41afe0; text-align: center; padding: 1px }
+#day th.timeLabel { background-color: #017ca5; color: white }
+#day th.columnLabel { background-color: #41afe0; vertical-align: middle; font-weight: bold; color: black }
+#day th.columnLabel a, #week th.columnLabel a:visited, #week th.columnLabel a:hover { text-decoration: none; font-weight: bold; color: black }
+
 
 /* Event DIVs (root-node-specific classes will also apply) */
 #day td div { border: 1px solid black; }
