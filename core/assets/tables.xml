@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.14 2005/03/30 04:26:42 arailean Exp $
+* $Id: tables.xml,v 1.15 2005/04/01 01:17:19 arailean Exp $
 *
 */
 -->
@@ -1193,13 +1193,13 @@
 		<table name="trig" require_rollback="1">
 			<columns>
 				<column name="id" allow_null="0">
-					<type>INT</type>
+					<type>INTEGER</type>
 					<type_variations />
 					<default />
 					<description>Trigger ID</description>
 				</column>
-				<column name="name" allow_null="1">
-					<type>TEXT</type>
+				<column name="name" allow_null="0">
+					<type>VARCHAR(100)</type>
 					<type_variations />
 					<default />
 					<description>Trigger Name</description>
@@ -1211,7 +1211,7 @@
 					<description>Serialized trigger data</description>
 				</column>
 				<column name="description" allow_null="1">
-					<type>TEXT</type>
+					<type>VARCHAR(255)</type>
 					<type_variations />
 					<default />
 					<description>Trigger description</description>
@@ -1237,13 +1237,13 @@
 		<table name="trig_hash" require_rollback="0">
 			<columns>
 				<column name="event" allow_null="0">
-					<type>VARCHAR(50)</type>
+					<type>VARCHAR(100)</type>
 					<type_variations />
 					<default>''</default>
 					<description>Event type code (asset type)</description>
 				</column>
 				<column name="assetid" allow_null="0">
-					<type>VARCHAR(50)</type>
+					<type>VARCHAR(15)</type>
 					<type_variations />
 					<default>''</default>
 					<description>Asset ID</description>
@@ -1273,7 +1273,7 @@
 					<description>Trigger ID every hash line corresponds to</description>
 				</column>
 				<column name="parentid" allow_null="0">
-					<type>VARCHAR(50)</type>
+					<type>VARCHAR(15)</type>
 					<type_variations />
 					<default>''</default>
 					<description>If the trigger specifies a Parent Asset condition, this will store the ID of parrent asset</description>
@@ -1285,7 +1285,7 @@
 					<description>The type of parent asset (purpose is similar to parentid)</description>
 				</column>
 				<column name="childid" allow_null="0">
-					<type>VARCHAR(50)</type>
+					<type>VARCHAR(15)</type>
 					<type_variations />
 					<default>''</default>
 					<description>If the trigger specifies a Child Asset condition, this will store the ID of child asset</description>
