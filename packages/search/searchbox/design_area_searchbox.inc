@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_searchbox.inc,v 1.6 2003/10/17 06:59:53 dwong Exp $
+* $Id: design_area_searchbox.inc,v 1.7 2003/10/21 06:26:18 dwong Exp $
 * $Name: not supported by cvs2svn $
 *
 */
@@ -14,7 +14,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.6 $ - 1.0
+* @version $Revision: 1.7 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -47,7 +47,7 @@ class Design_Area_Searchbox extends Design_Area
 	{
 		$assetid = $this->attr('search_page_assetid');
 		if ($assetid <= 0) {
-			echo "No search page configured for this search box.";
+			// nothing to print
 			return true;
 		} else {
 			return parent::printArea($design);
@@ -85,21 +85,32 @@ class Design_Area_Searchbox extends Design_Area
 				echo '<?php ';
 				echo 'if (isset($_REQUEST[\'queries\'][\''. $this->attr('field_name'). '_query\'])) 
 						echo $_REQUEST[\'queries\'][\''. $this->attr('field_name'). '_query\'];';
-				echo '?>';
+				echo '?>"';
 
+				if (isset($args['class'])) {
+					echo ' class="'. $args['class'] . '"';
+				}
 				echo '">';
 			break;
 
 			case 'submit':
 				if ($this->attr('submit_button')) {
-					echo '<input type=submit value ="' . 'go' . '">';
+					echo '<input type=submit value ="' . 'go' . '"';
+					if (isset($args['class'])) {
+						echo ' class="'. $args['class'] . '"';
+					}
+					echo '>';
 				} else {
 					$submit_image_assetid = $this->attr('submit_image_assetid');
 					if ($submit_image_assetid > 0) {
 						$submit_image_asset =& $am->getAsset($submit_image_assetid);
-						echo '<input type=image src="'. $submit_image_asset->getURL() .'">';
+						echo '<input type=image';
+						if (isset($args['class'])) {
+							echo ' class="'. $args['class'] .'"';
+						}
+						echo ' src="'. $submit_image_asset->getURL() .'">';
 					} else {
-						echo 'No image specified for submitting.';
+						// no image defined
 					}
 				}
 			break;
