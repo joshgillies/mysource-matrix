@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.18 2004/02/10 16:25:04 brobertson Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.19 2004/02/23 05:58:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -357,6 +357,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 		foreach ($current_links as $link) {
 			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
+			if (!isset($values['sections'][$section->name])) continue;
 			$edit_fns = $section->getEditFns();
 			if (!$edit_fns->getMetadataFieldValues($asset, $section, $values['sections'][$section->name], $fields)) return false;
 		}
