@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.5 2004/01/27 04:34:41 mmcintyre Exp $
+* $Id: page_asset_listing.inc,v 1.6 2004/02/02 00:32:51 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -281,6 +281,7 @@ class Page_Asset_Listing extends Page
 				case 'number' :
 					$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset->id, SQ_SC_LINK_BACKEND_NAV, $wanted_types, false, 'major', null, null, null, $sort_by);
 					foreach ($links as $link_info) $children[$link_info['minorid']] = $link_info['minor_type_code'];
+					if ($this->attr('reverse_sort')) $children = array_reverse($children, true);
 				break;
 
 				case 'letter' :
@@ -370,7 +371,6 @@ class Page_Asset_Listing extends Page
 				// list of pages and links to them
 				$page_list = '';
 				for ($i = 1; $i <= count($chunks); $i++) $page_list .= ' <a href="'.$this->getURL().'?result_page='.$i.'">'.$i.'</a> ';
-				//for ($i = 65; $i <= 90; $i++) $page0.2_list .= ' <a href="'.$this->getURL().'?result_page='.chr($i).'">'.chr($i).'</a> ';
 				$replacements['page_list'] = $page_list;
 
 				unset($chunks);
@@ -434,7 +434,6 @@ class Page_Asset_Listing extends Page
 
 		// clean up after ourselves
 		unset($children);
-
 
 		  ////////////////////////////
 		 //  PRINT THE ASSET LIST  //
