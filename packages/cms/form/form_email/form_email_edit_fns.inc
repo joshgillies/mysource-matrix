@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.33 2004/09/21 00:35:17 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.34 2004/10/12 01:38:15 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1005,6 +1005,11 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		if(!$asset->adminAccess('attributes')) return false;
 		if (!isset($_REQUEST[$prefix.'_se_active_ruleid'])) return false;
 
+		// we cleared the asset finder for adding a new rule part
+		if (isset($_POST[$prefix.'_se_new_qid']) && $_POST[$prefix.'_se_new_qid']['assetid'] == 0) {
+			unset($_POST[$prefix.'_se_new_qid']['assetid']);
+		}
+		
 		if (!isset($_POST[$prefix.'_se_new_qid']['assetid'])) {
 			echo 'You must select a question before you can select the type of rule part';
 			return false;
@@ -1013,8 +1018,13 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 			$rule_codes = $active_question->getAllowedRules();
 			$type_codes = Array();
-			foreach	($rule_codes as $rule_code) $type_codes[] = 'form_question_rule_type_'.$rule_code;
-
+			foreach	($rule_codes as $rule_code) {
+				$type_code = 'form_question_rule_type_'.$rule_code;
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+				$attributes = eval('return '.$type_code.'::getAttributes();');
+				if ($attributes['selective_email_rule']) $type_codes[] = $type_code;
+			}
+					
 			$desc = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_codes, 'description');
 			combo_box($prefix.'_new_rule', array_merge(Array(' ' => '------ Please Select ------'), $desc), false, '');
 		
