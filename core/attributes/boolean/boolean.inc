@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: boolean.inc,v 1.19 2004/09/02 01:06:03 gsherwood Exp $
+* $Id: boolean.inc,v 1.20 2004/09/07 09:33:56 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -128,12 +128,12 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	function processEditParams($prefix)
 	{
 		// reading submitted vars
-		if (!empty($_POST[$prefix.'_' . $this->name . '_true'])) {
-			$this->_edit_params['true_text'] = $_POST[$prefix.'_' . $this->name . '_true'];
+		if (!empty($_POST[$prefix.'_'.$this->name.'_true'])) {
+			$this->_edit_params['true_text'] = $_POST[$prefix.'_'.$this->name.'_true'];
 		}
 
-		if (!empty($_POST[$prefix.'_' . $this->name . '_false'])) {
-			$this->_edit_params['false_text'] = $_POST[$prefix.'_' . $this->name . '_false'];
+		if (!empty($_POST[$prefix.'_'.$this->name.'_false'])) {
+			$this->_edit_params['false_text'] = $_POST[$prefix.'_'.$this->name.'_false'];
 		}
 
 		$values = Array();
