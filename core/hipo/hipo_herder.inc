@@ -428,7 +428,8 @@ if (!empty($todo_hipo)) {
 
 		$this->_tmp['prepared_server']['source_code_name'] = $source_job->code_name;
 
-		pcntl_signal(SIGTERM, Array(&$this, 'sigHandler'));
+		pcntl_signal(SIGTERM, Array(&$this, 'serverSigHandler'));
+		pcntl_signal(SIGINT,  Array(&$this, 'serverSigHandler'));
 
 		$output_root->name = 'ack';
 		return true;
@@ -490,7 +491,7 @@ if (!empty($todo_hipo)) {
 	* @return int		$signo	the signal number
 	* @access public
 	*/
-	function sigHandler($signo)
+	function serverSigHandler($signo)
 	{
 		switch($signo) {
 			case SIGINT:
@@ -515,7 +516,7 @@ if (!empty($todo_hipo)) {
 				break;
 		}// end switch
 
-	}// end sigHandler()
+	}// end serverSigHandler()
 
 
 }//end class
