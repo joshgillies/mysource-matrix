@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page.inc,v 1.4 2004/10/26 01:46:24 arailean Exp $
+* $Id: page.inc,v 1.5 2004/11/03 13:52:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -71,8 +71,8 @@ class Page extends Asset
 			return false;
 		}
 
-		// short and long names are the same to begin with
-		$this->setAttrValue('short_name', $name);
+		// if the short name hasn't been set then short and long names are the same to begin with
+		if (trim($this->attr('short_name')) == '') $this->setAttrValue('short_name', $name);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$linkid = parent::create($link);
