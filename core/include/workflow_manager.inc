@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.45 2004/03/22 04:31:18 gsherwood Exp $
+* $Id: workflow_manager.inc,v 1.46 2004/05/26 23:15:52 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -334,11 +334,13 @@ class Workflow_Manager extends MySource_Object
 			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			if (is_null($schema)) {
 				trigger_error('Failed setting workflow, Schema #'.$schemaid.' does not exist', E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 
 			if (!is_a($schema, 'workflow_schema')) {
 				trigger_error('Failed setting workflow, "'.$schema->name.'" (Asset #'.$schemaid.') is not a workflow schema', E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 
