@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.31 2003/12/01 05:26:06 gsherwood Exp $
+* $Id: tables.xml,v 1.32 2003/12/02 05:43:57 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -816,7 +816,7 @@
 		</columns>
 		<keys>
 			<primary_key>
-				<column name="assetid"   />
+				<column name="userid"    />
 				<column name="type_code" />
 				<column name="screen"    />
 				<column name="section"   />
