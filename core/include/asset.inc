@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.234 2003/10/14 05:28:52 dwong Exp $
+* $Id: asset.inc,v 1.235 2003/10/14 05:29:47 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2225,7 +2225,7 @@ class Asset extends MySource_Object
 	function writeAccess($lock_type, $assetids=Array())
 	{
 		if (SQ_ROLLBACK_VIEW) return false;
-		if (!$this->id) return true;
+		if (!$this->id || !empty($GLOBALS['SQ_INSTALL'])) return true;
 		if ($lock_type == 'attributes' && $this->status == SQ_STATUS_LIVE) return $this->liveEditAccess();
 		return $this->checkAccess(SQ_PERMISSION_WRITE, $lock_type, $assetids);
 
