@@ -4031,6 +4031,7 @@ class Asset extends Resolve_Object
 	* @param array		$assetids	an array of user_group and/or user ids to check for write access
 	*								If the array is empty, the current user will be checked
 	* @param boolean	$effective	effective access based on locking and status
+	* @param boolean	$editing	effective access based on live edit access
 	*
 	* @return boolean
 	* @access public
