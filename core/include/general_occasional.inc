@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.29 2003/12/30 05:25:38 gsherwood Exp $
+* $Id: general_occasional.inc,v 1.30 2004/01/15 04:14:40 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,9 +36,10 @@
 /**
 * Takes a link type (can be a combination of) and returns the text version of it's name
 *
-* @param int $type
+* @param int	$type	bit value of the link type (eg. 1, 2, 4, 8 etc)
 *
 * @return string
+* @access public
 */
 function link_type_name($type)
 {
@@ -65,9 +66,10 @@ function link_type_name($type)
 /**
 * Takes a permission type and returns the text version of it's name
 *
-* @param int $type
+* @param int	$type	bit value of the permission (eg. 1, 2, 4, 8 etc)
 *
 * @return string
+* @access public
 */
 function permission_type_name($type)
 {
@@ -89,6 +91,7 @@ function permission_type_name($type)
 *								that comprise it (ie 3 == 3 NOT 3 == 1|2)
 *
 * @return string
+* @access public
 */
 function get_bit_names($prefix, $bit_value, $force_array=false, $exact_value=false)
 {
@@ -110,6 +113,30 @@ function get_bit_names($prefix, $bit_value, $force_array=false, $exact_value=fal
 	else '';
 
 }//end get_bit_names()
+
+
+/**
+* Takes a prefix to a set of constants and returns the set of constants and their values
+*
+* @param string	$prefix		the constants prefix (eg SQ_LINK_)
+*
+* @return Array(string => string)
+* @access public
+*/
+function get_bit_values($prefix)
+{
+	$constants = get_defined_constants();
+
+	$names = Array();
+	foreach($constants as $name => $value) {
+		if (preg_match('/^'.$prefix.'(.*)$/', $name, $matches)) {
+			$names[$name] = $value;
+		}
+	}
+
+	return $names;
+
+}//end get_bit_values()
 
 
 /**
