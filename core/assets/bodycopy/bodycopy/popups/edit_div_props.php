@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_div_props.php,v 1.7 2004/06/24 06:37:41 lwright Exp $
+* $Id: edit_div_props.php,v 1.8 2004/06/30 05:50:08 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -91,7 +91,7 @@ include(dirname(__FILE__)."/header.php");
 	</table>
 </div>
 <script language="JavaScript">
-if (!owner.bodycopy_current_edit["can_delete"]) { document.getElementById('sq_edit_div_props_delete').innerHTML = '&nbsp;'; }
+if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementById('sq_edit_div_props_delete').innerHTML = '&nbsp;'; }
 </script>
 <form name="main_form">
 <input type="hidden" name="bodycopy_name" value="">
