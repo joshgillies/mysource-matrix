@@ -499,7 +499,7 @@ class Asset_Management extends Resolve_Object
 		eval ($func);
 		if (!$result) {
 			// default value is not valid
-			trigger_error("Default value to attribute '$name' is not valid" , E_USER_NOTICE);
+			trigger_error("Default value of attribute '$name' is not valid" , E_USER_WARNING);
 			$this->vars[$name]['default'] = '';
 		}
 
