@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_hcl_edit_fns.inc,v 1.3 2004/01/14 22:54:28 diarandine Exp $
+* $Id: page_hcl_edit_fns.inc,v 1.4 2004/01/16 00:44:26 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,6 +37,8 @@ require_once dirname(__FILE__).'/../../page/page_edit_fns.inc';
 */
 class Page_HCL_Edit_Fns extends Page_Edit_Fns
 {
+
+
 	/**
 	* Constructor
 	*/
@@ -46,70 +48,67 @@ class Page_HCL_Edit_Fns extends Page_Edit_Fns
 
 	}//end constructor
 
-	
-	/** 
+
+	/**
 	* Paints the root node selection box
 	*
 	* @param object	Asset				&$rootid	asset being painted
 	* @param object Backend_Outputter	&$o			backend outputter
-	* @param String						$prefix		prefix for the html doc element name
-	*						
+	* @param string						$prefix		prefix for the html doc element name
+	*
 	* @return boolean
-	* @access private
+	* @access public
 	*/
-	function paintRootNode(&$asset, &$o, $prefix) 
+	function paintRootNode(&$asset, &$o, $prefix)
 	{
-		$rootarr = Array();
-		$rootarr = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, 'root');
-		$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($rootarr['minorid']);
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, 'root');
+		$write_access = $asset->writeAccess('links');
 
-		if (!$asset->writeAccess('links')) {
-			echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
-			return false;
-		} else {
-			if (!empty($rootarr)) {
-				asset_finder($prefix.'_rootid', $rootarr['minorid']);
+		if (!$write_access) {
+			$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
+			if (!is_null($root_asset)) {
+				echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
 			} else {
-				asset_finder($prefix.'_rootid');
+				echo 'No root node has been selected';
 			}
-			return true;
+		} else {
+			asset_finder($prefix.'_rootid', (!empty($root_link)) ? $root_link['minorid'] : '');
 		}
+
+		return $write_access;
 
 	}//end paintRootNode()
 
 
-	/** 
+	/**
 	* Processes the value input from root node selection box
 	*
 	* @param object	Asset				&$rootid	asset being painted
 	* @param object Backend_Outputter	&$o			backend outputter
-	* @param String						$prefix		prefix for the html doc element name
-	*						
+	* @param string						$prefix		prefix for the html doc element name
+	*
 	* @return void
-	* @access private
+	* @access public
 	*/
 	function processRootNode(&$asset, &$o, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_rootid']['assetid'])) return false;
-		$new_root  = $_POST[$prefix.'_rootid']['assetid']; // submitted new root id
+		$new_root  = $_POST[$prefix.'_rootid']['assetid'];
 
-		// getting the array of existing links
-		$rootarr = Array();
-		$rootarr = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, 'root');
-		$old_root = $rootarr['minorid'];
-		$old_link = $rootarr['linkid'];
+		// getting existing root link
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, 'root');
 
-		if ($old_root == $new_root) return false; // if this link already exists, returning
+		// dont process anything if the root node has not changed
+		if (!empty($root_link) && $root_link['minorid'] == $new_root) return false;
 
-		$ok = true; // if everything went OK ('true' by default)
+		$ok = true;
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN'); // beginning transaction
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// deleting old root link if any found...
-		if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($old_link)) $ok = false;
-
-		// setting new root link...
-		if ($new_root) {
+		if (!empty($root_link) && !$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
+			$ok = false;
+		} else if ($new_root) {
 			$root = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
 			if (!is_null($root)) {
 				if (!$asset->createLink($root, SQ_LINK_NOTICE, 'root')) {
@@ -122,22 +121,24 @@ class Page_HCL_Edit_Fns extends Page_Edit_Fns
 		// checking our flag and committing or rolling back the whole transaction
 		if ($ok) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			return true;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
 		}
 
 	}//end processRootNode()
 
 
-	/** 
+	/**
 	* Paints the list of stored metadata schemas for HCL template
 	*
 	* @param object	Asset				&$rootid	asset being painted
 	* @param object Backend_Outputter	&$o			backend outputter
-	* @param String						$prefix		prefix for the html doc element name
-	*						
+	* @param string						$prefix		prefix for the html doc element name
+	*
 	* @return boolean
-	* @access private
+	* @access public
 	*/
 	function paintHCLSchemas(&$asset, &$o, $prefix)
 	{
@@ -189,17 +190,17 @@ class Page_HCL_Edit_Fns extends Page_Edit_Fns
 	}//end paintHCLSchemas()
 
 
-	/** 
+	/**
 	* Process adding of the new schema to list, or schema deletion
 	*
 	* @param object	Asset				&$rootid	asset being painted
 	* @param object Backend_Outputter	&$o			backend outputter
-	* @param String						$prefix		prefix for the html doc element name
-	*						
+	* @param string						$prefix		prefix for the html doc element name
+	*
 	* @return void
-	* @access private
+	* @access public
 	*/
-	function processHCLSchemas(&$asset, &$o, $prefix) 
+	function processHCLSchemas(&$asset, &$o, $prefix)
 	{
 		// now checking if there were any checkboxes marked->delete those schemas from list
 		if (isset($_POST[$prefix.'_schemas'])) {
@@ -217,13 +218,13 @@ class Page_HCL_Edit_Fns extends Page_Edit_Fns
 	}//end processHCLSchemas()
 
 
-	/** 
-	* Paints the interface for adding a metadata schema
+	/**
+	* Paint the interface for adding a metadata schema
 	*
 	* @param object	Asset				&$rootid	asset being painted
 	* @param object Backend_Outputter	&$o			backend outputter
-	* @param String						$prefix		prefix for the html doc element name
-	*						
+	* @param string						$prefix		prefix for the html doc element name
+	*
 	* @return boolean
 	* @access private
 	*/
@@ -239,17 +240,17 @@ class Page_HCL_Edit_Fns extends Page_Edit_Fns
 	}//end paintAddSchema()
 
 
-	/** 
+	/**
 	* Process the interface for adding a metadata schema
 	*
 	* @param object	Asset				&$rootid	asset being painted
 	* @param object Backend_Outputter	&$o			backend outputter
-	* @param String						$prefix		prefix for the html doc element name
-	*						
+	* @param string						$prefix		prefix for the html doc element name
+	*
 	* @return void
-	* @access private
+	* @access public
 	*/
-	function processAddSchema(&$asset, &$o, $prefix) 
+	function processAddSchema(&$asset, &$o, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_newschema']['assetid'])) return false;
 		$new_schema  = $_POST[$prefix.'_newschema']['assetid']; // submitted root id
@@ -262,7 +263,9 @@ class Page_HCL_Edit_Fns extends Page_Edit_Fns
 				}
 			}
 		}
+
 	}//end processAddSchema()
+
 
 }//end class
 
