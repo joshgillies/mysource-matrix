@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.19 2005/02/27 22:38:08 tbarrett Exp $
+* $Id: package_manager_core.inc,v 1.20 2005/03/01 16:34:17 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 */
 class Package_Manager_Core extends Package_Manager
@@ -184,7 +184,6 @@ class Package_Manager_Core extends Package_Manager
 					'designs_folder',
 					'login_design',
 					'cron_job_expired_workflow',
-					
 				);
 
 	}//end getSystemAssetTypes()
@@ -250,7 +249,7 @@ class Package_Manager_Core extends Package_Manager
 		pre_echo('Public Access User Asset Id : '.$public_user->id);
 
 		$GLOBALS['SQ_SYSTEM_ASSETS']['public_user'] = $public_user->id;
-		
+
 		// we will also turn all 'zero' permissions into the public user's while we're at it
 		// THIS IS AN UPGRADE AND SHOULD BE REMOVED
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -260,9 +259,9 @@ class Package_Manager_Core extends Package_Manager
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_perm', $values, $where)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
-		}		
+		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			
+
 		return $public_user;
 
 	}//end createPublicUser()
@@ -600,26 +599,25 @@ class Package_Manager_Core extends Package_Manager
 	function &createCronJobExpiredWorkflow()
 	{
 		$cron_manager =& $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['cron_manager']);
-		if (!$cron_manager->id) {
-			trigger_error('Couldn\'t get cron manager, couldn\'t create expired workflow cron job');
+		if (is_null($cron_manager)) {
+			trigger_error('Couldn\'t get cron manager, couldn\'t create expired workflow cron job', E_USER_WARNING);
+			$null = null;
+			return $null;
 		}
-		$link =  Array ('asset'         => $cron_manager,
-						'link_type'     => SQ_LINK_TYPE_2,
-						'value'         => null,
-						'sort_order'    => 0,
-						'is_dependant'  => 0,
-						'is_exclusive'  => 1,
-						);
-		$job = new Cron_Job_Expired_WorkFlow();
-		$job->setAttrValue('running_as', $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_user'));
-		if (!$job->create($link)) {
-				trigger_error('Expired Workflow Cron Job NOT CREATED', E_USER_ERROR);
-		}
-		pre_echo('Expired Workflow Cron Job Id: '.$job->id);
-		$GLOBALS['SQ_SYSTEM_ASSETS']['cron_job_expired_worflow'] = $job->id;
-		return $job;
 
-	}
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_expired_workflow');
+
+		$cron_job = new Cron_Job_Expired_WorkFlow();
+		if (!$cron_manager->addJob($cron_job, $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['root_user']), SQ_LINK_TYPE_2)) {
+			trigger_error('Job Future Check Sub NOT CREATED', E_USER_ERROR);
+		}
+		pre_echo('Expired Workflow Cron Job Id: '.$cron_job->id);
+
+		$GLOBALS['SQ_SYSTEM_ASSETS']['cron_job_expired_workflow'] = $cron_job->id;
+
+		return $cron_job;
+
+	}//end createCronJobExpiredWorkflow()
 
 }//end class
 
