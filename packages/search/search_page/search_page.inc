@@ -18,8 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.27 2004/02/16 01:07:37 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: search_page.inc,v 1.28 2004/02/19 02:27:03 diarandine Exp $
 */
 
 require_once SQ_PACKAGES_PATH.'/cms/page/page.inc';
@@ -420,9 +419,9 @@ class Search_Page extends Page
 				
 				ob_start();
 
-				///////////////////////////////////////
 				// Finding out what kind of field is it
 				$test_ind = $matches[1];
+
 				if ($fields[$test_ind]['type'] == 'metadata') {
 					
 					$assetid = $fields[$test_ind]['params']['metadata_field']['assetid'];
@@ -436,8 +435,7 @@ class Search_Page extends Page
 							$field = $this->getEpochDateTimeField("$temp_name", $asset);
 							$field->processField(); // showing value if any
 							$field->printField();
-
-						} 
+						}
 						else if (isset($params['multi_line'])) { // normal metadata TEXT field
 							// using same defintion as for a simple field, but will have to revise later...
 							text_box("queries[$query_var]", $query, $this->defaults['query_width']);
@@ -448,12 +446,28 @@ class Search_Page extends Page
 							combo_box("queries[$query_var]", $select_options, false, $query);
 						}
 
+				} else if ($fields[$test_ind]['type'] == 'asset_attrib') {
+
+					$search_styles = $this->attr('search_styles');
+
+					// [0] - name, [1] - type, [2] - id
+					$attr_parts = explode("__", $fields[$test_ind]['params']['type_attr']);
+
+					require_once SQ_ATTRIBUTES_PATH.'/'.$attr_parts[1].'/'.$attr_parts[1].'.inc';
+					$attr_class = 'Asset_Attribute_'.$attr_parts[1]; // attr name
+					$attribute = new $attr_class($attr_parts[2], $query); // attr id
+
+					if (!empty($search_styles) && isset($search_styles[$attribute->name])) {
+						$attribute->_edit_params = $search_styles[$attribute->name];
+					}
+
+					$attribute->paint("queries[$query_var]", false, false); 
+
 				} else { 
 						// not a metadata field, just a normal text field
 						text_box("queries[$query_var]", $query, $this->defaults['query_width']);
 				}
-				//////////////////////////////////////
-					
+				
 				$replacement = ob_get_contents();
 				
 				ob_end_clean();
@@ -674,6 +688,7 @@ class Search_Page extends Page
 	*/
 	function processSearch()
 	{
+
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$sm =& $am->getSystemAsset('search_manager');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
@@ -730,8 +745,9 @@ class Search_Page extends Page
 			else 
 			{
 				// if $value is array, still setting words
-				$words = Array();
-				$words[0] = implode(":", array_values($value));
+				//$words = Array();
+				//$words[0] = implode(":", array_values($value));
+				$words = $value;
 			}
 
 			// retrieve the search field for this query
@@ -786,8 +802,10 @@ class Search_Page extends Page
 					$field_asset_scores = null;
 
 					foreach ($words as $word) {
-						$sql = $start_sql.'AND (ai.component = '.$db->quote('attr:'.$field['params']['searchtype'].':'.$field['params']['type_attr']).'
-							AND (ai.value LIKE \'%'.implode ("' OR ai.value LIKE '", $words).'%\'))
+
+						$attr_parts = explode("__", $field['params']['type_attr']); // exploding the name
+						$sql = $start_sql . 'AND (ai.component = '. $db->quote('attr:'. $field['params']['searchtype'] . ':' . $attr_parts[0]) . '
+							AND (ai.value LIKE \'%'. implode ("%' OR ai.value LIKE '%", $words) .'%\')) 
 							GROUP BY ai.assetid';
 
 						$results = $db->getAssoc($sql);
