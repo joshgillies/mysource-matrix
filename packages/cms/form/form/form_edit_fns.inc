@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.38 2004/08/06 01:25:42 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.39 2004/08/20 05:17:31 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -242,10 +242,10 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 					?>
 						<tr>
 							<td class="sq-backend-table-cell">
-								<span name="<?php echo $prefix.'_order_o'.$i ?>" id="<?php echo 	$prefix.'_order_o'.$i ?>"><a href="<?php echo $href ?>"><?php	echo $q->attr('name')?></a></span><?php hidden_field($prefix.'_order[reorder]['.$i.']', $assetid); ?>
+								<span name="<?php echo $prefix.'_order_o'.$sort_id ?>" id="<?php echo 	$prefix.'_order_o'.$sort_id ?>"><a href="<?php echo $href ?>"><?php	echo $q->attr('name')?></a></span><?php hidden_field($prefix.'_order[reorder]['.$sort_id.']', $assetid); ?>
 							</td>
 							<td class="sq-backend-table-cell">
-								<span name="<?php echo $prefix.'_order_t'.$i ?>" id="<?php echo 	$prefix.'_order_t'.$i ?>"><?php	
+								<span name="<?php echo $prefix.'_order_t'.$sort_id ?>" id="<?php echo 	$prefix.'_order_t'.$sort_id ?>"><?php	
 									$q_type = str_replace('form_question_type', '', get_class($q));
 									$q_type = str_replace('_', ' ', $q_type);
 									$q_type = trim(ucwords($q_type));
@@ -255,10 +255,10 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 						<?php
 							if ($admin_access) {
 								?><td align="center" width="100" class="sq-backend-table-cell"><?php
-								check_box($prefix.'_order[delete]['.$i.']');
+								check_box($prefix.'_order[delete]['.$sort_id.']');
 								?></td>
-								<td align="center" width="100" class="sq-backend-table-cell"><?php if ($i != 0) { ?><a href="#" onclick="sortOrderMoveUp(<?php echo $i ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a><?php } ?> 
-								<?php if ($i != count($questions)-1) { ?><a href="#" onclick="sortOrderMoveDown(<?php echo $i ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "Move Down");</script></a><?php } ?>
+								<td align="center" width="100" class="sq-backend-table-cell"><?php if ($sort_id != 0) { ?><a href="#" onclick="sortOrderMoveUp(<?php echo $sort_id ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a><?php } ?> 
+								<?php if ($sort_id != count($questions)-1) { ?><a href="#" onclick="sortOrderMoveDown(<?php echo $sort_id ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "Move Down");</script></a><?php } ?>
 							</td>
 							<?php
 						}
