@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.125.2.2 2004/12/16 05:50:40 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.125.2.3 2004/12/23 05:54:02 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.125.2.2 $
+* @version $Revision: 1.125.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -846,13 +846,11 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function _getTitleList($events, $show_links=true)
 	{
-		$ids = Array();
-		foreach ($events as $key => $stuff) $ids[] = strtok($key, ':');
-		$details = $link = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($ids);
 		$res = '<ul>';
-		foreach ($details as $id => $data) {
+		foreach ($events as $id => $data) {
+			$real_id = strtok($id, ':');
 			$res .= '<li>';
-			if ($show_links) $res .= '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$id.'">';
+			if ($show_links) $res .= '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_DATE='.sprintf('%04d-%02d-%02d', $data['start_date_year'], $data['start_date_mon'], $data['start_date_mday']).'&amp;SQ_CALENDAR_EVENT_ID='.$real_id.'">';
 			$res .= $data['name'];
 			if ($show_links) $res .= '</a>';
 			$res .= '</li>';
