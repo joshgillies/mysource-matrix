@@ -16,9 +16,9 @@
 ##
 ## Desc: Some General JS functions 
 ## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/js/general.js,v $
-## $Revision: 1.2 $
+## $Revision: 1.3 $
 ## $Author: brobertson $
-## $Date: 2003/02/06 07:10:20 $
+## $Date: 2003/03/03 06:04:52 $
 #######################################################################
 */
 
@@ -133,3 +133,78 @@ function img_roll(id, src) {
 	}
 }// end img_roll()
 
+
+
+
+/*
+* format a number into a string to the specified number of decimal places
+* and put in the thousands separator, just like the PHP number_format() fn
+*
+* @param float	num				the number to format
+* @param int	places			the number of decimal places to round to
+* @param string	dec_point		the character to use as the decimal point, defaults to '.'
+* @param string	thousands_sep	the character to use as the thousands separator, defaults to ''
+*
+* @return String
+*/
+function number_format(num, places, dec_point, thousands_sep) {
+	// just to make sure we have a number
+	num = parseFloat(num);
+	if (isNaN(num)) num = 0;
+	places = parseInt(places);
+	if (isNaN(places) || places < 0) places = 0;
+
+	// if dec_point wasn't set use default
+	if (dec_point == undefined || dec_point == null) dec_point = '.';
+	// if thousands_sep wasn't set use default
+	if (thousands_sep == undefined || thousands_sep == null) thousands_sep = '';
+
+
+	if (places == 0) {
+		return _number_format_thousand_separators(Math.round(num), thousands_sep);
+	} else {
+		// if we are a zero then
+		if (num == 0) {
+			var str = '0' + dec_point;
+			for(var i = 0; i < places; i++) {
+				str += '0';
+			}// end for
+			return str;
+		} else {
+			var big_num = Math.round(num * Math.pow(10, places));
+			str = big_num.toString();
+			var dec_place = (str.length - places);
+			var dec_str    = _number_format_thousand_separators(str.substr(0, dec_place), thousands_sep);
+			var places_str = str.substr(dec_place);
+			return dec_str + dec_point + places_str;
+
+		}// end if
+	}// end if
+
+}// end number_format()
+
+function _number_format_thousand_separators(str, sep) {
+
+	str = str.toString();
+
+	if (sep == '') return str;
+
+	if (str.length <= 3) return str;
+
+	var new_str = '';
+	var i = str.length % 3;
+	var prefix_comma = false;
+	if (i > 0) {
+		new_str += str.substr(0, i);
+		prefix_comma = true;
+	}
+	while (i < str.length) {
+		if (prefix_comma) new_str += sep;
+		new_str += str.substr(i, 3);
+		i += 3;
+		prefix_comma = true;
+	}// end while
+
+	return new_str;
+
+}// end _number_format_thousand_separators()
