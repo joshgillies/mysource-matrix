@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.70 2004/09/08 07:20:19 amiller Exp $
+* $Id: init.inc,v 1.71 2004/09/08 08:18:58 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
