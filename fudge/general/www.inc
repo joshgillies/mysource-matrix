@@ -77,7 +77,7 @@ function relative_href($from,$to)
 * @access public
 */
 function valid_email($e) {
-	return ereg("^[_\.0-9a-zA-Z-]+@([0-9a-zA-Z]([0-9A-Za-z-]*)+\.)+[a-zA-Z]{2,4}$",$e);
+	return preg_match("|^[_\.0-9a-zA-Z-]+@([0-9a-zA-Z]([0-9A-Za-z-]*)+\.)+[a-zA-Z]{2,4}$|",$e);
 }
 
 ?>
