@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.153 2004/06/30 05:19:56 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.154 2004/08/06 04:58:31 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -428,7 +428,7 @@ class Asset_Map
 		// if we are going to include the parent, 
 		// then we want either its children or the parent itself
 		$where .= ($include_parent) 
-			? '(l.majorid = '.$db->quote($assetid).' OR l.minorid = '.$assetid.')'
+			? '(l.majorid = '.$db->quote($assetid).' OR l.minorid = '.$db->quote($assetid).')'
 			: 'l.majorid = '.$db->quote($assetid);
 					
 		$where .= ' AND
@@ -479,15 +479,15 @@ class Asset_Map
 										'assetid'            => $link_data['minorid'],
 										'short_name'         => $link_asset->short_name,
 										'name'               => $link_asset->name,
-										'accessible'    	 => 1,
+										'accessible'         => 1,
 										'type_code'          => $link_data['minor_type_code'],
 										'status'             => $link_asset->status,
 										'linkid'             => $link_data['linkid'],
 										'link_type'          => $link_data['link_type'],
 										'num_immediate_kids' => 1,
 										'sort_order'         => $link_data['sort_order'],
-										'url'          		 => $link_asset->getURL(),
-										'path'				 => '',
+										'url'                => $link_asset->getURL(),
+										'path'               => '',
 									);
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($link_asset);
 				}
