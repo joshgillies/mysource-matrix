@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.229 2003/10/03 01:17:22 gsherwood Exp $
+* $Id: asset.inc,v 1.230 2003/10/07 06:51:36 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -325,6 +325,10 @@ class Asset extends MySource_Object
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$ms->closeLog();
+
+			// index the asset with what we have so far
+			$this->informChanges();
+
 			return true;
 		}
 
@@ -437,7 +441,7 @@ class Asset extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 			// PURPOSLY DONT ADD EXTRA CLAUSES FOR ASSET_ATTRIBUTE_VALUE BECAUSE WE WONT GET
 			// DEFAULT VALUES IF WE DO
-			$sql = 'SELECT atr.name, atr.attributeid, atr.type, COALESCE(v.custom_value, atr.default_value) AS value
+			$sql = 'SELECT atr.name, atr.attributeid, atr.type, COALESCE(v.custom_value, atr.default_value) AS value, atr.weighting
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a
 							INNER JOIN '.SQ_TABLE_PREFIX.'asset_attribute atr ON a.type_code = atr.type_code
 							LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v
@@ -748,6 +752,9 @@ class Asset extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		$im =& $GLOBALS['SQ_SYSTEM']->getIndexingManager();
+		$im->flushKeyData($this->id);
 
 		return true;
 
@@ -1921,6 +1928,7 @@ class Asset extends MySource_Object
 		// If we get this far, then it's all OK
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$ms->closeLog();
+		$this->informChanges();
 
 		return true;
 
@@ -2866,6 +2874,74 @@ class Asset extends MySource_Object
 		return true;
 
 	}// end updateLookups()
+
+//--        INDEXING        --//
+
+	/** 
+	* Retrieves a list of key data from this asset (used by the indexing service).
+	* Subclasses override this to give the content they want to make searchable.
+	* 
+	* @access public
+	* @param mixed $component If it is not false, then it is assumed to be the name of a component of this asset (defined and controlled by subclasses).
+	* @return array An array of all the keydata for this asset. Keydata is of the form
+	*				array (
+	*					array (
+	*						'value' => ...,
+	*						'type' => ..., (text, date, number, etc.)
+	*						'component' => ..., (whatever you want, just as long as this asset knows how to deal with it if it needs to)
+	*					), ...
+	*				)
+	*/
+	function &getKeyData($component = false) 
+	{
+		return array();
+	}
+
+	/**
+	* Informs the indexing service that this asset's contents have changed, and 
+	* that it should reflect this by retrieving new key data.
+	* 
+	* @access protected
+	* @return void
+	*/
+	function informChanges()
+	{
+		if (!SQ_CONF_INDEXING_ENABLED)
+			return;
+
+		$im =& $GLOBALS['SQ_SYSTEM']->getIndexingManager();
+		$im->changed($this->id);
+	}
+
+
+	/**
+	* Adds a piece of keydata to the array to be passed to the indexing service.
+	* 
+	* @access protected
+	*
+	* @param array ref $keydata A reference to the keydata array being built
+	* @param string $value The key data value
+	* @param string $type The key data type, defaults to 'word' (e.g. word, date, number, etc.)
+	* @param string $component The component to which this data pertains to 
+	* @returns void
+	*/
+
+	function buildKeyData(&$keydata, $value, $type = 'text', $component = false, $score = 1)
+	{
+		if (!is_array($keydata))
+			return false;
+		if ($score <= 0)
+			return false;
+
+		array_push($keydata, array (
+			'value'		=> $value, 
+			'type'		=> $type, 
+			'component' => $component,
+			'score'		=> $score,
+		));
+
+		return true;
+	}
 
 }//end class
 
