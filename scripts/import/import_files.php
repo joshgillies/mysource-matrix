@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_files.php,v 1.4 2004/12/06 14:38:13 brobertson Exp $
+* $Id: import_files.php,v 1.5 2005/01/15 17:13:00 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * be linked appropriately.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -47,6 +47,7 @@ if (empty($import_home_dir) || !is_dir($import_home_dir)) {
 }
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
+require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 $GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
 $GLOBALS['SQ_SYSTEM']->am->includeAsset('image');
@@ -64,22 +65,21 @@ foreach ($import_dirs as $import_dir) {
 	$import_link = Array('asset' => &$parent_asset, 'link_type' => SQ_LINK_TYPE_1);
 
 	// get a list of all files in the import directory
-	require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 	$files = list_files($import_path);
 	$GLOBALS['SQ_INSTALL'] = true;
 	foreach ($files as $filename) {
-		switch (strtolower(substr($filename, -4))) {
-			case '.doc' :
-			case '.dot' :
+		switch (get_file_type($filename)) {
+			case 'doc' :
+			case 'dot' :
 				$new_asset_type = 'word_doc';
 				break;
-			case '.pdf' :
+			case 'pdf' :
 				$new_asset_type = 'pdf_file';
 				break;
-			case '.gif' :
-			case '.jpg' :
+			case 'gif' :
+			case 'jpg' :
 			case 'jpeg' :
-			case '.png' :
+			case 'png' :
 				$new_asset_type = 'image';
 				break;
 			default :
