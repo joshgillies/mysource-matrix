@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.13 2003/11/26 00:50:59 gsherwood Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.14 2004/01/14 15:21:47 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -154,18 +154,18 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 				asort($whens[$type], SORT_STRING);
 				$o->openField(Cron_Job::whenTypeName($type), 'new_line');
 				?>
-				<table border="0" cellspacing="1" cellpadding="2" style="background-color: #000000;" width="100%">
+				<table class="sq-backend-table">
 					<tr>
-						<td class="sq-backend-field">
+						<td class="sq-backend-table-header">
 							When
 						</td>
-						<td class="sq-backend-field">
+						<td class="sq-backend-table-header">
 							Details
 						</td>
 					<?php
 						if ($asset->writeAccess('links')) {
 						?>
-						<td class="sq-backend-field" style="text-align: center;">
+						<td class="sq-backend-table-header" style="text-align: center;">
 							Delete ?
 						</td>
 						<?php
@@ -176,24 +176,24 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 				foreach($whens[$type] as $i => $when) {
 				?>
 					<tr>
-						<td class="sq-backend-data">
+						<td class="sq-backend-table-cell">
 							<?php echo $jobs[$i]->readableWhen(false); ?>
 						</td>
-						<td class="sq-backend-data">
+						<td class="sq-backend-table-cell">
 							<table border="0" cellspacing="0" cellpadding="0">
 								<tr>
-									<td class="sq-backend-data" style="font-weight: bold; text-align: right;">
+									<td class="sq-backend-table-cell" style="font-weight: bold; text-align: right;">
 										Name :&nbsp;
 									</td>
-									<td class="sq-backend-data">
+									<td class="sq-backend-table-cell">
 										<?php echo $jobs[$i]->name; ?>
 									</td>
 								</tr>
 								<tr>
-									<td class="sq-backend-data" style="font-weight: bold; text-align: right;">
+									<td class="sq-backend-table-cell" style="font-weight: bold; text-align: right;">
 										Run As :&nbsp;
 									</td>
-									<td class="sq-backend-data">
+									<td class="sq-backend-table-cell">
 										<?php
 											$user = &$jobs[$i]->getRunningUser();
 											echo $user->name.' (#'.$user->id.')';
@@ -205,7 +205,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 					<?php
 						if ($asset->writeAccess('links')) {
 						?>
-						<td class="sq-backend-data" style="text-align: center;">
+						<td class="sq-backend-table-cell" style="text-align: center;">
 						<?php
 							if ($jobs[$i]->canDelete()) {
 								check_box($prefix.'_remove_jobs[]', $jobs[$i]->id);
