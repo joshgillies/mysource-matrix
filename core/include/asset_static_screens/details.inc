@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.6 2004/04/18 23:14:34 gsherwood Exp $
+* $Id: details.inc,v 1.7 2004/07/23 07:13:21 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -205,7 +205,57 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);
 
 				break;
-			}
+				
+				case 'thumbnail_change' :
+					
+					if ($owner->writeAccess('links')) {
+					
+						if ($field->children[0]->name != 'display_name') $display_name = 'Change ?';
+						else $display_name = $field->children[0]->content;
+						
+						$o->openField($display_name);
+							if (!is_null($keywords) && isset($keywords['fields']['thumbnail_change'])) ob_start();
+							
+							$link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'thumbnail', true, 'thumbnail');
+							if (empty($link)) $link['minorid'] = 0;
+							asset_finder($prefix.'_thumbnail', $link['minorid'], Array('thumbnail' => 'I'));
+							
+							if (!is_null($keywords) && isset($keywords['fields']['thumbnail_change'])) {
+								$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['thumbnail_change']] = ob_get_contents();
+								ob_end_flush();
+							}
+						$o->closeField();
+					}
+			
+				break;
+				
+				case 'thumbnail_current' :
+					
+					if ($field->children[0]->name != 'display_name') $display_name = 'Current';
+					else $display_name = $field->children[0]->content;
+					
+					$o->openField($display_name);
+						if (!is_null($keywords) && isset($keywords['fields']['thumbnail_current'])) ob_start();
+						
+						$link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'thumbnail', true, 'thumbnail');
+						if (!empty($link)) {
+							$thumbnail = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+							$edit_fns = $thumbnail->getEditFns();
+							$edit_fns->printExistingFileInfo($thumbnail);
+
+						} else {
+							echo 'No thumbnail attached';
+						}
+						
+						if (!is_null($keywords) && isset($keywords['fields']['thumbnail_current'])) {
+							$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['thumbnail_current']] = ob_get_contents();
+							ob_end_flush();
+						}
+					$o->closeField();
+			
+				break;
+				
+			}//end switch
 
 			if ($field->children[1]->name == 'note' && $field->children[1]->content) {
 				$o->note($field->children[1]->content);
@@ -360,6 +410,40 @@ function processDetails(&$owner, &$o, &$ei)
 
 	}//end if is null cron mgr
 
+	
+	///// THUMBNAIL CHANGES ////
+	
+	if (isset($_POST[$prefix.'_thumbnail']['assetid'])) {
+		$thumbnail = $_POST[$prefix.'_thumbnail']['assetid'];
+
+		$thumb_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'thumbnail', true, 'thumbnail');
+
+		// dont process anything if the thumbnail has not changed
+		if (!empty($thumb_link) && $thumb_link['minorid'] == $thumbnail) return false;
+
+		$ok = true;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// deleting old thumbnail if any found...
+		if (!empty($thumb_link) && !$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($thumb_link['linkid'])) {
+			$ok = false;
+		} else if ($thumbnail) {
+			$thumb = &$GLOBALS['SQ_SYSTEM']->am->getAsset($thumbnail);
+			if (!is_null($thumb)) {
+				if (!$owner->createLink($thumb, SQ_LINK_NOTICE, 'thumbnail')) {
+					$ok = false;
+					trigger_error('Failed adding new thumbnail "'.$thumb->name.'" [#'.$thumb->id.']', E_USER_WARNING);
+				}
+			}
+		}
+
+		if ($ok) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$is_updated = true;
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
+	}
 	return ($is_updated);
 
 }//end processDetails()
