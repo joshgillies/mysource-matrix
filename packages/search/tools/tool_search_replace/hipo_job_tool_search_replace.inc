@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.1 2005/03/17 06:09:52 ndvries Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.2 2005/03/18 05:23:04 dheppell Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to perform search and replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -347,28 +347,28 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 			$search_count[$assetid] = 0;
 			if (isset($contents['attributes'])) {
 				foreach ($contents['attributes'] as $index => $value) {
-					preg_match_all("/$search_string/", $value, $matches);
+					preg_match_all("/$search_string/i", $value, $matches);
 					$search_count[$assetid] += count($matches[0]);
 					unset($matches);
 				}
 			}
 			if (isset($contents['metadata'])) {
 				foreach ($contents['metadata'] as $index => $value) {
-					preg_match_all("/$search_string/", $value['value'], $matches);
+					preg_match_all("/$search_string/i", $value['value'], $matches);
 					$search_count[$assetid] += count($matches[0]);
 					unset($matches);
 				}
 			}
 			if (isset($contents['contents'])) {
 				foreach ($contents['contents'] as $index => $value) {
-					preg_match_all("/$search_string/", $value, $matches);
+					preg_match_all("/$search_string/i", $value, $matches);
 					$search_count[$assetid] += count($matches[0]);
 					unset($matches);
 				}
 			}
 			if (isset($contents['schema'])) {
 				foreach ($contents['schema'] as $index => $value) {
-					preg_match_all("/$search_string/", $value['value'], $matches);
+					preg_match_all("/$search_string/i", $value['value'], $matches);
 					$search_count[$assetid] += count($matches[0]);
 					unset($matches);
 				}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace.inc,v 1.1 2005/03/17 06:09:52 ndvries Exp $
+* $Id: tool_search_replace.inc,v 1.2 2005/03/18 05:23:04 dheppell Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -139,25 +139,25 @@ class Tool_Search_Replace extends Tool
 		//ensure we have a search string
 		if ($_REQUEST[$type_code.'_search_string'] == '') {
 			trigger_error('Required search string was blank', E_USER_WARNING);
-			eval($type_code.'::paintTool(&$o, $type_code);');
+			Tool_Search_Replace::paintTool($o, $type_code);
 			return;
 		}
 
 		if (!isset($_REQUEST[$type_code.'_search_types'])) {
 			trigger_error('No asset types were selected', E_USER_WARNING);
-			eval($type_code.'::paintTool(&$o, $type_code);');
+			Tool_Search_Replace::paintTool($o, $type_code);
 			return;
 		}
 
 		if (!isset($_REQUEST[$type_code.'_statuses'])) {
 			trigger_error('No asset statuses were selected', E_USER_WARNING);
-			eval($type_code.'::paintTool(&$o, $type_code);');
+			Tool_Search_Replace::paintTool($o, $type_code);
 			return;
 		}
 
 		if (!isset($_REQUEST[$type_code.'_root_assetid']) && !isset($_REQUEST[$type_code.'_root_folder'])) {
 			trigger_error('No root has been specified', E_USER_WARNING);
-			eval($type_code.'::paintTool(&$o, $type_code);');
+			Tool_Search_Replace::paintTool($o, $type_code);
 			return;
 		}
 
@@ -174,7 +174,8 @@ class Tool_Search_Replace extends Tool
 			$root_assetid = $_REQUEST[$type_code.'_root_assetid']['assetid'];
 		}
 
-		$words = explode(' ', $_REQUEST[$type_code.'_search_string']);
+		$words = strtolower($_REQUEST[$type_code.'_search_string']);
+		$words = explode(' ', $words);
 
 		$search_details = Array(
 								'logic'           => 'AND',
@@ -196,16 +197,16 @@ class Tool_Search_Replace extends Tool
 		//no matches were found, trigger error and paint getInterface
 		if (!$search_results) {
 			trigger_error('No Matches for '.$_REQUEST[$type_code.'_search_string'].' could be found', E_USER_WARNING);
-			eval($type_code.'::paintTool(&$o, $type_code);');
+			Tool_Search_Replace::paintTool($o, $type_code);
 			return;
 		}
 
-		eval('$formatted_results = '.$type_code.'::getFormattedResults($search_results, "'.$_REQUEST[$type_code.'_search_string'].'");');
+		$formatted_results = Tool_Search_Replace::getFormattedResults($search_results, $_REQUEST[$type_code.'_search_string']);
 
 		//after formatting the results, there were no real replaceable matches
 		if (empty($formatted_results)) {
 			trigger_error('No Matches for '.$_REQUEST[$type_code.'_search_string'].' could be found', E_USER_WARNING);
-			eval($type_code.'::paintTool(&$o, $type_code);');
+			Tool_Search_Replace::paintTool($o, $type_code);
 			return;
 		}
 
@@ -257,7 +258,7 @@ class Tool_Search_Replace extends Tool
 						$asset_contents = $GLOBALS['SQ_SYSTEM']->am->getEditableContents($assetid);
 
 						foreach ($asset_contents as $contents_id => $contents_value) {
-							if (preg_match("/$search_string/", $contents_value)) {
+							if (preg_match("/$search_string/i", $contents_value)) {
 								$formatted_results[$assetid]['contents'][$contents_id] = $contents_value;
 							}
 						}
@@ -267,10 +268,12 @@ class Tool_Search_Replace extends Tool
 					//attributes come in 2 formats, __attribtue__ and attr:assetname:attribute$
 					case preg_match('/__(.+)__/', $content_type, $matches) > 0:
 					case preg_match("/attr:.+:(.+)\$/", $content_type, $matches) > 0:
-						$attribute = $asset->attr($matches[1]);
+						if (isset($asset->vars[$matches[1]])) {
+							$attribute = $asset->attr($matches[1]);
 
-						if (preg_match("/$search_string/", $attribute)) {
-							$formatted_results[$assetid]['attributes'][$matches[1]] = $attribute;
+							if (preg_match("/$search_string/i", $attribute)) {
+								$formatted_results[$assetid]['attributes'][$matches[1]] = $attribute;
+							}
 						}
 					break;
 
@@ -282,7 +285,7 @@ class Tool_Search_Replace extends Tool
 						$metadata = $mm->getMetadata($assetid);
 
 						foreach ($metadata as $fieldid => $data) {
-							if (preg_match("/$search_string/", $data['value'])) {
+							if (preg_match("/$search_string/i", $data['value'])) {
 								$formatted_results[$assetid]['metadata'][$fieldid] = $data;
 							}
 						}
@@ -296,7 +299,7 @@ class Tool_Search_Replace extends Tool
 								$schema_data = $mm->getSchemaDefaultValues($schema->id);
 
 								foreach ($schema_data as $fieldid => $data) {
-									if (preg_match("/$search_string/", $data['value'])) {
+									if (preg_match("/$search_string/i", $data['value'])) {
 										$formatted_results[$schema->id]['schema'][$fieldid] = $data;
 									}
 								}
@@ -315,9 +318,6 @@ class Tool_Search_Replace extends Tool
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
 		}//end foreach $results
-
-		$memory_usage = memory_get_usage()/1024;
-		error_log('After doing getFormattedResults, we are using '.$memory_usage.'kb RAM');
 
 		return $formatted_results;
 
