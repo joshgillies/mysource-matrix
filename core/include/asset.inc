@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.316 2004/08/19 05:44:54 gsherwood Exp $
+* $Id: asset.inc,v 1.317 2004/08/19 06:41:33 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2274,7 +2274,6 @@ class Asset extends MySource_Object
 			trigger_error('Attribute "'.$name.'" not found for Asset of type "'.$this->type().'"', E_USER_WARNING);
 			return false;
 		}
-
 		$attribute = &$this->getAttribute($name);
 		if (!$attribute->setValue($value)) {
 			trigger_error('"'.$value.'" is not a valid value for attribute "'.$name.'"', E_USER_WARNING);
@@ -2848,6 +2847,19 @@ class Asset extends MySource_Object
 	}//end printFrontend()
 
 
+	/**
+	* Called by the design to print extra material in the head of the HTML document for this asset
+	* it's up to the kids to override
+	*
+	* @access public
+	*/
+	function printHead()
+	{
+		echo '<!-- HEAD PRINTED BY ASSET.INC -->';
+
+	}//end printHead()
+	
+	
 	/**
 	* Called by the design to print the body of this asset
 	* it's up to the kids to override
