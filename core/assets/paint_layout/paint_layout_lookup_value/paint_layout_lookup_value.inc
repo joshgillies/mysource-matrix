@@ -1,0 +1,258 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: paint_layout_lookup_value.inc,v 1.1 2005/04/06 21:49:01 gnoel Exp $
+*
+*/
+
+require_once SQ_CORE_PACKAGE_PATH.'/lookup_value/lookup_value.inc';
+
+/**
+* Lookup Value
+*
+* Parent Asset for all different types of lookup value interfaces needed by different parts of the system
+*
+*
+* @author	Blair Robertson <brobertson@squiz.co.uk>
+* @version $Revision: 1.1 $
+* @package MySource_Matrix_Packages
+* @subpackage __core__
+*/
+class Paint_Layout_Lookup_Value extends Lookup_Value
+{
+
+
+	/**
+	* Return the lookup name to use in the interface
+	*
+	* @access public
+	* @return string
+	* @static
+	*/
+	function lookupValueName()
+	{
+		return 'Paint Layout Page';
+
+	}//end lookupValueName()
+
+
+	/**
+	* Return the prefix that these values use in their name (minus the '::')
+	*
+	* @access public
+	* @return string
+	* @static
+	*/
+	function namePrefix()
+	{
+		return 'paint_layout_page';
+
+	}//end namePrefix()
+
+
+	/**
+	* Paint the HTML editing interface for this lookup value.
+	*
+	* @param object	Asset				&$owner			the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o				the outputter class
+	* @param Array 						$lookups		array of available lookups
+	* @param Array 						$lookup_values	array of current values
+	*													<pre>
+	*													"[url]" => array (
+	*														"[name]" => array (
+	*															"value" => "[value]",
+	*															"inhd" => "[inherited]",
+	*														),
+	*													),
+	*													</pre>
+	* @param string 					$prefix			unique prefix to use for the form elements
+	*
+	* @access public
+	* @return boolean		indicating if any editing fields were printed
+	* @static
+	*/
+	function paintInterface(&$owner, &$o, $lookups, $lookup_values, $prefix)
+	{
+		$wa = ($owner->writeAccess('lookups') && $owner->writeAccess('links'));
+		$name_prefix = Paint_Layout_Lookup_Value::namePrefix();
+
+		$sort_fn_code = '
+			preg_match('.var_export('/^'.$name_prefix.'::(system|user)::(.*)$/', 1).', $a, $a_matches=Array());
+			preg_match('.var_export('/^'.$name_prefix.'::(system|user)::(.*)$/', 1).', $b, $b_matches=Array());
+			if ($a_matches[1] == "system" && $a_matches[2] == "frontend") return -1;
+			if ($b_matches[1] == "system" && $b_matches[2] == "frontend") return  1;
+
+			if ($a_matches[1] == "system" && $b_matches[1] == "user")   return -1;
+			if ($a_matches[1] == "user"   && $b_matches[1] == "system") return  1;
+
+			return strcmp($a_matches[2], $b_matches[2]);
+		';
+
+		$sort_fn = create_function('$a,$b', $sort_fn_code);
+
+		foreach ($lookups as $url) {
+
+			$o->openSection($url);
+			$o->openField('Lineage');
+			$lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(null, $url);
+			foreach ($lineage as $i => $asset) {
+				if ($i > 0) echo '&nbsp;&gt;&nbsp;';
+				echo $asset['short_name'], ' (#', $asset['assetid'], ')';
+			}
+			unset($lineage);
+			$o->closeField();
+
+			if (empty($lookup_values[$url])) $lookup_values[$url] = Array();
+
+			// need to make sure the default is printed.
+			if (empty($lookup_values[$url][$name_prefix.'::system::frontend'])) {
+				$lookup_values[$url][$name_prefix.'::system::frontend'] =  Array('value' => '', 'inhd' => '0');
+			}
+
+			uksort($lookup_values[$url], $sort_fn);
+
+			// add blank entry if we have write access
+			if ($wa) {
+				$lookup_values[$url][$name_prefix.'::user::'] =  Array('value' => '', 'inhd' => '0');
+			}
+
+			foreach ($lookup_values[$url] as $layout_name => $data) {
+
+				$matches = Array();
+				preg_match('/^'.$name_prefix.'::(system|user)::(.*)$/', $layout_name, $matches);
+
+				$layout_type     = $matches[1];
+				$layout_code     = $matches[2];
+				$new_user_layout = ($layout_type == 'user' && $layout_code == '' && empty($data['value']));
+
+				if ($new_user_layout) {
+					$display_name = 'Create New User Defined Layout';
+				} else {
+					$display_name = ucwords($layout_type).' Defined - '.ucwords(str_replace('_', ' ', $layout_code)).' Layout';
+				}
+
+
+				$o->openSection($display_name);
+
+					if ($new_user_layout) {
+						$o->openField('Layout Code');
+							text_box($prefix.'['.$url.']['.$layout_name.'][name]', '', 20, 30);
+						$o->closeField();
+					} else {
+						if ($layout_type == 'user') {
+							$o->openField('Layout Code');
+								echo $layout_code;
+							$o->closeField();
+						}
+					}
+
+					$o->openField('Current');
+						echo '<i>';
+						if ($data['value'] == '') {
+							echo 'None';
+						} else {
+							$layout = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data['value'], '', true);
+							if (!is_null($layout)) {
+								echo $layout->name.' (Id : #'.$layout->id.')';
+								if ($data['inhd']) echo '<br><b>(Inherited)</b>';
+							}
+						}
+						echo '</i>';
+					$o->closeField();
+
+					if ($wa) {
+						// if we have inherited this value, then we haven't set it ourselves have we ? :)
+						$layoutid = (empty($data['inhd'])) ? $data['value'] : 0;
+						$o->openField(($layoutid) ? 'Change ?' : 'New ?');
+							$buttons = Array('clear');
+							if (!$new_user_layout) $buttons[] = 'reset';
+							asset_finder($prefix.'['.$url.']['.$layout_name.'][value]', $layoutid, Array('paint_layout_page' => 'D'), 'sq_sidenav', false, 'null', $buttons);
+						$o->closeField();
+					}
+
+				$o->closeSection();
+
+			}// end foreach
+
+			$o->closeSection();
+
+		}// end foreach
+
+		return $wa;
+
+	}//end paintInterface()
+
+
+	/**
+	* Process the editing interface for this lookup value
+	*
+	* @param object	Asset				&$owner			the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o				the outputter class
+	* @param Array 						$lookups		array of available lookups
+	* @param Array 						$lookup_values	array of the values that we want to save
+	*													<pre>
+	*													"[url]" => array (
+	*														"[name]" => array (
+	*															"value" => "[value]",
+	*															"inhd" => "[inherited]",
+	*														),
+	*													),
+	*													</pre>
+	* @param string 					$prefix			unique prefix to use for the form elements
+	*
+	* @access public
+	* @return boolean		indicating success or abort
+	* @static
+	*/
+	function processInterface(&$owner, &$o, $lookups, &$lookup_values, $prefix)
+	{
+		if (!isset($_POST[$prefix]) || !is_array($_POST[$prefix])) return false;
+
+		$lookup_values = Array();
+		$name_prefix = Paint_Layout_Lookup_Value::namePrefix();
+
+		foreach ($_POST[$prefix] as $url => $layouts) {
+			foreach ($layouts as $layout_name => $layout_data) {
+
+				// new user defined layout ?
+				if ($layout_name == $name_prefix.'::user::') {
+					if (empty($layout_data['name'])) continue;
+					if (empty($layout_data['value']['assetid'])) continue;
+					$layout_name .= strtolower($layout_data['name']);
+					if (isset($lookup_values[$url][$layout_name])) {
+						trigger_error('Layout Name "'.$layout_data['name'].'" already in use for "'.$url.'"', E_USER_WARNING);
+						continue;
+					}
+				}// end if
+
+				// if it's empty set to blank strring so it get's deleted
+				$lookup_values[$url][$layout_name]['value'] = (empty($layout_data['value']['assetid'])) ? '' : $layout_data['value']['assetid'];
+
+			}
+		}
+
+		return true;
+
+	}//end processInterface()
+	
+
+}//end class
+
+?>
