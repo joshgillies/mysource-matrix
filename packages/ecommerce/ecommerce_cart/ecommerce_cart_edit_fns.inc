@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_edit_fns.inc,v 1.2 2005/01/20 13:22:21 brobertson Exp $
+* $Id: ecommerce_cart_edit_fns.inc,v 1.3 2005/01/21 01:31:26 lwright Exp $
 *
 */
 
 
-require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 
 /**
 * Ecommerce_Cart_Edit_Fns
@@ -32,11 +32,11 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
-class Ecommerce_Cart_Edit_Fns extends Asset_Edit_Fns
+class Ecommerce_Cart_Edit_Fns extends Page_Edit_Fns
 {
 	
 	
@@ -48,7 +48,7 @@ class Ecommerce_Cart_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function Ecommerce_Cart_Edit_Fns()
 	{
-		$this->Asset_Edit_Fns();
+		$this->Page_Edit_Fns();
 		
 	}//end Ecommerce_Cart_Edit_Fns() 
 	

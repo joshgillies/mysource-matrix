@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.2 2005/01/20 13:22:21 brobertson Exp $
+* $Id: ecommerce_cart.inc,v 1.3 2005/01/21 01:31:26 lwright Exp $
 *
 */
 
 
-require_once SQ_INCLUDE_PATH.'/asset.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 
 /**
 * Ecommerce_Cart
@@ -33,11 +33,11 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
-class Ecommerce_Cart extends Asset
+class Ecommerce_Cart extends Page
 {
 
 	
@@ -51,9 +51,25 @@ class Ecommerce_Cart extends Asset
 	*/
 	function Ecommerce_Cart($assetid=0)
 	{
-		$this->Asset($assetid);
+		$this->Page($assetid);
 		
 	}//end Ecommerce_Cart()
+	
+	
+	/**
+	* Returns an array of all the permitted link type, the type asset and
+	* the cardinality
+	*
+	* @see Asset::_getAllowLinks()
+	* @access private
+	*/
+	function _getAllowedLinks()
+	{
+		$page_links = parent::_getAllowedLinks();
+		$page_links[SQ_LINK_TYPE_1]['folder'] = Array('card' => 'M');
+		$page_links[SQ_LINK_TYPE_1]['product'] = Array('card' => 'M');
+		return $page_links;
+	}
 	
 	
 	/**
@@ -101,7 +117,7 @@ class Ecommerce_Cart extends Asset
 	/**
 	* Prepare cart for first use, if the relevant session vars aren't there
 	*
-	* @return int	1 if either session var needed to be created (ie. cart
+	* @return int	1 if session var needed to be created (ie. cart
 	*				needed to be init'ed), 0 if cart already existed
 	*				(-1 is reserved for an error condition)
 	* @access public
@@ -112,11 +128,6 @@ class Ecommerce_Cart extends Asset
 		
 		if (!isset($_SESSION['sq_cart_contents'])) {
 			$_SESSION['sq_cart_contents'] = Array();
-			$ret_val = 1;
-		}
-		
-		if (!isset($_SESSION['sq_cart_contents'][$this->id])) {
-			$_SESSION['sq_cart_contents'][$this->id] = Array();
 			$ret_val = 1;
 		}
 		
@@ -136,12 +147,15 @@ class Ecommerce_Cart extends Asset
 	*/
 	function clear()
 	{
-		unset($_SESSION['sq_cart_contents'][$this->id]);
+		unset($_SESSION['sq_cart_contents']);
+		
+		//only needed once we move back to more than one cart
+		//unset($_SESSION['sq_cart_contents'][$this->id]);
 		
 		// this is the last cart
-		if (empty($_SESSION['sq_cart_contents'])) {
-			unset($_SESSION['sq_cart_contents']);
-		}
+		//if (empty($_SESSION['sq_cart_contents'])) {
+		//  unset($_SESSION['sq_cart_contents']);
+		//}
 		
 		return true;
 		
@@ -246,6 +260,50 @@ class Ecommerce_Cart extends Asset
 	
 	
 	/**
+	* Updtes the quantity of an item(s) in the cart
+	*
+	* Assumption: product lines were correctly made using the add() method
+	* and therefore, only valid products are found in the cart (because of the
+	* add() checking).
+	*
+	* @param string	$product_assetid	The assetid of the product to remove
+	* @param int		$quantity		The quantity of this product to remove -
+	*								leave blank to remove all of that product
+	*
+	* @return boolean	indicating success
+	* @access public
+	*/
+	function update($product_assetid, $quantity)
+	{
+		$cart =& $this->get();
+
+		// if we are not updating anything, silently return succes
+		if (array_get_index($cart, $product_assetid, 0) == $quantity) return true;
+		if (array_get_index($cart[$product_assetid], 'quantity', 0) == $quantity) return true;
+		
+		// product doesn't exist in cart, then silently return, otherwise error
+		if (!isset($cart[$product_assetid]))
+		{
+			trigger_error('Attempt to update() an item in a cart when there is nothing to update', E_USER_WARNING);
+			return false;
+		}
+		
+		// Qty < 0, throw an error
+		if ($quantity < 0) {
+			trigger_error('Quantity to update() an item with a negative quantity', E_USER_WARNING);
+			return false;
+		} else if ($quantity == 0) {
+			unset($cart[$product_assetid]);
+		} else {
+			$cart[$product_assetid]['quantity'] = $quantity;
+		}
+		
+		return true;
+		
+	}//end update()
+	
+	
+	/**
 	* Returns a reference to the session variable that holds this cart
 	*
 	* This function calls initialise() so the cart contents array will always
@@ -257,7 +315,7 @@ class Ecommerce_Cart extends Asset
 	function &get()
 	{
 		$this->initialise();
-		return $_SESSION['sq_cart_contents'][$this->id]; 
+		return $_SESSION['sq_cart_contents'];
 		
 	}//end get()
 	
@@ -270,7 +328,7 @@ class Ecommerce_Cart extends Asset
 	*/
 	function total()
 	{
-		$cart = $this->get();
+		$cart =& $this->get();
 		$total = 0.0;
 		foreach($cart as $product_assetid => $details) {
 			$total += $details['quantity'] * $details['price'];
@@ -289,7 +347,7 @@ class Ecommerce_Cart extends Asset
 	*/
 	function count()
 	{
-		$cart = $this->get();
+		$cart =& $this->get();
 		$count = 0;
 		foreach($cart as $product_assetid => $details) {
 			$count += $details['quantity'];
@@ -308,11 +366,71 @@ class Ecommerce_Cart extends Asset
 	*/
 	function printBody()
 	{
-		echo $this->count();
-		echo ($this->count() == 1) ? ' item' : ' items';
-		echo '<br/>';
-		echo '$'.number_format($this->total(),2);
+		?><div align="center"><form action="<?php echo $this->getURL() ?>" method="post"><?php
 		
+		if (!is_null(array_get_index($_POST,'update_quantity',null))) {
+			foreach($_POST['update_quantity'] as $product_assetid => $new_quantity) {
+				if (is_numeric($new_quantity)) {
+					$this->update($product_assetid, (int)$new_quantity);
+				}
+			}
+			?><strong>Product quantities changed.</strong><?php
+		}
+	
+		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+	
+		$cart = $this->get();
+		?>
+		<table width="50%">
+		<thead><tr>
+		<th>Product Name</th>
+		<th>Qty</th><?php
+		if ($this->attr('show_price')) {
+			?><th>Price</th><?php
+			?><th>Subtotal</th><?php
+		}
+		?></thead>
+		<?php if ($this->attr('show_price')) {
+			// the W3C recommendations say that TFOOT must come before TBODY
+			// for some reason, so here it is
+			?><tfoot><tr><?php
+			?><td style="text-align:right"><strong>Total</strong></td><?php
+			?><td style="text-align:right"><strong><?php echo $this->count(); ?></strong></td><?php
+			?><td colspan="2" style="text-align:right"><strong><?php echo '$'.number_format($this->total(),2); ?></strong></td><?php
+			?></tr>
+			</tfoot><?php
+		}
+		?><tbody><?php
+		if (empty($cart)) {
+			?><tr><td colspan="<?php echo $this->attr('show_price') ? 4 : 2 ?>" style="text-align:center">There are no items in your cart</td></tr><?php		
+		} else {
+			foreach($cart as $product_assetid => $details) {
+				?><tr><?php
+				$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($product_assetid));
+				?><td><a href="<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetURL($product_assetid) ?>"><?php echo $asset_info[$product_assetid]['name'] ?></a></td><?php
+				?><td style="text-align:right"><?php text_box('update_quantity['.$product_assetid.']', $details['quantity'], 3) ?></td><?php
+				if ($this->attr('show_price')) {
+					?><td style="text-align:right"><?php echo '$'.number_format($details['price'],2) ?></td><?php
+					?><td style="text-align:right"><?php echo '$'.number_format($details['quantity'] * $details['price'],2) ?></td><?php
+				}
+				?></tr><?php
+			}
+		}
+		?></tbody>
+		</table>
+		
+		<?php if (!empty($cart)) { ?>
+			<input type="submit" value="Update Quantity">
+			<?php 
+			$form_id = $this->attr('ecom_form_id');
+			if (!empty($form_id)) {
+				$ecom_form_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($form_id); ?>
+			<input type="button" onclick="location.href = '<?php echo addslashes($ecom_form_url); ?>'" value="<?php echo $this->attr('checkout_text'); ?>">
+			<?php } ?>
+		<?php } ?>
+		</form></div>
+		<?php
+			
 	}//end printBody()
 	
 	
