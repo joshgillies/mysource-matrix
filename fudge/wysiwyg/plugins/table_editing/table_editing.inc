@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: table_editing.inc,v 1.11 2003/10/20 04:37:56 gsherwood Exp $
+* $Id: table_editing.inc,v 1.12 2003/11/07 01:36:18 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,6 +37,7 @@ class table_editing extends wysiwyg_plugin {
 		$this->_open_menu('tablefunctions', 'Table Functions','false','35');
 			$this->_add_button('inserttable','InsertTable','Insert Table','false','35');
 			$this->_add_button('tableproperties','TableProperties','Table Properties','false','36','table');
+			$this->_add_button('showborders','ShowBorders','Show 0 borders','false','37');
 		$this->_close_menu('tablefunctions');
 		
 		$this->_open_menu('rowfunctions', 'Row Functions','false','38','tr');
@@ -63,8 +64,6 @@ class table_editing extends wysiwyg_plugin {
 			$this->_add_button('splitcell','SplitCell','Split Cell','false','51','td');
 			$this->_add_button('mergecells','MergeCells','Merge Cells','false','52','tr');
 		$this->_close_menu('cellfunctions');
-
-		$this->_add_button('showborders','ShowBorders','Show 0 borders','false','37');
 
 	}//end constructor
 
