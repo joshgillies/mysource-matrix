@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.142 2004/06/10 01:24:54 gsherwood Exp $
+* $Id: asset_map.inc,v 1.143 2004/06/15 04:47:45 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -178,7 +178,7 @@ class Asset_Map
 		<object id="sq_asset_map" width="<?php echo $width; ?>" height="<?php echo $height; ?>" classid="CLSID:8AD9C840-044E-11d1-B3E9-00805F499D93">
 			<param name="code" value="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" />
 			<param name="level" value="5" />
-			<param name="archive" value="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar, <?php echo sq_web_path('lib'); ?>/asset_map/java/crimson.jar" />
+			<param name="archive" value="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar?t=<?php echo time(); ?>, <?php echo sq_web_path('lib'); ?>/asset_map/java/crimson.jar" />
 			<param name="BASE_URL" value="<?php echo clean_url(current_url(true, true)); ?>" />
 			<param name="BACKEND_SUFFIX" value="<?php echo SQ_CONF_BACKEND_SUFFIX; ?>" />
 			<?php
@@ -187,7 +187,7 @@ class Asset_Map
 			?>
 			
 			<comment>
-				<embed id="sq_asset_map" width="<?php echo $width; ?>" height="<?php echo $height; ?>" type="application/x-java-applet;version=1.4" code="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar, <?php echo sq_web_path('lib'); ?>/asset_map/java/crimson.jar" BASE_URL="<?php echo clean_url(current_url(true, true)); ?>" <?php if ($type == 'complex') echo 'INBOX_URL="'.rawurlencode($inbox_url).'"'; ?> 
+				<embed id="sq_asset_map" width="<?php echo $width; ?>" height="<?php echo $height; ?>" type="application/x-java-applet;version=1.4" code="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar?t=<?php echo time(); ?>, <?php echo sq_web_path('lib'); ?>/asset_map/java/crimson.jar" BASE_URL="<?php echo clean_url(current_url(true, true)); ?>" <?php if ($type == 'complex') echo 'INBOX_URL="'.rawurlencode($inbox_url).'"'; ?> 
 				 BACKEND_SUFFIX="<?php echo SQ_CONF_BACKEND_SUFFIX; ?>" MAYSCRIPT>
 					<noembed>
 						Java is not installed on your system
@@ -403,24 +403,40 @@ class Asset_Map
 					END AS protocol';
 		if (!empty($userid_cond)) $sql .= ', MAX(p.permission) AS accessible';
 		
-		$sql .= ' FROM (('.SQ_TABLE_PREFIX.'asset a LEFT JOIN '.SQ_TABLE_PREFIX.'asset_url u ON a.assetid = u.assetid)
-				  LEFT JOIN sq_asset_path ap ON a.assetid = ap.assetid)';
+		$u_where = 'a.assetid = u.assetid';
+		$u_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($u_where, 'u', 'ON');
+		$sql .= ' FROM (('.SQ_TABLE_RUNNING_PREFIX.'asset a LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_url u '.$u_where.')';
+		
+		
+		$ap_where = 'a.assetid = ap.assetid';
+		$ap_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($ap_where, 'ap', 'ON');
+		$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_path ap '.$ap_where.')';
+		
 		if (!empty($userid_cond)) {
-			$sql .= ' LEFT JOIN sq_asset_permission p ON (
+			$p_where = '(
 							a.assetid = p.assetid AND
 							p.access  = 1 AND
 							p.permission >= '.$db->quote(SQ_PERMISSION_READ).$userid_cond.'
 						)';
+			$p_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($p_where, 'p', 'ON');
+			$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_permission p '.$p_where;
 		}
-		$sql .= ','.SQ_TABLE_PREFIX.'asset_link l, '.SQ_TABLE_PREFIX.'asset_link_tree lt
- 				WHERE a.assetid = l.minorid AND
-					  l.linkid = lt.linkid AND
-					  l.majorid = '.$db->quote($assetid).' AND
-					  l.link_type <= '.$db->quote(SQ_LINK_TYPE_2).'
-				GROUP BY a.assetid, a.short_name, a.type_code, a.status,
+		
+		$sql .= ','.SQ_TABLE_RUNNING_PREFIX.'asset_link l, '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree lt';
+		$where = '	a.assetid = l.minorid AND
+					l.linkid = lt.linkid AND
+					l.majorid = '.$db->quote($assetid).' AND
+					l.link_type <= '.$db->quote(SQ_LINK_TYPE_2);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lt');
+
+		$sql .= ' '.$where;
+
+		$sql .= ' GROUP BY a.assetid, a.short_name, a.type_code, a.status,
 					   l.linkid, l.link_type, l.sort_order,
 					   lt.num_immediate_kids, u.url, protocol, ap.path
-				ORDER BY sort_order DESC';
+				  ORDER BY sort_order DESC';
 
 		$result = $db->getAll($sql);
 		if (DB::isError($result)) {
