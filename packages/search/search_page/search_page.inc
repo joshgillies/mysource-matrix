@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.66 2004/11/30 22:52:46 gsherwood Exp $
+* $Id: search_page.inc,v 1.66.2.1 2004/12/20 23:29:19 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66 $ - 1.0
+* @version $Revision: 1.66.2.1 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -294,7 +294,7 @@ class Search_Page extends Page
 		$results_per_page    = array_get_index($_REQUEST, 'results_per_page', $this->attr('results_per_page'));
 
 		?>
-		<form name="search_form" method="get" action="<?php echo $this->getUrl(); ?>">
+		<form name="search_form" method="get" action="<?php echo replace_query_string_vars(Array()); ?>">
 			<input type="hidden" name="current_result_page" value="<?php echo $current_result_page; ?>" />
 			<input type="hidden" name="results_per_page" value="<?php echo $results_per_page; ?>" />
 			<?php
