@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.304 2004/06/23 04:26:54 lwright Exp $
+* $Id: asset.inc,v 1.305 2004/06/23 14:55:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2945,7 +2945,7 @@ class Asset extends MySource_Object
 	*/
 	function getWebDataPath()
 	{
-		return '__data/assets/'.$this->type().'/'.$this->id;
+		return sq_web_path('data').'/assets/'.$this->type().'/'.$this->id;
 
 	}//end getWebDataPath()
 
