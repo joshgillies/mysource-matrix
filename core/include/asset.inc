@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.348 2005/01/13 22:19:48 gsherwood Exp $
+* $Id: asset.inc,v 1.349 2005/01/18 11:29:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.348 $
+* @version $Revision: 1.349 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2552,7 +2552,9 @@ class Asset extends MySource_Object
 						'asset_published_by_name',
 						'asset_url',
 						'asset_href',
-						'asset_thumbnail'
+						'asset_thumbnail',
+						'asset_thumbnail_url',
+						'asset_thumbnail_caption',
 						);
 
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
@@ -2590,7 +2592,9 @@ class Asset extends MySource_Object
 			$keywords['asset_published_by_name']['description']     = 'The name of the user who last published this asset';
 			$keywords['asset_url']['description']                   = 'The absolute url to the asset';
 			$keywords['asset_href']['description']                  = 'The relative href to the asset';
-			$keywords['asset_thumbnail']['description']             = 'The thumbnail attached to the asset';
+			$keywords['asset_thumbnail']['description']             = 'The img tag for the thumbnail attached to the asset';
+			$keywords['asset_thumbnail_url']['description']         = 'The URL only for the thumbnail attached to the asset';
+			$keywords['asset_thumbnail_caption']['description']     = 'The caption for the thumbnail attached to the asset';
 		}
 
 		return $keywords;
@@ -2599,7 +2603,7 @@ class Asset extends MySource_Object
 
 
 	/**
-	* Gets replacements for keywords that are specific to this asset
+	* Gets replacements for keywords that are specific to this asset for LIMBO
 	*
 	* @param Array $keywords the keywords to get replacements for
 	*
@@ -2614,7 +2618,7 @@ class Asset extends MySource_Object
 
 
 	/**
-	* Processes anything that was previously printed for a custom keyword
+	* Processes anything that was previously printed for a custom keyword for LIMBO
 	*
 	* An example of this might be a keyword replacement for a bodycopy. When submitted, we need to process
 	* The bodycopy here

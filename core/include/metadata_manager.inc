@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.59 2005/01/17 17:58:47 brobertson Exp $
+* $Id: metadata_manager.inc,v 1.60 2005/01/18 11:29:41 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -759,6 +759,8 @@ class Metadata_Manager extends MySource_Object
 
 		if (!empty($keywords) && $generating) echo '$metadata_replacements = Array();'."\n";
 
+		$thumbnail_generated = false;
+
 		foreach ($keywords as $keyword) {
 
 			if ($generating) {
@@ -784,17 +786,29 @@ class Metadata_Manager extends MySource_Object
 				break;
 
 				case 'asset_thumbnail' :
-					echo 'if ($metadata_asset->id) {';
-					echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($metadata_asset->id, SQ_LINK_NOTICE, \'thumbnail\', true, \'thumbnail\');'."\n";
-					echo 'if (!empty($link)) {'."\n";
-					echo '$thumbnail = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = $thumbnail->printImageTag($metadata_asset->name, $metadata_asset->name, true);'."\n";
-					echo '} else {'."\n";
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = \'\';'."\n";
-					echo '}'."\n";
-					echo '} else {'."\n";
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = \'\';'."\n";
-					echo '}'."\n";
+				case 'asset_thumbnail_url' :
+				case 'asset_thumbnail_caption' :
+					if (!$thumbnail_generated) {
+						echo '$thumbnail = null;';
+						echo 'if ($metadata_asset->id) {';
+						echo '    $link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($metadata_asset->id, SQ_LINK_NOTICE, \'thumbnail\', true, \'thumbnail\');'."\n";
+						echo '    if (!empty($link)) {'."\n";
+						echo '        $thumbnail = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\'], $link[\'minor_type_code\']);'."\n";
+						echo '    }'."\n";
+						echo '}'."\n";
+					}
+					switch ($keyword) {
+						case 'asset_thumbnail' :
+							echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->printImageTag($metadata_asset->name, $metadata_asset->name, true);'."\n";
+							break;
+						case 'asset_thumbnail_url' :
+							echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->getURL();'."\n";
+							break;
+						case 'asset_thumbnail_caption' :
+							echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->attr(\'caption\');'."\n";
+							break;
+					}
+
 				break;
 
 				case 'asset_created' :
