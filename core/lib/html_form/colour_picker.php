@@ -18,9 +18,18 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: colour_picker.php,v 1.5 2003/11/26 00:51:13 gsherwood Exp $
+* $Id: colour_picker.php,v 1.6 2004/01/16 11:45:56 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
+
+/**
+* Pop-Up for the colour picker
+*
+* @author  Greg Sherwood <gsherwood@squiz.net>
+* @version $Version$ - 1.0
+* @package MySource_Matrix
+*/
+
 ?>
 <!-- note: this version of the color picker is optimized for IE 5.5+ only -->
 

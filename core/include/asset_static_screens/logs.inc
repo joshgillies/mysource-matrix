@@ -18,12 +18,19 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.1 2003/12/02 04:43:25 gsherwood Exp $
+* $Id: logs.inc,v 1.2 2004/01/16 11:45:56 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
-
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+
+/**
+* Logs Static Screen Functions
+*
+* @author  Greg Sherwood <gsherwood@squiz.net>
+* @version $Version$ - 1.0
+* @package MySource_Matrix
+*/
 
 
 /**

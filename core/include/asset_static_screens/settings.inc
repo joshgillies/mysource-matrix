@@ -18,13 +18,20 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.2 2003/12/17 04:27:17 mmcintyre Exp $
+* $Id: settings.inc,v 1.3 2004/01/16 11:45:56 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
-
 require_once 'XML/Tree.php';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+
+/**
+* Settings Static Screen Functions
+*
+* @author  Greg Sherwood <gsherwood@squiz.net>
+* @version $Version$ - 1.0
+* @package MySource_Matrix
+*/
 
 
 /**

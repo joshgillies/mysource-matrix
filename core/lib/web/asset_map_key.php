@@ -18,9 +18,18 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map_key.php,v 1.3 2003/11/26 00:51:14 gsherwood Exp $
+* $Id: asset_map_key.php,v 1.4 2004/01/16 11:45:56 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
+
+/**
+* Key/Lengend for the colour coding used in the Asset Map
+*
+* @author  Greg Sherwood <gsherwood@squiz.net>
+* @version $Version$ - 1.0
+* @package MySource_Matrix
+*/
+
 -->
 
 <html>

@@ -18,14 +18,20 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.2 2003/12/17 04:27:21 mmcintyre Exp $
+* $Id: workflow.inc,v 1.3 2004/01/16 11:45:56 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
-
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once DIRNAME(__FILE__).'/details.inc';
 
+/**
+* Workflow Static Screen Functions
+*
+* @author  Greg Sherwood <gsherwood@squiz.net>
+* @version $Version$ - 1.0
+* @package MySource_Matrix
+*/
 
 
 /**
