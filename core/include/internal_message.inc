@@ -199,7 +199,7 @@ class Internal_Message extends MySource_Object
 
 		}//end foreach
 
-		$GLOBALS['SQ_SYSTEM']->db->query('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
 	}//end send()
