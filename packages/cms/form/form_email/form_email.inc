@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.15 2004/05/19 23:43:32 lwright Exp $
+* $Id: form_email.inc,v 1.16 2004/06/11 04:20:44 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -106,6 +106,7 @@ class Form_Email extends Form
 		parent::finishForm();
 		$this->mailRecipients();
 		$this->mailReceipt();
+		$this->sendToFriends();
 		$this->logSubmission();
 
 		return true;
@@ -215,5 +216,49 @@ class Form_Email extends Form
 	}//end mailRecipients()
 
 
+	/**
+	* mails a receipt to friends if a STAF special infomation field has been assigned
+	*
+	* @access public
+	* @return boolean
+	*/
+	function sendToFriends()
+	{
+		$email_format = $this->attr('staf_format');
+
+		$email_field_assetid = $this->attr('staf_field');
+
+		if (empty($email_field_assetid)) {
+			return false;
+		} else {
+			$email_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($email_field_assetid);
+			$addresses = preg_split('/[\s;,]+/',$email_field->getValue());
+
+			// get the form info
+			$info = $this->getFormInfo(true);
+
+			// get the form summary
+			ob_start();
+			$this->printSummary(true);
+			$body = ob_get_contents();
+			ob_end_clean();
+
+			$reps = Array('form_summary' => $body, 'form_info' => $info);
+
+			$email_format_attr = $this->getAttribute('staf_format');
+
+			// append the 'To:' address with the address from the e-mail field
+			$current_value = @unserialize($email_format_attr->value);
+			$current_value['to'] = array_merge($current_value['to'], $addresses);
+			$email_format_attr->value = serialize($current_value);
+
+			$email_format_attr->sendMail($reps);
+		}
+
+		return true;
+
+	}//end sendToFriends()
+
+	
 }//end class
 ?>

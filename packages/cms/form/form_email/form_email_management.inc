@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_management.inc,v 1.13 2004/05/19 23:42:29 lwright Exp $
+* $Id: form_email_management.inc,v 1.14 2004/06/11 04:20:44 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -155,6 +155,19 @@ class Form_Email_Management extends Asset_Management
 									), // end recipient_send_answers
 
 								/// STAF (Send To A Friend) ///
+							'staf_field' => Array(
+													'added'		=> '0.0.1',
+													'type'		=> 'assetid',
+													'default'	=> '',
+
+									), // end staf_field
+
+							'staf_format' => Array(
+													'added'		=> '0.0.1',
+													'type'		=> 'email_format',
+													'default'	=> Array(),
+
+									), // end recipient_emails
 
 							'staf_from_address'	=> Array(
 													'added'		=> '0.0.1',

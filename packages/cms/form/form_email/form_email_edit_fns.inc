@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.18 2004/06/03 02:41:59 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.19 2004/06/11 04:20:44 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -598,9 +598,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 
 	/**
-	* Paints the interface for finding an asset to 
+	* Paints the interface for selecting a field containing send to a friend entries
 	*
-	* @param &object Remap_Manager		$asset		the remap manager
+	* @param &object Form_Email			$asset		the form involved
 	* @param &object Backend_Outputter	$o			the backend outputter
 	* @param string						$prefix		a unique prefix for variables
 	*
@@ -619,10 +619,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	
 
 	/**
-	* Processes the interface for delegating 404 requests to
-	* an asset
+	* Processes the interface for selecting a field containing a receipt email
 	*
-	* @param &object Remap_Manager		$asset		the remap manager
+	* @param &object Form_Email			$asset		the form involved
 	* @param &object Backend_Outputter	$o			the backend outputter
 	* @param string						$prefix		a unique prefix for variables
 	*
@@ -643,6 +642,55 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		return true;
 
 	}//end processReceiptField()
+
+//--        SEND TO A FRIEND STUFF        --//
+
+	
+	/**
+	* Paints the interface for selecting a field containing send to a friend entries
+	*
+	* @param &object Form_Email			$asset		the form involved
+	* @param &object Backend_Outputter	$o			the backend outputter
+	* @param string						$prefix		a unique prefix for variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintSTAFField(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) return false;
+		$assetid = $asset->attr('staf_field');
+		asset_finder($prefix.'_staf_field', $assetid, Array('form_question_type_text' => 'D'));
+
+		return true;
+
+	}//end paintReceiptField()
+	
+
+	/**
+	* Processes the interface for selecting a field containing send to a friend entries
+	*
+	* @param &object Form_Email			$asset		the form involved
+	* @param &object Backend_Outputter	$o			the backend outputter
+	* @param string						$prefix		a unique prefix for variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processSTAFField(&$asset, &$o, $prefix)
+	{
+		if (!isset($_POST[$prefix.'_staf_field'])) return false;
+		$assetid = $_POST[$prefix.'_staf_field']['assetid'];
+
+		// add check that this is in the same form
+
+		// if we already have this as the not found asset, don't set it again
+		if ($assetid == $asset->attr('staf_field')) return false;
+		if (!$asset->setAttrValue('staf_field', $assetid)) return false;
+
+		return true;
+
+	}//end processSTAFField()
 
 
 }//end class
