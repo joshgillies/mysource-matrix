@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.34 2005/02/11 00:48:55 lwright Exp $
+* $Id: search_page_edit_fns.inc,v 1.35 2005/02/11 19:31:53 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -352,7 +352,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 									$type_attrs[$attr_id] = $attr_name;
 								}
 								combo_box($prefix.'_fields['.$i.'][params][attrid]', $type_attrs, false, $selected_attr);
-							} else {
+							} elseif ($selected_attr != '') {
 								echo $asset_type_attrs[$selected_attr];
 							}
 						}
