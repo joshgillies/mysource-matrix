@@ -1,0 +1,79 @@
+<?php
+
+require_once dirname(__FILE__).'/../../content_type/content_type_management.inc';
+
+/**
+* Content_Type_WYSIWYG_Management
+*
+* @see Asset_Management
+*
+* @author  Greg Sherwood <greg@squiz.net>
+* @version $Version$ - 1.0
+* @package Resolve::packages::cms
+*/
+class Content_Type_WYSIWYG_Management extends Content_Type_Management
+{
+
+	/**
+	* Constructor
+	*
+	*/
+	function Content_Type_WYSIWYG_Management(&$pm)
+	{
+		$this->Content_Type_Management($pm);
+
+		$this->vars = Array('name' => Array(
+											'added'     => '0.0.1',
+											'type'      => 'text',  'default'   => '',
+											'update_fn' => ''
+											),
+							);
+
+	}//end constructor
+
+
+	/**
+	* Install
+	*
+	* @access public
+	*/
+	function _install()
+	{
+		$ok = parent::_install();
+		pre_echo($this->getAssetType().' Specific install stuff here');
+		return $ok;
+
+	}//end install
+
+
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+
+		$ok = parent::_upgrade($current_version);
+		pre_echo($this->getAssetType().' Specific upgrade stuff here');
+
+		switch($current_version) {
+			case '0.1': 
+				// 0.1 to 0.2 upgrade stuff here
+			case '0.2': 
+				// 0.2 to 0.3 upgrade stuff here
+			case '0.3': 
+				// 0.3 to 0.4 upgrade stuff here
+			case '0.4': 
+				// 0.4 to 0.5 upgrade stuff here
+		}
+
+		return $ok;
+
+	}//end upgrade()
+
+}//end class
+?>
