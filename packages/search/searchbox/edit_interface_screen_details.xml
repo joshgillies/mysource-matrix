@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2003/10/15 01:21:39 dwong Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2003/10/17 00:31:15 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -16,7 +16,7 @@
 	</section>
 
 	<section name="Search Page Configuration">
-		<field read_access="" write_access="write:attributes" >
+		<field write_access="write:attributes" >
 			<display_name>Search Page</display_name>
 			<note />
 			<function_call>
@@ -24,7 +24,7 @@
 				<process_function name="processBackendSearchPage" />
 			</function_call>
 		</field>
-		<field read_access="" write_access="write:attributes" show_if="hasValidSearchPage">
+		<field write_access="write:attributes" show_if="hasValidSearchPage">
 			<display_name>Search Field Name</display_name>
 			<note>The field must be defined in the search page above.</note>
 			<function_call>
@@ -32,17 +32,17 @@
 				<process_function name="processSearchFieldName" />
 			</function_call>
 		</field>
-		<field read_access="" write_access="write:attributes" attribute="querybox_width">
+		<field write_access="write:attributes" attribute="querybox_width">
 			<display_name>Query box width</display_name>
 			<note />
 			<int width="5" />
 		</field>
-		<field read_access="" write_access="write:attributes" attribute="submit_button">
+		<field write_access="write:attributes" attribute="submit_button">
 			<display_name>Submit Button</display_name>
 			<note />
 			<boolean />
 		</field>
-		<field read_access="" write_access="write:attributes" show_if="isSubmitButton">
+		<field write_access="write:attributes" show_if="isSubmitButton">
 			<display_name>Submit Image</display_name>
 			<note />
 			<function_call>
