@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.113 2004/11/17 22:34:03 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.114 2004/11/18 23:09:50 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.113 $ - 1.0
+* @version $Revision: 1.114 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -156,7 +156,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$type_formats = null;
 		foreach ($sub_assets as $name => $type) {
 			$asset = new $type();
-			$copy_link = Array('asset' => &$this, 'value' => $name ,'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
+			$copy_link = Array('asset' => &$this, 'value' => $name ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 			$asset->setAttrValue('name', ucwords(str_replace('_',' ', $name)));
 			if (!$asset->create($copy_link)) {
@@ -197,7 +197,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($content_asset->id, 'attributes');
 
 		// create the event format bodycopies
-		$copy_link = Array('asset' => &$type_formats, 'value' => '' ,'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
+		$copy_link = Array('asset' => &$type_formats, 'value' => '' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$event_types = Array('single', 'recurring');
 		foreach ($event_types as $event_type) {
 			$copy_link['value'] = 'calendar_event_'.$event_type;
@@ -1638,7 +1638,7 @@ class Page_Calendar extends Page_Asset_Listing
 		// get the single events
 		$start_date_stamp = floor(strtotime($date.' 12:00:00 GMT')/86400);
 		$end_date_stamp = $start_date_stamp + 6;
-		$date_sql = '(cd.start_date_ds BETWEEN '.$db->quote($start_date_stamp).' and '.$db->quote($end_date_stamp).') OR (cd.start_date_ds < '.$db->quote($start_date_stamp).' AND cd.end_date_ds >= '.$db->quote($start_date_stamp).')';
+		$date_sql = '(cd.start_date_ds BETWEEN '.$db->quote($start_date_stamp).' AND '.$db->quote($end_date_stamp).') OR (cd.start_date_ds < '.$db->quote($start_date_stamp).' AND cd.end_date_ds >= '.$db->quote($start_date_stamp).')';
 		$sql = build_single_event_query_base($trees).' AND ('.$date_sql.') AND '.$tree_sql;
 		$single_result = $db->getAssoc($sql);
 		assert_valid_db_result($single_result);

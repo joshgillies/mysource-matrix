@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_js_calendar_navigator.inc,v 1.3 2004/10/20 06:25:44 tbarrett Exp $
+* $Id: design_area_js_calendar_navigator.inc,v 1.4 2004/11/18 23:09:50 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,7 +39,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 class Design_Area_JS_Calendar_Navigator extends Design_Area
 {
 
-	/*
+	/**
 	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented
 	*
 	* @param object Design	$design the design for which we are currently printing

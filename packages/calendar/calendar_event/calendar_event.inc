@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.33 2004/11/18 05:16:04 gsherwood Exp $
+* $Id: calendar_event.inc,v 1.34 2004/11/18 23:09:50 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.33 $ - 1.0
+* @version $Revision: 1.34 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -627,7 +627,7 @@ class Calendar_Event extends Asset
 	}//end processEventAction()	
 
 
-	/*
+	/**
 	* Cache the calendar data's stuff
 	*
 	* @param boolean	$updating	are we updating (TRUE) or inserting a new record
@@ -641,7 +641,7 @@ class Calendar_Event extends Asset
 		$db = $GLOBALS['SQ_SYSTEM']->db;
 	
 		$date_values = Array();
-		foreach(Array('start_date', 'end_date') as $date_comp) {
+		foreach (Array('start_date', 'end_date') as $date_comp) {
 			$iso = $this->attr($date_comp);
 						
 			if (iso8601_time_component($iso) === false) {
@@ -667,20 +667,20 @@ class Calendar_Event extends Asset
 			// set the asset ids
 			$date_values['assetid'] = $this->id;
 		
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('calendar_date_value', $date_values)) {
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('cal_date_val', $date_values)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 		} else {
 			// now quote everything except null values
-			foreach(array_keys($date_values) as $key) {
+			foreach (array_keys($date_values) as $key) {
 				$date_values[$key] = (is_null($date_values[$key]) ? 'null' : 	$db->quote($date_values[$key]));						
 			}
 		
 			// asset id becomes a where condition
 			$where = ' assetid = '.$db->quote($this->id);
 		
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('calendar_date_value', $date_values, $where)) {
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('cal_date_val', $date_values, $where)) {
 				trigger_error('Unable to cache calendar data for '.ucwords(str_replace('_', ' ', $this->type())).' asset "'.$this->attr('name').'" (# '.$this->id.')', E_USER_WARNING);				
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -691,9 +691,8 @@ class Calendar_Event extends Asset
 		return true;
 			
 	}//end cacheCalendarData()
-	
-	
-	
+
+
 }//end class
 
 ?>

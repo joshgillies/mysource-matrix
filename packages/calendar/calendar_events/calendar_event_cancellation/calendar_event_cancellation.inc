@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation.inc,v 1.10 2004/09/13 05:20:33 tbarrett Exp $
+* $Id: calendar_event_cancellation.inc,v 1.11 2004/11/18 23:09:50 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * which replaces the cancelled instance may be linked to it.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.10 $ - 1.0
+* @version $Revision: 1.11 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -185,7 +185,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 		$replacement_event->setAttrValue('end_date', $end_date);
 		$replacement_event->setAttrValue('description', $description);
 		if (!$replacement_event->id) {
-			$link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
+			$link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 			$replacement_event->create($link);
 		} else {
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($replacement_event->id, 'attributes')) {

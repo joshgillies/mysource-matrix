@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification_edit_fns.inc,v 1.5 2004/09/13 05:17:17 tbarrett Exp $
+* $Id: calendar_event_modification_edit_fns.inc,v 1.6 2004/11/18 23:09:50 gsherwood Exp $
 * $prefix:  $
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.5 $ - 1.0
+* @version $Revision: 1.6 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -110,10 +110,11 @@ class Calendar_Event_Modification_Edit_Fns extends Calendar_Event_Edit_Fns
 				$modified_event_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_event_ids[0]);
 			}
 		}
-		if (!is_null($modified_event_asset)) 
+		if (!is_null($modified_event_asset)) {
 			echo $modified_event_asset->name.' (Id: #'.$modified_event_asset->id.')';
-		else 
+		} else {
 			echo 'No event has been selected for modification';
+		}
 
 	}//end paintRecurringEventChooser()
 

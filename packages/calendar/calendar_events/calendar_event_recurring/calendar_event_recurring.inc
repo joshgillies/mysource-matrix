@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.46 2004/10/05 02:35:18 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.47 2004/11/18 23:09:50 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.46 $ - 1.0
+* @version $Revision: 1.47 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -110,8 +110,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		}
 
 		$seconds_per_day = 60 * 60 * 24;
-		if ($after <= $start)
-			return $start;
+		if ($after <= $start) return $start;
 		
 		list($res_year,$res_month,$res_day) = sscanf($after, '%04d-%02d-%02d');
 		list($after_year,$after_month,$after_day) = sscanf($after, '%04d-%02d-%02d');
@@ -892,7 +891,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		$modification_event->setAttrValue('start_date', $date.' --:--:--');
 		$modification_event->setAttrValue('description', $description);
 		if (!$modification_event->id) {
-			$link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 0, 'value' => $date);
+			$link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 0, 'value' => $date);
 			$modification_event->create($link);
 		} else {
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($modification_event->id, 'attributes')) {
@@ -946,7 +945,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			// set the asset ids
 			$date_values['assetid'] = $this->id;
 		
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('calendar_date_value', $date_values)) {
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('cal_date_val', $date_values)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -959,7 +958,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			// asset id becomes a where condition
 			$where = ' assetid = '.$db->quote($this->id);
 		
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('calendar_date_value', $date_values, $where)) {
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('cal_date_val', $date_values, $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
