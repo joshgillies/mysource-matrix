@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 * 
-* $Id: install.inc,v 1.11 2004/07/12 05:24:17 lwright Exp $
+* $Id: install.inc,v 1.12 2004/07/28 04:05:09 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -80,8 +80,8 @@ function uninstall_asset_types()
 	// always contains the full list of asset type_codes currently registered in the database 
 	$all_asset_types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
 
-	// contains full list, but will be diff'd with $package_asset_types leaving what
-	// type_codes can be safely deleted
+	// contains full list (yes we are getting this twice), but will be diff'd with
+	// $package_asset_types leaving what type_codes can be safely deleted
 	$asset_types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
 
 	// type_codes of assets which are being claimed by a package
@@ -121,11 +121,15 @@ function uninstall_asset_types()
 	if (!empty($asset_types)) {
 		$errors = false;
 
-		foreach($all_asset_types as $asset_type) {
+		// check those asset types that are still going to be there after uninstall
+		// to see whether it depended on something that is being deleted... if it is then
+		// we have massive problems and should bail
+		foreach(array_diff($all_asset_types,$asset_types) as $asset_type) {
 			$asc = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($asset_type);
 			$deleted_parents = array_intersect($asset_types, $asc);
+			
 			if (count($deleted_parents) > 0) {
-				// OMG OMG OMG, one of our parents is gone!
+				// oh dear, one of our parents is gone
 				trigger_error('One or more of the parents for the asset type \''.$asset_type.'\' no longer exists in the system. The system may be broken until you restore the necessary files of the parent asset type to their proper location.'."\n".'\''.$asset_type.'\' depends on: '.implode(', ', $deleted_parents), E_USER_WARNING);
 				$errors = true;
 			}
