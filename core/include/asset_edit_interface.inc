@@ -469,6 +469,7 @@ class Asset_Edit_Interface extends Resolve_Object
 						$statii[SQ_STATUS_LIVE] = 'Make Live';
 					} else {
 						$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Place Under Construction';
+						$statii[SQ_STATUS_EDITING] = 'Safe Edit';
 					}
 				}
 				break;
@@ -485,8 +486,8 @@ class Asset_Edit_Interface extends Resolve_Object
 				if (in_array($userid, $publishers)) {
 					// the current user can approve this asset
 					// to keep the workflow going
-					$statii[SQ_STATUS_LIVE] = 'Approve';
-					$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Reject - NOT DONE YET';
+					$statii[SQ_STATUS_LIVE] = 'Approve Changes';
+					$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Reject Changes';
 				}
 				break;
 		}
@@ -541,7 +542,6 @@ class Asset_Edit_Interface extends Resolve_Object
 			$users    = $owner->getPermission($perm, false);
 			$inherits = $owner->getInheritedPermission($perm, array_keys($users));
 			$revokes  = $owner->getRevokedPermission($perm);
-
 
 			$o->openField('Public');
 			$public = false;
@@ -696,7 +696,6 @@ class Asset_Edit_Interface extends Resolve_Object
 				ob_end_flush();
 				?></table><?php
 			}
-			
 
 			if ($owner->writeAccess()) {
 				$o->openField('New?');
@@ -783,7 +782,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function paintWorkflow(&$owner, &$o)
 	{
-		$prefix = $owner->type().'_'.$owner->id.'_permissions';
+		$prefix = $owner->type().'_'.$owner->id.'_workflow';
 
 		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
 		$wfm = new Workflow_Manager($owner, true, false, true);
@@ -904,6 +903,106 @@ class Asset_Edit_Interface extends Resolve_Object
 			$write_access = $owner->writeAccess();
 		}
 
+
+		//// print the list of inherited workflows ////
+		$inherited = false;
+		$revoked   = false;
+
+		$o->openSection('Inherited Workflows');
+		$users    = $owner->getPermission(SQ_PERMISSION_WORKFLOW, false);
+		$inherits = $owner->getInheritedPermission(SQ_PERMISSION_WORKFLOW, array_keys($users));
+		$revokes  = $owner->getRevokedPermission(SQ_PERMISSION_WORKFLOW);
+		$revokes = array_keys($revokes);
+
+		$o->openField('Inherited');
+		ob_start();
+		?>
+		<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+			<tr>
+				<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
+				<?php
+				if ($write_access) {
+					?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Revoke ?</b></td><?php
+				}
+				?>
+			</tr>
+		<?php
+
+		$workflows = $inherits + $users;
+		if (isset($workflows[0])) {
+			foreach ($workflows[0] as $assetid) {
+				if (!empty($revokes) && in_array($assetid, $revokes)) continue;
+				
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				if (!$asset->id) continue;
+
+				?>
+				<tr>
+					<td bgcolor="#F0F0F0" class="sq-form-field"><?php 
+					echo 'Workflow inherited from '.$asset->name.' ['.$asset->type()." : $assetid]";
+					?></td><?php
+				if ($write_access) {
+					?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field"><?php
+					check_box($prefix."_revoke[$assetid]")
+					?></td><?php
+				}
+				?></tr><?php
+				$inherited = true;
+			}
+		}
+
+		if (!$inherited) {
+			ob_end_clean();
+			echo 'None';
+		} else {
+			ob_end_flush();
+			?></table><?php
+		}
+
+		$o->openField('Revoked');
+		ob_start();
+		?>
+		<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+			<tr>
+				<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
+				<?php
+				if ($write_access) {
+					?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Reinstate ?</b></td><?php
+				}	
+				?>
+			</tr>
+		<?php
+
+		if (!empty($revokes)) {
+			foreach ($revokes as $assetid) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				if (!$asset->id) continue;
+				?>
+				<tr>
+					<td bgcolor="#F0F0F0" class="sq-form-field"><?php 
+					echo 'Workflow inherited from '.$asset->name.' ['.$asset->type()." : $assetid]";
+					?></td>
+				<?php
+				if ($write_access) {
+					?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field"><?php
+					check_box($prefix."_unrevoke[$assetid]")
+					?></td><?php
+				}
+				?></tr><?php
+				$revoked = true;
+			}
+		}
+
+		if (!$revoked) {
+			ob_end_clean();
+			echo 'None';
+		} else {
+			ob_end_flush();
+			?></table><?php
+		}
+
+
+		//// now print the direct workflow for this asset ////
 		foreach ($wfm->_steps as $stepid => $step_data) {
 			$o->openSection("Step $stepid");
 			
@@ -1032,7 +1131,24 @@ class Asset_Edit_Interface extends Resolve_Object
 			return false;
 		}
 
-		$prefix = $owner->type().'_'.$owner->id.'_permissions';
+		$prefix = $owner->type().'_'.$owner->id.'_workflow';
+
+		// revoking and reinstating inherited workflows
+		if ($owner->writeAccess()) {
+			// unrevoke inherited workflow
+			if (isset($_POST[$prefix.'_unrevoke'])) {
+				foreach ($_POST[$prefix.'_unrevoke'] as $assetid => $on) {
+					$owner->reinstateRevokedPermission($assetid, SQ_PERMISSION_WORKFLOW);
+				}
+			}
+
+			// revoke inherited workflow
+			if (isset($_POST[$prefix.'_revoke'])) {
+				foreach ($_POST[$prefix.'_revoke'] as $assetid => $on) {
+					$owner->revokeInheritedPermission($assetid, SQ_PERMISSION_WORKFLOW);
+				}
+			}
+		}
 
 		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
 		$wfm = new Workflow_Manager($owner, true, false, false);
