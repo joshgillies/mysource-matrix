@@ -60,6 +60,11 @@ class Resolve
 	*/
 	function Resolve()
 	{
+	}// end constructor
+
+
+	function init() 
+	{
 		session_name('SQ_SYSTEM_SESSION');
 		session_save_path(SQ_SYSTEM_ROOT.'/cache');
 		session_start();
@@ -71,6 +76,9 @@ class Resolve
 		// make sure all results are assoc arrays
 		$this->db->setFetchMode(DB_FETCHMODE_ASSOC);
 
+		// initialise the asset manager as we are going to need it pretty much everywhere
+		$this->am = new Asset_Manager();
+
 	}// end constructor
 
 
@@ -81,9 +89,6 @@ class Resolve
 	*/
 	function start()
 	{
-		// initialise the asset manager as we are going to need it pretty much everywhere
-		$this->am = new Asset_Manager();
-
 		// initiailise event listeners
 		$GLOBALS['SQ_EVENT_LISTENER_OBJECTS'] = array();
 		$GLOBALS['SQ_EVENT_LISTENERS'] = array();

@@ -110,5 +110,7 @@ define('SQ_STATUS_LIVE',               5); // asset is live
 // Create the system object
 require_once SQ_INCLUDE_PATH.'/resolve.inc';
 $GLOBALS['SQ_SYSTEM'] = new Resolve();
+$GLOBALS['SQ_SYSTEM']->init();
+
 
 ?>
