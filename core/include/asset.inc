@@ -2983,7 +2983,7 @@ class Asset extends Resolve_Object
 						  INNER JOIN sq_asset_permission p ON l.minorid = p.assetid
 						WHERE '.$concat_userid.' IN (~SQ0~)
 						  AND p.permission '.(($and_greater) ? '>=' : '=').' '.$db->quote($permission).'
-						GROUP BY p.userid, p.assetid
+						GROUP BY p.userid, p.assetid, t.treeid
 						HAVING MIN(p.revoked) = 0';
 
 				$subs = Array( 'SELECT '.$concat_userid_sub.'
