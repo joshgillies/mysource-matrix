@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.234 2004/09/17 03:41:32 lwright Exp $
+* $Id: asset_manager.inc,v 1.235 2004/09/21 04:34:58 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -978,20 +978,27 @@ class Asset_Manager extends MySource_Object
 	* Get the values of the attribute with the given name for the given assetids
 	*
 	* The assetids supplied must be assets of the specified type, or assets which
-	* inherit the specified attribute from the specified asset type
+	* inherit the specified attribute from the specified asset type. You may use
+	* 'asset' for the $asset_type to skip asset type checking (recommended that this
+	* only be used for common attributes like name).
 	*
-	* @param	string	$attr_name	The name of the attribute to get the values of
-	* @param	string	$asset_type	The type code of the asset type that defines the attribute
-	* @param	array	$assetids	IDs of the assets whose values we want
+	* @param string	$attr_name	The name of the attribute to get the values of
+	* @param string	$asset_type	The type code of the asset type that defines the attribute
+	* @param array	$assetids	IDs of the assets whose values we want
 	*
-	* @return	array	assetid => attribute_value
-	* @access	public
+	* @return array	(string => mixed) representing assetid => attribute value
+	* @access public
 	*/
 	function getAttributeValuesByName($attr_name, $asset_type, $assetids)
 	{
 		if (empty($assetids)) return Array();
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT v.assetid, coalesce(v.custom_value, at.default_value) as val FROM sq_asset_attribute_value v JOIN sq_asset_attribute at ON at.attributeid=v.attributeid WHERE at.owning_type_code='.$db->quote($asset_type).' AND at.name='.$db->quote($attr_name).' AND v.assetid IN ('.implode(', ', $assetids).')';
+		$sql = 'SELECT v.assetid, coalesce(v.custom_value, at.default_value) as val FROM sq_asset_attribute_value v JOIN sq_asset_attribute at ON at.attributeid=v.attributeid WHERE ';
+
+		// if asset type is set to 'asset' then skip owning type code checks
+		if ($asset_type != 'asset') $sql .= 'at.owning_type_code='.$db->quote($asset_type).' AND ';
+
+		$sql .= 'at.name='.$db->quote($attr_name).' AND v.assetid IN ('.implode(', ', $assetids).')';
 		$result = $db->getAssoc($sql);
 		assert_valid_db_result($result);
 		return $result;
