@@ -23,7 +23,7 @@ StageResize.prototype.onResize = function() {
 	_root.msgs_bar._y = scroller_height + menu_height;
 	_root.msgs_bar.setWidth(Stage.width);
 
-	_root.list_container.refreshList();
+	_root.list_container.refresh();
 
 }// end onResize()
 

@@ -12,26 +12,27 @@ function mcListItemClass()
 	// the current state that the buttons is in (normal, selected)
 	this.state = "normal";
 
-	this.setMoveState("off");
+	this.text_field.swapDepths(1);
 
 	// Create the Plus Minus Button
-	this.attachMovie("mcPlusMinusID", "kids_button", 2);
+	this.attachMovie("mcListItemPlusMinusID", "kids_button", 2);
 	this.kids_button._x = 3;
 	this.kids_button._y = 3;
+
+	// Create the Move Button
+	this.attachMovie("mcListItemMoveID", "move_button", 3);
+	this.move_button.setState("off");
+	this.move_button._x = 20;
+	this.move_button._y = 3;
 
 	// set the text field up
 	this.text_field.text = "";
 	this.text_field.autoSize = "left";
 
-	// Set the depths up properly
-	this.kids_button.swapDepths(1);
-	this.text_field.swapDepths(2);
-	this.move_button.swapDepths(3);
-
 }
 
-// Make it inherit from MovieClip
-mcListItemClass.prototype = new MovieClip();
+// Make it inherit from Nested Mouse Movements MovieClip, nested mc's NEVER OVERLAP
+mcListItemClass.prototype = new NestedMouseMovieClip(true, NestedMouseMovieClip.NM_ON_PRESS | NestedMouseMovieClip.NM_ON_RELEASE);
 
 mcListItemClass.prototype.setParent = function(parent_item_name) 
 {
@@ -42,7 +43,6 @@ mcListItemClass.prototype.getParentAssetid = function()
 {
 	return _root.asset_manager.asset_links[this.linkid].majorid;
 }
-
 
 
 mcListItemClass.prototype.setLinkId = function(linkid) 
@@ -60,7 +60,7 @@ mcListItemClass.prototype.setInfo = function(asset)
 {
 	this.assetid   = asset.assetid;
 	this.type_code = asset.type_code;
-	this.text_field.text = this._name + ' [' + this.assetid + '] ' + asset.name;
+	this.text_field.text = this._name + " [" + this.assetid + "] " + asset.name;
 
 	if (asset.links.length > 0) {
 		this.setKidState((this.expanded()) ? "minus" : "plus");
@@ -83,7 +83,7 @@ mcListItemClass.prototype.setKidState = function(state)
 
 mcListItemClass.prototype.setMoveState = function(state) 
 {
-	this.move_button.gotoAndStop("move_" + state);
+	this.move_button.setState(state);
 }
 
 
@@ -112,6 +112,35 @@ mcListItemClass.prototype.resetXY = function()
 	this.setPos(this.pos);
 }
 
+
+/**
+* Called by the kids button to show our kids
+* @access public
+*/
+mcListItemClass.prototype.showKids = function() 
+{
+	this._parent.showKids(this.assetid, this._name);
+}
+
+/**
+* Called by the kids button to hide our kids
+* @access public
+*/
+mcListItemClass.prototype.hideKids = function() 
+{
+	this._parent.hideKids(this.assetid, this._name);
+}
+
+
+/**
+* Called by the move button to start a move
+* @access public
+*/
+mcListItemClass.prototype.startMove = function() 
+{
+	this._parent.startMove(this.assetid, this._name);
+}
+
 /**
 * Returns the button over which the mouse currently resides
 *
@@ -122,14 +151,14 @@ mcListItemClass.prototype.getMouseButton = function()
 {
 	// if we are over the kids button
 	if (this.kids_button.hitTest(_root._xmouse, _root._ymouse, false)) {
-		return 'kids';
+		return "kids";
 
 	// if we are over the move button
 	} else if (this.move_button.hitTest(_root._xmouse, _root._ymouse, false)) {
-		return 'move';
+		return "move";
 
 	} else {
-		return '';
+		return "";
 	}
 
 }
@@ -165,11 +194,21 @@ mcListItemClass.prototype.unselect = function()
 }
 
 /**
+* Called when this item has been pressed
+*/
+mcListItemClass.prototype.onPress = function()
+{
+	this._parent.selectItem(this);
+	super.onPress();
+	return true;
+}// end onPress()
+
+
+/**
 * Draw the Background for this list item
 */
 mcListItemClass.prototype._drawBg = function() 
 {
-
 	var xpos = Math.max(200, this.text_field._x + this.text_field._width + 3);
 	var ypos = _root.LIST_ITEM_POS_INCREMENT;
 
@@ -183,7 +222,7 @@ mcListItemClass.prototype._drawBg = function()
 	this.lineTo(0, 0);
 	this.endFill();
 
-}
+}// end _drawBg()
 
 
 Object.registerClass("mcListItemID", mcListItemClass);

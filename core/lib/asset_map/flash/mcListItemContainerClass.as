@@ -86,7 +86,7 @@ mcListItemContainerClass.prototype.initLoaded = function(params, new_assets, old
 mcListItemContainerClass.prototype.showKids = function(parent_assetid, parent_name, dont_refresh) 
 {
 
-	if (dont_refresh == undefined) dont_refresh = false;
+	if (dont_refresh != true) dont_refresh = false;
 
 	// we don't know anything about this or it's got no kids, bugger off
 	if (_root.asset_manager.assets[parent_assetid] == undefined || !_root.asset_manager.assets[parent_assetid].links.length) return;
@@ -254,7 +254,7 @@ mcListItemContainerClass.prototype._removeItem = function(item_name)
 */
 mcListItemContainerClass.prototype.hideKids = function(parent_assetid, parent_name, dont_refresh) 
 {
-	if (dont_refresh == undefined) dont_refresh = false;
+	if (dont_refresh != true) dont_refresh = false;
 
 	var parent_i = (parent_assetid > 1) ? this[parent_name].pos : -1;
 	
@@ -394,8 +394,10 @@ mcListItemContainerClass.prototype._reloadAssetListItem = function(assetid, item
 
 }// end _reloadAssetListItem()
 
+
 /**
-* Refreshes the display of the items, from a certain position onwards
+* Refreshes the display of this container's items, and inform the list container (our parent)
+* of the refresh
 *
 * @param int start_i   the index in the items_order array to start the refresh from 
 *
@@ -403,6 +405,21 @@ mcListItemContainerClass.prototype._reloadAssetListItem = function(assetid, item
 */
 mcListItemContainerClass.prototype.refresh = function(start_i) 
 {
+	this.refreshDisplay(start_i);
+	this._parent.refreshDisplay();
+}
+	
+/**
+* Refreshes the display of the items, from a certain position onwards
+* don't inform our parent
+*
+* @param int start_i   the index in the items_order array to start the refresh from 
+*
+* @access public
+*/
+mcListItemContainerClass.prototype.refreshDisplay = function(start_i) 
+{
+
 	if (start_i == undefined || start_i < 0) start_i = 0;
 
 	// now cycle through every item from the parent down and reset their positions
@@ -427,7 +444,7 @@ mcListItemContainerClass.prototype.refresh = function(start_i)
 		}
 	}// end for
 
-}// end refresh()
+}// end refreshDisplay()
 
 /**
 * Returns the position of the item in the items_order array that is under the 
@@ -447,7 +464,7 @@ mcListItemContainerClass.prototype.refresh = function(start_i)
 mcListItemContainerClass.prototype.getItemPos = function(x, y, bleed_gaps) 
 {
 
-	if (bleed_gaps == undefined) bleed_gaps = false;
+	if (bleed_gaps != true) bleed_gaps = false;
 
 	var pos    = -1;
 	var in_gap = false;
@@ -588,11 +605,7 @@ mcListItemContainerClass.prototype.onPress = function()
 		// item and deal with any actions needed
 		default :
 
-			var pos = this.getItemPos(this._xmouse, this._ymouse);
-			// if this is a proper index, select it
-			if (pos >= 0 && pos < this.items_order.length) {
-				this.selectItem(this[this.items_order[pos].name]);
-			}
+			super.onPress();
 			return true;
 
 
@@ -635,7 +648,7 @@ mcListItemContainerClass.prototype.onRelease = function()
 			if (this.selected_item == null) return;
 
 			switch(this.selected_item.getMouseButton()) {
-				case 'kids' : 
+				case "kids" : 
 					switch(this.selected_item.getKidState()) {
 						case "plus" :
 							//	Expand Branch
@@ -648,7 +661,7 @@ mcListItemContainerClass.prototype.onRelease = function()
 					}
 				break;
 
-				case 'move' :
+				case "move" :
 					this.itemStartMove();
 				break;
 				
@@ -663,7 +676,7 @@ mcListItemContainerClass.prototype.onRelease = function()
 mcListItemContainerClass.prototype.selectItem = function(item) 
 {
 	// if we in any action we don't want to select anything
-	if (this.action != '') return false;
+	if (this.action != "") return false;
 
 	if (this.selected_item == item) return true;
 
@@ -695,11 +708,11 @@ mcListItemContainerClass.prototype.selected = function(item)
 
 mcListItemContainerClass.prototype.itemStartMove = function() 
 {
-	if (this.action != '') return false;
+	if (this.action != "") return false;
 
-	if (this.startMoveIndicator('itemEndMove')) {
+	if (this.startMoveIndicator("itemEndMove")) {
 //		trace("Start Item Move");
-		this.action = 'move';
+		this.action = "move";
 		// move to top of layers
 		this.selected_item.setMoveState("on");
 	}
@@ -708,7 +721,7 @@ mcListItemContainerClass.prototype.itemStartMove = function()
 
 mcListItemContainerClass.prototype.itemEndMove = function(pos, where) 
 {
-	if (this.action != 'move') return;
+	if (this.action != "move") return;
 
 //	trace("End Item Move");
 
@@ -773,7 +786,7 @@ mcListItemContainerClass.prototype.itemEndMove = function(pos, where)
 
 mcListItemContainerClass.prototype.itemMoveConfirm = function(move_type, params) 
 {
-	if (this.action != 'move') return;
+	if (this.action != "move") return;
 
 	// if they didn't hit cancel
 	if (move_type != null) { 
@@ -799,7 +812,7 @@ mcListItemContainerClass.prototype.itemMoveConfirm = function(move_type, params)
 	}
 
 	this.selected_item.setMoveState("off");
-	this.action = '';
+	this.action = "";
 
 }// end itemMoveConfirm()
 
@@ -971,7 +984,7 @@ mcListItemContainerClass.prototype.processAddAsset = function(pos, where)
 	var exec_identifier = _root.server_exec.init_exec(xml, this, "xmlGotoUrl", "url");
 	_root.server_exec.exec(exec_identifier, "Sending Request");
 
-	this.action = '';
+	this.action = "";
 
 }// end processAddAsset()
 
@@ -988,7 +1001,7 @@ mcListItemContainerClass.prototype.xmlGotoUrl = function(xml, exec_identifier)
 	var frame = xml.firstChild.attributes.frame;
 	var link  = xml.firstChild.firstChild.nodeValue;
 
-	trace('getURL(' + link + ', ' + frame + ');');
+	trace("getURL(" + link + ", " + frame + ");");
 	getURL(link, frame);
 
 }// end xmlGotoUrl()
