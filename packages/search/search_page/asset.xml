@@ -20,7 +20,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.17 2005/02/15 13:18:19 brobertson Exp $
+* $Id: asset.xml,v 1.18 2005/02/16 03:34:57 lwright Exp $
 *
 */
 -->
@@ -37,7 +37,7 @@
 	<requirements>
 		<requirement type="asset">
 			<code>listing_engine</code>
-			<version>0.1</version>
+			<version>0.2</version>
 		</requirement>
 		<requirement type="asset">
 			<code>search_manager</code>
