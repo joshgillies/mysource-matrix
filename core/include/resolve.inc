@@ -261,6 +261,8 @@ class Resolve
 	/**
 	* Returns a boolean if the passed user is the logged in user
 	*
+	* @param object User	$user	the user to check
+	*
 	* @access public
 	*/
 	function currentUser($user)
