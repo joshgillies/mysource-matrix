@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.32 2004/09/03 07:09:11 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.33 2004/09/09 00:53:51 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.32 $ - 1.0
+* @version $Revision: 1.33 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -250,7 +250,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	* @param string	$date		the date we're interested in, in YYYY-MM-DD format - default
 	*							is today's date (time can be passed in too but it will be
 	*							stripped)
-	* @param string	$start		The timestamp at which the event's 1st instance started 
+	* @param string	$start		The iso datetime at which the event's 1st instance started 
 	* @param string	$freq_type	3-letter frequency code
 	* @param int	$interval	The frequency interval
 	* @param string	$stop		The date after which recurrences should stop
@@ -325,7 +325,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 				// occurs if date and start_date are the same day of the month
 				// AND the number of months in between is a multiple of $interval
 				return ((substr($start_date, 8, 2) == substr($date, 8, 2)) 
-					&& ((((((int)substr($date, 0, 4) - (int)substr($start_date, 0, 4)) * 12 ) + substr($date, 5, 2) - substr($start_date, 5, 2)) % $interval) == 0));
+					&& ((((((int)substr($date, 0, 4) - (int)substr($start, 0, 4)) * 12 ) + substr($date, 5, 2) - substr($start_date, 5, 2)) % $interval) == 0));
 			break;
 
 			case 'MFW':
@@ -341,19 +341,19 @@ class Calendar_Event_Recurring extends Calendar_Event
 				// AND the number of months in between is a multiple of $interval
 				return ((date('D', $start_ts) == date('D', $query_ts)) 
 					&& ((int)(date('j', $start_ts) / 7) == (int)(date('j', $query_ts) / 7))) 
-					&& ((((((int)substr($date, 0, 4) - (int)substr($start_date, 0, 4)) * 12 ) + substr($date, 5, 2) - substr($start_date, 5, 2)) % $interval) == 0);
+					&& ((((((int)substr($date, 0, 4) - (int)substr($start, 0, 4)) * 12 ) + substr($date, 5, 2) - substr($start_date, 5, 2)) % $interval) == 0);
 			break;
 
 			case 'MRN':
 				// occurs if monthlength - day_of_month is equal for date and start_date
-				return days_in_month(substr($start_date, 5, 2), substr($start_date, 0, 4)) - substr($start_date, 8, 2) == days_in_month(substr($date, 5, 2), substr($date, 0, 4)) - substr($date, 8, 2);
+				return days_in_month(substr($start_date, 5, 2), substr($start, 0, 4)) - substr($start_date, 8, 2) == days_in_month(substr($date, 5, 2), substr($date, 0, 4)) - substr($date, 8, 2);
 			break;
 
 			case 'MRNx':
 				// occurs if monthlength - day_of_month is equal for date and start_date
 				// AND number of months between start_date and date is a multiple of $interval
-				return ((((((int)substr($date, 0, 4) - (int)substr($start_date, 0, 4)) * 12 ) + substr($date, 5, 2) - substr($start_date, 5, 2)) % $interval) == 0) 
-					&& (days_in_month(substr($start_date, 5, 2), substr($start_date, 0, 4)) - substr($start_date, 8, 2) == days_in_month(substr($date, 5, 2), substr($date, 0, 4)) - substr($date, 8, 2));
+				return ((((((int)substr($date, 0, 4) - (int)substr($start, 0, 4)) * 12 ) + substr($date, 5, 2) - substr($start, 5, 2)) % $interval) == 0) 
+					&& (days_in_month(substr($start, 5, 2), substr($start, 0, 4)) - substr($start, 8, 2) == days_in_month(substr($date, 5, 2), substr($date, 0, 4)) - substr($date, 8, 2));
 			break;
 
 			case 'MRW':

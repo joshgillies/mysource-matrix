@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.25 2004/09/08 06:29:30 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.26 2004/09/09 00:53:51 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.25 $ - 1.0
+* @version $Revision: 1.26 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -574,7 +574,7 @@ class Calendar_Event extends Asset
 					return '';
 				}
 				$duration = $this->getDuration();
-				if (!isset($_REQUEST['SQ_CALENDAR_TIME'])) $_REQUEST['SQ_CALENDAR_TIME'] = '--:--';
+				if (!isset($_REQUEST['SQ_CALENDAR_TIME']) || empty($_REQUEST['SQ_CALENDAR_TIME'])) $_REQUEST['SQ_CALENDAR_TIME'] = '--:--';
 				$this->setAttrValue('start_date', $_REQUEST['SQ_CALENDAR_DATE'].' '.$_REQUEST['SQ_CALENDAR_TIME'].':--');
 				$current_end_date = $this->getEndDate();
 				if ($current_end_date) {
