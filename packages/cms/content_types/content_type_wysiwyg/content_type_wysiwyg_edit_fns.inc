@@ -45,7 +45,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		$wysiwyg->set_body_type('div');
 		$wysiwyg->set_init_onload(false);
 		$wysiwyg->set_show_status_bar(true);
-		//$wysiwyg->set_stylesheet('http://www.nswrl.com.au/__data/site/design/1/images/styles.css');
+		$wysiwyg->set_contents($html);
 		$wysiwyg->set_width('100%');
 		$wysiwyg->set_height('100%');
 		$wysiwyg->add_plugin('format_text');
@@ -53,15 +53,14 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		$wysiwyg->add_plugin('indenting');
 		$wysiwyg->add_plugin('listing');
 		$wysiwyg->add_plugin('general');
-		//$wysiwyg->add_plugin('history');
 		$wysiwyg->add_plugin('table_editing');
 		$wysiwyg->add_plugin('select_color');
 		$wysiwyg->add_plugin('matrix_embed_movie');
 		$wysiwyg->add_plugin('matrix_insert_link');
 		$wysiwyg->add_plugin('matrix_insert_image');
 		$wysiwyg->add_plugin('view_source');
-		$wysiwyg->set_contents($html);
 		$wysiwyg->add_plugin('popup_editor');
+		$wysiwyg->add_plugin('html_tidy');
 		return $wysiwyg;
 
 	}//end _createEditor()
