@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.17 2004/09/09 11:43:27 brobertson Exp $
+* $Id: page_account_manager.inc,v 1.17.2.1 2004/11/14 23:09:43 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -199,8 +199,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 			  /////////////////////////
 			 //  EDIT DETAILS FORM  //
 			/////////////////////////
-
 			ob_start();
+			
 				if (!empty($lock_errors)) {
 					$this->_replacements['edit_details_lock_error'] = $this->attr('edit_details_lock_error');
 					$current_user->printBody();
@@ -245,7 +245,6 @@ class Page_Account_Manager extends Page_Asset_Builder
 				$this->_replacements['logout_form'] = ob_get_contents();
 			ob_end_clean();
 		}
-
 		$this->_printContents();
 
 	}//end printLimbo()
@@ -265,92 +264,86 @@ class Page_Account_Manager extends Page_Asset_Builder
 	{
 		list($create_type) = array_keys($this->attr('create_type'));
 
-		// validate a pending user account
-		if (isset($_GET['action'])) {
-			switch (strtolower($_GET['action'])) {
-				case 'validate' :
-					$id = (isset($_REQUEST['amid'])) ? trim($_REQUEST['amid']) : '';
-					$locs = (isset($_REQUEST['amlocs'])) ? trim($_REQUEST['amlocs']) : '';
-					if (!empty($id)) {
+		if (isset($_GET['action']) && (strtolower($_GET['action']) == 'validate')) {
+			// validate a pending user account
+			$id = (isset($_REQUEST['amid'])) ? trim($_REQUEST['amid']) : '';
+			$locs = (isset($_REQUEST['amlocs'])) ? trim($_REQUEST['amlocs']) : '';
+			if (!empty($id)) {
 
-						$pending_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'user_group', true, 'pending_accounts');
-						if (!empty($pending_link)) {
-							$link = $GLOBALS['SQ_SYSTEM']->am->getLink($pending_link['minorid'], SQ_LINK_TYPE_1, 'user', false, $id);
-							if (!empty($link)) {
-								$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+				$pending_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'user_group', true, 'pending_accounts');
+				if (!empty($pending_link)) {
+					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($pending_link['minorid'], SQ_LINK_TYPE_1, 'user', false, $id);
+					if (!empty($link)) {
+						$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 
-								// populate an array of attribute values for the user so we can work
-								// out the create locations for the user account
-								$user_attributes = Array();
-								$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type);
-								foreach ($attrs as $attr => $type) $user_attributes[$attr] = $user->attr($attr);
-
-								$create_locations = parent::_getCreateLocations($create_type, $user_attributes);
-								 #################################################################################################
-								# I took a guess at getting this working from the old code (which was never going to work)
-								# but I don't know WTF the person was trying to do with optional locations so I am ignoring them 
-								# for the moment- BCR
-								 ##################################################################################################
-								#$create_location_optional = $this->attr('create_location_optional');
-								#$optional_locations = explode('-', $locs);
-								#foreach($create_location_optional as $data) {
-								#	foreach($data['locations'] as $id => $name) {
-								#		// I think this is what is supposed to be happening.
-								#		// I don't know for sure because the bit below that creates the amlocs GET var doesn't work
-								#		// - BCR
-								#		if (in_array($id, $optional_locations) && !isset($create_locations[$id])) {
-								#			$create_locations[$id] = $data['link_type'];
-								#		}
-								#	}
-								#}
-
-								// set the install flag because we are creating an asset without being
-								// logged in - so any write access checks will fail
-								$GLOBALS['SQ_INSTALL'] = true;
-
-									$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-									// link the user asset into the locations it is supposed to go
-									foreach ($create_locations as $link_parentid => $link_type) {
-										$link_parentid = (int) $link_parentid;
-
-										$link_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_parentid, '', true);
-										if (is_null($link_parent)) continue;
-										if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($link_parent, $user, $link_type)) {
-											$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-											return false;
-										}
-									}
-
-									// remove the link from the pending accounts group
-									if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid'])) {
-										$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-										return false;
-									}
-
-									// set the status of the asset
-									if (!parent::_setCreateStatus($user)) {
-										$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-										return false;
-									}
-
-									// all done
-									$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
-								$GLOBALS['SQ_INSTALL'] = false;
-
-								$this->_current_state = 'create_login';
-								$_POST['SQ_LOGIN_USERNAME'] = $user->attr('username');
-								$this->_loadLoginReplacements();
-								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
-								return true;
+						// Figure out create locations.  
+						//    - Mandatory ones are easily looked up
+						//    - Rule-based ones are calculated from an 
+						//      array of asset attribute values
+						//    - User-selected ones are read from amlocs 
+						//      and checked for validity
+						$user_attributes = Array();
+						$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type);
+						foreach ($attrs as $attr => $type) $user_attributes[$attr] = $user->attr($attr);
+						$create_locations = parent::getFixedCreateLocations() + parent::getRuleMatchCreateLocations($create_type, $user_attributes);
+						$selectable_create_locations = parent::getAllSelectableCreateLocations();
+						$selected_create_location_codes = explode('-', $locs);
+						if (is_array($selected_create_location_codes)) {
+							foreach ($selected_create_location_codes as $code) {
+								// we will add this create location and type iff the location id is a valid option AND the link type is no more dominant than the max allowed link type for the location AND any existing link type for that location is no better than the proposed one
+								list($loc_id, $link_type) = explode(':', $code);
+								if (isset($selectable_create_locations[$loc_id]) && ($selectable_create_locations[$loc_id] <= $link_type)) {
+									if (!isset($create_locations[$loc_id]) || ($create_locations[$loc_id] > $link_type))  {
+										$create_locations[$loc_id] = $link_type;
+									} 
+								} 
 							}
 						}
+
+						// set the install flag because we are creating an asset without being
+						// logged in - so any write access checks will fail
+						$GLOBALS['SQ_INSTALL'] = true;
+
+							$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+							// link the user asset into the locations it is supposed to go
+							foreach ($create_locations as $link_parentid => $link_type) {
+								$link_parentid = (int) $link_parentid;
+
+								$link_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_parentid, '', true);
+								if (is_null($link_parent)) continue;
+								if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($link_parent, $user, $link_type)) {
+									$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+									return false;
+								}
+							}
+
+							// remove the link from the pending accounts group
+							if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid'])) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								return false;
+							}
+
+							// set the status of the asset
+							if (!parent::_setCreateStatus($user)) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								return false;
+							}
+
+							// all done
+							$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+						$GLOBALS['SQ_INSTALL'] = false;
+
+						$this->_current_state = 'create_login';
+						$_POST['SQ_LOGIN_USERNAME'] = $user->attr('username');
+						$this->_loadLoginReplacements();
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
+						return true;
 					}
-				break;
+				}
 			}
 		}
-
 
 		// additional checks if we are using email validation
 		if ($this->attr('use_email_validation') && isset($_POST['ASSET_BUILDER_ACTION']) && strtolower($_POST['ASSET_BUILDER_ACTION']) == 'create') {
@@ -376,6 +369,9 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 		}//end if using email validation
 
+		// get asset_builder to create the asset, but since we have overridden
+		// getCreateLocations it will only go into our pending accounts group
+		// if email verification is enabled.
 		$success = parent::_processGlobalActions();
 		if (!$success) return false;
 
@@ -394,21 +390,14 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 							$validation_url = current_url().'?action=validate&amid='.$this->_tmp['am_created_asset_key'].'&amlocs=';
 
-							$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
-							$new_asset = new $create_type();
-							$prefix = $new_asset->getPrefix();
-							unset($new_asset);
-
-							// work out what optional create locations they have selected (if any)
-							// NOTE: we dont add mandatory or rule based locations to the URL as these can be worked
-							// out later once they activate their account
-							// we need strict checking of the groups we do put on the URL so they cant add themselves to
-							// and group they feel like
-							$create_locations = array_intersect(parent::_getCreateLocations($create_type), $this->attr('create_location_optional'));
-
-							if (!empty($create_locations)) {
-								foreach ($create_locations as $location) $validation_url .= $location.'-';
-								$validation_url = trim($body, '-');
+							// work out what selectable create locations they have selected and add them to the URL.
+							// (Mandatory and rule-based create locations can be worked out after validation).
+							// Locations passed through the URL will be checked at the other end to make sure
+							// nobody's tried to sneak in any other locations...
+							$selected_create_locations = $this->getSelectedCreateLocations();								
+							if (!empty($selected_create_locations)) {
+								foreach ($selected_create_locations as $location => $link_type) $validation_url .= $location.':'.$link_type.'-';
+								$validation_url = trim($validation_url, '-');
 							}
 							$replacements['validation_url'] = $validation_url;
 
@@ -444,23 +433,21 @@ class Page_Account_Manager extends Page_Asset_Builder
 	* Work out the create locations for a new asset
 	*
 	* @param string	$create_type	the type of asset we are getting create locations for
-	* @param array	$attributes		an array of attributes to use for rule comparison
-	*								leave empty to use the submitted form vars
 	*
 	* @return array					parentid => link_type
 	* @access private
 	*/
-	function _getCreateLocations($create_type, $attributes=Array())
+	function getCreateLocations($create_type)
 	{
 		if ($this->attr('use_email_validation')) {
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'user_group', true, 'pending_accounts');
 			if (empty($link)) return Array();
 			else return Array($link['minorid'] => SQ_LINK_TYPE_1);
 		} else {
-			return parent::_getCreateLocations($create_type, $attributes);
+			return parent::getCreateLocations($create_type);
 		}
 
-	}//end _getCreateLocations()
+	}//end getCreateLocations()
 
 
 	/**
@@ -569,6 +556,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 			$keywords[$keyword] = Array('name' => $name, 'default' => $default, 'type' => $type);
 		}
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
+
+		$vars['keywords'] = array_merge($vars['keywords'], $this->getSelectableLocationKeywords());
 
 	}//end onRequestKeywords()
 
