@@ -31,6 +31,15 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 // Dont set SQ_INSTALL flag before this include because we want
 // a complete load now that the database has been created
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
+
+// Firstly let's check that we are OK for the version
+if(version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
+	trigger_error('<i>'.SQ_SYSTEM_LONG_NAME.'</i> requires PHP Version '.SQ_REQUIRED_PHP_VERSION.'.<br/> You may need to upgrade.<br/> Your current version is '.PHP_VERSION, E_USER_ERROR);
+}
+
+
+
+
 $db = &$GLOBALS['SQ_SYSTEM']->db;
 
 /* INSTALL CORE */
