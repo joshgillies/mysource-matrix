@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.4 2004/05/13 22:31:57 lwright Exp $
+* $Id: package_manager_core.inc,v 1.5 2004/06/15 01:02:28 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -240,7 +240,9 @@ class Package_Manager_Core extends Package_Manager
 		$root_user = new Root_User();
 		$user_link = Array('asset' => &$system_user_group, 'link_type' => SQ_LINK_TYPE_1);
 
-		$root_user->setAttrValue('password',   'root');
+		$root_pass = isset($_SESSION['install_root_pass']) ? $_SESSION['install_root_pass'] : 'root';
+		
+		$root_user->setAttrValue('password',   $root_pass);
 		$root_user->setAttrValue('first_name', 'Root');
 		$root_user->setAttrValue('last_name',  'User');
 		$root_email = (SQ_CONF_DEFAULT_EMAIL) ? SQ_CONF_DEFAULT_EMAIL : ('root@'.((SQ_PHP_CLI) ? $_SERVER['HOSTNAME'] : $_SERVER['HTTP_HOST']));
