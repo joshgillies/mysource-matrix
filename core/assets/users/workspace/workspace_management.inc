@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workspace_management.inc,v 1.9 2004/02/10 16:16:34 brobertson Exp $
+* $Id: workspace_management.inc,v 1.10 2004/02/11 01:29:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -44,6 +44,13 @@ class Workspace_Management extends Asset_Management
 	function Workspace_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
+
+		$this->vars = Array('name' => Array(
+											'added'     => '0.1',
+											'type'      => 'text',
+											'default'   => ''
+											),
+							);
 
 	}//end constructor
 
