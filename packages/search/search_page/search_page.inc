@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.55 2004/09/14 05:13:27 gsherwood Exp $
+* $Id: search_page.inc,v 1.56 2004/09/15 07:07:15 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $ - 1.0
+* @version $Revision: 1.56 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -559,11 +559,9 @@ class Search_Page extends Page
 								text_box('queries_'.$query_var, $query, $this->defaults['query_width']);
 							break;
 							case 'metadata_field_select' :
-								$select_options = $asset->vars['select_options']['value'];
-								$select_options = array_reverse($select_options);
-								$select_options[''] = '- Please select -';
-								$select_options = array_reverse($select_options);
-								combo_box('queries_'.$query_var, $select_options, false, $query);
+								$selection = $asset->getSelectionAttribute();
+								$selection->setValue($query);
+								$selection->paint('queries_'.$query_var);
 							break;
 						}//end switch
 	
@@ -653,15 +651,30 @@ class Search_Page extends Page
 								text_box('queries_'.$query_var, '', $this->defaults['query_width']);
 							break;
 							case 'metadata_field_select' :
-								$select_options = $asset->vars['select_options']['value'];
-								if (empty($query) || !isset($select_options[$query])) {
-									$select_options = array_reverse($select_options);
-									$select_options[''] = '- Please select -';
-									$select_options = array_reverse($select_options);
-									combo_box('queries_'.$query_var, $select_options, false, '');
+								$selection = $asset->getSelectionAttribute();
+								$value = Array();
+								$selection->setValue($value);
+								
+								$read_only = false;
+
+								if (empty($selection->_params['multiple'])) {
+									if (isset($selection->_params['options'][$query])) {
+										$read_only = true;
+									}
 								} else {
-									echo $select_options[$query];
+									if (!empty($query)) {
+										echo '<div class="search_current_options">';
+										foreach ($query as $option) {
+											if (!isset($selection->_params['options'][$option])) continue;
+											echo $selection->_params['options'][$option].'<br />';
+											unset($selection->_params['options'][$option]);
+										}
+										echo '</div>';
+									}
 								}
+								
+								$selection->paint('queries_'.$query_var, $read_only);
+							break;
 						}//end switch
 	
 					}//end if metadata asset exists
