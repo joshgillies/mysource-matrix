@@ -66,12 +66,12 @@ class Asset extends Resolve_Object
 	var $data_path = '';
 
 	/**
-	* Whether this asset has array attributes or not, basically a performance var
-	* when true the vars a looped over in _loadVars() and if they are type 'array' unserialised
+	* Whether this asset has serialise attributes or not, basically a performance var
+	* when true the vars a looped over in _loadVars() and if they are type 'serialise' unserialised
 	*
 	* @var bool
 	*/
-	var $_arr_atrs = false;
+	var $_ser_atrs = false;
 
 
 	/**
@@ -225,17 +225,15 @@ class Asset extends Resolve_Object
 			$sql = 'SELECT atr.name, atr.attributeid, atr.type, atr.default_value AS value
 					FROM sq_asset_attribute atr
 					WHERE atr.type_code   = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->type());
-
 		}// end if
 
 		$this->vars = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql, false, array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
 		if (DB::isError($this->vars)) trigger_error($this->vars->getMessage().'<br/>'.$this->vars->getUserInfo(), E_USER_ERROR);
 
-		if ($this->_arr_atrs && $this->vars) {
+		if ($this->_ser_atrs && $this->vars) {
 			for(reset($this->vars); NULL !== ($name = key($this->vars)); next($this->vars)) {
-				if ($this->vars[$name]['type'] != 'array') continue;
+				if ($this->vars[$name]['type'] != 'serialise') continue;
 				$this->vars[$name]['value'] = @unserialize($this->vars[$name]['value']);
-				if (!is_array($this->vars[$name]['value'])) $this->vars[$name]['value'] = Array();
 			}
 		}
 
@@ -1151,32 +1149,22 @@ class Asset extends Resolve_Object
 			return false;
 		}
 
-		if ($this->vars[$name]['value'] == $value) {
-			return true;
+		$attribute = &$this->getAttribute($name);
+		if (!$attribute->setValue($value)) {
+			trigger_error("Value of attribute '$name' not set in setAttrValue()", E_USER_NOTICE);
 		}
 
-		trigger_error('Validate value of attribute in setAttrValue()', E_USER_NOTICE);
+		if ($this->vars[$name]['value'] == $value) return true;
 
 		$save_value = $value;
 
-		// if this is the contents or var_references var then 
-		// set $this->$name and then save that array
-		if ($this->vars[$name]['type'] == 'array') {
-			// if this is an array, serialise it
-			if (is_array($value)) {
-				$save_value = serialize($value);
-			// OK, assume it's a string and see if it's a serialised string
-			} else {
-				$unser = unserialize(trim((string) $value));
-				if (is_array($unser)) {
-					$value = $unser;
-
-				} else {
-					trigger_error('Unable to set "'.$name.'", the passed value is not an array or a serialised array', E_USER_WARNING);
-					return false;
-				}
-			}// end if
-		}// end if
+		// if this is a seriliaze attribute, unserilize it
+		// now so that $save_value is the serialized version
+		// and $value becomes the unserialize version for
+		// later use by the asset
+		if ($this->vars[$name]['type'] == 'serialise') {
+			$value = unserialize($value);
+		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 

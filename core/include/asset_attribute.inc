@@ -103,18 +103,20 @@ class Asset_Attribute extends Resolve_Object
 
 	}// end contructor
 
-	/*
+
+	/**
 	* Returns the type of this attribute
 	*
 	* @access public
 	*/
-	function type() 
+	function type()
 	{
 		// strip the 'Asset_Attribute_' off the front
 		return substr(get_class($this), 16);
 	}//end type();
 
-	/*
+
+	/**
 	* Prints the interface for filling in a value
 	*
 	* @param string	$prefix	prefix for the form element
@@ -126,10 +128,11 @@ class Asset_Attribute extends Resolve_Object
 		echo 'Interface for '.ucwords(str_replace('_', ' ', $this->type())).' Not Done';
 	}
 
-	/*
+
+	/**
 	* Prints the interface for filling in a value
 	*
-	* @param string	prefix	prefix for the form element
+	* @param string	$prefix	prefix for the form element
 	*
 	* @access public
 	*/
@@ -138,7 +141,38 @@ class Asset_Attribute extends Resolve_Object
 		$this->processed = false;
 	}
 
-	/*
+
+	/**
+	* Validate the value of this attribute - children should overwrite
+	*
+	* @param mixed	&$value	value to be validated
+	*
+	* @return boolean
+	* @access public
+	*/
+	function validateValue(&$value)
+	{
+		return true;
+	}
+
+
+	/**
+	* Sets the value of this attribute after validating
+	*
+	* @param mixed	&$value	value to be validated
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setValue(&$value)
+	{
+		if (!$this->validateValue($value)) return false;
+		$this->value = $value;
+		return true;
+	}
+
+
+	/**
 	* Takes an XML_Tree_Node from an edit interface XML file and creates
 	* the params array from it
 	*
