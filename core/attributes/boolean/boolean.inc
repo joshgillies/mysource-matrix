@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: boolean.inc,v 1.28 2005/03/03 03:04:52 tbarrett Exp $
+* $Id: boolean.inc,v 1.29 2005/03/09 11:15:38 brobertson Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <boolean true_text="true" false_text="false" empty_text="maybe" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -234,7 +234,7 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	*/
 	function validateValue(&$value)
 	{
-		if (array_get_index($this->_params,'allow_empty',false) && $value == '') return true;
+		if (array_get_index($this->_params, 'allow_empty', false) && is_string($value) && $value == '') return true;
 
 		$new_value = (int) $value;
 		if ((string) $new_value != (string) $value) {
