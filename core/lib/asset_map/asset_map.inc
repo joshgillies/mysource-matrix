@@ -657,7 +657,7 @@ class Asset_Map
 			// they want to go ahead and cascade these puppies
 			$skip_perms = true;
 			foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
-				$set_perms = $new_parent->getPermission($perm);
+				$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($new_parent->id, $perm);
 				if (!empty($set_perms)) $skip_perms = false;
 			}
 
@@ -773,7 +773,7 @@ class Asset_Map
 		// they want to go ahead and cascade these puppies
 		$skip_perms = true;
 		foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
-			$set_perms = $new_parent->getPermission($perm);
+			$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($new_parent->id, $perm);
 			if (!empty($set_perms)) $skip_perms = false;
 		}
 

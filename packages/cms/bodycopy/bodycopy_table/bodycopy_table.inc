@@ -214,7 +214,7 @@ class Bodycopy_Table extends Asset
 			$message = $ms->newMessage();
 			$message->subject = 'Table Link Deleted';
 			$message->body = 'User "'.$user->name.'" has deleted '.$asset->type().' "'.$asset->name.'" which was being linked to in table "'.$this->name.'". At least one URL or image is now broken in this table.';
-			$message->to = $this->getPermission(SQ_PERMISSION_ADMIN, true, false);
+			$message->to = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, SQ_PERMISSION_ADMIN, true, false);
 			$message->from = 0; // a system message
 			$message->send();
 		}
