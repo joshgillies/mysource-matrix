@@ -255,7 +255,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function paintPageSelection($page_type, &$asset, $prefix) 
 	{
-		$pages = $asset->getLinks(SQ_LINK_NAV, 'page', false);
+		$pages = $asset->getLinks(SQ_LINK_NAV, '', false);
 
 		if (!count($pages)) {
 			echo '<i>There are no Pages that are children of this site.</i>';
@@ -263,14 +263,15 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			return;
 		}
 		
-		$selected = 0;
 		$contents = Array();
 		foreach($pages as $info) {
 			$page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($info['minorid'], $info['type_code'], true);
 			if (is_null($page)) continue;
-			if ($info['value'] == $page_type) $selected = $page->id;
 			$contents[$page->id] = $page->name;
 		}
+
+		$link = $asset->getSpecialPageLink($page_type);
+		$selected = (empty($link)) ? 0 : $link['minorid'];
 
 		combo_box($prefix.'_'.$page_type, $contents, false, $selected);
 
@@ -288,8 +289,28 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function processPageSelection($page_type, &$asset, $prefix) 
 	{
-		trigger_error('Processing of '.$page_type.' page not done', E_USER_NOTICE);
-	}
+		$link = $asset->getSpecialPageLink($page_type);
+		// if there has been no change, then there is nothing to do
+		if (!empty($link) && $link['minorid'] == $_POST[$prefix.'_'.$page_type]) {
+			return true;
+		}
+
+		// if there is no current link, we need to create one
+		if (empty($link)) {
+			$page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_'.$page_type]);
+			return (bool) $asset->createLink($page, SQ_LINK_USES, $page_type);
+		} else {
+			$GLOBALS['SQ_SYSTEM']->db->query('BEGIN');
+			if ($asset->_updateLink($link['linkid'], $_POST[$prefix.'_'.$page_type])) {
+				$GLOBALS['SQ_SYSTEM']->db->query('COMMIT');
+				return true;
+			} else {
+				$GLOBALS['SQ_SYSTEM']->db->query('ROLLBACK');
+				return false;
+			}// end if
+		}// end if
+
+	}// end processPageSelection()
 
 	/**
 	* Paint the interface for setting the index page for this site
@@ -361,7 +382,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function paintNotFoundPage(&$asset, &$o, $prefix) 
 	{
-		$this->paintPageSelection('not found', $asset, $prefix);
+		$this->paintPageSelection('not_found', $asset, $prefix);
 	}// end paintNotFoundPage
 
 	/**
@@ -375,7 +396,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function processNotFoundPage(&$asset, $prefix) 
 	{
-		$this->processPageSelection('not found', $asset, $prefix);
+		$this->processPageSelection('not_found', $asset, $prefix);
 	}
 
 }//end class

@@ -277,5 +277,30 @@ class Site extends Folder
 	}// end printBody()
 
 
+	/*
+	* Returns the link to the special page (index, not_found, forbidden) passed in
+	*
+	* @param string	$page	the page that the user wants
+	*
+	* @return Array
+	* @access public
+	*/
+	function getSpecialPageLink($page)
+	{
+		switch($page) {
+			case 'index' : 
+			case 'not_found' : 
+			case 'forbidden' : 
+				return $this->getLink(SQ_LINK_USES, '', true, $page);
+				break;
+
+			default :
+				trigger_error('Special Page "'.$page.'" unknown');
+				return Array();
+
+		}// end switch
+
+	}//end getSpecialPageLink()
+
 }//end class
 ?>
