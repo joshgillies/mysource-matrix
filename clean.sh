@@ -11,6 +11,7 @@ rm -rf "${SYSTEM_ROOT}/cache" \
 		"${SYSTEM_ROOT}/data/public/assets" \
 		"${SYSTEM_ROOT}/data/public/asset_types" \
 		"${SYSTEM_ROOT}/data/private/assets" \
+		"${SYSTEM_ROOT}/data/private/db" \
 		"${SYSTEM_ROOT}/data/private/asset_map"
 
 cvs up -dP cache data/public data/private
@@ -33,12 +34,10 @@ echo "DB NAME : ${DB_NAME}";
 case "${DB_TYPE}" in 
 	"mysql")
 		mysql -u root "${DB_NAME}" -e "SHOW TABLES;"  -s -N | sed 's/^.*$/DROP TABLE &;/' | mysql -u root "${DB_NAME}"
-		mysql -u root "${DB_NAME}" < "${SYSTEM_ROOT}/core/db/mysql/create.sql"
 	;;
 
 	"pgsql")
 		psql -d "${DB_NAME}" -c "\d" -t -q -A -X | awk -F\| '{ print "DROP " $3 " " $2 ";" }' | psql -d "${DB_NAME}" -X -q
-		psql -d "${DB_NAME}" -X -q < "${SYSTEM_ROOT}/core/db/pgsql/create.sql"
 	;;
 
 	*)
@@ -48,6 +47,7 @@ esac
 
 # now just run step 2 again
 php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_02.php" "${SYSTEM_ROOT}"
+php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_03.php" "${SYSTEM_ROOT}"
 
 chmod 775 cache
 find data -type d -exec chmod 2775 {} \; 2> /dev/null
