@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_numeric.inc,v 1.5 2004/11/05 00:08:50 lwright Exp $
+* $Id: form_question_type_numeric.inc,v 1.6 2004/11/15 05:39:28 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -48,7 +48,7 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 	* @param array	$data		the section's entry for this question (contains all question data)
 	*
 	*/
-	function Form_Question_Type_Numeric($assetid=0, $data=Array()) 
+	function Form_Question_Type_Numeric($assetid=0, $data=Array())
 	{
 		$this->Form_Question_Type_Text($assetid, $data);
 
@@ -65,7 +65,7 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 	*/
 	function getAllowedRules() {
 		return Array('comparison', 'integer', 'length');
-	
+
 	}//end getAllowedRules()
 
 
@@ -92,7 +92,7 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 				array_push($this->vars['rules']['value'], $req_rule);
 			}
 
-			$form->active_submission->setValue($this->id, $val);
+			$form->active_submission->setAnswer($this->id, $val);
 			$form->active_submission->setSummary($this->id,  $this->attr('name'), $val);
 
 			parent::processForm();
@@ -103,15 +103,15 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 			array_pop($this->vars['rules']['value']);			// Remove Force Numeric in any case
 
 		}
-		
+
 		return true;
-	
+
 	}//end processForm()
 
-	
+
 	/**
 	* writes JavaScript code for client side validation
-	* 
+	*
 	* This function assumes the skeleton of a JS validation function has been created around this code
 	* with a form variable named 'form' passed (this is done when generating the content file).
 	*

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_table.inc,v 1.4 2004/11/05 00:08:51 lwright Exp $
+* $Id: form_question_type_tickbox_table.inc,v 1.5 2004/11/15 05:39:28 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -221,9 +221,9 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 		$submission = array_get_index($_REQUEST, $prefix, false);
 		$this->_tmp['submission'] = $submission;
 		$form =& $this->getMySection();
-		$form->active_submission->setValue($this->id, $submission);
-		$form->active_submission->setValue($this->id, $submission);
-		
+		$form->active_submission->setAnswer($this->id, $submission);
+		$form->active_submission->setSummary($this->id,  $this->attr('name'), $submission);
+
 		if ($this->attr('required')) {
 			$req_rule = Array('rule_code' => 'select_limit', 'operator' => '>=', 'value' => '1');
 			array_push($this->vars['rules']['value'], $req_rule);
