@@ -243,7 +243,7 @@ class Design_Customisation extends Design
 		foreach($added_id_names as $id_name) {
 			$da = &$am->getAsset($parent_da_links[$id_name]['minorid'], $parent_da_links[$id_name]['type_code'], true);
 			if (is_null($da)) continue;
-			$this->createLink($da, SQ_LINK_TYPE_3, $id_name);
+			$this->createLink($da, SQ_LINK_TYPE_3, $id_name, null, '1');
 		}// end foreach
 
 		//// THIRD, let's update the customised, but not specialised, design areas ////
