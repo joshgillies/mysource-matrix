@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.137 2004/04/22 09:19:11 brobertson Exp $
+* $Id: asset_map.inc,v 1.138 2004/04/27 22:49:32 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -155,8 +155,18 @@ class Asset_Map
 				$jarname = 'complexassetmap';
 			break;
 		}
-		
-		// TODO: <embed> tags for moz and netscape
+
+		$inbox_url = '';
+		if ($type == 'complex') {	
+			$inbox_link = $GLOBALS['SQ_SYSTEM']->am->getLink($GLOBALS['SQ_SYSTEM']->user->id, SQ_LINK_TYPE_2, 'inbox', true, null, 'major', '1');
+			if (empty($inbox_link)) {
+				$inbox_url = &$GLOBALS['SQ_SYSTEM']->user->getBackendHref();
+			} else {
+				$inbox_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid'], $inbox_link['minor_type_code']);
+				$inbox_url = $inbox_asset->getBackendHref('details');
+			}
+			$inbox_url = str_replace('.', '', $inbox_url);
+		}
 
 		// we want to use current_url()
 		require_once SQ_INCLUDE_PATH."/general.inc";
@@ -171,9 +181,13 @@ class Asset_Map
 			<param name="archive" value="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar, <?php echo sq_web_path('lib'); ?>/asset_map/java/crimson.jar" />
 			<param name="BASE_URL" value="<?php echo clean_url(current_url(true, true)); ?>" />
 			<param name="BACKEND_SUFFIX" value="<?php echo SQ_CONF_BACKEND_SUFFIX; ?>" />
+			<?php
+				if ($type == 'complex')
+				echo '<param name="INBOX_URL" value="'.rawurlencode($inbox_url).'" />';
+			?>
 			
 			<comment>
-				<embed id="sq_asset_map" width="<?php echo $width; ?>" height="<?php echo $height; ?>" type="application/x-java-applet;version=1.4" code="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar, <?php echo sq_web_path('lib'); ?>/asset_map/java/crimson.jar" BASE_URL="<?php echo clean_url(current_url(true, true)); ?>"
+				<embed id="sq_asset_map" width="<?php echo $width; ?>" height="<?php echo $height; ?>" type="application/x-java-applet;version=1.4" code="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar, <?php echo sq_web_path('lib'); ?>/asset_map/java/crimson.jar" BASE_URL="<?php echo clean_url(current_url(true, true)); ?>" <?php if ($type == 'complex') echo 'INBOX_URL="'.rawurlencode($inbox_url).'"'; ?> 
 				 BACKEND_SUFFIX="<?php echo SQ_CONF_BACKEND_SUFFIX; ?>" MAYSCRIPT>
 					<noembed>
 						Java is not installed on your system
