@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.45 2004/06/02 00:27:02 gsherwood Exp $
+* $Id: package_manager.inc,v 1.46 2004/06/25 04:03:36 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -185,88 +185,80 @@ class Package_Manager extends MySource_Object
 	*/
 	function updatePackageDetails()
 	{
-		if (!$this->checkPackageDetails()) {
-			return false;
-		}
+		if (!$this->checkPackageDetails()) return false;
 
 		$install_order = $this->_getInstallOrder();
-		if (empty($install_order)) {
-			trigger_error('No assets available in the install order of "'.$this->getPackageName().'" package.', E_USER_NOTICE);
-			return true;
-		}
+		if (!empty($install_order)) {
 
-		pre_echo('Install Order :');
-		pre_echo($install_order);
-
-		$package_name = $this->getPackageName();
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		// open the transaction
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$exists = $db->getOne('SELECT code_name FROM '.SQ_TABLE_PREFIX.'package WHERE code_name = '.$db->quote($package_name));
-		if (DB::isError($exists)) trigger_error($exists->getMessage()."\n".$exists->getUserInfo(), E_USER_ERROR);
-
-		if ($exists) {
-			$sql = 'UPDATE '.SQ_TABLE_PREFIX.'package
-					SET version     = '.$db->quote($this->version).',
-						name        = '.$db->quote($this->name).',
-						description = '.$db->quote($this->description).'
-					WHERE code_name = '.$db->quote($package_name);
-		} else {
-			$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'package
-					(code_name, version, name, description)
-					VALUES
-					('.$db->quote($package_name).', '.$db->quote($this->version).',
-					'.$db->quote($this->name).','.$db->quote($this->description).')';
-		}//end if
-
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			// Abort Transaction
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error($result->getMessage()."\n".$result->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
-
-		//foreach($install_order as $type_code) {
-		for (reset($install_order); null !== ($k = key($install_order)); next($install_order)) {
-			$type_code =& $install_order[$k];
-
-			// now we simply call the management class for this object
-			$file = SQ_SYSTEM_ROOT.'/'.$this->assets[$type_code]['dir'].'/'.$type_code.'_management.inc';
-			// include rather that require so that if it doesn't exist we can kill the transaction
-			require_once $file;
-			$class = $type_code.'_management';
-			// make sure the class exists
-			if (class_exists($class)) {
-				// now just create an instance of it, and run update()
-				$management = new $class($this);
-				if (!$management->update()) {
-					// Abort Transaction
+			pre_echo('Install Order :');
+			pre_echo($install_order);
+	
+			$package_name = $this->getPackageName();
+	
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			// open the transaction
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+	
+			$exists = $db->getOne('SELECT code_name FROM '.SQ_TABLE_PREFIX.'package WHERE code_name = '.$db->quote($package_name));
+			if (DB::isError($exists)) trigger_error($exists->getMessage()."\n".$exists->getUserInfo(), E_USER_ERROR);
+	
+			if ($exists) {
+				$sql = 'UPDATE '.SQ_TABLE_PREFIX.'package
+						SET version     = '.$db->quote($this->version).',
+							name        = '.$db->quote($this->name).',
+							description = '.$db->quote($this->description).'
+						WHERE code_name = '.$db->quote($package_name);
+			} else {
+				$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'package
+						(code_name, version, name, description)
+						VALUES
+						('.$db->quote($package_name).', '.$db->quote($this->version).',
+						'.$db->quote($this->name).','.$db->quote($this->description).')';
+			}
+	
+			$result = $db->query($sql);
+			if (DB::isError($result)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				trigger_error($result->getMessage()."\n".$result->getUserInfo(), E_USER_WARNING);
+				return false;
+			}
+	
+			for (reset($install_order); null !== ($k = key($install_order)); next($install_order)) {
+				$type_code =& $install_order[$k];
+	
+				// now we simply call the management class for this object
+				$file = SQ_SYSTEM_ROOT.'/'.$this->assets[$type_code]['dir'].'/'.$type_code.'_management.inc';
+				// include rather that require so that if it doesn't exist we can kill the transaction
+				require_once $file;
+				$class = $type_code.'_management';
+				// make sure the class exists
+				if (class_exists($class)) {
+					// now just create an instance of it, and run update()
+					$management = new $class($this);
+					if (!$management->update()) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
+					}
+					
+				} else {
+					trigger_error('Asset "'.$type_code.'" does not have a management class defined for it in '.$file, E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
-				
-			} else {
-				trigger_error('Asset "'.$type_code.'" does not have a management class defined for it in '.$file, E_USER_WARNING);
-				// Abort Transaction
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
+	
+			}//end for
+			
+			// Commit the transaction if we got this far
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		}//end for
+		}//end if asset types to install
 
 		// create the xml summarys of screens info for the asset map
 		if (!$this->_createAssetMapScreensXML()) {
 			trigger_error('Unable to create the Asset Map Screens XML', E_USER_WARNING);
-			// Abort Transaction
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-
-		// Commit the transaction if we got this far
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		$this->_postInstall();
 		return true;
@@ -404,10 +396,8 @@ class Package_Manager extends MySource_Object
 	*/
 	function _createAssetMapScreensXML()
 	{
-
 		$output = new XML_Tree();
 		$root = &$output->addRoot('tmp', '');
-
 		$str  = '';
 
 		for(reset($this->assets); null !== ($type_code = key($this->assets)); next($this->assets)) {
@@ -421,7 +411,6 @@ class Package_Manager extends MySource_Object
 						);
 
 			$type_node = &$root->addChild('type', '', $attrs);
-
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 			$as =& new $type_code();
