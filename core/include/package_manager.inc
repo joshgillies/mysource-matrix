@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.64 2005/03/02 01:09:04 gsherwood Exp $
+* $Id: package_manager.inc,v 1.65 2005/03/28 23:11:25 gsherwood Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -65,7 +65,7 @@ class Package_Manager extends MySource_Object
 	/**
 	* An Array of information on each asset in this package gleened from the asset.xml files
 	*
-	* @var Array()
+	* @var array
 	*/
 	var $assets = Array();
 
@@ -140,12 +140,13 @@ class Package_Manager extends MySource_Object
 
 
 	/**
-	* Checks to see if the installation/upgrade of this package is able to go ahead.
+	* Checks to see if the installation/upgrade of this package is able to go ahead
+	*
 	* Will return 'true' if all assets are okay, otherwise will return an array
 	* of assetids that failed requirements.
 	*
-	* @param Array $update_assets		An array of asset types to check
-	*									details for. If empty, will check all assets
+	* @param array	$update_assets	an array of asset types to check details for
+	*								if empty, will check all assets
 	* @return mixed
 	* @access public
 	*/
@@ -195,10 +196,11 @@ class Package_Manager extends MySource_Object
 	/**
 	* Installs/Updates the passed package in the system
 	*
-	* @param Array $update_assets		An array of asset types to update
-	*									details for. If empty, will do all assets
-	* @return mixed						success status, or an array of type codes
-	*									that has been deferred for later checking
+	* @param array	$update_assets	an array of asset types to update details for
+	*								if empty, will do all assets
+	*
+	* @return mixed					success status, or an array of type codes
+	*								that has been deferred for later checking
 	* @access public
 	*/
 	function updatePackageDetails($update_assets=Array())
@@ -458,14 +460,14 @@ class Package_Manager extends MySource_Object
 			if (in_array($type_code, $deferred)) continue;
 
 			$attrs = Array(
-						   'type_code'       => $type_code,
-						   'name'            => $this->assets[$type_code]['name'],
-						   'version'         => $this->assets[$type_code]['version'],
-						   'instantiable'    => $this->assets[$type_code]['instantiable'],
-						   'allowed_access'  => $this->assets[$type_code]['allowed_access'],
-						   'parent_type'     => $this->assets[$type_code]['parent_type'],
-						   'flash_menu_path' => $this->assets[$type_code]['flash_menu_path'],
-						   );
+						'type_code'			=> $type_code,
+						'name'				=> $this->assets[$type_code]['name'],
+						'version'			=> $this->assets[$type_code]['version'],
+						'instantiable'		=> $this->assets[$type_code]['instantiable'],
+						'allowed_access'	=> $this->assets[$type_code]['allowed_access'],
+						'parent_type'		=> $this->assets[$type_code]['parent_type'],
+						'flash_menu_path'	=> $this->assets[$type_code]['flash_menu_path'],
+					 );
 
 			$type_node = &$root->addChild('type', '', $attrs);
 
@@ -569,10 +571,10 @@ class Package_Manager extends MySource_Object
 
 				if ($need_feedback) {
 					$ret_arr = Array(
-									 'type'    => $req['@type'],
-									 'code'    => $req['code']['value'],
-									 'version' => $req['version']['value'],
-									 );
+								'type'		=> $req['@type'],
+								'code'		=> $req['code']['value'],
+								'version'	=> $req['version']['value'],
+							   );
 					return Array(false, $ret_arr);
 
 				} else {
@@ -596,7 +598,7 @@ class Package_Manager extends MySource_Object
 	*
 	* @param string $type_code  the code name for the asset that you want to check
 	*
-	* @return Array(string)
+	* @return array(string)
 	* @access public
 	*/
 	function getTypeAncestors($type_code)
@@ -717,7 +719,7 @@ class Package_Manager extends MySource_Object
 	* Returns an array of all the asset types in the package that are to be treated as system assets
 	* NOTE: Assets will be installed in the order they appear in this list
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	* @static
 	*/

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.100 2005/03/10 02:21:50 tbarrett Exp $
+* $Id: backend_outputter.inc,v 1.101 2005/03/28 23:11:25 gsherwood Exp $
 *
 */
 
@@ -26,11 +26,11 @@
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 // just normal messages, eg update confirmations
-define('SQ_BO_MSG_NOTICE',      1);
+define('SQ_BO_MSG_NOTICE',  1);
 // warnings, you entered something a bit a-miss and the system fixed it up for you
-define('SQ_BO_MSG_WARNING',     2);
+define('SQ_BO_MSG_WARNING', 2);
 // something is just plain wrong, fix immediately
-define('SQ_BO_MSG_ERROR',       4);
+define('SQ_BO_MSG_ERROR',   4);
 
 
 /**
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',       4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.100 $
+* @version $Revision: 1.101 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -172,13 +172,13 @@ class Backend_Outputter
 		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 
 		$em->addEventListener($this, Array(
-										   'CreateLink',
-										   'DeleteLink',
-										   'AssetUpdate',
-										   'AssetTypeUpdate',
-										   'BackendMessage',
-										   'AssetStatusUpdate',
-										   )
+										'CreateLink',
+										'DeleteLink',
+										'AssetUpdate',
+										'AssetTypeUpdate',
+										'BackendMessage',
+										'AssetStatusUpdate',
+									 )
 							);
 
 	}//end constructor
@@ -472,10 +472,10 @@ class Backend_Outputter
 	function openRaw()
 	{
 		$init_arr = Array(
-						  'area_type' => 'section',
-						  'type'      => 'raw',
-						  'contents'  => '',
-						  );
+						'area_type'	=> 'section',
+						'type'		=> 'raw',
+						'contents'	=> '',
+					);
 
 		$ret_val = $this->_openSection($init_arr);
 		ob_start();
@@ -513,12 +513,12 @@ class Backend_Outputter
 	function openSection($heading='', $icon='')
 	{
 		$init_arr = Array(
-						  'area_type' => 'section',
-						  'type'      => 'normal',
-						  'heading'   => $heading,
-						  'icon'      => $icon,
-						  'areas'     => Array(),
-						  );
+						'area_type'	=> 'section',
+						'type'		=> 'normal',
+						'heading'	=> $heading,
+						'icon'		=> $icon,
+						'areas'		=> Array(),
+					);
 		return $this->_openSection($init_arr);
 
 	}//end openSection()
@@ -715,16 +715,16 @@ class Backend_Outputter
 			$stack_i = count($this->_section_stack) - 1;
 			$i = count($this->_section_stack[$stack_i]['areas']);
 			$this->_section_stack[$stack_i]['areas'][$i] = Array(
-																 'area_type'   => 'field',
-																 'type'        => 'normal',
-																 'field_count' => $this->_field_count,
-																 'name'        => $name,
-																 'format'      => $format,
-																 'note'        => $note,
-																 'contents'    => '',
-																 'hidden'      => $hidden,
-																 'id_name'     => $id_name,
-																 );
+															'area_type'		=> 'field',
+															'type'			=> 'normal',
+															'field_count'	=> $this->_field_count,
+															'name'			=> $name,
+															'format'		=> $format,
+															'note'			=> $note,
+															'contents'		=> '',
+															'hidden'		=> $hidden,
+															'id_name'		=> $id_name,
+														   );
 
 			$this->_current_field = &$this->_section_stack[$stack_i]['areas'][$i];
 			ob_start();
@@ -1463,7 +1463,7 @@ class Backend_Outputter
 	* Event handler to add a message to the flash soeone broadcasts it
 	*
 	* @param &object Asset	$asset	the asset that triggered the event
-	* @param Array			$vars	the vars that get submitted by the broadcaster
+	* @param array			$vars	the vars that get submitted by the broadcaster
 	*
 	* @return void
 	* @access public
@@ -1479,7 +1479,7 @@ class Backend_Outputter
 	* Event handler to refresh the asset map if a new link has been created
 	*
 	* @param &object Asset	$asset	the asset that triggered the event
-	* @param Array			$vars	the vars that get submitted by the broadcaster
+	* @param array			$vars	the vars that get submitted by the broadcaster
 	*
 	* @return void
 	* @access public
@@ -1498,7 +1498,7 @@ class Backend_Outputter
 	* Event handler to refresh the asset map if a link has been deleted
 	*
 	* @param &object Asset	$asset	the asset that triggered the event
-	* @param Array			$vars	the vars that get submitted by the broadcaster
+	* @param array			$vars	the vars that get submitted by the broadcaster
 	*
 	* @return void
 	* @access public
@@ -1518,7 +1518,7 @@ class Backend_Outputter
 	* Event handler to refresh the asset map if the short name of an asset has changed
 	*
 	* @param &object Asset	$asset	the asset that triggered the event
-	* @param Array			$vars	the vars that get submitted by the broadcaster
+	* @param array			$vars	the vars that get submitted by the broadcaster
 	*
 	* @return void
 	* @access public
@@ -1538,7 +1538,7 @@ class Backend_Outputter
 	* Event handler to refresh the asset map if an asset has been morphed to a new type
 	*
 	* @param &object Asset	$asset	the asset that triggered the event
-	* @param Array			$vars	the vars that get submitted by the broadcaster
+	* @param array			$vars	the vars that get submitted by the broadcaster
 	*
 	* @return void
 	* @access public
@@ -1560,7 +1560,7 @@ class Backend_Outputter
 	* Event handler to refresh the asset map if an asset's status has changed
 	*
 	* @param &object Asset	$asset	the asset that triggered the event
-	* @param Array			$vars	the vars that get submitted by the broadcaster
+	* @param array			$vars	the vars that get submitted by the broadcaster
 	*
 	* @return void
 	* @access public

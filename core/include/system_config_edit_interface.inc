@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.11 2005/03/02 01:09:04 gsherwood Exp $
+* $Id: system_config_edit_interface.inc,v 1.12 2005/03/28 23:11:25 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -93,12 +93,12 @@ class System_Config_Edit_Interface extends MySource_Object
 		$current_location .= (strstr($current_location, '?')) ? '&' : '?';
 
 		$config_screens = Array(
-								'system_config'         => 'System Configuration',
-								'squiz_server_config'   => 'Squiz Server Configuration',
-								'hipo_config'           => 'HIPO Configuration',
-								'external_tools_config' => 'External Tools Configuration',
-								'user_prefs'            => 'Global Preferences',
-								);
+							'system_config'			=> 'System Configuration',
+							'squiz_server_config'	=> 'Squiz Server Configuration',
+							'hipo_config'			=> 'HIPO Configuration',
+							'external_tools_config'	=> 'External Tools Configuration',
+							'user_prefs'			=> 'Global Preferences',
+						  );
 
 		foreach ($config_screens as $screen_code => $screen_name) {
 			$url = $current_location.'config_screen='.rawurlencode($screen_code);

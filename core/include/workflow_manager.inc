@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.62 2005/03/02 01:09:04 gsherwood Exp $
+* $Id: workflow_manager.inc,v 1.63 2005/03/28 23:11:25 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -172,11 +172,11 @@ class Workflow_Manager extends MySource_Object
 
 		// add the schema to the database
 		$values = Array(
-						'assetid'  => $asset->id,
-						'schemaid' => $schemaid,
-						'wflow'    => NULL,
-						'granted'  => (($granted) ? '1' : '0'),
-						);
+					'assetid'	=> $asset->id,
+					'schemaid'	=> $schemaid,
+					'wflow'		=> NULL,
+					'granted'	=> (($granted) ? '1' : '0'),
+				  );
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_wflow', $values)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;

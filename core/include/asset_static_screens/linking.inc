@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.11 2005/03/02 00:41:21 gsherwood Exp $
+* $Id: linking.inc,v 1.12 2005/03/28 23:11:25 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 
@@ -65,9 +65,9 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 	$assetids = Array();
 	$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_SC_LINK_ALL, '', true, 'minor');
 	$editable_link_types = Array(
-								 SQ_LINK_TYPE_1 => link_type_name(SQ_LINK_TYPE_1),
-								 SQ_LINK_TYPE_2 => link_type_name(SQ_LINK_TYPE_2),
-								 );
+							SQ_LINK_TYPE_1	=> link_type_name(SQ_LINK_TYPE_1),
+							SQ_LINK_TYPE_2	=> link_type_name(SQ_LINK_TYPE_2),
+						   );
 
 	foreach ($asset_links as $link) $assetids[$link['majorid']] = Array();
 

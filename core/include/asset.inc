@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.380 2005/03/24 04:44:31 gsherwood Exp $
+* $Id: asset.inc,v 1.381 2005/03/28 23:11:24 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.380 $
+* @version $Revision: 1.381 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -261,21 +261,21 @@ class Asset extends MySource_Object
 		$initial_version = '0.0.1';
 
 		$values = Array(
-						'assetid'               => $assetid,
-						'version'               => $initial_version,
-						'type_code'             => $this->type(),
-						'name'                  => $name,
-						'short_name'            => $name,
-						'status'                => SQ_STATUS_UNDER_CONSTRUCTION,
-						'created'               => ts_iso8601($now),
-						'created_userid'        => $userid,
-						'updated'               => ts_iso8601($now),
-						'updated_userid'        => $userid,
-						'published'             => null,
-						'published_userid'      => null,
-						'status_changed'        => ts_iso8601($now),
-						'status_changed_userid' => $userid,
-						);
+					'assetid'				=> $assetid,
+					'version'				=> $initial_version,
+					'type_code'				=> $this->type(),
+					'name'					=> $name,
+					'short_name'			=> $name,
+					'status'				=> SQ_STATUS_UNDER_CONSTRUCTION,
+					'created'				=> ts_iso8601($now),
+					'created_userid'		=> $userid,
+					'updated'				=> ts_iso8601($now),
+					'updated_userid'		=> $userid,
+					'published'				=> null,
+					'published_userid'		=> null,
+					'status_changed'		=> ts_iso8601($now),
+					'status_changed_userid'	=> $userid,
+				  );
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast', $values)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			unset($this->_tmp['__creating__']);
@@ -454,13 +454,14 @@ class Asset extends MySource_Object
 	*
 	* @param array	&$link	information used to create the initial link<br/>
 	* <PRE>
-	* Array ('asset'         => [ref major asset to create link under],
-	*        'link_type'     => SQ_LINK_?,
-	*        'value'         => [link value],
-	*        'sort_order'    => [link sort order],
-	*        'is_dependant'  => [0|1],
-	*        'is_exclusive'  => [0|1]
-	*        )
+	* Array (
+	*   'asset'        => [ref major asset to create link under],
+	*   'link_type'    => SQ_LINK_?,
+	*   'value'        => [link value],
+	*   'sort_order'   => [link sort order],
+	*   'is_dependant' => [0|1],
+	*   'is_exclusive' => [0|1],
+	* )
 	* </PRE>
 	*
 	* @access private
@@ -480,13 +481,14 @@ class Asset extends MySource_Object
 	*
 	* @param array	&$link	information used to create the initial link<br/>
 	* <PRE>
-	* Array ('asset'         => [ref major asset to create link under],
-	*        'link_type'     => SQ_LINK_?,
-	*        'value'         => [link value],
-	*        'sort_order'    => [link sort order],
-	*        'is_dependant'  => [0|1],
-	*        'is_exclusive'  => [0|1]
-	*        )
+	* Array (
+	*   'asset'        => [ref major asset to create link under],
+	*   'link_type'    => SQ_LINK_?,
+	*   'value'        => [link value],
+	*   'sort_order'   => [link sort order],
+	*   'is_dependant' => [0|1],
+	*   'is_exclusive' => [0|1],
+	* )
 	* </PRE>
 	*
 	* @access private
@@ -565,8 +567,8 @@ class Asset extends MySource_Object
 		$this->status_changed_userid
 		) = $result;
 
-		$this->created   = iso8601_ts($this->created);
-		$this->updated   = iso8601_ts($this->updated);
+		$this->created = iso8601_ts($this->created);
+		$this->updated = iso8601_ts($this->updated);
 		if (!is_null($this->status_changed)) {
 			$this->status_changed = iso8601_ts($this->status_changed);
 		}
@@ -587,7 +589,6 @@ class Asset extends MySource_Object
 			$this->published_userid      = null;
 			$this->status_changed        = null;
 			$this->status_changed_userid = null;
-
 			return;
 		}
 
@@ -1046,14 +1047,14 @@ class Asset extends MySource_Object
 
 			$where = 'assetid = '.$db->quote($this->id);
 			$values = Array(
-							'name'           => $db->quote($name),
-							'short_name'     => $db->quote($short_name),
-							'languages'      => $db->quote($this->languages),
-							'charset'        => $db->quote($this->charset),
-							'force_secure'   => $db->quote($this->force_secure),
-							'updated'        => $db->quote(ts_iso8601($updated)),
-							'updated_userid' => $db->quote($updated_userid),
-							);
+						'name'				=> $db->quote($name),
+						'short_name'		=> $db->quote($short_name),
+						'languages'			=> $db->quote($this->languages),
+						'charset'			=> $db->quote($this->charset),
+						'force_secure'		=> $db->quote($this->force_secure),
+						'updated'			=> $db->quote(ts_iso8601($updated)),
+						'updated_userid'	=> $db->quote($updated_userid),
+					  );
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast', $values, $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -1061,15 +1062,15 @@ class Asset extends MySource_Object
 
 			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadcastEvent($this, 'AssetUpdate', Array(
-															'old_name'           => $this->name,
-															'new_name'           => $name,
-															'old_short_name'     => $this->short_name,
-															'new_short_name'     => $short_name,
-															'old_updated'        => $this->updated,
-															'new_updated'        => $updated,
-															'old_updated_userid' => $this->updated_userid,
-															'new_updated_userid' => $updated_userid,
-															)
+														'old_name'				=> $this->name,
+														'new_name'				=> $name,
+														'old_short_name'		=> $this->short_name,
+														'new_short_name'		=> $short_name,
+														'old_updated'			=> $this->updated,
+														'new_updated'			=> $updated,
+														'old_updated_userid'	=> $this->updated_userid,
+														'new_updated_userid'	=> $updated_userid,
+													  )
 			);
 
 			// increment the micro version number
@@ -1083,10 +1084,10 @@ class Asset extends MySource_Object
 
 		}//end if $this->id
 
-		$this->name				= $name;
-		$this->short_name		= $short_name;
-		$this->updated			= $updated;
-		$this->updated_userid	= $updated_userid;
+		$this->name           = $name;
+		$this->short_name     = $short_name;
+		$this->updated        = $updated;
+		$this->updated_userid = $updated_userid;
 
 		return true;
 
@@ -1219,9 +1220,9 @@ class Asset extends MySource_Object
 
 		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'AssetVersionUpdate', Array(
-															   'old_version' => $this->version,
-															   'new_version' => $new_version,
-															   )
+															'old_version'	=> $this->version,
+															'new_version'	=> $new_version,
+														 )
 		);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -1270,9 +1271,9 @@ class Asset extends MySource_Object
 
 		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'AssetLanguageUpdate', Array(
-																'old_languages' => $old_languages,
-																'new_languages' => $this->languages,
-																)
+															'old_languages'	=> $old_languages,
+															'new_languages'	=> $this->languages,
+														  )
 		);
 		return true;
 
@@ -1300,9 +1301,9 @@ class Asset extends MySource_Object
 
 		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'AssetCharsetUpdate', Array(
-															   'old_charset' => $old_charset,
-															   'new_charset' => $this->charset,
-															   )
+															'old_charset'	=> $old_charset,
+															'new_charset'	=> $this->charset,
+														 )
 		);
 		return true;
 
@@ -1336,9 +1337,9 @@ class Asset extends MySource_Object
 
 		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'AssetForceSecureUpdate', Array(
-																   'old_force_secure' => $old_force_secure,
-																   'old_force_secure' => $this->force_secure,
-																   )
+																'old_force_secure'	=> $old_force_secure,
+																'old_force_secure'	=> $this->force_secure,
+															 )
 		);
 		return true;
 
@@ -1529,9 +1530,9 @@ class Asset extends MySource_Object
 
 			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadcastEvent($this, 'AssetTypeUpdate', Array(
-																'old_type' => $old_type_code,
-																'new_type' => $new_type_code,
-																)
+															'old_type'	=> $old_type_code,
+															'new_type'	=> $new_type_code,
+														  )
 			);
 
 			return true;
@@ -1606,13 +1607,13 @@ class Asset extends MySource_Object
 	* @param &object Asset	$clone		the clone shell
 	* @param array			$components	the wanted components to clone eg.
 	*                       Array(
-	*                             'attributes',
-	*                             'metadata_shemas',
-	*                             'metadata',
-	*                             'workflow',
-	*                             'permissions',
-	*                             'data'
-	*                             );
+	*                         'attributes',
+	*                         'metadata_shemas',
+	*                         'metadata',
+	*                         'workflow',
+	*                         'permissions',
+	*                         'data'
+	*                       );
 	*                       or alternately
 	*                       Array('all');
 	*
@@ -1834,10 +1835,10 @@ class Asset extends MySource_Object
 
 			$where = 'assetid = '.$db->quote($this->id);
 			$values = Array(
-							'status'                => $db->quote($new_status),
-							'status_changed'        => $db->quote(ts_iso8601(time())),
-							'status_changed_userid' => $db->quote($GLOBALS['SQ_SYSTEM']->user->id),
-							);
+						'status'				=> $db->quote($new_status),
+						'status_changed'		=> $db->quote(ts_iso8601(time())),
+						'status_changed_userid'	=> $db->quote($GLOBALS['SQ_SYSTEM']->user->id),
+					  );
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast', $values, $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -1846,9 +1847,9 @@ class Asset extends MySource_Object
 			// broadcast event notifying of status change
 			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadcastEvent($this, 'AssetStatusUpdate', Array(
-																  'old_status' => $this->status,
-																  'new_status' => $new_status,
-																  )
+																'old_status'	=> $this->status,
+																'new_status'	=> $new_status,
+															)
 			);
 
 			// send message notifying of status change
@@ -1952,9 +1953,9 @@ class Asset extends MySource_Object
 		$where = 'assetid = '.$db->quote($this->id);
 
 		$values = Array(
-						$date_type           => $db->quote($time_iso),
-						$date_type.'_userid' => $db->quote($userid),
-						);
+					$date_type				=> $db->quote($time_iso),
+					$date_type.'_userid'	=> $db->quote($userid),
+				  );
 
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast', $values, $where)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -1983,21 +1984,21 @@ class Asset extends MySource_Object
 	/**
 	* Returns a list of lock types available for this asset type
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function lockTypes()
 	{
 		$lock_types =  Array(
-							 'settings'    => 1,
-							 'attributes'  => 2,
-							 'permissions' => 4,
-							 'links'       => 8,
-							 'workflow'    => 16,
-							 'metadata'    => 32,
-							 'lookups'     => 64,
-							 'weights'     => 128,
-							 );
+						'settings'		=> 1,
+						'attributes'	=> 2,
+						'permissions'	=> 4,
+						'links'			=> 8,
+						'workflow'		=> 16,
+						'metadata'		=> 32,
+						'lookups'		=> 64,
+						'weights'		=> 128,
+					   );
 
 		// a menu lock allows editing of both attributes (such as name etc)
 		// and links (such as position in menu)
@@ -2075,20 +2076,20 @@ class Asset extends MySource_Object
 	*   cardinality = [max number of links]|'M'
 	*   exclusive   = true|false
 	*
-	* @return Array()
+	* @return array
 	* @access private
 	*/
 	function _getAllowedLinks()
 	{
 		return Array(
-					 SQ_LINK_TYPE_1 => Array(),
-					 SQ_LINK_TYPE_2 => Array(),
-					 SQ_LINK_TYPE_3 => Array(),
-					 SQ_LINK_NOTICE => Array(
-											 'thumbnail' => Array('card' => 1, 'exclusive' => false),
-											 'design'    => Array('card' => 'M', 'exclusive' => false),
-											 ),
-					 );
+				SQ_LINK_TYPE_1	=> Array(),
+				SQ_LINK_TYPE_2	=> Array(),
+				SQ_LINK_TYPE_3	=> Array(),
+				SQ_LINK_NOTICE	=> Array(
+									'thumbnail'	=> Array('card' => 1, 'exclusive' => false),
+									'design'	=> Array('card' => 'M', 'exclusive' => false),
+								   ),
+			   );
 
 	}//end _getAllowedLinks()
 
@@ -2442,10 +2443,10 @@ class Asset extends MySource_Object
 
 					// now insert new unique entry
 					$values = Array(
-									'owning_attrid' => $save_vars[$attr_id]['owning_attrid'],
-									'custom_val'    => $attr_value,
-									'assetid'       => $this->id,
-									);
+								'owning_attrid'	=> $save_vars[$attr_id]['owning_attrid'],
+								'custom_val'	=> $attr_value,
+								'assetid'		=> $this->id,
+							  );
 					if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_attr_uniq_val', $values)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$attribute->setValue($this->_tmp['vars_set'][$save_vars[$attr_id]['name']]['old_value']);
@@ -2464,10 +2465,10 @@ class Asset extends MySource_Object
 			$select_from = SQ_TABLE_PREFIX.'ast_attr';
 
 			$values = Array(
-							'assetid'    => $this->id,
-							'attrid'     => 'attrid',
-							'custom_val' => $value_cases,
-							);
+						'assetid'		=> $this->id,
+						'attrid'		=> 'attrid',
+						'custom_val'	=> $value_cases,
+					  );
 
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsertSelect('ast_attr_val', $select_from, $values, $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -2654,55 +2655,55 @@ class Asset extends MySource_Object
 	* The return value is in the form:
 	* <pre>
 	* Array(
-	*     'name' => Array (
-	*          'value' => 'page',
-	*          'description' => 'the asset name',
-	*     ),
-	* )
+	*   'name' => Array (
+	*               'value'       => 'page',
+	*               'description' => 'the asset name',
+	*             ),
+	* );
 	* </pre>
 	*
 	* @param boolean $descriptions if TRUE descriptions will be included in the array
 	*
 	* @access public
-	* @return Array(mixed)
+	* @return array
 	*/
 	function getAssetKeywords($descriptions=false)
 	{
 		$keywords = Array();
 		$default_keywords = Array(
-								  'asset_name',
-								  'asset_short_name',
-								  'asset_version',
-								  'asset_created',
-								  'asset_updated',
-								  'asset_created_short',
-								  'asset_updated_short',
-								  'asset_created_readable',
-								  'asset_updated_readable',
-								  'asset_created_iso8601',
-								  'asset_updated_iso8601',
-								  'asset_created_rfc2822',
-								  'asset_updated_rfc2822',
-								  'asset_created_by_name',
-								  'asset_updated_by_name',
-								  'asset_published',
-								  'asset_published_short',
-								  'asset_published_readable',
-								  'asset_published_iso8601',
-								  'asset_published_rfc2822',
-								  'asset_published_by_name',
-								  'asset_status_changed',
-								  'asset_status_changed_short',
-								  'asset_status_changed_readable',
-								  'asset_status_changed_iso8601',
-								  'asset_status_changed_rfc2822',
-								  'asset_status_changed_by_name',
-								  'asset_url',
-								  'asset_href',
-								  'asset_thumbnail',
-								  'asset_thumbnail_url',
-								  'asset_thumbnail_caption',
-								  );
+								'asset_name',
+								'asset_short_name',
+								'asset_version',
+								'asset_created',
+								'asset_updated',
+								'asset_created_short',
+								'asset_updated_short',
+								'asset_created_readable',
+								'asset_updated_readable',
+								'asset_created_iso8601',
+								'asset_updated_iso8601',
+								'asset_created_rfc2822',
+								'asset_updated_rfc2822',
+								'asset_created_by_name',
+								'asset_updated_by_name',
+								'asset_published',
+								'asset_published_short',
+								'asset_published_readable',
+								'asset_published_iso8601',
+								'asset_published_rfc2822',
+								'asset_published_by_name',
+								'asset_status_changed',
+								'asset_status_changed_short',
+								'asset_status_changed_readable',
+								'asset_status_changed_iso8601',
+								'asset_status_changed_rfc2822',
+								'asset_status_changed_by_name',
+								'asset_url',
+								'asset_href',
+								'asset_thumbnail',
+								'asset_thumbnail_url',
+								'asset_thumbnail_caption',
+							);
 
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$mm_keywords = $mm->generateKeywordReplacements($this, $default_keywords, false);
@@ -2756,9 +2757,9 @@ class Asset extends MySource_Object
 	/**
 	* Gets replacements for keywords that are specific to this asset for LIMBO
 	*
-	* @param Array $keywords the keywords to get replacements for
+	* @param array	$keywords	the keywords to get replacements for
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function getCustomKeywordReplacements($keywords=Array())
@@ -2774,7 +2775,7 @@ class Asset extends MySource_Object
 	* An example of this might be a keyword replacement for a bodycopy. When submitted, we need to process
 	* The bodycopy here
 	*
-	* @param Array $keywords the keywords that were originally printed
+	* @param array	$keywords	the keywords that were originally printed
 	*
 	* @return boolean
 	* @access public
@@ -3391,7 +3392,7 @@ class Asset extends MySource_Object
 	/**
 	* Returns a list of paths that this asset has
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function getWebPaths()
@@ -3470,10 +3471,10 @@ class Asset extends MySource_Object
 		foreach ($save_paths as $sort_order => $path) {
 
 			$values = Array(
-							'path'       => $path,
-							'assetid'    => $this->id,
-							'sort_order' => $sort_order,
-							);
+						'path'			=> $path,
+						'assetid'		=> $this->id,
+						'sort_order'	=> $sort_order,
+					  );
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_path', $values)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -3506,7 +3507,7 @@ class Asset extends MySource_Object
 	* @param string	$field	if only one field is required pass it's name through
 	*						(url, http, https, root_urlid)
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function getLookups($field='')
@@ -3539,7 +3540,7 @@ class Asset extends MySource_Object
 	/**
 	* Returns a list of design lookup information associated with this asset
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function getDesignLookups()
@@ -3577,16 +3578,20 @@ class Asset extends MySource_Object
 	/**
 	* Returns a list of lookup value information associated with this asset matching the criteria
 	*
+	* Return value is in the form<br />
+	* <pre>
+	* Array(
+	*   [url] => Array(
+	*   [name] => Array('value' => [value], 'inhd' => [inhd]),
+	*   ....
+	* )
+	* </pre>
+	*
 	* @param boolean|null	$inherited		include inherited values (NULL = don't care, TRUE = Yes, FALSE = no)
 	* @param string			$prefix			a prefix to search for in the name field of ast_lookup_value
 	* @param boolean		$like_search	TRUE = LIKE $prefix, FALSE = NOT LIKE $prefix
 	*
-	* @return Array()	<pre>
-	*						Array([url] => Array(
-	*							[name] => Array('value' => [value], 'inhd' => [inhd]),
-	*							....
-	*						)
-	*					 </pre>
+	* @return array
 	* @access public
 	*/
 	function getLookupValues($inherited=null, $prefix='', $like_search=true)
@@ -3685,9 +3690,9 @@ class Asset extends MySource_Object
 			foreach ($our_design_links as $link) {
 				if (preg_match('/^design::(system|user)::.*$/', $link['value'])) {
 					$our_designs[$link['value']] = Array(
-														 'value' => $link['minorid'],
-														 'inhd'  => '0',
-														 );
+													'value'	=> $link['minorid'],
+													'inhd'	=> '0',
+												   );
 				}// end if
 			}// end foreach
 			unset($link);
@@ -3718,12 +3723,12 @@ class Asset extends MySource_Object
 						if (!$http && !$https) continue;
 
 						$values = Array(
-										'url'        => $new_url,
-										'assetid'    => $this->id,
-										'http'       => $http,
-										'https'      => $https,
-										'root_urlid' => $parent_urls[$j]['root_urlid'],
-										);
+									'url'			=> $new_url,
+									'assetid'		=> $this->id,
+									'http'			=> $http,
+									'https'			=> $https,
+									'root_urlid'	=> $parent_urls[$j]['root_urlid'],
+								  );
 
 						$done_urls[$new_url] = $values;
 
@@ -3744,18 +3749,18 @@ class Asset extends MySource_Object
 							foreach ($parent_lookup_values[$parent_urls[$j]['url']] as $name => $value_data) {
 								if (isset($lookup_values[$name])) continue;
 								$lookup_values[$name] = Array(
-															  'value' => $value_data['value'],
-															  'inhd'  => '1',
-															  );
+															'value'	=> $value_data['value'],
+															'inhd'	=> '1',
+														);
 							}
 						}
 						foreach ($lookup_values as $name => $data) {
 							$values = Array(
-											'url'   => $new_url,
-											'name'  => $name,
-											'value' => $data['value'],
-											'inhd'  => $data['inhd'],
-											);
+										'url'	=> $new_url,
+										'name'	=> $name,
+										'value'	=> $data['value'],
+										'inhd'	=> $data['inhd'],
+									  );
 							if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lookup_value', $values)) {
 								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 								return false;
@@ -3839,11 +3844,11 @@ class Asset extends MySource_Object
 			foreach ($values_data as $value_name => $value_data) {
 
 				$insert_values = Array(
-									   'url'   => $url,
-									   'name'  => $value_name,
-									   'value' => $value_data['value'],
-									   'inhd'  => '0',
-									   );
+									'url'	=> $url,
+									'name'	=> $value_name,
+									'value'	=> $value_data['value'],
+									'inhd'	=> '0',
+								 );
 				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lookup_value', $insert_values)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
@@ -4002,11 +4007,11 @@ class Asset extends MySource_Object
 		if ($force_processing != 1 && (!is_array($keydata) || $score <= 0)) return false;
 
 		array_push($keydata, Array(
-								   'value'     => $value,
-								   'type'      => $type,
-								   'component' => $component,
-								   'score'     => $score,
-								   )
+								'value'		=> $value,
+								'type'		=> $type,
+								'component'	=> $component,
+								'score'		=> $score,
+							 )
 		);
 
 		return true;

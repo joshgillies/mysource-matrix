@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.62 2005/03/10 23:45:25 gsherwood Exp $
+* $Id: asset_management.inc,v 1.63 2005/03/28 23:11:24 gsherwood Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -59,16 +59,17 @@ class Asset_Management extends MySource_Object
 	/**
 	* @var array
 	* Holds all the vars used for this Asset in the form
-	* Array(var_name => Array(
-	*						'added'        => '0.0.1',
-	*						'removed'      => '9.9.0',
-	*						'type'         => 'text|...|...',
-	*						'default'      => '',
-	*						['uniq'        => true|false,]
-	*						['description' => 'description',]
-	*						['update_fn'   => 'update_var_name',]
-	*						)
-	*		)
+	* Array(
+	*   var_name => Array(
+	*                 'added'        => '0.0.1',
+	*                 'removed'      => '9.9.0',
+	*                 'type'         => 'text|...|...',
+	*                 'default'      => '',
+	*                 ['uniq'        => true|false],
+	*                 ['description' => 'description'],
+	*                 ['update_fn'   => 'update_var_name'],
+	*               )
+	* )
 	*
 	* NOTE: should only ever be set in a sub-class
 	*/
@@ -77,10 +78,11 @@ class Asset_Management extends MySource_Object
 	/**
 	* @var array
 	* Holds all the searchable components for this assets.
-	* Array (component_name => Array(
-	*				'description'		=> 'description',
-	*				'default_weighting' => '1'
-	*			)
+	* Array (
+	*   component_name => Array(
+	*                       'description'       => 'description',
+	*                       'default_weighting' => '1',
+	*                     )
 	* )
 	*
 	* NOTE: should only ever be set in a sub-class
@@ -357,7 +359,7 @@ class Asset_Management extends MySource_Object
 	* Returns all the variable names that are available for this asset type
 	* - any inherited vars and those defined in this management class
 	*
-	* @return Array(string)
+	* @return array(string)
 	* @access public
 	*/
 	function _getAllVars()
@@ -382,7 +384,7 @@ class Asset_Management extends MySource_Object
 	/**
 	* Returns all files this asset wants installed/updated into the data directory
 	*
-	* @return Array(string)
+	* @return array(string)
 	* @access private
 	*/
 	function _getFileList()
@@ -396,7 +398,7 @@ class Asset_Management extends MySource_Object
 	* returns a list of events that this asset is listening for
 	*
 	* @access public
-	* @return Array(mixed)
+	* @return array
 	*/
 	function getEventList()
 	{
@@ -685,18 +687,18 @@ class Asset_Management extends MySource_Object
 
 				// if this asset type has overidden, use it's values
 				if (isset($this->vars[$name]['parameters'])) {
-					$parameters_value		= serialize($this->vars[$name]['parameters']);
-					$parameters_type_code	= $type_code;
+					$parameters_value     = serialize($this->vars[$name]['parameters']);
+					$parameters_type_code = $type_code;
 
 				// otherwise reset to inherit from parents
 				} else if (!empty($parent_attr)) {
-					$parameters_value		= $parent_attr['parameters_val'];
-					$parameters_type_code	= $parent_attr['parameters_type_code'];
+					$parameters_value     = $parent_attr['parameters_val'];
+					$parameters_type_code = $parent_attr['parameters_type_code'];
 
 				// no parent ? set to blank for ourselves
 				} else {
-					$parameters_value		= serialize(Array());
-					$parameters_type_code	= $type_code;
+					$parameters_value     = serialize(Array());
+					$parameters_type_code = $type_code;
 				}
 
 				if ($parameters_type_code != $curr_attr['parameters_type_code'] || $parameters_value != $curr_attr['parameters_val']) {
@@ -919,7 +921,7 @@ class Asset_Management extends MySource_Object
 	* Returns all the components names that are available for this asset type
 	* - any inherited vars and those defined in this management class
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function _getAllComponents()
@@ -937,9 +939,9 @@ class Asset_Management extends MySource_Object
 		foreach ($this->components as $component => $data) {
 			if (!isset($components[$component])) {
 				$components[$component] = Array(
-												'description'       => isset($data['description']) ? $data['description'] : $component,
-												'default_weighting' => isset($data['default_weighting']) ? $data['default_weighting'] : '1',
-												);
+											'description'		=> isset($data['description']) ? $data['description'] : $component,
+											'default_weighting'	=> isset($data['default_weighting']) ? $data['default_weighting'] : '1',
+										  );
 			} else {
 				if (isset($data['description'])) $components[$component]['description'] = $data['description'];
 				if (isset($data['default_weighting'])) $components[$component]['default_weighting'] = $data['default_weighting'];
@@ -980,16 +982,16 @@ class Asset_Management extends MySource_Object
 			$xml_array->close();
 
 			$GLOBALS['SQ_ASSET_MANAGEMENT_ASSET_INFO'][$file] = Array(
-																	  'type_code'       => strtolower($info['type_code']['value']),
-																	  'package'         => $info['package']['value'],
-																	  'name'            => $info['name']['value'],
-																	  'version'         => $info['version']['value'],
-																	  'description'     => $info['description']['value'],
-																	  'instantiable'    => ($info['instantiable']['value'] == 'yes') ? 1 : 0,
-																	  'allowed_access'  => $info['allowed_access']['value'],
-																	  'parent_type'     => $info['parent_type']['value'],
-																	  'flash_menu_path' => (isset($info['flash_menu_path']['value'])) ? $info['flash_menu_path']['value'] : '',
-																	  );
+																	'type_code'			=> strtolower($info['type_code']['value']),
+																	'package'			=> $info['package']['value'],
+																	'name'				=> $info['name']['value'],
+																	'version'			=> $info['version']['value'],
+																	'description'		=> $info['description']['value'],
+																	'instantiable'		=> ($info['instantiable']['value'] == 'yes') ? 1 : 0,
+																	'allowed_access'	=> $info['allowed_access']['value'],
+																	'parent_type'		=> $info['parent_type']['value'],
+																	'flash_menu_path'	=> (isset($info['flash_menu_path']['value'])) ? $info['flash_menu_path']['value'] : '',
+																);
 
 		}//end if
 
@@ -1003,7 +1005,7 @@ class Asset_Management extends MySource_Object
 	*
 	* @see XML_Array::XML_Array()
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function getAssetArrayPaths()

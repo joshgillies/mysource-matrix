@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.12 2005/03/21 06:14:12 gsherwood Exp $
+* $Id: external_tools_config.inc,v 1.13 2005/03/28 23:11:25 gsherwood Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -46,13 +46,13 @@ class External_Tools_Config extends Config
 	* @var Array()
 	*/
 	var $config_vars = Array(
-							 'SQ_TOOL_HTML_TIDY_PATH'    => Array('editable' => 1, 'default' => '/usr/bin/tidy'),
-							 'SQ_TOOL_HTML_TIDY_ENABLED' => Array('editable' => 1, 'default' => false),
-							 'SQ_TOOL_PDFTOHTML_PATH'    => Array('editable' => 1, 'default' => '/usr/bin/pdftohtml'),
-							 'SQ_TOOL_PDFTOHTML_ENABLED' => Array('editable' => 1, 'default' => false),
-							 'SQ_TOOL_ANTIWORD_PATH'     => Array('editable' => 1, 'default' => '/usr/bin/antiword'),
-							 'SQ_TOOL_ANTIWORD_ENABLED'  => Array('editable' => 1, 'default' => false),
-							 );
+						'SQ_TOOL_HTML_TIDY_PATH'	=> Array('editable' => 1, 'default' => '/usr/bin/tidy'),
+						'SQ_TOOL_HTML_TIDY_ENABLED'	=> Array('editable' => 1, 'default' => false),
+						'SQ_TOOL_PDFTOHTML_PATH'	=> Array('editable' => 1, 'default' => '/usr/bin/pdftohtml'),
+						'SQ_TOOL_PDFTOHTML_ENABLED'	=> Array('editable' => 1, 'default' => false),
+						'SQ_TOOL_ANTIWORD_PATH'		=> Array('editable' => 1, 'default' => '/usr/bin/antiword'),
+						'SQ_TOOL_ANTIWORD_ENABLED'	=> Array('editable' => 1, 'default' => false),
+					   );
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.45 2005/03/24 05:13:45 arailean Exp $
+* $Id: internal_message.inc,v 1.46 2005/03/28 23:11:25 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -301,9 +301,9 @@ class Internal_Message extends MySource_Object
 			$mail =& Mail::factory('mail', "-f$from_email");
 
 			$hdrs = Array(
-						  'From'    => $from_string,
-						  'Subject' => $this->subject,
-						  );
+						'From'		=> $from_string,
+						'Subject'	=> $this->subject,
+					);
 
 			// send each user a message - via email and into their internal message inbox
 			foreach ($send_to as $userid) {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.35 2005/03/02 01:09:04 gsherwood Exp $
+* $Id: messaging_service.inc,v 1.36 2005/03/28 23:11:25 gsherwood Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -54,9 +54,9 @@ class Messaging_Service extends MySource_Object
 	* @var Array()
 	*/
 	var $_levels = Array(
-						 'queues' => Array(),
-						 'logs'   => Array(),
-						 );
+					'queues'	=> Array(),
+					'logs'		=> Array(),
+				   );
 
 
 	/**
@@ -266,7 +266,7 @@ class Messaging_Service extends MySource_Object
 	* but messages that want to utilise other options need to set these manually
 	* so as to not clutter this functions
 	*
-	* @param Array(int)	$to			an array of user or group IDs to send this message to
+	* @param array(int)	$to			an array of user or group IDs to send this message to
 	* @param string		$subject	the subject of the message (keep it short)
 	* @param string		$body		the main body of the message
 	* @param string		$type		the log type of this message (if any)
@@ -293,7 +293,7 @@ class Messaging_Service extends MySource_Object
 	/**
 	* Sends all messages passed in, doing some amalgamation of msg bodies for same user and same subject
 	*
-	* @param Array()	$msgs	an array of Internal_Message to send
+	* @param array	$msgs	an array of Internal_Message to send
 	*
 	* @return void
 	* @access public
@@ -451,10 +451,10 @@ class Messaging_Service extends MySource_Object
 	* Get logged messages of the passed typed
 	*
 	* This is just a cut down version of getMessages so you can get logs without
-	* having to call getMessages will a bunch of Array() and NULL arguments
+	* having to call getMessages will a bunch of array and NULL arguments
 	*
-	* @param string			$type			the type of the message eg. asset.attributes
-	* @param array			$parameters		can limit returned messages to those with these params set
+	* @param string	$type		the type of the message eg. asset.attributes
+	* @param array	$parameters	can limit returned messages to those with these params set
 	*
 	* @return array
 	* @access public

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.23 2005/03/02 00:41:21 gsherwood Exp $
+* $Id: settings.inc,v 1.24 2005/03/28 23:11:25 gsherwood Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 */
 
@@ -107,21 +107,21 @@ function paintSettings(&$owner, &$o, &$ei)
 					require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 
 					$parameters = Array(
-										'min'          => '0000-00-00 00:00:00',
-										'max'          => '9999-12-31 12:59:59',
-										'allow_circa'  => '0',
-										'show'         => Array('y', 'm', 'd', 'h', 'i', 's'),
-										'null'         => Array('y', 'm', 'd', 'h', 'i', 's'),
-										'style'        => Array(
-																'y' => 't',
-																'm' => 's',
-																'd' => 's',
-																'h' => 's',
-																'i' => 's',
-																's' => 's',
-																),
-										'print_format' => 'l, F jS, Y H:i:s',
-										);
+									'min'			=> '0000-00-00 00:00:00',
+									'max'			=> '9999-12-31 12:59:59',
+									'allow_circa'	=> '0',
+									'show'			=> Array('y', 'm', 'd', 'h', 'i', 's'),
+									'null'			=> Array('y', 'm', 'd', 'h', 'i', 's'),
+									'style'			=> Array(
+														'y'	=> 't',
+														'm'	=> 's',
+														'd'	=> 's',
+														'h'	=> 's',
+														'i'	=> 's',
+														's'	=> 's',
+													   ),
+									'print_format'	=> 'l, F jS, Y H:i:s',
+								  );
 
 					if ($date_type == 'created') {
 						$value  = (!empty($owner->created)) ? ts_iso8601($owner->created) : '---------- --:--:--';
@@ -145,13 +145,13 @@ function paintSettings(&$owner, &$o, &$ei)
 								var TIME_UNITS = new Array();
 								<?php
 								$units = Array(
-											   'Y' => 'y',
-											   'n' => 'm',
-											   'j' => 'd',
-											   'G' => 'h',
-											   'i' => 'i',
-											   's' => 's',
-											   );
+											'Y'	=> 'y',
+											'n'	=> 'm',
+											'j'	=> 'd',
+											'G'	=> 'h',
+											'i'	=> 'i',
+											's'	=> 's',
+										 );
 
 								foreach ($units as $php_unit => $js_unit) {
 									echo 'TIME_UNITS[\''.$js_unit.'\'] = \''.date($php_unit).'\';';
@@ -348,13 +348,13 @@ function paintSettings(&$owner, &$o, &$ei)
 
 				case 'designs' :
 					$system_designs = Array(
-											'design::system::frontend' => 'The Design that is to be used when displaying this asset on the frontend',
-											'design::system::login'    => 'The Design that is to be used whenever someone attempts to access this asset without permission',
-											);
+										'design::system::frontend'	=> 'The Design that is to be used when displaying this asset on the frontend',
+										'design::system::login'		=> 'The Design that is to be used whenever someone attempts to access this asset without permission',
+									  );
 					$our_designs = Array(
-										 'design::system::frontend' => 0,
-										 'design::system::login'    => 0,
-										 );
+									'design::system::frontend'	=> 0,
+									'design::system::login'		=> 0,
+								   );
 
 					$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_LINK_NOTICE, 'design', false);
 					foreach ($our_design_links as $link) {
@@ -536,21 +536,21 @@ function processSettings(&$owner, &$o, &$ei)
 
 			$value = '';
 			$parameters = Array(
-								'min'          => '0000-00-00 00:00:00',
-								'max'          => '9999-12-31 12:59:59',
-								'allow_circa'  => '0',
-								'show'         => Array('y', 'm', 'd', 'h', 'i', 's'),
-								'null'         => Array('y', 'm', 'd', 'h', 'i', 's'),
-								'style'        => Array(
-														'y' => 't',
-														'm' => 's',
-														'd' => 's',
-														'h' => 's',
-														'i' => 's',
-														's' => 's',
-														),
-								'print_format' => 'l, F jS, Y H:i:s',
-								);
+							'min'			=> '0000-00-00 00:00:00',
+							'max'			=> '9999-12-31 12:59:59',
+							'allow_circa'	=> '0',
+							'show'			=> Array('y', 'm', 'd', 'h', 'i', 's'),
+							'null'			=> Array('y', 'm', 'd', 'h', 'i', 's'),
+							'style'			=> Array(
+												'y'	=> 't',
+												'm'	=> 's',
+												'd'	=> 's',
+												'h'	=> 's',
+												'i'	=> 's',
+												's'	=> 's',
+											   ),
+							'print_format'	=> 'l, F jS, Y H:i:s',
+						  );
 
 			$date_field = new Datetime_Field($prefix.'_date_'.$date_type, $value, $parameters);
 			$date_field->processField();

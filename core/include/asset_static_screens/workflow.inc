@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.18 2005/03/02 00:41:21 gsherwood Exp $
+* $Id: workflow.inc,v 1.19 2005/03/28 23:11:25 gsherwood Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 */
 
@@ -756,10 +756,10 @@ function processWorkflow(&$owner, &$o, &$ei)
 			if ($cascade_changes) {
 				// cascading access of some kind, so queue it up for the HIPO
 				$schema_vars[] = Array(
-									   'granted'         => (int)$post_data['new']['granted'],
-									   'schemaid'        => (int)$post_data['new']['schemaid']['assetid'],
-									   'previous_access' => null,
-									   );
+									'granted'			=> (int)$post_data['new']['granted'],
+									'schemaid'			=> (int)$post_data['new']['schemaid']['assetid'],
+									'previous_access'	=> null,
+								 );
 			} else {
 				// lets do this ourselves
 				if (!$wfm->setSchema($owner->id, (int)$post_data['new']['schemaid']['assetid'], (int)$post_data['new']['granted'])) return $updated;
@@ -775,10 +775,10 @@ function processWorkflow(&$owner, &$o, &$ei)
 				$schemas = $wfm->getSchemas($owner->id);
 				$current_access = $schemas[$schemaid];
 				$schema_vars[] = Array(
-									   'granted'         => -1,
-									   'schemaid'        => $schemaid,
-									   'previous_access' => $current_access,
-									   );
+									'granted'			=> -1,
+									'schemaid'			=> $schemaid,
+									'previous_access'	=> $current_access,
+								 );
 			} else {
 				if (!$wfm->deleteSchema($owner->id, $schemaid)) return $updated;
 			}
@@ -789,10 +789,10 @@ function processWorkflow(&$owner, &$o, &$ei)
 		$schemas = $wfm->getSchemas($owner->id);
 		foreach ($schemas as $schemaid => $granted) {
 			$schema_vars[] = Array(
-								   'granted'         => $granted,
-								   'schemaid'        => $schemaid,
-								   'previous_access' => null,
-								   );
+								'granted'			=> $granted,
+								'schemaid'			=> $schemaid,
+								'previous_access'	=> null,
+							 );
 		}
 	}
 

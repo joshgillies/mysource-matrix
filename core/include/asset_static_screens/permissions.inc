@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.16 2005/03/02 00:41:21 gsherwood Exp $
+* $Id: permissions.inc,v 1.17 2005/03/28 23:11:25 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 */
 
@@ -303,10 +303,10 @@ function processPermissions(&$owner, &$o, &$ei)
 			if ($cascade_changes) {
 				// cascading public access of some kind, so queue it up for the HIPO
 				$permission_vars[$perm][] = Array(
-												  'granted'         => (int)$post_data['public_access']['granted'],
-												  'userid'          => $public_userid,
-												  'previous_access' => null,
-												  );
+												'granted'			=> (int)$post_data['public_access']['granted'],
+												'userid'			=> $public_userid,
+												'previous_access'	=> null,
+											);
 			} else {
 				// lets do this ourselves
 				if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($owner->id, $public_userid, $perm, $post_data['public_access']['granted'])) return false;
@@ -321,10 +321,10 @@ function processPermissions(&$owner, &$o, &$ei)
 				if ($cascade_changes) {
 					// cascading access of some kind, so queue it up for the HIPO
 					$permission_vars[$perm][] = Array(
-													  'granted'         => (int)$post_data['new']['granted'],
-													  'userid'          => $post_data['new']['userid']['assetid'],
-													  'previous_access' => null,
-													  );
+													'granted'			=> (int)$post_data['new']['granted'],
+													'userid'			=> $post_data['new']['userid']['assetid'],
+													'previous_access'	=> null,
+												);
 				} else {
 					// lets do this ourselves
 					if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($owner->id, $post_data['new']['userid']['assetid'], $perm, $post_data['new']['granted'])) return false;
@@ -341,10 +341,10 @@ function processPermissions(&$owner, &$o, &$ei)
 					$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, null, false, false, true);
 					$current_access = $current[$userid];
 					$permission_vars[$perm][] = Array(
-													  'granted'         => -1,
-													  'userid'          => $userid,
-													  'previous_access' => $current_access,
-													  );
+													'granted'			=> -1,
+													'userid'			=> $userid,
+													'previous_access'	=> $current_access,
+												);
 				} else {
 					if (!$GLOBALS['SQ_SYSTEM']->am->deletePermission($owner->id, $userid, $perm)) return false;
 				}
@@ -355,10 +355,10 @@ function processPermissions(&$owner, &$o, &$ei)
 			$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, null, false, false, true);
 			foreach ($current as $userid => $granted) {
 				$permission_vars[$perm][] = Array(
-												  'granted'         => $granted,
-												  'userid'          => $userid,
-												  'previous_access' => null,
-												  );
+												'granted'			=> $granted,
+												'userid'			=> $userid,
+												'previous_access'	=> null,
+											);
 			}
 		}
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.291 2005/03/24 04:44:50 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.292 2005/03/28 23:11:25 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.291 $
+* @version $Revision: 1.292 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -482,9 +482,9 @@ class Asset_Manager extends MySource_Object
 		for ($i = 0; $i < count($offspring[$base_type_code]); $i++) {
 			$type = $offspring[$base_type_code][$i];
 			$arr[$type] = Array(
-								'name' => $this->_asset_types[$type]['name'],
-								'subs' => $this->_recurseGetAssetTypeHierarchy($offspring, $type),
-								);
+							'name'	=> $this->_asset_types[$type]['name'],
+							'subs'	=> $this->_recurseGetAssetTypeHierarchy($offspring, $type),
+						  );
 		}
 		return $arr;
 
@@ -1330,17 +1330,17 @@ class Asset_Manager extends MySource_Object
 		$initial_version = '0.0.0';
 
 		$values = Array(
-						'assetid'        => $assetid,
-						'version'        => $initial_version,
-						'type_code'      => $source->type(),
-						'name'           => $source->name.' - clone',
-						'short_name'     => $source->short_name.' - clone',
-						'status'         => SQ_STATUS_UNDER_CONSTRUCTION,
-						'created'        => ts_iso8601($now),
-						'created_userid' => $userid,
-						'updated'        => ts_iso8601($now),
-						'updated_userid' => $userid,
-						);
+					'assetid'			=> $assetid,
+					'version'			=> $initial_version,
+					'type_code'			=> $source->type(),
+					'name'				=> $source->name.' - clone',
+					'short_name'		=> $source->short_name.' - clone',
+					'status'			=> SQ_STATUS_UNDER_CONSTRUCTION,
+					'created'			=> ts_iso8601($now),
+					'created_userid'	=> $userid,
+					'updated'			=> ts_iso8601($now),
+					'updated_userid'	=> $userid,
+				  );
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast', $values)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return $null;
@@ -1426,27 +1426,28 @@ class Asset_Manager extends MySource_Object
 	* and the specified components will be cloned to them as well.
 	*
 	* @param object Asset	&$source			the source asset that we are creating a clone of
-	* @param Array			&$link				information used to create the initial link,
+	* @param array			&$link				information used to create the initial link,
 	* <PRE>
-	* Array ('asset'         => [ref major asset to create link under],
-	*        'link_type'     => SQ_LINK_?,
-	*        'value'         => [link value],
-	*        'sort_order'    => [link sort order],
-	*        'is_dependant'  => [0|1],
-	*        'is_exclusive'  => [0|1]
-	*        )
+	* Array (
+	*   'asset'         => [ref major asset to create link under],
+	*   'link_type'     => SQ_LINK_?,
+	*   'value'         => [link value],
+	*   'sort_order'    => [link sort order],
+	*   'is_dependant'  => [0|1],
+	*   'is_exclusive'  => [0|1]
+	* );
 	* </PRE>
-	* @param Array			&$clone_map			a map for that can be used for re-indexing data held in
+	* @param array			&$clone_map			a map for that can be used for re-indexing data held in
 	*											assets of the form Array([old asset id] => [new asset id])
 	* @param array			$components	the wanted components to clone,
 	* <PRE>
 	* Array(
-	*     'attributes',
-	*     'metadata_schemas',
-	*     'metadata',
-	*     'workflow',
-	*     'permissions',
-	*     'data'              // data directory
+	*   'attributes',
+	*   'metadata_schemas',
+	*   'metadata',
+	*   'workflow',
+	*   'permissions',
+	*   'data'// data directory
 	* );
 	* </PRE>
 	* or alternately
@@ -1454,7 +1455,7 @@ class Asset_Manager extends MySource_Object
 	* Array('all');
 	* </PRE>
 	* @param boolean		$clone_dependants	if TRUE the dependants of the source asset will be cloned
-	*												and will have their sources components cloned
+	*											and will have their sources components cloned
 	*
 	* @return &object Asset		the clone of the source, NULL on error
 	* @access public
@@ -1493,13 +1494,13 @@ class Asset_Manager extends MySource_Object
 
 			if (!empty($dependant_links)) {
 				$create_link = Array(
-									 'asset'        => &$clone,
-									 'link_type'    => null,
-									 'value'        => null,
-									 'sort_order'   => -1,
-									 'is_dependant' => '1',
-									 'is_exclusive' => '0',
-									 );
+								'asset'			=> &$clone,
+								'link_type'		=> null,
+								'value'			=> null,
+								'sort_order'	=> -1,
+								'is_dependant'	=> '1',
+								'is_exclusive'	=> '0',
+							   );
 
 				foreach ($dependant_links as $data) {
 					// If this asset has already been cloned in this duplication run
@@ -1990,8 +1991,8 @@ class Asset_Manager extends MySource_Object
 	* @param boolean	$exclusive			The exclusive status for all the links must be
 	*										this (if not null)
 	*
-	* @return Array()	array of link info if only one link and force_array=false,
-	*                   array of arrays of link info otherwise
+	* @return array		array of link info if only one link and force_array=false,
+	* 					array of arrays of link info otherwise
 	* @access public
 	*/
 	function getLinkByAsset($assetid, $other_assetid, $link_types=null, $value=null, $side_of_link='major', $force_array=false, $dependant=null, $exclusive=null)
@@ -2120,7 +2121,7 @@ class Asset_Manager extends MySource_Object
 	* @param integer	$link_type	the type of links to get
 	*
 	* @access public
-	* @return Array()
+	* @return array
 	*/
 	function getAllChildLinks($assetid, $link_type=0)
 	{
@@ -2257,10 +2258,10 @@ class Asset_Manager extends MySource_Object
 				if (isset($output_lineages[$asset_lineage]) && !$can_edit) continue;
 
 				$link_lineages[$linkid] = Array(
-												'linkid'    => $linkid,
-												'link_type' => $link_type,
-												'lineage'   => $asset_lineage,
-												);
+											'linkid'	=> $linkid,
+											'link_type'	=> $link_type,
+											'lineage'	=> $asset_lineage,
+										  );
 			}
 
 		}//end foreach result
@@ -2400,7 +2401,7 @@ class Asset_Manager extends MySource_Object
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
-	* @return Array()	an array of the form Array([assetid] => [type_code])
+	* @return array	an array of the form Array([assetid] => [type_code])
 	* @access public
 	*/
 	function getDependantChildren($assetid, $type_code='', $strict_type_code=true)
@@ -2445,7 +2446,7 @@ class Asset_Manager extends MySource_Object
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
-	* @return Array()	returns an array of assetids
+	* @return array	returns an array of assetids
 	* @access public
 	*/
 	function getDependantParents($assetid, $type_code='', $strict_type_code=true)
@@ -2476,14 +2477,15 @@ class Asset_Manager extends MySource_Object
 	*
 	* The array returned for each asset is in the following format:
 	* <PRE>
-	* Array('assetid'    => '155',
-	*       'majorid'    => '151',
-	*       'type_code'  => 'page_standard',
-	*       'status'     => '2',
-	*       'name'       => '(( page2 ))',
-	*       'short_name' => '(( page2 ))',
-	*       'path'       => 'page2',
-	*       'sort_order' => '0'
+	* Array(
+	*   'assetid'    => '155',
+	*   'majorid'    => '151',
+	*   'type_code'  => 'page_standard',
+	*   'status'     => '2',
+	*   'name'       => '(( page2 ))',
+	*   'short_name' => '(( page2 ))',
+	*   'path'       => 'page2',
+	*   'sort_order' => '0',
 	* )
 	* </PRE>
 	*
@@ -2508,7 +2510,7 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Does the work for getAssetTree
 	*
-	* @param int|Array(int)	$majorids		the majorids to traverse the tree from
+	* @param int|array(int)	$majorids		the majorids to traverse the tree from
 	* @param &Array			$tree_data		the data that is created recursively
 	* @param integer		$levels			the number of levels to traverse (if null, traverse all levels)
 	* @param Array			$exclude_list	an array of assetid to exclude from the tree
@@ -3022,10 +3024,10 @@ class Asset_Manager extends MySource_Object
 			if ((string) $existing_treeid == '') {
 
 				$values = Array(
-								'treeid'   => $free_childid,
-								'linkid'   => $linkid,
-								'num_kids' => $minor_tree['num_kids'],
-								);
+							'treeid'	=> $free_childid,
+							'linkid'	=> $linkid,
+							'num_kids'	=> $minor_tree['num_kids'],
+						  );
 
 				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lnk_tree', $values)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -3041,10 +3043,10 @@ class Asset_Manager extends MySource_Object
 				$select_from = SQ_TABLE_PREFIX.'ast_lnk_tree t INNER JOIN '.SQ_TABLE_PREFIX.'ast_lnk l ON t.linkid = l.linkid';
 
 				$values = Array(
-								'treeid'   => '(t.treeid || '.$db->quote($free_childid).')',
-								'linkid'   => $db->quote($linkid),
-								'num_kids' => $db->quote($minor_tree['num_kids']),
-								);
+							'treeid'	=> '(t.treeid || '.$db->quote($free_childid).')',
+							'linkid'	=> $db->quote($linkid),
+							'num_kids'	=> $db->quote($minor_tree['num_kids']),
+						  );
 				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsertSelect('ast_lnk_tree', $select_from, $values, $where)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return 0;
@@ -3075,10 +3077,10 @@ class Asset_Manager extends MySource_Object
 								INNER JOIN '.SQ_TABLE_PREFIX.'ast_lnk pl ON pt.linkid = pl.linkid,
 								'.SQ_TABLE_PREFIX.'ast_lnk_tree ct';
 				$values = Array(
-								'treeid'   => 'pt.treeid || '.$db->quote($free_childid).' || SUBSTRING(ct.treeid FROM '.$db->quote(strlen($minor_tree['treeid']) + 1).')',
-								'linkid'   => 'ct.linkid',
-								'num_kids' => 'ct.num_kids',
-								);
+							'treeid'	=> 'pt.treeid || '.$db->quote($free_childid).' || SUBSTRING(ct.treeid FROM '.$db->quote(strlen($minor_tree['treeid']) + 1).')',
+							'linkid'	=> 'ct.linkid',
+							'num_kids'	=> 'ct.num_kids',
+						  );
 				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsertSelect('ast_lnk_tree', $select_from, $values, $where)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return 0;
@@ -3099,17 +3101,17 @@ class Asset_Manager extends MySource_Object
 
 		// and finally insert the link
 		$values = Array(
-						'linkid'         => $linkid,
-						'majorid'        => $major->id,
-						'minorid'        => $minor->id,
-						'link_type'      => $link_type,
-						'value'          => $value,
-						'sort_order'     => $sort_order,
-						'is_dependant'   => (($dependant) ? '1' : '0'),
-						'is_exclusive'   => (($exclusive) ? '1' : '0'),
-						'updated'        => ts_iso8601(time()),
-						'updated_userid' => $GLOBALS['SQ_SYSTEM']->currentUserId(),
-						);
+					'linkid'			=> $linkid,
+					'majorid'			=> $major->id,
+					'minorid'			=> $minor->id,
+					'link_type'			=> $link_type,
+					'value'				=> $value,
+					'sort_order'		=> $sort_order,
+					'is_dependant'		=> (($dependant) ? '1' : '0'),
+					'is_exclusive'		=> (($exclusive) ? '1' : '0'),
+					'updated'			=> ts_iso8601(time()),
+					'updated_userid'	=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
+				  );
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lnk', $values)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return 0;
@@ -3761,9 +3763,9 @@ class Asset_Manager extends MySource_Object
 			// we are going to set the treeid nodes that this link is associated
 			// with to zero so that we can find it as a gap when we createLink() later on
 			$values = Array(
-							'linkid'   => $db->quote('0'),
-							'num_kids' => $db->quote('0'),
-							);
+						'linkid'	=> $db->quote('0'),
+						'num_kids'	=> $db->quote('0'),
+					  );
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_lnk_tree', $values, 'linkid = '.$db->quote($linkid))) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -4060,11 +4062,11 @@ class Asset_Manager extends MySource_Object
 
 		// add the permission into the database
 		$values = Array(
-						'assetid'    => $assetid,
-						'userid'     => $userid,
-						'permission' => $permission,
-						'granted'    => (($granted) ? '1' : '0'),
-						);
+					'assetid'		=> $assetid,
+					'userid'		=> $userid,
+					'permission'	=> $permission,
+					'granted'		=> (($granted) ? '1' : '0'),
+				  );
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_perm', $values)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
@@ -4370,14 +4372,14 @@ class Asset_Manager extends MySource_Object
 				if (!is_null($index_page)) {
 					$paths = $index_page->getWebPaths();
 					$result[] = Array(
-									  'url'        => $result[0]['url'].((empty($paths)) ? '' : '/'.$paths[0]),
-									  'assetid'    => $index_page->id,
-									  'name'       => $index_page->name,
-									  'short_name' => $index_page->short_name,
-									  'type_code'  => $index_page->type(),
-									  'link_type'  => SQ_LINK_TYPE_3,
-									  'protocol'   => current_protocol(),
-									  );
+									'url'			=> $result[0]['url'].((empty($paths)) ? '' : '/'.$paths[0]),
+									'assetid'		=> $index_page->id,
+									'name'			=> $index_page->name,
+									'short_name'	=> $index_page->short_name,
+									'type_code'		=> $index_page->type(),
+									'link_type'		=> SQ_LINK_TYPE_3,
+									'protocol'		=> current_protocol(),
+								);
 				}//end if
 			}//end if
 		}//end if
@@ -4694,7 +4696,7 @@ class Asset_Manager extends MySource_Object
 	* @param boolean		$return_alternatives	return all paths but replace the bad paths
 	*												with a valid alternative
 	*
-	* @return Array(string)
+	* @return array(string)
 	* @access protected
 	*/
 	function webPathsInUse(&$major, $paths, $ignore_assetid=0, $return_alternatives=false)
@@ -4808,7 +4810,7 @@ class Asset_Manager extends MySource_Object
 	* 											Specify that links should be returned for assets the user has read,
 	* 											write, or admin access for. Leave NULL to ignore permissions.
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function generateGetLinksQuery($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $value=null, $dependant=null, $exclusive=null, $sort_by=null, $access=null)
@@ -4888,12 +4890,12 @@ class Asset_Manager extends MySource_Object
 		}
 
 		return Array(
-					 'select'   => $select,
-					 'from'     => $from,
-					 'where'    => $where,
-					 'group_by' => $group_by,
-					 'order_by' => $order_by,
-					 );
+				'select'	=> $select,
+				'from'		=> $from,
+				'where'		=> $where,
+				'group_by'	=> $group_by,
+				'order_by'	=> $order_by,
+			   );
 
 	}//end generateGetLinksQuery()
 
@@ -4920,7 +4922,7 @@ class Asset_Manager extends MySource_Object
 	*											write, or admin access for. Leave NULL to ignore permissions.
 	* @param boolean		$inc_type_code		whether to include the type code in the SELECT or not
 	*
-	* @return Array()		returns an array of parts of the SQL statment
+	* @return array		returns an array of parts of the SQL statment
 	* @access public
 	* @see getChildren()
 	*/
@@ -5012,11 +5014,11 @@ class Asset_Manager extends MySource_Object
 		}
 
 		return Array(
-					 'select'   => $select,
-					 'from'     => $from,
-					 'where'    => $where,
-					 'order_by' => $order_by,
-					 );
+				'select'	=> $select,
+				'from'		=> $from,
+				'where'		=> $where,
+				'order_by'	=> $order_by,
+			   );
 
 	}//end generateGetChildrenQuery()
 
@@ -5106,11 +5108,11 @@ class Asset_Manager extends MySource_Object
 		}
 
 		return Array(
-					 'select'   => $select,
-					 'from'     => $from,
-					 'where'    => $where,
-					 'order_by' => $order_by,
-					 );
+				'select'	=> $select,
+				'from'		=> $from,
+				'where'		=> $where,
+				'order_by'	=> $order_by,
+			   );
 
 	}//end generateGetParentsQuery()
 

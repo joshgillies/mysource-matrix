@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_config.inc,v 1.18 2005/03/22 22:17:40 arailean Exp $
+* $Id: system_asset_config.inc,v 1.19 2005/03/28 23:11:25 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation system asset config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 */
 class System_Asset_Config extends Config
@@ -41,8 +41,8 @@ class System_Asset_Config extends Config
 
 	// Dummy entry for the printing of the system asset() fn
 	var $config_vars = Array(
-							 'PRINT_SYSTEM_ASSETS' => Array('editable' => 0, 'default' => ''),
-							 );
+						'PRINT_SYSTEM_ASSETS'	=> Array('editable' => 0, 'default' => ''),
+					   );
 
 
 	/**

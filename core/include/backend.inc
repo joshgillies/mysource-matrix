@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.120 2005/03/24 04:41:45 ndvries Exp $
+* $Id: backend.inc,v 1.121 2005/03/28 23:11:25 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.120 $
+* @version $Revision: 1.121 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -211,11 +211,11 @@ class Backend extends MySource_Object
 		}
 
 		$frame_urls = Array(
-							'header'  => $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=header',
-							'main'    => $main_url,
-							'sidenav' => $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=sidenav',
-							'resizer' => $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=resizer',
-							);
+						'header'	=> $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=header',
+						'main'		=> $main_url,
+						'sidenav'	=> $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=sidenav',
+						'resizer'	=> $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=resizer',
+					  );
 
 		$limbo_hipo = SQ_IN_LIMBO && (strpos($main_url, 'SQ_ACTION=hipo') !== false);
 
@@ -592,58 +592,58 @@ class Backend extends MySource_Object
 					if (!SQ_IN_LIMBO) {
 						if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 							$options[] = Array(
-											   'url'    => $this->getBackendUrl('main').'&backend_section=config',
-											   'target' => 'sq_main',
-											   'title'  => 'System Configuration',
-											   'icon'   => 'system_config.png',
-											   );
+											'url'		=> $this->getBackendUrl('main').'&backend_section=config',
+											'target'	=> 'sq_main',
+											'title'		=> 'System Configuration',
+											'icon'		=> 'system_config.png',
+										 );
 						}
 
 						if ($GLOBALS['SQ_SYSTEM']->userRoot()) {
 							$options[] = Array(
-											   'url'    => $this->getBackendUrl('main').'&backend_section=maps',
-											   'target' => 'sq_main',
-											   'title'  => 'Automated Patching System',
-											   'icon'   => 'maps.png',
-											   );
+											'url'		=> $this->getBackendUrl('main').'&backend_section=maps',
+											'target'	=> 'sq_main',
+											'title'		=> 'Automated Patching System',
+											'icon'		=> 'maps.png',
+										 );
 						}
 
 						$options[] = Array(
-										   'url'    => $this->getBackendUrl('main').'&backend_section=tools',
-										   'target' => 'sq_main',
-										   'title'  => 'Tools',
-										   'icon'   => 'whereami.png',
-										   );
+										'url'		=> $this->getBackendUrl('main').'&backend_section=tools',
+										'target'	=> 'sq_main',
+										'title'		=> 'Tools',
+										'icon'		=> 'whereami.png',
+									 );
 
 						$options[] = Array(
-										   'url'    => $this->getBackendUrl('main').'&backend_section=hipo_herder',
-										   'target' => 'sq_main',
-										   'title'  => 'HIPO Herder',
-										   'icon'   => 'hipo_herder.png',
-										   );
+										'url'		=> $this->getBackendUrl('main').'&backend_section=hipo_herder',
+										'target'	=> 'sq_main',
+										'title'		=> 'HIPO Herder',
+										'icon'		=> 'hipo_herder.png',
+									 );
 
 						$options[] = Array(
-										   'url'    => $this->getBackendUrl('main').'&backend_section=am',
-										   'target' => 'sq_main',
-										   'title'  => 'Asset Tree',
-										   'icon'   => 'asset_tree.png',
-										   );
+										'url'		=> $this->getBackendUrl('main').'&backend_section=am',
+										'target'	=> 'sq_main',
+										'title'		=> 'Asset Tree',
+										'icon'		=> 'asset_tree.png',
+									 );
 
 						$options[] = Array(
-										   'url'    => $_SERVER['PHP_SELF'].'?SQ_ACTION=logout',
-										   'target' => '_top',
-										   'title'  => 'Logout',
-										   'icon'   => 'logout.png',
-										   );
+										'url'		=> $_SERVER['PHP_SELF'].'?SQ_ACTION=logout',
+										'target'	=> '_top',
+										'title'		=> 'Logout',
+										'icon'		=> 'logout.png',
+									 );
 
 					} else {
 
 						$options[] = Array(
-										   'url'    => current_url(true, true),
-										   'target' => '_top',
-										   'title'  => 'Exit Editing Mode',
-										   'icon'   => 'exit_limbo.png',
-										   );
+										'url'		=> current_url(true, true),
+										'target'	=> '_top',
+										'title'		=> 'Exit Editing Mode',
+										'icon'		=> 'exit_limbo.png',
+									 );
 
 					}
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.51 2005/03/24 04:58:39 arailean Exp $
+* $Id: system_config.inc,v 1.52 2005/03/28 23:11:25 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -41,48 +41,48 @@ class System_Config extends Config
 	/**
 	* Holds the definitions for all the constants managed by this configuration object
 	* In the form : Array([var name] => Array('editable' => [boolean], 'default' => [mixed scalar]))
-	* @var Array()
+	* @var array
 	*/
 	var $config_vars = Array(
-							 'SQ_CONF_DB_DSN'                    => Array('editable' => 1, 'default' => ''),
-							 'SQ_CONF_DB2_DSN'                   => Array('editable' => 1, 'default' => ''),
-							 'SQ_CONF_PEAR_PATH'                 => Array('editable' => 0, 'default' => ''),
-							 'SQ_CONF_BACKEND_SUFFIX'            => Array('editable' => 1, 'default' => '_admin'),
-							 'SQ_CONF_LIMBO_SUFFIX'              => Array('editable' => 1, 'default' => '_edit'),
-							 'SQ_CONF_ASSET_TREE_BASE'           => Array('editable' => 0, 'default' => 36),
-							 'SQ_CONF_ASSET_TREE_SIZE'           => Array('editable' => 0, 'default' =>  4),
-							 'SQ_CONF_ROLLBACK_ENABLED'          => Array('editable' => 0, 'default' => '0'),
-							 'SQ_CONF_DEBUG'                     => Array('editable' => 1, 'default' => 0),
-							 'SQ_CONF_SYSTEM_NAME'               => Array('editable' => 1, 'default' => 'The System'),
-							 'SQ_CONF_SYSTEM_OWNER'              => Array('editable' => 1, 'default' => ''),
-							 'SQ_CONF_SYSTEM_ROOT_URLS'          => Array('editable' => 1, 'default' => ''),
-							 'SQ_CONF_DEFAULT_EMAIL'             => Array('editable' => 1, 'default' => ''),
-							 'SQ_CONF_TECH_EMAIL'                => Array('editable' => 1, 'default' => ''),
-							 'SQ_CONF_MAX_LOGIN_ATTEMPTS'        => Array('editable' => 1, 'default' => 3),
-							 'SQ_CONF_MAX_IDLE_TIME'             => Array('editable' => 1, 'default' => 6000),
-							 'SQ_CONF_REFRESH_INTERVAL'          => Array('editable' => 1, 'default' => 120),
-							 'SQ_CONF_LOCK_LENGTH'               => Array('editable' => 1, 'default' => 600),
-							 'SQ_CONF_ERRORS_HIDE_FRONTEND'      => Array('editable' => 1, 'default' => false),
-							 'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE' => Array('editable' => 1, 'default' => 'en'),
-							 'SQ_CONF_DEFAULT_CHARACTER_SET'     => Array('editable' => 1, 'default' => 'iso-8859-1'),
-							 'SQ_CONF_ALLOW_IP_CHANGE'           => Array('editable' => 1, 'default' => '0'),
-							 'SQ_CONF_COMMIT_BUTTON_TEXT'        => Array('editable' => 1, 'default' => 'Commit'),
-							 'SQ_CONF_LOG_EXTENSION'             => Array('editable' => 0, 'default' => '.log'),
-							 'SQ_CONF_LOG_FILE_SYSTEM'           => Array('editable' => 0, 'default' => 'system'),
-							 'SQ_CONF_LOG_FILE_ERROR'            => Array('editable' => 0, 'default' => 'error'),
-							 'SQ_CONF_LOG_ERRORS'                => Array('editable' => 1, 'default' => true),
-							 'SQ_CONF_ROOT_IDENTIFIER'           => Array('editable' => 0, 'default' => "[SYSTEM_ROOT]"),
-							 );
+						'SQ_CONF_DB_DSN'					=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_DB2_DSN'					=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_PEAR_PATH'					=> Array('editable' => 0, 'default' => ''),
+						'SQ_CONF_BACKEND_SUFFIX'			=> Array('editable' => 1, 'default' => '_admin'),
+						'SQ_CONF_LIMBO_SUFFIX'				=> Array('editable' => 1, 'default' => '_edit'),
+						'SQ_CONF_ASSET_TREE_BASE'			=> Array('editable' => 0, 'default' => 36),
+						'SQ_CONF_ASSET_TREE_SIZE'			=> Array('editable' => 0, 'default' =>  4),
+						'SQ_CONF_ROLLBACK_ENABLED'			=> Array('editable' => 0, 'default' => '0'),
+						'SQ_CONF_DEBUG'						=> Array('editable' => 1, 'default' => 0),
+						'SQ_CONF_SYSTEM_NAME'				=> Array('editable' => 1, 'default' => 'The System'),
+						'SQ_CONF_SYSTEM_OWNER'				=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_SYSTEM_ROOT_URLS'			=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_DEFAULT_EMAIL'				=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_TECH_EMAIL'				=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_MAX_LOGIN_ATTEMPTS'		=> Array('editable' => 1, 'default' => 3),
+						'SQ_CONF_MAX_IDLE_TIME'				=> Array('editable' => 1, 'default' => 6000),
+						'SQ_CONF_REFRESH_INTERVAL'			=> Array('editable' => 1, 'default' => 120),
+						'SQ_CONF_LOCK_LENGTH'				=> Array('editable' => 1, 'default' => 600),
+						'SQ_CONF_ERRORS_HIDE_FRONTEND'		=> Array('editable' => 1, 'default' => false),
+						'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'	=> Array('editable' => 1, 'default' => 'en'),
+						'SQ_CONF_DEFAULT_CHARACTER_SET'		=> Array('editable' => 1, 'default' => 'iso-8859-1'),
+						'SQ_CONF_ALLOW_IP_CHANGE'			=> Array('editable' => 1, 'default' => '0'),
+						'SQ_CONF_COMMIT_BUTTON_TEXT'		=> Array('editable' => 1, 'default' => 'Commit'),
+						'SQ_CONF_LOG_EXTENSION'				=> Array('editable' => 0, 'default' => '.log'),
+						'SQ_CONF_LOG_FILE_SYSTEM'			=> Array('editable' => 0, 'default' => 'system'),
+						'SQ_CONF_LOG_FILE_ERROR'			=> Array('editable' => 0, 'default' => 'error'),
+						'SQ_CONF_LOG_ERRORS'				=> Array('editable' => 1, 'default' => true),
+						'SQ_CONF_ROOT_IDENTIFIER'			=> Array('editable' => 0, 'default' => "[SYSTEM_ROOT]"),
+					   );
 
 	/**
 	* Holds all the valid debug settings and their descriptions for SQ_CONF_DEBUG
 	* The keys are the bit elements and the values are the descriptions
-	* @var Array()
+	* @var array
 	*/
 	var $debug_options = Array(
-							   1 => 'Show File and Line number in error messages',
-							   2 => 'Show Stack Trace in error messages',
-							   );
+							1	=> 'Show File and Line number in error messages',
+							2	=> 'Show Stack Trace in error messages',
+						 );
 
 
 	/**

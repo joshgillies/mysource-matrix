@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.9 2005/03/02 00:41:21 gsherwood Exp $
+* $Id: logs.inc,v 1.10 2005/03/28 23:11:25 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Logs Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 
@@ -86,14 +86,14 @@ function paintLogs(&$owner, &$o, &$ei)
 				if (isset($_REQUEST['sq_workflow_log_version'])) {
 					$o->addFormActionGetVar('sq_workflow_log_version', $_REQUEST['sq_workflow_log_version']);
 					$logs = $ms->getLogs($active_log_type, Array(
-																 'assetid' => $owner->id,
-																 'version' => $_REQUEST['sq_workflow_log_version'],
-																 )
+															'assetid'	=> $owner->id,
+															'version'	=> $_REQUEST['sq_workflow_log_version'],
+														   )
 								);
 					$user_logs = $ms->getLogs($active_log_type.'.userlog', Array(
-																				 'assetid' => $owner->id,
-																				 'version' => $_REQUEST['sq_workflow_log_version'],
-																				 )
+																			'assetid'	=> $owner->id,
+																			'version'	=> $_REQUEST['sq_workflow_log_version'],
+																		   )
 								);
 				} else {
 					$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id));

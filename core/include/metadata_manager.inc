@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.71 2005/03/15 01:24:10 amiller Exp $
+* $Id: metadata_manager.inc,v 1.72 2005/03/28 23:11:25 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -110,8 +110,8 @@ class Metadata_Manager extends MySource_Object
 	* @param boolean	$granted	type of access : null = all, true = applied, false = denied
 	*
 	* @access public
-	* @return array()	if $granted is null returns Array(schemaid)
-	*					otherwise returns Array(schemaid => granted[1|0])
+	* @return array	if $granted is null returns Array(schemaid)
+	*				otherwise returns Array(schemaid => granted[1|0])
 	*/
 	function getSchemas($assetid, $granted=null)
 	{
@@ -194,10 +194,10 @@ class Metadata_Manager extends MySource_Object
 
 		// add the schema to the database
 		$values = Array(
-						'assetid'  => $asset->id,
-						'schemaid' => $schemaid,
-						'granted'  => (($granted) ? '1' : '0'),
-						);
+					'assetid'	=> $asset->id,
+					'schemaid'	=> $schemaid,
+					'granted'	=> (($granted) ? '1' : '0'),
+				  );
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_metadata', $values)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
@@ -295,7 +295,7 @@ class Metadata_Manager extends MySource_Object
 	/**
 	* Get an array of metatata fields IDs for a metadata schema
 	*
-	* @param string|Array() $schemaids		single schemaid or an array of schema ids whose fields we are getting
+	* @param string|array $schemaids	single schemaid or an array of schema ids whose fields we are getting
 	*
 	* @return array	Array(assetid => type_code)
 	* @access public
@@ -416,9 +416,9 @@ class Metadata_Manager extends MySource_Object
 			}
 
 			$default_values[$field->id] = Array(
-												'name'  => $field->name,
-												'value' => $field->getDefaultValue(),
-												);
+											'name'	=> $field->name,
+											'value'	=> $field->getDefaultValue(),
+										  );
 		}
 
 		return $default_values;
@@ -435,7 +435,7 @@ class Metadata_Manager extends MySource_Object
 	* @param array(string)	$field_names	an array of field names
 	*
 	* @access public
-	* @return array()		Array(field_name => value)
+	* @return array	Array(field_name => value)
 	*/
 	function getMetadataFieldValues($assetid, $field_names=Array())
 	{
@@ -565,10 +565,10 @@ class Metadata_Manager extends MySource_Object
 				if (!in_array($fieldid, $updates)) {
 
 					$values = Array(
-									'assetid' => $asset->id,
-									'fieldid' => $fieldid,
-									'value'   => $metadata[$fieldid]['value'],
-									);
+								'assetid'	=> $asset->id,
+								'fieldid'	=> $fieldid,
+								'value'		=> $metadata[$fieldid]['value'],
+							  );
 					if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_metadata_value', $values)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
@@ -578,8 +578,8 @@ class Metadata_Manager extends MySource_Object
 				} else {
 
 					$values = Array(
-									'value' => $db->quote($metadata[$fieldid]['value']),
-									);
+								'value'	=> $db->quote($metadata[$fieldid]['value']),
+							  );
 					$where = '  assetid = '.$db->quote($asset->id).'
 							AND fieldid = '.$db->quote($fieldid);
 					if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_metadata_value', $values, $where)) {
@@ -824,17 +824,17 @@ class Metadata_Manager extends MySource_Object
 				case 'asset_status_changed_readable':
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'d M Y g:ia\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_readable') - strlen('asset_')).');'."\n";
 				break;
-				
+
 				case 'asset_created_iso8601' :
 				case 'asset_updated_iso8601' :
 				case 'asset_status_changed_iso8601' :
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'Y-m-d\\TH:i:s\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_iso8601') - strlen('asset_')).');'."\n";					
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'Y-m-d\\TH:i:s\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_iso8601') - strlen('asset_')).');'."\n";
 				break;
-				
+
 				case 'asset_created_rfc2822' :
 				case 'asset_updated_rfc2822' :
 				case 'asset_status_changed_rfc2822' :
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'r\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_rfc2822') - strlen('asset_')).');'."\n";					
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'r\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_rfc2822') - strlen('asset_')).');'."\n";
 				break;
 
 
@@ -884,11 +884,11 @@ class Metadata_Manager extends MySource_Object
 				case 'asset_published_readable' :
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'d M Y g:ia\', $metadata_asset->published);'."\n";
 				break;
-				
+
 				case 'asset_published_iso8601' :
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'Y-m-d\\TH:i:s\', $metadata_asset->published);'."\n";
 				break;
-				
+
 				case 'asset_published_rfc2822' :
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'r\', $metadata_asset->published);'."\n";
 				break;
