@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.24 2004/05/07 01:46:13 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.25 2004/05/10 00:18:19 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -550,7 +550,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		if ($asset->attr('use_client_side')) {
 			ob_start();				// start vacumming up all the lovely ja code
 			?><script language="JavaScript">
-			function beforeSubmitForm(form) {
+			function beforeSubmit_<?php echo $asset->getPrefix() ?>(form) {
 				var submission_errors = new Array();
 				i = 0;
 					<?php 
