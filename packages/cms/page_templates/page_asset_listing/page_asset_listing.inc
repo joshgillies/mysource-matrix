@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.50 2005/01/20 23:02:03 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.51 2005/01/20 23:20:25 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -846,7 +846,7 @@ class Page_Asset_Listing extends Page
 			$this->_tmp['position_formats'][$position] = $link_data['minorid'];
 		}
 
-		$this->_printAssetList();
+		$this->_printAssetList($todo);
 
 	}//end printAssetList()
 
