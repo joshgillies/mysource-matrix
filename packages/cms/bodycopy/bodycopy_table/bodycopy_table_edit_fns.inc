@@ -572,11 +572,23 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		$output = ob_get_contents();
 		ob_end_clean();
 		
+		$existing_links = $asset->getLinks(SQ_LINK_NOTICE);
+
 		$e = '/\\.\\/\\?a=([0-9]+)/';
 		$matches = Array();
 		preg_match_all($e, $output, $matches);
 		$replace_assetids = $matches[1];
-		if (!empty($replace_assetids)) {
+		if (!empty($replace_assetids) || !empty($existing_links)) {
+
+			// delete existing notice links that are no longer being used
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			foreach($existing_links as $link_data) {
+				if (!in_array($link_data['minorid'], $replace_assetids)) {
+					$asset->deleteLink($link_data['linkid']);
+				}
+			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
 			foreach($replace_assetids as $assetid) {
 				$ereg_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if ($ereg_asset->id) {

@@ -105,6 +105,45 @@ class Bodycopy_Table extends Asset
 
 
 	/**
+	* Removes a link where this asset is the major player
+	*
+	* @param int	$linkid	the link id of the link to remove
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteLink($linkid)
+	{
+		$link = $this->getLinkById($linkid);
+		if (parent::deleteLink($linkid)) {
+			// link has been deleted, check urls to see if this link
+			// was a HREF or SRC etc and get rid of them
+			ob_start();
+			$edit_fns = $this->getEditFns();
+			$edit_fns->paint($this, true);
+			$output = ob_get_contents();
+			ob_end_clean();
+
+			$e = '/\\.\\/\\?a=([0-9]+)/';
+			$matches = Array();
+			preg_match_all($e, $output, $matches);
+			$replace_assetids = $matches[1];
+
+			if (in_array($link['minorid'], $replace_assetids)) {
+				// we were using this asset... thanks very much... I'm telling...
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
+				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
+				$body = 'User "'.$user->name.'" has deleted '.$asset->type().' "'.$asset->name.'" which was being linked to in table "'.$this->name.'". At least one URL or image is now broken in this table.';
+				$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN, false, true)), 0, 'Table Link Deleted', $body);
+			}
+		} else {
+			return false;
+		}
+	}
+
+
+	/**
 	* Remaps existing assetids used by this asset to new ones
 	*
 	* @param Array	&$map	a map of the form Array([old asset id] => [new asset id]);
@@ -189,7 +228,9 @@ class Bodycopy_Table extends Asset
 			
 			$notice_links = $this->getLinks(SQ_LINK_NOTICE);
 			foreach ($notice_links as $link) {
-				$sq_asset_url_list[$link['minorid']] = $GLOBALS['SQ_SYSTEM']->am->getAssetHref($link['minorid']);
+				$href = $GLOBALS['SQ_SYSTEM']->am->getAssetHref($link['minorid']);
+				if ($href == '') $href = "Javascript: alert('This link does not exist');";
+				$sq_asset_url_list[$link['minorid']] = $href;
 			}
 
 			include($this->data_path.'/content_file.inc');
