@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.7 2004/06/10 04:47:26 gsherwood Exp $
+* $Id: search_manager.inc,v 1.8 2004/06/15 01:04:18 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.7 $ - 0.1
+* @version $Revision: 1.8 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -470,12 +470,11 @@ class Search_Manager extends Asset
 	*
 	* Formulates search query and returns the results
 	*
-	* @return Array()
-	* @access private
+	* @return array
+	* @access public
 	*/
 	function processSearch($search_info)
 	{
-
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$total_asset_scores = null;
 		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->currentUserId() || (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin())); 
@@ -706,16 +705,111 @@ class Search_Manager extends Asset
 		return $total_asset_scores;
 
 	}//end processSearch()
+	
+	
+	/**
+	* Processes a basic search request without search terms
+	*
+	* Accepts the same input array as processSearch but does use any search terms
+	*
+	* @return arra
+	* @access public
+	* @see processSearch()
+	*/
+	function processBasicSearch($search_info)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$total_asset_scores = null;
+		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->currentUserId() || (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin())); 
+
+
+		$concat = ($db->phptype == 'mysql') ? 'CONCAT(alt1.treeid, '.$db->quote('%').')' : '(alt1.treeid || '.$db->quote('%').')';
+
+		$search_sql = 'SELECT DISTINCT(a.assetid), '.$db->quote('1').'
+					   FROM
+							'.SQ_TABLE_PREFIX.'asset_link_tree alt1,
+							'.SQ_TABLE_PREFIX.'asset_link_tree alt2,
+							'.SQ_TABLE_PREFIX.'asset_link al1,
+							'.SQ_TABLE_PREFIX.'asset_link al2,
+							'.SQ_TABLE_PREFIX.'asset a';
+		if ($user_restrictions) $search_sql .= ', '.SQ_TABLE_PREFIX.'asset_permission ap ';
+							
+		$search_sql .= ' WHERE ';
+
+		if ($user_restrictions) $search_sql .= 'a.assetid = ap.assetid AND ';
+		
+		$search_sql .= ' al1.majorid = '.$db->quote($search_info['root_assetid']).'
+						 AND al1.linkid  = alt1.linkid
+						 AND alt2.treeid LIKE '.$concat.'
+						 AND alt2.linkid = al2.linkid
+						 AND a.assetid  = al2.minorid';
+
+		// add in status restrictions
+		if (isset($search_info['search_statuses']) && !empty($search_info['search_statuses'])) {
+			$statues = $search_info['search_statuses'];
+			for($i = 0; $i < count($statues); $i++) $statues[$i] = $db->quote($statues[$i]);
+			$search_sql .= ' AND a.status IN ('.implode(', ', $statues).')';
+		} else {
+			// if there are no status restrictions, default to LIVE assets only
+			$search_sql .= ' AND a.status  >= '.$db->quote(SQ_STATUS_LIVE);
+		}
+
+		if (!empty($search_info['search_types'])) {
+			for(reset($search_info['search_types']); NULL !== ($i = key($search_info['search_types'])); next($search_info['search_types'])) {
+				$search_info['search_types'][$i] = $db->quote($search_info['search_types'][$i]);
+			}
+			$type_code_cond = 'IN ('.implode(', ', $search_info['search_types']).')';
+
+			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+			$search_sql .= ' AND a.type_code IN (~SQ0~)';
+			$subs = Array( 'SELECT type_code
+							FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
+							WHERE inherited_type_code '.$type_code_cond );
+			$search_sql = db_extras_subquery($db, $search_sql, $subs);
+			if (DB::isError($search_sql)) {
+				trigger_error($search_sql->getMessage().'<br/>'.$search_sql->getUserInfo(), E_USER_ERROR);
+			}
+		}
+
+		$userid_cond = '';
+		if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
+			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+				$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
+				array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
+				for(reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+					$userids[$i] = $db->quote($userids[$i]);
+				}
+				$userid_cond = ' AND ap.userid  IN ('.implode(',', $userids).')';
+			}
+		} else {
+			// public users
+			$userid_cond = ' AND ap.userid = 0';
+		}
+
+		if (!empty($userid_cond)) {
+			$search_sql .= $userid_cond;
+			$search_sql .= ' AND ap.permission >= '.$db->quote(SQ_PERMISSION_READ).'
+							AND ap.access = 1';
+		}
+
+		$result = $db->getAssoc($search_sql);
+		assert_valid_db_result($result);
+
+		return $result;
+
+	}//end processBasicSearch()
 
 
 	/**
 	* Combines asset scores according to the passed logic
 	*
+	* Returns a mapping from assetids to combined scores
+	*
 	* @param array	$asset_scores1		a mapping from assetids to scores
 	* @param array	$asset_scores2		a mapping from assetids to scores
 	* @param string	$logic				either 'AND' or 'OR'
 	*
-	* @return Array a mapping from assetids to combined scores
+	* @return array
 	* @access private
 	*/
 	function combineAssetScores($asset_scores1, $asset_scores2, $logic='AND')
