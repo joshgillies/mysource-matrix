@@ -172,8 +172,8 @@ class Design extends Design_Area
 				  © Copyright <?php echo date(\'Y\') ?>. All rights reserved.
 				  Page generated: <?php $time = getdate(); echo $time[\'mday\'], \' \', $time[\'month\'], \' \', $time[\'year\']; ?>
 				-->
-				<script language="javascript" type="text/javascript"  src="<?php echo SQ_WWW_LIB_DIR; ?>/js/general.js"></script>
-				<link rel="stylesheet" type="text/css"  href="<?php echo SQ_WWW_LIB_DIR; ?>/css/general.css"></script>
+				<script language="javascript" type="text/javascript"  src="<?php echo $LIB_PATH; ?>/js/general.js"></script>
+				<link rel="stylesheet" type="text/css"  href="<?php echo $LIB_PATH; ?>/css/general.css"></script>
 				';
 
 				break;
@@ -207,8 +207,8 @@ class Design extends Design_Area
 	*/
 	function paint(&$ASSET)
 	{
-		// this works because we know that all design areas are not going to be restricted
-		$DATA_PATH   = SQ_WWW_BASE_DIR.'/__data';
+		$DATA_PATH   = sq_web_path('data'); // this works because we know that all design areas are not going to be restricted
+		$LIB_PATH    = sq_web_path('lib');
 		// Now we just include the design file to get it to print.
 		speed_check();
 		require_once $this->data_path.'/design_file.php';
@@ -253,7 +253,7 @@ class Design extends Design_Area
 	}//end filePath()
 
 	/**
-	* Returns the path that has to be appended to the SQ_WWW_BASE_DIR.'/__data' to
+	* Returns the path that has to be appended to the sq_web_path('base').'/__data' to
 	* get access to the file for this design
 	*
 	* @param string	$filename	the filename to return the path to

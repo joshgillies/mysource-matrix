@@ -318,7 +318,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		?>
 			<tr>
 				<td class="sq-backend-data">
-					<a href="<?php echo SQ_WWW_BASE_DIR.'/__data/'.$asset->webFileSuffix($file); ?>" target="_blank"><?php echo $file; ?></a>
+					<a href="<?php echo sq_web_path('base').'/__data/'.$asset->webFileSuffix($file); ?>" target="_blank"><?php echo $file; ?></a>
 				</td>
 				<td class="sq-backend-data">
 					<?php echo $GLOBALS['SQ_SYSTEM']->datetime($mod_time); ?>

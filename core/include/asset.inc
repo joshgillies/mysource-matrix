@@ -1643,7 +1643,7 @@ class Asset extends Resolve_Object
 	*/
 	function getBackendHref($screen='')
 	{
-		return SQ_WWW_EDIT_DIR.'/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid='.$this->id.'&asset_ei_screen='.$screen;
+		return sq_web_path('edit').'/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid='.$this->id.'&asset_ei_screen='.$screen;
 	}//end getBackendUrl()
 
 }//end class

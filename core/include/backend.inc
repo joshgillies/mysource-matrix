@@ -132,28 +132,28 @@ class Backend extends Resolve_Object
 		$url = $this->getBackendUrl('main').'&backend_section=';
 		/*
 		#$this->_printHeaderItem('Config',  $this->getBackendUrl('main').'&backend_section=config',   'config');
-		<!--<td><a href="#" onclick="javascript: parent.location='./?' + get_element_value('query_string') + '&SQ_ACTION=logout'; return false;"><img src="<?php echo SQ_WWW_LIB_DIR; ?>/web/images/icons/logout.gif" width="20" height="20" border="0"></a></td>-->
+		<!--<td><a href="#" onclick="javascript: parent.location='./?' + get_element_value('query_string') + '&SQ_ACTION=logout'; return false;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/logout.gif" width="20" height="20" border="0"></a></td>-->
 		*/
 
 	?>
 		<table width="100%" cellpadding="0" border="0" cellspacing="0">
 			<tr>
-				<td nowrap class="sq-backend-header-cell"><a target="main" href="<?php echo $url;?>"><img src="<?php echo SQ_WWW_LIB_DIR; ?>/web/images/blank.gif" width="10" height="2" border="0" /><img src="<?php echo SQ_WWW_LIB_DIR; ?>/web/images/icons/swish.gif" width="20" height="20" border="0" /><img src="<?php echo SQ_WWW_LIB_DIR; ?>/web/images/blank.gif" width="3" height="2" border="0" /></a></td>
+				<td nowrap class="sq-backend-header-cell"><a target="main" href="<?php echo $url;?>"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="10" height="2" border="0" /><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/swish.gif" width="20" height="20" border="0" /><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="3" height="2" border="0" /></a></td>
 				<td nowrap class="sq-backend-header-item"><a target="main" href="<?php echo $url;?>" class="sq-backend-header-item"><?php echo SQ_SYSTEM_SHORT_NAME; ?></a></td>
 				<td class="sq-backend-header-cell" align="right">
 					<div class="sq-backend-smallprint" style="font-size:10px; color:#ffffff"><b><?php echo '$SESSION->user->name'; ?></b></div>
 					<div class="sq-backend-fineprint"  style="color:#ffffff"><?php echo date('d M Y'); ?></div>
 				</td>
-				<td class="sq-backend-header-cell"><img src="<?php echo SQ_WWW_LIB_DIR; ?>/web/images/blank.gif" width="5" height="2" border="0"></td>
+				<td class="sq-backend-header-cell"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="2" border="0"></td>
 			</tr>
 			<tr>
-				<td style="background-color: #259EC5" colspan="4"><img src="<?php echo SQ_WWW_LIB_DIR; ?>/web/images/blank.gif" width="1" height="1"></td>
+				<td style="background-color: #259EC5" colspan="4"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1"></td>
 			</tr>
 			<tr>
-				<td style="background-color: #212E61" colspan="4"><img src="<?php echo SQ_WWW_LIB_DIR; ?>/web/images/blank.gif" width="1" height="1"></td>
+				<td style="background-color: #212E61" colspan="4"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1"></td>
 			</tr>
 			<tr>
-				<td style="background-color: #ffffff" colspan="4"><img src="<?php echo SQ_WWW_LIB_DIR; ?>/web/images/blank.gif" width="1" height="1"></td>
+				<td style="background-color: #ffffff" colspan="4"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1"></td>
 			</tr>
 		</table>
 	<?php
@@ -173,7 +173,7 @@ class Backend extends Resolve_Object
 
 	?> 
 		<table width="100%" cellpadding="2" cellspacing="0" border="0">
-			<tr><td style="background-color: #212E61;"><img src="<?php echo SQ_WWW_LIB_DIR; ?>/web/images/blank.gif" width="1" height="1" /></td></tr>	
+			<tr><td style="background-color: #212E61;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1" /></td></tr>	
 			<tr><td style="background-color: #7A92AD;"><b><a href="<?php echo SQ_SYSTEM_URL;?>" class="sq-backend-smallprint" target="_blank"><?php echo SQ_SYSTEM_LONG_NAME;?></a></b></td></tr>
 		</table>
 	<?php

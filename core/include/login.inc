@@ -12,7 +12,7 @@ function print_login($heading, $message) {
 	<html>
 	<head>
 		<title><?php echo $heading ?></title>
-		<link rel="stylesheet" type="text/css" href="<?php echo SQ_WWW_LIB_DIR; ?>/web/css/edit.css">
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib'); ?>/web/css/edit.css">
 	</head>
 	<body marginwidth="0" marginheight="0" leftmargin="0" topmargin="0" bgcolor="#ffffff" onLoad="javascript: document.login_prompt.elements['SQ_LOGIN_USERNAME'].focus();">
 	<form action="<?php echo $_SERVER['PHP_SELF'].$qry_string ; ?>" name="login_prompt" method="post" onSubmit="javascript: return (this.elements['SQ_LOGIN_USERNAME'].value.length > 0 && this.elements['SQ_LOGIN_PASSWORD'].value.length > 1);">
@@ -35,7 +35,7 @@ function print_login($heading, $message) {
 	<table width="400" cellpadding="1" cellspacing="0" border="0" align="center">
 		<tr>
 			<td class="sq-backend-heading">
-				<img src="<?php echo SQ_WWW_LIB_DIR; ?>/web/images/icons/swish.gif" width="20" height="20" border="0" align="left" alt="<?php echo $heading; ?>" />
+				<img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/swish.gif" width="20" height="20" border="0" align="left" alt="<?php echo $heading; ?>" />
 				<?php echo $heading; ?>
 			</td>
 		</tr>

@@ -193,6 +193,57 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 }//end sq_error_handler
 
 /**
+* Returns the web path for different sections of the system
+*
+* @param string	$path	the type of path the user wants
+*
+* @return string
+*/
+function sq_web_path($path='base')
+{
+	static $paths = Array();
+
+	if (isset($paths[$path])) return $paths[$path];
+
+	switch($path) {
+		case 'base' : 
+			$paths[$path] = (SQ_IN_BACKEND) ? '..' : '.';
+			break;
+
+		case 'edit' :
+			$paths[$path] = (SQ_IN_BACKEND) ? '.'  : './'.SQ_CONF_BACKEND_SUFFIX;
+			break;
+
+		case 'root_url'  : 
+			$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
+			$current_url = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http').'://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
+			// remove any trailing slashes
+			$current_url = preg_replace('/\/+$/', '', $current_url);
+
+			$tmp = '';
+			foreach($root_urls as $url) {
+				if (substr($current_url, 0, strlen($url)) == $url && strlen($tmp) < strlen($url)) {
+					$tmp = $url;
+				}
+			}
+			$paths[$path] = $tmp;
+			break;
+
+		case 'lib'  : 
+			$paths[$path] = sq_web_path('root_url').'/__lib';
+			break;
+
+		case 'data'  : 
+			$paths[$path] = sq_web_path('root_url').'/__data';
+			break;
+
+	}// end switch
+
+	return $paths[$path];
+
+}// end sq_web_path()
+
+/**
 * Takes an integer and returns an array of numbers representing the active
 * bits in the integer
 * eg. for 5 is 101 in binary

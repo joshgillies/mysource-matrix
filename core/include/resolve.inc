@@ -103,14 +103,10 @@ class Resolve
 		// we are on the frontend
 		} else {
 
-			speed_check();
-			$url      = $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
-			$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http';
-
 			speed_check('one');
-			$asset = &$this->am->getAssetFromURL($_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'], $protocol, true, false);
+			$asset = &$this->am->getAssetFromURL((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http');
 			if (is_null($asset)) exit(1);
-#			pre_echo("Active Asset : ".$asset->name);
+			pre_echo("Active Asset : ".$asset->name);
 			speed_check('two');
 			$asset->printFrontend();
 

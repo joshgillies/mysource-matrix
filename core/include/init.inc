@@ -55,12 +55,6 @@ if (SQ_IN_BACKEND && substr($_SERVER['PHP_SELF'], -1) != '/') {
 	exit();
 }
 
-// create some constants for relative access to the front and backends
-define('SQ_WWW_BASE_DIR', ((SQ_IN_BACKEND) ? '..' : '.'));
-define('SQ_WWW_EDIT_DIR', ((SQ_IN_BACKEND) ? '.'  : './'.SQ_CONF_BACKEND_SUFFIX));
-define('SQ_WWW_LIB_DIR',  SQ_WWW_BASE_DIR.'/__lib');
-
-
 // the current output type for the system, can be changed during run-time (eg to XML)
 // main use is so that the error_reporter doesn't barf in HTML to something expecting XML
 $GLOBALS['SQ_OUTPUT_TYPE'] = 'html';

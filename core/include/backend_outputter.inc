@@ -89,7 +89,7 @@ class Backend_Outputter
 			$_SESSION['backend_outputter_msgs'] = Array();
 		}//end if
 
-		$this->_files_path = SQ_WWW_LIB_DIR.'/web';
+		$this->_files_path = sq_web_path('lib').'/web';
 		$this->_action = $_SERVER['PHP_SELF'];
 
 
@@ -444,12 +444,12 @@ class Backend_Outputter
 				$this->_paintCssInclude($file);
 			}//end foreach
 
-			$this->_paintJsInclude(SQ_WWW_LIB_DIR.'/html_form/html_form.js');
-			$this->_paintJsInclude(SQ_WWW_LIB_DIR.'/js/general.js');
-			$this->_paintJsInclude(SQ_WWW_LIB_DIR.'/js/debug.js');
+			$this->_paintJsInclude(sq_web_path('lib').'/html_form/html_form.js');
+			$this->_paintJsInclude(sq_web_path('lib').'/js/general.js');
+			$this->_paintJsInclude(sq_web_path('lib').'/js/debug.js');
 			//$this->_paintJsInclude($this->filesPath('/js/general.js'));
 			//$this->_paintJsInclude($this->filesPath('/js/edit.js'));
-			//$this->_paintJsInclude(SQ_WWW_LIB_DIR.'/js/general.js');
+			//$this->_paintJsInclude(sq_web_path('lib').'/js/general.js');
 			foreach($this->_js_includes as $file) {
 				$this->_paintJsInclude($file);
 			}//end foreach

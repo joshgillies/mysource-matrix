@@ -255,7 +255,7 @@ function colour_box($name, $default='000000', $allow_blanks=false, $button_text=
 
 	normal_button('', '&nbsp;'.$button_text.'&nbsp;', 'load_colour_picker(this.form.elements[\''.addslashes($name).'\'], \'$EDIT_DIR\')', 'style="font-family: courier;"');
 	if ($show_change_colour) {
-		?><img id="colour_change_<?php echo $name; ?>" name="colour_change_<?php echo $name; ?>" src="<?php echo SQ_WWW_LIB_DIR; ?>/web/images/cross.gif" width="15" height="15" border="0" align="bottom"><?php
+		?><img id="colour_change_<?php echo $name; ?>" name="colour_change_<?php echo $name; ?>" src="<?php echo sq_web_path('lib'); ?>/web/images/cross.gif" width="15" height="15" border="0" align="bottom"><?php
 	}
 
 }// end colour_box()

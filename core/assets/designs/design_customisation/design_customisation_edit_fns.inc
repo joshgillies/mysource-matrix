@@ -242,7 +242,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 				</td>
 				<td class="sq-backend-data" style="text-align: center;">
 				<?php if ($show_specialised && $da->attr('specialised')) { ?> 
-					<img src="<?php echo SQ_WWW_LIB_DIR; ?>/web/images/tick.gif" width="15" height="15" />
+					<img src="<?php echo sq_web_path('lib'); ?>/web/images/tick.gif" width="15" height="15" />
 				<?php } else { ?> 
 					&nbsp;
 				<?php }// end if ?> 
