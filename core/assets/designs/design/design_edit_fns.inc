@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.82 2005/03/02 06:39:40 gsherwood Exp $
+* $Id: design_edit_fns.inc,v 1.83 2005/03/03 03:03:56 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -221,7 +221,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$str = file_to_string($parse_file);
 
 		if ($asset->writeAccess('parsing')) {
-			text_area($prefix.'_new_parse_file', str_replace("\t", "    ", $str), 100, 30, 0, 'style="font-family: monospace; white-space: pre;"');
+			text_area($prefix.'_new_parse_file', str_replace("\t", "    ", $str), 0, 0, 0, 'style="font-family: monospace; white-space: pre; width: 99%; height: 480px"');
 			return true;
 		} else {
 			echo '<pre>', htmlspecialchars($str), '</pre>';
