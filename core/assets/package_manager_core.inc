@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.13 2004/11/18 05:04:14 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: package_manager_core.inc,v 1.13.2.1 2005/02/10 04:06:53 gsherwood Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/package_manager.inc';
@@ -28,11 +28,11 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 * Package_Manager_Core
 *
 * Purpose
-*    Manages the install and upgrade of the core package and core assets, 
+*    Manages the install and upgrade of the core package and core assets,
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.13.2.1 $
 * @package MySource_Matrix
 */
 class Package_Manager_Core extends Package_Manager
@@ -91,7 +91,7 @@ class Package_Manager_Core extends Package_Manager
 	/**
 	* Installs/Updates the passed package in the system
 	*
-	* @param Array $update_assets		An array of asset types to update 
+	* @param Array $update_assets		An array of asset types to update
 	*									details for. If empty, will do all assets
 	* @access public
 	*/
@@ -107,7 +107,7 @@ class Package_Manager_Core extends Package_Manager
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		//// Before we update any of the asset types we are going to make sure that 
+		//// Before we update any of the asset types we are going to make sure that
 		//// the default search components are in place
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
@@ -139,7 +139,7 @@ class Package_Manager_Core extends Package_Manager
 		}// end foreach
 
 
-		// Now we can do the normal package update 
+		// Now we can do the normal package update
 		if (!parent::updatePackageDetails($update_assets)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
@@ -167,8 +167,11 @@ class Package_Manager_Core extends Package_Manager
 	{
 		return Array(
 					'root_folder',
-					'trash_folder',
 					'system_management_folder',
+					'web_folder_designs',
+					'web_folder_media',
+					'web_folder_users',
+					'trash_folder',
 					'system_user_group',
 					'root_user',
 					'authentication_folder',
@@ -178,6 +181,7 @@ class Package_Manager_Core extends Package_Manager
 					'cache_manager',
 					'designs_folder',
 					'login_design',
+					
 				);
 
 	}//end getSystemAssetTypes()
@@ -192,12 +196,12 @@ class Package_Manager_Core extends Package_Manager
 	function &createRootFolder()
 	{
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('root_folder');
-		
+
 		$root_folder = new Root_Folder();
 		$link = Array();
-		if (!$root_folder->create($link)) trigger_error('ROOT FOLDER NOT CREATED', E_USER_ERROR);
+		if (!$root_folder->create($link)) trigger_error('Root Folder NOT CREATED', E_USER_ERROR);
 		pre_echo('Root Folder Asset Id : '.$root_folder->id);
-		
+
 		$GLOBALS['SQ_SYSTEM_ASSETS']['root_folder'] = $root_folder->id;
 		return $root_folder;
 
@@ -213,14 +217,13 @@ class Package_Manager_Core extends Package_Manager
 	function &createTrashFolder()
 	{
 		$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['root_folder']);
-		
+
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('trash_folder');
-		$trash_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('trash_folder');
+		$trash_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1, 'sort_order' => 0);
 		$trash_folder = new Trash_Folder();
-		if (!$trash_folder->create($trash_link)) trigger_error('TRASH FOLDER NOT CREATED', E_USER_ERROR);
+		if (!$trash_folder->create($trash_link)) trigger_error('Trash Folder NOT CREATED', E_USER_ERROR);
 		pre_echo('Trash Asset Id : '.$trash_folder->id);
-		
+
 		$GLOBALS['SQ_SYSTEM_ASSETS']['trash_folder'] = $trash_folder->id;
 		return $trash_folder;
 
@@ -236,13 +239,13 @@ class Package_Manager_Core extends Package_Manager
 	function &createSystemManagementFolder()
 	{
 		$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['root_folder']);
-		
+
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('system_management_folder');
 		$system_management_folder = new System_Management_Folder();
 		$system_management_folder_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
-		if (!$system_management_folder->create($system_management_folder_link)) trigger_error('SYSTEM MANAGEMENT FOLDER NOT CREATED', E_USER_ERROR);
+		if (!$system_management_folder->create($system_management_folder_link)) trigger_error('System Management Folder NOT CREATED', E_USER_ERROR);
 		pre_echo('System Management Asset Id : '.$system_management_folder->id);
-		
+
 		$GLOBALS['SQ_SYSTEM_ASSETS']['system_management_folder'] = $system_management_folder->id;
 		return $system_management_folder;
 
@@ -258,13 +261,13 @@ class Package_Manager_Core extends Package_Manager
 	function &createSystemUserGroup()
 	{
 		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['system_management_folder']);
-		
+
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('system_user_group');
 		$system_user_group = new System_User_Group();
 		$system_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
-		if (!$system_user_group->create($system_link)) trigger_error('SYSTEM ADMIN GROUP NOT CREATED', E_USER_ERROR);
+		if (!$system_user_group->create($system_link)) trigger_error('System Admin Group NOT CREATED', E_USER_ERROR);
 		pre_echo('System Administrators User Group Asset Id : '.$system_user_group->id);
-		
+
 		$GLOBALS['SQ_SYSTEM_ASSETS']['system_user_group'] = $system_user_group->id;
 		return $system_user_group;
 
@@ -280,22 +283,22 @@ class Package_Manager_Core extends Package_Manager
 	function &createRootUser()
 	{
 		$system_user_group = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['system_user_group']);
-		
+
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('root_user');
 		$root_user = new Root_User();
 		$user_link = Array('asset' => &$system_user_group, 'link_type' => SQ_LINK_TYPE_1);
 
 		$root_pass = isset($_SESSION['install_root_pass']) ? $_SESSION['install_root_pass'] : 'root';
-		
+
 		$root_user->setAttrValue('password',   $root_pass);
 		$root_user->setAttrValue('first_name', 'Root');
 		$root_user->setAttrValue('last_name',  'User');
 		$root_email = (SQ_CONF_DEFAULT_EMAIL) ? SQ_CONF_DEFAULT_EMAIL : ('root@'.((SQ_PHP_CLI) ? $_SERVER['HOSTNAME'] : $_SERVER['HTTP_HOST']));
 		$root_user->setAttrValue('email', $root_email);
 
-		if (!$root_user->create($user_link)) trigger_error('ROOT USER NOT CREATED', E_USER_ERROR);
+		if (!$root_user->create($user_link)) trigger_error('Root User NOT CREATED', E_USER_ERROR);
 		pre_echo('Root User Asset Id : '.$root_user->id);
-		
+
 		$GLOBALS['SQ_SYSTEM_ASSETS']['root_user'] = $root_user->id;
 		return $root_user;
 
@@ -311,13 +314,13 @@ class Package_Manager_Core extends Package_Manager
 	function &createCronManager()
 	{
 		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['system_management_folder']);
-		
+
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_manager');
 		$cron_manager = new Cron_Manager();
 		$cron_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		if (!$cron_manager->create($cron_manager_link)) trigger_error('Cron Manager NOT CREATED', E_USER_ERROR);
 		pre_echo('Cron Manager Asset Id : '.$cron_manager->id);
-		
+
 		$GLOBALS['SQ_SYSTEM_ASSETS']['cron_manager'] = $cron_manager->id;
 		return $cron_manager;
 
@@ -333,13 +336,13 @@ class Package_Manager_Core extends Package_Manager
 	function &createLayoutManager()
 	{
 		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['system_management_folder']);
-		
+
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('layout_manager');
 		$layout_manager = new Layout_Manager();
 		$layout_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		if (!$layout_manager->create($layout_manager_link)) trigger_error('Layout Manager NOT CREATED', E_USER_ERROR);
 		pre_echo('Layout Manager Asset Id : '.$layout_manager->id);
-		
+
 		$GLOBALS['SQ_SYSTEM_ASSETS']['layout_manager'] = $layout_manager->id;
 		return $layout_manager;
 
@@ -355,13 +358,13 @@ class Package_Manager_Core extends Package_Manager
 	function &createRemapManager()
 	{
 		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['system_management_folder']);
-		
+
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('remap_manager');
 		$remap_manager = new Remap_Manager();
 		$remap_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		if (!$remap_manager->create($remap_manager_link)) trigger_error('Remap Manager NOT CREATED', E_USER_ERROR);
 		pre_echo('Remap Manager Asset Id : '.$remap_manager->id);
-		
+
 		$GLOBALS['SQ_SYSTEM_ASSETS']['remap_manager'] = $remap_manager->id;
 		return $remap_manager;
 
@@ -377,13 +380,13 @@ class Package_Manager_Core extends Package_Manager
 	function &createCacheManager()
 	{
 		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['system_management_folder']);
-		
+
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cache_manager');
 		$cache_manager = new Cache_Manager();
 		$cache_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		if (!$cache_manager->create($cache_manager_link)) trigger_error('Cache Manager NOT CREATED', E_USER_ERROR);
 		pre_echo('Cache Manager Asset Id : '.$cache_manager->id);
-		
+
 		$GLOBALS['SQ_SYSTEM_ASSETS']['cache_manager'] = $cache_manager->id;
 		return $cache_manager;
 
@@ -399,13 +402,13 @@ class Package_Manager_Core extends Package_Manager
 	function &createDesignsFolder()
 	{
 		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['system_management_folder']);
-		
+
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('designs_folder');
 		$designs_folder = new Designs_Folder();
 		$designs_folder_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		if (!$designs_folder->create($designs_folder_link)) trigger_error('Designs Folder NOT CREATED', E_USER_ERROR);
 		pre_echo('Design Folder Asset Id : '.$designs_folder->id);
-		
+
 		$GLOBALS['SQ_SYSTEM_ASSETS']['designs_folder'] = $designs_folder->id;
 		return $designs_folder;
 
@@ -421,13 +424,13 @@ class Package_Manager_Core extends Package_Manager
 	function &createAuthenticationFolder()
 	{
 		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['system_management_folder']);
-		
+
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('authentication_folder');
 		$authentication_folder = new Authentication_Folder();
 		$authentication_folder_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		if (!$authentication_folder->create($authentication_folder_link)) trigger_error('Authentication Folder NOT CREATED', E_USER_ERROR);
 		pre_echo('Authentication Folder Asset Id : '.$authentication_folder->id);
-		
+
 		$GLOBALS['SQ_SYSTEM_ASSETS']['authentication_folder'] = $authentication_folder->id;
 		return $authentication_folder;
 
@@ -443,18 +446,87 @@ class Package_Manager_Core extends Package_Manager
 	function &createLoginDesign()
 	{
 		$designs_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['designs_folder']);
-	
+
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('login_design');
 		$login_design = new Login_Design();
 		$login_design_link = Array('asset' => &$designs_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		$login_design->setAttrValue('id_name', 'login_design');
 		if (!$login_design->create($login_design_link)) trigger_error('Login Design NOT CREATED', E_USER_ERROR);
 		pre_echo('Login Design Asset Id : '.$login_design->id);
-	
+
 		$GLOBALS['SQ_SYSTEM_ASSETS']['login_design'] = $login_design->id;
 		return $login_design;
 
 	}//end createLoginDesign()
+
+
+	/**
+	* Create the web folder for storing site designs
+	*
+	* @return object Web_Folder_Designs
+	* @access public
+	*/
+	function &createWebFolderDesigns()
+	{
+		$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['root_folder']);
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('web_folder_designs');
+		$folder_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
+		$designs_folder = new Web_Folder_Designs();
+		$designs_folder->setAttrValue('name', 'Designs Folder');
+		if (!$designs_folder->create($folder_link)) trigger_error('Designs Folder NOT CREATED', E_USER_ERROR);
+		pre_echo('Designs Folder Id : '.$designs_folder->id);
+
+		$GLOBALS['SQ_SYSTEM_ASSETS']['web_folder_designs'] = $designs_folder->id;
+		return $designs_folder;
+
+	}//end createWebFolderDesigns()
+
+
+	/**
+	* Create the web folder for storing media (images/movies etc)
+	*
+	* @return object Web_Folder_Media
+	* @access public
+	*/
+	function &createWebFolderMedia()
+	{
+		$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['root_folder']);
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('web_folder_media');
+		$folder_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
+		$media_folder = new Web_Folder_Media();
+		$media_folder->setAttrValue('name', 'Media Folder');
+		if (!$media_folder->create($folder_link)) trigger_error('Media Folder NOT CREATED', E_USER_ERROR);
+		pre_echo('Media Folder Id : '.$media_folder->id);
+
+		$GLOBALS['SQ_SYSTEM_ASSETS']['web_folder_media'] = $media_folder->id;
+		return $media_folder;
+
+	}//end createWebFolderMedia()
+
+
+	/**
+	* Create the web folder for storing users
+	*
+	* @return object Web_Folder_Users
+	* @access public
+	*/
+	function &createWebFolderUsers()
+	{
+		$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['root_folder']);
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('web_folder_users');
+		$folder_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
+		$users_folder = new Web_Folder_Users();
+		$users_folder->setAttrValue('name', 'Users Folder');
+		if (!$users_folder->create($folder_link)) trigger_error('Users Folder NOT CREATED', E_USER_ERROR);
+		pre_echo('Users Folder Id : '.$users_folder->id);
+
+		$GLOBALS['SQ_SYSTEM_ASSETS']['web_folder_users'] = $users_folder->id;
+		return $users_folder;
+
+	}//end createWebFolderUsers()
 
 
 }//end class
