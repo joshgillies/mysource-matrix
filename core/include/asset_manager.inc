@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.270 2005/02/18 00:07:59 arailean Exp $
+* $Id: asset_manager.inc,v 1.271 2005/02/18 00:48:57 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.270 $
+* @version $Revision: 1.271 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2503,7 +2503,7 @@ class Asset_Manager extends MySource_Object
 		$sql	.= 'FROM sq_ast_lnk l INNER JOIN sq_ast_lnk_tree t ';
 		$sql	.= 'ON l.linkid = t.linkid ';
 
-		$where	 = 'WHERE minorid = '.$assetid;
+		$where	 = 'WHERE minorid = '.$db->quoteSmart($assetid);
 
 		if (is_array($link_type) && !empty($link_type)) {
 			$where .= ' AND (';
