@@ -13,12 +13,10 @@ import ij.measure.*;
 */
 public class FITS extends ImagePlus implements PlugIn {
 
-    public void run(String arg) {
-        OpenDialog od = new OpenDialog("Open FITS...", arg);
-        String directory = od.getDirectory();
-        String fileName = od.getFileName();
-        if (fileName==null)
-            return;
+    public void run(String path) {
+       	File pf = new File(path);
+		String directory = pf.getName();
+		String fileName = pf.getParent();
         IJ.showStatus("Opening: " + directory + fileName);
         FitsDecoder fd = new FitsDecoder(directory, fileName);
         FileInfo fi = null;
@@ -36,7 +34,7 @@ public class FITS extends ImagePlus implements PlugIn {
             setCalibration(cal);
             setProperty("Info", fd.getHeaderInfo());
 			setFileInfo(fi); // needed for File->Revert
-            if (arg.equals("")) show();
+            if (path.equals("")) show();
         } else
             IJ.error("This does not appear to be a FITS file.");
         IJ.showStatus("");

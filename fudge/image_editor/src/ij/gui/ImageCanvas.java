@@ -19,20 +19,20 @@ public class ImageCanvas extends JPanel implements MouseListener, MouseMotionLis
 	protected static Cursor moveCursor = new Cursor(Cursor.MOVE_CURSOR);
 	protected static Cursor crosshairCursor = new Cursor(Cursor.CROSSHAIR_CURSOR);
 
-    protected static ImagePlus clipboard;
+	protected static ImagePlus clipboard;
 
 
 	public static boolean usePointer = Prefs.usePointerCursor;
-	
+
 	static final int NO_MODS=0, ADD_TO_ROI=1, SUBTRACT_FROM_ROI=2; // ROI modification states
-	
+
 	protected ImagePlus imp;
 	protected boolean imageUpdated;
 	protected Rectangle srcRect;
 	protected int imageWidth, imageHeight;
-	protected int xMouse; // current cursor offscreen x location 
+	protected int xMouse; // current cursor offscreen x location
 	protected int yMouse; // current cursor offscreen y location
-		
+
 	private ImageJ ij;
 	private double magnification;
 
@@ -41,7 +41,7 @@ public class ImageCanvas extends JPanel implements MouseListener, MouseMotionLis
 	private int xSrcStart;
 	private int ySrcStart;
 	private int flags;
-	
+
 	int roiModState = NO_MODS;
 
 	public ImageCanvas(ImagePlus imp) {
@@ -52,22 +52,20 @@ public class ImageCanvas extends JPanel implements MouseListener, MouseMotionLis
 		imageWidth = width;
 		imageHeight = height;
 		srcRect = new Rectangle(0, 0, imageWidth, imageHeight);
- 		addMouseListener(this);
- 		addMouseMotionListener(this);
- 		addKeyListener(ij);  // ImageJ handles keyboard shortcuts
+		addMouseListener(this);
+		addMouseMotionListener(this);
+		addKeyListener(ij);  // ImageJ handles keyboard shortcuts
 		Dimension viewportSize = ij.getViewportSize();
 		//magnification = 1.0;
 		magnification = Math.min(1.0, Math.min((float)viewportSize.width / (float)imageWidth, (float)(viewportSize.height - 20) / (float)imageHeight));
-		System.out.println("Magnification is "+magnification);
-		System.out.println("Parent is "+viewportSize.width+" by "+viewportSize.height+"; Image is "+imageWidth+" by "+imageHeight);
 
 		if (Prefs.blackCanvas && getClass().getName().equals("ij.gui.ImagePanel")) {
 			setForeground(Color.white);
 			setBackground(Color.black);
 		} else {
-        	setForeground(Color.black);
-        	setBackground(Color.white);
-        }
+			setForeground(Color.black);
+			setBackground(Color.white);
+		}
 
 		addKeyListener(ij);
 	}
@@ -76,9 +74,9 @@ public class ImageCanvas extends JPanel implements MouseListener, MouseMotionLis
 	{
 		return this.imp;
 	}
-		
-	
-	/** ImagePlus.updateAndDraw calls this method to get paint 
+
+
+	/** ImagePlus.updateAndDraw calls this method to get paint
 		to update the image from the ImageProcessor. */
 	public void setImageUpdated() {
 		imageUpdated = true;
@@ -88,7 +86,7 @@ public class ImageCanvas extends JPanel implements MouseListener, MouseMotionLis
 		paint(g);
 	}
 
-    public void paintComponent(Graphics g) {
+	public void paintComponent(Graphics g) {
 		Roi roi = imp.getRoi();
 		if (roi != null) roi.updatePaste();
 		try {
@@ -104,14 +102,14 @@ public class ImageCanvas extends JPanel implements MouseListener, MouseMotionLis
 			}
 			Image img = imp.getImage();
 			if (img!=null)
- 				g.drawImage(img, 0, 0, (int)(srcRect.width*magnification), (int)(srcRect.height*magnification),
+				g.drawImage(img, 0, 0, (int)(srcRect.width*magnification), (int)(srcRect.height*magnification),
 				srcRect.x, srcRect.y, srcRect.x+srcRect.width, srcRect.y+srcRect.height, null);
-			if (roi != null) 
+			if (roi != null)
 				roi.draw(g);
 		}
 		catch(OutOfMemoryError e) {IJ.outOfMemory("Paint");}
-    }
-    
+	}
+
 
 	/** Returns the current cursor location. */
 	public Point getCursorLoc() {
@@ -136,7 +134,7 @@ public class ImageCanvas extends JPanel implements MouseListener, MouseMotionLis
 			case Toolbar.MAGNIFIER:
 				if (IJ.isMacintosh())
 					setCursor(defaultCursor);
-				else 
+				else
 					setCursor(moveCursor);
 				break;
 			case Toolbar.HAND:
@@ -151,22 +149,22 @@ public class ImageCanvas extends JPanel implements MouseListener, MouseMotionLis
 					setCursor(crosshairCursor);
 		}
 	}
-		
+
 	/**Converts a screen x-coordinate to an offscreen x-coordinate.*/
 	public int offScreenX(int x) {
 		return srcRect.x + (int)(x/magnification);
 	}
-		
+
 	/**Converts a screen y-coordinate to an offscreen y-coordinate.*/
 	public int offScreenY(int y) {
 		return srcRect.y + (int)(y/magnification);
 	}
-	
+
 	/**Converts an offscreen x-coordinate to a screen x-coordinate.*/
 	public int screenX(int x) {
 		return  (int)((x-srcRect.x)*magnification);
 	}
-	
+
 	/**Converts an offscreen y-coordinate to a screen y-coordinate.*/
 	public int screenY(int y) {
 		return  (int)((y-srcRect.y)*magnification);
@@ -175,25 +173,25 @@ public class ImageCanvas extends JPanel implements MouseListener, MouseMotionLis
 	public double getMagnification() {
 		return magnification;
 	}
-		
+
 	public void setMagnification(double magnification) {
 		this.magnification = magnification;
-		imp.setTitle(imp.getTitle()); 
+		imp.setTitle(imp.getTitle());
 		setSize((int)(imp.getWidth() * magnification), (int)(imp.getHeight() * magnification));
 		setPreferredSize(getSize());
 		revalidate();
 		ij.repaint();
 	}
-		
+
 	public Rectangle getSrcRect() {
 		return srcRect;
 	}
 
 	private static final double[] zoomLevels = {
-		1/72.0, 1/48.0, 1/32.0, 1/24.0, 1/16.0, 1/12.0, 
+		1/72.0, 1/48.0, 1/32.0, 1/24.0, 1/16.0, 1/12.0,
 		1/8.0, 1/6.0, 1/4.0, 1/3.0, 1/2.0, 0.75, 1.0,
 		2.0, 3.0, 4.0, 6.0, 8.0, 12.0, 16.0, 24.0, 32.0 };
-	
+
 	static double getLowerZoomLevel(double currentMag) {
 		double newMag = zoomLevels[0];
 		for (int i=0; i<zoomLevels.length; i++) {
@@ -225,11 +223,11 @@ public class ImageCanvas extends JPanel implements MouseListener, MouseMotionLis
 		setMagnification(newMag);
 		repaint();
 	}
-	
+
 	boolean canEnlarge(int newWidth, int newHeight) {
 		return true;
 	}
-		
+
 	/**Zooms out by making srcRect bigger. If we can't make
 	it bigger, then make the window smaller.*/
 	public void zoomOut(int x, int y) {
@@ -248,14 +246,14 @@ public class ImageCanvas extends JPanel implements MouseListener, MouseMotionLis
 		setMagnification(imag);
 		ij.getContentPane().repaint();
 	}
-		
-	
+
+
 	Color getColor(int index){
 		IndexColorModel cm = (IndexColorModel)imp.getProcessor().getColorModel();
 		//IJ.write(""+index+" "+(new Color(cm.getRGB(index))));
 		return new Color(cm.getRGB(index));
 	}
-	
+
 	protected void setDrawingColor(int ox, int oy, boolean setBackground) {
 		//IJ.write("setDrawingColor: "+setBackground+this);
 		int type = imp.getType();
@@ -299,7 +297,7 @@ public class ImageCanvas extends JPanel implements MouseListener, MouseMotionLis
 		}
 		IJ.showStatus("("+c.getRed()+", "+c.getGreen()+", "+c.getBlue()+")");
 	}
-	
+
 	private void setForegroundColor(Color c) {
 		Toolbar.setForegroundColor(c);
 		if (Recorder.record)
@@ -315,13 +313,12 @@ public class ImageCanvas extends JPanel implements MouseListener, MouseMotionLis
 	public void mousePressed(MouseEvent e) {
 		if (ij==null) return;
 		int toolID = Toolbar.getToolId();
-		
+
 		int x = e.getX();
 		int y = e.getY();
 
-		System.out.println("Mouse Pressed at "+x+", "+y);
 		flags = e.getModifiers();
-		if (IJ.debugMode) IJ.log("Mouse pressed: (" + x + "," + y + ")" + ij.modifiers(flags));		
+		if (IJ.debugMode) IJ.log("Mouse pressed: (" + x + "," + y + ")" + ij.modifiers(flags));
 		//if (toolID!=Toolbar.MAGNIFIER && e.isPopupTrigger()) {
 		if (toolID!=Toolbar.MAGNIFIER && (e.isPopupTrigger() || (flags & Event.META_MASK)!=0)) {
 			handlePopupMenu(e);
@@ -389,7 +386,7 @@ public class ImageCanvas extends JPanel implements MouseListener, MouseMotionLis
 			popup.show(this, x, y);
 		}
 	}
-	
+
 	public void mouseExited(MouseEvent e) {
 		setCursor(defaultCursor);
 		IJ.showStatus("");
@@ -415,13 +412,12 @@ public class ImageCanvas extends JPanel implements MouseListener, MouseMotionLis
 	}
 
 	void handleRoiMouseDown(MouseEvent e) {
-		System.out.println("Handling ROI mousedown "+e);
 		int sx = e.getX();
 		int sy = e.getY();
 		int ox = offScreenX(sx);
 		int oy = offScreenY(sy);
 		Roi roi = imp.getRoi();
-		int handle = roi!=null?roi.isHandle(sx, sy):-1;		
+		int handle = roi!=null?roi.isHandle(sx, sy):-1;
 		setRoiModState(e, roi, handle);
 		if (roi!=null) {
 			Rectangle r = roi.getBounds();
@@ -450,7 +446,7 @@ public class ImageCanvas extends JPanel implements MouseListener, MouseMotionLis
 		}
 		imp.createNewRoi(ox,oy);
 	}
-	
+
 	void setRoiModState(MouseEvent e, Roi roi, int handle) {
 		if (roi==null || !IJ.isJava2())
 			{roiModState = NO_MODS; return;}
@@ -498,7 +494,7 @@ public class ImageCanvas extends JPanel implements MouseListener, MouseMotionLis
 		setCursor(sx, sy, ox, oy);
 		IJ.setInputEvent(e);
 		Roi roi = imp.getRoi();
-		if (roi!=null && (roi.getType()==Roi.POLYGON || roi.getType()==Roi.POLYLINE || roi.getType()==Roi.ANGLE) 
+		if (roi!=null && (roi.getType()==Roi.POLYGON || roi.getType()==Roi.POLYLINE || roi.getType()==Roi.ANGLE)
 		&& roi.getState()==roi.CONSTRUCTING) {
 			PolygonRoi pRoi = (PolygonRoi)roi;
 			pRoi.handleMouseMove(ox, oy);
@@ -507,7 +503,7 @@ public class ImageCanvas extends JPanel implements MouseListener, MouseMotionLis
 		}
 		imp.mouseMoved(sx, sy);
 	}
-	
+
 	public void mouseClicked(MouseEvent e) {}
 	public void mouseEntered(MouseEvent e) {}
 
@@ -516,9 +512,9 @@ public class ImageCanvas extends JPanel implements MouseListener, MouseMotionLis
 		return clipboard;
 	}
 
-	
+
 	/** Copies the current ROI to the clipboard. The entire
-	    image is copied if there is no ROI. */
+		image is copied if there is no ROI. */
 	public void copy(boolean cut) {
 		Roi roi = imp.getRoi();
 		String msg = (cut)?"Cut":"Copy";
@@ -530,7 +526,7 @@ public class ImageCanvas extends JPanel implements MouseListener, MouseMotionLis
 			clipboard.setRoi((Roi)roi.clone());
 		if (cut) {
 			ip.snapshot();
-	 		ip.setColor(Toolbar.getBackgroundColor());
+			ip.setColor(Toolbar.getBackgroundColor());
 			ip.fill();
 			if (roi!=null && roi.getType()!=Roi.RECTANGLE)
 				ip.reset(imp.getMask());
@@ -544,20 +540,17 @@ public class ImageCanvas extends JPanel implements MouseListener, MouseMotionLis
 			case ImagePlus.GRAY32: case ImagePlus.COLOR_RGB: bytesPerPixel = 4;
 		}
 		IJ.showStatus(msg + ": " + (clipboard.getWidth()*clipboard.getHeight()*bytesPerPixel)/1024 + "k");
-    }
-                
+	}
 
-	public void paste() {
-		//if (IJ.macroRunning())
-		//	IJ.wait(500);
-		System.out.println("Paste called");
+
+	public void paste()
+	{
 		if (clipboard==null) {
-			System.out.println("Clipboard empty, no pasting today");
 			return;
 		}
 		int cType = clipboard.getType();
 		int iType = imp.getType();
-		
+
 		boolean sameType = false;
 		if ((cType==ImagePlus.GRAY8|cType==ImagePlus.COLOR_256)&&(iType==ImagePlus.GRAY8|iType==ImagePlus.COLOR_256)) sameType = true;
 		else if ((cType==ImagePlus.COLOR_RGB|cType==ImagePlus.GRAY8|cType==ImagePlus.COLOR_256)&&iType==ImagePlus.COLOR_RGB) sameType = true;
@@ -567,8 +560,8 @@ public class ImageCanvas extends JPanel implements MouseListener, MouseMotionLis
 			IJ.error("Images must be the same type to paste.");
 			return;
 		}
-        int w = clipboard.getWidth();
-        int h = clipboard.getHeight();
+		int w = clipboard.getWidth();
+		int h = clipboard.getHeight();
 		if (w>imp.getWidth() || h>imp.getHeight()) {
 			IJ.error("Image is too large to paste.");
 			return;
@@ -611,7 +604,7 @@ public class ImageCanvas extends JPanel implements MouseListener, MouseMotionLis
 		//Image img = clipboard.getImage();
 		//ImagePlus imp2 = new ImagePlus("Clipboard", img);
 		//imp2.show();
-    }
+	}
 
 
 }

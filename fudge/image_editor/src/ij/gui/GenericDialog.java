@@ -57,12 +57,13 @@ TextListener, FocusListener, ItemListener, KeyListener, AdjustmentListener {
 	public GenericDialog(String title) {
 		super();
 		setModal(true);
-		setSize(400, 300);
+		setSize(350, 230);
 		setTitle(title);
 		grid = new GridBagLayout();
 		c = new GridBagConstraints();
 		getContentPane().setLayout(grid);
 		addKeyListener(this);
+		GUI.center(this);
 	}
 
 	public GenericDialog(String title, ij.ImageJ parent) {

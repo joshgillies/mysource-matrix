@@ -17,13 +17,7 @@ public class BMP_Reader extends ImagePlus implements PlugIn {
 
         private static String defaultDirectory;
 
-        public void run(String arg) {
-                OpenDialog od = new OpenDialog("Open BMP...", arg);
-                String directory = od.getDirectory();
-                String name = od.getFileName();
-                if (name==null)
-                        return;
-                String path = directory + name;
+        public void run(String path) {
 
                 //IJ.showStatus("Opening: " + path);
                 BMPDecoder bmp = new BMPDecoder();
@@ -45,12 +39,13 @@ public class BMP_Reader extends ImagePlus implements PlugIn {
                 Image img = Toolkit.getDefaultToolkit().createImage(mis);
                 FileInfo fi = new FileInfo();
                 fi.fileFormat = FileInfo.BMP;
-                fi.fileName = name;
-                fi.directory = directory;
+				File fp = new File(path);
+                fi.fileName = fp.getName();
+                fi.directory = fp.getParent();
                 setImage(img);
-                setTitle(name);
+                setTitle(fp.getName());
                 setFileInfo(fi);
-                if (arg.equals(""))
+                if (path.equals(""))
                     show();
         }
         
@@ -199,7 +194,6 @@ class BMPDecoder {
                                 byte br = rawData[k];
                                 br >>= shift;
                                 byteData[j] = (byte)(br & mask);
-                                //System.out.println("Setting byteData[" + j + "]=" + Test.byteToHex(byteData[j]));
                                 j++;
                                 i++;
                                 if (i == w) return;

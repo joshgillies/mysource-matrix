@@ -24,7 +24,6 @@ public class ImageWriter {
 		while (bytesWritten<size) {
 			if ((bytesWritten + count)>size)
 				count = size - bytesWritten;
-			//System.out.println(bytesWritten + " " + count + " " + size);
 			out.write(pixels, bytesWritten, count);
 			bytesWritten += count;
 			showProgress((double)bytesWritten/size);

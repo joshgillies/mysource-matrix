@@ -5,27 +5,36 @@ class MatrixSubmitProgressDialog extends JFrame
 {
 	JProgressBar progressBar;
 
-	MatrixSubmitProgressDialog(int max) {
-    	super();
-		System.out.println("---> MSBP Created");
-
-		//Create and set up the content pane.
-        //progressBar = new JProgressBar(0, max);
-		getContentPane().add(new JLabel("Sending file to server..."));
-        //getContentPane().add(progressBar);
-
-		setSize(300, 200);
-		setVisible(true);
-	}
-	
-	void setValue(int val) {
-		//progressBar.setValue(val);
-		System.out.println("Setting value to "+val);
-		repaint();
-	}
-
-	public static void main(String[] args) 
+	/**
+	* Constructor
+	*
+	* @access private
+	* @return void
+	*/
+	MatrixSubmitProgressDialog(int max)
 	{
-		MatrixSubmitProgressDialog d = new MatrixSubmitProgressDialog(50);
-	}
-}
+		super();
+		getContentPane().add(new JLabel("Sending file to server..."));
+		setSize(300, 200);
+		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+		setLocation(screen.width - 300, (screen.height / 2) - 200);
+
+		setVisible(true);
+
+	}//end MatrixSubmitProgressDialog()
+
+
+	/**
+	* Set the value of the progress bar
+	*
+	* @access private
+	* @return void
+	*/
+	void setValue(int val)
+	{
+		repaint();
+
+	}//end setValue()
+
+
+}//end class

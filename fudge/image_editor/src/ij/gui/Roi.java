@@ -491,7 +491,6 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	}
 		
 	protected void handleMouseUp(int screenX, int screenY) {
-		System.out.println("handleMouseUp in ROI called");
 		state = NORMAL;
 		imp.draw(clipX-5, clipY-5, clipWidth+10, clipHeight+10);
 		if (Recorder.record) {

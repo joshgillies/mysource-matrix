@@ -12,6 +12,7 @@ import ij.gui.*;
 import ij.util.*;
 import ij.text.TextWindow;
 import ij.plugin.frame.*;
+import javax.swing.*;
 
 /** Runs menu commands in a separate thread.*/
 public class Executer implements Runnable {
@@ -55,14 +56,7 @@ public class Executer implements Runnable {
 		iplus = null; // maybe this will help get the image GC'd
 
 		try {
-		//	if (Recorder.record) {
-		//		Recorder.setCommand(command);
-		//		runCommand(command, imp);
-		//		Recorder.saveCommand();
-		//	} else
-	
 			runCommand(command, imp);
-
 		} catch(Throwable e) {
 			IJ.showStatus("");
 			IJ.showProgress(1.0);
@@ -82,7 +76,7 @@ public class Executer implements Runnable {
 						return;
 					s = Tools.fixNewLines(s);
 				}
-				new TextWindow("Exception", s, 350, 250);
+				JOptionPane.showMessageDialog(IJ.getInstance(), s, "Exception", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}
@@ -109,7 +103,7 @@ public class Executer implements Runnable {
 		if (cmd.equals("New..."))
 			new NewImage();
 		else if (cmd.equals("Open Local")) {
-			new Opener().openMultiple();
+			new Opener().open();
 		} else if (cmd.equals("Close"))
 			close(imp);
 		else if (cmd.equals("Cut"))
@@ -119,7 +113,6 @@ public class Executer implements Runnable {
 		else {
 			Hashtable table = Menus.getCommands();
 			String plugIn = (String)table.get(cmd);
-			System.out.println("Looked up plugin is: "+plugIn);
 			if (plugIn!=null)
 				runPlugIn(cmd, plugIn);
 			else
@@ -130,7 +123,6 @@ public class Executer implements Runnable {
 
    /** Run commands that process images. */
     public void runImageCommand(String cmd, ImagePlus imp) {
-		System.out.println("Running image command "+cmd);
     	
     	if (imp!=null) {
 			if (!imp.lock())
@@ -149,13 +141,10 @@ public class Executer implements Runnable {
 				IJ.error("Unrecognized command: " + cmd);
 
 			imp.unlock();
-		} else {
-			System.out.println("Imp is null, command "+cmd+" not run");
-		}
+		} 
 	}
 
 	void runPlugIn(String cmd, String className) {
-		System.out.println("Running Plugin (executer.java), command is "+cmd);
 		String arg = "";
 		if (className.endsWith("\")")) {
 			// extract string argument (e.g. className("arg"))

@@ -24,7 +24,7 @@ public class Fonts extends PlugInFrame implements PlugIn, ItemListener {
 			return;
 		}
 		instance = this;
-		setLayout(new FlowLayout(FlowLayout.CENTER, 10, 5));
+		getContentPane().setLayout(new FlowLayout(FlowLayout.CENTER, 10, 5));
 		
 		font = new Choice();
 		String[] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames(); //requires Java 2
@@ -32,14 +32,14 @@ public class Fonts extends PlugInFrame implements PlugIn, ItemListener {
 			font.add(fonts[i]);
 		font.select(TextRoi.getFont());
 		font.addItemListener(this);
-		add(font);
+		getContentPane().add(font);
 
 		size = new Choice();
 		for (int i=0; i<sizes.length; i++)
 			size.add(sizes[i]);
 		size.select(getSizeIndex());
 		size.addItemListener(this);
-		add(size);
+		getContentPane().add(size);
 		
 		style = new Choice();
 		style.add("Plain");
@@ -56,11 +56,9 @@ public class Fonts extends PlugInFrame implements PlugIn, ItemListener {
 			s = "Bold+Italic";
 		style.select(s);
 		style.addItemListener(this);
-		add(style);
+		getContentPane().add(style);
 
-		pack();
-		GUI.center(this);
-		show();
+		setVisible(true);
 		IJ.register(Fonts.class);
 	}
 	

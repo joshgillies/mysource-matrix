@@ -20,7 +20,6 @@ public class Info implements PlugInFilter {
 
 	public void run(ImageProcessor ip) {
 		String info = getImageInfo(imp, ip);
-		System.out.println("Got info");
 		if (info.indexOf("----")>0)
 			showInfo(info, 400, 500);
 		else

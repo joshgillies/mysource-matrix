@@ -49,8 +49,6 @@ public class Prefs {
 	public static boolean open100Percent;
 	/** Backgound is black in binary images*/
 	public static boolean blackBackground;
-	/** Use JFileChooser instead of FileDialog to open and save files. */
-	public static boolean useJFileChooser;
 	/** Color to grayscale conversion is not weighted if the variable is true. */
 	public static boolean unweightedColor;
 	/** Use black image border. */
@@ -225,33 +223,6 @@ public class Prefs {
 
 	/** Saves user preferences in the IJ_Prefs.txt properties file. */
 	static void savePreferences() {
-		try {
-			Properties prefs = new Properties();
-			String dir = OpenDialog.getDefaultDirectory();
-			if (dir!=null)
-				prefs.put(DIR_IMAGE, escapeBackSlashes(dir));
-			prefs.put(ROICOLOR, Tools.c2hex(Roi.getColor()));
-			prefs.put(FCOLOR, Tools.c2hex(Toolbar.getForegroundColor()));
-			prefs.put(BCOLOR, Tools.c2hex(Toolbar.getBackgroundColor()));
-			prefs.put(JPEG, Integer.toString(JpegWriter.getQuality()));
-			prefs.put(DIV_BY_ZERO_VALUE, Double.toString(FloatBlitter.divideByZeroValue));
-			prefs.put(NOISE_SD, Double.toString(Filters.getSD()));
-			saveOptions(prefs);
-			savePluginPrefs(prefs);
-			Menus.savePreferences(prefs);
-			Analyzer.savePreferences(prefs);
-			ImportDialog.savePreferences(prefs);
-			NewImage.savePreferences(prefs);
-			String path = prefsDir+separator+PREFS_NAME;
-			savePrefs(prefs, path);
-		} catch (Exception e) {
-			//CharArrayWriter caw = new CharArrayWriter();
-			//PrintWriter pw = new PrintWriter(caw);
-			//e.printStackTrace(pw);
-			//IJ.write(caw.toString());
-			IJ.log("<Unable to save preferences>");
-			IJ.wait(3000);
-		}
 	}
 
 	static void loadOptions() {
@@ -262,7 +233,6 @@ public class Prefs {
 		open100Percent = (options&ONE_HUNDRED_PERCENT)!=0;
 		open100Percent = (options&ONE_HUNDRED_PERCENT)!=0;
 		blackBackground = (options&BLACK_BACKGROUND)!=0;
-		useJFileChooser = (options&JFILE_CHOOSER)!=0;
 		unweightedColor = (options&UNWEIGHTED)!=0;
 		if (unweightedColor)
 			ColorProcessor.setWeightingFactors(1d/3d, 1d/3d, 1d/3d);
@@ -272,7 +242,7 @@ public class Prefs {
 	static void saveOptions(Properties prefs) {
 		int options = (usePointerCursor?USE_POINTER:0) + (antialiasedText?ANTIALIASING:0)
 			+ (interpolateScaledImages?INTERPOLATE:0) + (open100Percent?ONE_HUNDRED_PERCENT:0)
-			+ (blackBackground?BLACK_BACKGROUND:0) + (useJFileChooser?JFILE_CHOOSER:0)
+			+ (blackBackground?BLACK_BACKGROUND:0) 
 			+ (unweightedColor?UNWEIGHTED:0) + (blackCanvas?BLACK_CANVAS:0);
 		prefs.put(OPTIONS, Integer.toString(options));
 	}

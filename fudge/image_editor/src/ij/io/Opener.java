@@ -5,6 +5,7 @@ import java.io.*;
 import java.net.URL;
 import java.net.*;
 import java.util.zip.*;
+import java.util.Iterator;
 import java.util.Locale;
 import javax.swing.*;
 import javax.swing.filechooser.*;
@@ -14,6 +15,8 @@ import ij.process.*;
 import ij.plugin.frame.*;
 import ij.text.TextWindow;
 import ij.util.Java2;
+import java.util.LinkedList;
+import java.util.ArrayList;
 
 /** Opens tiff, dicom, fits, pgm, jpeg, bmp or
 	gif images, and look-up tables, using a file open dialog or a path.
@@ -23,112 +26,143 @@ public class Opener {
 	private static final int UNKNOWN=0,TIFF=1,DICOM=2,FITS=3,PGM=4,JPEG=5,
 		GIF=6,LUT=7,BMP=8,ZIP=9,JAVA_OR_TEXT=10,ROI=11,TEXT=12,PNG=13,TIFF_AND_DICOM=14,CUSTOM=15;
 	private static final String[] types = {"unknown","tif","dcm","fits","pgm",
-		"jpg","gif","lut","bmp","zip","java/txt","roi","txt","png","t&d"};
-	private static String defaultDirectory = null;
+		"jpg","gif","bmp","png"};
+	public static FileExtensionFilter[] FILE_FILTERS;
+	public static FileExtensionFilter ALL_FILES_FILTER;
+
+	static {
+		ArrayList filters = new ArrayList();
+		LinkedList extensions = new LinkedList();
+		extensions.add("gif");
+		filters.add(new FileExtensionFilter("Graphics Interchange Format", extensions));
+		extensions.clear();
+		extensions.add("jpg");
+		extensions.add("jpeg");
+		filters.add(new FileExtensionFilter("Joint Photographic Experts Group", extensions));
+		extensions.clear();
+		extensions.add("png");
+		filters.add(new FileExtensionFilter("Portable Network Graphics", extensions));
+		extensions.clear();
+		extensions.add("bmp");
+		filters.add(new FileExtensionFilter("Windows Bitmap", extensions));
+		extensions.clear();
+		extensions.add("tif");
+		extensions.add("tiff");
+		filters.add(new FileExtensionFilter("Tagged Image File Format", extensions));
+		extensions.clear();
+		extensions.add("dcm");
+		extensions.add("dicom");
+		filters.add(new FileExtensionFilter("Digital Image and Communications in Medicine", extensions));
+		extensions.clear();
+		extensions.add("fits");
+		filters.add(new FileExtensionFilter("Flexible Image Transport System", extensions));
+		extensions.clear();
+		extensions.add("pgm");
+		filters.add(new FileExtensionFilter("Portable Gray Map", extensions));
+		LinkedList allExtensions = new LinkedList();
+		for (Iterator itr=filters.iterator(); itr.hasNext(); ) {
+			String[] e = ((FileExtensionFilter)(itr.next())).getExtensions();
+			for (int i=0; i < e.length; i++) {
+				allExtensions.add(e[i]);
+			}
+		}
+		ALL_FILES_FILTER = new FileExtensionFilter("All Supported Types", allExtensions);
+		ALL_FILES_FILTER.setShowExtensions(false);
+
+		FILE_FILTERS = new FileExtensionFilter[filters.size()+1];
+		FILE_FILTERS[0] = ALL_FILES_FILTER;
+		for (int i=0; i < filters.size(); i++) {
+			FILE_FILTERS[i+1] = (FileExtensionFilter)filters.get(i);
+		}
+
+	}
+
+	public static File defaultDirectory = null;
 	private static int fileType;
 
 
 	public Opener() {
 	}
 
-	/** Displays a file open dialog box and then opens the tiff, dicom, 
-		fits, pgm, jpeg, bmp, gif, lut, roi, or text file selected by 
-		the user. Displays an error message if the selected file is not
-		in one of the supported formats. This is the method that
-		ImageJ's File/Open command uses to open files. */
-	public void open() {
-		OpenDialog od = new OpenDialog("Open", "");
-		String directory = od.getDirectory();
-		String name = od.getFileName();
-		if (name!=null)
-			open(directory+name);
-	}
-
-	/** Displays a JFileChooser and then opens the tiff, dicom, 
-		fits, pgm, jpeg, bmp, gif, lut, roi, or text files selected by 
-		the user. Displays error messages if one or more of the selected 
-		files is not in one of the supported formats. This is the method
-		that ImageJ's File/Open command uses to open files if
-		"Use JFileChooser" is checked in EditOptions/Miscellaneous. */
-	public void openMultiple() {
-		if (!IJ.isJava2()) return;
-		Java2.setSystemLookAndFeel();
-		
+	/**
+	* Present a JFileChooser for the user to select a file to open,
+	* then open the file and display it
+	*
+	* @return boolean	Whether a file was successfully selected and displayed
+	*/
+	public boolean open() {
 		JFileChooser fc = new JFileChooser();
-		fc.setMultiSelectionEnabled(true);
-		File dir = null;
-		/*String sdir = OpenDialog.getDefaultDirectory();
-		if (sdir!=null)
-			dir = new File(sdir);
-		if (dir!=null)
-			fc.setCurrentDirectory(dir);*/
-		int returnVal = fc.showOpenDialog(IJ.getInstance());
-		if (returnVal!=JFileChooser.APPROVE_OPTION)
-			return;
-		File[] files = fc.getSelectedFiles();
-		if (files.length==0) { // getSelectedFiles does not work on some JVMs
-			files = new File[1];
-			files[0] = fc.getSelectedFile();
+		if (defaultDirectory != null) {
+			fc.setCurrentDirectory(defaultDirectory);
 		}
-		String directory = fc.getCurrentDirectory().getPath()+File.separator;
-		//OpenDialog.setDefaultDirectory(directory);
-		for (int i=0; i<files.length; i++) {
-			String path = directory + files[i].getName();
-			open(path);
-			
-		} 
+		for (int i=0; i < FILE_FILTERS.length; i++) {
+			fc.addChoosableFileFilter(FILE_FILTERS[i]);
+		}
+		fc.setFileFilter(ALL_FILES_FILTER);
+		fc.setAcceptAllFileFilterUsed(false);
+		int returnVal = fc.showOpenDialog(IJ.getInstance());
+		defaultDirectory = fc.getCurrentDirectory();
+
+		if (returnVal!=JFileChooser.APPROVE_OPTION) {
+			return false;
+		}
+		String path = fc.getSelectedFile().toString();
+		return open(path);
 	}
 
-	/** Opens and displays a tiff, dicom, fits, pgm, jpeg, bmp, gif, lut, 
-		roi, or text file. Displays an error message if the specified file
-		is not in one of the supported formats. */
-	public void open(String path) {
+
+	/**
+	* Open and display the specified file
+	*
+	* @param string		path	The path of the file to open
+	* @return boolean	Whether the file was successfully displayed
+	*/
+	public boolean open(String path) {
 		IJ.showStatus("Opening: " + path);
-		System.out.println("Trying to open file "+path);
 		
 		ImagePlus imp = openImage(path);
-		System.out.println(imp);
 
-		if (imp!=null)
+		if (imp != null) {
 			imp.show();
-		else {
-			switch (fileType) {
-				case LUT:
-					imp = (ImagePlus)IJ.runPlugIn("ij.plugin.LutLoader", path);
-					if (imp.getWidth()!=0)
-						imp.show();
-					break;
-				case ROI:
-					IJ.runPlugIn("ij.plugin.RoiReader", path);
-					break;
-				case JAVA_OR_TEXT: case TEXT:
-					File file = new File(path);
-					boolean betterTextArea = IJ.isJava2() || IJ.isMacintosh();
-					int maxSize = 250000;
-					long size = file.length();
-					if (size>=28000 && betterTextArea) {
-						String osName = System.getProperty("os.name");
-						if (osName.equals("Windows 95") || osName.equals("Windows 98") || osName.equals("Windows Me"))
-							maxSize = 60000;
-					}
-					new TextWindow(path,400,450);
-					break;
-				case UNKNOWN:
-					String msg =
-						"File is not in TIFF, JPEG, GIF, BMP, DICOM, FITS, PGM, \n"
-						+"ZIP, LUT, ROI or text format, or it was not found.";
-					if (path!=null && path.length()<=64)
-						msg += " \n  \n   "+path;
-					IJ.showMessage("Opener", msg);
-					break;
-			}
+			return true;
+		} else {
+			String msg = "File is not in a valid format, or it was not found.";
+			if (path!=null && path.length()<=64)
+				msg += " \n  \n   "+path;
+			IJ.showMessage("Opener", msg);
+			return false;
 		}
 	}
 
-	/** Attempts to open the specified file as a tiff, bmp, dicom, fits,
-		pgm, gif or jpeg image. Returns an ImagePlus object if successful.
-		Modified by Gregory Jefferis to call HandleExtraFileTypes plugin if 
-		the file type is unrecognised. */
+
+	/**
+	* Get an ImagePlus object from the specified path
+	* 
+	* @param string		path	The path to look in, may be a url or file path
+	*
+	* @return ImagePlus	The imageplus object from the file
+	*/
+	public ImagePlus openImage(String path) {
+		ImagePlus img = null;
+		if (path==null || path.equals(""))
+			img = null;
+		else if (path.indexOf("://")>0)
+			img = openURL(path);
+		else {
+			img = openImage(getDir(path), getName(path));
+		}
+		return img;
+	}
+
+
+	/**
+	* Get an ImagePlus object from the specified file in the specified dir
+	* 
+	* @param string		directory	The directory the file is in
+	* @param string		name		The name of the file to open
+	*
+	* @return ImagePlus	The imageplus object from the file
+	*/
 	public ImagePlus openImage(String directory, String name) {
 		ImagePlus imp;
 		if (directory.length()>0 && !directory.endsWith(Prefs.separator))
@@ -185,25 +219,14 @@ public class Opener {
 				return null;
 		}
 	}
-	
-	/** Attempts to open the specified file as a tiff, bmp, dicom, fits,
-	pgm, gif or jpeg. Returns an ImagePlus object if successful. */
-	public ImagePlus openImage(String path) {
-		Opener o = new Opener();
-		ImagePlus img = null;
-		if (path==null || path.equals(""))
-			img = null;
-		else if (path.indexOf("://")>0)
-			img = o.openURL(path);
-		else
-			img = o.openImage(getDir(path), getName(path));
-		return img;
-	}
 
-	/** Attempts to open the specified url as a tiff, zip compressed tiff, 
-		dicom, gif or jpeg. Tiff file names must end in ".tif", ZIP file names 
-		must end in ".zip" and dicom file names must end in ".dcm". Returns an 
-		ImagePlus object if successful. */
+	/**
+	* Get an imageplus object from a file URL
+	*
+	* @param string	url
+	*
+	* @return ImagePlus	The imageplus object from the file
+	*/
 	public ImagePlus openURL(String url) {
 	   	try {
 			String name = "";
@@ -282,15 +305,12 @@ public class Opener {
 	}
 
 	ImagePlus openJpegOrGif(String dir, String name) {
-		System.out.println("Opening JPG");
 	   	ImagePlus imp = null;
 		Image img = Toolkit.getDefaultToolkit().getImage(dir+name);
- 		System.out.println(img);
 		if (img!=null) {
  			try {
  				imp = new ImagePlus(name, img);
  			} catch (IllegalStateException e) {
-				System.out.println("IllegalStateException");
 				return null; // error loading image				
  			} 
 		
@@ -332,47 +352,6 @@ public class Opener {
 		new ImageConverter(imp).convertToGray8();
 	}
 
-	/** Are all the images in this file the same size and type? */
-	boolean allSameSizeAndType(FileInfo[] info) {
-		boolean sameSizeAndType = true;
-		boolean contiguous = true;
-		int startingOffset = info[0].offset;
-		int size = info[0].width*info[0].height*info[0].getBytesPerPixel();
-		for (int i=1; i<info.length; i++) {
-			sameSizeAndType &= info[i].fileType==info[0].fileType
-				&& info[i].width==info[0].width
-				&& info[i].height==info[0].height;
-			contiguous &= info[i].offset==startingOffset+i*size;
-		}
-		/*
-		int last = info.length-1;
-		if (info[0].fileType==FileInfo.COLOR8&&info[0].lutSize>0&&info[last].lutSize>0) {
-			// do the first and last images have the same LUT?
-			if (info[0].lutSize!=info[last].lutSize)
-				sameSizeAndType = false;
-			else {
-				int n = info[0].lutSize;
-				for (int i=0; i<n; i++) {
-					if (info[0].reds[i]!=info[last].reds[i])
-						{sameSizeAndType=false; break;}
-					if (info[0].greens[i]!=info[last].greens[i])
-						{sameSizeAndType=false; break;}
-					if (info[0].blues[i]!=info[last].blues[i])
-						{sameSizeAndType=false; break;}
-				}
-			}
-		}
-		*/
-		if (contiguous)
-			info[0].nImages = info.length;
-		if (IJ.debugMode) {
-			IJ.log("  sameSizeAndType: " + sameSizeAndType);
-			IJ.log("  contiguous: " + contiguous);
-		}
-		return sameSizeAndType;
-	}
-		
-	
 	/** Attempts to open the specified file as a tiff.
 		Returns an ImagePlus object if successful. */
 	public ImagePlus openTiff(String directory, String name) {
@@ -429,6 +408,9 @@ public class Opener {
 			return "";
 	}
 
+	/**
+	* Helper for opening tiffs
+	*/
 	ImagePlus openTiff2(FileInfo[] info) {
 		if (info==null)
 			return null;
@@ -441,17 +423,6 @@ public class Opener {
 		return imp;
 	}
 	
-	/** Attempts to open the specified ROI, returning null if unsuccessful. */
-	public Roi openRoi(String path) {
-		Roi roi = null;
-		RoiDecoder rd = new RoiDecoder(path);
-		try {roi = rd.getRoi();}
-		catch (IOException e) {
-			IJ.showMessage("RoiDecoder", e.getMessage());
-			return null;
-		}
-		return roi;
-	}
 
 	/**
 	Attempts to determine the image file type by looking for
@@ -465,6 +436,7 @@ public class Opener {
 			is.read(buf, 0, 132);
 			is.close();
 		} catch (IOException e) {
+			IJ.error("Couldn't open path "+path);
 			return UNKNOWN;
 		}
 		

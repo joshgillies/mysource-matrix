@@ -18,7 +18,7 @@ import javax.swing.*;
 
 /** This class consists of static utility methods. */
 public class IJ {
-	public static boolean debugMode = true;
+	public static boolean debugMode = false;
 	    
     public static final char micronSymbol = (char)181;
     public static final char angstromSymbol = (char)197;
@@ -69,12 +69,6 @@ public class IJ {
 	static Object runPlugIn(String commandName, String className, String arg) {
 		if (IJ.debugMode)
 			IJ.log("runPlugin: "+className+" "+arg);
-		// Use custom classloader if this is a user plugin
-		// and we are not running as an applet
-		if (!className.startsWith("ij") && applet==null) {
- 			boolean createNewClassLoader = altKeyDown();
-			return runUserPlugIn(commandName, className, arg, createNewClassLoader);
-		}
 		Object thePlugIn=null;
 		try {
 			Class c = Class.forName(className);
@@ -87,7 +81,7 @@ public class IJ {
 		}
 		catch (ClassNotFoundException e) {
 			if (IJ.getApplet()==null)
-				System.out.println("Plugin not found: " + className);
+				System.err.println("Plugin not found: " + className);
 		}
 		catch (InstantiationException e) {log("Unable to load plugin (ins)");}
 		catch (IllegalAccessException e) {log("Unable to load plugin, possibly \nbecause it is not public.");}
@@ -355,10 +349,13 @@ public class IJ {
 		if (ij!=null) {
 			if (msg.startsWith("<html>") && isJava2())
 				new HTMLDialog(title, msg);
-			else
+			else {
 				JOptionPane.showMessageDialog(null, msg);
-		} else
+				ij.repaint();
+			}
+		} else {
 			System.out.println(msg);
+		}
 	}
 
 	/** Displays a message in a dialog box titled "Message".
@@ -370,10 +367,12 @@ public class IJ {
 	/** Displays a message in a dialog box titled "ImageJ". Writes
 		to the Java console if the ImageJ window is not present. */
 	public static void error(String msg) {
-		if (ij!=null)
+		if (ij!=null) {
 			JOptionPane.showMessageDialog(null, msg);
+			ij.repaint();
+		}
 		else
-			System.out.println(msg);
+			System.err.println(msg);
 	}
 	
 	/** Displays a message in a dialog box with the specified title.
@@ -759,24 +758,8 @@ public class IJ {
 		cancels the dialog box. Also aborts the macro if the user cancels
 		the dialog box.*/
 	public static String getDirectory(String title) {
-		if (title.equals("plugins"))
-			return Menus.getPlugInsPath();
-		else if (title.equals("temp")) {
-			String dir = System.getProperty("java.io.tmpdir");
-			if (dir!=null && !dir.endsWith(File.separator)) dir += File.separator;
-			return dir;
-		} else if (title.equals("image")) {
-			ImagePlus imp = IJ.getInstance().getImagePlus();
-	    	FileInfo fi = imp!=null?imp.getOriginalFileInfo():null;
-			if (fi!=null && fi.directory!=null)
-				return fi.directory;
-			else
-				return null;
-		} else {
-			DirectoryChooser dc = new DirectoryChooser(title);
-			String dir = dc.getDirectory();
-			return dir;
-		}
+		// Not applicable to applet version
+		return "";
 	}
 	
 	static void abort() {

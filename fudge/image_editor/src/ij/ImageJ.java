@@ -104,6 +104,7 @@ public class ImageJ extends javax.swing.JApplet implements ActionListener,
 
 		statusBar.setSize(toolbar.getPreferredSize());
 		mainPane.add(statusBar, BorderLayout.SOUTH);
+		mainPane.addKeyListener(this);
 
 		Menus m = new Menus(this, null);
 		String err2 = m.addMenuBar();
@@ -204,7 +205,6 @@ public class ImageJ extends javax.swing.JApplet implements ActionListener,
 
     /** Starts executing a menu command in a separate thread. */
     void doCommand(String name) {
-		System.out.println("ImageJ is doingCommand()ing "+name);
 		new Executer(name, IJ.getInstance().getImagePlus());
     }
         
@@ -278,6 +278,12 @@ public class ImageJ extends javax.swing.JApplet implements ActionListener,
 		ImagePlus imp = IJ.getInstance().getImagePlus();
 		boolean isStack = (imp!=null) && (imp.getStackSize()>1);
 		
+		if (control && (keyCode == e.VK_D)) {
+			// hard coding the control-d shortcut until we fix the menu shortcuts
+			IJ.run("Draw");
+			imp.killRoi();
+		}
+
 		if (imp!=null && !control && ((keyChar>=32 && keyChar<=255) || keyChar=='\b' || keyChar=='\n')) {
 			Roi roi = imp.getRoi();
 			if (roi instanceof TextRoi) {
@@ -349,11 +355,14 @@ public class ImageJ extends javax.swing.JApplet implements ActionListener,
 		mainPane.remove(imageScrollPane);
 		imageCanvas = new ImageCanvas(ip);
 		ip.setCanvas(imageCanvas);
+		imageCanvas.addKeyListener(this);
+		imageCanvas.setFocusable(true);
 		imageScrollPane = new JScrollPane(imageCanvas);
 		mainPane.add(imageScrollPane, BorderLayout.CENTER);
 		updateFileTypes();
 		getContentPane().validate();
 		getContentPane().repaint();
+		requestFocus();
 	}
 
 	public void clearImagePlus() {
@@ -423,6 +432,10 @@ public class ImageJ extends javax.swing.JApplet implements ActionListener,
 	{
 		return getAssetName() + getFileType();
 	}
-
+	
+	public boolean isFocusable() 
+	{
+		return true;
+	}
 	
 } //class ImageJ
