@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime_edit_fns.inc,v 1.4 2003/11/26 00:51:28 gsherwood Exp $
+* $Id: form_question_type_datetime_edit_fns.inc,v 1.5 2004/04/23 07:28:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -64,42 +64,42 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 
 		if (!$asset->writeAccess('attributes')) return false;
 		?>
-			<table border="1" bordercolor="#ebebeb">
+			<table class="sq-backend-table">
 			  <tr>
-			    <td>&nbsp;</td>
-				<td>Day</td>
-				<td>Month</td>
-				<td>Year</td>
-				<td>Hour</td>
-				<td>Min</td>
-				<td>Sec</td>
+			    <td class="sq-backend-table-header">&nbsp;</td>
+				<td class="sq-backend-table-header">Day</td>
+				<td class="sq-backend-table-header">Month</td>
+				<td class="sq-backend-table-header">Year</td>
+				<td class="sq-backend-table-header">Hour</td>
+				<td class="sq-backend-table-header">Minute</td>
+				<td class="sq-backend-table-header">Second</td>
 			  </tr>
 			  <tr>
 			    <td>Show?</td>
-			    <td><?php check_box($prefix.'_day', '1', $asset->attr('day'));     ?></td>
-				<td><?php check_box($prefix.'_month', '1', $asset->attr('month')); ?></td>
-				<td><?php check_box($prefix.'_year', '1', $asset->attr('year'));   ?></td>
-				<td><?php check_box($prefix.'_hour', '1', $asset->attr('hour'));   ?></td>
-				<td><?php check_box($prefix.'_min', '1', $asset->attr('min'));     ?></td>
-				<td><?php check_box($prefix.'_sec', '1', $asset->attr('sec'));     ?></td>
+			    <td class="sq-backend-table-cell"><?php check_box($prefix.'_day', '1', $asset->attr('day'));     ?></td>
+				<td class="sq-backend-table-cell"><?php check_box($prefix.'_month', '1', $asset->attr('month')); ?></td>
+				<td class="sq-backend-table-cell"><?php check_box($prefix.'_year', '1', $asset->attr('year'));   ?></td>
+				<td class="sq-backend-table-cell"><?php check_box($prefix.'_hour', '1', $asset->attr('hour'));   ?></td>
+				<td class="sq-backend-table-cell"><?php check_box($prefix.'_min', '1', $asset->attr('min'));     ?></td>
+				<td class="sq-backend-table-cell"><?php check_box($prefix.'_sec', '1', $asset->attr('sec'));     ?></td>
 			  </tr>
 			  <tr>
 			    <td>Allow Blank?</td>
-			    <td><?php check_box($prefix.'_day_null', '1', $asset->attr('day_null'));     ?></td>
-			    <td><?php check_box($prefix.'_month_null', '1', $asset->attr('month_null')); ?></td>
-		  	    <td><?php check_box($prefix.'_year_null', '1', $asset->attr('year_null'));   ?></td>
-		  	    <td><?php check_box($prefix.'_hour_null', '1', $asset->attr('hour_null'));   ?></td>
-			    <td><?php check_box($prefix.'_min_null', '1', $asset->attr('min_null'));     ?></td>
-			    <td><?php check_box($prefix.'_sec_null', '1', $asset->attr('sec_null'));     ?></td>
+			    <td class="sq-backend-table-cell"><?php check_box($prefix.'_day_null', '1', $asset->attr('day_null'));     ?></td>
+			    <td class="sq-backend-table-cell"><?php check_box($prefix.'_month_null', '1', $asset->attr('month_null')); ?></td>
+		  	    <td class="sq-backend-table-cell"><?php check_box($prefix.'_year_null', '1', $asset->attr('year_null'));   ?></td>
+		  	    <td class="sq-backend-table-cell"><?php check_box($prefix.'_hour_null', '1', $asset->attr('hour_null'));   ?></td>
+			    <td class="sq-backend-table-cell"><?php check_box($prefix.'_min_null', '1', $asset->attr('min_null'));     ?></td>
+			    <td class="sq-backend-table-cell"><?php check_box($prefix.'_sec_null', '1', $asset->attr('sec_null'));     ?></td>
 			  </tr>
 			  <tr>
 			    <td>Text?</td>
-			    <td><?php check_box($prefix.'_day_text', '1', $asset->attr('day_text'));     ?></td>
-			    <td><?php check_box($prefix.'_month_text', '1', $asset->attr('month_text')); ?></td>
-		  	    <td><?php check_box($prefix.'_year_text', '1', $asset->attr('year_text'));   ?></td>
-		  	    <td><?php check_box($prefix.'_hour_text', '1', $asset->attr('hour_text'));   ?></td>
-			    <td><?php check_box($prefix.'_min_text', '1', $asset->attr('min_text'));     ?></td>
-			    <td><?php check_box($prefix.'_sec_text', '1', $asset->attr('sec_text'));     ?></td>
+			    <td class="sq-backend-table-cell"><?php check_box($prefix.'_day_text', '1', $asset->attr('day_text'));     ?></td>
+			    <td class="sq-backend-table-cell"><?php check_box($prefix.'_month_text', '1', $asset->attr('month_text')); ?></td>
+		  	    <td class="sq-backend-table-cell"><?php check_box($prefix.'_year_text', '1', $asset->attr('year_text'));   ?></td>
+		  	    <td class="sq-backend-table-cell"><?php check_box($prefix.'_hour_text', '1', $asset->attr('hour_text'));   ?></td>
+			    <td class="sq-backend-table-cell"><?php check_box($prefix.'_min_text', '1', $asset->attr('min_text'));     ?></td>
+			    <td class="sq-backend-table-cell"><?php check_box($prefix.'_sec_text', '1', $asset->attr('sec_text'));     ?></td>
 			  </tr>
 			</table>
 

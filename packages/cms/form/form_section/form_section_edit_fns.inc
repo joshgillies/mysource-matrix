@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.14 2003/11/26 00:51:29 gsherwood Exp $
+* $Id: form_section_edit_fns.inc,v 1.15 2004/04/23 07:28:08 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
-require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge_edit_fns.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 /**
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Form_Section_Edit_Fns extends Asset_Edit_Fns
+class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 {
 
 	/**
@@ -46,69 +46,11 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function Form_Section_Edit_Fns()
 	{
-		$this->Asset_Edit_Fns();
+		$this->Bridge_Edit_Fns();
 
 	} // end Form_Section_Edit_Fns()
 
-
-	/**
-	* Paint the links to the bodycopies in this section
-	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintBodycopyLinks(&$asset, &$o, $prefix)
-	{
-
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-
-		// get links to the bodycopies of this section
-		$main_copy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', false, 'main_bodycopy');
-		$looping_copy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', false, 'looping_bodycopy');
-
-		// we want the content screen of the bodycopies
-		$info = Array(
-			$main_copy_link['minorid'] => 'contents',
-			$looping_copy_link['minorid'] => 'contents',
-		);
-
-		$hrefs = $am->getAssetBackendHref($info);
-		
-		if (empty($hrefs)) return false;
-
-		?>
-		<a href="<?php echo $hrefs[$main_copy_link['minorid']]?>">Edit Main Bodycopy</a><BR />
-		<a href="<?php echo $hrefs[$looping_copy_link['minorid']]?>">Edit Looping Bopycopy</a><BR />
-		<?php
-		
-		return true;
-
-	} // end paintBodycopyLinks()
-
-
-	/**
-	* Processes the interface for creating tables in the bodycopy
-	* This function processes some actions (such as insert_table) but
-	* lets ndividual tables handle other actions themselves
-	*
-	* @param object Form_Section		$asset		the asset to which we belong
-	* @param object	Backend_Outputter	$o			the outputter class
-	* @param string						$prefix		prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processBodycopyLinks(&$asset, &$o, $prefix)
-	{
-		return true;
-
-	} // end processBodycopyLinks()
-
-
+	
 	/**
 	* Paint the links to the questions in this section
 	*
@@ -119,25 +61,179 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean false if no questions in this section, true otherwise
 	* @access public
 	*/
+	/**
+	* Paint the links to the bodycopies in this section
+	*
+	* @param object Form_Section		&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
 	function paintQuestionLinks(&$asset, &$o, $prefix)
 	{
-		$questions = &$asset->getQuestions();
-		
-		if (empty($questions)) {
-			echo 'There are no Questions for this section <br/>';
-			return false;
-		}
 
-		for (reset($questions); null !== ($k = key($questions)); next($questions)) {
-			$question =& $questions[$k];
-			?>
-			<a href="<?php echo $question->getBackendHref('contents') ?>"><?php echo $question->name ?></a><br />
-			<?php
-		}
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$admin_access = $asset->adminAccess('all');
+		$prefix = $asset->getPrefix();
+
+		// include script for re-ordering questions
+		?>
+		<script language="JavaScript">
+			function sortOrderMoveDown(currentOrder) {
+			  if (!document.getElementById) {
+				  alert('Browser cannot support script - Get Element By ID is not defined');
+				  return;
+			  }
+			  // move a question up a row
+			  var form = document.getElementById('main_form');
+
+			  var currentElement = document.getElementById('<?php echo $prefix ?>_order_o' + currentOrder);
+			  var nextElement = document.getElementById('<?php echo $prefix ?>_order_o' + (currentOrder + 1));
+
+			  // if there is no next element, then this is the last one; we shouldn't be running
+			  if (!nextElement) return;
+
+			  if (!currentElement.innerHTML) {
+				  alert('Browser cannot support script - Inner HTML is not defined');
+				  return;
+			  }
+
+			  // switch the question names
+			  var temp = currentElement.innerHTML;
+			  currentElement.innerHTML = nextElement.innerHTML;
+			  nextElement.innerHTML = temp;
+
+			  // switch the question types
+			  var currentElement = document.getElementById('<?php echo $prefix ?>_order_t' + currentOrder);
+			  var nextElement = document.getElementById('<?php echo $prefix ?>_order_t' + (currentOrder + 1));
+
+			  var temp = currentElement.innerHTML;
+			  currentElement.innerHTML = nextElement.innerHTML;
+			  nextElement.innerHTML = temp;
+
+				
+
+			  // switch the 'checked for deletion' parameters
+			  temp = form.elements['<?php echo $prefix ?>_order[delete][' + (currentOrder+1) + ']'].checked;
+			  form.elements['<?php echo $prefix ?>_order[delete][' + (currentOrder+1) + ']'].checked = form.elements['<?php echo $prefix ?>_order[delete][' + currentOrder + ']'].checked;
+			  form.elements['<?php echo $prefix ?>_order[delete][' + currentOrder + ']'].checked = temp;
+
+			  // switch the reorder values
+			  temp = form.elements['<?php echo $prefix ?>_order[reorder][' + (currentOrder+1) + ']'].value;
+			  form.elements['<?php echo $prefix ?>_order[reorder][' + (currentOrder+1) + ']'].value = form.elements['<?php echo $prefix ?>_order[reorder][' + currentOrder + ']'].value;
+			  form.elements['<?php echo $prefix ?>_order[reorder][' + currentOrder + ']'].value = temp;
+
+			}
+
+			function sortOrderMoveUp(currentOrder) {
+			  // move a question up a row
+			  if (!document.getElementById) {
+				  alert('Browser cannot support script - Get Element By ID is not defined');
+				  return;
+			  }
+
+			  if (currentOrder == 0) return;
+
+			  var form = document.getElementById('main_form');
+
+			  var currentElement = document.getElementById('<?php echo $prefix ?>_order_o' + currentOrder);
+			  var prevElement = document.getElementById('<?php echo $prefix ?>_order_o' + (currentOrder - 1));
+
+			  if (!currentElement.innerHTML) {
+				  alert('Browser cannot support script - Inner HTML is not defined');
+				  return;
+			  }
+
+			  // switch the question names
+			  var temp = currentElement.innerHTML;
+			  currentElement.innerHTML = prevElement.innerHTML;
+			  prevElement.innerHTML = temp;
+
+			  // switch the question types
+			  var currentElement = document.getElementById('<?php echo $prefix ?>_order_t' + currentOrder);
+			  var prevElement = document.getElementById('<?php echo $prefix ?>_order_t' + (currentOrder - 1));
+
+			  var temp = currentElement.innerHTML;
+			  currentElement.innerHTML = prevElement.innerHTML;
+			  prevElement.innerHTML = temp;
+
+			  // switch the delete checkboxes
+			  temp = form.elements['<?php echo $prefix ?>_order[delete][' + (currentOrder-1) + ']'].checked;
+			  form.elements['<?php echo $prefix ?>_order[delete][' + (currentOrder-1) + ']'].checked = form.elements['<?php echo $prefix ?>_order[delete][' + currentOrder + ']'].checked;
+			  form.elements['<?php echo $prefix ?>_order[delete][' + currentOrder + ']'].checked = temp;
+
+			  // switch the includes checkboxes
+			  temp = form.elements['<?php echo $prefix ?>_order[reorder][' + (currentOrder-1) + ']'].value;
+			  form.elements['<?php echo $prefix ?>_order[reorder][' + (currentOrder-1) + ']'].value = form.elements['<?php echo $prefix ?>_order[reorder][' + currentOrder + ']'].value;
+			  form.elements['<?php echo $prefix ?>_order[reorder][' + currentOrder + ']'].value = temp;
+
+			}
+		</script>
+				<table class="sq-backend-table">
+					<tr>
+						<td class="sq-backend-table-header">
+							Question
+						</td>
+						<td class="sq-backend-table-header">
+							Type
+						</td>
+						<?php
+						if ($admin_access) {
+							?><td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;">Delete ?</td>
+							<td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;">Move</td>
+							<?php
+						}
+						?>
+					</tr>
+				<?php
+				$questions = &$asset->getQuestions();
+				$sort_order = $asset->attr('sort_order');
+
+				if(!empty($sort_order)) {
+					// sort order is based upon shadow asset id (eg. '87:q1'), not just question id - this 	
+					// will allow sections to be sorted in later
+					$i = 0;
+					foreach($sort_order as $sort_id => $assetid) {
+					$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					$href = $q->getBackendHref('contents');
+					?>
+						<tr>
+							<td class="sq-backend-table-cell">
+								<span name="<?php echo $prefix.'_order_o'.$i ?>" id="<?php echo 	$prefix.'_order_o'.$i ?>"><a href="<?php echo $href ?>"><?php	echo $q->attr('name')?></a></span><?php hidden_field($prefix.'_order[reorder]['.$i.']', $assetid); ?>
+							</td>
+							<td class="sq-backend-table-cell">
+								<span name="<?php echo $prefix.'_order_t'.$i ?>" id="<?php echo 	$prefix.'_order_t'.$i ?>"><?php	
+									$q_type = str_replace('form_question_type', '', get_class($q));
+									$q_type = str_replace('_', ' ', $q_type);
+									$q_type = trim(ucwords($q_type));
+									echo $q_type;
+								?></span>
+							</td>
+						<?php
+							if ($admin_access) {
+								?><td align="center" width="100" class="sq-backend-table-cell"><?php
+								check_box($prefix.'_order[delete]['.$i.']');
+								?></td>
+								<td align="center" width="100" class="sq-backend-table-cell"><?php if ($i != 0) { ?><a href="#" onClick="sortOrderMoveUp(<?php print $i ?>); return false;">Up</a><?php } ?>
+								<?php if ($i != count($questions)-1) { ?><a href="#" onClick="sortOrderMoveDown(<?php print $i ?>); return false;">Down</a><?php } ?>
+							</td>
+							<?php
+						}
+						?>
+						</tr>
+					<?php
+					$i++;
+					}// end foreach data
+				}
+				?>
+				</table>
+		<?php
 		return true;
 
 	} // end paintQuestionLinks()
-
+	
 
 	/**
 	* Process the links to the questions in this section
@@ -151,6 +247,25 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processQuestionLinks(&$asset, &$o, $prefix)
 	{
+		$prefix = $asset->getPrefix();
+
+		if (isset($_POST[$prefix . '_order']['delete'])) {
+			foreach(array_keys($_POST[$prefix . '_order']['delete']) as $sort_order) {
+				$question = $asset->getQuestionByOrder($sort_order);
+				$asset->deleteQuestion($question);
+				unset($_POST[$prefix . '_order']['reorder'][$sort_order]);
+			}
+		}
+		
+		if (isset($_POST[$prefix . '_order']['reorder'])) {
+			$asset->setAttrValue('sort_order', $_POST[$prefix . '_order']['reorder']);
+			$asset->saveAttributes();
+		}
+
+		
+		// regen the content file
+		$asset->_updated();
+
 		return true;
 	
 	} // end processQuestionLinks()
@@ -228,13 +343,9 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 						
 			// create some questions
 			for ($i = 0; $i < $number; $i++) {
-				$question  = new $type();
-				$copy_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
-				
-				// give an appropriate name to this question
+				$question  = new $type($asset->id, Array('questionid' => 0, 'attributes' => Array()));
 				$question->setAttrValue('name', 'Question '.$curr_question_count);
-				if (!$question->create($copy_link)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				if (!$asset->attachQuestion($question)) {
 					return false;
 				}
 				$curr_question_count++;
@@ -255,82 +366,90 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function generateContentFile(&$asset) {
-		//get the asset manager
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-
-		// get links to the bodycopies of this section
-		$main_copy_link    = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', false, 'main_bodycopy');
-		$looping_copy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', false, 'looping_bodycopy');
-
+	/**
+	* generates a php file for this form to be used on the frontend for a standard Form
+	*
+	* @param &object Form	$asset the form asset
+	*
+	* @access public
+	* @return boolean
+	*/
+	function generateContentFile(&$asset)
+	{
+//		$bodycopy = &$asset->getBodycopy('format');
+		
 		// if there is no bodycopy, we will assume that we are trying to generate the 
 		// content file at form creation time, so just return true (it will get generated later)
-		if (empty($main_copy_link)) return true;
-		if (empty($looping_copy_link)) return true;
+		if (isset($bodycopy)) { //return true;
 
-		// get the bodycopy assets
-		$main_copy    = &$am->getAsset($main_copy_link['minorid'], $main_copy_link['minor_type_code']);
-		$looping_copy = &$am->getAsset($looping_copy_link['minorid'], $looping_copy_link['minor_type_code']);
+		// check to see if the bodycopy attached to this form has any content
+//		if (!$bodycopy->isEmpty()) {
 
-		// contents to be written to the generated file
-		$output = ''; 
+//			ob_start();
+//			$bodycopy->printBody();
+//			$output = ob_get_contents(); 
+//			ob_end_clean();
 
-		if ($main_copy->isEmpty()) {
-			// if there is no main copy or looping copy, generate a generic section
-			if ($looping_copy->isEmpty()) {
-				$output .= $this->generateGenericSection($asset);
-			} else {
-				$output .= $this->generateLoopingBodycopy($asset, $looping_copy);
-			}
-		// something in the main copy
+//			ob_start();
+//			$bodycopy->printBody();
+//			$output = ob_get_contents(); 
+//			ob_end_clean();
+			
+//			$replaced = true;
+//			if (!$output = $this->processSectionReplacements($asset, $output)) $replaced = false;
+//			if (!$output = $this->processQuestionReplacements($asset, $output)) $replaced = false;
+
+			// if output is the same as it was before replacements, trigger error
+//			if (!$replaced) {
+//				trigger_error('could not find any sections or questions to replace in the Format Bodycopy (Standard Mode)', E_USER_WARNING);
+//				return false;
+//			}
+		
+			// there should only be a keyword replacement for a submit button, 
+			// so only replace that with a submit button, anything else
+			// will get stripped out later
+
+//			$search = '%submit_button%';
+			
+			// if no title for the submit button is specified in the backend
+			// just use 'submit'
+
+//			$button_name = ($asset->attr('submit_button')) ? $asset->attr('submit_button') : 'Submit'; 
+
+//			ob_start();
+//			submit_button($asset->getPrefix().'_submit', $button_name);
+//			$replacement = ob_get_contents();
+//			ob_end_clean();
+			
+//			$output = str_replace($search, $replacement, $output);
+		
+		// no contents in the bodycopy
 		} else {
-			// get the contents of the main copy
-			ob_start();
-			$main_copy->printBody();
-			$output = ob_get_contents();
-			ob_end_clean();
+			
+			// if there is no bodycopy contents, then just ask
+			// all the sections to print themselves
+			//$questions = &$asset->getQuestions();
+			$output = '';
 
-			if (!$looping_copy->isEmpty()) {
-				
-				// if they have specified a main copy and a looping copy, 
-				// then we just want to replace the looping copy keyword with the 
-				// contents of the questions - any other keywords will be stripped out
-				
-				$looping_html = $this->generateLoopingBodycopy($asset, $looping_copy);
-				$output = str_replace('%looping_bodycopy%', $looping_html, $output);
-				
-				// strip out any other keyword replacements that should not be here
-				$output = preg_replace('/%[^%]+%/', '', $output);
+			/*for (reset($questions); null !== ($k = key($questions)); next($questions)) {
+				$question =& $questions[$k];
+				$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id.':q'.$k);
+				$output .= $q->getAnswer(true);
+			}*/
 
-			// looping bodycopy is empty
-			} else {
-				// replace the question keyword with the value that is wanted
-				if (preg_match_all('/%question_(\d+)_(\w+)%/', $output, $matches)) {
-					for ($i = 0; $i < count($matches[1]); $i++) {
-						$q = $matches[1][$i]; // question
-						$t = $matches[2][$i]; // wanted type
-						$search = '%question_'.$q.'_'.$t.'%';
+			$output .= $this->generateGenericSection($asset);
 
-						if ($question = &$asset->getQuestionByOrder($q)) {
-							$index = '"&nbsp;"';
-							if ($this->question_index) {
-								$index = '$this->getQuestionIndex($q);';
-							}
-							$replacement .= '?'.'><table><tr><td><'.'?php echo '.$index.'?'.'></td><td>'
-								.$question->getVal($t).'</td></tr></table>';
-						} else {
-							$replacement = '';
-						}
-						$output = str_replace($search, $replacement, $output);
+			$i = 1; // used for indexing
+			
+		} //end if
 
-					} // end for
-				} // end if
-			} // end else
-		} // end else
-
+		// if there are any tags left that haven't been replaced, 
+		// we want to strip them out
+		$output = preg_replace('/%[^<>%]+%/', '', $output);
+	
 		create_directory($asset->data_path);
 		return string_to_file($output, $asset->data_path.'/content_file.php');
-
+	
 	} // end generateContentFile()
 
 
@@ -344,91 +463,28 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function generateGenericSection(&$asset)
 	{
-		$output = '<table>';
-		$questions = &$asset->getQuestions();
-		for (reset($questions); null !== ($k = key($questions)); next($questions)) {
-			$q =& $questions[$k];
+		$sort_order = $asset->attr('sort_order');
+		if(empty($sort_order)) return;
+
+		$output = '<h3>'.$asset->attr('name').'</h3>';	
+
+		$output .= '<table width="'.$asset->attr('section_width').'">';
+
+		foreach($sort_order as $i => $assetid) {
+			$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			
 			$output .= '<tr>';
-			// check to see if we need question indexes
-			if ($asset->question_index) {
-				$index = $asset->getQuestionIndex($k-1);
-				$output .= '<td width="20">'.$index.'</td>';
-			} 
 			$output .= '<td valign="top"';
-			$output .= ($asset->question_col_width) ? ' width="'.$asset->question_col_width.'">' : '>';
+			$output .= ($asset->attr('question_col_width')) ? ' width="'.$asset->attr('question_col_width').'">' : '>';
 			$output .= $q->getVal('title').'</td><td';
-			$output .= ($asset->answer_col_width) ? ' width="'.$asset->answer_col_width.'">' : '>';
-			$output .= $q->getVal('answer').'</td></tr>';
+			$output .= ($asset->attr('answer_col_width')) ? ' width="'.$asset->attr('answer_col_width').'">' : '>';
+			$output .= $q->getAnswer(true).'</td></tr>';
 		}
 		$output .= '</table>';
 
 		return $output;
 
 	} // generateGenericSection()
-
-
-	/**
-	* generate the html for the looping bodycopy
-	*
-	* @param &object	$asset				the section asset
-	* @param &object	$looping_bodycopy	the bodycopy
-	*
-	* @return string
-	* @access public
-	*/
-	function generateLoopingBodycopy(&$asset, &$looping_copy)
-	{
-		$output = '';
-
-		// get the contents of the bodycopy
-		ob_start();
-		$looping_copy->printBody();
-		$html = ob_get_contents();
-		ob_end_clean();
-		
-		// get the first instance of a table tag and the content of the table
-		preg_match('/(<table[^>]+>)(.+)<\/table>/is', $html, $matches);
-		$output .= $matches[1];
-
-		// get the body of the looping bodycopy without the surrounding tables
-		$body = $matches[2];
-		
-		preg_match_all('/%question_\?_([^%]+)%/', $body, $matches);
-		$questions = &$asset->getQuestions();
-
-		for (reset($questions); null !== ($order = key($questions)); next($questions)) {
-			$question =& $questions[$order];
-			
-			// we don't want to override the keywords in the body, so we can keep using them
-			// to replace the content of the questions
-			
-			$tmp = $body;
-
-			// replace the keywords with the intended value
-			
-			$i = 0;
-			foreach ($matches[1] as $t) { 
-				$search = '%question_?_'.$t.'%';
-				// check to see if we need a question index
-				$index = '&nbsp;';
-				$replacement = '';
-				if ($asset->question_index && $i==0) {
-					$index = $asset->getQuestionIndex($order-1);
-					$replacement .= $index.'</td><td>';
-				} 
-				$i++;
-				$replacement .= $question->getVal($t);
-				$tmp = str_replace($search, $replacement, $tmp);
-			}
-			$output .= $tmp;
-		} // end for
-
-		$output .= '</table>';
-		
-		return $output;
-
-	} // generateLoopingHtml()
 	
 
 }//end class 

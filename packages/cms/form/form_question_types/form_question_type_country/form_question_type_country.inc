@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_country.inc,v 1.4 2003/11/26 00:51:28 gsherwood Exp $
+* $Id: form_question_type_country.inc,v 1.5 2004/04/23 07:28:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -48,9 +48,9 @@ class Form_Question_Type_Country extends Form_Question_Type_Select
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Form_Question_Type_Country($assetid=0) 
+	function Form_Question_Type_Country($assetid=0,$data=Array()) 
 	{
-		$this->Form_Question_Type_Select($assetid);
+		$this->Form_Question_Type_Select($assetid,$data);
 
 	} // end Form_Question_Type_Country()
 

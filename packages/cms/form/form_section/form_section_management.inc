@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_management.inc,v 1.5 2003/11/26 00:51:29 gsherwood Exp $
+* $Id: form_section_management.inc,v 1.6 2004/04/23 07:28:08 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,8 +51,28 @@ class Form_Section_Management extends Asset_Management
 												'type'      => 'text',  
 												'default'   => '',
 												),
-									);
-	}//end constructor
+							'sort_order' => Array(
+											'added'     => '0.0.1',
+											'type'      => 'serialise',
+											'default'   => Array(),
+												),
+							'question_col_width' => Array(
+											'added'     => '0.0.1',
+											'type'      => 'html_width',  
+											'default'   => '100',
+								),
+							'answer_col_width' => Array(
+											'added'     => '0.0.1',
+											'type'      => 'html_width',  
+											'default'   => '100',
+								),
+							'section_width' => Array(
+											'added'     => '0.0.1',
+											'type'      => 'html_width',  
+											'default'   => '100',
+							),
+				);
+		}//end constructor
 
 }//end class
 ?>

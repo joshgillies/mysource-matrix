@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.4 2004/03/26 15:35:43 brobertson Exp $
+* $Id: form_question_type_datetime.inc,v 1.5 2004/04/23 07:28:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,9 +46,9 @@ class Form_Question_Type_Datetime extends Form_Question
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Form_Question_Type_Datetime($assetid=0) 
+	function Form_Question_Type_Datetime($assetid=0,$data=Array()) 
 	{
-		$this->Asset($assetid);
+		$this->Form_Question($assetid,$data);
 
 	} // end Form_Question_Type_Datetime()
 
@@ -61,14 +61,7 @@ class Form_Question_Type_Datetime extends Form_Question
 	*/
 	function _getAllowedLinks()
 	{
-		$links = parent::_getAllowedLinks();
-		$links[SQ_LINK_TYPE_3]['form_question_rule_type_comparison'] = Array('card' => '1', 'exclusive' => true);
-		$links[SQ_LINK_TYPE_3]['form_question_rule_type_email'] = Array('card' => '1', 'exclusive' => true);
-		$links[SQ_LINK_TYPE_3]['form_question_rule_type_numeric'] = Array('card' => '1', 'exclusive' => true);
-		$links[SQ_LINK_TYPE_3]['form_question_rule_type_found_in'] = Array('card' => '1', 'exclusive' => true);
-		$links[SQ_LINK_TYPE_3]['form_question_rule_type_regexp'] = Array('card' => '1', 'exclusive' => true);
-		$links[SQ_LINK_TYPE_3]['form_question_rule_type_contain'] = Array('card' => '1', 'exclusive' => true);
-		return $links;
+		return Array();
 
 	}//end _getAllowedLinks()
 
@@ -92,15 +85,15 @@ class Form_Question_Type_Datetime extends Form_Question
 
 		// generate some php for the value, which can be used for both
 		// auto-answer and returning to saved forms
-		if ($content_file) {
-			$html  = '<'.'?php $q = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('
-			.$this->id.', \''.get_class($this).'\'); '
-			.' $q->active_submission =& $this->active_submission; ?'.'>';
+		//if ($content_file) {
+			//$html  = '<'.'?php $q = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('
+			//.$this->id.', \''.get_class($this).'\'); '
+			//.' $q->active_submission =& $this->active_submission; ?'.'>';
 
-			$value = '<'.'?php echo $q->getValue(); ?'.'>';
-		} else {
+			//$value = '<'.'?php echo $q->getValue(); ?'.'>';
+		//} else {
 			$html = '';
-		}
+		//}
 
 		if ($default) {
 			$parameters = $this->getDefaultParameters();
@@ -202,8 +195,6 @@ class Form_Question_Type_Datetime extends Form_Question
 			$val = $_POST[$this->id.'value'];
 			$this->active_submission->setAnswer($this->id, $val);
 			$this->active_submission->setSummary($this->id, $this->attr('name'), $val, $this->section_id, $this->section_name);
-
-			parent::processForm();
 		}
 		
 		return true;

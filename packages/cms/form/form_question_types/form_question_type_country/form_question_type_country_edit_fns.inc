@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_country_edit_fns.inc,v 1.4 2003/11/26 00:51:28 gsherwood Exp $
+* $Id: form_question_type_country_edit_fns.inc,v 1.5 2004/04/23 07:28:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -62,12 +62,28 @@ class Form_Question_Type_Country_Edit_Fns extends Form_Question_Type_Select_Edit
 	*/
 	function paintAvailableCountries(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
 
 		$options = $asset->getCompleteOptions();
-		$selected_options = (count($asset->attr('available'))) ? $asset->attr('available') :  array_keys($options);
+		$selected_options = $asset->attr('available');
+		//$selected_options = unserialize((count($asset->attr('available'))) ? $asset->attr('available') :  array_keys($options));
 		
-		return combo_box($prefix.'_available', $options, true, $selected_options);
+		
+		if (!$asset->writeAccess('attributes')) {
+			if (count($selected_options)) {
+				// gather all the names of the countries available
+				$sel_option_names = Array();
+				foreach($selected_options as $selected_option) {
+					$sel_option_names[] = $options[$selected_option];
+				}
+				echo implode('<br />', $sel_option_names);
+			} else {
+				echo 'All countries';
+			}
+		} else {
+			combo_box($prefix.'_available', $options, true, $selected_options);
+		}
+
+		return $asset->writeAccess('attributes');
 	
 	} // end printAvailableCountries()
 

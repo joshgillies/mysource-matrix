@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.7 2003/11/26 00:51:29 gsherwood Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.8 2004/04/23 07:28:08 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -32,67 +32,35 @@
 		</field>
 		<field attribute="note">
 			<display_name>Note</display_name>
-			<note></note>
+			<note>This text will be displayed next to the question</note>
 			<text width="40" height="2" />
 		</field>
 		<field attribute="default">
-			<display_name>Default</display_name>
+			<display_name>Default Value</display_name>
 			<note></note>
 			<text width="30" height="1" />
 		</field>
 		<field attribute="width">
 			<display_name>Width</display_name>
-			<note></note>
+			<note>Width of the field (in characters)</note>
 			<text width="5" height="1" />
 		</field>
 		<field attribute="height">
 			<display_name>Height</display_name>
-			<note></note>
+			<note>Height of the field (in lines)</note>
 			<text width="5" height="1" />
 		</field>
 		<field attribute="max">
 			<display_name>Maximum Length</display_name>
-			<note></note>
+			<note>Maximum length of answer (characters)</note>
 			<text width="5" height="1" />
 		</field>
-		<field attribute="extra">
-			<display_name>Extras</display_name>
-			<note></note>
-			<text width="20" height="1" />
-		</field>
 	</section>
-	<section name="Add Rules">
-		<field>
-			<display_name>Rule</display_name>
-			<note></note>
-			<function_call>
-				<paint_function   name="paintAddRule"   />
-				<process_function name="processAddRule" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Current Rules">
-		<field>
-			<display_name>Question Rules</display_name>
-			<note></note>
-			<function_call>
-				<paint_function   name="paintRules"   />
-				<process_function name="processRules" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Special Information">
-		<field attribute="special_info">
-			<display_name>Special Information</display_name>
-			<note>Defines a special value form this question </note>
-			<selection style="list" />
-		</field>
-	</section>
-	<section name="Auto Answer">
-		<field attribute="auto_answer">
-			<display_name>Auto Answer</display_name>
-			<note>The question will be answered with this value</note>
-			<selection style="list" />
+	<section name="Validation Rules">
+	    <field attribute="required">
+			<display_name>Required Entry?</display_name>
+			<note>If required, this question must be answered before the form can be submitted</note>
+			<boolean true_text="Required" false_text="Optional" />
 		</field>
 	</section>
 </contents>

@@ -18,15 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.14 2003/11/26 00:51:29 gsherwood Exp $
+* $Id: form_section.inc,v 1.15 2004/04/23 07:28:08 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
-require_once SQ_INCLUDE_PATH.'/asset.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge.inc';
 
 /**
-* Form_Question
+* Form_Section
 *
 * Purpose
 *
@@ -36,16 +36,9 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Form_Section extends Asset
+class Form_Section extends Bridge
 {
 
-
-	/**
-	* the current form object using this section
-	*
-	* @var &object Form
-	*/
-	var $active_form = null;
 
 	/**
 	* the question index type
@@ -66,12 +59,19 @@ class Form_Section extends Asset
 	var $answer_col_width = 0;
 
 	/**
-	* the active submission object
-	* @var object
+	* the active submission array
+	* @var Array
 	*/
-	var $active_submission = null;
+	var $active_submission = Array();
 
 
+	/**
+	* the active submission array
+	* @var Array
+	*/
+	var $submission_errors = Array();
+	
+	
 	/**
 	* Constructor
 	*
@@ -80,11 +80,346 @@ class Form_Section extends Asset
 	*/
 	function Form_Section($assetid=0) 
 	{
-		$this->Asset($assetid);
+		$this->_ser_attrs = true;
+		$this->Bridge($assetid);
 
 	} // end Form_Section()
 
 
+	/**
+	* Returns a reference to the asset represented by the passed assetid
+	*
+	* @param int		$assetid		the asset id to be loaded
+	* @param string		$type_code		if this exists then this object is used to
+	*									load the asset, if not then the DB is queried
+	*									to find out the asset type
+	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
+	*									you can't use the '@' operator when returning by reference
+	*
+	* @return object Asset or null on error
+	* @access public
+	* @see Asset_Manager::&getAsset()
+	*/
+	function &getAsset($shadowid, $type_code='', $mute_errors=false)
+	{
+		$asset = null;
+		if (empty($shadowid)) return $asset;
+
+		if ($shadowid{0} == 'q') {	// Questions will be preceded with a 'q'
+			
+			$questionid = substr($shadowid, 1, strlen($shadowid));
+			$data = $this->getQuestionById($questionid);
+
+			$data['questionid'] = $questionid;
+
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($data['question_type_code']);
+
+			$type_code = $data['question_type_code'];
+
+			// this eval returns the necessary object for the question type
+			$asset = new $type_code($this->id, $data);
+			return $asset;
+
+		}
+
+	}//end getAsset()
+	
+	
+	/**
+	* Return all links that this asset has to other assets
+	*
+	* @param int			$assetid			id of the the $side_of_link asset
+	* @param int			$link_types			integer that can be the product of bitwise operations
+	*											on the SQ_LINK_* constants
+	* @param string|array	$type_code			the type of asset that is linked
+	*											(eg 'Page', 'File', etc)
+	*											if an array returns link if matches any
+	*											of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	* @param string			$side_of_link		Which side of the link this (the current) asset
+	*											is on ('major' or 'minor')
+	* @param string			$sort_by			a field in the asset table you would like the results
+	*											sorted by (eg. name, short_name etc)
+	*
+	* @return array
+	* @access public
+	* @see Asset_Manager::getLinks()
+	*/
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null)
+	{
+		// there are no links away from the shadow asset (ie:questions)
+		if (!is_numeric($assetid)) return Array();
+
+		if (!isset($this->_tmp['getLinks'][$assetid][$side_of_link])) {
+
+			// no section links here, but we do need question shadow asset links
+			$entries = $this->getQuestions();
+			$links = Array();
+
+			$i = 0;
+
+			foreach ($entries as $questionid => $data) {
+
+				$links[] = Array('linkid' => 0,
+								 'majorid' => $this->id,
+								 'minorid' => $this->id.':q'.$questionid,
+								 'minor_type_code' => $data['question_type_code'],
+								 'value' => '',
+								 'link_type' => SQ_LINK_TYPE_2,
+								 'dependant' => true,
+								 'exclusive' => false,
+								 'sort_order' => $i,
+								);
+				$i++;
+			}
+
+			$this->_tmp['getLinks'][$assetid][$side_of_link] = $links;
+
+		}
+
+		return $this->_tmp['getLinks'][$assetid][$side_of_link];
+
+	}//end getLinks()
+	
+		
+	/**
+	* Get all asset ids that are below the passed assetid in the various trees in which it exists
+	*
+	* @param int			$assetid			the id of the asset to get its children for
+	* @param string|array	$type_code			the type of asset that is linked
+	*											(eg 'Page', 'File', etc)
+	*											if an array returns link if matches any
+	*											of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	* @param string			$sort_by			a field in the asset table you would like the results
+	*											sorted by (eg. name, short_name etc)
+	*
+	* @return array(int => string)	returns an array of assetids and their type code
+	* @access public
+	* @see Asset_Manager::getChildren()
+	*/
+	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
+	{
+		if (!is_numeric($assetid)) return Array();
+
+		if (!is_array($type_code)) {
+			if (empty($type_code)) $type_code = Array();
+			else $type_code = Array($type_code);
+		}
+		
+		$children = Array();
+
+		if (empty($this->tmp['questions'])) {
+			$this->getQuestions();
+		}
+		$entries = $this->tmp['questions'];
+
+		foreach ($entries as $questionid => $data) {
+			$children[$this->id.':q'.$questionid] = $data['question_type_code'];
+		}
+
+		return $children;
+
+	}//end getChildren()
+	
+	
+	/**
+	* Get all asset ids that are above the passed assetid in the various trees in which it exists
+	*
+	* Can only find parents of type <i>form_section</i> or <i>form</i>
+	*
+	* @param int			$assetid			the id of the asset to get its parents for
+	* @param string|array	$type_code			the type of asset that is linked (eg 'Form_Section', 'Form_Question', etc)
+	*											if an array returns link if matches any of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	*
+	* @return array(int)
+	* @access public
+	* @see Asset_Manager::getParents()
+	*/
+	function getParents($assetid, $type_code='', $strict_type_code=true)
+	{
+		// there are no links away from the shadow asset (ie:questions)
+		if (!is_numeric($assetid)) return Array($this->id);
+
+		$parents = Array();
+		if (!is_array($type_code
+			)) $type_code = Array($type_code);
+		if (!in_array('form_section', $type_code) && !in_array('form', $type_code)) return Array();
+
+		if (!isset($this->_tmp['getParents'][$assetid])) {
+			// this is so we get the sections as we go
+			$children = Asset::getParents($assetid, $type_code, $strict_type_code);
+		}
+
+		return $this->_tmp['getParents'][$assetid];
+
+	}//end getParents()
+	
+	
+	/**
+	* get the section links attached to this form
+	* 
+	* @access public
+	* @return array(link)
+	*/
+	function &getQuestions($force=false)
+	{
+		//if ($force || empty($this->tmp['questions'])) {
+			$this->tmp['questions'] = Array();
+
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+			$sql = 'SELECT *
+					FROM '.SQ_TABLE_PREFIX.'asset_form_question
+					WHERE assetid = '.$db->quote($this->id);
+
+			$result = $db->getAll($sql);
+			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+
+			if (is_null($result)) return Array();
+
+			for($i = 0; $i < count($result); $i++) {
+				$this->tmp['questions'][$result[$i]['questionid']] = Array(
+					'question_type_code' => $result[$i]['question_type_code'],
+					'attributes' => unserialize($result[$i]['attributes']),
+				);
+			}
+
+		//}
+
+		return (!empty($this->tmp['questions'])) ? $this->tmp['questions'] : Array();
+
+	} // end getQuestions()
+	
+	
+	/**
+	* get a specific question
+	* 
+	* @access public
+	* @return array(link)
+	*/
+	function getQuestionByID($questionid)
+	{
+		$this->getQuestions();
+		return (isset($this->tmp['questions'][$questionid])) ? $this->tmp['questions'][$questionid] : Array();
+
+	} // end getQuestionById()
+	
+	
+	/**
+	* get specific question by order
+	* 
+	* @access public
+	* @return array(link)
+	*/
+	function &getQuestionByOrder($orderid)
+	{
+		$sort_order = &$this->attr('sort_order');
+		return $GLOBALS['SQ_SYSTEM']->am->getAsset($sort_order[$orderid]);
+
+	} // end getQuestionByOrder()
+	
+	
+	/**
+	* attach a question to this form
+	* 
+	* @param Form_Question &$question the question object to attach
+	*
+	* @access public
+	* @return boolean false if database problem or question already attached, true if sucessful
+	*/
+	function attachQuestion(&$question)
+	{
+		if ($question->_questionid != 0) return false;
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$values = Array('questionid'         => $db->nextId('sq_sequence_asset_form_question'),
+							'assetid'            => $this->id,
+							'question_type_code' => get_class($question),
+							'attributes'	     => serialize(Array()),
+							);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_form_question', $values)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		$question->_questionid = $values['questionid'];
+		$question->_formid = $values['assetid'];
+		$question->id = $question->_formid.':q'.$question->_questionid;
+
+		if (!$question->saveAttributes()) {
+			return false;
+		}
+
+		$sort_order = $this->attr('sort_order');
+
+		if (empty($sort_order)) {
+			$new_index = 0;
+		} else {
+			$new_index = max(array_keys($sort_order))+1;
+		}
+		$sort_order[$new_index] = $question->id;
+		$this->setAttrValue('sort_order', $sort_order);
+
+		if (!$this->saveAttributes()) {
+			return false;
+		}
+
+		return true;
+
+	} // end attachQuestion()
+	
+	
+	/**
+	* delete a question to this form
+	* 
+	* @param Form_Question &$question the question object to delete
+	*
+	* @access public
+	* @return boolean false if database problem or question already deleted, true if sucessful
+	*/
+	function deleteQuestion(&$question)
+	{
+		if ($question->_questionid == 0) return false;
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$where = 'questionid = ' . $question->_questionid;
+
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_form_question', $where)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		$sort_order = $this->attr('sort_order');
+
+		// remove it from the sort order - it does not matter that there are gaps
+		$old_index = array_search($question->id, $sort_order);
+		unset($sort_order[$old_index]);
+
+		// unset the question
+		unset($question);
+
+		$this->setAttrValue('sort_order', $sort_order);
+
+		if (!$this->saveAttributes()) {
+			return false;
+		}
+
+		return true;
+
+	} // end deleteQuestion()
+	
+	
 	/**
 	* Create this asset
 	*
@@ -106,40 +441,6 @@ class Form_Section extends Asset
 			return false;
 		}
 
-		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
-
-		// create a main bodycopy for header and footer html
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-		$main_bodycopy = new Bodycopy();
-		$main_bodycopy->setAttrValue('name', 'Main Bodycopy');
-
-		$copy_link['value'] = 'main_bodycopy';
-		if (!$main_bodycopy->create($copy_link)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
-
-		// create a bodycopy for the looping of questions
-		$looping_bodycopy = new Bodycopy();
-		$looping_bodycopy->setAttrValue('name', 'Looping Bodycopy');
-		$copy_link['value'] = 'looping_bodycopy';
-		if (!$looping_bodycopy->create($copy_link)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
-
-		// create a text question for them to start off with
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('form_question_type_text');
-		$question = new Form_Question_Type_Text();
-		
-		$question->setAttrValue('name', 'Question 1');
-		if (!$question->create($copy_link)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $linkid;
@@ -175,7 +476,7 @@ class Form_Section extends Asset
 	* @access public
 	*/
 	function isDeletableLink($linkid)
-	{
+	{/*
 		// the only reason why we would object to this link being
 		// deleted is if it is the bodycopy linked to us
 		$main_bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'main_bodycopy');
@@ -187,7 +488,7 @@ class Form_Section extends Asset
 
 		return parent::isDeletableLink($linkid);
 	
-	}// end isDeletableLink()
+	*/}// end isDeletableLink()
 
 
 	/**
@@ -198,10 +499,7 @@ class Form_Section extends Asset
 	*/
 	function _getAllowedLinks()
 	{
-		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_TYPE_2]['form_question'] = Array('card' => 'M', 'exclusive' => true);
-		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 'M', 'exclusive' => true);
-		return $page_links;
+		return Array();
 
 	} // end _getAllowedLinks()
 
@@ -243,21 +541,6 @@ class Form_Section extends Asset
 
 
 	/**
-	* returns the links to the questions of this section
-	*
-	* @param &object asset the section asset
-	*
-	* @return array(array links)
-	* @access public
-	*/
-	function getQuestionLinks() 
-	{
-		return  $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'form_question', false);
-	
-	} // end getQuestionLinks()
-
-
-	/**
 	* returns the count of questions linked to this section
 	*
 	* @param &object asset the section asset
@@ -267,57 +550,12 @@ class Form_Section extends Asset
 	*/
 	function getQuestionCount()
 	{
-		return $GLOBALS['SQ_SYSTEM']->am->countLinks($this->id, 'major', SQ_LINK_TYPE_2, 'form_question', false);
+		$questions = &$this->getQuestions();
+		return count($questions);
 	
 	} // getQuestionCount()
 
-
-	/**
-	* gets a question asset based on its sort order
-	*
-	* @param &object $asset the asset of the section
-	* @param integer $order the order of the question wanted
-	*
-	* @access public
-	* @return &object
-	*/
-	function &getQuestionByOrder($order)
-	{
-		$links = $this->getQuestionLinks();
-		if (empty($links)) return false;
-
-		$l = $links[$order - 1];
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		if ($a = &$am->getAsset($l['minorid'], $l['minor_type_code'])) {
-			return $a;
-		}
-		return false;
 	
-	} // end getQuestionByOrder()
-
-
-	/**
-	* gets the questions linked to this section
-	*
-	* @param &object asset the section asset
-	*
-	* @return array(&object asset)
-	* @access public
-	*/
-	function &getQuestions()
-	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$question_links = $this->getQuestionLinks();
-		$questions = Array();
-
-		foreach ($question_links as $link) {
-			$questions[$link['sort_order']] = &$am->getAsset($link['minorid'], $link['minor_type_code']);
-		}
-		return (!empty($questions)) ? $questions : Array();
-
-	} // end getQuestions()
-
-
 	/**
 	* prints the body of this section
 	*
@@ -327,7 +565,7 @@ class Form_Section extends Asset
 	* @access public
 	*/
 	function printBody($include=true)
-	{
+	{/*
 		// get the asset manager for the questions to print out their values
 		// (they do this in the included file)
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
@@ -345,7 +583,7 @@ class Form_Section extends Asset
 			}
 		}
 
-	}// end printBody()
+	*/}// end printBody()
 
 	
 	/**
@@ -356,20 +594,10 @@ class Form_Section extends Asset
 	* @access public
 	* @return boolean
 	*/
-	function processForm() {	
-		// get the asset manager
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-
-		$links = $this->getQuestionLinks();
-		foreach ($links as $link) {
-			$question = &$am->getAsset($link['minorid'], $link['minor_type_code']);
-				
-			// let the question know what the current submission object is 
-			$question->active_submission =& $this->active_submission;
-
-			// tell the question the name and id of this section
-			$question->setSection($this->attr('name'), $this->id);
-			
+	function processForm() {
+		$questions = &$this->getQuestions();
+		for (reset($questions); null !== ($k = key($questions)); next($questions)) {
+			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$k);
 			$question->processForm();
 		}
 		return true;
@@ -401,7 +629,7 @@ class Form_Section extends Asset
 	* @return string
 	*/
 	function getQuestionIndex($order)
-	{
+	{/*
 		$index = $this->question_index;
 		if (!$index) return '';
 
@@ -425,8 +653,7 @@ class Form_Section extends Asset
 			break;
 
 		} // end switch
-	} // end getQuestionIndex()
-
+	*/} // end getQuestionIndex()
 
 }//end class
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_edit_fns.inc,v 1.11 2003/11/26 00:51:27 gsherwood Exp $
+* $Id: form_question_edit_fns.inc,v 1.12 2004/04/23 07:28:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -62,28 +62,11 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintRules(&$asset, &$o, $prefix)
 	{
-		$rules = &$asset->getRules();
-
-		if (empty($rules)) {
-			echo 'This Question Has No Rules';
-			return false;
-		}
-		
-		echo '<table>';
-		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
-			$rule =& $rules[$k];
-			// let the rule know what the id of the question is
-			$rule->my_question_id = $asset->id;
-			$edit = $rule->getEditFns();
-			$edit->paintInlineBackend($rule, $o, $rule->getPrefix());
-		}
-		echo '</table>';
-
 		return true;
 
 	} // end paintRules()
-
-
+	
+	
 	/**
 	* get the rules to process their parameters
 	*
@@ -98,12 +81,12 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	{
 		if ($asset->getRuleCount() == 0) return false;
 
-		$rules = &$asset->getRules();
+		/*$rules = &$asset->getRules();
 		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
 			$rule =& $rules[$k];
 			$edit = $rule->getEditFns();
 			$edit->processInlineBackend($rule, $o, $rule->getPrefix());
-		}
+		}*/
 		return true;
 
 	} // end processRules()
@@ -123,7 +106,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	{
 		if (!$asset->writeAccess('links')) return false;
 
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		/*$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$links = $asset->_getAllowedLinks();
 		$type_codes = Array();
 		foreach	($links[SQ_LINK_TYPE_3] as $type_code => $link) {
@@ -132,7 +115,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 			$type_codes[] = $type_code;
 		}
 		$desc = $am->getTypeInfo($type_codes, 'description');
-		combo_box('rule', array_merge(Array(' ' => '------ Please Select ------'), $desc), false, '');
+		combo_box('rule', array_merge(Array(' ' => '------ Please Select ------'), $desc), false, '');*/
 		
 		return true;
 
@@ -153,7 +136,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	{
 		if (!trim($_POST['rule'])) return false;
 		
-		$rule = $_POST['rule'];
+		/*$rule = $_POST['rule'];
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -165,7 +148,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');		
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');		*/
 
 		return true;
 

@@ -18,12 +18,30 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.7 2003/11/26 00:51:26 gsherwood Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.8 2004/04/23 07:28:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <contents>
+	<section name="Questions (not attached to a section)">
+		<field>
+			<display_name>Current Questions</display_name>
+			<note>If you reorder or delete questions, you must commit the changes before they will take effect</note>
+			<function_call>
+				<paint_function   name="paintQuestionLinks"   />
+				<process_function name="processQuestionLinks" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Add Questions</display_name>
+			<note>Select the question type and the number of questions to add</note>
+			<function_call>
+				<paint_function   name="paintAddQuestions"   />
+				<process_function name="processAddQuestions" />
+			</function_call>
+		</field>
+	</section>
 	<section name="Sections">
 		<field>
 			<display_name>Current Sections</display_name>
@@ -42,52 +60,28 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Form Indexes">
-		<field attribute="section_index">
-			<display_name>Section Index</display_name>
-			<note>Indexes that will appear before each Section</note>
-			<selection />
-		</field>
-		<field attribute="question_index">
-			<display_name>Question Index</display_name>
-			<note>Indexes that will appear before each Question</note>
-			<selection />
-		</field>
-	</section>
 	<section name="Table Widths">
+		<field attribute="form_width">
+			<display_name>Form Width</display_name>
+			<note>The whole form will be this width when printed on the frontend. This can be a number of pixels or a percentage</note>
+			<html_width />
+		</field>
 		<field attribute="question_col_width">
 			<display_name>Question Width</display_name>
-			<note>The width of the column for question names</note>
-			<text width="4" height="1" />
+			<note>The width of the column for question names. This can be a number of pixels or a percentage of the section width</note>
+			<html_width />
 		</field>
 		<field attribute="answer_col_width">
 			<display_name>Answer Width</display_name>
-			<note>The Width of the column for the question answer fields</note>
-			<text width="4" height="1" />
+			<note>The width of the column for the question answer fields. This can be a number of pixels or a percentage of the section width</note>
+			<html_width />
 		</field>
 	</section>
-	<section name="Form Buttons">
-		<field attribute="submit_button">
-			<display_name>Submit Button</display_name>
-			<note>The text that will appear on the submit button</note>
-			<text width="8" height="1" />
-		</field>
-		<field attribute="next_button">
-			<display_name>Next Button</display_name>
-			<note>The text that will appear on the next button</note>
-			<text width="8" height="1" />
-		</field>
-		<field attribute="back_button">
-			<display_name>Back Button</display_name>
-			<note>The text that will appear on the back button</note>
-			<text width="8" height="1" />
-		</field>
-	</section>
-	<section name="Form Saving Parameters">
-		<field attribute="cookie_time">
-			<display_name>Cookie Expiry Time</display_name>
-			<note>Defines the time in which the cookie holding the infomation about a saved form expires</note>
-			<selection style="list" /> 
+	<section name="Submission Logs">
+		<field attribute="email_submission">
+			<display_name>Email Submission To</display_name>
+			<note>Send submissions to this e-mail address. If left blank, no e-mail will be sent</note>
+			<email width="30" height="1" />
 		</field>
 	</section>
 </contents>

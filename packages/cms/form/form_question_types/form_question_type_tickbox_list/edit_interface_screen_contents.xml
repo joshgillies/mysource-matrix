@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.6 2003/11/26 00:51:29 gsherwood Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.7 2004/04/23 07:28:08 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -48,20 +48,10 @@
 				<process_function name="processDefault" />
 			</function_call>
 		</field>
-		<field attribute="height">
-			<display_name>Height</display_name>
-			<note></note>
-			<text width="5" height="1" />
-		</field>
-		<field attribute="multiple">
-			<display_name>Multiple?</display_name>
-			<note>Defines if multiple options are allowed</note>
-			<selection style="list" />
-		</field>
 		<field attribute="horizontal">
-			<display_name>Horizontal?</display_name>
-			<note>Defines if options as listed horizontal</note>
-			<selection style="list" />
+			<display_name>Orientation</display_name>
+			<note>Defines if options are listed horizontally or vertically</note>
+			<boolean true_text="Horizontal" false_text="Vertical" />
 		</field>
 		<field attribute="extra">
 			<display_name>Extras</display_name>
@@ -69,38 +59,11 @@
 			<text width="20" height="1" />
 		</field>
 	</section>
-	<section name="Add Rules">
-		<field>
-			<display_name>Rule</display_name>
-			<note></note>
-			<function_call>
-				<paint_function   name="paintAddRule"   />
-				<process_function name="processAddRule" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Current Rules">
-		<field>
-			<display_name>Question Rules</display_name>
-			<note></note>
-			<function_call>
-				<paint_function   name="paintRules"   />
-				<process_function name="processRules" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Special Information">
-		<field attribute="special_info">
-			<display_name>Special Information</display_name>
-			<note>Defines a special value form this question </note>
-			<selection style="list" />
-		</field>
-	</section>
-	<section name="Auto Answer">
-		<field attribute="auto_answer">
-			<display_name>Auto Answer</display_name>
-			<note>The question will be answered with this value</note>
-			<selection style="list" />
+	<section name="Validation Rules">
+	    <field attribute="required">
+			<display_name>Required Entry?</display_name>
+			<note>If required, at least one tick-box must be chosen before the form can be submitted</note>
+			<boolean true_text="Required" false_text="Optional" />
 		</field>
 	</section>
 </contents>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.5 2003/11/26 00:51:28 gsherwood Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.6 2004/04/23 07:28:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -36,8 +36,8 @@
 			<text width="40" height="2" />
 		</field>
 		<field>
-			<display_name>Avialable Countries</display_name>
-			<note></note>
+			<display_name>Available Countries</display_name>
+			<note>You may select more than one country</note>
 			<function_call>
 				<paint_function   name="paintAvailableCountries"   />
 				<process_function name="processAvailableCountries" />
@@ -65,40 +65,6 @@
 			<display_name>Extras</display_name>
 			<note></note>
 			<text width="20" height="1" />
-		</field>
-	</section>
-	<section name="Add Rules">
-		<field>
-			<display_name>Rule</display_name>
-			<note></note>
-			<function_call>
-				<paint_function   name="paintAddRule"   />
-				<process_function name="processAddRule" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Current Rules">
-		<field>
-			<display_name>Question Rules</display_name>
-			<note></note>
-			<function_call>
-				<paint_function   name="paintRules"   />
-				<process_function name="processRules" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Special Information">
-		<field attribute="special_info">
-			<display_name>Special Information</display_name>
-			<note>Defines a special value form this question </note>
-			<selection style="list" />
-		</field>
-	</section>
-	<section name="Auto Answer">
-		<field attribute="auto_answer">
-			<display_name>Auto Answer</display_name>
-			<note>The question will be answered with this value</note>
-			<selection style="list" />
 		</field>
 	</section>
 </contents>

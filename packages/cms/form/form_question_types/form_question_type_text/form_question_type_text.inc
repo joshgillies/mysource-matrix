@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text.inc,v 1.13 2004/03/26 15:35:43 brobertson Exp $
+* $Id: form_question_type_text.inc,v 1.14 2004/04/23 07:28:08 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -45,9 +45,9 @@ class Form_Question_Type_Text extends Form_Question
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Form_Question_Type_Text($assetid=0) 
+	function Form_Question_Type_Text($assetid=0, $data=Array()) 
 	{
-		$this->Asset($assetid);
+		$this->Form_Question($assetid, $data);
 
 	} // end Form_Question_Type_Text()
 
@@ -60,14 +60,7 @@ class Form_Question_Type_Text extends Form_Question
 	*/
 	function _getAllowedLinks()
 	{
-		$links = parent::_getAllowedLinks();
-		$links[SQ_LINK_TYPE_3]['form_question_rule_type_comparison'] = Array('card' => '1', 'exclusive' => true);
-		$links[SQ_LINK_TYPE_3]['form_question_rule_type_email'] = Array('card' => '1', 'exclusive' => true);
-		$links[SQ_LINK_TYPE_3]['form_question_rule_type_numeric'] = Array('card' => '1', 'exclusive' => true);
-		$links[SQ_LINK_TYPE_3]['form_question_rule_type_found_in'] = Array('card' => '1', 'exclusive' => true);
-		$links[SQ_LINK_TYPE_3]['form_question_rule_type_regexp'] = Array('card' => '1', 'exclusive' => true);
-		$links[SQ_LINK_TYPE_3]['form_question_rule_type_contain'] = Array('card' => '1', 'exclusive' => true);
-		return $links;
+		return Array();
 
 	}//end _getAllowedLinks()
 
@@ -88,27 +81,14 @@ class Form_Question_Type_Text extends Form_Question
 		$max    = $this->attr('max');
 		$extras = $this->attr('extra');
 		$name   = $this->id;
-
-
-		// generate some php for the value, which can be used for both
-		// auto-answer and returning to saved forms
-		if ($content_file) {
-			$html  = '<'.'?php $q = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('
-			.$this->id.', \''.get_class($this).'\'); ';
-			$html .=' $q->active_submission =& $this->active_submission; $q->active_form =& $active_form; ?'.'>';
-
-			$value = '<'.'?php echo $q->getValue(); ?'.'>';
-		} else {
-			$html = '';
-		}
-		
+	
 		ob_start();
 		if ($height == 1) {
 			text_box($name, $value, $width, $max, false, $extras);
 		} else {
 			text_area($name, $value, $width, $height, $max, $extras);
 		}
-		$html .= ob_get_contents();
+		$html = ob_get_contents();
 		ob_end_clean();
 		
 		// calling text_box will convert the open and close php tags into their html counter-parts
@@ -128,20 +108,30 @@ class Form_Question_Type_Text extends Form_Question
 	* @return boolean
 	*/
 	function processForm()
-	{
-		if (!$this->active_submission) return false;
-		
+	{		
+		$missing = false;
+			$form =& $this->getMySection();
+
 		if (isset($_POST[$this->id])) {
 			$val = $_POST[$this->id];
-			$this->active_submission->setAnswer($this->id, $val);
-			$this->active_submission->setSummary($this->id, $this->attr('name'), $val, $this->section_id, $this->section_name);
+			if ($this->attr('required') && ($val == '')) {
+				$missing = true;
+			} else {
+				$form->active_submission[$this->id] = $val;
+			}
+		} else {
+			$missing = true;
+		}
 
-			parent::processForm();
+		if ($missing) {
+			$form->submission_errors[] = 'The question "'.$this->attr('name').'" must be answered';
+			return false;
 		}
 		
 		return true;
 	
 	} // end processForm()
 
+	
 }//end class
 ?>

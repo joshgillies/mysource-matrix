@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.7 2003/11/26 00:51:29 gsherwood Exp $
+* $Id: asset.xml,v 1.8 2004/04/23 07:28:08 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -29,16 +29,16 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>cms</package>
 	<type_code>form_section</type_code>
-	<version>0.1</version>
+	<version>0.2</version>
 	<name>Form Section</name>
 	<description>Section for the form template</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
-	<parent_type>asset</parent_type>
+	<parent_type>bridge</parent_type>
 	<requirements>
 		<requirement type="asset">
 			<code>form</code>
-			<version>0.1</version>
+			<version>0.2</version>
 		</requirement>
 	</requirements>
 	<flash_menu_path/>

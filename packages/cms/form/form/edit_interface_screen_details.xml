@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.8 2003/11/26 00:51:26 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.9 2004/04/23 07:28:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -29,26 +29,6 @@
 			<display_name>Name</display_name>
 			<note>Defines the name of the form</note>
 			<text width="12" height="1" />
-		</field>
-		<field attribute="wizard">
-			<display_name>Wizard</display_name>
-			<note>Defines if this form is a Wizard</note>
-			<boolean true_text="Yes" false_text="No" />
-		</field>
-		<field attribute="validate">
-			<display_name>Validation Screen</display_name>
-			<note>Defines if a validation screen is shown before form submission</note>
-			<boolean true_text="Yes" false_text="No" />
-		</field>
-		<field attribute="log_submissions">
-			<display_name>Log Submissions</display_name>
-			<note>Defines if form submissions are logged</note>
-			<boolean true_text="Yes" false_text="No" />
-		</field>
-		<field attribute="show_results">
-			<display_name>Show Results</display_name>
-			<note>Defines if results are shown after form submission</note>
-			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 </contents>

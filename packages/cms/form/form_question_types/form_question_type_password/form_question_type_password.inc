@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_password.inc,v 1.4 2004/03/26 15:35:43 brobertson Exp $
+* $Id: form_question_type_password.inc,v 1.5 2004/04/23 07:28:08 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -45,9 +45,9 @@ class Form_Question_Type_Password extends Form_Question
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Form_Question_Type_Password($assetid=0) 
+	function Form_Question_Type_Password($assetid=0,$data=Array()) 
 	{
-		$this->Asset($assetid);
+		$this->Form_Question($assetid, $data);
 
 	} // end Form_Question_Type_Password()
 
@@ -60,14 +60,7 @@ class Form_Question_Type_Password extends Form_Question
 	*/
 	function _getAllowedLinks()
 	{
-		$links = parent::_getAllowedLinks();
-		$links[SQ_LINK_TYPE_3]['form_question_rule_type_comparison'] = Array('card' => '1', 'exclusive' => true);
-		$links[SQ_LINK_TYPE_3]['form_question_rule_type_email'] = Array('card' => '1', 'exclusive' => true);
-		$links[SQ_LINK_TYPE_3]['form_question_rule_type_numeric'] = Array('card' => '1', 'exclusive' => true);
-		$links[SQ_LINK_TYPE_3]['form_question_rule_type_found_in'] = Array('card' => '1', 'exclusive' => true);
-		$links[SQ_LINK_TYPE_3]['form_question_rule_type_regexp'] = Array('card' => '1', 'exclusive' => true);
-		$links[SQ_LINK_TYPE_3]['form_question_rule_type_contain'] = Array('card' => '1', 'exclusive' => true);
-		return $links;
+		return Array();
 
 	}//end _getAllowedLinks()
 
@@ -83,7 +76,6 @@ class Form_Question_Type_Password extends Form_Question
 	*/
 	function getAnswer($content_file=true, $value='')
 	{
-		$height = ($this->attr('height')) ? $this->attr('height') : 1;
 		$width  = $this->attr('width');
 		$max    = $this->attr('max');
 		$extras = $this->attr('extra');
@@ -93,14 +85,14 @@ class Form_Question_Type_Password extends Form_Question
 
 		// generate some php for the value, which can be used for both
 		// auto-answer and returning to saved forms
-		if ($content_file) {
+		/*if ($content_file) {
 			$html  = '<'.'?php $q = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('
 			.$this->id.', \'form_question_type_password\'); '
 			.' $q->active_submission =& $this->active_submission; ?'.'>';
 			$value = '<'.'?php echo $q->getValue(); ?'.'>';
-		} else {
+		} else {*/
 			$html = '';
-		}
+		//}
 		
 		ob_start();
 		password_box($name, $value, $width, $max, $extras);
@@ -129,8 +121,9 @@ class Form_Question_Type_Password extends Form_Question
 	*/
 	function getValue()
 	{
-		if ($this->active_submission) {
-			$answer = $this->active_submission->getAnswer($this->id);
+		$form = &$this->getMySection();
+		if ($form->active_submission) {
+			$answer = $form->active_submission[$this->id];
 			if ($answer) echo $answer;
 		}
 	
@@ -147,15 +140,26 @@ class Form_Question_Type_Password extends Form_Question
 	*/
 	function processForm()
 	{
-		if (!$this->active_submission) return false;
-		
+		$form = &$this->getMySection();
+		//if (!$form->active_submission) return false;
+				
 		if (isset($_POST[$this->id.'_1'])) {
 			$val = $_POST[$this->id.'_1'];
 
-			$this->active_submission->setAnswer($this->id, $val);
-			$this->active_submission->setSummary($this->id, $this->attr('name'), $val, $this->section_id, $this->section_name);
+			if (strlen($val) < $this->attr('min')) {
+				$form->submission_errors[] = 'Password field "'.$this->attr('name').'" must be no less than '.$this->attr('min').' characters';
+				return false;
+			}
+			if (strlen($val) > $this->attr('max')) {
+				$form->submission_errors[] = 'Password field "'.$this->attr('name').'" must be no more than '.$this->attr('max').' characters';
+				return false;
+			}
+			if (!$this->answeredCorrectly()) {
+				$form->submission_errors[] = 'Password field "'.$this->attr('name').'" was entered differently on 	each try';
+				return false;
+			}
 
-			parent::processForm();
+			$form->active_submission[$this->id] = $val;
 		}
 		
 		return true;
@@ -181,6 +185,7 @@ class Form_Question_Type_Password extends Form_Question
 		}
 		return true;
 	}
+
 
 }//end class
 ?>

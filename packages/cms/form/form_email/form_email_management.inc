@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_management.inc,v 1.8 2003/12/16 12:13:04 brobertson Exp $
+* $Id: form_email_management.inc,v 1.9 2004/04/23 07:28:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -84,26 +84,14 @@ class Form_Email_Management extends Asset_Management
 							
 							'receipt_allow_html' => Array(
 													'added'		=> '0.0.1',
-													'type'		=> 'selection',
-													'default'	=> 0,
-													'parameters'	=> Array(	
-														'options'	=> Array(
-															1	=> 'yes',
-															0	=> 'no',
-														),
-												),
+													'type'		=> 'boolean',
+													'default'	=> false,
 									), // end receipt_allow_html
 							
 							'receipt_send_answers' => Array(
 													'added'		=> '0.0.1',
-													'type'		=> 'selection',
-													'default'	=> 0,
-													'parameters'	=> Array(	
-														'options'	=> Array(
-															1	=> 'yes',
-															0	=> 'no',
-														),
-												),
+													'type'		=> 'boolean',
+													'default'	=> false,
 									), // end receipt_send_answers
 							
 							'recipient_emails' => Array(
@@ -129,38 +117,20 @@ class Form_Email_Management extends Asset_Management
 							
 							'recipient_allow_html' => Array(
 													'added'		=> '0.0.1',
-													'type'		=> 'selection',
-													'default'	=> 0,
-													'parameters'	=> Array(	
-														'options'	=> Array(
-															1	=> 'yes',
-															0	=> 'no',
-														),
-												),
+													'type'		=> 'boolean',
+													'default'	=> false,
 									), // end recipient_allow_html
 
 							'recipient_send_info' => Array(
 													'added'		=> '0.0.1',
-													'type'		=> 'selection',
-													'default'	=> 0,
-													'parameters'	=> Array(	
-														'options'	=> Array(
-															1	=> 'yes',
-															0	=> 'no',
-														),
-												),
+													'type'		=> 'boolean',
+													'default'	=> false,
 									), // end recipient_send_info
 
 							'recipient_send_answers' => Array(
 													'added'		=> '0.0.1',
-													'type'		=> 'selection',
-													'default'	=> 0,
-													'parameters'	=> Array(	
-														'options'	=> Array(
-															1	=> 'yes',
-															0	=> 'no',
-														),
-												),
+													'type'		=> 'boolean',
+													'default'	=> false,
 									), // end recipient_send_answers
 
 								/// STAF (Send To A Friend) ///

@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.14 2003/11/26 00:51:26 gsherwood Exp $
+* $Id: form_edit_fns.inc,v 1.15 2004/04/23 07:28:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
-require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge_edit_fns.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 /**
 * Form_Edit_Fns
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Form_Edit_Fns extends Asset_Edit_Fns
+class Form_Edit_Fns extends Bridge_Edit_Fns
 {
 
 
@@ -46,7 +46,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function Form_Edit_Fns()
 	{
-		$this->Asset_Edit_Fns();
+		$this->Bridge_Edit_Fns();
 		$this->static_screens['details']['force_unlock'] = false;
 
 	} // end Form_Edit_Fns()
@@ -73,7 +73,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			$s =& $sections[$k];
 			$href = $s->getBackendHref('contents');
 			?>
-			<a href="<?php echo $href?>"><?php echo $s->_getName() ?></a><BR />
+			<a href="<?php echo $href ?>"><?php echo $s->_getName() ?></a><br />
 			<?php
 		}		
 		
@@ -99,6 +99,301 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	} // end processSectionLinks()
 
 
+	/**
+	* Paint the links to the bodycopies in this section
+	*
+	* @param object Form_Section		&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintQuestionLinks(&$asset, &$o, $prefix)
+	{
+
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$admin_access = $asset->adminAccess('all');
+		$prefix = $asset->getPrefix();
+
+		// include script for re-ordering questions
+		?>
+		<script language="JavaScript">
+			function sortOrderMoveDown(currentOrder) {
+			  if (!document.getElementById) {
+				  alert('Browser cannot support script - Get Element By ID is not defined');
+				  return;
+			  }
+			  // move a question up a row
+			  var form = document.getElementById('main_form');
+
+			  var currentElement = document.getElementById('<?php echo $prefix ?>_order_o' + currentOrder);
+			  var nextElement = document.getElementById('<?php echo $prefix ?>_order_o' + (currentOrder + 1));
+
+			  // if there is no next element, then this is the last one; we shouldn't be running
+			  if (!nextElement) return;
+
+			  if (!currentElement.innerHTML) {
+				  alert('Browser cannot support script - Inner HTML is not defined');
+				  return;
+			  }
+
+			  // switch the question names
+			  var temp = currentElement.innerHTML;
+			  currentElement.innerHTML = nextElement.innerHTML;
+			  nextElement.innerHTML = temp;
+
+			  // switch the question types
+			  var currentElement = document.getElementById('<?php echo $prefix ?>_order_t' + currentOrder);
+			  var nextElement = document.getElementById('<?php echo $prefix ?>_order_t' + (currentOrder + 1));
+
+			  var temp = currentElement.innerHTML;
+			  currentElement.innerHTML = nextElement.innerHTML;
+			  nextElement.innerHTML = temp;
+
+				
+
+			  // switch the 'checked for deletion' parameters
+			  temp = form.elements['<?php echo $prefix ?>_order[delete][' + (currentOrder+1) + ']'].checked;
+			  form.elements['<?php echo $prefix ?>_order[delete][' + (currentOrder+1) + ']'].checked = form.elements['<?php echo $prefix ?>_order[delete][' + currentOrder + ']'].checked;
+			  form.elements['<?php echo $prefix ?>_order[delete][' + currentOrder + ']'].checked = temp;
+
+			  // switch the reorder values
+			  temp = form.elements['<?php echo $prefix ?>_order[reorder][' + (currentOrder+1) + ']'].value;
+			  form.elements['<?php echo $prefix ?>_order[reorder][' + (currentOrder+1) + ']'].value = form.elements['<?php echo $prefix ?>_order[reorder][' + currentOrder + ']'].value;
+			  form.elements['<?php echo $prefix ?>_order[reorder][' + currentOrder + ']'].value = temp;
+
+			}
+
+			function sortOrderMoveUp(currentOrder) {
+			  // move a question up a row
+			  if (!document.getElementById) {
+				  alert('Browser cannot support script - Get Element By ID is not defined');
+				  return;
+			  }
+
+			  if (currentOrder == 0) return;
+
+			  var form = document.getElementById('main_form');
+
+			  var currentElement = document.getElementById('<?php echo $prefix ?>_order_o' + currentOrder);
+			  var prevElement = document.getElementById('<?php echo $prefix ?>_order_o' + (currentOrder - 1));
+
+			  if (!currentElement.innerHTML) {
+				  alert('Browser cannot support script - Inner HTML is not defined');
+				  return;
+			  }
+
+			  // switch the question names
+			  var temp = currentElement.innerHTML;
+			  currentElement.innerHTML = prevElement.innerHTML;
+			  prevElement.innerHTML = temp;
+
+			  // switch the question types
+			  var currentElement = document.getElementById('<?php echo $prefix ?>_order_t' + currentOrder);
+			  var prevElement = document.getElementById('<?php echo $prefix ?>_order_t' + (currentOrder - 1));
+
+			  var temp = currentElement.innerHTML;
+			  currentElement.innerHTML = prevElement.innerHTML;
+			  prevElement.innerHTML = temp;
+
+			  // switch the delete checkboxes
+			  temp = form.elements['<?php echo $prefix ?>_order[delete][' + (currentOrder-1) + ']'].checked;
+			  form.elements['<?php echo $prefix ?>_order[delete][' + (currentOrder-1) + ']'].checked = form.elements['<?php echo $prefix ?>_order[delete][' + currentOrder + ']'].checked;
+			  form.elements['<?php echo $prefix ?>_order[delete][' + currentOrder + ']'].checked = temp;
+
+			  // switch the includes checkboxes
+			  temp = form.elements['<?php echo $prefix ?>_order[reorder][' + (currentOrder-1) + ']'].value;
+			  form.elements['<?php echo $prefix ?>_order[reorder][' + (currentOrder-1) + ']'].value = form.elements['<?php echo $prefix ?>_order[reorder][' + currentOrder + ']'].value;
+			  form.elements['<?php echo $prefix ?>_order[reorder][' + currentOrder + ']'].value = temp;
+
+			}
+		</script>
+				<table class="sq-backend-table">
+					<tr>
+						<td class="sq-backend-table-header">
+							Question
+						</td>
+						<td class="sq-backend-table-header">
+							Type
+						</td>
+						<?php
+						if ($admin_access) {
+							?><td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;">Delete ?</td>
+							<td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;">Move</td>
+							<?php
+						}
+						?>
+					</tr>
+				<?php
+				$questions = &$asset->getQuestions();
+				$sort_order = $asset->attr('sort_order');
+				if(!empty($sort_order)) {
+
+					// sort order is based upon shadow asset id (eg. '87:q1'), not just question id - this 	
+					// will allow sections to be sorted in later
+					$i = 0;
+					foreach($sort_order as $sort_id => $assetid) {
+					$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					$href = $q->getBackendHref('contents');
+					?>
+						<tr>
+							<td class="sq-backend-table-cell">
+								<span name="<?php echo $prefix.'_order_o'.$i ?>" id="<?php echo 	$prefix.'_order_o'.$i ?>"><a href="<?php echo $href ?>"><?php	echo $q->attr('name')?></a></span><?php hidden_field($prefix.'_order[reorder]['.$i.']', $assetid); ?>
+							</td>
+							<td class="sq-backend-table-cell">
+								<span name="<?php echo $prefix.'_order_t'.$i ?>" id="<?php echo 	$prefix.'_order_t'.$i ?>"><?php	
+									$q_type = str_replace('form_question_type', '', get_class($q));
+									$q_type = str_replace('_', ' ', $q_type);
+									$q_type = trim(ucwords($q_type));
+									echo $q_type;
+								?></span>
+							</td>
+						<?php
+							if ($admin_access) {
+								?><td align="center" width="100" class="sq-backend-table-cell"><?php
+								check_box($prefix.'_order[delete]['.$i.']');
+								?></td>
+								<td align="center" width="100" class="sq-backend-table-cell"><?php if ($i != 0) { ?><a href="#" onClick="sortOrderMoveUp(<?php print $i ?>); return false;">Up</a><?php } ?>
+								<?php if ($i != count($questions)-1) { ?><a href="#" onClick="sortOrderMoveDown(<?php print $i ?>); return false;">Down</a><?php } ?>
+							</td>
+							<?php
+						}
+						?>
+						</tr>
+					<?php
+					$i++;
+					}// end foreach data
+				}
+				?>
+				</table>
+		<?php
+		return true;
+
+	} // end paintQuestionLinks()
+	
+
+	/**
+	* Process the links to the questions in this section
+	*
+	* @param object Form_Section		&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processQuestionLinks(&$asset, &$o, $prefix)
+	{
+		$prefix = $asset->getPrefix();
+
+		if (isset($_POST[$prefix . '_order']['delete'])) {
+			foreach(array_keys($_POST[$prefix . '_order']['delete']) as $sort_order) {
+				$question = $asset->getQuestionByOrder($sort_order);
+				$asset->deleteQuestion($question);
+				unset($_POST[$prefix . '_order']['reorder'][$sort_order]);
+			}
+		}
+		
+		if (isset($_POST[$prefix . '_order']['reorder'])) {
+			$asset->setAttrValue('sort_order', $_POST[$prefix . '_order']['reorder']);
+			$asset->saveAttributes();
+		}
+
+		
+		// regen the content file
+		$asset->_updated();
+
+		return true;
+	
+	} // end processQuestionLinks()
+	
+	
+	/**
+	* Paint the dropdowns to add questions to this section
+	*
+	* @param object Form_Section		&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @return boolean false if no questions in this section, true otherwise
+	* @access public
+	*/
+	function paintAddQuestions(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('links')) return false;
+
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$question_types = $am->getTypeDescendants('form_question');
+		$questions = Array();
+
+		foreach	($question_types as $question) {
+			$q = str_replace('form_question_type', '', $question);
+			$q = str_replace('_', ' ', $q);
+			$q = trim(ucwords($q));
+			$questions[$question] = $q;
+		}
+			
+		combo_box('question_type', $questions, false, '');
+		echo '&nbsp;';
+		
+		// create a dropdown box with some numbers for the number of questions to add
+		// start at zero, so if the (l)user presses commit without selecting anything
+		// it doesn't add a question
+
+		$num = Array();
+		for ($i = 0; $i <= 10; $i++) {
+			$num[$i] = $i;
+		}
+		combo_box('num_questions', $num, false, '');
+		return true;
+	
+	} // end paintAddQuestions()
+
+
+	/**
+	* Process the newly added questions
+	*
+	* @param object Form_Section		&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processAddQuestions(&$asset, &$o, $prefix)
+	{
+		$type   = (isset($_POST['question_type'])) ? $_POST['question_type'] : '';
+		$number = (isset($_POST['num_questions'])) ? $_POST['num_questions'] : '';
+		
+		// get the number of questions in the system allready
+		// so when we create the new ones,  we can give them an 
+		// appropriate name
+
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$curr_question_count = $asset->getQuestionCount() + 1;
+
+		
+		if ($type && $number) {
+			
+			$am->includeAsset($type);
+						
+			// create some questions
+			for ($i = 0; $i < $number; $i++) {
+				$question  = new $type($asset->id, Array('questionid' => 0, 'attributes' => Array()));
+				$question->setAttrValue('name', 'Question '.$curr_question_count);
+				if (!$asset->attachQuestion($question)) {
+					return false;
+				}
+				$curr_question_count++;
+			} // end for
+		} // end if
+		
+		return true;
+
+	} // end processAddQuestions()
+	
+	
 	/**
 	* creates a checkbox to add a new Section
 	*
@@ -139,7 +434,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	
 		$am->includeAsset('form_section');
 		$section = new Form_Section();
-		$copy_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
+		$copy_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 0, 'exclusive' => 0);
 		
 		$section->setAttrValue('name', 'Section '.$section_count);
 		if (!$section->create($copy_link)) {
@@ -196,56 +491,69 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function generateStandardContentFile(&$asset)
 	{
-		$bodycopy = &$asset->getBodycopy('format');
+//		$bodycopy = &$asset->getBodycopy('format');
 		
 		// if there is no bodycopy, we will assume that we are trying to generate the 
 		// content file at form creation time, so just return true (it will get generated later)
-		if (!$bodycopy) return true;
+		if (isset($bodycopy)) { //return true;
 
 		// check to see if the bodycopy attached to this form has any content
-		if (!$bodycopy->isEmpty()) {
+//		if (!$bodycopy->isEmpty()) {
 
-			ob_start();
-			$bodycopy->printBody();
-			$output = ob_get_contents(); 
-			ob_end_clean();
+//			ob_start();
+//			$bodycopy->printBody();
+//			$output = ob_get_contents(); 
+//			ob_end_clean();
+
+//			ob_start();
+//			$bodycopy->printBody();
+//			$output = ob_get_contents(); 
+//			ob_end_clean();
 			
-			$replaced = true;
-			if (!$output = $this->processSectionReplacements($asset, $output)) $replaced = false;
-			if (!$output = $this->processQuestionReplacements($asset, $output)) $replaced = false;
+//			$replaced = true;
+//			if (!$output = $this->processSectionReplacements($asset, $output)) $replaced = false;
+//			if (!$output = $this->processQuestionReplacements($asset, $output)) $replaced = false;
 
 			// if output is the same as it was before replacements, trigger error
-			if (!$replaced) {
-				trigger_error('could not find any sections or questions to replace in the Format Bodycopy (Standard Mode)', E_USER_WARNING);
-				return false;
-			}
+//			if (!$replaced) {
+//				trigger_error('could not find any sections or questions to replace in the Format Bodycopy (Standard Mode)', E_USER_WARNING);
+//				return false;
+//			}
 		
 			// there should only be a keyword replacement for a submit button, 
 			// so only replace that with a submit button, anything else
 			// will get stripped out later
 
-			$search = '%submit_button%';
+//			$search = '%submit_button%';
 			
 			// if no title for the submit button is specified in the backend
 			// just use 'submit'
 
-			$button_name = ($asset->attr('submit_button')) ? $asset->attr('submit_button') : 'Submit'; 
+//			$button_name = ($asset->attr('submit_button')) ? $asset->attr('submit_button') : 'Submit'; 
 
-			ob_start();
-			submit_button($asset->getPrefix().'_submit', $button_name);
-			$replacement = ob_get_contents();
-			ob_end_clean();
+//			ob_start();
+//			submit_button($asset->getPrefix().'_submit', $button_name);
+//			$replacement = ob_get_contents();
+//			ob_end_clean();
 			
-			$output = str_replace($search, $replacement, $output);
+//			$output = str_replace($search, $replacement, $output);
 		
 		// no contents in the bodycopy
 		} else {
 			
 			// if there is no bodycopy contents, then just ask
 			// all the sections to print themselves
-
+			//$questions = &$asset->getQuestions();
 			$sections = &$asset->getSections();
 			$output = '';
+
+			/*for (reset($questions); null !== ($k = key($questions)); next($questions)) {
+				$question =& $questions[$k];
+				$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id.':q'.$k);
+				$output .= $q->getAnswer(true);
+			}*/
+
+			$output .= $this->generateGenericSection($asset);
 
 			$i = 1; // used for indexing
 			for (reset($sections); null !== ($k = key($sections)); next($sections)) {
@@ -270,13 +578,13 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 				$section->fileRegeneration(false);
 				$output .= '<'.'?php include_once("'.$section->data_path.'/content_file.php'.'"); ?'.'>';
 			}
-			
+
 			// if no title for the submit button is specified in the backend
 			// just use 'Submit'
 
 			$button_name = ($asset->attr('submit_button')) ? $asset->attr('submit_button') : 'Submit'; 
 			
-			$output .= '<table><tr>';
+			$output .= '<table width="'.$asset->attr('form_width').'"><tr>';
 			if ($asset->attr('question_index')) {
 				$output .= '<td width="20">&nbsp;</td>';
 			}
@@ -292,80 +600,16 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			
 			$output .= '</td></tr></table>';
 			
-
 		} //end if
 
 		// if there are any tags left that haven't been replaced, 
 		// we want to strip them out
-		$output = preg_replace('/%[^%]+%/', '', $output);
-		
+		$output = preg_replace('/%[^<>%]+%/', '', $output);
+	
 		create_directory($asset->data_path);
 		return string_to_file($output, $asset->data_path.'/content_file.php');
 	
 	} // end generateStandardContentFile()
-
-
-	/**
-	* generates a php content file for wizard mode forms
-	*
-	* @param &object Form	$asset the form asset
-	*
-	* @access public
-	* @return boolean
-	*/
-	function generateWizardContentFile(&$asset)
-	{
-		$bodycopy = &$asset->getBodycopy('format');
-		if (!$bodycopy) return false;
-		
-		$output = '';
-
-		if (!$bodycopy->isEmpty()) {
-
-			// get the contents of the bodycopy
-			ob_start();
-			$bodycopy->printBody();
-			$output = ob_get_contents(); 
-			ob_end_clean();
-			
-			// replace any keywords for sections in wizard mode, otherwise strip them out
-			$search = '%section%';
-		
-			// add a replacement for the validation if we need to 
-			$replacement = '<'.'?php ';
-
-
-			if ($asset->attr('validate')) {
-				$replacement .= 'if ($this->getStage() == "validate") { $this->validateForm(); ';
-				$replacement .= ' } else { ';
- 			}
-			// get a replacement for the section index (1,2,3 a,b,c etc)
-			if ($asset->getSectionIndex()) {
-				$replacement .= 'echo $this->getSectionIndex()."<BR />";';
-			}
-			$replacement .= ' $this->active_section->active_submission =& $this->active_submission;';
-			$replacement .= ' $this->active_section->printBody();';
-			$replacement .= ($asset->attr('validate')) ? '}' : '';
-			$replacement .= ' ?'.'>';
-
-			$output = str_replace($search, $replacement, $output);
-			
-			// replace any occurences of button keyword replacements with some php
-			// to print the buttons when they are needed
-			$this->processButtonReplacements($asset, $output);
-		
-		} else {
-			// only show this error on the frontend
-			if (!SQ_IN_BACKEND) {
-				trigger_error('No Contents found in the Form Format Bodycopy (Wizard Mode)', E_USER_WARNING);
-				return false;
-			}
-		}
-
-		create_directory($asset->data_path);
-		return string_to_file($output, $asset->data_path.'/content_file.php');
-
-	} // end generateWizardContentFile()
 
 
 	/**
@@ -456,33 +700,35 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* replace the button keywords with the appropriate content (wizard only)
+	* generates a generic section where there is no main or looping bodycopy
 	*
-	* @param &object Form $asset the form asset
-	* @param string $output the html output to search for replacements
+	* @param &object $asset the section asset
 	*
 	* @access public
-	* @return boolean
+	* @return string
 	*/
-	function processButtonReplacements(&$asset, &$output)
+	function generateGenericSection(&$asset)
 	{
-		// replace any occurences of the buttons
-		if (preg_match_all('/%(\w+)_button%/', $output, $matches)) {
-			for ($i = 0; $i < count ($matches[1]); $i++) {
-				$search = '%'.$matches[1][$i].'_button%';
-				// get a replacement for this button
-				$replacement = '<'.'?php echo $this->getButton(\''.$matches[1][$i].'\'); ?'.'>';
-				$output = str_replace($search, $replacement, $output);
-			}
-		// if there are no buttons to replace, just put a button down the bottom
-		// of the form for good measure
-		} else {
-			$output .= $asset->getButton($asset, 'submit');
+		$output = '<table width="'.$asset->attr('form_width').'">';
+		$sort_order = $asset->attr('sort_order');
+		if(empty($sort_order)) return;
+
+		foreach($sort_order as $i => $assetid) {
+			$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			
+			$output .= '<tr>';
+			$output .= '<td valign="top"';
+			$output .= ($asset->attr('question_col_width')) ? ' width="'.$asset->attr('question_col_width').'">' : '>';
+			$output .= $q->getVal('title').'</td><td';
+			$output .= ($asset->attr('answer_col_width')) ? ' width="'.$asset->attr('answer_col_width').'">' : '>';
+			$output .= $q->getAnswer(true).'</td></tr>';
 		}
+		$output .= '</table>';
 
-		return true;
+		return $output;
 
-	} // processButtonReplacements()
+	} // generateGenericSection()
+
 
 } // end class
 ?>

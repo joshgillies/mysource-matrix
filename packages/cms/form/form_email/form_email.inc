@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.10 2003/11/26 00:51:27 gsherwood Exp $
+* $Id: form_email.inc,v 1.11 2004/04/23 07:28:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -72,18 +72,6 @@ class Form_Email extends Form
 			return false;
 		}
 
-		// create a section for them to start off with
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('form_section');
-		$section = new Form_Section();
-		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
-
-		$section->setAttrValue('name', 'Section 1');
-		if (!$section->create($copy_link)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
-
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $linkid;
 
@@ -115,8 +103,8 @@ class Form_Email extends Form
 	{
 		parent::finishForm();
 		$this->mailRecipients();
-		$this->mailReceipt();
-		$this->SendToFriends();
+		//$this->mailReceipt();
+		//$this->SendToFriends();
 
 		return true;
 
@@ -135,11 +123,11 @@ class Form_Email extends Form
 	{
 		$info = parent::getFormInfo();
 		$title = 'Form Information'; 
-		$information  = ($html) ? '<B>'.$title.'</B><BR />' : $title."\n\n";
+		$information  = ($html) ? '<b>'.$title.'</b><br />' : $title."\n\n";
 		$information .= ($html) ? "<table>" : '';
 		
 		foreach ($info as $name => $value) {
-			$information .= ($html) ? '<tr><td>'.ucwords(str_replace('_', ' ', $name)).'</td>' : $name."\t\t";
+			$information .= ($html) ? '<tr><td>'.ucwords(str_replace('_', ' ', $name)).'</td>' : ucwords(str_replace('_', ' ', $name))." : ";
 			$information .= ($html) ? '<td>'.$value.'</td></tr>' : $value."\n";
 		}
 		$information .= ($html) ? "</table>" : '';
@@ -222,8 +210,8 @@ class Form_Email extends Form
 		$subject = ($this->attr('recipient_subject')) ? $this->attr('recipient_subject') : 'Form Submission';
 	
 		// special information address
-		$si_address = $this->getSpecialInformation('email'); 
-		if ($si_address === '') $si_address = false; 
+		//$si_address = $this->getSpecialInformation('email'); 
+		/*if ($si_address === '')*/ $si_address = false; 
 
 		// spam... baby, spam!
 		foreach ($addresses as $address) {

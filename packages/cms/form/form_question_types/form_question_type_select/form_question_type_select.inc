@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.11 2004/03/26 15:35:43 brobertson Exp $
+* $Id: form_question_type_select.inc,v 1.12 2004/04/23 07:28:08 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,10 +46,9 @@ class Form_Question_Type_Select extends Form_Question
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Form_Question_Type_Select($assetid=0) 
+	function Form_Question_Type_Select($assetid=0,$data=Array()) 
 	{
-		$this->_ser_attrs = true;
-		$this->Asset($assetid);
+		$this->Form_Question($assetid,$data);
 
 	} // end Form_Question_Type_Select()
 
@@ -62,9 +61,7 @@ class Form_Question_Type_Select extends Form_Question
 	*/
 	function _getAllowedLinks()
 	{
-		$links[SQ_LINK_TYPE_3]['form_question_rule_type_comparison'] = Array('card' => '1', 'exclusive' => true);
-		$links[SQ_LINK_TYPE_3]['form_question_rule_type_contain'] = Array('card' => '1', 'exclusive' => true);
-		return $links;
+		return Array();
 
 	}//end _getAllowedLinks()
 
@@ -83,17 +80,17 @@ class Form_Question_Type_Select extends Form_Question
 		if (!$suffix) $suffix = '';
 		// generate some php for the value, which can be used for both
 		// auto-answer and returning to saved forms
-		if ($content_file) {
+		//if ($content_file) {
 			// use the class name, as we might be getting extended by a child class
-			$class = get_class($this);
-			$html  = '<'.'?php $q = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$this->id.$suffix.', \''.$class.'\'); ?'.'>';
-			$html .= '<'.'?php $q->active_submission =& $this->active_submission; $q->active_form =& $active_form; combo_box($q->id, $q->getOptions(), $q->attr(\'multiple\'), $q->getValue(), $q->attr(\'height\'), $q->attr(\'extra\')) ?'.'>';
-		} else {
+			//$class = get_class($this);
+			//$html  = '<'.'?php $q = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$this->id.$suffix.', \''.$class.'\'); ?'.'>';
+			//$html .= '<'.'?php $q->active_submission =& $this->active_submission; $q->active_form =& $active_form; combo_box($q->id, $q->getOptions(), $q->attr(\'multiple\'), $q->getValue(), $q->attr(\'height\'), $q->attr(\'extra\')) ?'.'>';
+		//} else {
 			ob_start();
 			combo_box($this->id.$suffix, $this->getOptions(), $this->attr('multiple'), $value, $this->attr('height'), '');
 			$html = ob_get_contents();
 			ob_end_clean();
-		}
+		//}
 		
 		return html_entity_decode($html);
 
@@ -121,7 +118,7 @@ class Form_Question_Type_Select extends Form_Question
 	*/
 	function processForm()
 	{
-		if (!$this->active_submission) return false;
+		//if (!$this->active_submission) return false;
 		$val = isset($_POST[$this->id]) ? $_POST[$this->id] : '';
 		
 		if (is_array($val)) {
@@ -129,11 +126,10 @@ class Form_Question_Type_Select extends Form_Question
 		} else {
 			$value = $this->getAnswerByOffset($val);
 		}
-		$this->active_submission->setAnswer($this->id, $val);
-		$this->active_submission->setSummary($this->id, $this->attr('name'), $value, $this->section_id, $this->section_name);
-		
-		parent::processForm();
-		
+
+		$form =& $this->getMySection();
+		$form->active_submission[$this->id] = $val;
+			
 		return true;
 
 	} // end processForm()

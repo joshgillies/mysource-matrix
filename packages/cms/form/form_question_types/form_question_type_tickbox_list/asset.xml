@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.7 2003/11/26 00:51:29 gsherwood Exp $
+* $Id: asset.xml,v 1.8 2004/04/23 07:28:08 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -29,7 +29,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>cms</package>
 	<type_code>form_question_type_tickbox_list</type_code>
-	<version>0.1</version>
+	<version>0.2</version>
 	<name>Form Question - Tickbox List</name>
 	<description>Tickbox question for Form</description>
 	<instantiable>yes</instantiable>
@@ -38,7 +38,7 @@
 	<requirements>
 		<requirement type="asset">
 			<code>form</code>
-			<version>0.1</version>
+			<version>0.2</version>
 		</requirement>
 	</requirements>
 	<flash_menu_path/>

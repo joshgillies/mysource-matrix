@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.4 2003/11/26 00:51:28 gsherwood Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.5 2004/04/23 07:28:08 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -45,11 +45,6 @@
 			<note></note>
 			<text width="5" height="1" />
 		</field>
-		<field attribute="height">
-			<display_name>Height</display_name>
-			<note></note>
-			<text width="5" height="1" />
-		</field>
 		<field attribute="max">
 			<display_name>Maximum Length</display_name>
 			<note></note>
@@ -62,40 +57,13 @@
 		</field>
 		<field attribute="verify">
 			<display_name>Requires Verification</display_name>
-			<note></note>
+			<note>If this is set to Yes, two fields will appear on the form, which have to be entered correctly for the form to be submitted</note>
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="extra">
 			<display_name>Extras</display_name>
 			<note></note>
 			<text width="20" height="1" />
-		</field>
-	</section>
-	<section name="Add Rules">
-		<field>
-			<display_name>Rule</display_name>
-			<note></note>
-			<function_call>
-				<paint_function   name="paintAddRule"   />
-				<process_function name="processAddRule" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Current Rules">
-		<field>
-			<display_name>Question Rules</display_name>
-			<note></note>
-			<function_call>
-				<paint_function   name="paintRules"   />
-				<process_function name="processRules" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Special Information">
-		<field attribute="special_info">
-			<display_name>Special Information</display_name>
-			<note>Defines a special value form this question </note>
-			<selection style="list" />
 		</field>
 	</section>
 </contents>

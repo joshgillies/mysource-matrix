@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text_management.inc,v 1.9 2004/02/10 16:32:41 brobertson Exp $
+* $Id: form_question_type_text_management.inc,v 1.10 2004/04/23 07:28:08 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -70,6 +70,11 @@ class Form_Question_Type_Text_Management extends Asset_Management
 									'added'     => '0.0.1',
 									'type'      => 'text',  
 									'default'   => '',
+									),
+							'required'			=> Array(
+									'added'     => '0.0.1',
+									'type'      => 'boolean',  
+									'default'   => false,
 									),
 								
 			);

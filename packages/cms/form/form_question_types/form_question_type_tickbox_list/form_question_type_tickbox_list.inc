@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.8 2004/03/26 15:35:43 brobertson Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.9 2004/04/23 07:28:08 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,10 +46,9 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Form_Question_Type_Tickbox_List($assetid=0) 
+	function Form_Question_Type_Tickbox_List($assetid=0,$data=Array()) 
 	{
-		$this->_ser_attrs = true;
-		$this->Asset($assetid);
+		$this->Form_Question($assetid,$data);
 	
 	} // end Form_Question_Type_Tickbox_List()
 
@@ -62,9 +61,6 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	*/
 	function _getAllowedLinks()
 	{
-		$links[SQ_LINK_TYPE_3]['form_question_rule_type_comparison'] = Array('card' => '1', 'exclusive' => true);
-		$links[SQ_LINK_TYPE_3]['form_question_rule_type_contain'] = Array('card' => '1', 'exclusive' => true);
-
 		return $links;
 
 	}//end _getAllowedLinks()
@@ -81,9 +77,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		// generate some php for the value, which can be used for both
 		// auto-answer and returning to saved forms
 		
-		$html  = '<'.'?php $q = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$this->id.', \''.get_class($this).'\'); ?'.'>';
-		$html .= '<'.'?php $q->active_submission =& $this->active_submission; $q->active_form =& $active_form; ?'.'>';
-		$html .= $this->listBox($this->getOptions(), $this->attr('multiple'), $this->attr('horizontal'), $this->attr('extra'));
+		$html = $this->listBox($this->getOptions(), $this->attr('multiple'), $this->attr('horizontal'), $this->attr('extra'));
 		return $html;
 
 	} // end getAnswer()
@@ -115,7 +109,6 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 			$html .= '<input type="'.$type.'" ';
 			$html .= 'name="'.$this->id.(($multiple) ? '[]' : '').'" ';
 			$html .= 'value="'.htmlspecialchars($key).'"';
-			$html .= '<'.'?php echo ($q->isSelected('.$key.')) ? \' checked\' : \'\'; ?'.'>';
 			$html .= $extras.' />';
 			$html .= '&nbsp;'.$value;
 			$html .= ($hor) ? "</td>\n" : "</td></tr>";
@@ -152,7 +145,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	*/
 	function processForm()
 	{
-		if (!$this->active_submission) return false;
+		//if (!$this->active_submission) return false;
 		$val = isset($_POST[$this->id]) ? $_POST[$this->id] : '';
 		
 		if (is_array($val)) {
@@ -160,11 +153,16 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		} else {
 			$value = $this->getAnswerByOffset($val);
 		}
-		$this->active_submission->setAnswer($this->id, $val);
-		$this->active_submission->setSummary($this->id, $this->attr('name'), $value, $this->section_id, $this->section_name);
-		
-		parent::processForm();
-		
+
+		$form =& $this->getMySection();
+
+		if ($this->attr('required') && ($val == '')) {
+			$form->submission_errors[] = 'At least one option for the question "'.$this->attr('name').'" must be selected';
+			return false;
+		}
+
+		$form->active_submission[$this->id] = $val;
+			
 		return true;
 
 	} // end processForm()
@@ -202,7 +200,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	*/
 	function isSelected($value)
 	{
-		if (isset($this->active_submission)) {
+/*		if (isset($this->active_submission)) {
 			$values = $this->active_submission->getAnswer($this->id);
 			if ($values) {
 				if (is_array($values)) {
@@ -217,10 +215,10 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 					$answer =  $this->active_form->getAutoAnswer($this->attr('auto_answer'));
 					if ($value == $answer) return true;
 				}
-			}
+			}*/
 			$defaults = $this->attr('default');
 			if (in_array($value, $defaults)) return true;
-		}
+		//}
 		return false;
 	
 	} // end isSelected()
