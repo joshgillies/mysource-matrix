@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.45 2004/04/16 04:36:38 lwright Exp $
+* $Id: mysource.inc,v 1.46 2004/05/03 23:45:35 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1276,11 +1276,14 @@ class MySource
 		}
 
 		// update the rollback entries we added
-		$result = $this->db->query($rollback_sql);
-		if (DB::isError($result)) {
-			$this->doTransaction('ROLLBACK');
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
+		// (but only if rollback is enabled!!)
+		if (SQ_CONF_ROLLBACK_ENABLED) {
+			$result = $this->db->query($rollback_sql);
+			if (DB::isError($result)) {
+				$this->doTransaction('ROLLBACK');
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				return false;
+			}
 		}
 
 		$this->doTransaction('COMMIT');
