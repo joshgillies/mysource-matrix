@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.33 2003/11/26 00:51:26 gsherwood Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.34 2003/12/08 03:07:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -62,52 +62,70 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	*/
 	function &_createEditor(&$asset, $prefix)
 	{
-		$html = $asset->attr('html');
+		if (empty($this->_tmp['wysiwg_object'])) {
 
-		$wysiwyg = new wysiwyg($prefix, sq_web_path('fudge').'/wysiwyg/');
-		$wysiwyg->set_body_type('div');
-		$wysiwyg->set_init_onload(false);
-		$wysiwyg->set_show_status_bar(false);
-		$wysiwyg->set_width('100%');
-		$wysiwyg->set_height('300');
+			$html = $asset->attr('html');
 
-		$base_php_self = str_replace('/'.SQ_CONF_BACKEND_SUFFIX, '', $_SERVER['PHP_SELF']);
-		$base_php_self = str_replace('/'.SQ_CONF_LIMBO_SUFFIX, '', $base_php_self);
-		$base_php_self = rtrim($base_php_self, '/ ');
+			$wysiwyg = new wysiwyg($prefix, sq_web_path('fudge').'/wysiwyg/');
+			$wysiwyg->set_body_type('div');
+			$wysiwyg->set_init_onload(false);
+			$wysiwyg->set_show_status_bar(false);
+			$wysiwyg->set_width('100%');
+			$wysiwyg->set_height('300');
 
-		$wysiwyg->add_relative_href_check('(http[s]?://'.$_SERVER['HTTP_HOST'].')'.$_SERVER['PHP_SELF'], '$1'.$base_php_self);
-		$wysiwyg->add_relative_href_check('http[s]?://'.$_SERVER['HTTP_HOST'].$base_php_self.'/?(\?a=[0-9]+)', './$1');
-		$wysiwyg->add_relative_href_check('([^.][^/])(\?a=[0-9]+)', '$1./$2');
-		$wysiwyg->add_absolute_url_check('\./\?(a=[0-9]+)', 'http://'.$_SERVER['HTTP_HOST'].$base_php_self.'/?$1');
+			$base_php_self = str_replace('/'.SQ_CONF_BACKEND_SUFFIX, '', $_SERVER['PHP_SELF']);
+			$base_php_self = str_replace('/'.SQ_CONF_LIMBO_SUFFIX, '', $base_php_self);
+			$base_php_self = rtrim($base_php_self, '/ ');
 
-		$wysiwyg->open_group();
-			$wysiwyg->add_plugin('format_text');
-			$wysiwyg->add_plugin('general');
-		$wysiwyg->close_group();
-		$wysiwyg->open_group();
-			$wysiwyg->add_plugin('matrix_apply_style');
-		$wysiwyg->close_group();
-		$wysiwyg->add_plugin('justify_text');
-		$wysiwyg->add_plugin('indenting');
-		$wysiwyg->add_plugin('listing');
-		$wysiwyg->add_plugin('table_editing');
-		$wysiwyg->add_plugin('select_color');
-		$wysiwyg->open_group();
-			$wysiwyg->add_plugin('matrix_insert_link');
-			$wysiwyg->add_plugin('matrix_insert_image');
-			$wysiwyg->add_plugin('matrix_embed_movie');
-		$wysiwyg->close_group();
-		$wysiwyg->open_group();
-			$wysiwyg->add_plugin('spell_checker');
-			$wysiwyg->add_plugin('view_source');
-			$wysiwyg->add_plugin('popup_editor');
-		$wysiwyg->close_group();
+			$wysiwyg->add_relative_href_check('(http[s]?://'.$_SERVER['HTTP_HOST'].')'.$_SERVER['PHP_SELF'], '$1'.$base_php_self);
+			$wysiwyg->add_relative_href_check('http[s]?://'.$_SERVER['HTTP_HOST'].$base_php_self.'/?(\?a=[0-9]+)', './$1');
+			$wysiwyg->add_relative_href_check('([^.][^/])(\?a=[0-9]+)', '$1./$2');
+			$wysiwyg->add_absolute_url_check('\./\?(a=[0-9]+)', 'http://'.$_SERVER['HTTP_HOST'].$base_php_self.'/?$1');
 
-		// html_tidy needs to be last so other plugins can set options
-		$wysiwyg->add_plugin('html_tidy');
-		// contents must be set AFTER all plugins are loaded
-		$wysiwyg->set_contents($html);
-		return $wysiwyg;
+			// get the keyword replacements
+			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+			$keywords = Array();
+			$keyword_vars = Array('keywords' => &$keywords);
+			$em->broadcastEvent($asset, 'requestKeywords', $keyword_vars);
+
+			$wysiwyg->open_group();
+				$wysiwyg->add_plugin('format_text');
+				$wysiwyg->add_plugin('general');
+			$wysiwyg->close_group();
+			$wysiwyg->open_group();
+				$wysiwyg->add_plugin('matrix_apply_style');
+			$wysiwyg->close_group();
+			$wysiwyg->add_plugin('justify_text');
+			if (!empty($keywords)) {
+				$wysiwyg->add_plugin('keyword_replace');
+				$keyword_replace = &$wysiwyg->get_plugin('keyword_replace');
+				$keyword_replace->keyword_tag = '%';
+				$keyword_replace->keywords = $keywords;
+			}
+			$wysiwyg->add_plugin('indenting');
+			$wysiwyg->add_plugin('listing');
+			$wysiwyg->add_plugin('table_editing');
+			$wysiwyg->add_plugin('select_color');
+			$wysiwyg->open_group();
+				$wysiwyg->add_plugin('matrix_insert_link');
+				$wysiwyg->add_plugin('matrix_insert_image');
+				$wysiwyg->add_plugin('matrix_embed_movie');
+			$wysiwyg->close_group();
+			$wysiwyg->open_group();
+				$wysiwyg->add_plugin('spell_checker');
+				$wysiwyg->add_plugin('view_source');
+				$wysiwyg->add_plugin('popup_editor');
+			$wysiwyg->close_group();
+
+			// html_tidy needs to be last so other plugins can set options
+			$wysiwyg->add_plugin('html_tidy');
+			// contents must be set AFTER all plugins are loaded
+			$wysiwyg->set_contents($html);
+			$this->_tmp['wysiwg_object'] = $wysiwyg;
+
+		}
+
+		return $this->_tmp['wysiwg_object'];
 
 	}//end _createEditor()
 
@@ -124,10 +142,10 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	function paintBackend(&$asset, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
-			$wysiwyg = $this->_createEditor($asset, $prefix);
+			$wysiwyg = &$this->_createEditor($asset, $prefix);
 			?>
-			<div style="display:none;" id="<?php echo $prefix?>_wysiwyg_div"><?php echo $wysiwyg->paint()?></div>
-			<div id="<?php echo $prefix?>_contents_div"><?php echo $this->paint($asset)?></div>
+			<div style="display:none;" id="<?php echo $prefix?>_wysiwyg_div"><?php echo $wysiwyg->paint(); ?></div>
+			<div id="<?php echo $prefix?>_contents_div"><?php echo $this->paint($asset, $prefix); ?></div>
 			<?php
 		}
 		return true;
@@ -154,15 +172,22 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	/**
 	* Paints raw HTML
 	*
-	* @param object Content_Type_WYSIWYG	$asset	the wysiwyg object
+	* @param object Content_Type_WYSIWYG	$asset		the wysiwyg object
+	* @param string							$prefix		prefix for form elements
+	* @param boolean						$generating	are we genenerating the cache file
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paint(&$asset, $generating=false)
+	function paint(&$asset, $prefix, $generating=false)
 	{
-		$html = $asset->attr('html');
-		$html = preg_replace('|(<htmlarea_special[^>]*?>)(.*?)(</htmlarea_special>)|si', '$2', $html);
+		if ($generating) {
+			$html = $asset->attr('html');
+			$html = preg_replace('|(<htmlarea_special[^>]*?>)(.*?)(</htmlarea_special>)|si', '$2', $html);
+		} else {
+			$wysiwyg = &$this->_createEditor($asset, $prefix);
+			$html = $wysiwyg->contents;
+		}
 		echo $html;
 
 	}//end paint()

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_cell.inc,v 1.1 2003/12/02 03:31:47 mmcintyre Exp $
+* $Id: bodycopy_table_cell.inc,v 1.2 2003/12/08 03:07:34 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -210,7 +210,7 @@ class BodyCopy_Table_Cell extends MySource_Object {
 				$content_edit->paintBackend($content_type, $content_prefix);
 			} else {
 				ob_start();
-				$content_edit->paint($content_type, $generating);
+				$content_edit->paint($content_type, $content_prefix, $generating);
 				$cell_content = ob_get_contents();
 				ob_end_clean();
 

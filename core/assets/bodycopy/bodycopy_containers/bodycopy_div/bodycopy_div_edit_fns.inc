@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.2 2003/12/03 23:51:01 gsherwood Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.3 2003/12/08 03:07:34 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -199,7 +199,8 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				echo 'Content Type Asset Id : #'.$link['minorid'].' not found<br>Please contact your system administrator';
 			} else {
 				$content_edit = &$content_type->getEditFns();
-				$content_edit->paint($content_type, $generating);
+				$content_prefix = $asset->getPrefix().'_'.get_class($content_type).'_'.$link['linkid'];
+				$content_edit->paint($content_type, $content_prefix, $generating);
 			}
 		}
 

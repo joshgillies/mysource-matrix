@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg.inc,v 1.12 2003/11/26 00:51:26 gsherwood Exp $
+* $Id: content_type_wysiwyg.inc,v 1.13 2003/12/08 03:07:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,17 +51,20 @@ class Content_Type_WYSIWYG extends Content_Type
 
 	}//end constructor
 
+
 	/**
-	* returns true if there is no content in the wysiwyg
+	* Returns true if there is no content in the wysiwyg
 	*
 	* @access public
 	* @return boolean
 	*/
-	function isEmpty() 
+	function isEmpty()
 	{
 		$html = trim($this->attr('html'));
 		return empty($html);
-	} // isEmpty()
+
+	}//end isEmpty()
+
 
 }//end class
 
