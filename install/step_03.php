@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.52 2005/01/20 13:37:16 brobertson Exp $
+* $Id: step_03.php,v 1.53 2005/01/25 01:19:11 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@
 * 
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -112,7 +112,6 @@ if (!regenerate_configs()) {
 if (!isset($package_list)) {
 	$package_list = Array();	//'cms'=>Array('content_type_raw_html')
 }
-inject_beef();
 
 uninstall_asset_types();
 uninstall_packages();
