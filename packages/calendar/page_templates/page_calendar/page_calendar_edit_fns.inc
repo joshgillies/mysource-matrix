@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.8 2004/08/20 00:01:51 tbarrett Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.9 2004/08/20 00:29:43 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.8 $ - 1.0
+* @version $Revision: 1.9 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -195,6 +195,27 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		$unwanted_elts = array_diff(array_keys($_POST[$prefix.'_enabled_views']), array_keys($asset->view_options));
 		if (empty($unwanted_elts)) {
 			$asset->setAttrValue('enabled_views', $_POST[$prefix.'_enabled_views']);
+			$initial_view = $asset->attr('initial_view');
+			if (!($_POST[$prefix.'_enabled_views'][$initial_view])) {
+				foreach ($_POST[$prefix.'_enabled_views'] as $category => $view) {
+					if ($view) {
+						$asset->setAttrValue('initial_view', $category);
+						break;
+					}
+				}
+			}
+			if ($year_drill_down = $asset->attr('year_drill_down_view')) {
+				if (!($_POST[$prefix.'_enabled_views'][$year_drill_down])) {
+					$asset->setAttrValue('year_drill_down_view', '');
+					foreach ($_POST[$prefix.'_enabled_views'] as $category => $view) {
+						if (($category != 'year') && ($category != 'event') && $view) {
+							$asset->setAttrValue('year_drill_down_view', $category);
+							break;
+						}
+					}
+				}
+			}
+
 			return true;
 		}
 		return false;
@@ -494,6 +515,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		$current_view = $asset->attr('year_drill_down_view');
 		echo '<select name="'.$prefix.'_year_drill_down_view">';
+		echo '<option value="">(none)</option>';
 		$options = $asset->attr('enabled_views');
 		foreach ($options as $category => $type) {
 			if (!(($category == 'year') || ($category == 'event') || ($type == ''))) {
@@ -520,7 +542,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		if (isset($_POST[$prefix.'_year_drill_down_view'])) {
 			$enabled_views = $asset->attr('enabled_views');
-			if (isset($enabled_views[$_POST[$prefix.'_year_drill_down_view']]) && $enabled_views[$_POST[$prefix.'_year_drill_down_view']]) {
+			if ((isset($enabled_views[$_POST[$prefix.'_year_drill_down_view']]) && $enabled_views[$_POST[$prefix.'_year_drill_down_view']]) || empty($_POST[$prefix.'_year_drill_down_view'])) {
 				$asset->setAttrValue('year_drill_down_view', $_POST[$prefix.'_year_drill_down_view']);
 				return true;
 			}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.13 2004/08/19 23:07:36 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.14 2004/08/20 00:29:43 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.13 $ - 1.0
+* @version $Revision: 1.14 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -145,14 +145,11 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function printYearView($date)
 	{
-
 		list($year, $month, $day) = explode('-', $date);
 		echo "<h2>Year View for $year</h2>";
 		$week_start_day = $this->attr('week_starts_on');
 		$enabled_views = $this->attr('enabled_views');
-		$drill_down_views = Array('month', 'week', 'year');
-		$drill_down_view = current($drill_down_views);
-		while (empty($enabled_views[$drill_down_view]) && ($drill_down_view !== FALSE)) $drill_down_view = next($drill_down_views);
+		$drill_down_view = $this->attr('year_drill_down_view');
 
 		$this->_printClickChildScript();
 		?>
@@ -201,12 +198,12 @@ class Page_Calendar extends Page_Asset_Listing
 				$class = 'date';
 				if (in_array(date('D', strtotime("$year-$current_month-$current_day")), Array('Sat', 'Sun')))  $class .= ' weekend';
 				if ($occupied) $class .= ' eventDate';
-				$onclick = $occupied ? 'clickChild(this)' : '';
-				echo '<td onclick="'.$onclick.'" class="'.$class.'">';
+				$onclick = ($occupied && $drill_down_view) ? 'onclick="clickChild(this)" style="cursor: pointer; cursor: hand"' : '';
+				echo '<td '.$onclick.' class="'.$class.'">';
 
-				if ($occupied) echo '<a  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view."&SQ_CALENDAR_DATE=$year-".sprintf('%02d', $current_month).'-'.sprintf('%02d', $current_day).'">';
+				if ($occupied && $drill_down_view) echo '<a  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view."&SQ_CALENDAR_DATE=$year-".sprintf('%02d', $current_month).'-'.sprintf('%02d', $current_day).'">';
 				echo $current_day;
-				if ($occupied) echo '</a>';
+				if ($occupied && $drill_down_view) echo '</a>';
 				echo '</td>';
 
 			}
@@ -282,8 +279,8 @@ class Page_Calendar extends Page_Asset_Listing
 			$contents = $this->_getRandomMonthEvent();
 			$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'weekend' : '';
 			$occupied_class = ($contents) ? 'eventDate' : '';
-			$onclick = $contents ? 'clickChild(this)' : '';
-			echo '<td onclick="'.$onclick.'" class="date '.$occupied_class.' '.$weekend_class.'">';
+			$onclick = $contents ? 'onclick="clickChild(this)" style="cursor: pointer; cursor: hand"' : '';
+			echo '<td '.$onclick.' class="date '.$occupied_class.' '.$weekend_class.'">';
 			if ($contents && $drill_down_view) echo '<a class="dateLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&SQ_CALENDAR_DATE='.$year.'-'.$month.'-'.sprintf('%02d', $current_day).'">';
 			echo $current_day;
 			if ($contents && $drill_down_view) echo '</a><br />';
@@ -303,8 +300,8 @@ class Page_Calendar extends Page_Asset_Listing
 				$contents = $this->_getRandomMonthEvent();
 				$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'weekend' : '';
 				$occupied_class = ($contents) ? 'eventDate' : '';
-				$onclick = $contents ? 'clickChild(this)' : '';
-				echo '<td onclick="'.$onclick.'" class="date '.$occupied_class.' '.$weekend_class.'">';
+				$onclick = $contents ? 'onclick="clickChild(this)" style="cursor: pointer; cursor: hand"' : '';
+				echo '<td '.$onclick.' class="date '.$occupied_class.' '.$weekend_class.'">';
 				if ($contents && $drill_down_view) echo '<a class="dateLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&SQ_CALENDAR_DATE='.$year.'-'.$month.'-'.sprintf('%02d', $current_day).'">';
 				echo $current_day;
 				if ($contents && $drill_down_view) echo '</a><br />';
@@ -323,8 +320,8 @@ class Page_Calendar extends Page_Asset_Listing
 				$contents = $this->_getRandomMonthEvent();
 				$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'weekend' : '';
 				$occupied_class = ($contents) ? 'eventDate' : '';
-				$onclick = $contents ? 'clickChild(this)' : '';
-				echo '<td onclick="'.$onclick.'" class="'.$occupied_class.' '.$weekend_class.' date">';
+				$onclick = $contents ? 'onclick="clickChild(this)" style="cursor: pointer; cursor: hand"' : '';
+				echo '<td '.$onclick.' class="date '.$occupied_class.' '.$weekend_class.'">';
 				if ($contents && $drill_down_view) echo '<a class="dateLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&SQ_CALENDAR_DATE='.$year.'-'.$month.'-'.sprintf('%02d', $current_day).'">';
 				echo $current_day;
 				if ($contents && $drill_down_view) echo '</a><br />';

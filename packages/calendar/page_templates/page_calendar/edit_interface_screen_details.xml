@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2004/08/20 00:01:51 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2004/08/20 00:29:43 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -63,8 +63,11 @@
 				<process_function name="processInitialView" />
 			</function_call>
 		</field>
+	</section>
+
+	<section name="Settings for All Views" write_access="write:attributes">
 		<field attribute="week_starts_on">
-			<display_name>Day to show first in week</display_name> 
+			<display_name>First Day in Week</display_name> 
 			<note />
 			<selection /> 
 		</field>
@@ -84,7 +87,7 @@
 	<section name="Settings for Week View" write_access="write:attributes">
 		<field>
 			<display_name>Days to include in week</display_name> 
-			<note />
+			<note>Days that are not enabled here will not be shown in week view.  The order of the days is controlled by the 'First Day in Week' setting above.</note>
 			<function_call>
 				<paint_function	name="paintWeekDays" />
 				<process_function name="processWeekDays" />

@@ -45,7 +45,7 @@ table#year { border: 2px solid purple; background-color: #eeeeee; border-collaps
 #year td.weekend { background-color: #aaaaaa }
 
 /* Cells with events */
-#year td.eventDate { cursor: pointer; cursor: hand; background-color: red; }
+#year td.eventDate { background-color: red; }
 #year td.eventDate a, #year td.eventDate a:visited, #year td.eventDate a:hover { font-color: white; font-weight: bold; text-decoration: none; } 
 
 
@@ -75,7 +75,7 @@ table#month { border: 2px solid purple; background-color: #eeeeee; border-collap
 #month td.weekend { background-color: #aaaaaa }
 
 /* Cells with events */
-#month td.eventDate { cursor: pointer; cursor: hand; background-color: red; }
+#month td.eventDate { background-color: red; }
 
 /* Linked dates at top left of cells */
 #month td.eventDate a.dateLink, #month td.eventDate a.dateLink:visited, #month td.eventDate a.dateLink:hover { color: white; font-weight: bold; text-decoration: none; } 
