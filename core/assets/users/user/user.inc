@@ -258,7 +258,7 @@ class User extends Asset
 				// this is a sysadmin so they need to
 				// be root or the sysadmin themselves
 				if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return false;
-				if ($this->id == $GLOBALS['SQ_SYSTEM']->curretUserId()) return true;
+				if ($this->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) return true;
 				return false;
 			} else {
 				// any other user's details
