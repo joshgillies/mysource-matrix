@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.25 2004/09/29 02:11:09 gsherwood Exp $
+* $Id: search_manager.inc,v 1.26 2004/10/14 03:27:13 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.25 $ - 0.1
+* @version $Revision: 1.26 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -605,7 +605,7 @@ class Search_Manager extends Asset
 		$start_sql_array = $this->constructBaseSearchQuery($search_info);
 		$start_sql = implode(' ', $start_sql_array);
 		$group_by =  'GROUP BY ai.assetid';
-		if ($search_info['sort_by']) $group_by .= ', sort_by';
+		if (isset($search_info['sort_by'])) $group_by .= ', sort_by';
 
 
 		  ///////////////////////////////
