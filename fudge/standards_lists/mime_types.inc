@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mime_types.inc,v 1.7 2005/01/20 13:33:23 brobertson Exp $
+* $Id: mime_types.inc,v 1.8 2005/03/16 21:04:37 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *     Originally stolen from Apaches configuration
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package Fudge
 * @subpackage Standards_Lists
 */
@@ -161,7 +161,8 @@ $standards_lists_mime_types = Array('hqx'		=> 'application/mac-binhex40',
 									'wm'		=> 'video/x-ms-wm',
 									'wmx'		=> 'video/x-ms-wmx',
 									'wmz'		=> 'application/x-ms-wmz',
-									'wmd'		=> 'application/x-ms-wmd'
+									'wmd'		=> 'application/x-ms-wmd',
+									'ico'		=> 'image/x-icon',
 									);
 
 ?>
