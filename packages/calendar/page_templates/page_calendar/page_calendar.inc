@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.97 2004/10/07 06:38:36 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.98 2004/10/08 07:19:01 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.97 $ - 1.0
+* @version $Revision: 1.98 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -875,6 +875,12 @@ class Page_Calendar extends Page_Asset_Listing
 		$root_nodes = $this->attr('root_nodes');
 		$this->_printClickChildScript();
 		$width = $this->attr('table_column_width');
+		$layout_maps = $events; // nb array copy
+		foreach ($layout_maps as $date => $times_events) {
+			foreach (array_keys($times_events) as $time) {
+				$layout_maps[$date][$time] = Array();
+			}
+		}
 		$dragging_enabled = $this->attr('enable_event_dragging');
 		$mouseup_code = $dragging_enabled ? 'onmouseup="endDrag(this)"' : '';
 		$mousedown_code = $dragging_enabled ? 'onmousedown="beginDrag(this)"' : '';
@@ -966,7 +972,7 @@ class Page_Calendar extends Page_Asset_Listing
 				?>
 				<td <?php echo $mouseup_code; ?> id="<?php echo $id.'_'.$time_key ?>" <?php echo empty($col_events[$time_key]) ? 'onclick="addEvent(\''.$_REQUEST['SQ_CALENDAR_DATE'].'\', \''.$time_key.'\');"' : ''; ?> style="<?php echo $width; ?>ex; height: <?php echo $partition_height; ?>ex;">
 				<?php
-					echo $this->_getTimedTableCellContents($col_events[$time_key], $show_event_links, $root_nodes, ($current_mins + ($current_hour * 60)), $partition_time, $partition_height, $div_width, $mousedown_code);
+					echo $this->_getTimedTableCellContents($col_events[$time_key], $show_event_links, $root_nodes, ($current_mins + ($current_hour * 60)), $partition_time, $partition_height, $div_width / $col_events['_overlap_'], $layout_maps[$id], $mousedown_code);
 				?>
 				&nbsp;
 				</td>
@@ -990,7 +996,7 @@ class Page_Calendar extends Page_Asset_Listing
 	* @param array		$events				The events for the cell, $assetid => details
 	* @param boolean	$show_event_links	Whether to link the event's name to its event view
 	* @param array		$root_nodes			The root nodes for this page, used for getting classnames
-	* @param int		$cell_ts			The timestamp of the earliest time in the cell
+	* @param int		$cell_ts			The timestamp (seconds today) of the earliest time in the cell
 	* @param int		$partition_time		The length of the partition in minutes
 	* @param float		$cell_height	The height of the cell, in ex-es
 	* @param float		$event_width		The width of the event, in ex-es
@@ -999,12 +1005,24 @@ class Page_Calendar extends Page_Asset_Listing
 	* @return string	The HTML for the contents of the table cell
 	* @access private
 	*/
-	function _getTimedTableCellContents(&$events, $show_event_links, &$root_nodes, $cell_ts, $partition_time, $cell_height, $event_width, $mousedown_code)
+	function _getTimedTableCellContents(&$events, $show_event_links, &$root_nodes, $cell_ts, $partition_time, $cell_height, $event_width, &$layout_map, $mousedown_code)
 	{
-
+		$cmp_func = create_function('$a, $b', 'return ($b[\'end_date_ts\'] - $b[\'start_date_ts\']) - ($a[\'end_date_ts\'] - $a[\'start_date_ts\']);');
+		uasort($events, $cmp_func);
 		$res = '';
-		$cumulative_margin = $event_width * 0.02;
+		$time_label = sprintf('%02d:%02d', (int)($cell_ts / 60), $cell_ts % 60);
+
 		foreach ($events as $assetid => $details) {
+			reset($layout_map);
+			$tom = 0;
+			while (($tom < 10) && (key($layout_map) != $time_label)) {  next($layout_map); $tom++;}
+			$horizontal_index = 0;
+			while (isset($layout_map[$time_label][$horizontal_index])) $horizontal_index++;
+			for ($i=0; $i < ceil((($details['end_date_ts'] - $details['start_date_ts']) / 60) / $partition_time); $i++) {
+				$layout_map[key($layout_map)][$horizontal_index] = 1;
+				next($layout_map);
+			}
+			$event_left_margin = $event_width * $horizontal_index + 0.05;
 			$assetid_bits = current(explode(':', $assetid));
 			// get top position of div
 			$event_ts = $details['start_date_minutes'] + (60 * $details['start_date_hours']);
@@ -1024,8 +1042,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand;' : '';
 			$inner_margin_top = $event_height ? 1 : 0;
 			$onclick_code = $show_event_links ? 'onclick="clickChild(this);"' : '';
-			$this_event_width = $event_width / $this->_countOverlappingEvents($events, gmdate('H:i', $event_ts*60), gmdate('H:i', $end_ts*60), $partition_time);
-			$inner_width = ($this_event_width * 0.96) - 0.25;
+			$inner_width = ($event_width * 0.96) - 0.25;
 			$current_mousedown_code = ($details['type_code'] != 'calendar_event_recurring') ? $mousedown_code : '';
 
 			$current_mouse_over_out_code = '';
@@ -1034,12 +1051,12 @@ class Page_Calendar extends Page_Asset_Listing
 				$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')" onmouseout="stopTrailingPopup(\'event_'.$assetid.'_description\')"';
 			}
 
-			$res .= '<div id="'.$assetid.'" '.$current_mousedown_code.' '.$current_mouse_over_out_code.' class='.$event_class.' event" style="float:left; position: absolute; width: '.$this_event_width.'ex; margin-left: '.$cumulative_margin.'ex; margin-top: '.$event_top_margin.'ex; height: '.$event_height.'ex; '.$cursor_code.' '.$zero_length_code.'" '.$onclick_code.'><div class="eventText" style="position: absolute; width: '.$inner_width.'ex; border: none; margin-top: '.$inner_margin_top.'px background-color: transparent">';
+			$res .= '<div id="'.$assetid.'" '.$current_mousedown_code.' '.$current_mouse_over_out_code.' class='.$event_class.' event" style="float:left; position: absolute; width: '.$event_width.'ex; margin-left: '.$event_left_margin.'ex; margin-top: '.$event_top_margin.'ex; height: '.$event_height.'ex; '.$cursor_code.' '.$zero_length_code.'" '.$onclick_code.'><div class="eventText" style="position: absolute; width: '.$inner_width.'ex; border: none; margin-top: '.$inner_margin_top.'px background-color: transparent">';
 			$res .= $show_event_links ? '<a class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'&amp;SQ_CALENDAR_EVENT_ID='.$assetid.'">' : '<span class="event '.$event_class.'">';
 			$res .= $details['name'];
 			$res .= $show_event_links ? '</a>' : '</span>';
 			$res .= '</div></div>';
-			$cumulative_margin += $this_event_width + 0.05;
+			$event_left_margin += $event_width + 0.05;
 
 		}
 		return $res;
@@ -1638,23 +1655,21 @@ class Page_Calendar extends Page_Asset_Listing
 			if ($days_to_show[date('w', $i)]) $res[iso8601_date_component(ts_iso8601($i))] = $partitions;
 		}
 
-
-		$plain_events = $this->getWeekEvents($cal_date);
-		$events =& expand_event_list($plain_events, $cal_date, $last_day, $this->attr('day_starts_at'), $this->attr('day_ends_at'));
-
-		foreach ($events as $id => $details) {
-			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
-
-			if (isset($res[$event_date])) {
-				if (is_null($details['start_date_hours'])) {
-					$res[$event_date]['all_day'][$id] = $details;
-				} else {
-					$event_ts = $details['start_date_hours'] * 60 + $details['start_date_minutes'];
-					if ($event_ts < $start_ts) continue;
-					foreach ($partition_keys as $partition_ts => $key) {
-						if (($event_ts - $partition_ts) < $time_partition) {
-							$res[$event_date][$key][$id] = $details;
-							break;
+		$plain_events = $this->getWeekEventsByDay($cal_date);
+		foreach ($plain_events as $event_date => $events) {
+			$res[$event_date]['_overlap_'] = $this->_countOverlappingEvents($events, $first_time, $last_time, $time_partition);
+			foreach ($events as $id => $details) {
+				if (isset($res[$event_date])) {
+					if (is_null($details['start_date_hours'])) {
+						$res[$event_date]['all_day'][$id] = $details;
+					} else {
+						$event_ts = $details['start_date_hours'] * 60 + $details['start_date_minutes'];
+						if ($event_ts < $start_ts) continue;
+						foreach ($partition_keys as $partition_ts => $key) {
+							if (($event_ts - $partition_ts) < $time_partition) {
+								$res[$event_date][$key][$id] = $details;
+								break;
+							}
 						}
 					}
 				}
@@ -1664,7 +1679,6 @@ class Page_Calendar extends Page_Asset_Listing
 		foreach ($res as $date => $events) {
 			foreach($partition_keys as $partition) process_exceptions($res[$date][$partition]);
 		}
-
 		return $res;
 
 	}//end getWeekEventsByDayAndTime()
@@ -1767,6 +1781,7 @@ class Page_Calendar extends Page_Asset_Listing
 				}
 			}
 		}
+		$res['_overlap_'] = $this->_countOverlappingEvents($events);
 		return $res;
 
 	}//end getDayEventsByTime()
@@ -1820,6 +1835,7 @@ class Page_Calendar extends Page_Asset_Listing
 				}
 			}
 		}
+		foreach ($res as $root_node => $null) $res[$root_node]['_overlap_'] = 1;
 		return $res;
 
 	}//end getDayEventsByRootNodeAndTime()
