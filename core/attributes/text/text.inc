@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.16 2003/11/26 00:51:08 gsherwood Exp $
+* $Id: text.inc,v 1.17 2004/02/10 04:16:42 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -139,6 +139,22 @@ class Asset_Attribute_Text extends Asset_Attribute
 		return true;
 
 	}//end validateValue()
+
+
+	/**
+	* Retrieve a list of indexable values from this attribute
+	*
+	* The return value not only contains the indexable values, but also the number of
+	* times they occur in this attributes value
+	*
+	* @return array(string => int)
+	* @access public
+	*/
+	function getKeyData()
+	{
+		return get_word_counts($this->value);
+
+	}//end getKeyData()
 
 
 }//end class

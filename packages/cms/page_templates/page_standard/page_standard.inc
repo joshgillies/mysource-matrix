@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.31 2003/12/02 03:47:28 mmcintyre Exp $
+* $Id: page_standard.inc,v 1.32 2004/02/10 04:16:43 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -242,29 +242,29 @@ class Page_Standard extends Page
 	* </PRE>
 	* @access public
 	*/
-	function &getKeyData($component=false)
+	function getKeyData($component=null)
 	{
-		$keyData = parent::getKeyData($component);
+		$keydata = parent::getKeyData($component);
 		$weightings = $this->getWeightings();
 
-		if (!$component || $component == 'contents') {
-			// get the bodycopy 
+		if (is_null($component) || $component == 'contents') {
+			// get the bodycopy
 			$bodycopy = &$this->getBodycopy();
-			if (is_null($bodycopy)) return Array();
+			if (is_null($bodycopy)) return $keydata;
 
 			ob_start();
-			$bodycopy->printBody();
-			$contents = ob_get_contents();
+				$bodycopy->printBody();
+				$contents = ob_get_contents();
 			ob_end_clean();
 			
 			// preprocess
 			$contents = strtolower(strip_tags(html_entity_decode($contents)));
-			$word_counts = get_word_counts($contents);
-			foreach ($word_counts as $word => $count) {
-				$this->buildKeyData($keyData, $word, 'text', 'contents', $count * $weightings['contents']['weighting']);
+			$comp_name = 'attr:'.$this->type().':contents';
+			foreach (get_word_counts($contents) as $word => $count) {
+				$this->buildKeyData($keydata, $word, 'text', $comp_name, $count * $weightings['contents']['weighting']);
 			}
 		}
-		return $keyData;
+		return $keydata;
 
 	}//end getKeyData()
 

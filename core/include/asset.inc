@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.273 2004/02/08 22:57:25 gsherwood Exp $
+* $Id: asset.inc,v 1.274 2004/02/10 04:16:42 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3341,14 +3341,14 @@ class Asset extends MySource_Object
 	* Retrieves a list of key data from this asset (used by the indexing service).
 	* Subclasses override this to give the content they want to make searchable.
 	*
-	* @param mixed $component	If it is not false, then it is assumed to be the name of a
-	*							component of this asset (defined and controlled by subclasses).
-	* @return array				An array of all the keydata for this asset. Keydata is of the form
+	* @param mixed $component	if it is not false, then it is assumed to be the name of a
+	*							component of this asset (defined and controlled by subclasses)
+	* @return array				an array of all the keydata for this asset. Keydata is of the form
 	* <pre>
-	* array (
-	*	array (
-	*		'value' => ...,
-	*		'type' => ..., (text, date, number, etc.)
+	* Array (
+	*	Array (
+	*		'value'     => ...,
+	*		'type'      => ..., (text, date, number, etc.)
 	*		'component' => ..., (whatever you want, just as long as this asset
 	*							 knows how to deal with it if it needs to)
 	*		), ...
@@ -3356,26 +3356,36 @@ class Asset extends MySource_Object
 	* </pre>
 	* @access public
 	*/
-	function &getKeyData($component = false)
+	function getKeyData($component=null)
 	{
-		// supply metadata
+		// index metadata
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-		$schemaids = $mm->getSchemas($this->id, 1);
-
+		$schemaids = $mm->getSchemas($this->id, true);
 		$keydata = $mm->getMetadataKeyData($this->id, $schemaids);
 
+		// index attributes
 		$weightings = $this->getWeightings();
-		// supply name
-		if (!$component || $component == 'name') {
-			$value = $this->name;
-			foreach (get_word_counts($value) as $word => $count) {
-				$this->buildKeyData($keydata, $word, 'text', "name", $count * $weightings['name']['weighting']);
+		foreach ($this->vars as $var_name => $var_data) {
+			if (!isset($weightings[$var_name])) continue;
+			if (!is_null($component) && $component != $var_name) continue;
+
+			// skip non saclar values because we cant index them properly
+			if (!is_scalar($var_data['value'])) continue;
+
+			$attribute = &$this->getAttribute($var_name);
+			$values = $attribute->getKeyData();
+			if (empty($values)) continue;
+
+			$comp_name = 'attr:'.$this->type().':'.$var_name;
+			foreach ($values as $value => $count) {
+				$this->buildKeyData($keydata, $value, $var_data['type'], $comp_name, $count * $weightings[$var_name]['weighting']);
 			}
 		}
 
 		return $keydata;
 
 	}//end getKeyData()
+
 
 	/**
 	* Informs the indexing service that this asset's contents have changed, and
@@ -3386,8 +3396,7 @@ class Asset extends MySource_Object
 	*/
 	function informChanges()
 	{
-		if (!SQ_CONF_INDEXING_ENABLED)
-			return;
+		if (!SQ_CONF_INDEXING_ENABLED) return;
 
 		$im =& $GLOBALS['SQ_SYSTEM']->getIndexingManager();
 		$im->changed($this->id);
@@ -3398,28 +3407,25 @@ class Asset extends MySource_Object
 	/**
 	* Save component weightings to the database
 	*
-	* @param Array	$newWeightings	the component wieghtings to save
+	* @param array	$newWeightings	the component wieghtings to save
 	*
 	* @return void
 	* @access public
 	*/
-	function saveComponentWeightings($newWeightings)
+	function saveComponentWeightings($new_weightings)
 	{
 		$im =& $GLOBALS['SQ_SYSTEM']->getIndexingManager();
 		$dirty = false;
 		$weightings =& $this->getWeightings();
 
-		foreach ($newWeightings as $component => $weightingData) {
-			if ($weightingData['default']) {
+		foreach ($new_weightings as $component => $weighting_data) {
+			if ($weighting_data['default']) {
 				$weighting = null;
-				if (!$weightings[$component]['default'])
-					$dirty = true;
+				if (!$weightings[$component]['default']) $dirty = true;
 			} else {
-				$weighting = $weightingData['weighting'];
-				$weightings[$component]['default'] = $weightingData['default'];
-
-				if (!$dirty)
-					$weightings[$component]['weighting'] = $weighting;
+				$weighting = $weighting_data['weighting'];
+				$weightings[$component]['default'] = $weighting_data['default'];
+				if (!$dirty) $weightings[$component]['weighting'] = $weighting;
 			}
 			$im->setComponentWeighting($this->id, $component, $weighting);
 		}
@@ -3436,35 +3442,29 @@ class Asset extends MySource_Object
 	/**
 	* Adds a piece of keydata to the array to be passed to the indexing service.
 	*
-	* NOTE: Added function parameter $force_processing, default = 0
-	*
-	* @param array ref $keydata A reference to the keydata array being built
-	* @param string $value		The key data value
-	* @param string $type		The key data type, defaults to 'text' (e.g. text, date, number, etc.)
-	* @param string $component	The component to which this data pertains to
-	* @param int	$score		Weighting of this word for the search
-	* @param int	$force_processing	If the initial checking routines should be skipped
+	* @param array		&$keydata			a reference to the keydata array being built
+	* @param string		$value				the key data value
+	* @param string		$type				the key data type, defaults to 'text' (e.g. text, date, number, etc.)
+	* @param string		$component			the component to which this data pertains to
+	* @param int		$score				weighting of this word for the search
+	* @param int		$force_processing	if the initial checking routines should be skipped
 	*
 	* @return void
 	* @access protected
 	*/
-	function buildKeyData(&$keydata, $value, $type = 'text', $component = false, $score = 1, $force_processing = 0)
+	function buildKeyData(&$keydata, $value, $type='text', $component=false, $score=1, $force_processing=0)
 	{
 		// checking if we should skip initial test of given values, because
 		// they are almost always null if we are indexing metadata fields
-		if ($force_processing != 1) {
-			if (!is_array($keydata))
-				return false;
-			if ($score <= 0)
-				return false;
-		}
+		if ($force_processing != 1 && (!is_array($keydata) || $score <= 0)) return false;
 
-		array_push($keydata, array (
-			'value'		=> $value,
-			'type'		=> $type,
-			'component' => $component,
-			'score'		=> $score,
-		));
+		array_push($keydata, Array (
+									'value'     => $value,
+									'type'      => $type,
+									'component' => $component,
+									'score'     => $score,
+									)
+					);
 
 		return true;
 
@@ -3503,8 +3503,8 @@ class Asset extends MySource_Object
 			foreach ($results as $result) {
 				$this->_weightings[$result['component']] =
 					Array(
-						'default' => ($result['def'] == 't')?1:0,
-						'weighting' => $result['weighting'],
+						'default'     => ($result['def'] == 't') ? 1 : 0,
+						'weighting'   => $result['weighting'],
 						'description' => $result['description'],
 					);
 			}
@@ -3512,6 +3512,7 @@ class Asset extends MySource_Object
 		return $this->_weightings;
 
 	}// end getWeightings()
+
 
 }//end class
 

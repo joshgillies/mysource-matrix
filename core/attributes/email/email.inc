@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email.inc,v 1.14 2003/11/26 00:51:06 gsherwood Exp $
+* $Id: email.inc,v 1.15 2004/02/10 04:16:42 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -112,7 +112,25 @@ class Asset_Attribute_Email extends Asset_Attribute_Text
 		if ($new_value != $value) return false;
 		if (!valid_email($value)) return false;
 		return true;
-	}
+
+	}//end validateValue()
+
+
+	/**
+	* Retrieve a list of indexable values from this attribute
+	*
+	* The return value not only contains the indexable values, but also the number of
+	* times they occur in this attributes value
+	*
+	* @return array(string => int)
+	* @access public
+	*/
+	function getKeyData()
+	{
+		return Array($this->value => 1);
+
+	}//end getKeyData()
+
 
 }//end class
 
