@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_customisation.inc,v 1.19 2003/09/26 05:26:25 brobertson Exp $
+* $Id: design_customisation.inc,v 1.20 2003/10/17 04:52:25 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -294,14 +294,8 @@ class Design_Customisation extends Design
 		// generate an array of all the URLs we are going to need for the files in this customisation
 		// that are inherited from the design we are customising
 		$file_link_ids = Array();
-		$parent_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design', true, 'minor');
-		if (!empty($parent_link)) {
-			$parent_design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parent_link[0]['majorid'], $parent_link[0]['major_type_code']);
-			if (!is_null($parent_design)) {
-				$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($parent_design->id, SQ_LINK_TYPE_2, 'file', false);
-				foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
-			}
-		}
+		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', false);
+		foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
 
 		$file_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_unique($file_link_ids));
 		$file_link_urls = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($file_link_ids));
