@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.69 2004/06/18 03:40:45 gsherwood Exp $
+* $Id: design_edit_fns.inc,v 1.70 2004/08/20 06:46:18 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -294,7 +294,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$parse_file = $asset->data_path.'/parse.txt';
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		$str = file_to_string($parse_file);
-		$contents = $this->_parseString($str);
+		$contents = $this->_parseString($asset, $str);
 		return (!is_null($contents) && $this->_processContents($asset, $contents) && $asset->saveAttributes());
 
 	}//end parseAndProcessFile()
@@ -303,12 +303,13 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Parses the string into an array recursively cut up into html and tag pieces
 	*
+	* @param object Asset	$asset	the asset to which we belong
 	* @param string	$file_contents	the contents to parse
 	*
 	* @return Array
 	* @access private
 	*/
-	function _parseString($file_contents)
+	function _parseString(&$asset, $file_contents)
 	{
 		// convert the head and body tags to lowercase
 		$file_contents = preg_replace(	Array('/<head/i', '/<\\/head/i', '/<body/i', '/<\\/body/i'),
@@ -324,10 +325,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$file_contents= $temp[0]
 							."<head>\n<".$this->tag_name."_PRINT id_name='__global__' var='html_header' />\n"
 							.$temp[1];
-		} else {
-			$file_contents= "<".$this->tag_name."_PRINT id_name='__global__' var='html_header' />\n"
-							.$file_contents;
-		}
+		} 
 
 		// Let's place an print operation after the termination body tag
 		// to allow us to print the anything that has come to our attention
@@ -337,9 +335,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$file_contents= $temp[0]
 							."\n<".$this->tag_name."_PRINT id_name='__global__' var='html_footer' />\n</body>"
 							.$temp[1];
-		} else {
-			$file_contents= $file_contents."\n<".$this->tag_name."_PRINT id_name='__global__' var='html_footer' />";
-		}
+		} 
 
 		return parent::_parseString($file_contents);
 
@@ -519,7 +515,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	function createDesignFile(&$asset)
 	{
 		$design_area_links = $asset->getDesignAreaLink();
-
+		
 		// Firstly we need to set all the var_reference variables so that when the design areas are
 		// printed they can work correctly
 		//
@@ -582,7 +578,6 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		// we are checking to see if there is a global $ASSET_LINEAGE here
 		// because we need other assets to be able to modify the lineage, for
 		// instance 404 pages.
-
 		$pre_str = '<?php
 		global $ASSET_LINEAGE;
 		$am = &$GLOBALS[\'SQ_SYSTEM\']->am;
@@ -902,6 +897,20 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			}
 		}
 		$am->forgetAsset($minor);
+		
+		// link up all the css files from this design to the customisation
+		$css_link_ids = Array();
+		$css_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'design_css', false);
+		foreach ($css_links as $link) {
+			$minor = &$am->getAsset($link['minorid'], $link['minor_type_code']);
+			if (!$clone->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
+				trigger_error('Failed creating css file link to customisation', E_USER_WARNING);
+				$am->forgetAsset($minor);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+		}
+		$am->forgetAsset($minor);
 
 		// release the lock on the new object
 		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($clone->id, 'all')) {
@@ -914,8 +923,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		return true;
 
 	}//end processNewCustomisation()
-
-
+	
+	
 	/**
 	*
 	* @param object Asset				$asset	the asset whose interface we are painting
@@ -943,6 +952,128 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 	}//end paintCurrentCustomisations()
 
+
+	/**
+	*
+	* @param object Asset				$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCurrentCSSFiles(&$asset, &$o, $prefix)
+	{
+		$css_links = &$GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'design_css', true, 'major', 'design_css');
+		if ($css_links) {
+			$am = &$GLOBALS['SQ_SYSTEM']->am;
+			foreach($css_links as $link) {
+				$css = &$am->getAsset($link['minorid'], $link['minor_type_code']);
+				if (is_null($css)) continue;
+				echo '# ', $css->id, '&nbsp;&nbsp;<a href="', $css->getBackendHref(), '">', $css->name, '</a><br>';
+
+			}
+
+		} else {
+			?> No CSS Files Created <?php
+		}
+
+	}//end paintCurrentCSSFiles()
+
+
+/**
+	*
+	* @param object Asset				$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintNewCSSFile(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('links')) return false;
+		check_box($prefix.'_new_css_file');
+		text_box($prefix.'_new_css_file_name', $asset->name.'.css', 40);
+		return true;
+
+	}//end paintNewCSSFile()
+
+
+	/**
+	*
+	* @param object Asset				$asset	the asset to which we belong
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processNewCSSFile(&$asset, &$o, $prefix)
+	{
+		if (empty($_POST[$prefix.'_new_css_file']) || !($new_name = trim($_POST[$prefix.'_new_css_file_name']))) {
+			return false;
+		}
+		
+		$existing_ids = Array();
+		$existing = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3, 'design_css', false);
+		foreach ($existing as $link) $existing_ids[$link['minorid']] = $link['linkid'];
+		$existing_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($existing_ids));
+		
+		$existing_cssid = 0;
+		foreach ($existing_info as $existing_info) {
+			// if the name is the same, delete the link
+			if ($existing_info['name'] == $new_name) {
+				$existing_cssid = $existing_info['assetid'];
+				break;
+			}
+		}
+
+		if (!$existing_cssid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('design_css');
+			$css_file = new Design_Css();
+			$css_link = Array('asset' => $asset, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1);
+	
+			$css_file->setAttrValue('id_name', $new_name);
+	
+			if (!$css_file->create($css_link)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+		} else {
+			// we already have a design file with the same name, so we need to remove
+			// the TYPE_3 link and lookups and create a new CSS File asset instead
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			foreach ($existing as $link) {
+				if (!$asset->deleteLink($link['linkid'])) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+				$existing_css = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+				$existing_css->updateLookups();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($existing_css);
+			}
+			
+			// now create a new asset
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('design_css');
+			$css_file = new Design_Css();
+			$css_link = Array('asset' => $asset, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1);
+	
+			$css_file->setAttrValue('id_name', $new_name);
+	
+			if (!$css_file->create($css_link)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			} 
+
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return true;
+
+	}//end processNewCustomisation()
 
 }//end class
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.25 2004/06/23 23:25:44 lwright Exp $
+* $Id: design_customisation.inc,v 1.26 2004/08/20 06:46:18 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -112,6 +112,36 @@ class Design_Customisation extends Design
 					$new_minor = &$am->getAsset($info['assetid']);
 					if (!$this->createLink($new_minor, SQ_LINK_TYPE_3, '', null, '1')) {
 						trigger_error('Failed creating file link to customisation', E_USER_WARNING);
+						$am->forgetAsset($design);
+						$am->forgetAsset($new_minor);
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
+					}
+					$am->forgetAsset($new_minor);
+				}
+			}// end foreach $file_links
+
+			$am->forgetAsset($design);
+		}
+
+		// special processing if we are deleting a TYPE_2 linked CSS file (a CSS file overridding a design file)
+		if ($delete_link['link_type'] == SQ_LINK_TYPE_2 && is_a($minor, 'design_css')) {
+
+			$design =& $this->getParentDesign();
+
+			// go through all the links of the design we are customisaing and find a css file
+			// linked to it with the same name as the one we just deleted so it can take its place
+			$css_link_ids = Array();
+			$css_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($design->id, SQ_LINK_TYPE_2, 'design_css', false);
+			foreach ($css_links as $link) $css_link_ids[$link['minorid']] = $link['linkid'];
+			$css_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($css_link_ids));
+
+			foreach ($css_link_info as $info) {
+				if ($info['name'] == $minor->name) {
+					// found the link to create
+					$new_minor = &$am->getAsset($info['assetid']);
+					if (!$this->createLink($new_minor, SQ_LINK_TYPE_3, '', null, '1')) {
+						trigger_error('Failed creating css file link to customisation', E_USER_WARNING);
 						$am->forgetAsset($design);
 						$am->forgetAsset($new_minor);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -351,14 +381,28 @@ class Design_Customisation extends Design
 
 		$file_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_unique($file_link_ids));
 		$file_link_urls = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($file_link_ids));
-
+		
 		foreach ($file_link_info as $minorid => $file_info) {
 			$file_url = $file_link_urls[$minorid];
 			if ($file_url == '') $file_url = "Javascript: alert('This URL for \'".$file_info['name']."\' does not exist');";
 			$FILE_URLS[$file_info['name']] = $file_url;
 		}
+		
+		// generate an array of all the URLs we are going to need for the attached CSS in this design
+		$css_link_ids = Array();
+		$css_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'design_css', false);
+		foreach ($css_links as $link) $css_link_ids[] = $link['minorid'];
 
-		return parent::paint($ASSET, $FILE_URLS);
+		$css_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_unique($css_link_ids));
+		$css_link_urls = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($css_link_ids));
+
+		foreach ($css_link_info as $minorid => $css_info) {
+			$css_url = $css_link_urls[$minorid];
+			if ($css_url == '') $css_url = "Javascript: alert('This URL for \'".$file_info['name']."\' does not exist');";
+			$CSS_URLS[$css_info['name']] = $css_url;
+		}
+
+		return parent::paint($ASSET, $FILE_URLS, $CSS_URLS);
 
 	}//end paint()
 

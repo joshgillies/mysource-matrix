@@ -1,3 +1,6 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<?xml-stylesheet href="../../asset.xsl" type="text/xsl"?>
+
 <!--
 /**
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
@@ -18,12 +21,25 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.10 2004/08/20 06:46:18 amiller Exp $
+* $Id: asset.xml,v 1.1 2004/08/20 06:48:30 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
-<screens>
-	<screen code_name="css_files" 	   display_name="Attached CSS Files"  icon="page"   lock_type="all" />
-	<screen code_name="customisations" display_name="Customisations" icon="page" lock_type="all" />
-</screens>
+<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
+	<package>__core__</package>
+	<type_code>design_css</type_code>
+	<version>0.1</version>
+	<name>CSS File</name>
+	<description>This is a CSS asset that is parsed</description>
+	<instantiable>yes</instantiable>
+	<allowed_access>system</allowed_access>
+	<parent_type>design</parent_type>
+	<requirements>
+		<requirement type="asset">
+			<code>design</code>
+			<version>0.1</version>
+		</requirement>
+	</requirements>
+	<flash_menu_path />
+</asset_info>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.39 2004/05/11 23:19:11 gsherwood Exp $
+* $Id: design_area_edit_fns.inc,v 1.40 2004/08/20 06:46:18 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -88,6 +88,10 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		// replace any image roots with a print operation for the image prefix
 		$e = '|mysource_files\/([a-zA-Z0-9\._\-]+)|i';
 		$file_contents = preg_replace($e, '<'.$this->tag_name.'_PRINT id_name=\'__global__\' var=\'file_path\' filename=\'\\1\' />', $file_contents);
+
+		// replace any css roots with a print operation for the css prefix
+		$e = '|mysource_css\/([a-zA-Z0-9\._\-]+)|i';
+		$file_contents = preg_replace($e, '<'.$this->tag_name.'_PRINT id_name=\'__global__\' var=\'css_path\' filename=\'\\1\' />', $file_contents);
 
 		// replace any './[folder/filename]' with '[folder/filename]'
 		$e = '/(<link[^>]*href=")\\.\\//i';

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.69 2004/08/02 00:18:51 amiller Exp $
+* $Id: design.inc,v 1.70 2004/08/20 06:46:18 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -99,6 +99,7 @@ class Design extends Design_Area
 	{
 		return Array(SQ_LINK_TYPE_1 => Array(),
 					 SQ_LINK_TYPE_2 => Array('design_customisation' => Array('card' => 'M', 'exclusive' => false),
+											 'design_css' 			=> Array('card' => 'M', 'exclusive' => false),
 											 'file'                 => Array('card' => 'M', 'exclusive' => false)),
 					 SQ_LINK_TYPE_3 => Array('design_area'          => Array('card' => 'M', 'exclusive' => false)),
 					 SQ_LINK_NOTICE => Array()
@@ -184,6 +185,12 @@ class Design extends Design_Area
 			$dependant = '1';
 			return true;
 		}
+		
+		if ($side_of_link == 'major' && is_a($asset, 'design_css')) {
+			$dependant = '1';
+			$value = "design_css";
+			return true;
+		}
 
 		return false;
 
@@ -210,14 +217,14 @@ class Design extends Design_Area
 	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0')
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
+		
 		$linkid = parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
 		if (!$linkid) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
-		// special processing if we are creating a TYPE_2 linked file (a file inherited by customisations)
+		// special processing if we are creating a TYPE_2 linked file (inherited by customisations)
 		if (is_a($minor, 'file')) {
 
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
@@ -250,6 +257,40 @@ class Design extends Design_Area
 			}//end foreach customisation
 
 		}//end if is_a file
+		
+		// special processing if we are creating a TYPE_2 linked CSS asset (inherited by customisations)
+		if (is_a($minor, 'design_css')) {
+
+			$am = &$GLOBALS['SQ_SYSTEM']->am;
+
+			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
+			foreach($customisation_links as $link) {
+				$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
+				if (is_null($customisation)) continue;
+
+				$css_link_ids = Array();
+				$css_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($customisation->id, SQ_LINK_TYPE_2, 'design_css', false);
+				foreach ($css_links as $css) $css_link_ids[] = $css['minorid'];
+				$css_link_info = $am->getAssetInfo(array_unique($css_link_ids));
+
+				// is there already a direct file with the same name
+				$insert_link = true;
+				foreach ($css_link_info as $info) if ($info['name'] == $minor->name) $insert_link = false;
+
+				if ($insert_link) {
+					if (!$customisation->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
+						trigger_error('Failed creating CSS link to customisation', E_USER_WARNING);
+						$am->forgetAsset($customisation);
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
+					}
+				}
+
+				$am->forgetAsset($customisation);
+
+			}//end foreach customisation
+
+		}//end if is_a design_css
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $linkid;
@@ -305,8 +346,36 @@ class Design extends Design_Area
 				$am->forgetAsset($customisation);
 
 			}//end foreach customisation
-		}
+		} //end is_a file
 
+		// special processing if we are deleting a TYPE_2 linked CSS asset (a css asset overridding a design css)
+		if (is_a($minor, 'design_css')) {
+
+			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
+			foreach($customisation_links as $link) {
+				$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
+				if (is_null($customisation)) continue;
+
+				$css_link_ids = Array();
+				$css_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($customisation->id, SQ_LINK_TYPE_3, 'design_css', false);
+
+				foreach ($css_links as $link) {
+					if ($link['minorid'] == $delete_link['minorid']) {
+						// found the link to delete
+						if (!$customisation->deleteLink($link['linkid'])) {
+							trigger_error('Failed deleting CSS link from customisation', E_USER_WARNING);
+							$am->forgetAsset($customisation);
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							return false;
+						}
+					}
+				}// end foreach $file_links
+
+				$am->forgetAsset($customisation);
+
+			}//end foreach customisation
+		} //end is_a design_css
+		
 		if (!parent::deleteLink($linkid)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
@@ -353,6 +422,7 @@ class Design extends Design_Area
 	*/
 	function getStylesheets()
 	{
+		// first get all files which end with .css
 		$file_link_ids = Array();
 		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', false);
 		foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
@@ -365,7 +435,17 @@ class Design extends Design_Area
 				$return_values[$file_info['assetid']] = $file_info['name'];
 			}
 		}
-
+		
+		// now get all design_css assets associated with this design as well
+		$css_link_ids = Array();
+		$css_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'design_css', false);
+		foreach ($css_links as $link) $css_link_ids[] = $link['minorid'];
+		$css_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_unique($css_link_ids));
+		
+		foreach($css_link_info as $css_info) {
+				$return_values[$css_info['assetid']] = $css_info['name'];
+		}
+		
 		return $return_values;
 
 	}//end getStylesheets()
@@ -404,6 +484,7 @@ class Design extends Design_Area
 		if (empty($this->_tmp['design_areas'][$id_name])) {
 			if (!isset($this->_tmp['design_areas'])) $this->_tmp['design_areas'] = Array();
 			$link = $this->getDesignAreaLink($id_name);
+			
 			if (empty($link)) {
 				$this->_tmp['design_areas'][$id_name] = null;
 			} else {
@@ -499,23 +580,35 @@ class Design extends Design_Area
 	{
 		switch($var) {
 			case 'html_header' :
-				echo '
-				<!--   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
-					  Content (c) Copyright <?php echo SQ_CONF_SYSTEM_OWNER."\n"; ?>
-					Running <?php echo SQ_SYSTEM_LONG_NAME; ?> - <?php echo SQ_SYSTEM_URL."\n"; ?>
-				   Developed by Squiz  - http://www.squiz.net
-				  (c) Copyright <?php echo date(\'Y\') ?>. All rights reserved.
-				  Page generated: <?php echo date(\'d F Y\')."\n"; ?>
-				-->
-				<script language="javascript" type="text/javascript"  src="<?php echo sq_web_path(\'lib\'); ?>/js/general.js"></script>
+echo '<!--   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
+	  Content (c) Copyright <?php echo SQ_CONF_SYSTEM_OWNER."\n"; ?>
+	Running <?php echo SQ_SYSTEM_LONG_NAME; ?> - <?php echo SQ_SYSTEM_URL."\n"; ?>
+   Developed by Squiz  - http://www.squiz.net
+  (c) Copyright <?php echo date(\'Y\') ?>. All rights reserved.
+  Page generated: <?php echo date(\'d F Y\')."\n"; ?>
+-->
+<script language="javascript" type="text/javascript"  src="<?php echo sq_web_path(\'lib\'); ?>/js/general.js"></script>
 
-				<?php
-				if (SQ_IN_LIMBO && !is_null($GLOBALS[\'SQ_SYSTEM\']->backend) && !is_null($GLOBALS[\'SQ_SYSTEM\']->backend->out)) $GLOBALS[\'SQ_SYSTEM\']->backend->out->_paintHeader();
-				if (SQ_ROLLBACK_VIEW) $GLOBALS[\'SQ_SYSTEM\']->printRollbackWarning();
-				?>
-				';
+<?php
+if (SQ_IN_LIMBO && !is_null($GLOBALS[\'SQ_SYSTEM\']->backend) && !is_null($GLOBALS[\'SQ_SYSTEM\']->backend->out)) $GLOBALS[\'SQ_SYSTEM\']->backend->out->_paintHeader();
+if (SQ_ROLLBACK_VIEW) $GLOBALS[\'SQ_SYSTEM\']->printRollbackWarning();
+?>
+
+';
 			break;
+			
+			case 'css_header' :
+echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
+	  Content (c) Copyright <?php echo SQ_CONF_SYSTEM_OWNER."\n"; ?>
+	Running <?php echo SQ_SYSTEM_LONG_NAME; ?> - <?php echo SQ_SYSTEM_URL."\n"; ?>
+   Developed by Squiz  - http://www.squiz.net
+  (c) Copyright <?php echo date(\'Y\') ?>. All rights reserved.
+  Page generated: <?php echo date(\'d F Y\')."\n"; ?>
+*/
 
+';
+			break;
+			
 			case 'html_footer' :
 			break;
 
@@ -602,6 +695,10 @@ class Design extends Design_Area
 				echo '<','?php echo $FILE_URLS['.var_export((string) $args['filename'], true).'];?', '>';
 			break;
 			
+			case 'css_path' :
+				echo '<','?php echo $CSS_URLS['.var_export((string) $args['filename'], true).'];?', '>';
+			break;		
+			
 			case 'asset_thumbnail' :
 					echo '<', '?php ';
 					echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink('.$this->_escapeVar('$ASSET->id', $args).', SQ_LINK_NOTICE, \'thumbnail\', true, \'thumbnail\');'."\n";
@@ -641,7 +738,7 @@ class Design extends Design_Area
 	* @return void
 	* @access public
 	*/
-	function paint(&$ASSET, $FILE_URLS=Array())
+	function paint(&$ASSET, $FILE_URLS=Array(), $CSS_URLS=Array())
 	{
 		// generate an array of all the URLs we are going to need for the files in this design
 		$file_link_ids = Array();
@@ -656,6 +753,20 @@ class Design extends Design_Area
 			$file_url = $file_link_urls[$minorid];
 			if ($file_url == '') $file_url = $system_root_url.'/?a='.$minorid;
 			$FILE_URLS[$file_info['name']] = $file_url;
+		}
+		
+		// generate an array of all the URLs we are going to need for the attached CSS in this design
+		$css_link_ids = Array();
+		$css_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_css', false);
+		foreach ($css_links as $link) $css_link_ids[] = $link['minorid'];
+
+		$css_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_unique($css_link_ids));
+		$css_link_urls = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($css_link_ids));
+
+		foreach ($css_link_info as $minorid => $css_info) {
+			$css_url = $css_link_urls[$minorid];
+			if ($css_url == '') $css_url = $system_root_url.'/?a='.$minorid;
+			$CSS_URLS[$css_info['name']] = $css_url;
 		}
 
 		$DATA_PATH = sq_web_path('data'); // this works because we know that all design areas are not going to be restricted

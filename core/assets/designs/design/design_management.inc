@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_management.inc,v 1.10 2003/11/26 00:50:54 gsherwood Exp $
+* $Id: design_management.inc,v 1.11 2004/08/20 06:46:18 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,12 +46,12 @@ class Design_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array(
-							'id_name'   => Array(
-							'default'   => ''
-							)
-						);
-
+		$this->vars['id_name'] = Array(
+									'added'   => '0.0.1',
+									'type'    => 'text',
+									'default' => ''
+									);
+		
 	}//end constructor
 
 }//end class
