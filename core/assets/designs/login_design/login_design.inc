@@ -119,7 +119,7 @@ class Login_Design extends Design
 			return false;
 		}
 
-		// make ourselves, and all our files, LIVE
+		// make ourselves LIVE
 		if (!$this->processStatusChange(SQ_STATUS_LIVE)) {
 			trigger_error('Login design failed setting status to LIVE', E_USER_WARNING);
 		}
@@ -135,6 +135,9 @@ class Login_Design extends Design
 			if (!$file->acquireLock()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
+			}
+			if (!$file->processStatusChange(SQ_STATUS_LIVE)) {
+				trigger_error('Login design failed setting status to LIVE for file', E_USER_WARNING);
 			}
 			if (!$file->setPermission(0, SQ_PERMISSION_READ, '1')) {
 				trigger_error('Login design failed setting public read permission for file "'.$file->name.'"', E_USER_WARNING);
