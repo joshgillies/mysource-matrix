@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.40 2004/12/06 14:38:12 brobertson Exp $
+* $Id: asset_edit_fns.inc,v 1.41 2005/01/26 09:30:31 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -175,6 +175,7 @@ class Asset_Edit_Fns extends MySource_Object
 		if (empty($urls)) {
 			echo 'There are no URLs associated with this Asset';
 		} else {
+			usort($urls, create_function('$a, $b', 'return strcmp($a[\'url\'], $b[\'url\']);'));
 			foreach ($urls as $data) {
 				if ($data['http'])  echo 'http://'.$data['url'], '<br/>';
 				if ($data['https']) echo 'https://'.$data['url'], '<br/>';
