@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.197 2004/01/23 00:51:31 mmcintyre Exp $
+* $Id: asset_edit_interface.inc,v 1.198 2004/01/23 00:52:12 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -815,7 +815,6 @@ class Asset_Edit_Interface extends MySource_Object
 		$vars = Array('assetid' => $owner->id, 'lock_type' => $locks, 'forceably_acquire' => false);
 		$hh->queueHipo('hipo_job_acquire_lock', $vars);
 		$url = $hh->runQueuedJobs();
-		bam('url :'.$url);
 		if (!empty($url)) $o->setRedirect(strip_url(current_url()).'/?sq_redirect_url='.urlencode($url));
 
 	}//end acquireLimboLocks()
