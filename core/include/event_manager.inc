@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.8 2003/12/08 03:47:34 gsherwood Exp $
+* $Id: event_manager.inc,v 1.9 2003/12/12 03:34:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -26,18 +26,18 @@
 /**
 * Event_Manager
 *
-* Purpose 
+* Purpose
 *    Handles matching an event listener with a event broadcast request.
 *    Two Types of events can be listening/broadcasted:
 *
 *    1) Static Events - Events that are defined and registered at install time. These are assets that need to supply
-*       additional information about their relationship with the broadcaster (type_code, dependant, exclusive, link_types, 
+*       additional information about their relationship with the broadcaster (type_code, dependant, exclusive, link_types,
 *       link values etc).
-*       
-*    2) Runtime Events - Events that are defined and registered at runtime. These are events that are not limited to assets, 
+*
+*    2) Runtime Events - Events that are defined and registered at runtime. These are events that are not limited to assets,
 *       and do not require to define any information about their broadcaster (anyone can listen for this event).
-*       Runtime events are polled to ensure that if a event is broadcasted before the listener has registered to 
-*       listen for the event, it can be notified about it regardless. The listener can choose not to receive a call 
+*       Runtime events are polled to ensure that if a event is broadcasted before the listener has registered to
+*       listen for the event, it can be notified about it regardless. The listener can choose not to receive a call
 *       for polled events.
 *
 * Example for static events (in the management class of that asset):
@@ -103,7 +103,7 @@ class Event_Manager extends MySource_Object
 	/**
 	* Allows an object to listen to a runtime event
 	*
-	* If the listener does not want to receive broadcasts from events that are currently polling, set the 
+	* If the listener does not want to receive broadcasts from events that are currently polling, set the
 	* broadcast_polling_events to FALSE.
 	*
 	* @param object		&$object					the object that is listening (use $this for yourself)
@@ -116,14 +116,14 @@ class Event_Manager extends MySource_Object
 	function addEventListener(&$listener, $events=Array(), $broadcast_polling_events=true)
 	{
 		if (empty($events)) return false;
-		
+
 		foreach ($events as $event_name) {
 			$event_name = trim($event_name);
 			if (empty($event_name)) continue;
 
 			// if there are some events polling for this listener, and it has not explicity denied polling events,
 			// then broadcast to this listener
-			
+
 			if (isset($this->_polling_broadcast_events[$event_name]) && $broadcast_polling_events) {
 				$this->_broadcastPollingEvent($listener, $event_name);
 			}
@@ -156,14 +156,14 @@ class Event_Manager extends MySource_Object
 		if (!isset($this->_polling_broadcast_events[$event_name])) return false;
 		$function_name = 'on'.$event_name;
 
-		// lets just hope that there is something in the vars that distinguishes the difference between
-		// each of the polling broadcasters
-		foreach ($this->_polling_broadcast_events[$event_name] as $vars) {
+		$events =& $this->_polling_broadcast_events[$event_name];
+		for (reset($events); null !== ($k = key($events)); next($events)) {
+			$event_info =& $this->_polling_broadcast_events[$event_name][$k];
 			if (!method_exists($listener, $function_name)) continue;
-			$listener->$function_name($vars);
+			$listener->$function_name($event_info['broadcaster'], $event_info['vars']);
 		}
 		return true;
-	
+
 	}//end _broadcastPollingEvent()
 
 
@@ -180,36 +180,32 @@ class Event_Manager extends MySource_Object
 	function _broadcastRuntimeEvents(&$broadcaster, $event_name, $vars=Array())
 	{
 		// if there are no events registered for this broadcast, or someone else other than those currently registered for
-		// this event wants to here it but is not currently registered, then it is possible that 
+		// this event wants to here it but is not currently registered, then it is possible that
 		// there is a runtime instantiation issue (broadcaster got instanciated before the listener had a chance)
 		// to register for an event, so poll this event.
-		
+
 		// we have to use the class name instead of type_code, because not all broadcasters are assets
 		if (!isset($this->_polling_broadcast_events[$event_name][get_class($broadcaster)])) {
 			if (!isset($this->_polling_broadcast_events[$event_name])) {
 				$this->_polling_broadcast_events[$event_name] = Array();
 			}
-			$this->_polling_broadcast_events[$event_name][get_class($broadcaster)] = $vars;
+			$event_info = Array();
+			$event_info['vars'] = $vars;
+			$event_info['broadcaster'] =& $broadcaster;
+			$this->_polling_broadcast_events[$event_name][] = $event_info;
 		}
 		if (!isset($this->_runtime_event_listeners[$event_name])) return false;
-		
-		$function_name = 'on'.$event_name;
+
 		$event_name = trim($event_name);
-		
+		$function_name = 'on'.$event_name;
+
 		foreach (array_keys($this->_runtime_event_listeners[$event_name]) as $index) {
 			if (!isset($this->_runtime_listener_objects[$index])) continue;
 			$listener =& $this->_runtime_listener_objects[$index];
 			if (is_null($listener)) continue;
 			if (!method_exists($listener, $function_name)) continue;
-
-			// add some extra info to the vars if they need to know about the broadcaster, if it inherits from asset
-			if (is_a($broadcaster, 'asset')) {
-				$vars['broadcaster_assetid'] = $broadcaster->id;
-				$vars['broadcaster_type_code'] = $broadcaster->type();
-			}
-
-			$listener->$function_name($vars);
-		} // end foreach
+			$listener->$function_name($broadcaster, $vars);
+		}
 
 		return true;
 
@@ -244,11 +240,11 @@ class Event_Manager extends MySource_Object
 
 		// no point continuing if this object does not inherit from asset
 		if (!is_a($broadcaster, 'asset')) return true;
-		
+
 		// create a temp entry for the event listeners (runtime wide as event_manager is cached)
 		if (!isset($this->_tmp['event_listeners'])) {
 			if (!file_exists(SQ_DATA_PATH.'/private/events/event_listeners.inc')) return false;
-			
+
 			require_once SQ_DATA_PATH.'/private/events/event_listeners.inc';
 			if (!isset($cached_event_listeners_array)) return false;
 			$this->_tmp['event_listeners'] = $cached_event_listeners_array;
@@ -260,9 +256,9 @@ class Event_Manager extends MySource_Object
 
 		foreach ($this->_tmp['event_listeners'][$broadcaster->type()][$event_name] as $listener_type_code => $options) {
 			$side_of_link = ($options['side_of_link'] == 'minor') ? 'major' : 'minor';
-			
+
 			if ($options['indirect']) {
-				
+
 				if ($options['dependant'] || $options['exclusive'] || $options['type_code']) {
 					$assetids = $this->_getDiscreteAssets($broadcaster->id, $listener_type_code, $side_of_link, $options);
 				} else {
@@ -271,7 +267,7 @@ class Event_Manager extends MySource_Object
 					// eg. if a form wants to listen to events broadcasted from a bodycopy (which is a child of the form)
 					// then the form wants to hear from minor. When the bodycopy broadcasts, the form is on the major of
 					// the bodycopy, comprende?
-					
+
 					$function = 'get'.(($options['side_of_link'] == 'minor') ? 'Parents' : 'Children');
 					$assetids = $GLOBALS['SQ_SYSTEM']->am->$function($broadcaster->id, $listener_type_code, $options['strict_type_code']);
 					if (empty($assetids)) return false;
@@ -297,16 +293,16 @@ class Event_Manager extends MySource_Object
 
 		for (reset($listeners); null !== ($key = key($listeners)); next($listeners)) {
 			$listener =& $listeners[$key];
-			$function = 'on'.ucfirst($event_name);
+			$function = 'on'.$event_name;
 
 			if (!method_exists($listener, $function)) {
 				trigger_error('Could not find event callback function "'.$function.'" in Asset "'.$listener->type().'" (#'.$asset->id.')', E_USER_WARNING);
 				return false;
 			}
-			$listener->$function($vars);
+			$listener->$function($broadcaster, $vars);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($listener);
 		}// end for
-		
+
 		return true;
 
 	}//end broadcastEvent()
@@ -314,7 +310,7 @@ class Event_Manager extends MySource_Object
 
 	/**
 	* Traverse up or down the tree for asset information
-	* 
+	*
 	* Collects all assets of the wanted type_code
 	*
 	* @param integer	$assetid		the assetid of the broadcaster
@@ -331,7 +327,7 @@ class Event_Manager extends MySource_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$concat = ($db->phptype == 'mysql') ? 'CONCAT(t2.treeid, '.$db->quote('%').')' : '(t2.treeid || '.$db->quote('%').')';
-		
+
 		// big f.o query
 		$sql = 'SELECT '.$concat.' FROM '
 				.SQ_TABLE_PREFIX.'asset_link l1 INNER JOIN '.SQ_TABLE_PREFIX.'asset_link_tree t1 ON l1.linkid = t1.linkid, '
@@ -362,7 +358,7 @@ class Event_Manager extends MySource_Object
 				.SQ_TABLE_PREFIX.'asset_link l2 INNER JOIN '.SQ_TABLE_PREFIX.'asset_link_tree t2 ON l2.linkid = t2.linkid, '
 				.SQ_TABLE_PREFIX.'asset a
 				WHERE l1.'.$side_of_link.'id = '.$db->quote($assetid).'
-					AND SUBSTRING(t1.treeid FROM 1 FOR CHAR_LENGTH(t2.treeid)) = t2.treeid 
+					AND SUBSTRING(t1.treeid FROM 1 FOR CHAR_LENGTH(t2.treeid)) = t2.treeid
 					AND a.assetid = l2.'.$side_of_link.'id
 					AND ('.$treeid_string.')
 				ORDER BY t2.treeid';
@@ -381,7 +377,7 @@ class Event_Manager extends MySource_Object
 		for ($i = 0; $i < count($result); $i++) {
 
 			if (isset($result[$i+1]) && strpos($result[$i+1]['treeid'], $result[$i]['treeid']) === false) {
-				
+
 				// the next treeid is not based on our treeid, so we will be starting a new branch
 				$start_treeid = true;
 				$popped_treeid = false;
@@ -429,7 +425,7 @@ class Event_Manager extends MySource_Object
 
 	}//end _getDiscreteAssets()
 
-	
+
 	/**
 	* Write the cache file of the current static events in the system
 	*
@@ -441,14 +437,14 @@ class Event_Manager extends MySource_Object
 	function writeStaticEventsCacheFile()
 	{
 		if (!isset($this->_tmp['event_listeners']) || empty($this->_tmp['event_listeners'])) return false;
-		
+
 		$output = '<'.'?php'."\n".' $cached_event_listeners_array = ';
 		$output .= var_export($this->_tmp['event_listeners'], true);
 		$output .= "\n?".">";
-		
+
 		if (!string_to_file($output, SQ_DATA_PATH.'/private/events/event_listeners.inc')) return false;
 		unset($this->_tmp['event_listeners']);
-		
+
 		return true;
 
 	}//end writeStaticEventsCacheFile()
@@ -457,9 +453,9 @@ class Event_Manager extends MySource_Object
 	/**
 	* Add static event listeners
 	*
-	* This function gets called from package manager of each package that has any management classes that have 
+	* This function gets called from package manager of each package that has any management classes that have
 	* events to be installed
-	* 
+	*
 	* @param Array		$listeners				array of listeners
 	* @param string		$listener_type_code		the type code of the listener
 	* @param boolean	$recursive_call			if TRUE this call is recursive
@@ -473,7 +469,7 @@ class Event_Manager extends MySource_Object
 		if (!isset($this->_tmp['event_listeners'])) $this->_tmp['event_listeners'] = Array();
 
 		foreach ($listeners as $info) {
-			
+
 			if (!isset($this->_tmp['event_listeners'][$info['broadcast_type_code']])) {
 				$this->_tmp['event_listeners'][$info['broadcast_type_code']] = Array();
 			}
@@ -488,12 +484,12 @@ class Event_Manager extends MySource_Object
 				trigger_error('Expecting Array for event options for "'.$listener_type_code.'", got '.gettype($info['options']), E_USER_WARNING);
 				return false;
 			}
-				
+
 			$this->_tmp['event_listeners'][$info['broadcast_type_code']][$info['event_name']][$listener_type_code] = $info['options'];
 
 			// if the broadcast type code can be of multiple types, then we have to add some more
 			// entries for these in the array
-			
+
 			if (!$info['broadcast_strict_type_code'] && !$recursive_call) {
 				$type_codes = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($info['broadcast_type_code']);
 				if (empty($type_codes)) continue;

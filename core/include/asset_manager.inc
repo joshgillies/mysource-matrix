@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.156 2003/12/03 23:11:37 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.157 2003/12/12 03:34:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2326,7 +2326,7 @@ class Asset_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
-		$em->broadcastEvent($this, 'CreateLink', Array('assetid' => $major->id, 'linkid' => $linkid));
+		$em->broadcastEvent($major, 'CreateLink', Array('linkid' => $linkid));
 		return $linkid;
 
 	}//end createAssetLink()
@@ -2668,7 +2668,7 @@ class Asset_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
-		$em->broadcastEvent($this, 'DeleteLink', Array('assetid' => $major->id, 'linkid' => $linkid));
+		$em->broadcastEvent($major, 'DeleteLink', Array('linkid' => $linkid));
 
 		return true;
 

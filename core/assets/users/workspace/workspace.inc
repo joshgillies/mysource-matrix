@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workspace.inc,v 1.19 2003/12/08 05:58:31 mmcintyre Exp $
+* $Id: workspace.inc,v 1.20 2003/12/12 03:34:20 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -186,13 +186,14 @@ class Workspace extends Folder
 
 	/**
 	* event listener function that gets called when the user of this workspace gets updated
-	* 
-	* @param Array $vars some information passed about the user
+	*
+	* @param &object Asset	$asset	the asset that triggered the event
+	* @param Array			$vars	some information passed about the user
 	*
 	* @return boolean
 	* @access public
 	*/
-	function onUsernameUpdated($vars = Array())
+	function onUsernameUpdated(&$broadcaster, $vars=Array())
 	{
 		if (empty($vars)) return false;
 		if (!isset($vars['username'])) return false;

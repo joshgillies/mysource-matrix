@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.263 2003/12/08 03:08:43 gsherwood Exp $
+* $Id: asset.inc,v 1.264 2003/12/12 03:34:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -116,7 +116,7 @@ class Asset extends MySource_Object
 
 	/**
 	* An array of keywords that this asset makes available for use along with a default replacement
-	* @var Array(keyword => default_replacement)
+	* @var Array(keyword => Array('name' => short description, 'default' => default replacement))
 	*/
 	var $_available_keywords = Array();
 
@@ -1106,8 +1106,7 @@ class Asset extends MySource_Object
 			
 			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadcastEvent($this, 'AssetUpdate',
-												  Array( 'assetid'          => $this->id,
-														 'old_name'         => $this->name,
+												  Array( 'old_name'         => $this->name,
 														 'new_name'         => $name,
 														 'old_short_name'   => $this->short_name,
 														 'new_short_name'   => $short_name,
@@ -1227,8 +1226,7 @@ class Asset extends MySource_Object
 		
 		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'AssetVersionUpdate',
-											  Array( 'assetid'          => $this->id,
-													 'old_version'      => $this->version,
+											  Array( 'old_version'      => $this->version,
 													 'new_version'      => $new_version
 													));
 
@@ -1278,8 +1276,7 @@ class Asset extends MySource_Object
 
 		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'AssetLanguageUpdate',
-											   Array( 'assetid'       => $this->id,
-													  'old_languages' => $old_languages,
+											   Array( 'old_languages' => $old_languages,
 													  'new_languages' => $this->languages,
 													));
 		return true;
@@ -1308,8 +1305,7 @@ class Asset extends MySource_Object
 
 		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'AssetCharsetUpdate',
-											   Array( 'assetid'     => $this->id,
-													  'old_charset' => $old_charset,
+											   Array( 'old_charset' => $old_charset,
 													  'new_charset' => $this->charset,
 													));
 		return true;
@@ -1344,8 +1340,7 @@ class Asset extends MySource_Object
 
 		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'AssetForceSecureUpdate',
-											   Array( 'assetid'     => $this->id,
-													  'old_force_secure' => $old_force_secure,
+											   Array( 'old_force_secure' => $old_force_secure,
 													  'old_force_secure' => $this->force_secure,
 													)
 											);
@@ -1535,8 +1530,7 @@ class Asset extends MySource_Object
 
 			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadcastEvent($this, 'AssetTypeUpdate',
-												  Array( 'assetid'  => $this->id,
-														 'old_type' => $old_type_code,
+												  Array( 'old_type' => $old_type_code,
 														 'new_type' => $new_type_code
 														));
 
@@ -1570,13 +1564,14 @@ class Asset extends MySource_Object
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
-	* @param Array	$vars	the vars that get submitted by the broadcaster
-	*						we add keywords to the $vars['keywords'] array
+	* @param &object Asset	$asset	the asset that triggered the event
+	* @param Array			$vars	the vars that get submitted by the broadcaster
+	*								we add keywords to the $vars['keywords'] array
 	*
 	* @return boolean
 	* @access private
 	*/
-	function onRequestKeywords($vars=Array())
+	function onRequestKeywords(&$broadcaster, $vars=Array())
 	{
 		if (!isset($vars['keywords'])) return;
 		$vars['keywords'] = array_merge($vars['keywords'], $this->_available_keywords);
@@ -1686,8 +1681,7 @@ class Asset extends MySource_Object
 			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 			
 			$em->broadcastEvent($this, 'AssetStatusUpdate',
-												  Array('assetid'    => $this->id,
-														'old_status' => $this->status,
+												  Array('old_status' => $this->status,
 														'new_status' => $new_status,
 														));
 
@@ -2277,7 +2271,9 @@ class Asset extends MySource_Object
 
 
 	/**
-	* returns the keywords with their replacements in the form:
+	* Return the keywords with their replacements
+	*
+	* The return value is in the form:
 	* <pre>
 	* Array(
 	*     'name' => Array (
@@ -2320,17 +2316,17 @@ class Asset extends MySource_Object
 			$keywords['asset_name']['description']			= 'Full name of the asset';
 			$keywords['asset_short_name']['description']	= 'Short name of the asset';
 			$keywords['asset_version']['description']		= 'Version of the asset being displayed';
-			$keywords['asset_created']['description']		= 'The date and time the asset was created';
-			$keywords['asset_updated']['description']		= 'The date and time the asset was last updated';
-			$keywords['asset_created_short']['description'] = 'The date when the asset was created';
-			$keywords['asset_updated_short']['description'] = 'The date when the asset was last updated';
+			$keywords['asset_created']['description']		= 'The date and time the asset was created (dd/mm/yyyy hh:mm:ss)';
+			$keywords['asset_updated']['description']		= 'The date and time the asset was last updated (dd/mm/yyyy hh:mm:ss)';
+			$keywords['asset_created_short']['description'] = 'The date when the asset was created (dd/mm/yyyy)';
+			$keywords['asset_updated_short']['description'] = 'The date when the asset was last updated (dd/mm/yyyy)';
 			$keywords['asset_url']['description']			= 'The absolute url to the asset';
 			$keywords['asset_href']['description']			= 'The relative href to the asset';
 		}
 
 		return $keywords;
 
-	}// end getAssetKeywords()
+	}//end getAssetKeywords()
 
 
 	/**

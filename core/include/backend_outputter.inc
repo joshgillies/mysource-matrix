@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.74 2003/12/02 04:16:56 gsherwood Exp $
+* $Id: backend_outputter.inc,v 1.75 2003/12/12 03:34:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -171,7 +171,7 @@ class Backend_Outputter
 		// register that we want to listen to link update events
 		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 
-		$em->addEventListener($this, Array('CreateLink',
+		$em->addEventListener($this, Array(  'CreateLink',
 											 'DeleteLink',
 											 'AssetUpdate',
 											 'AssetTypeUpdate',
@@ -1322,6 +1322,7 @@ class Backend_Outputter
 	/**
 	* Outputs a stylesheet include line for the passed file
 	*
+	* @return void
 	* @access public
 	*/
 	function _paintCssInclude($file)
@@ -1336,6 +1337,7 @@ class Backend_Outputter
 	/**
 	* Outputs a javascript include line for the passed file
 	*
+	* @return void
 	* @access public
 	*/
 	function _paintJsInclude($file)
@@ -1350,6 +1352,7 @@ class Backend_Outputter
 	/**
 	* Outputs a note in the proper css format
 	*
+	* @return void
 	* @access public
 	*/
 	function note($str)
@@ -1362,6 +1365,7 @@ class Backend_Outputter
 	/**
 	* Creates a standardised commit button
 	*
+	* @return void
 	* @access public
 	*/
 	function commitButton($value='Commit', $release_lock=1)
@@ -1382,10 +1386,13 @@ class Backend_Outputter
 	/**
 	* Event handler to add a message to the flash soeone broadcasts it
 	*
+	* @param &object Asset	$asset	the asset that triggered the event
+	* @param Array			$vars	the vars that get submitted by the broadcaster
+	*
 	* @return void
 	* @access public
 	*/
-	function onBackendMessage($event_data=Array())
+	function onBackendMessage(&$broadcaster, $event_data=Array())
 	{
 		$this->addMessage($event_data['type'], $event_data['message']);
 
@@ -1395,14 +1402,17 @@ class Backend_Outputter
 	/**
 	* Event handler to refresh the asset map if a new link has been created
 	*
+	* @param &object Asset	$asset	the asset that triggered the event
+	* @param Array			$vars	the vars that get submitted by the broadcaster
+	*
 	* @return void
 	* @access public
 	*/
-	function onCreateLink($event_data=Array())
+	function onCreateLink(&$broadcaster, $event_data=Array())
 	{
-		if (!in_array($event_data['assetid'], $this->_refreshing_assets)) {
-			$this->addOnLoad('if (top.sidenav && top.sidenav.reload_asset) top.sidenav.reload_asset("'.$event_data['assetid'].'");');
-			$this->_refreshing_assets[] = $event_data['assetid'];
+		if (!in_array($broadcaster->id, $this->_refreshing_assets)) {
+			$this->addOnLoad('if (top.sidenav && top.sidenav.reload_asset) top.sidenav.reload_asset("'.$broadcaster->id.'");');
+			$this->_refreshing_assets[] = $broadcaster->id;
 		}
 
 	}//end onCreateLink()
@@ -1411,14 +1421,18 @@ class Backend_Outputter
 	/**
 	* Event handler to refresh the asset map if a link has been deleted
 	*
+	* @param &object Asset	$asset	the asset that triggered the event
+	* @param Array			$vars	the vars that get submitted by the broadcaster
+	*
 	* @return void
 	* @access public
 	*/
-	function onDeleteLink($event_data=Array())
+	function onDeleteLink(&$broadcaster, $event_data=Array())
 	{
-		if (!in_array($event_data['assetid'], $this->_refreshing_assets)) {
-			$this->addOnLoad('if (top.sidenav && top.sidenav.reload_asset) top.sidenav.reload_asset("'.$event_data['assetid'].'");');
-			$this->_refreshing_assets[] = $event_data['assetid'];
+		if (!is_a($broadcaster, 'asset')) return;
+		if (!in_array($broadcaster->id, $this->_refreshing_assets)) {
+			$this->addOnLoad('if (top.sidenav && top.sidenav.reload_asset) top.sidenav.reload_asset("'.$broadcaster->id.'");');
+			$this->_refreshing_assets[] = $broadcaster->id;
 		}
 
 	}//end onDeleteLink()
@@ -1427,14 +1441,18 @@ class Backend_Outputter
 	/**
 	* Event handler to refresh the asset map if the short name of an asset has changed
 	*
+	* @param &object Asset	$asset	the asset that triggered the event
+	* @param Array			$vars	the vars that get submitted by the broadcaster
+	*
 	* @return void
 	* @access public
 	*/
-	function onAssetUpdate($event_data=Array())
+	function onAssetUpdate(&$broadcaster, $event_data=Array())
 	{
-		if (!in_array($event_data['assetid'], $this->_refreshing_assets)) {
-			$this->addOnLoad('if (top.sidenav && top.sidenav.reload_asset) top.sidenav.reload_asset("'.$event_data['assetid'].'");');
-			$this->_refreshing_assets[] = $event_data['assetid'];
+		if (!is_a($broadcaster, 'asset')) return;
+		if (!in_array($broadcaster->id, $this->_refreshing_assets)) {
+			$this->addOnLoad('if (top.sidenav && top.sidenav.reload_asset) top.sidenav.reload_asset("'.$broadcaster->id.'");');
+			$this->_refreshing_assets[] = $broadcaster->id;
 		}
 
 	}//end onAssetUpdate()
@@ -1443,38 +1461,44 @@ class Backend_Outputter
 	/**
 	* Event handler to refresh the asset map if an asset has been morphed to a new type
 	*
+	* @param &object Asset	$asset	the asset that triggered the event
+	* @param Array			$vars	the vars that get submitted by the broadcaster
+	*
 	* @return void
 	* @access public
 	*/
-	function onAssetTypeUpdate($event_data=Array())
+	function onAssetTypeUpdate(&$broadcaster, $event_data=Array())
 	{
-		if (!in_array($event_data['assetid'], $this->_refreshing_assets)) {
+		if (!is_a($broadcaster, 'asset')) return;
+		if (!in_array($broadcaster->id, $this->_refreshing_assets)) {
 			if ($event_data['old_type'] != $event_data['new_type']) {
-				$this->addOnLoad('if (top.sidenav && top.sidenav.reload_asset) top.sidenav.reload_asset("'.$event_data['assetid'].'");');
-				$this->_refreshing_assets[] = $event_data['assetid'];
+				$this->addOnLoad('if (top.sidenav && top.sidenav.reload_asset) top.sidenav.reload_asset("'.$broadcaster->id.'");');
+				$this->_refreshing_assets[] = $broadcaster->id;
 			}
 		}
 
 	}//end onAssetTypeUpdate()
 
 
-
 	/**
 	* Event handler to refresh the asset map if an asset's status has changed
 	*
-	* @param Array() $event_data some information 
+	* @param &object Asset	$asset	the asset that triggered the event
+	* @param Array			$vars	the vars that get submitted by the broadcaster
 	*
 	* @return void
 	* @access public
 	*/
-	function onAssetStatusUpdate($event_data=Array())
+	function onAssetStatusUpdate(&$broadcaster, $event_data=Array())
 	{
-		if (!in_array($event_data['assetid'], $this->_refreshing_assets)) {
+		if (!is_a($broadcaster, 'asset')) return;
+		if (!in_array($broadcaster->id, $this->_refreshing_assets)) {
 			if ($event_data['old_status'] != $event_data['new_status']) {
-				$this->addOnLoad('if (top.sidenav && top.sidenav.reload_asset) top.sidenav.reload_asset("'.$event_data['assetid'].'");');
-				$this->_refreshing_assets[] = $event_data['assetid'];
+				$this->addOnLoad('if (top.sidenav && top.sidenav.reload_asset) top.sidenav.reload_asset("'.$broadcaster->id.'");');
+				$this->_refreshing_assets[] = $broadcaster->id;
 			}
 		}
+
 	}//end onAssetStatusUpdate()
 
 
