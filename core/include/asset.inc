@@ -4309,7 +4309,7 @@ class Asset extends Resolve_Object
 	*/
 	function getURL($base_url=null, $ignore_rollback=false)
 	{
-		return $GLOBALS['SQ_SYSTEM']->am->getAssetURL($this->id, $base_url, $ignore_rollback=false);
+		return $GLOBALS['SQ_SYSTEM']->am->getAssetURL($this->id, $base_url, $ignore_rollback);
 
 	}//end getURL()
 
