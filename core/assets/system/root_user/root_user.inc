@@ -48,7 +48,7 @@ class Root_User extends User
 
 		$this->_in_create = true;
 
-		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+		$db = &$GLOBALS['SQ_RESOLVE']->db;
 
 		$sql = 'SELECT count(*) FROM sq_asset WHERE type_code = '.$db->quote($this->type());
 		$exists = $db->getOne($sql);

@@ -26,6 +26,7 @@ define('SQ_REQUIRED_PHP_VERSION',   '4.3.0');
 define('SQ_SYSTEM_ROOT',		dirname(dirname(dirname(realpath(__FILE__)))));
 define('SQ_INCLUDE_PATH',		SQ_SYSTEM_ROOT.'/core/include');
 define('SQ_CORE_PACKAGE_PATH',	SQ_SYSTEM_ROOT.'/core/assets');
+define('SQ_ATTRIBUTES_PATH',	SQ_SYSTEM_ROOT.'/core/attributes');
 define('SQ_LIB_PATH',			SQ_SYSTEM_ROOT.'/core/lib');
 define('SQ_DATA_PATH',			SQ_SYSTEM_ROOT.'/data');
 define('SQ_PACKAGES_PATH',		SQ_SYSTEM_ROOT.'/packages');

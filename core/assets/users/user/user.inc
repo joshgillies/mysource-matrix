@@ -112,7 +112,7 @@ class User extends Asset
 	function find($username, $password) {
 		include_once SQ_LIB_PATH.'/db_extras/db_extras.inc';
 
-		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+		$db = &$GLOBALS['SQ_RESOLVE']->db;
 
 		$sql = 'SELECT a.assetid
 				FROM sq_asset a, sq_asset_attribute at, sq_asset_attribute_value av

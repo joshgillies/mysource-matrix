@@ -45,7 +45,7 @@ class Trash_Folder extends Folder
 
 		$this->_in_create = true;
 
-		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+		$db = &$GLOBALS['SQ_RESOLVE']->db;
 
 		$sql = 'SELECT count(*) FROM sq_asset WHERE type_code = '.$db->quote($this->type());
 		$exists = $db->getOne($sql);
@@ -135,7 +135,7 @@ class Trash_Folder extends Folder
 
 		include_once SQ_LIB_PATH.'/db_extras/db_extras.inc';
 
-		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+		$db = &$GLOBALS['SQ_RESOLVE']->db;
 
 		// get all assets that have no EXCLUSIVE or UNITE links to any parents
 		$sql = 'SELECT a.assetid as minorid, a.type_code
@@ -162,7 +162,7 @@ class Trash_Folder extends Folder
 		$ret_arr = Array();
 		$by_type = ($ret_type == 'T');
 		$count   = 0;
-		while (NULL !== ($row = $result->fetchRow())) {
+		while (null !== ($row = $result->fetchRow())) {
 			// make the link id the negative of the assetid as this will be unique in the trash anyway
 			$row['linkid']     =  -1 * (int) $row['minorid']; 
 			$row['link_type']  = SQ_LINK_UNITE;
@@ -201,7 +201,7 @@ class Trash_Folder extends Folder
 
 		include_once SQ_LIB_PATH.'/db_extras/db_extras.inc';
 
-		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+		$db = &$GLOBALS['SQ_RESOLVE']->db;
 
 		// get all assets that have no EXCLUSIVE or UNITE links to any parents
 		$sql = 'SELECT COUNT(*)

@@ -96,9 +96,14 @@ class Folder extends Asset
 
 		$o->openSection('Create Settings');
 		$o->openField('Folder Name');
-		$o->text_box('name', '', 10);
+
+		$attr = &$this->getAttribute('name');
+		$attr->paint('asset', $this->attr('name'));
+
+		//$o->text_box('name', '', 10);
 
 		$o->commitButton('Create');
+
 
 	}//end printBackend()
 

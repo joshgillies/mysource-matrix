@@ -12,7 +12,7 @@
 *
 * Example
 *
-*    $array_paths = Array('root/elem_two_list/elem_two_item'); # for more info on this see $array_paths var below
+*    $array_paths = Array('root/elem_two_list/elem_two_item'); // for more info on this see $array_paths var below
 *    $xml_arr = new XML_Array($array_paths);
 *    $array   = $xml->getArrayFromFile($file);
 *    print_r($array);
@@ -54,10 +54,10 @@ class Resolve_Object
 		$object_vars = get_object_vars($this);
 		unset($object_vars['_tmp']);
 		return array_keys($object_vars);
-	}#end __sleep()
+	}//end __sleep()
 
 
-}#end class
+}//end class
 
 
 ?>

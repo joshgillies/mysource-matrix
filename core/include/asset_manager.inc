@@ -46,14 +46,14 @@ class Asset_Manager extends Resolve_Object
 	function _loadAssetTypes()
 	{
 
-		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+		$db = &$GLOBALS['SQ_RESOLVE']->db;
 		$sql = 'SELECT type_code, version, name, instantiable, system_only, parent_type, dir, customisation
 				FROM sq_asset_type';
 		$result = $db->query($sql);
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
 
 		$this->_asset_types = Array();
-		while (NULL !== ($row = $result->fetchRow())) {
+		while (null !== ($row = $result->fetchRow())) {
 			$this->_asset_types[$row['type_code']] = $row;
 		}//end while
 		$result->free();
@@ -70,7 +70,7 @@ class Asset_Manager extends Resolve_Object
 	function refreshAssetType($type_code)
 	{
 
-		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+		$db = &$GLOBALS['SQ_RESOLVE']->db;
 		$sql = 'SELECT type_code, version, name, instantiable, system_only, parent_type, dir, customisation
 				FROM sq_asset_type
 				WHERE type_code = '.$db->quote($type_code);
@@ -154,7 +154,7 @@ class Asset_Manager extends Resolve_Object
 		// get it from the DB
 		if ($field && !isset($this->_asset_types[$type_code][$field])) {
 
-			$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+			$db = &$GLOBALS['SQ_RESOLVE']->db;
 			$sql = 'SELECT '.$field.'
 					FROM sq_asset_type
 					WHERE type_code = '.$db->quote($type_code);
@@ -185,7 +185,7 @@ class Asset_Manager extends Resolve_Object
 
 		$type_codes = Array();
 		if ($ignore_system_only) {
-			$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+			$db = &$GLOBALS['SQ_RESOLVE']->db;
 			$sql = 'SELECT type_code
 					FROM sq_asset_type
 					WHERE system_only != 1';
@@ -286,24 +286,21 @@ class Asset_Manager extends Resolve_Object
 		if (!isset($this->_assets[$assetid]) || !is_object($this->_assets[$assetid])) {
 
 			if (empty($type_code)) {
-				$db = &$GLOBALS['SQ_RESOLVE']->getDb();
-				$type_code = $db->getOne('SELECT type_code FROM sq_asset WHERE assetid = '.$db->quote($assetid));
+				$type_code = $GLOBALS['SQ_RESOLVE']->db->getOne('SELECT type_code FROM sq_asset WHERE assetid = '.$GLOBALS['SQ_RESOLVE']->db->quote($assetid));
+				if (empty($type_code)) {
+					if (!$mute_errors) trigger_error('Asset #'.$assetid.' does not exist', E_USER_WARNING);
+					return null;
+				}
 			}//end if
 
-			if (empty($type_code)) {
-				if (!$mute_errors) trigger_error('Asset #'.$assetid.' does not exist', E_USER_WARNING);
-				return null;
+			if (!isset($this->_asset_types[$type_code])) {
+				if (!$mute_errors) trigger_error('Asset Type "'.$type_code.'" is not installed on this system', E_USER_WARNING);
+				$this->_assets[$assetid] = null;
 			} else {
-
-				if (!isset($this->_asset_types[$type_code])) {
-					if (!$mute_errors) trigger_error('Asset Type "'.$type_code.'" is not installed on this system', E_USER_WARNING);
-					$this->_assets[$assetid] = null;
-				} else {
-					$this->includeAsset($type_code);
-					$this->_assets[$assetid] = new $type_code($assetid);
-					// make sure of the asset is correct
-					if (empty($this->_assets[$assetid]->id)) $this->_assets[$assetid] = null;
-				}
+				$this->includeAsset($type_code);
+				$this->_assets[$assetid] = new $type_code($assetid);
+				// make sure of the asset is correct
+				if (empty($this->_assets[$assetid]->id)) $this->_assets[$assetid] = null;
 
 			}//end if
 
@@ -462,7 +459,7 @@ class Asset_Manager extends Resolve_Object
 
 
 		$offspring = Array();
-		for (reset($this->_asset_types); NULL !== ($type_code = key($this->_asset_types)); next($this->_asset_types)) {
+		for (reset($this->_asset_types); null !== ($type_code = key($this->_asset_types)); next($this->_asset_types)) {
 			$parent = $this->_asset_types[$type_code]['parent_type'];
 			if (!isset($offspring[$parent])) $offspring[$parent] = Array();
 			$offspring[$parent][] = $type_code;
@@ -489,7 +486,7 @@ class Asset_Manager extends Resolve_Object
 
 				if (get_element_value('am_type_code')) {
 					
-					var type_codes = new Array("<?=implode('", "', array_keys($this->_asset_types))?>");
+					var type_codes = new Array("<? echo implode('", "', array_keys($this->_asset_types)); ?>");
 					var new_type_code = '';
 					var prompt_str = '';
 					do {

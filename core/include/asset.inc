@@ -77,7 +77,7 @@ class Asset extends Resolve_Object
 	function create()
 	{
 
-		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+		$db = &$GLOBALS['SQ_RESOLVE']->db;
 
 		// welcome to sequences, they are cool, see the PEAR::DB docs for more info
 		$assetid = $db->nextid('sq_sequence_asset');
@@ -121,14 +121,14 @@ class Asset extends Resolve_Object
 	function load($assetid)
 	{
 
-		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+		$db = &$GLOBALS['SQ_RESOLVE']->db;
 
 		// OK, the first thing to do is check we actually exist :)
 
 		$sql = 'SELECT assetid, name, type_code, last_updated, last_userid
 				FROM sq_asset
 				WHERE assetid = '.$db->quote($assetid);
-		$result = $db->getRow($sql, NULL, DB_FETCHMODE_ORDERED);
+		$result = $db->getRow($sql, null, DB_FETCHMODE_ORDERED);
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
 
 		if (is_null($result)) {
@@ -168,12 +168,12 @@ class Asset extends Resolve_Object
 		// Right, now we need to get any values that this asset has customised
 		$this->vars = Array();
 
-		$sql = 'SELECT atr.name, atr.attributeid, COALESCE(v.custom_value, atr.default_value) AS value
+		$sql = 'SELECT atr.name, atr.attributeid, atr.type, COALESCE(v.custom_value, atr.default_value) AS value
 				FROM (sq_asset a INNER JOIN sq_asset_attribute atr ON a.type_code = atr.type_code)
 				  LEFT OUTER JOIN sq_asset_attribute_value v ON atr.attributeid = v.attributeid AND a.assetid = v.assetid
 				WHERE a.assetid   = '.$db->quote($this->id);
 
-		pre_echo($sql);
+#		pre_echo($sql);
 
 		$this->vars = $db->getAssoc($sql, false, array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
 		if (DB::isError($this->vars)) trigger_error($this->vars->getMessage().'<br>'.$this->vars->getUserInfo(), E_USER_ERROR);
@@ -192,7 +192,7 @@ class Asset extends Resolve_Object
 		$userid = $GLOBALS['SQ_RESOLVE']->currentUserId();
 		$name   = $this->_getName();
 
-		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+		$db = &$GLOBALS['SQ_RESOLVE']->db;
 		$sql = 'UPDATE sq_asset
 				SET name         = '.$db->quote($name).',
 					last_updated = '.$db->quote(ts_iso8601($now)).',
@@ -252,7 +252,7 @@ class Asset extends Resolve_Object
 	function getLink($linkid)
 	{
 
-		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+		$db = &$GLOBALS['SQ_RESOLVE']->db;
 		$sql = 'SELECT linkid, majorid, minorid, link_type, value, sort_order, last_updated, last_userid
 				FROM sq_asset_link
 				WHERE majorid = '.$db->quote($this->id).'
@@ -299,7 +299,7 @@ class Asset extends Resolve_Object
 
 		if ($search_link_types) {
 
-			$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+			$db = &$GLOBALS['SQ_RESOLVE']->db;
 			$sql = 'SELECT l.linkid, l.minorid, l.value, l.link_type, a.type_code, l.sort_order
 					FROM sq_asset_link l, sq_asset a
 					WHERE l.minorid   = a.assetid 
@@ -314,7 +314,7 @@ class Asset extends Resolve_Object
 				trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
 
 			$this->_tmp['links'][$link_type] = Array();
-			while (NULL !== ($row = $result->fetchRow())) {
+			while (null !== ($row = $result->fetchRow())) {
 				if (!isset($this->_tmp['links'][$row['link_type']][$row['type_code']])) $this->_tmp['links'][$row['link_type']][$row['type_code']] = Array();
 				$this->_tmp['links'][$row['link_type']][$row['type_code']][] = $row;
 			}//end while
@@ -349,7 +349,7 @@ class Asset extends Resolve_Object
 			} else {
 				foreach($elem_types as $link_type) {
 					if (!empty($this->_tmp['links'][$link_type])) {
-						for($type = 0; NULL !== ($type = key($this->_tmp['links'][$link_type])); next($this->_tmp['links'][$link_type])) {
+						for($type = 0; null !== ($type = key($this->_tmp['links'][$link_type])); next($this->_tmp['links'][$link_type])) {
 							$ret_arr = array_merge($ret_arr, $this->_tmp['links'][$link_type][$type]);
 						}
 					}
@@ -394,7 +394,7 @@ class Asset extends Resolve_Object
 		$party = ($major) ? 'major' : 'minor';
 
 
-		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+		$db = &$GLOBALS['SQ_RESOLVE']->db;
 		if (empty($asset_type)) {
 			$sql = 'SELECT COUNT(*)
 					FROM sq_asset_link l
@@ -479,7 +479,7 @@ class Asset extends Resolve_Object
 			return false;
 		}
 
-		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+		$db = &$GLOBALS['SQ_RESOLVE']->db;
 
 		// if this link is either an exclusive or a unite link, then we need to make sure that this
 		// minor asset doesn't already have an exclusive link from anything
@@ -657,7 +657,7 @@ class Asset extends Resolve_Object
 			return true;
 		}
 
-		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+		$db = &$GLOBALS['SQ_RESOLVE']->db;
 
 		// open the transaction
 		$db->query('BEGIN');
@@ -744,7 +744,7 @@ class Asset extends Resolve_Object
 			return false;
 		}
 
-		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+		$db = &$GLOBALS['SQ_RESOLVE']->db;
 
 		// open the transaction
 		$db->query('BEGIN');
@@ -807,7 +807,7 @@ class Asset extends Resolve_Object
 		trigger_error('Validate value of attribute in setAttribute()', E_USER_WARNING);
 
 
-		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+		$db = &$GLOBALS['SQ_RESOLVE']->db;
 
 		// open the transaction
 		$db->query('BEGIN');
@@ -857,7 +857,7 @@ class Asset extends Resolve_Object
 	}//end setAttribute()
 
 	/*
-	* easy way to get the value of an attribute
+	* Easy way to get the value of an attribute
 	*
 	* @param string	$name
 	*
@@ -875,6 +875,40 @@ class Asset extends Resolve_Object
 		return $this->vars[$name]['value'];
 
 	}//end attr();
+
+	/*
+	* returns a reference to the actual attribute object, used for manipulting the object
+	*
+	* @param string	$name	the name of the attribute
+	*
+	* @return object Asset_Attribute
+	* @access public
+	*/
+	function &getAttribute($name, $mute_errors=false) {
+
+		if (!isset($this->_tmp['attributes'][$name]) || !is_object($this->_tmp['attributes'][$name])) {
+
+			if (empty($this->_tmp['attributes'])) $this->_tmp['attributes'] = Array();
+
+			if (empty($this->vars[$name])) {
+				if (!$mute_errors) trigger_error('Attribute "'.$name.'" not found for Asset"'.$this->type().'"', E_USER_WARNING);
+				$this->_tmp['attributes'][$name] = null;
+			} else {
+
+				include_once SQ_ATTRIBUTES_PATH.'/'.$this->vars[$name]['type'].'/'.$this->vars[$name]['type'].'.inc';
+				$attr_class = 'Asset_Attribute_'.$this->vars[$name]['type'];
+				$this->_tmp['attributes'][$name] = new $attr_class($this->vars[$name]['attributeid'], $this->vars[$name]['value']);
+				// make sure of the asset is correct
+				if (empty($this->_tmp['attributes'][$name]->id)) $this->_tmp['attributes'][$name] = null;
+
+			}//end if
+
+		}//end if
+
+		return $this->_tmp['attributes'][$name];
+
+	}//end getAttribute()
+
 
 	/*
 	* prints out the backend interface for the asset

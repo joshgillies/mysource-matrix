@@ -55,7 +55,7 @@ class Asset_Management extends Resolve_Object
 	{
 		$this->_pm = &$pm;
 		$this->_am = &$GLOBALS['SQ_RESOLVE']->am;
-		$this->_db = &$GLOBALS['SQ_RESOLVE']->getDb();
+		$this->_db = &$GLOBALS['SQ_RESOLVE']->db;
 
 		$this->vars = Array();
 
@@ -185,7 +185,7 @@ class Asset_Management extends Resolve_Object
 	
 		// we only need to check the vars that we defined, we don't need to worry about those
 		// we inherit because the owner of those attrs will look after any updates to them
-		for(reset($this->vars); NULL !== ($name = key($this->vars)); next($this->vars)) {
+		for(reset($this->vars); null !== ($name = key($this->vars)); next($this->vars)) {
 
 			// if we already have this attribute installed, then let's update it
 			if (in_array($name, $current_vars)) {
@@ -220,7 +220,7 @@ class Asset_Management extends Resolve_Object
 
 		$editing_options = Array();
 
-		while(NULL !== ($type_code = array_pop($parents))) {
+		while(null !== ($type_code = array_pop($parents))) {
 			$info = @$this->_pm->getInfo($type_code, 'editing_options');
 			// if it ain't in this package, it's has to be installed, get the info from the asset manager
 			if (is_null($info)) {

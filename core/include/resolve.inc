@@ -17,6 +17,13 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 class Resolve {
 
 	/**
+	* this is the DB object
+	*
+	* @var object DB
+	*/
+	var $db;
+
+	/**
 	* @var object Asset_Manager
 	*/
 	var $am;
@@ -36,13 +43,6 @@ class Resolve {
 	var $_msgs;
 
 	/**
-	* this is the DB object
-	*
-	* @var object DB
-	*/
-	var $_db;
-
-	/**
 	* Constructor
 	*
 	*/
@@ -50,7 +50,15 @@ class Resolve {
 		session_name('SQ_RESOLVE_SESSION');
 		session_save_path(SQ_SYSTEM_ROOT.'/cache');
 		session_start();
-	}
+
+		$this->db = DB::connect(SQ_CONF_DB_DSN);
+		if (DB::isError($this->db)) {
+			trigger_error($this->db->getMessage(), E_USER_ERROR);
+		}
+		// make sure all results are assoc arrays
+		$this->db->setFetchMode(DB_FETCHMODE_ASSOC);
+
+	}// end constructor
 
 	/*
 	* From here is where everything else happens, it starts the ball rolling
@@ -92,18 +100,15 @@ class Resolve {
 		} else {
 
 		//	require_once SQ_INCLUDE_PATH.'/frontend.inc';
-		//	$GLOBALS['SQ_FRONTEND'] = new Backend();
+		//	$GLOBALS['SQ_FRONTEND'] = new Frontend();
 		//	$GLOBALS['SQ_FRONTEND']->paint();
 			echo "FRONT END";
 
 		}//end if
 
-		if (is_object($this->_db)) {
-			$this->_db->disconnect();
-		}
+		$this->db->disconnect();
 
 	}//end start()
-
 
 	/*
 	* Processes any global actions that need to be taken care of
@@ -145,24 +150,6 @@ class Resolve {
 		$_GET['SQ_ACTION'] = '';
 
 	}//end _processGlobalActions()
-
-
-	/*
-	* return a reference to the DB object
-	*
-	* @access public
-	*/
-	function &getDb() {
-		if (!is_object($this->_db)) {
-			$this->_db = DB::connect(SQ_CONF_DB_DSN);
-			if (DB::isError($this->_db)) {
-				trigger_error($this->_db->getMessage(), E_USER_ERROR);
-			}
-			// make sure all results are assoc arrays
-			$this->_db->setFetchMode(DB_FETCHMODE_ASSOC);
-		}
-		return $this->_db;
-	}
 
 	/*
 	* returns a boolean if the passed user is the logged in user

@@ -52,7 +52,7 @@ class Custom_Asset_Type extends Resolve_Object
 	{
 		$this->Resolve_Object();
 		$this->_am = &$GLOBALS['SQ_RESOLVE']->am;
-		$this->_db = &$GLOBALS['SQ_RESOLVE']->getDb();
+		$this->_db = &$GLOBALS['SQ_RESOLVE']->db;
 
 		$this->_inc_path = preg_replace('/^' .str_replace('/', '\\/', SQ_SYSTEM_ROOT).'\//', '', SQ_DATA_PATH.'/custom_asset_types');
 
@@ -113,7 +113,7 @@ class Custom_Asset_Type extends Resolve_Object
 		$sql = 'SELECT assetid, type_code, last_updated, last_userid
 				FROM sq_asset
 				WHERE assetid = '.$db->quote($assetid);
-		$result = $db->getRow($sql, NULL, DB_FETCHMODE_ORDERED);
+		$result = $db->getRow($sql, null, DB_FETCHMODE_ORDERED);
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
 
 		if (is_null($result)) {
@@ -147,7 +147,7 @@ class Custom_Asset_Type extends Resolve_Object
 
 		if (!$this->id) return;
 
-		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+		$db = &$GLOBALS['SQ_RESOLVE']->db;
 
 		# Right, now we need to get any values that this asset has customised
 		$this->vars = Array();
@@ -162,7 +162,7 @@ class Custom_Asset_Type extends Resolve_Object
 
 
 		$vars_str = '';
-		while (NULL !== ($row = $result->fetchRow())) {
+		while (null !== ($row = $result->fetchRow())) {
 			$vars_str .= (($vars_str) ? ',' : '').$db->quote($row['name']);
 			$this->vars[$row['name']] = Array('attributeid' => $row['attributeid'], 'value' => $row['value']);
 		}#end while
@@ -186,7 +186,7 @@ class Custom_Asset_Type extends Resolve_Object
 		$result = $db->query($sql);
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
 
-		while (NULL !== ($row = $result->fetchRow())) {
+		while (null !== ($row = $result->fetchRow())) {
 			$this->vars[$row['name']] = Array('attributeid' => $row['attributeid'], 'value' => $row['value']);
 		}#end while
 		$result->free();

@@ -105,7 +105,7 @@ class Package_Manager extends Resolve_Object
 
 		$am = &$GLOBALS['SQ_RESOLVE']->am;
 
-		for(reset($this->assets); NULL !== ($type_code = key($this->assets)); next($this->assets)) {
+		for(reset($this->assets); null !== ($type_code = key($this->assets)); next($this->assets)) {
 
 			if (!isset($install_reqs[$type_code])) $install_reqs[$type_code] = Array();
 
@@ -157,7 +157,7 @@ class Package_Manager extends Resolve_Object
 		pre_echo('Install Order:');
 		pre_echo($install_order);
 
-		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+		$db = &$GLOBALS['SQ_RESOLVE']->db;
 		// open the transaction
 		$db->query('BEGIN');
 
@@ -365,8 +365,7 @@ class Package_Manager extends Resolve_Object
 			$ok = false;
 			switch($req['@type']) {
 				case 'package' :
-					$db = &$GLOBALS['SQ_RESOLVE']->getDb();
-					$installed_version = $db->getOne('SELECT version FROM sq_package WHERE code_name = '.$db->quote($req['code']['value']));
+					$installed_version = $GLOBALS['SQ_RESOLVE']->db->getOne('SELECT version FROM sq_package WHERE code_name = '.$GLOBALS['SQ_RESOLVE']->db->quote($req['code']['value']));
 					if (DB::isError($installed_version)) trigger_error($installed_version->getMessage().'<br>'.$installed_version->getUserInfo(), E_USER_ERROR);
 
 					if ($installed_version) { 
