@@ -38,7 +38,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	function paintBackend(&$asset, $prefix)
 	{
 		$wysiwyg = new wysiwyg($prefix, sq_web_path('fudge').'/wysiwyg/');
-		$wysiwyg->set_body_type('iframe');
+		$wysiwyg->set_body_type('div');
 		$wysiwyg->set_init_onload('yes');
 		$wysiwyg->set_contents($asset->attr('html'));
 		//$wysiwyg->set_stylesheet('/nswrl/__data/site/design/1/images/styles.css');
