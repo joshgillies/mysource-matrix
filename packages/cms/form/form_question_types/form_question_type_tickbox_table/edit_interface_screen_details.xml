@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2004/10/13 01:10:28 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2004/10/15 01:24:04 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -39,8 +39,8 @@
 		</field>
 
 		<field>
-			<display_name>Question Details</display_name>
-			<note>Abuse It Till It's Hot</note>
+			<display_name>Question Contents</display_name>
+			<note>Top row of the question table is the header row. First column is the header column. As you enter new header values more rows or columns become available. To delete a row or column, click a red cross.</note>
 			<function_call>
 				<paint_function   name="paintQuestionInterface"   />
 				<process_function name="processQuestionInterface" />
@@ -49,12 +49,12 @@
 
 	</section>
 
-	<section name="Simple Validation Rules" write_access="write:attributes">
+	<!--section name="Simple Validation Rules" write_access="write:attributes">
 		<field attribute="required">
 			<display_name>Required Entry?</display_name>
 			<note>If required, at least one tick-box must be chosen before the form can be submitted</note>
 			<boolean true_text="Required" false_text="Optional" />
 		</field>
-	</section>
+	</section-->
 
 </contents>
