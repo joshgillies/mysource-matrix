@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.15 2005/02/17 04:40:01 lwright Exp $
+* $Id: listing_engine.inc,v 1.16 2005/02/17 21:32:55 lwright Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -933,9 +933,7 @@ class Listing_Engine extends Page
 			}
 		}//end if has position format
 
-
 		// our format will be based on type code
-	
 		if (in_array($type_code, $customised)) {
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', true, $type_code);
 
@@ -943,10 +941,10 @@ class Listing_Engine extends Page
 				// use the default format
 				$this->_tmp['is_default'][] = $type_code;
 			} else {
-				$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
-				if (!is_null($bodycopy)) {
+				$type_bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
+				if (!is_null($type_bodycopy)) {
 					// get the format for this type
-					$this->_tmp['formats'][$type_code] = $bodycopy->getRawBodycopyContent();
+					$this->_tmp['formats'][$type_code] = $type_bodycopy->getRawBodycopyContent();
 					// see whether the keywords in it require asset loading or not
 					$bc_keywords = retrieve_keywords_replacements($this->_tmp['formats'][$type_code]);
 					$this->_tmp['needs_asset'][$type_code] = false;
@@ -956,13 +954,20 @@ class Listing_Engine extends Page
 							break;
 						}
 					}
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
+					
+					// if we don't have a position format already, this becomes
+					// our bodycopy - otherwise we've just scalped the keywords
+					if (empty($bodycopy)) {
+						$bodycopy =& $type_bodycopy;
+					} else {
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($type_bodycopy);
+					}
 				}
 			}
 		} else {
 			$this->_tmp['is_default'][] = $type_code;
 		}
-		
+			
 		if (in_array($type_code, $this->_tmp['is_default'])) {
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', true, 'default_format');
 			$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');

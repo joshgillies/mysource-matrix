@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.61 2005/02/17 04:40:01 lwright Exp $
+* $Id: page_asset_listing.inc,v 1.62 2005/02/17 21:32:55 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -396,7 +396,6 @@ class Page_Asset_Listing extends Listing_Engine
 		if (!isset($this->_tmp['dynamic_root_unauth'])) {
 			$parameter_map = &$this->getAttribute('parameter_map');
 			$dynamic_root = $parameter_map->getParameterValue('root_node');
-			error_log('Dynamic Root '.var_export($dynamic_root,true));
 			
 			if (!is_null($dynamic_root)) {
 				$keywords['dynamic_root_node'] = $dynamic_root;
