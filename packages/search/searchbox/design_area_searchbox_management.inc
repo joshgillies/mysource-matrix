@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox_management.inc,v 1.3.2.1 2004/02/18 12:58:34 brobertson Exp $
+* $Id: design_area_searchbox_management.inc,v 1.3.2.2 2004/02/26 19:10:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.3.2.1 $ - 1.0
+* @version $Revision: 1.3.2.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -77,7 +77,12 @@ class Design_Area_SearchBox_Management extends Asset_Management
 				'default'		=> '',
 				'description'	=> 'The field defined in the search page that this is attached to.',
 			),
-				
+			'default_text'		=> Array(
+				'added'			=> '0.1',
+				'type'			=> 'text',
+				'default'		=> '',
+				'description'	=> 'The default text to display in the search box.',
+			),
 		);
 
 	} // end Design_Area_Searchbox_Management()

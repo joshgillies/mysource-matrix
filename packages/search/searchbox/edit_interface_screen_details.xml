@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.6 2003/11/26 00:51:32 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6.2.1 2004/02/26 19:10:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -48,11 +48,20 @@
 				<process_function name="processSearchFieldName" />
 			</function_call>
 		</field>
+	</section>
+	<section name="Search Box Configuration">
 		<field write_access="write:attributes" attribute="querybox_width">
-			<display_name>Query box width</display_name>
+			<display_name>Query Box Width</display_name>
 			<note />
 			<int width="5" />
 		</field>
+		<field write_access="write:attributes" attribute="default_text">
+			<display_name>Default Text</display_name>
+			<note />
+			<text width="30" />
+		</field>
+	</section>
+	<section name="Search Button Configuration">
 		<field write_access="write:attributes" attribute="submit_button">
 			<display_name>Submit Button</display_name>
 			<note />
