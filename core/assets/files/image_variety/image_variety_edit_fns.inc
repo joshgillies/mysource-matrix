@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety_edit_fns.inc,v 1.2 2005/01/17 18:01:49 brobertson Exp $
+* $Id: image_variety_edit_fns.inc,v 1.3 2005/01/19 04:58:05 gsherwood Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -78,22 +79,22 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		$int_edit_params = new XML_Tree_Node('int', '', Array('width' => 8));
 
 		$o->openSection(($asset->name) ? $asset->name : 'New');
-		if ($asset->id) {
-			$o->openField('Current File');
-				?>
-					<a href="<?php echo current_url(true, true).'?a='.$asset->id?>&now=<?php echo time()?>" target="_blank">Click to open in a new window</a>
-				<?php
-			$o->closeField();
-		}
-
-		if ($asset->name == '') {
-			$o->openField('Name');
-				$text_edit_params = new XML_Tree_Node('text', '', Array('width' => 15));
-				$name = &$asset->getAttribute('name');
-				$name->setEditParams($text_edit_params);
-				$name->paint($prefix.'_'.$name->name, !$wa);
-			$o->closeField();
-		}
+			if ($asset->id) {
+				$o->openField('Current File');
+					?>
+						<a href="<?php echo current_url(true, true).'?a='.$asset->id?>&now=<?php echo time()?>" target="_blank">Click to open in a new window</a>
+					<?php
+				$o->closeField();
+			}
+	
+			if ($asset->name == '') {
+				$o->openField('Name');
+					$text_edit_params = new XML_Tree_Node('text', '', Array('width' => 15));
+					$name = &$asset->getAttribute('name');
+					$name->setEditParams($text_edit_params);
+					$name->paint($prefix.'_'.$name->name, !$wa);
+				$o->closeField();
+			}
 
 			$o->openField('Width');
 				$width = &$asset->getAttribute('width');
@@ -112,7 +113,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 
 		return true;
 
-	}// end paintInlineValueInterface();
+	}//end paintInlineValueInterface();
 
 
 	/**
@@ -145,8 +146,9 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		if (!$changes_made) return false;
 		else return $asset->saveAttributes();
 
-	}// end processInlineValueInterface();
+	}//end processInlineValueInterface();
 
 
 }//end class
+
 ?>
