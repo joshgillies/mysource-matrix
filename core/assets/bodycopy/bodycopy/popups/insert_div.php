@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_div.php,v 1.3 2003/12/16 12:16:42 brobertson Exp $
+* $Id: insert_div.php,v 1.4 2004/01/20 23:55:04 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -75,6 +75,7 @@ include(dirname(__FILE__)."/header.php");
 						<select name="layout_type">
 							<option value="div" >Block-level</option>
 							<option value="span">Inline</option>
+							<option value="none">Raw HTML</option>
 						</select>
 					</td>
 				</tr>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.4 2003/12/16 12:16:42 brobertson Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.5 2004/01/20 23:55:04 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,6 +37,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 */
 class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -189,7 +190,8 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 		}
 
-		echo "\n<".strtolower($div_attributes['layout_type']).$attribute_list.">\n";
+		// print DIV or SPAN tag if we are not printing raw HTML
+		if ($div_attributes['layout_type'] != 'none') echo "\n<".strtolower($div_attributes['layout_type']).$attribute_list.">\n";
 
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'content_type', false, 'div_contents', 'major', true);
 
@@ -204,7 +206,8 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			}
 		}
 
-		echo "\n</".strtolower($div_attributes['layout_type']).">\n";
+		// print end DIV or SPAN tag if we are not printing raw HTML
+		if ($div_attributes['layout_type'] != 'none') echo "\n</".strtolower($div_attributes['layout_type']).">\n";
 
 		return true;
 
