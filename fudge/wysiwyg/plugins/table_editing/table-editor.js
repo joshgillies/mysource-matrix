@@ -61,8 +61,10 @@ TCell = function(parent)
 		if (this.selected) style += 'background-image:url(' + this.parent.parent.semigray + ');';
 
 		if (style != ' style="') out += style + '"';
-		//alert(this.content);
 		out += '>' + this.content;
+		if (this.content == "") {
+			out += "&nbsp;";
+		}
 		if (this.th) out += '</th>';
 		else out += '</td>';
 
@@ -845,14 +847,10 @@ TTable = function(name, rows, cols)
 			document.getElementById("width").value = this.width.substring(0, this.width.length - 2);
 			document.getElementById("widthtype").value = this.width.substring(this.width.length - 2);
 		}
-		//document.getElementById("width").value = this.width; //TODO
 		document.getElementById("frame").value = this.frame;
 		document.getElementById("rules").value = this.rules;
 
 		this.refresh();
-		//alert(this.rows + "|" + this.cols);
-
-		//for(var prop in table.rows[0]) document.getElementById("test").value += prop + "=>" + table.rows[0][prop] + "\n";
 	}
 
 

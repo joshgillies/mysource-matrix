@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table.php,v 1.7 2004/12/02 04:08:48 dbaranovskiy Exp $
+* $Id: edit_table.php,v 1.7.2.1 2005/03/09 22:38:12 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -40,77 +40,77 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 		<title>Tables</title>
 		<style type="text/css">
 			html, body {
-				height: 620px;
-				width: 850px;
-				overflow: hidden;
+				height:			620px;
+				width:			850px;
+				overflow:		hidden;
 			}
 
 			body {
-				overflow: hidden;
+				overflow:		hidden;
 			}
 
 			.colors td {
-				border: solid 1px #000
+				border:			solid 1px #000
 			}
 
 			label,input,select,textarea {
-				display: block;
-				width: 150px;
-				float: left;
-				margin-bottom: 10px;
+				display:		block;
+				width:			150px;
+				float:			left;
+				margin-bottom:	10px;
 			}
 
 			label {
-				text-align: right;
-				font: 10pt "Lucida Grande", Tahoma, Arial, Helvetica;
-				width: 75px;
-				padding-right: 20px;
+				text-align:		right;
+				font:			10pt "Lucida Grande", Tahoma, Arial, Helvetica;
+				width:			75px;
+				padding-right:	20px;
 			}
 
 			legend {
-				font: bold 10pt "Lucida Grande", Tahoma, Arial, Helvetica;
+				font:			bold 10pt "Lucida Grande", Tahoma, Arial, Helvetica;
 			}
 
 			br {
-				clear: left;
+				clear:			left;
 			}
 
 			#panels {
-				position: absolute;
-				width: 300px;
-				top: 0px;
-				left: 510px;
-				height: 550px;
-				margin: 10px;
-				border: solid 1px #CCC;
-				padding: 1px;
-				overflow: auto;
-				background: #FFF;
+				position:		absolute;
+				width:			300px;
+				top:			0px;
+				left:			510px;
+				height:			550px;
+				margin:			10px;
+				border:			solid 1px #CCC;
+				padding:		1px;
+				overflow:		auto;
+				background:		#FFF;
 			}
 
 			#footer {
-				position: absolute;
-				left: 10px;
-				top: 520px;
-				width: 500px;
-				height: 40px;
-				overflow: hidden;
-				border: solid 1px #CCC;
+				position:		absolute;
+				left:			10px;
+				top:			520px;
+				width:			500px;
+				height:			40px;
+				overflow:		hidden;
+				border:			solid 1px #CCC;
 			}
 
 			#table_container {
-				position: absolute;
-				top: 10px;
-				left: 10px;
-				width: 500px;
-				height: 500px;
-				overflow: auto;
-				background: url(images/grid.gif)
+				position:		absolute;
+				top:			10px;
+				left:			10px;
+				width:			500px;
+				height:			500px;
+				overflow:		auto;
+				background:		url(images/grid.gif)
 			}
 
 			fieldset {
-				padding: 0px 10px 5px 5px;
-				border: solid 1px #725B7D;
+				padding:		0px 10px 5px 5px;
+				border:			solid 1px #725B7D;
 			}
 		</style>
 		<script type="text/javascript" src="../../core/popup.js"></script>
@@ -137,15 +137,19 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 
 			var table;
 
-			function Init() {
+
+			function Init()
+			{
 				__dlg_init("editTableProperties");
 				table = new TTable("table");
 				table.Import(window.dialogArguments);
 				window.focus();
 
-			};
+			}
 
-			function onOK() {
+
+			function onOK()
+			{
 				var message = "";
 				var obj = "";
 				if (document.getElementById("tid").value == "") {
@@ -159,18 +163,38 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 				}
 				return false;
 
-			};
+			}
 
-			function onCancel() {
+
+			function onCancel()
+			{
 				__dlg_close("editTableProperties", null);
 				return false;
 
-			};
+			}
+
+
+			function onMouseMove(evt)
+			{
+				if (table && table.mouse) {
+					table.mouse.Move(evt)
+				}
+			}
+
+
+			function onMouseOut()
+			{
+				if (table && table.mouse) {
+					table.mouse.Out()
+				}
+			}
+
+
 			//]]>
 		</script>
 	</head>
-	<body onload="Init();">
-		<div id="table_container" onmousemove="table.mouse.Move(event)" onmouseout="table.mouse.Out()"></div>
+	<body onload="Init()">
+		<div id="table_container" onmousemove="onMouseMove(event)" onmouseout="onMouseOut()"></div>
 		<div id="mouse_pointers">
 			<img alt="" src="images/mousec.gif" id="mcell" style="position:absolute;display:none" />
 			<img alt="" src="images/mouser.gif" id="mrow" style="position:absolute;display:none" />
