@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.29 2004/05/26 10:52:10 brobertson Exp $
+* $Id: system_config.inc,v 1.30 2004/06/18 00:19:17 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -45,8 +45,8 @@ class System_Config extends Config
 	* @var Array()
 	*/
 	var $config_vars = Array(
-		'SQ_CONF_DB_DSN'					=> Array('editable' => 0, 'default' => ''),
-		'SQ_CONF_DB2_DSN'					=> Array('editable' => 0, 'default' => ''),
+		'SQ_CONF_DB_DSN'					=> Array('editable' => 1, 'default' => ''),
+		'SQ_CONF_DB2_DSN'					=> Array('editable' => 1, 'default' => ''),
 		'SQ_CONF_PEAR_PATH'					=> Array('editable' => 0, 'default' => ''),
 		'SQ_CONF_BACKEND_SUFFIX'			=> Array('editable' => 1, 'default' => '_admin'),
 		'SQ_CONF_LIMBO_SUFFIX'				=> Array('editable' => 1, 'default' => '_edit'),
