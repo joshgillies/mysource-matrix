@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_metadata_management.inc,v 1.5 2003/11/26 00:50:56 gsherwood Exp $
+* $Id: design_area_metadata_management.inc,v 1.6 2004/02/23 04:40:55 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,5 +37,28 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 */
 class Design_Area_Metadata_Management extends Asset_Management
 {
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function Design_Area_Metadata_Management(&$pm)
+	{
+		$this->Asset_Management($pm);
+
+		$this->vars = Array(
+							'metadata_field' => Array(
+								'added'			=> '0.1',
+								'type'			=> 'text',
+								'default'		=> '',
+								'description'	=> 'Output a specific field value - leave blank to output all metadata',
+							),
+						);
+
+	}//end constructor
+
+
 }//end class
+
 ?>
