@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.1.1.1 2004/07/21 04:31:53 lwright Exp $
+* $Id: page_calendar.inc,v 1.2 2004/07/30 06:36:17 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
-require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset_listing_edit_fns.inc';
+require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset_listing.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
@@ -33,8 +33,8 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Purpose
 *
 *
-* @author  Greg Sherwoood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @author  Luke Wright <lwright@squiz.net>
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -101,7 +101,45 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function printDayView($year, $month, $day)
 	{
-
+		/* pseudo-code version of this method...
+		 * get all events that lie underneath the selected root nodes, using a search matching
+		 * the front part of the tree id with the root node
+		 *
+		 * OR, if reverse lookup option turned on, it must be the minor
+		 * [LIMIT:(?) only use immediate links for reverse lookup]
+		 *
+		 * [FOR SINGLE EVENTS - IGNORE TIME COMPONENTS:]
+		 * ... that have a start date of 'today' (nb: by 'today' I mean the passed date)
+		 *     and no end date
+		 * ... OR, have a start date earlier than or equal to today AND
+		 * ... have an end date later than or equal to today
+		 *     (ie. between start date and end date, inclusive)
+		 *
+		 * [FOR MULTIPLE EVENTS:]
+		 * ... that have a start date later than or equal to today
+		 * ... if it has an STOP date, it must be before that
+		 *     (ie. between start date and any STOP date, inclusive)
+		 * ... beyond that, stuffed if I know how to do all of the things I want in a database
+		 *     query >_<
+		 *	   except ... DED [every day] is always included
+		 *            ... DWD [every weekday] is included if date passed is a Mon-Fri
+		 *            ... 'Every week' could be easy enough if there is a SQL function that can
+		 *                handle returning of weekday indices
+		 *
+		 * Grab an attribute for start time of the day view (eg. 08.30)
+		 * Grab an attribute for end time of the day view (eg. 17.00)
+		 * Grab an attribute for the length of each viewable time slot (eg. 1 hour, 30 minutes
+		 * 15 minutes)
+		 * Grab display format (eg. is 'RESOURCE VIEW/ONE COLUMN PER NODE' enabled?)
+		 *
+		 * Work out final list of events in an array which includes all relevant information,
+		 * including start and end times (if it rolls over to another day then use 00.00 and
+		 * 24.00 if necessary), including style/colour information
+		 *
+		 * Print the bastard =D (one column per node if that is specified, otherwise
+		 * just one column straight down)
+		 */
+		
 	}//end printDayView()
 
 	
@@ -113,7 +151,39 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function printWeekView($year, $month, $day)
 	{
-
+		/* pseudo-code version of this method...
+		 * first bit as for day, yada yada yada
+		 *
+		 * [FOR SINGLE EVENTS - IGNORE TIME COMPONENTS:]
+		 * ... that have a start date of  and no end date
+		 * ... OR, have a start date earlier than or equal to starting day AND
+		 * ... have an end date later than or equal to ending day
+		 *     (ie. between start date and end date, inclusive)
+		 *
+		 * [FOR MULTIPLE EVENTS:]
+		 * ... that have a start date later than or equal to today
+		 * ... if it has an STOP date, it must be before that
+		 *     (ie. between start date and any STOP date, inclusive)
+		 * ... beyond that...
+		 *	   ... DED [every day] is always included
+		 *     ... DEDx [every x days] is included if x <= 7
+		 *     ... DWD [every weekday] is always included as it will likely occur 5 times :-)
+		 *     ... WEW [every week] is always included
+		 *
+		 * Grab an attribute for start time of the day view (eg. 08.30)
+		 * Grab an attribute for end time of the day view (eg. 17.00)
+		 * Grab an attribute for the length of each viewable time slot (eg. 1 hour, 30 minutes
+		 * 15 minutes)
+		 * Grab an attribute for first day of week (eg. Monday or Sunday, or another day)
+		 * Grab display formats (not likely to have a resource/node view here)
+		 *
+		 * Work out final list of events in an array which includes all relevant information,
+		 * including start and end times FOR EACH DAY (this is for simplicity when printing
+		 * the calendar out), including style/colour information
+		 *
+		 * Print the bastard =D, one column for each day
+		 */
+		 
 	}//end printWeekView()
 
 
@@ -125,10 +195,42 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function printMonthView($year, $month)
 	{
+		/* pseudo-code version of this method...
+		 * first bit as for day, yada yada yada
+		 *
+		 * [FOR SINGLE EVENTS - IGNORE TIME COMPONENTS:]
+		 * ... that have a start date the same month as today and no end date
+		 * ... OR, have a start date earlier than or equal to 1st of today's month AND
+		 * ... have an end date later than or equal to last of today's month
+		 *     (ie. between start date and end date, inclusive)
+		 *
+		 * [FOR MULTIPLE EVENTS:]
+		 * ... that have a start date later than or equal to today
+		 * ... if it has an STOP date, it must be before that
+		 *     (ie. between start date and any STOP date, inclusive)
+		 * ... beyond that...
+		 *	   ... DED [every day] is always included
+		 *     ... DEDx [every x days] is included if x <= 28 (substitute # of days in month)
+		 *     ... DWD [every weekday] is always included
+		 *     ... WEW [every week] is always included
+		 *     ... WEWx [every x weeks] is definitely included if x <= 3, maybe if x = 4
+		 *     ... M** [every month] is always included
+		 *
+		 * Grab an attribute for first day of week (eg. Monday or Sunday, or another day)
+		 * Grab display formats (not likely to have a resource/node view here)
+		 *
+		 * Work out final list of events in an array which includes all relevant information,
+		 * including start and end times FOR EACH DAY (this is for simplicity when printing
+		 * the calendar out), including style/colour information
+		 *
+		 * Print the bastard =D, in a monthly calendar format (duh!)
+		 */
+		 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// base sql query
 		$sql = 'select aav.assetid, aav.custom_value from sq_asset_attribute_value aav join sq_asset_attribute atr on aav.attributeid = atr.attributeid where type_code = '.$db->quote('calendar_event').' and name = '.$db->quote('start_date').';';
+		
 	}//end printMonthView()
 
 
@@ -146,21 +248,6 @@ class Page_Calendar extends Page_Asset_Listing
 
 	}//end printListView()
 
-
-	/**
-	* print a 'resource day view' list with one column for each resource
-	*
-	* 'Resources' are defined to be assets which you link underneath the calendar event for certain
-	* purposes. This will display events which have that 'resource' asset(s) underneath them.
-	* One 'resource' asset to a column.
-	*
-	* @return void
-	* @access public
-	*/
-	function printResourceView()
-	{
-
-	}//end printResourceView()
 
 }//end class
 
