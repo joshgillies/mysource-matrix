@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tooltip.js,v 1.2 2004/09/03 07:48:41 dbaranovskiy Exp $
+* $Id: tooltip.js,v 1.3 2004/09/05 22:56:37 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -59,7 +59,7 @@ function tt_print()
 {
   if (!document.getElementById("ToolBox"))
   {
-	output = '<iframe scrolling="no" border="0" frameborder="0" id="hider" style="position:absolute;top:-200px;left:-110px;width:10px; height:30px;" src="about:blank"></iframe>';		 
+	output = '<iframe scrolling="no" border="0" frameborder="0" id="hider" style="position:absolute;top:-200px;left:-110px;width:10px; height:30px;progid:DXImageTransform.Microsoft.Alpha(style=0, opacity=0)" src="about:blank"></iframe>';		 
 	output += '<table cellspacing="0" cellpadding="0" border="0" id="ToolBox" style="font:' + this.normal_font +
 			 ';border:' + this.border +
 			 ';color:' + this.normal_color +
