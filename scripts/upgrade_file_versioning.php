@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_file_versioning.php,v 1.3 2004/11/16 03:53:38 lwright Exp $
+* $Id: upgrade_file_versioning.php,v 1.4 2004/11/16 04:41:53 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -109,6 +109,23 @@ if (DB::isError($result) && ($result->getCode() == DB_ERROR_NOSUCHFIELD)) {
 	printUpdateStatus('OK');
 }
 
+require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+if (!file_exists(SQ_DATA_PATH.'/data/private/db/sequences.inc')) {
+	printName('Create sequences cache file');
+	$seq_str = "<?php $sequences = array (
+  0 => 'sequence_asset',
+  1 => 'sequence_asset_link',
+  2 => 'sequence_asset_attribute',
+  3 => 'sequence_asset_url',
+  4 => 'sequence_internal_message',
+  5 => 'sequence_file_versioning_file',
+); ?>";
+	if (string_to_file(SQ_DATA_PATH.'/data/private/db/sequences.inc')) {
+		printUpdateStatus('OK');
+	} else {
+		printUpdateStatus('FAIL');
+	}
+}
 
 
   ////////////////////////
