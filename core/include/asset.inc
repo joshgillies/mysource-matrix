@@ -4201,7 +4201,8 @@ class Asset extends Resolve_Object
 	*/
 	function getBackendHref($screen='')
 	{
-		return sq_web_path('edit').'/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid='.$this->id.'&asset_ei_screen='.$screen;
+		$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($this->id => $screen));
+		return $href[$this->id];
 
 	}//end getBackendHref()
 

@@ -1167,5 +1167,26 @@ class Asset_Manager extends Resolve_Object
 
 	}//end getAssetHref()
 
+
+	/**
+	* Returns the href(s) of an asset based on its assetid and the wanted screen 
+	*
+	* @param array(mixed) $assetinfo an array of asset info in the form assetid => screen code name
+	*
+	* @return array(int => string) returns an array of assetid and hrefs to the wanted screen
+	* @access public
+	*/
+	function getAssetBackendHref($asset_info)
+	{
+		if (empty($asset_info)) return Array();
+
+		$return_hrefs = Array();
+		foreach ($asset_info as $assetid => $screen) {
+			$return_hrefs[$assetid] = sq_web_path('edit').'/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid='.$assetid.'&asset_ei_screen='.$screen;
+		}
+		return $return_hrefs;
+
+	} // end getAssetBackendHref()
+
 }//end class
 ?>
