@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.9 2004/02/27 03:31:39 gsherwood Exp $
+* $Id: page_account_manager.inc,v 1.10 2004/03/02 22:48:05 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -204,6 +204,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 						if ($this->attr('create_status') >= SQ_STATUS_LIVE) {
 							$this->_current_state = 'create_login';
 							$_POST['SQ_LOGIN_USERNAME'] = $this->_tmp['created_asset']->attr('username');
+							$this->_loadLoginReplacements();
 						} else {
 							$this->_current_state = 'create_no_login';
 						}
