@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.17.2.1 2004/11/14 23:09:43 tbarrett Exp $
+* $Id: page_account_manager.inc,v 1.17.2.1.2.1 2005/02/01 04:54:55 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -276,27 +276,30 @@ class Page_Account_Manager extends Page_Asset_Builder
 					if (!empty($link)) {
 						$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 
-						// Figure out create locations.  
+						// Figure out create locations.
 						//    - Mandatory ones are easily looked up
-						//    - Rule-based ones are calculated from an 
+						//    - Rule-based ones are calculated from an
 						//      array of asset attribute values
-						//    - User-selected ones are read from amlocs 
+						//    - User-selected ones are read from amlocs
 						//      and checked for validity
 						$user_attributes = Array();
 						$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type);
 						foreach ($attrs as $attr => $type) $user_attributes[$attr] = $user->attr($attr);
 						$create_locations = parent::getFixedCreateLocations() + parent::getRuleMatchCreateLocations($create_type, $user_attributes);
 						$selectable_create_locations = parent::getAllSelectableCreateLocations();
-						$selected_create_location_codes = explode('-', $locs);
-						if (is_array($selected_create_location_codes)) {
+						if (strpos($locs, '-') !== false) {
+							$selected_create_location_codes = explode('-', $locs);
 							foreach ($selected_create_location_codes as $code) {
-								// we will add this create location and type iff the location id is a valid option AND the link type is no more dominant than the max allowed link type for the location AND any existing link type for that location is no better than the proposed one
+								// we will add this create location and type if the location id
+								// is a valid option AND the link type is no more dominant than
+								// the max allowed link type for the location AND any existing
+								// link type for that location is no better than the proposed one
 								list($loc_id, $link_type) = explode(':', $code);
 								if (isset($selectable_create_locations[$loc_id]) && ($selectable_create_locations[$loc_id] <= $link_type)) {
-									if (!isset($create_locations[$loc_id]) || ($create_locations[$loc_id] > $link_type))  {
+									if (!isset($create_locations[$loc_id]) || ($create_locations[$loc_id] > $link_type)) {
 										$create_locations[$loc_id] = $link_type;
-									} 
-								} 
+									}
+								}
 							}
 						}
 
