@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.76 2003/11/23 21:56:16 gsherwood Exp $
+* $Id: backend.inc,v 1.77 2003/11/24 03:52:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -79,6 +79,12 @@ class Backend extends MySource_Object
 		// make sure we are a backend user
 		if (!is_a($GLOBALS['SQ_SYSTEM']->user, 'backend_user')) return;
 
+		if (isset($_REQUEST['a'])) {
+			$frontend_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_REQUEST['a']);
+			$frontend_asset->printFrontend();
+			exit();
+		}
+
 		// if we are in limbo, we are going to mix the frontend with the backend
 		// so we need to do things a little differently
 		if (SQ_IN_LIMBO && !isset($_REQUEST['SQ_BACKEND_PAGE']) && !isset($_REQUEST['sq_redirect_url'])) {
@@ -86,12 +92,6 @@ class Backend extends MySource_Object
 			$this->out =& new Limbo_Outputter();
 			$this->_printMain();
 			return;
-		}
-
-		if (isset($_REQUEST['a'])) {
-			$frontend_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_REQUEST['a']);
-			$frontend_asset->printFrontend();
-			exit();
 		}
 
 		if (empty($_REQUEST['SQ_BACKEND_PAGE']) || $_REQUEST['SQ_BACKEND_PAGE'] == 'frames') {
