@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_trigger_batch_events.inc,v 1.2 2005/02/28 01:22:46 rhoward Exp $
+* $Id: hipo_job_trigger_batch_events.inc,v 1.3 2005/03/23 22:57:15 ndvries Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -55,19 +55,19 @@ class HIPO_Job_Trigger_Batch_Events extends HIPO_Job
 	* @var Array
 	*/
 	var $_steps = Array(
-					Array(
-						'name'             => 'Processing Assets',
-						'function_call'    => Array(
-												'process_function' => 'processAssets',
-						),
-						'running_mode'     => 'server',
-						'auto_step'        => true,
-						'allow_cancel'     => true,
-						'percent_done'     => 0,
-						'complete'         => false,
-						'message'          => '',
-					),
-	);
+						Array(
+							  'name'          => 'Processing Assets',
+							  'function_call' => Array(
+													   'process_function' => 'processAssets',
+													   ),
+							  'running_mode'  => 'server',
+							  'auto_step'     => true,
+							  'allow_cancel'  => true,
+							  'percent_done'  => 0,
+							  'complete'      => false,
+							  'message'       => '',
+							  ),
+						);
 
 
 	/**
