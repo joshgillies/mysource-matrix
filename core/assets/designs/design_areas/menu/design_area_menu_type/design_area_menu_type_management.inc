@@ -23,16 +23,16 @@ class Design_Area_Menu_Type_Management extends Asset_Management
 
 		$this->vars = Array(
 							'level' => Array(
-								'added'     => '0.0.1',
-								'type'      => 'text',
-								'default'   => ''
+								'added'			=> '0.0.1',
+								'type'			=> 'int',
+								'default'		=> 0
 							),
 							'settings' => Array(
-								'added'     => '0.0.1',
-								'type'      => 'array',
-								'default'   => Array()
+								'added'			=> '0.0.1',
+								'type'			=> 'serialise',
+								'default'		=> Array()
 
-							),
+							)
 						);
 
 	}//end constructor

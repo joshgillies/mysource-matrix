@@ -28,7 +28,7 @@ class Design_Area_Declared_Vars_Management extends Asset_Management
 							),
 							'declared_vars'   => Array(
 								'added'       => '0.0.1',
-								'type'        => 'array',
+								'type'        => 'serialise',
 								'default'     => Array(),
 								'description' => 'Holds the names for all variables that are "references" to values in other'
 							),

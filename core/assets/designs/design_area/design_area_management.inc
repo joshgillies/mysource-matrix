@@ -41,7 +41,7 @@ class Design_Area_Management extends Asset_Management
 								),
 							'specialised' => Array(
 								'added'     => '0.0.1',
-								'type'      => 'int',
+								'type'      => 'boolean',
 								'default'   => 0
 								)
 							);
