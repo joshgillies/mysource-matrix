@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.32 2004/02/27 03:06:08 gsherwood Exp $
+* $Id: metadata_manager.inc,v 1.33 2004/02/27 05:30:09 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -466,41 +466,64 @@ class Metadata_Manager extends MySource_Object
 		$schemaids = $this->getSchemas($asset->id, true);
 		if (empty($schemaids)) return false;
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
+		
 		foreach ($schemaids as $schemaid) {
 			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
-			if (is_null($schema)) {
-				trigger_error('Failed setting metadata, Schema #'.$schemaid.' does not exist', E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-
-			if (!is_a($schema, 'metadata_schema')) {
-				trigger_error('Failed setting metadata, "'.$schema->name.'" (Asset #'.$schemaid.') is not a metadata schema', E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-
 			if (!isset($metadata[$schema->name])) continue;
-
-			$values = Array('metadata' => $db->quote(serialize($metadata[$schema->name])));
-			$where = 'assetid = '.$db->quote($asset->id).'
-					    AND schemaid = '.$db->quote($schema->id);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_metadata', $values, $where)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
+			if (false === ($this->setSchemaMetadata($assetid, $schemaid, $metadata[$schema->name]))) return false;
 		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		$this->indexMetadata($assetid, $schemaids);
 
 		return true;
 
 	}//end setMetadata()
+
+
+	/**
+	* sets metadata for an asset that is specific to a schema
+	*
+	* @param integer	$assetid	the assetid to apply the schema for
+	* @param integer	$schemaid	the id of the schema to apply the metadata to
+	* @param array		$metadata	the metadata values to set
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setSchemaMetadata($assetid, $schemaid, $metadata)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+
+		if (is_null($schema)) {
+			trigger_error('Failed setting metadata, Schema #'.$schemaid.' does not exist', E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		if (!is_a($schema, 'metadata_schema')) {
+			trigger_error('Failed setting metadata, "'.$schema->name.'" (Asset #'.$schemaid.') is not a metadata schema', E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$values = Array('metadata' => $db->quote(serialize($metadata)));
+		$where = 'assetid = '.$db->quote($asset->id).'
+					AND schemaid = '.$db->quote($schema->id);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_metadata', $values, $where)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return true;
+
+	}//end setSchemaMetadata()
+
 
 
 //--        (RE)GENERATE METADATA        --//
