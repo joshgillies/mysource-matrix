@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.171 2003/10/30 01:09:23 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.172 2003/10/30 04:32:15 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1672,6 +1672,88 @@ class Asset_Edit_Interface extends MySource_Object
 
 	}//end processSettings()
 
+	
+	/**
+	* Paint the the access for permissions on a particular asset (used in popups etx)
+	*
+	* @param object	Asset				$owner		the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o			the outputter class
+	*
+	* @access public
+	* @return boolean
+	*/
+	function paintInlinePermissions(&$owner, &$o)
+	{
+		$prefix = $owner->getPrefix();
+		$perms = Array('Read' => SQ_PERMISSION_READ, 'Write' => SQ_PERMISSION_WRITE, 'Administrator' => SQ_PERMISSION_ADMIN);
+
+		if (empty($perms)) return false;
+
+		$o->openSection('Permissions');
+			$o->openField('&nbsp;');
+			?>
+				<table class="sq-backend-table">
+					<tr>
+						<td class="sq-backend-table-header">
+						  <?php echo 'User'; ?>
+						</td>
+						<td class="sq-backend-table-header">
+						  <?php echo 'Permission'; ?>
+						</td>
+						<td class="sq-backend-table-header" align="right">
+						  <?php echo 'Access'; ?>
+						</td>
+					</tr>
+			<?php
+
+		foreach ($perms as $title => $perm) {
+			
+			$permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, null, false, false, true);
+
+			$direct = Array();
+			foreach($permissions as $userid => $access) {
+				if (!isset($direct[$access])) $direct[$access] = Array();
+				$direct[$access][] = $userid;
+			}
+			ksort($direct);
+			if (empty($direct)) continue;
+
+			if (!empty($direct)) {
+				foreach ($direct as $access => $userids) {
+					foreach($userids as $userid) {
+						if ($userid) {
+							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+							if (!$user->id || (!is_a($user, 'user') && !is_a($user, 'user_group'))) continue;
+						}
+						?>
+						<tr>
+							<td class="sq-backend-table-cell">
+						<?php
+							echo (($userid) ? $user->name.' ['.$user->type().' : '.$userid.']' : 'Public Access');
+						?>
+							</td>
+							<td class="sq-backend-table-cell">
+								<?php echo $title.' Access'?>
+							</td>
+							<td class="sq-backend-table-cell" align="right">
+								<span style="color: <?php echo (($access == '0') ? 'red' : 'green'); ?>; font-weight:bold;"><?php echo (($access == '0') ? 'Denied' : 'Granted') ?></span>
+							</td>
+						</tr>
+					<?php
+					}// end foreach data
+				}//end foreach inherited
+			}// end if
+		}// end foreach $perms
+		?>
+		</table>
+		<?php
+			$o->closeField();
+		$o->closeSection();
+
+		return true;
+	
+	}// end paintInlinePermissions()
+	
 
 	/**
 	* Paint the interface for managing permissions
@@ -1916,14 +1998,86 @@ class Asset_Edit_Interface extends MySource_Object
 
 
 	/**
-	* Paints the interface for managing workflow
+	* Paints the interface for viewing current workflows (used for popups etc)
 	*
 	* @param object	Asset				$owner		the asset whose interface we are painting
 	* @param object	Backend_Outputter	$o			the outputter class
 	*
 	* @access public
+	* @return boolean
 	*/
-	function paintWorkflow(&$owner, &$o)
+	function paintInlineWorkflow(&$owner, &$o)
+	{
+		$prefix = $owner->getPrefix();
+
+		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$schemas = $wfm->getSchemas($owner->id);
+
+		if (empty($schemas)) return false;
+
+		$o->openSection('Workflow Schemas');
+
+		$direct = Array();
+		foreach($schemas as $schemaid => $access) {
+			if (!isset($direct[$access])) $direct[$access] = Array();
+			$direct[$access][] = $schemaid;
+		}
+		ksort($direct);
+		$o->openField('&nbsp;');
+		?>
+			<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-header">
+						Work Flow Schema
+					</td>
+					<td class="sq-backend-table-header" align="right">
+						Access
+					</td>
+				</tr>
+		<?php
+
+		if (!empty($direct)) {
+			foreach ($direct as $access => $schemaids) {
+				foreach($schemaids as $schemaid) {
+					if ($schemaid) {
+						$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+						if (!$schema->id || !is_a($schema, 'workflow_schema')) continue;
+					}
+				?>
+					<tr>
+						<td class="sq-backend-table-cell">
+						<?php
+						echo $schema->name.' ['.$schema->type().' : '.$schemaid.']';
+						?>
+						</td>
+						<td class="sq-backend-table-cell" align="right">
+							<span style="color: <?php echo (($access == '0') ? 'red' : 'green'); ?>; font-weight: bold;"><?php echo (($access == '0') ? 'Denied' : 'Applied') ?></span>
+						</td>
+					</tr>
+				<?php
+				}// end foreach data
+			}//end foreach inherited
+		
+		}// end if
+			?></table><?php
+			$o->closeField();
+		$o->closeSection();
+		
+		return true;
+
+	}//end paintInlineWorkflow()
+
+
+	/**
+	* Paints the interface for managing workflow
+	*
+	* @param object	Asset				$owner		the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o			the outputter class
+	* @param boolean					$allow_edit	allow editing of permissions if user has access
+	*
+	* @access public
+	*/
+	function paintWorkflow(&$owner, &$o, $allow_edit=true)
 	{
 		$prefix = $owner->getPrefix();
 
@@ -2112,7 +2266,8 @@ class Asset_Edit_Interface extends MySource_Object
 
 		} else {
 			// there is no running workflow so admin access can be set
-			$admin_access = $owner->adminAccess('workflow');
+			if ($allow_edit) $admin_access = $owner->adminAccess('workflow');
+			else              $admin_access = false;
 		}
 
 		// lets show some workflow warnings about metadata if we need to
@@ -2345,6 +2500,75 @@ class Asset_Edit_Interface extends MySource_Object
 		return true;
 
 	}//end processWorkflow()
+
+
+	/**
+	* Paint the interface for viewing metadata schemas (used in popups etc)
+	*
+	* @param object	Asset				$owner		the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o			the outputter class
+	*
+	* @access public
+	* @return boolean
+	*/
+	function paintInlineMetadataSchemas(&$owner, &$o)
+	{
+		$prefix = $owner->getPrefix();
+
+		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$schemas = $mm->getSchemas($owner->id);
+
+		$direct = Array();
+		foreach($schemas as $schemaid => $access) {
+			if (!isset($direct[$access])) $direct[$access] = Array();
+			$direct[$access][] = $schemaid;
+		}
+		ksort($direct);
+
+		if (empty($direct)) return false;
+
+		$o->openSection('Metadata Schemas');
+
+		$o->openField('&nbsp;');
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<td class="sq-backend-table-header">
+					Metadata Schema
+				</td>
+				<td class="sq-backend-table-header" align="right">
+					Access
+				</td>
+			</tr>
+		
+		<?php
+		foreach ($direct as $access => $schemaids) {
+			foreach($schemaids as $schemaid) {
+				if ($schemaid) {
+					$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+					if (!$schema->id || !is_a($schema, 'metadata_schema')) continue;
+				}
+			?>
+				<tr>
+					<td class="sq-backend-table-cell">
+					<?php
+					echo $schema->name.' ['.$schema->type().' : '.$schemaid.']';
+					?>
+					</td>
+					<td class="sq-backend-table-cell" align="right">
+						<span style="color: <?php echo (($access == '0') ? 'red' : 'green'); ?>; font-weight: bold; "><?php echo (($access == '0') ? 'Denied' : 'Applied') ?></span>
+					</td>
+				</tr>
+			<?php
+			}// end foreach data
+		}//end foreach inherited
+			?></table><?php
+			$o->closeField();
+		$o->closeSection();
+
+		return true;
+
+	}//end paintInlineMetadataSchemas()
 
 
 	/**
