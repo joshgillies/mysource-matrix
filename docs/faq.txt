@@ -58,6 +58,9 @@ A. There are several steps :
      ****NOTE**** - You will need to reset the Epoch of the Cron Manager to the time that this new crontab 
                     entry will be first run.
 
+  8. WYSIWYG & HTML Tidy - If moving to a new server, then you will need to make sure that the HTML Tidy is
+     installed on the server and the WYSIWYG plugin is pointing to the correct place
+
 That should be it, have fun
 Contributed by: Blair Roebrtson <brobertson@squiz.net>
 
