@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.95 2005/01/31 23:22:27 arailean Exp $
+* $Id: backend_outputter.inc,v 1.96 2005/02/14 19:32:53 brobertson Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',       4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -698,10 +698,12 @@ class Backend_Outputter
 	* @param string $name		label of the field
 	* @param string $format		format 'new_line' | 'blank' | 'commit' | ''
 	* @param string $note		a note to place with the field
+	* @param string $hidden		whether to hide the field inially or not
+	* @param string $id_name	the id name to give the element that we hide (so it can be found easily)
 	*
 	* @access public
 	*/
-	function openField($name, $format='', $note='', $hidden=false)
+	function openField($name, $format='', $note='', $hidden=false, $id_name='')
 	{
 		if ($this->_buffering) {
 			if (!is_null($this->_current_field)) $this->closeField();
@@ -721,6 +723,7 @@ class Backend_Outputter
 																'note'			=> $note,
 																'contents'		=> '',
 																'hidden'		=> $hidden,
+																'id_name'		=> $id_name,
 															);
 
 			$this->_current_field = &$this->_section_stack[$stack_i]['areas'][$i];
@@ -1213,7 +1216,7 @@ class Backend_Outputter
 						switch ($field['format']) {
 							case 'new_line' :
 								?>
-									<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?>>
+									<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?> <?php if ($field['id_name']) echo 'id="'.$field['id_name'].'"'; ?>>
 										<td nowrap valign="top" class="sq-backend-field" colspan="3">
 											<a name="field_<?php echo $field['field_count']; ?>"></a>
 											<?php echo $field['name'];?>
@@ -1239,7 +1242,7 @@ class Backend_Outputter
 
 							case 'commit' :
 								?>
-								<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?>>
+								<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?> <?php if ($field['id_name']) echo 'id="'.$field['id_name'].'"'; ?>>
 									<td width="100%" valign="top" class="sq-backend-data" style="text-align: right;" colspan="3">
 									<?php
 										echo $field['contents'];
@@ -1256,7 +1259,7 @@ class Backend_Outputter
 
 							default :
 							?>
-								<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?>>
+								<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?> <?php if ($field['id_name']) echo 'id="'.$field['id_name'].'"'; ?>>
 									<td nowrap valign="top" class="sq-backend-field">
 										<a name="field_<?php echo $field['field_count']; ?>"></a>
 										<?php echo $field['name'];?>
