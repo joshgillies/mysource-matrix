@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.173 2005/02/25 05:57:33 ndvries Exp $
+* $Id: asset_map.inc,v 1.174 2005/03/02 21:55:08 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,12 +33,13 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.173 $
+* @version $Revision: 1.174 $
 * @package MySource_Matrix
 * @subpackage lib
 */
 class Asset_Map
 {
+
 
 	/**
 	* Constructor
@@ -142,17 +143,17 @@ class Asset_Map
 
 				<?php
 					$parameters = Array(
-						'parameter.backendsuffix'         => SQ_CONF_BACKEND_SUFFIX,
-						'parameter.sessionid'             => $_COOKIE['SQ_SYSTEM_SESSION'],
-						'parameter.sessionkey'            => $GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(),
-						'parameter.url.iconurl'           => '__lib/web/images/icons',
-						'parameter.url.typecodeurl'       => '__data/asset_types',
-						'parameter.url.notaccessibleicon' => 'asset_map/not_accessible.png',
-						'parameter.url.type2icon'         => 'asset_map/not_visible.png',
-						'parameter.url.assetmapiconurl'   => '__lib/web/images/icons/asset_map',
-						'parameter.url.baseurl'           => $root_url,
-						'parameter.url.execurl'           => $root_url.SQ_CONF_BACKEND_SUFFIX.'?SQ_ACTION=asset_map_request&SESSION_ID='.$_COOKIE['SQ_SYSTEM_SESSION'].'&SESSION_KEY='.$GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(),
-					);
+										'parameter.backendsuffix'         => SQ_CONF_BACKEND_SUFFIX,
+										'parameter.sessionid'             => $_COOKIE['SQ_SYSTEM_SESSION'],
+										'parameter.sessionkey'            => $GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(),
+										'parameter.url.iconurl'           => '__lib/web/images/icons',
+										'parameter.url.typecodeurl'       => '__data/asset_types',
+										'parameter.url.notaccessibleicon' => 'asset_map/not_accessible.png',
+										'parameter.url.type2icon'         => 'asset_map/not_visible.png',
+										'parameter.url.assetmapiconurl'   => '__lib/web/images/icons/asset_map',
+										'parameter.url.baseurl'           => $root_url,
+										'parameter.url.execurl'           => $root_url.SQ_CONF_BACKEND_SUFFIX.'?SQ_ACTION=asset_map_request&SESSION_ID='.$_COOKIE['SQ_SYSTEM_SESSION'].'&SESSION_KEY='.$GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(),
+										);
 
 					// this is important because it tells the asset map what the available
 					// paramters are so that it can load them without explicitly knowing the names
@@ -416,7 +417,7 @@ class Asset_Map
 			$sql .= ' '.$where;
 
 			$asset = $db->getRow($sql);
-			if (DB::isError($asset)) {
+			if (!assert_valid_db_result($asset, '', true, false)) {
 				return $this->_error('Could not load asset #'.$assetid.' '.$asset->getMessage());
 			}
 			if (!isset($asset['accessible'])) $asset['accessible'] = 0;
@@ -435,7 +436,7 @@ class Asset_Map
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('majorid = '.$db->quote($assetid).' AND link_type <= '.$db->quote(SQ_LINK_TYPE_2));
 
 				$num_kids = $db->getOne($sql.' '.$where);
-				if (DB::isError($num_kids)) {
+				if (!assert_valid_db_result($num_kids, '', true, false)) {
 					return $this->_error('Could not load asset #'.$assetid.' '.$asset->getMessage());
 				}
 			}
@@ -456,7 +457,9 @@ class Asset_Map
 		}//end if shadow asset
 
 		return $attrs;
-	}
+
+	}//end _getAssetInfo()
+
 
 	/**
 	* Appends the child assets of the specified asset in xml form to the specified node
@@ -538,7 +541,7 @@ class Asset_Map
 		$sql .= ' ORDER BY sort_order';
 
 		$db_result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
-		if (DB::isError($db_result)) {
+		if (!assert_valid_db_result($db_result, '', true, false)) {
 			return $this->_error('Could not load child assets for assetid '.$assetid.' '.$db_result->getMessage());
 		}
 
@@ -561,7 +564,7 @@ class Asset_Map
 		$where .= 'GROUP BY majorid';
 
 		$num_kids = $db->getAssoc($sql.' '.$where, false, Array(), DB_FETCHMODE_DEFAULT, false);
-		if (DB::isError($num_kids)) {
+		if (!assert_valid_db_result($num_kids, '', true, false)) {
 			return $this->_error('Could not load child assets for assetid '.$assetid.' '.$db_result->getMessage());
 		}
 
@@ -843,17 +846,16 @@ class Asset_Map
 				return;
 			}
 
-			//// START HIPO PROCESSING ////
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-
-			$vars = Array(	'linkid'        => $link['linkid'],
-							'parentid'      => $new_parent->id,
-							'old_parentid'  => $old_parent->id,
-							'link_type'     => $link['link_type'],
-							'to_parent_pos' => $input->root->attributes['to_parent_pos']);
+			$vars = Array(
+						  'linkid'        => $link['linkid'],
+						  'parentid'      => $new_parent->id,
+						  'old_parentid'  => $old_parent->id,
+						  'link_type'     => $link['link_type'],
+						  'to_parent_pos' => $input->root->attributes['to_parent_pos'],
+						  );
 
 			$hh->queueHipo('hipo_job_create_link', $vars);
-			////  END HIPO PROCESSING  ////
 
 			// check for any HIPOs that have been queued
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
@@ -916,14 +918,14 @@ class Asset_Map
 			return;
 		}
 
-		//// START HIPO PROCESSING ////
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		$vars = Array(	'assetid'                => $asset->id,
-						'type_code'              => $asset->type(),
-						'to_parent_assetid'      => $new_parent->id,
-						'to_parent_pos'          => $input->root->attributes['to_parent_pos']);
+		$vars = Array(
+					  'assetid'           => $asset->id,
+					  'type_code'         => $asset->type(),
+					  'to_parent_assetid' => $new_parent->id,
+					  'to_parent_pos'     => $input->root->attributes['to_parent_pos'],
+					  );
 		$hh->queueHipo('hipo_job_clone_asset', $vars);
-		////  END HIPO PROCESSING  ////
 
 		// check for any HIPOs that have been queued
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
@@ -982,14 +984,14 @@ class Asset_Map
 			return;
 		}
 
-		//// START HIPO PROCESSING ////
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		$vars = Array(	'assetid'       => $asset->id,
-						'parentid'      => $new_parent->id,
-						'link_type'     => $link['link_type'],
-						'to_parent_pos' => $input->root->attributes['to_parent_pos']);
+		$vars = Array(
+					  'assetid'       => $asset->id,
+					  'parentid'      => $new_parent->id,
+					  'link_type'     => $link['link_type'],
+					  'to_parent_pos' => $input->root->attributes['to_parent_pos'],
+					  );
 		$hh->queueHipo('hipo_job_create_link', $vars);
-		////  END HIPO PROCESSING  ////
 
 		$url = $hh->runQueuedJobs('Javascript: function closeWindow() { setTimeout(\'window.close()\', 700); } closeWindow();');
 
@@ -1019,7 +1021,8 @@ class Asset_Map
 	*
 	* @access private
 	*/
-	function _moveAssets($input) {
+	function _moveAssets($input)
+	{
 		$output = new XML_Tree();
 		$output->addRoot('responses');
 		$response_count = 0;
@@ -1062,18 +1065,18 @@ class Asset_Map
 
 			if ($old_parent->id == $new_parent->id) {
 				$reordered_assets[$asset->id] = Array(
-													'linkid'   => $link['linkid'],
-													'parentid' => $old_parent->id,
-												);
+													  'linkid'   => $link['linkid'],
+													  'parentid' => $old_parent->id,
+													  );
 			} else {
-				$assets[$asset->id] = 	Array(
-											'linkid'     => $link['linkid'],
-											'parentid'   => $old_parent->id,
-										);
+				$assets[$asset->id] = Array(
+											'linkid'   => $link['linkid'],
+											'parentid' => $old_parent->id,
+											);
 			}
 		}
 
-		// Process the re-ordering
+		// process the re-ordering
 		if (count($reordered_assets) > 0) {
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -1102,9 +1105,10 @@ class Asset_Map
 
 				$successTree = new XML_Tree();
 				$successTree->addRoot('success', '', Array(
-														'linkid' => $reordered_assets[$assetid]['linkid'],
-														'assetid' => $assetid,
-													));
+														   'linkid'  => $reordered_assets[$assetid]['linkid'],
+														   'assetid' => $assetid,
+														   )
+									);
 				$output->insertChild(Array('responses'), $response_count++, $successTree);
 			}
 		}
@@ -1115,12 +1119,12 @@ class Asset_Map
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
 			$vars = Array(
-						'link_action'       => 'move',
-						'assets'            => $assets,
-						'reordered_assets'  => $reordered_assets,
-						'to_parent_assetid' => $new_parent->id,
-						'to_parent_pos'     => $new_parent_pos,
-					);
+						  'link_action'       => 'move',
+						  'assets'            => $assets,
+						  'reordered_assets'  => $reordered_assets,
+						  'to_parent_assetid' => $new_parent->id,
+						  'to_parent_pos'     => $new_parent_pos,
+						  );
 
 			$hh->queueHipo('hipo_job_create_links', $vars);
 			////  END HIPO PROCESSING  ////
@@ -1196,23 +1200,20 @@ class Asset_Map
 				return;
 			}
 
-			$assets[$asset->id] =	Array(
+			$assets[$asset->id] = Array(
 										'linkid'   => $link['linkid'],
 										'parentid' => $old_parent->id,
-									);
+										);
 		}
 
-		//// START HIPO PROCESSING ////
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-
 		$vars = Array(
-					'assets'            => $assets,
-					'to_parent_assetid' => $new_parent->id,
-					'to_parent_pos'     => $input->root->attributes['to_parent_pos'],
-				);
+					  'assets'            => $assets,
+					  'to_parent_assetid' => $new_parent->id,
+					  'to_parent_pos'     => $input->root->attributes['to_parent_pos'],
+					  );
 
 		$hh->queueHipo('hipo_job_clone_assets', $vars);
-		////  END HIPO PROCESSING  ////
 
 		// check for any HIPOs that have been queued
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
@@ -1287,25 +1288,22 @@ class Asset_Map
 				return;
 			}
 
-			$assets[$asset_info[$asset_node->attributes['assetid']]['assetid']] = 	Array(
-																						'linkid'    => $link['linkid'],
-																						'link_type' => $link['link_type'],
-																						'parentid'  => $old_parent->id,
-																					);
+			$assetid = $asset_info[$asset_node->attributes['assetid']]['assetid'];
+			$assets[$assetid] = Array(
+									  'linkid'    => $link['linkid'],
+									  'link_type' => $link['link_type'],
+									  'parentid'  => $old_parent->id,
+									  );
 		}
 
-		//// START HIPO PROCESSING ////
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-
 		$vars = Array(
-					'link_action'       => 'create',
-					'assets'            => $assets,
-					'to_parent_assetid' => $new_parent->id,
-					'to_parent_pos'     => $input->root->attributes['to_parent_pos'],
-				);
-
+					  'link_action'       => 'create',
+					  'assets'            => $assets,
+					  'to_parent_assetid' => $new_parent->id,
+					  'to_parent_pos'     => $input->root->attributes['to_parent_pos'],
+					  );
 		$hh->queueHipo('hipo_job_create_links', $vars);
-		////  END HIPO PROCESSING  ////
 
 		// check for any HIPOs that have been queued
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
