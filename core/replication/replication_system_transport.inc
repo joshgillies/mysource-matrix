@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_transport.inc,v 1.1.2.10 2004/02/21 16:15:47 brobertson Exp $
+* $Id: replication_system_transport.inc,v 1.1.2.11 2004/02/26 15:13:09 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -269,6 +269,7 @@ class Replication_System_Transport extends MySource_Object
 
 			// connection was closed
 			if ($buf == '') {
+				trigger_error('Connection Closed when Reading from '.$this->getPeerInfo(), E_USER_NOTICE);
 				break;
 
 			} else {
@@ -278,7 +279,7 @@ class Replication_System_Transport extends MySource_Object
 
 				// if we are going to be stopping at a new line, then if the last char is a newline
 				// break out of here
-				if ($read_type == PHP_NORMAL_READ && substr($buf, -1) == "\n") {
+				if ($read_type === PHP_NORMAL_READ && substr($buf, -1) === "\n") {
 					break;
 				}
 
