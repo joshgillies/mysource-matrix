@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.16 2004/09/07 23:09:05 tbarrett Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.17 2004/09/08 02:39:13 lwright Exp $
 * $prefix:  $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.16 $ - 1.0
+* @version $Revision: 1.17 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -79,8 +79,15 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-data" style="text-align: right">
-					<input type="checkbox" value="1" <?php if ($asset->getEndDate()) echo ' checked="checked" '; ?> id="<?php echo $prefix; ?>_end_date_enabled" name="<?php echo $prefix; ?>_end_date_enabled" onclick="processEndEnabledClick(this, '<?php echo $prefix; ?>')" onkeypress="processEndEnabledClick(this, '<?php echo $prefix; ?>')" />runs until&nbsp;&nbsp;
+				<td class="sq-backend-data" style="text-align: right">and runs for... <input type="radio" value="2" <?php if ($asset->getEndDate()) echo ' checked="checked" '; ?> id="<?php echo $prefix; ?>_end_date_enabled" name="<?php echo $prefix; ?>_end_date_enabled" onclick="processEndEnabledClick(this, '<?php echo $prefix; ?>')" onkeypress="processEndEnabledClick(this, '<?php echo $prefix; ?>')" />&nbsp;&nbsp;</td>
+				<td colspan="2" class="sq-backend-data">
+					<?php text_box($prefix.'_duration', '', 2, 0, 0, 'onblur="updateDurationValues(\''.$prefix.'\')"');
+					combo_box($prefix.'_duration_units', Array('i' => 'Minutes', 'h' => 'Hours'), false, Array('i'), 0,  'onblur="updateDurationValues(\''.$prefix.'\')"'); ?>
+				</td>
+			</tr>
+			<tr>
+					<td class="sq-backend-data" style="text-align: right">
+					<b>or</b> runs until... <input type="radio" value="1" <?php if ($asset->getEndDate()) echo ' checked="checked" '; ?> id="<?php echo $prefix; ?>_end_date_enabled" name="<?php echo $prefix; ?>_end_date_enabled" onclick="processEndEnabledClick(this, '<?php echo $prefix; ?>')" onkeypress="processEndEnabledClick(this, '<?php echo $prefix; ?>')" />&nbsp;&nbsp;
 				</td>
 				<td class="sq-backend-data">
 					<?php $this->printDateChooser($prefix.'_end', $onkeyup_code, "updateStartDate('$prefix');  $onchange_code", $occurrence_end_ts ? $occurrence_end_ts : ($asset->getEndDate() ? iso8601_ts($asset->attr('end_date')) : false)); ?>
@@ -181,7 +188,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 		$res &= $asset->setAttrValue('end_date', $end_date_value);
 		return $res;
 
-	}//end processStartEndChooser
+	}//end processStartEndChooser()
 
 	
 	/**
@@ -214,7 +221,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 		<?php
 		return true;
 
-	}//end printDateChooser
+	}//end printDateChooser()
 
 
 	/**

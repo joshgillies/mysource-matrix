@@ -9,7 +9,7 @@ function make2digits(num) {
 
 
 function processEndEnabledClick(elt, name) {
-	if (elt.checked) {
+	if (elt.value == 1) {
 		enableDateField(name+'_end'); 
 		if (isChecked(name+'_start_time_enabled')) {
 			enableTimeField(name+'_end'); 
@@ -292,3 +292,42 @@ function processKeyEvent(elt) {
   return true;
   
 }//end processKeyEvent()
+
+
+function updateDurationValues(prefix) {
+	if (isChecked(prefix + '_start_time_enabled')) {
+		d = new Date(document.getElementById(prefix + '_start_year').value, document.getElementById(prefix + '_start_month').value-1, document.getElementById(prefix + '_start_day').value, ((parseInt(document.getElementById(prefix + '_start_hours').value)%12) + (12 * document.getElementById(prefix + '_start_is_pm').value)) % 24, document.getElementById(prefix + '_start_minutes').value, 0);
+		// + parseInt(document.getElementById(prefix + '_start_is_pm').value) * 12
+		
+	} else {
+		d = new Date(document.getElementById(prefix + '_start_year').value, document.getElementById(prefix + '_start_month').value-1, document.getElementById(prefix + '_start_day').value);
+	}
+	var newDate = new Date();
+	var addSeconds = 0;
+	switch(document.getElementById(prefix + '_duration_units').value) {
+		case 'd':
+			addSeconds = document.getElementById(prefix + '_duration').value * 86400;
+		break;
+		
+		case 'h':
+			addSeconds = document.getElementById(prefix + '_duration').value * 3600;
+		break;
+		
+		case 'i':
+			addSeconds = document.getElementById(prefix + '_duration').value * 60;
+		break;
+		
+	}
+	newDate.setTime(d.valueOf() + addSeconds * 1000);
+	
+	document.getElementById(prefix + '_end_year').value = newDate.getFullYear();
+	document.getElementById(prefix + '_end_month').value = newDate.getMonth() + 1;
+	document.getElementById(prefix + '_end_day').value = newDate.getDate();
+		
+	if (isChecked(prefix + '_start_time_enabled')) {	
+		document.getElementById(prefix + '_end_hours').value = ((newDate.getHours() % 12 == 0) ? 12 : newDate.getHours() % 12);
+		document.getElementById(prefix + '_end_is_pm').selectedIndex = (newDate.getHours() >= 12);
+		document.getElementById(prefix + '_end_minutes').value = make2digits(newDate.getMinutes());
+	}	
+
+}//end updateDurationValues()
