@@ -21,9 +21,9 @@ class Asset extends Resolve_Object
 
 	/**
 	* The version number of the asset (x.x.x)
-	* @var int
+	* @var string
 	*/
-	var $verion = '';
+	var $version = '';
 
 	/**
 	* String representation of this attribute
