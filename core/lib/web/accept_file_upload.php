@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: accept_file_upload.php,v 1.1 2004/11/24 05:01:29 tbarrett Exp $
+* $Id: accept_file_upload.php,v 1.2 2004/11/24 22:12:26 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,9 +31,14 @@
 */
 
 if ((!is_array($_FILES)) || empty($_FILES)) exit();
-
 // get init.inc to do all the hard work with access control etc
 require_once dirname(dirname(dirname(__FILE__))).'/include/init.inc';
+
+if (empty($GLOBALS['SQ_SYSTEM']->user) && !is_a($GLOBALS['SQ_SYSTEM']->user, 'backend_user')) {
+	echo 'FAIL Not logged in as backend user'."\n";
+	exit();
+}
+
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 // copy all uploaded files, including arrays of files, to the temp dir
