@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime_edit_fns.inc,v 1.6 2004/05/05 07:10:13 lwright Exp $
+* $Id: form_question_type_datetime_edit_fns.inc,v 1.7 2004/05/07 03:59:58 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -86,13 +86,13 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 			  </tr>
 			  <tr>
 			    <td class="sq-backend-table-cell">Show?</td>
-			    <td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_c', '1', $show_params['c']);} else {print $show_params['c'] ? 'X' : '';} ?></td>
-				<td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_d', '1', $show_params['d']);} else {print $show_params['d'] ? 'X' : '';} ?></td>
-				<td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_m', '1', $show_params['m']);} else {print $show_params['m'] ? 'X' : '';} ?></td>
-				<td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_y', '1', $show_params['y']);} else {print $show_params['y'] ? 'X' : '';} ?></td>
-				<td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_h', '1', $show_params['h']);} else {print $show_params['h'] ? 'X' : '';} ?></td>
-				<td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_i', '1', $show_params['i']);} else {print $show_params['i'] ? 'X' : '';} ?></td>
-				<td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_s', '1', $show_params['s']);} else {print $show_params['s'] ? 'X' : '';} ?></td>
+			    <td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_c', '1', $show_params['c']);} else {echo $show_params['c'] ? 'X' : '';} ?></td>
+				<td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_d', '1', $show_params['d']);} else {echo $show_params['d'] ? 'X' : '';} ?></td>
+				<td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_m', '1', $show_params['m']);} else {echo $show_params['m'] ? 'X' : '';} ?></td>
+				<td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_y', '1', $show_params['y']);} else {echo $show_params['y'] ? 'X' : '';} ?></td>
+				<td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_h', '1', $show_params['h']);} else {echo $show_params['h'] ? 'X' : '';} ?></td>
+				<td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_i', '1', $show_params['i']);} else {echo $show_params['i'] ? 'X' : '';} ?></td>
+				<td align="center" class="sq-backend-table-cell"><?php if($edit) 		{check_box($prefix.'_s', '1', $show_params['s']);} else {echo $show_params['s'] ? 'X' : '';} ?></td>
 			  </tr>
 			  <tr>
 			    <td colspan="2" class="sq-backend-table-cell">Allow Blank?</td>
