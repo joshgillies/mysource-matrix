@@ -20,7 +20,7 @@
 
 .htmlarea-button {
 	background:		#F0F0F0;
-	color:			ButtonText;
+	color:			#F0F0F0;
 	border:			1px solid #F0F0F0;
 	padding:		1px;
 	margin:			0px;
@@ -42,8 +42,8 @@
 	background:		#D5D5D5;
 }
 
-.htmlarea-buttonDisabled.img {
-	filter:			alpha(opacity = 25);
+.htmlarea-buttonDisabled img {
+	filter:			alpha(opacity=25);
 	-moz-opacity:	25%;
 }
 
