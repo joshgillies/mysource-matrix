@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.6 2004/01/22 10:40:01 brobertson Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.7 2004/02/11 18:47:49 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -44,7 +44,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	* The name of this HIPO job (should not be modified by code)
 	* @var string
 	*/
-	var $_hipo_name = 'Purge Trash';
+	var $hipo_name = 'Purge Trash';
 
 	/**
 	* Array of steps to perform in this HIPO

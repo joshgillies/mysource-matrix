@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.40 2004/01/22 10:27:21 brobertson Exp $
+* $Id: hipo_job.inc,v 1.41 2004/02/11 18:47:49 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -65,7 +65,7 @@ class HIPO_Job extends MySource_Object
 	* The name of this HIPO job (should not be modified by code)
 	* @var string
 	*/
-	var $_hipo_name = '';
+	var $hipo_name = '';
 
 	/**
 	* Flag to see if we are prepared or not
@@ -159,13 +159,13 @@ class HIPO_Job extends MySource_Object
 	* Returns a unique code_name the HIPO can use to ensure it is not being run twice
 	*
 	* @return string
-	* @access private
+	* @access public
 	*/
-	function _getCodeName()
+	function getCodeName()
 	{
 		return strtolower(get_class($this));
 
-	}//end _getCodeName()
+	}//end getCodeName()
 
 
 	/**
@@ -289,6 +289,18 @@ class HIPO_Job extends MySource_Object
 
 
 	/**
+	* Get all the errors that have been produced by this running of this HIPO_Job
+	*
+	* @return Array()
+	* @access 
+	*/
+	function getErrors()
+	{
+		return $this->_hipo_vars['errors'];
+	}//end getErrors()
+
+
+	/**
 	* Set up vars and database information that the HIPO will need to run
 	*
 	* This function should be run before any painting or processing of the HIPO. It will
@@ -336,7 +348,7 @@ class HIPO_Job extends MySource_Object
 		$vars      = serialize($this->_running_vars);
 		$options   = serialize($this->_options);
 		$hipo_vars = serialize($this->_hipo_vars);
-		$code_name = $this->_getCodeName();
+		$code_name = $this->getCodeName();
 		$message   = '';
 
 		if (empty($source_code_name)) $source_code_name = $code_name;
@@ -793,9 +805,9 @@ class HIPO_Job extends MySource_Object
 				else                   $status_msg = 'Unknown Error Occured';
 			}
 
-			$o->openSection($this->_hipo_name);
+			$o->openSection($this->hipo_name);
 				$o->openField('&nbsp;');
-				$this->paintProgressBar($this->_hipo_vars['percent_done'], $this->_hipo_name.' HIPO Progress - '.$status_msg);
+				HIPO_Job::paintProgressBar($this->_hipo_vars['percent_done'], $this->hipo_name.' HIPO Progress - '.$status_msg);
 				$o->closeField();
 			$o->closeSection();
 		}
@@ -1196,7 +1208,7 @@ class HIPO_Job extends MySource_Object
 		<div align="center">
 		<table border="0" cellspacing="1" cellpadding="1" bgcolor="#000000" width="95%">
 			<tr>
-				<td bgcolor="#412F49" align="center" width="100%"><b><?php echo $this->_hipo_name;?> HIPO Error Report</b></td>
+				<td bgcolor="#412F49" align="center" width="100%"><b><?php echo $this->hipo_name;?> HIPO Error Report</b></td>
 			</tr>
 			<tr>
 				<td bgcolor="#9E86AA" width="100%">
@@ -1267,6 +1279,7 @@ class HIPO_Job extends MySource_Object
 	*
 	* @return void
 	* @access public
+	* @static
 	*/
 	function paintProgressBar($percent_done, $message='', $label_class='sq-hipo-progress-bar-label', $percent_class='sq-hipo-progress-bar-percent', $bar_main_class='sq-hipo-progress-bar-main', $bar_done_class='sq-hipo-progress-bar-done')
 	{

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_link.inc,v 1.14 2004/01/23 03:55:44 gsherwood Exp $
+* $Id: hipo_job_create_link.inc,v 1.15 2004/02/11 18:47:49 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -52,7 +52,7 @@ class HIPO_Job_Create_Link extends HIPO_Job
 	* The name of this HIPO job (should not be modified by code)
 	* @var string
 	*/
-	var $_hipo_name = 'Create Link';
+	var $hipo_name = 'Create Link';
 
 	/**
 	* Array of steps to perform in this HIPO
@@ -165,14 +165,14 @@ class HIPO_Job_Create_Link extends HIPO_Job
 	* Returns a unique codename the HIPO can use to ensure it is not being run twice
 	*
 	* @return string
-	* @access private
+	* @access public
 	*/
-	function _getCodeName()
+	function getCodeName()
 	{
-		if (isset($this->_running_vars['linkid'])) return parent::_getCodeName().$this->_running_vars['linkid'];
-		else return parent::_getCodeName().$this->_running_vars['assetid'];
+		if (isset($this->_running_vars['linkid'])) return parent::getCodeName().$this->_running_vars['linkid'];
+		else return parent::getCodeName().$this->_running_vars['assetid'];
 
-	}//end _getCodeName()
+	}//end getCodeName()
 
 
 	/**

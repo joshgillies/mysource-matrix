@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_metadata.inc,v 1.6 2004/01/22 10:40:01 brobertson Exp $
+* $Id: hipo_job_regenerate_metadata.inc,v 1.7 2004/02/11 18:47:49 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -43,7 +43,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	* The name of this HIPO job (should not be modified by code)
 	* @var string
 	*/
-	var $_hipo_name = 'Regenerate Metadata';
+	var $hipo_name = 'Regenerate Metadata';
 
 	/**
 	* Array of steps to perform in this HIPO
@@ -125,13 +125,13 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	* regeneration jobs for this schema do not start while it is running.
 	*
 	* @return string
-	* @access private
+	* @access public
 	*/
-	function _getCodeName()
+	function getCodeName()
 	{
-		return parent::_getCodeName().'-'.$this->_running_vars['schemaid'];
+		return parent::getCodeName().'-'.$this->_running_vars['schemaid'];
 
-	}//end _getCodeName()
+	}//end getCodeName()
 
 
 	/**

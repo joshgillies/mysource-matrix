@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.17 2004/01/22 10:40:01 brobertson Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.18 2004/02/11 18:47:49 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -44,7 +44,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	* The name of this HIPO job (should not be modified by code)
 	* @var string
 	*/
-	var $_hipo_name = 'Update Lookups';
+	var $hipo_name = 'Update Lookups';
 
 	/**
 	* Array of steps to perform in this HIPO
@@ -128,13 +128,13 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	* the same time on the same parent asset.
 	*
 	* @return string
-	* @access private
+	* @access public
 	*/
-	function _getCodeName()
+	function getCodeName()
 	{
-		return parent::_getCodeName().'-'.implode(',', $this->_running_vars['assetids']);
+		return parent::getCodeName().'-'.implode(',', $this->_running_vars['assetids']);
 
-	}//end _getCodeName()
+	}//end getCodeName()
 
 
 	/**
