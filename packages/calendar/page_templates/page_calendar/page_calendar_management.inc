@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.8 2004/08/20 05:21:25 tbarrett Exp $
+* $Id: page_calendar_management.inc,v 1.9 2004/08/20 06:56:49 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $ - 1.0
+* @version $Revision: 1.9 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -196,6 +196,24 @@ class Page_Calendar_Management extends Asset_Management
 													'default'		=> '7.0',
 													'description'   => 'The height of the rows in the month calendar table, in \'ex\'es',
 													'parameters'	=> Array('decimal_places' => 2)
+											);
+		
+		$this->vars['up_link_text'] = Array(
+												'added'     => '0.1',
+												'type'      => 'text',
+												'default'   => '%v% view'
+											);
+											
+		$this->vars['next_link_text'] = Array(
+												'added'     => '0.1',
+												'type'      => 'text',
+												'default'   => 'Next %v% >>'
+											);
+											
+		$this->vars['prev_link_text'] = Array(
+												'added'     => '0.1',
+												'type'      => 'text',
+												'default'   => '<< Previous %v%'
 											);
 											
 		

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.18 2004/08/20 05:21:25 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.19 2004/08/20 06:56:49 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.18 $ - 1.0
+* @version $Revision: 1.19 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -161,14 +161,6 @@ class Page_Calendar extends Page_Asset_Listing
 		$format_bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
 		if (is_null($format_bodycopy)) return false;
 
-		$replacements = retrieve_keywords_replacements($format_bodycopy->getRawBodycopyContent());
-		if (!in_array('calendar_contents', $replacements)) {
-			// there is no calendar_contents keyword in the contents, so we dont
-			// need to do all the extra processing for the listing
-			$format_bodycopy->printBody();
-			return true;
-		}
-
 		// If we get a valid and available view type in the request, use it; otherwise use the initial view attribute.
 		$enabled_views = $this->attr('enabled_views');
 		$cal_view = (isset($_REQUEST['SQ_CALENDAR_VIEW']) && !empty($enabled_views[$_REQUEST['SQ_CALENDAR_VIEW']])) ? $_REQUEST['SQ_CALENDAR_VIEW'] : $this->attr('initial_view');
@@ -179,9 +171,10 @@ class Page_Calendar extends Page_Asset_Listing
 		if (!checkdate($month, $day, $year)) $cal_date = date('Y-m-d');
 
 		// BUT, if the view is 'event' we want the eventid rather than the date
+		$event_id = false;
 		if ($cal_view == 'event') {
 			if (isset($_REQUEST['SQ_CALENDAR_EVENT_ID'])) {
-				$cal_date = (int)$_REQUEST['SQ_CALENDAR_EVENT_ID'];
+				$event_id = (int)$_REQUEST['SQ_CALENDAR_EVENT_ID'];
 			} else {
 				trigger_error('Event View requested but no Event ID supplied', E_USER_WARNING);
 				return false;
@@ -189,8 +182,22 @@ class Page_Calendar extends Page_Asset_Listing
 		}
 
 		$func = 'get'.ucfirst($cal_view).'View';
-		$replacements['calendar_contents'] = $this->$func($cal_date);
-		$replacements['calendar_title'] = $this->getViewTitle($cal_view, $cal_date);
+		$replacements['calendar_contents'] = '<div id="calendarContents">'.(($cal_view == 'event') ? $this->$func($event_id) : $this->$func($cal_date)).'</div>';
+
+		$replacements['calendar_title'] = $this->getViewTitle($cal_view, $cal_date, $event_id);
+
+		$prev_date = date('Y-m-d', strtotime('-1 '.$cal_view, strtotime($cal_date)));
+		$next_date = date('Y-m-d', strtotime('+1 '.$cal_view, strtotime($cal_date)));
+		$replacements['prev_link'] = $event_id ? '' : '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'&SQ_CALENDAR_DATE='.$prev_date.'">'.str_replace('%v%', ucfirst($cal_view), $this->attr('prev_link_text')).'</a>';
+		$replacements['next_link'] = $event_id ? '' : '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'&SQ_CALENDAR_DATE='.$next_date.'">'.str_replace('%v%', ucfirst($cal_view), $this->attr('next_link_text')).'</a>';
+		$enabled_views = $this->attr('enabled_views');
+
+		$up_view = '';
+		foreach ($enabled_views as $view => $type) {
+			if ($view == $cal_view) break;
+			if ($type) $up_view = $view;
+		}
+		$replacements['up_link'] = $up_view ? '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$up_view.'&SQ_CALENDAR_DATE='.$cal_date.'">'.str_replace('%v%', ucfirst($up_view), $this->attr('up_link_text')).'</a>' : '';
 
 		// print the contents of page - replacing the global keywords
 		$format_bodycopy->setKeywordReplacements($replacements);
@@ -220,7 +227,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 		$this->_printClickChildScript();
 		?>
-		<table id="year" border="0" cellspacing="0" cellpadding="0" style="width: 118ex">
+		<table id="year" border="0" cellspacing="0" cellpadding="0" style="width: 118ex; font-size: 80%">
 			<tr>
 				<th class="dayLabel" style="width: 6ex">&nbsp;</th>
 		<?php
@@ -454,8 +461,9 @@ class Page_Calendar extends Page_Asset_Listing
 			foreach ($columns as $id => $name) {
 				$target_time = strtotime((($ordered_days[$id] < $today_index) ? 'last ' : '') . $name, strtotime($date));
 				$target_date = date('Y-m-d', $target_time);
-				$column_links[$id] = $this->getHref().'?SQ_CALENDAR_VIEW=day&SQ_CALENDAR_DATE='.$target_date;
-				$columns[$id] .= ' ' . add_ordinal_suffix(date('j', $target_time));
+				$column_links[$target_date] = $this->getHref().'?SQ_CALENDAR_VIEW=day&SQ_CALENDAR_DATE='.$target_date;
+				$columns[$target_date] = $columns[$id].' '.add_ordinal_suffix(date('j', $target_time));
+				unset($columns[$id]);
 			}
 		}
 
@@ -505,6 +513,8 @@ class Page_Calendar extends Page_Asset_Listing
 	function getEventView($event_id)
 	{
 		ob_start();
+
+
 		$res = ob_get_contents();
 		ob_end_clean();
 		return $res;
@@ -514,11 +524,11 @@ class Page_Calendar extends Page_Asset_Listing
 
 
 
-	function getViewTitle($view, $date) 
+	function getViewTitle($view, $date, $event_id) 
 	{
 		$title_formats = $this->attr('view_title_formats');
 		if ($view == 'event') {
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($date);
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($event_id);
 			return str_replace(Array('t', 'i'), Array($asset->attr('name'), $date), $title_formats['event']);
 		} elseif ($view == 'week') {
 			// convert the date into the first day of the week's date
@@ -539,7 +549,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$event_class = $root_nodes[$root_node_keys[rand(0, count($root_node_keys)-1)]]['class_name'];
 
 		if (rand(0,100) < 12) {
-			$res = ($enabled_views['event']) ? ('<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&SQ_CALENDAR_EVENT_ID=123" class="event '. $event_class.'">') : ('<div class="event '.$event_class.'">');
+			$res = ($enabled_views['event']) ? ('<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&SQ_CALENDAR_DATE='.$_GET['SQ_CALENDAR_DATE'].'&SQ_CALENDAR_EVENT_ID=123" class="event '. $event_class.'">') : ('<div class="event '.$event_class.'">');
 			$res .= 'Random Event';
 			$res .=  $enabled_views['event'] ? '</a>' : '</div>';
 			return $res;
@@ -555,7 +565,7 @@ class Page_Calendar extends Page_Asset_Listing
 	*
 	* @param string		$id					The id to use for the HTML table element
 	* @param Array		$data				The event data to put in the table
-	* @param Array		$columns			An id=>name array of the columns in the table
+	* @param Array		$columns			A date=>name array of the columns in the table
 	* @param Array		$column_links		An id=>href array of things to link the column headers to
 	* @param boolean	$show_event_links	Whether to link the event names to the event view
 	*
@@ -578,11 +588,11 @@ class Page_Calendar extends Page_Asset_Listing
 			<tr>
 				<th style="width: 6ex">Time</td>
 			<?php
-			foreach ($columns as $id => $name) {
+			foreach ($columns as $date => $name) {
 				?>
 				<th onclick="<?php echo (!empty($column_links)) ? 'clickChild(this); ' : ''; ?>" class="columnLabel" style="width: <?php echo $width; ?>ex;  <?php echo (!empty($column_links)) ? 'cursor: pointer; cursor: hand' : ''; ?>">
 					<?php 
-						if (!empty($column_links)) echo '<a  href="'.$column_links[$id].'">';
+						if (!empty($column_links)) echo '<a  href="'.$column_links[$date].'">';
 						echo $name;
 						if (!empty($column_links)) echo '</a>';
 					?>
@@ -602,7 +612,7 @@ class Page_Calendar extends Page_Asset_Listing
 			<tr style="height: <?php echo $partition_height; ?>ex;">
 				<th class="timeLabel"><?php echo (($current_hour > 12) ? ($current_hour % 12) : (int)$current_hour).':'.sprintf('%02d', $current_mins); ?></th>
 			<?php
-			foreach ($columns as $id => $name) {
+			foreach ($columns as $date => $name) {
 				?>
 				<td style="width: <?php echo $width; ?>ex">
 				<?php
@@ -619,7 +629,7 @@ class Page_Calendar extends Page_Asset_Listing
 						$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand; ' : '';
 						echo "<div class=\"{$event_class} event\" style=\"position: absolute; width: {$width}ex; margin-left: {$left_margin}ex; margin-top: {$event_margin_top}ex; height: {$event_height}ex; $cursor_code; \"".($show_event_links ? ' onclick="clickChild(this)"' : '').'><div class="eventText" style="position: absolute; width: '.($width*0.94).'ex; border: none; background-color: transparent">';
 
-						echo $show_event_links ? '<a class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&SQ_CALENDAR_EVENT_ID='.$event_id.'">' : '<span class="event '.$event_class.'">';
+						echo $show_event_links ? '<a class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&SQ_CALENDAR_DATE='.$date.'&SQ_CALENDAR_EVENT_ID='.$event_id.'">' : '<span class="event '.$event_class.'">';
 						
 						echo "$event_length minute Event";
 

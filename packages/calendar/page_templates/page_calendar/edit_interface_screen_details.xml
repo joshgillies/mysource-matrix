@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2004/08/20 05:21:25 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8 2004/08/20 06:56:49 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -63,6 +63,22 @@
 				<process_function name="processInitialView" />
 			</function_call>
 		</field>
+		<field attribute="up_link_text">
+			<display_name>Up Link Text</display_name>
+			<note>Text for the link that takes the user to the next-broadest view (eg up from day view to week view).  The keyword %v% is available in this text, and will be replaced with the name of the next-broadest view.</note>
+			<text />
+		</field>
+		<field attribute="prev_link_text">
+			<display_name>Previous Link Text</display_name>
+			<note>Text for the link that takes the user to the previous period in the current view (eg from September to August).  The keyword %v% is available in this text, and will be replaced with the name of the current view.</note>
+			<text />
+		</field>
+		<field attribute="next_link_text">
+			<display_name>Up Link Text</display_name>
+			<note>Text for the link that takes the user to the next period in the current view (eg from January to February).  The keyword %v% is available in this text, and will be replaced with the name of the current view.</note>
+			<text />
+		</field>
+
 	</section>
 
 	<section name="Settings for All Views" write_access="write:attributes">

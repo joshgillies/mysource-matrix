@@ -16,8 +16,11 @@
 /** 
  * GENERAL RULES
  */
+div#calendarContents { width: 100%; text-align: center; }
+div#calendarContents td { text-align: left }
+#calendarContents table { margin-left: auto; margin-right: auto; }
 .eventText { line-height: 1.0; margin: 2px 2px 0px 1px; text-align: center; }
-
+.calendarNavLink, a.calendarNavLink:hover, a.calendarNavLink:visited { text-decoration: none; font-weight: bold; color: blue }
 
 /**
  * YEAR TABLE RULES
@@ -39,7 +42,7 @@ table#year { border: 2px solid purple; background-color: #eeeeee; border-collaps
 #year td { text-align: center; border-top: 1px solid black; }
 
 /* Cells with dates */
-#year td.date { background-color: white; border: 1px solid black; }
+#year td.date { background-color: white; border: 1px solid black; text-align: center}
 
 /* Weekend Cells, with or without dates */
 #year td.weekend { background-color: #aaaaaa }
