@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.30 2004/08/24 00:26:25 tbarrett Exp $
+* $Id: page_asset_listing.inc,v 1.31 2004/08/24 23:16:08 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -798,6 +798,8 @@ class Page_Asset_Listing extends Page
 				ob_end_clean();
 			}
 
+			$keywords['page_href']['value'] = $this->getHref();
+
 			foreach ($keywords as $keyword => $info) {
 				$contents = preg_replace('|%((<([^>]+?)>)+)?'.$keyword.'((<([^>]+?)>)+)?%|is', '\\1%'.$keyword.'%\\4', $contents);
 				$contents = str_replace("%{$keyword}%", $info['value'], $contents);
@@ -907,12 +909,28 @@ class Page_Asset_Listing extends Page
 	*/
 	function getContentsKeywords()
 	{
-		
 		$keywords = Array();
-		$keywords['asset_listing'] = Array(
-										'name'=>'Asset Listing',
-										'default'=>'The Listing of Assets', 
-										'type'=>'block');
+
+		$keywords['asset_listing'] =	Array(
+											'name'=>'Asset Listing',
+											'default'=>'The Listing of Assets', 
+											'type'=>'block');
+
+		$keywords['previous_page'] =	Array(
+											'name'=>'Previous Page Link',
+											'default'=>'Link to the previous page of the listing', 
+											'type'=>'inline');
+			
+		$keywords['next_page'] =		Array(
+											'name'=>'Next Page Link',
+											'default'=>'Link to the next page of the listing', 
+											'type'=>'inline');
+			
+		$keywords['page_list'] =		Array(
+											'name'=>'Page List',
+											'default'=>'List of pages in the listing', 
+											'type'=>'inline');
+
 		return $keywords;
 	}
 
