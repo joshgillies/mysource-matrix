@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2005/02/17 06:34:47 rhoward Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2005/02/23 00:08:26 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -30,13 +30,5 @@
 			<note>If disabled, no triggers will be executed</note>
 			<boolean true_text="Enabled" false_text="Disabled" />
 		</field>
-		<!--field>
-			<display_name>Trigger Count:</display_name>
-			<note />
-			<function_call>
-				<paint_function   name="paintTriggerCount" />
-				<process_function name="paintTriggerCount" />
-			</function_call>
-		</field-->
 	</section>
 </contents>
