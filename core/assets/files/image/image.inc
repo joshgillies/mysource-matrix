@@ -39,12 +39,12 @@ class Image extends File
 	* Create this asset
 	*
 	* @param string			$name	the name of this file
-	* @param array(string)	$link	information used to create the initial link
+	* @param array(string)	&$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public
 	*/
-	function create($link, $name)
+	function create(&$link, $name)
 	{
 		$name = trim($name);
 

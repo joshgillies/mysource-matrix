@@ -39,12 +39,12 @@ class System_User_Group extends User_Group
 	/**
 	* Create this asset
 	*
-	* @param array(string)	$link	information used to create the initial link
+	* @param array(string)	&$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public
 	*/
-	function create($link)
+	function create(&$link)
 	{
 		$this->_in_create = true;
 

@@ -119,11 +119,12 @@ class Asset_Attribute extends Resolve_Object
 	/**
 	* Prints the interface for filling in a value
 	*
-	* @param string	$prefix	prefix for the form element
+	* @param string		$prefix		prefix for the form element
+	* @param boolean	$read_only	are we just printing the value
 	*
 	* @access public
 	*/
-	function paint($prefix)
+	function paint($prefix, $read_only=false)
 	{
 		echo 'Interface for '.ucwords(str_replace('_', ' ', $this->type())).' Not Done';
 	}

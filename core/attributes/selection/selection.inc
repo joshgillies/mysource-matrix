@@ -85,12 +85,18 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	/**
 	* Prints the interface for filling in a value
 	*
-	* @param string	$prefix	prefix for the form element
+	* @param string		$prefix		prefix for the form element
+	* @param boolean	$read_only	are we just printing the value
 	*
 	* @access public
 	*/
-	function paint($prefix)
+	function paint($prefix, $read_only=false)
 	{
+		if ($read_only) {
+			echo 'hi';
+			return;
+		}
+		
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		$options = $this->_params['options'];
 

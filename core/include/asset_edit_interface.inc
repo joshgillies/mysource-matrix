@@ -120,6 +120,9 @@ class Asset_Edit_Interface extends Resolve_Object
 			return;
 		}
 
+		// do we have write access?
+		$write_access = $owner->writeAccess();
+
 		// if there are no screens or tabs, piss off
 		if (!count($this->_screens) && empty($owner->_tabs)) return;
 
@@ -228,7 +231,7 @@ class Asset_Edit_Interface extends Resolve_Object
 								$attr = &$owner->getAttribute($field->attributes['attribute']);
 								if (is_null($attr)) continue;
 								if (!$attr->setEditParams($field->children[2])) continue;
-								$attr->paint($prefix);
+								$attr->paint($prefix, !$write_access);
 
 							} else if ($field->children[2]->name == 'function_call') {
 

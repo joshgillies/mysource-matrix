@@ -30,13 +30,13 @@ class Page extends Asset
 	/**
 	* Create this asset
 	*
-	* @param array(string)	$link	information used to create the initial link
+	* @param array(string)	&$link	information used to create the initial link
 	* @param string			$name	the name of this page
 	*
 	* @return boolean
 	* @access public
 	*/
-	function create($link, $name)
+	function create(&$link, $name)
 	{
 		$name = trim($name);
 
@@ -80,7 +80,7 @@ class Page extends Asset
 	/**
 	* Processes a backend submission from this asset, returns true if all OK
 	*
-	* @param array(string)	$link	information used to create the initial link
+	* @param array(string)	&$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public

@@ -40,13 +40,13 @@ class Root_User extends System_User
 	/**
 	* Create this asset
 	*
-	* @param array(string)	$link	information used to create the initial link
+	* @param array(string)	&$link	information used to create the initial link
 	* @param string			$email
 	*
 	* @return boolean
 	* @access public
 	*/
-	function create($link, $email='')
+	function create(&$link, $email='')
 	{
 
 		$this->_in_create = true;

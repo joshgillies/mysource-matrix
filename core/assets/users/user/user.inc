@@ -31,7 +31,7 @@ class User extends Asset
 	/**
 	* Create this asset
 	*
-	* @param array(string)	$link		information used to create the initial link
+	* @param array(string)	&$link		information used to create the initial link
 	* @param string			$username	the unique username
 	* @param string			$password
 	* @param string			$first_name
@@ -41,7 +41,7 @@ class User extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function create($link, $username, $password, $first_name='', $last_name='', $email='')
+	function create(&$link, $username, $password, $first_name='', $last_name='', $email='')
 	{
 
 		if (parent::create($link)) {
@@ -279,7 +279,7 @@ class User extends Asset
 	/**
 	* Processes a backend submission from this asset, returns true if all OK
 	*
-	* @param array(string)	$link	information used to create the initial link
+	* @param array(string)	&$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public

@@ -29,13 +29,13 @@ class Bodycopy extends Asset
 	/*
 	* Create this asset
 	*
-	* @param array(string)	$link	information used to create the initial link
+	* @param array(string)	&$link	information used to create the initial link
 	* @param string			$name	the name of this folder
 	*
 	* @return boolean
 	* @access public
 	*/
-	function create($link, $name='BodyCopy')
+	function create(&$link, $name='BodyCopy')
 	{
 		$name = trim($name);
 

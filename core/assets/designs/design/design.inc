@@ -113,7 +113,7 @@ class Design extends Design_Area
 	/**
 	* Processes a backend submission from this asset, returns true if all OK
 	*
-	* @param array(string)	$link	information used to create the initial link
+	* @param array(string)	&$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public

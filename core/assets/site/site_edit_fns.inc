@@ -189,10 +189,19 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function paintDesign(&$asset, &$o, $prefix) 
 	{
-
 		$design_link = $asset->getLink(SQ_LINK_USES, 'design', false);
 		$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
 
+		if (!$asset->writeAccess()) {
+			if (!$designid) {
+				echo 'None';
+			} else {
+				$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($designid, '', true);
+				echo $design->name.' :: '.$design->id;
+			}
+			return;
+		}
+		
 		$designs = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('design', false, true);
 		$contents = Array();
 		foreach($designs as $id => $type_code) {
@@ -255,8 +264,18 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintPageSelection($page_type, &$asset, $prefix) 
+	function paintPageSelection($page_type, &$asset, $prefix)
 	{
+		if (!$asset->writeAccess()) {
+			if (!$designid) {
+				echo 'None';
+			} else {
+				$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($designid, '', true);
+				echo $design->name.' :: '.$design->id;
+			}
+			return;
+		}
+
 		$pages = $asset->getLinks(SQ_LINK_NAV, '', false);
 
 		if (!count($pages)) {

@@ -31,13 +31,13 @@ class Design_Area extends Asset
 	/**
 	* Create this asset
 	*
-	* @param array(string)	$link	information used to create the initial link
+	* @param array(string)	&$link	information used to create the initial link
 	* @param string $id_name   the name of this design area
 	*
 	* @return boolean
 	* @access public
 	*/
-	function create($link, $id_name)
+	function create(&$link, $id_name)
 	{
 		$id_name = trim($id_name);
 
@@ -72,7 +72,7 @@ class Design_Area extends Asset
 	/**
 	* Processes a backend submission from this asset, returns true if all OK
 	*
-	* @param array(string)	$link	information used to create the initial link
+	* @param array(string)	&$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public

@@ -32,7 +32,7 @@ class Bodycopy_Table extends Asset
 	/**
 	* Create this asset
 	*
-	* @param array(string)	$link		information used to create the initial link
+	* @param array(string)	&$link		information used to create the initial link
 	* @param string			$name		the name of this table
 	* @param int			$num_rows	the number of rows to create
 	* @param int			$num_cols	the number of columns to create
@@ -41,7 +41,7 @@ class Bodycopy_Table extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function create($link, $name, $num_rows=1, $num_cols=1, $attributes=Array())
+	function create(&$link, $name, $num_rows=1, $num_cols=1, $attributes=Array())
 	{
 		$name = trim($name);
 

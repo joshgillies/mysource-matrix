@@ -60,15 +60,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 		$this->_edit_params['allow_circa'] = empty($node->attributes['allow_circa']) ? '0' : $node->attributes['allow_circa'];
 		
 		// date formats for printing
-		$this->_edit_params['long_format']   = empty($node->attributes['long_format'])   ?
-																'l, F jS, Y H:i:s'   :
-																$node->attributes['long_format'];
-		$this->_edit_params['medium_format'] = empty($node->attributes['medium_format']) ?
-																'r'                  :
-																$node->attributes['medium_format'];
-		$this->_edit_params['short_format']  = empty($node->attributes['short_format'])  ?
-																'd/m/Y g:ia'         :
-																$node->attributes['short_format'];
+		$this->_edit_params['print_format'] = empty($node->attributes['print_format']) ? 'l, F jS, Y H:i:s' : $node->attributes['print_format'];
 		
 		// what to print and how to show it (textbox or select box)
 		// need to do some more intense looking around for these options :)
@@ -102,12 +94,18 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	/**
 	* Prints the interface for filling in a value
 	*
-	* @param string	$prefix	prefix for the form element
+	* @param string		$prefix		prefix for the form element
+	* @param boolean	$read_only	are we just printing the value
 	*
 	* @access public
 	*/
-	function paint($prefix)
+	function paint($prefix, $read_only=false)
 	{
+		if ($read_only) {
+			echo date($this->_edit_params['print_format'], strtotime($this->value));
+			return;
+		}
+
 		$field = new datetime_field($prefix.'_'.$this->name, $this->value, $this->_edit_params);
 		$field->printField();
 		

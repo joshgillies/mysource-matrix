@@ -196,7 +196,7 @@ class Backend extends Resolve_Object
 							</tr>
 							<tr>
 								<td class="sq-backend-message-item" nowrap>
-								<a href="#" onClick="Javascript: if (parent.top.sidenav.top.sidenav && parent.top.sidenav.top.sidenav.refresh_internal_messages) { parent.top.sidenav.top.sidenav.refresh_internal_messages(); };">
+								<a href="#" onClick="Javascript: if (parent.top.sidenav.top.sidenav && parent.top.sidenav.top.sidenav.refresh_internal_messages) { parent.top.sidenav.top.sidenav.refresh_internal_messages(); }; return false;">
 									'.$GLOBALS['SQ_SYSTEM']->user->_getName(false).' has '.count($messages).' new messages
 								</a>
 								</td>

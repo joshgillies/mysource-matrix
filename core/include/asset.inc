@@ -129,12 +129,12 @@ class Asset extends Resolve_Object
 	/**
 	* Create this asset
 	*
-	* @param array(string)	$link	information used to create the initial link
+	* @param array(string)	&$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public
 	*/
-	function create($link)
+	function create(&$link)
 	{
 
 		if (!empty($link)) {
@@ -2342,7 +2342,7 @@ class Asset extends Resolve_Object
 	/**
 	* Processes a backend submission from this asset, returns true if all OK
 	*
-	* @param array(string)	$link	information used to create the initial link
+	* @param array(string)	&$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public

@@ -44,7 +44,7 @@ class User_Management extends Asset_Management
 												),
 							'expiry_date' => Array(
 												'added'     => '0.1',
-												'type'      => 'text',    'default'   => ''
+												'type'      => 'datetime',    'default'   => ''
 												)
 							);
 	}//end constructor
