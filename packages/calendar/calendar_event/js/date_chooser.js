@@ -261,13 +261,13 @@ function updateStartDate(name) {
 function processKeyEvent(elt) {
   key = window.event.keyCode; 
   if ((key==43) && (elt.value==Number(elt.value))) { 
-    elt.value=(Number(elt.value))+1; 
+    elt.value=make2digits((Number(elt.value))+1); 
     window.event.keyCode=null;
 	elt.select();
   } 
   if ((key==45) && (elt.value==Number(elt.value))) { 
 	  if (elt.value > 1) {
-		   elt.value=(Number(elt.value))-1; 
+		   elt.value=make2digits((Number(elt.value))-1); 
 	  }
       window.event.keyCode=null;
       elt.select();

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.12 2004/09/01 07:17:25 tbarrett Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.13 2004/09/02 05:42:15 tbarrett Exp $
 * $prefix:  $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.12 $ - 1.0
+* @version $Revision: 1.13 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -239,7 +239,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 		
 		<input class="sq-form-field" style="width: 5ex" type="text" name="<?php echo $prefix; ?>_hours" id="<?php echo $prefix; ?>_hours" size="2" maxlength="2" value="<?php echo date('g', $timestamp); ?>" onkeypress="return processKeyEvent(this);" onkeyup="if (hoursOK(this)) { <?php echo $onkeyup_code; ?> }" onblur="if (validateHours(this)) { <?php echo $onchange_code; ?> }" <?php echo $disabled_text; ?> onfocus="this.select()" /> :
 		
-		<input class="sq-form-field" style="width: 5ex" type="text" name="<?php echo $prefix; ?>_minutes" id="<?php echo $prefix; ?>_minutes" size="2" maxlength="2" value="<?php echo date('i', $timestamp); ?>" onkeypress="processKeyEvent(this); this.value=make2digits(this.value); return true;" onkeyup="if (minutesOK(this)) { <?php echo $onkeyup_code; ?> }" onchange="if (validateMinutes(this)) { <?php echo $onchange_code; ?> }" <?php echo $disabled_text; ?> onfocus="this.select()" />
+		<input class="sq-form-field" style="width: 5ex" type="text" name="<?php echo $prefix; ?>_minutes" id="<?php echo $prefix; ?>_minutes" size="2" maxlength="2" value="<?php echo date('i', $timestamp); ?>" onkeypress="processKeyEvent(this); return true;" onkeyup="if (minutesOK(this)) { <?php echo $onkeyup_code; ?> }" onchange="if (validateMinutes(this)) { <?php echo $onchange_code; ?> }" <?php echo $disabled_text; ?> onfocus="this.select()" />
 		
 		<select class="sq-form-field" name="<?php echo $prefix; ?>_is_pm" id="<?php echo $prefix; ?>_is_pm" onblur="<?php echo $onchange_code; ?>" <?php echo $disabled_text; ?> >
 			<option value="0" <?php echo (date('a', $timestamp)=='am') ? ' selected="selected" ' : ''; ?>>am</option>
