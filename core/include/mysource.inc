@@ -771,7 +771,8 @@ class MySource
 		}
 		// Use this when there is a transaction problem to create a log and then run this from the cmd line 
 		// and look for the fn with the odd number of calls
-		// cat trans.log | awk '{ print $3 }' | sort | uniq -c
+		// cat trans.log | awk '{ print $3 }' | sort | uniq -c # number of calls in a fn
+		// cat trans.log | awk '{ print $5 }' | sort | uniq -c # total number of each type of call
 		#$bt = debug_backtrace();
 		#error_log('TRANS : '.$bt[1]['class'].'::'.$bt[1]['function'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/trans.log');
 		switch (strtolower($type)) {
