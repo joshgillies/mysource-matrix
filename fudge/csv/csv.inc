@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv.inc,v 1.2 2004/05/17 05:17:49 lwright Exp $
+* $Id: csv.inc,v 1.3 2004/05/17 05:21:14 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -203,7 +203,7 @@ class CSV {
 			header($header);
 		} else {
 			header('Content-Type: application/csv');
-			header('Content-Disposition: filename='.$this->_filename.';');
+			header('Content-Disposition: attachment; filename='.$this->_filename.';');
 		}
 
 	}//end setHeader()
