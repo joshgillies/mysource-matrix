@@ -20,7 +20,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.16 2005/02/15 00:41:19 lwright Exp $
+* $Id: asset.xml,v 1.17 2005/02/15 13:18:19 brobertson Exp $
 *
 */
 -->
@@ -30,7 +30,7 @@
 	<type_code>search_page</type_code>
 	<version>0.9</version>
 	<name>Search Page</name>
-	<description>Search Page is the coolest thing in the world. Note to self - remember to remove this when it proves not to be true.</description>
+	<description>Search Page asset; provides a front-end interface to the search manager so a user can search for assets within a MySource Matrix system.</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>backend_user</allowed_access>
 	<parent_type>listing_engine</parent_type>
@@ -38,6 +38,10 @@
 		<requirement type="asset">
 			<code>listing_engine</code>
 			<version>0.1</version>
+		</requirement>
+		<requirement type="asset">
+			<code>search_manager</code>
+			<version>0.3</version>
 		</requirement>
 	</requirements>
 	<flash_menu_path>Search</flash_menu_path>
