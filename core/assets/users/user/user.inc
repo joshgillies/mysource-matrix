@@ -19,7 +19,7 @@ class User extends Asset
 	/**
 	* Constructor
 	*
-	* @param int    $assetid      the asset id to be loaded
+	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
 	function User($assetid=0)
@@ -114,19 +114,39 @@ class User extends Asset
 	*
 	* @param string		$name				the name of the attribute
 	* @param string		$value				the new value of the attribute
-	* @param boolean	$dont_run_updated	if true this->_updated() won't be run (THIS IS ONLY EVER CALLED FROM Asset::create())
+	* @param boolean	$dont_run_updated	if true this->_updated() won't be run 
+	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
 	*/
 	function setAttrValue($name, $value, $dont_run_updated=false)
 	{
+		if ($this->id) {
+			// if this is the password, encrypt it
+			// BUT not if we have been created,
+			// otherwise when we try and save to DB in create() it encrypts the encrypted version
+			if ($name == 'password') {
+				$value = crypt($value); // let salt be generated
+			}
+			
+			if ($name == 'username') {
+				$db = &$GLOBALS['SQ_SYSTEM']->db;
+				$sql = 'SELECT COUNT(*)
+						FROM sq_asset_attribute_value v
+						  INNER JOIN sq_asset_attribute a ON v.attributeid = a.attributeid
+						WHERE a.name = '.$db->quote('username').'
+						  AND custom_value='.$db->quote($value);
+				$result = $db->getOne($sql);
+				if (DB::isError($result)) {
+					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+				}
 
-		trigger_error('CHECK USER INPUTS FOR USERNAME, PASSWORD ETC', E_USER_NOTICE);
-		// if this is the password, encrypt it
-		// BUT not if we have been created, (otherwise when we try and save to DB in create() it encrypts the encrypted version)
-		if ($name == 'password' && $this->id) {
-			$value = crypt($value); // let salt be generated
+				if ($result > 0) {
+					trigger_error('Failed creating user, username "'.$value.'" already exists', E_USER_WARNING);
+					return false;
+				}
+			}
 		}
 
 		return parent::setAttrValue($name, $value, $dont_run_updated);
