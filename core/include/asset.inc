@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.363 2005/02/17 06:08:30 rhoward Exp $
+* $Id: asset.inc,v 1.364 2005/02/18 00:07:10 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.363 $
+* @version $Revision: 1.364 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -404,7 +404,7 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		// Fire the 'Asset Created' event
-		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_created', &$this);
+		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_created', $this);
 
 		$ms->closeLog();
 
@@ -3572,6 +3572,7 @@ class Asset extends MySource_Object
 		}// end if count paths
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_lookups_updated', $this);
 		return true;
 
 	}//end updateLookups()
