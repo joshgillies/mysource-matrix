@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.276 2005/02/24 01:21:24 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.277 2005/02/25 04:43:00 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.276 $
+* @version $Revision: 1.277 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2548,7 +2548,7 @@ class Asset_Manager extends MySource_Object
 
 		return $return;
 
-	}
+	}//end getRawTreeIdByAsset()
 
 
 	/**
@@ -3290,15 +3290,16 @@ class Asset_Manager extends MySource_Object
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$new_linkid = $new_parent->createLink($minor, $link_type, '', $to_parent_pos);
-		if (!$new_linkid) {
+		// let's try and delete the old link
+		$deleted = $old_parent->deleteLink($linkid);
+		if (!$deleted) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return 0;
 		}
 
-		// Now let's try and delete the old link
-		$deleted = $old_parent->deleteLink($linkid);
-		if (!$deleted) {
+		// now create the new link
+		$new_linkid = $new_parent->createLink($minor, $link_type, '', $to_parent_pos);
+		if (!$new_linkid) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return 0;
 		}
@@ -4654,7 +4655,6 @@ class Asset_Manager extends MySource_Object
 		$edit_fns->paintBackend();
 
 	}//end paintBackend()
-
 
 
 	function paintLimbo(&$backend)
