@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.27 2003/11/27 03:05:17 gsherwood Exp $
+* $Id: mysource.inc,v 1.28 2003/12/12 04:31:43 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -333,6 +333,7 @@ class MySource
 			case 'login' :
 				// if this person is already logged in, don't bother trying again because
 				// we will only be giving them an incorrect login key error
+				if (!isset($_POST['SQ_LOGIN_USERNAME']) || !isset($_POST['SQ_LOGIN_PASSWORD'])) return;
 				if (!is_null($this->user) && isset($_POST['SQ_LOGIN_USERNAME']) && $_POST['SQ_LOGIN_USERNAME'] == $this->user->attr('username')) return;
 
 				if (isset($_POST['SQ_LOGIN_KEY']) && isset($_POST['SQ_LOGIN_USERNAME']) && 
