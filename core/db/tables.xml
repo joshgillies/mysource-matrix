@@ -592,7 +592,7 @@
 			<column name="url" allow_null="0">
 				<type>TEXT</type>
 				<type_variations>
-					<mysql>VARCHAR(255)</mysql>
+					<mysql>VARCHAR(221)</mysql>
 				</type_variations>
 				<default>''</default>
 				<description />
@@ -613,26 +613,44 @@
 				<default />
 				<description />
 			</column>
-			<column name="frontend_designid" allow_null="0">
-				<type>INT</type>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="url" />
+			</primary_key>
+		</keys>
+		<indexes />
+	</table>
+	<table name="asset_lookup_design" require_rollback="1">
+		<columns>
+			<column name="url" allow_null="0">
+				<type>TEXT</type>
 				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
+					<mysql>VARCHAR(221)</mysql>
 				</type_variations>
-				<default>0</default>
+				<default>''</default>
 				<description />
 			</column>
-			<column name="login_designid" allow_null="0">
+			<column name="name" allow_null="0">
+				<type>VARCHAR(30)</type>
+				<type_variations/>
+				<default />
+				<description />
+			</column>
+			<column name="designid" allow_null="0">
 				<type>INT</type>
 				<type_variations>
 					<mysql>INT UNSIGNED</mysql>
 				</type_variations>
-				<default>0</default>
+				<default />
 				<description />
 			</column>
 		</columns>
 		<keys>
 			<primary_key>
 				<column name="url" />
+				<column name="name" />
+				<column name="designid" />
 			</primary_key>
 		</keys>
 		<indexes />

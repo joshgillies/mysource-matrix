@@ -341,23 +341,48 @@ class File extends Asset
 		$web_path = $this->getWebDataPath().'/'.$existing['filename'];
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		unset($this->_tmp['lookups']);
 		unset($this->_tmp['url']);
 		unset($this->_tmp['href']);
+		
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		// Remove all the old URLs
-		$where = 'assetid = '.$db->quote($this->id);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup', $where)) return false;
+		$subs = Array( 'SELECT url
+						FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
+						'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quote($this->id), 'l'));
+
+		$where = 'url IN (~SQ0~)';
+		$where = db_extras_subquery($db, $where, $subs);
+		if (DB::isError($where)) {
+			trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup_design', $where)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$where_cond = 'assetid = '.$db->quote($this->id);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup', $where_cond)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
 
 		$save_urls = Array();
-
 		$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 
-		$sql = 'SELECT urlid, url FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_url '.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('');
+		$sql = 'SELECT urlid, url 
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_url 
+				'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('');
 		$base_urls = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC);
 		if (DB::isError($base_urls)) {
-			trigger_error($base_urls->getMessage().'<br/>'.$base_urls->getUserInfo(), E_USER_ERROR);
+			trigger_error($base_urls->getMessage().'<br/>'.$base_urls->getUserInfo(), E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
@@ -389,15 +414,23 @@ class File extends Asset
 		}
 
 		foreach ($save_urls as $url => $url_data) {
-			$values = Array('url'               => $url,
-							'assetid'           => $this->id,
-							'root_urlid'        => $url_data['root_urlid'],
-							'frontend_designid' => '0');
+			$values = Array(
+						'url'        => $url,
+						'assetid'    => $this->id,
+						'root_urlid' => $url_data['root_urlid']
+					);
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup', $values)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
-		}
 
+			// NOTE: we are not going to update the design's lookups because no 
+			//       designs can be attached to a file anyway (well not at this time) 
+			//       and it's one thing less to worry about updating for the moment
+
+		}// end foreach
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
 	}//end updateLookups()

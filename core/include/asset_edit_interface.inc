@@ -714,9 +714,9 @@ class Asset_Edit_Interface extends Resolve_Object
 				$field = &$section->children[$j];
 
 				switch (strtolower($field->attributes['code'])) {
-					
+
 					///// STATUS CHANGES - NOW AND IN THE FUTURE ////
-					
+
 					case 'current' :
 						if ($field->children[0]->name != 'display_name') $display_name = 'Current';
 						else $display_name = $field->children[0]->content;
@@ -843,9 +843,9 @@ class Asset_Edit_Interface extends Resolve_Object
 		///// IMMEDIATE STATUS CHANGES ////
 
 		if (isset($_POST[$prefix.'_change_status']) && (int) $_POST[$prefix.'_change_status'] > 0) {
-			
+
 			//// START HIPO PROCESSING ////
-			
+
 			$vars = Array('assetid' => $owner->id, 'new_status' => $_POST[$prefix.'_change_status']);
 			$complete_url = $_SERVER['REQUEST_URI'];
 
@@ -861,7 +861,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				if ($url = $hh->getProcessURL($code_name)) $o->setRedirect($url);
 				$is_updated = true;
 			}
-			
+
 			////  END HIPO PROCESSING  ////
 		}
 
@@ -943,7 +943,6 @@ class Asset_Edit_Interface extends Resolve_Object
 	function paintSettings(&$owner, &$o)
 	{
 		if(!($file = $this->_findFile('static_screen_settings'))) return;
-
 		$prefix = $owner->getPrefix();
 
 		$input = new XML_Tree($file);
@@ -1124,92 +1123,107 @@ class Asset_Edit_Interface extends Resolve_Object
 
 					//// FRONTEND AND LOGIN DESIGN OPTIONS ////
 
-					case 'frontend_design' :
-					case 'login_design' :
-						$design_name = strtolower($field->attributes['code']);
-						
-						if ($field->children[0]->name != 'display_name') $display_name = ucwords(str_replace('_', ' ', $design_name));
-						else $display_name = $field->children[0]->content;
-						$o->openSection($display_name);
-						$o->openField('Current');
+					case 'designs' :
+						$system_designs = Array(
+												'system_design::frontend' => 'The Design that is to be used when displaying this asset on the frontend',
+												'system_design::login'    => 'The Design that is to be used whenever someone attempts to access this asset without permission',
+											);
+						$our_designs = Array(
+												'system_design::frontend' => 0,
+												'system_design::login'    => 0,
+											);
 
-						$design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_TYPE_3, 'design', false, $design_name);
-						$designid = (empty($design_link)) ? 0 : $design_link['minorid'];
+						$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_LINK_TYPE_3, 'design', false);
+						foreach($our_design_links as $link) {
+							if (preg_match('/^(system_design|user_design)::.*$/', $link['value'])) {
+								$our_designs[$link['value']] = $link['minorid'];
+							}// end if
+						}// end foreach
 
-						if (!$owner->writeAccess()) {
-							echo '<i>';
-							if (!$designid) {
-								echo 'None';
+						// now add the blank one that they can customise
+						$our_designs['user_design::'] = 0;
+
+						$design_lookups = $owner->getDesignLookups();
+
+						foreach($our_designs as $design_name => $designid) { 
+
+							preg_match('/^(system|user)_design::(.*)$/', $design_name, $matches);
+							$system_design   = ($matches[1] == 'system');
+							$new_user_design = (!$system_design && $design_name == 'user_design::' && !$designid);
+
+							$display_name = ucwords($matches[1]).' Defined - '.$matches[2];
+							$o->openSection($display_name);
+
+							if ($new_user_design) {
+								$o->openField('Name');
+								text_box($prefix.'_designs['.$design_name.'][name]', '', 20, 30);
 							} else {
-								$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($designid, '', true);
-								echo $design->name.' :: '.$design->id;
-							}
-							echo '</i>';
-
-						} else {
-
-							$designs = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('design', false, true);
-							$contents = Array('0' => '-- use inherited --');
-							foreach($designs as $id => $type_code) {
-								$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($id, $type_code, true);
-								if (is_null($design)) continue;
-								$contents[$design->id] = $design->name.' :: '.$design->id;
+								hidden_field($prefix.'_designs['.$design_name.'][name]', $design_name);
 							}
 
-							asort($contents);
-							combo_box($prefix.'_designs['.$design_name.']', $contents, false, $designid);
-						}
+							$o->openField('Current');
 
-						
-						if ($field->children[1]->name == 'note' && $field->children[1]->content) {
-							$o->note($field->children[1]->content);
-						}
-						$print_note = false;
-						
-
-						$o->closeField();
-						$o->openField('Effective');
-
-						$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-						// check for inherited designs
-						$sql = 'SELECT l.url, a.name, l.'.$design_name.'id
-								FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l 
-								INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.'.$design_name.'id = a.assetid ';
-						$where = 'l.frontend_designid <> 0 AND l.assetid = '.$db->quote($owner->id);
-						$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-						$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-
-						$inherited_designs = $db->getAll($sql.$where);
-						if (DB::isError($inherited_designs)) {
-							trigger_error($inherited_designs->getMessage().'<br/>'.$inherited_designs->getUserInfo(), E_USER_WARNING);
-						} else {
-							if (!empty($inherited_designs)) {
-								?>
-								<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
-									<tr>
-										<td bgcolor="#DDDDDD" class="sq-backend-field" style="font-weight: bold;">URL</td>
-										<td bgcolor="#DDDDDD" class="sq-backend-field" style="font-weight: bold;">Effective Design</td>
-									</tr>
-								<?php
-								foreach ($inherited_designs as $design_data) {
-									?>
-									<tr>
-										<td class="sq-backend-data"><?php echo $design_data['url']; ?></td>
-										<td class="sq-backend-data"><?php echo $design_data['name'].' :: '.$design_data[$design_name.'id']; ?></td>
-									</tr>
-									<?php
+							if (!$owner->writeAccess()) {
+								echo '<i>';
+								if (!$designid) {
+									echo 'None';
+								} else {
+									$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($designid, '', true);
+									echo $design->name.' (Id : #'.$design->id.')';
 								}
-								?>
-								</table>
-								<?php
-							} else {
-								echo 'There are no effective designs';
-							}
-						}
+								echo '</i>';
 
-						$o->closeField();
-						$o->closeSection();
+							} else {
+								asset_finder($prefix.'_designs['.$design_name.'][designid]', $designid, Array('design' => 'D'));
+							}
+
+
+							if ($system_design && isset($system_designs[$design_name])) {
+								$o->note($system_designs[$design_name]);
+							}
+
+							$o->closeField();
+							if (!$new_user_design) {
+
+								$effective_designs = Array();
+								foreach($design_lookups as $url => $designs) {
+									if (empty($designs[$design_name])) continue;
+									$effective_designs[$url] = $designs[$design_name];
+								}
+
+
+								$o->openField('Effective');
+
+								if (!empty($effective_designs)) {
+									?>
+									<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+										<tr>
+											<td bgcolor="#DDDDDD" class="sq-backend-field" style="font-weight: bold;">URL</td>
+											<td bgcolor="#DDDDDD" class="sq-backend-field" style="font-weight: bold;">Effective Design</td>
+										</tr>
+									<?php
+									foreach ($effective_designs as $url => $designid) {
+										$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($designid, '', true);
+										if (is_null($design)) continue;										
+										?>
+										<tr>
+											<td class="sq-backend-data"><?php echo $url; ?></td>
+											<td class="sq-backend-data"><?php echo $design->name.' (Id : # '.$design->id.')'; ?></td>
+										</tr>
+										<?php
+									}
+									?>
+									</table>
+									<?php
+								} else {
+									echo 'There are no effective designs';
+								}
+
+								$o->closeField();
+							}// endif
+							$o->closeSection();
+
+						}// end foreach
 
 					break;
 
@@ -1218,7 +1232,7 @@ class Asset_Edit_Interface extends Resolve_Object
 					break;
 				}
 
-				if ($print_note && $field->children[1]->name == 'note' && $field->children[1]->content) {
+				if ($print_note && isset($field->children[1]) && $field->children[1]->name == 'note' && $field->children[1]->content) {
 					$o->note($field->children[1]->content);
 				}
 			}// end for
@@ -1302,50 +1316,60 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		///// FRONTEND AND LOGIN DESIGN CHANGES ////
 
-		if ($owner->writeAccess()) {
-			if (isset($_POST[$prefix.'_designs'])) {
-				foreach ($_POST[$prefix.'_designs'] as $design_name => $new_designid) {
+		if (isset($_POST[$prefix.'_designs']) && $owner->writeAccess()) {
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+			foreach ($_POST[$prefix.'_designs'] as $design_name => $design_data) {
+
+				$new_designid = $design_data['designid'];
+
+				if ($design_name == 'user_design::') {
+					if (empty($design_data['name'])) continue;
+					$old_designid = 0;
+					$design_name .= strtolower($design_data['name']);
+
+					if ($GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_TYPE_3, 'design', false, $design_name)) {
+						trigger_error('Design Name "'.$design_data['name'].'" already in use', E_USER_WARNING);
+						continue;
+					}// end if
 					
-					$design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_TYPE_3, 'design', false, $design_name);
-					$designid = (empty($design_link)) ? 0 : $design_link['minorid'];
+				} else {
+					$old_design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_TYPE_3, 'design', false, $design_name);
+					$old_designid    = (empty($old_design_link)) ? 0 : $old_design_link['minorid'];
 
-					// if they are the same then there is nothing to do.
-					if ($designid != $new_designid) {
+				}// end if
 
-						$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+				// if they are the same then there is nothing to do.
+				if ($old_designid == $new_designid) continue;
 
-						// if there is an existing entry delete it
-						if ($designid) {
-							if (!$owner->deleteLink($design_link['linkid'])) {
-								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-								return false;
-							}
-						}
-
-						if ($new_designid) {
-							$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_designid);
-							if (is_null($design)) {
-								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-								return false;
-							}
-							if (!$owner->createLink($design, SQ_LINK_TYPE_3, $design_name)) {
-								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-								return false;
-							}
-						}
-
-						// fianlly, try updating the lookups
-						if (!$owner->updateLookups()) {
-							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-							return false;
-						}
-
-						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-						$is_updated = true;
+				// if there is an existing entry delete it
+				if ($old_designid) {
+					if (!$owner->deleteLink($old_design_link['linkid'])) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
 					}
 				}
-			}
-		}
+
+				if ($new_designid) {
+					$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_designid);
+					if (is_null($design)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
+					}
+					if (!$owner->createLink($design, SQ_LINK_TYPE_3, $design_name)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
+					}
+				}
+
+				trigger_error('Update Lookups');
+
+			}// end foreach
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		}// end if
 
 		return true;
 
@@ -1521,7 +1545,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			if (isset($post_data['public_access']['access']) && $post_data['public_access']['access'] != '') {
 				if ($cascade_changes) {
 					// cascading public access of some kind, so queue it up for the HIPO
-					$permission_vars[$perm][] = Array('access'          => (int)$post_data['public_access']['access'], 
+					$permission_vars[$perm][] = Array('access'          => (int)$post_data['public_access']['access'],
 													  'userid'          => 0,
 													  'previous_access' => null,
 													  );
@@ -1582,7 +1606,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		if (!empty($permission_vars)) {
 
 			//// START HIPO PROCESSING ////
-			
+
 			$vars = Array('assetid' => $owner->id, 'permission_changes' => $permission_vars);
 			$code_name = 'HIPO_edit_permissions';
 			$complete_url = $_SERVER['REQUEST_URI'];
@@ -1726,7 +1750,7 @@ class Asset_Edit_Interface extends Resolve_Object
 									} else {
 										if ($cond_logic_num) $user_count = $cond_logic_num;
 										else $user_count = count($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), false));
-										
+
 										echo '<span style="color:#';
 										if (count($cond_data['published_by']) >= $user_count) echo '008800';
 										else echo '880000';
@@ -1952,7 +1976,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		if (!empty($schema_vars)) {
 
 			//// START HIPO PROCESSING ////
-			
+
 			$vars = Array('assetid' => $owner->id, 'schema_changes' => $schema_vars);
 			$code_name = 'HIPO_edit_workflow_schemas';
 			$complete_url = $_SERVER['REQUEST_URI'];
@@ -2167,7 +2191,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		if (!empty($schema_vars)) {
 
 			//// START HIPO PROCESSING ////
-			
+
 			$vars = Array('assetid' => $owner->id, 'schema_changes' => $schema_vars);
 			$code_name = 'HIPO_edit_metadata_schemas';
 			$complete_url = $_SERVER['REQUEST_URI'];

@@ -87,7 +87,9 @@ class Site extends Folder
 		if (!isset($this->_tmp['urls_info'])) {
 			$where = 'assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-			$sql = 'SELECT urlid, url, http, https FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_url '.$where;
+			$sql = 'SELECT urlid, url, http, https
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_url
+					'.$where;
 
 			$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql, true, array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
 			if (DB::isError($result)) {
@@ -151,7 +153,7 @@ class Site extends Folder
 				if ($current_urls[$save_urlid]['url']   != $save_urls[$save_urlid]['url'] ||
 					$current_urls[$save_urlid]['http']  != $save_urls[$save_urlid]['http'] ||
 					$current_urls[$save_urlid]['https'] != $save_urls[$save_urlid]['https']) {
-					
+
 					$where = 'urlid       = '.$db->quote($save_urlid).'
 							  AND assetid = '.$db->quote($this->id);
 					$values = Array('url'   => $db->quote($save_urls[$save_urlid]['url']),
@@ -242,37 +244,76 @@ class Site extends Folder
 	*/
 	function updateLookups()
 	{
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		unset($this->_tmp['lookups']);
 		unset($this->_tmp['url']);
 		unset($this->_tmp['href']);
 
 		// Remove all the old URLs
-		$where_cond = 'assetid = '.$db->quote($this->id);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup', $where_cond)) {
+		$subs = Array( 'SELECT url
+						FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
+						'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quote($this->id), 'l'));
+
+		$where = 'url IN (~SQ0~)';
+		$where = db_extras_subquery($db, $where, $subs);
+		if (DB::isError($where)) {
+			trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
-		$design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, 'design', false, 'frontend_design');
-		$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
-		$login_design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, 'design', false, 'login_design');
-		$login_designid = (is_null($login_design_link)) ? 0 : $login_design_link['minorid'];
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup_design', $where)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$where_cond = 'assetid = '.$db->quote($this->id);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup', $where_cond)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3, 'design', false);
+		$our_designs = Array();
+		foreach($our_design_links as $link) {
+			if (preg_match('/^(system_design|user_design)::(.*)$/', $link['value'], $matches)) {
+				$our_designs[$link['value']] = $link['minorid'];
+			}// end if
+		}// end foreach
+
 
 		$urls = $this->getSiteURLs();
 		// if we have urls then do some url inserting
 		for(reset($urls); null !== ($urlid = key($urls)); next($urls)) {
-			$values = Array('url'               => $urls[$urlid]['url'],
+			$values = Array(
+							'url'               => $urls[$urlid]['url'],
 							'assetid'           => $this->id,
 							'root_urlid'        => $urlid,
-							'frontend_designid' => $designid,
-							'login_designid'    => $login_designid
-							);
+						);
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup', $values)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
+
+			foreach($our_designs as $name => $designid) {
+				$values = Array(
+								'url'      => $urls[$urlid]['url'],
+								'name'     => $name,
+								'designid' => $designid,
+							);
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup_design', $values)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+			}// endforeach
+
+
 		}// end for urls
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
 	}// end updateLookups()
@@ -294,7 +335,10 @@ class Site extends Folder
 		}
 
 		$index_page = &$this->getSpecialPage('index');
-		if (is_null($index_page)) return;
+		if (is_null($index_page)) {
+			trigger_error('No Index Page Set for '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' "'.$this->name.'" (Id #'.$this->id.')', E_USER_NOTICE);
+			return;
+		}
 
 		// check that the user has read access to the index page
 		if (!$index_page->readAccess()) {
@@ -302,21 +346,23 @@ class Site extends Folder
 			return;
 		}
 
-		if($index_page->charset) header("Content-type: text/html; charset=$this->charset");
+		if($index_page->charset)   header("Content-type: text/html; charset=$this->charset");
 		if($index_page->languages) header("Content-language: $this->languages");
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$url = strip_url(current_url(false));
 
-		$sql = 'SELECT l.frontend_designid, a.type_code
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l, '.SQ_TABLE_RUNNING_PREFIX.'asset a ';
-		$where = 'l.frontend_designid = a.assetid
-				  AND l.url     LIKE '.$db->quote($url.'%').'
-				  AND l.assetid    = '.$db->quote($index_page->id);
+		$sql = 'SELECT ld.designid, a.type_code
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_design ld ON l.url = ld.url
+						INNER JOIN sq_asset a ON ld.designid = a.assetid
+				';
+		$where ='l.assetid  = '.$db->quote($index_page->id).'
+				  AND ld.url  LIKE '.$db->quote($url.'%').'
+				  AND ld.name    = '.$db->quote('system_design::frontend');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$sql .= $where.' LIMIT 1';
-
 		$result = $db->getRow($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
@@ -324,7 +370,7 @@ class Site extends Folder
 
 		// we have found the design to use
 		if ($result) {
-			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['frontend_designid'], $result['type_code']);
+			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
 			$design->paint($index_page);
 		// shit we can't find a design, oh well let's just print out our body
 		} else {

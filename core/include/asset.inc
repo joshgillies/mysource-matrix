@@ -2209,23 +2209,47 @@ class Asset extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$url = strip_url(current_url(false));
 
-		$sql = 'SELECT l.frontend_designid, a.type_code
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l, '.SQ_TABLE_RUNNING_PREFIX.'asset a ';
-		$where = 'l.frontend_designid = a.assetid
-				  AND l.url        = '.$db->quote($url).'
-				  AND l.assetid    = '.$db->quote($this->id);
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		$sql .= $where;
-
-		$result = $db->getRow($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+		// Have they set a design name that they want to view ??
+		if (!empty($_GET['SQ_DESIGN_NAME'])) {
+			$design_name = 'user_design::'.$_GET['SQ_DESIGN_NAME'];
+		} elseif (!empty($_SESSION['SQ_DESIGN_NAME'])) {
+			$design_name = 'user_design::'.$_SESSION['SQ_DESIGN_NAME'];
+		} else {
+			$design_name = 'system_design::frontend';
 		}
+		
+		do {
+
+			$sql = 'SELECT ld.designid, a.type_code
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_design ld ON l.url = ld.url
+							INNER JOIN sq_asset a ON ld.designid = a.assetid
+					';
+			$where ='l.assetid  = '.$db->quote($this->id).'
+					  AND ld.url  = '.$db->quote($url).'
+					  AND ld.name = '.$db->quote($design_name);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+			$sql .= $where;
+pre_echo($sql);
+			$result = $db->getRow($sql);
+			if (DB::isError($result)) {
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			}
+
+			// if we found nothing  and we weren't using the system frontend design, see if one exists
+			if (empty($result) && $design_name != 'system_design::frontend') {
+				$loop = true;
+				$design_name = 'system_design::frontend';
+			} else {
+				$loop = false;
+			}
+
+		} while ($loop);
 
 		// we have found the design to use
 		if ($result) {
-			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['frontend_designid'], $result['type_code']);
+			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
 			$design->paint($this);
 		// shit we can't find a design, oh well let's just print out our body
 		} else {
@@ -2529,7 +2553,7 @@ class Asset extends Resolve_Object
 	* Returns a list of lookup information associated with this asset
 	*
 	* @param string	$field	if only one field is required pass it's name through
-	*						(url, root_urlid, frontend_designid)
+	*						(url, root_urlid)
 	*
 	* @return Array()
 	* @access public
@@ -2539,7 +2563,7 @@ class Asset extends Resolve_Object
 		if (!isset($this->_tmp['lookups'])) {
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-			$sql = 'SELECT url, root_urlid, frontend_designid, login_designid
+			$sql = 'SELECT url, root_urlid
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup ';
 			$where = 'assetid = '.$db->quote($this->id);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
@@ -2566,6 +2590,45 @@ class Asset extends Resolve_Object
 
 
 	/**
+	* Returns a list of design lookup information associated with this asset
+	*
+	* @return Array()
+	* @access public
+	*/
+	function getDesignLookups()
+	{
+		if (!isset($this->_tmp['design_lookups'])) {
+			$this->_tmp['design_lookups'] = Array();
+
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+			$sql = 'SELECT l.url, ld.name, ld.designid
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l 
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_design ld ON l.url = ld.url
+					';
+			$where = 'l.assetid = '.$db->quote($this->id);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+
+			$result = $db->query($sql.$where);
+			if (DB::isError($result)) {
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			} else {
+				while(null !== ($row = $result->fetchRow())) {
+					if (!isset($this->_tmp['design_lookups'][$row['url']])) $this->_tmp['design_lookups'][$row['url']] = Array();
+					$this->_tmp['design_lookups'][$row['url']][$row['name']] = $row['designid'];
+				}// end while
+				$result->free();
+
+			}// end if
+
+		}// end if
+
+		return $this->_tmp['design_lookups'];
+
+	}// end getDesignLookups()
+
+
+	/**
 	* Called to force an update of this assets lookup information
 	*
 	* @return boolean
@@ -2575,25 +2638,53 @@ class Asset extends Resolve_Object
 	function updateLookups()
 	{
 		$paths = $this->getWebPaths();
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		unset($this->_tmp['lookups']);
+		unset($this->_tmp['design_lookups']);
 		unset($this->_tmp['url']);
 		unset($this->_tmp['href']);
 
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		// Remove all the old URLs
+		$subs = Array( 'SELECT url
+						FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
+						'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quote($this->id), 'l'));
+
+		$where = 'url IN (~SQ0~)';
+		$where = db_extras_subquery($db, $where, $subs);
+		if (DB::isError($where)) {
+			trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup_design', $where)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
 		$where = 'assetid = '.$db->quote($this->id);
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup', $where)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
 		// if we have paths then do some url inserting
-		if (count($paths)) {
+		if (!empty($paths)) {
 
-			$design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, 'design', false, 'frontend_design');
-			$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
-			$login_design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, 'design', false, 'login_design');
-			$login_designid = (is_null($login_design_link)) ? 0 : $login_design_link['minorid'];
+			$num_paths = count($paths);
+
+			$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3, 'design', false);
+			$our_designs = Array();
+			foreach($our_design_links as $link) {
+				if (preg_match('/^(system_design|user_design)::.*$/', $link['value'])) {
+					$our_designs[$link['value']] = $link['minorid'];
+				}// end if
+			}// end foreach
+
 			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_WEB_PATHS, '', null, 'minor');
 
 			$done_urls    = Array();
@@ -2603,33 +2694,54 @@ class Asset extends Resolve_Object
 				if (in_array($parents[$i]['majorid'], $done_parents)) continue;
 				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
 				if (is_null($parent)) continue;
+				$done_parents[] = $parent->id;
 
-				$parent_urls = $parent->getLookups();
-				for($j = 0; $j < count($parent_urls); $j++) {
-					for($k = 0; $k < count($paths); $k++) {
+				$parent_designs = $parent->getDesignLookups();
+
+				$parent_urls    = $parent->getLookups();
+				for($j = 0, $num_parent_urls = count($parent_urls); $j < $num_parent_urls; $j++) {
+					for($k = 0; $k < $num_paths; $k++) {
 						$new_url = $parent_urls[$j]['url'].'/'.$paths[$k];
 						if (in_array($new_url, $done_urls)) continue;
+						$done_urls[] = $new_url;
 
-						$values = Array('url'              => $new_url,
-										'assetid'           => $this->id,
-										'root_urlid'        => $parent_urls[$j]['root_urlid'],
-										'frontend_designid' => (($designid) ? $designid : $parent_urls[$j]['frontend_designid']),
-										'login_designid'    => (($login_designid) ? $login_designid : $parent_urls[$j]['login_designid'])
+						$values = Array('url'        => $new_url,
+										'assetid'    => $this->id,
+										'root_urlid' => $parent_urls[$j]['root_urlid'],
 										);
 						if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup', $values)) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							return false;
 						}
 
-						$done_urls[] = $new_url;
-					}// end for paths
-				}// end for parent_urls
+						// get any of our parent's designs that we haven't overridden
+						$designs = $our_designs;
+						if (!empty($parent_designs[$parent_urls[$j]['url']])) {
+							foreach($parent_designs[$parent_urls[$j]['url']] as $name => $designid) {
+								if (isset($designs[$name])) continue;
+								$designs[$name] = $designid;
+							}
+						}
+						foreach($designs as $name => $designid) {
+							$values = Array('url'      => $new_url,
+											'name'     => $name,
+											'designid' => $designid,
+											);
+							if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup_design', $values)) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								return false;
+							}
+						}// endforeach
 
-				$done_parents[] = $parent->id;
+					}// end for paths
+
+				}// end for parent_urls
 
 			}// end for parents
 
 		}// end if count paths
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
 	}// end updateLookups()

@@ -201,7 +201,7 @@ class Resolve
 		// we are on the frontend
 		} else {
 			// check for ./?a=xx type urls or normal
-			if (isset($_GET['a'])) $asset = &$this->am->getAsset($_GET['a']);
+			if (isset($_GET['a'])) $asset = &$this->am->getAsset((int) $_GET['a']);
 			else $asset = &$this->am->getAssetFromURL(current_protocol());
 			if (is_null($asset)) exit(1);
 			$asset->printFrontend();
@@ -238,10 +238,10 @@ class Resolve
 				}
 			}
 
-			$sql = 'SELECT l.login_designid, a.type_code
-					FROM sq_asset_lookup l, sq_asset a
-					WHERE l.login_designid = a.assetid
-					  AND l.url = '.$db->quote(strip_url(current_url(false, true)));
+			$sql = 'SELECT ld.designid, a.type_code
+					FROM sq_asset_lookup_design ld INNER JOIN sq_asset a ON ld.designid = a.assetid
+					WHERE ld.url  = '.$db->quote(strip_url(current_url(false, true))).'
+					  AND ld.name = '.$db->quote('system_design::login');
 			$result = $db->getRow($sql);
 			if (DB::isError($result)) {
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
@@ -249,7 +249,7 @@ class Resolve
 
 				// we have found the design to use
 				if ($result) {
-					$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['login_designid'], $result['type_code']);
+					$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
 					if (!is_null($design)) {
 						$design->paint($current_asset);
 						return;
@@ -370,6 +370,11 @@ class Resolve
 				if (!$hh->processWeb()) trigger_error('HIPO failed to process', E_USER_ERROR);
 				$hh->paintWeb();
 				exit();
+			break;
+
+			case 'set_design_name' :
+				$_SESSION['SQ_DESIGN_NAME'] = (isset($_GET['SQ_DESIGN_NAME'])) ? $_GET['SQ_DESIGN_NAME'] : '';
+				unset($_GET['SQ_DESIGN_NAME']);
 			break;
 
 		}//end switch

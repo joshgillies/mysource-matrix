@@ -1125,15 +1125,15 @@ class Asset_Manager extends Resolve_Object
 	/**
 	* Returns information for a link or links that is/are between this asset and the passed
 	*
-	* @param int			$assetid			id of the the $side_of_link asset
-	* @param object Asset	$other_assetid		the asset of the other $side_of_link
-	* @param int			$link_type			integer that should be a single integer of
-	*											the SQ_LINK_* constants
-	* @param string			$value				the value that is associated with this link
-	* @param string			$side_of_link		Which side of the link this (the current) asset
-	*											is on ('major' or 'minor')
-	* @param boolean		$force_array		force the results to return and array of links
-	*											even if there is only one link
+	* @param int		$assetid			id of the the $side_of_link asset
+	* @param int		$other_assetid		the asset of the other $side_of_link
+	* @param int		$link_type			integer that should be a single integer of
+	*										the SQ_LINK_* constants
+	* @param string		$value				the value that is associated with this link
+	* @param string		$side_of_link		Which side of the link this (the current) asset
+	*										is on ('major' or 'minor')
+	* @param boolean	$force_array		force the results to return and array of links
+	*										even if there is only one link
 	*
 	* @return Array()	array of link info if only one link and force_array=false,
 	*                   array of arrays of link info otherwise
@@ -2986,7 +2986,9 @@ class Asset_Manager extends Resolve_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$sql = 'SELECT l.url, l.assetid, a.'.$name_type.', a.type_code
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.assetid = a.assetid
-				'.$extra_table.' '.$where.' ORDER BY l.url ASC';
+				'.$extra_table.' 
+				'.$where.' 
+				ORDER BY l.url ASC';
 
 		$result = $db->getAll($sql);
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
@@ -3105,7 +3107,8 @@ class Asset_Manager extends Resolve_Object
 			$sql .= '
 			) as weighting
 			FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_url u ON l.root_urlid = u.urlid
-			'.$where.' ORDER BY weighting DESC, l.url';
+			'.$where.' 
+			ORDER BY weighting DESC, l.url';
 
 			$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
 			if (DB::isError($result)) {
