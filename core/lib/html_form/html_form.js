@@ -5,9 +5,9 @@
 *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/html_form/html_form.js,v $
-* $Revision: 1.11 $
-* $Author: brobertson $
-* $Date: 2003/06/06 06:29:01 $
+* $Revision: 1.12 $
+* $Author: gsherwood $
+* $Date: 2003/06/10 01:29:58 $
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 */
 
@@ -435,7 +435,8 @@ function check_date(date_name, show_time)
 * @access public
 */
 var ASSET_FINDER_FIELD_NAME = null;
-function asset_finder_btn_press(name, type_codes_xml) 
+var ASSET_FINDER_FIELD_SAFE_NAME = null;
+function asset_finder_btn_press(name, safe_name, type_codes_xml) 
 {
 	var f = document.main_form;
 
@@ -451,15 +452,16 @@ function asset_finder_btn_press(name, type_codes_xml)
 	// no name ? we must be starting the asset finder
 	if (ASSET_FINDER_FIELD_NAME == null) {
 		ASSET_FINDER_FIELD_NAME = name;
+		ASSET_FINDER_FIELD_SAFE_NAME = safe_name;
 		top.sidenav.asset_finder_start(asset_finder_done, type_codes_xml);
-		set_button_value(ASSET_FINDER_FIELD_NAME + '_btn', 'Cancel');
+		set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_btn', 'Cancel');
 
 	// else we must be cancelling the asset finder
 	} else {
 		top.sidenav.asset_finder_cancel();
-		set_button_value(ASSET_FINDER_FIELD_NAME + '_btn', 'Change...');
+		set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_btn', 'Change...');
 		ASSET_FINDER_FIELD_NAME = null;
-
+		ASSET_FINDER_FIELD_SAFE_NAME = null;
 	}
 
 }// end asset_finder_btn_press()
@@ -478,10 +480,11 @@ function asset_finder_done(assetid, label)
 	// if we get a zero they cancelled, do nothing
 	if (assetid != 0) {
 		set_hidden_field(ASSET_FINDER_FIELD_NAME, assetid);
-		set_text_field(ASSET_FINDER_FIELD_NAME + '_label', label + ' (Asset #' + assetid + ')');
+		set_text_field(ASSET_FINDER_FIELD_SAFE_NAME + '_label', label + ' (Asset #' + assetid + ')');
 	}
-	set_button_value(ASSET_FINDER_FIELD_NAME + '_btn', 'Change...');
+	set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_btn', 'Change...');
 	ASSET_FINDER_FIELD_NAME = null;
+	ASSET_FINDER_FIELD_SAFE_NAME = null;
 
 }// end asset_finder_done()
 

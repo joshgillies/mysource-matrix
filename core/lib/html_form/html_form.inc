@@ -542,9 +542,11 @@ function asset_finder($name, $assetid=0, $type_codes=Array())
 		else $label = $asset->short_name.' (Id : #'.$asset->id.')';
 	}
 
+	$safe_name = 'sq_asset_finder_'.preg_replace('/[^A-Za-z0-9]/', '_', $name);
+
 	hidden_field($name, $assetid);
-	text_box($name.'_label', $label, 30, 0, 'style="border-style: none; border-width: 0px;" onFocus="javascript: this.tmp = this.value;" onBlur="javascript: this.value = this.tmp;"');
-	normal_button($name.'_btn', 'Change...', 'asset_finder_btn_press(\''.$name.'\', \''.str_replace("\n", "\\n", addslashes($xml_type_codes->get())).'\');');
+	text_box($safe_name.'_label', $label, 30, 0, 'style="border-style: none; border-width: 0px;" onFocus="javascript: this.tmp = this.value;" onBlur="javascript: this.value = this.tmp;"');
+	normal_button($safe_name.'_btn', 'Change...', 'asset_finder_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.str_replace("\n", "\\n", addslashes($xml_type_codes->get())).'\');');
 
 }//end asset_finder()
 
