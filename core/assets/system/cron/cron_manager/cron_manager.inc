@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.28 2004/06/18 13:56:13 brobertson Exp $
+* $Id: cron_manager.inc,v 1.29 2004/07/23 08:49:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -630,9 +630,6 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$start_sql_date = '2003-07-19 00:00';
-		$end_sql_date   = '2003-07-21 23:59';
 
 #		pre_echo("START : ".date('d M Y H:i',$start_ts)."\nEND   : ".date('d M Y H:i',$end_ts)."\n");
 
