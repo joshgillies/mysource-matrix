@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.23 2004/02/10 00:35:43 diarandine Exp $
+* $Id: search_page.inc,v 1.24 2004/02/12 01:37:13 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -40,6 +40,7 @@
 require_once SQ_PACKAGES_PATH.'/cms/page/page.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc'; // for the medatata date field selection
 
 class Search_Page extends Page
 {
@@ -313,6 +314,71 @@ class Search_Page extends Page
 
 
 	/**
+	* Getting the date-time field
+	*
+	* @param	string				$prefix	fieldname for form elements
+	* @param	object Asset		&$asset	the owning asset
+	* @param	string				$value	field value, can be null
+	*
+	* @return object DateTime_Field
+	* @access private
+	*/
+	function getEpochDateTimeField($fieldname, &$asset, $value=null)
+	{
+		// only if we are printing the default value
+		if (is_null($value)) {
+			if (!is_null($asset)) {
+				$value = (int) $asset->attr('default');
+			} else {
+				$value = '%asset_created%'; // just testing
+			}
+		}
+
+		$epoch_date = getdate($value);
+		$value_arr = Array(
+						'y' => $epoch_date['year'],
+						'm' => $epoch_date['mon'],
+						'd' => $epoch_date['mday'],
+						'h' => $epoch_date['hours'],
+						'i' => $epoch_date['minutes'],
+						's' => $epoch_date['seconds'],
+					);
+
+		// parameters
+		if (!is_null($asset)) {
+			$parameters = $asset->attr('setup_params');
+		}
+		if (empty($parameters) || is_null($parameters)) {
+			$date = getdate();
+			$parameters = Array(
+				'min'			=> '2003-01-01 00:00:00',
+				'max'			=> ($date['year'] + 1).'-12-31 23:59:59',
+				'allow_circa'	=> '0',
+				'print_format'	=> $asset->attr('format'),
+				'show'			=> Array('y', 'm', 'd', 'h', 'i', 's'),
+				'null'			=> Array(), // allowing nulls everywhere
+				'style'			=> Array(
+								'y' => 's',
+								'm' => 's',
+								'd' => 's',
+								'h' => 's',
+								'i' => 's',
+								's' => 's',
+							),
+			);
+		}
+
+		$value = '';
+		$field = new DateTime_Field($fieldname, $value, $parameters);
+		$value = $field->unitsArrayToStr($value_arr);
+		$field->setValue($value);
+
+		return $field;
+
+	}// end _getEpochDateTimeField()
+
+
+	/**
 	* Prints the initial bodycopy
 	*
 	* @return void
@@ -328,19 +394,55 @@ class Search_Page extends Page
 		$current_results_page = $_REQUEST['current_result_page'];
 
 		$fields = $this->attr('fields');
-
 		$queries =& $_REQUEST['queries'];
 
 		foreach ($keywords as $keyword) {
+
 			$replacement =& $replaces[$keyword];
 			if (ereg('(.+)_query', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+
 				$query_var = $matches[1]."_query";
 				$query =& $queries[$query_var];
 				if (!isset($query)) $query = '';
-
+				
 				ob_start();
-					text_box("queries[$query_var]", $query, $this->defaults['query_width']);
-					$replacement = ob_get_contents();
+
+				///////////////////////////////////////
+				// Finding out what kind of field is it
+				$test_ind = $matches[1];
+				if ($fields[$test_ind]['type'] == 'metadata') {
+					
+					$assetid = $fields[$test_ind]['params']['metadata_field']['assetid'];
+					$am = &$GLOBALS['SQ_SYSTEM']->am;
+					$asset = &$am->getAsset($assetid);
+					$params = $asset->vars;
+
+						if (isset($params['format'])) { // metadata Date field
+							// don't ask me why I'm doing this
+							$temp_name = $query_var . "__"; 
+							$field = $this->getEpochDateTimeField("$temp_name", $asset);
+							$field->processField(); // showing value if any
+							$field->printField();
+
+						} 
+						else if (isset($params['multi_line'])) { // normal metadata TEXT field
+							// using same defintion as for a simple field, but will have to revise later...
+							text_box("queries[$query_var]", $query, $this->defaults['query_width']);
+						}
+						else if (isset($params['select_options'])) { // metadata dropdown selection 
+							$select_options = $params['select_options']['value'];
+							$select_options[''] = "- Please select -";
+							combo_box("queries[$query_var]", $select_options, false, $query);
+						}
+
+				} else { 
+						// not a metadata field, just a normal text field
+						text_box("queries[$query_var]", $query, $this->defaults['query_width']);
+				}
+				//////////////////////////////////////
+					
+				$replacement = ob_get_contents();
+				
 				ob_end_clean();
 
 			} else {
@@ -364,7 +466,7 @@ class Search_Page extends Page
 				}
 			}
 		}
-
+		
 		return $replaces;
 
 	}//end getInitialBodyReplacements()
@@ -569,6 +671,17 @@ class Search_Page extends Page
 
 		$queries = $_REQUEST['queries'];
 
+		///////////////////////////////////////////////
+		// Checking if there are medatada Date fields 
+		foreach (array_keys($_REQUEST) as $req_key) {
+			if (ereg("(.+)__value", $req_key, $query_match)) {
+				$newind = $query_match[1];
+				$reqind = $query_match[0];
+				// if found, adding its values to general queries array
+				$queries[$newind] = $_REQUEST[$reqind];
+			}
+		}
+
 		$logic = $this->attr('logic');
 
 		$root_assetid = $this->attr('root_assetid');
@@ -579,24 +692,33 @@ class Search_Page extends Page
 		$exclude_assetids = Array();
 
 		foreach($queries as $query_var => $value) {
+
 			if ($value == '')
 				continue;
+			
+			if (!is_array($value)) {
+				$words = split(" +", strtolower($value));
+				foreach (array_keys($words) as $i) {
+					// convert wildcard symbols to corresponding SQL wildcards
+					$words[$i] = strtr($words[$i], "*?", "%_");
 
-			$words = split(" +", strtolower($value));
-			foreach (array_keys($words) as $i) {
-				// convert wildcard symbols to corresponding SQL wildcards
-				$words[$i] = strtr($words[$i], "*?", "%_");
-
-				// if this is an Email, skip the following check...
-				$at_pos  = strpos($words[$i], '@'); 
-				$dot_pos = strpos($words[$i], '.');
-				if ($at_pos === false && $dot_pos === false) { 
-					// preserve the wildcard symbols - i.e. don't quote them
-					if (ereg('^[A-z%_]+$', $words[$i]))
-						$words[$i] = addslashes($words[$i]);
-					else
-						unset($words[$i]);
-				} // if this is an Email
+					// if this is an Email, skip the following check...
+					$at_pos  = strpos($words[$i], '@'); 
+					$dot_pos = strpos($words[$i], '.');
+					if ($at_pos === false && $dot_pos === false) { 
+						// preserve the wildcard symbols - i.e. don't quote them
+						if (ereg('^[A-z%_]+$', $words[$i]))
+							$words[$i] = addslashes($words[$i]);
+						else
+							unset($words[$i]);
+					} // if this is an Email
+				}
+			} // if it's an array
+			else 
+			{
+				// if $value is array, still setting words
+				$words = Array();
+				$words[0] = implode(":", array_values($value));
 			}
 
 			// retrieve the search field for this query
@@ -642,7 +764,7 @@ class Search_Page extends Page
 						AND ap.access = 1';
 						
 			}
-			
+
 			switch($field['type']) {
 
 				case 'asset_attrib': 
@@ -679,6 +801,7 @@ class Search_Page extends Page
 						$sql .= "GROUP BY ai.assetid";
 
 						$results = $db->getAssoc($sql);
+
 						if (is_null($field_asset_scores)) {
 							$field_asset_scores = $results;
 						} else {
@@ -714,20 +837,86 @@ class Search_Page extends Page
 						break;
 
 					$field_asset_scores = null;
-					foreach ($words as $word) {
-						$sql = $start_sql . "AND (ai.type = 'text'
-							AND ai.component = 'metadata:". (int)$field['params']['metadata_field']['assetid'] . "'
-							AND (ai.value LIKE '". implode ("' OR ai.value LIKE '", $words) ."'))\n";
-						$sql .= "GROUP BY ai.assetid";
 
+					if (!is_array($value)) {
+						foreach ($words as $word) {
+							$sql = $start_sql . "AND (ai.type = 'text'
+								AND ai.component = 'metadata:". (int)$field['params']['metadata_field']['assetid'] . "'
+								AND (ai.value LIKE '". implode ("' OR ai.value LIKE '", $words) ."'))\n";
+							$sql .= "GROUP BY ai.assetid";
 
-						$results = $db->getAssoc($sql);
+							$results = $db->getAssoc($sql);
 
-						if (is_null($field_asset_scores)) {
-							$field_asset_scores = $results;
-						} else {
-							$field_asset_scores = $this->combineAssetScores($field_asset_scores, $results, 'AND');
-						};
+							if (is_null($field_asset_scores)) {
+								$field_asset_scores = $results;
+							} else {
+								$field_asset_scores = $this->combineAssetScores($field_asset_scores, $results, 'AND');
+							};
+						}
+
+					} else { // if $value is array, which means that we are processing a date field now
+							
+						$myday		= $value['d'];
+						if (strlen($myday) == 1) {
+							$myday = "0".$myday;
+						}
+						if (empty($myday) || $myday == '--') {
+							$myday = "__";
+						}
+
+						$mymonth	= $value['m'];
+						if (strlen($mymonth) == 1) {
+							$mymonth = "0".$mymonth;
+						}						
+						if (empty($mymonth) || $mymonth == '--') {
+							$mymonth = "__";
+						}
+
+						$myyear		= $value['y'];
+						if (empty($myyear) || $myyear == '--') {
+							$myyear = "__";
+						}
+
+						$myhour		= $value['h'];
+						if (strlen($myhour) == 1) {
+							$myhour = "0".$myhour;
+						}
+						if (empty($myhour) || $myhour == '--') {
+							$myhour = "__";
+						}
+
+						$myminute	= $value['i'];
+						if (strlen($myminute) == 1) {
+							$myminute = "0".$myminute;
+						}
+						if (empty($myminute) || $myminute == '--') {
+							$myminute = "__";
+						}
+						
+						$mysecond	= $value['s'];
+						if (strlen($mysecond) == 1) {
+							$mysecond = "0".$mysecond;
+						}
+						if (empty($mysecond) || $mysecond == '--') {
+							$mysecond = "__";
+						}
+						
+						$like = $myday.":".$mymonth.":".$myyear.":".$myhour.":".$myminute.":".$mysecond;
+
+						if ($like == '__:__:__:__:__:__') break;
+
+							$sql = $start_sql . "AND (ai.type = 'text'
+								AND ai.component = 'metadata:". 		(int)$field['params']['metadata_field']['assetid'] . "'
+								AND (ai.value LIKE '". $like ."'))\n";
+								$sql .= "GROUP BY ai.assetid";
+
+							$results = $db->getAssoc($sql);
+
+							if (is_null($field_asset_scores)) {
+								$field_asset_scores = $results;
+							} else {
+								$field_asset_scores = $this->combineAssetScores($field_asset_scores, $results, 'AND');
+							};
 					}
 
 					if (is_null($total_asset_scores)) {
@@ -746,10 +935,8 @@ class Search_Page extends Page
 			unset($total_asset_scores[$exclude_assetid]);
 		}
 
-		// Allowed code types should be specified dynamically!!
-
-		$results = $this->_climbToAssetTypes($total_asset_scores, array('file', 'page', 'workflow_schema', 'metadata_schema', 'user'));
-
+		$results = $this->_climbToAssetTypes($total_asset_scores, $this->attr('search_types'));
+		
 		return $results;
 
 	}//end processSearch()
