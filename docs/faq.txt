@@ -3,7 +3,7 @@
 * | MySource Matrix - Instructional Document                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: faq.txt,v 1.13 2004/02/03 10:58:04 brobertson Exp $
+* $Id: faq.txt,v 1.14 2004/02/03 13:08:35 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -91,6 +91,8 @@ Once there you will need to modify and commit these files (the changes to make s
   loginfo
 
 There may be some other differences in file between the CVSROOTS, but at the moment these are just diff's in comments that are generated when you do the 'cvs init' (obviously changes from a newer version of CVS)
+
+Then add the repository to Chora by editing /home/websites/default/htdocs/horde/chora/config/cvsroots.php on beta (as it stands at the moment)
 
 You will now have to checkout the package for yourself. The directory you imported is not a working version at the moment.
 So, back out of the directory back to the packages directory, rename your PACKAGE directory, then check out the working version.
