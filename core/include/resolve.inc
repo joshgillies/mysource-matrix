@@ -141,6 +141,9 @@ class Resolve
 			$this->user_is_root      = $_SESSION['user_is_root'];
 			$this->user_is_sys_admin = $_SESSION['user_is_sys_admin'];
 
+		} else {
+			define('SQ_ROLLBACK_VIEW',        '0');
+			define('SQ_TABLE_RUNNING_PREFIX', SQ_TABLE_PREFIX);
 		}// end if
 
 		// process any global actions we have
