@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.29 2004/01/15 09:29:07 brobertson Exp $
+* $Id: internal_message.inc,v 1.30 2004/01/19 00:53:47 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -619,7 +619,7 @@ class Internal_Message extends MySource_Object
 		foreach ($to_types as $assetid => $types) {
 			if (in_array('user_group', $types)) {
 				$group = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				if ($group->id) $send_to = array_merge($send_to, $GLOBALS['SQ_SYSTEM']->am->getChildren($group->id, Array('user'), false));
+				if ($group->id) $send_to = array_merge($send_to, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($group->id, Array('user'), false)));
 			} else {
 				$send_to[] = $assetid;
 			}
