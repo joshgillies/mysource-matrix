@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.54 2004/09/14 01:48:21 gsherwood Exp $
+* $Id: search_page.inc,v 1.55 2004/09/14 05:13:27 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $ - 1.0
+* @version $Revision: 1.55 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -827,10 +827,10 @@ class Search_Page extends Page
 			break;
 
 			case 'results_per_page' :
-				$results_per_page = $_REQUEST['results_per_page'];
+				$results_per_page = array_get_index($_REQUEST, 'results_per_page', $this->attr('results_per_page'));
 				$replacement = '<input type="text" onchange="
 					document.search_form.results_per_page.value = this.value;
-				" value="'.$results_per_page.'" />';
+				" value="'.$results_per_page.'" size="5" />';
 			break;
 
 			default :
@@ -889,7 +889,14 @@ class Search_Page extends Page
 
 		$replacements = Array();
 		foreach ($keywords as $keyword) {
-			if (ereg('(.+)_query', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+			if (ereg('(.+)_query_logic$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+				$current_logic = array_get_index($_REQUEST, $keyword, 'AND');
+				$options = Array('AND' => 'all of the words', 'OR' => 'any of the words');
+				ob_start();
+					combo_box($keyword, $options, false, $current_logic);
+					$replacements[$keyword] = ob_get_contents();
+				ob_end_clean();
+			} else if (ereg('(.+)_query$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 				if ($form_name == 'sis_form') {
 					$replacements[$keyword] = $this->getSisFieldReplacement($matches[1]);
 				} else {
@@ -1417,6 +1424,11 @@ class Search_Page extends Page
 			$field_type = $fields[$field_name]['type'];
 			$search_info[$field_type][$field_name]['words'] = $words;
 			$search_info[$field_type][$field_name]['params'] = array_get_index($fields[$field_name], 'params', Array());
+			
+			// add in the search logic for the field
+			$search_logic = strtoupper(array_get_index($_REQUEST, $field_name.'_query_logic', 'AND'));
+			if ($search_logic != 'AND' && $search_logic != 'OR') $search_logic = 'AND';
+			$search_info[$field_type][$field_name]['search_logic'] = $search_logic;
 
 		}//end foreach fields
 
