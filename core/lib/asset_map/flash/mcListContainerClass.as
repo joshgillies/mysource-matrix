@@ -31,10 +31,16 @@ function mcListContainerClass()
 	this.move_indicator._y = 10;
 	this.move_indicator._visible = false;
 
+	// Create the Action Bar (pop's up with the edit screens)
+	this.attachMovie("mcActionsBarID", "actions_bar", -2);
+	this.actions_bar._y = 10;
+	// used by onPress() and onRelease()
+	this.actions_bar_interval = null;
+
 	// create an empty clip that fills out this container to be at least
 	// the size of the scroller, so that the onPress event can fired 
 	// from anywhere in the scroller
-	this.createEmptyMovieClip("filler", -2);
+	this.createEmptyMovieClip("filler", -3);
 	this.filler._x = 0;
 	this.filler._y = 0;
 	this.filler._visible = true;
@@ -55,8 +61,8 @@ function mcListContainerClass()
 
 }// end constructor
 
-// Make it inherit from MovieClip
-mcListContainerClass.prototype = new MovieClip();
+// Make it inherit from Nested Mouse Movements MovieClip
+mcListContainerClass.prototype = new NestedMouseMovieClip(false, NestedMouseMovieClip.NM_ON_PRESS | NestedMouseMovieClip.NM_ON_RELEASE);
 
 /**
 * Event fired when the Asset Types object has finished recieving all the asset types from the server
@@ -612,6 +618,7 @@ mcListContainerClass.prototype.posToAssetInfo = function(pos, where)
 
 mcListContainerClass.prototype.onPress = function() 
 {
+
 	// check if something else is modal
 	if (_root.system_events.inModal(this)) return false;
 
@@ -630,11 +637,23 @@ mcListContainerClass.prototype.onPress = function()
 			// if this is a proper index, select it
 			if (pos >= 0 && pos < this.items_order.length) {
 				this.selectItem(this[this.items_order[pos].name]);
+				this.actions_bar_interval = setInterval(this, "showActionsBar", 500);
+				trace('SHOW ACTIONS BAR INT : ' + this.actions_bar_interval);
+
 			}
+
 
 	}// end switch
 
 }// end onPress()
+
+mcListContainerClass.prototype.showActionsBar = function() 
+{
+	clearInterval(this.actions_bar_interval);
+	this.actions_bar_interval = null;
+	this.actions_bar.show(this.selected_item.assetid, this._xmouse, this._ymouse);
+
+}// end showActionsBar()
 
 mcListContainerClass.prototype.onRelease = function() 
 {
@@ -646,6 +665,15 @@ mcListContainerClass.prototype.onRelease = function()
 		this.endMoveIndicator();
 		return;
 	}
+
+	if (this.actions_bar_interval) {
+		trace("CLEAR INTERVAL : " + this.actions_bar_interval);
+		clearInterval(this.actions_bar_interval);
+		this.actions_bar_interval = null;
+	}
+	if (this.actions_bar._visible) this.actions_bar.hide();
+
+
 
 	switch(this.action) {
 
@@ -878,7 +906,6 @@ mcListContainerClass.prototype.endMoveIndicator = function()
 
 mcListContainerClass.prototype.onMouseMove = function() 
 {
-
 	if (this.move_indicator_on) {
 
 		var xm = this._xmouse;

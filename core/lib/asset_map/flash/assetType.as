@@ -2,7 +2,6 @@
 // Create the Class
 function AssetType(type_code, name, version, instantiable, system_only, parent_type, edit_screens) 
 {
-
 	this.type_code		= type_code;
 	this.name			= name;
 	this.version		= version;
