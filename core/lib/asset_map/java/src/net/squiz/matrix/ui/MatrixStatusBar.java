@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixStatusBar.java,v 1.1 2005/02/18 05:26:24 mmcintyre Exp $
+ * $Id: MatrixStatusBar.java,v 1.2 2005/02/28 01:05:18 mmcintyre Exp $
  * $Name: not supported by cvs2svn $
  */
 
@@ -38,13 +38,13 @@ import javax.swing.border.*;
  */
 public class MatrixStatusBar {
 
-	private static java.util.List elements = new Vector();
+	private static java.util.List elements = new ArrayList();
+	private static MatrixStatusBarElement[] elementsArr;
+	
 	/* the text that was last set globally */
 	private static String statusText = "";
 	
-	/*
-	 * Private singleton used for creating new instances of MatrixStatusBarElement
-	 */
+	/* Private singleton used for creating new instances of MatrixStatusBarElement */
 	private static MatrixStatusBar INSTANCE = new MatrixStatusBar();
 	
 	// cannot instantiate
@@ -66,8 +66,27 @@ public class MatrixStatusBar {
 	 */
 	public static MatrixStatusBarElement createStatusBar() {
 		MatrixStatusBarElement element = INSTANCE.getNewElement();
-		elements.add(element);
+		synchronized(elements) {
+			elements.add(element);
+		}
 		return element;
+	}
+	
+	/**
+	 * Returns the elements from the element collection in array form. The
+	 * elements are cached, and the cache is updated whenever an element is added
+	 * or removed from the element collection. You should use this method in favour
+	 * of an iterator.
+	 * @return the elements in array form
+	 */
+	private static MatrixStatusBarElement[] getElements() {
+		synchronized(elements) {
+			if (elementsArr == null) {
+				elementsArr = (MatrixStatusBarElement[]) elements.toArray(
+					new MatrixStatusBarElement[elements.size()]);
+			}
+			return elementsArr;
+		}
 	}
 	
 	/**
@@ -77,12 +96,10 @@ public class MatrixStatusBar {
 	 */
 	public static void setStatus(String status) {
 		statusText = status;
-		Iterator elementIterator = elements.iterator();
+		MatrixStatusBarElement[] elements = getElements();
 		
-		while (elementIterator.hasNext()) {
-			MatrixStatusBarElement element 
-				= (MatrixStatusBarElement) elementIterator.next();
-			element.setStatus(status);
+		for (int i = 0; i < elements.length; i++) {
+			elements[i].setStatus(status);
 		}
 	}
 
@@ -141,13 +158,16 @@ public class MatrixStatusBar {
 		// only MatrixStatusBar should be able to create individual elements
 		private MatrixStatusBarElement(String status) {
 			setLayout(new FlowLayout(FlowLayout.LEFT));
-			spinner = new Spinner();
-			label = new JLabel(statusText);
+			
+			spinner  = new Spinner();
+			label    = new JLabel(statusText);
+			
 			label.setFont(PLAIN_FONT_10);
+			
 			add(spinner);
 			add(label);
+			
 			setBackground(UIManager.getColor("StatusBar.background"));
-	//		setBorder(UIManager.getBorder("StatusBar.border"));
 			
 			// create an action and a timer to clear the status
 			// which will also stop the spinner
