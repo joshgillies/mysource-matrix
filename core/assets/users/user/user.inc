@@ -127,8 +127,6 @@ class User extends Asset
 			if ($name == 'password') {
 				$value = crypt($value); // let salt be generated
 			}
-
-			if ($this->vars[$name]['value'] == $value) return true;
 		}
 
 		return parent::setAttrValue($name, $value, $dont_run_updated);
