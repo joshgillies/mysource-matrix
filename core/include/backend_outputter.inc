@@ -113,7 +113,8 @@ class Backend_Outputter
 		$GLOBALS['SQ_SYSTEM']->addEventListener($this, array('CreateLink',
 															 'DeleteLink',
 															 'AssetUpdate',
-															 'AssetTypeUpdate'
+															 'AssetTypeUpdate',
+															 'BackendMessage'
 															));
 	}//end constructor
 
@@ -125,6 +126,7 @@ class Backend_Outputter
 	{
 		$this->_redirect = trim($link);
 		$this->_redirect_target = trim($target);
+
 	}//end setRedirect()
 
 
@@ -138,6 +140,7 @@ class Backend_Outputter
 	function addOnLoad($call)
 	{
 		$this->_on_load_calls[] = $call;
+
 	}//end addOnLoad()
 
 
@@ -152,6 +155,7 @@ class Backend_Outputter
 	function addFormActionGetVar($name, $value)
 	{
 		$this->_action .= ((strstr($this->_action, '?')) ? '&' : '?').rawurlencode($name).'='.rawurlencode($value);
+
 	}//end addFormActionGetVar()
 
 
@@ -163,6 +167,7 @@ class Backend_Outputter
 	function getCurrentLocation()
 	{
 		return $this->_action;
+
 	}//end getCurrentLocation()
 
 
@@ -175,6 +180,7 @@ class Backend_Outputter
 	{
 		$anchor = trim($anchor);
 		$this->_anchor = ($anchor) ? '//'.$anchor : '';
+
 	}//end setFormAnchor()
 
 
@@ -190,6 +196,7 @@ class Backend_Outputter
 	{
 		$this->_heading = trim($heading);
 		$this->_heading_icon = $icon;
+
 	}//end setHeading()
 
 
@@ -206,6 +213,7 @@ class Backend_Outputter
 		trigger_error('Sub Heading not outputting, fix in _paintHeader()', E_USER_WARNING);
 		$this->_sub_heading = trim($heading);
 		$this->_sub_heading_icon = $icon;
+
 	}//end setSubHeading()
 
 
@@ -221,6 +229,7 @@ class Backend_Outputter
 		if(strlen($msg)) {
 			$this->_messages[] = Array('type' => $type, 'msg' => $msg);
 		}
+
 	}//end addMessage()
 
 
@@ -233,6 +242,7 @@ class Backend_Outputter
 	{
 		if (in_array($file, $this->_css_includes)) return;
 		$this->_css_includes[] = $file;
+
 	}//end addCssInclude()
 
 
@@ -245,6 +255,7 @@ class Backend_Outputter
 	{
 		if (in_array($file, $this->_js_includes)) return;
 		$this->_js_includes[] = $file;
+
 	}//end addJsInclude()
 
 
@@ -256,6 +267,7 @@ class Backend_Outputter
 	function addOnSubmit($call)
 	{
 		$this->_on_submit_calls[] = $call;
+
 	}//end addOnSubmit()
 
 
@@ -290,6 +302,7 @@ class Backend_Outputter
 			trigger_error('Screen Code "'.$name.'" already in use', E_USER_ERROR);
 		}
 		$this->_screens[$url] = $name;
+
 	}//end addScreen()
 
 
@@ -304,6 +317,7 @@ class Backend_Outputter
 	{
 		if (empty($url)) return;
 		$this->_current_screen = $url;
+
 	}//end setCurrentScreen()
 
 
@@ -322,6 +336,7 @@ class Backend_Outputter
 			trigger_error('Staic Screen Code "'.$name.'" already in use', E_USER_ERROR);
 		}
 		$this->_static_screens[$url] = $name;
+
 	}//end addTab()
 
 
@@ -333,6 +348,7 @@ class Backend_Outputter
 	function addPreloadImg($file)
 	{
 		$this->_preload_imgs[] = $file;
+
 	}//end add_img_rollover()
 
 
@@ -346,6 +362,7 @@ class Backend_Outputter
 	function setCharset($charset)
 	{
 		$this->_charset = $charset;
+
 	}//end setCharset()
 
 
@@ -382,6 +399,7 @@ class Backend_Outputter
 		ob_end_clean();
 		$this->_raw_opened = false;
 		$this->_closeSection();
+
 	}//end closeRaw()
 
 
@@ -403,6 +421,7 @@ class Backend_Outputter
 						'areas'		=> Array(),
 					);
 		return $this->_openSection($init_arr);
+
 	}// end openSection()
 
 
@@ -415,7 +434,8 @@ class Backend_Outputter
 	{
 		if (!is_null($this->_current_field)) $this->closeField();
 		$this->_closeSection();
-	}
+
+	}//end closeSection()
 
 
 	/**
@@ -458,7 +478,8 @@ class Backend_Outputter
 	function _closeSection()
 	{
 		array_pop($this->_section_stack);
-	}
+
+	}//end _closeSection()
 
 
 	/**
@@ -526,7 +547,8 @@ class Backend_Outputter
 	{
 		if ($file && substr($file, 0, 1) != '/') $file = '/'.$file;
 		return $this->_files_path.$file;
-	}
+
+	}//end filesPath()
 
 
 	/**
@@ -536,12 +558,12 @@ class Backend_Outputter
 	*/
 	function paint()
 	{
-		if ($this->_raw_opened)     $this->closeRaw();
+		if ($this->_raw_opened) $this->closeRaw();
 		// close all sections
 		while(!empty($this->_section_stack)) $this->closeSection();
 
 		if ($this->_redirect) {
-			// save the messages so the come through on the next page
+			// save the messages so they come through on the next page
 			$_SESSION['backend_outputter_msgs'] = $this->_messages;
 			$this->addOnLoad($this->_redirect_target.'.location = "'.addslashes($this->_redirect).'";');
 		}
@@ -610,6 +632,10 @@ class Backend_Outputter
 				function page_on_load() {
 
 			<?php
+				if (isset($_SESSION['backend_outputter_msgs'])) {
+					$this->_messages = array_merge($this->_messages, $_SESSION['backend_outputter_msgs']);
+					$_SESSION['backend_outputter_msgs'] = Array();
+				}
 				if (count($this->_messages)) {
 					require_once 'XML/Tree.php';
 					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -850,19 +876,13 @@ class Backend_Outputter
 
 			}//end for
 
-		?>
+			?>
 					</table>
 				</td>
 			</tr>
 			</table>
-		<?php
-
-			// if this ain't the last section, add a spacer
-//			if ($i < count($this->_contents) - 1) {
-			?>
-				<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td></tr></table>
+			<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td></tr></table>
 			<?php
-//			}// end if
 
 		}//end if section type == raw
 
@@ -883,42 +903,6 @@ class Backend_Outputter
 		<?php
 
 	}//end _paintFooter()
-
-//	 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//	// just paints a row for the output table in paint() above
-//	function _paintMessages($type, $msgs)
-//	{
-//		if (!count($msgs)) return;
-//
-//		$class = '';
-//		$html  = '<table border="0" cellspacing="0" cellpadding="0" width="80%">';
-//
-//		// the notice, warning and error messages will be listed
-//		if ($type == SQ_MSG_INFORMATION) {
-//
-//			$html .= '<tr><td class="'.$class.'" valign="top">&nbsp;</td></tr>';
-//			$html .= '<tr><td class="'.$class.'" align="center" valign="top"><p>'.implode('<p>', $msgs).'</td></tr>';
-//			$html .= '<tr><td class="'.$class.'" valign="top">&nbsp;</td></tr>';
-//			$class = 'msg-information';
-//
-//		} else {
-//
-//			$class = '';
-//			switch($type) {
-//				case SQ_MSG_NOTICE:		$class = 'msg-notice';		break;
-//				case SQ_MSG_WARNING:	$class = 'msg-warning';		break;
-//				default:				$class = 'msg-error';
-//			}
-//			foreach($msgs as $s) {
-//				$html .= '<tr><td class="'.$class.'" valign="top"><li>&nbsp;</td><td class="'.$class.'" valign="top" width="100%">'.$s.'</td></tr>';
-//			}
-//
-//		}//end if
-//
-//		$html .= '</table>';
-//		$this->_paintRow($html, $class);
-//
-//	}//end _paintMessages()
 
 
 	/**
@@ -979,6 +963,19 @@ class Backend_Outputter
 		$this->closeSection();
 
 	}//end commitButton()
+
+
+	/**
+	* Event handler to add a message to the flash soeone broadcasts it
+	*
+	* @return void
+	* @access public
+	*/
+	function onBackendMessage($event_data=Array())
+	{
+		$this->addMessage($event_data['type'], $event_data['message']);
+
+	}//end onBackendMessage()
 
 
 	/**
