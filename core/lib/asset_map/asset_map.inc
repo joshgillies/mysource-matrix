@@ -76,7 +76,6 @@ class Asset_Map
 			// Reload the passed assetid in the flash
 			function reload_asset(assetid)
 			{
-				//var asset_mapObj = flash_InternetExplorer ? asset_map : document.asset_map;
 				var asset_mapObj = document.asset_map;
 				//alert("Reload Assetid : " + assetid);
 				jsToFlashCall(asset_mapObj, 'reload_asset', {assetid: assetid});
@@ -85,7 +84,6 @@ class Asset_Map
 			// Reload the assetids represented in the flash
 			function reload_assets(assetids_xml)
 			{
-				//var asset_mapObj = flash_InternetExplorer ? asset_map : document.asset_map;
 				var asset_mapObj = document.asset_map;
 				jsToFlashCall(asset_mapObj, 'reload_assets', {assetids_xml: assetids_xml});
 			}
@@ -93,7 +91,6 @@ class Asset_Map
 			// Reload the passed assetid in the flash
 			function refresh_internal_messages()
 			{
-				//var asset_mapObj = flash_InternetExplorer ? asset_map : document.asset_map;
 				var asset_mapObj = document.asset_map;
 				jsToFlashCall(asset_mapObj, 'refresh_mail', {});
 			}
@@ -102,7 +99,6 @@ class Asset_Map
 			// Reload the passed assetid in the flash
 			function add_messages(xml)
 			{
-				//var asset_mapObj = flash_InternetExplorer ? asset_map : document.asset_map;
 				var asset_mapObj = document.asset_map;
 				//alert("Add Message : " + xml);
 				jsToFlashCall(asset_mapObj, 'add_message', {msgs_xml: xml});
