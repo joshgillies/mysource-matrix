@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.270 2004/01/15 14:48:03 brobertson Exp $
+* $Id: asset.inc,v 1.271 2004/01/20 01:29:22 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3407,20 +3407,28 @@ class Asset extends MySource_Object
 	/**
 	* Adds a piece of keydata to the array to be passed to the indexing service.
 	*
+	* NOTE: Added function parameter $force_processing, default = 0
+	*
 	* @param array ref $keydata A reference to the keydata array being built
-	* @param string $value The key data value
-	* @param string $type The key data type, defaults to 'text' (e.g. text, date, number, etc.)
-	* @param string $component The component to which this data pertains to
+	* @param string $value		The key data value
+	* @param string $type		The key data type, defaults to 'text' (e.g. text, date, number, etc.)
+	* @param string $component	The component to which this data pertains to
+	* @param int	$score		Weighting of this word for the search
+	* @param int	$force_processing	If the initial checking routines should be skipped
 	*
 	* @return void
 	* @access protected
 	*/
-	function buildKeyData(&$keydata, $value, $type = 'text', $component = false, $score = 1)
+	function buildKeyData(&$keydata, $value, $type = 'text', $component = false, $score = 1, $force_processing = 0)
 	{
-		if (!is_array($keydata))
-			return false;
-		if ($score <= 0)
-			return false;
+		// checking if we should skip initial test of given values, because
+		// they are almost always null if we are indexing metadata fields
+		if ($force_processing != 1) {
+			if (!is_array($keydata))
+				return false;
+			if ($score <= 0)
+				return false;
+		}
 
 		array_push($keydata, array (
 			'value'		=> $value,
