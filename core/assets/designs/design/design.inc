@@ -160,7 +160,8 @@ class Design extends Design_Area
 			return false;
 		}
 
-		if (is_a($minor, 'file')) {
+		// special processing if we are creating a TYPE_2 linked file (a file inherited by customisations)
+		if ($link_type == SQ_LINK_TYPE_2 && is_a($minor, 'file')) {
 
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
 
@@ -217,33 +218,38 @@ class Design extends Design_Area
 		}
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$minor = &$am->getAsset($delete_link['minorid'], $delete_link['type_code']);
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		// special processing if we are deleting a TYPE_2 linked file (a file overridding a design file)
+		if ($delete_link['link_type'] == SQ_LINK_TYPE_2 && is_a($minor, 'file')) {
 
-		$customisation_links = &$this->getLinks(SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
-		foreach($customisation_links as $link) {
-			$customisation = &$am->getAsset($link['minorid'], $link['type_code']);
-			if (is_null($customisation)) continue;
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-			$file_link_ids = Array();
-			$file_links = $customisation->getLinks(SQ_LINK_TYPE_3, 'file', false);
-			foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
+			$customisation_links = &$this->getLinks(SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
+			foreach($customisation_links as $link) {
+				$customisation = &$am->getAsset($link['minorid'], $link['type_code']);
+				if (is_null($customisation)) continue;
 
-			foreach ($file_links as $link) {
-				if ($link['minorid'] == $delete_link['minorid']) {
-					// found the link to delete
-					if (!$customisation->deleteLink($link['linkid'])) {
-						trigger_error('Failed deleting file link from customisation', E_USER_WARNING);
-						$am->unRegisterAsset($customisation);
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
+				$file_link_ids = Array();
+				$file_links = $customisation->getLinks(SQ_LINK_TYPE_3, 'file', false);
+				foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
+
+				foreach ($file_links as $link) {
+					if ($link['minorid'] == $delete_link['minorid']) {
+						// found the link to delete
+						if (!$customisation->deleteLink($link['linkid'])) {
+							trigger_error('Failed deleting file link from customisation', E_USER_WARNING);
+							$am->unRegisterAsset($customisation);
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							return false;
+						}
 					}
-				}
-			}// end foreach $file_links
+				}// end foreach $file_links
 
-			$am->unRegisterAsset($customisation);
+				$am->unRegisterAsset($customisation);
 
-		}//end foreach customisation
+			}//end foreach customisation
+		}
 
 		if (!parent::deleteLink($linkid)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -436,7 +442,10 @@ class Design extends Design_Area
 	/**
 	* Paints out our design
 	*
-	* @param object Asset	$ASSET	the asset that we are going to print the body for
+	* @param object Asset	$ASSET		the asset that we are going to print the body for
+	* @param array			$FILE_URLS	an array of filename => URL to use to print files in the design
+	*									doesnt need to be passed in unless some URLs are overridden by
+	*									a customisation of the design
 	*
 	* @return void
 	* @access public

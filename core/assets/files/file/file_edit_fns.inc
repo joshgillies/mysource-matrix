@@ -85,6 +85,14 @@ class File_Edit_Fns extends Asset_Edit_Fns
 
 	/**
 	* Processes the interface for uploading a file
+	* If you want to process an upload of a file that was not uploaded through PHP
+	* (possible because of FTP or it was in a tar archive), ensure you pass the information
+	* about the file in the $info array.
+	* The field required are:
+	*     name              => the filename without path (eg file.txt)
+	*     tmp_name          => the location of the file on the file system
+	*     non_uploaded_file => must equal TRUE
+	* 
 	*
 	* @param object File				&$asset	the file asset
 	* @param object	Backend_Outputter	$o		the outputter class

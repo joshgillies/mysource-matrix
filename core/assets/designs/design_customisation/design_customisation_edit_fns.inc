@@ -144,7 +144,15 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 	}// end processUnCustomisedDesignAreas()
 
 
-	function _processUploadedFile($info=Array())
+	/**
+	* Creates a new file asset, populates it, and links it to $asset
+	* @param object Asset	$asset	the asset to link the file to
+	* @param array			$info	info about the uploaded file
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _processUploadedFile(&$asset, $info=Array())
 	{
 		// if we already have a file with the same name TYPE_3 linked to us,
 		// delete this link so we link up this new file
@@ -160,7 +168,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 			}
 		}
 
-		return parent::_processUploadedFile($info);
+		return parent::_processUploadedFile($asset, $info);
 
 	}//end _processUploadedFile()
 

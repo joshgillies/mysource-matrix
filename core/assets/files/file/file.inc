@@ -214,6 +214,7 @@ class File extends Asset
 	* Create this asset
 	*
 	* @param array()	&$link	information used to create the initial link
+	* @param array()	$info	info about the uploaded file
 	*
 	* @see Asset::create()
 	* @return mixed int or false

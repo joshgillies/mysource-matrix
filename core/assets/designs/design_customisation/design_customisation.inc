@@ -96,31 +96,35 @@ class Design_Customisation extends Design
 			return false;
 		}
 
-		$design =& $this->getParentDesign();
+		// special processing if we are deleting a TYPE_2 linked file (a file overridding a design file)
+		if ($delete_link['link_type'] == SQ_LINK_TYPE_2 && is_a($minor, 'file')) {
 
-		// go through all the links of the design we are customisaing and find a file
-		// linked to it with the same name as the one we just deleted so it can take its place
-		$file_link_ids = Array();
-		$file_links = $design->getLinks(SQ_LINK_TYPE_2, 'file', false);
-		foreach ($file_links as $link) $file_link_ids[$link['minorid']] = $link['linkid'];
-		$file_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($file_link_ids));
+			$design =& $this->getParentDesign();
 
-		foreach ($file_link_info as $info) {
-			if ($info['name'] == $minor->name) {
-				// found the link to create
-				$new_minor = &$am->getAsset($info['assetid']);
-				if (!$this->createLink($new_minor, SQ_LINK_TYPE_3, '', null, '1')) {
-					trigger_error('Failed creating file link to customisation', E_USER_WARNING);
-					$am->unRegisterAsset($design);
+			// go through all the links of the design we are customisaing and find a file
+			// linked to it with the same name as the one we just deleted so it can take its place
+			$file_link_ids = Array();
+			$file_links = $design->getLinks(SQ_LINK_TYPE_2, 'file', false);
+			foreach ($file_links as $link) $file_link_ids[$link['minorid']] = $link['linkid'];
+			$file_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($file_link_ids));
+
+			foreach ($file_link_info as $info) {
+				if ($info['name'] == $minor->name) {
+					// found the link to create
+					$new_minor = &$am->getAsset($info['assetid']);
+					if (!$this->createLink($new_minor, SQ_LINK_TYPE_3, '', null, '1')) {
+						trigger_error('Failed creating file link to customisation', E_USER_WARNING);
+						$am->unRegisterAsset($design);
+						$am->unRegisterAsset($new_minor);
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
+					}
 					$am->unRegisterAsset($new_minor);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
 				}
-				$am->unRegisterAsset($new_minor);
-			}
-		}// end foreach $file_links
+			}// end foreach $file_links
 
-		$am->unRegisterAsset($design);
+			$am->unRegisterAsset($design);
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
@@ -292,7 +296,10 @@ class Design_Customisation extends Design
 	/**
 	* Paints out our design
 	*
-	* @param object Asset	$ASSET	the asset that we are going to print the body for
+	* @param object Asset	$ASSET		the asset that we are going to print the body for
+	* @param array			$FILE_URLS	an array of filename => URL to use to print files in the design
+	*									doesnt need to be passed in unless some URLs are overridden by
+	*									a customisation of the design
 	*
 	* @return void
 	* @access public

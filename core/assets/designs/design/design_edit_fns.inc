@@ -514,6 +514,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	}// end processNewFiles()
 
 
+	/**
+	* Creates a new file asset, populates it, and links it to $asset
+	* @param object Asset	$asset	the asset to link the file to
+	* @param array			$info	info about the uploaded file
+	*
+	* @return boolean
+	* @access public
+	*/
 	function _processUploadedFile(&$asset, $info=Array())
 	{
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
@@ -627,7 +635,21 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			return false;
 		}
 
-		// Acquire a lock on the new object
+		// link up all the files from this design to the customisation
+		$file_link_ids = Array();
+		$file_links = $asset->getLinks(SQ_LINK_TYPE_2, 'file', false);
+		foreach ($file_links as $link) {
+			$minor = &$am->getAsset($link['minorid']);
+			if (!$dupe->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
+				trigger_error('Failed creating file link to customisation', E_USER_WARNING);
+				$am->unRegisterAsset($minor);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+		}
+		$am->unRegisterAsset($minor);
+
+		// release the lock on the new object
 		if (!$dupe->releaseLock()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
