@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.42 2005/03/03 18:01:05 mkeehan Exp $
+* $Id: search_page_edit_fns.inc,v 1.43 2005/03/11 04:30:36 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -570,130 +570,6 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		return $asset->setAttrValue('fields', $fields);
 
 	}//end processFields()
-
-
-	/**
-	* Paints the interface for adding and configuring searchable asset types
-	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
-	*
-	* @return void
-	* @access public
-	*
-	*/
-	function paintTypes(&$asset, &$o, $prefix)
-	{
-		$write_access = $asset->writeAccess('attributes');
-		$search_types = $asset->attr('search_types');
-
-		if (!empty($search_types)) {
-
-				?>
-				<table class="sq-backend-table">
-					<tr>
-						<td class="sq-backend-table-header">Searchable Asset Type</td>
-						<?php
-						if ($write_access) {
-							?><td class="sq-backend-table-header">Delete ?</td><?php
-						}
-						?>
-					</tr>
-				<?php
-
-				foreach ($search_types as $type) {
-					?>
-					<tr>
-						<td class="sq-backend-table-cell">
-							<?php echo $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type, 'name'); ?>
-						</td>
-						<?php
-						if ($write_access) {
-							?>
-							<td class="sq-backend-table-cell">
-								<?php check_box($prefix.'_delete_type[]', $type); ?>
-							</td>
-							<?php
-						}
-						?>
-					</tr>
-					<?php
-				}
-
-				?></table><?php
-
-		} else {
-			echo 'There are currently no searchable asset types';
-		}
-
-		// selection field for searchable asset types
-		if ($write_access) {
-			$o->openField('Add asset type');
-
-				$asset_types = array_values(array_diff($GLOBALS['SQ_SYSTEM']->am->getTypeList(), $search_types));
-				$asset_type_list = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset_types, 'name');
-				asort($asset_type_list);
-
-				// displaying combo boxes...
-				if ($asset->writeAccess('attributes')) {
-					if (!empty($asset_type_list)){
-						combo_box($prefix.'_new_type', Array('' => '- Select asset type -') + $asset_type_list, false, 'none');
-					}
-				}
-
-			$o->closeField();
-		}
-
-		return true;
-
-	}//end paintTypes()
-
-
-	/**
-	* Processes the interface for adding and configuring searchable asset types.
-	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
-	*
-	* @return boolean
-	* @access public
-	*
-	*/
-	function processTypes(&$asset, &$o, $prefix)
-	{
-		// need to have write access to make any changes
-		if (!$asset->writeAccess('attributes')) return false;
-
-		$search_types = $asset->attr('search_types');
-
-		$update = false;
-
-		// deleting checked items
-		if (isset($_POST[$prefix.'_delete_type'])) {
-			$search_types = array_values(array_diff($search_types, $_POST[$prefix.'_delete_type']));
-			$update = true;
-		}
-
-		// now get the new submitted values (if any) and add them to array
-		if (!empty($_POST[$prefix.'_new_type']) && $_POST[$prefix.'_new_type'] != '') {
-			$new_type = trim($_POST[$prefix.'_new_type']);
-			if (!in_array($new_type, $search_types)) {
-				$search_types[] = $new_type;
-				$update = true;
-			}
-		}
-
-		// updating asset attribute value
-		if ($update) {
-			sort($search_types);
-			$asset->setAttrValue('search_types', $search_types);
-		}
-
-		return true;
-
-	}//end processTypes()
 
 
 	/**
