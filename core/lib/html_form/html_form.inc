@@ -219,48 +219,56 @@ function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras=''
 /**
 * Prints an entry box for a colour picker, requires javascript and colour_picker script 
 *
-* @param string	$name		the form name to use for the colour box
-* @param Array	$contents	an array of whose keys are values to be returned when that option is selected and whose values are the display text for the option
-* @param bool	$multiple	whether you can multiple selections can be made or not
-* @param mixed	$defaults	if there is only one default can be a string, or if there are multiple can be an array
-* @param int	$height		the height (in lines) of the colour box
-* @param string	$extras		any input field attributes that should be placed in the <input ... > tag
-* @param int	$max		the maximum number of characters displayed for any option, anything over gets truncated with '...' appended
+* @param string	$name					the form name to use for the colour box
+* @param Array	$default				the colour you want to display to begin with
+* @param bool	$allow_blanks			allow no colour to be selected ot not
+* @param mixed	$button_text			text on the button that displays the colour picker
+* @param int	$show_text_box			show the text box to allow manual entry of a colour
+* @param string	$show_current_colour	show a box with the current displayed
+* @param int	$show_change_colour		show a tick or cross to indicate if the colour has changed
 *
 */
 function colour_box($name, $default='000000', $allow_blanks=false, $button_text='*', $show_text_box=true, $show_current_colour=true, $show_change_colour=true) {
 
-	$default = preg_replace('/^#/', '', $default);
-	echo '#&nbsp;';
-	text_box($name, $default, 7, 6, 'style="font-family: courier;" onChange="this.value = this.value.replace(/[^0-9A-F]/ig, \'0\');" ');
-
-	return;
-
 	$default = strtolower($default);
+	$default = preg_replace('/^#/', '', $default);
+
+	static $initialised = false;
+	if (!$initialised) {
+		?>
+		<script language="JavaScript" src="<?php echo sq_web_path('lib')?>/html_form/colour_picker.js"></script>
+		<script language="JavaScript">var colour_change_image_dir='<?php echo sq_web_path('lib');?>/web/images/'</script>
+		<?php
+		$initialised = true;
+	}
 
 	if ($show_current_colour) {
-		?><span id="html_form_colour_span_<?php echo $name; ?>" style="background-color: <?php echo $default; ?>;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;<?php
+		?>
+		<span id="colour_span_<?php echo $name; ?>" style="background-color: <?php echo $default; ?>;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;
+		<?php
 	}
 
 	if ($show_text_box) {
 		$extras  = ' id="colour_box_'.$name.'" style="font-family: courier;"'
-				 . ' onChange="javascript: this.value = check_colour(this.value, '.(($allow_blanks) ? 'true' : 'false').');';
+				 . ' onChange="javascript: this.value = check_colour(this.value, '.(($allow_blanks) ? 'true' : 'false').');"';
+		
 		if ($show_current_colour) $extras .= ' show_colour_change(\''.addslashes($name).'\');';
-
 		text_box($name, $default, 7, 6, $extras);
-
 	} else {
 		hidden_box($name, $default);
 	}
 
-	normal_button('', '&nbsp;'.$button_text.'&nbsp;', 'load_colour_picker(this.form.elements[\''.addslashes($name).'\'], \'$EDIT_DIR\')', 'style="font-family: courier;"');
+	normal_button('', " $button_text ",
+					  "load_colour_picker(this.form.elements['".addslashes($name)."'],'".sq_web_path('lib')."/html_form')", 
+					  'style="font-family: courier;"');
+	
 	if ($show_change_colour) {
-		?><img id="colour_change_<?php echo $name; ?>" name="colour_change_<?php echo $name; ?>" src="<?php echo sq_web_path('lib'); ?>/web/images/cross.gif" width="15" height="15" border="0" align="bottom"><?php
+		?>
+		<img id="colour_change_<?php echo $name; ?>" name="colour_change_<?php echo $name; ?>" src="<?php echo sq_web_path('lib'); ?>/web/images/cross.gif" width="15" height="15" border="0" align="bottom">
+		<?php
 	}
 
 }// end colour_box()
-
-
 
 
 /**
