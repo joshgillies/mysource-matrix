@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.356 2005/02/03 01:27:36 lwright Exp $
+* $Id: asset.inc,v 1.357 2005/02/07 10:52:06 gnoel Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.356 $
+* @version $Revision: 1.357 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2648,7 +2648,7 @@ class Asset extends MySource_Object
 	function readAccess($assetids=Array())
 	{
 		if (!$this->id) return true;
-
+		
 		// if the asset is in the middle of workflow and the current user
 		// can approve the asset, we really need to give them read access to it
 		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
@@ -2875,10 +2875,9 @@ class Asset extends MySource_Object
 
 				// use the current user and their groups
 				$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->currentUserId(), Array('user', 'user_group'), false));
-				$assetids[] = $GLOBALS['SQ_SYSTEM']->currentUserId();
-			} else {
-				$assetids[] = $GLOBALS['SQ_SYSTEM']->currentUserId();
-			}
+				$assetids[] = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
+			} 
+			$assetids[] = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		}
 
 		if (!$GLOBALS['SQ_PURGING_TRASH']) {
