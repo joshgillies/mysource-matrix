@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.80 2005/01/17 17:39:55 brobertson Exp $
+* $Id: file.inc,v 1.81 2005/01/19 12:36:06 brobertson Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -428,6 +428,20 @@ class File extends Asset
 
 
 	/**
+	* Returns whether to use the public path or not for this file
+	*
+	* @return boolean
+	* @access public
+	* @see File::updateLookups()
+	*/
+	function usePublicPath()
+	{
+		return ($this->attr('allow_unrestricted') && $this->effectiveUnrestricted() && !($this->status & SQ_SC_STATUS_SAFE_EDITING));
+
+	}//end usePublicPath()
+
+
+	/**
 	* Called to force an update of this assets lookup information
 	*
 	* @return boolean
@@ -436,7 +450,7 @@ class File extends Asset
 	*/
 	function updateLookups()
 	{
-		if (!$this->attr('allow_unrestricted') || !$this->effectiveUnrestricted() || ($this->status & SQ_SC_STATUS_SAFE_EDITING)) {
+		if (!$this->usePublicPath()) {
 			// this file is either in a safe edit, restricted, or doesnt want to be unrestricted
 			// so we dont worry about __data paths
 			return parent::updateLookups();
@@ -730,9 +744,12 @@ class File extends Asset
 			if (is_file($this->data_path.'/'.$this->attr('name'))) $data_path = $this->data_path;
 			else $data_path = $this->data_path_public;
 
+			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
 			$old_filename = $this->attr('name');
-			$old_ext = strtolower(substr(strrchr($old_filename,'.'), 1));
-			$new_ext = strtolower(substr(strrchr($value,'.'), 1));
+			$old_ext = get_file_type($old_filename);
+			$new_ext = get_file_type($value);
+pre_echo("$old_ext : $new_ext");
 			if (trim($old_ext) != '' && $old_ext != $new_ext) {
 				trigger_error('You can not change the extension of the file. Upload a new file to change the extension.', E_USER_WARNING);
 				$value = $old_filename;
