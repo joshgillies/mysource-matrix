@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.58 2004/03/02 04:16:04 mmcintyre Exp $
+* $Id: file.inc,v 1.59 2004/06/08 02:37:57 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -710,6 +710,10 @@ class File extends Asset
 	*/
 	function printFrontend()
 	{
+		// if we are in limbo, we want to show our editing interface and design
+		// instead of just sending our file over
+		if (SQ_IN_LIMBO) return parent::printFrontend();
+
 		if (!$this->readAccess()) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$this->name.'</i>');
 			return;

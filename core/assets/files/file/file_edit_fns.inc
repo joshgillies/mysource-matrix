@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.39 2003/12/17 04:31:46 mmcintyre Exp $
+* $Id: file_edit_fns.inc,v 1.40 2004/06/08 02:37:57 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -72,7 +72,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		if (!empty($existing)) {
 			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 			?> 
-				<b><a href="<?php echo current_url().'?a='.$asset->id?>&now=<?php echo time()?>" target="_blank">Current File</a></b><br/>
+				<b><a href="<?php echo current_url(true, true).'?a='.$asset->id?>&now=<?php echo time()?>" target="_blank">Current File</a></b><br/>
 				<b>Size:</b> <?php echo easy_filesize($existing['size'])?><br/>
 				<b>Updated:</b> <?php echo readable_datetime($existing['modified'])?><br/>
 			<?php
@@ -212,7 +212,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 
 		// set the name of the file to the newly uploaded one
 		$asset->_tmp['uploading_file'] = true;
-		$asset->setAttrValue('name', $name);
+		$name_changed = $asset->setAttrValue('name', $name);
 		if (!$asset->saveAttributes()) {
 			trigger_error('Failed saving attributes for file', E_USER_WARNING);
 			return false;
@@ -222,6 +222,12 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		if (!$asset->saveWebPaths(Array($name))) {
 			trigger_error('Failed saving web paths', E_USER_WARNING);
 			return false;
+		}
+		
+		if (SQ_IN_LIMBO && $name_changed) {
+			// if we are in limbo and the name of the file has changed, the URL will also change
+			// so we need to redirect to the new limbo URL
+			$o->setRedirect(strip_url($asset->getUrl()).'/'.SQ_CONF_LIMBO_SUFFIX);
 		}
 
 		return $asset->_updated();
