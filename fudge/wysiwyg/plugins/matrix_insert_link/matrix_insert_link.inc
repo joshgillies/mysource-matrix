@@ -60,13 +60,6 @@ class matrix_insert_link extends wysiwyg_plugin {
 					currArgs["new_window_options"][NEW_WINDOW_OPTIONS[i]] = '';
 				}
 
-				// set focus in case we havnt selected anything
-				if (HTMLArea.is_ie) {
-					this._docContent.focus();
-				} else if (HTMLArea.ie_gecko) {
-					this.focusEditor();
-				}
-
 				var sel = this._getSelection();
 				var range = this._createRange(sel);
 
@@ -108,7 +101,6 @@ class matrix_insert_link extends wysiwyg_plugin {
 						sel = this._getSelection();
 						range = this._createRange(sel);
 						el = range.cloneContents().childNodes[0];
-//el = sel.anchorNode;
 					}
 				}// end if
 
@@ -120,9 +112,6 @@ class matrix_insert_link extends wysiwyg_plugin {
 
 				// Is this aready a link?
 				if (el && el.nodeName == "A") {
-//range.moveToElementText(el);
-//range.select();
-
 					currArgs["url"] = el.href;
 
 					// OK, let's see if we are doing a window.open()

@@ -172,7 +172,7 @@ HTMLArea.prototype.focusEditor = function() {
 	if (HTMLArea.is_gecko) {
 		this._iframe.contentWindow.focus();
 	} else if (HTMLArea.is_ie) {
-		this._doc.focus();
+		this._docContent.focus();
 	}
 	return this._docContent;
 };

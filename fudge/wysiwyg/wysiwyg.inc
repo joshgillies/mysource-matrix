@@ -378,7 +378,9 @@ class wysiwyg {
 				// txt is the name of the button, as in config.toolbar
 				HTMLArea.prototype._buttonClicked = function(txt) {
 					var editor = this; // needed in nested functions
+					
 					this.focusEditor();
+					
 					var btn = this.config.btnList[txt];
 					if (!btn) {
 						alert("FIXME: Unconfigured button!");

@@ -43,13 +43,6 @@ class matrix_insert_image extends wysiwyg_plugin {
 			HTMLArea.prototype._matrixinsertImage = function() {
 				var editor = this; // for nested functions
 
-				// set focus in case we havnt selected anything
-				if (HTMLArea.is_ie) {
-					this._docContent.focus();
-				} else if (HTMLArea.ie_gecko) {
-					this.focusEditor();
-				}
-
 				var sel = this._getSelection();
 				var range = this._createRange(sel);
 
