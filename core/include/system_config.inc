@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.50 2005/03/23 02:58:22 arailean Exp $
+* $Id: system_config.inc,v 1.51 2005/03/24 04:58:39 arailean Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -69,9 +69,9 @@ class System_Config extends Config
 							 'SQ_CONF_COMMIT_BUTTON_TEXT'        => Array('editable' => 1, 'default' => 'Commit'),
 							 'SQ_CONF_LOG_EXTENSION'             => Array('editable' => 0, 'default' => '.log'),
 							 'SQ_CONF_LOG_FILE_SYSTEM'           => Array('editable' => 0, 'default' => 'system'),
-							 'SQ_CONF_LOG_FILE_ERROR'            => Array('editable' => 0, 'default' => 'error'), // default should be non-empty
+							 'SQ_CONF_LOG_FILE_ERROR'            => Array('editable' => 0, 'default' => 'error'),
 							 'SQ_CONF_LOG_ERRORS'                => Array('editable' => 1, 'default' => true),
-							 'SQ_CONF_ROOT_IDENTIFIER'           => Array('editable' => 0, 'default' => "[SYSTEM_ROOT]"), // this gets used in error messages to represent the root of matrix system
+							 'SQ_CONF_ROOT_IDENTIFIER'           => Array('editable' => 0, 'default' => "[SYSTEM_ROOT]"),
 							 );
 
 	/**
