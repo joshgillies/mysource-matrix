@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.33 2004/08/30 01:56:34 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.34 2004/08/30 23:17:41 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.33 $ - 1.0
+* @version $Revision: 1.34 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1154,7 +1154,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 		// formulate the date restriction clauses
 		$start_ts = strtotime("$year-$month-01 00:00:00");
-		$next_month = ($month + 1) % 12;
+		$next_month = ($month % 12) + 1;
 		$next_year = ($next_month == 1) ? $year + 1 : $year;
 		$end_ts = strtotime("$next_year-$next_month-01 00:00:00") - 1;
 		
@@ -1169,6 +1169,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$date_sql = 'cd.start_date_ts < '.$db->quote($end_ts);
 		$sql = $this->_buildRecurringEventQuery(&$trees, 'month', "$year-$month")."\n AND (".$date_sql.")\n AND (".implode(' OR ', $tree_clauses).')';	
 		$recurring_events = $db->getAssoc($sql);
+		//bam("Recurring SQL: $sql");
 		assert_valid_db_result($recurring_events);
 
 		return $single_events + $recurring_events;
@@ -1184,7 +1185,7 @@ class Page_Calendar extends Page_Asset_Listing
 	{
 		$all_events = $this->getMonthEvents($year, $month);
 		$month_length = days_in_month($month, $year);
-		$month_start_ts = strtotime(sprintf('%04d-%02d-', $year, $month).'-01 00:00:00 GMT');
+		$month_start_ts = strtotime(sprintf('%04d-%02d-', $year, $month).'-01 00:00:00 ');
 		$month_end_ts = strtotime(sprintf('%04d-%02d-', (($month == 12) ? ($year+1) : $year), ($month+1)%12).'-01 00:00:00 GMT');
 
 		$res = Array();
@@ -1205,14 +1206,15 @@ class Page_Calendar extends Page_Asset_Listing
 				} else {
 					// must have carried on since last month
 					$current_day = 1;
-					while (($current_day <= $month_length) && (strtotime("$year-$month-$current_day") <= $details['end_date_ts'])) {
+					while (($current_day <= $month_length) && (strtotime("$year-$month-$current_day 12:00:00 GMT")/60/60/24 < $details['end_date_ts'])) {
+						//bam("Event $id ends at ".$details['end_date_ts'].'('.gmdate('r', $details['end_date_ts']).' and now is '.strtotime("$year-$month-$current_day").'('.gmdate('r',strtotime("$year-$month-$current_day GMT")));
 						$res[$current_day][$id] = $details;
 						$current_day++;
 					}
 				}
 			} else {
 				// recurring event
-				$next_occurrence_ts = Calendar_Event_Recurring::getFirstOccurrenceAfter($month_start_ts, $details['start_date_ts'], $details['frequency'], $details['period']);
+				$next_occurrence_ts = Calendar_Event_Recurring::getFirstOccurrenceAfter($month_start_ts-1, $details['start_date_ts'], $details['frequency'], $details['period']);
 				while ($next_occurrence_ts < $month_end_ts) {
 					$real_date_comps = Calendar_Event::getDateComponents(ts_iso8601($next_occurrence_ts), 'start_date_');
 					$res[$real_date_comps['start_date_mday']][$id] = $details + $real_date_comps;
@@ -1733,7 +1735,7 @@ class Page_Calendar extends Page_Asset_Listing
 				// all monthly views can be lumped together on this one
 				$sql_freqs[] = '(frequency LIKE '.$db->quote('M%').' AND MOD('.$db->quote($ms).' - start_date_ms,period) = 0)';
 
-				$iso = "$year-$month-".days_in_month($month, $year);
+				$iso = $year.'-'.sprintf('%02d', $month).'-'.days_in_month($month, $year);
 				
 			break;
 			
