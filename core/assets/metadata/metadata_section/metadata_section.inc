@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: metadata_section.inc,v 1.4 2003/09/30 00:29:40 gsherwood Exp $
+* $Id: metadata_section.inc,v 1.5 2003/10/02 00:53:51 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -112,9 +112,10 @@ class Metadata_Section extends Asset
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		if (!parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive)) {
+		$linkid = parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
+		if (!$linkid) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return 0;
 		}
 
 		if ($regenerate) {
@@ -125,13 +126,13 @@ class Metadata_Section extends Asset
 				$code_name = $hh->queueHipo('hipo_job_regenerate_metadata', $vars);
 				if (empty($code_name)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
+					return 0;
 				}
 			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
+		return $linkid;
 
 	}// end createLink()
 
