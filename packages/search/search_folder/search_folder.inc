@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.1 2004/06/11 02:15:56 gsherwood Exp $
+* $Id: search_folder.inc,v 1.2 2004/06/15 01:04:43 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -100,13 +100,13 @@ class Search_Folder extends Bridge
 			$search_info['root_assetid'] = (isset($settings['root']) && $settings['root']) ? $settings['root'] : 1;
 	
 			if (trim($settings['phrase']) == '') {
-				$search_info['include_all']['all']['words'] = Array('');
+				$search_results = $sm->processBasicSearch($search_info);
 			} else {
 				$words = explode(' ',strtolower($settings['phrase']));
 				foreach ($words as $word) $search_info['include_all'][$word]['words'] = Array($word);
+				$search_results = $sm->processSearch($search_info);
 			}
-	
-			$search_results = $sm->processSearch($search_info);
+
 			if (empty($search_results)) return $links;
 			
 			$assetids = array_keys($search_results);
@@ -158,13 +158,13 @@ class Search_Folder extends Bridge
 			$search_info['root_assetid'] = (isset($settings['root']) && $settings['root']) ? $settings['root'] : 1;
 			
 			if (trim($settings['phrase']) == '') {
-				$search_info['include_all']['all']['words'] = Array('');
+				$search_results = $sm->processBasicSearch($search_info);
 			} else {
 				$words = explode(' ',strtolower($settings['phrase']));
 				foreach ($words as $word) $search_info['include_all'][$word]['words'] = Array($word);
+				$search_results = $sm->processSearch($search_info);
 			}
 	
-			$search_results = $sm->processSearch($search_info);
 			if (empty($search_results)) return $links;
 	
 			$assetids = array_keys($search_results);

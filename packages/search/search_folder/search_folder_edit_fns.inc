@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_edit_fns.inc,v 1.1 2004/06/11 02:15:56 gsherwood Exp $
+* $Id: search_folder_edit_fns.inc,v 1.2 2004/06/15 01:04:43 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -154,7 +154,7 @@ class Search_Folder_Edit_Fns extends Bridge_Edit_Fns
 			text_box($prefix.'_phrase', $current, 50);
 		} else {
 			if (empty($current)) {
-				echo 'No search terms have been entered. All indexed assets will be searched.';
+				echo 'No search terms have been entered. All assets will be searched.';
 			} else {
 				echo $current;
 			}
