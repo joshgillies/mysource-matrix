@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: index.php,v 1.21 2005/02/07 23:22:10 gsherwood Exp $
+* $Id: index.php,v 1.22 2005/03/21 06:11:34 gsherwood Exp $
 *
 */
 
@@ -28,12 +28,19 @@
 * The one file through which everything runs
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 */
 
 ini_set('memory_limit', '16M');
 require_once dirname(dirname(__FILE__)).'/include/init.inc';
 $GLOBALS['SQ_SYSTEM']->start();
+$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+// make sure nobody has set run levels without restoring
+$run_level = $GLOBALS['SQ_SYSTEM']->getRunLevel();
+if (!is_null($run_level)) {
+	trigger_error('A run level has been set without restoring', E_USER_ERROR);
+}
 
 ?>

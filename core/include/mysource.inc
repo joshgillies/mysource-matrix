@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.85 2005/03/11 19:16:04 brobertson Exp $
+* $Id: mysource.inc,v 1.86 2005/03/21 06:13:50 gsherwood Exp $
 *
 */
 
@@ -34,37 +34,45 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.85 $
+* @version $Revision: 1.86 $
 * @package MySource_Matrix
 */
 class MySource
 {
 
 	/**
-	* this is the current DB object
+	* The current DB object
 	*
 	* @var object DB
 	*/
 	var $db;
 
 	/**
-	* this holds all open DB objects
+	* Holds all open DB objects
 	*
-	* @var Array()
+	* @var array
 	* @see changeDatabaseConnection(), restoreDatabaseConnection()
 	*/
 	var $_db_conns = Array();
 
 	/**
-	* this is the stack for db
+	* The stack for DB connections
 	*
-	* @var Array()
+	* @var array
 	* @see changeDatabaseConnection(), restoreDatabaseConnection()
 	*/
 	var $_db_stack = Array();
 
 	/**
-	* this is the current Backend object
+	* The stack for run levels
+	*
+	* @var array
+	* @see setRunLevel(), restoreRunLevel()
+	*/
+	var $_run_level_stack = Array();
+
+	/**
+	* The current Backend object
 	*
 	* @var object Backend
 	*/
@@ -111,12 +119,12 @@ class MySource
 	var $em;
 
 	/**
-	* @var object Asset_Manager
+	* @var object Trigger_Manager
 	*/
 	var $trigger_manager;
 
 	/**
-	* Object of logged in user
+	* The logged in user
 	*
 	* @var object User
 	*/
@@ -153,7 +161,7 @@ class MySource
 	/**
 	* Array of system messages
 	*
-	* @var Array(string)
+	* @var array(string)
 	*/
 	var $_msgs;
 
@@ -184,7 +192,7 @@ class MySource
 		$this->am = new Asset_Manager();
 
 		// running from the command line or installer? don't use cookies for session
-		if (!SQ_PHP_CLI && !$GLOBALS['SQ_INSTALL']) {
+		if (!SQ_PHP_CLI && $GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
 			$domain = strip_url(sq_web_path('root_url'), true);
 			$pos = strpos($domain, '/');
 			$path = '/';
@@ -719,6 +727,30 @@ class MySource
 	}//end getUserPrefs()
 
 
+	/**
+	* Broadcast a trigger event
+	*
+	* @param string			$event_name		a valid trigger event name
+	* @param object Asset	&$broadcaster	an asset that broadcast the event
+	* @param array			$parameters		an array of parameters that trigger conditions are expected to understand
+	*
+	* @access public
+	* @return void
+	*/
+	function broadcastTriggerEvent($event_name, &$broadcaster, $parameters=null)
+	{
+		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_TRIGGERS)) {
+			return;
+		}
+
+		$tm = &$this->getTriggerManager();
+		if (!empty($tm)) {
+			$tm->broadcastEvent($event_name, $broadcaster, $parameters);
+		}
+
+	}//end broadcastTriggerEvent()
+
+
 //--        CURRENT USER        --//
 
 
@@ -758,10 +790,11 @@ class MySource
 
 	/**
 	* Reset's the current user to the previously assigned user
+	*
 	* SHOULD BE USED WITH CAUTION
 	*
 	* @access public
-	* @return boolean true on success
+	* @return boolean
 	*/
 	function restoreCurrentUser()
 	{
@@ -833,7 +866,7 @@ class MySource
 	/**
 	* Is the passed/current user the root user?
 	*
-	* @param object	$user	the user object you want to test for root access
+	* @param object User	$user	the user object you want to test for root access
 	*
 	* @return boolean
 	* @access public
@@ -851,7 +884,7 @@ class MySource
 	/**
 	* Is the passed/current user a system administrator?
 	*
-	* @param object	$user	the user object you want to test for sysadmin access
+	* @param object User	$user	the user object you want to test for sysadmin access
 	*
 	* @return boolean
 	* @access public
@@ -875,7 +908,7 @@ class MySource
 	/**
 	* Is the passed/current user the public user?
 	*
-	* @param object	$user	the user object you want to test for root access
+	* @param object User	$user	the user object you want to test for root access
 	*
 	* @return boolean
 	* @access public
@@ -895,6 +928,7 @@ class MySource
 
 	/**
 	* Get the messaging service object so you can send/receive messages
+	*
 	* Always call this function to get the messaging service, dont use $this->ms directly
 	*
 	* @return object Messaging_Service
@@ -913,6 +947,7 @@ class MySource
 
 	/**
 	* Get the file versioning object so you can add/remove/commit/checkout file versions
+	*
 	* Always call this function to get the file versioning object, dont use $this->fv directly
 	*
 	* @return object File_Versioning
@@ -932,8 +967,9 @@ class MySource
 
 
 	/**
-	* Get the file versioning object so you can add/remove/commit/checkout file versions
-	* Always call this function to get the file versioning object, dont use $this->fv directly
+	* Get the HIPO herder so you can queue and run HIPO jobs
+	*
+	* Always call this function to get the HIPO herder, dont use $this->hh directly
 	*
 	* @return object Hipo_Herder
 	* @access public
@@ -951,6 +987,7 @@ class MySource
 
 	/**
 	* Get the metadata manager so you can manage metadata in the system
+	*
 	* Always call this function to get the metadata manager, dont use $this->mm directly
 	*
 	* @return object Metadata_Manager
@@ -969,6 +1006,7 @@ class MySource
 
 	/**
 	* Get the workflow manager so you can manage workflow in the system
+	*
 	* Always call this function to get the workflow manager, dont use $this->wm directly
 	*
 	* @return object Workflow_Manager
@@ -986,7 +1024,9 @@ class MySource
 
 
 	/**
-	* Get the Event Manager
+	* Get the event manager so you can fire events
+	*
+	* Always call this function to get the event manager, dont use $this->em directly
 	*
 	* @access public
 	* @return object Event_Manager
@@ -1003,10 +1043,12 @@ class MySource
 
 
 	/**
-	* Get the Trigger Manager
+	* Get the trigger manager so you can fire trigger events
 	*
-	* @access public
+	* Always call this function to get the trigger manager, dont use $this->wm directly
+	*
 	* @return object Trigger_Manager
+	* @access public
 	*/
 	function &getTriggerManager()
 	{
@@ -1020,24 +1062,85 @@ class MySource
 	}//end getTriggerManager()
 
 
+//--        RUN LEVELS        --//
+
+
 	/**
-	* Broadcast a trigger event
+	* Set the current run level
 	*
-	* @param string $event_name     name of the event (should be a valid trigger event name)
-	* @param Asset  &$broadcaster   an asset that broadcast the event
-	* @param array  $parameters     an array of parameters that trigger conditions are expected to understand
+	* @param int $run_level	a combination of any of the SQ_SECURITY_* constants that determine
+	* 						which security sub-systems will be enabled (can also use the
+	* 						SQ_RUN_LEVEL_* constants as short-cuts)
 	*
 	* @access public
 	* @return void
 	*/
-	function broadcastTriggerEvent($event_name, &$broadcaster, $parameters=null)
+	function setRunLevel($run_level)
 	{
-		$tm = &$this->getTriggerManager();
-		if (!empty($tm)) {
-			$tm->broadcastEvent($event_name, $broadcaster, $parameters);
+		$this->_run_level_stack[] = $run_level;
+
+	}//end setRunLevel()
+
+
+	/**
+	* Restore the run level to the previously set one
+	*
+	* @access public
+	* @return void
+	*/
+	function restoreRunLevel()
+	{
+		if (empty($this->_run_level_stack)) {
+			// there is no run level to restore
+			trigger_error('Cannot restore run level - no previous run level set', E_USER_ERROR);
 		}
 
-	}//end broadcastTriggerEvent()
+		array_pop($this->_run_level_stack);
+
+	}//end setRunLevel()
+
+
+	/**
+	* Get the current run level
+	*
+	* Returns NULL if no run level has been set
+	*
+	* @access public
+	* @return int | NULL
+	*/
+	function getRunLevel()
+	{
+		if (empty($this->_run_level_stack)) return null;
+
+		end($this->_run_level_stack);
+		$current_run_level = current($this->_run_level_stack);
+		reset($this->_run_level_stack);
+
+		return $current_run_level;
+
+	}//end getRunLevel()
+
+
+	/**
+	* Check if the current run level enables a particular security sub-system
+	*
+	* @param int $security_system	one of the SQ_SECURITY_* constants thats represents
+	*								the security sub-system we want to check is enabled
+	*
+	* @access public
+	* @return void
+	*/
+	function runLevelEnables($security_system)
+	{
+		$current_run_level = $this->getRunLevel();
+		if (is_null($current_run_level)) {
+			// there is no run level to check
+			trigger_error('Cannot check run level - no run level set', E_USER_ERROR);
+		}
+
+		return ($security_system & $current_run_level);
+
+	}//end runLevelEnables()
 
 
 //--        DATABASE        --//

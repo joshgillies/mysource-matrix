@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.78 2005/03/20 23:21:12 arailean Exp $
+* $Id: init.inc,v 1.79 2005/03/21 06:11:21 gsherwood Exp $
 *
 */
 
@@ -28,32 +28,29 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix
 */
 
 /*
-* Set the level of PHP reported errors
-* And some other PHP thingies we want
-* done OUR way.
+* set the level of PHP reported errors and some other
+* PHP thingies we want done OUR way
 */
 error_reporting(E_ALL);
 set_magic_quotes_runtime(0);
 
-// We need this so that our error handler won't kill itself attempting to try and remove
-// all existing buffers, especially important when Zend Performance Suite is installed because
+// we need this so that our error handler won't kill itself attempting to try and remove
+// all existing buffers - especially important when Zend Performance Suite is installed because
 // it adds another OB level
 define('SQ_INIT_OB_LEVEL', ob_get_level());
 
-// Are we running from the command line ?
+// are we running from the command line ?
 define('SQ_PHP_CLI', (php_sapi_name() == 'cli'));
 
 
 /*
-* We mustn't forget to update this (until someone
-* comes up with an automated method)
+* we mustn't forget to update this (until someone comes up with an automated method)
 */
-
 define('SQ_TABLE_PREFIX',          'sq_');
 define('SQ_TABLE_ROLLBACK_PREFIX', 'sq_rb_');
 
@@ -62,18 +59,18 @@ define('SQ_TABLE_ROLLBACK_PREFIX', 'sq_rb_');
 * Let's get our bearings as to where everything is from here.
 * These paths may be relative or absolute
 */
-define('SQ_SYSTEM_ROOT',		dirname(dirname(dirname(realpath(__FILE__)))));
-define('SQ_INCLUDE_PATH',		SQ_SYSTEM_ROOT.'/core/include');
-define('SQ_CORE_PACKAGE_PATH',	SQ_SYSTEM_ROOT.'/core/assets');
-define('SQ_ATTRIBUTES_PATH',	SQ_SYSTEM_ROOT.'/core/attributes');
-define('SQ_LIB_PATH',			SQ_SYSTEM_ROOT.'/core/lib');
-define('SQ_DATA_PATH',			SQ_SYSTEM_ROOT.'/data');
-define('SQ_CACHE_PATH',			SQ_SYSTEM_ROOT.'/cache');
-define('SQ_PACKAGES_PATH',		SQ_SYSTEM_ROOT.'/packages');
-define('SQ_WEB_PATH',			SQ_SYSTEM_ROOT.'/core/web');
-define('SQ_FUDGE_PATH',			SQ_SYSTEM_ROOT.'/fudge');
-define('SQ_TEMP_PATH',			SQ_SYSTEM_ROOT.'/data/temp');
-define('SQ_LOG_PATH', 			SQ_SYSTEM_ROOT.'/data/private/logs');
+define('SQ_SYSTEM_ROOT',       dirname(dirname(dirname(realpath(__FILE__)))));
+define('SQ_INCLUDE_PATH',      SQ_SYSTEM_ROOT.'/core/include');
+define('SQ_CORE_PACKAGE_PATH', SQ_SYSTEM_ROOT.'/core/assets');
+define('SQ_ATTRIBUTES_PATH',   SQ_SYSTEM_ROOT.'/core/attributes');
+define('SQ_LIB_PATH',          SQ_SYSTEM_ROOT.'/core/lib');
+define('SQ_DATA_PATH',         SQ_SYSTEM_ROOT.'/data');
+define('SQ_CACHE_PATH',        SQ_SYSTEM_ROOT.'/cache');
+define('SQ_PACKAGES_PATH',     SQ_SYSTEM_ROOT.'/packages');
+define('SQ_WEB_PATH',          SQ_SYSTEM_ROOT.'/core/web');
+define('SQ_FUDGE_PATH',        SQ_SYSTEM_ROOT.'/fudge');
+define('SQ_TEMP_PATH',         SQ_SYSTEM_ROOT.'/data/temp');
+define('SQ_LOG_PATH',          SQ_SYSTEM_ROOT.'/data/private/logs');
 
 
 // include the system version setttings
@@ -82,7 +79,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 // include the main system config file
 require_once SQ_DATA_PATH.'/private/conf/main.inc';
 
-// To be able to use symlinks without matrix tripping over the index.php, strip
+// To be able to use symlinks without MySource Matrix tripping over the index.php, strip
 // it out of the PHP_SELF variable (pretend we're someone we're not). When
 // the symlinked directory gets redirected by the .htaccess file, it has
 // the index.php appended to the url, which causes all sorts of problems for
@@ -117,8 +114,6 @@ if (SQ_IN_BACKEND && substr($_SERVER['PHP_SELF'], -1) != '/') {
 // main use is so that the error_reporter doesn't barf in HTML to something expecting XML
 if (!isset($GLOBALS['SQ_OUTPUT_TYPE'])) $GLOBALS['SQ_OUTPUT_TYPE'] = (SQ_PHP_CLI) ? 'text' : 'html';
 
-// we are not installing anything
-if (!isset($GLOBALS['SQ_INSTALL'])) $GLOBALS['SQ_INSTALL'] = false;
 
 // we are not purging the trash
 $GLOBALS['SQ_PURGING_TRASH'] = false;
@@ -126,13 +121,14 @@ $GLOBALS['SQ_PURGING_TRASH'] = false;
 // we are not reverting to a system version
 $GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = false;
 
+
 /*
-* LINK TYPES - used with bitwise operators
+* LINK TYPES - way in which assets can be associated with each other
 */
-define('SQ_LINK_TYPE_1',        1); // minor asset is a child of the major asset, link is displayed on frontend and backend navigation systems
-define('SQ_LINK_TYPE_2',        2); // same power/rank as a TYPE_1 link, but is only displayed on backend navigation systems
-define('SQ_LINK_TYPE_3',        4); // same power/rank as a TYPE_1 link, but is not displayed on any navigation systems
-define('SQ_LINK_NOTICE',        8); // for information purposes only, (eg used to register href's from one asset to another) so that deletions can warn of impending issues
+define('SQ_LINK_TYPE_1', 1); // link is displayed on frontend and backend navigation
+define('SQ_LINK_TYPE_2', 2); // same power/rank as a TYPE_1 link but is only displayed on backend navigation
+define('SQ_LINK_TYPE_3', 4); // same power/rank as a TYPE_1 link, but is not displayed on any navigation
+define('SQ_LINK_NOTICE', 8); // for information purposes only, (eg register HREF's from one asset to another)
 
 define('SQ_SC_LINK_ALL',          15); // short hand what all the main link types add up to
 define('SQ_SC_LINK_FRONTEND_NAV',  1); // short hand for TYPE_1
@@ -165,24 +161,40 @@ define('SQ_STATUS_EDITING',           64); // asset is currently safe editing
 define('SQ_STATUS_EDITING_APPROVAL', 128); // asset is currently in workflow from safe edit
 define('SQ_STATUS_EDITING_APPROVED', 256); // asset is approved waiting to go live from safe edit
 
-define('SQ_SC_STATUS_NOT_LIVE',      15); // short hand for SQ_STATUS_ARCHIVED | SQ_STATUS_UNDER_CONSTRUCTION | SQ_STATUS_PENDING_APPROVAL | SQ_STATUS_APPROVED
-define('SQ_SC_STATUS_CAN_APPROVE',   66); // short hand for SQ_STATUS_UNDER_CONSTRUCTION | SQ_STATUS_EDITING
-define('SQ_SC_STATUS_PENDING',      164); // short hand for SQ_STATUS_PENDING_APPROVAL | SQ_STATUS_EDITING_APPROVAL | SQ_STATUS_LIVE_APPROVAL
-define('SQ_SC_STATUS_ALL_APPROVED', 264); // short hand for SQ_STATUS_APPROVED | SQ_STATUS_EDITING_APPROVED
-define('SQ_SC_STATUS_SAFE_EDITING', 448); // short hand for SQ_STATUS_EDITING | SQ_STATUS_EDITING_APPROVAL | SQ_STATUS_EDITING_APPROVED
-define('SQ_SC_STATUS_ALL',          511); // short hand for SQ_STATUS_*
+define('SQ_SC_STATUS_NOT_LIVE',      15); // short cut for ARCHIVED | UNDER_CONSTRUCTION | PENDING_APPROVAL | APPROVED
+define('SQ_SC_STATUS_CAN_APPROVE',   66); // short cut for UNDER_CONSTRUCTION | EDITING
+define('SQ_SC_STATUS_PENDING',      164); // short cut for PENDING_APPROVAL | EDITING_APPROVAL | LIVE_APPROVAL
+define('SQ_SC_STATUS_ALL_APPROVED', 264); // short cut for APPROVED | EDITING_APPROVED
+define('SQ_SC_STATUS_SAFE_EDITING', 448); // short cut for EDITING | EDITING_APPROVAL | SQ_STATUS_EDITING_APPROVED
+define('SQ_SC_STATUS_ALL',          511); // short cut for SQ_STATUS_*
 
 
-// Load assertion functions, for integrated testing
+/*
+* RUN LEVEL SETTINGS - security systems that can be enabled and disabled
+*/
+define('SQ_SECURITY_PERMISSIONS',      1); // enable permissions checking
+define('SQ_SECURITY_LOCKING',          2); // enable locking
+define('SQ_SECURITY_DATA_VALIDATION',  4); // enable data value validation
+define('SQ_SECURITY_LINK_VALIDATION',  8); // enable link validation
+define('SQ_SECURITY_INTEGRITY',       16); // enable additional actions to ensure system/asset integrity
+define('SQ_SECURITY_TRIGGERS',        32); // enable triggering/event system
+
+define('SQ_RUN_LEVEL_OPEN',    0); // no security
+define('SQ_RUN_LEVEL_FORCED', 52); // DATA_VALIDATION, INTEGRITY and TRIGGERS
+define('SQ_RUN_LEVEL_SECURE', 63); // full security
+
+
+// load assertion functions, for integrated testing
 require_once SQ_INCLUDE_PATH.'/assertions.inc';
 
 
-// Load general functions, including the error handler
+// load general functions, including the error handler
 require_once SQ_INCLUDE_PATH.'/general.inc';
 ini_set('display_errors', 1); // we'll manage whether to display the errors or not in the error_handler
 set_error_handler('sq_error_handler');
 
-// If there is magic quotes, strip them out
+
+// if there is magic quotes, strip them out
 if (get_magic_quotes_gpc()) {
 	require_once SQ_FUDGE_PATH.'/general/general.inc';
 	stripslashes_array($_GET, true);
@@ -192,10 +204,10 @@ if (get_magic_quotes_gpc()) {
 }
 
 
-// Create the system object
+// create and init the system object
 require_once SQ_INCLUDE_PATH.'/mysource.inc';
 $GLOBALS['SQ_SYSTEM'] = new MySource();
+$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_SECURE);
 $GLOBALS['SQ_SYSTEM']->init();
-
 
 ?>
