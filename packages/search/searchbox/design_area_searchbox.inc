@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_searchbox.inc,v 1.1.1.1 2003/10/08 01:20:58 dwong Exp $
+* $Id: design_area_searchbox.inc,v 1.2 2003/10/13 10:03:14 brobertson Exp $
 * $Name: not supported by cvs2svn $
 *
 */
@@ -14,7 +14,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.1.1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -48,7 +48,7 @@ class Design_Area_Searchbox extends Design_Area
 		$assetid = $this->attr('search_page_assetid');
 		if ($assetid <= 0) {
 			echo "No search page configured for this search box.";
-			return;
+			return true;
 		}
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$asset =& $am->getAsset($assetid);
