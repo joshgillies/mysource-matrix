@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_menu_type.inc,v 1.31 2003/09/29 22:53:33 gsherwood Exp $
+* $Id: design_area_menu_type.inc,v 1.32 2003/09/30 00:27:18 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -542,21 +542,45 @@ class Design_Area_Menu_Type extends Design_Area
 			}// end if
 		} else {
 
+			// if we are not in the page looping section then we need to print the details of 
+			// our parent asset - if we are not a sub menu there is nothing we can do
+			if (empty($this->_tmp['outputting_page_section'])) {
+				$parent_menu = &$this->getParentMenu();
+				// if we aren't a sub menu, there is nothing we can do
+				if (is_null($parent_menu)) {
+					$id_name = '';
+				} else {
+					$id_name = $parent_menu->attr('id_name');
+				}
+			// otherwise we are in the page section and we want to print our data
+			} else {
+				$id_name = $this->attr('id_name');
+
+			}
+
 			switch($var) {
 				case 'assetid' :
-					echo '<', '?php echo $'.$this->attr('id_name').'_row[\'assetid\']; ?', '>';
+					if ($id_name) {
+						echo '<', '?php echo $'.$id_name.'_row[\'assetid\']; ?', '>';
+					}
 					break;
 
 				case 'asset_link' :
-					echo '<', '?php echo $'.$this->attr('id_name').'_urls[$'.$this->attr('id_name').'_row[\'assetid\']]; ?', '>';
+					if ($id_name) { 
+						echo '<', '?php echo $'.$id_name.'_urls[$'.$id_name.'_row[\'assetid\']]; ?', '>';
+					}
 					break;
 
 				case 'asset_short_name' :
-					echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$'.$this->attr('id_name').'_row[\'short_name\']'.$value_suffix, $args), '; ?', '>';
+					if ($id_name) {
+						echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$'.$id_name.'_row[\'short_name\']'.$value_suffix, $args), '; ?', '>';
+					}
 					break;
 
 				case 'asset_name' :
-					echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$'.$this->attr('id_name').'_row[\'name\']'.$value_suffix, $args), '; ?', '>';
+					if ($id_name) {
+						echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$'.$id_name.'_row[\'name\']'.$value_suffix, $args), '; ?', '>';
+					}
 					break;
 
 				default :

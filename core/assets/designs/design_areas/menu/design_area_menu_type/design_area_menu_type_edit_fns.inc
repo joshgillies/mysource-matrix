@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.23 2003/09/26 05:26:25 brobertson Exp $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.24 2003/09/30 00:27:18 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -301,7 +301,9 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 					$'.$asset->attr('id_name').'_current_setting = ($'.$asset->attr('id_name').'_lineage_assetid == $'.$asset->attr('id_name').'_row[\'assetid\']) ? $'.$asset->attr('id_name').'_lineage_setting : \'normal\';
 				?', '>';
 				if ($page_contents = $asset->attr('page_contents')) {
+					$asset->_tmp['outputting_page_section'] = true;
 					if (!$this->_outputContents($page_contents, $asset, $design)) return false;
+					unset($asset->_tmp['outputting_page_section']);
 				}
 				echo '<', '?php
 				}// end foreach '.$asset->attr('id_name').' data

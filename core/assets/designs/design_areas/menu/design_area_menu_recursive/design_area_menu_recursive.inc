@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_menu_recursive.inc,v 1.12 2003/09/26 05:26:25 brobertson Exp $
+* $Id: design_area_menu_recursive.inc,v 1.13 2003/09/30 00:27:18 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -105,9 +105,9 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 			';
 		if ($page_contents = $this->attr('page_contents')) {
 			$edit_fns = $this->getEditFns();
-			if (!$edit_fns->_outputContents($page_contents, $this, $design)) {
-				return false;
-			}
+			$asset->_tmp['outputting_page_section'] = true;
+			if (!$edit_fns->_outputContents($page_contents, $this, $design)) return false;
+			unset($asset->_tmp['outputting_page_section']);
 		}//	end if
 		echo '
 			<', '?php
