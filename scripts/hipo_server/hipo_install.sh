@@ -9,7 +9,7 @@ if [ ! -d supervise ]; then
 	exit 1
 fi
 
-echo -n "What is the name of the user your webserver runs as [htdocs] ?"
+echo -n "What is the name of the user your webserver runs as [htdocs]? "
 read webuser
 if [ -z $webuser ]; then
 	webuser="htdocs"
@@ -32,10 +32,11 @@ mkdir -p /var/log/hipo
 echo -n "."
 chown $webuser. -R /var/log/hipo
 echo "done."
+pwd=`pwd`
 
 echo ""
 echo "Now create your server.conf file (see the hipo documentation and the server.conf.example file)"
 echo "then review your supervise scripts and when you are happy with them create a symlink"
 echo "in your /service directory to the supervise directory here"
-echo "e.g. ln -s /var/www/matrix/scripts/hipo_server/supervise /service/hipo"
+echo "e.g. ln -s $pwd/supervise /service/hipo"
 
