@@ -1,3 +1,6 @@
+
+#include "mcActionsBarButtonClass.as"
+ 
  /////////////////////////////////////////////////////////////////////////////
 // NOTE: the options in this container are just stored as
 // normal attributes and not in there own array (as I would have liked)
@@ -15,11 +18,13 @@ function mcActionsBarClass()
 
 	this.current_assetid = 0;
 	this.buttons = new Array();
+	this.current_button = null;
+	this.mouse_over_us  = null;
 
 }// end constructor
 
 // Make it inherit from MovieClip
-mcActionsBarClass.prototype = new MovieClip();
+mcActionsBarClass.prototype = new NestedMouseMovieClip(false, NestedMouseMovieClip.NM_ON_MOUSE | NestedMouseMovieClip.NM_ON_PRESS);
 
 /**
 * Shows the options for the passed assetid
@@ -31,9 +36,9 @@ mcActionsBarClass.prototype = new MovieClip();
 */
 mcActionsBarClass.prototype.show = function(assetid, x, y)
 {
-	trace("Show Options for Item : " + _root.asset_manager.assets[assetid] + "\n --");
-
 	this.current_assetid = assetid;
+	this.current_button  = null;
+	this.mouse_over_us   = false;
 	var asset_type = _root.asset_manager.types[_root.asset_manager.assets[assetid].type_code];
 
 	this._x = x;
@@ -41,29 +46,33 @@ mcActionsBarClass.prototype.show = function(assetid, x, y)
 
 	var max_width = 0;
 
-	for(var i = 0; i < asset_type.edit_screens.length; i++) {
-		var c = asset_type.edit_screens[i].code_name;
-		var n = asset_type.edit_screens[i].name;
+	if (asset_type.edit_screens.length > 0) {
+		for(var i = 0; i < asset_type.edit_screens.length; i++) {
+			var c = asset_type.edit_screens[i].code_name;
+			var n = asset_type.edit_screens[i].name;
 
-		trace(c + " : " + n);
+			var btn_name = "btn_" + c;
+			this.buttons.push(btn_name);
+			this.attachMovie("mcActionsBarButtonID", btn_name, this.buttons.length);
+			this[btn_name].setInfo(c, n);
 
-		var btn_name = "btn_" + c;
-		this.buttons.push(btn_name);
-		this.attachMovie("mcActionsBarButtonID", btn_name, this.buttons.length);
-		this[btn_name].setInfo(c, n);
-		trace(this[btn_name]);
+			max_width = Math.max(max_width, Math.ceil(this[btn_name].textWidth()));
 
-		max_width = Math.max(max_width, Math.ceil(this[btn_name].textWidth()));
+		}// end for
 
+	} else {
+		this.buttons.push('dud');
+		this.attachMovie("mcActionsBarButtonID", 'dud', 1);
+		this.dud.setInfo('', '[No Options Available]');
+		max_width = this.dud.textWidth();
 	}
 
-	trace("Buttons : " + this.buttons);
-	trace("MAX WIDTH : " + max_width);
+//	trace("Buttons : " + this.buttons);
+//	trace("MAX WIDTH : " + max_width);
 
 	var xpos = this.border_gap;
 	var ypos = this.border_gap;
 	for(var i = 0; i < this.buttons.length; i++) {
-		trace(this[this.buttons[i]]);
 		this[this.buttons[i]].setWidth(max_width);
 		this[this.buttons[i]]._x = xpos;
 		this[this.buttons[i]]._y = ypos;
@@ -81,8 +90,6 @@ mcActionsBarClass.prototype.show = function(assetid, x, y)
 */
 mcActionsBarClass.prototype.hide = function()
 {
-	trace("HIDE ACTIONS BAR");
-
 	for(var i = 0; i < this.buttons.length; i++) {
 		this[this.buttons[i]].removeMovieClip();
 	}
@@ -93,7 +100,7 @@ mcActionsBarClass.prototype.hide = function()
 
 
 /**
-* 
+* Set the background size for this bar
 */
 mcActionsBarClass.prototype.setSize = function(w, h)
 {
@@ -107,23 +114,104 @@ mcActionsBarClass.prototype.setSize = function(w, h)
 	this.lineTo(0, 0);
 	this.endFill();
 
+}// end setSize()
+
+/**
+* Fired when the button is pressed
+*
+* @access public
+*/
+mcActionsBarClass.prototype.onPress = function() 
+{
+	this.mouse_over_us = true;
+	// deliberatly do nothing else because we don't want to pass any of this to the kids
+	return true;
 }
 
 /**
-* Fired by a button when it is pressed
-* 
-* @param string	code_name	the action that the button that was pressed represents
+* Fired when the moves out from being over us (and it was pressed over us)
 *
+* @access public
 */
-mcActionsBarClass.prototype.buttonPressed = function(code_name)
+mcActionsBarClass.prototype.onDragOut = function() 
 {
-
-	var link = new String(_root.action_bar_path);
-	link = link.replace("%assetid%", escape(this.current_assetid))
-	link = link.replace("%code_name%", escape(code_name));
-	trace("ACTION BAR link : " + link);
-	getURL(link, _root.action_bar_frame);
-
+	this[this.current_button].btnUp();
+	this.mouse_over_us = false;
+	return true;
 }
+
+/**
+* Fired when the moves over us (and it was initially pressed over us)
+*
+* @access public
+*/
+mcActionsBarClass.prototype.onDragOver = function() 
+{
+	this.mouse_over_us = true;
+	return true;
+}
+
+/**
+* Fired when the button is pressed
+*
+* @access public
+*/
+mcActionsBarClass.prototype.onMouseMove = function() 
+{
+	if (this.mouse_over_us) {
+		var mc_name = this._NM_findMc(this._xmouse, this._ymouse);
+		if (mc_name === null) {
+			if (this.current_button !== null) {
+				this[this.current_button].btnUp();
+				this.current_button = null;
+			}
+		} else {
+			if (this.current_button !== null && this[mc_name] !== this[this.current_button]) {
+				this[this.current_button].btnUp();
+				this.current_button = null;
+			}
+
+			if (this.current_button === null) {
+				this.current_button = mc_name;
+				this[this.current_button].btnDown();
+			}
+
+		} // end if
+	}// end if
+}// end onMouseMove()
+
+/**
+* Fired when the mouse button was pressed over us and when it's lifted and it's still over us
+*
+* @access public
+*/
+mcActionsBarClass.prototype.onRelease = function() 
+{
+	// if there is a button highlighted, use it
+	if (this.current_button !== null && this[this.current_button].code_name != '') {
+		var link = new String(_root.action_bar_path);
+		link = link.replace("%assetid%", escape(this.current_assetid))
+		link = link.replace("%action%", escape(this[this.current_button].code_name));
+		trace("ACTION BAR link : " + link);
+		getURL(link, _root.action_bar_frame);
+	}
+
+	this.mouse_over_us = false;
+	this.hide();
+	return true;
+}// end onRelease()
+
+/**
+* Fired when the mouse button was pressed over us and when it's lifted and it's not over us
+*
+* @access public
+*/
+mcActionsBarClass.prototype.onReleaseOutside = function() 
+{
+	this.mouse_over_us = false;
+	this.hide();
+	return true;
+}// end onReleaseOutside();
+
 
 Object.registerClass("mcActionsBarID", mcActionsBarClass);

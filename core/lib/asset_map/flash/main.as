@@ -28,25 +28,14 @@ FScrollPaneClass.prototype.getInnerPaneHeight = function()
 #include "functions.as"
 #include "general.as"
 #include "nestedMouseMovieClip.as"
-//#include "mcNestedMouseMovieClip.as"
 #include "stageResize.as"
-#include "systemStatus.as"
+#include "systemEvents.as"
 #include "externalCall.as"
 #include "serverExec.as"
-#include "assetType.as"
-#include "assetLink.as"
-#include "asset.as"
 #include "assetManager.as"
 #include "mcMenuContainerClass.as"
-#include "mcMenuItemClass.as"
-#include "mcListItemPlusMinus.as"
 #include "mcListContainerClass.as"
-#include "mcListItemContainerClass.as"
-#include "mcListItemClass.as"
 #include "mcMsgsBarClass.as"
-#include "mcMsgsBarMessageClass.as"
-#include "mcActionsBarClass.as"
-#include "mcActionsBarButtonClass.as"
 #include "mcOptionsBoxClass.as"
 #include "mcDialogBoxClass.as"
 #include "mcProgressBarClass.as"
@@ -81,12 +70,11 @@ if (_root.server_exec_path == undefined) {
 	_root.server_exec_path = "http://beta.squiz.net/blair_resolve/_edit/?SQ_BACKEND_PAGE=asset_map_request";
 }
 if (_root.action_bar_path == undefined) {
-	_root.action_bar_path = "http://beta.squiz.net/blair_resolve/_edit/?SQ_BACKEND_PAGE=main&assetid=%assetid%&action=%action%";
+	_root.action_bar_path = "http://beta.squiz.net/blair_resolve/_edit/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=%assetid%&asset_ei_screen=%action%";
 }
 if (_root.action_bar_frame == undefined) {
 	_root.action_bar_frame = "main";
 }
-
 
 
 
@@ -121,3 +109,4 @@ _root.attachMovie("mcOptionsBoxID", "options_box", 22);
 
 // Initialise stage resize listener
 _root.state_resize = new StageResize();
+_root.asset_manager.init();

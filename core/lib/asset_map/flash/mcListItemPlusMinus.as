@@ -38,6 +38,13 @@ mcListItemPlusMinusClass.prototype.setState = function(state)
 	}	
 }
 
+
+mcListItemPlusMinusClass.prototype.onPress = function()
+{
+	// return true so that the list item knows we have been pressed
+	return true;
+}
+
 mcListItemPlusMinusClass.prototype.onRelease = function()
 {
 	switch(this.getState()) {

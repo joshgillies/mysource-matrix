@@ -1,3 +1,6 @@
+#include "assetType.as"
+#include "assetLink.as"
+#include "asset.as"
 
 /**
 * This class controls the sending and retrieval of data from the server in XML
@@ -24,7 +27,14 @@ function AssetManager()
 	// Set ourselves up as a broadcaster
     ASBroadcaster.initialize(this);
 
+}
 
+/**
+* Called to intialised the asset manager
+*
+*/
+AssetManager.prototype.init = function() 
+{
 	var xml = new XML();
 	var cmd_elem = xml.createElement("command");
 	cmd_elem.attributes.action = "get asset types";
@@ -35,6 +45,7 @@ function AssetManager()
 	_root.server_exec.exec(exec_indentifier, "Loading Assets Types");
 
 }
+
 
 /**
 * Called after the XML has been loaded 

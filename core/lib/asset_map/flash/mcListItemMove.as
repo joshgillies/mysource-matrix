@@ -34,6 +34,13 @@ mcListItemMoveClass.prototype.setState = function(state)
 	}	
 }
 
+
+mcListItemMoveClass.prototype.onPress = function()
+{
+	// return true so that the list item knows we have been pressed
+	return true;
+}
+
 mcListItemMoveClass.prototype.onRelease = function()
 {
 	if(this.getState() == "off") {

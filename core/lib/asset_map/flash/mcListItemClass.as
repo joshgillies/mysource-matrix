@@ -1,4 +1,8 @@
 
+#include "mcListItemPlusMinus.as"
+#include "mcListItemMove.as"
+
+
 // Create the Class
 function mcListItemClass()
 {
@@ -11,6 +15,7 @@ function mcListItemClass()
 
 	// the current state that the buttons is in (normal, selected)
 	this.state = "normal";
+	this.actions_bar_interval = 0;
 
 	this.text_field.swapDepths(1);
 
@@ -138,7 +143,7 @@ mcListItemClass.prototype.hideKids = function()
 */
 mcListItemClass.prototype.startMove = function() 
 {
-	this._parent.startMove(this.assetid, this._name);
+	this._parent.startMove();
 }
 
 /**
@@ -199,10 +204,48 @@ mcListItemClass.prototype.unselect = function()
 mcListItemClass.prototype.onPress = function()
 {
 	this._parent.selectItem(this);
-	super.onPress();
+	// try the kids, but it they don't want it then set the interval for the actions bar
+	if (!super.onPress()) {
+		this.actions_bar_interval = setInterval(this, "showActionsBar", 500);
+	}
 	return true;
 }// end onPress()
 
+/**
+* Called when this item has been pressed
+*/
+mcListItemClass.prototype.showActionsBar = function()
+{
+	clearInterval(this.actions_bar_interval);
+	this.actions_bar_interval = 0;
+	this._parent._parent.showActionsBar();
+}// end showActionsBar()
+
+/**
+* Called when this item has been pressed and then released
+*/
+mcListItemClass.prototype.onRelease = function()
+{
+	if (this.actions_bar_interval) {
+		clearInterval(this.actions_bar_interval);
+		this.actions_bar_interval = 0;
+	}
+	super.onRelease();
+	return true;
+}// end onRelease()
+
+/**
+* Called when this item has been pressed and then the mouse was released somewhere else
+*/
+mcListItemClass.prototype.onReleaseOutside = function()
+{
+	if (this.actions_bar_interval) {
+		clearInterval(this.actions_bar_interval);
+		this.actions_bar_interval = 0;
+	}
+	super.onReleaseOutside();
+	return true;
+}// end onReleaseOutside()
 
 /**
 * Draw the Background for this list item

@@ -19,19 +19,18 @@ function mcActionsBarButtonClass()
 	this.label_text.selectable = false;
 	this.label_text._visible   = true;
 
-	var text_format = new TextFormat();
-	text_format.color = this.getColour();
-	text_format.font  = "Arial";
-	text_format.size  = 10;
-	this.text_field.setTextFormat(text_format);
+	this.text_format = new TextFormat();
+	this.text_format.font  = "Arial";
+	this.text_format.size  = 10;
 
 }
 
 // Make it inherit from MovieClip
 mcActionsBarButtonClass.prototype = new MovieClip();
-mcActionsBarButtonClass.prototype.bg_colour       = 0xC0C0C0;
-mcActionsBarButtonClass.prototype.bg_ro_colour    = 0xF0F0F0;
-mcActionsBarButtonClass.prototype.bg_press_colour = 0xD0D0D0;
+mcActionsBarButtonClass.prototype.colours = {
+												normal:   { fg: 0xFFFFFF, bg: 0x606060 },
+												rollover: { fg: 0x000000, bg: 0xC0C0C0 }
+											 };
 
 /**
 * Initialises a new Options box
@@ -45,7 +44,6 @@ mcActionsBarButtonClass.prototype.setInfo = function(code_name, label)
 {
 	this.code_name       = code_name;
 	this.label_text.text = label;
-
 	this.clear(); // do this so that the text is the widest part
 
 }// end setInfo()
@@ -67,9 +65,11 @@ mcActionsBarButtonClass.prototype.textWidth = function()
 *
 * @access public
 */
-mcActionsBarButtonClass.prototype.setWidth = function(width) 
+mcActionsBarButtonClass.prototype.setWidth = function(w) 
 {
-	this.setBG(this.bg_colour, w, this.label_text._height);
+	this.dims.w = w;
+	this.dims.h = this.label_text._height;
+	this._setStyle('normal');
 }
 
 /**
@@ -77,16 +77,20 @@ mcActionsBarButtonClass.prototype.setWidth = function(width)
 *
 * @access public
 */
-mcActionsBarButtonClass.prototype.setBG = function(bg_colour, w, h) 
+mcActionsBarButtonClass.prototype._setStyle = function(style) 
 {
-	this.clear();
+	this.text_format.color = this.colours[style].fg;
+	this.label_text.setTextFormat(this.text_format);
 
-	this.beginFill(bg_colour, 100);
-	this.lineStyle();
+	this.clear();
+	this.beginFill(this.colours[style].bg, 100);
+	// This is commented out because when we try and explicitly set it, 
+	// an extra 2 pixels gets added to the width of the MC for no f!@#$ing reason
+//	this.lineStyle();
 	this.moveTo(0, 0);
-	this.lineTo(w, 0);
-	this.lineTo(w, h);
-	this.lineTo(0, h);
+	this.lineTo(this.dims.w, 0);
+	this.lineTo(this.dims.w, this.dims.h);
+	this.lineTo(0, this.dims.h);
 	this.lineTo(0, 0);
 	this.endFill();
 }
@@ -99,7 +103,7 @@ mcActionsBarButtonClass.prototype.setBG = function(bg_colour, w, h)
 */
 mcActionsBarButtonClass.prototype.btnDown = function() 
 {
-	this.setBG(this.bg_press_colour, this._width, this._height);
+	this._setStyle('rollover');
 }
 
 /**
@@ -109,69 +113,7 @@ mcActionsBarButtonClass.prototype.btnDown = function()
 */
 mcActionsBarButtonClass.prototype.btnUp = function() 
 {
-	this.setBG(this.bg_colour, this._width, this._height);
+	this._setStyle('normal');
 }
-
-/**
-* Changes the 3D look of the button to be up
-*
-* @access public
-*/
-mcActionsBarButtonClass.prototype.btnRollover = function() 
-{
-	this.setBG(this.bg_ro_colour, this._width, this._height);
-}
-
-
-/**
-* Fired when the button is pressed
-*
-* @access public
-*/
-mcActionsBarButtonClass.prototype.onPress = function() 
-{
-	this.btnDown();
-	return true;
-}
-
-/**
-* Fired when the button is pressed
-*
-* @access public
-*/
-mcActionsBarButtonClass.prototype.onDragOut = function() 
-{
-	this.btnUp();
-	return true;
-}
-/**
-* Fired when the button is pressed
-*
-* @access public
-*/
-mcActionsBarButtonClass.prototype.onDragOver = function() 
-{
-	this.btnRollover();
-	return true;
-}
-
-/**
-* Fired when the close button is pressed
-*
-* @access public
-*/
-mcActionsBarButtonClass.prototype.onRelease = function() 
-{
-	this.btnUp();
-
-	// check if something else is modal
-	if (_root.system_events.inModal(this)) return false;
-	_root.system_events.screenPress(this);
-
-	this._parent.buttonPressed(this.code_name);
-
-	return true;
-}
-
 
 Object.registerClass("mcActionsBarButtonID", mcActionsBarButtonClass);

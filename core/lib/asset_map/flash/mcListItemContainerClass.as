@@ -1,3 +1,5 @@
+#include "mcListItemClass.as"
+ 
  /////////////////////////////////////////////////////////////////////////////
 // NOTE: the list items in this container are just stored as
 // normal attributes and not in there own array (as I would have liked)
@@ -7,6 +9,7 @@
 // Create the Class
 function mcListItemContainerClass()
 {
+
 	// holds some information on all the list items, in the vertical order that they appear in the list
 	// eg li_2_1_3 would be the mean this element exists here
 	this.items_order = new Array();
@@ -33,12 +36,12 @@ function mcListItemContainerClass()
 	_root.asset_manager.addListener(this);
 
 	// Set ourselves up as a broadcaster
-    ASBroadcaster.initialize(this);
+//	ASBroadcaster.initialize(this);
 
 }// end constructor
 
 // Make it inherit from Nested Mouse Movements MovieClip
-mcListItemContainerClass.prototype = new NestedMouseMovieClip(false, NestedMouseMovieClip.NM_ON_PRESS | NestedMouseMovieClip.NM_ON_RELEASE);
+mcListItemContainerClass.prototype = new NestedMouseMovieClip(false, NestedMouseMovieClip.NM_ON_PRESS);
 
 /**
 * Event fired when the Asset Types object has finished recieving all the asset types from the server
@@ -586,93 +589,6 @@ mcListItemContainerClass.prototype.posToAssetInfo = function(pos, where)
 
 }// end posToAssetInfo()
 
-
-mcListItemContainerClass.prototype.onPress = function() 
-{
-
-	// check if something else is modal
-	if (_root.system_events.inModal(this)) return true;
-
-	if (this.move_indicator_on) return true;
-
-	switch(this.action) {
-		case 'move' : 
-			// do nothing here, wait for release
-			return true;
-		break;
-
-		// OK we ain't doing anything at the moment let's check to see if we are over an
-		// item and deal with any actions needed
-		default :
-
-			super.onPress();
-			return true;
-
-
-	}// end switch
-
-}// end onPress()
-
-mcListItemContainerClass.prototype.showActionsBar = function() 
-{
-	clearInterval(this.actions_bar_interval);
-	this.actions_bar_interval = null;
-	this.actions_bar.show(this.selected_item.assetid, this._xmouse, this._ymouse);
-
-}// end showActionsBar()
-
-mcListItemContainerClass.prototype.onRelease = function() 
-{
-	// check if something else is modal
-	if (_root.system_events.inModal(this)) return true;
-	_root.system_events.screenPress(this);
-
-	if (this.move_indicator_on) {
-		this.endMoveIndicator();
-		return true;
-	}
-
-	if (this.actions_bar_interval) {
-		trace("CLEAR INTERVAL : " + this.actions_bar_interval);
-		clearInterval(this.actions_bar_interval);
-		this.actions_bar_interval = null;
-	}
-	if (this.actions_bar._visible) this.actions_bar.hide();
-
-
-
-	switch(this.action) {
-
-		default :
-			// if there is nothing selected then there is nothing for us to do
-			if (this.selected_item == null) return;
-
-			switch(this.selected_item.getMouseButton()) {
-				case "kids" : 
-					switch(this.selected_item.getKidState()) {
-						case "plus" :
-							//	Expand Branch
-							this.showKids(this.selected_item.assetid, this.selected_item._name);
-						break;
-						case "minus" :
-							//	Collapse Branch
-							this.hideKids(this.selected_item.assetid, this.selected_item._name);
-						break;
-					}
-				break;
-
-				case "move" :
-					this.itemStartMove();
-				break;
-				
-			}// end switch
-
-	}// end switch
-
-	return true;
-
-}// end onRelease();
-
 mcListItemContainerClass.prototype.selectItem = function(item) 
 {
 	// if we in any action we don't want to select anything
@@ -687,7 +603,7 @@ mcListItemContainerClass.prototype.selectItem = function(item)
 	this.selected_item = item;
 	this.selected_item.select();
 
-	this.broadcastMessage("onListItemSelection", this.selected_item.assetid);
+//	this.broadcastMessage("onListItemSelection", this.selected_item.assetid);
 
 	return true;
 
@@ -697,7 +613,7 @@ mcListItemContainerClass.prototype.unselectItem = function()
 {
 	this.selected_item.unselect();
 	this.selected_item = null;
-	this.broadcastMessage("onListItemUnSelection");
+//	this.broadcastMessage("onListItemUnSelection");
 }
 
 mcListItemContainerClass.prototype.selected = function(item) 
@@ -706,20 +622,19 @@ mcListItemContainerClass.prototype.selected = function(item)
 }
 
 
-mcListItemContainerClass.prototype.itemStartMove = function() 
+mcListItemContainerClass.prototype.startMove = function() 
 {
 	if (this.action != "") return false;
 
-	if (this.startMoveIndicator("itemEndMove")) {
-//		trace("Start Item Move");
+	if (this._parent.move_indicator.startIndicator(this, "endMove")) {
 		this.action = "move";
 		// move to top of layers
 		this.selected_item.setMoveState("on");
 	}
 
-}// end itemStartMove()
+}// end startMove()
 
-mcListItemContainerClass.prototype.itemEndMove = function(pos, where) 
+mcListItemContainerClass.prototype.endMove = function(pos, where) 
 {
 	if (this.action != "move") return;
 
@@ -765,26 +680,26 @@ mcListItemContainerClass.prototype.itemEndMove = function(pos, where)
 
 		// if the parent has changed during the move then we need to ask what we want done
 		if (this.selected_item.getParentAssetid() != moved_to_item.getParentAssetid()) {
-			_root.options_box.init("Move Type", "Are you moving this asset, or creating a new link ?", this, "itemMoveConfirm", params);
+			_root.options_box.init("Move Type", "Are you moving this asset, or creating a new link ?", this, "moveConfirm", params);
 			_root.options_box.addOption("new link",   "New Link");
 			_root.options_box.addOption("move asset", "Moving");
 			_root.options_box.show();
 
 		// otherwise just move it
 		} else {
-			this.itemMoveConfirm("move asset", params);
+			this.moveConfirm("move asset", params);
 
 		}// end if
 
 	} else {
 		// same as hitting cancel
-		this.itemMoveConfirm(null, {});
+		this.moveConfirm(null, {});
 	}// end if
 
-}// end itemEndMove()
+}// end endMove()
 
 
-mcListItemContainerClass.prototype.itemMoveConfirm = function(move_type, params) 
+mcListItemContainerClass.prototype.moveConfirm = function(move_type, params) 
 {
 	if (this.action != "move") return;
 
@@ -814,8 +729,7 @@ mcListItemContainerClass.prototype.itemMoveConfirm = function(move_type, params)
 	this.selected_item.setMoveState("off");
 	this.action = "";
 
-}// end itemMoveConfirm()
-
+}// end moveConfirm()
 
 mcListItemContainerClass.prototype.xmlMoveItem = function(xml, exec_identifier)
 {
@@ -832,179 +746,5 @@ mcListItemContainerClass.prototype.xmlMoveItem = function(xml, exec_identifier)
 	_root.asset_manager.reloadAssets([this.selected_item.getParentAssetid(), this.tmp.move_asset[exec_identifier].moved_info.parent_assetid]);
 
 }// end xmlMoveItem()
-
-
-mcListItemContainerClass.prototype.startMoveIndicator = function(on_end_fn) 
-{
-	if (this.move_indicator_on) return false;
-	// attempt to get the modal status
-	if (!_root.system_events.startModal(this)) return false;
-
-	this.move_indicator_on = true;
-
-
-	this.tmp.move_indicator = {on_end_fn: on_end_fn, pos: -1, where: ""};
-	// move to top of layers
-	this.move_indicator.swapDepths(this.num_items + 1);
-
-	return true;
-
-}// end startMoveIndicator()
-
-mcListItemContainerClass.prototype.endMoveIndicator = function() 
-{
-	if (!this.move_indicator_on) return;
-	_root.system_events.stopModal(this);
-
-	// call back to the end fn for whoever called us
-	this[this.tmp.move_indicator.on_end_fn](this.tmp.move_indicator.pos, this.tmp.move_indicator.where);
-
-	// clear the move indicator
-	this.move_indicator._visible = false;
-	this.move_indicator.swapDepths(-1);
-
-	// Re-Show the menus
-	_root.menu_container.show();
-
-	this.move_indicator_on = false;
-
-}// end endMoveIndicator()
-
-
-mcListItemContainerClass.prototype.onMouseMove = function() 
-{
-	if (this.move_indicator_on) {
-
-		var xm = this._xmouse;
-		var ym = this._ymouse;
-
-		var pos = this.getItemPos(xm, ym, true);
-		// make sure the number is valid
-		if (pos.pos > this.items_order.length) pos.pos = this.items_order.length;
-		else if (pos.pos < 0) pos.pos = 0;
-
-		// if we are past the end of the list then we are really at the last pos, in the gap
-		if (pos.pos == this.items_order.length) {
-			pos.pos    = this.items_order.length - 1;
-			pos.in_gap = true;
-		}
-
-		// if we are past the end of the list, improvise
-		var item_name = this.items_order[pos.pos].name;
-
-		this.tmp.move_indicator.pos    = pos.pos;
-
-		if (pos.in_gap) {
-			this.move_indicator.gotoAndStop("normal");
-			this.move_indicator._x  = this[item_name]._x;
-			this.move_indicator._y  = this[item_name]._y + _root.LIST_ITEM_POS_INCREMENT;
-			this.tmp.move_indicator.where = "after";
-
-		} else {
-
-			var percentile = ((ym - this[item_name]._y) / _root.LIST_ITEM_POS_INCREMENT);
-
-			if (percentile < 0.45) {
-				this.move_indicator.gotoAndStop("normal");
-				this.move_indicator._x  = this[item_name]._x;
-				this.move_indicator._y  = this[item_name]._y;
-				this.tmp.move_indicator.where = "before";
-
-			} else {
-				this.move_indicator.gotoAndStop("new_child");
-				this.move_indicator._x  = this[item_name]._x + _root.LIST_ITEM_INDENT_SPACE;
-				this.move_indicator._y  = this[item_name]._y + _root.LIST_ITEM_POS_INCREMENT;
-				this.tmp.move_indicator.where = "child";
-
-			}
-		}
-
-		this.move_indicator._visible = true;
-
-	}// end if action
-
-	return true;
-
-}// end onMouseMove()
-
-
-/**
-* When an item is pressed in the menu, we need to check if we should take care of 
-* the action or not
-*
-* @param string action	the action to perform
-* @param string info	additional information needed for action
-*
-*/
-mcListItemContainerClass.prototype.onMenuItemPress = function(action, info) 
-{
-
-	switch(action) {
-		case "add" :
-//			trace('Add ' + info);
-			if (this.startMoveIndicator("processAddAsset")) {
-				this.action = "add_asset";
-				this.tmp.exec_action = {type_code: info};
-			} else {
-				_root.dialog_box.show("Unable to aquire the Move Indicator", "");
-			}
-
-		break;
-
-	}// end switch
-
-}// end onMenuItemPress()
-
-
-/**
-* Attempt to add the asset
-*
-* @param int		pos	the	position in the item_order array that the move indicator came to it's final rest
-* @param boolean	in_gap	whether the indicator finished up in the gap at the end of the list
-*
-*/
-mcListItemContainerClass.prototype.processAddAsset = function(pos, where) 
-{
-
-	trace("Add an asset of type '" + this.tmp.exec_action.type_code + "' to pos " + pos + ". Where ? " + where);
-	var info = this.posToAssetInfo(pos, where);
-
-	var xml = new XML();
-	var cmd_elem = xml.createElement("command");
-	cmd_elem.attributes.action  = "get url";
-	cmd_elem.attributes.cmd     = "add";
-	cmd_elem.attributes.type_code      = this.tmp.exec_action.type_code;
-	cmd_elem.attributes.parent_assetid = info.parent_assetid;
-	cmd_elem.attributes.pos            = info.pos;
-	xml.appendChild(cmd_elem);
-
-	trace(xml);
-
-	// start the loading process
-	var exec_identifier = _root.server_exec.init_exec(xml, this, "xmlGotoUrl", "url");
-	_root.server_exec.exec(exec_identifier, "Sending Request");
-
-	this.action = "";
-
-}// end processAddAsset()
-
-
-
-/**
-* call back fn used by the execAction*() fns to after they sedn their urls requests to the server
-*
-* @param object xml	the xml object returned
-*
-*/
-mcListItemContainerClass.prototype.xmlGotoUrl = function(xml, exec_identifier)
-{
-	var frame = xml.firstChild.attributes.frame;
-	var link  = xml.firstChild.firstChild.nodeValue;
-
-	trace("getURL(" + link + ", " + frame + ");");
-	getURL(link, frame);
-
-}// end xmlGotoUrl()
-
 
 Object.registerClass("mcListItemContainerID", mcListItemContainerClass);

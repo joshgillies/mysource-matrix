@@ -4,23 +4,16 @@
 * This class inherits from MovieClip, but allows any nested MCs to 
 * be able to receive the any mouse related event
 *
+* A boolean is returned from each of the events to indicate whether a kid MC dealt 
+* with this event or not
+*
 */
 
-/* Constants for deciding what events to provide the nested mouse movements for */
-NestedMouseMovieClip.NM_ON_MOUSE			= 1; // onMouseUp, onMouseDown, onMouseMove
-NestedMouseMovieClip.NM_ON_PRESS			= 2; // onPress, onRelease, onReleaseOutside, onDragOver, onDragOut
-NestedMouseMovieClip.NM_ON_ROLL				= 4; // onRollOver, onRollOut
-
-function NestedMouseMovieClip(never_overlap, event_types) 
+function NestedMouseMovieClip(never_overlaps, event_types) 
 {
 	// If we can guarantee that there will be no overlapping nested MCs then we can save on 
 	// processing time
-	this._nm_never_overlap = never_overlap;
-
-	if (!(event_types & NestedMouseMovieClip.NM_ON_MOUSE)) {
-		this.onMouseDown	= undefined;
-		this.onMouseUp		= undefined;
-	}
+	this._nm_never_overlaps = (never_overlaps != true) ? false : true;
 
 	if (!(event_types & NestedMouseMovieClip.NM_ON_PRESS)) {
 		this.onDragOut			= undefined;
@@ -34,10 +27,6 @@ function NestedMouseMovieClip(never_overlap, event_types)
 		this.onRollOver			= undefined;
 	}
 
-	if (event_types & (NestedMouseMovieClip.NM_ON_MOUSE)) {
-		this._nm_do_mouse_move = true;
-	}
-
 	this._nm_on_roll_active = false;
 	this._nm_on_roll_mc     = null;
  
@@ -46,6 +35,10 @@ function NestedMouseMovieClip(never_overlap, event_types)
 	this._nm_drag_in_mc     = false;
 
 }
+
+/* Constants for deciding what events to provide the nested mouse movements for */
+NestedMouseMovieClip.NM_ON_PRESS			= 1; // onPress, onRelease, onReleaseOutside, onDragOver, onDragOut
+NestedMouseMovieClip.NM_ON_ROLL				= 2; // onRollOver, onRollOut
 
 NestedMouseMovieClip.prototype = new MovieClip();
 
@@ -59,9 +52,9 @@ NestedMouseMovieClip.prototype._NM_findMc = function(x, y)
 
 	var mcs = new Array();
 	for(var i in this) {
-		if (this[i] instanceof MovieClip && this[i].hitTest(pos.x, pos.y, true)) {
+		if (this[i] instanceof MovieClip && this[i]._visible && this[i].hitTest(pos.x, pos.y, true)) {
 			mcs.push(i);
-			if (this.never_overlap) break;
+			if (this.never_overlaps) break;
 		}
 	}
 	if (mcs.length) {
@@ -76,41 +69,8 @@ NestedMouseMovieClip.prototype._NM_findMc = function(x, y)
 	return null;
 }// end __findMc__
 
-NestedMouseMovieClip.prototype._NM_execMCEvent = function(event) 
-{
-	var mc_name = this._NM_findMc(this._xmouse, this._ymouse);
-	if (mc_name === null || this[mc_name][event] == undefined) {
-		return false;
-	} else {
-		return this[mc_name][event]();
-	}
-}// end __execMCEvent__()
-
-/**
-* Because the onMouse* events get fired for all objects regardless of whether 
-* the mouse is actually over the object or not just tell all the kids
-*/
-NestedMouseMovieClip.prototype._NM_propagateOnMouse = function(event) 
-{
-	for(var i in this) {
-		if (this[i] instanceof MovieClip && this[i][event] != undefined) this[i][event]();
-	}
-}
-
-NestedMouseMovieClip.prototype.onMouseUp = function() 
-{
-	this._NM_propagateOnMouse('onMouseUp');
-	return true;
-}
-NestedMouseMovieClip.prototype.onMouseDown = function() 
-{
-	this._NM_propagateOnMouse('onMouseDown');
-	return true;
-}
 NestedMouseMovieClip.prototype.onMouseMove = function() 
 {
-	if (this._nm_do_mouse_move) this._NM_propagateOnMouse('onMouseMove');
-
 	if (this._nm_on_press_mc != null || this._nm_on_roll_active) {
 		var mc_name = this._NM_findMc(this._xmouse, this._ymouse);
 
@@ -122,7 +82,8 @@ NestedMouseMovieClip.prototype.onMouseMove = function()
 				this._nm_drag_in_mc = false;
 
 			// else if we have just dragged back onto the MC, inform it
-			} else if (!this._nm_drag_in_mc && this._nm_on_press_mc == mc_name) {
+			// check objects because we can have 2 vars with diff names referencing same MC
+			} else if (!this._nm_drag_in_mc && this[this._nm_on_press_mc] === this[mc_name]) {
 				if (this[this._nm_on_press_mc].onDragOver != undefined) this[this._nm_on_press_mc].onDragOver();
 				this._nm_drag_in_mc = true;
 
@@ -146,7 +107,7 @@ NestedMouseMovieClip.prototype.onMouseMove = function()
 
 	}// end if
 
-	return true;
+	return ret_val;
 
 }// end onMouseMove
 
@@ -168,18 +129,17 @@ NestedMouseMovieClip.prototype.onRollOver = function()
 
 NestedMouseMovieClip.prototype.onPress = function() 
 {
+	this._nm_drag_active = true;
 	var mc_name = this._NM_findMc(this._xmouse, this._ymouse);
 	if (mc_name === null) {
 		this._nm_on_press_mc = null;
 		this._nm_drag_in_mc  = false;
+		return false; // none of the kids did anything with this
 	} else {
 		this._nm_on_press_mc  = mc_name;
 		this._nm_drag_in_mc   = true;
-		if (this[this._nm_on_press_mc].onPress != undefined) this[this._nm_on_press_mc].onPress();
+		return (this[this._nm_on_press_mc].onPress != undefined) ? this[this._nm_on_press_mc].onPress() : false;
 	}
-	this._nm_drag_active = true;
-
-	return true;
 
 }// end onPress()
 
@@ -189,7 +149,8 @@ NestedMouseMovieClip.prototype.onRelease = function()
 	if (this._nm_on_press_mc != null) {
 		var mc_name = this._NM_findMc(this._xmouse, this._ymouse);
 		// if we are still over the mc that we onPress()ed on, call onRelease, otherwise we call onReleaseOutside
-		var fn = (this._nm_on_press_mc == mc_name) ? "onRelease" : "onReleaseOutside";
+		// check by reference, just incase we have 2 var names referring to the same MC
+		var fn = (this[this._nm_on_press_mc] === this[mc_name]) ? "onRelease" : "onReleaseOutside";
 		if (this[this._nm_on_press_mc][fn] != undefined) this[this._nm_on_press_mc][fn]();
 	}
 	this._nm_on_press_mc = null;

@@ -1,3 +1,6 @@
+
+#include "mcMsgsBarMessageClass.as"
+ 
  /////////////////////////////////////////////////////////////////////////////
 // NOTE: the list items in this container are just stored as
 // normal attributes and not in there own array (as I would have liked)

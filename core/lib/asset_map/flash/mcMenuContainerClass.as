@@ -1,4 +1,6 @@
 
+#include "mcMenuItemClass.as"
+
 // Create the Class
 function mcMenuContainerClass()
 {
@@ -82,7 +84,6 @@ mcMenuContainerClass.prototype._recurseCreateAddMenu = function(kids, depth)
 	var item_names = new Array();
 
 	for (var i = 0; i < kids.length; i++) {
-//		trace('AddMenu : ' + kids[i]);
 		var type = _root.asset_manager.types[kids[i]];
 
 		// Create any kids, also a check to see if we have any valid kids
@@ -113,7 +114,7 @@ mcMenuContainerClass.prototype._recurseCreateAddMenu = function(kids, depth)
 
 	return item_names;
 
-}// end _recurseCreate()
+}// end _recurseCreateAddMenu()
 
 mcMenuContainerClass.prototype._recurseCreateFromArray = function(arr, depth)
 {
