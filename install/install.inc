@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 * 
-* $Id: install.inc,v 1.12 2004/07/28 04:05:09 lwright Exp $
+* $Id: install.inc,v 1.13 2004/07/28 04:08:20 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -128,14 +128,15 @@ function uninstall_asset_types()
 			$asc = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($asset_type);
 			$deleted_parents = array_intersect($asset_types, $asc);
 			
+			// are our parents going to be binned?
 			if (count($deleted_parents) > 0) {
-				// oh dear, one of our parents is gone
 				trigger_error('One or more of the parents for the asset type \''.$asset_type.'\' no longer exists in the system. The system may be broken until you restore the necessary files of the parent asset type to their proper location.'."\n".'\''.$asset_type.'\' depends on: '.implode(', ', $deleted_parents), E_USER_WARNING);
 				$errors = true;
 			}
 		}
 	
-		if ($errors) {	// we're screwed, proceed no further!
+		// failed dependency tests => we're stuffed; bail
+		if ($errors) {
 			trigger_error('Asset hierarchy would be corrupted, uninstall not committed', E_USER_WARNING);
 			exit(1);
 		}
