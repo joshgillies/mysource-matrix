@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 * 
-* $Id: install.inc,v 1.9 2004/06/29 09:05:30 brobertson Exp $
+* $Id: install.inc,v 1.10 2004/07/07 02:52:11 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -77,79 +77,68 @@ function uninstall_asset_types()
 {
 	$db = &$GLOBALS['SQ_SYSTEM']->db;
 
+	// always contains the full list of asset type_codes currently registered in the database 
+	$all_asset_types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
+
+	// contains full list, but will be diff'd with $package_asset_types leaving what
+	// type_codes can be safely deleted
 	$asset_types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
 
-	// asset types are deleted if the .inc file for them does not exist (eg. for Page asset it would be
-	// page.inc) and no assets OR asset types currently depend on them in the system.
-	if (!empty($asset_types)) {
-		$types_to_delete = Array();
-		$deleted_types = Array();
+	// type_codes of assets which are being claimed by a package
+	$package_asset_types = Array();
+
+	// find which packages are installed
+	$packages_installed = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
 	
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+	if (!empty($packages_installed)) {
+		foreach($packages_installed as $package_array) {
+			$package = $package_array['code_name'];
 	
-		$missing_files = false;
-		foreach($asset_types as $asset_type) {
-			$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset_type);
-	
-			// all three .inc files for the asset should exist
-			$exists = 0;
-	
-			$dir = $type_info['dir'].'/'.$asset_type.'.inc';
-			$exists += (file_exists(SQ_SYSTEM_ROOT.'/'.$dir) ? 1 : 0);
-	
-			$dir = $type_info['dir'].'/'.$asset_type.'_management.inc';
-			$exists += (file_exists(SQ_SYSTEM_ROOT.'/'.$dir) ? 1 : 0);
-			
-			$dir = $type_info['dir'].'/'.$asset_type.'_edit_fns.inc';
-			$exists += (file_exists(SQ_SYSTEM_ROOT.'/'.$dir) ? 1 : 0);
-	
-			if ($exists == 0) {	// does not exist
-				// check how many assets are in the system that depend on this type
-				$assetid_count = count($GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($asset_type, false));
-				if ($assetid_count > 0) {
-					// file gone but there are still assets depending on it!
-					trigger_error('The files for the asset type \''.$asset_type.'\' has been removed from its location ([SYSTEM_ROOT]/'.$type_info['dir'].'), but '.$assetid_count.' assets exist which depend on this type. The system may be broken until you restore the necessary files to this location', E_USER_WARNING);
-					$missing_files = true;
-	
-				} else if (substr(SQ_SYSTEM_ROOT.'/'.$type_info['dir'], 0, strlen(SQ_CORE_PACKAGE_PATH)) == SQ_CORE_PACKAGE_PATH) {
-					// we're not friggin' touching anything in the core -- if it's not there then we have
-					// a problem!!
-					trigger_error('Cannot uninstall asset type \''.$asset_type.'\' as it is in the core. The system may be broken until you restore this asset type\'s files to its original location.', E_USER_WARNING);
-					$missing_files = true;
-	
-				} else {
-					// safe to delete - save the type code so we can delete it later
-					$types_to_delete[] = $asset_type;
+			// core package is something else
+			if ($package == '__core__') {
+				require_once SQ_CORE_PACKAGE_PATH.'/package_manager_core.inc';
+				$pm = new Package_Manager_Core();
+				$package_asset_types = array_merge($package_asset_types, array_keys($pm->assets));
+			} else {
+				// only process a package if the PM file exists for it, because we need it
+				$package_path = SQ_PACKAGES_PATH.'/'.$package.'/package_manager_'.$package.'.inc';
+				if (file_exists($package_path)) {
+					require_once $package_path;
+					$class = 'package_manager_'.$package;
+					$pm = new $class();
+					$package_asset_types = array_merge($package_asset_types, array_keys($pm->assets));
 				}
-	
-			} elseif ($exists < 3) {		// not all files are there!
-				trigger_error('Not all required files for the asset type \''.$asset_type.'\' can be found in its location ([SYSTEM_ROOT]/'.$type_info['dir'].'). The system may be broken until you restore the necessary files to this location', E_USER_WARNING);
-				$missing_files = true;
 			}
-	
 		}
-	
-		// find out what we have left and check to see whether their parents are still there
-		$asset_types = array_diff($asset_types, $types_to_delete);
-	
-		foreach($asset_types as $asset_type) {
+	}
+
+	// What's left after the diff are assets which no package thinks it owns, and can
+	// safely be deleted
+	$asset_types = array_diff($asset_types, $package_asset_types);
+
+	// Asset types are deleted when no package manager thinks they have the asset type.
+	// They think they have the asset type when the asset.xml says so
+	if (!empty($asset_types)) {
+		$errors = false;
+
+		foreach($all_asset_types as $asset_type) {
 			$asc = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($asset_type);
-			$deleted_parents = array_intersect($types_to_delete, $asc);
+			$deleted_parents = array_intersect($asset_types, $asc);
 			if (count($deleted_parents) > 0) {
 				// OMG OMG OMG, one of our parents is gone!
 				trigger_error('One or more of the parents for the asset type \''.$asset_type.'\' no longer exists in the system. The system may be broken until you restore the necessary files of the parent asset type to their proper location.'."\n".'\''.$asset_type.'\' depends on: '.implode(', ', $deleted_parents), E_USER_WARNING);
-				$missing_files = true;
+				$errors = true;
 			}
 		}
 	
-		if ($missing_files) {	// we're screwed, proceed no further!
+		if ($errors) {	// we're screwed, proceed no further!
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error('System integrity questionable, uninstall not committed', E_USER_WARNING);
+			trigger_error('Asset hierarchy would be corrupted, uninstall not committed', E_USER_WARNING);
 			exit(1);
 		}
 	
 		// now actually delete the types
-		foreach($types_to_delete as $asset_type) {
+		foreach($asset_types as $asset_type) {
 			// delete the types
 			$sql = 'DELETE FROM sq_asset_type WHERE type_code = '.$db->quote($asset_type);
 	
@@ -188,7 +177,7 @@ function uninstall_asset_types()
 		// report if we did uninstall some asset types
 		if (!empty($types_to_delete)) {
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-			$message_body = 'UNINSTALLED the following asset types as their files no longer exist:'."\n".implode("\n", $types_to_delete);
+			$message_body = 'UNINSTALLED the following asset types as they are no longer recognised by any package:'."\n".implode("\n", $types_to_delete);
 			$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
 			$message->send();
 		}
@@ -259,7 +248,7 @@ function uninstall_packages()
 	
 	return true;
 	
-}//end uninstall_packages()
+}//end update_package_locations()
 
 
 /**
