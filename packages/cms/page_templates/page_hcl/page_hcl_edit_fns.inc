@@ -18,11 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_hcl_edit_fns.inc,v 1.6 2004/06/03 23:46:10 gsherwood Exp $
+* $Id: page_hcl_edit_fns.inc,v 1.7 2004/06/16 06:11:17 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
-require_once dirname(__FILE__).'/../../page/page_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 
 
 /**
