@@ -1,10 +1,103 @@
 MYSOURCE MATRIX CHANGELOG
 
-VERSION 3.3.1 beta
+
+VERSION 3.4.0
 
 Featured Changes
 ----------------------
 
+New Global Web Folders
+
+	Design linking changes introduced in 3.3.1 beta have meant have resulted in existing site designs requiring their own Site asset to be created to ensure all the images and files attached to the design still have a URL that can be used to access them. This required a new Site asset to be created and for administrators to move all the site designs under this Site.
+	
+	To make this process easier, there is a now a Design Folder asset that can be used to store site designs. The Design Folder sets a default URL when created, so any designs linked under it will be web accessible by default. URLs for the Design Folder can also be modified as required, like a normal site asset.
+	
+	In addition, two other web folders have been added. There is a User Folder in which to store users and user groups, and a Media Folder in which to store files and images. Like the Design Folder, all assets linked under these two folders will be web accessible by default.
+
+Default Web Paths for Users
+
+	hen created, User assets now have a default web path set so the asset is web accessible. This allows the details of the user account to be edited in the simple editing interface without the use of the Account Manager, allowing for the editing of user metadata (etc) to be edited using layouts.
+
+
+Complete Changelog
+----------------------
+
+Core
++	User assets now get a default web path when created
++	New global web accessible folder in which to place site designs
++	New global web accessible folder in which to place files, images and other media
++	New global web accessible folder in which to place users and user groups
++	Improvements to the image editor applet to clean up menus and tools
++	Improved brightness/contrast and related image adjustments in the image editor applet
+*	Fixed bug #413: failure when detecting version requirements in MAPS
+*	Fixed bug #452: MAPS fails when checking version
+*	Fixed bug #453: general.js script include is not XHTML Strict compatible
+*	Fixed bug #454: table editing pop-up doesn't work in IE
+*	Fixed bug #461: error morphing File asset to Image asset
+*	Fixed bug #464: cloning assets causes the create link to be a notice link
+*	Fixed bug #467: multiple_asset_finder() doesn't work
+*	Fixed bug #481: erronous tags in WYSIWYG with Firefox
+*	Fixed bug #485: default metadata not visible in a field-specific metadata design area
+*	Fixed bug #503: preferences not being set correctly
+
+CMS
+*	Fixed bug #458: asset builder not closing LI tag (asset builder)
+*	Fixed bug #459: undefined variable in Form::printBody() (custom form)
+*	Fixed bug #463: root nodes selector should be dynamic (asset listing)
+*	Fixed bug #479: section links are not being recognised on Form Contents' details screen (custom form)
+*	Fixed bug #482: error when submitting a form as a guest when the root user has locked the asset (custom form)
+*	Fixed bug #489: public form submissions trying to load user asset (custom form)
+
+Ecommerce
+*	Fixed bug #483: forms not detecting numeric fields (ecommerce form)
+
+
+
+
+VERSION 3.4.0 RC1
+
+Featured Changes
+----------------------
+
+New User Agent Condition For Show If Design Area
+
+	There is a new condition for Show_If design areas called User_Agent. The user agent condition allow you to conditionally display content based on the type of browser or operating system that a site visitor is viewing the site with. The condition makes use of the user agent string provided by the web browser. Note that the user agent string can be modified on some browsers and so is not guaranteed to always accurately reflect the browser or operating system the site visitor is using.
+	
+	One use of this new condition is to set the design for a site based on the browser type. The following example uses the new condition to set a low bandwidth design for Blackberry PDA users. It redirects Blackberry users, setting the design for the duration of their session.
+	
+	<MySource_AREA id_name="test_blackberry" design_area="show_if"> 
+	   <MySource_SET name="condition" value="user_agent" />
+	   <MySource_SET name="condition_user_agent" value="blackberry" />
+	   <MySource_THEN>
+		 <script language="Javascript">
+		   document.location = "<MySource_PRINT id_name="__global__" var="asset_link"
+		   start_query_string="true" append_query_string="true" />SQ_DESIGN_NAME=low_bandwidth&SQ_ACTION=set_design_name";
+		 </script>
+	   </MySource_THEN>
+	</MySource_AREA>
+
+
+Complete Changelog
+----------------------
+
+Core
++	Inbox marks new messages as read when they are previewed
++	New Show If design area condition to conditionally printing content based on browser user agent string
+-	Only User and File assets can be morphed
+
+CMS
+*	Fixed bug #437: custom Form displays the word Array instead of the array of keywords (custom form)
+
+Calendar
+*	Fixed bug #415: recurring event cancellation and modification does not work (calendar page)
+
+
+
+
+VERSION 3.3.1 beta
+
+Featured Changes
+----------------------
 
 No Upgrade Available
 
