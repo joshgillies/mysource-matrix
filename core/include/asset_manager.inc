@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.292 2005/03/28 23:11:25 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.293 2005/03/29 06:42:00 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.292 $
+* @version $Revision: 1.293 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -991,6 +991,27 @@ class Asset_Manager extends MySource_Object
 		return isset($this->_system_assetids[$asset_type]);
 
 	}//end isSystemAssetType()
+
+
+	/**
+	* Registers a system asset, identified by the type,id pair
+	*
+	* @param string	$asset_type	asset typecode
+	* @param string	$assetid	asset id
+	*
+	* @return bool
+	* @access public
+	*/
+	function registerSystemAsset($asset_type=null, $assetid=null)
+	{
+		if (is_null($asset_type) || is_null($assetid)) {
+			return false;
+		}
+
+		$this->_system_assetids[$asset_type] = $assetid;
+		return true;
+
+	}//end registerSystemAsset()
 
 
 	/**
