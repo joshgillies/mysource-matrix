@@ -98,9 +98,6 @@ class Folder extends Asset
 		$o->openField('Folder Name');
 		$o->text_box('name', '', 10);
 
-		pre_echo($_GET);
-		pre_echo($_POST);
-
 		$o->commitButton('Create');
 
 	}//end printBackend()

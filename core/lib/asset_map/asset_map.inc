@@ -246,7 +246,7 @@ class Asset_Map
 		}
 		$attrs = Array('assetid' => $asset->id, 
 						'name'   => '[CS] '.$asset->name, 
-						'type_code' => get_class($asset)
+						'type_code' => $asset->type()
 						);
 		$asset_node = &$root->addChild('asset', '', $attrs);
 		// we only want EXCLUSIVE or UNITE links

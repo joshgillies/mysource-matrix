@@ -58,6 +58,17 @@ class Asset extends Resolve_Object
 	}
 
 	/*
+	* The type that this asset is
+	*
+	* @return string
+	* @access public
+	*/
+	function type() 
+	{
+		return get_class($this);
+	}//end type();
+
+	/*
 	* Create this asset
 	*
 	* @return boolean
@@ -71,14 +82,14 @@ class Asset extends Resolve_Object
 		// welcome to sequences, they are cool, see the PEAR::DB docs for more info
 		$assetid = $db->nextid('sq_sequence_asset');
 
-		$name   = ucwords(str_replace('_', ' ', get_class($this))).' #'.$assetid;
+		$name   = ucwords(str_replace('_', ' ', $this->type())).' #'.$assetid;
 		$now    = time();
 		$userid = $GLOBALS['SQ_RESOLVE']->currentUserId();
 
 		$sql = 'INSERT INTO sq_asset
 				(assetid, type_code, name, last_updated, last_userid)
 				VALUES
-				('.$db->quote($assetid).','.$db->quote(get_class($this)).', '.$db->quote($name).', '.$db->quote(ts_iso8601($now)).', '.$db->quote($userid).')';
+				('.$db->quote($assetid).','.$db->quote($this->type()).', '.$db->quote($name).', '.$db->quote(ts_iso8601($now)).', '.$db->quote($userid).')';
 
 		pre_echo($sql);
 
@@ -130,8 +141,8 @@ class Asset extends Resolve_Object
 		unset($result);
 
 		// make sure the asset we are loading is of the same type as our class
-		if ($type_code != get_class($this)) {
-			trigger_error('Asset #'.$assetid.' is not a '.get_class($this), E_USER_WARNING);
+		if ($type_code != $this->type()) {
+			trigger_error('Asset #'.$assetid.' is not a '.$this->type(), E_USER_WARNING);
 			$this->id   = null;
 			$this->last_updated = null;
 			$this->last_userid  = null;
@@ -175,7 +186,7 @@ class Asset extends Resolve_Object
 		$result->free();
 
 		$parents = $this->getParentList();
-		$parents[] = get_class($this);
+		$parents[] = $this->type();
 		// OK, because of the way things work we now need to get any vars that this asset has
 		// or has inherited but has not customised - ie the default values
 		// NOTE: we specifically don't get defaults for vars we have customised
@@ -188,6 +199,8 @@ class Asset extends Resolve_Object
 				.(($parents_str) ? ' AND t.type_code IN ('.$parents_str.') ' : '')
 				.(($vars_str)    ? ' AND a.name  NOT IN ('.$vars_str.') '    : '')
 				.'ORDER BY a.attributeid, t.level';
+
+		//pre_echo($sql);
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
@@ -242,7 +255,7 @@ class Asset extends Resolve_Object
 	*/
 	function _getName() 
 	{
-		return ucwords(str_replace('_', ' ', get_class($this))).' #'.$this->id;
+		return ucwords(str_replace('_', ' ', $this->type())).' #'.$this->id;
 	}//end _getName();
 
 	/*
@@ -255,7 +268,7 @@ class Asset extends Resolve_Object
 	function getParentList() 
 	{
 
-		return $GLOBALS['SQ_RESOLVE']->am->getParentList(get_class($this));
+		return $GLOBALS['SQ_RESOLVE']->am->getParentList($this->type());
 
 	}//end getParentList()
 
@@ -482,7 +495,7 @@ class Asset extends Resolve_Object
 		}
 
 		// First, we should check that we don't already have a link of this type
-		$current_links = $this->getLinks($link_type, get_class($minor));
+		$current_links = $this->getLinks($link_type, $minor->type());
 		$num_curr_links = count($current_links);
 		for($i = 0; $i < $num_curr_links; $i++) {
 			// it already exists, so we don't need to do anything
@@ -493,7 +506,7 @@ class Asset extends Resolve_Object
 		}//end for
 
 		// check if we are allowed to link to these type of assets
-		if (($err_msg = $this->canLinkToType(get_class($minor), $link_type)) !== true) {
+		if (($err_msg = $this->canLinkToType($minor->type(), $link_type)) !== true) {
 			trigger_error($err_msg, E_USER_WARNING);
 			return false;
 		}
@@ -570,7 +583,7 @@ class Asset extends Resolve_Object
 			return false;
 		}
 
-		$this->_linkChanged($link_type, get_class($minor));
+		$this->_linkChanged($link_type, $minor->type());
 
 		return $linkid;
 
@@ -610,7 +623,7 @@ class Asset extends Resolve_Object
 
 		if (empty($allowed_links[$link_type][$type])) {
 			include_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-			return 'Assets of Type "'.$type_code.'" cannot be "'.link_type_name($link_type).'" linked to a "'.get_class($this).'"';
+			return 'Assets of Type "'.$type_code.'" cannot be "'.link_type_name($link_type).'" linked to a "'.$this->type().'"';
 		}
 
 
@@ -620,7 +633,7 @@ class Asset extends Resolve_Object
 
 		// if we are only allowed one of these links and we already have our one link, bugger off
 		if ($allowed_links[$link_type][$type] == 1 && $num_curr_links > 0) {
-			return 'Assets of Type "'.get_class($this).'" can only have one "'.$link_type.'" link to a "'.$type.'"';
+			return 'Assets of Type "'.$this->type().'" can only have one "'.$link_type.'" link to a "'.$type.'"';
 		}//end if
 
 		// if we get this far all is OK
@@ -815,7 +828,7 @@ class Asset extends Resolve_Object
 	{
 
 		if (empty($this->vars[$name])) {
-			trigger_error('Attribute "'.$name.'" not found for Asset of type "'.get_class($this).'"', E_USER_WARNING);
+			trigger_error('Attribute "'.$name.'" not found for Asset of type "'.$this->type().'"', E_USER_WARNING);
 			return false;
 		}
 
@@ -878,13 +891,16 @@ class Asset extends Resolve_Object
 	/*
 	* easy way to get the value of an attribute
 	*
+	* @param string	$name
+	*
+	* @return mixed
 	* @access public
 	*/
 	function attr($name) 
 	{
 
 		if (empty($this->vars[$name])) {
-			trigger_error('Attribute "'.$name.'" not found for Asset"'.get_class($this).'"', E_USER_WARNING);
+			trigger_error('Attribute "'.$name.'" not found for Asset"'.$this->type().'"', E_USER_WARNING);
 			return null;
 		}
 
@@ -903,7 +919,7 @@ class Asset extends Resolve_Object
 	function printBackend(&$backend) 
 	{
 		$backend->out->openRaw();
-		echo ucwords(str_replace('_', ' ', get_class($this))).' Backend Interface Not Done';
+		echo ucwords(str_replace('_', ' ', $this->type())).' Backend Interface Not Done';
 		$backend->out->closeRaw();
 	}// end printBackend()
 

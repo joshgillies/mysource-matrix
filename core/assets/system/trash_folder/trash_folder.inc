@@ -47,7 +47,7 @@ class Trash_Folder extends Folder
 
 		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
 
-		$sql = 'SELECT count(*) FROM sq_asset WHERE type_code = '.$db->quote(get_class($this));
+		$sql = 'SELECT count(*) FROM sq_asset WHERE type_code = '.$db->quote($this->type());
 		$exists = $db->getOne($sql);
 		if (DB::isError($exists)) trigger_error($exists->getMessage().'<br>'.$exists->getUserInfo(), E_USER_ERROR);
 
