@@ -4,18 +4,17 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once(dirname(__FILE__).'/bodycopy_table_cell.inc');
 
 /**
-* Page
+* Bodycopy_Table
 *
 * Purpose
 *
 *
-* @author  Blair Robertson <blair@squiz.net>
+* @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
 * @package Resolve::packages::cms
 */
 class Bodycopy_Table extends Asset
 {
-
 
 	/**
 	* Constructor
@@ -23,16 +22,20 @@ class Bodycopy_Table extends Asset
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Bodycopy_Table($assetid=0) 
+	function Bodycopy_Table($assetid=0)
 	{
 		$this->_arr_atrs = true;
 		$this->Asset($assetid);
 	}
 
-	/*
+
+	/**
 	* Create this asset
 	*
-	* @param string $name   the name of this folder
+	* @param string $name		the name of this table
+	* @param int	$num_rows	the number of rows to create
+	* @param int	$num_cols	the number of columns to create
+	* @param array	$attributes	attributes to apply to the table
 	*
 	* @return boolean
 	* @access public
@@ -72,28 +75,27 @@ class Bodycopy_Table extends Asset
 
 
 	/**
-	* Returns an array of all the permitted links type, the type asset and the cardinality
+	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
 	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
 	*/
-	function _getAllowedLinks() {
+	function _getAllowedLinks()
+	{
+		return Array(SQ_LINK_UNITE => Array('content_type' => 'M'));
 
-		return Array(SQ_LINK_UNITE     => Array('content_type' => 'M')
-					);
-
-	}#end _getAllowedLinks()
+	}//end _getAllowedLinks()
 
 
 	/**
-	* processes a backend submission from this asset, returns true if all OK
+	* Processes a backend submission from this asset, returns true if all OK
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processBackend() 
+	function processBackend()
 	{
-
 		switch($_POST['asset_action']) {
 			default :
 				return parent::processBackend();
@@ -106,7 +108,7 @@ class Bodycopy_Table extends Asset
 	/**
 	* Returns name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the short name or the full name
 	*
 	* @see Asset::_getName()
 	* @access public
@@ -114,8 +116,9 @@ class Bodycopy_Table extends Asset
 	function _getName($short_name=false)
 	{
 		return $this->attr('name');
+
 	}//end _getName();
 
 
-}#end class
+}//end class
 ?>

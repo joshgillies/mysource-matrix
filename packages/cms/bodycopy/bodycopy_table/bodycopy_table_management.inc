@@ -3,11 +3,11 @@
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
-* Page_Management
+* Bodycopy_Table_Management
 *
 * @see Asset_Management
 *
-* @author  Blair Robertson <blair@squiz.net>
+* @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
 * @package Resolve::packages::cms
 */
@@ -44,6 +44,7 @@ class Bodycopy_Table_Management extends Asset_Management
 	/**
 	* Install
 	*
+	* @access public
 	*/
 	function _install()
 	{
@@ -54,9 +55,16 @@ class Bodycopy_Table_Management extends Asset_Management
 	}//end install
 
 
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
 	function _upgrade($current_version)
 	{
-
 		$ok = parent::_upgrade($current_version);
 		pre_echo($this->getAssetType().' Specific upgrade stuff here');
 
@@ -74,7 +82,6 @@ class Bodycopy_Table_Management extends Asset_Management
 		return $ok;
 
 	}//end upgrade()
-
 
 }//end class
 ?>

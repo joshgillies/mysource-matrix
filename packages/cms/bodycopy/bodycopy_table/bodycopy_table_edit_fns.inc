@@ -10,32 +10,37 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 * Purpose
 *
 *
-* @author  Blair Robertson <blair@squiz.net>
+* @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve::packages::__core__
+* @package Resolve::packages::cms
 */
 class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 {
-	/**
-	* All available protocols
-	* @var Array(string)
-	*/
-	var $protos = Array('http', 'https');
-
 
 	/**
 	* Constructor
 	*
 	*/
-	function Bodycopy_Table_Edit_Fns() 
+	function Bodycopy_Table_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
 	}
 
 
-	 #########################################
-	# set an attribute for the table tag
-	function set_attribute(&$attributes, $name, $value) {
+	/**
+	* Sets an attribute value in the attributes var
+	* Internal checking of these attributes has to go here as they
+	* will not be checked by the system
+	*
+	* @param array	&$attributes	a reference to the attributes var of the BodyCopy_Table object
+	* @param string	$name			the name of the attribute
+	* @param string	$value			the value of the attribute
+	*
+	* @return boolean
+	* @access public
+	*/
+	function set_attribute(&$attributes, $name, $value)
+	{
 		$name = strtolower($name);
 		if (empty($attributes[$name])) $attributes[$name] = '';
 		if ($attributes[$name] == $value) return false;
@@ -43,12 +48,18 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		return true;
 	}
 
-
-	  ###########################################################
-	 # prints the JavaScript needed by the backend functions for 
-	# this table 
-	function paintBackendJsData(&$asset, $prefix) {
-
+	
+	/**
+	* Prints the JavaScript needed by the backend functions for this table
+	*
+	* @param object Asset	&$asset	the table object being printed
+	* @param string			$prefix	prefix for form fields
+	*
+	* @return void
+	* @access public
+	*/
+	function paintBackendJsData(&$asset, $prefix)
+	{
 		$table_rows = $asset->attr('rows');
 		$table_attributes = $asset->attr('attributes');
 		$max_cols = $this->maxCols($table_rows);
@@ -64,7 +75,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 									switch (cellid) {
 										<?php
 										for($x = 0; $x < count($table_rows[$i]); $x++) {
-											if (isset($table_rows[$i]['cells'][$x])) $table_rows[$i]['cells'][$x]->print_backend_js_data($prefix, $asset->id, $i, $x);
+											if (isset($table_rows[$i]['cells'][$x])) $table_rows[$i]['cells'][$x]->print_backend_js_data($x);
 										}
 										?>
 
@@ -87,37 +98,36 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 					break;
 		<?php
 	
-	}#end paintBackendJsData()
+	}//end paintBackendJsData()
 
 
 	/**
-	* Paint the interface for the asset urls
+	* Paint the interface for editing this table
 	*
-	* @param object Asset				$owner	the asset whose interface we are painting
+	* @param object Asset				$asser	the table whose interface we are painting
 	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param string						$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintTable(&$asset, &$o, $prefix) {
-		//global $_BODYCOPY;
-
+	function paintTable(&$asset, &$o, $prefix)
+	{
 		$table_rows = $asset->attr('rows');
 		$table_attributes = $asset->attr('attributes');
 
 		$attribute_list = '';
 		$popup_attribute_list = '';
-		//$bgimage = '';
+		$bgimage = '';
 
 		for (reset($table_attributes); $name = key($table_attributes); next($table_attributes)) {
 			$val = $table_attributes[$name];
 			if ($val == '') continue;
 			if ($name == 'background') {
-				//$web = &get_web_system();
-				//$file = &$web->get_file(substr($val, 5));
-				//$bgimage = $file->get_href();
-				//$popup_attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $file->filename).'"';
+				#$web = &get_web_system();
+				#$file = &$web->get_file(substr($val, 5));
+				#$bgimage = $file->get_href();
+				#$popup_attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $file->filename).'"';
 				continue;
 			}
 			$popup_attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
@@ -140,7 +150,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		?>
-		<table<?php echo $attribute_list?> background="<?php //echo $bgimage?>" border="0">
+		<table<?php echo $attribute_list?> background="<?php echo $bgimage?>" border="0">
 			<tr> 
 				<td class="bodycopy-edit" align="center" background="" id="<?php echo $prefix.'_table_'.$asset->id;?>" width="4%">
 				<?php
@@ -186,7 +196,6 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 
 		$num_rows = count($table_rows);
 		for($i = 0; $i < $num_rows; $i++) {
-			//$table_rows[$i]->print_backend($this_bodycopy_name, $tableid, $i, $num_rows);
 			?>
 			<tr>
 			<?php
@@ -194,12 +203,12 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 				?>
 				<td class="bodycopy-edit" background="" nowrap align="center" width="1%">
 				<?php
-						# can't reorder if only one row
-						if ($num_rows > 1) {
-							print_bodycopy_icon("Javascript: bodycopy_edit_table_row_order('$prefix', $asset->id);", 'Reorder '.$asset->attr('name').'\'s Rows ?', '', 'reorder_rows');
-						} else {
-							echo '&nbsp;';
-						}
+					# can't reorder if only one row
+					if ($num_rows > 1) {
+						print_bodycopy_icon("Javascript: bodycopy_edit_table_row_order('$prefix', $asset->id);", 'Reorder '.$asset->attr('name').'\'s Rows ?', '', 'reorder_rows');
+					} else {
+						echo '&nbsp;';
+					}
 				?>
 				</td>
 				<?php
@@ -209,7 +218,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			<?php
 			}
 
-			// print the buttons
+			// print the buttons for the cells in the row
 			for($x = 0; $x < count($table_rows[$i]['cells']); $x++) {
 				$table_rows[$i]['cells'][$x]->paintCell($prefix, $asset->id, $i, $x);
 			}
@@ -259,7 +268,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 				for($x = 0; $x < count($table_rows[$i]['cells']); $x++) {
 					$table_rows[$i]['cells'][$x]->paint(true);
 				}
-			?> 
+			?>
 			</tr>
 			<?php
 		}//end for
@@ -267,13 +276,26 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		?>
 		</table>
 		<?php
-	}
+
+		return true;
+
+	}// end paintTable()
 
 
-	function processTable(&$asset, $prefix) {
+	/**
+	* Process the interface for editing this table
+	*
+	* @param object Asset	&$asset	the table whose interface we are painting
+	* @param string			$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processTable(&$asset, $prefix)
+	{
 		global $bodycopy_action, $bodycopy_name, $bodycopy_data, $bodycopy_saved;
-		global $_BODYCOPY;
 
+		// save any changed table attributes
 		if (!empty($bodycopy_saved[$prefix][$asset->id]['attributes'])) {
 			$attributes_updated = false;
 			$attributes = $asset->attr('attributes');
@@ -291,6 +313,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			$rows = $asset->attr('rows');
 			for($rowid = 0; $rowid < count($rows); $rowid++) {
 				if (!empty($bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['attributes'])) {
+					// save any changed row attributes
 					foreach($bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['attributes'] as $name => $value) {
 						$name = strtolower($name);
 						if (!isset($rows[$rowid]['attributes'][$name]) || $rows[$rowid]['attributes'][$name] != $value) {
@@ -299,7 +322,6 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 						}
 					}
 				}
-
 
 				// only update if we are the table row that submitted the form
 				if ((!empty($bodycopy_data['rowid']) && $bodycopy_data['rowid'] == $rowid && $prefix == $bodycopy_name) || isset($bodycopy_saved[$prefix][$asset->id]['rows'][$rowid])) {
@@ -424,8 +446,11 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 					}
 				}
 			}
+
+			// only set the rows attributes if any of the rows (or cells within) have changed
 			if ($rows_updated) $asset->setAttrValue('rows',$rows);
 
+			// process any special actions if we are the  table that submitted the form
 			if (!empty($bodycopy_data) && $bodycopy_data['tableid'] == $asset->id && $bodycopy_name == $prefix) {
 				switch($bodycopy_action) {
 					
@@ -453,18 +478,26 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 						$msg[] = $this->reorderColumns($asset, $bodycopy_data['col_order']);
 					break;
 
-				}#end switch
+				}
 			}
 
-		}#end if
-	}
+		}//end if
+	
+	}//end processTable()
 
 
-
-	 #########################################################
-	# insert a new table row before or after the passed rowid
-	function insertRow(&$asset, $rowid, $before=true) {
-
+	/**
+	* Insert a new table row before or after the passed rowid
+	*
+	* @param object Asset	&$asset	the table object
+	* @param int			$rowid	the id of the row that we are inserting before/after
+	* @param boolean		$before	insert before the passed rowid?
+	*
+	* @return boolean
+	* @access public
+	*/
+	function insertRow(&$asset, $rowid, $before=true)
+	{
 		$rows = $asset->attr('rows');
 
 		$rowid = intval($rowid);
@@ -489,7 +522,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 
 		if ($rowid <= $compareid) $compareid++;
 
-		# now add the row
+		// now add the row
 		$rows[$rowid]				= Array();
 		$rows[$rowid]['attributes'] = Array();
 		$rows[$rowid]['cells']		= Array();
@@ -504,18 +537,23 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			// set the contentType of the cell
 		}
 
-		//return 'Row inserted '.(($before) ? 'before' : 'after').' row '.(($before) ? $rowid + 1 : $rowid);
-
 		$asset->setAttrValue('rows',$rows);
 		return true;
 
-	}//end insert_row()
+	}//end insertRow()
 
 
-	 #########################################################
-	# delete a the passed table row from the array
-	function deleteRow(&$asset, $rowid) {
-
+	/**
+	* Delete the passed table row from the array
+	*
+	* @param object Asset	&$asset	the table object
+	* @param int			$rowid	the id of the row to delete
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteRow(&$asset, $rowid)
+	{
 		$rows = $asset->attr('rows');
 
 		// make sure it exists
@@ -534,18 +572,24 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 
 		} elseif (count($rows) == 1) {
 			return false;
-		}#end if
+		}
 	
 		return false;
 
-	}//end delete_row()
+	}//end deleteRow()
 
 
-
-	 #########################################################
-	# re-orders the table rows, takes an array of the structure (new_place => old_place)
-	function reorderRows(&$asset, $row_order) {
-
+	/**
+	* Re-orders the table rows
+	*
+	* @param object Asset	&$asset	the table object
+	* @param array			$row_order	an array of the structure (new_place => old_place)
+	*
+	* @return boolean
+	* @access public
+	*/
+	function reorderRows(&$asset, $row_order)
+	{
 		$rows = $asset->attr('rows');
 
 		// if there ain't no changes, die
@@ -567,14 +611,20 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		$asset->setAttrValue('rows',$rows);
 		return true;
 
-	}//end reorder_rows()
+	}//end reorderRows()
 
 
-
-	 ###################################################################################
-	# re-orders the table rows, takes an array of the structure (new_place => old_place)
-	function reorderColumns(&$asset, $col_order) {
-
+	/**
+	* Re-orders the table columns
+	*
+	* @param object Asset	&$asset	the table object
+	* @param array			$col_order	an array of the structure (new_place => old_place)
+	*
+	* @return boolean
+	* @access public
+	*/
+	function reorderColumns(&$asset, $col_order)
+	{
 		// if there ain't no changes, die
 		$changes = false;
 		foreach($col_order as $new_place => $old_place) $changes |= ($new_place != $old_place);
@@ -590,7 +640,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			for($i = 0; $i < count($col_order); $i++) {
 				$new_array[$i] = $rows[$r]['cells'][$col_order[$i]];
 			}
-			# now assign the new ordered array
+			// now assign the new ordered array
 			$rows[$r]['cells'] = $new_array;
 		}
 	
@@ -600,39 +650,71 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 	}//end reorderColumns()
 
 
-	 ###################################################################
-	# insert a new column in all rows, before or after the passed colid
-	function insertColumn(&$asset, $cellid, $before=true) {
-
+	/**
+	* Insert a new column in all rows, before or after the passed columnid
+	*
+	* @param object Asset	&$asset	the table object
+	* @param int			$cellid	the id of the column that we are inserting before/after
+	* @param boolean		$before	insert before the passed cellid?
+	*
+	* @return boolean
+	* @access public
+	*/
+	function insertColumn(&$asset, $cellid, $before=true)
+	{
 		$rows = $asset->attr('rows');
+
+		// we dont know how to do this ourselves, so just get
+		// every row to insert a new cell and it can handle checking
 		for($r = 0; $r < count($rows); $r++) {
 			if (!$this->insertCell($rows, $r, $cellid, $before)) return false;
 		}
+
 		$asset->setAttrValue('rows',$rows);
 		return true;
 
-	}#end insert_col()
+	}//end insertColumn()
 
 
-	 ###################################################################
-	# deletes a column from all rows, before or after the passed colid
-	function deleteColumn(&$asset, $cellid) {
-
+	/**
+	* Deletes a column from all rows, before or after the passed columnid
+	*
+	* @param object Asset	&$asset	the table object
+	* @param int			$cellid	the id of the column that we are deleting
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteColumn(&$asset, $cellid)
+	{
 		$rows = $asset->attr('rows');
+
+		// we dont know how to do this ourselves, so just get
+		// every row to delete the cell and it can handle checking
 		for($r = 0; $r < count($rows); $r++) {
 			if (!$this->deleteCell($rows, $r, $cellid)) return false;
 		}
+
 		$asset->setAttrValue('rows',$rows);
 		return true;
 
-	}#end delete_col()
+	}//end deleteColumn()
 
 
-
-	 #########################################################
-	# insert a new table cell before or after the passed cellid
-	function insertCell(&$rows, $rowid, $cellid, $before=true, $colspan=false) {
-
+	/**
+	* Insert a new table cell before or after the passed cellid
+	*
+	* @param array		&$rows		a reference to the rows attribute of the table
+	* @param int		$rowid		the id of the row we are inserting into
+	* @param int		$cellid		the id of the cell we are inserting before/after
+	* @param boolean	$before		insert the cell before the passed cellid?
+	* @param boolean	$colspan	ignore colspans in this row
+	*
+	* @return boolean
+	* @access public
+	*/
+	function insertCell(&$rows, $rowid, $cellid, $before=true, $colspan=false)
+	{
 		if (!$colspan) {
 
 			// check for colspan's in this row - colspan's will muck things up
@@ -725,14 +807,22 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 
 		return true;
 
-	}#end insert_cell()
+	}//end insertCell()
 
 
-
-	 #########################################################
-	# delete a the passed table cell from the array
-	function deleteCell(&$rows, $rowid, $cellid, $colspan=false) {
-
+	/**
+	* Delete the passed table cell from the array
+	*
+	* @param array		&$rows		a reference to the rows attribute of the table
+	* @param int		$rowid		the id of the row we are deleting from
+	* @param int		$cellid		the id of the cell we are deleting
+	* @param boolean	$colspan	ignore colspans in this row
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteCell(&$rows, $rowid, $cellid, $colspan=false)
+	{
 		if (!$colspan) {
 
 			// check for colspan's in this row - colspan's will muck things up
@@ -786,12 +876,20 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			return false;
 		}
 
-	}//end delete_cell()
+	}//end deleteCell()
 
 
-	 ##########################################################
-	# gets the maximum number of columns out of all the rows
-	function maxCols($table_rows, $add_colspans=true) {
+	/**
+	* Gets the maximum number of columns out of all the rows in this table
+	*
+	* @param array		$table_rows		the rows attribute of the table
+	* @param boolean	$add_colspans	add colspan value while counting
+	*
+	* @return integer
+	* @access public
+	*/
+	function maxCols($table_rows, $add_colspans=true)
+	{
 		$max = 0;
 		for($i = 0; $i < count($table_rows); $i++) {
 			$num = 0;
@@ -805,7 +903,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			}
 			if ($max < $num) $max = $num; 
 		}
-		return $max;
+		return (int)$max;
 	}//end maxCols()
 
 
