@@ -102,7 +102,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	*/
 	function paint($prefix, $read_only=false)
 	{
-		$field = new datetime_field($prefix.'_'.$this->name, $this->value, $this->_edit_params);
+		$field = new Datetime_Field($prefix.'_'.$this->name, $this->value, $this->_edit_params);
 
 		if ($read_only) {
 			echo $field->format($this->_edit_params['print_format']);
@@ -123,8 +123,8 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	*/
 	function process($prefix)
 	{
-		$value = '';
-		$field = new datetime_field($prefix.'_'.$this->name, $value, $this->_edit_params);
+		$value = $this->value;
+		$field = new Datetime_Field($prefix.'_'.$this->name, $value, $this->_edit_params);
 		if ($field->processField()) {
 			if ($this->value != $value && $this->setValue($value)) {
 				$this->processed = true;
@@ -147,9 +147,11 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	*/
 	function validateValue(&$value)
 	{
-		// all validation happens in the datetime_field
-		// object, so we dont need any checking here
-		return true;
+		$ref = '';
+		$orig_value = $value;
+		$field = new Datetime_Field('blah', $ref, $this->_edit_params);
+		$validated_value = $field->validateValue($value);
+		return ($orig_value == $validated_value);
 	}//end validateValue()
 
 
