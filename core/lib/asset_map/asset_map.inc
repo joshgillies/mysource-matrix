@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.176 2005/03/31 04:28:58 lwright Exp $
+* $Id: asset_map.inc,v 1.177 2005/03/31 04:33:25 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.176 $
+* @version $Revision: 1.177 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -404,7 +404,7 @@ class Asset_Map
 				$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p '.$p_where;
 			}
 
-			$sql .= ','.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree lt on l.linkid = lt.linkid';
+			$sql .= ','.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l';
 			$where = '	a.assetid = l.minorid AND ';
 
 			$where .= 'a.assetid = '.$db->quote($assetid);
@@ -412,7 +412,6 @@ class Asset_Map
 						l.link_type <= '.$db->quote(SQ_LINK_TYPE_2);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lt');
 
 			$sql .= ' '.$where;
 
