@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_herder.inc,v 1.23 2003/10/17 01:34:15 brobertson Exp $
+* $Id: hipo_herder.inc,v 1.24 2003/10/20 23:35:51 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -24,6 +24,11 @@ class HIPO_Herder extends MySource_Object
 	* @var array of jobs that have been loaded
 	*/
 	var $_jobs = Array();
+
+	/**
+	* @var array of jobs that are queued to be run
+	*/
+	var $_queued_jobs = Array();
 
 	/**
 	* Constructor
@@ -580,7 +585,18 @@ if (!empty($todo_hipo)) {
 		$init_hipo->setRunningVars($vars);
 		$init_hipo->setOption('on_complete_url', $on_complete_url);
 
-		return $init_hipo->initialise();
+		// check if this hipo has already been queued up by this person
+		// may happen when trying to perform the same task multiple times
+		// in a single script execution
+		$hipo_code = $init_hipo->_getCodeName();
+		if (isset($this->_queued_jobs[$GLOBALS['SQ_SYSTEM']->currentUserId()])) {
+			if (in_array($hipo_code, $this->_queued_jobs[$GLOBALS['SQ_SYSTEM']->currentUserId()])) return true;
+		}
+
+		if (!$init_hipo->initialise()) return false;
+
+		$this->_queued_jobs[$GLOBALS['SQ_SYSTEM']->currentUserId()][] = $hipo_code;
+		return true;
 
 	}//end queueHipo()
 
