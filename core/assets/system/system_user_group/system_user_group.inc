@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: system_user_group.inc,v 1.17 2003/09/26 05:26:29 brobertson Exp $
+* $Id: system_user_group.inc,v 1.18 2003/09/30 01:25:42 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -157,6 +157,8 @@ class System_User_Group extends User_Group
 	{
 		// we have to be root to do anything in here
 		if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
+		// if we are just reading then, we need to be a system admin
+		if (($perm & SQ_PERMISSION_READ) && $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
 		return false;
 
 	}//end checkAccess()
