@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.16 2004/01/22 00:35:35 diarandine Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.17 2004/01/22 10:40:01 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -86,20 +86,20 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	* @return void
 	* @access private
 	*/
-	function paintConfig(&$o, &$class)
+	function paintConfig(&$o, $class)
 	{
-			$write_access = $this->writeAccess();
-			
-			// metadata regeneration threshhold HIPO config entry
-			$o->openField('Lookups Updating Threshold');
+		$write_access = $this->writeAccess();
+		
+		// metadata regeneration threshhold HIPO config entry
+		$o->openField('Lookups Updating Threshold');
 
-			if($write_access) {
-				text_box($class.'[SQ_HIPO_LOOKUPS_THRESHOLD]', SQ_HIPO_LOOKUPS_THRESHOLD, 5);
-			} else {
-				echo SQ_HIPO_LOOKUPS_THRESHOLD;
-			}
+		if($write_access) {
+			text_box($class.'[SQ_HIPO_LOOKUPS_THRESHOLD]', SQ_HIPO_LOOKUPS_THRESHOLD, 5);
+		} else {
+			echo SQ_HIPO_LOOKUPS_THRESHOLD;
+		}
 
-			$o->closeField();
+		$o->closeField();
 
 	}//end paintConfig()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.15 2004/01/22 00:35:35 diarandine Exp $
+* $Id: hipo_job_edit_status.inc,v 1.16 2004/01/22 10:40:01 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -81,20 +81,20 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	* @return void
 	* @access private
 	*/
-	function paintConfig(&$o, &$class)
+	function paintConfig(&$o, $class)
 	{
-			$write_access = $this->writeAccess();
-			
-			// metadata regeneration threshhold HIPO config entry
-			$o->openField('Edit Status Threshold');
+		$write_access = $this->writeAccess();
+		
+		// metadata regeneration threshhold HIPO config entry
+		$o->openField('Edit Status Threshold');
 
-			if($write_access) {
-				text_box($class.'[SQ_HIPO_EDIT_STATUS_THRESHOLD]', SQ_HIPO_EDIT_STATUS_THRESHOLD, 5);
-			} else {
-				echo SQ_HIPO_EDIT_STATUS_THRESHOLD;
-			}
+		if($write_access) {
+			text_box($class.'[SQ_HIPO_EDIT_STATUS_THRESHOLD]', SQ_HIPO_EDIT_STATUS_THRESHOLD, 5);
+		} else {
+			echo SQ_HIPO_EDIT_STATUS_THRESHOLD;
+		}
 
-			$o->closeField();
+		$o->closeField();
 
 	}//end paintConfig()
 
