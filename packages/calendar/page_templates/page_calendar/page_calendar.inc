@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.54 2004/09/08 06:29:30 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.55 2004/09/08 23:53:46 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.54 $ - 1.0
+* @version $Revision: 1.55 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -658,7 +658,7 @@ class Page_Calendar extends Page_Asset_Listing
 			}
 
 			// print the final week, if necessary
-			if ($current_day < $month_length) {
+			if ($current_day <= $month_length) {
 				$i = 0;
 				echo '<tr style="height: '.$row_height.'ex">';
 				while ($current_day <= $month_length) {
@@ -2136,7 +2136,7 @@ class Page_Calendar extends Page_Asset_Listing
 					// wipe the table clean
 					$sql_freqs_m = Array();
 					
-					$sql_freqs_m[] = '(frequency = '.$db->quote('MFN').' AND start_date_mday BETWEEN '.$db->quote(1).' AND '. $db->quote($day+6-$days_in_month) .')';
+					$sql_freqs_m[] = '(frequency = '.$db->quote('MFN').' AND start_date_mday BETWEEN '.$db->quote(1).' AND '. $db->quote($day+6-$days_in_month).')';
 				
 				  	// every X months on xth weekday of the month - it's always going to
 					// be the first week of a new month
@@ -2150,6 +2150,10 @@ class Page_Calendar extends Page_Asset_Listing
 				
 					$sql_freqs[] = '(('.implode("\n\t".' OR ', $sql_freqs_m).') AND (MOD('.$db->quote($ms+1).' - start_date_ms,period) = 0))';	
 				}
+				
+				$sql_freqs[] = '(frequency IN ('.$db->quote('MFN').', '.$db->quote('MRN').') AND (end_date_ds - start_date_ds >= '.$day.'))';
+				
+				$sql_freqs[] = '(frequency IN ('.$db->quote('MFW').', '.$db->quote('MRW').') AND (end_date_ds - start_date_ds >= 1 + ((start_date_rwdom-1) * 7)))';
 				
 			break;
 			
@@ -2249,7 +2253,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$start_date_stamp = floor(strtotime($iso.' 12:00:00 GMT')/86400);
 		$end_date_stamp = $start_date_stamp + $period - 1; 
 		
-		$date_sql = '(cd.start_date_ds BETWEEN '.$db->quote($start_date_stamp).' and '.$db->quote($end_date_stamp).') OR (cd.start_date_ds < '.$db->quote($start_date_stamp).' AND cd.end_date_ds >= '.$db->quote($end_date_stamp).')';
+		$date_sql = '(cd.start_date_ds BETWEEN '.$db->quote($start_date_stamp).' and '.$db->quote($end_date_stamp).') OR (cd.start_date_ds < '.$db->quote($start_date_stamp).' AND cd.end_date_ds >= '.$db->quote($start_date_stamp).')';
 		
 		// base sql query FOR SINGLE EVENTS
 		$sql = $this->_buildSingleEventQuery($trees).' and ('.$date_sql.')';
