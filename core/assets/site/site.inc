@@ -123,7 +123,7 @@ class Site extends Folder
 			$curr_urlid = $save_urlid;
 
 			// strip any extra slashes
-			$save_urls[$save_urlid]['url'] = strtolower(strip_url($save_urls[$save_urlid]['url']));
+			$save_urls[$save_urlid]['url'] = strtolower(strip_url($save_urls[$save_urlid]['url'], true));
 
 			//// Firstly let's try and see if this URL is already in use by something ////
 
