@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: boolean.inc,v 1.15 2004/03/04 03:24:04 diarandine Exp $
+* $Id: boolean.inc,v 1.16 2004/03/10 23:51:56 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -165,7 +165,7 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 							 1 => $this->_edit_params['true_text']
 							);
 		} else {
-			$options = Array('_' => '-- Select one --',
+			$options = Array('_' => '-- Leave Empty --',
 							 0 => $this->_edit_params['false_text'],
 							 1 => $this->_edit_params['true_text']
 							);
