@@ -66,8 +66,7 @@ class Asset_Attribute_Email extends Asset_Attribute_Text
 		if ($this->value != $value && $this->setValue($value)) {
 			$this->processed = true;
 		} else {
-			trigger_error('Email validation failed', E_USER_NOTICE);
-			$this->processed = true;
+			$this->processed = false;
 		}
 
 	}// end process()
