@@ -526,6 +526,7 @@ class Backend_Outputter
 				}//end foreach
 
 			?>
+
 				}// end page_on_load()
 
 				function form_on_submit() {

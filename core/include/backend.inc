@@ -173,13 +173,39 @@ class Backend extends Resolve_Object
 	*/
 	function _printFooter()
 	{
+
 		$this->out->openRaw();
-		
 		?>
-		<script language="Javascript" type="text/javascript">
-			var refreshUpdate = <?php echo (int) SQ_CONF_REFRESH_INTERVAL ?>; // number of seconds before refreshing frame
+		<script language="JavaScript" type="text/javascript">
+			var REFRESH_UPDATE = <?php echo (int) SQ_CONF_REFRESH_INTERVAL ?>; // number of seconds before refreshing frame
 		</script>
 		<?php
+
+		if (isset($_SESSION['last_refresh'])) {
+
+			$db = $GLOBALS['SQ_SYSTEM']->db;
+
+			$sql = 'SELECT assetid 
+					FROM sq_asset
+					WHERE last_updated > '.$db->quote(ts_iso8601($_SESSION['last_refresh']));
+			$updated_assetids = $db->getCol($sql);
+			if (!DB::isError($updated_assetids) && !empty($updated_assetids)) {
+				require_once 'XML/Tree.php';
+				$xml = new XML_Tree();
+				$xml_root = &$xml->addRoot('assets');
+				foreach($updated_assetids as $assetid) {
+					$xml_root->addChild('asset', '', Array('assetid' => $assetid));
+				}
+				$this->out->addOnLoad('
+					if (top.sidenav.reload_assets) {
+						top.sidenav.reload_assets("'.str_replace("\n", "\\n", addslashes($xml->get())).'");
+					}
+				');
+			}// end if
+
+		}// end if
+
+		$_SESSION['last_refresh'] = time();
 
 		// check for any new internal messages
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
@@ -293,21 +319,20 @@ class Backend extends Resolve_Object
 
 					setTimeout("showMsgDiv()", 200);
 				} else {
-					refreshUpdate = 2;
+					REFRESH_UPDATE = 2;
 				}
 			</script>
 			<?php
-		}
+		}// end if empty msgs
 		
 		?>
 		<table width="100%" cellpadding="2" cellspacing="0" border="0">
 			<tr><td style="background-color: #212E61;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1" /></td></tr>	
 			<tr><td style="background-color: #7A92AD;"><b><a href="<?php echo SQ_SYSTEM_URL;?>" class="sq-backend-smallprint" target="_blank"><?php echo SQ_SYSTEM_LONG_NAME;?></a></b></td></tr>
 		</table>
-		<script language="Javascript" type="text/javascript">
-			setTimeout("document.location.reload();", refreshUpdate * 1000);
-		</script>
 		<?php
+
+		$this->out->addOnLoad('setTimeout("document.location.reload();", REFRESH_UPDATE * 1000);');
 
 		$this->out->closeRaw();
 
