@@ -811,7 +811,7 @@ class Asset_Manager extends MySource_Object
 		// is this asset already locked
 		if (!empty($current_lock)) {
 			$user = &$this->getAsset($current_lock['userid']);
-			trigger_error('Cannot acquire lock on "'.$this->name.'", lock already held by "'.$user->name.'"', E_USER_NOTICE);
+			trigger_error('Cannot acquire lock on "'.$asset->name.'", lock already held by "'.$user->name.'"', E_USER_NOTICE);
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
