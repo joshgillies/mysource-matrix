@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.29 2005/01/20 13:33:36 brobertson Exp $
+* $Id: file_system.inc,v 1.30 2005/02/21 19:33:42 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Generic functions for the file system
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package Fudge
 * @subpackage General
 */
@@ -188,7 +188,7 @@ function increment_filename($name,$spacer='')
 * @return array
 * @access public
 */
-function list_files($dir='', $fullpath=false)
+function list_files($dir, $fullpath=false)
 {
 	if (!$dir) return false;
 	if (is_dir($dir)) {
@@ -229,17 +229,17 @@ function list_files($dir='', $fullpath=false)
 * @return array
 * @access public
 */
-function list_dirs($dir, $fullpath=false)
+function list_dirs($dir, $fullpath=false, $ignore_list=Array())
 {
 	if (!is_dir($dir)) return Array();
+
+	array_push($ignore_list, '.', '..');
 
 	$dirs = Array();
 	if ($handle = opendir($dir)) {
 		while (($subdir = readdir($handle)) !== false) {
-			if ($subdir == '.' || $subdir == '..') continue;
-			if (is_dir($dir.'/'.$subdir)) {
-				$dirs[] = ($fullpath) ? $dir.'/'.$subdir : $subdir;
-			}
+			if (!is_dir($dir.'/'.$subdir) || in_array($subdir, $ignore_list)) continue;
+			$dirs[] = ($fullpath) ? $dir.'/'.$subdir : $subdir;
 		}
 		closedir($handle);
 	}
