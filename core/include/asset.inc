@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.262 2003/12/02 03:37:15 mmcintyre Exp $
+* $Id: asset.inc,v 1.263 2003/12/08 03:08:43 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -113,6 +113,12 @@ class Asset extends MySource_Object
 	* @var Array('var_name' => Array('attributeid' => $attributeid, 'value' = $value))
 	*/
 	var $vars = Array();
+
+	/**
+	* An array of keywords that this asset makes available for use along with a default replacement
+	* @var Array(keyword => default_replacement)
+	*/
+	var $_available_keywords = Array();
 
 	/**
 	* The weightings for this asset's components
@@ -1559,6 +1565,23 @@ class Asset extends MySource_Object
 		return true;
 
 	}//end _morphCleanup()
+
+
+	/**
+	* Add valid keywords for this asset to an array of keywords when asked
+	*
+	* @param Array	$vars	the vars that get submitted by the broadcaster
+	*						we add keywords to the $vars['keywords'] array
+	*
+	* @return boolean
+	* @access private
+	*/
+	function onRequestKeywords($vars=Array())
+	{
+		if (!isset($vars['keywords'])) return;
+		$vars['keywords'] = array_merge($vars['keywords'], $this->_available_keywords);
+		
+	}//end onRequestKeywords()
 
 
 //--        STATUS        --//
