@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.207 2004/04/22 08:32:37 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.208 2004/04/22 13:03:53 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -490,25 +490,8 @@ class Asset_Edit_Interface extends MySource_Object
 		// get the asset tree lineage
 		$asset_path = Array();
 		if (isset($_REQUEST['sq_asset_path'])) {
-			// asset map sends comma-separated assetids indicating the path
-			$matches = preg_split('|,([0-9]+:?),?|', ($_REQUEST['sq_asset_path']), 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-			for (reset($matches); null !== ($k = key($matches)); next($matches)) {
-				// the first match is always fine
-				if ($k == 0) {
-					$asset_path[] = $matches[$k];
-					continue;
-				}
-
-				// if a match ends with the shadow id seperator, the next match
-				// is actually part of this match
-				if (substr($matches[$k], -1) == ':') {
-					$asset_path[] = $matches[$k].$matches[$k+1];
-					next($matches);
-					continue;
-				}
-
-				$asset_path[] = $matches[$k];
-			}
+			// asset map sends comma-separated assetids indicating the path (use preg_split to remove any empty elements)
+			$asset_path = preg_split('|,|', $_REQUEST['sq_asset_path'], -1, PREG_SPLIT_NO_EMPTY);
 		} else {
 			if (SQ_IN_LIMBO) {
 				$url_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL();
