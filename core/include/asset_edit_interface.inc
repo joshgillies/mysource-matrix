@@ -135,36 +135,38 @@ class Asset_Edit_Interface extends Resolve_Object
 		$write_access = $owner->writeAccess();
 		$full_write_access = $owner->writeAccess(Array(), false);
 
-		// lets tell the user if the asset is locked for editing
-		// or if they can lock it to edit it
-		$o->openSection('Locking / Editing');
-		$o->openField('&nbsp;');
-		$lock = $owner->getLockInfo();
-		if (!empty($lock)) {
-			// this asset is currently locked
-			// so display message to the user
-			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+		if (!$creating) {
+			// lets tell the user if the asset is locked for editing
+			// or if they can lock it to edit it
+			$o->openSection('Locking / Editing');
+			$o->openField('&nbsp;');
+			$lock = $owner->getLockInfo();
+			if (!empty($lock)) {
+				// this asset is currently locked
+				// so display message to the user
+				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
 
-			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-			$expires_in = easy_time_total(($lock['expires'] - time()), true);
-			if (!$expires_in) $expires = '1 second';
+				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+				$expires_in = easy_time_total(($lock['expires'] - time()), true);
+				if (!$expires_in) $expires = '1 second';
 
-			echo '<p class="sq-form-field">"'.$owner->name.'" is currently locked for editing by user "'.$user->name.'". The lock is due to expire in '.$expires_in.'</p>';
-			
-			// does the current user has a high
-			// enough level of access to forceably aquire the lock
-			$can_aquire_lock = $owner->canForceablyAquireLock();
-			
-			if ($can_aquire_lock) {
-				echo '<p class="sq-form-field">You can forceably aquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself. Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably aquired.</p>';
+				echo '<p class="sq-form-field">"'.$owner->name.'" is currently locked for editing by user "'.$user->name.'". The lock is due to expire in '.$expires_in.'</p>';
+				
+				// does the current user has a high
+				// enough level of access to forceably aquire the lock
+				$can_aquire_lock = $owner->canForceablyAquireLock();
+				
+				if ($can_aquire_lock) {
+					echo '<p class="sq-form-field">You can forceably aquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself. Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably aquired.</p>';
 
+					submit_button('aquire_lock', 'Aquire Lock');
+				}
+			} else if ($full_write_access) {
+				$write_access = false;
 				submit_button('aquire_lock', 'Aquire Lock');
+			} else {
+				echo 'You do not have access to edit "'.$owner->name.'".';
 			}
-		} else if ($full_write_access) {
-			$write_access = false;
-			submit_button('aquire_lock', 'Aquire Lock');
-		} else {
-			echo 'You do not have access to edit "'.$owner->name.'".';
 		}
 
 		$current_location = $o->getCurrentLocation();
@@ -343,13 +345,6 @@ class Asset_Edit_Interface extends Resolve_Object
 		// if there are no screens or tabs, piss off
 		if (!count($this->_screens) && empty($this->_edit_fns->tabs)) return;
 
-		if (!$creating) {
-			// try to aquire a lock on this asset?
-			if (isset($_POST['aquire_lock'])) {
-				if (!$owner->aquireLock()) return false;
-			}
-		}
-
 		$processed = Array();
 		$create_sections = Array();
 		$active_screen = (empty($_GET['asset_ei_screen'])) ? 'details' : $_GET['asset_ei_screen'];
@@ -474,20 +469,6 @@ class Asset_Edit_Interface extends Resolve_Object
 			}// end for
 
 		}// end if $file
-
-		if (!$creating) {
-			$lock = $owner->getLockInfo();
-			if (!empty($lock)) {
-				// this asset is currently locked
-				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
-				// committing changes means we release the lock
-				if (isset($_POST['commit']) && $user->id == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
-					if (!$owner->releaseLock()) {
-						trigger_error('Failed to release lock', E_USER_WARNING);
-					}
-				}
-			}
-		}
 
 		return $processed;
 

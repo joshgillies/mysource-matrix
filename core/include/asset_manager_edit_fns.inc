@@ -119,9 +119,34 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 				// if the form has been submitted then, process it
 				// and if that is successfull, then create the link to the parent asset
 				$link = Array();
-				if (!empty($_POST['am_form_submitted']) && $asset->processBackend($this->backend->out, $link)) {
-					$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" Updated');
-				}// end if
+				if (!empty($_POST['am_form_submitted'])) {
+					
+					// try to aquire a lock on this asset?
+					if (isset($_POST['aquire_lock'])) {
+						if (!$asset->aquireLock()) return false;
+					}
+					
+
+					if ($asset->processBackend($this->backend->out, $link)) {
+
+						$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" Updated');
+						
+						$lock = $asset->getLockInfo();
+						if (!empty($lock)) {
+							// this asset is currently locked
+							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+							// committing changes means we release the lock
+							if (isset($_POST['sq_release_lock']) && 
+										$_POST['sq_release_lock'] == 1 && 
+										$user->id == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
+
+								if (!$asset->releaseLock()) {
+									trigger_error('Failed to release lock', E_USER_WARNING);
+								}
+							}
+						}
+					}
+				}
 
 				$asset->paintBackend($this->backend->out);
 				break;

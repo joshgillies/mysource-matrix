@@ -111,10 +111,17 @@ class Asset extends Resolve_Object
 
 	/**
 	* Create this asset
+	* The return value will be:
+	*	FALSE if the asset wa snot created
+	*	the ID of the newly created link if the asset and intital link were created
+	*	TRUE if the asset was created but $link was empty
 	*
-	* @param Array	&$link		information used to create the initial link, Array ('asset' => [ref major asset to create link under], 'link_type' => SQ_LINK_?, 'value' => [link value], 'sort_order' => [link sort order], 'dependant' = [0|1])
+	* @param Array	&$link	information used to create the initial link, 
+	*						Array ('asset' => [ref major asset to create link under], 
+	*						'link_type' => SQ_LINK_?, 'value' => [link value], 
+	*						'sort_order' => [link sort order], 'dependant' = [0|1])
 	*
-	* @return boolean
+	* @return boolean | int
 	* @access public
 	*/
 	function create(&$link)
@@ -162,8 +169,10 @@ class Asset extends Resolve_Object
 			if (!isset($link['value']))	     $link['value']      = '';
 			if (!isset($link['sort_order'])) $link['sort_order'] = -1;
 			if (!isset($link['dependant']))	 $link['dependant']  = 0;
+			$link['asset']->aquireLock();
 			$linkid = $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['sort_order'], $link['dependant']);
-			return !empty($linkid);
+			$link['asset']->releaseLock();
+			return $linkid;
 		} else {
 			return true;
 		}
@@ -1488,7 +1497,7 @@ class Asset extends Resolve_Object
 
 		// if you dont have write access to this asset you cant create any links
 		if (!$GLOBALS['SQ_INSTALL'] && !$this->writeAccess()) {
-			return 'Cannot create link, permission denied';
+			return 'Cannot create link from "'.$this->name.'" to "'.$minor->name.'", permission denied';
 		}
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
@@ -2863,13 +2872,38 @@ class Asset extends Resolve_Object
 	/**
 	* Returns true if at least one of the passed assetids has the passed permission
 	*
-	* @param array $assetids An array of user_group and/or user ids to check for permission
-	*						 If the array is empty, the current user will be checked
+	* @param int		$perm		the permission to check access for
+	* @param array		$assetids	An array of user_group and/or user ids to check for permission
+	*								If the array is empty, the current user will be checked
+	* @param boolean	$effective	effective access baed on locking and status
 	*
 	* @return boolean
 	* @access public
 	*/
-	function checkAccess($perm, $assetids=Array())
+	function checkAccess($perm, $assetids=Array(), $effective=true)
+	{
+		if ($effective) {
+			if ($this->status == SQ_STATUS_PENDING_APPROVAL || $this->status == SQ_STATUS_EDITING_APPROVAL) return false;
+
+			if (empty($assetids)) {
+				$lock = $this->getLockInfo();
+				if (!empty($lock)) {
+					// this asset is currently locked
+					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+					if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
+						return $this->_checkPermissionAccess($perm);
+					}
+					return false;
+				}
+			}
+			return false;
+		} else {
+			return $this->_checkPermissionAccess($perm, $assetids);
+		}
+	}//end checkAccess()
+
+
+	function _checkPermissionAccess($perm, $assetid=Array())
 	{
 		if (empty($assetids) && $GLOBALS['SQ_SYSTEM']->user->id) {
 			// if we are the root user, we can do anything
@@ -2883,11 +2917,12 @@ class Asset extends Resolve_Object
 			$assetids = $GLOBALS['SQ_SYSTEM']->user->getParents(Array('user', 'user_group'), false);
 			$assetids[] = $GLOBALS['SQ_SYSTEM']->user->id;
 		}
+
 		$perms = array_keys($this->getPermission($perm));
 		if (in_array('0', $perms)) return true;
 		$common = array_intersect($assetids, $perms);
 		return (!empty($common));
-	}//end checkAccess()
+	}//end _checkDbAccess()
 
 
 	/**
@@ -2901,7 +2936,8 @@ class Asset extends Resolve_Object
 	*/
 	function readAccess($assetids=Array())
 	{
-		return $this->checkAccess(SQ_PERMISSION_READ, $assetids);
+		if (!$this->id) return true;
+		return $this->_checkPermissionAccess(SQ_PERMISSION_READ, $assetids);
 	}//end readAccess()
 
 
@@ -2917,25 +2953,8 @@ class Asset extends Resolve_Object
 	*/
 	function writeAccess($assetids=Array(), $effective=true)
 	{
-		if ($effective) {
-			if ($this->status == SQ_STATUS_PENDING_APPROVAL || $this->status == SQ_STATUS_EDITING_APPROVAL) return false;
-
-			if (empty($assetids)) {
-				$lock = $this->getLockInfo();
-				if (!empty($lock)) {
-					// this asset is currently locked
-					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
-					if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
-						return $this->checkAccess(SQ_PERMISSION_WRITE);
-					}
-					return false;
-				}
-			}
-			return false;
-		} else {
-			return $this->checkAccess(SQ_PERMISSION_WRITE, $assetids);
-		}
-
+		if (!$this->id) return true;
+		return $this->checkAccess(SQ_PERMISSION_WRITE, $assetids, $effective);
 	}//end writeAccess()
 
 
@@ -2951,25 +2970,8 @@ class Asset extends Resolve_Object
 	*/
 	function adminAccess($assetids=Array(), $effective=true)
 	{
-		if ($effective) {
-			if ($this->status == SQ_STATUS_PENDING_APPROVAL || $this->status == SQ_STATUS_EDITING_APPROVAL) return false;
-
-			if (empty($assetids)) {
-				$lock = $this->getLockInfo();
-				if (!empty($lock)) {
-					// this asset is currently locked
-					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
-					if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
-						return $this->checkAccess(SQ_PERMISSION_ADMIN);
-					}
-					return false;
-				}
-			}
-			return false;
-		} else {
-			return $this->checkAccess(SQ_PERMISSION_ADMIN, $assetids);
-		}
-
+		if (!$this->id) return true;
+		return $this->checkAccess(SQ_PERMISSION_ADMIN, $assetids, $effective);
 	}//end adminAccess()
 
 
