@@ -850,7 +850,7 @@ class Asset_Manager extends Resolve_Object
 	function unRegisterAsset(&$obj)
 	{
 		// wrong class or no id, fuck off
-		if (!is_object($obj) || is_a($obj, 'Asset') || !$obj->id) return;
+		if (!is_object($obj) || !is_a($obj, 'asset') || !$obj->id) return;
 		if (isset($this->_assets[$obj->id])) unset($this->_assets[$obj->id]);
 
 	}//end unRegisterAsset();
