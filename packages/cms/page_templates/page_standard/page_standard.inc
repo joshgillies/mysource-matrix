@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.30 2003/11/26 00:51:31 gsherwood Exp $
+* $Id: page_standard.inc,v 1.31 2003/12/02 03:47:28 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -156,10 +156,8 @@ class Page_Standard extends Page
 	function paintBackend(&$o)
 	{
 		if (isset($_GET['sq_from_frontend'])) {
-
-			// get the bodycopy attached to us
-			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
-			$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link[0]['minorid'], 'bodycopy');
+			
+			$bodycopy = &$this->getBodycopy();
 			if (is_null($bodycopy)) {
 				trigger_error('Could not locate the bodycopy for standard page "'.$this->name.'"', E_USER_ERROR);
 				return false;
@@ -193,13 +191,8 @@ class Page_Standard extends Page
 	*/
 	function printBody()
 	{
-		// get the bodycopy attached to us
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-		$bodycopy_data = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, null, 'major', '1');
-		if (empty($bodycopy_data)) return;
-
-		$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['minor_type_code']);
-		$bodycopy->printBody();
+		$bodycopy = &$this->getBodycopy();
+		if (!is_null($bodycopy)) $bodycopy->printBody();
 
 	}//end printBody()
 
@@ -214,16 +207,17 @@ class Page_Standard extends Page
 	*/
 	function printLimbo()
 	{
-		// get the bodycopy attached to us
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-		$bodycopy_data = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, null, 'major', '1');
-		if (empty($bodycopy_data)) return;
-
-		$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['minor_type_code']);
-		if (!is_null($bodycopy)) {
-			$GLOBALS['SQ_SYSTEM']->backend->out->addFormActionGetVar('assetid', $bodycopy->id);
-			$GLOBALS['SQ_SYSTEM']->backend->out->addHiddenField('backend_assetid', $bodycopy->id);
-			$bodycopy->printLimbo();
+		$lm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
+		
+		if ($lm->hasLayout($this->type(), 'details')) {
+			parent::printLimbo();
+		} else {
+			$bodycopy = &$this->getBodycopy();
+			if (!is_null($bodycopy)) {
+				$GLOBALS['SQ_SYSTEM']->backend->out->addFormActionGetVar('assetid', $bodycopy->id);
+				$GLOBALS['SQ_SYSTEM']->backend->out->addHiddenField('backend_assetid', $bodycopy->id);
+				$bodycopy->printLimbo();
+			}
 		}
 
 	}//end printLimbo()
@@ -236,7 +230,7 @@ class Page_Standard extends Page
 	*
 	* @param mixed	$component	If it is not false, then it is assumed to be the name of a component
 	*							of this asset (defined and controlled by subclasses).
-	* @return array An array of all the keydata for this asset. Keydata is of the form
+	* @return Array An array of all the keydata for this asset. Keydata is of the form
 	* <PRE>
 	* Array (
 	* 	Array (
@@ -248,19 +242,15 @@ class Page_Standard extends Page
 	* </PRE>
 	* @access public
 	*/
-	function &getKeyData($component = false)
+	function &getKeyData($component=false)
 	{
 		$keyData = parent::getKeyData($component);
-
 		$weightings = $this->getWeightings();
 
 		if (!$component || $component == 'contents') {
 			// get the bodycopy 
-
-			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, null, 'major', '1');
-			if (empty($bodycopy_link)) return;
-
-			$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+			$bodycopy = &$this->getBodycopy();
+			if (is_null($bodycopy)) return Array();
 
 			ob_start();
 			$bodycopy->printBody();
@@ -276,9 +266,124 @@ class Page_Standard extends Page
 		}
 		return $keyData;
 
-	}// end getKeyData()
+	}//end getKeyData()
+
+
+	/**
+	* Acquires any locks that are needed for editing, based on a set of custom keywords
+	*
+	* @param Array() $keywords the keywords to govern what locks are required
+	*
+	* @return boolean
+	* @access public
+	*/
+	function acquireEditingLocks($keywords)
+	{
+		if (!is_array($keywords) || empty($keywords)) return false;
+		$acquire = false;
+		foreach ($keywords as $keyword) {
+			switch ($keyword) {
+				case 'contents' :
+					$bodycopy = &$this->getBodycopy();
+					if (is_null($bodycopy)) continue;
+					// we need the 'links' lock to edit the bodycopy
+					$vars = Array('assetid' => $bodycopy->id, 'lock_type' => 'content', 'forceably_acquire' => false);
+					$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+					$hh->queueHipo('hipo_job_acquire_lock', $vars);
+					$acquire = true;
+				break;
+			}//end switch
+		}//end foreach 
+
+		return $acquire;
+
+	}//end acquireEditingLocks()
+
+
+	/**
+	* Returns the bodycopy linked to this page
+	*
+	* @return &object Asset
+	* @access public
+	*/
+	function &getBodycopy()
+	{
+		$null = null;
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, '', 'major');
+		if (empty($link)) return $null;
+		
+		return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+	
+	}//end getBodycopy()
+
+
+	/**
+	* Gets replacements for keywords that are specific to this asset
+	*
+	* @param Array $keywords the keywords to get replacements for
+	*
+	* @return Array()
+	* @access public
+	*
+	* @see Asset::getCustomKeywordReplacements()
+	*/
+	function getCustomKeywordReplacements($keywords)
+	{
+		if (!is_array($keywords) || empty($keywords)) return Array();
+
+		$replacements = Array();
+		foreach ($keywords as $keyword) {
+			switch ($keyword) {
+				case 'contents' :
+					$bodycopy = &$this->getBodycopy();
+					if (is_null($bodycopy)) continue;
+					$edit = &$bodycopy->getEditFns();
+					ob_start();
+					$edit->paintBodycopy($bodycopy, $GLOBALS['SQ_SYSTEM']->backend->out, $bodycopy->getPrefix());
+					$replacements[$keyword] = ob_get_contents();
+					ob_end_clean();
+				break;
+
+				default:
+					$replacements[$keyword] = '';
+				break;
+			}//end switch
+		}//end foreach
+
+		return $replacements;
+
+	}//end getCustomKeywordReplacements()
+
+
+	/**
+	* processes anything that was previously printed for a custom keyword
+	*
+	* @param Array $keywords the keywords that were originally printed
+	*
+	* @return boolean
+	* @access public
+	*
+	* @see Asset::processCustomKeywords()
+	*/
+	function processCustomKeywords($keywords)
+	{
+		if (!is_array($keywords) || empty($keywords)) return Array();
+
+		foreach ($keywords as $keyword) {
+			switch ($keyword) {
+				case 'contents' :
+					$bodycopy = &$this->getBodycopy();
+					if (is_null($bodycopy)) continue;
+					$edit = &$bodycopy->getEditFns();
+					$edit->processBodycopy($bodycopy, $GLOBALS['SQ_SYSTEM']->backend->out, $bodycopy->getPrefix());
+				break;
+			}//end switch
+		}//end foreach
+		
+		return true;
+
+	}//end processCustomKeywordReplacements()
 
 
 }//end class
-
 ?>
