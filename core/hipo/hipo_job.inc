@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_job.inc,v 1.27 2003/09/29 04:29:47 brobertson Exp $
+* $Id: hipo_job.inc,v 1.28 2003/10/03 01:17:41 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -702,7 +702,6 @@ class HIPO_Job extends MySource_Object
 								switch ($ack['result']) {
 									case 'ack' :
 										$ret_val = true;
-										pre_echo('GOT ACK');
 										break;
 
 									case 'error' :
@@ -938,7 +937,6 @@ class HIPO_Job extends MySource_Object
 					if (!is_null($ack)) {
 						switch ($ack['result']) {
 							case 'ack' :
-								pre_echo('GOT ACK');
 								$ret_val = true;
 								break;
 
