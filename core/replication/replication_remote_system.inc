@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_remote_system.inc,v 1.1.2.5 2004/02/26 16:36:29 brobertson Exp $
+* $Id: replication_remote_system.inc,v 1.1.2.6 2004/02/27 16:37:14 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -357,6 +357,20 @@ class Replication_Remote_System extends MySource_Object
 	{
 		return $this->auth->authenticate($this, $initiator);
 	}//end authenticate()
+
+
+	/**
+	* Disconnect from the remote system
+	*
+	* @return boolean	true on success
+	* @access public
+	*/
+	function disconnect()
+	{
+		return $this->transport->removeSocketFd(true);
+
+	}// end disconnect()
+
 
 }//end class
 
