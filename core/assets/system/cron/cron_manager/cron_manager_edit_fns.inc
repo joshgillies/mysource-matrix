@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.20 2005/04/05 05:09:53 rhoward Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.21 2005/04/05 09:14:28 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -429,7 +429,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 									<li class="sq-backend-data">An existing cron manager instance is currently running an extremely long running job.</li>
 									<li class="sq-backend-data">Some thing has caused the cron manager to exit uncleanly when it was running and the lock wasn't able to be removed.</li>
 								</ol>
-								Check the cron error log (in <?php echo '"'.SQ_LOG_PATH.'/'.$asset->error_log_file_name.SQ_CONF_LOG_EXTENSION.'"'; ?>) for any information
+								Check the cron error log (in <?php echo '"'.hide_system_root(SQ_LOG_PATH).'/'.$asset->error_log_file_name.SQ_CONF_LOG_EXTENSION.'"'; ?>) for any information
 								<p class="sq-backend-data">
 								To remove the lock flag for the cron manager enter the 25 character string you see
 								below into the box supplied, then press the Commit button
