@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.23 2004/05/06 04:40:21 lwright Exp $
+* $Id: form.inc,v 1.24 2004/05/06 04:49:05 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -967,7 +967,7 @@ class Form extends Bridge
 		$sections = &$this->getSections();
 		for (reset($sections); null !== ($k = key($sections)); next($sections)) {
 			$section =& $sections[$k];
-			echo ($html) ? '<tr><td colspan="2">' : '';
+			echo ($html) ? '<tr><td colspan="2">' : "\n";
 			echo $section->attr('name');
 			echo ($html) ? '</td></tr>' : "\n\n";
 
