@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.36 2005/02/13 23:20:55 lwright Exp $
+* $Id: search_page_edit_fns.inc,v 1.37 2005/02/14 15:08:10 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1194,6 +1194,22 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 		return false;
 
 	}//end processCustomiseSearchForms()
+
+
+	/**
+	* Return true if the thesaurus asset type is installed
+	*
+	* @param object Asset	$asset  the asset whose interface we are painting
+	* @param string			$prefix	the prefix for this asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function thesaurusInstalled(&$asset, $prefix)
+	{
+		return $GLOBALS['SQ_SYSTEM']->am->installed('thesaurus');
+
+	}// end thesaurusInstalled()
 
 
 	/**
