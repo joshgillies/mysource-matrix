@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_constant_button_management.inc,v 1.4 2003/09/26 05:26:24 brobertson Exp $
+* $Id: design_area_constant_button_management.inc,v 1.5 2003/09/29 05:16:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -61,6 +61,12 @@ class Design_Area_Constant_Button_Management extends Asset_Management
 								'default'		=> '',
 								'description'	=> 'Image to display no asset or url have been selected',
 							),
+							'image_extra' => Array(
+								'added'			=> '0.0.1',
+								'type'			=> 'text',
+								'default'		=> '',
+								'description'	=> 'Any extra stuff to add to the end of the image tag',
+							),
 							'text' => Array(
 								'added'			=> '0.0.1',
 								'type'			=> 'text',
@@ -108,6 +114,12 @@ class Design_Area_Constant_Button_Management extends Asset_Management
 								'type'			=> 'int',
 								'default'		=> 0,
 								'description'	=> 'Width of the new window to be created',
+							),
+							'a_extra' => Array(
+								'added'			=> '0.0.1',
+								'type'			=> 'text',
+								'default'		=> '',
+								'description'	=> 'Any extra stuff to add to the end of the anchor tag',
 							),
 						);
 

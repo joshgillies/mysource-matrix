@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_constant_button.inc,v 1.8 2003/09/26 05:26:24 brobertson Exp $
+* $Id: design_area_constant_button.inc,v 1.9 2003/09/29 05:16:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -118,7 +118,7 @@ class Design_Area_Constant_Button extends Design_Area
 				$image = '<'.'?php echo (($ASSET->id == '.$assetid.') ? '.var_export($image_current, true).' : '.var_export($image, true).'; ?'.'>';
 			}//end if
 
-			$contents = '<img src="<'.'?php echo $DATA_PATH; ?'.'>/'.$data_suffix.'/'.$image.'" '.$class.' name="'.$name.'" id="'.$name.'" border="0" '.$this->attr('extra').'>';
+			$contents = '<img src="<'.'?php echo $DATA_PATH; ?'.'>/'.$data_suffix.'/'.$image.'" '.$class.' name="'.$name.'" id="'.$name.'" border="0" '.$this->attr('img_extra').'>';
 
 		// else there is text
 		} else {
@@ -127,6 +127,7 @@ class Design_Area_Constant_Button extends Design_Area
 
 		}//end if
 
+		$a_tag .= ' '.$this->attr('a_extra');
 		echo '<a href="', $url_code, '" ', $a_tag, '>', $contents, '</a>';
 
 		return true;
