@@ -184,6 +184,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 		$urls = Array();
 		for(reset($post); null !== ($urlid = key($post)); next($post)) {
+			
 			$url = trim($post[$urlid]['url']);
 			// if there is a url or some selected protocols, then let's save it
 			if ($url && !empty($post[$urlid]['protocols'])) {
@@ -191,10 +192,32 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 				for($k = 0; $k < count($this->protos); $k++) {
 					$urls[$urlid][$this->protos[$k]] = (int) in_array($this->protos[$k], $post[$urlid]['protocols']);
 				}
-			}// end if
-		}// end for
+			}
 
-		return $asset->saveWebURLs($urls);
+		}
+
+		if (!$asset->saveWebURLs($urls)) return false;
+
+		//// START HIPO PROCESSING ////
+
+		$vars = Array('assetid' => $asset->id);
+		$codename = 'HIPO_update_lookups';
+		$complete_url = $_SERVER['REQUEST_URI'];
+
+		require_once(SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_update_lookups.inc');
+		$hipo = new HIPO_Job_Update_Lookups();
+
+		$hipo->setRunningVars($vars);
+		$hipo->setOption('on_complete_url', $complete_url);
+
+		if ($hipo->initialise()) {
+			$url = $hipo->getProcessURL();
+			$o->setRedirect($url);
+		}
+		
+		////  END HIPO PROCESSING  ////
+
+		return true;
 
 	}//end processURLS()
 

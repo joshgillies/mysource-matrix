@@ -207,14 +207,7 @@ class Site extends Folder
 
 		unset($this->_tmp['urls_info']);
 
-		if ($this->_updateLookups()) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			if ($updated) return $this->_updated();
-			else return false;
-		} else {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
+		return true;
 
 	}// end saveWebURLs()
 
