@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.34 2004/12/06 14:39:53 brobertson Exp $
+* $Id: datetime.inc,v 1.35 2005/02/22 05:45:56 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     General function for manipulating dates and times
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package Fudge
 * @subpackage General
 */
@@ -38,7 +38,7 @@
 /**
 * Takes a timestamp and returns a date/time string with detail varying by how recent the date is
 *
-* @param string	$then	the timestamp for some time in the future
+* @param string	$then	the timestamp for some time in the future or past
 *
 * @return string
 * @access public
@@ -46,13 +46,34 @@
 function easy_datetime($then='')
 {
 	$now = time();
-	if ($now - $then < 86400) { // A Day
-		return ((date('H')>=date('H',$then))?'Today ':'Yesterday ') . date('h:ia',$then);
-	} elseif ($now - $then < 604800) { // A week
-		return date('D h:ia',$then);
-	} else {
-		return date('d M Y H:i',$then);
+	$now_date = date('Y-m-d');
+	$then_date = date('Y-m-d', $then);
+	if ($then_date == $now_date) {
+		// today
+		return date('g:ia', $then).' today';
 	}
+	if ($then < $now) {
+		// time in the past
+		if ($then_date == date('Y-m-d', $now - 86400)) {
+			// yesterday
+			return date('g:ia', $then).' yesterday';
+		} else if ($now - $then < 604800) {
+			// less than a week ago
+			return date('g:ia', $then).' on '.date('l', $then);
+		}
+	} else {
+		// time in the future
+		if ($then_date == date('Y-m-d', $now + 86400)) {
+			// tomorrow
+			return date('g:ia', $then).' tomorrow';
+		} else if ($then - $now < 604800) {
+			// less than a week away
+			return date('g:ia', $then).' this '.date('l', $then);
+		}
+	}
+	// if we get to here it must be more than a week in either direction
+	return date('g:ia \o\n jS F Y');
+	
 }//end easy_datetime()
 
 
