@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.25 2004/11/29 22:07:12 tbarrett Exp $
+* $Id: image_edit_fns.inc,v 1.26 2004/11/30 23:02:52 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -287,17 +287,24 @@ class Image_Edit_Fns extends File_Edit_Fns
 			{
 				var applet = document.getElementById('<?php echo $prefix; ?>_image_editor');
 				if (applet.parentNode.parentNode.style.display != 'none') {
-					document.getElementById('<?php echo $prefix; ?>_applet_temp_filename').value = applet.doUpload();
-					document.getElementById('<?php echo $prefix; ?>_applet_filename').value = applet.getFilename();
+					var tempFilename = applet.doUpload();
+					if ((tempFilename !== null) && (tempFilename != '')) {
+						document.getElementById('<?php echo $prefix; ?>_applet_temp_filename').value = tempFilename;
+						document.getElementById('<?php echo $prefix; ?>_applet_filename').value = applet.getFilename();
+						return true;
+					} else {
+						return false;
+					}
 				}
+				return true;
 			}
 
 			forms = document.getElementsByTagName('FORM');
 			if (forms[0].onsubmit) {
 				var otherOnSubmit = forms[0].onsubmit;
-				forms[0].onsubmit = function() { otherOnSubmit(); getAppletResult(); return true; }
+				forms[0].onsubmit = function() { otherOnSubmit(); return getAppletResult(); }
 			} else {
-				forms[0].onsubmit = function() { getAppletResult(); return true; }
+				forms[0].onsubmit = function() { return getAppletResult(); }
 			}
 			// -->
 		</script>
