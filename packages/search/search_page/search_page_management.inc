@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.30 2005/02/15 22:09:26 lwright Exp $
+* $Id: search_page_management.inc,v 1.31 2005/02/16 23:20:19 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -162,7 +162,7 @@ class Search_Page_Management extends Asset_Management
 		
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-		if ($current_version == '0.1') {
+		if (version_compare($current_version, '0.1', '<=')) {
 			// version 0.1->0.2
 			// changed the root assetid from storing an assetid to storing a NOTICE link
 			// to the root assetid - that way if the root asset is purged it automatically deletes
@@ -192,7 +192,7 @@ class Search_Page_Management extends Asset_Management
 			bam('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.1');
 		}//end version 0.1 upgrade
 
-		if ($current_version == '0.5') {
+		if (version_compare($current_version, '0.5', '<=')) {
 			// version 0.5->0.6
 			// changed the format of the fields array
 			bam('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.5');
@@ -238,7 +238,7 @@ class Search_Page_Management extends Asset_Management
 		}//end version 0.5 upgrade
 		
 		
-		if ($current_version == '0.7') {
+		if (version_compare($current_version, '0.7', '<=')) {
 			// version 0.7->0.8
 			// changed the format of the fields array
 			bam('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.7');
