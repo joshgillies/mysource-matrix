@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: system_config.inc,v 1.5 2003/10/02 05:39:30 brobertson Exp $
+* $Id: system_config.inc,v 1.6 2003/10/02 05:53:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -114,6 +114,8 @@ class System_Config extends Config
 				unset($vars['SQ_CONF_LOG_ERRORS']);
 				unset($vars['SQ_CONF_ERRORS_HIDE_FRONTEND']);
 			}//end if 
+
+			if (isset($vars['SQ_CONF_SYSTEM_ROOT_URLS'])) $vars['SQ_CONF_SYSTEM_ROOT_URLS'] = str_replace("\r", '', $vars['SQ_CONF_SYSTEM_ROOT_URLS']);
 
 		}// end if
 
