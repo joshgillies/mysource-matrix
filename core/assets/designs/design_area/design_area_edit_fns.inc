@@ -595,7 +595,9 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 			case 'print' :
 				// if there isn't a id_name we are using the current asset
 				if (empty($element['attributes']['id_name']) && empty($element['attributes']['var'])) {
-					trigger_error('Print tag found without id_name or var attributes, ignoring print operation', E_USER_WARNING);
+					$attr_str = '';
+					foreach($element['attributes'] as $k => $v) $attr_str .= $k.'="'.$v.'"';
+					trigger_error('Print tag found without id_name or var attributes, ignoring print operation<br> Attributes : '.$attr_str, E_USER_WARNING);
 					return false;
 				}
 
