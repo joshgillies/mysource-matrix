@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.48 2004/05/26 10:52:10 brobertson Exp $
+* $Id: general.inc,v 1.49 2004/06/29 00:12:49 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,6 +32,7 @@
 * @package MySource_Matrix
 */
 
+
 /**
 * Function that gets set as the error_handler
 *
@@ -44,7 +45,7 @@
 * @param string	$err_file	The file the error occured in
 * @param string	$err_line	The line the error occured on
 *
-* @returns void
+* @return void
 * @access public
 */
 function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
@@ -269,9 +270,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 	}// end error_reporting
 
-	if ($terminate) {
-		exit(1);
-	}
+	if ($terminate) exit(1);
 
 }//end sq_error_handler()
 
@@ -293,17 +292,17 @@ function sq_web_path($path='base')
 		case 'base' :
 			// preg bit is a check for the people who are using symlinked versions
 			$paths[$path] = (SQ_IN_BACKEND) ? '..' : ((preg_match('/index.php$/', current_url())) ? './index.php' : '.');
-			break;
+		break;
 
 		case 'admin' :
 			// preg bit is a check for the people who are using symlinked versions
 			$paths[$path] = (SQ_IN_BACKEND) ? '.'  : ((preg_match('/index.php$/', current_url())) ? './index.php' : '.').'/'.SQ_CONF_BACKEND_SUFFIX;
-			break;
+		break;
 
 		case 'edit' :
 			// preg bit is a check for the people who are using symlinked versions
 			$paths[$path] = (SQ_IN_LIMBO) ? '.'  : ((preg_match('/index.php$/', current_url())) ? './index.php' : '.').'/'.SQ_CONF_LIMBO_SUFFIX;
-			break;
+		break;
 
 		case 'root_url'  :
 			$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
@@ -311,7 +310,7 @@ function sq_web_path($path='base')
 			// if we are in the backend strip the suffix
 			if (SQ_IN_BACKEND) $current_url = preg_replace('/\\/'.SQ_CONF_BACKEND_SUFFIX.'$/', '', $current_url);
 			$tmp = $root_urls[0];
-			for($i = 1; $i < count($root_urls); $i++) {
+			for ($i = 1; $i < count($root_urls); $i++) {
 				if (substr($current_url, 0, strlen($root_urls[$i])) == $root_urls[$i]) {
 					// if the current tmp has the same start
 					if (substr($tmp, 0, strlen($root_urls[$i])) == $root_urls[$i]) {
@@ -326,19 +325,19 @@ function sq_web_path($path='base')
 			}
 			// if we are in the symlink system remove the URL
 			$paths[$path] = current_protocol().'://'.preg_replace('/\/index.php$/', '', $tmp);
-			break;
+		break;
 
 		case 'lib'  :
 			$paths[$path] = sq_web_path('root_url').'/__lib';
-			break;
+		break;
 
 		case 'data'  :
 			$paths[$path] = sq_web_path('root_url').'/__data';
-			break;
+		break;
 
 		case 'fudge'  :
 			$paths[$path] = sq_web_path('root_url').'/__fudge';
-			break;
+		break;
 
 	}// end switch
 
@@ -368,7 +367,7 @@ function current_url($inc_protocol=true, $strip_backend_suffix=false)
 	}
 	return $url;
 
-}// end current_url()
+}//end current_url()
 
 
 /**
@@ -400,28 +399,30 @@ function clean_url($url)
 * Returns the current http protocol in use for this page (excludes the '://')
 *
 * @return string
+* @access public
 */
 function current_protocol()
 {
 	return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http';
 
-}// end current_protocol()
+}//end current_protocol()
 
 
 /**
 * Returns a url that has had trailing slashes and double slashes stripped
 *
-* @param url	$url			the url to check (with or without protocol)
-* @param bool	$strip_protocol	if true doesn't return the protocol with the url
+* @param string		$url			the url to check (with or without protocol)
+* @param boolean	$strip_protocol	if true doesn't return the protocol with the url
 *
 * @return string
+* @access public
 */
 function strip_url($url, $strip_protocol=false)
 {
 	preg_match('|^([a-z]+://)?(.*)$|', $url, $matches);
 	return (($strip_protocol) ? '' : $matches[1]).preg_replace(Array('|/+$|', '|//+|'), Array('', '/'), $matches[2]);
 
-}// end strip_url()
+}//end strip_url()
 
 
 /**
@@ -432,7 +433,8 @@ function strip_url($url, $strip_protocol=false)
 *
 * @param int $num    the integer to use
 *
-* @return Array(int)
+* @return array(int)
+* @access public
 */
 function bit_elements($num)
 {
@@ -450,7 +452,7 @@ function bit_elements($num)
 
 	return $elems;
 
-}// end bit_elements()
+}//end bit_elements()
 
 
 /**
@@ -462,6 +464,7 @@ function bit_elements($num)
 *							'YYYY-MM-DD'			date only
 *
 * @return int
+* @access public
 */
 function iso8601_ts($iso8601)
 {
@@ -487,8 +490,6 @@ function iso8601_ts($iso8601)
 		return 0;
 	}
 
-
-
 }//end iso8601_ts()
 
 
@@ -498,11 +499,13 @@ function iso8601_ts($iso8601)
 * @param int	$timestamp	unix timestamp
 *
 * @return string
+* @access public
 */
 function ts_iso8601($timestamp)
 {
 	return date('Y-m-d H:i:s',$timestamp);
 
 }//end ts_iso8601()
+
 
 ?>
