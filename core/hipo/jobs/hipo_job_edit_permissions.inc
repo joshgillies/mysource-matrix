@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.43 2005/03/23 22:57:15 ndvries Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.44 2005/04/04 04:31:02 ndvries Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -230,9 +230,16 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 				trigger_error('Cannot initialise Edit Permissions HIPO, invalid asset ID specified ('.$assetid.')', E_USER_WARNING);
 				return '';
 			}
-			$child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
+
+			if (isset($this->_running_vars['dependants_only'])) {
+				$child_assets += $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid);
+			} else {
+				$child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
+			}
+
 			$child_assets[$assetid] = $asset_info[$assetid]['type_code'];
 		}
+
 		$this->_running_vars['todo_assetids'] = $child_assets;
 		$this->_running_vars['done_assetids'] = Array();
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.17 2005/03/28 23:11:25 gsherwood Exp $
+* $Id: permissions.inc,v 1.18 2005/04/04 04:31:03 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 */
 
@@ -284,7 +284,6 @@ function processPermissions(&$owner, &$o, &$ei)
 	$prefix = $owner->getPrefix();
 	if (!isset($_POST[$prefix.'_permissions'])) return false;
 
-	// are we cascading these permission changes to our children?
 	$cascade_changes = !empty($_POST[$prefix.'_permissions']['cascade_changes']);
 
 	$perms = Array('Administrator' => SQ_PERMISSION_ADMIN, 'Write' => SQ_PERMISSION_WRITE, 'Read' => SQ_PERMISSION_READ);
@@ -300,17 +299,11 @@ function processPermissions(&$owner, &$o, &$ei)
 
 		// grant public access
 		if (isset($post_data['public_access']['granted']) && $post_data['public_access']['granted'] != '') {
-			if ($cascade_changes) {
-				// cascading public access of some kind, so queue it up for the HIPO
-				$permission_vars[$perm][] = Array(
-												'granted'			=> (int)$post_data['public_access']['granted'],
-												'userid'			=> $public_userid,
-												'previous_access'	=> null,
-											);
-			} else {
-				// lets do this ourselves
-				if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($owner->id, $public_userid, $perm, $post_data['public_access']['granted'])) return false;
-			}
+			$permission_vars[$perm][] = Array(
+											'granted'			=> (int)$post_data['public_access']['granted'],
+											'userid'			=> $public_userid,
+											'previous_access'	=> null,
+										);
 		}
 
 		// grant access to a user
@@ -318,18 +311,11 @@ function processPermissions(&$owner, &$o, &$ei)
 			if (!isset($post_data['new']['granted']) || $post_data['new']['granted'] == '') {
 				trigger_error('You need to select the type of access in order to set a permission for Asset #'.$post_data['new']['userid']['assetid'], E_USER_NOTICE);
 			} else {
-				if ($cascade_changes) {
-					// cascading access of some kind, so queue it up for the HIPO
 					$permission_vars[$perm][] = Array(
 													'granted'			=> (int)$post_data['new']['granted'],
 													'userid'			=> $post_data['new']['userid']['assetid'],
 													'previous_access'	=> null,
 												);
-				} else {
-					// lets do this ourselves
-					if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($owner->id, $post_data['new']['userid']['assetid'], $perm, $post_data['new']['granted'])) return false;
-
-				}
 			}
 		}
 
@@ -337,17 +323,13 @@ function processPermissions(&$owner, &$o, &$ei)
 		if (!empty($post_data['delete'])) {
 			foreach ($post_data['delete'] as $userid => $on) {
 				$userid = rawurldecode($userid);
-				if ($cascade_changes) {
-					$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, null, false, false, true);
-					$current_access = $current[$userid];
-					$permission_vars[$perm][] = Array(
-													'granted'			=> -1,
-													'userid'			=> $userid,
-													'previous_access'	=> $current_access,
-												);
-				} else {
-					if (!$GLOBALS['SQ_SYSTEM']->am->deletePermission($owner->id, $userid, $perm)) return false;
-				}
+				$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, null, false, false, true);
+				$current_access = $current[$userid];
+				$permission_vars[$perm][] = Array(
+												'granted'			=> -1,
+												'userid'			=> $userid,
+												'previous_access'	=> $current_access,
+											);
 			}
 		}
 
@@ -367,6 +349,7 @@ function processPermissions(&$owner, &$o, &$ei)
 	if (!empty($permission_vars)) {
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array('assets' => Array($owner->id => Array('type_code' => $owner->type())), 'permission_changes' => $permission_vars);
+		if (!$cascade_changes) $vars['dependants_only'] = 1;
 		$hh->queueHipo('hipo_job_edit_permissions', $vars);
 	}
 
