@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.122 2003/10/03 01:17:22 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.123 2003/10/03 04:34:43 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -489,13 +489,17 @@ class Asset_Manager extends MySource_Object
 	*/
 	function &getAsset($assetid, $type_code='', $mute_errors=false)
 	{
+		if (empty($assetid)) {
+			$null = null; // do this because of return by reference
+			return $null;
+		}
 		if (!isset($this->_assets[$assetid]) || !is_object($this->_assets[$assetid])) {
 
 			if (empty($type_code)) {
 				$where = 'assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($assetid);
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 				$type_code = $GLOBALS['SQ_SYSTEM']->db->getOne('SELECT type_code FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where);
-				if (empty($type_code)) {
+				if (DB::isError($type_code) || empty($type_code)) {
 					if (!$mute_errors) trigger_error('Asset #'.$assetid.' does not exist', E_USER_WARNING);
 					$this->_assets[$assetid] = null; // do this because of return by reference
 					return $this->_assets[$assetid];
