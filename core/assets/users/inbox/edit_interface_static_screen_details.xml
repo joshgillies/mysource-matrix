@@ -18,20 +18,9 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_mail.xml,v 1.7 2003/11/26 00:51:03 gsherwood Exp $
+* $Id: edit_interface_static_screen_details.xml,v 1.1 2004/02/05 05:56:05 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
-<contents>
-	<section name="Inbox" write_access="write:mail">
-		<field>
-			<display_name />
-			<note />
-			<function_call>
-				<paint_function   name="paintMail"   />
-				<process_function name="processMail" />
-			</function_call>
-		</field>
-	</section>
-</contents>
+<contents />

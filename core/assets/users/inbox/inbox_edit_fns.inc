@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.30 2004/01/20 02:43:27 mmcintyre Exp $
+* $Id: inbox_edit_fns.inc,v 1.31 2004/02/05 05:56:05 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,6 +47,13 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	function Inbox_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
+
+		$this->static_screens = Array(	'details'		=> Array(
+															'name'			=> 'Inbox',
+															'force_unlock'	=> false,
+															'lock_type'		=> 'mail',
+															),
+									);
 
 	}//end constructor
 
@@ -86,6 +93,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$messages = $ms->getMessages($user->id, null, Array(SQ_MSG_UNREAD, SQ_MSG_READ), Array(), null, null, 'name');
+		$write_access = $asset->writeAccess('mail');
 
 		if (empty($messages)) {
 			echo 'You have no messages';
@@ -103,14 +111,18 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 			<table border="0" cellspacing="0" cellpadding="1" width="100%">
 			<tr>
-				<td colspan="5" background="<?php echo sq_web_path('lib'); ?>/web/images/section_dots.gif" style="height:1px; padding:0px; margin:0px;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1" /></td>
+				<td colspan="<?php echo ($write_access) ? '5' : '4';?>" background="<?php echo sq_web_path('lib'); ?>/web/images/section_dots.gif" style="height:1px; padding:0px; margin:0px;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1" /></td>
 			</tr>
 			<tr>
 				<td class="sq-backend-table-header">FROM</td>
 				<td class="sq-backend-table-header">SUBJECT</td>
 				<td class="sq-backend-table-header">SENT</td>
 				<td class="sq-backend-table-header">READ</td>
-				<td class="sq-backend-table-header">&nbsp;</td>
+				<?php
+				if ($write_access) {
+					?><td class="sq-backend-table-header">DELETE</td><?php
+				}
+				?>
 			</tr>
 			<?php
 			$alt = false;
@@ -162,28 +174,26 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 							check_box($prefix.'_mark_as_read['.$data['messageid'].']', '1', ($data['status'] == SQ_MSG_READ));
 						}
 						?>
+						
 					</td>
-					<td class="<?php echo $class ?>" nowrap>
-						<?php
-						if ($asset->writeAccess('mail')) {
-							check_box($prefix.'_delete['.$data['messageid'].']');
-							?>
-							<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/delete.png", "16", "16", "");</script>
-							&nbsp;&nbsp;Delete<?php
-						} else {
-							echo '&nbsp;';
-						}
+					<?php
+					if ($write_access) {
 						?>
-					</td>
+						<td class="<?php echo $class ?>" nowrap>
+							<?php check_box($prefix.'_delete['.$data['messageid'].']'); ?>
+						</td>
+						<?php
+					}
+					?>
 				</tr>
 				<tr>
-					<td colspan="5"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1" /></td>
+					<td colspan="<?php echo ($write_access) ? '5' : '4';?>"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1" /></td>
 				</tr>
 				<tr>
-					<td colspan="5" background="<?php echo sq_web_path('lib'); ?>/web/images/section_dots.gif" style="height:1px; padding:0px; margin:0px;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1" /></td>
+					<td colspan="<?php echo ($write_access) ? '5' : '4';?>" background="<?php echo sq_web_path('lib'); ?>/web/images/section_dots.gif" style="height:1px; padding:0px; margin:0px;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1" /></td>
 				</tr>
 				<tr>
-					<td colspan="5"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1" /></td>
+					<td colspan="<?php echo ($write_access) ? '5' : '4';?>"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1" /></td>
 				</tr>
 				<?php
 				$num_printed++;
@@ -191,7 +201,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			}
 			?>
 				<tr>
-					<td colspan="5" align="center" class="sq-backend-table-cell">
+					<td colspan="<?php echo ($write_access) ? '5' : '4';?>" align="center" class="sq-backend-table-cell">
 					<?php
 					hidden_field('sq_internal_message_inbox_start', $start_printing_at);
 					if ($start_printing_at > 0) {
@@ -233,7 +243,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			<?php
 		}
 
-		return true;
+		return $write_access;
 
 	}//end paintMail()
 
@@ -307,6 +317,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$messages = $ms->getMessages($user->id, null, Array(SQ_MSG_DELETED), Array(), null, null, 'name');
+		$write_access = $asset->writeAccess('mail');
 
 		if (empty($messages)) {
 			echo 'Your trash is empty';
@@ -324,14 +335,20 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 			<table border="0" cellspacing="0" cellpadding="1" width="100%">
 			<tr>
-				<td colspan="5" background="<?php echo sq_web_path('lib'); ?>/web/images/section_dots.gif" style="height:1px; padding:0px; margin:0px;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1" /></td>
+				<td colspan="<?php echo ($write_access) ? '5' : '3';?>" background="<?php echo sq_web_path('lib'); ?>/web/images/section_dots.gif" style="height:1px; padding:0px; margin:0px;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1" /></td>
 			</tr>
 			<tr>
 				<td class="sq-backend-table-header">FROM</td>
 				<td class="sq-backend-table-header">SUBJECT</td>
 				<td class="sq-backend-table-header">SENT</td>
-				<td class="sq-backend-table-header"><?php echo ($asset->writeAccess('mail')) ? 'RECOVER' : '&nbsp;';?></td>
-				<td class="sq-backend-table-header">&nbsp;</td>
+				<?php
+				if ($write_access) {
+					?>
+					<td class="sq-backend-table-header">RECOVER</td>
+					<td class="sq-backend-table-header">PURGE</td>
+					<?php
+				}
+				?>
 			</tr>
 			<?php
 			$alt = false;
@@ -377,33 +394,31 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $time_img; ?>", "16", "16", "");</script>
 						&nbsp;<?php echo $GLOBALS['SQ_SYSTEM']->datetime($data['sent']); ?>
 					</td>
-					<td class="<?php echo $class ?>" nowrap>
-						<?php
-						if ($asset->writeAccess('mail')) check_box($prefix.'_recover['.$data['messageid'].']');
-						else echo '&nbsp;';
+					
+					<?php
+					if ($write_access) {
 						?>
-					</td>
-					<td class="<?php echo $class ?>" nowrap>
-						<?php
-						if ($asset->writeAccess('mail')) {
-							check_box($prefix.'_purge['.$data['messageid'].']');
+						<td class="<?php echo $class ?>" nowrap>
+							<?php
+							if ($asset->writeAccess('mail')) check_box($prefix.'_recover['.$data['messageid'].']');
+							else echo '&nbsp;';
 							?>
-							<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/delete.png", "16", "16", "");</script>
-							&nbsp;&nbsp;Purge<?php
-						} else {
-							echo '&nbsp;';
-						}
-						?>
-					</td>
+						</td>
+						<td class="<?php echo $class ?>" nowrap>
+							<?php check_box($prefix.'_purge['.$data['messageid'].']'); ?>
+						</td>
+						<?php
+					}
+					?>
 				</tr>
 				<tr>
-					<td colspan="5"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1" /></td>
+					<td colspan="<?php echo ($write_access) ? '5' : '3';?>"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1" /></td>
 				</tr>
 				<tr>
-					<td colspan="5" background="<?php echo sq_web_path('lib'); ?>/web/images/section_dots.gif" style="height:1px; padding:0px; margin:0px;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1" /></td>
+					<td colspan="<?php echo ($write_access) ? '5' : '3';?>" background="<?php echo sq_web_path('lib'); ?>/web/images/section_dots.gif" style="height:1px; padding:0px; margin:0px;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1" /></td>
 				</tr>
 				<tr>
-					<td colspan="5"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1" /></td>
+					<td colspan="<?php echo ($write_access) ? '5' : '3';?>"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1" /></td>
 				</tr>
 				<?php
 				$num_printed++;
@@ -411,7 +426,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			}
 			?>
 				<tr>
-					<td colspan="5" align="center" class="sq-backend-table-cell">
+					<td colspan="<?php echo ($write_access) ? '5' : '3';?>" align="center" class="sq-backend-table-cell">
 					<?php
 					hidden_field('sq_internal_message_trash_start', $start_printing_at);
 					if ($start_printing_at > 0) {
