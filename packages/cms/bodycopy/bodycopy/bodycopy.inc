@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: bodycopy.inc,v 1.31 2003/11/03 01:22:28 gsherwood Exp $
+* $Id: bodycopy.inc,v 1.32 2003/11/03 03:55:45 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -65,9 +65,8 @@ class Bodycopy extends Asset
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		// save a version of the bodycopy as it appears now
-		$edit = $this->getEditFns();
 		ob_start();
-		$edit->paint($this);
+		$this->printBody();
 		$output = ob_get_contents();
 		ob_end_clean();
 
