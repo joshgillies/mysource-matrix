@@ -366,7 +366,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 
 		$statii = Array();
-		if (!$write_access) $statii = $owner->getAvailableStatii();
+		if (!$write_access && $active_screen == 'details') $statii = $owner->getAvailableStatii();
 
 		// if the user has write access or has the ability
 		// to alter the status of the asset, show the commit button
@@ -1357,14 +1357,39 @@ class Asset_Edit_Interface extends Resolve_Object
 		?>
 		<table cellpadding="0" cellspacing="0" border="0">
 			<tr>
-				<td class="sq-backend-data"><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="20" border="0" alt="branch" /></td>
 				<td class="sq-backend-data">
-					<?php echo '<b>'.$owner->name.'</b> ('.$owner->getStatusDescription().') :: '.$lock_message; ?>
+					<table cellpadding="0" cellspacing="0" border="0">
+						<tr>
+							<td class="sq-backend-data" valign="top"><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="20" border="0" alt="" /></td>
+							<td class="sq-backend-data" valign="top">
+								<a href="<?php echo $owner->getBackendHref('dependants'); ?>"><b><?php echo $owner->name; ?></b></a>
+							</td>
+						</tr>
+					</table>
+				</td>
+				<td><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="5" height="1" border="0" alt="" /></td>
+				<td class="sq-backend-data" valign="top">
+					<?php echo $lock_message; ?>
+				</td>
+				<td background="<?php echo $o->filesPath('/images/tree/stalk.gif'); ?>"><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="1" border="0" alt="" /></td>
+				<td class="sq-backend-data" valign="top" colspan="3">
+					<?php echo $owner->getStatusDescription(); ?>
+				</td>
+			</tr>
+			<?php $this->_recursePaintDependants($owner, $owner, $o); ?>
+		</table>
+		<table>
+			<tr>
+				<td class="sq-backend-data"><span style="color:red"><b>**</b></span></td>
+				<td class="sq-backend-data">
+					The status of the dependant asset is lower than the status of "<?php echo $owner->name; ?>"
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-data"><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="1" alt="blank" /></td>
-				<td class="sq-backend-data"><?php $this->_recursePaintDependants($owner, $o); ?></td>
+				<td class="sq-backend-data"><span style="color:red"><b>*</b></span></td>
+				<td class="sq-backend-data">
+					The status of the dependant asset is higher than the status of "<?php echo $owner->name; ?>"
+				</td>
 			</tr>
 		</table>
 		<?php
@@ -1377,22 +1402,21 @@ class Asset_Edit_Interface extends Resolve_Object
 	* Paints an asset dependancy tree with stalks and dependant info
 	*
 	* @param object	Asset				$owner	the asset whose interface we are painting
+	* @param object	Asset				$owner	the asset whose dependants we are painting
 	* @param object	Backend_Outputter	$o		the outputter class
 	*
 	* @return void
 	* @access public
 	*/
-	function _recursePaintDependants(&$asset, &$o)
+	function _recursePaintDependants(&$owner, &$asset, &$o, $depth=1, $start_stalk_at=0)
 	{
-		?>
-		<table cellpadding="0" cellspacing="0" border="0">
-		<?php
 		$dependant_links = $asset->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'major', null, 1);
 		$num_kids = count($dependant_links);
 		for ($i = 0; $i < $num_kids; $i++) {
 			$dep_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($dependant_links[$i]['minorid']);
 			$end = ($i == $num_kids - 1);
-			$bg = ($end) ? '' : 'background="'.$o->filesPath('/images/tree/stalk.gif').'"';
+			$stalk = 'background="'.$o->filesPath('/images/tree/stalk.gif').'"';
+			$bg = ($end) ? '' : $stalk;
 
 			$lock_message = '';
 			$lock = $dep_asset->getLockInfo();
@@ -1410,27 +1434,53 @@ class Asset_Edit_Interface extends Resolve_Object
 				$lock_message = '<span style="color:green"><b>[UNLOCKED]</b></span>';
 			}
 
+			$status_message = '';
+			if ($dep_asset->status < $owner->status) {
+				$status_message = '<span style="color:red"><b>**</b></span>';
+			} else if ($dep_asset->status > $owner->status) {
+				$status_message = '<span style="color:red"><b>*</b></span>';
+			}
+
 			?>
 			<tr>
-				<td class="sq-backend-data" <?php echo $bg; ?>><img src="<?php echo $o->filesPath('/images/tree/branch.gif');?>" width="20" height="20" border="0" alt="branch" /></td>
 				<td class="sq-backend-data">
-					<a href="<?php echo $dep_asset->getBackendHref('dependants'); ?>"><b><?php echo $dep_asset->name; ?></b></a>&nbsp;<?php echo '('.$dep_asset->getStatusDescription().') :: '.$lock_message; ?>
+					<table cellpadding="0" cellspacing="0" border="0">
+						<tr>
+							<?php 
+							for ($x = 0; $x < $depth; $x++) {
+								$stalk_bg = '';
+								if ($start_stalk_at && $x >= $start_stalk_at) $stalk_bg = $stalk;
+								?>
+								<td class="sq-backend-data" <?php echo $stalk_bg; ?> valign="top"><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="20" height="1" alt="blank" /></td>
+								<?php
+							}
+							?>
+							<td class="sq-backend-data" <?php echo $bg; ?> valign="top"><img src="<?php echo $o->filesPath('/images/tree/branch.gif');?>" width="20" height="20" border="0" alt="branch" /></td>
+							<td class="sq-backend-data" valign="top">
+								<a href="<?php echo $dep_asset->getBackendHref('dependants'); ?>"><b><?php echo $dep_asset->name; ?></b></a>
+							</td>
+						</tr>
+					</table>
+				</td>
+				<td><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="5" height="1" border="0" alt="" /></td>
+				<td class="sq-backend-data" valign="top">
+					<?php echo $lock_message; ?>
+				</td>
+				<td background="<?php echo $o->filesPath('/images/tree/stalk.gif'); ?>"><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="1" border="0" alt="" /></td>
+				<td class="sq-backend-data" valign="top">
+					<?php echo $dep_asset->getStatusDescription(); ?>
+				</td>
+				<td><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="5" height="1" border="0" alt="" /></td>
+				<td class="sq-backend-data" valign="top">
+					<?php echo $status_message; ?>
 				</td>
 			</tr>
 			<?php
 			$child_deps = $dep_asset->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'major', null, 1);
 			if (!empty($child_deps)) {
-				?>
-				<tr>
-					<td class="sq-backend-data" <?php echo $bg; ?>><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="1" alt="blank" /></td>
-					<td class="sq-backend-data"><?php $this->_recursePaintDependants($dep_asset, $o); ?></td>
-				</tr>
-				<?php
+				$this->_recursePaintDependants($owner, $dep_asset, $o, ($depth+1), ((!empty($bg)) ? $depth : 0));
 			}
 		}
-		?>
-		</table>
-		<?php
 	}
 
 
