@@ -130,12 +130,14 @@ class Page_Redirect extends Page
 		if (($url = $this->attr('redirect_url')) == '') {
 			$redirect_asset = &$this->getRedirectAsset();
 			if (!is_null($redirect_asset)) {
-				$url = $redirect_asset->getURL();
+				if (($url = $redirect_asset->getURL()) == '') {
+					$url = current_url().'?a='.$redirect_asset->id;
+				}
 			}
 		}// end if
 
 		if ($url == '') {
-			trigger_error('No URL or Asset selected for this "'.$GLOBALS['SQ_SYSTEM']->getTypeInfo($this->type(), 'name').'"', E_USER_NOTICE);
+			trigger_error('No URL or Asset selected for this "'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').'"', E_USER_NOTICE);
 			return;
 		}
 
@@ -161,7 +163,7 @@ class Page_Redirect extends Page
 			}
 			?>
 				<script language="JavaScript" type="text/javascript">
-					var page = window.open('<?php echo addslashes($url); ?>"','<?php echo time(); ?>','<?php echo addslashes($params);?>');
+					var page = window.open('<?php echo addslashes($url); ?>','<?php echo time(); ?>','<?php echo addslashes($params);?>');
 					history.go(-1);
 				</script>
 			<?php
