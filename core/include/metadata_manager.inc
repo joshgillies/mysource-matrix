@@ -130,6 +130,7 @@ class Metadata_Manager extends MySource_Object
 			return false;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
 	}//end setSchema()
@@ -171,6 +172,7 @@ class Metadata_Manager extends MySource_Object
 			return false;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
 	}//end deleteSchema()
