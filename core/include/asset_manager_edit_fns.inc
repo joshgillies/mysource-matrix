@@ -123,21 +123,25 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 				// and if that is successfull, then create the link to the parent asset
 				$link = Array();
 				if (!empty($_POST['am_form_submitted'])) {
-					
+
+					$do_process_backend = true;
+
 					// try to aquire a lock on this asset?
 					if (isset($_POST['sq_aquire_lock'])) {
-						if (!$asset->aquireLock()) return false;
+						$asset->aquireLock(0, (bool) $_POST['sq_aquire_by_force']);
+						$do_process_backend = false;
 					}
 
 					// try to aquire a lock on this asset?
 					if (isset($_POST['sq_manual_release_lock'])) {
-						if (!$asset->releaseLock()) return false;
+						$asset->releaseLock();
+						$do_process_backend = false;
 					}
 
-					if ($asset->processBackend($this->backend->out, $link)) {
+					if ($do_process_backend && $asset->processBackend($this->backend->out, $link)) {
 
 						$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" Updated');
-						
+
 						$lock = $asset->getLockInfo();
 						if (!empty($lock)) {
 							// this asset is currently locked
@@ -156,7 +160,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 								}
 							}
 						}
-					}
+					}// endif
 				}
 
 				$asset->paintBackend($this->backend->out);
@@ -196,17 +200,18 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 		require_once SQ_LIB_PATH.'/progress_bar/progress_bar.inc';
 		$pb = new Progress_Bar($o->getCurrentLocation(), $this);
-		#$pb->testing |= 1; // can resize pop-up
+		$pb->testing |= 1; // can resize pop-up
 		#$pb->testing |= 2; // confirm reload
 		#$pb->testing |= 4; // manual reload
 		if (!$pb->loaded) {
 			$pb->setFns('_dupeInit', '_dupeInitPaint');
 			$pb->setOption('auto_close', false);
 
-//			$pb->addStep('Obtain Locks', '_dupeStepObtainLocks');
+			$pb->addStep('Aquire Locks', '_dupeStepAquireLocks', '_dupeStepAquireLocksInit', '_dupeStepAquireLocksDone');
 			$pb->addStep('Duplicate', '_dupeStepDuplicate', null, '_dupeStepDuplicateDone');
 			$pb->addStep('Remap Ids', '_dupeStepRemap', null, '_dupeStepRemapDone');
-//			$pb->addStep('Release Locks', '_dupeStepReleaseLocks', '_dupeStepReleaseLocksInit');
+			$pb->addStep('Release Locks', '_dupeStepReleaseLocks', null, '_dupeStepReleaseLocksDone');
+
 		}
 
 		$pb->run();
@@ -289,7 +294,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 				$indexed_effective_duplicate_treeids = Array();
 
 				for(reset($effective_duplicate_treeids); null !== ($treeid = key($effective_duplicate_treeids)); next($effective_duplicate_treeids)) {
-					$indexed_effective_duplicate_treeids[] = Array('treeid' => $treeid, 
+					$indexed_effective_duplicate_treeids[] = Array('treeid' => $treeid,
 																	'dependants' => $effective_duplicate_treeids[$treeid]
 																	);
 				}// end for
@@ -308,7 +313,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 //			pre_echo($indexed_effective_duplicate_treeids);
 //			?></td></tr></table><?php
 */
-			// OK, what we have with the $effective_duplicate_treeids array is access to all the assets that 
+			// OK, what we have with the $effective_duplicate_treeids array is access to all the assets that
 			// we are going to duplicate to have to duplicate, with all the assets that they will create
 			// when duplicate is called (because it also duplicates any dependantly linked assets)
 
@@ -434,20 +439,20 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 				?>
 					<td class="sq-backend-data" <?php echo '%', $treeid, '%'; ?>><img src="<?php echo $branch_img; ?>" width="20" height="20" border="0" alt="branch" /></td>
 					<td class="sq-backend-data">
-					<?php 
+					<?php
 						if ($tree[$treeid]['dependant']) {
 							echo '&nbsp;';
 							hidden_field('duplicate_treeids['.$treeid.']', $tree[$treeid]['linkid']);
 						} else {
 							// have we submitted this before ? if so and they checked, select it again for them
-							check_box('duplicate_treeids['.$treeid.']', $tree[$treeid]['linkid'], !empty($_POST['duplicate_treeids'][$treeid]), 'duplicate_treeids_check("'.$treeid.'");'); 
+							check_box('duplicate_treeids['.$treeid.']', $tree[$treeid]['linkid'], !empty($_POST['duplicate_treeids'][$treeid]), 'duplicate_treeids_check("'.$treeid.'");');
 						}
 					?>
 					</td>
 					<td class="sq-backend-data">
-					<?php 
+					<?php
 						if (!$tree[$treeid]['dependant']) echo '<b>';
-						echo $tree[$treeid]['short_name'], ' - Id #', $tree[$treeid]['assetid']; 
+						echo $tree[$treeid]['short_name'], ' - Id #', $tree[$treeid]['assetid'];
 						if (!$tree[$treeid]['dependant']) echo '</b>';
 					?>
 					</td>
@@ -475,6 +480,174 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 
 	/**
+	* Called before _dupeStepAquireLocks() to set-up some initial things
+	*
+	* @access private
+	*/
+	function _dupeStepAquireLocksInit(&$pb)
+	{
+		$pb->setStatusMsg('Starting to Aquire Locks');
+
+		$vars = $pb->getRunningVars();
+		$vars['lock']['flag'] = 'assets';
+		$vars['lock']['pos']  = 0;
+		$vars['lock']['assets']         = Array();
+		$vars['lock']['aquired_assets'] = Array();
+		$vars['lock']['missed_assets']  = Array();
+
+		// create a unique list of assets to aquire locks for
+		$map = Array();
+		foreach($vars['effective_duplicate_treeids'] as $data) {
+
+			// if the treeid is blank we are locking the initating asset
+			if ($data['treeid'] == '') {
+				$assetid			= $vars['assetid'];
+				$type_code			= $vars['type_code'];
+
+			// else we are locking a sub asset
+			} else {
+				$assetid	= $vars['tree'][$data['treeid']]['assetid'];
+				$type_code	= $vars['tree'][$data['treeid']]['type_code'];
+
+			}// end if
+
+			if (!isset($map[$assetid])) $map[$assetid] = $type_code;
+
+		}// end foreach
+
+		// create a unique list of assets to aquire locks for
+		foreach($map as $assetid => $type_code) {
+			$vars['lock']['assets'][] = Array('assetid' => $assetid, 'type_code' => $type_code);
+		}// end foreach
+
+
+		$pb->setRunningVars($vars);
+
+	}// end _dupeStepAquireLocksInit()
+
+
+	/**
+	* Called repeatedly by the Progress Bar over multiple page reloads until it set's the percent to 100
+	* Performs the aquiring of assets to be duped
+	*
+	* @access private
+	*/
+	function _dupeStepAquireLocks(&$pb)
+	{
+		$vars = $pb->getRunningVars();
+#speed_check();
+
+		$initiating_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($vars['assetid'], $vars['type_code']);
+
+		$status_msg = '';
+
+		switch ($vars['lock']['flag']) {
+			// are we still reading from the lock map ?
+			case 'assets' :
+				$assetid   = $vars['lock']['assets'][$vars['lock']['pos']]['assetid'];
+				$type_code = $vars['lock']['assets'][$vars['lock']['pos']]['type_code'];
+				break;
+
+			// are we now fetching missed assets ? 
+			case 'missed' :
+				$assetid   = $vars['lock']['missed_assets'][$vars['lock']['pos']]['assetid'];
+				$type_code = $vars['lock']['missed_assets'][$vars['lock']['pos']]['type_code'];
+				break;
+
+			// are we still reading from the lock map ?
+			default :
+				$pb->abort();
+				trigger_error('Flag "'.$vars['lock']['flag'].'" not known', E_USER_ERROR);
+				break;
+
+		}// end switch
+
+#speed_check("three");
+#		pre_echo("Lock ASSET : $assetid");
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+		if (is_null($asset)) {
+			trigger_error('Unable to find asset to lock, Asset Id #'.$assetid, E_USER_WARNING);
+			$pb->abort();
+			return;
+		}// end if
+#		pre_echo("Lock ASSET NAME : ".$asset->name);
+#speed_check("four");
+
+		// attempt to aquire the lock for this asset
+		if ($aquired = @$asset->aquireLock($initiating_asset->id)) {
+			$vars['lock']['aquired_assets'][] = $asset->id;
+			$status_msg = 'Lock Aquired for '.$asset->name;
+#speed_check("five");
+		} else {
+			$vars['lock']['missed_assets'][] = Array('assetid' => $assetid, 'type_code' => $type_code);
+			$status_msg = 'Unable to Aquire Lock for '.$asset->name.', will try again at end';
+		}
+
+		switch ($vars['lock']['flag']) {
+			// are we still reading from the lock map ?
+			case 'assets' :
+				$vars['lock']['pos']++;
+				if ($vars['lock']['pos'] >= count($vars['lock']['assets'])) {
+					$vars['lock']['pos']  = 0;
+					$vars['lock']['flag'] = 'missed';
+				}
+				break;
+
+			// are we now fetching missed assets ? 
+			case 'missed' :
+				// if we aquired the last missed asset
+				if ($aquired) {
+					// remove it from the missed list
+					// no need to adjust the pos because the elements will shift down
+					array_splice($vars['lock']['missed_assets'], $vars['lock']['pos'], 1);
+
+				} else {
+					$vars['lock']['pos']++;
+					if ($vars['lock']['pos'] >= count($vars['lock']['missed_assets'])) {
+						$vars['lock']['pos']  = 0;
+					}
+				}
+				break;
+
+			// are we still reading from the lock map ?
+			default :
+				$pb->abort();
+				trigger_error('Flag "'.$vars['lock']['flag'].'" not known', E_USER_ERROR);
+				break;
+
+		}// end switch
+
+		$pb->setStatusMsg($status_msg);
+		$pb->setPercent(count($vars['lock']['aquired_assets']) / count($vars['lock']['assets']));
+
+speed_check('FINISHED');
+
+		$initiating_asset->updateLock();
+
+		$pb->setRunningVars($vars);
+
+
+	}// end _dupeStepAquireLocks()
+
+
+	/**
+	* Called after _dupeStepAquireLocks() above has set the percent to 100
+	* Just clears the status msg
+	*
+	* @access private
+	*/
+	function _dupeStepAquireLocksDone(&$pb)
+	{
+		$pb->setStatusMsg('');
+
+		$vars = $pb->getRunningVars();
+		$vars['lock']['pos'] = 0;
+		$pb->setRunningVars($vars);
+
+	}// end _dupeStepAquireLocksDone()
+
+
+	/**
 	* Called repeatedly by the Progress Bar over multiple page reloads until it set's the percent to 100
 	* Performs the actual duplication of the assets
 	*
@@ -483,6 +656,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 	function _dupeStepDuplicate(&$pb)
 	{
 		$vars = $pb->getRunningVars();
+
 #speed_check();
 #		pre_echo("DUPE POS : ".$vars['dupe_pos']);
 		$treeid = $vars['effective_duplicate_treeids'][$vars['dupe_pos']]['treeid'];
@@ -494,7 +668,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 		$assetid   = 0;
 		$type_code = '';
 		// if the treeid is blank we are duping the initating asset
-		if ($treeid == '') { 
+		if ($treeid == '') {
 			$assetid			= $vars['assetid'];
 			$type_code			= $vars['type_code'];
 			$link['link_type']	= SQ_LINK_TYPE_1;
@@ -513,7 +687,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 				$parent_type_code	= $vars['tree'][$parent_treeid]['type_code'];
 			}
 			// now get the assetid for the duped parent asset, not the original
-			if (isset($vars['dupe_map'][$parent_assetid])) { 
+			if (isset($vars['dupe_map'][$parent_assetid])) {
 				$link['asset']	= &$GLOBALS['SQ_SYSTEM']->am->getAsset($vars['dupe_map'][$parent_assetid], $parent_type_code);
 			}
 
@@ -524,7 +698,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 		}// end if
 
 #speed_check("two");
-		if (is_null($link['asset'])) { 
+		if (is_null($link['asset'])) {
 			trigger_error('Unable to find parent asset for Asset Id #'.$assetid, E_USER_WARNING);
 			$pb->abort();
 			return;
@@ -532,9 +706,9 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 #		pre_echo("ASSET ID : ".$assetid);
 
-		// If this asset has already been duplicated, 
+		// If this asset has already been duplicated,
 		// then just link it to it's new parent
-		if (isset($vars['dupe_map'][$assetid])) { 
+		if (isset($vars['dupe_map'][$assetid])) {
 #		pre_echo("DUPE ASSET : $assetid");
 
 			$dupe = &$GLOBALS['SQ_SYSTEM']->am->getAsset($vars['dupe_map'][$assetid], $type_code);
@@ -582,6 +756,9 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 		$vars['dupe_pos']++;
 #speed_check('FINISHED');
 
+		$initiating_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($vars['assetid'], $vars['type_code']);
+		$initiating_asset->updateLock();
+
 		$pb->setRunningVars($vars);
 
 	}// end _dupeStepDuplicate()
@@ -615,7 +792,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 			$treeid = $treeids[$i];
 
 			// if the treeid is blank we are remaping the initating asset
-			if ($treeid == '') { 
+			if ($treeid == '') {
 				$orig_assetid	= $vars['assetid'];
 				$type_code		= $vars['type_code'];
 			// else we are remaping a sub asset
@@ -633,7 +810,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 				$pb->abort();
 				return;
 			}// end if
-			
+
 			// only set for the first one, the owner of the dependants
 			if ($i == 0) $pb->setStatusMsg('Remaping '.$asset->name);
 
@@ -651,6 +828,9 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 		$vars['remap_pos']++;
 		$pb->setRunningVars($vars);
 
+		$initiating_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($vars['assetid'], $vars['type_code']);
+		$initiating_asset->updateLock();
+
 	}// end _dupeStepRemap()
 
 
@@ -664,6 +844,35 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 	{
 		$pb->setStatusMsg('');
 	}// end _dupeStepRemapDone()
+
+
+	/**
+	* Called repeatedly by the Progress Bar over multiple page reloads until it set's the percent to 100
+	* Performs the aquiring of assets to be duped
+	*
+	* @access private
+	*/
+	function _dupeStepReleaseLocks(&$pb)
+	{
+		$vars = $pb->getRunningVars();
+		$initiating_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($vars['assetid'], $vars['type_code']);
+		$initiating_asset->releaseLock();
+		$pb->setStatusMsg('Releasing All Locks');
+		$pb->setPercent(1);
+
+	}// end _dupeStepReleaseLocks()
+
+
+	/**
+	* Called after _dupeStepReleaseLocks() above has set the percent to 100
+	* Just clears the status msg
+	*
+	* @access private
+	*/
+	function _dupeStepReleaseLocksDone(&$pb)
+	{
+		$pb->setStatusMsg('');
+	}// end _dupeStepReleaseLocksDone()
 
 
 	/**
@@ -766,7 +975,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 				trigger_error($child_links->getMessage().'<br/>'.$child_links->getUserInfo(), E_USER_ERROR);
 			}
 
-			// OK, what we are going to do is set up the effective dependant treeid for each tree link 
+			// OK, what we are going to do is set up the effective dependant treeid for each tree link
 			for(reset($child_links); null !== ($treeid = key($child_links)); next($child_links)) {
 				if ($child_links[$treeid]['dependant']) {
 					$parent_treeid = substr($treeid, 0, -SQ_CONF_ASSET_TREE_SIZE);
