@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.15 2004/03/12 01:50:55 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.16 2004/03/17 23:48:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -245,7 +245,7 @@ class Page_Asset_Listing extends Page
 		$format_bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
 		if (is_null($format_bodycopy)) return false;
 		
-	
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$replacements = retrieve_keywords_replacements($format_bodycopy->getRawBodycopyContent());
 		if (!in_array('asset_listing', $replacements)) {
 			// there is no asset listing keyword in the contents, so we dont
