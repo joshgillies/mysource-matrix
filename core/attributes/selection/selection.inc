@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.25 2004/07/24 13:19:28 brobertson Exp $
+* $Id: selection.inc,v 1.26 2004/07/24 15:24:37 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -217,25 +217,25 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	function paint($prefix, $read_only=false, $add=true)
 	{
 		$options = $this->_params['options'];
-		if (!empty($this->_params['multiple']) && !is_array($this->value)) $this->value = $this->_str2ar($this->value);
+		$value = (!empty($this->_params['multiple']) && !is_array($this->value)) ? $this->_str2ar($this->value) : $this->value;
 
 		if ($read_only) {
-			if (empty($this->value)) return;
+			if (empty($value)) return;
 
 			if (empty($this->_params['multiple'])) {
-				if (!isset($options[$this->value])) {
+				if (!isset($options[$value])) {
 					// may have a value left over from when we
 					// were a mutiple selection field
-					$value = $this->_str2ar($this->value);
+					$value = $this->_str2ar($value);
 					if (!isset($options[$value[0]])) return;
 					echo $options[$value[0]];
 				} else {
-					echo $options[$this->value];
+					echo $options[$value];
 				}
 
 			} else {
 				echo '<ul>';
-				foreach ($this->value as $k) {
+				foreach ($value as $k) {
 					if (!isset($options[$k])) continue;
 					echo '<li class="sq-backend-data">'.$options[$k].'</li>';
 				}
@@ -256,9 +256,9 @@ class Asset_Attribute_Selection extends Asset_Attribute
 
 		if($this->_edit_params['style'] == 'list') {
 			if ($add) {
-				combo_box($prefix.'_'.$this->name, $options, !empty($this->_params['multiple']), $this->value, $this->_edit_params['height']);
+				combo_box($prefix.'_'.$this->name, $options, !empty($this->_params['multiple']), $value, $this->_edit_params['height']);
 			} else {
-				combo_box($prefix, $options, !empty($this->_params['multiple']), $this->value, $this->_edit_params['height']);
+				combo_box($prefix, $options, !empty($this->_params['multiple']), $value, $this->_edit_params['height']);
 			}
 		} else {
 			echo ('<table cellpadding="0" cellspacing="0" border="0"><tr>');
@@ -273,7 +273,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 							echo $prefix;
 						}
 					?>" value="<?php echo $key?>"<?php
-					if($key == $this->value) echo ' checked';
+					if($key == $value) echo ' checked';
 					?>><?php echo $val?></td><?php
 				} else {
 					?><td>&nbsp;<input type="checkbox" name="<?php 
@@ -283,7 +283,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 							echo $prefix . "[$i]";
 						}
 							?>" value="<?php echo $key?>"<?php
-					if(is_array($this->value) && in_array($key, $this->value)) echo ' checked';
+					if(is_array($value) && in_array($key, $value)) echo ' checked';
 					?>><?php echo $val?></td><?php
 				}
 				if ((($i++) % $this->_edit_params['columns']) == ($this->_edit_params['columns'] - 1)) {
@@ -292,8 +292,6 @@ class Asset_Attribute_Selection extends Asset_Attribute
 			}
 			echo "</tr></table>" ;
 		}
-
-		if (!empty($this->_params['multiple']) && is_array($this->value)) $this->value = $this->_ar2Str($this->value);
 
 	}//end paint()
 
