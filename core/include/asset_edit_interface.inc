@@ -2261,6 +2261,9 @@ class Asset_Edit_Interface extends Resolve_Object
 			<li class="sq-backend-data"><b>%asset_write_permission%</b> - Comma seperated list of the full names of users with write access</li>
 			<li class="sq-backend-data"><b>%asset_admin_permission%</b> - Comma seperated list of the full names of users with administrator access</li>
 			</ul>
+
+			<br/>
+			<span style="color:#FF0000"> * </span>denotes a required field
 			<?php
 			$o->closeField();
 		$o->closeSection();
