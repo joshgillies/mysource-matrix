@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.7 2004/11/18 23:09:50 gsherwood Exp $
+* $Id: calendar_common.inc,v 1.8 2004/11/22 04:19:09 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -548,6 +548,7 @@ function expand_single_event(&$result_list, &$event, $assetid, $first_day, $last
 		// end date is specified
 		if ($event['start_date_ds'] != $event['end_date_ds']) {
 			// multiple day
+			$event['expanded'] = 1;
 			$start_time = mktime(12, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
 			$start_date = date('Y-m-d', $start_time);
 
@@ -686,6 +687,7 @@ function expand_single_event(&$result_list, &$event, $assetid, $first_day, $last
 */
 function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $last_day, $day_start_time, $day_end_time) 
 {
+	$event['expanded'] = 1;
 	$event_start_date = sprintf('%04d-%02d-%02d', $event['start_date_year'], $event['start_date_mon'], $event['start_date_mday']);
 	$event_end_date = sprintf('%04d-%02d-%02d', $event['end_date_year'], $event['end_date_mon'], $event['end_date_mday']);
 
