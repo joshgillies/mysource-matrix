@@ -29,6 +29,7 @@ $GLOBALS['SQ_SYSTEM']->db->createSequence('sq_sequence_asset');
 $GLOBALS['SQ_SYSTEM']->db->createSequence('sq_sequence_asset_link');
 $GLOBALS['SQ_SYSTEM']->db->createSequence('sq_sequence_asset_attribute');
 $GLOBALS['SQ_SYSTEM']->db->createSequence('sq_sequence_asset_url');
+$GLOBALS['SQ_SYSTEM']->db->createSequence('sq_sequence_asset_permission');
 $GLOBALS['SQ_SYSTEM']->db->createSequence('sq_sequence_internal_message');
 
 // Let everyone know we are installing
