@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.232 2003/10/10 06:49:25 brobertson Exp $
+* $Id: asset.inc,v 1.233 2003/10/13 05:10:38 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2139,10 +2139,10 @@ class Asset extends MySource_Object
 		$keywords['asset_name']['value']			= $this->name;
 		$keywords['asset_short_name']['value']		= $this->short_name;
 		$keywords['asset_version']['value']			= $this->version;
-		$keywords['asset_created']['value']			= date('Y-m-d H:i:s', $this->created);
-		$keywords['asset_updated']['value']			= date('Y-m-d H:i:s', $this->updated);
-		$keywords['asset_created_short']['value']	= date('Y-m-d', $this->created);
-		$keywords['asset_updated_short']['value']	= date('Y-m-d', $this->updated);
+		$keywords['asset_created']['value']			= date('d/m/Y H:i:s', $this->created);
+		$keywords['asset_updated']['value']			= date('d/m/Y H:i:s', $this->updated);
+		$keywords['asset_created_short']['value']	= date('d/m/Y', $this->created);
+		$keywords['asset_updated_short']['value']	= date('d/m/Y', $this->updated);
 		$keywords['asset_url']['value']				= $this->getUrl();
 		$keywords['asset_href']['value']			= $this->getHref();
 
