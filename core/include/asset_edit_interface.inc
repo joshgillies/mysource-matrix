@@ -818,7 +818,7 @@ class Asset_Edit_Interface extends MySource_Object
 							$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
 							$fs = new Cron_Job_Future_Status();
 							$edit_fns = $fs->getEditFns();
-							$edit_fns->paintOneLineBackend($fs, $o, $prefix.'_new_fs');
+							$edit_fns->paintInLineBackend($fs, $o, $prefix.'_new_fs');
 
 							$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 							?>
@@ -926,24 +926,22 @@ class Asset_Edit_Interface extends MySource_Object
 
 				$fs = new Cron_Job_Future_Status();
 				$edit_fns = $fs->getEditFns();
-				if ($edit_fns->processOneLineBackend($fs, $o, $prefix.'_new_fs')) {
-					if (!is_null($cron_mgr)) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-						if ($cron_mgr->addJob($fs, $GLOBALS['SQ_SYSTEM']->user)) {
-							if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($fs->id)) {
-								if ($fs->setAssetToUpdate($owner)) {
-									$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-									$is_updated = true;
-									$GLOBALS['SQ_SYSTEM']->am->releaseLock($fs->id);
-								} else {
-									$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-								}
+				if ($edit_fns->processInLineBackend($fs, $o, $prefix.'_new_fs')) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+					if ($cron_mgr->addJob($fs, $GLOBALS['SQ_SYSTEM']->user)) {
+						if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($fs->id)) {
+							if ($fs->setAssetToUpdate($owner)) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+								$is_updated = true;
+								$GLOBALS['SQ_SYSTEM']->am->releaseLock($fs->id);
 							} else {
 								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							}
 						} else {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						}
+					} else {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					}
 				}// end if
 
@@ -1171,7 +1169,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 						$design_lookups = $owner->getDesignLookups();
 
-						foreach($our_designs as $design_name => $designid) { 
+						foreach($our_designs as $design_name => $designid) {
 
 							preg_match('/^(system|user)_design::(.*)$/', $design_name, $matches);
 							$system_design   = ($matches[1] == 'system');
@@ -1230,7 +1228,7 @@ class Asset_Edit_Interface extends MySource_Object
 									<?php
 									foreach ($effective_designs as $url => $designid) {
 										$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($designid, '', true);
-										if (is_null($design)) continue;										
+										if (is_null($design)) continue;
 										?>
 										<tr>
 											<td class="sq-backend-table-cell"><?php echo $url; ?></td>
@@ -1346,7 +1344,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-			$designs_updated = false;
+			$designs_affected = Array();
 			foreach ($_POST[$prefix.'_designs'] as $design_name => $design_data) {
 
 				$new_designid = $design_data['designid'];
@@ -1360,7 +1358,7 @@ class Asset_Edit_Interface extends MySource_Object
 						trigger_error('Design Name "'.$design_data['name'].'" already in use', E_USER_WARNING);
 						continue;
 					}// end if
-					
+
 				} else {
 					$old_design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_TYPE_3, 'design', false, $design_name);
 					$old_designid    = (empty($old_design_link)) ? 0 : $old_design_link['minorid'];
@@ -1376,6 +1374,7 @@ class Asset_Edit_Interface extends MySource_Object
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
 					}
+					$designs_affected[] = $old_designid;
 				}
 
 				if ($new_designid) {
@@ -1388,18 +1387,17 @@ class Asset_Edit_Interface extends MySource_Object
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
 					}
+					$designs_affected[] = $new_designid;
 				}
-
-				$designs_updated = true;
 
 			}// end foreach
 
 			//// START HIPO PROCESSING ////
-			if ($designs_updated) { 
+			if (!empty($designs_affected)) {
 				require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_update_lookups.inc';
 				$init_hipo = new HIPO_Job_Update_Lookups();
 
-				$init_hipo->setRunningVars(Array('assetid' => $owner->id));
+				$init_hipo->setRunningVars(Array('assetids' => $designs_affected));
 				$init_hipo->setOption('on_complete_url', $_SERVER['REQUEST_URI']);
 
 				$code_name = $init_hipo->initialise();
@@ -2584,6 +2582,11 @@ class Asset_Edit_Interface extends MySource_Object
 	*/
 	function paintLinking(&$owner, &$o, $allow_edit=true)
 	{
+		// If we are allowed to edit, we check the write effective access, minus live edit access
+		// We are ignoring live edit access because changes to links are not reliant on 
+		// status of the asset (because the are not save edited)
+		$write_access = ($allow_edit) ? $owner->writeAccess(Array(), true, false) :  false;
+
 		// prefix for all the form vars
 		$prefix = $owner->getPrefix();
 
@@ -2604,8 +2607,15 @@ class Asset_Edit_Interface extends MySource_Object
 		if (empty($assetids)) {
 			$result = Array();
 		} else {
-			$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
 
+			$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
+			$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, pt.treeid as parent_treeid, a.name, a.assetid
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link cl 
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct ON cl.linkid = ct.linkid,
+						 '.SQ_TABLE_RUNNING_PREFIX.'asset_link pl 
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree pt ON pl.linkid = pt.linkid
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON a.assetid = pl.minorid
+					';
 			$where = 'cl.minorid IN ('.implode(', ', array_keys($assetids)).')
 					  AND ct.treeid LIKE '.$concat.'
 					  AND pt.treeid <= ct.treeid';
@@ -2615,11 +2625,9 @@ class Asset_Edit_Interface extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
-			$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, pt.treeid as parent_treeid, a.name, a.assetid
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link cl INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct ON cl.linkid = ct.linkid,
-						 '.SQ_TABLE_RUNNING_PREFIX.'asset_link pl INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree pt ON pl.linkid = pt.linkid
-						 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON a.assetid = pl.minorid
-					'.$where.' ORDER BY cl.linkid, ct.treeid, pt.treeid';
+			$sql .= $where.'
+					ORDER BY cl.linkid, ct.treeid, pt.treeid';
+
 
 			$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC, true);
 			if (DB::isError($result)) {
@@ -2642,20 +2650,16 @@ class Asset_Edit_Interface extends MySource_Object
 
 			// dont even pretend that the root folder is going to
 			// care that it is linking to this asset!!
-			if ($majorid == 1) continue;
+			#if ($majorid == 1) continue;
 
 			// work out if the user can change the link types
 			// the arg $allow_edit must be set to TRUE to try the write access test
-			$can_edit = false;
-			if ($allow_edit) {
-				if ($owner->writeAccess(Array(), true, false) && in_array($link_type, array_keys($editable_link_types)) && !in_array($linkid, $editing_linkids)) $can_edit = true;
-			}
+			$can_edit = ($write_access && in_array($link_type, array_keys($editable_link_types)) && !in_array($linkid, $editing_linkids));
 
-			$asset_lineage = 'Root Folder > ';
+			$asset_lineage = '';
 			foreach ($link_tree as $tree_data) {
-				if ($tree_data['name'] == '/') continue;
 				if ($tree_data['assetid'] == $majorid) continue;
-				$asset_lineage .= $tree_data['name'].' > ';
+				$asset_lineage .= $tree_data['name'].' &gt; ';
 			}
 			$asset_lineage .= '<b>'.$parent_data['name'].'</b>';
 			if (isset($output_lineages[$asset_lineage]) && !$can_edit) continue;
@@ -2663,8 +2667,10 @@ class Asset_Edit_Interface extends MySource_Object
 			ob_start();
 			?>
 			<tr>
-				<td class="sq-backend-data">[</td>
-				<td align="center" class="sq-backend-data">
+				<td class="sq-backend-table-cell" style="text-align: center;">
+					<?php echo $linkid; ?>
+				</td>
+				<td class="sq-backend-table-cell" style="text-align: center;">
 					<?php
 					if (!$can_edit) {
 						echo link_type_name($link_type);
@@ -2674,8 +2680,7 @@ class Asset_Edit_Interface extends MySource_Object
 					}
 					?>
 				</td>
-				<td class="sq-backend-data">]</td>
-				<td class="sq-backend-data"><?php echo $asset_lineage; ?></td>
+				<td class="sq-backend-table-cell"><?php echo $asset_lineage; ?></td>
 			</tr>
 			<?php
 			$output_lineages[$asset_lineage] = ob_get_contents();
@@ -2686,10 +2691,82 @@ class Asset_Edit_Interface extends MySource_Object
 		if (!count($output_lineages)) {
 			echo 'None';
 		} else {
-			?><table border="0"><?php
+			?>
+			<table class="sq-backend-table">
+			<tr>
+				<td class="sq-backend-table-header" style="text-align: center; white-space: nowrap;">Link Id</td>
+				<td class="sq-backend-table-header" style="text-align: center;">Link Type</td>
+				<td class="sq-backend-table-header" width="100%">Lineage</td>
+			</tr>
+			<?php
 			foreach ($output_lineages as $null => $lineage_data) echo $lineage_data;
-			?></table><?php
-		}
+			?>
+			</table>
+			<?php
+		}// endif
+
+		$o->closeSection();
+
+		$o->openSection('Future Linking\'s/Lineage\'s');
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_lineage');
+		$fl_jobs = &Cron_Job_Future_Lineage::getActiveJobs($owner);
+		if (!empty($fl_jobs)) {
+			$o->openField('', 'new_line');
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-header">
+						Action
+					</td>
+					<td class="sq-backend-table-header">
+						When
+					</td>
+			<?php if ($write_access) { ?>
+					<td class="sq-backend-table-header" style="text-align: center;">
+						Delete ?
+					</td>
+			<?php } // end if ?>
+				</tr>
+			<?php
+
+			for($i = 0; $i < count($fl_jobs); $i++) {
+			?>
+				<tr>
+					<td class="sq-backend-table-cell">
+						<?php echo nl2br($fl_jobs[$i]->readableDescription()); ?>
+					</td>
+					<td class="sq-backend-table-cell">
+						<?php echo $fl_jobs[$i]->readableWhen(); ?>
+					</td>
+			<?php if ($write_access) { ?>
+					<td class="sq-backend-table-cell" style="text-align: center;">
+					<?php
+						if ($fl_jobs[$i]->canDelete()) {
+							check_box($prefix.'_remove_fl[]', $fl_jobs[$i]->id);
+						} else {
+							echo '&nbsp;';
+						}// end if
+					?>
+					</td>
+			<?php } // end if ?>
+				</tr>
+			<?php
+			}// end foreach
+
+			?>
+			</table>
+			<br/>
+			<?php
+
+		}// end if
+
+		if ($write_access) {
+			$fl = new Cron_Job_Future_Lineage();
+			$fl->setAssetInLink($owner, 'minor');
+			$edit_fns = $fl->getEditFns();
+			$edit_fns->paintInLineBackend($fl, $o, $prefix.'_new_fl');
+		}// end if
 
 		$o->closeSection();
 
@@ -2735,6 +2812,49 @@ class Asset_Edit_Interface extends MySource_Object
 
 			$done_something = true;
 		}
+
+		$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		if (!is_null($cron_mgr)) {
+
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_lineage');
+
+			if (!empty($_POST[$prefix.'_remove_fl'])) {
+				$fl_jobs = &Cron_Job_Future_Lineage::getActiveJobs($owner);
+				if (!empty($fl_jobs)) {
+
+					if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_mgr->id)) {
+						for($i = 0; $i < count($fl_jobs); $i++) {
+							if (in_array($fl_jobs[$i]->id, $_POST[$prefix.'_remove_fl'])) {
+								if ($cron_mgr->removeJob($fl_jobs[$i])) {
+									$is_updated = true;
+								}
+							}// end if
+						}// end for
+
+						$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id);
+
+					} else {
+						trigger_error('Unable to acquire the lock on the Cron Manager, unable to remove jobs', E_USER_NOTICE);
+
+					}// end if
+
+				}// end if
+			}// end if
+
+			$fl = new Cron_Job_Future_Lineage();
+			$edit_fns = $fl->getEditFns();
+			if($fl->setAssetInLink($owner, 'minor') && $edit_fns->processInLineBackend($fl, $o, $prefix.'_new_fl')) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+				if ($cron_mgr->addJob($fl, $GLOBALS['SQ_SYSTEM']->user)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+					$done_something = true;
+				} else {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				}
+
+			}// end if
+
+		}// end if
 
 		return $done_something;
 
