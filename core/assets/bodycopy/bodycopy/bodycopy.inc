@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.6 2004/04/14 00:51:39 gsherwood Exp $
+* $Id: bodycopy.inc,v 1.7 2004/05/11 04:40:51 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -91,15 +91,15 @@ class Bodycopy extends Asset
 		// save a version of the bodycopy as it appears now
 		$output = $this->getRawBodycopyContent();
 
-		$e = '/\\.\\/\\?a=([0-9]+)/';
+		$e = '|\./\?a=([0-9]+)|';
 		$matches = Array();
 		preg_match_all($e, $output, $matches);
 		$replace_assetids = $matches[1];
 
 		// replace all ./?a=xx links with php echo's
-		$e = "/?\./\\?a=([0-9]+)([^0-9]+)";
-		$with = '<'.'?php echo $sq_asset_url_list[\\1]; ?'.'>';
-		$output = ereg_replace($e, $with.'\\2', $output);
+		$e = "|\./\?a=([0-9]+)([^0-9])|";
+		$with = '<'.'?php echo $sq_asset_url_list[\\1]; ?'.'>\\2';
+		$output = preg_replace($e, $with, $output);
 
 		// save the contents of the bodycopy
 		if (!string_to_file($output, $this->data_path.'/.sq_system/.content_file.php')) {
@@ -245,7 +245,7 @@ class Bodycopy extends Asset
 				// create an array of urls that the content file is
 				// going to try and use to work out file urls, link hrefs etc
 				$sq_asset_url_list = Array();
-				
+
 				$notice_links = unserialize(file_to_string($this->data_path.'/.notice_links'));
 
 				foreach ($notice_links as $assetid) {
@@ -254,8 +254,12 @@ class Bodycopy extends Asset
 					$sq_asset_url_list[$assetid] = $href;
 				}
 
-				$content = file_to_string($this->data_path.'/.content_file.php');
+				ob_start();
+					include($this->data_path.'/.content_file.php');
+					$content = ob_get_contents();
+				ob_end_clean();
 				$content = replace_keywords($content, $this->keyword_replacements);
+
 				echo $content;
 			}
 		} else {
