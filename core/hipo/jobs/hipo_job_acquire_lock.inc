@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_lock.inc,v 1.29 2004/02/16 00:38:09 gsherwood Exp $
+* $Id: hipo_job_acquire_lock.inc,v 1.30 2004/02/24 02:59:55 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -238,28 +238,30 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 		// we don't need this anymore, we use the array 'lock_types'
 		unset($this->_running_vars['lock_type']);
 
-		// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
-		// we will be acquiring locks on
+		if (!isset($this->_running_vars['todo_assetids']) || empty($this->_running_vars['todo_assetids'])) {
+			// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
+			// we will be acquiring locks on
 
-		// if there is no dependants setting, or if it is true, get only dependants
-		if (!isset($this->_running_vars['dependants_only']) || !empty($this->_running_vars['dependants_only'])) {
-			$this->_running_vars['dependants_only'] = false;
-			$child_assets = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($asset->id);
-		} else {
-			// get locks for all children
-			$this->_running_vars['dependants_only'] = true;
-			$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
+			// if there is no dependants setting, or if it is true, get only dependants
+			if (!isset($this->_running_vars['dependants_only']) || !empty($this->_running_vars['dependants_only'])) {
+				$this->_running_vars['dependants_only'] = false;
+				$child_assets = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($asset->id);
+			} else {
+				// get locks for all children
+				$this->_running_vars['dependants_only'] = true;
+				$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
+			}
+			$this->_running_vars['todo_assetids'] = $child_assets;
 		}
-		$this->_running_vars['todo_assetids'] = $child_assets;
+
 		$this->_running_vars['done_root']     = false;
+		$this->_running_vars['done_assetids'] = Array();
 
 		if (!isset($this->_running_vars['forceably_acquire'])) {
 			$this->_running_vars['forceably_acquire'] = false;
 		} else {
 			$this->_running_vars['forceably_acquire'] = (bool) $this->_running_vars['forceably_acquire'];
 		}
-
-		$this->_running_vars['done_assetids'] = Array();
 
 		unset($asset);
 
