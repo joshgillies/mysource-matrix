@@ -61,7 +61,7 @@ public class Menus {
 	static int windowMenuItems2; // non-image windows listed in Window menu + separator
 	private static String error;
 	private String jarError;
-    private boolean isJarErrorHeading;
+	private boolean isJarErrorHeading;
 	private boolean installingJars, duplicateCommand;
 	private static Vector jarFiles;  // JAR files in plugins folder with "_" in their name
 	private int importCount, saveAsCount, toolsCount, optionsCount;
@@ -113,9 +113,6 @@ public class Menus {
 			
 		image.addSeparator();
 		addSubMenu(image, "Adjust");
-		addPlugInItem(image, "Show Info...", "ij.plugin.filter.Info", KeyEvent.VK_I, false);
-		addPlugInItem(image, "Properties...", "ij.plugin.filter.ImageProperties", 0, false);
-		//addSubMenu(image, "Benchmarks");
 		addSubMenu(image, "Color");
 		image.addSeparator();
 		addPlugInItem(image, "Crop", "ij.plugin.filter.Resizer(\"crop\")", 0, false);
@@ -132,30 +129,10 @@ public class Menus {
 		addSubMenu(process, "Shadows");
 		addSubMenu(process, "Binary");
 		addSubMenu(process, "Math");
-		addSubMenu(process, "FFT");
-		filtersMenu = addSubMenu(process, "Filters");
 		process.addSeparator();
-		addPlugInItem(process, "Image Calculator...", "ij.plugin.ImageCalculator", 0, false);
 		addPlugInItem(process, "Subtract Background...", "ij.plugin.filter.BackgroundSubtracter", 0, false);
 		addItem(process, "Repeat Command", KeyEvent.VK_R, true);
-		/*
-		JMenu analyze = new JMenu("Analyze");
-		addPlugInItem(analyze, "Analyze Particles...", "ij.plugin.filter.ParticleAnalyzer", 0, false);
-		addPlugInItem(analyze, "Summarize", "ij.plugin.filter.Analyzer(\"sum\")", 0, false);
-		addPlugInItem(analyze, "Label", "ij.plugin.filter.Filler(\"label\")", 0, false);
-		addPlugInItem(analyze, "Clear Results", "ij.plugin.filter.Analyzer(\"clear\")", 0, false);
-		addPlugInItem(analyze, "Set Measurements...", "ij.plugin.filter.Analyzer(\"set\")", 0, false);
-		analyze.addSeparator();
-		addPlugInItem(analyze, "Set Scale...", "ij.plugin.filter.ScaleDialog", 0, false);
-		addPlugInItem(analyze, "Calibrate...", "ij.plugin.filter.Calibrator", 0, false);
-		addPlugInItem(analyze, "Histogram", "ij.plugin.Histogram", KeyEvent.VK_H, false);
-		addPlugInItem(analyze, "Plot Profile", "ij.plugin.filter.Profiler(\"plot\")", KeyEvent.VK_K, false);
-		addPlugInItem(analyze, "Surface Plot...", "ij.plugin.SurfacePlotter", 0, false);
-		addSubMenu(analyze, "Gels");
-		toolsMenu = addSubMenu(analyze, "Tools");
-		*/
 		JMenu help = new JMenu("Help");
-		//aboutMenu = addSubMenu(help, "About Plugins");
 		addPlugInItem(help, "About ImageJ...", "ij.plugin.AboutBox", 0, false);
 				
 		mbar = new JMenuBar();
@@ -164,7 +141,6 @@ public class Menus {
 		mbar.add(edit);
 		mbar.add(image);
 		mbar.add(process);
-		//mbar.add(analyze);
 		mbar.add(help);
 		if (ij!=null)
 			ij.setJMenuBar(mbar);
@@ -203,16 +179,18 @@ public class Menus {
 		return item;
 	}
 
-	JMenu addSubMenu(JMenu menu, String name) {
+	JMenu addSubMenu(JMenu menu, String name) 
+	{
 		String value;
 		String key = name.toLowerCase(Locale.US);
 		int index;
- 		JMenu submenu=new JMenu(name.replace('_', ' '));
+		JMenu submenu=new JMenu(name.replace('_', ' '));
  
 		index = key.indexOf(' ');
-		if (index>0)
+		if (index > 0) {
 			key = key.substring(0, index);
- 		for (int count=1; count<100; count++) {
+		}
+		for (int count=1; count<100; count++) {
 			value = Prefs.getString(key + (count/10)%10 + count%10);
 			if (value==null)
 				break;
@@ -224,7 +202,8 @@ public class Menus {
 				addPluginItem(submenu, value);
 		}
 		return submenu;
-	}
+
+	}//end addSubMenu()
 
 	void addPluginItem(JMenu submenu, String s) {
 		if (s.equals("\"-\"")) {
@@ -307,7 +286,7 @@ public class Menus {
 		String[] plugins = getPlugins();
 		String[] plugins2 = null;
 		Hashtable skipList = new Hashtable();
- 		for (int index=0; index<100; index++) {
+		for (int index=0; index<100; index++) {
 			value = Prefs.getString("plugin" + (index/10)%10 + index%10);
 			if (value==null)
 				break;
@@ -363,47 +342,47 @@ public class Menus {
 			return;
 		installingJars = true;
 		for (int i=0; i<jarFiles.size(); i++) {
-            isJarErrorHeading = false;
+			isJarErrorHeading = false;
 			String jar = (String)jarFiles.elementAt(i);
 			InputStream is = getConfigurationFile(jar);
-            if (is==null) continue;
-            LineNumberReader lnr = new LineNumberReader(new InputStreamReader(is));
-            try {
-                while(true) {
-                    String s = lnr.readLine();
-                    if (s==null) break;
-                    installJarPlugin(jar, s);
-                }
-            }
-            catch (IOException e) {}
+			if (is==null) continue;
+			LineNumberReader lnr = new LineNumberReader(new InputStreamReader(is));
+			try {
+				while(true) {
+					String s = lnr.readLine();
+					if (s==null) break;
+					installJarPlugin(jar, s);
+				}
+			}
+			catch (IOException e) {}
 			finally {
 				try {if (lnr!=null) lnr.close();}
 				catch (IOException e) {}
 			}
 		}		
 	}
-    
-    /** Install a plugin located in a JAR file. */
-    void installJarPlugin(String jar, String s) {
+	
+	/** Install a plugin located in a JAR file. */
+	void installJarPlugin(String jar, String s) {
 		//IJ.log(s);
 		if (s.length()<3) return;
 		char firstChar = s.charAt(0);
 		if (firstChar=='#') return;
 		addSorted = false;
 		JMenu menu;
-        if (s.startsWith("Plugins>")) {
+		if (s.startsWith("Plugins>")) {
 			int firstComma = s.indexOf(',');
 			if (firstComma==-1 || firstComma<=8)
 				menu = null;
 			else {
-        		String name = s.substring(8, firstComma);
+				String name = s.substring(8, firstComma);
 				menu = getPluginsSubmenu(name);
 			}
-        } else if (firstChar=='"' || s.startsWith("Plugins")) {
-        	String name = getSubmenuName(jar);
-        	if (name!=null)
-        		menu = getPluginsSubmenu(name);
-        	else {
+		} else if (firstChar=='"' || s.startsWith("Plugins")) {
+			String name = getSubmenuName(jar);
+			if (name!=null)
+				menu = getPluginsSubmenu(name);
+			else {
 				menu = pluginsMenu;
 				addSorted = true;
 			}
@@ -427,7 +406,7 @@ public class Menus {
 			optionsCount++;
 		} else {
 			if (jarError==null) jarError = "";
-            addJarErrorHeading(jar);
+			addJarErrorHeading(jar);
 			jarError += "    Invalid menu: " + s + "\n";
 			return;
 		}
@@ -436,41 +415,41 @@ public class Menus {
 			return;
 		s = s.substring(firstQuote, s.length()); // remove menu
 		if (menu!=null) {
-            addPluginItem(menu, s);
-            addSorted = false;
-        }
+			addPluginItem(menu, s);
+			addSorted = false;
+		}
 		if (duplicateCommand) {
 			if (jarError==null) jarError = "";
-            addJarErrorHeading(jar);
+			addJarErrorHeading(jar);
 			jarError += "    Duplicate command: " + s + "\n";
 		}
 		duplicateCommand = false;
-    }
-    
-    void addJarErrorHeading(String jar) {
-        if (!isJarErrorHeading) {
-                if (!jarError.equals(""))
-                    jarError += " \n";
-                jarError += "Plugin configuration error: " + jar + "\n";
-                isJarErrorHeading = true;
-            }
-    }
+	}
+	
+	void addJarErrorHeading(String jar) {
+		if (!isJarErrorHeading) {
+				if (!jarError.equals(""))
+					jarError += " \n";
+				jarError += "Plugin configuration error: " + jar + "\n";
+				isJarErrorHeading = true;
+			}
+	}
 
 	JMenu getPluginsSubmenu(String submenuName) {
-        if (menusTable!=null) {
-            JMenu menu = (JMenu)menusTable.get(submenuName);
-            if (menu!=null)
-                return menu;
-        }
-        JMenu menu = new JMenu(submenuName);
-        //pluginsMenu.add(menu);
-        addItemSorted(pluginsMenu, menu, userPluginsIndex);
-        if (menusTable==null) menusTable = new Hashtable();
-        menusTable.put(submenuName, menu);
-        //IJ.log("getPluginsSubmenu: "+submenuName);        
-        return menu;
-    }
-    
+		if (menusTable!=null) {
+			JMenu menu = (JMenu)menusTable.get(submenuName);
+			if (menu!=null)
+				return menu;
+		}
+		JMenu menu = new JMenu(submenuName);
+		//pluginsMenu.add(menu);
+		addItemSorted(pluginsMenu, menu, userPluginsIndex);
+		if (menusTable==null) menusTable = new Hashtable();
+		menusTable.put(submenuName, menu);
+		//IJ.log("getPluginsSubmenu: "+submenuName);        
+		return menu;
+	}
+	
 	String getSubmenuName(String jarPath) {
 		//IJ.log("getSubmenuName: "+jarPath);
 		int index = jarPath.lastIndexOf(File.separatorChar);
@@ -482,7 +461,7 @@ public class Menus {
 		if (name.equals("plugins")) return null;
 		//IJ.log("getSubmenuName: "+jarPath+"    \""+name+"\"");
 		return name;
-    }
+	}
 
 	void addItemSorted(JMenu menu, JMenuItem item, int startingIndex) {
 		String itemLabel = item.getText();
@@ -501,23 +480,23 @@ public class Menus {
 		if (!inserted) menu.add(item);
 	}
 
-    void addSeparator(JMenu menu) {
-    	menu.addSeparator();
-    }
+	void addSeparator(JMenu menu) {
+		menu.addSeparator();
+	}
 
-    /** Opens the configuration file ("plugins.txt") from a JAR file and returns it as an InputStream. */
+	/** Opens the configuration file ("plugins.txt") from a JAR file and returns it as an InputStream. */
 	InputStream getConfigurationFile(String jar) {
 		try {
 			ZipFile jarFile = new ZipFile(jar);
 			Enumeration entries = jarFile.entries();
 			while (entries.hasMoreElements()) {
 				ZipEntry entry = (ZipEntry) entries.nextElement();
-        		if (entry.getName().endsWith("plugins.config"))
+				if (entry.getName().endsWith("plugins.config"))
 					return jarFile.getInputStream(entry);
 			}
 		}
-    	catch (Exception e) {}
-    	return null;
+		catch (Exception e) {}
+		return null;
 	}
 	
 	/** Returns a list of the plugins with directory names removed. */
@@ -620,11 +599,11 @@ public class Menus {
 			className = className.substring(slashIndex+1, className.length());
 			//className = className.replace('/', '.');
 			if (submenu==null || !submenuName.equals(dir)) {
- 				submenuName = dir;
- 				submenu = new JMenu(submenuName);
- 				pluginsMenu.add(submenu);
- 				if (menusTable==null) menusTable = new Hashtable();
- 				menusTable.put(submenuName, submenu);
+				submenuName = dir;
+				submenu = new JMenu(submenuName);
+				pluginsMenu.add(submenu);
+				if (menusTable==null) menusTable = new Hashtable();
+				menusTable.put(submenuName, submenu);
 			}
 			menu = submenu;
 		//IJ.write(dir + "  " + className);
@@ -676,29 +655,29 @@ public class Menus {
 		ImagePlus imp = IJ.getInstance().getImagePlus();
 		if (imp==null)
 			return;
-    	int type = imp.getType();
-    	if (type==ImagePlus.GRAY8) {
+		int type = imp.getType();
+		if (type==ImagePlus.GRAY8) {
 			ImageProcessor ip = imp.getProcessor();
-    		if (ip!=null && ip.getMinThreshold()==ImageProcessor.NO_THRESHOLD && ip.isColorLut()) {
-    			type = ImagePlus.COLOR_256;
-	    		if (!ip.isPseudoColorLut())
-	    			imp.setType(ImagePlus.COLOR_256);
-    		}
-    	}
-    	switch (type) {
-    		case ImagePlus.GRAY8:
+			if (ip!=null && ip.getMinThreshold()==ImageProcessor.NO_THRESHOLD && ip.isColorLut()) {
+				type = ImagePlus.COLOR_256;
+				if (!ip.isPseudoColorLut())
+					imp.setType(ImagePlus.COLOR_256);
+			}
+		}
+		switch (type) {
+			case ImagePlus.GRAY8:
 				gray8Item.setState(true);
 				break;
-     		case ImagePlus.GRAY16:
+			case ImagePlus.GRAY16:
 				gray16Item.setState(true);
 				break;
-     		case ImagePlus.GRAY32:
+			case ImagePlus.GRAY32:
 				gray32Item.setState(true);
 				break;
-   			case ImagePlus.COLOR_256:
+			case ImagePlus.COLOR_256:
 				color256Item.setState(true);
 				break;
-    		case ImagePlus.COLOR_RGB:
+			case ImagePlus.COLOR_RGB:
 				colorRGBItem.setState(true);
 				break;
 		}
@@ -707,8 +686,8 @@ public class Menus {
 	
 	static boolean isColorLut(ImagePlus imp) {
 		ImageProcessor ip = imp.getProcessor();
-    	IndexColorModel cm = (IndexColorModel)ip.getColorModel();
-    	if (cm==null) return false;
+		IndexColorModel cm = (IndexColorModel)ip.getColorModel();
+		if (cm==null) return false;
 		int mapSize = cm.getMapSize();
 		byte[] reds = new byte[mapSize];
 		byte[] greens = new byte[mapSize];
@@ -733,18 +712,18 @@ public class Menus {
 		return pluginsPath;
 	}
 
-       
+	   
 	/** Returns the hashtable that associates commands with plugins. */
 	public static Hashtable getCommands() {
 		return pluginsTable;
 	}
-        
+		
 	/** Returns the hashtable that associates shortcuts with commands. The keys
 		in the hashtable are Integer keycodes, or keycode+200 for uppercase. */
 	public static Hashtable getShortcuts() {
 		return shortcuts;
 	}
-        
+		
 	
 	public static JPopupMenu getPopupMenu() {
 		return popup;

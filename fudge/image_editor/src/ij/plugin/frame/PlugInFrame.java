@@ -16,27 +16,29 @@ public class PlugInFrame extends JFrame implements PlugIn, WindowListener, Focus
 		this.title = title;
 		ImageJ ij = IJ.getInstance();
 		addWindowListener(this);
- 		addFocusListener(this);
-		//setBackground(Color.white);
+		addFocusListener(this);
+		setBackground(Color.white);
 		if (IJ.debugMode) IJ.log("opening "+title);
-		setVisible(true);
+		setSize(220, 440);
+		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+		setLocation(screen.width - 240, (screen.height / 2) - 220);
 	}
 	
 	public void run(String arg) {
 	}
 	
-    public void windowClosing(WindowEvent e) {
-    	if (e.getSource()==this)
-    		close();
-    }
-    
-    /** Closes this window. */
-    public void close() {
+	public void windowClosing(WindowEvent e) {
+		if (e.getSource()==this)
+			close();
+	}
+	
+	/** Closes this window. */
+	public void close() {
 		setVisible(false);
 		dispose();
-    }
+	}
 
-    public void windowActivated(WindowEvent e) {
+	public void windowActivated(WindowEvent e) {
 		if (IJ.isMacintosh() && IJ.getInstance()!=null) {
 			IJ.wait(1); // needed for 1.4.1 on OS X
 			setJMenuBar(Menus.getMenuBar());
@@ -47,10 +49,10 @@ public class PlugInFrame extends JFrame implements PlugIn, WindowListener, Focus
 		//IJ.log("PlugInFrame: focusGained");
 	}
 
-    public void windowOpened(WindowEvent e) {}
-    public void windowClosed(WindowEvent e) {}
-    public void windowIconified(WindowEvent e) {}
-    public void windowDeiconified(WindowEvent e) {}
-    public void windowDeactivated(WindowEvent e) {}
+	public void windowOpened(WindowEvent e) {}
+	public void windowClosed(WindowEvent e) {}
+	public void windowIconified(WindowEvent e) {}
+	public void windowDeiconified(WindowEvent e) {}
+	public void windowDeactivated(WindowEvent e) {}
 	public void focusLost(FocusEvent e) {}
 }
