@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.43 2004/05/13 22:32:01 lwright Exp $
+* $Id: package_manager.inc,v 1.44 2004/05/18 16:39:28 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -42,33 +42,46 @@ class Package_Manager extends MySource_Object
 {
 
 	/**
-	* The info that is relevant to this package
+	* The Name of the package that we are managing
 	*
 	* @var string
 	*/
-	var $info;
+	var $name = '';
 
 	/**
-	* The name of the package that we are managing
+	* The Version of the package that we are managing
 	*
 	* @var string
 	*/
-	var $assets;
+	var $version = '';
+
+	/**
+	* The Description of the package that we are managing
+	*
+	* @var string
+	*/
+	var $description = '';
+
+	/**
+	* An Array of information on each asset in this package gleened from the asset.xml files
+	*
+	* @var Array()
+	*/
+	var $assets = Array();
 
 	/**
 	* the path to this package's directory from the system root
 	*
 	* @var string
 	*/
-	var $_base_path;
+	var $_base_path = '';
 
 	/**
 	* the full system path to this package's directory
 	*
 	* @var string
 	*/
-	var $_full_path;
-
+	var $_full_path = '';
 
 
 	/**
@@ -101,11 +114,10 @@ class Package_Manager extends MySource_Object
 			if ($this->getPackageName() != $info['code_name']['value']) {
 				trigger_error('The code name for the package in the file "'.$this->_full_path.'/package.xml" does not match the package that we are trying to open ('.$this->getPackageName().').', E_USER_ERROR);
 			}
-			$this->info = Array(
-								'name'        => $info['name']['value'],
-								'version'     => $info['version']['value'],
-								'description' => $info['description']['value']
-								);
+			$this->name			= $info['name']['value'];
+			$this->version		= $info['version']['value'];
+			$this->description	= $info['description']['value'];
+
 			$this->_loadPackageAssets();
 
 		} else {
@@ -179,8 +191,8 @@ class Package_Manager extends MySource_Object
 
 		$install_order = $this->_getInstallOrder();
 		if (empty($install_order)) {
-			trigger_error('No assets available in the install order, aborting update of "'.$this->getPackageName().'" package.', E_USER_WARNING);
-			return false;
+			trigger_error('No assets available in the install order of "'.$this->getPackageName().'" package.', E_USER_NOTICE);
+			return true;
 		}
 
 		pre_echo('Install Order :');
@@ -197,16 +209,16 @@ class Package_Manager extends MySource_Object
 
 		if ($exists) {
 			$sql = 'UPDATE '.SQ_TABLE_PREFIX.'package
-					SET version     = '.$db->quote($this->info['version']).',
-						name        = '.$db->quote($this->info['name']).',
-						description = '.$db->quote($this->info['description']).'
+					SET version     = '.$db->quote($this->version).',
+						name        = '.$db->quote($this->name).',
+						description = '.$db->quote($this->description).'
 					WHERE code_name = '.$db->quote($package_name);
 		} else {
 			$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'package
 					(code_name, version, name, description)
 					VALUES
-					('.$db->quote($package_name).', '.$db->quote($this->info['version']).',
-					'.$db->quote($this->info['name']).','.$db->quote($this->info['description']).')';
+					('.$db->quote($package_name).', '.$db->quote($this->version).',
+					'.$db->quote($this->name).','.$db->quote($this->description).')';
 		}//end if
 
 		$result = $db->query($sql);
@@ -270,6 +282,7 @@ class Package_Manager extends MySource_Object
 	*/
 	function _loadPackageAssets()
 	{
+		$this->assets = Array();
 		$this->_recurseLoadPackageAssets($this->assets, $this->_full_path, $this->_base_path);
 
 	}//end _loadPackageAssets()
