@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: bodycopy_table_cell.inc,v 1.28 2003/10/10 06:49:27 brobertson Exp $
+* $Id: bodycopy_table_cell.inc,v 1.29 2003/11/03 01:22:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -341,7 +341,7 @@ class BodyCopy_Table_Cell extends MySource_Object {
 	* @return boolean
 	* @access public
 	*/
-	function print_backend_js_data($cellid)
+	function printBackendJsData($cellid)
 	{
 		?>
 
@@ -350,7 +350,7 @@ class BodyCopy_Table_Cell extends MySource_Object {
 									break;
 		<?php
 
-	}//end print_backend_js_data()
+	}//end printBackendJsData()
 
 
 }//end Class BodyCopy_Table_Cell
