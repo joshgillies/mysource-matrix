@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.3 2004/10/15 01:08:36 arailean Exp $
+* $Id: form_ecommerce.inc,v 1.4 2004/10/15 03:24:33 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -380,7 +380,7 @@ HEREDOC;
 	* Overridden parent function to include the receipt information
 	*
 	* @access public
-	* @return
+	* @return void
 	*/
 	function printSummary($asHTML = false)
 	{
