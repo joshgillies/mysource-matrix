@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_screen_contents.xml,v 1.3 2003/09/26 05:26:41 brobertson Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.4 2003/09/26 06:04:39 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -24,11 +24,6 @@
 			<note></note>
 			<text width="40" height="10" />
 		</field>
-		<field attribute="height">
-			<display_name>Height</display_name>
-			<note></note>
-			<text width="5" height="1" />
-		</field>
 		<field>
 			<display_name>Default</display_name>
 			<note></note>
@@ -36,6 +31,11 @@
 				<paint_function   name="paintDefault"   />
 				<process_function name="processDefault" />
 			</function_call>
+		</field>
+		<field attribute="height">
+			<display_name>Height</display_name>
+			<note></note>
+			<text width="5" height="1" />
 		</field>
 		<field attribute="multiple">
 			<display_name>Multiple?</display_name>

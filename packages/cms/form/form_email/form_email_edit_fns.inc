@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_email_edit_fns.inc,v 1.5 2003/09/26 05:26:41 brobertson Exp $
+* $Id: form_email_edit_fns.inc,v 1.6 2003/09/26 06:01:45 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -108,10 +108,10 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	{
 		if(!$asset->writeAccess()) return false;
 		if (isset($_REQUEST[$prefix.'_se_active_qid'])) {
-			$am = $GLOBALS['SQ_SYSTEM']->am;
+			$am = &$GLOBALS['SQ_SYSTEM']->am;
 			
 			$qid = $_REQUEST[$prefix.'_se_active_qid'];
-			$active_question = $am->getAsset($qid);
+			$active_question = &$am->getAsset($qid);
 
 			
 			$questions = $asset->attr('selective_emails');

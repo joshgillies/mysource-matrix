@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_edit_fns.inc,v 1.7 2003/09/26 05:26:41 brobertson Exp $
+* $Id: form_edit_fns.inc,v 1.8 2003/09/26 06:01:26 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -248,14 +248,16 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 				
 				// if there is a section index, add it to the ouput
 				if ($asset->attr('section_index')) {
-					$output .= '<?'.'php echo $this->getSectionIndex('.$i++.')."<BR />"; ?'.'>';
+					$output .= '<'.'?php echo $this->getSectionIndex('.$i++.')."<BR />"; ?'.'>';
 				}
 				// tell the section what its quesiton index is
 				$section->question_index = $asset->attr('question_index');
 
 				ob_start();
+				// let the section know what the current submission objet is
+				$section->active_submission =& $asset->active_submission;
 				// tell the section to echo its body rather than including it
-				$section->printBody(0, false);
+				$section->printBody(false);
 				$output .= ob_get_contents();
 				ob_end_clean();
 			}
@@ -291,7 +293,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	function generateWizardContentFile(&$asset)
 	{
 		$bodycopy = &$asset->getBodycopy('format');
-		if (is_null($bodycopy)) return false;
+		if (!$bodycopy) return false;
 		
 		$output = '';
 
@@ -318,7 +320,8 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			if ($asset->getSectionIndex()) {
 				$replacement .= 'echo $this->getSectionIndex()."<BR />";';
 			}
-			$replacement .= ' $this->active_section->printBody($this->active_submission->id);';
+			$replacement .= ' $this->active_section->active_submission =& $this->active_submission;';
+			$replacement .= ' $this->active_section->printBody();';
 			$replacement .= ($asset->attr('validate')) ? '}' : '';
 			$replacement .= ' ?'.'>';
 

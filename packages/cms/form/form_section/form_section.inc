@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_section.inc,v 1.7 2003/09/26 05:26:41 brobertson Exp $
+* $Id: form_section.inc,v 1.8 2003/09/26 06:04:48 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -23,9 +23,19 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 class Form_Section extends Asset
 {
 
-
-
+	/**
+	* the question index type
+	* @var integer
+	*/
 	var $question_index = 0;
+
+
+	/**
+	* the active submission object
+	* @var object
+	*/
+	var $active_submission = null;
+
 
 	/**
 	* Constructor
@@ -36,7 +46,8 @@ class Form_Section extends Asset
 	function Form_Section($assetid=0) 
 	{
 		$this->Asset($assetid);
-	}
+
+	} // end Form_Section()
 
 
 	/**
@@ -102,26 +113,6 @@ class Form_Section extends Asset
 
 	
 	/**
-	* Creates a link between this asset and the passed asset, of a certain type
-	* and returns the linkid of the created link
-	*
-	* @return int
-	* @access public
-	* @see Asset::creatLink();
-	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0', $exclusive='0')
-	{
-		// if this is a bodycopy table then we need to make it a dependant link
-		if (is_a($minor, 'bodycopy')) {
-			$dependant = '1';
-		}
-		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
-		
-
-	}// end createLink()
-
-
-	/**
 	* gets called when things change (new links, delete links etc)
 	*
 	* @see Asset::_updated
@@ -131,8 +122,11 @@ class Form_Section extends Asset
 	*/
 	function _updated()
 	{
-		parent::_updated();
-		return $this->fileRegeneration();
+		if (!parent::_updated()) return false;
+		if (SQ_IN_BACKEND) {
+			return $this->fileRegeneration();
+		}
+		return true;
 	
 	} // end _updated()
 
@@ -174,7 +168,7 @@ class Form_Section extends Asset
 		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 'M', 'exclusive' => true);
 		return $page_links;
 
-	}//end _getAllowedLinks()
+	} // end _getAllowedLinks()
 
 
 	/**
@@ -208,20 +202,6 @@ class Form_Section extends Asset
 
 
 	/**
-	* Prints out the backend interface for the asset
-	*
-	* @param object Backend_Outputter $o
-	*
-	* @access public
-	*/
-	function paintBackend(&$o)
-	{
-			parent::paintBackend($o);
-			
-	}// end paintBackend()
-
-
-	/**
 	* returns the links to the questions of this section
 	*
 	* @param &object asset the section asset
@@ -250,7 +230,7 @@ class Form_Section extends Asset
 	*/
 	function getQuestionCount()
 	{
-		return count($this->getQuestionLinks());
+		return $GLOBALS['SQ_SYSTEM']->am->countLinks($this->id, 'major', SQ_LINK_TYPE_2, 'form_question', false);
 	
 	} // getQuestionCount()
 
@@ -275,6 +255,7 @@ class Form_Section extends Asset
 			return $a;
 		}
 		return false;
+	
 	} // end getQuestionByOrder()
 
 
@@ -308,16 +289,14 @@ class Form_Section extends Asset
 	*
 	* @access public
 	*/
-	function printBody($submissionid=0, $include=true)
+	function printBody($include=true)
 	{
 		// get the asset manager for the questions to print out their values
 		// (they do this in the included file)
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
-		// get the submission object
-		if ($submissionid) {
-			$submission = &$am->getAsset($submissionid, 'form_submission');
-		}
+		$submission =& $this->active_submission;
+
 		if (!file_exists($this->data_path.'/content_file.php')) {
 			$edit = $this->getEditFns();
 			$edit->generateContentFile($this);
@@ -341,29 +320,50 @@ class Form_Section extends Asset
 	* @access public
 	* @return boolean
 	*/
-	function processForm(&$submission) {
-		if (!$submission) return false;
-	
+	function processForm() {	
 		// get the asset manager
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		$links = $this->getQuestionLinks();
 		foreach ($links as $link) {
 			$question = &$am->getAsset($link['minorid'], $link['minor_type_code']);
+				
+			// let the question know what the current submission object is 
+			$question->active_submission =& $this->active_submission;
+
 			// tell the question the name and id of this section
 			$question->setSection($this->attr('name'), $this->id);
-			$question->processForm($submission);
+			
+			$question->processForm();
 		}
 		return true;
 	
 	} // end processForm()
 
+
+	/**
+	* returns the name of this section
+	*
+	* @param boolean $short_name if TRUE, returns the short name
+	*
+	* @access private
+	* @return string
+	*/
 	function _getName($short_name = false)
 	{
 		return $this->attr('name');
-	}
+
+	} // end _getName
 
 
+	/**
+	* returns the question index for a particular question (eg, 1, a, i, I)
+	* 
+	* @param integer $order the question order
+	*
+	* @access public
+	* @return string
+	*/
 	function getQuestionIndex($order)
 	{
 		$index = $this->question_index;
@@ -382,48 +382,15 @@ class Form_Section extends Asset
 				return chr($i).'.';
 			break;
 			case '4':
-				return strtolower($this->IntToRoman($order)).'.';
+				return strtolower(int_to_roman($order)).'.';
 			break;
 			case '5':
-				return $this->IntToRoman($order).'.';
+				return int_to_roman($order).'.';
 			break;
 
 		} // end switch
-	}
+	} // end getQuestionIndex()
 
-
-	function RomanDigit($dig, $one, $five, $ten) 
-	{ 
-		switch($dig) { 
-			case 0: return ""; 
-			case 1: return "$one"; 
-			case 2: return "$one$one"; 
-			case 3: return "$one$one$one"; 
-			case 4: return "$one$five"; 
-			case 5: return "$five"; 
-			case 6: return "$five$one"; 
-			case 7: return "$five$one$one"; 
-			case 8: return "$five$one$one$one"; 
-			case 9: return "$one$ten"; 
-		} 
-	} 
-
-
-	function IntToRoman($num) 
-	{ 
-
-		$m = $num / 1000; 
-		$c = ($num % 1000) / 100; 
-		$x = ($num % 100) / 10; 
-		$i = $num % 10; 
-
-		return( 
-			 $this->RomanDigit($m, 'M', '', '') 
-			.$this->RomanDigit($c, 'C', 'D', 'M') 
-			.$this->RomanDigit($x, 'X', 'L', 'C') 
-			.$this->RomanDigit($i, 'I', 'V', 'X') 
-		); 
-	} 
 
 }//end class
 ?>

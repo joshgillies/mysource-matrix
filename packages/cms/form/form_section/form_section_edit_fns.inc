@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_section_edit_fns.inc,v 1.7 2003/09/26 05:26:41 brobertson Exp $
+* $Id: form_section_edit_fns.inc,v 1.8 2003/09/26 06:04:48 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,9 +37,9 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the links to the bodycopies in this section
 	*
-	* @param object Form_Section		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object Form_Section		&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -77,9 +77,9 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	* This function processes some actions (such as insert_table) but
 	* lets ndividual tables handle other actions themselves
 	*
-	* @param object Form_Section		$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object Form_Section		$asset		the asset to which we belong
+	* @param object	Backend_Outputter	$o			the outputter class
+	* @param string						$prefix		prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -93,9 +93,9 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the links to the questions in this section
 	*
-	* @param object Form_Section		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object Form_Section		&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
 	*
 	* @return boolean false if no questions in this section, true otherwise
 	* @access public
@@ -121,9 +121,9 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the links to the questions in this section
 	*
-	* @param object Form_Section		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object Form_Section		&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -137,9 +137,9 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the dropdowns to add questions to this section
 	*
-	* @param object Form_Section		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object Form_Section		&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
 	*
 	* @return boolean false if no questions in this section, true otherwise
 	* @access public
@@ -177,9 +177,9 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the newly added questions
 	*
-	* @param object Form_Section		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object Form_Section		&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -196,11 +196,12 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$curr_question_count = $asset->getQuestionCount() + 1;
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		
 		if ($type && $number) {
-			$am->includeAsset($type);
 			
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			$am->includeAsset($type);
+						
 			// create some questions
 			for ($i = 0; $i < $number; $i++) {
 				$question  = new $type();
@@ -212,9 +213,9 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
-				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				$curr_question_count++;
 			} // end for
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		} // end if
 		
 		// regenerate the content file
@@ -293,7 +294,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 							if ($this->question_index) {
 								$index = '$this->getQuestionIndex($q);';
 							}
-							$replacement .= '?><table><tr><td><'.'?php echo '.$index.'?></td><td>'
+							$replacement .= '?'.'><table><tr><td><'.'?php echo '.$index.'?'.'></td><td>'
 								.$question->getVal($t).'</td></tr></table>';
 						} else {
 							$replacement = '';
@@ -344,8 +345,8 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* generate the html for the looping bodycopy
 	*
-	* @param &object $asset the section asset
-	* @param &object $looping_bodycopy the bodycopy
+	* @param &object	$asset				the section asset
+	* @param &object	$looping_bodycopy	the bodycopy
 	*
 	* @return string
 	* @access public

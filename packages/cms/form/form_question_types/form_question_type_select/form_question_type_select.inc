@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_type_select.inc,v 1.4 2003/09/26 05:26:41 brobertson Exp $
+* $Id: form_question_type_select.inc,v 1.5 2003/09/26 06:04:39 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -94,8 +94,8 @@ class Form_Question_Type_Select extends Form_Question
 		// generate some php for the value, which can be used for both
 		// auto-answer and returning to saved forms
 		if ($content_file) {
-			$html  = '<'.'?php $q = &$am->getAsset('.$this->id.$suffix.', \'form_question_type_select\'); ?'.'>';
-			$html .= '<'.'?php combo_box($q->id, $q->getOptions(), $q->attr(\'multiple\'), $q->getValue($submission), 	$q->attr(\'height\'), $q->attr(\'extra\')) ?'.'>';
+			$html  = '<'.'?php $q = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$this->id.$suffix.', \'form_question_type_select\'); ?'.'>';
+			$html .= '<'.'?php $q->active_submission =& $this->active_submission; combo_box($q->id, $q->getOptions(), $q->attr(\'multiple\'), $q->getValue($this->active_submission), $q->attr(\'height\'), $q->attr(\'extra\')) ?'.'>';
 		} else {
 			ob_start();
 			combo_box($this->id.$suffix, $this->getOptions(), $this->attr('multiple'), $value, $this->attr('height'), '');
@@ -116,10 +116,10 @@ class Form_Question_Type_Select extends Form_Question
 	* @access public
 	* @return mixed
 	*/
-	function getValue(&$submission)
+	function getValue()
 	{
-		if ($submission) {
-			$answer = $submission->getAnswer($this->id);
+		if ($this->active_submission) {
+			$answer = $this->active_submission->getAnswer($this->id);
 			if ($answer) {
 				if (is_array($answer)) {
 					foreach ($answer as $a) {
@@ -180,9 +180,9 @@ class Form_Question_Type_Select extends Form_Question
 	* @access public
 	* @return boolean
 	*/
-	function processForm(&$submission)
+	function processForm()
 	{
-		if (!$submission) return false;
+		if (!$this->active_submission) return false;
 		$val = isset($_POST[$this->id]) ? $_POST[$this->id] : '';
 		
 		if (is_array($val)) {
@@ -190,10 +190,10 @@ class Form_Question_Type_Select extends Form_Question
 		} else {
 			$value = $this->getAnswerByOffset($val);
 		}
-		$submission->setAnswer($this->id, $val);
-		$submission->setSummary($this->id, $this->attr('name'), $value, $this->section_id, $this->section_name);
+		$this->active_submission->setAnswer($this->id, $val);
+		$this->active_submission->setSummary($this->id, $this->attr('name'), $value, $this->section_id, $this->section_name);
 		
-		parent::processForm($submission);
+		parent::processForm();
 		
 		return true;
 

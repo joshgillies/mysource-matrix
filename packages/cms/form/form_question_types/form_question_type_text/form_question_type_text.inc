@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_type_text.inc,v 1.6 2003/09/26 05:26:41 brobertson Exp $
+* $Id: form_question_type_text.inc,v 1.7 2003/09/26 06:04:39 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -85,6 +85,9 @@ class Form_Question_Type_Text extends Form_Question
 	/**
 	* generates the html for this question to display it in the frontend
 	*
+	* @param boolean	$content_file	if TRUE, this function will generate content for the content file
+	* @param string		$value			current value of the question
+	*
 	* @access public
 	* @return string
 	*/
@@ -100,8 +103,11 @@ class Form_Question_Type_Text extends Form_Question
 		// generate some php for the value, which can be used for both
 		// auto-answer and returning to saved forms
 		if ($content_file) {
-			$html  = '<'.'?php $q = &$am->getAsset('.$this->id.', \'form_question_type_text\'); ?'.'>';
-			$value = '<'.'?php echo $q->getValue($submission); ?'.'>';
+			$html  = '<'.'?php $q = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('
+			.$this->id.', \'form_question_type_text\'); '
+			.' $q->active_submission =& $this->active_submission; ?'.'>';
+
+			$value = '<'.'?php echo $q->getValue(); ?'.'>';
 		} else {
 			$html = '';
 		}
@@ -131,10 +137,10 @@ class Form_Question_Type_Text extends Form_Question
 	* @access public
 	* @return void
 	*/
-	function getValue(&$submission)
+	function getValue()
 	{
-		if ($submission) {
-			$answer = $submission->getAnswer($this->id);
+		if ($this->active_submission) {
+			$answer = $this->active_submission->getAnswer($this->id);
 			if ($answer) echo $answer;
 		}
 	
@@ -149,15 +155,16 @@ class Form_Question_Type_Text extends Form_Question
 	* @access public
 	* @return boolean
 	*/
-	function processForm(&$submission)
+	function processForm()
 	{
-		if (!$submission) return false;
+		if (!$this->active_submission) return false;
 		
 		if (isset($_POST[$this->id])) {
 			$val = $_POST[$this->id];
-			$submission->setAnswer($this->id, $val);
-			$submission->setSummary($this->id, $this->attr('name'), $val, $this->section_id, $this->section_name);
-			parent::processForm($submission);
+			$this->active_submission->setAnswer($this->id, $val);
+			$this->active_submission->setSummary($this->id, $this->attr('name'), $val, $this->section_id, $this->section_name);
+
+			parent::processForm();
 		}
 		
 		return true;

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form.inc,v 1.10 2003/09/26 05:26:41 brobertson Exp $
+* $Id: form.inc,v 1.11 2003/09/26 06:01:26 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -138,8 +138,10 @@ class Form extends Asset
 	function _updated()
 	{
 		if (!parent::_updated()) return false;
-		echo 'regenerating...<BR>';
-		return $this->fileRegeneration();
+		if (SQ_IN_BACKEND) {
+			return $this->fileRegeneration();
+		}
+		return true;
 	
 	} // end _updated()
 
@@ -365,19 +367,7 @@ class Form extends Asset
 
 		// nothing submitted yet, or there was an error
 		if (!isset($_POST[$prefix.'_submit']) || $is_error) {
-			
-			// we need to create this $am variable for the php
-			// in the include file to use!
-			$am = &$GLOBALS['SQ_SYSTEM']->am;
-
-			if (!file_exists($this->data_path.'/content_file.php')) {
-				$edit = &$this->getEditFns();
-				if ($edit->generateStandardContentFile($this)) {
-					include($this->data_path.'/content_file.php');
-				}
-			} else {
-				include($this->data_path.'/content_file.php');
-			}
+			$this->includeContentFile('Standard');
 		}
 		return true;
 
@@ -454,6 +444,10 @@ class Form extends Asset
 		// get the section that we are currently on
 		// this is needed for the included file	
 		$this->active_section = &$this->getSectionByOrder($order);
+		
+		// tell the section what the current submission object is
+		$this->active_section->active_submisssion =& $this->active_submission;
+		
 		// let the section know what its question index is
 		$this->active_section->question_index = $this->attr('question_index');
 
@@ -461,7 +455,7 @@ class Form extends Asset
 		$this->saveStage($order);
 
 		// include the content file for this form
-		$this->includeContentFile();
+		$this->includeContentFile('Wizard');
 
 	} // end printWizard()
 
@@ -478,6 +472,11 @@ class Form extends Asset
 	{
 		// get the section to process itself
 		$posted_section = &$this->getSectionByOrder($order);
+		
+		if (!is_null($this->active_submission)) {
+			// let this section know what the current submission object is
+			$posted_section->active_submission =& $this->active_submission;
+		}
 		
 		return $posted_section->processForm($this->active_submission);
 
@@ -502,14 +501,19 @@ class Form extends Asset
 	/**
 	* includes the content file for this form
 	*
+	* @param string $type the type of content file to generate
+	*
 	* @access public
 	* @return boolean
 	*/
-	function includeContentFile()
+	function includeContentFile($type = 'standard')
 	{
 		if (!file_exists($this->data_path.'/content_file.php')) {
 			$edit = &$this->getEditFns();
-			if (!$edit->generateWizardContentFile($this)) return false;
+			$fn = 'generate'.$type.'ContentFile';
+			
+			if (!method_exists($edit, $fn)) return false;
+			if (!$edit->$fn($this)) return false;
 		}
 		include($this->data_path.'/content_file.php');
 
@@ -645,7 +649,8 @@ class Form extends Asset
 		$sections = &$this->getSections();
 		for (reset($sections); null !== ($k = key($sections)); next($sections)) {
 			$section =& $sections[$k];
-			$section->processForm($this->active_submission);
+			$section->active_submission =& $this->active_submission;
+			$section->processForm();
 		}
 		return true;
 
@@ -779,7 +784,8 @@ class Form extends Asset
 	function printSummary($html = false)
 	{
 		$summary = $this->active_submission->getSummary();
-		
+		if (empty($summary)) return false;
+
 		echo ($html) ? '<table>' : '';
 		foreach ($summary as $id => $s_info) {
 			echo ($html) ? '<tr><td colspan="2">' : '';
