@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.45 2004/07/07 01:00:35 lwright Exp $
+* $Id: form.inc,v 1.46 2004/07/08 02:43:33 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -967,18 +967,17 @@ class Form extends Bridge
 		if(empty($this->submission_errors)) return false;
 
 		?>
-		<span>
 		<b>The following errors must be corrected before the form can be submitted:</b><br />
 		<ul>
 		<?php
 
 		foreach ($this->submission_errors as $error) {
-			echo "<LI>".$error."</LI>\n";
+			echo "<li>".$error."</li>\n";
 		}
 
 		?>
 		</ul>
-		</span>
+
 		<?php
 		
 		return true;
