@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.271 2004/01/20 01:29:22 diarandine Exp $
+* $Id: asset.inc,v 1.272 2004/01/22 06:01:29 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1466,7 +1466,7 @@ class Asset extends MySource_Object
 			foreach($links as $link) {
 				$parent = &$am->getAsset($link['majorid'], $link['major_type_code']);
 				if (is_null($parent)) continue;
-				if (($err_msg = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $new_type_code, $link['link_type'], $link['linkid'])) !== true) {
+				if (($err_msg = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $new_type_code, $link['link_type'], $link['linkid'], $link['exclusive'])) !== true) {
 					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 					trigger_error('Unable to cast "'.$this->name.'" to "'.$new_type_code.'", "'.$parent->name.'" (Asset # '.$parent->id.') cannot be linked to the new Asset - ('.$err_msg.')', E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
