@@ -215,6 +215,8 @@ class Asset extends Resolve_Object
 			if (!isset($link['dependant']))  $link['dependant']  = 0;
 			if (!isset($link['exclusive']))  $link['exclusive']  = 0;
 
+			$lock_info = $link['asset']->getLockInfo();
+			$parent_was_locked = !empty($lock_info);
 			if (!$link['asset']->acquireLock()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$this->id = 0;
@@ -236,15 +238,25 @@ class Asset extends Resolve_Object
 
 			$linkid = $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['sort_order'], $link['dependant'], $link['exclusive']);
 
-			if (!$this->releaseLock()) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$this->id = 0;
-				return false;
+			// get the link so we can find out if it was dependant (cant rely on the info passed in
+			// because other assets may have changed what happens in createLink)
+			$new_link = $this->getLinkById($linkid, 'minor');
+
+			// release locks depending on if the parent was locked before we were created
+			if (!$parent_was_locked) {
+				// parent was not locked, so unlock both the parent and us
+				if (!$link['asset']->releaseLock()) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$this->id = 0;
+					return false;
+				}
 			}
-			if (!$link['asset']->releaseLock()) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$this->id = 0;
-				return false;
+			if (!$new_link['dependant']) {
+				if (!$this->releaseLock()) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$this->id = 0;
+					return false;
+				}
 			}
 
 			if (!$linkid) {
