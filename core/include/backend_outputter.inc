@@ -574,18 +574,19 @@ class Backend_Outputter
 	*/
 	function _paintHeader()
 	{
-	?>
+	
+		if($this->_charset) {
+			header("Content-type: text/html; charset=$this->_charset");
+		} else {
+			$default_charset = 'iso-8859-1';
+			header("Content-type: text/html; charset=$default_charset");
+		}
+		?>
 		<html>
 		<head>
 			<title><?php echo $this->_heading;?></title>
 			<?php
 			
-			if($this->_charset) {
-				header("Content-type: text/html; charset=$this->_charset");
-			} else {
-				$default_charset = 'iso-8859-1';
-				header("Content-type: text/html; charset=$default_charset");
-			}
 
 			$this->_paintCssInclude($this->filesPath('css/edit.css'));
 			foreach($this->_css_includes as $file) $this->_paintCssInclude($file);
