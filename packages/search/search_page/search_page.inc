@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.14 2003/12/02 03:55:25 mmcintyre Exp $
+* $Id: search_page.inc,v 1.15 2003/12/28 21:28:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -26,11 +26,11 @@
 * Search_Page
 *
 * Page template for searching.
-* 
+*
 * @see Page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.14 $ - 1.0
+* @version $Revision: 1.15 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -41,7 +41,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 class Search_Page extends Page
 {
-	/** 
+	/**
 	* An array of bodycopies and their names that are attached underneath this page asset.
 	* @var Array()
 	*/
@@ -53,12 +53,41 @@ class Search_Page extends Page
 
 	/**
 	* An array of default parameters.
-	* 
+	*
 	* @var Array()
 	*/
 	var $defaults = Array (
 		'query_width'	=> 25,
 	);
+
+	var $keywords = Array(
+						'initial' => Array(
+							'submit_button'		=> Array('description' => '<input type="button" value="Search" />', 'type' => 'special'),
+							'results_per_page'	=> Array('description' => '<input type="text" value="Results per page" />', 'type' => 'special'),
+												),
+						'results' => Array(
+							'result_list'				=> Array('description' => 'List of search results', 'type' => 'block'),
+							'result_count'				=> Array('description' => 'Number of results found', 'type' => 'inline'),
+							'current_result_page'		=> Array('description' => 'Page of results we are on', 'type' => 'inline'),
+							'total_result_pages'		=> Array('description' => 'Total number of result pages', 'type' => 'inline'),
+							'result_page_index'			=> Array('description' => 'List of result pages', 'type' => 'inline'),
+							'previous_result_page_link'	=> Array('description' => 'Previous', 'type' => 'inline'),
+							'next_result_page_link'		=> Array('description' => 'Next', 'type' => 'inline'),
+							'initial_layout'			=> Array('description' => 'New search', 'type' => 'block'),
+												),
+						'result_element' => Array(
+							'score'						=> Array('description' => 'Result score', 'type' => 'inline'),
+							'asset_id'					=> Array('description' => 'Asset ID', 'type' => 'inline'),
+							'asset_name'				=> Array('description' => 'Name of the asset', 'type' => 'inline'),
+							'asset_name_linked'			=> Array('description' => 'Name of the asset (linked)', 'type' => 'inline'),
+							'asset_short_name'			=> Array('description' => 'Short name of the asset', 'type' => 'inline'),
+							'asset_short_name_linked'	=> Array('description' => 'Short name of the asset (linked)', 'type' => 'inline'),
+							'asset_url'					=> Array('description' => 'URL of the asset', 'type' => 'inline'),
+							'asset_lineage'				=> Array('description' => 'Lineage to the asset', 'type' => 'inline'),
+							'asset_lineage_linked'		=> Array('description' => 'Lineage to the asset (linked)', 'type' => 'inline'),
+												),
+						);
+
 
 	/**
 	* Constructor
@@ -68,6 +97,7 @@ class Search_Page extends Page
 	*/
 	function Search_Page($assetid=0)
 	{
+		$this->_ser_attrs = true;
 		$this->Page($assetid);
 
 	}//end constructor
@@ -98,13 +128,13 @@ class Search_Page extends Page
 
 		foreach ($this->bodycopies as $value => $name) {
 			$copy_link = Array(
-				'asset' => &$this, 
-				'link_type' => SQ_LINK_TYPE_2, 
-				'dependant' => 1, 
+				'asset' => &$this,
+				'link_type' => SQ_LINK_TYPE_2,
+				'dependant' => 1,
 				'exclusive' => 1,
 				'value'		=> $value
 			);
-			
+
 			$bodycopy = new Bodycopy();
 			$bodycopy->setAttrValue('name', $name);
 			if (!$bodycopy->create($copy_link)) {
@@ -122,11 +152,10 @@ class Search_Page extends Page
 
 	/**
 	* Creates a link between this asset and the passed asset, of a certain type
-	* and returns the linkid of the created link
 	*
-	* @return int
+	* @return int the linkid of the created link
 	* @access public
-	* @see Asset::creatLink();
+	* @see Asset::createLink()
 	*/
 	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0', $exclusive='0')
 	{
@@ -137,7 +166,7 @@ class Search_Page extends Page
 
 		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
 
-	}// end createLink()
+	}//end createLink()
 
 
 	/**
@@ -177,7 +206,6 @@ class Search_Page extends Page
 
 	/**
 	* Called by the design to print the body of this asset
-	* it's up to the kids to override
 	*
 	* @access public
 	*/
@@ -186,69 +214,59 @@ class Search_Page extends Page
 		// get the corresponding bodycopy attached to us
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 		$mode =& $_REQUEST['mode'];
-		if (!isset($mode))
-			$mode = 'initial';
+		if (!isset($mode)) $mode = 'initial';
 
 		$current_result_page =& $_REQUEST['current_result_page'];
 		$results_per_page =& $_REQUEST['results_per_page'];
 
-		if (!isset($current_result_page))
-			$current_result_page = 0;
-		if (!isset($results_per_page))
-			$results_per_page = $this->attr('results_per_page');
+		if (!isset($current_result_page)) $current_result_page = 0;
+		if (!isset($results_per_page)) $results_per_page = $this->attr('results_per_page');
 		?>
-		<form name="search_form" method="get" action="<?=$this->getUrl()?>">
-		<input type="hidden" name="mode" value="<?=$mode?>" />
-		<input type="hidden" name="current_result_page" value="<?=$current_result_page?>" />
-		<input type="hidden" name="results_per_page" value="<?=$results_per_page?>" />
-
-
-		<?php
-
-		switch ($mode) {
-			case 'results':
-				$this->printResultsBody();
+		<form name="search_form" method="get" action="<?php echo $this->getUrl(); ?>">
+			<input type="hidden" name="mode" value="<?php echo $mode; ?>" />
+			<input type="hidden" name="current_result_page" value="<?php echo $current_result_page; ?>" />
+			<input type="hidden" name="results_per_page" value="<?php echo $results_per_page; ?>" />
+			<?php
+			switch ($mode) {
+				case 'results':
+					$this->printResultsBody();
+					break;
+				case 'initial':
+				default:
+					echo $this->getBodycopyContents('initial', $this->getInitialBodyReplacements());
 				break;
-			case 'initial':
-			default:
-				$this->printInitialBody();
-			break;
-		}
-
-		?>
+			}
+			?>
 		</form>
 		<?php
 
-	}// end printBody()
+	}//end printBody()
 
-	/** 
-	* Prints the results body copy.
-	* 
+
+	/**
+	* Prints the results bodycopy
+	*
 	* @access private
 	*
 	* @return void
 	*/
 	function printResultsBody()
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-
 		$results = $this->processSearch();
+		$replacements = array_merge($this->getInitialBodyReplacements(), $this->getResultsBodyReplacements($results));
+		echo $this->getBodycopyContents('results', $replacements);
 
-		// print them
-		$results_html = $this->getBodycopyContents('results');
-		$this->replaceInitialKeywords($results_html);
-		$this->replaceResultsKeywords($results_html, $results);
-		echo $results_html;
-	} // end printResultsBody()
+	}//end printResultsBody()
+
 
 	/**
-	* Retrieves a bodycopy by name.
-	* @see Search_Page::bodycopies
-	* 
-	* @access private
+	* Retrieves a bodycopy by name
 	*
-	* @param string $name The name of the bodycopy to retrieve.
+	* @param string		$name	the name of the bodycopy to retrieve
+	*
 	* @return [object|null] The bodycopy, or null if the name does not match any bodycopies.
+	* @access private
+	* @see Search_Page::bodycopies
 	*/
 	function &getBodycopy($name)
 	{
@@ -260,65 +278,53 @@ class Search_Page extends Page
 		} else {
 			return null;
 		}
-	} // end getBodycopy()
+
+	}//end getBodycopy()
+
 
 	/**
 	* Retrieves a bodycopy's contents by name.
+	*
+	* @param string		$name	the name of the bodycopy to retrieve
+	*
+	* @return [string|null] the bodycopy's contents, or empty string if the name does not match any bodycopies
+	* @access private
 	* @see Search_Page::bodycopies
 	* @see Search_Page::getBodycopy
-	* @access private
-	*
-	* @param string $name The name of the bodycopy to retrieve.
-	* @return [string|null] The bodycopy's contents, or empty string if the name does not match any bodycopies.
 	*/
-	function &getBodycopyContents($name)
+	function &getBodycopyContents($name, $replacements=Array())
 	{
 		$bodycopy =& $this->getBodycopy($name);
+		if (is_null($bodycopy)) return '';
 
-		if (is_null($bodycopy))
-			return '';
+		$bodycopy->setKeywordReplacements($replacements);
 
 		ob_start();
-		$bodycopy->printBody();
-		$html = ob_get_contents();
+			$bodycopy->printBody();
+			$html = ob_get_contents();
 		ob_end_clean();
+
 		return $html;
-	} // end getBodycopyContents()
 
-	/** 
-	* Prints the initial body copy.
-	* 
-	* @access private
+	}//end getBodycopyContents()
+
+
+	/**
+	* Prints the initial bodycopy
 	*
 	* @return void
-	*/
-	function printInitialBody()
-	{
-		$html = $this->getBodycopyContents('initial');
-		$this->replaceInitialKeywords($html);
-		
-		echo $html;
-	} // end printInitialBody()
-
-	/** 
-	* Keyword-replaces for the initial mode. 
-	* 
 	* @access private
-	* @param string $html The HTML to keyword replace.
-	*
-	* @return void
 	*/
-	function replaceInitialKeywords(&$html)
+	function getInitialBodyReplacements()
 	{
-		$keywords = retrieve_keywords_replacements($html);
-		$replaces = array();
+		$bodycopy =& $this->getBodycopy('initial');
+		$keywords = $bodycopy->getKeywords();
+		$replaces = Array();
 
-		$results_per_page =& $_REQUEST['results_per_page'];
-		$current_results_page =& $_REQUEST['current_result_page'];
+		$results_per_page     = $_REQUEST['results_per_page'];
+		$current_results_page = $_REQUEST['current_result_page'];
 
 		$fields = $this->attr('fields');
-		if (is_scalar($fields))
-			$fields = unserialize($fields);
 
 		$queries =& $_REQUEST['queries'];
 
@@ -327,12 +333,11 @@ class Search_Page extends Page
 			if (ereg('(.+)_query', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 				$query_var = $matches[1]."_query";
 				$query =& $queries[$query_var];
-				if (!isset($query))
-					$query = '';
+				if (!isset($query)) $query = '';
 
 				ob_start();
-				text_box("queries[$query_var]", $query, $this->defaults['query_width']);
-				$replacement = ob_get_contents();
+					text_box("queries[$query_var]", $query, $this->defaults['query_width']);
+					$replacement = ob_get_contents();
 				ob_end_clean();
 
 			} else {
@@ -357,25 +362,27 @@ class Search_Page extends Page
 			}
 		}
 
-		$html = replace_keywords($html, $replaces);
-	} // end replaceInitialKeywords()
+		return $replaces;
 
-	/** 
+	}//end getInitialBodyReplacements()
+
+
+	/**
 	* Keyword-replaces for the results mode.
-	* 
-	* @access private
-	* @param string $html		The HTML to keyword replace.
-	* @param Array $results		The results returned.
+	*
+	* @param Array	$results	the results returned
 	*
 	* @return void
+	* @access private
 	*/
-	function replaceResultsKeywords(&$html, &$results)
+	function getResultsBodyReplacements(&$results)
 	{
-		$keywords = retrieve_keywords_replacements($html);
+		$bodycopy =& $this->getBodycopy('results');
+		$keywords = $bodycopy->getKeywords();
 		$replaces = Array();
-		
-		$current_result_page =& $_REQUEST['current_result_page'];
-		$results_per_page =& $_REQUEST['results_per_page'];
+
+		$current_result_page = $_REQUEST['current_result_page'];
+		$results_per_page    = $_REQUEST['results_per_page'];
 
 		$total_pages = ceil(count($results) / $results_per_page);
 
@@ -383,14 +390,11 @@ class Search_Page extends Page
 			$replacement =& $replaces[$keyword];
 			switch ($keyword) {
 				case 'result_list':
-					$element_html = $this->getBodycopyContents('result_element');
 					$replacement = '';
 					$sub_resultids = array_slice(array_keys($results), $current_result_page * $results_per_page, $results_per_page);
 					foreach ($sub_resultids as $assetid) {
 						$score = $results[$assetid];
-						$new_element_html = $element_html;
-						$this->replaceResultElementKeywords($new_element_html, $assetid, $score);
-						$replacement .= $new_element_html;
+						$replacement .= $this->getBodycopyContents('result_element', $this->getResultElementBodyReplacements($assetid, $score));
 					}
 				break;
 
@@ -409,7 +413,7 @@ class Search_Page extends Page
 				case 'result_page_index':
 					$replacement = '';
 					for ($i = 0; $i < $total_pages; $i++) {
-						if ($replacement != '') 
+						if ($replacement != '')
 							$replacement .= '&nbsp;';
 
 						if ($i == $current_result_page) {
@@ -423,14 +427,11 @@ class Search_Page extends Page
 							';
 							$replacement .= "<a href=\"". $this->getURL(). "\" onClick='$js'>".($i + 1)."</a>";
 						}
-
 					}
-					
 				break;
 
 				case 'previous_result_page_link':
-					if ($current_result_page < 1)
-						break;
+					if ($current_result_page < 1) break;
 
 					$js = '
 						document.search_form.current_result_page.value--;
@@ -441,8 +442,7 @@ class Search_Page extends Page
 				break;
 
 				case 'next_result_page_link':
-					if ($current_result_page >= $total_pages - 1)
-						break;
+					if ($current_result_page >= $total_pages - 1) break;
 
 					$js = '
 						document.search_form.current_result_page.value++;
@@ -454,8 +454,7 @@ class Search_Page extends Page
 
 
 				case 'initial_layout':
-					$replacement = $this->getBodycopyContents('initial');
-					$this->replaceInitialKeywords($replacement);
+					$replacement = $this->getBodycopyContents('initial', $this->getInitialBodyReplacements());
 				break;
 
 				default:
@@ -464,108 +463,109 @@ class Search_Page extends Page
 			}
 		}
 
-		$html = replace_keywords($html, $replaces);
-		
-	} // end replaceResultsKeywords()
+		return $replaces;
 
-	/** 
-	* Keyword-replaces for the result element.
-	* 
-	* @access private
-	* @param string $html				The HTML to keyword replace.
-	* @param int	$assetid			The Asset ID of the result element.
-	* @param Array	$score				The score
+	}//end getResultsBodyReplacements()
+
+
+	/**
+	* Keyword-replaces for the result element
+	*
+	* @param int		$assetid	the Asset ID of the result element
+	* @param Array		$score		the score
 	*
 	* @return void
+	* @access private
 	*/
-	function replaceResultElementKeywords(&$html, $assetid, $score)
+	function getResultElementBodyReplacements($assetid, $score)
 	{
-		$keywords = retrieve_keywords_replacements($html);
+		$bodycopy =& $this->getBodycopy('result_element');
+		$keywords = $bodycopy->getKeywords();
 		$replaces = Array();
-		
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$asset =& $am->getAsset($assetid);
+
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$asset = &$am->getAsset($assetid);
 
 		foreach ($keywords as $keyword) {
 			$replacement =& $replaces[$keyword];
 			switch ($keyword) {
 				case 'score':
 					$replacement = $score;
-					break;
+				break;
 
 				case 'asset_id':
 					$replacement = $assetid;
+				break;
 
 				case 'asset_name':
 					$replacement = $asset->name;
-					break;
+				break;
 
 				case 'asset_name_linked':
 					$replacement = '<a href="' .$asset->getUrl() .'">' .$asset->name .'</a>';
-					break;
+				break;
 
 				case 'asset_short_name':
 					$replacement = $asset->short_name;
-					break;
+				break;
 
 				case 'asset_short_name_linked':
 					$replacement = '<a href="' .$asset->getUrl() .'">' .$asset->short_name .'</a>';
-					break;
+				break;
 
 				case 'asset_url':
 					$replacement = $asset->getUrl();
-					break;
+				break;
 
 				case 'asset_lineage':
 					$replacement = '';
 					$first = true;
 					$parentAssetIds = $am->getParents($asset->id);
 					foreach ($parentAssetIds as $parentAssetId) {
-						if (!$first)
-							$replacement .= " / ";
+						if (!$first) $replacement .= " / ";
 						$first = false;
 						$ancestorAsset =& $am->getAsset($parentAssetId);
 						$replacement .= $ancestorAsset->name;
 					}
-			
-					break;
+				break;
 
 				case 'asset_lineage_linked':
 					$replacement = '';
 					$first = true;
 					foreach ($am->getParents($asset->id) as $parentAssetId) {
-						if ($parentAssetId == 1)
-							continue;
-						if (!$first)
-							$replacement .= " / ";
+						if ($parentAssetId == 1) continue;
+						if (!$first) $replacement .= " / ";
 						$first = false;
 						$ancestorAsset =& $am->getAsset($parentAssetId);
 						$replacement .= "<a href=\"". $ancestorAsset->getUrl(). "\">". $ancestorAsset->name. "</a>";
 					}
-			
-					break;
+				break;
 
 				default:
 					$replacement = "%$keyword%";
-					break;
+				break;
 			}
 		}
-		$html = replace_keywords($html, $replaces);
-	} // end replaceResultElementKeywords()
 
-	/** 
-	* Processes a search request. From the posted variables, it Formulates search query and returns the results.
-	* 
-	* @access private
-	* 
+		return $replaces;
+
+	}//end getResultElementBodyReplacements()
+
+
+	/**
+	* Processes a search request
+	*
+	* From the posted variables, it Formulates search query and returns the results.
+	*
 	* @return Array()
+	* @access private
 	*/
 	function processSearch()
 	{
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$sm =& $am->getSystemAsset('search_manager');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		
+
 		$fields = $this->attr('fields');
 		if (is_scalar($fields))
 			$fields = unserialize($fields);
@@ -573,7 +573,7 @@ class Search_Page extends Page
 		$queries = $_REQUEST['queries'];
 
 		$logic = $this->attr('logic');
-		
+
 		$root_assetid = $this->attr('root_assetid');
 		if ($root_assetid <= 0)
 			$root_assetid = 1;
@@ -588,8 +588,8 @@ class Search_Page extends Page
 			$words = split(" +", strtolower($value));
 			foreach (array_keys($words) as $i) {
 				// convert wildcard symbols to corresponding SQL wildcards
-				$words[$i] = strtr($words[$i], "*?", "%_"); 
-				
+				$words[$i] = strtr($words[$i], "*?", "%_");
+
 				// preserve the wildcard symbols - i.e. don't quote them
 				if (ereg('^[A-z%_]+$', $words[$i]))
 					$words[$i] = addslashes($words[$i]);
@@ -605,7 +605,7 @@ class Search_Page extends Page
 			$concat = ($db->phptype == 'mysql') ? 'CONCAT(alt1.treeid, '.$db->quote('%').')' : '(alt1.treeid || '.$db->quote('%').')';
 
 			$start_sql = "SELECT ai.assetid, SUM(ai.score)
-				FROM " . 
+				FROM " .
 				SQ_TABLE_PREFIX . "asset_indexing ai,\n"	.
 				SQ_TABLE_PREFIX . "asset_link_tree alt1,\n"	.
 				SQ_TABLE_PREFIX . "asset_link_tree alt2,\n"	.
@@ -619,7 +619,7 @@ class Search_Page extends Page
 				" AND ai.assetid = al2.minorid \n";					;	// and the indexing data for those assets
 
 			switch($field['type']) {
-				case "include_all":
+				case 'include_all':
 
 					$field_asset_scores = null;
 					foreach ($words as $word) {
@@ -642,7 +642,7 @@ class Search_Page extends Page
 
 				break;
 
-				case "exclude":
+				case 'exclude':
 					// ignore logic and remove these assetids from total_asset_scores at the end
 					$removing_assetids = Array();
 
@@ -650,24 +650,24 @@ class Search_Page extends Page
 					foreach ($words as $word) {
 						$sql = $start_sql . "AND (ai.value LIKE '$word')\n";
 						$sql .= "GROUP BY ai.assetid";
-					
+
 						$results = $db->getAssoc($sql);
 						$exclude_assetids += array_keys($results);
 					}
 
 				break;
 
-				case "metadata":
-					if ($field['params']['metadata_field'] <= 0) 
+				case 'metadata':
+					if ($field['params']['metadata_field'] <= 0)
 						break;
 
 					$field_asset_scores = null;
 					foreach ($words as $word) {
-						$sql = $start_sql . "AND (ai.type = 'text' 
-							AND ai.component = 'metadata:". (int)$field['params']['metadata_field'] . "' 
+						$sql = $start_sql . "AND (ai.type = 'text'
+							AND ai.component = 'metadata:". (int)$field['params']['metadata_field'] . "'
 							AND (ai.value LIKE '". implode ("' OR ai.value LIKE '", $words) ."'))\n";
 						$sql .= "GROUP BY ai.assetid";
-					
+
 
 						$results = $db->getAssoc($sql);
 
@@ -693,20 +693,23 @@ class Search_Page extends Page
 		foreach ($exclude_assetids as $exclude_assetid) {
 			unset($total_asset_scores[$exclude_assetid]);
 		}
-		
-		$results = $this->climbToAssetTypes($total_asset_scores, array('file', 'page'));
+
+		$results = $this->_climbToAssetTypes($total_asset_scores, array('file', 'page'));
 		return $results;
-	} // end processSearch()
+
+	}//end processSearch()
+
 
 	/**
-	 * Combines asset scores according to $logic.
-	 * 
-	 * @access private
-	 * @param	$asset_scores1		a mapping from assetids to scores
-	 * @param	$asset_scores2		a mapping from assetids to scores
-	 * @param	$logic				either 'AND' or 'OR"
-	 * @return	array				a mapping from assetids to combined scores
-	 */
+	* Combines asset scores according to the passed logic
+	*
+	* @param array	$asset_scores1		a mapping from assetids to scores
+	* @param array	$asset_scores2		a mapping from assetids to scores
+	* @param string	$logic				either 'AND' or 'OR"
+	*
+	* @return Array a mapping from assetids to combined scores
+	* @access private
+	*/
 	function combineAssetScores($asset_scores1, $asset_scores2, $logic = 'AND') {
 		if (!is_array($asset_scores1) ||!is_array($asset_scores2))
 			return Array();
@@ -717,15 +720,15 @@ class Search_Page extends Page
 
 		$out_asset_scores = $asset_scores1;
 
-		if ($logic == "AND") {
+		if ($logic == 'AND') {
 			$common_assets = array_intersect($assets1, $assets2);
 			// get the assets that are to be removed in field_asset_scores
 			$removed_assets = array_diff($assets1, $assets2);
-			
+
 			foreach ($removed_assets as $assetid) {
 				unset ($out_asset_scores[$assetid]);
 			}
-			
+
 			foreach ($common_assets as $assetid) {
 				if (isset($out_asset_scores[$assetid])) {
 					$out_asset_scores[$assetid] += $asset_scores2[$assetid];
@@ -733,7 +736,7 @@ class Search_Page extends Page
 					$out_asset_scores[$assetid] = $asset_scores2[$assetid];
 				}
 			}
-		} elseif ($logic == "OR") {
+		} elseif ($logic == 'OR') {
 			foreach ($asset_scores2 as $assetid => $score) {
 				if (isset($out_asset_scores[$assetid])) {
 					$out_asset_scores[$assetid] += $asset_scores2[$assetid];
@@ -743,25 +746,27 @@ class Search_Page extends Page
 			}
 		}
 		return $out_asset_scores;
-	}//end combineAssetScores
 
-	/** 
+	}//end combineAssetScores()
+
+
+	/**
 	* Resolves a result array to an array where the assets are elements and are one of the types specified.
-	* 
-	* @access private
-	* @param string		$matches		Matches returned from processSearch().
-	* @param Array()	$assetTypes		Types allowed.
-	* @see Search_Page::processSearch()
 	*
-	* @return Array()
+	* @param string		$matches		matches returned from processSearch()
+	* @param Array		$assetTypes		types allowed
+	*
+	* @return Array
+	* @access private
+	* @see Search_Page::processSearch()
 	*/
-	function climbToAssetTypes($matches, $assetTypes)
+	function _climbToAssetTypes($matches, $assetTypes)
 	{
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$unsorted = array();
+		$unsorted = Array();
 
 		// expand out asset types to include each asset type's descendants
-		$newDescendantTypes = array();
+		$newDescendantTypes = Array();
 		foreach ($assetTypes as $assetType) {
 			$descendantTypes = $am->getTypeDescendants($assetType);
 			foreach($descendantTypes as $descendantAssetType) {
@@ -775,7 +780,7 @@ class Search_Page extends Page
 		// use matches as a queue, take head match if it is one of the asset types then add to out
 		// otherwise get parent links and add it to the end of the queue
 
-		$scores = array(); // for sorting
+		$scores = Array(); // for sorting
 
 		while (count($matches)) {
 			// get next asset=>score mapping
@@ -799,7 +804,7 @@ class Search_Page extends Page
 				$scores[$nextAssetId] = $nextScore;
 			} else {
 				// doesn't match one of the types, go up
-				
+
 				// if we are the root asset for this search, then stop
 				if ($nextAssetId == $this->attr('root_assetid'))
 					continue;
@@ -820,7 +825,60 @@ class Search_Page extends Page
 		arsort($scores);
 
 		return $scores;
-	} // end climbToAssetTypes()
+
+	}//end _climbToAssetTypes()
+
+
+	/**
+	* Add valid keywords for this asset to an array of keywords when asked
+	*
+	* @param &object Asset	$asset	the asset that triggered the event
+	* @param Array			$vars	the vars that get submitted by the broadcaster
+	*								we add keywords to the $vars['keywords'] array
+	*
+	* @return boolean
+	* @access private
+	*/
+	function onRequestKeywords(&$broadcaster, $vars=Array())
+	{
+		if (!isset($vars['keywords'])) return;
+		if (!is_a($broadcaster, 'content_type_wysiwyg')) return;
+
+		// lets work out which bodycopy the WYSIWYG cell that wants our keywords
+		// is in so we can return the correct keywords for the screen
+		$bodycopy_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy');
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
+
+		$bodycopies = Array();
+		foreach ($bodycopy_links as $link_info) {
+			if (in_array($link_info['minorid'], $parents)) {
+				$bodycopies[] = $link_info['value'];
+			}
+		}
+		if (empty($bodycopies)) return;
+
+		$keywords = Array();
+		foreach ($bodycopies as $bodycopy) {
+			if ($bodycopy == 'initial') {
+				// work out the query replacements
+				$fields = $this->attr('fields');
+				foreach ($fields as $field => $field_data) {
+					$name = 'Search Field ('.$field.')';
+					$description = '<input type="text" width="'.$this->defaults['query_width'].'" value="Search terms here" />';
+					$keywords[$field.'_query'] = Array('name' => $name, 'default' => $description, 'type' => 'special');
+				}
+			}
+			foreach ($this->keywords[$bodycopy] as $keyword => $info) {
+				$name = ucwords(str_replace('_', ' ', $keyword));
+				$keywords[$keyword] = Array('name' => $name, 'default' => $info['description'], 'type' => $info['type']);
+			}
+		}
+
+		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
+
+	}//end onRequestKeywords()
+
 
 }//end class
+
 ?>

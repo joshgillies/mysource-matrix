@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.4 2003/11/26 00:51:32 gsherwood Exp $
+* $Id: search_page_management.inc,v 1.5 2003/12/28 21:28:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -78,7 +78,36 @@ class Search_Page_Management extends Page_Management
 				),
 			),
 		);
+
 	}//end constructor
+
+
+	/**
+	* Return an array with information about the events that this page is listening for
+	*
+	* @access public
+	* @return boolean
+	*/
+	function getEventList()
+	{
+		return Array(
+				Array(
+					'event_name'				 => 'requestKeywords',
+					'broadcast_type_code'		 => 'content_type_wysiwyg',
+					'broadcast_strict_type_code' => true,
+					'options'	=> Array(
+						'side_of_link'		=> 'major',
+						'indirect'			=> true,
+						'exclusive'			=> null,
+						'dependant'			=> 1,
+						'value'				=> '',
+						'link_type'			=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
+					),
+				),
+		);
+
+	}//end getEventList()
+
 
 }//end class
 

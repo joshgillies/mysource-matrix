@@ -19,17 +19,17 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.7 2003/12/24 03:13:17 gsherwood Exp $
+* $Id: search_page_edit_fns.inc,v 1.8 2003/12/28 21:28:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
 /**
 * Search_Page_Edit_Fns
 *
-* Edit functions for search page.
+*     Edit functions for search page
 *
 * @author  Dominic WOng <dwong@squiz.net>
-* @version $Revision: 1.7 $ - 1.0
+* @version $Revision: 1.8 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -38,6 +38,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page/page_edit_fns.inc';
 
 class Search_Page_Edit_Fns extends Page_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -48,6 +49,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 		$this->Page_Edit_Fns();
 
 	}//end constructor
+
 
 	/**
 	* Paints the interface for choosing the root asset.
@@ -77,7 +79,8 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 			}
 		}
 
-	} // end paintRootAsset()
+	}//end paintRootAsset()
+
 
 	/**
 	* Processes the interface for choosing the root asset.
@@ -90,7 +93,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 	* @access public
 	* 
 	*/
-	function processRootAsset(&$asset, &$o, $prefix) 
+	function processRootAsset(&$asset, &$o, $prefix)
 	{
 		$name = $prefix."_root_asset";
 		$assetid = null;
@@ -99,7 +102,8 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 			$assetid = $_REQUEST[$name]['assetid'];
 		}
 		return $asset->setAttrValue('root_assetid', $assetid);
-	} // end processRootAsset()
+
+	}//end processRootAsset()
 
 
 	/**
@@ -115,8 +119,10 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintAssetTypeRestriction(&$asset, &$o, $prefix)
 	{
-		?>Implement me!<?
-	} // end paintAssetTypeRestriction()
+		?>Implement me!<?php
+
+	}//end paintAssetTypeRestriction()
+
 
 	/**
 	* Processes the interface for restricting the asset types returned.
@@ -132,7 +138,8 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 	function processAssetTypeRestriction(&$asset, &$o, $prefix)
 	{
 
-	} // end processAssetTypeRestriction()
+	}//end processAssetTypeRestriction()
+
 
 	/**
 	* Paints the interface for adding and configuring search fields.
@@ -160,51 +167,56 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 		$i = 0;
 		?>
 		<table class="sq-backend-table">
-		<tr>
-		<td class="sq-backend-table-header">Name</td>
-		<td class="sq-backend-table-header">Type</td>
-		<td class="sq-backend-table-header">Parameters</td>
-		<?php 
-
-		if ($asset->writeAccess('attributes')) {
-			echo "<td class=\"sq-backend-table-header\">Delete?</td>";
-		}
-		echo "</tr>";
-		foreach (array_values($fields) as $fieldName => $fieldData) {
-			echo "<tr>";
-			if ($asset->writeAccess('attributes')) {
-				?>
-				<tr>
-				<td class="sq-backend-data"><?php text_box($prefix.'_fields[' .$i. '][name]', $fieldData['name'])?></td>
-				<td class="sq-backend-data"><?php combo_box($prefix.'_fields[' .$i .'][type]', $queryTypes, false, $fieldData['type'])?></td>
-				<td class="sq-backend-data"><?php $this->paintFieldParameters($asset, $prefix."_fields[$i]", $fieldData)?></td>
-				<td class="sq-backend-data"><?php check_box($prefix.'_deleted_fields['. $i. ']') ?></td>
-				</tr>
+			<tr>
+				<td class="sq-backend-table-header">Name</td>
+				<td class="sq-backend-table-header">Type</td>
+				<td class="sq-backend-table-header">Parameters</td>
 				<?php
-			} else {
+				if ($asset->writeAccess('attributes')) {
+					echo "<td class=\"sq-backend-table-header\">Delete?</td>";
+				}
 				?>
-				<tr>
-				<td class="sq-backend-data"><?php echo $fieldData['name'] ?></td>
-				<td class="sq-backend-data"><?php echo $queryTypes[$fieldData['type']] ?></td>
-				<td class="sq-backend-data"><?php $this->paintFieldParameters($asset, $prefix."_fields[$i]", $fieldData)?></td>
-				</tr>
-				<?php
+			</tr>
+			<?php
+			foreach (array_values($fields) as $fieldName => $fieldData) {
+				echo "<tr>";
+				if ($asset->writeAccess('attributes')) {
+					?>
+					<tr>
+						<td class="sq-backend-data"><?php text_box($prefix.'_fields[' .$i. '][name]', $fieldData['name'])?></td>
+						<td class="sq-backend-data"><?php combo_box($prefix.'_fields[' .$i .'][type]', $queryTypes, false, $fieldData['type'])?></td>
+						<td class="sq-backend-data"><?php $this->paintFieldParameters($asset, $prefix."_fields[$i]", $fieldData)?></td>
+						<td class="sq-backend-data"><?php check_box($prefix.'_deleted_fields['. $i. ']') ?></td>
+					</tr>
+					<?php
+				} else {
+					?>
+					<tr>
+						<td class="sq-backend-data"><?php echo $fieldData['name'] ?></td>
+						<td class="sq-backend-data"><?php echo $queryTypes[$fieldData['type']] ?></td>
+						<td class="sq-backend-data"><?php $this->paintFieldParameters($asset, $prefix."_fields[$i]", $fieldData)?></td>
+					</tr>
+					<?php
+				}
+				echo "</li>";
+				$i++;
 			}
-			echo "</li>";
-			$i++;
-		}
-		echo "</table>";
+			?>
+		</table>
+		<?php
+
 		if ($asset->writeAccess('attributes')) {
 			$i++;
 			?>Add field (name): <?php
 			text_box($prefix."_fields[$i][name]", '', 15);
-			?><br>
-			Query type:
-			<?php
+			?><br />Query type: <?php
 			echo combo_box($prefix.'_fields['. $i .'][type]', $queryTypes, false, array());
 		}
+
 		return true;
-	} // end paintFields()
+
+	}//end paintFields()
+
 
 	/**
 	* Processes the interface for adding and configuring search fields.
@@ -248,7 +260,9 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 		}
 
 		return $asset->setAttrValue('fields', $fields);
-	} // end processFields()
+
+	}//end processFields()
+
 
 	/**
 	* Paints the interface for the fields' parameters.
@@ -286,8 +300,8 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 			default:
 			break;
 		}
-	} // end paintFieldParameters()
 
+	}//end paintFieldParameters()
 
 
 }//end class
