@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_parse_design.php,v 1.3 2005/03/22 16:48:28 gnoel Exp $
+* $Id: system_parse_design.php,v 1.4 2005/03/22 17:17:38 gnoel Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Upgrade menu design areas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -99,6 +99,7 @@ if (!$edit_fns->parseAndProcessFile($design)) {
 	printUpdateStatus('FAILED');
 	exit();
 }
+$design->generateDesignFile(false);
 
 printUpdateStatus('OK');
 
