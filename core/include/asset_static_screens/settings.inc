@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.7 2004/03/18 03:43:08 gsherwood Exp $
+* $Id: settings.inc,v 1.8 2004/05/26 15:32:48 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -272,21 +272,31 @@ function paintSettings(&$owner, &$o, &$ei)
 						}// end if
 					}// end foreach
 
-					// now add the blank one that they can customise
-					$our_designs['user_design::'] = 0;
-
+					// Get the designs that are associated with our lookups
 					$design_lookups = $owner->getDesignLookups();
 
+					// If we have a user design that is only effectively set, then we need to add it to the our_designs
+					// array otherwise it doesn't appear below...
+					foreach($design_lookups as $url => $designs) {
+						foreach($designs as $design_name => $designid) {
+							if (!isset($our_designs[$design_name])) $our_designs[$design_name] = 0;
+						}
+					}
+
+					// now add the blank one that they can customise
+					$our_designs['user_design::'] = 0;
+					
 					foreach($our_designs as $design_name => $designid) {
 
 						$matches = Array();
 						preg_match('/^(system|user)_design::(.*)$/', $design_name, $matches);
-						$system_design   = ($matches[1] == 'system');
-						$new_user_design = (!$system_design && $design_name == 'user_design::' && !$designid && $owner->writeAccess('links'));
-						if (!$system_design && $design_name == 'user_design::' && !$new_user_design) continue;
+						$design_type     = $matches[1];
+						$design_code     = $matches[2];
+						$new_user_design = ($design_type == 'user' && $design_code == '' && !$designid);
+						if ($new_user_design && !$owner->writeAccess('links')) continue;
 
 						if (!$new_user_design) {
-							$display_name = ucwords($matches[1]).' Defined - '.ucwords(str_replace('_', ' ', $matches[2])).' Design';
+							$display_name = ucwords($design_type).' Defined - '.ucwords(str_replace('_', ' ', $design_code)).' Design';
 						} else {
 							$display_name = 'Create New User Defined Design';
 						}
@@ -297,9 +307,9 @@ function paintSettings(&$owner, &$o, &$ei)
 							text_box($prefix.'_designs['.$design_name.'][name]', '', 20, 30);
 						} else {
 							hidden_field($prefix.'_designs['.$design_name.'][name]', $design_name);
-							if ($matches[1] == 'user') {
+							if ($design_type == 'user') {
 								$o->openField('Design Code');
-									echo $matches[2];
+									echo $design_code;
 								$o->closeField();
 							}
 						}
@@ -322,13 +332,13 @@ function paintSettings(&$owner, &$o, &$ei)
 										<td class="sq-backend-table-header">Effective Design</td>
 									</tr>
 								<?php
-								foreach ($effective_designs as $url => $designid) {
-									$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($designid, '', true);
-									if (is_null($design)) continue;
+								foreach ($effective_designs as $url => $effective_designid) {
+									$effective_design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($effective_designid, '', true);
+									if (is_null($effective_design)) continue;
 									?>
 									<tr>
 										<td class="sq-backend-table-cell"><?php echo $url; ?></td>
-										<td class="sq-backend-table-cell"><?php echo $design->name.' (Id : # '.$design->id.')'; ?></td>
+										<td class="sq-backend-table-cell"><?php echo $effective_design->name.' (Id : # '.$effective_design->id.')'; ?></td>
 									</tr>
 									<?php
 								}
@@ -362,7 +372,7 @@ function paintSettings(&$owner, &$o, &$ei)
 						}
 
 
-						if ($system_design && isset($system_designs[$design_name])) {
+						if ($design_type == 'system' && isset($system_designs[$design_name])) {
 							$o->note($system_designs[$design_name]);
 						}
 
