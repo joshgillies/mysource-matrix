@@ -1663,6 +1663,8 @@ class Asset extends Resolve_Object
 			return 0;
 		}
 
+		$link_type = (int) $link_type;
+
 		if (!($link_type & SQ_LINK_SIGNIFICANT) && $dependant) {
 			trigger_error('In order for a link to be dependant it must also be a significant link', E_USER_WARNING);
 			return 0;
@@ -1942,6 +1944,16 @@ class Asset extends Resolve_Object
 			return 0;
 		}
 
+
+		// if this is a frontend nav link, then we need to inform the asset to update it's lookups
+		if ($link_type & SQ_LINK_FRONTEND_NAV) {
+			if (!$minor->updateLookups()) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return 0;
+			}
+		}
+
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->broadcastEvent('CreateLink', Array('assetid' => $this->id, 'linkid' => $linkid));
 
@@ -2011,7 +2023,7 @@ class Asset extends Resolve_Object
 	*
 	*    Array('[link_type]' => Array('[type_code]' => '[cardinality]));
 	* Where:
-	*   link_type   = SQ_LINK_EXCLUSIVE|SQ_LINK_UNITE|SQ_LINK_USES|SQ_LINK_NOTICE
+	*   link_type   = SQ_LINK_EXCLUSIVE|SQ_LINK_TYPE_1|SQ_LINK_TYPE_2|SQ_LINK_TYPE_3|SQ_LINK_NOTICE
 	*   cardinality = 1|M
 	*
 	* @return Array()
@@ -2020,10 +2032,11 @@ class Asset extends Resolve_Object
 	function _getAllowedLinks()
 	{
 
-		return Array(SQ_LINK_EXCLUSIVE => Array(),
-					 SQ_LINK_UNITE     => Array(),
-					 SQ_LINK_USES      => Array(),
-					 SQ_LINK_NOTICE    => Array()
+		return Array(SQ_LINK_EXCLUSIVE	=> Array(),
+					 SQ_LINK_TYPE_1		=> Array(),
+					 SQ_LINK_TYPE_2		=> Array(),
+					 SQ_LINK_TYPE_3		=> Array(),
+					 SQ_LINK_NOTICE		=> Array()
 					);
 
 	}//end _getAllowedLinks()
@@ -2059,7 +2072,7 @@ class Asset extends Resolve_Object
 	{
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		if ($this->_updateLink($linkid, null, null, null, $sort_order) && $this->_linksUpdated()) {
+		if ($this->_updateLink($linkid, null, null, $sort_order) && $this->_linksUpdated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			return true;
 		} else {
@@ -2076,7 +2089,6 @@ class Asset extends Resolve_Object
 	* NOTE: No transaction stuff is put around the SQL calls in the fn, that sould be done externally
 	*
 	* @param int	$linkid		the link id of the link to update
-	* @param int	$minorid
 	* @param int	$link_type
 	* @param string $value
 	* @param int	$sort_order	the position in the links list that this link should take, 
@@ -2085,7 +2097,7 @@ class Asset extends Resolve_Object
 	* @return boolean
 	* @access public
 	*/
-	function _updateLink($linkid, $minorid=null, $link_type=null, $value=null, $sort_order=null)
+	function _updateLink($linkid, $link_type=null, $value=null, $sort_order=null)
 	{
 		// First, we should try and find the link
 		$link = $this->getLinkById($linkid);
@@ -2100,26 +2112,30 @@ class Asset extends Resolve_Object
 
 		$set_clauses = Array();
 
-		$minorid_changed	= (!is_null($minorid)		&& $link['minorid']		!= $minorid		);
 		$link_type_changed	= (!is_null($link_type)		&& $link['link_type']	!= $link_type	);
 		$value_changed		= (!is_null($value)			&& $link['value']		!= $value		);
 		$sort_order_changed	= (!is_null($sort_order)	&& $link['sort_order']	!= $sort_order	);
 
-		$minorid    = (int) $minorid;
 		$link_type  = (int) $link_type;
 		$sort_order = (int) $sort_order;
 
-		if ($minorid_changed || $link_type_changed) {
-			$minorid   = ($minorid_changed)   ? $minorid   : (int) $link['minorid'];
-			$link_type = ($link_type_changed) ? $link_type : (int) $link['link_type'];
+		if ($link_type_changed) {
 
-			$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset($minorid);
+			// We need to make sure that we aren't going to have to be fucking about with tree to get the update working
+			// so because the tree only contains significant links if the significant state has changed barf
+			$current_is_sig = (bool) ((int) $link['link_type'] & SQ_LINK_SIGNIFICANT);
+			$new_is_sig     = (bool) ($link_type & SQ_LINK_SIGNIFICANT);
+			if ($current_is_sig !== $new_is_sig) {
+				trigger_error('Unable to update link #'.$linkid.' , you cannot change a link from being a significant link to a non-significant link or vice versa', E_USER_WARNING);
+				return false;
+			}
+
+			$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset((int) $link['minorid']);
 			if (($err_msg = $this->canLinkToType($minor->type(), $link_type)) !== true) {
 				trigger_error('Unable to update link #'.$linkid.' ('.$err_msg.')', E_USER_WARNING);
 				return false;
 			}
-			if ($minorid_changed)   $set_clauses[] = 'minorid   = '.$db->quote($minorid);
-			if ($link_type_changed) $set_clauses[] = 'link_type = '.$db->quote($link_type);
+			$set_clauses[] = 'link_type = '.$db->quote($link_type);
 
 		}
 
@@ -2158,6 +2174,16 @@ class Asset extends Resolve_Object
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
+
+		if ($link_type_changed) { 
+			// if this is a frontend nav link or if the old link type was, then we need to inform the asset to update it's lookups
+			if (($link_type & SQ_LINK_FRONTEND_NAV) || ((int) $link['link_type'] & SQ_LINK_FRONTEND_NAV)) {
+				if (!$minor->updateLookups()) {
+					return false;
+				}
+			}
+		}
+
 
 		if ($sort_order_changed) {
 			// move 'em up, higher
@@ -2237,7 +2263,7 @@ class Asset extends Resolve_Object
 			// deleted, so lets check first before going ahead
 			if (!$num_other_links) {
 				if (!$minor->canDelete()) {
-					trigger_error($minor->_getName(false).' can not have its last significant link removed' , E_USER_WARNING);
+					trigger_error($minor->name.' can not have its last significant link removed' , E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
@@ -2314,11 +2340,12 @@ class Asset extends Resolve_Object
 			return false;
 		}
 
+
 		// OK, if we just deleted the last significant link
 		// then we need to create a link to the trash for this
 		if ($link['link_type'] & SQ_LINK_SIGNIFICANT && !$num_other_links) {
 			$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
-			if (is_null($minor)) {
+			if (is_null($trash_folder)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -2331,11 +2358,21 @@ class Asset extends Resolve_Object
 				foreach($userids as $userid) $minor->grantPermission($userid, $perm);
 			}
 
-			if (!$trash_folder->createLink($minor, SQ_LINK_UNITE)) {
+			if (!$trash_folder->createLink($minor, SQ_LINK_TYPE_2)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 		}
+
+
+		// if this is a frontend nav link, then we need to inform the asset to update it's lookups
+		if ($link['link_type'] & SQ_LINK_FRONTEND_NAV) {
+			if (!$minor->updateLookups()) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+		}
+
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->broadcastEvent('DeleteLink', Array('assetid' => $this->id, 'linkid' => $linkid));
@@ -3274,7 +3311,7 @@ class Asset extends Resolve_Object
 		}// end foreach
 
 		// if there is no difference in the arrays (including in the sort order), then there is nothing to do
-		if (!array_diff_assoc($save_paths, $current_paths)) return;
+		if (!array_diff_assoc($save_paths, $current_paths)) return true;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -3286,12 +3323,12 @@ class Asset extends Resolve_Object
 			// now we need to check that none of our parents have
 			// any nav kids that are also using this path name
 			$siblingids = Array();
-			$parents = $this->getLinks(SQ_LINK_NAV, '', null, 'minor');
+			$parents = $this->getLinks(SQ_LINK_FRONTEND_NAV, '', null, 'minor');
 			for($i = 0; $i < count($parents); $i++) {
 				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
 				if (is_null($parent)) continue;
 				// get all the nav siblings
-				$parent_kids = $parent->getLinks(SQ_LINK_NAV, '', null, 'major');
+				$parent_kids = $parent->getLinks(SQ_LINK_FRONTEND_NAV, '', null, 'major');
 				for($j = 0; $j < count($parent_kids); $j++) {
 					$siblingids[] = $db->quote($parent_kids[$j]['minorid']);
 				}
@@ -3450,10 +3487,10 @@ class Asset extends Resolve_Object
 		// if we have paths then do some url inserting
 		if (count($paths)) {
 
-			$design_link = $this->getLink(SQ_LINK_USES, 'design', false);
+			$design_link = $this->getLink(SQ_LINK_TYPE_3, 'design', false);
 			$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
 
-			$parents = $this->getLinks(SQ_LINK_NAV, '', null, 'minor');
+			$parents = $this->getLinks(SQ_LINK_FRONTEND_NAV, '', null, 'minor');
 			for($i = 0; $i < count($parents); $i++) {
 				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
 				if (is_null($parent)) continue;
@@ -3470,7 +3507,7 @@ class Asset extends Resolve_Object
 								'.$db->quote(($designid) ? $designid : $parent_urls[$j]['designid']).')';
 						$result = $db->query($sql);
 						if (DB::isError($result)) {
-							trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+							trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 							return false;
 						}
 					}// end for paths
@@ -3480,7 +3517,7 @@ class Asset extends Resolve_Object
 
 		}// end if count paths
 
-		$kids = $this->getLinks(SQ_LINK_NAV, '', null, 'major');
+		$kids = $this->getLinks(SQ_LINK_FRONTEND_NAV, '', null, 'major');
 		for($i = 0; $i < count($kids); $i++) {
 			$kid = &$GLOBALS['SQ_SYSTEM']->am->getAsset($kids[$i]['minorid'], $kids[$i]['type_code']);
 			if (is_null($kid)) continue;
@@ -3534,8 +3571,7 @@ class Asset extends Resolve_Object
 	*/
 	function getURL($base_url=null)
 	{
-		$GLOBALS['SQ_SYSTEM']->am->getAssetURL($this->id, $base_url);
-
+		return $GLOBALS['SQ_SYSTEM']->am->getAssetURL($this->id, $base_url);
 	}//end getURL()
 
 
@@ -3549,7 +3585,7 @@ class Asset extends Resolve_Object
 	*/
 	function getHref($base_url=null)
 	{
-		$GLOBALS['SQ_SYSTEM']->am->getAssetHref($this->id, $base_url);
+		return $GLOBALS['SQ_SYSTEM']->am->getAssetHref($this->id, $base_url);
 	}//end getHref()
 
 
