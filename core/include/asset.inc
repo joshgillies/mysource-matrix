@@ -998,6 +998,38 @@ class Asset extends Resolve_Object
 
 
 	/**
+	* Can the current user forceably aquire the current lock on this asset?
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canForceablyAquireLock() {
+		$current_lock = $this->getLockInfo();
+		if (empty($current_lock)) return false;
+
+		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_lock['userid']);
+
+		$can_aquire_lock = false;
+
+		// lets work out if the current user has a high
+		// enough level of access to forceably aquire the lock
+		if (!$GLOBALS['SQ_SYSTEM']->userRoot($user)) {
+			if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin($user)) {
+				// lock is held by a system admin, so need
+				// to be root to aquire this lock
+				if ($GLOBALS['SQ_SYSTEM']->userRoot()) $can_aquire_lock = true;
+			} else {
+				// need to be a system admin to aquire this lock
+				if ($GLOBALS['SQ_SYSTEM']->userRoot()) $can_aquire_lock = true;
+				else if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) $can_aquire_lock = true;
+			}
+		}
+
+		return $can_aquire_lock;
+	}//end canForceablyAquireLock()
+
+
+	/**
 	* Aquires a lock on this asset and its dependant assets
 	*
 	* @param int	$source		the id of the asset that started this locking process
@@ -1008,9 +1040,35 @@ class Asset extends Resolve_Object
 	*/
 	function aquireLock($source=0, $expires='')
 	{
+		$current_lock = $this->getLockInfo();
+
+		if($this->canForceablyAquireLock()) {
+			// special case where the current user is actually
+			// removing the current lock and taking it for themselves
+			if (!$this->releaseLock()) return false;
+			
+			// send an internal message
+			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$current_user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
+			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_lock['userid']);
+			$body = 'User "'.$current_user->name.'" has forceably aquired the lock on '.$this->type().' "'.$this->name.'" formally held by user "'.$user->name.'".';
+			$to_list = array_keys($this->getPermission(SQ_PERMISSION_ADMIN));
+			$to_list[] = $user->id;
+			$ms->sendMessage($to_list, 0, 'Asset Lock Forceably Aquired', $body);
+
+			$current_lock = $this->getLockInfo();
+		}
+		
+		// is this asset already locked
+		if (!empty($current_lock)) {
+			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_lock['userid']);
+			trigger_error('Can not aquire lock on "'.$this->name.'", lock already held by "'.$user->name.'"', E_USER_WARNING);
+			return false;
+		}
+
 		// if we have no source, we are the asset aquiring the locks
 		if (!$source) $source = $this->id;
-		if (empty($expires)) $expires = date('Y-m-d H:i:s', (time() + (2 * 60)));
+		if (empty($expires)) $expires = date('Y-m-d H:i:s', (time() + (10 * 60)));
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
