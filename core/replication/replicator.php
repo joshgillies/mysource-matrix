@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replicator.php,v 1.1.2.3 2004/03/09 18:12:42 brobertson Exp $
+* $Id: replicator.php,v 1.1.2.4 2004/04/08 16:10:55 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,13 +34,13 @@ ini_set('memory_limit', '8M');
 ini_set('display_errors', '1');
 require_once dirname(dirname(__FILE__)).'/include/init.inc';
 
+// attempt to get the root user and set them as the current user, if we can't don't worry to much
+// (most likely not be able to get the root user during install (or clean.sh)
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (is_null($root_user)) {
-	trigger_error('Unable to get Root User', E_USER_ERROR);
-}
-
-if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-	trigger_error('Unable to set root user as the current user', E_USER_ERROR);
+	trigger_error('Unable to get Root User', E_USER_WARNING);
+} else if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
+	trigger_error('Unable to set root user as the current user', E_USER_WARNING);
 }
 
 $sr = &$GLOBALS['SQ_SYSTEM']->getSystemReplicator();
