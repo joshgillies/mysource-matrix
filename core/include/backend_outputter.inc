@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
@@ -15,14 +15,14 @@ define('SQ_BO_MSG_ERROR',       4);
 *
 * Purpose
 *
-*    This class will be controlling all output for the backend of thesystem, 
+*    This class will be controlling all output for the backend of thesystem,
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
 * @package Resolve
 */
-class Backend_Outputter 
+class Backend_Outputter
 {
 
 	// any messages to be displayed to the user
@@ -42,13 +42,13 @@ class Backend_Outputter
 
 	// the anchor the form will be submitted to
 	var $_anchor  = '';
-	
+
 	// the page heading
 	var $_heading  = '';
 	var $_heading_icon = '';
 	var $_sub_heading  = '';
 	var $_sub_heading_icon = '';
-	
+
 	// stylesheet files to include
 	var $_css_includes = Array();
 
@@ -87,7 +87,7 @@ class Backend_Outputter
 	var $_field_opened  = false;
 	var $_field_count = 0;
 
-	function Backend_Outputter() 
+	function Backend_Outputter()
 	{
 
 		// if there are some messages from the previous page we had better add them in
@@ -109,26 +109,26 @@ class Backend_Outputter
 
 	 ////////////////////////////////////////////////////////
 	// set the redirect for page
-	function setRedirect($link) 
+	function setRedirect($link)
 	{
 		$this->_redirect = trim($link);
 	}//end setRedirect()
 
 
 	/**
-	* add an onLoad call, something JS that needs to be executed right 
+	* add an onLoad call, something JS that needs to be executed right
 	* after the page finishes loading
 	*
 	* @param string $call	JS code to execute
 	*
 	* @access public
 	*/
-	function addOnLoad($call) 
+	function addOnLoad($call)
 	{
 		$this->_on_load_calls[] = $call;
 	}//end addOnLoad()
 
-	
+
 	/**
 	* allows you to add get vars to the action section of the form
 	*
@@ -137,18 +137,18 @@ class Backend_Outputter
 	*
 	* @access public
 	*/
-	function addFormActionGetVar($name, $value) 
+	function addFormActionGetVar($name, $value)
 	{
 		$this->_action .= ((strstr($this->_action, '?')) ? '&' : '?').rawurlencode($name).'='.rawurlencode($value);
 	}//end addFormActionGetVar()
 
 	/**
-	* returns the current action, which realistically is going to be the 
+	* returns the current action, which realistically is going to be the
 	* way to get to the current location
 	*
 	* @access public
 	*/
-	function getCurrentLocation() 
+	function getCurrentLocation()
 	{
 		return $this->_action;
 	}//end getCurrentLocation()
@@ -156,7 +156,7 @@ class Backend_Outputter
 
 	 ////////////////////////////////////////////////////////
 	// set the anchor that the page will submit to
-	function setFormAnchor($anchor) 
+	function setFormAnchor($anchor)
 	{
 		$anchor = trim($anchor);
 		$this->_anchor = ($anchor) ? '//'.$anchor : '';
@@ -170,7 +170,7 @@ class Backend_Outputter
 	*
 	* @access public
 	*/
-	function setHeading($heading, $icon='') 
+	function setHeading($heading, $icon='')
 	{
 		$this->_heading = trim($heading);
 		$this->_heading_icon = $icon;
@@ -185,7 +185,7 @@ class Backend_Outputter
 	*
 	* @access public
 	*/
-	function setSubHeading($heading, $icon='') 
+	function setSubHeading($heading, $icon='')
 	{
 		trigger_error('Sub Heading not outputting, fix in _paintHeader()', E_USER_WARNING);
 		$this->_sub_heading = trim($heading);
@@ -194,7 +194,7 @@ class Backend_Outputter
 
 	 ////////////////////////////////////////////////////////////////////////////////////////
 	// add a message to be displayed to the user
-	function addMessage($type, $msg) 
+	function addMessage($type, $msg)
 	{
 		$msg = trim($msg);
 		// if the type is valid and there is a message
@@ -202,10 +202,10 @@ class Backend_Outputter
 			$this->_messages[] = Array('type' => $type, 'msg' => $msg);
 		}
 	}//end addMessage()
-	
+
 	 ////////////////////////////////////////////////////////////////////////////////////////
 	// add a stylesheet file to the page
-	function addCssInclude($file) 
+	function addCssInclude($file)
 	{
 		if (in_array($file, $this->_css_includes)) return;
 		$this->_css_includes[] = $file;
@@ -213,7 +213,7 @@ class Backend_Outputter
 
 	 ////////////////////////////////////////////////////////////////////////////////////////
 	// add a javascript file to the page
-	function addJsInclude($file) 
+	function addJsInclude($file)
 	{
 		if (in_array($file, $this->_js_includes)) return;
 		$this->_js_includes[] = $file;
@@ -222,14 +222,14 @@ class Backend_Outputter
 	 ////////////////////////////////////////////////////////////////////////////////////////
 	// add an onSubmit call, something JS that
     // needs to be executed before the form submits
-	function addOnSubmit($call) 
+	function addOnSubmit($call)
 	{
 		$this->_on_submit_calls[] = $call;
 	}//end addOnSubmit()
 
 	 ////////////////////////////////////////////////////////////////////////////////////////
 	// add a hidden field to the output
-	function addHiddenField($name, $value='') 
+	function addHiddenField($name, $value='')
 	{
 		$this->_hidden_fields[$name] = $value;
 	}//end addHiddenField()
@@ -243,7 +243,7 @@ class Backend_Outputter
 	*
 	* @access public
 	*/
-	function addScreen($url, $name) 
+	function addScreen($url, $name)
 	{
 		if (empty($url)) return;
 		if (in_array($name, $this->_screens)) {
@@ -260,7 +260,7 @@ class Backend_Outputter
 	*
 	* @access public
 	*/
-	function setCurrentScreen($url) 
+	function setCurrentScreen($url)
 	{
 		if (empty($url)) return;
 		$this->_current_screen = $url;
@@ -275,13 +275,13 @@ class Backend_Outputter
 	*
 	* @access public
 	*/
-	function addTab($url, $name) 
+	function addTab($code, $data)
 	{
-		if (empty($url)) return;
-		if (in_array($name, $this->_tabs)) {
-			trigger_error('Tab Code "'.$name.'" already in use', E_USER_ERROR);
+		if (empty($code)) return;
+		if (isset($this->_tabs[$code])) {
+			trigger_error('Tab Code "'.$code.'" already in use', E_USER_ERROR);
 		}
-		$this->_tabs[$url] = $name;
+		$this->_tabs[$code] = $data;
 	}//end addTab()
 
 
@@ -292,16 +292,16 @@ class Backend_Outputter
 	*
 	* @access public
 	*/
-	function setCurrentTab($url) 
+	function setCurrentTab($code)
 	{
-		if (empty($url)) return;
-		$this->_current_tab = $url;
+		if (empty($code)) return;
+		$this->_current_tab = $code;
 	}//end setCurrentTab()
 
 
 	 ////////////////////////////////////////////////////////////////////////////////////////
 	// adds a preload image
-	function addPreloadImg($file) 
+	function addPreloadImg($file)
 	{
 		$this->_preload_imgs[] = $file;
 	}//end add_img_rollover()
@@ -311,7 +311,7 @@ class Backend_Outputter
 	*
 	* @access public
 	*/
-	function openRaw() 
+	function openRaw()
 	{
 		if ($this->_section_opened) $this->closeSection();
 		if ($this->_raw_opened) $this->closeRaw();
@@ -330,13 +330,13 @@ class Backend_Outputter
 	*
 	* @access public
 	*/
-	function closeRaw() 
+	function closeRaw()
 	{
 		if (!$this->_raw_opened) return;
 		$this->_contents[$this->_section_count]['contents'] = ob_get_contents();
 		ob_end_clean();
 		$this->_raw_opened = false;
-		
+
 	}//end closeRaw()
 
 
@@ -368,7 +368,7 @@ class Backend_Outputter
 	*
 	* @access public
 	*/
-	function closeSection() 
+	function closeSection()
 	{
 		if ($this->_field_opened) $this->closeField();
 		$this->_section_opened = false;
@@ -382,7 +382,7 @@ class Backend_Outputter
 	*
 	* @access public
 	*/
-	function openField($name, $format='', $note='') 
+	function openField($name, $format='', $note='')
 	{
 		if ($this->_field_opened)    $this->closeField();
 		if (!$this->_section_opened) $this->openSection();
@@ -404,7 +404,7 @@ class Backend_Outputter
 	*
 	* @access public
 	*/
-	function closeField() 
+	function closeField()
 	{
 		if (!$this->_field_opened) return;
 		$this->_contents[$this->_section_count]['fields'][$this->_field_count]['contents'] = ob_get_contents();
@@ -420,7 +420,7 @@ class Backend_Outputter
 	* @return string
 	* @access public
 	*/
-	function filesPath($file='') 
+	function filesPath($file='')
 	{
 		if ($file && substr($file, 0, 1) != '/') $file = '/'.$file;
 		return $this->_files_path.$file;
@@ -432,7 +432,7 @@ class Backend_Outputter
 	*
 	* @access public
 	*/
-	function paint() 
+	function paint()
 	{
 		if ($this->_raw_opened)     $this->closeRaw();
 		if ($this->_section_opened) $this->closeSection();
@@ -450,7 +450,7 @@ class Backend_Outputter
 		}// end if
 
 		$this->_paintFooter();
-		
+
 	}//end paint();
 
 	/**
@@ -458,7 +458,7 @@ class Backend_Outputter
 	*
 	* @access public
 	*/
-	function getAsString() 
+	function getAsString()
 	{
 		if ($this->_raw_opened)     $this->closeRaw();
 		if ($this->_section_opened) $this->closeSection();
@@ -468,7 +468,7 @@ class Backend_Outputter
 		$str = ob_get_contents();
 		ob_end_clean();
 		return $str;
-		
+
 	}//end getAsString()
 
 	/**
@@ -476,10 +476,10 @@ class Backend_Outputter
 	*
 	* @access private
 	*/
-	function _paintHeader() 
+	function _paintHeader()
 	{
 
-	?> 
+	?>
 		<html>
 		<head>
 			<title><?php echo $this->_heading;?></title>
@@ -499,7 +499,7 @@ class Backend_Outputter
 			foreach($this->_js_includes as $file) {
 				$this->_paintJsInclude($file);
 			}//end foreach
-		?> 
+		?>
 			<script language="Javascript" type="text/javascript">
 			<!--
 
@@ -514,7 +514,7 @@ class Backend_Outputter
 					foreach($this->_messages as $data) {
 						$msgs_root->addChild('message', $GLOBALS['SQ_SYSTEM']->datetime()."\n".$data['msg'], Array('type' => get_bit_names('SQ_BO_MSG_', $data['type'])));
 					}
-					?> 
+					?>
 					if (top.sidenav != undefined) {
 						top.sidenav.add_messages("<?php echo str_replace("\n", "\\n", addslashes($msgs->get())); ?>");
 					}
@@ -525,29 +525,29 @@ class Backend_Outputter
 					echo "\n".$call;
 				}//end foreach
 
-			?> 
+			?>
 				}// end page_on_load()
 
 				function form_on_submit() {
 			<?php
 				foreach($this->_on_submit_calls as $call) {
-				?> 
+				?>
 					<?php echo $call;?>;
 				<?php
 				}//end foreach
-			?> 
+			?>
 					// basically if they get this far then we can submit
 					return true;
-					
+
 				}// end form_on_submit()
 
 			<?php
 				foreach($this->_preload_imgs as $file) {
-				?> 
+				?>
 					preload_image('<?php echo $file;?>');
 				<?php
 				}//end foreach
-			?> 
+			?>
 
 			// -->
 			</script>
@@ -561,7 +561,7 @@ class Backend_Outputter
 //	>
 //
 //		<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
-//			<tr> 
+//			<tr>
 //				<td valign="top" align="center">
 //					<table border="0" cellpadding="1" cellspacing="0" width="95%">
 //	<
@@ -572,13 +572,13 @@ class Backend_Outputter
 //		foreach($this->_messages as $type => $msgs) {
 //			$this->_paintMessages($type, $msgs);
 //		}//end foreach
-//		
+//
 //		if ($this->_heading) {
 //			$this->_paintRow($this->_heading, 'page-heading');
 //		}
 //
 		if ($this->_heading || count($this->_screens)) {
-			?> 
+			?>
 			<table width="100%" cellpadding="3" cellspacing="0" border="0">
 				<tr>
 					<td class="sq-backend-heading">
@@ -588,32 +588,41 @@ class Backend_Outputter
 						<?php echo $this->_heading;?>
 					</td>
 					<td class="sq-backend-heading" style="text-align: right;">
-					<?php 
-						if (empty($this->_screens)) echo '&nbsp;'; 
-						else combo_box('', $this->_screens, false, $this->_current_screen, 1, 'id="screen_menu" onChange="javascript: self.location = element_value(this);"'); 
+					<?php
+						if (empty($this->_screens)) {
+							echo '&nbsp;';
+						} else {
+							// add a blank screen entry to the top of the combo box to be used by tabs
+							$this->_screens = array_reverse($this->_screens);
+							$this->_screens['#'] = '';
+							$this->_screens = array_reverse($this->_screens);
+							combo_box('', $this->_screens, false, $this->_current_screen, 1, 'id="screen_menu" onChange="javascript: self.location = element_value(this);"');
+						}
 					?>
 					</td>
 				</tr>
 			</table>
-			<?php 
+			<?php
 		}// end if
 
 		if (count($this->_tabs)) {
-			?> 
-			<table cellpadding="3" cellspacing="0" border="1" bgcolor="#AAAAAA">
+			?>
+			<table cellpadding="3" cellspacing="1" border="0" bgcolor="#000000">
 				<tr>
 					<?php
-					foreach ($this->_tabs as $url => $name) {
+					foreach ($this->_tabs as $tab_code => $tab_data) {
+						$bgcolor = '#E0E0E0';
+						if ($tab_code == $this->_current_tab) $bgcolor = '#B1BDCD';
 						?>
-						<td class="sq-backend-heading" bgcolor="#F0F0F0"><a href="<?php echo $url?>"><?php echo $name?></a></td>
+						<td class="sq-backend-heading" bgcolor="<?php echo $bgcolor;?>"><img src="<?php echo $this->filesPath('/images/icons/'.$tab_data['icon'].'.gif');?>" width="20" height="20" border="0" align="left" alt="<?php echo $tab_data['name'];?>" /><a href="<?php echo $tab_data['url']?>"><?php echo $tab_data['name']?></a></td>
 						<?php
 					}
 					?>
 				</tr>
 			</table>
-			<?php 
+			<?php
 		}// end if
-		
+
 	}//end _paintHeader()
 
 	/**
@@ -621,7 +630,7 @@ class Backend_Outputter
 	*
 	* @access private
 	*/
-	function _paintContents() 
+	function _paintContents()
 	{
 
 		for($i = 0; $i < count($this->_contents); $i++) {
@@ -629,15 +638,15 @@ class Backend_Outputter
 			if ($this->_contents[$i]['type'] == 'raw') {
 				echo $this->_contents[$i]['contents'];
 			} else {
-		
-			?> 
+
+			?>
 				<a name="section_<?php echo $i;?>"></a>
 				<!-- <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%" background="<?php echo $this->filesPath('images/section_dots.gif');?>"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="1" /></td></tr></table> -->
 				<table width="100%" cellpadding="3" cellspacing="0" border="0">
 			<?php
 
 				if ($this->_contents[$i]['heading']) {
-				?> 
+				?>
 					<tr>
 						<td class="sq-backend-sectionheading" colspan="2">
 							<?php if ($this->_contents[$i]['icon']) { ?>
@@ -647,13 +656,13 @@ class Backend_Outputter
 						</td>
 					</tr>
 				<?php
-				} // endif 
+				} // endif
 
 				for($j = 0; $j < count($this->_contents[$i]['fields']); $j++) {
 					$field = &$this->_contents[$i]['fields'][$j];
 					switch ($field['format']) {
 						case 'new_line' :
-							?> 
+							?>
 								<tr>
 									<td nowrap valign="top" class="sq-backend-field" colspan="2">
 										<a name="field_<?php echo $i.'_'.$j;?>"></a>
@@ -669,7 +678,7 @@ class Backend_Outputter
 												<?php
 													echo $field['contents'];
 													if ($field['note']) $this->note($field['note']);
-												?> 
+												?>
 												</td>
 											</tr>
 										</table>
@@ -679,20 +688,20 @@ class Backend_Outputter
 							break;
 
 						case 'commit' :
-						?> 
+						?>
 							<tr>
 								<td width="100%" valign="top" class="sq-backend-data" style="text-align: right;" colspan="2">
 								<?php
 									echo $field['contents'];
 									if ($field['note']) $this->note($field['note']);
-								?> 
+								?>
 								</td>
 							</tr>
 							<?php
 							break;
 
 						default :
-						?> 
+						?>
 							<tr>
 								<td nowrap valign="top" class="sq-backend-field">
 									<a name="field_<?php echo $i.'_'.$j;?>"></a>
@@ -702,7 +711,7 @@ class Backend_Outputter
 								<?php
 									echo $field['contents'];
 									if ($field['note']) $this->note($field['note']);
-								?> 
+								?>
 								</td>
 							</tr>
 						<?php
@@ -710,13 +719,13 @@ class Backend_Outputter
 
 				}//end for
 
-			?> 
+			?>
 				</table>
 				<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%" background="<?php echo $this->filesPath('images/section_dots.gif');?>"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="1" /></td></tr></table>
 			<?php
 				// if this ain't the last section, add a spacer
 				if ($i < count($this->_contents) - 1) {
-				?> 
+				?>
 					<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td></tr></table>
 				<?php
 				}// end if
@@ -732,26 +741,26 @@ class Backend_Outputter
 	*
 	* @access private
 	*/
-	function _paintFooter() 
+	function _paintFooter()
 	{
-	
-	?> 
+
+	?>
 		</form>
 		</body>
 		</html>
 	<?php
 
-	}//end _paintFooter()		
+	}//end _paintFooter()
 
 //	 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //	// just paints a row for the output table in paint() above
-//	function _paintMessages($type, $msgs) 
+//	function _paintMessages($type, $msgs)
 //	{
 //		if (!count($msgs)) return;
 //
 //		$class = '';
 //		$html  = '<table border="0" cellspacing="0" cellpadding="0" width="80%">';
-//		
+//
 //		// the notice, warning and error messages will be listed
 //		if ($type == SQ_MSG_INFORMATION) {
 //
@@ -759,7 +768,7 @@ class Backend_Outputter
 //			$html .= '<tr><td class="'.$class.'" align="center" valign="top"><p>'.implode('<p>', $msgs).'</td></tr>';
 //			$html .= '<tr><td class="'.$class.'" valign="top">&nbsp;</td></tr>';
 //			$class = 'msg-information';
-//		
+//
 //		} else {
 //
 //			$class = '';
@@ -771,28 +780,28 @@ class Backend_Outputter
 //			foreach($msgs as $s) {
 //				$html .= '<tr><td class="'.$class.'" valign="top"><li>&nbsp;</td><td class="'.$class.'" valign="top" width="100%">'.$s.'</td></tr>';
 //			}
-//	
+//
 //		}//end if
-//		
+//
 //		$html .= '</table>';
 //		$this->_paintRow($html, $class);
-//		
+//
 //	}//end _paintMessages()
 
 	 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// outputs a stylesheet include line for the passed file
-	function _paintCssInclude($file) 
+	function _paintCssInclude($file)
 	{
-		?> 
+		?>
 			<link rel="stylesheet" type="text/css" href="<?php echo $file;?>" />
 		<?php
 	}//end _paintCssInclude()
 
 	 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// outputs a javascript include line for the passed file
-	function _paintJsInclude($file) 
+	function _paintJsInclude($file)
 	{
-		?> 
+		?>
 			<script type="text/javascript" language="javascript" src="<?php echo $file;?>"></script>
 		<?php
 	}//end _paintJsInclude()
@@ -802,7 +811,7 @@ class Backend_Outputter
 	*
 	* @access public
 	*/
-	function note($str) 
+	function note($str)
 	{
 		echo '<div class="sq-backend-smallprint">'.$str.'</div>';
 	}//end note()
@@ -817,7 +826,7 @@ class Backend_Outputter
 		submit_button('commit', $value);
 	}
 
-	
+
 	function onCreateLink($event_data=Array()) {
 		if (!in_array($event_data['assetid'], $this->_refreshing_assets)) {
 			$this->addOnLoad('top.sidenav.reload_asset("'.$event_data['assetid'].'");');

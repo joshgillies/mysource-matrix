@@ -389,6 +389,12 @@ class Package_Manager extends Resolve_Object
 				$type_node->addChild('screen', $screens[$code_name]['name'], Array('code_name' => $code_name));
 			}
 
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+			$as =& new $type_code();
+			for(reset($as->_tabs); null !== ($code_name = key($as->_tabs)); next($as->_tabs)) {
+				$type_node->addChild('screen', $as->_tabs[$code_name]['name'], Array('code_name' => $code_name));
+			}
+
 			$str .= $type_node->get();
 
 		}// end for

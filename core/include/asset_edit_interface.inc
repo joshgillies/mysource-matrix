@@ -116,12 +116,12 @@ class Asset_Edit_Interface extends Resolve_Object
 		// if we dont have read access, piss off
 		if (!$owner->readAccess()) {
 			include SQ_INCLUDE_PATH.'/login.inc';
-			print_login('Login', 'You do not have permission to access <i>'.$owner->attr('name').'</i>');
+			print_login('Login', 'You do not have permission to access <i>'.$owner->_getName(false).'</i>');
 			return;
 		}
 
-		// if there are no screens, piss off
-		if (!count($this->_screens)) return;
+		// if there are no screens or tabs, piss off
+		if (!count($this->_screens) && empty($owner->_tabs)) return;
 
 		$current_location = $o->getCurrentLocation();
 		$current_location .= (strstr($current_location, '?')) ? '&' : '?';
@@ -146,126 +146,121 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		$active_screen = (empty($_GET['asset_ei_screen'])) ? $this->_default_screen : $_GET['asset_ei_screen'];
 
-		if (empty($this->_screens[$active_screen])) {
-			trigger_error('Active Screen ("'.$active_screen.'") unknown', E_USER_WARNING);
-			return;
-		}
-
-		// try and find the file
-		if(!($file = $this->_findFile('screen_'.$active_screen))) return;
-
 		// make sure that we have the screen for next time
 		$o->addFormActionGetVar('asset_ei_screen', $active_screen);
 
-		// add common tabs for the asset if not creating
-		$active_tab = '';
+		// add tabs for the asset if not creating
 		if (!$creating) {
-			$active_tab = (empty($_GET['asset_ei_tab'])) ? '' : $_GET['asset_ei_tab'];
-			$o->setCurrentTab($current_location.'asset_ei_tab='.rawurlencode($active_tab));
-			$o->addTab($current_location.'asset_ei_tab=permissions', 'Permissions');
-
-			// make sure that we have the tab for next time
-			$o->addFormActionGetVar('asset_ei_tab', $active_tab);
+			foreach ($owner->_tabs as $code_name => $tab_data) {
+				$tab_data['url'] = $current_location.'asset_ei_screen='.rawurlencode($code_name);
+				$o->addTab($code_name, $tab_data);
+			}
 		}
 
-		if (empty($active_tab)) {
+		//check the active screen for special system defined tabs
+		switch ($active_screen) {
+			case 'permissions' :
+				$o->setCurrentTab('permissions');
+				$this->paintPermissions($owner, $o);
+				break;
+			default :
+				// must be a normal screen
+				if (empty($this->_screens[$active_screen])) {
+					trigger_error('Active Screen ("'.$active_screen.'") unknown', E_USER_WARNING);
+					return;
+				}
 
-			$o->setHeading($GLOBALS['SQ_SYSTEM']->am->getInfo($this->_type_code, 'name').' - '.$this->_screens[$active_screen]['name'], $this->_screens[$active_screen]['icon']);
+				// try and find the file
+				if(!($file = $this->_findFile('screen_'.$active_screen))) return;
 
-			$input = new XML_Tree($file);
-			$root  = &$input->getTreeFromFile();
-			if (PEAR::isError($root)) {
-				trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
-				return;
-			}
+				$o->setHeading($GLOBALS['SQ_SYSTEM']->am->getInfo($this->_type_code, 'name').' - '.$this->_screens[$active_screen]['name'], $this->_screens[$active_screen]['icon']);
 
-			// prefix for all the form vars
-			$prefix = $owner->type().'_'.$owner->id;
+				$input = new XML_Tree($file);
+				$root  = &$input->getTreeFromFile();
+				if (PEAR::isError($root)) {
+					trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+					return;
+				}
 
-			// Loop over the sections
-			for($i = 0; $i < count($root->children); $i++) {
-				$section = &$root->children[$i];
-				// if this ain't a section, or if we are printing the create interface and this section is not included in that, ignore it
-				if ($section->name != 'section' || ($creating && empty($create_sections[$section->attributes['name']]))) continue;
+				// prefix for all the form vars
+				$prefix = $owner->type().'_'.$owner->id;
 
-				$o->openSection($section->attributes['name']);
+				// Loop over the sections
+				for($i = 0; $i < count($root->children); $i++) {
+					$section = &$root->children[$i];
+					// if this ain't a section, or if we are printing the create interface and this section is not included in that, ignore it
+					if ($section->name != 'section' || ($creating && empty($create_sections[$section->attributes['name']]))) continue;
 
-				if (!($num_fields = count($section->children))) continue;
-				if ($section->children[0]->name == 'function_call') {
+					$o->openSection($section->attributes['name']);
 
-					$paint_node = &$section->children[0]->children[0];
+					if (!($num_fields = count($section->children))) continue;
+					if ($section->children[0]->name == 'function_call') {
 
-					if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
-						$o->openField('');
-						echo 'Function not found for painting section "', $section->attributes['name'], '"';
-					} else {
-						$this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix);
-					}
+						$paint_node = &$section->children[0]->children[0];
 
-				// they must just be normal fields
-				} else {
-
-					// Loop over the fields
-					for($j = 0; $j < $num_fields; $j++) {
-						$field = &$section->children[$j];
-
-						if ($field->children[0]->name != 'display_name') {
-							trigger_error('Display Name for "'.$field->attributes['attribute'].'" not found', E_USER_WARNING);
-							continue;
+						if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
+							$o->openField('');
+							echo 'Function not found for painting section "', $section->attributes['name'], '"';
+						} else {
+							$this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix);
 						}
 
-						if (!isset($field->attributes['format'])) $field->attributes['format'] = '';
+					// they must just be normal fields
+					} else {
 
-						if (!empty($field->attributes['attribute'])) {
-							// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
-							if ($field->name != 'field' || ($creating && (empty($field->attributes['attribute']) || !in_array($field->attributes['attribute'], $create_sections[$section->attributes['name']])))) continue;
+						// Loop over the fields
+						for($j = 0; $j < $num_fields; $j++) {
+							$field = &$section->children[$j];
 
-							$o->openField($field->children[0]->content, $field->attributes['format']);
-
-							$attr = &$owner->getAttribute($field->attributes['attribute']);
-							if (is_null($attr)) continue;
-							if (!$attr->setEditParams($field->children[2])) continue;
-							$attr->paint($prefix);
-
-						} else if ($field->children[2]->name == 'function_call') {
-
-							$paint_node = &$field->children[2]->children[0];
-
-							// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
-							if ($field->name != 'field' || ($creating && !in_array($paint_node->attributes['name'], $create_sections[$section->attributes['name']]))) continue;
-
-							$o->openField($field->children[0]->content, $field->attributes['format']);
-
-							if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
-								echo 'Function not found for painting';
-							} else {
-								$this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix);
+							if ($field->children[0]->name != 'display_name') {
+								trigger_error('Display Name for "'.$field->attributes['attribute'].'" not found', E_USER_WARNING);
+								continue;
 							}
 
-						}// end if
+							if (!isset($field->attributes['format'])) $field->attributes['format'] = '';
 
-						if ($field->children[1]->name == 'note' && $field->children[1]->content) {
-							$o->note($field->children[1]->content);
-						}
+							if (!empty($field->attributes['attribute'])) {
+								// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
+								if ($field->name != 'field' || ($creating && (empty($field->attributes['attribute']) || !in_array($field->attributes['attribute'], $create_sections[$section->attributes['name']])))) continue;
 
-					}// end for fields
+								$o->openField($field->children[0]->content, $field->attributes['format']);
 
-				}// end if section uses function call
+								$attr = &$owner->getAttribute($field->attributes['attribute']);
+								if (is_null($attr)) continue;
+								if (!$attr->setEditParams($field->children[2])) continue;
+								$attr->paint($prefix);
 
-			}// end for
+							} else if ($field->children[2]->name == 'function_call') {
+
+								$paint_node = &$field->children[2]->children[0];
+
+								// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
+								if ($field->name != 'field' || ($creating && !in_array($paint_node->attributes['name'], $create_sections[$section->attributes['name']]))) continue;
+
+								$o->openField($field->children[0]->content, $field->attributes['format']);
+
+								if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
+									echo 'Function not found for painting';
+								} else {
+									$this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix);
+								}
+
+							}// end if
+
+							if ($field->children[1]->name == 'note' && $field->children[1]->content) {
+								$o->note($field->children[1]->content);
+							}
+
+						}// end for fields
+
+					}// end if section uses function call
+
+				}// end for
+				break;
+		}//end switch
+
 		
-		} else {
-			// we have an active tab
-			switch ($active_tab) {
-				case 'permissions' :
-					$this->paintPermissions($owner, $o);
-					break;
-				default :
-					trigger_error('Tab "'.$active_tab.'" not found for painting', E_USER_WARNING);
-					break;
-			}//end switch
-		}
-
+		
 		$o->openSection();
 		$o->commitButton('Commit');
 
@@ -284,124 +279,127 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function process(&$owner, $creating)
 	{
-		// if there are no screens, piss off
-		if (!count($this->_screens)) return;
+		// if we dont have read access, piss off
+		if (!$owner->writeAccess()) {
+			include SQ_INCLUDE_PATH.'/login.inc';
+			print_login('Login', 'You do not have permission to edit <i>'.$owner->_getName(false).'</i>');
+			return;
+		}
+
+		// if there are no screens or tabs, piss off
+		if (!count($this->_screens) && empty($owner->_tabs)) return;
 
 		$processed = Array();
 		$create_sections = Array();
 		$active_screen = (empty($_GET['asset_ei_screen'])) ? $this->_default_screen : $_GET['asset_ei_screen'];
-		$active_tab = (empty($_GET['asset_ei_tab'])) ? '' : $_GET['asset_ei_tab'];
 
-		if (empty($active_tab)) {
+		// check the active screen for special system defined tabs
+		switch ($active_screen) {
+			case 'permissions' :
+				$this->processPermissions($owner);
+				break;
+			default :
+				// must be a normal screen
 
-			// if we are creating open the create file to see which fields we are supposed to print out
-			if ($creating) {
-				list($create_sections, $active_screen) = $this->_getCreateSections();
-				if (!count($create_sections)) return $processed;
-			}// end if create
+				// if we are creating open the create file to see which fields we are supposed to print out
+				if ($creating) {
+					list($create_sections, $active_screen) = $this->_getCreateSections();
+					if (!count($create_sections)) return $processed;
+				}// end if create
 
-			if (empty($_GET['asset_ei_screen']) || empty($this->_screens[$_GET['asset_ei_screen']])) {
-				trigger_error('Active Screen unknown unable to process', E_USER_WARNING);
-				return $processed;
-			}
-
-			$file = '';
-			for($i = 0; $i < count($this->_dirs); $i++) {
-				if (file_exists($this->_dirs[$i].'/edit_interface_screen_'.$active_screen.'.xml')) {
-					$file = $this->_dirs[$i].'/edit_interface_screen_'.$active_screen.'.xml';
-					break;
+				if (empty($_GET['asset_ei_screen']) || empty($this->_screens[$_GET['asset_ei_screen']])) {
+					trigger_error('Active Screen unknown unable to process', E_USER_WARNING);
+					return $processed;
 				}
-			}
 
-			if(!$file) {
-				trigger_error('edit_interface_screens.xml not found for Asset Type "'.$this->_type_code.'"', E_USER_WARNING);
-				return $processed;
-			}
-
-			$input = new XML_Tree($file);
-			$root  = &$input->getTreeFromFile();
-			if (PEAR::isError($root)) {
-				trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
-				return $processed;
-			}
-
-			// prefix for all the form vars
-			$prefix = $owner->type().'_'.$owner->id;
-			// Loop over the sections
-			for($i = 0; $i < count($root->children); $i++) {
-				$section = &$root->children[$i];
-				// if this ain't a section, or if we are printing the create interface and this section is not included in that, ignore it
-				if ($section->name != 'section' || ($creating && empty($create_sections[$section->attributes['name']]))) continue;
-
-				if (!($num_fields = count($section->children))) continue;
-				if ($section->children[0]->name == 'function_call') {
-
-					$process_node = &$section->children[0]->children[1];
-
-					// if there is nothing declared there is nothing for us to do
-					if (empty($process_node->attributes['name'])) {
-						continue;
-					// There is something declared but the bloody thing doesn't exist - inform the Idiot
-					} elseif (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
-						trigger_error('Function not found for processing section "'.$section->attributes['name'].'"', E_USER_WARNING);
-					} else {
-						$this->_edit_fns->{$process_node->attributes['name']}($owner, $prefix);
+				$file = '';
+				for($i = 0; $i < count($this->_dirs); $i++) {
+					if (file_exists($this->_dirs[$i].'/edit_interface_screen_'.$active_screen.'.xml')) {
+						$file = $this->_dirs[$i].'/edit_interface_screen_'.$active_screen.'.xml';
+						break;
 					}
+				}
 
-				// they must just be normal fields
-				} else {
-					// Loop over the fields
-					for($j = 0; $j < $num_fields; $j++) {
-						$field = &$section->children[$j];
+				if(!$file) {
+					trigger_error('edit_interface_screens.xml not found for Asset Type "'.$this->_type_code.'"', E_USER_WARNING);
+					return $processed;
+				}
 
-						if (!empty($field->attributes['attribute'])) {
-							// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
-							if ($field->name != 'field' || ($creating && (empty($field->attributes['attribute']) || !in_array($field->attributes['attribute'], $create_sections[$section->attributes['name']])))) continue;
+				$input = new XML_Tree($file);
+				$root  = &$input->getTreeFromFile();
+				if (PEAR::isError($root)) {
+					trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+					return $processed;
+				}
 
-							$attr = &$owner->getAttribute($field->attributes['attribute']);
-							if (is_null($attr)) continue;
-							if (!$attr->setEditParams($field->children[2])) continue;
+				// prefix for all the form vars
+				$prefix = $owner->type().'_'.$owner->id;
+				// Loop over the sections
+				for($i = 0; $i < count($root->children); $i++) {
+					$section = &$root->children[$i];
+					// if this ain't a section, or if we are printing the create interface and this section is not included in that, ignore it
+					if ($section->name != 'section' || ($creating && empty($create_sections[$section->attributes['name']]))) continue;
 
-							$attr->process($prefix);
-							if ($attr->processed) $processed[] = $attr->name;
+					if (!($num_fields = count($section->children))) continue;
+					if ($section->children[0]->name == 'function_call') {
 
-						} else if ($field->children[2]->name == 'function_call') {
+						$process_node = &$section->children[0]->children[1];
 
-							$process_node = &$field->children[2]->children[1];
+						// if there is nothing declared there is nothing for us to do
+						if (empty($process_node->attributes['name'])) {
+							continue;
+						// There is something declared but the bloody thing doesn't exist - inform the Idiot
+						} elseif (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
+							trigger_error('Function not found for processing section "'.$section->attributes['name'].'"', E_USER_WARNING);
+						} else {
+							$this->_edit_fns->{$process_node->attributes['name']}($owner, $prefix);
+						}
 
-							// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
-							if ($field->name != 'field' || ($creating && !in_array($process_node->attributes['name'], $create_sections[$section->attributes['name']]))) continue;
+					// they must just be normal fields
+					} else {
+						// Loop over the fields
+						for($j = 0; $j < $num_fields; $j++) {
+							$field = &$section->children[$j];
 
-							// if there is nothing declared there is nothing for use to do
-							if (empty($process_node->attributes['name'])) {
-								continue;
-							// There is something declared but the bloody thing doesn't exist - inform the Idiot
-							} elseif (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
-								trigger_error('Function not found for processing field "'.$section->attributes['name'].'/'.$field->children[0]->content.'"', E_USER_WARNING);
-							} else {
-								$this->_edit_fns->{$process_node->attributes['name']}($owner, $prefix);
-							}
+							if (!empty($field->attributes['attribute'])) {
+								// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
+								if ($field->name != 'field' || ($creating && (empty($field->attributes['attribute']) || !in_array($field->attributes['attribute'], $create_sections[$section->attributes['name']])))) continue;
 
-						}// end if
+								$attr = &$owner->getAttribute($field->attributes['attribute']);
+								if (is_null($attr)) continue;
+								if (!$attr->setEditParams($field->children[2])) continue;
 
-					}// end for fields
+								$attr->process($prefix);
+								if ($attr->processed) $processed[] = $attr->name;
 
-				}// end if section funcion call
+							} else if ($field->children[2]->name == 'function_call') {
 
-			}// end for
+								$process_node = &$field->children[2]->children[1];
+
+								// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
+								if ($field->name != 'field' || ($creating && !in_array($process_node->attributes['name'], $create_sections[$section->attributes['name']]))) continue;
+
+								// if there is nothing declared there is nothing for use to do
+								if (empty($process_node->attributes['name'])) {
+									continue;
+								// There is something declared but the bloody thing doesn't exist - inform the Idiot
+								} elseif (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
+									trigger_error('Function not found for processing field "'.$section->attributes['name'].'/'.$field->children[0]->content.'"', E_USER_WARNING);
+								} else {
+									$this->_edit_fns->{$process_node->attributes['name']}($owner, $prefix);
+								}
+
+							}// end if
+
+						}// end for fields
+
+					}// end if section funcion call
+
+				}// end for
+				break;
+
+		}//end switch
 		
-		} else {
-			// we have an active tab
-			switch ($active_tab) {
-				case 'permissions' :
-					$this->processPermissions($owner);
-					break;
-				default :
-					trigger_error('Tab "'.$active_tab.'" not found for processing', E_USER_WARNING);
-					break;
-			}//end switch
-		}
-
 		return $processed;
 
 	}// end process();

@@ -73,6 +73,15 @@ class Asset extends Resolve_Object
 	*/
 	var $_ser_atrs = false;
 
+	/**
+	* An array of tab code names and their display names
+	* @var Array()
+	*/
+	var $_tabs = Array('permissions' => Array('name' => 'Permissions', 
+											  'icon' => 'users'
+											  )
+					   );
+
 
 	/**
 	* Constructor
@@ -1664,8 +1673,11 @@ class Asset extends Resolve_Object
 		// if we dont have an assetid, we are granting public access
 		if (!empty($assetid)) {
 			// check that the passed assetid is a user or user_group
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-			if (!is_a($asset, 'user') && !is_a($asset, 'user_group')) {
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', true);
+			if (!$asset->id) {
+				trigger_error('Cannot grant permission for an asset that does not exist', E_USER_WARNING);
+				return false;
+			} else if (!is_a($asset, 'user') && !is_a($asset, 'user_group')) {
 				trigger_error('Cannot grant permission for asset type "'.$asset->type().'", not a user or user group', E_USER_WARNING);
 				return false;
 			}
