@@ -1,0 +1,10 @@
+
+<contents>
+	<section name="Section One">
+		<field attribute="name">
+			<display_name>Folder Name</display_name>
+			<note />
+			<text width="12" height="1" />
+		</field>
+	</section>
+</contents>

@@ -25,7 +25,7 @@ class Asset_Attribute extends Resolve_Object
 	var $name = '';
 
 	/**
-	* Parameters for displaying this attribute
+	* Parameters for processing/calculating this attribute
 	* @var Array()
 	*/
 	var $_params = Array();
@@ -36,6 +36,11 @@ class Asset_Attribute extends Resolve_Object
 	*/
 	var $_default_value = null;
 
+	/**
+	* Parameters for displaying this attribute
+	* @var Array()
+	*/
+	var $_edit_params = Array();
 
 	/**
 	* The current value for this instance of this attribute
@@ -48,9 +53,10 @@ class Asset_Attribute extends Resolve_Object
 	*
 	* @param int	$attributeid	the attribute id to be loaded
 	* @param mixed	$value			the current value for the element
+	* @param Array	$default_params	the default values for the params
 	*
 	*/
-	function Asset_Attribute($attributeid, $value) 
+	function Asset_Attribute($attributeid, $value, $default_params=Array()) 
 	{
 		$this->Resolve_Object();
 
@@ -59,8 +65,6 @@ class Asset_Attribute extends Resolve_Object
 		$sql = 'SELECT attributeid, name, type, parameters, default_value
 				FROM sq_asset_attribute
 				WHERE attributeid = '.$db->quote($attributeid);
-
-		pre_echo($sql);
 
 		$result = $db->getRow($sql, null, DB_FETCHMODE_ORDERED);
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
@@ -76,10 +80,15 @@ class Asset_Attribute extends Resolve_Object
 			return;
 		}
 
+		$this->value = $value;
+
 		$this->_params = ($parameters) ? unserialize($parameters) : Array();
 		unset($result);
 
-		$this->value = $value;
+		// now just make sure some default values are set
+		foreach($default_params as $name => $default) {
+			if (!isset($this->_params[$name])) $this->_params[$name] = $default;
+		}
 
 	}// end contructor
 
@@ -95,51 +104,83 @@ class Asset_Attribute extends Resolve_Object
 	}//end type();
 
 	/*
-	* Returns a value that can be saved in the 
-	*
-	* @access public
-	*/
-	function valueToSave() 
-	{
-		return $this->value;
-	}//end valueToSave();
-
-	/*
 	* Prints the interface for filling in a value
 	*
 	* @param string	$prefix	prefix for the form element
 	*
+	* @return boolean
 	* @access public
 	*/
 	function paint($prefix)
 	{
 		echo 'Interface for '.ucwords(str_replace('_', ' ', $this->type())).' Not Done';
+		return true;
 	}
 
 	/*
 	* Prints the interface for filling in a value
 	*
+	* @param object Asset	$asset	the asset that owns the this attribute instance
 	* @param string	prefix	prefix for the form element
 	*
+	* @return boolean
 	* @access public
 	*/
-	function process($prefix)
+	function process(&$asset, $prefix)
 	{
 		return false;
 	}
 
 	/*
-	* Returns a string representation of the attribute
+	* Set's the value back into the asset
 	*
-	* @param string	prefix	prefix for the form element
+	* @param object Asset	$asset	the asset that owns the attribute
+	* @param mixed			$value	the new value
 	*
+	* @return boolean
 	* @access public
 	*/
-	function toString()
+	function set(&$asset, $value)
 	{
-		return (string) $this->value;
+		if ($asset->setAttrValue($this->name, $value)) {
+			$this->value = $value;
+			return true;
+		}
+		return false;
 	}
 
+
+	/*
+	* Takes an XML_Tree_Node from an edit interface XML file and creates
+	* the params array from it
+	*
+	* @param object XML_Tree_Node	$node
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setEditParams(&$node)
+	{
+		if (strtolower($node->name) != strtolower($this->type())) {
+			trigger_error('XML Tree Node type "'.$node->name.'" not compatible with attribute type "'.$this->type().'<br>Full Node Contents :<br><pre>'.$node->get().'</pre>', E_USER_WARNING);
+			return false;
+		}
+		return true;
+	}
+
+	/*
+	* Basically the reverse of setEditParams(), takes the edit params and adds the details to the 
+	* passed XML_Tree_Node
+	*
+	* @param object XML_Tree_Node	$node
+	*
+	* @return boolean
+	* @access public
+	*/
+	function getEditParams(&$node)
+	{
+		return true;
+	}
 
 }//end class
 ?>

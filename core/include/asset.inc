@@ -786,13 +786,12 @@ class Asset extends Resolve_Object
 	}//end deleteLink()
 
 
-
 	/*
 	* Set the value for the passed variable to the passed value
 	*
 	* @access public
 	*/
-	function setAttribute($name, $value) 
+	function setAttrValue($name, $value) 
 	{
 
 		if (empty($this->vars[$name])) {
@@ -804,7 +803,7 @@ class Asset extends Resolve_Object
 			return true;
 		}
 
-		trigger_error('Validate value of attribute in setAttribute()', E_USER_WARNING);
+		trigger_error('Validate value of attribute in setAttrValue()', E_USER_WARNING);
 
 
 		$db = &$GLOBALS['SQ_RESOLVE']->db;
@@ -854,7 +853,7 @@ class Asset extends Resolve_Object
 
 		return true;
 
-	}//end setAttribute()
+	}//end setAttrValue()
 
 	/*
 	* Easy way to get the value of an attribute
@@ -884,7 +883,8 @@ class Asset extends Resolve_Object
 	* @return object Asset_Attribute
 	* @access public
 	*/
-	function &getAttribute($name, $mute_errors=false) {
+	function &getAttribute($name, $mute_errors=false) 
+	{
 
 		if (!isset($this->_tmp['attributes'][$name]) || !is_object($this->_tmp['attributes'][$name])) {
 
@@ -936,6 +936,21 @@ class Asset extends Resolve_Object
 		// it's up to the kids
 		return false;
 	}// end processBackend()
+
+	/*
+	* returns a reference to the edit interface for this asset type
+	*
+	* @return boolean
+	* @access public
+	*/
+	function &getEI() 
+	{
+		if (empty($this->_tmp['ei']) || get_class($this->_tmp['ei']) != 'edit_interface') {
+			include_once SQ_INCLUDE_PATH.'/edit_interface.inc';
+			$this->_tmp['ei'] = new Edit_Interface($this->type());
+		}
+		return $this->_tmp['ei'];
+	}// end getEI()
 
 
 }//end class

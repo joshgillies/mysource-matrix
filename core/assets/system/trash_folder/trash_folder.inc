@@ -17,7 +17,7 @@ class Trash_Folder extends Folder
 	/**
 	* Indicates whether we are currently in create() or not
 	*
-	* @see setAttribute()
+	* @see setAttrValue()
 	* @var boolean
 	*/
 	var $_in_create = false;
@@ -67,16 +67,16 @@ class Trash_Folder extends Folder
 	*
 	* @access public
 	*/
-	function setAttribute($name, $value) {
+	function setAttrValue($name, $value) {
 
 		if ($name == 'name' && !$this->_in_create) {
 			trigger_error('You are not able to alter the name for the trash folder', E_USER_WARNING);
 			return false;
 		}
 
-		return parent::setAttribute($name, $value);
+		return parent::setAttrValue($name, $value);
 
-	}//end setAttribute()
+	}//end setAttrValue()
 
 	/*
 	* Returns the link information for a specific link that this asset is the major asset in

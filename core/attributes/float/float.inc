@@ -3,18 +3,18 @@
 require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 
 /**
-* Text Asset Attribute
+* Floar/Real/Double Asset Attribute
 *
 * 
 *
 *
 * <!-- Sample Edit Interface XML Node -->
-*    <text width="40" height="4" />
+*    <float width="40" />
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
 */
-class Asset_Attribute_Text extends Asset_Attribute
+class Asset_Attribute_Float extends Asset_Attribute
 {
 
 	/**
@@ -24,9 +24,9 @@ class Asset_Attribute_Text extends Asset_Attribute
 	* @param mixed	$value			the current value for the element
 	*
 	*/
-	function Asset_Attribute_Text($attributeid, $value) 
+	function Asset_Attribute_Float($attributeid, $value) 
 	{
-		$this->Asset_Attribute($attributeid, $value, Array('max_length' => 0));
+		$this->Asset_Attribute($attributeid, $value, Array('decimal_places' => '2'));
 	}// end constructor
 
 	/*
@@ -41,9 +41,7 @@ class Asset_Attribute_Text extends Asset_Attribute
 	function setEditParams(&$node)
 	{
 		if (!parent::setEditParams($node)) return false;
-
-		$this->_edit_params['width']    = (int) $node->attributes['width'];
-		$this->_edit_params['height']   = (int) $node->attributes['height'];
+		$this->_edit_params['width'] = (int) $node->attributes['width'];
 
 		return true;
 	}
@@ -58,13 +56,8 @@ class Asset_Attribute_Text extends Asset_Attribute
 	function paint($prefix) 
 	{
 		include_once SQ_LIB_PATH.'/html_form/html_form.inc';
-
-		if(empty($this->_edit_params['height']) || $this->_edit_params['height'] == 1) {
-			text_box($prefix.'_'.$this->name, $this->value, $this->_edit_params['width'], $this->_params['max_length']);
-		} else {
-			text_area($prefix.'_'.$this->name, $this->value, $this->_edit_params['width'], $this->_edit_params['height'], $this->_params['max_length']);
-		}
-		return true;
+		$v = number_format($this->value, $this->_params['decimal_places'], '.', '');
+		text_box($prefix.'_'.$this->name, $v, $this->_edit_params['width'], 0, 'onFocus="javascript: this.__sq_init_value = this.value;" onChange="javascript: if (isNaN(parseFloat(this.value))) { this.value = this.__sq_init_value; alert(\'This is an numerical field.\\nUnable to accept non-digit characters in this field.\'); } else { this.value = number_format(this.value, '.$this->_params['decimal_places'].', \'.\', \'\'); } "');
 	}
 
 	/*
@@ -78,7 +71,7 @@ class Asset_Attribute_Text extends Asset_Attribute
 	*/
 	function process(&$asset, $prefix)
 	{
-		return $this->set($asset, (string) $_POST[$prefix.'_'.$this->name]);
+		return $this->set($asset, (float) $_POST[$prefix.'_'.$this->name]);
 	}
 
 }//end class

@@ -43,11 +43,11 @@ class User extends Asset
 
 		if (parent::create()) {
 
-			$this->setAttribute('username',   $username);
-			$this->setAttribute('password',   $password);
-			$this->setAttribute('first_name', $first_name);
-			$this->setAttribute('last_name',  $last_name);
-			$this->setAttribute('email',      $email);
+			$this->setAttrValueValue('username',   $username);
+			$this->setAttrValueValue('password',   $password);
+			$this->setAttrValueValue('first_name', $first_name);
+			$this->setAttrValueValue('last_name',  $last_name);
+			$this->setAttrValueValue('email',      $email);
 			return true;
 
 		}//end if
@@ -61,17 +61,17 @@ class User extends Asset
 	*
 	* @access public
 	*/
-	function setAttribute($name, $value) {
+	function setAttrValue($name, $value) {
 
-		trigger_error('CHECK USER INPUTS FOR USERNAME, PASSWORD ETC');
+		trigger_error('CHECK USER INPUTS FOR USERNAME, PASSWORD ETC', E_USER_NOTICE);
 
 		if ($name == 'password') {
 			$value = crypt($value); // let salt be generated
 		}
 
-		return parent::setAttribute($name, $value);
+		return parent::setAttrValue($name, $value);
 
-	}//end setAttribute()
+	}//end setAttrValue()
 
 	/*
 	* returns whether the passed password is this users
@@ -142,6 +142,33 @@ class User extends Asset
 		return $result;
 
 	}//end find();
+
+
+	/*
+	* handles the creation of this asset, including painting 
+	*
+	* @param object Backend $backend
+	*
+	* @access public
+	*/
+	function printBackend(&$backend) {
+
+		$ei = &$this->getEI();
+		$ei->paint($this, $backend->out);
+
+	}//end printBackend()
+
+
+	/*
+	* processes a backend submission from this asset, returns true if all OK
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processBackend() {
+		$ei = &$this->getEI();
+		return $ei->process($this);
+	}// end processBackend()
 
 
 }//end class

@@ -18,7 +18,7 @@ class Root_User extends User
 	/**
 	* Indicates whether we are currently in create() or not
 	*
-	* @see setAttribute()
+	* @see setAttrValue()
 	* @var boolean
 	*/
 	var $_in_create = false;
@@ -71,16 +71,16 @@ class Root_User extends User
 	*
 	* @access public
 	*/
-	function setAttribute($name, $value) {
+	function setAttrValue($name, $value) {
 
 		if ($name == 'username' && !$this->_in_create) {
 			trigger_error('You are not able to alter the username for the root user', E_USER_WARNING);
 			return false;
 		}
 
-		return parent::setAttribute($name, $value);
+		return parent::setAttrValue($name, $value);
 
-	}#end setAttribute()
+	}#end setAttrValue()
 
 }#end class
 ?>

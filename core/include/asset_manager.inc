@@ -242,11 +242,12 @@ class Asset_Manager extends Resolve_Object
 	/*
 	* Returns an array of all assets types that are parents for the passed asset
 	*
-	* @param string $type_code  the code name for the asset that you want to check
+	* @param string		$type_code		the code name for the asset that you want to check
+	* @param boolean	$include_asset	when true adds the "Asset" type to the parent list, even though it's an unistantiable object
 	*
 	* @access public
 	*/
-	function getParentList($type_code) {
+	function getParentList($type_code, $include_asset=true) {
 
 		if (!isset($this->_asset_types[$type_code])) {
 			trigger_error('Asset Type "'.$type_code.'" is not installed on the system', E_USER_ERROR);
@@ -266,7 +267,7 @@ class Asset_Manager extends Resolve_Object
 			$arr[]     = $type_code;
 		}
 
-		$arr[] = 'asset';
+		if ($include_asset) $arr[] = 'asset';
 
 		return $arr;
 
@@ -340,6 +341,7 @@ class Asset_Manager extends Resolve_Object
 
 		if (!isset($_GET['am_section'])) $_GET['am_section'] = '';
 		$o->addFormActionGetVar('am_section', $_GET['am_section']);
+		$o->addHiddenField('am_form_submitted', '1');
 
 		switch($_GET['am_section']) {
 			case 'add_asset' :
@@ -359,8 +361,6 @@ class Asset_Manager extends Resolve_Object
 				$o->addFormActionGetVar('pos',            $_GET['pos']);
 				$o->addFormActionGetVar('type_code',      $_GET['type_code']);
 				$o->addFormActionGetVar('link_type',      $_GET['link_type']);
-
-				$o->addHiddenField('am_form_submitted', '1');
 
 				$this->includeAsset($_GET['type_code']);
 				$asset = new $_GET['type_code']();
@@ -386,6 +386,8 @@ class Asset_Manager extends Resolve_Object
 
 			case 'edit_asset' :
 
+				$o->addFormActionGetVar('assetid', $_GET['assetid']);
+
 				$o->openRaw();
 					pre_echo('GET  : ');
 					pre_echo($_GET);
@@ -399,8 +401,13 @@ class Asset_Manager extends Resolve_Object
 					break;
 				} 
 
-				$asset->printBackend($backend);
+				// if the form has been submitted then, process it
+				// and if that is successfull, then create the link to the parent asset
+				if (!empty($_POST['am_form_submitted']) && $asset->processBackend()) {
+					$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" Updated');
+				}// end if
 
+				$asset->printBackend($backend);
 				break;
 
 			default   :

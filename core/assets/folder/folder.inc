@@ -45,7 +45,7 @@ class Folder extends Asset
 
 		if (parent::create()) {
 
-			return $this->setAttribute('name',   $name);
+			return $this->setAttrValueValueValue('name',   $name);
 
 		}#end if
 
@@ -59,7 +59,8 @@ class Folder extends Asset
 	* @see Asset::_getName()
 	* @access public
 	*/
-	function _getName() {
+	function _getName() 
+	{
 		return $this->attr('name');
 	}#end _getName();
 
@@ -70,7 +71,8 @@ class Folder extends Asset
 	* @see Asset::_getAllowLinks()
 	* @access private
 	*/
-	function _getAllowedLinks() {
+	function _getAllowedLinks() 
+	{
 
 		return Array(SQ_LINK_EXCLUSIVE => Array('asset' => 'M'),
 					 SQ_LINK_UNITE     => Array('asset' => 'M'),
@@ -87,24 +89,11 @@ class Folder extends Asset
 	*
 	* @access public
 	*/
-	function printBackend(&$backend) {
-
-		$o = &$backend->out;
-
-		$o->setHeading('New Folder', 'create');
-		$o->addHiddenField('asset_action', (($this->id) ? 'edit' : 'create'));
-
-		$o->openSection('Create Settings');
-		$o->openField('Folder Name');
-
-		$attr = &$this->getAttribute('name');
-		$attr->paint('asset', $this->attr('name'));
-
-		//$o->text_box('name', '', 10);
-
-		$o->commitButton('Create');
-
-
+	function printBackend(&$backend) 
+	{
+		$backend->out->addHiddenField('asset_action', (($this->id) ? 'edit' : 'create'));
+		$ei = &$this->getEI();
+		$ei->paint($this, $backend->out);
 	}//end printBackend()
 
 	/*
@@ -113,7 +102,8 @@ class Folder extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function processBackend() {
+	function processBackend() 
+	{
 
 		switch($_POST['asset_action']) {
 			case 'create' :
@@ -121,9 +111,8 @@ class Folder extends Asset
 				break;
 
 			default :
-				return false;
-
-
+				$ei = &$this->getEI();
+				return $ei->process($this);
 
 		}// end switch
 
