@@ -18,9 +18,9 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.3 2004/10/07 06:12:04 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.4 2004/10/17 23:35:51 lwright Exp $
 * $Name: not supported by cvs2svn $
-* $Revision: 1.3 $
+* $Revision: 1.4 $
 *
 * This file contains global functions that are useful throughout the calendar module
 * (but not beyond)
@@ -456,6 +456,8 @@ function build_tree_clause($treeids)
 */
 function &get_treeids(&$root_nodes) 
 {
+	if (empty($root_nodes)) return ($empty = Array());
+	
 	$db =& $GLOBALS['SQ_SYSTEM']->db;
 	$quoted_root_nodes = array_keys($root_nodes);
 	$sql = "SELECT a.assetid, t.treeid \n FROM sq_asset a JOIN (sq_asset_link l JOIN sq_asset_link_tree t ON l.linkid = t.linkid) ON l.minorid = a.assetid \n WHERE a.assetid IN (";
