@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.71 2003/11/26 00:51:10 gsherwood Exp $
+* $Id: backend_outputter.inc,v 1.72 2003/11/27 03:56:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -806,10 +806,14 @@ class Backend_Outputter
 							else $start = $nav_count - 5;
 
 							for ($i = $start; $i < $nav_count; $i++) {
+								if (!isset($_SESSION['sq_nav_history'][$i])) continue;
 								$nav_details = $_SESSION['sq_nav_history'][$i];
 
-								$nav_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($nav_details['assetid']);
-								if (is_null($nav_asset)) continue;
+								$nav_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($nav_details['assetid'], '', true);
+								if (is_null($nav_asset)) {
+									array_splice($_SESSION['sq_nav_history'], $i, 1);
+									continue;
+								}
 
 								?><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($nav_asset->type()); ?>", "16", "16", "<?php echo $nav_asset->short_name;?>");</script><?php
 
