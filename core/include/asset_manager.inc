@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.186 2004/03/07 22:50:21 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.187 2004/03/13 01:48:58 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -752,7 +752,7 @@ class Asset_Manager extends MySource_Object
 		// if we get to here, it is not one of the
 		// system assets, but it may be dependantly linked to one
 		// so lets check for that
-		$parents = $this->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', null, 'minor', '', 1);
+		$parents = $this->getDependantParents($asset->id);
 		for($i = 0; $i < count($parents); $i++) if (in_array($parents[$i]['majorid'], $system_asset_ids)) return false;
 
 		return true;
