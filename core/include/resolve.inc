@@ -405,7 +405,7 @@ class Resolve
 	*/
 	function currentUserId()
 	{
-		return ($this->user) ? $this->user->id : 0;
+		return ($this->user) ? (int) $this->user->id : 0;
 	}//end currentUserId()
 
 
