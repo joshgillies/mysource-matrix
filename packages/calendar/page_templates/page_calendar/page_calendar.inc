@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.73 2004/09/13 04:55:56 lwright Exp $
+* $Id: page_calendar.inc,v 1.74 2004/09/13 05:08:51 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.73 $ - 1.0
+* @version $Revision: 1.74 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1016,7 +1016,8 @@ class Page_Calendar extends Page_Asset_Listing
 			<th class="timeLabel">*</th>
 			<?php
 			// print the "all day" events
-			foreach ($events as $id => $col_events) {
+			foreach ($column_names as $id => $name) {
+				$col_events = $events[$id];
 				$event_link_date = is_iso8601($id) ? $id : $_REQUEST['SQ_CALENDAR_DATE'];
 				echo '<td '.$mouseup_code.' id="'.$id.'_allday"'. (empty($col_events['all_day']) ? 'onclick="addEvent(\''.$event_link_date.'\', \'*\');"' : '').'>';
 				if (empty($col_events['all_day'])) echo '&nbsp;';
@@ -1043,7 +1044,8 @@ class Page_Calendar extends Page_Asset_Listing
 			<tr style="height: <?php echo $partition_height; ?>ex;">
 				<th class="timeLabel"><?php echo sprintf('%d:%02d', (($current_hour % 12 == 0) ? 12 : ($current_hour % 12)), $current_mins); ?></th>
 			<?php
-			foreach ($events as $id => $col_events) {
+			foreach ($column_names as $id => $name) {
+				$col_events = $events[$id];
 				$time_key = sprintf('%02d:%02d', $current_hour, $current_mins);
 				if ($show_event_links && is_iso8601($id)) $_REQUEST['SQ_CALENDAR_DATE'] = $id;
 				?>
