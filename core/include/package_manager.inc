@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.58 2004/11/18 04:39:52 gsherwood Exp $
+* $Id: package_manager.inc,v 1.59 2004/11/25 11:32:15 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -157,10 +157,8 @@ class Package_Manager extends MySource_Object
 		
 		for (reset($this->assets); null !== ($type_code = key($this->assets)); next($this->assets)) {
 			// Don't bother checking an asset that's not defined in the array.
-			if (count($update_assets)) {
-				if (!in_array($type_code, $update_assets)) {
-					continue;
-				}
+			if (!empty($update_assets) && !in_array($type_code, $update_assets)) {
+				continue;
 			}
 			if (!isset($install_reqs[$type_code])) $install_reqs[$type_code] = Array();
 
@@ -255,10 +253,8 @@ class Package_Manager extends MySource_Object
 				$type_code =& $install_order[$k];
 	
 				// Don't bother checking an asset that's not defined in the update_assets array.
-				if (count($update_assets)) {
-					if (!in_array($type_code, $update_assets)) {
-						continue;
-					}
+				if (!empty($update_assets) && !in_array($type_code, $update_assets)) {
+					continue;
 				}
 				
 				// If the asset was found in the list of failed dependencies, 
@@ -299,7 +295,7 @@ class Package_Manager extends MySource_Object
 		}//end if asset types to install
 
 		// create the xml summarys of screens info for the asset map
-		if (!$this->_createAssetMapScreensXML($update_assets, $deferred)) {
+		if (!$this->_createAssetMapScreensXML($deferred)) {
 			trigger_error('Unable to create the Asset Map Screens XML', E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
@@ -383,15 +379,13 @@ class Package_Manager extends MySource_Object
 		$asset_types = array_keys($this->assets);
 		$install_order = Array();
 
-		while(count($asset_types)) {
-
-			$last_count = count($asset_types);
+		while($last_count = count($asset_types)) {
 
 			for($i = 0; $i < count($asset_types); $i++) {
 				
 				$type_code = $asset_types[$i];
 				
-				if (count($update_assets) && !in_array($type_code, $update_assets)) {
+				if (!empty($update_assets) && !in_array($type_code, $update_assets)) {
 					unset($asset_types[$i]);
 					$asset_types = array_values($asset_types);
 					$i--;
@@ -454,29 +448,18 @@ class Package_Manager extends MySource_Object
 	* Generates a segment of an XML document for the Asset_Map.inc to use to send to the
 	* flash
 	*
-	* @param Array $update_assets		An array of asset types to update 
-	*									details for. If empty, will do all assets
 	* @param Array $deferred			An array of asset types to defer this 
 	* 									install
 	* @access private
 	*/
-	function _createAssetMapScreensXML($update_assets=Array(), $deferred=Array())
+	function _createAssetMapScreensXML($deferred=Array())
 	{
 		$output = new XML_Tree();
 		$root = &$output->addRoot('tmp', '');
 		$str  = '';
 
 		for(reset($this->assets); null !== ($type_code = key($this->assets)); next($this->assets)) {
-			// Don't bother checking an asset that's not defined in the update_assets array.
-			if (count($update_assets)) {
-				if (!in_array($type_code, $update_assets)) {
-					continue;
-				}
-			}
-			
-			if (in_array($type_code, $deferred)) {
-				continue;
-			}
+			if (in_array($type_code, $deferred)) continue;
 			
 			$attrs = Array(	'type_code'			=> $type_code,
 							'name'				=> $this->assets[$type_code]['name'],
