@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_job.inc,v 1.28 2003/10/03 01:17:41 gsherwood Exp $
+* $Id: hipo_job.inc,v 1.29 2003/10/07 02:41:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -28,10 +28,22 @@ class HIPO_Job extends MySource_Object
 	var $code_name = '';
 
 	/**
-	* The code name of the hipo job that this job is being run under
+	* The code name of the top level hipo job that this job is being run under
 	* @var string
 	*/
 	var $source_code_name = '';
+
+	/**
+	* The user that this HIPO Job is to be run as
+	* @var string
+	*/
+	var $userid = 0;
+
+	/**
+	* When this job was last save()'d
+	* @var string
+	*/
+	var $last_updated = 0;
 
 	/**
 	* The name of this HIPO job (should not be modified by code)
@@ -259,7 +271,7 @@ class HIPO_Job extends MySource_Object
 	* write the initial database entry for the HIPO so that the vars needed by the HIPO
 	* are available on successive reloads.
 	*
-	* @param string	$source_code_name	the code name of another job that wants to use this job
+	* @param string	$source_code_name	the code name of the top level hipo job that this job is being run under
 	*
 	* @return string	returns the code_name for the new job
 	* @access public
@@ -307,8 +319,28 @@ class HIPO_Job extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db  = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = 'SELECT userid, last_updated
+				FROM '.SQ_TABLE_PREFIX.'hipo_job
+				WHERE code_name = '.$db->quote($code_name);
+		$existing = $db->getRow($sql);
+		if (DB::isError($existing)) {
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			trigger_error($existing->getMessage().'<br/>'.$existing->getUserInfo(), E_USER_WARNING);
+			return '';
+		}
+
+		if (!empty($existing)) {
+			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($existing['userid']);
+			trigger_error('A HIPO Job with the same code name is currently being run by "'.$user->name.'" (Id #'.$user->id.').'."\n".'It was last updated at '.$GLOBALS['SQ_SYSTEM']->datetime(iso8601_ts($existing['last_updated'])), E_USER_WARNING);
+			return '';
+		}
+
+
+		$now = time();
+
 		$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'hipo_job
-				(code_name, job_type, userid, running, source_code_name, hipo_vars, options, steps, running_vars)
+				(code_name, job_type, userid, running, source_code_name, hipo_vars, options, steps, running_vars, last_updated)
 				VALUES ('.$db->quote($code_name).',
 						'.$db->quote(get_class($this)).',
 						'.$db->quote($GLOBALS['SQ_SYSTEM']->currentUserId()).',
@@ -317,7 +349,8 @@ class HIPO_Job extends MySource_Object
 						'.$db->quote($hipo_vars).',
 						'.$db->quote($options).',
 						'.$db->quote($steps).',
-						'.$db->quote($vars).'
+						'.$db->quote($vars).',
+						'.$db->quote(ts_iso8601($now)).'
 						)';
 		$result = $db->query($sql);
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -325,6 +358,9 @@ class HIPO_Job extends MySource_Object
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return '';
 		}
+
+		$this->userid       = $GLOBALS['SQ_SYSTEM']->currentUserId();
+		$this->last_updated = $now;
 
 		return $code_name;
 
@@ -343,7 +379,7 @@ class HIPO_Job extends MySource_Object
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db  = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT job_type, userid, running, source_code_name, hipo_vars, options, steps, running_vars
+		$sql = 'SELECT job_type, userid, running, source_code_name, hipo_vars, options, steps, running_vars, last_updated
 				FROM '.SQ_TABLE_PREFIX.'hipo_job
 				WHERE code_name = '.$db->quote($code_name);
 
@@ -358,17 +394,14 @@ class HIPO_Job extends MySource_Object
 			return false;
 		}
 
-		if ((int) $result['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
-			trigger_error('Attempted to load "'.$result['job_type'].'" job that you do not own', E_USER_WARNING);
-			return false;
-		}
-
 		$this->code_name        = $code_name;
 		$this->source_code_name = $result['source_code_name'];
+		$this->userid           = (int) $result['userid'];
 		$this->_hipo_vars       = unserialize($result['hipo_vars']);
 		$this->_options         = unserialize($result['options']);
 		$this->_steps           = unserialize($result['steps']);
 		$this->_running_vars    = unserialize($result['running_vars']);
+		$this->last_updated     = iso8601_ts($result['last_updated']);
 
 		return true;
 
@@ -386,6 +419,11 @@ class HIPO_Job extends MySource_Object
 	*/
 	function save($ignore_running_mode=false)
 	{
+		if ($this->userid != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
+			trigger_error('You cannot process "'.$this->code_name.'" HIPO job that you do not own', E_USER_WARNING);
+			return false;
+		}
+
 		// if we have called save and we aren't the running version, bugger off
 		if (!$ignore_running_mode && $this->_current_mode != $this->_hipo_vars['running_mode']) {
 			return false;
@@ -432,6 +470,8 @@ class HIPO_Job extends MySource_Object
 
 		}// end if
 
+		$now = time();
+
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		// now we just do what we are told
@@ -444,12 +484,15 @@ class HIPO_Job extends MySource_Object
 					SET hipo_vars    = '.$db->quote(serialize($this->_hipo_vars)).',
 						options      = '.$db->quote(serialize($this->_options)).',
 						steps        = '.$db->quote(serialize($this->_steps)).',
-						running_vars = '.$db->quote(serialize($this->_running_vars)).'
+						running_vars = '.$db->quote(serialize($this->_running_vars)).',
+						last_updated = '.$db->quote(ts_iso8601($now)).'
 					WHERE code_name  = '.$db->quote($this->code_name);
 		}
 		$result = $db->query($sql);
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+
+		$this->last_updated = $now;
 
 		return true;
 
@@ -657,6 +700,11 @@ class HIPO_Job extends MySource_Object
 	*/
 	function process()
 	{
+		if ($this->userid != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
+			trigger_error('You cannot process "'.$result['job_type'].'" HIPO job that you do not own', E_USER_WARNING);
+			return false;
+		}
+		
 		// if we are is a display mode different from the running mode, we should not be
 		// doing any processing or saving - so just return true here
 		if ($this->_current_mode != $this->_hipo_vars['running_mode']) return true;
@@ -789,7 +837,7 @@ class HIPO_Job extends MySource_Object
 						$init_hipo->setOption($k, $v);
 					}
 
-					$code_name = $init_hipo->initialise($this->code_name);
+					$code_name = $init_hipo->initialise($this->source_code_name);
 					if ($code_name) {
 						$step_data['hipo_job']['code_name'] = $code_name;
 						$step_data['hipo_job']['job_type']  = $job_type;
@@ -864,7 +912,7 @@ class HIPO_Job extends MySource_Object
 				$init_hipo->setOption($k, $v);
 			}
 
-			$code_name = $init_hipo->initialise($this->code_name);
+			$code_name = $init_hipo->initialise($this->source_code_name);
 			if (!$code_name) return false;
 			unset($init_hipo);
 
