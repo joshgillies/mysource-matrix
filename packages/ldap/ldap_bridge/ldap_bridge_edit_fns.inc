@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_edit_fns.inc,v 1.10 2004/11/04 04:57:39 gsherwood Exp $
+* $Id: ldap_bridge_edit_fns.inc,v 1.10.2.1 2005/01/16 22:19:39 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -68,6 +68,11 @@ class LDAP_Bridge_Edit_Fns extends Bridge_Edit_Fns
 															'name'			=> 'Linking',
 															'force_unlock'	=> true,
 															'lock_type'		=> 'links',
+																),
+										'settings'		=> Array(
+														'name'				=> 'Settings',
+														'force_unlock'		=> true,
+														'lock_type'			=> 'all',
 																),
 										'history'		=> Array(
 															'name'			=> 'History',
