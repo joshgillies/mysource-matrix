@@ -54,12 +54,27 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	}
 
 
-	 #############################################
-	# Convert a string array to a string and back
+	/**
+	* Converts an array to a | seperated string
+	*
+	* @param array	$array	the array to be converted
+	*
+	* @return string
+	* @access private
+	*/
 	function _ar2str($array) {
 		return implode('|',array_intersect(array_keys($this->_params['options']),$array));
 	}
 
+
+	/**
+	* Converts a | seperated string to an array
+	*
+	* @param string	$string	the string to be converted
+	*
+	* @return array
+	* @access private
+	*/
 	function _str2ar($string) {
 		return array_intersect(array_keys($this->_params['options']),explode('|',$string));
 	}
@@ -102,6 +117,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		}
 		
 	}// end paint()
+
 
 	/**
 	* Prints the interface for filling in a value
