@@ -270,13 +270,20 @@ function sq_web_path($path='base')
 /**
 * Returns the current URL for this page, including the protocol
 *
-* @param bool	$inc_protocol	include the protocol in the return var
+* @param bool	$inc_protocol			include the protocol in the return var
+* @param bool	$strip_backend_suffix	if currently in the backend this causes the backend suffix to be removed
 *
 * @return string
 */
-function current_url($inc_protocol=true)
+function current_url($inc_protocol=true, $strip_backend_suffix=false)
 {
-	return (($inc_protocol) ? current_protocol().'://' : '').$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
+	$url = (($inc_protocol) ? current_protocol().'://' : '').$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
+	// if we are in the backend remove the suffix
+	if ($strip_backend_suffix && SQ_IN_BACKEND) {
+		$url = preg_replace('/'.SQ_CONF_BACKEND_SUFFIX.'\/?$/', '', $url);
+	}
+	return $url;
+
 }// end current_url()
 
 
