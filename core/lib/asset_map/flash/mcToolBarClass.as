@@ -21,7 +21,7 @@ function mcToolBarClass() {
 		this._parent._parent.refresh();
 	}
 
-	this.refresh_icon.onRollOut = this.refresh_icon.onRollOut = function() {
+	this.logout_icon.onRollOut = this.refresh_icon.onRollOut = function() {
 		this._parent._parent.toolbar_help._visible = false;
 	}
 
