@@ -8,18 +8,29 @@
 * @version $Version$ - 1.0
 * @package Resolve
 */
+error_reporting(E_ALL);
+$SYSTEM_ROOT = '';
+// from cmd line
+if (isset($_SERVER['argv'])) {
+	if (isset($_SERVER['argv'][1])) $SYSTEM_ROOT = $_SERVER['argv'][1];
+	$err_msg = "You need to supply the path to the Resolve System as the first argument\n";
 
-if (empty($_GET['SYSTEM_ROOT']) || !is_dir($_GET['SYSTEM_ROOT'])) {
-	?>
-		<div style="background-color: red; color: white; font-weight: bold;">
-			You need to supply the path to the Resolve System as a query string variable called SYSTEM_ROOT
-		</div>
-	<?php
+} else { 
+	if (isset($_GET['SYSTEM_ROOT'])) $SYSTEM_ROOT = $_GET['SYSTEM_ROOT'];
+	$err_msg = '
+	<div style="background-color: red; color: white; font-weight: bold;">
+		You need to supply the path to the Resolve System as a query string variable called SYSTEM_ROOT
+	</div>
+	';
+}
+
+if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
+	echo $err_msg;
 	exit(1);
 }
 
-
-require_once $_GET['SYSTEM_ROOT'].'/core/include/init.inc';
+$GLOBALS['SQ_OUTPUT_TYPE'] = 'text';
+require_once $SYSTEM_ROOT.'/core/include/init.inc';
 $GLOBALS['SQ_SYSTEM']->am = new Asset_Manager();
 
 /* INSTALL CORE */
@@ -38,7 +49,7 @@ $GLOBALS['SQ_INSTALL'] = true;
 require_once(SQ_INCLUDE_PATH.'/package_manager.inc');
 $pm = new Package_Manager('__core__');
 if (!$pm->updatePackageDetails()) exit(1);
-echo "CORE PACKAGE DONE<br>";
+pre_echo("CORE PACKAGE DONE");
 
 // Firstly let's create some Assets that we require to run
 
@@ -153,7 +164,7 @@ while (false !== ($entry = $d->read())) {
 		$pm = new Package_Manager($entry);
 		if ($pm->package) {
 			$result = $pm->updatePackageDetails();
-			echo strtoupper($entry)." PACKAGE DONE<br>";
+			pre_echo(strtoupper($entry)." PACKAGE DONE");
 		}
 	}
 }
