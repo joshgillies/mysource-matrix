@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.189 2004/03/14 02:57:50 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.190 2004/03/14 03:54:47 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -478,9 +478,9 @@ class Asset_Manager extends MySource_Object
 	{
 		if (!isset($this->_asset_types[$type_code])) {
 			trigger_error('Asset "'.$type_code.'" is not installed on the system, unable to include it\'s Source File', E_USER_ERROR);
-		} else {
-			require_once SQ_SYSTEM_ROOT.'/'.$this->_asset_types[$type_code]['dir'].'/'.$type_code.'.inc';
 		}
+
+		require_once SQ_SYSTEM_ROOT.'/'.$this->_asset_types[$type_code]['dir'].'/'.$type_code.'.inc';
 
 	}//end includeAsset()
 
