@@ -206,7 +206,7 @@ function easy_time_total($secs=0, $full_format=false)
 */
 function readable_datetime($then=null)
 {
-	return (is_null($then)) ? date('d M Y H:i') : date('d M Y H:i', $then);
+	return (is_null($then)) ? date('d M Y g:ia') : date('d M Y g:ia', $then);
 }
 
 
