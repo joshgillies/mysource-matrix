@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_calendar.js,v 1.3 2004/09/16 01:49:42 dbaranovskiy Exp $
+* $Id: js_calendar.js,v 1.4 2004/10/21 02:32:58 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -612,7 +612,6 @@ function c_yearClick(day, mon, year)
 function DateConvert2MySQL(day, mon, year)
 {
 	var out = year + "-";
-	mon++;
 	if (mon < 10) out += "0";
 	out += mon + "-";
 	if (day < 10) out += "0";
