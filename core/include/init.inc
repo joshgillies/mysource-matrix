@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.77 2005/02/16 08:56:31 brobertson Exp $
+* $Id: init.inc,v 1.78 2005/03/20 23:21:12 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix
 */
 
@@ -73,6 +73,7 @@ define('SQ_PACKAGES_PATH',		SQ_SYSTEM_ROOT.'/packages');
 define('SQ_WEB_PATH',			SQ_SYSTEM_ROOT.'/core/web');
 define('SQ_FUDGE_PATH',			SQ_SYSTEM_ROOT.'/fudge');
 define('SQ_TEMP_PATH',			SQ_SYSTEM_ROOT.'/data/temp');
+define('SQ_LOG_PATH', 			SQ_SYSTEM_ROOT.'/data/private/logs');
 
 
 // include the system version setttings
