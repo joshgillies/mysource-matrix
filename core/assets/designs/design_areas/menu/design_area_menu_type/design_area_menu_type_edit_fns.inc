@@ -224,7 +224,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 #			pre_echo("CREATE SUB ....");
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($design_area);
 			$sub = new $design_area();
-			$sub_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_3, 'value' => 'sub_menu');
+			$sub_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_3, 'value' => 'sub_menu', 'dependant' => '1');
 			$sub->setAttrValue('id_name', $asset->attr('id_name').'__sub_menu');
 			if (!$sub->create($sub_link)) return false;
 		}
