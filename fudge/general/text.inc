@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.7 2003/12/17 01:08:41 gsherwood Exp $
+* $Id: text.inc,v 1.8 2004/02/24 22:34:50 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -70,15 +70,17 @@ function replace_keywords($text, &$replacements)
 /**
 * Takes a string and returns all occurances of "%keyword%"
 *
-* @param string	$text	the text or array to search
+* @param string	$text			the text or array to search
+* @param string	$additional		additional valid keyword charaters for this match
 *
 * @return array
 * @access public
 */
-function retrieve_keywords_replacements($text)
+function retrieve_keywords_replacements($text, $additional='')
 {
 	$matches = Array();
-	preg_match_all ('/%([a-zA-Z_\-0-9]+)%/', $text, $matches, PREG_PATTERN_ORDER);
+	$additional = preg_replace('|(.)|', '\\\\\1', $additional);
+	preg_match_all ('/%([a-zA-Z_\-0-9'.$additional.']+)%/', $text, $matches, PREG_PATTERN_ORDER);
 	return (count($matches)) ? $matches[1] : Array();
 
 }//end retrieve_keywords_replacements()
