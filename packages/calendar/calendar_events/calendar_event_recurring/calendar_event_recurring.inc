@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.28 2004/09/02 04:34:00 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.29 2004/09/02 05:27:35 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.28 $ - 1.0
+* @version $Revision: 1.29 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -712,14 +712,18 @@ class Calendar_Event_Recurring extends Calendar_Event
 					$this->addModification($_REQUEST['SQ_CALENDAR_DATE'], $_REQUEST['event_description']);
 					$res = '<p>Event instance modified</p>';
 				} else {
-					$cancellation_event = $this->addCancellation($_REQUEST['SQ_CALENDAR_DATE'], '(rescheduled)');
+					$cancellation_event = $this->addCancellation($_REQUEST['SQ_CALENDAR_DATE'], '(rescheduled)'); 
 					if (!isset($_REQUEST['event_start_time_enabled'])) {
 						$_REQUEST['event_start_hours'] = '--';
 						$_REQUEST['event_start_minutes'] = '--';
+					} else {
+						if ($_REQUEST['event_start_is_pm'] && ($_REQUEST['event_start_hours'] != 12)) $_REQUEST['event_start_hours'] += 12;
 					}
 					if (!isset($_REQUEST['event_end_time_enabled'])) {
 						$_REQUEST['event_end_hours'] = '--';
 						$_REQUEST['event_end_minutes'] = '--';
+					} else {
+						if ($_REQUEST['event_end_is_pm'] && ($_REQUEST['event_end_hours'] != 12)) $_REQUEST['event_end_hours'] += 12;				
 					}
 					if (!isset($_REQUEST['event_end_date_enabled'])) {
 						$_REQUEST['event_end_year'] = '----';
@@ -752,7 +756,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	*/
 	function &addCancellation($date, $reason)
 	{
-		if (!$this->writeAccess('')) {
+		if (!$this->writeAccess('')) { 
 			trigger_error('You don\'t have sufficient access to create a cancellation for this event', SQ_USER_WARNING);
 			return false;
 		}

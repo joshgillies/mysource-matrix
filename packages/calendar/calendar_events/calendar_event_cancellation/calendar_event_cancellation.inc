@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation.inc,v 1.8 2004/09/02 01:09:25 tbarrett Exp $
+* $Id: calendar_event_cancellation.inc,v 1.9 2004/09/02 05:27:35 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * which replaces the cancelled instance may be linked to it.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.8 $ - 1.0
+* @version $Revision: 1.9 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -171,16 +171,54 @@ class Calendar_Event_Cancellation extends Calendar_Event
 	*/
 	function addReplacement($start_date, $end_date, $description)
 	{
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('calendar_event_single');
-		$replacement_event = new Calendar_Event_Single();
+		if (!$this->writeAccess('')) { 
+			trigger_error('You don\'t have sufficient access to create a cancellation for this event', SQ_USER_WARNING);
+			return false;
+		} 
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('calendar_event_single'); 
+		if ($existing_link = $this->getReplacementLink()) {
+			$replacement_event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($existing_link['minorid']);
+		} else {
+			$replacement_event = new Calendar_Event_Single();
+		}
 		$replacement_event->setAttrValue('start_date', $start_date);
 		$replacement_event->setAttrValue('end_date', $end_date);
 		$replacement_event->setAttrValue('description', $description);
-		$link = Array('asset' => &$this, 'name' => false, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
-		$replacement_event->create($link);
+		if (!$replacement_event->id) {
+			$link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
+			$replacement_event->create($link);
+		} else {
+			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($replacement_event->id, 'attributes')) {
+				trigger_error('Could not get lock to save attrs of asset "'.$replacement_event->name.'"', E_USER_WARNING);
+				return 0;
+			}
+			$replacement_event->saveAttributes();
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($replacement_event->id, 'attributes');
+		}
 		return $replacement_event;
 
-	}// end addCancellation()
+	}// end addReplacement()
+
+
+	/**
+	* Gets the link details of the exception (cancellation or modification) event linked under
+	* this event for the date given
+	*
+	* This function can be called statically (with both parameters) or on an object (with just
+	* the first parameter)
+	*
+	* @param int	$id		The ID of the recurring event to test, or NULL to use the current object
+	*
+	* @static (optionally)
+	* @return Array|boolean		Array (assetid => type_code) of the event, or false if none exist
+	*/
+	function getReplacementLink($id=null)
+	{
+		if (is_null($id)) $id = $this->id;
+		$child_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($id, SQ_SC_LINK_ALL, 'calendar_event_single', false, 'major');
+		return current($child_links);
+
+	}//end getReplacementLink()
 
 
 	/**
@@ -218,16 +256,21 @@ class Calendar_Event_Cancellation extends Calendar_Event
 				if (!isset($_REQUEST['event_start_time_enabled'])) {
 					$_REQUEST['event_start_hours'] = '--';
 					$_REQUEST['event_start_minutes'] = '--';
+				} else {
+					if ($_REQUEST['event_start_is_pm'] && ($_REQUEST['event_start_hours'] != 12)) $_REQUEST['event_start_hours'] += 12;
 				}
 				if (!isset($_REQUEST['event_end_time_enabled'])) {
 					$_REQUEST['event_end_hours'] = '--';
 					$_REQUEST['event_end_minutes'] = '--';
+				} else {
+					if ($_REQUEST['event_end_is_pm'] && ($_REQUEST['event_end_hours'] != 12)) $_REQUEST['event_end_hours'] += 12;				
 				}
 				if (!isset($_REQUEST['event_end_date_enabled'])) {
 					$_REQUEST['event_end_year'] = '----';
 					$_REQUEST['event_end_month'] = '--';
 					$_REQUEST['event_end_day'] = '--';
 				}
+
 				$replacement_event = $this->addReplacement(sprintf('%04s-%02s-%02s %02s:%02s:--', $_REQUEST['event_start_year'], $_REQUEST['event_start_month'], $_REQUEST['event_start_day'],  $_REQUEST['event_start_hours'], $_REQUEST['event_start_minutes']),  sprintf('%04s-%02s-%02s %02s:%02s:--', $_REQUEST['event_end_year'], $_REQUEST['event_end_month'], $_REQUEST['event_end_day'],  $_REQUEST['event_end_hours'], $_REQUEST['event_end_minutes']),  $_REQUEST['event_description']);
 				$res = '<p>Replacement event added</p>';
 			break;
