@@ -1,4 +1,5 @@
 <?php
+include_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 /**
 * Highly Intensive Processing Object (HIPO)
@@ -104,7 +105,7 @@ class HIPO_Job
 			// this HIPO is finsihed
 			return $this->_options['on_complete_url'];
 		} else {
-			return $_SERVER['PHP_SELF'].'?SQ_ACTION=hipo&hipo_action=edit_permissions&hipo_codename='.$this->getCodeName();
+			return $_SERVER['PHP_SELF'].'?SQ_ACTION=hipo&hipo_action='.str_replace('hipo_job_', '', strtolower(get_class($this))).'&hipo_codename='.$this->getCodeName();
 		}
 
 	}//end getProcessURL()
