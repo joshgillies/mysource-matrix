@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.8 2004/12/06 14:44:15 brobertson Exp $
+* $Id: hipo_job_reindex.inc,v 1.9 2005/02/24 05:25:08 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -76,48 +76,6 @@ class HIPO_Job_ReIndex extends HIPO_Job
 		$this->HIPO_Job($code_name);
 
 	}//end constructor
-
-
-	/**
-	* Paints backend of this job
-	*
-	* @param object Backend_Outputter	&$o			reference to the backend outputter
-	* @param string						$class		calling class name
-	*
-	* @return void
-	* @access private
-	*/
-	function paintConfig(&$o, $class)
-	{
-		$write_access = $this->writeAccess();
-
-		// metadata regeneration threshhold HIPO config entry
-		$o->openField('Reindexing Threshold');
-
-		if ($write_access) {
-			text_box($class.'[SQ_HIPO_REINDEX_THRESHOLD]', SQ_HIPO_REINDEX_THRESHOLD, 5);
-		} else {
-			echo SQ_HIPO_REINDEX_THRESHOLD;
-		}
-
-		$o->closeField();
-
-	}//end paintConfig()
-
-
-	/**
-	* Sets some info about thresholds that this hipo requires.
-	*
-	* @return Array
-	* @access public
-	*/
-	function getConfigVars()
-	{
-		return Array(
-			'SQ_HIPO_REINDEX_THRESHOLD' => Array('editable' => 1, 'default' => 1),
-		);
-
-	}//end getConfigVars()
 
 
 	/**
