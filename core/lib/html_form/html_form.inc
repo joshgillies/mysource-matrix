@@ -508,7 +508,7 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 * @param int	$assetid		current value for this field
 * @param array	$type_codes		Array('[type_code]' => '[flag]') where flag = (A|U|I) -> Above, Under or It
 */
-function asset_finder($name, $assetid=0, $type_codes=Array(), )
+function asset_finder($name, $assetid=0, $type_codes=Array())
 {
 	require_once 'XML/Tree.php';
 	$xml_type_codes = new XML_Tree();
