@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: metadata_manager.inc,v 1.13 2003/10/17 04:53:59 gsherwood Exp $
+* $Id: metadata_manager.inc,v 1.14 2003/10/21 06:28:54 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -17,6 +17,8 @@
 * @version $Version$ - 1.0
 * @package MySource_Matrix
 */
+require_once SQ_FUDGE_PATH.'/general/text.inc';
+
 class Metadata_Manager extends MySource_Object
 {
 
@@ -175,7 +177,9 @@ class Metadata_Manager extends MySource_Object
 		}
 
 		// add defaults to the indexing service
-		$this->indexDefaultMetaData($asset, $schemaid);
+		if ($access) {
+			$this->indexMetaData($asset, Array($schemaid));
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
@@ -340,7 +344,7 @@ class Metadata_Manager extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		$this->indexMetadata($asset, $metadata, $schemas);
+		$this->indexMetadata($assetid, $schemas);
 
 		return true;
 
@@ -356,93 +360,173 @@ class Metadata_Manager extends MySource_Object
 	* @access private
 	* @return void
 	*/
-	function indexMetadata(&$asset, &$metadata, &$schemaids)
+	function indexMetadata($assetid, $schemaids)
 	{
-		require_once SQ_FUDGE_PATH."/general/text.inc";
-
-		$keyData = Array();
-
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$im =& $GLOBALS['SQ_SYSTEM']->getIndexingManager();
-
-		$schemas = Array();
 		foreach ($schemaids as $schemaid) {
-			$schemas[$schemaid] =& $am->getAsset($schemaid);
+			$sectionids = $am->getChildren($schemaid, 'metadata_section', false);
+			foreach ($sectionids as $sectionid) {
+				$fieldids = $am->getChildren($sectionid, 'metadata_field', false);
+				foreach ($fieldids as $fieldid) {
+					$im->flushKeyData($assetid, 'metadata:'.$fieldid);
+				}
+			}
 		}
 
-		foreach ($metadata as $schemaName => $schemaMetadata) {
-			$schema = null;
-			foreach($schemas as $thisSchemaId => $thisSchema) {
-				if($thisSchema->name == $schemaName) {
-					$schema =& $schemas[$thisSchemaId];
-					break;
-				}
-			}
-			if (is_null($schema)) {
-				// not our problem - continue
-				continue;
-			}
-			$sectionLinks = $am->getLinks($schema->id, SQ_LINK_TYPE_2, 'metadata_section', true, 'major');
-			$sections = Array();
-			foreach ($sectionLinks as $sectionLink) {
-				$sections[$sectionLink['minorid']] =& $am->getAsset($sectionLink['minorid']);
-			}
+		$im->addKeyData($assetid, $this->getMetadataKeyData($assetid, $schemaids));
+		
+	} // end indexMetadata()
 
-			foreach ($schemaMetadata['sections'] as $sectionName => $sectionMetadata) {
-				$section = null;
-				foreach ($sections as $thisSectionId => $thisSection) {
-					if ($thisSection->name == $sectionName) {
-						$section =& $sections[$thisSectionId];
-						break;
-					}
-				}
-				if (is_null($section))
-					continue;
+	/**
+	* Builds key data array for indexing, with keyword replacements.
+	*
+	* @param Object		&$asset			The asset
+	* @param Array		&$metadata		The values for the metadata
+	* @param Array		&$schemaids		The schema IDs
+	* 
+	* @access private
+	* @return Array
+	*/
+	function getMetadataKeyData($assetid, $schemaids)
+	{
+		// get the default values
+		$keyData = Array();
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$asset =& $am->getAsset($assetid);
 
-				$fieldLinks = $am->getLinks($section->id, SQ_LINK_TYPE_2, 'metadata_field', true, 'major');
-				$fields = Array();
-				foreach ($fieldLinks as $fieldLink) {
-					$fields[$fieldLink['minorid']] =& $am->getAsset($fieldLink['minorid']);
-				}
-				foreach ($sectionMetadata['fields'] as $fieldName => $fieldMetadata) {
-					$field = null;
-					foreach ($fields as $thisFieldId => $thisField) {
-						if ($thisField->name == $fieldName) {
-							$field =& $fields[$thisFieldId];
-							break;
-						}
+		foreach ($schemaids as $schemaid) {
+			$sectionids = $am->getChildren($schemaid, 'metadata_section', false);
+			$metadata = $this->getSchemaMetadata($assetid, $schemaid);
+
+			foreach ($sectionids as $sectionid) {
+				$section =& $am->getAsset($sectionid);
+
+				$fieldids = $am->getChildren($sectionid, 'metadata_field', false);
+				foreach ($fieldids as $fieldid) {
+					$field =& $am->getAsset($fieldid);
+					$value = $metadata['sections'][$section->name]['fields'][$field->name]['value'];
+
+					if (!$value)
+						$value = $field->attr('default');
+
+					$keywords = retrieve_keywords_replacements($value);
+
+					$replacements = Array();
+					foreach ($keywords as $keyword) {
+						$replacements[$keyword] = strtolower($this->getKeywordReplacement($asset, $keyword));
 					}
-					if (is_null($field))
-						continue;
-					$im->flushKeyData($asset->id, 'metadata:' . $field->id);
-					$word_counts = get_word_counts(strtolower($fieldMetadata['value']));
+					$value = replace_keywords($value, $replacements);
+
+					$word_counts = get_word_counts($value);
 					foreach ($word_counts as $word => $count) {
 						$asset->buildKeyData($keyData, $word, 'text', 'metadata:'. $field->id, $field->attr('weighting') * $count);
 					}
 				}
-					
 			}
-			
 		}
+		return $keyData;
+	} // end getMetadataKeyData()
 
-		$im->addKeyData($asset->id, $keyData);
-		
-	} // end indexMetadata()
 
-	/** 
-	* Indexes the default metadata for an asset
-	* (implement me - dom)
+	/**
+	* Returns the keyword replacement for a metadata field. Used for indexing.
 	* 
-	* @param Object		&$asset			The asset
-	* @param Array		&$schemaids		The schema IDs
-	* 
-	* @access private
-	* @return void 
-	*/
-	function indexDefaultMetadata(&$asset, $schemaids)
-	{
-		
-	} // end indexDefaultMetadata()
+	*/ 
+
+	function getKeywordReplacement(&$asset, $keyword) {
+		$out = '';
+		switch ($keyword) {
+			case 'asset_name'       :
+			case 'asset_short_name' :
+			case 'asset_version'    :
+				$field = substr($keyword,6);
+				$out .= $asset->$field;
+			break;
+
+			case 'asset_url' :
+				$out .= $asset->getURL();
+			break;
+
+			case 'asset_created' :
+			case 'asset_updated' :
+				$fn = substr($keyword,6);
+				$out .= date('Y-m-d H:i:s', $asset->$fn());
+			break;
+
+			case 'asset_created_short' :
+			case 'asset_updated_short' :
+				list($tmp, $fn) = split("_", $keyword);
+				$out .= date('Y-m-d H:i:s', $asset->$fn());
+			break;
+			
+			case 'asset_created_by_name' :
+			case 'asset_updated_by_name' :
+				list($tmp, $field) = split("_", $keyword);
+				$field .= '_userid';
+				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset->$field);
+				$out .= $user->name;
+			break;
+
+			case 'asset_created_by_first_name' :
+			case 'asset_created_by_last_name'  :
+			case 'asset_created_by_email'      :
+			case 'asset_updated_by_first_name' :
+			case 'asset_updated_by_last_name'  :
+			case 'asset_updated_by_email'      :
+				$field = substr($keyword,6,7);
+				$field .= '_userid';
+				$attr_name = substr($keyword,17);
+				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset->$field);
+				$out .= $user->attr($attr_name);
+			break;
+
+			case 'asset_read_permission'  :
+			case 'asset_write_permission' :
+			case 'asset_admin_permission' :
+				$perm_type = str_replace('_permission', '', $keyword);
+				$perm_type = substr($perm_type,6);
+				switch ($perm_type) {
+					case 'read':	$perm_type = SQ_PERMISSION_READ;	break;
+					case 'write':	$perm_type = SQ_PERMISSION_WRITE;	break;
+					case 'admin':	$perm_type = SQ_PERMISSION_ADMIN;	break;
+					default:		$perm_type = 0;						break;
+				}
+
+				$perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, $perm_type , true, false, true);
+				$names = Array();
+				foreach ($perms as $userid) {
+					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+					if (is_null($user))
+						continue;
+					$names[] = $user->name;
+				}
+				$out = join(", ", $names);
+			break;
+
+			case 'system_name'   :
+				$out = SQ_CONF_SYSTEM_NAME;
+			break;
+
+			case 'system_owner'  :
+				$out = SQ_CONF_SYSTEM_OWNER;
+			break;
+
+			case 'default_email' :
+				$out = SQ_CONF_DEFAULT_EMAIL;
+			break;
+
+			case 'tech_email'    :
+				$out = SQ_CONF_TECH_EMAIL;
+			break;
+
+			default :
+				$out = "$keyword";
+			break;
+
+		}//end switch
+		return $out;
+	}
 
 	/**
 	* Check if all required fields have been completed for an asset
@@ -592,7 +676,7 @@ class Metadata_Manager extends MySource_Object
 			} else {
 				ob_start();
 			}
-
+			
 			switch ($keyword) {
 
 				case 'asset_name'       :
@@ -671,7 +755,6 @@ class Metadata_Manager extends MySource_Object
 		return $metadata_replacements;
 
 	}//end generateKeywordReplacements()
-
 
 	/**
 	* Generate an array of current values for the passed metadata field names
