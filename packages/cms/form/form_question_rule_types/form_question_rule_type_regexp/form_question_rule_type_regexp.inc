@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_regexp.inc,v 1.8 2004/05/06 00:33:39 lwright Exp $
+* $Id: form_question_rule_type_regexp.inc,v 1.9 2004/05/10 00:33:25 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -68,6 +68,7 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 	function getAttributes()
 	{
 		$attrs = parent::getAttributes();
+		$attrs['force_text'] = true;
 		$attrs['show_asset_finder'] = false;
 		return $attrs;
 
