@@ -66,10 +66,10 @@ class Form_Management extends Asset_Management
 											),
 									), // end log_submission
 
-							'hide_results' => Array(
+							'show_results' => Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'selection',
-													'default'	=> 0,
+													'default'	=> 1,
 													'parameters'	=> Array(	
 														'options'	=> Array(
 														1	=> 'yes',
@@ -113,6 +113,41 @@ class Form_Management extends Asset_Management
 												'default'	=> Array(),
 												'update_fn' => '',
 											),
+
+							'section_index'	=> Array(
+												'added'	=> '0.0.1',
+													'type'	=> 'selection',
+													'default'	=> 0,
+													'parameters'	=> Array(
+														'options'	=> Array(
+														0	=> '----none----',
+														1	=> '1,2,3...',
+														2	=> 'a,b,c...',
+														3	=> 'A,B,C...',
+														4	=> 'i,ii,iii...',
+														5	=> 'I,II,III...',
+															
+														),
+													),
+									),
+							'question_index'	=> Array(
+												'added'	=> '0.0.1',
+													'type'	=> 'selection',
+													'default'	=> 0,
+													'parameters'	=> Array(
+														'options'	=> Array(
+														0	=> '----none----',
+														1	=> '1,2,3...',
+														2	=> 'a,b,c...',
+														3	=> 'A,B,C...',
+														4	=> 'i,ii,iii...',
+														5	=> 'I,II,III...',
+															
+														),
+													),
+									),
+
+
 							);
 	}//end constructor
 

@@ -1,4 +1,4 @@
-  <?php
+<?php
 
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
@@ -172,15 +172,6 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	* @access public
 	* @return &object bodycopy $bodycopy the Form bodycopy 
 	*/
-	function &getFormBodycopy(&$asset)
-	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$bodycopy_link = $asset->getLink(SQ_LINK_TYPE_2, 'bodycopy', true, 'form_bodycopy');
-		$bodycopy = &$am->getAsset($bodycopy_link['minorid'], $bodycopy_link['type_code']);
-
-		return ($bodycopy) ? $bodycopy : false;
-
-	} // getFormBodycopy
 
 
 	/**
@@ -193,7 +184,11 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function generateStandardContentFile(&$asset)
 	{
-		$bodycopy = &$this->getFormBodycopy($asset);
+		$bodycopy = &$asset->getBodycopy('format');
+		
+		// if there is no bodycopy, we will assume that we are trying to generate the 
+		// content file at form creation time, so just return true (it will get generated later)
+		if (!$bodycopy) return true;
 
 		// check to see if the bodycopy attached to this form has any content
 		if (!$bodycopy->isEmpty()) {
@@ -203,9 +198,16 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			$output = ob_get_contents(); 
 			ob_end_clean();
 			
-			$output = $this->processSectionReplacements($asset, $output);
-			$output = $this->processQuestionReplacements($asset, $output);
+			$replaced = true;
+			if (!$output = $this->processSectionReplacements($asset, $output)) $replaced = false;
+			if (!$output = $this->processQuestionReplacements($asset, $output)) $replaced = false;
 
+			// if output is the same as it was before replacements, trigger error
+			if (!$replaced) {
+				trigger_error('could not find any sections or questions to replace in the Format Bodycopy (Standard Mode)', E_USER_WARNING);
+				return false;
+			}
+		
 			// there should only be a keyword replacement for a submit button, 
 			// so only replace that with a submit button, anything else
 			// will get stripped out later
@@ -233,8 +235,17 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			$sections = &$asset->getSections();
 			$output = '';
 
+			$i = 1; // used for indexing
 			for (reset($sections); null !== ($k = key($sections)); next($sections)) {
 				$section =& $sections[$k];
+				
+				// if there is a section index, add it to the ouput
+				if ($asset->attr('section_index')) {
+					$output .= '<?'.'php echo $this->getSectionIndex('.$i++.')."<BR />"; ?'.'>';
+				}
+				// tell the section what its quesiton index is
+				$section->question_index = $asset->attr('question_index');
+
 				ob_start();
 				// tell the section to echo its body rather than including it
 				$section->printBody(0, false);
@@ -272,8 +283,8 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function generateWizardContentFile(&$asset)
 	{
-		$bodycopy = $this->getFormBodycopy($asset);
-
+		$bodycopy = &$asset->getBodycopy('format');
+		$output = '';
 		if (!$bodycopy->isEmpty()) {
 
 			// get the contents of the bodycopy
@@ -284,12 +295,32 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 
 			// replace any keywords for sections in wizard mode, otherwise strip them out
 			$search = '%section%';
-			($asset->attr('wizard')) ? $replacement = '<?php echo $section->printBody($submission->id); ?>' : $replacement = '';
+		
+			// add a replacement for the validation if we need to 
+			$replacement = '<'.'?php ';
+
+
+			if ($asset->attr('validate')) {
+				$replacement .= 'if ($this->getStage() == "validate") { $this->validateForm(); ';
+				$replacement .= ' } else { ';
+ 			}
+			// get a replacement for the section index (1,2,3 a,b,c etc)
+			if ($asset->getSectionIndex()) {
+				$replacement .= 'echo $this->getSectionIndex()."<BR />";';
+			}
+			$replacement .= ' $this->active_section->printBody($this->active_submission->id);';
+			$replacement .= ($asset->attr('validate')) ? '}' : '';
+			$replacement .= ' ?'.'>';
+
 			$output = str_replace($search, $replacement, $output);
 			
 			// replace any occurences of button keyword replacements with some php
 			// to print the buttons when they are needed
 			$output = $this->processButtonReplacements($asset, $output);
+		
+		} else {
+			trigger_error('No Contents found in the Form Format Bodycopy (Wizard Mode)', E_USER_WARNING);
+			return false;
 		}
 
 		create_directory($asset->data_path);
@@ -320,6 +351,9 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 				// just strip out the keyword
 				
 				if($s = &$asset->getSectionByOrder($section)) {
+					// tell the section what its question indexes are
+					$s->question_index = $this->attr('question_index');
+
 					ob_start();
 					$s->printBody();
 					$replacement = ob_get_contents();
@@ -333,7 +367,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			} // end foreach
 			return $output;
 		} 
-		return '';
+		return false;
 
 	} // processSectionReplacements()
 
@@ -371,7 +405,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			} // end for
 			return $output;
 		} // end if			
-		return '';
+		return false;
 
 	} // processQuestionReplacements()
 
@@ -392,7 +426,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			for ($i = 0; $i < count ($matches[1]); $i++) {
 				$search = '%'.$matches[1][$i].'_button%';
 				// get a replacement for this button
-				$replacement = '<?php echo $this->getButton(\''.$matches[1][$i].'\') ?>';
+				$replacement = '<'.'?php echo $this->getButton(\''.$matches[1][$i].'\'); ?'.'>';
 				$output = str_replace($search, $replacement, $output);
 			}
 		// if there are no buttons to replace, just put a button down the bottom

@@ -17,7 +17,9 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 class Form extends Asset
 {
 
-	var $active_submission = '';
+	var $active_submission = null;
+	var $active_section = null;
+
 
 	/**
 	* Constructor
@@ -43,21 +45,17 @@ class Form extends Asset
 	*/
 	function create(&$link)
 	{
+
+		// create a form asset and some other assets in this stucture
+		//
+		// |- form
+		//    |- folder
+		//       |- bodycopy
+		//		 |- bodycopy
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$linkid = parent::create($link);
 		if (!$linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
-
-		// add a bodycopy to this page when creating
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-		$bodycopy = new Bodycopy();
-		$copy_link = Array('asset' => &$this, 'value' => 'form_bodycopy', 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
-
-		$bodycopy->setAttrValue('name', 'Form Bodycopy');
-		if (!$bodycopy->create($copy_link)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$this->id = 0;
 			return false;
@@ -68,20 +66,25 @@ class Form extends Asset
 		$folder = new Folder();
 		$folder->setAttrValue('name', 'Bodycopies');
 
-		// change the value on the link to reflect that of the folder
-		$copy_link['value'] = 'bodycopies_folder';
+		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'bodycopies_folder', 'dependant' => 1, 'exclusive' => 1);
 
 		if (!$folder->create($copy_link)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$this->id = 0;
 			return false;
 		}
+
 		// create a link to the folder so we can put the bodycopyies in it
 		$copy_link = Array('asset' => &$folder, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
 
+		// add a bodycopy to this page when creating
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+
 		// create some bodycopies for the folder
 		$bodycopies = Array(
-			'Thank You Bodycopy', 
+			'Format',
+			'Thank You', 
+			'Validate',
 		);
 
 		foreach ($bodycopies as $name) {
@@ -116,14 +119,25 @@ class Form extends Asset
 	*/
 	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0', $exclusive='0')
 	{
-		// if this is a bodycopy table then we need to make it a dependant link
-		if (is_a($minor, 'bodycopy')) {
-			$dependant = '1';
-		}
 		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
-		//return $this->fileRegeneration();
 
 	}// end createLink()
+
+
+	/**
+	* gets called when things change (new links, delete links etc)
+	*
+	* @see Asset::_updated
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _updated()
+	{
+		parent::_updated();
+		return $this->fileRegeneration();
+	
+	} // end _updated()
 
 
 	/**
@@ -136,12 +150,8 @@ class Form extends Asset
 	*/
 	function canDeleteLink($linkid)
 	{
-		// the only reason why we would object to this link being
-		// deleted is if it is the bodycopy linked to us
-		$bodycopy_link = $this->getLinks(SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
-		if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the bodycopy and the form';
-
 		return parent::canDeleteLink($linkid);
+	
 	}//end canDeleteLink()
 
 
@@ -161,20 +171,6 @@ class Form extends Asset
 		return $page_links;
 
 	}//end _getAllowedLinks()
-
-
-	/**
-	* gets called when a link attached to this asset is moved
-	*
-	* @access public
-	* @return boolean
-	*/
-	function moveLink()
-	{
-		parent::moveLink();
-		return $this->fileRegeneration();
-	
-	} // moveLink()
 
 
 	/**
@@ -330,7 +326,7 @@ class Form extends Asset
 	*/
 	function printBody()
 	{
-		
+		speed_check();
 		$prefix = $this->getPrefix(); 
 		$submission = '';
 
@@ -352,6 +348,8 @@ class Form extends Asset
 			$this->printStandard();
 		}
 		echo "</form>\n";
+		speed_check();
+
 	} // end printBody()
 
 
@@ -397,9 +395,12 @@ class Form extends Asset
 
 			if (!file_exists($this->data_path.'/content_file.php')) {
 				$edit = &$this->getEditFns();
-				$edit->generateStandardContentFile($this);
+				if ($edit->generateStandardContentFile($this)) {
+					include($this->data_path.'/content_file.php');
+				}
+			} else {
+				include($this->data_path.'/content_file.php');
 			}
-			include($this->data_path.'/content_file.php');
 		}
 		return true;
 	}
@@ -415,53 +416,116 @@ class Form extends Asset
 	*/
 	function printWizard() {
 	
-		if ($this->getStage() == 'first') {
-			$order = 1;
-		} else {
-			// create a submission asset if we don't already have one
-			if (!$this->active_submission) {
-				$this->active_submission = &$this->createSubmission();
-				
-				// create a cookie and set the id to the id of the submission asset
-				$this->setFormCookie($this->active_submission->id, $this->attr('cookie_time'));
-			}
-			$order = (int) $_POST['section'];
+		switch ($this->getStage()) {
 			
-			// get the section to process itself
-			$posted_section = &$this->getSectionByOrder($order);
-			$posted_section->processForm($this->active_submission);
+			case 'first':
+			
+				$order = 1;
+				break;
+			
+			case 'validate':
+					
+				if (!isset($_POST['section'])) return false;
+		
+				// we need to process the section before printing the validation details
+				$this->processSection($_POST['section']);
+				$this->includeContentFile();
+				$this->saveStage($_POST['section'] + 1);
+					
+				return true;
+			
+			case 'finish':
+					
+				if (!isset($_POST['section'])) return false;
+				
+				// only process the section if the validate case hasn't already done so
+				if (!$this->attr('validate')) $this->processSection($_POST['section']);
+				$this->finishForm();
 
-			// check to see if there is any errors with the submission,
-			// otherwise increment to the next section
-			if ($submission->isError()) {
-				$this->printErrors();
-			} else {
-				$order++;
-			}
+				return true;
+		
+			default :
 
-		} // end if
+				// create a submission asset if we don't already have one
+				if (!$this->active_submission) {
+					$this->active_submission = &$this->createSubmission();
+					
+					// create a cookie and set the id to the id of the submission asset
+					$this->setFormCookie($this->active_submission->id, $this->attr('cookie_time'));
+				}
+				$order = isset($_POST['section']) ? $_POST['section'] : 0;
+				
+				$this->processSection($order);
+				// check to see if there is any errors with the submission,
+				// otherwise increment to the next section
+				
+				if ($this->active_submission->isError()) {
+					$this->printErrors();
+				} else {
+					$order++;
+				}
+
+		} // end switch
+
+		// get the section that we are currently on
+		// this is needed for the included file	
+		$this->active_section = &$this->getSectionByOrder($order);
+		// let the section know what its question index is
+		$this->active_section->question_index = $this->attr('question_index');
 
 		// set a hidden field of the current section being completed by the user
-		hidden_field('section', $order);
+		$this->saveStage($order);
 
-		// check to see if the form has anymore sections to print
-		if ($this->getSectionCount() >= $order) {
-			// get the section that we are currently on
-			// this is needed for the included file
-			
-			$section = &$this->getSectionByOrder($order);
-			
-			if (!file_exists($this->data_path.'/content_file.php')) {
-				$edit = &$this->getEditFns();
-				$edit->generateWizardContentFile($this);
-			}
-			include($this->data_path.'/content_file.php');
-		// form is finished
-		} else {
-			$this->finishForm();
+		// include the content file for this form
+		$this->includeContentFile();
+
+	} // end printWizard()
+
+
+	/**
+	* gets a section to process itself
+	*
+	* @param integer $order the section order to process
+	*
+	* @access public
+	* @return boolean
+	*/
+	function processSection($order)
+	{
+		// get the section to process itself
+		$posted_section = &$this->getSectionByOrder($order);
+		
+		return $posted_section->processForm($this->active_submission);
+
+	} // end  processSection()
+
+
+	/**
+	* saves the current stage that we are up to in a wizard
+	*
+	*/
+	function saveStage($stage)
+	{
+		return hidden_field('section', $stage);
+	
+	} // end saveStage()
+
+
+	/**
+	* includes the content file for this form
+	*
+	*/
+	function includeContentFile()
+	{
+		if (!file_exists($this->data_path.'/content_file.php')) {
+			$edit = &$this->getEditFns();
+			if (!$edit->generateWizardContentFile($this)) return false;
 		}
-	} // printWizard()
+		include($this->data_path.'/content_file.php');
+		return true;
 
+	} // end includeContentFile()
+	
 
 	/**
 	* creates a new submission object
@@ -471,7 +535,6 @@ class Form extends Asset
 	*/
 	function &createSubmission()
 	{
-		inject_beef();
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -479,7 +542,6 @@ class Form extends Asset
 		
 		// create some questions
 		$submission = new Form_Submission();
-		inject_beef();
 		$copy_link  = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'dependant' => 1, 'exclusive' => 1);
 		
 		// give an appropriate name to this question
@@ -487,9 +549,7 @@ class Form extends Asset
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-		inject_beef();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		inject_beef();
 		return $submission;
 
 	} // end createSubmission()
@@ -503,18 +563,24 @@ class Form extends Asset
 	*/
 	function getStage()
 	{
-		if (!isset($_POST['section']) || $_POST['section'] == 0) return 'first';
-		// get the last section order completed by the user
-		$section = $_POST['section'];
+
+		$section = isset($_POST['section']) ? $_POST['section'] : 0;
 		$count = $this->getSectionCount();
+
+		if (!$section) return 'first';
+	
+		if (($section == $count) && ($this->attr('validate'))) return 'validate';
 		
-		// if there is no validation screen and we are one screen away from it
+		// if there is no validation screen and we are one screen away from the finish
 		// then return last
 		if ((!$this->attr('validate')) && ($section == ($count - 1))) return 'last';
+		
 		// if there is a validation screen and we are on the it, return last 
-		if ($section == $count) return 'last';
+		if ($section >= $count) return 'finish';
+		
 		return $section;
-	}
+	
+	} // end getStage()
 
 
 	/**
@@ -532,13 +598,17 @@ class Form extends Asset
 		$stage = $this->getStage();
 		switch ($type) {
 			case 'next':
-				if ($stage == 'last') return '';
+				if ($stage == 'last' || $stage == 'validate') return '';
 			break;
 			case 'back' :
 				if ($stage == 'first') return '';
 			break;
 			case 'submit': 
-				if ($stage != 'last') return '';
+				if ($this->attr('validate')) {
+					if ($stage != 'validate') return '';
+				} else {
+					if ($stage != 'last') return '';
+				}
 			break;
 			default:
 				return '';
@@ -561,6 +631,7 @@ class Form extends Asset
 		ob_end_clean();
 
 		return $html;
+
 	} // getButton()
 
 
@@ -582,20 +653,54 @@ class Form extends Asset
 			$section->processForm($this->active_submission);
 		}
 		return true;
+
 	} // end processForm()
 
 
 	/**
-	* 
-	* 
+	* returns a reference to a bodycopy based of the name of the bodycopy
+	*
+	* @param string		$name	the name of the bodycopy
+	*
+	* @access public
+	* @return &asset bodycopy
+	*/
+	function &getBodycopy($name='')
+	{
+		if (!$name) return false;
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+
+		$folder_link = $this->getLink(SQ_LINK_TYPE_2, 'folder', true, 'bodycopies_folder');
+		if (empty($folder_link)) return false;
+		
+		$folder = &$am->getAsset($folder_link['minorid'], $folder_link['type_code']); 
+		if (is_null($folder)) return false;
+
+		$bodycopy_link = $folder->getLink(SQ_LINK_TYPE_2, 'bodycopy', true, $name);
+		if (empty($bodycopy_link)) return false;
+
+		$bodycopy = &$am->getAsset($bodycopy_link['minorid'], $bodycopy_link['type_code']);
+		
+		return ($bodycopy) ? $bodycopy : false;
+	
+	} // end getBodycopy()
+
+
+	/**
 	*
 	*/
 	function validateForm()
 	{
-		$validate_link = $this->getLink(SQ_LINK_TYPE_2, 'bodycopy', true, 'validate_bodycopy');
-		$validate = &$am->getAsset($validate_link['minorid'], $validate_link['type_code']);
-		hidden_value('validate', '1');
-	}
+		$validate = &$this->getBodycopy('validate');
+		if (!is_null($validate)) $validate->printBody();
+
+		// print a summary of the answers
+		$this->printSummary(true);
+		
+		// set a hidden value so that we know that we have already validated the details
+	
+	} // end validateForm()
+
 
 	/**
 	* function to finish off form 
@@ -611,14 +716,21 @@ class Form extends Asset
 		// this form on another day, they start fresh, so set the number of days to -1
 		$this->setFormCookie(0, -1);
 		
-		$folder_link = $this->getLink(SQ_LINK_TYPE_2, 'folder', true, 'bodycopies_folder');
-		$folder = &$am->getAsset($folder_link['minorid'], $folder_link['type_code']); 
-		
-		$tyb_link = $folder->getLink(SQ_LINK_TYPE_2, 'bodycopy', true, 'thank_you_bodycopy');
-		$tyb = &$am->getAsset($tyb_link['minorid'], $tyb_link['type_code']);
+		$tyb = &$this->getBodycopy('thank_you');
 		
 		if (!$tyb->isEmpty()) {
 			$tyb->printBody();
+		}
+
+		// print the results if we need to 
+		if ($this->attr('show_results')) $this->printSummary(true);
+
+		// if we are not logging submissions, then we want to remove the submission asset
+		// now that we have finished with it
+
+		if (!$this->attr('log_submissions')) {
+			$link = $this->active_submission->getLink(SQ_LINK_TYPE_3, 'form', false, '', 'minor');
+			$this->deleteLink($link['linkid']);
 		}
 
 	} // end finishForm()
@@ -658,6 +770,36 @@ class Form extends Asset
 
 
 	/**
+	* returns a summary about the answers in the form submission
+	*
+	* @param boolean	$html	return html formatted or not 
+	*
+	* @access public
+	* @return boolean
+	*/
+	function printSummary($html = false)
+	{
+		$summary = $this->active_submission->getSummary();
+		
+		echo ($html) ? '<table>' : '';
+		foreach ($summary as $id => $s_info) {
+			echo ($html) ? '<tr><td colspan="2">' : '';
+			echo $s_info['section_name'];
+			echo ($html) ? '</td></tr>' : '\n\n';
+			foreach ($s_info['questions'] as $id => $q_info) {
+				echo ($html) ? '<tr><td><li>' : '';
+				echo $q_info['name'];
+				echo ($html) ? ': </li></td><td>' : ' : ';
+				echo $q_info['answer'];
+				echo ($html) ? '</td></tr>' : '\n';
+			}
+		}
+		echo ($html) ? '</table>' : '';
+	
+	} // end printSummary()
+
+
+	/**
 	* returns information about where the form exists
 	*
 	* @access public
@@ -676,7 +818,7 @@ class Form extends Asset
 		$info['url'] = current_url(true, true);
 		return $info;
 
-	}
+	} // end  getFormInfo()
 
 
 	/**
@@ -732,8 +874,125 @@ class Form extends Asset
 		}
 
 		return true;
+
 	} // end setSpecialInformation()
 
 
-}// end class
+
+	/**
+	* returns the section index for a section
+	*
+	* @param $order the order of the section (if ommited, the posted order is used)
+	*
+	* @access public
+	* @return string
+	*/
+	function getSectionIndex($order = '')
+	{
+		$index = $this->attr('section_index');
+		if (!$index) return '';
+		
+		if (!$order) {
+			$order = (isset($_POST['section'])) ? $_POST['section'] + 1 : 1;
+		}
+
+		switch ($index) {
+			// numbers
+			case '1': 		
+				return $order.'.';	
+			break;
+			
+			// lowercase letters
+			case '2': 
+				$i = 96 + $order;
+				return chr($i).'.';
+			break;
+			
+			// uppercase letters
+			case '3': 	
+				$i = 64 + $order;
+				return chr($i).'.';	
+			break;
+			
+			// lowercase Roman Numerals
+			case '4': 
+				return strtolower($this->IntToRoman($order)).'.';
+			break;
+			
+			// uppercase Roman Numerals
+			case '5': 
+				return $this->IntToRoman($order).'.';
+			break;
+
+		} // end switch
+
+	} // end getSectionIndex()
+
+
+	/**
+	* returns a roman digit corespondance for a integer
+	*
+	* @see Form::intToRoman()
+	*
+	* @param int		$dig	the digit to process
+	* @param string		$one	the one unit string
+	* @param string		$five	the five unit string
+	* @param string		$ten	the ten unit string
+	*
+	* @access public
+	* @return string
+	*/
+	function romanDigit($dig, $one, $five, $ten) 
+	{ 
+		switch($dig) { 
+			case 0: return ""; 
+			case 1: return "$one"; 
+			case 2: return "$one$one"; 
+			case 3: return "$one$one$one"; 
+			case 4: return "$one$five"; 
+			case 5: return "$five"; 
+			case 6: return "$five$one"; 
+			case 7: return "$five$one$one"; 
+			case 8: return "$five$one$one$one"; 
+			case 9: return "$one$ten"; 
+		} 
+	} // end romanDigit()
+
+
+	/**
+	* converts a integer into it's roman numeral representation
+	*
+	* @param int $num the number to convert
+	*
+	* @access public
+	* @return string
+	*/
+	function intToRoman($num) 
+	{ 
+
+		$m = $num / 1000; 
+		$c = ($num % 1000) / 100; 
+		$x = ($num % 100) / 10; 
+		$i = $num % 10; 
+
+		return( 
+			 $this->romanDigit($m, 'M', '', '') 
+			.$this->romanDigit($c, 'C', 'D', 'M') 
+			.$this->romanDigit($x, 'X', 'L', 'C') 
+			.$this->romanDigit($i, 'I', 'V', 'X') 
+		); 
+
+	} // end intToRoman()
+
+	function setAutoAnswer()
+	{
+		
+	}
+
+	function getAutoAnswer()
+	{
+
+	}
+
+} // end class
 ?>

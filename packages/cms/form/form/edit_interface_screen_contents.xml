@@ -17,6 +17,18 @@
 			</function_call>
 		</field>
 	</section>
+	<section name="Form Indexes">
+		<field attribute="section_index">
+			<display_name>Section Index</display_name>
+			<note>Indexes that will appear before each Section</note>
+			<selection />
+		</field>
+		<field attribute="question_index">
+			<display_name>Question Index</display_name>
+			<note>Indexes that will appear before each Question</note>
+			<selection />
+		</field>
+	</section>
 	<section name="Form Buttons">
 		<field attribute="submit_button">
 			<display_name>Submit Button</display_name>

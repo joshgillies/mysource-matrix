@@ -20,9 +20,9 @@
 			<note>Defines if form submissions are logged</note>
 			<selection style="list" />
 		</field>
-		<field attribute="hide_results">
-			<display_name>Hide Results</display_name>
-			<note>Defines if results are hidden after form submission</note>
+		<field attribute="show_results">
+			<display_name>Show Results</display_name>
+			<note>Defines if results are shown after form submission</note>
 			<selection style="list" />
 		</field>
 	</section>
