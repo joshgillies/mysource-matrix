@@ -159,15 +159,16 @@ class User extends Asset
 
 
 	/**
-	* Attempts to find a user that matches the passed username and login, returning it's assetid
+	* Attempts to find a user that matches the passed username and password, returning it's assetid
 	*
-	* @param string	$username
-	* @param string	$password
+	* @param string	$username	the user name to search for
+	* @param string	$password	the password to match (only if not null)
+	* @param string	$type_code	the asset type to search for
 	*
-	* @return Array(int,string)
+	* @return object User
 	* @access public
 	*/
-	function find($username, $password, $type_code='user')
+	function &find($username, $password=null, $type_code='user')
 	{
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
@@ -194,14 +195,14 @@ class User extends Asset
 		$result = $db->getRow($sql);
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
-		if (!$result['assetid']) return array(0,'');
+		if (!$result['assetid']) return $null = null;
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['assetid']);
-		if (is_null($asset) || !$asset->comparePassword($password)) {
-			return array(0,'');
+		if (is_null($asset) || (!is_null($password) && !$asset->comparePassword($password))) {
+			return $null = null;
 		}
 
-		return array($result['assetid'], $result['type_code']);
+		return $asset;
 
 	}//end find()
 
