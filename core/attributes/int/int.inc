@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: int.inc,v 1.17 2004/06/04 06:27:17 gsherwood Exp $
+* $Id: int.inc,v 1.18 2004/08/11 01:02:08 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -41,6 +41,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 */
 class Asset_Attribute_Int extends Asset_Attribute
 {
+
 
 	/**
 	* Constructor

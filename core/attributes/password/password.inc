@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: password.inc,v 1.16 2004/02/10 04:16:42 gsherwood Exp $
+* $Id: password.inc,v 1.17 2004/08/11 01:02:39 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -41,6 +41,7 @@ require_once SQ_ATTRIBUTES_PATH.'/text/text.inc';
 */
 class Asset_Attribute_Password extends Asset_Attribute_Text
 {
+
 
 	/**
 	* Constructor

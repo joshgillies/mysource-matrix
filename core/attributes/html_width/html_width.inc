@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_width.inc,v 1.2 2004/06/11 00:24:10 lwright Exp $
+* $Id: html_width.inc,v 1.3 2004/08/11 01:01:57 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -41,6 +41,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 */
 class Asset_Attribute_HTML_Width extends Asset_Attribute
 {
+
 
 	/**
 	* Constructor

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.5 2004/06/18 03:24:16 lwright Exp $
+* $Id: wysiwyg.inc,v 1.6 2004/08/11 01:02:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -42,6 +42,7 @@ require_once SQ_FUDGE_PATH.'/wysiwyg/wysiwyg.inc';
 */
 class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 {
+
 
 	/**
 	* Constructor

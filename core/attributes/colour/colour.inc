@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: colour.inc,v 1.14 2003/11/26 00:51:06 gsherwood Exp $
+* $Id: colour.inc,v 1.15 2004/08/11 01:01:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -44,6 +44,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 class Asset_Attribute_Colour extends Asset_Attribute
 {
 
+
 	/**
 	* Constructor
 	*
@@ -58,7 +59,8 @@ class Asset_Attribute_Colour extends Asset_Attribute
 			// Set Some default params for when we are loaded without an ID
 			$this->_params = Array('allow_blanks' => false);
 		}
-	}// end constructor
+		
+	}//end constructor
 
 
 	/**
@@ -81,7 +83,8 @@ class Asset_Attribute_Colour extends Asset_Attribute
 
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		colour_box($prefix.'_'.$this->name, $this->value);
-	}// end paint()
+
+	}//end paint()
 
 
 	/**
@@ -100,7 +103,8 @@ class Asset_Attribute_Colour extends Asset_Attribute
 		} else {
 			$this->processed = false;
 		}
-	}// end process()
+
+	}//end process()
 
 
 	/**
@@ -123,7 +127,9 @@ class Asset_Attribute_Colour extends Asset_Attribute
 		} else {
 			return false;
 		}
+
 	}//end validateValue()
+
 
 }//end class
 
