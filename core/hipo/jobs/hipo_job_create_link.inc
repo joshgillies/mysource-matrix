@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_link.inc,v 1.19 2004/08/26 01:59:40 mmcintyre Exp $
+* $Id: hipo_job_create_link.inc,v 1.20 2004/09/24 00:49:02 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -503,9 +503,11 @@ class HIPO_Job_Create_Link extends HIPO_Job
 			$o->openField('&nbsp;');
 				$o->addHiddenField('link_completed', '0');
 				?>
-				Press the <b><i>Cascade</i></b> button below if you want to cascade the permissions/workflow/metadata of "<?php echo $parent->name; ?>" down to "<?php echo $asset->name; ?>" and its children. To skip the cascading, press the <b><i>Skip</i></b> button below.<br/><br/>
-				The permission of the new parent "<?php echo $parent->name; ?>" are shown below. These changes will attempt to be set on "<?php echo $asset->name; ?>" and its children if you choose to cascade.<br/><br/>
-				<b>Note:</b> Any assets that become children of "<?php echo $asset->name; ?>" during the cascade process will not have changes applied to them - only the <i>current</i> children.
+				<p>The permissions, workflow schemas, and metadata schemas of "<?php echo $parent->name; ?>" are shown below.</p>
+
+				<p>To cascade the permissions, workflow schemas, and/or metadata schemas of "<?php echo $parent->name; ?>" to "<?php echo $asset->name; ?>" and its children, check the appropriate boxes below and press the <b><i>Next</i></b> button.</p>
+				
+				<p>If you do not wish to cascade any permissions or schemas, press the <b><i>Next</i></b> button without checking any boxes.</p>
 				<?php
 				$ei = &$parent->getEI();
 				
