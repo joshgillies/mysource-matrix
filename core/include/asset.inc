@@ -956,8 +956,8 @@ class Asset extends Resolve_Object
 			trigger_error('Existing Link #'.$linkid.' not found, unable to update link', E_USER_WARNING);
 			return false;
 		}
-//		pre_echo("SORT ORDER : ".$sort_order);
-//		pre_echo(array_contents($link));
+#		pre_echo("SORT ORDER : ".$sort_order);
+#		pre_echo(array_contents($link));
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -1019,7 +1019,7 @@ class Asset extends Resolve_Object
 				WHERE linkid    = '.$db->quote($linkid).'
 				  AND majorid   = '.$db->quote($this->id);
 
-//		pre_echo($sql);
+#		pre_echo($sql);
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
@@ -1496,6 +1496,8 @@ class Asset extends Resolve_Object
 
 		unset($this->_tmp['paths']);
 		unset($this->_tmp['lookups']);
+		unset($this->_tmp['url']);
+		unset($this->_tmp['href']);
 
 		if ($this->_updateLookups()) {
 			$GLOBALS['SQ_SYSTEM']->db->query('COMMIT');
@@ -1576,6 +1578,8 @@ class Asset extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		unset($this->_tmp['lookups']);
+		unset($this->_tmp['url']);
+		unset($this->_tmp['href']);
 
 		// Remove all the old URLs
 		$sql = 'DELETE FROM sq_asset_lookup
@@ -1664,32 +1668,72 @@ class Asset extends Resolve_Object
 	}//end getBackendHref()
 
 	/**
-	* Returns the href for getting to the nearest backend for this asset
-	* NOTE: Not complete yet, will work for testing purposes but not done properly
+	* Returns the URL for this asset, closest to the current url
 	*
+	* @return string
+	* @access public
+	*/
+	function getURL()
+	{
+
+		if (!isset($this->_tmp['url'])) {
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+			$url_bits = explode('/', preg_replace('/\\/+$/', '', current_url(false)));
+
+			$sql = 'SELECT l.url, u.http, (';
+			$str = '';
+			// so much for SQL standards...
+			$concat = ($db->phptype == 'mysql') ? 'CONCAT(l.url, '.$db->quote('/').')' : 'l.url || '.$db->quote('/');
+			foreach($url_bits as $i => $bit) {
+				$str .= $bit.'/';
+				$sql .= (($i) ? '+' : '').'
+				(CASE WHEN SUBSTRING('.$concat.' FOR '.strlen($str).') = '.$db->quote($str).' THEN 1 ELSE 0 END)';
+			}
+
+			$sql .= '
+			) as weighting
+			FROM sq_asset_lookup l INNER JOIN sq_asset_url u ON l.root_urlid = u.urlid
+			WHERE l.assetid = '.$db->quote($this->id).'
+			ORDER BY weighting DESC
+			LIMIT 1';
+
+			$result = $db->getRow($sql);
+			if (DB::isError($result)) {
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+				return '';
+			}
+			if (empty($result)) {
+				$this->_tmp['url'] = '';
+			} else {
+				$this->_tmp['url'] = (($result['http']) ? 'http' : 'https').'://'.$result['url'];
+			}
+
+		}// end if !isset
+
+		return $this->_tmp['url'];
+
+	}//end getURL()
+
+	/**
+	* Returns the relative href for this asset, closest to the current url
 	*
-	* @param string	$screen	the screen that you want displayed when the asset is loaded
-	*
+	* @return string
 	* @access public
 	*/
 	function getHref()
 	{
-	$sql = 'SELECT l.url, u.http
-			FROM sq_asset_lookup l INNER JOIN sq_asset_url u ON l.root_urlid = u.urlid
-			WHERE l.assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id).' 
-			LIMIT 1';
-
-		$result = $GLOBALS['SQ_SYSTEM']->db->getRow($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-			return '';
-		}
-		if (empty($result)) {
-			return '';
-		} else {
-			return (($result['http']) ? 'http' : 'https').'://'.$result['url'];
-		}
+		if (!isset($this->_tmp['href'])) {
+			require_once SQ_FUDGE_PATH.'/general/www.inc';
+			if ($url = $this->getURL()) {
+				$this->_tmp['href'] = relative_href(current_url(), $url);
+			} else {
+				$this->_tmp['href'] = '';
+			}
+		}// end if !isset
+		return $this->_tmp['href'];
 	}//end getHref()
+
 
 }//end class
 ?>
