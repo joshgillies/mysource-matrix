@@ -17,6 +17,7 @@ function mcProgressBarClass()
 	this.intervalid = null;
 
 	this.progress_pos = 0;
+	_root.header.refresh();
 }
 
 
@@ -48,7 +49,7 @@ mcProgressBarClass.prototype.show = function(desc)
 
 	if (!this.intervalid) {
 		if (this.order.length > 1) {
-			this.intervalid = setInterval(this, 'setText', 500);
+			//this.intervalid = setInterval(this, 'setText', 500);
 		} else {
 			this.setText();
 		}
@@ -94,26 +95,31 @@ mcProgressBarClass.prototype.setText = function()
 	trace(this.order);
 
 	var first = true;
+	var order = this.order.clone();
 
 	this.progress_text.text = '';
 
 	var baseText = '';
 
-	for (var i = 0; i < this.order.length; ++i) {
+	for (var i = 0; i < order.length; ++i) {
 		if (!first) {
 			baseText += " + ";
 		}
-		baseText += this.descs[this.order[(this.progress_pos + i) % this.order.length]];
+		baseText += this.descs[order[(this.progress_pos + i) % order.length]];
 		first = false;
 	}
 
 	this.progress_text.text = baseText;
 	while (this.progress_text.textWidth > this.progress_text._width) {
 		baseText = baseText.substr(0, baseText.length - 1);
+		if (baseText.length == 0)  {
+			this._progress_text.text = "";
+			break;
+		}
 		this.progress_text.text = baseText + "...";
 	}
 
-	this.progress_pos = (this.progress_pos + 1) % this.order.length;
+	this.progress_pos = (this.progress_pos + 1) % order.length;
 
 }
 
