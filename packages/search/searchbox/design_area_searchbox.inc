@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_searchbox.inc,v 1.5 2003/10/17 00:51:20 dwong Exp $
+* $Id: design_area_searchbox.inc,v 1.6 2003/10/17 06:59:53 dwong Exp $
 * $Name: not supported by cvs2svn $
 *
 */
@@ -14,7 +14,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.5 $ - 1.0
+* @version $Revision: 1.6 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -92,9 +92,8 @@ class Design_Area_Searchbox extends Design_Area
 
 			case 'submit':
 				if ($this->attr('submit_button')) {
-					echo '<td><input type=submit value ="' . 'go' . '"></td>';
+					echo '<input type=submit value ="' . 'go' . '">';
 				} else {
-					echo '<td>';
 					$submit_image_assetid = $this->attr('submit_image_assetid');
 					if ($submit_image_assetid > 0) {
 						$submit_image_asset =& $am->getAsset($submit_image_assetid);
@@ -102,7 +101,6 @@ class Design_Area_Searchbox extends Design_Area
 					} else {
 						echo 'No image specified for submitting.';
 					}
-					echo '</td>';
 				}
 			break;
 		}
