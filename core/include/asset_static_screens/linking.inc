@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.3.2.1 2004/03/02 16:00:41 brobertson Exp $
+* $Id: linking.inc,v 1.3.2.2 2004/03/04 16:40:10 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -62,15 +62,15 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 	echo '<i>NOTE: <b>TYPE_1</b> links are displayed in both the frontend and backend navigation but <b>TYPE_2</b> links are only displayed in the backend navigation.</i><br/><br/>';
 
 	$db = &$GLOBALS['SQ_SYSTEM']->db;
-	$assetids = Array();
 	$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_SC_LINK_ALL, '', true, 'minor');
 	$editable_link_types = Array(SQ_LINK_TYPE_1 => link_type_name(SQ_LINK_TYPE_1),
 								 SQ_LINK_TYPE_2 => link_type_name(SQ_LINK_TYPE_2)
 								);
 
-	foreach ($asset_links as $link) $assetids[$link['majorid']] = Array();
+	$quoted_assetids = Array();
+	foreach ($asset_links as $link) $quoted_assetids[] = $db->quote($link['majorid']);
 
-	if (empty($assetids)) {
+	if (empty($quoted_assetids)) {
 		$result = Array();
 	} else {
 
@@ -82,7 +82,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree pt ON pl.linkid = pt.linkid
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON a.assetid = pl.minorid
 				';
-		$where = 'cl.minorid IN ('.implode(', ', array_keys($assetids)).')
+		$where = 'cl.minorid IN ('.implode(', ', $quoted_assetids).')
 				  AND ct.treeid LIKE '.$concat.'
 				  AND pt.treeid <= ct.treeid';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
