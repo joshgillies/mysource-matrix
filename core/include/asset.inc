@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.247 2003/10/23 23:31:57 gsherwood Exp $
+* $Id: asset.inc,v 1.248 2003/10/27 01:23:50 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2277,7 +2277,7 @@ class Asset extends MySource_Object
 	{
 		if (SQ_ROLLBACK_VIEW) return false;
 		if (!$this->id || !empty($GLOBALS['SQ_INSTALL'])) return true;
-		if ($lock_type == 'attributes' && $this->status == SQ_STATUS_LIVE) return $this->liveEditAccess();
+		if ($this->status == SQ_STATUS_LIVE) return $this->liveEditAccess($lock_type);
 		return $this->checkAccess(SQ_PERMISSION_WRITE, $lock_type, $assetids);
 
 	}//end writeAccess()
@@ -2299,7 +2299,7 @@ class Asset extends MySource_Object
 	{
 		if (SQ_ROLLBACK_VIEW) return false;
 		if (!$this->id || !empty($GLOBALS['SQ_INSTALL']) || !empty($this->_tmp[__CLASS__.'_in_create_setting_permissions'])) return true;
-		if ($lock_type == 'attributes' && $this->status == SQ_STATUS_LIVE) return $this->liveEditAccess();
+		if ($this->status == SQ_STATUS_LIVE) return $this->liveEditAccess($lock_type);
 		return $this->checkAccess(SQ_PERMISSION_ADMIN, $lock_type, $assetids);
 
 	}//end adminAccess()
@@ -2313,30 +2313,51 @@ class Asset extends MySource_Object
 	*
 	* @return boolean
 	* @access public
+	* @see canliveEdit()
 	*/
-	function liveEditAccess()
+	function liveEditAccess($lock_type)
+	{
+		if ($this->canLiveEdit($lock_type)) return $this->checkAccess(SQ_PERMISSION_WRITE, $lock_type);
+		return false;
+
+	}//end liveEditAccess()
+
+
+	/**
+	* Returns true if the current user could live edit this asset if they had the lock
+	* Live edit means the asset is currently SQ_STATUS_LIVE but this
+	* user can edit the asset without going through a safe edit
+	* NOTE: will return false if asset is not currently live
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canliveEdit($lock_type)
 	{
 		if (SQ_ROLLBACK_VIEW) return false;
 		if (!$this->id) return true;
 		if ($this->status != SQ_STATUS_LIVE) return true;
 
+		if (!empty($lock_type)) {
+			$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, $lock_type, true);
+			if (!in_array('attributes', array_keys($locks))) return true;
+		} else {
+			return true;
+		}
+
 		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$schemas = $wfm->getSchemas($this->id, true);
 
-		if (empty($schemas)) {
-			// no workflow set for this asset at all, so anyone with admin
-			// access can live edit the asset
-			return $this->checkAccess(SQ_PERMISSION_ADMIN, 'attributes');
-		}
+		if (empty($schemas)) return true;
 
 		// if there is workflow defined for this asset, the current user
 		// must be the only concerned user to be able to live edit
 		$wf_complete = $wfm->testPublish($this->id, $GLOBALS['SQ_SYSTEM']->currentUserId());
-		if ($wf_complete) return $this->checkAccess(SQ_PERMISSION_WRITE, 'attributes');
+		if ($wf_complete) return true;
 
 		return false;
 
-	}//end liveEditAccess()
+	}//end canliveEdit()
 
 
 	/**
@@ -2374,7 +2395,9 @@ class Asset extends MySource_Object
 		if ($perm == SQ_PERMISSION_READ) {
 			trigger_error(__CLASS__.'::'.__FUNCTION__.' is not to be used for read access', E_USER_ERROR);
 		}
+
 		if ($lock_type == '') {
+
 			return $this->_checkPermissionAccess($perm, $assetids);
 
 		} else {
@@ -2441,7 +2464,7 @@ class Asset extends MySource_Object
 					if (empty($publishers)) {
 						// nobody can publish - great
 						// better let admins take a punt
-						return $this->adminAccess($lock_type);
+						return $this->_checkPermissionAccess(SQ_PERMISSION_ADMIN, $assetids);
 					}
 				}
 				return false;

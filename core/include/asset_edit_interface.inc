@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.168 2003/10/21 23:50:06 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.169 2003/10/27 01:23:50 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -198,11 +198,6 @@ class Asset_Edit_Interface extends MySource_Object
 		// do we have write access?
 		$full_write_access = $owner->writeAccess('');
 
-		// do they have access to acquire the lock?
-		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-		$publishers = $wfm->whoCanPublish($owner->id);
-		$acquire_lock_access = in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers);
-
 		// do we print the commit button (ie. have we printed an editable interface?)
 		$print_commit_button = false;
 
@@ -222,6 +217,9 @@ class Asset_Edit_Interface extends MySource_Object
 					$screen_lock_type = $this->_screens[$active_screen]['lock_type'];
 				}
 			}// end if
+
+			// do they have access to acquire the lock?
+			$acquire_lock_access = $owner->canLiveEdit($screen_lock_type);
 
 			$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($owner->id, $screen_lock_type, true);
 			
@@ -574,19 +572,10 @@ class Asset_Edit_Interface extends MySource_Object
 				<?php
 			}
 
-			// if we dont have write access, dont process the rest of the screen
-			#if ($owner->id && !$owner->writeAccess('')) return $ret_val;
-
 			// try and find the file to print user defined
 			$file = @$this->_findFile('screen_'.$active_screen);
 
 		} else {
-
-#			// if we dont have write access, piss off
-#			if ($owner->id && !$owner->writeAccess()) {
-#				$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit <i>'.$owner->name.'</i>');
-#				exit();
-#			}
 
 			// must be a normal screen
 			if (empty($_GET['asset_ei_screen']) || empty($this->_screens[$_GET['asset_ei_screen']])) {
