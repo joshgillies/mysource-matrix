@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.52 2004/09/07 00:52:29 gsherwood Exp $
+* $Id: form.inc,v 1.53 2004/09/20 05:08:55 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -26,6 +26,7 @@
 require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+require_once SQ_FUDGE_PATH.'/general/general.inc';
 
 /**
 * Form
@@ -713,9 +714,28 @@ class Form extends Bridge
 	
 			// check to see if the bodycopy attached to this form has any content
 			if ($this->attr('use_bodycopy_main') && $bodycopy && !$bodycopy->isEmpty()) {
+				$questions = &$this->getQuestions();
+				$sections = &$this->getSections();
+		
+				foreach ($questions as $q_id => $question) {
+					$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
+					$q_name = $q_asset->attr('name');
+					$replacements['question_field_'.$this->id.'_q'.$q_id] = $q_asset->getAnswer();
+				}
+		
+				foreach ($sections as $section) {
+					$replacements['section_title_'.$section->id] = $section->attr('name');
+					$questions = &$section->getQuestions();
+					foreach ($questions as $q_id => $question) {
+						$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
+						$q_name = $section->attr('name').': '.$q_asset->attr('name');
+						$replacements['question_field_'.$section->id.'_q'.$q_id] = $q_asset->getAnswer();
+					}
+				}
+
 
 				ob_start();
-					$bodycopy->setKeywordReplacements(Array('form_contents' => &$cf_output, 'form_errors' => &$err_output, 'submit_button' => &$submit_button, 'reset_button' => &$reset_button));
+					$bodycopy->setKeywordReplacements($replacements + Array('form_contents' => &$cf_output, 'form_errors' => &$err_output, 'submit_button' => &$submit_button, 'reset_button' => &$reset_button));
 					$bodycopy->printBody();
 					$output = ob_get_contents(); 
 				ob_end_clean();
@@ -943,7 +963,30 @@ class Form extends Bridge
 		if ($this->attr('use_bodycopy_thank_you') && $tyb && !$tyb->isEmpty()) {
 
 			if ($this->attr('show_results')) {
-				$tyb->setKeywordReplacements(Array('form_summary' => &$summary_info));
+				
+				$questions = &$this->getQuestions();
+				$sections = &$this->getSections();
+				$replacements = Array();
+		
+				foreach ($questions as $q_id => $question) {
+					$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
+					$q_name = $q_asset->attr('name');
+					$replacements['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary($this->active_submission[$q_asset->id]);
+				}
+		
+				foreach ($sections as $section) {
+					$replacements['section_title_'.$section->id] = $section->attr('name');
+					$questions = &$section->getQuestions();
+					foreach ($questions as $q_id => $question) {
+						$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
+						$q_name = $section->attr('name').': '.$q_asset->attr('name');
+						$replacements['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary($this->active_submission[$q_asset->id]);
+					}
+				}
+
+
+			
+				$tyb->setKeywordReplacements($replacements + Array('form_summary' => &$summary_info));
 			}
 
 			$tyb->printBody();
@@ -1242,6 +1285,9 @@ class Form extends Bridge
 		}
 		if (empty($bodycopies)) return;
 
+		$questions = &$this->getQuestions();
+		$sections = &$this->getSections();
+
 		foreach ($bodycopies as $bodycopy) {
 			if ($bodycopy == 'Page Contents') {
 				// work out the query replacements
@@ -1253,14 +1299,48 @@ class Form extends Bridge
 					}
 					$default = $name;
 					$keywords[$keyword] = Array('name' => $name, 'default' => $default, 'type' => $type);
-				}	
+				}
+		
+				foreach ($questions as $q_id => $question) {
+					$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
+					$q_name = $q_asset->attr('name');
+					$keywords['question_field_'.$this->id.'_q'.$q_id] = Array('name' => 'Field: '.ellipsisize($q_name,30), 'default' => '[Question Field for '.$q_name.']', 'type' => 'inline');
+				}
+		
+				foreach ($sections as $section) {
+					$keywords['section_title_'.$section->id] = Array('name' => 'Section Title: '.$section->attr('name'), 'default' => $section->attr('name'), 'type' => 'inline');
+					$questions = &$section->getQuestions();
+					foreach ($questions as $q_id => $question) {
+						$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
+						$q_name = $q_asset->attr('name');
+						$keywords['question_field_'.$section->id.'_q'.$q_id] = Array('name' => 'Field: '.ellipsisize($section->attr('name'),20).': '.ellipsisize($q_name,30), 'default' => '[Question Field for '.$q_name.']', 'type' => 'inline');
+					}
+				}
+				
 			} else if ($bodycopy == 'Thank You') {
 				$keywords['form_summary'] = Array('name' => 'Form Summary', 'default' => 'Summary of form results', 'type' => 'block');
+
+				foreach ($questions as $q_id => $question) {
+					$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
+					$q_name = $q_asset->attr('name');
+					$keywords['response_'.$this->id.'_q'.$q_id] = Array('name' => 'Response: '.ellipsisize($q_name,30), 'default' => '[Response for '.$q_name.']', 'type' => 'inline');
+				}
+		
+				foreach ($sections as $section) {
+					$keywords['section_title_'.$section->id] = Array('name' => 'Section Title: '.$q_name, 'default' => $section->attr('name'), 'type' => 'inline');
+					$questions = &$section->getQuestions();
+					foreach ($questions as $q_id => $question) {
+						$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
+						$q_name = $q_asset->attr('name');
+						$keywords['response_'.$section->id.'_q'.$q_id] = Array('name' => 'Response: '.ellipsisize($section->attr('name'),20).': '.ellipsisize($q_name,30), 'default' => '[Response for '.$section->attr('name').': '.$q_name.']', 'type' => 'inline');
+					}
+				}
 			}
 
 
 		}
 
+		$this->_available_keywords = array_keys($keywords);		
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 		
 	}//end onRequestKeywords()
