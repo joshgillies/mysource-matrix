@@ -1590,9 +1590,10 @@ class Asset extends Resolve_Object
 			return true;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		if($force && $this->canForceablyAcquireLock()) {
+		if(!empty($current_lock) && $force && $this->canForceablyAcquireLock()) {
 			// special case where the current user is actually
 			// removing the current lock and taking it for themselves
 			$where = 'source_asset = '.$db->quote($current_lock['source_asset']);
@@ -1600,12 +1601,15 @@ class Asset extends Resolve_Object
 			$sql = 'SELECT assetid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lock '.$where;
 			$locked_ids = $db->getCol($sql);
 			if (DB::isError($locked_ids)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				trigger_error($locked_ids->getMessage().'<br/>'.$locked_ids->getUserInfo(), E_USER_WARNING);
 				return false;
 			}
 
-			if (!$this->releaseLock()) return false;
+			if (!$this->releaseLock()) {
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				return false;
+			}
 
 			// send an internal message
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
@@ -1641,6 +1645,7 @@ class Asset extends Resolve_Object
 		if (!empty($current_lock)) {
 			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_lock['userid']);
 			trigger_error('Cannot acquire lock on "'.$this->name.'", lock already held by "'.$user->name.'"', E_USER_NOTICE);
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
@@ -1664,10 +1669,12 @@ class Asset extends Resolve_Object
 						);
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lock', $values)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return true;
 
 	}//end acquireLock()
@@ -1691,6 +1698,7 @@ class Asset extends Resolve_Object
 			return false;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -1698,10 +1706,12 @@ class Asset extends Resolve_Object
 		$where_cond = 'source_asset = '.$db->quote($current_lock['source_asset']);
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lock', $where_cond)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return true;
 
 	}//end releaseLock()
@@ -1726,6 +1736,7 @@ class Asset extends Resolve_Object
 		if (empty($current_lock)) return true;
 		if (empty($current_lock['expires'])) return true;
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		if (is_null($expires)) {
@@ -1741,10 +1752,12 @@ class Asset extends Resolve_Object
 		$values = Array('expires' => $db->quote($expires));
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_lock', $values, $where)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return true;
 
 	}//end updateLock()
@@ -1761,6 +1774,7 @@ class Asset extends Resolve_Object
 	*/
 	function getLockInfo($full_chain=false, $check_expires=true)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// just get the lock for this asset
@@ -1772,6 +1786,7 @@ class Asset extends Resolve_Object
 		$result = $db->getRow($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return Array();
 		}
 
@@ -1779,7 +1794,10 @@ class Asset extends Resolve_Object
 			$result['expires'] = iso8601_ts($result['expires']);
 			if ($result['expires'] < time()) {
 				// this lock has expired
-				if ($this->cleanupLocks()) return Array();
+				if ($this->cleanupLocks()) {
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return Array();
+				}
 			}
 		}
 
@@ -1795,6 +1813,7 @@ class Asset extends Resolve_Object
 			$to_do = $db->getAll($sql);
 			if (DB::isError($to_do)) {
 				trigger_error($to_do->getMessage().'<br/>'.$to_do->getUserInfo(), E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return Array();
 			}
 
@@ -1805,6 +1824,7 @@ class Asset extends Resolve_Object
 			}
 		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $result;
 
 	}//end getLockInfo()
@@ -1822,15 +1842,18 @@ class Asset extends Resolve_Object
 		if (empty($current_lock)) return true;
 
 		$now = date('Y-m-d H:i:s');
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$where_cond = ' source_asset = '.$db->quote($current_lock['source_asset']).'
 						AND expires < '.$db->quote($now).'
 						AND expires IS NOT NULL';
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lock', $where_cond)) {
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return false;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return true;
 
 	}//end cleanupLocks()
