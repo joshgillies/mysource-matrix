@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_add_published_date.php,v 1.1 2004/07/06 02:22:25 lwright Exp $
+* $Id: upgrade_add_published_date.php,v 1.2 2004/07/06 02:29:13 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -84,7 +84,7 @@ foreach ($assets as $assetid => $type_code) {
 	// must be live, and must not have a published date already
 	if (is_null($asset->published) && ($asset->status == SQ_STATUS_LIVE)) {
 		$skipped = false;
-		$success = $asset->setPublishedDate($asset->updated, 0);
+		$success = $asset->setPublishedDate($asset->updated, $asset->updated_userid);
 	}
 
 	// try to unlock the asset
