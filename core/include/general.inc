@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.43 2003/11/26 00:51:10 gsherwood Exp $
+* $Id: general.inc,v 1.43.2.1 2004/02/14 21:27:43 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -111,143 +111,148 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 
 		// send a report to the system error log
-		if (ini_get('log_errors')) {
+		// if we aren't logging and we aren't displaying, log it anyway so it's turns up somewhere
+		if (ini_get('log_errors') || !ini_get('display_errors')) {
 			$text_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
-			$log_msg  = date('D d/m/Y H:i:s').' ['.strtolower($err_name).'] ('.$err_file.':'.$err_line.') - '.$text_msg;
+			$log_msg  = '['.strtolower($err_name).'] ('.$err_file.':'.$err_line.') - '.$text_msg;
 			$log_msg  = str_replace('[SYSTEM_ROOT]', '', $log_msg);
 			error_log($log_msg);
 		}
 
-		// OK, because we want our errors to actually be displayed, kill any output buffering
+		// if we want to show the errors...
+		if (ini_get('display_errors')) {
 
-		$buffers = Array();
-		while(ob_get_level() > SQ_INIT_OB_LEVEL) {
-			$buffers[] = ob_get_contents();
-			ob_end_clean();
-		}
+			// OK, because we want our errors to actually be displayed, kill any output buffering
+			$buffers = Array();
+			while(ob_get_level() > SQ_INIT_OB_LEVEL) {
+				$buffers[] = ob_get_contents();
+				ob_end_clean();
+			}
 
-		$type = ($GLOBALS['SQ_OUTPUT_TYPE'] == 'html' && SQ_PHP_CLI) ? 'text' : $GLOBALS['SQ_OUTPUT_TYPE'];
+			$type = ($GLOBALS['SQ_OUTPUT_TYPE'] == 'html' && SQ_PHP_CLI) ? 'text' : $GLOBALS['SQ_OUTPUT_TYPE'];
 
-		// if we are in XML output type then, send our error as XML
-		switch($GLOBALS['SQ_OUTPUT_TYPE']) {
-			case 'xml' :
-				$msg = "$err_msg\nFile: $err_file\nLine:$err_line";
+			// if we are in XML output type then, send our error as XML
+			switch($GLOBALS['SQ_OUTPUT_TYPE']) {
+				case 'xml' :
+					$msg = "$err_msg\nFile: $err_file\nLine:$err_line";
 
-				require_once 'XML/Tree.php';
-				$output = new XML_Tree();
-				$root = &$output->addRoot('error', $msg);
-				header("Content-Type: text/xml");
-				$output->dump();
-				exit(); // we need to always exit for XML otherwise we are likely to end up with XML parse errors at the other end
-				break;
+					require_once 'XML/Tree.php';
+					$output = new XML_Tree();
+					$root = &$output->addRoot('error', $msg);
+					header("Content-Type: text/xml");
+					$output->dump();
+					exit(); // we need to always exit for XML otherwise we are likely to end up with XML parse errors at the other end
+					break;
 
-			case 'text' :
-				// if they haven't put tags in the err msg assume it to be plain text
-				$err_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
-				$lines = explode("\n", $err_msg);
-				$len = 7 + strlen($err_file);
-				$len = max($len, 7 + strlen($err_line));
-				foreach($lines as $line) $len = max($len, strlen($line));
-				$len += 2;
-				$str =	'+'.str_repeat('-', $len)."+\n".
-						'| '.$err_name.str_repeat(' ', $len - 2 - strlen($err_name))." |\n".
-						'|'.str_repeat('-', $len)."|\n".
-						'| File : '.$err_file.str_repeat(' ', $len - 9 - strlen($err_file))." |\n".
-						'| Line : '.$err_line.str_repeat(' ', $len - 9 - strlen($err_line))." |\n".
-						'|'.str_repeat('-', $len)."|\n";
-				foreach($lines as $line) {
-					$str .=  '| '.$line.str_repeat(' ', $len - 2 - strlen($line))." |\n";
-				}
+				case 'text' :
+					// if they haven't put tags in the err msg assume it to be plain text
+					$err_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
+					$lines = explode("\n", $err_msg);
+					$len = 7 + strlen($err_file);
+					$len = max($len, 7 + strlen($err_line));
+					foreach($lines as $line) $len = max($len, strlen($line));
+					$len += 2;
+					$str =	'+'.str_repeat('-', $len)."+\n".
+							'| '.$err_name.str_repeat(' ', $len - 2 - strlen($err_name))." |\n".
+							'|'.str_repeat('-', $len)."|\n".
+							'| File : '.$err_file.str_repeat(' ', $len - 9 - strlen($err_file))." |\n".
+							'| Line : '.$err_line.str_repeat(' ', $len - 9 - strlen($err_line))." |\n".
+							'|'.str_repeat('-', $len)."|\n";
+					foreach($lines as $line) {
+						$str .=  '| '.$line.str_repeat(' ', $len - 2 - strlen($line))." |\n";
+					}
 
-				$str .= '+'.str_repeat('-', $len)."+\n";
+					$str .= '+'.str_repeat('-', $len)."+\n";
 
-				// if we are from the command line send this to std err
-				if (SQ_PHP_CLI) {
-					fwrite(STDERR, $str);
-				} else {
-					echo $str;
-				}
+					// if we are from the command line send this to std err
+					if (SQ_PHP_CLI) {
+						fwrite(STDERR, $str);
+					} else {
+						echo $str;
+					}
 
-				break;
+					break;
 
-			case 'html' :
-			default :
+				case 'html' :
+				default :
 
-				// if they haven't put tags in the err msg assume it to be plain text
-				if ($err_msg == strip_tags($err_msg)) {
-					$err_msg = nl2br(htmlspecialchars($err_msg));
-				}
+					// if they haven't put tags in the err msg assume it to be plain text
+					if ($err_msg == strip_tags($err_msg)) {
+						$err_msg = nl2br(htmlspecialchars($err_msg));
+					}
 
-				// if we are in the frontend and we're not supposed to see the errors return;
-				if (!SQ_IN_BACKEND && SQ_CONF_ERRORS_HIDE_FRONTEND) {
-					return;
-				}
+					// if we are in the frontend and we're not supposed to see the errors return;
+					if (!SQ_IN_BACKEND && SQ_CONF_ERRORS_HIDE_FRONTEND) {
+						return;
+					}
 
-				$error_title = 'background-color: '.$bg_colour.'; font-size: 14px; font-weight: bold; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
-				$error_data  = 'background-color: '.$bg_colour.'; font-size: 12px; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
+					$error_title = 'background-color: '.$bg_colour.'; font-size: 14px; font-weight: bold; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
+					$error_data  = 'background-color: '.$bg_colour.'; font-size: 12px; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
 
-				?>
-					</script></table></table></table></table><br/>
-					<table bgcolor="#c0c0c0" cellspacing="0" border="1" bordercolor="#ff0000">
-						<tr>
-							<td style="<?php echo $error_title; ?>">
-								<?php echo $err_name; ?>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<table bgcolor="#dddddd" cellpadding="2" cellspacing="0" border="0">
-									<tr>
-										<td style="<?php echo $error_title; ?>" align="right">File:</td>
-										<td style="<?php echo $error_data; ?>"><?php echo $err_file; ?></td>
-										<td style="<?php echo $error_title; ?>" align="right">Line:</td>
-										<td style="<?php echo $error_data; ?>"><?php echo $err_line; ?></td>
-									</tr>
-									<tr>
-										<td style="<?php echo $error_title; ?>" align="right">Message:</td>
-										<td style="<?php echo $error_data; ?>" colspan="3"><?php echo $err_msg; ?></td>
-									</tr>
-				<?php
-				// if there is a backtrace string create a simple bit of JS to allow it to be popped up into a new window
-				if ($bt_str) {
-				?>
-									<tr>
-										<td style="<?php echo $error_title; ?>" align="right">Backtrace:</td>
-										<td style="<?php echo $error_data; ?>" colspan="3">
-											<script language="JavaScript" type="text/javascript">
-												<!--
-													function print_backtrace_<?php echo $num_errors; ?>() {
-														var alert_win = window.open('', 'backtrace_window_<?php echo $num_errors; ?>', 'resizable=yes,scrollbars=yes,width=800,height=500');
-														alert_win.document.open();
-														alert_win.document.writeln("<html><body><pre>");
-														alert_win.document.writeln("<?php echo str_replace("\n", '\\n', addslashes(htmlspecialchars($bt_str))); ?>");
-														alert_win.document.writeln("</pre></body></html>");
-														alert_win.document.close();
-													}
+					?>
+						</script></table></table></table></table><br/>
+						<table bgcolor="#c0c0c0" cellspacing="0" border="1" bordercolor="#ff0000">
+							<tr>
+								<td style="<?php echo $error_title; ?>">
+									<?php echo $err_name; ?>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<table bgcolor="#dddddd" cellpadding="2" cellspacing="0" border="0">
+										<tr>
+											<td style="<?php echo $error_title; ?>" align="right">File:</td>
+											<td style="<?php echo $error_data; ?>"><?php echo $err_file; ?></td>
+											<td style="<?php echo $error_title; ?>" align="right">Line:</td>
+											<td style="<?php echo $error_data; ?>"><?php echo $err_line; ?></td>
+										</tr>
+										<tr>
+											<td style="<?php echo $error_title; ?>" align="right">Message:</td>
+											<td style="<?php echo $error_data; ?>" colspan="3"><?php echo $err_msg; ?></td>
+										</tr>
+					<?php
+					// if there is a backtrace string create a simple bit of JS to allow it to be popped up into a new window
+					if ($bt_str) {
+					?>
+										<tr>
+											<td style="<?php echo $error_title; ?>" align="right">Backtrace:</td>
+											<td style="<?php echo $error_data; ?>" colspan="3">
+												<script language="JavaScript" type="text/javascript">
+													<!--
+														function print_backtrace_<?php echo $num_errors; ?>() {
+															var alert_win = window.open('', 'backtrace_window_<?php echo $num_errors; ?>', 'resizable=yes,scrollbars=yes,width=800,height=500');
+															alert_win.document.open();
+															alert_win.document.writeln("<html><body><pre>");
+															alert_win.document.writeln("<?php echo str_replace("\n", '\\n', addslashes(htmlspecialchars($bt_str))); ?>");
+															alert_win.document.writeln("</pre></body></html>");
+															alert_win.document.close();
+														}
 
-												// -->
-											</script>
-											<a href="javascript: print_backtrace_<?php echo $num_errors; ?>();" style="color: #ffffff;">Show</a>
-										</td>
-									</tr>
-				<?php
-				} // end if
-				?>
-								</table>
-							</td>
-						</tr>
-					</table><br/>
-				<?php
+													// -->
+												</script>
+												<a href="javascript: print_backtrace_<?php echo $num_errors; ?>();" style="color: #ffffff;">Show</a>
+											</td>
+										</tr>
+					<?php
+					} // end if
+					?>
+									</table>
+								</td>
+							</tr>
+						</table><br/>
+					<?php
 
-		}// end switch
+			}// end switch
 
-		// now just restore any buffered output here - it's as though nothing ever happened :)
-		for($i = count($buffers) - 1; $i >= 0; $i--) {
-			ob_start();
-			echo $buffers[$i];
-		}
+			// now just restore any buffered output here - it's as though nothing ever happened :)
+			for($i = count($buffers) - 1; $i >= 0; $i--) {
+				ob_start();
+				echo $buffers[$i];
+			}
 
-	}// end error_reporting
+		}// end if display_errors
+
+	}// end if error_reporting || terminate
 
 	if ($terminate) {
 		exit(1);
