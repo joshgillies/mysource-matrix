@@ -17,9 +17,10 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: flashExternalCall.js,v 1.13 2003/11/26 00:51:12 gsherwood Exp $
+* $Id: flashExternalCall.js,v 1.14 2004/01/12 23:57:43 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
+
 
 /**
 * This function works in partnership with the ExternalCall flash class.
