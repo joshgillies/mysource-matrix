@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.26 2004/06/14 14:38:19 brobertson Exp $
+* $Id: asset_attribute.inc,v 1.27 2004/09/28 04:27:16 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -110,7 +110,7 @@ class Asset_Attribute extends MySource_Object
 					WHERE attributeid = '.$db->quote($attributeid);
 
 			$result = $db->getRow($sql, null, DB_FETCHMODE_ORDERED);
-			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			assert_valid_db_result($result);
 
 			if (is_null($result)) return;
 
@@ -131,7 +131,7 @@ class Asset_Attribute extends MySource_Object
 		$this->value = $value;
 
 		// now just make sure some default values are set
-		foreach($default_params as $name => $default) {
+		foreach ($default_params as $name => $default) {
 			if (!isset($this->_params[$name])) $this->_params[$name] = $default;
 		}
 
@@ -147,9 +147,7 @@ class Asset_Attribute extends MySource_Object
 	*/
 	function loadAttribute($attributeid=0, $value=null, $default_params=Array())
 	{
-		if ($attributeid == 0) {
-			return new Asset_Attribute(0, $value, $default_params);;
-		}
+		if ($attributeid == 0) return new Asset_Attribute(0, $value, $default_params);;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -157,10 +155,7 @@ class Asset_Attribute extends MySource_Object
 				WHERE attributeid = '.$db->quote($attributeid);
 
 		$type = $db->getOne($sql);
-		if (DB::isError($type)) {
-			trigger_error('Could not retrieve type for Attribute #'.$attributeid, E_USER_WARNING);
-			return null;
-		}
+		assert_valid_db_result($type);
 
 		$class = 'Asset_Attribute_'.$type;
 		require_once SQ_ATTRIBUTES_PATH.'/'.$type.'/'.$type.'.inc';
@@ -172,6 +167,7 @@ class Asset_Attribute extends MySource_Object
 	/**
 	* Returns the type of this attribute
 	*
+	* @return string
 	* @access public
 	*/
 	function type()
@@ -188,9 +184,10 @@ class Asset_Attribute extends MySource_Object
 	* @param string		$prefix		prefix for the form element
 	* @param boolean	$read_only	are we just printing the value
 	*
+	* @return void
 	* @access public
 	*/
-	function paint($prefix, $read_only=false, $add=true)
+	function paint($prefix, $read_only=false)
 	{
 		echo 'Interface for '.ucwords(str_replace('_', ' ', $this->type())).' Not Done<br />';
 
@@ -199,10 +196,12 @@ class Asset_Attribute extends MySource_Object
 
 	/**
 	* Print the interface for changing some params
+	*
 	* Attributes must override this function
 	*
 	* @param string		$prefix		prefix for the form element
 	*
+	* @return boolean
 	* @access public
 	*/
 	function paintEditParams($prefix, $write_access=false)
@@ -214,10 +213,12 @@ class Asset_Attribute extends MySource_Object
 
 	/**
 	* Process the interface for changing some params
+	*
 	* Attributes must override this function
 	*
 	* @param string		$prefix		prefix for the form element
 	*
+	* @return boolean
 	* @access public
 	*/
 	function processEditParams($prefix)	
@@ -232,6 +233,7 @@ class Asset_Attribute extends MySource_Object
 	*
 	* @param string	$prefix	prefix for the form element
 	*
+	* @return void
 	* @access public
 	*/
 	function process($prefix)
@@ -310,4 +312,5 @@ class Asset_Attribute extends MySource_Object
 
 
 }//end class
+
 ?>
