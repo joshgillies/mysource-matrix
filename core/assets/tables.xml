@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.15 2005/04/01 01:17:19 arailean Exp $
+* $Id: tables.xml,v 1.16 2005/04/05 00:53:37 arailean Exp $
 *
 */
 -->
@@ -1236,64 +1236,64 @@
 		</table>
 		<table name="trig_hash" require_rollback="0">
 			<columns>
-				<column name="event" allow_null="0">
+				<column name="event" allow_null="1">
 					<type>VARCHAR(100)</type>
 					<type_variations />
-					<default>''</default>
-					<description>Event type code (asset type)</description>
+					<default />
+					<description>Event type code (asset type) a trigger in triggerid is interested in.</description>
 				</column>
-				<column name="assetid" allow_null="0">
+				<column name="assetid" allow_null="1">
 					<type>VARCHAR(15)</type>
 					<type_variations />
-					<default>''</default>
-					<description>Asset ID</description>
+					<default />
+					<description>Asset ID of the asset broadcasting the event a trigger in triggerid is interested in.</description>
 				</column>
-				<column name="asset_type" allow_null="0">
+				<column name="asset_type" allow_null="1">
 					<type>VARCHAR(100)</type>
 					<type_variations />
-					<default>''</default>
-					<description>Asset Type</description>
+					<default />
+					<description>Asset Type of the asset broadcasting the event</description>
 				</column>
-				<column name="treeid" allow_null="0">
+				<column name="treeid" allow_null="1">
 					<type>TEXT</type>
 					<type_variations />
-					<default>''</default>
-					<description>Tree ID that a trigger corresponds to</description>
+					<default />
+					<description>Tree ID. If broadcaster is a child of it (immediate or not) the trigger might want to be executed.</description>
 				</column>
-				<column name="tree_propagate" allow_null="0">
+				<column name="tree_propagate" allow_null="1">
 					<type>CHAR(2)</type>
 					<type_variations />
-					<default>'00'</default>
-					<description>Identifier whether the tree ID (in treeid) denotes everything on any level below is hashed, or just the immediate children.</description>
+					<default />
+					<description>A flag marking whether trigger is interested in immediate or all children of the tree ID (in treeid).</description>
 				</column>
 				<column name="triggerid" allow_null="0">
 					<type>INTEGER</type>
 					<type_variations />
-					<default>0</default>
+					<default />
 					<description>Trigger ID every hash line corresponds to</description>
 				</column>
-				<column name="parentid" allow_null="0">
+				<column name="parentid" allow_null="1">
 					<type>VARCHAR(15)</type>
 					<type_variations />
-					<default>''</default>
-					<description>If the trigger specifies a Parent Asset condition, this will store the ID of parrent asset</description>
+					<default />
+					<description>If the broadcasting asset has a parent with id in this column, trigger might want to be executed</description>
 				</column>
-				<column name="parent_type" allow_null="0">
+				<column name="parent_type" allow_null="1">
 					<type>VARCHAR(100)</type>
 					<type_variations />
-					<default>''</default>
+					<default />
 					<description>The type of parent asset (purpose is similar to parentid)</description>
 				</column>
-				<column name="childid" allow_null="0">
+				<column name="childid" allow_null="1">
 					<type>VARCHAR(15)</type>
 					<type_variations />
-					<default>''</default>
-					<description>If the trigger specifies a Child Asset condition, this will store the ID of child asset</description>
+					<default />
+					<description>If the broadcasting asset has a child with id in this column, trigger might want to be executed</description>
 				</column>
-				<column name="child_type" allow_null="0">
+				<column name="child_type" allow_null="1">
 					<type>VARCHAR(100)</type>
 					<type_variations />
-					<default>''</default>
+					<default />
 					<description>The type of child asset (purpose is similar to childid)</description>
 				</column>
 			</columns>
