@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_lock.inc,v 1.33 2004/11/08 03:42:02 mmcintyre Exp $
+* $Id: hipo_job_acquire_lock.inc,v 1.34 2004/11/11 23:56:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,10 +29,10 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * <pre>
 * Initial Running Vars :
-*    int    assetid             -   the assetid with whose children we are going to attempt to lock
-*    Array(string)|string lock_type           -   the type of lock(s) to get see Asset_Manager::acquireLock()
-*    bool   [dependants_only]   -   whether dependants only or all children, defaults to true
-*    bool   [forceably_acquire] -   whether to attempt to forceably acquire the lock or not, defaults to false
+*    int    assetid                  -   the assetid with whose children we are going to attempt to lock
+*    array(string)|string lock_type  -   the type of lock(s) to get see Asset_Manager::acquireLock()
+*    bool   [dependants_only]        -   whether dependants only or all children, defaults to true
+*    bool   [forceably_acquire]      -   whether to attempt to forceably acquire the lock or not, defaults to false
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
