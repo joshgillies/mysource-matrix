@@ -140,7 +140,7 @@ LDAP
 +	Improved support for Active Directory groups
 +	New script to allow DN changes to be reflected in the current system configuration
 *	Fixed bug: custom field names, as specified on the LDAP Bridge, do not display properly when viewing an LDAP user's details
-*	Fixed bug #181: you cant reconfigure an LDAP Cridge is you get it wrong the first time because you can't get to the LDAP Bridge asset in the asset map due to errors
+*	Fixed bug #181: you cant reconfigure an LDAP Bridge is you get it wrong the first time because you can't get to the LDAP Bridge asset in the asset map due to errors
 
 Search
 +	Search results no longer use non breaking spaces for seperating the list of result pages, allowing for wrapping of large result page lists (search page)
