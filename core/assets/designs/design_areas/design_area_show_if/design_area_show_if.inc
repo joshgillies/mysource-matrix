@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_show_if.inc,v 1.1 2004/11/10 02:44:42 amiller Exp $
+* $Id: design_area_show_if.inc,v 1.2 2004/11/10 10:55:01 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Avi Miller <Avi Miller@squiz.net>
-* @version $Revision: 1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,13 +61,33 @@ class Design_Area_Show_If extends Design_Area
 		
 		$then_contents = '';
 		$else_contents = '';
+
 		foreach($then as $index => $element) {
-			$then_contents .= $element['contents'];
+			$edit_fns = $this->getEditFns();
+			if ($element['_type'] != 'TAG') {
+				$then_contents .= $element['contents'];
+				continue;
+			}
+			
+			ob_start();
+			if (!$edit_fns->_outputElement($element, $asset, $design)) return false;
+			$then_contents .= ob_get_contents();
+			ob_end_clean();
 		}
 
 		foreach($else as $index => $element) {
-			$else_contents .= $element['contents'];
+			$edit_fns = $this->getEditFns();
+			if ($element['_type'] != 'TAG') {
+				$else_contents .= $element['contents'];
+				continue;
+			}
+			
+			ob_start();
+			if (!$edit_fns->_outputElement($element, $asset, $design)) return false;
+			$else_contents .= ob_get_contents();
+			ob_end_clean();
 		}
+		
 
 		// the multiple echo statements are required to get content to print at line 1,
 		// character 1 of the potential output (i.e. the DocType). Otherwise, it may get
