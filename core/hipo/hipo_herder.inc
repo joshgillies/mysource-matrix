@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_herder.inc,v 1.19 2003/10/07 00:51:47 mmcintyre Exp $
+* $Id: hipo_herder.inc,v 1.20 2003/10/07 02:42:56 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,8 +35,7 @@ class HIPO_Herder extends MySource_Object
 
 
 	/**
-	* Returns tha stack of jobs that are running for passed user and where initiated because
-	* of the hipo job represented by source_code_name
+	* Returns the job for the passed code name
 	*
 	* @param string	$code_name	the codename of the job
 	* @param string	$job_type	the type of job (supply if known for speedier access)
@@ -248,7 +247,6 @@ class HIPO_Herder extends MySource_Object
 '                                                                        $    $$$$$$$  $  $$$$$$$$$$$$            /@@@   @@  ///  $  @@@      $$$                                        ',
 '                                                                     @@    @  $$$$$       $$    $$$$              @@@@  @@@  /   $  @@@@  @@@ $                                         ',
 '                                                                                       @@@   @@@$$$                                                                                     ',
-
 		);
 
 		$lines_done = floor(count($hipo) * $percent_done / 100);
@@ -320,7 +318,7 @@ class HIPO_Herder extends MySource_Object
 						<table>
 							<tr>
 								<td>
-<pre style="font-size : 3px; font-weight: bold;">
+<pre style="font-size : 3px;">
 <?php
 if (!empty($done_hipo)) {
 	echo '<span style="color:#000000;">'.implode("\n", $done_hipo)."</span>\n";
@@ -646,7 +644,8 @@ if (!empty($todo_hipo)) {
 			}
 		}
 
-		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'hipo_job SET running = 1
+		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'hipo_job 
+				SET running = 1
 				WHERE code_name IN ('.implode(', ',$job_codes).')';
 
 		$result = $db->query($sql);
@@ -660,6 +659,247 @@ if (!empty($todo_hipo)) {
 		return $this->getProcessURL($queued_jobs[0]['code_name']);
 
 	}//end runQueuedJobs()
+
+
+	/**
+	* Print out the backend interface for the Herder
+	*
+	* @param object Backend	$backend	Reference to the backend object
+	*
+	* @return void
+	*/
+	function paintBackend(&$backend)
+	{
+		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+
+		// if we dont have access, piss off
+		if (!$is_root) {
+			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access the <i>HIPO Herder</i>');
+			exit();
+		}
+
+		$lock = $GLOBALS['SQ_SYSTEM']->getLockInfo(get_class($this));
+		$have_lock = (!empty($lock) && $GLOBALS['SQ_SYSTEM']->currentUserId() == $lock['userid']);
+
+		$o = &$backend->out;
+
+		if (!empty($_POST['herder_posted'])) {
+
+			if ($have_lock && !empty($_POST['process_form']) && !empty($_POST['force_kill'])) {
+				$message_body = '';
+				foreach($_POST['force_kill'] as $source_code_name) {
+					$source_job = &$this->getJob($source_code_name);
+					if (is_null($source_job)) continue;
+					// OK special case here, because to be able to save a hipo job, 
+					// the current user needs to be the owner of the job
+					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($source_job->userid);
+					if (is_null($user)) continue;
+					$GLOBALS['SQ_SYSTEM']->setCurrentUser($user);
+					$source_job->abort();
+					$message_body .= 'FORCE KILL '.$source_code_name."\n";
+					$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
+				}
+
+				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$message = $ms->newMessage(Array(), 'HIPO Herder', $message_body, 'hipo.force_kill');
+				$message->send();
+
+			}
+
+			if (!empty($_POST['sq_release_lock']) || !empty($_POST['sq_manual_release_lock'])) {
+				$GLOBALS['SQ_SYSTEM']->releaseLock(get_class($this));
+			}
+
+			// if there is no lock currently and we want it
+			if (!empty($_POST['sq_acquire_lock'])) {
+				$GLOBALS['SQ_SYSTEM']->acquireLock(get_class($this));
+			}
+
+			// just to make sure
+			$lock      = $GLOBALS['SQ_SYSTEM']->getLockInfo(get_class($this));
+			$have_lock = (!empty($lock) && $GLOBALS['SQ_SYSTEM']->currentUserId() == $lock['userid']);
+
+		}// endif
+
+		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+		$o->setHeading('HIPO Herder', 'create');
+		$o->addHiddenField('herder_posted', '1');
+
+		// lets tell the user if the asset is locked for editing
+		// or if they can lock it to edit it
+		$o->openSection('Locking / Editing');
+		$o->openField('&nbsp;');
+
+		?>
+		<table border="0" cellspacing="3" cellpadding="1">
+			<tr>
+				<td valign="top" width="30">
+					<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/<?php echo ((empty($lock)) ? 'un' : ''); ?>locked.png", "16", "16", "");</script>
+				</td>
+				<td valign="top">
+					<?php
+					if (!empty($lock)) {
+						// this asset is currently locked
+						// so display message to the user
+						$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+
+						$now = time();
+
+						$expires_in = easy_time_total(($lock['expires'] - $now), true);
+						if (!$expires_in) $expires_in = '1 second';
+						$expires_in = 'The lock is due to expire in '.$expires_in;
+
+						echo '<p class="sq-backend-locked">System Configuration is currently locked for editing by user "'.$user->name.'". <br>'.$expires_in.'.</p>';
+
+					} else {
+						echo '<p class="sq-backend-unlocked">The System Configuration is currently Unlocked.</p>';
+					}
+					?>
+				</td>
+				<td valign="top">
+					<?php
+					if (!empty($lock)) {
+						if ($have_lock) {
+							submit_button('sq_manual_release_lock', 'Release Lock', 'set_hidden_field("process_form", "0");');
+						}
+					} else {
+						submit_button('sq_acquire_lock', 'Lock', 'set_hidden_field("process_form", "0");');
+					}
+					?>
+				</td>
+			</tr>
+		</table>
+		<?php
+
+		$o->closeSection();
+
+		$o->openSection('Current HIPO Jobs');
+			$o->openField('', 'new_line');
+
+			$source_jobs = Array();
+
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$sql = 'SELECT source_code_name, code_name, job_type
+					FROM '.SQ_TABLE_PREFIX.'hipo_job';
+			$result = $db->query($sql);
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			if (DB::isError($result)) {
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			} else {
+				while(DB_OK === $result->fetchInto($row)) {
+					$source_code_name = ($row['source_code_name'] == $row['code_name']) ? '' : $row['source_code_name'];
+					if (!isset($source_jobs[$source_code_name])) {
+						$source_jobs[$source_code_name] = Array();
+					}
+					$source_jobs[$source_code_name][$row['code_name']] = $row['job_type'];
+				}
+			}
+
+			if (empty($source_jobs[''])) {
+				echo 'There are currently no HIPO Jobs on the system';
+
+			} else {
+				?>
+				<table class="sq-backend-table">
+					<tr>
+						<td class="sq-backend-table-header">Source Job Code Name</td>
+						<td class="sq-backend-table-header">Code Name</td>
+						<td class="sq-backend-table-header">Owner</td>
+						<td class="sq-backend-table-header">Last Updated</td>
+						<td class="sq-backend-table-header" style="text-align: center;">Percent Complete</td>
+				<?php
+					if ($have_lock) {
+				?>
+						<td class="sq-backend-table-header" style="text-align: center;">Delete ?</td>
+				<?php
+					} // end if have lock
+				?>
+					</tr>
+				<?php
+				$now = time();
+				foreach($source_jobs[''] as $source_code_name => $source_job_type) {
+					$source_job = &$this->getJob($source_code_name, $source_job_type);
+					if (is_null($source_job)) continue;
+				?>
+					<tr>
+						<td class="sq-backend-table-cell">
+							<?php echo $source_job->code_name; ?>
+						</td>
+						<td class="sq-backend-table-cell">
+							<?php echo $source_job->code_name; ?>
+						</td>
+						<td class="sq-backend-table-cell">
+						<?php 
+							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($source_job->userid);
+							echo $user->name.'<br>(Id #'.$user->id.')';
+						?>
+						</td>
+						<td class="sq-backend-table-cell">
+							<?php echo $GLOBALS['SQ_SYSTEM']->datetime($source_job->last_updated); ?><br>
+							<?php echo easy_time_total($source_job->last_updated - $now, true); ?>
+
+						</td>
+						<td class="sq-backend-table-cell" style="text-align: center;">
+							<?php echo $source_job->percentDone(); ?>%
+						</td>
+				<?php
+					if ($have_lock) {
+				?>
+						<td class="sq-backend-table-cell" style="text-align: center;">
+							<?php check_box('force_kill[]', $source_job->code_name); ?>
+						</td>
+				<?php
+					}// end if have_lock
+				?>
+					</tr>
+				<?php
+
+					if (!empty($source_jobs[$source_code_name])) {
+						foreach($source_jobs[$source_code_name] as $code_name => $job_type) {
+							$job = &$this->getJob($code_name, $job_type);
+						?>
+							<tr>
+								<td class="sq-backend-table-cell">
+									&nbsp;
+								</td>
+								<td class="sq-backend-table-cell">
+									<?php echo $job->code_name; ?>
+								</td>
+								<td class="sq-backend-table-cell">
+									&nbsp;
+								</td>
+								<td class="sq-backend-table-cell">
+									<?php echo $GLOBALS['SQ_SYSTEM']->datetime($job->last_updated); ?><br>
+									<?php echo easy_time_total($source_job->last_updated - $now, true); ?>
+								</td>
+								<td class="sq-backend-table-cell" style="text-align: center;">
+									<?php echo $job->percentDone(); ?>%
+								</td>
+								<td class="sq-backend-table-cell" style="text-align: center;">
+									&nbsp;
+								</td>
+							</tr>
+						<?php
+
+						}// end foreach
+					}// end if
+				}// end foreach
+				?>
+
+				</table>
+				<?php
+			}// end if
+
+
+		$o->closeSection();
+
+		if ($have_lock) {
+			$o->commitButton('Commit', true);
+		}
+
+	}//end printBackend()
+
 
 }//end class
 
