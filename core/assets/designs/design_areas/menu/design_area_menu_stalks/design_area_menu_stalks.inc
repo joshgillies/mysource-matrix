@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_stalks.inc,v 1.14 2004/06/29 07:34:44 tbarrett Exp $
+* $Id: design_area_menu_stalks.inc,v 1.15 2004/07/27 10:00:28 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -111,7 +111,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 		echo '
 				<td'.$cell_class.' valign="top"><img alt="" src="';
 		if ($use_blanks) {
-			echo '<', '?php $blank_src; ?', '>';
+			echo '<', '?php echo $blank_src; ?', '>';
 		} else {
 			echo '<', '?php echo (($'.$this->attr('id_name').'_current_setting == \'current\') ? $stalk_prefix.\'arrow.png\' : $blank_src); ?', '>';
 			
@@ -204,7 +204,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 					<td'.$cell_class.' valign="top"';
 
 					if ($use_blanks) {
-						echo '><img alt="" src="<', '?php $blank_src; ?', '>" width="'.$this->attr('indent').'" height="'.$this->attr('min_height').'"></td>';
+						echo '><img alt="" src="<', '?php echo $blank_src; ?', '>" width="'.$this->attr('indent').'" height="'.$this->attr('min_height').'"></td>';
 					} else {
 						// if there is the need to a stalk
 						// and if we are at the end of a sub listing and 
