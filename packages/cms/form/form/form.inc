@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.25 2004/05/06 05:21:07 lwright Exp $
+* $Id: form.inc,v 1.26 2004/05/06 06:40:32 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -60,6 +60,13 @@ class Form extends Bridge
 	* @var object 
 	*/
 	var $active_section = null;
+
+
+	/**
+	* available bodycopy keywords
+	* @var object 
+	*/
+	var $_available_keywords = Array('form_contents', 'form_errors', 'submit_button', 'form_summary');
 
 
 	/**
@@ -1098,6 +1105,36 @@ class Form extends Bridge
 
 	}//end generateJSCode()
 	
+
+	/**
+	* Add valid keywords for this asset to an array of keywords when asked
+	*
+	* @param &object Asset	&$broadcaster	the asset that triggered the event
+	* @param Array			$vars			the vars that get submitted by the broadcaster
+	*										we add keywords to the $vars['keywords'] array
+	*
+	* @return boolean
+	* @access private
+	*/
+	function onRequestKeywords(&$broadcaster, $vars=Array())
+	{
+		if (!isset($vars['keywords'])) return;
+
+		$keywords = Array();
+		foreach ($this->_available_keywords as $keyword) {
+			$name = ucwords(str_replace('_', ' ', $keyword));
+			$type = 'inline';
+			if (array_search($keyword, Array('form_contents', 'form_errors', 'form_summary')) !== false) {
+				$type = 'block';
+			}
+			$default = $name;
+			$keywords[$keyword] = Array('name' => $name, 'default' => $default, 'type' => $type);
+		}
+
+		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
+		
+	}//end onRequestKeywords()
+
 
 }//end class
 ?>
