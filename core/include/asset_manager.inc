@@ -806,7 +806,6 @@ class Asset_Manager extends Resolve_Object
 				'.$extra_where.'
 				ORDER BY CHARACTER_LENGTH(l.url) DESC
 				LIMIT 1';
-				bam($sql);
 		$row = $db->getRow($sql);
 		if (DB::isError($row)) trigger_error($row->getMessage().'<br/>'.$row->getUserInfo(), E_USER_ERROR);
 
