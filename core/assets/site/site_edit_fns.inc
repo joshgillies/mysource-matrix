@@ -231,7 +231,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	function processDesign(&$asset, &$o, $prefix) 
 	{
 		$design_link = $asset->getLink(SQ_LINK_USES, 'design', false);
-		$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
+		$designid = (empty($design_link)) ? 0 : $design_link['minorid'];
 
 		if (empty($_POST[$prefix.'_designid'])) return false;
 
