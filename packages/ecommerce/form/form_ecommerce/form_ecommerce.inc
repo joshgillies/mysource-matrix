@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.8 2004/12/02 05:13:48 arailean Exp $
+* $Id: form_ecommerce.inc,v 1.9 2004/12/02 05:25:48 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -274,33 +274,33 @@ class Form_Ecommerce extends Form_Email
 		$date = date('F j, Y, g:i a');
 
 		if ($as_html) {
-			$header =<<<HEREDOC
-			<table class="ecom_header_table">
-				<tr>
-					<td colspan="2"><h2>Receipt</h2></td>
-				</tr>
-				<tr>
-					<td>Transaction Number:</td>
-					<td>{$response['TRANSACTION']}</td>
-				</tr>
-				<tr>
-					<td>Transaction Statis:</td>
-					<td>{$response['STATUS']}</td>
-				</tr>
-				<tr>
-					<td>Credit Card:</td>
-					<td>{$response['CARDNO']}</td>
-				</tr>
-				<tr>
-					<td>Date:</td>
-					<td>$date</td>
-				</tr>
-			</table>
-HEREDOC;
+			$header ='
+				<table class="ecom_header_table">
+					<tr>
+						<td colspan="2"><h2>Receipt</h2></td>
+					</tr>
+					<tr>
+						<td>Transaction Number:</td>
+						<td>'.$response['TRANSACTION'].'</td>
+					</tr>
+					<tr>
+						<td>Transaction Statis:</td>
+						<td>'.$response['STATUS'].'</td>
+					</tr>
+					<tr>
+						<td>Credit Card:</td>
+						<td>'.$response['CARDNO'].'</td>
+					</tr>
+					<tr>
+						<td>Date:</td>
+						<td>'.$date.'</td>
+					</tr>
+				</table>
+			';
 
 		} else {
-			$header .= "Transaction Number: {$response['TRANSACTION']}\n";
-			$header .= "Transaction Status: {$response['STATUS']}\n";
+			$header .= 'Transaction Number: '.$response['TRANSACTION']."\n";
+			$header .= 'Transaction Status: '.$response['STATUS']."\n";
 			$header .= "Date: $date\n";
 		}
 
