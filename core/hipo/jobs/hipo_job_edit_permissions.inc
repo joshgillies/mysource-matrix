@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.34 2005/02/18 06:07:37 mmcintyre Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.35 2005/02/21 04:09:13 ndvries Exp $
 *
 */
 
@@ -41,7 +41,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -333,6 +333,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 		if (empty($this->_running_vars['todo_assetids'])) {
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = true;
+			unset($this->_running_vars['done_assetids']);
 		} else {
 			$total = count($this->_running_vars['todo_assetids']) + count($this->_running_vars['done_assetids']);
 			$step_data['percent_done'] =(count($this->_running_vars['done_assetids']) / $total) * 100;

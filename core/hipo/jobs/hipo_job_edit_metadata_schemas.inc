@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_schemas.inc,v 1.21 2005/02/18 06:07:18 mmcintyre Exp $
+* $Id: hipo_job_edit_metadata_schemas.inc,v 1.22 2005/02/21 04:09:12 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit metadata schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -328,6 +328,7 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 		if (empty($this->_running_vars['todo_assetids'])) {
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = true;
+			unset($this->_running_vars['done_assetids']);
 		} else {
 			$total = count($this->_running_vars['todo_assetids']) + count($this->_running_vars['done_assetids']);
 			$step_data['percent_done'] =(count($this->_running_vars['done_assetids']) / $total) * 100;
