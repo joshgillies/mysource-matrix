@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_expand_keywords.inc,v 1.3 2004/10/28 01:22:45 tbarrett Exp $
+* $Id: matrix_expand_keywords.inc,v 1.4 2004/10/28 02:27:07 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@
 *     to replace it with its full version as you type
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -98,10 +98,17 @@ class matrix_expand_keywords  extends wysiwyg_plugin {
 			switch (this._editMode) {
 				case "wysiwyg":
 					if (HTMLArea.is_gecko) {
-						oldContents = this._iframe.contentWindow.document.body.innerHTML.toString();
-						oldWordStart = oldContents.lastIndexOf(oldWord);
-						this._iframe.contentWindow.document.body.innerHTML = oldContents.substring(0, oldWordStart) + newWord;
-						this._iframe.contentWindow.document.body.selectionStart = 5;
+						var elt = this._iframe.contentWindow.document.body.firstChild;
+						var lastTextNode = null;
+						while (elt != this._iframe.contentWindow.document.body.lastChild) {
+							if (elt.nodeType == elt.TEXT_NODE) lastTextNode = elt;
+							elt = elt.nextSibling;
+						}
+						oldWordStart = lastTextNode.nodeValue.lastIndexOf(oldWord);
+						newText = lastTextNode.nodeValue.substring(0, oldWordStart) + newWord;
+						lastTextNode.parentNode.insertBefore(this._iframe.contentWindow.document.createTextNode(newText), lastTextNode);
+						lastTextNode.parentNode.removeChild(lastTextNode);
+
 					} else if (HTMLArea.is_ie) {
 						oldContents = this._docContent.innerHTML;
 						oldWordStart = oldContents.lastIndexOf(oldWord);
