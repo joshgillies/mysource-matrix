@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.1 2003/12/18 04:34:35 gsherwood Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.2 2003/12/19 05:56:49 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,9 +47,17 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function Remap_Manager_Edit_Fns()
 	{
+		$this->Asset_Edit_Fns();
+
 		$this->static_screens['details']['force_unlock'] = false;
 		$this->static_screens['details']['lock_type'] = 'all';
-		$this->Asset_Edit_Fns();
+
+		unset($this->static_screens['workflow']);
+		unset($this->static_screens['metadataSchemas']);
+		unset($this->static_screens['metadata']);
+		unset($this->static_screens['linking']);
+		unset($this->static_screens['settings']);
+		unset($this->static_screens['dependants']);
 
 	}//end constructor
 
