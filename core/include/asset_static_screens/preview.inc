@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.1 2005/02/04 04:18:52 gsherwood Exp $
+* $Id: preview.inc,v 1.2 2005/02/04 10:01:34 brobertson Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 
@@ -73,10 +73,16 @@ function paintPreview(&$owner, &$o, &$ei)
 		$preview_designs = Array('' => 'Default Frontend Design');
 		$has_default_design = false;
 
+		$contains_diff_domain = false;
+		$current_url = parse_url(current_url());
+
 		foreach ($url_data as $url_info) {
 			$protocol = ($url_info['https']) ? 'https://' : 'http://';
 			$preview_urls[$protocol.$url_info['url']] = $protocol.$url_info['url'];
 			if (empty($primary_url)) $primary_url = $protocol.$url_info['url'];
+
+			$url_pieces = parse_url($protocol.$url_info['url']);
+			if ($url_pieces['host'] != $current_url['host']) $contains_diff_domain = true;
 			
 			$design_name = $url_info['name'];
 			if (substr($design_name, 0, 11) == 'user_design') {
@@ -144,7 +150,19 @@ function paintPreview(&$owner, &$o, &$ei)
 				echo '&nbsp;show the cached version of this asset';
 			$o->closeField();
 			$o->openRaw();
-				echo '<i>Press the Preview button after changing preview options.</i>';
+				?>
+				<i>Press the Preview button after changing preview options.</i>
+				<?php 
+				if ($contains_diff_domain && !$owner->effectiveUnrestricted()) { 
+					?>
+					<div class="sq-backend-warning">
+						<br>
+						NOTE:<br>
+						You may need be presented with a Login screen if you choose a URL from a domain different to <b><?php echo $current_url['host']; ?></b>.<br>
+						Just enter your Username and Password to login as normal.
+					</div>
+					<?php 
+				} 
 			$o->closeRaw();
 			$o->openRaw();
 				?>
