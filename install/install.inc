@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 * 
-* $Id: install.inc,v 1.18 2004/09/28 04:40:19 gsherwood Exp $
+* $Id: install.inc,v 1.19 2004/10/25 06:55:55 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -265,14 +265,47 @@ function uninstall_packages()
 /**
 * Install core assets
 * 
+* @param Array $packageList 		Lists what packages are going to be installed
+*									and what assets in those packages.
 * @return boolean
 * @access public
 */
-function install_core()
+function install_core($packageList=Array())
 {
+	// If there's some packages defined in the array, make sure the Core 
+	// is one of them, otherwise break out.
+	
+	$assets = Array();
+	
+	if (count($packageList) > 0) {
+		if (!isset($packageList['core'])) {
+			// Make sure to include the system asset config, otherwise other
+			// packages that add system assets can get all messed up because 
+			// the system assets haven't been defined.
+			require_once SQ_INCLUDE_PATH.'/system_asset_config.inc';
+			$sys_asset_cfg = new System_Asset_Config();
+			
+			if (file_exists($sys_asset_cfg->config_file)) {
+				require $sys_asset_cfg->config_file;
+			
+				$GLOBALS['SQ_SYSTEM_ASSETS'] = $system_assets;
+			
+			} else {
+				$GLOBALS['SQ_SYSTEM_ASSETS'] = Array();
+			}
+			return true;
+		}
+		else {
+			$assets = $packageList['core'];
+			// If it wasn't an array at the core index, just make it empty
+			if (!is_array($assets)) {
+				$assets = Array();
+			}
+		}
+	}
 	require_once SQ_CORE_PACKAGE_PATH.'/package_manager_core.inc';
 	$pm = new Package_Manager_Core();
-	$result = $pm->updatePackageDetails();
+	$result = $pm->updatePackageDetails($assets);
 	
 	$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 	$message_body = 'Core Package '.(($result) ? 'done successfully' : 'FAILED');
@@ -292,7 +325,6 @@ function install_core()
 	
 	} else {
 		$GLOBALS['SQ_SYSTEM_ASSETS'] = Array();
-	
 	}
 	
 	$result = $pm->installSystemAssets();
@@ -317,39 +349,43 @@ function install_core()
 
 
 /**
-* Install all the packages into the system
+* Install all the packages into the system. Uses the $packages(Assets) arrays
+* if defined to determine which assets to install. If a $package is defined, 
+* then it checks to see if the list of assets is defined for that package. If
+* not, will install ALL assets.
 * 
+* @param Array $packageList	An array of assets inside packages to install.
+*								Requires that the package name be defined in
+*								the $packages array.
+								Array('package_name' => Array('assetname'),)
 * @return boolean
 * @access public
 */
-function install_packages()
+function install_packages($packageList=Array())
 {
 	// right now that we have sorted all that out we can install the packages
 	$d = dir(SQ_PACKAGES_PATH);
+	
+	// Do we only install named packages?
+	$limitPackages = count($packageList);
 	while (false !== ($entry = $d->read())) {
 		if ($entry == '.' || $entry == '..') continue;
 		// if this is a directory, process it
 		if ($entry != 'CVS' && is_dir(SQ_PACKAGES_PATH.'/'.$entry)) {
-			require_once SQ_PACKAGES_PATH.'/'.$entry.'/package_manager_'.$entry.'.inc';
-			$class = 'package_manager_'.$entry;
-			$pm = new $class();
-			$result = $pm->updatePackageDetails();
-			
-			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-			$message_body = strtoupper($entry)." PACKAGE ".(($result) ? "DONE SUCCESSFULLY" : "FAILED");
-			$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
-			$message->send();
-			
-			if (!$result) exit(1);
-			$result = $pm->installSystemAssets();
-			if ($result != 0) {	// 0 indicates success, but no system assets were created - suppress in this case
-				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-				$message_body = strtoupper($entry)." SYSTEM ASSET CREATION ".(($result == -1) ? "FAILED" : (": ".$result." NEW ASSETS CREATED"));
-				$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
-				$message->send();
+			// If the package isn't in the packages array, then just skip it.
+			$assets = Array();
+			if ($limitPackages) {
+				if (!isset($packageList[$entry])) {
+					echo "\nSkipping package $entry \n";
+					continue;
+				}
+				$assets = $packageList[$entry];
+				// If it wasn't an array at the core index, just quit.
+				if (!is_array($assets)) {
+					$assets = Array();
+				}
 			}
-			if ($result == -1) exit(1);
-			unset($pm);
+			install_package($entry, $assets);
 		}
 	}
 	$d->close();
@@ -357,6 +393,39 @@ function install_packages()
 	return true;
 	
 }//end install_packages()
+
+
+/**
+* Installs a single package into the system.
+* 
+* @param Array $packageAssets	An array of asset types to install for this 
+*								package.
+* @return void
+* @access public
+*/
+function install_package($package, $packageAssets=Array())
+{
+	require_once SQ_PACKAGES_PATH.'/'.$package.'/package_manager_'.$package.'.inc';
+	$class = 'package_manager_'.$package;
+	$pm = new $class();
+	$result = $pm->updatePackageDetails($packageAssets);
+	
+	$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+	$message_body = strtoupper($package)." PACKAGE ".(($result) ? "DONE SUCCESSFULLY" : "FAILED");
+	$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
+	$message->send();
+	
+	if (!$result) exit(1);
+	$result = $pm->installSystemAssets();
+	if ($result != 0) {	// 0 indicates success, but no system assets were created - suppress in this case
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$message_body = strtoupper($package)." SYSTEM ASSET CREATION ".(($result == -1) ? "FAILED" : (": ".$result." NEW ASSETS CREATED"));
+		$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
+		$message->send();
+	}
+	if ($result == -1) exit(1);
+	unset($pm);
+}//end install_package()
 
 
 /**
