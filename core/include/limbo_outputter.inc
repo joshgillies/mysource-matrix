@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: limbo_outputter.inc,v 1.5 2003/12/02 03:39:05 mmcintyre Exp $
+* $Id: limbo_outputter.inc,v 1.6 2004/02/16 00:37:34 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -69,7 +69,7 @@ class Limbo_Outputter extends Backend_Outputter
 
 		$this->_paintBodyHeader();
 		?>
-		<div id="sq_backend_sections" style="width: 100%;">
+		<div id="sq_backend_sections">
 		<?php
 		if (!$this->_redirect) {
 			$this->paintSections();
@@ -257,7 +257,7 @@ class Limbo_Outputter extends Backend_Outputter
 		$this->_nb_section_count++;
 		?>
 			<a name="section_<?php echo $this->_nb_section_count; ?>"></a>
-			<table width="100%" cellpadding="0" cellspacing="1" border="0">
+			<table cellpadding="0" cellspacing="1" border="0">
 			<?php
 			if ($section['heading']) {
 				if ($this->_is_open_section) {
@@ -307,7 +307,7 @@ class Limbo_Outputter extends Backend_Outputter
 
 		?>
 			<a name="section_<?php echo $section['section_count']; ?>"></a>
-			<table width="100%" cellpadding="0" cellspacing="1" border="0">
+			<table cellpadding="0" cellspacing="1" border="0">
 			<?php
 			if ($section['heading']) {
 				if ($depth > 0) {
@@ -435,7 +435,7 @@ class Limbo_Outputter extends Backend_Outputter
 				<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
 			</tr>
 			</table>
-			<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td></tr></table>
+			<table cellpadding="0" cellspacing="0" border="0"><tr><td width="100%"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td></tr></table>
 			<?php
 
 		}//end if section type == raw
