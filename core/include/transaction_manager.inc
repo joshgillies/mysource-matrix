@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: transaction_manager.inc,v 1.13 2005/03/02 01:09:04 gsherwood Exp $
+* $Id: transaction_manager.inc,v 1.14 2005/03/31 01:52:01 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Also to handle nested transaction calls
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 */
 class Transaction_Manager extends MySource_Object
@@ -150,12 +150,16 @@ class Transaction_Manager extends MySource_Object
 			return false;
 		}
 
+		// set the rollback flag
 		$this->_rollback[$db_name] = true;
 		$this->_levels[$db_name]--;
 		if ($this->_levels[$db_name] == 0) {
 			// this is the last rollback
 			$result = $GLOBALS['SQ_SYSTEM']->db->query('ROLLBACK');
 			assert_valid_db_result($result);
+
+			// clear the rollback flag as there is no more transaction block
+			$this->_rollback[$db_name] = false;
 		}
 		return true;
 
