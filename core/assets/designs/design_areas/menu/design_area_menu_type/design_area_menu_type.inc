@@ -362,7 +362,7 @@ class Design_Area_Menu_Type extends Design_Area
 					// public users
 					} else {
 						$USERIDS_COND = \'AND p1.userid = 0\';
-						$STATUS_COND  = \'AND (a.status & \'.$db->quote(SQ_STATUS_NOT_LIVE).\') = 0\';
+						$STATUS_COND  = \'AND (a.status & \'.$db->quote(SQ_SC_STATUS_NOT_LIVE).\') = 0\';
 					}
 				}// endif
 
@@ -374,7 +374,7 @@ class Design_Area_Menu_Type extends Design_Area
 						  AND l.majorid IN (\'.implode(\',\', $majorids).\')
 						  AND l.minorid IN (~SQ0~)
 						  \'.$STATUS_COND.\'
-						  AND (l.link_type & \'.$db->quote(SQ_LINK_FRONTEND_NAV).\') > 0
+						  AND (l.link_type & \'.$db->quote(SQ_SC_LINK_FRONTEND_NAV).\') > 0
 						ORDER BY l.majorid, l.sort_order\';
 
 				$concat_1 = ($db->phptype == \'mysql\') ? \'CONCAT(pl1.start_treeid, \'.$db->quote(\'%\').\')\' : \'pl1.start_treeid || \'.$db->quote(\'%\');

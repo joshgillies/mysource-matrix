@@ -368,7 +368,7 @@ class Asset extends Resolve_Object
 
 			// OK now that we are linked up let's our dependants
 			if ($dupe_dependants) {
-				$dependant_links = $this->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'major', null, 1);
+				$dependant_links = $this->getLinks(SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
 
 				if (!empty($dependant_links)) {
 					$create_link = Array('asset'      => &$dupe,
@@ -463,7 +463,7 @@ class Asset extends Resolve_Object
 		}
 
 		// check that the trash link is the only significant link left
-		$links = $this->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'minor');
+		$links = $this->getLinks(SQ_SC_LINK_SIGNIFICANT, '', true, 'minor');
 		if (count($links) != 1) {
 			trigger_error('Cannot delete asset, asset must only be linked in the trash', E_USER_WARNING);
 			return false;
@@ -473,7 +473,7 @@ class Asset extends Resolve_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// say to other assets: 'Delete me bitch cause I'm outa here'
-		$links = $this->getLinks(SQ_LINK_ALL, '', true, 'minor');
+		$links = $this->getLinks(SQ_SC_LINK_ALL, '', true, 'minor');
 		foreach ($links as $link) {
 			$major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid']);
 			$major->deleteLink($link['linkid']);
@@ -615,7 +615,7 @@ class Asset extends Resolve_Object
 	*/
 	function useSystemVersion()
 	{
-		return (($this->status & SQ_STATUS_SAFE_EDITING) && !$this->writeAccess(Array(), false));
+		return (($this->status & SQ_SC_STATUS_SAFE_EDITING) && !$this->writeAccess(Array(), false));
 
 	}//end useSystemVersion()
 
@@ -1082,7 +1082,7 @@ class Asset extends Resolve_Object
 			// if we are dependant minor assets, we can only change
 			// our status to a status higher than or equal to all
 			// the statii of our parents
-			$dependant_parents = $this->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'minor', null, 1);
+			$dependant_parents = $this->getLinks(SQ_SC_LINK_SIGNIFICANT, '', true, 'minor', null, 1);
 			if (!empty($dependant_parents)) {
 				$am = &$GLOBALS['SQ_SYSTEM']->am;
 				foreach ($dependant_parents as $link) {
@@ -1144,7 +1144,7 @@ class Asset extends Resolve_Object
 		}
 
 		// try and process the change on our dependants
-		$dependant_links = $this->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'major', null, 1);
+		$dependant_links = $this->getLinks(SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
 		if (!empty($dependant_links)) {
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
 			foreach ($dependant_links as $link) {
@@ -1254,7 +1254,7 @@ class Asset extends Resolve_Object
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		// try and acquire locks on our dependants
-		$dependant_links = $this->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'major', null, 1);
+		$dependant_links = $this->getLinks(SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
 		if (!empty($dependant_links)) {
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
 			foreach ($dependant_links as $link) {
@@ -1318,7 +1318,7 @@ class Asset extends Resolve_Object
 		// if there any children links
 		if ($num_links = $this->countLinks('major')) {
 
-			$links = $this->getLinks(SQ_LINK_ALL);
+			$links = $this->getLinks(SQ_SC_LINK_ALL);
 			foreach($links as $link) {
 				if ($tmp->canLinkToType($link['type_code'], $link['link_type'], 0, $link['exclusive']) !== true) {
 					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -1333,7 +1333,7 @@ class Asset extends Resolve_Object
 		// if there any parent links
 		if ($num_links = $this->countLinks('minor')) {
 
-			$links = $this->getLinks(SQ_LINK_ALL, '', true, 'minor');
+			$links = $this->getLinks(SQ_SC_LINK_ALL, '', true, 'minor');
 			foreach($links as $link) {
 				$parent = &$am->getAsset($link['majorid'], $link['type_code']);
 				if (is_null($parent)) continue;
@@ -1583,7 +1583,7 @@ class Asset extends Resolve_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// try and acquire locks on our dependants
-		$dependant_links = $this->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'major', null, 1);
+		$dependant_links = $this->getLinks(SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
 		if (!empty($dependant_links)) {
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
 			foreach ($dependant_links as $link) {
@@ -2101,7 +2101,7 @@ class Asset extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// check for web path conflicts with the new parents children
-		if ($link_type & SQ_LINK_FRONTEND_NAV) {
+		if ($link_type & SQ_SC_LINK_FRONTEND_NAV) {
 			$paths = $minor->getWebPaths();
 			$bad_paths = $this->_webPathsInUse($paths);
 			if (!empty($bad_paths)) {
@@ -2112,7 +2112,7 @@ class Asset extends Resolve_Object
 		// if this link is a significant link, then we need to make sure that this
 		// minor asset doesn't already have an exclusive link from anything
 		// and that we aren't moving under ourselves
-		if ($link_type & SQ_LINK_SIGNIFICANT) {
+		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
 			//// Check for exclusive ////
 			$sql = 'SELECT majorid
 					FROM sq_asset_link
@@ -2202,7 +2202,7 @@ class Asset extends Resolve_Object
 			return 'Assets of Type "'.$type_code.'" cannot be "'.link_type_name($link_type).'" linked to a "'.$this->type().'"';
 		}
 
-		if (!($link_type & SQ_LINK_SIGNIFICANT) && $exclusive) {
+		if (!($link_type & SQ_SC_LINK_SIGNIFICANT) && $exclusive) {
 			return 'In order for a link to be exclusive it must also be a significant link';
 		}
 
@@ -2258,7 +2258,7 @@ class Asset extends Resolve_Object
 
 		$link_type = (int) $link_type;
 
-		if (!($link_type & SQ_LINK_SIGNIFICANT) && $dependant) {
+		if (!($link_type & SQ_SC_LINK_SIGNIFICANT) && $dependant) {
 			trigger_error('In order for a link to be dependant it must also be a significant link', E_USER_WARNING);
 			return 0;
 		}
@@ -2312,7 +2312,7 @@ class Asset extends Resolve_Object
 		}
 
 		// if this is a significant link, then do stuff with the tree
-		if ($link_type & SQ_LINK_SIGNIFICANT) {
+		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 			//// UPDATE THE TREE TABLE ////
 
@@ -2590,7 +2590,7 @@ class Asset extends Resolve_Object
 		}
 
 		// if this is a frontend nav link, then we need to inform the asset to update it's lookups
-		if ($link_type & SQ_LINK_FRONTEND_NAV) {
+		if ($link_type & SQ_SC_LINK_FRONTEND_NAV) {
 			if (!$minor->updateLookups()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return 0;
@@ -2598,7 +2598,7 @@ class Asset extends Resolve_Object
 		}
 
 		// if this is a significant link, it's time to refresh the permissions lookup
-		if ($link_type & SQ_LINK_SIGNIFICANT) {
+		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
 			//// UPDATE OUR PERMISSIONS LOOKUP'S ////
 			if (!$this->_refreshPermissionLookups()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -2666,7 +2666,7 @@ class Asset extends Resolve_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// if this is a significant link
-		if ($link['link_type'] & SQ_LINK_SIGNIFICANT) {
+		if ($link['link_type'] & SQ_SC_LINK_SIGNIFICANT) {
 
 			$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
 			if (is_null($minor)) {
@@ -2674,7 +2674,7 @@ class Asset extends Resolve_Object
 				return false;
 			}
 
-			$num_other_links = $minor->countLinks('minor', SQ_LINK_SIGNIFICANT, '', true, $linkid);
+			$num_other_links = $minor->countLinks('minor', SQ_SC_LINK_SIGNIFICANT, '', true, $linkid);
 
 			// we create a new link to the trash if this is the last significant link
 			// being deleted and if we are not purging the trash
@@ -2836,7 +2836,7 @@ class Asset extends Resolve_Object
 		}
 
 		// if this is a frontend nav link, then we need to inform the asset to update it's lookups
-		if ($link['link_type'] & SQ_LINK_FRONTEND_NAV) {
+		if ($link['link_type'] & SQ_SC_LINK_FRONTEND_NAV) {
 			if (!$minor->updateLookups()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return 0;
@@ -2844,7 +2844,7 @@ class Asset extends Resolve_Object
 		}
 
 		// if this is a significant link, it's time to refresh the permissions lookup
-		if ($link['link_type'] & SQ_LINK_SIGNIFICANT) {
+		if ($link['link_type'] & SQ_SC_LINK_SIGNIFICANT) {
 			//// UPDATE OUR PERMISSIONS LOOKUP'S ////
 			if (!$this->_refreshPermissionLookups()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -3029,8 +3029,8 @@ class Asset extends Resolve_Object
 			// about with tree to get the update working
 			// so because the tree only contains significant links if the
 			// significant state has changed... barf
-			$current_is_sig = (bool) ((int) $link['link_type'] & SQ_LINK_SIGNIFICANT);
-			$new_is_sig     = (bool) ($link_type & SQ_LINK_SIGNIFICANT);
+			$current_is_sig = (bool) ((int) $link['link_type'] & SQ_SC_LINK_SIGNIFICANT);
+			$new_is_sig     = (bool) ($link_type & SQ_SC_LINK_SIGNIFICANT);
 			if ($current_is_sig !== $new_is_sig) {
 				trigger_error('Unable to update link #'.$linkid.' , you cannot change a link from being a significant link to a non-significant link or vice versa', E_USER_WARNING);
 				return false;
@@ -3044,7 +3044,7 @@ class Asset extends Resolve_Object
 
 			// check for web path conflicts with the new parents children
 			// if the old link is not a frontend nav link but the new one is
-			if (!($link['link_type'] & SQ_LINK_FRONTEND_NAV) && ($link_type & SQ_LINK_FRONTEND_NAV)) {
+			if (!($link['link_type'] & SQ_SC_LINK_FRONTEND_NAV) && ($link_type & SQ_SC_LINK_FRONTEND_NAV)) {
 				$paths = $minor->getWebPaths();
 				$bad_paths = $this->_webPathsInUse($paths);
 				if (!empty($bad_paths)) {
@@ -3096,7 +3096,7 @@ class Asset extends Resolve_Object
 		if ($link_type_changed) {
 			// if this is a frontend nav link or if the old link type was,
 			// then we need to inform the asset to update it's lookups
-			if (($link_type & SQ_LINK_FRONTEND_NAV) || ((int) $link['link_type'] & SQ_LINK_FRONTEND_NAV)) {
+			if (($link_type & SQ_SC_LINK_FRONTEND_NAV) || ((int) $link['link_type'] & SQ_SC_LINK_FRONTEND_NAV)) {
 				if (!$minor->updateLookups()) {
 					return false;
 				}
@@ -4031,10 +4031,10 @@ class Asset extends Resolve_Object
 		}
 		if ($effective) {
 			// if we are in workflow, no editing allowed
-			if ($this->status & SQ_STATUS_PENDING) return false;
+			if ($this->status & SQ_SC_STATUS_PENDING) return false;
 
 			// if we are in a state of total approval, no editing allowed
-			if ($this->status & SQ_STATUS_ALL_APPROVED) return false;
+			if ($this->status & SQ_SC_STATUS_ALL_APPROVED) return false;
 
 			// if the asset is archived, no editing allowed
 			if ($this->status & SQ_STATUS_ARCHIVED) return false;
@@ -4316,7 +4316,7 @@ class Asset extends Resolve_Object
 			// now we need to check that none of our parents have
 			// any nav kids that are also using this path name
 			$siblingids = Array();
-			$parents = $this->getLinks(SQ_LINK_FRONTEND_NAV, '', null, 'minor');
+			$parents = $this->getLinks(SQ_SC_LINK_FRONTEND_NAV, '', null, 'minor');
 			for($i = 0; $i < count($parents); $i++) {
 				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
 				if (is_null($parent)) continue;
@@ -4391,7 +4391,7 @@ class Asset extends Resolve_Object
 
 		// get all our nav siblings
 		$siblingids = Array();
-		$my_kids = $this->getLinks(SQ_LINK_FRONTEND_NAV, '', null, 'major');
+		$my_kids = $this->getLinks(SQ_SC_LINK_FRONTEND_NAV, '', null, 'major');
 		for($j = 0; $j < count($my_kids); $j++) {
 			if ($my_kids[$j]['minorid'] == $this->id) continue;
 			$siblingids[] = $db->quote($my_kids[$j]['minorid']);
@@ -4524,7 +4524,7 @@ class Asset extends Resolve_Object
 			$design_link = $this->getLink(SQ_LINK_TYPE_3, 'design', false);
 			$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
 
-			$parents = $this->getLinks(SQ_LINK_FRONTEND_NAV, '', null, 'minor');
+			$parents = $this->getLinks(SQ_SC_LINK_FRONTEND_NAV, '', null, 'minor');
 			$done_urls = Array();
 			for($i = 0; $i < count($parents); $i++) {
 				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
@@ -4555,7 +4555,7 @@ class Asset extends Resolve_Object
 
 		}// end if count paths
 
-		$kids = $this->getLinks(SQ_LINK_FRONTEND_NAV, '', null, 'major');
+		$kids = $this->getLinks(SQ_SC_LINK_FRONTEND_NAV, '', null, 'major');
 		for($i = 0; $i < count($kids); $i++) {
 			$kid = &$GLOBALS['SQ_SYSTEM']->am->getAsset($kids[$i]['minorid'], $kids[$i]['type_code']);
 			if (is_null($kid)) continue;

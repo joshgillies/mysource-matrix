@@ -216,7 +216,7 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 					FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid 
 					WHERE l.minorid='.$db->quote($link_info['assetid']).' 
 					  AND t.treeid NOT LIKE '.$db->quote($vars['trash_treeid'].'%').' 
-					  AND (l.link_type & '.$db->quote(SQ_LINK_SIGNIFICANT).') > 0 ';
+					  AND (l.link_type & '.$db->quote(SQ_SC_LINK_SIGNIFICANT).') > 0 ';
 
 			$outside_links = $db->getCol($sql);
 			if (DB::isError($outside_links)) {
@@ -237,7 +237,7 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 			// but if there are not, then we need to check how many internal links
 			// there are before deciding if we should delete the asset or not
 			if (!count($outside_links)) {
-				$num_other_links = $asset->countLinks('minor', SQ_LINK_SIGNIFICANT, '', true, $link_info['linkid']);
+				$num_other_links = $asset->countLinks('minor', SQ_SC_LINK_SIGNIFICANT, '', true, $link_info['linkid']);
 			}
 
 			if ($num_other_links || count($outside_links)) {

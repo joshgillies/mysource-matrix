@@ -1806,7 +1806,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function _recursePaintDependants(&$owner, &$asset, &$o, $depth=1, $start_stalk_at=0)
 	{
-		$dependant_links = $asset->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'major', null, 1);
+		$dependant_links = $asset->getLinks(SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
 		$num_kids = count($dependant_links);
 		for ($i = 0; $i < $num_kids; $i++) {
 			$dep_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($dependant_links[$i]['minorid']);
@@ -1872,7 +1872,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				</td>
 			</tr>
 			<?php
-			$child_deps = $dep_asset->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'major', null, 1);
+			$child_deps = $dep_asset->getLinks(SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
 			if (!empty($child_deps)) {
 				$this->_recursePaintDependants($owner, $dep_asset, $o, ($depth+1), ((!empty($bg)) ? $depth : 0));
 			}
@@ -1919,7 +1919,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$assetids = Array();
-		$asset_links = $owner->getLinks(SQ_LINK_ALL, '', true, 'minor');
+		$asset_links = $owner->getLinks(SQ_SC_LINK_ALL, '', true, 'minor');
 		$editable_link_types = Array(SQ_LINK_TYPE_1 => link_type_name(SQ_LINK_TYPE_1),
 									 SQ_LINK_TYPE_2 => link_type_name(SQ_LINK_TYPE_2)
 									);
@@ -2037,7 +2037,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		$prefix = $this->getPrefix($owner);
 
 		$done_something = false;
-		$asset_links = $owner->getLinks(SQ_LINK_ALL, '', true, 'minor');
+		$asset_links = $owner->getLinks(SQ_SC_LINK_ALL, '', true, 'minor');
 
 		foreach ($asset_links as $link) {
 			if (!isset($_POST[$prefix.'_link_type'][$link['linkid']])) continue;

@@ -408,7 +408,7 @@ class Asset_Map
 
 		if ($asset->readAccess()) {
 			// we only want links that appear in the backend
-			$links = $asset->getLinks(SQ_LINK_BACKEND_NAV, '', null);
+			$links = $asset->getLinks(SQ_SC_LINK_BACKEND_NAV, '', null);
 			if (count($links)) {
 				for($j = 0; $j < count($links); $j++) {
 					$kid_node = &$asset_node->addChild('child', '', Array('linkid' => $links[$j]['linkid'], 'minorid' => $links[$j]['minorid'], 'link_type' => $links[$j]['link_type']));
@@ -641,7 +641,7 @@ class Asset_Map
 			// are deleting so we can warn of side effects
 			$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 			if ($new_parent->id == $trash_folder->id) {
-				$num_other_links = $asset->countLinks('minor', SQ_LINK_SIGNIFICANT, '', true, $link['linkid']);
+				$num_other_links = $asset->countLinks('minor', SQ_SC_LINK_SIGNIFICANT, '', true, $link['linkid']);
 				if (!$num_other_links) {
 					$url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=delete&assetid='.$asset->id.'&linkid='.$link['linkid'];
 					$output = new XML_Tree();

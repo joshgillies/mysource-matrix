@@ -112,7 +112,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 
 		// make sure the new web path is not already is use
 		if ($asset->name != $name) {
-			$parents = $asset->getLinks(SQ_LINK_SIGNIFICANT, '', null, 'minor');
+			$parents = $asset->getLinks(SQ_SC_LINK_SIGNIFICANT, '', null, 'minor');
 			for($i = 0; $i < count($parents); $i++) {
 				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
 				if (is_null($parent)) continue;

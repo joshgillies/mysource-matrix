@@ -586,7 +586,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		preg_match_all($e, $output, $matches);
 		$replace_assetids = $matches[1];
 
-		if ($asset->status & SQ_STATUS_SAFE_EDITING) {
+		if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) {
 			// this table currently has a system version floating around
 			// so we have to be careful not to delete notice links that are
 			// still being used in this system version

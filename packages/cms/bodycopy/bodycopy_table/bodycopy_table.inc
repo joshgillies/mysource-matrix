@@ -86,7 +86,7 @@ class Bodycopy_Table extends Asset
 		// create our notice links again so we dont have leftovers from
 		// when we were safe editing and thus not deleting links we removed
 		// Same thing goes cancelling a safe edit (going back to live)
-		if ($this->status == SQ_STATUS_LIVE && ($old_status & SQ_STATUS_SAFE_EDITING)) {
+		if ($this->status == SQ_STATUS_LIVE && ($old_status & SQ_SC_STATUS_SAFE_EDITING)) {
 			$edit = $this->getEditFns();
 			if (!$edit->generateContentFile($this)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -241,7 +241,7 @@ class Bodycopy_Table extends Asset
 		}
 
 		$old_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($old_assetid, $this->type());
-		$our_links = $this->getLinks(SQ_LINK_SIGNIFICANT, 'content_type', false);
+		$our_links = $this->getLinks(SQ_SC_LINK_SIGNIFICANT, 'content_type', false);
 		
 		if (is_null($old_asset) || empty($our_links)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');

@@ -384,7 +384,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			return;
 		}
 
-		$pages = $asset->getLinks(SQ_LINK_BACKEND_NAV, '', false);
+		$pages = $asset->getLinks(SQ_SC_LINK_BACKEND_NAV, '', false);
 
 		if (!count($pages)) {
 			echo '<i>There are no Pages that are children of this site.</i>';

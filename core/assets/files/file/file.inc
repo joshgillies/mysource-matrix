@@ -285,7 +285,7 @@ class File extends Asset
 
 		if (!parent::_updated()) return false;
 
-		if ($this->status & SQ_STATUS_SAFE_EDITING || isset($this->_tmp['IGNORE_UPDATE'])) {
+		if ($this->status & SQ_SC_STATUS_SAFE_EDITING || isset($this->_tmp['IGNORE_UPDATE'])) {
 			unset($this->_tmp['IGNORE_UPDATE']);
 			return true;
 		}
@@ -335,7 +335,7 @@ class File extends Asset
 	*/
 	function _updateLookups()
 	{
-		if (!$this->effectiveUnrestricted() || ($this->status & SQ_STATUS_SAFE_EDITING)) {
+		if (!$this->effectiveUnrestricted() || ($this->status & SQ_SC_STATUS_SAFE_EDITING)) {
 			// this file is either in a safe edit or restricted
 			// so we dont worry about __data paths
 			return parent::_updateLookups();
@@ -370,7 +370,7 @@ class File extends Asset
 			return false;
 		}
 
-		$parents = $this->getLinks(SQ_LINK_SIGNIFICANT, '', null, 'minor');
+		$parents = $this->getLinks(SQ_SC_LINK_SIGNIFICANT, '', null, 'minor');
 		for($i = 0; $i < count($parents); $i++) {
 			$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
 			if (is_null($parent)) continue;

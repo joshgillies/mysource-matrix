@@ -296,7 +296,7 @@ class Site extends Folder
 		}// end for urls
 
 		// recusively call the kids update
-		$kids = $this->getLinks(SQ_LINK_FRONTEND_NAV);
+		$kids = $this->getLinks(SQ_SC_LINK_FRONTEND_NAV);
 		for($i = 0; $i < count($kids); $i++) {
 			$kid = &$GLOBALS['SQ_SYSTEM']->am->getAsset($kids[$i]['minorid'], $kids[$i]['type_code']);
 			if (is_null($kid)) continue;

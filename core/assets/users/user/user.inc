@@ -282,7 +282,7 @@ class User extends Asset
 	*/
 	function canLogin() {
 		// check that this user is live
-		if ($this->status & SQ_STATUS_NOT_LIVE) return false;
+		if ($this->status & SQ_SC_STATUS_NOT_LIVE) return false;
 
 		// check that this user has not expired
 		$expires = $this->attr('expiry_date');
