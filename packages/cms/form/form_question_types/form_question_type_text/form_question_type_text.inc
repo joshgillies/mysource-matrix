@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text.inc,v 1.24 2004/09/10 00:24:36 lwright Exp $
+* $Id: form_question_type_text.inc,v 1.25 2004/09/23 01:52:39 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,7 +47,7 @@ class Form_Question_Type_Text extends Form_Question
 	* @param array	$data		the section's entry for this question (contains all question data)
 	*
 	*/
-	function Form_Question_Type_Text($assetid=0, $data=Array()) 
+	function Form_Question_Type_Text($assetid=0, $data=Array())
 	{
 		$this->Form_Question($assetid, $data);
 
@@ -84,7 +84,9 @@ class Form_Question_Type_Text extends Form_Question
 		$extras = $this->attr('extra');
 		$name   = $this->id;
 		$value  = ($value == "") ? $this->attr('default') : $value;
-	
+
+		$value  = htmlspecialchars($value);
+
 		ob_start();
 		if ($height == 1) {
 			text_box($name, $value, $width, $max, false, $extras);
@@ -93,7 +95,7 @@ class Form_Question_Type_Text extends Form_Question
 		}
 		$html = ob_get_contents();
 		ob_end_clean();
-		
+
 		// calling text_box will convert the open and close php tags into their html counter-parts
 		// so we need to convert them back to proper php tags
 
@@ -111,7 +113,7 @@ class Form_Question_Type_Text extends Form_Question
 	* @return boolean
 	*/
 	function processForm()
-	{		
+	{
 		$missing = false;
 		$form =& $this->getMySection();
 
@@ -128,15 +130,15 @@ class Form_Question_Type_Text extends Form_Question
 		if ($this->attr('required')) {
 			array_pop($this->vars['rules']['value']);
 		}
-		
+
 		return true;
-	
+
 	}//end processForm()
 
-	
+
 	/**
 	* writes JavaScript code for client side validation
-	* 
+	*
 	* This function assumes the skeleton of a JS validation function has been created around this code
 	* with a form variable named 'form' passed (this is done when generating the content file).
 	*
@@ -159,10 +161,10 @@ class Form_Question_Type_Text extends Form_Question
 		return $code;
 
 	}//end generateJSCode()
-	
-	
+
+
 	/**
-	* returns an array of the types of rules 
+	* returns an array of the types of rules
 	*
 	* Returned array is 'short name' => 'full name'
 	*
@@ -198,7 +200,7 @@ class Form_Question_Type_Text extends Form_Question
 		return $contents;
 
 	}//end getXML()
-	
-	
+
+
 }//end class
 ?>
