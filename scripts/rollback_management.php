@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.php,v 1.1 2004/07/08 23:39:35 mmcintyre Exp $
+* $Id: rollback_management.php,v 1.2 2004/09/28 03:48:27 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -234,13 +234,8 @@ function align_rollback_entries($table_name, $date)
 		$primary_keys = $SQ_TABLE_COLUMNS[$table_name]['primary_key'];
 	}
 
-	if ($db->phptype == 'mysql') {
-		$update_concat = 'CONCAT('.implode(',', $primary_keys).', '.SQ_TABLE_PREFIX.'effective_from)';
-		$select_concat = 'CONCAT('.implode(',', $primary_keys).', MIN('.SQ_TABLE_PREFIX.'effective_from))';
-	} else {
-		$update_concat = '('.implode(' || ', $primary_keys).' || '.SQ_TABLE_PREFIX.'effective_from)';
-		$select_concat = '('.implode(' || ', $primary_keys).' || MIN('.SQ_TABLE_PREFIX.'effective_from))';
-	}
+	$update_concat = '('.implode(' || ', $primary_keys).' || '.SQ_TABLE_PREFIX.'effective_from)';
+	$select_concat = '('.implode(' || ', $primary_keys).' || MIN('.SQ_TABLE_PREFIX.'effective_from))';
 
 	$update = 'UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.' SET '.SQ_TABLE_PREFIX.'effective_from = '.$db->quote($date).'
 		   WHERE '.$update_concat.' IN ';
@@ -249,42 +244,10 @@ function align_rollback_entries($table_name, $date)
 		   WHERE '.SQ_TABLE_PREFIX.'effective_from < '.$db->quote($date).' GROUP BY '.implode(',', $primary_keys);
 
 	$affected_rows = 0;
-	if ($db->phptype == 'mysql') {
-		$cols = $db->getCol($select);
-		assert_valid_db_result($cols);
-
-		$offset = 0;
-		
-		// if the script dies with an unknown error, then try lowering
-		// this value
-		$chunk_size = 100;
-		
-		$count_cols = count($cols) - 1;
-
-		while ($offset < $count_cols) {
-			$curr_cols = array_slice($cols, $offset, $chunk_size);
-			if (empty($curr_cols)) break;
-
-			for (reset($curr_cols); NULL !== ($k = key($curr_cols)); next($curr_cols)) {
-				$curr_cols[$k] = $db->quote($curr_cols[$k]);
-			}
-
-			$cols_str = implode(',', $curr_cols);
-			$result = $db->query($update.' ('.$cols_str.')');
-			assert_valid_db_result($result);
-			$offset += $chunk_size;
-			
-			$mysql_affected_rows = $db->affectedRows();
-			assert_valid_db_result($mysql_affected_rows);
-			$affected_rows += $mysql_affected_rows;
-		}
-
-	} else {
-		$result = $db->query($update.'('.$select.')');
-		assert_valid_db_result($result);
-		$affected_rows = $db->affectedRows();
-		assert_valid_db_result($affected_rows);
-	}
+	$result = $db->query($update.'('.$select.')');
+	assert_valid_db_result($result);
+	$affected_rows = $db->affectedRows();
+	assert_valid_db_result($affected_rows);
 
 	if (!$QUIET) echo $affected_rows.' ENTRIES ALIGNED IN '.SQ_TABLE_ROLLBACK_PREFIX.$table_name."\n";
 
