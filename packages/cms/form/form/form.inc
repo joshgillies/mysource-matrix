@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.22 2004/05/06 04:17:43 lwright Exp $
+* $Id: form.inc,v 1.23 2004/05/06 04:40:21 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -903,7 +903,7 @@ class Form extends Bridge
 
 		?>
 		<SPAN style="color: red">
-		<B>The Following Errors Occured</B><BR/>
+		<B>The following errors must be corrected before the form can be submitted:</B><BR/>
 		<UL>
 		<?php
 
