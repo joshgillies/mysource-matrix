@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.2 2005/02/18 03:17:15 arailean Exp $
+* $Id: trigger_manager.inc,v 1.3 2005/02/18 07:30:28 amiller Exp $
 *
 */
 
@@ -48,7 +48,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -209,7 +209,7 @@ class Trigger_Manager extends Asset
 
 
 		// calculate state, prepare state hash
-		$state = $this->_calculateState($event_name, &$broadcaster, $parameters);
+		$state = $this->_calculateState($event_name, $broadcaster, $parameters);
 		$state_hash = $this->_calculateStateHash($state);
 
 		// lookup triggers

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager_edit_fns.inc,v 1.1 2005/02/17 06:34:47 rhoward Exp $
+* $Id: trigger_manager_edit_fns.inc,v 1.2 2005/02/18 07:30:33 amiller Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -121,12 +121,12 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		switch ($screen) {
 			case 'list':
 				$o->sectionNote('This subscreen allows you to add new trigger or select an existing one to edit');
-				$this->_paintSubScreenList(&$tm, &$o, $prefix, $write_access);
+				$this->_paintSubScreenList($tm, $o, $prefix, $write_access);
 			break;
 
 			case 'edit':
 				$o->sectionNote('This subscreen is for editing a single trigger. A trigger consists of descriptive information and a set of events, conditions and actions. Use the sections below to change settings of this trigger. In order to speed trigger execution, MySource Matrix tries to make some pre-calculations. There is an overhead to determining whether a trigger needs to be run. Upon loading, the conditions are checked and if all pass, the actions are executed. It can be rewarding to put the fastest conditions first. As a rule of the thumb any condition that works on a whole range of values, like "anything that extends this asset type" will be relatively slow and should not be placed first. On the other hand system conditions that work on exact values of asset type (not inheritance), status and tree location should be placed first.<br /><br /><strong>ATTENTION:</strong> Any trigger modification cannot be undone once saved. An invalid trigger is capable of bringing the whole system down.');
-				$this->_paintSubScreenEdit(&$tm, &$o, $prefix.'[edit]', $write_access);
+				$this->_paintSubScreenEdit($tm, $o, $prefix.'[edit]', $write_access);
 			break;
 
 			default:
@@ -624,11 +624,11 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		switch ($screen) {
 			case 'list':
-				$status = $this->_processSubScreenList(&$tm, $request_data);
+				$status = $this->_processSubScreenList($tm, $request_data);
 			break;
 
 			case 'edit':
-				$status = $this->_processSubScreenEdit(&$tm, $request_data);
+				$status = $this->_processSubScreenEdit($tm, $request_data);
 			break;
 			default:
 				return $status;
