@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 * 
-* $Id: install.inc,v 1.4 2004/06/28 05:30:26 gsherwood Exp $
+* $Id: install.inc,v 1.5 2004/06/28 16:25:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@
 /**
 * Regenerate all the configs used by Matrix
 * 
-* @return void
+* @return boolean	indicating success or not of all configs saved
 * @access public
 */
 function regenerate_configs()
@@ -46,22 +46,24 @@ function regenerate_configs()
 	// Re-generate the System Config to make sure that we get any new defines that may have been issued
 	require_once SQ_INCLUDE_PATH.'/system_config.inc';
 	$cfg = new System_Config();
-	$cfg->save(Array(), false);
+	if (!$cfg->save(Array(), false)) return false;
 	
 	// Re-generate the Server Config to make sure that we get any new defines that may have been issued
 	require_once SQ_SYSTEM_ROOT.'/core/server/squiz_server_config.inc';
-	$hipo_cfg = new Squiz_Server_Config();
-	$hipo_cfg->save(Array(), false);
+	$squiz_server_cfg = new Squiz_Server_Config();
+	if (!$squiz_server_cfg->save(Array(), false)) return false;
 	
 	// Re-generate the HIPO Config to make sure that we get any new defines that may have been issued
 	require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_config.inc';
 	$hipo_cfg = new HIPO_Config();
-	$hipo_cfg->save(Array(), false);
+	if (!$hipo_cfg->save(Array(), false)) return false;
 	
 	// Re-generate the Messaging Service Config to make sure that we get any new defines that may have been issued
 	require_once SQ_SYSTEM_ROOT.'/core/include/messaging_service_config.inc';
 	$ms_cfg = new Messaging_Service_Config();
-	$ms_cfg->save(Array(), false);
+	if (!$ms_cfg->save(Array(), false)) return false;
+
+	return true;
 
 }//end regenerate_configs()
 

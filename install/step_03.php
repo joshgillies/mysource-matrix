@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.41 2004/06/25 04:05:06 gsherwood Exp $
+* $Id: step_03.php,v 1.42 2004/06/28 16:25:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -70,7 +70,9 @@ if(version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
 $GLOBALS['SQ_INSTALL'] = true;
 
 // call all the steps
-regenerate_configs();
+if (!regenerate_configs()) {
+	trigger_error('Config Generation Failed', E_USER_ERROR);
+}
 uninstall_asset_types();
 uninstall_packages();
 install_core();
