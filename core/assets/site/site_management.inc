@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: site_management.inc,v 1.7 2003/09/26 05:26:27 brobertson Exp $
+* $Id: site_management.inc,v 1.8 2003/10/22 05:10:35 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,6 +29,7 @@ class Site_Management extends Asset_Management
 	function Site_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
+		$this->components['name']['default_weighting'] = '1';
 
 	}//end constructor
 
