@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_management.inc,v 1.3 2004/02/16 23:32:39 gsherwood Exp $
+* $Id: metadata_field_date_management.inc,v 1.4 2004/02/26 03:02:34 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -61,6 +61,21 @@ class Metadata_Field_Date_Management extends Asset_Management
 						);
 
 	}//end constructor
+
+
+	/**
+	* Gets a list of all metadata files that we want web accessable
+	*
+	* @access private
+	* @return array(string)
+	*/
+	function _getFileList()
+	{
+		return Array(
+					 'popups/keywords.html',
+					 );
+
+	}//end _getFileList()
 
 
 }//end class
