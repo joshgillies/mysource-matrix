@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.48 2004/07/01 14:36:50 brobertson Exp $
+* $Id: mysource.inc,v 1.49 2004/07/12 23:27:02 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -99,11 +99,6 @@ class MySource
 	* @var object Workflow_Manager
 	*/
 	var $wm;
-
-	/**
-	* @var object Indexing_Manager
-	*/
-	var $im;
 
 	/**
 	* @var object File_Versioning
@@ -862,23 +857,6 @@ class MySource
 
 
 	/**
-	* Get the indexing manager 
-	*
-	* @return object Indexing_Manager
-	* @access public
-	*/
-	function &getIndexingManager()
-	{
-		if(!isset($this->im) || get_class($this->im) != 'indexing_manager') {
-			require_once SQ_INCLUDE_PATH.'/indexing_manager.inc';
-			$this->im = new Indexing_Manager();
-		}
-		return $this->im;
-
-	}//end getIndexingManager()
-
-
-	/**
 	* Get the Event Manager
 	*
 	* @access public
@@ -892,7 +870,7 @@ class MySource
 		}
 		return $this->em;
 
-	}//end getEvemtManager()
+	}//end getEventManager()
 
 
 //--        DATABASE        --//
