@@ -292,7 +292,13 @@ class Resolve
 
 			case 'send_security_key' :
 				require_once SQ_FUDGE_PATH.'/general/general.inc';
-				$vars = $_SESSION['SQ_SYSTEM_SECURITY_KEY'];
+				$vars =& $_SESSION['SQ_SYSTEM_SECURITY_KEY'];
+
+				// are we regenerating the secturity key?
+				if (isset($_GET['regen_key']) && $_GET['regen_key'] == 1) {
+					$vars['key'] = generate_security_key(strlen($vars['key']));
+				}
+
 				security_key_image($vars['key'], $vars['width'], $vars['height'], $vars['bg_colour'], $vars['text_colour'], $vars['border_colour'], $vars['zoom']);
 				exit();
 			break;

@@ -106,11 +106,6 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 							<?php security_key(25, 30, 2, true); ?>
 						</td>
 					</tr>
-					<tr>
-						<td class="sq-backend-data">
-							<i>Can't read the security key? <a href="<?php echo $_SERVER['REQUEST_URI']?>">Click here to get a new key</a>.</i>
-						</td>
-					</tr>
 				</table>
 				<?php
 			} else {

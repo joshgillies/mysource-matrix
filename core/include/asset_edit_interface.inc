@@ -925,9 +925,6 @@ class Asset_Edit_Interface extends Resolve_Object
 											<tr>
 												<td valign="top"><?php security_key(15, 20, 2); ?></td>
 											</tr>
-											<tr>
-												<td class="sq-backend-data"><i>Can't read the security key? <a href="#" onClick="Javascript: document.location = '<?php echo $_SERVER['REQUEST_URI']?>'; return false;">Click here to get a new key</a>.</i></td>
-											</tr>
 										</table>
 										<?php
 									}

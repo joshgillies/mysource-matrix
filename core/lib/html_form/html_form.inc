@@ -637,7 +637,7 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=false, $bg='F
 {
 	// generate a random security key string
 	require_once SQ_FUDGE_PATH.'/general/general.inc';
-	$password = random_password($key_len);
+	$password = generate_security_key($key_len);
 
 	// work out the width and height of the image
 	$img_width  = $key_len * 10.5;
@@ -669,7 +669,10 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=false, $bg='F
 	<?php
 	}// end if
 	?>
-			<td valign="top"><img src="<?php echo $img_url; ?>" border="0"></td>
+			<td valign="top"><img id="sq_security_key" src="<?php echo $img_url; ?>" border="0"></td>
+		</tr>
+		<tr>
+			<td class="sq-backend-data" colspan="<?php echo (($img_on_newline) ? '1' : '2'); ?>"><i>Can't read the security key? <a href="#" onClick="Javascript: var img = document.getElementById('sq_security_key'); img.src = '<?php echo $img_url; ?>&regen_key=1'; return false;">Click here to get a new key</a>.</i></td>
 		</tr>
 	</table>
 	<?php
