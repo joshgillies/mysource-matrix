@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.41 2005/02/23 22:42:39 dbaranovskiy Exp $
+* $Id: inbox_edit_fns.inc,v 1.42 2005/02/23 23:27:46 tbarrett Exp $
 *
 */
 
@@ -30,10 +30,11 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Inbox_Edit_Fns
 *
 * Purpose
-*
+*	Functions to print and process the backend interface of the user's inbox
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.41 $
+* @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -106,8 +107,54 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 		return true;
 
-	}
+	}//end paintNewMessage()
 
+
+	/**
+	* Processes the new message interface
+	*
+	* @param object Asset				$asset	the asset to which we belong
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processNewMessage(&$asset, &$o, $prefix)
+	{
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		// send the message
+		$noaction = true;
+		if (isset($_POST[$prefix.'_To'])) {
+			$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+
+			$recepients = Array();
+			foreach ($_POST[$prefix.'_To'] as $key => $sender) {
+				$recepients[] = $sender['assetid'];
+			}
+
+			$message = $ms->newMessage($recepients, $_POST[$prefix.'_Subject'], $_POST[$prefix.'_Content'], 'hipo.some');
+			$message->priority = $_POST[$prefix.'_Priority'];
+			$message->send();
+
+			foreach($recepients as $key => $sender) {
+				if (empty($sender)) {
+					continue;
+				}
+				$noaction = true;
+				$message = $ms->newMessage(Array($userid), $_POST[$prefix.'_Subject'], $_POST[$prefix.'_Content'], 'hipo.sent');
+				$message->from = $sender;
+				$message->status = 'R';
+				$message->priority = $_POST[$prefix.'_Priority'];
+				$message->send();
+			}
+
+		}
+		if ($noaction) {
+			echo '<!-- ###No Action### -->';
+		}
+
+	}//end processNewMessage()
 
 
 	/**
@@ -161,7 +208,6 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				?>
 			</tr>
 			<?php
-			$alt = false;
 
 			for ($i = 0; $i < $num_messages; $i++) {
 
@@ -169,10 +215,6 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				if ($data['type'] != 'hipo.sent') {
 					continue;
 				}
-
-				if ($alt) $alt = false;
-				else $alt = true;
-				$class = 'sq-backend-table-cell'.(($alt) ? '-alt' : '');
 
 				// work out the sender icon
 				$sender_img = $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']);
@@ -186,23 +228,23 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				//]]>
 				</script>
 				<tr>
-					<td class="<?php echo $class ?>" nowrap="nowrap" onclick="showBody('<?php echo $data['msgid'];?>', this)" style="cursor: pointer">
+					<td class="sq-backend-table-cell" nowrap="nowrap" onclick="showBody('<?php echo $data['msgid'];?>', this)" style="cursor: pointer">
 						<?php sq_print_icon(sq_web_path('lib').'/web/images/icons/internal_message/priority_'.$data['priority'].'.png', 16, 16, '', $priority[$data['priority']].' priority') ?>
 						<?php sq_print_icon($sender_img, 16, 16) ?>
 						<a name="msg_<?php echo $data['msgid'];?>"></a>
 						&nbsp;<?php echo $data['from_name'];?>
 						<?php hidden_field($prefix.'_messages['.$data['msgid'].']', '1'); ?>
 					</td>
-					<td class="<?php echo $class ?>" onclick="showBody('<?php echo $data['msgid'];?>', this)" style="cursor: pointer">
+					<td class="sq-backend-table-cell" onclick="showBody('<?php echo $data['msgid'];?>', this)" style="cursor: pointer">
 						&nbsp;<?php echo $data['subject'];?>
 					</td>
-					<td class="<?php echo $class ?>" nowrap="nowrap" onclick="showBody('<?php echo $data['msgid'];?>', this)" style="cursor: pointer">
+					<td class="sq-backend-table-cell" nowrap="nowrap" onclick="showBody('<?php echo $data['msgid'];?>', this)" style="cursor: pointer">
 						&nbsp;<?php echo $GLOBALS['SQ_SYSTEM']->datetime($data['sent']); ?>
 					</td>
 					<?php
 					if ($write_access) {
 						?>
-						<td class="<?php echo $class ?>" nowrap="nowrap">
+						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php check_box($prefix.'_delete['.$data['msgid'].']', '1', false, 'changeStatus('.$data['msgid'].')'); ?>
 							<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" alt="" id="trashIcon<?php echo $data['msgid'];?>" class="trash" onclick="changeStatus('<?php echo $data['msgid'];?>')" />
 						</td>
@@ -220,7 +262,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 		return $write_access;
 
-	}
+	}//end paintSent()
 
 
 	/**
@@ -233,7 +275,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintMail(&$asset, &$o, $prefix)
+	function paintInbox(&$asset, &$o, $prefix)
 	{
 		$user = &$asset->_getUser();
 
@@ -287,7 +329,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" alt="" id="letterIcon" class="read" />
 					<?php }
 					?>
-					READ
+					&nbsp;READ
 				</td>
 				<?php
 				if ($write_access) {
@@ -302,7 +344,6 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				?>
 			</tr>
 			<?php
-			$alt = false;
 
 			for ($i = 0; $i < $num_messages; $i++) {
 
@@ -310,9 +351,6 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				if ($data['type'] == 'hipo.sent') {
 					continue;
 				}
-
-				$alt = !$alt;
-				$class = 'sq-backend-table-cell'.(($alt) ? '-alt' : '');
 
 				// work out the sender icon
 				$sender_img = $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']);
@@ -326,20 +364,20 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				//]]>
 				</script>
 				<tr>
-					<td class="<?php echo $class ?>" nowrap="nowrap" onclick="showBody('<?php echo $data['msgid'];?>', this)" style="cursor: pointer">
+					<td class="sq-backend-table-cell" nowrap="nowrap" onclick="showBody('<?php echo $data['msgid'];?>', this)" style="cursor: pointer">
 						<?php sq_print_icon(sq_web_path('lib').'/web/images/icons/internal_message/priority_'.$data['priority'].'.png', 16, 16, '', $priority[$data['priority']].' priority') ?>
 						<?php sq_print_icon($sender_img, 16, 16) ?>
 						<a name="msg_<?php echo $data['msgid'];?>"></a>
 						&nbsp;<?php echo $data['from_name'];?>
 						<?php hidden_field($prefix.'_messages['.$data['msgid'].']', '1'); ?>
 					</td>
-					<td class="<?php echo $class ?>" onclick="showBody('<?php echo $data['msgid'];?>', this)" style="cursor: pointer">
+					<td class="sq-backend-table-cell" onclick="showBody('<?php echo $data['msgid'];?>', this)" style="cursor: pointer">
 						&nbsp;<?php echo $data['subject'];?>
 					</td>
-					<td class="<?php echo $class ?>" nowrap="nowrap" onclick="showBody('<?php echo $data['msgid'];?>', this)" style="cursor: pointer">
+					<td class="sq-backend-table-cell" nowrap="nowrap" onclick="showBody('<?php echo $data['msgid'];?>', this)" style="cursor: pointer">
 						&nbsp;<?php echo $GLOBALS['SQ_SYSTEM']->datetime($data['sent']); ?>
 					</td>
-					<td class="<?php echo $class ?>" nowrap="nowrap">
+					<td class="sq-backend-table-cell" nowrap="nowrap">
 						<?php
 							check_box($prefix.'_mark_as_read['.$data['msgid'].']', '1', ($data['status'] == SQ_MSG_READ), 'readClick(this)', ($write_access)?'':'style="display:none"');
 						?>
@@ -348,7 +386,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					<?php
 					if ($write_access) {
 						?>
-						<td class="<?php echo $class ?>" nowrap="nowrap">
+						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php check_box($prefix.'_delete['.$data['msgid'].']', '1', false, 'changeStatus('.$data['msgid'].')'); ?>
 							<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" alt="" id="trashIcon[<?php echo $data['msgid'];?>]" class="trash" onclick="changeStatus('<?php echo $data['msgid'];?>', 'delete')" />
 						</td>
@@ -374,7 +412,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 		return $write_access;
 
-	}//end paintMail()
+	}//end paintInbox()
 
 
 	/**
@@ -414,7 +452,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-	}
+	}//end _processReadStatus()
 
 
 	/**
@@ -427,7 +465,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processMail(&$asset, &$o, $prefix)
+	function processInbox(&$asset, &$o, $prefix)
 	{
 		$msgs   = (isset($_POST[$prefix.'_messages'])) ? array_keys($_POST[$prefix.'_messages']) : Array();
 		$delete = (isset($_POST[$prefix.'_delete'])) ? array_keys($_POST[$prefix.'_delete']) : Array();
@@ -455,7 +493,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 		return true;
 
-	}//end processMail()
+	}//end processInbox()
 
 
 	/**
@@ -518,16 +556,11 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				?>
 			</tr>
 			<?php
-			$alt = false;
 			$num_messages = count($messages);
 
 			for ($i = 0; $i < $num_messages; $i++) {
 
 				$data = $messages[$i];
-
-				if ($alt) $alt = false;
-				else $alt = true;
-				$class = 'sq-backend-table-cell'.(($alt) ? '-alt' : '');
 
 				// work out the sender icon
 				$sender_img = $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']);
@@ -541,30 +574,30 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				//]]>
 				</script>
 				<tr>
-					<td class="<?php echo $class ?>" nowrap="nowrap" onclick="showBody('<?php echo $data['msgid'];?>', this)" style="cursor: pointer">
+					<td class="sq-backend-table-cell" nowrap="nowrap" onclick="showBody('<?php echo $data['msgid'];?>', this)" style="cursor: pointer">
 						<?php sq_print_icon(sq_web_path('lib').'/web/images/icons/internal_message/priority_'.$data['priority'].'.png', 16, 16, '', $priority[$data['priority']].' priority') ?>
 						<?php sq_print_icon($sender_img, 16, 16) ?>
 						<a name="msg_<?php echo $data['msgid'];?>"></a>
 						&nbsp;<?php echo $data['from_name'];?>
 						<?php hidden_field($prefix.'_messages['.$data['msgid'].']', '1'); ?>
 					</td>
-					<td class="<?php echo $class ?>" onclick="showBody('<?php echo $data['msgid'];?>', this)" style="cursor: pointer">
+					<td class="sq-backend-table-cell" onclick="showBody('<?php echo $data['msgid'];?>', this)" style="cursor: pointer">
 						&nbsp;<?php echo $data['subject'];?>
 					</td>
-					<td class="<?php echo $class ?>" onclick="showBody('<?php echo $data['msgid'];?>', this);" style="cursor: pointer;white-space: nowrap;">
+					<td class="sq-backend-table-cell" onclick="showBody('<?php echo $data['msgid'];?>', this);" style="cursor: pointer;white-space: nowrap;">
 						&nbsp;<?php echo $GLOBALS['SQ_SYSTEM']->datetime($data['sent']); ?>
 					</td>
 
 					<?php
 					if ($write_access) {
 						?>
-						<td class="<?php echo $class ?>" nowrap>
+						<td class="sq-backend-table-cell" nowrap>
 							<?php
 							if ($asset->writeAccess('mail')) check_box($prefix.'_recover['.$data['msgid'].']');
 							else echo '&nbsp;';
 							?>
 						</td>
-						<td class="<?php echo $class ?>" nowrap>
+						<td class="sq-backend-table-cell" nowrap>
 							<?php check_box($prefix.'_purge['.$data['msgid'].']'); ?>
 						</td>
 						<?php
@@ -630,55 +663,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 	}//end processTrash()
 
-
-	/**
-	* Processes the new message interface
-	*
-	* @param object Asset				$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processNewMessage(&$asset, &$o, $prefix)
-	{
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		// send the message
-		$noaction = true;
-		if (isset($_POST[$prefix.'_To'])) {
-			$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
-
-			$recepients = Array();
-			foreach ($_POST[$prefix.'_To'] as $key => $sender) {
-				$recepients[] = $sender['assetid'];
-			}
-
-			$message = $ms->newMessage($recepients, $_POST[$prefix.'_Subject'], $_POST[$prefix.'_Content'], 'hipo.some');
-			$message->priority = $_POST[$prefix.'_Priority'];
-			$message->send();
-
-			foreach($recepients as $key => $sender) {
-				if (empty($sender)) {
-					continue;
-				}
-				$noaction = true;
-				$message = $ms->newMessage(Array($userid), $_POST[$prefix.'_Subject'], $_POST[$prefix.'_Content'], 'hipo.sent');
-				$message->from = $sender;
-				$message->status = 'R';
-				$message->priority = $_POST[$prefix.'_Priority'];
-				$message->send();
-			}
-
-		}
-		if ($noaction) {
-			echo '<!-- ###No Action### -->';
-		}
-
-	}
-
-
 }//end class
+
 
 function sq_print_icon($path, $width, $height, $alt = '', $title = '')
 {

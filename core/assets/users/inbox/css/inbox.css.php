@@ -25,7 +25,7 @@ header('Content-Type: text/css');
 	margin-left:	-1px;
 }
 #selected_row td {
-	background:		#C9F;
+	background:		#C8BDCB;
 }
 .sq-backend-table-header img, .sq-backend-table-header input {
 	float:			left;
