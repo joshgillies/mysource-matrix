@@ -21,14 +21,15 @@
 *       is no interaction between the current row in the primary sql statement
 *       and the sub-queries and the sub-query only returns ONE column
 *
-* @param object DB	$db		reference to the db object
-* @param string		$sql	The primary sql statement, marked up with the Sub-query replacements
-* @param Array()	$subs	An array of the sub-queries to be performed
+* @param object DB	$db				reference to the db object
+* @param string		$sql			The primary sql statement, marked up with the Sub-query replacements
+* @param Array()	$subs			An array of the sub-queries to be performed
+* @param mixed		$default_value	The default value to use when no values are found in the sub-query and we have a non subquery compatible DB
 *
 * @return string
 * @access public
 */
-function db_extras_subquery(&$db, $sql, $subs) {
+function db_extras_subquery(&$db, $sql, $subs, $default_value=null) {
 
 	switch($db->phptype) {
 		// Sub Query Compatable DB's
@@ -59,6 +60,8 @@ function db_extras_subquery(&$db, $sql, $subs) {
 				for ($j = 0; $j < count($result); $j++) {
 					$replace[$i] .= (($replace[$i]) ? ',' : '').$db->quote($result[$j]);
 				}
+
+				if ($replace[$i] == '') $replace[$i] = $db->quote($default_value);
 
 			}// end for
 
