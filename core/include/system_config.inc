@@ -18,10 +18,9 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.49 2005/03/21 06:14:12 gsherwood Exp $
+* $Id: system_config.inc,v 1.50 2005/03/23 02:58:22 arailean Exp $
 *
 */
-
 
 require_once SQ_LIB_PATH.'/config/config.inc';
 
@@ -33,14 +32,14 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
 {
 
 	/**
-	* Holds all the vars for this that config vars for this config
+	* Holds the definitions for all the constants managed by this configuration object
 	* In the form : Array([var name] => Array('editable' => [boolean], 'default' => [mixed scalar]))
 	* @var Array()
 	*/
@@ -63,13 +62,16 @@ class System_Config extends Config
 							 'SQ_CONF_MAX_IDLE_TIME'             => Array('editable' => 1, 'default' => 6000),
 							 'SQ_CONF_REFRESH_INTERVAL'          => Array('editable' => 1, 'default' => 120),
 							 'SQ_CONF_LOCK_LENGTH'               => Array('editable' => 1, 'default' => 600),
-							 'SQ_CONF_LOG_FILE'                  => Array('editable' => 1, 'default' => ''),
-							 'SQ_CONF_LOG_ERRORS'                => Array('editable' => 1, 'default' => true),
 							 'SQ_CONF_ERRORS_HIDE_FRONTEND'      => Array('editable' => 1, 'default' => false),
 							 'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE' => Array('editable' => 1, 'default' => 'en'),
 							 'SQ_CONF_DEFAULT_CHARACTER_SET'     => Array('editable' => 1, 'default' => 'iso-8859-1'),
 							 'SQ_CONF_ALLOW_IP_CHANGE'           => Array('editable' => 1, 'default' => '0'),
 							 'SQ_CONF_COMMIT_BUTTON_TEXT'        => Array('editable' => 1, 'default' => 'Commit'),
+							 'SQ_CONF_LOG_EXTENSION'             => Array('editable' => 0, 'default' => '.log'),
+							 'SQ_CONF_LOG_FILE_SYSTEM'           => Array('editable' => 0, 'default' => 'system'),
+							 'SQ_CONF_LOG_FILE_ERROR'            => Array('editable' => 0, 'default' => 'error'), // default should be non-empty
+							 'SQ_CONF_LOG_ERRORS'                => Array('editable' => 1, 'default' => true),
+							 'SQ_CONF_ROOT_IDENTIFIER'           => Array('editable' => 0, 'default' => "[SYSTEM_ROOT]"), // this gets used in error messages to represent the root of matrix system
 							 );
 
 	/**
@@ -110,10 +112,10 @@ class System_Config extends Config
 	{
 		if (isset($GLOBALS['SQ_SYSTEM'])) {
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
-	
+
 				$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 				$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-	
+
 				// if we dont have access, go away
 				if (!$is_admin) {
 					trigger_error('You need to be either the Root User or a System Administrator to save the '.$this->name, E_USER_WARNING);
@@ -123,9 +125,9 @@ class System_Config extends Config
 				$is_root = true;
 				$is_admin = true;
 			}//end if checking permissions
-	
+
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_DATA_VALIDATION)) {
-	
+
 				// now just make sure they aren't trying to set anything that they shouldn't
 				if (!$is_root) {
 					unset($vars['SQ_CONF_MAX_LOGIN_ATTEMPTS']);
@@ -136,7 +138,7 @@ class System_Config extends Config
 					unset($vars['SQ_CONF_LIMBO_SUFFIX']);
 					unset($vars['SQ_CONF_ROLLBACK_ENABLED']);
 				}
-	
+
 				// now do some validation
 				if (isset($vars['SQ_CONF_SYSTEM_ROOT_URLS'])) {
 					$vars['SQ_CONF_SYSTEM_ROOT_URLS'] = str_replace("\r", '', $vars['SQ_CONF_SYSTEM_ROOT_URLS']);
@@ -149,7 +151,7 @@ class System_Config extends Config
 						$vars[$var_name] = max(60, (int) $vars[$var_name]);
 					}
 				}
-	
+
 			}//end if validating values
 
 		}//end if SQ_SYSTEM is set
@@ -160,7 +162,7 @@ class System_Config extends Config
 
 
 	/**
-	* Paint's out the code for the config file for the passed config
+	* Paints out the code for the config file for the passed config
 	* This allows extra things to be added for special cases
 	*
 	* @param string		$name	the config var name
@@ -192,6 +194,7 @@ class System_Config extends Config
 				return true;
 			break;
 
+
 			case 'SQ_CONF_LOG_ERRORS' :
 				if (!parent::_paintConfigVar($var_name, $value, $var_export)) return false;
 				// NOTE: if they don't want to log errors we will leave
@@ -202,26 +205,32 @@ class System_Config extends Config
 				return true;
 			break;
 
-			case 'SQ_CONF_LOG_FILE' :
-				if (!parent::_paintConfigVar($var_name, $value, $var_export)) return false;
-				// if the value isn't empty, set the php error_log to the set value
-				if (trim($value) != '') {
-					if (!file_exists($value)) {
-						if (!is_dir(dirname($value)) || !touch($value)) {
-							trigger_error('Supplied Log File "'.$value.'" is invalid, either the directory does not exist or the file cannot be created', E_USER_WARNING);
-							return false;
-						}
-					} else if (!is_writable($value)) {
-						trigger_error('Supplied Log File "'.$value.'" exists, but is not writable', E_USER_WARNING);
-						return false;
-					}
-					echo "ini_set('error_log',  ".var_export($value, true).");\n";
-				} else {
-					echo "ini_set('error_log',  SQ_DATA_PATH.'/private/logs/error.log');\n";
+
+			case 'SQ_CONF_LOG_FILE_ERROR' :
+				$value = trim($value);
+				// NOTE: we're not checking if the error file can be created or written to
+				// this is because the full filename is dynamic, and on first run the value of
+				// SQ_CONF_LOG_EXTENSION is unknown so we cannot create a proper name for testing
+				// persmissions of SQ_LOG_PATH should make sure that dir can be written to
+
+				// NOTE: if the value is given as "logname.log", the resulting logname will be
+				// "logname.log.log" because users do not have control over file extension
+
+				// the following call is used as a basic prevention mechanism to stop anyone
+				// from specifying paths with directories
+				$value = basename($value);
+				if (!empty($value)) {
+					$value = $this->config_vars[$var_name]['default'];
 				}
 
+				if (!parent::_paintConfigVar($var_name, $value, $var_export)) {
+					return false;
+				}
+
+				echo "ini_set('error_log',  SQ_LOG_PATH.'/'.SQ_CONF_LOG_FILE_ERROR.SQ_CONF_LOG_EXTENSION);\n";
 				return true;
 			break;
+
 
 			case 'SQ_CONF_SYSTEM_ROOT_URLS' :
 				$lines = explode("\n", $value);
@@ -229,6 +238,7 @@ class System_Config extends Config
 				foreach ($lines as $line) if (trim($line) != '') $value .= trim($line)."\n";
 				return parent::_paintConfigVar($var_name, trim($value), $var_export);
 			break;
+
 
 			default :
 				return parent::_paintConfigVar($var_name, $value, $var_export);
