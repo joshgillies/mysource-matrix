@@ -226,10 +226,8 @@ class Asset_Edit_Interface extends Resolve_Object
 					if ($owner->canForceablyAquireLock()) {
 						echo '<p class="sq-form-field">You can forceably aquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself. Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably aquired.</p>';
 
-						//hidden_field('sq_aquire_by_force', '1');
-						//submit_button('sq_aquire_lock', 'Aquire Lock');
 						$popup_url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=forceably_aquire_lock&assetid='.$owner->id;
-						normal_button('sq_forceably_aquire_lock', 'Aquire Lock', 'window.open(\''.$popup_url.'\', \'sq_forceably_aquire_lock_popup\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=450,height=250\');');
+						normal_button('sq_forceably_aquire_lock', 'Aquire Lock', 'window.open(\''.$popup_url.'\', \'sq_forceably_aquire_lock_popup\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300\');');
 
 					}
 				}
