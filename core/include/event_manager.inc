@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: event_manager.inc,v 1.2 2003/11/11 04:31:46 mmcintyre Exp $
+* $Id: event_manager.inc,v 1.3 2003/11/12 01:22:10 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -25,6 +25,7 @@
 *
 * example for static events (in the management class of that asset)
 *
+* <PRE>
 * function getEventList()
 *	{
 *		return Array(
@@ -43,6 +44,7 @@
 *				),
 *		);
 *	}//end getEventList()
+* </PRE>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @version $Version$ - 1.0
@@ -82,7 +84,10 @@ class Event_Manager extends MySource_Object
 
 
 	/**
-	* Allows an object to listen to an event in the system and be notifies of it
+	* Allows an object to listen to a runtime event.
+	*
+	* If the listener does not want to recieve broadcasts from events that are currently polling, set the 
+	* broadcast_polling_events to FALSE
 	*
 	* Internally, classes broadcast events which the objects listening get
 	* notified of
@@ -121,7 +126,10 @@ class Event_Manager extends MySource_Object
 
 
 	/**
-	* broadcast an event that has been polling 
+	* Broadcast an event that has been polling.
+	*
+	* All broadcasts of events are polling at one stage, but this function will only get called if an event listener is added
+	* after the original broadcast of the event.
 	*
 	* @param &object mixed $listener the object listening to the event
 	* @param string $event_name the name of the event to broadcast
@@ -146,7 +154,7 @@ class Event_Manager extends MySource_Object
 
 
 	/**
-	* Broadcast events to listeners that we added at runtime
+	* Broadcast events to the listeners that we added at runtime.
 	*
 	* @param &object Asset	$broadcaster	the broadcaster of this event
 	* @param string			$event_name		the event name being broadcasted
@@ -195,7 +203,7 @@ class Event_Manager extends MySource_Object
 
 
 	/**
-	* Calls an event function on an object that that has signed up to hear a particular event
+	* To call an event function on an object that that has signed up to hear a particular event.
 	*
 	* eg.
 	* <PRE>
@@ -291,8 +299,8 @@ class Event_Manager extends MySource_Object
 
 
 	/**
-	* traverses up or down the tree to see if the all links to a particular asset are dependent, 
-	* exclusive, etc, if so in will return the assetid
+	* To Traverse up or down the tree to see if the all links to a particular asset are dependent, 
+	* exclusive, etc, if so in will return the assetid.
 	*
 	* @param integer	$assetid		the assetid of the broadcaster
 	* @param string		$type_code		the type_code of the listener
@@ -355,7 +363,9 @@ class Event_Manager extends MySource_Object
 
 	
 	/**
-	* writes the cache file of the current static events in the system
+	* Writes the cache file of the current static events in the system.
+	*
+	* This occurs after all the packages have written their listeners to the system.
 	*
 	* @return boolean
 	* @access public
@@ -377,7 +387,10 @@ class Event_Manager extends MySource_Object
 
 
 	/**
-	* add static event listeners
+	* Add static event listeners. 
+	*
+	* This function gets called from package manager of each package that has any management classes that have 
+	* events to be installed.
 	* 
 	* @param Array		$listeners				array of listeners
 	* @param string		$listener_type_code		the type code of the listener
