@@ -21,7 +21,7 @@ div#calendarTable table td { text-align: left; padding: 0px }
 div#calendarTable table th { text-align: center; padding: 1px }
 #calendarTable table { margin-left: auto; margin-right: auto; } 
 #calendarTable div { margin: 0px }
-#calendarTable td div.eventText { line-height: 1.0; margin: 2px 2px 0px 2px; margin-left: auto; margin-right: auto; text-align: center; padding: 0px}
+#calendarTable td div.eventText { margin: 2px 0.25ex 0px 0.25ex; text-align: center; padding: 0px}
 .calendarNavLink, a.calendarNavLink:hover, a.calendarNavLink:visited { text-decoration: none; font-weight: bold; color: blue }
 div#calendarList { text-align: left; width: 80ex; margin-left: auto; margin-right: auto}
 
@@ -63,7 +63,7 @@ table#year { border: 1px solid #173e57; background-color: #f8f8f8; border-collap
 #year td.date { background-color: white; text-align: center; color: black}
 
 /* Weekend Cells, with or without dates */
-#year td.weekend { background-color: #e6e6eb; border-left: 1px solid #e6e6eb; border-right: 1px solid #e6e6eb;  }
+#year td.weekend { background-color: #e6e6eb; }
 
 /* Cells with dates, again, to make its borders overrule */
 #year td.date { border: 1px solid #c0c0c0; }
