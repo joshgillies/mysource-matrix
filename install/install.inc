@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 * 
-* $Id: install.inc,v 1.23 2004/11/16 03:40:57 lwright Exp $
+* $Id: install.inc,v 1.24 2004/11/17 04:25:47 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -559,6 +559,29 @@ function generate_global_preferences()
 	return true;
 	
 }//end generate_global_preferences()
+
+
+/**
+* Creates a cached file of the asset types and their information
+*
+* @access public
+* @return void
+*/
+function cache_asset_types()
+{
+	$asset_types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes();
+
+	$output = '<'.'?php'."\n".' $asset_types = ';
+	$output .= var_export($asset_types, true);
+	$output .= "\n?".">";
+
+	if (!string_to_file($output, SQ_DATA_PATH.'/private/db/asset_types.inc')) {
+		trigger_error('Could not cache the asset types', E_USER_ERROR);
+	}
+
+	pre_echo('ASSET TYPES CACHED');
+
+}//end cache_asset_types()
 
 
 /**
