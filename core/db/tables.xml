@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.49 2004/09/07 00:10:13 lwright Exp $
+* $Id: tables.xml,v 1.50 2004/09/13 04:26:46 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -786,7 +786,7 @@
 			<column name="stop_date" allow_null="0">
 				<type>CHAR(10)</type>
 				<type_variations />
-				<default>----------</default>
+				<default>'----------'</default>
 				<description />
 			</column>
 		</columns>
