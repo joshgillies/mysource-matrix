@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_colourise_image_management.inc,v 1.14 2003/11/26 00:50:55 gsherwood Exp $
+* $Id: design_area_colourise_image_management.inc,v 1.15 2003/12/12 16:58:11 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,6 +51,7 @@ class Design_Area_Colourise_Image_Management extends Asset_Management
 								'added'     => '0.0.1',
 								'type'      => 'text',
 								'default'   => '',
+								'description' => 'filename of the Associated File image that we are to colourise',
 							),
 							'colours' => Array(
 								'added'       => '0.0.1',
@@ -62,6 +63,7 @@ class Design_Area_Colourise_Image_Management extends Asset_Management
 								'added'     => '0.0.1',
 								'type'      => 'boolean',
 								'default'   => 0,
+								'description' => 'whether to print just the filename or the full img tag',
 							),
 							'type' => Array(
 								'added'			=> '0.0.1',
@@ -83,6 +85,7 @@ class Design_Area_Colourise_Image_Management extends Asset_Management
 								'added'     => '0.0.1',
 								'type'      => 'text',
 								'default'   => '',
+								'description' => 'Any extra HTML that you want to end up in the img tag',
 							),
 						);
 
