@@ -1360,8 +1360,8 @@ class Asset_Edit_Interface extends Resolve_Object
 				<td class="sq-backend-data">
 					<table cellpadding="0" cellspacing="0" border="0">
 						<tr>
-							<td class="sq-backend-data" valign="top"><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="20" border="0" alt="" /></td>
-							<td class="sq-backend-data" valign="top">
+							<td class="sq-backend-data"><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="20" border="0" alt="" /></td>
+							<td class="sq-backend-data">
 								<a href="<?php echo $owner->getBackendHref('dependants'); ?>"><b><?php echo $owner->name; ?></b></a>
 							</td>
 						</tr>
@@ -1372,7 +1372,7 @@ class Asset_Edit_Interface extends Resolve_Object
 					<?php echo $lock_message; ?>
 				</td>
 				<td background="<?php echo $o->filesPath('/images/tree/stalk.gif'); ?>"><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="1" border="0" alt="" /></td>
-				<td class="sq-backend-data" valign="top" colspan="3">
+				<td class="sq-backend-data" colspan="3">
 					<?php echo $owner->getStatusDescription(); ?>
 				</td>
 			</tr>
@@ -1380,15 +1380,15 @@ class Asset_Edit_Interface extends Resolve_Object
 		</table>
 		<table>
 			<tr>
-				<td class="sq-backend-data"><span style="color:red"><b>**</b></span></td>
-				<td class="sq-backend-data">
-					The status of the dependant asset is lower than the status of "<?php echo $owner->name; ?>"
-				</td>
-			</tr>
-			<tr>
 				<td class="sq-backend-data"><span style="color:red"><b>*</b></span></td>
 				<td class="sq-backend-data">
 					The status of the dependant asset is higher than the status of "<?php echo $owner->name; ?>"
+				</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-data"><span style="color:red"><b>**</b></span></td>
+				<td class="sq-backend-data">
+					The status of the dependant asset is lower than the status of "<?php echo $owner->name; ?>"
 				</td>
 			</tr>
 		</table>
@@ -1451,19 +1451,19 @@ class Asset_Edit_Interface extends Resolve_Object
 								$stalk_bg = '';
 								if ($start_stalk_at && $x >= $start_stalk_at) $stalk_bg = $stalk;
 								?>
-								<td class="sq-backend-data" <?php echo $stalk_bg; ?> valign="top"><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="20" height="1" alt="blank" /></td>
+								<td class="sq-backend-data" <?php echo $stalk_bg; ?>><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="20" height="1" alt="blank" /></td>
 								<?php
 							}
 							?>
-							<td class="sq-backend-data" <?php echo $bg; ?> valign="top"><img src="<?php echo $o->filesPath('/images/tree/branch.gif');?>" width="20" height="20" border="0" alt="branch" /></td>
-							<td class="sq-backend-data" valign="top">
-								<a href="<?php echo $dep_asset->getBackendHref('dependants'); ?>"><b><?php echo $dep_asset->name; ?></b></a>
+							<td class="sq-backend-data" <?php echo $bg; ?>><img src="<?php echo $o->filesPath('/images/tree/branch.gif');?>" width="20" height="20" border="0" alt="branch" /></td>
+							<td class="sq-backend-data">
+								&nbsp;<a href="<?php echo $dep_asset->getBackendHref('dependants'); ?>"><b><?php echo $dep_asset->name; ?></b></a>
 							</td>
 						</tr>
 					</table>
 				</td>
 				<td><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="5" height="1" border="0" alt="" /></td>
-				<td class="sq-backend-data" valign="top">
+				<td class="sq-backend-data">
 					<?php echo $lock_message; ?>
 				</td>
 				<td background="<?php echo $o->filesPath('/images/tree/stalk.gif'); ?>"><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="1" border="0" alt="" /></td>
@@ -1471,7 +1471,7 @@ class Asset_Edit_Interface extends Resolve_Object
 					<?php echo $dep_asset->getStatusDescription(); ?>
 				</td>
 				<td><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="5" height="1" border="0" alt="" /></td>
-				<td class="sq-backend-data" valign="top">
+				<td class="sq-backend-data">
 					<?php echo $status_message; ?>
 				</td>
 			</tr>
