@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.2 2005/02/20 21:55:46 ndvries Exp $
+* $Id: hipo_job_create_links.inc,v 1.3 2005/02/21 04:57:21 ndvries Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -497,7 +497,6 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			$new_parent_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($this->_running_vars['to_parent_assetid']));
 			$step_data['message'] = 'Moving "'.$asset->name.'" to "'.$new_parent_info[$this->_running_vars['to_parent_assetid']]['name'].'".';
 
-			error_log('Is to_parent_pos changing? --> '.$this->_running_vars['to_parent_pos']);
 			$this->_running_vars['to_parent_pos']++;
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');

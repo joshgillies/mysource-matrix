@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.1 2005/02/18 06:06:49 mmcintyre Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.2 2005/02/21 04:57:21 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -462,7 +462,6 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 			'value' => '',
 		);
 
-		error_log("Cloning ".$orig->name." to position(".$this->_running_vars['to_parent_pos'].").");
 		$this->_running_vars['to_parent_pos']++;
 
 		$components = Array(
