@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.33 2004/02/16 01:05:24 gsherwood Exp $
+* $Id: page_standard.inc,v 1.34 2004/05/13 02:55:29 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -265,14 +265,9 @@ class Page_Standard extends Page
 			// get the bodycopy
 			$bodycopy = &$this->getBodycopy();
 			if (is_null($bodycopy)) return $keydata;
-
-			ob_start();
-				$bodycopy->printBody();
-				$contents = ob_get_contents();
-			ob_end_clean();
 			
 			// preprocess
-			$contents = strtolower(strip_tags(html_entity_decode($contents)));
+			$contents = strtolower(strip_tags(html_entity_decode($bodycopy->getRawBodycopyContent())));
 			$comp_name = 'attr:'.$this->type().':contents';
 			foreach (get_word_counts($contents) as $word => $count) {
 				$this->buildKeyData($keydata, $word, 'text', $comp_name, $count * $weightings['contents']['weighting']);
