@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox_edit_fns.inc,v 1.10 2004/05/20 00:38:29 gsherwood Exp $
+* $Id: design_area_searchbox_edit_fns.inc,v 1.11 2004/06/24 05:16:35 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,11 +33,11 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 * @see Design_Area_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.10 $ - 1.0
+* @version $Revision: 1.11 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
-class Design_Area_SearchBox_Edit_Fns extends Design_Area_Edit_Fns
+class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 {
 
 
@@ -45,7 +45,7 @@ class Design_Area_SearchBox_Edit_Fns extends Design_Area_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Design_Area_SearchBox_Edit_Fns()
+	function Design_Area_Searchbox_Edit_Fns()
 	{
 		$this->Design_Area_Edit_Fns();
 
