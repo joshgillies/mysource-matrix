@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.3 2004/02/16 00:34:08 gsherwood Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.4 2004/02/16 22:22:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,22 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 */
 class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 {
+
+	/**
+	* Messages used to provide info about the differnt types of create locations
+	* @var array(string => string)
+	*/
+	var $location_messages = Array(
+						'mandatory' => 'All new assets will be placed into these locations',
+						'optional'  => 'When creating a new asset, the user will have the option of placing the asset into one or more of these locations',
+						'rules'     => 'These rules define where new assets should be created based on the values filled in by the user',
+										);
+
+	/**
+	* An array of asset types that can be passed to asset_finder to define what types of create locations are allowed
+	* @var array(string => string)
+	*/
+	var $location_types = Array();
 
 
 	/**
@@ -164,7 +180,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintCreateLocation(&$asset, &$o, $prefix)
 	{
-		echo '<i><b>All new assets will be placed into these locations</b></i><br/>';
+		echo '<i><b>'.$this->location_messages['mandatory'].'</b></i><br/>';
 
 		$write_access = $asset->writeAccess('attributes');
 		$locations = $asset->attr('create_location');
@@ -207,7 +223,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 		if ($write_access) {
 			echo '<br/><b>Add Location:</b> ';
-			asset_finder($prefix.'_new_create_location');
+			asset_finder($prefix.'_new_create_location', 0, $this->location_types);
 		}
 
 		return $write_access;
@@ -263,7 +279,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintCreateLocationOptional(&$asset, &$o, $prefix)
 	{
-		echo '<i><b>When creating a new asset, the user will have the option of placing the asset into one or more of these locations</b></i><br/>';
+		echo '<i><b>'.$this->location_messages['optional'].'</b></i><br/>';
 
 		$write_access = $asset->writeAccess('attributes');
 		$locations = $asset->attr('create_location_optional');
@@ -306,7 +322,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 		if ($write_access) {
 			echo '<br/><b>Add Location:</b> ';
-			asset_finder($prefix.'_new_create_location_optional');
+			asset_finder($prefix.'_new_create_location_optional', 0, $this->location_types);
 		}
 
 		return $write_access;
@@ -408,7 +424,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintCreateLocationRules(&$asset, &$o, $prefix)
 	{
-		echo '<i><b>These rules define where new assets should be created based on the values filled in by the user</b></i><br/>';
+		echo '<i><b>'.$this->location_messages['rules'].'</b></i><br/>';
 
 		$write_access = $asset->writeAccess('attributes');
 		$current_rules = $asset->attr('create_location_rules');
@@ -488,7 +504,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					<td class="sq-backend-table-cell" colspan="3">
 						<?php
 							if ($write_access) {
-								asset_finder($prefix.'_rule_location['.$i.']['.$l.']', $location);
+								asset_finder($prefix.'_rule_location['.$i.']['.$l.']', $location, $this->location_types);
 							} else {
 								echo $location_info[$location]['name'].' [# '.$location.']';
 							}
@@ -503,7 +519,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				?>
 				<tr>
 					<td class="sq-backend-table-cell"><b>New Location</b></td>
-					<td class="sq-backend-table-cell" colspan="3"><?php asset_finder($prefix.'_rule_location['.$i.']['.$l.']'); ?></td>
+					<td class="sq-backend-table-cell" colspan="3"><?php asset_finder($prefix.'_rule_location['.$i.']['.$l.']', 0, $this->location_types); ?></td>
 				</tr>
 				<?php
 			}
