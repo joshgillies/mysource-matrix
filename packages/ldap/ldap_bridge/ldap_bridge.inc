@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.15.2.2 2004/11/04 05:04:21 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.15.2.3 2004/11/08 22:53:05 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -48,6 +48,7 @@ class LDAP_Bridge extends Bridge
 	*/
 	var $_group_types = Array('organizationalunit' => 'ou',
 							  'group'              => 'cn',
+							  'groupofnames'       => 'cn',
 							  'domain'             => 'dc',
 							  'container'          => 'cn',
 							  'organization'       => 'o'
@@ -326,7 +327,7 @@ class LDAP_Bridge extends Bridge
 			foreach ($groups as $group_name) {
 				switch ($this->attr('system_type')) {
 					case 'openldap' :
-						$result = $ldap->search($this->attr('root_dn'),'(&(objectClass=organizationalUnit)('.$attrs['ou'].'='.$group_name.'))');
+						$result = $ldap->search($this->attr('root_dn'),'(&(|(objectClass=organizationalUnit)(objectClass=groupOfNames))('.$attrs['ou'].'='.$group_name.'))');
 					break;
 					case 'activedirectory' :
 						$result = $ldap->search($group_name, '(objectClass=*)');
