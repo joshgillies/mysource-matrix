@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.2 2005/02/04 10:01:34 brobertson Exp $
+* $Id: preview.inc,v 1.3 2005/02/07 17:30:08 brobertson Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 
@@ -114,16 +114,10 @@ function paintPreview(&$owner, &$o, &$ei)
 						previewURL += 'SQ_DESIGN_NAME=' + document.getElementById('preview_design').value;
 					}
 					document.getElementById('sq_preview_frame').src = previewURL;
+					document.getElementById('sq_preview_new_window').href = previewURL;
 
 				}//end set_preview_url()
 
-				function open_preview_window()
-				{
-					var previewURL = document.getElementById('sq_preview_frame').src;
-					var win = window.open(previewURL, 'sq_preview_window');
-					win.focus();
-
-				}//end open_preview_window()
 			</script>
 			<?php
 		$o->closeRaw();
@@ -177,7 +171,7 @@ function paintPreview(&$owner, &$o, &$ei)
 			$o->openRaw('');
 				?>
 				<p class="sq-backend-field">
-					Currently previewing "<?php echo $owner->name; ?>" [<a href="#" onClick="open_preview_window(); return false;">show in new window</a>]
+					Currently previewing "<?php echo $owner->name; ?>" [<a href="<?php echo $primary_url; ?>" id="sq_preview_new_window" target="_blank">show in new window</a>]
 				</p>
 				<iframe id="sq_preview_frame" src="<?php echo $primary_url; ?>?no_cache=1" style="width: 100%; height: 400px; border: 1px solid #C3C3C3;"></iframe>
 				<?php
