@@ -968,7 +968,7 @@ class Asset_Manager extends Resolve_Object
 	*										for a whole bunch of them
 	* @param string				$base_url	the url that we are want to match closest to
 	*
-	* @return string
+	* @return string | array(int => string)
 	* @access public
 	*/
 	function getAssetURL($assetids, $base_url=null)
@@ -976,10 +976,14 @@ class Asset_Manager extends Resolve_Object
 		$return_array = true;
 		$in_assetid = 0;
 		if (!is_array($assetids)) {
+			if (empty($assetids)) return '';
 			$in_assetid = $assetids;
 			$assetids = Array($assetids);
 			$return_array = false;
+		} else {
+			if (empty($assetids)) return Array();
 		}
+
 		if (is_null($base_url)) $base_url = current_url(false);
 		$base_url = strip_url($base_url, true);
 
@@ -1051,7 +1055,7 @@ class Asset_Manager extends Resolve_Object
 	*										for a whole bunch of them
 	* @param string				$base_url	the url that we are want to match closest to
 	*
-	* @return string
+	* @return string | array(int => string)
 	* @access public
 	*/
 	function getAssetHref($assetids, $base_url=null)
@@ -1061,10 +1065,14 @@ class Asset_Manager extends Resolve_Object
 		$return_array = true;
 		$in_assetid = 0;
 		if (!is_array($assetids)) {
+			if (empty($assetids)) return '';
 			$in_assetid = $assetids;
 			$assetids = Array($assetids);
 			$return_array = false;
+		} else {
+			if (empty($assetids)) return Array();
 		}
+
 		if (is_null($base_url)) $base_url = current_url(false);
 		$base_url = strip_url($base_url, true);
 
