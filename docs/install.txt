@@ -3,7 +3,7 @@
 * | MySource Matrix - Instructional Document                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.txt,v 1.4 2003/11/26 00:51:15 gsherwood Exp $
+* $Id: install.txt,v 1.5 2004/02/19 10:13:46 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -15,11 +15,9 @@ You can choose to use either MySQL 3.23.58 or higher, MySQL 4.0.15 or higher, or
 
 Installation currently requires a CLI (command line interface) version of PHP.
 
-The HIPO service allows Matrix to pass off tasks to the server instead of having to constantly refresh the editing interfaces. The service will also support multiple systems running on the same server. If you want to use this service, the PHP CLI and PHP apache module or version need compiling with specific options.
+The HIPO service allows Matrix to pass off tasks to the Squiz Server instead of having to constantly refresh the editing interfaces. The service will also support multiple systems running on the same server. If you want to use this service, the PHP CLI and PHP apache module or version need compiling with specific options.
 
 Skip this part if you are not going to use the HIPO service - the only requirements for PHP are that your database of choice is supported.
-
-See faq.txt for more info on setting up the HIPO service.
 
 PHP - CLI Version
 =================
@@ -108,9 +106,9 @@ define('SQ_CONF_DB_DSN', 'pgsql://user@hostname/databasename');
 Note: For PostgreSQL, if the hostname is really the local server through a socket (rather than TCP/IP) the hostname becomes 'unix+localhost'.
 
 If you're using the HIPO service, it is REQUIRED that you have two database users to connect to the same database for transaction support.
-The 2nd connection is defined in the same way except it is called SQ_CONF_DB2_DSN. Passwords should be the same, the databasename must be so.
+The 2nd connection is defined in the same way except it is called SQ_CONF_DB2_DSN. Passwords can be the same, the database name must be so.
 
-If you are not using the HIPO server then define SQ_CONF_DB2_DSN as exactly the same as SQ_CONF_DB_DSN
+If you are not using the HIPO service then define SQ_CONF_DB2_DSN as exactly the same as SQ_CONF_DB_DSN
 
 
 Still in that file, if you want to enable RollBack support change
@@ -149,7 +147,7 @@ Lastly, you will need to set up 4 aliases in the Apache configuration. If you ar
 Alias "/section/__data"       "/path/to/matrix/data/public"
 Alias "/section/__lib"        "/path/to/matrix/core/lib"
 Alias "/section/__fudge"      "/path/to/matrix/fudge"
-Alias "/section"             "/path/to/matrix/core/web/index.php"
+Alias "/section"              "/path/to/matrix/core/web/index.php"
 
 If you have Matrix as the main site in your system, it is slightly different:
 
@@ -159,6 +157,14 @@ Alias "/__fudge"      "/path/to/matrix/fudge"
 Alias "/"             "/path/to/matrix/core/web/index.php/"
 
 Note: the last line requires the trailing slash on the end of index.php - otherwise Matrix will not work properly. This isn't required for a subsystem, but for the main system it is a necessity.
+
+If you are going to be using the HIPO service on the Squiz Server, then edit [NEW SYSTEM ROOT]/data/private/conf/squiz_server.inc setting the details of the server and edit [NEW SYSTEM ROOT]/data/private/conf/hipo.inc changing : 
+
+define('SQ_HIPO_USE_SERVER', '0');
+
+to 
+
+define('SQ_HIPO_USE_SERVER', '1');
 
 Lastly, to enable the Matrix Cron Manager, a system crontab entry must be made.
 
