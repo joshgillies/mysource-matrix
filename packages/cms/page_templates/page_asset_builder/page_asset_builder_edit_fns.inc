@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.16 2004/09/03 17:37:48 brobertson Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.17 2004/09/23 04:28:31 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -621,12 +621,11 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		// update the details for existing sets
 		foreach ($sets as $name => $details) {
 			$code_name = str_replace(' ', '_', strtolower($name));
-
 			// location options to delete?
 			if (isset($_POST[$prefix.'_'.$code_name.'_delete_location_options'])) {
 				if (is_array($delete_options = $_POST[$prefix.'_'.$code_name.'_delete_location_options'])) {
 					foreach ($delete_options as $id) {
-						unset($sets[$name][$id]);
+						unset($sets[$name]['locations'][$id]);
 					}
 				}
 			}
@@ -635,11 +634,14 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			if (is_array($new_options = array_values($_POST[$prefix.'_'.$code_name.'_new_location_options']))) {
 				foreach ($new_options as $option) {
 					if (($new_loc_id = $option['assetid']) && (!in_array($new_loc_id, array_keys($sets[$name]['locations'])))) {
-						$new_loc_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_loc_id);
-						$sets[$name]['locations'][$new_loc_id] = $new_loc_asset->name;
+						$sets[$name]['locations'][$new_loc_id] = '';
 					} 
 				}
 			}
+
+			// make sure the names are up to date
+			$asset_infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($details['locations']));
+			foreach ($asset_infos as $assetid => $asset_info) $sets[$name]['locations'][$assetid] = $asset_info['name'];
 
 			// update the other options
 			$sets[$name]['allow_empty'] = (int)isset($_POST[$prefix.'_'.$code_name.'_allow_empty']);
