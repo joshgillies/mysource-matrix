@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_management.inc,v 1.11 2005/01/20 13:07:33 brobertson Exp $
+* $Id: image_management.inc,v 1.12 2005/02/03 18:52:10 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -124,14 +124,14 @@ class Image_Management extends Asset_Management
 				if (is_null($asset)) continue;
 
 				if (!$asset->setAttrValue('alt',   $asset->name) || !$asset->setAttrValue('title', $asset->name)) {
-					echo 'Asset #', $asset->id, ' (', $asset->name,') Unable to set alt and/or title for ', "\n";
+					echo 'Asset #', $asset->id, ' (', $asset->name,') Unable to set alt and/or title', "\n";
 					continue;
 				}
 
 				$info = $asset->getExistingFile();
 				if (!empty($info)) {
 					if (!$asset->setAttrValue('width',  $info['width']) || !$asset->setAttrValue('height', $info['height']) || !$asset->setAttrValue('size',   $info['size'])) {
-						echo 'Asset #', $asset->id, ' (', $asset->name,') Unable to set width, height and/or size for ', "\n";
+						echo 'Asset #', $asset->id, ' (', $asset->name,') Unable to set width, height and/or size', "\n";
 						continue;
 					}
 				}//end if
