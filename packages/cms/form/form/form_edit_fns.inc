@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.19 2004/05/06 04:17:43 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.20 2004/05/06 05:21:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -553,28 +553,32 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		// if there is no bodycopy contents, then just ask
 		// all the sections to print themselves
 		//$questions = &$asset->getQuestions();
-		ob_start();				// start vacumming up all the lovely javascript code
-		?><script language="JavaScript">
-		function beforeSubmitForm(form) {
-			var submission_errors = new Array();
-			i = 0;
-				<?php 
-				echo $asset->generateJSCode();
-			?>
-				if (submission_errors.length > 0) {
-				var errors_list = "The following errors must be corrected before the form can be submitted:\n";
-				for(x in submission_errors) {
-					errors_list += submission_errors[x] + "\n";
+		if ($asset->attr('use_client_side')) {
+			ob_start();				// start vacumming up all the lovely javascript code
+			?><script language="JavaScript">
+			function beforeSubmitForm(form) {
+				var submission_errors = new Array();
+				i = 0;
+					<?php 
+					echo $asset->generateJSCode();
+				?>
+					if (submission_errors.length > 0) {
+					var errors_list = "The following errors must be corrected before the form can be submitted:\n";
+					for(x in submission_errors) {
+						errors_list += submission_errors[x] + "\n";
+					}
+					alert(errors_list);
+					return false;
 				}
-				alert(errors_list);
-				return false;
+				return true;
 			}
-			return true;
-		}
-		</script>
+			</script>
 		<?php
-		$output = ob_get_contents();		// get the contents
-		ob_end_clean();						// no more buffering
+			$output = ob_get_contents();		// get the contents
+			ob_end_clean();						// no more buffering
+		} else {
+			$output = '';
+		}
 			$sections = &$asset->getSections();
 			$output .= $this->generateGenericSection($asset);
 			$i = 1; // used for indexing

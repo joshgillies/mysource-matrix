@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.10 2004/05/06 04:17:43 lwright Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.11 2004/05/06 05:21:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -68,6 +68,13 @@
 				<paint_function   name="paintUseBodycopy"   />
 				<process_function name="processUseBodycopy" />
 			</function_call>
+		</field>
+	</section>
+	<section name="Validation">
+		<field attribute="use_client_side">
+			<display_name>Validation Method</display_name>
+			<note>Note that server-side validation will always be used if a browser does not support it on the client side</note>
+			<boolean true_text="Use Client-Side Validation" false_text="Use Server-Side Validation" />
 		</field>
 	</section>
 	<section name="Simple Formatting">

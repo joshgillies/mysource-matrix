@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.24 2004/05/06 04:49:05 lwright Exp $
+* $Id: form.inc,v 1.25 2004/05/06 05:21:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -833,7 +833,7 @@ class Form extends Bridge
 
 
 	/**
-	* prints the validatin bodycopy
+	* prints the validating bodycopy
 	* 
 	* @access public
 	* @return boolean
@@ -1075,6 +1075,8 @@ class Form extends Bridge
 	*/
 	function generateJSCode()
 	{
+		if (!$this->attr('use_client_side')) return '';
+
 		$questions = &$this->getQuestions();
 		$sections = &$this->getSections();
 		$code = '';						// blank sheet of code to start with
