@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding='UTF-8' ?>
-<?xml-stylesheet href="../package.xsl" type="text/xsl"?>
-
-<package_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../package.xsd">
-	<code_name>bulkmail</code_name>
-	<version>0.1</version>
-	<name>Bulkmail Package</name>
-	<description>For anything and everything to do with bulkmail</description>
-</package_info>
