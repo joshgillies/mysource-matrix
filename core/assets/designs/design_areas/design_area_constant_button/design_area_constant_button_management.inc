@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_constant_button_management.inc,v 1.9 2003/11/26 00:50:55 gsherwood Exp $
+* $Id: design_area_constant_button_management.inc,v 1.10 2003/12/12 18:44:48 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,13 +51,13 @@ class Design_Area_Constant_Button_Management extends Asset_Management
 								'added'			=> '0.0.1',
 								'type'			=> 'int',
 								'default'		=> 0,
-								'description'	=> 'The asset that the button is to link to'
+								'description'	=> 'The asset that the button is to link to (has priority over the url attribute)',
 							),
 							'url' => Array(
 								'added'			=> '0.0.1',
 								'type'			=> 'text',
 								'default'		=> '',
-								'description'	=> 'The URL that the button is to link to'
+								'description'	=> 'The URL that the button is to link to',
 							),
 							'new_window' => Array(
 								'added'			=> '0.0.1',
