@@ -40,14 +40,14 @@ CREATE TABLE sq_asset_link (
 
 DROP TABLE IF EXISTS sq_asset_link_tree;
 CREATE TABLE sq_asset_link_tree (
-  treeid              VARCHAR(255) NOT NULL DEFAULT '',
+  treeid              VARCHAR(248) NOT NULL DEFAULT '',
   linkid              INT UNSIGNED NOT NULL,
   num_immediate_kids  INT UNSIGNED NOT NULL,
   PRIMARY KEY(treeid)
 );
-DROP INDEX sq_asset_link_tree_linkid;
+#DROP INDEX sq_asset_link_tree_linkid;
 CREATE INDEX sq_asset_link_tree_linkid ON sq_asset_link_tree (linkid);
-DROP INDEX sq_asset_link_tree_num_immediate_kids;
+#DROP INDEX sq_asset_link_tree_num_immediate_kids;
 CREATE INDEX sq_asset_link_tree_num_immediate_kids ON sq_asset_link_tree (num_immediate_kids);
 
 
@@ -148,8 +148,8 @@ CREATE TABLE sq_asset_permission (
 DROP TABLE IF EXISTS sq_asset_permission_lookup;
 CREATE TABLE sq_asset_permission_lookup (
   permissionid  INT UNSIGNED NOT NULL,
-  start_treeid  VARCHAR(255) NOT NULL,
-  stop_treeid   VARCHAR(255) NOT NULL,
+  start_treeid  VARCHAR(248) NOT NULL,
+  stop_treeid   VARCHAR(248) NOT NULL,
   inc_stop      CHAR(1) NOT NULL DEFAULT '0',  -- include the stop_treeid as part of this permission
   PRIMARY KEY(permissionid, start_treeid, stop_treeid)
 );
