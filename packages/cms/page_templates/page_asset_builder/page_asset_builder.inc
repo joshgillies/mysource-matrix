@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.33 2004/11/12 04:36:25 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.34 2004/11/15 01:13:08 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -566,13 +566,14 @@ class Page_Asset_Builder extends Page
 
 		// check what rules dictate where the asset should be created
 		$location_rules = $this->attr('create_location_rules');
+		$attributeids = ($GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type, Array('name', 'attributeid')));
 		if (!empty($location_rules[$create_type])) {
 			foreach ($location_rules[$create_type] as $i => $rule) {
 				$pass = true;
 				$j = 0;
 				while ($j < count($rule['attributes'])) {
 					if (empty($attributes)) {
-						$attr_value = isset($_POST[$prefix.'_'.$rule['attributes'][$j]]) ? trim(strtolower($_POST[$prefix.'_'.$rule['attributes'][$j]])) : '';
+						$attr_value = isset($_POST[$prefix.'_'.$attributeids[$rule['attributes'][$j]]]) ? trim(strtolower($_POST[$prefix.'_'.$attributeids[$rule['attributes'][$j]]])) : '';
 					} else {
 						$attr_value = isset($attributes[$rule['attributes'][$j]]) ? trim(strtolower($attributes[$rule['attributes'][$j]])) : '';
 					}
