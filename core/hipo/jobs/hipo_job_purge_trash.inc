@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.20 2005/02/24 05:27:17 dbaranovskiy Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.21 2005/03/23 22:57:15 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -51,19 +51,19 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	* @var Array
 	*/
 	var $_steps = Array(
-					Array(
-						'name'             => 'Purging Trash',
-						'function_call'    => Array(
-												'process_function' => 'processTrash',
-												),
-						'running_mode'     => 'server',
-						'auto_step'        => true,
-						'allow_cancel'     => true,
-						'percent_done'     => 0,
-						'complete'         => false,
-						'message'          => '',
-					),
-				);
+						Array(
+							  'name'          => 'Purging Trash',
+							  'function_call' => Array(
+													   'process_function' => 'processTrash',
+													   ),
+							  'running_mode'  => 'server',
+							  'auto_step'     => true,
+							  'allow_cancel'  => true,
+							  'percent_done'  => 0,
+							  'complete'      => false,
+							  'message'       => '',
+							  ),
+						);
 
 
 	/**
@@ -116,8 +116,8 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	function getConfigVars()
 	{
 		return Array(
-			'SQ_HIPO_PURGE_TRASH_THRESHOLD' => Array('editable' => 1, 'default' => 1),
-		);
+					 'SQ_HIPO_PURGE_TRASH_THRESHOLD' => Array('editable' => 1, 'default' => 1),
+					 );
 
 	}//end getConfigVars()
 
@@ -180,10 +180,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 		$sql .= $where.' LIMIT 1';
 
 		$treeid = $db->getOne($sql);
-		if (DB::isError($treeid)) {
-			trigger_error($treeid->getMessage().'<br/>'.$treeid->getUserInfo(), E_USER_ERROR);
-			return false;
-		}
+		if (!assert_valid_db_result($treeid)) return false;
 
 		$this->_running_vars['todo_links']     = $children;
 		$this->_running_vars['done_links']     = Array();
@@ -243,8 +240,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 							ORDER BY t2.treeid DESC';
 
 					$other_links = $db->getAll($sql);
-					if (DB::isError($other_links)) {
-						trigger_error($other_links->getMessage().'<br/>'.$other_links->getUserInfo(), E_USER_WARNING);
+					if (!assert_valid_db_result($other_links)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
 					}
