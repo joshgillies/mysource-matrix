@@ -25,7 +25,7 @@ function mcMenuContainerClass()
 	}
 }
 
-mcMenuContainerClass.prototype = new NestedMouseMovieClip(false, NestedMouseMovieClip.NM_ON_PRESS | NestedMouseMovieClip.NM_ON_ROLL);
+mcMenuContainerClass.prototype = new NestedMouseMovieClip(false, NestedMouseMovieClip.NM_ON_PRESS);
 Object.registerClass('mcMenuContainerID', mcMenuContainerClass);
 
 

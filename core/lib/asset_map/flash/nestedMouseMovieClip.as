@@ -61,6 +61,7 @@ NestedMouseMovieClip.prototype._NM_findMc = function(x, y)
 NestedMouseMovieClip.prototype.onEnterFrame = function() 
 {
 	if (this._nm_on_press_mc != null || this._nm_on_roll_active) {
+		trace (this + "::NestedMouseMovieClip.onEnterFrame()");
 		var mc_name = this._NM_findMc(this._xmouse, this._ymouse);
 
 		if (this._nm_on_press_mc != null) {
@@ -81,6 +82,7 @@ NestedMouseMovieClip.prototype.onEnterFrame = function()
 			}
 
 		} else if (this._nm_on_roll_active && !this._nm_drag_active) {
+			trace (this + "::NestedMouseMovieClip.onEnterFrame()");
 			// if we have previously rolled over another mc, and we aren't still over it
 			// then roll out of it
 			if (this._nm_on_roll_mc != null && this._nm_on_roll_mc != mc_name) {

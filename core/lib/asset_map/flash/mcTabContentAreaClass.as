@@ -13,7 +13,7 @@ function mcTabContentAreaClass()
 }
 
 // Make it inherit from Nested Mouse Movements MovieClip
-mcTabContentAreaClass.prototype = new NestedMouseMovieClip(false, NestedMouseMovieClip.NM_ON_PRESS | NestedMouseMovieClip.NM_ON_ROLL);
+mcTabContentAreaClass.prototype = new NestedMouseMovieClip(false, NestedMouseMovieClip.NM_ON_PRESS);
 
 /**
 * Opens this tab in the tab container

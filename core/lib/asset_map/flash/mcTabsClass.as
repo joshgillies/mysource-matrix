@@ -24,7 +24,7 @@ function mcTabsClass()
 }
 
 // Make it inherit from Nested Mouse Movements MovieClip
-mcTabsClass.prototype = new NestedMouseMovieClip(false, NestedMouseMovieClip.NM_ON_PRESS | NestedMouseMovieClip.NM_ON_ROLL);
+mcTabsClass.prototype = new NestedMouseMovieClip(false, NestedMouseMovieClip.NM_ON_PRESS);
 
 /**
 * Creates a tab using the passed export name and set's it to the passed name
