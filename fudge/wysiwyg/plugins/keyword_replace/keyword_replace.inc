@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: keyword_replace.inc,v 1.7 2004/09/09 11:40:07 brobertson Exp $
+* $Id: keyword_replace.inc,v 1.8 2004/11/23 02:44:27 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -48,41 +48,10 @@ class Keyword_Replace extends WYSIWYG_Plugin {
 	var $keyword_tag = '';
 
 	/**
-	* A format to define how the placeholder content should look for inline keywords
-	* Inline keywords ensure any formatting applied to the text is kept (bold, underline etc)
-	* Must contain keyword_replace="%KEYWORD%" and %DEFAULT% and must be a SPAN element
-	*
-	* @var string
-	*/
-	var $content_format_inline = '<span style="background-color: #C2BFC4; color: #555555;" contenteditable="false" keyword_replace="%KEYWORD%">%DEFAULT%</span>';
-
-	/**
-	* A format to define how the placeholder content should look for block level keywords
-	* Block level keywords do not keep any formatting - straight keyword replacement
-	* Must contain keyword_replace="%KEYWORD%" and %DEFAULT% and must be a DIV element
-	*
-	* @var string
-	*/
-	var $content_format_block = '<div style="width: 100%; height: 200px; background-color: #F4F4EB; text-align: center; border: 1px solid #5A5A5A;" contenteditable="false" keyword_replace="%KEYWORD%"><table height="200px" align="center" contenteditable="false"><tr><td align="center" valign="middle"><b>%DEFAULT%</b></td></tr></table></div>';
-
-	/**
-	* A format to define how the placeholder content should look for special inline keywords
-	* Special keywords do not keep any formatting - straight keyword replacement - but act as a SPAN
-	* Must contain keyword_replace="%KEYWORD%" and %DEFAULT% and must be a SPAN element
-	*
-	* @var string
-	*/
-	var $content_format_special = '<span style="background-color: #C2BFC4; color: #555555;" contenteditable="false" keyword_replace="%KEYWORD%">%DEFAULT%</span>';
-
-	/**
 	* The keywords and their replacements
 	* This array must be in form
 	* <pre>
-	* Array('keyword' => Array(
-	*						'name' => short name,
-	*						'default' => HTML to shwo to the user
-	*							)
-	*		)
+	* Array('keyword' => 'name')
 	* </pre>
 	*
 	* @var Array()
@@ -114,26 +83,10 @@ class Keyword_Replace extends WYSIWYG_Plugin {
 		this.config.keywords = Array(
 			<?php
 			$string = '';
-			foreach ($this->keywords as $keyword => $info) {
-				if (!isset($info['type']) || $info['type'] == 'inline') {
-					$default = preg_replace('|<p([^>]+)?>(.+?)</p>|is', '\\2', $info['default']);
-					$default = '~ '.$default.' ~';
-					$default_string = $this->content_format_inline;
-				} else if ($info['type'] == 'block') {
-					$default = $info['default'];
-					$default_string = $this->content_format_block;
-				} else {
-					$default = preg_replace('|<p([^>]+)?>(.+?)</p>|is', '\\2', $info['default']);
-					$default_string = $this->content_format_special;
-				}
-				$default_string = str_replace('%KEYWORD%', $keyword, $default_string);
-				$default_string = str_replace('%DEFAULT%', $default, $default_string);
-
-				$keyword        = str_replace(Array('"', "\r", "\n"), Array('\"', '\r', '\n'), $keyword);
-				$info['name']   = str_replace(Array('"', "\r", "\n"), Array('\"', '\r', '\n'), $info['name']);
-				$default_string = str_replace(Array('"', "\r", "\n"), Array('\"', '\r', '\n'), $default_string);
-
-				$string .= "\n".'Array("'.$keyword.'", "'.$info['name'].'", "'.$default_string.'"),';
+			foreach ($this->keywords as $keyword => $name) {
+				$keyword = str_replace(Array('"', "\r", "\n"), Array('\"', '\r', '\n'), $keyword);
+				$name    = str_replace(Array('"', "\r", "\n"), Array('\"', '\r', '\n'), $name);
+				$string .= "\n".'Array("'.$this->keyword_tag.$keyword.$this->keyword_tag.'", "'.$name.'"),';
 			}
 			echo trim($string, ', ');
 			?>
@@ -157,7 +110,7 @@ class Keyword_Replace extends WYSIWYG_Plugin {
 			options["-- select keyword --"] = "";
 			for (var i in editor.config.keywords) {
 				var keyword = editor.config.keywords[i];
-				options[keyword[1]] = keyword[2];
+				options[keyword[1]] = keyword[0];
 			}
 			cmd = txt;
 		break;
@@ -184,93 +137,6 @@ class Keyword_Replace extends WYSIWYG_Plugin {
 		<?php
 	
 	}//end print_plugin_combo_selected()
-
-
-	/**
-	* Replaces the default values with the real keywords
-	*
-	* @param string	&html	the HTML that was submitted by the editor
-	*
-	* @return string
-	* @access public
-	*/
-	function process(&$html)
-	{
-		foreach ($this->keywords as $keyword => $info) {
-			if (!isset($info['type']) || $info['type'] == 'inline') {
-				// inline (SPAN)
-				// we make sure any formatting made to the text is kept
-				$default = preg_replace('|<p([^>]+)?>(.+?)</p>|is', '\\2', $info['default']);
-				$default = preg_replace('|([\(\)\[\]\^\$\*\.\?])|', '\\\\\1', $default);
-				$default = '~ '.$default.' ~';
-
-				$pattern = '|<span[^>]+keyword_replace\="?'.$keyword.'"?([^>]+)?>([^~]+)??'.$default.'([^~]+)??</span>|is';
-				$replace = $this->keyword_tag.'\\2'.$keyword.'\\3'.$this->keyword_tag;
-			} else if ($info['type'] == 'block') {
-				// block level (DIV)
-				// ignore all formatting - this is a straight keyword substitution
-				$pattern = '|<div[^>]+keyword_replace\="?'.$keyword.'"?([^>]+)?>(.+?)</div>|is';
-				$replace = $this->keyword_tag.$keyword.$this->keyword_tag;
-			} else {
-				// special type of replacements (SPAN)
-				// ignore all formatting - this is a straight keyword substitution
-				$pattern = '|<span[^>]+keyword_replace\="?'.$keyword.'"?([^>]+)?>([^~]+?)</span>|is';
-				$replace = $this->keyword_tag.$keyword.$this->keyword_tag;
-			}
-			$html = preg_replace($pattern, $replace, $html);
-		}
-		
-	}//end process()
-
-
-	/**
-	* Sets the initial contents of the WYSIWYG editor
-	*
-	* @param string	&$contents	Some HTML content
-	*
-	* @return void
-	* @access public
-	*/
-	function set_contents(&$contents)
-	{
-		// work out the special replace tags for all our keywords
-		$search = Array();
-		$replace = Array();
-		$counter = 0;
-		foreach ($this->keywords as $keyword => $info) {
-			if (!isset($info['type']) || $info['type'] == 'inline') {
-				$default = preg_replace('|<p([^>]+)?>(.+?)</p>|is', '\\2', $info['default']);
-				$default = '~ '.$default.' ~';
-				$default_string = $this->content_format_inline;
-			} else if ($info['type'] == 'block') {
-				$default = $info['default'];
-				$default_string = $this->content_format_block;
-			} else {
-				$default = preg_replace('|<p([^>]+)?>(.+?)</p>|is', '\\2', $info['default']);
-				$default_string = $this->content_format_special;
-			}
-			$default_string = str_replace('%KEYWORD%', $keyword, $default_string);
-			$default_string = str_replace('%DEFAULT%', '\\1'.$default.'\\4', $default_string);
-
-			$search[$counter]  = "|{$this->keyword_tag}((<([^>]+?)>)+)?{$keyword}((<([^>]+?)>)+)?{$this->keyword_tag}|is";
-			$replace[$counter] = $default_string;
-			$counter++;
-		}
-
-		// split the contents up into tags so we can replace keywords only
-		// if they are not within HTML tags (tags inside tags are a bad mix :)
-		$pieces = Array();
-		$new_contents = '';
-		preg_match_all('|([^<]+)?(<[^>]+?>)([^<]+)?|', $contents, $pieces);
-		if (empty($pieces[0])) {
-			$contents = preg_replace($search, $replace, $contents);
-			return;
-		} else {
-			foreach ($pieces[1] as $key => $value) $new_contents .= preg_replace($search, $replace, $value).$pieces[2][$key].preg_replace($search, $replace, $pieces[3][$key]);
-			$contents = $new_contents;
-		}
-
-	}//end set_contents()
 
 
 }//end class()
