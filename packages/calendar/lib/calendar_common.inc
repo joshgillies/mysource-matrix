@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.12.2.5 2005/01/09 23:56:44 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.12.2.6 2005/03/11 00:37:46 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.12.2.5 $
+* @version $Revision: 1.12.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -940,7 +940,7 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 					$result_list[$assetid.':'.$i]['end_date_ts'] = strtotime($start_date.' '.$event['end_date_hours'].':'.$event['end_date_minutes'].':00');
 				} else {
 					$event[$assetid.':'.$i]['start_date_ts'] = strtotime($start_date);
-					$event[$assetid.':'.$i]['end_date_ts'] = strtotime($end_date);
+					$event[$assetid.':'.$i]['end_date_ts'] = strtotime($start_date);
 				}				
 				
 				$i++;
