@@ -2661,50 +2661,6 @@ class Asset extends Resolve_Object
 					return 0;
 				}
 
-//// PULL ACROSS MINOR ASSET'S PERMISSIONS LOOKUP'S ////
-
-// note that we dont prep this query for rollback because its getting run
-// by the rollback query functions already
-#$select_from = SQ_TABLE_PREFIX.'asset_link_tree pt 
-#			   INNER JOIN '.SQ_TABLE_PREFIX.'asset_link pl ON pt.linkid = pl.linkid,
-#			   '.SQ_TABLE_PREFIX.'asset_permission ctp';
-#$where       = 'pl.minorid = '.$db->quote($this->id).'
-#			   AND pt.treeid LIKE '.$db->quote($minor_tree['treeid'].'%');
-#
-#$values = Array('assetid'    => $db->quote($this->id),
-#				'userid'     => 'ctp.userid',
-#				'permission' => 'ctp.permission',
-#				'access'     => 'ctp.access'
-#				);
-#if (!$GLOBALS['SQ_SYSTEM']->rollbackInsertSelect('asset_permission', $select_from, $values, $where)) {
-#	$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-#	return 0;
-#}
-
-// so much for SQL standards...
-#$concat_start_treeid = ($db->phptype == 'mysql')
-#	? 'CONCAT(pt.treeid, '.$db->quote($free_childid).', SUBSTRING(ctp.start_treeid FROM '.$db->quote(strlen($minor_tree['treeid']) + 1).'))'
-#	: 'pt.treeid || '.$db->quote($free_childid).' || SUBSTRING(ctp.start_treeid FROM '.$db->quote(strlen($minor_tree['treeid']) + 1).')';
-#$concat_stop_treeid = ($db->phptype == 'mysql')
-#	? 'CONCAT(pt.treeid, '.$db->quote($free_childid).', SUBSTRING(ctp.stop_treeid FROM '.$db->quote(strlen($minor_tree['treeid']) + 1).'))'
-#	: 'pt.treeid || '.$db->quote($free_childid).' || SUBSTRING(ctp.stop_treeid FROM '.$db->quote(strlen($minor_tree['treeid']) + 1).')';
-
-
-#$where = 'pl.minorid = '.$db->quote($this->id).'
-#		  AND ctp.start_treeid LIKE '.$db->quote($minor_tree['treeid'].'%');
-// note that we dont prep this query for rollback because its getting run
-// by the rollback query functions already
-#$select_from = ''.SQ_TABLE_PREFIX.'asset_link_tree pt INNER JOIN '.SQ_TABLE_PREFIX.'asset_link pl ON pt.linkid = pl.linkid, '.SQ_TABLE_PREFIX.'asset_permission_lookup ctp';
-#$values = Array('permissionid' => 'ctp.permissionid',
-#				'start_treeid' => $concat_start_treeid,
-#				'stop_treeid'  => $concat_stop_treeid,
-#				'inc_stop'     => 'ctp.inc_stop'
-#				);
-#if (!$GLOBALS['SQ_SYSTEM']->rollbackInsertSelect('asset_permission_lookup', $select_from, $values, $where)) {
-#	$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-#	return 0;
-#}
-
 			}// end if
 
 		}// end if significant link
@@ -2744,14 +2700,6 @@ class Asset extends Resolve_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return 0;
 		}
-
-// if this is a web path link, then we need to inform the asset to update it's lookups
-//if ($link_type & SQ_SC_LINK_WEB_PATHS) {
-//	if (!$minor->updateLookups()) {
-//		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-//		return 0;
-//	}
-//}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->broadcastEvent('CreateLink', Array('assetid' => $this->id, 'linkid' => $linkid));
