@@ -60,15 +60,17 @@ class Asset_Edit_Fns extends Resolve_Object
 	function paintPaths(&$asset, &$o, $prefix) 
 	{
 
+		$wa = $asset->writeAccess();
+
 		$paths = $asset->getWebPaths();
 
 		foreach($paths as $path) {
-			text_box($prefix.'_paths[]', $path, 25);
+			if ($wa) text_box($prefix.'_paths[]', $path, 25);
+			else echo $path;
 			echo '<br/>';
 		}
 
-		text_box($prefix.'_paths[]', '', 25);
-		echo '<br/>';
+		if ($wa) text_box($prefix.'_paths[]', '', 25);
 		
 	}// end paintPaths()
 
@@ -84,7 +86,8 @@ class Asset_Edit_Fns extends Resolve_Object
 	*/
 	function processPaths(&$asset, &$o, $prefix) 
 	{
-		$asset->saveWebPaths(array_values($_POST[$prefix.'_paths']));
+		if (!isset($_POST[$prefix.'_paths'])) return false;
+		return $asset->saveWebPaths(array_values($_POST[$prefix.'_paths']));
 	}// end processPaths()
 
 
