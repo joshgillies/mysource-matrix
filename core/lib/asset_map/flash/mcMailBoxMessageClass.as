@@ -15,14 +15,21 @@ function mcMailBoxMessageClass()
 	this.priority	= ''; // 1-5 priority
 	this.status		= ''; // 'U' - Unread, 'R' - Read, 'D' - Deleted
 
-
-	// create the text field
+	// priority and status flags
 	this.attachMovie ('mcMailBoxMessagePriorityID', 'priority_flag', 1);
 	this.attachMovie('mcMailBoxMessageStatusID', 'status_flag', 2);
+
+	// create the text fields
 	this.createTextField("subject_field",  3, 0, 0, 0, 0);
 	this.createTextField("from_field",     4, 0, 0, 0, 0);
-	this.createEmptyMovieClip('user_type_icon', 5); // placeholder for user type icon
 	
+	// user (sent from) type icon
+	this.createEmptyMovieClip('user_type_icon', 5); // placeholder for user type icon
+
+	// am/pm icon
+	this.attachMovie('mcMailTimeIconID', 'time_icon', 6);
+
+	// setup text fields
 	this.subject_field.multiline  = this.from_field.multiline  = false;		// }
 	this.subject_field.wordWrap   = this.from_field.wordWrap   = false;		// } Using these 3 properties we have a text field that autosizes 
 	this.subject_field.autoSize   = this.from_field.autoSize   = "left";	// } horizontally but not vertically
@@ -44,7 +51,7 @@ Object.registerClass("mcMailBoxMessageID", mcMailBoxMessageClass);
 /**
 * Set's the information for the message
 */
-mcMailBoxMessageClass.prototype.setInfo = function(messageid, subject, from, body, sent, priority, status, from_type_code)
+mcMailBoxMessageClass.prototype.setInfo = function(messageid, subject, from, body, sent, am, priority, status, from_type_code)
 {
 //	trace(this + "::mcMailBoxMessageClass.setInfo(" + messageid + ", " + subject + ", " + from + ", " + body + ", " + sent + ", " + priority + ", " + status + ", " + from_type_code + ")");
 
@@ -52,6 +59,12 @@ mcMailBoxMessageClass.prototype.setInfo = function(messageid, subject, from, bod
 		_root.dialog_box.show("Unknown Mail Message status, Messageid #" + messageid + ", setting to unread");
 		status = "U";
 	}// end if
+
+	if (am != "true") {
+		this.time_icon.gotoAndStop('pm');
+	} else {
+		this.time_icon.gotoAndStop('am');
+	}
 
 	this.messageid		= messageid;
 	this.subject		= subject;
@@ -74,6 +87,7 @@ mcMailBoxMessageClass.prototype.setInfo = function(messageid, subject, from, bod
 	
 	this.subject_field.setTextFormat(this.text_format);
 	this.from_field.setTextFormat(this.text_format);
+	
 
 }// end setInfo();
 
@@ -88,7 +102,7 @@ mcMailBoxMessageClass.prototype.setWidth = function(w, subject_pos, from_pos, co
 	}
 
 
-	// if the from field is going to overlap the subject field, adjust it's text
+	// if the from field is going to overlap the subject field, adjust its text
 	if (this.subject_field._width > from_pos - subject_pos - col_gap) {
 		var tmp_text = new String(this.subject);
 		do {
@@ -122,7 +136,8 @@ mcMailBoxMessageClass.prototype.setWidth = function(w, subject_pos, from_pos, co
 	this.from_field._x		= from_pos + this.user_type_icon._width;
 	this.from_field._y		= (baseHeight - this.from_field._height) / 2;
 
-	var ypos = this.subject_field._y + this.subject_field._height + 3;
+	this.time_icon._x		= Math.max(this.from_field._x + this.from_field._width, w - this.time_icon._width - 10);
+	this.time_icon._y		= (baseHeight - this.time_icon._height) / 2;
 
 	this.lineStyle(1, 0x000000);
 	this.moveTo(0, baseHeight);

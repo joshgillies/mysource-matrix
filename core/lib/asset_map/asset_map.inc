@@ -821,6 +821,13 @@ class Asset_Map
 			unset($attrs['body']);
 			unset($attrs['parameters']);
 			unset($attrs['userto']);
+			
+			if (date('H', $attrs['sent']) >= 12) {
+				$attrs['am'] = "false";
+			} else {
+				$attrs['am'] = "true";
+			}
+
 			$attrs['sent'] = $GLOBALS['SQ_SYSTEM']->datetime($attrs['sent']);
 			$msg_node = &$root->addChild('message', '', $attrs);
 			$msg_node->addChild('subject', strip_tags($messages[$i]['subject']));

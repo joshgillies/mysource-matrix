@@ -131,7 +131,7 @@ mcTabsClass.prototype.refreshTab = function()
 
 	// then just set the size of current tab contents area
 	this[this.current_tab].setSize(this.dims.w, this.dims.h - (this._parent.header._y + this._parent.header._height));
-	this[name]._visible = true;
+
 
 }// refreshTab()
 

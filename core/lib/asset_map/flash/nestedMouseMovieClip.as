@@ -82,7 +82,7 @@ NestedMouseMovieClip.prototype.notOnMouseMove = function()
 			}
 
 		} else if (this._nm_on_roll_active && !this._nm_drag_active) {
-			trace (this + "::NestedMouseMovieClip.onEnterFrame()");
+//			trace (this + "::NestedMouseMovieClip.onEnterFrame()");
 			// if we have previously rolled over another mc, and we aren't still over it
 			// then roll out of it
 			if (this._nm_on_roll_mc != null && this._nm_on_roll_mc != mc_name) {
@@ -112,12 +112,12 @@ NestedMouseMovieClip.prototype.notOnMouseMove = function()
 
 NestedMouseMovieClip.prototype.notonRollOut = function() 
 {
-	trace (this + "::NestedMouseMovieClip.onRollOut()");
+//	trace (this + "::NestedMouseMovieClip.onRollOut()");
 	this._nm_on_roll_active = false;
 }
 NestedMouseMovieClip.prototype.notonRollOver = function() 
 {
-	trace (this + "::NestedMouseMovieClip.onRollOver()");
+//	trace (this + "::NestedMouseMovieClip.onRollOver()");
 //	trace("onRollOver : " + this);
 	this._nm_on_roll_active = true;
 }

@@ -115,11 +115,13 @@ mcMailBoxClass.prototype.loadMailFromXML = function(xml, exec_indentifier)
 		this.msgs.push(mc_name);
 
 		this.attachMovie("mcMailBoxMessageId", mc_name, this.msgs.length);
+
 		this[mc_name].setInfo(	msg_node.attributes.messageid,
 								msg_node.childNodes[0].firstChild.nodeValue, // subject
 								msg_node.childNodes[1].firstChild.nodeValue,  // from
 								msg_node.childNodes[2].firstChild.nodeValue,  // body
 								msg_node.attributes.sent,
+								msg_node.attributes.am,
 								msg_node.attributes.priority,
 								msg_node.attributes.status,
 								msg_node.attributes.type_code

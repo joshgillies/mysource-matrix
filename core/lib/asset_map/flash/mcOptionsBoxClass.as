@@ -21,8 +21,8 @@ function mcOptionsBoxClass()
 	this.heading_text.autoSize = "center";
 	this.summary_text.autoSize = "center";
 
-	this.ok_button.onPress     = function () { this._parent.okPressed() };
-	this.cancel_button.onPress = function () { this._parent.cancelPressed() };
+	this.ok_button.onRelease		= function () { this._parent.okPressed() };
+	this.cancel_button.onRelease	= function () { this._parent.cancelPressed() };
 
 
 	this.options_order = new Array();
