@@ -1,6 +1,47 @@
 MYSOURCE MATRIX CHANGELOG
 
 
+VERSION 3.4.1
+
+Complete Changelog
+----------------------
+
+Core
++	Permission changes now always cascade to dependant assets regardless of if cascade is selected (bug #406)
+-	Parenthesis are no longer allowed in web paths (bug #513)
+*	Fixed bug #196: uncustomising then recustomising a design area in a design cust causes error acquring locks
+*	Fixed bug #209: unable to purge trash with design customisations inside
+*	Fixed bug #274: cannot delete customisation independently of the design
+*	Fixed bug #406: permissions should always cascade to dependant assets
+*	Fixed bug #420: caching of nested content URLs breaks
+*	Fixed bug #432: disappearing thumbnails on divs
+*	Fixed bug #488: setting layout for the layout manager causes '0 is not valid asset' error
+*	Fixed bug #507: you cant set max idle time to zero
+*	Fixed bug #509: two login boxes on a page means you cant login using the first one
+*	Fixed bug #511: IMG tag created by custom image design area is not XHTML compliant
+*	Fixed bug #513: parenthesis in design urls and import() statements break URL
+*	Fixed bug #517: WYSIWYG table editor throws javascript error on early mouse move
+*	Fixed bug #518: table not always visible in WYSIWYG table editor
+*	Fixed bug #528: design/media/users folders cant have designs applied
+*	Fixed bug #529: user groups dont have a web paths screen
+*	Fixed bug #530: settings screen doesnt work on user group assets
+*	Fixed bug #543: editing interface referencing wrong file
+*	Fixed bug #550: cannot bump major version on some assets
+*	Fixed bug #554: cron manager dies without clearing errored jobs
+*	Fixed bug #555: cron manager undefined index errors
+*	Fixed bug #556: no table row delete button
+*	Fixed bug #557: setting the character set does nothing
+
+CMS
+*	Fixed bug #516: remote content pages cannot be nested (remote content)
+*	Fixed bug #519: keyword %asset_lineage% should use short_name of asset (asset listing)
+*	Fixed bug #523: remote binary content fails (remote content)
+*	Fixed bug #524: keyword %asset_name% for custom forms displays as 'Form Contents' (custom form)
+*	Fixed bug #545: checkbox list has default selection (custom form)
+
+
+
+
 VERSION 3.4.0
 
 Featured Changes
