@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.58 2005/03/21 06:25:03 gsherwood Exp $
+* $Id: step_03.php,v 1.59 2005/03/30 04:25:10 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 /**
 * Install Step 3
 *
-* Installs packages into the MySource system. You can optionally specify what 
+* Installs packages into the MySource system. You can optionally specify what
 * packages and assets to run the script for in the following manner:
 *
 *    php step_03.php /system/root --package=packagename[-assettype,assettype,assettype]
@@ -35,15 +35,15 @@
 * a hyphen, entries after the hyphen will be taken to be asset types.
 *
 *    php step_03.php /system/root --package=core-page,page_standard
-* 
+*
 * would only update the page and page_standard assets within the core package
-* 
+*
 *    php step_03.php /system/root --package=core --package=cms
-* 
+*
 * would update all the asset types for core and cms only
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -51,13 +51,22 @@ ini_set('memory_limit', -1);
 error_reporting(E_ALL);
 $SYSTEM_ROOT = '';
 
+$start_time = time();
+$cli = true;
+
 // from cmd line
 if ((php_sapi_name() == 'cli')) {
-	if (isset($_SERVER['argv'][1])) $SYSTEM_ROOT = $_SERVER['argv'][1];
+	echo "Step 3:\n";
+	if (isset($_SERVER['argv'][1])) {
+		$SYSTEM_ROOT = $_SERVER['argv'][1];
+	}
 	$err_msg = "You need to supply the path to the System Root as the first argument\n";
 
 } else {
-	if (isset($_GET['SYSTEM_ROOT'])) $SYSTEM_ROOT = $_GET['SYSTEM_ROOT'];
+	$cli = false;
+	if (isset($_GET['SYSTEM_ROOT'])) {
+		$SYSTEM_ROOT = $_GET['SYSTEM_ROOT'];
+	}
 	$err_msg = '
 	<div style="background-color: red; color: white; font-weight: bold;">
 		You need to supply the path to the System Root as a query string variable called SYSTEM_ROOT
@@ -71,7 +80,7 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 
 
 // only use console stuff if we're running from the command line
-if ((php_sapi_name() == 'cli')) {
+if ($cli) {
 	require_once 'Console/Getopt.php';
 
 	$shortopt = '';
@@ -150,13 +159,18 @@ install_event_listeners();
 cache_asset_types();
 
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+$end_time = time();
 
+$total_time = $end_time - $start_time;
+if ($cli) {
+	printf("\nStep 3 completed in %s seconds (%.1f minutes)\nStart:\t%s\nFinish:\t%s\n", $total_time, ($total_time/60), date('H:i:s (M jS)', $start_time), date('H:i:s', $end_time));
+}
 
 /**
 * Gets a list of supplied package options from the command line arguments given
 *
 * Returns an array in the format needed for package_list
-* 
+*
 * @param array	$options	the options as retrieved from Console::getopts
 *
 * @return array
