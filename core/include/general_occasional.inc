@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.28 2003/11/26 00:51:10 gsherwood Exp $
+* $Id: general_occasional.inc,v 1.29 2003/12/30 05:25:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -59,7 +59,7 @@ function link_type_name($type)
 		return $names;
 	}
 
-}// end link_type_name()
+}//end link_type_name()
 
 
 /**
@@ -75,7 +75,7 @@ function permission_type_name($type)
 	if (is_array($name)) return 'Unknown';
 	return ucwords(strtolower($name));
 
-}// end permission_type_name()
+}//end permission_type_name()
 
 
 /**
@@ -109,7 +109,7 @@ function get_bit_names($prefix, $bit_value, $force_array=false, $exact_value=fal
 	elseif (count($names)) return $names[0];
 	else '';
 
-}// end get_bit_names()
+}//end get_bit_names()
 
 
 /**
@@ -177,7 +177,7 @@ function restrict_data_path($restricted, $dir)
 
 	}// end if
 
-}// end restrict_data_path()
+}//end restrict_data_path()
 
 
 /**
@@ -233,7 +233,8 @@ function asset_link_treeid_convert($value, $encode)
 		return (int) $num;
 
 	}// end if
-}// end asset_link_treeid_convert()
+
+}//end asset_link_treeid_convert()
 
 
 /**
@@ -275,6 +276,43 @@ function make_valid_web_paths($paths)
 	}
 	return $valid_paths;
 
-}//end makeValidWebPaths()
+}//end make_valid_web_paths()
+
+
+/**
+* Merges two user preference arrays
+*
+* @param array	$prefs1	array of preferences to merge
+* @param array	$prefs2	array of preferences to merge
+*
+* @return array
+* @access public
+*/
+function merge_preferences($prefs1, $prefs2)
+{
+	$merged_prefs = Array();
+
+	$type_codes = array_unique(array_merge(array_keys($prefs1), array_keys($prefs2)));
+	foreach ($type_codes as $type_code) {
+		if (isset($prefs1[$type_code]) && !isset($prefs2[$type_code])) {
+			// this is only set in prefs1
+			$merged_prefs[$type_code] = $prefs1[$type_code];
+		} else if (isset($prefs2[$type_code]) && !isset($prefs1[$type_code])) {
+			// this is only set in prefs2
+			$merged_prefs[$type_code] = $prefs2[$type_code];
+		} else {
+			// this is set in both prefs
+			require_once SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir').'/'.$type_code.'_prefs.inc';
+			$pref_name = $type_code.'_Prefs';
+			$pref = new $pref_name();
+			$merged = $pref->mergePrefs($prefs1[$type_code], $prefs2[$type_code]);
+			$merged_prefs[$type_code] = $merged;
+		}
+	}
+
+	return $merged_prefs;
+
+}//end merge_preferences()
+
 
 ?>

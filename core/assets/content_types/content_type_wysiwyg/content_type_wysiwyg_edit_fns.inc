@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.4 2003/12/16 12:19:31 brobertson Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.5 2003/12/30 05:25:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -62,16 +62,23 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	*/
 	function &_createEditor(&$asset, $prefix)
 	{
+		// allowed plugins (shortened to $ap for easier use below)
+		$ap = explode('|', $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_WYSIWYG_PLUGINS'));
+		// ignore allowed plugins (shortened to $iap for easier use);
+		$iap = in_array('all', $ap);
+
 		if (empty($this->_tmp['wysiwg_object'])) {
 
 			$html = $asset->attr('html');
 
 			$wysiwyg = new wysiwyg($prefix, sq_web_path('fudge').'/wysiwyg/');
-			$wysiwyg->set_body_type('div');
+
+			$wysiwyg_style = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_WYSIWYG_STYLE');
+			$wysiwyg->set_body_type($wysiwyg_style['body_type']);
 			$wysiwyg->set_init_onload(false);
 			$wysiwyg->set_show_status_bar(false);
-			$wysiwyg->set_width('100%');
-			$wysiwyg->set_height('300');
+			$wysiwyg->set_width($wysiwyg_style['width']);
+			$wysiwyg->set_height($wysiwyg_style['height']);
 
 			$base_php_self = str_replace('/'.SQ_CONF_BACKEND_SUFFIX, '', $_SERVER['PHP_SELF']);
 			$base_php_self = str_replace('/'.SQ_CONF_LIMBO_SUFFIX, '', $base_php_self);
@@ -89,38 +96,49 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			$em->broadcastEvent($asset, 'requestKeywords', $keyword_vars);
 
 			$wysiwyg->open_group();
-				$wysiwyg->add_plugin('format_text');
-				$wysiwyg->add_plugin('general');
+				if ($iap || in_array('format_text', $ap)) $wysiwyg->add_plugin('format_text');
+				if ($iap || in_array('format_font', $ap)) $wysiwyg->add_plugin('format_font');
+				if ($iap || in_array('general', $ap))     $wysiwyg->add_plugin('general');
+				if ($iap || in_array('s_script', $ap))    $wysiwyg->add_plugin('s_script');
 			$wysiwyg->close_group();
+			
 			$wysiwyg->open_group();
-				$wysiwyg->add_plugin('matrix_apply_style');
+				if ($iap || in_array('matrix_apply_style', $ap)) $wysiwyg->add_plugin('matrix_apply_style');
 			$wysiwyg->close_group();
-			$wysiwyg->add_plugin('justify_text');
-			if (!empty($keywords)) {
+			
+			if ($iap || in_array('justify_text', $ap)) $wysiwyg->add_plugin('justify_text');
+			if (($iap || in_array('keyword_replace', $ap)) && !empty($keywords)) {
 				$wysiwyg->add_plugin('keyword_replace');
 				$keyword_replace = &$wysiwyg->get_plugin('keyword_replace');
 				$keyword_replace->keyword_tag = '%';
 				$keyword_replace->keywords = $keywords;
 			}
-			$wysiwyg->add_plugin('indenting');
-			$wysiwyg->add_plugin('listing');
-			$wysiwyg->add_plugin('table_editing');
-			$wysiwyg->add_plugin('select_color');
+			if ($iap || in_array('history', $ap))     $wysiwyg->add_plugin('history');
+			if ($iap || in_array('indenting', $ap))     $wysiwyg->add_plugin('indenting');
+			if ($iap || in_array('listing', $ap))       $wysiwyg->add_plugin('listing');
+			if ($iap || in_array('table_editing', $ap)) $wysiwyg->add_plugin('table_editing');
+			if ($iap || in_array('select_color', $ap))  $wysiwyg->add_plugin('select_color');
+			
 			$wysiwyg->open_group();
-				$wysiwyg->add_plugin('matrix_insert_link');
-				$wysiwyg->add_plugin('matrix_insert_image');
-				$wysiwyg->add_plugin('matrix_embed_movie');
+				if ($iap || in_array('matrix_insert_link', $ap) || in_array('insert_link', $ap))  $wysiwyg->add_plugin('matrix_insert_link');
+				if ($iap || in_array('matrix_insert_image', $ap) || in_array('insert_image', $ap)) $wysiwyg->add_plugin('matrix_insert_image');
+				if ($iap || in_array('matrix_embed_movie', $ap))  $wysiwyg->add_plugin('matrix_embed_movie');
 			$wysiwyg->close_group();
+			
 			$wysiwyg->open_group();
-				$wysiwyg->add_plugin('spell_checker');
-				$wysiwyg->add_plugin('view_source');
-				$wysiwyg->add_plugin('popup_editor');
+				if ($iap || in_array('spell_checker', $ap))  $wysiwyg->add_plugin('spell_checker');
+				if ($iap || in_array('text_indicator', $ap)) $wysiwyg->add_plugin('text_indicator');
+				if ($iap || in_array('view_source', $ap))    $wysiwyg->add_plugin('view_source');
+				if ($iap || in_array('popup_editor', $ap))   $wysiwyg->add_plugin('popup_editor');
+				if ($iap || in_array('help', $ap))           $wysiwyg->add_plugin('help');
 			$wysiwyg->close_group();
 
 			// html_tidy needs to be last so other plugins can set options
-			$wysiwyg->add_plugin('html_tidy');
+			if ($iap || in_array('html_tidy', $ap)) $wysiwyg->add_plugin('html_tidy');
+
 			// contents must be set AFTER all plugins are loaded
 			$wysiwyg->set_contents($html);
+
 			$this->_tmp['wysiwg_object'] = $wysiwyg;
 
 		}

@@ -18,12 +18,20 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.2 2003/12/30 05:25:38 gsherwood Exp $
+* $Id: edit_interface_screen_preferences.xml,v 1.1 2003/12/30 05:25:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
-<screens>
-	<screen code_name="security" display_name="Security Restrictions" icon="edit" lock_type="security" force_unlock="0" />
-	<screen code_name="preferences" display_name="Preferences" icon="edit" lock_type="preferences" force_unlock="0" />
-</screens>
+<contents>
+	<section name="Customised Preferences" read_access="admin:" write_access="admin:preferences">
+		<field>
+			<display_name />
+			<note />
+			<function_call>
+				<paint_function   name="paintPreferences"   />
+				<process_function name="processPreferences" />
+			</function_call>
+		</field>
+	</section>
+</contents>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.18 2003/12/22 23:17:08 mmcintyre Exp $
+* $Id: system_config.inc,v 1.19 2003/12/30 05:25:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -97,13 +97,15 @@ class System_Config extends Config
 	{
 		$this->Config();
 		$this->config_file = SQ_DATA_PATH.'/private/conf/main.inc';
-	}
+
+	}//end constructor
 
 
 	/**
 	* Rewrites the conf file with current variables
 	*
-	* @param Array		$vars				the array with any new values (that are allowed to be edited) Array('[config_var_name]' => [scalar value])
+	* @param Array		$vars				the array with any new values (that are allowed to be edited)
+	*										Array('[config_var_name]' => [scalar value])
 	* @param boolean	$backup_existing	whether we should backup the existing config file first
 	*
 	* @return boolean	indicates whether the file was written
@@ -111,15 +113,7 @@ class System_Config extends Config
 	*/
 	function save($vars, $backup_existing=false)
 	{
-
 		if (empty($GLOBALS['SQ_INSTALL'])) {
-
-			$lock = $GLOBALS['SQ_SYSTEM']->getLockInfo(get_class($this));
-			// if we dont have the lock, piss off
-			if (empty($lock) || $GLOBALS['SQ_SYSTEM']->currentUserId() != $lock['userid']) {
-				trigger_error('To save the System Config, you need to be currently holding the lock', E_USER_WARNING);
-				return false;
-			}
 
 			$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 			$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
@@ -152,7 +146,7 @@ class System_Config extends Config
 
 		return parent::save($vars, $backup_existing);
 
-	}// end save()
+	}//end save()
 
 
 	/**
@@ -200,245 +194,6 @@ class System_Config extends Config
 
 	}//end _paintConfigVar()
 
-
-	/**
-	* Lets print the conf backend
-	*
-	* @param object Backend	$backend	Reference to the backend object
-	*
-	* @return void
-	*/
-	function paintBackend(&$backend)
-	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-
-		// if we dont have access, piss off
-		if (!$is_admin) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access the <i>System Config</i>');
-			exit();
-		}
-
-		$lock = $GLOBALS['SQ_SYSTEM']->getLockInfo(get_class($this));
-		$have_lock = (!empty($lock) && $GLOBALS['SQ_SYSTEM']->currentUserId() == $lock['userid']);
-
-		$o = &$backend->out;
-
-		if (!empty($_POST['config_posted'])) {
-
-			$saved = false;
-			if (!empty($_POST['process_form']) && !empty($_POST['config'])) {
-				$saved = $this->save($_POST['config']);
-			}
-
-			if (!empty($_POST['sq_lock_release']) || !empty($_POST['sq_lock_release_manual'])) {
-				$GLOBALS['SQ_SYSTEM']->releaseLock(get_class($this));
-			}
-
-			// if there is no lock currently and we want it
-			if (!empty($_POST['sq_lock_acquire'])) {
-				$GLOBALS['SQ_SYSTEM']->acquireLock(get_class($this));
-			}
-
-			// if the save was successful, we need to redirect because the constants
-			// that are already defined cannot be redefined in this script execution
-			if ($saved) {
-				$o->setRedirect($o->getCurrentLocation());
-				return;
-			} 
-
-			// just to make sure 
-			$lock      = $GLOBALS['SQ_SYSTEM']->getLockInfo(get_class($this));
-			$have_lock = (!empty($lock) && $GLOBALS['SQ_SYSTEM']->currentUserId() == $lock['userid']);
-
-		}// endif
-
-		$o->setHeading('System Configuration', '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$o->filesPath('/images/icons/header/system_config.png').'", "20", "20", "HIPO Icon");</script>');
-		$o->addHiddenField('config_posted', '1');
-
-		// lets tell the user if the asset is locked for editing
-		// or if they can lock it to edit it
-		$o->openSection('Locking / Editing');
-		$o->openField('&nbsp;');
-
-		?>
-		<table border="0" cellspacing="3" cellpadding="1">
-			<tr>
-				<td valign="top" width="30">
-					<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/<?php echo ((empty($lock)) ? 'un' : ''); ?>locked.png", "16", "16", "");</script>
-				</td>
-				<td valign="top">
-					<?php
-					if (!empty($lock)) {
-						// this asset is currently locked
-						// so display message to the user
-						$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
-
-						$now = time();
-
-						require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-						$expires_in = easy_time_total(($lock['expires'] - $now), true);
-						if (!$expires_in) $expires_in = '1 second';
-						$expires_in = 'The lock is due to expire in '.$expires_in;
-
-						?>
-						<p class="sq-backend-locked-by-<?php echo ($GLOBALS['SQ_SYSTEM']->currentUser($user)) ? 'user' : 'someone-else'; ?>">
-							The System Configuration is currently locked for editing by user "<?php echo $user->name; ?>".<br>
-							<?php echo $expires_in; ?>
-						</p>
-						<?php
-
-					} else {
-						?>
-						<p class="sq-backend-unlocked">
-							The System Configuration is currently Unlocked.
-						</p>
-						<?php
-					}
-					?>
-				</td>
-				<td valign="top">
-					<?php
-					if (!empty($lock)) {
-						if ($have_lock) {
-							submit_button('sq_lock_release_manual', 'Release Lock', 'set_hidden_field("process_form", "0");');
-						}
-					} else {
-						submit_button('sq_lock_acquire', 'Lock', 'set_hidden_field("process_form", "0");');
-					}
-					?>
-				</td>
-			</tr>
-		</table>
-		<?php
-
-		$o->closeSection();
-
-		$o->openSection('System Settings');
-
-			$o->openField('System Name');
-			if($have_lock) {
-				text_box('config[SQ_CONF_SYSTEM_NAME]', SQ_CONF_SYSTEM_NAME, 30);
-			} else {
-				echo SQ_CONF_SYSTEM_NAME;
-			}
-
-			$o->openField('System Owner');
-			if($have_lock) {
-				text_box('config[SQ_CONF_SYSTEM_OWNER]', SQ_CONF_SYSTEM_OWNER, 30);
-			} else {
-				echo SQ_CONF_SYSTEM_OWNER;
-			}
-
-			$o->openField('System Root URLs');
-			if($have_lock) {
-				text_area('config[SQ_CONF_SYSTEM_ROOT_URLS]', SQ_CONF_SYSTEM_ROOT_URLS, 40, 4);
-			} else {
-				echo nl2br(SQ_CONF_SYSTEM_ROOT_URLS);
-			}
-
-		$o->closeSection();
-
-		$o->openSection('Email Settings');
-
-			$o->openField('Default Email');
-			if($have_lock) {
-				text_box('config[SQ_CONF_DEFAULT_EMAIL]', SQ_CONF_DEFAULT_EMAIL, 50);
-			} else {
-				echo SQ_CONF_DEFAULT_EMAIL;
-			}
-
-			$o->openField('Tech Email');
-			if($have_lock) {
-				text_box('config[SQ_CONF_TECH_EMAIL]', SQ_CONF_TECH_EMAIL, 50);
-			} else {
-				echo SQ_CONF_TECH_EMAIL;
-			}
-
-		$o->closeSection();
-
-		$o->openSection('Login/Session Settings');
-
-			$o->openField('Max Login Attempts', '', 'Zero (0) is unlimited attempts');
-			if($have_lock && $is_root) {
-				text_box('config[SQ_CONF_MAX_LOGIN_ATTEMPTS]', SQ_CONF_MAX_LOGIN_ATTEMPTS, 5, 5);
-			} else {
-				echo SQ_CONF_MAX_LOGIN_ATTEMPTS;
-			}
-
-			$o->openField('Max Idle Time', '', 'In seconds - Min: 60 or zero (0) for unlimited idle time');
-
-			if($have_lock && $is_root) {
-				text_box('config[SQ_CONF_MAX_IDLE_TIME]', SQ_CONF_MAX_IDLE_TIME, 10, 10);
-			} else {
-				echo SQ_CONF_MAX_IDLE_TIME;
-			}
-
-		$o->closeSection();
-
-
-		$o->openSection('Intervals');
-
-			$o->openField('Refresh Interval', '', 'How long (in seconds) between refreshes of the top (header) frame - this frame keeps the lock on long edits and checks for new mail - Min: 60');
-			if($have_lock) {
-				text_box('config[SQ_CONF_REFRESH_INTERVAL]', SQ_CONF_REFRESH_INTERVAL, 5, 5);
-			} else {
-				echo SQ_CONF_REFRESH_INTERVAL;
-			}
-
-			$o->openField('Lock Length', '', 'The length of time after which a lock is considered to have expired. In seconds - Min: 60');
-			if($have_lock) {
-				text_box('config[SQ_CONF_LOCK_LENGTH]', SQ_CONF_LOCK_LENGTH, 5, 5);
-			} else {
-				echo SQ_CONF_LOCK_LENGTH;
-			}
-
-		$o->closeSection();
-
-
-		$o->openSection('Error Settings');
-
-			$o->openField('Log Errors');
-			if($have_lock && $is_root) {
-				combo_box('config[SQ_CONF_LOG_ERRORS]', Array('1' => 'Yes', '0' => 'No'), false, SQ_CONF_LOG_ERRORS);
-			} else {
-				echo (SQ_CONF_LOG_ERRORS) ? 'Yes' : 'No';
-			}
-
-			$o->openField('Hide Errors on the Frontend');
-			if($have_lock && $is_root) {
-				combo_box('config[SQ_CONF_ERRORS_HIDE_FRONTEND]', Array('1' => 'Yes', '0' => 'No'), false, SQ_CONF_ERRORS_HIDE_FRONTEND);
-			} else {
-				echo (SQ_CONF_ERRORS_HIDE_FRONTEND) ? 'Yes' : 'No';
-			}
-
-		$o->closeSection();
-
-		$o->openSection('Internationalisation Settings');
-
-			$o->openField('Default Frontend Language');
-			require SQ_FUDGE_PATH.'/standards_lists/languages.inc';
-			if($have_lock) {
-				combo_box('config[SQ_CONF_DEFAULT_FRONTEND_LANGUAGE]', $standards_lists_languages, false, SQ_CONF_DEFAULT_FRONTEND_LANGUAGE);
-			} else {
-				echo $standards_lists_languages[SQ_CONF_DEFAULT_FRONTEND_LANGUAGE];
-			}
-
-			$o->openField('Default Character Set');
-			require SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
-			if($have_lock) {
-				combo_box('config[SQ_CONF_DEFAULT_CHARACTER_SET]', $standards_lists_character_sets, false, SQ_CONF_DEFAULT_CHARACTER_SET);
-			} else {
-				echo $standards_lists_character_sets[SQ_CONF_DEFAULT_CHARACTER_SET];
-			}
-
-		$o->closeSection();
-
-		if ($have_lock) {
-			$o->commitButton('Commit', true);
-		}
-
-	}//end print_backend()
 
 }//end class
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.30 2003/12/22 23:16:03 mmcintyre Exp $
+* $Id: mysource.inc,v 1.31 2003/12/30 05:25:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -517,6 +517,87 @@ class MySource
 		return $_SESSION['SQ_LOGIN_KEY'];
 
 	}//end loginKey()
+
+
+	/**
+	* Get user preferences (user specific config settings) for the current user
+	*
+	* @param string	$asset_type	limit results to preferences defined by this asset type (leave NULL to get all prefs)
+	* @param string	$pref		limit result to a particular preference var (leave NULL for all prefs forthe asset type)
+	*
+	* @return mixed array | string
+	* @access public
+	*/
+	function getUserPrefs($asset_type=null, $pref=null, $value_only=true)
+	{
+		$pref_1 = null;
+		$pref_2 = null;
+
+		// get all the groups that the current user is in and check them for
+		// customised preferences before using the global preferences
+		$groups = $this->am->getParents($this->user->id, 'user_group', false);
+		if (!empty($groups)) {
+			$included_global = false;
+			foreach ($groups as $groupid) {
+				$user_group = &$GLOBALS['SQ_SYSTEM']->am->getAsset($groupid);
+				if (is_null($user_group)) continue;
+				$file_path = $user_group->data_path.'/.preferences.inc';
+
+				if (is_file($file_path)) {
+					include $file_path;
+					if (empty($preferences)) {
+						if ($included_global) continue;
+						include SQ_DATA_PATH.'/private/conf/preferences.inc';
+						$included_global = true;
+					}
+				} else {
+					if ($included_global) continue;
+					include SQ_DATA_PATH.'/private/conf/preferences.inc';
+					$included_global = true;
+				}
+
+				if (is_null($pref_1)) $pref_1 = $preferences;
+				else $pref_2 = $preferences;
+
+				if (!is_null($pref_2)) {
+					// merge the preference files
+					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+					$pref_1 = merge_preferences($pref_1, $pref_2);
+					$pref_2 = null;
+				}
+			}
+		} else {
+			include SQ_DATA_PATH.'/private/conf/preferences.inc';
+			$pref_1 = $preferences;
+		}
+
+		$prefs = $pref_1;
+		if (is_null($asset_type)) return $prefs;
+
+		if (!isset($prefs[$asset_type])) {
+			trigger_error('There are no user preferences for asset type "'.$asset_type.'"', E_USER_WARNING);
+			return Array();
+		}
+		$prefs = $prefs[$asset_type];
+
+		if (is_null($pref)) return $prefs;
+
+		if (!isset($prefs[$pref])) {
+			// try the global preferences before throwing an error
+			include SQ_DATA_PATH.'/private/conf/preferences.inc';
+			if (!isset($preferences[$asset_type][$pref])) {
+				trigger_error('User preference "'.$pref.'" for asset type "'.$asset_type.'" does not exist', E_USER_WARNING);
+				return Array();
+			} else {
+				$prefs = $preferences[$asset_type];
+			}
+		}
+		$prefs = $prefs[$pref];
+
+		if (!$value_only) return $prefs;
+		else return $prefs['default'];
+
+	}//end getUserPrefs()
 
 
 //--        CURRENT USER        --//

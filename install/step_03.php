@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.27 2003/12/18 04:34:35 gsherwood Exp $
+* $Id: step_03.php,v 1.28 2003/12/30 05:25:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -224,6 +224,29 @@ $d->close();
 
 
 
+  ///////////////////////////////////
+ //  GENERATE GLOBAL PREFERENCES  //
+///////////////////////////////////
+
+// we need to install any event listeners here, now that we have installed all the asset types.
+$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
+$preferences = Array();
+if (is_file(SQ_DATA_PATH.'/private/conf/preferences.inc')) include SQ_DATA_PATH.'/private/conf/preferences.inc';
+
+foreach ($packages as $package) {
+	$pm = new Package_Manager($package['code_name']);
+	if ($pm->package) {
+		$pm->installUserPreferences($preferences);
+	}
+}
+$str = '<'.'?php $preferences = '.var_export($preferences, true).'; ?'.'>';
+if (!string_to_file($str, SQ_DATA_PATH.'/private/conf/preferences.inc')) return false;
+
+pre_echo('GLOBAL PREFERENCES DONE');
+
+
+
+
   ///////////////////////////////
  //  INSTALL EVENT LISTENERS  //
 ///////////////////////////////
@@ -245,9 +268,9 @@ pre_echo('EVENT LISTENERS DONE');
 
 
 
-  ////////////////////////////////////////
- //  FUNCTION TO CREATE SYSTEM ASSETS  //
-////////////////////////////////////////
+  /////////////////////////////////////////
+ //  FUNCTIONS TO CREATE SYSTEM ASSETS  //
+/////////////////////////////////////////
 
 /**
 * Create the root folder system asset

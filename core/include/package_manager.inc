@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.39 2003/12/16 16:38:29 brobertson Exp $
+* $Id: package_manager.inc,v 1.40 2003/12/30 05:25:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -585,7 +585,7 @@ class Package_Manager extends MySource_Object
 
 
 	/**
-	* Iterate through the asset management class and install any events.
+	* Iterate through the asset management class and install any events
 	*
 	* @return boolean
 	* @access public
@@ -611,7 +611,42 @@ class Package_Manager extends MySource_Object
 				$em->installStaticEvents($events, $type_code);
 			}
 		}//end foreach
+
 	}//end installEventListeners()
+
+
+	/**
+	* Iterate through the asset preference classes to add preference vars to an array
+	*
+	* @return array
+	* @access public
+	*/
+	function installUserPreferences(&$preferences)
+	{
+		foreach (array_keys($this->assets) as $type_code) {
+			$file = SQ_SYSTEM_ROOT.'/'.$this->assets[$type_code]['dir'].'/'.$type_code.'_prefs.inc';
+			if (!is_file($file)) continue;
+			require_once $file;
+			$class = $type_code.'_prefs';
+
+			// make sure the class exists
+			if (class_exists($class)) {
+				$prefs = new $class();
+				if (!isset($preferences[$type_code])) {
+					$preferences[$type_code] = $prefs->pref_vars;
+				} else {
+					foreach ($preferences[$type_code] as $var => $data) {
+						if (!isset($prefs->pref_vars[$var])) unset($preferences[$type_code][$var]);
+					}
+					foreach ($prefs->pref_vars as $var => $data) {
+						if (!isset($preferences[$type_code][$var])) $preferences[$type_code][$var] = $data;
+					}
+				}
+			}
+		}//end foreach
+
+	}//end installUserPreferences()
+
 
 }//end class
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.8 2003/12/01 05:20:15 gsherwood Exp $
+* $Id: user_group_edit_fns.inc,v 1.9 2003/12/30 05:25:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -355,6 +355,123 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 		}
 
 	}//end processTypeRestrictions()
+
+
+	/**
+	* Prints the interface for customising prefenences
+	*
+	* @param object User_Group			&$asset	the user group asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintPreferences(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->adminAccess('preferences');
+
+		$pref_file_path = $asset->data_path.'/.preferences.inc';
+		if (is_file($pref_file_path)) {
+			include $pref_file_path;
+			$custom_preferences = $preferences;
+		} else {
+			$custom_preferences = Array();
+		}
+
+		include SQ_DATA_PATH.'/private/conf/preferences.inc';
+
+		foreach ($preferences as $type_code => $pref_vars) {
+			$o->openSection($GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'name').' Preferences');
+				foreach ($pref_vars as $var_name => $var_data) {
+					$o->openField($var_data['name']);
+						if (isset($custom_preferences[$type_code][$var_name])) {
+							echo '<p>This preference is currently customised. The global preference setting is currently being overridden for users in this user group.';
+							if ($write_access) {
+								echo '<br />';
+								check_box($prefix.'_revert['.$type_code.']['.$var_name.']');
+								echo ' <b>Revert to global preference</b>';
+							}
+							echo '</p>';
+
+							$path = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir').'/'.$type_code.'_prefs.inc';
+							require_once $path;
+							$pref_name = $type_code.'_Prefs';
+							$prefs = new $pref_name($pref_file_path);
+							$prefs->paintBackend($o, $write_access, $var_name);
+						} else {
+							echo '<p>This preference is currently not customised. The global preference setting is currently being used for this user group.';
+							if ($write_access) {
+								echo '<br />';
+								check_box($prefix.'_customise['.$type_code.']['.$var_name.']');
+								echo ' <b>Customise this preference</b>';
+							}
+							echo '</p>';
+						}
+					$o->closeField();
+				}
+			$o->closeSection();
+		}
+
+		return $write_access;
+
+	}//end paintPreferences()
+
+
+	/**
+	* Processes the interface for customising preferences
+	*
+	* @param object User_Group			&$asset	the user group asset
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processPreferences(&$asset, &$o, $prefix)
+	{
+		if (!$asset->adminAccess('preferences')) return false;
+
+		$new_preferences = Array();
+
+		if (isset($_POST[$prefix.'_customise'])) {
+			// customising global preferences
+			include SQ_DATA_PATH.'/private/conf/preferences.inc';
+			foreach ($_POST[$prefix.'_customise'] as $type_code => $var_data) {
+				foreach ($var_data as $var_name => $on) {
+					if (isset($preferences[$type_code][$var_name])) {
+						$new_preferences[$type_code][$var_name] = $preferences[$type_code][$var_name];
+					}
+				}
+			}
+		}
+
+		$pref_file_path = $asset->data_path.'/.preferences.inc';
+		if (is_file($pref_file_path)) {
+			include $pref_file_path;
+			foreach ($preferences as $type_code => $pref_vars) {
+				foreach ($pref_vars as $var_name => $var_data) {
+					if (!isset($_POST[$prefix.'_revert'][$type_code][$var_name])) {
+						$path = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir').'/'.$type_code.'_prefs.inc';
+						require_once $path;
+						$pref_name = $type_code.'_Prefs';
+						$prefs = new $pref_name();
+						if ($prefs->processBackend($o, true, $var_name)) {
+							$new_preferences[$type_code][$var_name] = $prefs->pref_vars[$var_name];
+						}
+					}
+				}
+			}
+		}
+
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		$str = '<'.'?php $preferences = '.var_export($new_preferences, true).'; ?'.'>';
+		if (!is_dir($asset->data_path) && !create_directory($asset->data_path)) return false;
+		if (!string_to_file($str, $asset->data_path.'/.preferences.inc')) return false;
+
+		return true;
+
+	}//end processPreferences()
 
 
 }//end class

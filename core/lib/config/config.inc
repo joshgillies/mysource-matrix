@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.8 2003/11/26 00:51:13 gsherwood Exp $
+* $Id: config.inc,v 1.9 2003/12/30 05:25:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -57,13 +57,15 @@ class Config extends MySource_Object
 	function Config()
 	{
 		$this->MySource_Object();
-	}// end constructor
+
+	}//end constructor
 
 
 	/**
 	* Rewrites the conf file with current variables
 	*
-	* @param Array		$vars				the array with any new values (that are allowed to be edited) Array('[config_var_name]' => [scalar value])
+	* @param Array		$vars				the array with any new values (that are allowed to be edited)
+	*										Array('[config_var_name]' => [scalar value])
 	* @param boolean	$backup_existing	whether we should backup the existing config file first
 	*
 	* @return boolean	indicates whether the file was written
@@ -84,16 +86,14 @@ class Config extends MySource_Object
 			if ($data['editable'] && isset($vars[$var_name]) && $current_value !== $vars[$var_name]) {
 
 				// OK to make sure that everything is fine, we are going to force the issue of setting the type
-				// of the vars to that of the default 
+				// of the vars to that of the default
 				$default_type = gettype($data['default']);
-
-
 
 				$value = $vars[$var_name];
 
 				$changed_vars[$var_name] = Array('old' => $current_value, 'new' => $value);
 
-			} else { 
+			} else {
 				$value = $current_value;
 			}
 
@@ -139,11 +139,12 @@ class Config extends MySource_Object
 
 		return true;
 
-	}// end save()
+	}//end save()
 
 
 	/**
 	* Paint's out the code for the config file for the passed config
+	*
 	* This allows extra things to be added for special cases, and extra checks to be made if necessary on the value
 	*
 	* @param string $name	the config var name
@@ -155,7 +156,9 @@ class Config extends MySource_Object
 	{
 		echo "define('".$var_name."', ".var_export($value, true).");\n";
 		return true;
+
 	}//end _paintConfigVar()
+
 
 }//end class
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group.inc,v 1.10 2003/12/01 05:20:15 gsherwood Exp $
+* $Id: user_group.inc,v 1.11 2003/12/30 05:25:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -61,7 +61,8 @@ class User_Group extends Folder
 	function lockTypes()
 	{
 		$lock_types = parent::lockTypes();
-		$lock_types['security'] = max($lock_types) * 2;
+		$lock_types['security']    = max($lock_types) * 2;
+		$lock_types['preferences'] = max($lock_types) * 2;
 		return $lock_types;
 
 	}//end lockTypes()

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.9 2003/12/17 14:11:03 brobertson Exp $
+* $Id: hipo_config.inc,v 1.10 2003/12/30 05:25:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,12 +39,13 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 class HIPO_Config extends Config
 {
 	var $config_vars = Array(
-		'SQ_HIPO_USE_SERVER'		=> Array('editable' => 0, 'default' => false),
-		'SQ_HIPO_SERVER_DOMAIN'		=> Array('editable' => 0, 'default' => ''),
-		'SQ_HIPO_SERVER_PORT'		=> Array('editable' => 0, 'default' => 0),
-		'SQ_HIPO_SERVER_SYSTEMID'	=> Array('editable' => 0, 'default' => ''),
+		'SQ_HIPO_USE_SERVER'		=> Array('editable' => 1, 'default' => false),
+		'SQ_HIPO_SERVER_DOMAIN'		=> Array('editable' => 1, 'default' => ''),
+		'SQ_HIPO_SERVER_PORT'		=> Array('editable' => 1, 'default' => 0),
+		'SQ_HIPO_SERVER_SYSTEMID'	=> Array('editable' => 1, 'default' => ''),
 		'SQ_HIPO_TOTAL_THRESHOLD'	=> Array('editable' => 1, 'default' => 80),
 	);
+
 
 	/**
 	* Constructor
@@ -56,7 +57,8 @@ class HIPO_Config extends Config
 		$this->config_file = SQ_DATA_PATH.'/private/conf/hipo.inc';
 		$this->_loadJobConfigVars();
 
-	}// end constructor
+	}//end constructor
+
 
 	/**
 	* Attempts to load the extra config vars that the jobs have into our config_vars array
@@ -96,13 +98,14 @@ class HIPO_Config extends Config
 
 		}// end if
 
-	}// end _loadJobConfigVars();
+	}//end _loadJobConfigVars();
 
 
 	/**
 	* Rewrites the conf file with current variables
 	*
-	* @param Array		$vars				the array with any new values (that are allowed to be edited) Array('[config_var_name]' => [scalar value])
+	* @param Array		$vars				the array with any new values (that are allowed to be edited)
+	*										Array('[config_var_name]' => [scalar value])
 	* @param boolean	$backup_existing	whether we should backup the existing config file first
 	*
 	* @return boolean	indicates whether the file was written
@@ -127,7 +130,8 @@ class HIPO_Config extends Config
 
 		}// end if
 
-	}// end save()
+	}//end save()
+
 
 }//end class
 
