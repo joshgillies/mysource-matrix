@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.270.2.4 2004/03/03 19:31:07 brobertson Exp $
+* $Id: asset.inc,v 1.270.2.5 2004/03/10 12:20:40 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1150,9 +1150,29 @@ class Asset extends MySource_Object
 				return false;
 		}
 
+		require_once SQ_SYSTEM_ROOT.'/data/private/conf/replication.inc';
+		// If there is replication and we are slave system, then we are not going to be altering the 
+		// first three parts of the version number because they are controlled by the master server
+		// What we are going to be changing/adding is three extra parts to the version number
+		if (SQ_REPLICATION_ENABLED && !SQ_REPLICATION_IS_MASTER) {
+			// have we already got the slave part in our version 
+			if (preg_match('/^([0-9]+\.[0-9]+\.[0-9]+)\.([0-9]+\.[0-9]+\.[0-9]+)$/', $this->version, $matches)) {
+				$master_version = $matches[1];
+				$version_to_inc  = $matches[2];
+			} else {
+				$master_version = $this->version;
+				$version_to_inc = '0.0.0';
+
+			}
+		// else we can just increment our full version number
+		} else {
+			$version_to_inc = $this->version;
+		}
+
+
 		// work out the new version number based on the part of the
 		// version that we have been asked to update (major|minor|micro)
-		$version_parts = explode('.', $this->version);
+		$version_parts = explode('.', $version_to_inc);
 		for (reset($version_parts); null !== ($k = key($version_parts)); next($version_parts)) {
 			$value =& $version_parts[$k];
 			$value = (int)$value;
@@ -1160,7 +1180,14 @@ class Asset extends MySource_Object
 			else if ($k > $part_num) $value = 0;
 		}
 
-		$new_version = implode('.', $version_parts);
+		$inc_version = implode('.', $version_parts);
+
+		if (SQ_REPLICATION_ENABLED && !SQ_REPLICATION_IS_MASTER) {
+			$new_version = $master_version.'.'.$inc_version;
+		// else we can just increment our full version number
+		} else {
+			$new_version = $inc_version;
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -1172,13 +1199,13 @@ class Asset extends MySource_Object
 			return false;
 		}
 
-		// increment the minor version of all dependant parents because a 'part' of them
+		// increment the micro version of all dependant parents because a 'part' of them
 		// has been updated - even though they havnt been updated directly
 		$dependant_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($this->id);
 		foreach ($dependant_parents as $parentid) {
 			$dep_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
 			if (!is_null($dep_parent)) {
-				if (!$dep_parent->incrementVersion()) {
+				if (!$dep_parent->incrementVersion('micro')) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOABLS['SQ_SYSTEM']->am->forgetAsset($dep_parent);
 					trigger_error('Failed incrementing version of "'.$this->name.'" [#'.$this->id.'], version updated of dependant parent "'.$dep_parent->name.'" [#'.$dep_parent->id.'] failed.', E_USER_WARNING);
