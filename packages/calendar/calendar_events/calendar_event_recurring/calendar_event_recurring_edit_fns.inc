@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring_edit_fns.inc,v 1.13 2004/11/18 23:09:50 gsherwood Exp $
+* $Id: calendar_event_recurring_edit_fns.inc,v 1.14 2004/12/03 03:31:21 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.13 $ - 1.0
+* @version $Revision: 1.14 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -126,6 +126,8 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 		} else {
 			echo $asset->getFriendlyFrequency();
 		}
+		
+		return true;
 					  
 	}//end printFrequencyField()
 
@@ -249,7 +251,8 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 		} else {
 			echo $asset->getFriendlyDatesAndTimes();
 		}
-
+		return true;
+		
 	}//end paintRecurringStartEndChooser()
 
 
