@@ -556,7 +556,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		$prefix = $owner->type().'_'.$owner->id;
 		$perms = Array('Read' => SQ_PERMISSION_READ, 'Write' => SQ_PERMISSION_WRITE, 'Administrator' => SQ_PERMISSION_ADMIN);
 
-		$write_access = $owner->writeAccess();
+		$admin_access = $owner->adminAccess();
 
 		foreach ($perms as $title => $perm) {
 			$inherited = false;
@@ -574,7 +574,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				if ($userid) continue;
 				if (in_array($owner->id, $locs)) $public = true;
 			}
-			if ($write_access) {
+			if ($admin_access) {
 				check_box($prefix."_public[$perm]", 1, (($public) ? true : false));
 				hidden_field($prefix."_old_public[$perm]", (($public) ? '1' : '0'));
 				echo "&nbsp;Give $title access to all users?";
@@ -589,7 +589,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				<tr>
 					<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
 					<?php
-					if ($write_access) {
+					if ($admin_access) {
 						?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Revoke ?</b></td><?php
 					}
 					?>
@@ -619,7 +619,7 @@ class Asset_Edit_Interface extends Resolve_Object
 						if ($userid) echo $asset->name.' ['.$asset->type()." : $userid] was set at $loc_string";
 						else echo "Public access was set at $loc_string";
 						?></td><?php
-					if ($write_access) {
+					if ($admin_access) {
 						?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field"><?php
 						check_box($prefix.'_revoke_'.strtolower($title)."[$userid]")
 						?></td><?php
@@ -645,7 +645,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				<tr>
 					<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
 					<?php
-					if ($write_access) {
+					if ($admin_access) {
 						?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Reinstate ?</b></td><?php
 					}
 					?>
@@ -664,7 +664,7 @@ class Asset_Edit_Interface extends Resolve_Object
 						else echo 'Public access';
 						?></td>
 					<?php
-					if ($write_access) {
+					if ($admin_access) {
 						?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field"><?php
 						check_box($prefix.'_unrevoke_'.strtolower($title)."[$userid]")
 						?></td><?php
@@ -689,7 +689,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				<tr>
 					<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
 					<?php
-					if ($write_access) {
+					if ($admin_access) {
 						?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Delete ?</b></td><?php
 					}
 					?>
@@ -704,7 +704,7 @@ class Asset_Edit_Interface extends Resolve_Object
 					<tr>
 						<td bgcolor="#F0F0F0" class="sq-form-field"><?php echo '&nbsp;'.$asset->name.' ['.$asset->type()." : $userid]";?></td>
 					<?php
-					if ($write_access) {
+					if ($admin_access) {
 						?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field"><?php
 						check_box($prefix.'_delete_'.strtolower($title)."[$userid]")
 						?></td><?php
@@ -722,7 +722,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				?></table><?php
 			}
 
-			if ($write_access) {
+			if ($admin_access) {
 				$o->openField('New?');
 				asset_finder($prefix.'_new_'.strtolower($title), 0, Array('user' => 'D', 'user_group' => 'D'));
 			}
@@ -741,15 +741,15 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function processPermissions(&$owner, &$o)
 	{
-		// if we dont have write access, piss off
-		if ($owner->id && !$owner->writeAccess(Array(), false)) {
+		// if we dont have admin access, piss off
+		if ($owner->id && !$owner->adminAccess(Array(), false)) {
 			include SQ_INCLUDE_PATH.'/login.inc';
-			print_login('Login', 'You do not have permission to edit <i>'.$owner->name.'</i>');
+			print_login('Login', 'You do not have permission to edit the permissions for <i>'.$owner->name.'</i>');
 			return false;
 		}
 
-		// if we dont have effective write access, dont process anything
-		if (!$owner->writeAccess()) return false;
+		// if we dont have effective admin access, dont process anything
+		if (!$owner->adminAccess()) return false;
 
 		$prefix = $owner->type().'_'.$owner->id;
 		$perms = Array('Administrator' => SQ_PERMISSION_ADMIN, 'Write' => SQ_PERMISSION_WRITE, 'Read' => SQ_PERMISSION_READ);
@@ -758,7 +758,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			// we need to check for write access each time because
 			// we may actually be revoking write access and then
 			// trying to put it back
-			if (!$owner->writeAccess(Array(), false)) continue;
+			if (!$owner->adminAccess(Array(), false)) continue;
 
 			// grant new access
 			if (isset($_POST[$prefix.'_new_'.strtolower($title)])) {
@@ -830,11 +830,11 @@ class Asset_Edit_Interface extends Resolve_Object
 			echo '</ul>';
 		}
 
-		$write_access = false;
+		$admin_access = false;
 		if ($wfm->state == 'running') {
 			// cant edit workflow when workflow
 			// is currently running
-			$write_access = false;
+			$admin_access = false;
 
 			$o->openSection('Current Workflow Progress');
 			$o->openField('Note');
@@ -941,7 +941,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				}
 			}
 		} else {
-			$write_access = $owner->writeAccess();
+			$admin_access = $owner->adminAccess();
 		}
 
 
@@ -962,7 +962,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			<tr>
 				<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
 				<?php
-				if ($write_access) {
+				if ($admin_access) {
 					?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Revoke ?</b></td><?php
 				}
 				?>
@@ -982,7 +982,7 @@ class Asset_Edit_Interface extends Resolve_Object
 					<td bgcolor="#F0F0F0" class="sq-form-field"><?php 
 					echo 'Workflow inherited from '.$asset->name.' ['.$asset->type()." : $assetid]";
 					?></td><?php
-				if ($write_access) {
+				if ($admin_access) {
 					?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field"><?php
 					check_box($prefix."_revoke[$assetid]")
 					?></td><?php
@@ -1007,7 +1007,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			<tr>
 				<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
 				<?php
-				if ($write_access) {
+				if ($admin_access) {
 					?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Reinstate ?</b></td><?php
 				}	
 				?>
@@ -1024,7 +1024,7 @@ class Asset_Edit_Interface extends Resolve_Object
 					echo 'Workflow inherited from '.$asset->name.' ['.$asset->type()." : $assetid]";
 					?></td>
 				<?php
-				if ($write_access) {
+				if ($admin_access) {
 					?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field"><?php
 					check_box($prefix."_unrevoke[$assetid]")
 					?></td><?php
@@ -1048,7 +1048,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		foreach ($wfm->steps as $stepid => $step_data) {
 			$o->openSection("Step $stepid");
 			
-			if ($write_access) {
+			if ($admin_access) {
 				$o->openField('Delete?');
 				check_box($prefix.'_steps['.$stepid.'][delete]');
 				echo '&nbsp; Delete this step and all its conditions?';
@@ -1063,7 +1063,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				list($step_logic, $step_logic_num) = explode(' ', $step_data['logic']);
 			}
 
-			if (!$write_access) {
+			if (!$admin_access) {
 				echo '<i>'.$wfm->_valid_step_logic[$step_logic];
 				if ($step_logic_num) echo " $step_logic_num condition".(($step_logic_num > 1) ? 's' : '')." must be met</i>";
 			} else {
@@ -1083,7 +1083,7 @@ class Asset_Edit_Interface extends Resolve_Object
 					<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
 					<td bgcolor="#DDDDDD" class="sq-form-field" width="270"><b>Group Logic</b></td>
 					<?php
-					if ($write_access) {
+					if ($admin_access) {
 						?><td bgcolor="#DDDDDD" align="center" width="70" class="sq-form-field"><b>Delete ?</b></td><?php
 					}
 					?>
@@ -1104,7 +1104,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				} else {
 					list($cond_logic, $cond_logic_num) = explode(' ', $cond_data['require']);
 				}
-				if (!$write_access) {
+				if (!$admin_access) {
 					if (is_a($asset, 'user')) {
 						echo '&nbsp;';
 					} else {
@@ -1124,7 +1124,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				}
 				?></td><?php
 
-				if ($write_access) {
+				if ($admin_access) {
 					?><td bgcolor="#F0F0F0" align="center" class="sq-form-field"><?php
 					check_box($prefix.'_steps['.$stepid.'][conditions]['.$pub.'][delete]')
 					?></td><?php
@@ -1141,13 +1141,13 @@ class Asset_Edit_Interface extends Resolve_Object
 				?></table><?php
 			}
 
-			if ($write_access) {
+			if ($admin_access) {
 				$o->openField('New Condition?');
 				asset_finder($prefix.'_steps['.$stepid.'][new_condition]', 0, Array('user' => 'D', 'user_group' => 'D'));
 			}
 		}
 
-		if ($write_access) {
+		if ($admin_access) {
 			$o->openSection("Create New Step");
 			$o->openField('');
 			check_box($prefix.'_create_step');
@@ -1168,15 +1168,15 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function processWorkflow(&$owner, &$o)
 	{
-		// if we dont have write access, piss off
-		if ($owner->id && !$owner->writeAccess(Array(), false)) {
+		// if we dont have admin access, piss off
+		if ($owner->id && !$owner->adminAccess(Array(), false)) {
 			include SQ_INCLUDE_PATH.'/login.inc';
-			print_login('Login', 'You do not have permission to edit <i>'.$owner->name.'</i>');
+			print_login('Login', 'You do not have permission to edit the workflow of <i>'.$owner->name.'</i>');
 			return false;
 		}
 
 		// if we dont have effective write access, dont process anything
-		if (!$owner->writeAccess()) return false;
+		if (!$owner->adminAccess()) return false;
 
 		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
 		$wfm = new Workflow_Manager($owner);
