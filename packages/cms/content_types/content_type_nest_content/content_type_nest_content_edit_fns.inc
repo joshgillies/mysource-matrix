@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.19 2004/06/29 23:46:26 lwright Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.20 2004/06/30 00:00:28 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -154,7 +154,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 					content in the backend.<br/>You can only view the nested content by previewing on the frontend.
 				</span>
 			<?
-				return;
+				unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$nested_asset->id]);
+				return true;
 			}#end if
 		}#end for
 
