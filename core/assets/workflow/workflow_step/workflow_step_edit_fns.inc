@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: workflow_step_edit_fns.inc,v 1.10 2003/10/15 00:41:14 gsherwood Exp $
+* $Id: workflow_step_edit_fns.inc,v 1.11 2003/10/20 23:34:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -176,10 +176,6 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 			$step_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => -1, 'dependant' => 1, 'exclusive' => 1);
 			$new_cond->setAttrValue('userid', $_POST[$prefix.'_new_condition']);
 			if ($new_cond->create($step_link)) $updated = true;
-
-			// the new condition is created so lock it for editing
-			$GLOBALS['SQ_SYSTEM']->am->acquireLock($new_cond->id, 'attributes');
-			$GLOBALS['SQ_SYSTEM']->am->acquireLock($new_cond->id, 'links');
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
