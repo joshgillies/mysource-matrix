@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: backend_outputter.inc,v 1.62 2003/10/30 04:47:00 gsherwood Exp $
+* $Id: backend_outputter.inc,v 1.63 2003/10/30 05:51:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -781,7 +781,7 @@ class Backend_Outputter
 
 								?><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($nav_asset->type()); ?>", "16", "16", "<?php echo $nav_asset->short_name;?>");</script><?php
 
-								?><a href="<?php echo $nav_asset->getBackendHref($nav_details['screen']); ?>&sq_nav_goback=<?php echo $i; ?>" class="sq-backend-nav-history"><?php echo $nav_asset->short_name; ?></a><?php
+								?><a href="<?php echo $nav_asset->getBackendHref($nav_details['screen']); ?>&sq_nav_goback=<?php echo $i; ?>" class="sq-backend-nav-history"><?php echo $nav_asset->short_name; ?></a><span style="font-size:8px;"><?php echo '['.($i + 1).']'; ?></span><?php
 
 								if ($i < ($nav_count -1)) {
 									?> <span style="color: #FFFFFF">+</span> <?php
