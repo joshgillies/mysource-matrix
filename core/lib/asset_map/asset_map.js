@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.js,v 1.4 2004/04/05 05:06:42 mmcintyre Exp $
+* $Id: asset_map.js,v 1.5 2004/04/07 04:55:07 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -94,8 +94,13 @@ function init_asset_map() {
 
 //}//end reload_assets()
 
-
-function getJavaAppletObject() {
+/**
+* Returns the java applet object
+*
+* @return &object the java applet object
+*/
+function get_java_applet_object()
+{
 	if (is_ie) {
 		return document.getElementById('sq_asset_map');
 	} else {
@@ -104,8 +109,9 @@ function getJavaAppletObject() {
 }
 
 
-function reload_assets(assetids) {
-	var asset_mapObj = getJavaAppletObject();
+function reload_assets(assetids)
+{
+	var asset_mapObj = get_java_applet_object();
 	params = new Array();
 	params["assetids"] = assetids;
 	jsToJavaCall(asset_mapObj, "reload_assets", "assetsReloaded", params);
@@ -117,7 +123,7 @@ function reload_assets(assetids) {
 */
 function reload_asset(assetid)
 {
-	var asset_mapObj = getJavaAppletObject();
+	var asset_mapObj = get_java_applet_object();
 	params = new Array();
 	params["assetids"] = assetid + ",";
 	jsToJavaCall(asset_mapObj, "reload_assets", "assetsReloaded", params);
@@ -132,7 +138,7 @@ function reload_asset(assetid)
 function refresh_internal_messages()
 {
 	var asset_mapObj = document.asset_map;
-	jsToFlashCall(asset_mapObj, 'refresh_mail', {});
+//	jsToFlashCall(asset_mapObj, 'refresh_mail', {});
 
 }//end refresh_internal_messages()
 
@@ -143,7 +149,7 @@ function refresh_internal_messages()
 function select_path(link_path)
 {
 	var asset_mapObj = document.asset_map;
-	jsToFlashCall(asset_mapObj, 'select_path', {link_path: link_path});
+//	jsToFlashCall(asset_mapObj, 'select_path', {link_path: link_path});
 
 }//end select_path()
 
@@ -155,7 +161,7 @@ function add_messages(xml)
 {
 	var asset_mapObj = document.asset_map;
 	//alert("Add Message : " + xml);
-	jsToFlashCall(asset_mapObj, 'add_message', {msgs_xml: xml});
+//	jsToFlashCall(asset_mapObj, 'add_message', {msgs_xml: xml});
 
 }//end add_messages()
 
@@ -262,7 +268,7 @@ function asset_finder_done(params, label, url)
 var ASSET_FINDER_CALL_BACK = null;
 function asset_finder_start(fn, type_codes)
 {
-	var asset_mapObj = getJavaAppletObject();
+	var asset_mapObj = get_java_applet_object();
 	var params = new Array();
 	params["callback_fn"] = fn;
 	params["type_codes"] = type_codes;
@@ -279,7 +285,7 @@ function asset_finder_start(fn, type_codes)
 */
 function asset_finder_cancel() {
 	
-	var asset_mapObj = getJavaAppletObject();
+	var asset_mapObj = get_java_applet_object();
 	params = new Array();
 	jsToJavaCall(asset_mapObj, 'asset_finder', 'assetFinderStopped', params);
 	
