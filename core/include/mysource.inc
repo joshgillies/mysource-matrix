@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.79 2005/03/02 01:09:04 gsherwood Exp $
+* $Id: mysource.inc,v 1.80 2005/03/02 06:55:06 gsherwood Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix
 */
 class MySource
@@ -148,7 +148,7 @@ class MySource
 	*
 	* @var boolean
 	*/
-	var $_user_is_public = false;
+	var $_user_is_public = true;
 
 	/**
 	* Array of system messages
