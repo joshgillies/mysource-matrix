@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.42 2005/02/23 23:27:46 tbarrett Exp $
+* $Id: inbox_edit_fns.inc,v 1.43 2005/03/10 23:47:31 gsherwood Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,28 +82,43 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				@import url(<?php echo sq_web_path('data')?>/asset_types/inbox/css/inbox.css.php);
 			</style>
 
-			<div>
-				<label style="width: 10ex;float: left;">To:</label>
-				<div style="float:left;">
-					<?php multiple_asset_finder($prefix.'_To', Array(), Array('user' => 'D')); ?>
-				</div>
-			</div>
-			<br style="clear:both;" />
-			<label style="width: 10ex;float: left;clear: left;">Subject:</label>
-			<input type="text" id="<?php echo $prefix; ?>_Subject" name="<?php echo $prefix; ?>_Subject" style="width:300px" />
-			<label style="width: 10ex;float: left;">Priority:</label>
-			<select id="<?php echo $prefix; ?>_Priority" name="<?php echo $prefix; ?>_Priority" style="float:left; width: 100px;">
-				<option value="1">Highest</option>
-				<option value="2">High</option>
-				<option value="3" selected="selected">Normal</option>
-				<option value="4">Low</option>
-				<option value="5">Lowest</option>
-			</select>
-			<br />
-			<textarea cols="3" rows="3" style="clear:both; width: 95%; height: 250px" id="<?php echo $prefix; ?>_Content" name="<?php echo $prefix; ?>_Content"></textarea>
-		<?php } else { ?>
-			<div style="text-align: center">Lock inbox to send messages.</div>
-		<?php }
+			<table border="0" cellspacing="2" cellpadding="2" width="100%">
+				<tr>
+					<td valign="top">To:</td>
+					<td>
+						<?php multiple_asset_finder($prefix.'_To', Array(), Array('user' => 'D')); ?>
+					</td>
+				</tr>
+				<tr>
+					<td valign="top">Subject:</td>
+					<td>
+						<input type="text" id="<?php echo $prefix; ?>_Subject" name="<?php echo $prefix; ?>_Subject" style="width:300px" />
+					</td>
+				</tr>
+				<tr>
+					<td valign="top">Priority:</td>
+					<td>
+						<select id="<?php echo $prefix; ?>_Priority" name="<?php echo $prefix; ?>_Priority" style="float:left; width: 100px;">
+							<option value="1">Highest</option>
+							<option value="2">High</option>
+							<option value="3" selected="selected">Normal</option>
+							<option value="4">Low</option>
+							<option value="5">Lowest</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<textarea cols="3" rows="3" style="clear:both; width: 95%; height: 250px" id="<?php echo $prefix; ?>_Content" name="<?php echo $prefix; ?>_Content"></textarea>
+					</td>
+				</tr>
+			</table>
+			<?php
+		} else {
+			?>
+			<div style="text-align: center">Please lock the Inbox to send messages</div>
+			<?php
+		}
 
 		return true;
 
