@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.60 2003/11/18 15:37:30 brobertson Exp $
+* $Id: user.inc,v 1.61 2003/11/21 22:35:44 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -143,7 +143,14 @@ class User extends Asset
 			$value = crypt($value); // let salt be generated
 		}
 
-		return parent::setAttrValue($name, $value);
+		if (!parent::setAttrValue($name, $value)) return false;
+
+		// tell the workspace (or anyone else listening) that the username has been updated
+		if ($name == 'username') {
+			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+			$em->broadcastEvent($this, 'usernameUpdated', Array('username' => $value));
+		}
+		return true;
 
 	}//end setAttrValue()
 
