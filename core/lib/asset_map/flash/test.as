@@ -3,13 +3,13 @@ _root.test_pressed_count = 0;
 
 function testOnClick1(component)
 { 
-	trace('MENU SIZE : ' + _root.tabs.tree.menu_container._width + 'x' + _root.tabs.tree.menu_container._height);
-	trace('scroll pane : ' + (_root.tabs.tree.scroll_pane instanceof MovieClip));
+//	trace('MENU SIZE : ' + _root.tabs.tree.menu_container._width + 'x' + _root.tabs.tree.menu_container._height);
+//	trace('scroll pane : ' + (_root.tabs.tree.scroll_pane instanceof MovieClip));
 
 //	_root.asset_manager.reloadAssets([1]);
 //	_root.asset_manager.reloadAsset(3);
 //	_root.dialog_box.show("TEst, Test", "Lorem "ipsum dolor" sit \"amet\", consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.  Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. ");
-//	_root.msgs_bar.addMessages([{type: "notice", text: "12/3/2003 17:22\nTHIS IS AN ERROR"}]);
+	_root.tabs.log.msgs_container.addMessages([{type: "notice", text: "12/3/2003 17:22\nTHIS IS AN ERROR"}]);
 
 //	var w = 100;
 //	var h = 50;
@@ -33,6 +33,7 @@ function testOnClick1(component)
 
 function testOnClick2 (component)
 {
+	_root.tabs.log.msgs_container.addMessages([{type: "error", text: "12/3/2003 17:22\nTHIS IS AN ERROR"}]);
 //	for(var i in _root.asset_manager.types) {
 //		trace(i + " :\t" + _root.asset_manager.types[i]);
 //	}
@@ -62,13 +63,12 @@ function testOnClick2 (component)
 //		}
 //	}
 
-	trace("TABS MCs:");
-
-	for(var i in _root.tabs) {
-		if (_root.tabs[i] instanceof MovieClip) {
-			trace(i + " :\t" + _root.tabs[i]._name);
-		}
-	}
+//	trace("TABS MCs:");
+//	for(var i in _root.tabs) {
+//		if (_root.tabs[i] instanceof MovieClip) {
+//			trace(i + " :\t" + _root.tabs[i]._name);
+//		}
+//	}
 
 }
 

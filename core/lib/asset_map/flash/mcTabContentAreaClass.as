@@ -16,6 +16,14 @@ function mcTabContentAreaClass()
 mcTabContentAreaClass.prototype = new NestedMouseMovieClip(false, NestedMouseMovieClip.NM_ON_PRESS);
 
 /**
+* Opens this tab in the tab container
+*/
+mcTabContentAreaClass.prototype.openTab = function()
+{
+	this._parent.setCurrentTab(this._name);
+}// openTab()
+
+/**
 * Set the size of the tabs
 *
 * @param int	w	the width of the tabs

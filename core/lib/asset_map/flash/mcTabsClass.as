@@ -80,6 +80,8 @@ mcTabsClass.prototype.addTab = function(tab_type, name, label)
 */
 mcTabsClass.prototype.setCurrentTab = function(name)
 {
+	if (this.current_tab == name) return;
+	
 	// bugger off if we don't know about this tab
 	if (this.tabs.search(name) == null) return;
 	
