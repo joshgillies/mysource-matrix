@@ -4195,7 +4195,7 @@ class Asset extends Resolve_Object
 	/**
 	* Returns the href for getting to the nearest backend for this asset
 	*
-	* @param string	$screen	the screen that you want displayed when the asset is loaded
+	* @param string	$screen	the code name of the screen that you want displayed when the asset is loaded
 	*
 	* @access public
 	*/
