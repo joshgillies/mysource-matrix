@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.300 2004/06/07 04:53:57 gsherwood Exp $
+* $Id: asset.inc,v 1.301 2004/06/08 02:36:56 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2714,39 +2714,29 @@ class Asset extends MySource_Object
 			$design_name = 'system_design::frontend';
 		}
 
-		do {
-
-			$sql = 'SELECT ld.designid, a.type_code
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_design ld ON l.url = ld.url
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON ld.designid = a.assetid
-					';
-			$where ='l.assetid  = '.$db->quote($this->id).'
-					  AND ld.url  = '.$db->quote($url).'
-					  AND ld.name = '.$db->quote($design_name);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ld');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-			$sql .= $where;
-			$result = $db->getRow($sql);
-			assert_valid_db_result($result);
-
-			// if we found nothing  and we weren't using the system frontend design, see if one exists
+		$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, $design_name);
+		
+		// if no design was found, try and get the default frontend
+		// design if we were not already trying to get it
+		if (empty($result) && $design_name != 'system_design::frontend') {
+			$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, 'system_design::frontend');
+		}
+		
+		// if no design was found, try using the asset's URL from the DB
+		if (empty($result)) {
+			$url = strip_url($this->getUrl(), true);
+			$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, $design_name);
 			if (empty($result) && $design_name != 'system_design::frontend') {
-				$loop = true;
-				$design_name = 'system_design::frontend';
-			} else {
-				$loop = false;
+				$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, 'system_design::frontend');
 			}
+		}
 
-		} while ($loop);
-
-		// we have found the design to use
 		if ($result) {
+			// we have found the design to use
 			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
 			$design->paint($this);
-		// shit we can't find a design, oh well let's just print out our body
 		} else {
+			// we can't find a design, oh well let's just print out our body
 			$this->printBody();
 		}
 

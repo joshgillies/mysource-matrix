@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.214 2004/06/04 06:32:04 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.215 2004/06/08 02:36:56 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3847,6 +3847,7 @@ class Asset_Manager extends MySource_Object
 
 	}//end getRootURL()
 
+
 	/**
 	* Returns an array of assetid's + info in the order that they propogate out from the site url
 	*
@@ -3936,6 +3937,38 @@ class Asset_Manager extends MySource_Object
 		}// end if
 
 	}//end getLineageFromURL()
+	
+	
+	/**
+	* Return the design for the passed URL
+	*
+	* @param string		$url			the url to get the design for
+	* @param string		$design_name	the code for the design (eg. system_design::frontend)
+	*
+	* @return array(designid, type_code)
+	* @access public
+	*/
+	function getDesignFromURL($url, $design_name='system_design::frontend')
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = 'SELECT ld.designid, a.type_code
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_design ld ON l.url = ld.url
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON ld.designid = a.assetid
+				';
+		$where ='ld.url = '.$db->quote($url).'
+				   AND ld.name = '.$db->quote($design_name);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ld');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		$sql .= $where;
+
+		$result = $db->getRow($sql);
+		assert_valid_db_result($result);
+		return $result;
+
+	}//end getDesignFromURL()
 
 
 	/**
