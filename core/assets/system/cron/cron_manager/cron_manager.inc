@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.43 2005/03/14 05:47:48 rhoward Exp $
+* $Id: cron_manager.inc,v 1.44 2005/03/21 06:19:55 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -263,10 +263,11 @@ class Cron_Manager extends Asset
 
 		$job->setAttrValue('running_as', $user->id);
 		$link = Array('asset' => &$this, 'link_type' => $link_type, 'is_exclusive' => '1');
-		$sq_install = $GLOBALS['SQ_INSTALL'];
-		$GLOBALS['SQ_INSTALL'] = true;
+
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 		$linkid = $job->create($link);
-		$GLOBALS['SQ_INSTALL'] = $sq_install;
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
 		return ($linkid > 0);
 
 	}//end addJob()
@@ -290,10 +291,10 @@ class Cron_Manager extends Asset
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->id, $job->id);
 		if (empty($link)) return false;
 
-		$sq_install = $GLOBALS['SQ_INSTALL'];
-		$GLOBALS['SQ_INSTALL'] = true;
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 		$success = $this->deleteLink($link['linkid']);
-		$GLOBALS['SQ_INSTALL'] = $sq_install;
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
 		return $success;
 
 	}//end removeJob()
