@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.17 2004/12/23 22:01:15 tbarrett Exp $
+* $Id: image.inc,v 1.18 2005/01/06 17:05:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -60,6 +60,54 @@ class Image extends File
 
 
 	/**
+	* Set the value of an attribute
+	*
+	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
+	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
+	*
+	* @return boolean
+	* @access public
+	*/
+	function saveAttributes($dont_run_updated=false)
+	{
+		if (!$this->id) return true;
+
+		// if there are no values for the alt or title use the filename
+		if (isset($this->_tmp['vars_set']['alt']) && trim($this->attr('alt')) == '') {
+			$this->setAttrValue('alt', $this->attr('name'));
+		}//end if
+		if (isset($this->_tmp['vars_set']['title']) && trim($this->attr('title')) == '') {
+			$this->setAttrValue('title', $this->attr('name'));
+		}//end if
+
+		return parent::saveAttributes($dont_run_updated);
+
+	}//end saveAttributes()
+
+
+	/**
+	* Set the value for the passed variable to the passed value
+	* If the user changes the name of this file, we also need
+	* to update the file system
+	*
+	* @param string		$name				the name of the attribute
+	* @param string		$value				the new value of the attribute
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setAttrValue($name, $value)
+	{
+		if ($name == 'alt' || $name == 'title') {
+			$value = htmlspecialchars($value);
+		}
+
+		return parent::setAttrValue($name, $value);
+
+	}//end setAttrValue()
+
+
+	/**
 	* Checks a file on the file system to see if it can be used as an image
 	*
 	* @param array	$info	an array of information about the uploaded file
@@ -92,16 +140,16 @@ class Image extends File
 	*/
 	function _getExistingFile()
 	{
-		static $existing = null;
-		if (is_null($existing)) {
-			$existing = parent::_getExistingFile();
-			if (!empty($existing['path'])) {
-				$size = getimagesize($existing['path']);
-				$existing['width']  = $size[0];
-				$existing['height'] = $size[1];
+		if (!isset($this->_tmp['existing_file'])) {
+			$this->_tmp['existing_file'] = parent::_getExistingFile();
+			if (!empty($this->_tmp['existing_file']['path'])) {
+				$size = getimagesize($this->_tmp['existing_file']['path']);
+				$this->_tmp['existing_file']['width']  = $size[0];
+				$this->_tmp['existing_file']['height'] = $size[1];
 			}
 		}
-		return $existing;
+
+		return $this->_tmp['existing_file'];
 
 	}//end _getExistingFile()
 
@@ -109,20 +157,24 @@ class Image extends File
 	/**
 	* Prints the tag for an image
 	*
-	* The output includes the width and height of the image, and the image 
+	* The output includes the width and height of the image, and the image
 	* name for the alt tag
 	*
-	* @param string 	$alt 	the alt tag content. If empty the filename is used
-	* @param boolean 	$return if TRUE the tag will be returned
+	* @param string 	$alt	the alt tag content. If empty the alt var is used
+	* @param string 	$title	the alt tag content. If empty the and $alt is set, then that is used, otherwise the title var is used
+	* @param boolean 	$return	if TRUE the tag will be returned
 	*
 	* @return string | void
 	* @access public
 	*/
-	function printImageTag($alt='', $return=false)
+	function printImageTag($alt='', $title='', $return=false)
 	{
-		if (empty($alt)) $alt = $this->name;
-		$info = $this->_getExistingFile();
-		$tag = '<img src="'.$this->getURL().'" width="'.$info['width'].'" height="'.$info['height'].'" alt="'.$alt.'" title="'.$alt.'" />';
+		if ($title == '') {
+			$title = ($alt != '') ? $alt : $this->atr('title');
+		}
+		if ($alt == '') $alt = $this->attr('alt');
+
+		$tag = '<img src="'.$this->getURL().'" width="'.$this->attr('width').'" height="'.$this->attr('height').'" alt="'.$alt.'" title="'.$title.'" />';
 		if ($return) return $tag;
 		echo $tag;
 
@@ -156,7 +208,7 @@ class Image extends File
 		if (!isset($existing['width'])) $existing['width'] = '0';
 		$keywords['image_width'] = Array('value' => $existing['width']);
 		$keywords['image_height'] = Array('value' => $existing['height']);
-		
+
 		if ($descriptions) {
 			$keywords['image_width']['description'] = 'Width of the image in pixels';
 			$keywords['image_height']['description'] = 'Height of the image in pixels';
@@ -165,7 +217,7 @@ class Image extends File
 		return $keywords;
 
 	}//end getAssetKeywords()
-	
+
 
 }//end class
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.27 2004/12/06 14:38:09 brobertson Exp $
+* $Id: image_edit_fns.inc,v 1.28 2005/01/06 17:05:22 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,9 +64,62 @@ class Image_Edit_Fns extends File_Edit_Fns
 			normal_button($prefix.'_use_editor_button', 'Use Image Editor', 'this.parentNode.parentNode.parentNode.style.display=\'none\'; document.getElementById(\''.$prefix.'_hide_editor_button\').parentNode.parentNode.style.display=\'\';');
 			echo '</p>';
 		}
+
 		return true;
 
 	}//end paintFileUpload()
+
+
+	/**
+	* Processes the interface for uploading a file
+	*
+	* If you want to process an upload of a file that was not uploaded through PHP
+	* (possible because of FTP or it was in a tar archive), ensure you pass the information
+	* about the file in the $info array.
+	* The fields required are:
+	*     name              => the filename without path (eg file.txt)
+	*     tmp_name          => the location of the file on the file system
+	*     non_uploaded_file => must equal TRUE
+	*
+	* @param object File				&$asset	the file asset
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for form elements
+	* @param array(string)				$info	info about the uploaded file
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processFileUpload(&$asset, &$o, $prefix, $info=Array())
+	{
+		if (!parent::processFileUpload($asset, $o, $prefix, $info)) return false;
+
+		$save_attrs = false;
+		$info = $asset->_getExistingFile();
+		if (!empty($info)) {
+			if ((int) $info['width'] != (int) $this->attr('width')) {
+				$save_attrs = true;
+				if (!$asset->setAttrValue('width', $info['width'])) return false;
+			}
+			if ((int) $info['height'] != (int)  $this->attr('height')) {
+				$save_attrs = true;
+				if (!$asset->setAttrValue('height', $info['height'])) return false;
+			}
+			if ((int) $info['size'] != (int) $this->attr('size')) {
+				$save_attrs = true;
+				if (!$asset->setAttrValue('size', $info['size'])) return false;
+			}
+		}//end if
+
+		if ($save_attrs) {
+			if (!$asset->saveAttributes()) {
+				trigger_error('Failed saving attributes for file', E_USER_WARNING);
+				return false;
+			}
+		}
+
+		return true;
+
+	}// end processFileUpload()
 
 
 	/**

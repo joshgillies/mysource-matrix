@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2004/11/24 05:00:29 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2005/01/06 17:05:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -54,6 +54,20 @@
 				<process_function	name="processCreateEditor" />
 			</function_call>
 		</field>
+		<field attribute="alt">
+			<display_name>Alt</display_name>
+			<note>%description%</note>
+			<text width="40" height="1" />
+		</field>
+		<field attribute="title">
+			<display_name>Title</display_name>
+			<note>%description%</note>
+			<text width="40" height="1" />
+		</field>
+		<field attribute="caption">
+			<display_name>Caption</display_name>
+			<note>%description%</note>
+			<text width="60" height="2" />
+		</field>
 	</section>
-
 </contents>
