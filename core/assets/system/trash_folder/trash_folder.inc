@@ -119,7 +119,7 @@ class Trash_Folder extends Folder
 			trigger_error($sql->getMessage().'<br>'.$sql->getUserInfo(), E_USER_ERROR);
 
 #		pre_echo($sql);
-		error_log("\n".$sql);
+#		error_log("\n".$sql);
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) 
@@ -179,7 +179,7 @@ class Trash_Folder extends Folder
 		if (DB::isError($sql)) 
 			trigger_error($sql->getMessage().'<br>'.$sql->getUserInfo(), E_USER_ERROR);
 
-		error_log($sql);
+#		error_log($sql);
 
 		$result = $db->getOne($sql);
 		if (DB::isError($result)) 
@@ -221,6 +221,20 @@ class Trash_Folder extends Folder
 		}// end if
 
 	}// end createLink();
+
+	/*
+	* Checks whether a link of a certain type can be made to this asset
+	* Returns TRUE if link allowed and a string containing the error if it is not
+	*
+	* @see Asset::createLink()
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canLinkToType($type_code, $link_type) 
+	{
+		return 'The Trash Folder cannot have assets linked to it. The Trash holds all assets that are not linked to any other asset';
+	}// end canLinkToType()
 
 
 }#end class
