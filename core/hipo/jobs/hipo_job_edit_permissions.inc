@@ -39,6 +39,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	*/
 	function HIPO_Job_Edit_Permissions()
 	{
+		$this->HIPO_Job();
 
 	}//end constructor
 
@@ -160,7 +161,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 								// delete a permission
 								$asset->deletePermission($set_data['userid'], $perm);
 							break;
-							
+
 							case 0  :
 							case 1  :
 								// deny a permission
