@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: dev.inc,v 1.16 2004/12/21 22:52:28 tbarrett Exp $
+* $Id: dev.inc,v 1.17 2004/12/21 23:05:32 gsherwood Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 *     Generic functions that are useful for developers
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package Fudge
 * @subpackage dev
 */
@@ -165,7 +165,7 @@ function minibam($contents, $title='BAM')
 {
 	$id = rawurlencode(strtolower($title)).'_'.microtime();
 	?>
-	<table border="1" cellspacing="0" cellpadding="2" style="background-color: #ffdddd">
+	<table border="1" cellspacing="0" cellpadding="2" style="background-color: #FFDDDD">
 		<tr>
 			<td style="cursor: pointer; cursor: hand; text-decoration: underline; font-weight: bold" onclick="elt = document.getElementById('<?php echo $id; ?>'); elt.style.display = (elt.style.display == 'none') ? '' : 'none';"><?php echo $title; ?></a></td>
 		</tr>
@@ -176,7 +176,8 @@ function minibam($contents, $title='BAM')
 		</tr>
 	</table>
 	<?php
-}
+
+}//end minibam()
 
 
 /**
