@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.278 2004/02/27 05:25:04 mmcintyre Exp $
+* $Id: asset.inc,v 1.279 2004/03/01 16:59:10 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1583,21 +1583,22 @@ class Asset extends MySource_Object
 
 		foreach($current_locks as $lock) {
 			if (empty($lock)) continue;
-
-			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
-
+			$user = null;
+			if ($lock['userid']) {
+				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+			}
 			// lets work out if the current user has a high
 			// enough level of access to forceably acquire the lock
-			if ($GLOBALS['SQ_SYSTEM']->userRoot($user)) return false;
+			if (!is_null($user)) {
+				// locked by root, no-one can force acquire...
+				if ($GLOBALS['SQ_SYSTEM']->userRoot($user)) return false;
 
-			if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin($user)) {
-				// lock is held by a system admin, so need
-				// to be root to acquire this lock
-				if (!$GLOBALS['SQ_SYSTEM']->userRoot()) return false;
-			} else {
-				// need to be a system admin to acquire this lock
-				if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return false;
+				// locked by a sysadmin ? only root can force acquire...
+				if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin($user) && !$GLOBALS['SQ_SYSTEM']->userRoot()) return false;
 			}
+
+			// locked by someone else ? need to be a system admin to acquire this lock
+			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return false;
 
 		}//end foreach
 		return true;
