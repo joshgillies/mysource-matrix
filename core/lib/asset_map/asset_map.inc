@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.170 2005/02/18 06:03:56 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.171 2005/02/21 19:32:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.170 $
+* @version $Revision: 1.171 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -375,19 +375,14 @@ class Asset_Map
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 			$userid_cond = '';
-			if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
-				if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-					$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
-					$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
-					array_push($userids, $public_userid, $GLOBALS['SQ_SYSTEM']->user->id);
-					for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
-						$userids[$k] = $db->quote($userids[$k]);
-					}
-					$userid_cond = ' AND p.userid IN ('.implode(',', $userids).')';
+			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
+				$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
+				array_push($userids, $public_userid, $GLOBALS['SQ_SYSTEM']->user->id);
+				for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
+					$userids[$k] = $db->quote($userids[$k]);
 				}
-			} else {
-				// public users
-				$userid_cond = ' AND p.userid = 0';
+				$userid_cond = ' AND p.userid IN ('.implode(',', $userids).')';
 			}
 
 			// work out what protocol we are using to get here so we can get the most
@@ -501,20 +496,14 @@ class Asset_Map
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$userid_cond = '';
-		if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
-			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
-				$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
-				array_push($userids, $public_userid, $GLOBALS['SQ_SYSTEM']->user->id);
-				for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
-					$userids[$k] = $db->quote($userids[$k]);
-				}
-				$userid_cond = ' AND p.userid IN ('.implode(',', $userids).')';
-			}
-		} else {
-			// public users
+		if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
 			$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
-			$userid_cond = ' AND p.userid = '.$db->quote($public_useid);
+			array_push($userids, $public_userid, $GLOBALS['SQ_SYSTEM']->user->id);
+			for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
+				$userids[$k] = $db->quote($userids[$k]);
+			}
+			$userid_cond = ' AND p.userid IN ('.implode(',', $userids).')';
 		}
 
 		// work out what protocol we are using to get here so we can get the most

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.365 2005/02/21 11:27:28 brobertson Exp $
+* $Id: asset.inc,v 1.366 2005/02/21 19:31:14 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.365 $
+* @version $Revision: 1.366 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -306,7 +306,7 @@ class Asset extends MySource_Object
 
 		// only set the permission if there is a userid to set it for - otherwise we are going
 		// to be setting public write access
-		if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
+		if (!$GLOBALS['SQ_SYSTEM']->userPublic()) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), SQ_PERMISSION_WRITE, true)) {
 				return $this->_abortCreate();
 			}
@@ -767,7 +767,7 @@ class Asset extends MySource_Object
 	{
 		if (!isset($this->_tmp['use_system_version'])) {
 			$usv = (($this->status & SQ_SC_STATUS_SAFE_EDITING) && !$this->writeAccess(''));
-			if ($usv && $GLOBALS['SQ_SYSTEM']->currentUserId()) {
+			if ($usv && !$GLOBALS['SQ_SYSTEM']->userPublic()) {
 				$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 				$publishers = $wfm->whoCanPublish($this->id);
 				if (!empty($publishers) && in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) $usv = false;
@@ -2916,7 +2916,7 @@ class Asset extends MySource_Object
 	function _checkPermissionAccess($perm, $assetids=Array())
 	{
 		if (empty($assetids)) {
-			if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
+			if (!$GLOBALS['SQ_SYSTEM']->userPublic()) {
 				// if we are the root user, we can do anything
 				if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.272 2005/02/21 11:27:29 brobertson Exp $
+* $Id: asset_manager.inc,v 1.273 2005/02/21 19:31:14 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.272 $
+* @version $Revision: 1.273 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2403,19 +2403,14 @@ class Asset_Manager extends MySource_Object
 		static $USERIDS_COND = null;
 
 		if (is_null($USERIDS_COND)) {
-			// if they are logged in add their parents to the list
-			if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
-				if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-					$USERIDS_COND = '';
-				} else {
-					$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
-					array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
-					for (reset($userids); null !== ($i = key($userids)); next($userids)) $userids[$i] = $db->quote($userids[$i]);
-					$USERIDS_COND = 'AND p.userid  IN ('.implode(',', $userids).')';
-				}
+			// because even public users are users now add their parents to the list
+			if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+				$USERIDS_COND = '';
 			} else {
-				// public users
-				$USERIDS_COND = 'AND p.userid = 0';
+				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
+				array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
+				for (reset($userids); null !== ($i = key($userids)); next($userids)) $userids[$i] = $db->quote($userids[$i]);
+				$USERIDS_COND = 'AND p.userid  IN ('.implode(',', $userids).')';
 			}
 
 			if (!empty($USERIDS_COND)) {
@@ -4751,18 +4746,13 @@ class Asset_Manager extends MySource_Object
 			$from .= ', '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p';
 			$where .= ' AND p.assetid = a.assetid';
 			$userid_cond = '';
-			if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
-				if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-					$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
-					array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
-					for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-						$userids[$i] = $db->quote($userids[$i]);
-					}
-					$userid_cond = ' AND p.userid  IN ('.implode(',', $userids).')';
+			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
+				array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
+				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+					$userids[$i] = $db->quote($userids[$i]);
 				}
-			} else {
-				// public users
-				$userid_cond = ' AND p.userid = 0';
+				$userid_cond = ' AND p.userid  IN ('.implode(',', $userids).')';
 			}
 			$where .= $userid_cond.' AND p.granted >= '.$db->quote($access);
 			$group_by = 'GROUP BY l.linkid, l.'.$other_side.'id, l.value, l.link_type,
@@ -4887,18 +4877,13 @@ class Asset_Manager extends MySource_Object
 			$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON a.assetid = p.assetid';
 			$where .= 'p.assetid = a.assetid';
 			$userid_cond = '';
-			if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
-				if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-					$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
-					array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
-					for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-						$userids[$i] = $db->quote($userids[$i]);
-					}
-					$userid_cond = ' AND p.userid  IN ('.implode(',', $userids).')';
+			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
+				array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
+				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+					$userids[$i] = $db->quote($userids[$i]);
 				}
-			} else {
-				// public users
-				$userid_cond = ' AND p.userid = 0';
+				$userid_cond = ' AND p.userid  IN ('.implode(',', $userids).')';
 			}
 			$where .= $userid_cond.' AND p.granted >= '.$db->quote($access);
 			if (!empty($type_code)) $where .= ' AND ';
@@ -5017,18 +5002,13 @@ class Asset_Manager extends MySource_Object
 			$from .= ','.SQ_TABLE_RUNNING_PREFIX.'ast_perm p';
 			$where .= ' AND a.assetid = p.assetid';
 			$userid_cond = '';
-			if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
-				if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-					$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
-					array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
-					for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-						$userids[$i] = $db->quote($userids[$i]);
-					}
-					$userid_cond = ' AND p.userid  IN ('.implode(',', $userids).')';
+			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
+				array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
+				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+					$userids[$i] = $db->quote($userids[$i]);
 				}
-			} else {
-				// public users
-				$userid_cond = ' AND p.userid = 0';
+				$userid_cond = ' AND p.userid  IN ('.implode(',', $userids).')';
 			}
 			$where .= $userid_cond.' AND p.granted >= '.$db->quote($access);
 		}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.43 2005/02/14 23:38:57 lwright Exp $
+* $Id: search_manager.inc,v 1.44 2005/02/21 19:27:56 brobertson Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -934,7 +934,7 @@ class Search_Manager extends Asset
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$total_asset_scores = null;
-		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->currentUserId() || (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()));
+		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 
 		$search_sql = 'SELECT DISTINCT(a.assetid), 1 AS score
 					   FROM
@@ -997,18 +997,13 @@ class Search_Manager extends Asset
 		}
 
 		$userid_cond = '';
-		if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
-			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
-				array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
-				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-					$userids[$i] = $db->quote($userids[$i]);
-				}
-				$userid_cond = ' AND ap.userid  IN ('.implode(',', $userids).')';
+		if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
+			array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
+			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+				$userids[$i] = $db->quote($userids[$i]);
 			}
-		} else {
-			// public users
-			$userid_cond = ' AND ap.userid = 0';
+			$userid_cond = ' AND ap.userid  IN ('.implode(',', $userids).')';
 		}
 
 		if (!empty($userid_cond)) {
@@ -1153,7 +1148,7 @@ class Search_Manager extends Asset
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->currentUserId() || (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()));
+		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 
 		// sorting by relevance by default
 		$sort_string = 'SUM(ai.score)';
@@ -1230,18 +1225,13 @@ class Search_Manager extends Asset
 		}
 
 		$userid_cond = '';
-		if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
-			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
-				array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
-				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-					$userids[$i] = $db->quote($userids[$i]);
-				}
-				$userid_cond = ' AND ap.userid  IN ('.implode(',', $userids).')';
+		if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
+			array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
+			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+				$userids[$i] = $db->quote($userids[$i]);
 			}
-		} else {
-			// public users
-			$userid_cond = ' AND ap.userid = 0';
+			$userid_cond = ' AND ap.userid  IN ('.implode(',', $userids).')';
 		}
 
 		if (!empty($userid_cond)) {
