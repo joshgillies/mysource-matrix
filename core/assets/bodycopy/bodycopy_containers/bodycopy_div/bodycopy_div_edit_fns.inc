@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.14 2004/08/31 11:33:51 brobertson Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.15 2004/09/12 22:37:43 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -186,17 +186,21 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		for (reset($div_attributes); $name = key($div_attributes); next($div_attributes)) {
 			$val = $div_attributes[$name];
 			if ($val == '') continue;
+			
+			$skip_attribute = false;
 			switch($name) { 
 				case 'layout_type':
 				case 'content_type':
 				case 'identifier':
 				case 'disable_keywords':
-					continue;
+					$skip_attribute = true;
 					break;
 				case 'css_class':
 					$name = 'class';
 					break;
 			}
+			
+			if ($skip_attribute) continue;
 			$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 		}
 
