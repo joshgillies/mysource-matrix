@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: create_pages.php,v 1.1 2004/09/06 06:45:27 amiller Exp $
+* $Id: create_pages.php,v 1.2 2004/11/04 04:00:28 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -62,7 +62,7 @@ foreach ($pages as $pageline) {
 	if (is_null($parent_asset)) trigger_error("New parent asset #$parent_assetid does not exist\n", E_USER_ERROR);
 	$import_link = Array('asset' => &$parent_asset, 'link_type' => $link_type);
 	
-	$new_asset_type = $page_type;
+	$new_asset_type = trim($page_type);
 		
 	$new_page = new $new_asset_type();
 	$new_page->setAttrValue('name', trim($pagename));
