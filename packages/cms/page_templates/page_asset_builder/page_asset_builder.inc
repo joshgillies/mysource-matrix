@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.4 2004/01/22 10:33:11 brobertson Exp $
+* $Id: page_asset_builder.inc,v 1.5 2004/01/23 04:38:11 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -169,7 +169,8 @@ class Page_Asset_Builder extends Page
 	function isDeletableLink($linkid)
 	{
 		// the only reason why we would object to this link being deleted is if it is a bodycopy linked to us
-		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', null, '1', '1');
+
 		if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the bodycopy and the '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' page';
 
 		return parent::isDeletableLink($linkid);
