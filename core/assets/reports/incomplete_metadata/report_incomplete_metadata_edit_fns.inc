@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata_edit_fns.inc,v 1.3 2004/08/19 08:25:18 amiller Exp $
+* $Id: report_incomplete_metadata_edit_fns.inc,v 1.4 2004/10/25 01:31:17 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -102,7 +102,7 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 
 			if (!is_null($asset)) {
 				$step_data['message'] = 'Checking metadata for '.$asset->name.' ...';
-				
+
 				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				$field_values = $mm->getMetadataFieldValues($asset->id);
 
@@ -119,7 +119,7 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 					echo "\t</asset>\n";
 					$content = ob_get_contents();
 				ob_end_clean();
-				
+
 				// write out the XML if there were empty fields
 				if ($empty_fields) fwrite($temp_file, $content);
 
@@ -192,21 +192,21 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 		foreach ($root->children as $result) {
 			if ($result->name != 'asset') continue;
 			foreach ($result->children as $field) {
-				if ($field->name != 'field') continue;	
+				if ($field->name != 'field') continue;
 				$missing_fields[$result->attributes['assetid']][] = $field->content;
 			}
 		}
-		
+
 		echo '<b>Note</b> The current incomplete metadata report is shown below. You can regenerate this report on the details screen.';
 		$o->closeSection();
-		
+
 		$o->openSection('Missing Metadata Fields');
 			$o->openField('');
 				if (empty($missing_fields)) {
 					echo 'No missing metadata fields were found';
 					return;
 				}
-				
+
 				?>
 				<table class="sq-backend-table">
 					<tr>
@@ -231,7 +231,7 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 						$asset_url = $asset->getBackendHref('metadata');
 						$asset_string = '<a href="#" onclick="Javscript: return false;" target="_blank" title="'.$asset->name.'">'.ellipsisize($asset->name, 40).'</a>';
 					}
-					
+
 					?>
 					<tr>
 						<td class="sq-backend-table-cell" style="width: 10px; padding-right: 1px; text-align: right;">
@@ -269,7 +269,7 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 					<?php
 
 				}//end foreach assets
-				
+
 				?></table><?php
 
 	}//end paintReport()
