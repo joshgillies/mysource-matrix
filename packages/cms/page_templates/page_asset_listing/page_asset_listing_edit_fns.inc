@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_edit_fns.inc,v 1.9 2005/01/17 21:59:21 gsherwood Exp $
+* $Id: page_asset_listing_edit_fns.inc,v 1.10 2005/01/20 01:52:06 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -140,17 +140,49 @@ class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintRootNode(&$asset, &$o, $prefix)
 	{
-		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, 'root');
+		//get root links
+		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', false, 'major', 'root');
+		$root_asset_ids = Array();
+		foreach ($root_links as $root_link) {
+			$root_asset_ids[$root_link['minorid']] = $root_link['minor_type_code'];
+		}
+		$root_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($root_asset_ids));
+		
 		$write_access = $asset->writeAccess('links');
 
-		if (!$write_access) {
-			$root_asset = null;
-			if (!empty($root_link)) $root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
-			if (!is_null($root_asset)) echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
-			else echo 'No root node has been selected';
-		} else {
-			asset_finder($prefix.'_rootid', (!empty($root_link)) ? $root_link['minorid'] : '');
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<td class="sq-backend-table-header">Root nodes</td>
+			</tr>
+		<?php
+		
+		$l = 1;
+		foreach ($root_links as $root_link) {
+		?>
+			<tr>
+				<td class="sq-backend-table-cell">
+		<?php
+				if ($write_access) {
+					asset_finder($prefix.'_root_nodes['.$l.']', $root_link['minorid']);
+				} else {
+					echo $root_info[$root_link['minorid']]['name'].' [# '.$root_link['minorid'].']';
+				}
+		?>
+				</td> 
+		<?php
+		$l++;
+		}//end foreach
+		
+		if ($write_access) {
+			?>
+			<tr>
+				<td class="sq-backend-table-cell"><?php asset_finder($prefix.'_root_nodes['.$l.']', 0); ?></td>
+			</tr>
+			<?php
 		}
+		?>
+		 </table> <?php
 
 		return $write_access;
 
@@ -169,32 +201,43 @@ class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processRootNode(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_rootid']['assetid'])) return false;
-		$new_root  = $_POST[$prefix.'_rootid']['assetid'];
-
-		// getting existing root link
-		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, 'root');
-
-		// dont process anything if the root node has not changed
-		if (!empty($root_link) && $root_link['minorid'] == $new_root) return false;
-
-		$ok = true;
+		if (!isset($_POST[$prefix.'_root_nodes'])) return false;
+		$new_root_nodes = $_POST[$prefix.'_root_nodes'];				
+		foreach ($new_root_nodes as $new_root_node) {
+			$new_root_node_ids[] = $new_root_node['assetid'];
+		}
+		
+		// get existing root links
+		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', false, 'major', 'root');
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$ok = true;
 
-		// deleting old root link if any found...
-		if (!empty($root_link) && !$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
-			$ok = false;
-		} else if ($new_root) {
-			$root = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
-			if (!is_null($root)) {
-				if (!$asset->createLink($root, SQ_LINK_NOTICE, 'root')) {
+		// lets delete the root nodes that have been removed
+		foreach ($root_links as $root_link) {
+			if (!in_array($root_link['minorid'], $new_root_node_ids)) {
+				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
 					$ok = false;
-					trigger_error('Failed adding new root node "'.$root->name.'" [#'.$root->id.']', E_USER_WARNING);
 				}
-			}
-		}
-
+			}//end if
+		}//end foreach
+		
+		// now, create the new node links
+		foreach ($new_root_nodes as $index => $node) {
+				//first test to see if the node already exists -- if so, ignore it
+				foreach($root_links as $root_link) {
+					if ($root_link['minorid'] == $node['assetid']) continue 2;
+				}
+				// otherwise, create the appropriate notice link
+				if ($node['assetid'] != 0) {
+					$new_root = &$GLOBALS['SQ_SYSTEM']->am->getAsset($node['assetid']);
+					if (!$asset->createLink($new_root, SQ_LINK_NOTICE, 'root')) {
+						$ok = false;
+						trigger_error('Failed adding new root node "'.$new_root->name.'" [#'.$new_root->id.']', E_USER_WARNING);
+					}
+				}
+		}//end foreach
+		
 		if ($ok) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			return true;
