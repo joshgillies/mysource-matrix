@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.10 2004/06/18 01:49:16 lwright Exp $
+* $Id: remap_manager.inc,v 1.11 2004/06/18 02:01:18 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $ - 0.1
+* @version $Revision: 1.11 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -140,6 +140,29 @@ class Remap_Manager extends Asset
 	
 	}//end canClone()
 
+	
+	/**
+	* Return a human readable description of the passed link
+	*
+	* @param int	$linkid	the link ID of the link to describe
+	*
+	* @return string
+	* @access public
+	*/
+	function describeLink($linkid)
+	{
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
+		switch (strtolower($link['value'])) {
+			case '404' :
+				return 'The page where 404 requests are remapped to';
+			break;
+			default :
+				return parent::describeLink($linkid);
+			break;
+		}
+
+	}//end describeLink()
+	
 	
 	/**
 	* Add a URL remap to the system
@@ -283,7 +306,7 @@ class Remap_Manager extends Asset
 
 		return false;
 
-	}//end loadRemapFromURL
+	}//end loadRemapFromURL()
 
 
 	/**
