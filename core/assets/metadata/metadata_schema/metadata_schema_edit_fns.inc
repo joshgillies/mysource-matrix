@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.30 2004/12/06 14:38:09 brobertson Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.31 2004/12/21 16:54:24 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -251,8 +251,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
-			if (!isset($values['sections'][$section->name])) $values['sections'][$section->name] = Array();
-			if (!$edit_fns->paintInlineValueInterface($section, $o, $values['sections'][$section->name], $write_access)) return false;
+			if (!$edit_fns->paintInlineValueInterface($section, $o, $values, $write_access)) return false;
 		}
 		$o->closeSection();
 
@@ -272,14 +271,12 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function processInlineValueInterface(&$asset, &$new_values)
 	{
-		$new_values[$asset->name] = Array();
-		$new_values[$asset->name]['sections'] = Array();
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', false, 'major', null, true);
 		foreach ($current_links as $link) {
 			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
-			if (!$edit_fns->processInlineValueInterface($section, $new_values[$asset->name]['sections'])) return false;
+			if (!$edit_fns->processInlineValueInterface($section, $new_values)) return false;
 		}
 
 		return true;
@@ -304,7 +301,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
-			if (!$edit_fns->requiredFieldsComplete($section, $values['sections'][$section->name])) return false;
+			if (!$edit_fns->requiredFieldsComplete($section, $values)) return false;
 		}
 
 		return true;
@@ -339,71 +336,12 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			$valid_sections[] = $section->name;
 
 			$edit_fns = $section->getEditFns();
-			if (!isset($values['sections'][$section->name])) $values['sections'][$section->name] = Array();
-			if (!$edit_fns->generateMetadata($section, $values['sections'][$section->name], $tag_values, $keywords)) return false;
-		}
-
-		// remove any invalid sections from the values array
-		$sections = $values['sections'];
-		foreach ($sections as $section_name => $section_data) {
-			if (!in_array($section_name, $valid_sections)) unset($values['sections'][$section_name]);
+			if (!$edit_fns->generateMetadata($section, $values, $tag_values, $keywords)) return false;
 		}
 
 		return true;
 
 	}//end generateMetadata()
-
-
-	/**
-	* Generate an array of current values for the passed metadata field names
-	*
-	* @param object Asset			&$asset		the asset whose field values we are getting
-	* @param object Metadata_Schema	&$schema	the asset whose interface we are painting
-	* @param array					$values		the current metadata values
-	* @param array					&$fields	an array of field names that need replacing
-	*
-	* @access public
-	* @return boolean
-	*/
-	function getMetadataFieldValues(&$asset, &$schema, $values, &$fields)
-	{
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($schema->id, SQ_LINK_TYPE_2, 'metadata_section', false, 'major', null, true);
-		foreach ($current_links as $link) {
-			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-			if (is_null($section)) continue;
-			if (!isset($values['sections'][$section->name])) continue;
-			$edit_fns = $section->getEditFns();
-			if (!$edit_fns->getMetadataFieldValues($asset, $section, $values['sections'][$section->name], $fields)) return false;
-		}
-
-		return true;
-
-	}//end getMetadataFieldValues()
-
-
-	/**
-	* Get the default values for this schema
-	*
-	* @param object Metadata_Schema	&$asset	the asset whose values we are getting
-	*
-	* @return array
-	* @access public
-	*/
-	function getMetadataDefaultValues(&$asset)
-	{
-		$values = Array();
-
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', true, 'major', null, true);
-		foreach ($current_links as $link) {
-			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-			if (is_null($section)) continue;
-			$edit_fns = $section->getEditFns();
-			$values['sections'][$section->name] = $edit_fns->getMetadataDefaultValues($section);
-		}
-
-		return $values;
-
-	}//end getMetadataDefaultValues()
 
 
 	/**
