@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_expired_workflow.inc,v 1.2 2005/02/27 22:38:09 tbarrett Exp $
+* $Id: cron_job_expired_workflow.inc,v 1.3 2005/03/01 16:29:26 brobertson Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,6 +59,35 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 
 
 	/**
+	* Create this asset
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @return mixed int or false
+	* @access public
+	* @see Asset::create()
+	*/
+	function create(&$link)
+	{
+		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
+		if (!system_asset_fns_create_pre_check($this)) return false;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		if ($linkid = parent::create($link)) {
+			if (!system_asset_fns_create_cleanup($this)) {
+				$linkid = false;
+			}
+		}
+
+		if ($linkid) $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		else $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+
+		return $linkid;
+
+	}//end create()
+
+
+	/**
 	* Return name of the asset
 	*
 	* @param bool	$short_name	whether or not we are after the shortname or the full name
@@ -72,6 +101,37 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 		return 'Expired Workflow Cron Job';
 
 	}//end _getName()
+
+
+	/**
+	* returns FALSE always because we don't want to be able to clone a design folder
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canClone()
+	{
+		return false;
+
+	}//end canClone()
+
+
+	/**
+	* Morph's this asset to either one of it's parent type or one of it's children types
+	* Only succeeds if $type_code asset's is allowed to link to all children that this asset has
+	*
+	* @param string	$new_type_code	the new type_code to attempt to cast this asset to
+	*
+	* @return bool
+	* @access public
+	* @see Asset::morph()
+	*/
+	function morph($new_type_code)
+	{
+		trigger_error('Unable to morph '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
+		return false;
+
+	}//end morph()
 
 
 	/**
@@ -106,7 +166,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT w.*, a.name 
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_wflow w
-				NATURAL JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a
+					NATURAL JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a
 				WHERE w.wflow IS NOT NULL
 					AND w.granted = '.$db->quote('1');
 		$rows = $db->getAll($sql);
@@ -174,23 +234,11 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	{
 		$res = parent::run();
 		if ($res & SQ_CRON_JOB_REMOVE) {
-			$res = $res - SQ_CRON_JOB_REMOVE;
+			$res = $res & -SQ_CRON_JOB_REMOVE;
 		}
 		return $res;
 
 	}//end run()
-
-	/**
-	* Gets the user that this cron job is to run as while executing
-	*
-	* @return mixed object User or NULL on error
-	* @access public
-	*/
-	function &getRunningUser()
-	{
-		return $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-
-	}//end getRunningUser()
 
 }//end class
 
