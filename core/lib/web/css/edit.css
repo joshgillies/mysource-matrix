@@ -1,172 +1,150 @@
+/* MAIN BODY STYLES */
+
 body {
-	background-color: #ffffff;
+	background-color:	#FFFFFF;
 }
+
 body, p, td, ul, li, input, select, textarea {
-	color: #000000;
-	font-family:  Arial, Verdana Helvetica, sans-serif;
-	font-size: 13px;
+	color:				#000000;
+	font-family:		Arial, Verdana Helvetica, sans-serif;
+	font-size:			13px;
 }
 
-.sq-backend-smallprint {
-	color: #000000;
-	font-family:  Arial, Verdana, Helvetica, sans-serif;
-	font-size: 11px;
-	font-weight: normal;
-}
 
-.sq-backend-fineprint {
-	color: #000000;
-	font-family:  Arial, Verdana, Helvetica, sans-serif;
-	font-size: 10px;
-}
 
-.sq-backend-tabs {
-	color: #000000;
-	font-family:  Arial, Verdana, Helvetica, sans-serif;
-	font-size: 9px;
-	font-weight: bold;
-}
+/* HEADING STYLES */
 
 .sq-backend-mainheading {
-	color: #000000;
-	font-family:  Arial, Verdana, Helvetica, sans-serif;
-	font-weight: bold;
-	font-size: 21px;
+	color:			#000000;
+	font-family:	Arial, Verdana, Helvetica, sans-serif;
+	font-weight:	bold;
+	font-size:		21px;
 }
 
 .sq-backend-heading {
-	color: #000000;
-	font-family:  Arial, Verdana, Helvetica, sans-serif;
-	font-weight: bolder;
-	font-size: 11px;
+	color:			#000000;
+	font-family:	Arial, Verdana, Helvetica, sans-serif;
+	font-weight:	bolder;
+	font-size:		11px;
 }
 
 .sq-backend-subheading {
-	color: #000000;
-	font-family:  Arial, Verdana, Helvetica, sans-serif;
-	font-weight: bold;
-	font-size: 12px;
+	color:			#000000;
+	font-family:	Arial, Verdana, Helvetica, sans-serif;
+	font-weight:	bold;
+	font-size:		12px;
 }
 
-.sq-backend-sectionheading {
-	background-color: #CFC2D4;
-	color: #000000;
-	font-family:  Arial, Verdana, Helvetica, sans-serif;
-	font-weight: bold;
-	font-size: 11px;
-}
 
-a, a.sq-backend {
-	color: black;
-	text-decoration: underline;
-}
 
-.sq-backend-field {
-	color: #000000;
-	background-color: #ffffff;
-	font-family:  Arial, Verdana, Helvetica, sans-serif;
-	font-size: 11px;
-	font-weight: bold;
-	vertical-align: top;
-}
-
-td.sq-backend-field {
-	vertical-align: top;
-}
+/* GENERAL STYLES */
 
 .sq-backend-data, td.sq-backend-data, .sq-form-field {
-	color: #000000;
-	font-family: Arial, Verdana, Helvetica, sans-serif;
-	font-size: 11px;
+	color:			#000000;
+	font-family:	Arial, Verdana, Helvetica, sans-serif;
+	font-size:		10px;
 }
 
-.sq-form-asset-finder {
-	border-style: dashed; 
-	border-color: #d0d0d0; 
-	border-width: 1px;
+.sq-backend-smallprint {
+	color:			#000000;
+	font-family:	Arial, Verdana, Helvetica, sans-serif;
+	font-size:		11px;
+	font-weight:	normal;
 }
 
-td.sq-backend-data {
-	vertical-align: top;
+.sq-backend-fineprint {
+	color:			#000000;
+	font-family:	Arial, Verdana, Helvetica, sans-serif;
+	font-size:		10px;
 }
 
 .sq-backend-warning {
-	color: #000000;
-	font-family:  Arial, Verdana, Helvetica, sans-serif;
-	font-size: 13px;
-	color: red;
-}
-
-.sq-backend-page-lineage, a.sq-backend-page-lineage {
-	font-family:  Arial, Verdana, Helvetica, sans-serif;
-	font-size: 12px;
-	font-weight: bold;
-	color: #ffffff;
-}
-
-a.sq-backend-page-lineage:hover {
-	color: #ffffff;
+	color:			#FF0000;
+	font-family:	Arial, Verdana, Helvetica, sans-serif;
+	font-size:		13px;
 }
 
 
-.sq-backend-asset {
-	color: #CFC2D4;
-}
-.sq-backend-custom-asset {
-	color: #000000;
-}
 
-
-.sq-backend-locked, .sq-backend-unlocked {
-	color: #C80108;
-	font-size: 10px;
-}
-
-.sq-backend-unlocked {
-	color: #0066CB;
-}
-
+/* TOPNAV STYLES */
 
 .sq-backend-header-item {
-	background-color: #4A3852;
-	color: #D6C8D7;
-	font-family:     Arial, Verdana, Helvetica, sans-serif;
-	font-size:       11px;
-	text-decoration: none;
+	background-color:	#4A3852;
+	color:				#D6C8D7;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			11px;
+	text-decoration:	none;
 }
 
 
-.sq-backend-message-header {
-	color: #000000;
-	font-family:     Arial, Verdana, Helvetica, sans-serif;
-	font-size:       11px;
-	font-weight:     bold;
-	text-decoration: none; 
+
+/* BACKEND OUTPUTTER - SECTIONS AND FIELDS */
+
+.sq-backend-sectionheading {
+	background-color:	#C8BDCB;
+	color:				#000000;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-weight:		bold;
+	font-size:			11px;
 }
 
-.sq-backend-message-item {
-	color: #000000;
-	background-color: #ffffff;
-	font-family:     Arial, Verdana, Helvetica, sans-serif;
-	font-size:       10px;
-	text-decoration: none;
+.sq-backend-field {
+	color:				#000000;
+	background-color:	#ffffff;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			11px;
+	font-weight:		bold;
+	vertical-align:		top;
 }
 
+
+
+/* BACKEND TABLE STYLES */
+
+.sq-backend-table {
+	background-color:	#FFFFFF;
+	width:				100%;
+	border-collapse:	collapse;
+}
 
 td.sq-backend-table-header, td.sq-backend-table-cell, td.sq-backend-table-cell-alt {
-	background-color: #FFFFFF;
-	vertical-align: top;
-	color: #000000;
-	font-family: Arial, Verdana, Helvetica, sans-serif;
-	font-size: 10px;
-	padding: 4px;
+	background-color:	#FFFFFF;
+	vertical-align:		top;
+	color:				#000000;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			10px;
+	padding:			4px;
 }
 
 td.sq-backend-table-header {
-	font-size: 11px;
-	font-weight: bold;
+	font-size:			11px;
+	font-weight:		bold;
+	background-color:	#E6E0EA;
 }
 
 td.sq-backend-table-cell-alt {
-	background-color: #C8BDCB;
+	background-color:	#C8BDCB;
+}
+
+
+
+/* ASSET FINDER */
+
+.sq-form-asset-finder {
+	border-style:	dashed;
+	border-color:	#D0D0D0;
+	border-width:	1px;
+}
+
+
+
+/* LOCKING MESSAGE STYLES */
+
+.sq-backend-locked, .sq-backend-unlocked {
+	color:		#C80108;
+	font-size:	10px;
+}
+
+.sq-backend-unlocked {
+	color:		#0066CB;
 }
