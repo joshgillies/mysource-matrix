@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTree.java,v 1.1 2005/02/18 05:24:29 mmcintyre Exp $
+ * $Id: MatrixTree.java,v 1.2 2005/02/20 22:52:58 mmcintyre Exp $
  * $Name: not supported by cvs2svn $
  */
  
@@ -965,10 +965,17 @@ public class MatrixTree extends CueTree
 		protected JPopupMenu getMenuForSingleSelection() {
 
 			JPopupMenu menu = null;
+			MatrixTreeNode node = getSelectionNode();
+			
+			// if the node is not accessible, we don't want the users
+			// to be able bring up an menu for it
+			if (!node.getAsset().isAccessible())
+				return null;
+			
 			if (isInAssetFinderMode) {
-				menu = MatrixMenus.getUseMeMenu(getSelectionNode());
+				menu = MatrixMenus.getUseMeMenu(node);
 			} else {
-				menu = MatrixMenus.getPopupScreenMenu(getSelectionNode());
+				menu = MatrixMenus.getPopupScreenMenu(node);
 				menu.addSeparator();
 
 				// if there are any ancillery items add them after the sperator
@@ -1352,7 +1359,7 @@ public class MatrixTree extends CueTree
 				boolean isControl = isLocationInExpandControl(path, mouseX, mouseY);
 
 				if ((getPathForLocation(mouseX, mouseY) == null)
-						&& !isControl && !SwingUtilities.isRightMouseButton(evt))
+						&& !isControl && !GUIUtilities.isRightMouseButton(evt))
 					clearSelection();
 				else
 					super.mouseReleased(evt);
