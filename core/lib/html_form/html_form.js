@@ -5,9 +5,9 @@
 *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/html_form/html_form.js,v $
-* $Revision: 1.13 $
+* $Revision: 1.14 $
 * $Author: brobertson $
-* $Date: 2003/06/16 07:39:05 $
+* $Date: 2003/06/16 10:07:12 $
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 */
 
@@ -478,7 +478,7 @@ function asset_finder_change_btn_press(name, safe_name, type_codes_xml)
 function asset_finder_done(assetid, label) 
 {
 	if (ASSET_FINDER_FIELD_NAME == null) return;
-	alert('Done : ' + assetid);
+
 	// if we get a -1 they cancelled, do nothing
 	if (assetid != -1) {
 		set_hidden_field(ASSET_FINDER_FIELD_NAME, assetid);
