@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thumbnail_edit_fns.inc,v 1.16 2003/11/26 00:50:57 gsherwood Exp $
+* $Id: thumbnail_edit_fns.inc,v 1.17 2004/07/23 07:16:27 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -60,7 +60,7 @@ class Thumbnail_Edit_Fns extends Image_Edit_Fns
 			<?php
 		}
 
-		$this->_printExistingFileInfo($asset);
+		$this->printExistingFileInfo($asset);
 		return true;
 
 	}//end paintFileUpload()
