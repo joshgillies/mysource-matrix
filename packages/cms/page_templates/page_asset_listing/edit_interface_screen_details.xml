@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2004/01/20 03:41:45 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2004/01/20 05:38:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -59,7 +59,7 @@
 	<section name="List Settings" write_access="write:content">
 		<field>
 			<display_name>Root Node</display_name>
-			<note></note>
+			<note>Leave blank to list the sub assets/children of this asset listing page</note>
 			<function_call>
 				<paint_function   name="paintRootNode"  />
 				<process_function name="processRootNode" />

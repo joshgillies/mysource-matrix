@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.1 2004/01/20 03:41:45 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.2 2004/01/20 05:38:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -269,11 +269,14 @@ class Page_Asset_Listing extends Page
 
 
 		// get the root asset whose sub-assets/children we are displaying
-		// if there is no root asset, we cant list anything
+		// if there is no root asset, we will use ourselves and print our children
 		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
-		if (empty($root_link)) return;
-		$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid'], $root_link['minor_type_code']);
-		if (is_null($root_asset)) return;
+		if (empty($root_link)) {
+			$root_asset =& $this;
+		} else {
+			$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid'], $root_link['minor_type_code']);
+			if (is_null($root_asset)) return;
+		}
 
 
 		// this is what we are going to sort the reults by (passed directly to the getLinks
