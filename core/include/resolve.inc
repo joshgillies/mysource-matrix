@@ -672,7 +672,6 @@ class Resolve
 			require_once SQ_INCLUDE_PATH.'/transaction_manager.inc';
 			$this->tm = new Transaction_Manager();
 		}
-		pre_echo($type.' : '.print_r($this->_db_stack, true));
 		switch (strtolower($type)) {
 			case 'begin'    :
 				$this->tm->begin($this->_db_stack[count($this->_db_stack) - 1]);
