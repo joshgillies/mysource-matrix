@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.164 2003/10/15 23:08:17 brobertson Exp $
+* $Id: asset_edit_interface.inc,v 1.165 2003/10/16 07:35:10 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -84,8 +84,8 @@ class Asset_Edit_Interface extends MySource_Object
 		}
 
 		$this->_dirs = Array($asset_dir);
-		$parents = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($this->_type_code, false);
-		foreach($parents as $parent_type) {
+		$parent_type = $this->_type_code;
+		while(($parent_type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($parent_type, 'parent_type')) != 'asset') {
 			$this->_dirs[] = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($parent_type, 'dir');
 		}
 
