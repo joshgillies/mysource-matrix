@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: content_type.inc,v 1.9 2003/10/07 07:14:31 dwong Exp $
+* $Id: content_type.inc,v 1.10 2003/10/15 02:52:24 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -86,24 +86,6 @@ class Content_Type extends Asset
 
 	}//end _getName();
 
-
-	function &getKeyData($component = false)
-	{
-		$keyData = array();
-
-		if ($component === false || $component == 'html') {
-			$htmlAttribute = $this->getAttribute('html');
-			
-			// preprocess
-			$html = strtolower(strip_tags(html_entity_decode($htmlAttribute->value)));
-
-			$word_counts = get_word_counts($html);
-			foreach ($word_counts as $word => $count) {
-				$this->buildKeyData($keyData, $word, 'text', 'attribute:'. $htmlAttribute->id, $count * $htmlAttribute->weighting);
-			}
-		}
-		return $keyData;
-	}
 
 	/**
 	* @abstract

@@ -2,12 +2,13 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_standard.inc,v 1.22 2003/10/07 07:11:36 dwong Exp $
+* $Id: page_standard.inc,v 1.23 2003/10/15 02:52:24 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
 require_once dirname(__FILE__).'/../../page/page.inc';
+require_once SQ_FUDGE_PATH.'/general/text.inc';
 
 /**
 * Page_Standard
@@ -174,16 +175,39 @@ class Page_Standard extends Page
 	}// end printBody()
 
 
-	function &getKeyData()
+	function &getKeyData($component = false)
 	{
-		$name_attribute			=& $this->getAttribute('name');
-		$short_name_attribute	=& $this->getAttribute('short_name');
-		$out = Array();
-		$this->buildKeyData($out, $name_attribute->value, 'text', "attribute:". $name_attribute->id, 1 * $name_attribute->weighting);
-		$this->buildKeyData($out, $short_name_attribute->value, 'text', "attribute:". $short_name_attribute->id, 1 * $short_name_attribute->weighting);
+		$keyData = parent::getKeyData($component);
 
+		if (!$component || $component == 'details') {
+			$name_attribute			=& $this->getAttribute('name');
+			$short_name_attribute	=& $this->getAttribute('short_name');
+			$this->buildKeyData($keyData, $name_attribute->value, 'text', "attribute:". $name_attribute->id, 1 * $name_attribute->weighting);
+			$this->buildKeyData($keyData, $short_name_attribute->value, 'text', "attribute:". $short_name_attribute->id, 1 * $short_name_attribute->weighting);
+		}
 
-		return $out;
+		if (!$component || $component == 'content') {
+			// get the bodycopy 
+			
+			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, null, 'major', '1');
+			if (empty($bodycopy_link)) return;
+
+			$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+
+			ob_start();
+			$bodycopy->printBody();
+			$contents = ob_get_contents();
+			ob_end_clean();
+			
+			// preprocess
+			$contents = strtolower(strip_tags(html_entity_decode($contents)));
+
+			$word_counts = get_word_counts($contents);
+			foreach ($word_counts as $word => $count) {
+				$this->buildKeyData($keyData, $word, 'text', 'content', $count);
+			}
+		}
+		return $keyData;
 	}
 
 }//end class
