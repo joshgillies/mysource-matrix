@@ -18,12 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.17 2004/02/03 03:27:42 diarandine Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.18 2004/02/10 16:25:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
-
-require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 
 /**
 * Metadata_Schema_Edit_Fns
@@ -36,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
+class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 {
 
 	/**
@@ -45,7 +44,7 @@ class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function Metadata_Schema_Edit_Fns()
 	{
-		$this->Asset_Edit_Fns();
+		$this->Folder_Edit_Fns();
 		$this->static_screens['details']['force_unlock'] = false;
 		$this->static_screens['details']['lock_type'] = 'content';
 

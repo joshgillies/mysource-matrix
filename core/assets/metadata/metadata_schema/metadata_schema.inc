@@ -18,12 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema.inc,v 1.8 2003/11/26 00:50:58 gsherwood Exp $
+* $Id: metadata_schema.inc,v 1.9 2004/02/10 16:25:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
-
-require_once SQ_INCLUDE_PATH.'/asset.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 
 /**
 * Metadata_Schema
@@ -36,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Metadata_Schema extends Asset
+class Metadata_Schema extends Folder
 {
 
 	/**
@@ -47,7 +46,7 @@ class Metadata_Schema extends Asset
 	*/
 	function Metadata_Schema($assetid=0)
 	{
-		$this->Asset($assetid);
+		$this->Folder($assetid);
 
 	}//end constructor
 
