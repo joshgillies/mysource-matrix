@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2004/02/03 03:27:42 diarandine Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2004/02/16 23:32:26 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -40,15 +40,23 @@
 		</field>
 		<field>
 			<display_name>Default</display_name>
-			<note>Value in this field is relevant only if you do not select any replacement keys, which would overwrite it with their own values.</note>
+			<note>Value in this field is relevant only if you do not select a keyword replacement (below)</note>
 			<function_call>
 				<paint_function   name="paintEpoch" />
 				<process_function name="processEpoch" />
 			</function_call>
 		</field>
 		<field>
+			<display_name>Keyword Replacements</display_name>
+			<note>Selected keyword replacement will be used instead of any entered default date values</note>
+			<function_call>
+				<paint_function   name="paintRepKeys" />
+				<process_function name="processRepKeys" />
+			</function_call>
+		</field>
+		<field>
 			<display_name>Setup</display_name>
-			<note>Setup table above affects only how the field looks in the website admin interface, NOT how it is displayed in the META field of your web page.</note>
+			<note>Setup table above only affects how the field looks to the metadata editor, NOT how it is displayed in the META field of your web page.</note>
 			<function_call>
 				<paint_function   name="paintEpochSetup" />
 				<process_function name="processEpochSetup" />
@@ -58,14 +66,6 @@
 			<display_name>Format</display_name>
 			<note>Format string defines the look of the date in META fields of your web page.</note>
 			<text width="15" height="1" />
-		</field>
-		<field>
-			<display_name>Replacement Keys</display_name>
-			<note>Selected replacement key will be used instead of any entered default date values.</note>
-			<function_call>
-				<paint_function   name="paintRepKeys" />
-				<process_function name="processRepKeys" />
-			</function_call>
 		</field>
 		<field attribute="scheme">
 			<display_name>Scheme</display_name>
