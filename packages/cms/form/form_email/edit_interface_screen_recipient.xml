@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_recipient.xml,v 1.12 2004/09/21 00:35:17 lwright Exp $
+* $Id: edit_interface_screen_recipient.xml,v 1.13 2004/09/21 00:38:11 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -37,7 +37,7 @@
 	<section name="Recipient Options">
 		<field attribute="recipient_emails_format">
 			<display_name>Recipient Emails</display_name>
-			<note>If the 'To' field is empty then no e-mails will be sent. You may use the following keywords in any of the above fields:&lt;br /&gt;
+			<note>If the 'To' field is empty then no e-mails will be sent. In addition to the keyword replacements pointed to at the top of this screen, you may use the following keywords in any of the above fields:&lt;br /&gt;
 			&lt;ul&gt;
 			&lt;li&gt;%form_info% - a list of form information including the asset id, name and URL of the form, and the name and asset id of the site&lt;/li&gt;
 			&lt;li&gt;%form_summary% - a list of responses received from this submission&lt;/li&gt;
@@ -57,7 +57,7 @@
 		</field>
 		<field attribute="receipt_emails_format">
 			<display_name>Receipt Emails</display_name>
-			<note>Note that the receipt will always be sent to the address entered in the e-mail field specified above. You can use the 'To' address to specify additional email addresses that the receipt should also be sent to. You may use the following keywords in any of the above fields:&lt;br /&gt;
+			<note>Note that the receipt will always be sent to the address entered in the e-mail field specified above. You can use the 'To' address to specify additional email addresses that the receipt should also be sent to. In addition to the keyword replacements pointed to at the top of this screen, you may use the following keywords in any of the above fields:&lt;br /&gt;
 			&lt;ul&gt;
 			&lt;li&gt;%form_info% - a list of form information including the asset id, name and URL of the form, and the name and asset id of the site&lt;/li&gt;
 			&lt;li&gt;%form_summary% - a list of responses received from this submission&lt;/li&gt;
@@ -77,7 +77,7 @@
 		</field>
 		<field attribute="staf_format">
 			<display_name>Email Format</display_name>
-			<note>Note that the receipt will always be sent to the addresses entered in the e-mail field specified above. You can use the 'To' address to specify additional email addresses that the receipt should also be sent to. You may use the following keywords in any of the above fields:&lt;br /&gt;
+			<note>Note that the receipt will always be sent to the addresses entered in the e-mail field specified above. You can use the 'To' address to specify additional email addresses that the receipt should also be sent to. In addition to the keyword replacements pointed to at the top of this screen, you may use the following keywords in any of the above fields:&lt;br /&gt;
 			&lt;ul&gt;
 			&lt;li&gt;%form_info% - a list of form information including the asset id, name and URL of the form, and the name and asset id of the site&lt;/li&gt;
 			&lt;li&gt;%form_summary% - a list of responses received from this submission&lt;/li&gt;

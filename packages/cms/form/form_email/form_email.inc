@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.28 2004/08/23 01:17:02 gsherwood Exp $
+* $Id: form_email.inc,v 1.29 2004/09/21 00:38:11 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -185,7 +185,32 @@ class Form_Email extends Form
 			$body_text = ob_get_contents();
 		ob_end_clean();
 
-		$reps = Array('receipt_address' => $address, 'form_summary_html' => $body, 'form_summary_text' => $body_text, 'form_info_html' => $info, 'form_info_text' => $info_text);
+		$reps = Array(
+					'receipt_address'   => $address,
+					'form_summary_html' => $body,
+					'form_summary_text' => $body_text,
+					'form_info_html'    => $info,
+					'form_info_text'    => $info_text);
+
+		// replacements of question responses
+		$questions = &$this->getQuestions();
+		$sections = &$this->getSections();
+				
+		foreach ($questions as $q_id => $question) {
+			$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
+			$q_name = $q_asset->attr('name');
+			$reps['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary($this->active_submission[$q_asset->id]);
+		}
+
+		foreach ($sections as $section) {
+			$reps['section_title_'.$section->id] = $section->attr('name');
+			$questions = &$section->getQuestions();
+			foreach ($questions as $q_id => $question) {
+				$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
+				$q_name = $section->attr('name').': '.$q_asset->attr('name');
+				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary($this->active_submission[$q_asset->id]);
+			}
+		}
 
 		$email_format_attr = $this->getAttribute('receipt_emails_format');
 
@@ -240,8 +265,32 @@ class Form_Email extends Form
 			$body_text = ob_get_contents();
 		ob_end_clean();
 
-		$reps = Array('form_summary_html' => $body, 'form_summary_text' => $body_text, 'form_info_html' => $info, 'form_info_text' => $info_text);
+		$reps = Array(
+					'form_summary_html' => $body,
+					'form_summary_text' => $body_text,
+					'form_info_html'    => $info,
+					'form_info_text'    => $info_text);
 
+		// replacements of question responses
+		$questions = &$this->getQuestions();
+		$sections = &$this->getSections();
+		
+		foreach ($questions as $q_id => $question) {
+			$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
+			$q_name = $q_asset->attr('name');
+			$reps['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary($this->active_submission[$q_asset->id]);
+		}
+
+		foreach ($sections as $section) {
+			$reps['section_title_'.$section->id] = $section->attr('name');
+			$questions = &$section->getQuestions();
+			foreach ($questions as $q_id => $question) {
+				$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
+				$q_name = $section->attr('name').': '.$q_asset->attr('name');
+				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary($this->active_submission[$q_asset->id]);
+			}
+		}
+		
 		// substitute generic keywords with email format-specific keywords
 		$current_value['html_format'] = str_replace(
 			Array('%form_info%',      '%form_summary%'),
@@ -298,6 +347,26 @@ class Form_Email extends Form
 					  'referral_url'      => $referer,
 					  );
 
+		// replacements of question responses
+		$questions = &$this->getQuestions();
+		$sections = &$this->getSections();
+		
+		foreach ($questions as $q_id => $question) {
+			$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
+			$q_name = $q_asset->attr('name');
+			$reps['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary($this->active_submission[$q_asset->id]);
+		}
+
+		foreach ($sections as $section) {
+			$reps['section_title_'.$section->id] = $section->attr('name');
+			$questions = &$section->getQuestions();
+			foreach ($questions as $q_id => $question) {
+				$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
+				$q_name = $section->attr('name').': '.$q_asset->attr('name');
+				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary($this->active_submission[$q_asset->id]);
+			}
+		}
+		
 		$email_format_attr = $this->getAttribute('staf_format');
 
 		// append the 'To:' address with the address from the e-mail field
