@@ -1,5 +1,5 @@
 <?php
-$_GET['SYSTEM_ROOT'] = dirname(dirname(__FILE__));
+
 if (empty($_GET['SYSTEM_ROOT']) || !is_dir($_GET['SYSTEM_ROOT'])) {
 	?>
 		<div style="background-color: red; color: white; font-weight: bold;">
