@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.249.2.4 2004/12/20 03:31:34 lwright Exp $
+* $Id: asset_manager.inc,v 1.249.2.5 2004/12/23 06:13:09 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3241,27 +3241,6 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Determine if we can delete the passed link
-	*
-	* @param object Asset	$major	the major asset that we are linking to
-	* @param int			$linkid	the link id of the link to remove
-	*
-	* @return mixed TRUE or error msg string
-	* @access public
-	*/
-	function canDeleteLink(&$major, $linkid)
-	{
-		// if you dont have write access to the parent, you can't delete any links
-		if (!$major->writeAccess('links')) {
-			return 'Cannot delete link, permission denied';
-		}
-
-		return true;
-
-	}//end canDeleteLink()
-
-
-	/**
 	* Move a link to a new parent
 	*
 	* @param int	$linkid			the link id of the link to move
@@ -3573,6 +3552,83 @@ class Asset_Manager extends MySource_Object
 		return true;
 
 	}//end updateLink()
+
+	/**
+	* See whether we COULD send the specified asset to the trash IF we got the locks on its parents
+	*
+	* @param int	$assetid	The asset we want to trash
+	*
+	* @return bool|array	TRUE if we can trash, FALSE if assetid=0, Array(linkid=>problem) otherwise
+	* @access public
+	*/
+	function couldTrashAsset($assetid)
+	{
+		if (!$assetid) return false;
+		// We can trash the asset if we can delete all the parent links
+		$msgs = Array();
+		$parent_links = $this->getLinks($assetid, SQ_SC_LINK_ALL, '', true, 'minor');
+		foreach ($parent_links as $id => $link_details) {
+			$asset =& $this->getAsset($link_details['majorid']);
+			if (true !== ($msg = $asset->couldDeleteLink($link_details['linkid']))) {
+				$msgs[$link_details['linkid']] = $msg;
+			}
+		}
+		return empty($msgs) ? true : $msgs;
+
+	}//end couldTrashAsset()
+
+
+	/** 
+	* Send the specified asset directly to the trash, where possible
+	*
+	* This deletes its links to all its current parents, and creates a link for it in the trash folder
+	* 
+	* @param int	$assetid	The asset to trash
+	*
+	* @return boolean	Whether the asset was successfully trashed
+	* @access public
+	*/
+	function trashAsset($assetid)
+	{
+		// first check that our parents are OK with it (always a good idea)
+		$parent_links = $this->getLinks($assetid, SQ_SC_LINK_ALL, '', true, 'minor');
+		$locked = Array();
+		foreach ($parent_links as $link_details) {
+			$asset =& $this->getAsset($link_details['majorid']);
+			// try to acquire the lock
+			if ($this->acquireLock($link_details['majorid'], 'links')) {
+				$locked[] = $link_details['majorid'];
+			} else {
+				trigger_error('Cannot trash asset #'.$assetid.' - could not acquire lock on parent '.$link_details['majorid'], E_USER_WARNING);
+				foreach ($locked as $aid) {
+					$this->releaseLock($aid, 'links');
+				}
+			}
+			if (true !== ($msg = $asset->canDeleteLink($link_details['linkid']))) {
+				trigger_error('Cannot trash asset #'.$assetid.' - link to parent asset #'.$link_details['majorid'].' cannot be deleted ('.$msg.')', E_USER_WARNING);
+				foreach ($locked as $aid) {
+					$this->releaseLock($aid, 'links');
+				}
+				return false;
+			}
+		}
+
+		foreach ($parent_links as $link_details) {
+			// deleteAssetLink will create the trash link when no other links remain
+			if (!$this->deleteAssetLink($link_details['linkid'])) {
+				trigger_error('Failed deleting link '.$link_details['linkid']);
+				foreach ($locked as $aid) {
+					$this->releaseLock($aid, 'links');
+				}
+				return false;
+			}
+		}
+		foreach ($locked as $aid) {
+			$this->releaseLock($aid, 'links');
+		}
+		return true;
+
+	}//end trashAsset()
 
 
 //--        PERMISSIONS        --//
