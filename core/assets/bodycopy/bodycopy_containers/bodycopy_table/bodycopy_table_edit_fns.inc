@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.11 2004/08/23 04:07:03 gsherwood Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.12 2004/08/31 11:04:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -456,6 +456,8 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 						
 					}
 				}
+				print_bodycopy_icon("Javascript: bodycopy_edit_table_properties('$prefix', $asset->id, ".(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').");", 'Edit '.$asset->attr('name').'\'s Properties', (($popup_attribute_list) ? 'Current Properties :<br>'.$popup_attribute_list : ''), 'table_properties');
+
 			} else {
 				echo '&nbsp;';
 			}
