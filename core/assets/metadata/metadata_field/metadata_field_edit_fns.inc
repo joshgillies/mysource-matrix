@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.28 2004/12/21 17:02:16 brobertson Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.29 2005/01/13 22:23:00 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -306,10 +306,6 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		$asset->setAttrValue('weighting', $newWeighting);
-
-		if ($newWeighting != $oldWeighting) {
-			$o->addMessage(SQ_BO_MSG_NOTICE, "Relevance weighting modified for metadata field ". $asset->name . " [" . $asset->id ."]");
-		}
 
 		return true;
 
