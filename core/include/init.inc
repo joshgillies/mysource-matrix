@@ -121,6 +121,7 @@ define('SQ_STATUS_LIVE',                4); // asset is live
 define('SQ_STATUS_EDITING',             8); // asset is currently safe editing
 define('SQ_STATUS_EDITING_APPROVAL',   16); // asset is currently in workflow from safe edit
 
+define('SQ_STATUS_NOT_LIVE',      3); // short hand for SQ_STATUS_UNDER_CONSTRUCTION | SQ_STATUS_PENDING_APPROVAL
 define('SQ_STATUS_CAN_APPROVE',   9); // short hand for SQ_STATUS_UNDER_CONSTRUCTION | SQ_STATUS_EDITING
 define('SQ_STATUS_SAFE_EDITING', 24); // short hand for SQ_STATUS_EDITING | SQ_STATUS_EDITING_APPROVAL
 define('SQ_STATUS_PENDING',      18); // short hand for SQ_STATUS_PENDING_APPROVAL | SQ_STATUS_EDITING_APPROVAL
