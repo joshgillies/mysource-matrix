@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2004/11/18 00:49:24 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2004/11/30 00:17:09 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -36,7 +36,7 @@
 			<text width="30" height="1" />
 		</field>
 	</section>
-	<section name="Question Fields">
+	<section name="Template Stucture">
 		<field>
 			<display_name />
 			<note />

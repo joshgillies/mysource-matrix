@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_template_builder_edit_fns.inc,v 1.1 2004/11/18 00:49:24 lwright Exp $
+* $Id: page_template_builder_edit_fns.inc,v 1.2 2004/11/30 00:17:09 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -66,9 +66,46 @@ class Page_Template_Builder_Edit_Fns extends Page_Edit_Fns
 	function paintQuestionFields(&$asset, &$o, $prefix)
 	{
 		$fields = $asset->getQuestionFields();
-		
-		?><p>These questions are pulled from the fields defined in the Template Bodycopy contained underneath this asset. You need to <b><a href="<?php echo $asset->getBackendHref('contents') ?>">Edit the Template Bodycopy</a></b> to change the questions defined.</p>
-		
+		?>
+
+		<p>To define the template this asset uses to build bodycopies, you need to <b><a href="<?php echo $asset->getBackendHref('contents') ?>">edit the template bodycopy</a></b>.  Within that bodycopy you can define question fields using a syntax best described by the following examples:
+		<table class="sq-backend-table">
+			<tr>
+				<td class="sq-backend-table-cell" style="font-size: 1em">
+					<pre>#summary of symptoms#</pre>
+				</td>
+				<td class="sq-backend-table-cell">
+					A field named "summary of symptoms", whose value will be entered into a 1-line text box.
+				</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-table-cell" style="font-size: 1em">
+					<pre>#description of problem(30x6)#</pre>
+				</td>
+				<td class="sq-backend-table-cell">
+					A field named "description of problem", whose value will be entered into a text area 30 characters wide and 6 lines high.
+				</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-table-cell" style="font-size: 1em">
+					<pre>#wall colour[green|light blue|red]#</pre>
+				</td>
+				<td class="sq-backend-table-cell">
+					A field whose value will be chosen from one of the options green, light blue or red.  (In this case the options will be presented on the form as a dropdown box.  However, if the text in the options were longer, the question would be formatted using radio button options).
+				</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-table-cell" style="font-size: 1em">
+					<pre>#languages{English|Russian|Mandarin}#</pre>
+				</td>
+				<td class="sq-backend-table-cell">
+					A field which may contain several of the options listed.  If several values are chosen they will be concatenated by commas and the word 'and', for example 'English, Russian and Mandarin'.
+				</td>
+			</tr>
+		</table>
+		</p>
+
+		<p>The fields defined in the current template bodycopy are listed below:	
 		<table class="sq-backend-table">
 			<tr>
 				<td class="sq-backend-table-header">
@@ -125,7 +162,8 @@ class Page_Template_Builder_Edit_Fns extends Page_Edit_Fns
 					<?php
 				}//end foreach
 				?>
-				</table><?php
+				</table></p>
+				<?php
 				
 		return true;
 		
