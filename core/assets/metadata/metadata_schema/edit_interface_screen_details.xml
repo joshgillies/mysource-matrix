@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2003/10/13 06:01:17 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6 2003/10/13 06:11:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -15,7 +15,7 @@
 			<text width="12" height="1" />
 		</field>
 	</section>
-	<section name="Sections Defined For This Metadata Schema">
+	<section name="Sections Defined For This Metadata Schema" write_access="write:links">
 		<field>
 			<display_name></display_name>
 			<note />
@@ -25,7 +25,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Create New Section" read_access="write:content" write_access="write:content">
+	<section name="Create New Section" read_access="write:links" write_access="write:links">
 		<field>
 			<display_name></display_name>
 			<note />
@@ -35,7 +35,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Regenerate Metadata Files" read_access="write:content" write_access="write:content">
+	<section name="Regenerate Metadata Files" read_access="write:" write_access="write:">
 		<field>
 			<display_name></display_name>
 			<note />
