@@ -419,7 +419,7 @@ class Cron_Manager extends Asset
 
 			$secs = $start_time - $epoch;
 			$periods = floor($secs / $refresh_time);
-			$this_run = $epoch + ($refresh_time * $periods) + $dst_adjustment;
+			$this_run = $epoch + ($refresh_time * $periods);
 
 			// if we only every day (or higher) we need to take into account the effects of 
 			// daylight savings
