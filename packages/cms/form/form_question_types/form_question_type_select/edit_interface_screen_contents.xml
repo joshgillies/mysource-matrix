@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.13 2004/05/19 05:55:58 lwright Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.14 2004/06/16 04:48:05 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -34,7 +34,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Question Options">
+	<section name="Question Options" write_access="write:attributes">
 	    <field attribute="name">
 			<display_name>Title</display_name>
 			<note></note>
@@ -74,7 +74,7 @@
 			<text width="20" height="1" />
 		</field>
 	</section>
-	<section name="Complex Validation Rules">
+	<section name="Complex Validation Rules" write_access="write:attributes">
 		<field>
 			<display_name>Question Rules</display_name>
 			<note>When the value of an asset is specified as the comparison value, it takes precedence over any static value entered</note>

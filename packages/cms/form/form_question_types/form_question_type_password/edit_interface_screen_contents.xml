@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.6 2004/05/05 07:10:14 lwright Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.7 2004/06/16 04:48:05 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -34,7 +34,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Question Options">
+	<section name="Question Options" write_access="write:attributes">
 	    <field attribute="name">
 			<display_name>Title</display_name>
 			<note></note>
