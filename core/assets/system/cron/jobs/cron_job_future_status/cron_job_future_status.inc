@@ -193,9 +193,10 @@ class Cron_Job_Future_Status extends Cron_Job
 
 
 	/**
-	* Actually executes the functionality for this job
+	* Actually executes the functionality for this job, called by run()
 	*
-	* @return boolean	TRUE on success, FALSE on failure
+	* @return int	bitmask of the SQ_CRON_JOB_* constants to tell the cron manager what to do
+	* @see Cron_Job::_exec(), Cron_Job::run()
 	* @access private
 	*/
 	function _exec()
@@ -203,17 +204,19 @@ class Cron_Job_Future_Status extends Cron_Job
 		$asset = &$this->getAssetToUpdate();
 		if (is_null($asset)) {
 			trigger_error('Unable to run "'.$this->name.'" (#'.$this->id.'), couldn\'t find asset to update', E_USER_WARNING);
-			return false;
+			// we can be removed because the asset we need to deal with doesn't exist
+			return SQ_CRON_JOB_ERROR | SQ_CRON_JOB_REMOVE;
 		}
 
 		// First let's get the lock
 		if (!$asset->acquireLock()) return false;
 
-		echo "CHANGE STATUS OF ".$asset."\n";
+		trigger_error ("CHANGE STATUS OF ".$asset."\n");
 
 		$asset->releaseLock();
 
-		return true;
+		// All OK, and we can be removed because we have done our one off task
+		return SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_REMOVE;
 
 	}// end _exec()
 

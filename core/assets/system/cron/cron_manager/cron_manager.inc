@@ -214,6 +214,7 @@ class Cron_Manager extends Asset
 	{
 		// if we are currently running then we should just leave this alone
 		if ($this->attr('running')) return;
+
 		// now update this last run time, so that we know for next time
 		if (!$this->acquireLock(0, true)) {
 			trigger_error('Unable to acquire lock of "'.$this->name.'", aborting run', E_USER_WARNING);
@@ -222,21 +223,97 @@ class Cron_Manager extends Asset
 		$this->setAttrValue('running', true);
 		$this->releaseLock();
 
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+
+		$set_last_run = true;
 
 		// first get some times
 		$last_run = (int) $this->attr('last_run');
 		$this_run = time();
 		$next_run = $this_run + (int) $this->attr('refresh_time');
 
-		// if we have gone into the next run's time then we need to do it's work as well
-		if (time() > $next_run) {
-			$this_run = $next_run;
-			$next_run += (int) $this->attr('refresh_time');
-		}
-
 		$jobs = $this->getJobsToRun($last_run, $this_run);
-
 		pre_echo("JOBS : ".var_export($jobs, true));
+
+
+		$failed_runs = Array(); // Array([assetid] => [number of failed runs]);
+
+		while (!empty($jobs)) {
+
+			$ms->openQueue();
+			$remove_jobs = Array();
+			foreach($jobs as $job_info) {
+				$cron_job = &$am->getAsset($job_info['assetid'], $job_info['type_code']);
+				if (is_null($cron_job)) continue;
+
+				echo "RUN    : ".$cron_job->id.' .... '.$cron_job->name."\n";
+
+				$result = $cron_job->run();
+
+				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+				echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $result, true))."\n\n";
+
+				// We have been asked to remove this cron job
+				if ($result & SQ_CRON_JOB_REMOVE) {
+					$remove_jobs[] = $job_info['linkid'];
+
+				// If they want to have another go
+				} elseif ($result & SQ_CRON_JOB_RETRY) {
+
+					// if they resulted in an error, we need to check this hasn't happened before
+					if ($result & SQ_CRON_JOB_ERROR) {
+
+						if (isset($failed_runs[$cron_job->id])) {
+							$failed_runs[$cron_job->id]++;
+						} else {
+							$failed_runs[$cron_job->id] = 1;
+						}
+
+						// if they have had their fair share get rid of them
+						if ($failed_runs[$cron_job->id] < (int) $this->attr('num_failed_attempts')) {
+							$remove_jobs[] = $job_info['linkid'];
+						}// end if
+
+					}// end if error
+
+				}// end if
+
+				$am->unregisterAsset($cron_job);
+
+			}// end foreach
+
+			// send all the messages for this run
+			$ms->closeQueue();
+
+
+break;
+
+			if (!empty($remove_jobs)) {
+				// now update this last run time, so that we know for next time
+				if (!$this->acquireLock(0, true)) {
+					trigger_error('Unable to acquire lock of "'.$this->name.'", aborting run', E_USER_WARNING);
+					return;
+				}
+				foreach($remove_jobs as $linkid) {
+					$this->deleteLink($linkid);
+				}
+
+				$this->releaseLock();
+
+			}// end if
+
+			// if we have gone into the next run's time then we need to do it's work as well
+			if (time() > $next_run) {
+				$this_run = $next_run;
+				$next_run += (int) $this->attr('refresh_time');
+			}
+
+			$jobs = $this->getJobsToRun($last_run, $this_run);
+			pre_echo("JOBS : ".var_export($jobs, true));
+
+		}// end while
+
 
 		// now update this last run time, so that we know for next time
 		if (!$this->acquireLock(0, true)) {
@@ -244,7 +321,8 @@ class Cron_Manager extends Asset
 			return;
 		}
 		$this->setAttrValue('running', false);
-		#$this->setAttrValue('last_run', time());
+		$set_last_run = false;
+		if ($set_last_run) $this->setAttrValue('last_run', time());
 		$this->releaseLock();
 
 	}// end run()
@@ -423,7 +501,7 @@ class Cron_Manager extends Asset
 
 		$one_off = preg_replace('/%[ABCD]%/', 'OO=', $build_up['one_off']['all']);
 
-		$sql = 'SELECT a.assetid, a.type_code, av.custom_value as when
+		$sql = 'SELECT l.linkid, a.assetid, a.type_code, av.custom_value as when
 				FROM sq_asset_link l
 						INNER JOIN sq_asset a ON l.minorid = a.assetid
 						INNER JOIN sq_asset_attribute_value av ON a.assetid = av.assetid
@@ -482,7 +560,6 @@ class Cron_Manager extends Asset
 		if ($a_ts == $b_ts) return 0;
 		return ($a_ts < $b_ts) ? -1 : 1;
 	}// end getJobsToRunCmp()
-
 
 }//end class
 ?>

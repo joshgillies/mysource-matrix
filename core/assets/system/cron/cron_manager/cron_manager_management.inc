@@ -42,6 +42,12 @@ class Cron_Manager_Management extends Asset_Management
 								'default'		=> false,
 								'description'	=> 'Are we currently running ?',
 							),
+							'num_failed_attempts' => Array(
+								'added'			=> '0.1',
+								'type'			=> 'int',
+								'default'		=> 3,
+								'description'	=> 'The number of times that a cron job can fail and request to another attempt at running',
+							),
 						);
 
 

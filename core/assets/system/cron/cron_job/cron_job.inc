@@ -2,6 +2,13 @@
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 
+define('SQ_CRON_JOB_ERROR',			 1);// run()/_exec() failed
+define('SQ_CRON_JOB_COMPLETED',		 2);// run()/_exec() successful and complete
+define('SQ_CRON_JOB_NOT_COMPLETE',	 4);// run()/_exec() successful and but still more to do
+define('SQ_CRON_JOB_REMOVE',		 8);// cron job can be removed from cron manager
+define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid with ERROR and NOT_COMPLETE)
+
+
 /**
 * Cron_Job
 *
@@ -160,6 +167,36 @@ class Cron_Job extends Asset
 
 
 	/**
+	* Set the value for the passed variable to the passed value
+	*
+	* @param string		$name				the name of the attribute
+	* @param string		$value				the new value of the attribute
+	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
+	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setAttrValue($name, $value, $dont_run_updated=false)
+	{
+		if ($name == 'when') {
+			$value = (string) $value;
+			if ($this->attr('type') != 'one_off' && substr($value, 0, 3) == 'OO=') {
+				trigger_error('Only one_off type cron jobs can have their "when" attributes set to a "OO=" prefixed value', E_USER_NOTICE);
+				return false;
+			}
+			if ($this->attr('type') == 'one_off' && substr($value, 0, 3) != 'OO=') {
+				trigger_error('one_off type cron jobs MUST have their "when" attributes set to a "OO=" prefixed value', E_USER_NOTICE);
+				return false;
+			}
+		}// end if
+
+		return parent::setAttrValue($name, $value, $dont_run_updated);
+
+	}// end setAttrValue()
+
+
+	/**
 	* Sets a permission for the passed user or user_group
 	*
 	* @param int		$userid		the id of the user or user_group to add the permission for
@@ -202,13 +239,13 @@ class Cron_Job extends Asset
 	* @return mixed object User or NULL on error
 	* @access public
 	*/
-	function &getRunningUser(&$user)
+	function &getRunningUser()
 	{
 		$null = null; // because we need to return by ref
 
 		$link = $this->getLink(SQ_LINK_NOTICE, 'user', false, 'running as');
 		if (empty($link)) return $null;
-		return $GLOBALS['SQ_SYSTEM']->getAsset($link['minorid'], $link['type_code']);
+		return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
 
 	}// end getRunningUser()
 
@@ -309,47 +346,262 @@ class Cron_Job extends Asset
 	/**
 	* Runs this job
 	*
-	* @return boolean	TRUE on success, FALSE on failure
+	* @return int	bitmask of the SQ_CRON_JOB_* constants to tell the cron manager what to do
+	*				eg: SQ_CRON_JOB_ERROR | SQ_CRON_JOB_RETRY means an error occured, but can I please be re-tried,
+	*					SQ_CRON_JOB_COMPLETED means everything is done correctly, but I can't be removed,
+	*					SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_REMOVE means everything is done correctly and I can be removed
 	* @access public
 	*/
 	function run()
 	{
-		// First let's get the lock
-		if (!$this->acquireLock()) return false;
+#$user = null;
+#$result = SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_RETRY;
 
+#pre_echo("RESULT .. : ".$result);
+
+		$this->_tmp['running_errors'] = '';
+		set_error_handler(Array(&$this, '_errorHandler'));
+
+
+		$result = 0;
+
+		// First leet's see if we can find someone to run as
 		$user = &$this->getRunningUser();
-		if (is_null($user)) {
+		if (!is_null($user)) {
+
+			// Now let's get the lock
+			if ($this->acquireLock()) {
+
+				if ($GLOBALS['SQ_SYSTEM']->setCurrentUser($user)) {
+
+					$result = $this->_exec();
+
+					// reset the system user to who it was originally
+					$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
+
+				// else couldn't set the current user
+				} else {
+					trigger_error('Unable to run "'.$this->name.'" (#'.$this->id.'), couldn\'t set the current system user to "'.$user->name.'" (#'.$user->id.')', E_USER_WARNING);
+					// we can retry because the user may have just been being edited, or something
+					$result = SQ_CRON_JOB_ERROR | SQ_CRON_JOB_RETRY;
+				}
+
+				$this->releaseLock();
+
+			// else acquireLock failed
+			} else {
+				trigger_error('Unable to run "'.$this->name.'" (#'.$this->id.'), couldn\'t acquire lock', E_USER_WARNING);
+				// we can retry because the lock might be free by the time that we try again
+				$result = SQ_CRON_JOB_ERROR | SQ_CRON_JOB_RETRY;
+
+			}// end if
+
+		// else no running user
+		} else {
 			trigger_error('Unable to run "'.$this->name.'" (#'.$this->id.'), couldn\'t find user to run as', E_USER_WARNING);
-			return false;
+			// we can be removed because without the running user we can't do anything
+			$result = SQ_CRON_JOB_ERROR | SQ_CRON_JOB_REMOVE;
+
+		}// end if
+
+		restore_error_handler();
+
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms->openQueue();
+		$msg = $ms->newMessage();
+
+		$msg->subject = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' ';
+		$msg->from = 0; // a system message
+
+		// if no user was found resort to sys admins
+		if (is_null($user)) {
+			$root_user  = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+			$sys_admins = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
+			$msg->to = Array($root_user->id, $sys_admins->id);
+		} else {
+			$msg->to = Array($user->id);
 		}
 
-		if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($user)) {
-			trigger_error('Unable to run "'.$this->name.'" (#'.$this->id.'), couldn\'t set the current system user to "'.$user->name.'" (#'.$user->id.')', E_USER_WARNING);
-			return false;
+		// Exec failed
+		if ($result & SQ_CRON_JOB_ERROR) {
+			$msg->subject .= 'Failure';
+			$msg->body = $this->name.' Failed';
+
+		// Exec successful and completed
+		} elseif ($result & SQ_CRON_JOB_COMPLETED) {
+			$msg->subject .= 'Success';
+			$msg->body = $this->name.' Completed Successfully';
+
+			// If we are a one off type and we aren't yet being removed do so
+			if ($this->attr('type') == 'one_off' && !($result & SQ_CRON_JOB_REMOVE)) {
+				if ($result & SQ_CRON_JOB_RETRY) $result -= SQ_CRON_JOB_RETRY; // delete any retry attempts
+				$result += SQ_CRON_JOB_REMOVE;
+			}
+
+		// Exec successful and but still more to do
+		} elseif ($result & SQ_CRON_JOB_NOT_COMPLETE) {
+			$msg->subject .= 'Success';
+			$msg->body = $this->name.' Successful, but there is still more work to do';
+
+		// Exec stuffed up, email the sys admins - SHOULD NEVER HAPPEN ;)
+		} else {
+			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+			$msg->subject .= ' ERROR';
+			$msg->body = $this->name.' RETURNED AN INVALID RESULT FROM _exec()'
+						 ."\n Returned Value : ".$result
+						 ."\n(Transated : ".implode(', ', get_bit_names('SQ_CRON_JOB_', $result, true)).')';
+
+			$root_user  = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+			$sys_admins = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
+			$msg->to[] = $root_user->id;
+			$msg->to[] = $sys_admins->id;
+
+		}// end if
+
+		if (!empty($this->_tmp['running_errors'])) {
+			$msg->body .= "\nError Messages :\n".$this->_tmp['running_errors'];
 		}
 
-		$ret_val = $this->_exec();
+		$msg->body .= "\n----------------------------------------------------------------\n";
 
-		$this->releaseLock();
+pre_echo("MESSAGE : \n".$msg->body);
 
-		return $ret_val;
+		$ms->enqueueMessage($msg);
+		$ms->closeQueue();
+
+
+		return $result;
 
 	}// end run()
 
 
 	/**
-	* Actually executes the functionality for this job
+	* This function captures all errors and warnings that occur during the execution of a job
 	*
-	* @return boolean	TRUE on success, FALSE on failure
+	* @param int	$err_no		The type of error (E_*)
+	* @param string	$err_msg	The error message
+	* @param string	$err_file	The file the error occured in
+	* @param string	$err_line	The line the error occured on
+	*
+	* @returns void
+	* @access private
+	* @see run()
+	*/
+	function _errorHandler($err_no, $err_msg, $err_file, $err_line)
+	{
+
+		$terminate = ((E_USER_ERROR | E_ERROR) & $err_no);
+
+		// if the function didn't have an '@' prepended OR if we are about to terminate
+		// catch the error
+		if (error_reporting() || $terminate) {
+
+			// Strip out the file path begining
+			$err_file = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', '[SYSTEM_ROOT]'), $err_file);
+			$err_msg  = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', '[SYSTEM_ROOT]'), $err_msg);
+
+			$err_name = '';
+			switch($err_no) {
+				case E_USER_ERROR	: $err_name = SQ_SYSTEM_SHORT_NAME.' Error';	break;
+				case E_USER_WARNING	: $err_name = SQ_SYSTEM_SHORT_NAME.' Warning';	break;
+				case E_USER_NOTICE	: $err_name = SQ_SYSTEM_SHORT_NAME.' Notice';	break;
+				case E_ERROR		: $err_name = 'PHP Error';						break;
+				case E_WARNING		: $err_name = 'PHP Warning';					break;
+				case E_NOTICE		: $err_name = 'PHP Notice';						break;
+				default				: $err_name = 'Unknown Error Type - '.$err_no;
+			}//end switch
+
+			// send a report to the system error log
+			if (SQ_CONF_ERRORS_LOG) {
+				$log_msg = date('D d/m/Y H:i:s').' ['.strtolower($err_name).'] ('.$err_file.':'.$err_line.') - '.$err_msg."\n";
+				$log_msg = str_replace('[SYSTEM_ROOT]', '', $log_msg);
+				error_log($log_msg, 3, SQ_SYSTEM_ROOT.'/cache/error.log');
+			}
+
+			// if they haven't put tags in the err msg assume it to be plain text
+			$err_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
+			$lines = explode("\n", $err_msg);
+			$len = 7 + strlen($err_file);
+			$len = max($len, 7 + strlen($err_line));
+			foreach($lines as $line) $len = max($len, strlen($line));
+			$len += 2;
+			$str =	'+'.str_repeat('-', $len)."+\n".
+					'| '.$err_name.str_repeat(' ', $len - 2 - strlen($err_name))." |\n".
+					'|'.str_repeat('-', $len)."|\n".
+					'| File : '.$err_file.str_repeat(' ', $len - 9 - strlen($err_file))." |\n".
+					'| Line : '.$err_line.str_repeat(' ', $len - 9 - strlen($err_line))." |\n".
+					'|'.str_repeat('-', $len)."|\n";
+			foreach($lines as $line) {
+				$str .=  '| '.$line.str_repeat(' ', $len - 2 - strlen($line))." |\n";
+			}
+
+			$str .= '+'.str_repeat('-', $len)."+\n";
+
+			if (!isset($this->_tmp['running_errors'])) $this->_tmp['running_errors'] = '';
+			$this->_tmp['running_errors'] .= $str;
+
+		}// end error_reporting
+
+		// if this is an irrercoverable error, send a distress email, delete ourselves and die
+		if ($terminate && empty($this->_tmp['terminate_error'])) {
+			$this->_tmp['terminate_error'] = true; // stop possible recursion
+
+			$cron_mgr_link = $this->getLink(SQ_LINK_TYPE_3, 'cron_manager', true, null, 'minor');
+			if (!empty($cron_mgr_link)) {
+				$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+				$cron_mgr->deleteLink($cron_mgr_link['linkid']);
+			}
+
+			$user       = &$this->getRunningUser();
+			$root_user  = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+			$sys_admins = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
+
+			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$msg = $ms->newMessage();
+			$msg->subject = 'TERMINATION of '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
+			$msg->body	  = "The above mention job fatally triggered an error and terminated the cron script.\n"
+							."It has been removed from the cron manager\n\nError Messages :\n"
+							.$this->_tmp['running_errors'];
+
+			$msg->to   = Array($user->id, $root_user->id, $sys_admins->id);
+			$msg->from = 0; // a system message
+
+			$msg->send();
+
+			exit(1);
+
+		}// end if
+
+	}// end _errorHandler()
+
+
+	/**
+	* Actually executes the functionality for this job, called by run()
+	*
+	* @return int	bitmask of the SQ_CRON_JOB_* constants to tell the cron manager what to do
+	*				eg: SQ_CRON_JOB_ERROR | SQ_CRON_JOB_RETRY means an error occured, but can I please be re-tried,
+	*					SQ_CRON_JOB_COMPLETED means everything is done correctly, but I can't be removed,
+	*					SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_REMOVE means everything is done correctly and I can be removed
+	* @see run()
 	* @access private
 	*/
 	function _exec()
 	{
-		trigger_error('Unable to run "'.$this->name.'" (#'.$this->id.'), exec not done', E_USER_WARNING);
-		return false;
+		trigger_error('Unable to run "'.$this->name.'" (#'.$this->id.'), _exec() not done', E_USER_WARNING);
+		// we can be removed because we haven't been done
+		return SQ_CRON_JOB_ERROR | SQ_CRON_JOB_REMOVE;
+
 	}// end _exec()
 
 
+	/**
+	* When given a when string value and a start time returns the timestamp for the first time after the 
+	* start time that this when string represents
+	*
+	* @return int	timestamp of when the next run will occur for this when string
+	* @access public
+	* @static
+	*/
 	function getNextRun($when_str, $start_ts=null)
 	{
 		$when = Cron_Job::getWhenArr($when_str);
