@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.3 2005/01/21 01:31:26 lwright Exp $
+* $Id: ecommerce_cart.inc,v 1.4 2005/03/21 06:27:12 gsherwood Exp $
 *
 */
 
@@ -33,14 +33,14 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
 class Ecommerce_Cart extends Page
 {
 
-	
+
 	/**
 	* Constructor
 	*
@@ -52,10 +52,10 @@ class Ecommerce_Cart extends Page
 	function Ecommerce_Cart($assetid=0)
 	{
 		$this->Page($assetid);
-		
-	}//end Ecommerce_Cart()
-	
-	
+
+	}//end constructor
+
+
 	/**
 	* Returns an array of all the permitted link type, the type asset and
 	* the cardinality
@@ -69,35 +69,10 @@ class Ecommerce_Cart extends Page
 		$page_links[SQ_LINK_TYPE_1]['folder'] = Array('card' => 'M');
 		$page_links[SQ_LINK_TYPE_1]['product'] = Array('card' => 'M');
 		return $page_links;
-	}
-	
-	
-	/**
-	* Create this asset
-	*
-	* @param array	&$link	information used to create the initial link
-	*
-	* @return mixed (int|boolean)	the link id if the asset is created
-	*							successfully, or bool(false) if create failed
-	* @access public
-	* @see Asset::create()
-	*/
-	function create(&$link)
-	{
-		$name = trim($this->attr('name'));
-		if ($name == '') {
-			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
-			return false;
-		}
 
-		// if the short name hasn't been set then short and long names are the same to begin with
-		if (trim($this->attr('short_name')) == '') $this->setAttrValue('short_name', $name);
+	}//end _getAllowedLinks()
 
-		return parent::create($link);
 
-	}//end create()
-	
-	
 	/**
 	* Returns name of the asset
 	*
@@ -125,17 +100,17 @@ class Ecommerce_Cart extends Page
 	function initialise()
 	{
 		$ret_val = 0;
-		
+
 		if (!isset($_SESSION['sq_cart_contents'])) {
 			$_SESSION['sq_cart_contents'] = Array();
 			$ret_val = 1;
 		}
-		
+
 		return $ret_val;
-		
+
 	}//end initialise()
-	
-	
+
+
 	/**
 	* Unsets the contents of this particular cart
 	*
@@ -148,20 +123,11 @@ class Ecommerce_Cart extends Page
 	function clear()
 	{
 		unset($_SESSION['sq_cart_contents']);
-		
-		//only needed once we move back to more than one cart
-		//unset($_SESSION['sq_cart_contents'][$this->id]);
-		
-		// this is the last cart
-		//if (empty($_SESSION['sq_cart_contents'])) {
-		//  unset($_SESSION['sq_cart_contents']);
-		//}
-		
 		return true;
-		
+
 	}//end clear()
 
-	
+
 	/**
 	* Adds an item(s) to the cart
 	*
@@ -182,27 +148,27 @@ class Ecommerce_Cart extends Page
 			trigger_error('Quantity to add() to cart cannot be less than zero', E_USER_WARNING);
 			return false;
 		}
-		
+
 		// check that the passed product assetid is indeed valid and
 		// a valid product (or subclass of product)
 		assert_valid_assetid($product_assetid);
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($product_assetid), 'product', false);
-		
+
 		if (empty($asset_info)) {
 			trigger_error('Assetid sent to cart add() function is not a Product asset', E_USER_WARNING);
 			return false;
 		}
-		
+
 		$cart =& $this->get();
 		if (!isset($cart[$product_assetid])) {
 			$cart[$product_assetid] = Array('price' => $price, 'quantity' => 0);
 		}
-		
+
 		$cart[$product_assetid]['quantity'] += $quantity;
-		
+
 	}//end add()
-	
-	
+
+
 	/**
 	* Removes an item(s) from the cart
 	*
@@ -220,11 +186,10 @@ class Ecommerce_Cart extends Page
 	function remove($product_assetid, $quantity=null)
 	{
 		$cart =& $this->get();
-		
+
 		// product doesn't exist in cart - if the quantity is zero (or ALL)
 		// then silently return, otherwise error
-		if (!isset($cart[$product_assetid]))
-		{
+		if (!isset($cart[$product_assetid])) {
 			if (is_null($quantity) || ($quantity == 0)) {
 				return true;
 			} else if ($quantity > 0) {
@@ -232,13 +197,13 @@ class Ecommerce_Cart extends Page
 				return false;
 			}
 		}
-		
+
 		// after this point we can assume that product exists in the cart
 		// Quantity is null, remove everything
 		if (is_null($quantity)) {
 			$quantity = $cart[$product_assetid]['quantity'];
 		}
-		
+
 		// Qty == 0, silently return - Qty < 0, throw an error
 		if ($quantity == 0) {
 			return true;
@@ -246,7 +211,7 @@ class Ecommerce_Cart extends Page
 			trigger_error('Quantity to remove() from cart cannot be less than zero', E_USER_WARNING);
 			return false;
 		}
-		
+
 		if ($quantity > $cart[$product_assetid]['quantity']) {
 			trigger_error('Quantity to remove() from cart cannot be more than how many of that product are actually in the cart', E_USER_WARNING);
 			return false;
@@ -255,10 +220,10 @@ class Ecommerce_Cart extends Page
 		} else {
 			$cart[$product_assetid]['quantity'] -= $quantity;
 		}
-		
+
 	}//end remove()
-	
-	
+
+
 	/**
 	* Updtes the quantity of an item(s) in the cart
 	*
@@ -280,14 +245,13 @@ class Ecommerce_Cart extends Page
 		// if we are not updating anything, silently return succes
 		if (array_get_index($cart, $product_assetid, 0) == $quantity) return true;
 		if (array_get_index($cart[$product_assetid], 'quantity', 0) == $quantity) return true;
-		
+
 		// product doesn't exist in cart, then silently return, otherwise error
-		if (!isset($cart[$product_assetid]))
-		{
+		if (!isset($cart[$product_assetid])) {
 			trigger_error('Attempt to update() an item in a cart when there is nothing to update', E_USER_WARNING);
 			return false;
 		}
-		
+
 		// Qty < 0, throw an error
 		if ($quantity < 0) {
 			trigger_error('Quantity to update() an item with a negative quantity', E_USER_WARNING);
@@ -297,12 +261,12 @@ class Ecommerce_Cart extends Page
 		} else {
 			$cart[$product_assetid]['quantity'] = $quantity;
 		}
-		
+
 		return true;
-		
+
 	}//end update()
-	
-	
+
+
 	/**
 	* Returns a reference to the session variable that holds this cart
 	*
@@ -316,10 +280,10 @@ class Ecommerce_Cart extends Page
 	{
 		$this->initialise();
 		return $_SESSION['sq_cart_contents'];
-		
+
 	}//end get()
-	
-	
+
+
 	/**
 	* Return the sum-total of all the items currently in this cart
 	*
@@ -333,12 +297,12 @@ class Ecommerce_Cart extends Page
 		foreach($cart as $product_assetid => $details) {
 			$total += $details['quantity'] * $details['price'];
 		}
-		
+
 		return $total;
-		
+
 	}//end total()
-	
-	
+
+
 	/**
 	* Return the count of all the items currently in this cart
 	*
@@ -352,12 +316,12 @@ class Ecommerce_Cart extends Page
 		foreach($cart as $product_assetid => $details) {
 			$count += $details['quantity'];
 		}
-		
+
 		return $count;
-		
+
 	}//end count()
-	
-	
+
+
 	/**
 	* Paints the asset to the page
 	*
@@ -367,7 +331,7 @@ class Ecommerce_Cart extends Page
 	function printBody()
 	{
 		?><div align="center"><form action="<?php echo $this->getURL() ?>" method="post"><?php
-		
+
 		if (!is_null(array_get_index($_POST,'update_quantity',null))) {
 			foreach($_POST['update_quantity'] as $product_assetid => $new_quantity) {
 				if (is_numeric($new_quantity)) {
@@ -376,9 +340,9 @@ class Ecommerce_Cart extends Page
 			}
 			?><strong>Product quantities changed.</strong><?php
 		}
-	
+
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-	
+
 		$cart = $this->get();
 		?>
 		<table width="50%">
@@ -402,7 +366,7 @@ class Ecommerce_Cart extends Page
 		}
 		?><tbody><?php
 		if (empty($cart)) {
-			?><tr><td colspan="<?php echo $this->attr('show_price') ? 4 : 2 ?>" style="text-align:center">There are no items in your cart</td></tr><?php		
+			?><tr><td colspan="<?php echo $this->attr('show_price') ? 4 : 2 ?>" style="text-align:center">There are no items in your cart</td></tr><?php
 		} else {
 			foreach($cart as $product_assetid => $details) {
 				?><tr><?php
@@ -418,7 +382,7 @@ class Ecommerce_Cart extends Page
 		}
 		?></tbody>
 		</table>
-		
+
 		<?php if (!empty($cart)) { ?>
 			<input type="submit" value="Update Quantity">
 			<?php 
@@ -430,10 +394,10 @@ class Ecommerce_Cart extends Page
 		<?php } ?>
 		</form></div>
 		<?php
-			
+
 	}//end printBody()
-	
-	
+
+
 }//end class
 
 ?>

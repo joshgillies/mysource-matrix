@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.13 2005/02/23 00:47:10 mnyeholt Exp $
+* $Id: form_ecommerce.inc,v 1.14 2005/03/21 06:27:12 gsherwood Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -453,26 +453,26 @@ class Form_Ecommerce extends Form_Email
 	function &createOrder()
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// create the Order asset
 		$order = new Order();
 		$copy_link  = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
-		
-		$GLOBALS['SQ_INSTALL'] = true;
-		
-		//attempt to create the link to this asset
-		if (!$order->create($copy_link)) {
+
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+		$success = $order->create($copy_link);
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+		// attempt to create the link to this asset
+		if (!$success) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-		$GLOBALS['SQ_INSTALL'] = false;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		
-		
+
 		return $order;
-		
+
 	}//end createOrder()
 
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: order_line.inc,v 1.1 2005/01/21 00:05:06 lwright Exp $
+* $Id: order_line.inc,v 1.2 2005/03/21 06:27:12 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,14 +32,14 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
 class Order_Line extends Asset
 {
 
-	
+
 	/**
 	* Constructor
 	*
@@ -51,10 +51,10 @@ class Order_Line extends Asset
 	function Order_Line($assetid=0)
 	{
 		$this->Asset($assetid);
-		
+
 	}//end Order_Line()
-	
-	
+
+
 	/**
 	* Calculate a simple line total
 	*
@@ -64,10 +64,10 @@ class Order_Line extends Asset
 	function lineTotal()
 	{
 		return $this->attr('price') * $this->attr('quantity');
-		
+
 	}//end lineTotal()
-	
-	
+
+
 	/**
 	* Returns a reference to the product asset in this line item
 	*
@@ -77,28 +77,10 @@ class Order_Line extends Asset
 	function &getProductAsset()
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('product_assetid'));
-		
+
 	}//end getProductAsset()
-	
-	/**
-	* Create link for this asset
-	 *
-	 * Called when a form is processed and a link to this order is made
-	 * to the ecom form
-	 *
-	 * @access pulic
-	 */
-	function create(&$link)
-	{
-		if (!($linkid = parent::create($link))) {
-			return 0;
-		}
-		
-		return $linkid;
-		
-	}//end create()
-	
-	
+
+
 }//end class
 
 ?>
