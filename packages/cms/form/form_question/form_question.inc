@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.22 2004/05/10 00:22:42 lwright Exp $
+* $Id: form_question.inc,v 1.23 2004/05/17 05:53:48 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -712,5 +712,20 @@ class Form_Question extends Asset
 	}//end generateJSCode()
 	
 	
+	/**
+	* returns an answer summary in XML format (suitable for submission logs)
+	* 
+	* @access public
+	* @return string
+	*/
+	function getXML($answer)
+	{
+		echo '<text_q id="'.addslashes($this->id).'"  name="'.addslashes($this->attr('name')).'">';
+		echo htmlspecialchars($this->getSummary($answer));
+		echo '</text_q>';
+
+	}//end getXML()
+
+
 }//end class
 ?>
