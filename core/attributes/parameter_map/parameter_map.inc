@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.1 2004/11/26 03:34:53 tbarrett Exp $
+* $Id: parameter_map.inc,v 1.2 2004/11/30 05:15:37 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -208,32 +208,34 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	function process($prefix)
 	{
 		$value = Array();
-		foreach ($_POST[$prefix] as $index => $details) {
-			if ($index == 'new') continue;
-			$value[$index] = $details;
-			foreach ($details as $j => $fields) {
-				if ($fields['source'] == 'ASSET') unset($value[$index][$j]['index']);
-				else unset($value[$index][$j]['attribute']);
-				if (isset($fields['delete'])) {
-					unset($value[$index][$j]);
-					if (empty($value[$index])) unset($value[$index]);
+		if (isset($_POST[$prefix]) && is_array($_POST[$prefix])) {
+			foreach ($_POST[$prefix] as $index => $details) {
+				if ($index == 'new') continue;
+				$value[$index] = $details;
+				foreach ($details as $j => $fields) {
+					if ($fields['source'] == 'ASSET') unset($value[$index][$j]['index']);
+					else unset($value[$index][$j]['attribute']);
+					if (isset($fields['delete'])) {
+						unset($value[$index][$j]);
+						if (empty($value[$index])) unset($value[$index]);
+					}
 				}
 			}
-		}
-		foreach ($_POST[$prefix]['new'] as $new_mapping) {
-			if (empty($new_mapping['parameter'])) continue;
-			$param = $new_mapping['parameter'];
-			unset($new_mapping['parameter']);
-			if ($new_mapping['source'] == 'ASSET') unset($new_mapping['index']);
-			else unset($new_mapping['attribute']);
-			if (!isset($value[$param])) {
-				$value[$param] = Array($new_mapping);
-			} else {
-				$value[$param][] = $new_mapping;
+			foreach ($_POST[$prefix]['new'] as $new_mapping) {
+				if (empty($new_mapping['parameter'])) continue;
+				$param = $new_mapping['parameter'];
+				unset($new_mapping['parameter']);
+				if ($new_mapping['source'] == 'ASSET') unset($new_mapping['index']);
+				else unset($new_mapping['attribute']);
+				if (!isset($value[$param])) {
+					$value[$param] = Array($new_mapping);
+				} else {
+					$value[$param][] = $new_mapping;
+				}
 			}
+			$this->validateValue($value);
+			$this->processed = $this->setValue($value);
 		}
-		$this->validateValue($value);
-		$this->processed = $this->setValue($value);
 
 	}//end process()
 
