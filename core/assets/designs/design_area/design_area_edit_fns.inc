@@ -493,7 +493,10 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 					$element['attributes']['value'] = $this->_removeFileRoot($element['attributes']['value']);
 				}
 
-				if (!$asset->setAttrValue($element['attributes']['name'], $element['attributes']['value'])) return false;
+				if (!$asset->setAttrValue($element['attributes']['name'], $element['attributes']['value'])) {
+					trigger_error('Unable to set the value of "'.$element['attributes']['name'].'" in "'.$asset->attr('id_name').'"', E_USER_WARNING);
+					return false;
+				}
 
 			// else something is amiss and we don't know what we can do, so barf in their direction
 			} else {
