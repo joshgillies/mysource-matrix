@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: config.inc,v 1.4 2003/09/26 05:26:34 brobertson Exp $
+* $Id: config.inc,v 1.5 2003/10/02 05:37:09 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -21,15 +21,15 @@
 class Config extends MySource_Object
 {
 	/**
-	* @var	Holds all the vars for this that config vars for this config
-	*		In the form : Array([var name] => Array('editable' => [boolean], 'default' => [mixed scalar]))
+	* Holds all the vars for this that config vars for this config
+	* In the form : Array([var name] => Array('editable' => [boolean], 'default' => [mixed scalar]))
+	* @var Array()
 	*/
 	var $config_vars = Array();
 
-
 	/**
-	* @var	The file to save the config file to
-	*		In the form : Array([var name] => Array('editable' => [boolean], 'default' => [mixed scalar]))
+	* The file to save the config file to
+	* @var string
 	*/
 	var $config_file = '';
 
@@ -38,15 +38,20 @@ class Config extends MySource_Object
 	* Constructor
 	*
 	*/
-	function Config($config_file)
+	function Config()
 	{
 		$this->MySource_Object();
-		$this->config_file = $config_file;
-	}
+	}// end constructor
+
 
 	/**
 	* Rewrites the conf file with current variables
 	*
+	* @param Array		$vars				the array with any new values (that are allowed to be edited) Array('[config_var_name]' => [scalar value])
+	* @param boolean	$backup_existing	whether we should backup the existing config file first
+	*
+	* @return boolean	indicates whether the file was written
+	* @access public
 	*/
 	function save($vars, $backup_existing=false)
 	{
@@ -55,21 +60,34 @@ class Config extends MySource_Object
 			require_once $this->config_file;
 		}
 
+		$changed_vars = Array();
 		ob_start();
 		foreach($this->config_vars as $var_name => $data) {
 
-			$value = $data['default'];
-			if ($data['editable'] && isset($vars[$var_name])) {
+			$current_value = (defined($var_name)) ? constant($var_name) : $data['default'];
+			if ($data['editable'] && isset($vars[$var_name]) && $current_value !== $vars[$var_name]) {
+
+				// OK to make sure that everything is fine, we are going to force the issue of setting the type
+				// of the vars to that of the default 
+				$default_type = gettype($data['default']);
+
+
+
 				$value = $vars[$var_name];
-			} elseif (defined($var_name)) {
-				$value = constant($var_name);
+
+				$changed_vars[$var_name] = Array('old' => $current_value, 'new' => $value);
+
+			} else { 
+				$value = $current_value;
 			}
 
-			$this->_paintConfigVar($var_name, $value);
+			if (!$this->_paintConfigVar($var_name, $value)) {
+				return false;
+			}
 
 		}//end foreach
 
-		$str = "<"."?php\n".ob_get_contents()."?".">\n";
+		$str = '<'."?php\n".ob_get_contents().'?'.">\n";
 
 		ob_end_clean();
 
@@ -87,23 +105,40 @@ class Config extends MySource_Object
 
 		}// endif
 
-		echo $str;
+		if (SQ_PHP_CLI) pre_echo($str);
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		return string_to_file($str, $this->config_file);
+		if (!string_to_file($str, $this->config_file)) return false;
+
+		if ($changed_vars) {
+			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$message_body = '';
+			foreach($changed_vars as $var_name => $values) {
+				$message_body .= $var_name.' changed from '.var_export($values['old'], true).' to '.var_export($values['new'], true)."\n";
+			}
+			$config_name = ucwords(str_replace('_', ' ', get_class($this)));
+			$message = $ms->newMessage(Array(), $config_name.' Updated', $message_body, 'config.'.get_class($this));
+			$message->send();
+
+		}// end if
+
+		return true;
 
 	}// end save()
 
 
 	/**
 	* Paint's out the code for the config file for the passed config
-	* This allows extra things to be added for special cases
+	* This allows extra things to be added for special cases, and extra checks to be made if necessary on the value
 	*
 	* @param string $name	the config var name
 	* @param mixed  $value	the value that the config var has
+	*
+	* @return boolean	whether the value is valid or not
 	*/
 	function _paintConfigVar($var_name, $value)
 	{
 		echo "define('".$var_name."', ".var_export($value, true).");\n";
+		return true;
 	}//end _paintConfigVar()
 
 }//end class
