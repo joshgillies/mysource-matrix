@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_edit_fns.inc,v 1.3 2004/01/22 02:49:19 gsherwood Exp $
+* $Id: content_type_edit_fns.inc,v 1.3.6.1 2004/12/09 03:17:24 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -63,12 +63,13 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 	*
 	* @param object Content_Type	&$asset		the content type we are painting
 	* @param string					$prefix		prefix for form elements
+	* @param boolean				$editing	are we printing an editing interface
 	* @param boolean				$generating	are we genenerating the cache file
 	*
 	* @return void
 	* @access public
 	*/
-	function paint(&$asset, $prefix, $generating=false)
+	function paint(&$asset, $prefix, $editing=false, $generating=false)
 	{
 		echo $asset->attr('html');
 

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.16 2004/12/03 15:29:22 brobertson Exp $
+* $Id: bodycopy.inc,v 1.16.2.1 2004/12/09 03:17:24 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -398,7 +398,7 @@ class Bodycopy extends Asset
 		ob_start();
 			foreach ($containers as $container) {
 				$edit = &$container->getEditFns();
-				$edit->paint($container);
+				$edit->paint($container, false, true);
 			}
 			$contents = ob_get_contents();
 		ob_end_clean();

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.17 2004/12/03 15:29:22 brobertson Exp $
+* $Id: bodycopy_container.inc,v 1.17.2.1 2004/12/09 03:17:24 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.17.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -310,7 +310,7 @@ class Bodycopy_Container extends Asset
 		if (SQ_ROLLBACK_VIEW) {
 			$edit = $this->getEditFns();
 			ob_start();
-				$edit->paint($this, true);
+				$edit->paint($this, false, true);
 				$output = ob_get_contents();
 			ob_end_clean();
 
