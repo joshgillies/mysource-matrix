@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.42 2005/03/14 02:56:44 tbarrett Exp $
+* $Id: cron_manager.inc,v 1.43 2005/03/14 05:47:48 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -468,7 +468,7 @@ class Cron_Manager extends Asset
 				$next_run = $this_run + $refresh_time;
 
 				$jobs = $this->getJobsToRun($last_run, $this_run);
-	
+
 				// holds the number of times that a job has failed
 				// Array([assetid] => [number of failed runs]);
 				$failed_runs = Array();
@@ -780,10 +780,10 @@ class Cron_Manager extends Asset
 		$every_time = '(COALESCE(av.custom_val, at.default_val)) = '.$db->quote('ET=');
 
 		$sql   = 'SELECT l.linkid, a.assetid, a.type_code
-				  FROM (sq_ast_lnk l
+				  FROM ('.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.minorid = a.assetid)
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr at ON at.type_code = a.type_code
-						LEFT OUTER JOIN '.SQ_TABLE_PREFIX.'ast_attr_val av ON (av.assetid = a.assetid AND av.attrid = at.attrid)';
+						LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val av ON (av.assetid = a.assetid AND av.attrid = at.attrid)';
 		$where = 'l.majorid = '.$db->quote($this->id).'
 				  AND a.type_code IN (
 									SELECT type_code
@@ -815,31 +815,10 @@ class Cron_Manager extends Asset
 		}
 
 		$GLOBALS['CRON_MANAGER_GET_JOBS_TO_RUN_START_TS'] = $start_ts;
-		usort($result, Array('Cron_Manager', 'getJobsToRunCmp'));
 		unset($GLOBALS['CRON_MANAGER_GET_JOBS_TO_RUN_START_TS']);
 		return $result;
 
 	}//end getJobsToRun()
-
-
-	/**
-	* Used by usort() in getJobsToRun() to sort the results in the proper order for execution
-	*
-	* @param array	$a	first value to compare
-	* @param array	$b	second value to compare
-	*
-	* @return int	negative means $a is before $b, zero means $a == $b, positive means $b is before $a
-	* @see getJobsToRun()
-	* @access public
-	*/
-	function getJobsToRunCmp($a, $b)
-	{
-		$a_ts = Cron_Job::getNextRun($a['when'], $GLOBALS['CRON_MANAGER_GET_JOBS_TO_RUN_START_TS']);
-		$b_ts = Cron_Job::getNextRun($b['when'], $GLOBALS['CRON_MANAGER_GET_JOBS_TO_RUN_START_TS']);
-		if ($a_ts == $b_ts) return 0;
-		return ($a_ts < $b_ts) ? -1 : 1;
-
-	}//end getJobsToRunCmp()
 
 
 	/**
