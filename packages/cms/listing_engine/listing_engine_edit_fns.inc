@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.5 2005/03/11 04:31:30 gsherwood Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.6 2005/04/01 04:24:26 tbarrett Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -59,7 +59,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 	
 	/**
-	* Paint the current asset types that have been added
+	* Paint the interface for choosing which asset types to list
 	*
 	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
@@ -68,72 +68,54 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintCurrentAssetTypes(&$asset, &$o, $prefix)
+	function paintAssetTypes(&$asset, &$o, $prefix)
 	{
-		$write_access = $asset->writeAccess('content');
-		$folder = &$asset->getFolder('type_formats');
-
 		$types = $asset->attr('types');
-		if (empty($types)) {
-			echo 'There are no types defined';
+		if ($asset->writeAccess('content')) {
+			// print the form fields
+			$display_values = Array('type_code' => Array(), 'inherit' => Array());
+			foreach ($types as $type => $inherit) {
+				$display_values['type_code'][] = $type;
+				$display_values['inherit'][] = $inherit;
+			}
+			asset_type_chooser($prefix.'_types', true, $display_values, null, false, true);
+			return true;
+		} else {
+			// print the read-only version
+			if (empty($types)) {
+				echo '<p style="color: red">No asset types have been chosen</p>';
+			} else {
+				$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($types), 'name');
+				?>
+					<table class="sq-backend-table">
+						<tr>
+							<th>Type</th>
+							<th>Inherit?</th>
+						</tr>
+				<?php
+				$inherit_image_path = sq_web_path('lib').'/web/images/';
+				foreach ($types as $type => $inherit) {
+					$inherit_image = $inherit_image_path.($inherit ? 'tick' : 'cross').'.gif';
+					$inherit_alt = $inherit ? 'Yes' : 'No';
+					?>
+						<tr>
+							<td><?php echo $type_names[$type]; ?></td>
+							<td><img src="<?php echo $inherit_image; ?>" alt="<?php echo $inherit_alt; ?>" /></td>
+						</tr>
+					<?php
+				}
+				?>
+					</table>
+				<?php
+			}
 			return false;
 		}
-		$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($types), 'name');
-		?>
-		<table class="sq-backend-table">
-			<tr>
-				<td class="sq-backend-table-header">Asset Type</td>
-				<td class="sq-backend-table-header">Inherit Types</td>
-				<?php
-				if ($write_access) {
-					?>
-					<td class="sq-backend-table-header">Remove?</td>
-					<?php
-				}
-				?>
-			</tr>
-			<?php
-			foreach ($types as $type => $inherit) {
-				?>
-				<tr>
-					<td class="sq-backend-table-cell">
-						<?php
-						echo $type_names[$type];
-						?>
-					</td>
-					<td class="sq-backend-table-cell">
-						<?php
-						if ($write_access) {
-							check_box($prefix.'_inherit_types[]', $type, $inherit);
-						} else {
-							echo ($inherit) ? 'Yes' : 'No';
-						}
-						?>
-					</td>
-					<?php
-					if ($write_access) {
-						?>
-						<td class="sq-backend-table-cell">
-							<?php
-							check_box($prefix.'_remove[]', $type, false);
-							?>
-						</td>
-						<?php
-					}
-					?>
-				</tr>
-				<?php
-			}//end foreach $types
-			?>
-		</table>
-		<?php
-		return true;
 		
-	}//end paintCurrentAssetTypes()
+	}//end paintAssetTypes()
 
 
 	/**
-	* Process the current asset types that have been added
+	* Process the asset types to list
 	*
 	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
@@ -142,92 +124,40 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processCurrentAssetTypes(&$asset, &$o, $prefix)
+	function processAssetTypes(&$asset, &$o, $prefix)
 	{
-		$types = $asset->attr('types');
-		$folder = &$asset->getFolder('type_formats');
-		$formats = $asset->getFormats('type_formats');
-
-		// we are looking to see if any types have been removed
-		$removed = array_get_index($_POST, $prefix.'_remove', Array());
-		foreach ($removed as $type) {
-			if (isset($types[$type])) {
-				unset($types[$type]);
-
-				if (in_array($type, $formats)) {
-					// we also want to send the bodycopy to the trash
-					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $type);
-					if (empty($link)) {
-						trigger_error('Format for type '.$type.' not found', E_USER_WARNING);
-					}
-					// back up in your trash with the resurection
-					$folder->deleteLink($link['linkid']);
+		if (isset($_POST[$prefix.'_types'])) {
+			$existing_types = $asset->attr('types');
+			$submitted_types = Array();
+			foreach ($_POST[$prefix.'_types']['type_code'] as $i => $type_code) {
+				if (!empty($type_code)) {
+					$submitted_types[$type_code] = $_POST[$prefix.'_types']['inherit'][$i];
 				}
 			}
-		}
 
+			$folder = &$asset->getFolder('type_formats');
+			$formats = $asset->getFormats('type_formats');
 
-		if (!isset($_POST[$prefix.'_inherit_types'])) $_POST[$prefix.'_inherit_types'] = Array();
-		for (reset($types); null !== ($k = key($types)); next($types)) {
-			$types[$k] = (in_array($k, $_POST[$prefix.'_inherit_types'])) ? true : false;
-		}
-		$asset->setAttrValue('types', $types);
-
-		return true;
-
-	}//end processCurrentAssetTypes()
-
-
-	/**
-	* Paint section to add an asset type
-	*
-	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintAddAssetType(&$asset, &$o, $prefix)
-	{
-		if (!$asset->writeAccess('content')) return false;
-
-		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
-		$types = array_diff($types, $asset->attr('types'));
-
-		$type_options = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($types, 'name');
-		asort($type_options);
-		$type_options = Array('' => '- Select asset type -') + $type_options;
-		combo_box($prefix.'_new_type', $type_options, false, '');
-
-	}//end paintAddAssetType()
-	
-	
-	/**
-	* Process the section to add a new format for an asset
-	*
-	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processAddAssetType(&$asset, &$o, $prefix)
-	{
-		if (isset($_POST[$prefix.'_new_type'])) {
-			$type = trim($_POST[$prefix.'_new_type']);
-			if (empty($type)) return false;
-			$types = $asset->attr('types');
-			if (!isset($types[$type])) {
-				$types[$type] = true;
-				$asset->setAttrValue('types', $types);
-				return true;
+			// See if any types have been removed
+			foreach ($existing_types as $type => $inherit) {
+				if (!isset($submitted_types[$type])) {
+					if (in_array($type, $formats)) {
+						// send the type format bodycopy to the trash
+						$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $type);
+						if (!empty($link)) {
+							$folder->deleteLink($link['linkid']);
+						}
+					}
+				}
 			}
-		}
-		return false;
 
-	}//end processAddAssetType()
+			$asset->setAttrValue('types', $submitted_types);
+			return true;
+		} else {
+			return false;
+		}
+
+	}//end processAssetTypes()
 
 
 	/**

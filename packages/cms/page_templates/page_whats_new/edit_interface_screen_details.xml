@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.9 2005/03/30 00:41:13 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.10 2005/04/01 04:24:26 tbarrett Exp $
 *
 */
 -->
@@ -85,8 +85,8 @@
 		</field>
 		<field>
 			<function_call>
-				<paint_function   name="paintCurrentAssetTypes"   />
-				<process_function name="processCurrentAssetTypes" />
+				<paint_function   name="paintAssetTypes"   />
+				<process_function name="processAssetTypes" />
 			</function_call>
 		</field>
 		<field read_access="write:contents">

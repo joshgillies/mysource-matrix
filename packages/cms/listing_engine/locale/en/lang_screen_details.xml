@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2005/03/30 00:41:12 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.2 2005/04/01 04:24:26 tbarrett Exp $
 *
 */
 -->
@@ -58,19 +58,11 @@
 			&lt;br/&gt;A Random listing displays one or more assets in random order.</note>
 		</field>
 		<field>
-			<display_name>Current Asset Types</display_name>
+			<display_name>Asset Types to List</display_name>
 			<note></note>
 			<function_call>
-				<paint_function   name="paintCurrentAssetTypes"   />
-				<process_function name="processCurrentAssetTypes" />
-			</function_call>
-		</field>
-		<field>
-			<display_name>Add Asset Type</display_name>
-			<note />
-			<function_call>
-				<paint_function   name="paintAddAssetType"   />
-				<process_function name="processAddAssetType" />
+				<paint_function   name="paintAssetTypes"   />
+				<process_function name="processAssetTypes" />
 			</function_call>
 		</field>
 	</section>
