@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_management.inc,v 1.4 2004/07/01 04:03:30 mmcintyre Exp $
+* $Id: search_manager_management.inc,v 1.5 2004/08/27 01:12:20 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.4 $ - 0.1
+* @version $Revision: 1.5 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -68,25 +68,25 @@ class Search_Manager_Management extends Asset_Management
 				Array(
 					'event_name'				 => 'assetDeleted',
 					'broadcast_type_code'		 => 'global',
-					'broadcast_strict_type_code'	=> true,
+					'broadcast_strict_type_code' => true,
 					'options'	=> Array(
-						'global'					=> true,
+						'global' => true,
 					),
 				),
 				Array(
 					'event_name'				 => 'requestReindex',
 					'broadcast_type_code'		 => 'global',
-					'broadcast_strict_type_code'	=> true,
+					'broadcast_strict_type_code' => true,
 					'options'	=> Array(
-						'global'					=> true,
+						'global' => true,
 					),
 				),
 				Array(
-					'event_name'				 => 'IndexMetadata',
+					'event_name'				 => 'indexMetadata',
 					'broadcast_type_code'		 => 'global',
-					'broadcast_strict_type_code'	=> true,
+					'broadcast_strict_type_code' => true,
 					'options'	=> Array(
-						'global'					=> true,
+						'global' => true,
 					),
 				),
 		);
