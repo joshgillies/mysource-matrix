@@ -192,7 +192,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			}// end if
 		}// end for
 
-		$asset->saveWebURLs($urls);
+		return $asset->saveWebURLs($urls);
 
 	}// end processURLS()
 

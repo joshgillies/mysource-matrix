@@ -115,6 +115,7 @@ class Site extends Folder
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+		$updated = false;
 		$processed_urlids = Array();
 		$current_urls = $this->getSiteURLs();
 		for(reset($save_urls); null !== ($save_urlid = key($save_urls)); next($save_urls)) {
@@ -144,18 +145,23 @@ class Site extends Folder
 			}
 			// are we an existing or an new one
 			if ($save_urlid) {
-				$sql = 'UPDATE sq_asset_url
-						SET url   = '.$db->quote($save_urls[$save_urlid]['url']).',
-							http  = '.$db->quote($save_urls[$save_urlid]['http']).',
-							https = '.$db->quote($save_urls[$save_urlid]['https']).'
-						WHERE urlid   = '.$db->quote($save_urlid).'
-						  AND assetid = '.$db->quote($this->id);
-				$result = $db->query($sql);
-				if (DB::isError($result)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-					return false;
-				}// end if
+				if ($current_urls[$save_urlid]['url']   != $save_urls[$save_urlid]['url'] ||
+					$current_urls[$save_urlid]['http']  != $save_urls[$save_urlid]['http'] ||
+					$current_urls[$save_urlid]['https'] != $save_urls[$save_urlid]['https']) {
+					$sql = 'UPDATE sq_asset_url
+							SET url   = '.$db->quote($save_urls[$save_urlid]['url']).',
+								http  = '.$db->quote($save_urls[$save_urlid]['http']).',
+								https = '.$db->quote($save_urls[$save_urlid]['https']).'
+							WHERE urlid   = '.$db->quote($save_urlid).'
+							  AND assetid = '.$db->quote($this->id);
+					$result = $db->query($sql);
+					if (DB::isError($result)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+						return false;
+					}
+					$updated = true;
+				}
 
 			} else {
 
@@ -178,6 +184,9 @@ class Site extends Folder
 					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 					return false;
 				}
+
+				$updated = true;
+
 			}// end if urlid
 
 			$current_urls[$curr_urlid] = $save_urls[$save_urlid];
@@ -197,14 +206,14 @@ class Site extends Folder
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 				return false;
 			}
-
+			$updated = true;
 		}
 
 		unset($this->_tmp['urls_info']);
 
 		if ($this->_updateLookups()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return true;
+			return $updated;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
