@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.236 2004/12/16 03:37:33 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.237 2004/12/23 00:19:25 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.236 $
+* @version $Revision: 1.237 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -296,7 +296,7 @@ class Asset_Edit_Interface extends MySource_Object
 									echo '<div class="sq-backend-locked-by-someone-else">You can forceably acquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself.<br>Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably acquired.</div>';
 								}
 							} else if ($full_write_access && $acquire_lock_access) {
-								echo 'Press the <span class="sq-backend-button-fake">Lock</span> button to lock "'.$owner->name.'" for editing. ';
+								echo 'Press the <span class="sq-backend-button-fake">Acquire Lock</span> button to lock "'.$owner->name.'" for editing. ';
 							}
 						}
 						if ($have_any_locks) echo 'Press the <span class="sq-backend-button-fake">Release Lock(s)</span> button to release the locks you hold on "'.$owner->name.'". ';
@@ -401,13 +401,13 @@ class Asset_Edit_Interface extends MySource_Object
 						}
 					} else if ($full_write_access && $acquire_lock_access) {
 						hidden_field('sq_lock_acquire_by_force', '0');
-						submit_button('sq_lock_acquire', 'Lock');
+						submit_button('sq_lock_acquire', 'Acquire Lock', '', 'accesskey="a"');
 						echo '&nbsp;';
 					}//end if
 				}
 
 				if ($have_any_locks) {
-					submit_button('sq_lock_release_manual', 'Release Lock(s)');
+					submit_button('sq_lock_release_manual', 'Release Lock(s)', '', 'accesskey="r"');
 					echo '&nbsp;';
 				}
 
