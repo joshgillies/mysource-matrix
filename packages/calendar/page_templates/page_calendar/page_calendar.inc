@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.118 2004/11/23 02:43:01 gsherwood Exp $
+* $Id: page_calendar.inc,v 1.119 2004/11/25 01:58:32 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.118 $ - 1.0
+* @version $Revision: 1.119 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -150,6 +150,7 @@ class Page_Calendar extends Page_Asset_Listing
 		);
 		$type_formats = null;
 		foreach ($sub_assets as $name => $type) {
+			bam("Creating $name = $type");
 			$asset = new $type();
 			$copy_link = Array('asset' => &$this, 'value' => $name ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
@@ -211,6 +212,31 @@ class Page_Calendar extends Page_Asset_Listing
 		return $linkid;
 
 	}//end create()
+
+	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* For example, creating other child assets should be performed in this function
+	*
+	* @param array	&$link	information used to create the initial link<br/>
+	* <PRE>
+	* Array ('asset'         => [ref major asset to create link under],
+	*        'link_type'     => SQ_LINK_?,
+	*        'value'         => [link value],
+	*        'sort_order'    => [link sort order],
+	*        'is_dependant'  => [0|1],
+	*        'is_exclusive'  => [0|1]
+	*        )
+	* </PRE>
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _createAdditional(&$link)
+	{
+		return true;
+
+	}//end _createAdditional()
 
 
 	/******
