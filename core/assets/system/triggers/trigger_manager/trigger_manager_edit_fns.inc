@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager_edit_fns.inc,v 1.6 2005/02/25 05:28:09 rhoward Exp $
+* $Id: trigger_manager_edit_fns.inc,v 1.7 2005/02/25 05:46:37 arailean Exp $
 *
 */
 
@@ -32,8 +32,8 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *   To handle the creation, modification, and the batch-firing of triggers
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.6 $
+* @author  Robert Howard  <rhoward@squiz.net>
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,9 +61,9 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the interface for creating a new metadata section
 	*
-	* @param object Metadata_Schema		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object Metadata_Schema     &$asset the asset whose interface we are painting
+	* @param object Backend_Outputter   &$o     the outputter class
+	* @param string                     $prefix prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -83,8 +83,8 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	* Determines which Subscreen to display based on state info
 
 	* @param object Trigger_Manager &$tm trigger manager
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object Backend_Outputter   &$o     the outputter class
+	* @param string                     $prefix prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -129,9 +129,9 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	* Paint Subscreen for Edit Triggers
 	*
 	* @param object Trigger_Manager     &$tm trigger manager
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
-	* @param boolean					$write_access	flag whether it is
+	* @param object Backend_Outputter   &$o     the outputter class
+	* @param string                     $prefix prefix for the form elements
+	* @param boolean                    $write_access   flag whether it is
 	*
 	* @access private
 	*/
@@ -565,7 +565,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	* This function determines how to process the input from the backend interface
 	*
 	* @param object Trigger_Manager     &$tm    trigger manager
-	* @param object	Backend_Outputter	&$o     the outputter class
+	* @param object Backend_Outputter   &$o     the outputter class
 	* @param string                     $prefix prefix for the form elements
 	*
 	* @access public
@@ -608,7 +608,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	* This function determines how to process the input from the backend interface
 	*
 	* @param object Trigger_Manager     &$tm trigger manager
-	* @param array		                &$request_data		data extracted from the request variables
+	* @param array                      &$request_data      data extracted from the request variables
 	*
 	* @access private
 	*/
@@ -767,7 +767,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	*
 	* @param object Trigger_Manager     &$tm trigger manager
 	* @param array                      $raw_components a list of submitted conditions
-	* @param object Hash		        &$hash		hash object to populate
+	* @param object Hash                &$hash      hash object to populate
 	*
 	* @access private
 	*/
@@ -821,7 +821,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	*
 	* @param object Trigger_Manager     &$tm trigger manager
 	* @param array                      $raw_components a list of submitted actions
-	* @param object Hash		        &$hash		hash object to populate
+	* @param object Hash                &$hash      hash object to populate
 	*
 	* @access private
 	*/
@@ -875,8 +875,8 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	* Paint Trigger List sub screen
 	*
 	* @param object Trigger_Manager     &$tm trigger manager
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object Backend_Outputter   &$o     the outputter class
+	* @param string                     $prefix prefix for the form elements
 	* @param boolean                    $write_access a flag denoting whether we're editing or not
 	*
 	* @access private
@@ -977,7 +977,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	* Display the Batching Triggers Screen
 	*
 	* @param object Trigger_Manager     &$tm    trigger manager
-	* @param object	Backend_Outputter   &$o     the outputter class
+	* @param object Backend_Outputter   &$o     the outputter class
 	* @param string                     $prefix prefix for the form elements
 	*
 	* @return boolean
@@ -1023,7 +1023,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	* Prepares and fires the trigger batching HIPO job
 	*
 	* @param object Trigger_Manager     &$tm    trigger manager
-	* @param object	Backend_Outputter   &$o     the outputter class
+	* @param object Backend_Outputter   &$o     the outputter class
 	* @param string                     $prefix prefix for the form elements
 	*
 	* @access public
