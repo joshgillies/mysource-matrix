@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: backend_outputter.inc,v 1.58 2003/10/17 01:31:11 brobertson Exp $
+* $Id: backend_outputter.inc,v 1.59 2003/10/29 00:38:37 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -116,7 +116,7 @@ class Backend_Outputter
 		$this->_action = $_SERVER['PHP_SELF'];
 
 		// register that we want to listen to link update events
-		$GLOBALS['SQ_SYSTEM']->addEventListener($this, array('CreateLink',
+		$GLOBALS['SQ_SYSTEM']->addEventListener($this, Array('CreateLink',
 															 'DeleteLink',
 															 'AssetUpdate',
 															 'AssetTypeUpdate',
@@ -1048,10 +1048,8 @@ class Backend_Outputter
 	function onAssetUpdate($event_data=Array())
 	{
 		if (!in_array($event_data['assetid'], $this->_refreshing_assets)) {
-			if ($event_data['old_short_name'] != $event_data['new_short_name']) {
-				$this->addOnLoad('if (top.sidenav && top.sidenav.reload_asset) top.sidenav.reload_asset("'.$event_data['assetid'].'");');
-				$this->_refreshing_assets[] = $event_data['assetid'];
-			}
+			$this->addOnLoad('if (top.sidenav && top.sidenav.reload_asset) top.sidenav.reload_asset("'.$event_data['assetid'].'");');
+			$this->_refreshing_assets[] = $event_data['assetid'];
 		}
 
 	}//end onAssetUpdate()
