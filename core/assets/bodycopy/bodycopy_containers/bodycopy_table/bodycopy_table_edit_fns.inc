@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.3 2004/02/18 18:19:16 brobertson Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.4 2004/04/15 05:29:47 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -778,7 +778,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			foreach ($rows[$compareid]['cells'][$i]->attributes as $name => $val) {
 				$rows[$rowid]['cells'][$i]->setAttribute($name,$val);
 			}
-			$rows[$rowid]['cells'][$i]->setContentType($asset, 'wysiwyg', $rowid, $i);
+			$rows[$rowid]['cells'][$i]->setContentType($asset, 'content_type_wysiwyg', $rowid, $i);
 		}
 
 		$asset->setAttrValue('rows',$rows);
@@ -1062,7 +1062,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			if (strtolower($name) == 'colspan') continue;
 			$rows[$rowid]['cells'][$cellid]->setAttribute($name,$val);
 		}
-		$rows[$rowid]['cells'][$cellid]->setContentType($asset, 'wysiwyg', $rowid, $cellid);
+		$rows[$rowid]['cells'][$cellid]->setContentType($asset, 'content_type_wysiwyg', $rowid, $cellid);
 
 		return true;
 
