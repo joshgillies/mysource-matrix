@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.8 2004/12/01 15:22:09 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.9 2005/01/13 22:32:27 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -66,9 +66,14 @@
 			</function_call>
 		</field>
 		<field attribute="subs_only">
-			<display_name>Subs Only</display_name>
-			<note>If set to 'Yes', only the sub assets of the root node will be printed. Otherwise, all assets under the root node will be printed.</note>
+			<display_name>Direct Links Only</display_name>
+			<note>If set to 'Yes', only directly linked assets of the root node will be printed (direct parents or children). Otherwise, all assets above or below the root node will be printed.</note>
 			<boolean true_text="Yes" false_text="No" />
+		</field>
+		<field attribute="direction">
+			<display_name>Lookup Direction</display_name>
+			<note>Select 'Up the tree' to list assets above the root node, or 'Down the tree' to list assets below.</note>
+			<selection style="list" />
 		</field>
 		<field attribute="group_by">
 			<display_name>List Format</display_name>

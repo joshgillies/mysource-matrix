@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.45 2005/01/07 03:42:45 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.46 2005/01/13 22:32:27 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -424,6 +424,7 @@ class Page_Asset_Listing extends Page
 						// in the array, it returns nothing. So, we check for that and return only the
 						// maximum number of children available
 						$random_assets = array_rand($children, count($children));
+						if (count($children) == 1) $random_assets = Array($random_assets);
 						foreach ($random_assets as $value) $todo[$value] = $children[$value];
 					} else {
 						// this will return a subset of the children, as defined by the num_per_page
@@ -544,7 +545,7 @@ class Page_Asset_Listing extends Page
 		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
 		$root_asset_id = empty($root_link) ? $this->id : $root_link['minorid'];
 		$parameter_map = &$this->getAttribute('parameter_map');
-		if ((null != ($dynamic_root = $parameter_map->getParameterValue('root_node'))) && (in_array($root_asset_id, $GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root)))) {
+		if ((null != ($dynamic_root = $parameter_map->getParameterValue('root_node'))) && (in_array($root_asset_id, array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root))))) {
 			$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($dynamic_root);
 		} else {
 			if ($dynamic_root != null) {
@@ -569,34 +570,34 @@ class Page_Asset_Listing extends Page
 		// we will use the 'name' attribute of the asset to work out the listing
 		if ($group_by == 'letter' && $sort_by != 'name' && $sort_by != 'short_name') $sort_by = 'name';
 
-		$children = Array();
+		$assets_to_list = Array();
 
 		if ($this->attr('subs_only')) {
 
+			$side_of_link = ($this->attr('direction') == 'down') ? 'major' : 'minor';
+			$link_type = ($side_of_link == 'major') ? 'minor' : 'major';
 			switch ($group_by) {
 				case 'number' :
-					$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, 'major', null, null, null, $sort_by, SQ_PERMISSION_READ);
-					foreach ($links as $link_info) $children[$link_info['minorid']] = $link_info['minor_type_code'];
-					if ($this->attr('reverse_sort')) $children = array_reverse($children, true);
+					$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, $side_of_link, null, null, null, $sort_by, SQ_PERMISSION_READ);
+					foreach ($links as $link_info) $assets_to_list[$link_info[$link_type.'id']] = $link_info[$link_type.'_type_code'];
+					if ($this->attr('reverse_sort')) $assets_to_list = array_reverse($assets_to_list, true);
 				break;
 
 				case 'letter' :
-					$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, 'major', null, null, null, $sort_by, SQ_PERMISSION_READ);
+					$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, $side_of_link, null, null, null, $sort_by, SQ_PERMISSION_READ);
 					if (empty($query)) return Array();
 					$query['select'] .= ', SUBSTRING(a.'.$sort_by.', 1, 1) AS first_letter';
 
 					$db = &$GLOBALS['SQ_SYSTEM']->db;
 					$links = $db->getAll(implode(' ', $query));
-					if (DB::isError($children)) {
-						trigger_error($children->getMessage().'<br/>'.$children->getUserInfo(), E_USER_ERROR);
-						return Array();
-					}
-					foreach ($links as $link_info) $children[$link_info['minorid']] = Array('type_code' => $link_info['minor_type_code'], 'first_letter' => $link_info['first_letter']);
+					assert_valid_db_result($links);
+
+					foreach ($links as $link_info) $assets_to_list[$link_info[$link_type.'id']] = Array('type_code' => $link_info[$link_type.'_type_code'], 'first_letter' => $link_info['first_letter']);
 				break;
 
 				case 'random' :
-					$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, 'major', null, null, null, null, SQ_PERMISSION_READ);
-					foreach ($links as $link_info) $children[$link_info['minorid']] = $link_info['minor_type_code'];
+					$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, $side_of_link, null, null, null, null, SQ_PERMISSION_READ);
+					foreach ($links as $link_info) $assets_to_list[$link_info[$link_type.'id']] = $link_info[$link_type.'_type_code'];
 				break;
 			}//end switch
 
@@ -604,25 +605,34 @@ class Page_Asset_Listing extends Page
 
 			switch ($group_by) {
 				case 'number' :
-					$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset->id, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
-					if ($this->attr('reverse_sort')) $children = array_reverse($children, true);
+					if ($this->attr('direction') == 'down') {
+						$assets_to_list = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset->id, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
+					} else {
+						$assets_to_list = $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset->id, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
+					}
+					if ($this->attr('reverse_sort')) $assets_to_list = array_reverse($assets_to_list, true);
 				break;
 
 				case 'letter' :
-					$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
+					if ($this->attr('direction') == 'down') {
+						$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
+					} else {
+						$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($root_asset->id, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
+					}
 					if (empty($query)) return Array();
 					$query['select'] .= ', SUBSTRING(a.'.$sort_by.', 1, 1) AS first_letter';
 
 					$db = &$GLOBALS['SQ_SYSTEM']->db;
-					$children = $db->getAssoc(implode(' ', $query));
-					if (DB::isError($children)) {
-						trigger_error($children->getMessage().'<br/>'.$children->getUserInfo(), E_USER_ERROR);
-						return;
-					}
+					$assets_to_list = $db->getAssoc(implode(' ', $query));
+					assert_valid_db_result($assets_to_list);
 				break;
 
 				case 'random' :
-					$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset->id, array_keys($wanted_types), false, null, SQ_PERMISSION_READ);
+					if ($this->attr('direction') == 'down') {
+						$assets_to_list = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset->id, array_keys($wanted_types), false, null, SQ_PERMISSION_READ);
+					} else {
+						$assets_to_list = $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset->id, array_keys($wanted_types), false, null, SQ_PERMISSION_READ);
+					}
 				break;
 			}//end switch
 
@@ -631,7 +641,7 @@ class Page_Asset_Listing extends Page
 		// clean up after ourselves
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
 
-		return $children;
+		return $assets_to_list;
 
 	}//end getAssetList()
 
@@ -935,7 +945,7 @@ class Page_Asset_Listing extends Page
 		// we want to supply our own keyword replacements
 		$page_contents_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
 		if (!empty($page_contents_link)) {
-			if (in_array($page_contents_link['minorid'], $parents)) {
+			if (isset($parents[$page_contents_link['minorid']])) {
 				$vars['keywords'] += $this->getContentsKeywords();
 				return;
 			}
@@ -950,7 +960,7 @@ class Page_Asset_Listing extends Page
 
 		$type_codes = Array();
 		foreach ($type_links as $link_info) {
-			if (in_array($link_info['minorid'], $parents)) {
+			if (isset($parents[$link_info['minorid']])) {
 				$type_codes[] = $link_info['value'];
 			}
 		}
