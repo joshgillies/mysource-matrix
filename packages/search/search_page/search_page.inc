@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.49 2004/08/19 22:41:40 gsherwood Exp $
+* $Id: search_page.inc,v 1.50 2004/08/20 03:41:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc'; // for the meda
 * @author  Dominic Wong <dwong@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.49 $ - 1.0
+* @version $Revision: 1.50 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -469,68 +469,69 @@ class Search_Page extends Page
 
 				ob_start();
 
-				// Finding out what kind of field is it
-				$test_ind = $matches[1];
-
-				if ($fields[$test_ind]['type'] == 'metadata') {
-
-					$assetid = $fields[$test_ind]['params']['metadata_field']['assetid'];
-					$am = &$GLOBALS['SQ_SYSTEM']->am;
-					$asset = &$am->getAsset($assetid);
-					$params = $asset->vars;
-
-						if (isset($params['format'])) { // metadata Date field
-							// don't ask me why I'm doing this
-							$temp_name = $query_var . "__";
-							$field = $this->getEpochDateTimeField("$temp_name", $asset);
-							$field->processField(); // showing value if any
-							$field->printField();
-						} else if (isset($params['multi_line'])) { // normal metadata TEXT field
-							// using same defintion as for a simple field, but will have to revise later...
-							text_box("queries_$query_var", $query, $this->defaults['query_width']);
-						} else if (isset($params['select_options'])) { // metadata dropdown selection
-							$select_options = $params['select_options']['value'];
-							$select_options[''] = "- Please select -";
-							combo_box("queries_$query_var", $select_options, false, $query);
+					// Finding out what kind of field is it
+					$test_ind = $matches[1];
+	
+					if ($fields[$test_ind]['type'] == 'metadata') {
+	
+						$assetid = $fields[$test_ind]['params']['metadata_field']['assetid'];
+						$am = &$GLOBALS['SQ_SYSTEM']->am;
+						$asset = &$am->getAsset($assetid);
+						$params = $asset->vars;
+	
+							if (isset($params['format'])) { // metadata Date field
+								// don't ask me why I'm doing this
+								$temp_name = $query_var . "__";
+								$field = $this->getEpochDateTimeField("$temp_name", $asset);
+								$field->processField(); // showing value if any
+								$field->printField();
+							} else if (isset($params['multi_line'])) { // normal metadata TEXT field
+								// using same defintion as for a simple field, but will have to revise later...
+								text_box("queries_$query_var", $query, $this->defaults['query_width']);
+							} else if (isset($params['select_options'])) { // metadata dropdown selection
+								$select_options = $params['select_options']['value'];
+								$select_options[''] = "- Please select -";
+								combo_box("queries_$query_var", $select_options, false, $query);
+							}
+	
+					} else if ($fields[$test_ind]['type'] == 'asset_attrib') {
+	
+						$search_styles = $this->attr('search_styles');
+	
+						// [0] - name, [1] - type, [2] - id
+						$attr_parts = explode("__", $fields[$test_ind]['params']['type_attr']);
+	
+						require_once SQ_ATTRIBUTES_PATH.'/'.$attr_parts[1].'/'.$attr_parts[1].'.inc';
+						$attr_class = 'Asset_Attribute_'.$attr_parts[1]; // attr name
+						$attribute = new $attr_class($attr_parts[2], $query); // attr id
+	
+						if (!empty($search_styles) && isset($search_styles[$attribute->name])) {
+							$attribute->_edit_params = $search_styles[$attribute->name];
 						}
-
-				} else if ($fields[$test_ind]['type'] == 'asset_attrib') {
-
-					$search_styles = $this->attr('search_styles');
-
-					// [0] - name, [1] - type, [2] - id
-					$attr_parts = explode("__", $fields[$test_ind]['params']['type_attr']);
-
-					require_once SQ_ATTRIBUTES_PATH.'/'.$attr_parts[1].'/'.$attr_parts[1].'.inc';
-					$attr_class = 'Asset_Attribute_'.$attr_parts[1]; // attr name
-					$attribute = new $attr_class($attr_parts[2], $query); // attr id
-
-					if (!empty($search_styles) && isset($search_styles[$attribute->name])) {
-						$attribute->_edit_params = $search_styles[$attribute->name];
-					}
-
-					if ($attr_parts[1] == 'selection') {
-						if (empty($attribute->_params['multiple'])) {
-							$attribute->_params['options'] = array_reverse($attribute->_params['options']);
-							$attribute->_params['options']['_'] = '-- Leave Empty --';
-							$attribute->_params['options'] = array_reverse($attribute->_params['options']);
+	
+						if ($attr_parts[1] == 'selection') {
+							if (empty($attribute->_params['multiple'])) {
+								$attribute->_params['options'] = array_reverse($attribute->_params['options']);
+								$attribute->_params['options']['_'] = '-- Leave Empty --';
+								$attribute->_params['options'] = array_reverse($attribute->_params['options']);
+							}
 						}
+	
+						$attribute->paint("queries_$query_var", false, false); 
+	
+					} else {
+	
+						// not a metadata field, just a normal text field
+						text_box("queries_$query_var", $query, $this->defaults['query_width']);
+	
 					}
-
-					$attribute->paint("queries_$query_var", false, false); 
-
-				} else {
-
-					// not a metadata field, just a normal text field
-					text_box("queries_$query_var", $query, $this->defaults['query_width']);
-
-				}
-
-				$replacement = ob_get_contents();
+	
+					$replacement = ob_get_contents();
 
 				ob_end_clean();
 
 			} else {
+
 				switch ($keyword) {
 					case 'submit_button' :
 						$replacement  = '<input type="submit" onclick="
@@ -541,17 +542,35 @@ class Search_Page extends Page
 					break;
 					
 					case 'category_list' :
+						$category = (isset($_REQUEST['search_category'])) ? $_REQUEST['search_category'] : '';
 						$categories = $this->attr('categories');
 						if (!empty($categories)) {
 							$options = Array('' => $this->attr('no_category_text'));
 							foreach ($categories as $key => $data) $options[$key] = $data['name'];
 							ob_start();
-								combo_box('search_category', $options, false, '');
+								combo_box('search_category', $options, false, $category);
 								$replacement = ob_get_contents();
 							ob_end_clean();
 						} else {
 							$replacement = '';
 						}
+					break;
+					
+					case 'sort_by' :
+						$sort_by = (isset($_REQUEST['sort_by'])) ? $_REQUEST['sort_by'] : $this->attr('sort_by');
+						$sort_attr = $this->getAttribute('sort_by');
+						ob_start();
+							combo_box('sort_by', $sort_attr->_params['options'], false, $sort_by);
+							$replacement = ob_get_contents();
+						ob_end_clean();
+					break;
+
+					case 'reverse_sort' :
+						$reverse = (isset($_REQUEST['reverse_sort'])) ? $_REQUEST['reverse_sort'] : $this->attr('reverse_sort');
+						ob_start();
+							combo_box('reverse_sort', Array('1' => 'Yes', '0' => 'No'), false, $reverse);
+							$replacement = ob_get_contents();
+						ob_end_clean();
 					break;
 
 					case 'results_per_page' :
@@ -1005,10 +1024,11 @@ class Search_Page extends Page
 		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, $link_value);
 		$search_info['root_assetid'] = empty($root_link) ? 0 : $root_link['minorid'];
 
-		$search_info['search_types'] = $this->attr('search_types');
-		$search_info['sort_by']      = $this->attr('sort_by');
-		$search_info['reverse_sort'] = $this->attr('reverse_sort');
+		// sort settings can be user defined as well as being set in the backend
+		$search_info['sort_by']      = (isset($_REQUEST['sort_by'])) ? $_REQUEST['sort_by'] : $this->attr('sort_by');
+		$search_info['reverse_sort'] = (isset($_REQUEST['reverse_sort'])) ? $_REQUEST['reverse_sort'] : $this->attr('reverse_sort');
 		
+		$search_info['search_types'] = $this->attr('search_types');
 		if (!empty($category) && isset($categories[$category]['search_statuses'])) {
 			$search_info['search_statuses'] = $categories[$category]['search_statuses'];
 		} else {
