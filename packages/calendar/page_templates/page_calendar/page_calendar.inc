@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.140 2005/01/05 23:22:26 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.141 2005/01/06 01:04:39 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.140 $
+* @version $Revision: 1.141 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -220,35 +220,6 @@ class Page_Calendar extends Page_Asset_Listing
 
 
 	/**
-	* Return the available keywords in the Page Contents Bodycopy for this asset
-	*
-	* The return value is in the form:
-	* <pre>
-	* Array(
-	*     'keyword' => 'name',
-	* )
-	* </pre>
-	*
-	* @access public
-	* @return array(string => string)
-	*/
-	function getContentsKeywords()
-	{
-		$keywords = Array(
-							'calendar_contents' => 'Calendar Contents',
-							'calendar_title'    => 'Calendar Title',
-							'up_link'           => 'Up Link',
-							'prev_link'         => 'Previous Link',
-							'next_link'         => 'Next Link',
-
-						);
-
-		return $keywords;
-
-	}//end getContentsKeywords()
-
-
-	/**
 	* Called by the design to print the head of this asset
 	*
 	* @return boolean
@@ -262,10 +233,71 @@ class Page_Calendar extends Page_Asset_Listing
 
 
 	/**
+	* Called by the design to print the body of this asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function printBody()
+	{
+		$res = '';
+		$action = array_get_index($_REQUEST,'SQ_CALENDAR_EVENT_ACTION',false);
+		if ($action) {
+			$event_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset((int)$_REQUEST['SQ_CALENDAR_EVENT_ID']);
+			$res = $event_asset->processEventAction($action);
+			echo $res;
+		}
+		if (!$res) {
+			if (!$this->_validateRequest()) return false;
+
+			// Try to get from cache
+			$cache_key = $this->_getCacheKey();
+			$cached_contents = '';
+			if (!empty($cache_key)) {
+				$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+				$cached_contents = $cm->loadFromCache($this, $cache_key);
+			}
+			if (!empty($cached_contents)) {
+				echo $cached_contents;
+			} else {
+				// have to generate from scratch
+
+				$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
+				if (empty($bodycopy_link)) return false;
+
+				$format_bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+				if (is_null($format_bodycopy)) return false;
+
+				// Get replacements.  Contents is first because it may change the view if,
+				// for example, we have just finished editing an event
+				$replacements = Array();
+				$replacements['calendar_contents'] = $this->getCalendarContents();
+				$replacements['calendar_title'] = $this->getCalendarTitle();
+				$replacements += $this->_getNavLinkReplacements();
+
+				ob_start();
+					echo '<script>if (typeof cal != "undefined") cal.setDate(\''.$_REQUEST['SQ_CALENDAR_DATE'].'\')</script>';
+					// print the contents of page - replacing the global keywords
+					$format_bodycopy->setKeywordReplacements($replacements);
+					$format_bodycopy->printBody();
+					if (!empty($cache_key)) {
+						$cm->saveToCache($this, $cache_key, ob_get_contents());
+					}
+				ob_end_flush();
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($format_bodycopy);
+				
+			}
+		}
+
+	}//end printBody()
+
+
+	/**
 	* Look at the request values SQ_CALENDAR_DATE and SQ_CALENDAR_VIEW,
 	* check they are valid and tweak them if necessary
 	*
-	* @return void
+	* @return boolean	false if a non-recoverable problem was encountered
 	* @access private
 	*/
 	function _validateRequest()
@@ -332,66 +364,6 @@ class Page_Calendar extends Page_Asset_Listing
 
 
 	/**
-	* Called by the design to print the body of this asset
-	*
-	* @return boolean
-	* @access public
-	*/
-	function printBody()
-	{
-		$res = '';
-		$action = array_get_index($_REQUEST,'SQ_CALENDAR_EVENT_ACTION',false);
-		if ($action) {
-			$event_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset((int)$_REQUEST['SQ_CALENDAR_EVENT_ID']);
-			$res = $event_asset->processEventAction($action);
-			echo $res;
-		}
-		if (!$res) {
-			if (!$this->_validateRequest()) return false;
-
-			// Try to get from cache
-			$cache_key = $this->_getCacheKey();
-			$cached_contents = '';
-			if (!empty($cache_key)) {
-				$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-				$cached_contents = $cm->loadFromCache($this, $cache_key);
-			}
-			if (!empty($cached_contents)) {
-				echo $cached_contents;
-			} else {
-				// have to generate from scratch
-
-				$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
-				if (empty($bodycopy_link)) return false;
-
-				$format_bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
-				if (is_null($format_bodycopy)) return false;
-
-				$replacements = Array();
-
-				$replacements['calendar_contents'] = $this->getCalendarContents();
-				$replacements['calendar_title'] = $this->getViewTitle();
-				$replacements += $this->getNavLinkReplacements();
-
-				ob_start();
-					echo '<script>if (typeof cal != "undefined") cal.setDate(\''.$_REQUEST['SQ_CALENDAR_DATE'].'\')</script>';
-					// print the contents of page - replacing the global keywords
-					$format_bodycopy->setKeywordReplacements($replacements);
-					$format_bodycopy->printBody();
-					if (!empty($cache_key)) {
-						$cm->saveToCache($this, $cache_key, ob_get_contents());
-					}
-				ob_end_flush();
-
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($format_bodycopy);
-				
-			}
-		}
-
-	}//end printBody()
-
-
-	/**
 	* Work out the unique cache key to represent the current page
 	*
 	* @return string
@@ -417,31 +389,13 @@ class Page_Calendar extends Page_Asset_Listing
 	}//end _getCacheKey
 
 
-//--        FUNCTIONS TO GET CALENDAR CONTENTS        --//
-
 	/**
-	* Get the replacenent for the %calendar_title% keyword
+	* Get the replacements for the up, next and previous links
 	*
-	* @return string	The title to be displayed
-	* @access public
+	* @return array		keyword => replacement value
+	* @access private
 	*/
-	function getViewTitle()
-	{
-		$title_formats = $this->attr('view_title_formats');
-		$title_formats['edit'] = 'Edit Event';
-		$view = $_REQUEST['SQ_CALENDAR_VIEW'];
-		if (($view == 'event') || ($view == 'edit')) {
-			// _validateRequest already made sure we have a valid event id
-			$info = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($_REQUEST['SQ_CALENDAR_EVENT_ID']));
-			return $info[$_REQUEST['SQ_CALENDAR_EVENT_ID']]['name'];
-		} else {
-			return date($title_formats[$view], strtotime($_REQUEST['SQ_CALENDAR_DATE']));
-		}
-
-	}//end getViewTitle()
-
-
-	function getNavLinkReplacements()
+	function _getNavLinkReplacements()
 	{
 		$replacements = Array();
 		$cal_view = $_REQUEST['SQ_CALENDAR_VIEW'];
@@ -462,7 +416,60 @@ class Page_Calendar extends Page_Asset_Listing
 
 		return $replacements;
 
-	}//end getNavLinkReplacements()
+	}//end _getNavLinkReplacements()
+
+
+	/**
+	* Return the available keywords in the Page Contents Bodycopy for this asset
+	*
+	* The return value is in the form:
+	* <pre>
+	* Array(
+	*     'keyword' => 'name',
+	* )
+	* </pre>
+	*
+	* @access public
+	* @return array(string => string)
+	*/
+	function getContentsKeywords()
+	{
+		$keywords = Array(
+							'calendar_contents' => 'Calendar Contents',
+							'calendar_title'    => 'Calendar Title',
+							'up_link'           => 'Up Link',
+							'prev_link'         => 'Previous Link',
+							'next_link'         => 'Next Link',
+
+						);
+
+		return $keywords;
+
+	}//end getContentsKeywords()
+
+
+//--        FUNCTIONS TO GET CALENDAR CONTENTS        --//
+
+	/**
+	* Get the replacenent for the %calendar_title% keyword
+	*
+	* @return string	The title to be displayed
+	* @access public
+	*/
+	function getCalendarTitle()
+	{
+		$title_formats = $this->attr('view_title_formats');
+		$title_formats['edit'] = 'Edit Event';
+		$view = $_REQUEST['SQ_CALENDAR_VIEW'];
+		if (($view == 'event') || ($view == 'edit')) {
+			// _validateRequest already made sure we have a valid event id
+			$info = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($_REQUEST['SQ_CALENDAR_EVENT_ID']));
+			return $info[$_REQUEST['SQ_CALENDAR_EVENT_ID']]['name'];
+		} else {
+			return date($title_formats[$view], strtotime($_REQUEST['SQ_CALENDAR_DATE']));
+		}
+
+	}//end getCalendarTitle()
 
 
 	/**
@@ -476,11 +483,10 @@ class Page_Calendar extends Page_Asset_Listing
 		$cal_view = $_REQUEST['SQ_CALENDAR_VIEW'];
 		$formats = $this->attr('enabled_views');
 		$format = $formats[$cal_view];
-		$cal_date = $_REQUEST['SQ_CALENDAR_DATE'];
 		$res = $this->_getGeneralScript();
 		if (strpos($format, 'list') === false) $res .= '<div id="calendarTable">';
 		$func = 'get'.ucfirst($cal_view).'View';
-		$res .= (($cal_view == 'event') || ($cal_view == 'edit')) ? $this->$func($_REQUEST['SQ_CALENDAR_EVENT_ID']) : $this->$func($cal_date, $format);
+		$res .= (($cal_view == 'event') || ($cal_view == 'edit')) ? $this->$func($_REQUEST['SQ_CALENDAR_EVENT_ID']) : $this->$func($_REQUEST['SQ_CALENDAR_DATE'], $format);
 		if (strpos($format, 'list') === false) $res .= '</div>';
 		return $res;
 
@@ -943,6 +949,8 @@ class Page_Calendar extends Page_Asset_Listing
 				// The form has been committed and there are no probs, so go to event view
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($event_id, 'attributes');
+				$_REQUEST['SQ_CALENDAR_VIEW'] = 'event';
+				$_REQUEST['SQ_CALENDAR_EVENT_ID'] = $event_id;
 				return $this->getEventView($event_id);
 			} else {
 				// There was a problem, so roll back transaction and continue printing the form
