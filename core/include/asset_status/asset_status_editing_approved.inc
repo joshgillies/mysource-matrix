@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing_approved.inc,v 1.11 2004/10/07 05:42:13 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: asset_status_editing_approved.inc,v 1.12 2005/01/20 11:18:17 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_status/asset_status_approved.inc';
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status_approved.inc';
 *    EDITING_APPROVED -> EDITING if the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing_Approved extends Asset_Status_Approved
