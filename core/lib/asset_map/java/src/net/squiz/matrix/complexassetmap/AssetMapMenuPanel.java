@@ -272,7 +272,7 @@ public class AssetMapMenuPanel extends JPanel
 						newMenu.setFont(boldFont);
 						newMenu.getAccessibleContext().setAccessibleName(path);
 						newMenu.addMenuListener(this);
-						parentMenu.add(newMenu);
+						parentMenu.add(newMenu, getMenuIndex(path, parentMenu, newMenu.getClass()));
 						
 						// if there are no more paths for this menu, 
 						// then we want to add this asset type under the
@@ -297,6 +297,42 @@ public class AssetMapMenuPanel extends JPanel
 		}//end while
 		
 		return addMenu;
+	}
+	
+	/**
+	 * Retuns the menu index for the specifed menu element based on its alphabetical
+	 * sort value 
+	 * 
+	 * @param name the name to sort by
+	 * @param menu the menu that the element is being added to
+	 * 
+	 * @return the sort order
+	 */
+	private int getMenuIndex(String name, JMenu menu, Class cls) {
+		Component[] components = menu.getMenuComponents();
+		int i = 0;
+		for (i = 0; i < components.length; i++) {
+			JMenuItem nextMenu = (JMenuItem) menu.getMenuComponent(i);
+			
+			String otherName = "";
+			
+			if (nextMenu.getClass().equals(JMenuItem.class)) {
+				String typeCode = nextMenu.getAccessibleContext().getAccessibleName();
+				otherName = AssetManager.INSTANCE.getAssetType(typeCode).getName();
+			} else {
+				otherName = nextMenu.getAccessibleContext().getAccessibleName();
+			}
+			
+			// if its just a single item, then we want it down the bottom
+			if (cls.equals(JMenuItem.class) && nextMenu.getClass().equals(JMenu.class)) {
+				continue;
+			}
+			
+			if (name.compareToIgnoreCase(otherName) < 0) {
+				return i;
+			}
+		}
+		return i;
 	}
 	
 	/**
@@ -328,7 +364,7 @@ public class AssetMapMenuPanel extends JPanel
 		newItem.setFont(menuFont);
 		
 		// add single com menu items down the bottom
-		parentMenu.add(newItem, parentMenu.getMenuComponentCount());
+		parentMenu.add(newItem, getMenuIndex(type.getName(), parentMenu, newItem.getClass()));
 	}
 	
 	/**
