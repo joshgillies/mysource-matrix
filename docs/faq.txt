@@ -7,6 +7,14 @@ This FAQ is designed to answer some of the most frequently asked and frustrating
 
 
 +----------------+
+| POSTGRESQL     |
++----------------+
+
+Q. I get "[nativecode=ERROR:  language "plpgsql" does not exist" what do I do ?
+A. run 'createlang -U postgres -d [MATRIX SYSTEM DB NAME] plpgsql'
+Contributed by: Blair Robertson <blair@squiz.net>
+
++----------------+
 | WYSIWYG EDITOR |
 +----------------+
 
