@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design.inc,v 1.54 2003/10/13 07:27:45 brobertson Exp $
+* $Id: design.inc,v 1.55 2003/11/07 01:43:26 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -270,6 +270,32 @@ class Design extends Design_Area
 		return true;
 
 	}//end deleteLink()
+
+
+	/**
+	* Get all the stylesheets attached to this design
+	*
+	* @return Array
+	* @access public
+	*/
+	function getStylesheets()
+	{
+		$file_link_ids = Array();
+		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'file', false);
+		foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
+		$file_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_unique($file_link_ids));
+
+		$return_values = Array();
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		foreach($file_link_info as $file_info) {
+			if (get_file_type($file_info['name']) == 'css') {
+				$return_values[$file_info['assetid']] = $file_info['name'];
+			}
+		}
+
+		return $return_values;
+
+	}//end getStylesheets()
 
 
 	/**
