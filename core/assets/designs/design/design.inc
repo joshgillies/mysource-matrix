@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.79 2005/01/25 00:27:26 lwright Exp $
+* $Id: design.inc,v 1.80 2005/02/08 06:13:47 amiller Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -506,7 +506,7 @@ echo '<!--   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
   (c) Copyright <?php echo date(\'Y\') ?>. All rights reserved.
   Page generated: <?php echo date(\'d F Y\')."\n"; ?>
 -->
-<script language="javascript" type="text/javascript"  src="<?php echo sq_web_path(\'lib\'); ?>/js/general.js"></script>
+<script type="text/javascript"  src="<?php echo sq_web_path(\'lib\'); ?>/js/general.js"></script>
 
 <?php
 if (SQ_IN_LIMBO && !is_null($GLOBALS[\'SQ_SYSTEM\']->backend) && !is_null($GLOBALS[\'SQ_SYSTEM\']->backend->out)) $GLOBALS[\'SQ_SYSTEM\']->backend->out->_paintHeader();
