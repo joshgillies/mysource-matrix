@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage_edit_fns.inc,v 1.5 2003/12/12 15:01:35 brobertson Exp $
+* $Id: design_area_asset_lineage_edit_fns.inc,v 1.6 2003/12/15 19:07:27 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -154,7 +154,7 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 				// the home link is start the loop at a different position
 				$start_index = ($asset->attr('prefix_with_home_link')) ? 0 : 1;
 
-				$total = 'COUNT($ASSET_LINEAGE)';
+				$total = 'count($ASSET_LINEAGE)';
 				// because the page lineage array contains the current page, all we need to do to have or not have
 				// the current link is end the loop at a different position
 				if (!$asset->attr('suffix_with_current_link')) {
@@ -175,7 +175,7 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 					$divider = '';
 				}
 
-				if ($asset->attr('prefix_with_divider')) {
+				if ($divider != '' && $asset->attr('prefix_with_divider')) {
 					echo $divider;
 				}
 
@@ -192,20 +192,25 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 					echo '<','?php ';
 				}
 
-				// if there is not divider at the end we need to check that we aren't at the end of the list
-				if (!$asset->attr('suffix_with_divider')) {
+				// if there is a divider to deal with
+				if ($divider != '') {
+
+					// if there is not divider at the end we need to check that we aren't at the end of the list
+					if (!$asset->attr('suffix_with_divider')) {
 					echo '
 						if ($'.$asset->attr('id_name').'_i != $'.$asset->attr('id_name').'_total - 1) {
 						';
-				}
+					}
 
-				echo '?','>', $divider, '<','?php ';
+					echo '?','>', $divider, '<','?php ';
 
-				// if there is not divider at the end we need to check that we aren't at the end of the list
-				if (!$asset->attr('suffix_with_divider')) {
+					// if there is not divider at the end we need to check that we aren't at the end of the list
+					if (!$asset->attr('suffix_with_divider')) {
 					echo '
 						}// end if';
-				}
+					}
+
+				}// end if divider
 
 				echo '
 				}// end for
