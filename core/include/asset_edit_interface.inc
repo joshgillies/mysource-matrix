@@ -674,19 +674,25 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function paintWorkflow(&$owner, &$o)
 	{
-		$prefix = $owner->type().'_'.$owner->id;
+		$prefix = $owner->type().'_'.$owner->id.'_permissions';
 
 		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
 		$wfm = new Workflow_Manager($owner, true, false, false);
-	
+
 		foreach ($wfm->_steps as $stepid => $step_data) {
 			$o->openSection("Step $stepid");
 			
+			if ($owner->writeAccess()) {
+				$o->openField('Delete?');
+				check_box($prefix.'_steps['.$stepid.'][delete]');
+				echo '&nbsp; Delete this step and all its conditions?';
+			}
+
 			$o->openField('Step Logic');
 			if (!$owner->writeAccess()) {
 				echo '<i>'.$wfm->_valid_step_logic[$step_data['logic']].'</i>';
 			} else {
-				combo_box($prefix.'_step_logic['.$stepid.']', $wfm->_valid_step_logic, false, $step_data['logic']);
+				combo_box($prefix.'_steps['.$stepid.'][logic]', $wfm->_valid_step_logic, false, $step_data['logic']);
 			}
 
 			$o->openField('Conditions');
@@ -697,10 +703,10 @@ class Asset_Edit_Interface extends Resolve_Object
 			<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
 				<tr>
 					<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
-					<td bgcolor="#DDDDDD" class="sq-form-field" width="150"><b>Logic</b></td>
+					<td bgcolor="#DDDDDD" class="sq-form-field" width="250"><b>Group Logic</b></td>
 					<?php
 					if ($owner->writeAccess()) {
-						?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Delete ?</b></td><?php
+						?><td bgcolor="#DDDDDD" align="center" width="70" class="sq-form-field"><b>Delete ?</b></td><?php
 					}
 					?>
 				</tr>
@@ -713,19 +719,35 @@ class Asset_Edit_Interface extends Resolve_Object
 					<td bgcolor="#F0F0F0" class="sq-form-field"><?php echo '&nbsp;'.$asset->name.' ['.$asset->type()." : $pub]";?></td>
 					<td bgcolor="#F0F0F0" class="sq-form-field">
 				<?php
-				list($cond_logic, $cond_logic_num) = explode(' ', $cond_data['require']);
-				if (!$owner->writeAccess()) {
-					echo '<i>'.$wfm->_valid_cond_logic[$cond_logic]." $cond_logic_num</i>";
+				if (isset($wfm->_valid_cond_logic[$cond_data['require']])) {
+					// a special type of require statement
+					$cond_logic = $cond_data['require'];
+					$cond_logic_num = '';
 				} else {
-					combo_box($prefix.'_cond_logic['.$stepid.']['.$pub.']', $wfm->_valid_cond_logic, false, $cond_logic);
-					echo '&nbsp;';
-					text_box($prefix.'_cond_logic_num['.$stepid.']['.$pub.']', $cond_logic_num, 4);
+					list($cond_logic, $cond_logic_num) = explode(' ', $cond_data['require']);
+				}
+				if (!$owner->writeAccess()) {
+					if (is_a($asset, 'user')) {
+						echo '-';
+					} else {
+						echo '<i>'.$wfm->_valid_cond_logic[$cond_logic];
+						if ($cond_logic_num) echo " $cond_logic_num group member".(($cond_logic_num > 1) ? 's' : '')." must approve</i>";
+					}
+				} else {
+					if (is_a($asset, 'user')) {
+						hidden_field($prefix.'_steps['.$stepid.'][conditions]['.$pub.'][logic]', '>=');
+						hidden_field($prefix.'_steps['.$stepid.'][conditions]['.$pub.'][logic_num]', '1');
+					} else {
+						combo_box($prefix.'_steps['.$stepid.'][conditions]['.$pub.'][logic]', $wfm->_valid_cond_logic, false, $cond_logic);
+						echo '&nbsp;';
+						text_box($prefix.'_steps['.$stepid.'][conditions]['.$pub.'][logic_num]', $cond_logic_num, 4);
+					}
 				}
 				?></td><?php
 
 				if ($owner->writeAccess()) {
-					?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field"><?php
-					check_box($prefix.'_delete_step_'.strtolower($stepid)."[$pub]")
+					?><td bgcolor="#F0F0F0" align="center" class="sq-form-field"><?php
+					check_box($prefix.'_steps['.$stepid.'][conditions]['.$pub.'][delete]')
 					?></td><?php
 				}
 				?></tr><?php
@@ -740,7 +762,17 @@ class Asset_Edit_Interface extends Resolve_Object
 				?></table><?php
 			}
 
-			
+			if ($owner->writeAccess()) {
+				$o->openField('New Condition?');
+				asset_finder($prefix.'_steps['.$stepid.'][new_condition]', 0, Array('user' => 'D', 'user_group' => 'D'));
+			}
+		}
+
+		if ($owner->writeAccess()) {
+			$o->openSection("Create New Step");
+			$o->openField('');
+			check_box($prefix.'_create_step');
+			echo '&nbsp; Create a new empty step?';
 		}
 
 		//bam($wfm->whoCanPublish());
@@ -754,39 +786,6 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		//bam($wfm->whoCanPublish());
 
-		
-
-		//wfm->addPublished
-		//$wfm->start();
-
-		//$wfm->deleteStep(2);
-		//$wfm->deleteStep(1);
-		
-		//$stepid = $wfm->addStep();
-		//$wfm->setStepLogic($stepid, 'all');
-		//$wfm->addCondition($stepid, 12, 'eq', '1');
-		//$wfm->addCondition($stepid, 16, 'eq', '1');
-		//$wfm->addCondition($stepid, 3, 'gt', '1');
-
-		//$stepid = $wfm->addStep();
-		//$wfm->setStepLogic($stepid, 'all');
-		//$wfm->addCondition($stepid, 16, 'eq', '1');
-		//$wfm->addCondition($stepid, 4, 'eq', '1');
-		//$wfm->addCondition($stepid, 3, 'lt', '2');
-
-		//$stepid = $wfm->addStep();
-		//$wfm->setStepLogic($stepid, 'any');
-		//$wfm->addCondition($stepid, 4, 'eq', '1');
-		//$wfm->addCondition($stepid, 3, 'eq', '1');
-
-		//$wfm->deleteStep(2);
-
-		//$wfm->save();
-
-		//bam($wfm->_steps);
-
-		
-		
 	}//end paintWorkflow()
 
 
@@ -799,8 +798,48 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function processWorkflow(&$owner)
 	{
+		$prefix = $owner->type().'_'.$owner->id.'_permissions';
+
 		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
-		$wfm = new Workflow_Manager($owner);
+		$wfm = new Workflow_Manager($owner, true, false, false);
+
+		// create a new step?
+		if (isset($_POST[$prefix.'_create_step'])) {
+			$new_stepid = $wfm->addStep();
+		}
+	
+		if (isset($_POST[$prefix.'_steps'])) {
+			$deleted_steps = 0;
+			foreach ($_POST[$prefix.'_steps'] as $stepid => $step_data) {
+				$effective_stepid = $stepid - $deleted_steps;
+				if (isset($step_data['delete'])) {
+					$wfm->deleteStep($effective_stepid);
+					$deleted_steps++;
+					continue;
+				}
+
+				if ($step_data['new_condition'] > 0) {
+					$wfm->addCondition($effective_stepid, $step_data['new_condition']);
+				}
+
+				$wfm->setStepLogic($effective_stepid, $step_data['logic']);
+
+				if (isset($step_data['conditions'])) {
+					foreach ($step_data['conditions'] as $pub => $cond_data) {
+						if (isset($cond_data['delete'])) {
+							$wfm->deleteCondition($effective_stepid, $pub);
+							continue;
+						}
+
+						if ($cond_data['logic'] == 'all') $cond_data['logic_num'] = '0';
+						$wfm->setConditionLogic($effective_stepid, $pub, $cond_data['logic'], $cond_data['logic_num']);
+					}
+				}
+			}
+		}
+
+		$wfm->save();
+
 	}//end processWorkflow()
 
 
