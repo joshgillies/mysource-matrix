@@ -3,7 +3,9 @@
 # the system object are being called by reference
 
 
+grep -rsn "[^&]\$[^(->)]*->getAsset(" *
+grep -rsn "[^&]\$[^(->)]*->getSystemAsset(" *
 grep -rsn "[^&]\$GLOBALS\[.\?SQ_SYSTEM.\?\]->get" *
 grep -rsn "[^&]\$GLOBALS\[.\?SQ_SYSTEM.\?\]->db;" *
-grep -rsn "[^&]\$[^$]*->getAsset(" *
+grep -rsn "[^&]\$GLOBALS\[.\?SQ_SYSTEM.\?\]->am;" *
 
