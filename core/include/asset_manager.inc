@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.244 2004/11/17 04:29:13 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.245 2004/11/18 00:57:42 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -722,7 +722,7 @@ class Asset_Manager extends MySource_Object
 	function &getAsset($assetid, $type_code='', $mute_errors=false)
 	{
 		assert_valid_assetid($assetid);
-
+		
 		if (!isset($this->_assets[$assetid]) || !is_object($this->_assets[$assetid]['object'])) {
 
 			$this->_assets[$assetid] = Array();
@@ -767,6 +767,7 @@ class Asset_Manager extends MySource_Object
 		}//end if
 
 		$this->_assets[$assetid]['count']++;
+		$obj =& $this->_assets[$assetid]['object'];
 		return $this->_assets[$assetid]['object'];
 
 	}//end getAsset()
@@ -1682,7 +1683,6 @@ class Asset_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
 		$sql .= $where.' ORDER BY l.sort_order';
-
 		$result = $db->getRow($sql);
 		assert_valid_db_result($result);
 

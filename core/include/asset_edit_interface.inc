@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.223 2004/11/11 17:32:16 brobertson Exp $
+* $Id: asset_edit_interface.inc,v 1.224 2004/11/18 00:57:42 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.223 $
+* @version $Revision: 1.224 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1439,6 +1439,7 @@ class Asset_Edit_Interface extends MySource_Object
 				// some attributes have been updated, so save the asset
 				if ($owner->saveAttributes()) $saved = true;
 			}
+
 		}//end foreach screens
 
 		return $saved;
