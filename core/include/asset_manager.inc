@@ -315,7 +315,35 @@ class Asset_Manager extends Resolve_Object
 
 		$o  = &$backend->out;
 
-		$o->addCrummingLink('Asset Types', $o->getCurrentLocation());
+		if (!isset($_GET['am_section'])) $_GET['am_section'] = '';
+		$o->addFormActionGetVar('am_section', $_GET['am_section']);
+
+		switch($_GET['am_section']) {
+			case 'add_asset' :
+				pre_echo("ADD ASSET");
+				pre_echo($_GET);
+			break;
+
+			case 'am' :
+			default   :
+				$this->_printAssetList($o);
+
+		}//end switch
+
+	}//end printBackend();
+
+
+	/*
+	* prints out the interface for viewing and customising asset types
+	*
+	* @param object Backend_Outputter $o
+	* @param object DB $db
+	* @param string $parent  the parent asset type that to have it's kids printed
+	*
+	* @access public
+	*/
+	function _printAssetList(&$o) 
+	{
 
 		if (!empty($_REQUEST['am_action'])) {
 
@@ -342,6 +370,8 @@ class Asset_Manager extends Resolve_Object
 			}
 		}//end if
 
+
+		$o->addCrummingLink('Asset Types', $o->getCurrentLocation());
 		$o->setHeading('Assets Types', 'create');
 		$o->addHiddenField('am_action');
 		$o->addHiddenField('am_new_type_code');
@@ -349,24 +379,6 @@ class Asset_Manager extends Resolve_Object
 		$o->openSection('Existing Assets');
 		$o->openField('', 'new_line');
 
-		$this->_printAssetList($o);
-
-
-
-	}//end printBackend();
-
-
-	/*
-	* prints out the interface for viewing and customising asset types
-	*
-	* @param object Backend_Outputter $o
-	* @param object DB $db
-	* @param string $parent  the parent asset type that to have it's kids printed
-	*
-	* @access public
-	*/
-	function _printAssetList(&$o) 
-	{
 
 		$offspring = Array();
 		for (reset($this->_asset_types); NULL !== ($type_code = key($this->_asset_types)); next($this->_asset_types)) {
@@ -456,8 +468,7 @@ class Asset_Manager extends Resolve_Object
 		</table>
 	<?
 
-
-	}
+	}// end printAssetList()
 
 	function _recursePrintAssetList(&$o, &$offspring, $parent)
 	{
