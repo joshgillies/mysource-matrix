@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_transport.inc,v 1.1.2.9 2004/02/21 14:50:35 brobertson Exp $
+* $Id: replication_system_transport.inc,v 1.1.2.10 2004/02/21 16:15:47 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -383,7 +383,7 @@ class Replication_System_Transport extends MySource_Object
 		if (!$this->readVar($receive_data, $receive_headers)) {
 			return 'Data Read Error';
 		}
-		return false;
+		return true;
 
 	}// end sendAndReceiveVar()
 
@@ -402,23 +402,16 @@ class Replication_System_Transport extends MySource_Object
 	*/
 	function receiveAndSendVar($expected_data, $send_data, $strict_comparison=true)
 	{
-		if (!$this->writeVar($send_data)) {
-			return 'Data Write Error';
-		}
-		if (!$this->readVar($receive_data, $receive_headers)) {
-			return 'Data Read Error';
-		}
-
 		if (!$this->readVar($data=null,$headers=null)) {
 			return 'Data Read Error';
 		}
 
-		$ok = ($strict_comparison) ? ($data !== $expected_data) : ($data != $expected_data);
+		$ok = ($strict_comparison) ? ($data === $expected_data) : ($data == $expected_data);
 		if (!$ok){
 			return 'Expecting '.var_export($expected_data, true).' - Received '.var_export($data, true);
 		} 
 		
-		if (!$transport->writeVar($send_data)) {
+		if (!$this->writeVar($send_data)) {
 			return 'Data Write Error';
 		}
 
