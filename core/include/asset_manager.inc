@@ -439,8 +439,6 @@ pre_echo($sql);
 			}
 		}// end if
 
-pre_echo($sql);
-
 		$children = $db->getCol($sql);
 		if (DB::isError($children)) {
 			trigger_error($children->getMessage().'<br/>'.$children->getUserInfo(), E_USER_ERROR);
