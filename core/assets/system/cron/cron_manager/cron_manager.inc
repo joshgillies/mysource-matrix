@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.29 2004/07/23 08:49:19 brobertson Exp $
+* $Id: cron_manager.inc,v 1.30 2004/09/29 01:41:41 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -626,7 +626,6 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 	*/
 	function getJobsToRun($start_ts, $end_ts, $ignore_jobs=Array())
 	{
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -785,16 +784,25 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 
 		$one_off = preg_replace('/%[ABCD]%/', 'OO=', $build_up['one_off']['all']);
 
+		$sql   = 'SELECT l.linkid, a.assetid, a.type_code
+				  FROM sq_asset_link l
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.minorid = a.assetid
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value av ON a.assetid = av.assetid
+						INNER JOIN '.SQ_TABLE_PREFIX.'asset_attribute at ON av.attributeid = at.attributeid ';
 		$where = 'l.majorid = '.$db->quote($this->id).'
-				  AND a.type_code IN (~SQ0~)
-				  AND at.name         = '.$db->quote('when').'
+				  AND a.type_code IN (
+									SELECT type_code
+									FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
+									WHERE inherited_type_code = '.$db->quote('cron_job').'
+				  					)
+				  AND at.name = '.$db->quote('when').'
 				  AND ('.$hourly.'
-					   OR '.$daily.'
-					   OR '.$weekly.'
-					   OR '.$monthly.'
-					   OR '.$yearly.'
-					   OR '.$one_off.'
-					   )';
+					OR '.$daily.'
+					OR '.$weekly.'
+					OR '.$monthly.'
+					OR '.$yearly.'
+					OR '.$one_off.'
+					)';
 
 		if (!empty($ignore_jobs)) {
 			for($i = 0; $i < count($ignore_jobs); $i++) $ignore_jobs[$i] = $db->quote($ignore_jobs[$i]);
@@ -803,25 +811,8 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'av');
-		$sql = 'SELECT l.linkid, a.assetid, a.type_code
-				FROM sq_asset_link l
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.minorid = a.assetid
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value av ON a.assetid = av.assetid
-						INNER JOIN '.SQ_TABLE_PREFIX.'asset_attribute at ON av.attributeid = at.attributeid
-				'.$where;
 
-		$subs = Array( 'SELECT type_code
-						FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
-						WHERE inherited_type_code = '.$db->quote('cron_job')
-						);
-
-		$sql = db_extras_subquery($db, $sql, $subs);
-		if (DB::isError($sql)) {
-			trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
-			return Array();
-		}
-
-		$result = $db->getAll($sql);
+		$result = $db->getAll($sql.$where);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return Array();
