@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.js,v 1.6 2004/06/18 05:46:45 lwright Exp $
+* $Id: asset_map.js,v 1.7 2004/08/26 01:53:23 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -82,6 +82,11 @@ function init_asset_map() {
 	}// end if
 }//end init_asset_map()
 
+
+function open_hipo(url)
+{
+	window.open(url, 'hipo_job', 'width=650,height=400,toolbar=0,menubar=0,location=0,scollbars=both,resizable=1');
+}
 
 
 /*
