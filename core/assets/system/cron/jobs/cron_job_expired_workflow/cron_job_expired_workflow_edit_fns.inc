@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_expired_workflow_edit_fns.inc,v 1.1 2005/02/22 22:38:50 dbaranovskiy Exp $
+* $Id: cron_job_expired_workflow_edit_fns.inc,v 1.2 2005/03/16 21:43:30 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 * Purpose
 *
 *
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,16 +48,6 @@ class Cron_Job_Expired_WorkFlow_Edit_Fns extends Cron_Job_Edit_Fns
 		$this->Cron_Job_Edit_Fns();
 
 	}//end constructor
-
-	function paintNull()
-	{
-		return true;
-	}
-
-	function processNull()
-	{
-		return true;
-	}
 
 
 }//end class
