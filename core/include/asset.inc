@@ -1199,7 +1199,7 @@ class Asset extends Resolve_Object
 
 		// if we have no source, we are the asset aquiring the locks
 		if (!$source) $source = $this->id;
-		if (empty($expires)) $expires = ts_iso8601((time() + (5 * 60)));
+		if (empty($expires)) $expires = ts_iso8601((time() + (SQ_CONF_LOCK_LENGTH * 60)));
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
