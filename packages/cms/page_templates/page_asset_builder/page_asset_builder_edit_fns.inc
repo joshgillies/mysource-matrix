@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.9 2004/06/16 06:10:21 mmcintyre Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.10 2004/06/29 07:16:30 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -378,13 +378,20 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintCreateLocationRules(&$asset, &$o, $prefix)
 	{
-		echo '<i><b>'.$this->location_messages['rules'].'</b></i><br/>';
-
 		$write_access = $asset->writeAccess('attributes');
 		$current_rules = $asset->attr('create_location_rules');
 
+		$attributes = Array();
 		$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($asset->attr('create_type'), Array('name', 'attributeid', 'type'));
 		foreach ($attrs as $name => $data) $attributes[$name] = ucwords(str_replace('_', ' ', $name));
+
+		if (empty($attributes)) {
+			echo 'You must specify the type of asset to create before create location rules can be defined';
+			return false;
+		}
+
+		echo '<i><b>'.$this->location_messages['rules'].'</b></i><br/>';
+
 		$attributes = array_reverse($attributes, true);
 		$attributes[''] = '-- select attribute --';
 		$attributes = array_reverse($attributes, true);
