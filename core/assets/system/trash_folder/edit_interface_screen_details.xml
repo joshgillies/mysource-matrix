@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.8 2003/11/26 00:51:03 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.9 2004/06/25 07:00:46 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -27,7 +27,7 @@
 	<section name="Purge Assets In Trash" write_access="write:" show_if="purgeAccess">
 		<field>
 			<display_name>Empty Trash ?</display_name>
-			<note>This will purge all assets from the trash and make then unavailable for restoring or editing.</note>
+			<note />
 			<function_call>
 				<paint_function   name="paintPurgeTrash"   />
 				<process_function name="processPurgeTrash" />
