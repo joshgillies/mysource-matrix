@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: folder.inc,v 1.30 2003/11/26 00:50:58 gsherwood Exp $
+* $Id: folder.inc,v 1.31 2004/05/28 03:37:45 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -70,7 +70,25 @@ class Folder extends Asset
 			return false;
 		}
 
-		return parent::create($link);
+		$linkid = parent::create($link);
+		if (!$linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
+		}
+
+		// set an initial web path
+		$initial_path = strtolower($name);
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$valid_paths = make_valid_web_paths(Array($initial_path));
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, true);
+		if (!$this->saveWebPaths($good_paths)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
+		}
+
+		return $linkid;
 
 	}//end create()
 
