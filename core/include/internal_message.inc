@@ -144,7 +144,7 @@ class Internal_Message extends Resolve_Object
 				$from_email = $user_from->attr('email');
 			}
 		}
-		if (empty($from_email)) $from_email = 'webmaster@'.$GLOBALS['HTTP_SERVER_VARS']['HTTP_HOST'];
+		if (empty($from_email)) $from_email = 'webmaster@'.((SQ_PHP_CLI) ? $_SERVER['HOSTNAME'] : $_SERVER['HTTP_HOST']);
 		if (empty($from_string)) $from_string = '"'.SQ_SYSTEM_SHORT_NAME.' System" <'.$from_email.'>';
 
 		foreach ($send_to as $userid) {
