@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.17 2004/04/28 01:56:18 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.18 2004/05/05 06:53:43 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,7 +49,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		$this->Bridge_Edit_Fns();
 		$this->static_screens['details']['force_unlock'] = false;
 
-	} // end Form_Edit_Fns()
+	}//end Form_Edit_Fns()
 	
 
 	/**
@@ -79,7 +79,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		
 		return true;
 
-	} // end paintSectionLinks()
+	}//end paintSectionLinks()
 
 
 	/**
@@ -96,7 +96,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 	{
 		return true;
 	
-	} // end processSectionLinks()
+	}//end processSectionLinks()
 
 
 	/**
@@ -111,7 +111,6 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 	*/
 	function paintQuestionLinks(&$asset, &$o, $prefix)
 	{
-
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$admin_access = $asset->adminAccess('all');
 		$prefix = $asset->getPrefix();
@@ -270,7 +269,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		<?php
 		return true;
 
-	} // end paintQuestionLinks()
+	}//end paintQuestionLinks()
 	
 
 	/**
@@ -306,7 +305,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 
 		return true;
 	
-	} // end processQuestionLinks()
+	}//end processQuestionLinks()
 	
 	
 	/**
@@ -348,7 +347,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		combo_box('num_questions', $num, false, '');
 		return true;
 	
-	} // end paintAddQuestions()
+	}//end paintAddQuestions()
 
 
 	/**
@@ -389,7 +388,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		
 		return true;
 
-	} // end processAddQuestions()
+	}//end processAddQuestions()
 	
 	
 	/**
@@ -409,7 +408,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		echo ' New Section';
 
 		return true;
-	} // paintAddSections()
+	}//paintAddSections()
 
 
 	/**
@@ -446,7 +445,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 
 		return true;
 
-	} // end processAddSections
+	}//end processAddSections()
 
 
 	/**
@@ -461,7 +460,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 	{
 		return true;
 
-	} // end paintSubmissions()
+	}//end paintSubmissions()
 
 
 	/**
@@ -476,7 +475,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 	{
 		return true;
 
-	} // end processSubmissions()
+	}//end processSubmissions()
 
 
 	/**
@@ -489,11 +488,13 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 	*/
 	function generateStandardContentFile(&$asset)
 	{
-//		$bodycopy = &$asset->getBodycopy('format');
+		//$bodycopy = &$asset->getBodycopy('format');
 		
 		// if there is no bodycopy, we will assume that we are trying to generate the 
 		// content file at form creation time, so just return true (it will get generated later)
 		if (isset($bodycopy)) { //return true;
+
+		// TO-DO: Put back the body-copy functions here
 
 		// check to see if the bodycopy attached to this form has any content
 //		if (!$bodycopy->isEmpty()) {
@@ -542,14 +543,32 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 			// if there is no bodycopy contents, then just ask
 			// all the sections to print themselves
 			//$questions = &$asset->getQuestions();
-			$sections = &$asset->getSections();
-			$output = '';
+			ob_start();				// start vacumming up all the lovely javascript code
+			?><script language="JavaScript">
+			function beforeSubmitForm(form) {
+				var submission_errors = new Array();
+				i = 0;
 
-			/*for (reset($questions); null !== ($k = key($questions)); next($questions)) {
-				$question =& $questions[$k];
-				$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id.':q'.$k);
-				$output .= $q->getAnswer(true);
-			}*/
+				<?php 
+					echo $asset->generateJSCode();
+				?>
+
+				if (submission_errors.length > 0) {
+					var errors_list = "The following errors must be corrected before the form can be submitted:\n";
+					for(x in submission_errors) {
+						errors_list += submission_errors[x] + "\n";
+					}
+					alert(errors_list);
+					return false;
+				}
+				return true;
+			}
+			</script>
+			<?php
+			$output = ob_get_contents();		// get the contents
+			ob_end_clean();						// no more buffering
+
+			$sections = &$asset->getSections();
 
 			$output .= $this->generateGenericSection($asset);
 
@@ -607,7 +626,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		create_directory($asset->data_path);
 		return string_to_file($output, $asset->data_path.'/content_file.php');
 	
-	} // end generateStandardContentFile()
+	}//end generateStandardContentFile()
 
 
 	/**
@@ -655,7 +674,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		} 
 		return false;
 
-	} // processSectionReplacements()
+	}//end processSectionReplacements()
 
 	
 	/**
@@ -694,7 +713,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		} // end if			
 		return false;
 
-	} // processQuestionReplacements()
+	}//end processQuestionReplacements()
 
 
 	/**
@@ -725,8 +744,8 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 
 		return $output;
 
-	} // generateGenericSection()
+	}//end generateGenericSection()
 
 
-} // end class
+}//end class
 ?>

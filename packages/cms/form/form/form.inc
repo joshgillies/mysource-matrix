@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.20 2004/04/26 23:51:30 lwright Exp $
+* $Id: form.inc,v 1.21 2004/05/05 06:52:51 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -40,6 +40,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 */
 class Form extends Bridge
 {
+
 
 	/**
 	* the active submission array
@@ -72,7 +73,7 @@ class Form extends Bridge
 		$this->_ser_attrs = true;
 		$this->Bridge($assetid);
 
-	} // end Form()
+	}//end Form()
 
 
 	/**
@@ -113,7 +114,6 @@ class Form extends Bridge
 			// this eval returns the necessary object for the question type
 			$asset = new $type_code($this->id, $data);
 		}
-		//die;
 
 		return $asset;
 
@@ -149,12 +149,10 @@ class Form extends Bridge
 		if (!isset($this->_tmp['getLinks'][$assetid][$side_of_link])) {
 
 			// We also need the REAL asset links here, so we can access the form sections
-			$links = array(); //$this->getSectionLinks();
+			$links = array();
 
 			// but we also need question shadow asset links
 			$entries = $this->getQuestions();
-
-//				die;
 
 			$i = 0;
 
@@ -278,11 +276,9 @@ class Form extends Bridge
 		}
 		return true;
 	
-	} // end _updated()
+	}//end _updated()
 	
 	
-
-
 	/**
 	* regenerates the content file for this form
 	*
@@ -294,7 +290,7 @@ class Form extends Bridge
 		$edit = $this->getEditFns();
 		return $edit->generateStandardContentFile($this);
 
-	} // end fileRegeneration()
+	}//end fileRegeneration()
 
 	
 	/**
@@ -307,7 +303,7 @@ class Form extends Bridge
 	{
 		return $this->attr('questions');
 
-	} // end getQuestions()
+	}//end getQuestions()
 	
 	
 	/**
@@ -354,7 +350,7 @@ class Form extends Bridge
 
 		return true;
 
-	} // end attachQuestion()
+	}//end attachQuestion()
 	
 	
 	/**
@@ -395,7 +391,7 @@ class Form extends Bridge
 
 		return true;
 
-	} // end deleteQuestion()
+	}//end deleteQuestion()
 	
 	
 	/**
@@ -411,7 +407,7 @@ class Form extends Bridge
 		$questions = &$this->getQuestions();
 		return count($questions);
 
-	} // end getQuestionCount()
+	}//end getQuestionCount()
 	
 	
 	/**
@@ -427,7 +423,7 @@ class Form extends Bridge
 		//}
 		return (isset($questions[$questionid])) ? $questions[$questionid] : Array();
 
-	} // end getQuestionById()
+	}//end getQuestionById()
 	
 	
 	/**
@@ -441,7 +437,7 @@ class Form extends Bridge
 		$sort_order = &$this->attr('sort_order');
 		return $GLOBALS['SQ_SYSTEM']->am->getAsset($sort_order[$orderid]);
 
-	} // end getQuestionByOrder()
+	}//end getQuestionByOrder()
 	
 
 	/**
@@ -457,7 +453,7 @@ class Form extends Bridge
 						));
 		return $page_links;
 
-	} // end _getAllowedLinks()
+	}//end _getAllowedLinks()
 
 
 	/**
@@ -478,7 +474,7 @@ class Form extends Bridge
 		}
 		return $sections;
 
-	} // end getSections()
+	}//end getSections()
 
 	
 	/**
@@ -493,7 +489,7 @@ class Form extends Bridge
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->countLinks($this->id, 'major', SQ_LINK_TYPE_2, 'form_section', true);
 
-	} // end getSectionCount()
+	}//end getSectionCount()
 
 
 	/**
@@ -523,7 +519,7 @@ class Form extends Bridge
 		}
 		return (!empty($this->tmp['section_links'])) ? $this->tmp['section_links'] : Array();
 
-	} // end getSectionLinks()
+	}//end getSectionLinks()
 
 
 	/**
@@ -540,7 +536,7 @@ class Form extends Bridge
 	{
 		return setcookie('SQ_FORM_'.$this->getPrefix(), $id, time() + 60 * 60 * 24 * $days);
 
-	} // end setFormCookie() 
+	}//end setFormCookie() 
 
 
 	/**
@@ -554,7 +550,7 @@ class Form extends Bridge
 		$prefix = $this->getPrefix(); 
 
 		?>
-		<form name="<?php echo $prefix?>" enctype="multipart/form-data" action="<?php echo $_SERVER['PHP_SELF']?>" method="POST">
+		<form name="<?php echo $prefix?>" enctype="multipart/form-data" action="<?php echo $_SERVER['PHP_SELF']?>" method="POST" onsubmit="return beforeSubmitForm(this);">
 		<?php
 
 		// check to see if there is a past submission that belongs to this user
@@ -562,7 +558,7 @@ class Form extends Bridge
 		$this->printStandard();
 		echo ?></form><?php
 
-	} // end printBody()
+	}//end printBody()
 
 
 	/**
@@ -573,8 +569,8 @@ class Form extends Bridge
 	* @access public
 	* @return boolean
 	*/
-	function printStandard() {
-		
+	function printStandard()
+	{
 		$prefix = $this->getPrefix();
 		$is_error = false;
 
@@ -604,7 +600,7 @@ class Form extends Bridge
 		}
 		return true;
 
-	} // end printSummary()
+	}//end printSummary()
 
 
 	/**
@@ -629,7 +625,7 @@ class Form extends Bridge
 		
 		return $posted_section->processForm();
 
-	} // end  processSection()
+	}//end processSection()
 
 
 	/**
@@ -653,7 +649,7 @@ class Form extends Bridge
 
 		return true;
 
-	} // end includeContentFile()
+	}//end includeContentFile()
 	
 
 	/**
@@ -669,6 +665,7 @@ class Form extends Bridge
 		$questions = &$this->getQuestions();
 		for (reset($questions); null !== ($k = key($questions)); next($questions)) {
 			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$k);
+			$question->submission_errors =& $this->submission_errors;
 			$question->processForm();
 		}
 		
@@ -683,7 +680,7 @@ class Form extends Bridge
 
 		return true;
 
-	} // end processForm()
+	}//end processForm()
 
 
 	/**
@@ -702,7 +699,7 @@ class Form extends Bridge
 		
 		// set a hidden value so that we know that we have already validated the details
 	
-	} // end validateForm()
+	}//end validateForm()
 
 
 	/**
@@ -711,8 +708,8 @@ class Form extends Bridge
 	* @access public
 	* @return boolean
 	*/
-	function finishForm() {
-		
+	function finishForm()
+	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		// we want delete the cookie, so that when they come back to fill
@@ -742,7 +739,7 @@ class Form extends Bridge
 			$this->deleteLink($link['linkid']);
 		}*/
 
-	} // end finishForm()
+	}//end finishForm()
 
 
 	/**
@@ -774,7 +771,7 @@ class Form extends Bridge
 		
 		return true;
 
-	} // end printErrors()
+	}//end printErrors()
 
 
 	/**
@@ -845,7 +842,7 @@ class Form extends Bridge
 
 		echo ($html) ? '</table>' : '';
 	
-	} // end printSummary()
+	}//end printSummary()
 
 
 	/**
@@ -867,7 +864,7 @@ class Form extends Bridge
 		$info['url'] = current_url(true, true);
 		return $info;
 
-	} // end getFormInfo()
+	}//end getFormInfo()
 
 
 	/**
@@ -917,8 +914,41 @@ class Form extends Bridge
 
 		} // end switch
 
-	} // end getSectionIndex()
+	}//end getSectionIndex()
 	
 
-} // end class
+	/**
+	* writes JavaScript code for client side validation
+	* 
+	* This function assumes the skeleton of a JS validation function has been created around this code
+	* with a form variable named 'form' passed (this is done when generating the content file).
+	*
+	* @access public
+	* @return string
+	*/
+	function generateJSCode()
+	{
+		$questions = &$this->getQuestions();
+		$sections = &$this->getSections();
+		$code = '';						// blank sheet of code to start with
+
+		foreach ($questions as $q_id => $question) {
+			$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
+			$q_code = $q_asset->generateJSCode();
+			
+			$code .= $q_code . (empty($q_code) ? "" : "\n");
+		}
+
+		foreach ($sections as $section) {
+			$s_code = $section->generateJSCode();
+			
+			$code .= $s_code . (empty($s_code) ? "" : "\n");
+		}
+
+		return $code;
+
+	}//end generateJSCode()
+	
+
+}//end class
 ?>
