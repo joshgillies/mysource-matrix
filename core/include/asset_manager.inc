@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.176 2004/02/12 01:33:54 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.177 2004/02/16 01:05:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2052,6 +2052,10 @@ class Asset_Manager extends MySource_Object
 			trigger_error('Minor is not an asset, unable to create link', E_USER_WARNING);
 			return 0;
 		}
+
+		// prepare the link - do the minor first because the major gets the final say in linking
+		$minor->prepareLink($major, 'minor', $link_type, $value, $sort_order, $dependant, $exclusive);
+		$major->prepareLink($minor, 'major', $link_type, $value, $sort_order, $dependant, $exclusive);
 
 		$link_type = (int) $link_type;
 
