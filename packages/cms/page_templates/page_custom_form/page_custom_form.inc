@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form.inc,v 1.14 2004/12/06 14:41:40 brobertson Exp $
+* $Id: page_custom_form.inc,v 1.15 2005/03/17 03:27:58 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -97,7 +97,12 @@ class Page_Custom_Form extends Page
 	/**
 	* print out headers or HTML that the asset requires to be printed before the design
 	*
-	* @return void
+	* We have to do a little bit of trickery here to make sure that the design
+	* printed, and the global asset variables printed out, are for the form
+	* PAGE, rather than the form CONTENTS. Hence, we stop the contents asset 
+	* from sending its printFrontend() up to the design, so the page asset can.
+	*
+	* @return boolean	indicating success (currently always true)
 	* @access public
 	*/
 	function printFrontend()
@@ -109,9 +114,13 @@ class Page_Custom_Form extends Page
 			trigger_error('Could not locate the form asset for Custom Form "'.$this->name.'"', E_USER_ERROR);
 			return false;
 		}
-		$form->printFrontend();
-
-		return true;
+		
+		if (!$form->printFrontend()) {
+			trigger_error('Form container for "'.$this->_getName().'" (Id: #'.$this->id.') could not print frontend');
+			return false;
+		}
+		
+		return parent::printFrontend();
 
 	}//end printFrontend()
 

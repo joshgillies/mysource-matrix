@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.87 2005/03/03 15:07:33 mkeehan Exp $
+* $Id: form.inc,v 1.88 2005/03/17 03:27:58 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.88 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -783,7 +783,13 @@ class Form extends Asset
 	/**
 	* print out headers or HTML that the asset requires to be printed before the design
 	*
-	* @return void
+	* We have to do a little bit of trickery here to make sure that the design
+	* printed, and the global asset variables printed out, are for the form
+	* PAGE, rather than the form CONTENTS. Hence, this printFrontend() doesn't
+	* go back to its parent to print the design, allowing the form to do
+	* exactly that.
+	*
+	* @return boolean	indicating success (currently always true)
 	* @access public
 	*/
 	function printFrontend()
@@ -793,7 +799,7 @@ class Form extends Asset
 		if (isset($_SESSION['SQ_FORM_'.$prefix])) {
 			$submissionid = $_SESSION['SQ_FORM_'.$prefix];
 			if ($submissionid) {
-				$this->active_submission = &$GLOBALS['SQ_SYSTEM']->am->getAsset($submissionid);
+				$this->active_submission = &$GLOBALS['SQ_SYSTEM']->am->getAsset($submissionid, 'form_submission');
 			}
 		}
 
@@ -803,7 +809,7 @@ class Form extends Asset
 			$this->setFormCookie($this->active_submission->id, $this->attr('cookie_time'));
 		}
 
-		return parent::printFrontend();
+		return true;
 
 	}//end printFrontend()
 
