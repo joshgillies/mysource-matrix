@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_map.inc,v 1.101 2003/10/30 22:31:27 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.102 2003/10/31 00:00:48 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,7 +53,12 @@ class Asset_Map
 		}
 
 		$flash_vars = 'server_exec_path='.rawurlencode($backend->getBackendUrl('asset_map_request')).
-					  '&action_bar_path='.rawurlencode($backend->getBackendUrl().'&backend_section=am&am_section=edit_asset&assetid=%assetid%&sq_asset_path=%asset_path%&asset_ei_screen=%action%').
+					  '&action_bar_path='.rawurlencode($backend->getBackendUrl().'&backend_section=am'.
+							'&am_section=edit_asset'.
+							'&assetid=%assetid%'.
+							'&sq_asset_path=%asset_path%'.
+							'&sq_link_path=%link_path%'.
+							'&asset_ei_screen=%action%').
 					  '&inbox_path='.rawurlencode($inbox_url).
 					  '&url_frame=main';
 
@@ -158,7 +163,13 @@ class Asset_Map
 				var asset_mapObj = document.asset_map;
 				jsToFlashCall(asset_mapObj, 'refresh_mail', {});
 			}
-
+			
+			// highlight the link path
+			function select_path(link_path)
+			{
+				var asset_mapObj = document.asset_map;
+				jsToFlashCall(asset_mapObj, 'select_path', {link_path: link_path});
+			}
 
 			// Reload the passed assetid in the flash
 			function add_messages(xml)
