@@ -64,6 +64,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 	{
 		$table_rows = $asset->attr('rows');
 		$table_attributes = $asset->attr('attributes');
+		$table_attributes['table_name'] = $asset->name;
 		$max_cols = $this->maxCols($table_rows);
 
 		?> 
@@ -361,7 +362,11 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			$attributes_updated = false;
 			$attributes = $asset->attr('attributes');
 			foreach($bodycopy_saved[$prefix][$asset->id]['attributes'] as $name => $value) {
-				if ($this->setAttribute($attributes, $name, $value)) $attributes_updated = true;
+				if ($name == 'table_name') {
+					if ($asset->setAttrValue('name', $value)) $updated = true;
+				} else {
+					if ($this->setAttribute($attributes, $name, $value)) $attributes_updated = true;
+				}
 			}
 			if ($attributes_updated) {
 				$asset->setAttrValue('attributes',$attributes);

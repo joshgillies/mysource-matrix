@@ -26,6 +26,7 @@ include(dirname(__FILE__)."/header.php");
 		f.height.value		= (data['height']	  == null) ? "" : data['height'];
 		f.bgcolor.value		= (data['bgcolor']	  == null) ? "" : data['bgcolor'];
 		f.background.value	= (data['background'] == null) ? "" : data['background'];
+		f.table_name.value	= (data['table_name'] == null) ? "" : data['table_name'];
 		owner.highlight_combo_value(f.align,	   data['align']);
 		owner.highlight_combo_value(f.border,	   data['border']);
 		owner.highlight_combo_value(f.cellspacing, data['cellspacing']);
@@ -38,6 +39,7 @@ include(dirname(__FILE__)."/header.php");
 
 	function popup_save(f) {
 		var data = new Object();
+		data["table_name"]		= owner.form_element_value(f.table_name);
 		data["width"]			= owner.form_element_value(f.width);
 		data["height"]			= owner.form_element_value(f.height);
 		data["bgcolor"]			= owner.form_element_value(f.bgcolor);
@@ -67,6 +69,13 @@ include(dirname(__FILE__)."/header.php");
 	<tr>
 		<td colspan="2">
 			<table border="0" cellpadding="0" cellspacing="4">
+				<tr>
+					<td>&nbsp;</td>
+					<td class="bodycopy-popup-heading">Name :</td>
+					<td valign="middle">
+						<input type="text" name="table_name" value="" size="15">
+					</td>
+				</tr>
 				<tr>
 					<td>&nbsp;</td>
 					<td class="bodycopy-popup-heading">Width :</td>
