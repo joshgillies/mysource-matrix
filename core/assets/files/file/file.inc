@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.67 2004/07/23 07:16:51 mmcintyre Exp $
+* $Id: file.inc,v 1.68 2004/08/03 05:58:20 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -551,6 +551,7 @@ class File extends Asset
 		$keywords = parent::getAssetKeywords($descriptions);
 
 		$existing = $this->_getExistingFile();
+		if (!isset($existing['size'])) $existing['size'] = '0';
 		$keywords['asset_file_size_in_bytes'] = Array('value' => $existing['size']);
 		$keywords['asset_file_size_readable'] = Array('value' => easy_filesize($existing['size']));
 		
