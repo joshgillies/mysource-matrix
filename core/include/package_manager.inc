@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.40 2003/12/30 05:25:38 gsherwood Exp $
+* $Id: package_manager.inc,v 1.41 2004/02/10 16:05:43 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -40,13 +40,6 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 */
 class Package_Manager extends MySource_Object
 {
-
-	/**
-	* The name of the package that we are managing
-	*
-	* @var string
-	*/
-	var $package;
 
 	/**
 	* The info that is relevant to this package
@@ -82,40 +75,56 @@ class Package_Manager extends MySource_Object
 	* Constructor
 	*
 	*/
-	function Package_Manager($package)
+	function Package_Manager()
 	{
 		$this->MySource_Object();
 
+		if (!isset($this->_full_path) || !is_dir($this->_full_path)) {
+			trigger_error('Unable to construct "'.get_class($this).'" because there is no _full_path set', E_USER_ERROR);
+		}
+
+		// make sure that this package is in our system rootm, otherwise the base path won't work
+		if (substr($this->_full_path, 0, strlen(SQ_SYSTEM_ROOT)) != SQ_SYSTEM_ROOT) {
+			trigger_error('Unable to construct "'.get_class($this).'" because there is the _full_path is not under the SYSTEM_ROOT', E_USER_ERROR);
+		}
+
 		// OK, if this is the "core" package then we just need to fiddle with the path
-		$this->_base_path = ($package == '__core__') ? 'core/assets' : 'packages/'.$package;
-		$this->_full_path = SQ_SYSTEM_ROOT.'/'.$this->_base_path;
+		$this->_base_path = substr($this->_full_path, strlen(SQ_SYSTEM_ROOT) + 1);
 
 		if (file_exists($this->_full_path.'/package.xml')) {
 			$xml = new XML_Array();
 			$info = $xml->getArrayFromFile($this->_full_path.'/package.xml');
 			if (PEAR::isError($info)) {
-				trigger_error($info->error_message_prefix.$info->message, E_USER_WARNING);
-				return;
+				trigger_error($info->error_message_prefix.$info->message, E_USER_ERROR);
 			}
 			$xml->close();
-			if ($package != $info['code_name']['value']) {
-				trigger_error('The code name for the package in the file "'.$this->_full_path.'/package.xml" does not match the package that we are trying to open ('.$package.').', E_USER_WARNING);
-				return;
+			if ($this->getPackageName() != $info['code_name']['value']) {
+				trigger_error('The code name for the package in the file "'.$this->_full_path.'/package.xml" does not match the package that we are trying to open ('.$this->getPackageName().').', E_USER_ERROR);
 			}
 			$this->info = Array(
 								'name'        => $info['name']['value'],
 								'version'     => $info['version']['value'],
 								'description' => $info['description']['value']
 								);
-			$this->package = $package;
 			$this->_loadPackageAssets();
 
 		} else {
-			trigger_error('Package "'.$package.'" does not have a package.xml file', E_USER_WARNING);
-			return;
+			trigger_error('Package "'.$this->getPackageName().'" does not have a package.xml file', E_USER_ERROR);
 		}
 
 	}//end constructor
+
+
+	/**
+	* Returns the name of the package that this management class is working for
+	*
+	* @access public
+	*/
+	function getPackageName()
+	{
+		return substr(get_class($this), 16);
+
+	}//end getPackageName()
 
 
 	/**
@@ -126,11 +135,6 @@ class Package_Manager extends MySource_Object
 	*/
 	function checkPackageDetails()
 	{
-		if (!$this->package) {
-			trigger_error('Package is not available for install or upgrade on this system', E_USER_WARNING);
-			return false;
-		}
-
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		for(reset($this->assets); null !== ($type_code = key($this->assets)); next($this->assets)) {
@@ -142,7 +146,7 @@ class Package_Manager extends MySource_Object
 			list($result, $req) = $this->checkRequirementsFromFile($file, true);
 
 			if (!$result) {
-				trigger_error('Asset "'.$type_code.'" fails the <b>'.$req['type'].'</b> requirement for <b>'.$req['code'].' v'.$req['version'].'</b><br/>As specified by '.$file, E_USER_WARNING);
+				trigger_error('Asset "'.$type_code.'" fails the "'.$req['type'].'" requirement for "'.$req['code'].' v'.$req['version'].'"'."\n".'As specified by '.$file, E_USER_WARNING);
 				return false;
 			}//endif
 
@@ -150,7 +154,7 @@ class Package_Manager extends MySource_Object
 			// or that the type is in this package that we are checking
 			$parent_type = $this->assets[$type_code]['parent_type'];
 			if ($parent_type != 'asset' && !$am->installed($parent_type) && !isset($this->assets[$parent_type])) {
-				trigger_error('Asset "'.$type_code.'" attempts to inherit from the unknown type "'.$parent_type.'"<br/>As specified by '.$file, E_USER_WARNING);
+				trigger_error('Asset "'.$type_code.'" attempts to inherit from the unknown type "'.$parent_type.'"'."\n".'As specified by '.$file, E_USER_WARNING);
 				return false;
 			}//endif
 
@@ -164,46 +168,44 @@ class Package_Manager extends MySource_Object
 	/**
 	* Installs/Updates the passed package in the system
 	*
+	* @return boolean	success status
 	* @access public
 	*/
 	function updatePackageDetails()
 	{
-		if (!$this->package) {
-			trigger_error('Package is not available for install or upgrade on this system', E_USER_WARNING);
-			return;
-		}
-
 		if (!$this->checkPackageDetails()) {
-			return;
+			return false;
 		}
 
 		$install_order = $this->_getInstallOrder();
 		if (empty($install_order)) {
-			trigger_error('No assets available in the install order, aborting update of <b>'.$this->package.'</b> package.', E_USER_WARNING);
-			return;
+			trigger_error('No assets available in the install order, aborting update of "'.$this->getPackageName().'" package.', E_USER_WARNING);
+			return false;
 		}
 
-		pre_echo('Install Order:');
+		pre_echo('Install Order :');
 		pre_echo($install_order);
+
+		$package_name = $this->getPackageName();
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$exists = $db->getOne('SELECT code_name FROM '.SQ_TABLE_PREFIX.'package WHERE code_name = '.$db->quote($this->package));
-		if (DB::isError($exists)) trigger_error($exists->getMessage().'<br/>'.$exists->getUserInfo(), E_USER_ERROR);
+		$exists = $db->getOne('SELECT code_name FROM '.SQ_TABLE_PREFIX.'package WHERE code_name = '.$db->quote($package_name));
+		if (DB::isError($exists)) trigger_error($exists->getMessage()."\n".$exists->getUserInfo(), E_USER_ERROR);
 
 		if ($exists) {
 			$sql = 'UPDATE '.SQ_TABLE_PREFIX.'package
 					SET version     = '.$db->quote($this->info['version']).',
 						name        = '.$db->quote($this->info['name']).',
 						description = '.$db->quote($this->info['description']).'
-					WHERE code_name = '.$db->quote($this->package);
+					WHERE code_name = '.$db->quote($package_name);
 		} else {
 			$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'package
 					(code_name, version, name, description)
 					VALUES
-					('.$db->quote($this->package).', '.$db->quote($this->info['version']).',
+					('.$db->quote($package_name).', '.$db->quote($this->info['version']).',
 					'.$db->quote($this->info['name']).','.$db->quote($this->info['description']).')';
 		}//end if
 
@@ -211,8 +213,8 @@ class Package_Manager extends MySource_Object
 		if (DB::isError($result)) {
 			// Abort Transaction
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return;
+			trigger_error($result->getMessage()."\n".$result->getUserInfo(), E_USER_WARNING);
+			return false;
 		}
 
 		//foreach($install_order as $type_code) {
@@ -283,6 +285,7 @@ class Package_Manager extends MySource_Object
 	*/
 	function _recurseLoadPackageAssets(&$assets, $full_path, $base_path)
 	{
+		$package = $this->getPackageName();
 		$d = dir($full_path);
 		while (false !== ($entry = $d->read())) {
 			if ($entry == '.' || $entry == '..') continue;
@@ -299,8 +302,8 @@ class Package_Manager extends MySource_Object
 					continue;
 				}
 
-				if ($this->package != $info['package']) {
-					trigger_error('The Asset Information file "'.$full_path.'/asset.xml" is in the '.$this->package.' Package directory, but states that it is belongs to '.$info['package'], E_USER_ERROR);
+				if ($package != $info['package']) {
+					trigger_error('The Asset Information file "'.$full_path.'/asset.xml" is in the '.$package.' Package directory, but states that it is belongs to '.$info['package'], E_USER_ERROR);
 				}
 
 				$info['dir'] = $base_path;
@@ -366,7 +369,7 @@ class Package_Manager extends MySource_Object
 			}//end for
 
 			if ($last_count == count($asset_types)) {
-				trigger_error('There seems to be the possibility of recursive inheriting for this <b>'.$this->package.'</b> package.<br/>The install order for these assets could not be established: <b>'.implode(', ', $asset_types).'</b>', E_USER_WARNING);
+				trigger_error('There seems to be the possibility of recursive inheriting for the "'.$this->getPackageName().'" package.'."\n".'The install order for these assets could not be established: '.implode(', ', $asset_types), E_USER_WARNING);
 				return Array();
 			}
 
@@ -431,7 +434,7 @@ class Package_Manager extends MySource_Object
 
 		}// end for
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		return string_to_file($str, SQ_DATA_PATH.'/private/asset_map/'.$this->package.'.xml');
+		return string_to_file($str, SQ_DATA_PATH.'/private/asset_map/'.$this->getPackageName().'.xml');
 
 	}//end _createAssetMapScreensXML()
 
@@ -469,7 +472,7 @@ class Package_Manager extends MySource_Object
 			switch($req['@type']) {
 				case 'package' :
 					$installed_version = $GLOBALS['SQ_SYSTEM']->db->getOne('SELECT version FROM '.SQ_TABLE_PREFIX.'package WHERE code_name = '.$GLOBALS['SQ_SYSTEM']->db->quote($req['code']['value']));
-					if (DB::isError($installed_version)) trigger_error($installed_version->getMessage().'<br/>'.$installed_version->getUserInfo(), E_USER_ERROR);
+					if (DB::isError($installed_version)) trigger_error($installed_version->getMessage()."\n".$installed_version->getUserInfo(), E_USER_ERROR);
 
 					if ($installed_version) {
 						$ok = version_compare($installed_version, $req['version']['value'], '>=');
@@ -537,7 +540,7 @@ class Package_Manager extends MySource_Object
 	function getTypeAncestors($type_code)
 	{
 		if (!isset($this->assets[$type_code])) {
-			trigger_error('Asset "'.$type_code.'" does not exist in the <b>'.$this->package.'</b> package', E_USER_ERROR);
+			trigger_error('Asset "'.$type_code.'" does not exist in the "'.$this->getPackageName().'" package', E_USER_ERROR);
 			return Array();
 		}
 
@@ -575,7 +578,7 @@ class Package_Manager extends MySource_Object
 	function getTypeInfo($type_code, $field='')
 	{
 		if (!isset($this->assets[$type_code])) {
-			trigger_error('Asset "'.$type_code.'" does not exist in the <b>'.$this->package.'</b> package', E_USER_WARNING);
+			trigger_error('Asset "'.$type_code.'" does not exist in the "'.$this->getPackageName().'" package', E_USER_WARNING);
 			return ($field) ? null : Array();
 		}
 
