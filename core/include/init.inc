@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.76 2005/01/20 13:10:34 brobertson Exp $
+* $Id: init.inc,v 1.77 2005/02/16 08:56:31 brobertson Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix
 */
 
@@ -169,6 +169,7 @@ define('SQ_SC_STATUS_CAN_APPROVE',   66); // short hand for SQ_STATUS_UNDER_CONS
 define('SQ_SC_STATUS_PENDING',      164); // short hand for SQ_STATUS_PENDING_APPROVAL | SQ_STATUS_EDITING_APPROVAL | SQ_STATUS_LIVE_APPROVAL
 define('SQ_SC_STATUS_ALL_APPROVED', 264); // short hand for SQ_STATUS_APPROVED | SQ_STATUS_EDITING_APPROVED
 define('SQ_SC_STATUS_SAFE_EDITING', 448); // short hand for SQ_STATUS_EDITING | SQ_STATUS_EDITING_APPROVAL | SQ_STATUS_EDITING_APPROVED
+define('SQ_SC_STATUS_ALL',          511); // short hand for SQ_STATUS_*
 
 
 // Load assertion functions, for integrated testing
