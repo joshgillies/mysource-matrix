@@ -913,7 +913,9 @@ class Asset extends Resolve_Object
 			foreach ($dependant_links as $link) {
 				$asset = &$am->getAsset($link['minorid']);
 				if (!$asset->processStatusChange($new_status, $this->status)) {
+					trigger_error('processStatusChange failed for asset "'.$this->name.'" trying to process dependant child "'.$asset->name.'"', E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
 				}
 			}
 		}
