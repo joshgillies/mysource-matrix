@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.58 2003/11/26 05:21:52 gsherwood Exp $
+* $Id: design_edit_fns.inc,v 1.59 2003/11/27 03:46:32 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -194,19 +194,20 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function paintEditParseFile(&$asset, &$o, $prefix)
 	{
-		if ($asset->writeAccess('parsing')) {
-			$parse_file = $asset->data_path.'/parse.txt';
-			if (!is_file($parse_file)) {
-				echo 'You need to upload a parse file before you can edit it';
-				return true;
-			}
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		$parse_file = $asset->data_path.'/parse.txt';
+		if (!is_file($parse_file)) {
+			echo 'You need to upload a parse file before you can edit it';
+			return true;
+		}
 
-			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-			$str = file_to_string($parse_file);
+		$str = file_to_string($parse_file);
+
+		if ($asset->writeAccess('parsing')) {
 			text_area($prefix.'_new_parse_file', str_replace("\t", "    ", $str), 120, 30);
 			return true;
 		} else {
-			echo 'You do not have access to edit the parse file for "'.$asset->name.'"';
+			pre_echo($str);
 		}
 		return false;
 
