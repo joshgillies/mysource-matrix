@@ -12,13 +12,16 @@ import java.beans.*; //property change stuff
 
 public class ServerSubmitter implements ActionListener 
 {
-	public static final String REDIRECT_PREFIX = "IMAGEJ_REDIRECT: ";
+	public static final String CONFIRM_PREFIX = "OK";
+	public static final String ERROR_PREFIX = "ERROR";
 
 	/* The ImageJ instance we were fired from */
 	private ImageJ ij;
 
 	/* How many bytes we've uploaded, or -1 if we're finished and have received the server response */
 	private int progress = 0;
+
+	private String tempFileName = null;
 
 	/**
 	* Constructor
@@ -167,14 +170,19 @@ public class ServerSubmitter implements ActionListener
 	/**
 	* Hide the progress indicator, redirect the browser to the supplied URL
 	*/
-	synchronized void finish(URL redirect) 
+	synchronized void finish(String tempFileName) 
 	{
 		progress = -1;
-		if (redirect != null) {
-			ij.getAppletContext().showDocument(redirect, ij.getParameter("REDIRECT_FRAME"));
-		}
+		this.tempFileName = tempFileName;
 
 	}//end finish()
+
+	String getTempFileName()
+	{
+		while (getProgress() != -1) try { Thread.sleep(333); } catch (Exception e) {}
+		return this.tempFileName;
+	}
+
 
 
 }//end class
@@ -303,13 +311,12 @@ class ServerSubmitterThread extends Thread
 		try {
 			// get the server's response
 			String line = datain.readLine();
-			String redirectLine = null;
+			String confirmLine = null;
 			URL redirectLocation;
 			String error = null;
-			//PrintWriter pw = new PrintWriter(new FileWriter(System.getProperty("java.io.tmpdir", "c:\\")+"ServerSubmitterResponse.html"));
-			//ms.showError("Writing server response to "+(System.getProperty("java.io.tmpdir", "c:\\")+"ServerSubmitterResponse.html"));
+			//StringBuffer sb = new StringBuffer();
 			while ((line != null)) { 
-				//pw.println(line);
+				//sb.append(line + "\n");
 				if (line.indexOf("403 Forbidden") != -1) {
 					error = "Server returned 403 forbidden.  You don't seem to have access to the system";
 					break;
@@ -322,38 +329,30 @@ class ServerSubmitterThread extends Thread
 					error = "MySource Error: \n" + getMysourceMessage(datain);
 					break;
 				}
-				if (line.trim().startsWith(ServerSubmitter.REDIRECT_PREFIX)) {
-					redirectLine = line.trim();
+				if (line.trim().startsWith(ServerSubmitter.CONFIRM_PREFIX)) {
+					confirmLine = line.trim();
+					break;
+				}
+				if (line.trim().startsWith(ServerSubmitter.ERROR_PREFIX)) {
+					error = line;
+					confirmLine = "";
 					break;
 				}
 				line = datain.readLine();
 			}
-			//pw.close();
+			//ms.showError(sb.toString());
+
 			if (error != null) {
 				ms.showError(error);
 				ms.finish(null);
 				return;
 			}
-			if (redirectLine == null) {
-				ms.finish(null);
+			if (confirmLine == null) {
 				ms.showError("No redirect found");
+				ms.finish(null);
 				return;
 			}
-			try {
-				redirectLocation = new URL(redirectLine.substring(ServerSubmitter.REDIRECT_PREFIX.length()));
-			} catch (Exception e) {
-				ms.showError("Problem creating redirect url from "+redirectLine);
-				redirectLocation = null;
-			}
-
-			try {
-				dataout.close();
-				datain.close();
-			} catch (Exception e) {
-				ms.showError("Exception closing streams: "+e.getMessage());
-			}
-			
-			ms.finish(redirectLocation);
+			ms.finish(confirmLine.substring(ms.CONFIRM_PREFIX.length()+1));
 		} catch (Exception e) {
 			ms.showError("Error while reading server response: "+e.getMessage());
 			e.printStackTrace();
@@ -477,5 +476,7 @@ class ServerSubmitProgressDialog extends JFrame
 		progressBar.setStringPainted(false);
 	
 	}//end goIndeterminate()
+
+
 
 }//end class

@@ -47,7 +47,7 @@ public class ImageJ extends javax.swing.JApplet implements ActionListener,
 	private JPanel statusBar;
 	private ImageCanvas imageCanvas;
 	private ProgressBar progressBar;
-	private JButton submitButton;
+	private JButton submitButton = new JButton("Commit");
 	private JPanel mainPane;
 	private Label statusLine;
 	private boolean firstTime = true;
@@ -122,14 +122,17 @@ public class ImageJ extends javax.swing.JApplet implements ActionListener,
 
 		// Submit button and name field
 		JPanel bottomPanel = new JPanel(new BorderLayout());
-		bottomPanel.setBorder(BorderFactory.createEmptyBorder(15,2,15,2));
+		bottomPanel.setBorder(BorderFactory.createEmptyBorder(4,2,2,2));
 		bottomPanel.setBackground(Color.WHITE);
 
 		JPanel submitPanel = new JPanel();
-		submitButton = new JButton("Commit");
-		submitPanel.add(submitButton, BorderLayout.EAST);
-		submitPanel.setBorder(BorderFactory.createEmptyBorder());
-		submitPanel.setBackground(Color.WHITE);
+		String showSubmitParam = null;
+		try { showSubmitParam = getParameter("SHOW_SUBMIT"); } catch (Exception e) {}
+		if (showSubmitParam != null) {
+			submitPanel.add(submitButton, BorderLayout.EAST);
+			submitPanel.setBorder(BorderFactory.createEmptyBorder());
+			submitPanel.setBackground(Color.WHITE);
+		}
 
 		JPanel namePanel = new JPanel();
 		String[] typeOptions = {".jpg", ".gif"};
@@ -145,7 +148,7 @@ public class ImageJ extends javax.swing.JApplet implements ActionListener,
 		namePanel.setBorder(BorderFactory.createEmptyBorder());
 		
 		bottomPanel.add(namePanel, BorderLayout.WEST);
-		bottomPanel.add(submitPanel, BorderLayout.EAST);
+		if (showSubmitParam != null) bottomPanel.add(submitPanel, BorderLayout.EAST);
 		getContentPane().add(bottomPanel, BorderLayout.SOUTH);
 
 		setCursor(Cursor.getDefaultCursor()); // work-around for JDK 1.1.8 bug
@@ -387,6 +390,7 @@ public class ImageJ extends javax.swing.JApplet implements ActionListener,
 	*/	
 	void updateFileTypes()
 	{
+		if (getImagePlus() == null) return;
 		if (!FileSaver.okForGif(getImagePlus())) {
 			if (fileTypeField.getItemCount() > 1) {
 				fileTypeField.removeItem(".gif");
@@ -406,6 +410,18 @@ public class ImageJ extends javax.swing.JApplet implements ActionListener,
 	public Dimension getViewportSize()
 	{
 		return imageScrollPane.getViewport().getExtentSize();
+	}
+
+	public String doUpload()
+	{
+		ServerSubmitter ss = new ServerSubmitter(this);
+		ss.actionPerformed(null);
+		return ss.getTempFileName();
+	}
+
+	public String getFilename()
+	{
+		return getAssetName() + getFileType();
 	}
 
 	

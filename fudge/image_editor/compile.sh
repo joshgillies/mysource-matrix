@@ -4,4 +4,8 @@ javac  ij/*.java ij/*/*.java ij/*/*/*.java
 jar cf imagej.jar ij/*.* ij/*/*.* ij/*/*/*.* IJ_Props.txt
 jarsigner -storepass keystore imagej.jar tomkey2
 mv imagej.jar ..
+for i in `find . | grep "\.class$"` 
+do 
+  rm $i
+done
 cd ..
