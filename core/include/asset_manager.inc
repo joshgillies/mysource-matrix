@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.273 2005/02/21 19:31:14 brobertson Exp $
+* $Id: asset_manager.inc,v 1.274 2005/02/22 13:50:29 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.273 $
+* @version $Revision: 1.274 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4435,29 +4435,11 @@ class Asset_Manager extends MySource_Object
 			$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC, true);
 			assert_valid_db_result($result);
 
-			$the_rest_urls = Array();
-			foreach ($result as $assetid => $db_urls) {
-				if (count($db_urls) == 1) {
-					// only one URL returned, so use that
-					$the_rest_urls[$assetid] = $db_urls[0];
-				} else {
-					// find the closest URL based on the base URL
-					$min_slashes = null;
-					foreach ($db_urls as $url_data) {
-						$test_url = substr($url_data['url'], strlen($base_url) +1);
-						$num_slashes = count(explode('/', $test_url));
-						if ($min_slashes == null || $num_slashes < $min_slashes) {
-							$the_rest_urls[$assetid] = $url_data;
-						}
-					}
-				}
-			}
-
 			foreach ($the_rest as $assetid) {
-				if (!isset($the_rest_urls[$assetid])) {
+				if (!isset($result[$assetid])) {
 					$this->_tmp['urls'][$assetid][$base_url] = '';
 				} else {
-					$this->_tmp['urls'][$assetid][$base_url] = $the_rest_urls[$assetid]['protocol'].'://'.$the_rest_urls[$assetid]['url'];
+					$this->_tmp['urls'][$assetid][$base_url] = $result[$assetid][0]['protocol'].'://'.$result[$assetid][0]['url'];
 				}
 				$return_urls[$assetid] = $this->_tmp['urls'][$assetid][$base_url];
 			}
