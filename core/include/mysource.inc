@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mysource.inc,v 1.7 2003/09/29 01:40:46 gsherwood Exp $
+* $Id: mysource.inc,v 1.8 2003/10/02 05:41:15 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -147,7 +147,7 @@ class MySource
 			}
 
 			// check if we are in rollback view mode
-			if (isset($_SESSION['sq_rollback_view']) && !empty($_SESSION['sq_rollback_view'])) {
+			if (!empty($_SESSION['sq_rollback_view'])) {
 				// we are viewing the system at some time in the past
 				define('SQ_ROLLBACK_VIEW',        '1');
 				define('SQ_TABLE_RUNNING_PREFIX', SQ_TABLE_ROLLBACK_PREFIX);
@@ -176,8 +176,8 @@ class MySource
 			}
 
 			$_SESSION['user_last_access'] = time();
-			$this->user_is_root      = $_SESSION['user_is_root'];
-			$this->user_is_sys_admin = $_SESSION['user_is_sys_admin'];
+			$this->_user_is_root      = $_SESSION['user_is_root'];
+			$this->_user_is_sys_admin = $_SESSION['user_is_sys_admin'];
 
 		} else {
 			define('SQ_ROLLBACK_VIEW',        '0');
@@ -238,7 +238,7 @@ class MySource
 	*/
 	function paintLogin($heading, $msg)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db = &$this->db;
 
 		header("HTTP/1.0 403 Forbidden");
 		$GLOBALS['SQ_LOGIN_FORM'] = Array('paint' => 'login', 'heading' => $heading, 'msg' => $msg);
@@ -265,7 +265,7 @@ class MySource
 
 				// we have found the design to use
 				if ($result) {
-					$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
+					$design = &$this->am->getAsset($result['designid'], $result['type_code']);
 					if (!is_null($design)) {
 						$design->paint($current_asset);
 						return;
@@ -273,7 +273,7 @@ class MySource
 				}
 
 				// OK, use the system login form
-				$design = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('login_design');
+				$design = &$this->am->getSystemAsset('login_design');
 				if (!is_null($design)) {
 					$design->paint($current_asset);
 					return;
@@ -312,8 +312,8 @@ class MySource
 							// they have to re-enter the details
 							$this->generateLoginKey();
 
-							$_SESSION['user_is_root']      = $this->user_is_root;
-							$_SESSION['user_is_sys_admin'] = $this->user_is_sys_admin;
+							$_SESSION['user_is_root']      = $this->_user_is_root;
+							$_SESSION['user_is_sys_admin'] = $this->_user_is_sys_admin;
 							$_SESSION['user_last_access'] = time();
 							unset($_SESSION['user_login_attempts']);
 							return;
@@ -422,6 +422,34 @@ class MySource
 
 
 	/**
+	* Generates a new login key and returns it
+	*
+	* @access public
+	*/
+	function generateLoginKey()
+	{
+		require_once SQ_FUDGE_PATH.'/general/general.inc';
+		return $_SESSION['SQ_LOGIN_KEY'] = random_password(20);
+
+	}//end generateLoginKey()
+
+
+	/**
+	* Returns the current login key
+	*
+	* @access public
+	*/
+	function loginKey()
+	{
+		return $_SESSION['SQ_LOGIN_KEY'];
+
+	}//end loginKey()
+
+
+//--        CURRENT USER        --//
+
+
+	/**
 	* Set's the current user of the system to this user,
 	* SHOULD BE USED WITH CAUTION
 	*
@@ -441,8 +469,8 @@ class MySource
 		}
 
 		$this->user = &$user;
-		$this->user_is_root      = $this->userRoot($user);
-		$this->user_is_sys_admin = $this->userSystemAdmin($user);
+		$this->_user_is_root      = $this->userRoot($user);
+		$this->_user_is_sys_admin = $this->userSystemAdmin($user);
 
 		return true;
 
@@ -469,13 +497,13 @@ class MySource
 		if (is_null($user) || !$user->canLogin()) {
 			unset($this->user); // unset ref first so we don't blow away other references to the user
 			$this->user = null;
-			$this->user_is_root      = false;
-			$this->user_is_sys_admin = false;
+			$this->_user_is_root      = false;
+			$this->_user_is_sys_admin = false;
 
 		} else {
 			$this->user = &$user;
-			$this->user_is_root      = $this->userRoot($user);
-			$this->user_is_sys_admin = $this->userSystemAdmin($user);
+			$this->_user_is_root      = $this->userRoot($user);
+			$this->_user_is_sys_admin = $this->userSystemAdmin($user);
 		}
 
 		return true;
@@ -519,7 +547,7 @@ class MySource
 	*/
 	function userRoot($user=null)
 	{
-		if (is_null($user)) return $this->user_is_root;
+		if (is_null($user)) return $this->_user_is_root;
 		if (!$user->id) return false;
 		if (get_class($user) == 'root_user' && (int) $user->id == 4) return true;
 		return false;
@@ -537,18 +565,21 @@ class MySource
 	*/
 	function userSystemAdmin($user=null)
 	{
-		if (is_null($user)) return $this->user_is_sys_admin;
+		if (is_null($user)) return $this->_user_is_sys_admin;
 		if (!$user->id) return false;
 		if (get_class($user) != 'system_user') return false;
 
 		// now make sure that the user is in the system administrators group
 		$sys_admin_group = &$this->am->getSystemAsset('system_user_group');
-		$sys_admins = $GLOBALS['SQ_SYSTEM']->am->getLinks($sys_admin_group->id, SQ_LINK_TYPE_1, 'system_user');
+		$sys_admins = $this->am->getLinks($sys_admin_group->id, SQ_LINK_TYPE_1, 'system_user');
 		foreach ($sys_admins as $data) if ($data['minorid'] == $user->id) return true;
 
 		return false;
 
 	}//end userSystemAdmin()
+
+
+//--        EVENTS        --//
 
 
 	/**
@@ -595,6 +626,9 @@ class MySource
 		return true;
 
 	}//end broadcastEvent()
+
+
+//--        GET MANAGERS        --//
 
 
 	/**
@@ -687,6 +721,9 @@ class MySource
 		return $this->wm;
 
 	}//end getWorkflowManager()
+
+
+//--        DATABASE        --//
 
 
 	/**
@@ -800,6 +837,9 @@ class MySource
 		}
 
 	}//end doTransaction()
+
+
+//--        SYSTEM ROLLBACK        --//
 
 
 	/**
@@ -962,14 +1002,14 @@ class MySource
 					FROM sq_'.$table_name.'
 					WHERE '.$where_cond;
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$this->doTransaction('BEGIN');
 
 		// first we delete all entries in the rollback table that have the same from time
 		// and that we are going to be replacing because their value is no longer the most recent
 		// in this script execution
 		$result = $this->db->query($delete);
 		if (DB::isError($result)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->doTransaction('ROLLBACK');
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
@@ -977,7 +1017,7 @@ class MySource
 		// replace the NULL value effective_to entries because we are adding our own now
 		$result = $this->db->query($update);
 		if (DB::isError($result)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->doTransaction('ROLLBACK');
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
@@ -985,12 +1025,12 @@ class MySource
 		// and finally insert the new rollback rows
 		$result = db_extras_insert_select($this->db, $insert, $select);
 		if (DB::isError($result)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->doTransaction('ROLLBACK');
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$this->doTransaction('COMMIT');
 		return true;
 
 	}//end addRollbackEntry()
@@ -1015,7 +1055,7 @@ class MySource
 		// if we are in rollback view, pretend e did our job but really just slack off
 		if (SQ_ROLLBACK_VIEW) return true;
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$this->doTransaction('BEGIN');
 
 		// construct the update query
 		$update_sql = 'UPDATE '.SQ_TABLE_PREFIX.$table_name.' SET ';
@@ -1027,18 +1067,18 @@ class MySource
 
 		$result = $this->db->query($update_sql);
 		if (DB::isError($result)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->doTransaction('ROLLBACK');
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
 		// add the rollback entries for the rows we updated
 		if (!$this->addRollbackEntry($table_name, $where_cond)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->doTransaction('ROLLBACK');
 			return false;
 		}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$this->doTransaction('COMMIT');
 		return true;
 
 	}//end rollbackUpdate()
@@ -1090,22 +1130,22 @@ class MySource
 
 		// construct the insert query
 		$insert_sql = 'INSERT INTO '.SQ_TABLE_PREFIX.$table_name.' ('.$col_string.') VALUES ('.$val_string.')';
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$this->doTransaction('BEGIN');
 
 		$result = $this->db->query($insert_sql);
 		if (DB::isError($result)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->doTransaction('ROLLBACK');
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
 		// add the rollback entries for the inserted rows
 		if (!$this->addRollbackEntry($table_name, $where_cond)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->doTransaction('ROLLBACK');
 			return false;
 		}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$this->doTransaction('COMMIT');
 		return true;
 
 	}//end rollbackInsert()
@@ -1173,7 +1213,7 @@ class MySource
 
 		if (DB::isError($where_clause)) {
 			trigger_error($where_clause->getMessage().'<br/>'.$where_clause->getUserInfo(), E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->doTransaction('ROLLBACK');
 			return 0;
 		}
 
@@ -1185,22 +1225,22 @@ class MySource
 		$insert_sql = 'INSERT INTO '.SQ_TABLE_PREFIX.$table_name.' ('.$col_string.')';
 		$select_sql = 'SELECT '.$select_col_string. ' FROM '.$select_from.' WHERE '.$where_cond;
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$this->doTransaction('BEGIN');
 
 		$result = db_extras_insert_select($this->db, $insert_sql, $select_sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->doTransaction('ROLLBACK');
 			return false;
 		}
 
 		// add the rollback entries for the inserted rows
 		if (!$this->addRollbackEntry($table_name, $where_clause)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->doTransaction('ROLLBACK');
 			return false;
 		}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$this->doTransaction('COMMIT');
 		return true;
 
 	}//end rollbackInsert()
@@ -1223,11 +1263,11 @@ class MySource
 		// if we are in rollback view, pretend e did our job but really just slack off
 		if (SQ_ROLLBACK_VIEW) return true;
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$this->doTransaction('BEGIN');
 
 		// add the rollback entries for the rows we are going to delete
 		if (!$this->addRollbackEntry($table_name, $where_cond)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->doTransaction('ROLLBACK');
 			return false;
 		}
 
@@ -1236,40 +1276,205 @@ class MySource
 
 		$result = $this->db->query($delete_sql);
 		if (DB::isError($result)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->doTransaction('ROLLBACK');
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$this->doTransaction('COMMIT');
 		return true;
 
 	}//end rollbackDelete()
 
 
-	/**
-	* Generates a new login key and returns it
-	*
-	* @access public
-	*/
-	function generateLoginKey()
-	{
-		require_once SQ_FUDGE_PATH.'/general/general.inc';
-		return $_SESSION['SQ_LOGIN_KEY'] = random_password(20);
-
-	}//end generateLoginKey()
+//--        LOCKING        --//
 
 
 	/**
-	* Returns the current login key
+	* Attempts to acquire a lock
 	*
+	* @param string		$lockid			the id of the lock
+	* @param string		$source_lockid	the id of the lock that started this locking process
+	* @param int|NULL	$expires		when the lock expires (timestamp or NULL)
+	*									If expires is set to NULL, the lock will be acquired indefinitely (ie. it will never expire).
+	*									If expires is set to zero, the lock will be acquired for the current time plus SQ_CONF_LOCK_LENGTH
+	*
+	* @return TRUE|string	returns true on success or the error message on failure
 	* @access public
 	*/
-	function loginKey()
+	function acquireLock($lockid, $source_lockid='', $expires=0)
 	{
-		return $_SESSION['SQ_LOGIN_KEY'];
+		$current_lock = $this->getLockInfo($lockid);
 
-	}//end loginKey()
+		// is this asset already locked
+		if (!empty($current_lock)) { 
+			// the user is asking to acquire a lock they already had
+			// so just update the lock expiry date
+			if ($current_lock['userid'] == $this->currentUserid()) {
+				return $this->updateLock($lockid, $expires);
+			} else {
+				$user = &$this->getAsset($current_lock['userid']);
+				return 'Cannot acquire lock, lock already held by "'.$user->name.'"';
+			}// end if
+		}// end if
+
+		// if we have no source, we are the asset aquiring the locks
+		if (empty($source_lockid)) $source_lockid = $lockid;
+
+		if (!is_null($expires)) {
+			$expires = (empty($expires)) ? (time() + SQ_CONF_LOCK_LENGTH) : (int) $expires;
+			$expires = ts_iso8601($expires);
+		}
+
+		$this->changeDatabaseConnection('db2');
+		$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'lock 
+				(lockid, source_lockid, userid, expires) 
+				VALUES 
+				('.$this->db->quote($lockid).','.$this->db->quote($source_lockid).','.$this->db->quote($this->currentUserid()).','.$this->db->quote($expires).')';
+		$result = $this->db->query($sql);
+		$this->restoreDatabaseConnection();
+		if (DB::isError($result)) { 
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return 'Database Error';
+		}
+		return true;
+
+	}//end acquireLock()
+
+
+	/**
+	* Release the passed lock
+	*
+	* @param string	$lockid		the id of the lock to release
+	*
+	* @return true|string	true on success, error message on failure
+	* @access public
+	*/
+	function releaseLock($lockid)
+	{
+		$current_lock = $this->getLockInfo($lockid, false, false);
+		if (empty($current_lock)) return true;
+
+		$this->changeDatabaseConnection('db2');
+		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'lock 
+				WHERE source_lockid = '.$this->db->quote($current_lock['source_lockid']);
+
+		$result = $this->db->query($sql);
+		$this->restoreDatabaseConnection();
+		if (DB::isError($result)) { 
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return 'Database Error';
+		}
+		return true;
+
+	}//end releaseLock()
+
+
+	/**
+	* Updates the expiry date of the lock
+	*
+	* If the current lock is being held indefinitely (ie. expires = NULL), the lock
+	* expiry time will not be updated but the function will return true. You must release
+	* an indefinite lock before updating its expiry date.
+	*
+	* @param string		$lockid		the id of the lock
+	* @param int|NULL	$expires	when the lock expires (timestamp or NULL)
+	*
+	* @return true|string	true on success, error message on failure
+	* @access public
+	*/
+	function updateLock($lockid, $expires=0)
+	{
+		$current_lock = $this->getLockInfo($lockid);
+		if (empty($current_lock) || empty($current_lock['expires'])) return true;
+
+		if (!is_null($expires)) {
+			$expires = (!$expires) ? (time() + SQ_CONF_LOCK_LENGTH) : (int) $expires;
+			$expires = ts_iso8601($expires);
+		}
+
+		$this->changeDatabaseConnection('db2');
+		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'lock 
+				   SET expires = '.$this->db->quote($expires).'
+				WHERE source_lockid = '.$this->db->quote($current_lock['source_lockid']);
+
+		$result = $this->db->query($sql);
+		$this->restoreDatabaseConnection();
+		if (DB::isError($result)) { 
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return 'Database Error';
+		}
+		return true;
+
+	}//end updateLock()
+
+
+	/**
+	* Returns an array of information about the passed lock
+	*
+	* @param string		$lockid			the id of the lock
+	* @param boolean	$full_chain		return the info for every lock in the lock chain
+	* @param boolean	$check_expires	check the expiry date and cleanup the lock if it has expired
+	*
+	* @return Array
+	* @access public
+	*/
+	function getLockInfo($lockid, $full_chain=false, $check_expires=true)
+	{
+		$this->changeDatabaseConnection('db2');
+	
+		$sql = 'SELECT lockid, source_lockid, userid, expires
+				FROM '.SQ_TABLE_PREFIX.'lock 
+				WHERE lockid = '.$this->db->quote($lockid);
+
+		$result = $this->db->getRow($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			$this->restoreDatabaseConnection();
+			return Array();
+		}
+
+		if (!empty($result)) {
+			if ($check_expires && !empty($result['expires'])) {
+				$result['expires'] = iso8601_ts($result['expires']);
+				if ($result['expires'] < time()) {
+					$this->releaseLock($lockid);
+					$this->restoreDatabaseConnection();
+					// this lock has expired
+					return Array();
+				}// end if
+			}// end if
+			
+			if ($full_chain) {
+				$result['chained_assets'] = Array();
+				$sql = 'SELECT lockid, source_lockid, userid, expires
+						FROM '.SQ_TABLE_PREFIX.'lock 
+						WHERE source_lockid = '.$this->db->quote($result['source_lockid']).'
+						  AND lockid <> '.$this->db->quote($lockid);
+				$chain = $this->db->getAll($sql);
+				if (DB::isError($chain)) {
+					trigger_error($chain->getMessage().'<br/>'.$chain->getUserInfo(), E_USER_WARNING);
+					$this->restoreDatabaseConnection();
+					return Array();
+				}
+
+				foreach ($chain as $lock_row) {
+					if (empty($lock_row['expires'])) $lock_row['expires'] = NULL;
+					else $lock_row['expires'] = iso8601_ts($lock_row['expires']);
+					$result['chained_assets'][$lock_row['lockid']] = $lock_row;
+				}
+
+			}// end if
+
+		}// endif 
+
+		$this->restoreDatabaseConnection();
+		return $result;
+
+	}//end getLockInfo()
+
+
+//--        SYSTEM MESSAGES        --//
 
 
 	/**
@@ -1295,6 +1500,9 @@ class MySource
 		return (empty($this->_msgs)) ? Array() : $this->_msgs;
 
 	}//end messages()
+
+
+//--        DATE/TIME        --//
 
 
 	/**
