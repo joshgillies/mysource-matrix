@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.71 2004/09/13 04:38:36 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.72 2004/09/13 04:39:19 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.71 $ - 1.0
+* @version $Revision: 1.72 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1668,10 +1668,6 @@ class Page_Calendar extends Page_Asset_Listing
 		$events = $plain_events;
 		$events =& $this->_expandEventList($plain_events, $date, $date);
 
-		foreach ($events as $id => $details) {
-			bam("$id - ".$details['name']);
-		}
-
 		$res = Array();
 
 		foreach ($root_nodes as $node_id) $res[$node_id] = $partitions;
@@ -1680,10 +1676,8 @@ class Page_Calendar extends Page_Asset_Listing
 			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
 			if (($event_date == $date)) {
 				if (empty($details['start_date_hours'])) {
-					bam("Event $id has no time");
 					$res[$details['root_node']]['all_day'][$id] = $details;
 				} else {
-					bam("Event $id has time");
 					$event_ts = $details['start_date_hours'] * 60 + $details['start_date_minutes'];
 					if ($event_ts < $start_ts) continue;
 					foreach ($partition_keys as $partition_ts => $key) {
