@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.198 2004/04/01 00:27:37 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.199 2004/04/02 01:53:06 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1363,7 +1363,7 @@ class Asset_Manager extends MySource_Object
 			$lock = $GLOBALS['SQ_SYSTEM']->getLockInfo('asset.'.$assetid.'.'.$lock_type, $full_chain, $check_expires);
 			if (!empty($lock)) {
 				$lock['lock_type']      = $lock_type;
-				$lock['source_assetid'] = (int) preg_replace('/^asset\.([0-9]+)\..*$/',      '\1', $lock['source_lockid']);
+				$lock['source_assetid'] = preg_replace('|^asset\.(.*)\.[\w]+$|', '\1', $lock['source_lockid']);
 				if ($full_chain) {
 					for(reset($lock['chained_assets']); NULL !== ($k = key($lock['chained_assets'])); next($lock['chained_assets'])) {
 						$lock['chained_assets'][$k]['assetid'] = (int) preg_replace('/^asset\.([0-9]+)\..*$/', '\1', $lock['chained_assets'][$k]['lockid']);
