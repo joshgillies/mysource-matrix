@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.49.2.3 2004/11/03 23:57:53 gsherwood Exp $
+* $Id: workflow_manager.inc,v 1.49.2.4 2004/11/08 00:23:10 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1108,6 +1108,24 @@ class Workflow_Manager extends MySource_Object
 		return true;
 
 	}//end cancelWorkflow()
+
+	
+	/**
+	* Deletes any workflow entries that this asset has
+	*
+	* @param string	$assetid	the asset id
+	*
+	* @return boolean
+	* @access public
+	*/
+	function purgeWorkflow($assetid)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$where_cond = 'assetid='.$db->quote($assetid);
+
+		return $GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_workflow', $where_cond);
+
+	}//end purgeWorkflow()
 
 
 	/**
