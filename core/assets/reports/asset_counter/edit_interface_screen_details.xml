@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2004/10/26 01:31:01 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: edit_interface_screen_details.xml,v 1.2 2005/01/17 18:36:33 brobertson Exp $
+*
 */
 -->
 <contents>
@@ -50,7 +50,7 @@
 	<section name="Asset Types" write_access="write:attributes">
 		<field>
 			<display_name>Current Asset Types</display_name>
-			<note>This is a list of asset types that will be searched for. If types are not specified, a report will be generated for all the types. If you specify the types but they are not found, reprt will not be re-generated.</note>
+			<note>This is a list of asset types that will be searched for. If types are not specified, a report will be generated for all the types. If you specify the types but they are not found, report will not be re-generated.</note>
 			<function_call>
 				<paint_function   name="paintCurrentAssetTypes"   />
 				<process_function name="processCurrentAssetTypes" />
