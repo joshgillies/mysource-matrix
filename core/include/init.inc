@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.66 2004/05/27 23:38:48 gsherwood Exp $
+* $Id: init.inc,v 1.67 2004/05/27 23:41:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -154,6 +154,10 @@ define('SQ_SC_STATUS_CAN_APPROVE',   66); // short hand for SQ_STATUS_UNDER_CONS
 define('SQ_SC_STATUS_PENDING',      164); // short hand for SQ_STATUS_PENDING_APPROVAL | SQ_STATUS_EDITING_APPROVAL | SQ_STATUS_LIVE_APPROVAL
 define('SQ_SC_STATUS_ALL_APPROVED', 264); // short hand for SQ_STATUS_APPROVED | SQ_STATUS_EDITING_APPROVED
 define('SQ_SC_STATUS_SAFE_EDITING', 448); // short hand for SQ_STATUS_EDITING | SQ_STATUS_EDITING_APPROVAL | SQ_STATUS_EDITING_APPROVED
+
+
+// Load assertion functions, for integrated testing
+require_once SQ_INCLUDE_PATH.'/assertions.inc';
 
 
 // Load general functions, including the error handler

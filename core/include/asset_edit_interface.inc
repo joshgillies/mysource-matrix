@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.211 2004/05/26 15:30:06 brobertson Exp $
+* $Id: asset_edit_interface.inc,v 1.212 2004/05/27 23:41:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -91,13 +91,9 @@ class Asset_Edit_Interface extends MySource_Object
 		require_once $asset_dir.'/'.$class_name.'.inc';
 		$this->_edit_fns = new $class_name();
 
-		// check that the edit functions have a details tab
-		// or else we cant even create assets of this type
-		// let alone edit them
-		if (!isset($this->_edit_fns->static_screens['details'])) {
-			trigger_error("Asset Edit Functions for '$type_code' do not define a 'details' tab", E_USER_ERROR);
-			die();
-		}
+		// check that the edit functions have a details tab or else
+		// we cant even create assets of this type let alone edit them
+		assert_isset($this->_edit_fns->static_screens['details'], "Asset Edit Functions for '$type_code' do not define a 'details' tab");
 
 		$this->_dirs = Array($asset_dir);
 		$parent_type = $this->_type_code;
@@ -168,7 +164,7 @@ class Asset_Edit_Interface extends MySource_Object
 		}
 
 		// if there are no screens or static screens, piss off
-		if (!count($this->_screens) && empty($this->_edit_fns->static_screens)) return;
+		assert_false(!count($this->_screens) && empty($this->_edit_fns->static_screens));
 
 
 		  /////////////////////////////

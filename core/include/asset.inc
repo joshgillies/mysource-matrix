@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.296 2004/05/26 22:37:13 lwright Exp $
+* $Id: asset.inc,v 1.297 2004/05/27 23:41:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -215,7 +215,7 @@ class Asset extends MySource_Object
 
 		// welcome to sequences, they are cool, see the PEAR::DB docs for more info
 		$assetid = $db->nextId('sq_sequence_asset');
-		if (DB::isError($assetid)) trigger_error($assetid->getMessage().'<br/>'.$assetid->getUserInfo(), E_USER_ERROR);
+		assert_valid_db_result($assetid);
 
 		$name   = ucwords(str_replace('_', ' ', $this->type())).' #'.$assetid;
 		$now    = time();
@@ -443,8 +443,9 @@ class Asset extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 		
 		$result = $db->getRow($sql.$where, null, DB_FETCHMODE_ORDERED);
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-		if (is_null($result)) return;
+		assert_valid_db_result($result);
+		
+		assert_not_null($result, '', false, true);
 
 		list($this->id,
 			 $type_code,
@@ -543,8 +544,8 @@ class Asset extends MySource_Object
 					WHERE atr.type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->type());
 		}// end if
 		
-		$this->vars = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
-		if (DB::isError($this->vars)) trigger_error($this->vars->getMessage().'<br/>'.$this->vars->getUserInfo(), E_USER_ERROR);
+		$this->vars = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC);
+		assert_valid_db_result($this->vars);
 
 		if ($this->_ser_attrs && $this->vars) {
 			for(reset($this->vars); NULL !== ($name = key($this->vars)); next($this->vars)) {
@@ -1998,9 +1999,7 @@ class Asset extends MySource_Object
 						  AND a.type_code = '.$db->quote($this->type());
 
 				$owning_attributeid = $db->getOne($sql);
-				if (DB::isError($owning_attributeid)) {
-					trigger_error($owning_attributeid->getMessage().'<br/>'.$owning_attributeid->getUserInfo(), E_USER_ERROR);
-				}
+				assert_valid_db_result($owning_attributeid);
 
 			}// end if
 
@@ -2042,12 +2041,7 @@ class Asset extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		$existing = $db->getCol($sql.$where);
-		if (DB::isError($existing)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error($existing->getMessage().'<br/>'.$existing->getUserInfo(), E_USER_WARNING);
-			$ms->abortLog();
-			return false;
-		}
+		assert_valid_db_result($existing);
 		$new = array_diff($attr_ids, $existing);
 
 
@@ -2210,9 +2204,7 @@ class Asset extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'uv');
 
 			$result = $db->getOne($sql.$where);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-			}
+			assert_valid_db_result($result);
 
 			if ((int) $result > 0) {
 				trigger_error('Unable to set "'.$name.'" it is a unique attribute and another asset already uses "'.$value.'"', E_USER_WARNING);
@@ -2519,6 +2511,8 @@ class Asset extends MySource_Object
 		if (!empty($lock_type)) {
 			if ($lock_type != 'attributes') {
 				$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, $lock_type, true);
+				// if we are getting a lock type that cant be safe edited (eg permissions), you can live edit
+				// if you dont have the attributes lock also (which must be safe edited)
 				if (!in_array('attributes', array_keys($locks))) return true;
 			}
 		}
@@ -2728,9 +2722,7 @@ class Asset extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 			$sql .= $where;
 			$result = $db->getRow($sql);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-			}
+			assert_valid_db_result($result);
 
 			// if we found nothing  and we weren't using the system frontend design, see if one exists
 			if (empty($result) && $design_name != 'system_design::frontend') {
@@ -2965,12 +2957,8 @@ class Asset extends MySource_Object
 					ORDER BY sort_order';
 
 			$result = $db->getCol($sql);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-				$this->_tmp['paths'] = Array();
-			} else {
-				$this->_tmp['paths'] = $result;
-			}
+			assert_valid_db_result($result);
+			$this->_tmp['paths'] = $result;
 
 		}// end if
 
@@ -3082,12 +3070,8 @@ class Asset extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			$result = $db->getAll($sql.$where);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-				$this->_tmp['lookups'] = Array();
-			} else {
-				$this->_tmp['lookups'] = $result;
-			}
+			assert_valid_db_result($result);
+			$this->_tmp['lookups'] = $result;
 
 		}// end if
 
@@ -3123,16 +3107,13 @@ class Asset extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 
 			$result = $db->query($sql.$where);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-			} else {
-				while(null !== ($row = $result->fetchRow())) {
-					if (!isset($this->_tmp['design_lookups'][$row['url']])) $this->_tmp['design_lookups'][$row['url']] = Array();
-					$this->_tmp['design_lookups'][$row['url']][$row['name']] = $row['designid'];
-				}// end while
-				$result->free();
-
-			}// end if
+			assert_valid_db_result($result);
+			
+			while(null !== ($row = $result->fetchRow())) {
+				if (!isset($this->_tmp['design_lookups'][$row['url']])) $this->_tmp['design_lookups'][$row['url']] = Array();
+				$this->_tmp['design_lookups'][$row['url']][$row['name']] = $row['designid'];
+			}
+			$result->free();
 
 		}// end if
 
@@ -3168,9 +3149,7 @@ class Asset extends MySource_Object
 				'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quote($this->id), 'l');
 
 		$old_urls = $db->getAll($sql);
-		if (DB::isError($old_urls)) {
-			trigger_error($old_urls->getMessage().'<br/>'.$old_urls->getUserInfo(), E_USER_ERROR);
-		}
+		assert_valid_db_result($old_urls);
 
 		$current_urls = Array();
 		foreach ($old_urls as $url_data) $current_urls[] = $db->quote($url_data['url']);

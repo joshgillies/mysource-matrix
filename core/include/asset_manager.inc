@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.211 2004/05/27 00:32:24 lwright Exp $
+* $Id: asset_manager.inc,v 1.212 2004/05/27 23:41:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -82,7 +82,7 @@ class Asset_Manager extends MySource_Object
 		$sql = 'SELECT type_code, version, name, instantiable, allowed_access, parent_type, dir, customisation
 				FROM '.SQ_TABLE_PREFIX.'asset_type';
 		$result = $db->query($sql);
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+		assert_valid_db_result($result);
 
 		while (null !== ($row = $result->fetchRow())) {
 			$this->_asset_types[$row['type_code']] = $row;
@@ -109,7 +109,7 @@ class Asset_Manager extends MySource_Object
 				FROM '.SQ_TABLE_PREFIX.'asset_type
 				WHERE type_code = '.$db->quote($type_code);
 		$result = $db->getRow($sql);
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+		assert_valid_db_result($result);
 
 		if (empty($result)) {
 			trigger_error('Asset "'.$type_code.'" is not installed on the system', E_USER_WARNING);
@@ -120,13 +120,12 @@ class Asset_Manager extends MySource_Object
 
 		$parents = Array($type_code);
 		$tmp_type_code = $type_code;
-		while($this->_asset_types[$tmp_type_code]['parent_type'] != 'asset') {
+		while ($this->_asset_types[$tmp_type_code]['parent_type'] != 'asset') {
 			// this should NEVER happen, if it does DIE
-			if (!isset($this->_asset_types[$this->_asset_types[$tmp_type_code]['parent_type']])) {
-				trigger_error('Asset "'.$this->_asset_types[$tmp_type_code]['parent_type'].'" is not installed on the system,<br/>'
+			assert_isset($this->_asset_types[$this->_asset_types[$tmp_type_code]['parent_type']], 'Asset "'.$this->_asset_types[$tmp_type_code]['parent_type'].'" is not installed on the system,<br/>'
 							 .'therefore we cannot get the parent type of Asset "'.$tmp_type_code.'".<br/>'
-							 .'Check that you got the Asset_Manager by reference', E_USER_ERROR);
-			}
+							 .'Check that you got the Asset_Manager by reference');
+			
 			$tmp_type_code = $this->_asset_types[$tmp_type_code]['parent_type'];
 			$parents[] = $tmp_type_code;
 		}
@@ -136,7 +135,7 @@ class Asset_Manager extends MySource_Object
 				FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 				WHERE type_code = '.$db->quote($type_code);
 		$db_parents = $db->getCol($sql);
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+		assert_valid_db_result($result);
 
 		$inserts = array_diff($parents, $db_parents);
 		$deletes = array_diff($db_parents, $parents);
@@ -152,7 +151,7 @@ class Asset_Manager extends MySource_Object
 					('.$db->quote($inherited_type_code).', '.$db->quote($type_code).',
 					'.$db->quote($inherited_type_code_level).', '.$db->quote($type_code_level).')';
 			$result = $db->query($sql);
-			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			assert_valid_db_result($result);
 		}
 
 		foreach($deletes as $inherited_type_code) {
@@ -160,7 +159,7 @@ class Asset_Manager extends MySource_Object
 					WHERE inherited_type_code = '.$db->quote($inherited_type_code).'
 					  AND type_code = '.$db->quote($type_code);
 			$result = $db->query($sql);
-			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			assert_valid_db_result($result);
 		}
 
 		foreach($updates as $inherited_type_code) {
@@ -171,7 +170,7 @@ class Asset_Manager extends MySource_Object
 					WHERE inherited_type_code = '.$db->quote($inherited_type_code).'
 					  AND type_code = '.$db->quote($type_code);
 			$result = $db->query($sql);
-			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			assert_valid_db_result($result);
 		}
 
 	}//end refreshAssetType()
@@ -305,7 +304,7 @@ class Asset_Manager extends MySource_Object
 					FROM '.SQ_TABLE_PREFIX.'asset_type
 					WHERE type_code '.$type_code_cond;
 			$result = $db->getAll($sql);
-			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			assert_valid_db_result($result);
 			if (is_array($type_code)) {
 				for ($i = 0; $i < count($result); $i++) {
 					$this->_asset_types[$result[$i]['type_code']][$field] = $result[$i][$field];
@@ -408,7 +407,7 @@ class Asset_Manager extends MySource_Object
 					FROM '.SQ_TABLE_PREFIX.'asset_type
 					WHERE allowed_access = '.$db->quote($allowed_access);
 			$type_codes = $db->getCol($sql);
-			if (DB::isError($type_codes)) trigger_error($type_codes->getMessage().'<br/>'.$type_codes->getUserInfo(), E_USER_ERROR);
+			assert_valid_db_result($type_codes);
 		} else {
 			$type_codes = array_keys($this->_asset_types);
 		}
@@ -482,8 +481,7 @@ class Asset_Manager extends MySource_Object
 								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 								WHERE inherited_type_code '.$type_code_cond );
 				$where = db_extras_subquery($db, $where, $subs);
-				if (DB::isError($where))
-					trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
+				assert_valid_db_result($where);
 			}
 		}// end if
 
@@ -493,10 +491,7 @@ class Asset_Manager extends MySource_Object
 				'.$where.' ORDER BY a.assetid';
 
 		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return Array();
-		}
+		assert_valid_db_result($result);
 
 		return $result;
 
@@ -512,10 +507,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function includeAsset($type_code)
 	{
-		if (!isset($this->_asset_types[$type_code])) {
-			trigger_error('Asset "'.$type_code.'" is not installed on the system, unable to include it\'s Source File', E_USER_ERROR);
-		}
-
+		assert_isset($this->_asset_types[$type_code], 'Asset "'.$type_code.'" is not installed on the system, unable to include it\'s Source File');
 		require_once SQ_SYSTEM_ROOT.'/'.$this->_asset_types[$type_code]['dir'].'/'.$type_code.'.inc';
 
 	}//end includeAsset()
@@ -533,10 +525,8 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getTypeAncestors($type_code, $include_asset=true)
 	{
-		if (!isset($this->_asset_types[$type_code])) {
-			trigger_error('Asset Type "'.$type_code.'" is not installed on the system', E_USER_ERROR);
-			return Array();
-		}
+		assert_isset($this->_asset_types[$type_code], 'Asset Type "'.$type_code.'" is not installed on the system');
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$result = $db->getCol('SELECT inherited_type_code
 								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
@@ -545,10 +535,7 @@ class Asset_Manager extends MySource_Object
 								'.(($include_asset) ? '' : ' AND inherited_type_code <> '.$db->quote('asset')).'
 								ORDER BY inherited_type_code_level DESC'
 								);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-			return Array();
-		}
+		assert_valid_db_result($result);
 		return $result;
 
 	}//end getTypeAncestors()
@@ -564,10 +551,8 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getTypeDescendants($type_code)
 	{
-		if (!isset($this->_asset_types[$type_code])) {
-			trigger_error('Asset Type "'.$type_code.'" is not installed on the system', E_USER_ERROR);
-			return Array();
-		}
+		assert_isset($this->_asset_types[$type_code], 'Asset Type "'.$type_code.'" is not installed on the system');
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$result = $db->getCol('SELECT type_code
 								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
@@ -575,10 +560,7 @@ class Asset_Manager extends MySource_Object
 								  AND type_code <> '.$db->quote($type_code).'
 								ORDER BY type_code_level ASC'
 								);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-			return Array();
-		}
+		assert_valid_db_result($result);
 		return $result;
 
 	}//end getTypeDescendants()
@@ -623,10 +605,8 @@ class Asset_Manager extends MySource_Object
 
 		if (count($details) > 1) $result = $db->getAssoc($sql);
 		else $result = $db->getCol($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return Array();
-		}
+		
+		assert_valid_db_result($result);
 
 		return $result;
 
@@ -651,11 +631,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function &getAsset($assetid, $type_code='', $mute_errors=false)
 	{
-		if (empty($assetid) || (!is_int($assetid) && !is_string($assetid))) {
-			if (!$mute_errors) trigger_error('Could not get asset - assetid is empty', E_USER_WARNING);
-			$null = null; // do this because of return by reference
-			return $null;
-		}
+		assert_valid_assetid($assetid);
 
 		if (!isset($this->_assets[$assetid]) || !is_object($this->_assets[$assetid]['object'])) {
 
@@ -839,9 +815,9 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=true)
 	{
-		if (!is_array($assetids)) return Array();
+		assert_type($assetids, 'array');
 		if (empty($assetids)) return Array();
-
+		
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$where = '';
 
@@ -867,9 +843,7 @@ class Asset_Manager extends MySource_Object
 								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 								WHERE inherited_type_code '.$type_code_cond );
 				$where = db_extras_subquery($db, $where, $subs);
-				if (DB::isError($where)) {
-					trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
-				}
+				assert_valid_db_result($where);
 			}
 		}// end if
 
@@ -877,10 +851,7 @@ class Asset_Manager extends MySource_Object
 		$sql = 'SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a '.$where.' ORDER BY a.assetid';
 
 		$result = $db->getAll($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return Array();
-		}
+		assert_valid_db_result($result);
 
 		$return_result = Array();
 		foreach (array_values($result) as $row) {
@@ -903,13 +874,11 @@ class Asset_Manager extends MySource_Object
 	*									or $type_code and any of it's sub-classes
 	* @param boolean	$include_type	if false returns Array(assetid, assetid, ...), if true
 	*									returns Array(assetid => asset_type, assetid => asset_type, ...)
-	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
-	*									you can't use the '@' operator when returning by reference
 	*
 	* @return array
 	* @access public
 	*/
-	function getTypeAssetids($type_code, $strict=true, $include_type=false, $mute_errors=false)
+	function getTypeAssetids($type_code, $strict=true, $include_type=false)
 	{
 		if (!is_string($type_code)) return Array();
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -923,6 +892,7 @@ class Asset_Manager extends MySource_Object
 							FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 							WHERE inherited_type_code = '.$db->quote($type_code));
 			$where = db_extras_subquery($db, $where, $subs);
+			assert_valid_db_result($where);
 		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
@@ -930,10 +900,7 @@ class Asset_Manager extends MySource_Object
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where;
 
 		$result = ($include_type) ? $db->getAssoc($sql) : $db->getCol($sql);
-		if (DB::isError($result)) {
-			if (!$mute_errors) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return Array();
-		}
+		assert_valid_db_result($result);
 
 		return $result;
 
@@ -970,8 +937,8 @@ class Asset_Manager extends MySource_Object
 	{
 		if (!empty($link)) {
 			// make sure the initial link information is passed in
-			if (!isset($link['asset']))     trigger_error('Cant create asset without an asset to link to', E_USER_ERROR);
-			if (!isset($link['link_type'])) trigger_error('Cant create asset without a link type', E_USER_ERROR);
+			assert_isset($link['asset'], 'Cant create asset without an asset to link to');
+			assert_isset($link['link_type'], 'Cant create asset without a link type');
 		}
 
 		$null = null; // needed because we return by reference
@@ -990,10 +957,7 @@ class Asset_Manager extends MySource_Object
 
 		// welcome to sequences, they are cool, see the PEAR::DB docs for more info
 		$assetid = $db->nextId('sq_sequence_asset');
-		if (DB::isError($assetid)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error($assetid->getMessage().'<br/>'.$assetid->getUserInfo(), E_USER_ERROR);
-		}
+		assert_valid_db_result($assetid);
 
 		$now    = time();
 		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
@@ -1231,7 +1195,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$asset = &$this->getAsset($assetid);
-		if (is_null($asset)) return false;
+		assert_not_null($asset);
 
 		$current_locks = $this->getLockInfo($assetid, $lock_type, true, true);
 
@@ -1336,7 +1300,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function releaseLock($assetid, $lock_type)
 	{
-
 		// type-check lock type BEFORE we get asset, otherwise we're just wasting time allocating it
 		if (empty($lock_type) || !is_string($lock_type)) {
 			trigger_error('A lock type must be specified when acquiring locks for asset #' . $assetid, E_USER_WARNING);
@@ -1347,7 +1310,7 @@ class Asset_Manager extends MySource_Object
 		if (empty($current_locks)) return true;
 
 		$asset = &$this->getAsset($assetid);
-		if (is_null($asset)) return false;
+		assert_not_null($asset);
 
 		$success = true;
 
@@ -1410,11 +1373,8 @@ class Asset_Manager extends MySource_Object
 
 		}// end foreach
 
-		if ($success) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		} else {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-		}
+		if ($success) $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		else $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $success;
@@ -1449,18 +1409,15 @@ class Asset_Manager extends MySource_Object
 						$lock['chained_assets'][$k]['assetid'] = (int) preg_replace('/^asset\.([0-9]+)\..*$/', '\1', $lock['chained_assets'][$k]['lockid']);
 						$lock['chained_assets'][$k]['source_assetid'] = (int) preg_replace('/^asset\.([0-9]+)\..*$/', '\1', $lock['chained_assets'][$k]['source_lockid']);
 					}
-				}// endif
-			}// end if
+				}
+			}
 			$locks[$lock_type] = $lock;
 			unset($lock);
 		}// end foreach
 
 
-		if (!$force_array && count($locks) == 1) {
-			return reset($locks);
-		} else {
-			return $locks;
-		}
+		if (!$force_array && count($locks) == 1) return reset($locks);
+		else return $locks;
 
 	}//end getLockInfo()
 
@@ -1479,9 +1436,9 @@ class Asset_Manager extends MySource_Object
 	{
 		if (!isset($this->_tmp['lock_types'][$assetid])) {
 			$asset = &$this->getAsset($assetid);
-			if (is_null($asset)) return Array();
+			assert_not_null($asset);
 			$this->_tmp['lock_types'][$assetid] = $asset->lockTypes();
-		}// end if
+		}
 
 		if ($lock_type != 'all') {
 			if (!isset($this->_tmp['lock_types'][$assetid][$lock_type])) return Array();
@@ -1532,10 +1489,8 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getLink($assetid, $link_type, $type_code='', $strict_type_code=true, $value=null, $side_of_link='major', $exclusive=null)
 	{
-		if (is_object($assetid)) return Array();
-		
-		if ($side_of_link != 'major' && $side_of_link != 'minor')
-			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
+		assert_valid_assetid($assetid);
+		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
 
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
@@ -1568,8 +1523,7 @@ class Asset_Manager extends MySource_Object
 								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 								WHERE inherited_type_code '.$type_code_cond );
 				$where = db_extras_subquery($db, $where, $subs);
-				if (DB::isError($where))
-					trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
+				assert_valid_db_result($where);
 			}
 		}
 
@@ -1581,10 +1535,7 @@ class Asset_Manager extends MySource_Object
 		$sql .= $where.' ORDER BY l.sort_order';
 
 		$result = $db->getRow($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-			return Array();
-		}
+		assert_valid_db_result($result);
 
 		return $result;
 
@@ -1603,9 +1554,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getLinkById($linkid, $assetid=0, $side_of_link='major')
 	{
-		if ($side_of_link != 'major' && $side_of_link != 'minor') {
-			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
-		}
+		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
 
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
@@ -1634,7 +1583,7 @@ class Asset_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
 		$result = $db->getRow($sql.$where);
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+		assert_valid_db_result($result);
 
 		return $result;
 
@@ -1660,14 +1609,8 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getLinkByAsset($assetid, $other_assetid, $link_types=null, $value=null, $side_of_link='major', $force_array=false)
 	{
-		if ($side_of_link != 'major' && $side_of_link != 'minor') {
-			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
-		}
-
-		if (!$assetid || is_object($assetid)) {
-			trigger_error('Cannot get link by assetid - no assetid given', E_USER_WARNING);
-			return Array();
-		}
+		assert_valid_assetid($assetid);
+		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
 
 		if (!$other_assetid || is_object($other_assetid)) {
 			trigger_error('Cannot get link by assetid - no assetid given for other side of link', E_USER_WARNING);
@@ -1695,10 +1638,7 @@ class Asset_Manager extends MySource_Object
 				ORDER BY l.sort_order';
 
 		$result = $db->getAll($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-			return Array();
-		}
+		assert_valid_db_result($result);
 
 		if (!$force_array && count($result) == 1) return $result[0];
 		else return $result;
@@ -1736,11 +1676,8 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $value=null, $dependant=null, $exclusive=null, $sort_by=null)
 	{
-		if ($side_of_link != 'major' && $side_of_link != 'minor') {
-			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
-		}
-
-		if (!$assetid) return Array();
+		assert_valid_assetid($assetid);
+		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
 
 
 		// check if we are getting links for a shadow asset, and palm the request off to the
@@ -1775,7 +1712,7 @@ class Asset_Manager extends MySource_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$result = $db->getAll(implode(' ', $query));
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+		assert_valid_db_result($result);
 
 		return $result;
 
@@ -1805,9 +1742,7 @@ class Asset_Manager extends MySource_Object
 					'.$where.' LIMIT 1';
 
 			$treeid = $db->getOne($sql);
-			if (DB::isError($treeid)) {
-				trigger_error($treeid->getMessage().'<br/>'.$treeid->getUserInfo(), E_USER_ERROR);
-			}
+			assert_valid_db_result($treeid);
 
 			$current_level = strlen($treeid) / SQ_CONF_ASSET_TREE_SIZE;
 
@@ -1830,9 +1765,8 @@ class Asset_Manager extends MySource_Object
 					ORDER BY t.treeid';
 
 			$child_links = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
-			if (DB::isError($child_links)) {
-				trigger_error($child_links->getMessage().'<br/>'.$child_links->getUserInfo(), E_USER_ERROR);
-			}
+			assert_valid_db_result($child_links);
+
 
 			// OK, what we are going to do is set up the effective dependant treeid for each tree link
 			for (reset($child_links); null !== ($treeid = key($child_links)); next($child_links)) {
@@ -1904,10 +1838,8 @@ class Asset_Manager extends MySource_Object
 
 
 			$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC, true);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				return Array();
-			}
+			assert_valid_db_result($result);
+
 		}
 
 		foreach ($asset_links as $link_data) $link_info[$link_data['majorid']][] = $link_data;
@@ -2015,10 +1947,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$parents = $db->getCol($sql.$where);
-		if (DB::isError($parents)) {
-			trigger_error($parents->getMessage().'<br/>'.$parents->getUserInfo(), E_USER_ERROR);
-			return Array();
-		}
+		assert_valid_db_result($parents);
 
 		return $parents;
 
@@ -2047,10 +1976,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
 	{
-		if ((!is_int($assetid) && !is_string($assetid)) || !$assetid) {
-			trigger_error('Cannot get children, assetid is not valid', E_USER_WARNING);
-			return Array();
-		}
+		assert_valid_assetid($assetid);
 
 		// check if we are getting children for a shadow asset, and palm the request off to the
 		// handler of the shadow asset if we are
@@ -2087,10 +2013,8 @@ class Asset_Manager extends MySource_Object
 		if (empty($query)) return Array();
 
 		$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc(implode(' ', $query));
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-			return Array();
-		}
+		assert_valid_db_result($result);
+
 
 		if (!is_null($sort_by)) {
 			$children = Array();
@@ -2201,13 +2125,13 @@ class Asset_Manager extends MySource_Object
 	* )
 	* </PRE>
 	*
-	* @param int|Array(int)	$majorids		the majorids to traverse the tree from
+	* @param int|array(int)	$majorids		the majorids to traverse the tree from
 	* @param integer		$levels			the number of levels to traverse (if null, traverse all levels)
-	* @param Array			$exclude_list	an array of assetid to exclude from the tree
+	* @param array			$exclude_list	an array of assetid to exclude from the tree
 	* @param integer		$link_type		the type of wanted links
 	*
 	* @access public
-	* @return Array()
+	* @return array
 	*/
 	function  getAssetTree($majorids, $levels=null, $exclude_list=Array(), $link_type=SQ_SC_LINK_FRONTEND_NAV)
 	{
@@ -2298,10 +2222,7 @@ class Asset_Manager extends MySource_Object
 				   ORDER BY l.majorid, l.sort_order';
 
 		$result = $db->query($sql.$where);
-
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-		}
+		assert_valid_db_result($result);
 
 		$assetids = Array();
 		while (DB_OK === $result->fetchInto($row)) {
@@ -2379,16 +2300,10 @@ class Asset_Manager extends MySource_Object
 						'.$sub_where.' LIMIT 1');
 
 		$sql = db_extras_subquery($db, $sql, $subs);
-		if (DB::isError($sql)) {
-			trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_ERROR);
-			return false;
-		}
+		assert_valid_db_result($sql);
 
 		$result = $db->getOne($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
+		assert_valid_db_result($result);
 
 		if ($exclusively) return ($result == 0);
 		else return ($result > 0);
@@ -2419,10 +2334,8 @@ class Asset_Manager extends MySource_Object
 	*/
 	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=true, $ignore_linkid=0)
 	{
-		if ($side_of_link != 'major' && $side_of_link != 'minor')
-			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
-
-		if (!$assetid) return 0;
+		assert_valid_assetid($assetid);
+		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -2453,9 +2366,7 @@ class Asset_Manager extends MySource_Object
 								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 								WHERE inherited_type_code '.$type_code_cond );
 				$where = db_extras_subquery($db, $where, $subs);
-				if (DB::isError($where)) {
-					trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
-				}
+				assert_valid_db_result($where);
 			}// end if
 		}// end if
 		if ($ignore_linkid) {
@@ -2467,10 +2378,9 @@ class Asset_Manager extends MySource_Object
 		$sql = 'SELECT COUNT(*)
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l '.$extra_table.'
 				'.$where;
-		$result = $db->getOne($sql);
 
-		if (DB::isError($result))
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+		$result = $db->getOne($sql);
+		assert_valid_db_result($result);
 
 		return $result;
 
@@ -2497,10 +2407,11 @@ class Asset_Manager extends MySource_Object
 	function createAssetLink(&$major, &$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0')
 	{
 		if (!$major->id) return 0;
-		if (!is_null($sort_order)) $sort_order = (int)$sort_order;
+		assert_is_a($minor, 'asset');
+		if (!is_null($sort_order)) $sort_order = (int) $sort_order;
 
 		$original_link_type = $link_type;
-		$link_type = (int)$link_type;
+		$link_type = (int) $link_type;
 		if ($link_type != $original_link_type) {
 			trigger_error('Unable to create link, invalid link type specified', E_USER_WARNING);
 			return 0;
@@ -2508,19 +2419,11 @@ class Asset_Manager extends MySource_Object
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
-		if (!is_a($minor, 'Asset')) {
-			trigger_error('Minor is not an asset, unable to create link', E_USER_WARNING);
-			return 0;
-		}
-
 		// prepare the link - do the minor first because the major gets the final say in linking
 		$minor->prepareLink($major, 'minor', $link_type, $value, $sort_order, $dependant, $exclusive);
 		$major->prepareLink($minor, 'major', $link_type, $value, $sort_order, $dependant, $exclusive);
 
-		if (!($link_type & SQ_SC_LINK_SIGNIFICANT) && $dependant) {
-			trigger_error('In order for a link to be dependant it must also be a significant link', E_USER_WARNING);
-			return 0;
-		}
+		assert_false(!($link_type & SQ_SC_LINK_SIGNIFICANT) && $dependant, 'In order for a link to be dependant it must also be a significant link');
 
 		// First, we should check that we don't already have a link of this type
 		$current_links = $this->getLinks($major->id, $link_type, $minor->type());
@@ -2575,10 +2478,7 @@ class Asset_Manager extends MySource_Object
 			$subs = Array('SELECT linkid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link '.$sub_where);
 
 			$where = db_extras_subquery($db, $where, $subs);
-			if (DB::isError($where)) {
-				trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_WARNING);
-				return 0;
-			}
+			assert_valid_db_result($where);
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
@@ -2588,10 +2488,9 @@ class Asset_Manager extends MySource_Object
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree pt,
 						'.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link cl ON ct.linkid = cl.linkid '.$where;
 			$moving_under = $db->getOne($sql);
-			if (DB::isError($moving_under)) {
-				trigger_error($moving_under->getMessage().'<br/>'.$moving_under->getUserInfo(), E_USER_WARNING);
-				return 0;
-			} else if ($moving_under) {
+			assert_valid_db_result($moving_under);
+			
+			if ($moving_under) {
 				trigger_error('You are not allowed to move asset "'.$minor->name.'" (ID : #'.$minor->id.') under  "'.$major->name.'" (ID : #'.$major->id.') because this will cause the asset to be nested under itself', E_USER_WARNING);
 				return 0;
 			}// end if
@@ -2607,22 +2506,14 @@ class Asset_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		$row = $db->getRow($sql.$where);
-		if (DB::isError($row)) {
-			trigger_error($row->getMessage().'<br/>'.$row->getUserInfo(), E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return 0;
-		}
+		assert_valid_db_result($row);
 
 		$max = ($row['count'] > 0) ? (int) $row['max'] + 1 : 0;
 		if (is_null($sort_order) || (int) $sort_order > (int) $max || (int) $sort_order < 0) $sort_order = (int) $max;
 
 		// sequences are cool, see the PEAR::DB docs for more info
 		$linkid = $db->nextId('sq_sequence_asset_link');
-		if (DB::isError($linkid)) {
-			trigger_error($linkid->getMessage().'<br/>'.$linkid->getUserInfo(), E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return 0;
-		}
+		assert_valid_db_result($linkid);
 
 		// if this is a significant link, then do stuff with the tree
 		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
@@ -2639,11 +2530,7 @@ class Asset_Manager extends MySource_Object
 			$sql .= $where.' LIMIT 1';
 
 			$existing_treeid = $db->getOne($sql);
-			if (DB::isError($existing_treeid)) {
-				trigger_error($existing_treeid->getMessage().'<br/>'.$existing_treeid->getUserInfo(), E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return 0;
-			}
+			assert_valid_db_result($existing_treeid);
 
 			// if we aren't linked anywhere we can't be linked to, sorry
 			// NOTE: exception to rule is root folder
@@ -2664,11 +2551,7 @@ class Asset_Manager extends MySource_Object
 			$sql .= $where.' LIMIT 1';
 
 			$minor_tree = $db->getRow($sql);
-			if (DB::isError($minor_tree)) {
-				trigger_error($minor_tree->getMessage().'<br/>'.$minor_tree->getUserInfo(), E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return 0;
-			}
+			assert_valid_db_result($minor_tree);
 
 			$existing_treeid = (string) $existing_treeid;
 			if (empty($minor_tree)) {
@@ -2690,11 +2573,7 @@ class Asset_Manager extends MySource_Object
 			$sql .= $where.' LIMIT 1';
 
 			$free_childid = $db->getOne($sql);
-			if (DB::isError($free_childid)) {
-				trigger_error($free_childid->getMessage().'<br/>'.$free_childid->getUserInfo(), E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return 0;
-			}
+			assert_valid_db_result($free_childid);
 
 			// No free children ? generate one from the max value
 			if ((string) $free_childid == '') {
@@ -2705,11 +2584,7 @@ class Asset_Manager extends MySource_Object
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
 
 				$free_childid = $db->getOne($sql.$where);
-				if (DB::isError($free_childid)) {
-					trigger_error($free_childid->getMessage().'<br/>'.$free_childid->getUserInfo(), E_USER_WARNING);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return 0;
-				}
+				assert_valid_db_result($free_childid);
 
 				// No max ? we must be the first
 				if ((string) $free_childid == '') {
@@ -2723,7 +2598,7 @@ class Asset_Manager extends MySource_Object
 					// get only the child part
 					$free_childid = substr($free_childid, -1 * SQ_CONF_ASSET_TREE_SIZE);
 
-					if (($child_num    = asset_link_treeid_convert($free_childid, false)) === false) {
+					if (($child_num = asset_link_treeid_convert($free_childid, false)) === false) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return 0;
 					}
@@ -2756,11 +2631,7 @@ class Asset_Manager extends MySource_Object
 									INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid
 								'.$sub_where);
 				$where_cond = db_extras_subquery($db, $where_cond, $subs);
-				if (DB::isError($where_cond)) {
-					trigger_error($where_cond->getMessage().'<br/>'.$where_cond->getUserInfo(), E_USER_WARNING);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return 0;
-				}
+				assert_valid_db_result($where_cond);
 
 				if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_link_tree', $where_cond)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -2810,11 +2681,7 @@ class Asset_Manager extends MySource_Object
 							FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t '.$sub_where);
 
 			$where_cond = db_extras_subquery($db, $where_cond, $subs);
-			if (DB::isError($where_cond)) {
-				trigger_error($where_cond->getMessage().'<br/>'.$where_cond->getUserInfo(), E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return 0;
-			}
+			assert_valid_db_result($where_cond);
 
 			$values = Array('num_immediate_kids' => 'num_immediate_kids + 1');
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link_tree', $values, $where_cond)) {
@@ -3941,7 +3808,7 @@ class Asset_Manager extends MySource_Object
 				LIMIT 1';
 
 		$row = $db->getRow($sql);
-		if (DB::isError($row)) trigger_error($row->getMessage().'<br/>'.$row->getUserInfo(), E_USER_ERROR);
+		assert_valid_db_result($row);
 
 		// URL not found
 		if (empty($row)) {
@@ -3986,7 +3853,7 @@ class Asset_Manager extends MySource_Object
 				ORDER BY url DESC
 				LIMIT 1';
 		$result = $db->getRow($sql);
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+		assert_valid_db_result($result);
 
 		return $result;
 
@@ -4045,7 +3912,7 @@ class Asset_Manager extends MySource_Object
 				ORDER BY l.url ASC';
 
 		$result = $db->getAll($sql);
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+		assert_valid_db_result($result);
 
 		// No urls found or we only found some of the parents, but not the passed url
 		if (empty($result) || $result[count($result) - 1]['url'] != $url) {
@@ -4178,10 +4045,8 @@ class Asset_Manager extends MySource_Object
 			ORDER BY weighting DESC, l.url';
 
 			$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC, true);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-				return '';
-			}
+			assert_valid_db_result($result);
+
 			foreach ($the_rest as $assetid) {
 				if (!isset($result[$assetid])) {
 					$this->_tmp['urls'][$assetid][$base_url] = '';
@@ -4359,10 +4224,7 @@ class Asset_Manager extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			$child_paths = $db->getCol($sql.$where);
-			if (DB::isError($child_paths)) {
-				trigger_error($child_paths->getMessage().'<br/>'.$child_paths->getUserInfo(), E_USER_ERROR);
-				return false;
-			}
+			assert_valid_db_result($child_paths);
 		}
 
 		foreach ($paths as $path) {
@@ -4452,10 +4314,8 @@ class Asset_Manager extends MySource_Object
 	*/
 	function generateGetLinksQuery($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $value=null, $dependant=null, $exclusive=null, $sort_by=null)
 	{
-		if ($side_of_link != 'major' && $side_of_link != 'minor')
-			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
-
-		if (!$assetid) return Array();
+		assert_valid_assetid($assetid);
+		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
 
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
@@ -4490,8 +4350,7 @@ class Asset_Manager extends MySource_Object
 								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 								WHERE inherited_type_code '.$type_code_cond );
 				$where = db_extras_subquery($db, $where, $subs);
-				if (DB::isError($where))
-					trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
+				assert_valid_db_result($where);
 			}
 		}// end if
 
@@ -4559,9 +4418,7 @@ class Asset_Manager extends MySource_Object
 					'.$where.' LIMIT 1';
 
 			$treeid = $db->getOne($sql);
-			if (DB::isError($treeid)) {
-				trigger_error($treeid->getMessage().'<br/>'.$treeid->getUserInfo(), E_USER_ERROR);
-			}
+			assert_valid_db_result($treeid);
 
 			$select = 'SELECT DISTINCT l.minorid, a.type_code';
 			$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t
