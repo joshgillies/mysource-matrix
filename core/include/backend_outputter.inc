@@ -552,7 +552,7 @@ class Backend_Outputter
 					<td class="sq-backend-heading" style="text-align: right;">
 					<?php 
 						if (empty($this->_screens)) echo '&nbsp;'; 
-						else combo_box('', $this->_screens, false, $this->_current_screen, 1, 'onChange="javascript: self.location = element_value(this);"'); 
+						else combo_box('', $this->_screens, false, $this->_current_screen, 1, 'id="screen_menu" onChange="javascript: self.location = element_value(this);"'); 
 					?>
 					</td>
 				</tr>
