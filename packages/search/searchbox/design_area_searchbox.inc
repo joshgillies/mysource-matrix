@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox.inc,v 1.8 2003/11/18 15:45:00 brobertson Exp $
+* $Id: design_area_searchbox.inc,v 1.9 2003/11/25 01:35:07 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 *
 */
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.8 $ - 1.0
+* @version $Revision: 1.9 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -88,7 +88,8 @@ class Design_Area_Searchbox extends Design_Area
 
 		switch($var) {
 			case 'form_start':
-				echo '<form method="GET" action="'. $asset->getURL(). '"><input type=hidden name="mode" value="results">';
+				echo '<'.'?php $asset = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$asset->id.', "'.$asset->type().'"); ?'.'>'."\n";
+				echo '<form method="GET" action="<'.'?php echo $asset->getURL(); ?'.'>"><input type=hidden name="mode" value="results">';
 			break;
 			
 			case 'form_end':
@@ -96,22 +97,22 @@ class Design_Area_Searchbox extends Design_Area
 			break;
 
 			case 'box':
-				echo '<input type=text size="'. $this->attr('querybox_width') .'" name="queries['. $this->attr('field_name').'_query]" value="';
+				echo '<input type="text" size="'. $this->attr('querybox_width') .'" name="queries['. $this->attr('field_name').'_query]" value="';
 
 				echo '<?php ';
 				echo 'if (isset($_REQUEST[\'queries\'][\''. $this->attr('field_name'). '_query\'])) 
 						echo $_REQUEST[\'queries\'][\''. $this->attr('field_name'). '_query\'];';
-				echo '?>"';
+				echo '?'.'>"';
 
 				if (isset($args['class'])) {
 					echo ' class="'. $args['class'] . '"';
 				}
-				echo '">';
+				echo '>';
 			break;
 
 			case 'submit':
 				if ($this->attr('submit_button')) {
-					echo '<input type=submit value ="' . 'go' . '"';
+					echo '<input type="submit" value ="' . 'go' . '"';
 					if (isset($args['class'])) {
 						echo ' class="'. $args['class'] . '"';
 					}
@@ -120,11 +121,12 @@ class Design_Area_Searchbox extends Design_Area
 					$submit_image_assetid = $this->attr('submit_image_assetid');
 					if ($submit_image_assetid > 0) {
 						$submit_image_asset =& $am->getAsset($submit_image_assetid);
-						echo '<input type=image';
+						echo '<'.'?php $submit_image_asset = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$submit_image_asset->id.', "'.$submit_image_asset->type().'"); ?'.'>';
+						echo '<input type="image"';
 						if (isset($args['class'])) {
 							echo ' class="'. $args['class'] .'"';
 						}
-						echo ' src="'. $submit_image_asset->getURL() .'">';
+						echo ' src="<'.'?php echo $submit_image_asset->getURL(); ?'.'>">';
 					} else {
 						// no image defined
 					}
