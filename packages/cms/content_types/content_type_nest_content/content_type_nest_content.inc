@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content.inc,v 1.18 2005/01/20 13:18:39 brobertson Exp $
+* $Id: content_type_nest_content.inc,v 1.19 2005/03/16 05:11:33 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -97,6 +97,34 @@ class Content_Type_Nest_Content extends Content_Type
 		}
 
 	}//end describeLink()
+
+
+	/**
+	* Returns the editable content of this asset
+	*
+	* @return String
+	* @access public
+	*/
+	function getContent()
+	{
+		return '';
+
+	}//end getContent()
+
+
+	/**
+	* Sets the editable content of this asset
+	*
+	* @param String
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setContent()
+	{
+		return false;
+
+	}//end setContent()
 
 
 }//end class
