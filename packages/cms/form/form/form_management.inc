@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_management.inc,v 1.7 2003/10/08 02:03:31 mmcintyre Exp $
+* $Id: form_management.inc,v 1.8 2003/10/15 03:21:51 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -91,6 +91,12 @@ class Form_Management extends Asset_Management
 											'default'   => '',
 								),
 							'special_info' => Array(
+												'added'		=> '0.0.1',
+												'type'		=> 'serialise',
+												'default'	=> Array(),
+												'update_fn' => '',
+											),
+							'auto_answer' => Array(
 												'added'		=> '0.0.1',
 												'type'		=> 'serialise',
 												'default'	=> Array(),

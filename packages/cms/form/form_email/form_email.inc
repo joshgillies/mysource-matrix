@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_email.inc,v 1.7 2003/09/26 05:26:41 brobertson Exp $
+* $Id: form_email.inc,v 1.8 2003/10/15 03:21:51 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ class Form_Email extends Form
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Form_Email($assetid=0) 
+	function Form_Email($assetid=0)
 	{
 		$this->Form($assetid);
 	
@@ -75,26 +75,6 @@ class Form_Email extends Form
 
 
 	/**
-	* Creates a link between this asset and the passed asset, of a certain type
-	* and returns the linkid of the created link
-	*
-	* @return int
-	* @access public
-	* @see Asset::creatLink();
-	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0', $exclusive='0')
-	{
-		// if this is a bodycopy table then we need to make it a dependant link
-		if (is_a($minor, 'bodycopy')) {
-			$dependant = '1';
-		}
-
-		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
-
-	}// end createLink()
-
-
-	/**
 	* Returns name of the asset
 	*
 	* @param bool	$short_name	whether or not we are after the shortname or the full name
@@ -125,6 +105,7 @@ class Form_Email extends Form
 		return true;
 
 	} // end finishForm()
+
 
 	/**
 	* returns form information (site name, site id, page name, page id, url, submission date)
@@ -193,10 +174,10 @@ class Form_Email extends Form
 		// return false if there is no-one to send to
 		if (!$this->attr('recipient_emails')) return false;
 
-		$addresses  = split("\r\n", $this->attr('recipient_emails'));
+		$addresses = split("\r\n", $this->attr('recipient_emails'));
 		
-		$allow_html = ($this->attr('recipient_allow_html')) ? true : false; 
-		$terminator = $allow_html ? '<BR />' : "\n"; // i'll be back!
+		$allow_html = ($this->attr('recipient_allow_html')) ? true : false;
+		$terminator = $allow_html ? '<BR />' : "\n"; // i'll be back
 
 		// if this email is in html, add some nice html tags
 		$body = ($allow_html) ? "<html>\n\t<head><title></title></head>\n\t</body>" : '';

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question.inc,v 1.12 2003/10/08 02:03:31 mmcintyre Exp $
+* $Id: form_question.inc,v 1.13 2003/10/15 03:21:52 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -44,6 +44,12 @@ class Form_Question extends Asset
 	*/
 	var $active_submission = null;
 
+
+	/**
+	* the active form
+	* @var &object Form
+	*/
+	var $active_form = null;
 
 	/**
 	* Constructor
@@ -139,8 +145,6 @@ class Form_Question extends Asset
 	/**
 	* process itself in the form 
 	*
-	* @param &object $submission the submission object
-	*
 	* @access public
 	* @return boolean
 	*/
@@ -164,13 +168,76 @@ class Form_Question extends Asset
 
 
 	/**
-	* @abstact
+	* returns the current value
+	*
+	* @access public
+	* @return void
 	*/
 	function getValue()
 	{
-		return true;
+		if ($this->active_submission) {
+			$answer = $this->active_submission->getAnswer($this->id);
+			if ($answer) {
+				return $answer;
+			}
+		} else {
+			if ($this->attr('auto_answer')) {
+				if (!is_null($this->active_form)) {
+					$answer =  $this->active_form->getAutoAnswer($this->attr('auto_answer'));
+					if ($this->isSelection()) {
+						$answer = $this->getOffsetByAnswer($answer);
+					}
+					return $answer;
+				}
+			}
+			return $this->attr('default');
+		}
 	
 	} // end getValue()
+
+
+	/**
+	* returns the answer by its offset in the list (select type questions)
+	*
+	* @param Array|int $offset the offset(s) to the answers
+	*
+	* @access public
+	* @return mixed
+	*/
+	function getAnswerByOffset($offset = 0)
+	{
+		$options = $this->getOptions();
+		if (is_array($offset)) {
+			$answers = Array();
+			foreach ($offset as $o) {
+				if (isset($options[$o])) $answers[] = $options[$o]; 
+			}
+			return $answers;
+		}
+		if (isset($options[$offset])) return $options[$offset];
+
+		return false;
+
+	} // end getAnswerByOffset()
+
+
+	/**
+	* returns an Offset for a given answer (select type questions)
+	*
+	* @param string $answer the answer to find the offset for
+	*
+	* @access public
+	* @return string
+	*/
+	function getOffsetByAnswer($answer = '')
+	{
+		if (!$answer) return false;
+
+		$options = $this->getOptions();
+		if (in_array($answer, $options)) return array_search($answer, $options);
+
+
+	} // end getOffsetByAnswer()
 
 
 	/**
@@ -291,8 +358,8 @@ class Form_Question extends Asset
 	* @access public
 	* @return boolean
 	*/
-	function setAttrValue($name, $value, $dont_run_updated=false) {
-		
+	function setAttrValue($name, $value, $dont_run_updated=false) 
+	{
 		if ($name == 'special_info') {
 			$forms = &$this->getForms();
 			for (reset($forms); null !== ($k = key($forms)); next($forms)) {
@@ -369,6 +436,7 @@ class Form_Question extends Asset
 	
 	} // end isSelection()
 
+
 	/**
 	* returns a list of question types that are selections
 	* the rule uses this information to see if it should be displaying
@@ -381,12 +449,28 @@ class Form_Question extends Asset
 	{
 		$questions = Array(
 			'form_question_type_select',
-			'form_question_type_tickbox',
+			'form_question_type_tickbox_list',
+			'form_question_type_country',
 		);
 
 		return $questions;
 	
 	} // end getSelectionTypeQuestions()
+
+	/**
+	* returns the section that this question belongs to 
+	*
+	* @access public
+	* @return boolean
+	*/
+	function &getMySection()
+	{
+		list($this->section_id) = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'form_section', true);
+		$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->section_id, 'form_section');
+
+		return $section;
+	
+	} // end getMySection()
 
 
 	/**
@@ -397,15 +481,13 @@ class Form_Question extends Asset
 	*/
 	function getMySectionName()
 	{
-
 		if (!$this->section_name) {
-			list($this->section_id) = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'form_section', true);
-			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->section_id, 'form_section');
+			$section = &$this->getMySection();
 			$this->section_name = $section->name;
 		}
-		return $this->section_name;	
+		return $this->section_name;
 
 	} // end getMySectionName()
 
-}//end class
+} // end class
 ?>

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_screen_contents.xml,v 1.3 2003/09/28 22:58:13 mmcintyre Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.4 2003/10/15 03:21:52 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -69,6 +69,13 @@
 		<field attribute="special_info">
 			<display_name>Special Information</display_name>
 			<note>Defines a special value form this question </note>
+			<selection style="list" />
+		</field>
+	</section>
+	<section name="Auto Answer">
+		<field attribute="auto_answer">
+			<display_name>Auto Answer</display_name>
+			<note>The question will be answered with this value</note>
 			<selection style="list" />
 		</field>
 	</section>

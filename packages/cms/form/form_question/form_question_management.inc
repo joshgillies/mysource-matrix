@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_management.inc,v 1.5 2003/09/26 05:26:41 brobertson Exp $
+* $Id: form_question_management.inc,v 1.6 2003/10/15 03:21:52 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -54,7 +54,23 @@ class Form_Question_Management extends Asset_Management
 															'email'		=> 'User\'s Email',
 															'friend'	=> 'Send a note to these Friends\' Email Addresses',
 														),
-												),		
+												),
+											),
+							'auto_answer'	=> Array(
+														'added'		=> '0.0.1',
+														'type'		=> 'selection',
+														'default'	=> '',
+														'update_fn'	=> '',
+														'parameters'	=> Array(	
+														'options'	=> Array(
+															''			=> '--- No Auto Answer ---',
+															'name'		=> 'User\'s Name',
+															'username'	=> 'User\'s Username',
+															'first_name' => 'User\'s Firstname',
+															'last_name'	=> 'User\'s Surname',
+															'email'		=> 'User\'s Email',
+														),
+												),
 											),
 								
 									);

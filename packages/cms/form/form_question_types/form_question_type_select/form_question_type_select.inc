@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_type_select.inc,v 1.7 2003/10/13 05:26:33 mmcintyre Exp $
+* $Id: form_question_type_select.inc,v 1.8 2003/10/15 03:21:52 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -73,7 +73,7 @@ class Form_Question_Type_Select extends Form_Question
 	function _getAllowedLinks()
 	{
 		$links[SQ_LINK_TYPE_3]['form_question_rule_type_comparison'] = Array('card' => '1', 'exclusive' => true);
-		
+		$links[SQ_LINK_TYPE_3]['form_question_rule_type_contain'] = Array('card' => '1', 'exclusive' => true);
 		return $links;
 
 	}//end _getAllowedLinks()
@@ -97,7 +97,7 @@ class Form_Question_Type_Select extends Form_Question
 			// use the class name, as we might be getting extended by a child class
 			$class = get_class($this);
 			$html  = '<'.'?php $q = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$this->id.$suffix.', \''.$class.'\'); ?'.'>';
-			$html .= '<'.'?php $q->active_submission =& $this->active_submission; combo_box($q->id, $q->getOptions(), $q->attr(\'multiple\'), $q->getValue(), $q->attr(\'height\'), $q->attr(\'extra\')) ?'.'>';
+			$html .= '<'.'?php $q->active_submission =& $this->active_submission; $q->active_form =& $active_form; combo_box($q->id, $q->getOptions(), $q->attr(\'multiple\'), $q->getValue(), $q->attr(\'height\'), $q->attr(\'extra\')) ?'.'>';
 		} else {
 			ob_start();
 			combo_box($this->id.$suffix, $this->getOptions(), $this->attr('multiple'), $value, $this->attr('height'), '');
@@ -108,47 +108,6 @@ class Form_Question_Type_Select extends Form_Question
 		return html_entity_decode($html);
 
 	} // end getAnswer()
-
-	
-	/**
-	* returns the current value of this question
-	*
-	* @access public
-	* @return mixed
-	*/
-	function getValue()
-	{
-		if ($this->active_submission) {
-			$answer = $this->active_submission->getAnswer($this->id);
-			if ($answer) return $this->getAnswerByOffset($answer);
-		} 
-		return $this->attr('default');
-	
-	} // end getValue()
-
-
-	/**
-	* returns the answer by its offset in the list
-	*
-	* @param Array|int $offset the offset(s) to the answers
-	*
-	* @access public
-	* @return mixed
-	*/
-	function getAnswerByOffset($offset = 0)
-	{
-		$options = $this->getOptions();
-		if (is_array($offset)) {
-			$answers = Array();
-			foreach ($offset as $o) {
-				if (isset($options[$o])) $answers[] = $options[$o]; 
-			}
-			return $answers;
-		}
-		if (isset($options[$offset])) return $options[$offset];
-		return false;
-
-	} // end getAnswerByOffset()
 
 
 	/**

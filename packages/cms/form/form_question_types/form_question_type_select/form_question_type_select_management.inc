@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_type_select_management.inc,v 1.5 2003/09/28 22:58:13 mmcintyre Exp $
+* $Id: form_question_type_select_management.inc,v 1.6 2003/10/15 03:21:52 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,6 +36,7 @@ class Form_Question_Type_Select_Management extends Asset_Management
 									'type'      => 'text',  
 									'default'   => '1',
 									),
+							
 							'default' => Array(
 										'added'		=> '0.0.1',
 										'type'		=> 'serialise',
@@ -52,6 +53,11 @@ class Form_Question_Type_Select_Management extends Asset_Management
 									'type'      => 'text',  
 									'default'   => '',
 									),
+							'options' => Array(
+									'added'     => '0.0.1',
+									'type'      => 'text',  
+									'default'   => '',
+							),
 								
 			);
 	} // end constructor

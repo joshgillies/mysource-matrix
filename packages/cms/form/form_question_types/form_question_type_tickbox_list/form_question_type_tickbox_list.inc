@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.4 2003/10/13 05:22:45 mmcintyre Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.5 2003/10/15 03:21:52 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -72,8 +72,9 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	*/
 	function _getAllowedLinks()
 	{
-		$links[SQ_LINK_TYPE_3]['question_rule_type_compare'] = Array('card' => '1', 'exclusive' => true);
-	//	$links[SQ_LINK_TYPE_3]['question_rule_type_email'] = Array('card' => '1', 'exclusive' => true);
+		$links[SQ_LINK_TYPE_3]['form_question_rule_type_comparison'] = Array('card' => '1', 'exclusive' => true);
+		$links[SQ_LINK_TYPE_3]['form_question_rule_type_contain'] = Array('card' => '1', 'exclusive' => true);
+
 		return $links;
 
 	}//end _getAllowedLinks()
@@ -91,7 +92,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		// auto-answer and returning to saved forms
 		
 		$html  = '<'.'?php $q = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$this->id.', \''.get_class($this).'\'); ?'.'>';
-		$html .= '<'.'?php $q->active_submission =& $this->active_submission; ?'.'>';
+		$html .= '<'.'?php $q->active_submission =& $this->active_submission; $q->active_form =& $active_form; ?'.'>';
 		$html .= $this->listBox($this->getOptions(), $this->attr('multiple'), $this->attr('horizontal'), $this->attr('extra'));
 		return $html;
 
@@ -136,47 +137,6 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		return $html;
 	
 	} // end ListBox()
-	
-
-	/**
-	* returns the current value of this question
-	*
-	* @access public
-	* @return mixed
-	*/
-	function getValue()
-	{
-		if ($this->active_submission) {
-			$answer = $this->active_submission->getAnswer($this->id);
-			if ($answer) return $this->getAnswerByOffset($answer);
-		} 
-		return $this->attr('default');
-	
-	} // end getValue()
-
-
-	/**
-	* returns the answer by its offset in the list
-	*
-	* @param Array|int $offset the offset(s) to the answers
-	*
-	* @access public
-	* @return mixed
-	*/
-	function getAnswerByOffset($offset = 0)
-	{
-		$options = $this->getOptions();
-		if (is_array($offset)) {
-			$answers = Array();
-			foreach ($offset as $o) {
-				if (isset($options[$o])) $answers[] = $options[$o]; 
-			}
-			return $answers;
-		}
-		if (isset($options[$offset])) return $options[$offset];
-		return false;
-
-	} // end getAnswerByOffset()
 
 
 	/**
@@ -262,6 +222,12 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 				}
 			} 
 		} else {
+			if ($this->attr('auto_answer')) {
+				if (!is_null($this->active_form)) {
+					$answer =  $this->active_form->getAutoAnswer($this->attr('auto_answer'));
+					if ($value == $answer) return true;
+				}
+			}
 			$defaults = $this->attr('default');
 			if (in_array($value, $defaults)) return true;
 		}

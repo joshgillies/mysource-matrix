@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form.inc,v 1.13 2003/10/08 03:32:16 mmcintyre Exp $
+* $Id: form.inc,v 1.14 2003/10/15 03:21:51 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -327,7 +327,7 @@ class Form extends Asset
 		} else {
 			$this->printStandard();
 		}
-		echo "</form>\n";
+		echo ?></form><?php
 		speed_check();
 
 	} // end printBody()
@@ -448,6 +448,9 @@ class Form extends Asset
 		
 		// tell the section what the current submission object is
 		$this->active_section->active_submisssion =& $this->active_submission;
+
+		// tell the section what the current form is
+		$this->active_section->active_form =& $this;
 		
 		// let the section know what its question index is
 		$this->active_section->question_index = $this->attr('question_index');
@@ -477,6 +480,7 @@ class Form extends Asset
 		if (!is_null($this->active_submission)) {
 			// let this section know what the current submission object is
 			$posted_section->active_submission =& $this->active_submission;
+			$posted_section->active_form =& $this;
 		}
 		
 		return $posted_section->processForm($this->active_submission);
@@ -884,6 +888,52 @@ class Form extends Asset
 
 	} // end setSpecialInformation()
 
+
+	/**
+	* returns a value for auto answer
+	*
+	* @param string $info the wanted info
+	*
+	* @access public
+	* @return string
+	*/
+	function getAutoAnswer($info)
+	{
+		if (!$info) return '';
+		$this->attr('auto_answer');
+		
+		if (is_null($GLOBALS['SQ_SYSTEM']->user)) return false;
+		$user = $GLOBALS['SQ_SYSTEM']->user;
+
+		switch ($info) {
+			case 'name':
+				return ucwords($user->attr('first_name')).' '.ucwords($user->attr('last_name'));
+			case 'username' :
+				return $user->attr('username');
+			case 'first_name' :
+				return ucwords($user->attr('first_name'));
+			case 'last_name' :
+				return ucwords($user->attr('last_name'));
+			case 'email' :
+				return $user->attr('email');
+
+			default:
+				return '';
+		}
+	
+	} // end getAutoAnswer()
+
+
+	function getAutoAnswerList()
+	{
+
+	}
+
+	function setAutoAnswerValue($name, $code)
+	{
+		$auto_answer = $this->attr('auto_answer');
+	}
+	
 
 	/**
 	* returns the section index for a section

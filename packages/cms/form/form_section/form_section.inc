@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_section.inc,v 1.10 2003/10/08 03:32:16 mmcintyre Exp $
+* $Id: form_section.inc,v 1.11 2003/10/15 03:21:52 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -22,6 +22,14 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 */
 class Form_Section extends Asset
 {
+
+
+	/**
+	* the current form object using this section
+	*
+	* @var &object Form
+	*/
+	var $active_form = null;
 
 	/**
 	* the question index type
@@ -159,7 +167,7 @@ class Form_Section extends Asset
 
 		if ($main_bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the main bodycopy and the custom form';
 
-		if ($main_bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the looping bodycopy and the custom form';
+		if ($looping_bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the looping bodycopy and the custom form';
 
 		return parent::canDeleteLink($linkid);
 	
@@ -307,8 +315,7 @@ class Form_Section extends Asset
 		// get the asset manager for the questions to print out their values
 		// (they do this in the included file)
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
-
-		$submission =& $this->active_submission;
+		$active_form =& $this->active_form;
 
 		if (!file_exists($this->data_path.'/content_file.php')) {
 			$edit = $this->getEditFns();

@@ -2,13 +2,13 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2003/09/26 05:26:41 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2003/10/15 03:21:51 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <contents>
-	<section name="Details">
+	<section name="Details" write_access="write:attributes">
 	    <field attribute="name">
 			<display_name>Name</display_name>
 			<note>Defines the name of the form</note>

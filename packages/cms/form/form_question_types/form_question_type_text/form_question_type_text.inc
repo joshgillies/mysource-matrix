@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_type_text.inc,v 1.8 2003/09/28 22:58:13 mmcintyre Exp $
+* $Id: form_question_type_text.inc,v 1.9 2003/10/15 03:21:52 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -77,7 +77,6 @@ class Form_Question_Type_Text extends Form_Question
 		$links[SQ_LINK_TYPE_3]['form_question_rule_type_found_in'] = Array('card' => '1', 'exclusive' => true);
 		$links[SQ_LINK_TYPE_3]['form_question_rule_type_regexp'] = Array('card' => '1', 'exclusive' => true);
 		$links[SQ_LINK_TYPE_3]['form_question_rule_type_contain'] = Array('card' => '1', 'exclusive' => true);
-		$links[SQ_LINK_TYPE_3]['form_question_rule_type_login'] = Array('card' => '1', 'exclusive' => true);
 		return $links;
 
 	}//end _getAllowedLinks()
@@ -105,8 +104,8 @@ class Form_Question_Type_Text extends Form_Question
 		// auto-answer and returning to saved forms
 		if ($content_file) {
 			$html  = '<'.'?php $q = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('
-			.$this->id.', \''.get_class($this).'\'); '
-			.' $q->active_submission =& $this->active_submission; ?'.'>';
+			.$this->id.', \''.get_class($this).'\'); ';
+			$html .=' $q->active_submission =& $this->active_submission; $q->active_form =& $active_form; ?'.'>';
 
 			$value = '<'.'?php echo $q->getValue(); ?'.'>';
 		} else {
@@ -128,30 +127,6 @@ class Form_Question_Type_Text extends Form_Question
 		return html_entity_decode($html);
 
 	} // end getAnswer()
-
-	
-	/**
-	* echos the current value
-	*
-	* @param &$object $submission the current submission object
-	*
-	* @access public
-	* @return void
-	*/
-	function getValue()
-	{
-		if ($this->active_submission) {
-			$answer = $this->active_submission->getAnswer($this->id);
-			if ($answer) {
-				echo $answer;
-			} else {
-				echo $this->attr('default');
-			}
-		} else {
-			echo $this->attr('default');
-		}
-	
-	} // end getValue()
 
 
 	/**
