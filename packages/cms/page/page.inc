@@ -113,7 +113,6 @@ class Page extends Asset
 	*/
 	function printBody()
 	{
-		echo '';
 	}// end printBody()
 
 
