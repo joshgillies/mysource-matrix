@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_screen_contents.xml,v 1.2 2003/09/26 05:26:41 brobertson Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.3 2003/09/28 22:58:13 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -18,6 +18,11 @@
 			<display_name>Note</display_name>
 			<note></note>
 			<text width="40" height="2" />
+		</field>
+		<field attribute="default">
+			<display_name>Default</display_name>
+			<note></note>
+			<text width="30" height="1" />
 		</field>
 		<field attribute="width">
 			<display_name>Width</display_name>

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_type_select.inc,v 1.5 2003/09/26 06:04:39 mmcintyre Exp $
+* $Id: form_question_type_select.inc,v 1.6 2003/09/28 22:58:13 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -94,7 +94,9 @@ class Form_Question_Type_Select extends Form_Question
 		// generate some php for the value, which can be used for both
 		// auto-answer and returning to saved forms
 		if ($content_file) {
-			$html  = '<'.'?php $q = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$this->id.$suffix.', \'form_question_type_select\'); ?'.'>';
+			// use the class name, as we might be getting extended by a child class
+			$class = get_class($this);
+			$html  = '<'.'?php $q = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$this->id.$suffix.', \''.$class.'\'); ?'.'>';
 			$html .= '<'.'?php $q->active_submission =& $this->active_submission; combo_box($q->id, $q->getOptions(), $q->attr(\'multiple\'), $q->getValue($this->active_submission), $q->attr(\'height\'), $q->attr(\'extra\')) ?'.'>';
 		} else {
 			ob_start();

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_type_text_management.inc,v 1.4 2003/09/26 05:26:41 brobertson Exp $
+* $Id: form_question_type_text_management.inc,v 1.5 2003/09/28 22:58:13 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,6 +31,11 @@ class Form_Question_Type_Text_Management extends Form_Question_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
+							'default'	=> Array(
+									'added'		=> '0.0.1',
+									'type'		=> 'text',
+									'default'	=> '',
+								),
 							'width' => Array(
 									'added'     => '0.0.1',
 									'type'      => 'text',  

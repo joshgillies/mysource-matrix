@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_type_select_edit_fns.inc,v 1.4 2003/09/26 05:26:41 brobertson Exp $
+* $Id: form_question_type_select_edit_fns.inc,v 1.5 2003/09/28 22:58:13 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,6 +33,7 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 
 	} // end Form_Question_Type_Select_Edit_Fns()
 
+
 	/**
 	*
 	* @param object Form				&$asset	the asset whose interface we are painting
@@ -46,7 +47,7 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 	{
 		if (!$asset->writeAccess()) return false;
 
-		$options = explode("\r\n", $asset->attr('options'));
+		$options = $asset->getOptions();
 		$multiple = ($asset->attr('multiple')) ? true : false;
 		
 		return combo_box($prefix.'_default', $options, $multiple, $asset->attr('default'));
