@@ -152,6 +152,9 @@ class Backend extends Resolve_Object
 
 		$url = $this->getBackendUrl('main').'&backend_section=';
 
+		if (SQ_ROLLBACK_VIEW) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
+		else $now = time();
+
 		?>
 		<table width="100%" cellpadding="0" border="0" cellspacing="0">
 			<tr>
@@ -159,7 +162,7 @@ class Backend extends Resolve_Object
 				<td nowrap class="sq-backend-header-item"><a target="main" href="<?php echo $url;?>" class="sq-backend-header-item"><?php echo SQ_SYSTEM_SHORT_NAME; ?></a></td>
 				<td class="sq-backend-header-cell" align="right">
 					<div><a target="_top" href="<?php echo $_SERVER['PHP_SELF'];?>?SQ_ACTION=logout" class="sq-backend-smallprint" style="font-size:10px; color:#ffffff; font-weight: bold;"><?php echo $GLOBALS['SQ_SYSTEM']->user->name; ?></a></div>
-					<div class="sq-backend-fineprint"  style="color:#ffffff"><?php echo date('d M Y'); ?></div>
+					<div class="sq-backend-fineprint"  style="color:#ffffff"><?php echo date('d M Y', $now); ?></div>
 				</td>
 				<td class="sq-backend-header-cell"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="2" border="0"></td>
 			</tr>
