@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.190 2004/03/14 03:54:47 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.191 2004/03/23 23:47:20 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -614,6 +614,7 @@ class Asset_Manager extends MySource_Object
 	function &getAsset($assetid, $type_code='', $mute_errors=false)
 	{
 		if (empty($assetid)) {
+			if (!$mute_errors) trigger_error('Could not get asset - assetid is empty', E_USER_WARNING);
 			$null = null; // do this because of return by reference
 			return $null;
 		}
@@ -623,7 +624,6 @@ class Asset_Manager extends MySource_Object
 			$this->_assets[$assetid] = Array();
 			$this->_assets[$assetid]['object'] = null;
 			$this->_assets[$assetid]['count']  = 0;
-
 
 			// check if we are getting links for a shadow asset, and palm the request off to the
 			// handler of the shadow asset if we are
@@ -753,7 +753,7 @@ class Asset_Manager extends MySource_Object
 		// system assets, but it may be dependantly linked to one
 		// so lets check for that
 		$parents = $this->getDependantParents($asset->id);
-		for($i = 0; $i < count($parents); $i++) if (in_array($parents[$i]['majorid'], $system_asset_ids)) return false;
+		foreach ($parents as $parentid) if (in_array($parentid, $system_asset_ids)) return false;
 
 		return true;
 
