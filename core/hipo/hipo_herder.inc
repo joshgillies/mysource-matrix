@@ -54,7 +54,7 @@ class HIPO_Herder extends Resolve_Object
 					$null = null; // needed for ref
 					return $null;
 				}
-				// no job exists ? 
+				// no job exists ?
 				if (!$job_type) {
 					$null = null; // needed for ref
 					return $null;
@@ -100,7 +100,7 @@ class HIPO_Herder extends Resolve_Object
 
 	}//end getProcessURL()
 
-	
+
 	/**
 	* Called by the web script to inform the hipo manager that it can start processing
 	*
@@ -127,10 +127,11 @@ class HIPO_Herder extends Resolve_Object
 		}
 
 		// they want to stop all processing and cancel the HIPO
-		if (!empty($_POST['cancel_hipo'])) {
-			$source_job->abort();
-			$_POST['aborting_hipo'] = $source_job->code_name;
-			$_POST['aborting_hipo_url'] = $source_job->getOption('on_complete_url');
+		if (!empty($_POST['cancel_hipo'])) { // && $_POST['cancel_hipo'] == 1) {
+			if ($source_job->abort()) { 
+				$_POST['aborting_hipo'] = $source_job->code_name;
+				$_POST['aborting_hipo_url'] = $source_job->getOption('on_complete_url');
+			}
 			return true;
 		}
 
@@ -166,12 +167,16 @@ class HIPO_Herder extends Resolve_Object
 			return false;
 		}
 
-		// if the source job is null it means that an abort finally finished 
+		$onload = '';
+		$delay  = '';
+
+
+		// if the source job is null it means that an abort finally finished
 		// (we couldn't get here otherwise) so print that and get out of here
 		if (is_null($source_job)) {
 			$form_name = 'HIPO_abort';
 			$url = $_POST['aborting_hipo_url'];
-			$onload = 'onLoad="javascript: self.location=\''.$url.'\'";';
+			$onload = 'self.location = "'.$url.'";';
 		} else {
 
 			$form_name = 'HIPO_'.$source_job->code_name;
@@ -179,19 +184,12 @@ class HIPO_Herder extends Resolve_Object
 			$auto_step = $source_job->auto_step();
 
 			if ($auto_step) {
-				$onload = 'onLoad="javascript: ';
-				#$onload = 'onLoad="javascript: if (confirm(\'Refresh\')) {';
 				if ($source_job->complete()) {
-					$onload .= 'self.location=\''.$url.'\';';
+					$onload = 'self.location = "'.$url.'";';
 				} else {
-					if ($source_job->getRunningMode() == 'server') $onload .= 'setTimeout(\'';
-					$onload .= 'document.'.$form_name.'.submit();';
-					if ($source_job->getRunningMode() == 'server') $onload .= '\', 1000);';
+					$delay = ($source_job->getRunningMode() == 'server');
+					$onload = 'document.'.$form_name.'.submit();';
 				}
-				$onload .= '"';
-				#$onload .= '}"';
-			} else {
-				$onload = '';
 			}
 
 		} // end if
@@ -214,8 +212,43 @@ class HIPO_Herder extends Resolve_Object
 						color: #FFFFFF;
 					}
 				</style>
+				<script language="JavaScript" type="text/javascript">
+					var ON_LOAD_TIME_OUT = null;
+					function init() {
+				<?php
+					if ($delay)  {
+				?>
+						ON_LOAD_TIME_OUT = setTimeout("next_page();", 2000);
+				<?php
+					} else {
+				?>
+							next_page();
+				<?php
+					}// end if
+				?>
+					}// end iniut()
+
+					function next_page() {
+						//if (confirm('Refresh')) {
+						<?php echo $onload; ?>
+						//}
+					}// end next_page()
+
+					function send_abort() {
+						if (ON_LOAD_TIME_OUT != null) {
+							clearTimeout(ON_LOAD_TIME_OUT);
+						}
+						if (confirm("Are you sure you want to cancel?")) {
+							document.<?php echo $form_name; ?>.cancel_hipo.value = "1";
+							document.<?php echo $form_name; ?>.submit();
+
+						} else {
+							next_page();
+						}
+					}// end send_abort();
+				</script>
 			</head>
-			<body bgcolor="#FFFFFF" <?php echo $onload;?> class="sq-hipo-normal">
+			<body bgcolor="#FFFFFF" onLoad="javascript: init();" class="sq-hipo-normal">
 				<form name="<?php echo $form_name; ?>" method="post" action="<?php echo $url; ?>">
 				<table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%">
 					<tr>
@@ -265,14 +298,14 @@ class HIPO_Herder extends Resolve_Object
 											// basically what happens here is that if cancel has already been pressed we increment the counter
 											// this means that the cancel button only get's pressed once
 											hidden_field('cancel_hipo', (empty($_POST['cancel_hipo'])) ? 0 : ((int) $_POST['cancel_hipo'] + 1));
-											$buttons_to_print['cancel'] = Array('value' => 'Cancel', 'action' => 'if (confirm("Are you sure you want to cancel?")) { this.form.cancel_hipo.value = "1"; this.form.submit(); }');
+											$buttons_to_print['cancel'] = Array('value' => 'Cancel', 'action' => 'send_abort();');
 										}
 
 										// print the NEXT or FINISH button if we are not auto stepping through the HIPO
 										if (!$auto_step) {
 											// they dont want us to refresh automatically, so we need to provide a manual NEXT button
 											$button_text = ($source_job->complete()) ? 'Finish' : 'Next >>';
-											$buttons_to_print['next'] = Array('value' => $button_text, 'action' => 'this.form.submit();');
+											$buttons_to_print['next'] = Array('value' => $button_text, 'action' => 'next_page();');
 										}
 
 										if (count($buttons_to_print)) {
@@ -300,7 +333,7 @@ class HIPO_Herder extends Resolve_Object
 										hidden_field('aborting_hipo',     $_POST['aborting_hipo']);
 										hidden_field('aborting_hipo_url', $_POST['aborting_hipo_url']);
 
-										// if the source job is null it means that an abort finally finished 
+										// if the source job is null it means that an abort finally finished
 										// (we couldn't get here otherwise) so print that and get out of here
 										if (is_null($source_job)) {
 											echo 'Abort Complete';
@@ -351,20 +384,20 @@ class HIPO_Herder extends Resolve_Object
 		}
 
 		if (empty($input_root->attributes['userid'])) {
-			$output_root->name     = 'error';
+			$output_root->name    = 'error';
 			$output_root->content = 'userid not supplied on Input Root Node';
 			return false;
 		}
 
 		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input_root->attributes['userid']);
 		if (is_null($user) || !$GLOBALS['SQ_SYSTEM']->setCurrentUser($user)) {
-			$output_root->name     = 'error';
+			$output_root->name    = 'error';
 			$output_root->content = 'Unable to find User #'.$userid.' to run as or unable to set them to the current user';
 			return false;
 		}
 
 		if (empty($input_root->attributes['source_code_name'])) {
-			$output_root->name     = 'error';
+			$output_root->name    = 'error';
 			$output_root->content = 'source_code_name not supplied on Input Root Node';
 			return false;
 		}
@@ -388,6 +421,8 @@ class HIPO_Herder extends Resolve_Object
 		pre_echo("AFTER SET : ".print_r($source_job->_hipo_vars, true));
 
 		$this->_tmp['prepared_server']['source_code_name'] = $source_job->code_name;
+
+		pcntl_signal(SIGTERM, Array(&$this, 'sigHandler'));
 
 		$output_root->name = 'ack';
 		return true;
@@ -416,15 +451,42 @@ class HIPO_Herder extends Resolve_Object
 			trigger_error('Unable to find a source job with the codename "'.$input_root->attributes['source_code_name'].'"', E_USER_WARNING);
 			return false;
 		}
+
+		$ret_val = $source_job->process();
 		unset($this->_tmp['prepared_server']);
-
-		while(!$source_job->complete()) {
-			if (!$source_job->process()) return false;
-		}// end while
-
-		return true;
+		return $ret_val;
 
 	}//end processServer()
+
+
+	/**
+	* The handler for the any signals from the system
+	*
+	* @return int		$signo	the signal number
+	* @access public
+	*/
+	function sigHandler($signo)
+	{
+		switch($signo) {
+			case SIGINT:
+			case SIGTERM:
+				error_log('Aborting Job...');
+				if (!empty($this->_tmp['prepared_server'])) {
+					$source_job = &$this->getJob($this->_tmp['prepared_server']['source_code_name']);
+					if (!is_null($source_job)) {
+						error_log("ABORT JOB --->");
+						$source_job->abort();
+					}
+				}// end if
+				exit();
+				break;
+			default:
+				trigger_error('Signal '.$signo.' not handled', E_USER_NOTICE);
+				break;
+		}// end switch
+
+	}// end sigHandler()
+
 
 }//end class
 

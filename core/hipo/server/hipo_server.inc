@@ -402,6 +402,32 @@ $output->dump();
 
 				trigger_error('Abort NOT DONE');
 
+				require_once 'XML/Tree.php';
+				$output = new XML_Tree();
+				$output_root = &$output->addRoot('output');
+
+				if (empty($client_data->attributes['taskid']) || empty($this->_tasks[$client_data->attributes['taskid']])) {
+					$output_root->name    = 'error';
+					$output_root->content = 'No TaskID Supplied or invalid TaskID';
+
+				} else {
+					$child_pid = $this->_tasks[$client_data->attributes['taskid']];
+					if (posix_kill($child_pid, SIGTERM)) {
+						$output_root->name    = 'ack';
+					} else {
+						$output_root->name    = 'error';
+						$output_root->content = 'No TaskID Supplied or invalid TaskID';
+					}
+				}
+
+echo "OUTPUT : \n";
+$output->dump();
+
+				// right now send back the output from the pre-processing, then close the connection
+				// and we will start doing the work
+				$this->_writeToSocket($client_fd, $output);
+				socket_close($client_fd);
+
 				break;
 
 			default :
@@ -416,7 +442,7 @@ $output->dump();
 	/**
 	* Fork this server process
 	*
-	* @return string	returns a blank string for the parent (ie server) process and the taskid for the child 
+	* @return string	returns a blank string for the parent (ie server) process and the taskid for the child
 	*
 	*/
 	function _fork($client_fd)

@@ -601,14 +601,12 @@ class HIPO_Job extends Resolve_Object
 		if (!$this->complete()) {
 			$step = $this->_hipo_vars['current_step'];
 
-			pre_echo("RUNNING MODE : ".$this->_hipo_vars['running_mode']);
 			if ($this->_steps[$step]['running_mode'] != $this->_hipo_vars['running_mode']) {
 
+				// we have reached a step that requires server processing, but we are not yet
+				// running in server mode (ie. we are not running on the HIPO server) - so lets
+				// put a call through the HIPO phone to the server
 				if ($this->_steps[$step]['running_mode'] == 'server' && SQ_HIPO_USE_SERVER) {
-					// we have reached a step that requires server processing, but we are not yet
-					// running in server mode (ie. we are not running on the HIPO server) - so lets
-					// put a call through the HIPO phone to the server
-					trigger_error('CONNECT TO HIPO SERVER HERE AND WAIT FOR ACK', E_USER_NOTICE);
 
 					require_once SQ_SYSTEM_ROOT.'/core/hipo/server/hipo_client.inc';
 					require_once 'XML/Tree.php';
@@ -622,28 +620,25 @@ class HIPO_Job extends Resolve_Object
 					$data = new XML_Tree();
 					$root = &$data->addRoot('hipo_job', '', $attrs);
 
-					pre_echo($data->get());
-
+					$ret_val = false;
 					$client = new HIPO_Client();
 					if ($client->connect()) {
 						if ($client->write($data)) {
 							$ack = $client->read();
 							if (!is_null($ack)) {
-								pre_echo("ACK : \n".$ack->get());
 
 								switch ($ack->root->name) {
 									case 'ack' :
+										$ret_val = true;
 										pre_echo('GOT ACK');
 										break;
 
 									case 'error' :
 										trigger_error('HIPO Server Error : '.$ack->root->content, E_USER_WARNING);
-										return false;
 										break;
 
 									default :
 										trigger_error('Unexpected return from the HIPO Server : '.$ack->get(), E_USER_WARNING);
-										return false;
 
 								}// end switch
 							}// end if
@@ -652,10 +647,9 @@ class HIPO_Job extends Resolve_Object
 						$client->disconnect();
 					}// endif
 
-					#die();
-					// return true here because we don't want to save and override the DB value now that it's running 
+					// return here because we don't want to save and override the DB value now that it's running 
 					// on the server
-					return true;
+					return $ret_val;
 
 				// this should never happen, because of what happens in initialise()
 				} else {
@@ -697,13 +691,62 @@ class HIPO_Job extends Resolve_Object
 		if ($this->source_code_name != $this->code_name) {
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$source_job = &$hh->getJob($this->source_code_name);
-			if (is_null($source_job) || ($source_job->source_code_name != $source_job->code_name)) return;
+			if (is_null($source_job) || ($source_job->source_code_name != $source_job->code_name)) return false;
 			$source_job->abort();
 		}
 
 		// if aborting through a web script, but the processing is running on the server we need to inform the server to abort
 		if ($this->_current_mode == 'web' && $this->_hipo_vars['running_mode'] == 'server') {
+
 			trigger_error('CONNECT TO HIPO SERVER HERE AND SEND ABORT', E_USER_NOTICE);
+
+			// if there is no system taskid then there is nothing we can do
+			if (empty($this->_hipo_vars['server_taskid'])) {
+				trigger_error('Unable To Send Abort, No TaskID for the process on the server ', E_USER_NOTICE);
+				return false;
+			}
+
+			require_once SQ_SYSTEM_ROOT.'/core/hipo/server/hipo_client.inc';
+			require_once 'XML/Tree.php';
+
+			$attrs = Array(
+						'command'			=> 'abort', 
+						'userid'			=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
+						'source_code_name'	=> $this->source_code_name,
+						'taskid'			=> $this->_hipo_vars['server_taskid'],
+					);
+
+			$data = new XML_Tree();
+			$root = &$data->addRoot('hipo_job', '', $attrs);
+
+			$ret_val = false;
+			$client = new HIPO_Client();
+			if ($client->connect()) {
+				if ($client->write($data)) {
+					$ack = $client->read();
+					if (!is_null($ack)) {
+						switch ($ack->root->name) {
+							case 'ack' :
+								pre_echo('GOT ACK');
+								$ret_val = true;
+								break;
+
+							case 'error' :
+								trigger_error('HIPO Server Error : '.$ack->root->content, E_USER_WARNING);
+								break;
+
+							default :
+								trigger_error('Unexpected return from the HIPO Server : '.$ack->get(), E_USER_WARNING);
+
+						}// end switch
+
+					}// end if
+				}// end if
+
+				$client->disconnect();
+			}// endif
+
+			return $ret_val;
 
 		// otherwise we can just do what needs to be done
 		} else {
@@ -714,6 +757,9 @@ class HIPO_Job extends Resolve_Object
 			if (!is_null($sub_job)) {
 				$sub_job->jobAborted();
 			}// end if
+
+			return true;
+
 
 		}// end if
 
