@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.27 2004/05/13 00:52:28 gsherwood Exp $
+* $Id: cron_manager.inc,v 1.28 2004/06/18 13:56:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -96,7 +96,7 @@ class Cron_Manager extends Asset
 	* @param bool	$short_name	whether or not we are after the shortname or the full name
 	*
 	* @see Asset::_getName()
-	* @access public
+	* @access private
 	*/
 	function _getName($short_name=false)
 	{

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.68 2004/06/17 00:51:10 lwright Exp $
+* $Id: user.inc,v 1.69 2004/06/18 13:56:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -232,7 +232,7 @@ class User extends Asset
 	* @param bool	$short_name	whether or not we are after the shortname or the full name
 	*
 	* @see Asset::_getName()
-	* @access public
+	* @access private
 	*/
 	function _getName($short_name=false)
 	{

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.17 2004/05/26 23:40:16 gsherwood Exp $
+* $Id: cron_job_future_status.inc,v 1.18 2004/06/18 13:56:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -60,7 +60,7 @@ class Cron_Job_Future_Status extends Cron_Job
 	*
 	* @see Asset::_getName()
 	* @return string
-	* @access public
+	* @access private
 	*/
 	function _getName($short_name=false)
 	{

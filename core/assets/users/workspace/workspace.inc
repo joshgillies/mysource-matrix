@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workspace.inc,v 1.22 2004/04/14 04:31:25 gsherwood Exp $
+* $Id: workspace.inc,v 1.23 2004/06/18 13:56:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -201,7 +201,7 @@ class Workspace extends Folder
 	* @param boolean	$short_name	whether or not we are after the short name or the full name
 	*
 	* @see Asset::_getName()
-	* @access public
+	* @access private
 	*/
 	function _getName($short_name=false)
 	{

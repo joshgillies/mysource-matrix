@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page.inc,v 1.1 2004/06/16 06:07:45 mmcintyre Exp $
+* $Id: page.inc,v 1.2 2004/06/18 13:56:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -143,7 +143,7 @@ class Page extends Asset
 	* @param boolean	$short_name	whether or not we are after the short name or the full name
 	*
 	* @see Asset::_getName()
-	* @access public
+	* @access private
 	*/
 	function _getName($short_name=false)
 	{

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.8 2004/05/26 23:41:48 gsherwood Exp $
+* $Id: cron_job_future_lineage.inc,v 1.9 2004/06/18 13:56:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -106,7 +106,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	* @param bool	$short_name	whether or not we are after the shortname or the full name
 	*
 	* @see Asset::_getName()
-	* @access public
+	* @access private
 	*/
 	function _getName($short_name=false)
 	{

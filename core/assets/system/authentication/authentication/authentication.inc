@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication.inc,v 1.2 2004/03/02 04:20:19 mmcintyre Exp $
+* $Id: authentication.inc,v 1.3 2004/06/18 13:56:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -104,7 +104,7 @@ class Authentication extends Asset
 	* @param bool	$short_name	whether or not we are after the shortname or the full name
 	*
 	* @see Asset::_getName()
-	* @access public
+	* @access private
 	*/
 	function _getName($short_name=false)
 	{

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox.inc,v 1.18 2003/11/26 00:51:03 gsherwood Exp $
+* $Id: inbox.inc,v 1.19 2004/06/18 13:56:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -166,7 +166,7 @@ class Inbox extends Asset
 	* @param boolean	$short_name	whether or not we are after the short name or the full name
 	*
 	* @see Asset::_getName()
-	* @access public
+	* @access private
 	*/
 	function _getName($short_name=false)
 	{

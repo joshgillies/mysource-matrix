@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.11 2004/06/18 02:01:18 lwright Exp $
+* $Id: remap_manager.inc,v 1.12 2004/06/18 13:56:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $ - 0.1
+* @version $Revision: 1.12 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -90,7 +90,7 @@ class Remap_Manager extends Asset
 	* @param bool	$short_name	whether or not we are after the shortname or the full name
 	*
 	* @see Asset::_getName()
-	* @access public
+	* @access private
 	*/
 	function _getName($short_name=false)
 	{

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.7 2004/05/26 06:54:24 gsherwood Exp $
+* $Id: bodycopy_container.inc,v 1.8 2004/06/18 13:56:12 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -312,7 +312,7 @@ class Bodycopy_Container extends Asset
 	* @param boolean	$short_name	whether or not we are after the short name or the full name
 	*
 	* @see Asset::_getName()
-	* @access public
+	* @access private
 	*/
 	function _getName($short_name=false)
 	{

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager.inc,v 1.6 2004/04/20 00:05:28 gsherwood Exp $
+* $Id: layout_manager.inc,v 1.7 2004/06/18 13:56:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.6 $ - 0.1
+* @version $Revision: 1.7 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -92,7 +92,7 @@ class Layout_Manager extends Asset
 	* @param bool	$short_name	whether or not we are after the shortname or the full name
 	*
 	* @return string
-	* @access public
+	* @access private
 	*/
 	function _getName($short_name=false)
 	{
