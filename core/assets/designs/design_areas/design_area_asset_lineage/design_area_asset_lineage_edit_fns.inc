@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage_edit_fns.inc,v 1.4 2003/11/26 00:50:55 gsherwood Exp $
+* $Id: design_area_asset_lineage_edit_fns.inc,v 1.5 2003/12/12 15:01:35 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -162,8 +162,8 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 				}
 
 				// if we have pages to print, we just adjust the total count factor
-				if (($pages_to_print = (int) $asset->attr('pages_to_print')) > 0) {
-					$total = 'min('.$total.', '.($pages_to_print + $start_index).')';
+				if (($levels_to_print = (int) $asset->attr('levels_to_print')) > 0) {
+					$total = 'min('.$total.', '.($levels_to_print + $start_index).')';
 				}
 
 				if ($divider_contents = $asset->attr('divider_contents')) {

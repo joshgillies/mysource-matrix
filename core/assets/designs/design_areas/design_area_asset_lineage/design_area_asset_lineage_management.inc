@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage_management.inc,v 1.3 2003/11/26 00:50:55 gsherwood Exp $
+* $Id: design_area_asset_lineage_management.inc,v 1.4 2003/12/12 15:01:35 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -82,11 +82,11 @@ class Design_Area_Asset_Lineage_Management extends Asset_Management
 								'default'		=> true,
 								'description'	=> 'whether or not to end the list with a divider'
 							),
-							'pages_to_print' => Array(
+							'levels_to_print' => Array(
 								'added'			=> '0.0.1',
 								'type'			=> 'int',
 								'default'		=> 0,
-								'description'	=> 'How many pages deep to print, (zero, blank, empty means print all)'
+								'description'	=> 'How many levels deep to print, (zero, blank, empty means print all)'
 							),
 						);
 
