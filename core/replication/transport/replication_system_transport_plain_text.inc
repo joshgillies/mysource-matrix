@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_transport_plain_text.inc,v 1.1.2.3 2004/02/14 21:10:20 brobertson Exp $
+* $Id: replication_system_transport_plain_text.inc,v 1.1.2.4 2004/02/26 15:21:55 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,6 +37,44 @@ require_once SQ_SYSTEM_ROOT.'/core/replication/replication_system_transport.inc'
 */
 class Replication_System_Transport_Plain_Text extends Replication_System_Transport
 {
+	/**
+	* Headers are a fixed size for this transport layer, the reason being is that when mixing up
+	* PHP_NORMAL_READ and PHP_BINARY_READ's we were having huge connections issues (ie drop-outs)
+	* @param int
+	*/
+	var $_header_len = 20;
+
+
+	/**
+	* Writes the headers out to the socket, leaving the contents as next thing to be written
+	* NOTE 1: the combination of the header and the value MUST be less that $this->_header_len
+	* NOTE 2: all surrounding whitespace will be trimmed from header and value
+	*
+	* @param Array		$headers	Array('lowercase header' => 'value')
+	*
+	* @return boolean	true if all headers written successfully, false otherwise
+	* @access private
+	*/
+	function _writeHeaders($headers)
+	{
+		$headers_str = '';
+		foreach($headers as $name => $value) {
+
+			$line = $name.': '.((string) $value);
+			if (strlen($line) > $this->_header_len) {
+				trigger_error('Error writing headers to '.$this->getPeerInfo().' : Header Line "'.$line.'" is longer that the fixed size header length '.$this->_header_len, E_USER_WARNING);
+				return false;
+			}
+
+			$headers_str .= str_pad($line, $this->_header_len, ' ', STR_PAD_RIGHT);
+		}// end foreach
+
+		$headers_str .= str_repeat('-', $this->_header_len);
+
+		return $this->_writeToSocket($headers_str, $bytes_written=0);
+
+	}// end _writeHeaders()
+
 
 	/**
 	* Writes a variable to the socket
@@ -54,11 +92,11 @@ class Replication_System_Transport_Plain_Text extends Replication_System_Transpo
 		}
 
 		$contents = serialize($data);
-		$headers  =  "Type: variable\n"
-					."Length: ".strlen($contents)."\n"
-					."\n";
+		if (!$this->_writeHeaders(Array('type' => 'variable', 'length' => strlen($contents)))) {
+			return false;
+		}
 
-		return $this->_writeToSocket($headers.$contents, $bytes_written=0);
+		return $this->_writeToSocket($contents, $bytes_written=0);
 
 	}// end writeVar()
 
@@ -87,14 +125,17 @@ class Replication_System_Transport_Plain_Text extends Replication_System_Transpo
 		// NOTE: If the file that is being transferred is over 2GB in size then there could be issues because
 		// of the way PHP uses signed int's see filesize() man page for defails
 
-		$headers  =  "Type: file\n"
-					."Length: ".filesize($source_file)."\n"
-					."Filename: ".basename($source)."\n"
-					."\n";
+		$headers = Array(
+						'type'     => 'file', 
+						'length'   => filesize($source_file),
+						'filename' => basename($source),
+					);
+
+		if (!$this->_writeHeaders($headers)) {
+			return false;
+		}
 
 		$bytes_written = 0;
-		if (!$this->_writeToSocket($headers, $bytes_written)) return false;
-
 		$fd = fopen($source_file, 'rb');
 		do {
 
@@ -111,22 +152,21 @@ class Replication_System_Transport_Plain_Text extends Replication_System_Transpo
 
 
 	/**
-	* Reads the headers of the socket, leaving the contents as next thing to read 
+	* Reads the headers of the socket, leaving the contents as next thing to read
 	* Also guarantees that there is a Type and Length header
 	*
-	* @param mixed		&$data	the retrieved variable will be placed in this reference
-	*
-	* @return Array()	Array('lowercase header' => 'value') - false on error
+	* @return Array()	Array('lowercase header' => 'value') or false on error
 	* @access private
 	*/
 	function _readHeaders()
 	{
 		$headers = Array();
+		$end_header_line = str_repeat('-', 20);
 		do {
-			$line = $this->_readFromSocket($this->_read_buffer_size, PHP_NORMAL_READ);
+			$line = $this->_readFromSocket(20, PHP_BINARY_READ);
 			if ($line === false) return false;
 			// end of the headers ? OK outa here
-			if ($line == "\n") break;
+			if ($line === $end_header_line) break;
 
 			if (preg_match('/^([^:]+): (.*)$/', trim($line), $matches=null)) {
 				$headers[strtolower($matches[1])] = $matches[2];
@@ -136,11 +176,11 @@ class Replication_System_Transport_Plain_Text extends Replication_System_Transpo
 
 		if (isset($headers['length'])) $headers['length'] = (int) $headers['length'];
 		if (empty($headers['type']) || empty($headers['length'])) {
-			trigger_error('Error reading headers from '.$this->getPeerInfo().' : Both the Type and Length headers need to exist', E_USER_WARNING);
+			trigger_error('Error reading headers from '.$this->getPeerInfo().' : Both the Type and Length headers need to exist'.print_r($headers, 1), E_USER_WARNING);
 			return false;
 		}
 
-		return $headers;		
+		return $headers;
 
 	}// end _readHeaders()
 
@@ -164,7 +204,7 @@ class Replication_System_Transport_Plain_Text extends Replication_System_Transpo
 			trigger_error('Error reading from '.$this->getPeerInfo().' : Expecting "variable" type, got "'.$headers['type'].'"', E_USER_WARNING);
 			return false;
 		}
-		
+
 		$contents = $this->_readFromSocket($headers['length'], PHP_BINARY_READ);
 		if ($contents === false) return false;
 
