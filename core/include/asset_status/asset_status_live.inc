@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live.inc,v 1.21 2004/12/06 14:38:12 brobertson Exp $
+* $Id: asset_status_live.inc,v 1.22 2005/02/23 00:26:38 dbaranovskiy Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    LIVE -> UNDER_CONSTRUCTION if the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live extends Asset_Status
@@ -140,9 +140,9 @@ class Asset_Status_Live extends Asset_Status
 					$msg->body = 'User "'.$user->name.'" has placed '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" up for review.'."\n".'You are now required to approve or reject the review of "'.$this->owner->name.'" so the workflow process can continue.';
 					// create a link for navigation to the workflow screen for this asset
 					$msg->body .= "\n\n".'A full report for the Workflow of "'.$this->owner->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>';
-					$asset_url = $this->owner->getURL();
-					if (!empty($asset_url)) {
-						$msg->body .= ' You can also <SQ_MSG_LINK href="'.$asset_url.'">preview this asset.</SQ_MSG_LINK>';
+					$asset_edt_fns = $this->owner->getEditFns();
+					if (isset($asset_edt_fns->static_screens['preview'])) {
+						$msg->body .= "\n".' You can also <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('preview').'">preview this asset.</SQ_MSG_LINK>';
 					}
 
 					if (!$wfm->startWorkflow($this->owner->id, false, $msg)) {
@@ -159,9 +159,9 @@ class Asset_Status_Live extends Asset_Status
 					$log->body .= ' The workflow process has been started.';
 						// create a link for navigation to the workflow screen for this asset
 						$log->body .= "\n\n".'<SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Click here for the Workflow Screen for this asset</SQ_MSG_LINK>.';
-						$asset_url = $this->owner->getURL();
-						if (!empty($asset_url)) {
-							$log->body .= ' You can also <SQ_MSG_LINK href="'.$asset_url.'">preview this asset.</SQ_MSG_LINK>';
+						$asset_edt_fns = $this->owner->getEditFns();
+						if (isset($asset_edt_fns->static_screens['preview'])) {
+							$msg->body .= "\n".' You can also <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('preview').'">preview this asset.</SQ_MSG_LINK>';
 						}
 					}
 					$log->type = 'asset.workflow';
