@@ -18,26 +18,26 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata.inc,v 1.4 2005/02/16 06:02:14 dbaranovskiy Exp $
+* $Id: report_asset_statuses.inc,v 1.1 2005/02/16 06:02:14 dbaranovskiy Exp $
 *
 */
-
 
 require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 
 /**
-* Report_Incomplete_Metadata
+* Report_Asset_Statuses
 *
-* Purpose
+* Reports assets according to their current status and the time of their last status change
 *
 *
-* @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
+* @author  Tom Barrett <tbarrett@squiz.net>
+* @version $Revision $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-register_implementation('report_incomplete_metadata', 'bridge');
-class Report_Incomplete_Metadata extends Report
+register_implementation('report_asset_statuses', 'bridge');
+class Report_Asset_Statuses extends Report
 {
 
 
@@ -47,7 +47,7 @@ class Report_Incomplete_Metadata extends Report
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Report_Incomplete_Metadata($assetid=0)
+	function Report_Asset_Statuses($assetid=0)
 	{
 		$this->Report($assetid);
 
@@ -83,16 +83,19 @@ class Report_Incomplete_Metadata extends Report
 
 			$links = Array();
 			$sort_order = 0;
-			foreach ($root->children as $result) {
-				if ($result->name != 'asset') continue;
+			foreach ($root->children as $asset_node) {
+				$assetid = $asset_node->attributes['assetid'];
+				$name = $asset_node->attributes['name'];
+				$type_code = $asset_node->attributes['type_code'];
+				$status = $asset_node->children[0]->attributes['value'];
 
 				$links[] = Array(
-								'assetid'    => $result->attributes['assetid'],
-								'short_name' => $result->attributes['short_name'],
-								'name'       => $result->attributes['name'],
+								'assetid'    => $assetid,
+								'short_name' => $name,
+								'name'       => $name,
 								'accessible' => 1,
-								'type_code'  => $result->attributes['type_code'],
-								'status'     => $result->attributes['status'],
+								'type_code'  => $type_code,
+								'status'     => $status,
 								'linkid'     => '0',
 								'link_type'  => SQ_LINK_TYPE_1,
 								'num_kids'   => 0,
@@ -159,15 +162,16 @@ class Report_Incomplete_Metadata extends Report
 
 			$links = Array();
 			$sort_order = 0;
-			foreach ($root->children as $result) {
-				if ($result->name != 'asset') continue;
+			foreach ($root->children as $asset_node) {
+				$assetid = $asset_node->attributes['assetid'];
+				$type_code = $asset_node->attributes['type_code'];
 
 				$links[] = Array(
 								'linkid'          => 0,
-								'minorid'         => $result->attributes['assetid'],
+								'minorid'         => $assetid,
 								'value'           => '',
 								'link_type'    	  => SQ_LINK_TYPE_1,
-								'minor_type_code' => $result->attributes['type_code'],
+								'minor_type_code' => $type_code,
 								'sort_order'      => $sort_order,
 								'is_dependant'    => '0',
 								'is_exclusive'    => '0',

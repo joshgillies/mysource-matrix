@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata_edit_fns.inc,v 1.5 2005/01/20 13:07:36 brobertson Exp $
+* $Id: report_incomplete_metadata_edit_fns.inc,v 1.6 2005/02/16 06:02:14 dbaranovskiy Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -107,18 +107,15 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 				$field_values = $mm->getMetadataFieldValues($asset->id);
 
 				$empty_fields = false;
-				ob_start();
-					echo "\t<asset assetid=\"".$asset->id."\">\n";
-					foreach ($field_values as $field_name => $value) {
-						$value = trim($value);
-						if (empty($value)) {
-							echo "\t\t<field>$field_name</field>\n";
-							$empty_fields = true;
-						}
+				$content = "\t".'<asset assetid="'.$asset->id.'" name="'.$asset->name.'" short_name="'.$asset->short_name.'" type_code="'.$asset->type().'" status="'.$asset->status.'">'."\n";
+				foreach ($field_values as $field_name => $value) {
+					$value = trim($value);
+					if (empty($value)) {
+						$content .= "\t\t".'<field>'.$field_name.'</field>'."\n";
+						$empty_fields = true;
 					}
-					echo "\t</asset>\n";
-					$content = ob_get_contents();
-				ob_end_clean();
+				}
+				$content .= "\t".'</asset>'."\n";
 
 				// write out the XML if there were empty fields
 				if ($empty_fields) fwrite($temp_file, $content);
@@ -229,7 +226,7 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 						$asset_bg = get_status_colour($asset->status);
 						$asset_status = get_status_description($asset->status);
 						$asset_url = $asset->getBackendHref('metadata');
-						$asset_string = '<a href="#" onclick="Javscript: return false;" target="_blank" title="'.$asset->name.'">'.ellipsisize($asset->name, 40).'</a>';
+						$asset_string = '<u title="'.$asset->name.'">'.ellipsisize($asset->name, 40).'</u>';
 					}
 
 					?>
@@ -251,7 +248,7 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 							if (!empty($asset_type)) {
 								?>
 								<span title="<?php echo ucwords(str_replace('_', ' ', $asset_type)); ?>">
-									<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($asset_type); ?>", "16", "16", "");</script>
+									<script type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($asset_type); ?>", "16", "16", "");</script>
 								</span>
 								<?php
 							}
