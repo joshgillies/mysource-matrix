@@ -633,7 +633,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 			// otherwise attempt to find read access
 			} else {
-				$ra = (empty($node->attributes['read_access'])) ? 'write' : $node->attributes['read_access'];
+				$ra = (empty($node->attributes['read_access'])) ? 'read' : $node->attributes['read_access'];
 				switch($ra) {
 					case 'root' :
 						if ($GLOBALS['SQ_SYSTEM']->userRoot()) $access |= SQ_EI_READ;
@@ -646,6 +646,7 @@ class Asset_Edit_Interface extends Resolve_Object
 						break;
 					case 'write' :
 						if ($owner->writeAccess()) $access |= SQ_EI_READ;
+						break;
 					case 'read' :
 						if ($owner->readAccess()) $access |= SQ_EI_READ;
 						break;
