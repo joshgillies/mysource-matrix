@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2004/06/17 04:45:14 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2004/06/21 06:56:20 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -69,7 +69,7 @@
 	<section name="Simple Validation Rules" write_access="write:attributes">
 	    <field attribute="required">
 			<display_name>Required Entry?</display_name>
-			<note>If required, this question must be filled before the form can be submitted.</note>
+			<note>If required, this question must be filled before the form can be submitted</note>
 			<boolean true_text="Required" false_text="Optional" />
 		</field>
 	    <field attribute="is_int">
