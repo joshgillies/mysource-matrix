@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.3 2004/08/04 23:41:16 lwright Exp $
+* $Id: page_calendar.inc,v 1.4 2004/08/04 23:44:35 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.4 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -108,13 +108,6 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function printDayView($year, $month, $day)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		
-		// base sql query FOR SINGLE EVENTS (holy crap... O_O')
-		$sql = 'select a.name, a.assetid, v.custom_value as start_date, v1.custom_value as end_date from ((('.SQ_TABLE_RUNNING_PREFIX.'asset a join '.SQ_TABLE_PREFIX.'asset_attribute atr on a.type_code = atr.type_code) join '.SQ_TABLE_PREFIX.'asset_attribute atr1 on a.type_code = atr1.type_code) left join '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v on atr.attributeid = v.attributeid and a.assetid = v.assetid) left join '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v1 on atr1.attributeid = v1.attributeid and a.assetid = v1.assetid where atr.name = '.$db->quote('start_date').' and atr1.name = '.$db->quote('end_date').' and a.type_code = '.$db->quote('calendar_event_single').' and ((substring(v.custom_value from 1 for 10) = '.$db->quote().' and v1.custom_value IS NULL) OR (substring(v.custom_value from 1 for 10) <= '.$db->quote($this->_buildDate($year,$month,$day)).' and substring(v1.custom_value from 1 for 10) >= '.$db->quote($this->_buildDate($year,$month,$day))';
-		
-		$result = $db->getAll($sql);
-		pre_echo($result);
 		/* pseudo-code version of this method...
 		 * get all events that lie underneath the selected root nodes, using a search matching
 		 * the front part of the tree id with the root node
@@ -153,6 +146,14 @@ class Page_Calendar extends Page_Asset_Listing
 		 * Print the bastard =D (one column per node if that is specified, otherwise
 		 * just one column straight down)
 		 */
+		 
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		
+		// base sql query FOR SINGLE EVENTS (holy crap... O_O')
+		$sql = 'select a.name, a.assetid, v.custom_value as start_date, v1.custom_value as end_date from ((('.SQ_TABLE_RUNNING_PREFIX.'asset a join '.SQ_TABLE_PREFIX.'asset_attribute atr on a.type_code = atr.type_code) join '.SQ_TABLE_PREFIX.'asset_attribute atr1 on a.type_code = atr1.type_code) left join '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v on atr.attributeid = v.attributeid and a.assetid = v.assetid) left join '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v1 on atr1.attributeid = v1.attributeid and a.assetid = v1.assetid where atr.name = '.$db->quote('start_date').' and atr1.name = '.$db->quote('end_date').' and a.type_code = '.$db->quote('calendar_event_single').' and ((substring(v.custom_value from 1 for 10) = '.$db->quote().' and v1.custom_value IS NULL) OR (substring(v.custom_value from 1 for 10) <= '.$db->quote($this->_buildDate($year,$month,$day)).' and substring(v1.custom_value from 1 for 10) >= '.$db->quote($this->_buildDate($year,$month,$day));
+		
+		$result = $db->getAll($sql);
+		
 		list($start_time_h, $start_time_m) = explode(':', $this->attr('day_view_start_time'));
 		list($end_time_h, $end_time_m) = explode(':', $this->attr('day_view_end_time'));
 		$appt_spacing = intval($this->attr('appointment_spacing'));
@@ -221,8 +222,7 @@ class Page_Calendar extends Page_Asset_Listing
 		list($end_time_h, $end_time_m) = explode(':', $this->attr('day_view_end_time'));
 		$end_time_h = 17; $end_time_m = 0;
 		$appt_spacing = intval($this->attr('appointment_spacing'));
-		
-		
+				
 		$days_of_week = Array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
 		$first_day = mktime(0,0,0,$month,$day,$year);
 		$date_info = getdate($first_day);
@@ -291,7 +291,6 @@ class Page_Calendar extends Page_Asset_Listing
 		
 		
 		$result = $db->getAll($sql);
-		pre_echo($result);
 		
 		// print calendar
 		$days_of_week = Array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
