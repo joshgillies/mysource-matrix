@@ -213,11 +213,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		$code_name = $init_hipo->initialise();
 		if ($code_name) {
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$hipo = &$hh->getJob($code_name, 'hipo_job_update_lookups');
-			if (!is_null($hipo)) {
-				pre_echo($hipo);
-				$o->setRedirect($hipo->getProcessURL());
-			}
+			if ($url = $hh->getProcessURL($code_name)) $o->setRedirect($url);
 		}
 
 		
