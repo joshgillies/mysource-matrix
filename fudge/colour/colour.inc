@@ -1,147 +1,4 @@
 <?php
-// Predefined Colours
-$GLOBALS['COLOUR_PALETTE'] = Array(
-	'aliceblue'=>'f0f8ff',
-	'antiquewhite'=>'faebd7',
-	'aqua'=>'00ffff',
-	'aquamarine'=>'7fffd4',
-	'azure'=>'f0ffff',
-	'beige'=>'f5f5dc',
-	'bisque'=>'ffe4c4',
-	'black'=>'000000',
-	'blanchedalmond'=>'ffebcd',
-	'blue'=>'0000ff',
-	'blueviolet'=>'8a2be2',
-	'brown'=>'a52a2a',
-	'burlywood'=>'deb887',
-	'cadetblue'=>'5f9ea0',
-	'chartreuse'=>'7fff00',
-	'chocolate'=>'d2691e',
-	'coral'=>'ff7f50',
-	'cornflowerblue'=>'6495ed',
-	'cornsilk'=>'fff8dc',
-	'crimson'=>'dc143c',
-	'cyan'=>'00ffff',
-	'darkblue'=>'00008b',
-	'darkcyan'=>'008b8b',
-	'darkgoldenrod'=>'b8860b',
-	'darkgray'=>'a9a9a9',
-	'darkgreen'=>'006400',
-	'darkkhaki'=>'bdb76b',
-	'darkmagenta'=>'8b008b',
-	'darkolivegreen'=>'556b2f',
-	'darkorange'=>'ff8c00',
-	'darkorchid'=>'9932cc',
-	'darkred'=>'8b0000',
-	'darksalmon'=>'e9967a',
-	'darkseagreen'=>'8fbc8f',
-	'darkslateblue'=>'483d8b',
-	'darkslategray'=>'2f4f4f',
-	'darkturquoise'=>'00ced1',
-	'darkviolet'=>'9400d3',
-	'deeppink'=>'ff1493',
-	'deepskyblue'=>'00bfff',
-	'dimgray'=>'696969',
-	'dodgerblue'=>'1e90ff',
-	'firebrick'=>'b22222',
-	'floralwhite'=>'fffaf0',
-	'forestgreen'=>'228b22',
-	'fuchsia'=>'ff00ff',
-	'gainsboro'=>'dcdcdc',
-	'ghostwhite'=>'f8f8ff',
-	'gold'=>'ffd700',
-	'goldenrod'=>'daa520',
-	'gray'=>'808080',
-	'green'=>'008000',
-	'greenyellow'=>'adff2f',
-	'honeydew'=>'f0fff0',
-	'hotpink'=>'ff69b4',
-	'indianred'=>'cd5c5c',
-	'indigo'=>'4b0082',
-	'ivory'=>'fffff0',
-	'khaki'=>'f0e68c',
-	'lavender'=>'e6e6fa',
-	'lavenderblush'=>'fff0f5',
-	'lawngreen'=>'7cfc00',
-	'lemonchiffon'=>'fffacd',
-	'lightblue'=>'add8e6',
-	'lightcoral'=>'f08080',
-	'lightcyan'=>'e0ffff',
-	'lightgoldenrodyellow'=>'fafad2',
-	'lightgreen'=>'90ee90',
-	'lightgrey'=>'d3d3d3',
-	'lightpink'=>'ffb6c1',
-	'lightsalmon'=>'ffa07a',
-	'lightseagreen'=>'20b2aa',
-	'lightskyblue'=>'87cefa',
-	'lightslategray'=>'778899',
-	'lightsteelblue'=>'b0c4de',
-	'lightyellow'=>'ffffe0',
-	'lime'=>'00ff00',
-	'limegreen'=>'32cd32',
-	'linen'=>'faf0e6',
-	'magenta'=>'ff00ff',
-	'maroon'=>'800000',
-	'mediumaquamarine'=>'66cdaa',
-	'mediumblue'=>'0000cd',
-	'mediumorchid'=>'ba55d3',
-	'mediumpurple'=>'9370db',
-	'mediumseagreen'=>'3cb371',
-	'mediumslateblue'=>'7b68ee',
-	'mediumspringgreen'=>'00fa9a',
-	'mediumturquoise'=>'48d1cc',
-	'mediumvioletred'=>'c71585',
-	'midnightblue'=>'191970',
-	'mintcream'=>'f5fffa',
-	'mistyrose'=>'ffe4e1',
-	'moccasin'=>'ffe4b5',
-	'navajowhite'=>'ffdead',
-	'navy'=>'000080',
-	'oldlace'=>'fdf5e6',
-	'olive'=>'808000',
-	'olivedrab'=>'6b8e23',
-	'orange'=>'ffa500',
-	'orangered'=>'ff4500',
-	'orchid'=>'da70d6',
-	'palegoldenrod'=>'eee8aa',
-	'palegreen'=>'98fb98',
-	'paleturquoise'=>'afeeee',
-	'palevioletred'=>'db7093',
-	'papayawhip'=>'ffefd5',
-	'peachpuff'=>'ffdab9',
-	'peru'=>'cd853f',
-	'pink'=>'ffc0cb',
-	'plum'=>'dda0dd',
-	'powderblue'=>'b0e0e6',
-	'purple'=>'800080',
-	'red'=>'ff0000',
-	'rosybrown'=>'bc8f8f',
-	'royalblue'=>'4169e1',
-	'saddlebrown'=>'8b4513',
-	'salmon'=>'fa8072',
-	'sandybrown'=>'f4a460',
-	'seagreen'=>'2e8b57',
-	'seashell'=>'fff5ee',
-	'sienna'=>'a0522d',
-	'silver'=>'c0c0c0',
-	'skyblue'=>'87ceeb',
-	'slateblue'=>'6a5acd',
-	'slategray'=>'708090',
-	'snow'=>'fffafa',
-	'springgreen'=>'00ff7f',
-	'steelblue'=>'4682b4',
-	'tan'=>'d2b48c',
-	'teal'=>'008080',
-	'thistle'=>'d8bfd8',
-	'tomato'=>'ff6347',
-	'turquoise'=>'40e0d0',
-	'violet'=>'ee82ee',
-	'wheat'=>'f5deb3',
-	'white'=>'ffffff',
-	'whitesmoke'=>'f5f5f5',
-	'yellow'=>'ffff00',
-	'yellowgreen'=>'9acd32'
-);
 
 /**
 * Colour
@@ -155,6 +12,167 @@ $GLOBALS['COLOUR_PALETTE'] = Array(
 */
 class Colour 
 {
+
+	/**
+	* Returns a colour palette with colour names to hex colours or a specific hex colour for the passed name 
+	*
+	* @param string	$name	a specific name to find in the palette
+	*
+	* @return Array() | string
+	* @access public
+	*/
+	function colourPalette($name=null) 
+	{
+		$palette = Array(
+					'aliceblue'				=> 'f0f8ff',
+					'antiquewhite'			=> 'faebd7',
+					'aqua'					=> '00ffff',
+					'aquamarine'			=> '7fffd4',
+					'azure'					=> 'f0ffff',
+					'beige'					=> 'f5f5dc',
+					'bisque'				=> 'ffe4c4',
+					'black'					=> '000000',
+					'blanchedalmond'		=> 'ffebcd',
+					'blue'					=> '0000ff',
+					'blueviolet'			=> '8a2be2',
+					'brown'					=> 'a52a2a',
+					'burlywood'				=> 'deb887',
+					'cadetblue'				=> '5f9ea0',
+					'chartreuse'			=> '7fff00',
+					'chocolate'				=> 'd2691e',
+					'coral'					=> 'ff7f50',
+					'cornflowerblue'		=> '6495ed',
+					'cornsilk'				=> 'fff8dc',
+					'crimson'				=> 'dc143c',
+					'cyan'					=> '00ffff',
+					'darkblue'				=> '00008b',
+					'darkcyan'				=> '008b8b',
+					'darkgoldenrod'			=> 'b8860b',
+					'darkgray'				=> 'a9a9a9',
+					'darkgreen'				=> '006400',
+					'darkkhaki'				=> 'bdb76b',
+					'darkmagenta'			=> '8b008b',
+					'darkolivegreen'		=> '556b2f',
+					'darkorange'			=> 'ff8c00',
+					'darkorchid'			=> '9932cc',
+					'darkred'				=> '8b0000',
+					'darksalmon'			=> 'e9967a',
+					'darkseagreen'			=> '8fbc8f',
+					'darkslateblue'			=> '483d8b',
+					'darkslategray'			=> '2f4f4f',
+					'darkturquoise'			=> '00ced1',
+					'darkviolet'			=> '9400d3',
+					'deeppink'				=> 'ff1493',
+					'deepskyblue'			=> '00bfff',
+					'dimgray'				=> '696969',
+					'dodgerblue'			=> '1e90ff',
+					'firebrick'				=> 'b22222',
+					'floralwhite'			=> 'fffaf0',
+					'forestgreen'			=> '228b22',
+					'fuchsia'				=> 'ff00ff',
+					'gainsboro'				=> 'dcdcdc',
+					'ghostwhite'			=> 'f8f8ff',
+					'gold'					=> 'ffd700',
+					'goldenrod'				=> 'daa520',
+					'gray'					=> '808080',
+					'green'					=> '008000',
+					'greenyellow'			=> 'adff2f',
+					'honeydew'				=> 'f0fff0',
+					'hotpink'				=> 'ff69b4',
+					'indianred'				=> 'cd5c5c',
+					'indigo'				=> '4b0082',
+					'ivory'					=> 'fffff0',
+					'khaki'					=> 'f0e68c',
+					'lavender'				=> 'e6e6fa',
+					'lavenderblush'			=> 'fff0f5',
+					'lawngreen'				=> '7cfc00',
+					'lemonchiffon'			=> 'fffacd',
+					'lightblue'				=> 'add8e6',
+					'lightcoral'			=> 'f08080',
+					'lightcyan'				=> 'e0ffff',
+					'lightgoldenrodyellow'	=> 'fafad2',
+					'lightgreen'			=> '90ee90',
+					'lightgrey'				=> 'd3d3d3',
+					'lightpink'				=> 'ffb6c1',
+					'lightsalmon'			=> 'ffa07a',
+					'lightseagreen'			=> '20b2aa',
+					'lightskyblue'			=> '87cefa',
+					'lightslategray'		=> '778899',
+					'lightsteelblue'		=> 'b0c4de',
+					'lightyellow'			=> 'ffffe0',
+					'lime'					=> '00ff00',
+					'limegreen'				=> '32cd32',
+					'linen'					=> 'faf0e6',
+					'magenta'				=> 'ff00ff',
+					'maroon'				=> '800000',
+					'mediumaquamarine'		=> '66cdaa',
+					'mediumblue'			=> '0000cd',
+					'mediumorchid'			=> 'ba55d3',
+					'mediumpurple'			=> '9370db',
+					'mediumseagreen'		=> '3cb371',
+					'mediumslateblue'		=> '7b68ee',
+					'mediumspringgreen'		=> '00fa9a',
+					'mediumturquoise'		=> '48d1cc',
+					'mediumvioletred'		=> 'c71585',
+					'midnightblue'			=> '191970',
+					'mintcream'				=> 'f5fffa',
+					'mistyrose'				=> 'ffe4e1',
+					'moccasin'				=> 'ffe4b5',
+					'navajowhite'			=> 'ffdead',
+					'navy'					=> '000080',
+					'oldlace'				=> 'fdf5e6',
+					'olive'					=> '808000',
+					'olivedrab'				=> '6b8e23',
+					'orange'				=> 'ffa500',
+					'orangered'				=> 'ff4500',
+					'orchid'				=> 'da70d6',
+					'palegoldenrod'			=> 'eee8aa',
+					'palegreen'				=> '98fb98',
+					'paleturquoise'			=> 'afeeee',
+					'palevioletred'			=> 'db7093',
+					'papayawhip'			=> 'ffefd5',
+					'peachpuff'				=> 'ffdab9',
+					'peru'					=> 'cd853f',
+					'pink'					=> 'ffc0cb',
+					'plum'					=> 'dda0dd',
+					'powderblue'			=> 'b0e0e6',
+					'purple'				=> '800080',
+					'red'					=> 'ff0000',
+					'rosybrown'				=> 'bc8f8f',
+					'royalblue'				=> '4169e1',
+					'saddlebrown'			=> '8b4513',
+					'salmon'				=> 'fa8072',
+					'sandybrown'			=> 'f4a460',
+					'seagreen'				=> '2e8b57',
+					'seashell'				=> 'fff5ee',
+					'sienna'				=> 'a0522d',
+					'silver'				=> 'c0c0c0',
+					'skyblue'				=> '87ceeb',
+					'slateblue'				=> '6a5acd',
+					'slategray'				=> '708090',
+					'snow'					=> 'fffafa',
+					'springgreen'			=> '00ff7f',
+					'steelblue'				=> '4682b4',
+					'tan'					=> 'd2b48c',
+					'teal'					=> '008080',
+					'thistle'				=> 'd8bfd8',
+					'tomato'				=> 'ff6347',
+					'turquoise'				=> '40e0d0',
+					'violet'				=> 'ee82ee',
+					'wheat'					=> 'f5deb3',
+					'white'					=> 'ffffff',
+					'whitesmoke'			=> 'f5f5f5',
+					'yellow'				=> 'ffff00',
+					'yellowgreen'			=> '9acd32'
+				);
+
+		if (is_null($name)) { 
+			return $palette;
+		} else { 
+			return (empty($palette[$name])) ? '' : $palette[$name];
+		}
+	}// end colourPalette()
+
 
 	/**
 	* Create an RGB colour - either in 0 to 1 range or in 0 to 255 range
@@ -206,7 +224,7 @@ class Colour
 			'y' => (($y >= 0) ? (($y <= 100) ? (double) ( ((double)$y) / 100.0) : 1) : 0),
 			'k' => (($k >= 0) ? (($k <= 100) ? (double) ( ((double)$k) / 100.0) : 1) : 0)
 		);
-		Colour::cmyk_correct($output);
+		Colour::cmykCorrect($output);
 		return $output;
 	}
 
@@ -235,7 +253,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function cmyk_to_rgb($input)
+	function cmykToRgb($input)
 	{
 		$c = $input['c'];
 		$m = $input['m'];
@@ -270,7 +288,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function rgb_to_cmyk($input)
+	function rgbToCmyk($input)
 	{
 		$r = $input['r'];
 		$g = $input['g'];
@@ -296,7 +314,7 @@ class Colour
 
 		$output = Array('c' => $c, 'm' => $m, 'y' => $y, 'k' => $k);
 
-		Colour::cmyk_correct($output);
+		Colour::cmykCorrect($output);
 
 		return $output;
 	}
@@ -310,7 +328,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function cmyk_correct(&$input)
+	function cmykCorrect(&$input)
 	{
 		if ($input['c'] < $input['m'])
 			$min = $input['c'];
@@ -338,7 +356,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function rgb_invert($i)
+	function rgbInvert($i)
 	{
 		return Array('r' => (1 - $i['r']), 'g' => (1 - $i['g']), 'b' => (1 - $i['b']));
 	}
@@ -352,7 +370,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function rgb_to_html($input)
+	function rgbToHtml($input)
 	{
 		return sprintf('%02x%02x%02x', $input['r'] * 255, $input['g'] * 255, $input['b'] * 255);
 	}
@@ -366,7 +384,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function int_to_html($input)
+	function intToHtml($input)
 	{
 		return sprintf('%06x', $input);
 	}
@@ -381,7 +399,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function int_to_rgb($input, $zero_to_one_range=true)
+	function intToRgb($input, $zero_to_one_range=true)
 	{
 		$b = min($input % 256, 255);
 		$g = min(($input >> 8) % 256, 255);
@@ -398,14 +416,14 @@ class Colour
 	* @access public
 	*
 	*/
-	function html_to_hex($input)
+	function htmlToHex($input)
 	{
 		// remove any hashes from the start
 		$input = preg_replace('/^#/', '', strtolower($input));
 		if (sprintf('%06x',hexdec($input)) != $input) {
 			// Must be a colour name, or a fuck-up
-			if (isset($GLOBALS['COLOUR_PALETTE'][$input])) {
-				$input = $GLOBALS['COLOUR_PALETTE'][$input];
+			if ($hex = colourPalette($input) ) {
+				$input = $hex;
 			}
 		}
 		return $input;
@@ -421,9 +439,9 @@ class Colour
 	* @access public
 	*
 	*/
-	function html_to_rgb($input, $zero_to_one_range=true)
+	function htmlToRgb($input, $zero_to_one_range=true)
 	{
-		$input = Colour::html_to_hex($input);
+		$input = Colour::htmlToHex($input);
 		return Colour::rgb(
 			hexdec(substr($input, 0, 2)),
 			hexdec(substr($input, 2, 2)),
@@ -441,9 +459,9 @@ class Colour
 	* @access public
 	*
 	*/
-	function html_to_int($input)
+	function htmlToInt($input)
 	{
-		return hexdec(Colour::html_to_hex($input));
+		return hexdec(Colour::htmlToHex($input));
 	}
 
 	/**
@@ -455,9 +473,9 @@ class Colour
 	* @access public
 	*
 	*/
-	function rgb_to_int($input)
+	function rgbToInt($input)
 	{
-		return Colour::html_to_int(Colour::rgb_to_html($input));
+		return Colour::htmlToInt(Colour::rgbToHtml($input));
 	}
 
 	/**
@@ -473,7 +491,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function rgb_to_hsv($input)
+	function rgbToHsv($input)
 	{
 		$r = max(0,min(1,$input['r']));
 		$g = max(0,min(1,$input['g']));
@@ -513,7 +531,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function hsv_to_rgb($input)
+	function hsvToRgb($input)
 	{
 		$h = $input['h'] % 360;
 		$s = max(0,min(1,$input['s']));
@@ -578,9 +596,9 @@ class Colour
 	* @access public
 	*
 	*/
-	function html_to_hsv($input)
+	function htmlToHsv($input)
 	{
-		return Colour::rgb_to_hsv(Colour::html_to_rgb($input));
+		return Colour::rgbToHsv(Colour::htmlToRgb($input));
 	}
 
 	/**
@@ -592,9 +610,9 @@ class Colour
 	* @access public
 	*
 	*/
-	function hsv_to_html($input)
+	function hsvToHtml($input)
 	{
-		return Colour::rgb_to_html(Colour::hsv_to_rgb($input));
+		return Colour::rgbToHtml(Colour::hsvToRgb($input));
 	}
 
 	/**
@@ -606,9 +624,9 @@ class Colour
 	* @access public
 	*
 	*/
-	function contrasting_shade($input)
+	function contrastingShade($input)
 	{
-		$c = Colour::html_to_rgb($input);
+		$c = Colour::htmlToRgb($input);
 		$weight_r    = $c['r'] * 0.75;
 		$weight_g    = $c['g'] * 1.75; // Green's bright
 		$weight_b    = $c['b'] * 0.5;  // Blue's dim
@@ -628,13 +646,13 @@ class Colour
 	* @access public
 	*
 	*/
-	function twice_as_light($input)
+	function twiceAsLight($input)
 	{
-		$c = Colour::html_to_rgb($input);
+		$c = Colour::htmlToRgb($input);
 		$c['r'] += ((1 - $c['r']) / 2);
 		$c['g'] += ((1 - $c['g']) / 2);
 		$c['b'] += ((1 - $c['b']) / 2);
-		return Colour::rgb_to_html($c);
+		return Colour::rgbToHtml($c);
 	}
 
 	/**
@@ -646,13 +664,13 @@ class Colour
 	* @access public
 	*
 	*/
-	function twice_as_dark($input)
+	function twiceAsDark($input)
 	{
-		$c = Colour::html_to_rgb($input);
+		$c = Colour::htmlToRgb($input);
 		$c['r'] /= 2;
 		$c['g'] /= 2;
 		$c['b'] /= 2;
-		return Colour::rgb_to_html($c);
+		return Colour::rgbToHtml($c);
 	}
 
 
@@ -666,9 +684,9 @@ class Colour
 	* @access public
 	*
 	*/
-	function adjust_brightness($input, $amount)
+	function adjustBrightness($input, $amount)
 	{
-		$c = Colour::html_to_rgb($input);
+		$c = Colour::htmlToRgb($input);
 		if ($amount > 0 && $amount <= 1) { // Going up !
 			$c['r'] += ((1 - $c['r']) * $amount);
 			$c['g'] += ((1 - $c['g']) * $amount);
@@ -678,7 +696,7 @@ class Colour
 			$c['g'] += ($c['g'] * $amount);
 			$c['b'] += ($c['b'] * $amount);
 		}
-		return Colour::rgb_to_html($c);
+		return Colour::rgbToHtml($c);
 	}
 
 
@@ -692,9 +710,9 @@ class Colour
 	* @access public
 	*
 	*/
-	function adjust_contrast($input, $amount)
+	function adjustContrast($input, $amount)
 	{
-		$c = Colour::html_to_rgb($input);
+		$c = Colour::htmlToRgb($input);
 		$avg = ($c['r'] + $c['g'] + $c['b']) / 3.0;
 		if ($amount < 0) {
 			if ($amount < -1) $amount = -1;
@@ -707,7 +725,7 @@ class Colour
 			$c['g'] = ( (($c['g'] > $avg) ? 1 : 0) * $amount) + ($c['g'] * (1 - $amount));
 			$c['b'] = ( (($c['b'] > $avg) ? 1 : 0) * $amount) + ($c['b'] * (1 - $amount));
 		}
-		return Colour::rgb_to_html($c);
+		return Colour::rgbToHtml($c);
 	}
 
 	/**
@@ -724,14 +742,14 @@ class Colour
 	function mix($a, $b, $ratio = 0.5)
 	{
 		$ratio = max(0,min(1,$ratio));
-		$a = Colour::html_to_rgb($a);
-		$b = Colour::html_to_rgb($b);
+		$a = Colour::htmlToRgb($a);
+		$b = Colour::htmlToRgb($b);
 		$c = Array(
 			'r' => $a['r'] * (1-$ratio)  +  $b['r'] * $ratio,
 			'g' => $a['g'] * (1-$ratio)  +  $b['g'] * $ratio,
 			'b' => $a['b'] * (1-$ratio)  +  $b['b'] * $ratio,
 		);
-		return Colour::rgb_to_html($c);
+		return Colour::rgbToHtml($c);
 	}
 
 	/**
@@ -744,9 +762,9 @@ class Colour
 	* @access public
 	*
 	*/
-	function hue_rotate($input,$degrees)
+	function hueRotate($input,$degrees)
 	{
-		return Colour::hsv_adjust($input, $degrees, 0, 0);
+		return Colour::hsvAdjust($input, $degrees, 0, 0);
 	}
 
 	/**
@@ -759,9 +777,9 @@ class Colour
 	* @access public
 	*
 	*/
-	function adjust_saturate($input,$amount)
+	function adjustSaturate($input,$amount)
 	{
-		return Colour::hsv_adjust($input, 0, $amount, 0);
+		return Colour::hsvAdjust($input, 0, $amount, 0);
 	}
 
 	/**
@@ -774,9 +792,9 @@ class Colour
 	* @access public
 	*
 	*/
-	function adjust_lightness($input,$amount)
+	function adjustLightness($input,$amount)
 	{
-		return Colour::hsv_adjust($input, 0, 0, $amount);
+		return Colour::hsvAdjust($input, 0, 0, $amount);
 	}
 
 
@@ -792,9 +810,9 @@ class Colour
 	* @access public
 	*
 	*/
-	function hsv_adjust($input,$h,$s,$v) 
+	function hsvAdjust($input,$h,$s,$v) 
 	{
-		$hsv = Colour::html_to_hsv($input);
+		$hsv = Colour::htmlToHsv($input);
 		if($h != 0) {
 			$h = $h % 360.0;
 			if($h < 0) $h = 360.0 + $h;
@@ -809,7 +827,7 @@ class Colour
 			if ($v > 0) $hsv['v'] += $v * (1 - $hsv['v']);
 			else        $hsv['v'] += $v * $hsv['v'];
 		}
-		return Colour::hsv_to_html($hsv);
+		return Colour::hsvToHtml($hsv);
 	}
 
 	/**
@@ -823,10 +841,10 @@ class Colour
 	* @see colour_remap_new_broken
 	*
 	*/
-	function hsv_difference($a, $b)
+	function hsvDifference($a, $b)
 	{
-		$a    = Colour::html_to_hsv($a);
-		$b    = Colour::html_to_hsv($b);
+		$a    = Colour::htmlToHsv($a);
+		$b    = Colour::htmlToHsv($b);
 		$r['h'] = $b['h'] - $a['h'];
 		if(abs($r['h']) > 180.0) {
 			if($r['h'] > 0) $r['h'] -= 360.0;
@@ -856,7 +874,7 @@ class Colour
 	function remap($input_html,$map,$tolerance = 0.2)
 	{
 		$tolerance = min(max($tolerance,0),1);
-		$input_hsv = Colour::html_to_hsv($input_html);
+		$input_hsv = Colour::htmlToHsv($input_html);
 
 		$shift           = Array();
 		$closeness_total = Array();
@@ -866,8 +884,8 @@ class Colour
 					return $to;
 				}
 			} else {
-				$from     = Colour::html_to_hsv($from);
-				$to       = Colour::html_to_hsv($to);
+				$from     = Colour::htmlToHsv($from);
+				$to       = Colour::htmlToHsv($to);
 				// The difference between the original colour and the new one
 				$map_diff = Array('h'=>$to['h']-$from['h'],'s'=>$to['s']-$from['s'],'v'=>$to['v']-$from['v']);
 				// The differnce between the original colour and the input
@@ -916,7 +934,7 @@ class Colour
 			$input_hsv['v'] += $shift['v'] / $closeness_total['v'];
 		}
 
-		return Colour::hsv_to_html($input_hsv);
+		return Colour::hsvToHtml($input_hsv);
 
 	}// end remap()
 

@@ -38,8 +38,8 @@ class Image
 		}
 
 		// Anylize colours and calculate difference colour
-		$ca_array = Colour::html_to_rgb($colour_a);
-		$cb_array = Colour::html_to_rgb($colour_b);
+		$ca_array = Colour::htmlToRgb($colour_a);
+		$cb_array = Colour::htmlToRgb($colour_b);
 		$diff = Array(
 			'r' => ($cb_array['r'] - $ca_array['r']),
 			'g' => ($cb_array['g'] - $ca_array['g']),
@@ -97,8 +97,8 @@ class Image
 		for ($i = 0; $i < $palette_size; $i++) {
 			$colour = imageColorsForIndex($image, $i);
 			// Convert to HTML colour
-			$colour = Colour::rgb_to_html(Colour::rgb($colour['red'],$colour['green'],$colour['blue']));
-			$rgb = Colour::html_to_rgb(Colour::remap($colour,$colour_map,$tolerance));
+			$colour = Colour::rgbToHtml(Colour::rgb($colour['red'],$colour['green'],$colour['blue']));
+			$rgb = Colour::htmlToRgb(Colour::remap($colour,$colour_map,$tolerance));
 			$r = $rgb['r'] * 255;
 			$g = $rgb['g'] * 255;
 			$b = $rgb['b'] * 255;
