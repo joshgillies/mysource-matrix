@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetMap.java,v 1.6 2004/08/26 02:06:24 mmcintyre Exp $
+* $Id: AssetMap.java,v 1.7 2004/09/01 00:47:52 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -129,11 +129,11 @@ public class AssetMap extends JApplet {
 	 * @param options the options to pass to the open javascript function
 	 */
 	public void openWindow(String url, String title, String options) {
-
+		
 		if (window == null) {
 			window = JSObject.getWindow(AssetMap.getApplet());
 		}
-		window.call("open_hipo", new Object[] { MySource.INSTANCE.getBaseURL() + url } );
+		window.call("open_hipo", new Object[] { url } );
 	}
 
 	/**
