@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_tables.js,v 1.5 2004/06/24 06:37:41 lwright Exp $
+* $Id: bodycopy_edit_tables.js,v 1.6 2004/07/19 00:38:56 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,7 +53,9 @@ function bodycopy_edit_table_properties(bodycopy_name, tableid, can_delete) {
 	bodycopy_current_edit["data"]            = new Object();
 	bodycopy_current_edit["data"]["tableid"] = tableid;
 	var data = get_bodycopy_current_table_data(bodycopy_name, tableid);
-	bodycopy_current_edit["data"]["attributes"] = var_unserialise(data["attributes"]);
+	if (data != null) {
+		bodycopy_current_edit["data"]["attributes"] = var_unserialise(data["attributes"]);
+	}
 	bodycopy_show_popup("edit_table_props.php", 320, 330);
 }// end bodycopy_edit_table_properties()
 
