@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: step_01.php,v 1.18 2003/10/02 05:35:33 brobertson Exp $
+* $Id: step_01.php,v 1.19 2003/10/07 07:25:08 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -27,17 +27,17 @@ $GLOBALS['SQ_INSTALL'] = true;
 require_once SQ_INCLUDE_PATH.'/mysource_object.inc';
 require_once SQ_INCLUDE_PATH.'/system_config.inc';
 
-define('SQ_CONF_DB_DSN',  'mysql://root@localhost/greg_matrix');
-define('SQ_CONF_DB2_DSN', 'mysql://root@localhost/greg_matrix');
-#define('SQ_CONF_DB_DSN', 'pgsql://brobertson@unix+localhost/blair_resolve');
-define('SQ_CONF_SYSTEM_ROOT_URLS', 'beta.squiz.net/greg');
+#define('SQ_CONF_DB_DSN', 'mysql://root@localhost/dom_resolve');
+define('SQ_CONF_DB_DSN', 'pgsql://dwong@unix+localhost/dom_resolve');
+define('SQ_CONF_DB2_DSN', 'pgsql://dwong@unix+localhost/dom_resolve');
+define('SQ_CONF_SYSTEM_ROOT_URLS', "dev.squiz.net/dom_resolvefx\nbeta.squiz.net/dom_resolvefx");
 define('SQ_CONF_PEAR_PATH', SQ_SYSTEM_ROOT.'/php_includes');
 define('SQ_CONF_ASSET_TREE_BASE', 64);
 define('SQ_CONF_ASSET_TREE_SIZE', 4);
-define('SQ_CONF_ROLLBACK_ENABLED', '1');
-define('SQ_CONF_DEFAULT_EMAIL', 'gsherwood@squiz.net');
-define('SQ_CONF_TECH_EMAIL',    'techos@squiz.net');
-
+define('SQ_CONF_ROLLBACK_ENABLED', '0');
+define('SQ_CONF_INDEXING_ENABLED', '0');
+define('SQ_CONF_DEFAULT_EMAIL', 'dwong@squiz.net');
+define('SQ_CONF_TECH_EMAIL',    'dwong@squiz.net');
 
 trigger_error('Need to chmod cache and data directories', E_USER_NOTICE);
 
