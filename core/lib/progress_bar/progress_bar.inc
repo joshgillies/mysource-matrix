@@ -53,6 +53,13 @@ class Progress_Bar
 	var $loaded = false;
 
 	/**
+	* If we are testing then there are a couple of things that get changed in the pop-up, 
+	* like being able to resize, opt to reload or not
+	* @var bool
+	*/
+	var $testing = false;
+
+	/**
 	* Some random key that we use to identify this Progress Bar in this session
 	* @var string
 	*/
@@ -167,6 +174,7 @@ class Progress_Bar
 		if (empty($_SESSION['progress_bar'])) $_SESSION['progress_bar'] = Array();
 
 		$vars = get_object_vars($this);
+		unset($vars['testing']);
 		unset($vars['_loaded']);
 		unset($vars['_url']);
 		unset($vars['_obj']);
@@ -444,7 +452,7 @@ class Progress_Bar
 						PROGRESS_BAR.form = form;
 
 						PROGRESS_BAR.started = true;
-						PROGRESS_BAR.popup = window.open(PROGRESS_BAR.url, PROGRESS_BAR.key, 'height=<?php echo $window_height; ?>,width=400,toolbar=no,location=no,menubar=no,resizable=no,nominimize,nomaximize,norestore,scrollbars=yes');
+						PROGRESS_BAR.popup = window.open(PROGRESS_BAR.url, PROGRESS_BAR.key, 'height=<?php echo $window_height; ?>,width=400,toolbar=no,location=no,menubar=no,resizable=<?php echo ($this->testing) ? 'yes' : 'no'; ?>,nominimize,nomaximize,norestore,scrollbars=yes');
 						PROGRESS_BAR.popup.focus();
 
 						PROGRESS_BAR.form.elements['progress_bar_btn'].value = 'Running...';
@@ -532,7 +540,9 @@ class Progress_Bar
 					function progress_bar_onload() {
 
 						PROGRESS_BAR_other_onload();
-						//if (!confirm('Go ?')) return;
+					<?php if ($this->testing) { ?>
+						if (!confirm("Go ?")) return;
+					<?php } // end if ?>
 						self.location = '<?php echo addslashes($this->popUpUrl()); ?>';
 
 					}// end progress_bar_onunload()
