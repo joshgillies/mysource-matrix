@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.17 2004/04/01 04:54:45 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.18 2004/04/02 02:15:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -416,8 +416,6 @@ class Page_Asset_Listing extends Page
 			if (!in_array($child_id, $live_assets)) {
 				unset($children[$child_id]);
 				if ($past_start) prev($children);
-			} else {
-				$type_code = $new_type_code;
 			}
 			$past_start = true;
 		}
@@ -693,6 +691,74 @@ class Page_Asset_Listing extends Page
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 
 	}//end onRequestKeywords()
+
+	/**
+	* Queue the setting of the value of an attribute
+	*
+	* This function sets the value of the attribute locally, but does not database updating.
+	* The change is queued awaiting the call of saveAttributes()
+	*
+	* @param string		$name	the name of the attribute
+	* @param string		$value	the new value of the attribute
+	*
+	* @return boolean
+	* @access public
+	* @see saveAttributes()
+	*/
+	function setAttrValue($name, $value)
+	{
+		if (empty($this->vars[$name])) {
+			trigger_error('Attribute "'.$name.'" not found for Asset of type "'.$this->type().'"', E_USER_WARNING);
+			return false;
+		}
+
+		$attribute = &$this->getAttribute($name);
+		if (!$attribute->setValue($value)) {
+			trigger_error('"'.$value.'" is not a valid value for attribute "'.$name.'"', E_USER_WARNING);
+			$attribute->setValue($this->vars[$name]['value']);
+			return false;
+		}
+		
+		// if the value being set is the same as the current value - dont do anything
+		if ($this->vars[$name]['value'] == $value) return true;
+
+		if ($this->vars[$name]['type'] == 'serialise') $value = unserialize($value);
+
+		// if this is a uniq attribute then let's make sure that this isn't already set
+		if ($attribute->uniq) {
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+			$sql = 'SELECT COUNT(*)
+					  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_unique_value uv
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute oa ON uv.owning_attributeid = oa.attributeid
+						INNER JOIN '.SQ_TABLE_PREFIX.'asset_attribute a ON (oa.type_code = a.owning_type_code AND oa.name = a.name)
+					  ';
+			$where = ' uv.custom_value = '.$db->quote($value).'
+						AND a.name = '.$db->quote($name).'
+						AND a.type_code = '.$db->quote($this->type());
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'uv');
+
+			$result = $db->getOne($sql.$where);
+			if (DB::isError($result)) {
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			}
+
+			if ((int) $result > 0) {
+				trigger_error('Unable to set "'.$name.'" it is a unique attribute and another asset already uses "'.$value.'"', E_USER_WARNING);
+				$attribute->setValue($this->vars[$name]['value']);
+				return false;
+			}
+
+		}// end if
+
+		if (!isset($this->_tmp['vars_set'])) $this->_tmp['vars_set'] = Array();
+		$this->_tmp['vars_set'][$name]['old_value'] = $this->vars[$name]['value'];
+
+		$this->vars[$name]['value'] = $value;
+
+		return true;
+
+	}//end setAttrValue()
 
 
 }//end class
