@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ComplexAssetMap.java,v 1.4 2004/11/02 02:51:46 mmcintyre Exp $
+* $Id: ComplexAssetMap.java,v 1.5 2004/11/12 02:42:18 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,6 +49,8 @@ public class ComplexAssetMap extends AssetMap /*implements KeyListener*/
 
 	public static final int POLLING_DELAY = 2000;
 
+	private Timer timer;
+	
 	/**
 	 * Constructor
 	 */
@@ -69,24 +71,32 @@ public class ComplexAssetMap extends AssetMap /*implements KeyListener*/
 	public void initTree() {
 		tree = new ComplexAssetTree(new DefaultTreeModel(
 				AssetManager.INSTANCE.getRootNode()));
-	//	tree.addKeyListener(this);
 		tree.initialise();
 
+	
 		ActionListener taskPerformer = new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 
-				if (window == null)
-					JSObject.getWindow(ComplexAssetMap.this);
-
-				String assetids = (String) window.getMember("SQ_REFRESH_ASSETIDS");
-				if (!assetids.equals("")) {
-					AssetManager.INSTANCE.assetsReloaded(assetids);
-					window.eval("SQ_REFRESH_ASSETIDS = '';");
-				}
+				ActionListener taskPerformer = new ActionListener() {
+					public void actionPerformed(ActionEvent evt) {
+	
+						if (window == null)
+							JSObject.getWindow(ComplexAssetMap.this);
+		
+						String assetids = (String) window.getMember("SQ_REFRESH_ASSETIDS");
+						if (!assetids.equals("")) {
+							AssetManager.INSTANCE.assetsReloaded(assetids);
+							window.eval("SQ_REFRESH_ASSETIDS = '';");
+						}
+					}
+				};
+			
+				timer = new Timer(POLLING_DELAY, taskPerformer);
+				timer.start();
 			}
 		};
-
-		Timer t = new Timer(POLLING_DELAY, taskPerformer);
+		Timer t = new Timer(5000, taskPerformer);
+		t.setRepeats(false);
 		t.start();
 	}
 
@@ -148,19 +158,7 @@ public class ComplexAssetMap extends AssetMap /*implements KeyListener*/
 		getContentPane().add(tp);
 	}
 
-	/*private int keysPressed = 0;
-	private String trigger = "invaders";
-	public void keyPressed(KeyEvent e) {
-		if (e.getKeyChar() == trigger.charAt(keysPressed)) {
-			keysPressed++;
-			if (keysPressed == trigger.length()) {
-				tp.setTitleAt(1, "My Space Invaders");
-			}
-		} else {
-			keysPressed = 0;
-		}
+	public void stop() {
+		timer.start();
 	}
-
-	public void keyReleased(KeyEvent e) {}
-	public void keyTyped(KeyEvent e) {}*/
 }
