@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.114 2005/03/02 01:09:04 gsherwood Exp $
+* $Id: backend.inc,v 1.115 2005/03/16 05:02:23 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.114 $
+* @version $Revision: 1.115 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -597,6 +597,13 @@ class Backend extends MySource_Object
 											   'title'  => 'System Configuration',
 											   'icon'   => 'system_config.png',
 											   );
+							$options[] = Array(
+											   'url'    => $this->getBackendUrl('main').'&backend_section=tools',
+											   'target' => 'sq_main',
+											   'title'  => 'Tools',
+											   'icon'   => 'whereami.png',
+											   );
+
 						}
 
 						if ($GLOBALS['SQ_SYSTEM']->userRoot()) {
@@ -703,11 +710,11 @@ class Backend extends MySource_Object
 			.sidenav-tab, .sidenav-tab-active {
 				border-right:		1px solid #FFFFFF;
 			}
-			
+
 			.sidenav-tab-icon, .sidenav-tab-icon-active {
 				padding-left:		5px;
 			}
-			
+
 			.sidenav-tab a, .sidenav-tab-active a {
 				font-family:		Arial;
 				font-size:			10px;
@@ -716,14 +723,14 @@ class Backend extends MySource_Object
 				padding-right:		8px;
 				text-decoration:	none;
 			}
-			
+
 			#asset_map {
 				margin:				0px;
 				border:				1px solid #342939;
 				padding:			0px;
 				width:				100%;
 			}
-			
+
 			#my_space {
 				width:				100%;
 				background-color:	#FFFFFF;
@@ -782,7 +789,7 @@ class Backend extends MySource_Object
 				tabIcon.className = 'sidenav-tab-icon-active';
 				tab = document.getElementById(tabName + '_tab');
 				tab.className = 'sidenav-tab-active';
-				
+
 				// save this tab name for next time
 				oldTabName = tabName;
 
@@ -960,6 +967,12 @@ class Backend extends MySource_Object
 				require_once SQ_INCLUDE_PATH.'/system_config_edit_interface.inc';
 				$cfg_ei = new System_Config_Edit_Interface();
 				$cfg_ei->paint($this);
+			break;
+
+			case 'tools' :
+				require_once SQ_INCLUDE_PATH.'/tools.inc';
+				$tools = new Tools();
+				$tools->paintBackend($this);
 			break;
 
 			case 'maps' :
