@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.41 2005/02/11 05:41:08 tbarrett Exp $
+* $Id: page_calendar_management.inc,v 1.42 2005/03/10 01:31:29 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -49,36 +49,45 @@ class Page_Calendar_Management extends Asset_Management
 
 		// The view types enabled for this calendar page
 		$this->vars['enabled_views'] = Array('added'     => '0.1',
-		                                     'type'      => 'serialise',
-		                                     'default'   =>	Array('year'   => 'calendar_format',
-		                                                          'month'  => 'calendar_format',
-		                                                          'week'   => 'calendar_format',
-		                                                          'month'  => 'calendar_format',
-		                                                          'day'    => 'calendar_format',
-		                                                          'event'  => 'single_event',
-		                                                    ),
+											 'type'      => 'serialise',
+											 'default'   =>	Array('year'   => 'calendar_format',
+																  'month'  => 'calendar_format',
+																  'week'   => 'calendar_format',
+																  'month'  => 'calendar_format',
+																  'day'    => 'calendar_format',
+																  'event'  => 'single_event',
+															),
 										);
 
 		// The view type you see when you first come to the page
 		$this->vars['initial_view'] = Array('added'       => '0.1',
-		                                    'type'        => 'selection',
-		                                    'default'     => 'year',
-		                                    'description' => 'The first view the user sees',
-	                                        'parameters'  => Array('options'  => Array('year'	=> 'Year',
-		                                                                               'month'	=> 'Month',
-		                                                                               'week'   => 'Week',
-		                                                                               'day'    => 'Day',
-		                                                                         ),
-		                                                           'multiple' => false,
-		                                                     ),
+											'type'        => 'selection',
+											'default'     => 'year',
+											'description' => 'The first view the user sees',
+											'parameters'  => Array('options'  => Array('year'	=> 'Year',
+																					   'month'	=> 'Month',
+																					   'week'   => 'Week',
+																					   'day'    => 'Day',
+																				 ),
+																   'multiple' => false,
+															 ),
 									  );
 
 		// The locations from which we draw event assets, assetid => className, where classname
 		// is the CSS class that should be applied to representations of events from that location
 		$this->vars['root_nodes'] =	Array('added'     => '0.1',
-                                          'type'      => 'serialise',
-                                          'default'   => Array(),
+										  'type'      => 'serialise',
+										  'default'   => Array(),
 									);
+
+		$this->vars['personalised'] = Array(
+										'added' => '0.5',
+										'type' => 'boolean',
+										'default' => '0',
+										'parameters' => Array(
+											'allow_empty' => false,
+										),
+									  );
 
 		// Which of the root nodes should get their own column in day view
 		$this->vars['columnise_day_view_by_root_node'] = Array('added'		 => '0.2',
@@ -95,28 +104,29 @@ class Page_Calendar_Management extends Asset_Management
 		// Earliest and latest times to display in week and day view, stored as strings
 		// rather than datetimes because we want to have 24:00 as a valid option
 		$this->vars['day_starts_at'] = Array('added'     => '0.1',
-		                                     'type'      => 'text',
-		                                     'default'   => '08:00',
-		                               );
+											 'type'      => 'text',
+											 'default'   => '08:00',
+									   );
 
 		$this->vars['day_ends_at'] = Array('added'     => '0.1',
-		                                   'type'      => 'text',
-		                                   'default'   => '20:00',
-		                             );
+										   'type'      => 'text',
+										   'default'   => '20:00',
+									 );
 
 		// Time-length of vertical partitions in the week and day views
 		$this->vars['day_partition_time'] = Array('added'			=> '0.1',
-										 		  'type'			=> 'selection',
+												  'type'			=> 'selection',
 												  'default'		=> '60m',
 												  'description'	=> 'The spacing of intervals in the calendar week and day views',
 												  'parameters'	=> Array('options' => Array(
 																					'10m' => '10 mins',
-															                        '15m'	=> '15 mins',
+																					'15m'	=> '15 mins',
 																					'20m'	=> '20 mins',
 																					'30m'	=> '30 mins',
 																					'60m'	=> '1 hour',
-																				      ),
-												                   ),
+																					  ),
+																		 'allow_empty' => false,
+																   ),
 											);
 
 		// Physical height of the vertical partitions in the week and day views
@@ -124,7 +134,7 @@ class Page_Calendar_Management extends Asset_Management
 													'type'			=> 'int',
 													'default'		=> '20',
 													'description'   => 'The height of each day interval\'s row in the week and day tables, in pixels',
-										      );
+											  );
 
 		// The width of columns in week view (pardon the bad name, a historical artefact)
 		$this->vars['table_column_width'] = Array('added'			=> '0.1',
@@ -153,14 +163,15 @@ class Page_Calendar_Management extends Asset_Management
 																					4 => 'Thursday',
 																					5 => 'Friday',
 																					6 => 'Saturday'),
-													           ),
+																	 'allow_empty' => false,
+															   ),
 										);
 
 		// Which weekdays to show in week view
 		$this->vars['week_view_show_days'] = Array('added'     => '0.1',
 												   'type'      => 'serialise',
 												   'default'   => Array(1, 1, 1, 1, 1, 1, 1)
-										     );
+											 );
 
 
 		// Date format for calendar view titles
@@ -192,6 +203,7 @@ class Page_Calendar_Management extends Asset_Management
 		$this->vars['month_links_to_week'] = Array('added'		=> '0.1',
 												   'type'		=> 'boolean',
 												   'default'	=> 'true',
+												   'parameters'  => Array('allow_empty' => false),
 											 );
 
 		// Text for the link that takes you to the broader view
@@ -239,17 +251,18 @@ class Page_Calendar_Management extends Asset_Management
 
 		// Whether you want to show a popup with the event description onmouseover
 		$this->vars['enable_description_popups'] = Array('added'	=> '0.1',
-													     'type'		=> 'boolean',
+														 'type'		=> 'boolean',
 														 'default'	=> 'false',
-												   );
+														 'parameters'  => Array('allow_empty' => false),
+													    );
 
 		// If this is nonzero, event DIVs will be sized so that there is always
 		// room for this number of them to sit side by side, even if there aren't
 		// ever this number of events occurring concurrently
 		$this->vars['column_capacity'] = Array('added'   => '0.4',
-		                                       'type'    => 'int',
-		                                       'default' => 0,
-		                                 );
+											   'type'    => 'int',
+											   'default' => 0,
+										 );
 
 	}//end constructor
 
@@ -264,7 +277,7 @@ class Page_Calendar_Management extends Asset_Management
 	{
 		return Array(
 					 'css/calendar_default.css',
-			         'js/drag_n_drop.js',
+					 'js/drag_n_drop.js',
 					 'js/popup.js',
 					 );
 
@@ -340,7 +353,7 @@ class Page_Calendar_Management extends Asset_Management
 			} else {
 				return parent::_updateOwnedAttribute($name, $curr_attr);
 			}
-		} elseif (in_array($name, Array('day_partition_height', 'table_column_width', 'month_column_width', 'month_row_height')) && ($curr_attr['type'] != 'int'))  {
+		} else if (in_array($name, Array('day_partition_height', 'table_column_width', 'month_column_width', 'month_row_height')) && ($curr_attr['type'] != 'int'))  {
 			if (!parent::_updateOwnedAttribute($name, $curr_attr)) {
 				return false;
 			}
@@ -362,6 +375,7 @@ class Page_Calendar_Management extends Asset_Management
 		}
 
 	}//end _updateOwnedAttribute()
+
 
 	function _upgrade($current_version)
 	{
@@ -389,7 +403,5 @@ class Page_Calendar_Management extends Asset_Management
 	}//end _upgrade()
 
 
-
 }//end class
-
 ?>

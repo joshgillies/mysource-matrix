@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.146 2005/02/17 04:47:55 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.147 2005/03/10 01:31:29 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.146 $
+* @version $Revision: 1.147 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -131,7 +131,7 @@ class Page_Calendar extends Page_Asset_Listing
 	{
 		// note our event types and that they're all customised
 		$this->setAttrValue('types', Array('calendar_event_single'=>1, 'calendar_event_recurring'=>1));
-		$this->setAttrValue('customised', Array('calendar_event_single', 'calendar_event_recurring'));
+		//$this->setAttrValue('customised', Array('calendar_event_single', 'calendar_event_recurring'));
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$linkid = Page::create($link);
@@ -144,8 +144,6 @@ class Page_Calendar extends Page_Asset_Listing
 		return $linkid;
 
 	}//end create()
-
-
 
 
 	/**
@@ -386,7 +384,7 @@ class Page_Calendar extends Page_Asset_Listing
 		}
 		return '';
 
-	}//end _getCacheKey
+	}//end _getCacheKey()
 
 
 	/**
@@ -449,6 +447,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 
 //--        FUNCTIONS TO GET CALENDAR CONTENTS        --//
+
 
 	/**
 	* Get the replacenent for the %calendar_title% keyword
@@ -514,7 +513,7 @@ class Page_Calendar extends Page_Asset_Listing
 				$this->filterAssetStatuses($events);
 				$this->printAssetList($events);
 			}
-		} elseif ($format == 'list_with_headings') {
+		} else if ($format == 'list_with_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getYearEventsByMonth($year);
 			foreach ($this->month_names_full as $month_num => $month_name) {
@@ -635,7 +634,7 @@ class Page_Calendar extends Page_Asset_Listing
 				$this->filterAssetStatuses($events);
 				$this->printAssetList($events);
 			}
-		} elseif ($format == 'list_with_headings') {
+		} else if ($format == 'list_with_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getMonthEventsByDay($year, $month);
 			$month_length = days_in_month($month, $year);
@@ -658,7 +657,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$column_width = $this->attr('month_column_width');
 			$row_height = $this->attr('month_row_height');
 			$week_start_day = $this->attr('week_starts_on');
-			$root_nodes = $this->_getRootNodes();
+			$root_nodes = $this->attr('root_nodes');
 			$root_node_keys = array_keys($root_nodes);
 			$week_length = 7;
 			$month_length = days_in_month($month, $year);
@@ -791,7 +790,7 @@ class Page_Calendar extends Page_Asset_Listing
 	function getWeekView($date, $format)
 	{
 		ob_start();
-		$root_nodes = $this->_getRootNodes();
+		$root_nodes = $this->attr('root_nodes');
 		$enabled_views = $this->attr('enabled_views');
 		if ($format == 'list_without_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
@@ -802,7 +801,7 @@ class Page_Calendar extends Page_Asset_Listing
 				$this->filterAssetStatuses($events);
 				$this->printAssetList($events);
 			}
-		} elseif ($format == 'list_with_headings') {
+		} else if ($format == 'list_with_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getWeekEventsByDay($date);
 			foreach ($events as $day_date => $day_events) {
@@ -859,7 +858,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$column_names = Array();
 			$column_links = Array();
 			if (array_values($this->attr('columnise_day_view_by_root_node')) != Array('*')) {
-				$root_nodes = array_keys($this->_getRootNodes());
+				$root_nodes = array_keys($this->attr('root_nodes'));
 				$columns_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($this->attr('columnise_day_view_by_root_node'));
 				foreach (array_keys($columns_info) as $k) {
 					if (!in_array($k, $root_nodes)) {
@@ -900,11 +899,12 @@ class Page_Calendar extends Page_Asset_Listing
 			$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($event_id));
 			$asset_list = Array($event_id => $info[$event_id]['type_code']);
 			$this->filterAssetStatuses($asset_list);
+			$this->filterAssetTypes($asset_list);
 			$type_folder = &$this->getFolder('type_formats');
 			$this->_tmp['type_folder_id']	= $type_folder->id;
 			$this->_tmp['is_default']		= Array();
 			if (!empty($asset_list)) {
-				$this->_printAsset($event_id, $info[$event_id]['type_code'], null);
+				$this->_printAsset($event_id, $asset_list[$event_id], null);
 			}
 			$res = ob_get_contents();
 		ob_end_clean();
@@ -1020,7 +1020,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$partition_height = $this->attr('day_partition_height');
 		$columns_are_assets = ($table_id == 'day') && (array_keys($column_names) != Array('*'));
 
-		$root_nodes = $this->_getRootNodes();
+		$root_nodes = $this->attr('root_nodes');
 		$width = ($table_id == 'day') ? $this->attr('day_column_width') : $this->attr('table_column_width');
 
 		$layout_maps =  Array();
@@ -1595,7 +1595,7 @@ class Page_Calendar extends Page_Asset_Listing
 	* @param string	$start		Start time (HH:MM)
 	* @param string	$end		End time (HH:MM)
 	* @param int	$spacing	Calendar spacing in MINUTES
-
+	*
 	* @return int
 	* @access private
 	*/
@@ -1669,22 +1669,6 @@ class Page_Calendar extends Page_Asset_Listing
 
 
 	/**
-	* Returns the current root node attribute
-	*
-	* This is in its separate function so that if this page is subclassed it can
-	* place restrictions or additions on what root nodes are used.
-	*
-	* @return Array
-	* @access protected
-	*/
-	function _getRootNodes()
-	{
-		return $this->attr('root_nodes');
-
-	}//end _getRootNodes()
-
-
-	/**
 	* Get the events to show in year view for the specified year
 	*
 	* @return array	( assetid => asset_type_code )
@@ -1694,7 +1678,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$res = Array();
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-		$root_nodes = $this->_getRootNodes();
+		$root_nodes = $this->attr('root_nodes');
 		$trees =&get_treeids($root_nodes);
 
 		if (empty($trees)) {
@@ -1712,6 +1696,7 @@ class Page_Calendar extends Page_Asset_Listing
 		// Get our single events
 		$date_sql = '(cd.start_date_year = '.$db->quote($year).') OR (cd.end_date_year = '.$db->quote($year).') OR  ((cd.start_date_ts < '.$db->quote($start_ts).') AND (cd.end_date_ts > '.$db->quote($start_ts).'))';
 		$sql = build_single_event_query_base($trees)."\n AND (".$date_sql.")\n AND ".$tree_sql;
+		$sql .= $this->_getPersonalisedSQL();
 		$single_events = $db->getAssoc($sql);
 		assert_valid_db_result($single_events);
 
@@ -1719,6 +1704,7 @@ class Page_Calendar extends Page_Asset_Listing
 		// Get our recurring events
 		$date_sql = 'cd.start_date_ts < '.$db->quote($end_ts);
 		$sql = build_recurring_event_query_base($trees, 'year', $year)."\n AND (".$date_sql.")\n AND ".$tree_sql;
+		$sql .= $this->_getPersonalisedSQL();
 		$recurring_events = $db->getAssoc($sql);
 		assert_valid_db_result($recurring_events);
 
@@ -1805,7 +1791,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// get the where clauses ready for tree restrictions
-		$root_nodes = $this->_getRootNodes();
+		$root_nodes = $this->attr('root_nodes');
 		$trees =& get_treeids($root_nodes);
 
 		if (empty($trees)) {
@@ -1825,6 +1811,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$date_sql = '((cd.start_date_year = '.$db->quote($year).' AND (cd.start_date_mon = '.$db->quote($month).' OR cd.end_date_mon = '.$db->quote($month).')) OR (cd.start_date_ts < '.$db->quote($start_ts).' AND cd.end_date_ts > '.$db->quote($start_ts).'))';
 
 		$sql = build_single_event_query_base($trees)."\n AND (".$date_sql.")\n AND ".$tree_sql;
+		$sql .= $this->_getPersonalisedSQL();
 		$single_result = $db->getAssoc($sql);
 		assert_valid_db_result($single_result);
 
@@ -1835,6 +1822,7 @@ class Page_Calendar extends Page_Asset_Listing
 		// Get our recurring events
 		$date_sql = 'cd.start_date_ts < '.$db->quote($end_ts);
 		$sql = build_recurring_event_query_base($trees, 'month', "$year-$month")."\n AND ".$tree_sql;
+		$sql .= $this->_getPersonalisedSQL();
 		$recur_result = $db->getAssoc($sql);
 		assert_valid_db_result($recur_result);
 
@@ -1893,7 +1881,7 @@ class Page_Calendar extends Page_Asset_Listing
 		list($year,$month,$day) = sscanf($date, '%04d-%02d-%02d');
 
 		// get the treeid restriction SQL
-		$root_nodes = $this->_getRootNodes();
+		$root_nodes = $this->attr('root_nodes');
 		$trees = &get_treeids($root_nodes);
 
 		if (empty($trees)) {
@@ -1908,11 +1896,13 @@ class Page_Calendar extends Page_Asset_Listing
 		$end_date_stamp = $start_date_stamp + 6;
 		$date_sql = '(cd.start_date_ds BETWEEN '.$db->quote($start_date_stamp).' AND '.$db->quote($end_date_stamp).') OR (cd.start_date_ds < '.$db->quote($start_date_stamp).' AND cd.end_date_ds >= '.$db->quote($start_date_stamp).')';
 		$sql = build_single_event_query_base($trees).' AND ('.$date_sql.') AND '.$tree_sql;
+		$sql .= $this->_getPersonalisedSQL();
 		$single_result = $db->getAssoc($sql);
 		assert_valid_db_result($single_result);
 
 		// get the recurring events
 		$sql = build_recurring_event_query_base($trees, 'week', $date).' AND '.$tree_sql;
+		$sql .= $this->_getPersonalisedSQL();
 		$recur_result = $db->getAssoc($sql);
 		assert_valid_db_result($recur_result);
 
@@ -2045,7 +2035,7 @@ class Page_Calendar extends Page_Asset_Listing
 		list($year,$month,$day) = sscanf($date, '%04d-%02d-%02d');
 
 		// build treeid restriction SQL
-		$root_nodes = $this->_getRootNodes();
+		$root_nodes = $this->attr('root_nodes');
 		$trees =& get_treeids($root_nodes);
 
 		if (empty($trees)) {
@@ -2057,23 +2047,18 @@ class Page_Calendar extends Page_Asset_Listing
 
 		// GET SINGLE EVENTS:
 
-		// build date restriction SQL
 		$today_date_stamp = floor(strtotime($date.' 12:00:00 GMT')/86400);
 		$date_sql = '(('.$today_date_stamp.' = cd.start_date_ds) OR ('.$today_date_stamp.' BETWEEN cd.start_date_ds AND cd.end_date_ds))';
-
-		// combine with the common SQL for single events and get result from DB
 		$sql = build_single_event_query_base($trees).' AND '.$date_sql.' AND '.$tree_sql;
 		$single_result = $db->getAssoc($sql);
+		$sql .= $this->_getPersonalisedSQL();
 		assert_valid_db_result($single_result);
-/*
-		foreach ($single_result as $id => $details) {
-			$single_result[$id]['type_code'] = 'calendar_event_single';
-		}
-*/
+
 		// GET RECURRING EVENTS:
 
 		// combine tree sql with the common SQL for recurring events and get result from DB
 		$sql = build_recurring_event_query_base($trees, 'day', $date).' AND '.$tree_sql;
+		$sql .= $this->_getPersonalisedSQL();
 		$recur_result = $db->getAssoc($sql);
 		assert_valid_db_result($recur_result);
 
@@ -2160,7 +2145,7 @@ class Page_Calendar extends Page_Asset_Listing
 		if (!$first_time) $first_time = $this->attr('day_starts_at');
 		if (!$time_partition) $time_partition = $this->attr('day_partition_time');
 		if (!$last_time) $last_time = $this->attr('day_ends_at');
-		if (!$root_nodes) $root_nodes = array_keys($this->_getRootNodes());
+		if (!$root_nodes) $root_nodes = array_keys($this->attr('root_nodes'));
 		$partition_keys = Array();
 		list($e_hour, $e_mins) = explode(':', $last_time);
 		$end_ts = $e_mins + (60 * $e_hour);
@@ -2238,7 +2223,28 @@ class Page_Calendar extends Page_Asset_Listing
 
 
 	/**
-	* Print the list of assets that we are listing
+	* Get SQL to add to queries to implement the 'personalised calendar' feature where appropriate
+	*
+	* @access private
+	* @return string	SQL to add to event-retrieval queries
+	*/
+	function _getPersonalisedSQL()
+	{
+		if ($this->attr('personalised')) {
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+			if (empty($userid)) return ' AND false';
+			$user_treeid = reset($GLOBALS['SQ_SYSTEM']->am->getRawTreeIdByAsset($userid, true));
+			$sql = "\n".' AND a.assetid IN (SELECT minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk sal JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree salt ON (sal.linkid = salt.linkid) WHERE salt.treeid LIKE '.$db->quote($user_treeid.'%').')';
+			return $sql;
+		}
+		return '';
+
+	}//end _getPersonalisedSQL()
+
+
+	/**
+	* Print the list of assets
 	*
 	* @param array	&$assets	an array of assets to print, assetid => Array(details), NB different to listing engine function
 	*

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.24 2005/01/05 23:22:26 tbarrett Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.25 2005/03/10 01:31:29 tbarrett Exp $
 *
 */
 
@@ -30,16 +30,17 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Page_Calendar_Edit_Fns
 *
 * Purpose
-*
+*	Functions to help with painting and processing the calendar page backend interface
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
 class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -112,8 +113,6 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			<?php
 		}
 		?></table>
-		<p style="width: 60ex; margin-left: 15ex">For each root node you can give the name of a CSS class you have defined, OR one of the CSS named colours to use when displaying events from that location.  (The CSS named colours are black, blue, fuchsia, gray, green, lime, maroon, navy, olive, purple, red, silver, teal, white, and yellow). </p>
-
 		<?php
 		return true;
 
@@ -181,7 +180,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 					if ($write_access && (strpos($current_views[$category], 'list') !== FALSE)) {
 						echo 'For each list entry, ';
 						combo_box($prefix.'_list_entry_types['.$category.']', $listing_entry_options, 0,  $current_list_entry_types[$category], 0);
-					} elseif (strpos($current_views[$category], 'list') !== FALSE) {
+					} else if (strpos($current_views[$category], 'list') !== FALSE) {
 						echo 'each entry shows  '.$listing_entry_options[$current_list_entry_types[$category]];
 					} else {
 						echo '&nbsp;';
@@ -430,6 +429,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	function processDayEnd(&$asset, &$o, $prefix)
 	{
 		if ($value = $this->_process5MinTimeField($prefix.'_day_end_time')) {
+			if ($value == '00:00') $value = '24:00';
 			$asset->setAttrValue('day_ends_at', $value);
 			return true;
 		} else {
@@ -507,11 +507,13 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	function paintLookAndFeel(&$asset, &$o, $prefix)
 	{
 		?>
-		<p style="width: 60ex; margin-left: 15ex">The Calendar Page has a default CSS file that controls the look and feel of the Calendar views.  A link to this CSS file is automatically
+		<p style="width: 80%; margin-left: 15ex">The Calendar Page has a default CSS file that controls the look and feel of the Calendar views.  A link to this CSS file is automatically
 		inserted into the head of the generated HTML document.</p>
 
-		<p style="width: 60ex; margin-left: 15ex">If you want to customise some or all of the style rules you can <a href="<?php echo sq_web_path('data')?>/asset_types/page_calendar/css/calendar_default.css">download the default CSS file</a> and modify it.  Put a link to your modified version in the parse file of
+		<p style="width: 80%; margin-left: 15ex">If you want to customise some or all of the style rules you can <a href="<?php echo sq_web_path('data')?>/asset_types/page_calendar/css/calendar_default.css">download the default CSS file</a> and modify it.  Put a link to your modified version in the parse file of
 		the design that applies to this page, <i>after</i> the "head" design area tag.</p>
+
+		<p style="width: 80%; margin-left: 15ex"><b>Note:</b>For week and day view calendar tables to render correctly, your site design <i>must</i> put the browser in a mode that correctly implements the W3C box model, eg by specifying the xhtml strict doctype.</p>
 		<?php
 
 	}//end paintLookAndFeel()
@@ -738,7 +740,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header">Root Node</td>
+				<td class="sq-backend-table-header">Event Source</td>
 				<td class="sq-backend-table-header">Show in Own Column?</td>
 			</tr>
 		<?php
@@ -805,6 +807,6 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 
 	}//end processColumnNodes()
 
-}//end class
 
+}//end class
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.23 2005/01/20 13:21:53 brobertson Exp $
+* $Id: calendar_common.inc,v 1.24 2005/03/10 01:31:25 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -979,6 +979,7 @@ function process_exceptions(&$res)
 	}
 	if (empty($exception_ids)) return false;
 	$exception_links = $GLOBALS['SQ_SYSTEM']->db->getAssoc('SELECT majorid, minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk WHERE minorid IN ('.implode(', ',	$exception_ids).')');
+	assert_valid_db_result($exception_links);
 	foreach ($res as $key => $details) {
 		$id = explode(':', $key);
 		$id = $id[0];

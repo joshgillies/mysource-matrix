@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.24 2005/01/20 13:21:53 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.25 2005/03/10 01:31:29 tbarrett Exp $
 *
 */
 -->
@@ -36,20 +36,25 @@
 		<text width="25" height="1" />
 	</field>
 	</section>
-	<section name="Root Nodes" write_access="write:attributes">
+	<section name="Event Sources" write_access="write:attributes">
 		<field>
-			<display_name />
-			<note></note>
+			<display_name>Event Sources</display_name>
+			<note>Choose the locations in the asset tree from which you want to list events.  For each location you can specify a CSS class, or one of the CSS named colours, to use when displaying events from that location.  (The CSS named colours are black, blue, fuchsia, gray, green, lime, maroon, navy, olive, purple, red, silver, teal, white and yellow).</note>
 			<function_call>
 				<paint_function   name="paintRootNodes"   />
 				<process_function name="processRootNodes" />
 			</function_call>
 		</field>
+		<field attribute="personalised">
+			<display_name>Personalise?</display_name>
+			<note>If you set this to 'yes', events will only be shown if they are linked somewhere under the current user as well as under one of the locations specified above.</note>
+			<boolean true_text="Yes" false_text="No" />
+		</field>
 	</section>
-	<section name="Overall View Settings" write_access="write:attributes">
+	<section name="Overall Settings" write_access="write:attributes">
 		<field>
 			<display_name>Enabled Views</display_name>
-			<note />
+			<note>Choose which calendar views you want to be available on the frontend, and their style.</note>
 			<function_call>
 				<paint_function	name="paintViewsChooser" />
 				<process_function name="processViewsChooser" />
@@ -57,7 +62,7 @@
 		</field>
 		<field>
 			<display_name>Initial View</display_name>
-			<note />
+			<note>Choose the first view you want frontend users to see</note>
 			<function_call>
 				<paint_function	name="paintInitialView" />
 				<process_function name="processInitialView" />
@@ -78,10 +83,6 @@
 			<note>Text for the link that takes the user to the next period in the current view (eg from January to February).  The keyword %v% is available in this text, and will be replaced with the name of the current view.</note>
 			<text />
 		</field>
-
-	</section>
-
-	<section name="Settings for All Views" write_access="write:attributes">
 		<field attribute="week_starts_on">
 			<display_name>First Day in Week</display_name> 
 			<note />
@@ -125,8 +126,8 @@
 			<int width="6" />
 		</field>
 		<field attribute="month_links_to_week">
-			<display_name>Display Links to Week View</display_name>
-			<note>If this option is set, the Month View calendar will display a link at the start of each row to the relevant week</note>
+			<display_name>Enable Week Links</display_name>
+			<note>If you set this to 'yes', the calendar-format month view will display a link to the relevant week view at the start of each row</note>
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
@@ -149,7 +150,7 @@
 			</function_call>
 		</field>
 		<field attribute="table_column_width">
-			<display_name>Width of WEEK columns (px)</display_name>
+			<display_name>Width of columns (px)</display_name>
 			<note />
 			<int width="6" />
 		</field>
@@ -193,8 +194,8 @@
 			<assetid type_codes="page_asset_builder:D,page_appointment_builder:I" />
 		</field>
 		<field attribute="enable_event_dragging">
-			<display_name>Enable Drag-and-Drop editing of Single Events</display_name>
-			<note></note>
+			<display_name>Enable Drag-and-Drop editing?</display_name>
+			<note>If you set this to "yes", users with appropriate access will be able to drag single calendar events and drop them at another point in time.</note>
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
@@ -209,8 +210,8 @@
 			</function_call>
 		</field>
 		<field>
-			<display_name>Columnise by root node</display_name> 
-			<note>Choose the root nodes by which you want to columnise day views</note>
+			<display_name>Columns</display_name> 
+			<note>Choose which event sources should have their own columns</note>
 			<function_call>
 				<paint_function name="paintColumnNodes" />
 				<process_function name="processColumnNodes" />
@@ -218,11 +219,11 @@
 		</field>
 		<field attribute="other_column_name">
 			<display_name>Name of 'Other' Column</display_name>
-			<note>If no 'Columnise by Root Node' settings are set the default column name is 'Events'; otherwise the default is 'Other'. Enter a column name here to override these defaults</note>
+			<note>If the 'other' column is the only column, its default name is 'Events'; otherwise the default is 'Other'. Enter a column name here to override these defaults</note>
 			<text width="40" height="1" />
 		</field>
 		<field attribute="day_column_width">
-			<display_name>Width of DAY columns (px)</display_name>
+			<display_name>Width of columns (px)</display_name>
 			<note />
 			<int width="6" />
 		</field>
