@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.14 2004/05/19 23:42:29 lwright Exp $
+* $Id: form_email.inc,v 1.15 2004/05/19 23:43:32 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -173,7 +173,6 @@ class Form_Email extends Form
 			$current_value = @unserialize($email_format_attr->value);
 			$current_value['to'][] = $address;
 			$email_format_attr->value = serialize($current_value);
-			pre_echo($email_format_attr);
 
 			$email_format_attr->sendMail($reps);
 		}
