@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.230 2003/10/07 06:51:36 dwong Exp $
+* $Id: asset.inc,v 1.231 2003/10/10 04:21:18 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2058,6 +2058,63 @@ class Asset extends MySource_Object
 		return $this->_tmp['attributes'][$name];
 
 	}//end getAttribute()
+
+
+	/**
+	* returns the keywords with their replacements in the form:
+	* <pre>
+	* Array(
+	*     'name' => Array (
+	*          'value' => 'page',
+	*          'description' => 'the asset name',
+	*     ),
+	* )
+	* </pre>
+	*
+	* @param boolean $descriptions if TRUE descriptions will be included in the array
+	*
+	* @access public
+	* @return Array(mixed)
+	*/
+	function getAssetKeywords($descriptions=false)
+	{
+		$keywords = Array();
+		
+		$keywords['asset_name']['value']			= $this->name;
+		$keywords['asset_short_name']['value']		= $this->short_name;
+		$keywords['asset_version']['value']			= $this->version;
+		$keywords['asset_created']['value']			= date('Y-m-d H:i:s', $this->created);
+		$keywords['asset_updated']['value']			= date('Y-m-d H:i:s', $this->updated);
+		$keywords['asset_created_short']['value']	= date('Y-m-d', $this->created);
+		$keywords['asset_updated_short']['value']	= date('Y-m-d', $this->updated);
+		$keywords['asset_url']['value']				= $this->getUrl();
+		$keywords['asset_href']['value']			= $this->getHref();
+
+		foreach ($this->vars as $name => $info) {
+			if ($info['type'] == 'serialise') continue;
+			$keywords['asset_attribute_'.$name]['value'] = $info['value'];
+			
+			if ($descriptions) {
+				$attr = &$this->getAttribute($name);
+				$keywords['asset_attribute_'.$name]['description'] = $attr->description;
+			}
+		}
+
+		if ($descriptions) {
+			$keywords['asset_name']['description']			= 'Full name of the asset';
+			$keywords['asset_short_name']['description']	= 'Short name of the asset';
+			$keywords['asset_version']['description']		= 'Version of the asset being displayed';
+			$keywords['asset_created']['description']		= 'The date and time the asset was created';
+			$keywords['asset_updated']['description']		= 'The date and time the asset was last updated';
+			$keywords['asset_created_short']['description'] = 'The date when the asset was created';
+			$keywords['asset_updated_short']['description'] = 'The date when the asset was last updated';
+			$keywords['asset_url']['description']			= 'The absolute url to the asset';
+			$keywords['asset_href']['description']			= 'The relative href to the asset';
+		}
+		
+		return $keywords;
+
+	}// end getAssetKeywords()
 
 
 //--        PERMISSIONS/ACCESS        --//
