@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.277 2004/02/16 01:14:36 gsherwood Exp $
+* $Id: asset.inc,v 1.278 2004/02/27 05:25:04 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -347,45 +347,16 @@ class Asset extends MySource_Object
 			// cascade permissions, and schemas on this asset that the parent has if the parent is not the root folder
 			$this->_tmp[__CLASS__.'_in_create_cascading'] = true;
 
-			// setting permissions
-			foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
-				$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($link['asset']->id, $perm, null, false, false, true);
-				foreach ($set_perms as $userid => $access) {
-					if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $userid, $perm, $access)) {
-						$ms->abortLog();
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-						$this->id = 0;
-						return false;
-					}
-				}
+			error_log('doing clone is asset.inc');
+			if (!$GLOBALS['SQ_SYSTEM']->am->cloneComponents($link['asset'], $this, Array('permissions', 'metadata_schemas', 'workflow'))) {
+				$ms->abortLog();
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
+				$this->id = 0;
+				error_log(' was not successfull');
+				return false;
 			}
-
-			// setting metadata schemas
-			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-			$schemas = $mm->getSchemas($link['asset']->id);
-			foreach ($schemas as $schemaid => $access) {
-				if (!$mm->setSchema($this->id, $schemaid, $access)) {
-					$ms->abortLog();
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-					$this->id = 0;
-					return false;
-				}
-			}
-
-			// setting workflow schemas
-			$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-			$schemas = $wfm->getSchemas($link['asset']->id);
-			foreach ($schemas as $schemaid => $access) {
-				if (!$wfm->setSchema($this->id, $schemaid, $access)) {
-					$ms->abortLog();
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-					$this->id = 0;
-					return false;
-				}
-			}
+			error_log(' was successful');
 
 			unset($this->_tmp[__CLASS__.'_in_create_cascading']);
 
@@ -588,198 +559,6 @@ class Asset extends MySource_Object
 		}
 
 	}//end _loadVars()
-
-
-	/**
-	* Create a duplicate of this asset
-	*
-	* The only child assets that are duplicated are the ones that are <i>DEPENDANTLY</i> linked to this asset.
-	* <i>NO OTHER</i> linked assets are duplicated.
-	*
-	* @param Array	&$link				information used to create the initial link,
-	* <PRE>
-	* Array ('asset'      => [ref major asset to create link under],
-	*        'link_type'  => SQ_LINK_?,
-	*        'value'      => [link value],
-	*        'sort_order' => [link sort order],
-	*        'dependant'  => [0|1],
-	*        'exclusive'  => [0|1]
-	*        )
-	* </PRE>
-	* @param Array	&$dupe_map			a map for that can be used for re-indexing data held in
-	*									assets of the form Array([old asset id] => [new asset id])
-	* @param bool	$dupe_dependants	whether or not to duplicate any assets that are dependantly
-	*									linked to this asset, only works if $link is not empty
-	* @param bool	$dupe_directory		whether or not to duplicate this assets data directory
-	*
-	* @return mixed reference to the new object or NULL if an error occured
-	* @access public
-	*/
-	function &duplicate(&$link, &$dupe_map, $dupe_dependants=true, $dupe_directory=true)
-	{
-		if (!empty($link)) {
-			// make sure the initial link information is passed in
-			if (!isset($link['asset']))     trigger_error('Cant create asset without an asset to link to', E_USER_ERROR);
-			if (!isset($link['link_type'])) trigger_error('Cant create asset without a link type', E_USER_ERROR);
-		}
-
-		$null = null; // needed because we return by reference
-		if (!$this->id) return $null;
-
-		$lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, 'all');
-		if (empty($lock)) {
-			trigger_error('You need to acquire an "all" lock on this asset before it can be duplicated', E_USER_WARNING);
-			return $null;
-		}
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		// welcome to sequences, they are cool, see the PEAR::DB docs for more info
-		$assetid = $db->nextId('sq_sequence_asset');
-		if (DB::isError($assetid)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error($assetid->getMessage().'<br/>'.$assetid->getUserInfo(), E_USER_ERROR);
-		}
-
-		$now    = time();
-		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
-		// version number starts at 0.0.0 again because the dupe is a brand new asset
-		$initial_version = '0.0.0';
-
-		$values = Array('assetid'        => $assetid,
-						'version'        => $initial_version,
-						'type_code'      => $this->type(),
-						'name'           => $this->name.' - Duplicate',
-						'short_name'     => $this->short_name.' - Duplicate',
-						'status'         => SQ_STATUS_UNDER_CONSTRUCTION,
-						'created'        => ts_iso8601($now),
-						'created_userid' => $userid,
-						'updated'        => ts_iso8601($now),
-						'updated_userid' => $userid
-						);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset', $values)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return $null;
-		}
-
-		$dupe = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $this->type());
-		if (is_null($dupe)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return $null;
-		}
-
-		// Lock the new dupe in the same chain as we are locked
-		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($dupe->id, 'all', $this->id)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return $null;
-		}
-
-		// Now we set all the attributes
-		foreach($this->vars as $name => $data) {
-			if (!$dupe->setAttrValue($name, $data['value'])) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return $null;
-			}
-		}
-		$dupe->saveAttributes();
-
-		if (!empty($link)) {
-			// create the initial link
-			if (!isset($link['value']))      $link['value']      = '';
-			if (!isset($link['sort_order'])) $link['sort_order'] = -1;
-			if (!isset($link['dependant']))  $link['dependant']  = 0;
-			if (!isset($link['exclusive']))  $link['exclusive']  = 0;
-
-			// OK what we are going to do is make sure that the new parents lock is
-			// in the same chain as our current lock
-			$parent_lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id, 'links');
-			if (empty($parent_lock) || $parent_lock['source_assetid'] != $lock['source_assetid']) {
-
-				if (!empty($parent_lock)) {
-					if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($link['asset']->id, 'links')) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return $null;
-					}
-				}
-
-				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($link['asset']->id, 'links', $lock['source_assetid'])) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return $null;
-				}
-			}
-
-			$linkid = $link['asset']->createLink($dupe, $link['link_type'], $link['value'], $link['sort_order'], $link['dependant'], $link['exclusive']);
-			if(empty($linkid)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return $null;
-			}
-
-			// OK now that we are linked up let's our dependants
-			if ($dupe_dependants) {
-				$dependant_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
-
-				if (!empty($dependant_links)) {
-					$create_link = Array('asset'      => &$dupe,
-										 'link_type'  => null,
-										 'value'      => null,
-										 'sort_order' => -1,
-										 'dependant'  => '1',
-										 'exclusive'  => '0');
-					$am = &$GLOBALS['SQ_SYSTEM']->am;
-					foreach($dependant_links as $data) {
-						// If this asset has already been duplicated in this duplication run
-						// then just link it to the new duplicate of ourselves
-						if (isset($dupe_map[$data['minorid']])) {
-
-							$duped_child = &$GLOBALS['SQ_SYSTEM']->am->getAsset($dupe_map[$data['minorid']], $data['minor_type_code']);
-							if (is_null($duped_child)) {
-								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-								return $null;
-							}// end if
-
-							$linkid = $dupe->createLink($duped_child, $data['link_type'], $data['value'], $data['sort_order'], '1', $data['exclusive']);
-							if (!$linkid) {
-								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-								return $null;
-							}// end if
-
-						// otherwise duplicate and link
-						} else {
-							$child = &$am->getAsset($data['minorid'], $data['minor_type_code']);
-							if (is_null($child)) continue;
-							$create_link['link_type']	= $data['link_type'];
-							$create_link['value']		= $data['value'];
-							$create_link['sort_order']	= $data['sort_order'];
-							$create_link['exclusive']	= $data['exclusive'];
-							$duped_child = &$child->duplicate($create_link, $dupe_map, true, $dupe_directory);
-							if (is_null($duped_child)) {
-								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-								return $null;
-							}
-						}// end if
-					}// end fpr
-				}// end if empty
-			}// end if dupe dependants
-
-		}// end if !empty(link)
-
-		// OK if we got this far let's copy the directory (if it exists)
-		if ($dupe_directory && is_dir($this->data_path)) {
-			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-			if (!copy_directory($this->data_path, $dupe->data_path)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return $null;
-			}
-		}
-
-		// if we got this far all is well,
-		// so add to the map and return the duplicate
-		$dupe_map[$this->id] = $dupe->id;
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return $dupe;
-
-	}//end duplicate()
 
 
 	/**
