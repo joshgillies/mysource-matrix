@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.24 2005/01/20 13:10:35 brobertson Exp $
+* $Id: edit.js,v 1.25 2005/02/20 23:47:05 tbarrett Exp $
 *
 */
 
@@ -29,14 +29,14 @@ if(document.all) { document.onkeydown = sq_process_key_down; }
 function sq_process_key_down() {
 
 	var key;
-	
+
 	// was the ALT key pressed?
 	if(!event.altKey) return true;
 
 	// okay, ALT was pressed - but what other key was pressed?
 	key = String.fromCharCode(event.keyCode);
 	key = key.toLowerCase();
-	
+
 	switch (key) {
 		case "v" :
 			// preview the asset on the frontend in a new window
@@ -137,4 +137,121 @@ function sq_toggle_double_div(div1ID, div2ID, textID, text1, text2) {
 		div2.style.display = 'block';
 		infoToggle.innerHTML = text2;
 	}
+
 }//end sq_toggle_double_div()
+
+
+/**
+* Validate value of current input box of the duration attribute
+*
+* @param object	input		input field which fires an event
+* @param object evt			event object
+*
+* @return boolean	false if non digit key was pressed
+* @access public
+*/
+function checkDurationValue(input, evt)
+{
+	var prevalue = input.value;
+	var key = (typeof evt.which == "undefined")?evt.keyCode:evt.which;
+	if (key == 8 || key == 0) return true;
+
+	textboxReplaceSelect(input, String.fromCharCode(key));
+	var newval = input.value;
+
+	// catch +/- keys (45 -> -, 43 -> +)
+	if (key == 45) {
+		newval = prevalue - 1;
+	}
+	if (key == 43) {
+		newval = prevalue * 1 + 1;
+	}
+
+	if (newval < 0) newval = 0;
+
+	if (newval * 1 == newval) {
+		input.value = Math.floor(newval);
+	} else {
+		input.value = prevalue;
+	}
+
+	if (key == 43 || key == 45) {
+		updateDurationValues(input);
+	}
+
+	// stop event here
+	evt.cancelBubble = true;
+	evt.returnValue = false;
+	return false;
+
+}//end checkDurationValue()
+
+
+/**
+* Updates whole duartion attribute input boxes set by carrying values between fields
+*
+* @param object	input		one of the input boxes from the attribute
+*
+* @return void
+* @access public
+*/
+function updateDurationValues(input)
+{
+	var fields = Array("days", "hours", "minutes", "seconds");
+	var weights = Array(86400, 3600, 60, 1);
+
+	//catch the prefix
+	var prefix = "";
+	for (var i = 0; i < fields.length; i++) {
+		if (input.id.indexOf(fields[i]) > 0) {
+			prefix = input.id.substring(0, input.id.indexOf(fields[i]));
+		}
+	}
+
+	var total = 0;
+	for (var i = 0; i < fields.length; i++) {
+		var element = document.getElementById(prefix + fields[i]);
+		if (element) {
+			total += element.value * weights[i];
+		}
+	}
+
+	for (var i = 0; i < fields.length; i++) {
+		var element = document.getElementById(prefix + fields[i]);
+		if (element) {
+			curvalue = Math.floor(total / weights[i]);
+			total -= curvalue * weights[i];
+			element.value = curvalue;
+		}
+	}
+
+}//end updateDurationValues()
+
+
+/**
+* Changes selected text in the input field to given one.
+*
+* If nothing selected add the text to the end
+*
+* @param object	input		input field which fires an event
+* @param object text		text to be set
+*
+* @return viod
+* @access public
+*/
+function textboxReplaceSelect(input, text)
+{
+	if (document.selection) {
+		var range = document.selection.createRange();
+		range.text = text;
+		range.collapse(true);
+		range.select();
+	} else {
+		var start = input.selectionStart;
+		input.value = input.value.substring(0, start) + text + input.value.substring(input.selectionEnd, input.value.length);
+		input.setSelectionRange(start + text.length, start + text.length);
+	}
+
+	input.focus();
+
+}//end textboxReplaceSelect()
