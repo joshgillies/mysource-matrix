@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.29 2004/09/17 03:22:34 gsherwood Exp $
+* $Id: page_asset_builder.inc,v 1.30 2004/10/15 05:30:30 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,6 +35,8 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
+* @author  Avi Miller <avi.miller@squiz.net>
+* @author  Marcus Nyeholt <mnyeholt@squiz.net>
 * @version $Version$ - 1.4
 * @package MySource_Matrix_Packages
 * @subpackage cms
@@ -239,8 +241,12 @@ class Page_Asset_Builder extends Page
 		}
 
 		// if a new asset is created, it will be stored in the tmp vars for use by other asset types
-		// that extend this one, but we wont need it any more - so chuck it out
-		if (isset($this->_tmp['created_asset'])) unset($this->_tmp['created_asset']);
+		// that extend this one, but we wont need it any more - so chuck it out, but first, load up
+		// some replacements for the newly created asset
+		if (isset($this->_tmp['created_asset'])) {
+			$this->_loadAssetReplacements();
+			unset($this->_tmp['created_asset']);
+		}
 
 		if (empty($this->_current_state)) {
 			if (is_null($current_user)) {
@@ -269,7 +275,7 @@ class Page_Asset_Builder extends Page
 	{
 		?>
 		<script type="text/javascript" language="javascript" src="<?php echo sq_web_path('lib');?>/html_form/html_form.js"></script>
-		<form name="asset_builder_<?php echo $this->id; ?>" method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>" enctype="multipart/form-data">
+		<form name="asset_builder_<?php echo $this->id; ?>" method="POST" action="<?php echo $_SERVER['../../../../../../matrix_stable/mysource_matrix/packages/cms/page_templates/page_asset_builder/PHP_SELF']; ?>" enctype="multipart/form-data">
 			<?php
 			echo hidden_field('ASSET_BUILDER_ACTION', $this->_default_state);
 			$this->_printContents();
@@ -622,6 +628,22 @@ class Page_Asset_Builder extends Page
 
 
 	/**
+	* Loads keyword replacements for the newly created asset, into the Asset Builder
+	*
+	* @return void
+	* @access private
+	*/
+	function _loadAssetReplacements()
+	{
+		$this->_replacements['created_assetid'] = $this->_tmp['created_asset']->id;
+		$this->_replacements['created_asset_name'] = $this->_tmp['created_asset']->name;
+		$this->_replacements['created_asset_short_name'] = $this->_tmp['created_asset']->short_name;
+		$this->_replacements['created_asset_url'] = $this->_tmp['created_asset']->getURL();
+		
+	}//end _loadAssetReplacements()
+
+
+	/**
 	* Loads keyword replacements for the create asset interface, into the Asset Builder
 	*
 	* @return void
@@ -699,7 +721,7 @@ class Page_Asset_Builder extends Page
 					$prefix = $this->type().'_'.$this->id.'_type_'.$create_type;
 					?>
 						<div class="sq-asset-builder-tab<?php echo ($i == 0) ? '-active' : ''; ?>" id="<?php echo $prefix.'_tab'; ?>">
-							<a href="#" onclick="showAssetBuilderTab('<?php echo $create_type ?>'); return false;">
+							<a href="#" onClick="showAssetBuilderTab('<?php echo $create_type ?>'); return false;">
 								<?php
 								$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($create_type, 'name');
 								echo $type_name;
@@ -875,6 +897,12 @@ class Page_Asset_Builder extends Page
 										'default' => str_replace('%name%', $name, (($data['input_style'] == 'dropdown') ? $dropdown_default : $radio_default)),
 										'type' => 'special');
 		}
+
+		$keywords['created_assetid'] = Array('name' => 'Created Asset ID', 'default' => 'Created Asset ID', 'type' => 'inline');
+		$keywords['created_asset_name'] = Array('name' => 'Created Asset Name', 'default' => 'Created Asset Name', 'type' => 'inline');
+		$keywords['created_asset_short_name'] = Array('name' => 'Created Asset Short Name', 'default' => 'Created Asset Short Name', 'type' => 'inline');
+		$keywords['created_asset_url'] = Array('name' => 'Created Asset URL', 'default' => 'Created Asset URL', 'type' => 'inline');
+
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 
 	}//end onRequestKeywords()
