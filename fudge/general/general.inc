@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.22 2004/08/05 04:58:49 mmcintyre Exp $
+* $Id: general.inc,v 1.23 2004/08/06 06:20:32 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -133,7 +133,8 @@ function htmlentities_array(&$array, $encode_keys=false)
 * @return boolean	true if instance removed, false if not found
 * @access public
 */
-function array_remove_element($v, &$a) {
+function array_remove_element($v, &$a)
+{
 	if (!is_array($a) || empty($a)) return false;
 	if(in_array($v,$a)) {
 		unset($a[array_search($v,$a)]);
@@ -337,32 +338,37 @@ function security_key_image($word, $w, $h, $bg='FFFFFF', $text='000000', $border
 
 }//end security_key_image()
 
+
 /**
 * Return the supplied number with ordinal suffix added
 *
 * @param int	$num	the number to add the suffix to
 *
-* @return the supplied number with the appropriate suffix - 'th', 'st', 'rd' or 'nd'
+* @return string
 * @access public
 */
-function add_ordinal_suffix($num) {
-	if ((10 < ($num % 100)) && (($num % 100) < 20))
-		return $num + 'th';
-	else
+function add_ordinal_suffix($num)
+{
+	if ((10 < ($num % 100)) && (($num % 100) < 20)) {
+		return $num.'th';
+	} else {
 		switch ($num % 10) {
 			case 1:
-				return $num . 'st';
+				return $num.'st';
 
 			case 2:
-				return $num . 'nd';
+				return $num.'nd';
 
 			case 3:
-				return $num . 'rd';
+				return $num.'rd';
 
 			default:
-				return $num . 'th';
+				return $num.'th';
 		}
-}
+	}
+
+}//end add_ordinal_suffix()
+
 
 /**
 * Return the supplied number with ordinal suffix as it would be used in a backwards count
@@ -372,14 +378,13 @@ function add_ordinal_suffix($num) {
 *
 * @param int	$num	the number to add the suffix to
 *
-* @return the supplied number with the appropriate suffix - 'th', 'st', 'rd' or 'nd'
+* @return string
 * @access public
 */
-function add_reverse_ordinal_suffix($num) {
-	if ($num == 1)
-		return '';
-	else 
-		return add_ordinal_suffix($num);
-}
+function add_reverse_ordinal_suffix($num)
+{
+	return ($num == 1) ? '' : add_ordinal_suffix($num);
+	
+}//end add_reverse_ordinal_suffix()
 
 ?>
