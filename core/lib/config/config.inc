@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.18 2005/01/20 13:10:35 brobertson Exp $
+* $Id: config.inc,v 1.19 2005/03/20 23:11:16 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the creation of the config files that are in PHP code
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 */
 class Config extends MySource_Object
@@ -174,8 +174,12 @@ class Config extends MySource_Object
 	function _paintConfigVar($var_name, $value, $var_export=true)
 	{
 		echo "define('", $var_name, "', ";
-		if ($var_export) var_export($value);
-		else echo $value;
+		if ($var_export) {
+			var_export($value);
+		} else {
+			echo $value;
+		}
+
 		echo ");\n";
 
 		return true;
@@ -241,7 +245,7 @@ class Config extends MySource_Object
 
 
 	/**
-	* Does the current user have writeAccess() to this config ? 
+	* Does the current user have writeAccess() to this config ?
 	*
 	* @return boolean
 	* @access public
@@ -259,7 +263,7 @@ class Config extends MySource_Object
 	/**
 	* Paints the interface for our config options.
 	*
-	* If you (as a sub-class) put your config vars so that when they are submitted appear in 
+	* If you (as a sub-class) put your config vars so that when they are submitted appear in
 	* $_POST[get_class($this)] then you probably won't need to override processBackend()
 	*
 	* @param object Backend_Outputter	&$o			reference to the backend outputter
@@ -318,7 +322,7 @@ class Config extends MySource_Object
 						if ($have_lock) {
 							submit_button('sq_lock_release_manual', 'Release Lock', 'set_hidden_field("process_form", "0");');
 						}
-					} elseif ($this->canAcquireLock()) {
+					} else if ($this->canAcquireLock()) {
 						submit_button('sq_lock_acquire', 'Lock', 'set_hidden_field("process_form", "0");');
 					}
 					?>
