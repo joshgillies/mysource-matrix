@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: search_page.inc,v 1.5 2003/10/15 01:18:30 dwong Exp $
+* $Id: search_page.inc,v 1.6 2003/11/13 00:26:31 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -14,7 +14,7 @@
 * @see Page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.5 $ - 1.0
+* @version $Revision: 1.6 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -181,10 +181,10 @@ class Search_Page extends Page
 		if (!isset($results_per_page))
 			$results_per_page = $this->attr('results_per_page');
 		?>
-		<form name="search_form" method="GET" action="<?=$this->getUrl()?>">
-		<input type=hidden name="mode" value="<?=$mode?>">
-		<input type=hidden name="current_result_page" value="<?=$current_result_page?>">
-		<input type=hidden name="results_per_page" value="<?=$results_per_page?>">
+		<form name="search_form" method="get" action="<?=$this->getUrl()?>">
+		<input type="hidden" name="mode" value="<?=$mode?>" />
+		<input type="hidden" name="current_result_page" value="<?=$current_result_page?>" />
+		<input type="hidden" name="results_per_page" value="<?=$results_per_page?>" />
 
 
 		<?php
@@ -321,16 +321,16 @@ class Search_Page extends Page
 			} else {
 				switch ($keyword) {
 					case 'submit_button':
-						$replacement  = '<input type=submit onClick="
+						$replacement  = '<input type="submit" onclick="
 							document.search_form.mode.value = \'results\';
 							return true;
-						" value="Search">';
+						" value="Search" />';
 					break;
 
 					case 'results_per_page':
-						$replacement = '<input type=text onChange="
+						$replacement = '<input type=text onchange="
 							document.search_form.results_per_page.value = this.value;
-						" value="'.$results_per_page .'">';
+						" value="'.$results_per_page .'" />';
 					break;
 
 					default:
