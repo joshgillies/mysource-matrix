@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.31 2005/03/03 16:39:19 brobertson Exp $
+* $Id: image.inc,v 1.32 2005/03/10 19:46:27 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -479,7 +479,6 @@ class Image extends File
 		$use_public_path = $this->usePublicPath();
 
 		$varieties = $this->attr('varieties');
-error_log(print_r($varieties, 1));
 		if (!empty($varieties)) {
 			foreach($varieties['lookups'] as $varietyid) {
 				$variety = &$this->getAsset($varietyid);
