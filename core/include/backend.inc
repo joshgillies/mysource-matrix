@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.89 2004/05/28 01:24:35 gsherwood Exp $
+* $Id: backend.inc,v 1.90 2004/06/02 02:41:16 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -270,12 +270,15 @@ class Backend extends MySource_Object
 	*/
 	function _printHeader()
 	{
+		if (isset($_GET['sq_popups_blocked'])) $_SESSION['sq_popups_blocked'] = (int) $_GET['sq_popups_blocked'];
+		$popups_blocked = (!isset($_SESSION['sq_popups_blocked']) || $_SESSION['sq_popups_blocked']);
+
 		$this->out->openRaw();
 		?>
 		<script language="JavaScript" type="text/javascript">
 			var REFRESH_UPDATE = <?php echo max(10, (int) SQ_CONF_REFRESH_INTERVAL); ?>; // number of seconds before refreshing frame
 
-			var last_messages_clicked = '0';
+			var popups_blocked = '<?php echo (int) $popups_blocked; ?>';
 
 			function reloadHeader() {
 				var current_assetid = '';
@@ -287,7 +290,7 @@ class Backend extends MySource_Object
 				var url = '<?php echo $this->getBackendUrl('header');?>'
 									+ '&current_assetid=' + current_assetid
 									+ '&sq_lock_type=' + lock_type
-									+ '&last_messages_clicked=' + last_messages_clicked;
+									+ '&sq_popups_blocked=' + popups_blocked;
 				document.location = url;
 			}
 		</script>
@@ -329,41 +332,69 @@ class Backend extends MySource_Object
 
 		// check for any new internal messages if we are not in LIMBO
 		if (!SQ_IN_LIMBO) {
+
+			$dhtml_messages = Array();
+
+
+			  //////////////////////////////
+			 //  POPUP BLOCKING MESSAGE  //
+			//////////////////////////////
+
+			if ($popups_blocked) {
+				$html = '
+					<table class="sq-backend-popups-blocked-table">
+						<tr>
+							<td rowspan="2" valign="middle" class="sq-backend-popups-blocked-cell"><img src="'.$this->out->filesPath('/images/icons/stop.png').'" width="31" height="33" border="0" alt="" /></td>
+							<td class="sq-backend-popups-blocked-heading" nowrap="nowrap">Popups are Blocked</td>
+							<td class="sq-backend-popups-blocked-body" align="right">[<a class="sq-backend-popups-blocked-body" href="#" onClick="Javascript: parent.frames[\'sq_header\'].cancelMsgDiv(); return false;">x</a>]</td>
+						</tr>
+						<tr>
+							<td class="sq-backend-popups-blocked-body" colspan="2">MySource Matrix requires popup blocking to be enabled for certain functions to work correctly.</td>
+						</tr>
+					</table>
+					';
+				$dhtml_messages['popups_blocked'] = Array('html' => str_replace("\n", '', $html), 'width' => '400');
+			}
+
+
+			  //////////////////////////////
+			 //  INTERNAL MESSAGE POPUP  //
+			//////////////////////////////
+			
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 	
-			if (isset($_SESSION['backend_header_last_refresh']) && !empty($_GET['last_messages_clicked'])) {
-				$last_messages_click = $_SESSION['backend_header_last_refresh'];
-			} else {
-				$last_messages_click = (isset($_SESSION['backend_header_last_messages_click'])) ? $_SESSION['backend_header_last_messages_click'] : 0;
-			}
-			$_SESSION['backend_header_last_messages_click'] = $last_messages_click;
-	
 			$msgs_from = (isset($_SESSION['backend_header_last_refresh'])) ? $_SESSION['backend_header_last_refresh'] : null;
-			$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, null, Array(SQ_MSG_UNREAD), Array(), $last_messages_click);
+			$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, null, Array(SQ_MSG_UNREAD), Array());
+
 			if (!empty($messages)) {
-				// found unread messages
 				$html = '
 				<table class="sq-backend-new-message-table">
 					<tr>
 						<td rowspan="2" valign="middle" class="sq-backend-new-message-cell"><img src="'.$this->out->filesPath('/images/icons/mail.png').'" width="31" height="33" border="0" alt="" /></td>
-						<td class="sq-backend-new-message-heading" nowrap>New Messages</td>
+						<td class="sq-backend-new-message-heading" nowrap="nowrap">New Messages</td>
 						<td class="sq-backend-new-message-heading" align="right">[<a class="sq-backend-new-message-body" href="#" onClick="Javascript: parent.frames[\'sq_header\'].cancelMsgDiv(); return false;">x</a>]</td>
 					</tr>
 					<tr>
-						<td class="sq-backend-new-message-body" nowrap colspan="2"><a class="sq-backend-new-message-body" href="#" onClick="Javascript: if (parent.frames[\'sq_sidenav\'] && parent.frames[\'sq_sidenav\'].refresh_internal_messages) { parent.frames[\'sq_header\'].last_messages_clicked = \'1\'; parent.frames[\'sq_sidenav\'].refresh_internal_messages(); }; return false;">'.$GLOBALS['SQ_SYSTEM']->user->name.' has '.count($messages).' new message'.((count($messages) > 1) ? 's' : '').'</a></td>
+						<td class="sq-backend-new-message-body" colspan="2" nowrap="nowrap">'.$GLOBALS['SQ_SYSTEM']->user->name.' has '.count($messages).' new message'.((count($messages) > 1) ? 's' : '').'</td>
 					</tr>
 				</table>
 				';
-				$html = str_replace("\n", '', $html);
+				$dhtml_messages['new_messages'] = Array('html' => str_replace("\n", '', $html), 'width' => '220');
+			}
+
+
+			if (!empty($dhtml_messages)) {
 				?>
 				<script language="Javascript" type="text/javascript">
+
 					var msgDiv = null;
 					var screenMenu = null;
 					var screenMenuFiller = null;
 	
-					var delay = 30;     // milliseconds between movements.
+					var delay = 30;     // milliseconds between movements
 					var myTimer = null;
 					var counter = null; // number of times to move the div
+					var messageIndex = 0;
 	
 					var divTop = 0;
 					var divLeft = 0;
@@ -375,26 +406,7 @@ class Backend extends MySource_Object
 						msgDiv.style.top = divTop + "px";
 						if (--counter < 0 && myTimer != null) {
 							clearInterval(myTimer);
-							setTimeout("hideMsgDiv()", 4000);
-						}
-					}
-	
-					function hideIt() {
-						// IE tranparency
-						msgDiv.style.filter = "alpha(opacity=" + counter + ")";
-	
-						// Mozilla transparency - DIV
-						var moz = '0.';
-						if (counter < 10) moz = moz + '0';
-						msgDiv.style.MozOpacity = moz + counter;
-	
-						// Mozilla transparency - SELECT
-						moz = '0.';
-						if ((100 - counter) < 10) moz = moz + '0';
-						if (screenMenu) screenMenu.style.MozOpacity = moz + (100 - counter);
-	
-						if (--counter < 0 && myTimer != null) {
-							cancelMsgDiv();
+							setTimeout("cancelMsgDiv()", 6000);
 						}
 					}
 	
@@ -410,20 +422,11 @@ class Backend extends MySource_Object
 						}
 						msgDiv.style.display = "block";
 						counter = msgDiv.offsetHeight;
+
 						divTop = (counter * -1) + parent.frames["sq_main"].document.body.scrollTop;
-						divLeft = parent.frames["sq_main"].document.body.offsetWidth + parent.frames["sq_main"].document.body.scrollLeft - msgDiv.offsetWidth - 20;
 						msgDiv.style.top = divTop + "px";
-						msgDiv.style.left = divLeft + "px";
-	
-						msgDiv.style.filter = "alpha(opacity=100)"; // IE transparency
-						msgDiv.style.MozOpacity = "1";              // Mozilla transparency
 	
 						myTimer = setInterval("moveIt(1)", delay);
-					}
-	
-					function hideMsgDiv() {
-						counter = 100;
-						myTimer = setInterval("hideIt()", delay);
 					}
 	
 					function cancelMsgDiv() {
@@ -438,9 +441,35 @@ class Backend extends MySource_Object
 							}
 							screenMenu.style.MozOpacity = "1";
 						}
+						showNextMessage();
 					}
+
+					function showNextMessage() {
+						if (!popupContents[messageIndex]) return;
+						msgDiv.innerHTML = popupContents[messageIndex]['html'];
+						divLeft = parent.frames["sq_main"].document.body.offsetWidth + parent.frames["sq_main"].document.body.scrollLeft - popupContents[messageIndex]['width'] - 20;
+						msgDiv.style.left = divLeft + "px";
+						
+						setTimeout("showMsgDiv()", 500);
+						messageIndex++;
+					}
+					
+					var popupContents = new Array();
+					<?php
+					$i = 0;
+					foreach ($dhtml_messages as $code => $message) {
+						if ($code == 'popups_blocked') continue;
+						?>
+						popupContents[<?php echo $i; ?>] = Array();
+						popupContents[<?php echo $i; ?>]['html'] = '<?php echo addslashes($message['html']); ?>';
+						popupContents[<?php echo $i; ?>]['width'] = '<?php echo addslashes($message['width']); ?>';
+						<?php
+						$i++;
+					}
+					?>
 	
 					if (parent.frames["sq_main"].document.body && parent.frames["sq_main"].SQ_DOCUMENT_LOADED) {
+
 						msgDiv = parent.frames["sq_main"].document.getElementById("new_message_popup");
 						screenMenu = parent.frames["sq_main"].document.getElementById("sq_screen_menu");
 						screenMenuFiller = parent.frames["sq_main"].document.getElementById("sq_screen_menu_filler");
@@ -454,11 +483,31 @@ class Backend extends MySource_Object
 							msgDiv.style.zIndex = "10";
 							parent.frames["sq_main"].document.body.appendChild(msgDiv);
 						}
-	
-						// set the contents of the div
-						msgDiv.innerHTML = '<?php echo addslashes($html)?>';
-	
-						setTimeout("showMsgDiv()", 500);
+
+						messageIndex = 0;
+						<?php
+						if (isset($dhtml_messages['popups_blocked'])) {
+							?>
+							var popup = window.open('', 'sq_popup_test', 'width=1px,height=1px,top=0,left=0');
+							if (!popup) {
+								msgDiv.innerHTML = '<?php echo addslashes($dhtml_messages['popups_blocked']['html']); ?>';
+								setTimeout("showMsgDiv()", 500);
+								divLeft = parent.frames["sq_main"].document.body.offsetWidth + parent.frames["sq_main"].document.body.scrollLeft - <?php echo $dhtml_messages['popups_blocked']['width']; ?> - 20;
+								msgDiv.style.left = divLeft + "px";
+								REFRESH_UPDATE = 20;
+							} else {
+								popup.close();
+								popups_blocked = '0';
+								showNextMessage();
+							}
+							<?php
+						} else {
+							?>
+							// show the first message
+							showNextMessage();
+							<?php
+						}
+						?>
 					}
 				</script>
 				<?php
@@ -477,7 +526,8 @@ class Backend extends MySource_Object
 			<tr>
 				<td nowrap class="sq-backend-header-item" valign="middle" height="99%">
 					<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1">
-					Logged in as: <b><?php echo $GLOBALS['SQ_SYSTEM']->user->name; ?> - <?php echo date('d M Y g:i a', $now); ?></b>
+					<a class="sq-backend-header-item" style="text-decoration:none;" href="#" onclick="Javascript: reloadHeader(); return false;">
+					Logged in as: <b><?php echo $GLOBALS['SQ_SYSTEM']->user->name; ?> - <?php echo date('d M Y g:i a', $now); ?></a></b>
 				</td>
 				<td align="right" width="100%">
 				<?php
