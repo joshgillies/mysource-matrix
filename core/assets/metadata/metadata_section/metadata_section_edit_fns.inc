@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.19 2004/07/07 04:24:36 lwright Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.20 2004/09/17 06:43:51 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -350,6 +350,32 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 		return true;
 
 	}//end getMetadataFieldValues()
+	
+	
+	/**
+	* Get the default values for this section
+	*
+	* @param object Metadata_Section	&$asset	the asset whose values we are getting
+	*
+	* @return array
+	* @access public
+	*/
+	function getMetadataDefaultValues(&$section)
+	{
+		$values = Array();
+
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($section->id, SQ_LINK_TYPE_2, 'metadata_field', false, 'major', null, true);
+		foreach ($current_links as $link) {
+			$field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			if (is_null($field)) continue;
+
+			$edit_fns = $field->getEditFns();
+			$values['fields'][$field->name] = $edit_fns->getMetadataDefaultValues($field);
+		}
+
+		return $values;
+
+	}//end getMetadataDefaultValues()
 
 
 }//end class

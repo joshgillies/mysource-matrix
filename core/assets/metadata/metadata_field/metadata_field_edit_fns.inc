@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.22 2004/08/02 03:24:06 gsherwood Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.23 2004/09/17 06:43:51 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -462,6 +462,24 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		return true;
 
 	}//end getMetadataFieldValues()
+	
+	
+	/**
+	* Get the default values for this field
+	*
+	* @param object Metadata_Field	&$asset	the asset whose values we are getting
+	*
+	* @return array
+	* @access public
+	*/
+	function getMetadataDefaultValues(&$field)
+	{
+		$values = Array();
+		$values['value'] = $field->attr('default');
+		$values['value_components'] = $field->attr('value_components');
+		return $values;
+
+	}//end getMetadataDefaultValues()
 
 
 }//end class
