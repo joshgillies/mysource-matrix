@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_js_calendar_navigator_management.inc,v 1.1 2004/09/10 04:23:40 arailean Exp $
+* $Id: design_area_js_calendar_navigator_management.inc,v 1.2 2004/09/10 05:45:34 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,7 +51,7 @@ class Design_Area_JS_Calendar_Navigator_Management extends Asset_Management
 				'added'			=> '0.1',
 				'type'			=> 'assetid',
 				'default'		=> '',
-				'description'   => 'Asset which will be controlled by this javascript calendar. This asset must supply 2 functions: getViewRequestName() and getDateRequestName(), which are the names of request variables that the target asset uses to determine what action to take. If asset is not supplied, this JavaScript calendar can be used standalone, with limited functionality.',
+				'description'   => 'Asset which will be controlled by this javascript calendar. If asset is not supplied, this JavaScript calendar can be used standalone, with limited functionality.',
 			),
 
 			'element_id'=> Array(
@@ -67,7 +67,6 @@ class Design_Area_JS_Calendar_Navigator_Management extends Asset_Management
 				'default'		=> '',
 				'description'   => 'Optional CSS',
 			),
-
 
 		);
 
