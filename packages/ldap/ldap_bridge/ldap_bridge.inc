@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.19 2004/11/25 00:32:31 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.19.2.1 2005/04/05 00:32:16 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -329,7 +329,7 @@ class LDAP_Bridge extends Bridge
 			// also add in groups based on our DN
 			$ou_groups = Array();
 			$matches = Array();
-			$reg_expression = '|ou=([^,]+),(.*)|';
+			$reg_expression = '|ou=([^,]+),(.*)|i';
 			$reg_string = $assetid;
 			while ($reg_string != '') {
 				preg_match_all($reg_expression, $reg_string, $matches);
