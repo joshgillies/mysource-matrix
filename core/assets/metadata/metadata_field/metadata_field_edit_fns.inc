@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: metadata_field_edit_fns.inc,v 1.11 2003/10/13 05:54:41 gsherwood Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.12 2003/11/14 03:04:51 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -477,7 +477,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 			if (trim($value_string) != '') echo '; ';
 		}
 		if (trim($value_string) != '') echo trim($value_string);
-		echo "\">\n";
+		echo "\" />\n";
 
 		return true;
 
