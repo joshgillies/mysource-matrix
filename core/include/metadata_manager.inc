@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: metadata_manager.inc,v 1.14 2003/10/21 06:28:54 dwong Exp $
+* $Id: metadata_manager.inc,v 1.15 2003/10/22 05:18:07 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -178,7 +178,7 @@ class Metadata_Manager extends MySource_Object
 
 		// add defaults to the indexing service
 		if ($access) {
-			$this->indexMetaData($asset, Array($schemaid));
+			$this->indexMetaData($asset->id, Array($schemaid));
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -313,13 +313,13 @@ class Metadata_Manager extends MySource_Object
 			return false;
 		}
 
-		$schemas = $this->getSchemas($asset->id, true);
-		if (empty($schemas)) return false;
+		$schemaids = $this->getSchemas($asset->id, true);
+		if (empty($schemaids)) return false;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		foreach ($schemas as $schemaid) {
+		foreach ($schemaids as $schemaid) {
 			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			if (is_null($schema)) {
 				trigger_error('Failed setting metadata, Schema #'.$schemaid.' does not exist', E_USER_WARNING);
@@ -344,11 +344,12 @@ class Metadata_Manager extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		$this->indexMetadata($assetid, $schemas);
+		$this->indexMetadata($assetid, $schemaids);
 
 		return true;
 
 	}//end setMetadata()
+
 
 	/** 
 	* Indexes metadata for an asset
@@ -373,10 +374,10 @@ class Metadata_Manager extends MySource_Object
 				}
 			}
 		}
-
 		$im->addKeyData($assetid, $this->getMetadataKeyData($assetid, $schemaids));
 		
-	} // end indexMetadata()
+	}//end indexMetadata()
+
 
 	/**
 	* Builds key data array for indexing, with keyword replacements.
@@ -391,10 +392,9 @@ class Metadata_Manager extends MySource_Object
 	function getMetadataKeyData($assetid, $schemaids)
 	{
 		// get the default values
-		$keyData = Array();
+		$keydata = Array();
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$asset =& $am->getAsset($assetid);
-
 		foreach ($schemaids as $schemaid) {
 			$sectionids = $am->getChildren($schemaid, 'metadata_section', false);
 			$metadata = $this->getSchemaMetadata($assetid, $schemaid);
@@ -412,121 +412,22 @@ class Metadata_Manager extends MySource_Object
 
 					$keywords = retrieve_keywords_replacements($value);
 
-					$replacements = Array();
-					foreach ($keywords as $keyword) {
-						$replacements[$keyword] = strtolower($this->getKeywordReplacement($asset, $keyword));
+					$replacements = $this->generateKeywordReplacements($asset, $keywords, false);
+					foreach ($keywords as $keyword => $replacement) {
+						$replacements[$keyword] = strtolower($replacement);
 					}
 					$value = replace_keywords($value, $replacements);
 
 					$word_counts = get_word_counts($value);
 					foreach ($word_counts as $word => $count) {
-						$asset->buildKeyData($keyData, $word, 'text', 'metadata:'. $field->id, $field->attr('weighting') * $count);
+						$asset->buildKeyData($keydata, $word, 'text', 'metadata:'. $field->id, $field->attr('weighting') * $count);
 					}
 				}
 			}
 		}
-		return $keyData;
-	} // end getMetadataKeyData()
+		return $keydata;
+	}//end getMetadataKeyData()
 
-
-	/**
-	* Returns the keyword replacement for a metadata field. Used for indexing.
-	* 
-	*/ 
-
-	function getKeywordReplacement(&$asset, $keyword) {
-		$out = '';
-		switch ($keyword) {
-			case 'asset_name'       :
-			case 'asset_short_name' :
-			case 'asset_version'    :
-				$field = substr($keyword,6);
-				$out .= $asset->$field;
-			break;
-
-			case 'asset_url' :
-				$out .= $asset->getURL();
-			break;
-
-			case 'asset_created' :
-			case 'asset_updated' :
-				$fn = substr($keyword,6);
-				$out .= date('Y-m-d H:i:s', $asset->$fn());
-			break;
-
-			case 'asset_created_short' :
-			case 'asset_updated_short' :
-				list($tmp, $fn) = split("_", $keyword);
-				$out .= date('Y-m-d H:i:s', $asset->$fn());
-			break;
-			
-			case 'asset_created_by_name' :
-			case 'asset_updated_by_name' :
-				list($tmp, $field) = split("_", $keyword);
-				$field .= '_userid';
-				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset->$field);
-				$out .= $user->name;
-			break;
-
-			case 'asset_created_by_first_name' :
-			case 'asset_created_by_last_name'  :
-			case 'asset_created_by_email'      :
-			case 'asset_updated_by_first_name' :
-			case 'asset_updated_by_last_name'  :
-			case 'asset_updated_by_email'      :
-				$field = substr($keyword,6,7);
-				$field .= '_userid';
-				$attr_name = substr($keyword,17);
-				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset->$field);
-				$out .= $user->attr($attr_name);
-			break;
-
-			case 'asset_read_permission'  :
-			case 'asset_write_permission' :
-			case 'asset_admin_permission' :
-				$perm_type = str_replace('_permission', '', $keyword);
-				$perm_type = substr($perm_type,6);
-				switch ($perm_type) {
-					case 'read':	$perm_type = SQ_PERMISSION_READ;	break;
-					case 'write':	$perm_type = SQ_PERMISSION_WRITE;	break;
-					case 'admin':	$perm_type = SQ_PERMISSION_ADMIN;	break;
-					default:		$perm_type = 0;						break;
-				}
-
-				$perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, $perm_type , true, false, true);
-				$names = Array();
-				foreach ($perms as $userid) {
-					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
-					if (is_null($user))
-						continue;
-					$names[] = $user->name;
-				}
-				$out = join(", ", $names);
-			break;
-
-			case 'system_name'   :
-				$out = SQ_CONF_SYSTEM_NAME;
-			break;
-
-			case 'system_owner'  :
-				$out = SQ_CONF_SYSTEM_OWNER;
-			break;
-
-			case 'default_email' :
-				$out = SQ_CONF_DEFAULT_EMAIL;
-			break;
-
-			case 'tech_email'    :
-				$out = SQ_CONF_TECH_EMAIL;
-			break;
-
-			default :
-				$out = "$keyword";
-			break;
-
-		}//end switch
-		return $out;
-	}
 
 	/**
 	* Check if all required fields have been completed for an asset
