@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_map.inc,v 1.104 2003/11/05 05:31:15 gsherwood Exp $
+* $Id: asset_map.inc,v 1.105 2003/11/16 22:52:24 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -763,7 +763,7 @@ class Asset_Map
 			if ($new_parent->id == $trash_folder->id) {
 				$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_SC_LINK_SIGNIFICANT, '', true, $link['linkid']);
 				if (!$num_other_links) {
-					$url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=delete_asset&assetid='.$asset->id.'&linkid='.$link['linkid'];
+					$url = '?SQ_BACKEND_PAGE=main&ignore_frames=1&backend_section=am&am_section=delete_asset&assetid='.$asset->id.'&linkid='.$link['linkid'];
 					$urlTree = new XML_Tree();
 					$urlTree->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));
 					$output->insertChild(Array('responses'), $response_count++, $urlTree);
@@ -841,7 +841,7 @@ class Asset_Map
 			return;
 		}
 
-		$url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=duplicate&assetid='.$asset->id.'&to_parent_assetid='.$new_parent->id.'&to_parent_pos='.$input->root->attributes['to_parent_pos'];
+		$url = '?SQ_BACKEND_PAGE=main&backend_section=am&ignore_frames=1&am_section=duplicate&assetid='.$asset->id.'&to_parent_assetid='.$new_parent->id.'&to_parent_pos='.$input->root->attributes['to_parent_pos'];
 
 		$urlTree = new XML_Tree();
 		$urlTree->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));
