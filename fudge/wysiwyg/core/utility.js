@@ -19,13 +19,6 @@ HTMLArea._object = null;
 
 // FIXME!!! this should return false for IE < 5.5
 HTMLArea.checkSupportedBrowser = function() {
-	/*
-	var gigi = "Navigator:\n\n";
-	for (var i in navigator) {
-		gigi += i + " = " + navigator[i] + "\n";
-	}
-	alert(gigi);
-	*/
 	if (HTMLArea.is_gecko) {
 		if (navigator.productSub < 20021201) {
 			alert("You need at least Mozilla-1.3 Alpha.\n" +
@@ -59,7 +52,7 @@ HTMLArea.prototype._createRange = function(sel) {
 		return sel.createRange();
 	} else {
 		this.focusEditor();
-		if (sel) {
+		if (typeof sel != "undefined") {
 			return sel.getRangeAt(0);
 		} else {
 			return this._doc.createRange();
@@ -184,28 +177,33 @@ HTMLArea._hasClass = function(el, className) {
 HTMLArea._isBlockElement = function(el) {
 	var blockTags = " body form textarea fieldset ul ol dl li div " +
 		"p h1 h2 h3 h4 h5 h6 quote pre table thead " +
-		"tbody tfoot tr td iframe ";
+		"tbody tfoot tr td iframe address ";
 	return (blockTags.indexOf(" " + el.tagName.toLowerCase() + " ") != -1);
 };
 
 
 HTMLArea._needsClosingTag = function(el) {
-	var closingTags = " script style div span ";
+	var closingTags = " script style div span tr td tbody table em strong font a ";
 	return (closingTags.indexOf(" " + el.tagName.toLowerCase() + " ") != -1);
+};
+
+
+// performs HTML encoding of some given string
+HTMLArea.htmlEncode = function(str) {
+	// we don't need regexp for that, but.. so be it for now.
+	str = str.replace(/&/ig, "&amp;");
+	str = str.replace(/</ig, "&lt;");
+	str = str.replace(/>/ig, "&gt;");
+	str = str.replace(/\x22/ig, "&quot;");
+	// \x22 means '"' -- we use hex reprezentation so that we don't disturb
+	// JS compressors (well, at least mine fails.. ;)
+	return str;
 };
 
 
 // Retrieves the HTML code from the given node.  This is a replacement for
 // getting innerHTML, using standard DOM calls.
 HTMLArea.getHTML = function(root, outputRoot) {
-	function encode(str) {
-		// we don't need regexp for that, but.. so be it for now.
-		str = str.replace(/&/ig, "&amp;");
-		str = str.replace(/</ig, "&lt;");
-		str = str.replace(/>/ig, "&gt;");
-		str = str.replace(/\"/ig, "&quot;");
-		return str;
-	};
 	var html = "";
 	switch (root.nodeType) {
 		case 1: // Node.ELEMENT_NODE
@@ -229,11 +227,22 @@ HTMLArea.getHTML = function(root, outputRoot) {
 					}
 					var value;
 					if (name != 'style') {
-						value = a.value;
+						// IE5.5 reports 25 when cellSpacing is
+						// 1; other values might be doomed too.
+						// For this reason we extract the
+						// values directly from the root node.
+						// I'm starting to HATE JavaScript
+						// development.  Browser differences
+						// suck.
+						if (typeof root[a.nodeName] != "undefined") {
+							value = root[a.nodeName];
+						} else {
+							value = a.nodeValue;
+						}
 					} else { // IE fails to put style in attributes list
 						value = root.style.cssText.toLowerCase();
 					}
-					if (value.substr(0, 4) == "_moz") {
+					if (/_moz/.test(value)) {
 						// Mozilla reports some special tags
 						// here; we don't need them.
 						continue;
@@ -250,7 +259,7 @@ HTMLArea.getHTML = function(root, outputRoot) {
 			}
 		break;
 			case 3: // Node.TEXT_NODE
-			html = encode(root.data);
+			html = HTMLArea.htmlEncode(root.data);
 		break;
 			case 8: // Node.COMMENT_NODE
 			html = "<!--" + root.data + "-->";
