@@ -22,7 +22,7 @@ class Design_Area extends Asset
 	*/
 	function Design_Area($assetid=0)
 	{
-		$this->_ser_atrs   = true; // we have serialise type vars
+		$this->_ser_attrs   = true; // we have serialise type vars
 		// No design area is going to be restricted
 		$this->_restricted = false;
 		$this->Asset($assetid);
@@ -82,7 +82,7 @@ class Design_Area extends Asset
 	{
 		$this->_tmp['regenerate_design'] = false;
 		$processed = parent::processBackend($o, $link);
-		if ($processed && $this->_tmp['regenerate_design']) {
+		if ($processed && (!empty($this->_tmp['process_attributes']) || $this->_tmp['regenerate_design'])) {
 			$designs = &$this->getDesigns();
 			for($i = 0, $max = count($designs); $i < $max; $i++) {
 				$designs[$i]->generateDesignFile(false);
