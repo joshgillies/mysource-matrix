@@ -142,12 +142,8 @@ class Backend extends Resolve_Object
 		$this->out->openRaw();
 
 		$url = $this->getBackendUrl('main').'&backend_section=';
-		/*
-		#$this->_printHeaderItem('Config',  $this->getBackendUrl('main').'&backend_section=config',   'config');
-		<!--<td><a href="#" onclick="javascript: parent.location='./?' + get_element_value('query_string') + '&SQ_ACTION=logout'; return false;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/logout.gif" width="20" height="20" border="0"></a></td>-->
-		*/
 
-	?>
+		?>
 		<table width="100%" cellpadding="0" border="0" cellspacing="0">
 			<tr>
 				<td nowrap class="sq-backend-header-cell"><a target="main" href="<?php echo $url;?>"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="2" height="2" border="0" /><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/swish.gif" width="20" height="20" border="0" /><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="3" height="2" border="0" /></a></td>
@@ -168,7 +164,7 @@ class Backend extends Resolve_Object
 				<td style="background-color: #ffffff" colspan="4"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1"></td>
 			</tr>
 		</table>
-	<?php
+		<?php
 
 		$this->out->closeRaw();
 
@@ -374,10 +370,6 @@ class Backend extends Resolve_Object
 	*/
 	function _printSideNav()
 	{
-
-//		$this->out->setHeading('&nbsp;', 'create');
-//		$this->out->openSection('<a href="'.$this->getBackendUrl('main').'&backend_section=asset_types" target="main">Asset Types</a>');
-
 		$this->out->openRaw();
 
 		require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
