@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.13 2004/01/13 01:38:49 mmcintyre Exp $
+* $Id: insert_link.php,v 1.14 2004/01/16 00:51:17 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -221,13 +221,17 @@ if (!isset($_GET['new_window'])) {
 		</style>
 	</head>
 
-	<body>
+	<body onload="Javascript: Init();" onUnload="Javascript: asset_finder_onunload();">
 		<div class="title">Insert Link</div>
 		<form action="" method="get" name="main_form">
 			<table>
 				<tr>
 					<td valign="top">
-						<?php embed_asset_map('simple'); ?>
+						<?php
+							include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
+							$asset_map = new Asset_Map();
+							$asset_map->embed_asset_map('simple');
+						?>
 					</td>
 					<td valign="top">
 							<table width="100%">
@@ -247,7 +251,7 @@ if (!isset($_GET['new_window'])) {
 														</tr>
 														<tr>
 															<td class="label">Select Asset:</td>
-															<td colspan="3"><?php asset_finder('assetid', $_GET['assetid'], Array(), 'top', 'setUrl'); ?></td>
+															<td colspan="3"><?php asset_finder('assetid', $_GET['assetid'], Array(), '', 'setUrl'); ?></td>
 														</tr>
 													</table>
 													</fieldset>

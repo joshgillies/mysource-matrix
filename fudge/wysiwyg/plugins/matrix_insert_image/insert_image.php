@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.13 2004/01/13 01:39:05 mmcintyre Exp $
+* $Id: insert_image.php,v 1.14 2004/01/16 00:53:38 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -156,14 +156,18 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 		</style>
 	</head>
 
-	<body>
+	<body onload="Javascript: Init();" onUnload="Javascript: asset_finder_onunload();">
 		
 		<div class="title">Insert Image</div>
 		<form action="" method="get" name="main_form">
 			<table width="100%">
 				<tr>
 					<td valign="top">
-						<?php embed_asset_map('simple'); ?>
+						<?php
+							include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
+							$asset_map = new Asset_Map();
+							$asset_map->embed_asset_map('simple');
+						?>
 					</td>
 					<td valign="top">
 						<table cellspacing="0" cellpadding="0">
@@ -175,7 +179,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 											<tr>
 												<td class="label" nowrap="nowrap">Image URL:</td>
 												<td>
-													<?php asset_finder('f_imageid', $_GET['f_imageid'], Array('image' => 'D'), 'top'); ?>
+													<?php asset_finder('f_imageid', $_GET['f_imageid'], Array('image' => 'D'), ''); ?>
 												</td>
 											</tr>
 											<tr>

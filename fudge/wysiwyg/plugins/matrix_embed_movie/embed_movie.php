@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.9 2004/01/13 01:39:30 mmcintyre Exp $
+* $Id: embed_movie.php,v 1.10 2004/01/16 00:56:43 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -150,7 +150,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 		</style>
 	</head>
 
-	<body>
+	<body onload="Javascript: Init();" onUnload="Javascript: asset_finder_onunload();">
 		
 		<div class="title">Embed Movie</div>
 		
@@ -158,7 +158,11 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 			<table width="100%">
 				<tr>
 					<td valign="top">
-						<?php embed_asset_map('simple'); ?>
+						<?php
+							include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
+							$asset_map = new Asset_Map();
+							$asset_map->embed_asset_map('simple');
+						?>
 					</td>
 					<td valign="top">
 						<table width="100%" cellspacing="0" cellpadding="0">
@@ -170,7 +174,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 											<tr>
 												<td class="label">Movie URL:</td>
 												<td>
-													<?php asset_finder('f_fileid', $_GET['f_fileid'], Array('file' => 'I'), 'top'); ?>
+													<?php asset_finder('f_fileid', $_GET['f_fileid'], Array('file' => 'I'), ''); ?>
 												</td>
 											</tr>
 										</table>
