@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation.inc,v 1.5 2004/08/02 23:44:33 tbarrett Exp $
+* $Id: calendar_event_cancellation.inc,v 1.6 2004/08/02 23:47:13 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * which replaces the cancelled instance may be linked to it.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.5 $ - 1.0
+* @version $Revision: 1.6 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -82,7 +82,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-		if ($res = $parent::create($link)) {
+		if ($res = parent::create($link)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			return $res;
 		} else {
