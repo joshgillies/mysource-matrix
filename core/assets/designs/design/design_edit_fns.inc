@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.61 2004/02/01 22:52:01 gsherwood Exp $
+* $Id: design_edit_fns.inc,v 1.62 2004/02/27 05:36:56 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -821,8 +821,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		// First let's duplicate ourselves, ignoring dependants and the directory with the files
 		$map = Array();
 		$create_link = Array();
-		$dupe = &$asset->duplicate($create_link, $map, false, false);
-		if (is_null($dupe)) {
+
+		$clone = &$GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes'), false);
+		if (is_null($clone)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -830,23 +831,23 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$GLOBALS['SQ_SYSTEM']->am->rememberAsset($da);
 
 		// Acquire a lock on the new object
-		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($dupe->id, 'all')) {
+		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($clone->id, 'all')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
 		// Now let's morph the dupe into a design customisation
-		if (!$dupe->morph('design_customisation')) {
+		if (!$clone->morph('design_customisation')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
 		// and link it back to ourselves
-		if (!$asset->createLink($dupe, SQ_LINK_TYPE_2, 'customisation', null, '1')) {
+		if (!$asset->createLink($clone, SQ_LINK_TYPE_2, 'customisation', null, '1')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-		if (!($dupe->setAttrValue('id_name', $new_name) && $dupe->saveAttributes())) {
+		if (!($clone->setAttrValue('id_name', $new_name) && $clone->saveAttributes())) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -858,7 +859,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		foreach($da_links as $link) {
 			$da = &$am->getAsset($link['minorid'], $link['minor_type_code'], true);
 			if (is_null($da)) continue;
-			if (!$dupe->createLink($da, SQ_LINK_TYPE_3, $link['value'], null, '1')) {
+			if (!$clone->createLink($da, SQ_LINK_TYPE_3, $link['value'], null, '1')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -868,8 +869,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$initial_path = strtolower($new_name);
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$valid_paths = make_valid_web_paths(Array($initial_path));
-		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($asset, $valid_paths, $dupe->id, true);
-		if (!$dupe->saveWebPaths($good_paths)) {
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($asset, $valid_paths, $clone->id, true);
+		if (!$clone->saveWebPaths($good_paths)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -879,7 +880,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', false);
 		foreach ($file_links as $link) {
 			$minor = &$am->getAsset($link['minorid'], $link['minor_type_code']);
-			if (!$dupe->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
+			if (!$clone->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
 				trigger_error('Failed creating file link to customisation', E_USER_WARNING);
 				$am->forgetAsset($minor);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -889,7 +890,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$am->forgetAsset($minor);
 
 		// release the lock on the new object
-		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($dupe->id, 'all')) {
+		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($clone->id, 'all')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
