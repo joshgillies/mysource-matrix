@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.126 2003/10/07 07:01:06 dwong Exp $
+* $Id: asset_manager.inc,v 1.127 2003/10/07 07:28:52 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -603,10 +603,10 @@ class Asset_Manager extends MySource_Object
 				return $this->getAsset(7, 'designs_folder');
 			case 'cron_manager' :
 				return $this->getAsset(8, 'cron_manager');
-			case 'login_design' :
-				return $this->getAsset(9, 'login_design');
 			case 'search_manager' :
 				return $this->getAsset(9, 'search_manager');
+			case 'login_design' :
+				return $this->getAsset(10, 'login_design');
 			default :
 				trigger_error('System Asset Name "'.$name.'" not known', E_USER_ERROR);
 		}
