@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.320 2004/08/27 01:55:46 gsherwood Exp $
+* $Id: asset.inc,v 1.321 2004/09/02 04:43:47 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1852,18 +1852,18 @@ class Asset extends MySource_Object
 
 
 	/**
-	* Acquires any locks that are needed for editing, based on a set of custom keywords
+	* Returns any locks that are needed for editing, based on a set of custom keywords
 	*
-	* @param Array() $keywords the keywords to govern what locks are required
+	* @param array $keywords the keywords to govern what locks are required
 	*
-	* @return boolean
+	* @return array
 	* @access public
 	*/
-	function acquireEditingLocks($keywords)
+	function getEditingLocks($keywords)
 	{
-		return true;
+		return Array();
 
-	}//end acquireEditingLocks()
+	}//end getEditingLocks()
 
 
 //--        LINKING        --//

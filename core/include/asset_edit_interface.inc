@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.217 2004/08/25 02:20:57 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.218 2004/09/02 04:43:47 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -232,7 +232,7 @@ class Asset_Edit_Interface extends MySource_Object
 				if (!empty($this->_screens[$active_screen]['lock_type'])) {
 					$screen_lock_type = $this->_screens[$active_screen]['lock_type'];
 				}
-			}// end if
+			}
 
 			// do they have access to acquire the lock?
 			$acquire_lock_access = $owner->canLiveEdit($screen_lock_type);
@@ -563,7 +563,7 @@ class Asset_Edit_Interface extends MySource_Object
 		// if we are ignoring frames - normally because we are editing in limbo, we want
 		// to make sure we keep this setting for the future before we use layouts to print the interface
 		if (isset($_REQUEST['ignore_frames']) && $_REQUEST['ignore_frames']) {
-			$o->addHiddenField('ignore_frames', '1');		
+			$o->addFormActionGetVar('ignore_frames', '1', true);
 		}
 
 		// set the current screen for both backend and frontend editing
@@ -821,24 +821,26 @@ class Asset_Edit_Interface extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function acquireLimboLocks(&$owner, &$o, $active_screen='details', $screen_lock_type='all')
+	function acquireLimboLocks(&$owner, &$o, $active_screen='details', $screen_lock_type=null)
 	{
-		$locks = Array($screen_lock_type);
+		$locks = Array();
+		if (!is_null($screen_lock_type)) $locks[] = $screen_lock_type;
 
 		$lm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
 		if ($lm->hasLayout($owner->type(), $active_screen)) {
 
 			$layout = &$lm->getLayout($owner->type(), $active_screen);
 			if (is_null($layout)) return false;
+			
 			$keywords = $layout->getLayoutKeywords();
 			if (empty($keywords)) return false;
+			
 			if (isset($keywords['custom']) && !empty($keywords['custom'])) {
 				// acquire any locks that the owner needs to paint the layout
-				$owner->acquireEditingLocks($keywords['custom']);
+				$locks = array_merge($locks, $owner->getEditingLocks($keywords['custom']));
 			}
 
-			// if there are other screens used by the layout, then we need to acquire locks on those
-			// screens as well
+			// if there are other screens used by the layout, then we need to acquire locks on those screens as well
 			$screens = array_merge(array_keys($keywords['screens']), array_keys($keywords['entire_screens']));
 			$screens = array_unique($screens);
 
@@ -854,7 +856,7 @@ class Asset_Edit_Interface extends MySource_Object
 					if (!empty($this->_screens[$screen]['lock_type'])) {
 						$screen_lock_type = $this->_screens[$screen]['lock_type'];
 					}
-				}// end if
+				}
 
 				$locks[] = $screen_lock_type;
 
