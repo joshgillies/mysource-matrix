@@ -10,7 +10,7 @@ require_once SQ_INCLUDE_PATH.'/config.inc';
 require_once SQ_INCLUDE_PATH.'/resolve_object.inc';
 
 define('SQ_CONF_DB_DSN',    'mysql://root@localhost/blair_resolve');
-define('SQ_CONF_PEAR_PATH', '/usr/local/pear/share/pear');
+#define('SQ_CONF_PEAR_PATH', '/usr/local/pear/share/pear');
 
 $cfg = new Config();
 $cfg->save(Array(), true);
