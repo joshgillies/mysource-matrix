@@ -65,7 +65,8 @@ mcListItemClass.prototype.setInfo = function(asset)
 {
 	this.assetid   = asset.assetid;
 	this.type_code = asset.type_code;
-	this.text_field.text = this._name + " [" + this.assetid + "] " + asset.name;
+	//this.text_field.text = this._name + " [" + this.assetid + "] " + asset.name;
+	this.text_field.text = " [" + this.assetid + "] " + asset.name;
 
 	if (asset.links.length > 0) {
 		this.setKidState((this.expanded()) ? "minus" : "plus");
