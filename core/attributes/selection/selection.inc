@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.21 2004/03/10 23:52:24 gsherwood Exp $
+* $Id: selection.inc,v 1.22 2004/06/10 11:13:10 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,8 +35,8 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *
 *
 * <!-- Sample Edit Interface XML Node -->
-*   <selection style="list"  />
-*   <selection style="boxes" />
+*   <selection style="list"  height="1" />
+*   <selection style="boxes" columns="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
