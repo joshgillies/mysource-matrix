@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_01.php,v 1.30 2004/09/08 07:20:44 amiller Exp $
+* $Id: step_01.php,v 1.31 2004/09/08 07:22:43 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,15 +47,15 @@ require_once SQ_INCLUDE_PATH.'/system_config.inc';
 
 #define('SQ_CONF_DB_DSN',  'mysql://username:password@localhost/database_name');
 #define('SQ_CONF_DB2_DSN', 'mysql://username_2:password@localhost/database_name');
-define('SQ_CONF_DB_DSN',  'pgsql://matrix_web@unix()/matrix_dev');
-define('SQ_CONF_DB2_DSN', 'pgsql://matrix_hipo@unix()/matrix_dev');
-define('SQ_CONF_SYSTEM_ROOT_URLS', 'shiny.squiz.net');
+#define('SQ_CONF_DB_DSN',  'pgsql://username:password@unix()/database_name');
+#define('SQ_CONF_DB2_DSN', 'pgsql://username_2:password@unix()/database_name');
+define('SQ_CONF_SYSTEM_ROOT_URLS', 'www.example.com');
 define('SQ_CONF_PEAR_PATH', SQ_SYSTEM_ROOT.'/php_includes');
 define('SQ_CONF_ASSET_TREE_BASE', 36);
 define('SQ_CONF_ASSET_TREE_SIZE', 4);
 define('SQ_CONF_ROLLBACK_ENABLED', '0');
-define('SQ_CONF_DEFAULT_EMAIL', 'avi.miller@squiz.net');
-define('SQ_CONF_TECH_EMAIL',    'avi.miller@squiz.net');
+define('SQ_CONF_DEFAULT_EMAIL', 'matrix-team@squiz.net');
+define('SQ_CONF_TECH_EMAIL',    'matrix-team@squiz.net');
 
 trigger_error('Need to chmod cache and data directories', E_USER_NOTICE);
 
