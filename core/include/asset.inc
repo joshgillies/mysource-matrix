@@ -15,7 +15,7 @@ class Asset extends Resolve_Object
 
 	/**
 	* The unique ID for this asset
-	* @var Array()
+	* @var int
 	*/
 	var $id;
 
@@ -42,6 +42,22 @@ class Asset extends Resolve_Object
 	* @var Array('var_name' => Array('attributeid' => $attributeid, 'value' = $value))
 	*/
 	var $vars;
+
+	/**
+	* Whether or not this asset is restricted
+	* Changes to this var's state probably should be made in _updated()
+	*
+	* @var boolean
+	*/
+	var $_restricted = true;
+
+	/**
+	* The current data path for this asset
+	* Changes to this var's state probably should be made in _updated()
+	*
+	* @var string
+	*/
+	var $_data_path = true;
 
 
 	/**
@@ -152,6 +168,7 @@ class Asset extends Resolve_Object
 			return;
 		}
 
+		$this->_data_path = $GLOBALS['SQ_SYSTEM']->am->getDataPath($this);
 		$this->_loadVars();
 
 	}//end load()
@@ -259,7 +276,7 @@ class Asset extends Resolve_Object
 	* @return Array
 	* @access public
 	*/
-	function getLink($linkid)
+	function getLinkById($linkid)
 	{
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -276,25 +293,73 @@ class Asset extends Resolve_Object
 
 		return $result;
 			
+	}//end getLinkById()
+
+
+	/**
+	* Returns information for a link that this asset is the major asset in
+	* 
+	* @param int	$link_type		integer that should be a single integer of the SQ_LINK_* constants
+	* @param string	$type_code		the type of asset that is linked (eg 'Design_Area', 'Page', 'File', etc);
+	* @param bool	$strict			whether we are finding an asset that are just a $type_code or $type_code and any of it's sub-classes
+	* @param string $value			the value that is associated with this link
+	*
+	* @return Array()
+	* @access public
+	*/
+	function getLink($link_type, $type_code, $strict_type_code=true, $value=null) 
+	{
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'SELECT l.linkid, l.minorid, l.value, l.link_type, a.type_code, l.sort_order
+				FROM sq_asset_link l, sq_asset a
+				WHERE l.majorid   = '.$db->quote($this->id).'
+				  AND l.minorid   = a.assetid 
+				  AND l.link_type = '.$db->quote($link_type);
+
+		if ($strict_type_code) {
+			$sql .= ' AND a.type_code = '.$db->quote($type_code);
+		} else {
+			require_once SQ_SQUIZLIB_PATH.'/db_extras/db_extras.inc';
+			$sql .= ' AND (a.type_code = '.$db->quote($type_code).' OR a.type_code IN (~SQ0~))';
+			$subs = Array( 'SELECT type_code
+							FROM sq_asset_type_inherited
+							WHERE inherited_type_code = '.$db->quote($type_code));
+			$sql = db_extras_subquery($db, $sql, $subs);
+		}
+
+		if ($value !== null) $sql .= '  AND l.value = '.$db->quote($value);
+
+#		pre_echo($sql);
+
+		$result = $db->getRow($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			return null;
+		}
+
+		return $result;
+			
 	}//end getLink()
 
 
 	/**
 	* Return all links that this asset has to other assets
 	*
-	* @param int	$link_types		integer that can be the product of bitwise operations on the SQ_LINK_* constants
-	* @param string	$asset_type		the type of asset that is linked (eg 'Page', 'File', etc);
-	* @param string	$ret_type		flag to the structure of the return array - only relevant when $asset_type is blank
-	*								'T' = sorted/structured by type 
-	*									eg Array('folder' => array(link1, link2, ..), 'user' => Array(link3, link4, ..))
-	*								'S' = sorted by sort_order, single array 
-	*									eg Array(link1, link2, ..)
-	* @param string $side_of_link	Which side of the link this asset is on ('major' or 'minor')
+	* @param int	$link_types			integer that can be the product of bitwise operations on the SQ_LINK_* constants
+	* @param string	$type_code			the type of asset that is linked (eg 'Page', 'File', etc);
+	* @param bool	$strict_type_code	whether we are finding assets that are just a $type_code or $type_code and any of it's sub-classes
+	* @param string	$ret_type			flag to the structure of the return array - only relevant when $type_code is blank
+	*									'T' = sorted/structured by type 
+	*										eg Array('folder' => array(link1, link2, ..), 'user' => Array(link3, link4, ..))
+	*									'S' = sorted by sort_order, single array 
+	*										eg Array(link1, link2, ..)
+	* @param string $side_of_link		Which side of the link this asset is on ('major' or 'minor')
 	*
 	* @return Array()
 	* @access public
 	*/
-	function getLinks($link_types, $asset_type='', $ret_type='T', $side_of_link='major') 
+	function getLinks($link_types, $type_code='', $strict_type_code=true, $ret_type='T', $side_of_link='major') 
 	{
 		if ($side_of_link != 'major' && $side_of_link != 'minor') 
 			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
@@ -308,7 +373,7 @@ class Asset extends Resolve_Object
 		foreach($elem_types as $link_type) {
 			// if we haven't got all the links yet or we have got the specific type of links
 			if (empty($this->_tmp['links'][$side_of_link][$link_type.'___GOT_ALL___'])
-				|| ($asset_type && !isset($this->_tmp['links'][$side_of_link][$link_type][$asset_type]))) {
+				|| ($type_code && !isset($this->_tmp['links'][$side_of_link][$link_type][$type_code]))) {
 				$search_link_types |= $link_type;
 			}
 		}
@@ -322,8 +387,23 @@ class Asset extends Resolve_Object
 					FROM sq_asset_link l, sq_asset a
 					WHERE l.'.$other_side.'id   = a.assetid 
 					  AND l.'.$side_of_link.'id   = '.$db->quote($this->id).'
-					  AND (l.link_type & '.$db->quote($search_link_types).') > 0 '
-					.(empty($asset_type) ? 'ORDER BY l.sort_order, a.type_code' : ' AND a.type_code = '.$db->quote($asset_type));
+					  AND (l.link_type & '.$db->quote($search_link_types).') > 0 ';
+
+			if ($type_code) {
+				if ($strict_type_code) {
+					$sql .= ' AND a.type_code = '.$db->quote($type_code);
+				} else {
+					require_once SQ_SQUIZLIB_PATH.'/db_extras/db_extras.inc';
+					$sql .= ' AND (a.type_code = '.$db->quote($type_code).' OR a.type_code IN (~SQ0~))';
+					$subs = Array( 'SELECT type_code
+									FROM sq_asset_type_inherited
+									WHERE inherited_type_code = '.$db->quote($type_code));
+					$sql = db_extras_subquery($db, $sql, $subs);
+				}
+			}// end if
+		
+			$sql .= ' ORDER BY l.sort_order, a.type_code';
+			pre_echo($sql);
 
 			$result = $db->query($sql);
 			if (DB::isError($result)) 
@@ -337,15 +417,15 @@ class Asset extends Resolve_Object
 			$result->free();
 
 			// a bit of integrity
-			if (empty($asset_type)) {
+			if (empty($type_code)) {
 				foreach($elem_types as $link_type) $this->_tmp['links'][$side_of_link][$link_type.'___GOT_ALL___'] = true;
 
 			} else {
 				foreach($elem_types as $link_type) {
-					if (!isset($this->_tmp['links'][$side_of_link][$link_type][$asset_type])) {
+					if (!isset($this->_tmp['links'][$side_of_link][$link_type][$type_code])) {
 						// cause we are just need to set this to something, 
 						// no need to waste space with an array
-						$this->_tmp['links'][$side_of_link][$link_type][$asset_type] = false;
+						$this->_tmp['links'][$side_of_link][$link_type][$type_code] = false;
 					}
 				}
 			}
@@ -355,7 +435,7 @@ class Asset extends Resolve_Object
 		$ret_arr = Array();
 
 		// if we want all asset types, if get's a bit messy
-		if (empty($asset_type)) {
+		if (empty($type_code)) {
 			if ($ret_type == 'T') {
 				foreach($elem_types as $link_type) {
 					if (!empty($this->_tmp['links'][$side_of_link][$link_type])) {
@@ -378,7 +458,7 @@ class Asset extends Resolve_Object
 		// else we only want a specific type
 		} else {
 			foreach($elem_types as $link_type) {
-				$ret_arr = array_merge($ret_arr, $this->_tmp['links'][$side_of_link][$link_type][$asset_type]);
+				$ret_arr = array_merge($ret_arr, $this->_tmp['links'][$side_of_link][$link_type][$type_code]);
 			}
 
 		}// end if
@@ -394,25 +474,23 @@ class Asset extends Resolve_Object
         return ($a['sort_order'] < $b['sort_order']) ? -1 : +1;
     }
 
-
-
 	/**
 	* Returns the number of links that this asset has as either a major or minor party
 	*
 	* @param int		$link_types		integer that can be the product of bitwise operations on the SQ_LINK_* constants
-	* @param string		$asset_type		the type of asset that is linked (eg 'Page', 'File', etc);
+	* @param string		$type_code		the type of asset that is linked (eg 'Page', 'File', etc);
 	* @param boolean	$major			type of party that the asset is in the links major = true, minor = false
 	*
 	* @return int
 	* @access public
 	*/
-	function countLinks($link_types, $asset_type='', $major=true) 
+	function countLinks($link_types, $type_code='', $major=true) 
 	{
 		$party = ($major) ? 'major' : 'minor';
 
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		if (empty($asset_type)) {
+		if (empty($type_code)) {
 			$sql = 'SELECT COUNT(*)
 					FROM sq_asset_link l
 					WHERE l.'.$party.'id   = '.$db->quote($this->id).'
@@ -423,7 +501,7 @@ class Asset extends Resolve_Object
 					WHERE l.minorid   = a.assetid 
 					  AND l.'.$party.'id   = '.$db->quote($this->id).'
 					  AND (link_type & '.$db->quote($link_types).') > 0 
-					  AND a.type_code = '.$db->quote($asset_type);
+					  AND a.type_code = '.$db->quote($type_code);
 		}
 
 		$result = $db->getOne($sql);
@@ -438,22 +516,22 @@ class Asset extends Resolve_Object
 	* Called when the links are changed for this asset so that the tmp cache can be cleared
 	*
 	* @param string	$link_type		the type of link this is
-	* @param string	$asset_type		the type of asset that is linked (eg 'Page', 'File', etc);
+	* @param string	$type_code		the type of asset that is linked (eg 'Page', 'File', etc);
 	* @param string $side_of_link	Which side of the link this asset is on ('major' or 'minor')
 	*
 	* @access private
 	*/
-	function _linkChanged($link_type, $asset_type='', $side_of_link='major') 
+	function _linkChanged($link_type, $type_code='', $side_of_link='major') 
 	{
 
 		if (empty($this->_tmp['links'][$side_of_link])) return;
 
-		if (empty($asset_type)) {
+		if (empty($type_code)) {
 			unset($this->_tmp['links'][$side_of_link][$link_type]);
 		} else {
 			// only unset this specific type so calls for any other type 
 			// can used the cached version if it exists
-			unset($this->_tmp['links'][$side_of_link][$link_type][$asset_type]);
+			unset($this->_tmp['links'][$side_of_link][$link_type][$type_code]);
 		}
 		
 		unset($this->_tmp['links'][$side_of_link][$link_type.'___GOT_ALL___']);
@@ -506,7 +584,7 @@ class Asset extends Resolve_Object
 					FROM sq_asset_link
 					WHERE minorid   = '.$db->quote($minor->id).'
 					  AND link_type = '.$db->quote(SQ_LINK_EXCLUSIVE);
-//			pre_echo($sql);
+#			pre_echo($sql);
 
 
 			$majorid = $db->getOne($sql);
@@ -612,7 +690,7 @@ class Asset extends Resolve_Object
 		}
 
 		if (empty($allowed_links[$link_type][$type])) {
-			include_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 			return 'Assets of Type "'.$type_code.'" cannot be "'.link_type_name($link_type).'" linked to a "'.$this->type().'"';
 		}
 
@@ -636,7 +714,7 @@ class Asset extends Resolve_Object
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	* In the form
 	*
-	*    Array('[link_type]' => Array('[asset_type]' => '[cardinality]));
+	*    Array('[link_type]' => Array('[type_code]' => '[cardinality]));
 	* Where:
 	*   link_type   = SQ_LINK_EXCLUSIVE|SQ_LINK_UNITE|SQ_LINK_NOTICE
 	*   cardinality = 1|M
@@ -668,7 +746,7 @@ class Asset extends Resolve_Object
 	{
 
 		// First, we should try and find the link
-		$link = $this->getLink($linkid);
+		$link = $this->getLinkById($linkid);
 		if (empty($link)) {
 			trigger_error('Existing Link #'.$linkid.' not found, unable to move link', E_USER_WARNING);
 			return false;
@@ -760,7 +838,7 @@ class Asset extends Resolve_Object
 	{
 
 		// First, we should try and find the link
-		$link = $this->getLink($linkid);
+		$link = $this->getLinkById($linkid);
 		if (empty($link)) {
 			trigger_error('Existing Link #'.$linkid.' not found, unable to delete link', E_USER_WARNING);
 			return false;
@@ -775,7 +853,7 @@ class Asset extends Resolve_Object
 				WHERE linkid    = '.$db->quote($linkid).'
 				  AND majorid   = '.$db->quote($this->id);
 
-		error_log($sql);
+#		error_log($sql);
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
@@ -790,7 +868,7 @@ class Asset extends Resolve_Object
 				WHERE majorid    = '.$db->quote($this->id).'
 				  AND sort_order > '.$db->quote($link['sort_order']);
 
-		error_log($sql);
+#		error_log($sql);
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
@@ -811,6 +889,10 @@ class Asset extends Resolve_Object
 	/**
 	* Set the value for the passed variable to the passed value
 	*
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
+	*
+	* @return boolean
 	* @access public
 	*/
 	function setAttrValue($name, $value) 
@@ -897,7 +979,7 @@ class Asset extends Resolve_Object
 	*/
 	function attr($name) 
 	{
-		if (empty($this->vars[$name])) {
+		if (!isset($this->vars[$name])) {
 			trigger_error('Attribute "'.$name.'" not found for Asset"'.$this->type().'"', E_USER_WARNING);
 			return null;
 		}
@@ -925,7 +1007,7 @@ class Asset extends Resolve_Object
 				$this->_tmp['attributes'][$name] = null;
 			} else {
 
-				include_once SQ_ATTRIBUTES_PATH.'/'.$this->vars[$name]['type'].'/'.$this->vars[$name]['type'].'.inc';
+				require_once SQ_ATTRIBUTES_PATH.'/'.$this->vars[$name]['type'].'/'.$this->vars[$name]['type'].'.inc';
 				$attr_class = 'Asset_Attribute_'.$this->vars[$name]['type'];
 				$this->_tmp['attributes'][$name] = new $attr_class($this->vars[$name]['attributeid'], $this->vars[$name]['value']);
 				// make sure of the asset is correct
@@ -983,13 +1065,13 @@ class Asset extends Resolve_Object
 	/**
 	* returns a reference to the edit interface for this asset type
 	*
-	* @return boolean
+	* @return object Asset_Edit_Interface
 	* @access public
 	*/
 	function &getEI() 
 	{
 		if (empty($this->_tmp['ei']) || get_class($this->_tmp['ei']) != 'asset_edit_interface') {
-			include_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
+			require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 			$this->_tmp['ei'] = new Asset_Edit_Interface($this->type());
 		}
 		return $this->_tmp['ei'];
@@ -1256,6 +1338,19 @@ class Asset extends Resolve_Object
 		return true;
 
 	}// end _updateWebURLs()
+
+	/**
+	* returns the Edit_Fns object appropriate for whatever asset type we are
+	*
+	* @return object Asset_Edit_Fns
+	* @access public
+	*/
+	function getEditFns()
+	{
+		$class_name = $this->type().'_edit_fns';
+		require_once SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getInfo($this->type(), 'dir').'/'.$class_name.'.inc';
+		return new $class_name();
+	}// end getEditFns()
 
 
 }//end class
