@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.14 2004/05/17 06:35:26 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.15 2004/05/17 06:44:15 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,11 +47,11 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	function Form_Email_Edit_Fns()
 	{
 		$this->Form_Edit_Fns();
-	}
+	}//end Form_Email_Edit_Fns()
 
 
 	/**
-	* paints the date range
+	* Paints the submissions block
 	*
 	* @param object Form_Email			&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
@@ -251,12 +251,32 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	}//end paintSubmissions()
 
 
+	/**
+	* processes the submissions block (nothing to process!)
+	*
+	* @param object Form_Email			&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
 	function processSubmissions(&$asset, &$o, $prefix) {
 		return true;
 
 	}//end processSubmissions()
 
 
+	/**
+	* Paints the export block
+	*
+	* @param object Form_Email			&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
 	function paintExport(&$asset, &$o, $prefix) {
 		if (!$asset->writeAccess('attributes')) return false;
 
@@ -316,8 +336,21 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	}//end paintExport()
 
 
+	/**
+	* Processes the export block
+	*
+	* This function will pass off the work to processExportCSV() or processExportXML(), as appropriate.
+	* If we aren't downloading a file, this function will silently return a success.
+	*
+	* @param object Form_Email			&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
 	function processExport(&$asset, &$o, $prefix) {
-		if (!$_POST[$prefix.'_export_switch']) return false;
+		if (!$_POST[$prefix.'_export_switch']) return true;
 		$export_type = isset($_POST[$prefix.'_export_format']) ? $_POST[$prefix.'_export_format'] : '';
 		switch($export_type) {
 			case 'csv':
@@ -330,8 +363,22 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		}
 
 		return true;
-	}
+	}//end processExport()
 
+
+	/**
+	* Exports chosen submissions to a comma separated value (CSV) file
+	*
+	* Will only perform export for the date range which was
+	* selected in the Export block.
+	*
+	* @param object Form_Email			&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
 	function processExportCSV(&$asset, &$o, $prefix) {
 		require_once SQ_FUDGE_PATH.'/csv/csv.inc';
 		$csv = new CSV();
@@ -427,6 +474,20 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	}//end processExportCSV()
 
 
+	/**
+	* Exports chosen submissions to an XML format
+	*
+	* XML format is the same format used to store the submission logs, with an overarching
+	* "submissions" root tag around it. Will only perform export for the date range which was
+	* selected in the Export block.
+	*
+	* @param object Form_Email			&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
 	function processExportXML(&$asset, &$o, $prefix) {
 		header('Content-Type: application/xml');
 
@@ -477,6 +538,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		return true;
 
 	}//end processExportXML()
+
 
 	/**
 	* Returns a list of name-value pairs for a submission result
