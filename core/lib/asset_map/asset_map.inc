@@ -392,7 +392,7 @@ class Asset_Map
 
 		if ($asset->readAccess()) {
 			// we only want EXCLUSIVE or UNITE links
-			$links = $asset->getLinks(SQ_LINK_NAV, '', null);
+			$links = $asset->getLinks(SQ_LINK_BACKEND_NAV, '', null);
 			if (count($links)) {
 				for($j = 0; $j < count($links); $j++) {
 					$kid_node = &$asset_node->addChild('child', '', Array('linkid' => $links[$j]['linkid'], 'minorid' => $links[$j]['minorid'], 'link_type' => $links[$j]['link_type']));
@@ -511,7 +511,7 @@ class Asset_Map
 					return;
 				}
 
-				if (($err_msg = $parent->canLinkToType($attr['type_code'], SQ_LINK_UNITE)) !== true) {
+				if (($err_msg = $parent->canLinkToType($attr['type_code'], SQ_LINK_TYPE_1)) !== true) {
 					$this->_error($err_msg);
 					return;
 				} else if (!$parent->writeAccess(Array(), false)) {
@@ -523,7 +523,7 @@ class Asset_Map
 						.'&backend_section=am'
 						.'&am_section=add_asset'
 						.'&type_code='.rawurlencode($attr['type_code'])
-						.'&link_type='.rawurlencode(SQ_LINK_UNITE)
+						.'&link_type='.rawurlencode(SQ_LINK_TYPE_1)
 						.'&parent_assetid='.rawurlencode($attr['parent_assetid'])
 						.'&pos='.rawurlencode($attr['pos']);
 				$frame = 'main';
@@ -545,6 +545,7 @@ class Asset_Map
 		$this->_send($output);
 
 	}// end _getURL()
+
 
 	/*
 	* Attempts to move an asset from one position to another
@@ -596,23 +597,31 @@ class Asset_Map
 				return;
 			}
 
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			// First let's try and create the new link, if there are any issues then it will cryout for us
 			// We dont create the link if we are moving to trash though because the deleteLink call
 			// will handle that for us
 			$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 			if ($new_parent->id != $trash_folder->id) {
 				$new_parent->aquireLock();
-				$linkid = $new_parent->createLink($asset, SQ_LINK_UNITE, '', $input->root->attributes['to_parent_pos']);
+				$linkid = $new_parent->createLink($asset, SQ_LINK_TYPE_1, '', $input->root->attributes['to_parent_pos']);
 				$new_parent->releaseLock();
 				if (!$linkid) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return;
 				}
 			}
 
 			// Now let's try and delete the old link
 			$old_parent->aquireLock();
-			$old_parent->deleteLink($link['linkid']);
+			$deleted = $old_parent->deleteLink($link['linkid']);
 			$old_parent->releaseLock();
+			if (!$deleted) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return;
+			}
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		}// end if
 
@@ -659,7 +668,7 @@ class Asset_Map
 
 		// First let's try and create the new link, if there are any issues then it will cryout for us
 		$new_parent->aquireLock();
-		$linkid = $new_parent->createLink($asset, SQ_LINK_UNITE, '', $input->root->attributes['to_parent_pos']);
+		$linkid = $new_parent->createLink($asset, SQ_LINK_TYPE_1, '', $input->root->attributes['to_parent_pos']);
 		$new_parent->releaseLock();
 		if (!$linkid) {
 			return;

@@ -98,10 +98,11 @@ class User extends Asset
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_EXCLUSIVE => Array('inbox' => '1', 'workspace' => '1'),
-					 SQ_LINK_UNITE     => Array(),
-					 SQ_LINK_USES      => Array(),
-					 SQ_LINK_NOTICE    => Array()
+		return Array(SQ_LINK_EXCLUSIVE	=> Array('inbox' => '1', 'workspace' => '1'),
+					 SQ_LINK_TYPE_1		=> Array(),
+					 SQ_LINK_TYPE_2		=> Array(),
+					 SQ_LINK_TYPE_3		=> Array(),
+					 SQ_LINK_NOTICE		=> Array()
 					);
 	}//end _getAllowedLinks()
 

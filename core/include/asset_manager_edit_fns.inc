@@ -551,7 +551,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 		if ($treeid == '') { 
 			$assetid			= $vars['assetid'];
 			$type_code			= $vars['type_code'];
-			$link['link_type']	= SQ_LINK_UNITE;
+			$link['link_type']	= SQ_LINK_TYPE_1;
 			$link['sort_order']	= $vars['to_parent_pos'];
 			$link['asset']		= &$GLOBALS['SQ_SYSTEM']->am->getAsset($vars['to_parent_assetid']);
 

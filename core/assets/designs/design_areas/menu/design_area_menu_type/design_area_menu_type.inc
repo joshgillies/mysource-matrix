@@ -24,10 +24,11 @@ class Design_Area_Menu_Type extends Design_Area
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_EXCLUSIVE => Array(),
-					 SQ_LINK_UNITE     => Array(),
-					 SQ_LINK_USES      => Array('design_area_menu_type' => 'M'),
-					 SQ_LINK_NOTICE    => Array()
+		return Array(SQ_LINK_EXCLUSIVE	=> Array(),
+					 SQ_LINK_TYPE_1		=> Array(),
+					 SQ_LINK_TYPE_2		=> Array(),
+					 SQ_LINK_TYPE_3		=> Array('design_area_menu_type' => 'M'),
+					 SQ_LINK_NOTICE		=> Array()
 					);
 
 	}//end _getAllowedLinks()
@@ -196,7 +197,7 @@ class Design_Area_Menu_Type extends Design_Area
 	*/
 	function getSubMenuLink() 
 	{
-		return $this->getLink(SQ_LINK_USES, 'design_area_menu_type', false, 'sub_menu');
+		return $this->getLink(SQ_LINK_TYPE_3, 'design_area_menu_type', false, 'sub_menu');
 	}//end getSubMenuLink()
 
 	/*
@@ -223,7 +224,7 @@ class Design_Area_Menu_Type extends Design_Area
 	*/
 	function &getParentMenu()
 	{
-		$link = $this->getLink(SQ_LINK_USES, 'design_area_menu_type', false, 'sub_menu', 'minor');
+		$link = $this->getLink(SQ_LINK_TYPE_3, 'design_area_menu_type', false, 'sub_menu', 'minor');
 		if (empty($link)) {
 			$null = null;
 			return $null;

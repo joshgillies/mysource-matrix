@@ -19,7 +19,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	function Design_Edit_Fns() 
 	{
 		$this->Design_Area_Edit_Fns();
-		$this->tabs['details']['force_unlock'] = false;
+		$this->static_screens['details']['force_unlock'] = false;
 	}
 
 	/**
@@ -220,7 +220,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			if (is_null($da)) {
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($design_area);
 				$da = new $design_area();
-				$da_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_USES, 'value' => $id_name, 'dependant' => '1');
+				$da_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_3, 'value' => $id_name, 'dependant' => '1');
 				$da->setAttrValue('id_name', $id_name);
 				if (!$da->create($da_link)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -620,7 +620,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		}
 
 		// and link it back to ourselves
-		if (!$asset->createLink($dupe, SQ_LINK_UNITE, 'customisation', null, '1')) {
+		if (!$asset->createLink($dupe, SQ_LINK_TYPE_2, 'customisation', null, '1')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -636,7 +636,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		foreach($da_links as $link) {
 			$da = &$am->getAsset($link['minorid'], $link['type_code'], true);
 			if (is_null($da)) continue;
-			if (!$dupe->createLink($da, SQ_LINK_USES, $link['value'], null, '1')) {
+			if (!$dupe->createLink($da, SQ_LINK_TYPE_3, $link['value'], null, '1')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -665,7 +665,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function paintCurrentCustomisations(&$asset, &$o, $prefix)
 	{
-		$customisation_links = &$asset->getLinks(SQ_LINK_UNITE, 'design_customisation', true, 'major', 'customisation');
+		$customisation_links = &$asset->getLinks(SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
 		if ($customisation_links) {
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
 			foreach($customisation_links as $link) {

@@ -154,7 +154,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	function paintThumbnail(&$asset, &$o, $prefix)
 	{
 		// get the current thumbnail if there is one
-		$thumb_link = $asset->getLink(SQ_LINK_USES, 'thumbnail', true, 'thumbnail');
+		$thumb_link = $asset->getLink(SQ_LINK_TYPE_3, 'thumbnail', true, 'thumbnail');
 		if (!empty($thumb_link)) {
 			$thumb = &$GLOBALS['SQ_SYSTEM']->am->getAsset($thumb_link['minorid'], '', true);
 			$existing = $thumb->_getExistingFile();
@@ -207,7 +207,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 
 		if (isset($_POST[$prefix.'_delete_thumbnail'])) {
 			// they want to remove the thumbnail
-			$thumb_link = $asset->getLink(SQ_LINK_USES, 'thumbnail', true, 'thumbnail');
+			$thumb_link = $asset->getLink(SQ_LINK_TYPE_3, 'thumbnail', true, 'thumbnail');
 			if (!$asset->deleteLink($thumb_link['linkid'])) return false;
 		}
 
@@ -219,7 +219,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		}
 		
 		// get the current thumbnail if there is one
-		$thumb_link = $asset->getLink(SQ_LINK_USES, 'thumbnail', true, 'thumbnail');
+		$thumb_link = $asset->getLink(SQ_LINK_TYPE_3, 'thumbnail', true, 'thumbnail');
 		
 		// return if they are trying to set the thumb to the current thumb
 		if ($thumb_link['minorid'] == $thumb->id) return true;
@@ -229,7 +229,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		// create new link to thumbnail
-		$asset->createLink($thumb, SQ_LINK_USES, 'thumbnail');
+		$asset->createLink($thumb, SQ_LINK_TYPE_3, 'thumbnail');
 
 		return true;
 	}//end processThumbnail

@@ -275,7 +275,7 @@ class Resolve
 
 		// now make sure that the user is in the system administrators group
 		$sys_admin_group = &$this->am->getSystemAsset('system_user_group');
-		$sys_admins = $sys_admin_group->getLinks(SQ_LINK_UNITE, 'system_user');
+		$sys_admins = $sys_admin_group->getLinks(SQ_LINK_TYPE_1, 'system_user');
 		foreach ($sys_admins as $data) if ($data['minorid'] == $user->id) return true;
 
 		return false;

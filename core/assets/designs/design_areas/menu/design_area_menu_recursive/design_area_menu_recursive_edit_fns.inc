@@ -270,7 +270,7 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 			}
 			echo '
 					if ('.$recurse_condition.') {
-						$'.$asset->attr('id_name').'_kid_links = $'.$asset->attr('id_name').'_kid->getLinks(SQ_LINK_NAV'.$this->_getLinksExtra($asset).');
+						$'.$asset->attr('id_name').'_kid_links = $'.$asset->attr('id_name').'_kid->getLinks(SQ_LINK_FRONTEND_NAV'.$this->_getLinksExtra($asset).');
 						if (!empty($'.$asset->attr('id_name').'_kid_links)) {
 							if ($end) $depth[$depth_count - 1] = false;
 							'.$asset->attr('id_name').'_recursive_fn($level + 1, $'.$asset->attr('id_name').'_kid_links, $'.$asset->attr('id_name').'_kid->getURL($'.$asset->attr('id_name').'_base_url), $depth);

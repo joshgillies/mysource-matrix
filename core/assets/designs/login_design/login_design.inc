@@ -128,7 +128,7 @@ class Login_Design extends Design
 	{
 		$ret_val = parent::_getAllowedLinks();
 		// can't have any customisations
-		unset($ret_val[SQ_LINK_UNITE]['design_customisation']);
+		unset($ret_val[SQ_LINK_TYPE_2]['design_customisation']);
 		return $ret_val;
 	}//end _getAllowedLinks()
 

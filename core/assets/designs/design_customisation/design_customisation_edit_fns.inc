@@ -62,7 +62,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 			$parents_link = $parent_design->getDesignAreaLink($id_name);
 			if (is_null($parents_link)) continue;
 
-			$data[$id_name] = $parents_link['minorid'];
+			$data[$id_name] = Array($parents_link['minorid'], $parents_link['type_code']);
 
 		}// end foreach
 
@@ -129,7 +129,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 				return false;
 			}
 
-			$data[$id_name] = $dupe->id;
+			$data[$id_name] = Array($dupe->id, $dupe->type());
 
 		}// end foreach
 
@@ -149,7 +149,9 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 	* Recursivly updates all links to a design area from under this asset
 	*
 	* @param object Asset	$asset	the asset to which we belong
-	* @param Array			$data	array of Array(id_name => 1324)); where key is the id_name, whose link needs to be updated and the value is the new minorid
+	* @param Array			$data	array of Array([id_name] => Array([assetid], [type_code])); 
+	*								where key is the id_name, whose link needs to be updated and the value 
+	*								is an array with assetid and type_code
 	*
 	* @return boolean
 	* @access public
@@ -161,15 +163,21 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		foreach($da_links as $da_link) {
 			$id_name = $da_link['value'];
 			if (empty($data[$id_name])) continue;
-			// Now link our parents DA to the design customisation
-			if (!$asset->_updateLink($da_link['linkid'], $data[$id_name])) return false;
+
+			// First remove the old link
+			if (!$asset->deleteLink($da_link['linkid'])) return false;
+
+			// Now create the new link
+			$da = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data[$id_name][0], $data[$id_name][1]);
+			if (is_null($da)) return false;
+			if (!$asset->createLink($da, SQ_LINK_TYPE_3, $id_name, null, '1')) return false;
 
 			// remove any cached versions
 			if (isset($asset->_tmp['design_areas'])) unset($asset->_tmp['design_areas'][$id_name]);
 
 		}// end foreach
 
-		$customisation_links = &$asset->getLinks(SQ_LINK_UNITE, 'design_customisation', true, 'major', 'customisation');
+		$customisation_links = &$asset->getLinks(SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
 		foreach($customisation_links as $customisation_link) {
 			$customisation = &$GLOBALS['SQ_SYSTEM']->am->getAsset($customisation_link['minorid'], $customisation_link['type_code']);
 			if (is_null($customisation)) continue;

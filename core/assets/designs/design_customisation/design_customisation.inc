@@ -53,7 +53,7 @@ class Design_Customisation extends Design
 	function &getParentDesign() 
 	{
 		if (empty($this->_tmp['parent_design'])) {
-			$parent_link = $this->getLink(SQ_LINK_UNITE, 'design', false, 'customisation', 'minor');
+			$parent_link = $this->getLink(SQ_LINK_TYPE_2, 'design', false, 'customisation', 'minor');
 			$this->_tmp['parent_design'] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parent_link['majorid'], $parent_link['type_code']);
 		}
 		return $this->_tmp['parent_design'];
@@ -159,7 +159,7 @@ class Design_Customisation extends Design
 		foreach($added_id_names as $id_name) {
 			$da = &$am->getAsset($parent_da_links[$id_name]['minorid'], $parent_da_links[$id_name]['type_code'], true);
 			if (is_null($da)) continue;
-			$this->createLink($da, SQ_LINK_USES, $id_name);
+			$this->createLink($da, SQ_LINK_TYPE_3, $id_name);
 		}// end foreach
 
 		//// THIRD, let's update the customised, but not specialised, design areas ////

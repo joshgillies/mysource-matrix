@@ -250,9 +250,9 @@ class Site extends Folder
 			return false;
 		}
 
-		$design_link = $this->getLink(SQ_LINK_USES, 'design', false, 'design');
+		$design_link = $this->getLink(SQ_LINK_TYPE_3, 'design', false, 'design');
 		$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
-		$login_design_link = $this->getLink(SQ_LINK_USES, 'design', false, 'login_design');
+		$login_design_link = $this->getLink(SQ_LINK_TYPE_3, 'design', false, 'login_design');
 		$login_designid = (is_null($login_design_link)) ? 0 : $login_design_link['minorid'];
 
 		$urls = $this->getSiteURLs();
@@ -274,7 +274,7 @@ class Site extends Folder
 		}// end for urls
 
 		// recusively call the kids update
-		$kids = $this->getLinks(SQ_LINK_NAV);
+		$kids = $this->getLinks(SQ_LINK_FRONTEND_NAV);
 		for($i = 0; $i < count($kids); $i++) {
 			$kid = &$GLOBALS['SQ_SYSTEM']->am->getAsset($kids[$i]['minorid'], $kids[$i]['type_code']);
 			if (is_null($kid)) continue;
@@ -347,7 +347,7 @@ class Site extends Folder
 			case 'index' : 
 			case 'not_found' : 
 			case 'forbidden' : 
-				return $this->getLink(SQ_LINK_USES, '', true, $page);
+				return $this->getLink(SQ_LINK_TYPE_3, '', true, $page);
 				break;
 
 			default :

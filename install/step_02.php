@@ -77,7 +77,7 @@ if (is_null($root_folder)) {
 	// Create the root user
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('root_user');
 	$root_user = new Root_User();
-	$user_link = Array('asset' => &$system_group, 'link_type' => SQ_LINK_UNITE);
+	$user_link = Array('asset' => &$system_group, 'link_type' => SQ_LINK_TYPE_1);
 	$root_user->setAttrValue('email', 'root@'.$_SERVER['HTTP_HOST']);
 	if (!$root_user->create($user_link)) die('ROOT USER NOT CREATED');
 	pre_echo('Root User Asset Id : '.$root_user->id);
@@ -105,6 +105,13 @@ if (is_null($root_folder)) {
 	if ($login_design->id != 8) {
 		trigger_error('Major Problem: The new Login Design Asset was not given assetid #8. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
 	}
+
+	$login_design->releaseLock();
+	$designs_folder->releaseLock();
+	$root_user->releaseLock();
+	$system_group->releaseLock();
+	$trash_folder->releaseLock();
+	$root_folder->releaseLock();
 
 
 	// From here on in, the user needs to be logged in to create assets and links

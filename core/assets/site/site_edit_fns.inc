@@ -210,7 +210,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function _paintDesign($design_name, &$asset, &$o, $prefix) 
 	{
-		$design_link = $asset->getLink(SQ_LINK_USES, 'design', false, $design_name);
+		$design_link = $asset->getLink(SQ_LINK_TYPE_3, 'design', false, $design_name);
 		$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
 
 		if (!$asset->writeAccess()) {
@@ -252,7 +252,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function _processDesign($design_name, &$asset, &$o, $prefix) 
 	{
-		$design_link = $asset->getLink(SQ_LINK_USES, 'design', false, $design_name);
+		$design_link = $asset->getLink(SQ_LINK_TYPE_3, 'design', false, $design_name);
 		$designid = (empty($design_link)) ? 0 : $design_link['minorid'];
 
 		if (!isset($_POST[$prefix.'_'.$design_name.'_designid'])) return false;
@@ -278,7 +278,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
-			if (!$asset->createLink($design, SQ_LINK_USES, $design_name)) {
+			if (!$asset->createLink($design, SQ_LINK_TYPE_3, $design_name)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -384,7 +384,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			return;
 		}
 
-		$pages = $asset->getLinks(SQ_LINK_NAV, '', false);
+		$pages = $asset->getLinks(SQ_LINK_BACKEND_NAV, '', false);
 
 		if (!count($pages)) {
 			echo '<i>There are no Pages that are children of this site.</i>';
@@ -423,21 +423,25 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			return true;
 		}
 
-		// if there is no current link, we need to create one
-		if (empty($link)) {
-			if (empty($_POST[$prefix.'_'.$page_type])) return false;
-			$page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_'.$page_type]);
-			return (bool) $asset->createLink($page, SQ_LINK_USES, $page_type);
-		} else {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			if ($asset->_updateLink($link['linkid'], $_POST[$prefix.'_'.$page_type])) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-				return true;
-			} else {
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// if there is a current link, we need to delete it
+		if (!empty($link)) {
+			if (!$asset->deleteLink($link['linkid'])) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}// end if
 		}// end if
+
+		if (empty($_POST[$prefix.'_'.$page_type])) return false;
+		$page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_'.$page_type]);
+		if (!$asset->createLink($page, SQ_LINK_TYPE_3, $page_type)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}// end if
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
 
 	}// end processPageSelection()
 

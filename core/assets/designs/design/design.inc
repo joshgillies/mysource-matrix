@@ -34,10 +34,11 @@ class Design extends Design_Area
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_EXCLUSIVE => Array(),
-					 SQ_LINK_UNITE     => Array('design_customisation' => 'M'),
-					 SQ_LINK_USES      => Array('design_area'          => 'M'),
-					 SQ_LINK_NOTICE    => Array()
+		return Array(SQ_LINK_EXCLUSIVE	=> Array(),
+					 SQ_LINK_TYPE_1		=> Array(),
+					 SQ_LINK_TYPE_2		=> Array('design_customisation' => 'M'),
+					 SQ_LINK_TYPE_3		=> Array('design_area'          => 'M'),
+					 SQ_LINK_NOTICE		=> Array()
 					);
 
 	}//end _getAllowedLinks()
@@ -77,7 +78,7 @@ class Design extends Design_Area
 	}//end _linksUpdated()
 
 	/**
-	* Returns the link information for the design area with the given id_name or all design areas
+	* Returns the link information for the design area with the given id_name or all design area links
 	*
 	* @param string	$id_name		the id of the design area to get, if blank returns links for all design areas
 	*
@@ -87,9 +88,9 @@ class Design extends Design_Area
 	function getDesignAreaLink($id_name='')
 	{
 		if ($id_name) {
-			return @$this->getLink(SQ_LINK_USES, 'design_area', false, $id_name);
+			return @$this->getLink(SQ_LINK_TYPE_3, 'design_area', false, $id_name);
 		} else {
-			return @$this->getLinks(SQ_LINK_USES, 'design_area', false);
+			return @$this->getLinks(SQ_LINK_TYPE_3, 'design_area', false);
 		}
 	}//end getDesignAreaLink()
 
@@ -157,7 +158,7 @@ class Design extends Design_Area
 	*/
 	function _updateCustomisations()
 	{
-		$customisation_links = &$this->getLinks(SQ_LINK_UNITE, 'design_customisation', true, 'major', 'customisation');
+		$customisation_links = &$this->getLinks(SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		foreach($customisation_links as $link) {
 			$customisation = &$am->getAsset($link['minorid'], $link['type_code']);
@@ -274,7 +275,7 @@ class Design extends Design_Area
 		$edit_fns->createDesignFile($this);
 
 		if ($do_customisations) {
-			$customisation_links = &$this->getLinks(SQ_LINK_UNITE, 'design_customisation', true, 'major', 'customisation');
+			$customisation_links = &$this->getLinks(SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
 			foreach($customisation_links as $link) {
 				$customisation = &$am->getAsset($link['minorid'], $link['type_code']);

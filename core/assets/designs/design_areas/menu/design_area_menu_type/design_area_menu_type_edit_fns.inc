@@ -142,7 +142,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 #			pre_echo("CREATE SUB ....");
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($design_area);
 			$sub = new $design_area();
-			$sub_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_USES, 'value' => 'sub_menu');
+			$sub_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_3, 'value' => 'sub_menu');
 			$sub->setAttrValue('id_name', $asset->attr('id_name').'__sub_menu');
 			if (!$sub->create($sub_link)) return false;
 		}
@@ -205,7 +205,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 		echo '<', '?php
 		$'.$asset->attr('id_name').'_level    = '.((int) $asset->attr('level')).';
-		$'.$asset->attr('id_name').'_base_url = (empty($PAGE_LINEAGE)) ? \'\' : $PAGE_LINEAGE['.((int) $asset->attr('level')).'][\'url\'];
+		$'.$asset->attr('id_name').'_base_url = (empty($PAGE_LINEAGE['.((int) $asset->attr('level')).'])) ? \'\' : $PAGE_LINEAGE['.((int) $asset->attr('level')).'][\'url\'];
 		';
 
 		$parent_menu = &$asset->getParentMenu();
@@ -228,7 +228,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 			$'.$asset->attr('id_name').'_settings = '.var_export($asset->_getSettingsArray(), true).';
 			$'.$asset->attr('id_name').'_parent = &$am->getAsset($PAGE_LINEAGE[$'.$asset->attr('id_name').'_level][\'assetid\'], $PAGE_LINEAGE[$'.$asset->attr('id_name').'_level][\'type_code\']);
 			if (!is_null($'.$asset->attr('id_name').'_parent)) {
-				$'.$asset->attr('id_name').'_links = $'.$asset->attr('id_name').'_parent->getLinks(SQ_LINK_NAV'.$this->_getLinksExtra($asset).');
+				$'.$asset->attr('id_name').'_links = $'.$asset->attr('id_name').'_parent->getLinks(SQ_LINK_FRONTEND_NAV'.$this->_getLinksExtra($asset).');
 				if (!empty($'.$asset->attr('id_name').'_links)) {
 		?', '>';
 		if (!parent::_createDesignFileOutput($contents, $asset, $design)) return false;

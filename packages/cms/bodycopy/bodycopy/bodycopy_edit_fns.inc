@@ -65,7 +65,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		
 		// get all the tables linked to this bodycopy
-		$tables = $asset->getLinks(SQ_LINK_UNITE, 'bodycopy_table');
+		$tables = $asset->getLinks(SQ_LINK_TYPE_2, 'bodycopy_table');
 		
 		// paint each table
 		$i = 0;
@@ -95,7 +95,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		
 		// get all the tables linked to this bodycopy
-		$tables = $asset->getLinks(SQ_LINK_UNITE, 'bodycopy_table');
+		$tables = $asset->getLinks(SQ_LINK_TYPE_2, 'bodycopy_table');
 
 		if (!$asset->writeAccess()) {
 			foreach ($tables as $table_data) {
@@ -531,7 +531,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		// get all the tables linked to this bodycopy
-		$tables = $asset->getLinks(SQ_LINK_UNITE, 'bodycopy_table');
+		$tables = $asset->getLinks(SQ_LINK_TYPE_2, 'bodycopy_table');
 
 		foreach ($tables as $table_data) {
 			$table = &$am->getAsset($table_data['minorid'], $table_data['type_code']);
@@ -584,7 +584,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		// get all the tables linked to this bodycopy
-		$tables = $asset->getLinks(SQ_LINK_UNITE, 'bodycopy_table');
+		$tables = $asset->getLinks(SQ_LINK_TYPE_2, 'bodycopy_table');
 		$num_tables = count($tables);
 
 		$tableid = intval($tableid);
@@ -598,7 +598,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		if (!$before) $tableid++;
 
 		// now add the table
-		$copy_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_UNITE, 'value' => '', 'sort_order' => $tableid);
+		$copy_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => $tableid);
 		$am->includeAsset('bodycopy_table');
 		$new_table = new Bodycopy_Table();
 		$new_table->setAttrValue('name', 'Table '.$tableid);
@@ -622,7 +622,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		// get all the tables linked to this bodycopy
-		$tables = $asset->getLinks(SQ_LINK_UNITE, 'bodycopy_table');
+		$tables = $asset->getLinks(SQ_LINK_TYPE_2, 'bodycopy_table');
 		foreach ($tables as $table_data) {
 			if ($table_data['minorid'] == $tableid) {
 				// found the table to delete

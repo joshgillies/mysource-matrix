@@ -57,7 +57,7 @@ class Bodycopy extends Asset
 		// create an table
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy_table');
 		$bodycopy_table =& new Bodycopy_Table();
-		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_UNITE, 'value' => '', 'sort_order' => 1, 'dependant' => 1);
+		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => 1, 'dependant' => 1);
 		$bodycopy_table->setAttrValue('name', 'Table 1');
 		if (!$bodycopy_table->create($copy_link)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -98,7 +98,7 @@ class Bodycopy extends Asset
 	*/
 	function _getAllowedLinks() {
 
-		return Array(SQ_LINK_UNITE     => Array('bodycopy_table' => 'M')
+		return Array(SQ_LINK_TYPE_2     => Array('bodycopy_table' => 'M')
 					);
 
 	}#end _getAllowedLinks()
@@ -135,7 +135,7 @@ class Bodycopy extends Asset
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		// get all the tables linked to this bodycopy
-		$tables = $this->getLinks(SQ_LINK_UNITE, 'bodycopy_table');
+		$tables = $this->getLinks(SQ_LINK_TYPE_2, 'bodycopy_table');
 
 		// paint each table
 		foreach ($tables as $table_data) {
