@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_broken_links_edit_fns.inc,v 1.11 2005/02/16 06:05:31 dbaranovskiy Exp $
+* $Id: report_broken_links_edit_fns.inc,v 1.12 2005/03/17 05:17:44 arailean Exp $
 *
 */
 
@@ -29,10 +29,10 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 * Report_Broken_Links_Edit_Fns
 *
 * Purpose
-*
+*	Generate a report of broken links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -312,7 +312,6 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 	*/
 	function validateEmailLink($mailto)
 	{
-		error_log("Validating email $mailto");
 		require_once SQ_FUDGE_PATH.'/general/www.inc';
 		if (!valid_email($mailto)) {
 			$description = 'The email address does not appear to be valid';
@@ -356,9 +355,10 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 			return;
 		}
 
-		$reported_links = Array( 'internal' => Array(),
-								 'external' => Array(),
-								 'mailto'   => Array(),
+		$reported_links = Array(
+								'internal' => Array(),
+								'external' => Array(),
+								'mailto'   => Array(),
 								);
 
 
@@ -622,7 +622,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 			$asset_bg = 'FFFFFF';
 		} else {
 			$dependants = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($asset->id);
-			$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset(array_pop($dependants));
+			$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset(array_pop($dependants));
 			if (!is_null($parent)) {
 				$asset_type = $parent->type();
 				$asset_name = $parent->name;
@@ -647,12 +647,13 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 				<a href="'.$asset_preview_url.'" target="_blank" title="'.$asset_name.'">'.$asset_string.'</a>';
 		}
 
-		return Array('assetid'      => $assetid,
-					 'type'         => $asset_type,
-					 'string'       => $asset_string,
-					 'bg'           => $asset_bg,
-					 'status'       => $asset_status,
-					 'backend_url'  => $asset_url,
+		return Array(
+					 'assetid'     => $assetid,
+					 'type'        => $asset_type,
+					 'string'      => $asset_string,
+					 'bg'          => $asset_bg,
+					 'status'      => $asset_status,
+					 'backend_url' => $asset_url,
 					 );
 
 	}//end _getAssetReportInfo()
