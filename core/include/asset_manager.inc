@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.139 2003/10/15 02:31:46 brobertson Exp $
+* $Id: asset_manager.inc,v 1.140 2003/10/16 01:58:25 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1854,6 +1854,11 @@ class Asset_Manager extends MySource_Object
 			}
 		}//end for
 
+		// check if we are allowed to link to these type of assets
+		if (($err_msg = $major->canCreateLink($minor, $link_type, $exclusive)) !== true) {
+			trigger_error($err_msg, E_USER_WARNING);
+			return 0;
+		}
 
 		// to create a link we need to lock the new parent, but we need to make sure
 		// we dont unlock it if it was already locked
@@ -2243,7 +2248,7 @@ class Asset_Manager extends MySource_Object
 		if (!$major->id) return false;
 
 		// if you dont have write access to this asset you cant create any links
-		if (empty($GLOBALS['SQ_INSTALL']) && !$major->writeAccess('links')) {
+		if (empty($GLOBALS['SQ_INSTALL']) && !$major->writeAccess('')) {
 			return 'Cannot create link from '.$major->name.' (# '.$major->id.') to '.$minor->name.' (# '.$minor->id.'), permission denied (no write access to "'.$major->name.'")';
 		}
 
