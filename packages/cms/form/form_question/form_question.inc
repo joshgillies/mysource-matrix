@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.45 2004/12/21 01:09:03 lwright Exp $
+* $Id: form_question.inc,v 1.46 2005/01/17 18:25:47 brobertson Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -726,7 +726,7 @@ class Form_Question extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function writeAccess($lock_type, $assetids=Array())
+	function writeAccess($lock_type='', $assetids=Array())
 	{
 		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid, 'form');
 		if (is_null($form)) return false;
@@ -748,7 +748,7 @@ class Form_Question extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function adminAccess($lock_type, $assetids=Array())
+	function adminAccess($lock_type='', $assetids=Array())
 	{
 		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid, 'form');
 		if (is_null($form)) return false;
