@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.28 2005/02/11 04:59:03 gsherwood Exp $
+* $Id: image.inc,v 1.29 2005/02/21 11:44:05 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -223,14 +223,9 @@ class Image extends File
 			foreach($varieties['lookups'] as $varietyid) {
 				$variety = &$this->getAsset($varietyid);
 				if (is_null($variety)) continue;
-
 				$keywords['image_v_'.$variety->name] = Array('value' => $variety->printImageTag($this->attr('alt'), $this->attr('title'), true));
-
 			}
 		}
-
-
-
 
 		if ($descriptions) {
 			$keywords['image_width']['description']		= 'Width of the image in pixels';
