@@ -198,6 +198,26 @@ class Resolve
 		return false;
 	}
 
+
+	/**
+	* Is the current user a system administrator?
+	*
+	* @return boolean
+	* @access public
+	*/
+	function userSystemAdmin()
+	{
+		if (!$this->user->id) return false;
+		if (get_class($this->user) != 'system_user') return false;
+		
+		// now make sure that the user is in the system administrators group
+		$sys_admin_group = &$this->am->getSystemAsset('system_user_group');
+		$sys_admins = $sys_admin_group->getLinks(SQ_LINK_UNITE, 'system_user');
+		foreach ($sys_admins as $data) if ($data['minorid'] == $this->user->id) return true;
+
+		return false;
+	}
+
 	
 	/**
 	* Allows an object to listen to an event in the system and be notifies of it
