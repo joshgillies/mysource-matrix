@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.354 2005/02/01 10:55:39 brobertson Exp $
+* $Id: asset.inc,v 1.355 2005/02/03 01:24:47 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.354 $
+* @version $Revision: 1.355 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3696,6 +3696,31 @@ class Asset extends MySource_Object
 
 	}//end getWeightings()
 
-}//end class
+
+	/**
+	* Gets an asset tag line to print out
+	*
+	* @return string
+	* @access public
+	*/
+	function assetTagLine($show_image=true)
+	{
+		$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');	
+	
+		ob_start();
+		if ($show_image) {
+			?><script language="JavaScript" type="text/javascript">
+		sq_print_icon('<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($this->type()); ?>', '16', '16', '<?php echo $type_name ?>');
+	</script><?php
+		}?><strong><?php echo $this->name ?></strong> - <?php echo $type_name; ?> (Id: #<?php echo $this->id; ?>)<?php
+		$contents = ob_get_contents();
+		ob_end_clean();
+		
+		return $contents;
+	
+	}//end assetTagLine()
+	
+
+}//end class 
 
 ?>
