@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.5 2004/11/18 04:48:01 gsherwood Exp $
+* $Id: logs.inc,v 1.6 2005/01/13 22:07:56 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -63,126 +63,130 @@ function paintLogs(&$owner, &$o, &$ei)
 	$active_log_type = (isset($_REQUEST['sq_backend_log_type'])) ? $_REQUEST['sq_backend_log_type'] : $log_types[0];
 	$o->addFormActionGetVar('sq_backend_log_type', $active_log_type);
 	$o->openSection('Logged Messages');
-		$o->openField('Log Type');
+		$o->openRaw();
 			$type_options = Array();
 			foreach ($log_types as $type) $type_options[$type] = ucwords(str_replace(Array('.', '_'), ' ', $type));
+
+			echo '<b>Log Type</b>&nbsp;';
 			combo_box('sq_backend_log_type', $type_options, false, $active_log_type);
 			echo '&nbsp;';
 			normal_button($prefix.'_go', 'View', 'submit_form()');
-		$o->closeField();
+		$o->closeRaw();
 
-	$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 
-	switch ($active_log_type) {
-
-		case 'asset.linking' :
-			$minor_logs = $ms->getLogs($active_log_type, Array('minorid' => $owner->id));
-			$major_logs = $ms->getLogs($active_log_type, Array('majorid' => $owner->id));
-			$logs = array_merge($minor_logs, $major_logs);
-			usort($logs, Array('Messaging_Service', 'sortMessages'));
-		break;
-
-		case 'asset.workflow' :
-			// for workflow we want to show the user log messages as well
-			if (isset($_REQUEST['sq_workflow_log_version'])) {
-				$o->addFormActionGetVar('sq_workflow_log_version', $_REQUEST['sq_workflow_log_version']);
-				$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id,
-															 'version' => $_REQUEST['sq_workflow_log_version']
-															 )
-							);
-				$user_logs = $ms->getLogs($active_log_type.'.userlog', Array('assetid' => $owner->id,
-																			 'version' => $_REQUEST['sq_workflow_log_version']
-																			 )
-							);
-			} else {
-				$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id));
-				$user_logs = $ms->getLogs($active_log_type.'.userlog', Array('assetid' => $owner->id));
-			}
-			$logs = array_merge($logs, $user_logs);
-			usort($logs, Array('Messaging_Service', 'sortMessages'));
-		break;
-
-		default :
-			$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id));
-		break;
-
-	}//end switch
-
-	if (empty($logs)) {
-		$o->openSection('There are no logged messages of this type for "'.$owner->name.'"');
-	} else {
-		$o->openField('');
-			?>
-			<table class="sq-backend-table">
-				<tr>
-					<td class="sq-backend-table-header" nowrap width="120">Log Time</td>
-					<td class="sq-backend-table-header" nowrap width="120">Logged By</td>
-					<td class="sq-backend-table-header" width="100%">Message</td>
-				</tr>
-			<?php
-			$num_printed  = 0;
-			$num_per_page = 10;
-			$num_logs = count($logs);
-			$start_printing_at = 0;
-			if (isset($_REQUEST[$prefix.'_start_at'])) $start_printing_at = (int) $_REQUEST[$prefix.'_start_at'];
-			for ($i = 0; $i < $num_logs; $i++) {
-				if ($i < $start_printing_at) {
-					$i++;
-					continue;
+		switch ($active_log_type) {
+	
+			case 'asset.linking' :
+				$minor_logs = $ms->getLogs($active_log_type, Array('minorid' => $owner->id));
+				$major_logs = $ms->getLogs($active_log_type, Array('majorid' => $owner->id));
+				$logs = array_merge($minor_logs, $major_logs);
+				usort($logs, Array('Messaging_Service', 'sortMessages'));
+			break;
+	
+			case 'asset.workflow' :
+				// for workflow we want to show the user log messages as well
+				if (isset($_REQUEST['sq_workflow_log_version'])) {
+					$o->addFormActionGetVar('sq_workflow_log_version', $_REQUEST['sq_workflow_log_version']);
+					$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id,
+																 'version' => $_REQUEST['sq_workflow_log_version']
+																 )
+								);
+					$user_logs = $ms->getLogs($active_log_type.'.userlog', Array('assetid' => $owner->id,
+																				 'version' => $_REQUEST['sq_workflow_log_version']
+																				 )
+								);
+				} else {
+					$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id));
+					$user_logs = $ms->getLogs($active_log_type.'.userlog', Array('assetid' => $owner->id));
 				}
-				$log_data = $logs[$i];
-				?>
-				<tr>
-					<td class="sq-backend-table-cell" nowrap><?php echo ts_iso8601($log_data['sent']); ?></td>
-					<td class="sq-backend-table-cell" nowrap><?php echo $log_data['from_name']; ?></td>
-					<td class="sq-backend-table-cell" width="100%"><b><?php echo $log_data['subject']; ?></b><br/><?php echo $log_data['body']; ?></td>
-				</tr>
-				<?php
-				$num_printed++;
-				if ($num_printed >= $num_per_page) break;
-			}
-			?>
-				<tr>
-					<td colspan="3" align="center" class="sq-backend-table-header">
-					<?php
-					hidden_field($prefix.'_start_at', $start_printing_at);
-					if ($start_printing_at > 0) {
-						?><a style="text-decoration: none;" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix; ?>_start_at', '<?php echo $start_printing_at - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
-					} else {
-						?><span style="color: #84848F"><?php
-					}
-					?>
-					&lt;&lt; Previous Page
-					<?php
-					if ($start_printing_at > 0) {
-						?></a><?php
-					} else {
-						?></span><?php
-					}
-					?>
-					&nbsp;<b>Page <?php echo round(($start_printing_at + $num_per_page) / $num_per_page); ?> of <?php echo round(($num_logs / $num_per_page) + 0.5); ?></b>&nbsp;
+				$logs = array_merge($logs, $user_logs);
+				usort($logs, Array('Messaging_Service', 'sortMessages'));
+			break;
+	
+			default :
+				$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id));
+			break;
+	
+		}//end switch
 
+		if (empty($logs)) {
+			$o->openRaw();
+				echo '<b>There are no logged messages of this type for "'.$owner->name.'"</b>';
+			$o->closeRaw();
+		} else {
+			$o->openRaw();
+				?>
+				<table class="sq-backend-table">
+					<tr>
+						<td class="sq-backend-table-header" nowrap width="120">Log Time</td>
+						<td class="sq-backend-table-header" nowrap width="120">Logged By</td>
+						<td class="sq-backend-table-header" width="100%">Message</td>
+					</tr>
 					<?php
-					if (($start_printing_at + $num_per_page) < $num_logs) {
-						?><a style="text-decoration: none;" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix; ?>_start_at', '<?php echo $start_printing_at + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
-					} else {
-						?><span style="color: #84848F"><?php
+					$num_printed  = 0;
+					$num_per_page = 10;
+					$num_logs = count($logs);
+					$start_printing_at = 0;
+					if (isset($_REQUEST[$prefix.'_start_at'])) $start_printing_at = (int) $_REQUEST[$prefix.'_start_at'];
+					for ($i = 0; $i < $num_logs; $i++) {
+						if ($i < $start_printing_at) {
+							$i++;
+							continue;
+						}
+						$log_data = $logs[$i];
+						?>
+						<tr>
+							<td class="sq-backend-table-cell" nowrap><?php echo ts_iso8601($log_data['sent']); ?></td>
+							<td class="sq-backend-table-cell" nowrap><?php echo $log_data['from_name']; ?></td>
+							<td class="sq-backend-table-cell" width="100%"><b><?php echo $log_data['subject']; ?></b><br/><?php echo $log_data['body']; ?></td>
+						</tr>
+						<?php
+						$num_printed++;
+						if ($num_printed >= $num_per_page) break;
 					}
 					?>
-					Next Page &gt;&gt;
-					<?php
-					if (($start_printing_at + $num_per_page) < $num_logs) {
-						?></a><?php
-					} else {
-						?></span><?php
-					}
-					?>
-					</td>
-				</tr>
-			</table>
-			<?php
-		$o->closeField();
-	}
+					<tr>
+						<td colspan="3" align="center" class="sq-backend-table-header">
+						<?php
+						hidden_field($prefix.'_start_at', $start_printing_at);
+						if ($start_printing_at > 0) {
+							?><a style="text-decoration: none;" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix; ?>_start_at', '<?php echo $start_printing_at - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+						} else {
+							?><span style="color: #84848F"><?php
+						}
+						?>
+						&lt;&lt; Previous Page
+						<?php
+						if ($start_printing_at > 0) {
+							echo '</a>';
+						} else {
+							echo '</span>';
+						}
+						?>
+						&nbsp;<b>Page <?php echo round(($start_printing_at + $num_per_page) / $num_per_page); ?> of <?php echo round(($num_logs / $num_per_page) + 0.5); ?></b>&nbsp;
+	
+						<?php
+						if (($start_printing_at + $num_per_page) < $num_logs) {
+							?><a style="text-decoration: none;" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix; ?>_start_at', '<?php echo $start_printing_at + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+						} else {
+							?><span style="color: #84848F"><?php
+						}
+						?>
+						Next Page &gt;&gt;
+						<?php
+						if (($start_printing_at + $num_per_page) < $num_logs) {
+							echo '</a>';
+						} else {
+							echo '</span>';
+						}
+						?>
+						</td>
+					</tr>
+				</table>
+				<?php
+			$o->closeRaw();
+		}
 	$o->closeSection();
 
 	return false;
