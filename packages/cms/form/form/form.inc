@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.53.2.1 2004/10/15 00:16:32 lwright Exp $
+* $Id: form.inc,v 1.53.2.2 2004/10/15 06:46:15 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -45,25 +45,25 @@ class Form extends Bridge
 
 	/**
 	* the active submission array
-	* @var Array (string => string) 
+	* @var Array (string => string)
 	*/
 	var $active_submission = Array();
 
 	/**
 	* the active submission array
-	* @var Array (of string) 
+	* @var Array (of string)
 	*/
 	var $submission_errors = Array();
 
 	/**
 	* the active section object
-	* @var object 
+	* @var object
 	*/
 	var $active_section = null;
 
 	/**
 	* available bodycopy keywords
-	* @var Array() 
+	* @var Array()
 	*/
 	var $_available_keywords = Array('form_contents', 'form_errors', 'submit_button', 'reset_button');
 
@@ -105,7 +105,7 @@ class Form extends Bridge
 		if (is_numeric($shadowid)) return $GLOBALS['SQ_SYSTEM']->am->getAsset($shadowid);
 
 		if ($shadowid{0} == 'q') {	// Questions will be preceded with a 'q'
-				
+
 			// pick up the question in question (!)
 			$questionid = substr($shadowid, 1, strlen($shadowid));
 			$data = $this->getQuestionById($questionid);
@@ -124,8 +124,8 @@ class Form extends Bridge
 		return $asset;
 
 	}//end getAsset()
-	
-	
+
+
 	/**
 	* Return all links that this asset has to other assets
 	*
@@ -150,7 +150,7 @@ class Form extends Bridge
 	{
 		// there are no links away from the shadow asset (ie:questions)
 		if (!is_numeric($assetid)) return Array();
-		
+
 		// only TYPE_2 links are ever returned
 		if (!($link_types & SQ_LINK_TYPE_2)) return Array();
 
@@ -166,7 +166,7 @@ class Form extends Bridge
 			foreach ($links as $link) $i = max($i, $link['sort_order']);
 
 			foreach ($entries as $questionid => $data) {
-				
+
 				$links[] = Array('linkid' => 0,
 								 'majorid'         => $this->id,
 								 'minorid'         => $this->id.':q'.$questionid,
@@ -190,7 +190,7 @@ class Form extends Bridge
 		return $this->_tmp['getLinks'][$assetid][$side_of_link];
 
 	}//end getLinks()
-	
+
 
 	/**
 	* Used by asset map to return a asset map-style link array
@@ -263,7 +263,7 @@ class Form extends Bridge
 			if (empty($type_code)) $type_code = Array();
 			else $type_code = Array($type_code);
 		}
-		
+
 		$children = Array();
 
 		// this is so we get the sections as we go
@@ -301,8 +301,8 @@ class Form extends Bridge
 		return $children;
 
 	}//end getChildren()
-	
-	
+
+
 	/**
 	* Get all asset ids that are above the passed assetid in the various trees in which it exists
 	*
@@ -336,8 +336,8 @@ class Form extends Bridge
 		return $this->_tmp['getParents'][$assetid];
 
 	}//end getParents()
-	
-	
+
+
 	/**
 	* Set the last updated info for this asset
 	*
@@ -359,10 +359,10 @@ class Form extends Bridge
 			return $this->fileRegeneration();
 		}
 		return true;
-	
+
 	}//end _updated()
-	
-	
+
+
 	/**
 	* regenerates the content file for this form
 	*
@@ -376,10 +376,10 @@ class Form extends Bridge
 
 	}//end fileRegeneration()
 
-	
+
 	/**
 	* get the question links attached to this form
-	* 
+	*
 	* @access public
 	* @return array(link)
 	*/
@@ -388,11 +388,55 @@ class Form extends Bridge
 		return $this->attr('questions');
 
 	}//end getQuestions()
-	
-	
+
+
+	/**
+	* get the question assets attached to this form
+	*
+	* @access public
+	* @return array
+	*/
+	function getQuestionAssets() {
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$result = Array();
+
+		$questions = $this->attr('questions');
+		if (!empty($questions)) {
+			foreach ($questions as $q_id => $question) {
+				$id           = $this->id.':q'.$q_id;
+				$result[$id]  = $am->getAsset($id);
+			}
+		}
+
+		return $result;
+
+	}//end getQuestionAssets
+
+
+	/**
+	* get the question assets attached to this form, even inside sections
+	*
+	* @access public
+	* @return array
+	*/
+	function getAllQuestionAssets()
+	{
+		$all_questions = $this->getQuestionAssets();
+
+		$sections = &$this->getSections();
+		foreach ($sections as $section) {
+			$questions = $section->getQuestionAssets();
+			$all_questions = array_merge($all_questions, $questions);
+		}
+
+		return $all_questions;
+
+	}//end getAllQuestionAssets()
+
+
 	/**
 	* attach a question to this form
-	* 
+	*
 	* @param Form_Question &$question the question object to attach
 	*
 	* @access public
@@ -440,11 +484,11 @@ class Form extends Bridge
 		return true;
 
 	}//end attachQuestion()
-	
-	
+
+
 	/**
 	* delete a question to this form
-	* 
+	*
 	* @param Form_Question &$question the question object to delete
 	*
 	* @access public
@@ -481,8 +525,8 @@ class Form extends Bridge
 		return true;
 
 	}//end deleteQuestion()
-	
-	
+
+
 	/**
 	* returns the number of sections in this form
 	*
@@ -497,11 +541,11 @@ class Form extends Bridge
 		return count($questions);
 
 	}//end getQuestionCount()
-	
-	
+
+
 	/**
 	* get a specific question
-	* 
+	*
 	* @access public
 	* @return array(link)
 	*/
@@ -511,11 +555,11 @@ class Form extends Bridge
 		return (isset($questions[$questionid])) ? $questions[$questionid] : Array();
 
 	}//end getQuestionById()
-	
-	
+
+
 	/**
 	* get specific question by order
-	* 
+	*
 	* @access public
 	* @return array(link)
 	*/
@@ -525,7 +569,7 @@ class Form extends Bridge
 		return $GLOBALS['SQ_SYSTEM']->am->getAsset($sort_order[$orderid]);
 
 	}//end getQuestionByOrder()
-	
+
 
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
@@ -546,13 +590,13 @@ class Form extends Bridge
 
 	/**
 	* returns all of the sections in this form in order of 'sort_order'
-	* 
+	*
 	* @param &object $asset the form asset
 	*
 	* @access public
 	* @return &array(object form_section)
 	*/
-	function &getSections() 
+	function &getSections()
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$section_links = &$this->getSectionLinks();
@@ -565,7 +609,7 @@ class Form extends Bridge
 
 	}//end getSections()
 
-	
+
 	/**
 	* returns the number of sections in this form
 	*
@@ -583,9 +627,9 @@ class Form extends Bridge
 
 	/**
 	* get the section links attached to this form
-	* 
+	*
 	* @param &object $asset the form asset
-	* 
+	*
 	* @access public
 	* @return array(link)
 	*/
@@ -614,7 +658,7 @@ class Form extends Bridge
 
 	/**
 	* saves a cookie to the client based on a submission id so they can
-	* come back later to view saved forms 
+	* come back later to view saved forms
 	*
 	* @param string		$id		the value to be saved to the cookie
 	* @param int		$days	the number of days before expiry
@@ -626,7 +670,7 @@ class Form extends Bridge
 	{
 		return setcookie('SQ_FORM_'.$this->getPrefix(), $id, time() + 60 * 60 * 24 * $days);
 
-	}//end setFormCookie() 
+	}//end setFormCookie()
 
 
 	/**
@@ -644,7 +688,7 @@ class Form extends Bridge
 	*                       );
 	*                       or alternately
 	*                       Array('all');
-	* 
+	*
 	* @return boolean
 	* @access public
 	* @see asset::cloneComponents()
@@ -652,16 +696,16 @@ class Form extends Bridge
 	function cloneComponents(&$clone, $components)
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
+
 		if (!parent::cloneComponents($clone, $components)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;			
+			return false;
 		}
-		
+
 		if (in_array('attributes', $components) || in_array('all', $components)) {
 			$sort_order = $this->attr('sort_order');
 			$sort_order = str_replace($this->id.':q', $clone->id.':q', $sort_order);
-			
+
 			// send to a friend format
 			$recip = unserialize($this->attr('recipient_emails_format'));
 			$recip = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $recip);
@@ -674,7 +718,7 @@ class Form extends Bridge
 				$sel[$key]['address'] = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $sel[$key]['address']);
 				$sel[$key]['assetid'] = str_replace($this->id.':q', $clone->id.':q', $sel[$key]['assetid']);
 			}
-			
+
 			// save the information
 			$clone->setAttrValue('sort_order', $sort_order);
 			$clone->setAttrValue('recipient_emails_format', serialize($recip));
@@ -682,15 +726,15 @@ class Form extends Bridge
 			$clone->setAttrValue('staf_format', serialize($staf));
 			$clone->setAttrValue('selective_emails', $sel);
 			$clone->saveAttributes();
-			
+
 		}
-		
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');		
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
-	
+
 	}//end cloneComponents()
-	
-	
+
+
 	/**
 	* Called by the design to print the body of this asset
 	*
@@ -699,135 +743,135 @@ class Form extends Bridge
 	*/
 	function printBody()
 	{
-		$prefix = $this->getPrefix(); 
+		$prefix = $this->getPrefix();
 
-		?>
-		<form name="<?php echo $prefix?>" enctype="multipart/form-data" action="<?php echo $_SERVER['PHP_SELF']?>" method="POST" <?php if ($this->attr('use_client_side')) { ?>
-		onsubmit="return beforeSubmit_<?php echo $prefix?>(this);"<?php }
-		echo '>';
+		$clientside = ($this->attr('use_client_side'))?'onsubmit="return beforeSubmit_'.$prefix.'(this);"':'';
 
-		// check to see if there is a past submission that belongs to this user
-		// check to see if this form is set up to be a wizard or not
+		echo '<form name="'.$prefix.'" enctype="multipart/form-data" action="'.$_SERVER['PHP_SELF'].'" method="POST" '.$clientside.'>';
+
 		$this->printStandard();
-		echo ?></form><?php
+		echo '</form>';
 
 	}//end printBody()
 
 
 	/**
+	* Prints the form to screen
+	*
+	* @access public
+	* @return void
+	*/
+	function printForm()
+	{
+		ob_start();
+			$this->includeContentFile('Standard');
+			$cf_output = ob_get_contents();
+		ob_end_clean();
+
+		$error = array_get_index($this->_tmp,'is_error',false);
+
+		if ($error) {
+			ob_start();
+				$this->printErrors();
+				$err_output = ob_get_contents();
+			ob_end_clean();
+		} else {
+			$err_output = '';
+		}
+
+		$bodycopy = &$this->getBodycopy('Page Contents');
+
+		// if no title for the submit button is specified in the backend
+		// just use 'Submit'
+		$button_name = ($this->attr('submit_button')) ? $this->attr('submit_button') : 'Submit';
+
+		ob_start();
+			submit_button($this->getPrefix().'_submit', $button_name);
+			$submit_button = ob_get_contents();
+		ob_end_clean();
+
+		$reset_button_name = ($this->attr('reset_button')) ? $this->attr('reset_button') : 'Clear Form';
+
+		ob_start();
+			reset_button($this->getPrefix().'_reset', $reset_button_name);
+			$reset_button = ob_get_contents();
+		ob_end_clean();
+
+		// check to see if the bodycopy attached to this form has any content
+		if ($this->attr('use_bodycopy_main') && $bodycopy && !$bodycopy->isEmpty()) {
+			$questions = &$this->getQuestions();
+			$sections = &$this->getSections();
+
+			foreach ($questions as $q_id => $question) {
+				$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
+				$q_name = $q_asset->attr('name');
+				$replacements['question_field_'.$this->id.'_q'.$q_id] = $q_asset->getAnswer();
+			}
+
+			foreach ($sections as $section) {
+				$replacements['section_title_'.$section->id] = $section->attr('name');
+				$questions = &$section->getQuestions();
+				foreach ($questions as $q_id => $question) {
+					$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
+					$q_name = $section->attr('name').': '.$q_asset->attr('name');
+					$replacements['question_field_'.$section->id.'_q'.$q_id] = $q_asset->getAnswer();
+				}
+			}
+
+
+			ob_start();
+				$bodycopy->setKeywordReplacements($replacements + Array('form_contents' => &$cf_output, 'form_errors' => &$err_output, 'submit_button' => &$submit_button, 'reset_button' => &$reset_button));
+				$bodycopy->printBody();
+				$output = ob_get_contents();
+			ob_end_clean();
+
+			echo $output;
+
+		} else {
+			$output = $cf_output;
+
+			$output .= '<table width="'.$this->attr('form_width').'"><tr>';
+			if ($this->attr('question_index')) {
+				$output .= '<td width="20">&nbsp;</td>';
+			}
+			$output .= '<td';
+			$output .= ($this->attr('question_col_width')) ? ' 	width="'.$this->attr('question_col_width').'">' : '>';
+			$output .='&nbsp;</td><td';
+			$output .= ($this->attr('answer_col_width')) ? ' 	width="'.$this->attr('answer_col_width').'">' 	: '>';
+
+			$output .= $submit_button;
+			$output .= $reset_button;
+
+			$output .= '</td></tr>';
+			if ($error) {
+				$output .= '<tr><td colspan="3">'.$err_output.'</td></tr>';
+			}
+			$output .= '</table>';
+
+			echo $output;
+		}
+
+	}//end printForm()
+
+
+	/**
 	* Prints the standard form i.e not a wizard
-	* 
+	*
 	* @access public
 	* @return boolean
 	*/
 	function printStandard()
 	{
 		$prefix = $this->getPrefix();
-		$is_error = false;
 
 		// check to see if the form has been submitted or not
-		if (isset($_POST[$prefix.'_submit'])) {
-			
-			// flush any errors that exist in the submisssion asset
-			$this->processForm();
-			
-			// check to see if there is an error with the form
-			if (count($this->submission_errors)) { 
-				$is_error = true;
-			} else {
-				$this->finishForm();
-			}
+		if (isset($_POST[$prefix.'_submit']) && $this->processForm()) {
+			$this->finishForm();
+			return true;
 		}
 
 		// nothing submitted yet, or there was an error
-		if (!isset($_POST[$prefix.'_submit']) || $is_error) {
-
-			ob_start();
-				$this->includeContentFile('Standard');
-				$cf_output = ob_get_contents();
-			ob_end_clean();
-
-			if ($is_error) {
-				ob_start();
-					$this->printErrors();
-					$err_output = ob_get_contents();
-				ob_end_clean();
-			} else {
-				$err_output = '';
-			}
-
-			$bodycopy = &$this->getBodycopy('Page Contents');
-			
-			// if no title for the submit button is specified in the backend
-			// just use 'Submit'
-			$button_name = ($this->attr('submit_button')) ? $this->attr('submit_button') : 'Submit'; 
-		
-			ob_start();
-				submit_button($this->getPrefix().'_submit', $button_name);
-				$submit_button = ob_get_contents();
-			ob_end_clean();
-
-			$reset_button_name = ($this->attr('reset_button')) ? $this->attr('reset_button') : 'Clear Form'; 
-
-			ob_start();
-				reset_button($this->getPrefix().'_reset', $reset_button_name);
-				$reset_button = ob_get_contents();
-			ob_end_clean();
-	
-			// check to see if the bodycopy attached to this form has any content
-			if ($this->attr('use_bodycopy_main') && $bodycopy && !$bodycopy->isEmpty()) {
-				$questions = &$this->getQuestions();
-				$sections = &$this->getSections();
-		
-				foreach ($questions as $q_id => $question) {
-					$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
-					$q_name = $q_asset->attr('name');
-					$replacements['question_field_'.$this->id.'_q'.$q_id] = $q_asset->getAnswer();
-				}
-		
-				foreach ($sections as $section) {
-					$replacements['section_title_'.$section->id] = $section->attr('name');
-					$questions = &$section->getQuestions();
-					foreach ($questions as $q_id => $question) {
-						$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
-						$q_name = $section->attr('name').': '.$q_asset->attr('name');
-						$replacements['question_field_'.$section->id.'_q'.$q_id] = $q_asset->getAnswer();
-					}
-				}
-
-
-				ob_start();
-					$bodycopy->setKeywordReplacements($replacements + Array('form_contents' => &$cf_output, 'form_errors' => &$err_output, 'submit_button' => &$submit_button, 'reset_button' => &$reset_button));
-					$bodycopy->printBody();
-					$output = ob_get_contents(); 
-				ob_end_clean();
-
-				echo $output;
-
-			} else {
-				$output = $cf_output;
-	
-				$output .= '<table width="'.$this->attr('form_width').'"><tr>';
-				if ($this->attr('question_index')) {
-					$output .= '<td width="20">&nbsp;</td>';
-				}
-				$output .= '<td';
-				$output .= ($this->attr('question_col_width')) ? ' 	width="'.$this->attr('question_col_width').'">' : '>';
-				$output .='&nbsp;</td><td';
-				$output .= ($this->attr('answer_col_width')) ? ' 	width="'.$this->attr('answer_col_width').'">' 	: '>';
-			
-				$output .= $submit_button;
-	
-				$output .= '</td></tr>';
-				if ($is_error) {
-					$output .= '<tr><td colspan="3">'.$err_output.'</td></tr>';
-				}
-				$output .= '</table>';
-
-				echo $output;
-			}
-
-		}
+		$this->printForm();
 		return true;
 
 	}//end printStandard()
@@ -845,13 +889,13 @@ class Form extends Bridge
 	{
 		// get the section to process itself
 		$posted_section = &$this->getSectionByOrder($order);
-		
+
 		if (!is_null($this->active_submission)) {
 			// let this section know what the current submission and errors arrays are
 			$posted_section->active_submission =& $this->active_submission;
 			$posted_section->submission_errors =& $this->submission_errors;
 		}
-		
+
 		return $posted_section->processForm();
 
 	}//end processSection()
@@ -859,7 +903,7 @@ class Form extends Bridge
 
 	/**
 	* create a bodycopy and attach to form
-	* 
+	*
 	* @param string $name the name of the bodycopy
 	*
 	* @access public
@@ -888,7 +932,7 @@ class Form extends Bridge
 			}
 		} else {
 			// folder already exists, get the reference
-			$folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']); 
+			$folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
 		}
 		if (is_null($folder)) return false;
 
@@ -904,7 +948,7 @@ class Form extends Bridge
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 		$bodycopy = new Bodycopy();
 		$bodycopy->setAttrValue('name', $name);
-			
+
 		// create an appropriate value for this link
 		// to reflect that of the name
 		$name = strtolower(str_replace(' ', '_', $name));
@@ -919,8 +963,8 @@ class Form extends Bridge
 		return true;
 
 	}//end attachQuestion()
-	
-	
+
+
 	/**
 	* returns a reference to a bodycopy based of the name of the bodycopy
 	*
@@ -937,20 +981,20 @@ class Form extends Bridge
 
 		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'bodycopies_folder');
 		if (empty($folder_link)) return $null;
-		
-		$folder = &$am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']); 
+
+		$folder = &$am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
 		if (is_null($folder)) return $null;
 
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $name);
 		if (empty($bodycopy_link)) return $null;
 
 		$bodycopy = &$am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
-		
+
 		return ($bodycopy) ? $bodycopy : $null;
-	
+
 	}//end getBodycopy()
 
-	
+
 	/**
 	* includes the content file for this form
 	*
@@ -964,7 +1008,7 @@ class Form extends Bridge
 		if (!file_exists($this->data_path.'/content_file.php')) {
 			$edit = &$this->getEditFns();
 			$fn = 'generate'.$type.'ContentFile';
-			
+
 			if (!method_exists($edit, $fn)) return false;
 			if (!$edit->$fn($this)) return false;
 		}
@@ -973,7 +1017,7 @@ class Form extends Bridge
 		return true;
 
 	}//end includeContentFile()
-	
+
 
 	/**
 	* processes the form (non-wizard)
@@ -986,28 +1030,32 @@ class Form extends Bridge
 	function processForm()
 	{
 		$questions = &$this->getQuestions();
-		for (reset($questions); null !== ($k = key($questions)); next($questions)) {
-			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$k);
+		foreach (array_keys($questions) as $key) {
+			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$key);
 			$question->submission_errors =& $this->submission_errors;
 			$question->processForm();
 		}
-		
+
 		$sections = &$this->getSections();
-		for (reset($sections); null !== ($k = key($sections)); next($sections)) {
-			$section =& $sections[$k];
+		foreach (array_keys($sections) as $key) {
+			$section =& $sections[$key];
 			// there is still no problem with the section sharing the form's active submission
 				$section->active_submission =& $this->active_submission;
 				$section->submission_errors =& $this->submission_errors;
 				$section->processForm();
 		}
 
-		return true;
+		// check to see if there is an error with the form
+		$status = empty($this->submission_errors);
+		$this->_tmp['is_error'] = !$status;
+
+		return $status;
 
 	}//end processForm()
 
 
 	/**
-	* function to finish off form 
+	* function to finish off form
 	*
 	* @access public
 	* @return boolean
@@ -1015,27 +1063,27 @@ class Form extends Bridge
 	function finishForm()
 	{
 		$tyb = &$this->getBodycopy('Thank You');
-					
+
 		ob_start();
 		$this->printSummary(true);
 		$summary_info = ob_get_contents();
 		ob_end_clean();
-	
+
 		// check to see if the bodycopy attached to this form has any content
 		if ($this->attr('use_bodycopy_thank_you') && $tyb && !$tyb->isEmpty()) {
 
 			if ($this->attr('show_results')) {
-				
+
 				$questions = &$this->getQuestions();
 				$sections = &$this->getSections();
 				$replacements = Array();
-		
+
 				foreach ($questions as $q_id => $question) {
 					$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 					$q_name = $q_asset->attr('name');
 					$replacements['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary($this->active_submission[$q_asset->id]);
 				}
-		
+
 				foreach ($sections as $section) {
 					$replacements['section_title_'.$section->id] = $section->attr('name');
 					$questions = &$section->getQuestions();
@@ -1047,7 +1095,7 @@ class Form extends Bridge
 				}
 
 
-			
+
 				$tyb->setKeywordReplacements($replacements + Array('form_summary' => &$summary_info));
 			}
 
@@ -1055,8 +1103,10 @@ class Form extends Bridge
 
 		} else {			// no bodycopy
 
-			// print the results if we need to 
-			if ($this->attr('show_results')) $this->printSummary(true);
+			// print the results if we need to
+			if ($this->attr('show_results')) {
+				echo $summary_info;
+			}
 
 		}
 
@@ -1086,7 +1136,7 @@ class Form extends Bridge
 		</ul>
 
 		<?php
-		
+
 		return true;
 
 	}//end printErrors()
@@ -1111,7 +1161,7 @@ class Form extends Bridge
 		$sort_order = $this->attr('sort_order');
 
 		foreach($sort_order as $sort_order_index => $assetid) {
-			
+
 			// check to see whether this belongs to us (if it isn't then perhaps a section took care)
 			if ($this->id == strtok($assetid, ':')) {
 				$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -1125,11 +1175,11 @@ class Form extends Bridge
 		for (reset($sections); null !== ($k = key($sections)); next($sections)) {
 			$section =& $sections[$k];
 			echo '<section id="'.$section->id.'" name="'.$section->attr('name').'">';
-		
+
 			$sort_order = $section->attr('sort_order');
 
 			foreach($sort_order as $sort_order_index => $assetid) {
-			
+
 				// check to see whether this belongs to the section
 				if ($section->id == strtok($assetid, ':')) {
 					$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -1148,14 +1198,14 @@ class Form extends Bridge
 		ob_end_clean();
 
 		return $contents;
-	
+
 	}//end printXML()
-	
-	
+
+
 	/**
 	* returns a summary about the answers in the form submission
 	*
-	* @param boolean	$html	return html formatted or not 
+	* @param boolean	$html	return html formatted or not
 	*
 	* @access public
 	* @return boolean
@@ -1168,7 +1218,7 @@ class Form extends Bridge
 		$sort_order = $this->attr('sort_order');
 
 		foreach($sort_order as $sort_order_index => $assetid) {
-			
+
 			// check to see whether this belongs to us (if it isn't then perhaps a section took care)
 			if ($this->id == strtok($assetid, ':')) {
 				$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -1192,7 +1242,7 @@ class Form extends Bridge
 			$sort_order = $section->attr('sort_order');
 
 			foreach($sort_order as $sort_order_index => $assetid) {
-			
+
 				// check to see whether this belongs to the section
 				if ($section->id == strtok($assetid, ':')) {
 					$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -1208,7 +1258,7 @@ class Form extends Bridge
 		}
 
 		echo ($html) ? '</table>' : '';
-	
+
 	}//end printSummary()
 
 
@@ -1222,7 +1272,7 @@ class Form extends Bridge
 	{
 		$info = Array();
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		
+
 		$lineage = $am->getLineageFromURL();
 		foreach ($lineage as $asset) {
 			$info[$asset['type_code'].'_name'] = $asset['name'];
@@ -1236,7 +1286,7 @@ class Form extends Bridge
 
 	/**
 	* writes JavaScript code for client side validation
-	* 
+	*
 	* This function assumes the skeleton of a JS validation function has been created around this code
 	* with a form variable named 'form' passed (this is done when generating the content file).
 	*
@@ -1265,7 +1315,7 @@ class Form extends Bridge
 		return $code;
 
 	}//end generateJSCode()
-	
+
 
 	/**
 	* logs submission to XML
@@ -1310,8 +1360,8 @@ class Form extends Bridge
 		return string_to_file($contents, $filename);
 
 	}//end logSubmission()
-	
-	
+
+
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
@@ -1330,7 +1380,7 @@ class Form extends Bridge
 		// search for a bodycopies folder
 		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'bodycopies_folder');
 
-		$folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']); 
+		$folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
 
 		if (is_null($folder)) return false;
 
@@ -1362,13 +1412,13 @@ class Form extends Bridge
 					$default = $name;
 					$keywords[$keyword] = Array('name' => $name, 'default' => $default, 'type' => $type);
 				}
-		
+
 				foreach ($questions as $q_id => $question) {
 					$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 					$q_name = $q_asset->attr('name');
 					$keywords['question_field_'.$this->id.'_q'.$q_id] = Array('name' => 'Field: '.ellipsisize($q_name,30), 'default' => '[Question Field for '.$q_name.']', 'type' => 'inline');
 				}
-		
+
 				foreach ($sections as $section) {
 					$keywords['section_title_'.$section->id] = Array('name' => 'Section Title: '.$section->attr('name'), 'default' => $section->attr('name'), 'type' => 'inline');
 					$questions = &$section->getQuestions();
@@ -1378,7 +1428,7 @@ class Form extends Bridge
 						$keywords['question_field_'.$section->id.'_q'.$q_id] = Array('name' => 'Field: '.ellipsisize($section->attr('name'),20).': '.ellipsisize($q_name,30), 'default' => '[Question Field for '.$q_name.']', 'type' => 'inline');
 					}
 				}
-				
+
 			} else if ($bodycopy == 'Thank You') {
 				$keywords['form_summary'] = Array('name' => 'Form Summary', 'default' => 'Summary of form results', 'type' => 'block');
 
@@ -1387,7 +1437,7 @@ class Form extends Bridge
 					$q_name = $q_asset->attr('name');
 					$keywords['response_'.$this->id.'_q'.$q_id] = Array('name' => 'Response: '.ellipsisize($q_name,30), 'default' => '[Response for '.$q_name.']', 'type' => 'inline');
 				}
-		
+
 				foreach ($sections as $section) {
 					$keywords['section_title_'.$section->id] = Array('name' => 'Section Title: '.$q_name, 'default' => $section->attr('name'), 'type' => 'inline');
 					$questions = &$section->getQuestions();
@@ -1402,9 +1452,9 @@ class Form extends Bridge
 
 		}
 
-		$this->_available_keywords = array_keys($keywords);		
+		$this->_available_keywords = array_keys($keywords);
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
-		
+
 	}//end onRequestKeywords()
 
 
