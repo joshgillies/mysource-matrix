@@ -1,3 +1,25 @@
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: AssetMap.java,v 1.10 2005/02/20 22:41:14 mmcintyre Exp $
+*
+*/
 
 package net.squiz.matrix.assetmap;
 
@@ -16,11 +38,14 @@ import javax.swing.plaf.metal.*;
 import javax.swing.border.*;
 import java.awt.image.*;
 
+/**
+ * The main applet class
+ * @author Marc McIntyre <mmcintyre@squiz.net>
+ */
 public class AssetMap extends JApplet implements InitialisationListener {
 
 	private BasicView view1;
 	private BasicView view2;
-	private BasicView view3;
 	private MatrixTabbedPane pane;
 	protected static JSObject window;
 	public static AssetMap applet;
@@ -58,27 +83,7 @@ public class AssetMap extends JApplet implements InitialisationListener {
 
 	public void start() {}
 
-	public void initialisationComplete(InitialisationEvent evt) {
-	//	Asset site = AssetManager.getAsset("30");
-	//	MatrixTreeNode siteNode = null;
-
-	//	Iterator nodes = site.getTreeNodes();
-	//	while (nodes.hasNext()) {
-	//		siteNode = (MatrixTreeNode) nodes.next();
-	//	}
-	//	((DefaultTreeModel) view2.getTree().getModel()).setRoot(siteNode);
-	//	view2.getTree().loadChildAssets(siteNode);
-
-	//	Asset sm = AssetManager.getAsset("3");
-	//	MatrixTreeNode smNode = null;
-
-	//	nodes = sm.getTreeNodes();
-	//	while (nodes.hasNext()) {
-	//		smNode = (MatrixTreeNode) nodes.next();
-	//	}
-	//	((DefaultTreeModel) view3.getTree().getModel()).setRoot(smNode);
-	//	view3.getTree().loadChildAssets(smNode);
-	}
+	public void initialisationComplete(InitialisationEvent evt) {}
 
 
 	public void init() {
@@ -104,30 +109,25 @@ public class AssetMap extends JApplet implements InitialisationListener {
 		};
 		worker.start();
 
+		// Polling timer
 		ActionListener taskPerformer = new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 
-				ActionListener taskPerformer = new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
+				if (window == null)
+					JSObject.getWindow(AssetMap.this);
 
-						if (window == null)
-							JSObject.getWindow(AssetMap.this);
-
-						String assetids = (String) window.getMember("SQ_REFRESH_ASSETIDS");
-						if (!assetids.equals("")) {
-							AssetManager.refreshAssets(assetids);
-							window.eval("SQ_REFRESH_ASSETIDS = '';");
-						}
-					}
-				};
-
-				timer = new javax.swing.Timer(2000, taskPerformer);
-				timer.start();
+				String assetids = (String) window.getMember("SQ_REFRESH_ASSETIDS");
+				if (!assetids.equals("")) {
+					AssetManager.refreshAssets(assetids);
+					window.eval("SQ_REFRESH_ASSETIDS = '';");
+				}
 			}
 		};
-	//	javax.swing.Timer t = new javax.swing.Timer(5000, taskPerformer);
-	//	t.setRepeats(false);
-	//	t.start();
+
+		timer = new javax.swing.Timer(2000, taskPerformer);
+		timer.setDelay(5000);
+		timer.start();
+		
 	}
 
 	public void stop() {
@@ -178,5 +178,4 @@ public class AssetMap extends JApplet implements InitialisationListener {
 			MatrixTreeBus.stopAssetFinderMode();
 		}
 	}
-
 }
