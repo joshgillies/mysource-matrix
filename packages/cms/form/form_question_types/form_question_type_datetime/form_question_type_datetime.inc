@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.5 2004/04/23 07:28:07 lwright Exp $
+* $Id: form_question_type_datetime.inc,v 1.6 2004/04/28 03:07:49 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -44,6 +44,7 @@ class Form_Question_Type_Datetime extends Form_Question
 	* Constructor
 	*
 	* @param int	$assetid	the asset id to be loaded
+	* @param array	$data		the section's entry for this question (contains all question data)
 	*
 	*/
 	function Form_Question_Type_Datetime($assetid=0,$data=Array()) 

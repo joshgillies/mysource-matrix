@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_email_address.inc,v 1.1 2004/04/23 07:31:41 lwright Exp $
+* $Id: form_question_type_email_address.inc,v 1.2 2004/04/28 03:07:49 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -44,6 +44,7 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 	* Constructor
 	*
 	* @param int	$assetid	the asset id to be loaded
+	* @param array	$data		the section's entry for this question (contains all question data)
 	*
 	*/
 	function Form_Question_Type_Email_Address($assetid=0, $data=Array()) 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.9 2004/04/23 07:28:08 lwright Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.10 2004/04/28 03:04:30 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -44,6 +44,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	* Constructor
 	*
 	* @param int	$assetid	the asset id to be loaded
+	* @param array	$data		the section's entry for this question (contains all question data)
 	*
 	*/
 	function Form_Question_Type_Tickbox_List($assetid=0,$data=Array()) 
@@ -138,14 +139,11 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	/**
 	* process this question in the form
 	*
-	* @param &object $submission the submission object
-	*
 	* @access public
 	* @return boolean
 	*/
 	function processForm()
 	{
-		//if (!$this->active_submission) return false;
 		$val = isset($_POST[$this->id]) ? $_POST[$this->id] : '';
 		
 		if (is_array($val)) {
@@ -200,8 +198,8 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	*/
 	function isSelected($value)
 	{
-/*		if (isset($this->active_submission)) {
-			$values = $this->active_submission->getAnswer($this->id);
+		if (isset($this->active_submission)) {
+			$values = $this->active_submission[$this->id];
 			if ($values) {
 				if (is_array($values)) {
 					if (in_array($value, $values)) return true;
@@ -210,15 +208,10 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 				}
 			} 
 		} else {
-			if ($this->attr('auto_answer')) {
-				if (!is_null($this->active_form)) {
-					$answer =  $this->active_form->getAutoAnswer($this->attr('auto_answer'));
-					if ($value == $answer) return true;
-				}
-			}*/
 			$defaults = $this->attr('default');
 			if (in_array($value, $defaults)) return true;
-		//}
+		}
+
 		return false;
 	
 	} // end isSelected()

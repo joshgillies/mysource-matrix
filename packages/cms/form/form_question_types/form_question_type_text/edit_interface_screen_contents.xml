@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.8 2004/04/23 07:28:08 lwright Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.9 2004/04/28 03:07:49 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -61,6 +61,24 @@
 			<display_name>Required Entry?</display_name>
 			<note>If required, this question must be answered before the form can be submitted</note>
 			<boolean true_text="Required" false_text="Optional" />
+		</field>
+	</section>
+	<section name="Validation Rules 2">
+		<field>
+			<display_name>Question Rules</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintRules"   />
+				<process_function name="processRules" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Add Rule</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintAddRule"   />
+				<process_function name="processAddRule" />
+			</function_call>
 		</field>
 	</section>
 </contents>

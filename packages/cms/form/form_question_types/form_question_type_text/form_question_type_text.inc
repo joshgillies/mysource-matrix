@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text.inc,v 1.14 2004/04/23 07:28:08 lwright Exp $
+* $Id: form_question_type_text.inc,v 1.15 2004/04/28 03:05:05 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -43,6 +43,7 @@ class Form_Question_Type_Text extends Form_Question
 	* Constructor
 	*
 	* @param int	$assetid	the asset id to be loaded
+	* @param array	$data		the section's entry for this question (contains all question data)
 	*
 	*/
 	function Form_Question_Type_Text($assetid=0, $data=Array()) 
