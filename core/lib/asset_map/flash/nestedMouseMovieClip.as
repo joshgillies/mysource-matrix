@@ -61,7 +61,7 @@ NestedMouseMovieClip.prototype._NM_findMc = function(x, y)
 NestedMouseMovieClip.prototype.onEnterFrame = function() 
 {
 	if (this._nm_on_press_mc != null || this._nm_on_roll_active) {
-		trace (this + "::NestedMouseMovieClip.onEnterFrame()");
+//		trace (this + "::NestedMouseMovieClip.onEnterFrame()");
 		var mc_name = this._NM_findMc(this._xmouse, this._ymouse);
 
 		if (this._nm_on_press_mc != null) {

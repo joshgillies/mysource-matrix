@@ -19,16 +19,20 @@ function mcTabContentAreaTreeClass()
 	//       over the top of them
 
 	// Now attach the menu
-	this.attachMovie("mcMenuContainerID", "menu_container", 3);
+	this.attachMovie("mcMenuContainerID", "menu_container", 4);
 	this.menu_container._x = 0;
-	this.menu_container._y = 0;
 	this._initMenu();
+	this.menu_container._y = 0 - this.menu_container._height;
+
+	this.attachMovie("mcTreeSubHeaderID", "sub_header", 3);
+	this.sub_header._y = 0;
+	this.sub_header.back._width = this._width;
 
 	this.attachMovie("FScrollPaneSymbol", "scroll_pane", 1);
 	this.scroll_pane.setHScroll(true);
 	this.scroll_pane.setVScroll(true);
 	this.scroll_pane._x = 0;
-	this.scroll_pane._y = this.menu_container._height;
+	this.scroll_pane._y = this.sub_header._y + this.sub_header._height;
 
 	// Now the list container
 	this.attachMovie("mcListContainerID", "list_container", 2);
@@ -44,8 +48,6 @@ function mcTabContentAreaTreeClass()
 	// Set ourselves up as a listener for any external calls
 	// Used for Asset Finder
 	_root.external_call.addListener(this);
-
-	
 
 	this.finding_asset = false;
 
@@ -79,6 +81,7 @@ mcTabContentAreaTreeClass.prototype.setSize = function(w, h)
 {
 	super.setSize(w, h);
 
+	this.sub_header.back._width = w;
 	this.menu_container.setWidth(w);
 	this.scroll_pane.setSize(w, h - this.menu_container._height);
 	this.list_container.refresh();

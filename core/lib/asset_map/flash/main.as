@@ -103,8 +103,8 @@ _root.attachMovie("mcDialogBoxID", "dialog_box", 21);
 _root.dialog_box.hide();
 
 // Add the progress bar
-_root.attachMovie("mcProgressBarID", "progress_bar", 20);
-_root.progress_bar.hide();
+//_root.attachMovie("mcProgressBarID", "progress_bar", 20);
+//_root.progress_bar.hide();
 
 // Now the dialog options box
 _root.attachMovie("mcOptionsBoxID", "options_box", 22);
@@ -116,14 +116,14 @@ _root.asset_manager = new AssetManager();
 
 // Attach the header
 _root.attachMovie ("mcHeaderID", "header", 1);
-
+_root.progress_bar = _root.header;
 // Now attach the Tabs
 _root.attachMovie("mcTabsID", "tabs", 2);
-_root.tabs.addTab("mcTabContentAreaTreeID", "tree",  "Tree", "mc_tree_tab_icon");
-_root.tabs.addTab("mcTabContentAreaMailBoxID", "mail",  "Mail", "mc_messages_tab_icon");
-_root.tabs.addTab("mcTabContentAreaLogMsgsID", "log",  "Log", "mc_log_tab_icon");
 
-// Initialise stage resize listener
+_root.tabs.addTab("mcTabContentAreaTreeID",		"tree",		"Tree",		"mc_tree_tab_icon");
+_root.tabs.addTab("mcTabContentAreaMailBoxID",	"mail",		"Mail",		"mc_messages_tab_icon");
+_root.tabs.addTab("mcTabContentAreaLogMsgsID",	"log",		"Log",		"mc_log_tab_icon");
+// Initialise stage resize listener	
 _root.stage_resize = new StageResize();
 
 _root.asset_manager.init();

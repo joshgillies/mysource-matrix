@@ -14,15 +14,21 @@ function mcTabContentAreaMailBoxClass()
 {
 	super();
 
-	this.attachMovie("mcMailBoxHeadingID", "heading", 1);
-	this.heading._x = 0;
-	this.heading._y = 0;
+	this.attachMovie("mcMailBoxSubHeaderID", "sub_header", 4);
+	this.sub_header._y = 0;
+	this.sub_header.back._width = this._width;
+	
+	this.sub_header.onRelease = function() {
+		trace ('noo');
+		getURL(_root.inbox_path, _root.url_frame);
+	};
+
 
 	this.attachMovie("FScrollPaneSymbol", "scroll_pane", 2);
 	this.scroll_pane.setHScroll(false);
 	this.scroll_pane.setVScroll(true);
 	this.scroll_pane._x = 0;
-	this.scroll_pane._y = this.heading._height;
+	this.scroll_pane._y = this.sub_header._height;
 
 	// Now the msgs container
 	this.attachMovie("mcMailBoxID", "msgs_container", 3);
@@ -30,7 +36,7 @@ function mcTabContentAreaMailBoxClass()
 	// Attach the container on to the scroll pane
 	this.scroll_pane.setScrollContent(this.msgs_container);
 	this.msgs_container._x = 0;
-	this.msgs_container._y = 0;
+	this.msgs_container._y = this.sub_header._y + this.sub_header._height;
 
 	// Because the scroll pane inherits from some other place 
 	// we need to manually set it up for nesting
@@ -53,7 +59,7 @@ mcTabContentAreaMailBoxClass.prototype = new mcTabContentAreaClass();
 mcTabContentAreaMailBoxClass.prototype.setSize = function(w, h)
 {
 	super.setSize(w, h);
-	this.heading.setWidth(w);
+	this.sub_header.back._width = w;
 	this.scroll_pane.setSize(w, h);
 	this.msgs_container.refresh();
 

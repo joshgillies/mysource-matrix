@@ -1,3 +1,5 @@
+#include "mcMailBoxMessagePriorityClass.as"
+#include "mcMailBoxMessageStatusClass.as"
 
 // Create the Class
 function mcMailBoxMessageClass()
@@ -10,64 +12,66 @@ function mcMailBoxMessageClass()
 	this.from       = '';
 	this.body		= '';
 	this.sent		= 0;
-	this.priority	= ''; // 'H' - High, 'N' - Normal, 'L' - Low
+	this.priority	= ''; // 1-5 priority
 	this.status		= ''; // 'U' - Unread, 'R' - Read, 'D' - Deleted
 
 
 	// create the text field
-	this.createTextField("priority_field", 1, 0, 0, 0, 0);
-	this.createTextField("subject_field",  2, 0, 0, 0, 0);
-	this.createTextField("from_field",     3, 0, 0, 0, 0);
-	this.priority_field.multiline  = this.subject_field.multiline  = this.from_field.multiline  = false;		// }
-	this.priority_field.wordWrap   = this.subject_field.wordWrap   = this.from_field.wordWrap   = false;		// } Using these 3 properties we have a text field that autosizes 
-	this.priority_field.autoSize   = this.subject_field.autoSize   = this.from_field.autoSize   = "left";	// } horizontally but not vertically
-	this.priority_field.border     = this.subject_field.border     = this.from_field.border     = false;
-	this.priority_field.selectable = this.subject_field.selectable = this.from_field.selectable = false;
-	this.priority_field._visible   = this.subject_field._visible   = this.from_field._visible   = true;
+	this.attachMovie ('mcMailBoxMessagePriorityID', 'priority_flag', 1);
+	this.attachMovie('mcMailBoxMessageStatusID', 'status_flag', 2);
+	this.createTextField("subject_field",  3, 0, 0, 0, 0);
+	this.createTextField("from_field",     4, 0, 0, 0, 0);
+	this.createEmptyMovieClip('user_type_icon', 5); // placeholder for user type icon
+	
+	this.subject_field.multiline  = this.from_field.multiline  = false;		// }
+	this.subject_field.wordWrap   = this.from_field.wordWrap   = false;		// } Using these 3 properties we have a text field that autosizes 
+	this.subject_field.autoSize   = this.from_field.autoSize   = "left";	// } horizontally but not vertically
+	this.subject_field.border     = this.from_field.border     = false;
+	this.subject_field.selectable = this.from_field.selectable = false;
+	this.subject_field._visible   = this.from_field._visible   = true;
 
 	this.text_format = new TextFormat();
 	this.text_format.color = 0x000000;
 	this.text_format.font  = "Arial";
-	this.text_format.size  = 11;
+	this.text_format.size  = 10;
 
 }// end constructor
 
 // Make it inherit from MovieClip
 mcMailBoxMessageClass.prototype = new MovieClip();
+Object.registerClass("mcMailBoxMessageID", mcMailBoxMessageClass);
 
 /**
 * Set's the information for the message
 */
-mcMailBoxMessageClass.prototype.setInfo = function(messageid, subject, from, body, sent, priority, status)
+mcMailBoxMessageClass.prototype.setInfo = function(messageid, subject, from, body, sent, priority, status, from_type_code)
 {
+//	trace(this + "::mcMailBoxMessageClass.setInfo(" + messageid + ", " + subject + ", " + from + ", " + body + ", " + sent + ", " + priority + ", " + status + ", " + from_type_code + ")");
 
-//	trace("BLAH : " + messageid + ", " + from + ", " + subject + ", " + body + ", " + sent + ", " + priority + ", " + status);
-
-	priority = priority.toUpperCase();
-	if (priority != "H" && priority != "N" && priority != "L") {
-		_root.dialog_box.show("Unknown Mail Message Priority, Messageid #" + messageid + ", setting to normal");
-		priority = "N";
-	}// end if
 	if (status != "U" && status != "R" && status != "D") {
 		_root.dialog_box.show("Unknown Mail Message status, Messageid #" + messageid + ", setting to unread");
 		status = "U";
 	}// end if
 
-	this.messageid	= messageid;
-	this.subject	= subject;
-	this.from		= from;
-	this.body		= body;
-	this.sent		= sent;
-	this.priority	= priority;
-	this.status		= status;
+	this.messageid		= messageid;
+	this.subject		= subject;
+	this.from			= from;
+	this.from_type_code	= from_type_code;
+	this.body			= body;
+	this.sent			= sent;
+	this.priority		= priority;
+	this.status			= status;
 
-	this.priority_field.text	= this.priority;
+	this.priority_flag.setPriority(this.priority);
+	this.status_flag.setStatus(this.status);
+	
 	this.subject_field.text		= this.subject;
 	this.from_field.text		= this.from;
-
-	this.text_format.bold = (this.status == "U");
-
-	this.priority_field.setTextFormat(this.text_format);
+	
+	this.user_type_icon.icon.removeMovieClip();
+	if (!this.user_type_icon.attachMovie('mc_asset_type_' + this.from_type_code + '_icon', 'icon', 1))
+		this.user_type_icon.attachMovie('mc_asset_type_default_icon', 'icon', 1);
+	
 	this.subject_field.setTextFormat(this.text_format);
 	this.from_field.setTextFormat(this.text_format);
 
@@ -78,8 +82,6 @@ mcMailBoxMessageClass.prototype.setInfo = function(messageid, subject, from, bod
 */
 mcMailBoxMessageClass.prototype.setWidth = function(w, subject_pos, from_pos, col_gap)
 {
-
-
 	if (this.subject_field.text != this.subject) {
 		this.subject_field.text = this.subject;
 		this.subject_field.setTextFormat(this.text_format);
@@ -97,17 +99,48 @@ mcMailBoxMessageClass.prototype.setWidth = function(w, subject_pos, from_pos, co
 
 	}// end if
 
-	this.priority_field._x	= 0;
-	this.subject_field._x	= subject_pos;
-	this.from_field._x		= from_pos;
-
-	var ypos = this.subject_field.textHeight + 5;
 	this.clear();
+
+	this.subject_field._y = this.from_field_y = this.user_type_icon._y = this.status_flag._y = this.priority_flag._y = 0;
+	var baseHeight = this.subject_field._height + 6;
+	set_background_box(this, w, baseHeight, 0x000000, 0);
+
+	this.priority_flag._x	= 3;
+	this.priority_flag._y	= (baseHeight - this.priority_flag._height) / 2;
+	
+	this.status_flag._x = this.priority_flag._x + this.priority_flag._width;
+	this.status_flag._y = (baseHeight - this.status_flag._height) / 2;
+
+	this.subject_field._x	= subject_pos;
+	this.subject_field._y	= (baseHeight - this.subject_field._height) / 2;
+
+	from_pos = Math.max(from_pos, subject_pos + this.subject_field._width);
+
+	this.user_type_icon._x	= from_pos;
+	this.user_type_icon._y	= (baseHeight - this.user_type_icon._height) / 2;
+
+	this.from_field._x		= from_pos + this.user_type_icon._width;
+	this.from_field._y		= (baseHeight - this.from_field._height) / 2;
+
+	var ypos = this.subject_field._y + this.subject_field._height + 3;
+
 	this.lineStyle(1, 0x000000);
-	this.moveTo(0, ypos);
-	this.lineTo(w, ypos);
+	this.moveTo(0, baseHeight);
+	this.lineTo(w, baseHeight);
 
 }// setWidth()
+
+mcMailBoxMessageClass.prototype.getFlagsColumnWidth = function() {
+	return this.priority_flag._width + this.status_flag._width;
+}
+
+mcMailBoxMessageClass.prototype.getSubjectColumnWidth = function() {
+	return this.subject_field._width;
+}
+
+mcMailBoxMessageClass.prototype.getFromColumnWidth = function() {
+	return this.user_type_icon._width + this.subject_field._width;
+}
 
 /**
 * Called when this item has been pressed and then released
@@ -125,4 +158,3 @@ mcMailBoxMessageClass.prototype.onRelease = function()
 }// end onRelease()
 
 
-Object.registerClass("mcMailBoxMessageID", mcMailBoxMessageClass);

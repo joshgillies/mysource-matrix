@@ -36,6 +36,7 @@ function mcMailBoxClass()
 
 // Make it inherit from Nested Mouse Movements MovieClip
 mcMailBoxClass.prototype = new NestedMouseMovieClip(false, NestedMouseMovieClip.NM_ON_PRESS);
+Object.registerClass("mcMailBoxID", mcMailBoxClass);
 
 /**
 * Refreshes the msg box display, called when the tabs is resized
@@ -43,15 +44,14 @@ mcMailBoxClass.prototype = new NestedMouseMovieClip(false, NestedMouseMovieClip.
 */
 mcMailBoxClass.prototype.refresh = function()
 {
-
 	var w = this._parent.scroll_pane.getInnerPaneWidth();
 
-	var max_width = this.max_widths.priority + this.col_gap + 
+	var max_width = this.max_widths.flags + this.col_gap + 
 					this.max_widths.subject  + this.col_gap + 
 					this.max_widths.from;
 
 	var from_pos = 0;
-	var subject_pos = this.max_widths.priority + this.col_gap;
+	var subject_pos = this.max_widths.flags + 2 * this.col_gap;
 	// if the width isn't wide enough to accomodate the widest entries then
 	// the from pos is moved over the subject
 	if (max_width > w) {
@@ -62,8 +62,13 @@ mcMailBoxClass.prototype.refresh = function()
 		from_pos = subject_pos + this.col_gap + this.max_widths.subject;
 	}
 
+	var ypos = 0;
 	for(var i = 0; i < this.msgs.length; i++) {
-		this[this.msgs[i]].setWidth(w, subject_pos, from_pos, this.col_gap);
+		var nextMsg = this[this.msgs[i]];
+		nextMsg.setWidth(w, subject_pos, from_pos, this.col_gap);
+		nextMsg._x = this.col_gap;
+		nextMsg._y = ypos;
+		ypos += nextMsg._height;
 	}
 }
 
@@ -117,17 +122,16 @@ mcMailBoxClass.prototype.loadMailFromXML = function(xml, exec_indentifier)
 								msg_node.childNodes[2].firstChild.nodeValue,  // body
 								msg_node.attributes.sent,
 								msg_node.attributes.priority,
-								msg_node.attributes.status
+								msg_node.attributes.status,
+								msg_node.attributes.type_code
 								);
-		this[mc_name]._x = 0;
-		this[mc_name]._y = ypos;
+		this[mc_name]._x = this.col_gap;
 		this[mc_name]._visible = true;
 
-		if (this.max_widths.priority < this[mc_name].priority_field._width)	this.max_widths.priority = this[mc_name].priority_field._width;
-		if (this.max_widths.subject	< this[mc_name].subject_field._width)	this.max_widths.subject	= this[mc_name].subject_field._width;
-		if (this.max_widths.from		< this[mc_name].from_field._width)		this.max_widths.from		= this[mc_name].from_field._width;
-
-		ypos += this[mc_name]._height;
+		// set max widths
+		this.max_widths.flags		= Math.max(this.max_widths.flags,		this[mc_name].getFlagsColumnWidth());
+		this.max_widths.subject		= Math.max(this.max_widths.subject,		this[mc_name].getSubjectColumnWidth());
+		this.max_widths.from		= Math.max(this.max_widths.from,		this[mc_name].getFromColumnWidth());
 
 	}//end for
 
@@ -157,6 +161,4 @@ mcMailBoxClass.prototype.onExternalCall = function(cmd, params)
 
 }// end onExternalCall()
 
-
-Object.registerClass("mcMailBoxID", mcMailBoxClass);
 

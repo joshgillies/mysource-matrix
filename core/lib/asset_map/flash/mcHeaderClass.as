@@ -23,20 +23,25 @@ mcHeaderClass.prototype.refresh = function()
 	set_background_box(this, _root._width, this._height, 0x402F48, 100);
 }
 
-mcHeaderClass.prototype.setLoading = function(show)
+mcHeaderClass.prototype.show = function(text)
 {
+	if (text == '')
+		text = 'Loading';
 
-	if (show) {
-		this.spinner.play();
-		this.loading._visible = true;
-	} else {
-		this.spinner.stop();
-		this.loading._visible = false;
-	}
+	this.spinner.play();
+	this.loadingText.text = text + "...";
+	this.loadingText._visible = true;
 }
 
+mcHeaderClass.prototype.hide = function()
+{
+
+	this.spinner.stop();
+	this.loadingText._visible = false;
+}
 mcHeaderClass.prototype.changeToBatMobile = function ()
 {
+	return;
 	this.resolve_fx_text._x = this.mysource_matrix_text._x;
 	this.resolve_fx_text._y = this.mysource_matrix_text._y;
 

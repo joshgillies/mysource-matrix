@@ -63,8 +63,10 @@ mcTabsClass.prototype.addTab = function(tab_type, name, label, iconID)
 	this[name]._x = 0;
 	this[name]._y = this._parent.header._y  + this._parent.header._height;
 
-	if (this.current_tab == null) this.setCurrentTab(name);
-	if (this.tab_height  == null) this.tab_height = this["tab_button_" + name]._height;
+	if (this.current_tab == null) 
+		this.setCurrentTab(name);
+	if (this.tab_height  == null) 
+		this.tab_height = this["tab_button_" + name]._height;
 
 	this.refresh();
 
@@ -141,10 +143,10 @@ mcTabsClass.prototype.refresh = function()
 		this._parent.header._y = this["tab_button_" + this.tabs[0]]._height + 2;
 	}
 
-	for (var i = 0; i < this.tabs; i++) {
+	for (var i = 0; i < this.tabs.length; i++) {
 		var nextTabArea = this[this.tabs[i]];
 
-		nextTabArea._y = this._parent._y + this._parent._height;
+		nextTabArea._y = this._parent.header._y + this._parent.header._height;
 	}
 }
 
