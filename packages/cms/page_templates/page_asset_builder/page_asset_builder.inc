@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.12 2004/05/07 01:29:00 gsherwood Exp $
+* $Id: page_asset_builder.inc,v 1.13 2004/05/12 07:02:51 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -348,44 +348,7 @@ class Page_Asset_Builder extends Page
 					 //  CREATE LOCATIONS  //
 					////////////////////////
 
-					$create_locations = $this->attr('create_location');
-					if (isset($_POST['asset_create_location'])) {
-						$create_locations = array_merge($create_locations, $_POST['asset_create_location']);
-					}
-
-					// now check what rules dictate where the asset should be created
-					$location_rules = $this->attr('create_location_rules');
-					foreach ($location_rules as $i => $rules) {
-						foreach ($rules as $attr => $attr_rules) {
-							if ($attr == '_create_locations_') continue;
-							
-							$attr_value = isset($_POST[$prefix.'_'.$attr]) ? trim(strtolower($_POST[$prefix.'_'.$attr])) : '';
-							$valid_rule = true;
-							foreach ($attr_rules as $cond => $value) {
-								$value = trim(strtolower($value));
-	
-								switch ($cond) {
-									case 'equals' :
-										if ($attr_value != $value) $valid_rule = false;
-									break;
-									
-									case 'starts_with' :
-										if (!preg_match('|^'.$value.'.*$|', $attr_value)) $valid_rule = false;
-									break;
-									
-									case 'ends_with' :
-										if (!preg_match('|^.*'.$value.'$|', $attr_value)) $valid_rule = false;
-									break;
-								}
-							}
-							
-							if ($valid_rule) {
-								if (!is_array($create_locations)) $create_locations = Array($create_locations);
-								$create_locations = array_merge($create_locations, $rules['_create_locations_']);
-							}
-						}
-					}
-
+					$create_locations = $this->_getCreateLocations();
 
 					// if we dont have any create locations, there is no point in continuing with this charade
 					// whoever set this up may think they want to build asset on the frontend, but they dont really
@@ -407,7 +370,7 @@ class Page_Asset_Builder extends Page
 					if (is_array($create_locations)) {
 						$create_parentid = array_shift(array_values($create_locations));
 					} else {
-						$create_parentid = (int)$create_locations;
+						$create_parentid = (int) $create_locations;
 					}
 
 					$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($create_parentid);
@@ -417,17 +380,14 @@ class Page_Asset_Builder extends Page
 					}
 
 					// start the transaction to create the asset
-					$link = Array('asset'		=> &$parent,
-								  'link_type'	=> $this->attr('create_link_type'),
-								  'value'		=> '',
-								  'sort_order'	=> -1);
+					$link = $this->_getCreateLink();
+					$link['asset'] = &$parent;
 
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 					// set the install flag because we are creating an asset without being
 					// logged in - so any write access checks will fail
 					$GLOBALS['SQ_INSTALL'] = true;
-
 
 						if (!$new_asset->processBackend($o, $link)) {
 
@@ -456,15 +416,7 @@ class Page_Asset_Builder extends Page
 								$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 								$this->_current_state = 'created';
 								$success = true;
-
-								$create_status = $this->attr('create_status');
-
-								if ($new_asset->status != $create_status) {
-									$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-									$vars = Array('assetid' => $new_asset->id, 'new_status' => $create_status);
-									$status_errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
-									$this->_errors = array_merge($this->_errors, $status_errors);
-								}
+								$this->_setCreateStatus($new_asset);
 								$this->_tmp['created_asset'] = $new_asset;
 							}
 
@@ -488,6 +440,123 @@ class Page_Asset_Builder extends Page
 		return $success;
 
 	}//end _processGlobalActions()
+
+
+	/**
+	* Work out the create locations for a new asset
+	*
+	* @param array	$attributes	an array of attributes to use for rule comparison
+	*							leave empty to use the submitted form vars
+	*
+	* @return array
+	* @access private
+	*/
+	function _getCreateLocations($attributes=Array())
+	{
+		if (empty($attributes)) {
+			$create_type = $this->attr('create_type');
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
+			$temp_asset = new $create_type();
+			$prefix = $temp_asset->getPrefix();
+			unset($temp_asset);
+		}
+
+		// start with the mandatory create locations
+		$create_locations = $this->attr('create_location');
+		
+		// add optional create locations if we are using the submitted form vars
+		if (empty($attributes) && isset($_POST['asset_create_location'])) {
+			$optional_locations = (array) $_POST['asset_create_location'];
+			// its not that we dont trust them.... we just dont trust them
+			// so ensure the locations posted by the form are actually valid
+			$optional_locations = array_intersect($optional_locations, $this->attr('create_location_optional'));
+			$create_locations = array_merge($create_locations, $optional_locations);
+		}
+
+		// now check what rules dictate where the asset should be created
+		$location_rules = $this->attr('create_location_rules');
+		foreach ($location_rules as $i => $rules) {
+			foreach ($rules as $attr => $attr_rules) {
+				if ($attr == '_create_locations_') continue;
+
+				if (empty($attributes)) {
+					$attr_value = isset($_POST[$prefix.'_'.$attr]) ? trim(strtolower($_POST[$prefix.'_'.$attr])) : '';
+				} else{
+					$attr_value = isset($attributes[$attr]) ? trim(strtolower($attributes[$attr])) : '';
+				}
+
+				$valid_rule = true;
+				foreach ($attr_rules as $cond => $value) {
+					$value = trim(strtolower($value));
+
+					switch ($cond) {
+						case 'equals' :
+							if ($attr_value != $value) $valid_rule = false;
+						break;
+						
+						case 'starts_with' :
+							if (!preg_match('|^'.$value.'.*$|', $attr_value)) $valid_rule = false;
+						break;
+						
+						case 'ends_with' :
+							if (!preg_match('|^.*'.$value.'$|', $attr_value)) $valid_rule = false;
+						break;
+					}
+				}
+
+				if ($valid_rule) {
+					if (!is_array($create_locations)) $create_locations = Array($create_locations);
+					$create_locations = array_merge($create_locations, $rules['_create_locations_']);
+				}
+			}
+		}
+
+		return $create_locations;
+
+	}//end _getCreateLocations()
+
+
+	/**
+	* Construct the link array for creating the asset
+	*
+	* The returned link array does not contain the 'asset' index where the parent
+	* asset normally goes because this is generated on the fly
+	*
+	* @return array
+	* @access private
+	*/
+	function _getCreateLink()
+	{
+		$link = Array('link_type'	=> $this->attr('create_link_type'),
+					  'value'		=> '',
+					  'sort_order'	=> -1);
+
+		return $link;
+
+	}//end _getCreateLink()
+
+
+	/**
+	* Set the status of the newly created asset
+	*
+	* @param object Asset	&$new_asset		the newly created asset
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _setCreateStatus(&$new_asset)
+	{
+		$create_status = $this->attr('create_status');
+		if ($new_asset->status != $create_status) {
+			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$vars = Array('assetid' => $new_asset->id, 'new_status' => $create_status);
+			$status_errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
+			$this->_errors = array_merge($this->_errors, $status_errors);
+			return empty($this->_errors);
+		}
+		return true;
+
+	}//end _setCreateStatus()
 
 
 	/**
@@ -565,17 +634,19 @@ class Page_Asset_Builder extends Page
 			$create_locations = $this->attr('create_location_optional');
 			if (empty($create_locations)) {
 				bam('EMBEDDED ASSET MAP WILL GO HERE WITH AN ASSET FINDER');
-			} else if (count($create_locations) == 1) {
-				$create_location = array_pop($create_locations);
-				?><input type="hidden" name="asset_create_location" value="<?php echo $create_location; ?>"><?php
 			} else {
 				$options = Array();
 				$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($create_locations));
 				foreach ($asset_info as $info) $options[$info['assetid']] = $info['name'];
 				if ($this->attr('create_location_type') == 'select') {
-					combo_box('asset_create_location', $options, (bool)$this->attr('create_location_multiple'), 0);
+					$options = array_reverse($options, true);
+					$options[''] = '';
+					$options = array_reverse($options, true);
+					combo_box('asset_create_location', $options, (bool)$this->attr('create_location_multiple'), '');
 				} else {
-					$multiple = (bool)$this->attr('create_location_multiple');
+					if (count($create_locations) == 1) $multiple = true;
+					else $multiple = (bool)$this->attr('create_location_multiple');
+
 					echo '<ul style="list-style-type:none;">';
 					foreach ($options as $assetid => $name) {
 						echo '<li>';

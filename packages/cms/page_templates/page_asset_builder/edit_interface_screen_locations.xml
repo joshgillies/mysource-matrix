@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_locations.xml,v 1.1 2004/02/16 00:34:08 gsherwood Exp $
+* $Id: edit_interface_screen_locations.xml,v 1.2 2004/05/12 07:02:51 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -44,16 +44,16 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Optional Create Locations (Options)" write_access="write:attributes" show_if="definesMultipleLocations">
-		<field attribute="create_location_multiple">
-			<display_name>Allow Multiple</display_name>
-			<note>Selecting 'Yes' here will allow the asset to be created under multiple optional locations (above). Selecting 'No' will restrict the asset to being created under a single optional location.</note>
-			<boolean true_text="Yes" false_text="No" />
-		</field>
+	<section name="Optional Create Locations (Options)" write_access="write:attributes">
 		<field attribute="create_location_type">
 			<display_name>Selection Type</display_name>
 			<note>Select the interface you would like to present for selecting the location to create the asset</note>
 			<selection style="list" />
+		</field>
+		<field attribute="create_location_multiple" show_if="definesMultipleLocations">
+			<display_name>Allow Multiple</display_name>
+			<note>Selecting 'Yes' here will allow the asset to be created under multiple optional locations (above). Selecting 'No' will restrict the asset to being created under a single optional location.</note>
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 	<section name="Create Location Rules" write_access="write:attributes">
