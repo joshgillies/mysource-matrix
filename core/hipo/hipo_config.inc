@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.12 2004/01/15 14:37:14 brobertson Exp $
+* $Id: hipo_config.inc,v 1.13 2004/01/15 21:30:15 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -141,7 +141,8 @@ class HIPO_Config extends Config
 	{
 		// need to be root
 		return $GLOBALS['SQ_SYSTEM']->userRoot();
-	}// end canAcquireLock()
+
+	}//end canAcquireLock()
 
 
 	/**
@@ -155,7 +156,8 @@ class HIPO_Config extends Config
 		if (!parent::writeAccess()) return false;
 		// need to be root
 		return $GLOBALS['SQ_SYSTEM']->userRoot();
-	}// end writeAccess()
+
+	}//end writeAccess()
 
 
 	/**
@@ -190,9 +192,7 @@ class HIPO_Config extends Config
 
 		if ($write_access) $o->commitButton('Commit', true);
 
-
-	}// end paintBackend()
-
+	}//end paintBackend()
 
 
 }//end class
