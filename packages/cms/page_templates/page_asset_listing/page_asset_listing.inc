@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.3 2004/01/23 05:42:49 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.4 2004/01/26 22:23:58 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -195,33 +195,6 @@ class Page_Asset_Listing extends Page
 		return $page_links;
 
 	}//end _getAllowedLinks()
-
-
-	/**
-	* Prints out the backend interface for the asset
-	*
-	* @param object Backend_Outputter $o
-	*
-	* @access void
-	* @access public
-	*/
-	function paintBackend(&$o)
-	{
-		if (isset($_GET['sq_from_frontend'])) {
-			// get the bodycopy attached to us
-			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
-			$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link[0]['minorid'], 'bodycopy');
-			if (is_null($bodycopy)) {
-				trigger_error('Could not locate the bodycopy for standard page "'.$this->name.'"', E_USER_ERROR);
-				return false;
-			}
-			$o->addFormActionGetVar('assetid', $bodycopy->id);
-			$bodycopy->paintBackend($o);
-		} else {
-			parent::paintBackend($o);
-		}
-
-	}//end paintBackend()
 
 
 	/**
