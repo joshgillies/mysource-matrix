@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_edit_fns.inc,v 1.15 2004/05/06 04:42:57 lwright Exp $
+* $Id: form_question_edit_fns.inc,v 1.16 2004/05/06 05:03:03 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -193,15 +193,20 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		$rules = &$asset->getRules();
 		$prefix = $asset->getPrefix();
 
+		// delete rules first
+		foreach (array_keys($rules) as $k) {
+			$rule_prefix = $prefix.'_r'.$k;
+			if (isset($_POST[$rule_prefix.'_delete'])) {
+				unset($rules[$k]);
+			}
+		}
+
+		// modify what's left
 		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
+			print($k);
 			$rule = &$rules[$k];
 			$type = 'form_question_rule_type_'.$rule['name'];
 			$rule_prefix = $prefix.'_r'.$k;
-
-			if (isset($_POST[$rule_prefix.'_delete'])) {
-				unset($rules[$k]);
-				continue;	// don't perform anything more on this!
-			}
 
 			if (isset($_POST[$rule_prefix.'_operator'])) {
 				$rule['operator'] = $_POST[$rule_prefix.'_operator'];
