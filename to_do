@@ -1,126 +1,188 @@
-+########################################################################################+
-|                                     CRITICAL                                           |
-+########################################################################################+
+ASSET LINKS [ 2 DAYS ]
+	- cant move assets under themselves and cant create a new link under itself.
+	- create new table sq_asset_link_value to store values on links
+	- change assets that use 'value' field in link to use new table (probably just designs)
+	- pass in array of (name => value) pairs instead of $value in getLinks
+	- add new tree stucture to asset links
 
-  - Check the escaping of content in PEAR::XML_Tree_Node
-    - have sent a patch, now waiting for them to get back to me - BCR
-  - MOVING Items to an asset that is under themselves
+WEB PATHS [ 1 DAY ]
+	- store paths on link as space seperated string in new value table
+	- URLS still stored in lookup table and are updated based on moving of asset, change of virtual paths etc.
+	- preg_split on whitespace to get virtual paths from the value string
+	- when creating new sq_nav link, asset virtual path defaults to the value from name() made valid
+	- moving an asset tries to keep the same virual paths but checks for conflicts and alters paths accordingly (through incremental names) for the current asset and follows all minor links recursivly
+	- check a virtual path does not equal the backend suffix (ie is not _edit)
 
-+----------------------------------------------------------------------------------------+
-|                                     HIGH PRIORITY                                      |
-+----------------------------------------------------------------------------------------+
+FLASH ASSET FINDER [ 5 DAYS ]
+	- find asset OF TYPE blah WITH NAME foo
+	- in 'finder view', press and hold menu has option 'use me' instead of regular ones
+	- this will be used by the interfaces for linking images, nesting content and basically anything that needs the user to select an asset where a drop-down list would have once appeared
 
-  - INSTALL process 
-    - check for default values for attributes that are arrays
-    - check for any array attributes and make sure that asset->_arr_atrs is true
-    - check for changes to asset files in _updateFiles and warn for overwrite
+FLASH ASSET TREE [ 3 DAYS ]
+	- check for other users changes to tree and refresh if needed
+	- add manual refresh of tree
+	- add DUPE option to linking popup menu
 
-  - Flash Asset Tree
-    - Get flash to check for need to refresh - ie when someone else updates a page
+CMS PACKAGE [ 1 DAYS ]
+	- make current page asset the standard page template and extract the base page class
+	- nest content contentType
 
-  - Attribute Types
-    - In Asset have a diff update case for diff types of attr
-	- Create date, colour and selection attribute types
+ASSET ATTRIBUTES [ 1/2 DAY ]
+	- create select attribute
+	- create date attribute
+		- use GMT for all date fields and convert from/to local time
+		- asset management class defines short/medium/long formats to be used
+		- system defaults for all date formats that get overwritten by asset management
 
-  - Unique Usernames (or attr values in general) across system
+DELETING ASSETS [ 1 1/2 DAYS ]
+	- Purging the trash
+	- inform user of affected assets when deleting - found using links where you are the minor
+	- moving assets to trash in the flash menu can be done but confirmation is required
+	- all confirmations should appear in a popup window
+	
+DESIGN AREAS [ 5 DAYS ]
+	- get the menu to restrict the printing certain asset types
+	- login design area to be created
+	- custom image design area to be created
+	- rollover image design area to be created
+	- page lineage design area to be created as a menu type
+		- probably should be renamed
+	- images and stylesheet to become file assets in design
+	- date design area to be created
+		- set format and type (today, created, modified etc) in design
+	- permanent page design area to be created and possibly renamed to 'nest content'
+		- should be able to print and frontend printable assets
+		- probably should be renamed
+	- print friendly pages will becomes part of the core and be replaced by a variable in the design to print the HREF to the printer friendly version of this asset
+		- HREF will probably be the current HREF with a suffix defined in the conf (eg _print)
+		- probably should be renamed
 
-  - Asset Links
-    - Need to check web paths when an _updateLink() occurs and you are changing the minorid
-    - Need to updateLookups() on the minor asset when an _updateLink() or a deleteLink() happens
+FILE ASSETS [ 1 1/2 DAYS ]
+	- bring across attributes from MySource
+	- new structure for file asset
 
-  - Deleting Assets
-    - Need to formalise the deletion process, including purging the trash
+		- FILE
+		    |__ IMAGE (FILE with extension of gif, jpg etc)
+		           |__ THUMBNAIL (IMAGE with max width and height - 100 x 100?)
 
-  - Designs
-    - Global Stylesheets / Inheriting Designs ?
-    - Design Areas (or their replacement)
-      Taking into account last comment on 
-      http://www.php.net/manual/en/language.references.return.php
-      and points in http://phplens.com/lens/php-book/optimizing-debugging-php.php 
+		- when using asset finder to search for thumbnails, only find assets of type 'thumbnail'
+		- allows for easy morphing back up the tree to 'image' or 'file'
 
-  - Enable removing of attributes from asset types in Asset_Management
+INSTALL/UPGRADE PROCESS [ 1 DAY ]
+	- check MD5 of files when overwriting in data directory to warn if modified files are being overwriten. This will eventually be another step in the web install script
+	- check that _ser_atrs is set to true if any 'serialise' attributes are found
+	- remove attributes in an asset bassed on the version they are listed as being removed in
+		- delete this attribute from the attribute ans attribute_value tables
+	- update asset attributes using the update function defined for the attribute when upgrading
+		- let the current version fall through a switch statement to get as many updates as it requries
 
-  - Users_Group Asset
-  - Permissions_Group Asset
-    - Same form as windows directory permissions ? 
-      (ie permissions for as many groups and individuals as you want)
-    - Permissions for links  (Read/Write/Delete ?)
-    - Permissions for assets (Read/Write/Delete ?)
+OPTIMISATION [ 1/2 DAY ]
+	- go through existing code and add forgetAsset calls to free memory
+	- wherever getAsset is called, attempt to pass type of asset
 
-  - HTML editing 
-    - in browser 
-	- external
-	  - with external how do we break page of content into individual assets for cells ?
+CONDITIONAL ASSETS [ 2 DAYS ]
+	- conditions are assets but are system only and are stored in resolve/core/assets/condtions
+	- base conditions that need to be built
+		- logged_in
+		- in_user_group
+		- permission_check
+		- in_backend
+	- conditions can be placed on a link in the value table
+	- designs need to be altered to use conditions - which will be a core component of designs
+	- conditions will have an initOutput function to print PHP functions required by the condition. This will allow assets that cache their output (such as designs and tables) to cache PHP output to generate a boolean value to switch on
+	- conditions may be quite simple though and only require a single inline command. eg GLOBALS['SQ_SYSTEM']->isLoggedIn()
+	- bodycopy will handle conditions in its own way
+	- need a function defined somewhere in the core to get a list of all available condition types
 
-  - CMS Package
-    - Page
-	  - the idea of a separated Page Template object has been scrapped, instead
-        we will be inheriting from, and extending, Page
-    - Site
-    - File
+DESIGNS IN BACKEND [ 5 DAYS ]
+	- when uploading a parse file for a design you also upload an alternate parse file for the backend. No additional design areas may be defined in this parse file but some can be removed
+	- wouldnt need to redefine design area content settings in the backend parse file as it would read this iformation and customisations from the main parse file
+	- create new backend design area to define backend sections and fields
+	- when system is installed, install a defualt design for the backend that cannot be deleted or customised
+	- if their is no backend parse file for a design, revert to the default design
+	- will need common stylesheet elements for forms etc in all backend designs
 
-+----------------------------------------------------------------------------------------+
-|                                  MEDIUM  PRIORITY                                      |
-+----------------------------------------------------------------------------------------+
+INTERNAL MESSAGING SYSTEM [ 3 DAYS ]
+	- one frame that refreshes every X minutes and performs certain actions (check for message, check lock status, check for asset tree changes)
+	- DHTML message notification in top right of screen with possible background sound in iFrame
+	- clicking link in DHTML popup will do the following:
+		- if possible, open the flash frame if it has been closed
+		- switch flash tree to the message tab
+	- every internal message should be logged
+	- messages can be sent to a user, and user group, or all users (based on an assetid supplied)
+	- messages can have different states (new, read, archived etc)
+	- full message inbox is displayed on the personal to-do page
 
-  - Optimisations
-    - Every where a getAsset() call is made attempt to pass it the type of the asset
+FLASH MESSAGE TAB [ 2 DAYS ]
+	- flash tree has a tab for internal messages for the current user and the current session
+	- this view should allow the user to mark the messages as read and archive them
 
-  - Customising Asset's
-    - Have Ability to "cast" objects from parent class to custom asset class
+PERMISSIONS [ 6 DAYS ]
 
-  - System Events = Broadcastor/Listener
-    - RollBack
-	- Caching
-	- System Replication
-      - Maybe we have master/copy relationship for assets where they can 
-        only be updated on the server that they were created and all other
-        servers get copies of this asset which are uneditable on them
-	- Workflow ?
+WORKFLOW [ 4 DAYS ]
 
-  - XML Exporter/Importer for Assets
-  - Conditional Assets
-    - Browser Type being an option
+WORKSPACES [ 1/2 DAY ]
 
-+----------------------------------------------------------------------------------------+
-|                                  LOW     PRIORITY                                      |
-+----------------------------------------------------------------------------------------+
+TRASH [ 1 1/2 DAYS ]
 
-  - User Preferences Config...
-  - CVS Passwd Manager
-  - Equivalent of 'diff' on assets
+LOCKING [ 4 DAYS ]
+	- to lock an asset, need to be able to find out what we are going to need to lock before the locking process in started eg. locking a page locks the bodycopy, tables etc.
+	- add a new 'locking tab' to list locks
+	- forceably aquiring a lock sends an internal message
+	- users with greater level of access can foreably aquire a lock but massive logging occurs at this point
+	- initially, screens are displayed in a read-only view
+	- user needs to click an edit button at the top of the page to lock the page and begin editing
+	- if any element of the page is already locked, the edit button is replaced by a message and a link to the 'locking tab'
+	- when locking, begin transaction and attempt to lock all assets that any element of the page is linked to
+	- new locking table to be created
+		sq_asset_lock (
+		  assetid
+		  source_asset
+		  userid
+		  expires
+		);
+	- when forceable aquiring a lock, transaction begins to release all locks with the same asset_sourceid as the elements locked on the page and then aquire new lock on current page
+	- to aquire current locks you must have access to aquire all currently active locks
+	- the frame that refreshes and updates the expiry date for the lock needs to make sure you are still editing the asset that you have locked. If you change assets, your lock is removed
+	- any commit will release the lock on all elements of the page. Two ways to do this:
+		- forms can set a hidden var to tell the system to not release the lock (eg creating a table will submit the form with a commit action but will not release the lock if the form var is set)
+		- commit button has to explicity set a form var to remove the lock. Any button printed using the commit_button function will then remove the current lock when pressed
+	LOCKING TAB
+		- all locks displayed for all lockable elements
+			- display who locked it
+			- display when lock expires
+			- display what they are editing (name of source asset)
+			- display what elements of your page are being locked
+		- 'Force Aquire Lock' button at bottom of page to auire all locks on page
 
-  - Giving Assets "Purposes" where assets have an original file (.doc, .pdf, image) 
-    and can be given another "purpose". eg, have orig img at high resolution, but 
-    create smaller imgs from it for other purposes. Or have .doc and have it 
-    exported to pdf for certain purposes
+ROLLBACK
 
-
-
-
-
-+----------------------------------------------------------------------------------------+
-
-Ryan's Design areas Wish List
-  1. Have the option to use 1 style sheet for all designs
-  2. Make designs so that they can be design areas themselves.  
-     How this would work would be something like you have a design called 'Title bar' 
-	 which has a parse file that does nothing but print a title bar.  You would then 
-	 be able to check a tickbox to set it as a design area and then in other designs 
-	 you could refer to it like such '<MySource_AREA name="Title bar">'.
-  3. Make variables (ie set using MySource_SET) have the option of being global so for 
-     instance you could have an image that is on every design and is set as a custom 
-	 image you could update is sitewide by just changing it in one place.
-
-This would tie in with request 2. in that variables in it could be set either from 
-themselves or from the design that they are being included in.  
-eg you could have a titlebar that you include but it's colour scheme is set by each 
-   individual design that has it.  At the same time you could also have a custom image 
-   in the title bar that is locally set so that it remains consistent throughout all designs.
-
-+----------------------------------------------------------------------------------------+
+SERVER REPLICATION
 
 
 
-Base Package Installation of Pear, see http://pear.php.net/manual/en/faq.flat-structure.php
 
+
+
+
+
+
+UNIQUE ATTRIBUTE VALUES
+	- eg. username must be unique across the system and servers (server replication)
+
+DOCUMENTATION
+	- Fix all comments to work with PHPDocumenter
+
+GENERAL
+	- have onUnload events for main frame in case other frames try to change it. Example would be leaving the content editing frame when you have uncomitted changes
+	- use JS calendar (http://students.infoiasi.ro/~mishoo/site/calendar.epl) for date attributes
+	- add a ghost page for deleted URLs to page not found errors dont occur for them
+	- redesign the bodycopy for frontend editing
+
+TRANSACTIONS
+	- build a transaction manager to manage database and file system transactions and nested transactions.
+		- one 'abort' aborts all current transactions
+		- only the last 'commit' actually does anything
+		- need to be able to know the current state of a file in file system transactions
+		- may need to create temporary file area while doing transaction
+		- will need to be able to 'abort' if the 'commit' fails
