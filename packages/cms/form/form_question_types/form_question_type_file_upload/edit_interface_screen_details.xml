@@ -1,0 +1,92 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.1 2004/11/09 04:16:17 lwright Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<contents>
+	<section name="Locking / Editing">
+	    <field>
+			<display_name></display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintLockMessage"   />
+				<process_function name="processLockMessage" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Question Options" write_access="write:attributes">
+	    <field attribute="name">
+			<display_name>Title</display_name>
+			<note></note>
+			<text width="20" height="1" />
+		</field>
+		<field attribute="note">
+			<display_name>Note</display_name>
+			<note>This text will be displayed next to the question</note>
+			<text width="40" height="2" />
+		</field>
+		<field attribute="create_location">
+			<display_name>Create Location</display_name>
+			<note>Successfully created File assets will be placed underneath the specified folder</note>
+			<assetid />
+		</field>
+		<field attribute="extra">
+			<display_name>Extra</display_name>
+			<note />
+			<text width="40" height="1" />
+		</field>
+	</section>
+	<section name="Simple Validation Rules" write_access="write:attributes">
+	    <field attribute="required">
+			<display_name>Required Entry?</display_name>
+			<note>If required, a file must be uploaded at this question before the form can be submitted</note>
+			<boolean true_text="Required" false_text="Optional" />
+		</field>
+	    <field attribute="overwrite_rule">
+			<display_name>Overwrite Rule</display_name>
+			<note></note>
+			<selection style="list" />
+		</field>
+	</section>
+	<section name="Complex Validation Rules" write_access="write:attributes">
+		<field>
+			<display_name>Question Rules</display_name>
+			<note>'Uploaded File Size' comparison values can be written in shorthand:&lt;br/&gt;
+				'KB' or 'K' for kilobytes&lt;br/&gt;
+				'MB' or 'M' for megabytes&lt;br/&gt;
+				'GB' or 'G' for gigabytes</note>
+			<function_call>
+				<paint_function   name="paintRules"   />
+				<process_function name="processRules" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Add Rule</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintAddRule"   />
+				<process_function name="processAddRule" />
+			</function_call>
+		</field>
+	</section>
+</contents>
