@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.3 2005/03/23 21:57:37 rhoward Exp $
+* $Id: log_manager.inc,v 1.4 2005/03/23 23:53:06 arailean Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -240,30 +240,8 @@ class Log_Manager extends Asset
 	*/
 	function log($logname, $data, $level=E_USER_NOTICE, $encode=true)
 	{
-		if (empty($logname) || empty($data)) {
-			return false;
-		}
-
-		// encode the elements that will mess up the log format
-		return $this->_log($logname, $data, $level, $encode);
-
-	}//end log()
-
-
-	/**
-	* Takes the log name, data, log level and the encode flag, and passes it out to be encoded and logged to file
-	*
-	* @param string					$logname	The log name - the prefix of the file to log to, eg. 'error'
-	* @param mixed string|array		$data		The data to write to the log file
-	* @param int					$level		The log level, eg. E_USER_ERROR
-	* @param boolean				$encode		If true, encodes elements such as newlines that mess up the log format
-	*
-	* @access private
-	* @return boolean
-	*/
-	function _log($logname, $data, $level, $encode)
-	{
-		if (empty($logname) || empty($data) || empty($level) || empty($encode)) {
+		if (empty($logname) || empty($data) || empty($level)) {
+			trigger_error('Cannot Log. An error has occured', E_USER_ERROR);
 			return false;
 		}
 
@@ -286,15 +264,15 @@ class Log_Manager extends Asset
 					 );
 
 		// encode metadata & logdata
-		$encoded_log = $this->_encodeLine($log, $encode);
+		$encoded_log = Log_Manager::_encodeLine($log, $encode);
 
 		if ($log) {
-			return $this->_writeToFile(SQ_LOG_PATH.'/'.$logname.SQ_CONF_LOG_EXTENSION, $encoded_log."\n");
+			return Log_Manager::_writeToFile(SQ_LOG_PATH.'/'.$logname.SQ_CONF_LOG_EXTENSION, $encoded_log."\n");
 		} else {
 			return false;
 		}
 
-	}//end _log()
+	}//end log()
 
 
 	/**
