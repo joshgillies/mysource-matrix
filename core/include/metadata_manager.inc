@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.45 2004/07/22 05:57:49 mnyeholt Exp $
+* $Id: metadata_manager.inc,v 1.46 2004/07/22 06:08:15 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -781,7 +781,7 @@ class Metadata_Manager extends MySource_Object
 					echo '} else { if (!isset($metadata_published_by_user)) { 
 					$asset_info = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetInfo(Array($metadata_asset->published_userid));
 					if (!empty($asset_info)) {
-					$metadata_'.substr($keyword,6,7).'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid);'."\n}\n}\n";
+					$metadata_published_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid);'."\n}\n}\n";
 					echo 'if (!empty($metadata_published_by_user)) { ';
 					echo '$metadata_replacements[\''.$keyword.'\'] = $metadata_published_by_user->name;'."\n";
 					echo '} else {'."\n";
@@ -799,7 +799,7 @@ class Metadata_Manager extends MySource_Object
 					if (!empty($asset_info)) {
 					$metadata_published_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid);'."\n}\n}\n";
 					echo 'if (!empty($metadata_published_by_user)) { ';
-					echo '$metadata_published_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid);'."\n";
+					echo '$metadata_replacements[\''.$keyword.'\'] = $metadata_published_by_user->attr(\''.substr($keyword,19).'\');'."\n";
 					echo '} else {'."\n";
 					echo '$metadata_replacements[\''.$keyword.'\'] = \'\';'."\n";
 					echo '}}'."\n";
