@@ -18,19 +18,24 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2004/05/20 04:48:35 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2004/09/02 06:24:49 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 <contents>
+
 	<section name="Indexing Manager" write_access="write:attributes">
+
 		<field attribute="indexing">
 			<display_name>Indexing Status</display_name>
 			<note />
 			<boolean true_text="On" false_text="Off" />
 		</field>
+
 	</section>
+
 	<section name="Re-index Assets" read_access="write:attributes" write_access="write:attributes">
+
 		<field>
 			<display_name>Root Node</display_name>
 			<note />
@@ -39,5 +44,35 @@
 				<process_function	name="processReindexing" />
 			</function_call>
 		</field>
+
 	</section>
+
+	<section name="Noise Words" write_access="write:attributes">
+
+		<field attribute="min_word_length">
+			<display_name>Minimum Word Length</display_name>
+			<note>Words smaller than this length will be ignored by the indexer. Zero disables this option.</note>
+			<int width="2" />
+		</field>
+
+		<field>
+			<display_name>Noise Word List</display_name>
+			<note>Words in this list will be ignored by the indexer. This does not conflict with "Minimum Word Length".</note>
+			<function_call>
+				<paint_function		name="paintNoiseWords" />
+				<process_function	name="processNoiseWords" />
+			</function_call>
+		</field>
+
+		<field>
+			<display_name>White Word List</display_name>
+			<note>Words in this list will not be ignored by the indexer. This overrides "Minimum Word Length" and "Noise Word List".</note>
+			<function_call>
+				<paint_function		name="paintWhiteWords" />
+				<process_function	name="processWhiteWords" />
+			</function_call>
+		</field>
+
+	</section>
+
 </contents>
