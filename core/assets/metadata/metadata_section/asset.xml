@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<?xml-stylesheet href="../../../packages/asset.xsl" type="text/xsl"?>
+
+<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
+	<package>__core__</package>
+	<type_code>metadata_section</type_code>
+	<version>0.1</version>
+	<name>Metadata Section</name>
+	<description>Metadata Section, group metadata fields into sections</description>
+	<instantiable>yes</instantiable>
+	<allowed_access>backend_user</allowed_access>
+	<parent_type>folder</parent_type>
+	<requirements />
+</asset_info>

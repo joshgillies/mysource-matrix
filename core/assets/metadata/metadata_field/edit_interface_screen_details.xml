@@ -1,0 +1,51 @@
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Field Name</display_name>
+			<note />
+			<text width="30" height="1" />
+		</field>
+		<field attribute="default">
+			<display_name>Default</display_name>
+			<note />
+			<text width="30" height="5" />
+		</field>
+		<field attribute="scheme">
+			<display_name>Scheme</display_name>
+			<note />
+			<text width="30" height="1" />
+		</field>
+		<field attribute="language">
+			<display_name>Language</display_name>
+			<note />
+			<text width="30" height="1" />
+		</field>
+	</section>
+	<section name="Value Components">
+		<field>
+			<display_name>New?</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintValueComponents"   />
+				<process_function name="processValueComponents" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Options">
+		<field attribute="multi_line">
+			<display_name>Multi Line</display_name>
+			<note />
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+		<field attribute="editable">
+			<display_name>Editable</display_name>
+			<note />
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+		<field attribute="required">
+			<display_name>Required</display_name>
+			<note />
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+	</section>
+</contents>
