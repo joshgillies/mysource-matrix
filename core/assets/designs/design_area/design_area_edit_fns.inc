@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_edit_fns.inc,v 1.24 2003/09/29 05:16:24 gsherwood Exp $
+* $Id: design_area_edit_fns.inc,v 1.25 2003/10/13 09:51:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -191,8 +191,12 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 				$tag = $this->_parseOpenTag($file_contents, $cur_pos);
 
-				// if this tag doesn't terminate the we need to allow for its contents
-				if (!$tag['self_terminating']) {
+				// if this tag terminates then blank array for it's contents
+				if ($tag['self_terminating']) {
+					$tag['contents'] = Array();
+
+				// else this tag doesn't terminate the we need to allow for its contents
+				} else {
 					$this_nest_level = $nest_level;
 					// because we are going to the next level increment
 					$nest_level++;
@@ -237,9 +241,10 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		// then it must be the root level
 		if (!$is_nested) {
 			// so append the rest of the html code to the array
-			$parsed[] = array('_type' => 'HTML',
-									'contents' => substr ($file_contents, $cur_pos)
-									);
+			$parsed[] = array(
+							'_type' => 'HTML',
+							'contents' => substr ($file_contents, $cur_pos),
+							);
 
 		}//end if
 
@@ -578,6 +583,42 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		return preg_replace('/^(\\.\\/)?files\/(.*)/i', '\\2', $str);
 
 	}//end _removeFileRoot()
+
+
+	/**
+	* Returns a default contents for the passed type
+	* Can be used when there is no contents supplied in parse file
+	*
+	* @param object Asset	$asset			the asset to which we belong
+	* @param string			$content_type	the name that forms the filename 'default_'.$content_type.'_contents.html' 
+	*										in the asset types directory
+	*
+	* @return Array()
+	* @access private
+	* @see _parseString();
+	* @see _processContents();
+	*/
+	function _getDefaultContents(&$asset, $content_type)
+	{
+		$parent_types = $asset->getTypeAncestors(false);
+		array_unshift($parent_types, $asset->type());
+		for($i = 0, $total = count($parent_types); $i < $total; $i++) {
+
+			$file = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($parent_types[$i], 'dir').'/default_'.$content_type.'_contents.html';
+			if (file_exists($file)) {
+				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+				$contents = $this->_parseString(file_to_string($file));
+				return $contents;
+			}//	end if
+
+			// we don't need to go any higher than this class
+			if ($parent_types[$i] == 'design_area') break;
+
+		}// end for
+
+		return Array();
+
+	}// end _getDefaultContents()
 
 
 	/**
