@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.180 2004/02/27 05:27:28 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.181 2004/03/01 15:11:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1057,12 +1057,12 @@ class Asset_Manager extends MySource_Object
 		
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		if (!$clone = &$this->_cloneAsset(&$source, &$link, &$clone_map)) {
+		if (!$clone = &$this->_cloneAsset($source, $link, $clone_map)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return $null;
 		}
 		
-		if (!$this->cloneComponents(&$source, &$clone, $components)) {
+		if (!$this->cloneComponents($source, $clone, $components)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return $null;
 		}
