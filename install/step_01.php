@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_01.php,v 1.35 2005/03/16 04:24:46 mnyeholt Exp $
+* $Id: step_01.php,v 1.36 2005/03/20 22:50:02 mnyeholt Exp $
 *
 */
 
@@ -28,13 +28,10 @@
 * Purpose
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 * @subpackage install
 */
-
-// First off, run the version check script
-require_once dirname(__FILE__).'/versioncheck.php';
 
 ini_set('memory_limit', -1);
 error_reporting(E_ALL);
