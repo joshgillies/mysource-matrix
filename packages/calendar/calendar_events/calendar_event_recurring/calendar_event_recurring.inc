@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.18 2004/08/05 05:37:33 lwright Exp $
+* $Id: calendar_event_recurring.inc,v 1.19 2004/08/20 01:18:41 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.18 $ - 1.0
+* @version $Revision: 1.19 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -531,7 +531,71 @@ class Calendar_Event_Recurring extends Calendar_Event
 		}
 		return $keywords;
 	}//end getAssetKeywords()
-
+	
+	
+	/*
+	* Cache the calendar data's stuff
+	*
+	* @param boolean	$updating	are we updating (TRUE) or inserting a new record
+	* 								(FALSE - set only in create() call)
+	*
+	* @return boolean	indicating success
+	* @access private
+	*/
+	function _cacheCalendarData($updating=true)
+	{
+		$db = $GLOBALS['SQ_SYSTEM']->db;
+	
+		$date_values = Array();
+		foreach(Array('start_date', 'end_date') as $date_comp) {
+			$this->_splitAttributeDate($date_values, $date_comp, $this->attr($date_comp), $date_comp.'_');
+		}
+		
+		// frequency field => as thy will be set in the standard attribute value table
+		$date_values['frequency'] = substr($this->attr('frequency'),0,3);
+		if (strlen($this->attr('frequency')) > 3) {
+			$date_values['period'] = intval(substr($this->attr('frequency'),3));
+		} else {
+			$date_values['period'] = 1;
+		}
+		
+		// stop date
+		if (strtotime(substr($this->attr('stop_date'),0,10)) != -1) {
+			$date_values['stop_date'] = substr($this->attr('stop_date'),0,10);
+		}
+		
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+	
+		// if updating attribute then we use
+		// rollbackUpdate('...', $date_values, $where)
+		if (!$updating) {
+			// set the asset ids
+			$date_values['assetid'] = $this->id;
+		
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('calendar_date_value', $date_values)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+		} else {
+			// now quote everything except null values
+			foreach(array_keys($date_values) as $key) {
+				$date_values[$key] = (is_null($date_values[$key]) ? 'null' : 	$db->quote($date_values[$key]));						
+			}
+		
+			// asset id becomes a where condition
+			$where = ' assetid = '.$db->quote($this->id);
+		
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('calendar_date_value', $date_values, $where)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+		}
+		
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
+			
+	}//end _cacheCalendarData()
+	
 
 }//end class
 
