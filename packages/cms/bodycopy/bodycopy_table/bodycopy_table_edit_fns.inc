@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.38 2003/10/16 01:49:43 brobertson Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.39 2003/10/17 07:01:58 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -342,7 +342,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 						}
 						?>
 						<tr height="1%">
-							<td valign="top" v>
+							<td valign="top">
 							<?php
 							print_bodycopy_icon("Javascript: bodycopy_insert_table_row('$prefix', $asset->id, $i, true);", 'Insert a New Row Above', '', 'add');
 							?>
