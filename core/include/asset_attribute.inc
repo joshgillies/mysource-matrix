@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_attribute.inc,v 1.20 2003/10/09 00:37:41 brobertson Exp $
+* $Id: asset_attribute.inc,v 1.21 2003/10/21 06:21:21 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -75,14 +75,6 @@ class Asset_Attribute extends MySource_Object
 	var $processed = false;
 
 	/**
-	* The attribute's weighting when participating in searches.
-	* Negative values indicate that this attribute is never used for searching.
-	* Note: This value is indicative of all instances of this asset attribute.
-	* @var int
-	*/
-	var $weighting = 0;
-
-	/**
 	* Constructor
 	*
 	* @param int	$attributeid	the attribute id to be loaded
@@ -97,7 +89,7 @@ class Asset_Attribute extends MySource_Object
 		if ($attributeid) {
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-			$sql = 'SELECT attributeid, name, type, uniq, description, parameters_value, default_value, weighting
+			$sql = 'SELECT attributeid, name, type, uniq, description, parameters_value, default_value
 					FROM '.SQ_TABLE_PREFIX.'asset_attribute
 					WHERE attributeid = '.$db->quote($attributeid);
 
@@ -106,7 +98,7 @@ class Asset_Attribute extends MySource_Object
 
 			if (is_null($result)) return;
 
-			list($this->id, $this->name, $type, $this->uniq, $this->description, $parameters, $this->_default_value, $this->weighting) = $result;
+			list($this->id, $this->name, $type, $this->uniq, $this->description, $parameters, $this->_default_value) = $result;
 
 			// make sure the asset we are loading is of the same type as our class
 			if ($type != $this->type()) {
