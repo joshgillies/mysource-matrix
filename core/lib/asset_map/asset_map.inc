@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_map.inc,v 1.92 2003/10/27 05:27:24 dwong Exp $
+* $Id: asset_map.inc,v 1.93 2003/10/27 05:27:54 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -468,7 +468,6 @@ class Asset_Map
 			'url'			=> $asset->getURL(),
 			'web_paths'		=> implode(";", $asset->getWebPaths()),
 		);
-		bom($attrs);
 		$asset_node = &$root->addChild('asset', '', $attrs);
 
 		if ($asset->readAccess()) {
