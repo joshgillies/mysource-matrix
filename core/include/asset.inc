@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.246 2003/10/22 04:15:54 dwong Exp $
+* $Id: asset.inc,v 1.247 2003/10/23 23:31:57 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -350,7 +350,22 @@ class Asset extends MySource_Object
 					$this->id = 0;
 					return false;
 				}
+			} else if ($new_link['dependant']) {
+				// the parent was locked before we created this asset and the new asset
+				// is dependantly linked, so make sure we have all the locks of our parent
+				$parent_lock_info = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id, 'all');
+				foreach ($parent_lock_info as $lock_type => $lock_details) {
+					if (empty($lock_details)) continue;
+					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, $lock_details['lock_type'], $lock_details['source_assetid'])) {
+							$ms->abortLog();
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
+							$this->id = 0;
+							return false;
+					}
+				}
 			}
+
 			if (!$new_link['dependant']) {
 				if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'links')) {
 					$ms->abortLog();
@@ -2375,22 +2390,6 @@ class Asset extends MySource_Object
 				if (empty($lock) || $lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserId()) return false;
 			}
 
-			// if we are in workflow no editing allowed
-			// except by those users who can currently approve the asset
-			if ($this->status & SQ_SC_STATUS_PENDING) {
-				if ($perm < SQ_PERMISSION_ADMIN) {
-					$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-					$publishers = $wfm->whoCanPublish($this->id);
-					if (in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) return true;
-					if (empty($publishers)) {
-						// nobody can publish - great
-						// better let admins take a punt
-						return $this->adminAccess($lock_type);
-					}
-				}
-				return false;
-			}
-
 			// if we are in a state of total approval no editing allowed
 			if ($this->status & SQ_SC_STATUS_ALL_APPROVED) return false;
 
@@ -2429,6 +2428,24 @@ class Asset extends MySource_Object
 			// use the current user and their groups
 			$assetids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->currentUserId(), Array('user', 'user_group'), false);
 			$assetids[] = $GLOBALS['SQ_SYSTEM']->currentUserId();
+		}
+
+		if (!$GLOBALS['SQ_PURGING_TRASH']) {
+			// if we are in workflow no editing allowed
+			// except by those users who can currently approve the asset
+			if ($this->status & SQ_SC_STATUS_PENDING) {
+				if ($perm < SQ_PERMISSION_ADMIN) {
+					$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+					$publishers = $wfm->whoCanPublish($this->id);
+					if (in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) return true;
+					if (empty($publishers)) {
+						// nobody can publish - great
+						// better let admins take a punt
+						return $this->adminAccess($lock_type);
+					}
+				}
+				return false;
+			}
 		}
 
 		$grants  = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, true);
