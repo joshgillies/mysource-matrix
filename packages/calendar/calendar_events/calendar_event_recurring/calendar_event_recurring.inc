@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.43 2004/09/22 06:19:04 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.44 2004/09/22 06:57:02 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.43 $ - 1.0
+* @version $Revision: 1.44 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -346,7 +346,8 @@ class Calendar_Event_Recurring extends Calendar_Event
 				// occurs if date and start_date are the same day of the week
 				// AND they are in the same week of the month
 				// AND the number of months in between is a multiple of $interval
-				return ($date_components['wdom'] == $start_components['wdom'])
+				return ($date_components['wday'] == $start_components['wday']) 
+					&& ($date_components['wdom'] == $start_components['wdom'])
 					&& ((($date_components['ms'] - $start_components['ms']) % $interval) == 0);
 			break;
 
