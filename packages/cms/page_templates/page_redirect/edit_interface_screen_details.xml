@@ -10,10 +10,47 @@
 			<note />
 			<text width="12" height="1" />
 		</field>
+	</section>
+	<section name="Location">
 		<field attribute="redirect_url">
 			<display_name>URL</display_name>
 			<note />
 			<text width="80" height="1" />
+		</field>
+		<field>
+			<display_name>or Asset</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintRedirectAssetid" />
+				<process_function name="processRedirectAssetid" />
+			</function_call>
+		</field>
+		<field attribute="url_suffix">
+			<display_name>URL Suffix</display_name>
+			<note>%description%</note>
+			<text width="80" height="1" />
+		</field>
+	</section>
+	<section name="New Window">
+		<field attribute="new_window">
+			<display_name>New Window?</display_name>
+			<note />
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+		<field attribute="new_window_options">
+			<display_name>Options</display_name>
+			<note />
+			<selection style="boxes" />
+		</field>
+		<field attribute="new_window_width">
+			<display_name>Window Width</display_name>
+			<note />
+			<int width="3" />
+		</field>
+		<field attribute="new_window_height">
+			<display_name>Window Height</display_name>
+			<note />
+			<int width="3" />
 		</field>
 	</section>
 </contents>
