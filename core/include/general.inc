@@ -38,13 +38,10 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 	// if this is a serious error, do a backtrace
 	$bt_str = '';
 	if ($err_no & ~E_USER_NOTICE) {
-		ob_start();
+		require_once SQ_FUDGE_PATH.'/dev/dev.inc';
 		$bt = debug_backtrace();
-		print_r($bt);
-		$bt_str = ob_get_contents();
-		ob_end_clean();
+		$bt_str = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', '[SYSTEM_ROOT]'), array_contents($bt, 3));
 		unset($bt);
-		$bt_str   = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', '[SYSTEM_ROOT]'), $bt_str);
 	}
 
 	$err_name = '';
