@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.222 2004/10/17 23:08:24 arailean Exp $
+* $Id: asset_edit_interface.inc,v 1.223 2004/11/11 17:32:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.222 $
+* @version $Revision: 1.223 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1159,7 +1159,7 @@ class Asset_Edit_Interface extends MySource_Object
 						// start buffering for this field
 						if ($get_field) ob_start();
 
-						$attr->paint($prefix, !(($field_access & SQ_EI_WRITE) && $limbo_access));
+						$attr->paint($prefix.'_'.$attr->id, !(($field_access & SQ_EI_WRITE) && $limbo_access));
 						if (($field_access & SQ_EI_WRITE) && $limbo_access) $print_commit_button = true;
 
 						if ($field->children[1]->name == 'note' && $field->children[1]->content) {
