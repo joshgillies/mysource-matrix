@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.305 2004/06/23 14:55:16 brobertson Exp $
+* $Id: asset.inc,v 1.306 2004/06/24 05:49:45 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3262,8 +3262,13 @@ class Asset extends MySource_Object
 					$rm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
 					$new_url = array_shift(array_keys($done_urls));
 
-					if ($url_data['http'])  $rm->addRemapURL('http://'.$old_url,  'http://'.$new_url);
-					if ($url_data['https']) $rm->addRemapURL('https://'.$old_url, 'https://'.$new_url);
+					if ($new_url != '') {	// don't add a remap if we don't have a URL to map to
+
+						if ($url_data['http'])  $rm->addRemapURL('http://'.$old_url,  'http://'.$new_url);
+						if ($url_data['https']) $rm->addRemapURL('https://'.$old_url, 'https://'.$new_url);
+
+					}
+
 				}
 			}
 
