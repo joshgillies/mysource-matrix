@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.146 2003/10/21 04:28:10 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.147 2003/10/21 06:23:20 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -260,6 +260,64 @@ class Asset_Manager extends MySource_Object
 
 	}//end getTypeInfo()
 
+	/**
+	* Retrieves the default component weightings for an asset type
+	*/
+	function getTypeDefaultWeightings($type_code)
+	{
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$default_weightings = Array();
+
+		if (is_array($type_code)) {
+			$type_codes = $type_code;
+			// load the weightings
+			$sql = 'SELECT type_code, dw.component, dw.weighting, dw.description
+					FROM '.
+						SQ_TABLE_PREFIX. 'asset_type at JOIN '. SQ_TABLE_PREFIX .'asset_indexing_weightings_default dw 
+							ON at.type_code = dw.type_code
+					WHERE
+						at.type_code IN (';
+			$first = true;
+			foreach ($type_codes as $type_code) {
+				if (!$first)
+					$sql .= ", ";
+
+				$first = false;
+
+				$sql .= $db->quote($type_code);
+			}
+			$sql .= ')';
+
+			$results = $db->getAll($sql);
+
+			$default_weightings = Array();
+			foreach ($results as $result) {
+				$default_weightings[$result['type_code']] = Array();
+				$default_weightings[$result['type_code']][$result['component']] = 
+					Array('default' => 1, 'weighting' => $result['weighting'], 'description' => $result['description']);
+			}
+		} else {
+			if ($type_code != '') {
+				// load the weightings for this type code only
+				$sql = 'SELECT dw.component, dw.weighting, dw.description
+						FROM '.
+							SQ_TABLE_PREFIX. 'asset_type at JOIN '. SQ_TABLE_PREFIX .'asset_indexing_weightings_default dw 
+								ON at.type_code = dw.type_code
+						WHERE
+							at.type_code = '. $db->quote($type_code);
+
+				$results = $db->getAll($sql);
+				foreach ($results as $result) {
+					$default_weightings[$result['component']] = 
+						Array('default' => 1, 'weighting' => $result['weighting'], 'description' => $result['description']);
+				}
+				
+			}
+		}
+
+		return $default_weightings;
+	} // end getTypeDefaultWeightings()
+
 
 	/**
 	* Returns an array representing the class hierarchy for the asset types, either for whole system
@@ -376,7 +434,6 @@ class Asset_Manager extends MySource_Object
 		return $result;
 
 	}//end getAssetTypeInfo()
-
 
 	/**
 	* Includes the class file for the passed asset
@@ -620,13 +677,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function canPurgeAsset(&$asset)
 	{
-		static $system_assets = null;
-		if (is_null($system_assets)) {
-			// include the main system config file
-			require SQ_DATA_PATH.'/private/conf/system_assets.inc';
-		}
-
-		if (in_array($asset->id, array_values($system_assets))) {
+		if ($asset->id <= SQ_NUM_RESERVED_ASSETIDS) {
 			// this asset is a direct system asset
 			// so we can not purge this asset
 			return false;
@@ -1500,6 +1551,43 @@ class Asset_Manager extends MySource_Object
 		return $children;
 
 	}// end getDependantChildren()
+
+	/**
+	* Get all dependant parents of an asset in the various trees in which it exists
+	*
+	* @param int			$assetid			the id of the asset to get its children for
+	* @param string|array	$type_code			the type of asset that is linked
+	*											(eg 'Page', 'File', etc)
+	*											if an array returns link if matches any
+	*											of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	*
+	* @return Array	returns an array of assetids
+	* @access public
+	*/
+	function getDependantParents($assetid, $type_code='', $strict_type_code=true)
+	{
+		$parents = Array();
+
+		$asset = &$this->getAsset($assetid);
+		if (!is_null($asset)) {
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+			$dependant_links = $this->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, $type_code, $strict_type_code, 'minor', null, 1);
+			for (reset($dependant_links); NULL !== ($k = key($dependant_links)); next($dependant_links)) {
+				$parentid = $dependant_links[$k]['majorid'];
+				$parents[] = $parentid;
+				$parents = array_merge($parents, $this->getDependantParents($parentid, $type_code, $strict_type_code));
+			}
+
+			$this->forgetAsset($assetid);
+		}
+
+		unset($asset);
+		return $parents;
+
+	}// end getDependantParents()
 
 
 	/**
