@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.19 2004/08/02 06:56:45 lwright Exp $
+* $Id: page_asset_builder.inc,v 1.20 2004/08/03 06:54:42 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -657,23 +657,24 @@ class Page_Asset_Builder extends Page
 				function showAssetBuilderTab(type_code)
 				{
 					document.getElementById(current_option).style.display = 'none';
+					document.getElementById(current_option+"_tab").className = 'sq-asset-builder-tab';
 					current_option = '<?php echo $this->type().'_'.$this->id.'_type_' ?>' + type_code;
 					document.getElementById(current_option).style.display = 'block';
+					document.getElementById(current_option+"_tab").className = 'sq-asset-builder-tab-active';
 					document.getElementById('ASSET_BUILDER_CREATE_TYPE').value = type_code;
 				}//end showAssetBuilderTab()
 				
 			// --></script>
 			<?php
+			$i = 0;
 			foreach($create_types as $create_type) {
 				$prefix = $this->type().'_'.$this->id.'_type_'.$create_type;
-			?>
-				<div id="<?php echo $prefix.'_tab'; ?>">
+			?><div class="sq-asset-builder-tab<? echo ($i == 0) ? '-active' : '' ?>" id="<?php echo $prefix.'_tab'; ?>">
 				<a href="#" onclick="showAssetBuilderTab('<?php echo $create_type ?>'); return false;"><?php 
 					$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($create_type, 'name');
 					echo $type_name;
-				?></a>
-				</div>
-			<?php
+				?></a></div><?php
+				$i++;
 			}
 			$this->_replacements['create_form'] = ob_get_contents().$this->_replacements['create_form'];
 			ob_end_clean();
