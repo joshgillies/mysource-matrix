@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: limbo_outputter.inc,v 1.4 2003/12/01 05:16:42 gsherwood Exp $
+* $Id: limbo_outputter.inc,v 1.5 2003/12/02 03:39:05 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -180,6 +180,118 @@ class Limbo_Outputter extends Backend_Outputter
 		<?php
 
 	}//end _paintHeader()
+
+
+	/**
+	* prints a field without buffering (nb == non-buffering)
+	*
+	* @param string $name		label of the field
+	* @param string $format		format 'new_line' | 'blank' | 'commit' | ''
+	* @param string $note		a note to place with the field
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _nbOpenField($name, $format='', $note='')
+	{
+		if ($this->_is_open_field) $this->closeField();
+		$this->_is_open_field = true;
+
+		// store the format and note of the current field for future reference
+		$this->_current_field_type = $format;
+		$this->_current_field_note = $note;
+
+		switch ($format) {
+		case 'new_line' :
+			?>
+				<tr>
+					<td nowrap valign="top" class="sq-limbo-field" colspan="3">
+						<a name="field_<?php echo $this->_field_count; ?>"></a>
+						<?php echo $name;?>
+					</td>
+				</tr>
+				<tr>
+					<td valign="top" class="sq-backend-data" colspan="3">
+						<table cellpadding="0" cellspacing="0" border="0">
+							<tr>
+								<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="5" height="1"/></td>
+								<td width="100%" valign="top" class="sq-backend-data">
+			<?php
+		break;
+
+		case 'commit' :
+			?>
+			<tr>
+				<td width="100%" valign="top" class="sq-backend-data" style="text-align: right; border" colspan="3">
+			<?php
+		break;
+
+		case 'blank' :
+			// a blank field to be used just for formatting
+		break;
+
+		default :
+		?>
+			<tr>
+				<td nowrap valign="top" class="sq-limbo-field">
+					<a name="field_<?php echo $this->_field_count; ?>"></a>
+					<?php echo $name;?>
+				</td>
+				<td width="10"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
+				<td width="100%" valign="top" class="sq-backend-data">
+		<?php
+	}//end switch
+
+	}
+
+	/**
+	* Opens a section without buffering
+	*
+	* @param Array		$section	some initialising data
+	*
+	* @return void
+	* @access private
+	*/
+	function _nbOpenSection($section)
+	{
+		$this->_nb_section_count++;
+		?>
+			<a name="section_<?php echo $this->_nb_section_count; ?>"></a>
+			<table width="100%" cellpadding="0" cellspacing="1" border="0">
+			<?php
+			if ($section['heading']) {
+				if ($this->_is_open_section) {
+					// printing a nested section - needs to look a little different
+					?>
+					<tr>
+						<td class="sq-limbo-section-subheading" colspan="3"><?php echo $section['heading'];?></td>
+					</tr>
+					<?php
+				} else {
+					$this->_is_open_section = true;
+					// printing a top level section
+					?>
+					<tr>
+						<td class="sq-limbo-section-heading" colspan="3" style="border-bottom: 1px solid #000000"><?php echo $section['heading'];?></td>
+					</tr>
+					<?php
+				}
+			}//end if
+
+			// print the section seperator
+			?>
+			<tr>
+				<td colspan="3"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td>
+			</tr>
+			<tr>
+				<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
+				<td width="100%">
+					<table cellspacing="0" cellpadding="0" border="0" width="100%">
+						<tr>
+							<td width="100%" valign="top" colspan="3">
+			<?php
+
+	}//end _nbOpenSection()
 
 
 	/**
