@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.72 2004/09/13 04:39:19 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.73 2004/09/13 04:55:56 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.72 $ - 1.0
+* @version $Revision: 1.73 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1613,9 +1613,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 		$res = $partitions;
 
-		$plain_events = $this->getDayEvents($date);
-		$events =& $this->_expandEventList($plain_events, $date, $date);
-
+		$events = $this->getDayEvents($date);
 
 		foreach ($events as $id => $details) {
 			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
@@ -1664,9 +1662,7 @@ class Page_Calendar extends Page_Asset_Listing
 		foreach($partitions as $key => $val) $partitions[$key] = Array();
 		$partitions['all_day'] = Array();
 
-		$plain_events = $this->getDayEvents($date);
-		$events = $plain_events;
-		$events =& $this->_expandEventList($plain_events, $date, $date);
+		$events = $this->getDayEvents($date);
 
 		$res = Array();
 
@@ -1767,11 +1763,13 @@ class Page_Calendar extends Page_Asset_Listing
 	* @param string	$start		Earliest time to check for overlaps (HH:MM)
 	* @param string	$end		Latest time to check for overlaps (HH:MM)
 	* @param int	$spacing	Calendar spacing in MINUTES
-
+	* @param int	$root_node	The root node that we are restricting this search to. If left
+	*							NULL this will search all root nodes
+	*
 	* @return int				minimum of 1
 	* @access private
 	*/
-	function _maxOverlappingEvents(&$events, $start, $end, $spacing)
+	function _maxOverlappingEvents(&$events, $start, $end, $spacing, $root_node=null)
 	{
 		if (empty($events) || !is_array($events)) return 1;
 
@@ -1797,6 +1795,9 @@ class Page_Calendar extends Page_Asset_Listing
 			$event_end_section = (ceil(($event_end_time - $start_time) / $spacing) - 1);
 
 			for($i = $event_start_section; $i <= min($end_section, $event_end_section); $i++) {
+				if((!is_null($root_node)) && ($event['root_node'] != $root_node)) {
+					print '$$'; continue;
+				}
 				if (!isset($event_lists[$i])) $event_lists[$i] = 0;
 				$event_lists[$i]++;
 			}
