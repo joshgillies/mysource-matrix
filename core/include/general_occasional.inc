@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.26 2003/11/18 15:37:34 brobertson Exp $
+* $Id: general_occasional.inc,v 1.27 2003/11/21 22:53:28 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -268,7 +268,7 @@ function make_valid_web_paths($paths)
 		$path = preg_replace('/\\s+/', '_', $path);
 		
 		// Taken (in part) from info here -> http://www.w3.org/Addressing/URL/5_URI_BNF.html
-		$path = preg_replace('/[^a-zA-Z0-9\-$_@.!*(),]/', '',  $path);
+		$path = preg_replace('/[^a-zA-Z0-9\-$_@.!*~(),]/', '',  $path);
 		
 		// ignore blanks
 		if ($path !== '' && !in_array($path, $valid_paths)) $valid_paths[] = $path;
