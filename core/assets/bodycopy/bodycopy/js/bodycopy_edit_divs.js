@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_divs.js,v 1.4 2004/05/26 06:54:13 gsherwood Exp $
+* $Id: bodycopy_edit_divs.js,v 1.5 2004/06/24 06:37:41 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -45,8 +45,9 @@ function bodycopy_delete_div(bodycopy_name, divid) {
 	}
 }// end bodycopy_delete_div()
 
-function bodycopy_edit_div_properties(bodycopy_name, divid) {
+function bodycopy_edit_div_properties(bodycopy_name, divid, can_delete) {
 	bodycopy_current_edit["bodycopy_name"]   = bodycopy_name;
+	bodycopy_current_edit["can_delete"]   = can_delete;
 	bodycopy_current_edit["data"]            = new Object();
 	bodycopy_current_edit["data"]["divid"] = divid;
 	bodycopy_current_edit["data"]["available_types"] = get_bodycopy_available_content_types();

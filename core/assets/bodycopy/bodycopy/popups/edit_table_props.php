@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table_props.php,v 1.3 2004/02/18 18:19:16 brobertson Exp $
+* $Id: edit_table_props.php,v 1.4 2004/06/24 06:37:41 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -82,11 +82,14 @@ include(dirname(__FILE__)."/header.php");
 <div class="title">
 	<table border="0" cellspacing="0" cellpadding="0">
 		<tr>
-			<td><a href="javascript: owner.bodycopy_delete_table(document.main_form.bodycopy_name.value, document.main_form.tableid.value);" style="cursor: pointer;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/delete.png", "16", "16", "Delete this table");</script></a></td>
+			<td id="sq_edit_div_props_delete"><a href="javascript: owner.bodycopy_delete_table(document.main_form.bodycopy_name.value, document.main_form.tableid.value);" style="cursor: pointer;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/delete.png", "16", "16", "Delete this table");</script></a></td>
 			<td class="title" width="100%" align="right">Table Properties</td>
 		</tr>
 	</table>
 </div>
+<script language="JavaScript">
+if (!owner.bodycopy_current_edit["can_delete"]) { document.getElementById('sq_edit_div_props_delete').innerHTML = '&nbsp;'; }
+</script>
 
 <form name="main_form">
 <input type="hidden" name="bodycopy_name" value="">

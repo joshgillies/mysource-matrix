@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.9 2004/05/26 06:54:52 gsherwood Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.10 2004/06/24 06:37:41 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -258,7 +258,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			<tr>
 				<td align="left" background="" id="<?php echo $prefix.'_div_'.$asset->id;?>" width="4%" style="border: 1px dashed #C0C0C0;">
 				<?php
-				print_bodycopy_icon("Javascript: bodycopy_edit_div_properties('$prefix', $asset->id);", 'Edit '.$asset->attr('name').'\'s Properties', (($popup_attribute_list) ? 'Current Properties :<br>'.$popup_attribute_list : ''), 'table_properties');
+				print_bodycopy_icon("Javascript: bodycopy_edit_div_properties('$prefix', $asset->id, ".(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').");", 'Edit '.$asset->attr('name').'\'s Properties', (($popup_attribute_list) ? 'Current Properties :<br>'.$popup_attribute_list : ''), 'table_properties');
 				
 				if (!is_null($content_type)) {
 					$content_edit = &$content_type->getEditFns();
