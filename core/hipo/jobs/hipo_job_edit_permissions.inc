@@ -22,27 +22,30 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	* Array of steps to perform in this HIPO
 	* @var Array
 	*/
-	var $_steps = Array(1 => Array( 'name'             => 'Updating Permissions',
-									'paint_function'   => 'paintPermissions',
-									'process_function' => 'processPermissions',
-									'running_mode'     => 'web',
-									'auto_step'        => true,
-									'percent_done'     => 0,
-									'complete'         => false,
-									'message'          => ''),
-						);
+	var $_steps = Array(
+					Array(
+						'name'             => 'Updating Permissions',
+						'function_call'    => Array(
+												'paint_function'   => 'paintPermissions',
+												'process_function' => 'processPermissions',
+												),
+						'running_mode'     => 'server',
+						'auto_step'        => false,
+						'percent_done'     => 0,
+						'complete'         => false,
+						'message'          => '',
+					),
+				);
 
 
 	/**
 	* Constructor
 	*
-	* @param string	$codename		a unique codename the HIPO
-	* @param string	$display_mode	the mode this HIPO is being displayed in
-	*								(web = browser, server = HIPO server)
+	* @param string	$code_name		a unique codename the HIPO
 	*/
-	function HIPO_Job_Edit_Permissions($codename='', $display_mode='web')
+	function HIPO_Job_Edit_Permissions($code_name='')
 	{
-		$this->HIPO_Job($codename, $display_mode);
+		$this->HIPO_Job($code_name);
 
 	}//end constructor
 
@@ -56,13 +59,13 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	* the same time on the same parent asset.
 	*
 	* @return string
-	* @access public
+	* @access private
 	*/
-	function getCodeName()
+	function _getCodeName()
 	{
-		return parent::getCodeName().$this->_running_vars['assetid'];
+		return parent::_getCodeName().$this->_running_vars['assetid'];
 
-	}//end getCodeName()
+	}//end _getCodeName()
 
 
 	/**
@@ -72,10 +75,12 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	* there is an assetid to start this action on (the top most parent). It also saves a
 	* list of assets to perform this action on in the running vars.
 	*
-	* @return boolean
+	* @param string	$source_code_name	the code name of another job that wants to use this job
+	*
+	* @return string	returns the code_name for the new job
 	* @access public
 	*/
-	function initialise()
+	function initialise($source_code_name=null)
 	{
 		// to start editing permission, we need to have an asset id to start editing permission at
 		if (!isset($this->_running_vars['assetid'])) {
@@ -104,7 +109,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 
 		unset($asset);
 
-		return parent::initialise();
+		return parent::initialise($source_code_name);
 
 	}//end initialise()
 

@@ -1,5 +1,8 @@
 <?php
 
+// include the hipo system config file
+require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
+
 /**
 * Highly Intensive Processing Object (HIPO)
 *
@@ -8,8 +11,20 @@
 * @package Resolve
 * @subpackage HIPO
 */
-class HIPO_Job
+class HIPO_Job extends Resolve_Object
 {
+
+	/**
+	* The name of this HIPO job (should not be modified by code)
+	* @var string
+	*/
+	var $code_name = '';
+
+	/**
+	* The code name of the hipo job that this job is being run under
+	* @var string
+	*/
+	var $_source_code_name = '';
 
 	/**
 	* The name of this HIPO job (should not be modified by code)
@@ -21,20 +36,24 @@ class HIPO_Job
 	* Array that stores some variables that the HIPO steps use
 	* @var array()
 	*/
-	var $_hipo_vars = Array('current_step' => 1,
-							'percent_done' => 0,
-							'running_mode' => 'web',
-							'message'      => '',
-							'errors'       => Array(),
-							);
+	var $_hipo_vars = Array(
+						'current_step'		=> 0,
+						'percent_done'		=> 0,
+						'initialise_mode'	=> '',		// the mode that this job was initialised() in, used to decide what to do when we are completed
+						'running_mode'		=> '',		// the mode that is currently doing the processing
+						'aborted'			=> false,	// whether we have been aborted or not
+						'message'			=> '',
+						'errors'			=> Array(),
+					);
 
 	/**
 	* Some global options that affect how the HIPO does things
 	* @var array()
 	*/
-	var $_options = Array('on_complete_url' => '',
-						  'auto_complete'   => true,
-						  );
+	var $_options = Array(
+						'on_complete_url'	=> '',
+						'auto_complete'		=> true,
+					);
 
 	/**
 	* Array that stores any running variables that any of the processing functions use
@@ -49,13 +68,38 @@ class HIPO_Job
 	var $_complete = false;
 
 	/**
-	* Flag that represents what mode the HIPO is being displayed in
+	* Flag that represents what mode the HIPO is being run in
 	* @var string
 	*/
-	var $_display_mode = 'web';
+	var $_current_mode = 'web';
 
 	/**
-	* Array of steps to perform in this HIPO
+	* Zero Indexed Array of steps to perform in this HIPO
+	* Form :
+	* Array(
+	*		Array(
+	*			'name'			=> [name of the step],
+	*		[
+	*			'function_call'	=> Array(
+	*									'paint_function'   => 'paintSomething(&$step_data, $prefix)',
+	*									'process_function' => 'processSomething(&$step_data, $prefix)',
+	*								),
+	*		|
+	*			'hipo_job'		=> Array(
+	*									'init_details_function' => 'getJobDetails(&$job_type, &$running_vars, &$options)',
+	*								),
+	*		]
+	*			'running_mode'	   => [web|server],
+	*			'auto_step'		   => [true|false],
+	*			'percent_done'	   => 0,
+	*			'complete'		   => false,
+	*			'message'		   => '',
+	*		),
+	*		...
+	* );
+	*
+	*
+	*
 	* @var array()
 	*/
 	var $_steps = Array();
@@ -64,29 +108,53 @@ class HIPO_Job
 	/**
 	* Constructor
 	*
-	* @param string	$codename		a unique codename the HIPO
-	* @param string	$display_mode	the mode this HIPO is being displayed in
+	* @param string	$code_name		a unique code_name the HIPO
+	* @param string	$current_mode	the mode this HIPO is being displayed in
 	*								(web = browser, server = HIPO server)
 	*/
-	function HIPO_Job($codename='', $display_mode='web')
+	function HIPO_Job($code_name='')
 	{
-		$this->_display_mode = $display_mode;
-		if (!empty($codename)) $this->load($codename);
+		$this->_current_mode = (SQ_PHP_CLI) ? 'server' : 'web';
+		if (!empty($code_name)) $this->load($code_name);
 
 	}//end constructor
 
 
 	/**
-	* Returns a unique codename the HIPO can use to ensure it is not being run twice
+	* Returns a unique code_name the HIPO can use to ensure it is not being run twice
 	*
 	* @return string
-	* @access public
+	* @access private
 	*/
-	function getCodeName()
+	function _getCodeName()
 	{
 		return strtolower(get_class($this));
 
-	}//end getCodeName()
+	}//end _getCodeName()
+
+
+	/**
+	* Returns a unique code_name the HIPO can use to ensure it is not being run twice
+	*
+	* @return boolean
+	* @access public
+	*/
+	function complete()
+	{
+		return ($this->_hipo_vars['current_step'] > count($this->_steps) || $this->_hipo_vars['aborted']);
+	}//end complete()
+
+
+	/**
+	* How much of it's work has this HIPO_Job done
+	*
+	* @return int
+	* @access public
+	*/
+	function percentDone()
+	{
+		return (int) $this->_hipo_vars['percent_done'];
+	}//end percentDone()
 
 
 	/**
@@ -100,11 +168,11 @@ class HIPO_Job
 	*/
 	function getProcessURL()
 	{
-		if ($this->_complete) {
+		if ($this->complete()) {
 			// this HIPO is finsihed
 			return $this->_options['on_complete_url'];
 		} else {
-			return $_SERVER['PHP_SELF'].'?SQ_ACTION=hipo&hipo_action='.str_replace('hipo_job_', '', strtolower(get_class($this))).'&hipo_codename='.$this->getCodeName();
+			return $_SERVER['PHP_SELF'].'?SQ_ACTION=hipo&hipo_source_code_name='.$this->_source_code_name;
 		}
 
 	}//end getProcessURL()
@@ -172,10 +240,11 @@ class HIPO_Job
 	function _addError($error, $warning=false)
 	{
 		$error = trim($error);
-		if (!empty($error)) $this->_hipo_vars['errors'][] = Array('time'    => time(),
-																  'message' => $error,
-																  'warning' => $warning,
-																  );
+		if (!empty($error)) $this->_hipo_vars['errors'][] = Array(
+																'time'    => time(),
+																'message' => $error,
+																'warning' => $warning,
+																);
 
 	}//end _addError()
 
@@ -187,32 +256,54 @@ class HIPO_Job
 	* write the initial database entry for the HIPO so that the vars needed by the HIPO
 	* are available on successive reloads.
 	*
-	* @return boolean
+	* @param string	$source_code_name	the code name of another job that wants to use this job
+	*
+	* @return string	returns the code_name for the new job
 	* @access public
 	*/
-	function initialise()
+	function initialise($source_code_name=null)
 	{
+		$this->_hipo_vars['initialise_mode'] = $this->_current_mode;
+		$this->_hipo_vars['running_mode']    = $this->_current_mode;
+
+		// if we aren't using the server make sure that all the steps are changed accordingly
+		if (!SQ_HIPO_USE_SERVER) {
+			for($i = 0; $i < count($this->_steps); $i++) {
+				$this->_steps[$i]['running_mode'] = 'web';
+			}
+		}
+
 		$steps     = serialize($this->_steps);
 		$vars      = serialize($this->_running_vars);
 		$options   = serialize($this->_options);
 		$hipo_vars = serialize($this->_hipo_vars);
-		$codename  = $this->getCodeName();
+		$code_name = $this->_getCodeName();
 		$message   = '';
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'hipo_running_vars 
-				(code_name, hipo_vars, options, steps, running_vars)
-				VALUES ('.$db->quote($codename).',
+		if (empty($source_code_name)) $source_code_name = $code_name;
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$db  = &$GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'hipo_job
+				(code_name, job_type, userid, source_code_name, hipo_vars, options, steps, running_vars)
+				VALUES ('.$db->quote($code_name).',
+						'.$db->quote(get_class($this)).',
+						'.$db->quote($GLOBALS['SQ_SYSTEM']->currentUserId()).',
+						'.$db->quote($source_code_name).',
 						'.$db->quote($hipo_vars).',
 						'.$db->quote($options).',
 						'.$db->quote($steps).',
 						'.$db->quote($vars).'
 						)';
-
 		$result = $db->query($sql);
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return '';
+		}
 
-		return true;
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		return $code_name;
 
 	}//end initialise()
 
@@ -220,26 +311,41 @@ class HIPO_Job
 	/**
 	* Load the HIPO vars from the database
 	*
-	* @param string	$codename	a unique codename the HIPO
+	* @param string	$code_name	a unique code_name the HIPO
 	*
 	* @return boolean
 	* @access public
 	*/
-	function load($codename)
+	function load($code_name)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT code_name, hipo_vars, options, steps, running_vars
-				FROM '.SQ_TABLE_PREFIX.'hipo_running_vars 
-				WHERE code_name = '.$db->quote($codename);
+		$sql = 'SELECT job_type, userid, source_code_name, hipo_vars, options, steps, running_vars
+				FROM '.SQ_TABLE_PREFIX.'hipo_job
+				WHERE code_name = '.$db->quote($code_name);
 
 		$result = $db->getRow($sql);
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-		$this->_code_name    = $result['code_name'];
-		$this->_hipo_vars    = unserialize($result['hipo_vars']);
-		$this->_options      = unserialize($result['options']);
-		$this->_steps        = unserialize($result['steps']);
-		$this->_running_vars = unserialize($result['running_vars']);
+		if (empty($result)) return false;
+
+		if ($result['job_type'] != get_class($this)) {
+			trigger_error('Attempted to load "'.$result['job_type'].'" job into a "'.get_class($this).'" object', E_USER_WARNING);
+			return false;
+		}
+
+		if ((int) $result['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
+			trigger_error('Attempted to load "'.$result['job_type'].'" job that you do not own', E_USER_WARNING);
+			return false;
+		}
+
+		$this->code_name         = $code_name;
+		$this->_source_code_name = $result['source_code_name'];
+		$this->_hipo_vars        = unserialize($result['hipo_vars']);
+		$this->_options          = unserialize($result['options']);
+		$this->_steps            = unserialize($result['steps']);
+		$this->_running_vars     = unserialize($result['running_vars']);
 
 		return true;
 
@@ -254,21 +360,60 @@ class HIPO_Job
 	*/
 	function _save()
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-		if ($this->_complete) {
-			$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'hipo_running_vars WHERE code_name = '.$db->quote($this->_code_name);
+		// if we have called save and we aren't the running version, bugger off
+		if ($this->_current_mode != $this->_hipo_vars['running_mode']) return true;
+
+		// First let's make sure that everything is in order with the hipo vars and our complete status
+		$step = $this->_hipo_vars['current_step'];
+		if ($this->_steps[$step]['complete']) $this->_hipo_vars['current_step']++;
+
+		$prev_step_per = ($step / count($this->_steps)) * 100;
+		$this_step_per = ($this->complete()) ? 0 : ((1 / count($this->_steps)) * $this->_steps[$step]['percent_done']);
+		$this->_hipo_vars['percent_done'] = round($prev_step_per + $this_step_per, 2);
+
+		if ($this->_steps[$step]['complete']) $this->_hipo_vars['current_step']++;
+
+		// Second let's decide, depening on the circumstances, whether to delete or update
+		$delete = false;
+		if ($this->complete()) {
+			// if we are running from the web, we can delete the DB entry
+			// because we are now done with it
+			if ($this->_current_mode == 'web') {
+				$delete = true;
+
+			// running from the server/cmdline
+			} else {
+
+				// The idea here is that if we are the top hipo job AND we were initialised in a web script
+				// then we need to leave the DB entry so that the refreshing we script can get the data one last time
+				if ($this->code_name != $this->_source_code_name || $this->_hipo_vars['initialise_mode'] != 'web') {
+					$delete = true;
+				}
+
+			}// endif
+
+		}// end if
+
+		// now we just do what we are told
+		if ($delete) {
+			$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'hipo_job
+					WHERE code_name = '.$db->quote($this->code_name);
+
 		} else {
-			$sql = 'UPDATE '.SQ_TABLE_PREFIX.'hipo_running_vars
+			$sql = 'UPDATE '.SQ_TABLE_PREFIX.'hipo_job
 					SET hipo_vars    = '.$db->quote(serialize($this->_hipo_vars)).',
 						options      = '.$db->quote(serialize($this->_options)).',
 						steps        = '.$db->quote(serialize($this->_steps)).',
 						running_vars = '.$db->quote(serialize($this->_running_vars)).'
-					WHERE code_name  = '.$db->quote($this->_code_name);
+					WHERE code_name  = '.$db->quote($this->code_name);
 		}
 		$result = $db->query($sql);
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return true;
 
 	}//end _save()
@@ -282,12 +427,8 @@ class HIPO_Job
 	*/
 	function abort()
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'hipo_running_vars WHERE code_name = '.$db->quote($this->_code_name);
-		$result = $db->query($sql);
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-		return true;
-
+		$this->_hipo_vars['aborted'] = true;
+		return $this->_save();
 	}//end abort()
 
 
@@ -305,27 +446,27 @@ class HIPO_Job
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		$step = $this->_hipo_vars['current_step'];
 
-		$form_name = 'HIPO_'.$this->getCodeName();
+		$form_name = 'HIPO_'.$this->code_name;
 		$url = $this->getProcessURL();
 		$auto_step = false;
 
 		if (!isset($this->_steps[$step])) {
 			// this step doesnt exist - probably reached the end of the HIPO
-			if ($this->_complete) $status_msg = $this->_hipo_name.' HIPO Complete';
+			if ($this->complete()) $status_msg = $this->_hipo_name.' HIPO Complete';
 			else                  $status_msg = 'Unknown Error Occured';
 			$auto_step = $this->_options['auto_complete'];
 		} else {
-			$fn = $this->_steps[$step]['paint_function'];
+			$fn = $this->_steps[$step]['function_call']['paint_function'];
 			$status_msg = $this->_steps[$step]['name'];
 			$auto_step  = $this->_steps[$step]['auto_step'];
 		}
 
-		if ($this->_complete && !empty($this->_hipo_vars['errors'])) $auto_step = false;
+		if ($this->complete() && !empty($this->_hipo_vars['errors'])) $auto_step = false;
 
 		if ($auto_step) {
-			if ($this->_complete) $onload = 'onLoad="self.location=\''.$url.'\'"';
+			if ($this->complete()) $onload = 'onLoad="self.location=\''.$url.'\'"';
 			else $onload = 'onLoad="document.'.$form_name.'.submit()"';
-		} else { 
+		} else {
 			$onload = '';
 		}
 
@@ -359,20 +500,20 @@ class HIPO_Job
 										<td>
 <pre style="color:#412F49; font-size:11px;">
 <b>
-            _,..,_ (, )        
-         .,'      `,./         
-       .' :`.----.': `,        
-      :   : ^    ^ :   ;       
-     :   :  6    6  :   ;      
-     :   :          :   ;      
-     :   :    __    :   ;      
-      :   `:'.--.`:'   ;       
-       `.  : o  o :  .'        
-        :   `----'   :         
-        : .  :'`:  . :         
-        `.:.'    `.:.'         
-   Powered by HIPO Technology  
-    ( packed with ::Fudge:: )  
+            _,..,_ (, )
+         .,'      `,./
+       .' :`.----.': `,
+      :   : ^    ^ :   ;
+     :   :  6    6  :   ;
+     :   :          :   ;
+     :   :    __    :   ;
+      :   `:'.--.`:'   ;
+       `.  : o  o :  .'
+        :   `----'   :
+        : .  :'`:  . :
+        `.:.'    `.:.'
+   Powered by HIPO Technology
+    ( packed with ::Fudge:: )
 </b>
 </pre>
 										</td>
@@ -393,7 +534,7 @@ class HIPO_Job
 										?></p><?php
 
 										// print the error report if there are errors
-										if ($this->_complete && !empty($this->_hipo_vars['errors'])) {
+										if ($this->complete() && !empty($this->_hipo_vars['errors'])) {
 											?><p><?php
 											$this->_paintErrorReport();
 											?></p><?php
@@ -403,7 +544,7 @@ class HIPO_Job
 										<p>
 										<?php
 										if (isset($this->_steps[$step])) {
-											$prefix = $this->getCodeName().'step'.$step;
+											$prefix = $this->code_name.'step'.$step;
 											$this->$fn($this->_steps[$step], $prefix);
 										}
 										?>
@@ -412,13 +553,13 @@ class HIPO_Job
 										<?php
 										$buttons_to_print = Array();
 
-										if (!$this->_complete) {
+										if (!$this->complete()) {
 											$buttons_to_print['cancel'] = Array('value' => 'Cancel', 'action' => "if (confirm('Are you sure you want to cancel?')) { this.form.cancel_hipo.value = '1'; this.form.submit(); }");
 										}
 
 										// print the NEXT or FINSIH button if we are not auto stepping through the HIPO
 										if (!$auto_step) {
-											if ($this->_complete) $button_text = 'Finish';
+											if ($this->complete()) $button_text = 'Finish';
 											else                  $button_text = 'Next >>';
 											// they dont want us to refresh automatically, so we need to provide a manual NEXT button
 											$buttons_to_print['next'] = Array('value' => $button_text, 'action' => 'this.form.submit()');
@@ -466,7 +607,7 @@ class HIPO_Job
 	* <P>This function decides, based on the current running_mode, which process function to call. It will also
 	* switch to server mode if required based on the step data. This function also handles cancel (abort) requests
 	* from the user.</P>
-	* <P>This function sets the _completed flag of the HIPO to indicate if the HIPO is completed and saves 
+	* <P>This function sets the _completed flag of the HIPO to indicate if the HIPO is completed and saves
 	* all HIPO var information to the database.</P>
 	*
 	* @return boolean
@@ -474,37 +615,38 @@ class HIPO_Job
 	*/
 	function process()
 	{
-		if (isset($_POST['cancel_hipo']) && $_POST['cancel_hipo']) {
+		if (!empty($_POST['cancel_hipo'])) {
 			// they want to stop all processing and cancel the HIPO
 			if (!$this->abort()) return false;
-			$this->_complete = true;
 			$this->setOption('auto_complete', true);
-			$this->_hipo_vars['current_step'] = count($this->_steps) + 1;
+			$this->_hipo_vars['current_step'] = count($this->_steps);
 			return true;
 		}
 
-		$step =& $this->_hipo_vars['current_step'];
+		$step = $this->_hipo_vars['current_step'];
 
 		if ($this->_steps[$step]['running_mode'] != $this->_hipo_vars['running_mode']) {
-			
-			if ($this->_steps[$step]['running_mode'] == 'server') {
+
+			if ($this->_steps[$step]['running_mode'] == 'server' && SQ_HIPO_USE_SERVER) {
 				// we have reached a step that requires server processing, but we are not yet
 				// running in server mode (ie. we are not running on the HIPO server) - so lets
 				// put a call through the HIPO phone to the server
 				trigger_error('CONNECT TO HIPO SERVER HERE AND WAIT FOR ACK', E_USER_NOTICE);
-			}
 
-			$this->_hipo_vars['running_mode'] = $this->_steps[$step]['running_mode'];
+			} else {
+				trigger_error('SET RUN MODE', E_USER_NOTICE);
+				$this->_hipo_vars['running_mode'] = $this->_steps[$step]['running_mode'];
+			}
 
 		} else {
 
 			// if we are is a display mode different from the running mode, we should not be
 			// doing any processing or saving - so just return true here
-			if ($this->_display_mode != $this->_hipo_vars['running_mode']) return true;
+			if ($this->_current_mode != $this->_hipo_vars['running_mode']) return true;
 
 			// call the correct process function based on the running mode
 			$fn = 'process'.ucfirst($this->_hipo_vars['running_mode']);
-			$prefix = $this->getCodeName().'step'.$step;
+			$prefix = $this->code_name.'step'.$step;
 			set_error_handler(Array(&$this, '_errorHandler'));
 			if (!$this->$fn($this->_steps[$step], $prefix)) {
 				$this->abort();
@@ -512,15 +654,6 @@ class HIPO_Job
 				return false;
 			}
 			restore_error_handler();
-
-			$prev_step_per = (($step - 1) * 100) / count($this->_steps);
-			$this_step_per = (1 / count($this->_steps)) * $this->_steps[$step]['percent_done'];
-			$this->_hipo_vars['percent_done'] = round($prev_step_per + $this_step_per, 2);
-
-			if ($this->_steps[$step]['complete']) $this->_hipo_vars['current_step']++;
-
-			if ($this->_hipo_vars['current_step'] > count($this->_steps)) $this->_complete = true;
-			else $this->_complete = false;
 
 		}//end if
 
@@ -542,10 +675,51 @@ class HIPO_Job
 	*/
 	function processWeb(&$step_data, $prefix)
 	{
-		$fn = $step_data['process_function'];
-		return $this->$fn($step_data, $prefix);
+		if (!empty($step_data['function_call'])) {
+			$fn = $step_data['function_call']['process_function'];
+			return $this->$fn($step_data, $prefix);
 
-	}//end process()
+		} elseif (!empty($step_data['hipo_job']['init_details_function'])) {
+
+			if (empty($step_data['hipo_job']['code_name']) || empty($step_data['hipo_job']['job_type'])) {
+				$fn = $step_data['hipo_job']['init_details_function'];
+				// First let's get the info needed to create this
+				$this->$fn($job_type='', $running_vars=Array(), $options=Array());
+				if (empty($job_type)) return false;
+
+				require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/'.$job_type.'.inc';
+				$init_hipo = new $job_type();
+
+				$init_hipo->setRunningVars($running_vars);
+				foreach($options as $k => $v) {
+					$init_hipo->setOption($k, $v);
+				}
+
+				$code_name = $init_hipo->initialise($this->code_name);
+				if (!$code_name) return false;
+				$step_data['hipo_job']['code_name'] = $code_name;
+				$step_data['hipo_job']['job_type']  = $job_type;
+
+			} else {
+				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hipo = &$hh->getJob($step_data['hipo_job']['code_name'], $step_data['hipo_job']['job_type']);
+				if (is_null($hipo)) return false;
+				if (!$hipo->process()) return false;
+
+				$step_data['percent_done'] = $hipo->percentDone();
+				$step_data['complete']     = $hipo->complete();
+
+				return true;
+
+			}// end if
+
+		} else {
+			trigger_error('Step '.$this->_hipo_vars['current_step'].' does not have any processing ability specified', E_USER_WARNING);
+			return false;
+
+		}// end if
+
+	}//end processWeb()
 
 
 	/**
@@ -563,11 +737,52 @@ class HIPO_Job
 	*/
 	function processServer(&$step_data, $prefix)
 	{
-		$fn = $step_data['process_function'];
-		while (!$step_data['complete']){
-			if (!$this->$fn($step_data, $prefix)) return false;
-		}
-		return true;
+		if (!empty($step_data['function_call'])) {
+			$fn = $step_data['function_call']['process_function'];
+			while (!$step_data['complete']){
+				if (!$this->$fn($step_data, $prefix)) return false;
+				$this->_save();
+			}
+			return true;
+
+		} elseif (!empty($step_data['hipo_job']['init_details_function'])) {
+
+			$fn = $step_data['hipo_job']['init_details_function'];
+			// First let's get the info needed to create this
+			$this->$fn($job_type='', $running_vars=Array(), $options=Array());
+			if (empty($job_type)) return false;
+
+			require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/'.$job_type.'.inc';
+			$init_hipo = new $job_type();
+
+			$init_hipo->setRunningVars($running_vars);
+			foreach($options as $k => $v) {
+				$init_hipo->setOption($k, $v);
+			}
+
+			$code_name = $init_hipo->initialise($this->code_name);
+			if (!$code_name) return false;
+
+			unset($init_hipo);
+
+			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hipo = &$hh->getJob($code_name, $job_type);
+			if (is_null($hipo)) return false;
+
+			while (!$step_data['complete']){
+				if (!$hipo->process()) return false;
+				$step_data['percent_done'] = $hipo->percentDone();
+				$step_data['complete']     = $hipo->complete();
+				$this->_save();
+			}// end if
+
+			return true;
+
+		} else {
+			trigger_error('Step '.$this->_hipo_vars['current_step'].' does not have any processing ability specified', E_USER_WARNING);
+			return false;
+
+		}// end if
 
 	}//end processServer()
 

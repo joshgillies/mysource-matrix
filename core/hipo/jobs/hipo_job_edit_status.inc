@@ -22,27 +22,30 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	* Array of steps to perform in this HIPO
 	* @var Array
 	*/
-	var $_steps = Array(1 => Array( 'name'             => 'Editing Status',
-									'paint_function'   => 'paintStatus',
-									'process_function' => 'processStatus',
-									'running_mode'     => 'web',
-									'auto_step'        => true,
-									'percent_done'     => 0,
-									'complete'         => false,
-									'message'          => ''),
-						);
+	var $_steps = Array(
+					Array(
+						'name'             => 'Editing Status',
+						'function_call'    => Array(
+												'paint_function'   => 'paintStatus',
+												'process_function' => 'processStatus',
+												),
+						'running_mode'     => 'server',
+						'auto_step'        => true,
+						'percent_done'     => 0,
+						'complete'         => false,
+						'message'          => '',
+					),
+				);
 
 
 	/**
 	* Constructor
 	*
-	* @param string	$codename		a unique codename the HIPO
-	* @param string	$display_mode	the mode this HIPO is being displayed in
-	*								(web = browser, server = HIPO server)
+	* @param string	$code_name		a unique codename the HIPO
 	*/
-	function HIPO_Job_Edit_Status($codename='', $display_mode='web')
+	function HIPO_Job_Edit_Status($code_name='')
 	{
-		$this->HIPO_Job($codename, $display_mode);
+		$this->HIPO_Job($code_name);
 
 	}//end constructor
 
@@ -56,13 +59,13 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	* the same time on the same parent asset.
 	*
 	* @return string
-	* @access public
+	* @access private
 	*/
-	function getCodeName()
+	function _getCodeName()
 	{
-		return parent::getCodeName().$this->_running_vars['assetid'];
+		return parent::_getCodeName().$this->_running_vars['assetid'];
 
-	}//end getCodeName()
+	}//end _getCodeName()
 
 
 	/**
@@ -71,22 +74,24 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	* The Edit Status HIPO also checks that there is an assetid to start this action on
 	* (the top most parent). It also saves a list of assets to perform this action on in the running vars.
 	*
-	* @return boolean
+	* @param string	$source_code_name	the code name of another job that wants to use this job
+	*
+	* @return string	returns the code_name for the new job
 	* @access public
 	*/
-	function initialise()
+	function initialise($source_code_name=null)
 	{
 		// to start editing a status, we need to have an asset id to edit
 		if (!isset($this->_running_vars['assetid'])) {
 			trigger_error('Cannot initialise Acquire Locks HIPO, no start asset ID specified', E_USER_WARNING);
-			return false;
+			return '';
 		}
 
 		// so we have an assetid to start at, but make sure it is a valid assetid
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
 		if (is_null($asset)) {
 			trigger_error('Cannot initialise Acquire Locks HIPO, invalid start asset ID specified ('.$this->_running_vars['assetid'].')', E_USER_WARNING);
-			return false;
+			return '';
 		}
 
 		// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
@@ -98,7 +103,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 
 		unset($asset);
 
-		return parent::initialise();
+		return parent::initialise($source_code_name);
 
 	}//end initialise()
 
