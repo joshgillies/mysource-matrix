@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: keyword_replace.inc,v 1.6 2004/01/28 22:23:29 gsherwood Exp $
+* $Id: keyword_replace.inc,v 1.7 2004/09/09 11:40:07 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -129,7 +129,11 @@ class Keyword_Replace extends WYSIWYG_Plugin {
 				$default_string = str_replace('%KEYWORD%', $keyword, $default_string);
 				$default_string = str_replace('%DEFAULT%', $default, $default_string);
 
-				$string .= "\n".'Array("'.str_replace('"', '\"', $keyword).'", "'.str_replace('"', '\"', $info['name']).'", "'.str_replace('"', '\"', $default_string).'"),';
+				$keyword        = str_replace(Array('"', "\r", "\n"), Array('\"', '\r', '\n'), $keyword);
+				$info['name']   = str_replace(Array('"', "\r", "\n"), Array('\"', '\r', '\n'), $info['name']);
+				$default_string = str_replace(Array('"', "\r", "\n"), Array('\"', '\r', '\n'), $default_string);
+
+				$string .= "\n".'Array("'.$keyword.'", "'.$info['name'].'", "'.$default_string.'"),';
 			}
 			echo trim($string, ', ');
 			?>
