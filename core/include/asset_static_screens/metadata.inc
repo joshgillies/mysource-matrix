@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.7 2004/08/27 01:12:00 gsherwood Exp $
+* $Id: metadata.inc,v 1.8 2004/11/07 23:01:06 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -81,6 +81,9 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 
 		for ($j = 0; $j < $num_fields; $j++) {
 			$field = &$section->children[$j];
+			
+			$field_access = $ei->_getAccess($owner, $field);
+			if (!($field_access & SQ_EI_READ)) continue;
 
 			switch (strtolower($field->attributes['code'])) {
 
@@ -164,6 +167,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 							}
 						$o->closeField();
 					} else {
+						$o->closeSection();
 						$write_access = $owner->writeAccess('metadata');
 						$print_commit_button = $write_access;
 
