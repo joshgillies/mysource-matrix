@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.107 2003/11/21 03:06:18 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.108 2003/11/21 05:10:01 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -768,7 +768,7 @@ class Asset_Map
 			}
 
 			// check if we are allowed to delete this link
-			if (($err_msg = $old_parent->canDeleteLink($link['linkid'])) !== true) {
+			if (($err_msg = $old_parent->isDeletableLink($link['linkid'])) !== true) {
 				$this->_error($err_msg);
 				return;
 			}

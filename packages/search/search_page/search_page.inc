@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.10 2003/11/18 15:45:00 brobertson Exp $
+* $Id: search_page.inc,v 1.11 2003/11/21 05:09:08 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 * @see Page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.10 $ - 1.0
+* @version $Revision: 1.11 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -148,16 +148,16 @@ class Search_Page extends Page
 	* @return mixed TRUE or error msg string
 	* @access public
 	*/
-	function canDeleteLink($linkid)
+	function isDeletableLink($linkid)
 	{
 		// the only reason why we would object to this link being
 		// deleted is if it is the bodycopy linked to us
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
 		if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the bodycopy and the search page';
 
-		return parent::canDeleteLink($linkid);
+		return parent::isDeletableLink($linkid);
 
-	}//end canDeleteLink()
+	}//end isDeletableLink()
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_sub_asset_listing.inc,v 1.11 2003/11/21 03:12:12 mmcintyre Exp $
+* $Id: page_sub_asset_listing.inc,v 1.12 2003/11/21 05:08:11 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -157,7 +157,7 @@ class Page_Sub_Asset_Listing extends Page
 	* @return mixed TRUE or error msg string
 	* @access public
 	*/
-	function canDeleteLink($linkid)
+	function isDeletableLink($linkid)
 	{
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
 		if ($bodycopy_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cannot delete the link between the page contents and the sub asset listing page';
@@ -168,9 +168,9 @@ class Page_Sub_Asset_Listing extends Page
 		$asset_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'asset_formats');
 		if ($asset_folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cannot delete the link between the asset formats folder and the sub asset listing page';
 
-		return parent::canDeleteLink($linkid);
+		return parent::isDeletableLink($linkid);
 
-	}//end canDeleteLink()
+	}//end isDeletableLink()
 
 
 	/**

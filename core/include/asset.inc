@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.257 2003/11/18 15:37:33 brobertson Exp $
+* $Id: asset.inc,v 1.258 2003/11/21 05:10:29 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1821,6 +1821,21 @@ class Asset extends MySource_Object
 
 
 	/**
+	* returns TRUE if this link is deletable
+	*
+	* @param int	$linkid	the link id of the link to remove
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isDeletableLink($linkid)
+	{
+		return true;
+
+	}//end isDeletableLink()
+
+
+	/**
 	* Determine if we can delete the passed link
 	*
 	* @param int	$linkid	the link id of the link to remove
@@ -1830,6 +1845,7 @@ class Asset extends MySource_Object
 	*/
 	function canDeleteLink($linkid)
 	{
+		if (($err_msg = $this->isDeletableLink($linkid)) !== true) return $err_msg;
 		if (!$this->id) return 'Asset Not Created';
 		return $GLOBALS['SQ_SYSTEM']->am->canDeleteLink($this, $linkid);
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.27 2003/11/18 15:43:37 brobertson Exp $
+* $Id: page_standard.inc,v 1.28 2003/11/21 05:08:26 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -118,16 +118,16 @@ class Page_Standard extends Page
 	* @return mixed TRUE or error msg string
 	* @access public
 	*/
-	function canDeleteLink($linkid)
+	function isDeletableLink($linkid)
 	{
 		// the only reason why we would object to this link being
 		// deleted is if it is the bodycopy linked to us
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
 		if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the bodycopy and the standard page';
 
-		return parent::canDeleteLink($linkid);
+		return parent::isDeletableLink($linkid);
 
-	}//end canDeleteLink()
+	}//end isDeletableLink()
 
 
 	/**

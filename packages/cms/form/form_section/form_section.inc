@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.12 2003/11/18 15:43:37 brobertson Exp $
+* $Id: form_section.inc,v 1.13 2003/11/21 05:09:33 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -174,7 +174,7 @@ class Form_Section extends Asset
 	* @return mixed TRUE or error msg string
 	* @access public
 	*/
-	function canDeleteLink($linkid)
+	function isDeletableLink($linkid)
 	{
 		// the only reason why we would object to this link being
 		// deleted is if it is the bodycopy linked to us
@@ -185,9 +185,9 @@ class Form_Section extends Asset
 
 		if ($looping_bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the looping bodycopy and the custom form';
 
-		return parent::canDeleteLink($linkid);
+		return parent::isDeletableLink($linkid);
 	
-	}// end canDeleteLink()
+	}// end isDeletableLink()
 
 
 	/**
