@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.41 2004/11/23 23:47:05 arailean Exp $
+* $Id: form_question.inc,v 1.41.2.1 2004/12/20 23:17:02 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.41.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -648,7 +648,7 @@ class Form_Question extends Asset
 			if (!empty($rule['comparison_question_id'])) {
 				$comparison = &$GLOBALS['SQ_SYSTEM']->am->getAsset($rule['comparison_question_id']);
 			} else {
-				$comparison = $rule['value'];
+				$comparison = $this->active_submission->getAnswer($this->id);
 			}
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
