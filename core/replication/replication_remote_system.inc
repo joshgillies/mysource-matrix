@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_remote_system.inc,v 1.1.2.4 2004/02/17 15:50:41 brobertson Exp $
+* $Id: replication_remote_system.inc,v 1.1.2.5 2004/02/26 16:36:29 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -333,7 +333,7 @@ class Replication_Remote_System extends MySource_Object
 		unset($client);
 
 		// attempt to authenticate
-		if (!$this->auth->authenticate($this->transport, true)) {
+		if (!$this->authenticate(true)) {
 			$this->transport->removeSocketFd(true);
 			return false;
 		}
@@ -343,6 +343,20 @@ class Replication_Remote_System extends MySource_Object
 		return true;
 
 	}// end connect()
+
+
+	/**
+	* Attempts to authenticate with the connection in our transport object using our auth object
+	*
+	* @param boolean	$initiator	whether this end of the connection initiated the connection or not
+	*
+	* @return boolean
+	* @access public
+	*/
+	function authenticate($initiator)
+	{
+		return $this->auth->authenticate($this, $initiator);
+	}//end authenticate()
 
 }//end class
 
