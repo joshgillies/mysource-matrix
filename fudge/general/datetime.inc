@@ -273,5 +273,50 @@ function days_in_month($month=null, $year=null)
 }// end days_in_month()
 
 
+/**
+* converts a integer into its roman numeral counterpart
+*
+* @param integer $num the number to convert
+*
+* @access public
+* @return string
+*/
+function int_to_roman($num = 0) 
+{
+	$conv = array(10 => array('X', 'C', 'M'),
+				  5  => array('V', 'L', 'D'),
+				  1  => array('I', 'X', 'C'));
+	$roman = '';
+	
+	$num = (int) $num;
+
+	$digit  = (int) ($num / 1000);
+	$num   -= $digit * 1000;
+	$roman = str_repeat('M',$digit);
+
+	for ($i = 2; $i >= 0; $i--) {
+		$power = pow(10, $i);
+		$digit = (int) ($num / $power);
+		$num -= $digit * $power;
+
+		if (($digit == 9) || ($digit == 4)) {
+			$roman .= $conv[1][$i] . $conv[$digit+1][$i];
+		} else {
+			if ($digit >= 5) {
+				$roman .= $conv[5][$i];
+				$digit -= 5;
+			}
+
+			while ($digit > 0) {
+				$roman .= $conv[1][$i];
+				$digit--;
+			}
+		}
+	}
+	return($roman);
+
+} // end int_to_roman()
+
+
 
 ?>
