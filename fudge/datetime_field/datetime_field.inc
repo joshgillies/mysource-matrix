@@ -8,7 +8,7 @@
 *     its the functionality that counts.
 *     It's okay to send a parameters array across with other
 *     elements, this thing won't diturb other elements, but
-*     it uses: show, style, min, max, null, allow_circa
+*     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
@@ -107,7 +107,7 @@ class DateTime_Field {
 		$null = &$this->getParam('null');
 		if (!is_array($show)) $show = Array();
 		if (!is_array($null)) $null = Array();
-		echo "<input type=hidden name=\"$this->prefix"."show\" value=\"".implode('',$show)."\">";
+		echo '<input type="hidden" name="'.$this->prefix.'show" value="'.implode('',$show).'" />';
 		$this->prefix .= 'value';
 		if($this->getParam('allow_circa')) {
 			combo_box($this->prefix.'[c]', array('0'=>'','1'=>'circa.'), false, $this->getUnit('c'));
@@ -117,7 +117,7 @@ class DateTime_Field {
 			if(in_array($t,$show)) {
 				$this->inputBox($t,$this->prefix,$u,in_array($t,$null));
 			} else {
-				echo "<input type=hidden name=\"{$this->prefix}[$t]\" value=\"$u\">";
+				echo '<input type="hidden" name="'.$this->prefix.'['.$t.']" value="'.$u.'" />';
 			}
 			if($t == 'y') echo ' ';
 			if($t == 'h' && in_array('h',$show) && in_array('i',$show)) echo ':';
@@ -168,7 +168,7 @@ class DateTime_Field {
 					for($i = (int) $min; $i <= $max; $i += $increment) $options[$i] = sprintf('%02d',$i);
 					break;
 			}
-			combo_box($prefix."[$u]", $options, false, $value, 0, $extras[$u]);
+			combo_box($prefix.'['.$u.']', $options, false, $value, 0, $extras[$u]);
 			return;
 		} elseif($input_style[$u] == 't' || 1) { // plain text
 			$size = (($u=='y')?4:2);
@@ -181,14 +181,14 @@ class DateTime_Field {
 			// merge onChange local values with those coming in from extras
 			if (eregi('onchange *="|\'', $extras[$u])) {
 				$extra = eregi_replace ("onchange *=(\"|')", 'onChange=\1'.$onchange, $extras[$u]);
-				text_box($prefix."[$u]",$value,$size,$size, $extra);
+				text_box($prefix.'['.$u.']',$value,$size,$size, $extra);
 				return;
 			} else {
-				text_box($prefix."[$u]",$value,$size,$size, $extras[$u]);
+				text_box($prefix.'['.$u.']',$value,$size,$size, $extras[$u]);
 				return;
 			}
 		}
-		echo "<input type=hidden name=\"$prefix"."[$u]\" value=\"$value\" ".$extras[$u].">";
+		echo '<input type="hidden" name="'.$prefix.'['.$u.']" value="'.$value.'" '.$extras[$u].' />';
 	}// end inputBox()
 
 
@@ -426,7 +426,7 @@ class DateTime_Field {
 	* @access public
 	* @return array
 	*/
-	function strToUnitsArray(&$value)
+	function strToUnitsArray($value)
 	{
 		$r = array();
 		$r['y'] = ((($i = (int) ($s = substr($value,0,4)))  || ($s[0] != '-' && strlen($s))) ? $i : -1);
@@ -450,7 +450,7 @@ class DateTime_Field {
 	* @access public
 	* @return string
 	*/
-	function unitsArrayToStr(&$v)
+	function unitsArrayToStr($v)
 	{
 		$r = (($v['y'] < 0 || !strlen($v['y']) || $v['y'][0] == '-') ? '----' : sprintf('%04d', $v['y'])).'-'
 			.(($v['m'] < 0 || !strlen($v['m']) || $v['m'][0] == '-') ?  '--'  : sprintf('%02d', $v['m'])).'-'
@@ -471,8 +471,10 @@ class DateTime_Field {
 	* @access public
 	* @return string
 	*/
-	function format($format='')
+	function format($format=null)
 	{
+		if (is_null($format)) $format = $this->getParam('print_format');
+
 		// We need to strip certain elements out of the format if we don't have enough
 		// information about our datetime.
 		// A mapping of which format elements are dependant on which time elements.
