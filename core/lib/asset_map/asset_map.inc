@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.120 2004/04/01 07:03:30 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.121 2004/04/01 22:52:55 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -172,7 +172,12 @@ class Asset_Map
 			<param name="BACKEND_SUFFIX" value="<?php echo SQ_CONF_BACKEND_SUFFIX; ?>" />
 			
 			<comment>
-				<embed id="sq_asset_map" type="application/x-java-applet;version=1.4" width="<?php echo $width; ?>" height="<?php echo $height; ?>" code="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar, <?php echo sq_web_path('lib'); ?>/asset_map/java/crimson.jar", <?php echo sq_web_path('lib'); ?>/asset_map/java/java40.jar" />
+				<embed id="sq_asset_map" type="application/x-java-applet;version=1.4" 
+				width="<?php echo $width; ?>" height="<?php echo $height; ?>" 
+				code="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" 
+				archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar, <?php echo sq_web_path('lib'); ?>/asset_map/java/crimson.jar", <?php echo sq_web_path('lib'); ?>/asset_map/java/java40.jar"
+				 BASE_URL="<?php echo clean_url(current_url(true, true)); ?>"
+				 BACKEND_SUFFIX="<?php echo SQ_CONF_BACKEND_SUFFIX; ?>" />
 					<noembed>
 						Java is not installed on your system
 					</noembed>
