@@ -125,22 +125,21 @@ class HIPO_Herder extends MySource_Object
 				return true;
 			}
 		}
-
 		// they want to stop all processing and cancel the HIPO
-		if (!empty($_POST['cancel_hipo'])) { // && $_POST['cancel_hipo'] == 1) {
+		if (!empty($_POST['cancel_hipo'])) { 
 			if ($source_job->abort()) { 
 				$_POST['aborting_hipo'] = $source_job->code_name;
 				$_POST['aborting_hipo_url'] = $source_job->getOption('on_complete_url');
 			}
 			return true;
 		}
-
 		if (!$source_job->process()) {
 			trigger_error('HIPO failed to process', E_USER_WARNING);
 			$source_job->abort();
 			return false;
 
 		}
+
 		return true;
 
 	}//end processWeb()
@@ -178,11 +177,14 @@ class HIPO_Herder extends MySource_Object
 			$url = $_POST['aborting_hipo_url'];
 			$onload = 'self.location = "'.$url.'";';
 			$auto_step = true;
+			$percent_done = 100;
 		} else {
 
 			$form_name = 'HIPO_'.preg_replace('/[^a-zA-Z0-9_]/i', '_', $source_job->code_name);
 			$url = $this->getProcessURL($source_job->code_name);
 			$auto_step = $source_job->auto_step();
+
+			$percent_done = $source_job->percentDone();
 
 			if ($source_job->complete()) {
 				$onload = 'self.location = "'.$url.'";';
@@ -208,7 +210,7 @@ class HIPO_Herder extends MySource_Object
 		"        `.:.'    `.:.'          ",
 		);
 
-		$lines_done = floor(count($hipo) * $source_job->percentDone() / 100);
+		$lines_done = floor(count($hipo) * $percent_done / 100);
 		$done_hipo = array_slice($hipo, 0, $lines_done);
 		$todo_hipo = ($lines_done < count($hipo)) ? array_slice($hipo, $lines_done) : Array();
 
