@@ -16,9 +16,9 @@
 ##
 ## Desc: Some General JS functions 
 ## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/js/general.js,v $
-## $Revision: 1.3 $
+## $Revision: 1.4 $
 ## $Author: brobertson $
-## $Date: 2003/03/03 06:04:52 $
+## $Date: 2003/03/10 08:34:29 $
 #######################################################################
 */
 
@@ -56,6 +56,16 @@ function rev_htmlspecialchars(str) {
 }// rev_htmlspecialchars()
 
  ///////////////////////////////////////////////////////
+// trims all white space from the start and end of 
+// the string
+String.prototype.trim = function() {
+	var str = this.toString();
+	str = str.replace(/^\s+/, '');
+	str = str.replace(/\s+$/, '');
+	return str;
+}// end trim()
+
+ ///////////////////////////////////////////////////////
 // sorts the array then removes any duplicates 
 // from it
 function array_unique(arr) {
@@ -78,12 +88,17 @@ function array_unique(arr) {
  ///////////////////////////////////////////////////////
 // takes an array and a value and removes the first 
 // element in the array with that value
-function array_remove_element(arr, val) {
+function array_remove_element(arr, val, remove_all) {
 
-	var i = array_search(arr, val);
-	if (i != null) {
-		arr.splice(i, 1);
-	}// end if
+	if (remove_all == null) {
+		remove_all = false;
+	}
+
+	var i = null;
+	do {
+		var i = array_search(arr, val);
+		if (i != null) arr.splice(i, 1);
+	} while (remove_all && i != null);
 
 }// end array_remove_element()
 
