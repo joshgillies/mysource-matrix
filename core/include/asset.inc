@@ -702,6 +702,33 @@ class Asset extends Resolve_Object
 		$old_status = $this->status;
 		$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserid();
 
+		if (($new_status ==  SQ_STATUS_EDITING || 
+			$new_status == SQ_STATUS_UNDER_CONSTRUCTION) && ($this->status & SQ_STATUS_PENDING)) {
+
+			include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
+			$wfm = new Workflow_Manager($this);
+
+			$publishers = $wfm->whoCanPublish();
+
+			if (in_array($current_userid, $publishers)) {
+				// we are currently in workflow and someone has decide
+				// to reject the changes and cancel the workflow
+				if ($this->status == SQ_STATUS_EDITING_APPROVAL) $this->status = SQ_STATUS_EDITING;
+				else $this->status = SQ_STATUS_UNDER_CONSTRUCTION;
+
+				if (!$wfm->cancel()) {
+					trigger_error('Workflow cancel failed', E_USER_WARNING);
+					$this->status = $old_status;
+				} else {
+					// send an internal message
+					$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
+					$body = 'User "'.$user->name.'" has rejected the changes made to '.$this->type().' "'.$this->name.'". The status of "'.$this->name.'" has reverted to '.$this->getStatusDescription();
+					$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN, false, true)), 0, 'Asset Changes Rejected', $body);
+				}
+			}
+		}
+
 		switch ($new_status) {
 			case SQ_STATUS_LIVE :
 				include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
@@ -807,31 +834,6 @@ class Asset extends Resolve_Object
 
 			case SQ_STATUS_PENDING_APPROVAL :
 				break;
-
-			case SQ_STATUS_EDITING :
-			case SQ_STATUS_UNDER_CONSTRUCTION :
-				include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
-				$wfm = new Workflow_Manager($this);
-
-				$publishers = $wfm->whoCanPublish();
-
-				if (($this->status & SQ_STATUS_PENDING) && in_array($current_userid, $publishers)) {
-					// we are currently in workflow and someone has decide
-					// to reject the changes and cancel the workflow
-					if ($this->status == SQ_STATUS_EDITING_APPROVAL) $this->status = SQ_STATUS_EDITING;
-					else $this->status = SQ_STATUS_UNDER_CONSTRUCTION;
-
-					if (!$wfm->cancel()) {
-						trigger_error('Workflow cancel failed', E_USER_WARNING);
-						$this->status = $old_status;
-					} else {
-						// send an internal message
-						$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-						$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
-						$body = 'User "'.$user->name.'" has rejected the changes made to '.$this->type().' "'.$this->name.'". The status of "'.$this->name.'" has reverted to '.$this->getStatusDescription();
-						$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN, false, true)), 0, 'Asset Changes Rejected', $body);
-					}
-				}
 
 			case SQ_STATUS_EDITING :
 				if (!$this->writeAccess(Array(), false)) return false;
@@ -3541,6 +3543,14 @@ class Asset extends Resolve_Object
 	function readAccess($assetids=Array())
 	{
 		if (!$this->id) return true;
+
+		// if asset is not live or asset does not give public read access
+		// we really need to check for write access
+		if ($this->status < SQ_STATUS_LIVE || 
+			!$this->_checkPermissionAccess(SQ_PERMISSION_READ, Array('0'))) {
+			return $this->writeAccess($assetids, false);
+		}
+
 		return $this->_checkPermissionAccess(SQ_PERMISSION_READ, $assetids);
 	}//end readAccess()
 
