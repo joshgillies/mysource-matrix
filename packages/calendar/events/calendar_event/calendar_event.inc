@@ -18,13 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.1.1.1 2004/07/21 04:31:53 lwright Exp $
+* $Id: calendar_event.inc,v 1.2 2004/07/22 00:50:14 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
+require_once SQ_FUDGE_PATH . '/general/datetime.inc';
 
 /**
 * Calendar_Event
@@ -34,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1.1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -88,6 +89,46 @@ class Calendar_Event extends Asset
 	//
 	//}//end _getAllowedLinks()
 
+	/**
+	* Return the keywords with their replacements
+	*
+	* The return value is in the form:
+	* <pre>
+	* Array(
+	*     'name' => Array (
+	*          'value' => 'page',
+	*          'description' => 'the asset name',
+	*     ),
+	* )
+	* </pre>
+	*
+	* @param boolean $descriptions if TRUE descriptions will be included in the array
+	*
+	* @access public
+	* @return Array(mixed)
+	*/
+	function getAssetKeywords($descriptions=false)
+	{
+		$keywords = parent::getAssetKeywords($descriptions);
+
+		// get rid of the raw attribute values which will just make a mess
+		unset($keywords['asset_attribute_start_date']);
+		unset($keywords['asset_attribute_end_date']);
+
+		$keywords['event_start_datetime'] = Array('value'=>$this->getFriendlyStart());
+		$keywords['event_end_datetime'] = Array('value'=>$this->getFriendlyEnd());
+		$keywords['event_datetime_summary'] = Array('value'=>$this->getFriendlyDatesAndTimes());
+		$keywords['event_duration'] = Array('value'=>easy_time_total($this->getDuration()));
+
+		if ($descriptions) {
+			$keywords['event_start_datetime']['description'] = 'event start date and time';
+			$keywords['event_end_datetime']['description'] = 'event end date and time';
+			$keywords['event_datetime_summary']['description'] = 'friendly display of event dates and times';
+			$keywords['event_duration']['description'] = 'event duration';
+		}
+		return $keywords;
+
+	}//end getAssetKeywords()
 
 	/**
 	* Save attributes set with setAttrValue to the database
@@ -227,6 +268,57 @@ class Calendar_Event extends Asset
 
 	}//end getDuration()
 
+	/**
+	* Get the start date and time in friendly format
+	*
+	* @access public
+	* @return string the start date and time if appropriate, in friendly format
+	*/
+	function getFriendlyStart() 
+	{
+		if (strpos($this->attr('start_date'), '--:--:--') === FALSE) { // has time
+			return readable_datetime(iso8601_ts($this->attr('start_date')));
+		} else { 
+			return date('d M Y', iso8601_ts($this->attr('start_date')));
+		}
+
+	}//end getFriendlyStart()
+
+	/**
+	* Get the end date and time in friendly format
+	*
+	* @access public
+	* @return string the end date and time if appropriate, in friendly format
+	*/
+	function getFriendlyEnd() 
+	{
+		if (strpos($this->attr('end_date'), '--:--:--') === FALSE) { // has time
+			return readable_datetime(iso8601_ts($this->attr('end_date')));
+		} else { 
+			return date('d M Y', iso8601_ts($this->attr('end_date')));
+		}
+
+	}//end getFriendlyEnd()
+
+
+	/**
+	* Get the start and end details in friendly format
+	* 
+	* If start date = end date, the date is not repeated.
+	*
+	* @access public
+	* @return string the end date and time if appropriate, in friendly format
+	*/
+	function getFriendlyDatesAndTimes()
+	{
+		if (substr($this->attr('start_date'), 0, 10) == substr($this->attr('end_date'), 0, 10)) {
+			// start and end dates are the same
+			return $this->getFriendlyStart() . '-' . date('g:ia', iso8601_ts($this->attr('end_date')));
+		} else {
+			return $this->getFriendlyStart() . ' - ' . $this->getFriendlyEnd();
+		}
+
+	}//end getFriendlyDatesAndTimes()
 
 	/**
 	* Called by the design to print the body of this asset
@@ -244,23 +336,11 @@ class Calendar_Event extends Asset
 			</tr>
 			<tr>
 				<td><b>Start Date</b></td>
-				<td><?php 
-						if (strpos($this->attr('start_date'), '--:--:--') === FALSE) { // has time
-							echo readable_datetime(iso8601_ts($this->attr('start_date')));
-						} else { 
-							echo date('d M Y', iso8601_ts($this->attr('start_date')));
-						}
-				?></td>
+				<td><?php echo $this->friendlyStart(); ?></td>
 			</tr>
 			<tr>
 				<td><b>End Date</b></td>
-				<td><?php 
-						if (strpos($this->attr('end_date'), '--:--:--') === FALSE) { // has time
-							echo readable_datetime(iso8601_ts($this->attr('end_date')));
-						} else { 
-							echo date('d M Y', iso8601_ts($this->attr('end_date')));
-						}
-				?></td>
+				<td><?php echo $this->friendlyEnd(); ?></td>
 			</tr>
 			<tr>
 				<td><b>Duration</b></td>
