@@ -1,25 +1,14 @@
 /*
-  ####################################################################################
- # Some useful functions for dealing with the form through javascript
-######################################################################################
-
-#######################################################
- # Copyright (c) Blair Robertson <blair_au@yahoo.com>  #
-#######################################################
-
-######################################################################################
-# $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/html_form/html_form.js,v $
-# $Revision: 1.5 $
-# $Author: brobertson $
-# $Date: 2003/04/28 00:05:30 $
-######################################################################################
-*/
-
-/*
-##################################################
-# useful functions for form element values
-# Blair Robertson -> (c) 2001/2002
-##################################################
+* Some useful functions for dealing with the form through javascript
+* Copyright (c) Blair Robertson <blair_au@yahoo.com>  #
+*
+*
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+* $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/html_form/html_form.js,v $
+* $Revision: 1.6 $
+* $Author: brobertson $
+* $Date: 2003/04/28 00:07:24 $
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 */
 
 /**
