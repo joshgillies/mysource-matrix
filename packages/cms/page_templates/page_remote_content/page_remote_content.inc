@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.4 2004/09/13 04:15:50 arailean Exp $
+* $Id: page_remote_content.inc,v 1.5 2004/09/13 05:47:28 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -314,9 +314,15 @@ REGEX;
 		$matches 	= Array();
 		$patterns 	= Array();
 
-		// here we handle all the urls that need to be re-written to point back to our site
+		// PATTERNS that might need to be rewritten to point back to remote content
+		// links and frames except mailto and javascript
 		$patterns[] = <<<REGEX
-/(<(?:(?:a(?:rea)?[^>]*?href)|(?:i?frame[^>]*?src)|(?:(form)[^>]*action))\s*=\s*['\"]?)(?:\s)*((?:(?![\#]|mailto|javascript))[^'\"> ]+)(['\"\> ]?[^<]*\>)/i
+/(<((?:a(?:rea)?[^>]*?href)|(?:i?frame[^>]*?src))\s*=\s*['\"]?)(?:\s)*((?:(?![\#]|mailto|javascript))[^'\"> ]+)(['\"\> ]?[^<]*\>)/i
+REGEX;
+
+// forms. note this captures even those actions that are empty
+		$patterns[] = <<<REGEX
+/(<(?:(form)[^>]*action)\s*=\s*['\"]?)(?:\s)*([^'\"> ]*)(['\"\> ]?[^<]*\>)/i
 REGEX;
 
 		// this pattern is a special case. we don't generally look at JavaScript
@@ -402,7 +408,7 @@ REGEX;
 
 		// start building full URL
 		$full_url = $parsed_fetch_url['scheme'].'://'.$parsed_fetch_url['host'];
-		if ($url{0} == '/') { // Its an absolute path
+		if (strlen($url) && $url{0} == '/') { // Its an absolute path
 			$full_url .= $url;
 		} else {
 			// convert '././foo.ext' into 'foo.ext'
