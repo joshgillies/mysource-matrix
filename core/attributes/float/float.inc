@@ -27,7 +27,7 @@ class Asset_Attribute_Float extends Asset_Attribute
 	*/
 	function Asset_Attribute_Float($attributeid=0, $value=null) 
 	{
-		$this->Asset_Attribute($attributeid, $value, Array('decimal_places' => '2'));
+		$this->Asset_Attribute($attributeid, (float) $value, Array('decimal_places' => '2'));
 	}// end constructor
 
 	/*
@@ -67,14 +67,18 @@ class Asset_Attribute_Float extends Asset_Attribute
 	* @param object Asset	$asset	the asset that owns the aprefix for the form element
 	* @param string	prefix	prefix for the form element
 	*
-	* @return boolean
 	* @access public
 	*/
 	function process($prefix)
 	{
-		$this->value = (float) $_POST[$prefix.'_'.$this->name];
-		$this->processed = true;
-	}
+		$value = (float) $_POST[$prefix.'_'.$this->name];
+		if ($this->value != $value) {
+			$this->value = $value;
+			$this->processed = true;
+		} else {
+			$this->processed = false;
+		}
+	}// end process()
 
 }//end class
 

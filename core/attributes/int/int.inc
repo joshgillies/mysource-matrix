@@ -27,7 +27,7 @@ class Asset_Attribute_Int extends Asset_Attribute
 	*/
 	function Asset_Attribute_Int($attributeid=0, $value=null) 
 	{
-		$this->Asset_Attribute($attributeid, $value);
+		$this->Asset_Attribute($attributeid, (int) $value);
 	}// end constructor
 
 	/*
@@ -65,14 +65,18 @@ class Asset_Attribute_Int extends Asset_Attribute
 	*
 	* @param string	prefix	prefix for the form element
 	*
-	* @return boolean
 	* @access public
 	*/
 	function process($prefix)
 	{
-		$this->value = (int) $_POST[$prefix.'_'.$this->name];
-		$this->processed = true;
-	}
+		$value = (int) $_POST[$prefix.'_'.$this->name];
+		if ($this->value != $value) {
+			$this->value = $value;
+			$this->processed = true;
+		} else {
+			$this->processed = false;
+		}
+	}// end process()
 
 }//end class
 
