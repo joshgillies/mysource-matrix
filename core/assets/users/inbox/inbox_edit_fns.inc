@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.29.2.2 2004/03/02 18:35:51 brobertson Exp $
+* $Id: inbox_edit_fns.inc,v 1.29.2.3 2004/03/03 19:40:26 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -71,7 +71,10 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		// get the message we are printing
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$message = $ms->getMessageById($messageid);
-
+		if (is_null($message)) {
+			trigger_error('Unable to Paint Message #'.$messageid.' : message not found', E_USER_WARNING);
+			return false;
+		}
 		return $message->printBody();
 
 	}//end paintMessage()
@@ -104,7 +107,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					var iframe = document.getElementById('sq_message_body');
 					if (iframe == null) return;
 					
-					var url='<?php echo $_SERVER['PHP_SELF']; ?>' + '?a=<?php echo $asset->id; ?>&messageid=' + messageid;
+					var url='<?php echo $_SERVER['PHP_SELF']; ?>?a=<?php echo rawurlencode($asset->id); ?>&messageid=' + escape(messageid);
 					iframe.src = url;
 				}
 			</script>
@@ -144,11 +147,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			$start_printing_at = 0;
 			if (isset($_REQUEST['sq_internal_message_inbox_start'])) $start_printing_at = (int) $_REQUEST['sq_internal_message_inbox_start'];
 
-			for ($i = 0; $i < $num_messages; $i++) {
-				if ($i < $start_printing_at) {
-					$i++;
-					continue;
-				}
+			for ($i = $start_printing_at; $i < $num_messages; $i++) {
 
 				$data = $messages[$i];
 
@@ -167,13 +166,13 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					<td class="<?php echo $class ?>" nowrap>
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/priority_<?php echo $data['priority'];?>.png", "16", "16", "");</script>
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $sender_img; ?>", "16", "16", "");</script>
-						<a name="msg_<?php echo $data['messageid'];?>"></a>
+						<a name="msg_<?php echo rawurlencode($data['messageid']);?>"></a>
 						&nbsp;<?php echo $data['from_name'];?>
 						<?php hidden_field($prefix.'_messages['.$data['messageid'].']', '1'); ?>
 					</td>
 					<td class="<?php echo $class ?>">
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/message_subject.png", "16", "16", "");</script>
-						&nbsp;<a href="#" onClick="Javascript: showMessageBody('<?php echo $data['messageid'];?>'); return false;" style="text-decoration:none;"><?php echo $data['subject'];?></a>
+						&nbsp;<a href="#" onClick="Javascript: showMessageBody('<?php echo addslashes($data['messageid']);?>'); return false;" style="text-decoration:none;"><?php echo $data['subject'];?></a>
 					</td>
 					<td class="<?php echo $class ?>" nowrap>
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $time_img; ?>", "16", "16", "");</script>
@@ -339,7 +338,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					var iframe = document.getElementById('sq_message_body');
 					if (iframe == null) return;
 					
-					var url='<?php echo $_SERVER['PHP_SELF']; ?>' + '?a=<?php echo $asset->id; ?>&messageid=' + messageid;
+					var url='<?php echo $_SERVER['PHP_SELF']; ?>?a=<?php echo rawurlencode($asset->id); ?>&messageid=' + escape(messageid);
 					iframe.src = url;
 				}
 			</script>
@@ -375,11 +374,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			$start_printing_at = 0;
 			if (isset($_REQUEST['sq_internal_message_trash_start'])) $start_printing_at = (int) $_REQUEST['sq_internal_message_trash_start'];
 
-			for ($i = 0; $i < $num_messages; $i++) {
-				if ($i < $start_printing_at) {
-					$i++;
-					continue;
-				}
+			for ($i = $start_printing_at; $i < $num_messages; $i++) {
 
 				$data = $messages[$i];
 
@@ -399,13 +394,13 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					<td class="<?php echo $class ?>" nowrap>
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/priority_<?php echo $data['priority'];?>.png", "16", "16", "");</script>
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $sender_img; ?>", "16", "16", "");</script>
-						<a name="msg_<?php echo $data['messageid'];?>"></a>
+						<a name="msg_<?php echo rawurlencode($data['messageid']);?>"></a>
 						&nbsp;<?php echo $data['from_name'];?>
 						<?php hidden_field($prefix.'_messages['.$data['messageid'].']', '1'); ?>
 					</td>
 					<td class="<?php echo $class ?>">
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/message_subject.png", "16", "16", "");</script>
-						&nbsp;<a class="sq-backend-table-cell" href="#" onClick="Javascript: showMessageBody('<?php echo $data['messageid'];?>'); return false;" style="text-decoration: none;"><?php echo $data['subject'];?></a>
+						&nbsp;<a class="sq-backend-table-cell" href="#" onClick="Javascript: showMessageBody('<?php echo addslashes($data['messageid']);?>'); return false;" style="text-decoration: none;"><?php echo $data['subject'];?></a>
 					</td>
 					<td class="<?php echo $class ?>" style="white-space: nowrap;">
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $time_img; ?>", "16", "16", "");</script>
