@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.43 2004/10/25 06:55:56 mnyeholt Exp $
+* $Id: step_03.php,v 1.44 2004/10/25 23:36:34 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -75,20 +75,20 @@ if (!regenerate_configs()) {
 }
 
 // Check if the $packageList variable has been defined at all.
-if (!isset($packageList)) {
-	$packageList = Array();	//'cms'=>Array('content_type_raw_html')
+if (!isset($package_list)) {
+	$package_list = Array();	//'cms'=>Array('content_type_raw_html')
 }
 
 uninstall_asset_types();
 uninstall_packages();
-install_core($packageList);
-install_packages($packageList);
+install_core($package_list);
+install_packages($package_list);
 install_authentication_types();
 generate_global_preferences();
 install_event_listeners();
 
 // need to run the install packages twice
-install_packages($packageList);
+install_packages($package_list);
 
 unset($GLOBALS['SQ_INSTALL']);
 

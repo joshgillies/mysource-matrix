@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.53 2004/10/25 06:54:04 mnyeholt Exp $
+* $Id: package_manager.inc,v 1.54 2004/10/25 23:36:17 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -142,19 +142,19 @@ class Package_Manager extends MySource_Object
 	/**
 	* Checks to see if the installation/upgrade of this package is able to go ahead.
 	*
-	* @param Array $updateAssets		An array of asset types to check 
+	* @param Array $update_assets		An array of asset types to check 
 	*									details for. If empty, will check all assets
 	* @return boolean
 	* @access public
 	*/
-	function checkPackageDetails($updateAssets=Array())
+	function checkPackageDetails($update_assets=Array())
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		for (reset($this->assets); null !== ($type_code = key($this->assets)); next($this->assets)) {
 			// Don't bother checking an asset that's not defined in the array.
-			if (count($updateAssets)) {
-				if (!in_array($type_code, $updateAssets)) {
+			if (count($update_assets)) {
+				if (!in_array($type_code, $update_assets)) {
 					continue;
 				}
 			}
@@ -187,14 +187,14 @@ class Package_Manager extends MySource_Object
 	/**
 	* Installs/Updates the passed package in the system
 	*
-	* @param Array $updateAssets		An array of asset types to update 
+	* @param Array $update_assets		An array of asset types to update 
 	*									details for. If empty, will do all assets
 	* @return boolean	success status
 	* @access public
 	*/
-	function updatePackageDetails($updateAssets=Array())
+	function updatePackageDetails($update_assets=Array())
 	{
-		if (!$this->checkPackageDetails($updateAssets)) return false;
+		if (!$this->checkPackageDetails($update_assets)) return false;
 		
 		$install_order = $this->_getInstallOrder();
 		if (!empty($install_order)) {
@@ -234,9 +234,9 @@ class Package_Manager extends MySource_Object
 			for (reset($install_order); null !== ($k = key($install_order)); next($install_order)) {
 				$type_code =& $install_order[$k];
 	
-				// Don't bother checking an asset that's not defined in the updateAssets array.
-				if (count($updateAssets)) {
-					if (!in_array($type_code, $updateAssets)) {
+				// Don't bother checking an asset that's not defined in the update_assets array.
+				if (count($update_assets)) {
+					if (!in_array($type_code, $update_assets)) {
 						continue;
 					}
 				}
@@ -271,7 +271,7 @@ class Package_Manager extends MySource_Object
 		}//end if asset types to install
 
 		// create the xml summarys of screens info for the asset map
-		if (!$this->_createAssetMapScreensXML($updateAssets)) {
+		if (!$this->_createAssetMapScreensXML($update_assets)) {
 			trigger_error('Unable to create the Asset Map Screens XML', E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
@@ -410,20 +410,20 @@ class Package_Manager extends MySource_Object
 	* Generates a segment of an XML document for the Asset_Map.inc to use to send to the
 	* flash
 	*
-	* @param Array $updateAssets		An array of asset types to update 
+	* @param Array $update_assets		An array of asset types to update 
 	*									details for. If empty, will do all assets
 	* @access private
 	*/
-	function _createAssetMapScreensXML($updateAssets=Array())
+	function _createAssetMapScreensXML($update_assets=Array())
 	{
 		$output = new XML_Tree();
 		$root = &$output->addRoot('tmp', '');
 		$str  = '';
 
 		for(reset($this->assets); null !== ($type_code = key($this->assets)); next($this->assets)) {
-			// Don't bother checking an asset that's not defined in the updateAssets array.
-			if (count($updateAssets)) {
-				if (!in_array($type_code, $updateAssets)) {
+			// Don't bother checking an asset that's not defined in the update_assets array.
+			if (count($update_assets)) {
+				if (!in_array($type_code, $update_assets)) {
 					continue;
 				}
 			}
