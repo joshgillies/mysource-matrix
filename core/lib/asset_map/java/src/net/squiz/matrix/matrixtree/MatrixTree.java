@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTree.java,v 1.3 2005/02/21 04:29:55 mmcintyre Exp $
+ * $Id: MatrixTree.java,v 1.4 2005/02/21 04:45:18 mmcintyre Exp $
  * $Name: not supported by cvs2svn $
  */
  
@@ -868,14 +868,12 @@ public class MatrixTree extends CueTree
 
 		private ActionListener addMenuListener;
 
+		/**
+		 * Constructs menu handler
+		 * @return the menu handler
+		 */
 		public MenuHandler() {
-			addMenuListener = new ActionListener() {
-				public void actionPerformed(ActionEvent evt) {
-					initiateAddMode(new TreePath[] {
-						new TreePath(MatrixMenus.getTypeCodeFromEvent(evt))
-					});
-				}
-			};
+			addMenuListener = MatrixMenus.getMatrixTreeAddMenuListener(MatrixTree.this);
 		}
 
 		/**
