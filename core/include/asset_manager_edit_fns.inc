@@ -236,13 +236,10 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 					if ($parent_treeid == '' || isset($duplicate_treeids[$parent_treeid])) {
 						$duplicate_treeids[$treeid] = $_POST['duplicate_treeids'][$treeid];
 
-						if ($tree[$treeid]['dependant']) {
-							$dependant_treeid = $tree[$treeid]['dependant_treeid'];
-							if(!isset($effective_duplicate_treeids[$dependant_treeid])) $effective_duplicate_treeids[$dependant_treeid] = Array();
-							$effective_duplicate_treeids[$dependant_treeid][] = $treeid;
-						}
-
-					}
+						$dependant_treeid = $tree[$treeid]['dependant_treeid'];
+						if(!isset($effective_duplicate_treeids[$dependant_treeid])) $effective_duplicate_treeids[$dependant_treeid] = Array();
+						$effective_duplicate_treeids[$dependant_treeid][] = $treeid;
+					}// end if
 
 				}// end for
 
@@ -258,21 +255,24 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 				}// end for
 
 			}// end if
+
 /*
-			?><table border="1"><tr><td valign="top"><?php
+//			?><table border="1"><tr><td valign="top"><?php
 //			pre_echo($_POST['duplicate_treeids']);
 //			pre_echo($duplicate_treeids);
+//			?></td><td valign="top"><?php
 //			pre_echo($effective_duplicate_treeids);
-			pre_echo($tree);
-			?></td><td valign="top"><?php
-			pre_echo($indexed_effective_duplicate_treeids);
-			?></td></tr></table><?php
+//			?></td><td valign="top"><?php
+//			pre_echo($tree);
+//			?></td><td valign="top"><?php
+//			pre_echo($indexed_effective_duplicate_treeids);
+//			?></td></tr></table><?php
 */
 			// OK, what we have with the $effective_duplicate_treeids array is access to all the assets that 
 			// we are going to duplicate to have to duplicate, with all the assets that they will create
 			// when duplicate is called (because it also duplicates any dependantly linked assets)
 
-			pre_echo("Call duplicate() on ".count($effective_duplicate_treeids)." assets, which will duplicate ".count($duplicate_treeids)." assets");
+			pre_echo("Call duplicate() on ".count($effective_duplicate_treeids)." assets, which will duplicate ".(count($duplicate_treeids) + 1)." assets");
 
 			$vars['tree'] = $tree;
 			$vars['effective_duplicate_treeids'] = $indexed_effective_duplicate_treeids;
@@ -495,26 +495,6 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 	}// end _dupeInitPaint()
 
 
-//	/**
-//	*/
-//	function _dupeStepObtainLocks(&$pb)
-//	{
-//		$vars = $pb->getRunningVars();
-//		$vars['locks_run_num'] = empty($vars['locks_run_num']) ? 1 : ($vars['locks_run_num'] + 1);
-//
-////		pre_echo("RUN NUM : ".$vars['locks_run_num']);
-//
-//		sleep(1);
-//
-//		$pb->setStatusMsg('Locking'.str_repeat('.', $vars['locks_run_num']));
-//		$pb->setPercent($vars['locks_run_num'] / 1);
-////		pre_echo("CURRENT STEP : ");
-////		pre_echo($pb->_steps[$pb->_step]);
-//		$pb->setRunningVars($vars);
-//	}
-
-
-
 	/**
 	* Called repeatedly by the Progress Bar over multiple page reloads until it set's the percent to 100
 	* Performs the actual duplication of the assets
@@ -627,6 +607,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 	}// end _dupeStepDuplicate()
 
+
 	/**
 	* Called after _dupeStepDuplicate() above has set the percent to 100
 	* Just clears the status msg
@@ -649,16 +630,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 	{
 		$vars = $pb->getRunningVars();
 
-#		pre_echo("Remap Pos : ".$vars['remap_pos']);
-		$treeid  = $vars['effective_duplicate_treeids'][$vars['remap_pos']]['treeid'];
 		$treeids = $vars['effective_duplicate_treeids'][$vars['remap_pos']]['dependants'];
-
-		// get the treeid and all its dependants in one array, with it at the front
-		array_unshift($treeids, $treeid);
-
-#		pre_echo($treeids);
-
-#		pre_echo("MAIN TREE ID : ".$treeid);
 
 		for($i = 0, $total = count($treeids); $i < $total; $i++) {
 			$treeid = $treeids[$i];
@@ -702,6 +674,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 	}// end _dupeStepRemap()
 
+
 	/**
 	* Called after _dupeStepRemap() above has set the percent to 100
 	* Just clears the status msg
@@ -713,40 +686,6 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 		$pb->setStatusMsg('');
 	}// end _dupeStepRemapDone()
 
-//	/**
-//	*/
-//	function _dupeStepReleaseLocksInit(&$pb)
-//	{
-//		$vars = $pb->getRunningVars();
-//		$vars['locks_run_num'] = 0;
-//
-////		pre_echo("INIT DUPE RELEASE LOCKS RUN NUM : ".$vars['locks_run_num']);
-//
-//		sleep(1);
-//
-//		$pb->setStatusMsg('Initialising...');
-//		$pb->setRunningVars($vars);
-//		return true;
-//	}
-//
-//	/**
-//	*/
-//	function _dupeStepReleaseLocks(&$pb)
-//	{
-//		$vars = $pb->getRunningVars();
-//		$vars['locks_run_num'] = empty($vars['locks_run_num']) ? 1 : ($vars['locks_run_num'] + 1);
-//
-////		pre_echo("RUN NUM : ".$vars['locks_run_num']);
-//
-//		sleep(1);
-//
-//		$pb->setStatusMsg('Unlocking'.str_repeat('.', $vars['locks_run_num']));
-//		$pb->setPercent($vars['locks_run_num'] / 1);
-////		pre_echo("CURRENT STEP : ");
-////		pre_echo($pb->_steps[$pb->_step]);
-//		$pb->setRunningVars($vars);
-//	}
-//
 
 	/**
 	* Prints out the interface for viewing and customising asset types
