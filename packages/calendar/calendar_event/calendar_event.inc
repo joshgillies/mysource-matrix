@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.18 2004/09/01 02:26:56 lwright Exp $
+* $Id: calendar_event.inc,v 1.19 2004/09/01 02:47:25 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.18 $ - 1.0
+* @version $Revision: 1.19 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -265,7 +265,7 @@ class Calendar_Event extends Asset
 		
 		// cache all the calendar data into another table so the queries for the calendar
 		// page go super-mega-hyperturbo (but only if already created)
-		if (!empty($this->id)) {
+		if (!empty($this->id) && !$dont_run_updated) {
 			if (!$this->cacheCalendarData()) return false;
 		}
 		
