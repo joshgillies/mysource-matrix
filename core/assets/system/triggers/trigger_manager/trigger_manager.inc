@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.4 2005/02/21 06:06:34 arailean Exp $
+* $Id: trigger_manager.inc,v 1.5 2005/02/23 04:56:45 arailean Exp $
 *
 */
 
@@ -48,7 +48,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -217,15 +217,16 @@ class Trigger_Manager extends Asset
 
 		// execute each trigger
 		foreach ($raw_triggers as $trigger) {
+			$status_message = null;
 			// re-create a trigger
 			$trigger_data = $this->_db2trigger($trigger);
 			$status = $this->_executeTrigger($trigger_data['data'], $state);
 
-			// TODO: Start Remove Status Reporting here
+			$trigger_info_line = 'Trigger "'.$trigger_data['name'].'"('.$trigger_data['id'].'), Event: "'.$event_name.'" broadcast by Asset: "'.$broadcaster->name.'"('.$broadcaster->id.')';
+
 			switch ($status) {
 				case SQ_TRIG_RESULT_FAILURE:
-					$status_message = "FAILURE (even though the trigger was supposed to run, some of the required actions could not be performed)";
-					trigger_error("Trigger Failed", E_USER_WARNING);
+					trigger_error('FAILURE '.$trigger_info_line, E_USER_WARNING);
 				break;
 
 				case SQ_TRIG_RESULT_SUCCESS:
@@ -240,9 +241,14 @@ class Trigger_Manager extends Asset
 				default:
 					$status_message = "FALSE (Trigger was not required)";
 				break;
-
 			}
-			// TODO: Finish Remove Status Reporting here
+
+			if (!empty($status_message)) {
+				// log message using messaging service
+				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$message = $ms->newMessage(Array(), 'Execution Status', $status_message.' '.$trigger_info_line, 'trigger_manager');
+				$message->send();
+			}
 		}
 
 		return true;
@@ -505,7 +511,6 @@ class Trigger_Manager extends Asset
 	{
 		$status = SQ_TRIG_RESULT_SUCCESS;
 
-
 		$conditions     = $trigger_data['conditions'];
 		$actions        = $trigger_data['actions'];
 
@@ -523,13 +528,13 @@ class Trigger_Manager extends Asset
 			// dynamic substitution of static condition class
 			eval('$condition_success = '.$condition['type'].'::evaluate($condition[\'data\'], $state_data);');
 
-
 			// if condition fails return with Success
 			// (trigger does not need execution, false alarm but trigger did not fail)
 			if (!$condition_success) {
 				return SQ_TRIG_RESULT_FALSE;
 			}
 		}
+
 
 		// all conditions pass. now perform the actions.
 		// NOTE: this is not thread-safe
@@ -598,9 +603,11 @@ class Trigger_Manager extends Asset
 
 			if (!$action_success) {
 				if (!$not_required) {
+					trigger_error('Trigger Action: '.$action['type'].' Failed, but was not required. Trigger continues.', E_USER_NOTICE);
 					continue;
 				} else {
 					$status = SQ_TRIG_RESULT_FAILURE;
+					trigger_error('Trigger Action: '.$action['type'].' Failed', E_USER_NOTICE);
 					break;
 				}
 			}
