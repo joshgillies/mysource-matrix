@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_edit_fns.inc,v 1.20 2004/06/22 00:00:00 lwright Exp $
+* $Id: form_question_edit_fns.inc,v 1.21 2004/06/22 00:01:09 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -108,7 +108,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 					$i = 0;
 					for (reset($rules); null !== ($k = key($rules)); next($rules)) {
 						$rule = &$rules[$k];
-						$type_code = 'form_question_rule_type_'.$rule['name'];
+						$type_code = 'form_question_rule_type_'.$rule['rule_code'];
 
 						// get operators and attributes from a static call
 						$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
@@ -204,7 +204,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		// modify what's left
 		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
 			$rule = &$rules[$k];
-			$type = 'form_question_rule_type_'.$rule['name'];
+			$type = 'form_question_rule_type_'.$rule['rule_code'];
 			$rule_prefix = $prefix.'_r'.$k;
 
 			if (isset($_POST[$rule_prefix.'_operator'])) {
