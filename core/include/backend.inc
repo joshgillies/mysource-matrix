@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: backend.inc,v 1.58 2003/10/02 06:09:06 brobertson Exp $
+* $Id: backend.inc,v 1.59 2003/10/03 07:58:09 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -72,12 +72,12 @@ class Backend extends MySource_Object
 
 		if (empty($_GET['SQ_BACKEND_PAGE']) || $_GET['SQ_BACKEND_PAGE'] == 'frames') {
 			$this->_printFrames();
-		
+
 		} else if ($_GET['SQ_BACKEND_PAGE'] == 'asset_map_request') {
 			require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
 			$asset_map = new Asset_Map();
 			$asset_map->process($this);
-		
+
 		} else {
 
 			$this->out =& new Backend_Outputter();
@@ -155,29 +155,36 @@ class Backend extends MySource_Object
 	*/
 	function _printHeader()
 	{
-		$this->out->addHiddenField('query_string');
 		$this->out->openRaw();
 		?>
 		<script language="JavaScript" type="text/javascript">
-			var REFRESH_UPDATE = <?php echo (int) SQ_CONF_REFRESH_INTERVAL ?>; // number of seconds before refreshing frame
+			var REFRESH_UPDATE = <?php echo max(10, (int) SQ_CONF_REFRESH_INTERVAL); ?>; // number of seconds before refreshing frame
+
+			var last_messages_clicked = '0';
 
 			function reloadHeader() {
 				var current_assetid = '';
 				if (top.main.document && top.main.document.main_form && top.main.document.main_form.backend_assetid) {
 					current_assetid = top.main.document.main_form.backend_assetid.value;
 				}
-				REFRESH_LOCATION = '<?php echo $this->getBackendUrl('header');?>&current_assetid=' + current_assetid;
-				document.location = REFRESH_LOCATION;
+				if (top.main && top.main.get_form_element_value) {
+					set_hidden_field('current_assetid', top.main.get_form_element_value('backend_assetid'));
+				}
+				document.location = '<?php echo $this->getBackendUrl('header');?>'
+									+ '&current_assetid=' + current_assetid
+									+ '&last_messages_clicked=' + last_messages_clicked;
 			}
 		</script>
 		<?php
 
-		if (isset($_SESSION['last_refresh'])) {
+		$this->out->addOnLoad('setTimeout("reloadHeader()", REFRESH_UPDATE * 1000);');
+
+		if (isset($_SESSION['backend_header_last_refresh'])) {
 
 			// check for updates to the asset tree
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-			$where = 'updated > '.$db->quote(ts_iso8601($_SESSION['last_refresh']));
+			$where = 'updated > '.$db->quote(ts_iso8601($_SESSION['backend_header_last_refresh']));
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 			$sql = 'SELECT assetid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where;
 
@@ -198,9 +205,7 @@ class Backend extends MySource_Object
 
 		}// end if
 
-		$_SESSION['last_refresh'] = time();
 
-		
 		// refresh lock held on current page
 		if (isset($_GET['current_assetid']) && !empty($_GET['current_assetid'])) {
 			$lock = @$GLOBALS['SQ_SYSTEM']->am->getLockInfo($_GET['current_assetid']);
@@ -212,7 +217,16 @@ class Backend extends MySource_Object
 
 		// check for any new internal messages
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, null, Array(SQ_MSG_UNREAD));
+
+		if (isset($_SESSION['backend_header_last_refresh']) && !empty($_GET['last_messages_clicked'])) {
+			$last_messages_click = $_SESSION['backend_header_last_refresh'];
+		} else {
+			$last_messages_click = (isset($_SESSION['backend_header_last_messages_click'])) ? $_SESSION['backend_header_last_messages_click'] : 0;
+		}
+		$_SESSION['backend_header_last_messages_click'] = $last_messages_click;
+
+		$msgs_from = (isset($_SESSION['backend_header_last_refresh'])) ? $_SESSION['backend_header_last_refresh'] : null;
+		$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, null, Array(SQ_MSG_UNREAD), Array(), $last_messages_click);
 		if (!empty($messages)) {
 			// found unread messages
 			$html = '
@@ -223,7 +237,7 @@ class Backend extends MySource_Object
 					<td class="sq-backend-new-message-heading" align="right">[<a class="sq-backend-new-message-body" href="#" onClick="Javascript: parent.top.header.cancelMsgDiv(); return false;">x</a>]</td>
 				</tr>
 				<tr>
-					<td class="sq-backend-new-message-body" nowrap colspan="2"><a class="sq-backend-new-message-body" href="#" onClick="Javascript: if (parent.top.sidenav && parent.top.sidenav.refresh_internal_messages) { parent.top.sidenav.refresh_internal_messages(); }; return false;">'.$GLOBALS['SQ_SYSTEM']->user->name.' has '.count($messages).' new message'.((count($messages) > 1) ? 's' : '').'</a></td>
+					<td class="sq-backend-new-message-body" nowrap colspan="2"><a class="sq-backend-new-message-body" href="#" onClick="Javascript: if (parent.top.sidenav && parent.top.sidenav.refresh_internal_messages) { parent.top.header.last_messages_clicked = \'1\'; parent.top.sidenav.refresh_internal_messages(); }; return false;">'.$GLOBALS['SQ_SYSTEM']->user->name.' has '.count($messages).' new message'.((count($messages) > 1) ? 's' : '').'</a></td>
 				</tr>
 			</table>
 			';
@@ -237,7 +251,7 @@ class Backend extends MySource_Object
 				var delay = 30;     // milliseconds between movements.
 				var myTimer = null;
 				var counter = null; // number of times to move the div
-				
+
 				var divTop = 0;
 				var divLeft = 0;
 				var smTop = 0;
@@ -260,7 +274,7 @@ class Backend extends MySource_Object
 					var moz = '0.';
 					if (counter < 10) moz = moz + '0';
 					msgDiv.style.MozOpacity = moz + counter;
-					
+
 					// Mozilla transparency - SELECT
 					moz = '0.';
 					if ((100 - counter) < 10) moz = moz + '0';
@@ -329,7 +343,7 @@ class Backend extends MySource_Object
 					}
 
 					// set the contents of the div
-					msgDiv.innerHTML = '<?php echo $html?>';
+					msgDiv.innerHTML = '<?php echo addslashes($html)?>';
 
 					setTimeout("showMsgDiv()", 200);
 				} else {
@@ -378,9 +392,9 @@ class Backend extends MySource_Object
 		</table>
 		<?php
 
-		$this->out->addOnLoad('setTimeout("reloadHeader()", REFRESH_UPDATE * 1000);');
-
 		$this->out->closeRaw();
+
+		$_SESSION['backend_header_last_refresh'] = time();
 
 	}//end _printHeader()
 
