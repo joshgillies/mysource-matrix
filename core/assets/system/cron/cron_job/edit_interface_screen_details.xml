@@ -1,0 +1,7 @@
+<contents>
+	<section name="Job Details">
+		<function_call>
+			<paint_function   name="paintDetails"   />
+		</function_call>
+	</section>
+</contents>

@@ -23,6 +23,28 @@ class Cron_Manager_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
+		$this->vars =	Array(
+							'refresh_time' => Array(
+								'added'			=> '0.0.1',
+								'type'			=> 'int',
+								'default'		=> 900,
+								'description'	=> 'The number of seconds between cron job calls',
+							),
+							'last_run' => Array(
+								'added'			=> '0.1',
+								'type'			=> 'int',
+								'default'		=> 0,
+								'description'	=> 'The last time that the cron manager was run',
+							),
+							'running' => Array(
+								'added'			=> '0.1',
+								'type'			=> 'boolean',
+								'default'		=> false,
+								'description'	=> 'Are we currently running ?',
+							),
+						);
+
+
 	}//end constructor
 
 }//end class
