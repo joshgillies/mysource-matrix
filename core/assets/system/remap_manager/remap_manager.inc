@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.8 2004/05/13 06:31:31 gsherwood Exp $
+* $Id: remap_manager.inc,v 1.9 2004/05/20 06:38:45 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $ - 0.1
+* @version $Revision: 1.9 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -137,6 +137,12 @@ class Remap_Manager extends Asset
 	*/
 	function addRemapURL($old_url, $new_url, $expires=null)
 	{
+		// old url and new url must be strings, makes not sense otherwise
+		if (!is_string($old_url) || !is_string($new_url)) {
+			trigger_error('Unable to remap URL, the URLs passed must both be strings', E_USER_WARNING);
+			return 0;
+		}
+
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT COUNT(*)
