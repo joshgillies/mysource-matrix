@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.23 2005/02/01 04:56:55 gsherwood Exp $
+* $Id: page_account_manager.inc,v 1.24 2005/02/22 06:45:18 ndvries Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -192,8 +192,12 @@ class Page_Account_Manager extends Page_Asset_Builder
 		if (!is_null($current_user) && !is_a($current_user, 'public_user')) {
 			// try and acquire a lock on the current user so they can edit their details
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$vars = Array('assetid' => $current_user->id, 'lock_type' => 'attributes', 'forceably_acquire' => false);
-			$lock_errors = $hh->freestyleHipo('hipo_job_acquire_lock', $vars);
+			$vars = Array(
+						'assetids' => Array($current_user->id,),
+						'lock_type' => 'attributes',
+						'forceably_acquire' => false,
+					);
+			$lock_errors = $hh->freestyleHipo('hipo_job_acquire_locks', $vars);
 
 
 			  /////////////////////////
