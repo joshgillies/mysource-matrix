@@ -190,6 +190,7 @@ function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras=''
 
 	if ($multiple) {
 		$extras .= ' multiple';
+		$name .= '[]';
 	}
 
 	if (!is_array($contents)) $contents = Array($contents);
