@@ -99,6 +99,7 @@ class Asset extends Resolve_Object
 		}
 	}
 
+
 	/**
 	* The type that this asset is
 	*
@@ -109,6 +110,7 @@ class Asset extends Resolve_Object
 	{
 		return get_class($this);
 	}//end type();
+
 
 	/**
 	* Function to return's the suffix  a data path for a particular asset.
@@ -264,6 +266,7 @@ class Asset extends Resolve_Object
 
 	}//end _loadVars()
 
+
 	/**
 	* Set's the last updated info for this asset
 	*
@@ -314,6 +317,7 @@ class Asset extends Resolve_Object
 		return true;
 
 	}//end _updated();
+
 
 	/**
 	* Returns a name to use to describe this instance of this asset
@@ -388,6 +392,7 @@ class Asset extends Resolve_Object
 		return $dupe;
 
 	}//end duplicate()
+
 
 	/**
 	* Morph's this asset to either one of it's parent type or one of it's children types
@@ -1170,9 +1175,10 @@ class Asset extends Resolve_Object
 	* Checks whether a link of a certain type can be made to this asset
 	* Returns TRUE if link allowed and a string containing the error if it is not
 	*
-	* @param string $type_code			the type code that we want to check
-	* @param string $link_type			the type of link to check
-	* @param int	$ignore_linkid		if it gets down to the checking of the cardinality, ignore the link represented by this link id
+	* @param string $type_code		the type code that we want to check
+	* @param string $link_type		the type of link to check
+	* @param int	$ignore_linkid	if it gets down to the checking of the cardinality,
+	*								ignore the link represented by this link id
 	*
 	* @return TRUE | string
 	* @access public
@@ -1219,6 +1225,7 @@ class Asset extends Resolve_Object
 
 	}// canLinkToType()
 
+
 	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	* In the form
@@ -1241,6 +1248,7 @@ class Asset extends Resolve_Object
 					);
 
 	}//end _getAllowedLinks()
+
 
 	/**
 	* Called whenever any type of link is changed, allows caching of objects, links and other stuff
@@ -1276,6 +1284,7 @@ class Asset extends Resolve_Object
 		}
 
 	}//end moveLinkPos()
+
 
 	/**
 	* Updates the details of an existing link
@@ -1398,10 +1407,11 @@ class Asset extends Resolve_Object
 
 	}//end _updateLink()
 
+
 	/**
 	* Removes a link where this asset is the major player
 	*
-	* @param int	$linkid		the link id of the link to remove
+	* @param int	$linkid	the link id of the link to remove
 	*
 	* @return boolean
 	* @access public

@@ -27,11 +27,11 @@ class Folder extends Asset
 	}
 
 
-	/*
+	/**
 	* Create this asset
 	*
-	* @param string $name   the name of this folder
 	* @param array(string)	$link	information used to create the initial link
+	* @param string			$name	the name of this folder
 	*
 	* @return boolean
 	* @access public
@@ -55,7 +55,8 @@ class Folder extends Asset
 
 	}//end create()
 
-	/*
+
+	/**
 	* Returns name of the asset
 	*
 	* @param bool	$short_name	whether or not we are after the shortname or the full name
@@ -69,13 +70,13 @@ class Folder extends Asset
 	}//end _getName();
 
 
-	/*
+	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
 	* @see Asset::_getAllowLinks()
 	* @access private
 	*/
-	function _getAllowedLinks() 
+	function _getAllowedLinks()
 	{
 
 		return Array(SQ_LINK_EXCLUSIVE => Array('asset' => 'M'),
@@ -86,7 +87,8 @@ class Folder extends Asset
 
 	}//end _getAllowedLinks()
 
-	/*
+
+	/**
 	* Processes a backend submission from this asset, returns true if all OK
 	*
 	* @param array(string)	$link	information used to create the initial link
