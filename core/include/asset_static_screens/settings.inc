@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.8 2004/05/26 15:32:48 brobertson Exp $
+* $Id: settings.inc,v 1.9 2004/06/09 11:41:38 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -352,7 +352,7 @@ function paintSettings(&$owner, &$o, &$ei)
 							$o->closeField();
 						}// endif
 						
-						$o->openField('New ?');
+						$o->openField(($designid) ? 'Change ?' : 'New ?');
 
 						if (!$owner->writeAccess('links')) {
 							$created = true;
