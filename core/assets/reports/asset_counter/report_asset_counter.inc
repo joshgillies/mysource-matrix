@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_counter.inc,v 1.1 2004/10/25 01:32:33 arailean Exp $
+* $Id: report_asset_counter.inc,v 1.2 2004/10/26 01:29:15 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,13 +32,25 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Report_Asset_Counter extends Report
 {
 
+	/**
+	* Constructor
+	*
+	* @param int	$assetid	the asset id to be loaded
+	*
+	*/
+	function Report_Asset_Counter ($assetid=0)
+	{
+		$this->_ser_attrs = true;
+		$this->Report($assetid);
+
+	}//end constructor
 
 }//end class
 
