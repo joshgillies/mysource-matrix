@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager_edit_fns.inc,v 1.53 2003/09/29 01:40:46 gsherwood Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.54 2003/10/01 06:18:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1108,6 +1108,11 @@ speed_check('FINISHED');
 			$complete_url = $_SERVER['REQUEST_URI'].'&link_completed=1';
 			$hh->queueHipo('hipo_job_edit_permissions', $vars, $complete_url);
 			////  END HIPO PROCESSING  ////
+
+			// check for any queued HIPOs
+			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$url = $hh->runQueuedJobs();
+			if (!empty($url)) $o->setRedirect($url);
 
 		} else {
 			$o->addFormActionGetVar('link_assetid',  $_GET['assetid']);
