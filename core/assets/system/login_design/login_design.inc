@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: login_design.inc,v 1.3 2003/11/26 00:51:00 gsherwood Exp $
+* $Id: login_design.inc,v 1.4 2004/03/01 19:50:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,8 +46,7 @@ class Login_Design extends Design
 	*/
 	function Login_Design($assetid=0)
 	{
-		$this->Design_Area($assetid);
-
+		$this->Design($assetid);
 	}//end constructor
 
 
@@ -106,8 +105,22 @@ class Login_Design extends Design
 		}
 
 		$source_dir = dirname(__FILE__).'/design_files';
-		if (!copy($source_dir.'/index.html', $this->data_path.'/parse.txt')) {
+
+		$file_contents = file_to_string($source_dir.'/index.html');
+		if ($file_contents == '') {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			trigger_error('Unable to restore login design - No parse file contents found', E_USER_WARNING);
+			return false;
+		}
+
+		$ef = $this->getEditFns();
+
+		// OK what we are doing here is making sure that our MySource tags match up with what is being 
+		// expected by all design areas
+		$file_contents = str_replace(Array('<MySource', '</MySource'), Array('<'.$ef->tag_name, '</'.$ef->tag_name), $file_contents);
+		if (!string_to_file($file_contents, $this->data_path.'/parse.txt')) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			trigger_error('Unable to restore login design - save parse file contents failed', E_USER_WARNING);
 			return false;
 		}
 
