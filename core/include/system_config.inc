@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: system_config.inc,v 1.9 2003/10/07 02:36:41 brobertson Exp $
+* $Id: system_config.inc,v 1.10 2003/10/07 07:25:33 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,6 +37,8 @@ class System_Config extends Config
 
 		'SQ_CONF_ROLLBACK_ENABLED'			=> Array('editable' => 0, 'default' => '0'),
 
+		// Indexing Settings
+		'SQ_CONF_INDEXING_ENABLED'			=> Array('editable' => 0, 'default' => '0'),
 
 //// START EDITABLE SETTINGS ////
 		// System Settings
@@ -63,6 +65,7 @@ class System_Config extends Config
 		// Internationalisation Settings
 		'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'	=> Array('editable' => 1, 'default' => 'en'),
 		'SQ_CONF_DEFAULT_CHARACTER_SET'		=> Array('editable' => 1, 'default' => 'iso-8859-1'),
+
 	);
 
 
