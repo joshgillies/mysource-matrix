@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.9 2004/04/19 03:58:59 gsherwood Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.10 2004/06/18 03:41:58 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -461,8 +461,8 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	* Output the complete metadata tag for this field
 	*
 	* @param object Metadata_Field	&$asset		the asset whose interface we are painting
-	* @param array					&$values		the current metadata values
-	 @param array					&$tag_value	the metadata tag value
+	* @param array					&$values	the current metadata values
+	* @param array					&$tag_value	the metadata tag value
 	* @param array					&$keywords	an array we can put keywords in that need replacing
 	*
 	* @return boolean
@@ -543,8 +543,8 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		if (isset($values['value'])) $default = $values['value'];
 		else $default = $field->attr('default');
-
-		$used_keywords = Array();
+		
+		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		if (strpos($default, '%') === false) {
 			$datetime_field = $this->_getEpochDateTimeField($field, '', $default);
@@ -553,22 +553,24 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		} else {
 		
 			// strip off the last % sign from the end of $key string
-			$keylen = strlen($default);
-			$key = substr($default, 0, $keylen-1);
+			$key = substr($default, 1, strlen($default) - 2);
 
 			// prepare date format for merging - we will replace all spaces with underscores
 			$format = str_replace(' ', '-', $field->attr('format'));
 
 			// merge the values with '_', add closing % sign and proceed...
-			$field_value = $key.'_'.$format.'%';
-			$used_keywords[] = substr($field_value, 1, -1);
+			$keyword = $key.'_'.$format;
+			$offset = $field->attr('offset');
+			if (!empty($offset)) {
+				$offset = str_replace(' ', '', $offset);
+				$keyword .= '_'.$offset;
+			}
+
+			$metadata_values = $mm->generateKeywordReplacements($asset, Array($keyword), false);
+			$field_value = $metadata_values[$key];
 		}
 
-		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-		$used_keywords = $mm->generateKeywordReplacements($asset, $used_keywords, false);
-
-		$fields[$field->name] = replace_keywords($field_value, $used_keywords);
-
+		$fields[$field->name] = $field_value;
 		return true;
 
 	}//end getMetadataFieldValues()
