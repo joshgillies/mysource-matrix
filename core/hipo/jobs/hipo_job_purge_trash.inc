@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.12 2004/05/19 02:11:21 lwright Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.13 2004/05/21 01:57:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -264,47 +264,61 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 					}
 					
 					$outside_links = Array();
-					$found_ourselves = false;
+					$found_ourself = false;
 					$inside_links = Array();
+					$last_linkid = 0;
+
 					foreach ($other_links as $outside_link_info) {
-						if ($outside_link_info['minorid'] == $asset->id) $found_ourselves = true;
+						$found_ourself_this_run = false;
+						if ($outside_link_info['minorid'] == $asset->id) $found_ourself_this_run = true;
+
+						// check if we are looking at links that are in the trash
 						if (substr($outside_link_info['treeid'], 0, strlen($this->_running_vars['trash_treeid'])) == $this->_running_vars['trash_treeid']) {
 							if ($outside_link_info['minorid'] == $asset->id) $inside_links[] = $outside_link_info['linkid'];
 							continue;
 						}
-						if (!$found_ourselves) continue;
+						
+						if ($found_ourself_this_run) {
+							$found_ourself = true;
+							// if we still have a linkid in our buffer, add it into the list
+							// of outside links so we dont lose it
+							if ($last_linkid) $outside_links[] = $last_linkid;
+							
+							// at this point, we know this link is not in the trash because we would have
+							// continued in the above IF statement, so add it to the buffer
+							$last_linkid = $outside_link_info['linkid'];
+						}
+
+						if (!$found_ourself) continue;
 						
 						// we dont care about dependant links because we want to
 						// go right to the top of the dependant tree
 						if ($outside_link_info['dependant']) continue;
-						if ($outside_link_info['link_type'] & SQ_SC_LINK_BACKEND_NAV) {
-							$outside_links[] = $outside_link_info['linkid'];
+						if ($outside_link_info['link_type'] & SQ_SC_LINK_SIGNIFICANT) {
+							if ($last_linkid) $outside_links[] = $last_linkid;
 						}
-						$found_ourselves = false;
+						$last_linkid = 0;
+						$found_ourself = false;
 					}//end foreach
 					$inside_links = count(array_unique($inside_links));
 
-#bam("ASSET $assetid HAD $inside_links INSIDE LINKS");
-#bam($outside_links);				
 					// if there are no links inside the trash, chances are we already deleted them, so skip this asset
 					if (!$inside_links) {
-#bam("ASSET $assetid HAD NO INTERNAL LINKS");
 						$step_data['message'] = 'Skipping asset #'.$asset->id.' as it no longer has any links inside the trash';
 					} else {
 					
 						// if the link we are deleting is also one of the outside
 						// links, then we leave this link alone
 						if (in_array($link_info['linkid'], $outside_links)) {
-#bam("ASSET $assetid HAD OUTSIDE LINKS");
 							$step_data['message'] = 'Skipping link #'.$link_info['linkid'].' as it also exists outside of the trash';
 						} else {
 
 							// we need to check how many internal links
 							// there are before deciding if we should delete the asset or not
 							$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_SC_LINK_BACKEND_NAV, '', true, $link_info['linkid']);
-#bam("ASSET $assetid HAD $num_other_links OTHER LINKS");
+
 							if (count($outside_links) >= 1 || $num_other_links || $inside_links > 1) {
-#bam('DELETE LINK FOR ASSET '.$asset->id);
+
 								// this asset has more than one link, so just delete the link
 								$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($link_info['linkid'], $asset->id, 'minor');
 								
@@ -336,7 +350,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 								}
 	
 							} else {
-#bam('PURGE ASSET '.$asset->id);
+
 								// we have an asset ready to delete, but we need to check with
 								// the asset manager that we are allowed to delete it
 								if (!$GLOBALS['SQ_SYSTEM']->am->canPurgeAsset($asset)) {
