@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.92 2004/09/28 03:10:09 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.93 2004/09/28 06:35:25 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.92 $ - 1.0
+* @version $Revision: 1.93 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1943,9 +1943,7 @@ class Page_Calendar extends Page_Asset_Listing
 								)
 					 )
 				)';
-				echo '<div><a href="#" onclick="this.nextSibling.style.display = (this.nextSibling.style.display==\'block\' ? \'none\' : \'block\'); return false;">See Query</a><div style="display: none">';
-				echo '</div></div>';
-
+				
 			break;
 
 			case 'week' :
