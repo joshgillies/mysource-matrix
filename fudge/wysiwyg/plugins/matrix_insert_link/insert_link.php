@@ -46,6 +46,10 @@ if (!isset($_GET['new_window'])) {
 
 		<script type="text/javascript">
 
+			window.opener.top.main.document.body.onclick = function() {
+				setTimeout('self.focus()',100);
+			}
+
 			var new_window_bool_options = new Array('<?php echo implode("','", array_keys($new_window_bool_options))?>');
 
 			function Init() {
@@ -75,11 +79,6 @@ if (!isset($_GET['new_window'])) {
 					param["new_window_options"][new_window_bool_options[i]] = (f.elements[new_window_bool_options[i]].checked) ? 1 : 0;
 				}
 
-				//for (var i in fields) {
-				//	var id = fields[i];
-				//	var el = document.getElementById(id);
-				//	param[id] = el.value;
-				//}
 				__dlg_close(param);
 				return false;
 			};
@@ -103,6 +102,7 @@ if (!isset($_GET['new_window'])) {
 						highlight_combo_value(f.url_protocol, '');
 					}
 				}
+				setTimeout('self.focus()',100);
 			};
 
 			function enable_new_window(f, enable) {
@@ -153,7 +153,7 @@ if (!isset($_GET['new_window'])) {
 		</style>
 	</head>
 
-	<body onLoad="Init(); if (opener) opener.blockEvents()" onUnload="if (opener) opener.unblockEvents()">
+	<body onLoad="Init(); if (opener) opener.blockEvents()" onUnload="if (opener) opener.unblockEvents(); asset_finder_onunload()">
 		<div class="title">Insert Link</div>
 		<form action="" method="get" name="main_form">
 			<table border="0" width="100%" style="padding: 0px; margin: 0px">

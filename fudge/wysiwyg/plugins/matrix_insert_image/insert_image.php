@@ -13,6 +13,15 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/html_form/html_form.js' ?>"></script>
 
 		<script type="text/javascript">
+			
+			window.opener.top.main.document.body.onclick = function() {
+				setTimeout('self.focus()',100);
+			}
+
+			function getFocus() {
+				setTimeout('self.focus()',100);
+			}
+
 			function Init() {
 				__dlg_init();
 			};
@@ -79,7 +88,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 		</style>
 	</head>
 
-	<body onLoad="Init(); if (opener) opener.blockEvents()" onUnload="if (opener) opener.unblockEvents()">
+	<body onLoad="Init(); if (opener) opener.blockEvents()" onUnload="if (opener) opener.unblockEvents(); asset_finder_onunload()">
 		<div class="title">Insert Image</div>
 		<form action="" method="get" name="main_form">
 			<table border="0" width="100%" style="padding: 0px; margin: 0px">
@@ -87,7 +96,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 					<tr>
 						<td style="width: 7em; text-align: right">Image URL:</td>
 						<td>
-							<?php asset_finder('f_imageid', $_GET['f_imageid'], Array('image' => 'D'), 'window.opener.top'); ?>
+							<?php asset_finder('f_imageid', $_GET['f_imageid'], Array('image' => 'D'), 'window.opener.top', 'getFocus'); ?>
 						</td>
 					</tr>
 					<tr>
