@@ -1,0 +1,76 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.1 2005/01/12 23:57:36 lwright Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<contents>
+
+
+	<section name="Details">
+		<field write_access="write:attributes" attribute="name">
+			<display_name>Product Name</display_name>
+			<note />
+			<text width="30" />
+		</field>
+		<field write_access="write:attribute" attribute="price">
+			<display_name>Product Price</display_name>
+			<note />
+			<float width="10"/>
+		</field>
+	</section>
+	<section name="Product Description">
+		<field write_access="write:attributes" attribute="description">
+			<display_name>Product Description</display_name>
+			<note />
+			<text width="40" height="4" />
+		</field>
+		<field write_access="write:attributes" attribute="short_description">
+			<display_name>Short Description</display_name>
+			<note />
+			<text width="40" height="4" />
+		</field>
+		<field write_access="write:attributes" attribute="details">
+			<display_name>Details/Product Specifications</display_name>
+			<note />
+			<text width="40" height="4" />
+		</field>
+	</section>
+	<section name="Product Display">
+		<field write_access="write:attributes" attribute="display_format">
+			<display_name>Display Layout</display_name>
+			<note>
+			&lt;p&gt;Several keyword replacements are available representing each of the 
+			   different attributes of this asset. These include:
+			&lt;/p&gt;
+			&lt;ul&gt;
+				&lt;li&gt;%name%&lt;/li&gt;
+				&lt;li&gt;%price%&lt;/li&gt;
+				&lt;li&gt;%description%&lt;/li&gt;
+				&lt;li&gt;%short_description%&lt;/li&gt;
+				&lt;li&gt;%details%&lt;/li&gt;
+			&lt;/ul&gt;
+			</note>
+			<wysiwyg style="div" width="100%" height="300" />
+		</field>
+	</section>
+</contents>
