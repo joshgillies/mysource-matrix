@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.41 2004/06/21 23:09:14 lwright Exp $
+* $Id: tables.xml,v 1.42 2004/07/06 02:21:31 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -141,6 +141,22 @@
 				<description />
 			</column>
 			<column name="updated_userid" allow_null="0">
+				<type>VARCHAR(255)</type>
+				<type_variations>
+					<mysql>VARCHAR(140)</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="published" allow_null="0">
+				<type>TIMESTAMP</type>
+				<type_variations>
+					<mysql>DATETIME</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="published_userid" allow_null="0">
 				<type>VARCHAR(255)</type>
 				<type_variations>
 					<mysql>VARCHAR(140)</mysql>
