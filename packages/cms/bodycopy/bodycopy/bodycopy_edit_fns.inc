@@ -49,7 +49,10 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 													  ),
 								'dependants'  => Array('name' => 'Dependants',
 													   'force_unlock' => true
-													  )
+													  ),
+								'history'     => Array('name' => 'History',
+													   'force_unlock' => true
+													  ),
 								);
 
 
