@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.22 2004/03/22 07:04:52 gsherwood Exp $
+* $Id: hipo_job_edit_status.inc,v 1.23 2004/07/08 00:45:52 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -187,6 +187,9 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 		$this->_running_vars['done_assetids'] = Array();
 		$this->_running_vars['done_root']     = false;
 
+		// internal messages being stored
+		$this->_running_vars['messages']     = Array();
+
 		unset($asset);
 
 		return parent::prepare();
@@ -216,6 +219,23 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 
 
 	/**
+	* Load the HIPO vars from the database
+	*
+	* @param string	$code_name	a unique code_name the HIPO
+	*
+	* @return boolean
+	* @access public
+	*/
+	function load($code_name)
+	{
+		// need this because it'll complain about Internal Message being an incomplete class
+		require_once SQ_INCLUDE_PATH.'/internal_message.inc';
+		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		return parent::load($code_name);
+
+	}// end load()
+
+	/**
 	* Performs the duties of this hipo, without showing any output on the frontend.
 	* 
 	* @return boolean
@@ -236,7 +256,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	*
 	* This function manages the message queue during the status changes
 	*
-	* @param array()	&$step_data	a reference to the array of information about the current step
+	* @param array	&$step_data	a reference to the array of information about the current step
 	* @param string		$prefix		prefix for form vars
 	*
 	* @return boolean
@@ -266,7 +286,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	/**
 	* Edit the status of a single asset in the to-do list
 	*
-	* @param array()	&$step_data	a reference to the array of information about the current step
+	* @param array	&$step_data	a reference to the array of information about the current step
 	* @param string		$prefix		prefix for form vars
 	*
 	* @return boolean
@@ -275,6 +295,10 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	function processStatus(&$step_data, $prefix)
 	{
 		if (!empty($this->_running_vars['todo_assetids']) || !$this->_running_vars['done_root']) {
+
+		// create a queue to store the messages
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms->openQueue();
 
 			if (empty($this->_running_vars['done_assetids'])) {
 				// make sure we process the root asset first
@@ -303,9 +327,14 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 			$this->_running_vars['done_assetids'][] = $assetid;
 		}
 
+		$this->_running_vars['messages'] = array_merge($this->_running_vars['messages'], $ms->queueContents());
+
+		$ms->abortQueue();	// we don't need the messages anymore, dump them
+
 		if (empty($this->_running_vars['todo_assetids'])) {
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = true;
+			$ms->send($this->_running_vars['messages']);
 		} else {
 			$total = count($this->_running_vars['todo_assetids']) + count($this->_running_vars['done_assetids']);
 			$step_data['percent_done'] =(count($this->_running_vars['done_assetids']) / $total) * 100;
