@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_management.inc,v 1.16 2003/11/18 15:37:30 brobertson Exp $
+* $Id: user_management.inc,v 1.17 2003/11/23 21:46:58 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -74,7 +74,10 @@ class User_Management extends Asset_Management
 								'default'   => '',
 							),
 						);
+
 	}//end constructor
 
+
 }//end class
+
 ?>

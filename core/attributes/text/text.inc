@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.14 2003/11/18 15:37:31 brobertson Exp $
+* $Id: text.inc,v 1.15 2003/11/23 21:46:58 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 /**
 * Text Asset Attribute
 *
-* 
+*
 *
 *
 * <!-- Sample Edit Interface XML Node -->
@@ -49,10 +49,12 @@ class Asset_Attribute_Text extends Asset_Attribute
 	* @param mixed	$value			the current value for the element
 	*
 	*/
-	function Asset_Attribute_Text($attributeid=0, $value=null) 
+	function Asset_Attribute_Text($attributeid=0, $value=null)
 	{
 		$this->Asset_Attribute($attributeid, $value, Array('max_length' => 0));
-	}// end constructor
+
+	}//end constructor
+
 
 	/**
 	* Takes an XML_Tree_Node from an edit interface XML file and creates
@@ -71,7 +73,9 @@ class Asset_Attribute_Text extends Asset_Attribute
 		$this->_edit_params['height']   = isset($node->attributes['height']) ? (int) $node->attributes['height'] : 1;
 
 		return true;
-	}
+
+	}//end setEditParams()
+
 
 	/**
 	* Prints the interface for filling in a value
@@ -95,7 +99,9 @@ class Asset_Attribute_Text extends Asset_Attribute
 		} else {
 			text_box($prefix.'_'.$this->name, $this->value, $this->_edit_params['width'], $this->_params['max_length']);
 		}
-	}// end paint()
+
+	}//end paint()
+
 
 	/**
 	* Prints the interface for filling in a value
@@ -113,7 +119,8 @@ class Asset_Attribute_Text extends Asset_Attribute
 		} else {
 			$this->processed = false;
 		}
-	}// end process()
+
+	}//end process()
 
 
 	/**
@@ -130,6 +137,7 @@ class Asset_Attribute_Text extends Asset_Attribute
 		if ($new_value != $value) return false;
 		$value = $new_value;
 		return true;
+
 	}//end validateValue()
 
 
