@@ -1851,7 +1851,7 @@ class Asset extends Resolve_Object
 			}
 		}
 
-		if ($full_chain) {
+		if ($full_chain && !empty($result)) {
 			$result['chained_assets'] = Array();
 			$source_assetid = $result['source_asset'];
 			// just get the permissions set for this asset
