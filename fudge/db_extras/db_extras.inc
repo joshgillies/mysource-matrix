@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_extras.inc,v 1.12 2004/12/06 14:39:53 brobertson Exp $
+* $Id: db_extras.inc,v 1.13 2005/02/08 17:50:31 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     like Sub-Queries
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package Fudge
 * @subpackage DB_Extras
 */
@@ -115,7 +115,7 @@ function db_extras_insert_select(&$db, $insert, $select)
 {
 
 	switch ($db->phptype) {
-		// INSERT INTO ... SELECT FROM Compatable DB's
+		// INSERT INTO ... SELECT FROM Compatible DB's
 		case 'pgsql' :
 
 			$result = $db->query($insert.' '.$select);
@@ -124,23 +124,29 @@ function db_extras_insert_select(&$db, $insert, $select)
 
 			break;
 
-		// Non Compatiable DB's
+		// Non Compatible DB's
 		default :
 
-			$select_values = $db->getAll($select, Array(), DB_FETCHMODE_ORDERED);
-			if (DB::isError($select_values)) return $select_values;
+			$select_result = $db->query($select);
+			if (DB::isError($select_result)) return $select_result;
 
-			for ($i = 0, $total = count($select_values); $i < $total; $i++) {
-				$field_total = count($select_values[$i]);
+			$row = Array();
+			while (DB_OK === $select_result->fetchInto($row, DB_FETCHMODE_ORDERED)) {
+				$field_total = count($row);
 				if (!$field_total) continue;
 				$sql = $insert.' VALUES (';
 				for ($j = 0; $j < $field_total; $j++) {
-					$sql .= (($j) ? ',' : '').$db->quote($select_values[$i][$j]);
+					$sql .= (($j) ? ',' : '').$db->quote($row[$j]);
 				}
 				$sql .= ')';
-				$result = $db->query($sql);
-				if (DB::isError($result)) return $result;
+
+				$insert_result = $db->query($sql);
+				if (DB::isError($insert_result)) {
+					$select_result->free();
+					return $insert_result;
+				}
 			}
+			$select_result->free();
 
 			return TRUE;
 
