@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.22 2004/11/24 05:00:29 tbarrett Exp $
+* $Id: image_edit_fns.inc,v 1.23 2004/11/25 11:47:43 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -307,7 +307,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 		<applet id="<?php echo $prefix; ?>_image_editor" name="<?php echo $prefix; ?>_image_editor" archive="<?php echo sq_web_path('fudge'); ?>/image_editor/imagej.jar?t=<?php echo time(); ?>" code="ij.ImageJ.class" width="90%" height="350">
 			<param name="SUBMIT_URL" 
-				   value="http://<?php $root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS); echo $root_urls[0]; ?>/__lib/web/accept_file_upload.php?SESSION_ID=<?php echo session_id(); ?>&SESSION_KEY=<?php echo $GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(); ?>" />
+				   value="<?php echo sq_web_path('lib'); ?>/web/accept_file_upload.php?SESSION_ID=<?php echo session_id(); ?>&SESSION_KEY=<?php echo $GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(); ?>" />
 			<param name="FILE_FIELD_NAME" value="<?php echo $prefix; ?>" />
 		<?php 
 		if ($asset->id) {

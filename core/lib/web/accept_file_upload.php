@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: accept_file_upload.php,v 1.2 2004/11/24 22:12:26 tbarrett Exp $
+* $Id: accept_file_upload.php,v 1.3 2004/11/25 11:47:43 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,9 +34,8 @@ if ((!is_array($_FILES)) || empty($_FILES)) exit();
 // get init.inc to do all the hard work with access control etc
 require_once dirname(dirname(dirname(__FILE__))).'/include/init.inc';
 
-if (empty($GLOBALS['SQ_SYSTEM']->user) && !is_a($GLOBALS['SQ_SYSTEM']->user, 'backend_user')) {
-	echo 'FAIL Not logged in as backend user'."\n";
-	exit();
+if (empty($GLOBALS['SQ_SYSTEM']->user) || !is_a($GLOBALS['SQ_SYSTEM']->user, 'backend_user')) {
+	trigger_error('FAILED to accept file upload - Not logged in as backend user', E_USER_ERROR);
 }
 
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
@@ -49,9 +48,9 @@ foreach ($_FILES as $id => $details) {
 				$file_name = SQ_TEMP_PATH.'/'.strtolower(str_replace(' ', '_', $name));
 				while (file_exists($file_name)) $file_name = increment_filename($file_name);
 				if (move_uploaded_file($_FILES[$id]['tmp_name'][$index], $file_name)) { 
-					print('OK '.basename($file_name)."\n");
+					echo 'OK '.basename($file_name)."\n";
 				} else { 
-					print('ERROR '.basename($file_name)."\n"); 
+					trigger_error('FAILED moving file "'.basename($file_name).'" to correct directory', E_USER_ERROR);
 				}
 			}
 		}
@@ -60,9 +59,9 @@ foreach ($_FILES as $id => $details) {
 			$file_name = SQ_TEMP_PATH.'/'.strtolower(str_replace(' ', '_', $details['name']));
 			while (file_exists($file_name)) $file_name = increment_filename($file_name);
 			if (move_uploaded_file($_FILES[$id]['tmp_name'], $file_name)) { 
-				print('OK '.basename($file_name)."\n");
+				echo 'OK '.basename($file_name)."\n";
 			} else { 
-				print('ERROR '.basename($file_name)."\n"); 
+				trigger_error('FAILED moving file "'.basename($file_name).'" to correct directory', E_USER_ERROR);
 			}
 		}
 	}

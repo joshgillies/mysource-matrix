@@ -18,7 +18,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.6 2004/09/02 01:36:14 gsherwood Exp $
+#* $Id: backup.sh,v 1.7 2004/11/25 11:47:43 brobertson Exp $
 #* $Name: not supported by cvs2svn $
 #*/
 
@@ -112,6 +112,7 @@ case "${DB_PHPTYPE}" in
 			args="${args} -U ${DB_USERNAME}";
 		fi
 		if [ "${DB_PASSWORD}" != "" ]; then
+			echo "I can't pass the password automatically because the psql command only supports prompting.";
 			args="${args} -W";
 		fi
 		if [ "${DB_HOSTSPEC}" != "" ]; then
