@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_01.php,v 1.32 2004/09/28 03:47:10 gsherwood Exp $
+* $Id: step_01.php,v 1.33 2004/12/12 23:16:09 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -55,10 +55,11 @@ define('SQ_CONF_ROLLBACK_ENABLED', '0');
 define('SQ_CONF_DEFAULT_EMAIL', 'matrix-team@squiz.net');
 define('SQ_CONF_TECH_EMAIL',    'matrix-team@squiz.net');
 
-trigger_error('Need to chmod cache and data directories', E_USER_NOTICE);
-
 $cfg = new System_Config();
 $cfg->save(Array(), true);
 $GLOBALS['SQ_INSTALL'] = false;
 
+// reminder for chmod
+echo 'Remember to give your system\'s Apache user write access to'."\n";
+echo 'the cache and data directories of your Matrix install...'."\n";
 ?>
