@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.js,v 1.9 2003/12/17 01:14:05 gsherwood Exp $
+* $Id: general.js,v 1.10 2004/02/10 02:58:51 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -147,6 +147,17 @@ function img_roll(id, src) {
 	}
 }// end img_roll()
 
+
+ ///////////////////////////////////////////////////////
+// check all checkboxes that match a certain name
+function check_all(f, match_name, on) {
+	re = new RegExp(match_name);
+	for(i=0; i < f.elements.length; i++){
+		if (re.test(f.elements[i].name)) {
+			f.elements[i].checked = on;
+		}
+	}
+}//end check_all()
 
 
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.3 2004/01/08 15:52:51 brobertson Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.4 2004/02/10 02:58:51 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.4 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -98,7 +98,12 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 				<td class="sq-backend-table-header">Expires</td>
 				<?php
 					if ($write_access) {
-						?><td class="sq-backend-table-header">Delete ?</td><?php
+						?>
+						<td class="sq-backend-table-header">
+							<?php check_box($prefix.'_select_all', '1', false, "check_all(document.main_form, '{$prefix}_delete_remap', this.checked);"); ?>
+							Delete ?
+						</td>
+						<?php
 					}
 				?>
 			</tr>
