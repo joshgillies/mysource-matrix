@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_remote_master_system.inc,v 1.1.2.1 2004/02/14 12:38:13 brobertson Exp $
+* $Id: replication_remote_master_system.inc,v 1.1.2.2 2004/02/14 17:41:09 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -65,6 +65,26 @@ class Replication_Remote_Master_System extends Replication_Remote_System
 	{
 		return SQ_DATA_PATH.'/private/conf/replication/master.inc';
 	}// end confFile()
+
+
+	/**
+	* Returns the path to a data directory especially for this remote system
+	*
+	* @return string
+	* @access public
+	* @see save(), load()
+	* @abstract
+	*/
+	function dataPath()
+	{
+		if (is_null($this->id)) {
+			trigger_error('Unable to get data path : No System Id', E_USER_WARNING);
+			return '';
+		}
+		return SQ_DATA_PATH.'/private/replication/master';
+
+	}// end dataPath()
+
 
 
 }//end class

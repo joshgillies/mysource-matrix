@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_remote_system.inc,v 1.1.2.1 2004/02/14 12:38:43 brobertson Exp $
+* $Id: replication_remote_system.inc,v 1.1.2.2 2004/02/14 17:39:26 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -158,6 +158,20 @@ class Replication_Remote_System extends MySource_Object
 
 
 	/**
+	* Returns the path to a data directory especially for this remote system
+	*
+	* @return string
+	* @access public
+	* @see save(), load()
+	* @abstract
+	*/
+	function dataPath()
+	{
+		trigger_error('You need to override '.__CLASS__.'::'.__FUNCTION__.'()', E_USER_ERROR);
+	}// end dataPath()
+
+
+	/**
 	* Loads a remote system into this instance
 	*
 	* @param string	$systemid	the id of the system to load
@@ -202,7 +216,7 @@ class Replication_Remote_System extends MySource_Object
 		if ($config['transport_method'] != '') {
 			require_once SQ_SYSTEM_ROOT.'/core/replication/transport/replication_system_transport_'.$config['transport_method'].'.inc';
 			$class = 'replication_system_transport_'.$config['transport_method'];
-			$this->transport = new $class();
+			$this->transport = new $class($this->dataPath());
 			if (!$this->transport->loadParams($config['transport_data'])) {
 				unset($this->transport);
 				$this->transport = null;
@@ -271,7 +285,7 @@ class Replication_Remote_System extends MySource_Object
 		// create a brand new version
 		require_once SQ_SYSTEM_ROOT.'/core/replication/transport/replication_system_transport_'.$transport_method.'.inc';
 		$class = 'replication_system_transport_'.$transport_method;
-		$this->transport = new $class();
+		$this->transport = new $class($this->dataPath());
 
 		return true;
 
