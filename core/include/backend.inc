@@ -232,7 +232,7 @@ class Backend extends Resolve_Object
 	*/
 	function _printSiteMapXML()
 	{
-sleep(5);
+#sleep(5);
 		header("Content-Type: text/xml");
 		include_once 'XML/Tree.php';
 
@@ -240,27 +240,33 @@ sleep(5);
 
 		if ($_GET['parent_assetid']) {
 
-			$parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($_GET['parent_assetid']);
+			$parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($_GET['parent_assetid'], '', true);
 			if (!is_null($parent)) {
-				$tree = new XML_Tree();
-				$root = &$tree->addRoot('assets', '', Array('success' => 1));
-				// we only want EXCLUSIVE or UNITE links
 				$links = $parent->getLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE);
-				for(reset($links); NULL !== ($type_code = key($links)); next($links)) {
-					for($i = 0; $i < count($links[$type_code]); $i++) {
-						$child = &$GLOBALS['SQ_RESOLVE']->am->getAsset($links[$type_code][$i]['minorid']);
-						if (!is_null($child)) {
-							$attrs = Array('assetid' => $child->id, 
-											'type_code' => get_class($child), 											
-											'has_kids'  => (int) ($child->countLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE) > 0)
-											);
-							$child = &$root->addChild('child', '[Check Security] '.$child->name(), $attrs);
+				if (count($links)) {
+					$tree = new XML_Tree();
+					$root = &$tree->addRoot('assets', '', Array('success' => 1));
+					// we only want EXCLUSIVE or UNITE links
+					for(reset($links); NULL !== ($type_code = key($links)); next($links)) {
+						for($i = 0; $i < count($links[$type_code]); $i++) {
+							$child = &$GLOBALS['SQ_RESOLVE']->am->getAsset($links[$type_code][$i]['minorid']);
+							if (!is_null($child)) {
+								$attrs = Array('assetid' => $child->id, 
+												'type_code' => get_class($child), 											
+												'has_kids'  => (int) ($child->countLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE) > 0)
+												);
+								$child = &$root->addChild('child', '[CS] '.$child->name(), $attrs);
+							}
 						}
 					}
-				}
 
-				$tree->dump();
-				return;
+					$tree->dump();
+					return;
+				} else {
+					$err_msg = 'Asset "'.$parent->name().'" has no children';
+				}// end if
+			} else {
+				$err_msg = 'Parent Asset #'.$_GET['parent_assetid'].' not found';
 			}// end if
 		} else {
 			$err_msg = 'No Parent Asset Id passed';
