@@ -2,14 +2,12 @@
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
-// FYI notices, saying 'take notice' novice users
-define('SQ_BO_MSG_INFORMATION', 0);
 // just normal messages, eg update confirmations
 define('SQ_BO_MSG_NOTICE',      1);
 // warnings, you entered something a bit a-miss and the system fixed it up for you
 define('SQ_BO_MSG_WARNING',     2);
 // something is just plain wrong, fix immediately
-define('SQ_BO_MSG_ERROR',       3);
+define('SQ_BO_MSG_ERROR',       4);
 
 
 /**
@@ -463,11 +461,21 @@ class Backend_Outputter
 
 				function page_on_load() {
 			<?php
+				if (count($this->_messages)) {
+					include_once 'XML/Tree.php';
+					include_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+					$msgs = new XML_Tree();
+					$msgs_root = &$msgs->addRoot('messages');
+					foreach($this->_messages as $data) {
+						$msgs_root->addChild('message', $GLOBALS['SQ_SYSTEM']->datetime()."\n".$data['msg'], Array('type' => get_bit_names('SQ_BO_MSG_', $data['type'])));
+					}
+					echo 'top.sidenav.add_messages("'.str_replace("\n", "\\n", addslashes($msgs->get())).'");';
+				}// end if messages
+
 				foreach($this->_on_load_calls as $call) {
-				?>
-					<?php echo $call;?>;
-				<?php
+					echo "\n".$call;
 				}//end foreach
+
 			?>
 				}// end page_on_load()
 
@@ -521,11 +529,6 @@ class Backend_Outputter
 //			$this->_paintRow($this->_heading, 'page-heading');
 //		}
 //
-		if (count($this->_messages)) {
-			pre_echo("MESSAGES : ");
-			pre_echo($this->_messages);
-		}
-
 		if ($this->_heading || count($this->_screens)) {
 			?>
 			<table width="100%" cellpadding="3" cellspacing="0" border="0">
@@ -537,7 +540,7 @@ class Backend_Outputter
 						<?php echo $this->_heading;?>
 					</td>
 					<td class="sq-backend-heading" style="text-align: right;">
-						<?php $this->combo_box('', $this->_screens, $this->_current_screen, 'onChange="javascript: self.location = element_value(this);"', 0, 1); ?>
+						<?php $this->combo_box('', $this->_screens, false, $this->_current_screen, 1, 'onChange="javascript: self.location = element_value(this);"'); ?>
 					</td>
 				</tr>
 			</table>
@@ -729,55 +732,62 @@ class Backend_Outputter
 
 
 	/**
-	* All these function are wrappers for the main fns just adding any backend specific calls
+	* All these function are wrappers for the main fns just adding any backend specific attributes
 	*
 	* @see html_form.inc
 	* @access public
 	*/
-	function submit_button($name, $value, $on_click='', $extras='') {
+	function submit_button($name, $value, $on_click='', $extras='') 
+	{
 		submit_button($name, $value, $on_click, 'class="sq-backend-data" '.$extras);
 	}
-	function warning_button($name, $value, $on_click='', $warning='', $extras='') {
-		warning_button($name, $value, $on_click, $warning, 'class="sq-backend-data" '.$extras);
-	}
-	function normal_button($name, $value, $on_click='', $extras='') {
+	function normal_button($name, $value, $on_click='', $extras='') 
+	{
 		normal_button($name, $value, $on_click, 'class="sq-backend-data" '.$extras);
 	}
-	function hidden_field($name, $value) {
+    function hidden_field($name, $value='') 
+	{
 		hidden_field($name, $value);
 	}
-	function text_box($name, $value, $size='', $max='', $extras='') {
+    function text_box($name, $value, $size='', $max='', $extras='') 
+	{
 		text_box($name, $value, $size, $max, 'class="sq-backend-data" '.$extras);
 	}
-	function password_box($name, $value='', $size='', $max='', $extras='') {
+    function password_box($name, $value='', $size='', $max='', $extras='') 
+	{
 		password_box($name, $value, $size, $max, 'class="sq-backend-data" '.$extras);
 	}
-	function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='') {
+    function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='') 
+	{
 		text_area($name, $contents, $cols, $rows, $max, 'class="sq-backend-data" '.$extras);
 	}
-	function radio_button($name, $value='1', $checked=false, $on_click='', $extras='') {
+    function radio_button($name, $value='1', $checked=false, $on_click='', $extras='') 
+	{
 		radio_button($name, $value, $checked, $on_click, 'class="sq-backend-data" '.$extras);
 	}
-	function check_box($name, $value='1', $checked=false, $on_click='', $extras='') {
+    function check_box($name, $value='1', $checked=false, $on_click='', $extras='') 
+	{
 		check_box($name, $value, $checked, $on_click, 'class="sq-backend-data" '.$extras);
 	}
-	function combo_box($name, $contents, $default, $extras='', $maxlength=0, $height=0) {
-		combo_box($name, $contents, $default, 'class="sq-backend-data" '.$extras, $maxlength, $height);
+	function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras='', $maxlength=0) 
+	{
+		combo_box($name, $contents, $multiple, $defaults, $height, 'class="sq-backend-data" '.$extras, $maxlength);
 	}
-	function multiple_combo_box($name, $contents, $defaults, $extras, $maxlength, $height) {
-		multiple_combo_box($name, $contents, $defaults, 'class="sq-backend-data" '.$extras, $maxlength, $height);
-	}
-	function date_box($name, $default_timestamp=0, $show_time=true, $extras='') {
+    function date_box($name, $default_timestamp=null, $show_time=true, $extras='') 
+	{
 		date_box($name, $default_timestamp, $show_time, 'class="sq-backend-data" '.$extras);
 	}
-	function time_box($hours_name, $hours, $mins_name, $mins, $extras='') {
+    function time_box($hours_name, $hours, $mins_name, $mins, $extras='') 
+	{
 		time_box($hours_name, $hours, $mins_name, $mins, 'class="sq-backend-data" '.$extras);
 	}
-	function file_upload($name, $extras='') {
+    function file_upload($name, $extras='') 
+	{
 		file_upload($name, 'class="sq-backend-data" '.$extras);
 	}
-	function commit_file_upload($file, $dest, $overwrite=false) {
-		commit_file_upload($file, $dest, $overwrite);
+    function commit_file_upload($name, $dest, $overwrite=false, $max_size='', $dest_filename='', $restrict_ext=true, $extensions=Array()) 
+	{
+		return commit_file_upload($name, $dest, $overwrite, $max_size, $dest_filename, $restrict_ext, $extensions);
 	}
 
 }//end class
