@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.5 2004/03/22 07:04:52 gsherwood Exp $
+* $Id: details.inc,v 1.6 2004/04/18 23:14:34 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -102,9 +102,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 					if ($field->children[0]->name != 'display_name') $display_name = 'Change ?';
 					else $display_name = $field->children[0]->content;
 					$o->openField($display_name);
-						if (!is_null($keywords) && isset($keywords['fields']['status_change'])) {
-							ob_start();
-						}
+						if (!is_null($keywords) && isset($keywords['fields']['status_change'])) ob_start();
 						
 						// if this asset is in workflow we do not let the change the status here
 						// because they need to go off to the workflow screen
