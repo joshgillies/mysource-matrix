@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_management_folder.inc,v 1.7 2004/03/02 04:21:20 mmcintyre Exp $
+* $Id: system_management_folder.inc,v 1.8 2004/07/01 14:41:20 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -199,16 +199,27 @@ class System_Management_Folder extends Folder
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_1 => Array(
-											'system_user_group'     => Array('card' => '1', 'exclusive' => true),
-											'designs_folder'        => Array('card' => '1', 'exclusive' => true),
-											'authentication_folder' => Array('card' => '1', 'exclusive' => true),
-											'search_manager'        => Array('card' => '1', 'exclusive' => true),
-											'layout_manager'        => Array('card' => '1', 'exclusive' => true),
-											'remap_manager'         => Array('card' => '1', 'exclusive' => true),
-											'cron_manager'          => Array('card' => '1', 'exclusive' => true),
-										),
-					);
+		$allowed_links[SQ_LINK_TYPE_1] = Array();
+
+		$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
+		foreach($packages as $data) {
+			$package = $data['code_name'];
+			if ($package == '__core__') { 
+				require_once SQ_CORE_PACKAGE_PATH.'/package_manager_core.inc';
+				$class = 'package_manager_core';
+			} else {
+				require_once SQ_PACKAGES_PATH.'/'.$package.'/package_manager_'.$package.'.inc';
+				$class = 'package_manager_'.$package;
+			}
+
+			eval('$sys_asset_types = '.$class.'::getSystemAssetTypes();');
+			foreach($sys_asset_types as $type_code) {
+					$allowed_links[SQ_LINK_TYPE_1][$type_code] = Array('card' => '1', 'exclusive' => true);
+			}//end foreach
+
+		}// end foreach
+
+		return $allowed_links;
 
 	}//end _getAllowedLinks()
 
