@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.12 2004/12/06 23:21:30 dbaranovskiy Exp $
+* $Id: wysiwyg.inc,v 1.13 2004/12/09 03:17:49 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -153,6 +153,9 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
             if ($iap || in_array('matrix_insert_image', $ap) || in_array('insert_image', $ap)) $wysiwyg->add_plugin('matrix_insert_image');
             if ($iap || in_array('matrix_embed_movie', $ap))  $wysiwyg->add_plugin('matrix_embed_movie');
         $wysiwyg->close_group();
+        $wysiwyg->open_group();
+            if ($iap || in_array('matrix_accessibility', $ap))  $wysiwyg->add_plugin('matrix_accessibility');
+        $wysiwyg->close_group();
 
         $wysiwyg->open_group();
             if ($iap || in_array('spell_checker', $ap))  $wysiwyg->add_plugin('spell_checker');
@@ -163,6 +166,8 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 
         // html_tidy needs to be last so other plugins can set options
         if ($iap || in_array('html_tidy', $ap)) $wysiwyg->add_plugin('html_tidy');
+
+        if ($iap || in_array('matrix_expand_keywords', $ap)) $wysiwyg->add_plugin('matrix_expand_keywords');
 
         // contents must be set AFTER all plugins are loaded
         $wysiwyg->set_contents($this->value);
