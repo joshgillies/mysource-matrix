@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.111 2004/11/11 00:37:52 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.112 2004/11/16 05:00:56 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.111 $ - 1.0
+* @version $Revision: 1.112 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -433,7 +433,6 @@ class Page_Calendar extends Page_Asset_Listing
 		ob_start();
 		list($year, $month, $day) = explode('-', $date);
 		$enabled_views = $this->attr('enabled_views');
-		$drill_down_view = $this->attr('year_drill_down_view');
 
 		if ($format == 'list_without_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
@@ -516,12 +515,9 @@ class Page_Calendar extends Page_Asset_Listing
 					if (in_array(date('D', strtotime("$year-$current_month-$current_day")), Array('Sat', 'Sun')))  $class .= ' weekend';
 					$occupied = (bool)$events[$current_month][$current_day];
 					if ($occupied) $class .= ' eventDate';
-					$onclick = ($occupied && $drill_down_view) ? 'onclick="clickChild(this)" style="cursor: pointer; cursor: hand"' : '';
+					$onclick = 'onclick="clickChild(this)" style="cursor: pointer; cursor: hand"';
 					echo '<td '.$onclick.' class="'.$class.'">';
-
-					if ($occupied && $drill_down_view) echo '<a  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view."&amp;SQ_CALENDAR_DATE=$year-".sprintf('%02d', $current_month).'-'.sprintf('%02d', $current_day).'">';
-					echo $current_day;
-					if ($occupied && $drill_down_view) echo '</a>';
+					echo '<a  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=day&amp;SQ_CALENDAR_DATE='.sprintf('%04d-%02d-%02d', $year, $current_month, $current_day).'">'.$current_day.'</a>';
 					echo '</td>';
 
 				}
@@ -610,34 +606,36 @@ class Page_Calendar extends Page_Asset_Listing
 			?>
 			<table id="month" border="0" cellspacing="0" cellpadding="0" style="width: <?php echo (7.35 * $column_width); ?>px">
 				<tr>
-				<?php if ($this->attr('month_links_to_week')) { ?>
-					<th class="dayLabel">&nbsp;</th>
-			<?php
-				}
-				// print the day headings
-				for ($i=0; $i < $week_length; $i++) {
-					$day_name = $this->day_names[($week_start_day + $i) % 7];
-			?>
+			<?php 
+			// print the day headings
+			if ($this->attr('month_links_to_week')) {
+				echo '<th class="dayLabel">&nbsp;</th>';
+			}
+			for ($i=0; $i < $week_length; $i++) {
+				$day_name = $this->day_names[($week_start_day + $i) % 7];
+					?>
 					<th style="width: <?php echo $column_width; ?>px" class="dayLabel<?php echo (($day_name == 'Saturday') || ($day_name == 'Sunday')) ? 'Weekend' : ''; ?>">
 						<?php echo $day_name; ?>
 					</th>
-			<?php
-				}
+					<?php
+			}
 			?>
 				</tr>
 				<tr>
-			<?php if ($this->attr('month_links_to_week')) { ?>
-			<th class="weekLink" onClick="location.href = this.childNodes[0].href;"><a class="dateLink" href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.add_days_to_iso($_REQUEST['SQ_CALENDAR_DATE']) ?>">&raquo;</a></td>
-			<?php
+			<?php 
+			if ($this->attr('month_links_to_week')) { 
+				?>
+				<th class="weekLink" onClick="location.href = this.childNodes[0].href;"><a class="dateLink" href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.add_days_to_iso($_REQUEST['SQ_CALENDAR_DATE']) ?>">&raquo;</a></td>
+				<?php
 			}
 			
 			// print blank days if necessrary
 			$i = 0;
 			$blank_days = (date('w', strtotime("$year-".sprintf('%02d', $month).'-01')) + 7 - $week_start_day) % 7;
 			for ($i = 0; $i < $blank_days; $i++) {
-			?>
-					<td class="<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' weekend' : ''; ?>">&nbsp;</td>
-			<?php
+				?>
+				<td class="<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' weekend' : ''; ?>">&nbsp;</td>
+				<?php
 			}
 
 			// print the rest of the first week
@@ -647,9 +645,7 @@ class Page_Calendar extends Page_Asset_Listing
 				$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'weekend' : '';
 				$occupied_class = ($contents) ? 'eventDate' : '';
 				echo '<td class="date '.$occupied_class.' '.$weekend_class.'" style="height: '.$row_height.'px">';
-				if ($contents && $drill_down_view) echo '<a class="dateLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=day&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'">';
-				echo $current_day;
-				if ($contents && $drill_down_view) echo '</a><br />';
+				echo '<a class="dateLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=day&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'">'.$current_day.'</a><br />';
 				echo $contents;
 				echo '</td>';
 				$current_day++;
@@ -671,9 +667,7 @@ class Page_Calendar extends Page_Asset_Listing
 					$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'weekend' : '';
 					$occupied_class = ($contents) ? 'eventDate' : '';
 					echo '<td class="date '.$occupied_class.' '.$weekend_class.'" style="height: '.$row_height.'px">';
-					if ($contents && $drill_down_view) echo '<a class="dateLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=day&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'">';
-					echo $current_day;
-					if ($contents && $drill_down_view) echo '</a><br />';
+					echo '<a class="dateLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=day&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'">'.$current_day.'</a><br />';
 					echo $contents;
 					echo '</td>';
 					$current_day++;
@@ -697,9 +691,7 @@ class Page_Calendar extends Page_Asset_Listing
 					$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'weekend' : '';
 					$occupied_class = ($contents) ? 'eventDate' : '';
 					echo '<td class="date '.$occupied_class.' '.$weekend_class.'" style="height: '.$row_height.'px">';
-					if ($contents && $drill_down_view) echo '<a class="dateLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=day&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'">';
-					echo $current_day;
-					if ($contents && $drill_down_view) echo '</a><br />';
+					echo '<a class="dateLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=day&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'">'.$current_day.'</a><br />';
 					echo $contents;
 					echo '</td>';
 					$current_day++;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.16 2004/10/29 05:51:40 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.17 2004/11/16 05:00:56 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -101,14 +101,6 @@
 			<function_call>
 				<paint_function name="paintYearTitleFormat" />
 				<process_function name="processYearTitleFormat" />
-			</function_call>
-		</field>
-		<field>
-			<display_name>drill-down view</display_name>
-			<note>When a user clicks on a day in year view they will be taken to this view.  (In other views, the drill-down view is always the next-smallest of the enabled views.  In year view, clicking on a month name will always take you to the month view if it's enabled.)</note>
-			<function_call>
-				<paint_function name="paintYearDrillDownView" />
-				<process_function name="processYearDrillDownView" />
 			</function_call>
 		</field>
 	</section>

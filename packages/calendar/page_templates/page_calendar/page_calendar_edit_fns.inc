@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.18 2004/10/13 06:20:22 lwright Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.19 2004/11/16 05:00:57 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.18 $ - 1.0
+* @version $Revision: 1.19 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -217,17 +217,6 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 					if ($view) {
 						$asset->setAttrValue('initial_view', $category);
 						break;
-					}
-				}
-			}
-			if ($year_drill_down = $asset->attr('year_drill_down_view')) {
-				if (!($_POST[$prefix.'_enabled_views'][$year_drill_down])) {
-					$asset->setAttrValue('year_drill_down_view', '');
-					foreach ($_POST[$prefix.'_enabled_views'] as $category => $view) {
-						if (($category != 'year') && ($category != 'event') && $view) {
-							$asset->setAttrValue('year_drill_down_view', $category);
-							break;
-						}
 					}
 				}
 			}
@@ -544,57 +533,6 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		return true;
 
 	}//end processLookAndFeel()
-
-
-	/**
-	* Paint the interface where you choose the view you're taken to when you click on a day in year view
-	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintYearDrillDownView(&$asset, &$o, $prefix)
-	{
-		$current_view = $asset->attr('year_drill_down_view');
-		echo '<select name="'.$prefix.'_year_drill_down_view">';
-		echo '<option value="">(none)</option>';
-		$options = $asset->attr('enabled_views');
-		foreach ($options as $category => $type) {
-			if (!(($category == 'year') || ($category == 'event') || ($type == ''))) {
-				echo '<option '.(($category==$current_view) ? 'selected="selected" ' : '').'value="'.$category.'">'.$category.'</option>';
-			}
-		}
-		echo '</select>';
-		return true;
-
-	}//end paintYearDrillDownView()
-
-
-	/**
-	* Paint the interface where you choose the view you're taken to when you click on a day in year view
-	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processYearDrillDownView(&$asset, &$o, $prefix)
-	{
-		if (isset($_POST[$prefix.'_year_drill_down_view'])) {
-			$enabled_views = $asset->attr('enabled_views');
-			if ((isset($enabled_views[$_POST[$prefix.'_year_drill_down_view']]) && $enabled_views[$_POST[$prefix.'_year_drill_down_view']]) || empty($_POST[$prefix.'_year_drill_down_view'])) {
-				$asset->setAttrValue('year_drill_down_view', $_POST[$prefix.'_year_drill_down_view']);
-				return true;
-			}
-		}
-		return false;
-
-	}//end processYearDrillDownView()
 
 
 	/**

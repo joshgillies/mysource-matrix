@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.28 2004/11/02 22:28:46 tbarrett Exp $
+* $Id: page_calendar_management.inc,v 1.29 2004/11/16 05:00:57 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.28 $ - 1.0
+* @version $Revision: 1.29 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -167,12 +167,6 @@ class Page_Calendar_Management extends Asset_Management
 													'default'   => Array(1, 1, 1, 1, 1, 1, 1)
 												);
 
-		// The view the user is taken to when they click on a day in year view
-		$this->vars['year_drill_down_view']	= Array(
-													'added'     => '0.1',
-													'type'      => 'text',
-													'default'   => 'day'
-												);
 
 		// Date format for calendar view titles
 		$this->vars['view_title_formats'] = Array(
