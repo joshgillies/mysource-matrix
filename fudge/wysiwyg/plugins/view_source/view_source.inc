@@ -38,7 +38,7 @@ class view_source extends wysiwyg_plugin {
 	function print_plugin_button_click() {
 		?>
 		case "htmlmode":
-			this.setMode(this._mode != "textmode" ? "textmode" : "wysiwyg");
+			this.setMode(this._editMode != "textmode" ? "textmode" : "wysiwyg");
 		break;
 		<?php
 	}

@@ -42,7 +42,7 @@ include_once('../../wysiwyg.inc');
 			function init() {
 				resize_editor();
 				setTimeout(function() {
-					editor_popup.setMode(parent_object._mode);
+					editor_popup.setMode(parent_object._editMode);
 					editor_popup.setHTML(parent_object.getHTML());
 
 					// continuously update parent editor window
