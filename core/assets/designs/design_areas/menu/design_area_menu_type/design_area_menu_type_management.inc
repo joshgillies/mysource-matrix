@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_management.inc,v 1.17 2004/09/08 03:59:59 gsherwood Exp $
+* $Id: design_area_menu_type_management.inc,v 1.18 2004/10/24 01:13:34 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -100,6 +100,15 @@ class Design_Area_Menu_Type_Management extends Asset_Management
 									'allow_empty' => false,
 								),
 								'description'	=> 'When and how to display any sub menus that this menu might have',
+							),
+							'self_link' => Array(
+								'added'			=> '0.0.1',
+								'type'			=> 'boolean',
+								'default'		=> true,
+								'description'	=> 'whether or not to add self-referential links',
+								'parameters' 	=> Array(
+															'allow_empty' => false
+														),
 							),
 						);
 
