@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: matrix_insert_image.inc,v 1.11 2003/09/26 05:26:38 brobertson Exp $
+* $Id: matrix_insert_image.inc,v 1.12 2003/10/20 05:14:36 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -57,17 +57,19 @@ class matrix_insert_image extends wysiwyg_plugin {
 				this._tmp['disable_toolbar'] = true;
 				this.updateToolbar(false);
 
-				var sel = this._getSelection();
-				var range = this._createRange(sel);
-
 				var url      = "";
 				var align    = "";
+				var width    = "";
+				var height   = "";
 				var alt      = "";
 				var hspace   = "";
 				var vspace   = "";
 				var border   = "0";
 				var imageid  = "0";
 				var is_image = false;
+
+				var sel = this._getSelection();
+				var range = this._createRange(sel);
 
 				// loop through and try and find a selected image tag
 				if (HTMLArea.is_gecko) {
@@ -97,6 +99,8 @@ class matrix_insert_image extends wysiwyg_plugin {
 					url    = image_tag.src;
 					align  = image_tag.align;
 					alt    = image_tag.alt;
+					width  = (!image_tag.width)  ? ""  : image_tag.width;
+					height = (!image_tag.height) ? ""  : image_tag.height;
 					hspace = (!image_tag.hspace) ? ""  : image_tag.hspace;
 					vspace = (!image_tag.vspace) ? ""  : image_tag.vspace;
 					border = (!image_tag.border) ? "0" : image_tag.border;
@@ -108,9 +112,9 @@ class matrix_insert_image extends wysiwyg_plugin {
 				}
 				
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
-				strPage = "<?php echo $this->get_popup_href('insert_image.php')?>?f_imageid=" + escape(imageid) + "&f_align=" + escape(align) + "&f_alt=" + escape(alt) + "&f_horiz=" + escape(hspace) + "&f_vert=" + escape(vspace) + "&f_border=" + escape(border) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>");
+				strPage = "<?php echo $this->get_popup_href('insert_image.php')?>?f_imageid=" + escape(imageid) + "&f_align=" + escape(align) + "&f_width=" + escape(width) + "&f_height=" + escape(height) + "&f_alt=" + escape(alt) + "&f_horiz=" + escape(hspace) + "&f_vert=" + escape(vspace) + "&f_border=" + escape(border) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>");
 
-				this._popupDialog("matrixInsertImage", strPage, 400, 250, false, function(param) {
+				this._popupDialog("matrixInsertImage", strPage, 400, 300, false, function(param) {
 					if (!param) { 
 						// user must have pressed Cancel
 						return false;
@@ -119,6 +123,12 @@ class matrix_insert_image extends wysiwyg_plugin {
 					var html = '<img src="./?a=' + param["f_imageid"] + '"';
 					if (param["f_align"] != "") {
 						html += ' align="' + param["f_align"] + '"';
+					}
+					if (param["f_width"] != "") {
+						html += ' width="' + param["f_width"] + '"';
+					}
+					if (param["f_height"] != "") {
+						html += ' height="' + param["f_height"] + '"';
 					}
 					if (param["f_alt"] != "") {
 						html += ' alt="' + param["f_alt"] + '"';
@@ -134,13 +144,7 @@ class matrix_insert_image extends wysiwyg_plugin {
 					}
 					html += '>';
 
-					if (!is_image || HTMLArea.is_gecko) {
-						// replace text with new image
-						editor.insertHTML(html, range);
-					} else {
-						// we are replacing an existing image in IE
-						image_tag.outerHTML = html;
-					}
+					editor.insertHTML(html, range);
 
 				}, null);
 			};

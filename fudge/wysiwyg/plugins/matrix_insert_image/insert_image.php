@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: insert_image.php,v 1.7 2003/09/26 05:26:38 brobertson Exp $
+* $Id: insert_image.php,v 1.8 2003/10/20 05:14:36 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -50,7 +50,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 				}
 				// pass data back to the calling window
 				var fields = ["f_imageid", "f_alt", "f_align", "f_border",
-							"f_horiz", "f_vert"];
+							"f_horiz", "f_vert", "f_width", "f_height"];
 				var param = new Object();
 				for (var i in fields) {
 					var id = fields[i];
@@ -69,106 +69,186 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 
 		<style type="text/css">
 			html, body {
-				background: #F0F0F0;
+				background: #FCFCFC;
 				color: #000000;
 				font: 11px Tahoma,Verdana,sans-serif;
 				margin: 0px;
 				padding: 0px;
+				padding: 5px;
 			}
-			body { padding: 5px; }
+
 			table {
 				font: 11px Tahoma,Verdana,sans-serif;
 			}
-			form p {
-				margin-top: 5px;
-				margin-bottom: 5px;
-			}
-			.fl { width: 9em; float: left; padding: 2px 5px; text-align: right; }
-			.fr { width: 6em; float: left; padding: 2px 5px; text-align: right; }
-			fieldset { padding: 0px 10px 5px 5px; }
-			select, input, button { font: 11px Tahoma,Verdana,sans-serif; }
-			button { width: 70px; }
-			.space { padding: 2px; }
 
-			.title { background: #ddf; color: #000; font-weight: bold; font-size: 120%; padding: 3px 10px; margin-bottom: 10px;
-			border-bottom: 1px solid black; letter-spacing: 2px;
+			/* main popup title */
+			.title {
+				background: #402F48;
+				color: #FFFFFF;
+				font-weight: bold;
+				font-size: 120%;
+				padding: 3px 10px;
+				margin-bottom: 10px;
+				border-bottom: 1px solid black;
+				letter-spacing: 4px;
 			}
+
+			/* fieldset styles */
+			fieldset { 
+				padding: 0px 10px 5px 5px;
+				border-color: #725B7D;
+			}
+
+			.fl { width: 9em; float: left; padding: 2px 5px; text-align: right; }
+			.fr { width: 7em; float: left; padding: 2px 5px; text-align: right; }
+
+			/* form and form fields */
 			form { padding: 0px; margin: 0px; }
+
+			select, input, button {
+				font: 11px Tahoma,Verdana,sans-serif;
+			}
+
+			button {
+				width: 70px;
+			}
+
+			/* colour picker button styles */
+			.buttonColor, .buttonColor-hilite {
+				cursor: default;
+				border: 1px solid;
+				border-color: #9E86AA #725B7D #725B7D #9E86AA;
+			}
+
+			.buttonColor-hilite {
+				border-color: #402F48;
+			}
+
+			.buttonColor-chooser, .buttonColor-nocolor, .buttonColor-nocolor-hilite {
+				height: 0.6em;
+				border: 1px solid;
+				padding: 0px 1em;
+				border-color: ButtonShadow ButtonHighlight ButtonHighlight ButtonShadow;
+			}
+
+			.buttonColor-nocolor, .buttonColor-nocolor-hilite { padding: 0px; }
+			.buttonColor-nocolor-hilite { background: #402F48; color: #FFFFFF; }
 		</style>
 	</head>
 
 	<body onLoad="Init(); if (opener) opener.blockEvents('matrixInsertImage')" onUnload="if (opener) opener.unblockEvents(); asset_finder_onunload(); parent_object._tmp['disable_toolbar'] = false; parent_object.updateToolbar();">
+		
 		<div class="title">Insert Image</div>
+
 		<form action="" method="get" name="main_form">
-			<table border="0" width="100%" style="padding: 0px; margin: 0px">
-				<tbody>
-					<tr>
-						<td style="width: 7em; text-align: right">Image URL:</td>
-						<td>
-							<?php asset_finder('f_imageid', $_GET['f_imageid'], Array('image' => 'D'), 'window.opener.top', 'getFocus'); ?>
-						</td>
-					</tr>
-					<tr>
-						<td style="width: 7em; text-align: right">Alternate text:</td>
-						<td><input type="text" name="alt" id="f_alt" style="width:100%" title="For browsers that don't support images" value="<?php echo $_REQUEST['f_alt']?>" /></td>
-					</tr>
-				</tbody>
+			<table width="100%">
+				<tr>
+					<td>
+						<table width="100%" cellspacing="0" cellpadding="0">
+							<tr>
+								<td valign="top" width="100%">
+									<fieldset>
+									<legend><b>General</b></legend>
+									<table style="width:100%">
+										<tr>
+											<td class="label">Image URL:</td>
+											<td>
+											<?php asset_finder('f_imageid', $_GET['f_imageid'], Array('image' => 'D'), 'window.opener.top', 'getFocus'); ?>
+											</td>
+										</tr>
+										<tr>
+											<td class="label">Alternate text:</td>
+											<td>
+											<input type="text" name="alt" id="f_alt" style="width:100%" title="For browsers that don't support images" value="<?php echo $_REQUEST['f_alt']?>" />
+											</td>
+										</tr>
+									</table>
+									</fieldset>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<table width="100%" cellspacing="0" cellpadding="0">
+							<tr>
+								<td valign="top" width="50%">
+									<fieldset>
+										<legend>Layout</legend>
+										<table style="width:100%">
+											<tr>
+												<td class="label">Alignment:</td>
+												<td>
+												<select size="1" name="align" id="f_align" title="Positioning of this image">
+													<?php
+													if (!isset($_REQUEST['f_align'])) $_REQUEST['f_align'] = 'baseline';
+													$options_array = Array(	'' => 'Not set',
+																			'left' => 'Left',
+																			'right' => 'Right',
+																			'texttop' => 'Texttop',
+																			'absmiddle' => 'Absmiddle',
+																			'baseline' => 'Baseline',
+																			'absbottom' => 'Absbottom',
+																			'bottom' => 'Bottom',
+																			'middle' => 'Middle',
+																			'top' => 'Top'
+																		  );
+													foreach ($options_array as $value => $text) {
+														?><option value="<?php echo $value?>" <?php echo ($_REQUEST['f_align'] == $value) ? 'selected="1"' : ''?>><?php echo $text?></option><?php
+													}
+													?>
+												</select>
+												</td>
+											</tr>
+											<tr>
+												<td class="label">Border thickness:</td>
+												<td>
+												<input type="text" name="border" id="f_border" size="5" title="Leave empty for no border" value="<?php echo $_REQUEST['f_border']?>" />
+												</td>
+											</tr>
+											<tr>
+												<td class="label">Horizontal:</td>
+												<td>
+												<input type="text" name="horiz" id="f_horiz" size="5" title="Horizontal padding" value="<?php echo $_REQUEST['f_horiz']?>" />
+												</td>
+											</tr>
+											<tr>
+												<td class="label">Vertical:</td>
+												<td>
+												<input type="text" name="vert" id="f_vert" size="5" title="Vertical padding" value="<?php echo $_REQUEST['f_vert']?>" />
+												</td>
+											</tr>
+										</table>
+									</fieldset>
+								</td>
+								<td>&nbsp;</td>
+								<td valign="top" width="50%">
+									<fieldset>
+										<legend>Size</legend>
+										<table style="width:100%">
+											<tr>
+												<td class="label">Width:</td>
+												<td>
+												<input type="text" name="width" id="f_width" size="5" title="Width" value="<?php echo $_REQUEST['f_width']?>" />
+												</td>
+											</tr>
+											<tr>
+												<td class="label">Height:</td>
+												<td>
+												<input type="text" name="height" id="f_height" size="5" title="Height" value="<?php echo $_REQUEST['f_height']?>" />
+												</td>
+											</tr>
+										</table>
+									</fieldset>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
 			</table>
 
-			<p />
-
-			<fieldset style="float: left; margin-left: 5px;">
-				<legend>Layout</legend>
-
-				<div class="space"></div>
-
-				<div class="fl">Alignment:</div>
-				<select size="1" name="align" id="f_align" title="Positioning of this image">
-					<?php
-					if (!isset($_REQUEST['f_align'])) $_REQUEST['f_align'] = 'baseline';
-					$options_array = Array(	'' => 'Not set',
-											'left' => 'Left',
-											'right' => 'Right',
-											'texttop' => 'Texttop',
-											'absmiddle' => 'Absmiddle',
-											'baseline' => 'Baseline',
-											'absbottom' => 'Absbottom',
-											'bottom' => 'Bottom',
-											'middle' => 'Middle',
-											'top' => 'Top'
-										  );
-					foreach ($options_array as $value => $text) {
-						?><option value="<?php echo $value?>" <?php echo ($_REQUEST['f_align'] == $value) ? 'selected="1"' : ''?>><?php echo $text?></option><?php
-					}
-					?>
-				</select>
-
-				<p />
-
-				<div class="fl">Border thickness:</div>
-				<input type="text" name="border" id="f_border" size="5"
-				title="Leave empty for no border" value="<?php echo $_REQUEST['f_border']?>" />
-
-				<div class="space"></div>
-			</fieldset>
-
-			<fieldset style="float:right; margin-right: 5px;">
-				<legend>Spacing</legend>
-
-				<div class="space"></div>
-
-				<div class="fr">Horizontal:</div>
-				<input type="text" name="horiz" id="f_horiz" size="5" title="Horizontal padding" value="<?php echo $_REQUEST['f_horiz']?>" />
-
-				<p />
-
-				<div class="fr">Vertical:</div>
-				<input type="text" name="vert" id="f_vert" size="5" title="Vertical padding" value="<?php echo $_REQUEST['f_vert']?>" />
-
-				<div class="space"></div>
-			</fieldset>
-
-			<div style="margin-top: 85px; text-align: right;">
+			<div style="margin-top: 5px; text-align: right;">
 			<hr />
 			<button type="button" name="ok" onclick="return onOK();">OK</button>
 			<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
