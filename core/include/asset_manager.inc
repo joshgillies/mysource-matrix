@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.280 2005/03/08 05:29:19 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.281 2005/03/10 02:30:12 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.280 $
+* @version $Revision: 1.281 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1441,6 +1441,9 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Acquires a lock on an asset
 	*
+	* Note that this method operates on a single asset only.  To get the locks on children
+	* too (as per backend behaviour), you need to use the acquire_locks HIPO job.
+	*
 	* @param int		$assetid		the assetid of the asset that we want to lock
 	* @param string		$lock_type		any valid lock type for the passed asset's type,
 	*									plus 'all' which will attempt to acquire all locks that this asset has
@@ -1449,8 +1452,9 @@ class Asset_Manager extends MySource_Object
 	* @param int|NULL	$expires		when the lock expires (timestamp or NULL)
 	*									If expires is set to NULL, the lock will be acquired indefinitely (ie. it will never expire).
 	*
-	* @return int		zero on failure, non-zero on success (1 on success and all lock types requested had to be acquired,
-	*					2 on any lock was updated [ie at least one lock type was already held])
+	* @return int		zero on failure, non-zero on success 
+						(1 on success if all lock types requested had to be acquired,
+	*					 2 if any lock was updated [ie if at least one lock type was already held])
 	* @access public
 	*/
 	function acquireLock($assetid, $lock_type, $source_assetid=0, $force=false, $expires=0)
