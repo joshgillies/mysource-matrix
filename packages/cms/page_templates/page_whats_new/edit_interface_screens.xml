@@ -18,13 +18,14 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.2 2004/10/13 05:52:49 amiller Exp $
+* $Id: edit_interface_screens.xml,v 1.3 2005/01/17 22:01:08 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <screens>
-	<screen code_name="ranges" display_name="Date Ranges" icon="edit" lock_type="attributes" force_unlock="0" />
-	<screen code_name="paths" display_name="Web Paths" icon="web" lock_type="lookups"/>
+	<screen code_name="ranges"  display_name="Date Ranges"   icon="edit" lock_type="attributes" force_unlock="0" />
+	<screen code_name="columns" display_name="Column Layout" icon="edit" lock_type="attributes" force_unlock="0" />
+	<screen code_name="paths"   display_name="Web Paths"     icon="web"  lock_type="lookups"/>
 	<screen code_name="weights" display_name="Relevance Weights" icon="web" lock_type="weights"/>
 </screens>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.9 2004/12/06 14:41:40 brobertson Exp $
+* $Id: page_whats_new.inc,v 1.10 2005/01/17 22:01:08 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../page_templates/page_asset_listing/page_as
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -79,7 +79,10 @@ class Page_Whats_New extends Page_Asset_Listing
 		// the query down a bit
 		// if there are no types to list, we cant list anything
 		$wanted_types = $this->attr('types');
-		if (empty($wanted_types)) return Array();
+		if (empty($wanted_types)) {
+			trigger_error('No type settings have been configured for this page - no assets will be listed', E_USER_NOTICE);
+			return Array();
+		}
 
 		// get the root asset whose sub-assets/children we are displaying
 		// if there is no root asset, we will use ourselves and print our children
@@ -145,7 +148,10 @@ class Page_Whats_New extends Page_Asset_Listing
 		}
 
 		// if there are no date conditions - we dont display anything
-		if (empty($where)) return Array();
+		if (empty($where)) {
+			trigger_error('No date settings have been configured for this page - no assets will be listed', E_USER_NOTICE);
+			return Array();
+		}
 
 		if ($this->attr('subs_only')) {
 
