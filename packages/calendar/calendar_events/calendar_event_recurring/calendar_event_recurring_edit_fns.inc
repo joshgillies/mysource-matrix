@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring_edit_fns.inc,v 1.10 2004/08/03 04:55:20 tbarrett Exp $
+* $Id: calendar_event_recurring_edit_fns.inc,v 1.11 2004/09/01 02:19:02 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.10 $ - 1.0
+* @version $Revision: 1.11 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -159,9 +159,9 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 				trigger_error('You entered an invalid day value in the stop date field', E_USER_WARNING);
 				return false;
 			}
-			$res &= $asset->setAttrValue('stop_date', $_REQUEST[$prefix.'_stop_year'] .'-' 
-					. sprintf("%02d", $_REQUEST[$prefix.'_stop_month']) .'-' 
-					. sprintf("%02d", $_REQUEST[$prefix.'_stop_day']).' --:--:--');
+			$res &= $asset->setAttrValue('stop_date', sprintf('%04d-%02d-%02d', $_REQUEST[$prefix.'_stop_year'],  $_REQUEST[$prefix.'_stop_month'], $_REQUEST[$prefix.'_stop_day']).' --:--:--');
+		} else {
+			$res &= $asset->setAttrValue('stop_date', '---------- --:--:--');
 		}
 		$interval = '';
 		
