@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.44 2005/03/24 03:04:29 dheppell Exp $
+* $Id: search_page_edit_fns.inc,v 1.45 2005/04/06 23:09:46 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -325,7 +325,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						if (!empty($search_types)) {
 							if ($write_access) {
 								$options = Array('' => '- type -');
-								foreach ($search_types as $type) $options[$type] = $type;
+								foreach (array_keys($search_types) as $type) $options[$type] = $type;
 								combo_box($prefix.'_fields['.$i.'][params][asset_type]', $options, false, $search_type);
 							} else {
 								echo $search_type;

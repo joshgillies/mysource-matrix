@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: history.inc,v 1.8 2005/03/02 00:41:21 gsherwood Exp $
+* $Id: history.inc,v 1.9 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * History Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 
@@ -55,10 +55,10 @@ function paintHistory(&$owner, &$o, &$ei)
 
 	// note that we dont prep this query for rollback select
 	// because we are selecting directly from the rollback table
-	$sql = 'SELECT '.SQ_TABLE_PREFIX.'eff_from AS efrom, '.SQ_TABLE_PREFIX.'eff_to AS eto, version
+	$sql = 'SELECT sq_eff_from AS efrom, sq_eff_to AS eto, version
 			FROM '.SQ_TABLE_ROLLBACK_PREFIX.'ast
 			WHERE assetid = '.$db->quote($owner->id).'
-			ORDER BY '.SQ_TABLE_PREFIX.'eff_from DESC';
+			ORDER BY sq_eff_from DESC';
 
 	$result = $db->getAll($sql);
 	assert_valid_db_result($result);

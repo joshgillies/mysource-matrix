@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.252 2005/03/31 04:54:26 lwright Exp $
+* $Id: asset_edit_interface.inc,v 1.253 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.252 $
+* @version $Revision: 1.253 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1847,7 +1847,7 @@ class Asset_Edit_Interface extends MySource_Object
 		$where .= ' AND type_code = '.$db->quote('0').'
 					OR type_code IN (
 									SELECT inhd_type_code
-									FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd
+									FROM sq_ast_typ_inhd
 									WHERE type_code = '.$db->quote($owner->type()).'
 									)';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_default.inc,v 1.5 2005/03/03 00:42:03 gsherwood Exp $
+* $Id: authentication_default.inc,v 1.6 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/authentication/authentication/authent
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -71,16 +71,17 @@ class Authentication_Default extends Authentication
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql   = 'SELECT a.assetid, a.type_code
-				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a, '.SQ_TABLE_PREFIX.'ast_attr at, '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val av ';
+				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a, sq_ast_attr at, '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_uniq_val auv';
 		$where = 'a.type_code IN (
 								SELECT type_code
-								FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd
+								FROM sq_ast_typ_inhd
 								WHERE inhd_type_code = '.$db->quote('user').'
 								)
-				  AND at.name         = '.$db->quote('username').'
-				  AND at.attrid  = av.attrid
-				  AND av.assetid      = a.assetid
-				  AND av.custom_val = '.$db->quote($username);
+				  AND at.name           = '.$db->quote('username').'
+				  AND auv.assetid       = a.assetid
+				  AND at.attrid         = auv.owning_attrid
+				  AND auv.custom_val    = '.$db->quote($username);
+	
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'av');
 

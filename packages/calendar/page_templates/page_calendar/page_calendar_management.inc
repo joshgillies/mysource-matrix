@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.42 2005/03/10 01:31:29 tbarrett Exp $
+* $Id: page_calendar_management.inc,v 1.43 2005/04/06 23:09:32 mmcintyre Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -330,7 +330,7 @@ class Page_Calendar_Management extends Asset_Management
 				// changed from a boolean, default true, to an array, default empty.
 
 				// find out which assets currently have a customised value for this attribute
-				$sql = 'SELECT v.assetid, v.attrid FROM '.SQ_TABLE_PREFIX.'ast_attr_val v JOIN '.SQ_TABLE_PREFIX.'ast_attr at ON v.attrid=at.attrid WHERE at.name='.$this->_db->quote($name).' AND at.owning_type_code='.$this->_db->quote($this->getAssetType());
+				$sql = 'SELECT v.assetid, v.attrid FROM sq_ast_attr_val v JOIN sq_ast_attr at ON v.attrid=at.attrid WHERE at.name='.$this->_db->quote($name).' AND at.owning_type_code='.$this->_db->quote($this->getAssetType());
 				$customised_assetids = $this->_db->getAssoc($sql);
 				$all_assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('page_calendar', false);
 
@@ -348,7 +348,7 @@ class Page_Calendar_Management extends Asset_Management
 				// delete the old customised values which should now take the default value
 				$value_keys = Array();
 				foreach ($customised_assetids as $assetid => $attrid) $value_keys[] = $attrid.'_'.$assetid;
-				$this->_db->query('DELETE FROM '.SQ_TABLE_PREFIX.'ast_attr_val WHERE CONCAT(attrid, '.$this->_db->quote('_').', assetid) in ('.implode(', ', $value_keys).')');
+				$this->_db->query('DELETE FROM sq_ast_attr_val WHERE CONCAT(attrid, '.$this->_db->quote('_').', assetid) in ('.implode(', ', $value_keys).')');
 				return true;
 			} else {
 				return parent::_updateOwnedAttribute($name, $curr_attr);
@@ -366,7 +366,7 @@ class Page_Calendar_Management extends Asset_Management
 			$already_run[$name] = 1;
 			// in v0.3 these attributes changed from exes to pixels, so we need to adjust their values
 			// we make the assumption that there are 8 pixels in an ex.
-			$sql = 'UPDATE '.SQ_TABLE_PREFIX.'ast_attr_val SET custom_val = CAST((CAST (custom_val AS INTEGER) * 8) AS INTEGER) WHERE attrid='.$this->_db->quote($curr_attr['attrid']);
+			$sql = 'UPDATE sq_ast_attr_val SET custom_val = CAST((CAST (custom_val AS INTEGER) * 8) AS INTEGER) WHERE attrid='.$this->_db->quote($curr_attr['attrid']);
 			$res = $this->_db->query($sql);
 			if (!assert_valid_db_result($res)) return false;
 			return true;

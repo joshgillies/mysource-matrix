@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.63 2005/03/28 23:11:24 gsherwood Exp $
+* $Id: asset_management.inc,v 1.64 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -262,7 +262,7 @@ class Asset_Management extends MySource_Object
 		$level = count($this->_pm->getTypeAncestors($type_code));
 		$info = $this->_pm->getTypeInfo($type_code);
 
-		$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'ast_typ
+		$sql = 'INSERT INTO sq_ast_typ
 				(type_code, version, name, description, instantiable, allowed_access, parent_type, lvl, dir, customisation)
 				VALUES
 				('.$this->_db->quote($type_code).', '.$this->_db->quote($info['version']).',
@@ -309,7 +309,7 @@ class Asset_Management extends MySource_Object
 		$level = count($this->_pm->getTypeAncestors($this->getAssetType()));
 		$info = $this->_pm->getTypeInfo($this->getAssetType());
 
-		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'ast_typ
+		$sql = 'UPDATE sq_ast_typ
 				SET version         = '.$this->_db->quote($info['version']).',
 					name            = '.$this->_db->quote($info['name']).',
 					description     = '.$this->_db->quote($info['description']).',
@@ -331,7 +331,7 @@ class Asset_Management extends MySource_Object
 
 		// now update the attributes
 		$sql = 'SELECT name
-				FROM '.SQ_TABLE_PREFIX.'ast_attr
+				FROM sq_ast_attr
 				WHERE type_code = '.$this->_db->quote($this->getAssetType());
 		$current_vars = $this->_db->getCol($sql);
 
@@ -365,7 +365,7 @@ class Asset_Management extends MySource_Object
 	function _getAllVars()
 	{
 		$sql = 'SELECT DISTINCT atr.name
-				FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd i, '.SQ_TABLE_PREFIX.'ast_attr atr
+				FROM sq_ast_typ_inhd i, sq_ast_attr atr
 				WHERE i.type_code = '.$this->_db->quote($this->getAssetType()).'
 				  AND i.inhd_type_code <> '.$this->_db->quote($this->getAssetType()).'
 				  AND i.inhd_type_code = atr.type_code';
@@ -423,7 +423,7 @@ class Asset_Management extends MySource_Object
 
 		// See if any other our parents have an attribute with this name
 		$sql = 'SELECT COUNT(*) as count, MIN(at.lvl) as min, MAX(at.lvl) as max
-				FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd i, '.SQ_TABLE_PREFIX.'ast_attr atr, '.SQ_TABLE_PREFIX.'ast_typ at
+				FROM sq_ast_typ_inhd i, sq_ast_attr atr, sq_ast_typ at
 				WHERE i.type_code = '.$this->_db->quote($type_code).'
 				  AND i.inhd_type_code <> '.$this->_db->quote($type_code).'
 				  AND i.inhd_type_code = atr.type_code
@@ -441,7 +441,7 @@ class Asset_Management extends MySource_Object
 
 			// Check Children to see if any of them have an attribute with this name
 			$sql = 'SELECT a.type_code
-					FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd i, '.SQ_TABLE_PREFIX.'ast_attr a
+					FROM sq_ast_typ_inhd i, sq_ast_attr a
 					WHERE i.inhd_type_code = '.$this->_db->quote($type_code).'
 					  AND i.type_code <> '.$this->_db->quote($type_code).'
 					  AND i.type_code = a.type_code
@@ -486,7 +486,7 @@ class Asset_Management extends MySource_Object
 			// Find the parents with an attribute of this name
 			$sql = 'SELECT	atr.type_code, atr.owning_type_code, atr.type, atr.uniq, atr.parameters_val,
 							atr.parameters_type_code, atr.default_type_code, atr.default_val, atr.description
-					FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd i, '.SQ_TABLE_PREFIX.'ast_attr atr, '.SQ_TABLE_PREFIX.'ast_typ at
+					FROM sq_ast_typ_inhd i, sq_ast_attr atr, sq_ast_typ at
 					WHERE i.type_code = '.$this->_db->quote($type_code).'
 					  AND i.inhd_type_code <> '.$this->_db->quote($type_code).'
 					  AND i.inhd_type_code = atr.type_code
@@ -560,7 +560,7 @@ class Asset_Management extends MySource_Object
 		}
 
 		// OK, all seems fine, let's add the bloody thing
-		$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'ast_attr
+		$sql = 'INSERT INTO sq_ast_attr
 				(attrid, type_code, owning_type_code, name, type, uniq, parameters_type_code, default_type_code, default_val, parameters_val, description)
 				VALUES
 				('.$this->_db->quote($attributeid).',
@@ -602,7 +602,7 @@ class Asset_Management extends MySource_Object
 		$type_code = $this->getAssetType();
 
 		// find the attributeid
-		$sql = 'SELECT attrid FROM '.SQ_TABLE_PREFIX.'ast_attr WHERE owning_type_code = '.$this->_db->quote($type_code).' AND name='.$this->_db->quote($name);
+		$sql = 'SELECT attrid FROM sq_ast_attr WHERE owning_type_code = '.$this->_db->quote($type_code).' AND name='.$this->_db->quote($name);
 		$attributeid = $this->_db->getOne($sql);
 
 		assert_valid_db_result($attributeid);
@@ -612,12 +612,12 @@ class Asset_Management extends MySource_Object
 		}
 
 		// delete the attribute values
-		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'ast_attr_val WHERE attrid='.$this->_db->quote($attributeid);
+		$sql = 'DELETE FROM sq_ast_attr_val WHERE attrid='.$this->_db->quote($attributeid);
 		$result = $this->_db->query($sql);
 		assert_valid_db_result($result);
 
 		// delete the attribute
-		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'ast_attr WHERE attrid='.$this->_db->quote($attributeid);
+		$sql = 'DELETE FROM sq_ast_attr WHERE attrid='.$this->_db->quote($attributeid);
 		$result = $this->_db->query($sql);
 		assert_valid_db_result($result);
 
@@ -650,7 +650,7 @@ class Asset_Management extends MySource_Object
 		} else {
 			// Find the parents with an attribute of this name
 			$sql = 'SELECT attrid, type_code, owning_type_code, name, type, uniq, parameters_val, parameters_type_code, default_type_code, default_val
-					FROM '.SQ_TABLE_PREFIX.'ast_attr
+					FROM sq_ast_attr
 					WHERE type_code = '.$this->_db->quote($type_code).'
 					  AND name = '.$this->_db->quote($name);
 
@@ -673,7 +673,7 @@ class Asset_Management extends MySource_Object
 				$parent = array_shift($parents);
 
 				$sql = 'SELECT parameters_type_code, parameters_val, default_type_code, default_val
-						FROM '.SQ_TABLE_PREFIX.'ast_attr
+						FROM sq_ast_attr
 						WHERE type_code = '.$this->_db->quote($parent).'
 						  AND name = '.$this->_db->quote($name);
 
@@ -765,7 +765,7 @@ class Asset_Management extends MySource_Object
 		$description = empty($this->vars[$name]['description']) ? '' : $this->vars[$name]['description'];
 
 		// update all the attributes that we own
-		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'ast_attr
+		$sql = 'UPDATE sq_ast_attr
 				SET type        = '.$this->_db->quote($this->vars[$name]['type']).',
 					uniq        = '.$this->_db->quote(empty($this->vars[$name]['uniq']) ? 0 : 1).',
 					description = '.$this->_db->quote($description).'
@@ -784,7 +784,7 @@ class Asset_Management extends MySource_Object
 		}
 
 		// update all the attributes that are still using our default
-		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'ast_attr
+		$sql = 'UPDATE sq_ast_attr
 				SET default_val = '.$this->_db->quote($this->vars[$name]['default']).'
 				WHERE default_type_code = '.$this->_db->quote($type_code).'
 				  AND name = '.$this->_db->quote($name);
@@ -797,7 +797,7 @@ class Asset_Management extends MySource_Object
 
 		if (!empty($this->vars[$name]['parameters'])) {
 			// update all the attributes that are still using our parameters
-			$sql = 'UPDATE '.SQ_TABLE_PREFIX.'ast_attr
+			$sql = 'UPDATE sq_ast_attr
 					SET parameters_val = '.$this->_db->quote(serialize($this->vars[$name]['parameters'])).'
 					WHERE parameters_type_code = '.$this->_db->quote($type_code).'
 					  AND name = '.$this->_db->quote($name);
@@ -830,13 +830,13 @@ class Asset_Management extends MySource_Object
 		// is so that if this is the first time that we are setting the default value
 		// then all the asset types below us that were inheriting the default value from the
 		// the same asset type as we used to be will be converted to using our default value
-		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'ast_attr
+		$sql = 'UPDATE sq_ast_attr
 				SET '.$field.'_type_code = '.$this->_db->quote($new_type_code).',
 					'.$field.'_val     = '.$this->_db->quote($new_value).'
 				WHERE attrid = '.$this->_db->quote($attributeid).'
 				   OR attrid IN (
 								SELECT atr.attrid
-								FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd i, '.SQ_TABLE_PREFIX.'ast_attr atr
+								FROM sq_ast_typ_inhd i, sq_ast_attr atr
 								WHERE i.inhd_type_code = '.$this->_db->quote($new_type_code).'
 								  AND i.type_code <> '.$this->_db->quote($new_type_code).'
 								  AND i.type_code = atr.type_code
@@ -887,7 +887,7 @@ class Asset_Management extends MySource_Object
 		$type_code = $this->getAssetType();
 
 		// clear all weightings for this type_code
-		$sql = 'DELETE FROM '. SQ_TABLE_PREFIX.'sch_idx_wgt_dflt
+		$sql = 'DELETE FROM sq_sch_idx_wgt_dflt
 				WHERE type_code = '.$this->_db->quote($type_code);
 
 		$result = $this->_db->query($sql);
@@ -900,7 +900,7 @@ class Asset_Management extends MySource_Object
 		foreach ($component_weightings as $component => $weighting) {
 			if (strlen($component) == 0) continue;
 
-			$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'sch_idx_wgt_dflt
+			$sql = 'INSERT INTO sq_sch_idx_wgt_dflt
 					(type_code, component, description, weight)
 					VALUES ('.$this->_db->quote($type_code).', '.$this->_db->quote($component).',
 					'.$this->_db->quote($weighting['description']).','.$this->_db->quote($weighting['default_weighting']).')';
@@ -928,7 +928,7 @@ class Asset_Management extends MySource_Object
 	{
 		$parent_type = $this->_pm->getTypeInfo($this->getAssetType(), 'parent_type');
 		$sql = 'SELECT iwd.component, iwd.description, iwd.weight as default_weighting
-				FROM '.SQ_TABLE_PREFIX.'sch_idx_wgt_dflt iwd
+				FROM sq_sch_idx_wgt_dflt iwd
 				WHERE iwd.type_code = '.$this->_db->quote($parent_type);
 
 		$components = $this->_db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC); // need all this because of DB API

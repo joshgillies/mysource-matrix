@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.46 2005/03/28 23:11:25 gsherwood Exp $
+* $Id: internal_message.inc,v 1.47 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -123,7 +123,7 @@ class Internal_Message extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql   = 'SELECT msgid, userto, userfrom, subject, body, type, sent, priority, status, parameters
-				  FROM '.SQ_TABLE_PREFIX.'internal_msg WHERE msgid = '.$db->quote($messageid);
+				  FROM sq_internal_msg WHERE msgid = '.$db->quote($messageid);
 
 		$result = $db->getRow($sql);
 		assert_valid_db_result($result);
@@ -275,7 +275,13 @@ class Internal_Message extends MySource_Object
 
 			$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $this->body);
 
-			$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'internal_msg (msgid, userto, userfrom, subject, body, type, priority, status, sent, parameters) VALUES ('.$db->quote($messageid).', 0, '.$db->quote($this->from).', '.$db->quote($this->subject).', '.$db->quote($log_body).', '.$db->quote($this->type).', '.$db->quote($this->priority).', '.$db->quote($this->status).', '.$db->quote($this->sent).', '.$db->quote($param_string).')';
+			$sent = $db->quote($this->sent);
+			if ($db->phptype == 'oci8') {
+				$sent = 'TO_DATE('.$sent.', \'YYYY-MM-DD HH24:MI:SS\')';
+			}
+			
+			$sql = 'INSERT INTO sq_internal_msg (msgid, userto, userfrom, subject, body, type, priority, status, sent, parameters) 
+					VALUES ('.$db->quote($messageid).', 0, '.$db->quote($this->from).', '.$db->quote($this->subject).', '.$db->quote($log_body).', '.$db->quote($this->type).', '.$db->quote($this->priority).', '.$db->quote($this->status).', '.$sent.', '.$db->quote($param_string).')';
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 
@@ -350,7 +356,12 @@ class Internal_Message extends MySource_Object
 				$messageid = $db->nextId('sq_internal_msg');
 				assert_valid_db_result($messageid);
 
-				$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'internal_msg (msgid, userto, userfrom, subject, body, type, priority, status, sent, parameters) VALUES ('.$db->quote($messageid).', '.$db->quote($userid).', '.$db->quote($this->from).', '.$db->quote($this->subject).', '.$db->quote($log_body).', '.$db->quote($this->type).', '.$db->quote($this->priority).', '.$db->quote($this->status).', '.$db->quote($this->sent).', '.$db->quote($param_string).')';
+				$sent = $db->quote($this->sent);
+				if ($db->phptype == 'oci8') {
+					$sent = 'TO_DATE('.$sent.', \'YYYY-MM-DD HH24:MI:SS\')';
+				}
+				
+				$sql = 'INSERT INTO sq_internal_msg (msgid, userto, userfrom, subject, body, type, priority, status, sent, parameters) VALUES ('.$db->quote($messageid).', '.$db->quote($userid).', '.$db->quote($this->from).', '.$db->quote($this->subject).', '.$db->quote($log_body).', '.$db->quote($this->type).', '.$db->quote($this->priority).', '.$db->quote($this->status).', '.$sent.', '.$db->quote($param_string).')';
 				$result = $db->query($sql);
 				assert_valid_db_result($result);
 
@@ -601,7 +612,7 @@ class Internal_Message extends MySource_Object
 	function delete()
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'internal_msg WHERE msgid='.$db->quote($this->id);
+		$sql = 'DELETE FROM sq_internal_msg WHERE msgid='.$db->quote($this->id);
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 		return true;
@@ -622,7 +633,7 @@ class Internal_Message extends MySource_Object
 		if (!$this->id) return false;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'internal_msg SET status = '.$db->quote($status).' WHERE msgid = '.$db->quote($this->id);
+		$sql = 'UPDATE sq_internal_msg SET status = '.$db->quote($status).' WHERE msgid = '.$db->quote($this->id);
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 		return true;

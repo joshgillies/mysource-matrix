@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.47 2005/03/29 02:30:26 arailean Exp $
+* $Id: search_manager.inc,v 1.48 2005/04/06 23:09:46 mmcintyre Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -196,7 +196,7 @@ class Search_Manager extends Asset
 		if (!$this->attr('indexing')) return;
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'sch_idx
+		$sql = 'DELETE FROM sq_sch_idx
 				WHERE assetid = '.$db->quote($assetid);
 		if (!is_null($component)) $sql .= ' AND component = '.$db->quote($component);
 
@@ -275,7 +275,7 @@ class Search_Manager extends Asset
 		if (empty($param_data)) return false;
 
 		$st = $db->prepare(
-			'INSERT INTO '.SQ_TABLE_PREFIX.'sch_idx(value, type, assetid, component, score)
+			'INSERT INTO sq_sch_idx(value, type, assetid, component, score)
 			 VALUES (?, ?, '.$db->quote($assetid).', ?, ?)');
 		assert_valid_db_result($st);
 
@@ -329,7 +329,7 @@ class Search_Manager extends Asset
 		if (strlen($component) == 0)
 			continue;
 
-		$sql = 'UPDATE '. SQ_TABLE_PREFIX.'sch_idx_wgt_dflt
+		$sql = 'UPDATE sq_sch_idx_wgt_dflt
 				SET weight = ' . $db->quote($weighting) .'
 				WHERE type_code = '. $db->quote($type_code) . ' AND component = '. $db->quote($component) ;
 
@@ -356,7 +356,7 @@ class Search_Manager extends Asset
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'sch_idx_wgt
+		$sql = 'DELETE FROM sq_sch_idx_wgt
 				WHERE assetid = '.$db->quote($assetid).' AND component = '.$db->quote($component);
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
@@ -365,7 +365,7 @@ class Search_Manager extends Asset
 		}
 
 		if (!is_null($weighting)) {
-			$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'sch_idx_wgt(assetid, component, weight)
+			$sql = 'INSERT INTO sq_sch_idx_wgt(assetid, component, weight)
 					VALUES ('.
 						$db->quote($assetid)   .', '.
 						$db->quote($component) .', '.
@@ -394,10 +394,10 @@ class Search_Manager extends Asset
 		// load the weightings
 		$sql = 'SELECT wd.component, wd.description, (w.weight IS NULL) as def, COALESCE(w.weight, wd.weight) as weight
 				FROM
-					'. SQ_TABLE_PREFIX.'sch_idx_wgt_dflt wd
-						LEFT OUTER JOIN '. SQ_TABLE_PREFIX.'ast a
+					sq_sch_idx_wgt_dflt wd
+						LEFT OUTER JOIN sq_ast a
 							ON wd.type_code = a.type_code
-						LEFT OUTER JOIN '.SQ_TABLE_PREFIX.'sch_idx_wgt w
+						LEFT OUTER JOIN sq_sch_idx_wgt w
 							ON w.component = wd.component AND
 							a.assetid = w.assetid
 				WHERE
@@ -977,12 +977,12 @@ class Search_Manager extends Asset
 
 		$search_sql = 'SELECT DISTINCT(a.assetid), 1 AS score
 					   FROM
-							'.SQ_TABLE_PREFIX.'ast_lnk_tree alt1,
-							'.SQ_TABLE_PREFIX.'ast_lnk_tree alt2,
-							'.SQ_TABLE_PREFIX.'ast_lnk al1,
-							'.SQ_TABLE_PREFIX.'ast_lnk al2,
-							'.SQ_TABLE_PREFIX.'ast a';
-		if ($user_restrictions) $search_sql .= ', '.SQ_TABLE_PREFIX.'ast_perm ap ';
+							sq_ast_lnk_tree alt1,
+							sq_ast_lnk_tree alt2,
+							sq_ast_lnk al1,
+							sq_ast_lnk al2,
+							sq_ast a';
+		if ($user_restrictions) $search_sql .= ', sq_ast_perm ap ';
 
 		$search_sql .= ' WHERE ';
 
@@ -1030,7 +1030,7 @@ class Search_Manager extends Asset
 
 			$search_sql .= ' AND a.type_code IN (
 												SELECT type_code
-												FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd
+												FROM sq_ast_typ_inhd
 												WHERE '.$type_code_cond.'
 												)';
 		}
@@ -1235,13 +1235,13 @@ class Search_Manager extends Asset
 		$sql['select'] = 'SELECT ai.assetid, SUM(ai.score) as search_score, '.$sort_string.' AS sort_by';
 
 		$sql['from']   = 'FROM
-							'.SQ_TABLE_PREFIX.'sch_idx ai,
-							'.SQ_TABLE_PREFIX.'ast_lnk_tree alt1,
-							'.SQ_TABLE_PREFIX.'ast_lnk_tree alt2,
-							'.SQ_TABLE_PREFIX.'ast_lnk al1,
-							'.SQ_TABLE_PREFIX.'ast_lnk al2,
-							'.SQ_TABLE_PREFIX.'ast a';
-		if ($user_restrictions) $sql['from'] .= ', '.SQ_TABLE_PREFIX.'ast_perm ap ';
+							sq_sch_idx ai,
+							sq_ast_lnk_tree alt1,
+							sq_ast_lnk_tree alt2,
+							sq_ast_lnk al1,
+							sq_ast_lnk al2,
+							sq_ast a';
+		if ($user_restrictions) $sql['from'] .= ', sq_ast_perm ap ';
 
 		$sql['where'] = 'WHERE ';
 
@@ -1289,7 +1289,7 @@ class Search_Manager extends Asset
 
 			$sql['where'] .= ' AND a.type_code IN (
 													SELECT type_code
-													FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd
+													FROM sq_ast_typ_inhd
 													WHERE '.$type_code_cond.'
 													)';
 		}

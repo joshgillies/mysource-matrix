@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.6 2005/03/11 20:08:48 brobertson Exp $
+* $Id: preview.inc,v 1.7 2005/04/06 23:05:34 mmcintyre Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 
@@ -51,7 +51,8 @@ function paintPreview(&$owner, &$o, &$ei)
 
 	$where = 'assetid = '.$db->quote($owner->id).'
 			  AND name LIKE '.$db->quote('design::%');
-	$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+	$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+	$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
 
 	$url_data = $db->getAll($sql.' '.$where.' ORDER BY l.url');
 

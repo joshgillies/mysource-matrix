@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.25 2005/02/23 05:14:15 gsherwood Exp $
+* $Id: asset_status_editing.inc,v 1.26 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                the workflow the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing extends Asset_Status
@@ -193,7 +193,7 @@ class Asset_Status_Editing extends Asset_Status
 					$log->body .= "\n\n".'A full report for the Workflow of "'.$this->owner->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>';
 					$asset_edt_fns = $this->owner->getEditFns();
 					if (isset($asset_edt_fns->static_screens['preview'])) {
-						$msg->body .= "\n".' You can also <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('preview').'">preview this asset.</SQ_MSG_LINK>';
+						$log->body .= "\n".' You can also <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('preview').'">preview this asset.</SQ_MSG_LINK>';
 					}
 					$log->type    = 'asset.workflow';
 					$log->parameters['assetid'] = $this->owner->id;

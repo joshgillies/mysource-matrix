@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: root_folder.inc,v 1.44 2004/12/06 14:38:10 brobertson Exp $
+* $Id: root_folder.inc,v 1.45 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -87,33 +87,59 @@ class Root_Folder extends Folder
 				trigger_error('The new Root Folder Asset was not given linkid #1. This needs to be fixed by YOU, consider this system corrupted', E_USER_ERROR);
 				return false;
 			}
+			
+			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 			// right, we need to do some manipulation for the link table to put in some initial values
 			// so that the root folder, like everything else, has a link where it is a minor party
-			$values = Array('linkid'         => 1,
-							'majorid'        => 0,
-							'minorid'        => 1,
-							'link_type'      => SQ_LINK_TYPE_1,
-							'value'          => '',
-							'sort_order'     => 0,
-							'is_dependant'   => 1,
-							'is_exclusive'   => 1,
-							'updated'        => ts_iso8601(time()),
-							'updated_userid' => 0,
-							);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lnk', $values)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
+			$sql = 'INSERT INTO
+						sq_ast_lnk
+						(
+							linkid,
+							majorid,
+							minorid,
+							link_type,
+							value,
+							sort_order,
+							is_dependant,
+							is_exclusive,
+							updated,
+							updated_userid
+						)
+						VALUES
+						(
+							'.$db->quoteSmart(1).',
+							'.$db->quoteSmart(0).',
+							'.$db->quoteSmart(1).',
+							'.$db->quoteSmart(SQ_LINK_TYPE_1).',
+							'.$db->quoteSmart('').',
+							'.$db->quoteSmart(0).',
+							'.$db->quoteSmart(1).',
+							'.$db->quoteSmart(1).',
+							'.db_extras_todate($db, ts_iso8601(time())).',
+							'.$db->quoteSmart(0).'
+						)';
+			
+			
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
 
-			$values = Array('treeid'   => '',
-							'linkid'   => 1,
-							'num_kids' => 0
-						);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lnk_tree', $values)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
+			$sql = 'INSERT INTO
+						sq_ast_lnk_tree
+						(
+							treeid,
+							linkid,
+							num_kids
+						)
+						VALUES
+						(
+							'.$db->quoteSmart('-').',
+							'.$db->quoteSmart(1).',
+							'.$db->quoteSmart(0).'
+						)';
+			
+			$result = $db->query($sql);
+			assert_valid_db_result($sql);
 
 			if (!system_asset_fns_create_cleanup($this))  {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');

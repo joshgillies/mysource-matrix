@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_uninstall_patch.inc,v 1.8 2004/12/30 23:49:01 mnyeholt Exp $
+* $Id: hipo_job_uninstall_patch.inc,v 1.9 2005/04/06 23:05:35 mmcintyre Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -684,7 +684,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		foreach ($patch_info['reverse_queries'] as $query) {
 			// replace table prefix replacements in query
-			$query = str_replace('TABLE_PREFIX_', SQ_TABLE_PREFIX, $query);
+			$query = str_replace('TABLE_PREFIX_', 'sq_', $query);
 			$query = str_replace('ROLLBACK_PREFIX_', SQ_TABLE_ROLLBACK_PREFIX, $query);
 
 			$result = $db->query($query);
@@ -754,7 +754,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 		// remove the DB entry for this patch
 		$db  = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'patches WHERE patchid = '.$db->quote($patch_info['id']);
+		$sql = 'DELETE FROM sq_patches WHERE patchid = '.$db->quote($patch_info['id']);
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);

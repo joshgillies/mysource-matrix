@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.32 2005/02/25 04:35:09 gsherwood Exp $
+* $Id: asset_attribute.inc,v 1.33 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 */
 class Asset_Attribute extends MySource_Object
@@ -107,7 +107,7 @@ class Asset_Attribute extends MySource_Object
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 			$sql = 'SELECT attrid, name, type, uniq, description, parameters_val, default_val
-					FROM '.SQ_TABLE_PREFIX.'ast_attr
+					FROM sq_ast_attr
 					WHERE attrid = '.$db->quote($attributeid);
 
 			$result = $db->getRow($sql, null, DB_FETCHMODE_ORDERED);
@@ -152,7 +152,7 @@ class Asset_Attribute extends MySource_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT type FROM '.SQ_TABLE_PREFIX.'ast_attr
+		$sql = 'SELECT type FROM sq_ast_attr
 				WHERE attrid = '.$db->quote($attributeid);
 
 		$type = $db->getOne($sql);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_fields.xml,v 1.15 2005/04/01 04:27:26 tbarrett Exp $
+* $Id: edit_interface_screen_fields.xml,v 1.16 2005/04/06 23:09:46 mmcintyre Exp $
 *
 */
 -->
@@ -31,6 +31,7 @@
 			</function_call>
 		</field>
 	</section>
+
 	<section name="Logical Grouping">
 		<field attribute="logic">
 			<selection /> 
@@ -40,6 +41,7 @@
 		<field>
 			<function_call>
 				<paint_function name="paintFields" />
+
 				<process_function name="processFields" />
 			</function_call>
 		</field>
@@ -49,6 +51,7 @@
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field read_access="" write_access="write:attributes">
+
 			<function_call>
 				<paint_function name="paintStyles" />
 				<process_function name="processStyles" />

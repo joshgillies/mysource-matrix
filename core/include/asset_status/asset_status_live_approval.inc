@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live_approval.inc,v 1.32 2005/02/23 05:14:15 gsherwood Exp $
+* $Id: asset_status_live_approval.inc,v 1.33 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                   there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live_Approval extends Asset_Status
@@ -260,7 +260,7 @@ class Asset_Status_Live_Approval extends Asset_Status
 						$log->body .= "\n\n".'A full report for the Workflow of "'.$this->owner->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>.';
 						$asset_edt_fns = $this->owner->getEditFns();
 						if (isset($asset_edt_fns->static_screens['preview'])) {
-							$msg->body .= "\n".' You can also <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('preview').'">preview this asset.</SQ_MSG_LINK>';
+							$log->body .= "\n".' You can also <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('preview').'">preview this asset.</SQ_MSG_LINK>';
 						}
 						$log->parameters['assetid'] = $this->owner->id;
 						$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));

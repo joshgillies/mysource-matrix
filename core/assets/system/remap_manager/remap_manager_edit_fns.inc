@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.12 2004/12/06 14:38:10 brobertson Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.13 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -170,18 +170,27 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		if (!$asset->writeAccess('all')) return false;
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		if (isset($_POST[$prefix.'_delete_remap'])) {
 			$deletes = Array();
-			foreach ($_POST[$prefix.'_delete_remap'] as $url => $on) $deletes[] = $db->quote($url);
-
-			$where_cond = 'url IN ('.implode(',', $deletes).')';
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup_remap', $where_cond)) {
-				return false;
+			foreach ($_POST[$prefix.'_delete_remap'] as $url => $on) {
+				$deletes[] = $db->quoteSmart($url);
 			}
-		}
 
+			$sql = 'DELETE FROM
+						sq_ast_lookup_remap
+					WHERE
+						url IN
+							(
+								'.implode(',', $deletes).'
+							)';
+			
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+		}
+		return true;
+		
 	}//end processEditRemapURLs()
 
 

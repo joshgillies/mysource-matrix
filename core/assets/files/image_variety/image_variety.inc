@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.15 2005/03/30 17:17:25 brobertson Exp $
+* $Id: image_variety.inc,v 1.16 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -452,22 +452,31 @@ class Image_Variety extends Asset
 
 		// Remove all the old URLs
 
-
 		// design lookups
-		$where_cond = 'url IN (SELECT url
-								FROM '.SQ_TABLE_PREFIX.'ast_lookup l
-								WHERE assetid = '.$db->quote($this->id).')
-					  AND name LIKE '.$db->quote('design::%');
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup_value', $where_cond)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
+		$sql = 'DELETE FROM
+					sq_ast_lookup_value
+				WHERE
+					url IN
+						(
+							SELECT
+								url
+							FROM 
+								sq_ast_lookup l
+							WHERE
+								assetid = '.$db->quoteSmart($this->id).'
+						)
+					AND	name LIKE '.$db->quoteSmart('design::%');
+		
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
 
-		$where_cond = 'assetid = '.$db->quote($this->id);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup', $where_cond)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
+		$sql = 'DELETE FROM
+					sq_ast_lookup
+				WHERE
+					assetid = '.$db->quoteSmart($this->id);
+		
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
 
 		$filename = $this->attr('filename');
 
@@ -516,17 +525,27 @@ class Image_Variety extends Asset
 
 
 		foreach ($save_urls as $url => $url_data) {
-			$values = Array(
-						'url'        => $url.'/'.$web_path,
-						'assetid'    => $this->id,
-						'http'       => ($this->force_secure) ? '0' : $url_data['http'],
-						'https'      => $url_data['https'],
-						'root_urlid' => 0,
-					);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lookup', $values)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
+			
+			$sql = 'INSERT INTO
+						sq_ast_lookup
+						(
+							url,
+							assetid,
+							http,
+							https,
+							root_urlid
+						)
+						VALUES
+						(
+							'.$db->quoteSmart($url.'/'.$web_path).',
+							'.$db->quoteSmart($this->id).',
+							'.$db->quoteSmart(($this->force_secure) ? '0' : $url_data['http']).',
+							'.$db->quoteSmart($url_data['https']).',
+							'.$db->quoteSmart('0').'
+						)';
+			
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
 
 			// NOTE: we are not going to update the design's lookups because no
 			//       designs can be attached to a file anyway (well not at this time)

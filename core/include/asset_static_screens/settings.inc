@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.25 2005/03/30 00:40:14 lwright Exp $
+* $Id: settings.inc,v 1.26 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 */
 
@@ -306,7 +306,7 @@ function paintSettings(&$owner, &$o, &$ei)
 							$user_type_cond = 'IN ('.implode(', ', $user_types).')';
 
 							$sql = 'SELECT type_code
-									FROM '.SQ_TABLE_PREFIX.'ast_typ
+									FROM sq_ast_typ
 									WHERE allowed_access '.$user_type_cond.'
 									  AND type_code '.$type_code_cond;
 
@@ -553,7 +553,7 @@ function processSettings(&$owner, &$o, &$ei)
 
 			// if the date is only partially complete, then don't set the date
 			if (!$date_field->isEmpty() && !preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2} ([0-9]{2}\:?){3}$/", $date_field->value)) continue;
-
+			
 			if ($date_type == 'created') {
 				// make sure that the date that is specified is not null for the created date
 				if ($date_field->isEmpty()) {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.66 2005/02/25 04:45:51 gsherwood Exp $
+* $Id: site.inc,v 1.67 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -257,37 +257,46 @@ class Site extends Folder
 					$current_urls[$save_urlid]['http']  != $save_urls[$save_urlid]['http'] ||
 					$current_urls[$save_urlid]['https'] != $save_urls[$save_urlid]['https']) {
 
-					$where = 'urlid       = '.$db->quote($save_urlid).'
-							  AND assetid = '.$db->quote($this->id);
-					$values = Array('url'   => $db->quote($save_urls[$save_urlid]['url']),
-									'http'  => $db->quote($save_urls[$save_urlid]['http']),
-									'https' => $db->quote($save_urls[$save_urlid]['https'])
-									);
-					if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_url', $values, $where)) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
-					}
+					$sql = 'UPDATE
+								sq_ast_url
+							SET
+								url		= '.$db->quoteSmart($save_urls[$save_urlid]['url']).',
+								http	= '.$db->quoteSmart($save_urls[$save_urlid]['http']).',
+								https	= '.$db->quoteSmart($save_urls[$save_urlid]['https']).'
+							WHERE
+									urlid	= '.$db->quoteSmart($save_urlid).'
+								AND	assetid	= '.$db->quoteSmart($this->id);
+						
+					$result = $db->query($sql);
+					assert_valid_db_result($result);
 					$updated = true;
 				}
 
 			} else {
 
 				$curr_urlid = $db->nextId('sq_ast_url');
-				if (DB::isError($curr_urlid)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					trigger_error($curr_urlid->getMessage().'<br/>'.$new_urlid->getUserInfo(), E_USER_ERROR);
-				}
+				assert_valid_db_result($curr_urlid);
+				
+				$sql = 'INSERT INTO
+							sq_ast_url
+							(
+								urlid,
+								assetid,
+								url,
+								http,
+								https
+							)
+							VALUES
+							(
+								'.$db->quoteSmart($curr_urlid).',
+								'.$db->quoteSmart($this->id).',
+								'.$db->quoteSmart($save_urls[$save_urlid]['url']).',
+								'.$db->quoteSmart($save_urls[$save_urlid]['http']).',
+								'.$db->quoteSmart($save_urls[$save_urlid]['https']).'
+							)';
 
-				$values = Array('urlid'   => $curr_urlid,
-								'assetid' => $this->id,
-								'url'     => $save_urls[$save_urlid]['url'],
-								'http'    => $save_urls[$save_urlid]['http'],
-								'https'   => $save_urls[$save_urlid]['https']
-								);
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_url', $values)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
+				$result = $db->query($sql);
+				assert_valid_db_result($result);
 
 				$updated = true;
 
@@ -302,11 +311,14 @@ class Site extends Folder
 
 		foreach ($delete_urlids as $urlid) {
 			// remove all the old URLs
-			$where_cond = 'urlid = '.$db->quote($urlid);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_url', $where_cond)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
+			$sql = 'DELETE FROM
+						sq_ast_url
+					WHERE
+						 urlid = '.$db->quote($urlid);
+						
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+			
 			$updated = true;
 		}
 
@@ -357,21 +369,30 @@ class Site extends Folder
 
 		// Remove all the old URLs
 
-		// design lookups
-		$where_cond = 'url IN (SELECT url
-								FROM '.SQ_TABLE_PREFIX.'ast_lookup l
-								WHERE assetid = '.$db->quote($this->id).')
-					  AND name LIKE '.$db->quote('design::%');
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup_value', $where_cond)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		$where_cond = 'assetid = '.$db->quote($this->id);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup', $where_cond)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
+		$sql = 'DELETE FROM
+					sq_ast_lookup_value
+				WHERE
+					url IN
+						(
+							SELECT
+								url
+							FROM
+								sq_ast_lookup l
+							WHERE
+								assetid = '.$db->quoteSmart($this->id).'
+						)
+					AND	name LIKE '.$db->quoteSmart('design::%');
+		
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+		
+		$sql = 'DELETE FROM
+					sq_ast_lookup
+				WHERE
+					assetid = '.$db->quote($this->id);
+				
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
 
 		$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'design', false);
 		$our_designs = Array();
@@ -385,28 +406,47 @@ class Site extends Folder
 
 		// if we have urls then do some url inserting
 		for (reset($urls); null !== ($urlid = key($urls)); next($urls)) {
-			$values = Array(
-							'url'         => $urls[$urlid]['url'],
-							'assetid'     => $this->id,
-							'http'        => ($this->force_secure) ? '0' : $urls[$urlid]['http'],
-							'https'       => $urls[$urlid]['https'],
-							'root_urlid'  => $urlid,
-						);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lookup', $values)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
+			
+			$sql = 'INSERT INTO
+						sq_ast_lookup
+						(
+							url,
+							assetid,
+							http,
+							https,
+							root_urlid
+						)
+						VALUES
+						(
+							'.$db->quoteSmart($urls[$urlid]['url']).',
+							'.$db->quoteSmart($this->id).',
+							'.$db->quoteSmart(($this->force_secure) ? '0' : $urls[$urlid]['http']).',
+							'.$db->quoteSmart($urls[$urlid]['https']).',
+							'.$db->quoteSmart($urlid).'
+						)';
+			
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
 
 			foreach ($our_designs as $name => $designid) {
-				$values = Array('url'      => $urls[$urlid]['url'],
-								'name'     => $name,
-								'value'    => $designid,
-								'inhd'     => '0',
-								);
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lookup_value', $values)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
+				$sql = 'INSERT INTO
+							sq_ast_lookup_value
+							(
+								url,
+								name,
+								value,
+								inhd
+							)
+							VALUES
+							(
+								'.$db->quoteSmart($urls[$urlid]['url']).',
+								'.$db->quoteSmart($name).',
+								'.$db->quoteSmart($designid).',
+								'.$db->quoteSmart('0').'
+							)';
+				
+				$result = $db->query($sql);
+				assert_valid_db_result($result);
 			}
 		}//end for urls
 

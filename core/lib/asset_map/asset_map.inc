@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.177 2005/03/31 04:33:25 lwright Exp $
+* $Id: asset_map.inc,v 1.178 2005/04/06 23:05:34 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.177 $
+* @version $Revision: 1.178 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -325,6 +325,14 @@ class Asset_Map
 	}//end _doInitialise()
 
 
+	/**
+	* Returns an array of the asset's information to be used by the asset map
+	*
+	* @param string $assetid the assetid of the asset's wanted info
+	* 
+	* @return Array()
+	* @access private
+	*/
 	function _getAssetInfo($assetid)
 	{
 		if (strpos($assetid, ':') !== false) {
@@ -414,17 +422,21 @@ class Asset_Map
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 
 			$sql .= ' '.$where;
-
+			
 			$asset = $db->getRow($sql);
 			if (!assert_valid_db_result($asset, '', true, false)) {
 				return $this->_error('Could not load asset #'.$assetid.' '.$asset->getMessage());
 			}
+			
+			// if the asset map did a request for an asset that no longer exists
+			// then return nothing
+			if (empty($asset)) return Array();
+			
 			if (!isset($asset['accessible'])) $asset['accessible'] = 0;
 			if (empty($asset['accessible']) || $asset['accessible'] < 1) $asset['accessible'] = 0;
 			if ($asset['accessible'] > 1) $asset['accessible'] = 1;
 
 			if (!empty($asset['url'])) $asset['url'] = $asset['protocol'].'://'.$asset['url'];
-
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($asset['type_code']);
 			if (implements_interface($asset['type_code'], 'bridge')) {
@@ -1086,7 +1098,7 @@ class Asset_Map
 			}
 
 			$sql = 'SELECT minorid, sort_order
-					FROM '.SQ_TABLE_PREFIX.'ast_lnk
+					FROM sq_ast_lnk
 					WHERE majorid = '.$new_parent->id.' AND minorid IN ('.implode(', ', $assetids).')
 					ORDER BY sort_order ASC';
 			$result = $db->getAssoc($sql);
@@ -1261,7 +1273,6 @@ class Asset_Map
 		$assets = Array();
 
 		foreach ($input->root->children as $asset_node) {
-			$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($asset_node->attributes['assetid']));
 			$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset_node->attributes['parentid']);
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($asset_node->attributes['linkid'], $old_parent->id);
 			$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
@@ -1276,19 +1287,12 @@ class Asset_Map
 				return;
 			}
 
-
-			if (empty($asset_info)) {
-				$this->_error('Unable to Create New Link, asset to be cloned (Asset #"'.$asset_node->attributes['assetid'].'") not found');
-				return;
-			}
-
 			if ($trash_folder->id == $input->root->attributes['to_parent_assetid']) {
 				$this->_error('Unable to Create New Link, cant create a new link to the trash');
 				return;
 			}
 
-			$assetid = $asset_info[$asset_node->attributes['assetid']]['assetid'];
-			$assets[$assetid] = Array(
+			$assets[$asset_node->attributes['assetid']] = Array(
 									  'linkid'    => $link['linkid'],
 									  'link_type' => $link['link_type'],
 									  'parentid'  => $old_parent->id,

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.25 2005/03/22 04:28:15 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.26 2005/04/06 23:09:32 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -118,7 +118,7 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null)
 	$now = get_date_components(sprintf('%04d-%02d-%02d', $year, $month, $day));
 	$wdom_list = weekday_dates_in_month($now['wday'], $month, $year);
 
-	$db =& $GLOBALS['SQ_SYSTEM']->db;
+	$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 	$type_codes = quoted_descendants('calendar_event_recurring');
 
@@ -170,7 +170,7 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null)
 			$sql_freqs[] = '(frequency = '.$db->quote('WEW').' AND mod(('.$db->quote($now['ds']).' - start_date_ds), (period*7)) BETWEEN 0 AND COALESCE(end_date_ds - start_date_ds,0))';
 
 			$sql_freqs[] = '
-			(SUBSTRING(frequency FROM 1 FOR 1) = '.$db->quote('M').') AND (
+			(SUBSTR(frequency, 1, 1) = '.$db->quote('M').') AND (
 				(
 					/* there is an instance that starts in our month */
 				   ((('.$db->quote($now['ms']).' - start_date_ms) % period) = 0)
@@ -471,7 +471,7 @@ function build_tree_clause($treeids)
 	$db =& $GLOBALS['SQ_SYSTEM']->db;
 	$tree_options = Array();
 	foreach ($treeids as $treeid) {
-		$tree_options[] .= '(SUBSTRING(t.treeid FROM 1 FOR '.strlen($treeid).') LIKE '.$db->quote($treeid.'%').')';
+		$tree_options[] .= '(SUBSTR(t.treeid, 1, '.strlen($treeid).') LIKE '.$db->quote($treeid.'%').')';
 	}
 	return '('.implode(' OR ', $tree_options).')';
 
@@ -922,7 +922,7 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 						$result_list[$assetid.':'.$i]['end_date_ts'] = strtotime($start_date.' '.$event['end_date_hours'].':'.$event['end_date_minutes'].':00');
 					} else {
 						$event[$assetid.':'.$i]['start_date_ts'] = strtotime($start_date);
-						$event[$assetid.':'.$i]['end_date_ts'] = strtotime($end_date);
+						$event[$assetid.':'.$i]['end_date_ts'] = strtotime($start_date);
 					}
 					$i++;
 				}
@@ -951,7 +951,7 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 					$result_list[$assetid.':'.$i]['end_date_ts'] = strtotime($start_date.' '.$event['end_date_hours'].':'.$event['end_date_minutes'].':00');
 				} else {
 					$event[$assetid.':'.$i]['start_date_ts'] = strtotime($start_date);
-					$event[$assetid.':'.$i]['end_date_ts'] = strtotime($end_date);
+					$event[$assetid.':'.$i]['end_date_ts'] = strtotime($start_date);
 				}
 
 				$i++;

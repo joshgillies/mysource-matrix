@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.10 2005/03/28 23:11:25 gsherwood Exp $
+* $Id: logs.inc,v 1.11 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Logs Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 
@@ -50,7 +50,7 @@ function paintLogs(&$owner, &$o, &$ei)
 
 	$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-	$sql   = 'SELECT DISTINCT type FROM '.SQ_TABLE_PREFIX.'internal_msg ';
+	$sql   = 'SELECT DISTINCT type FROM sq_internal_msg ';
 	$where = 'userto = 0 AND type LIKE '.$db->quote('asset%');
 	$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 

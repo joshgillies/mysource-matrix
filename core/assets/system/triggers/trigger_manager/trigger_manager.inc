@@ -18,27 +18,27 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.11 2005/04/06 04:11:36 arailean Exp $
+* $Id: trigger_manager.inc,v 1.12 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
 // determines if tree_location refers to all assets under itself, or itself only
-define ('SQ_TRIG_TREE_PROPAGATE',   '01');
-define ('SQ_TRIG_TREE_NO_PROPAGATE','00');
+define('SQ_TRIG_TREE_PROPAGATE',   '01');
+define('SQ_TRIG_TREE_NO_PROPAGATE','00');
 
 // trigger status
-define ('SQ_TRIG_STATUS_ACTIVE',    '1');
-define ('SQ_TRIG_STATUS_INACTIVE',  '0');
-define ('SQ_TRIG_STATUS_DEFAULT',   SQ_TRIG_STATUS_INACTIVE);
+define('SQ_TRIG_STATUS_ACTIVE',    '1');
+define('SQ_TRIG_STATUS_INACTIVE',  '0');
+define('SQ_TRIG_STATUS_DEFAULT',   SQ_TRIG_STATUS_INACTIVE);
 
 // used to determine if a trigger has failed, and if so, how
-define ('SQ_TRIG_RESULT_SUCCESS',  1);
-define ('SQ_TRIG_RESULT_FALSE',   -1);
-define ('SQ_TRIG_RESULT_INVALID', -2);
-define ('SQ_TRIG_RESULT_FAILURE',  0);
+define('SQ_TRIG_RESULT_SUCCESS',  1);
+define('SQ_TRIG_RESULT_FALSE',   -1);
+define('SQ_TRIG_RESULT_INVALID', -2);
+define('SQ_TRIG_RESULT_FAILURE',  0);
 
-define ('SQ_TRIG_TABLE_MAIN', 'trig');
-define ('SQ_TRIG_TABLE_HASH', 'trig_hash');
+define('SQ_TRIG_TABLE_MAIN', 'trig');
+define('SQ_TRIG_TABLE_HASH', 'trig_hash');
 
 
 require_once 'hash.inc';
@@ -51,7 +51,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -465,7 +465,7 @@ class Trigger_Manager extends Asset
 
 		// compose query
 		$sql = 'SELECT DISTINCT '.$db->quoteIdentifier('triggerid').'
-				FROM '.SQ_TABLE_PREFIX.'trig_hash
+				FROM sq_trig_hash
 				WHERE   ('.$event_sql.')
 					AND ('.$assetid_sql.')
 					AND ('.$asset_type_sql.')
@@ -675,25 +675,54 @@ class Trigger_Manager extends Asset
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$new = false;
+		$status = true;
+		$new    = false;
 
 		// lack of id means it is a new trigger
 		// this bit gets all ids to come from the sequence, manual entries will make db inconsistent
 		if (!isset($trigger['id'])) {
 			$new = true;
-			$tr_id = $db->nextId(SQ_TABLE_PREFIX.'trig_id');
+			$tr_id = $db->nextId('sq_trig_id');
 			assert_valid_db_result($tr_id);
 			$trigger['id'] = $tr_id;
 		}
-
-		$trigger_db = $this->_trigger2db($trigger);
-
+		
 		if ($new) {
-			$status = $GLOBALS['SQ_SYSTEM']->rollbackInsert('trig', $trigger_db, true);
+			
+			$sql = 'INSERT INTO
+						sq_trig
+						(
+							id,
+							data,
+							active,
+							description,
+							name
+						)
+						VALUES
+						(
+							'.$db->quoteSmart($trigger['id']).',
+							'.$db->quoteSmart(serialize($trigger['data'])).',
+							'.$db->quoteSmart(array_get_index($trigger,'active', SQ_TRIG_STATUS_DEFAULT)).',
+							'.$db->quoteSmart($trigger['description']).',
+							'.$db->quoteSmart($trigger['name']).'
+						)';
+			
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
 		} else {
-			$where = $db->quoteIdentifier('id').' = '.$db->quoteSmart($trigger['id']);
-			$status = $GLOBALS['SQ_SYSTEM']->rollbackUpdate('trig', $trigger_db, $where);
+			
+			$sql = 'UPDATE
+						sq_trig
+					SET
+						data		= '.$db->quoteSmart(serialize($trigger['data'])).',
+						active		= '.$db->quoteSmart(array_get_index($trigger,'active', SQ_TRIG_STATUS_DEFAULT)).',
+						description	= '.$db->quoteSmart($trigger['description']).',
+						name		= '.$db->quoteSmart($trigger['name']).'
+					WHERE
+						id = '.$db->quoteSmart($trigger['id']);
+						
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
 		}
 
 		$this->_deleteTriggerHash($trigger['id']);
@@ -701,7 +730,7 @@ class Trigger_Manager extends Asset
 		// prepare and save the hash
 		// the edit interface can set the optional 'save_hash' index to false, which will cause
 		// the hash not to be saved for this trigger, for whatever reason
-		if ($status && array_get_index($trigger, 'save_hash', true) && $trigger_db['active']) {
+		if ($status && array_get_index($trigger, 'save_hash', true) && $trigger['active']) {
 			$hash = array_get_index($trigger, 'state_hash');
 
 			if (empty($hash)) {
@@ -753,11 +782,11 @@ class Trigger_Manager extends Asset
 			$value_array = Array();
 
 			foreach ($combination as $hash_id => $hash_data) {
-				$field_array[] = $db->quoteIdentifier($hash_id);
+				$field_array[] = $hash_id;
 				$value_array[] = $db->quoteSmart($hash_data);
 			}
 
-			$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'trig_hash
+			$sql = 'INSERT INTO sq_trig_hash
 					('.implode($field_array, ', ').')
 					VALUES
 					('.implode($value_array, ', ').')';
@@ -828,11 +857,16 @@ class Trigger_Manager extends Asset
 	function _deleteTrigger($trigger_id)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$where = $db->quoteIdentifier('id').' = '.$db->quoteSmart($trigger_id);
-		$success = $GLOBALS['SQ_SYSTEM']->rollbackDelete('trig', $where);
-		if ($success) {
-			$success = $this->_deleteTriggerHash($trigger_id);
-		}
+		
+		$sql = 'DELETE FROM
+					sq_trig
+				WHERE
+					id = '.$db->quoteSmart($trigger_id);
+		
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+		
+		$success = $this->_deleteTriggerHash($trigger_id);
 
 		return $success;
 
@@ -850,65 +884,17 @@ class Trigger_Manager extends Asset
 	function _deleteTriggerHash($trigger_id)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'trig_hash
-				WHERE "triggerid" = '.$db->quoteSmart($trigger_id).';';
+		$sql = 'DELETE FROM
+					sq_trig_hash
+				WHERE
+					triggerid = '.$db->quoteSmart($trigger_id);
 
-		$result = $db->getAll($sql);
-
+		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
 		return true;
 
 	}//end _deleteTriggerHash()
-
-
-//--        TRIGGER/DB CONVERSION        --//
-
-
-	/**
-	* Serialise a trigger in preparation for storing it in the database
-	*
-	* Also quotes the variables as requred by the database instance
-	*
-	* @param array	$trigger	the trigger to store
-	*
-	* @access private
-	* @return string
-	*/
-	function _trigger2db($trigger)
-	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$trigger_db['data']        = serialize($trigger['data']);
-		$trigger_db['active']      = array_get_index($trigger,'active', SQ_TRIG_STATUS_DEFAULT);
-		$trigger_db['id']          = $trigger['id'];
-		$trigger_db['description'] = $trigger['description'];
-		$trigger_db['name']        = $trigger['name'];
-
-		foreach ($trigger_db as $identifier => $value) {
-			$value = $db->quoteSmart($value);
-			$result_trigger[$identifier] = $value;
-		}
-
-		return $result_trigger;
-
-	}//end _trigger2db()
-
-
-	/**
-	* Unserialise a trigger retrieved from the database
-	*
-	* @param array	$trigger	the trigger to unserialise
-	*
-	* @access private
-	* @return array
-	*/
-	function _db2trigger($trigger)
-	{
-		$trigger['data'] = isset($trigger['data']) ? unserialize($trigger['data']) : '';
-		return $trigger;
-
-	}//end _db2trigger()
 
 
 //--        GETTERS/SETTERS, LOAD FUNCTIONS        --//
@@ -930,31 +916,30 @@ class Trigger_Manager extends Asset
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$select = '
-			SELECT '.$db->quoteIdentifier('id').','.
-					 $db->quoteIdentifier('name').','.
-					 $db->quoteIdentifier('data').','.
-					 $db->quoteIdentifier('description').','.
-					 $db->quoteIdentifier('active').'
-			FROM '.SQ_TABLE_RUNNING_PREFIX.'trig';
+		$select = 'SELECT
+					id,
+					name,
+					data,
+					description,
+					active
+				FROM
+					'.SQ_TABLE_RUNNING_PREFIX.'trig';
 
-		$where  = $db->quoteIdentifier('id').' = '.$db->quoteSmart($trigger_id);
+		$where  = 'id = '.$db->quoteSmart($trigger_id);
 		$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		$query = $select.' '.$where;
-		$db_result = $GLOBALS['SQ_SYSTEM']->db->query($query);
-		assert_valid_db_result($db_result);
-
-		$trigger_db = $db_result->fetchRow(DB_FETCHMODE_ASSOC);
+		$trigger_db = $db->getRow($query);
+		assert_valid_db_result($trigger_db);
 
 		if (empty($trigger_db)) {
 			if (!$mute_errors) trigger_error('Trigger #'.$trigger_id.' does not exist', E_USER_WARNING);
 			return null;
 		}
 
-		$trigger = $this->_db2trigger($trigger_db);
-
-		return $trigger;
+		$trigger_db['data'] = (isset($trigger_db['data']) && !empty($trigger_db['data'])) ? unserialize($trigger_db['data']) : '';
+		
+		return $trigger_db;
 
 	}//end _loadTrigger()
 
@@ -969,14 +954,16 @@ class Trigger_Manager extends Asset
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$select = '
-			SELECT '.$db->quoteIdentifier('id').','.
-					 $db->quoteIdentifier('name').','.
-					 $db->quoteIdentifier('description').','.
-					 $db->quoteIdentifier('active').'
-			FROM '.SQ_TABLE_RUNNING_PREFIX.'trig';
+		$select = 'SELECT
+						id,
+						name,
+						description,
+						active
+					FROM
+						'.SQ_TABLE_RUNNING_PREFIX.'trig';
+	
 		$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause();
-		$order  = 'ORDER BY '.$db->quoteIdentifier('active').' DESC ,'.$db->quoteIdentifier('name').' ASC';
+		$order  = 'ORDER BY active DESC , name ASC';
 
 		$result = $db->getAll($select.' '.$where.' '.$order);
 

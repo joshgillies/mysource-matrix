@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.15 2005/01/20 13:10:34 brobertson Exp $
+* $Id: event_manager.inc,v 1.16 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -64,7 +64,7 @@
 * </PRE>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 class Event_Manager extends MySource_Object
@@ -354,11 +354,11 @@ class Event_Manager extends MySource_Object
 
 
 		$sql = 'SELECT (t2.treeid || '.$db->quote('%').')
-				FROM '.SQ_TABLE_PREFIX.'ast_lnk l1
-				  INNER JOIN '.SQ_TABLE_PREFIX.'ast_lnk_tree t1 ON l1.linkid = t1.linkid, '
-				  .SQ_TABLE_PREFIX.'ast_lnk l2
-				  INNER JOIN '.SQ_TABLE_PREFIX.'ast_lnk_tree t2 ON l2.linkid = t2.linkid, '
-				  .SQ_TABLE_PREFIX.'ast a 
+				FROM sq_ast_lnk l1
+				  INNER JOIN sq_ast_lnk_tree t1 ON l1.linkid = t1.linkid, 
+				  sq_ast_lnk l2
+				  INNER JOIN sq_ast_lnk_tree t2 ON l2.linkid = t2.linkid, 
+				  sq_ast a 
 				WHERE l1.'.$side_of_link.'id = '.$db->quote($assetid).' 
 				  AND SUBSTRING(t1.treeid FROM 1 FOR CHAR_LENGTH(t2.treeid)) = t2.treeid 
 				  AND a.assetid=l2.'.$side_of_link.'id 
@@ -376,11 +376,11 @@ class Event_Manager extends MySource_Object
 
 
 		$sql = 'SELECT a.assetid, t2.treeid, a.type_code, l2.link_type, l2.is_dependant, l2.is_exclusive
-				FROM '.SQ_TABLE_PREFIX.'ast_lnk l1
-				  INNER JOIN '.SQ_TABLE_PREFIX.'ast_lnk_tree t1 ON l1.linkid = t1.linkid, '
-				  .SQ_TABLE_PREFIX.'ast_lnk l2
-				  INNER JOIN '.SQ_TABLE_PREFIX.'ast_lnk_tree t2 ON l2.linkid = t2.linkid, '
-				  .SQ_TABLE_PREFIX.'ast a
+				FROM sq_ast_lnk l1
+				  INNER JOIN sq_ast_lnk_tree t1 ON l1.linkid = t1.linkid, 
+				  sq_ast_lnk l2
+				  INNER JOIN sq_ast_lnk_tree t2 ON l2.linkid = t2.linkid, 
+				  sq_ast a
 				WHERE l1.'.$side_of_link.'id = '.$db->quote($assetid).'
 					AND SUBSTRING(t1.treeid FROM 1 FOR CHAR_LENGTH(t2.treeid)) = t2.treeid
 					AND a.assetid = l2.'.$side_of_link.'id

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.36 2005/03/28 23:11:25 gsherwood Exp $
+* $Id: messaging_service.inc,v 1.37 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -381,7 +381,7 @@ class Messaging_Service extends MySource_Object
 					' ELSE a.type_code END as type_code';
 		}
 
-		$sql  .= ' FROM '.SQ_TABLE_PREFIX.'internal_msg m';
+		$sql  .= ' FROM sq_internal_msg m';
 		$where = 'm.userto = '.$db->quote($userid);
 
 		if (is_string($get_user_name)) {

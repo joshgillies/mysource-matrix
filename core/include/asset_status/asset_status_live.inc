@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live.inc,v 1.23 2005/02/23 05:14:15 gsherwood Exp $
+* $Id: asset_status_live.inc,v 1.24 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    LIVE -> UNDER_CONSTRUCTION if the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live extends Asset_Status
@@ -161,7 +161,7 @@ class Asset_Status_Live extends Asset_Status
 						$log->body .= "\n\n".'<SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Click here for the Workflow Screen for this asset</SQ_MSG_LINK>.';
 						$asset_edt_fns = $this->owner->getEditFns();
 						if (isset($asset_edt_fns->static_screens['preview'])) {
-							$msg->body .= "\n".' You can also <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('preview').'">preview this asset.</SQ_MSG_LINK>';
+							$log->body .= "\n".' You can also <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('preview').'">preview this asset.</SQ_MSG_LINK>';
 						}
 					}
 					$log->type = 'asset.workflow';

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.16 2005/02/16 13:28:48 brobertson Exp $
+* $Id: remap_manager.inc,v 1.17 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -195,14 +195,32 @@ class Remap_Manager extends Asset
 		}
 
 		// check if the new URL is already remapping to something else, and delete it
-		$where_cond = 'url = '.$db->quote($new_url);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup_remap', $where_cond)) return false;
+		$sql = 'DELETE FROM
+					sq_ast_lookup_remap
+				WHERE
+					url = '.$db->quoteSmart($new_url);
+					
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
 
-		$values = Array('url'       => $old_url,
-						'remap_url' => $new_url,
-						'expires'   => (is_null($expires)) ? $expires : ts_iso8601($expires),
-						);
-		return (int)$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lookup_remap', $values);
+		$sql = 'INSERT INTO
+					sq_ast_lookup_remap
+					(
+						url,
+						remap_url,
+						expires
+					)
+					VALUES
+					(
+						'.$db->quoteSmart($old_url).',
+						'.$db->quoteSmart($new_url).',
+						'.$db->quoteSmart((is_null($expires)) ? $expires : ts_iso8601($expires)).'
+					)';
+		
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+		
+		return 1;
 
 	}//end addRemapURL()
 

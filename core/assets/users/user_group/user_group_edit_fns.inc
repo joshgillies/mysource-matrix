@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.18 2005/03/30 00:40:05 lwright Exp $
+* $Id: user_group_edit_fns.inc,v 1.19 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -121,25 +121,42 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function processUnrestricted(&$asset, &$o, $prefix)
 	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		
 		$unrestricted = !$this->isRestricted($asset, $prefix);
 		if (isset($_POST[$prefix.'_unrestricted']) && $_POST[$prefix.'_unrestricted'] && !$unrestricted) {
-			$values = Array('userid'    => $asset->id,
-							'type_code' => '0',
-							'screen'    => '0',
-							'section'   => '0',
-							);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_edit_access', $values)) {
-				return false;
-			}
+			
+			$sql = 'INSERT INTO
+						sq_ast_edit_access
+						(
+							userid,
+							type_code,
+							screen,
+							section
+						)
+						VALUES
+						(
+							'.$db->quoteSmart($asset->id).',
+							'.$db->quoteSmart('0').',
+							'.$db->quoteSmart('0').',
+							'.$db->quoteSmart('0').'
+						)';
+			
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+			
 		} else if (!isset($_POST[$prefix.'_unrestricted']) && $unrestricted) {
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
-			$where_cond = ' userid          = '.$db->quote($asset->id).'
-							  AND type_code = '.$db->quote('0').'
-							  AND screen    = '.$db->quote('0').'
-							  AND section   = '.$db->quote('0');
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_edit_access', $where_cond)) {
-				return false;
-			}
+			
+			$sql = 'DELETE FROM
+						sq_ast_edit_access
+					WHERE
+							userid		= '.$db->quote($asset->id).'
+						AND	type_code	= '.$db->quote('0').'
+						AND	screen		= '.$db->quote('0').'
+						AND	section		= '.$db->quote('0');
+						
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
 		}
 
 		return true;
@@ -291,14 +308,25 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 
 			foreach ($new_types as $type) {
 				if (isset($current[$type])) continue;
-				$values = Array('userid'    => $asset->id,
-								'type_code' => $type,
-								'screen'    => 'details',
-								'section'   => '0',
-								);
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_edit_access', $values)) {
-					return false;
-				}
+				
+				$sql = 'INSERT INTO
+							sq_ast_edit_access
+							(
+								userid,
+								type_code,
+								screen,
+								section
+							)
+							VALUES
+							(
+								'.$db->quoteSmart($asset->id).',
+								'.$db->quoteSmart($type).',
+								'.$db->quoteSmart('details').',
+								'.$db->quoteSmart('0').'
+							)';
+				
+				$result = $db->query($sql);
+				assert_valid_db_result($result);
 			}
 		}//end if
 
@@ -315,25 +343,39 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 						// deleting the All Screens option without having a fall back
 						// option to stop this whole type being deleted
 						// so we'll add one
-						$values = Array('userid'    => $asset->id,
-										'type_code' => $type_code,
-										'screen'    => 'details',
-										'section'   => '0',
-										);
-						if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_edit_access', $values)) {
-							return false;
-						}
+						$sql = 'INSERT INTO
+									sq_ast_edit_access
+									(
+										userid,
+										type_code,
+										screen,
+										section
+									)
+									VALUES
+									(
+										'.$db->quoteSmart($asset->id).',
+										'.$db->quoteSmart($type_code).',
+										'.$db->quoteSmart('details').',
+										'.$db->quoteSmart('0').'
+									)';
+						
+						$result = $db->query($sql);
+						assert_valid_db_result($result);
 					}
 					// note that we need to put quote around the doomed screen to ensure
 					// it is treated like a string and thus does not blow away all entries
 					// for the type code from the DB
-					$where_cond = ' userid          = '.$db->quote($asset->id).'
-									  AND type_code = '.$db->quote($type_code).'
-									  AND screen    = '.$db->quote("$doomed_screen").'
-									  AND section   = '.$db->quote('0');
-					if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_edit_access', $where_cond)) {
-						return false;
-					}
+					
+					$sql = 'DELETE FROM
+								sq_ast_edit_access
+							WHERE
+									userid		= '.$db->quoteSmart($asset->id).'
+								AND	type_code	= '.$db->quoteSmart($type_code).'
+								AND	screen		= '.$db->quoteSmart($doomed_screen).'
+								AND	section		= '.$db->quoteSmart('0');
+						
+					$result = $db->query($sql);
+					assert_valid_db_result($result);
 				}
 			}
 		}//end if
@@ -344,19 +386,34 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 		///////////////////////////////
 		if (isset($_POST[$prefix.'_add_type_screen'])) {
 			$new_screens = $_POST[$prefix.'_add_type_screen'];
+			
 			foreach ($new_screens as $type_code => $new_screen) {
 				if (trim($new_screen) == '') continue;
-				$values = Array('userid'    => $asset->id,
-								'type_code' => $type_code,
-								'screen'    => $new_screen,
-								'section'   => '0',
-								);
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_edit_access', $values)) {
-					return false;
-				}
-			}
+				
+				$sql = 'INSERT INTO
+							sq_ast_edit_access
+							(
+								userid,
+								type_code,
+								screen,
+								section
+							)
+							VALUES
+							(
+								'.$db->quoteSmart($asset->id).',
+								'.$db->quoteSmart($type_code).',
+								'.$db->quoteSmart($new_screen).',
+								'.$db->quoteSmart('0').'
+							)';
+				
+				$result = $db->query($sql);
+				assert_valid_db_result($result);
+
+			}//end foreach
 		}//end if
 
+		return true;
+		
 	}//end processTypeRestrictions()
 
 

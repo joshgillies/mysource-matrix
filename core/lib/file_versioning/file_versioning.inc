@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.6 2004/12/06 14:38:13 brobertson Exp $
+* $Id: file_versioning.inc,v 1.7 2005/04/06 23:05:35 mmcintyre Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -95,11 +95,11 @@ class File_Versioning
 		require_once SQ_LIB_PATH.'/db_install/db_install.inc';
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		if (!db_install(dirname(__FILE__).'/tables.xml')) {
-			trigger_error('Unable to initialise File Version system : Table Install Failure', E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
+//		if (!db_install(dirname(__FILE__).'/tables.xml')) {
+//			trigger_error('Unable to initialise File Version system : Table Install Failure', E_USER_WARNING);
+//			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+//			return false;
+//		}
 
 		$dir = SQ_DATA_PATH.'/file_repository';
 		$this->_dir = $dir;
@@ -164,7 +164,7 @@ class File_Versioning
 	{
 		$sql = 'SELECT f.fileid, f.path, f.filename,
 						h.version, h.from_date, h.to_date, h.file_size, h.md5, h.sha1, h.removal, h.extra_info
-				FROM '.SQ_TABLE_PREFIX.'file_vers_file f INNER JOIN '.SQ_TABLE_PREFIX.'file_vers_history h ON f.fileid = h.fileid
+				FROM sq_file_vers_file f INNER JOIN sq_file_vers_history h ON f.fileid = h.fileid
 				WHERE f.fileid = '.$this->_db->quote($fileid).'
 				  AND '.((is_null($version)) ? 'to_date IS NULL' : 'version = '.$this->_db->quote($version));
 		$result = $this->_db->getRow($sql);
@@ -204,7 +204,10 @@ class File_Versioning
 		if (!is_file($ffv_file)) return FUDGE_FV_NOT_CHECKED_OUT;
 
 		$ffv = parse_ini_file($ffv_file);
-		if (!is_array($ffv)) return FUDGE_FV_ERROR;
+		if (!is_array($ffv)) {
+			trigger_error('File Versioning information corrupt', E_USER_WARNING);
+			return FUDGE_FV_ERROR;
+		}
 
 		if ($this->_dir != $ffv['dir']) {
 			trigger_error('File Belongs to different Repository', E_USER_WARNING);
@@ -212,7 +215,10 @@ class File_Versioning
 		}
 
 		$info = $this->_getFileInfoAtVersion($ffv['fileid'], (int) $ffv['version']);
-		if (empty($info)) return FUDGE_FV_ERROR;
+		if (empty($info)) {
+			trigger_error('File versioning information at version '.$ffv['version'].' missing for file #'.$ffv['fileid'], E_USER_WARNING);
+			return FUDGE_FV_ERROR;
+		}
 
 		$rep_file = $this->_dir.'/'.$info['path'].'/'.$info['filename'].',ffv'.$info['version'];
 		if (empty($info['removal']) && (!is_dir($this->_dir.'/'.$info['path']) || !is_file($rep_file))) {
@@ -240,7 +246,7 @@ class File_Versioning
 	function _getFileInfoFromPath($file_path, $version=null)
 	{
 		$sql = 'SELECT fileid
-				FROM '.SQ_TABLE_PREFIX.'file_vers_file
+				FROM sq_file_vers_file
 				WHERE path = '.$this->_db->quote(dirname($file_path)).'
 				  AND filename = '.$this->_db->quote(basename($file_path));
 		$fileid = $this->_db->getOne($sql);
@@ -266,9 +272,9 @@ class File_Versioning
 	function _lockFile($fileid)
 	{
 		$select = 'SELECT COUNT(*)
-					FROM '.SQ_TABLE_PREFIX.'file_vers_lock
+					FROM sq_file_vers_lock
 					WHERE fileid = '.$this->_db->quote($fileid);
-		$insert = 'INSERT INTO '.SQ_TABLE_PREFIX.'file_vers_lock (fileid) VALUES ('.$this->_db->quote($fileid).')';
+		$insert = 'INSERT INTO sq_file_vers_lock (fileid) VALUES ('.$this->_db->quote($fileid).')';
 		// we will attempt a maxmimum of 4 times
 		for ($i = 0; $i < $this->num_lock_attempts; $i++) {
 
@@ -306,7 +312,7 @@ class File_Versioning
 	*/
 	function _releaseFile($fileid)
 	{
-		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'file_vers_lock
+		$sql = 'DELETE FROM sq_file_vers_lock
 				WHERE fileid = '.$this->_db->quote($fileid);
 		$result = $this->_db->query($sql);
 		if (DB::isError($result)) {
@@ -380,17 +386,14 @@ class File_Versioning
 			// any parts of this new path as either a directory or file
 
 			// so much for SQL standards...
-			$concat_1 = ($this->_db->phptype == 'mysql') ? 'CONCAT(path, '.$this->_db->quote('/').', filename)' : '(path || '.$this->_db->quote('/').' || filename)';
-			$concat_2 = ($this->_db->phptype == 'mysql') ? 'CONCAT(path, '.$this->_db->quote('/').', filename, '.$this->_db->quote('%').')' : '(path || '.$this->_db->quote('/').' || filename || '.$this->_db->quote('%').')';
+			$concat_1 = '(path || '.$this->_db->quote('/').' || filename)';
+			$concat_2 = '(path || '.$this->_db->quote('/').' || filename || '.$this->_db->quote('%').')';
 			$sql = 'SELECT COUNT(*)
-					FROM '.SQ_TABLE_PREFIX.'file_vers_file
+					FROM sq_file_vers_file
 					WHERE '.$concat_1.' LIKE '.$this->_db->quote($rep_path.'/'.basename($real_file).'%').'
 					   OR '.$this->_db->quote($rep_path.'/'.basename($real_file)).' LIKE '.$concat_2;
 			$result = $this->_db->getOne($sql);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				return false;
-			}
+			assert_valid_db_result($result);
 			if (!empty($result)) {
 				trigger_error('Unable to add file "'.$real_file.'" to path "'.$rep_path.'", either the file already exists in the repository path or part of the repository path is already a file in the repository', E_USER_NOTICE);
 				return false;
@@ -400,29 +403,21 @@ class File_Versioning
 
 		if ($use_trans) {
 			$result = $this->_db->query('BEGIN');
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			}
+			assert_valid_db_result($result);
 		}
 
 		// if there is no current file we need to insert the new DB record
 		if (empty($current_info)) {
-			$fileid = $this->_db->nextId(SQ_TABLE_PREFIX.'file_vers_file');
-			if (DB::isError($fileid)) {
-				trigger_error($fileid->getMessage().'<br/>'.$fileid->getUserInfo(), E_USER_WARNING);
-				return false;
-			}
+			$fileid = $this->_db->nextId('sq_file_vers_file');
+			assert_valid_db_result($fileid);
 
 			$fileid = (int) $fileid;
 
-			$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'file_vers_file (fileid, path, filename)
-					VALUES ('.$this->_db->quote($fileid).',
+			$sql = 'INSERT INTO sq_file_vers_file (fileid, path, filename)
+					VALUES ('.$this->_db->quoteSmart($fileid).',
 					'.$this->_db->quote($rep_path).', '.$this->_db->quote($filename).')';
 			$result = $this->_db->query($sql);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				return false;
-			}
+			assert_valid_db_result($result);
 
 		// otherwise use the old file's id
 		} else {
@@ -478,7 +473,7 @@ class File_Versioning
 	function _updateFile($fileid, $rep_path, $real_file, $extra_info)
 	{
 		$sql = 'SELECT COALESCE(MAX(version), 0) + 1
-				FROM '.SQ_TABLE_PREFIX.'file_vers_history
+				FROM sq_file_vers_history
 				WHERE fileid = '.$this->_db->quote($fileid);
 		$version = $this->_db->getOne($sql);
 		if (DB::isError($version)) {
@@ -487,9 +482,13 @@ class File_Versioning
 		}
 
 		$now = time();
+		$date = $this->_db->quote($this->_tsIso8601($now));
+		if ($this->_db->phptype == 'oci8') {
+			$date = 'TO_DATE('.$date.', '.$this->_db->quote('YYYY-MM-DD HH24:MI:SS').')';
+		}
 
-		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'file_vers_history
-				SET to_date = '.$this->_db->quote($this->_tsIso8601($now)).'
+		$sql = 'UPDATE sq_file_vers_history
+				SET to_date = '.$date.'
 				WHERE fileid = '.$this->_db->quote($fileid).'
 				  AND to_date IS NULL';
 		$result = $this->_db->query($sql);
@@ -510,12 +509,12 @@ class File_Versioning
 			$sha1      = '';
 			$removal   = '1';
 		}
-
-		$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'file_vers_history
+		
+		$sql = 'INSERT INTO sq_file_vers_history
 				(fileid, version, from_date, to_date, file_size, md5, sha1, removal, extra_info)
 				VALUES
 				('.$this->_db->quote($fileid).', '.$this->_db->quote($version).',
-				'.$this->_db->quote($this->_tsIso8601($now)).', NULL,
+				'.$date.', NULL,
 				'.$this->_db->quote($file_size).', '.$this->_db->quote($md5).',
 				'.$this->_db->quote($sha1).', '.$this->_db->quote($removal).',
 				'.$this->_db->quote($extra_info).')';
@@ -625,17 +624,23 @@ class File_Versioning
 				//       this is DELIBERATE as it forces people to specify a version number or
 				//       date if they want an expired version
 				$sql = 'SELECT version, removal
-						FROM '.SQ_TABLE_PREFIX.'file_vers_history
+						FROM sq_file_vers_history
 						WHERE fileid = '.$this->_db->quote($info['fileid']).'
 						  AND to_date IS NULL';
 				$nice_date = $this->_tsIso8601(time());
 			} else {
+				
+				$date = $this->_db->quote($this->_tsIso8601($date));
+				if ($this->_db->phptype == 'oci8') {
+					$date = 'TO_DATE('.$date.', '.$this->_db->quote('YYYY-MM-DD HH24:MI:SS').')';
+				}
+				
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 				$sql = 'SELECT version, removal
-						FROM '.SQ_TABLE_PREFIX.'file_vers_history
+						FROM sq_file_vers_history
 						WHERE fileid = '.$this->_db->quote($info['fileid']).'
-						  AND from_date <= '.$this->_db->quote($this->_tsIso8601($date)).'
-						  AND (to_date IS NULL OR to_date > '.$this->_db->quote($this->_tsIso8601($date)).')
+						  AND from_date <= '.$date.'
+						  AND (to_date IS NULL OR to_date > '.$date.')
 						ORDER BY version DESC';
 				$nice_date = $this->_tsIso8601($date);
 			}//end if
@@ -656,7 +661,7 @@ class File_Versioning
 		// else make sure the set version is valid
 		} else {
 			$sql = 'SELECT version, removal
-					FROM '.SQ_TABLE_PREFIX.'file_vers_history
+					FROM sq_file_vers_history
 					WHERE fileid = '.$this->_db->quote($info['fileid']).'
 					  AND version = '.$this->_db->quote($version);
 

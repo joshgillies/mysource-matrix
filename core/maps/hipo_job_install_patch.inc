@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_install_patch.inc,v 1.8 2005/02/07 01:03:44 mnyeholt Exp $
+* $Id: hipo_job_install_patch.inc,v 1.9 2005/04/06 23:05:35 mmcintyre Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -829,7 +829,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		foreach ($patch_info['queries'] as $query) {
 			// replace table prefix replacements in query
-			$query = str_replace('TABLE_PREFIX_', SQ_TABLE_PREFIX, $query);
+			$query = str_replace('TABLE_PREFIX_', 'sq_', $query);
 			$query = str_replace('ROLLBACK_PREFIX_', SQ_TABLE_ROLLBACK_PREFIX, $query);
 
 			$result = $db->query($query);
@@ -899,7 +899,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 		// write an entry to the DB for this patch to say it has been installed
 		$db  = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'patches
+		$sql = 'INSERT INTO sq_patches
 				(patchid, installed)
 				VALUES ('.$db->quote($patch_info['id']).', '.$db->quote(ts_iso8601(time())).')
 				';

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager_edit_fns.inc,v 1.12 2005/04/06 04:12:52 arailean Exp $
+* $Id: trigger_manager_edit_fns.inc,v 1.13 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -724,11 +724,11 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		$edit_data = array_get_index($request_data, 'edit', Array());
 		$edit_id = array_get_index($edit_data, 'id');
-
+	
 		if (empty($edit_data) || empty($edit_id)) {
 			return false;
 		}
-
+		
 		$trigger = $tm->_loadTrigger($edit_id);
 		if (empty($trigger)) {
 			return false;
@@ -744,7 +744,6 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		$hash = $tm->_getHashObject();
-
 		$edit_info = array_get_index($edit_data, 'info');
 
 		// setup basic trigger info
@@ -834,7 +833,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 			return $processed_components;
 		}
 
-		$i=1;
+		$i = 1;
 		foreach ($raw_components as $component) {
 			$status = true;
 			if (isset($component['delete'])) {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.24 2005/04/06 05:15:54 lwright Exp $
+* $Id: listing_engine.inc,v 1.25 2005/04/06 23:09:36 mmcintyre Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -525,7 +525,7 @@ class Listing_Engine extends Page
 		}
 
 		// get a list of assets that are not live
-		$sql = 'SELECT assetid from '.SQ_TABLE_PREFIX.'ast
+		$sql = 'SELECT assetid from sq_ast
 				WHERE assetid IN ('.implode(',', $assetids).')
 				  AND status < '.$db->quote(SQ_STATUS_LIVE);
 		$non_live_assets = $db->getCol($sql);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.42 2005/03/21 06:26:05 gsherwood Exp $
+* $Id: calendar_event.inc,v 1.43 2005/04/06 23:09:32 mmcintyre Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -113,16 +113,16 @@ class Calendar_Event extends Asset
 	*/
 	function delete($release_lock=true)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		// asset id becomes a where condition
-		$where = ' assetid = '.$db->quote($this->id);
-
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('cal_date_val', $where)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
+		$sql = 'DELETE FROM
+					sq_cal_date_val
+				WHERE
+					 assetid = '.$db->quoteSmart($this->id);
+		
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
 
 		if (!parent::delete($release_lock)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -507,7 +507,7 @@ class Calendar_Event extends Asset
 	{
 		if ($this->getEndTime() !== false) {
 			return readable_datetime(iso8601_ts($this->attr('end_date')));
-		} elseif  (iso8601_ts($this->attr('end_date')) == -1) {
+		} else if  (iso8601_ts($this->attr('end_date')) == -1) {
 			return '';
 		} else {
 			return date('jS M Y', iso8601_ts($this->attr('end_date')));
@@ -543,14 +543,14 @@ class Calendar_Event extends Asset
 			if (!$this->getStartTime()) {
 				// no start time, so must be an all day event
 				return $this->getFriendlyStart() . ' (all day)';
-			} elseif (($this->getStartTime() == $this->getEndTime())) {
+			} else if (($this->getStartTime() == $this->getEndTime())) {
 				// show start date and time only
 				return $this->getFriendlyStart();
 			} else {
 				// show date and start/end times
 				return $this->getFriendlyStart().'-'.date('g:ia', iso8601_ts($this->attr('end_date')));
 			}
-		} elseif (iso8601_ts($this->attr('end_date')) == -1) {
+		} else if (iso8601_ts($this->attr('end_date')) == -1) {
 			return $this->getFriendlyStart();
 		} else {
 			return $this->getFriendlyStart().' - '.$this->getFriendlyEnd();
@@ -671,7 +671,7 @@ class Calendar_Event extends Asset
 	*/
 	function cacheCalendarData($updating=true)
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$date_values = Array();
 		foreach (Array('start_date', 'end_date') as $date_comp) {
@@ -679,12 +679,12 @@ class Calendar_Event extends Asset
 
 			if (iso8601_time_component($iso) === false) {
 				if (($date_comp == 'end_date') && (iso8601_date_component($iso) !== false)) {
-					$iso = substr($iso,0,10).' 24:00:00';
+					$iso = substr($iso, 0, 10).' 24:00:00';
 				}
 			} else {
 				// we know the seconds aren't going to be there, so zero them so we can
 				// use the getDate() niceness
-				$iso = substr($iso,0,16).':00';
+				$iso = substr($iso, 0, 16).':00';
 			}
 
 			// we have the best, now get the rest
@@ -699,28 +699,45 @@ class Calendar_Event extends Asset
 		if (!$updating) {
 			// set the asset ids
 			$date_values['assetid'] = $this->id;
-
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('cal_date_val', $date_values)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
+			
+			for (reset($date_values); null !== ($key = key($date_values)); next($date_values)) {
+				$date_values[$key] = $db->quoteSmart($date_values[$key]);
 			}
+			$val_string = implode(',', $date_values);
+			
+			$sql = 'INSERT INTO
+						sq_cal_date_val
+						(
+							'.implode(',', array_keys($date_values)).'
+						)
+						VALUES
+						(
+							'.$val_string.'
+						)';
+			
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+
 		} else {
-			// now quote everything except null values
-			foreach (array_keys($date_values) as $key) {
-				$date_values[$key] = (is_null($date_values[$key]) ? 'null' : 	$db->quote($date_values[$key]));
-			}
-
 			// asset id becomes a where condition
-			$where = ' assetid = '.$db->quote($this->id);
-
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('cal_date_val', $date_values, $where)) {
-				trigger_error('Unable to cache calendar data for '.ucwords(str_replace('_', ' ', $this->type())).' asset "'.$this->attr('name').'" (# '.$this->id.')', E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
+			$sql = 'UPDATE
+						sq_cal_date_val
+					SET ';
+				
+			$set_array = Array();
+			foreach ($date_values as $key => $value) {
+				$set_array[] = $key.' = '.((is_null($value)) ? 'null' : $db->quoteSmart($value));
 			}
+			$sql .= implode(',', $set_array);
+			$sql .=' WHERE
+						assetid = '.$db->quoteSmart($this->id);
+
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		
 		return true;
 
 	}//end cacheCalendarData()

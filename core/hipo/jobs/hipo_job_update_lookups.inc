@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.27 2005/03/23 22:57:15 ndvries Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.28 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -206,7 +206,8 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 				$sql = 'SELECT t.treeid
 						FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
-						'.$where.' LIMIT 1';
+						'.$where;
+				$sql = $db->modifyLimitQuery($sql, 0, 1);
 
 				$treeid = $db->getOne($sql);
 				assert_valid_db_result($treeid);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.74 2005/04/06 18:30:09 brobertson Exp $
+* $Id: metadata_manager.inc,v 1.75 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -192,16 +192,22 @@ class Metadata_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		// add the schema to the database
-		$values = Array(
-					'assetid'	=> $asset->id,
-					'schemaid'	=> $schemaid,
-					'granted'	=> (($granted) ? '1' : '0'),
-				  );
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_metadata', $values)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
+		$sql = 'INSERT INTO
+					sq_ast_metadata
+					(
+						assetid,
+						schemaid,
+						granted
+					)
+					VALUES
+					(
+						'.$db->quoteSmart($asset->id).',
+						'.$db->quoteSmart($schemaid).',
+						'.$db->quoteSmart((($granted) ? '1' : '0')).'
+					)';
+		
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
 
 		// add defaults to the indexing service
 		if ($granted) {
@@ -241,13 +247,14 @@ class Metadata_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		// delete and add rollback entries
-		$where = 'schemaid    = '.$db->quote($schemaid).'
-				  AND assetid = '.$db->quote($asset->id);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_metadata', $where)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
+		$sql = 'DELETE FROM
+					sq_ast_metadata
+				WHERE
+						schemaid	= '.$db->quoteSmart($schemaid).'
+					AND	assetid		= '.$db->quoteSmart($asset->id);
+		
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
 
 		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($asset, 'indexMetadata', Array('assetid' => $asset->id, 'schemaids' => Array($schemaid)));
@@ -536,18 +543,24 @@ class Metadata_Manager extends MySource_Object
 				unset($metadata[$fieldid]);
 				continue;
 			}
-			$quoted_fieldids[] = $db->quote($fieldid);
+			$quoted_fieldids[] = $db->quoteSmart($fieldid);
 
 		}//end foreach
 
 		// Remove any old values...it's just easier than having to screw about with old fields and new fields, different assetids for the same name etc
-		$where = '	assetid = '.$db->quote($asset->id);
-		if (!empty($quoted_fieldids)) $where .= ' AND fieldid NOT IN ('.implode(',', $quoted_fieldids).')';
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_metadata_value', $where)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+		$where = '	assetid = '.$db->quoteSmart($asset->id);
+		if (!empty($quoted_fieldids)) {
+			$where .= ' AND fieldid NOT IN ('.implode(',', $quoted_fieldids).')';
 		}
-
+		
+		$sql = 'DELETE FROM
+					sq_ast_metadata_value
+				WHERE
+					'.$where;
+		
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+		
 		if (!empty($quoted_fieldids)) {
 			// Find any fields that have existing entries...so we know what to update and what to insert
 			$sql = 'SELECT fieldid
@@ -564,28 +577,36 @@ class Metadata_Manager extends MySource_Object
 				// we need to insert
 				if (!in_array($fieldid, $updates)) {
 
-					$values = Array(
-								'assetid'	=> $asset->id,
-								'fieldid'	=> $fieldid,
-								'value'		=> $metadata[$fieldid]['value'],
-							  );
-					if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_metadata_value', $values)) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
-					}
+					$sql = 'INSERT INTO
+								sq_ast_metadata_value
+								(
+									assetid,
+									fieldid,
+									value
+								)
+								VALUES
+								(
+									'.$db->quoteSmart($asset->id).',
+									'.$db->quoteSmart($fieldid).',
+									'.$db->quoteSmart($metadata[$fieldid]['value']).'
+								)';
+					
+					$result = $db->query($sql);
+					assert_valid_db_result($result);
 
 				// we are updating
 				} else {
 
-					$values = Array(
-								'value'	=> $db->quote($metadata[$fieldid]['value']),
-							  );
-					$where = '  assetid = '.$db->quote($asset->id).'
-							AND fieldid = '.$db->quote($fieldid);
-					if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_metadata_value', $values, $where)) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
-					}
+					$sql = 'UPDATE
+								sq_ast_metadata_value
+							SET
+								value	= '.$db->quoteSmart($metadata[$fieldid]['value']).'
+							WHERE
+									assetid	= '.$db->quoteSmart($asset->id).'
+								AND	fieldid	= '.$db->quoteSmart($fieldid);
+					
+					$result = $db->query($sql);
+					assert_valid_db_result($result);
 
 				}//end if
 
@@ -1030,12 +1051,25 @@ class Metadata_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$where_cond = 'assetid = '.$db->quote($assetid);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_metadata', $where_cond) || !$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_metadata_value', $where_cond)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
+		
+		$sql = 'DELETE FROM
+					sq_ast_metadata
+				WHERE
+					assetid	= '.$db->quoteSmart($assetid);
+					
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+		
+		$sql = 'DELETE FROM
+					sq_ast_metadata_value
+				WHERE
+					assetid	= '.$db->quoteSmart($assetid);
+		
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		
 		return true;
 
 	}//end purgeMetadata()

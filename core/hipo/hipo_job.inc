@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.63 2005/03/29 01:53:51 arailean Exp $
+* $Id: hipo_job.inc,v 1.64 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -430,12 +430,10 @@ class HIPO_Job extends MySource_Object
 		$db  = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT userid, last_updated
-				FROM '.SQ_TABLE_PREFIX.'hipo_job
+				FROM sq_hipo_job
 				WHERE code_name = '.$db->quote($code_name);
 		$existing = $db->getRow($sql);
-		if (!assert_valid_db_result($existing)) {
-			return '';
-		}
+		assert_valid_db_result($existing);
 
 		if (!empty($existing)) {
 			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($existing['userid']);
@@ -444,8 +442,14 @@ class HIPO_Job extends MySource_Object
 		}
 
 		$now = time();
+		
+		$date = $db->quote(ts_iso8601($now));
+		
+		if ($db->phptype == 'oci8') {
+			$date = 'TO_DATE('.$date.', '.$db->quote('YYYY-MM-DD HH24:MI:SS').')';
+		}
 
-		$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'hipo_job
+		$sql = 'INSERT INTO sq_hipo_job
 				(code_name, job_type, userid, running, source_code_name, hipo_vars, options, steps, running_vars, last_updated)
 				VALUES ('.$db->quote($code_name).',
 						'.$db->quote(get_class($this)).',
@@ -456,13 +460,11 @@ class HIPO_Job extends MySource_Object
 						'.$db->quote($options).',
 						'.$db->quote($steps).',
 						'.$db->quote($vars).',
-						'.$db->quote(ts_iso8601($now)).'
+						'.$date.'
 						)';
 		$result = $db->query($sql);
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		if (!assert_valid_db_result($result)) {
-			return '';
-		}
+		assert_valid_db_result($result);
 
 		$this->userid       = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		$this->last_updated = $now;
@@ -571,7 +573,7 @@ class HIPO_Job extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db  = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT job_type, userid, running, source_code_name, hipo_vars, options, steps, running_vars, last_updated
-				FROM '.SQ_TABLE_PREFIX.'hipo_job
+				FROM sq_hipo_job
 				WHERE code_name = '.$db->quote($code_name);
 
 		$result = $db->getRow($sql);
@@ -667,16 +669,22 @@ class HIPO_Job extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		// now we just do what we are told
 		if ($delete) {
-			$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'hipo_job
+			$sql = 'DELETE FROM sq_hipo_job
 					WHERE code_name = '.$db->quote($this->code_name);
 
 		} else {
-			$sql = 'UPDATE '.SQ_TABLE_PREFIX.'hipo_job
+			
+			$date = $db->quote(ts_iso8601($now));
+			if ($db->phptype == 'oci8') {
+				$date = 'TO_DATE('.$date.', '.$db->quote('YYYY-MM-DD HH24:MI:SS').')';
+			}
+			
+			$sql = 'UPDATE sq_hipo_job
 					SET hipo_vars    = '.$db->quote(serialize($this->_hipo_vars)).',
 						options      = '.$db->quote(serialize($this->_options)).',
 						steps        = '.$db->quote(serialize($this->_steps)).',
 						running_vars = '.$db->quote(serialize($this->_running_vars)).',
-						last_updated = '.$db->quote(ts_iso8601($now)).'
+						last_updated = '.$date.'
 					WHERE code_name  = '.$db->quote($this->code_name);
 		}
 		$result = $db->query($sql);

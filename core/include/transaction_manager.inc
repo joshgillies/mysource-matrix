@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: transaction_manager.inc,v 1.14 2005/03/31 01:52:01 lwright Exp $
+* $Id: transaction_manager.inc,v 1.15 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Also to handle nested transaction calls
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 class Transaction_Manager extends MySource_Object
@@ -93,9 +93,11 @@ class Transaction_Manager extends MySource_Object
 		else $this->_levels[$db_name] = 1;
 
 		if ($this->_levels[$db_name] == 1) {
-			// first time we have started a transaction
-			$result = $GLOBALS['SQ_SYSTEM']->db->query('BEGIN');
-			assert_valid_db_result($result);
+			if ($GLOBALS['SQ_SYSTEM']->db->phptype != 'oci8') {
+				// first time we have started a transaction
+				$result = $GLOBALS['SQ_SYSTEM']->db->query('BEGIN');
+				assert_valid_db_result($result);
+			}
 		}
 		return true;
 
@@ -113,6 +115,7 @@ class Transaction_Manager extends MySource_Object
 	*/
 	function commit($db_name)
 	{
+		if ($GLOBALS['SQ_SYSTEM']->db->phptype == 'oci8') return true;
 		if (empty($this->_levels[$db_name])) {
 			trigger_error('Unable to Commit, No Transaction is Open', E_USER_WARNING);
 			return false;

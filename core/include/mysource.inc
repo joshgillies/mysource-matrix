@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.95 2005/04/06 18:29:01 brobertson Exp $
+* $Id: mysource.inc,v 1.96 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix
 */
 class MySource
@@ -566,7 +566,7 @@ class MySource
 
 					// note that we dont prep this query for rollback select
 					// because we are selecting directly from the rollback table
-					$sql = 'SELECT '.SQ_TABLE_PREFIX.'eff_from AS efrom
+					$sql = 'SELECT sQ_eff_from AS efrom
 							FROM '.SQ_TABLE_ROLLBACK_PREFIX.'ast
 							WHERE assetid = '.$this->db->quote($assetid).'
 							  AND version = '.$this->db->quote($version);
@@ -1202,46 +1202,47 @@ class MySource
 	*/
 	function changeDatabaseConnection($conn)
 	{
-		switch ($conn){
-			case 'db'  :
-				if (empty($this->_db_conns[$conn])) {
-					$this->_db_conns[$conn] = DB::connect(SQ_CONF_DB_DSN);
-					if (DB::isError($this->_db_conns[$conn])) {
-						trigger_error($this->_db_conns[$conn]->getMessage(), E_USER_ERROR);
-					}
-					// make sure all results are assoc arrays
-					$this->_db_conns[$conn]->setFetchMode(DB_FETCHMODE_ASSOC);
-				}
+		$dsn = null;
+		switch ($conn) {
+			case 'db':
+				$dns = SQ_CONF_DB_DSN;
+				break;
 
-				array_push($this->_db_stack, $conn);
-				$this->db = &$this->_db_conns[$conn];
-			break;
-
-			case 'db2' :
+			case 'db2':
 				// the second database connection is only valid if we are running from the command-line
 				// because if we aren't then the script isn't going to take long enough to warrant opening
 				// a second connection
 				if (SQ_PHP_CLI) {
-					if (empty($this->_db_conns[$conn])) {
-						$this->_db_conns[$conn] = DB::connect(SQ_CONF_DB2_DSN);
-						if (DB::isError($this->_db_conns[$conn])) {
-							trigger_error($this->_db_conns[$conn]->getMessage(), E_USER_ERROR);
-						}
-						// make sure all results are assoc arrays
-						$this->_db_conns[$conn]->setFetchMode(DB_FETCHMODE_ASSOC);
-					}//endif
-					array_push($this->_db_stack, $conn);
-					$this->db = &$this->_db_conns[$conn];
+					$dsn = SQ_CONF_DB2_DSN;
 				} else {
 					array_push($this->_db_stack, 'db');
+					// we dont want to do any of the remaining work so just return
+					return;
 				}
-			break;
-
-			default :
+				break;
+			
+			default:
 				trigger_error('Database Connection Type "'.$conn.'" unknown', E_USER_WARNING);
-			break;
+				return;
+		}
 
-		}//end switch
+		if (empty($this->_db_conns[$conn])) {
+			$this->_db_conns[$conn] = DB::connect(SQ_CONF_DB_DSN);
+			if (DB::isError($this->_db_conns[$conn])) {
+				trigger_error($this->_db_conns[$conn]->getMessage(), E_USER_ERROR);
+			}
+			// make sure all results are assoc arrays
+			$this->_db_conns[$conn]->setFetchMode(DB_FETCHMODE_ASSOC);
+			
+			// if we are using oracle we want to set all tables and fields
+			// to have lowercase names
+			if ($this->_db_conns[$conn]->phptype == 'oci8') {
+				$this->_db_conns[$conn]->setOption('portability', DB_PORTABILITY_ALL);
+			}
+		}
+		
+		array_push($this->_db_stack, $conn);
+		$this->db = &$this->_db_conns[$conn];
 
 	}//end changeDatabaseConnection()
 
@@ -1401,352 +1402,13 @@ class MySource
 		$then = $_SESSION['sq_rollback_view']['rollback_time'];
 
 		if (!empty($where)) $where .= ' AND ';
-		$where .= $table_alias.SQ_TABLE_PREFIX.'eff_from <= '.$this->db->quote($then).'
-				  AND ('.$table_alias.SQ_TABLE_PREFIX.'eff_to IS NULL
-					   OR '.$table_alias.SQ_TABLE_PREFIX.'eff_to > '.$this->db->quote($then).')';
+		$where .= $table_alias.'sq_eff_from <= '.$this->db->quote($then).'
+				  AND ('.$table_alias.'sq_eff_to IS NULL
+					   OR '.$table_alias.'sq_eff_to > '.$this->db->quote($then).')';
 
 		return ' '.$prefix.' '.$where;
 
 	}//end constructRollbackWhereClause()
-
-
-	/**
-	* Given a table name and a where clause, this function will copy the rows from the table
-	* to the rollback table. It will handle the time of the rollback across script execution
-	* as well as any conflicts in the times
-	*
-	* @param string	$table_name	the base name of the table (without prefixes)
-	*							eg. asset, workflow etc
-	* @param string	$where_cond	a string to tack onto the WHERE clause of the queries
-	*							to limit the rows have rollback entries created for
-	*
-	* @return boolean
-	* @access private
-	*/
-	function _addRollbackEntry($table_name, $where_cond)
-	{
-		// if we are in rollback view, pretend we did our job but really just slack off
-		if (SQ_ROLLBACK_VIEW) return true;
-
-		if (!SQ_CONF_ROLLBACK_ENABLED) {
-			// rollback is not enabled on the system, so return true
-			// here to let the system know everything is going to plan
-			return true;
-		}
-
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
-		// work out the columns in this table and cache them
-		if (empty($this->_tmp['sq_tables'])) {
-			require SQ_DATA_PATH.'/private/db/table_columns.inc';
-			$this->_tmp['sq_tables'] = $tables;
-		}
-		$table_cols = $this->_tmp['sq_tables'][$table_name]['columns'];
-
-		$col_string = implode(', ', $table_cols);
-		$where_cond = trim($where_cond);
-		static $eff_from;
-
-		// $eff_from is declared as a static variable so that every time
-		// this function gets called through a script execution, the eff_from
-		// time is always the same, and so rollback entries are in sync
-		if (empty($eff_from)) $eff_from = time();
-		$from_time = $eff_from;
-
-		$delete = ' DELETE FROM '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.'
-					WHERE '.SQ_TABLE_PREFIX.'eff_from = '.$this->db->quote(ts_iso8601($from_time)).'
-					  AND '.$where_cond;
-		// set the eff_to time of the latest rollback entry to the
-		// eff_from of the new entry
-		$update = ' UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.'
-					SET '.SQ_TABLE_PREFIX.'eff_to = '.$this->db->quote(ts_iso8601($from_time)).'
-					WHERE '.SQ_TABLE_PREFIX.'eff_to IS NULL
-					  AND '.$where_cond;
-
-		// need an INSERT SELECT to add a rollback entry because we are basically just copying rows
-		// from the "live data" table to the rollback table
-		$insert = ' INSERT INTO '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.'
-					('.SQ_TABLE_PREFIX.'eff_from, '.SQ_TABLE_PREFIX.'eff_to, '.$col_string.') ';
-		$select = ' SELECT '.$this->db->quote(ts_iso8601($from_time)).', NULL, '.$col_string.'
-					FROM '.SQ_TABLE_PREFIX.$table_name.'
-					WHERE '.$where_cond;
-
-		$this->doTransaction('BEGIN');
-
-		// first we delete all entries in the rollback table that have the same from time
-		// and that we are going to be replacing because their value is no longer the most recent
-		// in this script execution
-		$result = $this->db->query($delete);
-		assert_valid_db_result($result);
-
-		// replace the NULL value eff_to entries because we are adding our own now
-		$result = $this->db->query($update);
-		assert_valid_db_result($result);
-
-		// and finally insert the new rollback rows
-		$result = db_extras_insert_select($this->db, $insert, $select);
-		assert_valid_db_result($result);
-
-		$this->doTransaction('COMMIT');
-		return true;
-
-	}//end _addRollbackEntry()
-
-
-	/**
-	* Constructs and executes an update query before adding rollback entries for the rows
-	* that were updated by the query
-	*
-	* @param string	$table_name		the base name of the table (without prefixes)
-	*								eg. asset, workflow etc
-	* @param array	$update_values	an array in form column => new_value
-	*								NOTE: new values must be quoted outside (ie. $db->quote())
-	* @param string	$where_cond		a string to tack onto the WHERE clause of the query
-	*								to limit the rows that get updated
-	*
-	* @return boolean
-	* @access public
-	*/
-	function rollbackUpdate($table_name, $update_values, $where_cond)
-	{
-		// if we are in rollback view, pretend we did our job but really just slack off
-		if (SQ_ROLLBACK_VIEW) return true;
-
-		$this->doTransaction('BEGIN');
-
-		// We need to add the rollback entries first, then actually update them as well as the live table
-		// because otherwise there can be issues where part of the where condition is actually modified by the
-		// set commands, and therefore is not found by the insert-select in _addRollbackEntry().
-		// eg an update like this causes problems :
-		//       UPDATE sq_asset_link SET sort_order = sort_order - 1
-		//       WHERE majorid = '1' AND sort_order > '2'
-
-		// construct the update queries
-		$live_sql     = 'UPDATE '.SQ_TABLE_PREFIX.$table_name.' SET ';
-		$rollback_sql = 'UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.' SET ';
-		foreach ($update_values as $column => $value) {
-			$live_sql     .= $column.' = '.$value.', ';
-			$rollback_sql .= $column.' = '.$value.', ';
-		}
-		$live_sql     = trim($live_sql,     ', ');
-		$rollback_sql = trim($rollback_sql, ', ');
-		if (!empty($where_cond)) {
-			$live_sql     .= ' WHERE '.$where_cond;
-			$rollback_sql .= ' WHERE '.$where_cond.' AND ';
-		} else {
-			$rollback_sql .= ' WHERE ';
-		}
-		$rollback_sql .= SQ_TABLE_PREFIX.'eff_to IS NULL';
-
-		// add the rollback entries for the rows are going to update
-		if (!$this->_addRollbackEntry($table_name, $where_cond)) {
-			$this->doTransaction('ROLLBACK');
-			return false;
-		}
-
-
-		// update the live data
-		$result = $this->db->query($live_sql);
-		assert_valid_db_result($result);
-
-		// update the rollback entries we added
-		// (but only if rollback is enabled!!)
-		if (SQ_CONF_ROLLBACK_ENABLED) {
-			$result = $this->db->query($rollback_sql);
-			assert_valid_db_result($result);
-		}
-
-		$this->doTransaction('COMMIT');
-		return true;
-
-	}//end rollbackUpdate()
-
-
-	/**
-	* Constructs and executes an insert query and then adds rollback entries for the rows
-	* that were just inserted
-	*
-	* @param string  $table_name	the base name of the table (without prefixes)
-	*								eg. asset, workflow etc
-	* @param array   $insert_values	an array in form column => value
-	*
-	* @param boolean $is_escaped	an optional flag which shows if the values are already escaped
-	* @return boolean
-	* @access public
-	*/
-	function rollbackInsert($table_name, $insert_values, $is_escaped=false)
-	{
-		// if we are in rollback view, pretend we did our job but really just slack off
-		if (SQ_ROLLBACK_VIEW) return true;
-
-		// we work out the primary key fields for the table we are inserting into
-		// so we can generate a WHERE clause based on the primary key fields and send
-		// that to the function that handles rollback so that it know which rows need
-		// rollback entries created for them
-		if (empty($this->_tmp['sq_tables'])) {
-			require SQ_DATA_PATH.'/private/db/table_columns.inc';
-			$this->_tmp['sq_tables'] = $tables;
-		}
-		$primary_cols = $this->_tmp['sq_tables'][$table_name]['primary_key'];
-
-		$col_string = '';
-		$val_string = '';
-		$where_cond = '';
-
-		// go through now and quote all the values we are inserting, as well as
-		// generate the WHERE clause based on primary key fields
-		foreach ($insert_values as $column => $value) {
-			$col_string .= $column.', ';
-			if (!$is_escaped) {
-				$value = $this->db->quoteSmart($value);
-			}
-			$val_string .= $value.', ';
-			if (in_array($column, $primary_cols)) {
-				if (!empty($where_cond)){
-					$where_cond .= ' AND ';
-				}
-				$where_cond .= $column.' = '.$value;
-			}
-		}
-		$col_string = trim($col_string, ', ');
-		$val_string = trim($val_string, ', ');
-
-		// construct the insert query
-		$insert_sql = 'INSERT INTO '.SQ_TABLE_PREFIX.$table_name.' ('.$col_string.') VALUES ('.$val_string.')';
-		$this->doTransaction('BEGIN');
-
-		$result = $this->db->query($insert_sql);
-		assert_valid_db_result($result);
-
-		// add the rollback entries for the inserted rows
-		if (!$this->_addRollbackEntry($table_name, $where_cond)) {
-			$this->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		$this->doTransaction('COMMIT');
-		return true;
-
-	}//end rollbackInsert()
-
-
-	/**
-	* Constructs and executes an insert select query and then adds rollback entries for the rows
-	* that were just inserted
-	*
-	* @param string	$table_name		the base name of the table (without prefixes)
-	*								eg. asset, workflow etc
-	* @param string	$select_from	the FROM clause (eg. asset a INNER JOIN asset_link l ON...)
-	* @param array	$insert_values	an array in form insert_column => select_column
-	*								where inset_column is the column in the INSERT table and
-	*								select_column is the column in the SELECT clause
-	*								(NOTE: select_column is NOT db->quote() because they could be column names)
-	* @param string	$where_cond		a string to tack onto the WHERE clause of the query
-	*								to limit the rows that get selected for inserting
-	*
-	* @return boolean
-	* @access public
-	*/
-	function rollbackInsertSelect($table_name, $select_from, $insert_values, $where_cond)
-	{
-		// if we are in rollback view, pretend we did our job but really just slack off
-		if (SQ_ROLLBACK_VIEW) return true;
-
-		// we work out the primary key fields for the table we are inserting into
-		// so we can generate a WHERE clause based on the primary key fields and send
-		// that to the function that handles rollback so that it know which rows need
-		// rollback entries created for them
-		if (empty($this->_tmp['sq_tables'])) {
-			require SQ_DATA_PATH.'/private/db/table_columns.inc';
-			$this->_tmp['sq_tables'] = $tables;
-		}
-		$primary_cols = $this->_tmp['sq_tables'][$table_name]['primary_key'];
-
-		// we construct a CONCAT clause here
-		$concat_string = '';
-		$concat_col = '';
-		$concat_values = Array();
-		foreach ($insert_values as $col => $value) {
-			if (in_array($col, $primary_cols)) {
-				$concat_values[$col] = $value;
-				$concat_string = $value;
-				$concat_col    = $col;
-			}
-		}
-
-		// INSERT SELECTS are funny because to work out the rows that just got inserted, we
-		// actually contrust a sub-query to pass to the rollback function by concatenating
-		// the primary key fields with a '~' and matching on that
-		// EXAMPLE: assetid~version IN ('12~0.0.2') rather than asset=12 AND version='0.0.2'
-		if (count($concat_values) > 1) {
-			foreach ($insert_values as $col => $value) {
-				$concat_string = implode(' || '.$this->db->quote('~').' || ', array_values($concat_values));
-				$concat_col = implode(' || '.$this->db->quote('~').' || ', array_keys($concat_values));
-			}
-		}
-
-		// generate the column header string for the INSERT and SELECT tables
-		$col_string = implode(', ', array_keys($insert_values));
-		$select_col_string = implode(', ', array_values($insert_values));
-
-		// construct the queries
-		$insert_sql = 'INSERT INTO '.SQ_TABLE_PREFIX.$table_name.' ('.$col_string.')';
-		$select_sql = 'SELECT '.$select_col_string. ' FROM '.$select_from.' WHERE '.$where_cond;
-
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
-		$this->doTransaction('BEGIN');
-		$result = db_extras_insert_select($this->db, $insert_sql, $select_sql);
-		assert_valid_db_result($result);
-
-		// add the rollback entries for the inserted rows
-		$where_clause = $concat_col.' IN (SELECT '.$concat_string.' FROM '.$select_from.' WHERE '.$where_cond.')';
-		if (!$this->_addRollbackEntry($table_name, $where_clause)) {
-			$this->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		$this->doTransaction('COMMIT');
-		return true;
-
-	}//end rollbackInsertSelect()
-
-
-	/**
-	* Constructs and executes a delete query after adding rollback entries for the rows
-	* that are going to be deleted by the query
-	*
-	* @param string	$table_name		the base name of the table to delete from (without prefixes)
-	*								eg. asset, workflow etc
-	* @param string	$where_cond		a string to tack onto the WHERE clause of the query
-	*								to limit the rows that get deleted
-	*
-	* @return boolean
-	* @access public
-	*/
-	function rollbackDelete($table_name, $where_cond)
-	{
-		// if we are in rollback view, pretend we did our job but really just slack off
-		if (SQ_ROLLBACK_VIEW) return true;
-
-		$this->doTransaction('BEGIN');
-
-		// add the rollback entries for the rows we are going to delete
-		if (!$this->_addRollbackEntry($table_name, $where_cond)) {
-			$this->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		// construct the delete query
-		$delete_sql = 'DELETE FROM '.SQ_TABLE_PREFIX.$table_name.' WHERE '.$where_cond;
-
-		$result = $this->db->query($delete_sql);
-		assert_valid_db_result($result);
-
-		$this->doTransaction('COMMIT');
-		return true;
-
-	}//end rollbackDelete()
 
 
 //--        LOCKING        --//
@@ -1788,11 +1450,16 @@ class MySource
 			$expires = ts_iso8601($expires);
 		}
 
+		$expires = $this->db->quote($expires);
+		if ($this->db->phptype == 'oci8') {
+			$expires = 'TO_DATE('.$expires.', '.$this->db->quote('YYYY-MM-DD HH24:MI:SS').')';
+		}
+		
 		$this->changeDatabaseConnection('db2');
-		$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'lock
+		$sql = 'INSERT INTO sq_lock
 				(lockid, source_lockid, userid, expires)
 				VALUES
-				('.$this->db->quote($lockid).','.$this->db->quote($source_lockid).','.$this->db->quote($this->currentUserid()).','.$this->db->quote($expires).')';
+				('.$this->db->quote($lockid).','.$this->db->quote($source_lockid).','.$this->db->quote($this->currentUserid()).','.$expires.')';
 		$result = $this->db->query($sql);
 		if (!assert_valid_db_result($result, '', true, false)) return 'Database Error';
 
@@ -1816,7 +1483,7 @@ class MySource
 		if (empty($current_lock)) return true;
 
 		$this->changeDatabaseConnection('db2');
-		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'lock
+		$sql = 'DELETE FROM sq_lock
 				WHERE source_lockid = '.$this->db->quote($current_lock['source_lockid']);
 
 		$result = $this->db->query($sql);
@@ -1852,7 +1519,7 @@ class MySource
 		}
 
 		$this->changeDatabaseConnection('db2');
-		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'lock
+		$sql = 'UPDATE sq_lock
 				   SET expires = '.$this->db->quote($expires).'
 				WHERE source_lockid = '.$this->db->quote($current_lock['source_lockid']);
 
@@ -1880,7 +1547,7 @@ class MySource
 		$this->changeDatabaseConnection('db2');
 
 		$sql = 'SELECT lockid, source_lockid, userid, expires
-				FROM '.SQ_TABLE_PREFIX.'lock
+				FROM sq_lock
 				WHERE lockid = '.$this->db->quote($lockid);
 
 		$result = $this->db->getRow($sql);
@@ -1900,7 +1567,7 @@ class MySource
 			if ($full_chain) {
 				$result['chained_assets'] = Array();
 				$sql = 'SELECT lockid, source_lockid, userid, expires
-						FROM '.SQ_TABLE_PREFIX.'lock
+						FROM sq_lock
 						WHERE source_lockid = '.$this->db->quote($result['source_lockid']).'
 						  AND lockid <> '.$this->db->quote($lockid);
 				$chain = $this->db->getAll($sql);
@@ -2012,7 +1679,7 @@ class MySource
 	*/
 	function getInstalledPackages()
 	{
-		$sql = 'SELECT code_name, version, name, description FROM '.SQ_TABLE_PREFIX.'pkg';
+		$sql = 'SELECT code_name, version, name, description FROM sq_pkg';
 		$packages = $this->db->getAll($sql);
 		assert_valid_db_result($packages);
 		return $packages;

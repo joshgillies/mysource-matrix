@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.16 2005/04/05 00:53:37 arailean Exp $
+* $Id: tables.xml,v 1.17 2005/04/06 23:05:33 mmcintyre Exp $
 *
 */
 -->
@@ -277,7 +277,9 @@
 			<columns>
 				<column name="treeid" allow_null="0">
 					<type>TEXT</type>
-					<type_variations />
+					<type_variations>
+						<oci8>VARCHAR(4000)</oci8>
+					</type_variations>
 					<default>''</default>
 					<description />
 				</column>
@@ -425,7 +427,9 @@
 				</column>
 				<column name="parameters_val" allow_null="1">
 					<type>TEXT</type>
-					<type_variations />
+					<type_variations>
+						<oci8>CLOB</oci8>
+					</type_variations>
 					<default />
 					<description />
 				</column>
@@ -437,13 +441,17 @@
 				</column>
 				<column name="default_val" allow_null="1">
 					<type>TEXT</type>
-					<type_variations />
+					<type_variations>
+						<oci8>CLOB</oci8>
+					</type_variations>
 					<default>''</default>
 					<description />
 				</column>
 				<column name="description" allow_null="1">
 					<type>TEXT</type>
-					<type_variations />
+					<type_variations>
+						<oci8>CLOB</oci8>
+					</type_variations>
 					<default>''</default>
 					<description />
 				</column>
@@ -482,7 +490,9 @@
 				</column>
 				<column name="custom_val" allow_null="1">
 					<type>TEXT</type>
-					<type_variations />
+					<type_variations>
+						<oci8>CLOB</oci8>
+					</type_variations>
 					<default />
 					<description />
 				</column>
@@ -519,7 +529,9 @@
 				</column>
 				<column name="custom_val" allow_null="0">
 					<type>TEXT</type>
-					<type_variations />
+					<type_variations>
+						<oci8>CLOB</oci8>
+					</type_variations>
 					<default />
 					<description />
 				</column>
@@ -596,7 +608,9 @@
 				</column>
 				<column name="url" allow_null="0">
 					<type>TEXT</type>
-					<type_variations />
+					<type_variations>
+						<oci8>CLOB</oci8>
+					</type_variations>
 					<default>''</default>
 					<description />
 				</column>
@@ -664,7 +678,9 @@
 			<columns>
 				<column name="url" allow_null="0">
 					<type>TEXT</type>
-					<type_variations />
+					<type_variations>
+						<oci8>CLOB</oci8>
+					</type_variations>
 					<default>''</default>
 					<description />
 				</column>
@@ -708,7 +724,9 @@
 			<columns>
 				<column name="url" allow_null="0">
 					<type>TEXT</type>
-					<type_variations />
+					<type_variations>
+						<oci8>CLOB</oci8>
+					</type_variations>
 					<default>''</default>
 					<description />
 				</column>
@@ -747,13 +765,17 @@
 			<columns>
 				<column name="url" allow_null="0">
 					<type>TEXT</type>
-					<type_variations />
+					<type_variations>
+						<oci8>CLOB</oci8>
+					</type_variations>
 					<default>''</default>
 					<description>The URL that is remapping to another URL</description>
 				</column>
 				<column name="remap_url" allow_null="0">
 					<type>TEXT</type>
-					<type_variations />
+					<type_variations>
+						<oci8>CLOB</oci8>
+					</type_variations>
 					<default>''</default>
 					<description>The (hopefully) valid URL that is being remapped to</description>
 				</column>
@@ -867,7 +889,9 @@
 				</column>
 				<column name="metadata" allow_null="0">
 					<type>TEXT</type>
-					<type_variations />
+					<type_variations>
+						<oci8>CLOB</oci8>
+					</type_variations>
 					<default>''</default>
 					<description />
 				</column>
@@ -902,7 +926,9 @@
 				</column>
 				<column name="value" allow_null="0">
 					<type>TEXT</type>
-					<type_variations />
+					<type_variations>
+						<oci8>CLOB</oci8>
+					</type_variations>
 					<default>''</default>
 					<description />
 				</column>
@@ -931,7 +957,9 @@
 				</column>
 				<column name="wflow" allow_null="1">
 					<type>TEXT</type>
-					<type_variations />
+					<type_variations>
+						<oci8>CLOB</oci8>
+					</type_variations>
 					<default>NULL</default>
 					<description />
 				</column>
@@ -978,7 +1006,9 @@
 				</column>
 				<column name="body" allow_null="0">
 					<type>TEXT</type>
-					<type_variations />
+					<type_variations>
+						<oci8>CLOB</oci8>
+					</type_variations>
 					<default>''</default>
 					<description />
 				</column>
@@ -1008,7 +1038,9 @@
 				</column>
 				<column name="parameters" allow_null="1">
 					<type>TEXT</type>
-					<type_variations />
+					<type_variations>
+						<oci8>CLOB</oci8>
+					</type_variations>
 					<default>''</default>
 					<description>Any params needed for search or jut making sense of the message in the form "key:value;key:value" eg. assetid:4;attributeid:12</description>
 				</column>
@@ -1054,25 +1086,33 @@
 				</column>
 				<column name="hipo_vars" allow_null="0">
 					<type>TEXT</type>
-					<type_variations />
+					<type_variations>
+						<oci8>CLOB</oci8>
+					</type_variations>
 					<default>''</default>
 					<description />
 				</column>
 				<column name="options" allow_null="0">
 					<type>TEXT</type>
-					<type_variations />
+					<type_variations>
+						<oci8>CLOB</oci8>
+					</type_variations>
 					<default>''</default>
 					<description />
 				</column>
 				<column name="steps" allow_null="0">
 					<type>TEXT</type>
-					<type_variations />
+					<type_variations>
+						<oci8>CLOB</oci8>
+					</type_variations>
 					<default>''</default>
 					<description />
 				</column>
 				<column name="running_vars" allow_null="0">
 					<type>TEXT</type>
-					<type_variations />
+					<type_variations>
+						<oci8>CLOB</oci8>
+					</type_variations>
 					<default>''</default>
 					<description />
 				</column>
@@ -1165,7 +1205,9 @@
 				</column>
 				<column name="description" allow_null="1">
 					<type>TEXT</type>
-					<type_variations />
+					<type_variations>
+						<oci8>CLOB</oci8>
+					</type_variations>
 					<default></default>
 					<description />
 				</column>
@@ -1206,7 +1248,9 @@
 				</column>
 				<column name="data" allow_null="1">
 					<type>TEXT</type>
-					<type_variations />
+					<type_variations>
+						<oci8>CLOB</oci8>
+					</type_variations>
 					<default />
 					<description>Serialized trigger data</description>
 				</column>
@@ -1254,9 +1298,11 @@
 					<default />
 					<description>Asset Type of the asset broadcasting the event</description>
 				</column>
-				<column name="treeid" allow_null="1">
+				<column name="treeid" allow_null="0">
 					<type>TEXT</type>
-					<type_variations />
+					<type_variations>
+						<oci8>CLOB</oci8>
+					</type_variations>
 					<default />
 					<description>Tree ID. If broadcaster is a child of it (immediate or not) the trigger might want to be executed.</description>
 				</column>
@@ -1331,6 +1377,128 @@
 				</index>
 			</indexes>
 		</table>
+		<table name="file_vers_file" require_rollback="0">
+			<columns>
+				<column name="fileid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="path" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default>''</default>
+					<description>The directory suffix from the repository root that this file is situated in</description>
+				</column>
+				<column name="filename" allow_null="0">
+					<type>VARCHAR(150)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="fileid" />
+				</primary_key>
+				<unique_key>
+					<column name="path" />
+					<column name="filename" />
+				</unique_key>
+			</keys>
+			<indexes />
+		</table>
+		<table name="file_vers_history" require_rollback="0">
+			<columns>
+				<column name="fileid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="version" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="from_date" allow_null="0">
+					<type>TIMESTAMP</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="to_date" allow_null="1">
+					<type>TIMESTAMP</type>
+					<type_variations />
+					<default>NULL</default>
+					<description />
+				</column>
+				<column name="file_size" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="md5" allow_null="0">
+					<type>CHAR(32)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="sha1" allow_null="0">
+					<type>CHAR(40)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="removal" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'0'</default>
+					<description>Was this version a removed version ?</description>
+				</column>
+				<column name="extra_info" allow_null="1">
+					<type>TEXT</type>
+					<type_variations>
+						<oci8>CLOB</oci8>
+					</type_variations>
+					<default>''</default>
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="fileid" />
+					<column name="version" />
+				</primary_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="from_date" />
+				</index>
+				<index>
+					<column name="to_date" />
+				</index>
+			</indexes>
+		</table>
+		<table name="file_vers_lock" require_rollback="0">
+			<columns>
+				<column name="fileid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />>
+					<default>''</default>
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="fileid" />
+				</primary_key>
+			</keys>
+			<indexes />
+		</table>
 	</tables>
 	<sequences>
 		<sequence name="ast" />
@@ -1339,6 +1507,7 @@
 		<sequence name="ast_url" />
 		<sequence name="internal_msg" />
 		<sequence name="trig_id" />
+		<sequence name="file_vers_file" />
 	</sequences>
 </schema>
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.66 2005/03/29 06:59:59 arailean Exp $
+* $Id: package_manager.inc,v 1.67 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -168,7 +168,7 @@ class Package_Manager extends MySource_Object
 			list($result, $req) = $this->checkRequirementsFromFile($file, true);
 
 			if (!$result) {
-				trigger_error('Asset "'.$type_code.'" fails the "'.$req['type'].'" requirement for "'.$req['code'].' v'.$req['version'].'"'."\n".'As specified by '.$file.' and will be deferred', E_USER_WARNING);
+				bam('Asset "'.$type_code.'" fails the "'.$req['type'].'" requirement for "'.$req['code'].' v'.$req['version'].'"'."\n".'As specified by '.$file.' and will be deferred');
 				// It failed the requirement, so we want to let the caller know what asset
 				// failed so that it can be revisited at a later date if needbe
 				$deferred_assets[] = $type_code;
@@ -179,7 +179,7 @@ class Package_Manager extends MySource_Object
 			// or that the type is in this package that we are checking
 			$parent_type = $this->assets[$type_code]['parent_type'];
 			if ($parent_type != 'asset' && !$am->installed($parent_type) && !isset($this->assets[$parent_type])) {
-				trigger_error('Asset "'.$type_code.'" attempts to inherit from the unknown type "'.$parent_type.'"'."\n".'As specified by '.$file, E_USER_WARNING);
+				bam('Asset "'.$type_code.'" attempts to inherit from the unknown type "'.$parent_type.'"'."\n".'As specified by '.$file);
 				// It failed the requirement, so we want to let the caller know what asset
 				// failed so that it can be revisited at a later date if needbe
 				$deferred_assets[] = $type_code;
@@ -227,17 +227,17 @@ class Package_Manager extends MySource_Object
 			// open the transaction
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-			$exists = $db->getOne('SELECT code_name FROM '.SQ_TABLE_PREFIX.'pkg WHERE code_name = '.$db->quote($package_name));
+			$exists = $db->getOne('SELECT code_name FROM sq_pkg WHERE code_name = '.$db->quote($package_name));
 			assert_valid_db_result($exists);
 
 			if ($exists) {
-				$sql = 'UPDATE '.SQ_TABLE_PREFIX.'pkg
+				$sql = 'UPDATE sq_pkg
 						SET version     = '.$db->quote($this->version).',
 							name        = '.$db->quote($this->name).',
 							description = '.$db->quote($this->description).'
 						WHERE code_name = '.$db->quote($package_name);
 			} else {
-				$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'pkg
+				$sql = 'INSERT INTO sq_pkg
 						(code_name, version, name, description)
 						VALUES
 						('.$db->quote($package_name).', '.$db->quote($this->version).',
@@ -535,7 +535,7 @@ class Package_Manager extends MySource_Object
 			$ok = false;
 			switch ($req['@type']) {
 				case 'package' :
-					$installed_version = $GLOBALS['SQ_SYSTEM']->db->getOne('SELECT version FROM '.SQ_TABLE_PREFIX.'pkg WHERE code_name = '.$GLOBALS['SQ_SYSTEM']->db->quote($req['code']['value']));
+					$installed_version = $GLOBALS['SQ_SYSTEM']->db->getOne('SELECT version FROM sq_pkg WHERE code_name = '.$GLOBALS['SQ_SYSTEM']->db->quote($req['code']['value']));
 					assert_valid_db_result($installed_version);
 
 					if ($installed_version) {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: maps.inc,v 1.14 2005/02/20 23:01:16 mnyeholt Exp $
+* $Id: maps.inc,v 1.15 2005/04/06 23:05:35 mmcintyre Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define('SQ_MAPS_INSTALLED'  , 'I');
 *    Looks aftet the automated patching of the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -141,7 +141,7 @@ class Maps extends MySource_Object
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT patchid, installed
-				FROM '.SQ_TABLE_PREFIX.'patches';
+				FROM sq_patches';
 
 		$db_patches = $db->getAssoc($sql);
 		if (DB::isError($db_patches)) {
@@ -455,7 +455,7 @@ class Maps extends MySource_Object
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT userid, lockid, source_lockid, expires
-				FROM '.SQ_TABLE_PREFIX.'lock
+				FROM sq_lock
 				WHERE expires >= NOW()
 				ORDER BY expires DESC';
 
@@ -601,8 +601,8 @@ class Maps extends MySource_Object
 	{
 		// Check if the patch is in the database.
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = "SELECT patchid, installed
-				FROM ".SQ_TABLE_PREFIX."patches WHERE patchid=".$db->quote($patchid);
+		$sql = 'SELECT patchid, installed
+				FROM sq_patches WHERE patchid='.$db->quote($patchid);
 		$db_patches = $db->getOne($sql);
 		
 		if (DB::isError($db_patches)) {
@@ -650,8 +650,8 @@ class Maps extends MySource_Object
 		
 		// Check if the patch is in the database.
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = "SELECT patchid, installed
-				FROM ".SQ_TABLE_PREFIX."patches WHERE patchid=".$db->quote($patchid);
+		$sql = 'SELECT patchid, installed
+				FROM sq_patches WHERE patchid='.$db->quote($patchid);
 		$db_patches = $db->getOne($sql);
 		
 		if (DB::isError($db_patches)) {
@@ -666,7 +666,7 @@ class Maps extends MySource_Object
 		}
 		
 		
-		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'patches WHERE patchid = '.$db->quote($patchid);
+		$sql = 'DELETE FROM sq_patches WHERE patchid = '.$db->quote($patchid);
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);

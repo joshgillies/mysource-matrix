@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.34 2005/03/24 05:07:03 dheppell Exp $
+* $Id: search_page_management.inc,v 1.35 2005/04/06 23:09:46 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -312,10 +312,16 @@ class Search_Page_Management extends Asset_Management
 									 'value'   => $db->quote('default_format'),
 									 );
 
-					if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_lnk', $updates, 'linkid = '.$db->quote($ri_link['linkid']))) {
-						trigger_error('Could not upgrade Search Page (to 0.8) - could not update link of default result element', E_USER_WARNING);
-						return false;
-					}
+					$sql = 'UPDATE
+								sq_ast_lnk
+							SET
+								majorid	= '.$db->quoteSmart($type_formats->id).',
+								value	= '.$db->quoteSmart('default_format').'
+							WHERE
+								linkid = '.$db->quoteSmart($ri_link['linkid']);
+									 
+					$result = $db->query($sql);
+					assert_valid_db_result($result);
 
 				}
 

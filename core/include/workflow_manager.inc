@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.63 2005/03/28 23:11:25 gsherwood Exp $
+* $Id: workflow_manager.inc,v 1.64 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -170,17 +170,24 @@ class Workflow_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		// add the schema to the database
-		$values = Array(
-					'assetid'	=> $asset->id,
-					'schemaid'	=> $schemaid,
-					'wflow'		=> NULL,
-					'granted'	=> (($granted) ? '1' : '0'),
-				  );
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_wflow', $values)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
+		$sql = 'INSERT INTO
+					sq_ast_wflow
+					(
+						assetid,
+						schemaid,
+						wflow,
+						granted
+					)
+					VALUES
+					(
+						'.$db->quoteSmart($asset->id).',
+						'.$db->quoteSmart($schemaid).',
+						'.$db->quoteSmart(null).',
+						'.$db->quoteSmart((($granted) ? '1' : '0')).'
+					)';
+		
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
 
 		unset($this->_tmp['schemas'][(int)$assetid]);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -224,13 +231,14 @@ class Workflow_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		// delete and add rollback entries
-		$where = 'schemaid    = '.$db->quote($schemaid).'
-				  AND assetid = '.$db->quote($asset->id);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_wflow', $where)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
+		$sql = 'DELETE FROM
+					sq_ast_wflow
+				WHERE
+					schemaid	= '.$db->quoteSmart($schemaid).'
+				AND	assetid		= '.$db->quoteSmart($asset->id);
+		
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
 
 		unset($this->_tmp['schemas'][(int)$assetid]);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -271,8 +279,11 @@ class Workflow_Manager extends MySource_Object
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-			$sql = 'SELECT schemaid, wflow
-					  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_wflow ';
+			$sql = 'SELECT
+						schemaid, wflow
+					FROM
+						'.SQ_TABLE_RUNNING_PREFIX.'ast_wflow ';
+
 			$where = 'assetid = '.$db->quote($assetid).'
 						AND granted = 1';
 			if ($schemaid != 'all') $where .= ' AND schemaid = '.$db->quote($schemaid);
@@ -344,13 +355,16 @@ class Workflow_Manager extends MySource_Object
 
 			if (!isset($workflow[$schema->name])) continue;
 
-			$values = Array('wflow' => $db->quote(serialize($workflow[$schema->name])));
-			$where = 'assetid = '.$db->quote($asset->id).'
-						AND schemaid = '.$db->quote($schema->id);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_wflow', $values, $where)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
+			$sql = 'UPDATE
+						sq_ast_wflow
+					SET
+						wflow = '.$db->quoteSmart(serialize($workflow[$schema->name])).'
+					WHERE
+							assetid		= '.$db->quote($asset->id).'
+						AND	schemaid	= '.$db->quote($schema->id);
+			
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
 
 			$this->_tmp['schema_workflows'][$assetid][$schemaid] = $workflow[$schema->name];
 		}
@@ -661,13 +675,17 @@ class Workflow_Manager extends MySource_Object
 			$workflow =& $schema_workflows[$schemaid];
 			if ($this->_recordPublish($workflow, $publisher)) {
 				$new_workflow = serialize($workflow);
-				$values = Array('wflow' => $db->quote($new_workflow));
-				$where = 'assetid = '.$db->quote($assetid).'
-							AND schemaid = '.$db->quote($schemaid);
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_wflow', $values, $where)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
+				
+				$sql = 'UPDATE
+							sq_ast_wflow
+						SET
+							wflow = '.$db->quoteSmart($new_workflow).'
+						WHERE
+								assetid		= '.$db->quoteSmart($assetid).'
+							AND	schemaid	= '.$db->quoteSmart($schemaid);
+				
+				$result = $db->query($sql);
+				assert_valid_db_result($result);
 
 				// updated cached version of this workflow
 				$this->_tmp['schema_workflows'][$assetid][$schemaid] = $workflow;
@@ -913,13 +931,17 @@ class Workflow_Manager extends MySource_Object
 			if (empty($workflow['steps'])) continue;
 			$workflow = serialize($workflow);
 
-			$values = Array('wflow' => $db->quote($workflow));
-			$where = 'assetid = '.$db->quote($assetid).'
-						AND schemaid = '.$db->quote($schemaid);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_wflow', $values, $where)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
+			$sql = 'UPDATE
+						sq_ast_wflow
+					SET
+						wflow	= '.$db->quoteSmart($workflow).'
+					WHERE
+							assetid		= '.$db->quoteSmart($assetid).'
+						AND	schemaid	= '.$db->quoteSmart($schemaid);
+			
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+		
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
@@ -1114,13 +1136,17 @@ class Workflow_Manager extends MySource_Object
 	function _clearWorkflow($assetid)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$values = Array('wflow' => 'NULL');
-		$where = 'assetid = '.$db->quote($assetid);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_wflow', $values, $where)) {
-			trigger_error('Failed clearing workflow for asset #'.$assetid, E_USER_WARNING);
-			return false;
-		}
+		
+		$sql = 'UPDATE
+					sq_ast_wflow
+				SET
+					wflow = NULL
+				WHERE
+					assetid	 = '.$db->quoteSmart($assetid);
 
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+		
 		unset($this->_tmp['schemas'][$assetid]);
 		unset($this->_tmp['schema_workflows'][$assetid]);
 		return true;
@@ -1134,14 +1160,21 @@ class Workflow_Manager extends MySource_Object
 	* @param string	$assetid	the asset id
 	*
 	* @return boolean
-	* @access public
+	* @access void
 	*/
 	function purgeWorkflow($assetid)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$where_cond = 'assetid='.$db->quote($assetid);
+		
+		$sql = 'DELETE FROM
+					sq_ast_wflow
+				WHERE
+					assetid	= '.$db->quoteSmart($assetid);
 
-		return $GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_wflow', $where_cond);
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+		
+		return true;
 
 	}//end purgeWorkflow()
 

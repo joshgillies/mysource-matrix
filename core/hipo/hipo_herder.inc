@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.58 2005/03/23 22:57:15 ndvries Exp $
+* $Id: hipo_herder.inc,v 1.59 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -102,7 +102,7 @@ class HIPO_Herder extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'SELECT job_type, hipo_vars
-					FROM '.SQ_TABLE_PREFIX.'hipo_job
+					FROM sq_hipo_job
 					WHERE code_name = '.$db->quote($code_name);
 			$hipo_vars = $db->getRow($sql);
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -631,7 +631,7 @@ class HIPO_Herder extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT code_name, job_type
-				FROM '.SQ_TABLE_PREFIX.'hipo_job
+				FROM sq_hipo_job
 				WHERE userid = '.$db->quote($GLOBALS['SQ_SYSTEM']->currentUserId()).'
 				  AND running = 0';
 		$queued_jobs = $db->getAll($sql);
@@ -670,7 +670,7 @@ class HIPO_Herder extends MySource_Object
 			}
 		}
 
-		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'hipo_job
+		$sql = 'UPDATE sq_hipo_job
 				SET running = 1
 				WHERE code_name IN ('.implode(', ',$job_codes).')';
 
@@ -847,7 +847,7 @@ class HIPO_Herder extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'SELECT source_code_name, code_name, job_type
-					FROM '.SQ_TABLE_PREFIX.'hipo_job';
+					FROM sq_hipo_job';
 
 			// regular users can only see own HIPO
 			if (!$hipo_admin) {

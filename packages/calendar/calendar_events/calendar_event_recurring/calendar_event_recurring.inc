@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.53 2005/01/06 04:39:54 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.54 2005/04/06 23:09:32 mmcintyre Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -946,29 +946,44 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		// if updating attribute then we use
-		// rollbackUpdate('...', $date_values, $where)
 		if (!$updating) {
 			// set the asset ids
 			$date_values['assetid'] = $this->id;
-
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('cal_date_val', $date_values)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
+			
+			for (reset($date_values); null !== ($key = key($date_values)); next($date_values)) {
+				$date_values[$key] = $db->quoteSmart($date_values[$key]);
 			}
+			$val_string = implode(',', $date_values);
+			
+			$sql = 'INSERT INTO
+						sq_cal_date_val
+						(
+							'.implode(',', array_keys($date_values)).'
+						)
+						VALUES
+						(
+							'.$val_string.'
+						)';
+			
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+
 		} else {
-			// now quote everything except null values
-			foreach (array_keys($date_values) as $key) {
-				$date_values[$key] = (is_null($date_values[$key]) ? 'null' : 	$db->quote($date_values[$key]));
-			}
-
 			// asset id becomes a where condition
-			$where = ' assetid = '.$db->quote($this->id);
-
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('cal_date_val', $date_values, $where)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
+			$sql = 'UPDATE
+						sq_cal_date_val
+					SET ';
+				
+			$set_array = Array();
+			foreach ($date_values as $key => $value) {
+				$set_array[] = $key.' = '.((is_null($value)) ? 'null' : $db->quoteSmart($value));
 			}
+			$sql .= implode(',', $set_array);
+			$sql .=' WHERE
+						assetid = '.$db->quoteSmart($this->id);
+
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');

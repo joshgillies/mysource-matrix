@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_change_dn.php,v 1.4 2005/04/05 01:22:01 gsherwood Exp $
+* $Id: ldap_change_dn.php,v 1.5 2005/04/06 23:09:40 mmcintyre Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Alter the database to reflect that the DN of a user has changed
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage ldap
 */
@@ -102,7 +102,7 @@ $db =& $GLOBALS['SQ_SYSTEM']->db;
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 	printActionName('Changing asset permissions');
-		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'ast_perm
+		$sql = 'UPDATE sq_ast_perm
 				SET userid = '.$db->quote($new_dn).'
 				WHERE userid = '.$db->quote($old_dn);
 		$result = $db->query($sql);
@@ -118,13 +118,13 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 	printActionStatus('OK');
 
 	printActionName('Changing internal messages');
-		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'internal_msg
+		$sql = 'UPDATE sq_internal_msg
 				SET userto = '.$db->quote($new_dn).'
 				WHERE userto = '.$db->quote($old_dn);
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
-		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'internal_msg
+		$sql = 'UPDATE sq_internal_msg
 				SET userfrom = '.$db->quote($new_dn).'
 				WHERE userfrom = '.$db->quote($old_dn);
 		$result = $db->query($sql);
@@ -132,7 +132,7 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 	printActionStatus('OK');
 
 	printActionName('Changing screen access');
-		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'ast_edit_access
+		$sql = 'UPDATE sq_ast_edit_access
 				SET userid = '.$db->quote($new_dn).'
 				WHERE userid = '.$db->quote($old_dn);
 		$result = $db->query($sql);
@@ -148,19 +148,19 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 	printActionStatus('OK');
 
 	printActionName('Changing locks');
-		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'lock
+		$sql = 'UPDATE sq_lock
 				SET userid = '.$db->quote($new_dn).'
 				WHERE userid = '.$db->quote($old_dn);
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
-		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'lock
+		$sql = 'UPDATE sq_lock
 				SET lockid = '.$db->quote('asset.'.$new_dn).'
 				WHERE lockid = '.$db->quote('asset.'.$old_dn);
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
-		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'lock
+		$sql = 'UPDATE sq_lock
 				SET source_lockid = '.$db->quote('asset.'.$new_dn).'
 				WHERE source_lockid = '.$db->quote('asset.'.$old_dn);
 		$result = $db->query($sql);

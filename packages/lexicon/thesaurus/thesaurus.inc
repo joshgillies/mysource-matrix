@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.9 2005/03/22 22:01:40 tbarrett Exp $
+* $Id: thesaurus.inc,v 1.10 2005/04/06 23:09:43 mmcintyre Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -283,7 +283,7 @@ class Thesaurus extends Asset
 
 		$sql = "SELECT id, name, description FROM !lex_thes_ent WHERE thes_id = ?";
 		$data = Array(
-			SQ_TABLE_PREFIX,
+			'sq_',
 			$this->id,
 		);
 
@@ -307,7 +307,7 @@ class Thesaurus extends Asset
 
 		$sql = "SELECT count(*) FROM !lex_thes_ent WHERE thes_id = ?";
 		$data = Array(
-			SQ_TABLE_PREFIX,
+			'sq_',
 			$this->id,
 		);
 
@@ -335,7 +335,7 @@ class Thesaurus extends Asset
 
 		$sql = "SELECT id, name, description FROM !lex_thes_ent WHERE thes_id = ? AND name ILIKE '%!%'";
 		$data = Array(
-			SQ_TABLE_PREFIX,
+			'sq_',
 			$this->id,
 
 			$db->escapeSimple($guess),
@@ -367,7 +367,7 @@ class Thesaurus extends Asset
 		$sql = 'SELECT id, name, description FROM !lex_thes_ent WHERE thes_id = ? AND id = ? ';
 
 		$data = Array(
-			SQ_TABLE_PREFIX,
+			'sq_',
 			$this->id,
 			$entity_id,
 		);
@@ -398,7 +398,7 @@ class Thesaurus extends Asset
 		$sql = 'SELECT id, name, description FROM !lex_thes_ent WHERE thes_id = ? AND name = ? ';
 
 		$data = Array(
-			SQ_TABLE_PREFIX,
+			'sq_',
 			$this->id,
 
 			$name,
@@ -449,8 +449,8 @@ class Thesaurus extends Asset
 		';
 
 		$data = Array(
-			SQ_TABLE_PREFIX,
-			SQ_TABLE_PREFIX,
+			'sq_',
+			'sq_',
 			$this->id,
 
 			$relation_id,
@@ -492,7 +492,7 @@ class Thesaurus extends Asset
 		$sql = ' SELECT COUNT(*) FROM !lex_thes_ent_rel WHERE "thes_id"  = ? AND "rel_id"   = ? ';
 
 		$data = Array(
-			SQ_TABLE_PREFIX,
+			'sq_',
 			$this->id,
 			$relation_id,
 		);
@@ -552,8 +552,8 @@ class Thesaurus extends Asset
 		';
 
 		$data = Array(
-			SQ_TABLE_PREFIX,
-			SQ_TABLE_PREFIX,
+			'sq_',
+			'sq_',
 			$this->id,
 
 			$relation_id,
@@ -608,8 +608,8 @@ class Thesaurus extends Asset
 		';
 
 		$data = Array(
-			SQ_TABLE_PREFIX,
-			SQ_TABLE_PREFIX,
+			'sq_',
+			'sq_',
 			$this->id,
 
 			$child_entity_id,
@@ -644,7 +644,7 @@ class Thesaurus extends Asset
 		$sql = "SELECT count(rel_id) FROM !lex_thes_ent_rel WHERE  thes_id = ? AND cld_ent_id = ?";
 
 		$data = Array(
-			SQ_TABLE_PREFIX,
+			'sq_',
 			$this->id,
 
 			$child_entity_id,
@@ -679,7 +679,7 @@ class Thesaurus extends Asset
 		$sql = 'SELECT count(rel_id) FROM !lex_thes_ent_rel WHERE "thes_id" = ? AND "pnt_ent_id" = ?';
 
 		$data = Array(
-			SQ_TABLE_PREFIX,
+			'sq_',
 			$this->id,
 
 			$parent_entity_id,
@@ -711,7 +711,7 @@ class Thesaurus extends Asset
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$table_prefix = SQ_TABLE_PREFIX;
+		$table_prefix = 'sq_';
 
 		$sql ='
 
@@ -733,8 +733,8 @@ class Thesaurus extends Asset
 		';
 
 		$data = Array(
-			SQ_TABLE_PREFIX,
-			SQ_TABLE_PREFIX,
+			'sq_',
+			'sq_',
 			$this->id,
 
 			$parent_entity_id,
@@ -761,7 +761,7 @@ class Thesaurus extends Asset
 
 		$sql = 'SELECT id, name FROM !lex_thes_rel where "thes_id" = ?';
 		$data = Array(
-			SQ_TABLE_PREFIX,
+			'sq_',
 			$this->id,
 		);
 
@@ -786,7 +786,7 @@ class Thesaurus extends Asset
 
 		$sql = "SELECT count(*) FROM !lex_thes_rel where thes_id = ?";
 		$data = Array(
-			SQ_TABLE_PREFIX,
+			'sq_',
 			$this->id,
 		);
 
@@ -817,7 +817,7 @@ class Thesaurus extends Asset
 		$sql = "SELECT id, name FROM !lex_thes_rel WHERE thes_id = ? AND id = ?";
 
 		$data = Array(
-			SQ_TABLE_PREFIX,
+			'sq_',
 			$this->id,
 
 			$id,
@@ -859,7 +859,7 @@ class Thesaurus extends Asset
 			$sql = "SELECT id, name FROM !lex_thes_rel WHERE thes_id = ? AND name = ?";
 
 			$data = Array(
-				SQ_TABLE_PREFIX,
+				'sq_',
 				$this->id,
 
 				$name,
@@ -927,9 +927,9 @@ class Thesaurus extends Asset
 		';
 
 		$data = Array(
-			SQ_TABLE_PREFIX,
-			SQ_TABLE_PREFIX,
-			SQ_TABLE_PREFIX,
+			'sq_',
+			'sq_',
+			'sq_',
 			$this->id,
 
 			$relation_id,
@@ -975,13 +975,13 @@ class Thesaurus extends Asset
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$id = $db->nextId(SQ_TABLE_PREFIX.'lex_thes_ent_id');
+		$id = $db->nextId('sq_lex_thes_ent_id');
 		assert_valid_db_result($id);
 
 		$sql = 'INSERT INTO !lex_thes_ent ("thes_id", "id", "name", "description") VALUES (?,?,?,?)';
 
 		$data = Array(
-			SQ_TABLE_PREFIX,
+			'sq_',
 			$this->id,
 
 			$id,
@@ -1015,13 +1015,13 @@ class Thesaurus extends Asset
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$id = $db->nextId(SQ_TABLE_PREFIX.'lex_thes_rel_id');
+		$id = $db->nextId('sq_lex_thes_rel_id');
 		assert_valid_db_result($id);
 
 		$sql = 'INSERT INTO !lex_thes_rel ("thes_id", "id", "name") VALUES (?,?,?)';
 
 		$data = Array(
-			SQ_TABLE_PREFIX,
+			'sq_',
 			$this->id,
 
 			$id,
@@ -1073,7 +1073,7 @@ class Thesaurus extends Asset
 		';
 
 		$data = Array(
-			SQ_TABLE_PREFIX,
+			'sq_',
 			$this->id,
 
 			$parent_id,
@@ -1153,11 +1153,11 @@ class Thesaurus extends Asset
 		';
 
 		$data = Array(
-			SQ_TABLE_PREFIX,
-			SQ_TABLE_PREFIX,
+			'sq_',
+			'sq_',
 			$this->id,
 			$relation_id,
-			SQ_TABLE_PREFIX,
+			'sq_',
 			$this->id,
 			$relation_id,
 		);
@@ -1212,11 +1212,11 @@ class Thesaurus extends Asset
 		';
 
 		$data = Array(
-			SQ_TABLE_PREFIX,
+			'sq_',
 			$this->id,
-			SQ_TABLE_PREFIX,
+			'sq_',
 			$this->id,
-			SQ_TABLE_PREFIX,
+			'sq_',
 			$this->id,
 		);
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.382 2005/03/30 00:40:11 lwright Exp $
+* $Id: asset.inc,v 1.383 2005/04/06 23:05:34 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.382 $
+* @version $Revision: 1.383 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -249,6 +249,8 @@ class Asset extends MySource_Object
 				assert_not_empty(($link['link_type'] & SQ_SC_LINK_SIGNIFICANT), 'Cannot create asset with an insignificant link type');
 			}
 		}
+		
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		// let the system know that we are creating this asset so we dont
 		// do any updating of versions etc. until we are done
@@ -261,29 +263,46 @@ class Asset extends MySource_Object
 		$now    = time();
 		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		$initial_version = '0.0.1';
-
-		$values = Array(
-					'assetid'				=> $assetid,
-					'version'				=> $initial_version,
-					'type_code'				=> $this->type(),
-					'name'					=> $name,
-					'short_name'			=> $name,
-					'status'				=> SQ_STATUS_UNDER_CONSTRUCTION,
-					'created'				=> ts_iso8601($now),
-					'created_userid'		=> $userid,
-					'updated'				=> ts_iso8601($now),
-					'updated_userid'		=> $userid,
-					'published'				=> null,
-					'published_userid'		=> null,
-					'status_changed'		=> ts_iso8601($now),
-					'status_changed_userid'	=> $userid,
-				  );
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast', $values)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			unset($this->_tmp['__creating__']);
-			return false;
-		}
-
+		
+		$now_sql = db_extras_todate($db, ts_iso8601($now));
+		$sql = 'INSERT INTO
+					sq_ast
+				(
+					assetid,
+					version,
+					type_code,
+					name,
+					short_name,
+					status,
+					created,
+					created_userid,
+					updated,
+					updated_userid,
+					published,
+					published_userid,
+					status_changed,
+					status_changed_userid
+				)
+				VALUES
+				(
+					'.$db->quoteSmart($assetid).',
+					'.$db->quoteSmart($initial_version).',
+					'.$db->quoteSmart($this->type()).',
+					'.$db->quoteSmart($name).',
+					'.$db->quoteSmart($name).',
+					'.$db->quoteSmart(SQ_STATUS_UNDER_CONSTRUCTION).',
+					'.$now_sql.',
+					'.$db->quoteSmart($userid).',
+					'.$now_sql.',
+					'.$db->quoteSmart($userid).',
+					  null,
+					  null,
+					'.$now_sql.',
+					'.$db->quoteSmart($userid).')';
+					
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+		
 		$this->id                    = $assetid;
 		$this->version               = $initial_version;
 		$this->name                  = $name;
@@ -333,7 +352,6 @@ class Asset extends MySource_Object
 		$message->parameters['assetid'] = $this->id;
 		$message->send();
 
-
 		// set the attribute values that have been stored temporarily
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) {
@@ -347,7 +365,6 @@ class Asset extends MySource_Object
 		}
 
 		$this->_loadVars();
-
 
 		if (!empty($link)) {
 			// create the initial link
@@ -546,7 +563,6 @@ class Asset extends MySource_Object
 
 		$result = $db->getRow($sql.$where, null, DB_FETCHMODE_ORDERED);
 		assert_valid_db_result($result);
-
 		assert_not_null($result);
 
 		list(
@@ -648,7 +664,7 @@ class Asset extends MySource_Object
 			// PURPOSLY DONT ADD EXTRA CLAUSES FOR ASSET_ATTRIBUTE_VALUE BECAUSE WE WONT GET
 			// DEFAULT VALUES IF WE DO
 			$sql = 'SELECT atr.name, atr.attrid, atr.type, COALESCE(v.custom_val, atr.default_val) AS value
-					FROM '.SQ_TABLE_PREFIX.'ast_attr atr
+					FROM sq_ast_attr atr
 					  LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val v
 						ON (atr.attrid = v.attrid AND v.assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id)
 						.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'v', 'AND').')
@@ -656,7 +672,7 @@ class Asset extends MySource_Object
 		} else {
 			// else just load all defaults
 			$sql = 'SELECT atr.name, atr.attrid, atr.type, atr.default_val AS value
-					FROM '.SQ_TABLE_PREFIX.'ast_attr atr
+					FROM sq_ast_attr atr
 					WHERE atr.type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->type());
 		}// end if
 
@@ -748,28 +764,39 @@ class Asset extends MySource_Object
 		}
 
 		// delete from the asset table
-		$where_cond = 'assetid = '.$db->quote($this->id);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast', $where_cond)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
+		$sql = 'DELETE FROM
+					sq_ast
+				WHERE
+					assetid	= '.$db->quoteSmart($this->id);
+		
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
 
 		// delete the attributes
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_attr_val', $where_cond)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_attr_uniq_val', $where_cond)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		// delete any permissions we have assigned to us or are assigned to
-		$where_cond = 'assetid = '.$db->quote($this->id). 'OR userid = '.$db->quote($this->id);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_perm', $where_cond)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
+		$sql = 'DELETE FROM
+					sq_ast_attr_val
+				WHERE
+					assetid	= '.$db->quoteSmart($this->id);
+		
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+				
+		$sql = 'DELETE FROM
+					sq_ast_attr_uniq_val
+				WHERE
+					assetid	= '.$db->quoteSmart($this->id);
+		
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+		
+		$sql = 'DELETE FROM
+					sq_ast_perm
+				WHERE
+						assetid	= '.$db->quoteSmart($this->id).'
+					OR	userid	= '.$db->quoteSmart($this->id);
+		
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
 
 		// delete any metadata values this asset might have
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
@@ -777,14 +804,14 @@ class Asset extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-
+		
 		// delete any workflow values that this asset might have
 		$wm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		if (!$wm->purgeWorkflow($this->id)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-
+		
 		// now try and clear the data directories for this asset
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		if (is_dir($this->data_path)) {
@@ -1033,47 +1060,49 @@ class Asset extends MySource_Object
 	*/
 	function _updated($update_parents=true)
 	{
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+		
 		if (isset($this->_tmp['__creating__']) && $this->_tmp['__creating__']) return true;
 
 		$updated = time();
 		$updated_userid  = $GLOBALS['SQ_SYSTEM']->currentUserId();
-		$name         = $this->_getName();
-		$short_name   = $this->_getName(true);
+		$name            = $this->_getName();
+		$short_name      = $this->_getName(true);
 
 		// if we have an ID hit the DB
 		if ($this->id) {
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
-
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-			$where = 'assetid = '.$db->quote($this->id);
-			$values = Array(
-						'name'				=> $db->quote($name),
-						'short_name'		=> $db->quote($short_name),
-						'languages'			=> $db->quote($this->languages),
-						'charset'			=> $db->quote($this->charset),
-						'force_secure'		=> $db->quote($this->force_secure),
-						'updated'			=> $db->quote(ts_iso8601($updated)),
-						'updated_userid'	=> $db->quote($updated_userid),
-					  );
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast', $values, $where)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
+			
+			$sql = 'UPDATE
+						sq_ast
+					SET
+						name			= '.$db->quoteSmart($name).',
+						short_name		= '.$db->quoteSmart($short_name).',
+						languages		= '.$db->quoteSmart($this->languages).',
+						charset			= '.$db->quoteSmart($this->charset).',
+						force_secure	= '.$db->quoteSmart($this->force_secure).',
+						updated			= '.db_extras_todate($db, ts_iso8601($updated)).',
+						updated_userid	= '.$db->quoteSmart($updated_userid).'
+					WHERE
+						assetid	= '.$db->quoteSmart($this->id);
+			
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
 
 			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
-			$em->broadcastEvent($this, 'AssetUpdate', Array(
-														'old_name'				=> $this->name,
-														'new_name'				=> $name,
-														'old_short_name'		=> $this->short_name,
-														'new_short_name'		=> $short_name,
-														'old_updated'			=> $this->updated,
-														'new_updated'			=> $updated,
-														'old_updated_userid'	=> $this->updated_userid,
-														'new_updated_userid'	=> $updated_userid,
-													  )
-			);
+			$data = Array(
+					'old_name'				=> $this->name,
+					'new_name'				=> $name,
+					'old_short_name'		=> $this->short_name,
+					'new_short_name'		=> $short_name,
+					'old_updated'			=> $this->updated,
+					'new_updated'			=> $updated,
+					'old_updated_userid'	=> $this->updated_userid,
+					'new_updated_userid'	=> $updated_userid,
+				  );
+			$em->broadcastEvent($this, 'AssetUpdate', $data);
 
 			// increment the micro version number
 			if (!$this->incrementVersion('micro', $update_parents)) {
@@ -1195,12 +1224,15 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$where = 'assetid = '.$db->quote($this->id);
-		$values = Array('version' => $db->quote($new_version));
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast', $values, $where)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
+		$sql = 'UPDATE
+					sq_ast
+				SET
+					version	= '.$db->quoteSmart($new_version).'
+				WHERE
+					assetid	= '.$db->quoteSmart($this->id);
+					
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
 
 		if ($update_parents) {
 			// increment the micro version of all dependant parents because a 'part' of them
@@ -1408,7 +1440,7 @@ class Asset extends MySource_Object
 
 		// is this new type one of our decendents or ancestors?
 		$sql = 'SELECT COUNT(*)
-				FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd
+				FROM sq_ast_typ_inhd
 				WHERE (inhd_type_code = '.$db->quote($this->type()).'  AND type_code = '.$db->quote($new_type_code).')
 				   OR (inhd_type_code = '.$db->quote($new_type_code).' AND type_code = '.$db->quote($this->type()).')';
 		$count = $db->getOne($sql);
@@ -1467,17 +1499,20 @@ class Asset extends MySource_Object
 
 		if ($common_var_list) {
 			foreach ($common_var_list as $var_name) {
+				
 				$current_id = $this->vars[$var_name]['attrid'];
-				$new_id = $tmp->vars[$var_name]['attrid'];
+				$new_id     = $tmp->vars[$var_name]['attrid'];
 
-				// now update attributeid
-				$where = 'assetid = '.$db->quote($this->id).'
-						  AND attrid = '.$current_id;
-				$values = Array('attrid' => $db->quote($new_id));
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_attr_val', $values, $where)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
+				$sql = 'UPDATE
+							sq_ast_attr_val
+						SET
+							attrid	= '.$db->quoteSmart($new_id).'
+						WHERE
+								assetid	= '.$db->quoteSmart($this->id).'
+							AND	attrid	= '.$db->quoteSmart($current_id);
+				
+				$result = $db->query($sql);
+				assert_valid_db_result($result);
 			}
 		}// end if common var list
 
@@ -1486,22 +1521,33 @@ class Asset extends MySource_Object
 
 		if ($deletes_var_list) {
 			$deletes_attributeids = '';
-			foreach ($deletes_var_list as $var_name) $deletes_attributeids .= (($deletes_attributeids) ? ',' : '').$db->quote($this->vars[$var_name]['attrid']);
-
-			$where_cond = ' assetid = '.$db->quote($this->id).'
-							AND attrid IN ('.$deletes_attributeids.')';
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_attr_val', $where_cond)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
+			foreach ($deletes_var_list as $var_name) {
+				$deletes_attributeids .= (($deletes_attributeids) ? ',' : '').$db->quoteSmart($this->vars[$var_name]['attrid']);
 			}
+			
+			$sql = 'DELETE FROM
+						sq_ast_attr_val
+					WHERE
+							assetid	= '.$db->quoteSmart($this->id).'
+						AND attrid IN
+						(
+							'.$deletes_attributeids.'
+						)';
+			
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+	
 		}// end if delete var list
 
-		$where = 'assetid = '.$db->quote($this->id);
-		$values = Array('type_code' => $db->quote($new_type_code));
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast', $values, $where)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
+		$sql = 'UPDATE
+					sq_ast
+				SET
+					type_code = '.$db->quote($new_type_code).'
+				WHERE
+					assetid = '.$db->quote($this->id);
+		
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
 
 		// Now load this new asset into the temporary
 		$tmp->load($this->id);
@@ -1835,24 +1881,25 @@ class Asset extends MySource_Object
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-			$where = 'assetid = '.$db->quote($this->id);
-			$values = Array(
-						'status'				=> $db->quote($new_status),
-						'status_changed'		=> $db->quote(ts_iso8601(time())),
-						'status_changed_userid'	=> $db->quote($GLOBALS['SQ_SYSTEM']->user->id),
-					  );
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast', $values, $where)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
+			$sql = 'UPDATE
+						sq_ast
+					SET
+						status					= '.$db->quoteSmart($new_status).',
+						status_changed			= '.db_extras_todate($db, ts_iso8601(time())).',
+						status_changed_userid	= '.$db->quoteSmart($GLOBALS['SQ_SYSTEM']->user->id).'
+					WHERE
+						assetid = '.$db->quoteSmart($this->id);
+			
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
 
 			// broadcast event notifying of status change
 			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
-			$em->broadcastEvent($this, 'AssetStatusUpdate', Array(
-																'old_status'	=> $this->status,
-																'new_status'	=> $new_status,
-															)
-			);
+			$data = Array(
+						'old_status' => $this->status,
+						'new_status' => $new_status,
+					);
+			$em->broadcastEvent($this, 'AssetStatusUpdate', $data);
 
 			// send message notifying of status change
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -1918,7 +1965,8 @@ class Asset extends MySource_Object
 		}
 
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+		
 		// construct a string to represent the current date value
 		if ($this->$date_type != null) {
 			$old_date_string = readable_datetime($this->$date_type);
@@ -1947,22 +1995,19 @@ class Asset extends MySource_Object
 		// if the date and user has not changed, dont process anything
 		if ($old_date_string == $new_date_string) return true;
 
-		$time_iso = ts_iso8601($time);
-
 		// begin a transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$where = 'assetid = '.$db->quote($this->id);
-
-		$values = Array(
-					$date_type				=> $db->quote($time_iso),
-					$date_type.'_userid'	=> $db->quote($userid),
-				  );
-
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast', $values, $where)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
+		$sql = 'UPDATE
+					sq_ast
+				SET
+					'.$date_type.'			= '.db_extras_todate($db, ts_iso8601($time)).','.
+					  $date_type.'_userid	= '.$db->quoteSmart($userid).'
+				WHERE
+					assetid	= '.$db->quoteSmart($this->id);
+		
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
@@ -2326,8 +2371,8 @@ class Asset extends MySource_Object
 			if ($attribute->uniq) {
 
 				$sql = 'SELECT oa.attrid
-						FROM '.SQ_TABLE_PREFIX.'ast_attr a
-						  INNER JOIN '.SQ_TABLE_PREFIX.'ast_attr oa ON (a.owning_type_code = oa.type_code AND a.name = oa.name)
+						FROM sq_ast_attr a
+						  INNER JOIN sq_ast_attr oa ON (a.owning_type_code = oa.type_code AND a.name = oa.name)
 						WHERE a.name      = '.$db->quote($var_name).'
 						  AND a.type_code = '.$db->quote($this->type());
 
@@ -2385,101 +2430,52 @@ class Asset extends MySource_Object
 
 		// update existing custom attribute values
 		if (!empty($existing)) {
-
-			$attr_id_cond = 'IN ('.implode(', ', $existing).')';
-			$value_cases = '';
+			
+			$prepared      = $db->prepare('UPDATE sq_ast_attr_val SET custom_val = ? WHERE attrid = ? AND assetid = '.$db->quote($this->id));
+			$prepared_uniq = $db->prepare('UPDATE sq_ast_attr_uniq_val SET custom_val = ? WHERE owning_attrid = ? AND assetid = '.$db->quote($this->id));
+			
 			foreach ($existing as $attr_id) {
-
+				$attr_id = (int) $attr_id;
 				$attr_value = $save_vars[$attr_id]['value'];
 
 				// if this is a unique attribute then let's make sure we register that in the unique value table
 				$attribute = &$this->getAttribute($save_vars[$attr_id]['name']);
 				if ($attribute->uniq) {
-
 					// update existing entry
-					$where = 'owning_attrid = '.$db->quote($save_vars[$attr_id]['owning_attrid']).'
-								AND assetid = '.$db->quote($this->id);
+					$result = $db->execute($prepared_uniq, Array($attr_value, $save_vars[$attr_id]['owning_attrid']));
+					assert_valid_db_result($result);
+				}
 
-
-					$values = Array('custom_val' => $db->quote($attr_value));
-					if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_attr_uniq_val', $values, $where)) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						$attribute->setValue($this->_tmp['vars_set'][$save_vars[$attr_id]['name']]['old_value']);
-						$ms->abortLog();
-						return false;
-					}
-
-				}// end if
-
-				$value_cases .= '
-								WHEN '.$db->quote($attr_id).' THEN '.$db->quote((string)$attr_value);
+				$result = $db->execute($prepared, Array($attr_value, $attr_id));
+				assert_valid_db_result($result);
 
 			}//end foreach
-
-			$value_cases = 'CASE attrid '.$value_cases.' END';
-
-			$where = 'assetid = '.$db->quote($this->id).' AND attrid '.$attr_id_cond;
-			$values = Array('custom_val' => $value_cases);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_attr_val', $values, $where)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$ms->abortLog();
-				return false;
-			}
 
 		}//end updating existing custom attribute values
 
-
 		// insert new custom attribute values
 		if (!empty($new)) {
-
-			$attr_id_cond = 'IN ('.implode(', ', $new).')';
-
-			$value_cases = '';
+			
+			$prepared      = $db->prepare('INSERT INTO sq_ast_attr_val (attrid, custom_val, assetid) VALUES (?, ?, '.$db->quote($this->id).')');
+			$prepared_uniq = $db->prepare('INSERT INTO sq_ast_attr_uniq_val (owning_attrid, custom_val, assetid) VALUES (?, ?, '.$db->quote($this->id).')');
+			
 			foreach ($new as $attr_id) {
-
+				$attr_id = (int) $attr_id;
 				$attr_value = $save_vars[$attr_id]['value'];
 
 				// if this is a unique attribute then let's make sure we register that in the unique value table
 				$attribute = &$this->getAttribute($save_vars[$attr_id]['name']);
 				if ($attribute->uniq) {
+					$result = $db->execute($prepared_uniq, Array($save_vars[$attr_id]['owning_attrid'], $attr_value));
+					assert_valid_db_result($result);
+				}
 
-					// now insert new unique entry
-					$values = Array(
-								'owning_attrid'	=> $save_vars[$attr_id]['owning_attrid'],
-								'custom_val'	=> $attr_value,
-								'assetid'		=> $this->id,
-							  );
-					if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_attr_uniq_val', $values)) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						$attribute->setValue($this->_tmp['vars_set'][$save_vars[$attr_id]['name']]['old_value']);
-						$ms->abortLog();
-						return false;
-					}
+				$result = $db->execute($prepared, Array($attr_id, $attr_value));
+				assert_valid_db_result($result);
 
-				}// end if
-
-				$value_cases .= ' WHEN '.$db->quote($attr_id).' THEN '.$db->quote((string)$attr_value);
 			}//end foreach
 
-			$value_cases = 'CASE attrid '.$value_cases.' END';
-
-			$where = 'attrid '.$attr_id_cond;
-			$select_from = SQ_TABLE_PREFIX.'ast_attr';
-
-			$values = Array(
-						'assetid'		=> $this->id,
-						'attrid'		=> 'attrid',
-						'custom_val'	=> $value_cases,
-					  );
-
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsertSelect('ast_attr_val', $select_from, $values, $where)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$ms->abortLog();
-				return false;
-			}
-
 		}//end new custom attribute values
-
 
 		// tell, the asset it has updated
 		if (!$dont_run_updated && !$this->_updated()) {
@@ -2542,7 +2538,7 @@ class Asset extends MySource_Object
 			$sql = 'SELECT COUNT(*)
 					  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_uniq_val uv
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr oa ON uv.owning_attrid = oa.attrid
-						INNER JOIN '.SQ_TABLE_PREFIX.'ast_attr a ON (oa.type_code = a.owning_type_code AND oa.name = a.name)
+						INNER JOIN sq_ast_attr a ON (oa.type_code = a.owning_type_code AND oa.name = a.name)
 					  ';
 			$where = ' uv.custom_val = '.$db->quote($value).'
 						AND a.name = '.$db->quote($name).'
@@ -3462,27 +3458,33 @@ class Asset extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		// add a rollback entries for the old paths
-		$where = 'assetid = '.$db->quote($this->id);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_path', $where)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		// Now insert the paths
+		$sql = 'DELETE FROM
+					sq_ast_path
+				WHERE
+					assetid	= '.$db->quoteSmart($this->id);
+		
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+		
 		foreach ($save_paths as $sort_order => $path) {
-
-			$values = Array(
-						'path'			=> $path,
-						'assetid'		=> $this->id,
-						'sort_order'	=> $sort_order,
-					  );
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_path', $values)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-
-		}// end foreach
+			
+			$sql = 'INSERT INTO
+						sq_ast_path
+					(
+						path,
+						assetid,
+						sort_order
+					)
+					VALUES
+					(
+						'.$db->quoteSmart($path).',
+						'.$db->quoteSmart($this->id).',
+						'.$db->quoteSmart($sort_order).'
+					)';
+		
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+		}
 
 		unset($this->_tmp['paths']);
 		unset($this->_tmp['lookups']);
@@ -3653,34 +3655,36 @@ class Asset extends MySource_Object
 
 		// Remove all the old URLs
 		$sql = 'SELECT url, http, https
-				FROM '.SQ_TABLE_PREFIX.'ast_lookup l
+				FROM sq_ast_lookup l
 				WHERE assetid = '.$db->quote($this->id);
 
 		$old_urls = $db->getAll($sql);
 		assert_valid_db_result($old_urls);
 
-
 		// get all the lookup information that we have set, ignoring designs as they are set on every url
 		$our_lookup_values = $this->getLookupValues(false, $prefix='design::', false);
 
-
 		$current_urls = Array();
-		foreach ($old_urls as $url_data) $current_urls[] = $db->quote($url_data['url']);
+		foreach ($old_urls as $url_data) $current_urls[] = $db->quoteSmart($url_data['url']);
 
 		if (!empty($current_urls)) {
-			$where = 'url IN ('.implode(',', $current_urls).')';
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup_value', $where)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
+			
+			$sql = 'DELETE FROM
+						sq_ast_lookup_value
+					WHERE 
+						url IN ('.implode(',', $current_urls).')';
+			
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+			
+			$sql = 'DELETE FROM
+						sq_ast_lookup
+					WHERE
+						assetid	= '.$db->quoteSmart($this->id);
 
-			$where = 'assetid = '.$db->quote($this->id);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup', $where)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
 		}
-
 
 		// if we have paths then do some url inserting
 		if (!empty($paths)) {
@@ -3724,21 +3728,28 @@ class Asset extends MySource_Object
 						// if we have no protocol then we can just ignore this URL
 						if (!$http && !$https) continue;
 
-						$values = Array(
-									'url'			=> $new_url,
-									'assetid'		=> $this->id,
-									'http'			=> $http,
-									'https'			=> $https,
-									'root_urlid'	=> $parent_urls[$j]['root_urlid'],
-								  );
+						$sql = 'INSERT INTO
+									sq_ast_lookup
+									(
+										url,
+										assetid,
+										http,
+										https,
+										root_urlid
+									)
+									VALUES
+									(
+										'.$db->quoteSmart($new_url).',
+										'.$db->quoteSmart($this->id).',
+										'.$db->quoteSmart($http).',
+										'.$db->quoteSmart($https).',
+										'.$db->quoteSmart($parent_urls[$j]['root_urlid']).'
+									)';
 
-						$done_urls[$new_url] = $values;
-
-						if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lookup', $values)) {
-							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-							return false;
-						}
-
+						$done_urls[] = $new_url;
+						$result = $db->query($sql);
+						assert_valid_db_result($result);
+						
 						$lookup_values = (isset($our_lookup_values[$new_url])) ? $our_lookup_values[$new_url] : Array();
 
 						// all designs go to all urls (at the moment anyway), so merge them all in
@@ -3757,27 +3768,33 @@ class Asset extends MySource_Object
 							}
 						}
 						foreach ($lookup_values as $name => $data) {
-							$values = Array(
-										'url'	=> $new_url,
-										'name'	=> $name,
-										'value'	=> $data['value'],
-										'inhd'	=> $data['inhd'],
-									  );
-							if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lookup_value', $values)) {
-								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-								return false;
-							}
-						}// endforeach
+							$sql = 'INSERT INTO
+										sq_ast_lookup_value
+										(
+											url,
+											name,
+											value,
+											inhd
+										)
+										VALUES
+										(
+											'.$db->quoteSmart($new_url).',
+											'.$db->quoteSmart($name).',
+											'.$db->quoteSmart($data['value']).',
+											'.$db->quoteSmart($data['inhd']).'
+										)';
+				
+							$result = $db->query($sql);
+							assert_valid_db_result($result);
+						}
 
 					}// end for paths
-
 				}// end for parent_urls
-
 			}// end for parents
 
 			if (!empty($old_urls)) {
 				$rm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
-				$new_url = array_shift(array_keys($done_urls));
+				$new_url = array_shift($done_urls);
 				if ($new_url != '') {	// don't add a remap if we don't have a URL to map to
 					foreach ($old_urls as $url_data) {
 						$old_url = $url_data['url'];
@@ -3829,33 +3846,51 @@ class Asset extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		// delete all values that we have set ourselves
-		$where = 'inhd = '.$db->quote('0').'
-				AND url IN (SELECT url FROM '.SQ_TABLE_PREFIX.'ast_lookup WHERE assetid = '.$db->quote($this->id).')';
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup_value', $where)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
+		$sql = 'DELETE FROM
+					sq_ast_lookup_value
+				WHERE
+						inhd	= '.$db->quoteSmart('0').'
+					AND
+						url IN
+					(
+						SELECT
+							url
+						FROM
+							sq_ast_lookup
+						WHERE
+							assetid = '.$db->quoteSmart($this->id).'
+					)';
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
 
 		$lookups = $this->getLookups('url');
 
+		
 		foreach ($values as $url => $values_data) {
 			if (!in_array($url, $lookups)) continue;
 			if (empty($values_data)) continue;
-			$names = Array();
+			
 			foreach ($values_data as $value_name => $value_data) {
-
-				$insert_values = Array(
-									'url'	=> $url,
-									'name'	=> $value_name,
-									'value'	=> $value_data['value'],
-									'inhd'	=> '0',
-								 );
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lookup_value', $insert_values)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-			}//end foreach
+				
+				$sql = 'INSERT INTO
+							sq_ast_lookup_value
+							(
+								url,
+								name,
+								value,
+								inhd
+							)
+							VALUES
+							(
+								'.$db->quoteSmart($url).',
+								'.$db->quoteSmart($value_name).',
+								'.$db->quoteSmart($value_data['value']).',
+								'.$db->quoteSmart('0').'
+							)';
+				
+				$result = $db->query($sql);
+				assert_valid_db_result($result);
+			}
 		}//end foreach
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');

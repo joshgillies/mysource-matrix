@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_edit_fns.inc,v 1.13 2005/01/17 18:48:18 brobertson Exp $
+* $Id: ldap_bridge_edit_fns.inc,v 1.14 2005/04/06 23:09:40 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -106,6 +106,8 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 		} else {
 			echo '<span style="color: green"><b>Connected</b></span>';
 		}
+		
+	
 		return false;
 
 	}//end paintConnectionTest()

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.150 2005/03/24 03:27:54 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.151 2005/04/06 23:09:32 mmcintyre Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.150 $
+* @version $Revision: 1.151 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -2061,6 +2061,7 @@ class Page_Calendar extends Page_Asset_Listing
 		// combine tree sql with the common SQL for recurring events and get result from DB
 		$sql = build_recurring_event_query_base($trees, 'day', $date).' AND '.$tree_sql;
 		$sql .= $this->_getPersonalisedSQL();
+
 		$recur_result = $db->getAssoc($sql);
 		assert_valid_db_result($recur_result);
 
