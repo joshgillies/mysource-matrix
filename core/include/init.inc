@@ -64,7 +64,12 @@ require_once SQ_LIB_PATH.'/dev/dev.inc';
 //require_once SQ_LIB_PATH.'/general/general.inc';
 
 # nice little boolean to use for testing whether we happen to be in the backend or not
-define('SQ_IN_BACKEND', (basename($PHP_SELF) == SQ_CONF_BACKEND_SUFFIX));
+define('SQ_IN_BACKEND', (basename($_SERVER['PHP_SELF']) == SQ_CONF_BACKEND_SUFFIX));
+# make sure there is a trailing slash if we are in the backend
+if (SQ_IN_BACKEND && substr($_SERVER['PHP_SELF'], -1) != '/') {
+	header('Location: '.$_SERVER['PHP_SELF'].'/'.(($_SERVER['QUERY_STRING']) ? '?'.$_SERVER['QUERY_STRING'] : ''));
+	die();
+}
 
 define('SQ_WWW_BASE_DIR', ((SQ_IN_BACKEND) ? '..' : '.'));
 define('SQ_WWW_EDIT_DIR', ((SQ_IN_BACKEND) ? '.'  : './'.SQ_CONF_BACKEND_SUFFIX));
