@@ -34,7 +34,7 @@ function mcListContainerClass()
 }// end constructor
 
 // Make it inherit from Nested Mouse Movements MovieClip
-mcListContainerClass.prototype = new NestedMouseMovieClip(true, NestedMouseMovieClip.NM_ON_MOUSE | NestedMouseMovieClip.NM_ON_PRESS);
+mcListContainerClass.prototype = new NestedMouseMovieClip(true, NestedMouseMovieClip.NM_ON_PRESS);
 
 /**
 * Refreshes this container's display completely

@@ -23,26 +23,6 @@ FScrollPaneClass.prototype.getInnerPaneHeight = function()
 	return this.vHeight;
 }
 
-/**
-* 
-*/ 
-//FScrollPaneClass.prototype.onPress = function()
-//{
-//	trace("SCROLL PANE onPress");
-//	return this.boundingBox_mc.onPress();
-//}
-//FScrollPaneClass.prototype.onRelease = function()
-//{
-//	trace("SCROLL PANE onRelease");
-//	return this.boundingBox_mc.onRelease();
-//}
-//FScrollPaneClass.prototype.onReleaseOutside = function()
-//{
-//	trace("SCROLL PANE onReleaseOutside");
-//	return this.boundingBox_mc.onReleaseOutside();
-//}
-//
-
 /**************************************************
  * Additions to the XML class definition          *
  **************************************************/
@@ -51,8 +31,6 @@ FScrollPaneClass.prototype.getInnerPaneHeight = function()
 * Make all the XML objects ignore white by default
 */ 
 XML.prototype.ignoreWhite = true;
-
-
 
 #include "test.as"
 #include "functions.as"
@@ -72,15 +50,6 @@ XML.prototype.ignoreWhite = true;
 #include "mcOptionsBoxClass.as"
 #include "mcDialogBoxClass.as"
 #include "mcProgressBarClass.as"
-
-//trace(NestedMouseMovieClip.prototype);
-//
-//for(var i in NestedMouseMovieClip.prototype) {
-//	trace(i);
-//}
-//
-//trace("END");
-
 
   ///////////////////////////////////////////////////
  // CONSTANTS                                     //
@@ -140,14 +109,6 @@ _root.attachMovie("mcTabsID", "tabs", 1);
 _root.tabs.addTab("mcTabContentAreaTreeID", "tree",  "Tree");
 _root.tabs.addTab("mcTabContentAreaID", "mail",  "Mail Messages");
 _root.tabs.addTab("mcTabContentAreaLogMsgsID", "log",  "Log Messages");
-
-_root.blah = 0;
-_root.blah1 = 0;
-_root.blah2 = 0;
-
-
-// Now the messagess bar
-//_root.attachMovie("mcMsgsBarID", "msgs_bar", 3);
 
 // Initialise stage resize listener
 _root.stage_resize = new StageResize();

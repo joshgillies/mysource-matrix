@@ -9,7 +9,9 @@ function testOnClick1(component)
 //	_root.asset_manager.reloadAssets([1]);
 //	_root.asset_manager.reloadAsset(3);
 //	_root.dialog_box.show("TEst, Test", "Lorem "ipsum dolor" sit \"amet\", consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.  Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. ");
-	_root.tabs.log.msgs_container.addMessages([{type: "notice", text: "12/3/2003 17:22\nTHIS IS AN ERROR"}]);
+	for(var i = 0; i < 15; i++) {
+		_root.tabs.log.msgs_container.addMessages([{type: "notice", text: "12/3/2003 17:22\nTHIS IS AN ERROR"}]);
+	}
 
 //	var w = 100;
 //	var h = 50;
@@ -33,7 +35,9 @@ function testOnClick1(component)
 
 function testOnClick2 (component)
 {
-	_root.tabs.log.msgs_container.addMessages([{type: "error", text: "12/3/2003 17:22\nTHIS IS AN ERROR"}]);
+	for(var i = 0; i < 7; i++) {
+		_root.tabs.log.msgs_container.addMessages([{type: "error", text: "12/3/2003 17:22\nTHIS IS AN ERROR"}]);
+	}
 //	for(var i in _root.asset_manager.types) {
 //		trace(i + " :\t" + _root.asset_manager.types[i]);
 //	}

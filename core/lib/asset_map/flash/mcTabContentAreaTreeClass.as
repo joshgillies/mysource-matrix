@@ -20,7 +20,7 @@ function mcTabContentAreaTreeClass()
 	this.menu_container._y = 0;
 
 	this.attachMovie("FScrollPaneSymbol", "scroll_pane", 1);
-	this.scroll_pane.setHScroll(false);
+	this.scroll_pane.setHScroll(true);
 	this.scroll_pane.setVScroll(true);
 	this.scroll_pane._x = 0;
 	this.scroll_pane._y = this.menu_container._height;
@@ -31,7 +31,11 @@ function mcTabContentAreaTreeClass()
 	// Attach the container on to the scroll pane
 	this.scroll_pane.setScrollContent(this.list_container);
 
-
+	// Because the scroll pane inherits from some other place 
+	// we need to manually set it up for nesting
+	makeNestedMouseMovieClip(this.scroll_pane, true, NestedMouseMovieClip.NM_ON_PRESS);
+	makeNestedMouseMovieClip(this.scroll_pane.hScrollBar_mc, true, NestedMouseMovieClip.NM_ON_PRESS);
+	makeNestedMouseMovieClip(this.scroll_pane.vScrollBar_mc, true, NestedMouseMovieClip.NM_ON_PRESS);
 
 }// end constructor()
 

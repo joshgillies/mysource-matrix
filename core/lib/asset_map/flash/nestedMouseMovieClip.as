@@ -11,29 +11,7 @@
 
 function NestedMouseMovieClip(never_overlaps, event_types) 
 {
-	// If we can guarantee that there will be no overlapping nested MCs then we can save on 
-	// processing time
-	this._nm_never_overlaps = (never_overlaps != true) ? false : true;
-
-	if (!(event_types & NestedMouseMovieClip.NM_ON_PRESS)) {
-		this.onDragOut			= undefined;
-		this.onDragOver			= undefined;
-		this.onPress			= undefined;
-		this.onRelease			= undefined;
-		this.onReleaseOutside	= undefined;
-	}
-	if (!(event_types & NestedMouseMovieClip.NM_ON_ROLL)) {
-		this.onRollOut			= undefined;
-		this.onRollOver			= undefined;
-	}
-
-	this._nm_on_roll_active = false;
-	this._nm_on_roll_mc     = null;
- 
-	this._nm_on_press_mc    = null;
-	this._nm_drag_active    = false;
-	this._nm_drag_in_mc     = false;
-
+	initNestedMouseMovieClip(this, never_overlaps, event_types);
 }
 
 /* Constants for deciding what events to provide the nested mouse movements for */
@@ -52,7 +30,16 @@ NestedMouseMovieClip.prototype._NM_findMc = function(x, y)
 
 	var mcs = new Array();
 	for(var i in this) {
-		if (this[i] instanceof MovieClip && this[i]._visible && this[i].hitTest(pos.x, pos.y, true)) {
+		if (this[i] instanceof MovieClip					// we only want to deal with MCs
+			&& this[i]._visible								// It should be visible for us to consider it
+			&& this[i].hitTest(pos.x, pos.y, true)			// Do we actually hit it ?
+			&& this + "." + i == targetPath(this[i])		// } is this movie actually attached UNDER this 
+															// } mc (to stop recursion to references)
+			) {
+			
+//			trace("---------- ---------- --------- ---------");
+//			trace("MS NAME    : " + this + "." + i);
+//			trace("targetPath : " + targetPath(this[i]));
 			mcs.push(i);
 			if (this.never_overlaps) break;
 		}
@@ -78,12 +65,14 @@ NestedMouseMovieClip.prototype.onMouseMove = function()
 
 			// if we aren't still over the mc we onPress()ed, tell it we onDragOut()ed
 			if (this._nm_drag_in_mc && this._nm_on_press_mc != mc_name) {
+				trace(this[this._nm_on_press_mc] + ".onDragOut Defined : " + (this[this._nm_on_press_mc].onDragOut != undefined));
 				if (this[this._nm_on_press_mc].onDragOut != undefined) this[this._nm_on_press_mc].onDragOut();
 				this._nm_drag_in_mc = false;
 
 			// else if we have just dragged back onto the MC, inform it
 			// check objects because we can have 2 vars with diff names referencing same MC
 			} else if (!this._nm_drag_in_mc && this[this._nm_on_press_mc] === this[mc_name]) {
+				trace(this[this._nm_on_press_mc] + ".onDragOver Defined : " + (this[this._nm_on_press_mc].onDragOver != undefined));
 				if (this[this._nm_on_press_mc].onDragOver != undefined) this[this._nm_on_press_mc].onDragOver();
 				this._nm_drag_in_mc = true;
 
@@ -155,7 +144,7 @@ NestedMouseMovieClip.prototype.onRelease = function()
 		// if we are still over the mc that we onPress()ed on, call onRelease, otherwise we call onReleaseOutside
 		// check by reference, just incase we have 2 var names referring to the same MC
 		var fn = (this[this._nm_on_press_mc] === this[mc_name]) ? "onRelease" : "onReleaseOutside";
-//		trace(this[this._nm_on_press_mc] + "." + fn + " Defined : " + (this[this._nm_on_press_mc].onPress != undefined));
+//		trace(this[this._nm_on_press_mc] + "." + fn + " Defined : " + (this[this._nm_on_press_mc][fn] != undefined));
 		if (this[this._nm_on_press_mc][fn] != undefined) {
 			ret_val = this[this._nm_on_press_mc][fn]();
 		}
@@ -185,3 +174,49 @@ NestedMouseMovieClip.prototype.onReleaseOutside = function()
 
 }// end onReleaseOutside()
 
+
+/**
+* Essentially the constructor of NestedMouseMovieClip
+* Used because of the makeNestedMovieClip()
+*
+*/
+function initNestedMouseMovieClip(mc, never_overlaps, event_types) 
+{
+	// If we can guarantee that there will be no overlapping nested MCs then we can save on 
+	// processing time
+	mc._nm_never_overlaps = (never_overlaps != true) ? false : true;
+
+	if (!(event_types & NestedMouseMovieClip.NM_ON_PRESS)) {
+		mc.onDragOut		= undefined;
+		mc.onDragOver		= undefined;
+		mc.onPress			= undefined;
+		mc.onRelease		= undefined;
+		mc.onReleaseOutside	= undefined;
+	}
+	if (!(event_types & NestedMouseMovieClip.NM_ON_ROLL)) {
+		mc.onRollOut		= undefined;
+		mc.onRollOver		= undefined;
+	}
+
+	mc._nm_on_roll_active = false;
+	mc._nm_on_roll_mc     = null;
+ 
+	mc._nm_on_press_mc    = null;
+	mc._nm_drag_active    = false;
+	mc._nm_drag_in_mc     = false;
+
+}
+
+function makeNestedMouseMovieClip(mc, never_overlaps, event_types) 
+{
+	mc._NM_findMc		= NestedMouseMovieClip.prototype._NM_findMc;
+	mc.onMouseMove		= NestedMouseMovieClip.prototype.onMouseMove;
+	mc.onRollOut		= NestedMouseMovieClip.prototype.onRollOut;
+	mc.onRollOver		= NestedMouseMovieClip.prototype.onRollOver;
+	mc.onPress			= NestedMouseMovieClip.prototype.onPress;
+	mc.onRelease		= NestedMouseMovieClip.prototype.onRelease;
+	mc.onReleaseOutside	= NestedMouseMovieClip.prototype.onReleaseOutside;
+
+	initNestedMouseMovieClip(mc, never_overlaps, event_types);
+
+}

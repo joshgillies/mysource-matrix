@@ -24,7 +24,7 @@ function mcActionsBarClass()
 }// end constructor
 
 // Make it inherit from MovieClip
-mcActionsBarClass.prototype = new NestedMouseMovieClip(false, NestedMouseMovieClip.NM_ON_MOUSE | NestedMouseMovieClip.NM_ON_PRESS);
+mcActionsBarClass.prototype = new NestedMouseMovieClip(false, NestedMouseMovieClip.NM_ON_PRESS);
 
 /**
 * Shows the options for the passed assetid

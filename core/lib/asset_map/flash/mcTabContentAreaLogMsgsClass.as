@@ -17,11 +17,16 @@ function mcTabContentAreaLogMsgsClass()
 	this.scroll_pane._y = 0;
 
 	// Now the msgs container
-	trace("HERE");
 	this.attachMovie("mcMsgsBarID", "msgs_container", 2);
 
 	// Attach the container on to the scroll pane
 	this.scroll_pane.setScrollContent(this.msgs_container);
+
+	// Because the scroll pane inherits from some other place 
+	// we need to manually set it up for nesting
+	makeNestedMouseMovieClip(this.scroll_pane, true, NestedMouseMovieClip.NM_ON_PRESS);
+	makeNestedMouseMovieClip(this.scroll_pane.hScrollBar_mc, true, NestedMouseMovieClip.NM_ON_PRESS);
+	makeNestedMouseMovieClip(this.scroll_pane.vScrollBar_mc, true, NestedMouseMovieClip.NM_ON_PRESS);
 
 }// end constructor()
 
