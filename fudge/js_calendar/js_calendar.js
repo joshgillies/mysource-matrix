@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_calendar.js,v 1.1 2004/09/14 00:22:50 gsherwood Exp $
+* $Id: js_calendar.js,v 1.2 2004/09/15 04:06:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -415,7 +415,7 @@ function c_output()
 	var output = '<table class="cal" cellspacing="1" width="' + this.width + '" height="' + this.height + '">';
 	
 	//top bar for popup
-	if (this.popup)	output += '<tr style="height:1px"><td colspan="' + (colspan + 2) + '" align="right"><span class="cal_close" onclick="' + this.varname +'.hide();">&times;</span></td></tr>';
+	if (this.popup)	output += '<tr style="height:1px"><td colspan="' + (colspan + 2) + '" align="right"><span class="cal_close" onclick="' + this.varname +'.hide();">close [ x ]</span></td></tr>';
 	
 	
 	//month caption

@@ -17,174 +17,156 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_calendar.css,v 1.1 2004/09/14 00:22:50 gsherwood Exp $
+* $Id: js_calendar.css,v 1.2 2004/09/15 04:06:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
-/** CALENDAR NAVIGATION STYLES */
 
+/* whole calendar table */
+.cal {
+	border:				1px solid #000000;
+	background:			#F0F0F0
+}
 
-/* Whole calendar table		*/
-.cal
-{
-	border:solid 1px #000000;
-	background:#999999
+.cal td {
+	font:					Tahoma;
+	font-size:			9px;
 }
 
 
-/* Basic for all TD		*/
-.cal td
-{
-	font:9px Tahoma
+/* week selectors */
+.cal_week {
+	background:			#F0F0F0;
+	text-align:			center;
+	vertical-align:	middle;
+	cursor:				pointer;
 }
 
 
-/* Week selectors style		*/
-.cal_week
-{
-	background:#999999;
-	text-align:center;
-	vertical-align:middle;
-	cursor:pointer
+/* top week day cells */
+.cal_week_day {
+	background:			#CCCCCC;
+	text-align:			center;
+	vertical-align:	middle;
+	cursor:				default;
 }
 
 
-/* Top week day cells		*/
-.cal_week_day
-{
-	background:#CCCCCC;
-	text-align:center;
-	vertical-align:middle;
-	cursor:default;
+/* previous and next month dates */
+.cal_empty {
+	background:			#EEEEEE;
+	color:					#999999;
+	text-align:			center;
+	vertical-align:	middle;
+	cursor:				pointer;
 }
 
 
-/* Previous and next month dates*/
-.cal_empty
-{
-	background:#EEEEEE;
-	color:#999999;
-	text-align:center;
-	vertical-align:middle;
-	cursor:pointer
+/* weekdays */
+.cal_day {
+	background:			#FFFFFF;
+	color:					#000000;
+	text-align:			center;
+	vertical-align:	middle;
+	cursor:				pointer;
+}
+
+/* weekends (sat & sun) */
+.cal_hol {
+	background:			#DDDDDD;
+	color:					#000000;
+	text-align:			center;
+	vertical-align:	middle;
+	cursor:				pointer;
 }
 
 
-/* Simple days			*/
-.cal_day
-{
-	background:#FFFFFF;
-	color:#000000;
-	text-align:center;
-	vertical-align:middle;
-	cursor:pointer
+/* mouse over the day */
+.cal_ovr {
+	background:			#AAAAAA;
+	color:					#FFFFFF;
+	text-align:			center;
+	vertical-align:	middle;
+	cursor:				pointer;
 }
 
 
-/* Holydays (Sun & Sat)		*/
-.cal_hol
-{
-	background:#DDDDDD;
-	color:#000000;
-	text-align:center;
-	vertical-align:middle;
-	cursor:pointer
+/* mouse over the week */
+.cal_ovr td {
+	background:			#AAAAAA;
+	color:					#FFFFFF;
+	text-align:			center;
+	vertical-align:	middle;
+	cursor:				pointer;
 }
 
 
-/* Mouse over the day		*/
-.cal_ovr
-{
-	background:#000000;
-	color:#FFFFFF;
-	text-align:center;
-	vertical-align:middle;
-	cursor:pointer
+/* selected weekday */
+.cal_day_sel {
+	background:			#FFCC99;
+	color:					#000000;
+	text-align:			center;
+	vertical-align:	middle;
+	cursor:				pointer;
 }
 
 
-/* Mouse over the week		*/
-.cal_ovr td
-{
-	background:#000000;
-	color:#FFFFFF;
-	text-align:center;
-	vertical-align:middle;
-	cursor:pointer
+/* selected weekend */
+.cal_hol_sel {
+	background:			#DDAA77;
+	color:					#FFFFFF;
+	text-align:			center;
+	vertical-align:	middle;
+	cursor:				pointer;
 }
 
 
-/* Selected day			*/
-.cal_day_sel
-{
-	background:#FFCC99;
-	color:#000000;
-	text-align:center;
-	vertical-align:middle;
-	cursor:pointer
+/* next, prev month & year arrows */
+.cal_arrow {
+	background:			#F0F0F0;
+	color:					#000000;
+	vertical-align:	middle;
+	cursor:				pointer;
 }
 
 
-/* Selected holiday		*/
-.cal_hol_sel
-{
-	background:#DDAA77;
-	color:#FFFFFF;
-	text-align:center;
-	vertical-align:middle;
-	cursor:pointer
-}
-
-
-/* Next, prev month & year arrows		*/
-.cal_arrow
-{
-	background:#999999;
-	color:#000000;
-	vertical-align:middle;
-	cursor:pointer
-}
-
-
-/* Month caption		*/
+/* month caption */
 .cal_month
 {
-	background:#999999;
-	color:#000000;
-	text-align:center;
-	vertical-align:top;
-	cursor:pointer
+	background:			#F0F0F0;
+	color:					#000000;
+	text-align:			center;
+	vertical-align:	top;
+	cursor:				pointer;
 }
 
 
-/* Year caption 		*/
-.cal_year
-{
-	background:#999999;
-	color:#000000;
-	text-align:center;
-	vertical-align:top;
-	cursor:pointer
+/* year caption */
+.cal_year {
+	background:			#F0F0F0;
+	color:					#000000;
+	text-align:			center;
+	vertical-align:	top;
+	cursor:				pointer;
 }
 
 
-/* Today date			*/
-.cal_today
-{
-	background:#99CCFF;
-	color:#000000;
-	text-align:center;
-	vertical-align:middle;
-	cursor:pointer
+/* today */
+.cal_today {
+	background:			#99CCFF;
+	color:					#000000;
+	text-align:			center;
+	vertical-align:	middle;
+	cursor:				pointer;
 }
 
-/* Close button			*/
-.cal_close
-{
-	color:#FF0000;
-	text-align:center;
-	vertical-align:middle;
-	cursor:pointer;
-	widht: 10px;
-	height: 10px;
+
+/* close button */
+.cal_close {
+	color:					#FF0000;
+	text-align:			center;
+	vertical-align:	middle;
+	cursor:				pointer;
+	width: 					10px;
+	height: 				10px;
 }
