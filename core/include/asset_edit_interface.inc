@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.246 2005/03/10 02:21:50 tbarrett Exp $
+* $Id: asset_edit_interface.inc,v 1.247 2005/03/11 05:57:35 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.246 $
+* @version $Revision: 1.247 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -699,7 +699,8 @@ class Asset_Edit_Interface extends MySource_Object
 
 
 	/**
-	* Paint's out the interface for the passed asset inline
+	* Paints out the interface for the passed asset inline
+	*
 	* This means that it doesn't include the Commit Button, Locking, Page Headings, Screen Menu
 	*
 	* @param object	Asset				$owner			the asset whose interface we are painting
