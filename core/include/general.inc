@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.47 2004/05/20 06:23:28 lwright Exp $
+* $Id: general.inc,v 1.48 2004/05/26 10:52:10 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -69,7 +69,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 		// if this is a serious error, do a backtrace
 		$bt_str = '';
-		if ($err_no & ~E_USER_NOTICE) {
+		if (($err_no & ~E_USER_NOTICE) && (SQ_CONF_DEBUG & 2)) {
 			require_once SQ_FUDGE_PATH.'/dev/dev.inc';
 			$bt = debug_backtrace();
 			$bt_str = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', '[SYSTEM_ROOT]'), array_contents($bt, 3));
@@ -151,10 +151,12 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 				$len += 2;
 				$str =	'+'.str_repeat('-', $len)."+\n".
 						'| '.$err_name.str_repeat(' ', $len - 2 - strlen($err_name))." |\n".
-						'|'.str_repeat('-', $len)."|\n".
-						'| File : '.$err_file.str_repeat(' ', $len - 9 - strlen($err_file))." |\n".
-						'| Line : '.$err_line.str_repeat(' ', $len - 9 - strlen($err_line))." |\n".
 						'|'.str_repeat('-', $len)."|\n";
+				if (SQ_CONF_DEBUG & 1) {
+					$str .= '| File : '.$err_file.str_repeat(' ', $len - 9 - strlen($err_file))." |\n".
+							'| Line : '.$err_line.str_repeat(' ', $len - 9 - strlen($err_line))." |\n".
+							'|'.str_repeat('-', $len)."|\n";
+				}
 				foreach($lines as $line) {
 					$str .=  '| '.$line.str_repeat(' ', $len - 2 - strlen($line))." |\n";
 				}
@@ -176,14 +178,14 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			case 'html' :
 			default :
 
+				// if we are in the frontend and we're not supposed to see the errors
+				if (!SQ_IN_BACKEND && SQ_CONF_ERRORS_HIDE_FRONTEND) {
+					break;
+				}
+
 				// if they haven't put tags in the err msg assume it to be plain text
 				if ($err_msg == strip_tags($err_msg)) {
 					$err_msg = nl2br(htmlspecialchars($err_msg));
-				}
-
-				// if we are in the frontend and we're not supposed to see the errors return;
-				if (!SQ_IN_BACKEND && SQ_CONF_ERRORS_HIDE_FRONTEND) {
-					return;
 				}
 
 				$error_title = 'background-color: '.$bg_colour.'; font-size: 14px; font-weight: bold; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
@@ -191,29 +193,38 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 				?>
 					</script></table></table></table></table><br/>
-					<table bgcolor="#c0c0c0" cellspacing="0" border="1" bordercolor="#ff0000">
+					<table bgcolor="#c0c0c0" cellspacing="0" border="1" cellpadding="2" bordercolor="#ff0000">
 						<tr>
 							<td style="<?php echo $error_title; ?>">
 								<?php echo $err_name; ?>
 							</td>
 						</tr>
 						<tr>
-							<td>
+							<td style="<?php echo $error_data; ?>">
+				<?php
+				if (SQ_CONF_DEBUG & (1 | 2)) {
+				?>
 								<table bgcolor="#dddddd" cellpadding="2" cellspacing="0" border="0">
+					<?php
+					if (SQ_CONF_DEBUG & 1) {
+					?>
 									<tr>
 										<td style="<?php echo $error_title; ?>" align="right">File:</td>
 										<td style="<?php echo $error_data; ?>"><?php echo $err_file; ?></td>
 										<td style="<?php echo $error_title; ?>" align="right">Line:</td>
 										<td style="<?php echo $error_data; ?>"><?php echo $err_line; ?></td>
 									</tr>
+					<?php
+					}// end if
+					?>
 									<tr>
 										<td style="<?php echo $error_title; ?>" align="right">Message:</td>
 										<td style="<?php echo $error_data; ?>" colspan="3"><?php echo $err_msg; ?></td>
 									</tr>
-				<?php
-				// if there is a backtrace string create a simple bit of JS to allow it to be popped up into a new window
-				if ($bt_str) {
-				?>
+					<?php
+					// if there is a backtrace string create a simple bit of JS to allow it to be popped up into a new window
+					if ((SQ_CONF_DEBUG & 2) && $bt_str) {
+					?>
 									<tr>
 										<td style="<?php echo $error_title; ?>" align="right">Backtrace:</td>
 										<td style="<?php echo $error_data; ?>" colspan="3">
@@ -233,10 +244,16 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 											<a href="javascript: print_backtrace_<?php echo $num_errors; ?>();" style="color: #ffffff;">Show</a>
 										</td>
 									</tr>
+					<?php
+					} // end if
+					?>
+								</table>
 				<?php
+				} else {
+					echo $err_msg;
+
 				} // end if
 				?>
-								</table>
 							</td>
 						</tr>
 					</table><br/>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.28 2004/05/25 04:04:07 gsherwood Exp $
+* $Id: system_config.inc,v 1.29 2004/05/26 10:52:10 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -60,6 +60,10 @@ class System_Config extends Config
 		// Rollback Settings
 		'SQ_CONF_ROLLBACK_ENABLED'			=> Array('editable' => 1, 'default' => '0'),
 
+		// Debug Settings - bit element
+		'SQ_CONF_DEBUG'						=> Array('editable' => 1, 'default' => 0),
+
+//// START EDITABLE SETTINGS ////
 		// System Settings
 		'SQ_CONF_SYSTEM_NAME'				=> Array('editable' => 1, 'default' => 'The System'),
 		'SQ_CONF_SYSTEM_OWNER'				=> Array('editable' => 1, 'default' => ''),
@@ -88,6 +92,17 @@ class System_Config extends Config
 		// Allow IP to fluctuate ?
 		'SQ_CONF_ALLOW_IP_CHANGE'			=> Array('editable' => 1, 'default' => '0'),
 
+	);
+
+
+	/**
+	* Holds all the valid debug settings and their descriptions for SQ_CONF_DEBUG
+	* The keys are the bit elements and the values are the descriptions
+	* @var Array()
+	*/
+	var $debug_options = Array(
+		1 => 'Show File and Line number in error messages',
+		2 => 'Show Stack Trace in error messages',
 	);
 
 
@@ -367,7 +382,7 @@ class System_Config extends Config
 		$o->closeSection();
 
 
-		$o->openSection('Error Settings');
+		$o->openSection('Error/Debug Settings');
 
 			$o->openField('Log Errors');
 			if($write_access && $is_root) {
@@ -381,6 +396,44 @@ class System_Config extends Config
 				combo_box($class.'[SQ_CONF_ERRORS_HIDE_FRONTEND]', Array('1' => 'Yes', '0' => 'No'), false, SQ_CONF_ERRORS_HIDE_FRONTEND);
 			} else {
 				echo (SQ_CONF_ERRORS_HIDE_FRONTEND) ? 'Yes' : 'No';
+			}
+
+			$o->openField('Debug Settings');
+			if($write_access && $is_root) {
+				?>
+				<script language="JavaScript" type="text/javascript">
+				<!--
+					function set_conf_debug(adding, bit) {
+
+						var current_debug = parseInt(get_form_element_value("<?php echo $class; ?>[SQ_CONF_DEBUG]"), 10);
+						if (isNaN(current_debug)) return;
+						// are we adding this bit to the list, or removing it ?
+						if (adding) {
+							current_debug |= bit;
+						} else {
+							current_debug &= ~bit;
+						}
+
+						set_hidden_field("<?php echo $class; ?>[SQ_CONF_DEBUG]", current_debug);
+
+					}// end set_conf_debug
+				
+				//-->
+				</script>
+				<?php
+				hidden_field($class.'[SQ_CONF_DEBUG]', SQ_CONF_DEBUG);
+				foreach($this->debug_options as $bit => $desc) {
+					check_box($class.'_SQ_CONF_DEBUG_'.$bit, $bit, (bool)(SQ_CONF_DEBUG & $bit), 'set_conf_debug(this.checked, '.$bit.');');
+					echo $desc, "<br />\n";
+				}
+			} else {
+				foreach($this->debug_options as $bit => $desc) {
+					?>
+					<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo (SQ_CONF_DEBUG & $bit) ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+					<?php 
+					echo $desc, "<br />\n";
+				}
+
 			}
 
 		$o->closeSection();
