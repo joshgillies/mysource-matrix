@@ -1,9 +1,12 @@
 <?php
-/*
-****************************************************************
+/**
 * General Functions that are likely to be used often enough to
 * warrant them being for every script run
-****************************************************************
+*
+*
+* @author  Blair Robertson <blair@squiz.net>
+* @version $Version$ - 1.0
+* @package Resolve
 */
 
 /**
@@ -147,12 +150,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 }//end sq_error_handler
 
-
-function superuser($blah='') {
-	return false;
-}
-
-/*
+/**
 * Takes an integer and returns an array of numbers representing the active
 * bits in the integer
 * eg. for 5 is 101 in binary
@@ -181,13 +179,12 @@ function bit_elements($num)
 }// end bit_elements()
 
 
-
-/*
+/**
 * Takes an ISO-9601 compliant date-time string and returns a unix timestamp for it
 *
 * @param string	$iso8601	date time string in 'YYYY-MM-DD HH:MM:SS' format
 *
-* @return Array(int)
+* @return int
 */
 function iso8601_ts($iso8601)
 {
@@ -201,12 +198,12 @@ function iso8601_ts($iso8601)
 	);
 }
 
-/*
+/**
 * Takes a unix timestamp for it and returns an ISO-9601 compliant date-time string
 *
 * @param int	$timestamp	unix timestamp
 *
-* @return Array(int)
+* @return string
 */
 function ts_iso8601($timestamp)
 {

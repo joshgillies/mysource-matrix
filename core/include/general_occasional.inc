@@ -1,9 +1,12 @@
 <?php
-/*
-****************************************************************
+/**
 * General Functions that aren't going to be needed everytime
 * but are still very general fns
-****************************************************************
+*
+*
+* @author  Blair Robertson <blair@squiz.net>
+* @version $Version$ - 1.0
+* @package Resolve
 */
 
 /**
