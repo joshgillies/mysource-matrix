@@ -135,7 +135,7 @@ class Backend extends Resolve_Object
 					<table cellpadding="0" border="0" cellspacing="0">
 						<tr>
 					<?php
-						$this->_printHeaderItem('Resolve', $this->getBackendUrl('main').'&backend_section=mysource', 'swish');
+						$this->_printHeaderItem(SQ_RESOLVE_SHORT_NAME, $this->getBackendUrl('main').'&backend_section=', 'swish');
 						$this->_printHeaderItem('Config',  $this->getBackendUrl('main').'&backend_section=config',   'config');
 					?>
 						</tr>
@@ -262,13 +262,14 @@ class Backend extends Resolve_Object
 					<script language="javascript">
 						function msg_test() {
 
+							var type = prompt('Enter the message type', 'error'); 
 							var msg = prompt('Enter the message', ''); 
 							if (msg == null) return;
 
 							var xml = '<messages>';
-							xml += '<message type="error">'   + msg + '</message>';
-							xml += '<message type="warning">' + msg + '</message>';
-							xml += '<message type="notice">'  + msg + '</message>';
+							xml += '<message type="' + type + '">'   + msg + '</message>';
+//							xml += '<message type="warning">' + msg + '</message>';
+//							xml += '<message type="notice">'  + msg + '</message>';
 							xml += '</messages>';
 
 							top.sidenav.add_messages(xml);

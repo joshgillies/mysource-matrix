@@ -19,9 +19,10 @@ define('SQ_INIT_OB_LEVEL', ob_get_level());
 * We mustn't forget to update this (until someone
 * comes up with an automated method)
 */
-define('SQ_RESOLVE_VERSION',   '0.1.0');
-define('SQ_RESOLVE_LONG_NAME', 'Squiz Resolve v'.SQ_RESOLVE_VERSION);
-define('SQ_RESOLVE_URL',       'http://www.squiz.net/');
+define('SQ_RESOLVE_VERSION',	'0.1.0');
+define('SQ_RESOLVE_SHORT_NAME',	'Resolve');
+define('SQ_RESOLVE_LONG_NAME',	'Squiz Resolve v'.SQ_RESOLVE_VERSION);
+define('SQ_RESOLVE_URL',		'http://www.squiz.net/');
 
 define('SQ_REQUIRED_PHP_VERSION',   '4.3.0');
 
