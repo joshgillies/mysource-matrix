@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.15 2003/12/03 23:11:37 gsherwood Exp $
+* $Id: cron_job_future_status.inc,v 1.16 2004/05/13 00:43:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,8 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 */
 class Cron_Job_Future_Status extends Cron_Job
 {
+
+
 	/**
 	* Constructor
 	*
@@ -47,15 +49,17 @@ class Cron_Job_Future_Status extends Cron_Job
 	function Cron_Job_Future_Status($assetid=0)
 	{
 		$this->Cron_Job($assetid);
-	}
+
+	}//end constructor
 
 
 	/**
-	* Returns name of the asset
+	* Return name of the asset
 	*
 	* @param bool	$short_name	whether or not we are after the shortname or the full name
 	*
 	* @see Asset::_getName()
+	* @return string
 	* @access public
 	*/
 	function _getName($short_name=false)
@@ -63,14 +67,11 @@ class Cron_Job_Future_Status extends Cron_Job
 		$asset = &$this->getAssetToUpdate();
 		if (is_null($asset)) {
 			return 'Asset-less Future Status Cron Job';
-
 		} elseif ($short_name) {
 			return 'FS for "'.$asset->short_name.'" (#'.$asset->id.')';
-
 		} else {
 			return 'Future Status for "'.$asset->name.'" (#'.$asset->id.')';
-
-		}// end if
+		}
 
 	}//end _getName();
 
@@ -79,6 +80,7 @@ class Cron_Job_Future_Status extends Cron_Job
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
 	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
 	*/
 	function _getAllowedLinks()
@@ -106,6 +108,7 @@ class Cron_Job_Future_Status extends Cron_Job
 
 	/**
 	* Can this asset have its last significant link removed (putting it in the trash)?
+	*
 	* For Cron Jobs this can only be done by the running user or a sys admin
 	* For Future Status Jobs, admins of the asset to update can also remove jobs
 	*
@@ -140,7 +143,7 @@ class Cron_Job_Future_Status extends Cron_Job
 				if (!in_array($value, array_keys($this->_getAllStatii()))) {
 					trigger_error('Unable to set the status, it is not valid', E_USER_NOTICE);
 					return false;
-				}// end if
+				}
 				break;
 
 			case 'type' :
@@ -151,13 +154,13 @@ class Cron_Job_Future_Status extends Cron_Job
 
 		return parent::setAttrValue($name, $value);
 
-	}// end setAttrValue()
+	}//end setAttrValue()
 
 
 	/**
-	* returns an array of all statii that a future page status can be set to.
+	* Return an array of all statii that a future page status can be set to
 	*
-	* @return Array() of the form Array('[value]' => '[code_name]')
+	* @return array of the form Array('[value]' => '[code_name]')
 	* @access private
 	* @static
 	*/
@@ -170,14 +173,15 @@ class Cron_Job_Future_Status extends Cron_Job
 				SQ_STATUS_LIVE_APPROVAL			=> 'LIVE_APPROVAL',
 		);
 
-	}// end _getAllStatii()
+	}//end _getAllStatii()
 
 
 	/**
-	* returns an array of all statii in the system in the form Array('[value]' => '[description]')
+	* Return an array of all statii in the system in the form Array('[value]' => '[description]')
+	*
 	* Used for the drop down boxes
 	*
-	* @return Array()
+	* @return array
 	* @access private
 	* @static
 	*/
@@ -193,10 +197,8 @@ class Cron_Job_Future_Status extends Cron_Job
 				$status_code = 'asset_status_'.$code;
 				require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
 				eval('$descs[$value] = '.$status_code.'::getDescription();');
-
-			}// end foreach
-
-		}// end if
+			}
+		}
 
 		return $descs;
 
@@ -204,7 +206,7 @@ class Cron_Job_Future_Status extends Cron_Job
 
 	
 	/**
-	* returns the name of the status that this future status object is going to change the asset to
+	* Return the name of the status that this future status object is going to change the asset to
 	*
 	* @return string
 	* @access public
@@ -219,7 +221,7 @@ class Cron_Job_Future_Status extends Cron_Job
 		eval('$desc = '.$status_code.'::getDescription();');
 		return $desc;
 
-	}// end statusName()
+	}//end statusName()
 
 
 	/**
@@ -239,11 +241,11 @@ class Cron_Job_Future_Status extends Cron_Job
 
 		return (bool) $this->createLink($asset, SQ_LINK_NOTICE, 'updating');
 
-	}// end setAssetToUpdate()
+	}//end setAssetToUpdate()
 
 
 	/**
-	* Gets the asset that this cron job will be altering the status on
+	* Get the asset that this cron job will be altering the status on
 	*
 	* @return mixed object Asset or NULL on error
 	* @access public
@@ -257,7 +259,7 @@ class Cron_Job_Future_Status extends Cron_Job
 
 		return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 
-	}// end getAssetToUpdate()
+	}//end getAssetToUpdate()
 
 
 	/**
@@ -276,23 +278,22 @@ class Cron_Job_Future_Status extends Cron_Job
 
 			$old_status = $asset->status;
 
-			// Let's just process the status change
-			if ($asset->processStatusChange($this->attr('status'))) {
-				$descs = $this->_getAllStatiiDescs();
+			// process the status change
+			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$vars = Array('assetid' => $asset->id, 'new_status' => $this->attr('status'));
+			$status_errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
+			if (empty($this->_errors)) {
+				// all OK, and we can be removed because we have done our one off task
 				$msg = 'Altered Status of "'.$asset->name.'" (#'.$asset->id.') from "'.$descs[$old_status].'" to "'.$descs[$asset->status].'"';
-				// All OK, and we can be removed because we have done our one off task
 				return SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_REMOVE;
-
-			// process failed
 			} else {
+				// process failed
 				trigger_error('Changing Status of "'.$asset->name.'" (#'.$asset->id.') Failed', E_USER_WARNING);
-
 			}
 
-		// asset not found
 		} else {
+			// asset not found
 			trigger_error('Couldn\'t find asset to update the status of', E_USER_WARNING);
-
 		}
 
 		// we can be removed because the error is beyound our control
