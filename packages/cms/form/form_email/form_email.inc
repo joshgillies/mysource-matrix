@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.17 2004/06/15 05:02:50 lwright Exp $
+* $Id: form_email.inc,v 1.18 2004/06/15 23:24:41 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -107,6 +107,7 @@ class Form_Email extends Form
 		$this->mailRecipients();
 		$this->mailReceipt();
 		$this->sendToFriends();
+		$this->runSelectiveEmails();
 		$this->logSubmission();
 
 		return true;
@@ -140,7 +141,7 @@ class Form_Email extends Form
 
 
 	/**
-	* mails a receipt to the user if a email special infomation field has been assigned
+	* mails a receipt to the user if a receipt email field has been assigned in Email Options
 	*
 	* @access public
 	* @return boolean
@@ -250,7 +251,7 @@ class Form_Email extends Form
 
 
 	/**
-	* mails a receipt to friends if a STAF special infomation field has been assigned
+	* mails a receipt to friends if a STAF field has been assigned in Email Options
 	*
 	* @access public
 	* @return boolean
@@ -306,6 +307,201 @@ class Form_Email extends Form
 		return true;
 
 	}//end sendToFriends()
+
+
+	/**
+	* runs selective emails application
+	*
+	* @access public
+	* @return boolean
+	*/
+	function runSelectiveEmails()
+	{
+		// Attribute which holds all the selective email rules
+		$selective_emails = $this->attr('selective_emails');
+
+		// These are where we store the recipients of each respective type of email...
+		// IF rules pass then this will contain who is receiving each email
+		$recipients	= Array();
+		$receipts	= Array();
+		$stafs		= Array();
+
+		for (reset($selective_emails); null !== ($k = key($selective_emails)); next($selective_emails)) {
+			$sel_email =& $selective_emails[$k];
+			
+			// check to see whether it is valid in the first place
+			$valid = true;
+
+			if (empty($sel_email['rules'])) $valid = false;				// no rule parts!
+			if (empty($sel_email['send'])) $valid = false;				// type of mail is empty
+			if (empty($sel_email['address'])) $valid = false;			// address to send to is empty
+
+			// we are still sweet, play on
+			if ($valid) {
+
+				// Short circuiting rules for this loop. If we are requiring ALL rule parts to succeed
+				// then we start with a Pass outcome and exit on the first Fail. If we are only needing
+				// ANY then we start with a Fail and exit on the first Pass.
+				$require_all = ($sel_email['require'] == 'all');
+				$passed = ($require_all ? true : false);
+				
+				// find the rule parts
+				$rule_parts =& $sel_email['rules'];
+
+				for (reset($rule_parts); null !== ($rule_key = key($rule_parts)); next($rule_parts)) {
+					$rule =& $rule_parts[$rule_key];
+					$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($rule['assetid']);
+					$answer = $q_asset->getValue();
+
+					$type_code = 'form_question_rule_type_' . $rule['name'];
+
+					if ($rule['comparison_question_id']) {
+						$comparison = &$GLOBALS['SQ_SYSTEM']->am->getAsset($rule['comparison_question_id']);
+					} else {
+						$comparison = $rule['value'];
+					}
+
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+					$attributes = eval('return '.$type_code.'::getAttributes();');
+
+					if (!$attributes['no_comparison']) {		// comparison value required!
+						$rule_passed = eval('return '.$type_code.'::valueTest($answer, $rule["operator"], $comparison);');
+					} else {
+						$rule_passed = eval('return '.$type_code.'::valueTest($answer, $rule["operator"]);');
+					}
+
+					// Short Circuit evaluation, see note above this loop.
+					if ($require_all && !$rule_passed) {
+						// Require ALL, rule part FAILED => fail whole rule
+						$passed = false;
+						break;
+					} elseif (!$require_all && $rule_passed) {
+						// Require ANY, rule part PASSED => pass whole rule
+						$passed = true;
+						break;
+					}
+
+				}//end for-rule parts
+
+				// Rule Passed, OMG!!
+				if ($passed) {
+					// parse addresses into an array in case multiples are sent
+					$addresses = preg_split('/[\s;,]+/',$sel_email['address']);
+
+					switch($sel_email['send']) {
+						case 'recipient':
+							$recipients	= array_merge($recipients, $addresses);
+							break;
+						case 'receipt':
+							$receipts	= array_merge($receipts, $addresses);
+							break;
+						case 'staf':
+							$stafs		= array_merge($stafs, $addresses);
+							break;
+					}//end switch
+
+				}//end if passed
+
+			}//end if valid
+
+		}//end selective email rules
+
+		// Form info will be common amongst all emails so we might as well capture it up the top
+		// of this thing
+
+		// get the form info
+		$info = $this->getFormInfo(true);
+		$info_text = $this->getFormInfo(false);
+
+		// get the form summary
+		ob_start();
+		$this->printSummary(true);
+		$body = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+		$this->printSummary(false);
+		$body_text = ob_get_contents();
+		ob_end_clean();
+
+		// keyword replacements
+		$reps = Array('form_summary_html' => $body, 'form_summary_text' => $body_text, 'form_info_html' => $info, 'form_info_text' => $info_text);
+
+		// recipient emails
+		if (!empty($recipients)) {
+			// only send one of each type of email to each recipient
+			$recipients = array_unique($recipients);
+
+			$email_format = $this->getAttribute('recipient_emails_format');
+
+			// substitute generic keywords with email format-specific keywords
+			$current_value = @unserialize($email_format->value);
+			$current_value['to'] = $recipients;
+
+			$current_value['html_format'] = str_replace(
+				Array('%form_info%', '%form_summary%'), 
+				Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
+			$current_value['text_format'] = str_replace(
+				Array('%form_info%', '%form_summary%'), 
+				Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
+
+			$email_format->value = serialize($current_value);
+
+			$email_format->sendMail($reps);
+
+		}
+
+		// receipt emails
+		if (!empty($receipts)) {
+			// only send one of each type of email to each recipient
+			$receipts = array_unique($receipts);
+
+			$email_format = $this->getAttribute('receipt_emails_format');
+
+			// substitute generic keywords with email format-specific keywords
+			$current_value = @unserialize($email_format->value);
+			$current_value['to'] = $receipts;
+
+			$current_value['html_format'] = str_replace(
+				Array('%form_info%', '%form_summary%'), 
+				Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
+			$current_value['text_format'] = str_replace(
+				Array('%form_info%', '%form_summary%'), 
+				Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
+
+			$email_format->value = serialize($current_value);
+
+			$email_format->sendMail($reps);
+
+		}
+
+		// send to a friend
+		if (!empty($stafs)) {
+			// only send one of each type of email to each recipient
+			$stafs = array_unique($stafs);
+
+			$email_format = $this->getAttribute('staf_format');
+
+			// substitute generic keywords with email format-specific keywords
+			$current_value = @unserialize($email_format->value);
+			$current_value['to'] = $stafs;
+
+			$current_value['html_format'] = str_replace(
+				Array('%form_info%', '%form_summary%'), 
+				Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
+			$current_value['text_format'] = str_replace(
+				Array('%form_info%', '%form_summary%'), 
+				Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
+
+			$email_format->value = serialize($current_value);
+
+			$email_format->sendMail($reps);
+
+		}
+
+		return true;
+
+	}//end runSelectiveEmails()
 
 
 }//end class

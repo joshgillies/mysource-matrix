@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.19 2004/06/11 04:20:44 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.20 2004/06/15 23:24:41 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -48,6 +48,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	{
 		$this->Form_Edit_Fns();
 	}//end Form_Email_Edit_Fns()
+
+
+//--        SUBMISSIONS        --//
 
 
 	/**
@@ -597,6 +600,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	}//end _generateSubmissionList()
 
 
+//--        RECEIPT FIELD        --//
+
+
 	/**
 	* Paints the interface for selecting a field containing send to a friend entries
 	*
@@ -691,6 +697,641 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		return true;
 
 	}//end processSTAFField()
+
+
+//--        SELECTIVE E-MAILS        --//
+
+	
+	/**
+	* Paints the interface for creating a new Selective Email rule
+	*
+	* @param object Form_Email			&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAddSelectiveEmailRule(&$asset, &$o, $prefix)
+	{
+		if(!$asset->writeAccess('attributes')) return false;
+		check_box($prefix.'_new_se_rule', '1', false);
+		echo ' New Rule';
+
+		return true;
+
+	}
+
+
+	/**
+	* Processes the interface for creating a new, blank Selective Email rule
+	*
+	* @param object Form_Email			&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processAddSelectiveEmailRule(&$asset, &$o, $prefix)
+	{
+		if(!isset($_REQUEST[$prefix.'_new_se_rule'])) return false;
+		$all_se = $asset->attr('selective_emails');
+
+		// pull out a new index for this question
+		if (empty($all_se)) {
+			$new_id = 0;
+		} else {
+			$new_id = max(array_keys($all_se)) + 1;
+		}
+
+		// fill out the defaults
+		$all_se[$new_id] = Array('assetid' => '',
+								 'rules'   => Array(),
+								 'require' => 'all',
+								 'send'    => 'recipient',
+								 'address' => '');
+
+		// set the post/request variables so the later functions know to show the new rule
+		$_REQUEST[$prefix.'_se_active_ruleid'] = $new_id;
+
+		$_POST[$prefix.'_require']	 = 'all';
+		$_POST[$prefix.'_send']		 = 'recipient';
+		$_POST[$prefix.'_address']	 = '';
+
+		if (!$asset->setAttrValue('selective_emails', $all_se)) return false;
+		return $asset->saveAttributes();
+
+	}//end processAddSelectiveEmailRule()
+
+
+	/**
+	* paint the current rules
+	*
+	* @param object Form_Section		&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCurrentSelectiveEmails(&$asset, &$o, $prefix)
+	{
+		$admin_access = $asset->adminAccess('attributes');
+
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+			
+		$ruleid = isset($_REQUEST[$prefix.'_se_active_ruleid']) ? $_REQUEST[$prefix.'_se_active_ruleid'] : -1;
+
+		if (isset($_REQUEST[$prefix.'_se_active_ruleid'])) {
+			$o->addHiddenField($prefix.'_se_active_ruleid', $_REQUEST[$prefix.'_se_active_ruleid']);
+		}
+
+		$all_se = $asset->attr('selective_emails');
+
+		if (empty($all_se)) {
+			echo 'There are no Selective Email rules yet set up for this form';
+			return false;
+		}
+
+		?>
+			<table class="sq-backend-table">
+				<tr>
+				<?php
+				if ($admin_access) {
+					?><td align="center" width="30" class="sq-backend-table-header" style="font-weight: bold;">Edit</td><?php
+				}
+				?><td class="sq-backend-table-header">
+					Rule
+				</td>
+				<td align="center" width="50" class="sq-backend-table-header" style="font-weight: bold;">Valid ?</td>
+				<?php
+				if ($admin_access) {
+					?><td align="center" width="70" class="sq-backend-table-header" style="font-weight: bold;">Delete ?</td>
+				<?php
+				}
+				?>
+			</tr>
+		<?php
+
+		for (reset($all_se); null !== ($k = key($all_se)); next($all_se)) {
+			$info = &$all_se[$k];
+			$rule_prefix = $prefix.'_r'.$k;
+			$valid = true;
+			?>
+			
+			<tr><?php if ($admin_access) { ?><td valign="top"  align="center" width="30" class="sq-backend-table-cell<?php if ($ruleid == $k) echo '-alt' ?>"><a href="<?php echo $o->getCurrentLocation(); ?>&<?php echo $prefix?>_se_active_ruleid=<?php echo $k ?>"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/edit_mode.png" width="15" height="15" border="0" /></a><?php } ?></td>
+<td valign="top" class="sq-backend-table-cell<?php if ($ruleid == $k) echo '-alt' ?>">
+			<?php
+
+			if (empty($info['rules'])) {
+				?>
+				<span><b>WARNING:</b> This rule contains no parts</span><br/>
+				<?php
+				$valid = false;
+			} else {
+				$rules =& $info['rules'];
+
+				$i = 0;
+				for (reset($rules); null !== ($rule_key = key($rules)); next($rules)) {
+					$rule =& $rules[$rule_key];
+					$type_code = 'form_question_rule_type_'.$rule['name'];
+					$q_asset =& $am->getAsset($rule['assetid']);
+
+					// get operators and attributes from a static call
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+					$operators = eval('return '.$type_code.'::getOperators();');
+					$attributes = eval('return '.$type_code.'::getAttributes();');
+
+					// if this is not our first rule part, put in AND or OR as the case may be
+					if ($i > 0) {
+						if ($info['require'] == 'all') {
+							echo '<b>AND</b> ';
+						} else {
+							echo '<b>OR</b> ';
+						}
+					}
+					
+					$i++;
+					echo '<b>'.$q_asset->attr('name').'</b> ';
+					echo $operators[$rule['operator']];
+					echo '<b>';
+				
+					if (!$attributes['no_comparison']) {
+						// comparison question ID
+						if ($cqid = $rule['comparison_question_id']) {
+							$cq_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($cqid);
+								echo 'Value of "'.$cq_asset->name.'" ['.$cq_asset->type().' : '.$cqid . ']';
+						} else {
+							echo $rule['value'];
+						}
+					echo '</b>';
+					}?>
+							<br/>
+					<?php
+					$i++;
+					}// end foreach data
+				}
+
+				echo 'Send a <b>';
+				if ($info['send'] == 'staf') {
+					echo 'Send To A Friend';
+				} elseif ($info['send'] == 'recipient') {
+					echo 'Recipient';
+				} elseif ($info['send'] == 'receipt') {
+					echo 'Receipt';
+				} else {
+					echo 'Unknown E-mail Type';
+					$valid = false;
+				}
+				echo '</b> email to <b>';
+				if (empty($info['address'])) {
+					$valid = false;
+					echo 'No Email Address Specified';
+				} else {
+					echo $info['address'];
+				}
+				echo '</b>';
+				?></td>
+				<td valign="top"  align="center" width="70" class="sq-backend-table-cell<?php if ($ruleid == $k) echo '-alt' ?>"><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $valid ? 'tick' : 'cross'; ?>.gif" width="15" height="15" /></td>
+				<?php
+				
+						if ($admin_access) {
+								?><td valign="top"  align="center" width="50" class="sq-backend-table-cell<?php if ($ruleid == $k) echo '-alt' ?>"><?php check_box($prefix.'_deletes[]', $k); ?></td>
+						<?php }
+					?>
+				</tr>
+				<?php } ?>
+				</table>
+		<?php
+		return true;
+
+	}//end paintCurrentSelectiveEmails()
+
+
+	/**
+	* Processes the interface for deleting current selective email rules
+	*
+	* @param object Form_Email			&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processCurrentSelectiveEmails(&$asset, &$o, $prefix)
+	{
+		if (!isset($_POST[$prefix.'_deletes'])) return true;
+		
+		$all_se = $asset->attr('selective_emails');
+
+		$delete_ruleids = $_POST[$prefix.'_deletes'];
+
+		// delete our selective e-mail rules
+		foreach ($delete_ruleids as $ruleid) {
+			unset($all_se[$ruleid]);
+			if (!empty($_REQUEST[$prefix.'_se_active_ruleid'])) {
+				var_export(array($ruleid, $_REQUEST[$prefix.'_se_active_ruleid']));
+				if ($ruleid == $_REQUEST[$prefix.'_se_active_ruleid']) {
+					unset($_REQUEST[$prefix.'_se_active_ruleid']);
+				}
+			}
+		}
+
+		$asset->setAttrValue('selective_emails', $all_se);
+		return $asset->saveAttributes();
+	}//end processCurrentSelectiveEmails()
+
+
+	/**
+	* Processes the interface for selecting a question for a rule part
+	*
+	* @param object Form_Email			&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintActiveQuestion(&$asset, &$o, $prefix)
+	{
+		if(!$asset->writeAccess('attributes')) return false;
+		if (isset($_REQUEST[$prefix.'_se_active_ruleid'])) {
+			$current_assetid = isset($_POST[$prefix.'_se_new_qid']['assetid']) ? $_POST[$prefix.'_se_new_qid']['assetid'] : 0;
+			asset_finder($prefix.'_se_new_qid', $current_assetid, Array('form_question' => 'D'));
+			return true;
+		}
+
+	}//end paintActiveQuestion()
+
+
+	/**
+	* Processes the interface for selecting active question (no implementation required)
+	*
+	* @param object Form_Email			&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processActiveQuestion(&$asset, &$o, $prefix)
+	{
+		return true;
+
+	}//end processActiveQuestion()
+
+
+	/**
+	* Paint the dropdowns to add rule parts to a Selective Email rule
+	*
+	* @param object Form_Section		&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAddRulePart(&$asset, &$o, $prefix)
+	{
+		if(!$asset->adminAccess('attributes')) return false;
+		if (!isset($_REQUEST[$prefix.'_se_active_ruleid'])) return false;
+
+		if (!isset($_POST[$prefix.'_se_new_qid']['assetid'])) {
+			echo 'You must select a question before you can select the type of rule part';
+			return false;
+
+		} else {
+			$am = &$GLOBALS['SQ_SYSTEM']->am;
+			$active_question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_se_new_qid']['assetid']);
+
+			$rule_codes = $active_question->getAllowedRules();
+			$type_codes = Array();
+
+			foreach	($rule_codes as $rule_code) {
+				$type_codes[] = 'form_question_rule_type_'.$rule_code;
+			}
+
+			$desc = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_codes, 'description');
+			combo_box($prefix.'_new_rule', array_merge(Array(' ' => '------ Please Select ------'), $desc), false, '');
+		
+		return true;
+
+		}
+
+	}//end paintAddRulePart()
+	
+	
+	/**
+	* Process the interface for adding a rule part to a Selective Email rule
+	*
+	* @param object Form_Section		&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processAddRulePart(&$asset, &$o, $prefix)
+	{
+		if(!$asset->adminAccess('attributes')) return false;
+
+		// rule id is not set || required "new rule part" fields not set = FAIL
+		if (!isset($_REQUEST[$prefix.'_se_active_ruleid']) || !isset($_REQUEST[$prefix.'_new_rule']) || empty($_POST[$prefix.'_se_new_qid']['assetid'])) {
+			return false;
+
+		} else {
+			$am = &$GLOBALS['SQ_SYSTEM']->am;
+			
+			$ruleid = $_REQUEST[$prefix.'_se_active_ruleid'];
+			$qid = $_POST[$prefix.'_se_new_qid']['assetid'];
+			$active_question = &$am->getAsset($qid);
+
+			$type_code = $_POST[$prefix.'_new_rule'];
+			$rule_code = substr($type_code,24);
+			if (!trim($rule_code)) return false;
+
+			$all_se = $asset->attr('selective_emails');
+
+			$rules =& $all_se[$ruleid]['rules'];
+		
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+			$operators = array_keys(eval('return '.$type_code.'::getOperators();'));
+
+			$rules[] = Array('assetid'				=> $qid,
+						   'name'					=> $rule_code,
+						   'operator'				=> $operators[0],
+						   'value'					=> '',
+						   'comparison_question_id'	=> 0);
+			
+
+			$asset->setAttrValue('selective_emails', $all_se);
+			return $asset->saveAttributes();
+		}
+
+	}//end processAddRulePart()
+
+
+	/**
+	* Paints the interface for editing and deleting Rule Parts
+	*
+	* @param object Form_Email			&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintRuleParts(&$asset, &$o, $prefix)
+	{
+		if (!isset($_REQUEST[$prefix.'_se_active_ruleid'])) return false;
+		$ruleid = $_REQUEST[$prefix.'_se_active_ruleid'];
+
+		if(!$asset->writeAccess('attributes')) return false;
+		$admin_access = $asset->adminAccess('attributes');
+
+		$am		=& $GLOBALS['SQ_SYSTEM']->am;
+		$all_se	=& $asset->attr('selective_emails');
+		$rules  =& $all_se[$ruleid]['rules'];
+
+		if (empty($rules)) {
+			echo 'This rule is empty';
+			return false;
+		}
+
+		// set a get var so that we know what question was selected when we come back 
+				?>
+				<table class="sq-backend-table">
+					<tr>
+						<td class="sq-backend-table-header">
+							Question
+						</td>
+						<td class="sq-backend-table-header">
+							Rule
+						</td>
+						<td class="sq-backend-table-header">
+							Comparison Value
+						</td>
+						<td align="center" width="70" class="sq-backend-table-header">
+							Delete ?
+						</td>
+					</tr>
+				<?php
+
+
+					// sort order is based upon shadow asset id (eg. '87:q1'), not just question id - this 	
+					// will allow sections to be sorted in later
+					$i = 0;
+
+					for (reset($rules); null !== ($k = key($rules)); next($rules)) {
+						$rule = &$rules[$k];
+						$type_code = 'form_question_rule_type_'.$rule['name'];
+						$q_asset =& $am->getAsset($rule['assetid']);
+
+						// get operators and attributes from a static call
+						$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+						$operators = eval('return '.$type_code.'::getOperators();');
+						$attributes = eval('return '.$type_code.'::getAttributes();');
+
+						// obtain a rule prefix
+						$rule_prefix = $prefix.'_r'.$k;
+						?>
+							<td valign="top" class="sq-backend-table-cell">
+							<?php echo $q_asset->attr('name'); ?>
+							</td>
+							<td class="sq-backend-table-cell">
+								<?php if ($asset->writeAccess('attributes')) {
+									combo_box($rule_prefix.'_operator', $operators, 
+									false, $rule['operator']); 
+								} else {
+									echo $operators[$rule['operator']];
+								} ?>
+							</td>
+							<td class="sq-backend-table-cell">
+								<?php if (!$attributes['no_comparison']) {
+									// only print if we need to compare with something
+									if ($asset->writeAccess('all')) {
+										if ($q_asset->isSelection() && !$attributes['force_text']) {
+											$options = $asset->getOptions();
+											combo_box($rule_prefix.'_value', array_merge(Array(' ' => '------ Please Select ------'), $options), 
+									false, $rule['value']); 
+										} else {
+											text_box($rule_prefix.'_value', $rule['value'], 30, 255);
+										}
+										// showing the asset finder?
+										if ($attributes['show_asset_finder']) {
+											echo ' Or<br />';
+											asset_finder($rule_prefix.'_cq_id', $rule['comparison_question_id'], Array('form_question' => 'D'));
+										}
+									} else {
+										// comparison question ID
+										if ($cqid = $rule['comparison_question_id']) {
+											$cq_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($cqid);
+											echo 'Value of "'.$cq_asset->name.'" ['.$cq_asset->type().' : '.$cqid . ']';
+										} else {
+											echo $rule['value'];
+										}
+									}
+								}?>
+							</td>
+							<?php if ($admin_access) {
+								?><td valign="top"  align="center" width="70" class="sq-backend-table-cell"><?php check_box($prefix.'_rule_deletes[]', $k); ?></td>
+							<?php } ?>
+						</tr>
+					<?php
+					$i++;
+					}// end foreach data
+				?>
+				</table>
+
+			<?php
+			return true;
+
+	}//end paintRuleParts()
+
+
+	/**
+	* Processes the interface for editing and deleting Rule Parts
+	*
+	* @param object Form_Section		&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processRuleParts(&$asset, &$o, $prefix)
+	{
+		$all_se = $asset->attr('selective_emails');
+
+		if (!isset($_REQUEST[$prefix.'_se_active_ruleid'])) {
+			return false;
+		}
+
+		$ruleid = $_REQUEST[$prefix.'_se_active_ruleid'];
+
+		if (!isset($all_se[$ruleid])) {
+			return false;
+		}
+
+		$rules =& $all_se[$ruleid]['rules'];
+
+		$prefix = $asset->getPrefix();
+
+		if (!empty($_POST[$prefix.'_rule_deletes'])) {
+		
+			$delete_ruleids = $_POST[$prefix.'_rule_deletes'];
+
+			// delete our selective e-mail rules
+			foreach ($delete_ruleids as $deleted_ruleid) {
+				unset($rules[$deleted_ruleid]);
+			}
+
+		}
+
+		// modify what's left
+		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
+			$rule = &$rules[$k];
+			$type = 'form_question_rule_type_'.$rule['name'];
+			$rule_prefix = $prefix.'_r'.$k;
+
+			if (isset($_POST[$rule_prefix.'_operator'])) {
+				$rule['operator'] = $_POST[$rule_prefix.'_operator'];
+			}
+
+			if (isset($_POST[$rule_prefix.'_cq_id']) && ($_POST[$rule_prefix.'_cq_id']['assetid'] != 0)) {
+				// comparison question id overrides the static value!
+				if ($_POST[$rule_prefix.'_cq_id']['assetid'] == $asset->id) {
+				  trigger_error('Cannot compare "'.$asset->name.'" (# '.$asset->id.') with itself in a rule',  E_USER_WARNING);
+				  return false;
+				}
+
+				$rule['comparison_question_id'] = $_POST[$rule_prefix.'_cq_id']['assetid'];
+				$rule['value'] = '';
+			} elseif (!empty($_POST[$rule_prefix.'_value'])) {
+				// static value only specified - set c.q. ID to a duck
+				$rule['comparison_question_id'] = 0;
+				$rule['value'] = $_POST[$rule_prefix.'_value'];
+			}
+
+
+
+		}
+		$asset->setAttrValue('selective_emails', $all_se);
+		return $asset->saveAttributes();
+
+	}//end processRuleParts()
+
+
+	/**
+	* Paint the dropdowns to add rules to this question
+	*
+	* @param object Form_Section		&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @return boolean false if no questions in this section, true otherwise
+	* @access public
+	*/
+	function paintActiveSend(&$asset, &$o, $prefix)
+	{
+		if(!$asset->adminAccess('attributes')) return false;
+
+		if (!isset($_REQUEST[$prefix.'_se_active_ruleid'])) {
+			return false;
+
+		} else {
+			$am = &$GLOBALS['SQ_SYSTEM']->am;
+			
+			$ruleid = $_REQUEST[$prefix.'_se_active_ruleid'];
+			$all_se = $asset->attr('selective_emails');
+
+			echo 'When ';
+			combo_box($prefix.'_require', Array('all' => 'ALL', 'any' => 'ANY'), false, Array($all_se[$ruleid]['require']));
+			echo ' rule parts are matched,<br/>send a ';
+			combo_box($prefix.'_send', Array('recipient' => 'Recipient E-mail', 'receipt' => 'Receipt', 'staf' => 'Send To A Friend E-mail'), false, Array($all_se[$ruleid]['send']));
+			echo ' to ';
+			text_box($prefix.'_address', $all_se[$ruleid]['address'], 30, 255);
+		
+		return true;
+
+		}
+
+	}//end paintActiveSend()
+	
+	
+	/**
+	* Process the newly added questions
+	*
+	* @param object Form_Section		&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processActiveSend(&$asset, &$o, $prefix)
+	{
+		if(!$asset->adminAccess('attributes')) return false;
+
+		if (!isset($_REQUEST[$prefix.'_se_active_ruleid']) || !isset($_POST[$prefix.'_address'])) {
+			return false;
+
+		} else {
+			$am = &$GLOBALS['SQ_SYSTEM']->am;
+			
+			$ruleid = $_REQUEST[$prefix.'_se_active_ruleid'];
+			$all_se = $asset->attr('selective_emails');
+
+			$all_se[$ruleid]['require'] = $_POST[$prefix.'_require'];
+			$all_se[$ruleid]['send']    = $_POST[$prefix.'_send'];
+			$all_se[$ruleid]['address'] = $_POST[$prefix.'_address'];
+
+			$asset->setAttrValue('selective_emails', $all_se);
+			return $asset->saveAttributes();
+		}
+
+	}//end processActiveSend()
 
 
 }//end class

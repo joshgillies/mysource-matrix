@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.10 2004/05/19 23:42:29 lwright Exp $
+* $Id: edit_interface_screens.xml,v 1.11 2004/06/15 23:24:41 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -26,5 +26,6 @@
 <screens>
 	<screen code_name="contents" display_name="Form Contents" icon="web" force_unlock="0" />
 	<screen code_name="recipient" display_name="Email Options" icon="web" />
+	<screen code_name="selective_emails" display_name="Selective Emails" icon="web"  force_unlock="0"  />
 	<screen code_name="log" display_name="Submission Logs" icon="web" force_unlock="0"  />
 </screens>

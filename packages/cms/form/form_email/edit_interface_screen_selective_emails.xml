@@ -18,39 +18,65 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_selective_emails.xml,v 1.4 2003/11/26 00:51:27 gsherwood Exp $
+* $Id: edit_interface_screen_selective_emails.xml,v 1.5 2004/06/15 23:24:41 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <contents>
-	<section name="Selective Emails">
+	<section name="Create a New Rule">
 		<field>
-			<display_name>Questions</display_name>
-			<note>Choose a Question to add Email Addresses to</note>
+			<display_name>New Rule</display_name>
+			<note>Check this box to create a new, empty Selective Email rule</note>
 			<function_call>
-				<paint_function   name="paintAddSelectiveEmailQuestion"   />
-				<process_function name="processAddSelectiveEmailQuestion" />
+				<paint_function   name="paintAddSelectiveEmailRule"   />
+				<process_function name="processAddSelectiveEmailRule" />
 			</function_call>
 		</field>
 	</section>
-	<section name="Current Selective Emails">
+	<section name="Current Selective Email Rules">
 		<field>
-			<display_name>Current Selective Emails</display_name>
-			<note></note>
+			<display_name>Current Rules</display_name>
+			<note>Only valid rules (marked with a tick in the Valid column) can be processed. To be valid a rule must consist of at least one part, and must specify an email address(es) to send the Selective Email to</note>
 			<function_call>
 				<paint_function   name="paintCurrentSelectiveEmails"   />
 				<process_function name="processCurrentSelectiveEmails" />
 			</function_call>
 		</field>
 	</section>
-	<section name="Active Question">
+	<section name="Active Rule">
 		<field>
-			<display_name>Active Question</display_name>
-			<note></note>
+			<display_name>Current Rule Parts</display_name>
+			<note>When an asset is selected as the comparison value, it will override the value entered in the text box</note>
+			<function_call>
+				<paint_function   name="paintRuleParts"   />
+				<process_function name="processRuleParts" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Email Settings</display_name>
+			<note>You can send emails to more than one recipient by separating email addresses with white space, a comma or a semi-colon</note>
+			<function_call>
+				<paint_function   name="paintActiveSend"   />
+				<process_function name="processActiveSend" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Add New Rule Part">
+		<field>
+			<display_name>Apply Rule To</display_name>
+			<note>Select the form question asset that this rule part will apply to</note>
 			<function_call>
 				<paint_function   name="paintActiveQuestion"   />
 				<process_function name="processActiveQuestion" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Add Rule Part</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintAddRulePart"   />
+				<process_function name="processAddRulePart" />
 			</function_call>
 		</field>
 	</section>
