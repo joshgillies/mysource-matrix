@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_uninstall_patch.inc,v 1.6 2004/11/10 06:48:34 mnyeholt Exp $
+* $Id: hipo_job_uninstall_patch.inc,v 1.6.2.1 2004/12/30 23:48:42 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -64,6 +64,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 						'percent_done'	=> 0,
 						'complete'		=> false,
 						'message'		=> '',
+						'allow_cancel'  => true,
 					),
 					Array(
 						'name'			=> 'Checking Asset Types',
@@ -77,6 +78,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 						'percent_done'	=> 0,
 						'complete'		=> false,
 						'message'		=> '',
+						'allow_cancel'  => true,
 					),
 					Array(
 						'name'			=> 'Checking Versions',
@@ -90,6 +92,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 						'percent_done'	=> 0,
 						'complete'		=> false,
 						'message'		=> '',
+						'allow_cancel'  => true,
 					),
 					Array(
 						'name'			=> 'Checking File Updates',
@@ -103,6 +106,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 						'percent_done'	=> 0,
 						'complete'		=> false,
 						'message'		=> '',
+						'allow_cancel'  => true,
 					),
 					Array(
 						'name'			=> 'Reversing File Updates',
@@ -116,6 +120,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 						'percent_done'	=> 0,
 						'complete'		=> false,
 						'message'		=> '',
+						'allow_cancel'  => false,
 					),
 					Array(
 						'name'			=> 'Updating Database',
@@ -129,6 +134,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 						'percent_done'	=> 0,
 						'complete'		=> false,
 						'message'		=> '',
+						'allow_cancel'  => false,
 					),
 					Array(
 						'name'			=> 'Running Installation Script',
@@ -142,6 +148,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 						'percent_done'	=> 0,
 						'complete'		=> false,
 						'message'		=> '',
+						'allow_cancel'  => false,
 					),
 					Array(
 						'name'			=> 'Cleaning Up',
@@ -155,6 +162,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 						'percent_done'	=> 0,
 						'complete'		=> false,
 						'message'		=> '',
+						'allow_cancel'  => false,
 					),
 				);
 
