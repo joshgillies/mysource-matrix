@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.12 2004/01/15 21:51:24 gsherwood Exp $
+* $Id: config.inc,v 1.13 2004/01/21 00:47:36 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -240,9 +240,9 @@ class Config extends MySource_Object
 	*/
 	function writeAccess()
 	{
+		if (!empty($GLOBALS['SQ_INSTALL'])) return true;
 		$lock_info = $this->getLockInfo();
 		if (!empty($lock_info) && $lock_info['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserId()) return true;
-		if (!empty($GLOBALS['SQ_INSTALL'])) return true;
 		return false;
 
 	}//end writeAccess()
