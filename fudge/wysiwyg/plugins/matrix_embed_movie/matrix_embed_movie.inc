@@ -54,8 +54,6 @@ class matrix_embed_movie extends wysiwyg_plugin {
 				var sel = this._getSelection();
 				var range = this._createRange(sel);
 
-				//alert(HTMLArea.getHTML(range.cloneContents(), false));
-
 				var style          = "";
 				var width          = "";
 				var height         = "";
