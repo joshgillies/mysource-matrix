@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: text.inc,v 1.2 2003/09/26 05:26:36 brobertson Exp $
+* $Id: text.inc,v 1.3 2003/10/07 07:08:45 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -66,5 +66,34 @@ function retrieve_keywords_replacements($text)
 	return (count($matches)) ? $matches[1] : Array();
 
 }//end retrieve_keywords_replacements()
+
+
+/**
+* Extracts word counts for a given string. 
+* 
+* Takes a text string, splits it into words (according to $split_regexp), and extracts words 
+* from each split element (according to $word_match_regexp). 
+* Words must be larger than or equal to $min_length to be output. 
+* 
+* @param string $text
+* @param string $split_regexp		Regular expression delineating words
+* @param string $word_match_regexp	Regular expression for matching valid words
+* @param int	$min_length			The minimum length for words matched
+*
+* @return array Keys: words; values: the word counts
+* @access public
+*/
+
+function get_word_counts($text, $split_regexp="[^A-z0-9]+", $word_match_regexp="[A-z0-9]+",$min_length=3)
+{
+	$words = split($split_regexp, $text);
+	$word_counts = array_count_values($words);
+	foreach ($word_counts as $word => $count) {
+		if (strlen($word) < $min_length || !ereg($word_match_regexp, $word, $matches)) {
+			unset($word_counts[$word]);
+		}
+	}
+	return $word_counts;
+}
 
 ?>
