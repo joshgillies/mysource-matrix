@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_length.inc,v 1.1 2004/05/05 07:10:13 lwright Exp $
+* $Id: form_question_rule_type_length.inc,v 1.2 2004/06/15 23:15:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -136,6 +136,39 @@ class Form_Question_Rule_Type_Length extends Form_Question_Rule
 	}//end processForm()
 
 
+	/**
+	* processes a test on a single static value
+	*
+	* Used when we are using rules outside of validating a form - for example selective emails.
+	*
+	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
+	* instantiated manually in code, this function MUST called statically.
+	* 
+	* @param mixed	$answer			the answer being passed to us
+	* @param string	$operator		the operator being used to compare
+	* @param mixed	&$comparison	either a value or a form_question asset (based on
+	*								comparison question id), being used to compare
+	*
+	* @static
+	* @access public
+	* @return boolean true only if rule succeeds
+	*/
+	function valueTest($answer, $operator, &$comparison)
+	{
+		$operators = eval('return '.__CLASS__.'::_getOperators();');	// get private operator texts
+
+		// comparison sent is a question asset!!
+		if (is_a($comparison, 'form_question')) {
+			$valid = eval('return \''.strlen($answer).'\''.$operator.'\''.$comparison->getValue().'\';');
+		} else {	// sent just a value
+			$valid = eval('return \''.strlen($answer).'\''.$operator.'\''.$comparison.'\';');
+		}
+
+		return ($valid == $operator);
+		
+	}//end valueTest()
+	
+	
 	/**
 	* writes JavaScript code for client side validation
 	*

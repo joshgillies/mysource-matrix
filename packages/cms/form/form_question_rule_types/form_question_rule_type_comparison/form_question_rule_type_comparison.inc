@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_comparison.inc,v 1.12 2004/05/06 04:41:56 lwright Exp $
+* $Id: form_question_rule_type_comparison.inc,v 1.13 2004/06/15 23:15:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -94,7 +94,7 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 			$valid = eval('return \''.$answer.'\''.$operator.'\''.$comparison.'\';');
 		}
 
-		if ($valid == $operator) {
+		if ($valid) {
 			return true;
 		} else {
 			// tailor the error response depending
@@ -113,6 +113,39 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 		}
 		
 	}//end processForm()
+
+
+	/**
+	* processes a test on a single static value
+	*
+	* Used when we are using rules outside of validating a form - for example selective emails.
+	*
+	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
+	* instantiated manually in code, this function MUST called statically.
+	* 
+	* @param mixed	$answer			the answer being passed to us
+	* @param string	$operator		the operator being used to compare
+	* @param mixed	&$comparison	either a value or a form_question asset (based on
+	*								comparison question id), being used to compare
+	*
+	* @static
+	* @access public
+	* @return boolean true only if rule succeeds
+	*/
+	function valueTest($answer, $operator, &$comparison)
+	{
+		$operators = eval('return '.__CLASS__.'::getOperators();');
+
+		// comparison sent is a question asset!!
+		if (is_a($comparison, 'form_question')) {
+			$valid = eval('return \''.$answer.'\''.$operator.'\''.$comparison->getValue().'\';');
+		} else {	// sent just a value
+			$valid = eval('return \''.$answer.'\''.$operator.'\''.$comparison.'\';');
+		}
+
+		return $valid;
+		
+	}//end valueTest()
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule.inc,v 1.12 2004/05/10 00:23:02 lwright Exp $
+* $Id: form_question_rule.inc,v 1.13 2004/06/15 23:15:17 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -99,6 +99,16 @@ class Form_Question_Rule extends Asset
 	}//end processForm()
 
 
+	/**
+	* @abstract
+	*/
+	function valueTest($answer, $operator)
+	{
+		return true;
+
+	}//end valueTest()
+
+	
 	/**
 	* @abstract
 	*/

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_regexp.inc,v 1.9 2004/05/10 00:33:25 lwright Exp $
+* $Id: form_question_rule_type_regexp.inc,v 1.10 2004/06/15 23:15:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -121,6 +121,36 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 		}
 
 	}//end processForm()
+	
+	
+	/**
+	* processes a test on a single static value
+	*
+	* Used when we are using rules outside of validating a form - for example selective emails.
+	*
+	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
+	* instantiated manually in code, this function MUST called statically.
+	* 
+	* @param mixed	$answer			the answer being passed to us
+	* @param string	$operator		the operator being used to compare
+	* @param mixed	&$comparison	either a value or a form_question asset (based on
+	*								comparison question id), being used to compare
+	*
+	* @static
+	* @access public
+	* @return boolean true only if rule succeeds
+	*/
+	function valueTest($answer, $operator, $comparison)
+	{
+		$answer   = $this->active_submission->getAnswer($questionid);
+
+		$comparison = str_replace('|', '\|', $comparison);
+		$pattern = "|".$comparison."|";
+		$valid = (preg_match($pattern, $answer)) ? 1 : 0; 
+
+		return ($valid == $operator);
+
+	}//end valueTest()
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_found_in.inc,v 1.9 2004/05/07 05:14:44 lwright Exp $
+* $Id: form_question_rule_type_found_in.inc,v 1.10 2004/06/15 23:15:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -113,6 +113,38 @@ class Form_Question_Rule_Type_Found_In extends Form_Question_Rule
 	}//end processForm()
 
 
+	/**
+	* processes a test on a single static value
+	*
+	* Used when we are using rules outside of validating a form - for example selective emails.
+	*
+	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
+	* instantiated manually in code, this function MUST called statically.
+	* 
+	* @param mixed	$answer			the answer being passed to us
+	* @param string	$operator		the operator being used to compare
+	* @param mixed	&$comparison	either a value or a form_question asset (based on
+	*								comparison question id), being used to compare
+	*
+	* @static
+	* @access public
+	* @return boolean true only if rule succeeds
+	*/
+	function valueTest($answer, $operator, &$comparison)
+	{
+		// comparison sent is a question asset!!
+		if (is_a($comparison, 'form_question')) {
+			$valid = (strpos($comparison->getValue(), $answer) !== false) ? 1 : 0;			
+		} else {	// sent just a value
+			$valid = (strpos($comparison, $answer) !== false) ? 1 : 0;
+		}
+
+		return ($valid == $operator);
+	
+
+	}//end valueTest()
+	
+	
 	/**
 	* writes JavaScript code for client side validation
 	* 

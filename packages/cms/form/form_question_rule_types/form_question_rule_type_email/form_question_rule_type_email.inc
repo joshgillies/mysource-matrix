@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_email.inc,v 1.10 2004/05/06 00:33:39 lwright Exp $
+* $Id: form_question_rule_type_email.inc,v 1.11 2004/06/15 23:15:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -121,6 +121,29 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 	}//end processForm()
 
 
+	/**
+	* processes a test on a single static value
+	*
+	* Used when we are using rules outside of validating a form - for example selective emails.
+	*
+	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
+	* instantiated manually in code, this function MUST called statically.
+	* 
+	* @param mixed	$answer			the answer being passed to us
+	* @param string	$operator		the operator being used to compare
+	*
+	* @static
+	* @access public
+	* @return boolean true only if rule succeeds
+	*/
+	function valueTest($answer, $operator)
+	{
+		$valid = valid_email($answer);
+
+		return ($valid == $operator);
+
+	}//end valueTest()
+	
 	/**
 	* writes JavaScript code for client side validation
 	* 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_ends_with.inc,v 1.2 2004/05/10 00:32:55 lwright Exp $
+* $Id: form_question_rule_type_ends_with.inc,v 1.3 2004/06/15 23:15:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -100,6 +100,39 @@ class Form_Question_Rule_Type_Ends_With extends Form_Question_Rule
 		}
 		
 	}//end processForm()
+
+
+	/**
+	* processes a test on a single static value
+	*
+	* Used when we are using rules outside of validating a form - for example selective emails.
+	*
+	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
+	* instantiated manually in code, this function MUST called statically.
+	* 
+	* @param mixed	$answer			the answer being passed to us
+	* @param string	$operator		the operator being used to compare
+	* @param mixed	&$comparison	either a value or a form_question asset (based on
+	*								comparison question id), being used to compare
+	*
+	* @static
+	* @access public
+	* @return boolean true only if rule succeeds
+	*/
+	function valueTest($answer, $operator, &$comparison)
+	{
+		// "Ends With" requires the last index of the comparison starts where it would be if it were
+		// at the end of the string.
+		// comparison sent is a question asset!!
+		if (is_a($comparison, 'form_question')) {
+			$valid = (strrpos($answer, $comparison->getValue()) === strlen($answer)-strlen($comparison->getValue())) ? 1 : 0;			
+		} else {	// sent just a value
+			$valid = (strrpos($answer, $comparison) ===  strlen($answer)-strlen($comparison)) ? 1 : 0;
+		}
+
+		return ($valid == $operator);
+		
+	}//end valueTest()
 
 
 	/**
