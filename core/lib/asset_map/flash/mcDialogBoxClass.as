@@ -11,7 +11,7 @@ function mcDialogBoxClass()
 	this.stop();
 	this._visible = false;
 
-	this.bg_colour  = 0xC0C0C0;
+	this.bg_colour  = 0xEFEFEF;
 	this.fg_colour  = 0xFFFFFF;
 	this.full_width = 230;
 
@@ -51,7 +51,7 @@ mcDialogBoxClass.prototype.show = function(heading, summary, call_back_obj, call
 	// attempt to get the modal status
 	if (!_root.system_events.startModal(this)) return false;
 
-
+	this.summary_text.autoSize = true;
 	this.heading_text.text = heading;
 	this.summary_text.text = summary;
 
@@ -62,16 +62,41 @@ mcDialogBoxClass.prototype.show = function(heading, summary, call_back_obj, call
 	this.heading_text.text_color = this.fg_colour;
 	this.summary_text.text_color = this.fg_colour;
 
-	var ypos = this.heading_text._y + this.heading_text._height + 5;
+	var baseHeight =	this.heading_text._y + this.heading_text._height + 5 + 
+						this.summary_text._height + 5 + 
+						this.close_button._height + 5;
 
 	this.summary_text._y = ypos;
 
-	ypos = this.summary_text._y + this.summary_text._height + 5;
+	this.heading_text._y = 5;
 
+	var ypos = this.heading_text._y + this.heading_text._height + 5;
+
+
+	if (baseHeight > Stage.height) {
+		this.summary_text.autoSize = false;
+		var diff = baseHeight - Stage.height;
+		this.summary_text._height -= diff + 10;
+		this.summary_text._width = this.heading_text._width - this.summary_scroll._width;
+
+		this.summary_scroll._y = ypos;
+		this.summary_scroll._x = this.summary_text._x + this.summary_text._width;
+		
+		this.summary_scroll.setSize(this.summary_text._height);
+		this.summary_scroll.setScrollTarget(this.summary_text);
+
+		this.summary_scroll._visible = true;
+	} else {
+		this.summary_text._width = this.heading_text._width;
+		this.summary_scroll._visible = false;
+	}
+
+	ypos = this.summary_text._y + this.summary_text._height + 5;
+	
 	this.close_button._y = ypos;
 	
 	ypos += this.close_button._height + 5;
-
+	
 	this.clear();
 	_root.dialog_border(this, 0, 0, this.full_width, ypos, false, false);
 	this.beginFill(this.bg_colour, 100);
@@ -90,6 +115,15 @@ mcDialogBoxClass.prototype.show = function(heading, summary, call_back_obj, call
 
 }// end show()
 
+/**
+ * Handles the scrolling. 
+ *
+*/
+mcDialogBoxClass.prototype.onScroll = function()
+{
+	trace (this + "::mcDialogBoxClass.onScroll()  " + this.summary_scroll.getScrollPosition());
+	this.summary_text.scroll = this.summary_scroll.getScrollPosition();
+}
 
 /**
 * Hides the dialog box
@@ -99,6 +133,7 @@ mcDialogBoxClass.prototype.show = function(heading, summary, call_back_obj, call
 mcDialogBoxClass.prototype.hide = function() 
 {
 	_root.system_events.stopModal(this);
+	//this.summary_scroll.removeMovieClip();
 	this._visible = false;
 }
 
