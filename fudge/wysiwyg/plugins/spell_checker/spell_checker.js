@@ -2,7 +2,7 @@
 * Copyright (c) 2002 - interactivetools.com, inc.
 * Portions Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: spell_checker.js,v 1.3 2003/10/10 00:51:45 gsherwood Exp $
+* $Id: spell_checker.js,v 1.4 2003/10/23 23:57:58 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -136,7 +136,10 @@ function initDocument() {
 	modified = false;
 	frame = document.getElementById("i_framecontent");
 	var field = document.getElementById("f_content");
-	field.value = parent_object.getHTML();
+	
+	var html = parent_object.getHTML();
+	html = parent_object.make_absolute_urls(html);
+	field.value = html;
 	field.form.submit();
 	document.getElementById("f_init").value = "0";
 
