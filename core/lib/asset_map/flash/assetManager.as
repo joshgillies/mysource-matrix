@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: assetManager.as,v 1.21 2003/10/28 04:21:45 dwong Exp $
+* $Id: assetManager.as,v 1.22 2003/10/29 00:34:22 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -316,25 +316,36 @@ AssetManager.prototype.loadAssetsFromXML = function(xml, exec_identifier)
 */
 AssetManager.prototype._createAssetsFromXML = function(assets_node) 
 {
+	var linkids = Array();
+	for (linkid in this.asset_links) {
+		if (parseInt(linkid) > 0)
+			linkids.push(parseInt(linkid));
+	}
 
 	var changes = {old_assets: {}, new_assets: {}};
 
 	for (var i = 0; i < assets_node.childNodes.length; i++) {
+
 		// get a reference to the child node
 		var asset_node = assets_node.childNodes[i];
+		
 		if (asset_node.nodeName.toLowerCase() == "asset") {
 			var assetid = asset_node.attributes.assetid;
-
 			var links = new Array();
 			var paths = new Array();
 
 			for (var j = 0; j < asset_node.childNodes.length; j++) {
-				var linkid = asset_node.childNodes[j].attributes.linkid;
-				this.asset_links[linkid] = new AssetLink(linkid, 
-														 assetid, 
-														 asset_node.childNodes[j].attributes.minorid, 
-														 asset_node.childNodes[j].attributes.link_type);
-				links.push(linkid);
+				var childNode = asset_node.childNodes[j];
+				var linkid = childNode.attributes.linkid;
+
+				this.asset_links[linkid] = new AssetLink(
+					linkid, 
+					childNode.attributes.majorid, 
+					childNode.attributes.minorid, 
+					childNode.attributes.link_type
+				);
+				if (childNode.nodeName == 'child')
+					links.push(linkid);
 			}
 			if (asset_node.attributes.web_paths != '')
 				paths = asset_node.attributes.web_paths.split(";");
@@ -344,9 +355,8 @@ AssetManager.prototype._createAssetsFromXML = function(assets_node)
 			// only create if it doesn't already exist
 			if (this.assets[assetid] == undefined) {
 				this.assets[assetid] = new Asset();
-
-			// take backup before we update
 			} else {
+				// take backup before we update
 				changes.old_assets[assetid] = this.assets[assetid].clone();
 			}
 

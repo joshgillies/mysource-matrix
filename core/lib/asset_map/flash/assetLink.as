@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: assetLink.as,v 1.3 2003/09/26 05:26:32 brobertson Exp $
+* $Id: assetLink.as,v 1.4 2003/10/29 00:34:22 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -17,7 +17,7 @@ function AssetLink(linkid, majorid, minorid, link_type)
 
 AssetLink.prototype.toString = function()
 {
-	return "LinkId: " + linkid + 
+	return "LinkId: " + this.linkid + 
 			", MajorId: " + this.majorid + 
 			", MinorId: " + this.minorid + 
 			", Link Type: " + this.link_type;

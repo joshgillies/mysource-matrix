@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_map.inc,v 1.97 2003/10/28 23:17:58 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.98 2003/10/29 00:34:22 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -280,7 +280,6 @@ class Asset_Map
 		$GLOBALS['SQ_OUTPUT_TYPE'] = 'xml';
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-#		error_log("XML IN :\n".file_to_string('php://input'));
 
 		$input = new XML_Tree('php://input');
 		$root  = &$input->getTreeFromFile();
@@ -474,22 +473,36 @@ class Asset_Map
 		$asset_node = &$root->addChild('asset', '', $attrs);
 
 		if ($asset->readAccess()) {
+			$parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_SC_LINK_BACKEND_NAV, '', false, 'minor');
+			if (count($parent_links)) {
+				for($j = 0; $j < count($parent_links); $j++) {
+					$kid_node = &$asset_node->addChild('parent', '', 
+						Array(
+							'linkid'		=> $parent_links[$j]['linkid'], 
+							'majorid'		=> $parent_links[$j]['majorid'],
+							'minorid'		=> $asset->id, 
+							'link_type'		=> $parent_links[$j]['link_type']
+						)
+					);
+				}
+			}
 			// we only want links that appear in the backend
-			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', null);
-			if (count($links)) {
-				for($j = 0; $j < count($links); $j++) {
+			$child_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', true, 'major');
+			if (count($child_links)) {
+				for($j = 0; $j < count($child_links); $j++) {
 					$kid_node = &$asset_node->addChild('child', '', 
 						Array(
-							'linkid'		=> $links[$j]['linkid'], 
-							'minorid'		=> $links[$j]['minorid'], 
-							'link_type'		=> $links[$j]['link_type']
+							'linkid'		=> $child_links[$j]['linkid'], 
+							'majorid'		=> $asset->id,
+							'minorid'		=> $child_links[$j]['minorid'], 
+							'link_type'		=> $child_links[$j]['link_type']
 						)
 					);
 				}
 
 				if ($load_new_links) {
 					$kids = Array();
-					for($j = 0; $j < count($links); $j++) $kids[] = $links[$j]['minorid'];
+					for($j = 0; $j < count($child_links); $j++) $kids[] = $child_links[$j]['minorid'];
 					$new_kids = array_values(array_diff($kids, $current_kids)); // array_values to get indexed array
 					for($j = 0; $j < count($new_kids); $j++) {
 						if (!$this->_addAssetToXML($root, $new_kids[$j], false)) {
@@ -499,6 +512,9 @@ class Asset_Map
 
 				}// end if
 			}// end if
+
+
+
 		}// end if
 
 		return true;

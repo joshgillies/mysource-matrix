@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: test.as,v 1.27 2003/10/28 04:21:47 dwong Exp $
+* $Id: test.as,v 1.28 2003/10/29 00:34:24 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,15 @@ function doTest() {
 	sendToBom(xmlString);
 }
 
+/* type 2 link stuff */
+function testOnClick1(component)
+{
+	var am = _root.asset_manager;
+	am.reloadAssets([240]);
+}
+
 /* asset finder testing functions */
+/*
 function testOnClick1(component)
 { 
 	var tree = _root.tabs.tree;
@@ -47,7 +55,7 @@ function testOnClick2 (component)
 	var tree = _root.tabs.tree;
 	tree.stopAssetFinder();
 }
-
+*/
 /* status message testing functions */
 /*
 function testOnClick1(component)

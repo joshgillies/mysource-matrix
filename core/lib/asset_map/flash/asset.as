@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.as,v 1.15 2003/10/27 05:27:24 dwong Exp $
+* $Id: asset.as,v 1.16 2003/10/29 00:34:22 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -63,6 +63,7 @@ Asset.prototype.toString = function()
 
 Asset.prototype.setInfo = function(assetid, type_code, name, accessible, status, url, paths, links)
 {
+//	trace("setInfo called on " + assetid);
 	if (assetid    != undefined && assetid    != null) this.assetid		= assetid;
 	if (type_code  != undefined && type_code  != null) this.type_code	= type_code;
 	if (name       != undefined && name       != null) this.name		= name;
