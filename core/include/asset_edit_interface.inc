@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.176 2003/11/03 01:15:36 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.177 2003/11/04 00:46:18 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2815,7 +2815,11 @@ class Asset_Edit_Interface extends MySource_Object
 		$schemas = $mm->getSchemas($owner->id, true);
 
 		if (empty($schemas)) {
-			$o->openSection('There are no metadata schemas applied for this asset. You must apply one or more schemas before entering metadata values.');
+			$o->openSection('There are no metadata schemas applied for this asset.');
+				$o->openField('&nbsp;');
+				echo 'You must apply one or more schemas before entering metadata values.';
+				$o->closeField();
+			$o->closeField();
 			return false;
 		}
 
