@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_edit_fns.inc,v 1.1 2004/05/13 04:05:26 lwright Exp $
+* $Id: search_manager_edit_fns.inc,v 1.2 2004/05/27 01:00:04 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -200,7 +200,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 			$root_assetid = $_POST[$prefix."_reindexing_root_assetid"]['assetid'];
 			if ($root_assetid > 0) {
 				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-				$hh->queueHipo('hipo_job_reindex', Array('root_assetid' => $root_assetid));
+				$hh->queueHipo('hipo_job_reindex', Array('root_assetid' => $root_assetid), '', SQ_PACKAGES_PATH.'/search/hipo_jobs');
 				return true;
 			}
 		}

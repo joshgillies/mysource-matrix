@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.11 2004/05/13 04:13:01 lwright Exp $
+* $Id: hipo_job_reindex.inc,v 1.1 2004/05/27 01:00:04 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -231,7 +231,7 @@ class HIPO_Job_ReIndex extends HIPO_Job
 	{
 		if (!empty($this->_running_vars['todo_assetids'])) {
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
-			$sm =& $GLOBALS['SQ_SYSTEM']->getSystemAsset('search_manager');
+			$sm =& $am->getSystemAsset('search_manager');
 			if (!$sm) return false;
 
 			// get next asset to reindex
@@ -241,7 +241,7 @@ class HIPO_Job_ReIndex extends HIPO_Job
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			$step_data['message'] = 'Reindexing '. $asset->name;
-			$sm->changed($assetid);
+			$asset->informChanges();
 
 			// add this assetid to the done array 
 			$this->_running_vars['done_assetids'][] = $assetid;
