@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.61 2003/11/21 22:35:44 mmcintyre Exp $
+* $Id: user.inc,v 1.62 2003/11/23 21:46:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -308,40 +308,30 @@ class User extends Asset
 	*/
 	function printBody()
 	{
-		// print navigation
-		$url = $_SERVER['PHP_SELF'].'?user_screen=';
 		?>
-		<a href="<?php echo $url?>view">View your details</a></br>
-		<a href="<?php echo $url?>edit">Edit your details</a></br>
-		<a href="<?php echo $url?>workspace">View your workspace</a></br>
-		<a href="<?php echo $url?>messages">Check your messages</a></br>
+		<table border="0" cellspacing="2" cellpadding="2">
+			<tr>
+				<td><b>Username</b></td>
+				<td><?php echo $this->attr('username'); ?></td>
+			</tr>
+			<tr>
+				<td><b>First Name</b></td>
+				<td><?php echo $this->attr('first_name'); ?></td>
+			</tr>
+			<tr>
+				<td><b>Last Name</b></td>
+				<td><?php echo $this->attr('last_name'); ?></td>
+			</tr>
+			<tr>
+				<td><b>Email</b></td>
+				<td><?php echo $this->attr('email'); ?></td>
+			</tr>
+		</table>
 		<?php
-
-		// print the contents of the screen
-		$user_screen = (isset($_REQUEST['user_screen'])) ? $_REQUEST['user_screen'] : '';
-		switch ($_REQUEST['user_screen']) {
-			case 'edit'      :
-				bam('EDIT DETAILS');
-				break;
-			case 'workspace' :
-				// get the workspace attached to us
-				$workspace_data = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'workspace', true, null, 'major', '1');
-				$workspace = &$GLOBALS['SQ_SYSTEM']->am->getAsset($workspace_data['minorid'], $workspace_data['minor_type_code']);
-				$workspace->printBody();
-				break;
-			case 'messages'  :
-				// get the inbox attached to us
-				$inbox_data = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'inbox', true, null, 'major', '1');
-				$inbox = &$GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_data['minorid'], $inbox_data['minor_type_code']);
-				$inbox->printBody();
-				break;
-			default :
-				bam('VIEW DETAILS');
-				break;
-		}
-
 
 	}// end printBody()
 
+
 }//end class
+
 ?>
