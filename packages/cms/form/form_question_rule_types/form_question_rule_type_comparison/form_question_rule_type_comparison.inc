@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_rule_type_comparison.inc,v 1.7 2003/09/28 23:00:06 mmcintyre Exp $
+* $Id: form_question_rule_type_comparison.inc,v 1.8 2003/10/14 22:54:05 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -75,161 +75,68 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 	{
 		if (!$this->active_submission) return false;
 
-		$answer   = $this->active_submission->getAnswer($questionid);
-		$operator = $this->attr('operator');
-		$value	  = $this->attr('value'); 
-		
-		$operators = $this->getOperators();
-
-		// the operator is in '==, !=, <, >, <=, >='
-		// so the query will look something like this:
-		// 12==12
-
-		// if there is no operator, assign it to ==
-		if (!$operator) $operator = '==';
-
-		if ($this->attr('comparison_question_id')) {
-			return $this->questionComparison();
-		} else {
-			if (is_array($answer)) {
-				$valid = false;		
-				foreach ($answer as $a) {
-					$query = 'return \''.$a.'\''.$operator.'\''.$value.'\';';
-					if (eval($query)) {
-						$valid = true;
-						break;
-					}
-				}
-			} else {
-				$query = 'return \''.$answer.'\''.$operator.'\''.$value.'\';';
-				(eval($query)) ? $valid = true : $valid = false; 
-			}
-			if ($valid) {
-				return true;
-			} else {
-				$q = &$this->getMyQuestion();
-				// if this rule's question is a selection, we need to ask it to covert from an offset, to a value
-				if ($q->isSelection()) {
-					$value = $q->getAnswerByOffset($value);
-				}
-				$error = $question_name.' '.$operators[$operator].' \''.$value.'\'';
-				$this->active_submission->setError($error);
-				return false;
-			}
-		}
+		return $this->valueComparison();
 
 	}// end processForm()
 
 
 	/**
-	* compares this question with the value of another question
+	* returns TRUE if the two values evaluate with the current operator
+	*
+	* @param string		$answer			the left argument
+	* @param string		$comparison		the right argument
 	*
 	* @access public
 	* @return boolean
 	*/
-	function questionComparison()
+	function compareQuestionValues($answer, $comparison)
 	{
-		$comp_qid = $this->attr('comparison_question_id');
-		if (!$comp_qid) return false;
-
-		$operators = $this->getOperators();
-
-		// check to see if this user is a dickhead, and has chosen to compare with
-		// itself
-		if ($comp_qid == $this->id) {
-		
-		}
-
-		// check to see if the comparison question has been processed yet
-		if (!$this->active_submission->isProcessed($comp_qid)) {
-			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-			$message_body = 'Question '.$this->name .'(#'.$this->id.') was compared ';
-			$message = $ms->newMessage(Array(), 'Form Error', $message_body, 'asset.error');
-			$message->parameters['assetid'] = $this->id;
-			$message->send();
-		
-			return false;
-		}
-
-		$comp_question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($comp_qid);
-		if (!$comp_question) return false;
-		
-		$comp_answer = $this->active_submission->getAnswer($comp_qid);
 		$operator = $this->attr('operator');
-		$answer = $this->active_submission->getAnswer($this->my_question_id);
+		if (!$operator) $operator = '==';
 
+		return eval('return \''.$answer.'\''.$operator.'\''.$comparison.'\';');
+	
+	} // end questionComparison()
+
+
+	/**
+	* returns an error message for comparing the answer with a value
+	*
+	* * @param string $answer the user's answer
+	*
+	* @access public
+	* @return string
+	*/
+	function generateComparisonError($answer)
+	{
 		$my_question = &$this->getMyQuestion();
 
-		$valid = false;
-		if (is_array($answer)) {
-			foreach ($answer as $a) {
-				$a = $my_question->getAnswerByOffset($a);
-				
-				if (is_array($comp_answer)) {
-					foreach ($comp_answer as $c) {
-						$c = $comp_question->getAnswerByOffset($c);
-						$query = 'return \''.$a.'\''.$operator.'\''.$c.'\';';
-						if (eval($query)) {
-							$valid = true;
-							break;
-						}
-					}
-					if ($valid) break;
-				} else {
-					if ($comp_question->isSelection()) {
-						$comp_answer = $comp_question->getAnswerByOffset($comp_answer);
-					}
-					$query = 'return \''.$a.'\''.$operator.'\''.$comp_answer.'\';';
-					if (eval($query)) {
-						$valid = true;
-						break;
-					}
-				}
-			}
-		} else {
-			if (is_array($comp_answer)) {
-				foreach ($comp_answer as $a) {
-					// the compare question is a selection, so convert the offset to a string value
-					$a = $comp_question->getAnswerByOffset($a);
-					// check to see if my question is a selection
-					if ($my_question->isSelection()) {
-						$answer = $my_question->getAnswerByOffset($answer);
-					}
+		$operator = $this->attr('operator');
+		$operators = $this->getOperators();
 
-					$query = 'return \''.$answer.'\''.$operator.'\''.$a.'\';';
-					if (eval($query)) {
-						$valid = true;
-						break;
-					}
-				}
-			} else {
-				// we need to convert this question from a offset to an answer
-				if ($my_question->isSelection()) $answer = $my_question->getAnswerByOffset($answer);
-				if ($comp_question->isSelection()) $comp_answer = $comp_question->getAnswerByOffset($comp_answer);
-				$query = 'return \''.$answer.'\''.$operator.'\''.$comp_answer.'\';';
+		return $this->my_question->name.' '.$operators[$operator].' '.$answer;
+		
+	} // end generateComparisonError()
 
-				if (eval($query)) $valid = true;
-			}
-		}
 
-		if ($valid) {
-			return true;
-		} else {
-			if (is_array($comp_answer)) {
-				$comp_answer = $comp_question->getAnswerByOffset($comp_answer);
-				$comp_answer = implode(', ', $comp_answer);
-			} else {
-				if ($comp_question->isSelection()) {
-					$comp_answer = $comp_question->getAnswerByOffset($comp_answer);
-				}
-			}
-			$error = $my_question->name.' '.$operators[$operator].
+	/**
+	* generates an error for question comparison
+	*
+	* @param &object Question	$question		the comparison question
+	* @param string				$comp_answer	the comparison answer
+	*
+	* @access public
+	* @return string
+	*/
+	function generateQuestionComparisonError(&$comp_question, $comp_answer)
+	{
+		$operators = $this->getOperators();
+		$operator = $this->attr('operator');
+
+		return $this->my_question->name.' '.$operators[$operator].
 			' '.$comp_question->_getName().' in '.$comp_question->getMySectionName().' (\''.$comp_answer.'\')';
-			$this->active_submission->setError($error);
-			
-			return false;
-		}
-	} // end questionComparison()
+
+	} // end generateComparisonError()
 
 }// end class
 ?>

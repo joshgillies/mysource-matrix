@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_rule_type_found_in.inc,v 1.4 2003/09/28 23:00:06 mmcintyre Exp $
+* $Id: form_question_rule_type_found_in.inc,v 1.5 2003/10/14 22:54:06 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -50,21 +50,63 @@ class Form_Question_Rule_Type_Found_In extends Form_Question_Rule
 	*/
 	function processForm($questionid, $question_name)
 	{
-		$answer   = $this->active_submission->getAnswer($questionid);
-		$operator = ($this->attr('operator')) ? 1 : 0;
-		$value = $this->attr('value');
-
-		(strpos($value, $answer) !== false) ? $valid = 1 : $valid = 0; 
-
-		if ($valid == $operator) {
-			return true;
-		} else {
-			$error = $question_name.' must '. (($operator) ? '' : 'not') .' be found in \''.$value.'\'';
-			$this->active_submission->setError($error);
-			return false;
-		}
+		if (!$this->active_submission) return false;
+		
+		return $this->valueComparison();
 
 	}// end processForm()
+
+
+	/**
+	* returns TRUE if the two values evaluate with the current operator
+	*
+	* @param string		$answer			the left argument
+	* @param string		$comparison		the right argument
+	*
+	* @access public
+	* @return boolean
+	*/
+	function compareQuestionValues($answer, $comparison)
+	{
+		return (strpos($comparison, $answer) !== false) ? true : false; 
+	
+	} // end questionComparison()
+
+
+	/**
+	* returns an error message for comparing the answer with a value
+	*
+	* * @param string $answer the user's answer
+	*
+	* @access public
+	* @return string
+	*/
+	function generateComparisonError($answer)
+	{
+		$my_question = &$this->getMyQuestion();
+		$operator = $this->attr('operator');
+
+		return  $this->my_question->name.' must '. (($operator) ? '' : 'not') .' be found in \''.$answer.'\'';
+		
+	} // end generateComparisonError()
+
+
+	/**
+	* generates an error for question comparison
+	*
+	* @param &object Question	$question		the comparison question
+	* @param string				$comp_answer	the comparison answer
+	*
+	* @access public
+	* @return string
+	*/
+	function generateQuestionComparisonError(&$comp_question, $comp_answer)
+	{
+		$operator = $this->attr('operator');
+
+		return $this->my_question->name.' must '. (($operator) ? '' : 'not') .' be found in the value \''.$comp_answer.'\' ('.$comp_question->name.' in '.$comp_question->getMySectionName().')';
+
+	} // end generateComparisonError()
 
 }// end class
 ?>

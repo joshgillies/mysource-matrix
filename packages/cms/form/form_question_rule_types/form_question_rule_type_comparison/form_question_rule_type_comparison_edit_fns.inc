@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_rule_type_comparison_edit_fns.inc,v 1.8 2003/10/10 06:49:28 brobertson Exp $
+* $Id: form_question_rule_type_comparison_edit_fns.inc,v 1.9 2003/10/14 22:54:05 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -69,7 +69,7 @@ class Form_Question_Rule_Type_Comparison_Edit_Fns extends Form_Question_Rule_Edi
 			?>
 			</td>
 			<td>
-				Delete? <?php check_box('delete_rule', $asset->id); ?>
+				Delete? <?php check_box('delete_rule[]', $asset->id); ?>
 			</td>
 		</tr>
 		<tr>
@@ -82,35 +82,6 @@ class Form_Question_Rule_Type_Comparison_Edit_Fns extends Form_Question_Rule_Edi
 		return true;
 	
 	} // end paintInlineBackend()
-
-
-	/**
-	* processes the section in the question to change the options of this rule
-	* 
-	* @param object Form				&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
-	*
-	* @access public
-	* @return boolean
-	*/
-	function processInlineBackend(&$asset, &$o, $prefix)
-	{
-		if ($this->processDelete()) return true;
-
-		if (isset($_POST[$prefix.'_operator'])) {
-			$asset->setAttrValue('operator', $_POST[$prefix.'_operator']);
-		}
-		if (isset($_POST[$prefix.'_value'])) {
-			$asset->setAttrValue('value', $_POST[$prefix.'_value']);
-		}
-		if (isset($_POST[$prefix.'_comparison_question_id'])) {
-			$asset->setAttrValue('comparison_question_id', $_POST[$prefix.'_comparison_question_id']);
-		}
-
-		return $asset->saveAttributes();
-
-	}// end processInlineBackend()
 
 
 }//end class

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_rule_type_found_in_edit_fns.inc,v 1.5 2003/10/10 06:49:28 brobertson Exp $
+* $Id: form_question_rule_type_found_in_edit_fns.inc,v 1.6 2003/10/14 22:54:06 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,8 +30,20 @@ class Form_Question_Rule_Type_Found_In_Edit_Fns extends Form_Question_Rule_Edit_
 	function Form_Question_Rule_Type_Found_In_Edit_Fns()
 	{
 		$this->Form_Question_Rule_Edit_Fns();
-	}
 	
+	} // end Form_Question_Rule_Type_Found_In_Edit_Fns()
+	
+
+	/**
+	* paints a section in the question to change the options of this rule
+	* 
+	* @param object Form				&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @access public
+	* @return boolean
+	*/
 	function paintInlineBackend(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) return false;
@@ -48,30 +60,32 @@ class Form_Question_Rule_Type_Found_In_Edit_Fns extends Form_Question_Rule_Edit_
 				<?php combo_box($prefix.'_operator', $contents, false, $asset->attr('operator')); ?>
 			</td>
 			<td>
-				 <?php text_box($prefix.'_value', $asset->attr('value')); ?>
+			<?php
+				$q = &$asset->getMyQuestion();
+				if ($q->isSelection()) {
+					$asset->getOptionDropdownList();
+					echo '&nbsp;Or';
+				} else {
+					text_box($prefix.'_value', $asset->attr('value'));
+					echo '&nbsp;Or';
+				}
+			?>
 			</td>
 			<td>
-				Delete? <?php check_box('delete_rule', $asset->id); ?>
+				Delete? <?php check_box('delete_rule[]', $asset->id); ?>
 			</td>
 		</tr>
+		<tr>
+		<td>&nbsp;</td>
+		  <td>
+			  <?php $asset->printAssetFinder($asset->attr('comparison_question_id')) ?>
+		  </td>
+		</tr>
 		<?php
+
+		return true;
 	
 	} // end paintInlineBackend()
-
-	function processInlineBackend(&$asset, &$o, $prefix)
-	{
-		if ($this->processDelete()) return true;
-
-		if (isset($_POST[$prefix.'_operator'])) {
-			$asset->setAttrValue('operator', $_POST[$prefix.'_operator']);
-		}
-		if (isset($_POST[$prefix.'_value'])) {
-			$asset->setAttrValue('value', $_POST[$prefix.'_value']);
-		}
-		return $asset->saveAttributes();
-
-	}// end processInlineBackend()
-
 
 }//end class
 ?>

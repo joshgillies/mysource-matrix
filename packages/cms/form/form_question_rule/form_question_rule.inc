@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_rule.inc,v 1.5 2003/09/26 06:03:46 mmcintyre Exp $
+* $Id: form_question_rule.inc,v 1.6 2003/10/14 22:53:47 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -113,7 +113,7 @@ class Form_Question_Rule extends Asset
 	{
 		return true;
 
-	} // end process form()
+	} // end processForm()
 
 
 	/**
@@ -166,7 +166,7 @@ class Form_Question_Rule extends Asset
 		if (is_null($my_question)) return false;
 
 		$options = Array('------ None ------');
-		$options += $my_question->getOptions();
+		$options =  array_merge($options, $my_question->getOptions());
 
 		return combo_box($this->getPrefix().'_value', $options, false, $this->attr('value'), 1, '', 30);
 	
@@ -186,6 +186,164 @@ class Form_Question_Rule extends Asset
 		return asset_finder($this->getPrefix().'_comparison_question_id', $id, Array('form_question' => 'D'));
 		
 	} // end getQuestionDropdownList()
+
+
+	/**
+	* compares the user's answer with the rule value
+	*
+	* @access public
+	* @return boolean
+	*/
+	function valueComparison()
+	{
+		if (!$this->active_submission) return false;
+
+		$answer = $this->active_submission->getAnswer($this->my_question_id);
+		$value	= $this->attr('value');
+		
+		if ($this->attr('comparison_question_id')) {
+			return $this->questionComparison();
+		} else {
+			if (is_array($answer)) {
+				$valid = false;
+				foreach ($answer as $a) {
+					if ($this->compareQuestionValues($a, $value)) {
+						$valid = true;
+						break;
+					}
+				}
+			} else {
+				($this->compareQuestionValues($answer, $value)) ? $valid = true : $valid = false; 
+			}
+			if ($valid) {
+				return true;
+			} else {
+				$q = &$this->getMyQuestion();
+				// if this rule's question is a selection, we need to ask it to covert from an offset, to a value
+				if ($q->isSelection()) {
+					bam($value);
+					$value = $q->getAnswerByOffset($value);
+				}
+				$error = $this->generateComparisonError($value);
+				$this->active_submission->setError($error);
+				return false;
+			}
+		}
+	} // end valueComparison()
+
+	
+	/**
+	* compares this question with the value of another question
+	*
+	* @access public
+	* @return boolean
+	*/
+	function questionComparison()
+	{
+		$comp_qid = $this->attr('comparison_question_id');
+		if (!$comp_qid) return false;
+
+		// check to see if this user is a dickhead, and has chosen to compare with
+		// itself
+		if ($comp_qid == $this->id) {
+			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$message_body = 'Question '.$this->name .'(#'.$this->id.') cannot be compared with itself';
+			$message = $ms->newMessage(Array(), 'Form Error', $message_body, 'asset.error');
+			$message->parameters['assetid'] = $this->id;
+			$message->send();
+
+			return false;
+		}
+
+		// check to see if the comparison question has been processed yet
+		if (!$this->active_submission->isProcessed($comp_qid)) {
+			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$message_body = 'Question '.$this->name .'(#'.$this->id.') was compared ';
+			$message = $ms->newMessage(Array(), 'Form Error', $message_body, 'asset.error');
+			$message->parameters['assetid'] = $this->id;
+			$message->send();
+		
+			return false;
+		}
+
+		$comp_question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($comp_qid);
+		if (!$comp_question) return false;
+		
+		$comp_answer = $this->active_submission->getAnswer($comp_qid);
+		$operator = $this->attr('operator');
+		$answer = $this->active_submission->getAnswer($this->my_question_id);
+
+		$my_question = &$this->getMyQuestion();
+
+		$valid = false;
+		$converted = false;
+		if (is_array($answer)) {
+			foreach ($answer as $a) {
+				$a = $my_question->getAnswerByOffset($a);
+				
+				if (is_array($comp_answer)) {
+					foreach ($comp_answer as $c) {
+						$c = $comp_question->getAnswerByOffset($c);
+						if ($this->compareQuestionValues($a, $c)) {
+							$valid = true;
+							break;
+						}
+					}
+					if ($valid) break;
+				} else {
+					if ($comp_question->isSelection()) {
+						$comp_answer = $comp_question->getAnswerByOffset($comp_answer);
+						$converted = true;
+					}
+					if ($this->compareQuestionValues($a, $comp_answer)) {
+						$valid = true;
+						break;
+					}
+				}
+			}
+		} else {
+			if (is_array($comp_answer)) {
+				foreach ($comp_answer as $ca) {
+					// the compare question is a selection, so convert the offset to a string value
+					$ca = $comp_question->getAnswerByOffset($ca);
+					// check to see if my question is a selection
+					if ($my_question->isSelection()) {
+						$answer = $my_question->getAnswerByOffset($answer);
+					}
+
+					if ($this->compareQuestionValues($answer, $ca)) {
+						$valid = true;
+						break;
+					}
+				}
+			} else {
+				// we need to convert this question from a offset to an answer
+				if ($my_question->isSelection()) $answer = $my_question->getAnswerByOffset($answer);
+				if ($comp_question->isSelection()) {
+					$comp_answer = $comp_question->getAnswerByOffset($comp_answer);
+					$converted = true;
+				}
+				if ($this->compareQuestionValues($answer, $comp_answer)) $valid = true;
+			}
+		}
+
+		if ($valid) {
+			return true;
+		} else {
+			if (is_array($comp_answer)) {
+				$comp_answer = $comp_question->getAnswerByOffset($comp_answer);
+				$comp_answer = implode(', ', $comp_answer);
+			} else {
+				if ($comp_question->isSelection() && !$converted) {
+					$comp_answer = $comp_question->getAnswerByOffset($comp_answer);
+				}
+			}
+			$error = $this->generateQuestionComparisonError($comp_question, $comp_answer);
+			$this->active_submission->setError($error);
+			
+			return false;
+		}
+	} // end compareQuestionValues()
 
 } // end class
 

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_rule_type_email_edit_fns.inc,v 1.5 2003/10/10 06:49:28 brobertson Exp $
+* $Id: form_question_rule_type_email_edit_fns.inc,v 1.6 2003/10/14 22:54:06 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,6 +32,17 @@ class Form_Question_Rule_Type_Email_Edit_Fns extends Form_Question_Rule_Edit_Fns
 		$this->Form_Question_Rule_Edit_Fns();
 	}
 	
+
+	/**
+	* paints a section in the question to change the options of this rule
+	* 
+	* @param object Form				&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @access public
+	* @return boolean
+	*/
 	function paintInlineBackend(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) return false;
@@ -50,24 +61,12 @@ class Form_Question_Rule_Type_Email_Edit_Fns extends Form_Question_Rule_Edit_Fns
 				&nbsp;
 			</td>
 			<td>
-				Delete? <?php check_box('delete_rule', $asset->id); ?>
+				Delete? <?php check_box('delete_rule[]', $asset->id); ?>
 			</td>
 		</tr>
 		<?php
 	
 	} // end paintInlineBackend()
-
-	function processInlineBackend(&$asset, &$o, $prefix)
-	{
-		// check to see if this rule was deleted
-		if ($this->processDelete()) return true;
-
-		if (isset($_POST[$prefix.'_operator'])) {
-			$asset->setAttrValue('operator', $_POST[$prefix.'_operator']);
-		}
-		return $asset->saveAttributes();
-	
-	} // end processInlineBackend()
 
 
 }//end class
