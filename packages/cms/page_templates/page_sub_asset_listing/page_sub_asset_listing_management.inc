@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_sub_asset_listing_management.inc,v 1.7 2003/12/04 03:04:30 gsherwood Exp $
+* $Id: page_sub_asset_listing_management.inc,v 1.8 2003/12/12 03:37:07 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -62,18 +62,30 @@ class Page_Sub_Asset_Listing_Management extends Page_Management
 
 
 	/**
-	* Get the keyword file for deployment
+	* Return an array with information about the events that this page is listening for
 	*
-	* @return Array(string)
-	* @access private
+	* @access public
+	* @return boolean
 	*/
-	function _getFileList()
+	function getEventList()
 	{
 		return Array(
-					 'popups/keywords.php',
-					 );
+				Array(
+					'event_name'				 => 'requestKeywords',
+					'broadcast_type_code'		 => 'content_type_wysiwyg',
+					'broadcast_strict_type_code' => true,
+					'options'	=> Array(
+						'side_of_link'		=> 'major',
+						'indirect'			=> true,
+						'exclusive'			=> null,
+						'dependant'			=> 1,
+						'value'				=> '',
+						'link_type'			=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
+					),
+				),
+		);
 
-	}//end _getFileList()
+	}//end getEventList()
 
 
 }//end class

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_sub_asset_listing_edit_fns.inc,v 1.11 2003/11/26 00:51:31 gsherwood Exp $
+* $Id: page_sub_asset_listing_edit_fns.inc,v 1.12 2003/12/12 03:36:39 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -169,7 +169,6 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 		<tr>
 			<td class="sq-backend-table-header" width="33%">Asset Type</td>
 			<td class="sq-backend-table-header" width="33%">Edit Format</td>
-			<td class="sq-backend-table-header" width="33%">Available Keywords</td>
 			<td class="sq-backend-table-header" width="33%">Customise</td>
 			<td class="sq-backend-table-header" width="33%">Remove?</td>
 		</tr>
@@ -199,9 +198,6 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 						}
 						echo $content;
 					?>
-					</td>
-					<td class="sq-backend-table-cell">
-						<a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/page_sub_asset_listing/popups/keywords.php?type_code=<?php echo $type?>', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520'); return false;">Available Keywords</a>
 					</td>
 					<td class="sq-backend-table-cell">
 					

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.4 2003/12/08 03:45:33 gsherwood Exp $
+* $Id: page_account_manager.inc,v 1.5 2003/12/12 03:36:39 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -552,28 +552,32 @@ class Page_Account_Manager extends Page
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
-	* @param Array	$vars	the vars that get submitted by the broadcaster
-	*						we add keywords to the $vars['keywords'] array
+	* @param &object Asset	$asset	the asset that triggered the event
+	* @param Array			$vars	the vars that get submitted by the broadcaster
+	*								we add keywords to the $vars['keywords'] array
 	*
 	* @return boolean
 	* @access private
 	*/
-	function onRequestKeywords($vars=Array())
+	function onRequestKeywords(&$broadcaster, $vars=Array())
 	{
 		if (!isset($vars['keywords'])) return;
 
 		$keywords = Array();
 		foreach ($this->_available_keywords as $keyword) {
 			$name = ucwords(str_replace('_', ' ', $keyword));
+			$type = 'inline';
 			if ($keyword == 'logout_form') {
 				$default = '<input style="border: 1px solid #5A5A5A; background-color: #F4F4EB;" type="button" value="Logout">';
 				$name = 'Logout Button';
+				$type = 'special';
 			} else if (substr($keyword, -5) == '_form') {
-				$default = '<div style="width: 100%; height: 200px; background-color: #F4F4EB; text-align: center; border: 1px solid #5A5A5A;"><table height="200px" align="center"><tr><td align="center" valign="middle"><b>'.$name.'</b></td></tr></table></div>';
+				$default = $name;
+				$type = 'block';
 			} else {
-				$default = '<table bgcolor="#5A5A5A" cellpadding="1" cellspacing="1"><tr><td bgcolor="#F4F4EB">'.$this->attr($keyword).'</td></tr></table>';
+				$default = $this->attr($keyword);
 			}
-			$keywords[$keyword] = Array('name' => $name, 'default' => $default);
+			$keywords[$keyword] = Array('name' => $name, 'default' => $default, 'type' => $type);
 		}
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 		

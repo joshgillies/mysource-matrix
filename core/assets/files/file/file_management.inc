@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_management.inc,v 1.6 2003/11/26 00:50:57 gsherwood Exp $
+* $Id: file_management.inc,v 1.7 2003/12/12 03:36:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,9 +47,10 @@ class File_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array('name' => Array(
-												'added'     => '0.0.1',
-												'type'      => 'text',  'default'   => '',
-												'update_fn' => ''
+												'added'       => '0.0.1',
+												'type'        => 'text',  'default'   => '',
+												'description' => 'The name of the file (eg. myfile.zip)',
+												'update_fn'   => '',
 												)
 							);
 

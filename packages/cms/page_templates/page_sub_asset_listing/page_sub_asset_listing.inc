@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_sub_asset_listing.inc,v 1.14 2003/12/08 03:43:18 mmcintyre Exp $
+* $Id: page_sub_asset_listing.inc,v 1.15 2003/12/12 03:37:07 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -86,7 +86,7 @@ class Page_Sub_Asset_Listing extends Page
 		foreach ($sub_assets as $name => $type) {
 			$asset = new $type();
 			$copy_link = Array('asset' => &$this, 'value' => $name ,'link_type' => SQ_LINK_TYPE_2, 'dependant' => 	1, 'exclusive' => 1);
-		
+
 			$asset->setAttrValue('name', ucwords(str_replace('_',' ', $name)));
 			if (!$asset->create($copy_link)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -100,7 +100,7 @@ class Page_Sub_Asset_Listing extends Page
 		$asset = new Bodycopy();
 		$copy_link = Array('asset' => &$type_formats, 'value' => 'default_format' ,'link_type' => SQ_LINK_TYPE_2, 'dependant' => 	1, 'exclusive' => 1);
 		$asset->setAttrValue('name', 'Default Format');
-		
+
 		if (!$asset->create($copy_link)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$this->id = 0;
@@ -216,12 +216,12 @@ class Page_Sub_Asset_Listing extends Page
 
 
 	/**
-	* returns a reference to a folder linked to this asset determined by the passe in value on the link
+	* Return a reference to a folder linked to this asset determined by the passed in value on the link
 	*
 	* @param string $type the value on the link for this folder
 	*
 	* @access public
-	* @return &asset folder
+	* @return object Folder
 	*/
 	function &getFolder($type='type_formats')
 	{
@@ -229,16 +229,15 @@ class Page_Sub_Asset_Listing extends Page
 		if (empty($link)) return null;
 
 		$folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-		if (is_null($folder)) return null; 
+		if (is_null($folder)) return null;
 
 		return $folder;
 
-	}//end getFolder
+	}//end getFolder()
 
 
 	/**
 	* Called by the design to print the body of this asset
-	* it's up to the kids to override
 	*
 	* @access public
 	*/
@@ -248,28 +247,31 @@ class Page_Sub_Asset_Listing extends Page
 		if (empty($bodycopy_link)) return false;
 
 		$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
-		if (is_null($bodycopy)) return false; 
+		if (is_null($bodycopy)) return false;
 
 		$html = $bodycopy->getRawBodycopyContent();
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
 
 		$body = &$this->getBodyReplacement();
 		$html = str_replace('%sub_asset_listing%', $body, $html);
-		
+
 		echo $html;
 
-	}// end printBody() 
+	}//end printBody()
 
 
 	/**
-	* returns a replacement for the body keyword in the page contents bodycopy
+	* Return a replacement for the body keyword in the page contents bodycopy
 	*
 	* @access public
 	* @return &string
 	*/
-	function &getBodyReplacement() 
+	function &getBodyReplacement()
 	{
 		$wanted_types = $this->attr('types');
+		// no types to display = nothing to display
+		if (empty($wanted_types)) return;
+
 		$children = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_BACKEND_NAV, $wanted_types, false);
 		$customised = $this->attr('customised');
 
@@ -289,10 +291,8 @@ class Page_Sub_Asset_Listing extends Page
 			$type_code = $info['minor_type_code'];
 			$contents = ''; // temp contents for this asset
 
-			// check to see if this is a bodycopy that is used for a format
-			if (in_array(strtolower($info['value']), $wanted_types)) continue;
-			if (strtolower($info['value'] == 'default_format')) continue;
-			if (strtolower($info['value'] == 'page_contents')) continue;
+			// skip dependants assets that we created
+			if ($info['dependant']) continue;
 
 			// we need to work out if this child has an explicit format defined for it
 			// or if its relying on its ansestor's format
@@ -323,7 +323,7 @@ class Page_Sub_Asset_Listing extends Page
 				} else {
 					$is_default[] = $type_code;
 				}
-			} // end if
+			}// end if
 
 			if (in_array($type_code, $is_default)) {
 				if (!$default_format) {
@@ -342,31 +342,97 @@ class Page_Sub_Asset_Listing extends Page
 				if (is_null($mm)) $mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				// get all the metadata keywords for this asset
 				$replacements = $mm->getMetadataFieldValues($assetid, $matches[1]);
-				
+
 				foreach ($replacements as $field => $value) {
 					$keywords['asset_metadata_'.$field]['value'] = $value;
 				}
 			}
 			if (preg_match('|%asset_contents%|is', $contents)) {
 				ob_start();
-				$asset->printBody();
-				$keywords['asset_contents']['value'] = ob_get_contents();
+					$asset->printBody();
+					$keywords['asset_contents']['value'] = ob_get_contents();
 				ob_end_clean();
 			}
 
 			foreach ($keywords as $keyword => $info) {
-				$contents = str_replace('%'.$keyword.'%', $info['value'], $contents);
+				$contents = preg_replace('|%((<([^>]+?)>)+)?'.$keyword.'((<([^>]+?)>)+)?%|is', '\\1%'.$keyword.'%\\4', $contents);
+				$contents = str_replace("%{$keyword}%", $info['value'], $contents);
 			}
+
 			$global_contents .= $contents;
-		
-		} // end foreach
+
+		}// end foreach
 
 		// if we have any blank keywords, replace them with nothing
 		$global_contents = preg_replace('|%[^%\W]+%|', '', $global_contents);
 
 		return $global_contents;
 
-	}// end getBodyReplacement()
+	}//end getBodyReplacement()
+
+
+	/**
+	* Add valid keywords for this asset to an array of keywords when asked
+	*
+	* @param &object Asset	$asset	the asset that triggered the event
+	* @param Array			$vars	the vars that get submitted by the broadcaster
+	*								we add keywords to the $vars['keywords'] array
+	*
+	* @return boolean
+	* @access private
+	*/
+	function onRequestKeywords(&$broadcaster, $vars=Array())
+	{
+		if (!isset($vars['keywords'])) return;
+		if (!is_a($broadcaster, 'content_type_wysiwyg')) return;
+
+		// lets work out which format types the WYSIWYG cell that wants our keywords
+		// is in so we can return the correct keywords for the asset type
+		$folder = &$this->getFolder();
+		if (is_null($folder)) return;
+
+		$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
+
+		$type_codes = Array();
+		foreach ($type_links as $link_info) {
+			if (in_array($link_info['minorid'], $parents)) {
+				$type_codes[] = $link_info['value'];
+			}
+		}
+		if (empty($type_codes)) return;
+
+		$keywords = Array();
+		foreach ($type_codes as $type_code) {
+			if ($type_code == 'default_format') {
+				// special case for the default format where we dont
+				// have to do as much processing
+				$dummy_asset = new Asset();
+				$type_keywords = $dummy_asset->getAssetKeywords(true);
+				unset($dummy_asset);
+			} else {
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+				$dummy_asset = new $type_code();
+				$type_keywords = $dummy_asset->getAssetKeywords(true);
+				unset($dummy_asset);
+			}
+
+			foreach ($type_keywords as $keyword => $info) {
+				if (empty($info['description'])) $info['description'] = ucfirst(str_replace('_', ' ', $keyword));
+				$name = ucwords(str_replace('_', ' ', $keyword));
+				$keywords[$keyword] = Array('name' => $name, 'default' => $info['description'], 'type' => 'inline');
+			}
+		}
+		$keywords['asset_contents'] = Array('name'    => 'Asset Contents',
+											'default' => 'Asset Contents',
+											'type'    => 'block'
+											);
+
+		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
+
+	}//end onRequestKeywords()
+
 
 }//end class
+
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_management.inc,v 1.3 2003/12/08 03:08:19 gsherwood Exp $
+* $Id: page_account_manager_management.inc,v 1.4 2003/12/12 03:37:07 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -109,7 +109,7 @@ class Page_Account_Manager_Management extends Page_Management
 
 
 	/**
-	* Return an array with information about the events that the form is listening for
+	* Return an array with information about the events that the account manager is listening for
 	*
 	* @access public
 	* @return boolean
