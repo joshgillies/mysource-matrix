@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2004/11/10 02:41:55 amiller Exp $
+* $Id: asset.xml,v 1.2 2004/11/10 02:57:09 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -30,7 +30,7 @@
 	<package>__core__</package>
 	<type_code>condition_simple_edit_mode</type_code>
 	<version>0.1</version>
-	<name>Logged In Condition</name>
+	<name>Simple Edit Mode Condition</name>
 	<description>This condition determines whether the session is in simple edit mode</description>
 	<instantiable>no</instantiable>
 	<allowed_access>system</allowed_access>
