@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.3 2004/02/16 22:23:47 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.4 2004/05/12 07:09:33 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -52,6 +52,26 @@
 				<paint_function   name="paintCreateStatus"   />
 				<process_function name="processCreateStatus" />
 			</function_call>
+		</field>
+	</section>
+	<section name="Email Validation" write_access="write:attributes">
+		<field attribute="use_email_validation">
+			<display_name>Use Email Validation</display_name>
+			<note>Should the account remain inactive until the user verifies the email address they have given?</note>
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+		<field attribute="validation_email_format" show_if="usingEmailValidation">
+			<display_name>Email Format</display_name>
+			<note>Note that the validation email will always be sent to the user who has signed up for an account. You can use the 'To' address to specify additional email address that the notification should be additionally sent to. You may use the following keywords in any of the above fields:&lt;br /&gt;
+			&lt;ul&gt;
+			&lt;li&gt;%validation_url% - the URL the use must click on to validate their email address&lt;/li&gt;
+			&lt;li&gt;%first_name% - the value the new user entered as their first name&lt;/li&gt;
+			&lt;li&gt;%last_name% - the value the new user entered as their last name&lt;/li&gt;
+			&lt;li&gt;%email% - the value the new user entered as their email address&lt;/li&gt;
+			&lt;li&gt;%username% - the value the new user entered as their username&lt;/li&gt;
+			&lt;/ul&gt;
+			</note>
+			<email_format />
 		</field>
 	</section>
 </contents>

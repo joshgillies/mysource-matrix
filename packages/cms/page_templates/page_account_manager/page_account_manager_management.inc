@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_management.inc,v 1.7 2004/02/16 00:31:41 gsherwood Exp $
+* $Id: page_account_manager_management.inc,v 1.8 2004/05/12 07:09:33 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -84,6 +84,18 @@ class Page_Account_Manager_Management extends Asset_Management
 														'added'     => '0.1',
 														'type'      => 'wysiwyg',
 														'default'   => '<p>Your account details have been updated.</p>',
+													);
+													
+		$this->vars['use_email_validation']		= Array(
+														'added'     => '0.1',
+														'type'      => 'boolean',
+														'default'   => false,
+													);
+
+		$this->vars['validation_email_format']	= Array(
+														'added'     => '0.1',
+														'type'      => 'email_format',
+														'default'   => Array(),
 													);
 
 	}//end constructor

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_edit_fns.inc,v 1.3 2004/02/16 22:23:47 gsherwood Exp $
+* $Id: page_account_manager_edit_fns.inc,v 1.4 2004/05/12 07:09:33 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -96,6 +96,19 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		}
 
 	}//end paintCreateType()
+
+
+	/**
+	* Returns true if the account manager uses email validation
+	*
+	* @return boolean
+	* @access public
+	*/
+	function usingEmailValidation(&$asset)
+	{
+		return $asset->attr('use_email_validation');
+
+	}//end usingEmailValidation()
 
 
 }//end class
