@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_image.inc,v 1.17 2003/11/26 00:51:22 gsherwood Exp $
+* $Id: matrix_insert_image.inc,v 1.18 2003/12/16 12:44:11 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,8 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package wysiwyg
+* @package MySource_Matrix
+* @subpackage wysiwyg
 */
 class matrix_insert_image extends wysiwyg_plugin {
 

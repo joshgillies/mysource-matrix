@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.18 2003/11/26 00:51:22 gsherwood Exp $
+* $Id: matrix_insert_link.inc,v 1.19 2003/12/16 12:44:11 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,8 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package wysiwyg
+* @package MySource_Matrix
+* @subpackage wysiwyg
 */
 class matrix_insert_link extends wysiwyg_plugin {
 
