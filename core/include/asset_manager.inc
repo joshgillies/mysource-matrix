@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.171 2004/02/01 22:50:02 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.172 2004/02/01 23:56:37 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3410,6 +3410,92 @@ class Asset_Manager extends MySource_Object
 		return $result;
 
 	}//end getRootURL()
+
+		/**
+		* Returns an array of assetid's + info in the order that they propogate out from the site url
+		*
+		* If no url is passed the current (aka PHP_SELF) one is used
+		*
+		* @param string    $protocol    the protocol to match -> null means it is ignored
+		* @param string    $url        the urls to check for -> null defaults it to current url
+		*
+		* @return array
+		* @access public
+		*/
+		function getLineageFromURL($protocol=null, $url=null)
+		{
+			if (is_null($url)) $url = current_url(false, true);
+			// remove any trailing slashes and double slashes
+			$url = strip_url($url);
+
+			if (!is_null($protocol) && $protocol != 'https') $protocol = 'http';
+
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+			// get the root(site) url for this url
+			$root_url = $this->getRootURL($url);
+			if (empty($root_url)) {
+				$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
+				trigger_error('Unable to find an lineage for the URL "'.$fancy_url.'", no root url was found', E_USER_WARNING);
+				return Array();
+			}
+
+			//// See Mantis #0000128 for a reason on why the trailing slash is added to the URL and before the '%' ////
+			$concat = ($db->phptype == 'mysql') ? 'CONCAT(l.url, '.$db->quote('/%').')' : '(l.url || '.$db->quote('/%').')';
+			$where = 'l.root_urlid = '.$db->quote((int) $root_url['urlid']).'
+					AND '.$db->quote($url.'/').' LIKE '.$concat;
+
+			if (!is_null($protocol)) {
+				$where .= ' AND l.'.$protocol.' = '.$db->quote('1');
+				$protocol_select = $db->quote($protocol).' as protocol';
+			} else {
+				$curr_proto = current_protocol();
+				$protocol_select = 'CASE WHEN l.'.$curr_proto.' = '.$db->quote('1').' THEN '.$db->quote($curr_proto).' ELSE '.$db->quote(($curr_proto == 'http') ? 'https' : 'http').' END as protocol';
+			}
+
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+			$sql = 'SELECT l.url, l.assetid, a.name, a.short_name, a.type_code, '.$protocol_select.'
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.assetid = a.assetid
+					'.$where.'
+					ORDER BY l.url ASC';
+
+			$result = $db->getAll($sql);
+			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+
+			// No urls found or we only found some of the parents, but not the passed url
+			if (empty($result) || $result[count($result) - 1]['url'] != $url) {
+				$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
+				trigger_error('Unable to find an lineage for the URL "'.$fancy_url.'"', E_USER_WARNING);
+				return Array();
+
+			} else {
+
+				// if there is only one entry then this is the site root, so for completeness
+				// we will manually add in the index page to the index
+				if (count($result) == 1) {
+					$site = &$this->getAsset($result[0]['assetid'], $result[0]['type_code']);
+					if (is_null($site)) {
+						return Array();
+					}
+					$index_page = $site->getSpecialPage('index');
+					if (!is_null($index_page)) {
+						$paths = $index_page->getWebPaths();
+						$result[] = Array (
+											'url'        => $result[0]['url'].((empty($paths)) ? '' : '/'.$paths[0]),
+											'assetid'    => $index_page->id,
+											'name'       => $index_page->name,
+											'short_name' => $index_page->short_name,
+											'type_code'  => $index_page->type(),
+											'protocol'   => current_protocol(),
+											);
+					}// end if
+				}// end if
+
+				return $result;
+			}// end if
+
+	}//end getLineageFromURL() 
 
 
 	/**
