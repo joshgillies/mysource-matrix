@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.108 2004/12/06 14:38:12 brobertson Exp $
+* $Id: backend.inc,v 1.109 2005/01/17 18:03:11 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.108 $
+* @version $Revision: 1.109 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -124,8 +124,8 @@ class Backend extends MySource_Object
 
         if (isset($_REQUEST['a'])) {
             $frontend_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_REQUEST['a']);
-            if (is_null($printing_asset)) {
-                trigger_error('No Asset found for Id #'.$printing_assetid, E_USER_WARNING);
+            if (is_null($frontend_asset)) {
+                trigger_error('No Asset found for Id #'.$_REQUEST['a'], E_USER_WARNING);
                 return;
             }
             $frontend_asset->printFrontend();
