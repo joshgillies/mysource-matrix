@@ -148,7 +148,10 @@ class MySource
 			// but make sure that the person is coming from the same machine as they logged in on
 			// so get a reference to them
 			$this->user = null;
-			if(!empty($_SESSION['userid']) && $_SESSION['remote_addr'] == $_SERVER['REMOTE_ADDR']) {
+			if(!empty($_SESSION['user_last_access']) 
+				&& time() < ((int) $_SESSION['user_last_access'] + SQ_CONF_MAX_IDLE_TIME)
+				&& !empty($_SESSION['userid']) 
+				&& $_SESSION['remote_addr'] == $_SERVER['REMOTE_ADDR']) {
 				// we mute errors trying to get the user because we will handle this gracefully later
 				$this->user = &$this->am->getAsset($_SESSION['userid'], $_SESSION['user_type_code'], true);
 			}
@@ -160,6 +163,7 @@ class MySource
 				$_SESSION['user_is_sys_admin'] = false;
 			}
 
+			$_SESSION['user_last_access'] = time();
 			$this->user_is_root      = $_SESSION['user_is_root'];
 			$this->user_is_sys_admin = $_SESSION['user_is_sys_admin'];
 
@@ -286,11 +290,10 @@ class MySource
 			case 'login' :
 				if ($this->loginKey() == $_POST['SQ_LOGIN_KEY']) {
 					$this->am->includeAsset('user');
-					list($userid, $user_type) = User::find($_POST['SQ_LOGIN_USERNAME'], $_POST['SQ_LOGIN_PASSWORD']);
-					if ($userid) {
-						$user = &$this->am->getAsset($userid, $user_type);
+					$user = &User::find($_POST['SQ_LOGIN_USERNAME'], $_POST['SQ_LOGIN_PASSWORD']);
+					if (!is_null($user)) {
 						if ($this->setCurrentUser($user)) {
-							$_SESSION['userid']         = $userid;
+							$_SESSION['userid']         = $user->id;
 							$_SESSION['user_type_code'] = $user->type();
 							$_SESSION['remote_addr']    = $_SERVER['REMOTE_ADDR'];
 							// generate a new login key so that when they try and login next
@@ -299,7 +302,27 @@ class MySource
 
 							$_SESSION['user_is_root']      = $this->user_is_root;
 							$_SESSION['user_is_sys_admin'] = $this->user_is_sys_admin;
-							break;
+							$_SESSION['user_last_access'] = time();
+							unset($_SESSION['user_login_attempts']);
+							return;
+						}
+					} else {
+
+						$username = $_POST['SQ_LOGIN_USERNAME'];
+						if (!isset($_SESSION['user_login_attempts'])) $_SESSION['user_login_attempts'] = Array();
+						if (empty($_SESSION['user_login_attempts'][$username])) $_SESSION['user_login_attempts'][$username] = 1;
+						else $_SESSION['user_login_attempts'][$username]++;
+
+						if ($_SESSION['user_login_attempts'][$username] >= SQ_CONF_MAX_LOGIN_ATTEMPTS) {
+							$user = &User::find($username);
+							if (!is_null($user) && $user->canLogin()) {
+								if ($this->setCurrentUser($this->am->getSystemAsset('root_user'))) {
+									if ($user->processStatusChange(SQ_STATUS_UNDER_CONSTRUCTION)) {
+										$this->addMessage('User "'.$username.'" locked');
+									}
+									$this->restoreCurrentUser();
+								}
+							}
 						}
 					}
 
@@ -317,6 +340,7 @@ class MySource
 				$_SESSION['user_type_code']		= '';
 				$_SESSION['user_is_root']		= false;
 				$_SESSION['user_is_sys_admin']	= false;
+				unset($_SESSION['user_last_access']);
 				$this->user = null;
 			break;
 
