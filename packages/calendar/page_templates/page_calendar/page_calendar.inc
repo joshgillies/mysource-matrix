@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.74 2004/09/13 05:08:51 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.75 2004/09/13 05:43:33 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.74 $ - 1.0
+* @version $Revision: 1.75 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1580,10 +1580,7 @@ class Page_Calendar extends Page_Asset_Listing
 			foreach ($descriptions as $assetid => $description) $res[$assetid]['description'] = $description;
 		}
 
-		$this->_processExceptions($res);
-
 		return $res;
-
 
 	}//end getDayEvents()
 
@@ -1615,7 +1612,8 @@ class Page_Calendar extends Page_Asset_Listing
 
 		$res = $partitions;
 
-		$events = $this->getDayEvents($date);
+		$plain_events = $this->getDayEvents($date);
+		$events =& $this->_expandEventList($plain_events, $date, $date);
 
 		foreach ($events as $id => $details) {
 			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
@@ -1634,6 +1632,7 @@ class Page_Calendar extends Page_Asset_Listing
 				}
 			}
 		}
+		foreach ($res as $time => $events) $this->_processExceptions($res[$time]);
 		return $res;
 
 	}//end getDayEventsByTime()
@@ -1664,7 +1663,8 @@ class Page_Calendar extends Page_Asset_Listing
 		foreach($partitions as $key => $val) $partitions[$key] = Array();
 		$partitions['all_day'] = Array();
 
-		$events = $this->getDayEvents($date);
+		$plain_events = $this->getDayEvents($date);
+		$events =& $this->_expandEventList($plain_events, $date, $date);
 
 		$res = Array();
 
@@ -1687,6 +1687,10 @@ class Page_Calendar extends Page_Asset_Listing
 				}
 			}
 		}
+		foreach ($res as $node => $events) {
+			foreach($partition_keys as $partition) $this->_processExceptions($res[$node][$partition]);
+		}
+		
 		return $res;
 
 	}//end getDayEventsByRootNodeAndTime()
