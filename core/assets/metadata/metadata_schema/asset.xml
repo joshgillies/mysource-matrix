@@ -11,4 +11,5 @@
 	<allowed_access>backend_user</allowed_access>
 	<parent_type>folder</parent_type>
 	<requirements />
+	<flash_menu_path>Schemas</flash_menu_path>
 </asset_info>

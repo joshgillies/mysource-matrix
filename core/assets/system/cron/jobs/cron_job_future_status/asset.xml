@@ -11,4 +11,5 @@
 	<allowed_access>system</allowed_access>
 	<parent_type>cron_job</parent_type>
 	<requirements />
+	<flash_menu_path/>
 </asset_info>
