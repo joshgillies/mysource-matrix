@@ -22,7 +22,7 @@ class Backend_User extends User
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Root_User($assetid=0)
+	function Backend_User($assetid=0)
 	{
 		$this->User($assetid);
 	}
