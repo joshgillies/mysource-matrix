@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_cms.inc,v 1.1 2004/02/10 16:32:41 brobertson Exp $
+* $Id: package_manager_cms.inc,v 1.1.2.1 2004/02/18 12:30:08 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 

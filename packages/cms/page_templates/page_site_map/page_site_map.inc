@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.6 2003/11/26 01:06:29 gsherwood Exp $
+* $Id: page_site_map.inc,v 1.6.2.1 2004/02/18 12:30:09 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -54,6 +54,21 @@ class Page_Site_Map extends Page
 
 
 	/**
+	* Returns an array of all the permitted link type, the type asset and the cardinality
+	*
+	* @see Asset::_getAllowLinks()
+	* @access private
+	*/
+	function _getAllowedLinks()
+	{
+		$page_links = parent::_getAllowedLinks();
+		$page_links[SQ_LINK_NOTICE]['asset'] = Array('card' => 'M', 'exclusive' => false);
+		return $page_links;
+
+	}//end _getAllowedLinks()
+
+
+	/**
 	* Create this asset
 	*
 	* @param array()	&$link	information used to create the initial link
@@ -80,6 +95,21 @@ class Page_Site_Map extends Page
 
 
 	/**
+	* Returns a list of lock types available for this asset type
+	*
+	* @return Array()
+	* @access public
+	*/
+	function lockTypes()
+	{
+		$lock_types = parent::lockTypes();
+		$lock_types['content'] = ($lock_types['attributes'] | $lock_types['links']);
+		return $lock_types;
+
+	}//end lockTypes()
+
+
+	/**
 	* Called by the design to print the body of this asset
 	* it's up to the kids to override
 	*
@@ -88,11 +118,23 @@ class Page_Site_Map extends Page
 	*/
 	function printBody()
 	{
-		// firstly, get the sites that this page belongs to
-		$site_info = $GLOBALS['SQ_SYSTEM']->am->getRootURL();
-		if (empty($site_info)) return false;
+		$root_asset = null;
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
+		if (!empty($root_link)) {
+			$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid'], $root_link['minor_type_code']);
+		}
 
-		$siteid = $site_info['assetid'];
+		if (is_null($root_asset)) {
+			// firstly, get the sites that this page belongs to
+			$site_info = $GLOBALS['SQ_SYSTEM']->am->getRootURL();
+			if (empty($site_info)) return false;
+			$siteid = $site_info['assetid'];
+		} else {
+			$siteid = $root_asset->id;
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
+			unset($root_asset);
+		}
+
 		$levels = ($this->attr('levels') != 0) ? $this->attr('levels') : null;
 
 		$page_data = $GLOBALS['SQ_SYSTEM']->am->getAssetTree($siteid, $levels, array_keys($this->attr('exclude_list')));
@@ -113,6 +155,7 @@ class Page_Site_Map extends Page
 		<?php
 		// figure out the columns for the site map
 		$num_columns = ($this->attr('columns') > 0) ? $this->attr('columns') : 1;
+		if (empty($page_data)) return;
 		$num_pages = count(array_keys($page_data[$siteid]));
 
 		$num_chunks = ceil($num_pages / $num_columns);

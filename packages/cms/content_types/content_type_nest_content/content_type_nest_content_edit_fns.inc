@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.15 2003/12/17 04:45:38 mmcintyre Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.15.2.1 2004/02/18 12:30:08 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 {
 
+
 	/**
 	* Constructor
 	*
@@ -49,7 +50,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 
 	}//end constructor
 
-	
+
 	/**
 	* Prints the backend interface for this WYSIWYG editor
 	*
@@ -60,11 +61,11 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	* @access public
 	*/
 	function paintBackend(&$asset, $prefix)
-	{	
+	{
 		if ($asset->writeAccess('links') && $asset->writeAccess('attributes')) {
-			$nested_assetid = $asset->attr('nested_assetid');
-			$nested_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($nested_assetid, '', true);
-			if ($nested_asset->id) {
+			$nested_asset = &$this->_getNestedAsset($asset);
+
+			if (!is_null($nested_asset)) {
 				?>
 				<table class="sq-backend-table">
 					<tr>
@@ -114,9 +115,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	{
 		// get the asset - we cant pass the type in because it could be anything
 		// we also mute errors because we check later on
-		$nested_assetid = $asset->attr('nested_assetid');
-		$nested_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($nested_assetid, '', true);
-		if (!$nested_asset->id) return false;
+		$nested_asset = &$this->_getNestedAsset($asset);
+		if (is_null($nested_asset)) return false;
 
 		if ($generating) {
 			$this->paintGenerated($asset, $nested_asset);
@@ -189,34 +189,31 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	*/
 	function processBackend($link, &$asset, $prefix)
 	{
-		$current_assetid = $asset->attr('nested_assetid');
-		$assetid = (isset($_POST[$prefix.'_nested_assetid']['assetid'])) ? $_POST[$prefix.'_nested_assetid']['assetid'] : '';
+		$nested_asset = &$this->_getNestedAsset($asset);
+		$current_assetid = (!is_null($nested_asset)) ? $nested_asset->id : 0;
+		$assetid = (isset($_POST[$prefix.'_nested_assetid']['assetid'])) ? (int)$_POST[$prefix.'_nested_assetid']['assetid'] : 0;
 
-		if (!empty($assetid)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		if ($assetid) {
 
 			if ($assetid != $current_assetid) {
 
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 				if ($current_assetid) {
-					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_3, '', true, 'nested_asset');
+					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', true, 'nested_asset');
 					if (!$asset->deleteLink($link['linkid'])) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
 					}
 				}
 
-				if (!$asset->setAttrValue('nested_assetid', $assetid)) {
+				// create a 'hidden' link for delete notification
+				$nested_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				if (!$asset->createLink($nested_asset, SQ_LINK_NOTICE, 'nested_asset')) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
 
-				// create a 'hidden' link for delete notification
-				$nested_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', true);
-				if (!$asset->createLink($nested_asset, SQ_LINK_TYPE_3, 'nested_asset')) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-				
 				// get the html contents of the nested asset so
 				// we change the type of the cell later - other content
 				// types can use the html
@@ -226,22 +223,39 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 					$asset->setAttrValue('html', $html);
 				ob_end_clean();
 
-				$this->_contentsUpdated($asset);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				return true;
-				
+
 			}
 
 		} else if ($current_assetid) {
-			if (!$asset->setAttrValue('nested_assetid', '')) return false;
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_3, '', true, 'nested_asset');
-			
-			$this->_contentsUpdated($asset);
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', true, 'nested_asset');
 			return $asset->deleteLink($link['linkid']);
 		}
 		return false;
 
 	}//end processBackend()
+
+
+	/**
+	* Get a reference to the asset the content type is nesting
+	*
+	* @param object Content_Type_Nest_Content	&$asset	the nest content content type object
+	*
+	* @return object Asset | NULL
+	* @access private
+	*/
+	function &_getNestedAsset(&$asset)
+	{
+		$nested_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', true, 'nested_asset');
+		if (!empty($nested_link)) {
+			return $GLOBALS['SQ_SYSTEM']->am->getAsset($nested_link['minorid'], $nested_link['minor_type_code'], true);
+		} else {
+			return null;
+		}
+
+	}//end _getNestedAsset()
+
 
 }//end class
 

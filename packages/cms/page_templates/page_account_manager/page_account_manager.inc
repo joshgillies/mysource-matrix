@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.6 2004/01/15 05:16:34 gsherwood Exp $
+* $Id: page_account_manager.inc,v 1.6.2.1 2004/02/18 12:30:08 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -137,7 +137,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 			// try and acquire a lock on the current user so they can edit their details
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array('assetid' => $current_user->id, 'lock_type' => 'attributes', 'forceably_acquire' => false);
-			$lock_errors = $hh->freestlyeHipo('hipo_job_acquire_lock', $vars);
+			$lock_errors = $hh->freestyleHipo('hipo_job_acquire_lock', $vars);
 
 
 			  /////////////////////////
@@ -209,7 +209,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 		if (isset($_POST['ASSET_BUILDER_ACTION'])) {
 			switch (strtolower($_POST['ASSET_BUILDER_ACTION'])) {
 				case 'create' :
-					if (empty($this->_errors)) {
+					if (empty($this->_errors) && !empty($this->_tmp['created_asset'])) {
 						// the new user was created and can log in, so make sure the page is in the right state
 						if ($this->attr('create_status') >= SQ_STATUS_LIVE) {
 							$this->_current_state = 'create_login';

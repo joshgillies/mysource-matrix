@@ -18,10 +18,9 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form_management.inc,v 1.7 2003/12/16 12:13:05 brobertson Exp $
+* $Id: page_custom_form_management.inc,v 1.7.2.1 2004/02/18 12:30:09 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
-
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
@@ -35,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Page_Custom_Form_Management extends Page_Management
+class Page_Custom_Form_Management extends Asset_Management
 {
 
 	/**
@@ -44,7 +43,7 @@ class Page_Custom_Form_Management extends Page_Management
 	*/
 	function Page_Custom_Form_Management(&$pm)
 	{
-		$this->Page_Management($pm);
+		$this->Asset_Management($pm);
 
 		$this->vars = Array('name' => Array (
 												'added'		=> '0.0.1',

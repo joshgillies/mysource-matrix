@@ -18,10 +18,9 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect_management.inc,v 1.8 2003/11/26 00:51:30 gsherwood Exp $
+* $Id: page_redirect_management.inc,v 1.8.2.1 2004/02/18 12:30:09 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
-
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
@@ -35,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Page_Redirect_Management extends Page_Management
+class Page_Redirect_Management extends Asset_Management
 {
 
 	/**
@@ -44,7 +43,7 @@ class Page_Redirect_Management extends Page_Management
 	*/
 	function Page_Redirect_Management(&$pm)
 	{
-		$this->Page_Management($pm);
+		$this->Asset_Management($pm);
 
 		$this->vars = Array(
 						'redirect_url' => Array(

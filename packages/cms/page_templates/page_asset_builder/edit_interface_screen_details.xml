@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2004/01/15 05:15:22 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.1.2.1 2004/02/18 12:30:08 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -60,26 +60,6 @@
 				<paint_function   name="paintCreateLink"   />
 				<process_function name="processCreateLink" />
 			</function_call>
-		</field>
-	</section>
-	<section name="Create Location" write_access="write:attributes">
-		<field>
-			<display_name>Create Location(s)</display_name>
-			<note />
-			<function_call>
-				<paint_function   name="paintCreateLocation"   />
-				<process_function name="processCreateLocation" />
-			</function_call>
-		</field>
-		<field attribute="create_location_multiple" show_if="definesMultipleLocations">
-			<display_name>Allow Multiple Locations</display_name>
-			<note>Selecting 'Yes' here will allow the asset to be created under multiple parents. Selecting 'No' will restrict the asset to being created under a single parent.</note>
-			<boolean true_text="Yes" false_text="No" />
-		</field>
-		<field attribute="create_location_type" show_if="definesMultipleLocations">
-			<display_name>Selection Type</display_name>
-			<note>Select the interface you would like to present for selecting the location to create the asset</note>
-			<selection style="list" />
 		</field>
 	</section>
 </contents>

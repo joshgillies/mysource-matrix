@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.2 2004/01/15 05:47:51 gsherwood Exp $
+* $Id: page_asset_builder.inc,v 1.2.2.1 2004/02/18 12:30:08 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -140,22 +140,36 @@ class Page_Asset_Builder extends Page
 
 
 	/**
-	* Creates a link between this asset and the passed asset, of a certain type
+	* Prepares for linking by checking that the link values are valid for this link
 	*
-	* @return int linkid of the created link
+	* This function will be called if this asset is the major or minor party in the link, so the side_of_link flag
+	* should be checked to work out what side of the link this asset is on. The return value should indicate
+	* if any of the link fields were changed.
+	*
+	* @param object Asset	$asset			the major or minor asset that we are linking to
+	* @param string			$side_of_link	the side of the link we are on (major or minor)
+	* @param string			$link_type		the type of link we are creating
+	* @param string			$value			the value that is to be associated with the link
+	* @param string			$sort_order		the position in the links list that this link should take,
+	* @param string			$dependant		'0' / '1' on whether the this asset is dependant on the
+	*										asset that will be linked by the new link
+	* @param string			$exclusive		'0' / '1' on whether the this asset is linked exclusivly
+	*										to the asset that will be linked by the new link
+	*
+	* @return boolean
 	* @access public
-	* @see Asset::creatLink();
 	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0', $exclusive='0')
+	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
 		// if this is a bodycopy then we need to make it a dependant link
-		if (is_a($minor, 'bodycopy')) {
+		if ($side_of_link == 'major' && is_a($asset, 'bodycopy') && $dependant != '1') {
 			$dependant = '1';
+			return true;
 		}
 
-		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
+		return false;
 
-	}//end createLink()
+	}//end prepareLink()
 
 
 	/**
@@ -169,7 +183,8 @@ class Page_Asset_Builder extends Page
 	function isDeletableLink($linkid)
 	{
 		// the only reason why we would object to this link being deleted is if it is a bodycopy linked to us
-		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', null, '1', '1');
+
 		if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the bodycopy and the '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' page';
 
 		return parent::isDeletableLink($linkid);
@@ -230,7 +245,7 @@ class Page_Asset_Builder extends Page
 	{
 		?>
 		<script type="text/javascript" language="javascript" src="<?php echo sq_web_path('lib');?>/html_form/html_form.js"></script>
-		<form name="asset_builder" method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+		<form name="asset_builder" method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>" enctype="multipart/form-data">
 			<?php
 			echo hidden_field('ASSET_BUILDER_ACTION', 'create');
 			$this->_printContents();
@@ -254,28 +269,112 @@ class Page_Asset_Builder extends Page
 		// process some global asset builder actions
 		if (isset($_POST['ASSET_BUILDER_ACTION'])) {
 
+			$success = false;
+			set_error_handler(Array(&$this, '_errorHandler'));
+
 			switch (strtolower($_POST['ASSET_BUILDER_ACTION'])) {
 
 				case 'login' :
 					// they have tried logging in - but failed
-					$this->_replacements['login_error'] = $this->attr('login_error');
+					// the error will get picked up down below though, so we dont have to do anything
+					// uhhh... lazy days.... wish all coding was this easy
 				break;
 
 				case 'create' :
 
-					if (!isset($_POST['asset_create_location'])) {
-						trigger_error('No asset create location specified', E_USER_WARNING);
+					// create our dummy asset so we can access all its you beaut functions
+					// to make life easier for ourselves
+					$create_type = $this->attr('create_type');
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
+					$new_asset = new $create_type();
+
+					$prefix = $new_asset->getPrefix();
+
+
+					  ///////////////////////
+					 //  REQUIRED FIELDS  //
+					///////////////////////
+
+					$required_error = false;
+					$required_fields = $this->attr('required_fields');
+					foreach ($required_fields as $attr => $error_text) {
+						$attribute = &$new_asset->getAttribute($attr, true);
+						if (is_null($attribute)) continue;
+
+						$attr_value = isset($_POST[$prefix.'_'.$attr]) ? $_POST[$prefix.'_'.$attr] : '';
+						if (empty($attr_value)) {
+							if (empty($error_text)) $error_text = 'Please enter a value for '.$attribute->name;
+							trigger_error($error_text, E_USER_NOTICE);
+							$required_error = true;
+						} else if (!$attribute->validateValue($attr_value)) {
+							if (empty($error_text)) $error_text = 'The value of '.$attribute->name.' is not valid';
+							trigger_error($error_text, E_USER_NOTICE);
+							$required_error = true;
+						}
+
+					}//end foreach
+
+					if ($required_error) break;
+
+
+					  ////////////////////////
+					 //  CREATE LOCATIONS  //
+					////////////////////////
+
+					$create_locations = $this->attr('create_location');
+					if (isset($_POST['asset_create_location'])) {
+						$create_locations = array_merge($create_locations, $_POST['asset_create_location']);
+					}
+
+					// now check what rules dictate where the asset should be created
+					$location_rules = $this->attr('create_location_rules');
+					foreach ($location_rules as $rule_text => $locationids) {
+						if (empty($rule_text)) continue;
+						$bits = explode(' && ', $rule_text);
+
+						$valid_rule = true;
+						foreach ($bits as $bit) {
+							list($attr, $value) = explode('==', $bit);
+							$attr  = trim($attr, '$');
+							$value = trim($value, " '");
+							$attr_value = isset($_POST[$prefix.'_'.$attr]) ? $_POST[$prefix.'_'.$attr] : '';
+							if (trim(strtolower($attr_value)) != trim(strtolower($value))) {
+								$valid_rule = false;
+								break;
+							}
+
+							
+						}//end foreach
+
+						if ($valid_rule) {
+							if (!is_array($create_locations)) $create_locations = Array($create_locations);
+							$create_locations = array_merge($create_locations, $locationids);
+							$create_locations = array_unique($create_locations);
+						}
+
+					}//end foreach
+
+					// if we dont have any create locations, there is no point in continuing with this charade
+					// whoever set this up may think they want to build asset on the frontend, but they dont really
+					// know what they want - let them get back to us with something we can use
+					if (empty($create_locations)) {
+						trigger_error('Unable to determine where to create this '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($new_asset->type(), 'name'), E_USER_WARNING);
 						break;
 					}
+
+
+					  ////////////////////////
+					 //  CREATE THE ASSET  //
+					////////////////////////
 
 					// we'll just use a limbo outputter to do the outputting for us
 					require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
 					$o = new Limbo_Outputter();
 
-					if (is_array($_POST['asset_create_location'])) {
-						$create_parentid = array_shift(array_values($_POST['asset_create_location']));
+					if (is_array($create_locations)) {
+						$create_parentid = array_shift(array_values($create_locations));
 					} else {
-						$create_parentid = (int)$_POST['asset_create_location'];
+						$create_parentid = (int)$create_locations;
 					}
 
 					$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($create_parentid);
@@ -284,15 +383,11 @@ class Page_Asset_Builder extends Page
 						break;
 					}
 
-					$create_type = $this->attr('create_type');
-					$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
-					$new_asset = new $create_type();
-
 					// start the transaction to create the asset
 					$link = Array('asset'		=> &$parent,
 								  'link_type'	=> $this->attr('create_link_type'),
 								  'value'		=> '',
-								  'sort_order'	=> '');
+								  'sort_order'	=> -1);
 
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -300,18 +395,17 @@ class Page_Asset_Builder extends Page
 					// logged in - so any write access checks will fail
 					$GLOBALS['SQ_INSTALL'] = true;
 
-						set_error_handler(Array(&$this, '_errorHandler'));
+						
 						if (!$new_asset->processBackend($o, $link)) {
 
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-							restore_error_handler();
 
 						} else {
 
 							// if we have multiple locations to create this asset under, create
 							// the new links to all the other parents
-							if (is_array($_POST['asset_create_location'])) {
-								foreach (array_values($_POST['asset_create_location']) as $link_parentid) {
+							if (is_array($create_locations)) {
+								foreach (array_values($create_locations) as $link_parentid) {
 									$link_parentid = (int)$link_parentid;
 
 									// skip the orginal parent we linked the new asset to
@@ -328,14 +422,14 @@ class Page_Asset_Builder extends Page
 							if (empty($this->_errors)) {
 								$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 								$this->_current_state = 'created';
-								restore_error_handler();
+								$success = true;
 
 								$create_status = $this->attr('create_status');
 
 								if ($new_asset->status != $create_status) {
 									$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 									$vars = Array('assetid' => $new_asset->id, 'new_status' => $create_status);
-									$status_errors = $hh->freestlyeHipo('hipo_job_edit_status', $vars);
+									$status_errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
 									$this->_errors = array_merge($this->_errors, $status_errors);
 								}
 								$this->_tmp['created_asset'] = $new_asset;
@@ -343,16 +437,24 @@ class Page_Asset_Builder extends Page
 
 						}//end if processBackend
 
-						// create a friendly error message
-						$errors = '';
-						foreach ($this->_errors as $text) $errors .= '<li>'.$text.'</li>';
-						if (!empty($errors)) $this->_replacements['create_error'] = $this->attr('create_error').'<ul>'.$errors.'</ul>';
-
 					$GLOBALS['SQ_INSTALL'] = false;
 
 				break;
 
 			}//end switch
+
+			restore_error_handler();
+
+			// create a friendly error message
+			if (!$success) {
+				$this->_replacements[strtolower($_POST['ASSET_BUILDER_ACTION']).'_error'] = $this->attr(strtolower($_POST['ASSET_BUILDER_ACTION']).'_error');
+			
+				if (!empty($this->_errors)) {
+					$errors = '';
+					foreach ($this->_errors as $text) $errors .= '<li>'.$text.'</li>';
+					$this->_replacements[strtolower($_POST['ASSET_BUILDER_ACTION']).'_error'] .= '<ul>'.$errors.'</ul>';
+				}
+			}
 
 		}//end if ASSET_BUILDER_ACTION
 
@@ -431,7 +533,7 @@ class Page_Asset_Builder extends Page
 		ob_end_clean();
 
 		ob_start();
-			$create_locations = $this->attr('create_location');
+			$create_locations = $this->attr('create_location_optional');
 			if (empty($create_locations)) {
 				bam('EMBEDDED ASSET MAP WILL GO HERE WITH AN ASSET FINDER');
 			} else if (count($create_locations) == 1) {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.31 2003/12/02 03:47:28 mmcintyre Exp $
+* $Id: page_standard.inc,v 1.31.2.1 2004/02/18 12:30:09 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -92,22 +92,36 @@ class Page_Standard extends Page
 
 
 	/**
-	* Creates a link between this asset and the passed asset, of a certain type
+	* Prepares for linking by checking that the link values are valid for this link
 	*
-	* @return int linkid of the created link
+	* This function will be called if this asset is the major or minor party in the link, so the side_of_link flag
+	* should be checked to work out what side of the link this asset is on. The return value should indicate
+	* if any of the link fields were changed.
+	*
+	* @param object Asset	$asset			the major or minor asset that we are linking to
+	* @param string			$side_of_link	the side of the link we are on (major or minor)
+	* @param string			$link_type		the type of link we are creating
+	* @param string			$value			the value that is to be associated with the link
+	* @param string			$sort_order		the position in the links list that this link should take,
+	* @param string			$dependant		'0' / '1' on whether the this asset is dependant on the
+	*										asset that will be linked by the new link
+	* @param string			$exclusive		'0' / '1' on whether the this asset is linked exclusivly
+	*										to the asset that will be linked by the new link
+	*
+	* @return boolean
 	* @access public
-	* @see Asset::creatLink();
 	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0', $exclusive='0')
+	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
-		// if this is a bodycopy table then we need to make it a dependant link
-		if (is_a($minor, 'bodycopy')) {
+		// if a bodycopy is linking to us then we need to make it a dependant link
+		if ($side_of_link == 'major' && is_a($asset, 'bodycopy') && $dependant != '1') {
 			$dependant = '1';
+			return true;
 		}
 
-		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
+		return false;
 
-	}//end createLink()
+	}//end prepareLink()
 
 
 	/**
@@ -242,29 +256,29 @@ class Page_Standard extends Page
 	* </PRE>
 	* @access public
 	*/
-	function &getKeyData($component=false)
+	function getKeyData($component=null)
 	{
-		$keyData = parent::getKeyData($component);
+		$keydata = parent::getKeyData($component);
 		$weightings = $this->getWeightings();
 
-		if (!$component || $component == 'contents') {
-			// get the bodycopy 
+		if (is_null($component) || $component == 'contents') {
+			// get the bodycopy
 			$bodycopy = &$this->getBodycopy();
-			if (is_null($bodycopy)) return Array();
+			if (is_null($bodycopy)) return $keydata;
 
 			ob_start();
-			$bodycopy->printBody();
-			$contents = ob_get_contents();
+				$bodycopy->printBody();
+				$contents = ob_get_contents();
 			ob_end_clean();
 			
 			// preprocess
 			$contents = strtolower(strip_tags(html_entity_decode($contents)));
-			$word_counts = get_word_counts($contents);
-			foreach ($word_counts as $word => $count) {
-				$this->buildKeyData($keyData, $word, 'text', 'contents', $count * $weightings['contents']['weighting']);
+			$comp_name = 'attr:'.$this->type().':contents';
+			foreach (get_word_counts($contents) as $word => $count) {
+				$this->buildKeyData($keydata, $word, 'text', $comp_name, $count * $weightings['contents']['weighting']);
 			}
 		}
-		return $keyData;
+		return $keydata;
 
 	}//end getKeyData()
 

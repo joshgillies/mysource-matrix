@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2004/01/15 05:16:34 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2.2.1 2004/02/18 12:30:08 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -52,26 +52,6 @@
 				<paint_function   name="paintCreateStatus"   />
 				<process_function name="processCreateStatus" />
 			</function_call>
-		</field>
-	</section>
-	<section name="Create Location" write_access="write:attributes">
-		<field>
-			<display_name>Existing Location(s)</display_name>
-			<note />
-			<function_call>
-				<paint_function   name="paintCreateLocation"   />
-				<process_function name="processCreateLocation" />
-			</function_call>
-		</field>
-		<field attribute="create_location_multiple" show_if="definesMultipleLocations">
-			<display_name>Allow Multiple Groups</display_name>
-			<note>Selecting 'Yes' here will allow the user account to be created under multiple groups. Selecting 'No' will restrict the user account to being created under a single group.</note>
-			<boolean true_text="Yes" false_text="No" />
-		</field>
-		<field attribute="create_location_type" show_if="definesMultipleLocations">
-			<display_name>Selection Type</display_name>
-			<note>Select the interface you would like to present for selecting the location to create the new account</note>
-			<selection style="list" />
 		</field>
 	</section>
 </contents>

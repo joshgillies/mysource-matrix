@@ -18,12 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.1 2004/01/15 05:15:22 gsherwood Exp $
+* $Id: page_asset_builder_management.inc,v 1.1.2.1 2004/02/18 12:30:08 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
-
-require_once SQ_PACKAGES_PATH.'/cms/page/page_management.inc';
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
 * Page_Asset_Builder_Management
@@ -35,7 +34,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page/page_management.inc';
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Page_Asset_Builder_Management extends Page_Management
+class Page_Asset_Builder_Management extends Asset_Management
 {
 
 	/**
@@ -44,9 +43,19 @@ class Page_Asset_Builder_Management extends Page_Management
 	*/
 	function Page_Asset_Builder_Management(&$pm)
 	{
-		$this->Page_Management($pm);
+		$this->Asset_Management($pm);
 
 		$this->vars['create_location']			= Array(
+														'added'     => '0.1',
+														'type'      => 'serialise',
+														'default'   => Array(),
+														);
+		$this->vars['create_location_optional']	= Array(
+														'added'     => '0.1',
+														'type'      => 'serialise',
+														'default'   => Array(),
+														);
+		$this->vars['create_location_rules']	= Array(
 														'added'     => '0.1',
 														'type'      => 'serialise',
 														'default'   => Array(),
@@ -66,6 +75,11 @@ class Page_Asset_Builder_Management extends Page_Management
 																					'check'		=> 'Checkboxes',
 																			),
 																		),
+														);
+		$this->vars['required_fields']			= Array(
+														'added'     => '0.1',
+														'type'      => 'serialise',
+														'default'   => Array(),
 														);
 		$this->vars['create_type']				= Array(
 														'added'     => '0.1',
