@@ -191,7 +191,7 @@ class Messaging_Service extends Resolve_Object
 	*										or after (NULL to ignore)
 	* @param int			$to				timestamp that every msg returned must be this time
 	*										or before (NULL to ignore)
-	* @param string			$get_from_name	[name|short_name], used to return the name/short_name
+	* @param string			$get_user_name	[name|short_name], used to return the name/short_name
 	*										of the from user with the return, which will be returned
 	*										in the field 'from_name'. (NULL to ignore)
 	*
@@ -204,7 +204,8 @@ class Messaging_Service extends Resolve_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		if (!is_null($get_user_name) && $get_user_name != 'name') $get_user_name = 'short_name';
+		if (!is_null($get_user_name) && $get_user_name != 'name') 
+			$get_user_name = 'short_name';
 
 		$sql = 'SELECT m.messageid, m.userto, m.userfrom, m.subject, m.body, m.sent, m.priority, m.status, m.parameters';
 		if (is_string($get_user_name)) {
@@ -213,7 +214,10 @@ class Messaging_Service extends Resolve_Object
 						WHEN a.'.$get_user_name.' IS NULL AND m.userfrom = 0 THEN '.$db->quote(SQ_SYSTEM_SHORT_NAME.' System').'
 						ELSE a.'.$get_user_name.'
 					END as from_name';
+			$sql  .=	', CASE WHEN a.'.$get_user_name.' IS NULL AND m.userfrom = 0 THEN \'root_user\''.
+					' ELSE a.type_code END as type_code';
 		}
+
 		$sql  .= ' FROM '.SQ_TABLE_RUNNING_PREFIX.'internal_message m';
 		$where = 'm.userto = '.$db->quote($userid);
 
