@@ -16,7 +16,7 @@
 /**
 * Takes a filename and extracts the extension
 *
-* @param string	$filename
+* @param string	$filename	the file whose extension to get
 *
 * @return string
 * @access public
@@ -29,7 +29,7 @@ function get_file_type($filename)
 /**
 * Takes a filename and returns true if it is considdered and image
 *
-* @param string	$filename
+* @param string	$filename	the file to check
 *
 * @return string
 * @access public
@@ -53,7 +53,7 @@ function is_image($filename)
 /**
 * Reads a file into a string
 *
-* @param string $file    the filename whose contents to return 
+* @param string $filename	the filename whose contents to return 
 *
 * @return string
 */
@@ -75,8 +75,8 @@ function file_to_string($filename)
 /**
 * Writes a string to a file.. overwrites current file
 *
-* @param string	$string	the string to write
-* @param string	$file	the filename to write to
+* @param string	$string		the string to write
+* @param string	$filename	the filename to write to
 *
 * @return string
 */
@@ -113,8 +113,8 @@ function easy_filesize($size)
 /**
 * Same as increment_name(), but preserves a filename extension
 * 
-* @param string	$name	the original name of the file
-* @param string $spacer	the char(s) to put between the end of the name and the numeral
+* @param string	$name		the original name of the file
+* @param string $spacer		the char(s) to put between the end of the name and the numeral
 *
 * @return string
 * @access public
