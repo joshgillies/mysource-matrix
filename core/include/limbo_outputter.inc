@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: limbo_outputter.inc,v 1.3 2003/11/25 21:13:24 gsherwood Exp $
+* $Id: limbo_outputter.inc,v 1.4 2003/12/01 05:16:42 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -125,8 +125,12 @@ class Limbo_Outputter extends Backend_Outputter
 		<!--
 			// slip our own onLoad function into the onLoad event of the window
 			var SQ_DOCUMENT_LOADED = false;
-			var sqOtherOnLoad = (window.onload) ? window.onload :  new Function;
-			window.onload = function() { sqOtherOnLoad(); page_on_load(); }
+			if (window.onload) {
+				var sqOtherOnLoad = window.onload;
+				window.onload = function() { sqOtherOnLoad(); page_on_load(); }
+			} else {
+				window.onload = function() { page_on_load(); }
+			}
 
 			function page_on_load() {
 
