@@ -409,7 +409,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			for($j = 0; $j < count($section->children); $j++) {
 				$field = &$section->children[$j];
 				if ($field->name != 'field') continue;
-				$create_sections[$section->attributes['name']][] = $field->attributes['attribute'];
+				if (isset($field->attributes['attribute'])) $create_sections[$section->attributes['name']][] = $field->attributes['attribute'];
 
 			}// end for
 
