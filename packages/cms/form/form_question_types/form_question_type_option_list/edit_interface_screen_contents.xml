@@ -1,0 +1,69 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_contents.xml,v 1.1 2004/04/23 07:31:41 lwright Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<contents>
+	<section name="Question Options">
+	    <field attribute="name">
+			<display_name>Title</display_name>
+			<note></note>
+			<text width="20" height="1" />
+		</field>
+		<field attribute="note">
+			<display_name>Note</display_name>
+			<note></note>
+			<text width="40" height="2" />
+		</field>
+		<field attribute="options">
+			<display_name>Options</display_name>
+			<note></note>
+			<text width="40" height="10" />
+		</field>
+		<field>
+			<display_name>Default</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintDefault"   />
+				<process_function name="processDefault" />
+			</function_call>
+		</field>
+		<field attribute="horizontal">
+			<display_name>Orientation</display_name>
+			<note>Defines if options are listed horizontally or vertically</note>
+			<boolean true_text="Horizontal" false_text="Vertical" />
+		</field>
+		<field attribute="extra">
+			<display_name>Extras</display_name>
+			<note></note>
+			<text width="20" height="1" />
+		</field>
+	</section>
+	<section name="Validation Rules">
+	    <field attribute="required">
+			<display_name>Required Entry?</display_name>
+			<note>If required, at least one radio button must be selected before the form can be submitted</note>
+			<boolean true_text="Required" false_text="Optional" />
+		</field>
+	</section>
+</contents>
