@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.18 2003/12/29 00:22:48 gsherwood Exp $
+* $Id: search_page.inc,v 1.19 2003/12/29 01:00:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@
 *
 * @author  Dominic Wong <dwong@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $ - 1.0
+* @version $Revision: 1.19 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -493,10 +493,12 @@ class Search_Page extends Page
 	{
 		$bodycopy =& $this->getBodycopy('result_element');
 		$keywords = $bodycopy->getKeywords();
-		$replaces = Array();
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$asset = &$am->getAsset($assetid);
+
+		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$replaces = $mm->generateKeywordReplacements($asset, $keywords, false);
 
 		foreach ($keywords as $keyword) {
 			$replacement =& $replaces[$keyword];
@@ -513,24 +515,12 @@ class Search_Page extends Page
 					$replacement = $assetid;
 				break;
 
-				case 'asset_name':
-					$replacement = $asset->name;
-				break;
-
 				case 'asset_name_linked':
 					$replacement = '<a href="' .$asset->getUrl() .'">' .$asset->name .'</a>';
 				break;
 
-				case 'asset_short_name':
-					$replacement = $asset->short_name;
-				break;
-
 				case 'asset_short_name_linked':
 					$replacement = '<a href="' .$asset->getUrl() .'">' .$asset->short_name .'</a>';
-				break;
-
-				case 'asset_url':
-					$replacement = $asset->getUrl();
 				break;
 
 				case 'asset_lineage':
@@ -555,10 +545,6 @@ class Search_Page extends Page
 						$ancestorAsset =& $am->getAsset($parentAssetId);
 						$replacement .= "<a href=\"". $ancestorAsset->getUrl(). "\">". $ancestorAsset->name. "</a>";
 					}
-				break;
-
-				default:
-					$replacement = "%$keyword%";
 				break;
 			}
 		}
@@ -882,6 +868,12 @@ class Search_Page extends Page
 					$name = 'Search Field ('.$field.')';
 					$description = '<input type="text" width="'.$this->defaults['query_width'].'" value="Search terms here" />';
 					$keywords[$field.'_query'] = Array('name' => $name, 'default' => $description, 'type' => 'special');
+				}
+			} else if ($bodycopy == 'result_element') {
+				$default_keywords = $broadcaster->getAssetKeywords(true);
+				foreach ($default_keywords as $keyword => $info) {
+					$name = ucwords(str_replace('_', ' ', $keyword));
+					$keywords[$keyword] = Array('name' => $name, 'default' => $info['description'], 'type' => 'inline');
 				}
 			}
 			foreach ($this->keywords[$bodycopy] as $keyword => $info) {
