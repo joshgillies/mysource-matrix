@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hash.inc,v 1.5 2005/03/30 04:54:54 arailean Exp $
+* $Id: hash.inc,v 1.6 2005/04/05 00:26:51 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 class Hash
@@ -253,20 +253,10 @@ class Hash
 	{
 		$result = $this->hash;
 
-		// define the defaults
-		$state_hash_defaults = Array(
-								'event'				=> '',
-								'assetid'			=> '',
-								'asset_type'		=> '',
-								'treeid'			=> '',
-								'tree_propagate'	=> SQ_TRIG_TREE_NO_PROPAGATE,
-								'triggerid'			=> '',
-							   );
-
 		// make sure every field has data, and that no fields are null
-		foreach ($state_hash_defaults as $defaults_id => $defaults_data) {
-			if (empty($result[$defaults_id])) {
-				$result[$defaults_id] = $defaults_data;
+		foreach ($result as $id => $data) {
+			if (empty($result[$id])) {
+				unset($result[$id]);
 			}
 		}
 
