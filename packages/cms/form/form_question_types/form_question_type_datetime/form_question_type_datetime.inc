@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.13 2004/09/10 00:24:36 lwright Exp $
+* $Id: form_question_type_datetime.inc,v 1.14 2004/10/06 04:44:01 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -80,22 +80,12 @@ class Form_Question_Type_Datetime extends Form_Question
 	*/
 	function getAnswer($content_file=true, $value='', $suffix='', $default = false)
 	{
+		//die;
 		$extras = $this->attr('extra');
 		$name   = $this->id;
 
-
-		// generate some php for the value, which can be used for both
-		// auto-answer and returning to saved forms
-		//if ($content_file) {
-			//$html  = '<'.'?php $q = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('
-			//.$this->id.', \''.get_class($this).'\'); '
-			//.' $q->active_submission =& $this->active_submission; ?'.'>';
-
-			 //'<'.'?php echo $q->getValue(); ?'.'>';
-		//} else {
-			$html = '';
-			$value = $this->attr('default');
-		//}
+		$html = '';
+		$value = $this->attr('default');
 
 		if ($default) {
 			$parameters = $this->getDefaultParameters();
@@ -215,7 +205,7 @@ class Form_Question_Type_Datetime extends Form_Question
 			$dt_field = new Datetime_Field($this->id, $value, $parameters);
 			$dt_field->processField();
 			$val = $_POST[$this->id.'value'];
-			$this->active_submission[$this->id] = ts_iso8601(mktime($val['h'], $val['i'], $val['s'], $val['m'], $val['d'], $val['y'])).(!isset($val['c']) ? '' : (' '.($val['c'] ? '1' : '0')));
+			$this->active_submission[$this->id] = sprintf('%04s-%02s-%02s %02s:%02s:%02s', $val['y'], $val['m'], $val['d'], $val['h'], $val['i'], $val['s']).(!isset($val['c']) ? '' : (' '.($val['c'] ? '1' : '0')));
 
 			parent::processForm();
 		}
@@ -235,13 +225,14 @@ class Form_Question_Type_Datetime extends Form_Question
 	*/
 	function getSummary($answer)
 	{
+		//die;
 		$allow_circa = false;
 		
 		$show_params = $this->attr('show');
 		if ($show_params['c']) {
 			$allow_circa = true;
 		}
-
+		
 		if ($allow_circa) {
 			list($date, $time, $circa) = explode(' ', $answer);
 		} else {
@@ -249,9 +240,15 @@ class Form_Question_Type_Datetime extends Form_Question
 			$circa = 0;
 		}
 
-		$timestamp = iso8601_ts($date . ' ' . $time);
+		$val = Array();
 
-		return ($circa ? 'circa ' : '') . date('l, F jS, Y H:i:s', $timestamp);
+		// break apart the date into correct portions
+		list($val['y'], $val['m'], $val['d']) = sscanf($date, '%04s-%02s-%02s');
+
+		// so we can extract the correct month and day-suffix- using 2000 as it's a leap year
+		$temp_date = mktime(0,0,0,$val['m'],$val['d'],2000);
+
+		return ($circa ? 'circa ' : '') . date('F jS', $temp_date). ', '. (int)$val['y'] . ' ' . $time;
 	
 	}//end getSummary()
 
