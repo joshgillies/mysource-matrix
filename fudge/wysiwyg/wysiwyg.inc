@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: wysiwyg.inc,v 1.20 2003/09/26 05:26:37 brobertson Exp $
+* $Id: wysiwyg.inc,v 1.21 2003/10/07 00:28:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -859,7 +859,10 @@ class wysiwyg {
 	function process()
 	{
 		$html = rawurldecode((isset($_POST[$this->name])) ? $_POST[$this->name] : '');
-		foreach ($this->plugins as $name => $plugin) $plugin->process($html);
+		for(reset($this->plugins); null !== ($k = key($this->plugins)); next($this->plugins)) {
+			$plugin =& $this->plugins[$k];
+			$plugin->process($html);
+		}
 		return $html;
 
 	}//end process()
@@ -1138,11 +1141,9 @@ class wysiwyg {
 	function add_plugin($name)
 	{
 		global $ROOT_PATH;
-		if (isset($this->plugins[$name])) return;
-		$filepath = $ROOT_PATH.'/plugins/'.$name.'/'.$name.'.inc';
-		include_once($filepath);
-		$plugin = new $name($this);
-		$this->plugins[$name] = $plugin;
+		if ($this->plugin_loaded($name)) return true;
+		require_once($ROOT_PATH.'/plugins/'.$name.'/'.$name.'.inc');
+		$this->plugins[$name] = new $name($this);
 		return true;
 
 	}//end add_plugin()
@@ -1163,6 +1164,37 @@ class wysiwyg {
 		return true;
 
 	}//end remove_plugin()
+
+
+	/**
+	* Checks if a plugin has been loaded into the editor
+	*
+	* @param string	$name	The unique name of the plugin
+	*
+	* @return boolean
+	* @access public
+	*/
+	function plugin_loaded($name)
+	{
+		return isset($this->plugins[$name]);
+
+	}//end plugin_loaded()
+
+
+	/**
+	* Get a reference to a plugin object
+	*
+	* @param string	$name	The unique name of the plugin to get
+	*
+	* @return object | NULL
+	* @access public
+	*/
+	function &get_plugin($name)
+	{
+		if (!$this->plugin_loaded($name)) return null;
+		return $this->plugins[$name];
+
+	}//end get_plugin()
 
 
 	/**
