@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.151 2004/06/22 04:39:53 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.152 2004/06/29 05:07:46 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -60,24 +60,6 @@ class Asset_Map
 	function paint(&$backend)
 	{
 		$backend->out->addJsInclude(sq_web_path('lib').'/asset_map/asset_map.js');
-
-		$inbox_link = $GLOBALS['SQ_SYSTEM']->am->getLink($GLOBALS['SQ_SYSTEM']->user->id, SQ_LINK_TYPE_2, 'inbox', true, null, 'major', '1');
-		if (empty($inbox_link)) {
-			$inbox_url = &$GLOBALS['SQ_SYSTEM']->user->getBackendHref();
-		} else {
-			$inbox_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid'], $inbox_link['minor_type_code']);
-			$inbox_url = $inbox_asset->getBackendHref('details');
-		}
-
-		$flash_vars = 'server_exec_path='.rawurlencode($backend->getBackendUrl('asset_map_request')).
-					  '&action_bar_path='.rawurlencode($backend->getBackendUrl().'&backend_section=am'.
-							'&am_section=edit_asset'.
-							'&assetid=%assetid%'.
-							'&sq_asset_path=%asset_path%'.
-							'&sq_link_path=%link_path%'.
-							'&asset_ei_screen=%action%').
-					  '&inbox_path='.rawurlencode($inbox_url).
-					  '&url_frame=sq_main';
 
 		?>
 		<script language="JavaScript" type="text/javascript">
@@ -143,18 +125,9 @@ class Asset_Map
 			break;
 		}
 
-		$inbox_url = '';
-		if ($type == 'complex') {	
-			$inbox_link = $GLOBALS['SQ_SYSTEM']->am->getLink($GLOBALS['SQ_SYSTEM']->user->id, SQ_LINK_TYPE_2, 'inbox', true, null, 'major', '1');
-			if (empty($inbox_link)) {
-				$inbox_url = &$GLOBALS['SQ_SYSTEM']->user->getBackendHref();
-			} else {
-				$inbox_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid'], $inbox_link['minor_type_code']);
-				$inbox_url = $inbox_asset->getBackendHref('details');
-			}
-			$inbox_url = str_replace('.', '', $inbox_url);
-		}
-
+		$root_url = sq_web_path('root_url');
+		if ($root_url{strlen($root_url) - 1} != '/') $root_url = $root_url.'/';
+		
 		// we want to use current_url()
 		require_once SQ_INCLUDE_PATH."/general.inc";
 		?>
@@ -163,11 +136,33 @@ class Asset_Map
 		<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/asset_map.js';?>"></script>
 
 		<applet id="sq_asset_map" width="<?php echo $width; ?>" height="<?php echo $height; ?>"  code="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar?t=<?php echo time(); ?>, <?php echo sq_web_path('lib'); ?>/asset_map/java/crimson.jar" MAYSCRIPT>
-			<param name="BASE_URL" value="<?php echo clean_url(current_url(true, true)); ?>" />
+			<param name="BASE_URL" value="<?php echo $root_url; ?>" />
 			<param name="BACKEND_SUFFIX" value="<?php echo SQ_CONF_BACKEND_SUFFIX; ?>" />
 			<?php
-				if ($type == 'complex')
-				echo '<param name="INBOX_URL" value="'.rawurlencode($inbox_url).'" />';
+				if ($type == 'complex') {
+					$inbox_link = $GLOBALS['SQ_SYSTEM']->am->getLink($GLOBALS['SQ_SYSTEM']->user->id, SQ_LINK_TYPE_2, 'inbox', true, null, 'major', '1');
+					
+					if (empty($inbox_link)) {
+						$inbox_url = &$GLOBALS['SQ_SYSTEM']->user->getBackendHref();
+					} else {
+						$inbox_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid'], $inbox_link['minor_type_code']);
+						$inbox_url = $inbox_asset->getBackendHref('details');
+					}
+					$inbox_url = str_replace('.', '', $inbox_url);
+					
+					$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+					$new_messages = count($ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), null, Array(SQ_MSG_UNREAD), Array(), null, null, 'short_name'));
+					
+					$user = &$GLOBALS['SQ_SYSTEM']->user;
+					$details_url = $user->getBackendHref('details');
+					if ($details_url{0} == '.') $details_url = substr($details_url, 1);
+					
+					?><param name="INBOX_URL" value="<?php echo rawurlencode($inbox_url); ?>" />
+					  <param name="NEW_MSGS" value="<?php echo $new_messages; ?>" />
+					  <param name="DETAILS_URL" value="<?php echo rawurlencode($details_url); ?>" />
+					<?php
+					
+				}
 			?>
 
 			Java is not installed on your system. Please download the latest version of the <a href="http://java.sun.com/webapps/getjava/BrowserRedirect?locale=en&host=www.java.com:80">Java Runtime Environment</a> and return once it has been installed.
@@ -294,13 +289,28 @@ class Asset_Map
 		$user_attrs = Array(
 			'assetid'   => $current_user->id,
 			'type_code' => $current_user->type(),
-			'name'		=> $current_user->name,
+			'name'	    => $current_user->name,
 		);
 		$root = &$output->addRoot('current_user', '', $user_attrs);
-
+		
 		// just get the root's XML not the tree's, because it is part of bigger things and we dont want the version info
 		$current_user_xml = $root->get();
+		
+		$workspace = &$current_user->getWorkspace();
+		$workspace_link = $current_user->getWorkspaceLink();
 
+		$workspace_attrs = Array(
+			'assetid'    => $workspace->id,
+			'type_code'  => $workspace->type(),
+			'name'       => $workspace->name,
+			'status'     => $workspace->status,
+			'linkid'     => $workspace_link['linkid'], 
+			'sort_order' => $workspace_link['sort_order'],
+		);
+		$root = &$output->addRoot('workspace', '', $workspace_attrs);
+
+		$workspace_xml = $root->get();
+		
 		$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 		$attrs = Array(
 			'assetid'   => $root_folder->id,
@@ -331,6 +341,7 @@ class Asset_Map
 		echo "</asset_types>\n";
 
 		echo $current_user_xml;
+		echo $workspace_xml;
 		echo $assets_xml;
 
 		echo "</initialisation>\n";
@@ -546,6 +557,7 @@ class Asset_Map
 				$this->_getChildAssets($child, $assetid);
 			}
 		}
+		
 		$this->_send($output);
 		
 	}//end _getAssets()
