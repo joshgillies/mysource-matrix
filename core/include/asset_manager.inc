@@ -416,7 +416,7 @@ class Asset_Manager extends Resolve_Object
 	*
 	* @access public
 	*/
-	function printBackend(&$backend)
+	function paintBackend(&$backend)
 	{
 
 		$o  = &$backend->out;
@@ -454,16 +454,18 @@ class Asset_Manager extends Resolve_Object
 					$this->registerAsset($asset);
 					if ($parent->createLink($asset, $_GET['link_type'], '', $_GET['pos'])) {
 						$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" successfully linked to "'.$parent->name.'"');
-						$o->addOnLoad('top.sidenav.reload_asset("'.$_GET['parent_assetid'].'");');
 					} else {
 						$o->addMessage(SQ_BO_MSG_WARNING, '"'.$asset->name.'" was not able to be linked to "'.$parent->name.'", it can be found in the trash folder');
 						list($trashid) = $this->getTypeAssetids('trash_folder');
-						// reload the trash folder
-						$o->addOnLoad('top.sidenav.reload_asset("'.$trashid.'");');
+						// broadcast that a link has been created.
+						// Normally the createLink function would do this for us, but it failed
+						// so we will broadcast our own event to say that a new link has been
+						// create to the trash folder
+						$GLOBALS['SQ_SYSTEM']->broadcastEvent('CreateLink', Array('assetid' => $trashid));
 					}
 
 				} else {
-					$asset->printBackend($backend);
+					$asset->paintBackend($backend);
 
 				}// end if
 
@@ -484,14 +486,9 @@ class Asset_Manager extends Resolve_Object
 				$old_name = $asset->name;
 				if (!empty($_POST['am_form_submitted']) && $asset->processBackend()) {
 					$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" Updated');
-					// if the name has changed inform the side nav
-					if ($old_name != $asset->name) {
-						$o->addOnLoad('top.sidenav.reload_asset("'.$asset->id.'");');
-					}
-
 				}// end if
 
-				$asset->printBackend($backend);
+				$asset->paintBackend($backend);
 				break;
 
 			default   :
@@ -499,7 +496,7 @@ class Asset_Manager extends Resolve_Object
 
 		}//end switch
 
-	}//end printBackend();
+	}//end paintBackend();
 
 
 	/**
@@ -528,14 +525,14 @@ class Asset_Manager extends Resolve_Object
 					$custom = new Custom_Asset_Type();
 					if ($custom->create($_REQUEST['am_new_type_code'], $_REQUEST['am_type_code'])) {
 						$o->addFormActionGetVar('am_type_code', $_REQUEST['am_new_type_code']);
-						$custom->printBackend($backend);
+						$custom->paintBackend($backend);
 						return;
 					}
 					break;
 				case 'edit' :
 					$o->addFormActionGetVar('am_type_code', $_REQUEST['am_type_code']);
 					$custom = new Custom_Asset_Type($_REQUEST['am_type_code']);
-					$custom->printBackend($backend);
+					$custom->paintBackend($backend);
 					return;
 					break;
 			}
