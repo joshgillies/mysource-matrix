@@ -505,7 +505,7 @@ class Asset_Manager extends Resolve_Object
 				$sql = db_extras_subquery($db, $sql, Array($sub));
 			}
 		}// end if
-error_log($sql);
+
 		$parents = $db->getCol($sql);
 		if (DB::isError($parents)) {
 			trigger_error($parents->getMessage().'<br/>'.$parents->getUserInfo(), E_USER_ERROR);
@@ -604,7 +604,6 @@ error_log($sql);
 	function assetInTrash($assetid)
 	{
 		$parents = $this->getParents($assetid);
-		error_log(print_r($parents, true));
 		$trash = &$this->getSystemAsset('trash_folder');
 		return (in_array($trash->id, $parents));
 
