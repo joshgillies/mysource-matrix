@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_cell.inc,v 1.8 2004/08/23 04:07:03 gsherwood Exp $
+* $Id: bodycopy_table_cell.inc,v 1.8.4.1 2004/12/09 04:23:29 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -170,12 +170,15 @@ class BodyCopy_Table_Cell extends MySource_Object
 	/**
 	* Prints the content of this cell complete with TD tag
 	*
-	* @param object BodyCopy_Table	&$table	the table object
+	* @param object BodyCopy_Table	&$table		the table object
+	* @param string					$prefix		prefix for form elements
+	* @param boolean				$editing	are we printing an editing interface
+	* @param boolean				$generating	are we generating the content file
 	*
 	* @return void
 	* @access public
 	*/
-	function paint(&$table, $prefix='', $generating=false)
+	function paint(&$table, $prefix='', $editing=false, $generating=false)
 	{
 		if (!isset($this->attributes['linkid'])) return;
 
@@ -194,14 +197,14 @@ class BodyCopy_Table_Cell extends MySource_Object
 			if ($name == 'content_type') continue;
 			// if we're in edit mode, we don't want to colspan anything at all; the colspan
 			// is handled by outer wrapping divs
-			if (($name == 'colspan') && !$generating && $table->writeAccess('content')) continue;
+			if (($name == 'colspan') && $editing && $table->writeAccess('content')) continue;
 			if (strtolower($name) == 'nowrap') {
 				if ($val) echo ' nowrap';
 			} else {
 				echo ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 			}
 		}
-		if (!$generating && $table->writeAccess('content')) {
+		if ($editing && $table->writeAccess('content')) {
 			echo ' style="margin: 2px; vertical-align:top;" id="'.$content_prefix.'_cell"';
 		}
 		echo ">\n";
@@ -214,8 +217,8 @@ class BodyCopy_Table_Cell extends MySource_Object
 				$content_edit->paintBackend($content_type, $content_prefix);
 			} else {
 				ob_start();
-				$content_edit->paint($content_type, $content_prefix, $generating);
-				$cell_content = ob_get_contents();
+					$content_edit->paint($content_type, $content_prefix, $editing, $generating);
+					$cell_content = ob_get_contents();
 				ob_end_clean();
 
 				// format contents for pretty HTML

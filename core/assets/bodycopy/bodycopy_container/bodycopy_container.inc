@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.11.2.2 2004/11/15 02:08:19 gsherwood Exp $
+* $Id: bodycopy_container.inc,v 1.11.2.2.2.1 2004/12/09 04:23:29 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -310,7 +310,7 @@ class Bodycopy_Container extends Asset
 		if (SQ_ROLLBACK_VIEW) {
 			$edit = $this->getEditFns();
 			ob_start();
-				$edit->paint($this, true);
+				$edit->paint($this, false, true);
 				$output = ob_get_contents();
 			ob_end_clean();
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.23 2004/08/19 05:16:03 gsherwood Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.23.4.1 2004/12/09 04:23:31 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -78,7 +78,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 						<td class="sq-backend-table-cell"><b>The nested content is printed below</b></td>
 					</tr>
 					<tr>
-						<td style="border-top: 1px solid black"><br/><?php $this->paint($asset, $prefix);?><br/></td>
+						<td style="border-top: 1px solid black"><br/><?php $this->paint($asset, $prefix, true);?><br/></td>
 					</tr>
 				</table>
 				<?php
@@ -106,12 +106,13 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	*
 	* @param object Content_Type_Nest_Content	&$asset		the nest content content type object
 	* @param string								$prefix		prefix for form elements
+	* @param boolean							$editing	are we printing an editing interface
 	* @param boolean							$generating	are we genenerating the cache file
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paint(&$asset, $prefix, $generating=false)
+	function paint(&$asset, $prefix, $editing=false, $generating=false)
 	{
 		// get the asset - we cant pass the type in because it could be anything
 		// we also mute errors because we check later on
@@ -139,27 +140,34 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		$GLOBALS['SQ_NEST_CONTENT_PAINTED'][$nested_asset->id] = 1;
 
 		// and now actually print it
-		if ($nested_asset->readAccess('')) {
+		if ($editing) {
+			if ($nested_asset->readAccess('')) {
+				ob_start();
+					$nested_asset->printBody();
+					$asset_contents = ob_get_contents();
+				ob_end_clean();
+			} else {
+				$asset_contents = '<span class="sq-backend-warning">You do not have access to view the contents of the nested page</span>';
+			}
+	
+			$form_tags = Array('form', 'input' , 'select', 'option', 'textarea');
+			foreach($form_tags as $tag) {
+				if (stristr($asset_contents, '<'.$tag) !== false) {
+					?>
+					<span class="sq-backend-warning">
+						<b>NOTE:</b> this nested asset contains form elements, therefore you cannot view its 
+						content in the backend.<br/>You can only view the nested content by previewing on the frontend.
+					</span>
+					<?php
+					unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$nested_asset->id]);
+					return true;
+				}
+			}
+		} else {
 			ob_start();
 				$nested_asset->printBody();
 				$asset_contents = ob_get_contents();
 			ob_end_clean();
-		} else {
-			$asset_contents = '<span class="sq-backend-warning">You do not have access to view the contents of the nested page</span>';
-		}
-
-		$form_tags = Array('form', 'input' , 'select', 'option', 'textarea');
-		foreach($form_tags as $tag) {
-			if (stristr($asset_contents, '<'.$tag) !== false) {
-				?>
-				<span class="sq-backend-warning">
-					<b>NOTE:</b> this nested asset contains form elements, therefore you cannot view its 
-					content in the backend.<br/>You can only view the nested content by previewing on the frontend.
-				</span>
-				<?php
-				unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$nested_asset->id]);
-				return true;
-			}
 		}
 
 		echo $asset_contents;
@@ -188,7 +196,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		if (!isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][<?php echo $nested_asset->id?>])) {
 			$GLOBALS['SQ_NEST_CONTENT_PAINTED'][<?php echo $nested_asset->id?>] = 1;
 			$nested_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset(<?php echo $nested_asset->id?>, '', true);
-			if ($nested_asset->id && $nested_asset->readAccess('')) $nested_asset->printBody();
+			if ($nested_asset->id && $nested_asset->readAccess()) $nested_asset->printBody();
 		} else {
 			echo '<font color="red"><b>[ ** RECURSION WARNING ** ]<br/>You are nesting the content of this page inside itself</b></font>';
 		}

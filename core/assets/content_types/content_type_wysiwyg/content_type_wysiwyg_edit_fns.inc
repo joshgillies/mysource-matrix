@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.10 2004/09/09 01:41:06 amiller Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.10.4.1 2004/12/09 04:23:30 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -198,12 +198,13 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	*
 	* @param object Content_Type_WYSIWYG	$asset		the wysiwyg object
 	* @param string							$prefix		prefix for form elements
+	* @param boolean						$editing	are we printing an editing interface
 	* @param boolean						$generating	are we genenerating the cache file
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paint(&$asset, $prefix, $generating=false)
+	function paint(&$asset, $prefix, $editing=false, $generating=false)
 	{
 		$html = $asset->attr('html');
 		$html = preg_replace('|(<htmlarea_special[^>]*?>)(.*?)(</htmlarea_special>)|si', '$2', $html);

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.16.2.1 2004/11/15 02:08:19 gsherwood Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.16.2.1.2.1 2004/12/09 04:23:29 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -115,12 +115,13 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	* Paints this container as HTML
 	*
 	* @param object Bodycopy_Container	&$asset		the container whose interface we are painting
-	* @param booelan					$generating	are we generating the content file
+	* @param boolean					$editing	are we printing an editing interface
+	* @param boolean					$generating	are we generating the content file
 	*
 	* @return void
 	* @access public
 	*/
-	function paint(&$asset, $generating=false)
+	function paint(&$asset, $editing=false, $generating=false)
 	{
 
 	}//end paint()
@@ -140,7 +141,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	{
 		if (!$asset->writeAccess('content')) {
 			if ($asset->readAccess()) {
-				$this->paint($asset);
+				$this->paint($asset, true);
 			} else {
 				echo '<span class="sq-backend-warning">You do not have access to view the contents of this container</span>';
 			}
@@ -214,7 +215,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	function generateContentFile(&$asset)
 	{
 		ob_start();
-			$this->paint($asset, true);
+			$this->paint($asset, false, true);
 			$output = ob_get_contents();
 		ob_end_clean();
 		

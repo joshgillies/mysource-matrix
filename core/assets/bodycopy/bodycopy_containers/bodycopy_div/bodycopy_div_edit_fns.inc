@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.15 2004/09/12 22:37:43 lwright Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.15.4.1 2004/12/09 04:23:29 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -171,12 +171,13 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	* Paints this div as HTML
 	*
 	* @param object Bodycopy_Div	&$asset		the div whose interface we are painting
+	* @param boolean				$editing	are we printing an editing interface
 	* @param booelan				$generating	are we generating the content file
 	*
 	* @return void
 	* @access public
 	*/
-	function paint(&$asset, $generating=false)
+	function paint(&$asset, $editing=false, $generating=false)
 	{
 		$div_attributes = $asset->attr('attributes');
 		if (!isset($div_attributes['layout_type'])) $div_attributes['layout_type'] = 'div';
@@ -220,7 +221,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			} else {
 				$content_edit = &$content_type->getEditFns();
 				$content_prefix = $asset->getPrefix().'_'.get_class($content_type).'_'.$link['linkid'];
-				$content_edit->paint($content_type, $content_prefix, $generating);
+				$content_edit->paint($content_type, $content_prefix, $editing, $generating);
 			}
 		}
 

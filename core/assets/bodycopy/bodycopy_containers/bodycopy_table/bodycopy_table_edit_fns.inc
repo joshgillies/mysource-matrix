@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.13 2004/08/31 11:33:51 brobertson Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.13.4.1 2004/12/09 04:23:30 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -247,12 +247,13 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	* Paints this table as HTML
 	*
 	* @param object Bodycopy_Table	&$asset		the table whose interface we are painting
-	* @param booelan				$generating	are we generating the content file
+	* @param boolean				$editing	are we printing an editing interface
+	* @param boolean				$generating	are we generating the content file
 	*
 	* @return void
 	* @access public
 	*/
-	function paint(&$asset, $generating=false)
+	function paint(&$asset, $editing=false, $generating=false)
 	{
 		$table_rows = $asset->attr('rows');
 		$table_attributes = $asset->attr('attributes');
@@ -284,7 +285,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			echo "\t<tr{$attribute_list}>\n";
 			// now print the cell contents
 			for($x = 0; $x < count($table_rows[$i]['cells']); $x++) {
-				$table_rows[$i]['cells'][$x]->paint($asset, '', $generating);
+				$table_rows[$i]['cells'][$x]->paint($asset, '', $editing, $generating);
 			}
 			echo "\t</tr>\n";
 		}
