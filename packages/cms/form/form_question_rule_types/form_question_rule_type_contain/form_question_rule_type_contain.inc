@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_contain.inc,v 1.9 2004/05/07 05:08:00 lwright Exp $
+* $Id: form_question_rule_type_contain.inc,v 1.10 2004/05/07 05:14:39 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -130,7 +130,7 @@ class Form_Question_Rule_Type_Contain extends Form_Question_Rule
 			$compare_value = '"'.$comparison.'"';
 		}
 
-		$op = ($operator == 1) ? '!=' : '==';
+		$op = ($operator == 1) ? '==' : '!=';
 
 		// this is a form question - get its current value from the form then
 		echo 'if (answer.indexOf('.$compare_value.') '.$op.' -1) {';	// START of js if
