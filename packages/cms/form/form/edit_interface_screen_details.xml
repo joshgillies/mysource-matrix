@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.9 2004/04/23 07:28:07 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.10 2004/06/21 06:50:54 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes">
+	<section name="Details" write_access="none">
 	    <field attribute="name">
 			<display_name>Name</display_name>
 			<note>Defines the name of the form</note>

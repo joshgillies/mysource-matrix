@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.14 2004/06/16 05:54:55 lwright Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.15 2004/06/21 06:50:54 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -78,6 +78,11 @@
 			<display_name>Reset Button Text</display_name>
 			<note>If no custom text is entered here, &quot;Clear Form&quot; will be used.</note>
 			<text width="30" height="1" />
+		</field>
+		<field attribute="note_size">
+			<display_name>Note Text Size</display_name>
+			<note>Question notes (if any) will be displayed at this size.</note>
+			<text width="4" height="1" />
 		</field>
 	</section>
 	<section name="Validation">
