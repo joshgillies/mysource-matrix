@@ -47,9 +47,6 @@ class Form_Email extends Form
 			return false;
 		}
 
-		// give a name to this form asset
-		$this->setAttrValue('name', 'Form Contents');
-
 		// create a section for them to start off with
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('form_section');
 		$section = new Form_Section();
@@ -286,7 +283,7 @@ class Form_Email extends Form
 	* @access public
 	* @return boolean
 	*/
-	function SendToFriends()
+	function sendToFriends()
 	{
 		if ($friends = $this->getSpecialInformation('friend')) {
 			$message = $this->attr('staf_message');
@@ -305,7 +302,7 @@ class Form_Email extends Form
 		}
 		return false;
 	
-	} // end Send_To_Friends()
+	} // end sendToFriends()
 
 
 	/**
