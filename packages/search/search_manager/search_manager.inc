@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.19 2004/09/02 06:34:28 arailean Exp $
+* $Id: search_manager.inc,v 1.20 2004/09/02 07:01:09 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.19 $ - 0.1
+* @version $Revision: 1.20 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1104,6 +1104,19 @@ class Search_Manager extends Asset
 		return isset($words[$word]);
 
 	}//end isWhiteWord()
+
+
+	/**
+	* Return the minimum indexable word lenght
+	*
+	* @return int
+	* @access public
+	*/
+	function getMinWordLength()
+	{
+		return $this->attr('min_word_length');
+
+	}//end getMinWordLength()
 
 
 }//end class
