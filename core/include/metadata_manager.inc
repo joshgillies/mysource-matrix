@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.38 2004/05/20 03:21:31 gsherwood Exp $
+* $Id: metadata_manager.inc,v 1.39 2004/05/26 06:47:56 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -824,105 +824,6 @@ class Metadata_Manager extends MySource_Object
 		return $this->generateContentFile($assetid, true);
 
 	}//end regenerateMetadata()
-
-
-//--        SEARCH INDEXING        --//
-
-
-	/**
-	* Indexes metadata for an asset
-	*
-	* @param Object		&$asset			The asset
-	* @param Array		&$metadata		The values for the metadata
-	* @param Array		&$schemaids		The schema IDs
-	*
-	* @access private
-	* @return void
-	*/
-	function indexMetadata($assetid, $schemaids)
-	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$sm =& $am->getSystemAsset('search_manager');
-		if (!$sm) return false;
-		foreach ($schemaids as $schemaid) {
-			$sectionids = $am->getChildren($schemaid, 'metadata_section', false);
-			foreach ($sectionids as $sectionid => $section_type) {
-				$fieldids = $am->getChildren($sectionid, 'metadata_field', false);
-				foreach ($fieldids as $fieldid => $field_type) {
-					$sm->flushKeyData($assetid, 'metadata:'.$fieldid);
-				}
-			}
-		}
-		$sm->addKeyData($assetid, $this->getMetadataKeyData($assetid, $schemaids));
-
-	}//end indexMetadata()
-
-
-	/**
-	* Builds key data array for indexing, with keyword replacements.
-	*
-	* @param Object		&$asset			The asset
-	* @param Array		&$metadata		The values for the metadata
-	* @param Array		&$schemaids		The schema IDs
-	*
-	* @return Array
-	* @access private
-	*/
-	function getMetadataKeyData($assetid, $schemaids)
-	{
-		// get the default values
-		$keydata = Array();
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$asset =& $am->getAsset($assetid);
-		foreach ($schemaids as $schemaid) {
-			$sectionids = $am->getChildren($schemaid, 'metadata_section', false);
-			$metadata = $this->getSchemaMetadata($assetid, $schemaid);
-
-			foreach ($sectionids as $sectionid => $section_type) {
-				$section = &$am->getAsset($sectionid, $section_type);
-
-				$fieldids = $am->getChildren($sectionid, 'metadata_field', false);
-				foreach ($fieldids as $fieldid => $field_type) {
-
-					$field =& $am->getAsset($fieldid, $field_type);
-
-					if (isset($metadata['sections'][$section->name]['fields'][$field->name]['value'])) {
-						$value = $metadata['sections'][$section->name]['fields'][$field->name]['value'];
-					} else {
-						$value = $field->attr('default');
-					}
-
-					$force_processing = 1; //will tell the function to process values in any case
-
-					// check field_type to define the indexing way
-					if ($field_type == 'metadata_field_date') {
-
-						$mydate = date("d:m:Y:h:i:s", $value);
-						$asset->buildKeyData($keydata, $mydate, 'text', 'metadata:'. $field->id, $field->attr('weighting') * 1, $force_processing);
-
-					} else {
-
-						$keywords = retrieve_keywords_replacements($value, '.');
-
-						$replacements = $this->generateKeywordReplacements($asset, $keywords, false);
-						foreach ($keywords as $keyword => $replacement) {
-							$replacements[$keyword] = strtolower($replacement);
-						}
-						$value = replace_keywords($value, $replacements);
-
-						$word_counts = get_word_counts(strtolower($value));
-
-						foreach ($word_counts as $word => $count) {
-							$asset->buildKeyData($keydata, $word, 'text', 'metadata:'. $field->id, $field->attr('weighting') * $count, $force_processing);
-						}
-
-					}
-				}
-			}
-		}
-		return $keydata;
-
-	}//end getMetadataKeyData()
 
 
 }//end class

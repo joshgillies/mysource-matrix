@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.3 2004/05/20 04:48:35 lwright Exp $
+* $Id: search_manager.inc,v 1.4 2004/05/26 06:48:01 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.3 $ - 0.1
+* @version $Revision: 1.4 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -359,7 +359,112 @@ class Search_Manager extends Asset
 	}// end getAssetWeightings()
 
 	
+//--        METADATA INDEXING        --//
+
+
+	/**
+	* Event fired when metadata manager wants some metadata reindexed
+	*
+	* @param &object Asset	&$broadcaster	the asset that triggered the event (should be meta. mgr)
+	* @param Array			$vars			the vars that get submitted by the broadcaster
+	*										Asset ID is set as $vars['assetid']
+	*										Schema Asset IDs is set as $vars['schemaids']
+	*
+	* @access private
+	* @return void
+	*/
+	function onIndexMetadata(&$broadcaster, $vars=Array())
+	{
+		$assetid = $vars['assetid'];
+		$schemaids =& $vars['schemaids'];
+		// TODO: This needs to be split out
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		foreach ($schemaids as $schemaid) {
+			$sectionids = $am->getChildren($schemaid, 'metadata_section', false);
+			foreach ($sectionids as $sectionid => $section_type) {
+				$fieldids = $am->getChildren($sectionid, 'metadata_field', false);
+				foreach ($fieldids as $fieldid => $field_type) {
+					$this->flushKeyData($assetid, 'metadata:'.$fieldid);
+				}
+			}
+		}
+		$this->addKeyData($assetid, $mm->getMetadataKeyData($assetid, $schemaids));
+
+	}//end indexMetadata()
+
+
+	/**
+	* Builds key data array for indexing, with keyword replacements.
+	*
+	* @param Object		&$asset			The asset
+	* @param Array		&$metadata		The values for the metadata
+	* @param Array		&$schemaids		The schema IDs
+	*
+	* @return Array
+	* @access private
+	*/
+	function getMetadataKeyData($assetid, $schemaids)
+	{
+		// get the default values
+		$keydata = Array();
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+
+		$asset =& $am->getAsset($assetid);
+		foreach ($schemaids as $schemaid) {
+			$sectionids = $am->getChildren($schemaid, 'metadata_section', false);
+			$metadata = $mm->getSchemaMetadata($assetid, $schemaid);
+
+			foreach ($sectionids as $sectionid => $section_type) {
+				$section = &$am->getAsset($sectionid, $section_type);
+
+				$fieldids = $am->getChildren($sectionid, 'metadata_field', false);
+				foreach ($fieldids as $fieldid => $field_type) {
+
+					$field =& $am->getAsset($fieldid, $field_type);
+
+					if (isset($metadata['sections'][$section->name]['fields'][$field->name]['value'])) {
+						$value = $metadata['sections'][$section->name]['fields'][$field->name]['value'];
+					} else {
+						$value = $field->attr('default');
+					}
+
+					$force_processing = 1; //will tell the function to process values in any case
+
+					// check field_type to define the indexing way
+					if ($field_type == 'metadata_field_date') {
+
+						$mydate = date("d:m:Y:h:i:s", $value);
+						$asset->buildKeyData($keydata, $mydate, 'text', 'metadata:'. $field->id, $field->attr('weighting') * 1, $force_processing);
+
+					} else {
+
+						$keywords = retrieve_keywords_replacements($value, '.');
+
+						$replacements = $mm->generateKeywordReplacements($asset, $keywords, false);
+						foreach ($keywords as $keyword => $replacement) {
+							$replacements[$keyword] = strtolower($replacement);
+						}
+						$value = replace_keywords($value, $replacements);
+
+						$word_counts = get_word_counts(strtolower($value));
+
+						foreach ($word_counts as $word => $count) {
+							$asset->buildKeyData($keydata, $word, 'text', 'metadata:'. $field->id, $field->attr('weighting') * $count, $force_processing);
+						}
+
+					}
+				}
+			}
+		}
+		return $keydata;
+
+	}//end getMetadataKeyData()
+
 	
+//--        SEARCH PROCESSING        --//
+
+
 	/**
 	* Processes a search request
 	*
