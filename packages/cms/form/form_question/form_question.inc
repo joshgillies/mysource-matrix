@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.18 2004/04/26 23:30:28 lwright Exp $
+* $Id: form_question.inc,v 1.19 2004/04/26 23:46:21 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -199,7 +199,6 @@ class Form_Question extends Asset
 		$questions[$this->_questionid]['attributes'] = $saved_vars_ser;
 
 		$where = 'assetid = '.$db->quote($this->_formid).' and attributeid = '.$db->quote($form->vars['questions']['attributeid']);
-		print $where;
 		$values = Array('custom_value' => $db->quote(serialize($questions)));
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_attribute_value', $values, $where)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
