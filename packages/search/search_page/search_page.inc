@@ -18,9 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.25 2004/02/12 03:17:11 diarandine Exp $
+* $Id: search_page.inc,v 1.26 2004/02/12 11:24:46 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
+
+require_once SQ_PACKAGES_PATH.'/cms/page/page.inc';
+require_once SQ_FUDGE_PATH.'/general/text.inc';
+require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc'; // for the medatata date field selection
 
 /**
 * Search_Page
@@ -36,12 +41,6 @@
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
-
-require_once SQ_PACKAGES_PATH.'/cms/page/page.inc';
-require_once SQ_FUDGE_PATH.'/general/text.inc';
-require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc'; // for the medatata date field selection
-
 class Search_Page extends Page
 {
 	/**

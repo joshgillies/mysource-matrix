@@ -1,5 +1,4 @@
 <?php
-
 /**
 * +--------------------------------------------------------------------+
 * | Squiz.net Open Source Licence                                      |
@@ -19,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.8 2004/02/10 16:34:05 brobertson Exp $
+* $Id: search_page_management.inc,v 1.9 2004/02/12 11:24:46 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
