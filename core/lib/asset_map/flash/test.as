@@ -4,7 +4,7 @@ _root.test_pressed_count = 0;
 function testOnClick1(component)
 { 
 	trace("BCR");
-	_root.tabs.tree.startAssetFinder();
+	_root.tabs.tree.startAssetFinder(['root_user', 'inbox']);
 //	trace('MENU SIZE : ' + _root.tabs.tree.menu_container._width + 'x' + _root.tabs.tree.menu_container._height);
 //	trace('scroll pane : ' + (_root.tabs.tree.scroll_pane instanceof MovieClip));
 

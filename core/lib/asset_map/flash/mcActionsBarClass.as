@@ -29,32 +29,29 @@ mcActionsBarClass.prototype = new NestedMouseMovieClip(false, NestedMouseMovieCl
 /**
 * Shows the options for the passed assetid
 *
-* @param int	assetid
+* @param Array(string)	actions		the action code to use when a button is pressed
+* @param Array(string)	labels		the corresponding label for each action code
 * @param int	x			the x co-ord for displaying this menu
 * @param int	y			the y co-ord for displaying this menu
 *
 */
-mcActionsBarClass.prototype.show = function(assetid, x, y)
+mcActionsBarClass.prototype.show = function(actions, labels, x, y)
 {
-	this.current_assetid = assetid;
 	this.current_button  = null;
 	this.mouse_over_us   = false;
-	var asset_type = _root.asset_manager.types[_root.asset_manager.assets[assetid].type_code];
 
 	this._x = x;
 	this._y = y;
 
 	var max_width = 0;
 
-	if (asset_type.edit_screens.length > 0) {
-		for(var i = 0; i < asset_type.edit_screens.length; i++) {
-			var c = asset_type.edit_screens[i].code_name;
-			var n = asset_type.edit_screens[i].name;
+	if (actions.length > 0) {
+		for(var i = 0; i < actions.length; i++) {
 
-			var btn_name = "btn_" + c;
+			var btn_name = "btn_" + actions[i];
 			this.buttons.push(btn_name);
 			this.attachMovie("mcActionsBarButtonID", btn_name, this.buttons.length);
-			this[btn_name].setInfo(c, n);
+			this[btn_name].setInfo(actions[i], labels[i]);
 
 			max_width = Math.max(max_width, Math.ceil(this[btn_name].textWidth()));
 
@@ -189,11 +186,8 @@ mcActionsBarClass.prototype.onRelease = function()
 {
 	// if there is a button highlighted, use it
 	if (this.current_button !== null && this[this.current_button].code_name != '') {
-		var link = new String(_root.action_bar_path);
-		link = link.replace("%assetid%", escape(this.current_assetid))
-		link = link.replace("%action%", escape(this[this.current_button].code_name));
-		trace("ACTION BAR link : " + link);
-		getURL(link, _root.action_bar_frame);
+		trace("Action : " + this[this.current_button].code_name);
+		this._parent.actionsBarPressed(this[this.current_button].code_name);
 	}
 
 	this.mouse_over_us = false;

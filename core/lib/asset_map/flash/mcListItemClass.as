@@ -13,6 +13,8 @@ function mcListItemClass()
 	this.pos       = 0;
 	this.indent    = 0;
 
+	this._active = true;
+
 	// the current state that the buttons is in (normal, selected)
 	this.state = "normal";
 	this.actions_bar_interval = 0;
@@ -200,13 +202,30 @@ mcListItemClass.prototype.unselect = function()
 }
 
 /**
+* Called to enable/disable this item
+*
+* @param boolean	active		are we active or not
+* 
+*/
+mcListItemClass.prototype.setActive = function(active)
+{
+	trace("SET ACTIVE : " + active);
+	this._active = active;
+	var text_format = this.text_field.getTextFormat();
+	text_format.color = (this._active) ? 0x000000 : 0x999999;
+	this.text_field.setTextFormat(text_format); 
+
+}// end setActive()
+
+
+/**
 * Called when this item has been pressed
 */
 mcListItemClass.prototype.onPress = function()
 {
 	this._parent.selectItem(this);
 	// try the kids, but it they don't want it then set the interval for the actions bar
-	if (!super.onPress()) {
+	if (!super.onPress() && this._active) {
 		this.actions_bar_interval = setInterval(this, "showActionsBar", 200);
 	}
 	return true;

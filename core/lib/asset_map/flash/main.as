@@ -67,7 +67,7 @@ _root.LIST_ITEM_END_BRANCH_GAP = 10;
 // the colours for the background of a list item
 _root.LIST_ITEM_BG_COLOURS = {
 							normal:   {colour: 0xFFFFFF, alpha: 0},   // alpha = 0 -> transparent
-							selected: {colour: 0x999999, alpha: 100}
+							selected: {colour: 0xc0c0c0, alpha: 100}
 							};  
 
   ///////////////////////////////////////////////////

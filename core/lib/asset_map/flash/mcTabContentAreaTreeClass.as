@@ -43,6 +43,8 @@ function mcTabContentAreaTreeClass()
 	// Used for Asset Finder
 	_root.external_call.addListener(this);
 
+	this.finding_asset = false;
+
 }// end constructor()
 
 // Make it inherit from Tab Content Area
@@ -109,8 +111,8 @@ mcTabContentAreaTreeClass.prototype.onExternalCall = function(cmd, params)
 			for (var i = 0; i < xml.firstChild.childNodes.length; i++) {
 				// get a reference to the child node
 				var node = xml.firstChild.childNodes[i];
-				if (node.nodeName.toLowerCase() == "message") {
-					type_codes.push({type: node.attributes.type, text: node.firstChild.nodeValue}); 
+				if (node.nodeName.toLowerCase() == "type_code" && node.attributes.name !== undefined) {
+					type_codes.push(node.attributes.name); 
 				}//end if
 			}//end for
 			this.startAssetFinder(type_codes);
@@ -129,8 +131,11 @@ mcTabContentAreaTreeClass.prototype.onExternalCall = function(cmd, params)
 */
 mcTabContentAreaTreeClass.prototype.startAssetFinder = function(type_codes) 
 {
-	trace("START ASSET FINDER");
+	trace("START ASSET FINDER : " + type_codes);
 	trace("UNDEFINED : " (this.asset_finder_heading == undefined));
+
+	this.finding_asset = true;
+
 	// if we haven't created the heading before do so now
 	if (this.asset_finder_heading == undefined) {
 		trace('Attach');
@@ -142,9 +147,25 @@ mcTabContentAreaTreeClass.prototype.startAssetFinder = function(type_codes)
 	this.asset_finder_heading.setWidth(this.menu_container._width);
 
 	this.asset_finder_heading._visible = true;
-	this.menu_container._visible = false;
+	this.menu_container._visible = false
+	trace("SET START ASSET FINDER");
+	this.list_container.startAssetFinder(type_codes);
 
 }// end startAssetFinder()
+
+/**
+* Stops the asset finder
+*
+* @access public
+*/
+mcTabContentAreaTreeClass.prototype.stopAssetFinder = function() 
+{
+	this.asset_finder_heading._visible = false;
+	this.menu_container._visible = true;
+	this.list_container.stopAssetFinder();
+	this.finding_asset = false;
+
+}// end stopAssetFinder()
 
 
 /**
@@ -154,10 +175,26 @@ mcTabContentAreaTreeClass.prototype.startAssetFinder = function(type_codes)
 */
 mcTabContentAreaTreeClass.prototype.cancelAssetFinder = function() 
 {
-	this.asset_finder_heading._visible = false;
-	this.menu_container._visible = true;
+	this.stopAssetFinder();
+	_root.external_call.makeExternalCall('asset_finder_done', {assetid: 0, label: ''});
 
 }// end cancelAssetFinder()
+
+
+/**
+* Finishs the asset finder (ie we have found the asset we are going to use)
+*
+* @param int	assetid		the assetid to use
+*
+* @access public
+*/
+mcTabContentAreaTreeClass.prototype.finishAssetFinder = function(assetid) 
+{
+	this.stopAssetFinder();
+	trace("Asset Finder Select's Assetid : " + assetid);
+	_root.external_call.makeExternalCall('asset_finder_done', {assetid: assetid, label: _root.asset_manager.assets[assetid].name});
+
+}// end finishAssetFinder()
 
 
 Object.registerClass("mcTabContentAreaTreeID", mcTabContentAreaTreeClass);

@@ -40,6 +40,7 @@ class Asset_Map
 					  '&action_bar_frame='.rawurlencode('main');
 
 		?>
+		<br>
 		<script language="JavaScript" type="text/javascript">
 		<!--
 			var flash_InternetExplorer = navigator.appName.indexOf("Microsoft") != -1;
@@ -47,14 +48,14 @@ class Asset_Map
 			function asset_map_DoFSCommand(command, args) 
 			{
 				//var asset_mapObj = flash_InternetExplorer ? asset_map : document.asset_map;
-				if (command == "msgbox") {
-					alert(args);
+				if (command == "flashToJsCall") {
+					flashToJsCall(args);
 				}
 			}
 			// Hook for Internet Explorer 
 			if (navigator.appName && navigator.appName.indexOf("Microsoft") != -1 && 
 				navigator.userAgent.indexOf("Windows") != -1 && navigator.userAgent.indexOf("Windows 3.1") == -1) {
-				document.write('<SCRIPT LANGUAGE=VBScript\> \n');
+				document.write('<SCRIPT LANGUAGE="VBScript"\> \n');
 				document.write('on error resume next \n');
 				document.write('Sub asset_map_FSCommand(ByVal command, ByVal args)\n');
 				document.write('  call asset_map_DoFSCommand(command, args)\n');
@@ -62,16 +63,13 @@ class Asset_Map
 				document.write('</SCRIPT\> \n');
 			}
 
-
-
-
 			// Reload the passed assetid in the flash
 			function reload_asset(assetid) 
 			{
 				//var asset_mapObj = flash_InternetExplorer ? asset_map : document.asset_map;
 				var asset_mapObj = document.asset_map;
 				//alert("Reload Assetid : " + assetid);
-				flashExternalCall(asset_mapObj, 'reload_asset', {assetid: assetid});
+				jsToFlashCall(asset_mapObj, 'reload_asset', {assetid: assetid});
 			}
 
 			// Reload the passed assetid in the flash
@@ -80,11 +78,43 @@ class Asset_Map
 				//var asset_mapObj = flash_InternetExplorer ? asset_map : document.asset_map;
 				var asset_mapObj = document.asset_map;
 				//alert("Add Message : " + xml);
-				flashExternalCall(asset_mapObj, 'add_message', {msgs_xml: xml});
+				jsToFlashCall(asset_mapObj, 'add_message', {msgs_xml: xml});
 			}
 
+			/*
+			* Reload the passed assetid in the flash
+			*
+			* @param string	xml	xml content holding the type codes that are allowed to selected
+			*
+			*/
+			var ASSET_FINDER_CALL_BACK = null;
+			function asset_finder(fn, xml) 
+			{
+				if (ASSET_FINDER_CALL_BACK !== null) return;
+				ASSET_FINDER_CALL_BACK = fn;
+				var asset_mapObj = document.asset_map;
+				//alert("Asset Finder : " + xml);
+				registerFlashToJsCall('asset_finder_done', asset_finder_done)
+				jsToFlashCall(asset_mapObj, 'asset_finder', {type_codes_xml: xml});
+			}
+
+			/*
+			* Reload the passed assetid in the flash
+			*
+			* @param string	xml	xml content holding the type codes that are allowed to selected
+			*
+			*/
+			function asset_finder_done(params) 
+			{
+				if (ASSET_FINDER_CALL_BACK === null) return;
+				//alert("ASSET FINDER DONE : " + params.assetid + );
+				ASSET_FINDER_CALL_BACK(params.assetid, params.label);
+				ASSET_FINDER_CALL_BACK = null;
+			}
+
+
 		//-->
-		</SCRIPT>
+		</script>
 		<object id="asset_map" width="100%" height="100%" classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0">
 			 <param name="movie"   value="<?php echo sq_web_path('lib'); ?>/asset_map/flash/asset_map.swf">
 			 <param name="quality" value="high">
@@ -205,6 +235,13 @@ class Asset_Map
 		$root = &$output->addRoot('assets', '');
 		for($i = 0; $i < count($input->root->children); $i++) {
 			if (empty($input->root->children[$i]->attributes['assetid'])) continue;
+//			if (empty($input->root->children[$i]->attributes['assetid'])) {
+//				if (empty($input->root->children[$i]->attributes['current_user'])) {
+//					continue;
+//				} else {
+//					$input->root->children[$i]->attributes['assetid'] = $GLOBALS['SQ_SYSTEM']->currentUserId();
+//				}
+//			}
 
 			$assetid = $input->root->children[$i]->attributes['assetid'];
 

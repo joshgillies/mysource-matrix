@@ -97,10 +97,52 @@ mcListContainerClass.prototype.showActionsBar = function()
 	// mouse cursor and then trick it into thinking that the mouse has just been 
 	// pressed
 	this.onRelease();
-	this.actions_bar.show(this.list.selected_item.assetid, this._xmouse - 5, this._ymouse - 5);
+	// are we in asset finder mode ?
+	if (this._parent.finding_asset) {
+		this.actions_bar.show(['use_me'], ['Use Me'], this._xmouse - 5, this._ymouse - 5);
+	} else {
+
+		var asset_type = _root.asset_manager.types[this.list.selected_item.type_code];
+		var actions = new Array();
+		var labels  = new Array();
+
+		for(var i = 0; i < asset_type.edit_screens.length; i++) {
+			actions.push(asset_type.edit_screens[i].code_name);
+			labels.push(asset_type.edit_screens[i].name);
+		}// end for
+
+		this.actions_bar.show(actions, labels, this._xmouse - 5, this._ymouse - 5);
+	}
 	this.onPress();
 
 }// end showActionsBar()
+
+/**
+* Fired when the mouse button was pressed over us and when it's lifted and it's still over us
+*
+* @param string action		the action that was pressed in the action bar
+*
+* @access public
+*/
+mcListContainerClass.prototype.actionsBarPressed = function(action) 
+{
+	trace("Actions Bar Pressed : " + action);
+
+	// are we in asset finder mode ?
+	if (this._parent.finding_asset) {
+		trace("Finding Asset");
+		if (action == 'use_me') {
+			trace("finish asset finder");
+			this._parent.finishAssetFinder(this.list.selected_item.assetid);
+		}
+	} else {
+		var link = new String(_root.action_bar_path);
+		link = link.replace("%assetid%", escape(this.list.selected_item.assetid))
+		link = link.replace("%action%", escape(action));
+		trace("ACTION BAR link : " + link);
+		getURL(link, _root.action_bar_frame);
+	}// end if
+}// end actionsBarPressed()
 
 mcListContainerClass.prototype.onRelease = function() 
 {
@@ -196,6 +238,29 @@ mcListContainerClass.prototype.xmlGotoUrl = function(xml, exec_identifier)
 	getURL(link, frame);
 
 }// end xmlGotoUrl()
+
+/**
+* Starts the asset finder
+*
+* @param Array(string)	type_codes		the allowed type codes in the asset finder
+*
+* @access public
+*/
+mcListContainerClass.prototype.startAssetFinder = function(type_codes) 
+{
+	trace("List Container : " + type_codes);
+	this.list.restrictActiveTypes(type_codes);
+}// end startAssetFinder()
+
+/**
+* Stops the asset finder
+*
+* @access public
+*/
+mcListContainerClass.prototype.stopAssetFinder = function(type_codes) 
+{
+	this.list.restrictActiveTypes([]);
+}// end stopAssetFinder()
 
 
 Object.registerClass("mcListContainerID", mcListContainerClass);

@@ -29,6 +29,9 @@ function mcListItemContainerClass()
 	// some current settings/flags
 	this.action      = "";
 
+	// the types codes that we are restricting active status of assets to
+	this._active_type_codes = new Array();
+
 	// a temp object that can hold any run-time data
 	this.tmp = new Object();
 
@@ -182,6 +185,8 @@ mcListItemContainerClass.prototype._createItem = function(parent_name, item_name
 		this[item_name].setLinkId(linkid);
 		this[item_name].setAsset(_root.asset_manager.assets[assetid]);
 		this[item_name].setIndent(indent);
+		var active = (this._active_type_codes.length == 0 || this._active_type_codes.search(this[item_name].type_code) !== null);
+		this[item_name].setActive(active);
 
 		if (this.asset_list_items[assetid] == undefined) this.asset_list_items[assetid] = new Array();
 		this.asset_list_items[assetid].push(item_name);
@@ -447,6 +452,29 @@ mcListItemContainerClass.prototype.refreshDisplay = function(start_i)
 	}// end for
 
 }// end refreshDisplay()
+
+
+/**
+* Refreshes the display of the items, from a certain position onwards
+* don't inform our parent
+*
+* @param Arrsy(string) start_i   the index in the items_order array to start the refresh from
+*
+* @access public
+*/
+mcListItemContainerClass.prototype.restrictActiveTypes = function(type_codes)
+{
+	trace("Restrict Active Types : " + type_codes);
+	this._active_type_codes = type_codes;
+
+	for(var i = 0; i < this.items_order.length; i++) {
+		// if there are no type codes or this is one of the active type_codes, set it so
+		var active = (this._active_type_codes.length == 0 || this._active_type_codes.search(this[this.items_order[i].name].type_code) !== null);
+		trace(this.items_order[i].name + " : " + (this._active_type_codes.length == 0) + " || " + (this._active_type_codes.search(this[this.items_order[i].name].type_code) !== null));
+		this[this.items_order[i].name].setActive(active);
+	}// end for
+
+}// end restrictActiveTypes()
 
 /**
 * Returns the position of the item in the items_order array that is under the
