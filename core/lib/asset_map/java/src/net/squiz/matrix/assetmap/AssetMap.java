@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetMap.java,v 1.11 2005/03/01 00:50:17 mmcintyre Exp $
+* $Id: AssetMap.java,v 1.12 2005/03/06 22:13:26 mmcintyre Exp $
 *
 */
 
@@ -51,7 +51,11 @@ public class AssetMap extends JApplet implements InitialisationListener {
 	protected static JSObject window;
 	public static AssetMap applet;
 	private javax.swing.Timer timer;
-
+	public static final int POLLING_TIME = 2000;
+	
+	/**
+	 * Constructs the Asset Map
+	 */
 	public AssetMap() {
 		try {
 			UIManager.setLookAndFeel(new MatrixLookAndFeel());
@@ -67,83 +71,139 @@ public class AssetMap extends JApplet implements InitialisationListener {
 		return applet;
 	}
 
-	public static void getURL(String url) {
-		try {
-			applet.getAppletContext().showDocument(new URL(url), "sq_main");
-		} catch (MalformedURLException mue) {
-			mue.printStackTrace();
-		}
+	/**
+	 * Opens the specfied url in the sq_main frame of the matrix system.
+	 * @param url the url to open in the sq_main frame
+	 */
+	public static void getURL(String url) throws MalformedURLException {
+		applet.getAppletContext().showDocument(new URL(url), "sq_main");
 	}
 
-	public static void openWindow(String url, String title, String options) {
-		if (window == null) {
+	/**
+	 * Operns a new browser window to the specified url
+	 * @param url the url to open
+	 * @param title the title to show in the browser window
+	 * @see getURL(String)
+	 */
+	public static void openWindow(String url, String title) {
+		if (window == null)
 			window = JSObject.getWindow(applet);
-		}
 		window.call("open_hipo", new Object[] { url } );
 	}
 
 	public void initialisationComplete(InitialisationEvent evt) {}
 
+	
+	/**
+	 * Initialises the asset map.
+	 * @see start()
+	 * @see init()
+	 */
 	public void init() {
 		window = JSObject.getWindow(this);
 		loadParameters();
 		getContentPane().add(createApplet());
-		
-		// Polling timer
-		ActionListener taskPerformer = new ActionListener() {
-			public void actionPerformed(ActionEvent evt) {
-				if (window == null)
-					JSObject.getWindow(AssetMap.this);
-
-				String assetids = (String) window.getMember("SQ_REFRESH_ASSETIDS");
-				if (!assetids.equals("")) {
-					AssetManager.refreshAssets(assetids);
-					window.eval("SQ_REFRESH_ASSETIDS = '';");
-				}
-			}
-		};
-
-		timer = new javax.swing.Timer(2000, taskPerformer);
-		timer.setDelay(5000);
-		timer.start();
 	}
 
 	/**
 	 * Starts the applet.
+	 * This is where the initial request is made to the matrix system for
+	 * the current assets and asset types. The request happens in a swing safe
+	 * worker thread and the GUI is updated upon completion of the request.
 	 * @see JApplet.start()
 	 * @see stop()
 	 * @see init()
 	 */
 	public void start() {
+		initAssetMap();
+		startPolling();
+	}
+	
+	/**
+	 * Initialises the asset map by making a request to the matrix system for
+	 * the current assets and asset types in the system.
+	 */
+	protected void initAssetMap() {
 		// get a swing worker to call init in AssetManager
 		// when it returns set the root node to all trees
+		MatrixStatusBar.setStatus("Initialising...");
 		SwingWorker worker = new SwingWorker() {
 			public Object construct() {
-				MatrixStatusBar.setStatus("Initialising...");
 				MatrixTreeNode root = null;
 				try {
 					root = AssetManager.init();
 				} catch (IOException ioe) {
+					return ioe;
+				}
+				return root;
+			}
+			
+			public void finished() {
+				Object get = get();
+				// success
+				if (get instanceof MatrixTreeNode) {
+					MatrixTreeModelBus.setRoot((MatrixTreeNode) get());
+					MatrixStatusBar.setStatusAndClear("Success!", 1000);
+				// error
+				} else if (get instanceof IOException) {
+					IOException ioe = (IOException) get;
 					GUIUtilities.error(
 						AssetMap.this, ioe.getMessage(), "Initilisation Failed!");
 					MatrixStatusBar.setStatusAndClear("Initilisation Failed!", 1000);
 					Log.log("Could not initialise the asset map", AssetMap.class, ioe);
 				}
-				return root;
-			}
-			public void finished() {
-				MatrixTreeModelBus.setRoot((MatrixTreeNode) get());
-				MatrixStatusBar.setStatusAndClear("Success!", 1000);
 			}
 		};
 		worker.start();
 	}
 	
 	/**
+	 * Starts the polling operation to refresh assets that Matrix deems stale.
+	 * The polling operation is polled at POLLING_TIME intervals. When javascript
+	 * array is not empty, the assetids are used in a refresh operation.
+	 * @see POLLING_TIME
+	 */
+	protected void startPolling() {
+		// Polling timer
+		ActionListener taskPerformer = new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				if (window == null)
+					JSObject.getWindow(AssetMap.this);
+
+				String assetidsStr = (String) window.getMember("SQ_REFRESH_ASSETIDS");
+				// if the string isn't empty, we have some work to do.
+				// split the string for the asset ids and get the refresh worker
+				// to start the refresh operation
+				if (assetidsStr != null && !assetidsStr.equals("")) {
+					String[] assetids = assetidsStr.split(",");
+					AssetRefreshWorker worker = new AssetRefreshWorker(assetids, false) {
+						// return a custom message for the wait message
+						protected String getStatusBarWaitMessage() {
+							return "Auto Refreshing...";
+						}
+					};
+					worker.start();
+					// clear the assets that we have refreshed
+					window.eval("SQ_REFRESH_ASSETIDS = '';");
+				}
+			}
+		};
+		timer = new javax.swing.Timer(POLLING_TIME, taskPerformer);
+		timer.start();
+	}
+	
+	/**
 	 * Load the parameters from the applet tag and add them to
-	 * our property set.
+	 * our property set. Parameters are stored in the Matrix property set
+	 * and can be accessed with:
+	 * <pre>
+	 *  String prop = Matrix.getParameter("parameter." + propertyName);
+	 * </pre>
+	 * @see Matrix.getParameter(String)
 	 */
 	public void loadParameters() {
+		// get the list of parameters availble to the asset map
+		// and store them in the matrix property set.
 		String paramStr = getParameter("parameter.params");
 		String[] params = paramStr.split(",");
 
@@ -151,12 +211,21 @@ public class AssetMap extends JApplet implements InitialisationListener {
 			Matrix.setProperty(params[i], getParameter(params[i]));
 	}
 
+	/**
+	 * Stops the asset map and polling.
+	 * @see start()
+	 * @see init()
+	 */
 	public void stop() {
 		timer.stop();
 		timer = null;
 	}
 
-	private JTabbedPane createApplet() {
+	/**
+	 * Creates the asset map's interface.
+	 * @return the compoent to add to the content pane.
+	 */
+	protected JComponent createApplet() {
 		getContentPane().setBackground(new Color(0x342939));
 
 		pane = new MatrixTabbedPane(JTabbedPane.LEFT);
