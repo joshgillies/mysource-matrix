@@ -72,6 +72,7 @@ class Trash_Folder extends Folder
 
 	}//end create()
 
+
 	/**
 	* Creates a duplicate of this asset. It DOES NOT duplicate the links that this asset has either to it or from it
 	* Returns a reference to the new object or if an error occured FALSE
@@ -87,7 +88,8 @@ class Trash_Folder extends Folder
 		trigger_error('Unable to duplicate Trash Folder, you are only allowed one', E_USER_WARNING);
 		$null = NULL; // 'cause we need to return by reference :)
 		return $null;
-	}
+	}//end duplicate()
+
 
 	/**
 	* Morph's this asset to either one of it's parent type or one of it's children types
@@ -103,7 +105,8 @@ class Trash_Folder extends Folder
 	{
 		trigger_error('Unable to morph Trash Folder', E_USER_WARNING);
 		return false;
-	}
+	}//end morph()
+
 
 	/*
 	* Set the value for the passed variable to the passed value
@@ -121,7 +124,8 @@ class Trash_Folder extends Folder
 
 	}//end setAttrValue()
 
-	/*
+
+	/**
 	* Moves a link from one place in this assets links order to another position
 	*
 	* @param int	$linkid		the link id of the link to move about
