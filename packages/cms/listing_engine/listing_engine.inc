@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.21 2005/03/08 05:36:10 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.22 2005/03/08 22:14:44 tbarrett Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -999,7 +999,6 @@ class Listing_Engine extends Page
 		}//end if using default format
 
 		if ($this_needs_asset) {
-			bam("Needs asset");
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (is_null($asset)) return;
 			$asset_keywords = $asset->getAssetKeywords();
