@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.24 2004/08/25 05:23:04 mnyeholt Exp $
+* $Id: insert_link.php,v 1.25 2004/11/10 22:38:32 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -271,7 +271,7 @@ if (!isset($_GET['new_window'])) {
 														</tr>
 														<tr>
 															<td class="label">Select Asset:</td>
-															<td colspan="3"><?php asset_finder('assetid', $_GET['assetid'], Array(), '', 'setUrl'); ?></td>
+															<td colspan="3"><?php asset_finder('assetid', $_GET['assetid'], Array(), '', false, 'setUrl'); ?></td>
 														</tr>
 														<tr>
 															<td class="label">Anchor Name:</td>
