@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.25 2004/10/11 06:24:25 arailean Exp $
+* $Id: form_section.inc,v 1.26 2004/10/15 03:13:35 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -556,6 +556,51 @@ class Form_Section extends Bridge
 	}//end fileRegeneration()
 
 
+	/**
+	* Clones certain specified components of the asset
+	*
+	* @param object asset &$clone the clone asset shell
+	* @param array			$components	the wanted components to clone eg.
+	*                       Array(
+	*                           'attributes',
+	*                           'metadata_shemas',
+	*                           'metadata',
+	*                           'workflow',
+	*                           'permissions',
+	*                           'data'
+	*                       );
+	*                       or alternately
+	*                       Array('all');
+	* 
+	* @return boolean
+	* @access public
+	* @see asset::cloneComponents()
+	*/
+	function cloneComponents(&$clone, $components)
+	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		
+		if (!parent::cloneComponents($clone, $components)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;			
+		}
+		
+		if (in_array('attributes', $components) || in_array('all', $components)) {
+			$sort_order = $this->attr('sort_order');
+			$sort_order = str_replace($this->id.':q', $clone->id.':q', $sort_order);
+						
+			// save the information
+			$clone->setAttrValue('sort_order', $sort_order);
+			$clone->saveAttributes();
+			
+		}
+		
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');		
+		return true;
+	
+	}//end cloneComponents()
+	
+	
 	/**
 	* returns the count of questions linked to this section
 	*
