@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap.inc,v 1.2 2004/03/03 00:00:01 gsherwood Exp $
+* $Id: ldap.inc,v 1.3 2004/04/14 01:58:30 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -166,18 +166,21 @@ class Ldap
 	/**
 	* Search the server starting at $startdn using $filter
 	*
-	* @param string		$startdn	the DN to start searching at
-	* @param string		$filter		search filter
+	* @param string		$startdn		the DN to start searching at
+	* @param string		$filter			search filter
+	* @param boolean	$multi_level	search multiple levels
+	* @param boolean	$multi_result	search for multiple entries
 	*
 	* @return resource (search result identifier) | zero (on error)
 	* @access public
 	*/
-	function search($startdn, $filter, $multi_level=true)
+	function search($startdn, $filter, $multi_level=true, $multi_result=true)
 	{
 		if (!$this->ptr) return 0;
 
-		if ($multi_level) $sr = ldap_search($this->ptr, $startdn, $filter);
-		else $sr = ldap_list($this->ptr, $startdn, $filter);
+		if ($multi_level && $multi_result) $sr = ldap_search($this->ptr, $startdn, $filter);
+		else if ($multi_result) $sr = ldap_list($this->ptr, $startdn, $filter);
+		else $sr = ldap_read($this->ptr, $startdn, $filter);
 
 		if (!$sr) {
 			trigger_error('Unable to SEARCH ['.$startdn.'] with Filter ['.$filter.']: '.ldap_error($this->ptr), E_USER_WARNING);
