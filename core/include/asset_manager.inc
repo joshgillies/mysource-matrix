@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.208 2004/05/13 04:10:28 lwright Exp $
+* $Id: asset_manager.inc,v 1.209 2004/05/14 05:58:54 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -707,29 +707,35 @@ class Asset_Manager extends MySource_Object
 		$this->_assets[$obj->id]['object'] = &$obj;
 		$this->_assets[$obj->id]['count']  = 1;
 
-	}//end rememberAsset();
+	}//end rememberAsset()
 
 
 	/**
 	* Tell the asset manager that you have finished with the asset, when everyone has finished with the
 	* asset is is removed from the asset store
 	*
-	* @param object Asset	&$obj	the asset to be unregistered
+	* @param object Asset	&$obj			the asset to be unregistered
+	* @param boolean 		$force_clean	force the asset manager to forget this asset rather
+	*										than just reducing its entires (only used by the asset itself
+	*										during a purge)
 	*
 	* @see rememberAsset()
 	* @access public
 	* @return void
 	*/
-	function forgetAsset(&$obj)
+	function forgetAsset(&$obj, $force_clean=false)
 	{
 		// wrong class or no id, cya
 		if (!is_object($obj) || !is_a($obj, 'asset') || !$obj->id) return;
 		if (isset($this->_assets[$obj->id])) {
-			if ($this->_assets[$obj->id]['count'] > 1) $this->_assets[$obj->id]['count']--;
-			else unset($this->_assets[$obj->id]);
+			if ($this->_assets[$obj->id]['count'] > 1 && !$force_clean) {
+				$this->_assets[$obj->id]['count']--;
+			} else {
+				unset($this->_assets[$obj->id]);
+			}
 		}
 
-	}//end forgetAsset();
+	}//end forgetAsset()
 
 
 	/**
