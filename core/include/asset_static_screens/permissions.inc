@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.4 2004/02/06 03:09:54 gsherwood Exp $
+* $Id: permissions.inc,v 1.5 2004/06/17 00:50:32 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -161,16 +161,29 @@ function paintPermissions(&$owner, &$o, &$ei)
 						?>
 					</tr>
 				<?php
+				$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($userids, 'user', false);
+
 				foreach($userids as $userid) {
+					$valid_user = true;
 					if ($userid) {
-						$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
-						if (!$user->id || (!is_a($user, 'user') && !is_a($user, 'user_group'))) continue;
+
+						if (!isset($user_info[$userid])) {
+							$valid_user = false;
+						} else {
+							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+							if (!$user->id || (!is_a($user, 'user') && !is_a($user, 'user_group'))) continue;
+						}
+
 					}
 				?>
 					<tr>
 						<td class="sq-backend-table-cell">
 					<?php
-						echo (($userid) ? $user->name.' ['.$user->type().' : '.$userid.']' : 'Public Access');
+						if (!$valid_user) {
+							echo ('<span class="sq-backend-warning"><b>Deleted user or user group</b> ['.$userid.']</span>');
+						} else {
+							echo (($userid) ? $user->name.' ['.$user->type().' : '.$userid.']' : 'Public Access');
+						}
 					?>
 						</td>
 					<?php
