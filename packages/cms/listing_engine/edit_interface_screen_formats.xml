@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_formats.xml,v 1.1 2005/02/11 00:48:39 lwright Exp $
+* $Id: edit_interface_screen_formats.xml,v 1.2 2005/02/21 10:34:17 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -30,7 +30,6 @@
 			<note></note>
 			<function_call>
 				<paint_function   name="paintDefaultFormatLinks"   />
-				<process_function name="processDefaultFormatLinks" />
 			</function_call>
 		</field>
 	</section>

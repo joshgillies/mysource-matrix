@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.2 2005/02/15 03:10:03 lwright Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.3 2005/02/21 10:34:17 brobertson Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -615,19 +615,6 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		return false;
 
 	}//end paintDefaultFormatLinks()
-
-
-	/**
-	* Does nothing
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processDefaultFormatLinks()
-	{
-		return false;
-
-	}//end processDefaultFormatLinks()
 
 
 	/**
