@@ -37,7 +37,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 	// if this is a serious error, do a backtrace
 	$bt_str = '';
-	if ((E_USER_ERROR | E_ERROR) & $err_no) {
+	if ($err_no & ~E_USER_NOTICE) {
 		ob_start();
 		$bt = debug_backtrace();
 		print_r($bt);
