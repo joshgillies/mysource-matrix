@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.290 2005/03/22 22:17:40 arailean Exp $
+* $Id: asset_manager.inc,v 1.291 2005/03/24 04:44:50 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.290 $
+* @version $Revision: 1.291 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -109,8 +109,8 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns the asset types and their information.
 	*
-	* @param  boolean   $instantiable		does the asset type need to instanstiable or not ? NULL = don't care
-	* @param  boolean   $non_system_access	we don't want assets that only have system access
+	* @param boolean	$instantiable		does the asset type need to instanstiable or not ? NULL = don't care
+	* @param boolean	$non_system_access	we don't want assets that only have system access
 	*
 	* @return Array(type_code => Array(info))
 	* @access public
@@ -438,8 +438,8 @@ class Asset_Manager extends MySource_Object
 	* Returns an array representing the class hierarchy for the asset types, either for whole system
 	* or for under the the passed asset type
 	*
-	* @param string		$base_type_code			the asset type's hierarchy to return
-	* @param string		$allowed_access
+	* @param string	$base_type_code	the asset type's hierarchy to return
+	* @param string	$allowed_access
 	*
 	* @return array
 	* @access public
@@ -909,9 +909,7 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns an assetid for a system asset if it exists
 	*
-	* @param string		$name			the name of the system asset
-	*									'root_folder', 'trash_folder', 'system_user_group',
-	*									'root_user', 'designs_folder', 'login_design', 'cron_manager'
+	* @param string		$name	the name of the system asset 'root_folder', 'trash_folder' etc
 	*
 	* @return mixed [string|boolean] assetid if found, false if not
 	* @access public
@@ -968,7 +966,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function resetSystemAssetList()
 	{
-		unset($this->_system_assetids);
+		$this->_system_assetids = Array();
 
 	}//end resetSystemAssetList()
 
@@ -998,9 +996,7 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns a reference to a system asset
 	*
-	* @param string		$name			the name of the system asset
-	*									'root_folder', 'trash_folder', 'system_user_group',
-	*									'root_user', 'designs_folder', 'login_design', 'cron_manager'
+	* @param string		$name			the name of the system asset 'root_folder', 'trash_folder' etc
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
 	*
