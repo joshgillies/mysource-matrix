@@ -378,7 +378,9 @@ class HIPO_Job extends MySource_Object
 	function _save($ignore_running_mode=false)
 	{
 		// if we have called save and we aren't the running version, bugger off
-		if (!$ignore_running_mode && $this->_current_mode != $this->_hipo_vars['running_mode']) return false;
+		if (!$ignore_running_mode && $this->_current_mode != $this->_hipo_vars['running_mode']) {
+			return false;
+		}
 
 		// First let's make sure that everything is in order with the hipo vars and our complete status
 		if (!$this->complete()) {
@@ -491,16 +493,24 @@ class HIPO_Job extends MySource_Object
 	*/
 	function setRunningMode($mode, $server_taskid='')
 	{
-		if ($mode != 'web' && $mode != 'server') return false;
+		if ($mode != 'web' && $mode != 'server') {
+			return false;
+		}
 
 		$sub_job = &$this->_getSubJob();
 		if (!is_null($sub_job)) {
-			if (!$sub_job->setRunningMode($mode)) return false;
+			if (!$sub_job->setRunningMode($mode)) {
+				return false;
+			}
 		}// end if
 
 		$this->_hipo_vars['running_mode']  = $mode;
 		$this->_hipo_vars['server_taskid'] = $server_taskid;
-		return $this->_save(true);
+		if ($this->_save(true)) {
+			return true;
+		} else {
+			return false;
+		}
 
 	}// end setRunningMode();
 
@@ -653,14 +663,9 @@ class HIPO_Job extends MySource_Object
 			$fn = 'process'.ucfirst($this->_hipo_vars['running_mode']);
 			$prefix = $this->code_name.'step'.$step;
 			set_error_handler(Array(&$this, '_errorHandler'));
-			if (!$this->$fn($this->_steps[$step], $prefix)) {
-				restore_error_handler();
-				return false;
-			}
+			$ret_val = $this->$fn($this->_steps[$step], $prefix);
 			restore_error_handler();
-
-			return $this->_save();
-
+			return $ret_val;
 
 		// if we are using the server
 		} elseif (SQ_HIPO_USE_SERVER) {
@@ -728,6 +733,7 @@ class HIPO_Job extends MySource_Object
 				default :
 					trigger_error('Unknown Running Mode "'.$this->_steps[$step]['running_mode'].'"', E_USER_WARNING);
 					$this->abort();
+					return false;
 					
 			}//end switch
 
@@ -753,51 +759,63 @@ class HIPO_Job extends MySource_Object
 	*/
 	function processWeb(&$step_data, $prefix)
 	{
+		$process_ok = false;
 		if (!empty($step_data['function_call'])) {
 			$fn = $step_data['function_call']['process_function'];
-			return $this->$fn($step_data, $prefix);
+			$process_ok = $this->$fn($step_data, $prefix);
+			
 
 		} elseif (!empty($step_data['hipo_job'])) {
 			if (empty($step_data['hipo_job']['code_name']) || empty($step_data['hipo_job']['job_type'])) {
 				$fn = $step_data['hipo_job']['init_details_function'];
 				// First let's get the info needed to create this
 				$this->$fn($job_type='', $running_vars=Array(), $options=Array());
-				if (empty($job_type)) return true;
 
-				require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/'.$job_type.'.inc';
-				$init_hipo = new $job_type();
+				// so they have decided to ignore this step ? that's cool
+				if (empty($job_type)) {
+					$process_ok = true;
 
-				$init_hipo->setRunningVars($running_vars);
-				foreach($options as $k => $v) {
-					$init_hipo->setOption($k, $v);
-				}
+				} else {
 
-				$code_name = $init_hipo->initialise($this->code_name);
-				if (!$code_name) return false;
-				$step_data['hipo_job']['code_name'] = $code_name;
-				$step_data['hipo_job']['job_type']  = $job_type;
+					require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/'.$job_type.'.inc';
+					$init_hipo = new $job_type();
 
-				return true;
+					$init_hipo->setRunningVars($running_vars);
+					foreach($options as $k => $v) {
+						$init_hipo->setOption($k, $v);
+					}
+
+					$code_name = $init_hipo->initialise($this->code_name);
+					if ($code_name) {
+						$step_data['hipo_job']['code_name'] = $code_name;
+						$step_data['hipo_job']['job_type']  = $job_type;
+						$process_ok = true;
+					}
+
+				}// end if
 
 			} else {
 				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$hipo = &$hh->getJob($step_data['hipo_job']['code_name'], $step_data['hipo_job']['job_type']);
-				if (is_null($hipo)) return false;
-				if (!$hipo->process()) return false;
+				if (!is_null($hipo) && $hipo->process()) {
 
-				$step_data['running_mode'] = $hipo->getRunningMode();
-				$step_data['percent_done'] = $hipo->percentDone();
-				$step_data['complete']     = $hipo->complete();
+					$step_data['running_mode'] = $hipo->getRunningMode();
+					$step_data['percent_done'] = $hipo->percentDone();
+					$step_data['complete']     = $hipo->complete();
+					$process_ok = true;
 
-				return true;
+				}
+
 
 			}// end if
 
 		} else {
 			trigger_error('Step '.$this->_hipo_vars['current_step'].' does not have any processing ability specified', E_USER_WARNING);
-			return false;
 
 		}// end if
+
+		$save_ok = $this->_save();
+		return ($process_ok && $save_ok);
 
 	}//end processWeb()
 
@@ -820,7 +838,9 @@ class HIPO_Job extends MySource_Object
 		if (!empty($step_data['function_call'])) {
 			$fn = $step_data['function_call']['process_function'];
 			while (!$step_data['complete']){
-				if (!$this->$fn($step_data, $prefix)) return false;
+				if (!$this->$fn($step_data, $prefix)) {
+					return false;
+				}
 				$this->_save();
 			}
 			return true;
