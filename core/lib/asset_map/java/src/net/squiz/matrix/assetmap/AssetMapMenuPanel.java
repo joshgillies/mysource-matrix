@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetMapMenuPanel.java,v 1.2 2005/02/21 05:26:25 mmcintyre Exp $
+* $Id: AssetMapMenuPanel.java,v 1.3 2005/03/06 22:38:47 mmcintyre Exp $
 *
 */
 
@@ -25,6 +25,7 @@ package net.squiz.matrix.assetmap;
 
 import net.squiz.matrix.matrixtree.*;
 import net.squiz.matrix.inspector.*;
+import net.squiz.matrix.debug.*;
 import net.squiz.matrix.core.*;
 import net.squiz.matrix.ui.*;
 import javax.swing.*;
@@ -32,6 +33,7 @@ import javax.swing.tree.*;
 import java.awt.event.*;
 import javax.swing.event.*;
 import java.awt.*;
+import java.io.IOException;
 import java.util.*;
 
 
@@ -119,7 +121,7 @@ public class AssetMapMenuPanel extends JPanel {
 		
 		button.setPressedIcon(pressedIcon);
 		button.addActionListener(listener);
-		button.setToolTipText(toolTipText);
+		button.setToolTipText(toolTipText);                 
 		
 		return button;
 	}
@@ -134,14 +136,7 @@ public class AssetMapMenuPanel extends JPanel {
 		
 		ActionListener refreshListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				MatrixStatusBar.setStatus("Refreshing All Assets");
-				SwingWorker worker = new SwingWorker() {
-					public Object construct() {
-						AssetManager.refreshAllKnownAssets();
-						MatrixStatusBar.setStatusAndClear("Success!", 1000);
-						return null;
-					}
-				};
+				AssetRefreshWorker worker = new AssetRefreshWorker(true);
 				worker.start();
 			}
 		};
@@ -225,21 +220,35 @@ public class AssetMapMenuPanel extends JPanel {
 	 * Creates the button for the add menu.
 	 * @return the button for the add menu
 	 */
-	private JButton createAddMenuButton() {
+	private ButtonMenu createAddMenuButton() {
 		
-		final JButton addButton = createButton("add", null, "Add New Asset");
+		Icon icon = GUIUtilities.getAssetMapIcon("add_off.png");
+		Icon pressedIcon = GUIUtilities.getAssetMapIcon("add_on.png");
 		
-		ActionListener createButtonListener = new ActionListener() {
+		final ButtonMenu button = new ButtonMenu(icon, pressedIcon);
+		
+		// we need to do this because the asset map may not have made a request
+		// to matrix yet, so the add menu elements might not yet be known
+		ActionListener bListener = new ActionListener() {
+			private JPopupMenu addMenu;
+			
 			public void actionPerformed(ActionEvent evt) {
-				ActionListener listener = MatrixMenus.getMatrixTreeAddMenuListener(tree);
-				JPopupMenu addMenu = MatrixMenus.getPopupAddMenu(listener);
-				Rectangle bounds = addButton.getBounds();
-				addMenu.show(AssetMapMenuPanel.this, bounds.x, bounds.y + bounds.height);
+				if (addMenu == null) {
+					ActionListener listener = MatrixMenus.getMatrixTreeAddMenuListener(tree);
+					addMenu = MatrixMenus.getPopupAddMenu(listener);
+					button.setPopupMenu(addMenu);
+				}
 			}
 		};
 		
-		addButton.addActionListener(createButtonListener);
+		button.addActionListener(bListener);
+		button.setPressedIcon(pressedIcon);
+		button.setBackground(BG_COLOUR);
+		button.setBorderPainted(false);
 		
-		return addButton;
+		button.setPreferredSize(new Dimension(icon.getIconWidth(), icon.getIconHeight()));
+		button.setToolTipText("Add New Asset");
+		
+		return button;
 	}
 }
