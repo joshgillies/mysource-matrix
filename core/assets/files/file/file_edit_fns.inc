@@ -18,10 +18,9 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.48 2005/01/17 17:39:55 brobertson Exp $
+* $Id: file_edit_fns.inc,v 1.49 2005/01/18 11:22:37 brobertson Exp $
 *
 */
-
 
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 
@@ -32,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
