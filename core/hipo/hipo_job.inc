@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.44 2004/05/26 23:24:17 gsherwood Exp $
+* $Id: hipo_job.inc,v 1.45 2004/05/27 00:27:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -89,11 +89,14 @@ class HIPO_Job extends MySource_Object
 	var $_hipo_vars = Array(
 						'current_step'		=> 0,
 						'percent_done'		=> 0,
-						'initialise_mode'	=> '',		// the mode that this job was initialised() in, used to decide what to do when we are completed
+						'initialise_mode'	=> '',		// the mode that this job was initialised() in,
+														// used to decide what to do when we are completed
 						'running_mode'		=> '',		// the mode that is currently doing the processing
 						'aborted'			=> false,	// whether we have been aborted or not
-						'server_taskid'		=> '',		// id the HIPO server gave the task when it went into running_mode='server'
+						'server_taskid'		=> '',		// id the HIPO server gave the task when it went
+														// into running_mode='server'
 						'message'			=> '',
+						'job_dir'			=> '',		// the directory where the jobs include file is located
 						'errors'			=> Array(),
 					);
 
@@ -637,7 +640,7 @@ class HIPO_Job extends MySource_Object
 		if (isset($this->_steps[$step])) {
 			if (!empty($this->_steps[$step]['hipo_job']) && !empty($this->_steps[$step]['hipo_job']['code_name']) && !empty($this->_steps[$step]['hipo_job']['job_type'])) {
 				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-				return $hh->getJob($this->_steps[$step]['hipo_job']['code_name'], $this->_steps[$step]['hipo_job']['job_type']);
+				return $hh->getJob($this->_steps[$step]['hipo_job']['code_name']);
 			}// end if
 		}// endif
 
@@ -1020,7 +1023,7 @@ class HIPO_Job extends MySource_Object
 
 			} else {
 				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-				$hipo = &$hh->getJob($step_data['hipo_job']['code_name'], $step_data['hipo_job']['job_type']);
+				$hipo = &$hh->getJob($step_data['hipo_job']['code_name']);
 				if (!is_null($hipo) && $hipo->process()) {
 					$step_data['running_mode'] = $hipo->getRunningMode();
 					$step_data['percent_done'] = $hipo->percentDone();

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.38 2004/05/26 23:24:17 gsherwood Exp $
+* $Id: hipo_herder.inc,v 1.39 2004/05/27 00:27:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -89,42 +89,49 @@ class HIPO_Herder extends MySource_Object
 	* Returns the job for the passed code name
 	*
 	* @param string	$code_name	the codename of the job
-	* @param string	$job_type	the type of job (supply if known for speedier access)
 	*
-	* @return object HIPO_Job|null	returns the requested hipo job OR null on error
+	* @return object HIPO_Job | null	returns the requested hipo job OR null on error
 	* @access public
 	*/
-	function &getJob($code_name, $job_type='')
+	function &getJob($code_name)
 	{
 		if (empty($this->_jobs[$code_name])) {
-			if (!$job_type) {
-				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-				$db = &$GLOBALS['SQ_SYSTEM']->db;
-				$sql = 'SELECT job_type
-						FROM '.SQ_TABLE_PREFIX.'hipo_job
-						WHERE code_name = '.$db->quote($code_name);
-				$job_type = $db->getOne($sql);
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			
+			// we need to get the hipo_dir from the db so we know
+			// where to look for the include file
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$sql = 'SELECT job_type, hipo_vars
+					FROM '.SQ_TABLE_PREFIX.'hipo_job
+					WHERE code_name = '.$db->quote($code_name);
+			$hipo_vars = $db->getRow($sql);
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-				if (DB::isError($job_type)) {
-					trigger_error($job_type->getMessage().'<br/>'.$job_type->getUserInfo(), E_USER_WARNING);
-					$null = null; // needed for ref
-					return $null;
-				}
-				// no job exists ?
-				if (!$job_type) {
-					$null = null; // needed for ref
-					return $null;
-				}
+			if (DB::isError($hipo_vars)) {
+				trigger_error($hipo_vars->getMessage().'<br/>'.$hipo_vars->getUserInfo(), E_USER_WARNING);
+				$null = null;
+				return $null;
+			}
 
-			}// end if
+			$job_type = $hipo_vars['job_type'];
+			if (empty($job_type)) {
+				$null = null;
+				return $null;
+			}
+			
+			$vars = unserialize($hipo_vars['hipo_vars']);
+			if (!isset($vars['job_dir']) || empty($vars['job_dir'])) {
+				$job_dir = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
+			} else {
+				$job_dir = $vars['job_dir'];
+			}
 
-			require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/'.$job_type.'.inc';
+			require_once $job_dir.'/'.$job_type.'.inc';
 			$this->_jobs[$code_name] = new $job_type($code_name);
 
-			// something buggered up, not our problem
 			if (!$this->_jobs[$code_name]->code_name) {
-				$null = null; // needed for ref
+				// something buggered up, not our problem
+				$null = null;
 				return $null;
 			}
 
@@ -183,6 +190,7 @@ class HIPO_Herder extends MySource_Object
 				return true;
 			}
 		}
+
 		// they want to stop all processing and cancel the HIPO
 		if (!empty($_POST['cancel_hipo'])) {
 			if ($source_job->abort()) {
@@ -191,6 +199,7 @@ class HIPO_Herder extends MySource_Object
 			}
 			return true;
 		}
+
 		if (!$source_job->process()) {
 			$error_details = '';
 
@@ -308,99 +317,98 @@ class HIPO_Herder extends MySource_Object
 	
 
 		?>
-				<table border="0" cellspacing="0" cellpadding="0" width="500">
-					<tr>
-						<td class="sq-hipo-header">
-							<table class="sq-hipo-header">
-								<tr>
-									<td valign="middle" width="100%"><img src="<?php echo sq_web_path('lib').'/web/images/icons/hipo.gif'; ?>" width="71" height="26" alt="Powered by Highly Intensive Processing Object (HIPO) Technology" /></td>
-								</tr>
-								<tr>
-									<td class="sq-hipo-header">
-										<?php HIPO_Job::paintProgressBar($percent_done, $status_msg, 'sq-hipo-header-progress-bar-label', 'sq-hipo-header-progress-bar-percent', 'sq-hipo-header-progress-bar-main', 'sq-hipo-header-progress-bar-done'); ?>
-									</td>
-								</tr>
-							</table>
-						</td>
-					</tr>
-					<tr>
-						<td class="sq-hipo-main" valign="top">
-						<?php
-						$buttons_to_print = Array();
+		<table border="0" cellspacing="0" cellpadding="0" width="500">
+			<tr>
+				<td class="sq-hipo-header">
+					<table class="sq-hipo-header">
+						<tr>
+							<td valign="middle" width="100%"><img src="<?php echo sq_web_path('lib').'/web/images/icons/hipo.gif'; ?>" width="71" height="26" alt="Powered by Highly Intensive Processing Object (HIPO) Technology" /></td>
+						</tr>
+						<tr>
+							<td class="sq-hipo-header">
+								<?php HIPO_Job::paintProgressBar($percent_done, $status_msg, 'sq-hipo-header-progress-bar-label', 'sq-hipo-header-progress-bar-percent', 'sq-hipo-header-progress-bar-main', 'sq-hipo-header-progress-bar-done'); ?>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td class="sq-hipo-main" valign="top">
+				<?php
+				$buttons_to_print = Array();
 
-						// if we aren't waiting for an abort, print the progress stuff
-						if (empty($_POST['aborting_hipo'])) {
+				// if we aren't waiting for an abort, print the progress stuff
+				if (empty($_POST['aborting_hipo'])) {
 
-							// Paint the source job, this will take care of any sub jobs if needed
-							$o->closeRaw();
-							$source_job->paint($o);
-							$o->openRaw();
+					// Paint the source job, this will take care of any sub jobs if needed
+					$o->closeRaw();
+					$source_job->paint($o);
+					$o->openRaw();
 
-							if (!$source_job->complete()) {
-								// basically what happens here is that if cancel has already been pressed we increment the counter
-								// this means that the cancel button only get's pressed once
-								hidden_field('cancel_hipo', (empty($_POST['cancel_hipo'])) ? 0 : ((int) $_POST['cancel_hipo'] + 1));
-								$buttons_to_print['cancel'] = Array('value' => 'Cancel', 'action' => 'send_abort();');
-							}
+					if (!$source_job->complete()) {
+						// basically what happens here is that if cancel has already been pressed we increment the counter
+						// this means that the cancel button only get's pressed once
+						hidden_field('cancel_hipo', (empty($_POST['cancel_hipo'])) ? 0 : ((int) $_POST['cancel_hipo'] + 1));
+						$buttons_to_print['cancel'] = Array('value' => 'Cancel', 'action' => 'send_abort();');
+					}
 
-							// print the NEXT or FINISH button if we are not auto stepping through the HIPO
-							if (!$auto_step) {
-								// they dont want us to refresh automatically, so we need to provide a manual NEXT button
-								$button_text = ($source_job->complete()) ? 'Finish' : 'Next >>';
-								$buttons_to_print['next'] = Array('value' => $button_text, 'action' => 'next_page();');
-							}
+					// print the NEXT or FINISH button if we are not auto stepping through the HIPO
+					if (!$auto_step) {
+						// they dont want us to refresh automatically, so we need to provide a manual NEXT button
+						$button_text = ($source_job->complete()) ? 'Finish' : 'Next >>';
+						$buttons_to_print['next'] = Array('value' => $button_text, 'action' => 'next_page();');
+					}
 
-						// we are aborting from the server
-						} else {
+				// we are aborting from the server
+				} else {
 
-							hidden_field('aborting_hipo',     $_POST['aborting_hipo']);
-							hidden_field('aborting_hipo_url', $_POST['aborting_hipo_url']);
+					hidden_field('aborting_hipo',     $_POST['aborting_hipo']);
+					hidden_field('aborting_hipo_url', $_POST['aborting_hipo_url']);
 
-							// if the source job is null it means that an abort finally finished
-							// (we couldn't get here otherwise) so print that and get out of here
-							if (is_null($source_job)) {
-								echo 'Abort Complete';
-								$button_text = 'OK';
-							} else {
-								echo 'Aborting...';
-								$button_text = 'Next >>';
-							}
+					// if the source job is null it means that an abort finally finished
+					// (we couldn't get here otherwise) so print that and get out of here
+					if (is_null($source_job)) {
+						echo 'Abort Complete';
+						$button_text = 'OK';
+					} else {
+						echo 'Aborting...';
+						$button_text = 'Next >>';
+					}
 
-							// print the NEXT or FINISH button if we are not auto stepping through the HIPO
-							if (!$auto_step) {
-								// they dont want us to refresh automatically, so we need to provide a manual NEXT button
-								$buttons_to_print['next'] = Array('value' => $button_text, 'action' => 'next_page();');
-							}
+					// print the NEXT or FINISH button if we are not auto stepping through the HIPO
+					if (!$auto_step) {
+						// they dont want us to refresh automatically, so we need to provide a manual NEXT button
+						$buttons_to_print['next'] = Array('value' => $button_text, 'action' => 'next_page();');
+					}
 
-						}// end if
+				}// end if
 
-						if (count($buttons_to_print)) {
-							?>
-							<p>
-							<table border="0" width="100%" cellspacing="2" cellpadding="1">
-								<tr>
-									<td width="100%">&nbsp;</td>
-								<?php
-								foreach ($buttons_to_print as $btn_code => $btn_data) {
-									?><td valign="top" align="center"><?php
-									normal_button($btn_code, $btn_data['value'], $btn_data['action'], 'class="sq-hipo-button-enabled"');
-									?></td><?php
-								}
-								?>
-								</tr>
-							</table>
-							</p>
+				if (count($buttons_to_print)) {
+					?>
+					<p>
+					<table border="0" width="100%" cellspacing="2" cellpadding="1">
+						<tr>
+							<td width="100%">&nbsp;</td>
 							<?php
-						}// end if
-						?>
-						</td>
-					</tr>
-				</table>
+							foreach ($buttons_to_print as $btn_code => $btn_data) {
+								?><td valign="top" align="center"><?php
+								normal_button($btn_code, $btn_data['value'], $btn_data['action'], 'class="sq-hipo-button-enabled"');
+								?></td><?php
+							}
+							?>
+						</tr>
+					</table>
+					</p>
+					<?php
+				}// end if
+				?>
+				</td>
+			</tr>
+		</table>
 		<?php
 
 		$o->closeRaw();
 		$o->paint();
-
 
 	}//end paintWeb()
 
@@ -551,24 +559,28 @@ class HIPO_Herder extends MySource_Object
 	/**
 	* Queue up a HIPO Job to run at the next refresh
 	*
-	* @param string	$job_type	the type of job (hipo_job_BLAH)
-	* @param array	$vars		HIPO vars to send to the job
+	* @param string	$job_type			the type of job (hipo_job_BLAH)
+	* @param array	$vars				HIPO vars to send to the job
 	* @param string	$on_complete_url	the URL to redirect to once all HIPOs are done
 	*									(can be left blank to use the current URL)
+	* @param string	$job_dir			where to find this hipo job include files
+	*									(can be left blank to use default hipo job directory)
 	*
 	* @return string
 	* @access public
 	*/
-	function queueHipo($job_type, $vars=Array(), $on_complete_url='')
+	function queueHipo($job_type, $vars=Array(), $on_complete_url='', $job_dir='')
 	{
 		if (empty($on_complete_url)) $on_complete_url = $_SERVER['REQUEST_URI'];
+		if (empty($job_dir)) $job_dir = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
 
-		require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/'.$job_type.'.inc';
+		require_once $job_dir.'/'.$job_type.'.inc';
 		$init_hipo = new $job_type();
 		$init_hipo->setRunningVars($vars);
 
 		// prepare() check the integrity of the the running vars
 		if (!$init_hipo->prepare()) return false;
+		$init_hipo->_hipo_vars['job_dir'] = $job_dir;
 		$job_threshold = (float) $init_hipo->getThreshold();
 		
 		// if the job has not explictly asked to be run in hipo mode
@@ -638,7 +650,7 @@ class HIPO_Herder extends MySource_Object
 
 		for ($i = 0; $i < count($queued_jobs); $i++) {
 			$job_data = $queued_jobs[$i];
-			$job = &$this->getJob($job_data['code_name'], $job_data['job_type']);
+			$job = &$this->getJob($job_data['code_name']);
 			$job_codes[] = $db->quote($job_data['code_name']);
 
 			if (isset($queued_jobs[($i+1)])) {
@@ -681,20 +693,24 @@ class HIPO_Herder extends MySource_Object
 	*
 	* @param string	$job_type	the type of job (hipo_job_BLAH)
 	* @param array	$vars		HIPO vars to send to the job
+	* @param string	$job_dir	where to find this hipo job include files
+	*							(can be left blank to use default hipo job directory)
 	*
 	* @return Array()
 	* @access public
 	*/
-	function freestyleHipo($job_type, $vars=Array())
+	function freestyleHipo($job_type, $vars=Array(), $job_dir='')
 	{
-		require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/'.$job_type.'.inc';
+		if (empty($job_dir)) $job_dir = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
+		
+		require_once $job_dir.'/'.$job_type.'.inc';
 		$init_hipo = new $job_type();
 		$init_hipo->setRunningVars($vars);
 
 		// prepare() check the integrity of the the running vars
 		if (!$init_hipo->prepare()) return false;
 		set_error_handler(Array(&$init_hipo, '_errorHandler'));
-		$init_hipo->freestyle();
+			$init_hipo->freestyle();
 		restore_error_handler();
 		return $init_hipo->getErrors();
 
@@ -868,7 +884,7 @@ class HIPO_Herder extends MySource_Object
 				<?php
 				$now = time();
 				foreach($source_jobs[''] as $source_code_name => $source_job_type) {
-					$source_job = &$this->getJob($source_code_name, $source_job_type);
+					$source_job = &$this->getJob($source_code_name);
 					if (is_null($source_job)) continue;
 				?>
 					<tr>
@@ -906,7 +922,7 @@ class HIPO_Herder extends MySource_Object
 
 					if (!empty($source_jobs[$source_code_name])) {
 						foreach($source_jobs[$source_code_name] as $code_name => $job_type) {
-							$job = &$this->getJob($code_name, $job_type);
+							$job = &$this->getJob($code_name);
 						?>
 							<tr>
 								<td class="sq-backend-table-cell">
