@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.5 2004/10/13 05:43:51 amiller Exp $
+* $Id: page_whats_new.inc,v 1.6 2004/10/13 06:17:27 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -116,6 +116,7 @@ class Page_Whats_New extends Page_Asset_Listing
 		if (!empty($ranges) && isset($_REQUEST['asset_'.$this->id.'_date_range']) && isset($ranges[$_REQUEST['asset_'.$this->id.'_date_range']])) {
 			require_once SQ_ATTRIBUTES_PATH.'/datetime/datetime.inc';
 			$id = $_REQUEST['asset_'.$this->id.'_date_range'];
+			$this->setAttrValue('num_per_page', 0); // If we're displaying a range, clear the pagination
 			
 			$from = new Asset_Attribute_DateTime();
 			$from->value = $ranges[$id]['oldest_date'];
