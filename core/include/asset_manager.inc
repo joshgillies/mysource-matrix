@@ -787,8 +787,7 @@ class Asset_Manager extends MySource_Object
 				$message->to[] = $user->id;
 				$message->from = 0; // a system message
 
-				// we also need to log this message for anyone else who needs
-				// to get it
+				// we also need to log this message for anyone else who needs to get it
 				$log = $ms->newMessage();
 				$log->subject = $message->subject;
 				$log->body    = $message->body;
@@ -2786,7 +2785,7 @@ class Asset_Manager extends MySource_Object
 		$asset = &$this->getAsset($assetid);
 		if (is_null($asset)) return false;
 		if (!$asset->adminAccess(Array(), true, false)) {
-			trigger_error('Cannot grant permission for "'.$asset->name.'", permission denied', E_USER_WARNING);
+			trigger_error('Cannot set permission for "'.$asset->name.'", permission denied', E_USER_WARNING);
 			return false;
 		}
 
@@ -2799,10 +2798,10 @@ class Asset_Manager extends MySource_Object
 			// check that the passed userid is a user or user_group
 			$user = &$this->getAsset($userid, '', true);
 			if (!$user->id) {
-				trigger_error('Cannot grant permission for an asset that does not exist', E_USER_WARNING);
+				trigger_error('Cannot set permission for an asset that does not exist', E_USER_WARNING);
 				return false;
 			} else if (!is_a($user, 'user') && !is_a($user, 'user_group')) {
-				trigger_error('Cannot grant permission for asset type "'.$user->type().'", not a user or user group', E_USER_WARNING);
+				trigger_error('Cannot set permission for asset type "'.$user->type().'", not a user or user group', E_USER_WARNING);
 				return false;
 			}
 			$user_name = $user->name;
@@ -2842,7 +2841,7 @@ class Asset_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		// clear the permission cache
-		unset($this->_tmp['permission_cache'][$assetid]);
+		if (isset($this->_tmp['permission_cache'][$assetid])) unset($this->_tmp['permission_cache'][$assetid]);
 
 		// log the action
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -2913,7 +2912,7 @@ class Asset_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		// clear the permission cache
-		unset($this->_tmp['permission_cache'][$assetid]);
+		if (isset($this->_tmp['permission_cache'][$assetid])) unset($this->_tmp['permission_cache'][$assetid]);
 
 		// log the action
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -3344,8 +3343,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getAssetIconURL($asset_type)
 	{
-		$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
-		return $root_urls[0].'/__data/asset_types/'.$asset_type.'/icon.png';
+		return sq_web_path('data').'/asset_types/'.$asset_type.'/icon.png';
 
 	}//end getAssetIconURL()
 
