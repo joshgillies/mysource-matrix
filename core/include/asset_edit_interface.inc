@@ -2242,7 +2242,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			if (is_null($schema)) continue;
 			$values = $mm->getSchemaMetadata($owner->id, $schema->id);
 			$edit_fns = $schema->getEditFns();
-			$edit_fns->paintInlineEditInterface($schema, $o, $values, $write_access);
+			$edit_fns->paintInlineValueInterface($schema, $o, $values, $write_access);
 		}
 
 		return $write_access;
@@ -2279,7 +2279,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			foreach ($schemas as $schemaid) {
 				$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 				$edit_fns = $schema->getEditFns();
-				$edit_fns->processInlineEditInterface($schema, $new_values);
+				$edit_fns->processInlineValueInterface($schema, $new_values);
 			}
 			if (!$mm->setMetadata($owner->id, $new_values)) return false;
 		}

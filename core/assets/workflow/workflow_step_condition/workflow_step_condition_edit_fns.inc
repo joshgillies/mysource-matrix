@@ -36,7 +36,7 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintInlineEditInterface(&$asset, &$o)
+	function paintInlineOptionInterface(&$asset, &$o)
 	{
 		$write_access = $asset->writeAccess();
 		$prefix = $asset->getPrefix();
@@ -78,7 +78,7 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 
 		return true;
 
-	}//end paintInlineEditInterface()
+	}//end paintInlineOptionInterface()
 
 
 	/**
@@ -90,7 +90,7 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processInlineEditInterface(&$asset, &$o)
+	function processInlineOptionInterface(&$asset, &$o)
 	{
 		// need to have write access to make any changes
 		if (!$asset->writeAccess()) return false;
@@ -125,7 +125,7 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 
 		return true;
 
-	}//end processInlineEditInterface()
+	}//end processInlineOptionInterface()
 
 
 	function generateWorkflowArray($asset, &$workflow_array)

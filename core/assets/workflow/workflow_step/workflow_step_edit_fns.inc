@@ -36,7 +36,7 @@ class Workflow_Step_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintInlineEditInterface(&$asset, &$o)
+	function paintInlineOptionInterface(&$asset, &$o)
 	{
 		$write_access = $asset->writeAccess();
 		$prefix = $asset->getPrefix();
@@ -79,7 +79,7 @@ class Workflow_Step_Edit_Fns extends Asset_Edit_Fns
 					if (is_null($condition)) continue;
 					$edit_fns = $condition->getEditFns();
 					echo '<tr>';
-					if (!$edit_fns->paintInlineEditInterface($condition, $o)) return false;
+					if (!$edit_fns->paintInlineOptionInterface($condition, $o)) return false;
 					if ($write_access) {
 						?><td bgcolor="#F0F0F0" align="center" class="sq-backend-data"><?php
 						check_box($prefix.'_delete_conditions['.$link_data['linkid'].']')
@@ -99,7 +99,7 @@ class Workflow_Step_Edit_Fns extends Asset_Edit_Fns
 
 		return true;
 
-	}//end paintInlineEditInterface()
+	}//end paintInlineOptionInterface()
 
 
 	/**
@@ -111,7 +111,7 @@ class Workflow_Step_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processInlineEditInterface(&$asset, &$o)
+	function processInlineOptionInterface(&$asset, &$o)
 	{
 		// need to have write access to make any changes
 		if (!$asset->writeAccess()) return false;
@@ -150,7 +150,7 @@ class Workflow_Step_Edit_Fns extends Asset_Edit_Fns
 				$condition = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 				if (is_null($condition)) continue;
 				$edit_fns = $condition->getEditFns();
-				if ($edit_fns->processInlineEditInterface($condition, $o)) $updated = true;
+				if ($edit_fns->processInlineOptionInterface($condition, $o)) $updated = true;
 			}
 		}
 
@@ -175,7 +175,7 @@ class Workflow_Step_Edit_Fns extends Asset_Edit_Fns
 
 		return $updated;
 
-	}//end paintInlineEditInterface()
+	}//end paintInlineOptionInterface()
 
 
 

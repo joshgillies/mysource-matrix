@@ -106,7 +106,7 @@ class Workflow_Schema_Edit_Fns extends Asset_Edit_Fns
 					$o->closeField();
 				}
 				$edit_fns = $step->getEditFns();
-				if (!$edit_fns->paintInlineEditInterface($step, $o)) return false;
+				if (!$edit_fns->paintInlineOptionInterface($step, $o)) return false;
 			$o->closeSection();
 
 			$i++;
@@ -139,7 +139,7 @@ class Workflow_Schema_Edit_Fns extends Asset_Edit_Fns
 			$step = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 			if (is_null($step)) continue;
 			$edit_fns = $step->getEditFns();
-			if($edit_fns->processInlineEditInterface($step, $o)) $updated = true;
+			if($edit_fns->processInlineOptionInterface($step, $o)) $updated = true;
 		}
 
 		// delete any steps that need deleting
