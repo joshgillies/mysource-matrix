@@ -3,7 +3,7 @@
 * | MySource Matrix - Instructional Document                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: faq.txt,v 1.15 2004/02/04 09:53:07 brobertson Exp $
+* $Id: faq.txt,v 1.16 2004/02/11 01:30:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -77,7 +77,7 @@ A. You will first have to initialise the repository and then import the package.
 
 Go to the root directory of the package (eg. cd /mysource_matrix/packages/PACKAGE)
 Now initialise the repository (eg. cvs -d /home/cvs/mysource_matrix/packages/PACKAGE init)
-Now import the package (eg. cvs -d /home/cvs/mysource/matrix/packages/PACKAGE -m "Package description" PACKAGE squiz start)
+Now import the package (eg. cvs -d /home/cvs/mysource_matrix/packages/PACKAGE import -m "Package description" PACKAGE squiz start)
 
 Once that is done you will need to setup the new respository correctly by editing some of the files in the CVSROOT, so wherever you have all the other CVSROOT's checked out (you do have them don't you?) do this :
 
