@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: step_03.php,v 1.16 2003/10/16 05:19:41 brobertson Exp $
+* $Id: step_03.php,v 1.17 2003/10/17 05:54:12 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -93,9 +93,6 @@ if (is_null($root_folder)) {
 	$trash_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
 	if (!$trash_folder->create($trash_link)) trigger_error('TRASH FOLDER NOT CREATED', E_USER_ERROR);
 	pre_echo('Trash Asset Id : '.$trash_folder->id);
-	if ($trash_folder->id != 2) {
-		trigger_error('Major Problem: The new Trash Asset was not given assetid #2. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
-	}
 	$GLOBALS['SQ_SYSTEM']->am->acquireLock($trash_folder->id, 'all');
 
 
@@ -104,9 +101,6 @@ if (is_null($root_folder)) {
 	$system_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
 	if (!$system_group->create($system_link)) trigger_error('SYSTEM ADMIN GROUP NOT CREATED', E_USER_ERROR);
 	pre_echo('System Administrators User Group Asset Id : '.$system_group->id);
-	if ($system_group->id != 3) {
-		trigger_error('Major Problem: The new System Administrators User Group Asset was not given assetid #3. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
-	}
 	$GLOBALS['SQ_SYSTEM']->am->acquireLock($system_group->id, 'all');
 
 
@@ -123,9 +117,6 @@ if (is_null($root_folder)) {
 
 	if (!$root_user->create($user_link)) trigger_error('ROOT USER NOT CREATED', E_USER_ERROR);
 	pre_echo('Root User Asset Id : '.$root_user->id);
-	if ($root_user->id != 4) {
-		trigger_error('Major Problem: The new Root User Asset was not given assetid #4. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
-	}
 
 	//// What we have to do here is release all locks on by user nobody, then re-acquire them when we become the root user below ////
 	$GLOBALS['SQ_SYSTEM']->am->releaseLock($root_user->id,		'all');
@@ -149,9 +140,6 @@ if (is_null($root_folder)) {
 	$designs_folder_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
 	if (!$designs_folder->create($designs_folder_link)) trigger_error('Designs Folder NOT CREATED', E_USER_ERROR);
 	pre_echo('Design Folder Asset Id : '.$designs_folder->id);
-	if ($designs_folder->id != 7) {
-		trigger_error('Major Problem: The new Designs Folder Asset was not given assetid #7. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
-	}
 	$GLOBALS['SQ_SYSTEM']->am->acquireLock($designs_folder->id, 'all');
 
 	// Create the cron manager
@@ -160,9 +148,6 @@ if (is_null($root_folder)) {
 	$cron_manager_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
 	if (!$cron_manager->create($cron_manager_link)) trigger_error('Cron Manager NOT CREATED', E_USER_ERROR);
 	pre_echo('Cron Manager Asset Id : '.$cron_manager->id);
-	if ($cron_manager->id != 8) {
-		trigger_error('Major Problem: The new Cron Manager Asset was not given assetid #8. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
-	}
 	$GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_manager->id, 'all');
 
 	// Create the login design
@@ -172,9 +157,6 @@ if (is_null($root_folder)) {
 	$login_design->setAttrValue('id_name', 'login_design');
 	if (!$login_design->create($login_design_link)) trigger_error('Login Design NOT CREATED', E_USER_ERROR);
 	pre_echo('Login Design Asset Id : '.$login_design->id);
-	if ($login_design->id != 9) {
-		trigger_error('Major Problem: The new Login Design Asset was not given assetid #9. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
-	}
 	$GLOBALS['SQ_SYSTEM']->am->acquireLock($login_design->id, 'all');
 
 	// Create the search manager
@@ -183,9 +165,6 @@ if (is_null($root_folder)) {
 	$search_manager_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
 	if (!$search_manager->create($search_manager_link)) trigger_error('Search Manager NOT CREATED', E_USER_ERROR);
 	pre_echo('Search Manager Asset Id : '.$search_manager->id);
-	if ($search_manager->id != 13) {
-		trigger_error('Major Problem: The new Search Manager Asset was not given assetid #13. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
-	}
 	$GLOBALS['SQ_SYSTEM']->am->acquireLock($search_manager->id, 'all');
 
 
@@ -216,6 +195,11 @@ if (is_null($root_folder)) {
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 	}
+
+	// Re-generate the System Config to make sure that we get any new defines that may have been issued
+	require_once SQ_INCLUDE_PATH.'/system_asset_config.inc';
+	$sys_asset_cfg = new System_Asset_Config();
+	$sys_asset_cfg->save(Array(), true);
 
 	// From here on in, the user needs to be logged in to create assets and links
 	$GLOBALS['SQ_INSTALL'] = false;
