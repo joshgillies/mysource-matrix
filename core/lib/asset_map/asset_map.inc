@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.127 2004/04/02 08:21:02 gsherwood Exp $
+* $Id: asset_map.inc,v 1.128 2004/04/05 00:41:15 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -161,6 +161,7 @@ class Asset_Map
 		// we want to use current_url()
 		require_once SQ_INCLUDE_PATH."/general.inc";
 		?>
+		<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib').'/js/detect.js' ?>"></script>
 		<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
 		<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/asset_map.js';?>"></script>
 
@@ -175,9 +176,9 @@ class Asset_Map
 				<embed id="sq_asset_map" type="application/x-java-applet;version=1.4" 
 				width="<?php echo $width; ?>" height="<?php echo $height; ?>" 
 				code="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" 
-				archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar, <?php echo sq_web_path('lib'); ?>/asset_map/java/crimson.jar", <?php echo sq_web_path('lib'); ?>/asset_map/java/java40.jar"
+				archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar, <?php echo sq_web_path('lib'); ?>/asset_map/java/crimson.jar"
 				 BASE_URL="<?php echo clean_url(current_url(true, true)); ?>"
-				 BACKEND_SUFFIX="<?php echo SQ_CONF_BACKEND_SUFFIX; ?>" />
+				 BACKEND_SUFFIX="<?php echo SQ_CONF_BACKEND_SUFFIX; ?>" MAYSCRIPT>
 					<noembed>
 						Java is not installed on your system
 					</noembed>
