@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_fns.inc,v 1.23 2003/10/10 06:49:25 brobertson Exp $
+* $Id: asset_edit_fns.inc,v 1.24 2003/10/15 06:46:21 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,7 +53,7 @@ class Asset_Edit_Fns extends MySource_Object
 								'dependants'		=> Array(
 														'name'			=> 'Dependants',
 														'force_unlock'	=> true,
-														'lock_type'		=> '',
+														'lock_type'		=> 'none',
 													),
 								'linking'			=> Array(
 														'name'			=> 'Linking',
@@ -68,12 +68,12 @@ class Asset_Edit_Fns extends MySource_Object
 								'history'			=> Array(
 														'name'			=> 'History',
 														'force_unlock'	=> true,
-														'lock_type'		=> '',
+														'lock_type'		=> 'none',
 													),
 								'logs'				=> Array(
 														'name'			=> 'Logs',
 														'force_unlock'	=> true,
-														'lock_type'		=> '',
+														'lock_type'		=> 'none',
 													),
 								);
 

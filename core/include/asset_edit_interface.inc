@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.161 2003/10/15 02:12:34 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.162 2003/10/15 06:46:00 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -209,11 +209,6 @@ class Asset_Edit_Interface extends MySource_Object
 		$force_unlock_on_commit = true;
 
 		if (!$creating) {
-			// lets tell the user if the asset is locked for editing
-			// or if they can lock it to edit it
-			$o->openSection('Locking / Editing');
-			$o->openField('&nbsp;');
-
 			// default to 'all', so if lock type is left out a lock can still be gotten and the asset edited
 			$screen_lock_type = 'all';
 			if (isset($this->_edit_fns->static_screens[$active_screen])) {
@@ -230,20 +225,29 @@ class Asset_Edit_Interface extends MySource_Object
 pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 
 			$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($owner->id, $screen_lock_type, true);
+			
+			if (strtolower($screen_lock_type) != 'none') {
+				// lets tell the user if the asset is locked for editing
+				// or if they can lock it to edit it
+				$o->openSection('Locking / Editing');
+				$o->openField('&nbsp;');
 			?>
-			<table class="sq-backend-table">
-				<tr>
-					<td class="sq-backend-table-header">
-						&nbsp;
-					</td>
-					<td class="sq-backend-table-header">
-						Lock Type
-					</td>
-					<td class="sq-backend-table-header">
-						&nbsp;
-					</td>
-				</tr>
-			<?php
+				<table class="sq-backend-table">
+					<tr>
+						<td class="sq-backend-table-header">
+							&nbsp;
+						</td>
+						<td class="sq-backend-table-header">
+							Lock Type
+						</td>
+						<td class="sq-backend-table-header">
+							&nbsp;
+						</td>
+					</tr>
+				<?php
+			} else {
+				$o->openRaw('');
+			}
 
 			$have_any_locks  = false;
 			$have_all_locks  = true;
@@ -340,19 +344,24 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 								submit_button('sq_lock_acquire', 'Lock');
 							} // end if
 
-						}// end if !have_all_locks
+						} else {
+							$print_commit_button = true;
+						}
 
 						if ($have_any_locks) {
 							submit_button('sq_lock_release_manual', 'Release Lock(s)');
 						}
-
+						
 					?>
 					</td>
 				</tr>
 			</table>
 			<?php
-
-			$o->closeSection();
+			if (strtolower($screen_lock_type) != 'none') {
+				$o->closeSection();
+			} else {
+				$o->closeRaw();
+			}
 
 		}// end if
 
@@ -374,7 +383,7 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 
 			// if we are not creating, paint the system defined bit of this tab
 			if (!$creating) {
-				$paint_function = 'paint'.ucfirst($active_screen);
+				$paint_function = 'paint'.$active_screen;
 				$print_commit_button = $this->$paint_function($owner, $o);
 			}
 
@@ -430,7 +439,9 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 						$o->openField('');
 						echo 'Function not found for painting section "', $section->attributes['name'], '"';
 					} else {
-						$this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix);
+						if ($this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix)) {
+							$print_commit_button = true;
+						}
 					}
 
 				// they must just be normal fields
@@ -453,7 +464,6 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 
 						$field_access = $this->_getAccess($owner, $field, $section_access);
 						if (!($field_access & SQ_EI_READ)) continue;
-
 						if (!isset($field->attributes['format'])) $field->attributes['format'] = '';
 
 						if (!empty($field->attributes['attribute'])) {
@@ -482,7 +492,9 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 							if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
 								echo 'Function not found for painting';
 							} else {
-								$this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix);
+								if ($this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix)) {
+									$print_commit_button = true;
+								}
 							}
 
 						}// end if
@@ -503,9 +515,9 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 		}// end if $file
 
 		// we have printed an editable interface on a static screen - show the commit button
-		#if ($print_commit_button) {
+		if ($print_commit_button) {
 			$o->commitButton('Commit', $force_unlock_on_commit);
-		#}
+		}
 
 	}// end paint()
 
@@ -811,7 +823,7 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 
 		$prefix = $owner->getPrefix();
 
-		$print_commit_button = false;
+		$print_commit_button = true;
 
 		$input = new XML_Tree($file);
 		$root  = &$input->getTreeFromFile();
@@ -819,10 +831,8 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 			trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
 			return;
 		}
-
 		for($i = 0; $i < count($root->children); $i++) {
 			$section = &$root->children[$i];
-
 			$o->openSection($section->attributes['name']);
 
 			if (!($num_fields = count($section->children))) continue;
@@ -850,8 +860,9 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 							$running_schemas = $wfm->getSchemas($owner->id, true, true);
 							if (!empty($running_schemas)) {
 								?><i>This asset is currently in workflow. Approval or rejection of the changes must be done on the <a href="<?php echo $owner->getBackendHref('workflow'); ?>">asset workflow screen</a></i><?php
+								$print_commit_button = false;
 							} else {
-								$print_commit_button = true;
+								
 								$this->_paintStatusChange($owner, $o, $prefix);
 							}
 						$o->closeField();
@@ -913,6 +924,7 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 								The next time that it will run will be <?php echo $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun()); ?>
 							</div>
 							<?php
+						} else {
 							$print_commit_button = true;
 						}
 					break;
@@ -930,6 +942,7 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 			$o->closeSection();
 
 		}// end for
+
 
 		return $print_commit_button;
 
@@ -1087,13 +1100,15 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 		if(!($file = $this->_findFile('static_screen_settings'))) return;
 		$prefix = $owner->getPrefix();
 
+		$created = false;
+
 		$input = new XML_Tree($file);
 		$root  = &$input->getTreeFromFile();
 		if (PEAR::isError($root)) {
 			trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
 			return;
 		}
-
+	
 		if (empty($root->children)) {
 			$o->OpenSection('There are no settings for "'.$owner->name.'"');
 			$o->closeSection();
@@ -1122,6 +1137,8 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 					case 'version_update_verion' :
 						// have to have admin access to update the major version
 						if ($owner->adminAccess('all')) {
+							$created = true;
+							
 							if ($field->children[0]->name != 'display_name') $display_name = 'Update Major Version ?';
 							else $display_name = $field->children[0]->content;
 							$o->openField($display_name);
@@ -1138,6 +1155,7 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 						$current_langs = $owner->getLanguages();
 						// have to have admin access to set the force secure
 						if ($owner->adminAccess('settings')) {
+							$created = true;
 							check_box($prefix.'_force_secure', '1', ($owner->force_secure == '1'));
 						} else {
 						?>
@@ -1155,6 +1173,7 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 						require SQ_FUDGE_PATH.'/standards_lists/languages.inc';
 
 						if ($owner->writeAccess('settings')) {
+							$created = true;
 							$standards_lists_languages = array_reverse($standards_lists_languages);
 							$standards_lists_languages[''] = '';
 							$standards_lists_languages = array_reverse($standards_lists_languages);
@@ -1181,6 +1200,7 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 								<tr>
 									<td class="sq-backend-table-cell"><?php echo $standards_lists_languages[$lang_code]; ?></td>
 									<?php if ($owner->writeAccess('settings')) {
+										$created = true;
 									?>
 									<td class="sq-backend-table-cell" align="center"><?php check_box($prefix.'_rem_intl_language['.$lang_code.']'); ?></td>
 									<?php } ?>
@@ -1202,6 +1222,7 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 						require SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
 
 						if ($owner->writeAccess('settings')) {
+							$created = true;
 							$standards_lists_character_sets = array_reverse($standards_lists_character_sets);
 							$standards_lists_character_sets[''] = '** Use System Default **';
 							$standards_lists_character_sets = array_reverse($standards_lists_character_sets);
@@ -1224,6 +1245,7 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 						$o->openField($display_name);
 
 						if ($owner->adminAccess('all')) {
+							$created = true;
 							if ($owner->status != SQ_STATUS_UNDER_CONSTRUCTION) {
 								// cant morph an asset if it is not under construction
 								echo '<i>An asset can only be morphed while Under Construction</i>';
@@ -1308,7 +1330,7 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 							preg_match('/^(system|user)_design::(.*)$/', $design_name, $matches);
 							$system_design   = ($matches[1] == 'system');
 							$new_user_design = (!$system_design && $design_name == 'user_design::' && !$designid && $owner->writeAccess('links'));
-
+							
 							$display_name = ucwords($matches[1]).' Defined - '.$matches[2];
 							$o->openSection($display_name);
 
@@ -1322,6 +1344,7 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 							$o->openField('Current');
 
 							if (!$owner->writeAccess('links')) {
+								$created = true;
 								echo '<i>';
 								if (!$designid) {
 									echo 'None';
@@ -1399,7 +1422,7 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 
 		}// end for
 
-		return false;
+		return $created;
 
 	}//end paintSettings()
 
@@ -2730,6 +2753,8 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 		// If we are allowed to edit, we check the write effective access, minus live edit access
 		// We are ignoring live edit access because changes to links are not reliant on
 		// status of the asset (because the are not save edited)
+		$created = false;
+
 		$write_access = ($allow_edit) ? $owner->writeAccess('links') :  false;
 
 		// prefix for all the form vars
@@ -2860,6 +2885,7 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 		$fl_jobs = &Cron_Job_Future_Lineage::getActiveJobs($owner);
 
 		if (!empty($fl_jobs) || $write_access) {
+			$created = true;
 			$o->openSection('Future Linking\'s/Lineage\'s');
 			if (!empty($fl_jobs)) {
 				$o->openField('', 'new_line');
@@ -2872,7 +2898,9 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 						<td class="sq-backend-table-header">
 							When
 						</td>
-				<?php if ($write_access) { ?>
+				<?php if ($write_access) { 
+					$created = true;
+					?>
 						<td class="sq-backend-table-header" style="text-align: center;">
 							Delete ?
 						</td>
@@ -2889,7 +2917,9 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 						<td class="sq-backend-table-cell">
 							<?php echo $fl_jobs[$i]->readableWhen(); ?>
 						</td>
-				<?php if ($write_access) { ?>
+				<?php if ($write_access) { 
+					$created = true;
+					?>
 						<td class="sq-backend-table-cell" style="text-align: center;">
 						<?php
 							if ($fl_jobs[$i]->canDelete()) {
@@ -2912,6 +2942,7 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 			}// end if
 
 			if ($write_access) {
+				$created = true;
 				$fl = new Cron_Job_Future_Lineage();
 				$fl->setAssetInLink($owner, 'minor');
 				$edit_fns = $fl->getEditFns();
@@ -2921,7 +2952,7 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 			$o->closeSection();
 		}// end if
 
-		return true;
+		return $created;
 
 	}//end paintLinking()
 
@@ -3020,6 +3051,8 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 	*/
 	function paintHistory(&$owner, &$o)
 	{
+		if (!$owner->writeAccess('')) return false;
+
 		// prefix for all the form vars
 		$prefix = $owner->getPrefix();
 
@@ -3292,6 +3325,7 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 			$o->closeSection();
 		}
 
+	return true;
 
 	}//end paintLogs()
 
