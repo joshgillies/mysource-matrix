@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.120 2003/10/02 05:42:51 brobertson Exp $
+* $Id: asset_manager.inc,v 1.121 2003/10/02 23:27:36 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -742,8 +742,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function acquireLock($assetid, $lock_type='', $source_assetid=0, $force=false, $expires=0)
 	{
-		pre_echo("source_assetid : $source_assetid");
-#pre_echo(__CLASS__.'::'.__FUNCTION__);
 		$current_lock = $this->getLockInfo($assetid, $lock_type, true);
 		if (!empty($current_lock) && $current_lock['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
 			// the user is asking to acquire a lock they already had
@@ -757,7 +755,6 @@ class Asset_Manager extends MySource_Object
 		// special case where the current user is actually
 		// removing the current lock and taking it for themselves
 		if(!empty($current_lock) && $force && $asset->canForceablyAcquireLock()) {
-			pre_echo($current_lock);
 
 			// attempt to remove the lock
 			if (!$this->releaseLock($assetid)) return false;
@@ -771,7 +768,6 @@ class Asset_Manager extends MySource_Object
 
 			$assetids = Array((int) $assetid);
 			foreach($current_lock['chained_assets'] as $row) $assetids[] = (int) preg_replace('/^asset\.([0-9]+)(\..*)?$/', '\1', $row['lockid']);
-			pre_echo($assetids);
 
 			foreach ($assetids as $assetid) {
 				$locked_asset = &$this->getAsset($assetid);
@@ -812,7 +808,6 @@ class Asset_Manager extends MySource_Object
 			return false;
 		}
 
-		pre_echo("source_assetid : $source_assetid");
 		$lockid = 'asset.'.$assetid.(($lock_type != '') ? '.'.$lock_type : '');
 		$source_lockid = ($source_assetid) ? 'asset.'.$source_assetid.(($lock_type != '') ? '.'.$lock_type : '') : '';
 		if (true === ($err_msg = $GLOBALS['SQ_SYSTEM']->acquireLock($lockid, $source_lockid, $expires))) { 
@@ -836,7 +831,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function releaseLock($assetid, $lock_type='')
 	{
-#pre_echo(__CLASS__.'::'.__FUNCTION__);
 		$current_lock = $this->getLockInfo($assetid, $lock_type, false, false);
 		if (empty($current_lock)) return true;
 
@@ -876,7 +870,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function updateLock($assetid, $lock_type='', $expires=0)
 	{
-#pre_echo(__CLASS__.'::'.__FUNCTION__);
 		if (true === ($err_msg = $GLOBALS['SQ_SYSTEM']->updateLock('asset.'.$assetid.(($lock_type != '') ? '.'.$lock_type : ''), $expires))) { 
 			return true;
 		} else {
@@ -900,7 +893,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getLockInfo($assetid, $lock_type='', $full_chain=false, $check_expires=true)
 	{
-#pre_echo(__CLASS__.'::'.__FUNCTION__);
 		$lock = $GLOBALS['SQ_SYSTEM']->getLockInfo('asset.'.$assetid.(($lock_type != '') ? '.'.$lock_type : ''), $full_chain, $check_expires);
 		if (!empty($lock)) {
 			$lock['source_assetid'] = (int) preg_replace('/^asset\.([0-9]+)(\..*)?$/', '\1', $lock['source_lockid']);
@@ -912,7 +904,6 @@ class Asset_Manager extends MySource_Object
 			}// endif
 		}// end if
 
-#pre_echo($lock);
 		return $lock;
 
 	}//end getLockInfo()
