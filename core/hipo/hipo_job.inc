@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.37 2003/11/26 00:51:08 gsherwood Exp $
+* $Id: hipo_job.inc,v 1.38 2003/12/18 04:31:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -849,7 +849,7 @@ class HIPO_Job extends MySource_Object
 		if ($this->_steps[$step]['running_mode'] == $this->_hipo_vars['running_mode']) {
 
 			// call the correct process function based on the running mode
-			$fn = 'process'.ucfirst($this->_hipo_vars['running_mode']);
+			$fn = 'process'.$this->_hipo_vars['running_mode'];
 			$prefix = $this->code_name.'step'.$step;
 			set_error_handler(Array(&$this, '_errorHandler'));
 			$ret_val = $this->$fn($this->_steps[$step], $prefix);
