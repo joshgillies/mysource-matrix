@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.34 2004/08/30 04:47:55 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.35 2004/09/15 00:36:47 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -324,36 +324,36 @@ class Page_Asset_Listing extends Page
 					$num_per_page = $this->attr('num_per_page');
 					$result_page = (isset($_REQUEST['result_page'])) ? (int)$_REQUEST['result_page'] : 1;
 					if ($result_page <= 0) $result_page = 1;
-	
+
 					// do it CHUNK Noris style
 					if ($num_per_page > 0) $chunks = array_chunk($children, $num_per_page, true);
 					else $chunks = Array('0' => $children);
-	
+
 					if ($result_page > count($chunks)) $result_page = count($chunks);
 					$todo = $chunks[($result_page-1)];
-	
+
 					// previous page link
 					if ($result_page <= 1) $replacements['previous_page'] = $this->attr('prev_page_text');
-					else $replacements['previous_page'] = '<a href="'.$this->getURL().'?result_page='.($result_page-1).'">'.$this->attr('prev_page_text').'</a>';
-	
+					else $replacements['previous_page'] = '<a href="'.replace_query_string_vars(Array('result_page' => $result_page-1)).'">'.$this->attr('prev_page_text').'</a>';
+
 					// next page link
 					if ($result_page >= count($chunks)) $replacements['next_page'] = $this->attr('next_page_text');
-					else $replacements['next_page'] = '<a href="'.$this->getURL().'?result_page='.($result_page+1).'">'.$this->attr('next_page_text').'</a>';
-	
+					else $replacements['next_page'] = '<a href="'.replace_query_string_vars(Array('result_page' => $result_page+1)).'">'.$this->attr('next_page_text').'</a>';
+
 					$replacements['current_page'] = (int)$result_page;
 					$replacements['total_pages'] = count($chunks);
-	
+
 					// list of pages and links to them
 					$page_list = '';
 					for ($i = 1; $i <= count($chunks); $i++) {
 						if ($i == $result_page) $page_list .= " $i ";
-						else $page_list .= ' <a href="'.$this->getURL().'?result_page='.$i.'">'.$i.'</a> ';
+						else $page_list .= ' <a href="'.replace_query_string_vars(Array('result_page' => $i)).'">'.$i.'</a> ';
 					}
 					$replacements['page_list'] = $page_list;
-	
+
 					unset($chunks);
 				break;
-	
+
 				case 'letter' :
 					foreach ($children as $childid => $data) {
 						$todo[strtolower($data['first_letter'])][$childid] = $data['type_code'];
@@ -368,49 +368,49 @@ class Page_Asset_Listing extends Page
 							}
 						}
 					}
-	
+
 					// previous page link
 					$result_letter = ord(strtoupper($result_page));
 					$replacements['previous_page'] = 'Previous';
 					if ($result_letter > 65) {
 						for ($i = ($result_letter-1); $i >= 65; $i--) {
 							if (isset($todo[strtolower(chr($i))])) {
-								$replacements['previous_page'] = '<a href="'.$this->getURL().'?result_page='.chr($i).'">'.$this->attr('prev_page_text').'</a>';
+								$replacements['previous_page'] = '<a href="'.replace_query_string_vars(Array('result_page' => chr($i))).'">'.$this->attr('prev_page_text').'</a>';
 								break;
 							}
 						}
 					}
-	
+
 					// next page link
 					$replacements['next_page'] = 'Next';
 					if ($result_letter < 90) {
 						for ($i = ($result_letter+1); $i <= 90; $i++) {
 							if (isset($todo[strtolower(chr($i))])) {
-								$replacements['next_page'] = '<a href="'.$this->getURL().'?result_page='.chr($i).'">'.$this->attr('next_page_text').'</a>';
+								$replacements['next_page'] = '<a href="'.replace_query_string_vars(Array('result_page' => chr($i))).'">'.$this->attr('next_page_text').'</a>';
 								break;
 							}
 						}
 					}
-	
+
 					$replacements['current_page'] = strtoupper($result_page);
 					$replacements['total_pages'] = 26;
-	
+
 					// list of pages and links to them
 					$page_list = '';
 					for ($i = 65; $i <= 90; $i++) {
 						if (isset($todo[strtolower(chr($i))])) {
-							$page_list .= ' <a href="'.$this->getURL().'?result_page='.chr($i).'">'.chr($i).'</a> ';
+							$page_list .= ' <a href="'.replace_query_string_vars(Array('result_page' => chr($i))).'">'.chr($i).'</a> ';
 						} else {
 							$page_list .= ' '.chr($i).' ';
 						}
 					}
 					$replacements['page_list'] = $page_list;
-	
+
 					if (isset($todo[strtolower($result_page)])) $todo = $todo[strtolower($result_page)];
 					else $todo = Array();
-	
+
 				break;
-				
+
 				case 'random' :
 					// random does things differently, as there is no pagination. But this is a good place
 					// to grab the random asset
@@ -442,10 +442,13 @@ class Page_Asset_Listing extends Page
 
 			// if we have any blank keywords, replace them with nothing
 			$global_contents = preg_replace('|%[^%\W]+%|', '', $global_contents);
-			
+
 			// the global replacement to print the asset listing
 			$replacements['asset_listing'] = $global_contents;
-	
+			
+			$other_replacements = $this->getKeywordReplacements();
+			$replacements = array_merge($replacements, $other_replacements);
+
 			// print the contents of page - replacing the global keywords
 			$format_bodycopy->setKeywordReplacements($replacements);
 			ob_start();
@@ -464,6 +467,20 @@ class Page_Asset_Listing extends Page
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
 
 	}//end printBody()
+
+
+	/**
+	* Returns keyword replacements to be replaced in the body
+	* of the format bodycopy
+	*
+	* @return Array()
+	* @access public
+	*/
+	function getKeywordReplacements()
+	{
+		return Array();
+
+	}//end getKeywordReplacements()
 
 
 	/**
@@ -963,9 +980,9 @@ class Page_Asset_Listing extends Page
 											'name'=>'Page List',
 											'default'=>'List of pages in the listing', 
 											'type'=>'inline');
-
 		return $keywords;
-	}
+
+	}//end getContentsKeywords()
 
 
 }//end class
