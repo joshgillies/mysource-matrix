@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_menu_type.inc,v 1.30 2003/09/26 05:26:25 brobertson Exp $
+* $Id: design_area_menu_type.inc,v 1.31 2003/09/29 22:53:33 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -385,7 +385,7 @@ class Design_Area_Menu_Type extends Design_Area
 
 					if (!empty($USERIDS_COND)) {
 						$USERIDS_COND .= \'
-										  GROUP BY a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path
+										  GROUP BY a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order
 										  HAVING MIN(p.access) = 1\';
 					}
 				}
