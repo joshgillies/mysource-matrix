@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.31 2004/12/01 04:17:48 arailean Exp $
+* $Id: search_manager.inc,v 1.31.2.1 2004/12/13 02:55:06 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.31.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -465,12 +465,20 @@ class Search_Manager extends Asset
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
+		// sections can be shared between schemas and we only want to index them once
+		// so keep a list of all the sections we have indexed so we can skip repeats
+		$done_sectionids = Array();
+
 		$asset =& $am->getAsset($assetid);
 		foreach ($schemaids as $schemaid) {
 			$sectionids = $am->getChildren($schemaid, 'metadata_section', false);
 			$metadata = $mm->getSchemaMetadata($assetid, $schemaid);
 
 			foreach ($sectionids as $sectionid => $section_type) {
+				// skip sections that have already been indexed
+				if (in_array($sectionid, $done_sectionids)) continue;
+				$done_sectionids[] = $sectionid;
+
 				$section = &$am->getAsset($sectionid, $section_type);
 
 				$fieldids = $am->getChildren($sectionid, 'metadata_field', false);
