@@ -240,11 +240,20 @@ function sq_web_path($path='base')
 		case 'root_url'  : 
 			$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 			$current_url = strip_url(current_url());
-
+			// if we are in the backend strip the suffix
+			if (SQ_IN_BACKEND) $current_url = preg_replace('/\\/'.SQ_CONF_BACKEND_SUFFIX.'$/', '', $current_url);
 			$tmp = $root_urls[0];
 			for($i = 1; $i < count($root_urls); $i++) {
-				if (substr($current_url, 0, strlen($root_urls[$i])) == $root_urls[$i] && strlen($tmp) < strlen($root_urls[$i])) {
-					$tmp = $root_urls[$i];
+				if (substr($current_url, 0, strlen($root_urls[$i])) == $root_urls[$i]) {
+					// if the current tmp has the same start
+					if (substr($tmp, 0, strlen($root_urls[$i])) == $root_urls[$i]) {
+						// then we only use it if it's a longer (and therefore closer) string
+						if (strlen($tmp) < strlen($root_urls[$i])) {
+							$tmp = $root_urls[$i];
+						}
+					} else {
+						$tmp = $root_urls[$i];
+					}
 				}
 			}
 			// if we are in the symlink system remove the URL
