@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.6 2004/07/04 23:15:25 lwright Exp $
+* $Id: option_list.inc,v 1.7 2004/08/11 01:03:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -177,32 +177,6 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 		$this->processed = $this->setValue(implode("\r\n",$value));
 
 	}//end process()
-
-
-	/**
-	* Ensure the attribute being set is an array
-	*
-	* @param mixed	&$value	value to be validated
-	*
-	* @return boolean
-	* @access public
-	*/
-	/*function validateValue(&$value)
-	{
-		// cant serilise scalar variables
-		if (is_scalar($value)) {
-			// see if it is already serilised
-			$unser = @unserialize(trim((string) $value));
-			if (is_scalar($unser)) return false;
-			else $value = $unser;
-		}
-		
-		if (!is_array($value)) return false;
-
-		$value = serialize($value);
-		return true;
-
-	}*///end validateValue()
 
 
 }//end class
