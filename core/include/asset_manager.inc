@@ -248,8 +248,9 @@ class Asset_Manager extends Resolve_Object
 	/**
 	* Returns an array of assetid => inherited_types for assets of the passed codes
 	*
-	* @param array(int)		$assetids	an array of assets to limit
-	* @param array(string)	$field		if exists, returns this information from the array for this specific field
+	* @param array(int)		$assetids			an array of assets to limit
+	* @param array(string)	$type_code			an array of types codes to limit the results to
+	* @param boolean		$strict_type_code	ensure returned assets are of the passed type codes
 	*
 	* @return mixed
 	* @access public
@@ -298,6 +299,69 @@ class Asset_Manager extends Resolve_Object
 
 		return $result;
 	}//end getAssetTypeInfo()
+
+
+	/**
+	* Returns an array of information about assets of the passed codes
+	*
+	* @param array(int)		$assetids			an array of assets to limit
+	* @param array(string)	$type_code			an array of types codes to limit the results to
+	* @param boolean		$strict_type_code	ensure returned assets are of the passed type codes
+	*
+	* @return mixed
+	* @access public
+	*/
+	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=true)
+	{
+		if (empty($assetids)) return Array();
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'SELECT * FROM sq_asset a WHERE ';
+
+		for($i = 0; $i < count($assetids); $i++) $assetids[$i] = $db->quote($assetids[$i]);
+		$sql .= 'a.assetid IN ('.implode(', ', $assetids).')';
+
+		if (!empty($type_code)) {
+
+			$type_code_cond = '';
+			if (is_array($type_code)) {
+				for($i = 0; $i < count($type_code); $i++) $type_code[$i] = $db->quote($type_code[$i]);
+				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
+			} else {
+				$type_code_cond = '= '.$db->quote($type_code);
+			}
+
+			if ($strict_type_code) {
+				$sql .= ' AND a.type_code '.$type_code_cond;
+			} else {
+				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+				$sql .= ' AND (a.type_code '.$type_code_cond.' OR a.type_code IN (~SQ0~))';
+				$subs = Array( 'SELECT type_code
+								FROM sq_asset_type_inherited
+								WHERE inherited_type_code '.$type_code_cond );
+				$sql = db_extras_subquery($db, $sql, $subs);
+				if (DB::isError($sql))
+					trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_ERROR);
+			}
+		}// end if
+
+		$sql .= ' ORDER BY a.assetid';
+
+		$result = $db->getAll($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return Array();
+		}
+
+		$return_result = Array();
+		foreach ($result as $assetid => $row) {
+			foreach ($row as $name => $value) {
+				$return_result[$row['assetid']][$name] = $value;
+			}
+		}
+
+		return $return_result;
+	}//end getAssetInfo()
 
 
 	/**
