@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: step_03.php,v 1.17 2003/10/17 05:54:12 brobertson Exp $
+* $Id: step_03.php,v 1.18 2003/10/20 07:24:20 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -96,9 +96,17 @@ if (is_null($root_folder)) {
 	$GLOBALS['SQ_SYSTEM']->am->acquireLock($trash_folder->id, 'all');
 
 
+	$GLOBALS['SQ_SYSTEM']->am->includeAsset('system_management_folder');
+	$system_management_folder = new System_Management_Folder();
+	$system_management_folder_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
+	if (!$system_management_folder->create($system_management_folder_link)) trigger_error('SYSTEM MANAGEMENT FOLDER NOT CREATED', E_USER_ERROR);
+	pre_echo('System Management Asset Id : '.$system_management_folder->id);
+	$GLOBALS['SQ_SYSTEM']->am->acquireLock($system_management_folder->id, 'all');
+
+
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('system_user_group');
 	$system_group = new System_User_Group();
-	$system_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
+	$system_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
 	if (!$system_group->create($system_link)) trigger_error('SYSTEM ADMIN GROUP NOT CREATED', E_USER_ERROR);
 	pre_echo('System Administrators User Group Asset Id : '.$system_group->id);
 	$GLOBALS['SQ_SYSTEM']->am->acquireLock($system_group->id, 'all');
@@ -119,36 +127,46 @@ if (is_null($root_folder)) {
 	pre_echo('Root User Asset Id : '.$root_user->id);
 
 	//// What we have to do here is release all locks on by user nobody, then re-acquire them when we become the root user below ////
-	$GLOBALS['SQ_SYSTEM']->am->releaseLock($root_user->id,		'all');
-	$GLOBALS['SQ_SYSTEM']->am->releaseLock($system_group->id,	'all');
-	$GLOBALS['SQ_SYSTEM']->am->releaseLock($trash_folder->id,	'all');
-	$GLOBALS['SQ_SYSTEM']->am->releaseLock($root_folder->id,	'all');
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($root_user->id,					'all');
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($system_group->id,				'all');
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($system_management_folder->id,	'all');
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($trash_folder->id,				'all');
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($root_folder->id,				'all');
 
 	// set the current user object to the root user so we can finish
 	// the install process without permission denied errors
 	$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user);
 
-	$GLOBALS['SQ_SYSTEM']->am->acquireLock($root_folder->id,	'all');
-	$GLOBALS['SQ_SYSTEM']->am->acquireLock($trash_folder->id,	'all');
-	$GLOBALS['SQ_SYSTEM']->am->acquireLock($system_group->id,	'all');
-	$GLOBALS['SQ_SYSTEM']->am->acquireLock($root_user->id,		'all');
-
-
-	// Create the designs folder
-	$GLOBALS['SQ_SYSTEM']->am->includeAsset('designs_folder');
-	$designs_folder = new Designs_Folder();
-	$designs_folder_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
-	if (!$designs_folder->create($designs_folder_link)) trigger_error('Designs Folder NOT CREATED', E_USER_ERROR);
-	pre_echo('Design Folder Asset Id : '.$designs_folder->id);
-	$GLOBALS['SQ_SYSTEM']->am->acquireLock($designs_folder->id, 'all');
+	$GLOBALS['SQ_SYSTEM']->am->acquireLock($root_folder->id,				'all');
+	$GLOBALS['SQ_SYSTEM']->am->acquireLock($trash_folder->id,				'all');
+	$GLOBALS['SQ_SYSTEM']->am->acquireLock($system_management_folder->id,	'all');
+	$GLOBALS['SQ_SYSTEM']->am->acquireLock($system_group->id,				'all');
+	$GLOBALS['SQ_SYSTEM']->am->acquireLock($root_user->id,					'all');
 
 	// Create the cron manager
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_manager');
 	$cron_manager = new Cron_Manager();
-	$cron_manager_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
+	$cron_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
 	if (!$cron_manager->create($cron_manager_link)) trigger_error('Cron Manager NOT CREATED', E_USER_ERROR);
 	pre_echo('Cron Manager Asset Id : '.$cron_manager->id);
 	$GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_manager->id, 'all');
+
+
+	// Create the search manager
+	$GLOBALS['SQ_SYSTEM']->am->includeAsset('search_manager');
+	$search_manager = new Search_Manager();
+	$search_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
+	if (!$search_manager->create($search_manager_link)) trigger_error('Search Manager NOT CREATED', E_USER_ERROR);
+	pre_echo('Search Manager Asset Id : '.$search_manager->id);
+	$GLOBALS['SQ_SYSTEM']->am->acquireLock($search_manager->id, 'all');
+
+	// Create the designs folder
+	$GLOBALS['SQ_SYSTEM']->am->includeAsset('designs_folder');
+	$designs_folder = new Designs_Folder();
+	$designs_folder_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
+	if (!$designs_folder->create($designs_folder_link)) trigger_error('Designs Folder NOT CREATED', E_USER_ERROR);
+	pre_echo('Design Folder Asset Id : '.$designs_folder->id);
+	$GLOBALS['SQ_SYSTEM']->am->acquireLock($designs_folder->id, 'all');
 
 	// Create the login design
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('login_design');
@@ -159,22 +177,12 @@ if (is_null($root_folder)) {
 	pre_echo('Login Design Asset Id : '.$login_design->id);
 	$GLOBALS['SQ_SYSTEM']->am->acquireLock($login_design->id, 'all');
 
-	// Create the search manager
-	$GLOBALS['SQ_SYSTEM']->am->includeAsset('search_manager');
-	$search_manager = new Search_Manager();
-	$search_manager_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
-	if (!$search_manager->create($search_manager_link)) trigger_error('Search Manager NOT CREATED', E_USER_ERROR);
-	pre_echo('Search Manager Asset Id : '.$search_manager->id);
-	$GLOBALS['SQ_SYSTEM']->am->acquireLock($search_manager->id, 'all');
-
-
-
 	//// Now make sure that we release everything ////
 
-	$GLOBALS['SQ_SYSTEM']->am->releaseLock($search_manager->id,	'all');
 	$GLOBALS['SQ_SYSTEM']->am->releaseLock($login_design->id,	'all');
-	$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_manager->id,	'all');
 	$GLOBALS['SQ_SYSTEM']->am->releaseLock($designs_folder->id,	'all');
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($search_manager->id,	'all');
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_manager->id,	'all');
 	$GLOBALS['SQ_SYSTEM']->am->releaseLock($root_user->id,		'all');
 	$GLOBALS['SQ_SYSTEM']->am->releaseLock($system_group->id,	'all');
 	$GLOBALS['SQ_SYSTEM']->am->releaseLock($trash_folder->id,	'all');
