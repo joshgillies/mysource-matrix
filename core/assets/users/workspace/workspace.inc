@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workspace.inc,v 1.16 2003/11/21 22:34:40 mmcintyre Exp $
+* $Id: workspace.inc,v 1.17 2003/11/21 22:53:53 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -76,7 +76,6 @@ class Workspace extends Folder
 		}
 
 		$this->setAttrValue('name', '~'.$username);
-		bam($this->attr('name'));
 
 		return parent::create($link);
 		
