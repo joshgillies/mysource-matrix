@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.27 2003/10/22 00:09:37 brobertson Exp $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.28 2003/11/10 04:01:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -274,7 +274,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 				}
 				echo '<', '?php
 				}// end foreach '.$asset->attr('id_name').' data
-				?', '> ';
+				?', '>';
 
 				return true;
 
