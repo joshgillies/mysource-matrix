@@ -67,7 +67,7 @@ CREATE TABLE sq_asset_attribute (
   name                   VARCHAR(128), 
   type                   VARCHAR(128),           /* There are different types of attributes.. classname */
   parameters_type_code   VARCHAR(100) NOT NULL DEFAULT '',
-  parameters_value       LONGTEXT,
+  parameters_value       TEXT,
   default_type_code      VARCHAR(100) NOT NULL DEFAULT '',
   default_value          TEXT NOT NULL DEFAULT '',
   order_no               INT  NOT NULL DEFAULT 0, /* Order this atribute appears in relation to others in its context */
