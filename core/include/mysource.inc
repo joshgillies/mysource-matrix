@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.33 2004/01/16 03:13:10 diarandine Exp $
+* $Id: mysource.inc,v 1.34 2004/01/16 05:43:36 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -252,8 +252,39 @@ class MySource
 		} else {
 			// check for ./?a=xx type urls or normal
 			if (isset($_REQUEST['a'])) $asset = &$this->am->getAsset((int) $_REQUEST['a']);
-			else $asset = &$this->am->getAssetFromURL(current_protocol());
-			if (is_null($asset)) exit(1);
+			else $asset = &$this->am->getAssetFromURL(current_protocol(), null, true, true);
+			if (is_null($asset)) {
+				$url = current_protocol().'://'.strip_url(current_url(false, true));
+
+				// there is no asset for this URL - check if the URL is being remapped
+				$sql = 'SELECT remap_url
+						FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_remap';
+				$where = 'url = '.$this->db->quote($url).'
+						  AND expires IS NULL OR expires > NOW()';
+				$where = $this->constructRollbackWhereClause($where);
+
+				$remap_url = $this->db->getOne($sql.$where);
+				if (DB::isError($remap_url)) {
+					trigger_error($remap_url->getMessage().'<br/>'.$remap_url->getUserInfo(), E_USER_ERROR);
+				}
+
+				if (!empty($remap_url)) {
+					?>
+					<html>
+						<head>
+							<title>Redirecting you to <?php echo $remap_url; ?></title>
+							<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib');?>/js/general.js"></script>
+						</head>
+						<body onLoad="Javascript: sq_redirect('<?php echo $remap_url; ?>');"></body>
+					</html>
+					<?php
+				} else {
+					// not being remapped either, so throw an error
+					trigger_error('URL "'.$url.'" not found', E_USER_NOTICE);
+				}
+
+				exit(1);
+			}
 			$asset->printFrontend();
 		}
 
@@ -1337,20 +1368,26 @@ class MySource
 		$concat_col = '';
 		$concat_values = Array();
 		foreach ($insert_values as $col => $value) {
-			if (in_array($col, $primary_cols)) $concat_values[$col] = $value;
+			if (in_array($col, $primary_cols)) {
+				$concat_values[$col] = $value;
+				$concat_string = $value;
+				$concat_col    = $col;
+			}
 		}
 
 		// INSERT SELECTS are funny because to work out the rows that just got inserted, we
 		// actually contrust a sub-query to pass to the rollback function by concatenating
 		// the primary key fields with a '~' and matching on that
 		// EXAMPLE: assetid~version IN ('12~0.0.2') rather than asset=12 AND version='0.0.2'
-		foreach ($insert_values as $col => $value) {
-			if ($this->db->phptype == 'mysql') {
-				$concat_string = 'CONCAT('.implode(', '.$this->db->quote('~').', ', array_values($concat_values)).')';
-				$concat_col = 'CONCAT('.implode(', '.$this->db->quote('~').', ', array_keys($concat_values)).')';
-			} else {
-				$concat_string = implode(' || '.$this->db->quote('~').' || ', array_values($concat_values));
-				$concat_col = implode(' || '.$this->db->quote('~').' || ', array_keys($concat_values));
+		if (count($concat_values) > 1) {
+			foreach ($insert_values as $col => $value) {
+				if ($this->db->phptype == 'mysql') {
+					$concat_string = 'CONCAT('.implode(', '.$this->db->quote('~').', ', array_values($concat_values)).')';
+					$concat_col = 'CONCAT('.implode(', '.$this->db->quote('~').', ', array_keys($concat_values)).')';
+				} else {
+					$concat_string = implode(' || '.$this->db->quote('~').' || ', array_values($concat_values));
+					$concat_col = implode(' || '.$this->db->quote('~').' || ', array_keys($concat_values));
+				}
 			}
 		}
 
@@ -1392,7 +1429,7 @@ class MySource
 		$this->doTransaction('COMMIT');
 		return true;
 
-	}//end rollbackInsert()
+	}//end rollbackInsertSelect()
 
 
 	/**
