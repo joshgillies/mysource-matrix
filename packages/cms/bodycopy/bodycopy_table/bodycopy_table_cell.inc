@@ -20,6 +20,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 	*/
 	function BodyCopy_Table_Cell()
 	{
+		parent::Resolve_Object();
 		// nothing to see here
 	}
 
@@ -157,22 +158,31 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 		}
 		echo ">\n";
 		$link = $table->getLinkById($this->attributes['linkid']);
-		$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
-		$content_edit = &$content_type->getEditFns();
-		if (!empty($prefix)) {
-			$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
-			$content_edit->paintBackend($content_type, $content_prefix);
+		if (empty($link)) {
+			$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
 		} else {
-			ob_start();
-			$content_edit->paint($content_type, $generating);
-			$cell_content = ob_get_contents();
-			ob_end_clean();
-
-			// format contents for pretty HTML
-			$cell_content = preg_replace("/^/", "\t\t\t", $cell_content);
-			$cell_content = preg_replace("/\n/", "\n\t\t\t", $cell_content);
-			echo $cell_content;
+			$content_type = null;
 		}
+
+		if (is_null($content_type)) {
+			echo 'Content Type Asset Id : #'.$link['minorid'].' not found<br>Please contact your system administrator';
+		} else {
+			$content_edit = &$content_type->getEditFns();
+			if (!empty($prefix)) {
+				$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
+				$content_edit->paintBackend($content_type, $content_prefix);
+			} else {
+				ob_start();
+				$content_edit->paint($content_type, $generating);
+				$cell_content = ob_get_contents();
+				ob_end_clean();
+
+				// format contents for pretty HTML
+				$cell_content = preg_replace("/^/", "\t\t\t", $cell_content);
+				$cell_content = preg_replace("/\n/", "\n\t\t\t", $cell_content);
+				echo $cell_content;
+			}
+		}// end if
 		echo "\n\t\t</td>\n";
 	}
 
