@@ -364,13 +364,13 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$str = '';
 		ob_start();
 		if ($this->_createDesignFileOutput($asset->attr('contents'), $asset, $asset)) {
-			$str = ob_get_contents();
+			// get the contents, removing any close then open tags that happen right next to each other
+			// (more for code neatness than anything :)
+			$str = str_replace('?'.'><'.'?php', '', ob_get_contents());
 		}
 		ob_end_clean();
 
 		if (!$str) return false;
-
-
 		$str = $pre_str."\n".$str;
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
