@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.124 2003/10/07 03:59:47 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.125 2003/10/07 05:02:59 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1460,7 +1460,7 @@ class Asset_Manager extends MySource_Object
 
 			if (!empty($USERIDS_COND)) {
 				$USERIDS_COND .= '
-					GROUP BY a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path
+					GROUP BY a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order
 					HAVING MIN(p.access) = 1';
 			}
 		}
