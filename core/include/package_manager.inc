@@ -527,11 +527,13 @@ class Package_Manager extends MySource_Object
 		}
 
 		// if we are inheriting from something else then go find it from the installed list
-		if ($this->assets[$type_code]['parent_type'] != 'asset') {
-			$new_arr = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($this->assets[$type_code]['parent_type']);
+		if (!isset($this->assets[$type_code])) {
+			$new_arr = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
 			foreach($new_arr as $type_code) $arr[] = $type_code;
+
 		} else {
 			$arr[] = 'asset';
+
 		}
 
 #		pre_echo($arr);
