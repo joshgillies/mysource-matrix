@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_map.inc,v 1.100 2003/10/30 03:55:04 dwong Exp $
+* $Id: asset_map.inc,v 1.101 2003/10/30 22:31:27 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -216,7 +216,7 @@ class Asset_Map
 			// Reload the passed assetid in the flash
 			function asset_map_popup(params)
 			{
-				var popup_win = window.open(params.url, 'sq_asset_map_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300');
+				var popup_win = window.open(params.url, 'sq_asset_map_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=650,height=400');
 			}
 			registerFlashToJsCall('asset_map_popup', asset_map_popup);
 
@@ -883,7 +883,7 @@ class Asset_Map
 		$hh->queueHipo('hipo_job_create_link', $vars);
 		////  END HIPO PROCESSING  ////
 
-		$url = $hh->runQueuedJobs('Javascript: function closeWindow() { setTimeout(\'window.close()\', 500); } closeWindow();');
+		$url = $hh->runQueuedJobs('Javascript: function closeWindow() { setTimeout(\'window.close()\', 700); } closeWindow();');
 
 		if (!empty($url)) {
 			$urlTree = new XML_Tree();
