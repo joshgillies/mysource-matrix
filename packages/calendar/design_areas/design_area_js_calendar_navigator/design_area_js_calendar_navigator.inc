@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_js_calendar_navigator.inc,v 1.6 2005/01/20 13:21:53 brobertson Exp $
+* $Id: design_area_js_calendar_navigator.inc,v 1.7 2005/03/03 03:01:12 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -66,30 +66,6 @@ class Design_Area_JS_Calendar_Navigator extends Design_Area
 				?>
 				<script type="text/javascript">
 				//<![CDATA[
-					function frameRedirect(url)
-					{
-						basetags = document.getElementsByTagName(\'base\');
-						if (basetags.length != 0) {
-							switch (basetags[0].target) {
-								case \'_parent\':
-									window.parent.location = url;
-								  break;
-								case \'_top\':
-									window.top.location = url;
-									break;
-								case \'_self\':
-									document.location.href = url;
-									break;
-								case \'_blank\':
-									window.open(url, \'new\', \'\');
-									break;
-								default:
-									window.top.frames[basetags[0].target].location = url;
-							}
-						} else {
-							document.location.href = url;
-						}
-					}
 					function onDayClick(day, mon, year)
 					{
 						frameRedirect("<?php echo($target_url);?>?SQ_CALENDAR_VIEW=day&SQ_CALENDAR_DATE=" + DateConvert2MySQL(day, mon, year));
