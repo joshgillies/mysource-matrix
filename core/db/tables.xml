@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.52 2004/10/05 00:04:53 lwright Exp $
+* $Id: tables.xml,v 1.53 2004/10/05 00:10:04 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -511,9 +511,7 @@
 			</column>
 			<column name="period" allow_null="0">
 				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>TINYINT UNSIGNED</mysql>
-				</type_variations>
+				<type_variations />
 				<default>'1'</default>
 				<description />
 			</column>
