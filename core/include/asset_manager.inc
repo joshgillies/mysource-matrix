@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.283 2005/03/14 23:50:53 arailean Exp $
+* $Id: asset_manager.inc,v 1.284 2005/03/15 00:56:50 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.283 $
+* @version $Revision: 1.284 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1477,7 +1477,6 @@ class Asset_Manager extends MySource_Object
 
 		$can_force = ($force) ? $asset->canForceablyAcquireLock($lock_type) : false;
 		$lock_updated = false;
-
 		foreach ($current_locks as $lock_type => $lock) {
 
 			if (!empty($lock) && $lock['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
@@ -2505,10 +2504,10 @@ class Asset_Manager extends MySource_Object
 	* Returns the treeids of any links between the passed assetid and any of its parents
 	*
 	* @param int			$assetid		the id of the asset passed
-	* @param int|array(int)	$link_type		the type(s) of wanted links, by default 1, 2, & 3
+	* @param int|array(int)	$link_type		the type(s) of wanted links, by default 1, 2 & 3
 	*
 	* @access public
-	* @return string
+	* @return array
 	*/
 	function getAssetTreeids($assetid, $link_type=null)
 	{
@@ -2523,12 +2522,11 @@ class Asset_Manager extends MySource_Object
 		$sql = '
 			SELECT t.treeid
 			FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
-				INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
-			ON l.linkid = t.linkid
+				INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t ON l.linkid = t.linkid
 		';
 
-		$where  = ' WHERE l.minorid = '.$db->quoteSmart($assetid);
-		$where .= ' AND (l.link_type & '.$db->quote($link_type).' > 0)';
+		$where  = 'WHERE l.minorid = '.$db->quoteSmart($assetid);
+		$where .= '	AND (l.link_type & '.$db->quote($link_type).' > 0)';
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
