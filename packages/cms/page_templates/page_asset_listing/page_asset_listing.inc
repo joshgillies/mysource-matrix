@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.8 2004/02/12 01:31:49 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.9 2004/02/12 22:17:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -368,9 +368,15 @@ class Page_Asset_Listing extends Page
 				if ($result_page >= count($chunks)) $replacements['next_page'] = $this->attr('next_page_text');
 				else $replacements['next_page'] = '<a href="'.$this->getURL().'?result_page='.($result_page+1).'">'.$this->attr('next_page_text').'</a>';
 
+				$replacements['current_page'] = (int)$result_page;
+				$replacements['total_pages'] = count($chunks);
+
 				// list of pages and links to them
 				$page_list = '';
-				for ($i = 1; $i <= count($chunks); $i++) $page_list .= ' <a href="'.$this->getURL().'?result_page='.$i.'">'.$i.'</a> ';
+				for ($i = 1; $i <= count($chunks); $i++) {
+					if ($i == $result_page) $page_list .= " $i ";
+					else $page_list .= ' <a href="'.$this->getURL().'?result_page='.$i.'">'.$i.'</a> ';
+				}
 				$replacements['page_list'] = $page_list;
 
 				unset($chunks);
@@ -413,6 +419,9 @@ class Page_Asset_Listing extends Page
 						}
 					}
 				}
+
+				$replacements['current_page'] = strtoupper($result_page);
+				$replacements['total_pages'] = 26;
 
 				// list of pages and links to them
 				$page_list = '';
