@@ -39,11 +39,11 @@ class wysiwyg {
 	var $init_onload  = 'yes';
 
 	/**
-	* The relative path to the root
+	* The relative path for web accessable files
 	* @var string
 	* @see paint()
 	*/
-	var $rel_path  = '';
+	var $web_path  = '';
 
 	/**
 	* The stylesheet to use in the editor
@@ -104,11 +104,11 @@ class wysiwyg {
 	* @returns object WYSIWYG
 	* @access  public
 	*/
-	function wysiwyg($name='wysiwyg', $rel_path='') {
+	function wysiwyg($name='wysiwyg', $web_path='') {
 		$this->name = $name;
-		$this->rel_path = $rel_path;
+		$this->web_path = $web_path;
 		global $ROOT_PATH;
-		$ROOT_PATH = realpath(dirname('_FILE_')).'/'.$this->rel_path;
+		$ROOT_PATH = realpath(dirname(__FILE__)).'/';
 	}
 
 
@@ -318,7 +318,7 @@ class wysiwyg {
 
 							// using a single image, position each of the div tags for the buttons
 							el.style.position = "relative";
-							el.style.top = (HTMLArea.is_gecko ? -9 : 0);
+							el.style.top = (HTMLArea.is_gecko ? -9 : 2);
 					
 							img.style.position = "absolute";
 							img.style.left = -1 * (btnLeft); // use the index to get the offset
@@ -480,13 +480,13 @@ class wysiwyg {
 				};
 			</script>
 
-			<script type="text/javascript" language="Javascript" src="<?php echo $this->rel_path?>core/core.js"></script>
-			<script type="text/javascript" language="Javascript" src="<?php echo $this->rel_path?>core/utility.js"></script>
-			<script type="text/javascript" language="Javascript" src="<?php echo $this->rel_path?>core/htmlarea-lang-en.js"></script>
-			<script type="text/javascript" language="Javascript" src="<?php echo $this->rel_path?>core/dialog.js"></script>
+			<script type="text/javascript" language="Javascript" src="<?php echo $this->web_path?>core/core.js"></script>
+			<script type="text/javascript" language="Javascript" src="<?php echo $this->web_path?>core/utility.js"></script>
+			<script type="text/javascript" language="Javascript" src="<?php echo $this->web_path?>core/htmlarea-lang-en.js"></script>
+			<script type="text/javascript" language="Javascript" src="<?php echo $this->web_path?>core/dialog.js"></script>
 
 			<style type="text/css">
-				@import url("<?php echo $this->rel_path?>core/htmlarea.css");
+				@import url("<?php echo $this->web_path?>core/htmlarea.css");
 			</style>
 			<?php
 			$WYSIWYG_INIT = true;
@@ -547,8 +547,8 @@ class wysiwyg {
 					this.editorURL = "";
 
 					// URL-s
-					this.imgURL = "<?php echo $this->rel_path?>images/";
-					this.pluginURL = "<?php echo $this->rel_path?>plugins/";
+					this.imgURL = "<?php echo $this->web_path?>images/";
+					this.pluginURL = "<?php echo $this->web_path?>plugins/";
 
 					this.replaceNextLines = 0;
 					this.plainTextInput = 0;

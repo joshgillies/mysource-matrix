@@ -36,10 +36,9 @@ HTMLArea.prototype.generate = function () {
 	textarea.parentNode.insertBefore(htmlarea, textarea);
 
 	// retrieve the HTML on submit
-	HTMLArea._addEvent(textarea.form, "submit", function (event) {
-		editor._formSubmit(HTMLArea.is_ie ? window.event : event);
-	});
-
+	eval ('var otherOnSubmit_' + this._uniqueID + '= (textarea.form.onsubmit) ? textarea.form.onsubmit :  new Function;');
+	eval ('textarea.form.onsubmit = function() { editor._textArea.value = editor.getHTML(); otherOnSubmit_' + this._uniqueID + '(); };');
+	
 	// creates & appends the toolbar
 	//this._createToolbar();
 	this._htmlArea.appendChild(this._toolbar);
@@ -300,6 +299,7 @@ HTMLArea.prototype.getSelectedHTML = function() {
 // gets called before the form is submitted
 HTMLArea.prototype._formSubmit = function(ev) {
 	// retrieve the HTML
+	alert('submit');
 	this._textArea.value = this.getHTML();
 };
 
