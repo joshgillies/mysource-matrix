@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.19 2004/08/19 05:22:06 gsherwood Exp $
+* $Id: datetime.inc,v 1.20 2004/09/10 07:10:11 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -265,7 +265,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	function process($prefix)
 	{
 		$setting_single_date = true;
-		if (isset($_POST[$prefix.'_setting_single_date']) && $_POST[$prefix.'_setting_single_date'] == 'false') {
+		if (isset($_REQUEST[$prefix.'_setting_single_date']) && $_REQUEST[$prefix.'_setting_single_date'] == 'false') {
 			$setting_single_date = false;
 		}
 
@@ -286,9 +286,9 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 				$this->processed = false;
 			}
 		} else {
-			$period_num = (isset($_POST[$prefix.'period_num'])) ? (int) $_POST[$prefix.'period_num'] : '1';
-			$period_type = (isset($_POST[$prefix.'_period_type'])) ? $_POST[$prefix.'_period_type'] : 'd';
-			$period_age = (isset($_POST[$prefix.'_period_age'])) ? $_POST[$prefix.'_period_age'] : '-';
+			$period_num = (isset($_REQUEST[$prefix.'period_num'])) ? (int) $_REQUEST[$prefix.'period_num'] : '1';
+			$period_type = (isset($_REQUEST[$prefix.'_period_type'])) ? $_REQUEST[$prefix.'_period_type'] : 'd';
+			$period_age = (isset($_REQUEST[$prefix.'_period_age'])) ? $_REQUEST[$prefix.'_period_age'] : '-';
 
 			if (!isset($this->_period_options[$period_type])) $period_type = 'd';
 			if (!isset($this->_age_options[$period_age])) $period_age = '-';
@@ -394,6 +394,22 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 		return true;
 
 	}//end validateValue()
+
+
+	/**
+	* Retrieve a list of indexable values from this attribute
+	*
+	* The return value not only contains the indexable values, but also the number of
+	* times they occur in this attributes value
+	*
+	* @return array(string => int)
+	* @access public
+	*/
+	function getKeyData()
+	{
+		return Array($this->value => 1);
+
+	}//end getKeyData()
 
 
 }//end class
