@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.35 2004/11/18 05:12:48 gsherwood Exp $
+* $Id: page_asset_builder.inc,v 1.36 2004/11/23 02:35:01 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -554,7 +554,7 @@ class Page_Asset_Builder extends Page
 
 		// check what rules dictate where the asset should be created
 		$location_rules = $this->attr('create_location_rules');
-		$attributeids = ($GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type, Array('name', 'attributeid')));
+		$attributeids = ($GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type, Array('name', 'attrid')));
 		if (!empty($location_rules[$create_type])) {
 			foreach ($location_rules[$create_type] as $i => $rule) {
 				$pass = true;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.37 2004/11/18 05:11:34 gsherwood Exp $
+* $Id: form_question.inc,v 1.38 2004/11/23 02:32:18 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.37 $ - 1.0
+* @version $Revision: 1.38 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -116,7 +116,7 @@ class Form_Question extends Asset
 		foreach ($asset_attributes as $attribute_name => $asset_attribute)
 		{
 			$this->vars[$attribute_name]['type'] = $asset_attribute['type'];
-			$this->vars[$attribute_name]['attributeid'] = $asset_attribute['attrid'];
+			$this->vars[$attribute_name]['attrid'] = $asset_attribute['attrid'];
 			if (isset($data['attributes'][$attribute_name])) {
 				$this->vars[$attribute_name]['value'] = (($asset_attribute['type'] == 'serialise') ? unserialize($data['attributes'][$attribute_name]) : $data['attributes'][$attribute_name]);
 			} else {

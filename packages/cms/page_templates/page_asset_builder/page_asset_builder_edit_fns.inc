@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.21 2004/11/12 04:36:25 tbarrett Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.22 2004/11/23 02:35:01 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -667,7 +667,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			echo '<p><b>Rules for Asset Type '.$create_type.'</b></p>';
 
 			$attributes = Array();
-			$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type, Array('name', 'attributeid', 'type'));
+			$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type, Array('name', 'attrid', 'type'));
 			foreach ($attrs as $name => $data) $attributes[$name] = ucwords(str_replace('_', ' ', $name));
 			$attributes = Array(''=>'--Choose Attribute--') + $attributes;
 
