@@ -248,17 +248,18 @@ class Backend extends Resolve_Object
 		if (!empty($messages)) {
 			// found unread messages
 			$html = '
-			<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000">
+			<table border="0" cellspacing="2" cellpadding="2" bgcolor="#7B969C">
 				<tr>
-					<td bgcolor="#F0F0F0">
+					<td bgcolor="#C7D0D9">
 						<table>
 							<tr>
-								<td class="sq-backend-message-header">New Messages</td>
+								<td rowspan="2" valign="middle"><img src="'.$this->out->filesPath('/images/icons/mail.gif').'" width="31" height="33" border="0" alt="" /></td>
+								<td class="sq-backend-smallprint"><b>New Messages</b></td>
 							</tr>
 							<tr>
-								<td class="sq-backend-message-item" nowrap>
-								<a href="#" onClick="Javascript: if (parent.top.sidenav.top.sidenav && parent.top.sidenav.top.sidenav.refresh_internal_messages) { parent.top.sidenav.top.sidenav.refresh_internal_messages(); }; return false;">
-									'.$GLOBALS['SQ_SYSTEM']->user->name.' has '.count($messages).' new messages
+								<td class="sq-backend-smallprint" nowrap>
+								<a href="#" onClick="Javascript: if (parent.top.sidenav.top.sidenav && parent.top.sidenav.top.sidenav.refresh_internal_messages) { parent.top.sidenav.top.sidenav.refresh_internal_messages(); }; return false;" style="color: #1455D6">
+									'.$GLOBALS['SQ_SYSTEM']->user->name.' has '.count($messages).' new message'.((count($messages) > 1) ? 's' : '').'
 								</a>
 								</td>
 							</tr>
