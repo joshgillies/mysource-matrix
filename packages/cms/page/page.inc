@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page.inc,v 1.31 2004/02/10 04:16:43 gsherwood Exp $
+* $Id: page.inc,v 1.32 2004/02/16 05:16:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -108,11 +108,13 @@ class Page extends Asset
 	function _getAllowedLinks()
 	{
 		$allowed = parent::_getAllowedLinks();
-		$allowed[SQ_LINK_TYPE_1]['page'] = Array('card' => 'M', 'exclusive' => false);
-		$allowed[SQ_LINK_TYPE_1]['file'] = Array('card' => 'M', 'exclusive' => false);
+		$allowed[SQ_LINK_TYPE_1]['page']   = Array('card' => 'M', 'exclusive' => false);
+		$allowed[SQ_LINK_TYPE_1]['file']   = Array('card' => 'M', 'exclusive' => false);
+		$allowed[SQ_LINK_TYPE_1]['folder'] = Array('card' => 'M', 'exclusive' => false);
 
-		$allowed[SQ_LINK_TYPE_2]['page'] = Array('card' => 'M', 'exclusive' => false);
-		$allowed[SQ_LINK_TYPE_2]['file'] = Array('card' => 'M', 'exclusive' => false);
+		$allowed[SQ_LINK_TYPE_2]['page']   = Array('card' => 'M', 'exclusive' => false);
+		$allowed[SQ_LINK_TYPE_2]['file']   = Array('card' => 'M', 'exclusive' => false);
+		$allowed[SQ_LINK_TYPE_2]['folder'] = Array('card' => 'M', 'exclusive' => false);
 
 		$allowed[SQ_LINK_TYPE_3]['page'] = Array('card' => 'M', 'exclusive' => false);
 
