@@ -207,6 +207,17 @@ class File extends Asset
 			return false;
 		}
 
+		// check that we are not going to have web path conflicts
+		$valid_names = $this->_makeValidWebPaths(Array($info['name']));
+		$name = array_shift($valid_names);
+
+		// make sure the new web path is not already is use
+		$bad_paths = $link['asset']->_webPathsInUse(Array($name));
+		if (!empty($bad_paths)) {
+			trigger_error('Unable to create file, web path already exists?', E_USER_WARNING);
+			return false;
+		}
+
 		return parent::create($link);
 
 	}//end create()
