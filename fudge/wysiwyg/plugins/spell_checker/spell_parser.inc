@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_parser.inc,v 1.9 2003/12/16 12:42:56 brobertson Exp $
+* $Id: spell_parser.inc,v 1.10 2004/08/19 03:44:39 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -161,7 +161,7 @@ Class Spell_Parser {
 	*/
 	function setLanguage($dict='en')
 	{
-		$pspell_config = pspell_config_create($GLOBALS['dict']);
+		$pspell_config = pspell_config_create($dict);
 		pspell_config_mode($pspell_config, PSPELL_FAST);
 		$GLOBALS['spellerid'] = pspell_new_config($pspell_config);
 		return true;
