@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.84 2005/03/11 00:55:31 gsherwood Exp $
+* $Id: search_page.inc,v 1.85 2005/03/18 06:03:38 arailean Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1457,7 +1457,7 @@ class Search_Page extends Listing_Engine
 	/**
 	* Processes a search request
 	*
-	* Note that all search queries are constructed an run in the Search Manager
+	* Note that all search queries are constructed and run in the Search Manager
 	*
 	* From the posted variables, it formulates search info and returns results
 	*
@@ -1698,6 +1698,7 @@ class Search_Page extends Listing_Engine
 		$search_info = Array();
 
 		$search_info['logic'] = $this->attr('logic');
+		$search_info['assetid'] = $this->id;
 
 		$link_value = 'root';
 		if (!empty($category)) $link_value .= '_'.$category;
@@ -1914,7 +1915,7 @@ class Search_Page extends Listing_Engine
 			}
 		}
 
-		foreach($type_formats as $type_format) {
+		foreach ($type_formats as $type_format) {
 			$keywords['result_number'] = 'Result Number';
 			$keywords['score'] = 'Search Score';
 		}
