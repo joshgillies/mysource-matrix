@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.238 2003/10/16 03:01:55 gsherwood Exp $
+* $Id: asset.inc,v 1.239 2003/10/16 05:59:26 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1869,14 +1869,20 @@ class Asset extends MySource_Object
 			$attr_ids[] = $attr_id;
 
 			// log a message for the asset - this wont get logged until we close the queue
-			$message_body = 'The value of attribute "'.$attribute->name.'" for asset "'.$this->name.'" has been changed from "'.$var_data['old_value'].'" to "'.$attr_value.'"';
+			$message_body = 'The value of attribute "'.$attribute->name.'" for asset "'.$this->name.'" has been changed';
+			if (is_scalar($var_data['old_value']) && is_scalar($attr_value)) {
+				$message_body .= ' from "'.$var_data['old_value'].'" to "'.$attr_value.'"';
+			}
 			$message = $ms->newMessage(Array(), 'Asset Attribute Updated', $message_body, 'asset.attributes.fulllog');
 			$message->parameters['assetid'] = $this->id;
 			$ms->logMessage($message);
 
 			// log a smaller message for users to view - this wont get logged until we close the queue
 			require_once SQ_FUDGE_PATH.'/general/general.inc';
-			$message_body = 'The value of attribute "'.$attribute->name.'" for asset "'.$this->name.'" has been changed from "'.ellipsisize($var_data['old_value'], 30).'" to "'.ellipsisize($attr_value, 30).'"';
+			$message_body = 'The value of attribute "'.$attribute->name.'" for asset "'.$this->name.'" has been changed';
+			if (is_scalar($var_data['old_value']) && is_scalar($attr_value)) {
+				$message_body .= ' from "'.ellipsisize($var_data['old_value'], 30).'" to "'.ellipsisize($attr_value, 30).'"';
+			}
 			$sml_message = $ms->newMessage(Array(), 'Asset Attribute Updated', $message_body, 'asset.attributes');
 			$sml_message->parameters['assetid'] = $this->id;
 			$ms->logMessage($sml_message);
