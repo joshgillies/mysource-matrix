@@ -34,6 +34,7 @@ CMS
 *	Fixed bug #388: undefined index notice when using client side validation (custom form)
 *	Fixed bug #392: client side validation does not work with complex formatting (custom form)
 *	Fixed bug #400: asset listings custom asset form cache is not working (asset listing)
+*	Fixed bug #412: form sections do not send active submission data to their questions when submitting form (custom form)
 
 Search
 *	Fixed bug #392: some datetime attribute values end up as 01-01-1970 when inserted into the index table (search manager)
