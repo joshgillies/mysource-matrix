@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.164.2.4 2004/03/03 19:35:46 brobertson Exp $
+* $Id: asset_manager.inc,v 1.164.2.5 2004/03/04 16:42:43 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3869,7 +3869,7 @@ class Asset_Manager extends MySource_Object
 
 		//// See Mantis #0000128 for a reason on why the trailing slash is added to the URL and before the '%' ////
 		$concat = ($db->phptype == 'mysql') ? 'CONCAT(l.url, '.$db->quote('/%').')' : '(l.url || '.$db->quote('/%').')';
-		$where = 'l.root_urlid = '.$db->quote((int) $root_url['urlid']).'
+		$where = 'l.root_urlid = '.$db->quote($root_url['urlid']).'
 				AND '.$db->quote($url.'/').' LIKE '.$concat;
 
 		if (!is_null($protocol)) {
