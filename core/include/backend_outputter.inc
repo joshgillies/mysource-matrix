@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.73 2003/12/02 03:37:49 mmcintyre Exp $
+* $Id: backend_outputter.inc,v 1.74 2003/12/02 04:16:56 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -543,7 +543,7 @@ class Backend_Outputter
 				</tr>
 				</table>
 				<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td></tr></table>
-			<?
+			<?php
 			$this->_nb_section_count--;
 			if ($this->_nb_section_count == 0) {
 				$this->_is_open_section = false;
@@ -687,7 +687,7 @@ class Backend_Outputter
 		?>
 				</td>
 			</tr>
-		<?
+		<?php
 	}//end nbCloseSection()
 
 
