@@ -19,22 +19,30 @@ class Config extends Resolve_Object
 	var $config_file;
 
 	var $config_vars = Array(
-							'SQ_CONF_DB_DSN'					=> Array('editable' => 0, 'default' => ''),
-							'SQ_CONF_PEAR_PATH'					=> Array('editable' => 0, 'default' => ''),
-							'SQ_CONF_BACKEND_SUFFIX'			=> Array('editable' => 0, 'default' => '_edit'),
-							'SQ_CONF_SYSTEM_NAME'				=> Array('editable' => 1, 'default' => 'Resolve System'),
-							'SQ_CONF_SYSTEM_OWNER'				=> Array('editable' => 1, 'default' => ''),
-							'SQ_CONF_SYSTEM_ADMIN_EMAIL'		=> Array('editable' => 1, 'default' => ''),
-							'SQ_CONF_SYSTEM_ROOT_URLS'			=> Array('editable' => 1, 'default' => ''),
-							'SQ_CONF_SUPER_USERS'				=> Array('editable' => 1, 'default' => ''),
-							'SQ_CONF_MAX_IDLE_TIME'				=> Array('editable' => 1, 'default' => '6000'),
-							'SQ_CONF_MAX_LOGIN_ATTEMPTS'		=> Array('editable' => 1, 'default' => '3'),
-							'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'	=> Array('editable' => 1, 'default' => 'en'),
-							'SQ_CONF_DEFAULT_CHARACTER_SET'		=> Array('editable' => 1, 'default' => 'iso-8859-1'),
-							'SQ_CONF_ERRORS_HIDE_FRONTEND'		=> Array('editable' => 1, 'default' => '0'),
-							'SQ_CONF_ERRORS_LOG'				=> Array('editable' => 1, 'default' => '0'),
-							'SQ_CONF_REFRESH_INTERVAL'			=> Array('editable' => 1, 'default' => '120')
-							);
+		'SQ_CONF_DB_DSN'					=> Array('editable' => 0, 'default' => ''),
+		'SQ_CONF_PEAR_PATH'					=> Array('editable' => 0, 'default' => ''),
+		'SQ_CONF_BACKEND_SUFFIX'			=> Array('editable' => 0, 'default' => '_edit'),
+/*
+* Fixed Size of the number of digits that each link trees entry can be, run 
+*   pow(SQ_CONF_ASSET_TREE_BASE, SQ_CONF_ASSET_TREE_SIZE) 
+* to get max number of possible link entries per node
+*/
+		'SQ_CONF_ASSET_TREE_BASE'			=> Array('editable' => 0, 'default' => 64),
+		'SQ_CONF_ASSET_TREE_SIZE'			=> Array('editable' => 0, 'default' =>  4),
+
+		'SQ_CONF_SYSTEM_NAME'				=> Array('editable' => 1, 'default' => 'Resolve System'),
+		'SQ_CONF_SYSTEM_OWNER'				=> Array('editable' => 1, 'default' => ''),
+		'SQ_CONF_SYSTEM_ADMIN_EMAIL'		=> Array('editable' => 1, 'default' => ''),
+		'SQ_CONF_SYSTEM_ROOT_URLS'			=> Array('editable' => 1, 'default' => ''),
+		'SQ_CONF_SUPER_USERS'				=> Array('editable' => 1, 'default' => ''),
+		'SQ_CONF_MAX_IDLE_TIME'				=> Array('editable' => 1, 'default' => '6000'),
+		'SQ_CONF_MAX_LOGIN_ATTEMPTS'		=> Array('editable' => 1, 'default' => '3'),
+		'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'	=> Array('editable' => 1, 'default' => 'en'),
+		'SQ_CONF_DEFAULT_CHARACTER_SET'		=> Array('editable' => 1, 'default' => 'iso-8859-1'),
+		'SQ_CONF_ERRORS_HIDE_FRONTEND'		=> Array('editable' => 1, 'default' => '0'),
+		'SQ_CONF_ERRORS_LOG'				=> Array('editable' => 1, 'default' => '0'),
+		'SQ_CONF_REFRESH_INTERVAL'			=> Array('editable' => 1, 'default' => '120')
+	);
 
 
 
@@ -103,8 +111,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 				$value = constant($var_name);
 			}
 
-			$str .= "define('$var_name', '".addslashes($value)."');\n";
-
+			$str .= "define('$var_name', ".var_export($value, true).");\n";
 
 			if ($var_name == 'SQ_CONF_PEAR_PATH' && !empty($value)) {
 				$str .= "\$sep = (substr(PHP_OS, 0, 3) == 'WIN') ? ';' : ':';\n";
