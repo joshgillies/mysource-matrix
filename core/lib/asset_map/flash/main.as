@@ -60,13 +60,10 @@ _root.attachMovie("mcListContainerID", "list_container", 1);
 //Attach the container on to the "scroller"
 _root.scroller.setScrollContent(_root.list_container);
 
-// Load up the root entries
-// create the root asset as we need to this to start somewhere
-_root.list_container.assets['1'] = new Asset(1, 'root_folder', '/', true);
-_root.list_container.showKids('1', 'li');
+_root.list_container.init();
 
 // Call resize to setup intial sizes of things
 _root.stageResizeListener.onResize();
 
-_root.external_call.registerCmd("reload_asset", _root.list_container, 'reloadAsset');
+_root.external_call.registerCmd("reload_asset", _root.list_container, 'externReloadAsset');
 

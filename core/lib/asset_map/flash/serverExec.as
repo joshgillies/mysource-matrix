@@ -13,44 +13,60 @@ function serverExec(exec_path, content_type)
 }
 
 /**
-* Execute the passed xml command by sending it to the server
+* Initialise an execution, 
 * Returns a unique (on a per movie load) index that can be used to identify 
-* results from multiple of the same commands
+* results from multiple calls of the same commands
 *
 * @param object	XML			xml command to send to server
 * @param object	on_load_obj	the object to run the on_load_fn on
 * @param string	on_load_fn	the fn name to run once loading has occured
 * @param string	root_node	the expected root node for the returned text
-* @param string	desc		text desc for the progress bar
 *
 * @return int
 * @access public
 */
-serverExec.prototype.exec = function(xml_cmd, on_load_obj, on_load_fn, root_node, desc)
+serverExec.prototype.init_exec = function(xml_cmd, on_load_obj, on_load_fn, root_node)
 {
 	// bit of cleanup
 	for (var j in this.xmls) {
-		if (this.xmls[j] != null && this.xmls[j].__server_exec.finished) this.xmls[j] = null;
+		if (this.xmls[j] != null && this.xmls[j].__server_exec.finished) {
+			delete this.xmls[j];
+		}
 	}
 
 	var i = this.count++;
-	this.xmls[i] = new XML();
-	this.xmls[i].ignoreWhite = true;
-	this.xmls[i].onLoad = serverExecXMLonLoad;
+	this.xmls[i] = new Object();
+	this.xmls[i].output = xml_cmd;
+	this.xmls[i].input = new XML();
+	this.xmls[i].input.ignoreWhite = true;
+	this.xmls[i].input.onLoad = serverExecXMLonLoad;
 
-	this.xmls[i].__server_exec = new Object();
-	this.xmls[i].__server_exec.i = i;
-	this.xmls[i].__server_exec.on_load_obj = on_load_obj;
-	this.xmls[i].__server_exec.on_load_fn  = on_load_fn;
-	this.xmls[i].__server_exec.root_node   = root_node;
-
-	_root.showProgressBar(desc);
-	xml_cmd.contentType = this.content_type;
-	xml_cmd.sendAndLoad(this.exec_path, this.xmls[i]);
+	this.xmls[i].input.__server_exec = new Object();
+	this.xmls[i].input.__server_exec.i = i;
+	this.xmls[i].input.__server_exec.on_load_obj = on_load_obj;
+	this.xmls[i].input.__server_exec.on_load_fn  = on_load_fn;
+	this.xmls[i].input.__server_exec.root_node   = root_node;
 
 	return i;
 
+}// end init_exec()
+
+/**
+* Execute the xml cmd represented by the passed exec identifier
+*
+* @param int	exec_identifier	
+* @param string	desc			text desc for the progress bar
+*
+* @access public
+*/
+serverExec.prototype.exec = function(exec_identifier, desc)
+{
+	_root.showProgressBar(desc);
+	this.xmls[exec_identifier].output.contentType = this.content_type;
+	this.xmls[exec_identifier].output.sendAndLoad(this.exec_path, this.xmls[exec_identifier].input);
+
 }// end exec()
+
 
 /**
 * The onLoad fn for the this.xmls[i] object defined in exec() above

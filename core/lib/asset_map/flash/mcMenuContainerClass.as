@@ -47,11 +47,12 @@ mcMenuContainerClass.prototype.create = function(arr)
 	}
 
 	// start the loading process
-	var exec_identifier = _root.server_exec.exec(xml, this, "loadItems", "options", "Loading Menu");
+	var exec_identifier = _root.server_exec.init_exec(xml, this, "loadItems", "options", "Loading Menu");
+	_root.server_exec.exec(exec_identifier, "Loading Menu");
 
 }
 
-mcMenuContainerClass.prototype.loadItems = function(xml)
+mcMenuContainerClass.prototype.loadItems = function(xml, exec_identifier)
 {
 
 	var xml_tops   = this._recurseCreateFromXML(xml.firstChild.childNodes, 0);

@@ -61,3 +61,58 @@ function array_search(arr, val) {
     return null;
 
 }// end array_search()
+
+/**
+* takes an array and a value and removes the first 
+* element in the array with that value
+*
+* @param Array arr	the array to remove the element from
+* @param mixed val	the value to match
+*
+*/
+function array_remove_element(arr, val) {
+
+	var i = array_search(arr, val);
+	if (i != null) {
+		arr.splice(i, 1);
+	}// end if
+
+}// end array_remove_element()
+
+/**
+* Takes an array and returns a copy of it
+* Useful because arrays get passed by reference to fns
+*
+* @param Array arr	the array to copy
+*
+*/
+function array_copy(arr) {
+
+	var new_arr = new Array();
+	for (var i = 0; i < arr.length; i++) {
+		new_arr[i] = arr[i];
+	}
+	return new_arr;
+
+}// end array_copy()
+
+/**
+* Returns an array of all values that are in arr1 but not in arr2
+*
+* @param Array arr1	
+* @param Array arr2	
+*
+*/
+function array_diff(arr1, arr2) {
+
+
+	var new_arr = new Array();
+	for (var i = 0; i < arr1.length; i++) {
+		if (array_search(arr2, arr1[i]) == null) {
+			new_arr.push(arr1[i]);
+		}
+	}
+
+	return new_arr;
+
+}// end array_diff()

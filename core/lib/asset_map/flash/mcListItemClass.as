@@ -31,7 +31,7 @@ mcListItemClass.prototype.setInfo = function(parent_item_name, asset)
 	this.type_code = asset.type_code;
 	this.item_text = this._name + ' ' + asset.name;
 
-	this.kids_button.setState((asset.has_kids) ? "plus" : "none");
+	this.kids_button.setState((asset.kids.length) ? "plus" : "none");
 }
 
 mcListItemClass.prototype.getKidState = function() 

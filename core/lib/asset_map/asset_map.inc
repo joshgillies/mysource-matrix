@@ -122,8 +122,8 @@ class Asset_Map
 
 
 		switch($root->attributes['action']) {
-			case 'get kids' :
-				$this->_getKids($input);
+			case 'get assets' :
+				$this->_getAssets($input);
 			break;
 			case 'menu items' :
 				$this->_getMenuItems($input);
@@ -143,48 +143,48 @@ class Asset_Map
 
 
 	/*
-	* Processes the get kids request
+	* Processes the get assets request
 	*
 	* @param object XML_Tree $input	the request info from the Flash
 	*
 	* @access private
 	*/
-	function _getKids(&$input) {
+	function _getAssets(&$input) {
 
-		if (empty($input->root->attributes['parent_assetid'])) {
-			$this->_error('No Parent Asset Id passed');
-			return;
-		} 
-		$parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($input->root->attributes['parent_assetid'], '', true);
-		if (is_null($parent)) {
-			$this->_error('Parent Asset #'.$input->root->attributes['parent_assetid'].' not found');
-			return;
-		}
-		// we only want EXCLUSIVE or UNITE links
-		$links = $parent->getLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE, '', 'S');
-		if (!count($links)) {
-			$this->_error('Asset "'.$parent->name.'" has no children');
-			return;
-		} 
+		error_log(array_contents(file('php://input')));
 
 		$output = new XML_Tree();
 		$root = &$output->addRoot('assets', '');
-		for($i = 0; $i < count($links); $i++) {
-			$child = &$GLOBALS['SQ_RESOLVE']->am->getAsset($links[$i]['minorid']);
-			if (!is_null($child)) {
-				$attrs = Array('assetid' => $child->id, 
-								'type_code' => get_class($child), 											
-								'has_kids'  => (int) ($child->countLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE) > 0)
-								);
-				$child = &$root->addChild('child', '[CS] '.$child->name, $attrs);
+		for($i = 0; $i < count($input->root->children); $i++) {
+			if (empty($input->root->children[$i]->attributes['assetid'])) continue;
+			$assetid = $input->root->children[$i]->attributes['assetid'];
+			$asset = &$GLOBALS['SQ_RESOLVE']->am->getAsset($assetid, '', true);
+
+			if (is_null($asset)) {
+				$this->_error('Asset #'.$assetid.' not found');
+				return;
 			}
-		}
+			$attrs = Array('assetid' => $asset->id, 
+							'name'   => '[CS] '.$asset->name,
+							'type_code' => get_class($asset)
+							);
+			$asset_node = &$root->addChild('asset', '', $attrs);
+			// we only want EXCLUSIVE or UNITE links
+			$links = $asset->getLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE, '', 'S');
+			if (count($links)) {
+				for($j = 0; $j < count($links); $j++) {
+					$kid_node = &$asset_node->addChild('child', '', Array('assetid' => $links[$j]['minorid']));
+				}
+			}
+
+		}// end children for
+
 
 		error_log("XML : \n".$output->get());
 
 		$this->_send($output);
 
-	}// end _getKids()
+	}// end _getAssets()
 
 	/*
 	* Processes the menu items request

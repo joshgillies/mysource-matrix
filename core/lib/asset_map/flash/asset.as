@@ -1,13 +1,12 @@
 
 // Create the Class
-function Asset(assetid, type_code, name, has_kids) 
+function Asset() 
 {
-	this.assetid    = assetid;
-	this.type_code  = type_code;
-	this.name       = name;
-	this.has_kids   = has_kids;
+	this.assetid    = 0;
+	this.type_code  = "";
+	this.name       = "";
 	this.kids       = new Array(); // array of assetids
-	this.list_items = new Array(); // array of list item names
+	this.item_names = new Array(); // array of list item names
 }
 
 Asset.prototype.toString = function()
@@ -15,6 +14,7 @@ Asset.prototype.toString = function()
 	return "AssetId: " + this.assetid + 
 			", Type Code: " + this.type_code + 
 			", Name: " + this.name + 
-			", Has Kids: " + this.has_kids;
+			", Kids: " + this.kids + 
+			", Item Names: " + this.item_names;
 }
 

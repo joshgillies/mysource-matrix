@@ -1,6 +1,24 @@
 
+_root.test_pressed_count = 0;
+
 function testOnClick(component)
 { 
+
+_root.test_pressed_count++;
+
+
+	switch(_root.test_pressed_count) {
+		case 1:
+			_root.list_container.reloadAsset(4);
+		break;
+
+		default :
+			for(var i = 0; i < _root.list_container.items_order.length; i++) {
+				trace(i + ' :\t' + _root.list_container[_root.list_container.items_order[i].name]._y + ' :\t' + _root.list_container.items_order[i].name);
+			}
+	}
+
+return;
 
 	trace("indicator\t: " + _root.list_container.move_indicator.getDepth());
 	for(var i = 0; i < _root.list_container.items_order.length; i++) {
