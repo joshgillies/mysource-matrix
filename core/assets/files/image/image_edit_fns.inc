@@ -60,6 +60,25 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 
 	/**
+	* Prints info about the current uploaded file
+	*
+	* @param object File	&$asset	the file asset
+	*
+	* @return void
+	* @access public
+	*/
+	function _printExistingFileInfo(&$asset)
+	{
+		parent::_printExistingFileInfo($asset);
+		$existing = $asset->_getExistingFile();
+		if (!empty($existing)) {
+			?><b>Dimensions:</b> <?php echo $existing['width'].' x '.$existing['height']?> pixels<br/><?php
+		}
+
+	}//end _printExistingFileInfo()
+
+
+	/**
 	* Prints the interface for uploading a file
 	*
 	* @param object Image				&$asset	the file asset

@@ -48,16 +48,9 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		if (!empty($existing)) {
 			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 			?> 
-				<p style="font-size: 7pt">
 				<b><a href="<?php echo current_url().'?a='.$asset->id?>&now=<?php echo time()?>" target="_blank">Current File</a></b><br/>
 				<b>Size:</b> <?php echo easy_filesize($existing['size'])?><br/>
-				<?php
-				if ($existing['width'] && $existing['height']) {
-					?><b>Dimensions:</b> <?php echo $existing['width'].' x '.$existing['height']?> pixels<br/><?php
-				}
-				?>
 				<b>Updated:</b> <?php echo readable_datetime($existing['modified'])?><br/>
-				</p>
 			<?php
 		}
 
