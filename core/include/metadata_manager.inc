@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: metadata_manager.inc,v 1.12 2003/10/14 05:31:05 gsherwood Exp $
+* $Id: metadata_manager.inc,v 1.13 2003/10/17 04:53:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -549,6 +549,7 @@ class Metadata_Manager extends MySource_Object
 			echo '?'.'>';
 			$php = ob_get_contents();
 			ob_end_clean();
+			require_once SQ_FUDGE_PATH."/general/text.inc";
 			$metadata = replace_keywords($metadata, $replacements);
 			$metadata = $php."\n\n".$metadata;
 		}
