@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_config.inc,v 1.5 2003/12/02 03:39:59 mmcintyre Exp $
+* $Id: system_asset_config.inc,v 1.6 2003/12/02 05:44:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -43,48 +43,7 @@ class System_Asset_Config extends Config
 		'PRINT_SYSTEM_ASSETS' => Array('editable' => 0, 'default' => ''),
 	);
 
-
-	/**
-	* Constructor
-	*
-	*/
-	function System_Asset_Config()
-	{
-		$this->Config();
-		$this->config_file = SQ_DATA_PATH.'/private/conf/system_assets.inc';
-	}
-
-
-	/**
-	* Rewrites the conf file with current variables
-	*
-	* @param Array		$vars				the array with any new values (that are allowed to be edited) Array('[config_var_name]' => [scalar value])
-	* @param boolean	$backup_existing	whether we should backup the existing config file first
-	*
-	* @return boolean	indicates whether the file was written
-	* @access public
-	*/
-	function save($vars, $backup_existing=false)
-	{
-		// We don't really care about any values that they have entered
-		return parent::save(Array(), $backup_existing);
-	}// end save()
-
-
-	/**
-	* Paint's out the code for the config file for the passed config
-	* This allows extra things to be added for special cases
-	*
-	* @param string $name	the config var name
-	* @param mixed  $value	the value that the config var has
-	*
-	* @return boolean	whether the value is valid or not
-	*/
-	function _paintConfigVar($var_name, $value)
-	{
-		switch($var_name) {
-			case 'PRINT_SYSTEM_ASSETS' :
-				$system_asset_types = Array(
+	var $system_asset_types = Array(
 									'root_folder',
 									'trash_folder',
 									'system_management_folder',
@@ -96,9 +55,55 @@ class System_Asset_Config extends Config
 									'search_manager',
 									'layout_manager',
 								);
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function System_Asset_Config()
+	{
+		$this->Config();
+		$this->config_file = SQ_DATA_PATH.'/private/conf/system_assets.inc';
+
+	}//end constructor
+
+
+	/**
+	* Rewrites the conf file with current variables
+	*
+	* @param Array		$vars				the array with any new values (that are allowed to be edited)
+	*										Array('[config_var_name]' => [scalar value])
+	* @param boolean	$backup_existing	whether we should backup the existing config file first
+	*
+	* @return boolean	indicates whether the file was written
+	* @access public
+	*/
+	function save($vars, $backup_existing=false)
+	{
+		// We don't really care about any values that they have entered
+		return parent::save(Array(), $backup_existing);
+
+	}//end save()
+
+
+	/**
+	* Paint out the code for the config file for the passed config
+	*
+	* This allows extra things to be added for special cases
+	*
+	* @param string $name	the config var name
+	* @param mixed  $value	the value that the config var has
+	*
+	* @return boolean whether the value is valid or not
+	*/
+	function _paintConfigVar($var_name, $value)
+	{
+		switch($var_name) {
+			case 'PRINT_SYSTEM_ASSETS' :
 				$system_assets = Array();
 				// GET THE ASSETIDS FOR ALL THE $system_assets types
-				foreach($system_asset_types as $type_code) {
+				foreach($this->system_asset_types as $type_code) {
 					$assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($type_code);
 					if (count($assetids) != 1) {
 						trigger_error('Unable to find a single asset with a type_code "'.$type_code.'", system asset generation failed', E_USER_WARNING);
@@ -110,7 +115,7 @@ class System_Asset_Config extends Config
 				var_export($system_assets);
 				echo "\n";
 				return true;
-				break;
+			break;
 
 			default :
 				return parent::_paintConfigVar($var_name, $value);
@@ -118,6 +123,7 @@ class System_Asset_Config extends Config
 		}// end switch
 
 	}//end _paintConfigVar()
+
 
 }//end class
 
