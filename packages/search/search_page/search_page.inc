@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.58.2.2 2004/10/15 06:08:35 mmcintyre Exp $
+* $Id: search_page.inc,v 1.58.2.3 2004/10/20 01:05:07 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.58.2.2 $ - 1.0
+* @version $Revision: 1.58.2.3 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -275,7 +275,9 @@ class Search_Page extends Page
 	*/
 	function printBody()
 	{
+		if (isset($_REQUEST['search_button'])) $_REQUEST['mode'] = 'results';
 		$mode = array_get_index($_REQUEST, 'mode', 'initial');
+
 		if (!isset($_SESSION['SQ_LAST_SEARCH'][$this->id])) {
 			$_SESSION['SQ_LAST_SEARCH'][$this->id] = Array();
 		} else {
@@ -700,6 +702,11 @@ class Search_Page extends Page
 									if (isset($selection->_params['options'][$query])) {
 										$read_only = true;
 									}
+									// set the value outside the if condition so that if
+									// empty text has been selected, it will get saved as the option,
+									// but the selection attribute will NOT be read only ie. they
+									// will be able to select another option in the sis form
+									$selection->value = $query;
 								} else {
 									if (!empty($query)) {
 										echo '<div class="search_current_options">';
@@ -899,15 +906,24 @@ class Search_Page extends Page
 
 			case 'search_button' :
 			case 'submit_button' :
-				$replacement  = '<input type="submit" onclick="
-					document.search_form.current_result_page.value=\'0\';
-					document.search_form.mode.value = \'results\';
-					return true;
-				" value="'. $this->attr('submit_button_text').'" />';
+
+				// if we are on the initial search page, don't use javascript
+				// for the submit button so enter will submit the form
+				$mode = array_get_index($_REQUEST, 'mode', 'initial');
+				if ($mode == 'initial') {
+					$replacement  = '<input type="submit" name="search_button"
+						value="'. $this->attr('submit_button_text').'" />';
+				} else {
+					$replacement  = '<input type="submit" onclick="
+						document.search_form.current_result_page.value=\'0\';
+						document.search_form.mode.value = \'results\';
+						return true;
+					" value="'. $this->attr('submit_button_text').'" />';
+				}
 			break;
 
 			case 'search_in_search_button' :
-				$replacement  = '<input type="submit" onclick="
+				$replacement  = '<input type="submit" name="sis_search_button" onclick="
 					document.search_form.current_result_page.value=\'0\';
 					document.search_form.mode.value = \'sis\';
 					return true;
@@ -1277,7 +1293,7 @@ class Search_Page extends Page
 
 							if ($fields[$query_var]['type'] == 'metadata') {
 
-								$assetid = $fields[$query_var]['params']['metadata_field']['assetid'];
+								$assetid = $fields[$query_var]['params']['assetid'];
 								$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 								$params = $asset->vars;
 								// metadata dropdown selection
@@ -1516,6 +1532,7 @@ class Search_Page extends Page
 
 
 		if ($mode == 'sis') {
+
 			$last_search = $_SESSION['SQ_LAST_SEARCH'][$this->id];
 
 			foreach ($queries as $field_name => $value) {
