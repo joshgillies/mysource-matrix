@@ -1191,16 +1191,7 @@ speed_check('FINISHED');
 				echo '<b><i>The security key entered was incorrect. The lock on "'.$asset->name.'" has not been forceably acquired. You may try again using the new security key displayed below.</i></b>';
 				$o->closeSection();
 			} else {
-				if (!@$asset->acquireLock(0, true)) {
-					$o->openSection('Note');
-					$o->openField('&nbsp;');
-					echo '<b>ERROR: Failed to forceably acquire the lock on "'.$asset->name.'"</b>';
-					$o->closeSection();
-					$o->openField('', 'commit');
-					normal_button('cancel', 'Cancel', 'window.close()');
-				} else {
-					$o->addOnLoad('window.opener.top.main.main_form.sq_acquire_by_force.value = \'1\'; window.opener.top.main.main_form.submit(); window.close();');
-				}
+				$o->addOnLoad('window.opener.top.main.main_form.sq_acquire_by_force.value = \'1\'; window.opener.top.main.main_form.sq_acquire_lock.value = \'1\'; window.opener.top.main.sqSubmitEditForm(); window.close();');
 				return;
 			}
 		}

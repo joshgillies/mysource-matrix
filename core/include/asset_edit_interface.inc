@@ -232,6 +232,7 @@ class Asset_Edit_Interface extends Resolve_Object
 						$popup_url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=forceably_acquire_lock&assetid='.$owner->id;
 
 						hidden_field('sq_acquire_by_force', '0');
+						hidden_field('sq_acquire_lock',     '0');
 						normal_button('sq_forceably_acquire_lock', 'Acquire Lock', 'window.open(\''.$popup_url.'\', \'sq_forceably_acquire_lock_popup\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300\');');
 
 					}
