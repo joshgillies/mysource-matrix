@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_transport_plain_text.inc,v 1.1.2.6 2004/02/27 16:38:36 brobertson Exp $
+* $Id: replication_system_transport_plain_text.inc,v 1.1.2.7 2004/02/27 18:04:43 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -125,10 +125,12 @@ class Replication_System_Transport_Plain_Text extends Replication_System_Transpo
 		// NOTE: If the file that is being transferred is over 2GB in size then there could be issues because
 		// of the way PHP uses signed int's see filesize() man page for defails
 
+		$filename = basename($source);
+
 		$headers = Array(
-						'type'     => 'file', 
-						'length'   => filesize($source_file),
-						'filename' => basename($source),
+						'type'        => 'file', 
+						'length'      => filesize($source_file),
+						'name_length' => strlen($filename),
 					);
 
 		if (!$this->_writeHeaders($headers)) {
@@ -136,6 +138,9 @@ class Replication_System_Transport_Plain_Text extends Replication_System_Transpo
 		}
 
 		$bytes_written = 0;
+
+		if (!$this->_writeToSocket($filename, $bytes_written)) return false;
+
 		$fd = fopen($source_file, 'rb');
 		do {
 
@@ -209,7 +214,7 @@ class Replication_System_Transport_Plain_Text extends Replication_System_Transpo
 				return $this->_readVarContents($data, $headers);
 				break;
 			case 'file' :
-				return $this->_readVarContents($data, $headers);
+				return $this->_readFileContents($data, $headers);
 				break;
 			default : 
 				trigger_error('Error reading from '.$this->getPeerInfo().' : Unknown data type "'.$headers['type'].'"', E_USER_WARNING);
@@ -302,22 +307,29 @@ class Replication_System_Transport_Plain_Text extends Replication_System_Transpo
 	/**
 	* Perform the actual reading a file from the socket and put it in the data dir
 	*
-	* @param string		&$filename	the location of the file on the local file system will be place in this var
-	* @param Array		&$headers	the headers that were retrieved will be place in this var
+	* @param string		&$saved_file	the location of the file on the local file system will be place in this var
+	* @param Array		&$headers		the headers that were retrieved will be place in this var
 	*
 	* @return boolean	indicating success
 	* @access public
 	* @see read(), readFile()
 	*/
-	function _readFileContents(&$filename, &$headers)
+	function _readFileContents(&$saved_file, &$headers)
 	{
-		if (!isset($headers['filename'])) {
-			trigger_error('Error reading file from '.$this->getPeerInfo().' : No filename header', E_USER_WARNING);
+		if (empty($headers['name_length'])) {
+			trigger_error('Error reading file from '.$this->getPeerInfo().' : No filename length header', E_USER_WARNING);
 			return false;
 		}
 
-		$dest_file     = $this->_data_path.'/'.$headers['filename'];
-		$dest_tmp_file = $this->_data_path.'/.'.$headers['filename'];
+		$headers['name_length'] = (int) $headers['name_length'];
+		$filename = $this->_readFromSocket($headers['name_length'], PHP_BINARY_READ);
+		if ($filename === false) {
+			trigger_error('Error reading file from '.$this->getPeerInfo().' : invalid data from socket', E_USER_WARNING);
+			return false;
+		}
+
+		$dest_file     = $this->_data_path.'/'.$filename;
+		$dest_tmp_file = $this->_data_path.'/.'.$filename;
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		// make sure the directory exists
@@ -326,15 +338,19 @@ class Replication_System_Transport_Plain_Text extends Replication_System_Transpo
 			return false;
 		}
 
-		$abort_write = false;
+		$err_msg = '';
 		$bytes_written = 0;
 		$fd = fopen($dest_tmp_file, 'wb');
+		if (!$fd) {
+			trigger_error('Error reading file from '.$this->getPeerInfo().' : unable to create local file', E_USER_WARNING);
+			return false;
+		}
 		do {
 			$bytes_to_read = min(($headers['length'] - $bytes_written), $this->_read_buffer_size);
 
 			$data = $this->_readFromSocket($bytes_to_read, PHP_BINARY_READ);
 			if ($data === false) {
-				trigger_error('Error reading file from '.$this->getPeerInfo().' : invalid data from socket', E_USER_WARNING);
+				$err_msg = 'invalid data from socket';
 				return false;
 			}
 
@@ -342,9 +358,9 @@ class Replication_System_Transport_Plain_Text extends Replication_System_Transpo
 
 			$bytes_to_write = strlen($data);
 			while($data != '') {
-				$bytes  = fwrite($fd, $data);
+				$bytes = fwrite($fd, $data);
 				if ($bytes_written === false) {
-					$abort_write = true;
+					$err_msg = 'error writting to temporary destination file '.$dest_tmp_file;
 					break 2;
 				}
 				$data = substr($data, $bytes);
@@ -360,9 +376,9 @@ class Replication_System_Transport_Plain_Text extends Replication_System_Transpo
 
 		fclose($fd);
 
-		if ($abort_write) {
-			trigger_error('Error reading file from '.$this->getPeerInfo().' : Unable write temporary destination file '.$dest_tmp_file, E_USER_WARNING);
+		if ($err_msg != '') {
 			unlink($dest_tmp_file);
+			trigger_error('Error reading file from '.$this->getPeerInfo().' : '.$err_msg, E_USER_WARNING);
 			return false;
 		}
 
@@ -376,7 +392,7 @@ class Replication_System_Transport_Plain_Text extends Replication_System_Transpo
 			return false;
 		}
 
-		$filename = $dest_file;
+		$saved_file = $dest_file;
 
 		return true;
 
