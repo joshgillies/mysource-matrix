@@ -1058,19 +1058,26 @@ class Asset extends Resolve_Object
 
 				// remove the current zeroed entries in the tree table,
 				// as we will be inserting over the top of them
-				$concat = ($db->phptype == 'mysql')
-							? 'CONCAT(t.treeid, '.$db->quote($free_childid).')'
-							: 't.treeid || '.$db->quote($free_childid);
 
-				$sql = 'DELETE FROM sq_asset_link_tree
-						WHERE treeid IN (~SQ0~)';
-				$subs = Array('SELECT '.$concat.'
-								FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid
-								WHERE l.minorid = '.$db->quote($this->id));
-				$sql = db_extras_subquery($db, $sql, $subs);
-				if (DB::isError($sql)) {
-					trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
-					return 0;
+				// because the root folder is not a minor party in any links we have to something special for it
+				if ($this->id == 1) {
+					$sql = 'DELETE FROM sq_asset_link_tree
+							WHERE treeid = '.$db->quote($free_childid);
+				} else {
+					$concat = ($db->phptype == 'mysql')
+								? 'CONCAT(t.treeid, '.$db->quote($free_childid).')'
+								: 't.treeid || '.$db->quote($free_childid);
+
+					$sql = 'DELETE FROM sq_asset_link_tree
+							WHERE treeid IN (~SQ0~)';
+					$subs = Array('SELECT '.$concat.'
+									FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid
+									WHERE l.minorid = '.$db->quote($this->id));
+					$sql = db_extras_subquery($db, $sql, $subs);
+					if (DB::isError($sql)) {
+						trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
+						return 0;
+					}
 				}
 #				pre_echo($sql);
 				$result = $db->query($sql);
