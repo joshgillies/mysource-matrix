@@ -378,9 +378,11 @@ class Asset_Management extends Resolve_Object
 			return false;
 		}
 
+		$attr_info['description'] = empty($this->vars[$name]['description']) ? '' : $this->vars[$name]['description'];
+
 		// OK, all seems fine, let's add the bloody thing
 		$sql = 'INSERT INTO sq_asset_attribute
-				(attributeid, type_code, owning_type_code, name, type, default_type_code, default_value)
+				(attributeid, type_code, owning_type_code, name, type, default_type_code, default_value, description)
 				VALUES
 				('.$this->_db->quote($attributeid).',
 				'.$this->_db->quote($type_code).',
@@ -388,7 +390,8 @@ class Asset_Management extends Resolve_Object
 				'.$this->_db->quote($name).',
 				'.$this->_db->quote($attr_info['type']).',
 				'.$this->_db->quote($attr_info['default_type_code']).',
-				'.$this->_db->quote($attr_info['default_value']).')';
+				'.$this->_db->quote($attr_info['default_value']).',
+				'.$this->_db->quote($attr_info['description']).')';
 
 #		pre_echo($sql);
 		$result = $this->_db->query($sql);
@@ -471,9 +474,12 @@ class Asset_Management extends Resolve_Object
 
 		trigger_error('Need to have check to make sure that the variable type is valid' , E_USER_NOTICE);
 
+		$description = empty($this->vars[$name]['description']) ? '' : $this->vars[$name]['description'];
+
 		// update all the attributes that we own
 		$sql = 'UPDATE sq_asset_attribute
-				SET type = '.$this->_db->quote($this->vars[$name]['type']).'
+				SET type        = '.$this->_db->quote($this->vars[$name]['type']).',
+					description = '.$this->_db->quote($description).'
 				WHERE owning_type_code = '.$this->_db->quote($type_code).'
 				  AND name = '.$this->_db->quote($name);
 
