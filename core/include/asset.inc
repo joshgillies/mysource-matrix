@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.311 2004/07/06 02:20:39 lwright Exp $
+* $Id: asset.inc,v 1.312 2004/07/15 05:23:31 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3391,6 +3391,7 @@ class Asset extends MySource_Object
 
 		// index attributes
 		$weightings = $this->getWeightings();
+		if (!isset($weightings['__name__']['weighting'])) $weightings['__name__']['weighting'] = 1;
 
 		// supply name
 		$value = strtolower($this->name);
