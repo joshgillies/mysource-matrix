@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: spell_checker.inc,v 1.1 2003/10/08 22:36:32 mmcintyre Exp $
+* $Id: spell_checker.inc,v 1.2 2003/10/09 05:54:04 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ class spell_checker extends wysiwyg_plugin {
 	function spell_checker(&$wysiwyg)
 	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
-		$this->_add_button('spellchecker','spellchecker','Check Spelling','false','1');
+		$this->_add_button('spellchecker','spellchecker','Check Spelling','false','54');
 
 	}//end constructor
 

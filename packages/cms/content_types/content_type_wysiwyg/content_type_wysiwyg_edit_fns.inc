@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.24 2003/10/07 01:56:06 gsherwood Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.25 2003/10/09 05:54:05 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -64,6 +64,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		$wysiwyg->add_plugin('matrix_embed_movie');
 		$wysiwyg->add_plugin('matrix_insert_link');
 		$wysiwyg->add_plugin('matrix_insert_image');
+		$wysiwyg->add_plugin('spell_checker');
 		$wysiwyg->add_plugin('view_source');
 		$wysiwyg->add_plugin('popup_editor');
 		// html_tidy needs to be last so other plugins can set options

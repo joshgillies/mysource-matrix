@@ -8,11 +8,7 @@ var wrongWords = null;
 var modified = false;
 var allWords = {};
 
-/*
-* 
-*
-*
-*/
+
 function makeCleanDoc(leaveFixed) {
 	for (var i in wrongWords) {
 		var el = wrongWords[i];
@@ -25,19 +21,9 @@ function makeCleanDoc(leaveFixed) {
 			el.parentNode.removeChild(el.nextSibling);
 		}
 	}
-	// we should use innerHTML here, but IE6's implementation fucks up the
-	// HTML to such extent that our poor Perl parser doesn't understand it
-	// anymore.
-	var html = window.opener.HTMLArea.getHTML(frame.contentWindow.document.body, leaveFixed);
-
-	// strip out the xml tags used to parse the text
-	e = /<spellThis\s+\/>/gi;
-	html = html.replace(e, "");
-	e = /<\/spellThis\s+\/>/gi;
-	html = html.replace(e, "");
-
-	return html;
+	return window.opener.HTMLArea.getHTML(frame.contentWindow.document.body, leaveFixed);
 };
+
 
 /**
 * changes the current dictionary to another one
@@ -82,7 +68,7 @@ function replaceClicked() {
 	} while ((index != start) && wrongWords[index].__msh_fixed);
 	if (index == start) {
 		index = 0;
-		alert("Finished list of mispelled words");
+		alert("Spelling checking is complete");
 	}
 	wrongWords[index].onclick();
 	return false;
@@ -136,15 +122,6 @@ function ignoreAllClicked() {
 
 
 /**
-* capture the learn button on a click
-*/
-function learnClicked() {
-	alert("Not [yet] implemented");
-	return false;
-};
-
-
-/**
 * initialises all the event handlers, gets the content from the wysiwyg
 */
 function initDocument() {
@@ -168,10 +145,9 @@ function initDocument() {
 	}
 
 	document.getElementById("b_replace").onclick = replaceClicked;
-	// document.getElementById("b_learn").onclick = learnClicked;
 	document.getElementById("b_replall").onclick = replaceAllClicked;
-	document.getElementById("b_ignore").onclick = ignoreClicked;
-	document.getElementById("b_ignall").onclick = ignoreAllClicked;
+	document.getElementById("b_ignore").onclick  = ignoreClicked;
+	document.getElementById("b_ignall").onclick  = ignoreAllClicked;
 	document.getElementById("b_recheck").onclick = recheckClicked;
 
 	select = document.getElementById("v_dictionaries");
@@ -219,15 +195,21 @@ function wordClicked() {
 	for (var i = select.length; --i >= 0;) {
 		select.remove(i);
 	}
-	var suggestions;
-	suggestions = this.nextSibling.firstChild.data.split(/,/);
-	for (var i = 0; i < suggestions.length; ++i) {
-		var txt = suggestions[i];
-		var option = document.createElement("option");
-		option.value = txt;
-		option.appendChild(document.createTextNode(txt));
-		select.appendChild(option);
+
+	var suggestions = new Array();
+	if (this.nextSibling.firstChild) {
+		suggestions = this.nextSibling.firstChild.data.split(/,/);
+		if (suggestions.length) {
+			for (var i = 0; i < suggestions.length; ++i) {
+				var txt = suggestions[i];
+				var option = document.createElement("option");
+				option.value = txt;
+				option.appendChild(document.createTextNode(txt));
+				select.appendChild(option);
+			}
+		}
 	}
+
 	document.getElementById("v_currentWord").innerHTML = this.__msh_origWord;
 	if (suggestions.length > 0) {
 		select.selectedIndex = 0;
@@ -248,7 +230,7 @@ function wordMouseOver() {
 
 
 /**
-* capture when a word has the mouse out of it
+* Capture when a word has the mouse out of it
 */
 function wordMouseOut() {
 	this.className = this.className.replace(/\s*HA-spellcheck-hover\s*/g, " ");
@@ -256,7 +238,7 @@ function wordMouseOut() {
 
 
 /**
-* gets called when the spell parser has finished checking the spelling
+* Gets called when the spell parser has finished checking the spelling
 */
 function finishedSpellChecking() {
 	// initialization of global variables
@@ -266,48 +248,51 @@ function finishedSpellChecking() {
 
 	document.getElementById("status").innerHTML = "&nbsp;Spell Checker ";
 	var doc = frame.contentWindow.document;
-		var spans = doc.getElementsByTagName("span");
-		var sps = [];
+	var spans = doc.getElementsByTagName("span");
+	var sps = [];
 	var id = 0;
-		for (var i = 0; i < spans.length; ++i) {
-				var el = spans[i];
-				if (/HA-spellcheck-error/.test(el.className)) {
-					sps.push(el);
-					el.onclick = wordClicked;
-					el.onmouseover = wordMouseOver;
-					el.onmouseout = wordMouseOut;
-					el.__msh_id = id++;
-					var txt = (el.__msh_origWord = el.firstChild.data);
-					el.__msh_fixed = false;
-					
-					if (typeof allWords[txt] == "undefined") {
-						allWords[txt] = [el];
-					} else {
-						allWords[txt].push(el);
-					}
-				}
+
+	for (var i = 0; i < spans.length; ++i) {
+		var el = spans[i];
+		if (/HA-spellcheck-error/.test(el.className)) {
+			sps.push(el);
+			el.onclick = wordClicked;
+			el.onmouseover = wordMouseOver;
+			el.onmouseout = wordMouseOut;
+			el.__msh_id = id++;
+			var txt = (el.__msh_origWord = el.firstChild.data);
+			el.__msh_fixed = false;
+			
+			if (typeof allWords[txt] == "undefined") {
+				allWords[txt] = [el];
+			} else {
+				allWords[txt].push(el);
+			}
 		}
+	}
+
 	wrongWords = sps;
 	if (sps.length == 0) {
 		if (!modified) {
-			alert('There were no errors found.');
+			alert('No spelling errors were found');
 		} else {
 			alert('No Errors');
 		}
 		return false;
 	}
+
 	(currentElement = sps[0]).onclick();
+	
 	var as = doc.getElementsByTagName("a");
 	for (var i = as.length; --i >= 0;) {
 		var a = as[i];
 		a.onclick = function() {
-			if (confirm("You have clicked a link" + ":\n" +
-				    this.href + "\n" + "I will open it in a new page.")) {
-				window.open(this.href);
-			}
+			// disable hrefs because we are spell checking
+			// they can click links in the editor later
 			return false;
 		};
 	}
+
 	var dicts = doc.getElementById("HA-spellcheck-dictionaries");
 	if (dicts) {
 		dicts.parentNode.removeChild(dicts);
