@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.26 2004/08/16 05:32:21 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.27 2004/09/03 17:47:15 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -223,7 +223,6 @@ class Page_Asset_Builder extends Page
 	{
 		$this->_current_state = '';
 		$current_user = &$GLOBALS['SQ_SYSTEM']->user;
-
 		set_error_handler(Array(&$this, '_errorHandler'));
 			$success = $this->_processGlobalActions();
 		restore_error_handler();
@@ -286,7 +285,7 @@ class Page_Asset_Builder extends Page
 	*
 	* These actions include logging into the system and creating an asset
 	*
-	* @return void
+	* @return boolean	indicating success
 	* @access private
 	*/
 	function _processGlobalActions()
@@ -323,25 +322,32 @@ class Page_Asset_Builder extends Page
 
 					$required_error = false;
 					$required_fields = $this->attr('required_fields');
-					foreach ($required_fields as $attr => $error_text) {
-						$attribute = &$new_asset->getAttribute($attr, true);
-						if (is_null($attribute)) continue;
+					if (!empty($required_fields[$new_asset->type()])) {
 
-						$attr_value = isset($_POST[$prefix.'_'.$attr]) ? $_POST[$prefix.'_'.$attr] : '';
-						if (empty($attr_value)) {
-							if (empty($error_text)) $error_text = 'Please enter a value for '.$attribute->name;
-							trigger_error($error_text, E_USER_NOTICE);
-							$required_error = true;
-						} else if (!$attribute->validateValue($attr_value)) {
-							if (empty($error_text)) $error_text = 'The value of '.$attribute->name.' is not valid';
-							trigger_error($error_text, E_USER_NOTICE);
-							$required_error = true;
-						}
+						foreach ($required_fields[$new_asset->type()] as $attr => $error_text) {
+							$real_attribute = &$new_asset->getAttribute($attr, true);
+							if (is_null($real_attribute)) continue;
+							// take a copy of the attribute so we don't muck anything up for the processBackend() below
+							$attribute = $real_attribute;
+							$attribute->process($prefix.'_'.$attribute->id);
+							if (!$attribute->processed) {
+								if (empty($error_text)) $error_text = 'The value of '.$attribute->name.' is not valid';
+								trigger_error($error_text, E_USER_NOTICE);
+								$required_error = true;
+							} else if (empty($attribute->value)) {
+								if (empty($error_text)) $error_text = 'Please enter a value for '.$attribute->name;
+								trigger_error($error_text, E_USER_NOTICE);
+								$required_error = true;
+							}
 
-					}//end foreach
-					
+						}//end foreach
+
+						unset($real_attribute);
+						unset($attribute);
+
+					}// end if
+
 					if ($required_error) break;
-
 
 					  ////////////////////////
 					 //  CREATE LOCATIONS  //
@@ -358,7 +364,6 @@ class Page_Asset_Builder extends Page
 					}
 
 
-
 					  ////////////////////////
 					 //  CREATE THE ASSET  //
 					////////////////////////
@@ -366,22 +371,22 @@ class Page_Asset_Builder extends Page
 					// we'll just use a limbo outputter to do the outputting for us
 					require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
 					$o = new Limbo_Outputter();
-
 					$create_parentid = array_shift(array_keys($create_locations));
 					$link_type = array_shift(array_values($create_locations));
-
 					$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($create_parentid);
-					if (is_null($parent)) {						
+					if (is_null($parent)) {
 						$this->_replacements['create_error'] = $this->attr('create_error');
 						break;
 					}
 
 					// start the transaction to create the asset
-					$link = Array('asset'		=> $parent,
+					$link = Array('asset'		=> &$parent,
 								  'link_type'	=> $create_locations[$create_parentid],
 								  'value'		=> '',
 								  'sort_order'	=> -1,
-								  'asset'		=> &$parent);
+								  );
+
+					$this->_modifyCreateLink($link);
 
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -389,42 +394,42 @@ class Page_Asset_Builder extends Page
 					// logged in - so any write access checks will fail
 					$GLOBALS['SQ_INSTALL'] = true;
 
-						if (!$new_asset->processBackend($o, $link)) {
+					if (!$new_asset->processBackend($o, $link)) {
 
-							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 
-						} else {
+					} else {
 
-							// if we have multiple locations to create this asset under, create
-							// the new links to all the other parents
-							if (is_array($create_locations)) {
-								foreach ($create_locations as $link_parentid => $link_type) {
-									$link_parentid = (int)$link_parentid;
+						// if we have multiple locations to create this asset under, create
+						// the new links to all the other parents
+						if (is_array($create_locations)) {
+							foreach ($create_locations as $link_parentid => $link_type) {
+								$link_parentid = (int)$link_parentid;
 
-									// skip the orginal parent we linked the new asset to
-									if ($link_parentid == $parent->id) continue;
+								// skip the orginal parent we linked the new asset to
+								if ($link_parentid == $parent->id) continue;
 
-									$link_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_parentid, '', true);
-									if (is_null($link_parent)) {
-										trigger_error('Asset $link_parentid was null', E_USER_WARNING);
-										continue;
-									}
-									if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($link_parent, $new_asset, $link_type)) {
-										trigger_error('Failed to create link to asset $link_parent->id', E_USER_WARNING);
-										continue;
-									}
+								$link_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_parentid, '', true);
+								if (is_null($link_parent)) {
+									trigger_error('Asset $link_parentid was null', E_USER_WARNING);
+									continue;
+								}
+								if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($link_parent, $new_asset, $link_type)) {
+									trigger_error('Failed to create link to asset $link_parent->id', E_USER_WARNING);
+									continue;
 								}
 							}
+						}
 
-							if (empty($this->_errors)) {
-								$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-								$this->_current_state = 'created';
-								$success = true;
-								$this->_setCreateStatus($new_asset);
-								$this->_tmp['created_asset'] = $new_asset;
-							}
+						if (empty($this->_errors)) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+							$this->_current_state = 'created';
+							$success = true;
+							$this->_setCreateStatus($new_asset);
+							$this->_tmp['created_asset'] = $new_asset;
+						}
 
-						}//end if processBackend
+					}//end if processBackend
 
 					$GLOBALS['SQ_INSTALL'] = false;
 
@@ -469,7 +474,7 @@ class Page_Asset_Builder extends Page
 
 		// start with the fixed create locations
 		$create_locations = $this->attr('create_location');
-		
+
 		// add selected create locations if we are using the submitted form vars
 		if (empty($attributes)) {
 			foreach ($this->attr('create_location_optional') as $name => $details) {
@@ -489,7 +494,7 @@ class Page_Asset_Builder extends Page
 						// if it's valid, add it to the list
 						if (in_array($_POST[$code_name], array_keys($details['locations']))) {
 							$create_locations[(int)$_POST[$code_name]] = (int)$details['link_type'];
-						} 
+						}
 					}
 				} elseif (!$details['allow_empty']) {
 					trigger_error("You must select an option from the $name field", E_USER_ERROR);
@@ -515,22 +520,22 @@ class Page_Asset_Builder extends Page
 						case 'equals':
 							if ($attr_value != $rule['values'][$j]) $pass = false;
 						break;
-						
+
 						case 'starts_with':
-							if (!preg_match('|^'.$rule['values'][$j].'.*$|', $attr_value)) $pass = false;	
+							if (!preg_match('|^'.$rule['values'][$j].'.*$|', $attr_value)) $pass = false;
 						break;
-						
+
 						case 'ends_with':
 							if (!preg_match('|^.*'.$rule['values'][$j].'$|', $attr_value)) $pass = false;
 						break;
-						
+
 						case 'contains':
 							if (strpos($attr_value, $rule['values'][$j]) === FALSE) $pass = false;
 						break;
 					}
 					$j++;
 				}
-	
+
 				if ($pass) {
 					foreach ($rule['locations'] as $index => $assetid) {
 						$create_locations[$assetid] = $rule['link_types'][$index];
@@ -541,6 +546,19 @@ class Page_Asset_Builder extends Page
 		return $create_locations;
 
 	}//end _getCreateLocations()
+
+
+	/**
+	* Takes the default link that was created and allows for adjustments if necessary
+	*
+	* @param Array $link	the current link array
+	*
+	* @return void
+	* @access private
+	*/
+	function _modifyCreateLink(&$link)
+	{
+	}//end _modifyCreateLink()
 
 
 	/**
@@ -620,12 +638,12 @@ class Page_Asset_Builder extends Page
 
 			require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
 			$o = new Limbo_Outputter();
-		
+
 			// print the create interface for the asset
 			?><input type="hidden" name="asset_action" value="create"><?php
 			$create_types = $this->attr('create_type');
 			if (!is_array($create_types)) $create_types = Array($create_types);
-			
+
 			$i = 0;
 			foreach($create_types as $create_type => $value) {
 				$prefix = $this->type().'_'.$this->id.'_type_'.$create_type;
@@ -634,10 +652,8 @@ class Page_Asset_Builder extends Page
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
 				$asset = new $create_type();
 				$asset->paintBackend($o);
-				?><?php
- 
 				// paint the buffered sections, then clean it up
-				$o->paintSections();				
+				$o->paintSections();
 				$o->_contents = Array();
 
 				?></div><?php
@@ -651,7 +667,7 @@ class Page_Asset_Builder extends Page
 			hidden_field('asset_action', 'create');
 			$contents = ob_get_contents();
 			$this->_replacements['create_form'] = $contents;
-			
+
 		ob_end_clean();
 
 		if (count($create_types) > 1) {
@@ -659,9 +675,9 @@ class Page_Asset_Builder extends Page
 				$create_types = array_keys($create_types);
 				?>
 				<script language="JavaScript">
-					<!-- 
+					<!--
 					var current_option = '<?php echo $this->type().'_'.$this->id.'_type_'.current($create_types) ?>';
-					
+
 					function showAssetBuilderTab(type_code)
 					{
 						document.getElementById(current_option).style.display = 'none';
@@ -684,7 +700,7 @@ class Page_Asset_Builder extends Page
 					?>
 						<div class="sq-asset-builder-tab<?php echo ($i == 0) ? '-active' : ''; ?>" id="<?php echo $prefix.'_tab'; ?>">
 							<a href="#" onclick="showAssetBuilderTab('<?php echo $create_type ?>'); return false;">
-								<?php 
+								<?php
 								$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($create_type, 'name');
 								echo $type_name;
 								?>
@@ -699,7 +715,7 @@ class Page_Asset_Builder extends Page
 				$this->_replacements['create_form'] = ob_get_contents().$this->_replacements['create_form'];
 			ob_end_clean();
 		}
-	
+
 		foreach ($this->attr('create_location_optional') as $name => $data) {
 			$code_name = str_replace(' ', '_', strtolower($name));
 			$options = $data['locations'];
@@ -785,7 +801,7 @@ class Page_Asset_Builder extends Page
 	function _errorHandler($err_no, $err_msg, $err_file, $err_line)
 	{
 		$terminate = ((E_USER_ERROR | E_ERROR) & $err_no);
-		
+
 		// if the function didn't have an '@' prepended OR if we are about to terminate
 		// catch the error
 		if (error_reporting() || $terminate) {
@@ -817,6 +833,8 @@ class Page_Asset_Builder extends Page
 			$this->_errors[] = $text_msg;
 
 		}// end error_reporting
+
+		if ($terminate) exit(1);
 
 	}//end _errorHandler()
 
@@ -853,7 +871,7 @@ class Page_Asset_Builder extends Page
 
 		foreach ($this->attr('create_location_optional') as $name => $data) {
 			$kw_name = str_replace(' ', '_', strtolower($name)).'_field';
-			$keywords[$kw_name] = Array('name' => $name.' Field', 
+			$keywords[$kw_name] = Array('name' => $name.' Field',
 										'default' => str_replace('%name%', $name, (($data['input_style'] == 'dropdown') ? $dropdown_default : $radio_default)),
 										'type' => 'special');
 		}
