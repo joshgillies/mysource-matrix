@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: system_config.inc,v 1.12 2003/10/10 06:49:25 brobertson Exp $
+* $Id: system_config.inc,v 1.13 2003/10/17 01:32:28 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -233,7 +233,7 @@ class System_Config extends Config
 
 		}// endif
 
-		$o->setHeading('System Configuration', 'create');
+		$o->setHeading('System Configuration', '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$o->filesPath('/images/icons/header/system_config.png').'", "20", "20", "HIPO Icon");</script>');
 		$o->addHiddenField('config_posted', '1');
 
 		// lets tell the user if the asset is locked for editing
