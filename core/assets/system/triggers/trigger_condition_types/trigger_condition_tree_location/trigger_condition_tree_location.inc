@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_tree_location.inc,v 1.1 2005/02/17 06:34:42 rhoward Exp $
+* $Id: trigger_condition_tree_location.inc,v 1.2 2005/02/21 06:06:34 arailean Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author	Andrei Railean <arailean@squiz.net>
 * @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -220,7 +220,7 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 	* Default to false, children can override if necessary
 	*
 	* @access public
-	* @return
+	* @return boolean
 	*/
 	function allowMultiple()
 	{

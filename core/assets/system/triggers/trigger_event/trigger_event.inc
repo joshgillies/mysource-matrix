@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_event.inc,v 1.1 2005/02/17 06:34:43 rhoward Exp $
+* $Id: trigger_event.inc,v 1.2 2005/02/21 06:06:34 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 * @author	Andrei Railean <arailean@squiz.net>
 * @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,7 +54,7 @@ class Trigger_Event extends Asset
 	* @param object Asset	&$asset	the broadcaster
 	*
 	* @access public
-	* @return
+	* @return void
 	*/
 	function setBroadcaster(&$asset)
 	{

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.3 2005/02/18 07:30:28 amiller Exp $
+* $Id: trigger_manager.inc,v 1.4 2005/02/21 06:06:34 arailean Exp $
 *
 */
 
@@ -48,7 +48,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -221,6 +221,28 @@ class Trigger_Manager extends Asset
 			$trigger_data = $this->_db2trigger($trigger);
 			$status = $this->_executeTrigger($trigger_data['data'], $state);
 
+			// TODO: Start Remove Status Reporting here
+			switch ($status) {
+				case SQ_TRIG_RESULT_FAILURE:
+					$status_message = "FAILURE (even though the trigger was supposed to run, some of the required actions could not be performed)";
+					trigger_error("Trigger Failed", E_USER_WARNING);
+				break;
+
+				case SQ_TRIG_RESULT_SUCCESS:
+					$status_message = "SUCCESS";
+				break;
+
+				case SQ_TRIG_RESULT_INVALID:
+					$status_message = "INVALID (Trigger components could not be loaded)";
+				break;
+
+				case SQ_TRIG_RESULT_FALSE:
+				default:
+					$status_message = "FALSE (Trigger was not required)";
+				break;
+
+			}
+			// TODO: Finish Remove Status Reporting here
 		}
 
 		return true;
@@ -836,7 +858,7 @@ class Trigger_Manager extends Asset
 	* @param string		$status			'1' or '0': the value to set the status to
 	*
 	* @access private
-	* @return
+	* @return boolean
 	*/
 	function _setTriggerStatus($triggerid, $status='1')
 	{
@@ -873,7 +895,7 @@ class Trigger_Manager extends Asset
 	* @param char(1)		$status			Enable ('1') or Disable ('0') the trigger
 	*
 	* @access private
-	* @return
+	* @return boolean
 	*/
 	function _setTriggerStatuses($triggerids, $status='1')
 	{
@@ -904,7 +926,7 @@ class Trigger_Manager extends Asset
 	* @param integer	$id		the ID of the trigger to enable
 	*
 	* @access public
-	* @return
+	* @return void
 	*/
 	function enableTrigger($id)
 	{
@@ -919,7 +941,7 @@ class Trigger_Manager extends Asset
 	* @param integer	$id		the ID of the trigger to disable
 	*
 	* @access public
-	* @return
+	* @return void
 	*/
 	function disableTrigger($id)
 	{
@@ -991,7 +1013,7 @@ class Trigger_Manager extends Asset
 	* @param Array(mixed)	$trigger	the trigger to unserialise
 	*
 	* @access private
-	* @return Array(mi
+	* @return Array(mixed)
 	*/
 	function _db2trigger($trigger)
 	{
@@ -1153,7 +1175,9 @@ class Trigger_Manager extends Asset
 	*
 	* NOTE: logic of this function can be pushed onto asset manager
 	* includeAsset could be modified to not throw an exception and return status
-	* if that change is ever made, conversion should be simple
+	* if that change is ever made, conversion should be simple. Currently asset
+	* manager makes an assertion, which kills the system when trying to include
+	* something that is not installed
 	*
 	* @param string	$type_code	the type_code of the component to load
 	*/

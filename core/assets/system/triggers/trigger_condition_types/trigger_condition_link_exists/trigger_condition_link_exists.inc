@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_link_exists.inc,v 1.1 2005/02/17 06:34:39 rhoward Exp $
+* $Id: trigger_condition_link_exists.inc,v 1.2 2005/02/21 06:06:34 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author	Andrei Railean <arailean@squiz.net>
 * @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -319,7 +319,7 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 	* In this case, allow more than one check for links per trigger
 	*
 	* @access public
-	* @return
+	* @return boolean
 	*/
 	function allowMultiple()
 	{
