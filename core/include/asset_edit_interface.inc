@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.195 2004/01/06 05:46:32 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.196 2004/01/15 04:10:39 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -276,7 +276,6 @@ class Asset_Edit_Interface extends MySource_Object
 				  /////////////////////
 				 //  LIMBO LOCKING  //
 				/////////////////////
-
 				if (!$have_all_locks) {
 					$this->acquireLimboLocks($owner, $o, $active_screen, $screen_lock_type);
 				}
@@ -545,17 +544,17 @@ class Asset_Edit_Interface extends MySource_Object
 		$GLOBALS['sq_preview_url'] = $preview_url;
 
 
-		// once we have a preview URL, we can paint the layout if there is one
-
 		  ////////////////
 		 /// LAYOUTS  ///
 		////////////////
+		// once we have a preview URL, we can paint the layout if there is one
 		// paint the layout now, if needed
 		if ($paint_layout) {
 			if (null !== ($layout = &$lm->getLayout($owner->type(), $active_screen))) {
 				return $this->paintLayout($owner, $o, $layout);
 			}
 		}
+
 
 		  //////////////////////////
 		 //  Navigation History  //
