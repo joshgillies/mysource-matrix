@@ -147,7 +147,7 @@ class Asset_Management extends Resolve_Object
 
 		// get how deep we are in the heirarchy
 		$level = count($this->_pm->getTypeAncestors($type_code));
-		$info = $this->_pm->geTypeInfo($type_code);
+		$info = $this->_pm->getTypeInfo($type_code);
 
 		$sql = 'INSERT INTO sq_asset_type
 				(type_code, version, name, description, instantiable, allowed_access, parent_type, level, dir, customisation)
@@ -402,7 +402,11 @@ class Asset_Management extends Resolve_Object
 
 		}// end if parents using this name
 
-		trigger_error('Need to have check to make sure that the variable type is valid' , E_USER_NOTICE);
+		if (empty($GLOBALS[__CLASS__.__FUNCTION__])) {
+			trigger_error('Need to have check to make sure that the variable type is valid' , E_USER_NOTICE);
+			$GLOBALS[__CLASS__.__FUNCTION__] = 1;
+		}
+
 
 		// check that the default value is valid
 		require_once(SQ_ATTRIBUTES_PATH.'/'.$attr_info['type'].'/'.$attr_info['type'].'.inc');
@@ -460,7 +464,10 @@ class Asset_Management extends Resolve_Object
 
 		$type_code = $this->getAssetType();
 
-		trigger_error('Need to have check to make sure that the variable type is valid' , E_USER_NOTICE);
+		if (empty($GLOBALS[__CLASS__.__FUNCTION__])) {
+			trigger_error('Need to have check to make sure that the variable type is valid' , E_USER_NOTICE);
+			$GLOBALS[__CLASS__.__FUNCTION__] = 1;
+		}
 
 		// if they have defined an update fn for this, then we don't need to do anything
 		if (!empty($this->vars[$name]['update_fn'])) {
