@@ -177,7 +177,8 @@ class Asset extends Resolve_Object
 			// create the initial link
 			if (!isset($link['value'])) $link['value'] = '';
 			if (!isset($link['position'])) $link['position'] = -1;
-			return $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['position']);
+			if (!isset($link['dependant'])) $link['dependant'] = 0;
+			return $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['position'], $link['dependant']);
 		} else {
 			return true;
 		}
@@ -254,7 +255,7 @@ class Asset extends Resolve_Object
 					WHERE atr.type_code   = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->type());
 		}// end if
 
-		$this->vars = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql, false, array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
+		$this->vars = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
 		if (DB::isError($this->vars)) trigger_error($this->vars->getMessage().'<br/>'.$this->vars->getUserInfo(), E_USER_ERROR);
 
 		if ($this->_ser_atrs && $this->vars) {
@@ -577,6 +578,9 @@ class Asset extends Resolve_Object
 	/**
 	* Get all asset ids that are above this asset in the various trees in which it exists
 	*
+	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc) if an array returns link if matches any of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code or $type_code and any of it's sub-classes
+	*
 	* @return array(int)
 	* @access public
 	*/
@@ -584,6 +588,21 @@ class Asset extends Resolve_Object
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, $type_code, $strict_type_code);
 	}//end getParents()
+
+
+	/**
+	* Get all asset ids that are below this asset in the various trees in which it exists
+	*
+	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc) if an array returns link if matches any of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code or $type_code and any of it's sub-classes
+	*
+	* @return array(int)
+	* @access public
+	*/
+	function getChildren($type_code='', $strict_type_code=true)
+	{
+		return $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, $type_code, $strict_type_code);
+	}//end getChildren()
 
 
 	/**
@@ -617,7 +636,7 @@ class Asset extends Resolve_Object
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT l.linkid, l.'.$other_side.'id, l.value, l.link_type, a.type_code, l.sort_order
+		$sql = 'SELECT l.linkid, l.'.$other_side.'id, l.value, l.link_type, a.type_code, l.sort_order, l.dependant
 				FROM sq_asset_link l, sq_asset a
 				WHERE l.linkid = '.$db->quote($linkid).'
 				  AND l.'.$side_of_link.'id = '.$db->quote($this->id).'
@@ -654,7 +673,7 @@ class Asset extends Resolve_Object
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT l.linkid, l.'.$other_side.'id, l.value, l.link_type, a.type_code, l.sort_order
+		$sql = 'SELECT l.linkid, l.'.$other_side.'id, l.value, l.link_type, a.type_code, l.sort_order, l.dependant
 				FROM sq_asset_link l, sq_asset a
 				WHERE l.'.$side_of_link.'id = '.$db->quote($this->id).'
 				  AND l.'.$other_side.'id   = a.assetid
@@ -721,7 +740,7 @@ class Asset extends Resolve_Object
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT l.linkid, l.'.$other_side.'id, l.value, l.link_type, a.type_code, l.sort_order
+		$sql = 'SELECT l.linkid, l.'.$other_side.'id, l.value, l.link_type, a.type_code, l.sort_order, l.dependant
 				FROM sq_asset_link l, sq_asset a
 				WHERE l.'.$other_side.'id   = a.assetid
 				  AND l.'.$side_of_link.'id = '.$db->quote($this->id).'
@@ -925,11 +944,12 @@ class Asset extends Resolve_Object
 	* @param string $link_type    the type of link this is
 	* @param string $value        the value that is to be associated with this link
 	* @param string $sort_order   the position in the links list that this link should take, if less than zero places at end of list
+	* @param string $dependant    '0' / '1' on whether the this asset is dependant on the asset that will be linked by this new link
 	*
 	* @return int
 	* @access public
 	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=-1)
+	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0')
 	{
 		if (!$this->id) return 0;
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
@@ -1035,7 +1055,7 @@ class Asset extends Resolve_Object
 					FROM sq_asset_link_tree ct
 					WHERE ct.treeid LIKE '.$db->quote($existing_treeid.'%').'
 					  AND ct.treeid > '.$db->quote($existing_treeid).'
-					  AND CHARACTER_LENGTH(ct.treeid) = '.(strlen($existing_treeid) + SQ_ASSET_TREE_SIZE).'
+					  AND CHARACTER_LENGTH(ct.treeid) = '.(strlen($existing_treeid) + SQ_CONF_ASSET_TREE_SIZE).'
 					  AND ct.linkid = 0
 					LIMIT 1';
 #			pre_echo($sql);
@@ -1051,7 +1071,7 @@ class Asset extends Resolve_Object
 						FROM sq_asset_link_tree ct
 						WHERE ct.treeid LIKE '.$db->quote($existing_treeid.'%').'
 						  AND ct.treeid > '.$db->quote($existing_treeid).'
-						  AND CHARACTER_LENGTH(ct.treeid) = '.(strlen($existing_treeid) + SQ_ASSET_TREE_SIZE);
+						  AND CHARACTER_LENGTH(ct.treeid) = '.(strlen($existing_treeid) + SQ_CONF_ASSET_TREE_SIZE);
 #				pre_echo($sql);
 				$free_childid = $db->getOne($sql);
 				if (DB::isError($free_childid)) {
@@ -1061,7 +1081,7 @@ class Asset extends Resolve_Object
 				}
 				// No max ? we must be the first
 				if ((string) $free_childid == '') {
-					if (($free_childid = asset_tree_base64_convert(0, true)) === false) {
+					if (($free_childid = asset_link_treeid_convert(0, true)) === false) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return 0;
 					}
@@ -1069,13 +1089,13 @@ class Asset extends Resolve_Object
 				// we found a max so increment it
 				} else {
 					// get only the child part
-					$free_childid = substr($free_childid, -1 * SQ_ASSET_TREE_SIZE);
+					$free_childid = substr($free_childid, -1 * SQ_CONF_ASSET_TREE_SIZE);
 #					pre_echo("FREE CHILDID : ".$free_childid);
-					if (($child_num    = asset_tree_base64_convert($free_childid, false)) === false) {
+					if (($child_num    = asset_link_treeid_convert($free_childid, false)) === false) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return 0;
 					}
-					if (($free_childid = asset_tree_base64_convert($child_num + 1, true)) === false)  {
+					if (($free_childid = asset_link_treeid_convert($child_num + 1, true)) === false)  {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return 0;
 					}
@@ -1085,7 +1105,7 @@ class Asset extends Resolve_Object
 			} else {
 
 				// get only the child part
-				$free_childid = substr($free_childid, -1 * SQ_ASSET_TREE_SIZE);
+				$free_childid = substr($free_childid, -1 * SQ_CONF_ASSET_TREE_SIZE);
 
 				// remove the current zeroed entries in the tree table,
 				// as we will be inserting over the top of them
@@ -1198,10 +1218,11 @@ class Asset extends Resolve_Object
 
 		// and finally insert the link
 		$sql = 'INSERT INTO sq_asset_link
-				(linkid, majorid, minorid, link_type, value, sort_order, last_updated, last_userid)
+				(linkid, majorid, minorid, link_type, value, sort_order, dependant, last_updated, last_userid)
 				VALUES
 				('.$db->quote($linkid).', '.$db->quote($this->id).', '.$db->quote($minor->id).', '.$db->quote($link_type).', '
-				.$db->quote($value).', '.$db->quote($sort_order).', '.$db->quote(ts_iso8601(time())).', '.$db->quote($GLOBALS['SQ_SYSTEM']->currentUserId()).')';
+				.$db->quote($value).', '.$db->quote($sort_order).', '.$db->quote(($dependant) ? '1' : '0').', '.$db->quote(ts_iso8601(time())).', 
+				'.$db->quote($GLOBALS['SQ_SYSTEM']->currentUserId()).')';
 
 #		pre_echo($sql);
 
@@ -1212,10 +1233,15 @@ class Asset extends Resolve_Object
 			return 0;
 		}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		// tell, the asset it has updated
+		if (!$this->_linksUpdated()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return 0;
+		}
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->broadcastEvent('CreateLink', Array('assetid' => $this->id, 'linkid' => $linkid));
-		$this->_linksUpdated();
+
 		return $linkid;
 
 	}//end createLink()
@@ -1303,11 +1329,15 @@ class Asset extends Resolve_Object
 	/**
 	* Called whenever any type of link is changed, allows caching of objects, links and other stuff
 	* to occur but not cause integrity issues during script execution
+	* returns true it it's successfull
 	*
 	* @access private
+	* @return boolean
 	*/
 	function _linksUpdated()
 	{
+		if (!$this->_updated()) return false;
+		unset($this->_tmp['dependant_links']);
 	}//end _linksUpdated()
 
 
@@ -1324,9 +1354,8 @@ class Asset extends Resolve_Object
 	{
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		if ($this->_updateLink($linkid, null, null, null, $sort_order)) {
+		if ($this->_updateLink($linkid, null, null, null, $sort_order) && $this->_linksUpdated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			$this->_linksUpdated();
 			return true;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -1586,10 +1615,14 @@ class Asset extends Resolve_Object
 			return false;
 		}
 
+		// tell, the asset it has updated
+		if (!$this->_linksUpdated()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
 		$GLOBALS['SQ_SYSTEM']->broadcastEvent('DeleteLink', Array('assetid' => $this->id, 'linkid' => $linkid));
-		$this->_linksUpdated();
+
 		return true;
 
 	}//end deleteLink()
@@ -1604,18 +1637,20 @@ class Asset extends Resolve_Object
 	*/
 	function getDependantLinkIds()
 	{
-		$linkids = Array();
+		if (!isset($this->_tmp['dependant_linkids'])) {
+			$this->_tmp['dependant_linkids'] = Array();
 
-		$links = $this->_getDependantLinks();
-		for($i = 0; $i < count($links); $i++) {
-			array_push($linkids, $links[$i]['linkid']);
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($links[$i]['minorid'], $links[$i]['type_code']);
-			if(is_null($asset)) continue;
-			$sub_linkids = $asset->getDependantLinkIds();
-			if (!empty($sub_linkids)) $linkids = array_merge($linkids, $sub_linkids);
+			$links = $this->_getDependantLinks();
+			for($i = 0; $i < count($links); $i++) {
+				array_push($this->_tmp['dependant_linkids'], $links[$i]['linkid']);
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($links[$i]['minorid'], $links[$i]['type_code']);
+				if(is_null($asset)) continue;
+				$sub_linkids = $asset->getDependantLinkIds();
+				if (!empty($sub_linkids)) $this->_tmp['dependant_linkids'] = array_merge($this->_tmp['dependant_linkids'], $sub_linkids);
+			}
 		}
 
-		return $linkids;
+		return $this->_tmp['dependant_linkids'];
 
 	}// end getDependantLinkIds()
 
@@ -2228,7 +2263,7 @@ class Asset extends Resolve_Object
 			if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
 			
 			// use the current user and their groups
-			$assetids = $GLOBALS['SQ_SYSTEM']->user->getParents(Array('user', 'user_group'));
+			$assetids = $GLOBALS['SQ_SYSTEM']->user->getParents(Array('user', 'user_group'), false);
 			$assetids[] = $GLOBALS['SQ_SYSTEM']->user->id;
 		}
 		$perms = array_keys($this->getPermission($perm));

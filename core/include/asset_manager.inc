@@ -321,7 +321,9 @@ class Asset_Manager extends Resolve_Object
 	/**
 	* Get all asset ids that are above the passed assetid in the various trees in which it exists
 	*
-	* @param int	$assetid	the id of the asset to get its parents for
+	* @param int			$assetid			the id of the asset to get its parents for
+	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc) if an array returns link if matches any of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code or $type_code and any of it's sub-classes
 	*
 	* @access public
 	*/
@@ -333,45 +335,120 @@ class Asset_Manager extends Resolve_Object
 		$sql = 'SELECT DISTINCT pl.minorid
 				FROM sq_asset_link cl INNER JOIN sq_asset_link_tree ct ON cl.linkid = ct.linkid,
 					 sq_asset_link pl INNER JOIN sq_asset_link_tree pt ON pl.linkid = pt.linkid ';
-if (!empty($type_code)) $sql .= 'INNER JOIN sq_asset pa ON pl.minorid = pa.assetid ';
+		if (!empty($type_code)) $sql .= 'INNER JOIN sq_asset pa ON pl.minorid = pa.assetid ';
 		$sql .= 'WHERE cl.minorid = '.$db->quote($assetid).'
 				  AND ct.treeid LIKE '.$concat.'
 				  AND pt.treeid < ct.treeid';
 
 		if (!empty($type_code)) {
+
+			$type_code_cond = '';
+			if (is_array($type_code)) {
+				for($i = 0; $i < count($type_code); $i++) $type_code[$i] = $db->quote($type_code[$i]);
+				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
+			} else {
+				$type_code_cond = '= '.$db->quote($type_code);
+			}
+
 			if ($strict_type_code) {
-				if (is_array($type_code)) {
-					$types = '';
-					foreach ($type_code as $type) $types .= $db->quote($type).', ';
-					$sql .= ' AND pa.type_code IN ('.trim($types, ', ').')';
-				} else {
-					$sql .= ' AND pa.type_code = '.$db->quote($type_code);
-				}
+				$sql .= ' AND pa.type_code '.$type_code_cond;
 			} else {
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-				$sql .= ' AND (pa.type_code = '.$db->quote($type_code).' OR pa.type_code IN (~SQ0~))';
+				$sql .= ' AND (pa.type_code '.$type_code_cond.' OR pa.type_code IN (~SQ0~))';
 				$sub = 'SELECT type_code
-								FROM sq_asset_type_inherited ';
-				if (is_array($type_code)) {
-					$types = '';
-					foreach ($type_code as $type) $types .= $db->quote($type).', ';
-					$sub .= ' WHERE inherited_type_code IN ('.trim($types, ', ').')';
-				} else {
-					$sub .= ' WHERE inherited_type_code = '.$db->quote($type_code);
-				}
+						FROM sq_asset_type_inherited 
+						WHERE inherited_type_code '.$type_code_cond;
 				$sql = db_extras_subquery($db, $sql, Array($sub));
 			}
 		}// end if
 
-		$parents = $db->getCol($sql);
+pre_echo($sql);
 
+		$parents = $db->getCol($sql);
 		if (DB::isError($parents)) {
 			trigger_error($parents->getMessage().'<br/>'.$parents->getUserInfo(), E_USER_ERROR);
 			return Array();
 		}
 
 		return $parents;
-	}
+
+	}// end getParents()
+
+
+	/**
+	* Get all asset ids that are below the passed assetid in the various trees in which it exists
+	*
+	* @param int			$assetid			the id of the asset to get its children for
+	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc) if an array returns link if matches any of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code or $type_code and any of it's sub-classes
+	*
+	* @access public
+	*/
+	function getChildren($assetid, $type_code='', $strict_type_code=true)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// if we are the root folder then we just need to select from the asset table
+		if ($assetid == 1) {
+			$sql = 'SELECT a.assetid
+					FROM sq_asset a
+					'.((!empty($type_code)) ? 'WHERE ' : '');
+
+		// OK, normal asset, let's find a reference to them in the tree and go from there
+		} else {
+			$sql = 'SELECT t.treeid
+					FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid
+					WHERE l.minorid = '.$db->quote($assetid).'
+					LIMIT 1';
+
+			$treeid = $db->getOne($sql);
+			if (DB::isError($treeid)) {
+				trigger_error($treeid->getMessage().'<br/>'.$treeid->getUserInfo(), E_USER_ERROR);
+			}
+
+			$sql = 'SELECT DISTINCT l.minorid
+					FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid
+					';
+			if (!empty($type_code)) $sql .= ' INNER JOIN sq_asset a ON l.minorid = a.assetid';
+			$sql .= '
+					WHERE t.treeid LIKE '.$db->quote($treeid.'%').'
+					  AND t.treeid > '.$db->quote($treeid).'
+					'.((!empty($type_code)) ? '  AND ' : '');
+
+		}// end if assetid == 1
+
+		if (!empty($type_code)) {
+
+			$type_code_cond = '';
+			if (is_array($type_code)) {
+				for($i = 0; $i < count($type_code); $i++) $type_code[$i] = $db->quote($type_code[$i]);
+				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
+			} else {
+				$type_code_cond = '= '.$db->quote($type_code);
+			}
+
+			if ($strict_type_code) {
+				$sql .= 'a.type_code '.$type_code_cond;
+			} else {
+				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+				$sql .= '(a.type_code '.$type_code_cond.' OR a.type_code IN (~SQ0~))';
+				$sub = 'SELECT type_code
+						FROM sq_asset_type_inherited 
+						WHERE inherited_type_code '.$type_code_cond;
+				$sql = db_extras_subquery($db, $sql, Array($sub));
+			}
+		}// end if
+
+pre_echo($sql);
+
+		$children = $db->getCol($sql);
+		if (DB::isError($children)) {
+			trigger_error($children->getMessage().'<br/>'.$children->getUserInfo(), E_USER_ERROR);
+		}
+
+		return $children;
+
+	}// end getChildren()
 
 
 	/**
@@ -645,6 +722,7 @@ if (!empty($type_code)) $sql .= 'INNER JOIN sq_asset pa ON pl.minorid = pa.asset
 
 	}//end getLineageFromURL()
 
+
 	/**
 	* Prints out the interface for viewing and customising asset types
 	*
@@ -654,438 +732,10 @@ if (!empty($type_code)) $sql .= 'INNER JOIN sq_asset pa ON pl.minorid = pa.asset
 	*/
 	function paintBackend(&$backend)
 	{
-
-		$o  = &$backend->out;
-
-		if (!isset($_GET['am_section'])) $_GET['am_section'] = '';
-		$o->addFormActionGetVar('am_section', $_GET['am_section']);
-		$o->addHiddenField('am_form_submitted', '1');
-
-		switch($_GET['am_section']) {
-			case 'add_asset' :
-				$parent = &$this->getAsset($_GET['parent_assetid']);
-				if (is_null($parent)) {
-					trigger_error('Parent Asset #'.$_GET['parent_assetid'].' not found', E_USER_WARNING);
-					break;
-				}
-
-				// make sure that we are allowed to link this type to the parent
-				if (($err_msg = $parent->canLinkToType($_GET['type_code'], $_GET['link_type'])) !== true) {
-					trigger_error($err_msg, E_USER_WARNING);
-					break;
-				}
-
-				$o->addFormActionGetVar('parent_assetid', $_GET['parent_assetid']);
-				$o->addFormActionGetVar('pos',            $_GET['pos']);
-				$o->addFormActionGetVar('type_code',      $_GET['type_code']);
-				$o->addFormActionGetVar('link_type',      $_GET['link_type']);
-
-				$this->includeAsset($_GET['type_code']);
-				$asset = new $_GET['type_code']();
-
-				// if the form has been submitted then, process it
-				// and if that is successfull, then create the link to the parent asset
-				if (!empty($_POST['am_form_submitted'])) {
-
-					// start the transaction to create the asset and initial link
-					$link = Array('asset'     => &$parent,
-								  'link_type' => $_GET['link_type'],
-								  'value'     => '',
-								  'position'  => $_GET['pos']);
-
-					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-					$success = $asset->processBackend($link);
-
-					if ($success) {
-
-						$o->addMessage(SQ_BO_MSG_NOTICE, 'New '.$this->_asset_types[$_GET['type_code']]['name'].' "'.$asset->name.'" created');
-						$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" successfully linked to "'.$parent->name.'"');
-						$this->registerAsset($asset);
-						$o->addFormActionGetVar('am_section', 'edit_asset');
-						$o->addFormActionGetVar('assetid', $asset->id);
-						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
-					} else {
-						// the asset was not created fully or linking failed
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					}
-				}
-
-				$asset->paintBackend($backend);
-
-				break;
-
-			case 'edit_asset' :
-
-				$o->addFormActionGetVar('assetid', $_GET['assetid']);
-
-				$asset = &$this->getAsset($_GET['assetid']);
-				if (is_null($asset)) {
-					trigger_error('Asset #'.$_GET['assetid'].' not found', E_USER_WARNING);
-					break;
-				}
-
-				// if the form has been submitted then, process it
-				// and if that is successfull, then create the link to the parent asset
-				if (!empty($_POST['am_form_submitted']) && $asset->processBackend(Array())) {
-					$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" Updated');
-				}// end if
-
-				$asset->paintBackend($backend);
-				break;
-
-			case 'duplicate' :
-
-				$o->addFormActionGetVar('assetid', $_GET['assetid']);
-				$asset = &$this->getAsset($_GET['assetid']);
-				if (is_null($asset)) {
-					trigger_error('Asset #'.$_GET['assetid'].' not found', E_USER_WARNING);
-					break;
-				}
-
-				require_once SQ_LIB_PATH.'/progress_bar/progress_bar.inc';
-				$pb = new Progress_Bar($o->getCurrentLocation(), $this);
-				if (!$pb->loaded) {
-					$pb->setFns('_dupeInit', '_dupeInitPaint', '_dupeDone');
-					$pb->setOption('auto_close', false);
-
-					$pb->addStep('Obtain Locks', '_dupeObtainLocks');
-					$pb->addStep('Duplicate', '_dupeExec');
-					$pb->addStep('Release Locks', '_dupeReleaseLocks', '_dupeReleaseLocksInit');
-				}
-
-//				$vars = get_object_vars($pb);
-//				unset($vars['_obj']);
-//				pre_echo($vars);
-
-				$pb->run();
-
-				if ($pb->inPopUp()) {
-					$o->openRaw();
-				} else {
-					$o->setHeading('Duplicate : '.$asset->name);
-					$o->openSection('Options');
-					$o->openField('');
-				}
-
-				$pb->paint();
-
-				if ($pb->inPopUp()) {
-					$o->closeRaw();
-				} else {
-					$o->closeSection();
-					$o->commitButton();
-				}
-				break;
-
-
-			default   :
-				$this->_printAssetList($o);
-
-		}//end switch
-
-	}//end paintBackend();
-
-
-	/**
-	*/
-	function _dupeInit(&$pb)
-	{
-		$vars = $pb->getRunningVars();
-		pre_echo("VARS : ");
-		pre_echo($vars);
-		if (empty($vars)) {
-			$vars = Array(	'assetid'			=> $_GET['assetid'],
-							'to_parent_assetid' => $_GET['to_parent_assetid'],
-							'to_parent_pos'		=> $_GET['to_parent_pos']
-						);
-		}
-		pre_echo("VARS : ");
-		pre_echo($vars);
-		$vars['test'] = empty($vars['test']) ? 1 : ($vars['test'] + 1);
-		pre_echo("TEST : ".$vars['test']);
-
-		$pb->setRunningVars($vars);
-
-		#return ($vars['test'] >= 3);
-		return true;
-
-	}
-
-	/**
-	*/
-	function _dupeInitPaint(&$pb)
-	{
-		echo "SUBMIT AGAIN";
-	}
-
-	/**
-	*/
-	function _dupeObtainLocks(&$pb)
-	{
-		$vars = $pb->getRunningVars();
-		$vars['locks_run_num'] = empty($vars['locks_run_num']) ? 1 : ($vars['locks_run_num'] + 1);
-
-//		pre_echo("RUN NUM : ".$vars['locks_run_num']);
-
-		sleep(1);
-
-		$pb->setStatusMsg('Locking'.str_repeat('.', $vars['locks_run_num']));
-		$pb->setPercent($vars['locks_run_num'] / 3);
-//		pre_echo("CURRENT STEP : ");
-//		pre_echo($pb->_steps[$pb->_step]);
-		$pb->setRunningVars($vars);
-	}
-
-	/**
-	*/
-	function _dupeExec(&$pb)
-	{
-		$vars = $pb->getRunningVars();
-		$vars['run_num'] = empty($vars['run_num']) ? 1 : ($vars['run_num'] + 1);
-
-//		pre_echo("RUN NUM : ".$vars['run_num']);
-
-		sleep(2);
-
-		$pb->setStatusMsg('Running'.str_repeat('.', $vars['run_num']));
-		$pb->setPercent($vars['run_num'] / 5);
-//		pre_echo("CURRENT STEP : ");
-//		pre_echo($pb->_steps[$pb->_step]);
-		$pb->setRunningVars($vars);
-	}
-
-	/**
-	*/
-	function _dupeReleaseLocksInit(&$pb)
-	{
-		$vars = $pb->getRunningVars();
-		$vars['locks_run_num'] = 0;
-
-//		pre_echo("INIT DUPE RELEASE LOCKS RUN NUM : ".$vars['locks_run_num']);
-
-		sleep(1);
-
-		$pb->setStatusMsg('Initialising...');
-		$pb->setRunningVars($vars);
-		return true;
-	}
-
-	/**
-	*/
-	function _dupeReleaseLocks(&$pb)
-	{
-		$vars = $pb->getRunningVars();
-		$vars['locks_run_num'] = empty($vars['locks_run_num']) ? 1 : ($vars['locks_run_num'] + 1);
-
-//		pre_echo("RUN NUM : ".$vars['locks_run_num']);
-
-		sleep(1);
-
-		$pb->setStatusMsg('Unlocking'.str_repeat('.', $vars['locks_run_num']));
-		$pb->setPercent($vars['locks_run_num'] / 3);
-//		pre_echo("CURRENT STEP : ");
-//		pre_echo($pb->_steps[$pb->_step]);
-		$pb->setRunningVars($vars);
-	}
-
-
-	/**
-	*/
-	function _dupeDone(&$pb)
-	{
-		$vars = $pb->getRunningVars();
-//		pre_echo("ALL DONE");
-//		pre_echo($vars);
-	}
-
-
-
-	/**
-	* Prints out the interface for viewing and customising asset types
-	*
-	* @param object Backend_Outputter $o
-	* @param object DB $db
-	* @param string $parent  the parent asset type that to have it's kids printed
-	*
-	* @access public
-	*/
-	function _printAssetList(&$o)
-	{
-		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-
-		/*
-		if (!empty($_REQUEST['am_action'])) {
-
-			require_once SQ_INCLUDE_PATH.'/custom_asset_type.inc';
-
-			$o->addFormActionGetVar('am_action', 'edit');
-
-			pre_echo($_POST);
-			switch ($_REQUEST['am_action']) {
-				case 'create_custom' :
-					$custom = new Custom_Asset_Type();
-					if ($custom->create($_REQUEST['am_new_type_code'], $_REQUEST['am_type_code'])) {
-						$o->addFormActionGetVar('am_type_code', $_REQUEST['am_new_type_code']);
-						$custom->paintBackend($backend);
-						return;
-					}
-					break;
-				case 'edit' :
-					$o->addFormActionGetVar('am_type_code', $_REQUEST['am_type_code']);
-					$custom = new Custom_Asset_Type($_REQUEST['am_type_code']);
-					$custom->paintBackend($backend);
-					return;
-					break;
-			}
-		}//end if
-		*/
-
-		//$o->addCrummingLink('Asset Types', $o->getCurrentLocation());
-		$o->setHeading('Assets Types', 'create');
-		$o->addHiddenField('am_action');
-		$o->addHiddenField('am_new_type_code');
-
-		$o->openSection('Existing Assets');
-		$o->openField('', 'new_line');
-
-
-		$offspring = Array();
-		for (reset($this->_asset_types); null !== ($type_code = key($this->_asset_types)); next($this->_asset_types)) {
-			$parent = $this->_asset_types[$type_code]['parent_type'];
-			if (!isset($offspring[$parent])) $offspring[$parent] = Array();
-			$offspring[$parent][] = $type_code;
-		}//end for
-
-	?>
-		<script language="JavaScript" type="text/javascript">
-		<!--
-
-			var current_asset_name = '';
-
-			function asset_checked(asset_name, customisation) {
-				current_asset_name = asset_name;
-
-				var button = get_element('edit_button');
-				if (customisation) {
-					button.value = 'Edit ' + asset_name;
-				} else {
-					button.value = '- - - - - - - - - - - - -';
-				}
-			}
-
-			function create_custom() {
-
-				if (get_element_value('am_type_code')) {
-
-					var type_codes = new Array("<?php echo implode('", "', array_keys($this->_asset_types)); ?>");
-					var new_type_code = '';
-					var prompt_str = '';
-					do {
-
-						if (new_type_code == '') {
-							prompt_str = 'Please Enter a unique Asset Type Code for your new customisation';
-						} else {
-							prompt_str = '"' + new_type_code + '" is already in use\nPlease enter a unique Asset Type Code';
-						}
-
-						new_type_code = prompt(prompt_str, new_type_code);
-						// they hit cancel
-						if (new_type_code == null) return false;
-
-						// make sure it's in a proper format
-						new_type_code = new_type_code.toLowerCase();
-						new_type_code = new_type_code.replace(/ /g, '_');
-						new_type_code = new_type_code.replace(/[^a-z_]/g, '');
-						new_type_code = new_type_code.replace(/_+/g, '_');
-
-					} while (array_search(type_codes, new_type_code) != null)
-
-					set_hidden_field('am_new_type_code', new_type_code);
-					set_hidden_field('am_action', 'create_custom');
-					return true;
-				}
-				return false;
-			}
-
-
-		//-->
-		</script>
-		<table cellpadding="0" cellspacing="0" border="0">
-			<tr>
-				<td class="sq-backend-data"><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="20" border="0" alt="branch" /></td>
-				<td class="sq-backend-data">
-					&nbsp;Asset
-				</td>
-			</tr>
-			<tr>
-				<td class="sq-backend-data"><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="1" alt="blank" /></td>
-				<td class="sq-backend-data">
-			<?php
-				$this->_recursePrintAssetList($o, $offspring, 'asset');
-			?>
-				</td>
-			</tr>
-			<tr>
-				<td class="sq-backend-data"><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="1" alt="blank" /></td>
-				<td class="sq-backend-data">
-			<?php
-				//submit_button('create_button', 'Create Custom Asset', 'return create_custom();');
-				//submit_button('edit_button', '- - - - - - - - - - - - -', 'if (this.value.substr(0, 4) == \'Edit\') { set_hidden_field(\'am_action\', \'edit\'); return true; } else { return false };');
-			?>
-				</td>
-			</tr>
-		</table>
-	<?php
-
-	}// end printAssetList()
-
-	function _recursePrintAssetList(&$o, &$offspring, $parent)
-	{
-
-	?>
-		<table cellpadding="0" cellspacing="0" border="0">
-	<?php
-		$num_kids = count($offspring[$parent]);
-		for ($i = 0; $i < $num_kids; $i++) {
-
-			$type_code = $offspring[$parent][$i];
-			$end = ($i == $num_kids - 1);
-//			$bg_img = 'images/page_'.(($page[effective_visible]) ? '' : 'in').'visible_'.page::get_status_colour($page[effective_status]).'.gif';
-
-			$bg = ($end) ? '' : 'background="'.$o->filesPath('/images/tree/stalk.gif').'"';
-		?>
-			<tr>
-				<td class="sq-backend-data" <?php echo $bg; ?>><img src="<?php echo $o->filesPath('/images/tree/branch.gif');?>" width="20" height="20" border="0" alt="branch" /></td>
-				<td class="sq-backend-data">
-				<?php /*
-					<  ?php radio_button('am_type_code', $type_code, false, 'asset_checked(\''.addslashes($this->_asset_types[$type_code]['name']).'\', '.(($this->_asset_types[$type_code]['customisation']) ? 'true' : 'false').');'); ?  >
-					<span class="sq-backend-<  ?php echo ($this->_asset_types[$type_code]['customisation']) ? 'custom-' : ''?  >asset"><  ?php echo $this->_asset_types[$type_code]['name'].' ('.$type_code.')';?  ></span>
-					*/
-				?>
-					&nbsp;&nbsp;<?php echo $this->_asset_types[$type_code]['name'].' ('.$type_code.')';?>
-				</td>
-			</tr>
-		<?php
-			if (!empty($offspring[$type_code])) {
-			?>
-				<tr>
-					<td class="sq-backend-data" <?php echo $bg; ?>><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="1" alt="blank" /></td>
-					<td class="sq-backend-data">
-				<?php
-					$this->_recursePrintAssetList($o, $offspring, $type_code);
-				?>
-					</td>
-				</tr>
-			<?php
-			}//end if
-
-		}//end for
-	?>
-		</table>
-	<?php
-
-	}//end _printAssetList()
+		require_once SQ_INCLUDE_PATH.'/asset_manager_edit_fns.inc';
+		$edit_fns =& new Asset_Manager_Edit_Fns($this, $backend);
+		$edit_fns->paintBackend();
+	}//end paintBackend()
 
 }//end class
 ?>
