@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: dev.inc,v 1.17 2004/12/21 23:05:32 gsherwood Exp $
+* $Id: dev.inc,v 1.18 2005/02/03 05:29:18 arailean Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 *     Generic functions that are useful for developers
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package Fudge
 * @subpackage dev
 */
@@ -163,6 +163,10 @@ function bam($x='BAM!', $max_depth=0, $style='')
 */
 function minibam($contents, $title='BAM')
 {
+	if (defined('SQ_DEBUG_HIDE_MINIBAM') && SQ_DEBUG_HIDE_MINIBAM) {
+		return;
+	}
+
 	$id = rawurlencode(strtolower($title)).'_'.microtime();
 	?>
 	<table border="1" cellspacing="0" cellpadding="2" style="background-color: #FFDDDD">
