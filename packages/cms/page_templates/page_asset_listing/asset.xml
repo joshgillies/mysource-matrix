@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.9 2005/01/20 23:02:03 gsherwood Exp $
+* $Id: asset.xml,v 1.10 2005/01/24 21:52:54 gsherwood Exp $
 *
 */
 -->
@@ -29,7 +29,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>cms</package>
 	<type_code>page_asset_listing</type_code>
-	<version>0.8</version>
+	<version>0.9</version>
 	<name>Asset Listing Page</name>
 	<description>Lists sub asset or children of an asset is a sortable list format or an A-Z listing</description>
 	<instantiable>yes</instantiable>

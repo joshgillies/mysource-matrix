@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.52 2005/01/20 23:27:40 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.53 2005/01/24 21:52:54 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -570,26 +570,37 @@ class Page_Asset_Listing extends Page
 			return Array();
 		}
 
-		// get the root asset whose sub-assets/children we are displaying
+		// get the root assets whose sub-assets/children we are displaying
 		// This may come from the parameter map, but the dynamic value must be a child of the static value
-		// if there is no root asset, we will use ourselves and print our children
-		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
-		$root_asset_id = empty($root_link) ? $this->id : $root_link['minorid'];
+		// if there are no root assets, we will use ourselves and print our children
+		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', false, 'major', 'root');
+		foreach ($root_links as $root_link) $root_asset_ids[] = (int)$root_link['minorid'];
+
 		$parameter_map = &$this->getAttribute('parameter_map');
-		if ((null != ($dynamic_root = $parameter_map->getParameterValue('root_node'))) && (in_array($root_asset_id, array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root))))) {
-			$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($dynamic_root);
-		} else {
-			if ($dynamic_root != null) {
-				trigger_error('Supplied root node is in an unauthorised part of the system.  Defaulting to static root node', E_USER_WARNING);
+		$dynamic_root = $parameter_map->getParameterValue('root_node');
+		
+		// check if we have a dynamic parameter -- if so, let's do some security checks
+		if (!is_null($dynamic_root)) {
+			$dynamic_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root);
+			
+			// first, check to see if the dynamic parameter specified is already one of the root nodes
+			// if so, just use that single root node
+			if (in_array($dynamic_root, $root_asset_ids)) {
+				unset($root_asset_ids);
+				$root_asset_ids[] = $dynamic_root;
 			}
-			if ($root_asset_id == $this->id) {
-				$root_asset =& $this;
+			
+			// otherwise, check to see if the dynamic parameter specified is a child of one of the root
+			// nodes. If so, use the dynamic parameter as the root node; otherwise return an error.
+			$matching_root_ids = array_intersect(array_keys($dynamic_parents), $root_asset_ids);
+			if (empty($matching_root_ids)) {
+				trigger_error('Supplied root node is in an unauthorised part of the system.  Defaulting to static root node', E_USER_WARNING);
 			} else {
-				$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid'], $root_link['minor_type_code']);
-				if (is_null($root_asset)) return Array();
+				unset($root_asset_ids);
+				$root_asset_ids[] = $dynamic_root;
 			}
 		}
-
+		
 		// this is what we are going to sort the reults by (passed directly to the getLinks
 		// and getChildren functions)
 		// must be a column in the asset table (null = no sorting)
@@ -607,27 +618,35 @@ class Page_Asset_Listing extends Page
 
 			$side_of_link = ($this->attr('direction') == 'down') ? 'major' : 'minor';
 			$link_type = ($side_of_link == 'major') ? 'minor' : 'major';
+			$links = Array();
+
 			switch ($group_by) {
 				case 'number' :
-					$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, $side_of_link, null, null, null, $sort_by, SQ_PERMISSION_READ);
+					foreach ($root_asset_ids as $root_asset_id) {
+						$links = array_merge($links, $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset_id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, $side_of_link, null, null, null, $sort_by, SQ_PERMISSION_READ));
+					}
 					foreach ($links as $link_info) $assets_to_list[$link_info[$link_type.'id']] = $link_info[$link_type.'_type_code'];
-					if ($this->attr('reverse_sort')) $assets_to_list = array_reverse($assets_to_list, true);
+					$assets_to_list = $this->sortAssetList($assets_to_list, $sort_by, array_keys($wanted_types));
 				break;
 
 				case 'letter' :
-					$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, $side_of_link, null, null, null, $sort_by, SQ_PERMISSION_READ);
-					if (empty($query)) return Array();
-					$query['select'] .= ', SUBSTRING(a.'.$sort_by.', 1, 1) AS first_letter';
+					foreach ($root_asset_ids as $root_asset_id) {
+						$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset_id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, $side_of_link, null, null, null, $sort_by, SQ_PERMISSION_READ);
+						if (empty($query)) return Array();
+						$query['select'] .= ', SUBSTRING(a.'.$sort_by.', 1, 1) AS first_letter';
 
-					$db = &$GLOBALS['SQ_SYSTEM']->db;
-					$links = $db->getAll(implode(' ', $query));
-					assert_valid_db_result($links);
-
+						$db = &$GLOBALS['SQ_SYSTEM']->db;
+						$new_links = $db->getAll(implode(' ', $query));
+						assert_valid_db_result($new_links);
+						$links = array_merge($links, $new_links);
+					}
 					foreach ($links as $link_info) $assets_to_list[$link_info[$link_type.'id']] = Array('type_code' => $link_info[$link_type.'_type_code'], 'first_letter' => $link_info['first_letter']);
 				break;
 
 				case 'random' :
-					$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, $side_of_link, null, null, null, null, SQ_PERMISSION_READ);
+					foreach ($root_asset_ids as $root_asset_id) {
+						$links = array_merge($links, $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset_id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, $side_of_link, null, null, null, null, SQ_PERMISSION_READ));
+					}
 					foreach ($links as $link_info) $assets_to_list[$link_info[$link_type.'id']] = $link_info[$link_type.'_type_code'];
 				break;
 			}//end switch
@@ -637,44 +656,83 @@ class Page_Asset_Listing extends Page
 			switch ($group_by) {
 				case 'number' :
 					if ($this->attr('direction') == 'down') {
-						$assets_to_list = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset->id, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
+						foreach ($root_asset_ids as $root_asset_id) {
+							$assets_to_list = $assets_to_list + $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
+						}
 					} else {
-						$assets_to_list = $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset->id, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
+						foreach ($root_asset_ids as $root_asset_id) {
+							$assets_to_list = $assets_to_list + $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset_id, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
+						}
 					}
 					if ($this->attr('reverse_sort')) $assets_to_list = array_reverse($assets_to_list, true);
 				break;
 
 				case 'letter' :
-					if ($this->attr('direction') == 'down') {
-						$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
-					} else {
-						$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($root_asset->id, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
+					foreach ($root_asset_ids as $root_asset_id) {
+						if ($this->attr('direction') == 'down') {
+							$root_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
+							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
+							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
+						} else {
+							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($root_asset_id, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
+						}
+						if (empty($query)) return Array();
+						$query['select'] .= ', SUBSTRING(a.'.$sort_by.', 1, 1) AS first_letter';
+	
+						$db = &$GLOBALS['SQ_SYSTEM']->db;
+						$new_assets_to_list = $db->getAssoc(implode(' ', $query));
+						assert_valid_db_result($new_assets_to_list);
+						$assets_to_list = $assets_to_list + $new_assets_to_list;
 					}
-					if (empty($query)) return Array();
-					$query['select'] .= ', SUBSTRING(a.'.$sort_by.', 1, 1) AS first_letter';
-
-					$db = &$GLOBALS['SQ_SYSTEM']->db;
-					$assets_to_list = $db->getAssoc(implode(' ', $query));
-					assert_valid_db_result($assets_to_list);
 				break;
 
 				case 'random' :
 					if ($this->attr('direction') == 'down') {
-						$assets_to_list = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset->id, array_keys($wanted_types), false, null, SQ_PERMISSION_READ);
+						foreach ($root_asset_ids as $root_asset_id) {
+							$assets_to_list = $assets_to_list + $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), false, null, SQ_PERMISSION_READ);
+						}
 					} else {
-						$assets_to_list = $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset->id, array_keys($wanted_types), false, null, SQ_PERMISSION_READ);
+						foreach ($root_asset_ids as $root_asset_id) {
+							$assets_to_list = $assets_to_list + $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset_id, array_keys($wanted_types), false, null, SQ_PERMISSION_READ);
+						}
 					}
 				break;
 			}//end switch
 
 		}//end if subs_only
 
-		// clean up after ourselves
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
-
 		return $assets_to_list;
 
 	}//end getAssetList()
+	
+	
+	/**
+	* Sort the list of assets
+	*
+	* @param array			$asset_list 	an array of assets to be sorted
+	* @param string			$sort_by		the sort order
+	* @param boolean		$reverse_sort	whether to reverse the sort order
+	* @param array | string	$type_code		list of type_codes to restrict the search
+	*
+	* @return array
+	*/
+	function sortAssetList($asset_list, $sort_by, $type_code=Array())
+	{
+		if ((!is_array($asset_list)) || (empty($asset_list))) return false;
+		if (count($asset_list) == 1) return $asset_list;
+
+		$asset_ids = array_keys($asset_list);
+		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($asset_ids, $type_code);
+		
+		foreach ($asset_ids as $asset_id) $sort_assets[$asset_id] = strtolower($asset_info[$asset_id][$sort_by]);
+		(!$this->attr('reverse_sort')) ? asort($sort_assets) : arsort($sort_assets);
+
+		$sorted_assets = array_keys($sort_assets);
+		foreach($sorted_assets as $asset) $assets_to_list[$asset] = $asset_info[$asset]['minor_type_code'];
+		
+		return $assets_to_list;
+
+	}//end sortAssetList()
 
 
 	/**
@@ -701,6 +759,7 @@ class Page_Asset_Listing extends Page
 			case 'number' :
 			case 'random' :
 				$this->filterAssetTypes($todo);
+				$this->adjustAssetPositions($todo);
 			break;
 
 			case 'letter' :
@@ -814,6 +873,68 @@ class Page_Asset_Listing extends Page
 
 
 	/**
+	* Place assets in hard set list positions
+	*
+	* @param array	&$todo	an array of assets to list in the same format as the return
+	*						value of getAssetList()
+	*
+	* @return void
+	* @access protected
+	* @see getAssetList()
+	*/
+	function adjustAssetPositions(&$todo)
+	{
+		$asset_positions = $this->attr('asset_positions');
+
+		if (!empty($asset_positions)) {
+			$adjusted_assetids = array_values($asset_positions);
+			$adjusted_type_codes = Array();
+
+			// replace the original todo list because we are going to build another one
+			$original_todo = $todo;
+			$todo = Array();
+
+			reset($original_todo);
+			$key = key($original_todo);
+
+			for ($i = 1; $i <= count($original_todo) + count($asset_positions); $i++) {
+				if (isset($asset_positions[$i])) {
+					// this position in the list is to be filled by a specific asset
+
+					// we get the type code either from the $adjusted_type_code array
+					// set in the ELSE statement below, or we leave it empty to be
+					// filled in when it is found
+					$assetid = $asset_positions[$i];
+					$todo[$assetid] = array_get_index($adjusted_type_codes, $assetid, '');
+				} else {
+					// skip any entries that are being moved to specific list positions
+					while (in_array($key, $adjusted_assetids)) {
+						if (isset($todo[$key])) {
+							// we have already inserted this asset into its position
+							// so just set its type code correctly
+							$todo[$key] = $original_todo[$key];
+						} else {
+							// we have not yet inserted this asset into its position
+							// so keep a record of the type code that can be used when
+							// it is inserted
+							$adjusted_type_codes[$key] = $original_todo[$key];
+						}
+						unset($original_todo[$key]);
+						$key = key($original_todo);
+						if ($key === null) break(2);
+					}
+					$todo[$key] = $original_todo[$key];
+					next($original_todo);
+					$key = key($original_todo);
+					if ($key === null) break;
+				}
+			}//end for
+		}//end if we have specific asset positions
+
+	}//end adjustAssetPositions()
+
+
+	/**
 	* Print the list of assets that we are listing
 	*
 	* @param array	&$todo	an array of assets to list in the same format as the return
@@ -913,7 +1034,7 @@ class Page_Asset_Listing extends Page
 			}
 		}
 
-	}//end _printAssetList();
+	}//end _printAssetList()
 
 
 	/**
@@ -937,6 +1058,13 @@ class Page_Asset_Listing extends Page
 		$asset_info_fields = Array('assetid','type_code','version','name','short_name',
 								   'status','languages','charset','force_secure','created',
 								   'created_userid','updated','updated_userid','published','published_userid');
+
+		// if the type code is empty, we probably stuffed around with the todo list
+		// but we can get the type code from the asset info array
+		if ($type_code == '') {
+			$info = array_get_index($this->_tmp['assets_info'], $assetid, Array('type_code' => ''));
+			$type_code = $info['type_code'];
+		}
 
 		// check to see if there is a specific position format for us
 		if (isset($this->_tmp['position_formats'][$list_position])) {

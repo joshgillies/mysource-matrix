@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2005/01/20 23:03:31 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2005/01/24 21:52:54 gsherwood Exp $
 *
 */
 -->
@@ -140,6 +140,16 @@
 			<note>Set to '0' (zero) to list all assets on the same page.&lt;br/&gt;&lt;b&gt;NOTE:&lt;/b&gt; This option is only valid when using the standard list format.
 			&lt;br/&gt;If the listing type is Random, this defines how many assets are randomly displayed ('0' displays a single asset).</note>
 			<int width="5" />
+		</field>
+	</section>
+	<section name="List Position Settings" write_access="write:attributes">
+		<field>
+			<display_name>Asset Positions</display_name>
+			<note>You can configure the list to include certain assets at specific positions, even if they would not normally be included in the list.</note>
+			<function_call>
+				<paint_function   name="paintAssetPositions"   />
+				<process_function name="processAssetPositions" />
+			</function_call>
 		</field>
 	</section>
 </contents>

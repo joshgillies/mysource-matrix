@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_edit_fns.inc,v 1.12 2005/01/20 23:02:03 gsherwood Exp $
+* $Id: page_asset_listing_edit_fns.inc,v 1.13 2005/01/24 21:52:54 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -712,6 +712,126 @@ class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 		combo_box($prefix.'_new_type', $uc_types, false, '');
 
 	}//end paintAddAssetType()
+	
+	
+	/**
+	* Paint the interface for editing custom asset positions
+	*
+	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAssetPositions(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$asset_positions = $asset->attr('asset_positions');
+
+		if (!empty($asset_positions)) {
+			ksort($asset_positions, SORT_NUMERIC);
+			if (!$write_access) {
+				$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_values($asset_positions));
+			}
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-header">Position</td>
+					<td class="sq-backend-table-header">Asset</td>
+					<?php
+					if ($write_access) {
+						?><td class="sq-backend-table-header">Delete?</td><?php
+					}
+					?>
+				</tr>
+				<?php
+				foreach ($asset_positions as $position => $assetid) {
+					?>
+					<tr>
+						<td class="sq-backend-table-cell"><?php echo $position; ?></td>
+						<td class="sq-backend-table-cell">
+							<?php
+							if ($write_access) {
+								asset_finder($prefix.'_asset_position['.$position.']', $assetid, Array('asset' => 'D'));
+							} else {
+								$info = array_get_index($asset_info, $assetid, Array());
+								if (empty($info)) {
+									echo 'Unknown asset';
+								} else {
+									echo $info['short_name'].' (#'.$assetid.')';
+								}
+							}
+							?>
+						</td>
+						<?php
+						if ($write_access) {
+							?>
+							<td class="sq-backend-table-cell">
+								<?php
+								check_box($prefix.'_delete_asset_position['.$position.']');
+								?>
+							</td>
+							<?php
+						}
+						?>
+					</tr>
+					<?php
+				}//end foreach
+				?>
+			</table>
+			<?php
+		} else {
+			echo 'There are no asset positions defined. All assets will be listed using the sorting settings.';
+		}
+		
+		if ($write_access) {
+			echo '<p><b>New Asset Position: </b>';
+			text_box($prefix.'_new_asset_position_pos', '', 5);
+			echo ' ';
+			asset_finder($prefix.'_new_asset_position_asset', '', Array('asset' => 'D'));
+			echo '</p>';
+		}
+
+		return $write_access;
+
+	}//end paintPositionFormats()
+
+
+	/**
+	* Process the interface for editing custom asset positions
+	*
+	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processAssetPositions(&$asset, &$o, $prefix)
+	{
+		$asset_positions = Array();
+
+		$new_position_pos = (int) array_get_index($_POST, $prefix.'_new_asset_position_pos', 0);
+		if ($new_position_pos > 0) {
+			$new_position_data = array_get_index($_POST, $prefix.'_new_asset_position_asset', Array());
+			$new_position_assetid = $new_position_data['assetid'];
+			$asset_positions[$new_position_pos] = $new_position_assetid;
+		}
+		
+		$current_asset_positions = array_get_index($_POST, $prefix.'_asset_position', Array());
+		foreach ($current_asset_positions as $position => $data) {
+			$asset_positions[$position] = $data['assetid'];
+		}
+		
+		$delete_asset_position = array_get_index($_POST, $prefix.'_delete_asset_position', Array());
+		foreach ($delete_asset_position as $position => $on) {
+			unset($asset_positions[$position]);
+		}
+
+		return $asset->setAttrValue('asset_positions', $asset_positions);
+
+	}//end processAssetPositions()
 
 
 	/**

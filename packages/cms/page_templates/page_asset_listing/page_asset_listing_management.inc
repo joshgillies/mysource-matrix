@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_management.inc,v 1.17 2005/01/20 23:02:03 gsherwood Exp $
+* $Id: page_asset_listing_management.inc,v 1.18 2005/01/24 21:52:54 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -60,7 +60,7 @@ class Page_Asset_Listing_Management extends Asset_Management
 															'allow_empty' => false
 														),
 										);
-										
+
 		$this->vars['direction']	= Array(
 										'added'	=> '0.6',
 										'type'	=> 'selection',
@@ -73,6 +73,12 @@ class Page_Asset_Listing_Management extends Asset_Management
 											'allow_empty' => false,
 										),
 										'default' => 'down'
+										);
+
+		$this->vars['asset_positions']	= Array(
+										'added'   => '0.9',
+										'type'    => 'serialise',
+										'default' => Array(),
 										);
 
 		$this->vars['sort_by']		= Array(
