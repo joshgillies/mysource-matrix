@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.128 2004/12/07 04:29:21 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.129 2004/12/09 00:08:39 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.128 $
+* @version $Revision: 1.129 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1212,7 +1212,7 @@ class Page_Calendar extends Page_Asset_Listing
 				  if (formSubmitted) return;
 				  loc = "<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetHref($ab_id); ?>?SQ_CALENDAR_DATE="+date;
 				  if (time != '*') loc += '&SQ_CALENDAR_TIME='+time+'&SQ_CALENDAR_DURATION=<?php echo (int)$this->attr('day_partition_time');?>_min';
-				  if (typeof node != 'undefined') loc += '&root_node='+node;
+				  if (typeof node != 'undefined') loc += '&SQ_CALENDAR_LOCATION='+node;
 				  document.location = loc;
 			  }
 			//-->
