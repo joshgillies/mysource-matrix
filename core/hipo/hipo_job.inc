@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.55 2005/02/24 05:27:17 dbaranovskiy Exp $
+* $Id: hipo_job.inc,v 1.56 2005/02/24 23:13:02 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -921,7 +921,7 @@ class HIPO_Job extends MySource_Object
 			if ($this->_hipo_vars['running_mode'] == 'web') {
 				// web mode
 				set_error_handler(Array(&$this, '_errorHandler'));
-				$max_assets_to_process = $this->getThreshold();
+				$max_assets_to_process = max($this->getThreshold(), 1);
 				$i = 0;
 				$ret_val = true;
 				while (($i < $max_assets_to_process) && (!$this->_steps[$step]['complete'])) {
