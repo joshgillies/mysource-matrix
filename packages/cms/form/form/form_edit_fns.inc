@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.27 2004/06/10 04:18:12 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.28 2004/06/16 05:55:31 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -65,9 +65,13 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 	function paintSectionLinks(&$asset, &$o, $prefix)
 	{
 		// get the sections linked to this asset
+		if (isset($asset->tmp['section_links'])) unset($asset->tmp['section_links']);
 		$sections = &$asset->getSections();
 
-		if (empty($sections)) return false;
+		if (empty($sections)) {
+			echo 'This form does not have any sections';
+			return false;
+		}
 
 		for (reset($sections); null !== ($k = key($sections)); next($sections)) {
 			$s =& $sections[$k];
@@ -459,8 +463,16 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 	function paintAddSections(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('links')) return false;
-		check_box($prefix.'_new_section', '1', false);
-		echo ' New Section';
+
+		// create a dropdown box with some numbers for the number of sections to add
+		// start at zero, so if the (l)user presses commit without selecting anything
+		// it doesn't add a section
+
+		$num = Array();
+		for ($i = 0; $i <= 10; $i++) {
+			$num[$i] = $i;
+		}
+		combo_box('num_sections', $num, false, '');
 
 		return true;
 	}//end paintAddSections()
@@ -478,25 +490,37 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 	*/
 	function processAddSections(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_new_section'])) return false;
+		$number = (isset($_POST['num_sections'])) ? $_POST['num_sections'] : '';
 
-		$section_count = $asset->getSectionCount() + 1;
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-	
-		$am->includeAsset('form_section');
-		$section = new Form_Section();
-		$copy_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 0, 'exclusive' => 0);
+
+		for ($i = 0; $i < $number; $i++) {
+
+			$section_count = $asset->getSectionCount() + 1;
+			
+			$am->includeAsset('form_section');
+			$section = new Form_Section();
+			$copy_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 0, 'exclusive' => 0);
 		
-		$section->setAttrValue('name', 'Section '.$section_count);
-		if (!$section->create($copy_link)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
+			$section->setAttrValue('name', 'Section '.$section_count);
+
+			if (!$section->create($copy_link)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+
+			// need to null out the section otherwise when we show it it will show the name
+			// of the last section we added
+			$section = null;
+
+			// regen the content file
+			$asset->_updated();
+
+		} // end for
+
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		
-		// regen the content file
-		$asset->_updated();
 
 		return true;
 
