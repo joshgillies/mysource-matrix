@@ -1103,7 +1103,7 @@ class Asset_Manager extends MySource_Object
 
 		} else {
 			$sql .= 'l.majorid, a.type_code as major_type_code, l.minorid, a2.type_code as minor_type_code
-					 FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l 
+					 FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l
 							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON  l.majorid = a.assetid
 							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a2 ON  l.minorid = a2.assetid';
 
@@ -1646,8 +1646,52 @@ class Asset_Manager extends MySource_Object
 			return 0;
 		}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// if this link is a significant link,
+		// then that we aren't moving under ourselves
+		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
+
+			//// Check we aren't moving the minor asset under itself ////
+			// get all the links where the minor asset is a parent
+			// and check to see if our id is under it
+
+			// so much for SQL standards...
+			$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : '(pt.treeid || '.$db->quote('%').')';
+			$where = 'ct.treeid LIKE '.$concat.'
+					  AND ct.treeid >= pt.treeid
+					  AND pt.linkid IN (~SQ0~)
+					  AND cl.minorid = '.$db->quote($major->id);
+
+			$sub_where = 'minorid = '.$db->quote($minor->id);
+			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where);
+			$subs = Array('SELECT linkid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link '.$sub_where);
+
+			$where = db_extras_subquery($db, $where, $subs);
+			if (DB::isError($where)) {
+				trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_WARNING);
+				return 0;
+			}
+
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
+
+			$sql = 'SELECT COUNT(DISTINCT ct.linkid)
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree pt,
+						'.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link cl ON ct.linkid = cl.linkid '.$where;
+			$moving_under = $db->getOne($sql);
+			if (DB::isError($moving_under)) {
+				trigger_error($moving_under->getMessage().'<br/>'.$moving_under->getUserInfo(), E_USER_WARNING);
+				return 0;
+			} else if ($moving_under) {
+				trigger_error('You are not allowed to move asset "'.$minor->name.'" (ID : #'.$minor->id.') under  "'.$major->name.'" (ID : #'.$major->id.') because this will cause the asset to be nested under itself', E_USER_WARNING);
+				return 0;
+			}// end if
+
+		}// end if
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// make sure the sort order is in a valid range
 		$sql   = 'SELECT COUNT(*) as count, MAX(sort_order) as max
@@ -1945,7 +1989,7 @@ class Asset_Manager extends MySource_Object
 
 		return $linkid;
 
-	}//end createLink()
+	}//end createAssetLink()
 
 
 	/**
@@ -2013,41 +2057,6 @@ class Asset_Manager extends MySource_Object
 				return 'Asset "'.$minor->name.'" (Asset #'.$minor->id.') cannot be linked to "'.$major->name.'" (Asset #'.$major->id.') it is exclusively linked to Asset #'.$current_majorid.' ("'.$current_major->name.'")';
 			}
 
-			//// Check we aren't moving the minor asset under itself ////
-			// get all the links where the minor asset is a parent
-			// and check to see if our id is under it
-
-			// so much for SQL standards...
-			$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : '(pt.treeid || '.$db->quote('%').')';
-			$where = 'ct.treeid LIKE '.$concat.'
-					  AND ct.treeid >= pt.treeid
-					  AND pt.linkid IN (~SQ0~)
-					  AND cl.minorid = '.$db->quote($major->id);
-
-			$sub_where = 'minorid = '.$db->quote($minor->id);
-			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where);
-			$subs = Array('SELECT linkid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link '.$sub_where);
-
-			$where = db_extras_subquery($db, $where, $subs);
-			if (DB::isError($where)) {
-				trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_WARNING);
-				return 'Database Error';
-			}
-
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
-
-			$sql = 'SELECT COUNT(DISTINCT ct.linkid)
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree pt,
-						'.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link cl ON ct.linkid = cl.linkid '.$where;
-			$moving_under = $db->getOne($sql);
-			if (DB::isError($moving_under)) {
-				trigger_error($moving_under->getMessage().'<br/>'.$moving_under->getUserInfo(), E_USER_WARNING);
-				return 'Database Error';
-			} else if ($moving_under) {
-				return 'You are not allowed to move asset "'.$minor->name.'" (ID : #'.$minor->id.') under  "'.$major->name.'" (ID : #'.$major->id.') because this will cause the asset to be nested under itself';
-			}// end if
 		}// end if
 
 		return true;
@@ -2294,20 +2303,12 @@ class Asset_Manager extends MySource_Object
 			return 0;
 		}
 
-		// if this is a web path link, then we need to inform the asset to update it's lookups
-		if ($link['link_type'] & SQ_SC_LINK_WEB_PATHS) {
-			if (!$minor->updateLookups()) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return 0;
-			}
-		}
-
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->broadcastEvent('DeleteLink', Array('assetid' => $major->id, 'linkid' => $linkid));
 
 		return true;
 
-	}//end deleteLink()
+	}//end deleteAssetLink()
 
 
 	/**
@@ -2986,8 +2987,8 @@ class Asset_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$sql = 'SELECT l.url, l.assetid, a.'.$name_type.', a.type_code
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.assetid = a.assetid
-				'.$extra_table.' 
-				'.$where.' 
+				'.$extra_table.'
+				'.$where.'
 				ORDER BY l.url ASC';
 
 		$result = $db->getAll($sql);
@@ -3107,7 +3108,7 @@ class Asset_Manager extends MySource_Object
 			$sql .= '
 			) as weighting
 			FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_url u ON l.root_urlid = u.urlid
-			'.$where.' 
+			'.$where.'
 			ORDER BY weighting DESC, l.url';
 
 			$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
