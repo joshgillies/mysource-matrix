@@ -33,7 +33,7 @@ SystemEvents.NOT_OTHER_MODAL	= 7; // shorthand for NO_MODAL | IS_MODAL | KID_MOD
 */
 SystemEvents.prototype.startModal = function(mc) 
 {
-	if (this.modal !== null) return false;
+	if (this.modal !== null && this.modal != mc) return false;
 	if (!(mc instanceof MovieClip)) return false;
 	if (this.modal == mc)   return true;
 

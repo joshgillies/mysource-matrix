@@ -4,7 +4,10 @@ function mcToolBarClass() {
 	this.logout_icon.onRelease = logout;
 
 	this.attachMovie('mcRefreshIconID', 'refresh_icon', 2);
-	this.refresh_icon.onRelease = function() { _root.asset_manager.reloadAllAssets();}
+	this.refresh_icon.onRelease = function() { 
+		_root.asset_manager.reloadAllAssets();
+		_root.tabs.mail.msgs_container.refreshMail();
+	}
 
 	this.icons = new Array();
 

@@ -6,14 +6,14 @@ _root.test_pressed_count = 0;
 
 function testOnClick1(component)
 { 
-	var tree = _root.tabs.tree;
-	tree.startAssetFinder([]);
+	if (this.test_stack == undefined)
+		this.test_stack = new Array();
+	this.test_stack.push(_root.progress_bar.show('test ' + (this.test_stack.length + 1)));
 }
 
 function testOnClick2 (component)
 {
-	var tree = _root.tabs.tree;
-	tree.stopAssetFinder();
+	_root.progress_bar.hide(this.test_stack.pop());
 }
 
 

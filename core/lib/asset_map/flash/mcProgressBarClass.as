@@ -15,6 +15,8 @@ function mcProgressBarClass()
 	this.order   = new Array();
 
 	this.intervalid = null;
+
+	this.progress_pos = 0;
 }
 
 
@@ -40,15 +42,13 @@ mcProgressBarClass.prototype.show = function(desc)
 	if (_root.system_events.inModal(this)) return false;
 	// attempt to get the modal status
 	if (!_root.system_events.startModal(this)) return false;
-
 	var id = this.counter++;
 	this.descs[id] = desc;
 	this.order.push(id);
 
-
 	if (!this.intervalid) {
 		if (this.order.length > 1) {
-			this.intervalid = setInterval(this, "setText", 1000);
+			this.intervalid = setInterval(this, 'setText', 500);
 		} else {
 			this.setText();
 		}
@@ -71,14 +71,14 @@ mcProgressBarClass.prototype.hide = function(id)
 	this.order.removeElement(id);
 
 	if (this.order.length > 0) {
-		if (this.descs.length < 2) {
+		if (this.order.length < 2) {
 			clearInterval(this.intervalid);
 			this.intervalid = null;
 			this.setText();
 		}
 	} else {
 		_root.system_events.stopModal(this);
-		this.spinner.gotoAndStop(1);
+		this.spinner.stop();
 		this.progress_text.text = '';
 	}
 }
@@ -90,9 +90,22 @@ mcProgressBarClass.prototype.hide = function(id)
 */
 mcProgressBarClass.prototype.setText = function() 
 {
-	this.interval_pos++;
-	if (this.interval_pos >= this.order.length) this.interval_pos = 0;
-	this.progress_text.text = this.descs[this.order[this.interval_pos]];
+	trace ("settext called");
+	trace(this.order);
+
+	var first = true;
+
+	this.progress_text.text = '';
+
+	for (var i = 0; i < this.order.length; ++i) {
+		if (!first) {
+			this.progress_text.text += " + ";
+		}
+		this.progress_text.text += this.descs[this.order[(this.progress_pos + i) % this.order.length]];
+		first = false;
+	}
+
+	this.progress_pos = (this.progress_pos + 1) % this.order.length;
 
 }
 
