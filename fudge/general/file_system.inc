@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.20 2003/12/30 05:21:13 gsherwood Exp $
+* $Id: file_system.inc,v 1.21 2004/01/05 10:08:02 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -219,9 +219,8 @@ function list_files($dir='', $fullpath=false)
 * @return array
 * @access public
 */
-function list_dirs($dir='', $fullpath=false)
+function list_dirs($dir, $fullpath=false)
 {
-	if (!$dir) return false;
 	if (!is_dir($dir)) return Array();
 
 	$dirs = array();
