@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation_edit_fns.inc,v 1.30 2004/12/06 14:38:08 brobertson Exp $
+* $Id: design_customisation_edit_fns.inc,v 1.31 2005/04/04 00:37:16 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -175,8 +175,14 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 									'is_exclusive'  => 0
 								 );
 
+			$GLOBALS['SQ_SYSTEM']->am->acquireLock($da->id, 'all');
+
 			// First let's duplicate the DA, ignoring the directory with the files
 			$clone = &$GLOBALS['SQ_SYSTEM']->am->cloneAsset($da, $create_link, $map, Array('attributes', 'permissions'), true);
+
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($da->id, 'all');
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($clone->id, 'all');
+
 			if (is_null($clone)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
