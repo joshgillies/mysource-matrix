@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_schemas.inc,v 1.13 2004/01/22 10:40:01 brobertson Exp $
+* $Id: hipo_job_edit_metadata_schemas.inc,v 1.14 2004/02/02 05:26:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -317,8 +317,7 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 
 							case 0  :
 							case 1  :
-								// deny a schema
-								// apply a permission
+								// apply a schema
 								$mm->setSchema($asset->id, $set_data['schemaid'], $set_data['access']);
 							break;
 						}
