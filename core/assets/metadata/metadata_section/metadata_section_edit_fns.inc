@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.23 2004/12/06 14:38:09 brobertson Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.24 2004/12/13 02:44:44 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -199,6 +199,19 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	function paintInlineValueInterface(&$asset, &$o, $values, $write_access)
 	{
 		$o->openSection($asset->name);
+		if ($write_access) {
+			if (isset($asset->_tmp['painted_inline_value_interface'])) {
+				// this is the second time we have painted this interface
+				$o->openField('Please Note');
+					echo '<span class="sq-backend-warning"><b>The editing interface for this metadata section has already been shown above. The current metadata values are displayed below but cannot be edited. To edit these metadata values, please use the editing interface displayed above.</b></span>';
+				$o->closeField();
+				$write_access = false;
+			} else {
+				// make sure we dont try and paint the same interface twice
+				$asset->_tmp['painted_inline_value_interface'] = true;
+			}
+		}
+
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', false, 'major', null, true);
 		foreach ($current_links as $link) {
 			$field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
