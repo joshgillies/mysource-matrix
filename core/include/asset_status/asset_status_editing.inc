@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.14 2003/11/26 00:51:11 gsherwood Exp $
+* $Id: asset_status_editing.inc,v 1.15 2004/01/06 00:08:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -132,13 +132,32 @@ class Asset_Status_Editing extends Asset_Status
 		if (!parent::processStatusChange($new_status)) return false;
 
 		switch ($new_status) {
+
 			case SQ_STATUS_LIVE :
+
 				// cancelling a safe edit
 				if (!$this->owner->revertToSystemVersion()) return false;
+
+				// send an internal message
+				$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+
+				if (!$wfm->silentWorkflowParty($this->owner->id)) {
+					$log = $ms->newMessage();
+					$log->subject = 'Asset Safe Edit Cancelled';
+					$log->body    = 'User "'.$user->name.'" has cancelled the safe edit of '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'". "'.$this->owner->name.'" has reverted to the previously saved version and the status of "'.$this->owner->name.'" is now '.get_status_description($new_status);
+					$log->type = 'asset.workflow';
+					$log->parameters['assetid'] = $this->owner->id;
+					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
+					$log->send();
+				}
 				return true;
+
 			break;
 
 			case SQ_STATUS_EDITING_APPROVAL :
+
 				$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 
 				// we are going to make this asset live by starting the workflow process
@@ -163,8 +182,8 @@ class Asset_Status_Editing extends Asset_Status
 				// send an internal message
 				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
-				
-				if (!$wfm->silentWorkflowParty($this->owner->id)) { 
+
+				if (!$wfm->silentWorkflowParty($this->owner->id)) {
 					$log = $ms->newMessage();
 					$log->subject = 'Workflow Started';
 					$log->body    = 'User "'.$user->name.'" has requested '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" to go live from '.$this->getDescription().'.';
