@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.44 2005/03/23 02:58:25 arailean Exp $
+* $Id: internal_message.inc,v 1.45 2005/03/24 05:13:45 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -159,7 +159,6 @@ class Internal_Message extends MySource_Object
 		// lets work out what action should be conducted on this type of message
 		// ie. should it logged, mailed etc
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$lm = &$GLOBALS['SQ_SYSTEM']->getLogManager();
 
 		foreach (Array('log_to_file', 'log_to_db', 'send_mail') as $main_type_code) {
 			if (!isset($ms->_tmp['message_type_logs'][$main_type_code][$this->type])) {
@@ -235,7 +234,7 @@ class Internal_Message extends MySource_Object
 			$log_body = preg_replace('|<SQ_MSG_LINK[^>]*?>(.*?)</SQ_MSG_LINK>|', '\\1', $this->body);
 			$log_line = '['.$this->type.' - '.$param_string.'] ('.$this->subject.') - '.$log_body;
 
-			$GLOBALS['SQ_SYSTEM']->logSystemMessage($log_line);
+			log_write($log_line);
 
 		}//end if logging message to file
 
