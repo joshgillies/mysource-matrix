@@ -56,6 +56,11 @@ class Resolve
 	var $ms;
 
 	/**
+	* @var object Metadata_Manager
+	*/
+	var $mm;
+
+	/**
 	* @var object File_Versioning
 	*/
 	var $fv;
@@ -594,6 +599,24 @@ class Resolve
 		return $this->hh;
 
 	}//end getHipoHerder()
+
+
+	/**
+	* Get the metadata manager so you can manage metadata in the system
+	* Always call this function to get the metadata manager, dont use $this->mm directly
+	*
+	* @return object Metadata_Manager
+	* @access public
+	*/
+	function &getMetadataManager()
+	{
+		if(!isset($this->mm) || get_class($this->mm) != 'metadata_manager') {
+			require_once SQ_INCLUDE_PATH.'/metadata_manager.inc';
+			$this->mm = new Metadata_Manager();
+		}
+		return $this->mm;
+
+	}//end getMetadataManager()
 
 
 	/**

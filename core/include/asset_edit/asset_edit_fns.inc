@@ -18,25 +18,31 @@ class Asset_Edit_Fns extends Resolve_Object
 	* An array of tab code names and their display names
 	* @var Array()
 	*/
-	var $static_screens = Array('details'     => Array('name' => 'Details',
+	var $static_screens = Array('details'         => Array('name' => 'Details',
 													   'force_unlock' => true
 													  ),
-								'permissions' => Array('name' => 'Permissions',
+								'permissions'     => Array('name' => 'Permissions',
 													   'force_unlock' => true
 													  ),
-								'workflow'    => Array('name' => 'Workflow',
+								'workflow'        => Array('name' => 'Workflow',
 													   'force_unlock' => false
 													  ),
-								'dependants'  => Array('name' => 'Dependants',
+								'metadataSchemas' => Array('name' => 'Metadata Schemas',
 													   'force_unlock' => true
 													  ),
-								'linking'     => Array('name' => 'Linking',
+								'metadata'        => Array('name' => 'Metadata',
 													   'force_unlock' => true
 													  ),
-								'settings'    => Array('name' => 'Settings',
+								'dependants'      => Array('name' => 'Dependants',
+													   'force_unlock' => true
+													  ),
+								'linking'         => Array('name' => 'Linking',
+													   'force_unlock' => true
+													  ),
+								'settings'        => Array('name' => 'Settings',
 													   'force_unlock' => false
 													  ),
-								'history'     => Array('name' => 'History',
+								'history'         => Array('name' => 'History',
 													   'force_unlock' => true
 													  ),
 								);

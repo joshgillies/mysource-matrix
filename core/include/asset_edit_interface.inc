@@ -2049,6 +2049,344 @@ class Asset_Edit_Interface extends Resolve_Object
 
 
 	/**
+	* Paint the interface for managing metadata schamas
+	*
+	* @param object	Asset				$owner		the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o			the outputter class
+	*
+	* @access public
+	* @return boolean
+	*/
+	function paintMetadataSchemas(&$owner, &$o)
+	{
+		$prefix = $owner->getPrefix();
+
+		$admin_access = $owner->adminAccess(Array(), true, false);
+
+		$o->openSection('Metadata Schemas');
+
+		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$schemas = $mm->getSchemas($owner->id);
+
+		$direct = Array();
+		foreach($schemas as $schemaid => $access) {
+			if (!isset($direct[$access])) $direct[$access] = Array();
+			$direct[$access][] = $schemaid;
+		}
+		ksort($direct);
+
+		if (!empty($direct)) {
+			$o->openField('&nbsp;');
+			foreach ($direct as $access => $schemaids) {
+			?>
+				<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+					<tr>
+						<td bgcolor="#DDDDDD" class="sq-backend-data">
+							<span style="font-weight: bold; color: <?php echo (($access == '0') ? 'red' : 'green'); ?>"><?php echo (($access == '0') ? 'Denied' : 'Applied') ?></span>
+						</td>
+						<?php
+						if ($admin_access) {
+							?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-backend-data" style="font-weight: bold;">Delete ?</td><?php
+						}
+						?>
+					</tr>
+				<?php
+				foreach($schemaids as $schemaid) {
+					if ($schemaid) {
+						$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+						if (!$schema->id || !is_a($schema, 'metadata_schema')) continue;
+					}
+				?>
+					<tr>
+						<td bgcolor="#F0F0F0" class="sq-backend-data">
+						<?php
+						echo $schema->name.' ['.$schema->type().' : '.$schemaid.']';
+						?>
+						</td>
+						<?php
+						if ($admin_access) {
+							?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-backend-data"><?php
+							check_box($prefix.'_metadata[delete]['.$schemaid.']');
+							?></td><?php
+						}
+						?>
+					</tr>
+				<?php
+				}// end foreach data
+			?>
+				</table>
+				<br>
+			<?php
+			}//end foreach inherited
+
+		}// end if
+
+		if ($admin_access) {
+			$o->openField('New ?', 'new_line');
+				combo_box($prefix.'_metadata[new][access]', Array('' => '', '1' => 'Apply', '0' => 'Deny'), false, '');
+				echo ' Metadata schema ';
+				asset_finder($prefix.'_metadata[new][schemaid]', 0, Array('metadata_schema' => 'D'));
+			$o->closeField();
+		}
+
+		$o->closeSection();
+
+		if ($admin_access) {
+			$kiddies = $owner->getChildren();
+			if (count($kiddies)) {
+				$o->openSection('Cascade Options');
+					$o->openField('Note');
+						echo 'These actions will affect '.count($kiddies).' other assets below "'.$owner->name.'"';
+					$o->closeField();
+					$o->openField('&nbsp;');
+						check_box($prefix.'_metadata[cascade_changes]', '1', true);
+						echo ' Cascade schema changes';
+						echo '<br/>';
+						check_box($prefix.'_metadata[manual_cascade]');
+						echo ' Manually cascade schemas';
+					$o->closeField();
+				$o->closeSection();
+			}
+		}
+
+		return $admin_access;
+
+	}//end paintMetadataSchemas()
+
+
+	/**
+	* Process the interface for managing metadata schemas
+	*
+	* @param object	Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	*
+	* @access public
+	* @return boolean TRUE is there is a change, false on error or no change
+	*/
+	function processMetadataSchemas(&$owner, &$o)
+	{
+		// if we dont have admin access, piss off
+		if ($owner->id && !$owner->adminAccess(Array(), false)) {
+			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit the metadata schemas for <i>'.$owner->name.'</i>');
+			return false;
+		}
+
+		// if we dont have admin access, dont process anything
+		if (!$owner->adminAccess(Array(), true, false)) return false;
+
+		$prefix = $owner->getPrefix();
+		if (!isset($_POST[$prefix.'_metadata'])) return false;
+
+		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+
+		// are we cascading these schema changes to our children?
+		$cascade_changes = false;
+		if (isset($_POST[$prefix.'_metadata']['cascade_changes']) && $_POST[$prefix.'_metadata']['cascade_changes']) {
+			$cascade_changes = true;
+		}
+
+		$schema_vars = Array();
+		$post_data = $_POST[$prefix.'_metadata'];
+
+		// grant access to a user
+		if (!empty($post_data['new']['schemaid'])) {
+			if (!isset($post_data['new']['access']) || $post_data['new']['access'] == '') {
+				trigger_error('You need to select the type of access in order to apply schema #'.$post_data['new']['schemaid'], E_USER_NOTICE);
+			} else {
+				if ($cascade_changes) {
+					// cascading access of some kind, so queue it up for the HIPO
+					$schema_vars[] = Array('access'          => (int)$post_data['new']['access'],
+										   'schemaid'        => (int)$post_data['new']['schemaid'],
+										   'previous_access' => null,
+										   );
+				} else {
+					// lets do this ourselves
+					if (!$mm->setSchema($owner->id, (int)$post_data['new']['schemaid'], (int)$post_data['new']['access'])) return false;
+				}
+			}
+		}
+
+		// revoke [deny] schema (apply or deny can be revoked)
+		if (!empty($post_data['delete'])) {
+			foreach ($post_data['delete'] as $schemaid => $on) {
+				$schemaid = (int)$schemaid;
+				if ($cascade_changes) {
+					$schemas = $mm->getSchemas($owner->id);
+					$current_access = $schemas[$schemaid];
+					$schema_vars[] = Array('access'          => -1,
+										   'schemaid'        => $schemaid,
+										   'previous_access' => $current_access,
+										   );
+				} else {
+					if (!$mm->deleteSchema($owner->id, $schemaid)) return false;
+				}
+			}
+		}
+
+		if (isset($_POST[$prefix.'_metadata']['manual_cascade']) && $_POST[$prefix.'_metadata']['manual_cascade']) {
+			$schemas = $mm->getSchemas($owner->id);
+			foreach ($schemas as $schemaid => $access) {
+				$schema_vars[] = Array('access'          => $access,
+												  'schemaid'        => $schemaid,
+												  'previous_access' => null,
+												  );
+			}
+		}
+
+
+		if (!empty($schema_vars)) {
+
+			//// START HIPO PROCESSING ////
+			
+			$vars = Array('assetid' => $owner->id, 'schema_changes' => $schema_vars);
+			$code_name = 'HIPO_edit_metadata_schemas';
+			$complete_url = $_SERVER['REQUEST_URI'];
+
+			require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_edit_metadata_schemas.inc';
+			$init_hipo = new HIPO_Job_Edit_Metadata_Schemas();
+
+			$init_hipo->setRunningVars($vars);
+			$init_hipo->setOption('on_complete_url', $complete_url);
+
+			$code_name = $init_hipo->initialise();
+			if ($code_name) {
+				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				if ($url = $hh->getProcessURL($code_name)) $o->setRedirect($url);
+			}
+
+			////  END HIPO PROCESSING  ////
+
+		}//end if we have schemas to set
+
+		return true;
+
+	}//end processMetadataSchemas()
+
+
+	/**
+	* Paint the interface for managing metadata values
+	*
+	* @param object	Asset				$owner		the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o			the outputter class
+	*
+	* @access public
+	* @return boolean
+	*/
+	function paintMetadata(&$owner, &$o)
+	{
+		$prefix = $owner->getPrefix();
+
+		$write_access = $owner->writeAccess(Array(), true, false);
+
+		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$schemas = $mm->getSchemas($owner->id, true);
+
+		if (empty($schemas)) {
+			$o->openSection('There are no metadata schemas applied for this asset. You must apply one or more schemas before entering metadata values.');
+			return false;
+		}
+
+		if (file_exists($owner->data_path.'/metadata.php')) {
+			$o->openSection('Current Metadata');
+				$o->openField('&nbsp;');
+					ob_start();
+					require($owner->data_path.'/metadata.php');
+					$metadata = ob_get_contents();
+					ob_end_clean();
+					echo nl2br(htmlspecialchars(trim($metadata)));
+				$o->closeField();
+			$o->closeSection();
+		}
+
+		$o->openSection('Enter Metadata Values');
+			$o->openField('&nbsp;');
+			?>
+			<span class="sq-backend-data">
+			You can use these keyword replacements in all editable fields on this screen.
+			<ul>
+			<li class="sq-backend-data"><b>%asset_name%</b> - Full name of the asset</li>
+			<li class="sq-backend-data"><b>%asset_short_name%</b> - Short name of the asset</li>
+			<li class="sq-backend-data"><b>%asset_version%</b> - Version of the asset being displayed</li>
+			<li class="sq-backend-data"><b>%asset_url%</b> - URL of the asset</li>
+			</ul>
+
+			<ul>
+			<li class="sq-backend-data"><b>%asset_created%</b> - Date/Time the asset was created (YYYY-MM-DD HH-MM-SS)</li>
+			<li class="sq-backend-data"><b>%asset_created_by_name%</b> - Full name of the user that created this asset</li>
+			<li class="sq-backend-data"><b>%asset_created_by_first_name%</b> - First name of the user that created this asset</li>
+			<li class="sq-backend-data"><b>%asset_created_by_last_name%</b> - Surname of the user that created this asset</li>
+			<li class="sq-backend-data"><b>%asset_created_by_email%</b> - Email of the user that created this asset</li>
+			</ul>
+
+			<ul>
+			<li class="sq-backend-data"><b>%asset_updated%</b> - Date/Time the asset was last updated (YYYY-MM-DD HH-MM-SS)</li>
+			<li class="sq-backend-data"><b>%asset_updated_by_name%</b> - Full name of the user that last updated this asset</li>
+			<li class="sq-backend-data"><b>%asset_updated_by_first_name%</b> - First name of the user that last updated this asset</li>
+			<li class="sq-backend-data"><b>%asset_updated_by_last_name%</b> - Surname of the user that last updated this asset</li>
+			<li class="sq-backend-data"><b>%asset_updated_by_email%</b> - Email of the user that last updated this asset</li>
+			</ul>
+
+			<ul>
+			<li class="sq-backend-data"><b>%asset_read_permission%</b> - Comma seperated list of the full names of users with read access</li>
+			<li class="sq-backend-data"><b>%asset_write_permission%</b> - Comma seperated list of the full names of users with write access</li>
+			<li class="sq-backend-data"><b>%asset_admin_permission%</b> - Comma seperated list of the full names of users with administrator access</li>
+			</ul>
+			<?php
+			$o->closeField();
+		$o->closeSection();
+
+		foreach ($schemas as $schemaid) {
+			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+			if (is_null($schema)) continue;
+			$values = $mm->getSchemaMetadata($owner->id, $schema->id);
+			$edit_fns = $schema->getEditFns();
+			$edit_fns->paintInlineEditInterface($schema, $o, $values, $write_access);
+		}
+
+		return $write_access;
+
+	}//end paintMetadata()
+
+
+	/**
+	* Process the interface for managing metadata values
+	*
+	* @param object	Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	*
+	* @access public
+	* @return boolean TRUE is there is a change, false on error or no change
+	*/
+	function processMetadata(&$owner, &$o)
+	{
+		// if we dont have write access, piss off
+		if ($owner->id && !$owner->writeAccess(Array(), false)) {
+			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit the metadata for <i>'.$owner->name.'</i>');
+			return false;
+		}
+
+		// if we dont have write access, dont process anything
+		if (!$owner->writeAccess(Array(), true, false)) return false;
+
+		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+
+		$schemas = $mm->getSchemas($owner->id, true);
+
+		if (!empty($schemas)) {
+			$new_values = Array();
+			foreach ($schemas as $schemaid) {
+				$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+				$edit_fns = $schema->getEditFns();
+				$edit_fns->processInlineEditInterface($schema, $new_values);
+			}
+			if (!$mm->setMetadata($owner->id, $new_values)) return false;
+		}
+		return $mm->generateContentFile($owner->id);
+
+	}//end processMetadata()
+
+
+	/**
 	* Paints the interface for viewing dependants details
 	*
 	* @param object	Asset				$owner	the asset whose interface we are painting
