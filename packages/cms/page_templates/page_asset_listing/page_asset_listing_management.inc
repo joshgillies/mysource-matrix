@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_management.inc,v 1.18 2005/01/24 21:52:54 gsherwood Exp $
+* $Id: page_asset_listing_management.inc,v 1.19 2005/02/07 22:20:55 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -149,7 +149,7 @@ class Page_Asset_Listing_Management extends Asset_Management
 										'default' => Array(),
 										'parameters' => Array(
 											'parameters'=> Array(
-												'root_node' => 'Replacement Root node for the listing',
+												'root_node' => 'Replacement Root node for the listing (must be a child of the static root node)',
 												)
 											)
 										);
