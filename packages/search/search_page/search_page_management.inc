@@ -1,5 +1,4 @@
 <?php
-
 /**
 * +--------------------------------------------------------------------+
 * | Squiz.net Open Source Licence                                      |
@@ -19,9 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.6 2003/12/29 00:22:48 gsherwood Exp $
+* $Id: search_page_management.inc,v 1.6.2.1 2004/02/18 12:58:34 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
+
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
 * Search_Page_Management
@@ -33,9 +34,7 @@
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
-
-require_once SQ_PACKAGES_PATH.'/cms/page/page_management.inc';
-class Search_Page_Management extends Page_Management
+class Search_Page_Management extends Asset_Management
 {
 
 	/**
@@ -44,7 +43,7 @@ class Search_Page_Management extends Page_Management
 	*/
 	function Search_Page_Management(&$pm)
 	{
-		$this->Page_Management($pm);
+		$this->Asset_Management($pm);
 
 		$this->vars = Array(
 			'root_assetid' => Array(
@@ -70,6 +69,12 @@ class Search_Page_Management extends Page_Management
 				'type'			=> 'serialise',
 				'default'		=> array(),
 				'description'	=> 'Search fields.',
+			),
+			'search_types' => Array(
+				'added'			=> '0.1',
+				'type'			=> 'serialise',
+				'default'		=> array(),
+				'description'	=> 'Searchable asset types',
 			),
 			'logic' => Array(
 				'added'			=> '0.1',

@@ -18,9 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.21 2003/12/30 04:43:17 gsherwood Exp $
+* $Id: search_page.inc,v 1.21.2.1 2004/02/18 12:58:34 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
+
+require_once SQ_PACKAGES_PATH.'/cms/page/page.inc';
+require_once SQ_FUDGE_PATH.'/general/text.inc';
+require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc'; // for the medatata date field selection
 
 /**
 * Search_Page
@@ -31,15 +36,11 @@
 *
 * @author  Dominic Wong <dwong@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $ - 1.0
+* @author  Dmitri Iarandine <diarandine@squiz.net>
+* @version $Revision: 2.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
-
-require_once SQ_PACKAGES_PATH.'/cms/page/page.inc';
-require_once SQ_FUDGE_PATH.'/general/text.inc';
-require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-
 class Search_Page extends Page
 {
 	/**
@@ -153,22 +154,36 @@ class Search_Page extends Page
 
 
 	/**
-	* Creates a link between this asset and the passed asset, of a certain type
+	* Prepares for linking by checking that the link values are valid for this link
 	*
-	* @return int the linkid of the created link
+	* This function will be called if this asset is the major or minor party in the link, so the side_of_link flag
+	* should be checked to work out what side of the link this asset is on. The return value should indicate
+	* if any of the link fields were changed.
+	*
+	* @param object Asset	$asset			the major or minor asset that we are linking to
+	* @param string			$side_of_link	the side of the link we are on (major or minor)
+	* @param string			$link_type		the type of link we are creating
+	* @param string			$value			the value that is to be associated with the link
+	* @param string			$sort_order		the position in the links list that this link should take,
+	* @param string			$dependant		'0' / '1' on whether the this asset is dependant on the
+	*										asset that will be linked by the new link
+	* @param string			$exclusive		'0' / '1' on whether the this asset is linked exclusivly
+	*										to the asset that will be linked by the new link
+	*
+	* @return boolean
 	* @access public
-	* @see Asset::createLink()
 	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0', $exclusive='0')
+	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
-		// if this is a bodycopy table then we need to make it a dependant link
-		if (is_a($minor, 'bodycopy')) {
+		// if a bodycopy is linking to us then we need to make it a dependant link
+		if ($side_of_link == 'major' && is_a($asset, 'bodycopy') && $dependant != '1') {
 			$dependant = '1';
+			return true;
 		}
 
-		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
+		return false;
 
-	}//end createLink()
+	}//end prepareLink()
 
 
 	/**
@@ -312,6 +327,71 @@ class Search_Page extends Page
 
 
 	/**
+	* Getting the date-time field
+	*
+	* @param	string				$prefix	fieldname for form elements
+	* @param	object Asset		&$asset	the owning asset
+	* @param	string				$value	field value, can be null
+	*
+	* @return object DateTime_Field
+	* @access private
+	*/
+	function getEpochDateTimeField($fieldname, &$asset, $value=null)
+	{
+		// only if we are printing the default value
+		if (is_null($value)) {
+			if (!is_null($asset)) {
+				$value = (int) $asset->attr('default');
+			} else {
+				$value = '%asset_created%'; // just testing
+			}
+		}
+
+		$epoch_date = getdate($value);
+		$value_arr = Array(
+						'y' => $epoch_date['year'],
+						'm' => $epoch_date['mon'],
+						'd' => $epoch_date['mday'],
+						'h' => $epoch_date['hours'],
+						'i' => $epoch_date['minutes'],
+						's' => $epoch_date['seconds'],
+					);
+
+		// parameters
+		if (!is_null($asset)) {
+			$parameters = $asset->attr('setup_params');
+		}
+		if (empty($parameters) || is_null($parameters)) {
+			$date = getdate();
+			$parameters = Array(
+				'min'			=> '2003-01-01 00:00:00',
+				'max'			=> ($date['year'] + 1).'-12-31 23:59:59',
+				'allow_circa'	=> '0',
+				'print_format'	=> $asset->attr('format'),
+				'show'			=> Array('y', 'm', 'd', 'h', 'i', 's'),
+				'null'			=> Array(), // allowing nulls everywhere
+				'style'			=> Array(
+								'y' => 's',
+								'm' => 's',
+								'd' => 's',
+								'h' => 's',
+								'i' => 's',
+								's' => 's',
+							),
+			);
+		}
+
+		$value = '';
+		$field = new DateTime_Field($fieldname, $value, $parameters);
+		$value = $field->unitsArrayToStr($value_arr);
+		$field->setValue($value);
+
+		return $field;
+
+	}// end _getEpochDateTimeField()
+
+
+	/**
 	* Prints the initial bodycopy
 	*
 	* @return void
@@ -327,19 +407,55 @@ class Search_Page extends Page
 		$current_results_page = $_REQUEST['current_result_page'];
 
 		$fields = $this->attr('fields');
-
 		$queries =& $_REQUEST['queries'];
 
 		foreach ($keywords as $keyword) {
+
 			$replacement =& $replaces[$keyword];
 			if (ereg('(.+)_query', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+
 				$query_var = $matches[1]."_query";
 				$query =& $queries[$query_var];
 				if (!isset($query)) $query = '';
-
+				
 				ob_start();
-					text_box("queries[$query_var]", $query, $this->defaults['query_width']);
-					$replacement = ob_get_contents();
+
+				///////////////////////////////////////
+				// Finding out what kind of field is it
+				$test_ind = $matches[1];
+				if ($fields[$test_ind]['type'] == 'metadata') {
+					
+					$assetid = $fields[$test_ind]['params']['metadata_field']['assetid'];
+					$am = &$GLOBALS['SQ_SYSTEM']->am;
+					$asset = &$am->getAsset($assetid);
+					$params = $asset->vars;
+
+						if (isset($params['format'])) { // metadata Date field
+							// don't ask me why I'm doing this
+							$temp_name = $query_var . "__"; 
+							$field = $this->getEpochDateTimeField("$temp_name", $asset);
+							$field->processField(); // showing value if any
+							$field->printField();
+
+						} 
+						else if (isset($params['multi_line'])) { // normal metadata TEXT field
+							// using same defintion as for a simple field, but will have to revise later...
+							text_box("queries[$query_var]", $query, $this->defaults['query_width']);
+						}
+						else if (isset($params['select_options'])) { // metadata dropdown selection 
+							$select_options = $params['select_options']['value'];
+							$select_options[''] = "- Please select -";
+							combo_box("queries[$query_var]", $select_options, false, $query);
+						}
+
+				} else { 
+						// not a metadata field, just a normal text field
+						text_box("queries[$query_var]", $query, $this->defaults['query_width']);
+				}
+				//////////////////////////////////////
+					
+				$replacement = ob_get_contents();
+				
 				ob_end_clean();
 
 			} else {
@@ -363,7 +479,7 @@ class Search_Page extends Page
 				}
 			}
 		}
-
+		
 		return $replaces;
 
 	}//end getInitialBodyReplacements()
@@ -462,7 +578,6 @@ class Search_Page extends Page
 					';
 					$replacement = '<a href="'. $this->getURL() .'" onClick=\''.$js .'\'>Next</a>';
 				break;
-
 
 				case 'initial_layout':
 					$replacement = $this->getBodycopyContents('initial', $this->getInitialBodyReplacements());
@@ -569,6 +684,17 @@ class Search_Page extends Page
 
 		$queries = $_REQUEST['queries'];
 
+		///////////////////////////////////////////////
+		// Checking if there are medatada Date fields 
+		foreach (array_keys($_REQUEST) as $req_key) {
+			if (ereg("(.+)__value", $req_key, $query_match)) {
+				$newind = $query_match[1];
+				$reqind = $query_match[0];
+				// if found, adding its values to general queries array
+				$queries[$newind] = $_REQUEST[$reqind];
+			}
+		}
+
 		$logic = $this->attr('logic');
 
 		$root_assetid = $this->attr('root_assetid');
@@ -579,19 +705,33 @@ class Search_Page extends Page
 		$exclude_assetids = Array();
 
 		foreach($queries as $query_var => $value) {
+
 			if ($value == '')
 				continue;
+			
+			if (!is_array($value)) {
+				$words = split(" +", strtolower($value));
+				foreach (array_keys($words) as $i) {
+					// convert wildcard symbols to corresponding SQL wildcards
+					$words[$i] = strtr($words[$i], "*?", "%_");
 
-			$words = split(" +", strtolower($value));
-			foreach (array_keys($words) as $i) {
-				// convert wildcard symbols to corresponding SQL wildcards
-				$words[$i] = strtr($words[$i], "*?", "%_");
-
-				// preserve the wildcard symbols - i.e. don't quote them
-				if (ereg('^[A-z%_]+$', $words[$i]))
-					$words[$i] = addslashes($words[$i]);
-				else
-					unset($words[$i]);
+					// if this is an Email, skip the following check...
+					$at_pos  = strpos($words[$i], '@'); 
+					$dot_pos = strpos($words[$i], '.');
+					if ($at_pos === false && $dot_pos === false) { 
+						// preserve the wildcard symbols - i.e. don't quote them
+						if (ereg('^[A-z%_]+$', $words[$i]))
+							$words[$i] = addslashes($words[$i]);
+						else
+							unset($words[$i]);
+					} // if this is an Email
+				}
+			} // if it's an array
+			else 
+			{
+				// if $value is array, still setting words
+				$words = Array();
+				$words[0] = implode(":", array_values($value));
 			}
 
 			// retrieve the search field for this query
@@ -611,14 +751,14 @@ class Search_Page extends Page
 				SQ_TABLE_PREFIX . "asset_permission ap,\n"      .
 				SQ_TABLE_PREFIX . "asset a\n"                  .
 				"WHERE ".
-				"al1.majorid = " . $db->quote((int)$root_assetid)	.	// all links that root asset is a major in
+				"al1.majorid = " . $db->quote((int)$root_assetid).	// all links that root asset is a major in
 				" AND al1.linkid = alt1.linkid "			.	// all treeids with those links
 				" AND alt2.treeid LIKE ".$concat			.	// all treeids that start with those treeids
 				" AND alt2.linkid = al2.linkid "			.	// all links with those treeids
 				" AND ai.assetid  = al2.minorid \n"			.	// and the indexing data for those assets
 				" AND a.assetid   = ai.assetid \n"			.	// and the asset data for those assets       
-				" AND ap.assetid  = ai.assetid \n"			.       // and the permission data for those assets
-				" AND a.status  >= ".SQ_STATUS_LIVE." \n";              	// and only assets that are live
+				" AND ap.assetid  = ai.assetid \n"			. // and the permission data for those assets
+				//" AND a.status  >= ".SQ_STATUS_LIVE." \n";          // and only assets that are live
 
 			$userid_cond = '';
 			if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
@@ -637,16 +777,43 @@ class Search_Page extends Page
 						AND ap.access = 1';
 						
 			}
-			
-			switch($field['type']) {
-				case 'include_all':
 
+			switch($field['type']) {
+
+				case 'asset_attrib': 
+					if ($field['params']['searchtype'] == '')
+						break;
 					$field_asset_scores = null;
+
 					foreach ($words as $word) {
-						$sql = $start_sql . "AND (ai.value LIKE '$word')\n";
-						$sql .= "GROUP BY ai.assetid";
+						$sql = $start_sql.'AND (ai.component = '.$db->quote('attr:'.$field['params']['searchtype'].':'.$field['params']['type_attr']).'
+							AND (ai.value LIKE \'%'.implode ("' OR ai.value LIKE '", $words).'%\'))
+							GROUP BY ai.assetid';
 
 						$results = $db->getAssoc($sql);
+
+						if (is_null($field_asset_scores)) {
+							$field_asset_scores = $results;
+						} else {
+							$field_asset_scores = $this->combineAssetScores($field_asset_scores, $results, 'AND');
+						};
+					}
+
+					if (is_null($total_asset_scores)) {
+						$total_asset_scores = $field_asset_scores;
+					} else {
+						$total_asset_scores = $this->combineAssetScores($total_asset_scores, $field_asset_scores, $logic);
+					}
+
+				break;
+
+				case 'include_all':
+					$field_asset_scores = null;
+					foreach ($words as $word) {
+						$sql = $start_sql.'AND (ai.value LIKE '.$db->quote('%'.$word.'%').') GROUP BY ai.assetid';
+
+						$results = $db->getAssoc($sql);
+
 						if (is_null($field_asset_scores)) {
 							$field_asset_scores = $results;
 						} else {
@@ -668,7 +835,7 @@ class Search_Page extends Page
 
 					$field_asset_scores = null;
 					foreach ($words as $word) {
-						$sql = $start_sql . "AND (ai.value LIKE '$word')\n";
+						$sql = $start_sql . "AND (ai.value LIKE '%$word%')\n";
 						$sql .= "GROUP BY ai.assetid";
 
 						$results = $db->getAssoc($sql);
@@ -682,20 +849,86 @@ class Search_Page extends Page
 						break;
 
 					$field_asset_scores = null;
-					foreach ($words as $word) {
-						$sql = $start_sql . "AND (ai.type = 'text'
-							AND ai.component = 'metadata:". (int)$field['params']['metadata_field'] . "'
-							AND (ai.value LIKE '". implode ("' OR ai.value LIKE '", $words) ."'))\n";
-						$sql .= "GROUP BY ai.assetid";
 
+					if (!is_array($value)) {
+						foreach ($words as $word) {
+							$sql = $start_sql . "AND (ai.type = 'text'
+								AND ai.component = 'metadata:". (int)$field['params']['metadata_field']['assetid'] . "'
+								AND (ai.value LIKE '". implode ("' OR ai.value LIKE '", $words) ."'))\n";
+							$sql .= "GROUP BY ai.assetid";
 
-						$results = $db->getAssoc($sql);
+							$results = $db->getAssoc($sql);
 
-						if (is_null($field_asset_scores)) {
-							$field_asset_scores = $results;
-						} else {
-							$field_asset_scores = $this->combineAssetScores($field_asset_scores, $results, 'AND');
-						};
+							if (is_null($field_asset_scores)) {
+								$field_asset_scores = $results;
+							} else {
+								$field_asset_scores = $this->combineAssetScores($field_asset_scores, $results, 'AND');
+							};
+						}
+
+					} else { // if $value is array, which means that we are processing a date field now
+							
+						$myday		= $value['d'];
+						if (strlen($myday) == 1) {
+							$myday = "0".$myday;
+						}
+						if (empty($myday) || $myday == '--') {
+							$myday = "__";
+						}
+
+						$mymonth	= $value['m'];
+						if (strlen($mymonth) == 1) {
+							$mymonth = "0".$mymonth;
+						}						
+						if (empty($mymonth) || $mymonth == '--') {
+							$mymonth = "__";
+						}
+
+						$myyear		= $value['y'];
+						if (empty($myyear) || $myyear == '--') {
+							$myyear = "__";
+						}
+
+						$myhour		= $value['h'];
+						if (strlen($myhour) == 1) {
+							$myhour = "0".$myhour;
+						}
+						if (empty($myhour) || $myhour == '--') {
+							$myhour = "__";
+						}
+
+						$myminute	= $value['i'];
+						if (strlen($myminute) == 1) {
+							$myminute = "0".$myminute;
+						}
+						if (empty($myminute) || $myminute == '--') {
+							$myminute = "__";
+						}
+						
+						$mysecond	= $value['s'];
+						if (strlen($mysecond) == 1) {
+							$mysecond = "0".$mysecond;
+						}
+						if (empty($mysecond) || $mysecond == '--') {
+							$mysecond = "__";
+						}
+						
+						$like = $myday.":".$mymonth.":".$myyear.":".$myhour.":".$myminute.":".$mysecond;
+
+						if ($like == '__:__:__:__:__:__') break;
+
+							$sql = $start_sql . "AND (ai.type = 'text'
+								AND ai.component = 'metadata:". 		(int)$field['params']['metadata_field']['assetid'] . "'
+								AND (ai.value LIKE '". $like ."'))\n";
+								$sql .= "GROUP BY ai.assetid";
+
+							$results = $db->getAssoc($sql);
+
+							if (is_null($field_asset_scores)) {
+								$field_asset_scores = $results;
+							} else {
+								$field_asset_scores = $this->combineAssetScores($field_asset_scores, $results, 'AND');
+							};
 					}
 
 					if (is_null($total_asset_scores)) {
@@ -714,7 +947,8 @@ class Search_Page extends Page
 			unset($total_asset_scores[$exclude_assetid]);
 		}
 
-		$results = $this->_climbToAssetTypes($total_asset_scores, array('file', 'page'));
+		$results = $this->_climbToAssetTypes($total_asset_scores, $this->attr('search_types'));
+		
 		return $results;
 
 	}//end processSearch()
@@ -795,6 +1029,7 @@ class Search_Page extends Page
 		}
 
 		$assetTypes = array_merge($assetTypes, $newDescendantTypes);
+
 		$asset_info = $am->getAssetInfo(array_keys($matches));
 
 		// use matches as a queue, take head match if it is one of the asset types then add to out

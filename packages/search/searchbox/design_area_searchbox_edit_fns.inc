@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox_edit_fns.inc,v 1.7 2003/12/17 04:47:41 mmcintyre Exp $
+* $Id: design_area_searchbox_edit_fns.inc,v 1.7.2.1 2004/02/18 12:58:34 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@
 * @see Design_Area_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.7 $ - 1.0
+* @version $Revision: 1.7.2.1 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -174,6 +174,7 @@ class Design_Area_SearchBox_Edit_Fns extends Design_Area_Edit_Fns
 				$field_description = $field_name." ";
 				switch($field['type']) {
 					case 'include_all':		$field_description .= "(include all)";		break;
+					case 'asset_attrib':	$field_description .= "(asset attribute)";	break;
 					case 'exclude':			$field_description .= "(exclude)";			break;
 					case 'exclude':			$field_description .= "(exclude all)";		break;
 //					case 'metadata':		$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($field['params']['metadata_field'])$field_description .= "(metadata on field 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_search.inc,v 1.1 2004/02/10 16:37:22 brobertson Exp $
+* $Id: package_manager_search.inc,v 1.1.2.1 2004/02/18 12:58:34 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
