@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.60.2.1 2005/03/04 00:51:37 mnyeholt Exp $
+* $Id: mysource.inc,v 1.60.2.2 2005/03/07 20:33:47 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -579,7 +579,12 @@ class MySource
 	function generateLoginKey()
 	{
 		require_once SQ_FUDGE_PATH.'/general/general.inc';
-		return $_SESSION['SQ_LOGIN_KEY'] = random_password(20);
+		static $generated = false;
+		if (!$generated) {
+			$_SESSION['SQ_LOGIN_KEY'] = random_password(20);
+			$generated = true;
+		}
+		return $_SESSION['SQ_LOGIN_KEY'];
 
 	}//end generateLoginKey()
 
