@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field.inc,v 1.10 2005/03/21 06:23:20 gsherwood Exp $
+* $Id: metadata_field.inc,v 1.11 2005/04/06 18:26:06 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -140,6 +140,13 @@ class Metadata_Field extends Asset
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
+		// if there are no components that we know about and we are not being displayed on the frontend, 
+		// then just unescape the value string and return that
+		if (!$this->attr('value_components') && $this->attr('frontend') == 'hide') {
+			Metadata_Field::decodeValueString($value_str, $value='', $components=Array());
+			return $value;
+		}
+
 		if (is_null($value_str)) {
 			$value_str = Metadata_Field::encodeValueString($this->attr('default'), $this->attr('value_components'));
 		}
@@ -237,7 +244,7 @@ class Metadata_Field extends Asset
 	function decodeValueString($str, &$value, &$components)
 	{
 
-		// First escape % characters (note: we use % instead of % so that keyword replacements don't have any issues)
+		// First escape % characters
 		$str = str_replace('%', '%'.ord('%').'%', $str);
 		// Next change \ escaped characters to ^d^ where d is the character's ascii code
 		$str = preg_replace('/\\\\(.)/e', '"%".ord("\\1")."%"', $str);

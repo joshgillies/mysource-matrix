@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2005/03/30 00:39:49 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.2 2005/04/06 18:26:08 brobertson Exp $
 *
 */
 -->
@@ -28,7 +28,6 @@
 		<field attribute="name">
 			<display_name>Schema Name</display_name>
 			<note />
-			<text width="12" height="1" />
 		</field>
 	</section>
 	<section name="Sections Defined For This Metadata Schema">
