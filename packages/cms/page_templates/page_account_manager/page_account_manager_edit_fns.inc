@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_edit_fns.inc,v 1.5 2004/07/16 04:56:17 lwright Exp $
+* $Id: page_account_manager_edit_fns.inc,v 1.6 2004/07/28 01:41:54 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -78,10 +78,10 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintCreateType(&$asset, &$o, $prefix)
+	function paintAddCreateType(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) {
-			parent::paintCreateType($asset, $o, $prefix);
+			parent::paintAddCreateType($asset, $o, $prefix);
 		} else {
 			$user_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('user');
 		
@@ -92,11 +92,38 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 					$options[$type_code] = $info['name'];
 				}
 			}
-			combo_box($prefix.'_create_type', $options, false, $asset->attr('create_type'));
+			combo_box($prefix.'_create_type', $options, false, array_keys($asset->attr('create_type')));
 		}
 
-	}//end paintCreateType()
+	}//end paintAddCreateType()
 
+	
+	/**
+	* Process the section for choosing the user type that is created
+	*
+	* This is overridden from Asset Builder because it makes sense for the account
+	* manager to still be only allowed to create one type of user from the frontend interface.
+	*
+	* @param object Form				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processAddCreateType(&$asset, &$o, $prefix)
+	{
+		if (isset($_POST[$prefix.'_create_type'])) {
+			$type = trim($_POST[$prefix.'_create_type']);
+			if (empty($type)) return false;
+			$types = Array($type => true);
+			$asset->setAttrValue('create_type', $types);
+			return true;
+		}
+		return false;
+
+	}//end processAddCreateType()
+	
 
 	/**
 	* Returns true if the account manager uses email validation

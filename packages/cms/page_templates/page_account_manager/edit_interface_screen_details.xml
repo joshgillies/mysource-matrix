@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2004/05/12 07:09:33 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2004/07/28 01:41:54 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -41,8 +41,8 @@
 			<display_name>Type of Account</display_name>
 			<note>Select what type of user account you would like to create</note>
 			<function_call>
-				<paint_function   name="paintCreateType"   />
-				<process_function name="processCreateType" />
+				<paint_function   name="paintAddCreateType"   />
+				<process_function name="processAddCreateType" />
 			</function_call>
 		</field>
 		<field>

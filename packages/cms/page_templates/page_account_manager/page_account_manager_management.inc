@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_management.inc,v 1.8 2004/05/12 07:09:33 gsherwood Exp $
+* $Id: page_account_manager_management.inc,v 1.9 2004/07/28 01:41:54 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,8 +46,8 @@ class Page_Account_Manager_Management extends Asset_Management
 
 		$this->vars['create_type']				= Array(
 														'added'     => '0.1',
-														'type'      => 'text',
-														'default'   => 'user',
+														'type'      => 'serialise',
+														'default'   => Array('user' => 1),
 													);
 
 		$this->vars['login_invite']				= Array(
@@ -128,6 +128,55 @@ class Page_Account_Manager_Management extends Asset_Management
 	}//end getEventList()
 
 
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		if (!parent::_upgrade($current_version)) return false;
+
+		if ($current_version == '0.1') {
+			// this update is due to the asset builder changes in that asset's v0.3 to handle
+			// the creation of multiple asset types - although account manager can still only
+			// create one type of user, the underlying structure has changed so we need this
+			bam('STARTING ACCOUNT MANAGER UPGRADE - VERSION 0.1');
+
+			$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), false);
+			foreach ($children as $assetid => $type) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type);
+				if (is_null($asset)) continue;
+
+				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) { 
+					trigger_error('Account Manager Upgrade [from 0.1] Failed - Unable to Acquire Lock on "'.$asset->name.'" (#'.$asset->id.')', E_USER_WARNING);
+					return false;
+				}
+
+				$create_type = $asset->attr('create_type');
+				$create_type = Array($create_type => true);
+								
+				$asset->setAttrValue('create_type', $create_type);
+				if (!$asset->saveAttributes()) { 
+					trigger_error('Account Manager Upgrade [from 0.1] Failed', E_USER_WARNING);
+					return false;
+				}
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes'); 
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}
+			
+			bam('ACCOUNT MANAGER UPGRADE COMPLETE - VERSION 0.1');
+		}//end version 0.1 upgrade
+
+		return true;
+
+	}//end _upgrade()
+	
+	
 }//end class
 
 ?>
