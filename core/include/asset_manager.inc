@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.230 2004/09/03 03:36:40 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.231 2004/09/14 01:36:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -44,12 +44,19 @@ class Asset_Manager extends MySource_Object
 	var $_asset_types;
 
 	/**
-	* this array holds the references to the different types of objects in the system
+	* This array holds the references to the different types of objects in the system
 	* so that there will only ever (with luck :) be one instance of an Asset
 	*
 	* @var Array(Asset)
 	*/
 	var $_assets = Array();
+	
+	/**
+	* This array holds the references to loaded attributes
+	*
+	* @var Array(Asset_attribute)
+	*/
+	var $_attributes = Array();
 
 
 	/**
@@ -605,6 +612,77 @@ class Asset_Manager extends MySource_Object
 		return $result;
 
 	}//end getAssetTypeAttributes()
+
+
+//--        ATTRIBUTES        --//
+
+
+
+	/**
+	* Returns an array of information about attributes
+	*
+	* @param array(int)	$attrids	an array of assets to limit
+	*
+	* @return array( int => array() )
+	* @access public
+	*/
+	function getAttributeInfo($attrids)
+	{
+		assert_type($attrids, 'array');
+		if (empty($attrids)) return Array();
+		
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		
+		for ($i = 0; $i < count($attrids); $i++) $attrids[$i] = $db->quote($attrids[$i]);
+		$where = 'a.attributeid IN ('.implode(', ', $attrids).')';
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+
+		$sql = 'SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute a '.$where.' ORDER BY a.attributeid';
+
+		$result = $db->getAll($sql);
+		assert_valid_db_result($result);
+
+		$return_result = Array();
+		foreach (array_values($result) as $row) {
+			foreach ($row as $name => $value) {
+				$return_result[$row['attributeid']][$name] = $value;
+			}
+		}
+
+		return $return_result;
+
+	}//end getAttributeInfo()
+
+
+	/**
+	* Returns a reference to an attribute object
+	*
+	* @param string		$attrid			the id of the attribute
+	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed
+	*									because you can't use the '@' operator when
+	*									returning by reference
+	*
+	* @return mixed object Asset_Attribute or NULL
+	* @access public
+	*/
+	function &getAttribute($attrid, $value=null, $mute_errors=false)
+	{
+		if (!isset($this->_attributes[$attrid]) || !is_object($this->_attributes[$attrid]['object'])) {
+
+			$this->_attributes[$attrid] = Array();
+			$this->_attributes[$attrid]['object'] = null;
+			$this->_attributes[$attrid]['count']  = 0;
+			
+			include_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
+			$this->_attributes[$attrid]['object'] = Asset_Attribute::loadAttribute($attrid);
+			if (empty($this->_attributes[$attrid]['object']->id)) $this->_attributes[$attrid]['object'] = null;
+
+		}
+
+		$this->_attributes[$attrid]['count']++;
+		return $this->_attributes[$attrid]['object'];
+
+	}//end getAttribute()
 
 
 //--        ASSETS        --//
