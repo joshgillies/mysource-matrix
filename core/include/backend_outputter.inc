@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: backend_outputter.inc,v 1.63 2003/10/30 05:51:03 gsherwood Exp $
+* $Id: backend_outputter.inc,v 1.64 2003/11/03 01:15:36 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -829,7 +829,14 @@ class Backend_Outputter
 					// printing a top level section
 					?>
 					<tr>
-						<td class="sq-backend-section-heading" colspan="3"><?php echo $section['heading'];?></td>
+						<td colspan="3">
+							<table border="0" cellspacing="0" cellpadding="0" width="100%">
+								<tr>
+									<td class="sq-backend-section-heading" width="100%"><?php echo $section['heading'];?></td>
+									<td><img src="<?php echo $this->filesPath('images/section_icon.gif');?>" width="27" height="21" /></td>
+								</tr>
+							</table>
+						</td>
 					</tr>
 					<tr>
 						<td colspan="3">
@@ -850,8 +857,8 @@ class Backend_Outputter
 				<td colspan="3"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td>
 			</tr>
 			<tr>
-				<td width="20"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="20" height="1" /></td>
-				<td colspan="2">
+				<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
+				<td width="100%">
 					<table cellspacing="0" cellpadding="0" border="0" width="100%">
 			<?php
 
@@ -949,6 +956,7 @@ class Backend_Outputter
 			?>
 					</table>
 				</td>
+				<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
 			</tr>
 			</table>
 			<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td></tr></table>

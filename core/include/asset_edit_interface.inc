@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.175 2003/10/30 23:44:58 dwong Exp $
+* $Id: asset_edit_interface.inc,v 1.176 2003/11/03 01:15:36 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -213,16 +213,19 @@ class Asset_Edit_Interface extends MySource_Object
 			?>
 				<table class="sq-backend-lock-table">
 					<tr>
-						<td class="sq-backend-lock-table-header">
-							&nbsp;
+						<td class="sq-backend-lock-table-header" style="width: 20px;">
+							<img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="1" border="0" alt="" />
 						</td>
-						<td class="sq-backend-lock-table-header">
-							Lock Type
+						<td class="sq-backend-lock-table-header" align="left" nowrap>
+							&nbsp;Lock Type
 						</td>
-						<td class="sq-backend-lock-table-header">
+						<td class="sq-backend-lock-table-header" width="100%">
 							&nbsp;
 						</td>
 					</tr>
+					<tr>
+						<td width="100%" colspan="3">
+							<table width="100%" cellspacing="1" cellpadding="0">
 				<?php
 			} else {
 				$o->openRaw('');
@@ -239,7 +242,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 			?>
 				<tr>
-					<td class="<?php echo $class; ?>">
+					<td class="<?php echo $class; ?>" style="width: 20px;" align="center">
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/<?php echo ((empty($lock)) ? 'un' : ''); ?>locked.png", "16", "16", "");</script>
 					</td>
 					<td class="<?php echo $class; ?>">
@@ -302,19 +305,22 @@ class Asset_Edit_Interface extends MySource_Object
 			<?php
 			}// end foreach lock types
 			?>
+						</table>
+					</td>
+				</tr>
 			</table>
 
 			<?php
 			hidden_field('sq_lock_type', $screen_lock_type);
 
 			if (!$have_all_locks || $have_any_locks) {
-				?><span style="float: right; padding: 2px;"><?php
+				?><span style="float: right; margin-top: 2px; text-align: right;"><?php
 			}
 
 			if (!$have_all_locks) {
 				if ($need_force_locks) {
 					if ($can_force_locks) {
-						echo '<p class="sq-backend-locked-by-someone-else">You can forceably acquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself.<br>Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably acquired.</p>';
+						echo '<div class="sq-backend-locked-by-someone-else">You can forceably acquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself.<br>Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably acquired.</div>';
 
 						// they aren't going to do this without a fight though
 						// they'll have to go through our popup window first

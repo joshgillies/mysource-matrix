@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit.css,v 1.21 2003/10/30 01:09:24 gsherwood Exp $
+* $Id: edit.css,v 1.22 2003/11/03 01:15:36 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -169,7 +169,7 @@ td.sq-backend-table-cell-alt {
 
 .sq-backend-lock-table {
 	width:				100%;
-	border:				1px solid #C6B344;
+	border:				1px solid #003C79;
 	border-collapse:	collapse;
 }
 
@@ -185,12 +185,12 @@ td.sq-backend-lock-table-header, td.sq-backend-lock-table-cell, td.sq-backend-lo
 td.sq-backend-lock-table-header {
 	font-size:			11px;
 	font-weight:		bold;
-	background-color:	#EEE5AF;
-	border-bottom:		1px solid #C6B344;
+	background-color:	#7FBCE9;
+	border-bottom:		1px solid #003C79;
 }
 
 td.sq-backend-lock-table-cell-alt {
-	background-color:	#F6F2D7;
+	background-color:	#BFD3E6;
 }
 
 
@@ -206,7 +206,7 @@ td.sq-backend-lock-table-cell-alt {
 }
 
 .sq-backend-unlocked {
-	color:		#D37E17;
+	color:		#0066CB;
 }
 
 
