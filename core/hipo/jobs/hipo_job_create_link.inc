@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_link.inc,v 1.5 2003/11/26 00:51:09 gsherwood Exp $
+* $Id: hipo_job_create_link.inc,v 1.6 2003/12/02 04:43:25 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -234,9 +234,16 @@ class HIPO_Job_Create_Link extends HIPO_Job
 				<b>Note:</b> Any assets that become children of "<?php echo $asset->name; ?>" during the cascade process will not have changes applied to them - only the <i>current</i> children.
 				<?php
 				$ei = &$parent->getEI();
-				$pe = $ei->paintInlinePermissions($parent, $o);
-				$wf = $ei->paintInlineWorkflow($parent, $o);
-				$ms = $ei->paintInlineMetadataSchemas($parent, $o);
+				
+				$ei->includeStaticScreen('permissions');
+				$pe = paintInlinePermissions($parent, $o, $ei);
+				
+				$ei->includeStaticScreen('workflow');
+				$wf = paintInlineWorkflow($parent, $o, $ei);
+				
+				$ei->includeStaticScreen('metadataSchemas');
+				$ms = paintInlineMetadataSchemas($parent, $o, $ei);
+				
 				$o->addHiddenField('form_submitted', 1);
 			$o->closeField();
 		$o->closeSection();

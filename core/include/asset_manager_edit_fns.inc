@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.66 2003/11/26 00:51:10 gsherwood Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.67 2003/12/02 04:43:25 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1026,7 +1026,8 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 			$o->openField('&nbsp;');
 			echo 'You are deleting this asset to the trash. Below are a list of assets that will be affected by deleting this asset';
 			$ei = &$asset->getEI();
-			$ei->paintLinking($asset, $o, false);
+			$ei->includeStaticScreen('linking');
+			paintLinking($asset, $o, $ei, false);
 
 			$o->closeSection();
 
