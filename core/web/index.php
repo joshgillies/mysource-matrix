@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: index.php,v 1.19.2.1 2004/12/07 05:09:56 dbaranovskiy Exp $
+* $Id: index.php,v 1.19.2.2 2004/12/09 03:16:26 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@
 * @package MySource_Matrix
 */
 
-ini_set('memory_limit', '80M');
+ini_set('memory_limit', '8M');
 require_once dirname(dirname(__FILE__)).'/include/init.inc';
 $GLOBALS['SQ_SYSTEM']->start();
 
