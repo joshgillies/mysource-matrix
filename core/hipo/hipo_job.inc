@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.57 2005/03/16 05:07:00 ndvries Exp $
+* $Id: hipo_job.inc,v 1.58 2005/03/16 23:08:48 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -277,6 +277,45 @@ class HIPO_Job extends MySource_Object
 		return $this->_options[$name];
 
 	}//end getOption()
+
+
+	/**
+	* Set one of the global hipo vars for the HIPO
+	*
+	* @param string	$name		name of the hipo var
+	* @param string	$value		new value to assign it
+	*
+	* @return void
+	* @access public
+	*/
+	function setHipoVar($name, $value)
+	{
+		if (!isset($this->_hipo_vars[$name])) {
+			trigger_error('HIPO Option "'.$name.'" not known', E_USER_WARNING);
+			return;
+		}
+		$this->_hipo_vars[$name] = $value;
+
+	}//end setHipoVars()
+
+
+	/**
+	* Returns one of the global hipo vars for the HIPO
+	*
+	* @param string	$name		name of the hipo var
+	*
+	* @return mixed
+	* @access public
+	*/
+	function getHipoVar($name)
+	{
+		if (!isset($this->_hipo_vars[$name])) {
+			trigger_error('HIPO Option "'.$name.'" not known', E_USER_WARNING);
+			return null;
+		}
+		return $this->_hipo_vars[$name];
+
+	}//end getHipoVars()
 
 
 	/**
@@ -1035,23 +1074,28 @@ class HIPO_Job extends MySource_Object
 			if (empty($step_data['hipo_job']['code_name']) || empty($step_data['hipo_job']['job_type'])) {
 				$fn = $step_data['hipo_job']['init_details_function'];
 				// First let's get the info needed to create this
-				$this->$fn($job_type='', $running_vars=Array(), $options=Array());
+				$this->$fn($job_type='', $running_vars=Array(), $options=Array(), $hipo_vars=Array());
 
 				// so they have decided to ignore this step ? that's cool
 				if (empty($job_type)) {
 					$process_ok = true;
 
 				} else {
-
-					$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-					$include_location = $hh->locateHipoInclude(SQ_SYSTEM_ROOT, $job_type);
-					require_once array_shift($include_location);
+					if (empty($hipo_vars)) {
+						require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/'.$job_type.'.inc';
+					}
+					else {
+						require_once $hipo_vars.'/'.$job_type.'.inc';
+					}
 
 					$init_hipo = new $job_type();
 
 					$init_hipo->setRunningVars($running_vars);
 					foreach ($options as $k => $v) {
 						$init_hipo->setOption($k, $v);
+					}
+					foreach ($hipo_vars as $k => $v) {
+						$hipo_vars->setHipoVar($k, $v);
 					}
 
 					$code_name = $init_hipo->initialise($this->source_code_name);
