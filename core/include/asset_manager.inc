@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.125 2003/10/07 05:02:59 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.126 2003/10/07 07:01:06 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -470,6 +470,26 @@ class Asset_Manager extends MySource_Object
 
 	}// end _validateAttributeType()
 
+	/**
+	* Retrieves the attributes (with null values) for the asset type
+	*
+	* @param string $type_code		the type of asset
+	* @return array		an array of Asset_Attribute's 
+	*
+	* @access public
+	*/
+	function getAssetTypeAttributes($type_code)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		require_once SQ_INCLUDE_PATH."/asset_attribute.inc";
+		
+		$sql = "SELECT attributeid FROM ". SQ_TABLE_PREFIX . "asset_attribute
+				WHERE type_code = '".addslashes($type_code)."'";
+
+		$attributeids = $db->getCol($sql);
+
+		return $attributeids;
+	}
 
 //--        ASSETS        --//
 
@@ -585,6 +605,8 @@ class Asset_Manager extends MySource_Object
 				return $this->getAsset(8, 'cron_manager');
 			case 'login_design' :
 				return $this->getAsset(9, 'login_design');
+			case 'search_manager' :
+				return $this->getAsset(9, 'search_manager');
 			default :
 				trigger_error('System Asset Name "'.$name.'" not known', E_USER_ERROR);
 		}
@@ -1016,7 +1038,7 @@ class Asset_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT  l.linkid, l.value, l.link_type, l.sort_order, l.dependant, l.exclusive, ';
-		$where = 'l.linkid = '.$db->quote($linkid);
+		$where = 'l.linkid = '.$db->quote((int)$linkid);
 		if ($assetid > 0) {
 			$sql .= 'l.'.$other_side.'id, a.type_code as '.$other_side.'_type_code
 					 FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON  l.'.$other_side.'id = a.assetid';
@@ -2070,7 +2092,6 @@ class Asset_Manager extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->broadcastEvent('CreateLink', Array('assetid' => $major->id, 'linkid' => $linkid));
-
 		return $linkid;
 
 	}//end createAssetLink()
