@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user.inc,v 1.5 2004/08/18 04:20:33 gsherwood Exp $
+* $Id: ldap_user.inc,v 1.5.2.1 2004/10/07 04:48:49 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -75,6 +75,12 @@ class Ldap_User extends Backend_User
 		$this->short_name = $this->name;
 		$this->status = $ldap->status;
 		$this->version = '0.1';
+
+		foreach ($data as $key => $value) {
+			if (!is_array($value)) continue;
+			if (isset($value['count'])) unset($value['count']);
+			$this->vars[$key] = $value;
+		}
 
 		// set the data paths
 		$this->data_path = $ldap->data_path.'/'.$data['dn'];
@@ -157,7 +163,7 @@ class Ldap_User extends Backend_User
 	*/
 	function printBody()
 	{
-		$info = $this->getUserData();
+		$info = $this->vars;
 		if (empty($info)) return;
 		
 		if (!$this->_ldapid) return Array();
@@ -208,35 +214,6 @@ class Ldap_User extends Backend_User
 		return $null;
 
 	}//end getWorkspace()
-
-
-	/**
-	* Get an array of attribute data for this user
-	*
-	* @return array
-	* @access public
-	*/
-	function getUserData()
-	{
-		$id_parts = explode(':', $this->id);
-		$ldapid = $id_parts[0];
-		$shadowid = $id_parts[1];
-
-		$ldap_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($ldapid);
-		if (is_null($ldap_asset)) return Array();
-
-		require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
-		$ldap = $ldap_asset->connectToLdap();
-		$result = $ldap->search($shadowid,'(objectClass=*)');
-		if (!$result) return Array();
-		$info = $ldap->getEntries($result);
-
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($ldap);
-
-		if (!isset($info[0])) return Array();
-		else return $info[0];
-
-	}//end getUserData()
 
 
 }//end class
