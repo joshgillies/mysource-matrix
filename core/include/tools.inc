@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tools.inc,v 1.1 2005/03/16 04:53:07 ndvries Exp $
+* $Id: tools.inc,v 1.2 2005/03/16 05:54:43 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class Tools extends MySource_Object
@@ -111,7 +111,7 @@ class Tools extends MySource_Object
 
 		if ($am->installed($type_code)) {
 			$am->includeAsset($type_code);
-			eval('$content = '.$type_code.'::paintTool(&$o, $type_code, $type_code);');
+			eval('$content = '.$type_code.'::paintTool($o, $type_code, $type_code);');
 
 			$tool_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
 			$o->setHeading('System Tools: '.$tool_info['name'], '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$o->filesPath('/images/icons/header/asset_tree.png').'", "20", "20", "HIPO Icon");</script>');
@@ -136,7 +136,7 @@ class Tools extends MySource_Object
 
 		if ($am->installed($type_code)) {
 			$am->includeAsset($type_code);
-			eval('$content = '.$type_code.'::processTool(&$o, $type_code);');
+			eval('$content = '.$type_code.'::processTool($o, $type_code);');
 			echo $content;
 		}
 
