@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.66 2004/11/12 06:07:32 gsherwood Exp $
+* $Id: html_form.inc,v 1.67 2004/12/01 12:46:32 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -266,14 +266,14 @@ function check_box($name, $value='1', $checked=false, $on_click='', $extras='')
 * Given a name, an array of keys and values, and a default value, prints a combo box
 *
 * @param string	$name		the form name to use for the combo box
-* @param Array	$contents	an array of whose keys are values to be returned when that 
+* @param Array	$contents	an array of whose keys are values to be returned when that
 *							option is selected and whose values are the display text for the option
 * @param bool	$multiple	whether you can multiple selections can be made or not
-* @param mixed	$defaults	if there is only one default can be a string, or if there are 
+* @param mixed	$defaults	if there is only one default can be a string, or if there are
 *							multiple can be an array
 * @param int	$height		the height (in lines) of the combo box
 * @param string	$extras		any input field attributes that should be placed in the <input ... > tag
-* @param int	$maxlength	the maximum number of characters displayed for any option, 
+* @param int	$maxlength	the maximum number of characters displayed for any option,
 *							anything over gets truncated with '...' appended
 *
 * @return void
@@ -624,13 +624,13 @@ function get_type_codes_string($type_codes)
 	foreach ($type_codes as $type_code => $flag) {
 		$all_type_codes[] = $type_code;
 		switch ($flag) {
-			case 'A' : 
+			case 'A' :
 				$ancestors = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
 				foreach($ancestors as $ancestor) {
 					$all_type_codes[] = $ancestor;
 				}
 			break;
-			case 'D' : 
+			case 'D' :
 				$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code);
 				foreach($descendants as $descendant) {
 					$all_type_codes[] = $descendant;
@@ -654,7 +654,7 @@ function get_type_codes_string($type_codes)
 *
 * @param string		$name			the name to use for the field
 * @param int		$assetid		current value for this field
-* @param array		$type_codes		Array('[type_code]' => '[flag]') 
+* @param array		$type_codes		Array('[type_code]' => '[flag]')
 *									where flag = (A|D|I) -> Ancestors, Descendants or Only Itself
 * @param string		$map_frame		a reference to the map_frame so we can get the asset map
 									if this is an empty string, then the asset_finder will look for the asset map
@@ -700,7 +700,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 
 	text_box($safe_name.'_label', $label, 30, 0, false, 'class="sq-form-asset-finder" onfocus="javascript: this.tmp = this.value;" onblur="javascript: this.value = this.tmp;"');
 	normal_button($safe_name.'_change_btn', 'Change', $map_frame.'.asset_finder_change_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes).'\', '.$done_fn.');');
-	
+
 	if (in_array('clear', $buttons)) {
 		normal_button($safe_name.'_clear_btn', 'Clear', $map_frame.'.asset_finder_clear_btn_press(\''.$name.'\', \''.$safe_name.'\');');
 	}
@@ -717,7 +717,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 *
 * @param string		$name			the base name to use for the form fields
 * @param array		$assetids		current values for this field
-* @param array		$type_codes		Array('[type_code]' => '[flag]') 
+* @param array		$type_codes		Array('[type_code]' => '[flag]')
 *									where flag = (A|D|I) -> Ancestors, Descendants or Only Itself
 * @param string		$map_frame		Name of the frame containing the asset map
 									if this is an empty string, then the asset_finder will look for the asset map
@@ -732,7 +732,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $map_frame='sq_sidenav', $new_window=false, $done_fn='null', $buttons=Array('clear'))
 {
 	?><script type="text/javascript" src="<?php echo sq_web_path('lib')?>/html_form/html_form.js"></script><?php
-	
+
 	echo '<div>';
 	foreach ($assetids as $index => $assetid) {
 		asset_finder($name.'['.$index.']', $assetid, $type_codes, $map_frame, $new_window, $done_fn);
@@ -741,7 +741,7 @@ function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $m
 	$index = count($assetids);
 	asset_finder($name.'['.$index.']', 0, $type_codes, $map_frame, $new_window, $done_fn, Array('clear'));
 	$index++;
-	
+
 	if (!empty($map_frame)) {
 		$map_frame_exp = trim('parent.frames["'.$map_frame.'"]', '.');
 	} else {
@@ -801,7 +801,7 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=false, $bg='F
 	<table border="0">
 		<tr>
 			<td valign="top"><?php echo text_box('SQ_SYSTEM_SECURITY_KEY_VALUE', '', $box_len); ?></td>
-	<?php 
+	<?php
 	if ($img_on_newline) {
 	?>
 		</tr>
