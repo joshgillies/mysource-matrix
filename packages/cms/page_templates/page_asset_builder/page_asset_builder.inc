@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.16 2004/07/28 01:40:16 lwright Exp $
+* $Id: page_asset_builder.inc,v 1.17 2004/07/30 02:06:31 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -743,8 +743,6 @@ class Page_Asset_Builder extends Page
 	{
 		$terminate = ((E_USER_ERROR | E_ERROR) & $err_no);
 		
-		pre_echo(debug_backtrace());
-
 		// if the function didn't have an '@' prepended OR if we are about to terminate
 		// catch the error
 		if (error_reporting() || $terminate) {
