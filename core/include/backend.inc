@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.75 2003/11/21 05:28:45 gsherwood Exp $
+* $Id: backend.inc,v 1.76 2003/11/23 21:56:16 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -81,23 +81,23 @@ class Backend extends MySource_Object
 
 		// if we are in limbo, we are going to mix the frontend with the backend
 		// so we need to do things a little differently
-		if (SQ_IN_LIMBO && !isset($_GET['SQ_BACKEND_PAGE']) && !isset($_GET['sq_redirect_url'])) {
+		if (SQ_IN_LIMBO && !isset($_REQUEST['SQ_BACKEND_PAGE']) && !isset($_REQUEST['sq_redirect_url'])) {
 			require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
 			$this->out =& new Limbo_Outputter();
 			$this->_printMain();
 			return;
 		}
 
-		if (isset($_GET['a'])) {
-			$frontend_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_GET['a']);
+		if (isset($_REQUEST['a'])) {
+			$frontend_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_REQUEST['a']);
 			$frontend_asset->printFrontend();
 			exit();
 		}
 
-		if (empty($_GET['SQ_BACKEND_PAGE']) || $_GET['SQ_BACKEND_PAGE'] == 'frames') {
+		if (empty($_REQUEST['SQ_BACKEND_PAGE']) || $_REQUEST['SQ_BACKEND_PAGE'] == 'frames') {
 			$this->_printFrames();
 
-		} else if ($_GET['SQ_BACKEND_PAGE'] == 'asset_map_request') {
+		} else if ($_REQUEST['SQ_BACKEND_PAGE'] == 'asset_map_request') {
 			require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
 			$asset_map = new Asset_Map();
 			$asset_map->process($this);
@@ -106,11 +106,11 @@ class Backend extends MySource_Object
 
 			require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 			$this->out =& new Backend_Outputter();
-			if (isset($_GET['SQ_BACKEND_PAGE'])) {
-				$this->out->addFormActionGetVar('SQ_BACKEND_PAGE', $_GET['SQ_BACKEND_PAGE']);
+			if (isset($_REQUEST['SQ_BACKEND_PAGE'])) {
+				$this->out->addFormActionGetVar('SQ_BACKEND_PAGE', $_REQUEST['SQ_BACKEND_PAGE']);
 			}
 			
-			switch($_GET['SQ_BACKEND_PAGE']) {
+			switch($_REQUEST['SQ_BACKEND_PAGE']) {
 				case 'header':
 					$this->_printHeader();
 				break;
@@ -128,7 +128,7 @@ class Backend extends MySource_Object
 				break;
 
 				default:
-					trigger_error('Backend Page "'.$_GET['SQ_BACKEND_PAGE'].'" unknown', E_USER_ERROR);
+					trigger_error('Backend Page "'.$_REQUEST['SQ_BACKEND_PAGE'].'" unknown', E_USER_ERROR);
 
 			}//end switch
 
@@ -147,7 +147,7 @@ class Backend extends MySource_Object
 	function _printFrames()
 	{
 		$main_extras = '';
-		if (!isset($_GET['assetid'])) {
+		if (!isset($_REQUEST['assetid'])) {
 			$url_asset = &$GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(current_protocol(), null, true, true);
 			if (!is_null($url_asset)) {
 				$main_extras = '&assetid='.$url_asset->id.'&sq_from_frontend=1';
@@ -156,8 +156,8 @@ class Backend extends MySource_Object
 
 		// the URL for the main frame is either a normal load or a redirection from
 		// a non-frameset URL to this frameset
-		if (isset($_GET['sq_redirect_url'])) {
-			$main_url = urldecode($_GET['sq_redirect_url']);
+		if (isset($_REQUEST['sq_redirect_url'])) {
+			$main_url = urldecode($_REQUEST['sq_redirect_url']);
 		} else {
 			$main_url = $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=main'.$main_extras;
 		}
@@ -218,7 +218,7 @@ class Backend extends MySource_Object
 			function reloadHeader() {
 				var current_assetid = '';
 				var lock_type = '';
-				if (top.main && top.main.get_form_element_value) {
+				if (top.main && top.main.get_form_element_value && top.main.SQ_DOCUMENT_LOADED) {
 					current_assetid = top.main.get_form_element_value('backend_assetid');
 					lock_type       = top.main.get_form_element_value('sq_lock_type');
 				}
@@ -377,7 +377,7 @@ class Backend extends MySource_Object
 					}
 				}
 
-				function initMsgDiv() {
+				if (top.main.document.body && top.main.SQ_DOCUMENT_LOADED) {
 					msgDiv = top.main.document.getElementById("new_message_popup");
 					screenMenu = top.main.document.getElementById("sq_screen_menu");
 					screenMenuFiller = top.main.document.getElementById("sq_screen_menu_filler");
@@ -396,11 +396,6 @@ class Backend extends MySource_Object
 					msgDiv.innerHTML = '<?php echo addslashes($html)?>';
 
 					setTimeout("showMsgDiv()", 200);
-				}
-
-
-				if (top.main.document.body) {
-					setTimeout("initMsgDiv()", 5000);
 				} else {
 					REFRESH_UPDATE = 2;
 				}
@@ -623,10 +618,10 @@ class Backend extends MySource_Object
 	*/
 	function _printMain()
 	{
-		if (empty($_GET['backend_section'])) $_GET['backend_section'] = 'am';
-		if (empty($_GET['assetid']))         $_GET['assetid'] = '';
+		if (empty($_REQUEST['backend_section'])) $_REQUEST['backend_section'] = 'am';
+		if (empty($_REQUEST['assetid']))         $_REQUEST['assetid'] = '';
 
-		$this->out->addFormActionGetVar('backend_section', $_GET['backend_section']);
+		$this->out->addFormActionGetVar('backend_section', $_REQUEST['backend_section']);
 
 		// if we are in rollback view, print a warning message
 		if (SQ_ROLLBACK_VIEW) {
@@ -637,13 +632,12 @@ class Backend extends MySource_Object
 
 		// add an onLoad event that checks if the current window is in the frameset
 		// and redirects the user to the frameset version if they are not
-		if (!isset($_GET['ignore_frames']) || !$_GET['ignore_frames']) {
+		if (!isset($_REQUEST['ignore_frames']) || !$_REQUEST['ignore_frames']) {
 			$redirect_url = strip_url(current_url()).'/?sq_redirect_url='.urlencode($_SERVER['REQUEST_URI']);
-			if (SQ_IN_LIMBO) $redirect_url .= '&am_section=limbo';
 			$this->out->addOnLoad('if (!parent.top.header) { sq_redirect("'.$redirect_url.'"); } ');
 		}
 
-		switch($_GET['backend_section']) {
+		switch($_REQUEST['backend_section']) {
 			case 'config' :
 				require_once SQ_INCLUDE_PATH.'/system_config.inc';
 				$cfg = new System_Config();
@@ -660,7 +654,7 @@ class Backend extends MySource_Object
 			break;
 
 			default :
-				trigger_error('Backend Section "'.$_GET['backend_section'].'" not known', E_USER_ERROR);
+				trigger_error('Backend Section "'.$_REQUEST['backend_section'].'" not known', E_USER_ERROR);
 
 		}//end switch
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.183 2003/11/21 05:28:45 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.184 2003/11/23 21:56:16 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -175,15 +175,15 @@ class Asset_Edit_Interface extends MySource_Object
 		 //  ACTIVE SCREEN  //
 		/////////////////////
 		$create_sections = Array();
-		if (empty($_GET['asset_ei_screen'])) {
+		if (empty($_REQUEST['asset_ei_screen'])) {
 			if ((SQ_IN_LIMBO || isset($_GET['sq_from_frontend'])) && !empty($this->_default_screen)) {
 				$active_screen = $this->_default_screen;
 			} else {
 				$active_screen = 'details';
 			}
-			$_GET['asset_ei_screen'] = $active_screen;
+			$_REQUEST['asset_ei_screen'] = $active_screen;
 		} else {
-			$active_screen = $_GET['asset_ei_screen'];
+			$active_screen = $_REQUEST['asset_ei_screen'];
 		}
 
 		// make sure that we have the screen for next time
@@ -440,8 +440,8 @@ class Asset_Edit_Interface extends MySource_Object
 		  ///////////////////
 		 //  WHERE AM I   //
 		///////////////////
-		if (isset($_GET['sq_link_path'])) {
-			$link_path = $_GET['sq_link_path'];
+		if (isset($_REQUEST['sq_link_path'])) {
+			$link_path = $_REQUEST['sq_link_path'];
 		} else {
 			$link_path = '';
 		}
@@ -453,9 +453,9 @@ class Asset_Edit_Interface extends MySource_Object
 		 //  PREVIEW URL  //
 		///////////////////
 		// get the asset tree lineage
-		if (isset($_GET['sq_asset_path'])) {
+		if (isset($_REQUEST['sq_asset_path'])) {
 			// flash sends comma-separated assetids indicating the path
-			$asset_path = split(',', ($_GET['sq_asset_path']));
+			$asset_path = split(',', ($_REQUEST['sq_asset_path']));
 		} else {
 			if (SQ_IN_LIMBO) {
 				$url_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL();
@@ -476,7 +476,7 @@ class Asset_Edit_Interface extends MySource_Object
 		foreach ($asset_path as $assetid) {
 			if ($assetid != $owner->id) $ancestor =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			else $ancestor =& $owner;
-			
+
 			if (is_null($ancestor)) {
 				$preview_url = '';
 				break;
@@ -606,7 +606,11 @@ class Asset_Edit_Interface extends MySource_Object
 			// Loop over the sections
 			for($i = 0; $i < count($root->children); $i++) {
 				$section = &$root->children[$i];
-				// if this ain't a section, or if we are printing the create interface and this section is not included in that, ignore it
+				// if we are in limbo and this section is not to be printed in limbo - dont print it
+				if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) continue;
+
+				// if this ain't a section, or if we are printing the create interface and this section
+				// is not included in that, ignore it
 				if ($section->name != 'section' || ($creating && empty($create_sections[$section->attributes['name']]))) continue;
 
 				$section_access = $this->_getAccess($owner, $section);
@@ -724,7 +728,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		$ret_val = false;
 		$create_sections = Array();
-		$active_screen = (empty($_GET['asset_ei_screen'])) ? 'details' : $_GET['asset_ei_screen'];
+		$active_screen = (empty($_REQUEST['asset_ei_screen'])) ? 'details' : $_REQUEST['asset_ei_screen'];
 
 		// if we are creating open the create file to see which fields we are supposed to print out
 		if ($creating) {
@@ -765,7 +769,7 @@ class Asset_Edit_Interface extends MySource_Object
 		} else {
 
 			// must be a normal screen
-			if (empty($_GET['asset_ei_screen']) || empty($this->_screens[$_GET['asset_ei_screen']])) {
+			if (empty($_REQUEST['asset_ei_screen']) || empty($this->_screens[$_REQUEST['asset_ei_screen']])) {
 				trigger_error('Active Screen unknown unable to process', E_USER_WARNING);
 				return false;
 			}
@@ -790,8 +794,13 @@ class Asset_Edit_Interface extends MySource_Object
 			// Loop over the sections
 			for($i = 0; $i < count($root->children); $i++) {
 				$section = &$root->children[$i];
-				// if this ain't a section, or if we are printing the create interface and this section is not included in that, ignore it
+				// if we are in limbo and this section is not to be printed in limbo - dont print it
+				if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) continue;
+
+				// if this ain't a section, or if we are printing the create interface and this section
+				// is not included in that, ignore it
 				if ($section->name != 'section' || ($creating && empty($create_sections[$section->attributes['name']]))) continue;
+
 				if (!($num_fields = count($section->children))) continue;
 
 				$section_access = $this->_getAccess($owner, $section);
@@ -1009,6 +1018,9 @@ class Asset_Edit_Interface extends MySource_Object
 		}
 		for($i = 0; $i < count($root->children); $i++) {
 			$section = &$root->children[$i];
+			// if we are in limbo and this section is not to be printed in limbo - dont print it
+			if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) continue;
+
 			$o->openSection($section->attributes['name']);
 
 			if (!($num_fields = count($section->children))) continue;
@@ -1282,7 +1294,7 @@ class Asset_Edit_Interface extends MySource_Object
 			trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
 			return;
 		}
-	
+
 		if (empty($root->children)) {
 			$o->OpenSection('There are no settings for "'.$owner->name.'"');
 			$o->closeSection();
@@ -1290,6 +1302,9 @@ class Asset_Edit_Interface extends MySource_Object
 
 		for($i = 0; $i < count($root->children); $i++) {
 			$section = &$root->children[$i];
+
+			// if we are in limbo and this section is not to be printed in limbo - dont print it
+			if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) continue;
 
 			$o->openSection($section->attributes['name']);
 
@@ -1312,7 +1327,7 @@ class Asset_Edit_Interface extends MySource_Object
 						// have to have admin access to update the major version
 						if ($owner->adminAccess('all')) {
 							$created = true;
-							
+
 							if ($field->children[0]->name != 'display_name') $display_name = 'Update Major Version ?';
 							else $display_name = $field->children[0]->content;
 							$o->openField($display_name);
@@ -1641,10 +1656,7 @@ class Asset_Edit_Interface extends MySource_Object
 		}// end if
 
 
-
-
 		//// LANGUAGES ////
-
 		$current_langs = $owner->getLanguages();
 		$set_languages = Array();
 
@@ -1665,7 +1677,6 @@ class Asset_Edit_Interface extends MySource_Object
 
 
 		//// CHARACTER SET ////
-
 		if (isset($_POST[$prefix.'_intl_character_set'])) {
 			$new_charset = $_POST[$prefix.'_intl_character_set'];
 			$owner->setCharset($new_charset);
@@ -1673,7 +1684,6 @@ class Asset_Edit_Interface extends MySource_Object
 
 
 		//// MORPHING ////
-
 		if ($owner->adminAccess('all') && $owner->status == SQ_STATUS_UNDER_CONSTRUCTION) {
 			if (isset($_POST[$prefix.'_morph_new_type']) && !empty($_POST[$prefix.'_morph_new_type'])) {
 				// check that the security key was entered correctly
@@ -1688,7 +1698,6 @@ class Asset_Edit_Interface extends MySource_Object
 
 
 		///// FRONTEND AND LOGIN DESIGN CHANGES ////
-
 		if (!empty($_POST[$prefix.'_designs']) && $owner->writeAccess('links')) {
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -1766,7 +1775,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 	}//end processSettings()
 
-	
+
 	/**
 	* Paint the the access for permissions on a particular asset (used in popups etx)
 	*
@@ -1801,7 +1810,7 @@ class Asset_Edit_Interface extends MySource_Object
 			<?php
 
 		foreach ($perms as $title => $perm) {
-			
+
 			$permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, null, false, false, true);
 
 			$direct = Array();
@@ -1845,7 +1854,7 @@ class Asset_Edit_Interface extends MySource_Object
 		$o->closeSection();
 
 		return true;
-	
+
 	}// end paintInlinePermissions()
 
 
@@ -2151,12 +2160,12 @@ class Asset_Edit_Interface extends MySource_Object
 				<?php
 				}// end foreach data
 			}//end foreach inherited
-		
+
 		}// end if
 			?></table><?php
 			$o->closeField();
 		$o->closeSection();
-		
+
 		return true;
 
 	}//end paintInlineWorkflow()
@@ -2634,7 +2643,7 @@ class Asset_Edit_Interface extends MySource_Object
 					Access
 				</td>
 			</tr>
-		
+
 		<?php
 		foreach ($direct as $access => $schemaids) {
 			foreach($schemaids as $schemaid) {
@@ -3305,7 +3314,7 @@ class Asset_Edit_Interface extends MySource_Object
 						<td class="sq-backend-table-header">
 							When
 						</td>
-				<?php if ($write_access) { 
+				<?php if ($write_access) {
 					$created = true;
 					?>
 						<td class="sq-backend-table-header" style="text-align: center;">
@@ -3324,7 +3333,7 @@ class Asset_Edit_Interface extends MySource_Object
 						<td class="sq-backend-table-cell">
 							<?php echo $fl_jobs[$i]->readableWhen(); ?>
 						</td>
-				<?php if ($write_access) { 
+				<?php if ($write_access) {
 					$created = true;
 					?>
 						<td class="sq-backend-table-cell" style="text-align: center;">

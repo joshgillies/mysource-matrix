@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.63 2003/11/21 05:29:09 gsherwood Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.64 2003/11/23 21:56:16 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -74,45 +74,45 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 	{
 		$o = &$this->backend->out;
 
-		if (!isset($_GET['am_section'])) {
-			if (isset($_GET['sq_from_frontend'])) $_GET['am_section'] = 'edit_asset';
-			else if (SQ_IN_LIMBO) $_GET['am_section'] = 'limbo';
-			else $_GET['am_section'] = '';
+		if (!isset($_REQUEST['am_section'])) {
+			if (isset($_GET['sq_from_frontend'])) $_REQUEST['am_section'] = 'edit_asset';
+			else if (SQ_IN_LIMBO) $_REQUEST['am_section'] = 'limbo';
+			else $_REQUEST['am_section'] = '';
 		}
 
-		$o->addFormActionGetVar('am_section', $_GET['am_section']);
+		$o->addFormActionGetVar('am_section', $_REQUEST['am_section']);
 		$o->addHiddenField('am_form_submitted', '1');
 
-		switch($_GET['am_section']) {
+		switch($_REQUEST['am_section']) {
 			case 'add_asset' :
-				$parent = &$this->am->getAsset($_GET['parent_assetid']);
+				$parent = &$this->am->getAsset($_REQUEST['parent_assetid']);
 				if (is_null($parent)) {
-					trigger_error('Parent Asset #'.$_GET['parent_assetid'].' not found', E_USER_WARNING);
+					trigger_error('Parent Asset #'.$_REQUEST['parent_assetid'].' not found', E_USER_WARNING);
 					break;
 				}
 
 				// make sure that we are allowed to link this type to the parent
-				if (($err_msg = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $_GET['type_code'], $_GET['link_type'])) !== true) {
+				if (($err_msg = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $_REQUEST['type_code'], $_REQUEST['link_type'])) !== true) {
 					trigger_error($err_msg, E_USER_WARNING);
 					break;
 				}
 
-				$o->addFormActionGetVar('parent_assetid', $_GET['parent_assetid']);
-				$o->addFormActionGetVar('pos',            $_GET['pos']);
-				$o->addFormActionGetVar('type_code',      $_GET['type_code']);
-				$o->addFormActionGetVar('link_type',      $_GET['link_type']);
+				$o->addFormActionGetVar('parent_assetid', $_REQUEST['parent_assetid']);
+				$o->addFormActionGetVar('pos',            $_REQUEST['pos']);
+				$o->addFormActionGetVar('type_code',      $_REQUEST['type_code']);
+				$o->addFormActionGetVar('link_type',      $_REQUEST['link_type']);
 
-				$this->am->includeAsset($_GET['type_code']);
-				$asset = new $_GET['type_code']();
+				$this->am->includeAsset($_REQUEST['type_code']);
+				$asset = new $_REQUEST['type_code']();
 
 				// if the form has been submitted then, process it
-				if (!empty($_POST['process_form']) && !empty($_POST['am_form_submitted'])) {
+				if (!empty($_REQUEST['process_form']) && !empty($_REQUEST['am_form_submitted'])) {
 
 					// start the transaction to create the asset and initial link
 					$link = Array('asset'		=> &$parent,
-								  'link_type'	=> $_GET['link_type'],
+								  'link_type'	=> $_REQUEST['link_type'],
 								  'value'		=> '',
-								  'sort_order'	=> $_GET['pos']);
+								  'sort_order'	=> $_REQUEST['pos']);
 
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$success = $asset->processBackend($this->backend->out, $link);
@@ -135,21 +135,21 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 			case 'limbo'      :
 				$asset = null;
 				$limbo_asset = null;
-				if (SQ_IN_LIMBO && !$_GET['assetid']) {
+				if (SQ_IN_LIMBO && !$_REQUEST['assetid']) {
 
 					$limbo_asset = &$this->am->getAssetFromURL();
 					if (is_null($limbo_asset)) break;
 					$o->addFormActionGetVar('limbo_assetid', $limbo_asset->id);
 					$asset = &$limbo_asset;
 
-				} else if (SQ_IN_LIMBO && isset($_GET['limbo_assetid'])) {
+				} else if (SQ_IN_LIMBO && isset($_REQUEST['limbo_assetid'])) {
 
-					$limbo_asset =  &$this->am->getAsset($_GET['limbo_assetid']);
+					$limbo_asset =  &$this->am->getAsset($_REQUEST['limbo_assetid']);
 					if (is_null($limbo_asset)) break;
 					$o->addFormActionGetVar('limbo_assetid', $limbo_asset->id);
 
-					if (isset($_GET['assetid'])) {
-						$asset = &$this->am->getAsset($_GET['assetid']);
+					if (isset($_REQUEST['assetid'])) {
+						$asset = &$this->am->getAsset($_REQUEST['assetid']);
 						if (is_null($asset)) {
 							$asset = &$limbo_asset;
 						}
@@ -159,10 +159,10 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 				} else {
 
-					$asset = &$this->am->getAsset($_GET['assetid']);
+					$asset = &$this->am->getAsset($_REQUEST['assetid']);
 					if (is_null($asset)) {
-						trigger_error('Asset #'.$_GET['assetid'].' not found', E_USER_WARNING);
-						$o->addFormActionGetVar('assetid', $_GET['assetid']);
+						trigger_error('Asset #'.$_REQUEST['assetid'].' not found', E_USER_WARNING);
+						$o->addFormActionGetVar('assetid', $_REQUEST['assetid']);
 						break;
 					}
 

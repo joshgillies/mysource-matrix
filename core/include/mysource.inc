@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.22 2003/11/21 05:29:19 gsherwood Exp $
+* $Id: mysource.inc,v 1.23 2003/11/23 21:56:16 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -169,7 +169,7 @@ class MySource
 			session_start();
 
 			// process rollback view mode global actions here so setting the rollback vars below
-			if (!empty($_GET['SQ_ACTION']) && strpos($_GET['SQ_ACTION'], 'rollback_view') === 0) {
+			if (!empty($_REQUEST['SQ_ACTION']) && strpos($_REQUEST['SQ_ACTION'], 'rollback_view') === 0) {
 					$this->_processGlobalActions();
 			}
 
@@ -212,7 +212,7 @@ class MySource
 		}// end if
 
 		// process any global actions we have
-		if (!empty($_GET['SQ_ACTION'])) $this->_processGlobalActions();
+		if (!empty($_REQUEST['SQ_ACTION'])) $this->_processGlobalActions();
 
 	}//end init()
 
@@ -241,7 +241,7 @@ class MySource
 		// we are on the frontend
 		} else {
 			// check for ./?a=xx type urls or normal
-			if (isset($_GET['a'])) $asset = &$this->am->getAsset((int) $_GET['a']);
+			if (isset($_REQUEST['a'])) $asset = &$this->am->getAsset((int) $_REQUEST['a']);
 			else $asset = &$this->am->getAssetFromURL(current_protocol());
 			if (is_null($asset)) exit(1);
 			$asset->printFrontend();
@@ -322,7 +322,7 @@ class MySource
 	*/
 	function _processGlobalActions()
 	{
-		switch($_GET['SQ_ACTION']) {
+		switch($_REQUEST['SQ_ACTION']) {
 			case 'login' :
 				// if this person is already logged in, don't bother trying again because
 				// we will only be giving them an incorrect login key error
@@ -478,7 +478,7 @@ class MySource
 		}//end switch
 
 		// just so it isn't being used anywhere else
-		$_GET['SQ_ACTION'] = '';
+		$_REQUEST['SQ_ACTION'] = '';
 
 	}//end _processGlobalActions()
 
