@@ -534,7 +534,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		// First let's duplicate ourselves, ignoring dependants and the directory with the files
 		$map = Array();
-		$create_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_UNITE, 'value' => 'customisation');
+		$create_link = Array();
 		$dupe = &$asset->duplicate($create_link, $map, false, false);
 		if (is_null($dupe)) return false;
 
@@ -542,6 +542,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		if (!$dupe->morph('design_customisation')) return false;
 
 		// and link it back to ourselves
+		$asset->createLink($dupe, SQ_LINK_UNITE, 'customisation');
 		$dupe->setAttrValue('id_name', $new_name);
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
