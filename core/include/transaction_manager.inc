@@ -53,7 +53,8 @@ class Transaction_Manager extends Resolve_Object
 		$this->_levels++;
 		if ($this->_levels == 1) {
 			// first time we have started a transaction
-			$GLOBALS['SQ_SYSTEM']->db->query('BEGIN');
+			$result = $GLOBALS['SQ_SYSTEM']->db->query('BEGIN');
+			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 		}
 		return true;
 	}//end begin()
@@ -68,11 +69,16 @@ class Transaction_Manager extends Resolve_Object
 	*/
 	function commit()
 	{
+		if ($this->_rollback) {
+			trigger_error('Unable to Commit, Transaction has already been aborted', E_USER_WARNING);
+			$this->rollback();
+			return false;
+		}
 		$this->_levels--;
-		if ($this->_rollback) return false;
 		if ($this->_levels == 0) {
 			// this is the last commit
-			$GLOBALS['SQ_SYSTEM']->db->query('COMMIT');
+			$result = $GLOBALS['SQ_SYSTEM']->db->query('COMMIT');
+			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 			$this->_rollback = false;
 		}
 		return true;
@@ -92,7 +98,8 @@ class Transaction_Manager extends Resolve_Object
 		$this->_levels--;
 		if ($this->_levels == 0) {
 			// this is the last rollback
-			$GLOBALS['SQ_SYSTEM']->db->query('ROLLBACK');
+			$result = $GLOBALS['SQ_SYSTEM']->db->query('ROLLBACK');
+			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 			$this->_rollback = false;
 		}
 		return true;
