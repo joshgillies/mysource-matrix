@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: esec_processor_SSL_interface.inc,v 1.4 2004/12/06 14:55:49 brobertson Exp $
+* $Id: esec_processor_SSL_interface.inc,v 1.5 2004/12/06 15:56:16 brobertson Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/esec_processor.inc';
 * Esec payment gateway processing object.
 * Implements a 'Web Redirect Model' or 'Web Proxy Model' scenario
 *
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -59,7 +59,7 @@ class Esec_Processor_SSL_Interface extends Esec_Processor
 	* @access public
 	* @return string
 	*/
-	function generate_redirect_URL()
+	function generateRedirectURL()
 	{
 		$query_string = Array();
 		foreach ($this->parameters as $name => $value) {

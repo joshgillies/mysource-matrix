@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.26 2004/12/03 15:43:04 brobertson Exp $
+* $Id: insert_link.php,v 1.27 2004/12/06 15:56:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -250,7 +250,7 @@ if (!isset($_GET['new_window'])) {
 						<?php
 							include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
 							$asset_map = new Asset_Map();
-							$asset_map->embed_asset_map('simple', 200, 350);
+							$asset_map->embedAssetMap('simple', 200, 350);
 						?>
 					</td>
 					<td valign="top">

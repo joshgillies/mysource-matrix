@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.163 2004/12/03 15:33:23 brobertson Exp $
+* $Id: asset_map.inc,v 1.164 2004/12/06 15:55:55 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.163 $
+* @version $Revision: 1.164 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -75,7 +75,7 @@ class Asset_Map
 			<tr>
 				<td style="height: 100%; width: 100%;" valign="top">
 				<?php
-					$this->embed_asset_map('complex', '224');
+					$this->embedAssetMap('complex', '224');
 				?>
 				</td>
 				</tr>
@@ -104,7 +104,7 @@ class Asset_Map
 	* @return void
 	* @access public
 	*/
-	function embed_asset_map($type='simple', $width=200, $height=0)
+	function embedAssetMap($type='simple', $width=200, $height=0)
 	{
 		$classname = '';
 		$jarname = '';
@@ -188,7 +188,7 @@ class Asset_Map
 			echo str_replace('%applet_height%', $height, $applet_tag);
 		}
 
-	}//end embed_asset_map()
+	}//end embedAssetMap()
 
 
 	/**

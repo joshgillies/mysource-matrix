@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_management.inc,v 1.7 2004/12/06 14:38:10 brobertson Exp $
+* $Id: inbox_management.inc,v 1.8 2004/12/06 15:55:55 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -42,7 +42,7 @@ class Inbox_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function File_Management(&$pm)
+	function Inbox_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
 
