@@ -98,9 +98,11 @@ define('SQ_CONF_DB_DSN', 'pgsql://user@hostname/databasename');
 
 Note: For PostgreSQL, if the hostname is really the local server through a socket (rather than TCP/IP) the hostname becomes 'unix+localhost'.
 
-If you're using the HIPO service, it is recommended you have two database users to connect to the same database for transaction support.
+If you're using the HIPO service, it is REQUIRED that you have two database users to connect to the same database for transaction support.
+The 2nd connection is defined in the same way except it is called SQ_CONF_DB2_DSN. Passwords should be the same, the databasename must be so.
 
-If you want to do this, the 2nd connection is defined in the same way except it is called SQ_CONF_DB2_DSN . Passwords should be the same, the databasename must be so.
+If you are not using the HIPO server then define SQ_CONF_DB2_DSN as exactly the same as SQ_CONF_DB_DSN
+
 
 Still in that file, if you want to enable RollBack support change
 
@@ -129,8 +131,9 @@ The SQ_CONF_TECH_EMAIL address is where any sort of errors get sent - so the tec
 Now we've got everything set up, it's a simple case of changing to the matrix directory and running
 
 'php install/step_01.php .' -- this sets up data paths and configs.
-'php install/step_02.php .' -- this creates database tables, sets up rollback tables (if enabled) and so on.
-'php install/step_03.php .' -- this creates the base assets (root user, trash, mailboxes) and so on.
+'php install/step_02.php .' -- this creates database tables, sets up rollback tables and so on.
+'php install/step_03.php .' -- this installs (and updates) the asset types and creates the base assets 
+
 
 Lastly, you will need to set up 4 aliases in the Apache configuration. If you are running Matrix within a section of a site, you can set up your aliases as such
 
@@ -153,6 +156,9 @@ Lastly, to enable the Matrix Cron Manager, a system crontab entry must be made.
 0,15,30,45 * * * * /path/to/cli/php /path/to/matrix/core/cron/run.php
 
 This means the cron entries will get actioned every 15 minutes - you can change this to every 5 minutes (add all intervals of 5 except for 60) or 10 minutes but more regularly than that is inadvisable.
+
+Once you have your system up and running then one of the first things that you need to do is go to the Cron Manager and edit it's "Options" screen and set the "Epoch" and "Refresh Time" values
+
 
 Restart apache, and everything should be right to go.
 
