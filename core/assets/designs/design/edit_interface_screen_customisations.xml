@@ -1,5 +1,5 @@
 <contents>
-	<section name="New Customisation">
+	<section name="New Customisation" read_access="write">
 		<field>
 			<display_name />
 			<note />

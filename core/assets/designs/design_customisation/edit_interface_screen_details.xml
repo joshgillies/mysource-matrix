@@ -24,7 +24,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Customise Associated Files">
+	<section name="Customise Associated Files" read_access="write">
 		<field>
 			<display_name>New</display_name>
 			<note>Uploading a tar archive (.tar) or a gzipped tar archive (.tag.gz or .tgz) will result in those archives being extracted and their files being placed in the files directory</note>

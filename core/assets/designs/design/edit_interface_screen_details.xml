@@ -6,7 +6,7 @@
 			<text width="60" height="1" />
 		</field>
 	</section>
-	<section name="Parse File">
+	<section name="Parse File" read_access="write">
 		<field>
 			<display_name>Upload</display_name>
 			<note>All your images, stylesheets and javascript files &lt;b&gt;MUST&lt;/b&gt; be in the relative directory './files'</note>
@@ -16,7 +16,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Associated Files">
+	<section name="Associated Files" read_access="write">
 		<field>
 			<display_name>New</display_name>
 			<note>Uploading a tar archive (.tar) or a gzipped tar archive (.tar.gz or .tgz) will result in those archives being extracted and their files being placed in the files directory</note>
