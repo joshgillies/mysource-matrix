@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file.inc,v 1.5 2004/09/23 22:13:23 amiller Exp $
+* $Id: pdf_file.inc,v 1.6 2004/09/28 01:32:15 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -121,7 +121,7 @@ class PDF_File extends File
 		$output = '';
 		if (SQ_TOOL_PDFTOHTML_ENABLED) {
 			// Run a program that converts a PDF to HTML, set environment variable of bin_path
-			$cmd = 'DIR='.$this->data_path.' PDFTOHTMLBIN_DIR='.dirname(SQ_TOOL_PDFTOHTML_PATH).' '.SQ_TOOL_PDFTOHTML_PATH.' '.$tmp_file;
+			$cmd = 'DIR='.$this->data_path.' PDFTOHTMLBIN_DIR='.dirname(SQ_TOOL_PDFTOHTML_PATH).' '.SQ_TOOL_PDFTOHTML_PATH.' -stdout '.$tmp_file;
 			$output =`$cmd`;
 		}
 		
