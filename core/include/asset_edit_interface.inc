@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.231.2.4 2004/12/30 02:43:04 tbarrett Exp $
+* $Id: asset_edit_interface.inc,v 1.231.2.5 2004/12/30 02:46:29 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.231.2.4 $
+* @version $Revision: 1.231.2.5 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -104,7 +104,7 @@ class Asset_Edit_Interface extends MySource_Object
 		// add the default for Asset
 		$this->_dirs[] = SQ_INCLUDE_PATH.'/asset_edit';
 
-		if (!($file = $this->_findFile('screens'))) return;
+		if (!($file = $this->findFile('screens'))) return;
 
 		$input = new XML_Tree($file);
 		$root  = &$input->getTreeFromFile();
@@ -970,7 +970,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 			// its not a static screen, so get the xml file and parse it for
 			// the keywords that we want, if the xml file exists
-			$file = @$this->_findFile('screen_'.$screen);
+			$file = @$this->findFile('screen_'.$screen);
 
 			if ($file) {
 				$input = new XML_Tree($file);
@@ -1359,7 +1359,7 @@ class Asset_Edit_Interface extends MySource_Object
 				}
 
 				// try and find the file to print user defined
-				$file = @$this->_findFile('screen_'.$active_screen);
+				$file = @$this->findFile('screen_'.$active_screen);
 
 			} else {
 
@@ -1370,7 +1370,7 @@ class Asset_Edit_Interface extends MySource_Object
 				}
 
 				// try and find the file to print user defined
-				$file = $this->_findFile('screen_'.$active_screen);
+				$file = $this->findFile('screen_'.$active_screen);
 				if (!$file) return false;
 
 			}// end if
@@ -1637,9 +1637,9 @@ class Asset_Edit_Interface extends MySource_Object
 	* @param string	$file_name	the file to find
 	*
 	* @return string
-	* @access private
+	* @access public
 	*/
-	function _findFile($file_name)
+	function findFile($file_name)
 	{
 		$file_name = 'edit_interface_'.$file_name.'.xml';
 
@@ -1658,7 +1658,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		return $file;
 
-	}//end _findFile()
+	}//end findFile()
 
 
 	/**
@@ -1674,7 +1674,7 @@ class Asset_Edit_Interface extends MySource_Object
 	{
 		$create_sections = Array();
 
-		if (!($create_file = $this->_findFile('create'))) return Array($create_sections, '');
+		if (!($create_file = $this->findFile('create'))) return Array($create_sections, '');
 
 		$input = new XML_Tree($create_file);
 		$root  = &$input->getTreeFromFile();

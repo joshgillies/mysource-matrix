@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.11.2.1 2004/12/23 22:41:49 gsherwood Exp $
+* $Id: workflow.inc,v 1.11.2.2 2004/12/30 02:47:55 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -127,7 +127,7 @@ function paintInlineWorkflow(&$owner, &$o, &$ei)
 */
 function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 {
-	if (!($file = $ei->_findFile('static_screen_workflow'))) return false;
+	if (!($file = $ei->findFile('static_screen_workflow'))) return false;
 
 	$prefix = $owner->getPrefix();
 	$print_commit_button = false;

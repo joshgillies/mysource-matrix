@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.8 2004/12/03 15:33:23 brobertson Exp $
+* $Id: details.inc,v 1.8.2.1 2004/12/30 02:47:55 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,7 +46,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 */
 function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 {
-	if (!($file = $ei->_findFile('static_screen_details'))) return false;
+	if (!($file = $ei->findFile('static_screen_details'))) return false;
 
 	$prefix = $owner->getPrefix();
 	$print_commit_button = false;
