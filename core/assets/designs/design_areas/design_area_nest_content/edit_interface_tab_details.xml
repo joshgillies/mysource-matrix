@@ -1,0 +1,21 @@
+<contents>
+	<section name="Details">
+		<field>
+			<display_name>Id Name</display_name>
+			<note />
+			<function_call>
+				<paint_function name="paintIdName" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Link">
+		<field>
+			<display_name>Nested Asset</display_name>
+			<note>The assetid that represents the asset to print in this nested content area</note>
+			<function_call>
+				<paint_function   name="paintAssetid" />
+				<process_function name="processAssetid" />
+			</function_call>
+		</field>
+	</section>
+</contents>
