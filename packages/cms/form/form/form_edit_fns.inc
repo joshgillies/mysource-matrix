@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.23 2004/05/07 01:18:33 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.24 2004/05/07 01:46:13 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -73,7 +73,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 			$s =& $sections[$k];
 			$href = $s->getBackendHref('contents');
 			?>
-			<a href="<?php echo $href ?>"><?php echo $s->_getName() ?></a> : <?php print_r ($s->attr('sort_order')) ?></a> : <?php echo $k ?><br />
+			<a href="<?php echo $href ?>"><?php echo $s->_getName() ?></a><br />
 			<?php
 		}		
 		
