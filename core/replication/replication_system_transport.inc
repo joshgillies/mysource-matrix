@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_transport.inc,v 1.1.2.4 2004/02/14 19:41:51 brobertson Exp $
+* $Id: replication_system_transport.inc,v 1.1.2.5 2004/02/14 19:48:30 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -275,7 +275,7 @@ class Replication_System_Transport extends MySource_Object
 		}
 
 		$source_file = SQ_SYSTEM_ROOT.'/'.$source;
-		if (!file_exists($source_file) || !is_readable($source_file)) {
+		if (!is_file($source_file) || !is_readable($source_file)) {
 			trigger_error('Unable to write file to socket : Source file doesn\'t exist or is not readable', E_USER_WARNING);
 			return false;
 		}
@@ -294,7 +294,7 @@ class Replication_System_Transport extends MySource_Object
 		$fd = fopen($source_file, 'rb');
 		do {
 
-			$data = fread($handle, $this->_read_buffer_size);
+			$data = fread($fd, $this->_read_buffer_size);
 			if (strlen($data) == 0) break;
 
 			if (!$this->_writeToSocket($data, $bytes_written)) return false;
