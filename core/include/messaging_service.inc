@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.29 2004/09/28 04:26:03 gsherwood Exp $
+* $Id: messaging_service.inc,v 1.30 2004/11/16 23:06:33 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -422,7 +422,10 @@ class Messaging_Service extends MySource_Object
 					$bridgeid = $id_parts[0];
 					$bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
 					$shadow = &$bridge->getAsset($id_parts[1]);
-					if (!is_null($shadow)) $result[$i]['from_name'] = $shadow->$get_user_name;
+					if (!is_null($shadow)) {
+						$result[$i]['from_name'] = $shadow->$get_user_name;
+						$result[$i]['type_code'] = $shadow->type();
+					}
 				}
 			}
 		}
