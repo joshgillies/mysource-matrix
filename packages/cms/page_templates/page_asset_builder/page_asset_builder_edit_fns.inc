@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.7 2004/05/07 01:29:00 gsherwood Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.8 2004/05/12 06:59:17 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -577,12 +577,11 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		if (!$asset->writeAccess('attributes')) {
 			echo get_status_description($asset->attr('create_status'));
 		} else {
-			$status_options = get_constant_values('SQ_STATUS_');
-			$options = Array();
-			foreach($status_options as $status_name => $bit_value) {
-				$options[$bit_value] = get_status_description($bit_value);
-			}
-			combo_box($prefix.'_create_status', $options, false, $asset->attr('create_status'));
+			$status_options = Array(SQ_STATUS_ARCHIVED => 'Archived',
+									SQ_STATUS_UNDER_CONSTRUCTION => 'Under Construction',
+									SQ_STATUS_LIVE => 'Live',
+									);
+			combo_box($prefix.'_create_status', $status_options, false, $asset->attr('create_status'));
 		}
 
 	}//end paintCreateStatus()
