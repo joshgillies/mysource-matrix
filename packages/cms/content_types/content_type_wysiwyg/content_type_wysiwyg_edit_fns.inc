@@ -46,6 +46,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		$wysiwyg->set_init_onload('yes');
 		//$wysiwyg->set_stylesheet('http://www.nswrl.com.au/__data/site/design/1/images/styles.css');
 		$wysiwyg->set_width('100%');
+		$wysiwyg->set_height('400');
 		$wysiwyg->add_plugin('format_text');
 		$wysiwyg->add_plugin('justify_text');
 		$wysiwyg->add_plugin('indenting');
