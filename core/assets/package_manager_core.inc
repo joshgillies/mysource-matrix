@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.24 2005/03/29 06:59:59 arailean Exp $
+* $Id: package_manager_core.inc,v 1.25 2005/04/06 07:08:11 mmcintyre Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 */
 class Package_Manager_Core extends Package_Manager
@@ -112,7 +112,7 @@ class Package_Manager_Core extends Package_Manager
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// clear all weightings for this type_code
-		$sql = 'DELETE FROM '. SQ_TABLE_PREFIX.'sch_idx_wgt_dflt
+		$sql = 'DELETE FROM sq_sch_idx_wgt_dflt
 				WHERE type_code = '.$db->quote('asset');
 
 		$result = $db->query($sql);
@@ -124,7 +124,7 @@ class Package_Manager_Core extends Package_Manager
 		}
 
 		foreach ($this->default_components as $component => $weighting) {
-			$sql = 'INSERT INTO '. SQ_TABLE_PREFIX.'sch_idx_wgt_dflt
+			$sql = 'INSERT INTO sq_sch_idx_wgt_dflt
 					(type_code, component, description, weight)
 					VALUES ('.$db->quote('asset').', '.$db->quote($component).',
 					'.$db->quote($weighting['description']).','.$db->quote($weighting['default_weighting']).')';
@@ -266,13 +266,19 @@ class Package_Manager_Core extends Package_Manager
 		// we will also turn all 'zero' permissions into the public user's while we're at it
 		// THIS IS AN UPGRADE AND SHOULD BE REMOVED
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		
+		$sql = 'UPDATE
+					sq_ast_perm
+				SET
+					userid	= '.$db->quoteSmart($public_user->id).'
+				WHERE
+					userid	= '.$db->quoteSmart(0);
 
-		$where = 'userid = '.$GLOBALS['SQ_SYSTEM']->db->quote(0);
-		$values = Array('userid' => $public_user->id);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_perm', $values, $where)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return $public_user;
