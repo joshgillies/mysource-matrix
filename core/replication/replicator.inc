@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replicator.inc,v 1.1.2.5 2004/02/14 17:43:55 brobertson Exp $
+* $Id: replicator.inc,v 1.1.2.6 2004/02/21 14:44:47 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -278,6 +278,10 @@ class Replicator extends MySource_Object
 	function _setErrorHandler() 
 	{
 		$this->_tmp['old_error_handler'] = set_error_handler(Array(&$this, '_errorHandler'));
+		// now because of the nature of server rep and it never really being seen we are
+		// going to force the issue with logging errors and set the error log file
+		$this->_tmp['old_log_errors'] = ini_set('log_errors', 1);
+
 	}// end _setErrorHandler()
 
 
@@ -291,6 +295,7 @@ class Replicator extends MySource_Object
 	{
 		unset($this->_tmp['old_error_handler']);
 		restore_error_handler();
+		ini_set('log_errors', $this->_tmp['old_log_errors']);
 	}// end _restoreErrorHandler()
 
 
