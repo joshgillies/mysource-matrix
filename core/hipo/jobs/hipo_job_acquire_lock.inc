@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_job_acquire_lock.inc,v 1.11 2003/09/26 05:26:31 brobertson Exp $
+* $Id: hipo_job_acquire_lock.inc,v 1.12 2003/10/02 05:37:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -132,7 +132,7 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 			if (!is_null($asset)) {
 				$source_assetid = $this->_running_vars['assetid'];
 				$forceably_acquire = $this->_running_vars['forceably_acquire'];
-				$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, $source_assetid, $forceably_acquire);
+				$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, '', $source_assetid, $forceably_acquire);
 				$step_data['message'] = 'Acquiring Lock on "'.$asset->name.'"';
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);

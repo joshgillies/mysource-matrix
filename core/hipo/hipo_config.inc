@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_config.inc,v 1.4 2003/09/26 05:26:30 brobertson Exp $
+* $Id: hipo_config.inc,v 1.5 2003/10/02 05:37:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,8 @@ class HIPO_Config extends Config
 	*/
 	function HIPO_Config()
 	{
-		$this->Config(SQ_DATA_PATH.'/private/conf/hipo.inc');
+		$this->Config();
+		$this->config_file = SQ_DATA_PATH.'/private/conf/hipo.inc';
 	}
 
 }//end class
