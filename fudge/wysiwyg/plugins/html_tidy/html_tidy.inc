@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: html_tidy.inc,v 1.6 2003/10/07 00:29:03 gsherwood Exp $
+* $Id: html_tidy.inc,v 1.7 2003/10/07 02:37:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -72,12 +72,13 @@ class HTML_Tidy extends Wysiwyg_Plugin {
 	*/
 	function process(&$html)
 	{
+		if (empty($html)) return;
 		$tidy = Array();
-		$path_to_tidy = '/home/gsherwood/mysource_matrix/tidy';
+		$path_to_tidy = '/home/websites/matrix_slq/tidy';
 		$command = "/bin/echo ".escapeshellarg($html)." | $path_to_tidy -iq --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --word-2000 1 --force-output 1";
 
 		if (!empty($this->_new_inline_tags)) $command .= ' --new-inline-tags "'.implode('","',$this->_new_inline_tags).'"';
-
+		
 		exec($command, $tidy);
 		if (empty($tidy)) return;
 		$html = implode("\n", $tidy);
