@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.213 2004/06/07 04:02:04 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.214 2004/06/08 02:35:29 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -720,6 +720,9 @@ class Asset_Edit_Interface extends MySource_Object
 							trigger_error('Display Name for "'.$field->attributes['attribute'].'" not found', E_USER_WARNING);
 							continue;
 						}
+
+						// if we are in limbo and this field is not to be printed in limbo - dont print it
+						if (SQ_IN_LIMBO && (isset($field->attributes['limbo_access']) && (int)$field->attributes['limbo_access'] == 0)) continue;
 
 						$field_access = $this->_getAccess($owner, $field, $section_access);
 						if (!($field_access & SQ_EI_READ)) continue;
