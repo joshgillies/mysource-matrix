@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_map.inc,v 1.98 2003/10/29 00:34:22 dwong Exp $
+* $Id: asset_map.inc,v 1.99 2003/10/30 03:47:55 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -247,6 +247,7 @@ class Asset_Map
 	function _send($output)
 	{
 		header("Content-Type: text/xml");
+		bom($output->get());
 		$output->dump();
 	}//end _send()
 
@@ -287,6 +288,7 @@ class Asset_Map
 			$this->_error($root->getMessage()."\n".$root->getUserInfo());
 			return;
 		}
+		bom($root->get());
 
 		if ($root->name != 'command' || empty($root->attributes['action'])) {
 			$this->_error('No action was defined, or the root node is not "command"');
@@ -385,6 +387,7 @@ class Asset_Map
 		echo "</initialisation>\n";
 		$out = ob_get_contents();
 		ob_end_clean();
+		bom($out);
 		echo $out;
 
 	}// end _doInitialise()

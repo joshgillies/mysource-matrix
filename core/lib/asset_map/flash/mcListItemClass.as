@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcListItemClass.as,v 1.33 2003/10/30 03:07:29 dwong Exp $
+* $Id: mcListItemClass.as,v 1.34 2003/10/30 03:47:57 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -159,10 +159,13 @@ mcListItemClass.prototype.setAsset = function(asset, parent_item_name)
 
 mcListItemClass.prototype.getBgColour = function()
 {
-	if (!this.selected)
-		return _root.LIST_ITEM_BG_COLOURS[this.state].normal;
-	else
+	if (!this.selected) {
+		trace (_root.LIST_ITEM_BG_COLOURS[this.state].normal);
+		trace (adjust_brightness(_root.LIST_ITEM_BG_COLOURS[this.state].normal, 0.8));
+		return adjust_brightness(_root.LIST_ITEM_BG_COLOURS[this.state].normal, 0.8);
+	} else {
 		return _root.LIST_ITEM_BG_COLOURS[this.state].selected;
+	}
 }
 
 mcListItemClass.prototype.getText = function()

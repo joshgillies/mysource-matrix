@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: general.as,v 1.14 2003/09/26 05:26:32 brobertson Exp $
+* $Id: general.as,v 1.15 2003/10/30 03:47:57 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -102,13 +102,22 @@ function _dialog_border_bottom_right(dialog, x, y, w, h, colour)
 }
 
 function adjust_brightness (colour, brightness) {
-	var red = (colour >> 16) & 0xff;
-	var green = (colour >> 8) & 0xff;
-	var blue = (colour) & 0xff;
+	var red		= (colour >> 16) & 0xff;
+	var green	= (colour >> 8) & 0xff;
+	var blue	= (colour) & 0xff;
 
-	var new_colour = ((red * brightness) << 16) + ((green * brightness) << 8) + (blue * brightness);
-
-	return new_colour;
+	if (brightness > 0) {
+		brightness = Math.min (1, brightness);
+		red		+= ((0xff - red) * brightness);
+		green	+= ((0xff - green) * brightness);
+		blue	+= ((0xff - blue) * brightness);
+	} else {
+		brightness = Math.max (-1, brightness);
+		red		+= ((0xff - red) * brightness);
+		green	+= ((0xff - green) * brightness);
+		blue	+= ((0xff - blue) * brightness);
+	}
+	return (red << 16) + (green << 8) + (blue);
 
 }
 
