@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.91 2004/12/03 15:33:23 brobertson Exp $
+* $Id: backend_outputter.inc,v 1.92 2004/12/06 03:16:02 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',       4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1374,11 +1374,20 @@ class Backend_Outputter
 	/**
 	* Creates a standardised commit button
 	*
+	* @param string		$value			The caption of the commit button, defaults to the
+	*									Commit Button Text property or 'Commit' if not found
+	* @param boolean	$release_lock	whether the lock should be released
+	*
 	* @return void
 	* @access public
 	*/
-	function commitButton($value='Commit', $release_lock=1)
+	function commitButton($value='', $release_lock=true)
 	{
+		// value is empty, use default caption
+		if (empty($value)) {
+			$value = !defined('SQ_CONF_COMMIT_BUTTON_TEXT') ? 'Commit' : SQ_CONF_COMMIT_BUTTON_TEXT;
+		}
+		
 		$release_lock = (int) $release_lock;
 		$this->openSection(' ');
 			$this->openField('', 'commit');
