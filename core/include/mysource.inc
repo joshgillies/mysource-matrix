@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.34.2.1 2004/01/21 18:45:19 brobertson Exp $
+* $Id: mysource.inc,v 1.34.2.2 2004/02/13 17:14:33 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -916,9 +916,17 @@ class MySource
 	*/
 	function &getSystemReplicator()
 	{
-		if(!isset($this->sr) || get_class($this->sr) != 'replicator') {
-			require_once SQ_SYSTEM_ROOT.'/core/replication/replicator.inc';
-			$this->sr = new Replicator();
+		if(!isset($this->sr) || !is_a($this->sr, 'replicator')) {
+			require_once SQ_SYSTEM_ROOT.'/data/private/conf/replication.inc';
+			if (!SQ_REPLICATION_ENABLED) {
+				trigger_error('Replication is not enabled, unable to get the System Replicator', E_USER_ERROR);
+			} elseif (SQ_REPLICATION_IS_MASTER) {
+				require_once SQ_SYSTEM_ROOT.'/core/replication/master/replicator_master.inc';
+				$this->sr = new Replicator_Master();
+			} else {
+				require_once SQ_SYSTEM_ROOT.'/core/replication/slave/replicator_slave.inc';
+				$this->sr = new Replicator_Slave();
+			}
 		}
 		return $this->sr;
 
