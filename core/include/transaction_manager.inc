@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: transaction_manager.inc,v 1.10 2004/03/03 18:37:15 brobertson Exp $
+* $Id: transaction_manager.inc,v 1.11 2004/09/27 23:43:40 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -59,6 +59,7 @@ class Transaction_Manager extends MySource_Object
 	function Transaction_Manager()
 	{
 		$this->MySource_Object();
+
 	}//end constructor
 
 
@@ -73,6 +74,7 @@ class Transaction_Manager extends MySource_Object
 	function inTransaction($db_name)
 	{
 		return !empty($this->_levels[$db_name]);
+
 	}//end inTransaction()
 
 
@@ -96,6 +98,7 @@ class Transaction_Manager extends MySource_Object
 			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 		}
 		return true;
+
 	}//end begin()
 
 
@@ -127,6 +130,7 @@ class Transaction_Manager extends MySource_Object
 			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 		}
 		return true;
+
 	}//end commit()
 
 
@@ -154,7 +158,9 @@ class Transaction_Manager extends MySource_Object
 			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 		}
 		return true;
+
 	}//end rollback()
+
 
 }//end class
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.5 2004/09/08 08:32:01 brobertson Exp $
+* $Id: system_config_edit_interface.inc,v 1.6 2004/09/27 23:44:07 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,6 +36,7 @@
 */
 class System_Config_Edit_Interface extends MySource_Object
 {
+
 
 	/**
 	* Constructor

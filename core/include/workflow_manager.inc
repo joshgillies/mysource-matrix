@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.49 2004/09/15 04:30:03 gsherwood Exp $
+* $Id: workflow_manager.inc,v 1.50 2004/09/27 23:43:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1104,6 +1104,7 @@ class Workflow_Manager extends MySource_Object
 		return !isset($edit_fns->static_screens['workflow']);
 
 	}//end allowsWorkflow()
+
 
 }//end class
 
