@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox.inc,v 1.19 2004/06/18 13:56:13 brobertson Exp $
+* $Id: inbox.inc,v 1.20 2004/06/22 01:22:27 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 */
 class Inbox extends Asset
 {
+
 
 	/**
 	* Constructor
@@ -140,6 +141,25 @@ class Inbox extends Asset
 
 
 	/**
+	* Prints out the Frontend for this asset
+	* it's up to the kids to override
+	*
+	* @return void
+	* @access public
+	*/
+	function printFrontend()
+	{
+		if (!$this->readAccess()) {
+			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$this->name.'</i>');
+			return;
+		}
+
+		$this->printBody();
+
+	}//end printFrontend()
+
+
+	/**
 	* Called by the design to print the body of this asset
 	*
 	* @access public
@@ -157,7 +177,7 @@ class Inbox extends Asset
 			$edit->paintMail($this, $null, 'inbox');
 		}
 
-	}// end printBody()
+	}//end printBody()
 
 
 	/**
@@ -165,14 +185,15 @@ class Inbox extends Asset
 	*
 	* @param boolean	$short_name	whether or not we are after the short name or the full name
 	*
-	* @see Asset::_getName()
 	* @access private
+	* @see Asset::_getName()
 	*/
 	function _getName($short_name=false)
 	{
 		return 'Inbox';
 
 	}//end _getName()
+
 
 }//end class
 
