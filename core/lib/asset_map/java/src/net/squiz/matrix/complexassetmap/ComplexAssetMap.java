@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ComplexAssetMap.java,v 1.1 2004/06/29 06:53:06 mmcintyre Exp $
+* $Id: ComplexAssetMap.java,v 1.2 2004/08/18 00:37:03 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -93,22 +93,27 @@ public class ComplexAssetMap extends AssetMap /*implements KeyListener*/
 		tp.setFont(TAB_FONT);
 		tp.addTab("Asset Map", treeIcon, treePanel);
 
-		String inboxURL = MySource.INSTANCE.getBaseURL() + 
-			AssetMap.getApplet().getParameter("BACKEND_SUFFIX") + 
-			MatrixToolkit.rawUrlDecode(getParameter("INBOX_URL"));
-
-		String detailsURL = MySource.INSTANCE.getBaseURL() + 
-			AssetMap.getApplet().getParameter("BACKEND_SUFFIX") + 
-			MatrixToolkit.rawUrlDecode(getParameter("DETAILS_URL"));
-
-		int newMessages = Integer.parseInt(getParameter("NEW_MSGS"));
 		String workspaceId = AssetManager.INSTANCE.getWorkspaceId();
 
-		tp.addTab("My Space", mySpaceIcon, new MySpace(
-				inboxURL, 
-				detailsURL, 
-				workspaceId, 
-				newMessages));
+		if (!workspaceId.equals("0")) {
+			
+			String inboxURL = MySource.INSTANCE.getBaseURL() + 
+				AssetMap.getApplet().getParameter("BACKEND_SUFFIX") + 
+				MatrixToolkit.rawUrlDecode(getParameter("INBOX_URL"));
+			
+			String detailsURL = MySource.INSTANCE.getBaseURL() + 
+				AssetMap.getApplet().getParameter("BACKEND_SUFFIX") + 
+				MatrixToolkit.rawUrlDecode(getParameter("DETAILS_URL"));
+
+			int newMessages = Integer.parseInt(getParameter("NEW_MSGS"));
+			
+			tp.addTab("My Space", mySpaceIcon, new MySpace(
+					inboxURL, 
+					detailsURL, 
+					workspaceId, 
+					newMessages));
+		
+		}
 
 		getContentPane().setLayout(new BorderLayout());
 		getContentPane().add(tp);
