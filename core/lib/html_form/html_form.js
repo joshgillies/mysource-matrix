@@ -5,9 +5,9 @@
 *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/html_form/html_form.js,v $
-* $Revision: 1.9 $
+* $Revision: 1.10 $
 * $Author: brobertson $
-* $Date: 2003/06/04 04:18:30 $
+* $Date: 2003/06/04 07:40:00 $
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 */
 
@@ -51,6 +51,17 @@ function set_hidden_field(name, value)
 * @access public
 */
 set_text_field = set_hidden_field;
+
+/**
+* Convenience function for setting button values fields in the form
+* NOTE: works the same way as a hidden field so just alias that fn
+*
+* @param string	$name	the name of the text field
+* @param string	$value	the value to set it to
+*
+* @access public
+*/
+set_button_value = set_hidden_field;
 
 
 /**
@@ -424,7 +435,7 @@ function check_date(date_name, show_time)
 * @access public
 */
 var ASSET_FINDER_FIELD_NAME = null;
-function asset_finder_btn_press(btn, name, type_codes_xml) 
+function asset_finder_btn_press(name, type_codes_xml) 
 {
 	var f = document.main_form;
 
@@ -441,12 +452,13 @@ function asset_finder_btn_press(btn, name, type_codes_xml)
 	if (ASSET_FINDER_FIELD_NAME == null) {
 		ASSET_FINDER_FIELD_NAME = name;
 		top.sidenav.asset_finder_start(asset_finder_done, type_codes_xml);
-		btn.value = 'Cancel';
+		set_button_value(ASSET_FINDER_FIELD_NAME + '_btn', 'Cancel');
 
 	// else we must be cancelling the asset finder
 	} else {
 		top.sidenav.asset_finder_cancel();
-		btn.value = 'Change...';
+		set_button_value(ASSET_FINDER_FIELD_NAME + '_btn', 'Change...');
+		ASSET_FINDER_FIELD_NAME = null;
 
 	}
 
@@ -468,6 +480,7 @@ function asset_finder_done(assetid, label)
 		set_hidden_field(ASSET_FINDER_FIELD_NAME, assetid);
 		set_text_field(ASSET_FINDER_FIELD_NAME + '_label', label + ' (Asset #' + assetid + ')');
 	}
+	set_button_value(ASSET_FINDER_FIELD_NAME + '_btn', 'Change...');
 	ASSET_FINDER_FIELD_NAME = null;
 
 }// end asset_finder_done()
