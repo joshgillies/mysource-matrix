@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.147 2005/03/10 01:31:29 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.148 2005/03/15 00:54:57 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.147 $
+* @version $Revision: 1.148 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -271,6 +271,8 @@ class Page_Calendar extends Page_Asset_Listing
 				$replacements = Array();
 				$replacements['calendar_contents'] = $this->getCalendarContents();
 				$replacements['calendar_title'] = $this->getCalendarTitle();
+				$replacements['current_user'] = $GLOBALS['SQ_SYSTEM']->user->name;
+
 				$replacements += $this->_getNavLinkReplacements();
 
 				ob_start();
@@ -438,7 +440,7 @@ class Page_Calendar extends Page_Asset_Listing
 							'up_link'           => 'Up Link',
 							'prev_link'         => 'Previous Link',
 							'next_link'         => 'Next Link',
-
+							'current_user'      => 'Name of current user',
 						);
 
 		return $keywords;
@@ -2234,8 +2236,8 @@ class Page_Calendar extends Page_Asset_Listing
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 			if (empty($userid)) return ' AND false';
-			$user_treeid = reset($GLOBALS['SQ_SYSTEM']->am->getRawTreeIdByAsset($userid, true));
-			$sql = "\n".' AND a.assetid IN (SELECT minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk sal JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree salt ON (sal.linkid = salt.linkid) WHERE salt.treeid LIKE '.$db->quote($user_treeid.'%').')';
+			$user_treeids = reset($GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($userid));
+			$sql = "\n".' AND a.assetid IN (SELECT minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk sal JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree salt ON (sal.linkid = salt.linkid) WHERE salt.treeid LIKE '.$db->quote($user_treeids.'%').')';
 			return $sql;
 		}
 		return '';
