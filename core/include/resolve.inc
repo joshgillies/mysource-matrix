@@ -3,6 +3,7 @@
 require_once 'DB.php';
 require_once SQ_INCLUDE_PATH.'/resolve_object.inc';
 require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
+require_once SQ_INCLUDE_PATH.'/messaging_service.inc';
 
 /**
 * Resolve
@@ -33,6 +34,11 @@ class Resolve
 	* @var object Transaction_Manager
 	*/
 	var $tm;
+
+	/**
+	* @var object Messaging_Service
+	*/
+	var $ms;
 
 	/**
 	* Object of logged in user
@@ -78,6 +84,9 @@ class Resolve
 	{
 		// initialise the asset manager as we are going to need it pretty much everywhere
 		$this->am = new Asset_Manager();
+
+		// initialise the messaging service
+		$this->ms = new Messaging_Service();
 
 		// initiailise event listeners
 		$GLOBALS['SQ_EVENT_LISTENER_OBJECTS'] = array();

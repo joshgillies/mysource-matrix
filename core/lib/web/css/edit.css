@@ -15,9 +15,9 @@
 ## immediately.
 ##
 ## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/web/css/edit.css,v $
-## $Revision: 1.4 $
-## $Author: brobertson $
-## $Date: 2003/04/23 05:56:41 $
+## $Revision: 1.5 $
+## $Author: gsherwood $
+## $Date: 2003/05/23 06:13:30 $
 #######################################################################
 */
 
@@ -142,5 +142,21 @@ a.sq-backend-page-lineage:hover {
 	font-family:     Verdana, Arial, Helvetica, sans-serif;
 	font-size:       11px;
 	font-weight:     bold;
+	text-decoration: none; 
+}
+
+
+.sq-backend-message-header {
+	color: #000000;
+	font-family:     Verdana, Arial, Helvetica, sans-serif;
+	font-size:       11px;
+	font-weight:     bold;
+	text-decoration: none; 
+}
+
+.sq-backend-message-item {
+	color: #000000;
+	font-family:     Verdana, Arial, Helvetica, sans-serif;
+	font-size:       10px;
 	text-decoration: none; 
 }
