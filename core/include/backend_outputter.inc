@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.69 2003/11/23 21:50:30 gsherwood Exp $
+* $Id: backend_outputter.inc,v 1.70 2003/11/25 21:14:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1068,7 +1068,7 @@ class Backend_Outputter
 				hidden_field('sq_lock_release', 0);
 				hidden_field('sq_lock_release_on_submit', $release_lock);
 				$this->addOnSubmit('set_hidden_field(\'sq_lock_release\',  get_form_element_value(\'sq_lock_release_on_submit\'));');
-				normal_button('sq_commit_button', $value, 'submit_form()');
+				normal_button('sq_commit_button', $value, 'if (document.main_form) { submit_form(this.form); } else { this.form.submit(); }');
 			$this->closeField();
 		$this->closeSection();
 
