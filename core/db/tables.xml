@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.38 2004/05/28 01:24:34 gsherwood Exp $
+* $Id: tables.xml,v 1.39 2004/06/10 01:36:17 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -176,18 +176,14 @@
 				<description />
 			</column>
 			<column name="majorid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="minorid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -608,10 +604,8 @@
 				<description />
 			</column>
 			<column name="assetid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(255)</type>
+				<type_variations />
 				<default />
 				<description />
 			</column>
