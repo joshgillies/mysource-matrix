@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_manip.inc,v 1.2 2005/03/10 20:06:44 brobertson Exp $
+* $Id: image_manip.inc,v 1.3 2005/04/06 01:42:13 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../general/file_system.inc';
 * Image manipulation functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package Fudge
 * @subpackage Image
 */
@@ -157,6 +157,12 @@ class Image_Manip
 		// can't use true colour for gif's
 		if (get_file_type($output) == 'gif') {
 			$d_img = imageCreate($w, $h);
+
+			// preserve GIF transparency
+			$colorTransparent = imagecolortransparent($s_img);
+			imagepalettecopy($d_img,$s_img);
+			imagefill($d_img,0,0,$colorTransparent);
+			imagecolortransparent($d_img, $colorTransparent);
 		} else {
 			$d_img = imageCreateTrueColor($w, $h);
 		}
