@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: squiz_server_config.inc,v 1.2 2004/01/15 14:37:48 brobertson Exp $
+* $Id: squiz_server_config.inc,v 1.3 2004/01/15 21:55:32 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -68,7 +68,8 @@ class Squiz_Server_Config extends Config
 	{
 		// need to be root
 		return $GLOBALS['SQ_SYSTEM']->userRoot();
-	}// end canAcquireLock()
+
+	}//end canAcquireLock()
 
 
 	/**
@@ -82,7 +83,8 @@ class Squiz_Server_Config extends Config
 		if (!parent::writeAccess()) return false;
 		// need to be root
 		return $GLOBALS['SQ_SYSTEM']->userRoot();
-	}// end writeAccess()
+
+	}//end writeAccess()
 
 
 	/**
@@ -106,7 +108,6 @@ class Squiz_Server_Config extends Config
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 
 		$class = get_class($this);
-
 
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
@@ -141,13 +142,12 @@ class Squiz_Server_Config extends Config
 				echo SQ_SERVER_PORT;
 			}
 
-
 		$o->closeSection();
 
 		if ($write_access) $o->commitButton('Commit', true);
 
 
-	}// end paintBackend()
+	}//end paintBackend()
 
 
 }//end class
