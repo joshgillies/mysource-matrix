@@ -18,12 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workspace_management.inc,v 1.8 2003/11/26 00:51:04 gsherwood Exp $
+* $Id: workspace_management.inc,v 1.9 2004/02/10 16:16:34 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
-
-require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_management.inc';
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
 * Workspace_Management
@@ -35,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_management.inc';
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Workspace_Management extends Folder_Management
+class Workspace_Management extends Asset_Management
 {
 
 	/**
@@ -44,7 +43,7 @@ class Workspace_Management extends Folder_Management
 	*/
 	function Workspace_Management(&$pm)
 	{
-		$this->Folder_Management($pm);
+		$this->Asset_Management($pm);
 
 	}//end constructor
 
