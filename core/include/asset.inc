@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.270.2.3 2004/03/02 18:29:12 brobertson Exp $
+* $Id: asset.inc,v 1.270.2.4 2004/03/03 19:31:07 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2802,7 +2802,7 @@ class Asset extends MySource_Object
 	*/
 	function getPrefix()
 	{
-		return $this->type().'_'.$this->id;
+		return preg_replace('/[^0-9a-z_]/', '_', $this->type().'_'.$this->id);
 
 	}//end getPrefix()
 
