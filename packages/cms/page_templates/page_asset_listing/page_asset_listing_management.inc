@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_management.inc,v 1.11 2004/11/18 05:12:48 gsherwood Exp $
+* $Id: page_asset_listing_management.inc,v 1.12 2004/11/26 03:41:37 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -128,7 +128,17 @@ class Page_Asset_Listing_Management extends Asset_Management
 										'type'    => 'text',
 										'default' => 'Next'
 										);
-	
+
+		$this->vars['parameter_map'] = Array(
+										'added'	=> '0.4',
+										'type'  => 'parameter_map',
+										'default' => Array(),
+										'parameters' => Array(
+											'parameters'=> Array(
+												'root_node' => 'Replacement Root node for the listing', 
+												)
+											)
+										);	
 
 	}//end constructor
 

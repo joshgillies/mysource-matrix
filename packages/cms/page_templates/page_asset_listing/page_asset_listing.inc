@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.39 2004/11/23 02:42:09 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.40 2004/11/26 03:41:37 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -539,13 +539,23 @@ class Page_Asset_Listing extends Page
 		if (empty($wanted_types)) return Array();
 
 		// get the root asset whose sub-assets/children we are displaying
+		// This may come from the parameter map, but the dynamic value must be a child of the static value
 		// if there is no root asset, we will use ourselves and print our children
 		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
-		if (empty($root_link)) {
-			$root_asset =& $this;
+		$root_asset_id = empty($root_link) ? $this->id : $root_link['minorid'];
+		$parameter_map = &$this->getAttribute('parameter_map');
+		if ((null != ($dynamic_root = $parameter_map->getParameterValue('root_node'))) && (in_array($root_asset_id, $GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root)))) {
+			$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($dynamic_root);
 		} else {
-			$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid'], $root_link['minor_type_code']);
-			if (is_null($root_asset)) return Array();
+			if ($dynamic_root != null) {
+				trigger_error('Supplied root node is in an unauthorised part of the system.  Defaulting to static root node', E_USER_WARNING);
+			}
+			if ($root_asset_id == $this->id) {
+				$root_asset =& $this;
+			} else {
+				$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid'], $root_link['minor_type_code']);
+				if (is_null($root_asset)) return Array();
+			}
 		}
 
 		// this is what we are going to sort the reults by (passed directly to the getLinks

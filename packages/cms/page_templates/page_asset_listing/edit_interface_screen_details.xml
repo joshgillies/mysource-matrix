@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2004/07/06 04:59:52 amiller Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6 2004/11/26 03:41:37 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -120,6 +120,11 @@
 			<note>Set to '0' (zero) to list all assets on the same page.&lt;br/&gt;&lt;b&gt;NOTE:&lt;/b&gt; This option is only valid when using the standard list format.
 			&lt;br/&gt;If the listing type is Random, this defines how many assets are randomly displayed ('0' displays a single asset).</note>
 			<int width="5" />
+		</field>
+		<field attribute="parameter_map">
+			<display_name>Dynamic Parameters</display_name>
+			<note></note>
+			<parameter_map />
 		</field>
 	</section>
 </contents>
