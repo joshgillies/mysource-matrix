@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.33 2004/02/05 05:58:28 gsherwood Exp $
+* $Id: asset_edit_fns.inc,v 1.34 2004/03/17 05:15:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -149,12 +149,10 @@ class Asset_Edit_Fns extends MySource_Object
 	{
 		if (!isset($_POST[$prefix.'_paths'])) return false;
 		if (!$asset->saveWebPaths(array_values($_POST[$prefix.'_paths']))) return false;
-		
-		//// START HIPO PROCESSING ////
+
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array('assetids' => Array($asset->id));
 		$hh->queueHipo('hipo_job_update_lookups', $vars);
-		////  END HIPO PROCESSING  ////
 
 		return true;
 
@@ -241,7 +239,10 @@ class Asset_Edit_Fns extends MySource_Object
 			$o->closeField();
 		}
 		return true;
-	}
+		
+	}//end paintWeights()
+	
+	
 	/**
 	* Process the weights posted in paintWeights
 	*
@@ -274,7 +275,10 @@ class Asset_Edit_Fns extends MySource_Object
 		$owner->saveComponentWeightings($weightings);
 		$im->changed($owner->id);
 		return true;
-	}
+		
+	}//end processWeights()
+	
+	
 }//end class
 
 ?>
