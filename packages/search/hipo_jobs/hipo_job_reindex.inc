@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.1 2004/05/27 01:00:04 gsherwood Exp $
+* $Id: hipo_job_reindex.inc,v 1.2 2004/06/10 02:10:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -71,6 +71,7 @@ class HIPO_Job_ReIndex extends HIPO_Job
 	*/
 	function HIPO_Job_ReIndex($code_name='')
 	{
+		$this->uses_trans = false;
 		$this->HIPO_Job($code_name);
 
 	}//end constructor
@@ -132,23 +133,6 @@ class HIPO_Job_ReIndex extends HIPO_Job
 		return parent::getCodeName().'-'.$this->_running_vars['root_assetid'];
 
 	}//end getCodeName()
-
-
-	/**
-	* Returns the current Threshold.
-	*
-	* Returns a value that represents the total percentage that this hipo would run in freestyle mode in its current state.
-	* 
-	* @return float
-	* @access public
-	*/
-	function getThreshold()
-	{
-		if (SQ_HIPO_REINDEX_THRESHOLD == 0) return 0;
-		if (!isset($this->_running_vars['todo_assetids'])) return 0;
-		return ((count($this->_running_vars['todo_assetids']) / SQ_HIPO_REINDEX_THRESHOLD) * 100);
-	
-	}//end getThreshold()
 
 
 	/**
@@ -241,7 +225,9 @@ class HIPO_Job_ReIndex extends HIPO_Job
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			$step_data['message'] = 'Reindexing '. $asset->name;
-			$asset->informChanges();
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+				$asset->informChanges();
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 			// add this assetid to the done array 
 			$this->_running_vars['done_assetids'][] = $assetid;
