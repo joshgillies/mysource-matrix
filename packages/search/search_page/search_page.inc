@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.19 2003/12/29 01:00:10 gsherwood Exp $
+* $Id: search_page.inc,v 1.20 2003/12/30 04:26:30 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@
 *
 * @author  Dominic Wong <dwong@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $ - 1.0
+* @version $Revision: 1.20 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -606,20 +606,43 @@ class Search_Page extends Page
 
 			$concat = ($db->phptype == 'mysql') ? 'CONCAT(alt1.treeid, '.$db->quote('%').')' : '(alt1.treeid || '.$db->quote('%').')';
 
-			$start_sql = "SELECT ai.assetid, SUM(ai.score)
+			$start_sql = "SELECT DISTINCT(ai.assetid), SUM(ai.score)
 				FROM " .
 				SQ_TABLE_PREFIX . "asset_indexing ai,\n"	.
 				SQ_TABLE_PREFIX . "asset_link_tree alt1,\n"	.
 				SQ_TABLE_PREFIX . "asset_link_tree alt2,\n"	.
 				SQ_TABLE_PREFIX . "asset_link al1,\n"		.
-				SQ_TABLE_PREFIX . "asset_link al2\n"		.
+				SQ_TABLE_PREFIX . "asset_link al2,\n"		.
+				SQ_TABLE_PREFIX . "asset_permission ap,\n"      .
+				SQ_TABLE_PREFIX . "asset a\n"                  .
 				"WHERE ".
 				"al1.majorid = " . $db->quote((int)$root_assetid)	.	// all links that root asset is a major in
-				" AND al1.linkid = alt1.linkid "					.	// all treeids with those links
-				" AND alt2.treeid LIKE ".$concat					.	// all treeids that start with those treeids
-				" AND alt2.linkid = al2.linkid "					.	// all links with those treeids
-				" AND ai.assetid = al2.minorid \n";					;	// and the indexing data for those assets
+				" AND al1.linkid = alt1.linkid "			.	// all treeids with those links
+				" AND alt2.treeid LIKE ".$concat			.	// all treeids that start with those treeids
+				" AND alt2.linkid = al2.linkid "			.	// all links with those treeids
+				" AND ai.assetid  = al2.minorid \n"			.	// and the indexing data for those assets
+				" AND a.assetid   = ai.assetid \n"			.	// and the asset data for those assets       
+				" AND ap.assetid  = ai.assetid \n"			.       // and the permission data for those assets
+				" AND a.status  >= ".SQ_STATUS_LIVE." \n";              	// and only assets that are live
 
+			$userid_cond = '';
+			if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
+				if (!$GLOBALS['SQ_SYSTEM']->userRoot() && $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+					$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
+					array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
+					$userid_cond = ' AND ap.userid  IN ('.implode(',', $userids).')';
+				}
+			} else {
+				// public users
+				$userid_cond = ' AND ap.userid = 0';
+			}
+			if (!empty($userid_cond)) {
+				$start_sql .= $userid_cond;
+				$start_sql .= '	AND ap.permission >= '.SQ_PERMISSION_READ.'
+						AND ap.access = 1';
+						
+			}
+			
 			switch($field['type']) {
 				case 'include_all':
 
@@ -712,9 +735,9 @@ class Search_Page extends Page
 	* @return Array a mapping from assetids to combined scores
 	* @access private
 	*/
-	function combineAssetScores($asset_scores1, $asset_scores2, $logic = 'AND') {
-		if (!is_array($asset_scores1) ||!is_array($asset_scores2))
-			return Array();
+	function combineAssetScores($asset_scores1, $asset_scores2, $logic = 'AND')
+	{
+		if (!is_array($asset_scores1) ||!is_array($asset_scores2)) return Array();
 
 		// find the intersection/union (depending on logic) of the assetids in field_asset_scores and results
 		$assets1 = array_keys($asset_scores1);
