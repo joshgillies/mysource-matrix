@@ -1,6 +1,6 @@
 <?php
 
-require_once(SQ_DATA_PATH.'/private/conf/messaging_service.inc');
+require_once SQ_DATA_PATH.'/private/conf/messaging_service.inc';
 
 define('SQ_MSG_UNREAD' , 'U');
 define('SQ_MSG_READ'   , 'R');
