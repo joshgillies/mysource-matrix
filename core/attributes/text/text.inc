@@ -30,7 +30,7 @@ class Asset_Attribute_Text extends Asset_Attribute
 		$this->Asset_Attribute($attributeid, $value, Array('max_length' => 0));
 	}// end constructor
 
-	/*
+	/**
 	* Takes an XML_Tree_Node from an edit interface XML file and creates
 	* the params array from it
 	*
@@ -49,14 +49,14 @@ class Asset_Attribute_Text extends Asset_Attribute
 		return true;
 	}
 
-	/*
+	/**
 	* Prints the interface for filling in a value
 	*
 	* @param string	$prefix	prefix for the form element
 	*
 	* @access public
 	*/
-	function paint($prefix) 
+	function paint($prefix)
 	{
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
@@ -67,7 +67,7 @@ class Asset_Attribute_Text extends Asset_Attribute
 		}
 	}// end paint()
 
-	/*
+	/**
 	* Prints the interface for filling in a value
 	*
 	* @param string	prefix	prefix for the form element
@@ -77,13 +77,30 @@ class Asset_Attribute_Text extends Asset_Attribute
 	function process($prefix)
 	{
 		$value = (string) $_POST[$prefix.'_'.$this->name];
-		if ($this->value != $value) {
-			$this->value = $value;
+		if ($this->value != $value && $this->setValue($value)) {
 			$this->processed = true;
 		} else {
 			$this->processed = false;
 		}
 	}// end process()
+
+
+	/**
+	* Ensure the attribute being set is a string
+	*
+	* @param mixed	&$value	value to be validated
+	*
+	* @return boolean
+	* @access public
+	*/
+	function validateValue(&$value)
+	{
+		$value = trim($value);
+		$new_value = (string)$value;
+		if ($new_value != $value) return false;
+		return true;
+	}//end validateValue()
+
 
 }//end class
 

@@ -30,7 +30,8 @@ class Asset_Attribute_Int extends Asset_Attribute
 		$this->Asset_Attribute($attributeid, (int) $value);
 	}// end constructor
 
-	/*
+
+	/**
 	* Takes an XML_Tree_Node from an edit interface XML file and creates
 	* the params array from it
 	*
@@ -45,9 +46,10 @@ class Asset_Attribute_Int extends Asset_Attribute
 		$this->_edit_params['width']  = (int) $node->attributes['width'];
 
 		return true;
-	}
+	}//end setEditParams()
 
-	/*
+
+	/**
 	* Prints the interface for filling in a value
 	*
 	* @param string	$prefix	prefix for the form element
@@ -58,9 +60,10 @@ class Asset_Attribute_Int extends Asset_Attribute
 	{
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		text_box($prefix.'_'.$this->name, (int) $this->value, $this->_edit_params['width'], 0, 'onFocus="javascript: this.__sq_init_value = this.value;" onChange="javascript: if (isNaN(parseInt(this.value))) { this.value = this.__sq_init_value; alert(\'This is an integer field.\\nUnable to accept non-digit characters in this field.\'); } else { this.value = parseInt(this.value); } "');
-	}
+	}// end paint()
 
-	/*
+
+	/**
 	* Prints the interface for filling in a value
 	*
 	* @param string	prefix	prefix for the form element
@@ -70,13 +73,29 @@ class Asset_Attribute_Int extends Asset_Attribute
 	function process($prefix)
 	{
 		$value = (int) $_POST[$prefix.'_'.$this->name];
-		if ($this->value != $value) {
-			$this->value = $value;
+		if ($this->value != $value && $this->setValue($value)) {
 			$this->processed = true;
 		} else {
 			$this->processed = false;
 		}
 	}// end process()
+
+
+	/**
+	* Ensure the attribute being set is an integer
+	*
+	* @param mixed	&$value	value to be validated
+	*
+	* @return boolean
+	* @access public
+	*/
+	function validateValue(&$value)
+	{
+		$value = trim($value);
+		$new_value = (int)$value;
+		if ($new_value != $value) return false;
+		return true;
+	}//end validateValue()
 
 }//end class
 

@@ -30,7 +30,8 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 		$this->Asset_Attribute_Text($attributeid, $value);
 	}// end constructor
 
-	/*
+
+	/**
 	* Prints the interface for filling in a value
 	*
 	* @param string	$prefix	prefix for the form element
@@ -47,9 +48,10 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 		password_box($prefix.'_'.$this->name.'_two', '', $this->_edit_params['width'], $this->_params['max_length']);
 
 		return true;
-	}
+	}// end paint()
 
-	/*
+
+	/**
 	* Prints the interface for filling in a value
 	*
 	* @param string	prefix	prefix for the form element
@@ -60,19 +62,43 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 	{
 		$this->processed = false;
 
-		$one = (string) $_POST[$prefix.'_'.$this->name.'_one'];
-		$two = (string) $_POST[$prefix.'_'.$this->name.'_two'];
+		$one = $_POST[$prefix.'_'.$this->name.'_one'];
+		$two = $_POST[$prefix.'_'.$this->name.'_two'];
 
-		if (!trim($one)) return;
+		$this->validateValue($one);
+		$this->validateValue($two);
+
+		if (!$one) return;
 
 		if ($one == $two) {
-			$this->value = $one;
-			$this->processed = true;
+			if ($this->setValue($one)) {
+				$this->processed = true;
+			} else {
+				trigger_error('Password validation failed', E_USER_WARNING);
+				$this->processed = false;
+			}
 		} else {
 			trigger_error('Password and confirmation don\'t match', E_USER_WARNING);
 			$this->processed = false;
 		}
 	}// end process()
+
+
+	/**
+	* Ensure the password being set is 'legal'
+	*
+	* @param mixed	&$value	value to be validated
+	*
+	* @return boolean
+	* @access public
+	*/
+	function validateValue(&$value)
+	{
+		$value = trim($value);
+		$new_value = (string)$value;
+		if ($new_value != $value) return false;
+		return true;
+	}//end validateValue()
 
 }//end class
 

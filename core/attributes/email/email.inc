@@ -1,6 +1,7 @@
 <?php
 
 require_once SQ_ATTRIBUTES_PATH.'/text/text.inc';
+require_once SQ_FUDGE_PATH.'/general/www.inc';
 
 /**
 * Email Asset Attribute
@@ -31,7 +32,8 @@ class Asset_Attribute_Email extends Asset_Attribute_Text
 		$this->_params['max_length'] = 0; // can't have a max length for an email address
 	}// end constructor
 
-	/*
+
+	/**
 	* Takes an XML_Tree_Node from an edit interface XML file and creates
 	* the params array from it
 	*
@@ -46,9 +48,10 @@ class Asset_Attribute_Email extends Asset_Attribute_Text
 		if (!parent::setEditParams($node)) return false;
 		$this->_edit_params['height'] = 1; // can only ever be one line high
 		return true;
-	}
+	}//end setEditParams()
 
-	/*
+
+	/**
 	* Prints the interface for filling in a value
 	*
 	* @param string	prefix	prefix for the form element
@@ -64,16 +67,31 @@ class Asset_Attribute_Email extends Asset_Attribute_Text
 		parent::process($prefix);
 		if (!$this->processed) return;
 
-		if ($this->value) {
-			trigger_error('Do email validation here', E_USER_NOTICE);
-			$validated = true;
-			if (!$validated) {
-				$this->processed = false;
-				$this->value = $old_value;
-			}
-		}// end if
+		if ($this->value && $this->setValue($value)) {
+			$this->processed = true;
+		} else {
+			trigger_error('Email validation failed', E_USER_NOTICE);
+			$this->processed = true;
+		}
 
 	}// end process()
+
+
+	/**
+	* Ensure the email address is valid
+	*
+	* @param mixed	$value	value to be validated
+	*
+	* @access public
+	*/
+	function validateValue($value)
+	{
+		$value = trim($value);
+		$new_value = (string)$value;
+		if ($new_value != $value) return false;
+		if (!valid_email($value)) return false;
+		return true;
+	}
 
 }//end class
 

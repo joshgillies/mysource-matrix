@@ -30,7 +30,8 @@ class Asset_Attribute_Float extends Asset_Attribute
 		$this->Asset_Attribute($attributeid, (float) $value, Array('decimal_places' => '2'));
 	}// end constructor
 
-	/*
+
+	/**
 	* Takes an XML_Tree_Node from an edit interface XML file and creates
 	* the params array from it
 	*
@@ -45,9 +46,10 @@ class Asset_Attribute_Float extends Asset_Attribute
 		$this->_edit_params['width'] = (int) $node->attributes['width'];
 
 		return true;
-	}
+	}// end setEditParams()
 
-	/*
+
+	/**
 	* Prints the interface for filling in a value
 	*
 	* @param string	$prefix	prefix for the form element
@@ -59,9 +61,10 @@ class Asset_Attribute_Float extends Asset_Attribute
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		$v = number_format($this->value, $this->_params['decimal_places'], '.', '');
 		text_box($prefix.'_'.$this->name, $v, $this->_edit_params['width'], 0, 'onFocus="javascript: this.__sq_init_value = this.value;" onChange="javascript: if (isNaN(parseFloat(this.value))) { this.value = this.__sq_init_value; alert(\'This is an numerical field.\\nUnable to accept non-digit characters in this field.\'); } else { this.value = number_format(this.value, '.$this->_params['decimal_places'].', \'.\', \'\'); } "');
-	}
+	}// end paint()
 
-	/*
+
+	/**
 	* Prints the interface for filling in a value
 	*
 	* @param object Asset	$asset	the asset that owns the aprefix for the form element
@@ -72,13 +75,29 @@ class Asset_Attribute_Float extends Asset_Attribute
 	function process($prefix)
 	{
 		$value = (float) $_POST[$prefix.'_'.$this->name];
-		if ($this->value != $value) {
-			$this->value = $value;
+		if ($this->value != $value && $this->setValue($value)) {
 			$this->processed = true;
 		} else {
 			$this->processed = false;
 		}
 	}// end process()
+
+
+	/**
+	* Ensure the attribute being set is a float
+	*
+	* @param mixed	&$value	value to be validated
+	*
+	* @return boolean
+	* @access public
+	*/
+	function validateValue(&$value)
+	{
+		$value = trim($value);
+		$new_value = (float)$value;
+		if ($new_value != $value) return false;
+		return true;
+	}//end validateValue()
 
 }//end class
 
