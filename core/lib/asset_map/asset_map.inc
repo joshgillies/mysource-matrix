@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.171 2005/02/21 19:32:19 brobertson Exp $
+* $Id: asset_map.inc,v 1.172 2005/02/25 05:02:30 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.171 $
+* @version $Revision: 1.172 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -116,7 +116,7 @@ class Asset_Map
 		// that has the main function
 		switch (strtolower($type)) {
 			case 'simple':
-				$classname = 'AssetMap';
+				$classname = 'SimpleAssetMap';
 				$jarname = 'assetmap';
 			break;
 			case 'complex':
@@ -141,6 +141,7 @@ class Asset_Map
 			<applet id="sq_asset_map" width="<?php echo $width; ?>" height="%applet_height%" code="net/squiz/matrix/<?php echo ($type == 'simple') ? $jarname : 'assetmap'; ?>/<?php echo $classname; ?>.class" archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar?t=<?php echo time(); ?>" MAYSCRIPT>
 
 				<?php
+					$parameters = Array();
 					if ($type == 'complex') {
 
 						$user = &$GLOBALS['SQ_SYSTEM']->user;
@@ -160,32 +161,36 @@ class Asset_Map
 						$details_url = $user->getBackendHref('details');
 						if ($details_url{0} == '.') $details_url = substr($details_url, 1);
 
-						$parameters = Array(
-							'parameter.url.baseurl'           => $root_url,
-							'parameter.backendsuffix'         => SQ_CONF_BACKEND_SUFFIX,
-							'parameter.newmessages'           => $new_messages,
-							'parameter.sessionid'             => $_COOKIE['SQ_SYSTEM_SESSION'],
-							'parameter.sessionkey'            => $GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(),
-							'parameter.url.inboxurl'          => rawurlencode($inbox_url),
-							'parameter.url.userdetailsurl'    => rawurlencode($details_url),
-							'parameter.url.iconurl'           => '__lib/web/images/icons',
-							'parameter.url.typecodeurl'       => '__data/asset_types',
-							'parameter.url.notaccessibleicon' => 'asset_map/not_accessible.png',
-							'parameter.url.type2icon' => 'asset_map/not_visible.png',
-							'parameter.url.assetmapiconurl'   => '__lib/web/images/icons/asset_map',
-							'parameter.url.execurl'           => $root_url.SQ_CONF_BACKEND_SUFFIX.'?SQ_ACTION=asset_map_request&SESSION_ID='.$_COOKIE['SQ_SYSTEM_SESSION'].'&SESSION_KEY='.$GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(),
+						$parameters += Array(
+							'parameter.newmessages'         => $new_messages,
+							'parameter.url.inboxurl'        => rawurlencode($inbox_url),
+							'parameter.url.userdetailsurl'  => rawurlencode($details_url),
 						);
 
-						// this is important because it tells the asset map what the available
-						// paramters are so that it can load them without explicitly knowing the names
-						$params = implode(',', array_keys($parameters));
-						?><param name="parameter.params" value="<?php echo $params; ?>" /><?php
-
-						foreach ($parameters as $parameter => $value) {
-							?><param name="<?php echo $parameter; ?>" value="<?php echo $value; ?>" /><?php
-						}
 					}
-					?>
+
+					$parameters += Array(
+						'parameter.backendsuffix'         => SQ_CONF_BACKEND_SUFFIX,
+						'parameter.sessionid'             => $_COOKIE['SQ_SYSTEM_SESSION'],
+						'parameter.sessionkey'            => $GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(),
+						'parameter.url.iconurl'           => '__lib/web/images/icons',
+						'parameter.url.typecodeurl'       => '__data/asset_types',
+						'parameter.url.notaccessibleicon' => 'asset_map/not_accessible.png',
+						'parameter.url.type2icon'         => 'asset_map/not_visible.png',
+						'parameter.url.assetmapiconurl'   => '__lib/web/images/icons/asset_map',
+						'parameter.url.baseurl'           => $root_url,
+						'parameter.url.execurl'           => $root_url.SQ_CONF_BACKEND_SUFFIX.'?SQ_ACTION=asset_map_request&SESSION_ID='.$_COOKIE['SQ_SYSTEM_SESSION'].'&SESSION_KEY='.$GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(),
+					);
+
+					// this is important because it tells the asset map what the available
+					// paramters are so that it can load them without explicitly knowing the names
+					$params = implode(',', array_keys($parameters));
+					?><param name="parameter.params" value="<?php echo $params; ?>" /><?php
+
+					foreach ($parameters as $parameter => $value) {
+						?><param name="<?php echo $parameter; ?>" value="<?php echo $value; ?>" /><?php
+					}
+				?>
 				Java is not installed on your system. Please download the latest version of the <a href="http://java.sun.com/webapps/getjava/BrowserRedirect?locale=en&host=www.java.com:80" target="_blank">Java Runtime Environment</a> and return once it has been installed.
 			</applet>
 			<?php
