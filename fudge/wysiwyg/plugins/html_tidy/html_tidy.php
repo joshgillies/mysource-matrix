@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.php,v 1.2 2004/11/05 02:47:42 dbaranovskiy Exp $
+* $Id: html_tidy.php,v 1.2.2.1 2004/11/08 05:53:18 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
