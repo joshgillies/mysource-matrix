@@ -208,7 +208,7 @@ class Designs_Folder extends Folder
 				return parent::writeAccess($assetids, $effective, $editing);
 			}
 		} else {
-			$root_user = &$GLOBALS['SQ_SYSTEM']->$am->getSystemAsset('root_user');
+			$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 			if (in_array($root_user->id, $assetids)) {
 				return parent::writeAccess($assetids, $effective, $editing);
 			}
