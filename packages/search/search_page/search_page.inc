@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.35 2004/02/27 05:44:54 diarandine Exp $
+* $Id: search_page.inc,v 1.36 2004/03/10 23:52:25 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc'; // for the meda
 * @author  Dominic Wong <dwong@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.35 $ - 1.0
+* @version $Revision: 1.36 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -458,6 +458,14 @@ class Search_Page extends Page
 
 					if (!empty($search_styles) && isset($search_styles[$attribute->name])) {
 						$attribute->_edit_params = $search_styles[$attribute->name];
+					}
+
+					if ($attr_parts[1] == 'selection') {
+						if (empty($attribute->_params['multiple'])) {
+							$attribute->_params['options'] = array_reverse($attribute->_params['options']);
+							$attribute->_params['options']['_'] = '-- Leave Empty --';
+							$attribute->_params['options'] = array_reverse($attribute->_params['options']);
+						}
 					}
 
 					$attribute->paint("queries[$query_var]", false, false); 
