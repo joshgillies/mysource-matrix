@@ -15,7 +15,7 @@ function showBody(msgid, td)
 	if (oldrow) {
 		oldrow.id = "";
 	}
-	td.parentNode.parentNode.id = "selected_row";
+	td.parentNode.id = "selected_row";
 }
 
 
@@ -60,25 +60,30 @@ function changeStatus(msgid, readordel, tag)
 
 	var form = document.getElementById("main_form");
 	JsHttpConnector.loadXMLDoc(form.action, post, form.method);
-	refreshDelStatus();
+	refreshAllStatus();
 }
 
 
 // update top envelope icon according to other envelope icons
-function refreshDelStatus()
+function refreshAllStatus()
 {
 	inputs = document.getElementsByTagName("INPUT");
-	var allchecked = true;
+	var alldelchecked = true;
+	var allreadchecked = true;
 	for (i = 0; i < inputs.length; i++) {
-		if (inputs[i].type != "checkbox" || inputs[i].id.indexOf(prefix + "_delete[") != 0) {
-			continue;
+		if (inputs[i].type == "checkbox" && inputs[i].id.indexOf(prefix + "_delete[") == 0 && !inputs[i].checked) {
+			alldelchecked = false;
 		}
-		if (!inputs[i].checked) {
-			allchecked = false;
-			break;
+		if (inputs[i].type == "checkbox" && inputs[i].id.indexOf(prefix + "_mark_as_read[") == 0 && !inputs[i].checked) {
+			allreadchecked = false;
 		}
 	}
-	document.getElementById(prefix + "_delete_all").checked = allchecked;
+	if (document.getElementById(prefix + "_delete_all")) {
+		document.getElementById(prefix + "_delete_all").checked = alldelchecked;
+	}
+	if (document.getElementById("letterIcon")) {
+		document.getElementById("letterIcon").className = (allreadchecked)?"read":"unread";
+	}
 }
 
 
