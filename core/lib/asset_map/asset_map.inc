@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.147 2004/06/17 23:00:10 lwright Exp $
+* $Id: asset_map.inc,v 1.148 2004/06/18 05:46:45 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -115,7 +115,7 @@ class Asset_Map
 			<tr>
 				<td style="height: 100%; width: 100%;">
 		<?php
-			$this->embed_asset_map('complex', '224', '99%');	
+			$this->embed_asset_map('complex', '224', '500');	
 		?>
 		</td>
 		</tr>
@@ -184,10 +184,7 @@ class Asset_Map
 		<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
 		<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/asset_map.js';?>"></script>
 
-		<object id="sq_asset_map" width="<?php echo $width; ?>" height="<?php echo $height; ?>" classid="CLSID:8AD9C840-044E-11d1-B3E9-00805F499D93">
-			<param name="code" value="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" />
-			<param name="level" value="5" />
-			<param name="archive" value="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar?t=<?php echo time(); ?>, <?php echo sq_web_path('lib'); ?>/asset_map/java/crimson.jar" />
+		<applet id="sq_asset_map" width="<?php echo $width; ?>" height="<?php echo $height; ?>"  code="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar?t=<?php echo time(); ?>, <?php echo sq_web_path('lib'); ?>/asset_map/java/crimson.jar" MAYSCRIPT>
 			<param name="BASE_URL" value="<?php echo clean_url(current_url(true, true)); ?>" />
 			<param name="BACKEND_SUFFIX" value="<?php echo SQ_CONF_BACKEND_SUFFIX; ?>" />
 			<?php
@@ -195,15 +192,8 @@ class Asset_Map
 				echo '<param name="INBOX_URL" value="'.rawurlencode($inbox_url).'" />';
 			?>
 			
-			<comment>
-				<embed id="sq_asset_map" width="<?php echo $width; ?>" height="<?php echo $height; ?>" type="application/x-java-applet;version=1.4" code="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar?t=<?php echo time(); ?>, <?php echo sq_web_path('lib'); ?>/asset_map/java/crimson.jar" BASE_URL="<?php echo clean_url(current_url(true, true)); ?>" <?php if ($type == 'complex') echo 'INBOX_URL="'.rawurlencode($inbox_url).'"'; ?> 
-				 BACKEND_SUFFIX="<?php echo SQ_CONF_BACKEND_SUFFIX; ?>" MAYSCRIPT>
-					<noembed>
-						Java is not installed on your system
-					</noembed>
-				</embed>
-			</comment>
-		</object>
+			Java is not installed on your system. Please download the latest version of the <a href="http://java.sun.com/webapps/getjava/BrowserRedirect?locale=en&host=www.java.com:80">Java Runtime Environment</a> and return once it has been installed.
+		</applet>
 		<?php
 
 	}//end embed_asset_map()

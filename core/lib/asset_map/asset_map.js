@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.js,v 1.5 2004/04/07 04:55:07 mmcintyre Exp $
+* $Id: asset_map.js,v 1.6 2004/06/18 05:46:45 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -61,16 +61,18 @@ function init_asset_map() {
 	} else {
 
 		var firebird_re = /(Firebird)\/([0-9.]+)/;
+		var safari_re   = /(Safari)\/([0-9.]+)/;
 		var moz_re      = /^Mozilla\/5\.0.*rv:([^)]+)\)/;
 
-		if ((matches = navigator.userAgent.match(firebird_re)) || (matches = navigator.userAgent.match(moz_re))) {
+		if ((matches = navigator.userAgent.match(firebird_re)) || (matches = navigator.userAgent.match(safari_re)) || (matches = navigator.userAgent.match(moz_re))) {
 			if (matches[1] == 'Firebird' && matches[2] < '0.6.1') {
 				alert('You need to use Firebird 0.6.1 or above for the communication between the Asset Map and the Javascript');
-
+			} else if (matches[1] == 'Safari' && parseFloat(matches[2]) < 125.1) {
+				// Safari 1.2.1 reports as build number '125.1'
+				alert('You need to use Safari 1.2.1 (build 125.1) or above for the communication between the Asset Map and the Javascript');
 			} else if (matches[1] == 'Mozilla' && matches[2] < '1.4') {
 				alert('You need to use Mozilla 1.4 or above for the communication between the Asset Map and the Javascript');
 			}
-
 		// we don't know about this browser, ah well may as well give it a go ...
 		} else {
 			alert('You are using an untested browser there is no guarantee that the communication between the Asset Map and the Javascript will be successful');
@@ -101,11 +103,7 @@ function init_asset_map() {
 */
 function get_java_applet_object()
 {
-	if (is_ie) {
-		return document.getElementById('sq_asset_map');
-	} else {
-		return document.embeds[0];
-	}
+	return document.sq_asset_map;
 }
 
 
