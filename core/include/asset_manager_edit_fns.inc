@@ -1012,22 +1012,14 @@ speed_check('FINISHED');
 	*/
 	function _forceablyAquireLock()
 	{
-		if (isset($_GET['forceably_aquire_lock_pass_image'])) {
-			require_once SQ_FUDGE_PATH.'/general/general.inc';
-			$password = random_password(8);
-			$_SESSION['forceably_aquire_lock_key'] = $password;
-			security_key_image($password,'85','20', 'F0F0F0', '000000', 'CCCCCC', 2.5);
-			exit();
-		}
-
 		$o = &$this->backend->out;
 
-		if (isset($_POST['forceably_aquire_lock_key'])) {
+		if (isset($_GET['forceably_aquire_confirm'])) {
 			// they have confirmed their intention to forceably aquire the lock on this asset
 			$asset = &$this->am->getAsset($_GET['assetid']);
 
 			// check that they entered the correct security key
-			if ($_POST['forceably_aquire_lock_key'] != $_SESSION['forceably_aquire_lock_key']) {
+			if (!validate_security_key()) {
 				// the security key entered is wrong
 				$o->openSection('Security Key Incorrect');
 				$o->openField('&nbsp;');
@@ -1049,6 +1041,7 @@ speed_check('FINISHED');
 		}
 		
 		$o->addFormActionGetVar('assetid', $_GET['assetid']);
+		$o->addFormActionGetVar('forceably_aquire_confirm', 1);
 		$asset = &$this->am->getAsset($_GET['assetid']);
 		if (is_null($asset)) {
 			trigger_error('Asset #'.$_GET['assetid'].' not found', E_USER_WARNING);
@@ -1075,14 +1068,14 @@ speed_check('FINISHED');
 		?>
 		<table border="0">
 			<tr>
-				<td colspan="2" class="sq-backend-data">To aquire the lock, enter the 8 character string you see below into the box supplied, then press the Commit button</td>
+				<td class="sq-backend-data">To aquire the lock, enter the 8 character string you see below into the box supplied, then press the Commit button</td>
 			</tr>
 			<tr>
-				<td valign="top"><?php echo text_box('forceably_aquire_lock_key', '', 20);?></td>
-				<td valign="top" width="100%"><img src="<?php echo $GLOBALS['HTTP_SERVER_VARS']['REQUEST_URI']?>&forceably_aquire_lock_pass_image=1&time=<?php echo time();?>"></td>
+				<td valign="top"><?php security_key(8, 20, 2.5); ?></td>
 			</tr>
 			<tr>
-				<td colspan="2" class="sq-backend-data" align="center"><i>Can't read the security key? <a href="#" onClick="Javascript: document.location = '<?php echo $GLOBALS['HTTP_SERVER_VARS']['REQUEST_URI']?>'; return false;">Click here to get a new key</a>.</i></td>
+				<td class="sq-backend-data"><i>Can't read the security key? <a href="#" onClick="Javascript: document.location = '<?php echo $GLOBALS['HTTP_SERVER_VARS']['REQUEST_URI']?>'; return false;">Click here to get a new key</a>.</i></td>
+			</tr>
 		</table>
 		<?php
 		$o->closeSection();
