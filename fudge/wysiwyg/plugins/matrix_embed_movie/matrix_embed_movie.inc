@@ -54,6 +54,8 @@ class matrix_embed_movie extends wysiwyg_plugin {
 				var sel = this._getSelection();
 				var range = this._createRange(sel);
 
+				//alert(HTMLArea.getHTML(range.cloneContents(), false));
+
 				var style          = "";
 				var width          = "";
 				var height         = "";
@@ -65,50 +67,66 @@ class matrix_embed_movie extends wysiwyg_plugin {
 
 				// loop through and try and find a selected embed tag
 				if (HTMLArea.is_gecko) {
-					for (var i = 0; i < range.startContainer.childNodes.length; i++) {
-						if (range.startContainer.childNodes[i].tagName == "IMG" && range.startContainer.childNodes[i].sq_embeded == "1") {
+					var fragment = this._doc.createDocumentFragment();
+					var div = this._doc.createElement("div");
+					div.innerHTML = this.getSelectedHTML();
+					while (div.firstChild) { 
+						if (div.firstChild.tagName == "IMG" && div.firstChild.getAttribute('sq_embeded') == "1") {
 							is_file = true;
-							var embed_tag = range.startContainer.childNodes[i];
-						}// end if IMG
+							var embed_tag = div.firstChild;
+							break;
+						}
+						// the following call also removes the node from div
+						fragment.appendChild(div.firstChild);
 					}
 				} else if (HTMLArea.is_ie) {
 					if(range.length) {
-						if (range.item(0).tagName == "IMG" && range.item(0).sq_embeded == "1") {
+						if (range.item(0).tagName == "IMG" && range.item(0).getAttribute('sq_embeded') == "1") {
 							is_file = true;
 							var embed_tag = range.item(0);
-						}// end if IMG
-					}// end if length
+						}
+					}
 				}
 
 				// if there is an existing image, get its properties
 				if (is_file && embed_tag) {
-					fileid        = embed_tag.fileid;
-					auto_start    = embed_tag.auto_start;
-					show_controls = embed_tag.show_controls;
-					embed_loop    = embed_tag.embed_loop;
-
-					style  = embed_tag.style;
+					fileid        = embed_tag.getAttribute('fileid');
+					auto_start    = embed_tag.getAttribute('auto_start');
+					show_controls = embed_tag.getAttribute('show_controls');
+					embed_loop    = embed_tag.getAttribute('embed_loop');
+					
+					// try getting the width and height from the style
+					style = embed_tag.style;
 					width  = style.width;
 					height = style.height;
 
-					// remove any 'px' or other string from the end of the width and height
-					e = '([0-9]+)(.*)';
-					re = new RegExp(e, "gi");
-					width  = width.replace(re, "$1");
-					height = height.replace(re, "$1");
+					// if that fails, lets try getting them from the tag
+					if (!width)  { width  = embed_tag.getAttribute('width');  }
+					if (!height) { height = embed_tag.getAttribute('height'); }
+
+					// make sure they are numbers
+					width  = parseInt(width);
+					height = parseInt(height);
+
+					// failsafe
+					if (!width)  { width  = "" }
+					if (!height) { height = "" }
+					
 				}
 				
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 				strPage = "<?php echo $this->get_popup_href('embed_movie.php')?>?f_fileid=" + escape(fileid) + "&f_width=" + escape(width) + "&f_height=" + escape(height) + "&f_auto_start=" + escape(auto_start) + "&f_show_controls=" + escape(show_controls) + "&f_embed_loop=" + escape(embed_loop) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>");
 
-				this._popupDialog(strPage, 400, 250, function(param) {
+				this._popupDialog(strPage, 400, 300, function(param) {
 					if (!param) { 
 						// user must have pressed Cancel
 						return false;
 					}
 
 					var html = '<img sq_embeded="1" src="<?php echo $this->_img_url; ?>"';
-					html += ' style="width: ' + param["f_width"] + 'px; height: ' + param["f_height"] + 'px; border=2px dashed black;"';
+					html += ' style="width: ' + param["f_width"] + 'px; height: ' + param["f_height"] + 'px; border: 2px dashed black;"';
+					html += ' width="'         + param["f_width"] + '"';
+					html += ' height="'        + param["f_height"] + '"';
 					html += ' fileid="'        + param["f_fileid"] + '"';
 					html += ' auto_start="'    + param["f_auto_start"] + '"';
 					html += ' show_controls="' + param["f_show_controls"] + '"';
@@ -187,6 +205,7 @@ class matrix_embed_movie extends wysiwyg_plugin {
 
 			$filename = $file->name;
 
+			// first trying getting width and height from the style
 			$width  = '';
 			$height = '';
 			if (isset($movie_vars['style'])) {
@@ -203,6 +222,14 @@ class matrix_embed_movie extends wysiwyg_plugin {
 
 				if (isset($style_vars['width'])) $width = 'width="'.str_replace('px','',$style_vars['width']).'"';
 				if (isset($style_vars['height'])) $height = 'height="'.str_replace('px','',$style_vars['height']).'"';
+			}
+
+			// if we didnt get width and height from the style, try the tag
+			if (empty($width)) {
+				if (isset($movie_vars['width'])) $width = 'width="'.str_replace('px','',$movie_vars['width']).'"';
+			}
+			if (empty($height)) {
+				if (isset($movie_vars['height'])) $height = 'height="'.str_replace('px','',$movie_vars['height']).'"';
 			}
 
 			ob_start();
