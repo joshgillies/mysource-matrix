@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: countries.inc,v 1.5 2004/12/17 01:45:00 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: countries.inc,v 1.6 2005/01/20 13:33:23 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@
 *     and the country name as defined by ISO Standard 3166
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.6 $
 * @package Fudge
 * @subpackage Standards_Lists
 */

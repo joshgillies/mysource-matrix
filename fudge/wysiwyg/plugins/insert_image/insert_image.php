@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.7 2003/11/26 00:51:20 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: insert_image.php,v 1.8 2005/01/20 13:32:41 brobertson Exp $
+*
 */
 
 /**
@@ -27,7 +27,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8 $
 * @package Fudge
 * @subpackage wysiwyg
 */

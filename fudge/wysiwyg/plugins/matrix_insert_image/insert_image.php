@@ -18,15 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.24 2005/01/19 16:47:04 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: insert_image.php,v 1.25 2005/01/20 13:32:41 brobertson Exp $
+*
 */
 
 /**
 * Insert Image Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 */
 

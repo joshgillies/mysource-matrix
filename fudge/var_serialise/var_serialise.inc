@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: var_serialise.inc,v 1.9 2004/12/03 15:43:04 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: var_serialise.inc,v 1.10 2005/01/20 13:33:47 brobertson Exp $
+*
 */
 
 
@@ -36,7 +36,7 @@
 *     </script>
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.10 $
 * @package Fudge
 * @subpackage var_serialise
 */

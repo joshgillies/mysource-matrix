@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: character_sets.inc,v 1.4 2003/11/26 00:51:18 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: character_sets.inc,v 1.5 2005/01/20 13:33:23 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@
 *     http://msdn.microsoft.com/library/default.asp?url =>/workshop/author/dhtml/reference/charsets/charset4.asp
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.5 $
 * @package Fudge
 * @subpackage Standards_Lists
 */

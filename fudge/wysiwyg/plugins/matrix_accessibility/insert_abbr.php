@@ -18,15 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_abbr.php,v 1.4 2004/09/09 03:34:17 amiller Exp $
-* $Name: not supported by cvs2svn $
+* $Id: insert_abbr.php,v 1.5 2005/01/20 13:32:41 brobertson Exp $
+*
 */
 
 /**
 * Insert Abbreviation Popup for the WYSIWYG
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 

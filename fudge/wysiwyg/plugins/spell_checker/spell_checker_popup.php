@@ -18,15 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_checker_popup.php,v 1.5 2004/01/16 11:17:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: spell_checker_popup.php,v 1.6 2005/01/20 13:32:41 brobertson Exp $
+*
 */
 
 /**
 * Spell Checker Popup for the WYSIWYG
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 

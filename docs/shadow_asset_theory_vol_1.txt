@@ -3,8 +3,8 @@
 * | MySource Matrix - Rant Document                                    |
 * +--------------------------------------------------------------------+
 *
-* $Id: shadow_asset_theory_vol_1.txt,v 1.1 2004/02/12 03:01:33 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: shadow_asset_theory_vol_1.txt,v 1.2 2005/01/20 13:37:16 brobertson Exp $
+*
 */
 
 +-----------------------------------------------+

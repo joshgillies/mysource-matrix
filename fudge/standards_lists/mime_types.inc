@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mime_types.inc,v 1.6 2004/06/14 11:01:37 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: mime_types.inc,v 1.7 2005/01/20 13:33:23 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@
 *     Originally stolen from Apaches configuration
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7 $
 * @package Fudge
 * @subpackage Standards_Lists
 */

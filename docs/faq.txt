@@ -3,8 +3,8 @@
 * | MySource Matrix - Instructional Document                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: faq.txt,v 1.21 2004/09/15 09:27:50 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: faq.txt,v 1.22 2005/01/20 13:37:16 brobertson Exp $
+*
 */
 
 +---------------------+

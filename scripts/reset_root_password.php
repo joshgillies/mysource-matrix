@@ -18,15 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: reset_root_password.php,v 1.1 2004/11/05 09:35:02 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: reset_root_password.php,v 1.2 2005/01/20 13:37:16 brobertson Exp $
+*
 */
 
 /**
 * Reset the root users password back to 'root'
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Version$ - 1.0
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);

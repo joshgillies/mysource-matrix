@@ -18,15 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_anchor.php,v 1.3 2004/09/09 03:34:17 amiller Exp $
-* $Name: not supported by cvs2svn $
+* $Id: insert_anchor.php,v 1.4 2005/01/20 13:32:41 brobertson Exp $
+*
 */
 
 /**
 * Insert Anchor Popup for the WYSIWYG
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 

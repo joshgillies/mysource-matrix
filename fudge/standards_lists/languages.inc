@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: languages.inc,v 1.4 2003/11/26 00:51:19 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: languages.inc,v 1.5 2005/01/20 13:33:23 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@
 *     two-character, taken from ISO 639. (Yes, its in English)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.5 $
 * @package Fudge
 * @subpackage Standards_Lists
 */

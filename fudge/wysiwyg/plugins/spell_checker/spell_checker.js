@@ -2,8 +2,8 @@
 * Copyright (c) 2002 - interactivetools.com, inc.
 * Portions Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: spell_checker.js,v 1.5 2004/11/29 22:54:41 dbaranovskiy Exp $
-* $Name: not supported by cvs2svn $
+* $Id: spell_checker.js,v 1.6 2005/01/20 13:32:41 brobertson Exp $
+*
 */
 
 

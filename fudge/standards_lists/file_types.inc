@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_types.inc,v 1.4 2003/11/26 00:51:19 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: file_types.inc,v 1.5 2005/01/20 13:33:23 brobertson Exp $
+*
 */
 
 
@@ -30,7 +30,7 @@
 *     Textural English descriptions of various standard file extensions
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.5 $
 * @package Fudge
 * @subpackage Standards_Lists
 */

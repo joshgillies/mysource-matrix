@@ -18,15 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table.php,v 1.8 2004/12/08 00:21:56 dbaranovskiy Exp $
-* $Name: not supported by cvs2svn $
+* $Id: edit_table.php,v 1.9 2005/01/20 13:32:42 brobertson Exp $
+*
 */
 
 /**
 * Table Edit Popup for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 

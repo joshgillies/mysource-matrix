@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap.inc,v 1.5 2005/01/13 22:26:07 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: ldap.inc,v 1.6 2005/01/20 13:32:23 brobertson Exp $
+*
 */
 
 
@@ -30,7 +30,7 @@
 *     To provide an interface to an LDAP directory server for basic functionality
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.6 $
 * @package Fudge
 * @subpackage ldap
 */

@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_calendar.js,v 1.6 2004/11/17 22:53:49 dbaranovskiy Exp $
-* $Name: not supported by cvs2svn $
+* $Id: js_calendar.js,v 1.7 2005/01/20 13:33:11 brobertson Exp $
+*
 */
 
 /**

@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: htmlarea-lang-en.js,v 1.5 2003/11/26 00:51:19 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: htmlarea-lang-en.js,v 1.6 2005/01/20 13:32:41 brobertson Exp $
+*
 */
 
 // I18N constants

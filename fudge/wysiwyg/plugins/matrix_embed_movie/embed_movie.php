@@ -18,15 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.15 2004/12/06 15:56:06 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: embed_movie.php,v 1.16 2005/01/20 13:32:41 brobertson Exp $
+*
 */
 
 /**
 * Embed Movie Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 

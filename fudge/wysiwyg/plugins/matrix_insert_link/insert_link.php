@@ -18,15 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.29 2005/01/19 16:35:49 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: insert_link.php,v 1.30 2005/01/20 13:32:41 brobertson Exp $
+*
 */
 
 /**
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 */
 

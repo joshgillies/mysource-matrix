@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: popup.js,v 1.8 2003/11/26 00:51:19 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: popup.js,v 1.9 2005/01/20 13:32:41 brobertson Exp $
+*
 */
 
 function __dlg_onclose(code) {

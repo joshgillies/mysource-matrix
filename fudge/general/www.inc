@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: www.inc,v 1.11 2004/12/03 02:54:50 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: www.inc,v 1.12 2005/01/20 13:33:36 brobertson Exp $
+*
 */
 
 
@@ -30,7 +30,7 @@
 *     Any Functions for dealing with the web, it's paths etc
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package Fudge
 * @subpackage General
 */

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.36 2004/12/07 04:05:19 dbaranovskiy Exp $
-* $Name: not supported by cvs2svn $
+* $Id: wysiwyg.inc,v 1.37 2005/01/20 13:32:41 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.37 $
 * @package Fudge
 * @subpackage wysiwyg
 */

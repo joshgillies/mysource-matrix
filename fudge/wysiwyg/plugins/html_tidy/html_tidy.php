@@ -18,15 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.php,v 1.2 2004/11/05 02:47:42 dbaranovskiy Exp $
-* $Name: not supported by cvs2svn $
+* $Id: html_tidy.php,v 1.3 2005/01/20 13:32:41 brobertson Exp $
+*
 */
 
 /**
 * Insert HTML Tidy for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 

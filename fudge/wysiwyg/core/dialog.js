@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: dialog.js,v 1.10 2004/10/21 04:43:44 dbaranovskiy Exp $
-* $Name: not supported by cvs2svn $
+* $Id: dialog.js,v 1.11 2005/01/20 13:32:41 brobertson Exp $
+*
 */
 
 // An array of dialogs that have been opened

@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: var_serialise.js,v 1.6 2003/11/26 00:51:19 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: var_serialise.js,v 1.7 2005/01/20 13:33:47 brobertson Exp $
+*
 */
 
 /**
@@ -34,7 +34,7 @@
 *     </script>
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7 $
 * @package Fudge
 * @subpackage var_serialise
 */

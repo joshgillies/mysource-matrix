@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.14 2004/12/03 15:43:04 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: text.inc,v 1.15 2005/01/20 13:33:36 brobertson Exp $
+*
 */
 
 
@@ -30,7 +30,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package Fudge
 * @subpackage Text
 */

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.28 2004/12/03 15:43:04 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: file_system.inc,v 1.29 2005/01/20 13:33:36 brobertson Exp $
+*
 */
 
 
@@ -30,7 +30,7 @@
 *     Generic functions for the file system
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.29 $
 * @package Fudge
 * @subpackage General
 */

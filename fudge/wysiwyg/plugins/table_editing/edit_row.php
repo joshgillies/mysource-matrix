@@ -18,15 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_row.php,v 1.6 2004/01/16 11:17:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: edit_row.php,v 1.7 2005/01/20 13:32:42 brobertson Exp $
+*
 */
 
 /**
 * Row Edit Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.51 2004/12/31 00:20:36 mnyeholt Exp $
-* $Name: not supported by cvs2svn $
+* $Id: step_03.php,v 1.52 2005/01/20 13:37:16 brobertson Exp $
+*
 */
 
 
@@ -44,7 +44,7 @@
 * 
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix
 * @subpackage install
 */
