@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.119 2005/03/23 23:40:37 ndvries Exp $
+* $Id: backend.inc,v 1.120 2005/03/24 04:41:45 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.119 $
+* @version $Revision: 1.120 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -917,25 +917,8 @@ class Backend extends MySource_Object
 					hidden = true;
 				} else {
 					fset.cols = lastSize;
-					colVars = lastSize.split(/,/g);
-					resizeApplet(colVars[0]*1);
 					hidden = false;
 				}
-			}
-
-			function clickResize(dir)
-			{
-				colVars = fset.cols.split(/,/g);
-				colVars[0] *= 1;
-				if (dir == 'left') colVars[0] -= clickSize;
-				else if (dir == 'right') colVars[0] += clickSize;
-				fset.cols = colVars[0] + ",10,*";
-				resizeApplet(colVars[0]);
-			}
-
-			function resizeApplet(width)
-			{
-				top.self.sq_sidenav.document.getElementById("sq_asset_map").width = width - 5;
 			}
 		</script>
 
@@ -945,12 +928,6 @@ class Backend extends MySource_Object
 			</tr>
 			<tr height="100%">
 				<td valign="middle"><a class="sq-backend-header-item" style="padding: 0px;" href="#" onClick="Javascript: toggleFrame()"><img src="<?php echo $this->out->filesPath('/images/flash_resizer/bar.gif'); ?>" width="9" height="72" border="0" alt="<<" /></a></td>
-			</tr>
-			<tr height="100%">
-				<td valign="bottom"><a class="sq-backend-header-item" style="padding: 0px;" href="#" onClick="Javascript: clickResize('right')"><img src="<?php echo $this->out->filesPath('/images/flash_resizer/expand.gif'); ?>" width="9" height="26" border="0" alt=">" /></a></td>
-			</tr>
-			<tr height="100%">
-				<td valign="bottom"><a class="sq-backend-header-item" style="padding: 0px;" href="#" onClick="Javascript: clickResize('left')"><img src="<?php echo $this->out->filesPath('/images/flash_resizer/contract.gif'); ?>" width="9" height="26" border="0" alt="<" /></a></td>
 			</tr>
 		</table>
 
