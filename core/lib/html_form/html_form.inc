@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.55 2004/05/03 05:42:20 lwright Exp $
+* $Id: html_form.inc,v 1.56 2004/05/13 05:03:09 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -278,7 +278,7 @@ function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras=''
 			$value = str_replace('&nbsp;', ' ', $value);  // we don't want a space to take 6 chars do we ?
 			if (strlen($value) > $maxlength) $value = substr($value, 0, $maxlength - 3).'...';
 		}
-		$value = str_replace(' ', '&nbsp;', htmlspecialchars($value));
+		$value = str_replace('&nbsp;', ' ', htmlspecialchars($value));
 		echo	'<option value="', htmlspecialchars($key), '"',
 				((in_array((string) $key, $defaults)) ? ' selected' : ''),
 				'>',
