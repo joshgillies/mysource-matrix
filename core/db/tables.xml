@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: tables.xml,v 1.23 2003/10/07 07:07:14 dwong Exp $
+* $Id: tables.xml,v 1.24 2003/10/07 23:17:30 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -1060,7 +1060,9 @@
 		<columns>
 			<column name="value" allow_null="0">
 				<type>VARCHAR(255)</type>
-				<type_variations />
+				<type_variations>
+					<mysql>VARCHAR(160)</mysql>
+				</type_variations>
 				<default />
 				<description>Value of the keydata.</description>
 			</column>
@@ -1074,13 +1076,17 @@
 			</column>
 			<column name="component" allow_null="1">
 				<type>VARCHAR(255)</type>
-				<type_variations />
+				<type_variations>
+					<mysql>VARCHAR(160)</mysql>
+				</type_variations>
 				<default>''</default>
 				<description>Which component of the asset this keydata applies to (e.g. attribute:23) </description>
 			</column>
 			<column name="type" allow_null="0">
 				<type>VARCHAR(255)</type>
-				<type_variations />
+				<type_variations>
+					<mysql>VARCHAR(160)</mysql>
+				</type_variations>
 				<default>'word'</default>
 				<description>The type of the keydata (e.g. 'date', 'word', 'number').</description>
 			</column>
