@@ -281,7 +281,7 @@ function current_url($inc_protocol=true)
 
 
 /**
-* Returns the current http protocol in use for this page
+* Returns the current http protocol in use for this page (excludes the '://')
 *
 * @return string
 */
