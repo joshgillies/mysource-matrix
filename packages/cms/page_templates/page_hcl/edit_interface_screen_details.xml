@@ -18,12 +18,24 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2004/01/19 00:56:54 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2004/01/23 04:32:09 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <contents>
+	<section name="Details" write_access="write:attributes" limbo_access="1">
+		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
+			<text width="35" height="1" />
+		</field>
+		<field attribute="short_name">
+			<display_name>Page Short Name</display_name>
+			<note />
+			<text width="25" height="1" />
+		</field>
+	</section>
 	<section name="HCL Schemas List" write_access="write:links">
 		<field>
 			<display_name>HCL Schemas</display_name>
