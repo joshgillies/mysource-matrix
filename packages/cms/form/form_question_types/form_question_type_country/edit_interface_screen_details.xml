@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.7 2004/06/16 04:48:05 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2004/06/17 04:45:14 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -45,29 +45,30 @@
 			<note></note>
 			<text width="40" height="2" />
 		</field>
-		<field attribute="default">
+		<field>
+			<display_name>Available Countries</display_name>
+			<note>You may select more than one country</note>
+			<function_call>
+				<paint_function   name="paintAvailableCountries"   />
+				<process_function name="processAvailableCountries" />
+			</function_call>
+		</field>
+		<field>
 			<display_name>Default</display_name>
 			<note></note>
-			<text width="30" height="1" />
+			<function_call>
+				<paint_function   name="paintDefault"   />
+				<process_function name="processDefault" />
+			</function_call>
 		</field>
-		<field attribute="width">
-			<display_name>Width</display_name>
+		<field attribute="height">
+			<display_name>Height</display_name>
 			<note></note>
 			<text width="5" height="1" />
 		</field>
-		<field attribute="max">
-			<display_name>Maximum Length</display_name>
+		<field attribute="multiple">
+			<display_name>Multiple?</display_name>
 			<note></note>
-			<text width="5" height="1" />
-		</field>
-		<field attribute="min">
-			<display_name>Minimum Length</display_name>
-			<note></note>
-			<text width="5" height="1" />
-		</field>
-		<field attribute="verify">
-			<display_name>Requires Verification</display_name>
-			<note>If this is set to Yes, two fields will appear on the form, which have to be entered correctly for the form to be submitted</note>
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="extra">

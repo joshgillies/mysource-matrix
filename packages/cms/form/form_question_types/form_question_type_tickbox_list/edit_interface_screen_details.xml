@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.14 2004/06/16 04:48:05 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.4 2004/06/17 04:45:15 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -58,15 +58,10 @@
 				<process_function name="processDefault" />
 			</function_call>
 		</field>
-		<field attribute="height">
-			<display_name>Height</display_name>
-			<note></note>
-			<text width="5" height="1" />
-		</field>
-		<field attribute="multiple">
-			<display_name>Multiple?</display_name>
-			<note></note>
-			<boolean true_text="Yes" false_text="No" />
+		<field attribute="horizontal">
+			<display_name>Orientation</display_name>
+			<note>Defines if options are listed horizontally or vertically</note>
+			<boolean true_text="Horizontal" false_text="Vertical" />
 		</field>
 		<field attribute="extra">
 			<display_name>Extras</display_name>
@@ -74,22 +69,11 @@
 			<text width="20" height="1" />
 		</field>
 	</section>
-	<section name="Complex Validation Rules" write_access="write:attributes">
-		<field>
-			<display_name>Question Rules</display_name>
-			<note>When the value of an asset is specified as the comparison value, it takes precedence over any static value entered</note>
-			<function_call>
-				<paint_function   name="paintRules"   />
-				<process_function name="processRules" />
-			</function_call>
-		</field>
-		<field>
-			<display_name>Add Rule</display_name>
-			<note></note>
-			<function_call>
-				<paint_function   name="paintAddRule"   />
-				<process_function name="processAddRule" />
-			</function_call>
+	<section name="Simple Validation Rules" write_access="write:attributes">
+	    <field attribute="required">
+			<display_name>Required Entry?</display_name>
+			<note>If required, at least one tick-box must be chosen before the form can be submitted</note>
+			<boolean true_text="Required" false_text="Optional" />
 		</field>
 	</section>
 </contents>
