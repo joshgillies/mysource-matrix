@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.90 2004/09/27 02:07:13 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.91 2004/09/27 04:16:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.90 $ - 1.0
+* @version $Revision: 1.91 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -887,7 +887,7 @@ class Page_Calendar extends Page_Asset_Listing
 			if ($ab_id = $this->attr('asset_builder_page')) {
 			?>
 				  loc = "<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetHref($this->attr('asset_builder_page')); ?>?SQ_CALENDAR_DATE="+date;
-				  if (time != '*') loc += '&SQ_CALENDAR_TIME='+time+'&SQ_CALENDAR_DURATION=<?php echo $this->attr('day_partition_time');?>_min';
+				  if (time != '*') loc += '&SQ_CALENDAR_TIME='+time+'&SQ_CALENDAR_DURATION=<?php echo (int)$this->attr('day_partition_time');?>_min';
 				  document.location = loc;
 			<?php
 			}
