@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_move_update.php,v 1.3 2003/11/26 00:51:16 gsherwood Exp $
+* $Id: system_move_update.php,v 1.4 2004/11/02 00:26:08 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -57,15 +57,23 @@ function get_line($prompt='')
 	return rtrim(fgets(STDIN, 4094));
 }
 
-
 // Dont set SQ_INSTALL flag before this include because we want
 // a complete load now that the database has been created
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
+if ((php_sapi_name() == 'cli')) {
+	if (isset($_SERVER['argv'][2])) {
+		$old_system_root = rtrim(trim($_SERVER['argv'][2]), '/');
+		while (strtolower(get_line('Confirm "'.$old_system_root.'" (Y/N) : ')) != 'y')
+			continue;
+	}
+}
 
-do {
-	$old_system_root = get_line('Enter the old System Root : ');
-} while (strtolower(get_line('Confirm "'.$old_system_root.'" (Y/N) : ')) != 'y');
+if (!isset($old_system_root)) {
+	do {
+		$old_system_root = get_line('Enter the old System Root : ');
+	} while (strtolower(get_line('Confirm "'.$old_system_root.'" (Y/N) : ')) != 'y');
+}
 
 $new_system_root = SQ_SYSTEM_ROOT;
 
