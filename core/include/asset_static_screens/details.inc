@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.7 2004/07/23 07:13:21 mmcintyre Exp $
+* $Id: details.inc,v 1.7.4.1 2005/01/05 04:34:46 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -130,7 +130,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
 					$fs_jobs = &Cron_Job_Future_Status::getActiveJobs($owner);
 					if (!empty($fs_jobs)) {
-						$o->openField('Future Statuses', 'new_line');
+						$o->openField('Scheduled Future Status Changes', 'new_line');
 						
 						if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) ob_start();
 						?>
@@ -176,7 +176,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 					}// end if
 
 					if ($owner->writeAccess('')) {
-						$o->openField('New Future Statuses', 'new_line');
+						$o->openField('New Future Status', 'new_line');
 						$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
 						$fs = new Cron_Job_Future_Status();
 						$edit_fns = $fs->getEditFns();
