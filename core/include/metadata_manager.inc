@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.33 2004/02/27 05:30:09 mmcintyre Exp $
+* $Id: metadata_manager.inc,v 1.34 2004/03/01 15:12:36 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -313,7 +313,6 @@ class Metadata_Manager extends MySource_Object
 		$sectionids = $am->getChildren($schemaid, 'metadata_section', false);
 
 		foreach ($sectionids as $sectionid => $section_type) {
-			$section = $am->getAsset($sectionid, $section_type);
 			$fieldids = $am->getChildren($sectionid, 'metadata_field', false);
 			$fields_array = array_merge($fields_array, array_keys($fieldids));
 		}
