@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MySource.java,v 1.2 2004/01/16 00:36:37 mmcintyre Exp $
+* $Id: MySource.java,v 1.2.2.1 2004/02/18 11:39:07 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,8 +38,7 @@ import javax.xml.transform.stream.StreamSource;
 import org.xml.sax.SAXException;
 import java.io.ByteArrayOutputStream;
 import java.util.StringTokenizer;
-import java.io.PrintWriter;
-import java.io.IOException;
+import java.io.*;
 
 import java.security.Permission;
 import java.security.AccessControlException;
@@ -98,9 +97,13 @@ public class MySource {
 			AssetMap am = AssetMap.getApplet();
 
 			URL base = am.getBaseURL();
-			String basePath = base.getProtocol() + "://" + base.getHost() + MySource.getPath(base.getPath());
-			String execPath = basePath + MySource.getSpecialPath(base.getPath()) + "/?SQ_BACKEND_PAGE=asset_map_request";
+			System.out.println("base : " + base.toString());
+			String basePath = base.getProtocol() + "://" + base.getHost() + MySource.getPath(base.getPath()) + "/";
+			String execPath = basePath + "?SQ_ACTION=asset_map_request";
 			
+			System.out.println(basePath);
+			System.out.println(execPath);
+
 			MySource.instance = new MySource(basePath, execPath);
 		}
 		return MySource.instance;
@@ -108,6 +111,11 @@ public class MySource {
 	}//end getInstance()
 
 
+	/**
+	* Returns a list of special paths that can be used for the matrix sysyem
+	*
+	* @return an array of special paths that can be used in the matrix system
+	*/
 	public static String[] getSpecialPaths() {
 		int length = 5;
 		String [] specialPaths = new String[length];
@@ -118,21 +126,37 @@ public class MySource {
 		specialPaths[4] = "/__data";
 
 		return specialPaths;
-	}
 
-	public String getSpecialPath(String path) {
+	}//end getSpecialPaths()
+
+
+	/**
+	* returns the special path used in the passed in path
+	* 
+	* @param the path to get the special path from
+	* @return the special path used in the passed in path
+	*/
+	public static String getSpecialPath(String path) {
 		String[] specialPaths = MySource.getSpecialPaths();
-		for (int i = 0; i < length; i++) {
+		for (int i = 0; i < specialPaths.length; i++) {
 			if (path.indexOf(specialPaths[i]) != -1) {
 				return specialPaths[i];
 			}
 		}
 		return "";
-	}
 
+	}//end getSpecialPath()
+
+
+	/**
+	* Returns where in the path the secial path exists
+	* 
+	* @param the path to get the offset out of
+	* @return the position of the special path 
+	*/
 	public static int getPathOffset(String path) {
 		String[] specialPaths = MySource.getSpecialPaths();
-		for (int i = 0; i < length; i++) {
+		for (int i = 0; i < specialPaths.length; i++) {
 			int pos = path.indexOf(specialPaths[i]);
 			// if we have something here...
 			if (pos != -1) {
@@ -140,13 +164,23 @@ public class MySource {
 			}
 		}
 		return -1;
-	}
 
+	}//end getPathOffset
+
+
+	/**
+	* Returns the root path of a url
+	*
+	* @param path the url
+	* @return the root path
+	*/
 	public static String getPath(String path) {
 
 		String realPath = path.substring(0, getPathOffset(path));
 		return realPath;
-	}
+
+	}//end getPath()
+
 
 	/**
 	* Constructor.
@@ -216,7 +250,6 @@ public class MySource {
 	* @throws IOException	if connection can't be opened, XML parse error, or an error given by the Matrix
 	*/
 	public Document doRequest(String request) throws IOException {
-		DG.speedCheck();
 
 		if (execURL == null) {
 			throw new IOException("ExecURL is null");
@@ -247,25 +280,36 @@ public class MySource {
 		Document document = null;
 		DocumentBuilder builder = null;
 
+	/*	String line = "";
+		BufferedReader b = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+		while(true) {
+			try {
+				line = b.readLine();
+				if (line == null)
+					break;
+				System.out.println(line);
+			} catch (IOException ioe) {
+				System.out.println("error reading stream");
+			}
+		}
+	*/	
 		try {
 			builder = XML.getParser();
 		} catch (SAXException se) {
 			throw new IOException("Could not do the mysource request: " + se.getMessage());
 		}
-
-		
 		try {
 			document = builder.parse(conn.getInputStream());
 		} catch (SAXException se) {
 			// we will get into here if no XML is returned from conn (the DB daemon hasn't started?)
 			throw new IOException("error while parsing : \n" + se.getMessage());
-		} 
+		}
 
 		if (document.getDocumentElement().getTagName().equals("error")) {
 			Element errorElement = (Element)document.getDocumentElement();
 			throw new IOException("error while getting response - error returned: " + errorElement.getFirstChild().getNodeValue());
 		}
-		DG.speedCheck();
+
 		return document;
 
 	}//end doRequest()

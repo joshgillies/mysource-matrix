@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_management.inc,v 1.2 2003/12/16 12:19:31 brobertson Exp $
+* $Id: content_type_wysiwyg_management.inc,v 1.2.2.1 2004/02/18 11:39:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -52,4 +52,5 @@ class Content_Type_WYSIWYG_Management extends Asset_Management
 
 
 }//end class
+
 ?>

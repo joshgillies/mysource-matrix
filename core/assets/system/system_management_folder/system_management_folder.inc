@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_management_folder.inc,v 1.5 2003/12/18 04:34:35 gsherwood Exp $
+* $Id: system_management_folder.inc,v 1.5.2.1 2004/02/18 11:39:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -206,12 +206,13 @@ class System_Management_Folder extends Folder
 	function _getAllowedLinks()
 	{
 		return Array(SQ_LINK_TYPE_1 => Array(
-											'system_user_group' => Array('card' => '1', 'exclusive' => true),
-											'designs_folder'    => Array('card' => '1', 'exclusive' => true),
-											'search_manager'    => Array('card' => '1', 'exclusive' => true),
-											'layout_manager'    => Array('card' => '1', 'exclusive' => true),
-											'remap_manager'     => Array('card' => '1', 'exclusive' => true),
-											'cron_manager'      => Array('card' => '1', 'exclusive' => true),
+											'system_user_group'     => Array('card' => '1', 'exclusive' => true),
+											'designs_folder'        => Array('card' => '1', 'exclusive' => true),
+											'authentication_folder' => Array('card' => '1', 'exclusive' => true),
+											'search_manager'        => Array('card' => '1', 'exclusive' => true),
+											'layout_manager'        => Array('card' => '1', 'exclusive' => true),
+											'remap_manager'         => Array('card' => '1', 'exclusive' => true),
+											'cron_manager'          => Array('card' => '1', 'exclusive' => true),
 										),
 					);
 

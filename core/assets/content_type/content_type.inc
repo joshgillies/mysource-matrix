@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type.inc,v 1.2 2003/12/16 12:18:05 brobertson Exp $
+* $Id: content_type.inc,v 1.2.2.1 2004/02/18 11:39:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -100,18 +100,23 @@ class Content_Type extends Asset
 	{
 		return $this->attr('name');
 
-	}//end _getName();
+	}//end _getName()
 
 
 	/**
-	* @abstract
+	* Returns true if there is no content
+	*
+	* @return boolean
+	* @access public
 	*/
 	function isEmpty()
 	{
-		return true;
+		$html = trim($this->attr('html'));
+		return empty($html);
 
-	} // end isEmpty()
+	}//end isEmpty()
 
 
 }//end class
+
 ?>

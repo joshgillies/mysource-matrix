@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.164 2004/01/14 22:11:14 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.164.2.1 2004/02/18 11:39:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -466,6 +466,7 @@ class Asset_Manager extends MySource_Object
 
 	}//end getAssetTypeInfo()
 
+
 	/**
 	* Includes the class file for the passed asset
 	*
@@ -568,22 +569,28 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Retrieves the attributes (with null values) for the asset type
 	*
-	* @param string $type_code		the type of asset
-	* @return array		an array of Asset_Attribute's
+	* @param string			$type_code		the type of asset
+	* @param array(string)	$details		an array of columns from the DB table you want returned
 	*
+	* @return array
 	* @access public
 	*/
-	function getAssetTypeAttributes($type_code)
+	function getAssetTypeAttributes($type_code, $details=Array('name', 'type'))
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		require_once SQ_INCLUDE_PATH."/asset_attribute.inc";
+		require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 
-		$sql = "SELECT attributeid FROM ". SQ_TABLE_PREFIX . "asset_attribute
-				WHERE type_code = '".addslashes($type_code)."'";
+		$sql = 'SELECT '.implode(', ', $details).' FROM '.SQ_TABLE_PREFIX.'asset_attribute
+				WHERE type_code = '.$db->quote($type_code);
 
-		$attributeids = $db->getCol($sql);
+		if (count($details) > 1) $result = $db->getAssoc($sql);
+		else $result = $db->getCol($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return Array();
+		}
 
-		return $attributeids;
+		return $result;
 
 	}//end getAssetTypeAttributes()
 
@@ -617,23 +624,37 @@ class Asset_Manager extends MySource_Object
 			$this->_assets[$assetid]['object'] = null;
 			$this->_assets[$assetid]['count']  = 0;
 
-			if (empty($type_code)) {
-				$where = 'assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($assetid);
-				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-				$type_code = $GLOBALS['SQ_SYSTEM']->db->getOne('SELECT type_code FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where);
-				if (DB::isError($type_code) || empty($type_code)) {
-					if (!$mute_errors) trigger_error('Asset #'.$assetid.' does not exist', E_USER_WARNING);
-					return $this->_assets[$assetid]['object'];
-				}
-			}//end if
 
-			if (!isset($this->_asset_types[$type_code])) {
-				if (!$mute_errors) trigger_error('Asset Type "'.$type_code.'" is not installed on this system', E_USER_WARNING);
+			// check if we are getting links for a shadow asset, and palm the request off to the
+			// handler of the shadow asset if we are
+			$id_parts = explode(':', $assetid);
+			if (isset($id_parts[1])) {
+
+				$real_assetid = $id_parts[0];
+				$asset = &$this->getAsset($real_assetid, '', $mute_errors);
+				$this->_assets[$assetid]['object'] = &$asset->getAsset($id_parts[1]);
+
 			} else {
-				$this->includeAsset($type_code);
-				$this->_assets[$assetid]['object'] = new $type_code($assetid);
-				// make sure of the asset is correct
-				if (empty($this->_assets[$assetid]['object']->id)) $this->_assets[$assetid]['object'] = null;
+
+				if (empty($type_code)) {
+					$where = 'assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($assetid);
+					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+					$type_code = $GLOBALS['SQ_SYSTEM']->db->getOne('SELECT type_code FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where);
+					if (DB::isError($type_code) || empty($type_code)) {
+						if (!$mute_errors) trigger_error('Asset #'.$assetid.' does not exist', E_USER_WARNING);
+						return $this->_assets[$assetid]['object'];
+					}
+				}//end if
+
+				if (!isset($this->_asset_types[$type_code])) {
+					if (!$mute_errors) trigger_error('Asset Type "'.$type_code.'" is not installed on this system', E_USER_WARNING);
+				} else {
+					$this->includeAsset($type_code);
+					$this->_assets[$assetid]['object'] = new $type_code($assetid);
+					// make sure of the asset is correct
+					if (empty($this->_assets[$assetid]['object']->id)) $this->_assets[$assetid]['object'] = null;
+
+				}//end if
 
 			}//end if
 
@@ -1327,6 +1348,9 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Return all links that this asset has to other assets
 	*
+	* The query generated to get the links is actually contructed in the Asset Manager's
+	* generateGetLinksQuery function.
+	*
 	* @param int			$assetid			id of the the $side_of_link asset
 	* @param int			$link_types			integer that can be the product of bitwise operations
 	*											on the SQ_LINK_* constants
@@ -1343,63 +1367,53 @@ class Asset_Manager extends MySource_Object
 	*											this (if not null)
 	* @param boolean		$exclusive			The exclusive status for all the links must be
 	*											this (if not null)
+	* @param string			$sort_by			a field in the asset table you would like the results
+	*											sorted by (eg. name, short_name etc)
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
-	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $value=null, $dependant=null, $exclusive=null)
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $value=null, $dependant=null, $exclusive=null, $sort_by=null)
 	{
-		if ($side_of_link != 'major' && $side_of_link != 'minor')
+		if ($side_of_link != 'major' && $side_of_link != 'minor') {
 			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
+		}
 
 		if (!$assetid) return Array();
 
-		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
+
+		// check if we are getting links for a shadow asset, and palm the request off to the
+		// handler of the shadow asset if we are
+		$id_parts = explode(':', $assetid);
+		if (isset($id_parts[1])) {
+			$real_assetid = $id_parts[0];
+			$asset = &$this->getAsset($real_assetid);
+			$links = $asset->getLinks($id_parts[1], $link_types, $type_code, $strict_type_code, $side_of_link, $sort_by);
+			$this->forgetAsset($asset);
+			return $links;
+		}
+
+
+		// we are not getting links for a shadow asset, so if we are getting child links of
+		// an asset that handles shadow assets, palm the request off to it
+		if ($side_of_link == 'major') {
+			$asset = &$this->getAsset($assetid);
+			if (is_a($asset, 'bridge')) {
+				$links = $asset->getLinks($assetid, $link_types, $type_code, $strict_type_code, $side_of_link, $sort_by);
+				$this->forgetAsset($asset);
+				return $links;
+			}
+			$this->forgetAsset($asset);
+			unset($asset);
+		}
+
+
+		// we couldnt palm the request off, so we better do it ourselves
+		$query = $this->generateGetLinksQuery($assetid, $link_types, $type_code, $strict_type_code, $side_of_link, $value, $dependant, $exclusive, $sort_by);
+		if (empty($query)) return Array();
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$sql = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type,
-						a.type_code as '.$other_side.'_type_code, l.sort_order, l.dependant, l.exclusive
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l, '.SQ_TABLE_RUNNING_PREFIX.'asset a
-				';
-
-		$where = 'l.'.$other_side.'id = a.assetid
-				  AND l.'.$side_of_link.'id = '.$db->quote($assetid).'
-				  AND (l.link_type & '.$db->quote($link_types).') > 0 ';
-		if (!is_null($value))		$where .= ' AND l.value     = '.$db->quote($value);
-		if (!is_null($dependant))	$where .= ' AND l.dependant = '.$db->quote(($dependant) ? '1' : '0');
-		if (!is_null($exclusive))	$where .= ' AND l.exclusive = '.$db->quote(($exclusive) ? '1' : '0');
-
-		if (!empty($type_code)) {
-
-			$type_code_cond = '';
-			if (is_array($type_code)) {
-				for(reset($type_code); null !== ($i = key($type_code)); next($type_code)) $type_code[$i] = $db->quote($type_code[$i]);
-				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
-			} else {
-				$type_code_cond = '= '.$db->quote($type_code);
-			}
-
-			if ($strict_type_code) {
-				$where .= ' AND a.type_code '.$type_code_cond;
-			} else {
-				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-				$where .= ' AND a.type_code IN (~SQ0~)';
-				$subs = Array( 'SELECT type_code
-								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
-								WHERE inherited_type_code '.$type_code_cond );
-				$where = db_extras_subquery($db, $where, $subs);
-				if (DB::isError($where))
-					trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
-			}
-		}// end if
-
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-
-		$sql .= $where.'
-				ORDER BY l.sort_order, a.type_code';
-		$result = $db->getAll($sql);
+		$result = $db->getAll(implode(' ', $query));
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
 		return $result;
@@ -1424,7 +1438,7 @@ class Asset_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$assetids = Array();
 		$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_ALL, '', true, 'minor');
-		
+
 		foreach ($asset_links as $link) $assetids[$link['majorid']] = Array();
 
 		if (empty($assetids)) {
@@ -1503,10 +1517,23 @@ class Asset_Manager extends MySource_Object
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
+	* @return array(int)
 	* @access public
 	*/
 	function getParents($assetid, $type_code='', $strict_type_code=true)
 	{
+		// check if we are getting parents for a shadow asset, and palm the request off to the
+		// handler of the shadow asset if we are
+		$id_parts = explode(':', $assetid);
+		if (isset($id_parts[1])) {
+			$real_assetid = $id_parts[0];
+			$asset = &$this->getAsset($real_assetid);
+			$parents = $asset->getParents($id_parts[1], $type_code, $strict_type_code);
+			$this->forgetAsset($asset);
+			return $parents;
+		}
+
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT DISTINCT pl.minorid
@@ -1564,6 +1591,9 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Get all asset ids that are below the passed assetid in the various trees in which it exists
 	*
+	* The query generated to get the children is actually contructed in the Asset Manager's
+	* generateGetChildrenQuery function.
+	*
 	* @param int			$assetid			the id of the asset to get its children for
 	* @param string|array	$type_code			the type of asset that is linked
 	*											(eg 'Page', 'File', etc)
@@ -1571,82 +1601,57 @@ class Asset_Manager extends MySource_Object
 	*											of the array values
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
+	* @param string			$sort_by			a field in the asset table you would like the results
+	*											sorted by (eg. name, short_name etc)
 	*
-	* @return Array	returns an array of assetids
+	* @return array(int => string)	returns an array of assetids and their type code
 	* @access public
+	* @see generateGetChildrenQuery()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=true)
+	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		// if we are the root folder then we just need to select from the asset table
-		if ($assetid == 1) {
-			$sql = 'SELECT a.assetid
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a';
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'a');
-			if (!empty($where) && !empty($type_code)) $where .= ' AND ';
-
-		// OK, normal asset, let's find a reference to them in the tree and go from there
-		} else {
-			$where = 'l.minorid = '.$db->quote($assetid);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-			$sql = 'SELECT t.treeid
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid
-					'.$where.' LIMIT 1';
-
-			$treeid = $db->getOne($sql);
-			if (DB::isError($treeid)) {
-				trigger_error($treeid->getMessage().'<br/>'.$treeid->getUserInfo(), E_USER_ERROR);
-			}
-
-			$sql = 'SELECT DISTINCT l.minorid
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t
-					         INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid
-					';
-			$where = 't.treeid LIKE '.$db->quote($treeid.'%').'
-					  AND t.treeid > '.$db->quote($treeid);
-
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-			if (!empty($type_code)) {
-				$sql .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.minorid = a.assetid';
-				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-				$where .= ' AND ';
-			}
-
-		}// end if assetid == 1
-
-		if (!empty($type_code)) {
-
-			if (empty($where)) $where = ' WHERE ';
-
-			$type_code_cond = '';
-			if (is_array($type_code)) {
-				for(reset($type_code); null !== ($i = key($type_code)); next($type_code)) $type_code[$i] = $db->quote($type_code[$i]);
-				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
-			} else {
-				$type_code_cond = '= '.$db->quote($type_code);
-			}
-
-			if ($strict_type_code) {
-				$where .= 'a.type_code '.$type_code_cond;
-			} else {
-				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-				$where .= 'a.type_code IN (~SQ0~)';
-				$sub = 'SELECT type_code
-						FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
-						WHERE inherited_type_code '.$type_code_cond;
-				$where = db_extras_subquery($db, $where, Array($sub));
-			}
-		}// end if
-
-		$children = $db->getCol($sql.$where);
-		if (DB::isError($children)) {
-			trigger_error($children->getMessage().'<br/>'.$children->getUserInfo(), E_USER_ERROR);
+		// check if we are getting children for a shadow asset, and palm the request off to the
+		// handler of the shadow asset if we are
+		$id_parts = explode(':', $assetid);
+		if (isset($id_parts[1])) {
+			$real_assetid = $id_parts[0];
+			$asset = &$this->getAsset($real_assetid);
+			$children = $asset->getChildren($id_parts[1], $type_code, $strict_type_code, $sort_by);
+			$this->forgetAsset($asset);
+			return $children;
 		}
 
-		return $children;
+
+		// we are not getting children for a shadow asset, so if we are getting children of
+		// an asset that handles shadow assets, palm the request off to it
+		$asset = &$this->getAsset($assetid);
+		if (is_a($asset, 'bridge')) {
+			$children = $asset->getChildren($assetid, $type_code, $strict_type_code, $sort_by);
+			$this->forgetAsset($asset);
+			return $children;
+		}
+		$this->forgetAsset($asset);
+		unset($asset);
+
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$query = $this->generateGetChildrenQuery($assetid, $type_code, $strict_type_code, $sort_by);
+		if (empty($query)) return Array();
+
+		$result = $db->getAssoc(implode(' ', $query));
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			return Array();
+		}
+
+		if (!is_null($sort_by)) {
+			$children = Array();
+			foreach ($result as $assetid => $asset_info) $children[$assetid] = $asset_info['type_code'];
+			return $children;
+		} else {
+			return $result;
+		}
 
 	}//end getChildren()
 
@@ -1662,7 +1667,7 @@ class Asset_Manager extends MySource_Object
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
-	* @return Array	returns an array of assetids
+	* @return Array(int => string)	an array of assetids and their type code
 	* @access public
 	*/
 	function getDependantChildren($assetid, $type_code='', $strict_type_code=true)
@@ -1675,8 +1680,9 @@ class Asset_Manager extends MySource_Object
 
 			$dependant_links = $this->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, $type_code, $strict_type_code, 'major', null, 1);
 			for (reset($dependant_links); NULL !== ($k = key($dependant_links)); next($dependant_links)) {
-				$children[] = $dependant_links[$k]['minorid'];
-				$children = array_merge($children, $this->getDependantChildren($dependant_links[$k]['minorid'], $type_code, $strict_type_code));
+				if (!$dependant_links[$k]['dependant']) continue;
+				$children[$dependant_links[$k]['minorid']] = $dependant_links[$k]['minor_type_code'];
+				$children = $children + $this->getDependantChildren($dependant_links[$k]['minorid'],$type_code, $strict_type_code);
 			}
 
 			$this->forgetAsset($assetid);
@@ -1732,13 +1738,13 @@ class Asset_Manager extends MySource_Object
 	* The array returned for each asset is in the following format:
 	* <PRE>
 	* Array('assetid'    => '155',
-    *       'majorid'    => '151',
-    *       'type_code'  => 'page_standard',
-    *       'status'     => '2',
-    *       'name'       => '(( page2 ))',
-    *       'short_name' => '(( page2 ))',
-    *       'path'       => 'page2',
-    *       'sort_order' => '0'
+	*       'majorid'    => '151',
+	*       'type_code'  => 'page_standard',
+	*       'status'     => '2',
+	*       'name'       => '(( page2 ))',
+	*       'short_name' => '(( page2 ))',
+	*       'path'       => 'page2',
+	*       'sort_order' => '0'
 	* )
 	* </PRE>
 	*
@@ -1803,6 +1809,7 @@ class Asset_Manager extends MySource_Object
 				} else {
 					$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
 					array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
+					for(reset($userids); null !== ($i = key($userids)); next($userids)) $userids[$i] = $db->quote($userids[$i]);
 					$USERIDS_COND = 'AND p.userid  IN ('.implode(',', $userids).')';
 				}
 			} else {
@@ -2045,6 +2052,10 @@ class Asset_Manager extends MySource_Object
 			trigger_error('Minor is not an asset, unable to create link', E_USER_WARNING);
 			return 0;
 		}
+
+		// prepare the link - do the minor first because the major gets the final say in linking
+		$minor->prepareLink($major, 'minor', $link_type, $value, $sort_order, $dependant, $exclusive);
+		$major->prepareLink($minor, 'major', $link_type, $value, $sort_order, $dependant, $exclusive);
 
 		$link_type = (int) $link_type;
 
@@ -3135,7 +3146,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getPermission($assetid, $permission, $access=null, $and_greater=true, $expand_groups=false, $all_info=false)
 	{
-		$assetid    = (int) $assetid;
 		$permission = (int) $permission;
 		// can't be and_greater with workflow
 		if ($permission == SQ_PERMISSION_WORKFLOW) $and_greater = false;
@@ -3190,7 +3200,7 @@ class Asset_Manager extends MySource_Object
 					$user = &$this->getAsset($data['userid']);
 					if (!is_null($user)) {
 						if (is_a($user, 'user_group')) {
-							$ret_val = array_merge($ret_val, $this->getChildren($user->id, Array('user'), false));
+							$ret_val = array_merge($ret_val, array_keys($this->getChildren($user->id, Array('user'), false)));
 						} else {
 							$ret_val[] = $user->id;
 						}
@@ -3222,8 +3232,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function setPermission($assetid, $userid, $permission, $access)
 	{
-		$assetid    = (int)  $assetid;
-		$userid     = (int)  $userid;
 		$permission = (int)  $permission;
 		$access     = (bool) $access;
 
@@ -3492,26 +3500,24 @@ class Asset_Manager extends MySource_Object
 
 	}//end getRootURL()
 
-
 	/**
-	* Returns an array of assetid's in the order that they propogate out from the site url
+	* Returns an array of assetid's + info in the order that they propogate out from the site url
+	*
 	* If no url is passed the current (aka PHP_SELF) one is used
 	*
-	* @param string	$protocol	the protocol to match -> null means it is ignored
-	* @param string	$url		the urls to check for -> null defaults it to current url
-	* @param string	$name_type	the type of name to return for each asset
+	* @param string    $protocol    the protocol to match -> null means it is ignored
+	* @param string    $url        the urls to check for -> null defaults it to current url
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
-	function getLineageFromURL($protocol=null, $url=null, $name_type='name')
+	function getLineageFromURL($protocol=null, $url=null)
 	{
 		if (is_null($url)) $url = current_url(false, true);
 		// remove any trailing slashes and double slashes
 		$url = strip_url($url);
 
 		if (!is_null($protocol) && $protocol != 'https') $protocol = 'http';
-		if ($name_type != 'short_name') $name_type = 'name';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -3526,7 +3532,7 @@ class Asset_Manager extends MySource_Object
 		//// See Mantis #0000128 for a reason on why the trailing slash is added to the URL and before the '%' ////
 		$concat = ($db->phptype == 'mysql') ? 'CONCAT(l.url, '.$db->quote('/%').')' : '(l.url || '.$db->quote('/%').')';
 		$where = 'l.root_urlid = '.$db->quote((int) $root_url['urlid']).'
-				 AND '.$db->quote($url.'/').' LIKE '.$concat;
+				AND '.$db->quote($url.'/').' LIKE '.$concat;
 
 		if (!is_null($protocol)) {
 			$where .= ' AND l.'.$protocol.' = '.$db->quote('1');
@@ -3538,9 +3544,12 @@ class Asset_Manager extends MySource_Object
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		$sql = 'SELECT l.url, l.assetid, a.'.$name_type.', a.type_code, '.$protocol_select.'
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.assetid = a.assetid
+		$sql = 'SELECT l.url, l.assetid, a.name, a.short_name, a.type_code, '.$protocol_select.', MIN(al.link_type) AS link_type
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
+				  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.assetid = a.assetid
+				  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link al ON a.assetid = al.minorid
 				'.$where.'
+				GROUP BY l.url, l.assetid, a.name, a.short_name, a.type_code, protocol
 				ORDER BY l.url ASC';
 
 		$result = $db->getAll($sql);
@@ -3565,11 +3574,13 @@ class Asset_Manager extends MySource_Object
 				if (!is_null($index_page)) {
 					$paths = $index_page->getWebPaths();
 					$result[] = Array (
-										'url'		=> $result[0]['url'].((empty($paths)) ? '' : '/'.$paths[0]),
-										'assetid'	=> $index_page->id,
-										$name_type	=> $index_page->$name_type,
-										'type_code'	=> $index_page->type(),
-										'protocol'  => current_protocol(),
+										'url'        => $result[0]['url'].((empty($paths)) ? '' : '/'.$paths[0]),
+										'assetid'    => $index_page->id,
+										'name'       => $index_page->name,
+										'short_name' => $index_page->short_name,
+										'type_code'  => $index_page->type(),
+										'link_type'  => SQ_LINK_TYPE_3,
+										'protocol'   => current_protocol(),
 										);
 				}// end if
 			}// end if
@@ -3903,6 +3914,207 @@ class Asset_Manager extends MySource_Object
 		$edit_fns->paintLimbo();
 
 	}//end paintLimbo()
+
+
+//--        QUERY GENERATORS        --//
+
+
+	/**
+	* Return all links that this asset has to other assets
+	*
+	* The return value is array consisting of a select statement, a from statement, a where clause
+	* (which may be blank is we are getting children of the root node) and an order by clause
+	* (which may be blank if we are not sorting). The return array is structed so you can implode
+	* it using ' ' as glue to form the full query.
+	*
+	* @param int			$assetid			id of the the $side_of_link asset
+	* @param int			$link_types			integer that can be the product of bitwise operations
+	*											on the SQ_LINK_* constants
+	* @param string|array	$type_code			the type of asset that is linked
+	*											(eg 'Page', 'File', etc)
+	*											if an array returns link if matches any
+	*											of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	* @param string			$side_of_link		Which side of the link this (the current) asset
+	*											is on ('major' or 'minor')
+	* @param string			$value				The value for all the links must equal this (if not null)
+	* @param boolean		$dependant			The dependant status for all the links must be
+	*											this (if not null)
+	* @param boolean		$exclusive			The exclusive status for all the links must be
+	*											this (if not null)
+	* @param string			$sort_by			a field in the asset table you would like the results
+	*											sorted by (eg. name, short_name etc)
+	*
+	* @return Array()
+	* @access public
+	*/
+	function generateGetLinksQuery($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $value=null, $dependant=null, $exclusive=null, $sort_by=null)
+	{
+		if ($side_of_link != 'major' && $side_of_link != 'minor')
+			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
+
+		if (!$assetid) return Array();
+
+		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$select = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type,
+						a.type_code as '.$other_side.'_type_code, l.sort_order, l.dependant, l.exclusive';
+		$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l, '.SQ_TABLE_RUNNING_PREFIX.'asset a';
+		$where = 'l.'.$other_side.'id = a.assetid
+				  AND l.'.$side_of_link.'id = '.$db->quote($assetid).'
+				  AND (l.link_type & '.$db->quote($link_types).') > 0 ';
+		if (!is_null($value))		$where .= ' AND l.value     = '.$db->quote($value);
+		if (!is_null($dependant))	$where .= ' AND l.dependant = '.$db->quote(($dependant) ? '1' : '0');
+		if (!is_null($exclusive))	$where .= ' AND l.exclusive = '.$db->quote(($exclusive) ? '1' : '0');
+
+		if (!empty($type_code)) {
+
+			$type_code_cond = '';
+			if (is_array($type_code)) {
+				for(reset($type_code); null !== ($i = key($type_code)); next($type_code)) $type_code[$i] = $db->quote($type_code[$i]);
+				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
+			} else {
+				$type_code_cond = '= '.$db->quote($type_code);
+			}
+
+			if ($strict_type_code) {
+				$where .= ' AND a.type_code '.$type_code_cond;
+			} else {
+				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+				$where .= ' AND a.type_code IN (~SQ0~)';
+				$subs = Array( 'SELECT type_code
+								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
+								WHERE inherited_type_code '.$type_code_cond );
+				$where = db_extras_subquery($db, $where, $subs);
+				if (DB::isError($where))
+					trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
+			}
+		}// end if
+
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+
+		if (is_null($sort_by)) {
+			// order by sort order (by default)
+			$order_by = 'ORDER BY l.sort_order, a.type_code';
+		} else {
+			// order by a specific field in the asset table
+			$order_by = 'ORDER BY a.'.$sort_by;
+			if ($sort_by != 'type_code') $select .= ', a.'.$sort_by.' AS sort_value';
+		}
+
+		return Array('select'   => $select,
+					 'from'     => $from,
+					 'where'    => $where,
+					 'order_by' => $order_by,
+					);
+
+	}//end generateGetLinksQuery()
+
+
+	/**
+	* Generate the parts of the query needed to get children of the passwed assetid
+	*
+	* The return value is array consisting of a select statement, a from statement, a where clause
+	* (which may be blank is we are getting children of the root node) and an order by clause
+	* (which may be blank if we are not sorting). The return array is structed so you can implode
+	* it using ' ' as glue to form the full query.
+	*
+	* @param int			$assetid			the id of the asset to get its children for
+	* @param string|array	$type_code			the type of asset that is linked
+	*											(eg 'Page', 'File', etc)
+	*											if an array returns link if matches any
+	*											of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	* @param string			$sort_by			a field in the asset table you would like the results
+	*											sorted by (eg. name, short_name etc)
+	*
+	* @return Array(int => string)	returns an array of assetids and their type code
+	* @access public
+	* @see getChildren()
+	*/
+	function generateGetChildrenQuery($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// if we are the root folder then we just need to select from the asset table
+		if ($assetid == 1) {
+			$select = 'SELECT a.assetid, a.type_code';
+			$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a';
+			$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'a');
+			if (!empty($where) && !empty($type_code)) $where .= ' AND ';
+
+		// OK, normal asset, let's find a reference to them in the tree and go from there
+		} else {
+			$where = 'l.minorid = '.$db->quote($assetid);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+			$sql = 'SELECT t.treeid
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid
+					'.$where.' LIMIT 1';
+
+			$treeid = $db->getOne($sql);
+			if (DB::isError($treeid)) {
+				trigger_error($treeid->getMessage().'<br/>'.$treeid->getUserInfo(), E_USER_ERROR);
+			}
+
+			$select = 'SELECT DISTINCT l.minorid, a.type_code';
+			$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t
+					         INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid
+					         INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.minorid = a.assetid
+					';
+			$where = 't.treeid LIKE '.$db->quote($treeid.'%').'
+					  AND t.treeid > '.$db->quote($treeid);
+
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+			if (!empty($type_code)) $where .= ' AND ';
+
+		}// end if assetid == 1
+
+		if (!empty($type_code)) {
+
+			if (empty($where)) $where = ' WHERE ';
+
+			$type_code_cond = '';
+			if (is_array($type_code)) {
+				for(reset($type_code); null !== ($i = key($type_code)); next($type_code)) $type_code[$i] = $db->quote($type_code[$i]);
+				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
+			} else {
+				$type_code_cond = '= '.$db->quote($type_code);
+			}
+
+			if ($strict_type_code) {
+				$where .= 'a.type_code '.$type_code_cond;
+			} else {
+				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+				$where .= 'a.type_code IN (~SQ0~)';
+				$sub = 'SELECT type_code
+						FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
+						WHERE inherited_type_code '.$type_code_cond;
+				$where = db_extras_subquery($db, $where, Array($sub));
+			}
+		}// end if
+
+		// order by a field if required
+		$order_by = '';
+		if (!is_null($sort_by)) {
+			$order_by = 'ORDER BY a.'.$sort_by;
+			$select .= ', a.'.$sort_by.' AS sort_value';
+		}
+
+		return Array('select'   => $select,
+					 'from'     => $from,
+					 'where'    => $where,
+					 'order_by' => $order_by,
+					);
+
+	}//end generateGetChildrenQuery()
 
 
 }//end class

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.2 2004/02/10 16:07:52 brobertson Exp $
+* $Id: package_manager_core.inc,v 1.2.2.1 2004/02/18 11:39:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 

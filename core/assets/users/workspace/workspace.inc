@@ -18,10 +18,9 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workspace.inc,v 1.20 2003/12/12 03:34:20 gsherwood Exp $
+* $Id: workspace.inc,v 1.20.2.1 2004/02/18 11:39:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
-
 
 require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 

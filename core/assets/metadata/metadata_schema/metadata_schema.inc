@@ -18,12 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema.inc,v 1.8 2003/11/26 00:50:58 gsherwood Exp $
+* $Id: metadata_schema.inc,v 1.8.2.1 2004/02/18 11:39:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
-
-require_once SQ_INCLUDE_PATH.'/asset.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 
 /**
 * Metadata_Schema
@@ -36,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Metadata_Schema extends Asset
+class Metadata_Schema extends Folder
 {
 
 	/**
@@ -47,7 +46,7 @@ class Metadata_Schema extends Asset
 	*/
 	function Metadata_Schema($assetid=0)
 	{
-		$this->Asset($assetid);
+		$this->Folder($assetid);
 
 	}//end constructor
 
@@ -123,6 +122,39 @@ class Metadata_Schema extends Asset
 
 
 	/**
+	* Prepares for linking by checking that the link values are valid for this link
+	*
+	* This function will be called if this asset is the major or minor party in the link, so the side_of_link flag
+	* should be checked to work out what side of the link this asset is on. The return value should indicate
+	* if any of the link fields were changed.
+	*
+	* @param object Asset	$asset			the major or minor asset that we are linking to
+	* @param string			$side_of_link	the side of the link we are on (major or minor)
+	* @param string			$link_type		the type of link we are creating
+	* @param string			$value			the value that is to be associated with the link
+	* @param string			$sort_order		the position in the links list that this link should take,
+	* @param string			$dependant		'0' / '1' on whether the this asset is dependant on the
+	*										asset that will be linked by the new link
+	* @param string			$exclusive		'0' / '1' on whether the this asset is linked exclusivly
+	*										to the asset that will be linked by the new link
+	*
+	* @return boolean
+	* @access public
+	*/
+	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
+	{
+		// if this is a metadata section then we need to make it a dependant link
+		if ($side_of_link == 'major' && is_a($asset, 'metadata_section') && $dependant != '1') {
+			$dependant = '1';
+			return true;
+		}
+
+		return false;
+
+	}//end prepareLink()
+
+
+	/**
 	* Creates a link between this asset and the passed asset, of a certain type
 	* and returns the linkid of the created link
 	*
@@ -132,13 +164,6 @@ class Metadata_Schema extends Asset
 	*/
 	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0', $exclusive='0')
 	{
-		// if this is a metadata section then we need to make it a dependant link
-		$regenerate = false;
-		if (is_a($minor, 'metadata_section')) {
-			$regenerate = true;
-			$dependant = '1';
-		}
-
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$linkid = parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
@@ -147,7 +172,7 @@ class Metadata_Schema extends Asset
 			return 0;
 		}
 
-		if ($regenerate) {
+		if ($is_a($minor, 'metadata_section')) {
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array('schemaid' => $this->id);
 			$code_name = $hh->queueHipo('hipo_job_regenerate_metadata', $vars);

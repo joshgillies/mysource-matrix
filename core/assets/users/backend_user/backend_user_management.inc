@@ -18,10 +18,9 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_user_management.inc,v 1.6 2003/11/26 00:51:03 gsherwood Exp $
+* $Id: backend_user_management.inc,v 1.6.2.1 2004/02/18 11:39:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
-
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
@@ -38,6 +37,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 class Backend_User_Management extends Asset_Management
 {
 
+
 	/**
 	* Constructor
 	*
@@ -48,5 +48,7 @@ class Backend_User_Management extends Asset_Management
 
 	}//end constructor
 
+
 }//end class
+
 ?>

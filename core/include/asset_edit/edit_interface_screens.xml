@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.8 2003/11/26 00:51:11 gsherwood Exp $
+* $Id: edit_interface_screens.xml,v 1.8.2.1 2004/02/18 11:39:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <screens>
-	<screen code_name="paths" display_name="Web Paths" icon="web" lock_type="lookups" />
-	<screen code_name="weights" display_name="Relevance Weights" icon="web" lock_type="weights" force_unlock="0" />
+	<screen code_name="paths" display_name="Web Paths" icon="web" lock_type="lookups"/>
+	<screen code_name="weights" display_name="Relevance Weights" icon="web" lock_type="weights"/>
 </screens>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.270 2004/01/15 14:48:03 brobertson Exp $
+* $Id: asset.inc,v 1.270.2.1 2004/02/18 11:39:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -258,7 +258,7 @@ class Asset extends MySource_Object
 		// OK, what we need to do here is set write access for this asset to the current user
 		// so that they can actually do anything
 		// NOW normally this would require admin access but this is a very special case
-		$this->_tmp[__CLASS__.'_in_create_setting_permissions'] = true;
+		$this->_tmp[__CLASS__.'_in_create_cascading'] = true;
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'permissions')) {
 			$ms->abortLog();
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -278,7 +278,7 @@ class Asset extends MySource_Object
 			}
 		}
 
-		unset($this->_tmp[__CLASS__.'_in_create_setting_permissions']);
+		unset($this->_tmp[__CLASS__.'_in_create_cascading']);
 
 		$message_body = 'New '.$this->type().' "'.$this->name.'" created';
 		$message = $ms->newMessage(Array(), 'Asset Created', $message_body, 'asset');
@@ -344,8 +344,10 @@ class Asset extends MySource_Object
 			// because other assets may have changed what happens in createLink)
 			$new_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id, 'minor');
 
-			// set permission on this asset that the parent has if the parent is not the root folder
-			$this->_tmp[__CLASS__.'_in_create_setting_permissions'] = true;
+			// cascade permissions, and schemas on this asset that the parent has if the parent is not the root folder
+			$this->_tmp[__CLASS__.'_in_create_cascading'] = true;
+
+			// setting permissions
 			foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
 				$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($link['asset']->id, $perm, null, false, false, true);
 				foreach ($set_perms as $userid => $access) {
@@ -358,7 +360,34 @@ class Asset extends MySource_Object
 					}
 				}
 			}
-			unset($this->_tmp[__CLASS__.'_in_create_setting_permissions']);
+
+			// setting metadata schemas
+			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			$schemas = $mm->getSchemas($link['asset']->id);
+			foreach ($schemas as $schemaid => $access) {
+				if (!$mm->setSchema($this->id, $schemaid, $access)) {
+					$ms->abortLog();
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
+					$this->id = 0;
+					return false;
+				}
+			}
+
+			// setting workflow schemas
+			$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+			$schemas = $wfm->getSchemas($link['asset']->id);
+			foreach ($schemas as $schemaid => $access) {
+				if (!$wfm->setSchema($this->id, $schemaid, $access)) {
+					$ms->abortLog();
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
+					$this->id = 0;
+					return false;
+				}
+			}
+
+			unset($this->_tmp[__CLASS__.'_in_create_cascading']);
 
 			if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'permissions')) {
 				$ms->abortLog();
@@ -1466,7 +1495,7 @@ class Asset extends MySource_Object
 			foreach($links as $link) {
 				$parent = &$am->getAsset($link['majorid'], $link['major_type_code']);
 				if (is_null($parent)) continue;
-				if (($err_msg = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $new_type_code, $link['link_type'], $link['linkid'])) !== true) {
+				if (($err_msg = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $new_type_code, $link['link_type'], $link['linkid'], $link['exclusive'])) !== true) {
 					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 					trigger_error('Unable to cast "'.$this->name.'" to "'.$new_type_code.'", "'.$parent->name.'" (Asset # '.$parent->id.') cannot be linked to the new Asset - ('.$err_msg.')', E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -1863,6 +1892,33 @@ class Asset extends MySource_Object
 		return $GLOBALS['SQ_SYSTEM']->am->createAssetLink($this, $minor, $link_type, $value, $sort_order, $dependant, $exclusive);
 
 	}//end createLink()
+
+
+	/**
+	* Prepares for linking by checking that the link values are valid for this link
+	*
+	* This function will be called if this asset is the major or minor party in the link, so the side_of_link flag
+	* should be checked to work out what side of the link this asset is on. The return value should indicate
+	* if any of the link fields were changed.
+	*
+	* @param object Asset	$asset			the major or minor asset that we are linking to
+	* @param string			$side_of_link	the side of the link we are on (major or minor)
+	* @param string			$link_type		the type of link we are creating
+	* @param string			$value			the value that is to be associated with the link
+	* @param string			$sort_order		the position in the links list that this link should take,
+	* @param string			$dependant		'0' / '1' on whether the this asset is dependant on the
+	*										asset that will be linked by the new link
+	* @param string			$exclusive		'0' / '1' on whether the this asset is linked exclusivly
+	*										to the asset that will be linked by the new link
+	*
+	* @return boolean
+	* @access public
+	*/
+	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
+	{
+		return false;
+
+	}//end prepareLink()
 
 
 	/**
@@ -2481,7 +2537,7 @@ class Asset extends MySource_Object
 	function adminAccess($lock_type, $assetids=Array())
 	{
 		if (SQ_ROLLBACK_VIEW) return false;
-		if (!$this->id || !empty($GLOBALS['SQ_INSTALL']) || !empty($this->_tmp[__CLASS__.'_in_create_setting_permissions'])) return true;
+		if (!$this->id || !empty($GLOBALS['SQ_INSTALL']) || !empty($this->_tmp[__CLASS__.'_in_create_cascading'])) return true;
 		if ($this->status == SQ_STATUS_LIVE) return $this->liveEditAccess($lock_type);
 		return $this->checkAccess(SQ_PERMISSION_ADMIN, $lock_type, $assetids);
 
@@ -3312,14 +3368,12 @@ class Asset extends MySource_Object
 	* Retrieves a list of key data from this asset (used by the indexing service).
 	* Subclasses override this to give the content they want to make searchable.
 	*
-	* @param mixed $component	If it is not false, then it is assumed to be the name of a
-	*							component of this asset (defined and controlled by subclasses).
-	* @return array				An array of all the keydata for this asset. Keydata is of the form
+	* @return array				an array of all the keydata for this asset. Keydata is of the form
 	* <pre>
-	* array (
-	*	array (
-	*		'value' => ...,
-	*		'type' => ..., (text, date, number, etc.)
+	* Array (
+	*	Array (
+	*		'value'     => ...,
+	*		'type'      => ..., (text, date, number, etc.)
 	*		'component' => ..., (whatever you want, just as long as this asset
 	*							 knows how to deal with it if it needs to)
 	*		), ...
@@ -3327,26 +3381,44 @@ class Asset extends MySource_Object
 	* </pre>
 	* @access public
 	*/
-	function &getKeyData($component = false)
+	function getKeyData()
 	{
-		// supply metadata
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
+
+		// index metadata
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-		$schemaids = $mm->getSchemas($this->id, 1);
+		$schemaids = $mm->getSchemas($this->id, true);
+		$keydata   = $mm->getMetadataKeyData($this->id, $schemaids);
 
-		$keydata = $mm->getMetadataKeyData($this->id, $schemaids);
-
+		// index attributes
 		$weightings = $this->getWeightings();
+
 		// supply name
-		if (!$component || $component == 'name') {
-			$value = $this->name;
-			foreach (get_word_counts($value) as $word => $count) {
-				$this->buildKeyData($keydata, $word, 'text', "name", $count * $weightings['name']['weighting']);
+		$value = $this->name;
+		foreach (get_word_counts($value) as $word => $count) {
+			$this->buildKeyData($keydata, $word, 'text', 'attr:'.$this->type().':__name__', $count * $weightings['__name__']['weighting']);
+		}
+
+		foreach ($this->vars as $var_name => $var_data) {
+			if (!isset($weightings[$var_name])) continue;
+
+			// skip non scalar values because we cant index them properly
+			if (!is_scalar($var_data['value'])) continue;
+
+			$attribute = &$this->getAttribute($var_name);
+			$values = $attribute->getKeyData();
+			if (empty($values)) continue;
+
+			$comp_name = 'attr:'.$this->type().':'.$var_name;
+			foreach ($values as $value => $count) {
+				$this->buildKeyData($keydata, $value, $var_data['type'], $comp_name, $count * $weightings[$var_name]['weighting']);
 			}
 		}
 
 		return $keydata;
 
 	}//end getKeyData()
+
 
 	/**
 	* Informs the indexing service that this asset's contents have changed, and
@@ -3357,8 +3429,7 @@ class Asset extends MySource_Object
 	*/
 	function informChanges()
 	{
-		if (!SQ_CONF_INDEXING_ENABLED)
-			return;
+		if (!SQ_CONF_INDEXING_ENABLED) return;
 
 		$im =& $GLOBALS['SQ_SYSTEM']->getIndexingManager();
 		$im->changed($this->id);
@@ -3369,28 +3440,25 @@ class Asset extends MySource_Object
 	/**
 	* Save component weightings to the database
 	*
-	* @param Array	$newWeightings	the component wieghtings to save
+	* @param array	$newWeightings	the component wieghtings to save
 	*
 	* @return void
 	* @access public
 	*/
-	function saveComponentWeightings($newWeightings)
+	function saveComponentWeightings($new_weightings)
 	{
 		$im =& $GLOBALS['SQ_SYSTEM']->getIndexingManager();
 		$dirty = false;
 		$weightings =& $this->getWeightings();
 
-		foreach ($newWeightings as $component => $weightingData) {
-			if ($weightingData['default']) {
+		foreach ($new_weightings as $component => $weighting_data) {
+			if ($weighting_data['default']) {
 				$weighting = null;
-				if (!$weightings[$component]['default'])
-					$dirty = true;
+				if (!$weightings[$component]['default']) $dirty = true;
 			} else {
-				$weighting = $weightingData['weighting'];
-				$weightings[$component]['default'] = $weightingData['default'];
-
-				if (!$dirty)
-					$weightings[$component]['weighting'] = $weighting;
+				$weighting = $weighting_data['weighting'];
+				$weightings[$component]['default'] = $weighting_data['default'];
+				if (!$dirty) $weightings[$component]['weighting'] = $weighting;
 			}
 			$im->setComponentWeighting($this->id, $component, $weighting);
 		}
@@ -3407,27 +3475,29 @@ class Asset extends MySource_Object
 	/**
 	* Adds a piece of keydata to the array to be passed to the indexing service.
 	*
-	* @param array ref $keydata A reference to the keydata array being built
-	* @param string $value The key data value
-	* @param string $type The key data type, defaults to 'text' (e.g. text, date, number, etc.)
-	* @param string $component The component to which this data pertains to
+	* @param array		&$keydata			a reference to the keydata array being built
+	* @param string		$value				the key data value
+	* @param string		$type				the key data type, defaults to 'text' (e.g. text, date, number, etc.)
+	* @param string		$component			the component to which this data pertains to
+	* @param int		$score				weighting of this word for the search
+	* @param int		$force_processing	if the initial checking routines should be skipped
 	*
 	* @return void
 	* @access protected
 	*/
-	function buildKeyData(&$keydata, $value, $type = 'text', $component = false, $score = 1)
+	function buildKeyData(&$keydata, $value, $type='text', $component='', $score=1, $force_processing=0)
 	{
-		if (!is_array($keydata))
-			return false;
-		if ($score <= 0)
-			return false;
+		// checking if we should skip initial test of given values, because
+		// they are almost always null if we are indexing metadata fields
+		if ($force_processing != 1 && (!is_array($keydata) || $score <= 0)) return false;
 
-		array_push($keydata, array (
-			'value'		=> $value,
-			'type'		=> $type,
-			'component' => $component,
-			'score'		=> $score,
-		));
+		array_push($keydata, Array (
+									'value'     => $value,
+									'type'      => $type,
+									'component' => $component,
+									'score'     => $score,
+									)
+					);
 
 		return true;
 
@@ -3466,8 +3536,8 @@ class Asset extends MySource_Object
 			foreach ($results as $result) {
 				$this->_weightings[$result['component']] =
 					Array(
-						'default' => ($result['def'] == 't')?1:0,
-						'weighting' => $result['weighting'],
+						'default'     => ($result['def'] == 't') ? 1 : 0,
+						'weighting'   => $result['weighting'],
 						'description' => $result['description'],
 					);
 			}
@@ -3475,6 +3545,7 @@ class Asset extends MySource_Object
 		return $this->_weightings;
 
 	}// end getWeightings()
+
 
 }//end class
 

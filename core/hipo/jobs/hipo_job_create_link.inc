@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_link.inc,v 1.9 2003/12/19 04:01:39 gsherwood Exp $
+* $Id: hipo_job_create_link.inc,v 1.9.2.1 2004/02/18 11:39:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -52,7 +52,7 @@ class HIPO_Job_Create_Link extends HIPO_Job
 	* The name of this HIPO job (should not be modified by code)
 	* @var string
 	*/
-	var $_hipo_name = 'Create Link';
+	var $hipo_name = 'Create Link';
 
 	/**
 	* Array of steps to perform in this HIPO
@@ -165,14 +165,14 @@ class HIPO_Job_Create_Link extends HIPO_Job
 	* Returns a unique codename the HIPO can use to ensure it is not being run twice
 	*
 	* @return string
-	* @access private
+	* @access public
 	*/
-	function _getCodeName()
+	function getCodeName()
 	{
-		if (isset($this->_running_vars['linkid'])) return parent::_getCodeName().$this->_running_vars['linkid'];
-		else return parent::_getCodeName().$this->_running_vars['assetid'];
+		if (isset($this->_running_vars['linkid'])) return parent::getCodeName().$this->_running_vars['linkid'];
+		else return parent::getCodeName().$this->_running_vars['assetid'];
 
-	}//end _getCodeName()
+	}//end getCodeName()
 
 
 	/**
@@ -261,19 +261,33 @@ class HIPO_Job_Create_Link extends HIPO_Job
 
 				$o->openField('&nbsp;');
 					if ($new_parent->id == $trash_folder->id) {
-						echo '<p>Please confirm that you are moving "'.$asset->name.'" to the trash.</p>';
+						?>
+						<table width="100%">
+							<tr>
+								<td valign="top">
+									<?php
+									include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
+									$asset_map = new Asset_Map();
+									$asset_map->embed_asset_map('simple');
+									?>
+								</td>
+								<td width="100%" valign="top"><p>Please confirm that you are moving "<?php echo $asset->name; ?>" to the trash.</p>
+						<?php
 					} else {
 						echo '<p>Please confirm that you are moving "'.$asset->name.'" from under "'.$parent->name.'" to under "'.$new_parent->name.'".</p>';
 					}
 					echo '<p>Press the <b>Next</b> button below to confirm or the <b>Cancel</b> button to abort.</p>';
-				$o->closeField();
-				
-				if ($new_parent->id == $trash_folder->id) {
-					$o->openField('&nbsp;');
+
+					if ($new_parent->id == $trash_folder->id) {
 						echo '<p>When "'.$asset->name.'" is moved to the trash, any URLs that it currently has will be broken. Use the asset finder below to select another asset to remap the URLs of "'.$asset->name.'" to. If you do not want to remap the URLs, just leave the field empty.</p>';
-						asset_finder($prefix.'_remap_new_url', $asset->id, Array(), 'window.opener.top');
-					$o->closeField();
-				}
+						asset_finder($prefix.'_remap_new_url', $asset->id, Array(), '');
+						?>
+								</td>
+							</tr>
+						</table>
+						<?php
+					}
+				$o->closeField();
 
 
 				// check to see if this asset is getting moved to the trash for good !!!
@@ -440,8 +454,6 @@ class HIPO_Job_Create_Link extends HIPO_Job
 			}
 
 			$this->_running_vars['assetid'] = $asset->id;
-			$this->_running_vars['todo_assetids'] = array_merge(Array($asset->id), $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id));
-			$this->_running_vars['done_assetids'] = Array();
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
@@ -676,9 +688,9 @@ class HIPO_Job_Create_Link extends HIPO_Job
 	*/
 	function paintRefresh(&$step_data, &$o, $prefix)
 	{
-		$o->addOnLoad('if (window.opener.top.sidenav && window.opener.top.sidenav.reload_asset) window.opener.top.sidenav.reload_asset("'.$this->_running_vars['parentid'].'");');
+		$o->addOnLoad('if (window.opener.parent.frames["sq_sidenav"] && window.opener.parent.frames["sq_sidenav"].reload_asset) window.opener.parent.frames["sq_sidenav"].reload_asset("'.$this->_running_vars['parentid'].'");');
 		if (isset($this->_running_vars['old_parentid'])) {
-			$o->addOnLoad('if (window.opener.top.sidenav && window.opener.top.sidenav.reload_asset) window.opener.top.sidenav.reload_asset("'.$this->_running_vars['old_parentid'].'");');
+			$o->addOnLoad('if (window.opener.parent.frames["sq_sidenav"] && window.opener.parent.frames["sq_sidenav"].reload_asset) window.opener.parent.frames["sq_sidenav"].reload_asset("'.$this->_running_vars['old_parentid'].'");');
 		}
 
 		return true;

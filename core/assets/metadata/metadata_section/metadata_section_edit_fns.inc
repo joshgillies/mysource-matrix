@@ -18,12 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.11 2003/11/26 00:50:58 gsherwood Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.11.2.1 2004/02/18 11:39:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
-
-require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 
 /**
 * Metadata_Section_Edit_Fns
@@ -36,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Metadata_Section_Edit_Fns extends Asset_Edit_Fns
+class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 {
 
 	/**
@@ -45,7 +44,7 @@ class Metadata_Section_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function Metadata_Section_Edit_Fns()
 	{
-		$this->Asset_Edit_Fns();
+		$this->Folder_Edit_Fns();
 		$this->static_screens['details']['force_unlock'] = false;
 
 	}//end constructor
@@ -65,7 +64,7 @@ class Metadata_Section_Edit_Fns extends Asset_Edit_Fns
 		$write_access = $asset->writeAccess('links');
 		$prefix = $asset->getPrefix();
 
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', true, 'major', null, true, true);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', false, 'major', null, true, true);
 		if (!empty($current_links)) {
 			$assetids = Array();
 			foreach ($current_links as $link) $assetids[$link['minorid']] = 'details';
@@ -106,10 +105,25 @@ class Metadata_Section_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		if ($write_access) {
-			$o->openField('New Field?');
+			$o->openField('New Field Name');
+
 				require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-				echo 'Create a new field called ';
 				text_box($prefix.'_new_field', '', 20);
+
+			$o->closeField();
+
+			$o->openField('New Field Type');
+
+				// now getting available types list
+				$descendant_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('metadata_field');
+				
+				$contents = Array();
+				foreach ($descendant_types as  $type) {
+					$contents[$type] = $type;
+				}
+
+				combo_box($prefix.'_field_type', $contents, false, 'metadata_field_text');
+
 			$o->closeField();
 		}
 
@@ -148,8 +162,26 @@ class Metadata_Section_Edit_Fns extends Asset_Edit_Fns
 		// create a new field?
 		if (isset($_POST[$prefix.'_new_field']) && trim($_POST[$prefix.'_new_field']) != '') {
 			$new_field_name = trim($_POST[$prefix.'_new_field']);
-			$GLOBALS['SQ_SYSTEM']->am->includeAsset('metadata_field');
-			$new_field =& new Metadata_Field();
+			$new_field_type = trim($_POST[$prefix.'_field_type']);
+
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($new_field_type); 
+
+			if ($new_field_type == 'metadata_field_text') { // add more type-checks here
+
+				$new_field =& new Metadata_Field_Text();
+
+			} elseif ($new_field_type == 'metadata_field_select') {
+
+				$new_field =& new Metadata_Field_Select();
+			
+			} elseif ($new_field_type == 'metadata_field_date') {
+
+				$new_field =& new Metadata_Field_Date();
+
+			} else {
+				$new_field =& new Metadata_Field_Text(); // default is standard Metadata Field Text
+			}
+			
 			$section_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => -1, 'dependant' => 1, 'exclusive' => 1);
 			$new_field->setAttrValue('name', $new_field_name);
 			if ($new_field->create($section_link)) $updated = true;
@@ -179,7 +211,7 @@ class Metadata_Section_Edit_Fns extends Asset_Edit_Fns
 	function paintInlineValueInterface(&$asset, &$o, $values, $write_access)
 	{
 		$o->openSection($asset->name);
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', true, 'major', null, true);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', false, 'major', null, true);
 		foreach ($current_links as $link) {
 			$field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($field)) continue;
@@ -207,7 +239,7 @@ class Metadata_Section_Edit_Fns extends Asset_Edit_Fns
 	{
 		$new_values[$asset->name] = Array();
 		$new_values[$asset->name]['fields'] = Array();
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', true, 'major', null, true);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', false, 'major', null, true);
 		foreach ($current_links as $link) {
 			$field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($field)) continue;
@@ -231,7 +263,7 @@ class Metadata_Section_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function requiredFieldsComplete(&$asset, $values)
 	{
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', true, 'major', null, true);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', false, 'major', null, true);
 		foreach ($current_links as $link) {
 			$field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($field)) continue;
@@ -258,7 +290,7 @@ class Metadata_Section_Edit_Fns extends Asset_Edit_Fns
 	function generateMetadata(&$asset, $values, &$keywords)
 	{
 		echo "<!-- $asset->name //-->\n";
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', true, 'major', null, true);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', false, 'major', null, true);
 		foreach ($current_links as $link) {
 			$field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($field)) continue;
@@ -286,7 +318,7 @@ class Metadata_Section_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function getMetadataFieldValues(&$asset, &$section, $values, &$fields)
 	{
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($section->id, SQ_LINK_TYPE_2, 'metadata_field', true, 'major', null, true);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($section->id, SQ_LINK_TYPE_2, 'metadata_field', false, 'major', null, true);
 		foreach ($current_links as $link) {
 			$field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($field)) continue;

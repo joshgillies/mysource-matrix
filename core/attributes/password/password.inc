@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: password.inc,v 1.15 2003/12/01 05:16:59 gsherwood Exp $
+* $Id: password.inc,v 1.15.2.1 2004/02/18 11:39:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -161,6 +161,22 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 		return true;
 
 	}//end validateValue()
+
+
+	/**
+	* Retrieve a list of indexable values from this attribute
+	*
+	* The return value not only contains the indexable values, but also the number of
+	* times they occur in this attributes value
+	*
+	* @return array(string => int)
+	* @access public
+	*/
+	function getKeyData()
+	{
+		return Array();
+
+	}//end getKeyData()
 
 
 }//end class

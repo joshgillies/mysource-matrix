@@ -18,12 +18,11 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.9 2003/11/26 00:51:03 gsherwood Exp $
+* $Id: edit_interface_screens.xml,v 1.9.2.1 2004/02/18 11:39:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <screens>
-	<screen code_name="mail" display_name="Inbox" icon="create" lock_type="mail" force_unlock="0" />
 	<screen code_name="trash" display_name="Trash" icon="create" lock_type="mail" force_unlock="0" />
 </screens>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_management.inc,v 1.7 2003/11/26 00:50:58 gsherwood Exp $
+* $Id: metadata_field_management.inc,v 1.7.2.1 2004/02/18 11:39:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -65,10 +65,6 @@ class Metadata_Field_Management extends Asset_Management
 							'value_components'	=> Array(
 													'added' => '0.0.1',
 													'type'  => 'serialise', 'default' => Array()
-													),
-							'multi_line'		=> Array(
-													'added' => '0.1',
-													'type'  => 'boolean', 'default'   => false
 													),
 							'editable'			=> Array(
 													'added' => '0.1',

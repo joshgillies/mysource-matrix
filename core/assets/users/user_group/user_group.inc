@@ -18,10 +18,9 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group.inc,v 1.11 2003/12/30 05:25:38 gsherwood Exp $
+* $Id: user_group.inc,v 1.11.2.1 2004/02/18 11:39:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
-
 
 require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 

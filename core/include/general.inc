@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.43.2.1 2004/02/14 21:27:43 brobertson Exp $
+* $Id: general.inc,v 1.43.2.2 2004/02/18 11:39:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -170,6 +170,9 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 					} else {
 						echo $str;
 					}
+
+					// Uncomment below for debugging from cmdline
+					//error_log($str."\n".$bt_str."\n".str_repeat("=+", 50)."\n", 3, SQ_DATA_PATH.'/private/logs/back_traces.log');
 
 					break;
 
@@ -343,10 +346,9 @@ function sq_web_path($path='base')
 */
 function current_url($inc_protocol=true, $strip_backend_suffix=false)
 {
-	// check to see if we are running as PHP CLI
-	$hostname = (SQ_PHP_CLI) ? $_SERVER['HOSTNAME'] : $_SERVER['HTTP_HOST'];
+	if (SQ_PHP_CLI) return '';
 
-	$url = (($inc_protocol) ? current_protocol().'://' : '').$hostname.$_SERVER['PHP_SELF'];
+	$url = (($inc_protocol) ? current_protocol().'://' : '').$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
 	// if we are in the backend remove the suffix
 	if ($strip_backend_suffix && (SQ_IN_BACKEND || SQ_IN_LIMBO)) {
 		$url = preg_replace('/'.SQ_CONF_BACKEND_SUFFIX.'\/?$/', '', $url);

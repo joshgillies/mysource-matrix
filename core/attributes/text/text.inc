@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.16 2003/11/26 00:51:08 gsherwood Exp $
+* $Id: text.inc,v 1.16.2.1 2004/02/18 11:39:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,6 +53,10 @@ class Asset_Attribute_Text extends Asset_Attribute
 	{
 		$this->Asset_Attribute($attributeid, $value, Array('max_length' => 0));
 
+		// set default edit parameters
+		$this->_edit_params['width']  = 0;
+		$this->_edit_params['height'] = 1;
+
 	}//end constructor
 
 
@@ -69,8 +73,8 @@ class Asset_Attribute_Text extends Asset_Attribute
 	{
 		if (!parent::setEditParams($node)) return false;
 
-		$this->_edit_params['width']    = isset($node->attributes['width'])  ? (int) $node->attributes['width']  : 0;
-		$this->_edit_params['height']   = isset($node->attributes['height']) ? (int) $node->attributes['height'] : 1;
+		if (isset($node->attributes['width']))  $this->_edit_params['width']  = (int) $node->attributes['width'];
+		if (isset($node->attributes['height'])) $this->_edit_params['height'] = (int) $node->attributes['height'];
 
 		return true;
 
@@ -139,6 +143,22 @@ class Asset_Attribute_Text extends Asset_Attribute
 		return true;
 
 	}//end validateValue()
+
+
+	/**
+	* Retrieve a list of indexable values from this attribute
+	*
+	* The return value not only contains the indexable values, but also the number of
+	* times they occur in this attributes value
+	*
+	* @return array(string => int)
+	* @access public
+	*/
+	function getKeyData()
+	{
+		return get_word_counts($this->value);
+
+	}//end getKeyData()
 
 
 }//end class

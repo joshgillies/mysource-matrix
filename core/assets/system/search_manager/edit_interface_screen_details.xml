@@ -18,14 +18,14 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2003/11/26 00:51:02 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.4.2.1 2004/02/18 11:39:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 <contents>
-	<section name="Details">
-		<field read_access="write:" write_access="write:">
-			<display_name>Re-index Assets</display_name>
+	<section name="Re-index Assets" read_access="write:attributes" write_access="write:attributes">
+		<field>
+			<display_name>Root Node</display_name>
 			<note />
 			<function_call>
 				<paint_function		name="paintReindexing" />

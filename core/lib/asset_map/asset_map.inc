@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.112 2004/01/16 00:46:38 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.112.2.1 2004/02/18 11:39:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -66,7 +66,7 @@ class Asset_Map
 			$inbox_url = &$GLOBALS['SQ_SYSTEM']->user->getBackendHref();
 		} else {
 			$inbox_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid'], $inbox_link['minor_type_code']);
-			$inbox_url = $inbox_asset->getBackendHref('mail');
+			$inbox_url = $inbox_asset->getBackendHref('details');
 		}
 
 		$flash_vars = 'server_exec_path='.rawurlencode($backend->getBackendUrl('asset_map_request')).
@@ -77,12 +77,34 @@ class Asset_Map
 							'&sq_link_path=%link_path%'.
 							'&asset_ei_screen=%action%').
 					  '&inbox_path='.rawurlencode($inbox_url).
-					  '&url_frame=main';
+					  '&url_frame=sq_main';
 
 		?>
 		<script language="JavaScript" type="text/javascript">
 		<!--
 			init_asset_map();
+
+			/**
+			* Open up a help window
+			*/
+			function open_help(params)
+			{
+				var popup_win = window.open("<?php echo sq_web_path('lib'); ?>/web/asset_map_help.php", 'sq_asset_map_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=180');
+
+			}//end open_help()
+			registerFlashToJsCall('open_help', open_help);
+
+
+
+			/** 
+			* Open up a help window
+			*/
+			function open_legend(params)
+			{
+				var popup_win = window.open("<?php echo sq_web_path('lib'); ?>/web/asset_map_key.php", 'sq_asset_map_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=350,height=300');
+
+			}//end open_legend()
+			registerFlashToJsCall('open_legend', open_legend);
 		//-->
 		</script>
 
@@ -148,7 +170,7 @@ class Asset_Map
 			<object id="sq_asset_map" width="<?php echo $width; ?>" height="<?php echo $height; ?>" classid="CLSID:8AD9C840-044E-11d1-B3E9-00805F499D93">
 				<param name="code" value="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" />
 				<param name="level" value="5" />
-				<param name="archive" value="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar" />
+				<param name="archive" value="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar, <?php echo sq_web_path('lib'); ?>/asset_map/java/crimson.jar" />
 				Java is not installed on your system
 			</object>
 		<?php
@@ -580,7 +602,7 @@ class Asset_Map
 						.'&link_type='.rawurlencode($use_link_type)
 						.'&parent_assetid='.rawurlencode($attr['parent_assetid'])
 						.'&pos='.rawurlencode($attr['pos']);
-				$frame = 'main';
+				$frame = 'sq_main';
 				break;
 
 			default :

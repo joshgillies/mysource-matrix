@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.29 2004/01/15 09:29:07 brobertson Exp $
+* $Id: internal_message.inc,v 1.29.2.1 2004/02/18 11:39:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -274,7 +274,13 @@ class Internal_Message extends MySource_Object
 					$from_email = $user_from->attr('email');
 				}
 			}
-			if (empty($from_email)) $from_email = 'webmaster@'.((SQ_PHP_CLI) ? $_SERVER['HOSTNAME'] : $_SERVER['HTTP_HOST']);
+			if (empty($from_email)) {
+				if (isset($_SERVER['HOSTNAME']) && isset($_SERVER['HTTP_HOST'])) {
+					$from_email = 'webmaster@'.((SQ_PHP_CLI) ? $_SERVER['HOSTNAME'] : $_SERVER['HTTP_HOST']);
+				} else {
+					$from_email = SQ_CONF_DEFAULT_EMAIL;
+				}
+			}
 			if (empty($from_string)) $from_string = '"'.SQ_SYSTEM_SHORT_NAME.' System" <'.$from_email.'>';
 		}
 
@@ -619,7 +625,7 @@ class Internal_Message extends MySource_Object
 		foreach ($to_types as $assetid => $types) {
 			if (in_array('user_group', $types)) {
 				$group = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				if ($group->id) $send_to = array_merge($send_to, $GLOBALS['SQ_SYSTEM']->am->getChildren($group->id, Array('user'), false));
+				if ($group->id) $send_to = array_merge($send_to, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($group->id, Array('user'), false)));
 			} else {
 				$send_to[] = $assetid;
 			}

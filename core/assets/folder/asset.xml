@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.11 2003/11/26 00:50:58 gsherwood Exp $
+* $Id: asset.xml,v 1.11.2.1 2004/02/18 11:39:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -36,5 +36,5 @@
 	<allowed_access>backend_user</allowed_access>
 	<parent_type>asset</parent_type>
 	<requirements />
-	<flash_menu_path>Folders</flash_menu_path>
+	<flash_menu_path />
 </asset_info>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_management.inc,v 1.18 2003/11/26 00:51:04 gsherwood Exp $
+* $Id: user_management.inc,v 1.18.2.1 2004/02/18 11:39:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -74,6 +74,28 @@ class User_Management extends Asset_Management
 								'default'   => '',
 							),
 						);
+
+		$this->components = Array(
+								'__name__' => Array(
+									'default_weighting' => '1',
+								),
+								'username' => Array (
+									'description'       => 'Username',
+									'default_weighting' => '1',
+								),
+								'first_name' => Array (
+									'description'       => 'First Name',
+									'default_weighting' => '1',
+								),
+								'last_name' => Array (
+									'description'       => 'Last Name',
+									'default_weighting' => '1',
+								),
+								'email' => Array (
+									'description'       => 'Email Address',
+									'default_weighting' => '1',
+								),
+							);
 
 	}//end constructor
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.22 2004/01/13 05:56:04 diarandine Exp $
+* $Id: metadata_manager.inc,v 1.22.2.1 2004/02/18 11:39:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -122,31 +122,28 @@ class Metadata_Manager extends MySource_Object
 
 
 	/**
-	* This function returns an array of metatata fields IDs for a 
-	* metadata schema with supplied ID 
+	* Get an array of metatata fields IDs for a metadata schema
 	*
-	* @param int $schemaid	- ID of the schema which fields we need
+	* @param int $schemaid	the schema whos fields we are getting
+	*
+	* @return Array(int)
+	* @access public
 	*/
 	function getMetadataFields($schemaid)
 	{
-		$fields_array = Array(); // initializing array
-		$my_am = &$GLOBALS['SQ_SYSTEM'] -> am;
-		$sectionids = $my_am -> getChildren($schemaid, 'metadata_section', false);
+		$fields_array = Array();
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$sectionids = $am->getChildren($schemaid, 'metadata_section', false);
 
-		foreach ($sectionids as $sectionid) {
-			
-			$section = $my_am -> getAsset($sectionid);
-			$fieldids = $my_am -> getChildren($sectionid, 'metadata_field', false);
-
-			foreach ($fieldids as $fieldid) {
-				array_push($fields_array, $fieldid);
-			}
-
-		} // end outer foreach
+		foreach ($sectionids as $sectionid => $section_type) {
+			$section = $am->getAsset($sectionid, $section_type);
+			$fieldids = $am->getChildren($sectionid, 'metadata_field', false);
+			$fields_array = array_merge($fields_array, array_keys($fieldids));
+		}
 
 		return $fields_array;
-	}
-	///////////////////////////////////////////////////
+
+	}//end getMetadataFields()
 
 
 	/**
@@ -366,11 +363,13 @@ class Metadata_Manager extends MySource_Object
 			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			if (is_null($schema)) {
 				trigger_error('Failed setting metadata, Schema #'.$schemaid.' does not exist', E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 
 			if (!is_a($schema, 'metadata_schema')) {
 				trigger_error('Failed setting metadata, "'.$schema->name.'" (Asset #'.$schemaid.') is not a metadata schema', E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 
@@ -409,9 +408,9 @@ class Metadata_Manager extends MySource_Object
 		$im =& $GLOBALS['SQ_SYSTEM']->getIndexingManager();
 		foreach ($schemaids as $schemaid) {
 			$sectionids = $am->getChildren($schemaid, 'metadata_section', false);
-			foreach ($sectionids as $sectionid) {
+			foreach ($sectionids as $sectionid => $section_type) {
 				$fieldids = $am->getChildren($sectionid, 'metadata_field', false);
-				foreach ($fieldids as $fieldid) {
+				foreach ($fieldids as $fieldid => $field_type) {
 					$im->flushKeyData($assetid, 'metadata:'.$fieldid);
 				}
 			}
@@ -441,35 +440,49 @@ class Metadata_Manager extends MySource_Object
 			$sectionids = $am->getChildren($schemaid, 'metadata_section', false);
 			$metadata = $this->getSchemaMetadata($assetid, $schemaid);
 
-			foreach ($sectionids as $sectionid) {
-				$section =& $am->getAsset($sectionid);
+			foreach ($sectionids as $sectionid => $section_type) {
+				$section = &$am->getAsset($sectionid, $section_type);
 
 				$fieldids = $am->getChildren($sectionid, 'metadata_field', false);
-				foreach ($fieldids as $fieldid) {
-					$field =& $am->getAsset($fieldid);
+				foreach ($fieldids as $fieldid => $field_type) {
 
+					$field =& $am->getAsset($fieldid, $field_type);
+					
 					if (isset($metadata['sections'][$section->name]['fields'][$field->name]['value'])) {
 						$value = $metadata['sections'][$section->name]['fields'][$field->name]['value'];
 					} else {
 						$value = $field->attr('default');
 					}
 
-					$keywords = retrieve_keywords_replacements($value);
+					$force_processing = 1; //will tell the function to process values in any case
+					
+					//////////////////////////////////////////////
+					// check field_type to define the indexing way
 
-					$replacements = $this->generateKeywordReplacements($asset, $keywords, false);
-					foreach ($keywords as $keyword => $replacement) {
-						$replacements[$keyword] = strtolower($replacement);
-					}
-					$value = replace_keywords($value, $replacements);
+					if ($field_type == 'metadata_field_date') {
+						
+						$mydate = date("d:m:Y:h:i:s", $value);							$asset->buildKeyData($keydata, $mydate, 'text', 'metadata:'. $field->id, $field->attr('weighting') * 1, $force_processing);
 
-					$word_counts = get_word_counts($value);
-					foreach ($word_counts as $word => $count) {
-						$asset->buildKeyData($keydata, $word, 'text', 'metadata:'. $field->id, $field->attr('weighting') * $count);
+					} else {
+
+						$keywords = retrieve_keywords_replacements($value);
+
+						$replacements = $this->generateKeywordReplacements($asset, $keywords, false);
+						foreach ($keywords as $keyword => $replacement) {
+							$replacements[$keyword] = strtolower($replacement);
+						}
+						$value = replace_keywords($value, $replacements);
+
+						$word_counts = get_word_counts($value);
+
+						foreach ($word_counts as $word => $count) {
+							$asset->buildKeyData($keydata, $word, 'text', 'metadata:'. $field->id, $field->attr('weighting') * $count, $force_processing);
+						}
+
 					}
 				}
 			}
 		}
-
 		return $keydata;
 
 	}//end getMetadataKeyData()
@@ -564,9 +577,13 @@ class Metadata_Manager extends MySource_Object
 				return false;
 			}
 
+			$values = Array();
 			$values = $this->getSchemaMetadata($asset->id, $schema->id);
 			$edit_fns = $schema->getEditFns();
 			$edit_fns->generateMetadata($schema, $values, $keywords);
+			unset($values);
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($schema);
+			unset($schema);
 		}
 
 		$metadata = ob_get_contents();
@@ -574,11 +591,11 @@ class Metadata_Manager extends MySource_Object
 
 		if (!empty($keywords)) {
 			ob_start();
-			echo '<'.'?php'."\n";
-			echo '$metadata_asset = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$asset->id.');'."\n\n";
-			$replacements = $this->generateKeywordReplacements($asset, $keywords);
-			echo '?'.'>';
-			$php = ob_get_contents();
+				echo '<'.'?php'."\n";
+				echo '$metadata_asset = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$asset->id.');'."\n\n";
+				$replacements = $this->generateKeywordReplacements($asset, $keywords);
+				echo '?'.'>';
+				$php = ob_get_contents();
 			ob_end_clean();
 			require_once SQ_FUDGE_PATH."/general/text.inc";
 			$metadata = replace_keywords($metadata, $replacements);
@@ -618,6 +635,7 @@ class Metadata_Manager extends MySource_Object
 		if (!empty($keywords) && $generating) echo '$metadata_replacements = Array();';
 
 		foreach ($keywords as $keyword) {
+
 			if ($generating) {
 				$metadata_replacements[$keyword] = '<'.'?php echo $metadata_replacements[\''.$keyword.'\']; ?'.'>';
 			} else {
@@ -694,11 +712,28 @@ class Metadata_Manager extends MySource_Object
 					echo '$metadata_replacements[\''.$keyword.'\'] = SQ_CONF_'.strtoupper($keyword).';'."\n";
 				break;
 
-				default :
-					echo '$metadata_replacements[\''.$keyword.'\'] = \'\';'."\n";
+				default : // searching for special ones...
+
+					$key = substr($keyword, 0, 13); // returns the key name
+					$format = substr($keyword, 14); // should return format, skipping '_' separator
+					$format = str_replace("-", " ", $format); // preparing our date format...
+
+					switch ($key) {
+
+						case 'asset_created':
+						case 'asset_updated':
+							echo '$metadata_replacements[\''.$keyword.'\'] = date(\''. $format .'\', $metadata_asset->'.substr($key,6).');'."\n";
+						break;
+
+						default:
+							echo '$metadata_replacements[\''.$keyword.'\'] = \'\';'."\n";
+						break;
+					} // end another switch...
+
 				break;
 
 			}//end switch
+
 
 			if ($generating) {
 				echo "\n";

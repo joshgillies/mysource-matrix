@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.8 2003/11/26 00:51:04 gsherwood Exp $
+* $Id: asset.xml,v 1.8.2.1 2004/02/18 11:39:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -34,7 +34,7 @@
 	<description>A general workspace for a user to create, edit and store works in progress</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
-	<parent_type>asset</parent_type>
+	<parent_type>folder</parent_type>
 	<requirements>
 		<requirement type="system">
 			<code>System</code>

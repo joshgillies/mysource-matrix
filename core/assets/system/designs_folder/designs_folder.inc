@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: designs_folder.inc,v 1.17 2003/11/26 00:51:00 gsherwood Exp $
+* $Id: designs_folder.inc,v 1.17.2.1 2004/02/18 11:39:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,8 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 */
 class Designs_Folder extends Folder
 {
+
+
 	/**
 	* Constructor
 	*
@@ -47,17 +49,18 @@ class Designs_Folder extends Folder
 	function Designs_Folder($assetid=0)
 	{
 		$this->Folder($assetid);
-	}
+
+	}//end constructor
 
 
 	/**
 	* Create this asset
 	*
-	* @param array()	&$link	information used to create the initial link
+	* @param array	&$link	information used to create the initial link
 	*
-	* @see Asset::create()
 	* @return mixed int or false
 	* @access public
+	* @see Asset::create()
 	*/
 	function create(&$link)
 	{
@@ -84,6 +87,7 @@ class Designs_Folder extends Folder
 
 	/**
 	* Creates a duplicate of this asset
+	*
 	* It DOES NOT duplicate the links that this asset has either to it or from it
 	* Returns a reference to the new object or if an error occured FALSE
 	*
@@ -98,6 +102,7 @@ class Designs_Folder extends Folder
 		trigger_error('Unable to duplicate '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').', you are only allowed one', E_USER_WARNING);
 		$null = NULL; // 'cause we need to return by reference :)
 		return $null;
+
 	}//end duplicate()
 
 
@@ -115,6 +120,7 @@ class Designs_Folder extends Folder
 	{
 		trigger_error('Unable to morph '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
 		return false;
+
 	}//end morph()
 
 
@@ -141,7 +147,6 @@ class Designs_Folder extends Folder
 
 	/**
 	* Creates a link between this asset and the passed asset, of a certain type
-	* and returns the linkid of the created link
 	*
 	* @param object Asset	$minor		the minor asset that we are linking to
 	* @param string			$link_type	the type of link this is
@@ -153,7 +158,7 @@ class Designs_Folder extends Folder
 	* @param string			$exclusive	'0' / '1' on whether the this asset is linked exclusivly 
 	*									to the asset that will be linked by this new link
 	*
-	* @return int
+	* @return int the linkid of the created link
 	* @access public
 	*/
 	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0')
@@ -201,8 +206,9 @@ class Designs_Folder extends Folder
 	/*
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
@@ -217,7 +223,7 @@ class Designs_Folder extends Folder
 	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
 	*							permissions set for this asset, otherwise returns effective access based on locking 
 	*							and status
-	* @param Array	$assetids	An array of user_group and/or user ids to check for write access
+	* @param array	$assetids	An array of user_group and/or user ids to check for write access
 	*							If the array is empty, the current user will be checked
 	*
 	* @return boolean
@@ -238,8 +244,10 @@ class Designs_Folder extends Folder
 			}
 		}
 		return false;
+
 	}//end writeAccess()
 
 
 }//end class
+
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_lock.inc,v 1.23 2003/12/16 12:13:57 brobertson Exp $
+* $Id: hipo_job_acquire_lock.inc,v 1.23.2.1 2004/02/18 11:39:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,7 +47,7 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 	* The name of this HIPO job (should not be modified by code)
 	* @var string
 	*/
-	var $_hipo_name = 'Acquire Lock';
+	var $hipo_name = 'Acquire Lock';
 
 	/**
 	* Array of steps to perform in this HIPO
@@ -81,6 +81,33 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 
 
 	/**
+	* Paints backend of this job
+	*
+	* @param object Backend_Outputter	&$o			reference to the backend outputter
+	* @param string						$class		calling class name
+	*
+	* @return void
+	* @access private
+	*/
+	function paintConfig(&$o, $class)
+	{
+		$write_access = $this->writeAccess();
+		
+		// metadata regeneration threshhold HIPO config entry
+		$o->openField('Acquire Lock Threshold');
+
+		if($write_access) {
+			text_box($class.'[SQ_HIPO_ACQUIRE_LOCK_THRESHOLD]', SQ_HIPO_ACQUIRE_LOCK_THRESHOLD, 5);
+		} else {
+			echo SQ_HIPO_ACQUIRE_LOCK_THRESHOLD;
+		}
+
+		$o->closeField();
+
+	}//end paintConfig()
+
+	
+	/**
 	* Sets some info about thresholds that this hipo requires.
 	*
 	* @return Array
@@ -89,12 +116,12 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 	function getConfigVars()
 	{
 		return Array(
-			'SQ_HIPO_ACQUIRE_LOCK_THRESHOLD' => Array('editable' => 0, 'default' => 1),
+			'SQ_HIPO_ACQUIRE_LOCK_THRESHOLD' => Array('editable' => 1, 'default' => 1),
 		);
 
 	}//end getConfigVars()
 
-
+	
 	/**
 	* Returns a unique codename the HIPO can use to ensure it is not being run twice
 	*
@@ -104,13 +131,13 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 	* the same time on the same parent asset.
 	*
 	* @return string
-	* @access private
+	* @access public
 	*/
-	function _getCodeName()
+	function getCodeName()
 	{
-		return parent::_getCodeName().'-'.$this->_running_vars['assetid'].'-'.implode(',',$this->_running_vars['lock_types']);
+		return parent::getCodeName().'-'.$this->_running_vars['assetid'].'-'.implode(',',$this->_running_vars['lock_types']);
 
-	}//end _getCodeName()
+	}//end getCodeName()
 
 
 	/**
@@ -159,7 +186,8 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 	{
 		if (SQ_HIPO_ACQUIRE_LOCK_THRESHOLD == 0) return 0;
 		if (!isset($this->_running_vars['todo_assetids'])) return 0;
-		return ((count($this->_running_vars['todo_assetids']) / SQ_HIPO_ACQUIRE_LOCK_THRESHOLD) * 100);
+		// note that we add 1 to the cound to take the root assetid into account
+		return (((count($this->_running_vars['todo_assetids']) + 1) / SQ_HIPO_ACQUIRE_LOCK_THRESHOLD) * 100);
 	
 	}//end getThreshold()
 
@@ -172,7 +200,7 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 	*/
 	function freestyle()
 	{
-		while (!empty($this->_running_vars['todo_assetids'])) {
+		while (!empty($this->_running_vars['todo_assetids']) || !$this->_running_vars['done_root']) {
 			if (!$this->processLocking($this->_steps[0], get_class($this))) return false;
 		}
 		return true;
@@ -213,17 +241,17 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 		// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
 		// we will be acquiring locks on
 
-		// if there is no dependants setting, or it is true, get only dependants
-
+		// if there is no dependants setting, or if it is true, get only dependants
 		if (!isset($this->_running_vars['dependants_only']) || !empty($this->_running_vars['dependants_only'])) {
 			$this->_running_vars['dependants_only'] = false;
-			$this->_running_vars['todo_assetids'] = array_merge(Array($asset->id), $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($asset->id));
-		// else get locks for all children
+			$child_assets = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($asset->id);
 		} else {
+			// get locks for all children
 			$this->_running_vars['dependants_only'] = true;
-			$this->_running_vars['todo_assetids'] = array_merge(Array($asset->id), $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id));
-
-		}// endif
+			$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
+		}
+		$this->_running_vars['todo_assetids'] = $child_assets;
+		$this->_running_vars['done_root']     = false;
 
 		if (!isset($this->_running_vars['forceably_acquire'])) {
 			$this->_running_vars['forceably_acquire'] = false;
@@ -272,9 +300,19 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 	*/
 	function processLocking(&$step_data, $prefix)
 	{
-		if (!empty($this->_running_vars['todo_assetids'])) {
-			$assetid = array_shift($this->_running_vars['todo_assetids']);
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (!empty($this->_running_vars['todo_assetids']) || !$this->_running_vars['done_root']) {
+
+			if (empty($this->_running_vars['done_assetids'])) {
+				// make sure we process the root asset first
+				$assetid = $this->_running_vars['assetid'];
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$this->_running_vars['done_root'] = true;
+			} else {
+				$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));
+				$asset_type = $this->_running_vars['todo_assetids'][$assetid];
+				unset($this->_running_vars['todo_assetids'][$assetid]);
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
+			}
 
 			if (!is_null($asset)) {
 				foreach($this->_running_vars['lock_types'] as $lock_type) {

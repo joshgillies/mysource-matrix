@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.66 2003/11/27 03:15:26 gsherwood Exp $
+* $Id: user.inc,v 1.66.2.1 2004/02/18 11:39:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -190,55 +190,6 @@ class User extends Asset
 		return ($this->attr('first_name') || $this->attr('last_name')) ? $this->attr('first_name').' '.$this->attr('last_name') : $this->attr('username');
 
 	}//end _getName()
-
-
-	/**
-	* Attempts to find a user that matches the passed username and password, returning it's assetid
-	*
-	* @param string	$username	the user name to search for
-	* @param string	$password	the password to match (only if not null)
-	* @param string	$type_code	the asset type to search for
-	*
-	* @return object User
-	* @access public
-	*/
-	function &find($username, $password=null, $type_code='user')
-	{
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$where = 'a.type_code IN (~SQ0~)
-				  AND at.name         = '.$db->quote('username').'
-				  AND at.attributeid  = av.attributeid
-				  AND av.assetid      = a.assetid
-				  AND av.custom_value = '.$db->quote($username);
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'av');
-		$sql = 'SELECT a.assetid, a.type_code
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a, '.SQ_TABLE_PREFIX.'asset_attribute at, '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value av
-				'.$where;
-
-		$subs = Array( 'SELECT type_code
-						FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
-						WHERE inherited_type_code = '.$db->quote($type_code)
-						);
-
-		$sql = db_extras_subquery($db, $sql, $subs);
-
-		$result = $db->getRow($sql);
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-
-		if (!$result['assetid']) return $null = null;
-
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['assetid']);
-		if (is_null($asset) || (!is_null($password) && !$asset->comparePassword($password))) {
-			return $null = null;
-		}
-
-		return $asset;
-
-	}//end find()
 
 
 	/**

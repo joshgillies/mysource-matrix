@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_cell.inc,v 1.3 2003/12/16 12:16:42 brobertson Exp $
+* $Id: bodycopy_table_cell.inc,v 1.3.2.1 2004/02/18 11:39:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -83,10 +83,9 @@ class BodyCopy_Table_Cell extends MySource_Object {
 	*/
 	function setContentType(&$table, $type, $rowid, $cellid)
 	{
-		$full_type = 'content_type_'.$type;
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset($full_type);
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset($type);
 		$content_link = Array('asset' => &$table, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
-		$content_type = new $full_type();
+		$content_type = new $type();
 		$content_type->setAttrValue('name', 'Row '.($rowid+1).' Cell '.($cellid+1));
 		$this->attributes['linkid'] = $content_type->create($content_link);
 		if (!$this->attributes['linkid']) return false;
@@ -321,6 +320,15 @@ class BodyCopy_Table_Cell extends MySource_Object {
 	}//end processCell()
 
 
+	/**
+	* Change the type of this cell to the passed content type
+	*
+	* @param object BodyCopy_Table	&$table		the table object
+	* @param string					$new_type	the name of the new cell type
+	*
+	* @return boolean
+	* @access private
+	*/
 	function _updateCellType(&$table, $new_type='') {
 
 		// dont change anything if the new type id blank

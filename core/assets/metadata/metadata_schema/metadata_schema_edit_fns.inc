@@ -18,12 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.16 2004/01/13 05:59:36 diarandine Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.16.2.1 2004/02/18 11:39:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
-
-require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 
 /**
 * Metadata_Schema_Edit_Fns
@@ -36,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
+class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 {
 
 	/**
@@ -45,7 +44,7 @@ class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function Metadata_Schema_Edit_Fns()
 	{
-		$this->Asset_Edit_Fns();
+		$this->Folder_Edit_Fns();
 		$this->static_screens['details']['force_unlock'] = false;
 		$this->static_screens['details']['lock_type'] = 'content';
 
@@ -174,7 +173,7 @@ class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		$write_access = $asset->writeAccess('links');
 
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', true, 'major', null, true, false);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', false, 'major', null, true, false);
 		foreach ($current_links as $link_data) {
 			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 			if (is_null($section)) continue;
@@ -213,7 +212,7 @@ class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
 		$updated = false;
 
 		// process current steps
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', true, 'major', null, true, false);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', false, 'major', null, true, false);
 		foreach ($current_links as $link_data) {
 			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 			if (is_null($section)) continue;
@@ -249,7 +248,7 @@ class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
 	function paintInlineValueInterface(&$asset, &$o, $values, $write_access)
 	{
 		$o->openSection($asset->name);
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', true, 'major', null, true);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', false, 'major', null, true);
 		foreach ($current_links as $link) {
 			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
@@ -277,7 +276,7 @@ class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
 	{
 		$new_values[$asset->name] = Array();
 		$new_values[$asset->name]['sections'] = Array();
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', true, 'major', null, true);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', false, 'major', null, true);
 		foreach ($current_links as $link) {
 			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
@@ -301,7 +300,7 @@ class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function requiredFieldsComplete(&$asset, $values)
 	{
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', true, 'major', null, true);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', false, 'major', null, true);
 		foreach ($current_links as $link) {
 			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
@@ -354,7 +353,7 @@ class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function getMetadataFieldValues(&$asset, &$schema, $values, &$fields)
 	{
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($schema->id, SQ_LINK_TYPE_2, 'metadata_section', true, 'major', null, true);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($schema->id, SQ_LINK_TYPE_2, 'metadata_section', false, 'major', null, true);
 		foreach ($current_links as $link) {
 			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;

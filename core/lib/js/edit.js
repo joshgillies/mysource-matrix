@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.18 2003/12/17 01:14:05 gsherwood Exp $
+* $Id: edit.js,v 1.18.2.1 2004/02/18 11:39:07 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -40,13 +40,13 @@ function sq_process_key_down() {
 	switch (key) {
 		case "s" :
 			// emulate pressing of the commit button
-			if (top.main) { top.main.document.focus(); }
+			if (parent.frames["sq_main"]) { parent.frames["sq_main"].document.focus(); }
 			submit_form();
 		break;
 
 		case "v" :
 			// preview the asset on the frontend in a new window
-			if (top.main) { top.main.document.focus(); }
+			if (parent.frames["sq_main"]) { parent.frames["sq_main"].document.focus(); }
 			if (document.main_form.sq_preview_url) {
 				preview_popup = window.open(document.main_form.sq_preview_url.value, 'preview', '');
 			}
@@ -79,14 +79,11 @@ function switchEditingMode(contentDivID, editDivID, editor) {
 
 		editDiv.style.display = ""; // show the wysiwyg
 
-		// if we are using an iframe for this editor, we resize it
-		// and set its designMode property if we need to
+		// if we are using an iframe for this editor, we set its designMode property if we need to
 		if (editor._iframe) {
-			editor._iframe.style.width = "100%";
+			editor._iframe.style.width = editor.config.width;
 			if (setDesignMode && HTMLArea.is_gecko) { editor._iframe.contentWindow.document.designMode = "on"; }
-			var iframeHeight = contentDiv.offsetHeight - editor._toolbar.offsetHeight - editor._statusBar.offsetHeight;
-			if (iframeHeight < editor.config.height) { iframeHeight = editor.config.height; }
-			editor._iframe.style.height = iframeHeight + 'px';
+			editor._iframe.style.height = editor.config.height;
 		}
 		contentDiv.style.display = "none"; // hide the contents
 	} else if (editor._initialised == true) {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.196 2004/01/15 04:10:39 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.196.2.1 2004/02/18 11:39:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -202,6 +202,12 @@ class Asset_Edit_Interface extends MySource_Object
 			exit();
 		}
 
+		if (!isset($this->_edit_fns->static_screens[$active_screen]) && empty($this->_screens[$active_screen])) {
+			// we cant find this screen, so we will use the details screen as a backup
+			trigger_error('Active Screen ("'.$active_screen.'") unknown', E_USER_WARNING);
+			$active_screen = 'details';
+		}
+
 		// make sure that we have the screen for next time
 		$o->addFormActionGetVar('asset_ei_screen', $active_screen);
 
@@ -270,15 +276,15 @@ class Asset_Edit_Interface extends MySource_Object
 
 			}// end foreach lock types
 
-
 			if (SQ_IN_LIMBO && $do_the_limbo_lock) {
 
 				  /////////////////////
 				 //  LIMBO LOCKING  //
 				/////////////////////
-				if (!$have_all_locks) {
-					$this->acquireLimboLocks($owner, $o, $active_screen, $screen_lock_type);
-				}
+
+				// even if we have all the locks for this screen, limbo might require more locks
+				// so acquire any more locks that might be needed
+				$this->acquireLimboLocks($owner, $o, $active_screen, $screen_lock_type);
 
 			} else {
 
@@ -456,12 +462,6 @@ class Asset_Edit_Interface extends MySource_Object
 			$file = @$this->_findFile('screen_'.$active_screen);
 		} else {
 
-			// must be a normal screen
-			if (empty($this->_screens[$active_screen])) {
-				trigger_error('Active Screen ("'.$active_screen.'") unknown', E_USER_WARNING);
-				return;
-			}
-
 			// try and find the file with the screen details
 			if(!($file = $this->_findFile('screen_'.$active_screen))) return;
 
@@ -490,7 +490,25 @@ class Asset_Edit_Interface extends MySource_Object
 		// get the asset tree lineage
 		if (isset($_REQUEST['sq_asset_path'])) {
 			// flash sends comma-separated assetids indicating the path
-			$asset_path = split(',', ($_REQUEST['sq_asset_path']));
+			$matches = preg_split('|,([0-9]+:?),?|', ($_REQUEST['sq_asset_path']), 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+			$asset_path = Array();
+			for (reset($matches); null !== ($k = key($matches)); next($matches)) {
+				// the first match is always fine
+				if ($k == 0) {
+					$asset_path[] = $matches[$k];
+					continue;
+				}
+
+				// if a match ends with the shadow id seperator, the next match
+				// is actually part of this match
+				if (substr($matches[$k], -1) == ':') {
+					$asset_path[] = $matches[$k].$matches[$k+1];
+					next($matches);
+					continue;
+				}
+
+				$asset_path[] = $matches[$k];
+			}
 		} else {
 			if (SQ_IN_LIMBO) {
 				$url_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL();
@@ -756,7 +774,7 @@ class Asset_Edit_Interface extends MySource_Object
 			$o->commitButton('Commit', $force_unlock_on_commit);
 		}
 
-	}// end paint()
+	}//end paint()
 
 
 	/**
@@ -809,12 +827,21 @@ class Asset_Edit_Interface extends MySource_Object
 		}//end if hasLayout
 
 		$locks = array_unique($locks);
+		$have_all_locks = true;
+		foreach ($locks as $lock_name) {
+			$lock_info = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($owner->id, $lock_name, true);
+			foreach ($lock_info as $lock_type => $lock_data) {
+				if ($lock_data['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserId()) $have_all_locks = false;
+			}
+		}
 
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		$vars = Array('assetid' => $owner->id, 'lock_type' => $locks, 'forceably_acquire' => false);
-		$hh->queueHipo('hipo_job_acquire_lock', $vars);
-		$url = $hh->runQueuedJobs();
-		if (!empty($url)) $o->setRedirect(strip_url(current_url()).'/?sq_redirect_url='.urlencode($url));
+		if (!$have_all_locks) {
+			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$vars = Array('assetid' => $owner->id, 'lock_type' => $locks, 'forceably_acquire' => false);
+			$hh->queueHipo('hipo_job_acquire_lock', $vars);
+			$url = $hh->runQueuedJobs();
+			if (!empty($url)) $o->setRedirect(strip_url(current_url()).'/?sq_redirect_url='.urlencode($url));
+		}
 
 	}//end acquireLimboLocks()
 
@@ -1076,6 +1103,8 @@ class Asset_Edit_Interface extends MySource_Object
 						$o->closeField();
 
 					} else if ($field->children[2]->name == 'function_call') {
+						
+						if (!isset($field->attributes['keyword'])) continue;
 
 						// find out what we need to get in this loop
 						if (isset($layout_keywords['screens'][$screen]['fields'][$field->attributes['keyword']])) {

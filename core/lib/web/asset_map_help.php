@@ -1,4 +1,4 @@
-<!--
+<?php
 /**
 * +--------------------------------------------------------------------+
 * | Squiz.net Open Source Licence                                      |
@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map_help.php,v 1.4 2004/01/16 11:45:56 brobertson Exp $
+* $Id: asset_map_help.php,v 1.4.2.1 2004/02/18 11:39:07 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,9 +30,7 @@
 * @package MySource_Matrix
 */
 
--->
 
-<?php
 require_once dirname(dirname(dirname(__FILE__))).'/include/init.inc';
 ?>
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.14 2004/01/09 05:46:31 gsherwood Exp $
+* $Id: selection.inc,v 1.14.2.1 2004/02/18 11:39:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -62,6 +62,11 @@ class Asset_Attribute_Selection extends Asset_Attribute
 			$this->_params = Array('options'  => Array(), 'multiple' => false);
 		}
 
+		// set default edit parameters
+		$this->_edit_params['style']   = 'list';
+		$this->_edit_params['height']  = '';
+		$this->_edit_params['columns'] = '1';
+
 	}//end constructor
 
 
@@ -77,9 +82,9 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	{
 		if (!parent::setEditParams($node)) return false;
 
-		$this->_edit_params['style']     = empty($node->attributes['style'])     ? 'list'  : $node->attributes['style'];
-		$this->_edit_params['height']    = empty($node->attributes['height'])    ? ''      : $node->attributes['height'];
-		$this->_edit_params['columns']   = empty($node->attributes['columns'])   ? '1'     : $node->attributes['columns'];
+		if (!empty($node->attributes['style'])) $this->_edit_params['style'] = $node->attributes['style'];
+		if (!empty($node->attributes['height'])) $this->_edit_params['style'] = $node->attributes['height'];
+		if (!empty($node->attributes['columns'])) $this->_edit_params['style'] = $node->attributes['style'];
 		return true;
 
 	}//end setEditParams()

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.2 2004/01/16 11:45:56 brobertson Exp $
+* $Id: logs.inc,v 1.2.2.1 2004/02/18 11:39:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -91,8 +91,8 @@ function paintLogs(&$owner, &$o, &$ei)
 															 )
 							);
 				$user_logs = $ms->getLogs($active_log_type.'.userlog', Array('assetid' => $owner->id,
-																		   'version' => $_REQUEST['sq_workflow_log_version']
-																			)
+																			 'version' => $_REQUEST['sq_workflow_log_version']
+																			 )
 							);
 			} else {
 				$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id));

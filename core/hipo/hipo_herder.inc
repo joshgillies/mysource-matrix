@@ -18,10 +18,9 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.31 2003/12/18 04:31:07 gsherwood Exp $
+* $Id: hipo_herder.inc,v 1.31.2.1 2004/02/18 11:39:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
-
 
 require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 
@@ -237,6 +236,8 @@ class HIPO_Herder extends MySource_Object
 			$onload = 'self.location = "'.$url.'";';
 			$auto_step = true;
 			$percent_done = 100;
+			$status_msg = 'HIPO Aborted';
+
 		} else {
 
 			$url = $this->getProcessURL($source_job->code_name);
@@ -250,6 +251,8 @@ class HIPO_Herder extends MySource_Object
 				$delay = ($source_job->getRunningMode() == 'server');
 				$onload = 'document.'.$form_name.'.submit();';
 			}
+
+			$status_msg = $source_job->hipo_name.' HIPO '.($source_job->complete()) ? 'Complete' : 'Progress';
 
 		} // end if
 
@@ -294,23 +297,9 @@ class HIPO_Herder extends MySource_Object
 								<tr>
 									<td valign="middle" width="100%"><img src="<?php echo sq_web_path('lib').'/web/images/icons/hipo.gif'; ?>" width="71" height="26" alt="Powered by Highly Intensive Processing Object (HIPO) Technology" /></td>
 								</tr>
-								<?php
-								// if we have more than one step we need to "total" progress bar
-								$step = $source_job->_hipo_vars['current_step'];
-								$step_data = (isset($source_job->_steps[$step])) ? $source_job->_steps[$step] : Array();
-
-								if ($step_data) {
-									$status_msg = $source_job->_hipo_name.' HIPO Progress';
-								} else {
-									// this step doesnt exist - probably reached the end of the HIPO
-									if ($source_job->complete()) $status_msg = $source_job->_hipo_name.' HIPO Complete';
-									else $status_msg = 'Unknown Error Occured';
-								}
-
-								?>
 								<tr>
 									<td class="sq-hipo-header">
-										<?php $source_job->paintProgressBar($source_job->_hipo_vars['percent_done'], $status_msg, 'sq-hipo-header-progress-bar-label', 'sq-hipo-header-progress-bar-percent', 'sq-hipo-header-progress-bar-main', 'sq-hipo-header-progress-bar-done'); ?>
+										<?php HIPO_Job::paintProgressBar($percent_done, $status_msg, 'sq-hipo-header-progress-bar-label', 'sq-hipo-header-progress-bar-percent', 'sq-hipo-header-progress-bar-main', 'sq-hipo-header-progress-bar-done'); ?>
 									</td>
 								</tr>
 							</table>
@@ -325,7 +314,6 @@ class HIPO_Herder extends MySource_Object
 						if (empty($_POST['aborting_hipo'])) {
 
 							// Paint the source job, this will take care of any sub jobs if needed
-							
 							$o->closeRaw();
 							$source_job->paint($o);
 							$o->openRaw();
@@ -570,7 +558,7 @@ class HIPO_Herder extends MySource_Object
 				set_error_handler(Array(&$init_hipo, '_errorHandler'));
 				$init_hipo->freestyle();
 				restore_error_handler();
-				return $init_hipo->_hipo_vars['errors'];
+				return $init_hipo->getErrors();
 			}
 		}
 
@@ -579,7 +567,7 @@ class HIPO_Herder extends MySource_Object
 		// check if this hipo has already been queued up by this person
 		// may happen when trying to perform the same task multiple times
 		// in a single script execution
-		$hipo_code = $init_hipo->_getCodeName();
+		$hipo_code = $init_hipo->getCodeName();
 		if (isset($this->_queued_jobs[$GLOBALS['SQ_SYSTEM']->currentUserId()])) {
 			if (in_array($hipo_code, $this->_queued_jobs[$GLOBALS['SQ_SYSTEM']->currentUserId()])) return true;
 		}
@@ -677,7 +665,7 @@ class HIPO_Herder extends MySource_Object
 	* @return Array()
 	* @access public
 	*/
-	function freestlyeHipo($job_type, $vars=Array())
+	function freestyleHipo($job_type, $vars=Array())
 	{
 		require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/'.$job_type.'.inc';
 		$init_hipo = new $job_type();
@@ -688,9 +676,9 @@ class HIPO_Herder extends MySource_Object
 		set_error_handler(Array(&$init_hipo, '_errorHandler'));
 		$init_hipo->freestyle();
 		restore_error_handler();
-		return $init_hipo->_hipo_vars['errors'];
+		return $init_hipo->getErrors();
 
-	}//end freestlyeHipo()
+	}//end freestyleHipo()
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.4 2003/12/16 12:13:57 brobertson Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.4.2.1 2004/02/18 11:39:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -44,7 +44,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	* The name of this HIPO job (should not be modified by code)
 	* @var string
 	*/
-	var $_hipo_name = 'Purge Trash';
+	var $hipo_name = 'Purge Trash';
 
 	/**
 	* Array of steps to perform in this HIPO
@@ -100,14 +100,87 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 
 
 	/**
-	* Set up vars and database information that the HIPO will need to run
+	* Paints backend of this job
 	*
-	* @param string	$source_code_name	the code name of another job that wants to use this job
+	* @param object Backend_Outputter	&$o			reference to the backend outputter
+	* @param string						$class		calling class name
 	*
-	* @return string	returns the code_name for the new job
+	* @return void
+	* @access private
+	*/
+	function paintConfig(&$o, $class)
+	{
+		$write_access = $this->writeAccess();
+		
+		// metadata regeneration threshhold HIPO config entry
+		$o->openField('Purge Trash Threshold');
+
+		if($write_access) {
+			text_box($class.'[SQ_HIPO_PURGE_TRASH_THRESHOLD]', SQ_HIPO_PURGE_TRASH_THRESHOLD, 5);
+		} else {
+			echo SQ_HIPO_PURGE_TRASH_THRESHOLD;
+		}
+
+		$o->closeField();
+
+	}//end paintConfig()
+
+
+	/**
+	* Sets some info about thresholds that this hipo requires.
+	*
+	* @return Array
 	* @access public
 	*/
-	function initialise($source_code_name=null)
+	function getConfigVars()
+	{
+		return Array(
+			'SQ_HIPO_PURGE_TRASH_THRESHOLD' => Array('editable' => 1, 'default' => 1),
+		);
+
+	}//end getConfigVars()
+
+
+	/**
+	* Returns the current Threshold.
+	*
+	* Returns a value that represents the total percentage that this hipo would run in freestyle mode in its current state.
+	* 
+	* @return float
+	* @access public
+	*/
+	function getThreshold()
+	{
+		if (SQ_HIPO_PURGE_TRASH_THRESHOLD == 0) return 0;
+		if (!isset($this->_running_vars['todo_assetids'])) return 0;
+		return ((count($this->_running_vars['todo_assetids']) / SQ_HIPO_PURGE_TRASH_THRESHOLD) * 100);
+	
+	}//end getThreshold()
+
+
+	/**
+	* Performs the duties of this hipo, without showing any output on the frontend.
+	* 
+	* @return boolean
+	* @access public
+	*/
+	function freestyle()
+	{
+		while (!empty($this->_running_vars['todo_assetids'])) {
+			if (!$this->processTrash($this->_steps[0], get_class($this))) return false;
+		}
+		return true;
+
+	}//end freestyle()
+
+
+	/**
+	* Prepares the running vars and gets the children of the asset in question.
+	*
+	* @return boolean
+	* @access public
+	*/
+	function prepare()
 	{
 		$trash = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 		
@@ -136,6 +209,24 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 		$this->_running_vars['trash_treeid']  = $treeid;    // the treeid of the trash folder
 		$this->_running_vars['trash_id']      = $trash->id; // the asset id of the trash folder
 
+		return parent::prepare();
+	
+	}//end prepare()
+
+
+	/**
+	* Set up vars and database information that the HIPO will need to run
+	*
+	* @param string	$source_code_name	the code name of another job that wants to use this job
+	*
+	* @return string	returns the code_name for the new job
+	* @access public
+	*/
+	function initialise($source_code_name=null)
+	{
+		if (!$this->is_prepared) {
+			$this->prepare();
+		}
 		return parent::initialise($source_code_name);
 
 	}//end initialise()

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.43 2003/11/26 00:51:11 gsherwood Exp $
+* $Id: workflow_manager.inc,v 1.43.2.1 2004/02/18 11:39:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -429,7 +429,7 @@ class Workflow_Manager extends MySource_Object
 						if (is_a($asset, 'user')) {
 							$can_publish_cond[] = $asset->id;
 						} else if (is_a($asset, 'user_group')) {
-							$can_publish_cond = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), false);
+							$can_publish_cond = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), false));
 						}
 					}
 
@@ -505,7 +505,7 @@ class Workflow_Manager extends MySource_Object
 							if (is_a($asset, 'user')) {
 								$can_publish_cond[] = $asset->id;
 							} else if (is_a($asset, 'user_group')) {
-								$can_publish_cond = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), false);
+								$can_publish_cond = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), false));
 							}
 						}
 						$cond_string = 'if ('.count($cond_data['published_by']).
@@ -722,7 +722,7 @@ class Workflow_Manager extends MySource_Object
 					if (is_a($asset, 'user')) {
 						$can_publish[] = $asset->id;
 					} else if (is_a($asset, 'user_group')) {
-						$can_publish = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), false);
+						$can_publish = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), false));
 					}
 				}
 

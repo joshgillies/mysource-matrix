@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div.inc,v 1.2 2003/12/16 12:16:42 brobertson Exp $
+* $Id: bodycopy_div.inc,v 1.2.2.1 2004/02/18 11:39:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,6 +37,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 */
 class Bodycopy_Div extends Bodycopy_Container
 {
+
 
 	/**
 	* Constructor
@@ -115,6 +116,7 @@ class Bodycopy_Div extends Bodycopy_Container
 					 );
 
 	}//end _getAllowedLinks()
+
 
 }//end class
 

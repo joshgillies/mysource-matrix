@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.4 2003/12/16 12:16:42 brobertson Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.4.2.1 2004/02/18 11:39:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,6 +37,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 */
 class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -189,7 +190,8 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 		}
 
-		echo "\n<".strtolower($div_attributes['layout_type']).$attribute_list.">\n";
+		// print DIV or SPAN tag if we are not printing raw HTML
+		if ($div_attributes['layout_type'] != 'none') echo "\n<".strtolower($div_attributes['layout_type']).$attribute_list.">\n";
 
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'content_type', false, 'div_contents', 'major', true);
 
@@ -204,7 +206,8 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			}
 		}
 
-		echo "\n</".strtolower($div_attributes['layout_type']).">\n";
+		// print end DIV or SPAN tag if we are not printing raw HTML
+		if ($div_attributes['layout_type'] != 'none') echo "\n</".strtolower($div_attributes['layout_type']).">\n";
 
 		return true;
 
@@ -311,11 +314,50 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			}
 		}
 
+		if (isset($bc_saved[$prefix][$asset->id]['attributes']['content_type'])) {
+			if ($this->_updateCellType($asset, $bc_saved[$prefix][$asset->id]['attributes']['content_type'])) $updated = true;
+		}
+
 		if ($updated) $this->generateContentFile($asset);
 		$this->_contentsUpdated($asset);
 		return $updated;
 
 	}//end processContainer()
+
+
+	/**
+	* Change the type of this DIV's editing interface to the passed content type
+	*
+	* @param object BodyCopy_DIV	&$asset		the DIV object
+	* @param string					$new_type	the name of the new content type
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _updateCellType(&$asset, $new_type='') {
+
+		// dont change anything if the new type id blank
+		$new_type = trim($new_type);
+		if (empty($new_type)) return false;
+
+		// get the contentType
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'content_type', false, 'div_contents', 'major', true);
+		if (empty($link)) return false;
+		$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+
+		// if the new type is the same as the current, change nothing
+		$current_type = get_class($content_type);
+		if ($current_type == $new_type) return false;
+
+		// morph the content type to the new type
+		// first up
+		if (!$content_type->morph('content_type')) return false;
+		// then down
+		if (!$content_type->morph($new_type)) return false;
+
+		return true;
+
+	}//end _updateCellType()
 
 
 }//end class

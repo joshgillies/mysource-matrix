@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage_edit_fns.inc,v 1.7 2003/12/16 18:22:17 brobertson Exp $
+* $Id: design_area_asset_lineage_edit_fns.inc,v 1.7.2.1 2004/02/18 11:39:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -185,6 +185,11 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 					$'.$asset->attr('id_name').'_i < $'.$asset->attr('id_name').'_total;
 					$'.$asset->attr('id_name').'_i++) {
 					';
+
+				if (!$asset->attr('show_hidden_links')) {
+					echo 'if ($ASSET_LINEAGE[$'.$asset->attr('id_name').'_i][\'link_type\'] != SQ_LINK_TYPE_1) continue;
+					';
+				}
 
 				if ($asset_contents = $asset->attr('asset_contents')) {
 					echo '?','>';

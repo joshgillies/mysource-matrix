@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: int.inc,v 1.14 2003/11/26 00:51:07 gsherwood Exp $
+* $Id: int.inc,v 1.14.2.1 2004/02/18 11:39:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 /**
 * Integer Asset Attribute
 *
-* 
+*
 *
 *
 * <!-- Sample Edit Interface XML Node -->
@@ -49,10 +49,11 @@ class Asset_Attribute_Int extends Asset_Attribute
 	* @param mixed	$value			the current value for the element
 	*
 	*/
-	function Asset_Attribute_Int($attributeid=0, $value=null) 
+	function Asset_Attribute_Int($attributeid=0, $value=null)
 	{
 		$this->Asset_Attribute($attributeid, (int) $value);
-	}// end constructor
+
+	}//end constructor
 
 
 	/**
@@ -70,6 +71,7 @@ class Asset_Attribute_Int extends Asset_Attribute
 		$this->_edit_params['width']  = (int) $node->attributes['width'];
 
 		return true;
+
 	}//end setEditParams()
 
 
@@ -90,7 +92,8 @@ class Asset_Attribute_Int extends Asset_Attribute
 
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		text_box($prefix.'_'.$this->name, (int) $this->value, $this->_edit_params['width'], 0, false, 'onFocus="javascript: this.__sq_init_value = this.value;" onChange="javascript: if (isNaN(parseInt(this.value))) { this.value = this.__sq_init_value; alert(\'This is an integer field.\\nUnable to accept non-digit characters in this field.\'); } else { this.value = parseInt(this.value); } "');
-	}// end paint()
+
+	}//end paint()
 
 
 	/**
@@ -109,7 +112,8 @@ class Asset_Attribute_Int extends Asset_Attribute
 		} else {
 			$this->processed = false;
 		}
-	}// end process()
+
+	}//end process()
 
 
 	/**
@@ -126,7 +130,25 @@ class Asset_Attribute_Int extends Asset_Attribute
 		$new_value = (int)$value;
 		if ($new_value != $value) return false;
 		return true;
+
 	}//end validateValue()
+
+
+	/**
+	* Retrieve a list of indexable values from this attribute
+	*
+	* The return value not only contains the indexable values, but also the number of
+	* times they occur in this attributes value
+	*
+	* @return array(string => int)
+	* @access public
+	*/
+	function getKeyData()
+	{
+		return Array($this->value => 1);
+
+	}//end getKeyData()
+
 
 }//end class
 

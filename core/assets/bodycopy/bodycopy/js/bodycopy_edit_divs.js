@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_divs.js,v 1.1 2003/12/02 03:31:47 mmcintyre Exp $
+* $Id: bodycopy_edit_divs.js,v 1.1.2.1 2004/02/18 11:39:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -48,6 +48,7 @@ function bodycopy_edit_div_properties(bodycopy_name, divid) {
 	bodycopy_current_edit["bodycopy_name"]   = bodycopy_name;
 	bodycopy_current_edit["data"]            = new Object();
 	bodycopy_current_edit["data"]["divid"] = divid;
+	bodycopy_current_edit["data"]["available_types"] = get_bodycopy_available_content_types();
 	var data = get_bodycopy_current_div_data(bodycopy_name, divid);
 	bodycopy_current_edit["data"]["attributes"] = var_unserialise(data["attributes"]);
 	bodycopy_show_popup("edit_div_props.php", 320, 330);

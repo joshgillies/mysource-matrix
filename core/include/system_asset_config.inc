@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_config.inc,v 1.7 2003/12/18 04:34:35 gsherwood Exp $
+* $Id: system_asset_config.inc,v 1.7.2.1 2004/02/18 11:39:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -50,6 +50,7 @@ class System_Asset_Config extends Config
 									'system_user_group',
 									'root_user',
 									'designs_folder',
+									'authentication_folder',
 									'cron_manager',
 									'login_design',
 									'search_manager',

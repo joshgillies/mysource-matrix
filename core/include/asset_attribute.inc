@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.23 2003/11/26 00:51:09 gsherwood Exp $
+* $Id: asset_attribute.inc,v 1.23.2.1 2004/02/18 11:39:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -98,7 +98,7 @@ class Asset_Attribute extends MySource_Object
 	* @param Array	$default_params	the default values for the params
 	*
 	*/
-	function Asset_Attribute($attributeid=0, $value=null, $default_params=Array()) 
+	function Asset_Attribute($attributeid=0, $value=null, $default_params=Array())
 	{
 		$this->MySource_Object();
 
@@ -135,16 +135,17 @@ class Asset_Attribute extends MySource_Object
 			if (!isset($this->_params[$name])) $this->_params[$name] = $default;
 		}
 
-	}// end contructor
+	}//end contructor
+
 
 	/**
 	*
 	* Retrieves subclasses of Asset_Attribute
-	* 
+	*
 	* @static
 	* @access public
 	*/
-	function loadAttribute($attributeid = 0, $value = null, $default_params = Array())
+	function loadAttribute($attributeid=0, $value=null, $default_params=Array())
 	{
 		if ($attributeid == 0) {
 			return new Asset_Attribute(0, $value, $default_params);;
@@ -164,7 +165,9 @@ class Asset_Attribute extends MySource_Object
 		$class = 'Asset_Attribute_'.$type;
 		require_once SQ_ATTRIBUTES_PATH.'/'.$type.'/'.$type.'.inc';
 		return new $class($attributeid, $value, $default_params);
-	}
+
+	}//end loadAttribute()
+
 
 	/**
 	* Returns the type of this attribute
@@ -175,6 +178,7 @@ class Asset_Attribute extends MySource_Object
 	{
 		// strip the 'Asset_Attribute_' off the front
 		return substr(get_class($this), 16);
+
 	}//end type();
 
 
@@ -189,7 +193,8 @@ class Asset_Attribute extends MySource_Object
 	function paint($prefix, $read_only=false)
 	{
 		echo 'Interface for '.ucwords(str_replace('_', ' ', $this->type())).' Not Done';
-	}
+
+	}//end paint()
 
 
 	/**
@@ -202,7 +207,8 @@ class Asset_Attribute extends MySource_Object
 	function process($prefix)
 	{
 		$this->processed = false;
-	}
+
+	}//end process()
 
 
 	/**
@@ -216,7 +222,8 @@ class Asset_Attribute extends MySource_Object
 	function validateValue(&$value)
 	{
 		return true;
-	}
+
+	}//end validateValue()
 
 
 	/**
@@ -232,7 +239,8 @@ class Asset_Attribute extends MySource_Object
 		if (!$this->validateValue($value)) return false;
 		$this->value = $value;
 		return true;
-	}
+
+	}//end setValue()
 
 
 	/**
@@ -251,7 +259,24 @@ class Asset_Attribute extends MySource_Object
 			return false;
 		}
 		return true;
-	}
+
+	}//end setEditParams()
+
+
+	/**
+	* Retrieve a list of indexable values from this attribute
+	*
+	* The return value not only contains the indexable values, but also the number of
+	* times they occur in this attributes value
+	*
+	* @return array(string => int)
+	* @access public
+	*/
+	function getKeyData()
+	{
+		return Array();
+
+	}//end getKeyData()
 
 
 }//end class

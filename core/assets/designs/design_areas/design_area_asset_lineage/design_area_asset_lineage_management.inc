@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage_management.inc,v 1.4 2003/12/12 15:01:35 brobertson Exp $
+* $Id: design_area_asset_lineage_management.inc,v 1.4.2.1 2004/02/18 11:39:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -81,6 +81,12 @@ class Design_Area_Asset_Lineage_Management extends Asset_Management
 								'type'			=> 'boolean',
 								'default'		=> true,
 								'description'	=> 'whether or not to end the list with a divider'
+							),
+							'show_hidden_links' => Array(
+								'added'			=> '0.0.1',
+								'type'			=> 'boolean',
+								'default'		=> true,
+								'description'	=> 'whether or not to show TYPE_2 links as well as TYPE_1'
 							),
 							'levels_to_print' => Array(
 								'added'			=> '0.0.1',

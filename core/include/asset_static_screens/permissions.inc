@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.3 2004/01/16 11:45:56 brobertson Exp $
+* $Id: permissions.inc,v 1.3.2.1 2004/02/18 11:39:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -303,7 +303,7 @@ function processPermissions(&$owner, &$o, &$ei)
 				if ($cascade_changes) {
 					// cascading access of some kind, so queue it up for the HIPO
 					$permission_vars[$perm][] = Array('access'          => (int)$post_data['new']['access'],
-													  'userid'          => (int)$post_data['new']['userid']['assetid'],
+													  'userid'          => $post_data['new']['userid']['assetid'],
 													  'previous_access' => null,
 													  );
 				} else {
@@ -317,7 +317,6 @@ function processPermissions(&$owner, &$o, &$ei)
 		// revoke [delete] access (grant or deny can be revoked)
 		if (!empty($post_data['delete'])) {
 			foreach ($post_data['delete'] as $userid => $on) {
-				$userid = (int)$userid;
 				if ($cascade_changes) {
 					$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, null, false, false, true);
 					$current_access = $current[$userid];

@@ -3,7 +3,7 @@
 * | MySource Matrix - Instructional Document                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: faq.txt,v 1.11 2003/11/26 00:51:15 gsherwood Exp $
+* $Id: faq.txt,v 1.11.2.1 2004/02/18 11:39:07 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -12,6 +12,9 @@
 +---------------------+
 
 This FAQ is designed to answer some of the most frequently asked and frustrating questions you may have about using the MySource Matrix content management system. All questions in this document are grouped into relevant sections.
+
+
+
 
 +----------------+
 | GENERAL        |
@@ -36,8 +39,7 @@ A. Make sure that cookies are enabled in your browser.
    4. Click Enable Cookies.
 
 
-Q.
-A.
+
 
 +----------------+
 | POSTGRESQL     |
@@ -46,6 +48,9 @@ A.
 Q. I get "[nativecode=ERROR:  language "plpgsql" does not exist" what do I do ?
 A. run 'createlang -U postgres -d [MATRIX SYSTEM DB NAME] plpgsql'
 Contributed by: Blair Robertson <blair@squiz.net>
+
+
+
 
 +----------------+
 | WYSIWYG EDITOR |
@@ -56,13 +61,62 @@ A. You may have popup blocker software interfering with the contents of the popu
 Contributed by: Greg Sherwood <greg@squiz.net>
 
 
+
+
 +----------------+
 | DEVELOPER FAQ  |
 +----------------+
 
-Q. When setting force_unlock="false" in the edit_interface_screens.xml, the lock is still released after commiting.
+Q. When setting force_unlock="false" in the edit_interface_screens.xml, why is the lock is still released after commiting ?
 A. the correct value to force unlock is force_unlock="0"
 Contributed by: Marc McIntyre <mmcintyre@squiz.net>
+
+
+Q. How do I add a new package to Matrix ?
+A. You will first have to initialise the repository and then import the package.
+
+Go to the root directory of the package (eg. cd /mysource_matrix/packages/PACKAGE)
+Now initialise the repository (eg. cvs -d /home/cvs/mysource_matrix/packages/PACKAGE init)
+Now import the package (eg. cvs -d /home/cvs/mysource_matrix/packages/PACKAGE import -m "Package description" PACKAGE squiz start)
+
+Once that is done you will need to setup the new respository correctly by editing some of the files in the CVSROOT, so wherever you have all the other CVSROOT's checked out (you do have them don't you?) do this :
+
+  cvs -d /home/cvs/mysource_matrix/packages/PACKAGE co -d PACKAGE CVSROOT
+
+This will checkout the CVSROOT dir into a dir called PACKAGE
+
+Once there you will need to modify and commit these files (the changes to make should be copied from another package) :
+  config
+  cvswrappers
+  loginfo
+
+There may be some other differences in file between the CVSROOTS, but at the moment these are just diff's in comments that are generated when you do the 'cvs init' (obviously changes from a newer version of CVS)
+
+Then add the repository to Chora by editing /home/websites/default/htdocs/horde/chora/config/cvsroots.php on beta (as it stands at the moment)
+
+You will now have to checkout the package for yourself. The directory you imported is not a working version at the moment.
+So, back out of the directory back to the packages directory, rename your PACKAGE directory, then check out the working version.
+  cd ../
+  mv PACKAGE PACKAGE_import
+  cvs -d /home/cvs/mysource_matrix/packages/PACKAGE co PACKAGE
+
+If everything looks fine in your checked out version, go ahead and remove the import directory - you wont need it any more.
+
+And the last thing that you need to do is to checkout the package in the phpdocs directory.
+So on beta go to /home/htdocs/mysource_matrix_phpdoc/mysource_matrix/packages (as it stands at the moment) and run the same checkout command as you did for your own version.
+
+  cd /home/htdocs/mysource_matrix_phpdoc/mysource_matrix/packages
+  cvs -d /home/cvs/mysource_matrix/packages/PACKAGE co PACKAGE
+  chgrp -R cvsusers PACKAGE
+  chmod -R g+w PACKAGE
+
+Once it has been checked out it will be updated automatically by the cron script.
+
+
+Contributed by: Greg Sherwood <greg@squiz.net>
+
+
+
 
 +-----------------+
 | SYSTEM ADMIN    |
@@ -115,6 +169,8 @@ A. There are several steps :
 
 That should be it, have fun
 Contributed by: Blair Robertson <brobertson@squiz.net>
+
+
 
 
 +----------------+
@@ -171,7 +227,3 @@ Pick the process id of the server and then send a SIGUSR1 to that process
     [22-Oct-2003 17:20:39] System "dom" loaded
     [22-Oct-2003 17:20:39] System "marc" loaded
     [22-Oct-2003 17:20:39] Config File /home/brobertson/resolve/scripts/server.conf Loaded
-
-    
-
-

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.32 2003/11/26 00:51:11 gsherwood Exp $
+* $Id: asset_edit_fns.inc,v 1.32.2.1 2004/02/18 11:39:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -48,12 +48,12 @@ class Asset_Edit_Fns extends MySource_Object
 													),
 								'permissions'		=> Array(
 														'name'			=> 'Permissions',
-														'force_unlock'	=> true,
+														'force_unlock'	=> false,
 														'lock_type'		=> 'permissions',
 													),
 								'workflow'			=> Array(
 														'name'			=> 'Workflow',
-														'force_unlock'	=> false,
+														'force_unlock'	=> true,
 														'lock_type'		=> 'workflow',
 													),
 								'metadataSchemas'	=> Array(
@@ -78,7 +78,7 @@ class Asset_Edit_Fns extends MySource_Object
 													),
 								'settings'			=> Array(
 														'name'			=> 'Settings',
-														'force_unlock'	=> false,
+														'force_unlock'	=> true,
 														'lock_type'		=> 'all',
 													),
 								'history'			=> Array(

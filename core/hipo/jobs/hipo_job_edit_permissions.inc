@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.22 2003/12/16 12:13:57 brobertson Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.22.2.1 2004/02/18 11:39:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -52,7 +52,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	* The name of this HIPO job (should not be modified by code)
 	* @var string
 	*/
-	var $_hipo_name = 'Edit Permissions';
+	var $hipo_name = 'Edit Permissions';
 
 	/**
 	* Array of steps to perform in this HIPO
@@ -108,6 +108,49 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 
 
 	/**
+	* Paints backend of this job
+	*
+	* @param object Backend_Outputter	&$o			reference to the backend outputter
+	* @param string						$class		calling class name
+	*
+	* @return void
+	* @access private
+	*/
+	function paintConfig(&$o, $class)
+	{
+		$write_access = $this->writeAccess();
+		
+		// metadata regeneration threshhold HIPO config entry
+		$o->openField('Permissions Threshold');
+
+		if($write_access) {
+			text_box($class.'[SQ_HIPO_PERMISSIONS_THRESHOLD]', SQ_HIPO_PERMISSIONS_THRESHOLD, 5);
+			$o->note('Value will be divided by number of affected permissions');
+		} else {
+			echo SQ_HIPO_PERMISSIONS_THRESHOLD;
+		}
+
+		$o->closeField();
+
+	}//end paintConfig()
+
+
+	/**
+	* Sets some info about thresholds that this hipo requires.
+	*
+	* @return Array
+	* @access public
+	*/
+	function getConfigVars()
+	{
+		return Array(
+			'SQ_HIPO_PERMISSIONS_THRESHOLD' => Array('editable' => 1, 'default' => 1),
+		);
+
+	}//end getConfigVars()
+
+
+	/**
 	* Returns a unique codename the HIPO can use to ensure it is not being run twice
 	*
 	* The Edit Permission HIPO appends the ID of the asset that the permissions are being set at
@@ -116,13 +159,13 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	* the same time on the same parent asset.
 	*
 	* @return string
-	* @access private
+	* @access public
 	*/
-	function _getCodeName()
+	function getCodeName()
 	{
-		return parent::_getCodeName().$this->_running_vars['assetid'];
+		return parent::getCodeName().$this->_running_vars['assetid'];
 
-	}//end _getCodeName()
+	}//end getCodeName()
 
 
 	/**
@@ -138,6 +181,55 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	* @access public
 	*/
 	function initialise($source_code_name=null)
+	{
+		if (!$this->is_prepared) {
+			$this->prepare();
+		}
+		return parent::initialise($source_code_name);
+
+	}//end initialise()
+
+
+	/**
+	* Returns the current Threshold.
+	*
+	* Returns a value that represents the total percentage that this hipo would run in freestyle mode in its current state.
+	* 
+	* @return float
+	* @access public
+	*/
+	function getThreshold()
+	{
+		if (SQ_HIPO_PERMISSIONS_THRESHOLD == 0) return 0;
+		if (!isset($this->_running_vars['todo_assetids'])) return 0;
+		return ((count($this->_running_vars['todo_assetids']) / (SQ_HIPO_PERMISSIONS_THRESHOLD / count($this->_running_vars['permission_changes']))) * 100);
+	
+	}//end getThreshold()
+
+
+	/**
+	* Performs the duties of this hipo, without showing any output on the frontend.
+	* 
+	* @return boolean
+	* @access public
+	*/
+	function freestyle()
+	{
+		while (!empty($this->_running_vars['todo_assetids'])) {
+			if (!$this->processPermissions($this->_steps[0], get_class($this))) return false;
+		}
+		return true;
+
+	}//end freestyle()
+
+
+	/**
+	* Prepares the running vars and gets the children of the asset in question.
+	*
+	* @return boolean
+	* @access public
+	*/
+	function prepare()
 	{
 		// to start editing permission, we need to have an asset id to start editing permission at
 		if (!isset($this->_running_vars['assetid'])) {
@@ -159,14 +251,15 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 
 		// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
 		// we will be affecting out list of permission changes on
-		$this->_running_vars['todo_assetids'] = array_merge(Array($asset->id), $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id));
+		$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
+		$child_assets[$asset->id] = $asset->type();
+		$this->_running_vars['todo_assetids'] = $child_assets;
 		$this->_running_vars['done_assetids'] = Array();
 
 		unset($asset);
 
-		return parent::initialise($source_code_name);
-
-	}//end initialise()
+		return parent::prepare();
+	}
 
 
 	/**
@@ -181,8 +274,10 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	function processPermissions(&$step_data, $prefix)
 	{
 		if (!empty($this->_running_vars['todo_assetids'])) {
-			$assetid = array_shift($this->_running_vars['todo_assetids']);
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));
+			$asset_type = $this->_running_vars['todo_assetids'][$assetid];
+			unset($this->_running_vars['todo_assetids'][$assetid]);
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if (!is_null($asset)) {
 				foreach ($this->_running_vars['permission_changes'] as $perm => $perm_data) {

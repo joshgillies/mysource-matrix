@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.51 2003/12/19 04:02:09 gsherwood Exp $
+* $Id: site.inc,v 1.51.2.1 2004/02/18 11:39:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -211,7 +211,7 @@ class Site extends Folder
 			if (!$found) {
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(null, $save_urls[$save_urlid]['url'], true, true);
 				if (!is_null($asset)) {
-					trigger_error('URL "'.$save_urls[$save_urlid]['url'].'" is already in use by "'.$asset->name.'"', E_USER_WARNING);
+					trigger_error('URL "'.$save_urls[$save_urlid]['url'].'" is already in use by "'.$asset->name.'" [#'.$asset->id.']', E_USER_WARNING);
 					continue;
 				}
 			}

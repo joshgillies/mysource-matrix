@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table_cell_props.php,v 1.2 2003/12/16 12:16:42 brobertson Exp $
+* $Id: edit_table_cell_props.php,v 1.2.2.1 2004/02/18 11:39:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -68,7 +68,7 @@ include(dirname(__FILE__)."/header.php");
 			}
 		}
 
-		owner.highlight_combo_value(f.type, "content_type_" + data["content_type"]);
+		owner.highlight_combo_value(f.type, data["content_type"]);
 
 	}// end popup_init()
 	

@@ -18,10 +18,9 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.47 2003/11/26 00:51:09 gsherwood Exp $
+* $Id: asset_management.inc,v 1.47.2.1 2004/02/18 11:39:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
-
 
 require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
@@ -70,20 +69,24 @@ class Asset_Management extends MySource_Object
 	*						['update_fn'   => 'update_var_name',]
 	*						)
 	*		)
+	*
+	* NOTE: should only ever be set in a sub-class
 	*/
-	var $vars;
-
+	var $vars = Array();
 
 	/**
 	* @var array
-	* Holds all the searchable components for this assets. 
+	* Holds all the searchable components for this assets.
 	* Array (component_name => Array(
 	*				'description'		=> 'description',
 	*				'default_weighting' => '1'
 	*			)
 	* )
+	*
+	* NOTE: should only ever be set in a sub-class
 	*/
-	var $components;
+	var $components = Array();
+
 
 	/**
 	* Constructor
@@ -91,17 +94,35 @@ class Asset_Management extends MySource_Object
 	*/
 	function Asset_Management(&$pm)
 	{
+
+		if (get_parent_class($this) != __CLASS__) {
+			$msg = 'Unable to Construct "'.get_class($this).'".
+
+					All Asset Management classes MUST inherit directly from the
+					Asset_Management class.
+
+					The main reason for this is to help understanding when things do not
+					work exactly as planned when setting the $vars and $components arrays.
+					If you are allowed to inherit from the Asset Management class of your
+					parent asset, you may think that you are able to REMOVE some elements
+					from these arrays (which you can quite easily do) and these elements
+					will therefore not become part of the new asset type.
+
+					However, this is really is not what Object Oriented is about, because
+					with polymorhism some section of code using a type of asset has the
+					right to expect that all assets types derived from it will contain at
+					least the same information.
+
+					So, in essense, the forcing of the inheritance from Asset_Management
+					is to make you aware of this reasoning as much as anything else.
+					';
+			trigger_error(preg_replace('/^[\t ]+/m', '', $msg), E_USER_ERROR);
+		}
+
+
 		$this->_pm = &$pm;
 		$this->_am = &$GLOBALS['SQ_SYSTEM']->am;
 		$this->_db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$this->vars = Array();
-		$this->components = Array(
-			'name' => Array (
-				'description'		=> 'Name',
-				'default_weighting'	=> '-1',
-			), 	
-		);
 
 	}//end constructor
 
@@ -127,9 +148,34 @@ class Asset_Management extends MySource_Object
 	*/
 	function update()
 	{
+
+		$type_code = $this->getAssetType();
+
+		// OK, first thing we are going to do is check that the parent type of this asset is the same between the 
+		// asset.xml, actual asset class and the edit fns class
+
+		$asset_dir = SQ_SYSTEM_ROOT.'/'.$this->_pm->getTypeInfo($type_code,'dir');
+		require_once $asset_dir.'/'.$type_code.'.inc';
+		require_once $asset_dir.'/'.$type_code.'_edit_fns.inc';
+
+		$asset_xml_parent_type = $this->_pm->getTypeInfo($type_code, 'parent_type');
+		$asset_parent_type = get_parent_class($type_code);
+		$asset_edit_fns_parent_type = preg_replace('/_edit_fns$/', '', get_parent_class($type_code.'_edit_fns'));
+
+		if ($asset_xml_parent_type != $asset_parent_type || $asset_xml_parent_type != $asset_edit_fns_parent_type) {
+			trigger_error('Unable to update "'.$type_code.'". Parent is different between asset.xml, '.$type_code.'.inc and '.$type_code.'_edit_fns.inc', E_USER_WARNING);
+			return false;
+		}
+
+		// if the parent asset type hasn't been installed, abort
+		if ($asset_xml_parent_type != 'asset' && !$this->_am->installed($asset_xml_parent_type)) {
+			trigger_error('Unable to update "'.$type_code.'". Parent "'.$asset_xml_parent_type.'" is not installed', E_USER_WARNING);
+			return false;
+		}
+
 		// if the asset manager knows about it it is installed, so upgrade...
-		if ($this->_am->installed($this->getAssetType())) {
-			if (!$this->_upgrade($this->_am->getTypeInfo($this->getAssetType(), 'version'))) return false;
+		if ($this->_am->installed($type_code)) {
+			if (!$this->_upgrade($this->_am->getTypeInfo($type_code, 'version'))) return false;
 		} else {
 			if (!$this->_install()) return false;
 		}
@@ -137,11 +183,11 @@ class Asset_Management extends MySource_Object
 
 		// save a copy of an icon we can use to represent this asset
 		// if no icon is directly available, the parents icon will be used
-		$from_icon_path = SQ_SYSTEM_ROOT.'/'.$this->_pm->getTypeInfo($this->getAssetType(),'dir').'/icon.png';
-		$to_icon_path   = SQ_DATA_PATH.'/public/asset_types/'.$this->getAssetType().'/icon.png';
+		$from_icon_path = SQ_SYSTEM_ROOT.'/'.$this->_pm->getTypeInfo($type_code,'dir').'/icon.png';
+		$to_icon_path   = SQ_DATA_PATH.'/public/asset_types/'.$type_code.'/icon.png';
 		if (!is_file($from_icon_path)) {
 			// copy the icon from our parent
-			$parent_type = $this->_pm->getTypeInfo($this->getAssetType(), 'parent_type');
+			$parent_type = $this->_pm->getTypeInfo($type_code, 'parent_type');
 			if ($parent_type == 'asset') {
 				// we are a top level asset so we need to copy our icon from the include dir
 				$from_icon_path = SQ_INCLUDE_PATH.'/asset_edit/icon.png';
@@ -153,7 +199,7 @@ class Asset_Management extends MySource_Object
 		}
 
 		if (!is_file($from_icon_path)) {
-			trigger_error('No icon file found for asset type "'.$this->getAssetType().'" or its ancestors.', E_USER_WARNING);
+			trigger_error('No icon file found for asset type "'.$type_code.'" or its ancestors.', E_USER_WARNING);
 		} else {
 			if (!copy_file($from_icon_path, $to_icon_path)) return false;
 		}
@@ -237,9 +283,10 @@ class Asset_Management extends MySource_Object
 			$name =& $all_vars[$k];
 			if (!$this->_addAttribute($name)) return false;
 		}
-		
+
 		// now add the component weightings
-		$this->_setComponentWeightings($this->components);
+		if (!$this->_setComponentWeightings()) return false;
+
 
 		return true;
 
@@ -299,7 +346,7 @@ class Asset_Management extends MySource_Object
 		}//end for
 
 		// now add the component weightings
-		$this->_setComponentWeightings($this->components);
+		if (!$this->_setComponentWeightings()) return false;
 
 		return true;
 
@@ -322,6 +369,9 @@ class Asset_Management extends MySource_Object
 				  AND i.inherited_type_code = atr.type_code';
 
 		$parent_vars = $this->_db->getCol($sql);
+		if (DB::isError($parent_vars)) {
+			trigger_error($parent_vars->getMessage().'<br/>'.$parent_vars->getUserInfo(), E_USER_ERROR);
+		}
 		// array_values() to get proper indexed array
 		$vars = array_values(array_unique(array_merge($parent_vars, array_keys($this->vars))));
 		return $vars;
@@ -344,7 +394,7 @@ class Asset_Management extends MySource_Object
 
 	/**
 	* returns a list of events that this asset is listening for
-	* 
+	*
 	* @access public
 	* @return Array(mixed)
 	*/
@@ -767,40 +817,6 @@ class Asset_Management extends MySource_Object
 
 
 	/**
-	*  Sets the default weightings for this asset type's components
-	* 
-	* @param array The component weightings.
-	* 
-	* @access private
-	* @return void
-	*/
-	function _setComponentWeightings($component_weightings)
-	{
-		$type_code = $this->getAssetType();
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-
-		// clear all weightings for this type_code
-		$sql = 'DELETE FROM '. SQ_TABLE_PREFIX .'asset_indexing_weightings_default 
-				WHERE type_code = ' . $db->quote($type_code) ;
-
-		$db->query($sql);
-		foreach ($component_weightings as $component => $weighting) {
-			if (strlen($component) == 0) continue;
-
-			$sql = 'INSERT INTO '. SQ_TABLE_PREFIX .'asset_indexing_weightings_default
-					(type_code, component, description, weighting)
-					VALUES (' . 
-						$db->quote($type_code)					. ', ' .
-						$db->quote($component)					. ', ' .
-						$db->quote($weighting['description'])	. ', ' .
-						$db->quote($weighting['default_weighting']) . 
-					')';
-			$db->query($sql);
-
-		}
-	} // end _setComponentWeighting()
-
-	/**
 	* Checks an attributes default value to make sure that it is valid
 	* Accepts the $default by reference so that it can be changed if need be
 	*
@@ -815,13 +831,90 @@ class Asset_Management extends MySource_Object
 	function _validateAttributeDefault(&$default, $attr_type, $parameters)
 	{
 		// check that the default value is valid
-		require_once(SQ_ATTRIBUTES_PATH.'/'.$attr_type.'/'.$attr_type.'.inc');
+		require_once SQ_ATTRIBUTES_PATH.'/'.$attr_type.'/'.$attr_type.'.inc';
 		$class = 'Asset_Attribute_'.$attr_type;
 		$attr = new $class();
 		$attr->_params = $parameters;
 		return $attr->validateValue($default);
 
 	}//end _validateAttributeDefault()
+
+
+	/**
+	*  Sets the default weightings for this asset type's components
+	*
+	* @access private
+	* @return true
+	*/
+	function _setComponentWeightings()
+	{
+		$type_code = $this->getAssetType();
+
+		// clear all weightings for this type_code
+		$sql = 'DELETE FROM '. SQ_TABLE_PREFIX .'asset_indexing_weightings_default
+				WHERE type_code = '.$this->_db->quote($type_code);
+
+		$result = $this->_db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		$component_weightings = $this->_getAllComponents();
+		foreach ($component_weightings as $component => $weighting) {
+			if (strlen($component) == 0) continue;
+
+			$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'asset_indexing_weightings_default
+					(type_code, component, description, weighting)
+					VALUES ('.$this->_db->quote($type_code).', '.$this->_db->quote($component).',
+					'.$this->_db->quote($weighting['description']).','.$this->_db->quote($weighting['default_weighting']).')';
+
+			$result = $this->_db->query($sql);
+			if (DB::isError($result)) {
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				return false;
+			}
+		}// end foreach
+
+		return true;
+
+	} // end _setComponentWeightings()
+
+
+	/**
+	* Returns all the components names that are available for this asset type
+	* - any inherited vars and those defined in this management class
+	*
+	* @return Array()
+	* @access public
+	*/
+	function _getAllComponents()
+	{
+		$parent_type = $this->_pm->getTypeInfo($this->getAssetType(), 'parent_type');
+		$sql = 'SELECT iwd.component, iwd.description, iwd.weighting as default_weighting
+				FROM '.SQ_TABLE_PREFIX.'asset_indexing_weightings_default iwd
+				WHERE iwd.type_code = '.$this->_db->quote($parent_type);
+
+		$components = $this->_db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
+		if (DB::isError($components)) {
+			trigger_error($components->getMessage().'<br/>'.$components->getUserInfo(), E_USER_ERROR);
+		}
+
+		foreach($this->components as $component => $data) {
+			if (!isset($components[$component])) {
+				$components[$component] = Array(
+					'description'		=> isset($data['description']) ? $data['description'] : $component,
+					'default_weighting' => isset($data['default_weighting']) ? $data['default_weighting'] : '1',
+				);
+			} else {
+				if (isset($data['description'])) $components[$component]['description'] = $data['description'];
+				if (isset($data['default_weighting'])) $components[$component]['default_weighting'] = $data['default_weighting'];
+			}
+		}
+
+		return $components;
+
+	}// end _getAllComponents()
 
 
 	/**

@@ -18,12 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_edit_fns.inc,v 1.12 2003/11/26 00:51:04 gsherwood Exp $
+* $Id: workflow_schema_edit_fns.inc,v 1.12.2.1 2004/02/18 11:39:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
-
-require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 
 /**
 * Workflow_Schema_Edit_Fns
@@ -36,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Workflow_Schema_Edit_Fns extends Asset_Edit_Fns
+class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 {
 
 	/**

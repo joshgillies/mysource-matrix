@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.68 2003/12/18 04:47:18 gsherwood Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.68.2.1 2004/02/18 11:39:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -986,7 +986,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 				echo '<b><i>The security key entered was incorrect. The lock on "'.$asset->name.'" has not been forceably acquired. You may try again using the new security key displayed below.</i></b>';
 				$o->closeSection();
 			} else {
-				$o->addOnLoad('window.opener.top.main.set_hidden_field(\'sq_lock_acquire_by_force\', \'1\'); window.opener.top.main.set_hidden_field(\'sq_lock_acquire\', \'1\'); window.opener.top.main.set_hidden_field(\'sq_lock_type\', \''.addslashes($_GET['sq_lock_type']).'\'); window.opener.top.main.submit_form(); window.close();');
+				$o->addOnLoad('window.opener.parent.frames["sq_main"].set_hidden_field(\'sq_lock_acquire_by_force\', \'1\'); window.opener.parent.frames["sq_main"].set_hidden_field(\'sq_lock_acquire\', \'1\'); window.opener.parent.frames["sq_main"].set_hidden_field(\'sq_lock_type\', \''.addslashes($_GET['sq_lock_type']).'\'); window.opener.parent.frames["sq_main"].submit_form(); window.close();');
 				return;
 			}
 		}
