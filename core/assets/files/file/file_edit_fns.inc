@@ -110,14 +110,16 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		$name = array_shift($valid_names);
 
 		// make sure the new web path is not already is use
-		$parents = $asset->getLinks(SQ_LINK_SIGNIFICANT, '', null, 'minor');
-		for($i = 0; $i < count($parents); $i++) {
-			$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
-			if (is_null($parent)) continue;
-			$bad_paths = $parent->_webPathsInUse(Array($name));
-			if (!empty($bad_paths)) {
-				trigger_error('Failed updating web path, file not uploaded. Path already exists?', E_USER_WARNING);
-				return false;
+		if ($asset->name != $name) {
+			$parents = $asset->getLinks(SQ_LINK_SIGNIFICANT, '', null, 'minor');
+			for($i = 0; $i < count($parents); $i++) {
+				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
+				if (is_null($parent)) continue;
+				$bad_paths = $parent->_webPathsInUse(Array($name));
+				if (!empty($bad_paths)) {
+					trigger_error('Failed updating web path, file not uploaded. Path already exists?', E_USER_WARNING);
+					return false;
+				}
 			}
 		}
 
