@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cal_navigator.js,v 1.7 2004/09/13 03:39:02 dbaranovskiy Exp $
+* $Id: cal_navigator.js,v 1.8 2004/09/13 04:28:32 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -448,7 +448,7 @@ function c_output()
 	var day = dt.getDay();
 	var j = this.week_start;
 	output += '<tr id="' + this.varname + '_tr_0">';
-	if (is_week_set) output += '<td class="cal_week" onmouseout="document.getElementById(\'' + this.varname + '_tr_0\').className=\'\'" onmouseover="document.getElementById(\'' + this.varname + '_tr_0\').className=\'cal_ovr\'" onclick="' + this.varname + '.weekClick(1,' + dt.getMonth() + ',' + dt.getFullYear() + ')">&raquo;</td>';
+	if (is_week_set) output += '<td class="cal_week" onmouseout="document.getElementById(\'' + this.varname + '_tr_0\').className=\'\'" onmouseover="document.getElementById(\'' + this.varname + '_tr_0\').className=\'cal_ovr\'" onclick="' + this.varname + '.weekClick(1,' + (dt.getMonth()+1) + ',' + dt.getFullYear() + ')">&raquo;</td>';
 
 	var diff = 1 + (j - day);
 	if (day < j) diff = 1 + (j - day - 7);
@@ -456,7 +456,7 @@ function c_output()
 
 	while (j != day && (diff <= 0))
 	{
-		output += '<td class="cal_empty" onmouseover="this.className=\'cal_ovr\'" onmouseout="this.className=\'cal_empty\'" onclick="' + this.varname + '.dayClick(' + dt.getDate() + ',' + dt.getMonth() + ',' + dt.getFullYear() + ')">' + dt.getDate() + '</td>';
+		output += '<td class="cal_empty" onmouseover="this.className=\'cal_ovr\'" onmouseout="this.className=\'cal_empty\'" onclick="' + this.varname + '.dayClick(' + dt.getDate() + ',' + (dt.getMonth()+1) + ',' + dt.getFullYear() + ')">' + dt.getDate() + '</td>';
 		dt.setDate(dt.getDate() + 1);
 		j++;
 		if (j == 7) j = 0;
@@ -476,7 +476,7 @@ function c_output()
 			if (is_week_set) output += '<td class="cal_week" onmouseout="document.getElementById(\'' + this.varname + '_tr_' + j +
 				'\').className=\'\'" onmouseover="document.getElementById(\'' + this.varname + '_tr_' + j +
 				'\').className=\'cal_ovr\'" onclick="' + this.varname +
-				'.weekClick(' + dt.getDate() + ',' + dt.getMonth() + ',' + dt.getFullYear() + ')">&raquo;</td>';
+				'.weekClick(' + dt.getDate() + ',' + (dt.getMonth()+1) + ',' + dt.getFullYear() + ')">&raquo;</td>';
 			j++;
 			if (j == 7) j = 0;
 		}
@@ -484,7 +484,7 @@ function c_output()
 		else clss = "cal_day";
 		if (dt.getDate() == this.selday) clss += "_sel";
 		else if (dt.getFullYear() == td.getFullYear() && dt.getMonth() == td.getMonth() && dt.getDate() == td.getDate()) clss = "cal_today";
-		output += '<td onmouseover="this.className=\'cal_ovr\'" onmouseout="this.className=\'' + clss + '\'" class="' + clss + '" id="' + this.varname + '_td_' + dt.getDate() + '" onclick="' + this.varname + '.dayClick(' + dt.getDate() + ',' + dt.getMonth() + ',' + dt.getFullYear() + ')">' + dt.getDate() + '</td>';
+		output += '<td onmouseover="this.className=\'cal_ovr\'" onmouseout="this.className=\'' + clss + '\'" class="' + clss + '" id="' + this.varname + '_td_' + dt.getDate() + '" onclick="' + this.varname + '.dayClick(' + dt.getDate() + ',' + (dt.getMonth()+1) + ',' + dt.getFullYear() + ')">' + dt.getDate() + '</td>';
 		dt.setDate(dt.getDate() + 1);
 		day = this.week_start + 1;
 	}
@@ -496,7 +496,7 @@ function c_output()
 	var endday = (this.week_start == 0)?6:this.week_start - 1;
 	while (j != endday)
 	{
-		output += '<td class="cal_empty" onmouseover="this.className=\'cal_ovr\'" onmouseout="this.className=\'cal_empty\'" onclick="' + this.varname + '.dayClick(' + dt.getDate() + ',' + dt.getMonth() + ',' + dt.getFullYear() + ')">' + dt.getDate() + '</td>';
+		output += '<td class="cal_empty" onmouseover="this.className=\'cal_ovr\'" onmouseout="this.className=\'cal_empty\'" onclick="' + this.varname + '.dayClick(' + dt.getDate() + ',' + (dt.getMonth()+1) + ',' + dt.getFullYear() + ')">' + dt.getDate() + '</td>';
 		dt.setDate(dt.getDate() + 1);
 		j++;
 		if (j == 7) j = 0;
@@ -644,9 +644,9 @@ function c_setDate(year, mon, day)
 
 
 /**
-* Add function to body onload event
+* Add func to body onload event
 *
-* @param	func_name	function call string [init()]
+* @param	func_name	func call string [init()]
 *
 * @return void
 * @access public
