@@ -57,17 +57,6 @@ class Resolve_Object
 	}#end __sleep()
 
 
-	/*
-	* returns the userid from the system object
-	*
-	* @access public
-	* @see Resolve::currentUserId()
-	*/
-	function currentUserId() {
-		return $GLOBALS['SQ_RESOLVE']->currentUserId();
-	}#end currentUserId()
-
-
 }#end class
 
 

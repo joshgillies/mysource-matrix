@@ -47,7 +47,7 @@ class Asset_Manager extends Resolve_Object
 	{
 
 		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
-		$sql = 'SELECT type_code, version, name, instantiable, parent_type, dir, customisation
+		$sql = 'SELECT type_code, version, name, instantiable, system_only, parent_type, dir, customisation
 				FROM sq_asset_type';
 		$result = $db->query($sql);
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
@@ -71,7 +71,7 @@ class Asset_Manager extends Resolve_Object
 	{
 
 		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
-		$sql = 'SELECT type_code, version, name, instantiable, parent_type, dir, customisation
+		$sql = 'SELECT type_code, version, name, instantiable, system_only, parent_type, dir, customisation
 				FROM sq_asset_type
 				WHERE type_code = '.$db->quote($type_code);
 		$result = $db->getRow($sql);
@@ -125,6 +125,16 @@ class Asset_Manager extends Resolve_Object
 	}//end installed()
 
 	/*
+	* Returns an array of type codes that are installed in the system
+	*
+	* @return array
+	* @access public
+	*/
+	function getTypeList() {
+		return array_keys($this->_asset_types);
+	}//end getInfo()
+
+	/*
 	* Returns an array of asset information or a specific piece of information
 	*
 	* @param string $type_code  the code name for the asset that you want to check
@@ -143,6 +153,7 @@ class Asset_Manager extends Resolve_Object
 		return ($field) ? $this->_asset_types[$type_code][$field] : $this->_asset_types[$type_code];
 
 	}//end getInfo()
+
 
 	/*
 	* Returns an array representing the class hierarchy for the asset types, either for whole system

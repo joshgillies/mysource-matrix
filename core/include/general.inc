@@ -4,9 +4,9 @@
 ##############################################
 ##
 ## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/include/general.inc,v $
-## $Revision: 1.2 $
+## $Revision: 1.3 $
 ## $Author: brobertson $
-## $Date: 2003/01/30 07:50:38 $
+## $Date: 2003/02/13 06:15:27 $
 #######################################################################
 
 #---------------------------------------------------------------------#
@@ -193,5 +193,36 @@ function bit_elements($num)
 	return $elems;
 
 }// end bit_elements()
+
+
+
+/*
+* Takes an ISO-9601 compliant date-time string and returns a unix timestamp for it
+* 
+* @param string	$iso8601	date time string in 'YYYY-MM-DD HH:MM:SS' format
+*
+* @return Array(int)
+*/
+function iso8601_ts($iso8601) {
+	return mktime(
+		substr($iso8601,11,2),
+		substr($iso8601,14,2),
+		substr($iso8601,17,2),
+		substr($iso8601,5,2),
+		substr($iso8601,8,2),
+		substr($iso8601,0,4)
+	);
+}
+
+/*
+* Takes a unix timestamp for it and returns an ISO-9601 compliant date-time string 
+* 
+* @param int	$timestamp	unix timestamp
+*
+* @return Array(int)
+*/
+function ts_iso8601($timestamp) {
+	return date("Y-m-d H:i:s",$timestamp);
+}
 
 ?>

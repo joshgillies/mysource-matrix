@@ -71,12 +71,14 @@ class Asset extends Resolve_Object
 		// welcome to sequences, they are cool, see the PEAR::DB docs for more info
 		$assetid = $db->nextid('sq_sequence_asset');
 
-		$name = ucwords(str_replace('_', ' ', get_class($this))).' #'.$assetid;
+		$name   = ucwords(str_replace('_', ' ', get_class($this))).' #'.$assetid;
+		$now    = time();
+		$userid = $GLOBALS['SQ_RESOLVE']->currentUserId();
 
 		$sql = 'INSERT INTO sq_asset
 				(assetid, type_code, name, last_updated, last_userid)
 				VALUES
-				('.$db->quote($assetid).','.$db->quote(get_class($this)).', '.$db->quote($name).', NOW(),'.$db->quote($this->currentUserId()).')';
+				('.$db->quote($assetid).','.$db->quote(get_class($this)).', '.$db->quote($name).', '.$db->quote(ts_iso8601($now)).', '.$db->quote($userid).')';
 
 		pre_echo($sql);
 
@@ -88,6 +90,8 @@ class Asset extends Resolve_Object
 
 		$this->id   = $assetid;
 		$this->name = $name;
+		$this->last_updated = $now;
+		$this->last_userid  = $userid;
 
 		$this->_loadVars($db);
 
@@ -122,6 +126,7 @@ class Asset extends Resolve_Object
 		}
 
 		list($this->id, $this->name, $type_code, $this->last_updated, $this->last_userid) = $result;
+		$this->last_updated = iso8601_ts($this->last_updated);
 		unset($result);
 
 		// make sure the asset we are loading is of the same type as our class
@@ -206,12 +211,10 @@ class Asset extends Resolve_Object
 		$userid = $GLOBALS['SQ_RESOLVE']->currentUserId();
 		$name   = $this->_getName();
 
-
-
 		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
 		$sql = 'UPDATE sq_asset
 				SET name         = '.$db->quote($name).',
-					last_updated = '.$db->quote($now).',
+					last_updated = '.$db->quote(ts_iso8601($now)).',
 					last_userid  = '.$db->quote($userid).'
 				WHERE assetid = '.$db->quote($this->id);
 		
@@ -502,7 +505,7 @@ class Asset extends Resolve_Object
 				(majorid, minorid, link_type, value, sort_order, last_updated, last_userid)
 				VALUES
 				('.$db->quote($this->id).', '.$db->quote($minor->id).', '.$db->quote($link_type).', '
-				.$db->quote($value).', '.$db->quote($sort_order).', NOW(), '.$db->quote($this->currentUserId()).')';
+				.$db->quote($value).', '.$db->quote($sort_order).', '.$db->quote(ts_iso8601(time())).', '.$db->quote($GLOBALS['SQ_RESOLVE']->currentUserId()).')';
 
 		pre_echo($sql);
 
