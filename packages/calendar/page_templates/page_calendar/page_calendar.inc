@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.21 2004/08/24 00:27:49 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.22 2004/08/24 00:52:14 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.21 $ - 1.0
+* @version $Revision: 1.22 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -726,14 +726,14 @@ class Page_Calendar extends Page_Asset_Listing
 					if ($event_length < 20) $event_length = 0;
 					$root_node_ids = array_keys($root_nodes); 
 					$event_class = $root_nodes[$root_node_ids[rand(0, count($root_nodes)-1)]]['class_name'];
-					$event_left_margin = $event_length ? $left_margin : 0;
+					$event_left_margin = $left_margin;
 					$event_id = rand(1, 256);
 					if (rand(0, 100) < 15) {
 						/* End randomised generation of events */
 						$event_margin_top = ($event_start_time / 4) * $partition_height;
 						$event_height = number_format($partition_height * ($event_length / $partition_time), 2);
 						$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand; ' : '';
-						$zero_length_code = $event_length ? '' : 'border-style: dashed; border-width: 2px; border-bottom: 0px; height: 0px; padding-top: 0px; background-color: transparent';
+						$zero_length_code = $event_length ? '' : 'border-style: dashed; border-width: 2px; border-bottom: 0px; border-left: 0px; border-right: 0px; height: 0px; padding-top: 0px; background-color: transparent;';
 						echo "<div class=\"{$event_class} event\" style=\"position: absolute; width: {$width}ex; margin-left: {$event_left_margin}ex; margin-top: {$event_margin_top}ex; height: {$event_height}ex; $cursor_code $zero_length_code\"".($show_event_links ? ' onclick="clickChild(this)"' : '').'><div class="eventText" style="position: absolute; width: '.($width*0.99).'ex; border: none; margin-top: '.($event_length ? '1px' : '0px').'; background-color: transparent">';
 
 						echo $show_event_links ? '<a class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&SQ_CALENDAR_DATE='.$date.'&SQ_CALENDAR_EVENT_ID='.$event_id.'">' : '<span class="event '.$event_class.'">';
