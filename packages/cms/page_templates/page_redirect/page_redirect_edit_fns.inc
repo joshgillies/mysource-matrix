@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_redirect_edit_fns.inc,v 1.7 2003/10/10 06:49:28 brobertson Exp $
+* $Id: page_redirect_edit_fns.inc,v 1.8 2003/11/13 21:14:31 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,6 +30,7 @@ class Page_Redirect_Edit_Fns extends Page_Edit_Fns
 	function Page_Redirect_Edit_Fns()
 	{
 		$this->Page_Edit_Fns();
+		$this->static_screens['details']['lock_type'] = 'redirect';
 
 	}//end constructor
 

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_redirect.inc,v 1.7 2003/11/13 04:44:06 gsherwood Exp $
+* $Id: page_redirect.inc,v 1.8 2003/11/13 21:14:31 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,6 +34,21 @@ class Page_Redirect extends Page
 		$this->Page($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Returns a list of lock types available for this asset type
+	*
+	* @return Array()
+	* @access public
+	*/
+	function lockTypes()
+	{
+		$lock_types = parent::lockTypes();
+		$lock_types['redirect'] = ($lock_types['attributes'] | $lock_types['links']);
+		return $lock_types;
+
+	}//end lockTypes()
 
 
 	/**

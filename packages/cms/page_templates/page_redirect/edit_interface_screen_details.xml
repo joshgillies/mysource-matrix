@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2003/11/13 21:08:35 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6 2003/11/13 21:14:31 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -20,7 +20,7 @@
 			<text width="12" height="1" />
 		</field>
 	</section>
-	<section name="Location" write_access="write:attributes">
+	<section name="Location" write_access="write:redirect">
 		<field attribute="redirect_url">
 			<display_name>URL</display_name>
 			<note />
