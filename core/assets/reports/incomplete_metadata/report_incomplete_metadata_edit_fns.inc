@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata_edit_fns.inc,v 1.1 2004/07/06 07:21:37 gsherwood Exp $
+* $Id: report_incomplete_metadata_edit_fns.inc,v 1.2 2004/08/12 04:38:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -210,7 +210,7 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<td colspan="2" class="sq-backend-table-header" style="width: 266px;">Found In</td>
+						<td colspan="4" class="sq-backend-table-header" style="width: 226px;">Found In</td>
 						<td class="sq-backend-table-header">Empty Fields</td>
 					</tr>
 				<?php
@@ -223,32 +223,44 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 						$asset_type = '';
 						$asset_string = 'Unkown asset #'.$assetid;
 						$asset_bg = 'FFFFFF';
+						$asset_status = '';
 					} else {
 						$asset_type = $asset->type();
 						$asset_bg = get_status_colour($asset->status);
+						$asset_status = get_status_description($asset->status);
 						$asset_url = $asset->getBackendHref('metadata');
-						
-						$asset_string = '
-							<a href="'.$asset_url.'" title="'.ucwords(str_replace('_', ' ', $asset_type)).' [#'.$assetid.']">
-								'.$asset->name.'
-							</a>';
+						$asset_string = '<a href="#" onclick="Javscript: return false;" target="_blank" title="'.$asset->name.'">'.ellipsisize($asset->name, 40).'</a>';
 					}
 					
 					?>
 					<tr>
-						<td class="sq-backend-table-cell" style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; width: 16px; background-color: #<?php echo $asset_bg; ?>;">
+						<td class="sq-backend-table-cell" style="width: 10px; padding-right: 1px; text-align: right;">
 							<?php
 							if (!empty($asset_type)) {
 								?>
-								<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($asset_type); ?>", "16", "16", "");</script>
+								<a href="<?php echo $asset_url; ?>" title="Edit this asset's metadata">#<?php echo (int) $asset->id; ?></a>
 								<?php
 							}
 							?>
 						</td>
-						<td class="sq-backend-table-cell" style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-right: 1px solid #000000; width: 250px; background-color: #<?php echo $asset_bg; ?>;">
+						<td class="sq-backend-table-cell" style="width: 10px; padding-right: 1px;">
+							<div title="<?php echo $asset_status; ?>" style="border: 1px solid #CCCCCC; padding: 4px; background-color: #<?php echo $asset_bg; ?>; width: 8px; height: 8px;">&nbsp;</div>
+						</td>
+						<td class="sq-backend-table-cell" style="width: 16px; padding-right: 2px; padding-left: 2px;">
+							<?php
+							if (!empty($asset_type)) {
+								?>
+								<span title="<?php echo ucwords(str_replace('_', ' ', $asset_type)); ?>">
+									<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($asset_type); ?>", "16", "16", "");</script>
+								</span>
+								<?php
+							}
+							?>
+						</td>
+						<td class="sq-backend-table-cell" style="padding-left: 2px;">
 							<?php echo $asset_string; ?>
 						</td>
-						<td class="sq-backend-table-cell" style="border: 1px solid #000000;">
+						<td class="sq-backend-table-cell">
 							<?php
 							echo implode('<br />', $fields);
 							?>
