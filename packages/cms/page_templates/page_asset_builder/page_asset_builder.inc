@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.29.2.3 2004/11/24 23:13:57 gsherwood Exp $
+* $Id: page_asset_builder.inc,v 1.29.2.3.2.1 2004/12/23 01:41:18 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -789,24 +789,26 @@ class Page_Asset_Builder extends Page
 				<?php
 				$i = 0;
 				?>
-					<div class="sq-asset-builder-header">
+				<div id="sq-asset-builder-header">
+					<ul>
 				<?php
 				foreach($create_types as $create_type) {
 					$prefix = $this->type().'_'.$this->id.'_type_'.$create_type;
 					?>
-						<div class="sq-asset-builder-tab<?php echo ($i == 0) ? '-active' : ''; ?>" id="<?php echo $prefix.'_tab'; ?>">
+						<li class="sq-asset-builder-tab<?php echo ($i == 0) ? '-active' : ''; ?>" id="<?php echo $prefix.'_tab'; ?>">
 							<a href="#" onClick="showAssetBuilderTab('<?php echo $create_type ?>'); return false;">
 								<?php
 								$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($create_type, 'name');
 								echo $type_name;
 								?>
 							</a>
-						</div>
+						</li>
 					<?php
 					$i++;
 				}
 				?>
-					</div>
+					</ul>
+				</div>
 				<?php
 				$this->_replacements['create_form'] = ob_get_contents().$this->_replacements['create_form'];
 			ob_end_clean();
