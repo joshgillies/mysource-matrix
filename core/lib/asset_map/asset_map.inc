@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.130 2004/04/05 05:04:52 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.131 2004/04/21 00:33:01 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -412,10 +412,16 @@ class Asset_Map
 			return $this->_error('Could not load child assets for assetid '.$assetid.' '.$result->getMessage());
 		}
 
-		if (empty($result)) {
+		// gather links for shadowed assets - only if asset descends from a bridge
+		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
+		$type_code = $asset_info[$assetid]['type_code'];
+		$is_a_bridge = (array_search('bridge', $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code)) !== false);
+		if ($is_a_bridge) {
 			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
-			
 			foreach ($links as $link_data) {
+				// if the colon isn't there, this isn't a shadow asset; move on
+				if (strpos($link_data['minorid'], ':') === false) continue;
+
 				$link_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid'], $link_data['minor_type_code']);
 				$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($link_asset->id, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
 				$result[] = Array(
