@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.34.2.10 2004/03/26 16:41:50 brobertson Exp $
+* $Id: mysource.inc,v 1.34.2.11 2004/04/08 16:14:27 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -188,10 +188,10 @@ class MySource
 			// check if we are in rollback view mode
 			if (!empty($_SESSION['sq_rollback_view'])) {
 				// we are viewing the system at some time in the past
-				$GLOBALS['SQ_ROLLBACK_VIEW'] = '1';
+				$GLOBALS['SQ_ROLLBACK_VIEW'] = true;
 				$GLOBALS['SQ_TABLE_RUNNING_PREFIX'] = SQ_TABLE_ROLLBACK_PREFIX;
 			} else {
-				$GLOBALS['SQ_ROLLBACK_VIEW'] = '0';
+				$GLOBALS['SQ_ROLLBACK_VIEW'] = false;
 				$GLOBALS['SQ_TABLE_RUNNING_PREFIX'] = SQ_TABLE_PREFIX;
 			}
 
@@ -199,10 +199,10 @@ class MySource
 			// but make sure that the person is coming from the same machine as they logged in on
 			// so get a reference to them
 			$this->user = null;
-			if (!empty($_SESSION['user_last_access']) 
+			if (!empty($_SESSION['user_last_access'])
 				&& time() < ((int) $_SESSION['user_last_access'] + SQ_CONF_MAX_IDLE_TIME)
 				&& !empty($_SESSION['userid'])) {
-				
+
 				// check to see if we are allowing fluctuating ip addresses
 				if (SQ_CONF_ALLOW_IP_CHANGE || ($_SESSION['remote_addr'] == $_SERVER['REMOTE_ADDR'])) {
 					// we mute errors trying to get the user because we will handle this gracefully later
@@ -222,7 +222,7 @@ class MySource
 			$this->_user_is_sys_admin = $_SESSION['user_is_sys_admin'];
 
 		} else {
-			$GLOBALS['SQ_ROLLBACK_VIEW'] = '0';
+			$GLOBALS['SQ_ROLLBACK_VIEW'] = false;
 			$GLOBALS['SQ_TABLE_RUNNING_PREFIX'] = SQ_TABLE_PREFIX;
 		}// end if
 
@@ -259,19 +259,19 @@ class MySource
 			if (isset($_REQUEST['a'])) $asset = &$this->am->getAsset($_REQUEST['a']);
 			else $asset = &$this->am->getAssetFromURL(current_protocol(), null, true, true);
 			if (is_null($asset)) {
-				
+
 				$protocol = current_protocol();
 				$url      = strip_url(current_url(false, true));
-			
+
 				$rm = &$this->am->getSystemAsset('remap_manager');
 				if (!$rm->loadRemapFromURL($protocol, $url)) {
 					
 					// okay, the remap manager could not remap this url, so 
 					// check to see if we can find a 404 page from a site matching this url
-					
+
 					$root_url = $this->am->getRootURL($url);
-					
-					// if we can get a site from the url, 
+
+					// if we can get a site from the url,
 					// try to delegate the 404 to its not found page
 
 					if (!empty($root_url)) {
@@ -294,7 +294,7 @@ class MySource
 						trigger_error('URL "'.$url.'" not found', E_USER_NOTICE);
 					}
 				}//end if !load remap
-				
+
 				exit(1);
 			}//end if is_null(asset)
 
@@ -374,6 +374,7 @@ class MySource
 	* Processes any global actions that need to be taken care of
 	*
 	* @access private
+	* @return void
 	*/
 	function _processGlobalActions()
 	{
@@ -384,7 +385,7 @@ class MySource
 				if (!isset($_POST['SQ_LOGIN_USERNAME']) || !isset($_POST['SQ_LOGIN_PASSWORD'])) return;
 				if (!is_null($this->user) && isset($_POST['SQ_LOGIN_USERNAME']) && $_POST['SQ_LOGIN_USERNAME'] == $this->user->attr('username')) return;
 
-				if (isset($_POST['SQ_LOGIN_KEY']) && isset($_POST['SQ_LOGIN_USERNAME']) && 
+				if (isset($_POST['SQ_LOGIN_KEY']) && isset($_POST['SQ_LOGIN_USERNAME']) &&
 					isset($_POST['SQ_LOGIN_PASSWORD']) && $this->loginKey() == $_POST['SQ_LOGIN_KEY']) {
 
 					// get a list of all the installed authentication systems
@@ -471,37 +472,27 @@ class MySource
 			break;
 
 			case 'rollback_view_start' :
-				$_SESSION['sq_rollback_view'] = Array();
-			
+				// bring us back to the current first of all
+				$this->closeRollbackView();
 				if (isset($_GET['assetid']) && isset($_GET['version'])) {
-					// work out when the version of the asset was created
-					$assetid = $_GET['assetid'];
-					$version = $_GET['version'];
 
-					// note that we dont prep this query for rollback select
-					// because we are selecting directly from the rollback table
-					$sql = 'SELECT '.SQ_TABLE_PREFIX.'effective_from AS efrom
-							FROM '.SQ_TABLE_ROLLBACK_PREFIX.'asset
-							WHERE assetid = '.$this->db->quote($assetid).'
-							  AND version = '.$this->db->quote($version);
-
-					$then = $this->db->getOne($sql);
-					if (DB::isError($then)) {
-						trigger_error($then->getMessage().'<br/>'.$then->getUserInfo(), E_USER_WARNING);
-						return;
-					}
-
-					$this->startRollbackView(iso8601_ts($then));
-				} else {
-					@$this->stopRollbackView();
-				}
-
+					$current_asset = $this->am->getAsset($_GET['assetid']);
+					if (!is_null($current_asset)) {
+						$timestamps = $current_asset->versionTimestamps(Array($_GET['version']));
+						if (empty($timestamps)) {
+							trigger_error('Unable to start Rollback View : Asset '.$current_asset->name.' (#'.$current_asset->id.') does not have a version "'.$_GET['version'].'" available', E_USER_WARNING);
+						} else {
+							$timestamp = reset($timestamps);
+							$this->openRollbackView($timestamp);
+						}// end if
+					}// endif
+				}// en dif
 				unset($_GET['assetid']);
 				unset($_GET['version']);
 			break;
 
 			case 'rollback_view_stop' :
-				$this->stopRollbackView();
+				$this->closeRollbackView();
 			break;
 
 			case 'hipo' :
@@ -868,7 +859,7 @@ class MySource
 
 
 	/**
-	* Get the indexing manager 
+	* Get the indexing manager
 	*
 	* @return object Indexing_Manager
 	* @access public
@@ -902,19 +893,18 @@ class MySource
 
 
 	/**
-	* Get the Replicator
-	* Always call this function to get the file versioning object, dont use $this-> directly
+	* Get the System Replicator (whether it is the master or slave replicator)
+	* Always best to call this function to get the system replicator object, dont use $this->sr directly
 	*
-	* @return object Replicator
+	* @return object Replicator		returns NULL on error or the Replicator
 	* @access public
 	*/
 	function &getSystemReplicator()
 	{
 		if(!isset($this->sr) || !is_a($this->sr, 'replicator')) {
-			require_once SQ_SYSTEM_ROOT.'/data/private/conf/replication.inc';
-			if (!SQ_REPLICATION_ENABLED) {
+			if (!SQ_CONF_REPLICATION_ENABLED) {
 				trigger_error('Replication is not enabled, unable to get the System Replicator', E_USER_ERROR);
-			} elseif (SQ_REPLICATION_IS_MASTER) {
+			} elseif (SQ_CONF_REPLICATION_IS_MASTER) {
 				require_once SQ_SYSTEM_ROOT.'/core/replication/master/replicator_master.inc';
 				$this->sr = new Replicator_Master();
 			} else {
@@ -1024,12 +1014,16 @@ class MySource
 			require_once SQ_INCLUDE_PATH.'/transaction_manager.inc';
 			$this->tm = new Transaction_Manager();
 		}
-		// Use this when there is a transaction problem to create a log and then run this from the cmd line 
+		// Use this when there is a transaction problem to create a log and then run this from the cmd line
 		// and look for the fn with the odd number of calls
 		// cat trans.log | awk '{ print $3 }' | sort | uniq -c # number of calls in a fn
 		// cat trans.log | awk '{ print $5 }' | sort | uniq -c # total number of each type of call
 		#$bt = debug_backtrace();
-		#error_log('TRANS : '.$bt[1]['class'].'::'.$bt[1]['function'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/trans.log');
+		#if (isset($bt[1])) {
+		#	error_log('TRANS : '.$bt[1]['class'].'::'.$bt[1]['function'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
+		#} else {
+		#	error_log('TRANS : '.$bt[0]['file'].'::'.$bt[0]['line'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
+		#}
 		switch (strtolower($type)) {
 			case 'begin'    :
 				$this->tm->begin($this->_db_stack[count($this->_db_stack) - 1]);
@@ -1104,7 +1098,7 @@ class MySource
 
 	/**
 	* Start Working in rollback mode
-	* This set's session variables so if stopRollbackView() is not called before the end of the script 
+	* This set's session variables so if closeRollbackView() is not called before the end of the script
 	* then this setting will continue on the next script execution
 	*
 	* @param int	$timestamp		the time we want to view in rollback mode
@@ -1112,16 +1106,25 @@ class MySource
 	* @return void
 	* @access public
 	*/
-	function startRollbackView($timestamp)
+	function openRollbackView($timestamp)
 	{
 		if (time() <= $timestamp) {
 			trigger_error('You can only set rollback view to be a time in the past', E_USER_ERROR);
 		}
-		$GLOBALS['SQ_ROLLBACK_VIEW'] = '1';
-		$GLOBALS['SQ_TABLE_RUNNING_PREFIX'] = SQ_TABLE_ROLLBACK_PREFIX;
-		$_SESSION['sq_rollback_view'] = Array('rollback_time' => ts_iso8601($timestamp));
+		if (isset($_SESSION['sq_rollback_view'])) {
+			$_SESSION['sq_rollback_view']['rollback_time'] = ts_iso8601($timestamp);
+			array_push($_SESSION['sq_rollback_view']['rollback_stack'], $timestamp);
+		} else {
+			$_SESSION['sq_rollback_view'] = Array(
+												'rollback_time'  => ts_iso8601($timestamp),
+												'rollback_stack' => Array($timestamp),
+												);
+		}
 
-	}// end startRollbackView()
+		$GLOBALS['SQ_ROLLBACK_VIEW'] = true;
+		$GLOBALS['SQ_TABLE_RUNNING_PREFIX'] = SQ_TABLE_ROLLBACK_PREFIX;
+
+	}// end openRollbackView()
 
 
 	/**
@@ -1130,13 +1133,23 @@ class MySource
 	* @return void
 	* @access public
 	*/
-	function stopRollbackView()
+	function closeRollbackView()
 	{
-		$GLOBALS['SQ_ROLLBACK_VIEW'] = '0';
-		$GLOBALS['SQ_TABLE_RUNNING_PREFIX'] = SQ_TABLE_PREFIX;
-		if (isset($_SESSION['sq_rollback_view'])) unset($_SESSION['sq_rollback_view']);
+		if (isset($_SESSION['sq_rollback_view'])) {
+			array_pop($_SESSION['sq_rollback_view']['rollback_stack']);
+			if (empty($_SESSION['sq_rollback_view']['rollback_stack'])) {
+				unset($_SESSION['sq_rollback_view']);
+			} else {
+				$_SESSION['sq_rollback_view']['rollback_time'] = ts_iso8601(end($_SESSION['sq_rollback_view']['rollback_stack']));
+			}
+		}
 
-	}// end stopRollbackView()
+		if (!isset($_SESSION['sq_rollback_view'])) {
+			$GLOBALS['SQ_ROLLBACK_VIEW'] = false;
+			$GLOBALS['SQ_TABLE_RUNNING_PREFIX'] = SQ_TABLE_PREFIX;
+		}
+
+	}// end closeRollbackView()
 
 
 	/**
@@ -1301,11 +1314,11 @@ class MySource
 
 		$this->doTransaction('BEGIN');
 
-		// We need to add the rollback entries first, then actually update them as well as the live table 
-		// because otherwise there can be issues where part of the where condition is actually modified by the 
+		// We need to add the rollback entries first, then actually update them as well as the live table
+		// because otherwise there can be issues where part of the where condition is actually modified by the
 		// set commands, and therefore is not found by the insert-select in _addRollbackEntry().
 		// eg an update like this causes problems :
-		//       UPDATE sq_asset_link SET sort_order = sort_order - 1 
+		//       UPDATE sq_asset_link SET sort_order = sort_order - 1
 		//       WHERE majorid = '1' AND sort_order > '2'
 
 		// construct the update queries
@@ -1584,7 +1597,7 @@ class MySource
 		$current_lock = $this->getLockInfo($lockid);
 
 		// is this asset already locked
-		if (!empty($current_lock)) { 
+		if (!empty($current_lock)) {
 			// the user is asking to acquire a lock they already had
 			// so just update the lock expiry date
 			if ($current_lock['userid'] == $this->currentUserid()) {
@@ -1604,13 +1617,13 @@ class MySource
 		}
 
 		$this->changeDatabaseConnection('db2');
-		$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'lock 
-				(lockid, source_lockid, userid, expires) 
-				VALUES 
+		$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'lock
+				(lockid, source_lockid, userid, expires)
+				VALUES
 				('.$this->db->quote($lockid).','.$this->db->quote($source_lockid).','.$this->db->quote($this->currentUserid()).','.$this->db->quote($expires).')';
 		$result = $this->db->query($sql);
 		$this->restoreDatabaseConnection();
-		if (DB::isError($result)) { 
+		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return 'Database Error';
 		}
@@ -1633,12 +1646,12 @@ class MySource
 		if (empty($current_lock)) return true;
 
 		$this->changeDatabaseConnection('db2');
-		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'lock 
+		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'lock
 				WHERE source_lockid = '.$this->db->quote($current_lock['source_lockid']);
 
 		$result = $this->db->query($sql);
 		$this->restoreDatabaseConnection();
-		if (DB::isError($result)) { 
+		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return 'Database Error';
 		}
@@ -1671,13 +1684,13 @@ class MySource
 		}
 
 		$this->changeDatabaseConnection('db2');
-		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'lock 
+		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'lock
 				   SET expires = '.$this->db->quote($expires).'
 				WHERE source_lockid = '.$this->db->quote($current_lock['source_lockid']);
 
 		$result = $this->db->query($sql);
 		$this->restoreDatabaseConnection();
-		if (DB::isError($result)) { 
+		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return 'Database Error';
 		}
@@ -1699,9 +1712,9 @@ class MySource
 	function getLockInfo($lockid, $full_chain=false, $check_expires=true)
 	{
 		$this->changeDatabaseConnection('db2');
-	
+
 		$sql = 'SELECT lockid, source_lockid, userid, expires
-				FROM '.SQ_TABLE_PREFIX.'lock 
+				FROM '.SQ_TABLE_PREFIX.'lock
 				WHERE lockid = '.$this->db->quote($lockid);
 
 		$result = $this->db->getRow($sql);
@@ -1721,11 +1734,11 @@ class MySource
 					return Array();
 				}// end if
 			}// end if
-			
+
 			if ($full_chain) {
 				$result['chained_assets'] = Array();
 				$sql = 'SELECT lockid, source_lockid, userid, expires
-						FROM '.SQ_TABLE_PREFIX.'lock 
+						FROM '.SQ_TABLE_PREFIX.'lock
 						WHERE source_lockid = '.$this->db->quote($result['source_lockid']).'
 						  AND lockid <> '.$this->db->quote($lockid);
 				$chain = $this->db->getAll($sql);
@@ -1742,7 +1755,7 @@ class MySource
 
 			}// end if
 
-		}// endif 
+		}// endif
 
 		$this->restoreDatabaseConnection();
 		return $result;
@@ -1848,7 +1861,7 @@ class MySource
 		}
 
 		return $packages;
-	
+
 	}//end getInstalledPackages()
 
 
