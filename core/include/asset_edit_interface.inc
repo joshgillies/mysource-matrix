@@ -1569,13 +1569,14 @@ class Asset_Edit_Interface extends Resolve_Object
 		foreach ($asset_links as $link) $assetids[$link['majorid']] = Array();
 
 		$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
-		$sql = 'SELECT cl.minorid, pt.treeid, a.name
+		$sql = 'SELECT ct.treeid, cl.minorid, pt.treeid, a.name, a.assetid
 				FROM sq_asset_link cl INNER JOIN sq_asset_link_tree ct ON cl.linkid = ct.linkid,
 					 sq_asset_link pl INNER JOIN sq_asset_link_tree pt ON pl.linkid = pt.linkid 
 					 INNER JOIN sq_asset a ON a.assetid = pl.minorid
 				WHERE cl.minorid IN ('.implode(', ', array_keys($assetids)).')
 				  AND ct.treeid LIKE '.$concat.'
-				  AND pt.treeid < ct.treeid';
+				  AND pt.treeid <= ct.treeid
+				ORDER BY cl.linkid, ct.treeid, pt.treeid';
 
 		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
 		if (DB::isError($result)) {
@@ -1586,47 +1587,63 @@ class Asset_Edit_Interface extends Resolve_Object
 		foreach ($result as $assetid => $treeids) $assetids[$assetid] = $treeids;
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($assetids));
 
-		$done_something = false;
-		foreach ($asset_links as $link) {
-			$majorid = $link['majorid'];
+		foreach ($asset_links as $link_data) $link_info[$link_data['majorid']] = $link_data;
+
+		$output_lineages = Array();
+		$editing_linkids = Array();
+		foreach ($result as $treeid => $link_tree) {
+
+			// work out some values we are going to need
+			$parent_data = $link_tree[count($link_tree) -1];
+			$majorid = $parent_data[3];
+			$link_type = $link_info[$majorid]['link_type'];
+			$linkid = $link_info[$majorid]['linkid'];
 
 			// dont even pretend that the root folder is going to
 			// care that it is linking to this asset!!
 			if ($majorid == 1) continue;
 
 			$can_edit = false;
-			if ($owner->writeAccess() && in_array($link['link_type'], array_keys($editable_link_types))) $can_edit = true;
+			if ($owner->writeAccess() && in_array($link_type, array_keys($editable_link_types)) && !in_array($linkid, $editing_linkids)) $can_edit = true;
 
-			$lineage_prefix = '';
-			if (!$can_edit) $lineage_prefix = '[ '.link_type_name($link['link_type']).' ] ';
-			$lineage_prefix .= 'Root Folder > ';
-			$lineage_suffix = '<b>'.$asset_info[$majorid]['name'].'</b><br/>';
-
-			$asset_lineage = $lineage_prefix;
-			$last_treeid = '';
-			foreach ($assetids[$majorid] as $tree_data) {
-				if (!empty($last_treeid) && 
-					(empty($tree_data[0]) || strpos($tree_data[0], $last_treeid) !== 0)) {
-					// completed a lineage
-					break;
-				}
-				$last_treeid = $tree_data[0];
-				if ($tree_data[1] == '/') continue;
-				$asset_lineage .= $tree_data[1].' > ';
+			$asset_lineage = '';
+			foreach ($link_tree as $tree_data) {
+				if ($tree_data[2] == '/') continue;
+				if ($tree_data[3] == $majorid) continue;
+				$asset_lineage .= $tree_data[2].' > ';
 			}
-			$asset_lineage .= $lineage_suffix;
-			$done_something = true;
-			
-			if ($can_edit) {
-				echo '[&nbsp;';
-				combo_box($prefix.'_link_type['.$link['linkid'].']', $editable_link_types, false, $link['link_type']);
-				echo '&nbsp;]&nbsp;';
-			}
-			echo $asset_lineage;
+			if (isset($output_lineages[$asset_lineage]) && !$can_edit) continue;
 
-		}//end foreach link
+			ob_start();
+			?>
+			<tr>
+				<td class="sq-backend-data">[</td>
+				<td align="center" class="sq-backend-data">
+					<?php
+					if (!$can_edit) {
+						echo link_type_name($link_type);
+					} else {
+						combo_box($prefix.'_link_type['.$linkid.']', $editable_link_types, false, $link_type);
+						$editing_linkids[] = $linkid;
+					}
+					?>
+				</td>
+				<td class="sq-backend-data">]</td>
+				<td class="sq-backend-data">Root Folder > <?php echo $asset_lineage; ?><b><?php echo $asset_info[$majorid]['name']; ?></b></td>
+			</tr>
+			<?php
+			$output_lineages[$asset_lineage] = ob_get_contents();
+			ob_end_clean();
 
-		if (!$done_something) echo 'None';
+		}//end foreach result
+
+		if (!count($output_lineages)) {
+			echo 'None';
+		} else {
+			?><table border="0"><?php
+			foreach ($output_lineages as $null => $lineage_data) echo $lineage_data;
+			?></table><?php
+		}
 
 		$o->closeSection();
 
