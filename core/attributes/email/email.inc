@@ -61,13 +61,9 @@ class Asset_Attribute_Email extends Asset_Attribute_Text
 	*/
 	function process($prefix)
 	{
-		$this->processed = false;
+		$value = $_POST[$prefix.'_'.$this->name];
 
-		$old_value = $this->value;
-		parent::process($prefix);
-		if (!$this->processed) return;
-
-		if ($this->value && $this->setValue($value)) {
+		if ($this->value != $value && $this->setValue($value)) {
 			$this->processed = true;
 		} else {
 			trigger_error('Email validation failed', E_USER_NOTICE);
