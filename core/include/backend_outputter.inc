@@ -597,7 +597,7 @@ class Backend_Outputter
 							$this->_screens = array_reverse($this->_screens);
 							$this->_screens['#'] = '';
 							$this->_screens = array_reverse($this->_screens);
-							combo_box('', $this->_screens, false, $this->_current_screen, 1, 'id="screen_menu" onChange="javascript: self.location = element_value(this);"');
+							combo_box('', $this->_screens, false, $this->_current_screen, 1, 'id="screen_menu" onChange="javascript: self.location = form_element_value(this);"');
 						}
 					?>
 					</td>
