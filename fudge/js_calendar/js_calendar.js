@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cal_navigator.js,v 1.8 2004/09/13 04:28:32 dbaranovskiy Exp $
+* $Id: js_calendar.js,v 1.1 2004/09/14 00:22:50 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
