@@ -15,9 +15,9 @@
 ## immediately.
 ##
 ## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/web/css/edit.css,v $
-## $Revision: 1.6 $
+## $Revision: 1.7 $
 ## $Author: brobertson $
-## $Date: 2003/06/12 02:02:18 $
+## $Date: 2003/07/15 23:27:08 $
 #######################################################################
 */
 
@@ -81,12 +81,13 @@ body, p, td, ul, li, input, select, textarea {
 
 a, a.sq-backend {
 	color: black;
-	text-decoration: none;
+	text-decoration: underline;
 }
-
+/*
 a:hover, a.sq-backend:hover {
 	text-decoration: underline;
 }
+*/
 
 .sq-backend-field {
 	color: #000000;
