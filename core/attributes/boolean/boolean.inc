@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: boolean.inc,v 1.20 2004/09/07 09:33:56 brobertson Exp $
+* $Id: boolean.inc,v 1.21 2004/09/08 01:22:16 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -28,11 +28,13 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 /**
 * Boolean Asset Attribute
 *
-*
+* parameters => Array(
+*                     'allow_empty' => true
+*               )
 *
 *
 * <!-- Sample Edit Interface XML Node -->
-*    <boolean true_text="true" false_text="false" />
+*    <boolean true_text="true" false_text="false" empty_text="maybe" />
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
@@ -52,12 +54,15 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	*/
 	function Asset_Attribute_Boolean($attributeid=0, $value=null)
 	{
-		if ($value != '_') $value = (($value) ? 1 : 0);
 		$this->Asset_Attribute($attributeid, $value);
+		
+		// set default parameters
+		if (!isset($this->_params['allow_empty'])) $this->_params['allow_empty'] = true;
 		
 		// set default edit parameters
 		$this->_edit_params['true_text']  = 'True';
 		$this->_edit_params['false_text'] = 'False';
+		$this->_edit_params['empty_text'] = '';
 
 	}//end constructor
 
@@ -73,8 +78,9 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	function setEditParams(&$node)
 	{
 		if (!parent::setEditParams($node)) return false;
-		$this->_edit_params['true_text']  = empty($node->attributes['true_text'])  ? 'True' : $node->attributes['true_text'];
-		$this->_edit_params['false_text'] = empty($node->attributes['false_text']) ? 'False' : $node->attributes['false_text'];
+		if (isset($node->attributes['true_text']))  $this->_edit_params['true_text']  = $node->attributes['true_text'];
+		if (isset($node->attributes['false_text'])) $this->_edit_params['false_text'] = $node->attributes['false_text'];
+		if (isset($node->attributes['empty_text'])) $this->_edit_params['empty_text'] = $node->attributes['empty_text'];
 		return true;
 
 	}//end setEditParams()
@@ -111,6 +117,21 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 					?>
 				</td>
 			</tr>
+			<?php
+			if ($this->_params['allow_empty']) {
+				?>
+				<tr>
+					<td class="sq-backend-section-heading" style="width: 100px;">Empty Text</td>
+					<td class="sq-backend-table-cell">
+						<?php
+						if ($write_access) text_box($prefix.'_'.$this->name.'_empty', $this->_edit_params['empty_text']);
+						else echo $this->_edit_params['empty_text'];
+						?>
+					</td>
+				</tr>
+				<?php
+			}
+			?>
 		</table>
 		<?php
 
@@ -118,7 +139,7 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 
 
 	/**
-	* Process the interface for changing edit params
+	* Process the interface for changig edit params
 	*
 	* @param string		$prefix		prefix for the form elements
 	*
@@ -127,7 +148,6 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	*/
 	function processEditParams($prefix)
 	{
-		// reading submitted vars
 		if (!empty($_POST[$prefix.'_'.$this->name.'_true'])) {
 			$this->_edit_params['true_text'] = $_POST[$prefix.'_'.$this->name.'_true'];
 		}
@@ -135,15 +155,17 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 		if (!empty($_POST[$prefix.'_'.$this->name.'_false'])) {
 			$this->_edit_params['false_text'] = $_POST[$prefix.'_'.$this->name.'_false'];
 		}
+		
+		if (!empty($_POST[$prefix.'_'.$this->name.'_empty'])) {
+			$this->_edit_params['empty_text'] = $_POST[$prefix.'_'.$this->name.'_empty'];
+		}
 
 		$values = Array();
-		$values['true_text'] = $this->_edit_params['true_text'];
+		$values['true_text']  = $this->_edit_params['true_text'];
 		$values['false_text'] = $this->_edit_params['false_text'];
-
-		$result = Array();
-		$result[$this->name] = $values;
+		$values['empty_text'] = $this->_edit_params['empty_text'];
 		
-		return $result;
+		return $values;
 
 	}//end processEditParams()
 
@@ -154,32 +176,27 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	* @param string		$prefix		prefix for the form element
 	* @param boolean	$read_only	are we just printing the value
 	*
+	* @return void
 	* @access public
 	*/
-	function paint($prefix, $read_only=false, $add=true)
+	function paint($prefix, $read_only=false)
 	{
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		if ($add) {
-			$options = Array(0 => $this->_edit_params['false_text'],
-							 1 => $this->_edit_params['true_text']
-							);
-		} else {
-			$options = Array('_' => '-- Leave Empty --',
-							 0 => $this->_edit_params['false_text'],
-							 1 => $this->_edit_params['true_text']
-							);
+		$options = Array();
+		
+		if ($this->_params['allow_empty'] && !empty($this->_edit_params['empty_text'])) {
+			$options[''] = $this->_edit_params['empty_text'];
 		}
+
+		$options['1'] = $this->_edit_params['true_text'];
+		$options['0'] = $this->_edit_params['false_text'];
 
 		if ($read_only) {
 			echo $options[$this->value];
 			return;
 		}
 
-		if ($add) {
-			combo_box($prefix.'_'.$this->name, $options, false, $this->value, 0, $extras='', $maxlength=0);
-		} else {
-			combo_box($prefix, $options, false, $this->value, 0, $extras='', $maxlength=0);
-		}
+		combo_box($prefix, $options, false, $this->value);
 
 	}//end paint()
 
@@ -193,8 +210,8 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	*/
 	function process($prefix)
 	{
-		if (!isset($_POST[$prefix.'_'.$this->name])) return false;
-		$value = $_POST[$prefix.'_'.$this->name];
+		if (!isset($_POST[$prefix])) return false;
+		$value = $_POST[$prefix];
 		if ($this->value != $value && $this->setValue($value)) {
 			$this->processed = true;
 		} else {
@@ -214,6 +231,8 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	*/
 	function validateValue(&$value)
 	{
+		if ($this->_params['allow_empty'] && $value == '') return true;
+
 		$new_value = (int) $value;
 		if ((string) $new_value != (string) $value) {
 			// check for strings that mean the same as true and false
@@ -251,12 +270,13 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	function getKeyData()
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
-		//return get_word_counts($this->value); // -- NOTE: int values never get indexed, only 'words' !!!
 
 		if ($this->value == 0) {
 			return get_word_counts('false');
-		} else {
+		} else if ($this->value == 1) {
 			return get_word_counts('true');
+		} else {
+			return get_word_counts('empty');
 		}
 
 	}//end getKeyData()
