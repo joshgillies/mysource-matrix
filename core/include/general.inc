@@ -278,7 +278,7 @@ function sq_web_path($path='base')
 				}
 			}
 			// if we are in the symlink system remove the URL
-			$paths[$path] = preg_replace('/\/index.php$/', '', $tmp);
+			$paths[$path] = current_protocol().'://'.preg_replace('/\/index.php$/', '', $tmp);
 			break;
 
 		case 'lib'  : 
@@ -343,9 +343,8 @@ function current_protocol()
 */
 function strip_url($url, $strip_protocol=false)
 {
-	$re = '/^([a-z]+:\/\/)?(.*)$/';
-	preg_match($re, $url, $matches);
-	return (($strip_protocol) ? '' : $matches[1]).preg_replace(Array('/\\/+$/', '/\\/\\/+/'), Array('', '/'), $matches[2]);
+	preg_match('|^([a-z]+://)?(.*)$|', $url, $matches);
+	return (($strip_protocol) ? '' : $matches[1]).preg_replace(Array('|/+$|', '|//+|'), Array('', '/'), $matches[2]);
 
 }// end strip_url()
 
