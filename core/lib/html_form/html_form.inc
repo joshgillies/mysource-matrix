@@ -16,7 +16,7 @@
 * @param string	$on_click	any JS that should be executed when the submit button is pressed
 * @param string	$extras		any input field attributes that should be placed in the <input ... > tag
 */
-function submit_button($name, $value, $on_click='', $extras='') 
+function submit_button($name, $value, $on_click='', $extras='')
 {
 	// Make sure that they don't use 'submit' as the form field, because it clashes
 	// with the submit() fn that the form has
@@ -34,7 +34,7 @@ function submit_button($name, $value, $on_click='', $extras='')
 * @param string	$on_click	any JS that should be executed when the user confirms after the warning
 * @param string	$extras		any input field attributes that should be placed in the <input ... > tag
 */
-function normal_button($name, $value, $on_click='', $extras='') 
+function normal_button($name, $value, $on_click='', $extras='')
 {
 	if ($on_click) $extras .= ' onClick="javascript: '.htmlspecialchars($on_click).' "';
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
@@ -47,7 +47,7 @@ function normal_button($name, $value, $on_click='', $extras='')
 * @param string	$name		the form name to use for the hidden field
 * @param string	$value		the text that should stored in the hidden field
 */
-function hidden_field($name, $value='') 
+function hidden_field($name, $value='')
 {
 	echo '<input type="hidden" name="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" />';
 }
@@ -61,7 +61,7 @@ function hidden_field($name, $value='')
 * @param int	$max		the maximum number of characters allowed in the text box
 * @param string	$extras		any input field attributes that should be placed in the <input ... > tag
 */
-function text_box($name, $value, $size='', $max='', $extras='') 
+function text_box($name, $value, $size='', $max='', $extras='')
 {
 	$size = (int) $size;
 	$max  = (int) $max;
@@ -85,7 +85,7 @@ function text_box($name, $value, $size='', $max='', $extras='')
 * @param int	$max		the maximum number of characters allowed in the password box
 * @param string	$extras		any input field attributes that should be placed in the <input ... > tag
 */
-function password_box($name, $value='', $size='', $max='', $extras='') 
+function password_box($name, $value='', $size='', $max='', $extras='')
 {
 	$size = (int) $size;
 	$max  = (int) $max;
@@ -110,7 +110,7 @@ function password_box($name, $value='', $size='', $max='', $extras='')
 * @param int	$max		the maximum number of characters allowed in the text area
 * @param string	$extras		any input field attributes that should be placed in the <input ... > tag
 */
-function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='') 
+function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
 {
 	$cols = (int) $cols;
 	$rows = (int) $rows;
@@ -135,7 +135,7 @@ function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
 * @param string	$on_click	any JS that should be executed when the submit button is pressed
 * @param string	$extras		any input field attributes that should be placed in the <input ... > tag
 */
-function radio_button($name, $value='1', $checked=false, $on_click='', $extras='') 
+function radio_button($name, $value='1', $checked=false, $on_click='', $extras='')
 {
 	if ($on_click) $extras .= ' onClick="javascript: '.htmlspecialchars($on_click).' "';
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
@@ -156,7 +156,7 @@ function radio_button($name, $value='1', $checked=false, $on_click='', $extras='
 * @param string	$on_click	any JS that should be executed when the submit button is pressed
 * @param string	$extras		any input field attributes that should be placed in the <input ... > tag
 */
-function check_box($name, $value='1', $checked=false, $on_click='', $extras='') 
+function check_box($name, $value='1', $checked=false, $on_click='', $extras='')
 {
 	if ($on_click) $extras .= ' onClick="javascript: '.htmlspecialchars($on_click).' "';
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
@@ -171,7 +171,7 @@ function check_box($name, $value='1', $checked=false, $on_click='', $extras='')
 
 
 /**
-* Prints out a 
+* Prints out a
 * Given a name, an array of keys and values, and a default value, prints a combo box
 *
 * @param string	$name		the form name to use for the combo box
@@ -182,7 +182,7 @@ function check_box($name, $value='1', $checked=false, $on_click='', $extras='')
 * @param string	$extras		any input field attributes that should be placed in the <input ... > tag
 * @param int	$max		the maximum number of characters displayed for any option, anything over gets truncated with '...' appended
 */
-function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras='', $maxlength=0) 
+function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras='', $maxlength=0)
 {
 	$height    = (int) $height;
 	$maxlength = (int) $maxlength;
@@ -197,7 +197,7 @@ function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras=''
 	if (!is_array($defaults)) $defaults = Array($defaults);
 
 	echo	'<select name="', htmlspecialchars($name), '" ',
-			(($height > 1)? 'size="'.$height.'" ' : ''), 
+			(($height > 1)? 'size="'.$height.'" ' : ''),
 			$extras,
 			'>';
 
@@ -218,7 +218,7 @@ function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras=''
 
 
 /**
-* Prints an entry box for a colour picker, requires javascript and colour_picker script 
+* Prints an entry box for a colour picker, requires javascript and colour_picker script
 *
 * @param string	$name					the form name to use for the colour box
 * @param Array	$default				the colour you want to display to begin with
@@ -252,7 +252,7 @@ function colour_box($name, $default='000000', $allow_blanks=false, $button_text=
 	if ($show_text_box) {
 		$extras  = ' id="colour_box_'.$name.'" style="font-family: courier;"'
 				 . ' onChange="javascript: this.value = check_colour(this.value, '.(($allow_blanks) ? 'true' : 'false').');"';
-		
+
 		if ($show_current_colour) $extras .= ' show_colour_change(\''.addslashes($name).'\');';
 		text_box($name, $default, 7, 6, $extras);
 	} else {
@@ -260,9 +260,9 @@ function colour_box($name, $default='000000', $allow_blanks=false, $button_text=
 	}
 
 	normal_button('', " $button_text ",
-					  "load_colour_picker(this.form.elements['".addslashes($name)."'],'".sq_web_path('lib')."/html_form')", 
+					  "load_colour_picker(this.form.elements['".addslashes($name)."'],'".sq_web_path('lib')."/html_form')",
 					  'style="font-family: courier;"');
-	
+
 	if ($show_change_colour) {
 		?>
 		<img id="colour_change_<?php echo $name; ?>" name="colour_change_<?php echo $name; ?>" src="<?php echo sq_web_path('lib'); ?>/web/images/cross.gif" width="15" height="15" border="0" align="bottom">
@@ -275,7 +275,7 @@ function colour_box($name, $default='000000', $allow_blanks=false, $button_text=
 /**
 *  Takes timestamp and draws a set of selection boxes using it as default
 */
-function date_box($name, $default_timestamp=null, $show_time=true, $extras='') 
+function date_box($name, $default_timestamp=null, $show_time=true, $extras='')
 {
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 
@@ -293,7 +293,7 @@ function date_box($name, $default_timestamp=null, $show_time=true, $extras='')
 	$start_year = ($default['year'] < 2002) ? $default['year'] : 2002;
 	$end_year   = max($default['year'], $start_year) + 10;
 
-		
+
 	$extras .= ' onChange="javascript: check_date(\''.$name.'\', '.(($show_time) ? 'true':'false').');"';
 	hidden_field($name, $default_timestamp);
 
@@ -321,7 +321,7 @@ function date_box($name, $default_timestamp=null, $show_time=true, $extras='')
 /**
 * Takes number of hours and minutes and creates a pair of combo boxes
 */
-function time_box($hours_name, $hours, $mins_name, $mins, $extras='') 
+function time_box($hours_name, $hours, $mins_name, $mins, $extras='')
 {
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	trigger_error('*cough*, time_box has not been fully converted - maybe we should be using the datetime_field ?', E_USER_WARNING);
@@ -345,7 +345,7 @@ function time_box($hours_name, $hours, $mins_name, $mins, $extras='')
 * @param string	$name		the form name to use for the file upload box
 * @param string	$extras		any input field attributes that should be placed in the <input ... > tag
 */
-function file_upload($name, $extras='') 
+function file_upload($name, $extras='')
 {
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo '<input type="file" name="', $name, '" ', $extras, '>';
@@ -358,7 +358,7 @@ function file_upload($name, $extras='')
 *
 * @return FALSE on error, blank array on no file upload and the $_FILES[$name] if a file was uploaded succefully
 */
-function get_file_upload_info($name) 
+function get_file_upload_info($name)
 {
 	if (empty($_FILES[$name])) {
 		trigger_error('"'.$name.'" is not a valid file upload', E_USER_WARNING);
@@ -410,7 +410,7 @@ function get_file_upload_info($name)
 *
 * @return FALSE on error, blank string on no file upload and the filename (basename) if a file was uploaded
 */
-function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restrict_exts=true, $extensions=Array()) 
+function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restrict_exts=true, $extensions=Array())
 {
 	$info = get_file_upload_info($name);
 	if     ($info === false) return false;
@@ -475,7 +475,7 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 		}
 	}// end dest exists
 
-	/** 
+	/**
 	******* Have left this out for now - BCR *******
 
 	// if this filename already exists and we aren't to overwrite, rename it
@@ -495,7 +495,7 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 		trigger_error('Unable to create file: '.$dest, E_USER_WARNING);
 		return false;
 	}
-	
+
 	return basename($dest);
 
 }//end commit_file_upload()
