@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ComplexAssetTree.java,v 1.1 2004/06/29 06:53:06 mmcintyre Exp $
+* $Id: ComplexAssetTree.java,v 1.2 2004/09/02 01:05:21 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -593,6 +593,13 @@ public class ComplexAssetTree extends AssetTree implements MouseMotionListener {
 		
 		if (path != null) {
 			if (nodeIconContainsPoint(path, e.getPoint())) {
+				// if this node has a linkid of 0 then we should not
+				// be able to move it so just return
+				AssetTreeNode node = (AssetTreeNode) getNodeForLocation(e.getX(), e.getY());
+				if (node.getLinkId().equals("0")) {
+					return;
+				}
+				
 				createLinkMode = true;
 				moverPath = path;
 				mover = (AssetTreeNode) path.getLastPathComponent();
@@ -706,6 +713,7 @@ public class ComplexAssetTree extends AssetTree implements MouseMotionListener {
 	 */
 	protected void setCursorForLocation(Point point) {
 		if (nodeIconContainsPoint(point) || createAssetMode) {
+			
 			if (getCursor() != ICON_OVER_CURSOR)
 				setCursor(ICON_OVER_CURSOR);
 		} else if ((!createLinkMode || !createAssetMode)) {
