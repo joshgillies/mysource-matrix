@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.13 2005/03/01 00:28:10 arailean Exp $
+* $Id: tables.xml,v 1.14 2005/03/30 04:26:42 arailean Exp $
 *
 */
 -->
@@ -1196,31 +1196,31 @@
 					<type>INT</type>
 					<type_variations />
 					<default />
-					<description />
+					<description>Trigger ID</description>
 				</column>
 				<column name="name" allow_null="1">
 					<type>TEXT</type>
 					<type_variations />
 					<default />
-					<description />
+					<description>Trigger Name</description>
 				</column>
 				<column name="data" allow_null="1">
 					<type>TEXT</type>
 					<type_variations />
 					<default />
-					<description />
+					<description>Serialized trigger data</description>
 				</column>
 				<column name="description" allow_null="1">
 					<type>TEXT</type>
 					<type_variations />
 					<default />
-					<description />
+					<description>Trigger description</description>
 				</column>
 				<column name="active" allow_null="0">
 					<type>CHAR(1)</type>
 					<type_variations />
 					<default>'0'</default>
-					<description />
+					<description>A flag denoting whether a trigger is active or not</description>
 				</column>
 			</columns>
 			<keys>
@@ -1240,67 +1240,61 @@
 					<type>VARCHAR(50)</type>
 					<type_variations />
 					<default>''</default>
-					<description />
+					<description>Event type code (asset type)</description>
 				</column>
 				<column name="assetid" allow_null="0">
 					<type>VARCHAR(50)</type>
 					<type_variations />
 					<default>''</default>
-					<description />
+					<description>Asset ID</description>
 				</column>
 				<column name="asset_type" allow_null="0">
 					<type>VARCHAR(100)</type>
 					<type_variations />
 					<default>''</default>
-					<description />
+					<description>Asset Type</description>
 				</column>
 				<column name="treeid" allow_null="0">
 					<type>TEXT</type>
 					<type_variations />
 					<default>''</default>
-					<description />
+					<description>Tree ID that a trigger corresponds to</description>
 				</column>
 				<column name="tree_propagate" allow_null="0">
 					<type>CHAR(2)</type>
 					<type_variations />
 					<default>'00'</default>
-					<description />
+					<description>Identifier whether the tree ID (in treeid) denotes everything on any level below is hashed, or just the immediate children.</description>
 				</column>
 				<column name="triggerid" allow_null="0">
 					<type>INTEGER</type>
 					<type_variations />
 					<default>0</default>
-					<description />
-				</column>
-				<column name="active" allow_null="0">
-					<type>CHAR(1)</type>
-					<type_variations />
-					<default>'1'</default>
-					<description />
+					<description>Trigger ID every hash line corresponds to</description>
 				</column>
 				<column name="parentid" allow_null="0">
 					<type>VARCHAR(50)</type>
 					<type_variations />
 					<default>''</default>
-					<description />
+					<description>If the trigger specifies a Parent Asset condition, this will store the ID of parrent asset</description>
 				</column>
 				<column name="parent_type" allow_null="0">
 					<type>VARCHAR(100)</type>
 					<type_variations />
 					<default>''</default>
-					<description />
+					<description>The type of parent asset (purpose is similar to parentid)</description>
 				</column>
 				<column name="childid" allow_null="0">
 					<type>VARCHAR(50)</type>
 					<type_variations />
 					<default>''</default>
-					<description />
+					<description>If the trigger specifies a Child Asset condition, this will store the ID of child asset</description>
 				</column>
 				<column name="child_type" allow_null="0">
 					<type>VARCHAR(100)</type>
 					<type_variations />
 					<default>''</default>
-					<description />
+					<description>The type of child asset (purpose is similar to childid)</description>
 				</column>
 			</columns>
 			<keys />
@@ -1322,9 +1316,6 @@
 				</index>
 				<index>
 					<column name="triggerid" />
-				</index>
-				<index>
-					<column name="active" />
 				</index>
 				<index>
 					<column name="parentid" />
