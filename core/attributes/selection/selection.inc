@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.30 2004/09/10 07:10:23 gsherwood Exp $
+* $Id: selection.inc,v 1.31 2004/09/15 07:05:30 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -109,7 +109,9 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		$searchStyles['list'] = 'List';
 		$searchStyles['checkbox'] = 'Checkbox';
 		
-		echo '<b>Selection Attribute " '.ucwords(str_replace('_', ' ', $this->name)).' " ('.$this->name.')</b><br />';
+		if (!empty($this->name)) {
+			echo '<b>Selection Attribute " '.ucwords(str_replace('_', ' ', $this->name)).' " ('.$this->name.')</b><br />';
+		}
 		?>
 		<table class="sq-backend-table">
 			<tr>
