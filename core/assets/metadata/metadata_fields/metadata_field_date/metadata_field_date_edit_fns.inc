@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.2 2004/02/03 04:29:01 gsherwood Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.3 2004/02/03 22:34:10 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -422,10 +422,10 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	*/
 	function generateMetadata(&$asset, $values, &$keywords)
 	{
-		$original = $values['value']; // initial unaltered value
-
 		if (isset($values['value'])) $value = $values['value'];
 		else $value = $asset->attr('default');
+
+		$original = $value;
 
 		if (strpos($value, '%') === false) {
 			$field = $this->_getEpochDateTimeField($asset, '', $value);
