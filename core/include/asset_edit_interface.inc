@@ -176,7 +176,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		$create_sections = Array();
 		if (empty($_GET['asset_ei_screen'])) {
-			if ($GLOBALS['FROM_FRONTEND'] && !empty($this->_default_screen)) {
+			if (isset($_GET['sq_from_frontend']) && !empty($this->_default_screen)) {
 				$active_screen = $this->_default_screen;
 			} else {
 				$active_screen = 'details';

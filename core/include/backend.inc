@@ -111,6 +111,13 @@ class Backend extends Resolve_Object
 	*/
 	function _printFrames()
 	{
+		$main_extras = '';
+		if (!isset($_GET['assetid'])) {
+			$url_asset = &$GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(current_protocol(), null, true, true);
+			if (!is_null($url_asset)) {
+				$main_extras = '&assetid='.$url_asset->id.'&sq_from_frontend=1';
+			}
+		}
 	?>
 		<html>
 			<head>
@@ -123,7 +130,7 @@ class Backend extends Resolve_Object
 					<frame src="<?php echo $_SERVER['PHP_SELF'];?>?SQ_BACKEND_PAGE=sidenav" name="sidenav" scrolling="no" marginwidth="0" marginheight="0">
 					<frame src="<?php echo $_SERVER['PHP_SELF'];?>?SQ_BACKEND_PAGE=footer"  name="footer"  scrolling="no" marginwidth="0" marginheight="0">
 				</frameset>
-				<frame src="<?php echo $_SERVER['PHP_SELF'];?>?SQ_BACKEND_PAGE=main" name="main" marginwidth="0" marginheight="0" scrolling="yes">
+				<frame src="<?php echo $_SERVER['PHP_SELF'];?>?SQ_BACKEND_PAGE=main<?php echo $main_extras; ?>" name="main" marginwidth="0" marginheight="0" scrolling="yes">
 			</frameset>
 		</html>
 	<?php

@@ -129,7 +129,7 @@ class Page_Standard extends Page
 	*/
 	function paintBackend(&$o)
 	{
-		if ($GLOBALS['FROM_FRONTEND']) {
+		if (isset($_GET['sq_from_frontend'])) {
 			// get the bodycopy attached to us
 			$bodycopy_link = $this->getLinks(SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
 			$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link[0]['minorid'], 'bodycopy');

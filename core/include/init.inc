@@ -74,9 +74,6 @@ $GLOBALS['SQ_INSTALL'] = false;
 // we are not purging the trash
 $GLOBALS['SQ_PURGING_TRASH'] = false;
 
-// we are not comming into the backend from the frontend
-$GLOBALS['FROM_FRONTEND'] = false;
-
 // the number of assetids reserved for system assets
 define('SQ_NUM_RESERVED_ASSETIDS', 128);
 
