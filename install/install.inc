@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 * 
-* $Id: install.inc,v 1.8 2004/06/29 02:37:27 mnyeholt Exp $
+* $Id: install.inc,v 1.9 2004/06/29 09:05:30 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -70,7 +70,7 @@ function regenerate_configs()
 /**
 * Uninstall any assets that no longer have a .inc file 
 * 
-* @return void
+* @return boolean
 * @access public
 */
 function uninstall_asset_types()
@@ -196,13 +196,14 @@ function uninstall_asset_types()
 	}//end if asset types not empty
 	
 	return true;
+
 }//end uninstall_asset_types()
 
 
 /**
 * Uninstall any packages that don't have a package manager defined for them
 * 
-* @return void
+* @return boolean
 * @access public
 */
 function uninstall_packages()
@@ -264,7 +265,7 @@ function uninstall_packages()
 /**
 * Install core assets
 * 
-* @return void
+* @return boolean
 * @access public
 */
 function install_core()
@@ -319,7 +320,7 @@ function install_core()
 /**
 * Install all the packages into the system
 * 
-* @return void
+* @return boolean
 * @access public
 */
 function install_packages()
@@ -362,7 +363,7 @@ function install_packages()
 /**
 * Install authentication types
 * 
-* @return void
+* @return boolean
 * @access public
 */
 function install_authentication_types()
@@ -404,7 +405,7 @@ function install_authentication_types()
 /**
 * Generate the global preferences list
 * 
-* @return void
+* @return boolean
 * @access public
 */
 function generate_global_preferences()
@@ -445,7 +446,7 @@ function generate_global_preferences()
 /**
 * Install event listeners
 * 
-* @return void
+* @return boolean
 * @access public
 */
 function install_event_listeners()
