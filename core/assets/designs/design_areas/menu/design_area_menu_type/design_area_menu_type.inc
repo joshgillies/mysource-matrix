@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.57 2005/01/13 22:22:24 gsherwood Exp $
+* $Id: design_area_menu_type.inc,v 1.58 2005/01/17 18:26:03 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -651,7 +651,7 @@ class Design_Area_Menu_Type extends Design_Area
 						echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($'.$id_name.'_row[\'assetid\'], SQ_LINK_NOTICE, \'thumbnail\', true, \'thumbnail\');'."\n";
 						echo 'if (!empty($link)) {'."\n";
 						echo '$thumbnail = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
-						echo 'echo $thumbnail->printImageTag($'.$id_name.'_row[\'name\'], true);'."\n";
+						echo 'echo $thumbnail->printImageTag($'.$id_name.'_row[\'name\'], \'\', true);'."\n";
 						echo '}'."\n";
 						echo '?', '>';
 					}
