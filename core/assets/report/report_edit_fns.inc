@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_edit_fns.inc,v 1.4 2004/12/02 05:45:41 arailean Exp $
+* $Id: report_edit_fns.inc,v 1.5 2004/12/02 05:49:25 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -108,7 +108,7 @@ class Report_Edit_Fns extends Bridge_Edit_Fns
 
 		$user = $GLOBALS['SQ_SYSTEM']->user;
 		$asset->setAttrValue('generated_date', date("F j, Y, g:i a"));
-		$asset->setAttrValue('generated_user', $user->name.' (#'.$user->name.')');
+		$asset->setAttrValue('generated_user', $user->name.' (#'.$user->id.')');
 
 		return true;
 
