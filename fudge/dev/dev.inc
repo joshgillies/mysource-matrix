@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: dev.inc,v 1.12 2004/03/17 03:34:41 gsherwood Exp $
+* $Id: dev.inc,v 1.13 2004/09/01 01:30:54 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,6 +33,7 @@
 * @package Fudge
 * @subpackage dev
 */
+
 
 /**
 * Recursively prints array contents - works goodly on
@@ -75,7 +76,8 @@ function array_contents(&$array, $max_depth=0, $ignore_ints=false, $depth=0)
 	}
 	$string[ strlen($string) - 2 ] = " ";
 	return $string;
-}// end array_contents()
+
+}//end array_contents()
 
 
 /**
@@ -84,7 +86,13 @@ function array_contents(&$array, $max_depth=0, $ignore_ints=false, $depth=0)
 *
 * @access public
 */
-function ascii_chart(){for($i=0;$i<256;$i++)echo(($i==0)?"<table><tr>":"")."<td>$i:</td><td>".chr($i)."</td><td>&nbsp;</td>".((7==($i%8))?"</tr><tr>":"").(($i==255)?"</tr></table>":"");}
+function ascii_chart()
+{
+	for ($i=0; $i<256; $i++) {
+		echo(($i==0)?"<table><tr>":"")."<td>$i:</td><td>".chr($i)."</td><td>&nbsp;</td>".((7==($i%8))?"</tr><tr>":"").(($i==255)?"</tr></table>":"");
+	}
+
+}//end ascii_chart()
 
 
 /**
@@ -106,7 +114,7 @@ function inject_beef()
 	}
 
 	list($msec, $sec) = explode(" ",microtime());
-	$SPEED_CHECK_LAST_HIT = ((double) $sec) + ((double) $msec); #initialize
+	$SPEED_CHECK_LAST_HIT = ((double) $sec) + ((double) $msec); //initialize
 
 	$len = strlen($check);
 	if (!$len) return;
@@ -141,6 +149,7 @@ function bam($x='BAM!', $max_depth=0, $style='')
 }//end bam()
 
 
+
 /**
 * take any kind of variable and tries to print it out
 *
@@ -159,14 +168,14 @@ function pre_echo($x, $max_depth=0, $style='')
 		print_r($x);
 	} else {
 		if ($type == "object" || $type == "array") {
-			# get the contents, then
+			// get the contents, then
 			if (!$max_depth) $max_depth = 10;
 			$x = array_contents($x, $max_depth);
 		}
 		$x = str_replace("\t", '    ', $x);
 
 		echo (php_sapi_name() == 'cli') ? $x : htmlspecialchars($x);
-	}#end if
+	}
 
 	if (php_sapi_name() == 'cli') {
 		echo "\n------------------------------------\n";
@@ -196,9 +205,9 @@ function speed_check($str="")
 		echo("<table cellpadding=0 cellspacing=0 border=0 bgcolor=\"#ffff88\"><tr><td><p style=\"color:red;font-weight:bold;font-family:sans-serif;font-size:13px;\">".sprintf("%.5f&nbsp;/&nbsp;%.5f",$elapsed,$SPEED_CHECK_TOTAL)."&nbsp;&nbsp;$str</p></td></tr></table>");
 	}
 	list($msec, $sec) = explode(" ",microtime());
-	$SPEED_CHECK_LAST_HIT = ((double) $sec) + ((double) $msec); #initialize
+	$SPEED_CHECK_LAST_HIT = ((double) $sec) + ((double) $msec); //initialize
 
-}// end speed_check()
+}//end speed_check()
 
 
 /**
@@ -246,7 +255,7 @@ function mem_check($print=null, $return_value=false, $start_over=false)
 	$MEM_CHECK_LAST_HIT = $hit;
 	if ($return_value) return $mem;
 
-}// end mem_check()
+}//end mem_check()
 
 
 /**
@@ -284,7 +293,8 @@ function print_function_list()
 *
 * @access public
 */
-function pts_spew($i,$s) {
+function pts_spew($i,$s)
+{
 	if($i != (int) $i || !file_exists("/dev/pts/$i")) {
 		trigger_error("Can't spew to pts, \"$i\" is not a valid pts number.", E_USER_WARNING);
 		return;
@@ -294,6 +304,7 @@ function pts_spew($i,$s) {
 		trigger_error("Try ensuring that /dev/pts/[your_pts_number] is writable by the web server.<br>$ w  # To find your pts<br>$ chmod a+w /dev/pts/[your_pts_number]<br>", E_USER_WARNING);
 	}
 
-}// end pts_spew()
+}//end pts_spew()
+
 
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.28 2004/08/30 02:14:55 lwright Exp $
+* $Id: datetime.inc,v 1.29 2004/09/01 01:31:50 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -498,9 +498,9 @@ function days_between_isos($higher, $lower)
 */
 function int_to_roman($num = 0) 
 {
-	$conv = array(10 => array('X', 'C', 'M'),
-				  5  => array('V', 'L', 'D'),
-				  1  => array('I', 'X', 'C'));
+	$conv = Array(10 => Array('X', 'C', 'M'),
+				  5  => Array('V', 'L', 'D'),
+				  1  => Array('I', 'X', 'C'));
 	$roman = '';
 	
 	$num = (int) $num;
