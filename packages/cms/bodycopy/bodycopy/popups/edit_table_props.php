@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_table_props.php,v 1.10 2003/10/03 00:03:26 brobertson Exp $
+* $Id: edit_table_props.php,v 1.11 2003/10/17 05:08:07 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ include(dirname(__FILE__)."/header.php");
 		f.width.value		= (data['width']	  == null) ? "" : data['width'];
 		f.height.value		= (data['height']	  == null) ? "" : data['height'];
 		f.bgcolor.value		= (data['bgcolor']	  == null) ? "" : data['bgcolor'];
-		f.background.value	= (data['background'] == null) ? "" : data['background'];
+		//f.background.value	= (data['background'] == null) ? "" : data['background'];
 		f.table_name.value	= (data['table_name'] == null) ? "" : data['table_name'];
 		owner.highlight_combo_value(f.align,	   data['align']);
 		owner.highlight_combo_value(f.border,	   data['border']);
@@ -50,7 +50,8 @@ include(dirname(__FILE__)."/header.php");
 		data["width"]			= owner.form_element_value(f.width);
 		data["height"]			= owner.form_element_value(f.height);
 		data["bgcolor"]			= owner.form_element_value(f.bgcolor);
-		data["background"]		= owner.form_element_value(f.background);
+		//data["background"]		= owner.form_element_value(f.background);
+		data["background"]		= '';
 		data["align"]			= owner.form_element_value(f.align);
 		data["border"]			= owner.form_element_value(f.border);
 		data["cellspacing"]		= owner.form_element_value(f.cellspacing);
@@ -175,10 +176,10 @@ include(dirname(__FILE__)."/header.php");
 						<td class="label">Background Colour:</td>
 						<td><?php colour_box('bgcolor', '', true, '*',true, false, false);?></td>
 					</tr>
-					<tr>
+					<!-- <tr>
 						<td class="label">Background Image:</td>
 						<td><input type="text" name="background" value="" size="5"></td>
-					</tr>
+					</tr> -->
 					<tr>
 						<td class="label" valign="top">Border:</td>
 						<td valign="top">
