@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.317 2004/08/19 06:41:33 tbarrett Exp $
+* $Id: asset.inc,v 1.318 2004/08/20 05:06:32 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -643,7 +643,7 @@ class Asset extends MySource_Object
 
 		// remove web paths
 		if (!$this->saveWebPaths(Array())) {
-			trigger_error('Delete failed, unable to clear the web paths of "'.$asset->name.'"', E_USER_WARNING);
+			trigger_error('Delete failed, unable to clear the web paths of "'.$this->name.'"', E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -651,7 +651,7 @@ class Asset extends MySource_Object
 		// update the lookups to clear them; figures that if there are no web paths there cannot
 		// be any lookups
 		if (!$this->updateLookups()) {
-			trigger_error('Delete failed, unable to clear the lookups of "'.$asset->name.'"', E_USER_WARNING);
+			trigger_error('Delete failed, unable to clear the lookups of "'.$this->name.'"', E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
