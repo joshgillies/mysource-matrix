@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.22 2004/08/19 05:26:27 gsherwood Exp $
+* $Id: edit.js,v 1.23 2004/10/07 01:53:59 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,12 +38,6 @@ function sq_process_key_down() {
 	key = key.toLowerCase();
 	
 	switch (key) {
-		case "s" :
-			// emulate pressing of the commit button
-			if (parent.frames["sq_main"]) { parent.frames["sq_main"].document.focus(); }
-			submit_form();
-		break;
-
 		case "v" :
 			// preview the asset on the frontend in a new window
 			if (parent.frames["sq_main"]) { parent.frames["sq_main"].document.focus(); }

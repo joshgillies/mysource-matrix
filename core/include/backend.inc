@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.96 2004/10/06 23:51:35 mmcintyre Exp $
+* $Id: backend.inc,v 1.97 2004/10/07 01:53:53 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -542,6 +542,7 @@ class Backend extends MySource_Object
 									',
 									'title'   => 'Preview on frontend',
 									'icon'    => 'preview.png',
+									'extras'  => 'accesskey="v"',
 									);
 
 						if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
@@ -605,6 +606,7 @@ class Backend extends MySource_Object
 							 style="cursor: pointer;"
 							 <?php echo (isset($option['target'])) ? 'target="'.$option['target'].'"' : ''; ?>
 							 <?php echo (isset($option['onclick'])) ? 'onClick="'.htmlspecialchars($option['onclick']).'"' : ''; ?>
+							 <?php echo (isset($option['extras'])) ? $option['extras'] : ''; ?>
 						  ><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $this->out->filesPath('/images/icons/header/'.$option['icon']); ?>", "20", "20", "<?php echo htmlspecialchars($option['title']);?>");</script></a>
 						&nbsp;&nbsp;<?php
 					}
