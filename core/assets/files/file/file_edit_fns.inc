@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: file_edit_fns.inc,v 1.34 2003/10/10 06:49:23 brobertson Exp $
+* $Id: file_edit_fns.inc,v 1.35 2003/10/17 07:02:55 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -154,14 +154,6 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-		// delete existing uploaded file if it exists
-		if (is_file($asset->data_path.'/'.$asset->name)) {
-			if (!unlink($asset->data_path.'/'.$asset->name)) {
-				trigger_error('Failed deleting existing file', E_USER_WARNING);
-				return false;
-			}
-		}
-
 		// copy over the new uploaded file
 		if (is_uploaded_file($info['tmp_name'])) {
 			// a normal uploaded file
@@ -201,15 +193,19 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			return false;
 		}
 
+		// set the name of the file to the newly uploaded one
+		$asset->_tmp['uploading_file'] = true;
+		$asset->setAttrValue('name', $name);
+		if (!$asset->saveAttributes()) {
+			trigger_error('Failed saving attributes for file', E_USER_WARNING);
+			return false;
+		}
+		$asset->_tmp['uploading_file'] = false;
 
 		if (!$asset->saveWebPaths(Array($name))) {
 			trigger_error('Failed saving web paths', E_USER_WARNING);
 			return false;
 		}
-
-		// set the name of the file to the newly uploaded one
-		$asset->_tmp['uploading_file'] = true;
-		$asset->setAttrValue('name', $name);
 
 		return $asset->_updated();
 
