@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.26 2005/01/20 13:07:33 brobertson Exp $
+* $Id: image.inc,v 1.27 2005/02/03 18:54:21 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -279,7 +279,7 @@ class Image extends File
 	*
 	* @param object Image_Variety	$variety			the variety to save
 	* @param boolean				$recreate_image		whether to generate the image file or not
-	* @param boolean				$save_attrs			whether to run saveAttributes() or not, 
+	* @param boolean				$save_attrs			whether to run saveAttributes() or not,
 	*													usually you only would set this to false if you are running
 	*													this multiple times and only want to save once at the end
 	*
@@ -291,14 +291,15 @@ class Image extends File
 		if (!$this->writeAccess('attributes')) {
 			trigger_error('Permission denied to add an Image Variety to "'.$this->name.'" (#'.$this->id.')', E_USER_WARNING);
 			return false;
+
 		}
 
 		// use attr() instead of just ->name because if the variety hasn't been created yet it won't have a name
 		$name = $variety->attr('name');
-
 		if (trim($name) == '') {
 			trigger_error('Unable to save variety. It must have a name', E_USER_WARNING);
 			return false;
+
 		}
 
 		$varieties = $this->attr('varieties');
@@ -309,16 +310,19 @@ class Image extends File
 			if ($assetid != $this->id) {
 				trigger_error('Unable to save variety. It belongs to another asset', E_USER_WARNING);
 				return false;
+
 			}
 
 			if (isset($varieties['data'][$varietyid])) {
 				if ($varieties['data'][$varietyid]['name'] != $name) {
 					trigger_error('Unable to save variety. A variety with the id "'.$varietyid.'" already exists, but it has a different name', E_USER_WARNING);
 					return false;
+
 				}
 			} else {
 				trigger_error('Unable to save variety. A variety with the id "'.$varietyid.'" does not exist already exist in "'.$this->name.'" #'.$this->id, E_USER_WARNING);
 				return false;
+
 			}
 
 		} else {
@@ -344,8 +348,10 @@ class Image extends File
 
 		if (!$this->setAttrValue('varieties', $varieties)) return false;
 
+
 		$variety = &$this->getAsset($varietyid);
 		if (is_null($variety)) return false;
+
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -354,6 +360,7 @@ class Image extends File
 			if (!$variety->createImage()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
+
 			}
 
 			// Now get the variables again because createImage() can update stuff
@@ -362,11 +369,13 @@ class Image extends File
 			}
 			if (!$this->setAttrValue('varieties', $varieties)) return false;
 
+
 		}
-		
+
 		if ($save_attrs && !$this->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
+
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -463,7 +472,7 @@ class Image extends File
 
 	}//end _checkFileState()
 
-	
+
 	/**
 	* Called to force an update of this assets lookup information
 	*
