@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.14.2.1 2005/03/10 22:31:39 mnyeholt Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_remote_content.inc,v 1.14.2.2 2005/03/11 04:37:07 mnyeholt Exp $
+*
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
@@ -36,7 +36,7 @@ require_once 'HTTP/Client/CookieManager.php';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.14.2.1 $
+* @version $Revision: 1.14.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -62,9 +62,12 @@ class Page_Remote_Content extends Page
 		// do not allow binary content, unless that decision has already been made elsewhere
 		$allow_binary = array_get_index($this->_tmp, 'allow_binary', false);
 
-		$success = $this->_process();
+		if (!array_get_index($this->_tmp, 'processed', false)) {
+			$this->_process();
+		}
+
 		// if processing failed, display error
-		if (!$success) {
+		if (!$this->_tmp['success']) {
 			if ($this->attr('display_error')) {
 				echo $this->attr('error_message');
 			}
@@ -118,7 +121,7 @@ class Page_Remote_Content extends Page
 
 		$result = '';
 
-		$binary = $this->_tmp['binary'];
+		$binary = array_get_index($this->_tmp, 'binary', false);
 		if ($binary && $allow_binary){
 			// binary types need special treatment
 			$type = $this->_tmp['type'];
@@ -166,8 +169,14 @@ class Page_Remote_Content extends Page
 	*/
 	function printFrontend()
 	{
-		$this->_tmp['allow_binary'] = true;
-		return parent::printFrontend();
+		$this->_process();
+
+		if (array_get_index($this->_tmp, 'binary', false)) {
+			$this->_tmp['allow_binary'] = true;
+			return $this->printBody();
+		} else {
+			return parent::printFrontend();
+		}
 
 	}//end printFrontend()
 
@@ -244,7 +253,10 @@ class Page_Remote_Content extends Page
 			$fetch_url = $remote_url;
 		}
 
-		if (!$fetch_url) return;
+		if (!$fetch_url) {
+			$this->_tmp['success'] = false;
+			return false;
+		}
 
 		$fetch_url = undo_htmlspecialchars($fetch_url);
 		$Fetch_URL	= &new Net_URL($fetch_url);
@@ -300,7 +312,7 @@ class Page_Remote_Content extends Page
 
 		// process the request
 		$result = $HTTP_Request->sendRequest();
-
+		
 		// get new cookies and save cookie manager
 		$Cookie_Manager->updateCookies($HTTP_Request);
 		$_SESSION['SQ_REMOTE_COOKIE_MANAGER'] = serialize($Cookie_Manager);
@@ -311,6 +323,7 @@ class Page_Remote_Content extends Page
 		// exit on error, checking for object because if it is true, than it is
 		// a PEAR error object
 		if (!$result || PEAR::isError($result) || $is_error) {
+			$this->_tmp['success'] = false;
 			return false;
 		}
 
@@ -326,11 +339,13 @@ class Page_Remote_Content extends Page
 
 		// if content is not binary, it needs further processing
 		if (strpos($this->_tmp['type'],'text/') !== false) {
-			$this->_tmp['binary']  = false;
 			$this->_tmp['content'] = $this->processHtml();
 		} else {
 			$this->_tmp['binary']  = true;
 		}
+
+		$this->_tmp['processed'] = true;
+		$this->_tmp['success'] = true;
 
 		unset($HTTP_Request);
 		return true;
