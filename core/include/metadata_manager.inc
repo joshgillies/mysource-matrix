@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.63 2005/02/17 01:10:13 tbarrett Exp $
+* $Id: metadata_manager.inc,v 1.64 2005/02/23 00:01:12 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -800,7 +800,7 @@ class Metadata_Manager extends MySource_Object
 					}
 					switch ($keyword) {
 						case 'asset_thumbnail' :
-							echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->printImageTag($metadata_asset->name, $metadata_asset->name, true);'."\n";
+							echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->printImageTag($thumbnail->attr(\'alt\'), $metadata_asset->name, true);'."\n";
 							break;
 						case 'asset_thumbnail_url' :
 							echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->getURL();'."\n";
