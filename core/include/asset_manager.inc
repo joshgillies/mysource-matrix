@@ -1002,11 +1002,10 @@ class Asset_Manager extends Resolve_Object
 		if (!isset($this->_tmp['hrefs'][$assetid])) $this->_tmp['hrefs'][$assetid] = Array();
 
 		$base_url = strip_url($base_url, true);
-
 		if (!isset($this->_tmp['hrefs'][$assetid][$base_url])) {
 			if ($url = $this->getAssetURL($assetid, $base_url)) {
 				require_once SQ_FUDGE_PATH.'/general/www.inc';
-				// delieratley don't strip url here because if there is any trailing slashes then 
+				// deliberatley don't strip url here because if there is any trailing slashes then 
 				// relative_href will work to accomodate them
 				$this->_tmp['hrefs'][$assetid][$base_url] = relative_href(current_url(), $url);
 			} else {
