@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.1 2004/05/12 07:07:39 gsherwood Exp $
+* $Id: email_format.inc,v 1.2 2004/05/18 03:07:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -69,6 +69,12 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 	{
 		$prefix = $prefix.'_'.$this->name;
 		$current_value = @unserialize($this->value);
+		if (!is_array($current_value))             $current_value = Array();
+		if (!isset($current_value['to']))          $current_value['to'] = Array();
+		if (!isset($current_value['from']))        $current_value['from'] = '';
+		if (!isset($current_value['subject']))     $current_value['subject'] = '';
+		if (!isset($current_value['html_format'])) $current_value['html_format'] = '';
+		if (!isset($current_value['text_format'])) $current_value['text_format'] = '';
 		
 		if ($read_only) {
 			?>
