@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.18 2004/11/17 22:34:03 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.19 2004/11/22 05:37:48 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -215,6 +215,11 @@
 				<paint_function name="paintColumnNodes" />
 				<process_function name="processColumnNodes" />
 			</function_call>
+		</field>
+		<field attribute="other_column_name">
+			<display_name>Name of 'Other' Column</display_name>
+			<note>If no 'Columnise by Root Node' settings are set the default column name is 'Events'; otherwise the default is 'Other'. Enter a column name here to override these defaults</note>
+			<text width="40" height="1" />
 		</field>
 	</section>
 
