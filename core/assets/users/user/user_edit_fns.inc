@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_edit_fns.inc,v 1.14 2005/03/30 00:40:04 lwright Exp $
+* $Id: user_edit_fns.inc,v 1.15 2005/04/04 06:44:48 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -221,7 +221,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 			$group_list = $_POST[$prefix.'_group_list'];
 			$restrictions[$group_list][] = Array(
 												 'name'           => $_POST[$prefix.'_restriction_list'],
-												 'condition_data' => Array('user_ip' => '192.168.*.165'),
+												 'condition_data' => Array(),
 												 'match'          => true,
 												 );
 		}
