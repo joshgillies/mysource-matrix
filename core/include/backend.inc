@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.92 2004/06/11 05:18:16 gsherwood Exp $
+* $Id: backend.inc,v 1.93 2004/06/21 00:07:34 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -343,7 +343,7 @@ class Backend extends MySource_Object
 							<td class="sq-backend-popups-blocked-body" align="right">[<a class="sq-backend-popups-blocked-body" href="#" onClick="Javascript: parent.frames[\'sq_header\'].cancelMsgDiv(); return false;">x</a>]</td>
 						</tr>
 						<tr>
-							<td class="sq-backend-popups-blocked-body" colspan="2">MySource Matrix requires popup blocking to be enabled for certain functions to work correctly.</td>
+							<td class="sq-backend-popups-blocked-body" colspan="2">MySource Matrix requires popup blocking to be disabled for certain functions to work correctly.</td>
 						</tr>
 					</table>
 					';
