@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.5 2004/06/28 06:05:58 gsherwood Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.6 2004/09/15 07:06:31 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -77,14 +77,15 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 
 			$select_options = $asset->attr('select_options');
 
+			if ($asset->attr('multiple')) $default = explode('; ', $default);
 			if ($asset->attr('editable')) {
-				if ($write_access) {	
-					combo_box($prefix.'_value', $select_options, false, $default);
-				} else {
-					echo $select_options[$default];
-				}	
-			}	
-
+				combo_box($prefix.'_value', $select_options, $asset->attr('multiple'), $default);
+			} else {
+				if (!is_array($default)) $default = Array($default);
+				$default_string = '';
+				foreach ($default as $option) $default_string .= $select_options[$option].'; ';
+				echo trim($default_string, '; ');
+			}
 		$o->closeField();
 
 		return true;
@@ -107,9 +108,9 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		$default = $asset->attr('default');
 		if ($asset->attr('editable')) {
-			if (isset($_POST[$prefix.'_value'])) {
-				$new_values[$asset->name]['value'] = trim($_POST[$prefix.'_value']);
-			}
+			$value = array_get_index($_POST, $prefix.'_value', '');
+			if (is_array($value)) $value = implode('; ', $value);
+			$new_values[$asset->name]['value'] = trim($value);
 		}
 
 		return true;
@@ -145,48 +146,66 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 					}
 					?>
 				</tr>
-			<?php
-
-			foreach ($select_options as $option_key => $option_value) {
-				?>
-				<tr>
-					<td class="sq-backend-table-cell"><?php echo $option_key; ?></td>
-					<td class="sq-backend-table-cell" align="left"><?php echo $option_value; ?></td>
-					<?php
-					if ($write_access) {
-						?><td class="sq-backend-table-cell"><?php check_box($prefix.'_options[]', $option_key); ?></td><?php
-					}
-					?>
-				</tr>
 				<?php
-			}//end foreach select_options
-			?>
+				$i = 0;
+				foreach ($select_options as $option_key => $option_value) {
+					?>
+					<tr>
+						<td class="sq-backend-table-cell">
+							<?php
+							if ($write_access) {
+								text_box($prefix.'_options[key]['.$i.']', $option_key, 20);
+							} else {
+								echo $option_key;
+							}
+							?>
+						</td>
+						<td class="sq-backend-table-cell" align="left">
+							<?php
+							if ($write_access) {
+								text_box($prefix.'_options[val]['.$i.']', $option_value, 20);
+							} else {
+								echo $option_value;
+							}
+							?>
+						</td>
+						<?php
+						if ($write_access) {
+							?>
+							<td class="sq-backend-table-cell">
+								<?php check_box($prefix.'_options[del]['.$i.']', $option_key); ?>
+							</td>
+							<?php
+						}
+						?>
+					</tr>
+					<?php
+					$i++;
+				}//end foreach select_options
+				?>
 			</table>
 			<?php
+			
+			
+			// now adding two fields for new entry (key => value)
+			if ($write_access) {
+				$o->openField('New Option');
+					echo '<b>key</b> ';
+					text_box($prefix.'_new_key','');
+					echo ' <b>value</b> ';
+					text_box($prefix.'_new_val','');
+				$o->closeField();
+			}
 
 			// displaying default value if any values were actually saved in the array
 			$o->openField('Default Value');
-			if ($write_access) {
-				combo_box($prefix.'_default', $select_options, false, $default);
-			} else {
-				echo $select_options[$default];
-			}
+				$selection = $asset->getSelectionAttribute();
+				$selection->paint($prefix.'_default', !$write_access);
 			$o->closeField();
 
 		} else {
 			echo 'There are currently no select box options';
 		}//end if empty
-
-		// now adding two fields for new entry (key => value)
-		if ($write_access) {
-			$o->openField('Option Key');
-				text_box($prefix.'_select_key','');
-			$o->closeField();
-
-			$o->openField('Option Value');
-				text_box($prefix.'_select_val','');
-			$o->closeField();
-		}
 
 		return true;
 
@@ -207,42 +226,79 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	{
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('attributes')) return false;
-
-		$select_options = $asset->attr('select_options');
-		$update = false;
-
-		// delete checked items
+		
+		$select_options = Array();
 		if (isset($_POST[$prefix.'_options'])) {
-			foreach ($_POST[$prefix.'_options'] as $option_key) unset($select_options[$option_key]);
-			$update = true;
+			$option_changes = $_POST[$prefix.'_options'];
+			foreach ($option_changes['key'] as $i => $key) {
+				if (isset($option_changes['del'][$i])) continue;
+				$select_options[trim($key)] = trim($option_changes['val'][$i]);
+			}
 		}
 
 		// now get the new submitted values (if any) and add them to array
-		if (!empty($_POST[$prefix.'_select_key']) && !empty($_POST[$prefix.'_select_val'])) {
-			$new_select_key  = trim($_POST[$prefix.'_select_key']);
-			$new_select_val  = trim($_POST[$prefix.'_select_val']);
-
+		if (!empty($_POST[$prefix.'_new_key']) && !empty($_POST[$prefix.'_new_val'])) {
+			$new_select_key  = trim($_POST[$prefix.'_new_key']);
+			$new_select_val  = trim($_POST[$prefix.'_new_val']);
 			$select_options[$new_select_key] = $new_select_val;
-			$update = true;
 		}
 			
 		// updating asset attribute value
-		if ($update) $asset->setAttrValue('select_options', $select_options);
+		$asset->setAttrValue('select_options', $select_options);
 
 		// saving default value
 		$new_default = '';
 		if (!empty($select_options) && isset($_POST[$prefix.'_default'])) {
-			$new_default = trim($_POST[$prefix.'_default']);
-		} else {
-			if (!empty($select_options)) {
-				$new_default = array_shift(array_keys($select_options));
-			}
+			$new_default = $_POST[$prefix.'_default'];
+			if (is_array($new_default)) $new_default = implode('; ', $new_default);
+		}
+		if (!$asset->attr('multiple')) {
+			if (!isset($select_options[$new_default])) $new_default = '';
 		}
 		$asset->setAttrValue('default', $new_default);
 
 		return true;
 
 	}//end processSelection()
+	
+	
+	/**
+	* Paint the interface for setting selection edit params
+	*
+	* @param object Metadata_Field_Selection	&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter			&$o		the outputter class
+	* @param string								$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintEditParams(&$asset, &$o, $prefix)
+	{
+		$selection = $asset->getSelectionAttribute();
+		$selection->paintEditParams($prefix.'_style', $asset->writeAccess('attributes'));
+
+	}//end paintEditParams()
+
+
+	/**
+	* Processes the interface for setting selection edit params
+	*
+	* @param object Metadata_Field_Selection	&$asset	the asset to which we belong
+	* @param object	Backend_Outputter			&$o		the outputter class
+	* @param string								$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processEditParams(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) return false;
+
+		$selection = $asset->getSelectionAttribute();
+		$edit_params = $selection->processEditParams($prefix.'_style');
+		return $asset->setAttrValue('edit_params', $edit_params);
+
+	}//end processEditParams()
 
 
 }//end class

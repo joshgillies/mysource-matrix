@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.1 2004/02/03 03:27:42 diarandine Exp $
+* $Id: metadata_field_select.inc,v 1.2 2004/09/15 07:06:31 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -50,6 +50,30 @@ class Metadata_Field_Select extends Metadata_Field
 		$this->Metadata_Field($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Get a selection attribute that can be used to paint and process the values of this field
+	*
+	* @return object Asset_Attribute_Selection
+	* @access public
+	*/
+	function getSelectionAttribute()
+	{
+		require_once SQ_ATTRIBUTES_PATH.'/selection/selection.inc';
+
+		$selection = new Asset_Attribute_Selection();
+		$selection->_edit_params = $this->attr('edit_params');
+		$selection->_params['options'] = $this->attr('select_options');
+		$selection->_params['multiple'] = $this->attr('multiple');
+		
+		$default = $this->attr('default');
+		if ($this->attr('multiple')) $default = explode('; ', $default);
+		$selection->setValue($default);
+
+		return $selection;
+
+	}//end getSelectionAttribute()
 
 
 }//end class
