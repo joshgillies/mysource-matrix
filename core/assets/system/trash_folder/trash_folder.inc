@@ -148,38 +148,6 @@ class Trash_Folder extends Folder
 
 
 	/**
-	* Returns TRUE if the passed minor asset can be linked to this asset, or a string with the error msg
-	*
-	* @param object Asset	$minor		the minor asset that we are linking to
-	* @param string			$link_type	the type of link this is
-	*
-	* @return TRUE|string
-	* @access public
-	*/
-	function canCreateLink(&$minor, $link_type)
-	{
-		if (!$this->id) return false;
-		if (!is_a($minor, 'Asset')) return 'Minor is not an asset';
-
-		$parents = $this->getLinks(SQ_LINK_SIGNIFICANT, '', null, 'minor');
-		$links_outside_trash = 0;
-		foreach ($parents as $link) {
-			if (!$GLOBALS['SQ_SYSTEM']->am->assetInTrash($link['majorid'])) {
-				$links_outside_trash++;
-			}
-		}
-	
-		if ($links_outside_trash > 1) {
-			trigger_error('Cannot link "'.$minor->name.'" to the trash, more than one link remains outside of trash', E_USER_WARNING);
-			return false;
-		}
-
-		return true;
-
-	}// end canCreateLink()
-
-
-	/**
 	* Prints out the backend interface for the asset
 	* it's up to the kids to override
 	*
