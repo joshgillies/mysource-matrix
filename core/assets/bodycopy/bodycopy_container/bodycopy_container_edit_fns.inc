@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.20.2.2 2005/03/17 22:47:14 amiller Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.20.2.3 2005/04/01 00:21:23 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20.2.2 $
+* @version $Revision: 1.20.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -78,7 +78,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 	}//end setAttribute()
 
-	
+
 	/**
 	* Prints the JavaScript needed by the backend functions for this table
 	*
@@ -90,7 +90,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintBackendJsData(&$asset, $prefix)
 	{
-	
+
 	}//end paintBackendJsData()
 
 
@@ -168,7 +168,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	function processContainer(&$asset, &$o, $prefix, $bc_action, $bc_name, $bc_data, $bc_saved)
 	{
 		$updated = false;
-		
+
 		// save any changed attributes
 		if (!empty($bc_data[$prefix][$asset->id]['attributes']) || !empty($bc_saved[$prefix][$asset->id]['attributes'])) {
 			$attributes_updated = false;
@@ -183,7 +183,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				}
 			}
 			if (isset($bc_saved[$prefix][$asset->id]['attributes'])) {
-				
+
 				foreach ($bc_saved[$prefix][$asset->id]['attributes'] as $name => $value) {
 					if ($name == 'identifier') {
 						if ($asset->setAttrValue('name', $value)) $updated = true;
@@ -217,13 +217,13 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			$this->paint($asset, false, true);
 			$output = ob_get_contents();
 		ob_end_clean();
-		
+
 		if (!$this->createContentLinks($asset, $output)) return false;
 
 		$e = "(/?\./\\?a=)([0-9]+)([^0-9])";
 		$with = '<'.'?php echo $sq_asset_url_list[\\2]; ?'.'>';
 		$output = ereg_replace($e, $with.'\\3', $output);
-		
+
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$keywords = retrieve_keywords_replacements($output);
 
@@ -238,8 +238,8 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		return string_to_file($output, $asset->data_path.'/content_file.php');
 
 	}//end generateContentFile()
-	
-	
+
+
 	/**
 	* Creates and deletes NOTICE links based on the assets being linked to within the contents of this container
 	*
@@ -282,10 +282,12 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			// delete existing notice links that are no longer being used
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			foreach ($notice_links as $link_data) {
-				if (!in_Array($link_data['minorid'], $replace_assetids)) {
-					if (!$asset->deleteLink($link_data['linkid'])) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
+				if ($link_data['value'] != 'thumbnail') {
+					if (!in_Array($link_data['minorid'], $replace_assetids)) {
+						if (!$asset->deleteLink($link_data['linkid'])) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							return false;
+						}
 					}
 				}
 			}
@@ -295,7 +297,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				if (!in_Array($assetid, $existing_links)) {
 					$ereg_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					if ($ereg_asset->id) {
-					
+
 						// dont show errors here if the link already exists
 						// as we rely on the fact that this ereg_asset cant be notice linked
 						// to asset mutiple times to stop redunant links from
@@ -306,7 +308,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				}
 			}
 		}//end if replace_assetids or notice_links
-		
+
 		return true;
 
 	}//end createContentLinks()
@@ -325,22 +327,22 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		if (is_null($asset)) return false;
 		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 		return $em->broadcastEvent($asset, 'contentsUpdated', Array());
-	
+
 	}//end _contentsUpdated()
 
-	
+
 	/**
 	* When this bodycopycontainer is painted on its own without being a part
 	* of the 'contents' of a bodycopy, draw the editing info by itself. Most of
-	* the code is directly taken from the Bodycopy_Edit_Fns class as the 
-	* functionality is so similar. Perhaps going to aggregate it out to 
+	* the code is directly taken from the Bodycopy_Edit_Fns class as the
+	* functionality is so similar. Perhaps going to aggregate it out to
 	* a separate class though once it is understood better.
-	* 
+	*
 	* @param object Bodycopy			&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
 	* @param string						$prefix	prefix for the form elements
 	*
-	* @return boolean 
+	* @return boolean
 	* @access public
 	*/
 	function paintBodycopyContainer(&$asset, &$o, $prefix)
@@ -651,12 +653,12 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		return true;
 
 	}//end paintBodycopyContainer()
-	
-	
+
+
 	/**
 	* When this bodycopy_container is painted on its own without being a part
 	* of the 'contents' of a bodycopy, process it separately than normal.
-	* 
+	*
 	* @param object BodyCopy_Container	&$asset		the container whose interface we are painting
 	* @param object	Backend_Outputter	$o			the outputter class
 	* @param string						$prefix		prefix for the form element
@@ -671,11 +673,11 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		$bc_name   = (empty($_POST['bodycopy_name']))   ? ''      : $_POST['bodycopy_name'];
 		$bc_data   = (empty($_POST['bodycopy_data']))   ? Array() : $_POST['bodycopy_data'];
 		$bc_saved  = (empty($_POST['bodycopy_saved']))  ? Array() : $_POST['bodycopy_saved'];
-		
+
 		// if there is some bodycopy data, deserialise it into the arrays
 		// so that everything else can use it
 		if ($bc_data) $bc_data = var_unserialise($bc_data);
-			
+
 		// unserialize the data for a bodycopy.
 		for (reset($bc_saved); NULL !== ($k = key($bc_saved)); next($bc_saved)) {
 			$containers = &$bc_saved[$k];
@@ -683,16 +685,16 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				$containers[$containersid] = var_unserialise($containers[$containersid]);
 			}
 		}
-		
+
 		unset($containers);
-			
+
 		if ($this->processContainer($asset, $o, $prefix, $bc_action, $bc_name, $bc_data, $bc_saved)) {
 			if ($asset->saveAttributes()) $updated = true;
 		}
 		return $updated;
-		
+
 	}//end processBodycopyContainer
-	
+
 
 }//end class
 
