@@ -20,7 +20,7 @@
 			<version>1.2</version>
 		</requirement>
 		<requirement type="system">
-			<code>Resolve</code>
+			<code>System</code>
 			<version>3.5</version>
 		</requirement>
 	</requirements>
