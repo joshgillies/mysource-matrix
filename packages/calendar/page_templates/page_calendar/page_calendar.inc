@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.68 2004/09/13 00:12:14 dbaranovskiy Exp $
+* $Id: page_calendar.inc,v 1.69 2004/09/13 00:33:26 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.68 $ - 1.0
+* @version $Revision: 1.69 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -404,7 +404,7 @@ class Page_Calendar extends Page_Asset_Listing
 			}
 			$replacements['up_link'] = $up_view ? '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$up_view.'&amp;SQ_CALENDAR_DATE='.$cal_date.'">'.str_replace('%v%', ucfirst($up_view), $this->attr('up_link_text')).'</a>' : '';
 
-			echo "<script>cal.setDate('$cal_date')</script>";
+			echo "<script>if (typeof cal != 'undefined') cal.setDate('$cal_date')</script>";
 
 			// print the contents of page - replacing the global keywords
 			$format_bodycopy->setKeywordReplacements($replacements);
@@ -615,14 +615,17 @@ class Page_Calendar extends Page_Asset_Listing
 			$this->_printClickChildScript();
 			if ($this->attr('enable_description_popups')) $this->_printPopupsScript();
 			?>
-			<table id="month" border="0" cellspacing="0" cellpadding="0" style="width: <?php echo $column_width*$week_length; ?>ex">
+			<table id="month" border="0" cellspacing="0" cellpadding="0">
 				<tr>
 			<?php
 				// print the day headings
 				for ($i=0; $i < $week_length; $i++) {
 					$day_name = $this->day_names_full[($week_start_day + $i) % 7];
 			?>
-					<th style="width: <?php echo $column_width; ?>ex" class="dayLabel <?php echo (($day_name == 'Saturday') || ($day_name == 'Sunday')) ? 'dayLabelWeekend' : ''; ?>"><?php echo $day_name; ?></th>
+					<th style="width: <?php echo $column_width; ?>ex"
+						class="dayLabel<?php echo (($day_name == 'Saturday') || ($day_name == 'Sunday')) ? 'Weekend' : ''; ?>">
+						<?php echo $day_name; ?>
+					</th>
 			<?php
 				}
 			?>
@@ -1587,6 +1590,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 		return $res;
 
+
 	}//end getDayEvents()
 
 
@@ -2384,7 +2388,7 @@ class Page_Calendar extends Page_Asset_Listing
 		if (!is_null($event['end_date_ds'])) {
 			$first_occur = increment_iso_by_days($cal_date, -($event['end_date_ds']-$event['start_date_ds']));
 		}
-		
+
 		$next_occur = Calendar_Event_Recurring::getFirstOccurrenceAfter($first_occur, $event_start_date, $event['frequency'], $event['period'], $event_last_day);
 		$i = 0;
 
