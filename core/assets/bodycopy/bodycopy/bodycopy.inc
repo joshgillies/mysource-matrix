@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.10 2004/07/16 06:15:21 gsherwood Exp $
+* $Id: bodycopy.inc,v 1.11 2004/08/17 02:10:17 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -284,8 +284,6 @@ class Bodycopy extends Asset
 				echo $content;
 			}
 		} else {
-			$am = &$GLOBALS['SQ_SYSTEM']->am;
-
 			// get all the containers linked to this bodycopy
 			$containers = &$this->getContainers();
 
