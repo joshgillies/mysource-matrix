@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification.inc,v 1.5 2004/07/29 03:10:31 tbarrett Exp $
+* $Id: calendar_event_modification.inc,v 1.6 2004/07/29 03:15:46 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * of a recurring event have changed for a particular instance of that event.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.5 $ - 1.0
+* @version $Revision: 1.6 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -91,7 +91,7 @@ class Calendar_Event_Modification extends Calendar_Event
 	*/
 	function _getName($short_name=false)
 	{
-		return $short_name ? $this->attr('short_name') : $this->attr('name');
+		return $short_name ? 'Modified ' . date('d M Y', iso8601_ts($this->attr('start_date'))) : $this->attr('name');
 	
 	}//end _getName()
 
@@ -124,7 +124,6 @@ class Calendar_Event_Modification extends Calendar_Event
 
 		// set our name based on the parent
 		$this->setAttrValue('name', $parent->attr('name') . ' - Modified ' . date('d M Y', iso8601_ts($this->attr('start_date'))));
-		$this->setAttrValue('short_name', 'Modified ' . date('d M Y', iso8601_ts($this->attr('start_date'))));
 
 		return true;
 

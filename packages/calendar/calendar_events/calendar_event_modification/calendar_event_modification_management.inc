@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification_management.inc,v 1.2 2004/07/29 03:10:31 tbarrett Exp $
+* $Id: calendar_event_modification_management.inc,v 1.3 2004/07/29 03:15:46 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $ - 1.0
+* @version $Revision: 1.3 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -51,11 +51,6 @@ class Calendar_Event_Modification_Management extends Asset_Management
 												'type'        => 'text',  'default'   => '',
 												'description' => 'The modified name of the event',
 												),
-							'short_name' => Array(
-												'added'       => '0.0.1',
-												'type'        => 'text',  'default'   => '',
-												'description' => 'The short name of the event',
-												),			
 							'description' => Array(
 												'added'       => '0.0.1',
 												'type'        => 'text',  'default'   => '',
