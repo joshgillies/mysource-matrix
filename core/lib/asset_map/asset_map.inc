@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_map.inc,v 1.80 2003/09/29 01:40:46 gsherwood Exp $
+* $Id: asset_map.inc,v 1.81 2003/10/03 06:10:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -830,10 +830,18 @@ class Asset_Map
 		}
 
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$from = time() - (8 * 3600); // 8 hours ago
-		$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), null, Array(SQ_MSG_UNREAD, SQ_MSG_READ), Array(), $from, null, 'short_name');
 
-#		error_log(array_contents($messages));
+		// get all unread messages and read messages that are less than 8 hours old
+		$from = time() - (8 * 3600); // 8 hours ago
+		$read_messages   = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), null, Array(SQ_MSG_READ), Array(), $from, null, 'short_name');
+		$unread_messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), null, Array(SQ_MSG_UNREAD), Array(), null, null, 'short_name');
+
+		$messages = array_merge($read_messages, $unread_messages);
+		unset($read_messages);
+		unset($unread_messages);
+#		error_log("READ : \n".array_contents($read_messages));
+#		error_log("UNREAD : \n".array_contents($unread_messages));
+#		error_log("MSGS : \n".array_contents($messages));
 
 		$output = new XML_Tree();
 		$root = &$output->addRoot('mail');
