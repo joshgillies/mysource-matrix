@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design.inc,v 1.52 2003/10/10 06:49:22 brobertson Exp $
+* $Id: design.inc,v 1.53 2003/10/12 23:17:05 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -451,8 +451,37 @@ class Design extends Design_Area
 				break;
 
 			case 'asset_link' :
-				echo '<', '?php echo ', $this->_escapeVar('$ASSET->getHref()', $args), '; ?', '>';
+				$aqs = false;
+				if (!empty($args['append_query_string'])) {
+					switch($args['append_query_string']) {
+						case 'yes'  :
+						case 'true' :
+							$aqs = true;
+							break;
+
+					}// end switch
+				}
+
+				$sqs = false;
+				if (!empty($args['start_query_string'])) {
+					switch($args['start_query_string']) {
+						case 'yes'  :
+						case 'true' :
+							$sqs = true;
+							break;
+
+					}// end switch
+				}
+				$additional = '';
+				if ($aqs) $additional .= 'echo ((!empty($_SERVER[\'QUERY_STRING\'])) ? \'?\'.$_SERVER[\'QUERY_STRING\'] : \'\');'."\n";
+				if ($sqs) {
+					if (!$aqs) $additional .= 'echo \'?\';';
+					else $additional .= 'echo ((!empty($_SERVER[\'QUERY_STRING\'])) ? \'&\' : \'?\');';
+					$additional .= "\n";
+				}
+				echo '<', '?php echo ', $this->_escapeVar('$ASSET->getHref()', $args), ";\n", $additional, ' ?', '>';
 				break;
+
 
 			case 'current_user' :
 				
