@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.177 2003/11/04 00:46:18 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.178 2003/11/04 00:59:26 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3625,7 +3625,7 @@ class Asset_Edit_Interface extends MySource_Object
 						if ($start_printing_at > 0) {
 							?><a style="text-decoration: none;" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix; ?>_start_at', '<?php echo $start_printing_at - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
 						} else {
-							?><span style="color: #BBBBBB"><?php
+							?><span style="color: #84848F"><?php
 						}
 						?>
 						&lt;&lt; Previous Page
@@ -3642,7 +3642,7 @@ class Asset_Edit_Interface extends MySource_Object
 						if (($start_printing_at + $num_per_page) < $num_logs) {
 							?><a style="text-decoration: none;" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix; ?>_start_at', '<?php echo $start_printing_at + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
 						} else {
-							?><span style="color: #BBBBBB"><?php
+							?><span style="color: #84848F"><?php
 						}
 						?>
 						Next Page &gt;&gt;

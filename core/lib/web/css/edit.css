@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit.css,v 1.23 2003/11/04 00:46:34 gsherwood Exp $
+* $Id: edit.css,v 1.24 2003/11/04 00:59:25 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -140,7 +140,7 @@ td.sq-backend-nav-history {
 
 .sq-backend-table {
 	width:				100%;
-	border:				1px solid #4C6F93;
+	border:				1px solid #868578;
 	border-collapse:	collapse;
 }
 
@@ -156,11 +156,11 @@ td.sq-backend-table-header, td.sq-backend-table-cell, td.sq-backend-table-cell-a
 td.sq-backend-table-header {
 	font-size:			11px;
 	font-weight:		bold;
-	background-color:	#BFD3E6;
+	background-color:	#CBCABE;
 }
 
 td.sq-backend-table-cell-alt {
-	background-color:	#DFE9F2;
+	background-color:	#F4F4EB;
 }
 
 
