@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_lock.inc,v 1.31 2004/07/06 03:26:50 gsherwood Exp $
+* $Id: hipo_job_acquire_lock.inc,v 1.32 2004/09/16 10:59:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Initial Running Vars :
 *    int    assetid             -   the assetid with whose children we are going to attempt to lock
 *    Array(string)|string lock_type           -   the type of lock(s) to get see Asset_Manager::acquireLock()
-*    bool   [dependants_only]   -   whether dependants only or all children, defaults to 
+*    bool   [dependants_only]   -   whether dependants only or all children, defaults to true
 *    bool   [forceably_acquire] -   whether to attempt to forceably acquire the lock or not, defaults to false
 * </pre>
 *
@@ -244,11 +244,11 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 
 			// if there is no dependants setting, or if it is true, get only dependants
 			if (!isset($this->_running_vars['dependants_only']) || !empty($this->_running_vars['dependants_only'])) {
-				$this->_running_vars['dependants_only'] = false;
+				$this->_running_vars['dependants_only'] = true;
 				$child_assets = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($asset->id);
 			} else {
 				// get locks for all children
-				$this->_running_vars['dependants_only'] = true;
+				$this->_running_vars['dependants_only'] = false;
 				$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
 			}
 			$this->_running_vars['todo_assetids'] = $child_assets;
@@ -268,27 +268,6 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 		return parent::prepare();
 	
 	}//end prepare()
-
-
-	/**
-	* Set up vars and database information that the HIPO will need to run
-	*
-	* The Acquire Lock HIPO also checks that there is an assetid to start this action on
-	* (the top most parent). It also saves a list of assets to perform this action on in the running vars.
-	*
-	* @param string		$source_code_name	the code name of another job that wants to use this job
-	*
-	* @return string	returns the code_name for the new job
-	* @access public
-	*/
-	function initialise($source_code_name=null)
-	{
-		if (!$this->is_prepared) {
-			$this->prepare();
-		}
-		return parent::initialise($source_code_name);
-
-	}//end initialise()
 
 
 	/**
