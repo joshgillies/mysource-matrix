@@ -213,55 +213,7 @@ function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras=''
 				'</option>';
 	}
 	echo '</select>';
-}// end combo_box()
-
-
-/**
-* Prints an entry box for a colour picker, requires javascript and colour_picker script 
-*
-* @param string	$name		the form name to use for the colour box
-* @param Array	$contents	an array of whose keys are values to be returned when that option is selected and whose values are the display text for the option
-* @param bool	$multiple	whether you can multiple selections can be made or not
-* @param mixed	$defaults	if there is only one default can be a string, or if there are multiple can be an array
-* @param int	$height		the height (in lines) of the colour box
-* @param string	$extras		any input field attributes that should be placed in the <input ... > tag
-* @param int	$max		the maximum number of characters displayed for any option, anything over gets truncated with '...' appended
-*
-*/
-function colour_box($name, $default='000000', $allow_blanks=false, $button_text='*', $show_text_box=true, $show_current_colour=true, $show_change_colour=true) {
-
-	$default = preg_replace('/^#/', '', $default);
-	echo '#&nbsp;';
-	text_box($name, $default, 7, 6, 'style="font-family: courier;"');
-
-	return;
-
-	$default = strtolower($default);
-
-	if ($show_current_colour) {
-		?><span id="html_form_colour_span_<?php echo $name; ?>" style="background-color: <?php echo $default; ?>;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;<?php
-	}
-
-	if ($show_text_box) {
-		$extras  = ' id="colour_box_'.$name.'" style="font-family: courier;"'
-				 . ' onChange="javascript: this.value = check_colour(this.value, '.(($allow_blanks) ? 'true' : 'false').');';
-		if ($show_current_colour) $extras .= ' show_colour_change(\''.addslashes($name).'\');';
-
-		text_box($name, $default, 7, 6, $extras);
-
-	} else {
-		hidden_box($name, $default);
-	}
-
-	normal_button('', '&nbsp;'.$button_text.'&nbsp;', 'load_colour_picker(this.form.elements[\''.addslashes($name).'\'], \'$EDIT_DIR\')', 'style="font-family: courier;"');
-	if ($show_change_colour) {
-		?><img id="colour_change_<?php echo $name; ?>" name="colour_change_<?php echo $name; ?>" src="<?php echo SQ_WWW_LIB_DIR; ?>/web/images/cross.gif" width="15" height="15" border="0" align="bottom"><?php
-	}
-
-}// end colour_box()
-
-
-
+}
 
 /**
 *  Takes timestamp and draws a set of selection boxes using it as default

@@ -9,9 +9,9 @@
 
 ######################################################################################
 # $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/html_form/html_form.js,v $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 # $Author: brobertson $
-# $Date: 2003/04/23 06:21:12 $
+# $Date: 2003/04/23 06:24:40 $
 ######################################################################################
 */
 
@@ -22,13 +22,8 @@
 ##################################################
 */
 
-/**
-* Convenience function for submitting the form, useful from hrefs
-*
-* @access public
-*/
-function submit_form() 
-{
+// Convenience function for submitting the form, useful from hrefs
+function submit_form() {
 	var f = document.main_form;
 	// make sure we clean any stuff up before we submit
 	if (form_on_submit()) {
@@ -36,44 +31,21 @@ function submit_form()
 	}
 }// end submit_form()
 
-/**
-* Convenience function for setting hidden fields in the form
-*
-* @param string	$name	the name of the hidden field
-* @param string	$value	the value to set it to
-*
-* @access public
-*/
-function set_hidden_field(name, value) 
-{
+// Convenience function for setting hidden fields in the form
+function set_hidden_field(name, value) {
 	var f = document.main_form;
 	if (f.elements[name]) {
 		f.elements[name].value = value;
 	}
 }// end set_hidden_field()
 
-/**
-* Convenience function for setting text fields in the form
-* NOTE: works the same way as a hidden field so just alias that fn
-*
-* @param string	$name	the name of the text field
-* @param string	$value	the value to set it to
-*
-* @access public
-*/
+// Convenience function for setting text fields in the form
+// NOTE: works the same way as a hidden field so just alias that fn
 set_text_field = set_hidden_field;
 
 
-/**
-* return the form element that is represented by the passed name
-*
-* @param string	$name	the name of the field
-*
-* @return object Form_Element
-* @access public
-*/
-function get_element(name) 
-{
+// return the form element that is represented by the passed name
+function get_element(name) {
 	var f = document.main_form;
 
 	if (f.elements[name]) {
@@ -87,35 +59,21 @@ function get_element(name)
 }// end get_element()
 
 
-/**
-* returns the value for a field in the form
-*
-* @param string	$name	the name of the field
-*
-* @return string
-* @access public
-*/
-function get_element_value(name) 
-{
+// returns the value for a field in the form
+function get_element_value(name) {
 	var f = document.main_form;
 	return (f.elements[name]) ? element_value(f.elements[name]) : '';
 }// get_element_value()
 
 
 
-/**
-* Returns the value for any type of form element
-* if select box or group of radio buttons returns the selected/checked value(s) 
-*    -> for multi-select boxes returns an array of selected values
-* if array of any other type of elements returns the value of the first element in array
-*
-* @param object Form_Element	$element	the element whose value to find
-*
-* @return string
-* @access public
-*/
-function element_value(element) 
-{
+//////////////////////////////////////////////////////////////////////////////////////////
+// Returns the value for any type of form element
+//
+// if select box or group of radio buttons returns the selected/checked value(s) 
+//    -> for multi-select boxes returns an array of selected values
+// if array of any other type of elements returns the value of the first element in array
+function element_value(element) {
 	// if element doesn't exist, die
 	if (element == null) return "";
 
@@ -183,16 +141,10 @@ function element_value(element)
 
 }// end element_value()
 
-/**
-* Given a select box reference, returns the current text
-*
-* @param object Form_Select_Box	$element	the combo box element
-*
-* @return string
-* @access public
-*/
-function get_combo_text(element) 
-{
+
+ ////////////////////////////////////////////////////////////
+// Given a select box reference, returns the current text
+function get_combo_text(element) {
 	// just to make sure
 	if (element.type != "select-one" && element.type != "select-multiple") return;
 
@@ -201,16 +153,9 @@ function get_combo_text(element)
 }// end get_combo_text();
 
 
-/**
-* Checks a specific radio button with the element, that has the passed value
-*
-* @param object Form_Select_Box	$element	the radio button group
-* @param string					$field_val	the value to look for in the radio button group
-*
-* @access public
-*/
-function check_radio_button(element, field_val) 
-{
+ //////////////////////////////////////////////////////////////////////////////////////////
+// Checks a specific radio button with the element, that has the passed value
+function check_radio_button(element, field_val) {
 
 	for(var i = 0; i < element.length; i++) {
 		if (element[i].value == field_val) {
@@ -223,14 +168,8 @@ function check_radio_button(element, field_val)
 
 }// end check_radio_button()
 
-/**
-* Sets the selected var in the combo box for the option with the passed value
-*
-* @param object Form_Select_Box	$element	the combo box
-* @param string					$field_val	the value to look for in the combo box
-*
-* @access public
-*/
+ ///////////////////////////////////////////////////////////////////
+// Sets the selected var for the option with the passed value
 function highlight_combo_value(element, field_val) {
 
 	// just to make sure
@@ -244,18 +183,11 @@ function highlight_combo_value(element, field_val) {
 		}
 	}// end for
 
-}// end highlight_combo_value()
+}//highlight_combo_value()
 
-/**
-* Moves the selected elements in a select box (can be multi-select) up or down one place
-*
-* @param object Form_Select_Box	$element	the combo box
-* @param boolean				$move_up	whether to move up or down
-*
-* @access public
-*/
-function move_combo_selection(element, move_up) 
-{
+ //////////////////////////////////////////////////////////////////////////////////////////
+// Moves the selected elements in a select box (can be multi-select) up or down one place
+function move_combo_selection(element, move_up) {
 
 	switch (element.type) {
 		case "select-one" :
@@ -356,17 +288,11 @@ function move_combo_selection(element, move_up)
 }// end move_combo_selection()
 
 
-/**
-* Used by the date_box to verify that the date the user entered is correct
-* and to set the hidden var
-*
-* @param string		$date_name	the name of the date field as passed into date_box()
-* @param boolean	$show_time	whether the time is shown or not
-*
-* @access public
-*/
-function check_date(date_name, show_time) 
-{
+
+  ////////////////////////////////////////////////////////////////////////////
+ // used by the date_box to verify that the date the user entered is correct
+// and to set the hidden var
+function check_date(date_name, show_time) {
 	var f = document.main_form;
 
 	var day_box   = get_element('day_'   + date_name);
@@ -426,74 +352,7 @@ function check_date(date_name, show_time)
 }// end check_date();
 
 
-////// FUNCTIONS RELATING TO THE COLOUR BOX ////
-//var colour_fields = new Array(); //
-//var colour_pickers = new Array();
-//var colour_picker_count = 0;
-//
-///**
-//* Opens up the colour picker box in the pop-up window
-//*
-//* @param string		$field		the name of the colour field as passed into colour_box()
-//* @param boolean	$show_time	whether the time is shown or not
-//*
-//* @access public
-//*/
-//function load_colour_picker(field, picker_path) {
-//	colour_picker_count++;
-//	colour_fields[colour_picker_count] = field;
-//	//if (colour_picker != 0 && !colour_picker.closed) colour_picker.close();
-//	colour_pickers[colour_picker_count] = window.open(picker_path + '/colour_picker.php?colour=' + field.value + '&pickerid='+colour_picker_count, colour_picker_count, 'toolbar=no,width=600,height=200,titlebar=false,status=no,scrollbars=no,resizeable=yes');
-//}
-//
-//function update_colour(colour,id) {
-//	if (colour_fields[id].value != colour) {
-//		colour_fields[id].value = colour;
-//		show_colour_change(colour_fields[id].name);
-//	} else {
-//		colour_fields[id].value = colour;
-//	}
-//}
-//
-//function show_colour_change(name) {
-//	if (document.getElementById) {
-//		var changed_image = document.getElementById('colour_change_' + name);
-//		if (changed_image) { changed_image.src = colour_change_image_dir + 'tick.gif'; }
-//		var changed_span = document.getElementById('colour_span_' + name);
-//		if (changed_span) {
-//			colour_box = document.getElementById('colour_box_' + name);
-//			changed_span.style.backgroundColor = colour_box.value;
-//		}
-//	} else {
-//		var changed_image = document['colour_change_' + name];
-//		if (changed_image) { changed_image.src = colour_change_image_dir + 'tick.gif'; }
-//	}
-//}
-//
-//var nonhexdigits  = new RegExp('[^0-9a-fA-F]');
-//var nonhexletters = new RegExp('[g-zG-Z]');
-//
-//function check_colour(value, allow_blanks) {
-//	//if (value.match(nonhexdigits)) return '000000';
-//
-//	if (value.length == 0 && allow_blanks) return '';
-//
-//	var c;
-//	for (i=0;i<value.length;i++) {
-//		c = value.substring(i,i+1);
-//		if (c.match(nonhexdigits)) {
-//			if (c.match(nonhexletters)) {
-//				value = value.substring(0,i) + 'f' + value.substring(i+1,value.length);
-//			} else {
-//				value = value.substring(0,i-1) + '0' + value.substring(i+1,value.length);
-//			}
-//		}
-//	}
-//	var extra = 6 - value.length;
-//	for (i=0;i<extra;i++) value += '0';
-//	return value.toLowerCase();
-//}
-//
+
 
 
 
