@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.4 2004/07/22 06:29:46 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.5 2004/07/22 06:36:26 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH . '/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.4 $ - 1.0
+* @version $Revision: 1.5 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -303,6 +303,7 @@ class Calendar_Event extends Asset
 	* Example returns:
 	* if (start date != end date)		"23 Jul 2004 4:00pm - 25 Jul 2004 10:00am"
 	* if (start date == end date)		"23 Jul 2004 4:00pm-5:00pm"
+	* if (end date is empty)			"23 Jul 2004 4:00pm"
 	*
 	* @return string
 	* @access public
@@ -310,9 +311,12 @@ class Calendar_Event extends Asset
 	function getFriendlyDatesAndTimes()
 	{
 		if (substr($this->attr('start_date'), 0, 10) == substr($this->attr('end_date'), 0, 10)) {
-			return $this->getFriendlyStart() . '-' . date('g:ia', iso8601_ts($this->attr('end_date')));
+			return $this->getFriendlyStart().'-'.date('g:ia', iso8601_ts($this->attr('end_date')));
+		} elseif (iso8601_ts($this->attr('end_date')) == -1) {
+			return $this->getFriendlyStart();
 		} else {
-			return $this->getFriendlyStart() . ' - ' . $this->getFriendlyEnd();
+			//bam(iso8601_ts($this->attr('end_date')));
+			return $this->getFriendlyStart().' - '.$this->getFriendlyEnd();
 		}
 
 	}//end getFriendlyDatesAndTimes()
