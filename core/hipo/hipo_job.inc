@@ -42,6 +42,7 @@ class HIPO_Job extends Resolve_Object
 						'initialise_mode'	=> '',		// the mode that this job was initialised() in, used to decide what to do when we are completed
 						'running_mode'		=> '',		// the mode that is currently doing the processing
 						'aborted'			=> false,	// whether we have been aborted or not
+						'server_taskid'		=> '',		// id the HIPO server gave the task when it went into running_mode='server'
 						'message'			=> '',
 						'errors'			=> Array(),
 					);
@@ -60,12 +61,6 @@ class HIPO_Job extends Resolve_Object
 	* @var array()
 	*/
 	var $_running_vars = Array();
-
-	/**
-	* Flag that represents if the HIPO has completed all its steps
-	* @var boolean
-	*/
-	var $_complete = false;
 
 	/**
 	* Flag that represents what mode the HIPO is being run in
@@ -97,9 +92,6 @@ class HIPO_Job extends Resolve_Object
 	*		),
 	*		...
 	* );
-	*
-	*
-	*
 	* @var array()
 	*/
 	var $_steps = Array();
@@ -294,13 +286,12 @@ class HIPO_Job extends Resolve_Object
 						'.$db->quote($vars).'
 						)';
 		$result = $db->query($sql);
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return '';
 		}
 
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $code_name;
 
 	}//end initialise()
@@ -323,8 +314,8 @@ class HIPO_Job extends Resolve_Object
 				WHERE code_name = '.$db->quote($code_name);
 
 		$result = $db->getRow($sql);
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
 		if (empty($result)) return false;
 
@@ -358,20 +349,24 @@ class HIPO_Job extends Resolve_Object
 	*/
 	function _save()
 	{
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-
 		// if we have called save and we aren't the running version, bugger off
 		if ($this->_current_mode != $this->_hipo_vars['running_mode']) return true;
 
 		// First let's make sure that everything is in order with the hipo vars and our complete status
-		$step = $this->_hipo_vars['current_step'];
+		if (!$this->complete()) {
+			$step = $this->_hipo_vars['current_step'];
 
-		$prev_step_per = ($step / count($this->_steps)) * 100;
-		$this_step_per = ($this->complete()) ? 0 : ((1 / count($this->_steps)) * $this->_steps[$step]['percent_done']);
-		$this->_hipo_vars['percent_done'] = round($prev_step_per + $this_step_per, 2);
+			$prev_step_per = ($step / count($this->_steps)) * 100;
+			$this_step_per = ($this->complete()) ? 0 : ((1 / count($this->_steps)) * $this->_steps[$step]['percent_done']);
+			$this->_hipo_vars['percent_done'] = round($prev_step_per + $this_step_per, 2);
 
-		if ($this->_steps[$step]['complete']) $this->_hipo_vars['current_step']++;
+			if (!empty($this->_steps[$step]['complete'])) $this->_hipo_vars['current_step']++;
+		}// end if
+
+		// if we have completed then we need to re-set the running mode back to the init mode
+		if ($this->complete()) {
+			$this->_hipo_vars['running_mode'] = $this->_hipo_vars['initialise_mode'];
+		}
 
 		// Second let's decide, depening on the circumstances, whether to delete or update
 		$delete = false;
@@ -397,6 +392,8 @@ class HIPO_Job extends Resolve_Object
 
 		}// end if
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		// now we just do what we are told
 		if ($delete) {
 			$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'hipo_job
@@ -411,12 +408,72 @@ class HIPO_Job extends Resolve_Object
 					WHERE code_name  = '.$db->quote($this->code_name);
 		}
 		$result = $db->query($sql);
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return true;
 
 	}//end _save()
+
+
+	/**
+	* If we are currently in a hipo_job step then it returns the job that we are executing
+	* Otherwise returns NULL
+	*
+	* @return null|object HIPO_Job
+	* @access private
+	*/
+	function &_getSubJob()
+	{
+		$step = $this->_hipo_vars['current_step'];
+		if (isset($this->_steps[$step])) {
+			if (!empty($this->_steps[$step]['hipo_job']) && !empty($this->_steps[$step]['hipo_job']['code_name']) && !empty($this->_steps[$step]['hipo_job']['job_type'])) {
+				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				return $hh->getJob($this->_steps[$step]['hipo_job']['code_name'], $this->_steps[$step]['hipo_job']['job_type']);
+			}// end if
+		}// endif
+
+		$null = null; // because we need to return by ref
+		return $null;
+
+	}// end _getSubJob();
+
+
+	/**
+	* Set the mode that we are running (ie processing) in
+	*
+	* @param string	$mode			[web|server]
+	* @param string	$server_taskid	when the $mode == 'server' this must be supplied, it is the taskid given to it by the server
+	*
+	* @return boolean	whether set was successfull
+	* @access public
+	*/
+	function setRunningMode($mode, $server_taskid='')
+	{
+		if ($mode != 'web' && $mode != 'server') return false;
+
+		$sub_job = &$this->_getSubJob();
+		if (!is_null($sub_job)) {
+			if (!$sub_job->setRunningMode($mode)) return false;
+		}// end if
+
+		$this->_hipo_vars['running_mode']  = $mode;
+		$this->_hipo_vars['server_taskid'] = $server_taskid;
+		return $this->_save();
+
+	}// end setRunningMode();
+
+
+	/**
+	* Returns the running mode of this task
+	*
+	* @return string
+	* @access public
+	*/
+	function getRunningMode()
+	{
+		return $this->_hipo_vars['running_mode'];
+	}// end getRunningMode();
 
 
 	/**
@@ -438,13 +495,10 @@ class HIPO_Job extends Resolve_Object
 
 		} elseif (!empty($this->_steps[$step]['hipo_job'])) {
 
+			$sub_job = &$this->_getSubJob();
 			// if we are processing a sub job, it's it's decision whether to auto step or not
-			if (!empty($this->_steps[$step]['hipo_job']['code_name']) && !empty($this->_steps[$step]['hipo_job']['job_type'])) {
-				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-				$hipo = &$hh->getJob($this->_steps[$step]['hipo_job']['code_name'], $this->_steps[$step]['hipo_job']['job_type']);
-				if (is_null($hipo)) return false;
-
-				return $hipo->auto_step();
+			if (!is_null($sub_job)) {
+				return $sub_job->auto_step();
 
 			// otherwise do what's set for this step
 			} else {
@@ -513,13 +567,9 @@ class HIPO_Job extends Resolve_Object
 
 			} elseif (!empty($step_data['hipo_job'])) {
 
-				if (!empty($step_data['hipo_job']['code_name']) && !empty($step_data['hipo_job']['job_type'])) {
-					$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-					$hipo = &$hh->getJob($step_data['hipo_job']['code_name'], $step_data['hipo_job']['job_type']);
-					if (!is_null($hipo)) {
-						$hipo->paint();
-					}
-
+				$sub_job = &$this->_getSubJob();
+				if (!is_null($sub_job)) {
+					$sub_job->paint();
 				}// end if
 
 			} else {
@@ -548,8 +598,10 @@ class HIPO_Job extends Resolve_Object
 	function process()
 	{
 
-		if (!$this->_hipo_vars['aborted']) {
+		if (!$this->complete()) {
 			$step = $this->_hipo_vars['current_step'];
+
+			pre_echo("RUNNING MODE : ".$this->_hipo_vars['running_mode']);
 			if ($this->_steps[$step]['running_mode'] != $this->_hipo_vars['running_mode']) {
 
 				if ($this->_steps[$step]['running_mode'] == 'server' && SQ_HIPO_USE_SERVER) {
@@ -557,6 +609,53 @@ class HIPO_Job extends Resolve_Object
 					// running in server mode (ie. we are not running on the HIPO server) - so lets
 					// put a call through the HIPO phone to the server
 					trigger_error('CONNECT TO HIPO SERVER HERE AND WAIT FOR ACK', E_USER_NOTICE);
+
+					require_once SQ_SYSTEM_ROOT.'/core/hipo/server/hipo_client.inc';
+					require_once 'XML/Tree.php';
+
+					$attrs = Array(
+								'command' => 'start', 
+								'userid' => $GLOBALS['SQ_SYSTEM']->currentUserId(),
+								'source_code_name' => $this->source_code_name,
+							);
+
+					$data = new XML_Tree();
+					$root = &$data->addRoot('hipo_job', '', $attrs);
+
+					pre_echo($data->get());
+
+					$client = new HIPO_Client();
+					if ($client->connect()) {
+						if ($client->write($data)) {
+							$ack = $client->read();
+							if (!is_null($ack)) {
+								pre_echo("ACK : \n".$ack->get());
+
+								switch ($ack->root->name) {
+									case 'ack' :
+										pre_echo('GOT ACK');
+										break;
+
+									case 'error' :
+										trigger_error('HIPO Server Error : '.$ack->root->content, E_USER_WARNING);
+										return false;
+										break;
+
+									default :
+										trigger_error('Unexpected return from the HIPO Server : '.$ack->get(), E_USER_WARNING);
+										return false;
+
+								}// end switch
+							}// end if
+						}// end if
+
+						$client->disconnect();
+					}// endif
+
+					#die();
+					// return true here because we don't want to save and override the DB value now that it's running 
+					// on the server
+					return true;
 
 				// this should never happen, because of what happens in initialise()
 				} else {
@@ -611,15 +710,9 @@ class HIPO_Job extends Resolve_Object
 
 			$this->jobAborted();
 
-			$step = $this->_hipo_vars['current_step'];
-			$step_data = (isset($this->_steps[$step])) ? $this->_steps[$step] : Array();
-			if (!empty($step_data['hipo_job']) && !empty($step_data['hipo_job']['code_name']) && !empty($step_data['hipo_job']['job_type'])) {
-				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-				$hipo = &$hh->getJob($step_data['hipo_job']['code_name'], $step_data['hipo_job']['job_type']);
-				if (!is_null($hipo)) {
-					$hipo->jobAborted();
-				}
-
+			$sub_job = &$this->_getSubJob();
+			if (!is_null($sub_job)) {
+				$sub_job->jobAborted();
 			}// end if
 
 		}// end if

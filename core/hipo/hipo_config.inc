@@ -16,11 +16,10 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 class HIPO_Config extends Config
 {
 	var $config_vars = Array(
-		'SQ_HIPO_USE_SERVER'				=> Array('editable' => 0, 'default' => false),
-		'SQ_HIPO_SERVER_DOMAIN'				=> Array('editable' => 0, 'default' => ''),
-		'SQ_HIPO_SERVER_PORT'				=> Array('editable' => 0, 'default' => 0),
-		'SQ_HIPO_SERVER_READ_BUFFER_SIZE'	=> Array('editable' => 0, 'default' => 128),
-		'SQ_HIPO_SERVER_READ_END_CHAR'		=> Array('editable' => 0, 'default' => "\n"),
+		'SQ_HIPO_USE_SERVER'		=> Array('editable' => 0, 'default' => false),
+		'SQ_HIPO_SERVER_DOMAIN'		=> Array('editable' => 0, 'default' => ''),
+		'SQ_HIPO_SERVER_PORT'		=> Array('editable' => 0, 'default' => 0),
+		'SQ_HIPO_SERVER_SYSTEMID'	=> Array('editable' => 0, 'default' => ''),
 	);
 
 

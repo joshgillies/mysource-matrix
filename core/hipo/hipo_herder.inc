@@ -179,8 +179,17 @@ class HIPO_Herder extends Resolve_Object
 			$auto_step = $source_job->auto_step();
 
 			if ($auto_step) {
-				if ($source_job->complete()) $onload = 'onLoad="javascript: self.location=\''.$url.'\'";';
-				else $onload = 'onLoad="javascript: document.'.$form_name.'.submit();"';
+				$onload = 'onLoad="javascript: ';
+				#$onload = 'onLoad="javascript: if (confirm(\'Refresh\')) {';
+				if ($source_job->complete()) {
+					$onload .= 'self.location=\''.$url.'\';';
+				} else {
+					if ($source_job->getRunningMode() == 'server') $onload .= 'setTimeout(\'';
+					$onload .= 'document.'.$form_name.'.submit();';
+					if ($source_job->getRunningMode() == 'server') $onload .= '\', 1000);';
+				}
+				$onload .= '"';
+				#$onload .= '}"';
 			} else {
 				$onload = '';
 			}
@@ -326,47 +335,57 @@ class HIPO_Herder extends Resolve_Object
 	*
 	* @param object XML_Tree	$input_root		root node of the data sent from the web script
 	* @param object XML_Tree	$output_root	root node of the data to be sent back to the web script
+	* @param string				$taskid			the id of the task on the server (used if we need to abort)
 	*
 	* @return boolean	indicating whether processing should start or not
 	* @access public
 	*/
-	function prepareProcessServer(&$input_root, &$output_root)
+	function prepareProcessServer(&$input_root, &$output_root, $taskid)
 	{
-		require_once 'XML/Tree.php';
-
 		$this->_tmp['prepared_server'] = Array();
 
 		if ($input_root->name != 'hipo_job') {
 			$output_root->name = 'error';
-			$output_root->contents = 'Input Root Node not named "hipo_job"';
+			$output_root->content = 'Input Root Node not named "hipo_job"';
 			return false;
 		}
 
 		if (empty($input_root->attributes['userid'])) {
 			$output_root->name     = 'error';
-			$output_root->contents = 'userid not supplied on Input Root Node';
+			$output_root->content = 'userid not supplied on Input Root Node';
 			return false;
 		}
 
 		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input_root->attributes['userid']);
 		if (is_null($user) || !$GLOBALS['SQ_SYSTEM']->setCurrentUser($user)) {
 			$output_root->name     = 'error';
-			$output_root->contents = 'Unable to find User #'.$userid.' to run as or unable to set them to the current user';
+			$output_root->content = 'Unable to find User #'.$userid.' to run as or unable to set them to the current user';
 			return false;
 		}
 
 		if (empty($input_root->attributes['source_code_name'])) {
 			$output_root->name     = 'error';
-			$output_root->contents = 'source_code_name not supplied on Input Root Node';
+			$output_root->content = 'source_code_name not supplied on Input Root Node';
 			return false;
 		}
-
 
 		$source_job = &$this->getJob($input_root->attributes['source_code_name']);
 		if (is_null($source_job)) {
-			trigger_error('Unable to find a source job with the codename "'.$input_root->attributes['source_code_name'].'"', E_USER_WARNING);
+			$output_root->name    = 'error';
+			$output_root->content = 'Unable to find a source job with the codename "'.$input_root->attributes['source_code_name'].'"';
 			return false;
 		}
+
+		if (!$source_job->setRunningMode('server', $taskid)) {
+			$output_root->name    = 'error';
+			$output_root->content = 'Unable to set the running mode to server for "'.$source_job->code_name.'"';
+			return false;
+		}
+
+		unset($source_job);
+		unset($this->_jobs[$input_root->attributes['source_code_name']]);
+		$source_job = &$this->getJob($input_root->attributes['source_code_name']);
+		pre_echo("AFTER SET : ".print_r($source_job->_hipo_vars, true));
 
 		$this->_tmp['prepared_server']['source_code_name'] = $source_job->code_name;
 
