@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.58 2004/12/23 14:37:14 brobertson Exp $
+* $Id: metadata_manager.inc,v 1.59 2005/01/17 17:58:47 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -788,7 +788,7 @@ class Metadata_Manager extends MySource_Object
 					echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($metadata_asset->id, SQ_LINK_NOTICE, \'thumbnail\', true, \'thumbnail\');'."\n";
 					echo 'if (!empty($link)) {'."\n";
 					echo '$thumbnail = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = $thumbnail->printImageTag($metadata_asset->name, true);'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = $thumbnail->printImageTag($metadata_asset->name, $metadata_asset->name, true);'."\n";
 					echo '} else {'."\n";
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = \'\';'."\n";
 					echo '}'."\n";
