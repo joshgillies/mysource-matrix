@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.3 2004/02/03 22:34:10 mmcintyre Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.4 2004/02/10 00:28:54 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -332,6 +332,11 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 			$params = $asset->attr('setup_params');
 			$default = $asset->attr('default');
+
+			// making sure we have at least something in the values var 
+			if (empty($values)) {
+				$values['value'] = $default;
+			}
 
 			// checking if the value must be parsed before processing
 			$percent_pos = strpos($values['value'], '%'); 
