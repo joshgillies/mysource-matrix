@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.239 2005/01/13 22:20:52 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.240 2005/01/26 09:34:44 brobertson Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.239 $
+* @version $Revision: 1.240 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -124,6 +124,7 @@ class Asset_Edit_Interface extends MySource_Object
 												'name'			=> $root->children[$i]->attributes['display_name'],
 												'force_unlock'	=> ($force_unlock != '0'),
 												'lock_type'		=> (isset($root->children[$i]->attributes['lock_type'])) ? $root->children[$i]->attributes['lock_type'] : '',
+												'invisible'		=> (!empty($root->children[$i]->attributes['invisible'])),
 											);
 
 
@@ -180,16 +181,25 @@ class Asset_Edit_Interface extends MySource_Object
 		 //  ACTIVE SCREEN  //
 		/////////////////////
 		$create_sections = Array();
-		if (empty($_REQUEST['asset_ei_screen'])) {
-			if ((SQ_IN_LIMBO || isset($_GET['sq_from_frontend'])) && !empty($this->_default_screen)) {
-				$active_screen = $this->_default_screen;
+		if (!$creating) {
+			if (empty($_REQUEST['asset_ei_screen'])) {
+				if ((SQ_IN_LIMBO || isset($_GET['sq_from_frontend'])) && !empty($this->_default_screen)) {
+					$active_screen = $this->_default_screen;
+				} else {
+					$active_screen = 'details';
+				}
+				$_REQUEST['asset_ei_screen'] = $active_screen;
 			} else {
-				$active_screen = 'details';
+				$active_screen = $_REQUEST['asset_ei_screen'];
 			}
-			$_REQUEST['asset_ei_screen'] = $active_screen;
+
 		} else {
-			$active_screen = $_REQUEST['asset_ei_screen'];
-		}
+			// if we are creating open the create file to see which fields we are supposed to print out
+			list($create_sections, $active_screen) = $this->_getCreateSections(true);
+			if (!count($create_sections)) return;
+
+		}//end if
+
 
 		if ($check_screen_restrictions && !isset($allowed_screens[$active_screen])) {
 			// this user is not allowed to view the current screen
@@ -665,15 +675,11 @@ class Asset_Edit_Interface extends MySource_Object
 				$url = $current_location.'asset_ei_screen='.rawurlencode($code_name);
 				$o->addStaticScreen($url, $data['name']);
 			}
-
 			for (reset($this->_screens); null !== ($code = key($this->_screens)); next($this->_screens)) {
 				if ($check_screen_restrictions && !isset($allowed_screens[$code])) continue;
+				if ($this->_screens[$code]['invisible'] && $code != $active_screen) continue;
 				$o->addScreen($current_location.'asset_ei_screen='.rawurlencode($code), $this->_screens[$code]['name']);
 			}
-		} else {
-			// if we are creating open the create file to see which fields we are supposed to print out
-			list($create_sections, $active_screen) = $this->_getCreateSections(true);
-			if (!count($create_sections)) return;
 		}
 
 
@@ -789,6 +795,7 @@ class Asset_Edit_Interface extends MySource_Object
 							} else if ($field->children[2]->name == 'function_call') {
 
 								$paint_node = &$field->children[2]->children[0];
+
 								// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
 								if ($field->name != 'field' || ($creating && !in_array($paint_node->attributes['name'], $create_sections[$section->attributes['name']]))) continue;
 

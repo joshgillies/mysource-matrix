@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.61 2004/12/06 14:38:12 brobertson Exp $
+* $Id: package_manager.inc,v 1.62 2005/01/26 09:34:44 brobertson Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -483,6 +483,7 @@ class Package_Manager extends MySource_Object
 			$ei = new Asset_Edit_Interface($type_code);
 			$screens = $ei->getScreens();
 			for (reset($screens); null !== ($code_name = key($screens)); next($screens)) {
+				if ($screens[$code_name]['invisible']) continue;
 				$type_node->addChild('screen', $screens[$code_name]['name'], Array('code_name' => $code_name));
 			}
 
