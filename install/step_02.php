@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.48 2004/07/07 05:55:39 gsherwood Exp $
+* $Id: step_02.php,v 1.49 2004/08/10 01:05:06 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -68,6 +68,8 @@ $cfg->save(Array(), false);
 
 $cached_table_columns = Array();
 
+$is_old_mysql = false;
+
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 // check if we have already created the database by looking for the
@@ -77,15 +79,32 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 	// If this is MySQL we need to make sure that the table type is innodb
 	if ($db->phptype == 'mysql') {
 
-		$sql = 'SET table_type=innodb';
+		$sql = 'SELECT VERSION()';
 
-		$result = $db->query($sql);
+		$result = $db->getOne($sql);
 		if (DB::isError($result)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 		}
+		
+		// SET table_type=innodb was only added in MySQL 4.0.3, flag older versions
+		// note we are searching for <= 4.0.2 because query above would return
+		// "4.0.3-beta" which would be < 4.0.3 by version_compare rules
+		if (version_compare($result, '4.0.2', '<=')) {
+			$is_old_mysql = true;
+			
+			pre_echo("MYSQL < 4.0.3 - SKIPPING SET TABLE TYPE");
+		} else {
+			$sql = 'SET table_type=innodb';
 
-		pre_echo("MYSQL TABLE TYPE SET");
+			$result = $db->query($sql);
+			if (DB::isError($result)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			}
+			
+			pre_echo("MYSQL TABLE TYPE SET");
+		}
 
 	}// end if
 
@@ -209,6 +228,11 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 		echo ')';
 		$table_sql = ob_get_contents();
 		ob_end_clean();
+		
+		// using old MySQL version that doesn't support SET table_type?
+		if ($is_old_mysql) {
+			$table_sql .= ' TYPE=innodb';	
+		}
 
 		$result = $db->query($table_sql);
 		if (DB::isError($result)) {
@@ -245,6 +269,11 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 			echo ')';
 			$table_sql = ob_get_contents();
 			ob_end_clean();
+			
+			// using old MySQL version that doesn't support SET table_type?
+			if ($is_old_mysql) {
+				$table_sql .= ' TYPE=innodb';	
+			}
 
 			$result = $db->query($table_sql);
 			if (DB::isError($result)) {
