@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_transport_plain_text.inc,v 1.1.2.4 2004/02/26 15:21:55 brobertson Exp $
+* $Id: replication_system_transport_plain_text.inc,v 1.1.2.5 2004/02/26 15:48:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -164,7 +164,8 @@ class Replication_System_Transport_Plain_Text extends Replication_System_Transpo
 		$end_header_line = str_repeat('-', 20);
 		do {
 			$line = $this->_readFromSocket(20, PHP_BINARY_READ);
-			if ($line === false) return false;
+			// something happened or the connection was closed, either way bail out
+			if ($line === false || $line === '') return false;
 			// end of the headers ? OK outa here
 			if ($line === $end_header_line) break;
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_transport.inc,v 1.1.2.11 2004/02/26 15:13:09 brobertson Exp $
+* $Id: replication_system_transport.inc,v 1.1.2.12 2004/02/26 15:48:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -243,8 +243,9 @@ class Replication_System_Transport extends MySource_Object
 	* @param int	$length		the number of bytes to attempt to read in
 	* @param int	$read_type	type of read as specified by socket_read(), currently PHP_BINARY_READ | PHP_NORMAL_READ
 	*
-	* @return false|string	the data read from the socket will be put returned
+	* @return false|string	the data read from the socket will be returned
 	*						FALSE will be returned if there is an error
+	*						NOTE: it is valid for a blank string to be returned which indicates that the connection has been closed
 	* @access private
 	*/
 	function _readFromSocket($length, $read_type)
