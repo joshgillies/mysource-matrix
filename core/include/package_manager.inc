@@ -60,6 +60,9 @@ class Package_Manager extends Resolve_Object
 	*/
 	function Package_Manager($package)
 	{
+		// ignore CVS directories
+		if ($package == 'CVS') return;
+
 		$this->Resolve_Object();
 
 		// OK, if this is the "core" package then we just need to fiddle with the path
