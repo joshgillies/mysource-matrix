@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: system_asset_config.inc,v 1.1 2003/10/17 05:52:16 brobertson Exp $
+* $Id: system_asset_config.inc,v 1.2 2003/10/20 07:24:47 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -71,6 +71,7 @@ class System_Asset_Config extends Config
 				$system_asset_types = Array(
 									'root_folder',
 									'trash_folder',
+									'system_management_folder',
 									'system_user_group',
 									'root_user',
 									'designs_folder',
