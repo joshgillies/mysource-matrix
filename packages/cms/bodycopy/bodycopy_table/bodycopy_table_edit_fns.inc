@@ -158,7 +158,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 		}
 
-		echo "\n<table{$attribute_list} background=\"$bgimage\">\n";
+		echo "\n<table{$attribute_list}>\n";
 
 		for($i = 0; $i < count($table_rows); $i++) {
 			$attribute_list = '';
