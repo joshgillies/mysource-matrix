@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.82 2005/03/07 20:34:31 brobertson Exp $
+* $Id: mysource.inc,v 1.83 2005/03/10 23:45:26 gsherwood Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix
 */
 class MySource
@@ -295,8 +295,9 @@ class MySource
 				$this->paintLogin('Login', 'You need to login before you can access the backend');
 			}
 
-		// we are on the frontend
 		} else {
+			// we are on the frontend
+
 			// check for ./?a=xx type urls or normal
 			if (isset($_REQUEST['a'])) $asset = &$this->am->getAsset($_REQUEST['a']);
 			else $asset = &$this->am->getAssetFromURL(current_protocol(), null, true, true);
@@ -381,9 +382,8 @@ class MySource
 			// we have found the design to use
 			if ($design_info) {
 				$design = &$this->am->getAsset($design_info['designid'], $design_info['type_code']);
-
-			// OK, use the system login form
 			} else {
+				// OK, use the system login form
 				$design = &$this->am->getSystemAsset('login_design');
 			}
 
@@ -1060,12 +1060,11 @@ class MySource
 					}
 					// make sure all results are assoc arrays
 					$this->_db_conns[$conn]->setFetchMode(DB_FETCHMODE_ASSOC);
-				}//endif
+				}
 
 				array_push($this->_db_stack, $conn);
 				$this->db = &$this->_db_conns[$conn];
-
-				break;
+			break;
 
 			case 'db2' :
 				// the second database connection is only valid if we are running from the command-line
@@ -1082,15 +1081,15 @@ class MySource
 					}//endif
 					array_push($this->_db_stack, $conn);
 					$this->db = &$this->_db_conns[$conn];
-
 				} else {
 					array_push($this->_db_stack, 'db');
+				}
+			break;
 
-				}//end if
-
-				break;
 			default :
 				trigger_error('Database Connection Type "'.$conn.'" unknown', E_USER_WARNING);
+			break;
+
 		}//end switch
 
 	}//end changeDatabaseConnection()
@@ -1147,13 +1146,13 @@ class MySource
 		switch (strtolower($type)) {
 			case 'begin'    :
 				$this->tm->begin($this->_db_stack[count($this->_db_stack) - 1]);
-				break;
+			break;
 			case 'commit'   :
 				$this->tm->commit($this->_db_stack[count($this->_db_stack) - 1]);
-				break;
+			break;
 			case 'rollback' :
 				$this->tm->rollback($this->_db_stack[count($this->_db_stack) - 1]);
-				break;
+			break;
 		}
 
 	}//end doTransaction()

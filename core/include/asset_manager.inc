@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.281 2005/03/10 02:30:12 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.282 2005/03/10 23:45:26 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.281 $
+* @version $Revision: 1.282 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1452,7 +1452,7 @@ class Asset_Manager extends MySource_Object
 	* @param int|NULL	$expires		when the lock expires (timestamp or NULL)
 	*									If expires is set to NULL, the lock will be acquired indefinitely (ie. it will never expire).
 	*
-	* @return int		zero on failure, non-zero on success 
+	* @return int		zero on failure, non-zero on success
 						(1 on success if all lock types requested had to be acquired,
 	*					 2 if any lock was updated [ie if at least one lock type was already held])
 	* @access public

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.374 2005/03/03 13:27:42 brobertson Exp $
+* $Id: asset.inc,v 1.375 2005/03/10 23:45:25 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.374 $
+* @version $Revision: 1.375 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -382,7 +382,7 @@ class Asset extends MySource_Object
 				foreach (array_values($parent_lock_info) as $lock_details) {
 					if (empty($lock_details)) continue;
 					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, $lock_details['lock_type'], $lock_details['source_assetid'])) {
-							return $this->_abortCreate();
+						return $this->_abortCreate();
 					}
 				}
 			}
@@ -492,30 +492,33 @@ class Asset extends MySource_Object
 
 		assert_not_null($result);
 
-		list($this->id,
-			 $type_code,
-			 $this->version,
-			 $this->name,
-			 $this->short_name,
-			 $this->status,
-			 $this->languages,
-			 $this->charset,
-			 $this->force_secure,
-			 $this->created,
-			 $this->created_userid,
-			 $this->updated,
-			 $this->updated_userid,
-			 $this->published,
-			 $this->published_userid,
-			 $this->status_changed,
-			 $this->status_changed_userid) = $result;
+		list(
+		$this->id,
+		$type_code,
+		$this->version,
+		$this->name,
+		$this->short_name,
+		$this->status,
+		$this->languages,
+		$this->charset,
+		$this->force_secure,
+		$this->created,
+		$this->created_userid,
+		$this->updated,
+		$this->updated_userid,
+		$this->published,
+		$this->published_userid,
+		$this->status_changed,
+		$this->status_changed_userid
+		) = $result;
+
 		$this->created   = iso8601_ts($this->created);
 		$this->updated   = iso8601_ts($this->updated);
 		if (!is_null($this->status_changed)) {
 			$this->status_changed = iso8601_ts($this->status_changed);
 		}
 		if (!is_null($this->published)) {
-		  $this->published = iso8601_ts($this->published);
+			$this->published = iso8601_ts($this->published);
 		}
 		unset($result);
 
@@ -1014,7 +1017,7 @@ class Asset extends MySource_Object
 															'old_updated_userid' => $this->updated_userid,
 															'new_updated_userid' => $updated_userid,
 															)
-								);
+			);
 
 			// increment the micro version number
 			if (!$this->incrementVersion('micro', $update_parents)) {
@@ -1103,12 +1106,19 @@ class Asset extends MySource_Object
 		if (!$this->id) return false;
 
 		switch ($number) {
-			case 'major' : $part_num = 0; break;
-			case 'minor' : $part_num = 1; break;
-			case 'micro' : $part_num = 2; break;
+			case 'major' :
+				$part_num = 0;
+			break;
+			case 'minor' :
+				$part_num = 1;
+			break;
+			case 'micro' :
+				$part_num = 2;
+			break;
 			default :
 				trigger_error('Failed incrementing version of "'.$this->name.'" [#'.$this->id.'], number part "'.$number.'" not known.', E_USER_WARNING);
 				return false;
+			break;
 		}
 
 		// work out the new version number based on the part of the
@@ -1159,7 +1169,7 @@ class Asset extends MySource_Object
 															   'old_version' => $this->version,
 															   'new_version' => $new_version,
 															   )
-							);
+		);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
@@ -1210,7 +1220,7 @@ class Asset extends MySource_Object
 																'old_languages' => $old_languages,
 																'new_languages' => $this->languages,
 																)
-							);
+		);
 		return true;
 
 	}//end setLanguages()
@@ -1240,7 +1250,7 @@ class Asset extends MySource_Object
 															   'old_charset' => $old_charset,
 															   'new_charset' => $this->charset,
 															   )
-							);
+		);
 		return true;
 
 	}//end setCharset()
@@ -1276,7 +1286,7 @@ class Asset extends MySource_Object
 																   'old_force_secure' => $old_force_secure,
 																   'old_force_secure' => $this->force_secure,
 																   )
-							);
+		);
 		return true;
 
 	}//end setForceSecure()
@@ -1469,12 +1479,12 @@ class Asset extends MySource_Object
 																'old_type' => $old_type_code,
 																'new_type' => $new_type_code,
 																)
-								);
+			);
 
 			return true;
 
-		// bugger something went wrong
 		} else {
+			// bugger something went wrong
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 
@@ -1789,7 +1799,7 @@ class Asset extends MySource_Object
 																  'old_status' => $this->status,
 																  'new_status' => $new_status,
 																  )
-								);
+			);
 
 			// send message notifying of status change
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -2386,12 +2396,12 @@ class Asset extends MySource_Object
 									'custom_val'    => $attr_value,
 									'assetid'       => $this->id,
 									);
-						if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_attr_uniq_val', $values)) {
-							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-							$attribute->setValue($this->_tmp['vars_set'][$save_vars[$attr_id]['name']]['old_value']);
-							$ms->abortLog();
-							return false;
-						}
+					if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_attr_uniq_val', $values)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$attribute->setValue($this->_tmp['vars_set'][$save_vars[$attr_id]['name']]['old_value']);
+						$ms->abortLog();
+						return false;
+					}
 
 				}// end if
 
@@ -3154,11 +3164,12 @@ class Asset extends MySource_Object
 				} else {
 					return false;
 				}
+			break;
 
 			default :
 				return $ei->process($this, $o, false);
-
-		}// end switch
+			break;
+		}
 
 	}//end processBackend()
 
@@ -3880,7 +3891,7 @@ class Asset extends MySource_Object
 								   'component' => $component,
 								   'score'     => $score,
 								   )
-					);
+		);
 
 		return true;
 
