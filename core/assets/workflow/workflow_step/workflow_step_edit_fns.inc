@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_edit_fns.inc,v 1.22 2005/02/22 05:54:11 tbarrett Exp $
+* $Id: workflow_step_edit_fns.inc,v 1.23 2005/02/24 05:24:08 dbaranovskiy Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -127,7 +127,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		$o->openField('Expiry Time');
 		$comparator_attr =& $asset->getAttribute('expiry_time');
 		$comparator_attr->paint($prefix.'_expiry_time', !$write_access);
-		echo '<p>If this step is not completed within this time a reminder e-mail will be sent to the asset administrators. Leave at &#147;0&#148; to disable this feature.</p>';
+		echo '<p>If this step is not completed within this time a reminder message will be sent to the asset administrators. Leave at &#147;0&#148; to disable this feature.</p>';
 		$o->closeField();
 
 
