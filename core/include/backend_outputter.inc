@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.94 2004/12/16 07:00:27 tbarrett Exp $
+* $Id: backend_outputter.inc,v 1.95 2005/01/31 23:22:27 arailean Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',       4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.94 $
+* @version $Revision: 1.95 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1281,6 +1281,10 @@ class Backend_Outputter
 
 			}//end for
 
+			if (isset($section['note'])) {
+				$this->_nbSectionNote($section['note']);
+			}
+
 			?>
 					</table>
 				</td>
@@ -1356,22 +1360,34 @@ class Backend_Outputter
 
 	/**
 	* Outputs a section note in the proper css format
+	* NOTE: a section can only have ONE note
 	*
 	* @return void
 	* @access public
 	*/
 	function sectionNote($str='')
 	{
+		if ($this->_buffering) {
+			$stack_i = count($this->_section_stack) - 1;
+			$this->_section_stack[$stack_i]['note'] = $str;
+
+		} else {
+			// we are not buffering
+			$this->_nbSectionNote($str);
+		}
+
+	}//end sectionNote()
+
+	function _nbSectionNote($str) {
 		?>
 					<br />
 				</td>
 			</tr>
 			<tr>
 				<td colspan="3">
-					<div class="sq-backend-section-note"><strong>Section Note: </strong><?php echo $str ?></div>
+					<div class="sq-backend-section-note"><strong>Note: </strong><?php echo $str ?></div>
 		<?php
-
-	}//end sectionNote()
+	}
 
 
 	/**
@@ -1397,9 +1413,9 @@ class Backend_Outputter
 				hidden_field('sq_lock_release', 0);
 				hidden_field('sq_lock_release_on_submit', $release_lock);
 				$this->addOnSubmit('set_hidden_field(\'sq_lock_release\',  get_form_element_value(\'sq_lock_release_on_submit\'));');
-				
+
 				normal_button('sq_commit_button', $value, 'if (submit_form) { submit_form(this.form); } else { this.form.submit(); this.disabled = \'disabled\'; } ', 'accesskey="s"');
-				
+
 			$this->closeField();
 		$this->closeSection();
 
