@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.14 2005/02/16 01:19:32 lwright Exp $
+* $Id: listing_engine.inc,v 1.15 2005/02/17 04:40:01 lwright Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -934,84 +934,77 @@ class Listing_Engine extends Page
 		}//end if has position format
 
 
-		if ($contents == '') {
+		// our format will be based on type code
+	
+		if (in_array($type_code, $customised)) {
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', true, $type_code);
 
-			// our format will be based on type code
-		
-			if (!isset($this->_tmp['formats'][$type_code])) {
-				if (in_array($type_code, $customised)) {
-					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', true, $type_code);
-
-					if (!$link) {
-						// use the default format
-						$this->_tmp['is_default'][] = $type_code;
-					} else {
-						$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
-						if (!is_null($bodycopy)) {
-							// get the format for this type
-							$this->_tmp['formats'][$type_code] = $bodycopy->getRawBodycopyContent();
-							// see whether the keywords in it require asset loading or not
-							$bc_keywords = retrieve_keywords_replacements($this->_tmp['formats'][$type_code]);
-							$this->_tmp['needs_asset'][$type_code] = false;
-							foreach ($bc_keywords as $keyword) {
-								if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields)))) {
-									$this->_tmp['needs_asset'][$type_code] = true;
-									break;
-								}
-							}
-							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
-						}
-					}
-				} else {
-					$this->_tmp['is_default'][] = $type_code;
-				}
-			}//end if type_code format not loaded
-			
-			if (in_array($type_code, $this->_tmp['is_default'])) {
-				if (!$this->_tmp['default_format']) {
-					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', true, 'default_format');
-					$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
-					if (!is_null($bodycopy)) {
-						// get the bodycopy content
-						$this->_tmp['default_format'] = $bodycopy->getRawBodycopyContent();
-						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
-						// see whether the keywords in it require asset loading or not
-						$bc_keywords = retrieve_keywords_replacements($this->_tmp['default_format']);
-						$this->_tmp['needs_asset']['default'] = false;
-						foreach ($bc_keywords as $keyword) {
-							if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields)))) {
-								$this->_tmp['needs_asset']['default'] = true;
-								break;
-							}
-						}
-					}
-				}
-				$contents = $this->_tmp['default_format'];
-				$this_needs_asset = $this->_tmp['needs_asset']['default'];
+			if (!$link) {
+				// use the default format
+				$this->_tmp['is_default'][] = $type_code;
 			} else {
-				$contents = $this->_tmp['formats'][$type_code];
-				$this_needs_asset = $this->_tmp['needs_asset'][$type_code];
-			}//end if using default format
-
-		}//end if ($contents == '')
+				$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
+				if (!is_null($bodycopy)) {
+					// get the format for this type
+					$this->_tmp['formats'][$type_code] = $bodycopy->getRawBodycopyContent();
+					// see whether the keywords in it require asset loading or not
+					$bc_keywords = retrieve_keywords_replacements($this->_tmp['formats'][$type_code]);
+					$this->_tmp['needs_asset'][$type_code] = false;
+					foreach ($bc_keywords as $keyword) {
+						if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields)))) {
+							$this->_tmp['needs_asset'][$type_code] = true;
+							break;
+						}
+					}
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
+				}
+			}
+		} else {
+			$this->_tmp['is_default'][] = $type_code;
+		}
+		
+		if (in_array($type_code, $this->_tmp['is_default'])) {
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', true, 'default_format');
+			$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
+			if (!is_null($bodycopy)) {
+				// get the bodycopy content
+				$this->_tmp['default_format'] = $bodycopy->getRawBodycopyContent();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
+				// see whether the keywords in it require asset loading or not
+				$bc_keywords = retrieve_keywords_replacements($this->_tmp['default_format']);
+				$this->_tmp['needs_asset']['default'] = false;
+				foreach ($bc_keywords as $keyword) {
+					if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields)))) {
+						$this->_tmp['needs_asset']['default'] = true;
+						break;
+					}
+				}
+			}
+			$this_needs_asset = $this->_tmp['needs_asset']['default'];
+		} else {
+			$this_needs_asset = $this->_tmp['needs_asset'][$type_code];
+		}//end if using default format
 
 		if ($this_needs_asset) {
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (is_null($asset)) return;
-			$keywords = $asset->getAssetKeywords();
+			$asset_keywords = $asset->getAssetKeywords();
+			foreach($asset_keywords as $keyword_name => $keyword) {
+				$keywords[$keyword_name] = $keyword['value'];
+			}
 
 			if (preg_match('|%asset_contents%|is', $contents)) {
 				ob_start();
 					$asset->printBody();
-					$keywords['asset_contents']['value'] = ob_get_contents();
+					$keywords['asset_contents'] = ob_get_contents();
 				ob_end_clean();
 			}
 			
 			// stuff carried over results body replacements
 			
-			$keywords['asset_name_linked']['value'] = '<a href="'.$asset->getUrl().'">'.$asset->name.'</a>';
+			$keywords['asset_name_linked'] = '<a href="'.$asset->getUrl().'">'.$asset->name.'</a>';
 	
-			$keywords['asset_short_name_linked']['value'] = '<a href="'.$asset->getUrl().'">'.$asset->short_name.'</a>';
+			$keywords['asset_short_name_linked'] = '<a href="'.$asset->getUrl().'">'.$asset->short_name.'</a>';
 		
 			$lineage = '';
 			$linked_lineage = '';
@@ -1036,8 +1029,8 @@ class Listing_Engine extends Page
 				$lineage .= $ancestor_asset->name;
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($ancestor_asset);
 			}
-			$keywords['asset_lineage']['value'] = $lineage;
-			$keywords['asset_lineage_linked']['value'] = $linked_lineage;
+			$keywords['asset_lineage'] = $lineage;
+			$keywords['asset_lineage_linked'] = $linked_lineage;
 			// end results body stuff
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
@@ -1045,7 +1038,7 @@ class Listing_Engine extends Page
 		} else {
 			$keywords = Array();
 			foreach ($this->_tmp['assets_info'][$assetid] as $field => $value) {
-				$keywords['asset_'.$field]['value'] = $value;
+				$keywords['asset_'.$field] = $value;
 			}
 		}//end if needs asset
 		if (preg_match_all('|%asset_metadata_([^%]+)%|is', $contents, $matches)) {
@@ -1054,19 +1047,17 @@ class Listing_Engine extends Page
 			$metadata_keywords = $mm->getMetadataFieldValues($assetid, $matches[1]);
 
 			foreach ($metadata_keywords as $field => $value) {
-				$keywords['asset_metadata_'.$field]['value'] = $value;
+				$keywords['asset_metadata_'.$field] = $value;
 			}
 		}
 
-		$keywords['page_href']['value'] = $this->getHref();
-		$keywords['result_number']['value'] = $keywords['asset_position']['value'] = (array_get_index($_REQUEST, 'result_page', 1) - 1) * $this->attr('num_per_page') + $list_position;
+		$keywords['page_href'] = $this->getHref();
+		$keywords['asset_position'] = (array_get_index($_REQUEST, 'result_page', 1) - 1) * $this->attr('num_per_page') + $list_position;
 
-		foreach ($keywords as $keyword => $info) {
-			$contents = preg_replace('|%((<([^>]+?)>)+)?'.$keyword.'((<([^>]+?)>)+)?%|is', '\\1%'.$keyword.'%\\4', $contents);
-			$contents = str_replace("%{$keyword}%", $info['value'], $contents);
-		}
-
-		echo $contents;
+		$keywords = array_merge($keywords, $this->_getAdditionalKeywords());
+		
+		$bodycopy->setKeywordReplacements($keywords);
+		$bodycopy->printBody();
 
 	}//end _printAsset()
 
@@ -1148,13 +1139,7 @@ class Listing_Engine extends Page
 	*/
 	function getContentsKeywords()
 	{
-		$keywords = Array(
-							'asset_listing' => 'Asset Listing',
-							'previous_page' => 'Previous Page Link',
-							'next_page'     => 'Next Page Link',
-							'page_list'     => 'Page List',
-
-						);
+		$keywords = Array();
 
 		return $keywords;
 
@@ -1175,6 +1160,14 @@ class Listing_Engine extends Page
 						'published_userid');
 		
 	}
+	
+	
+	function _getAdditionalKeywords()
+	{
+		return Array();
+		
+	}//end _getAdditionalKeywords()
+	
 	
 }//end class
 ?>

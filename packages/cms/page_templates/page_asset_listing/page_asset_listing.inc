@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.60 2005/02/14 23:50:25 lwright Exp $
+* $Id: page_asset_listing.inc,v 1.61 2005/02/17 04:40:01 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -183,6 +183,9 @@ class Page_Asset_Listing extends Listing_Engine
 			$replacements['asset_listing'] = $global_contents;
 			$replacements['asset_count'] = $num_kids;
 			$replacements['page_asset_count'] = $num_assets_showing;
+			$replacements['page_number'] = $result_page;
+			$replacements['first_asset_position'] = $num_per_page * ($result_page - 1) + 1;
+			$replacements['last_asset_position'] = min($num_kids, $num_per_page * $result_page);
 			
 			$other_replacements = $this->getKeywordReplacements();
 			$replacements = array_merge($replacements, $other_replacements);
@@ -255,16 +258,17 @@ class Page_Asset_Listing extends Listing_Engine
 			if (in_array($dynamic_root, $root_asset_ids)) {
 				unset($root_asset_ids);
 				$root_asset_ids[] = $dynamic_root;
-			}
-			
-			// otherwise, check to see if the dynamic parameter specified is a child of one of the root
-			// nodes. If so, use the dynamic parameter as the root node; otherwise return an error.
-			$matching_root_ids = array_intersect(array_keys($dynamic_parents), $root_asset_ids);
-			if (empty($matching_root_ids)) {
-				trigger_error('Supplied root node is in an unauthorised part of the system.  Defaulting to static root node', E_USER_WARNING);
 			} else {
-				unset($root_asset_ids);
-				$root_asset_ids[] = $dynamic_root;
+				// otherwise, check to see if the dynamic parameter specified is a child of one of the root
+				// nodes. If so, use the dynamic parameter as the root node; otherwise return an error.
+				$matching_root_ids = array_intersect(array_keys($dynamic_parents), $root_asset_ids);
+				if (empty($matching_root_ids)) {
+					trigger_error('Supplied root node is in an unauthorised part of the system.  Defaulting to static root node', E_USER_WARNING);
+					$this->_tmp['dynamic_root_unauth'] = true;
+				} else {
+					unset($root_asset_ids);
+					$root_asset_ids[] = $dynamic_root;
+				}
 			}
 		}
 		
@@ -375,6 +379,36 @@ class Page_Asset_Listing extends Listing_Engine
 
 
 	/**
+	* Print a single asset from the list
+	*
+	* @param string	$assetid		the ID of the asset we are printing
+	* @param string	$type_code		the type code of the asset we are printing
+	* @param int	$list_position	the position of this asset in the list
+	*
+	* @return void
+	* @access private
+	* @see printAssetList()
+	*/
+	function _getAdditionalKeywords()
+	{
+		$keywords = Array();
+		
+		if (!isset($this->_tmp['dynamic_root_unauth'])) {
+			$parameter_map = &$this->getAttribute('parameter_map');
+			$dynamic_root = $parameter_map->getParameterValue('root_node');
+			error_log('Dynamic Root '.var_export($dynamic_root,true));
+			
+			if (!is_null($dynamic_root)) {
+				$keywords['dynamic_root_node'] = $dynamic_root;
+			}
+		}
+		
+		return $keywords;
+		
+	}//end _getAdditionalKeywords()
+	
+	
+	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
 	* @param &object Asset	$asset	the asset that triggered the event
@@ -408,6 +442,41 @@ class Page_Asset_Listing extends Listing_Engine
 	} //end onRequestKeywords()
 
 
+/**
+	* Return the available keywords in the Page Contents Bodycopy for this asset
+	*
+	* The return value is in the form:
+	* <pre>
+	* Array(
+	*     'keyword' => 'name',
+	* )
+	* </pre>
+	*
+	* @access public
+	* @return array(string => string)
+	*/
+	function getContentsKeywords()
+	{
+		$keywords = parent::getContentsKeywords();
+		
+		$keywords += Array(
+							'asset_listing' => 'Asset Listing',
+							'previous_page' => 'Previous Page Link',
+							'next_page'     => 'Next Page Link',
+							'page_list'     => 'Page List',
+							'page_number' => 'Page Number',
+							'asset_count' => 'Total Assets Listed',
+							'page_asset_count' => 'Assets Listed This Page',
+							'first_asset_position' => 'First Asset on Page\'s Position Number',
+							'last_asset_position' => 'Last Asset on Page\'s Position Number',
+
+						);
+
+		return $keywords;
+
+	}//end getContentsKeywords()
+	
+	
 }//end class
 
 ?>
