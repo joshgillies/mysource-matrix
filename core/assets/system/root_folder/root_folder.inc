@@ -96,8 +96,8 @@ class Root_Folder extends Folder
 			}
 
 			$sql = 'INSERT INTO sq_asset_link_tree 
-					(treeid, linkid) 
-					VALUES ('.$db->quote('').', 1);';
+					(treeid, linkid, num_immediate_kids) 
+					VALUES ('.$db->quote('').', 1, 0);';
 			$result = $db->query($sql);
 			if (DB::isError($result))  {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');

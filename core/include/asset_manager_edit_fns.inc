@@ -139,7 +139,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 							// this asset is currently locked
 							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
 							if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
-								if (isset($_POST['sq_release_lock']) && $_POST['sq_release_lock'] == 1) {
+								if (false && isset($_POST['sq_release_lock']) && (int) $_POST['sq_release_lock'] == 1) {
 									// committing changes and releasing the lock
 									if (!$asset->releaseLock()) {
 										trigger_error('Failed to release lock on "'.$asset->name.'"', E_USER_WARNING);

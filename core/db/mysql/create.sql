@@ -40,10 +40,16 @@ CREATE TABLE sq_asset_link (
 
 DROP TABLE IF EXISTS sq_asset_link_tree;
 CREATE TABLE sq_asset_link_tree (
-  treeid        VARCHAR(255) NOT NULL DEFAULT '',
-  linkid        INT  NOT NULL,
+  treeid              VARCHAR(255) NOT NULL DEFAULT '',
+  linkid              INT UNSIGNED NOT NULL,
+  num_immediate_kids  INT UNSIGNED NOT NULL,
   PRIMARY KEY(treeid)
 );
+DROP INDEX sq_asset_link_tree_linkid;
+CREATE INDEX sq_asset_link_tree_linkid ON sq_asset_link_tree (linkid);
+DROP INDEX sq_asset_link_tree_num_immediate_kids;
+CREATE INDEX sq_asset_link_tree_num_immediate_kids ON sq_asset_link_tree (num_immediate_kids);
+
 
 
 DROP TABLE IF EXISTS sq_asset_type;
@@ -129,12 +135,23 @@ CREATE TABLE sq_asset_lookup (
 
 DROP TABLE IF EXISTS sq_asset_permission;
 CREATE TABLE sq_asset_permission (
-  assetid    INT      UNSIGNED NOT NULL,
-  userid     INT      UNSIGNED NOT NULL DEFAULT 0,
-  permission SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-  revoked    SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-  extras     LONGTEXT,
-  PRIMARY KEY(assetid, userid, permission, revoked)
+  permissionid INT UNSIGNED NOT NULL,
+  assetid      INT UNSIGNED NOT NULL,
+  userid       INT UNSIGNED NOT NULL DEFAULT 0,
+  permission   SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  access       CHAR(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY(permissionid),
+  UNIQUE (assetid, userid, permission)
+);
+
+
+DROP TABLE IF EXISTS sq_asset_permission_lookup;
+CREATE TABLE sq_asset_permission_lookup (
+  permissionid  INT UNSIGNED NOT NULL,
+  start_treeid  VARCHAR(255) NOT NULL,
+  stop_treeid   VARCHAR(255) NOT NULL,
+  inc_stop      CHAR(1) NOT NULL DEFAULT '0',  -- include the stop_treeid as part of this permission
+  PRIMARY KEY(permissionid, start_treeid, stop_treeid)
 );
 
 

@@ -348,6 +348,7 @@ class Asset_Manager extends Resolve_Object
 		}// end if
 
 		$sql .= ' ORDER BY a.assetid';
+pre_echo($sql);
 
 		$result = $db->getAll($sql);
 		if (DB::isError($result)) {

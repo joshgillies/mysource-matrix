@@ -77,7 +77,7 @@ class User extends Asset
 			return false;
 		}
 
-		if (!$this->grantPermission($this->id, SQ_PERMISSION_ADMIN)) {
+		if (!$this->setPermission($this->id, SQ_PERMISSION_ADMIN)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$this->id = 0;
 			return false;

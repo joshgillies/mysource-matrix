@@ -17,4 +17,5 @@ TRUNCATE sq_package;
 DROP SEQUENCE sq_sequence_asset_attribute_seq;
 DROP SEQUENCE sq_sequence_asset_seq;
 DROP SEQUENCE sq_sequence_asset_link_seq;
+DROP SEQUENCE sq_sequence_asset_permission_seq;
 DROP SEQUENCE sq_sequence_internal_message_seq;

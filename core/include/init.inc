@@ -95,10 +95,10 @@ define('SQ_LINK_SIGNIFICANT',   7); // short hand for TYPE_1 | TYPE_2 | TYPE_3
 /*
 * PERMISSION TYPES - different access levels to control access to an asset
 */
+define('SQ_PERMISSION_WORKFLOW', 0); // workflow
 define('SQ_PERMISSION_READ',     1); // read access
 define('SQ_PERMISSION_WRITE',    2); // write access
 define('SQ_PERMISSION_ADMIN',    3); // admin access
-define('SQ_PERMISSION_WORKFLOW', 4); // workflow
 
 
 /*

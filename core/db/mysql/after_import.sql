@@ -20,6 +20,10 @@ DROP TABLE IF EXISTS sq_sequence_asset_url_seq;
 CREATE TABLE sq_sequence_asset_url_seq (id INTEGER UNSIGNED AUTO_INCREMENT NOT NULL, PRIMARY KEY(id));
 INSERT INTO sq_sequence_asset_url_seq (id) SELECT MAX(urlid) FROM sq_asset_url;
 
+DROP TABLE IF EXISTS sq_sequence_asset_permission_seq;
+CREATE TABLE sq_sequence_asset_permission_seq (id INTEGER UNSIGNED AUTO_INCREMENT NOT NULL, PRIMARY KEY(id));
+INSERT INTO sq_sequence_asset_permission_seq (id) SELECT MAX(permissionid) FROM sq_asset_permission;
+
 DROP TABLE IF EXISTS sq_sequence_internal_message_seq;
 CREATE TABLE sq_sequence_internal_message_seq (id INTEGER UNSIGNED AUTO_INCREMENT NOT NULL, PRIMARY KEY(id));
 INSERT INTO sq_sequence_internal_message_seq (id) SELECT MAX(messageid) FROM sq_internal_message;

@@ -8,7 +8,6 @@ CREATE TABLE sq_package (
 );
 
 
-
 DROP TABLE sq_asset;
 CREATE TABLE sq_asset (
   assetid        INT          NOT NULL,
@@ -19,6 +18,7 @@ CREATE TABLE sq_asset (
   last_updated   TIMESTAMP    NOT NULL,
   last_userid    INT          NOT NULL,
   PRIMARY KEY (assetid)
+
 );
 
 
@@ -40,12 +40,15 @@ CREATE TABLE sq_asset_link (
 
 DROP TABLE sq_asset_link_tree;
 CREATE TABLE sq_asset_link_tree (
-  treeid        TEXT NOT NULL DEFAULT '',
-  linkid        INT  NOT NULL,
+  treeid              TEXT NOT NULL DEFAULT '',
+  linkid              INT  NOT NULL,
+  num_immediate_kids  INT  NOT NULL,
   PRIMARY KEY(treeid)
 );
 DROP INDEX sq_asset_link_tree_linkid;
 CREATE INDEX sq_asset_link_tree_linkid ON sq_asset_link_tree (linkid);
+DROP INDEX sq_asset_link_tree_num_immediate_kids;
+CREATE INDEX sq_asset_link_tree_num_immediate_kids ON sq_asset_link_tree (num_immediate_kids);
 
 
 
@@ -130,12 +133,23 @@ CREATE TABLE sq_asset_lookup (
 
 DROP TABLE sq_asset_permission;
 CREATE TABLE sq_asset_permission (
-  assetid    INT NOT NULL,
-  userid     INT NOT NULL DEFAULT 0,
-  permission INT NOT NULL DEFAULT 0,
-  revoked    INT NOT NULL DEFAULT 0,
-  extras     TEXT,
-  PRIMARY KEY(assetid, userid, permission, revoked)
+  permissionid INT NOT NULL,
+  assetid      INT NOT NULL,
+  userid       INT NOT NULL DEFAULT 0,
+  permission   INT NOT NULL DEFAULT 0,
+  access       CHAR(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY(permissionid),
+  UNIQUE (assetid, userid, permission)
+);
+
+
+DROP TABLE sq_asset_permission_lookup;
+CREATE TABLE sq_asset_permission_lookup (
+  permissionid  INT NOT NULL,
+  start_treeid  TEXT NOT NULL,
+  stop_treeid   TEXT NOT NULL,
+  inc_stop      CHAR(1) NOT NULL DEFAULT '0',  -- include the stop_treeid as part of this permission
+  PRIMARY KEY(permissionid, start_treeid, stop_treeid)
 );
 
 

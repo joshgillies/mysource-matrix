@@ -78,13 +78,15 @@ class Backend_Outputter
 
 	var $_files_path;
 
-	var $_raw_opened      = false;
-	var $_section_opened  = false;
-	var $_section_count = 0;
-	var $_field_opened  = false;
-	var $_field_count = 0;
+	var $_raw_opened = false;
 
-	
+	var $_section_stack = Array();
+	var $_current_field = null;
+
+	var $_section_count = 0;
+	var $_field_count   = 0;
+
+
 	/**
 	* Constructor
 	*
@@ -331,15 +333,15 @@ class Backend_Outputter
 	*/
 	function openRaw()
 	{
-		if ($this->_section_opened) $this->closeSection();
-		if ($this->_raw_opened) $this->closeRaw();
+		$init_arr = Array(
+						'type'		=> 'raw',
+						'contents'	=> ''
+					);
 
-		$this->_section_count = count($this->_contents);
-
-		$this->_contents[$this->_section_count] = Array('type'    => 'raw',
-														'contents' => '');
+		$ret_val = $this->_openSection($init_arr);
 		ob_start();
 		$this->_raw_opened = true;
+		return $ret_val;
 
 	}//end openRaw()
 
@@ -352,34 +354,33 @@ class Backend_Outputter
 	function closeRaw()
 	{
 		if (!$this->_raw_opened) return;
-		$this->_contents[$this->_section_count]['contents'] = ob_get_contents();
+		$stack_i = count($this->_section_stack) - 1;
+		$this->_section_stack[$stack_i]['contents'] = ob_get_contents();
 		ob_end_clean();
 		$this->_raw_opened = false;
+		$this->_closeSection();
 	}//end closeRaw()
 
 
 	/**
 	* Opens a section
 	*
-	* @param string $heading
-	* @param string $icon
-	* @param string $bg_colour
+	* @param string		$heading
+	* @param string		$icon
 	*
 	* @access public
 	*/
 	function openSection($heading='', $icon='')
 	{
-		if ($this->_raw_opened) $this->closeRaw();
-		if ($this->_section_opened) $this->closeSection();
-		$this->_section_count = count($this->_contents);
-
-		$this->_contents[$this->_section_count] = Array('type'    => 'normal',
-														'heading' => $heading,
-														'icon'    => $icon,
-														'fields'  => Array());
-		$this->_section_opened = true;
-		return 'section_'.$this->_section_count;
-	}
+		$init_arr = Array(
+						'area_type'	=> 'section',
+						'type'		=> 'normal',
+						'heading'	=> $heading,
+						'icon'		=> $icon,
+						'areas'		=> Array(),
+					);
+		return $this->_openSection($init_arr);
+	}// end openSection()
 
 
 	/**
@@ -389,35 +390,88 @@ class Backend_Outputter
 	*/
 	function closeSection()
 	{
-		if ($this->_field_opened) $this->closeField();
-		$this->_section_opened = false;
+		if (!is_null($this->_current_field)) $this->closeField();
+		$this->_closeSection();
+	}
+
+
+	/**
+	* Opens a section, with the passed initialise array
+	*
+	* @param Array		$init_arr
+	*
+	* @access private
+	*/
+	function _openSection($init_arr)
+	{
+		if (!is_null($this->_current_field)) $this->closeField();
+		if ($this->_raw_opened) $this->closeRaw();
+
+		$this->_section_count++;
+		$init_arr['section_count'] = $this->_section_count;
+
+		// Nothing in the stack ? we are in the top level
+		if (empty($this->_section_stack)) {
+			$j = count($this->_contents);
+			$this->_contents[$j] = $init_arr;
+			$this->_section_stack[] = &$this->_contents[$j];
+		} else {
+			$i = count($this->_section_stack) - 1;
+			$j = count($this->_section_stack[$i]['areas']);
+			$this->_section_stack[$i]['areas'][$j] = $init_arr;
+			$this->_section_stack[] = &$this->_section_stack[$i]['areas'][$j];
+		}
+
+		return 'section_'.$this->_section_count;
+
+	}// end _openSection()
+
+
+	/**
+	* Closes a section
+	*
+	* @access private
+	*/
+	function _closeSection()
+	{
+		array_pop($this->_section_stack);
 	}
 
 
 	/**
 	* Opens a field inside a section
 	*
-	* @param string $heading
-	* @param string $icon
+	* @param string $name
+	* @param string $format
+	* @param string $note
 	*
 	* @access public
 	*/
 	function openField($name, $format='', $note='')
 	{
-		if ($this->_field_opened)    $this->closeField();
-		if (!$this->_section_opened) $this->openSection();
+		if (!is_null($this->_current_field)) $this->closeField();
+		if (empty($this->_section_stack)) $this->openSection();
 		if (!trim($name)) $name = '&nbsp;';
-		$this->_field_count = count($this->_contents[$this->_section_count]['fields']);
 
+		$this->_field_count++;
 
-		$this->_contents[$this->_section_count]['fields'][$this->_field_count] = Array('name' => $name,
-																						'format' => $format,
-																						'note' => $note,
-																						'contents' => '');
+		$stack_i = count($this->_section_stack) - 1;
+		$i = count($this->_section_stack[$stack_i]['areas']);
+		$this->_section_stack[$stack_i]['areas'][$i] = Array(
+															'area_type'		=> 'field',
+															'field_count'	=> $this->_field_count,
+															'name'			=> $name,
+															'format'		=> $format,
+															'note'			=> $note,
+															'contents'		=> '',
+														);
 
+		$this->_current_field = &$this->_section_stack[$stack_i]['areas'][$i];
 		ob_start();
-		$this->_field_opened = true;
-	}
+
+		return 'field_'.$this->_field_count;
+
+	}// end openField()
 
 
 	/**
@@ -427,11 +481,14 @@ class Backend_Outputter
 	*/
 	function closeField()
 	{
-		if (!$this->_field_opened) return;
-		$this->_contents[$this->_section_count]['fields'][$this->_field_count]['contents'] = ob_get_contents();
+		if (is_null($this->_current_field)) return;
+		$this->_current_field['contents'] = ob_get_contents();
 		ob_end_clean();
-		$this->_field_opened = false;
-	}
+		// unset the reference before setting to null, so we don't blow away the field's array
+		unset($this->_current_field);
+		$this->_current_field = null;
+
+	}//end closeField()
 
 
 	/**
@@ -457,7 +514,8 @@ class Backend_Outputter
 	function paint()
 	{
 		if ($this->_raw_opened)     $this->closeRaw();
-		if ($this->_section_opened) $this->closeSection();
+		// close all sections
+		while(!empty($this->_section_stack)) $this->closeSection();
 
 		if ($this->_redirect) {
 			// save the messages so the come through on the next page
@@ -468,7 +526,9 @@ class Backend_Outputter
 		$this->_paintHeader();
 
 		if (!$this->_redirect) {
-			$this->_paintContents();
+			for($i = 0; $i < count($this->_contents); $i++) {
+				$this->_paintSection($this->_contents[$i]);
+			}
 		}// end if
 
 		$this->_paintFooter();
@@ -483,9 +543,6 @@ class Backend_Outputter
 	*/
 	function getAsString()
 	{
-		if ($this->_raw_opened)     $this->closeRaw();
-		if ($this->_section_opened) $this->closeSection();
-
 		ob_start();
 		$this->paint();
 		$str = ob_get_contents();
@@ -616,8 +673,8 @@ class Backend_Outputter
 						if (empty($this->_screens) && empty($this->_static_screens)) {
 							echo '&nbsp;';
 						} else {
-							
-				
+
+
 							if (!empty($this->_screens)) {
 								$this->_screens = array_reverse($this->_screens);
 								$this->_screens['#'] = '------';
@@ -646,115 +703,136 @@ class Backend_Outputter
 
 
 	/**
-	* Paint the contents of the page
+	* Paint the passed section onto the page
 	*
 	* @access private
 	*/
-	function _paintContents()
+	function _paintSection($section, $depth=0)
 	{
+		if ($section['type'] == 'raw') {
+			echo $section['contents'];
+		} else {
 
-		for($i = 0; $i < count($this->_contents); $i++) {
+		?>
+			<a name="section_<?php echo $section['section_count']; ?>"></a>
+			<!-- <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%" background="<?php echo $this->filesPath('images/section_dots.gif');?>"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="1" /></td></tr></table> -->
+			<table width="100%" cellpadding="3" cellspacing="0" border="0">
+		<?php
 
-			if ($this->_contents[$i]['type'] == 'raw') {
-				echo $this->_contents[$i]['contents'];
-			} else {
-
+			if ($section['heading']) {
 			?>
-				<a name="section_<?php echo $i;?>"></a>
-				<!-- <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%" background="<?php echo $this->filesPath('images/section_dots.gif');?>"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="1" /></td></tr></table> -->
-				<table width="100%" cellpadding="3" cellspacing="0" border="0">
+				<tr>
+					<td class="sq-backend-sectionheading" colspan="2">
+						<?php if ($section['icon']) { ?>
+							<img src="<?php echo $this->filesPath('images/icons/'.$section['icon'].'.gif');?>" width="20" height="20" border="0" alt="<?php echo $section['heading'];?>" align="left" />
+						<?php } ?>
+						<span ><?php echo $section['heading'];?></span>
+					</td>
+				</tr>
 			<?php
+			} // endif
 
-				if ($this->_contents[$i]['heading']) {
-				?>
-					<tr>
-						<td class="sq-backend-sectionheading" colspan="2">
-							<?php if ($this->_contents[$i]['icon']) { ?>
-								<img src="<?php echo $this->filesPath('images/icons/'.$this->_contents[$i]['icon'].'.gif');?>" width="20" height="20" border="0" alt="<?php echo $this->_contents[$i]['heading'];?>" align="left" />
-							<?php } ?>
-							<span ><?php echo $this->_contents[$i]['heading'];?></span>
-						</td>
-					</tr>
-				<?php
-				} // endif
-
-				for($j = 0; $j < count($this->_contents[$i]['fields']); $j++) {
-					$field = &$this->_contents[$i]['fields'][$j];
-					switch ($field['format']) {
-						case 'new_line' :
-							?>
-								<tr>
-									<td nowrap valign="top" class="sq-backend-field" colspan="2">
-										<a name="field_<?php echo $i.'_'.$j;?>"></a>
-										<?php echo $field['name'];?>
-									</td>
-								</tr>
-								<tr>
-									<td valign="top" class="sq-backend-data" colspan="2">
-										<table cellpadding="0" cellspacing="0" border="0">
-											<tr>
-												<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="5" height="1"/></td>
-												<td width="100%" valign="top" class="sq-backend-data">
-												<?php
-													echo $field['contents'];
-													if ($field['note']) $this->note($field['note']);
-												?>
-												</td>
-											</tr>
-										</table>
-									</td>
-								</tr>
-							<?php
-							break;
-
-						case 'commit' :
-						?>
-							<tr>
-								<td width="100%" valign="top" class="sq-backend-data" style="text-align: right;" colspan="2">
-								<?php
-									echo $field['contents'];
-									if ($field['note']) $this->note($field['note']);
-								?>
-								</td>
-							</tr>
-							<?php
-							break;
-
-						default :
+			for($j = 0; $j < count($section['areas']); $j++) {
+				switch($section['areas'][$j]['area_type']) {
+					case 'section' :
 						?>
 							<tr>
 								<td nowrap valign="top" class="sq-backend-field">
-									<a name="field_<?php echo $i.'_'.$j;?>"></a>
-									<?php echo $field['name'];?>
+									&nbsp;
 								</td>
 								<td width="100%" valign="top" class="sq-backend-data">
 								<?php
-									echo $field['contents'];
-									if ($field['note']) $this->note($field['note']);
+									$this->_paintSection($section['areas'][$j], $depth + 1);
 								?>
 								</td>
 							</tr>
 						<?php
-					}//end switch
 
-				}//end for
+						break;
 
+					case 'field' :
+						$field = &$section['areas'][$j];
+						switch ($field['format']) {
+							case 'new_line' :
+								?>
+									<tr>
+										<td nowrap valign="top" class="sq-backend-field" colspan="2">
+											<a name="field_<?php echo $field['field_count']; ?>"></a>
+											<?php echo $field['name'];?>
+										</td>
+									</tr>
+									<tr>
+										<td valign="top" class="sq-backend-data" colspan="2">
+											<table cellpadding="0" cellspacing="0" border="0">
+												<tr>
+													<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="5" height="1"/></td>
+													<td width="100%" valign="top" class="sq-backend-data">
+													<?php
+														echo $field['contents'];
+														if ($field['note']) $this->note($field['note']);
+													?>
+													</td>
+												</tr>
+											</table>
+										</td>
+									</tr>
+								<?php
+								break;
+
+							case 'commit' :
+							?>
+								<tr>
+									<td width="100%" valign="top" class="sq-backend-data" style="text-align: right;" colspan="2">
+									<?php
+										echo $field['contents'];
+										if ($field['note']) $this->note($field['note']);
+									?>
+									</td>
+								</tr>
+								<?php
+								break;
+
+							default :
+							?>
+								<tr>
+									<td nowrap valign="top" class="sq-backend-field">
+										<a name="field_<?php echo $field['field_count']; ?>"></a>
+										<?php echo $field['name'];?>
+									</td>
+									<td width="100%" valign="top" class="sq-backend-data">
+									<?php
+										echo $field['contents'];
+										if ($field['note']) $this->note($field['note']);
+									?>
+									</td>
+								</tr>
+							<?php
+						}//end switch
+
+						break;
+
+					default :
+						trigger_error('Unknown Area Type : "'.$section['areas'][$j]['area_type'].'"', E_USER_ERROR);
+
+				}// end switch area type
+
+			}//end for
+
+		?>
+			</table>
+			<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%" background="<?php echo $this->filesPath('images/section_dots.gif');?>"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="1" /></td></tr></table>
+		<?php
+
+			// if this ain't the last section, add a spacer
+//			if ($i < count($this->_contents) - 1) {
 			?>
-				</table>
-				<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%" background="<?php echo $this->filesPath('images/section_dots.gif');?>"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="1" /></td></tr></table>
+				<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td></tr></table>
 			<?php
-				// if this ain't the last section, add a spacer
-				if ($i < count($this->_contents) - 1) {
-				?>
-					<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td></tr></table>
-				<?php
-				}// end if
+//			}// end if
 
-			}//end if
+		}//end if section type == raw
 
-		}//end for
-
-	}//end _paintContents()
+	}//end _paintSection()
 
 
 	/**
@@ -822,7 +900,7 @@ class Backend_Outputter
 		<?php
 	}//end _paintCssInclude()
 
-	
+
 	/**
 	* Outputs a javascript include line for the passed file
 	*

@@ -98,7 +98,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			$force_unlock = ((isset($root->children[$i]->attributes['force_unlock'])) ? $root->children[$i]->attributes['force_unlock'] : '1');
 			if ($force_unlock == 0) $this->_screens[$code_name]['force_unlock'] = false;
 			else $this->_screens[$code_name]['force_unlock'] = true;
-			
+
 			if (!empty($root->children[$i]->attributes['default'])) $this->_default_screen = $code_name;
 		}// end for
 
@@ -254,7 +254,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		$file = null;
 		if (isset($this->_edit_fns->static_screens[$active_screen])) {
 			$o->setHeading($GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name'));
-			
+
 			// if we are not creating, paint the system defined bit of this tab
 			if (!$creating) {
 				$paint_function = 'paint'.ucfirst($active_screen);
@@ -469,7 +469,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 			// prefix for all the form vars
 			$prefix = $this->getPrefix($owner);
-			
+
 			// Loop over the sections
 			for($i = 0; $i < count($root->children); $i++) {
 				$section = &$root->children[$i];
@@ -572,7 +572,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 			for($i = 0; $i < count($root->children); $i++) {
 				$section = &$root->children[$i];
-				
+
 				$o->openSection($section->attributes['name']);
 
 				if (!($num_fields = count($section->children))) continue;
@@ -652,190 +652,216 @@ class Asset_Edit_Interface extends Resolve_Object
 	{
 		$prefix = $this->getPrefix($owner);
 		$perms = Array('Read' => SQ_PERMISSION_READ, 'Write' => SQ_PERMISSION_WRITE, 'Administrator' => SQ_PERMISSION_ADMIN);
-
 		$admin_access = $owner->adminAccess(Array(), true, false);
 
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
 		foreach ($perms as $title => $perm) {
-			$inherited = false;
-			$direct    = false;
-			$revoked   = false;
-
 			$o->openSection($title.' Access');
-			$users    = $owner->getPermission($perm, false);
-			$inherits = $owner->getInheritedPermission($perm, array_keys($users));
-			$revokes  = $owner->getRevokedPermission($perm);
 
-			$o->openField('Public');
-			$public = false;
-			foreach ($users as $userid => $locs) {
-				if ($userid) continue;
-				if (in_array($owner->id, array_keys($locs))) $public = true;
+#$o->openField('pre_echo');
+			$permissions = $owner->getPermission($perm, false, true, null, false, true);
+#pre_echo($permissions);
+
+			$direct = Array();
+			$inherited = Array();
+			foreach($permissions as $userid => $assets) {
+				foreach($assets as $assetid => $access) {
+					// if this permission was set at this asset
+					if ($assetid == $owner->id) {
+						if (!isset($direct[$access])) $direct[$access] = Array();
+						$direct[$access][] = $userid;
+
+					// else this is an inherited permission
+					} else {
+						if (!isset($inherited[$access])) $inherited[$access] = Array();
+						if (!isset($inherited[$access][$userid])) $inherited[$access][$userid] = Array();
+						$inherited[$access][$userid][] = $assetid;
+					}
+				}// end foreach
+			}// end foreach
+
+			// Now get the permissions that we would be inheriting if we hadn't set a specific entry ourselves
+			$sql = 'SELECT DISTINCT p.assetid, p.userid, p.access
+					FROM sq_asset_permission_lookup pl INNER JOIN sq_asset_permission p ON pl.permissionid = p.permissionid,
+						sq_asset_link l INNER JOIN sq_asset_link_tree t ON l.linkid = t.linkid
+					WHERE l.minorid = '.$db->quote($owner->id).'
+					  AND pl.stop_treeid = t.treeid
+					  AND p.permission = '.$db->quote($perm);
+			$result = $db->query($sql);
+			if (DB::isError($result)) {
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				return false;
 			}
+
+			while (DB_OK === $result->fetchInto($row)) {
+				if (!isset($inherited[$row['access']])) $inherited[$row['access']] = Array();
+				if (!isset($inherited[$row['access']][$row['userid']])) $inherited[$row['access']][$row['userid']] = Array();
+				$inherited[$row['access']][$row['userid']][] = $row['assetid'];
+			}
+			$result->free();
+
+			ksort($direct);
+			ksort($inherited);
+
+#pre_echo($direct);
+#pre_echo($inherited);
+
+			if (!empty($inherited)) {
+				$o->openField('Inherited', 'new_line');
+				foreach ($inherited as $access => $data) {
+				?>
+					<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+						<tr>
+							<td bgcolor="#DDDDDD" class="sq-form-field">
+								<span style="font-weight: bold; color: <?php echo (($access == '0') ? 'red' : 'green'); ?>"><?php echo (($access == '0') ? 'Denied' : 'Granted') ?></span>
+							</td>
+							<td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field" style="font-weight: bold;">
+						<?php
+							if ($access == '1') {
+								echo ($admin_access) ? 'Revoke ? ' : 'Revoked ?';
+							} else {
+								echo 'Overridden ?';
+							}// end if
+						?>
+							</td>
+						</tr>
+					<?php
+					foreach($data as $userid => $assetids) {
+						if ($userid) {
+							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+							if (!$user->id || (!is_a($user, 'user') && !is_a($user, 'user_group'))) continue;
+						}
+
+						$loc_string = '';
+						foreach ($assetids as $assetid) {
+							$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+							if (is_null($asset)) continue;
+							$loc_string .= $asset->name.', ';
+						}
+						$loc_string = trim($loc_string, ', ');
+
+					?>
+						<tr>
+							<td bgcolor="#F0F0F0" class="sq-form-field">
+						<?php
+							echo (($userid) ? $user->name.' ['.$user->type().' : '.$userid.']' : 'Public Access'), ' was set at ', $loc_string;
+						?>
+							</td>
+							<td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field">
+						<?php
+							// we are in grant section
+							if ($access == '1') {
+								// if access has been directly denied
+								if (isset($direct['0']) && in_array($userid, $direct['0'])) {
+									echo 'Yes';
+
+								// if access has been directly granted
+								} else if (isset($direct['1']) && in_array($userid, $direct['1'])) {
+									echo 'No - Set Directly';
+
+								} else {
+									if ($access == '1') {
+										if ($admin_access) {
+											check_box($prefix.'_permissions['.$perm.'][revoke]['.$userid.']');
+										} else {
+											echo 'No';
+										}
+									}
+								}// end if
+
+							// we are in denied section
+							} else {
+
+								// if access has been directly denied
+								if (isset($direct['0']) && in_array($userid, $direct['0'])) {
+									echo 'Yes - Denied';
+
+								// if access has been directly granted
+								} else if (isset($direct['1']) && in_array($userid, $direct['1'])) {
+									echo 'Yes - Granted';
+
+								} else {
+									echo 'No';
+								}// end if
+							
+							}// endif
+						?>
+							</td>
+						</tr>
+					<?php
+					}// end foreach data
+				?>
+					</table>
+					<br>
+				<?php
+				}//end foreach inherited
+
+			}// end if
+
+			if (!empty($direct)) {
+				$o->openField('Direct', 'new_line');
+				foreach ($direct as $access => $userids) {
+				?>
+					<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+						<tr>
+							<td bgcolor="#DDDDDD" class="sq-form-field">
+								<span style="font-weight: bold; color: <?php echo (($access == '0') ? 'red' : 'green'); ?>"><?php echo (($access == '0') ? 'Denied' : 'Granted') ?></span>
+							</td>
+							<?php
+							if ($admin_access) {
+								?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field" style="font-weight: bold;">Delete ?</td><?php
+							}
+							?>
+						</tr>
+					<?php
+					foreach($userids as $userid) {
+						if ($userid) {
+							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+							if (!$user->id || (!is_a($user, 'user') && !is_a($user, 'user_group'))) continue;
+						}
+					?>
+						<tr>
+							<td bgcolor="#F0F0F0" class="sq-form-field">
+						<?php
+							echo (($userid) ? $user->name.' ['.$user->type().' : '.$userid.']' : 'Public Access');
+						?>
+							</td>
+						<?php
+							if ($admin_access) {
+								?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field"><?php
+								check_box($prefix.'_permissions['.$perm.'][delete]['.$userid.']');
+								?></td><?php
+							}
+						?>
+						</tr>
+					<?php
+					}// end foreach data
+				?>
+					</table>
+					<br>
+				<?php
+				}//end foreach inherited
+
+			}// end if
+
 			if ($admin_access) {
-				check_box($prefix."_public[$perm]", 1, (($public) ? true : false));
-				hidden_field($prefix."_old_public[$perm]", (($public) ? '1' : '0'));
-				echo "&nbsp;Give $title access to all users?";
-			} else {
-				echo (($public) ? 'Yes' : 'No');
-			}
-
-			// this is the full list of inherited permissions
-			$full_inherits = $inherits;
-			foreach ($users as $userid => $locs) {
-				foreach ($locs as $locid => $treeid) {
-					$full_inherits[$userid][] = $locid;
-					$full_inherits[$userid] = array_unique($full_inherits[$userid]);
-				}
-			}
-
-			$o->openField('Inherited');
-			ob_start();
-			?>
-			<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
-				<tr>
-					<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
-					<?php
-					if ($admin_access) {
-						?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Revoke ?</b></td><?php
-					}
-					?>
-				</tr>
-			<?php
-
-			foreach ($full_inherits as $userid => $locs) {
-				if (isset($revokes[$userid])) continue;
-				if ($userid) {
-					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
-					if (!$asset->id || (!is_a($asset, 'user') && !is_a($asset, 'user_group'))) continue;
+				$o->openField('New ?', 'new_line');
+				// if Public Access isn't set
+				if (!isset($direct['0'])) {
+					combo_box($prefix.'_permissions['.$perm.'][public_access]', Array('' => '', '1' => 'Grant', '0' => 'Deny'), false, '');
+					echo ' Public Access<br>';
 				}
 
-				$loc_string = '';
-				foreach ($locs as $locid) {
-					if ($locid == $owner->id) continue;
-					$loc = &$GLOBALS['SQ_SYSTEM']->am->getAsset($locid);
-					if (!$loc->id) continue;
-					$loc_string .= $loc->name.', ';
-				}
-				$loc_string = trim($loc_string, ', ');
+				combo_box($prefix.'_permissions['.$perm.'][new][access]', Array('' => '', '1' => 'Grant', '0' => 'Deny'), false, '');
+				echo ' Access for ';
+				asset_finder($prefix.'_permissions['.$perm.'][new][userid]', 0, Array('user' => 'D', 'user_group' => 'D'));
 
-				if (!empty($loc_string)) {
-					?>
-					<tr>
-						<td bgcolor="#F0F0F0" class="sq-form-field"><?php 
-						if ($userid) echo $asset->name.' ['.$asset->type()." : $userid] was set at $loc_string";
-						else echo "Public access was set at $loc_string";
-						?></td><?php
-					if ($admin_access) {
-						?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field"><?php
-						check_box($prefix.'_revoke_'.strtolower($title)."[$userid]")
-						?></td><?php
-					}
-					?></tr><?php
-					$inherited = true;
-				}
-			}
-
-			if (!$inherited) {
-				ob_end_clean();
-				echo 'None';
-			} else {
-				ob_end_flush();
-				?></table><?php
-			}
-
-			$o->openField('Revoked');
-			ob_start();
-			?>
-			<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
-				<tr>
-					<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
-					<?php
-					if ($admin_access) {
-						?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Reinstate ?</b></td><?php
-					}
-					?>
-				</tr>
-			<?php
-			foreach ($revokes as $userid => $locs) {
-				if ($userid) {
-					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
-					if (!$asset->id || (!is_a($asset, 'user') && !is_a($asset, 'user_group'))) continue;
-				}
-				if (in_array($owner->id, $locs)) {
-					?>
-					<tr>
-						<td bgcolor="#F0F0F0" class="sq-form-field"><?php 
-						if ($userid) echo $asset->name.' ['.$asset->type()." : $userid]";
-						else echo 'Public access';
-						?></td>
-					<?php
-					if ($admin_access) {
-						?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field"><?php
-						check_box($prefix.'_unrevoke_'.strtolower($title)."[$userid]")
-						?></td><?php
-					}
-					?></tr><?php
-					$revoked = true;
-				}
-			}
-
-			if (!$revoked) {
-				ob_end_clean();
-				echo 'None';
-			} else {
-				ob_end_flush();
-				?></table><?php
-			}
-
-			$o->openField('Direct');
-			ob_start();
-			?>
-			<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
-				<tr>
-					<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
-					<?php
-					if ($admin_access) {
-						?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Delete ?</b></td><?php
-					}
-					?>
-				</tr>
-			<?php
-			foreach ($users as $userid => $locs) {
-				if (!$userid) continue;
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
-				if (!$asset->id || (!is_a($asset, 'user') && !is_a($asset, 'user_group'))) continue;
-				if (in_array($owner->id, array_keys($locs))) {
-					?>
-					<tr>
-						<td bgcolor="#F0F0F0" class="sq-form-field"><?php echo '&nbsp;'.$asset->name.' ['.$asset->type()." : $userid]";?></td>
-					<?php
-					if ($admin_access) {
-						?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field"><?php
-						check_box($prefix.'_delete_'.strtolower($title)."[$userid]")
-						?></td><?php
-					}
-					?></tr><?php
-					$direct = true;
-				}
-			}
-
-			if (!$direct) {
-				ob_end_clean();
-				echo 'None';
-			} else {
-				ob_end_flush();
-				?></table><?php
-			}
-
-			if ($admin_access) {
-				$o->openField('New?');
-				asset_finder($prefix.'_new_'.strtolower($title), 0, Array('user' => 'D', 'user_group' => 'D'));
-			}
+			}// end if
 
 			$o->closeSection();
+		}// end foreach $perms
 
-		}// end for
-		
 	}//end paintPermissions()
 
 
@@ -861,52 +887,45 @@ class Asset_Edit_Interface extends Resolve_Object
 		if (!$owner->adminAccess(Array(), true, false)) return false;
 
 		$prefix = $this->getPrefix($owner);
-		$perms = Array('Administrator' => SQ_PERMISSION_ADMIN, 'Write' => SQ_PERMISSION_WRITE, 'Read' => SQ_PERMISSION_READ);
+		if (!isset($_POST[$prefix.'_permissions'])) return false;
 
+		$perms = Array('Administrator' => SQ_PERMISSION_ADMIN, 'Write' => SQ_PERMISSION_WRITE, 'Read' => SQ_PERMISSION_READ);
 		foreach ($perms as $title => $perm) {
 			// we need to check for write access each time because
 			// we may actually be revoking write access and then
 			// trying to put it back
 			if (!$owner->adminAccess(Array(), false)) continue;
 
-			// grant new access
-			if (isset($_POST[$prefix.'_new_'.strtolower($title)])) {
-				$user = $_POST[$prefix.'_new_'.strtolower($title)];
-				if (!empty($user)) $owner->grantPermission($user, $perm);
-			}
+			$post_data = $_POST[$prefix.'_permissions'][$perm];
 
-			// delete direct access
-			if (isset($_POST[$prefix.'_delete_'.strtolower($title)])) {
-				foreach ($_POST[$prefix.'_delete_'.strtolower($title)] as $userid => $on) {
-					$owner->revokePermission($userid, $perm);
+			// set direct Public Access
+			if (isset($post_data['public_access']) && $post_data['public_access'] != '') {
+				if (!$owner->setPermission(0, $perm, $post_data['public_access'])) return false;
+			}
+			// set direct access to a user
+			if (!empty($post_data['new']['userid'])) {
+				if (!isset($post_data['new']['access']) || $post_data['new']['access'] == '') {
+					trigger_error('You need to select the type of access in order to set a permission for Asset #'.$post_data['new']['userid'], E_USER_NOTICE);
+				} else {
+					if (!$owner->setPermission($post_data['new']['userid'], $perm, $post_data['new']['access'])) return false;
 				}
 			}
 
-			// unrevoke inherited permissions
-			if (isset($_POST[$prefix.'_unrevoke_'.strtolower($title)])) {
-				foreach ($_POST[$prefix.'_unrevoke_'.strtolower($title)] as $userid => $on) {
-					$owner->reinstateRevokedPermission($userid, $perm);
+			// delete direct permission
+			if (!empty($post_data['delete'])) {
+				foreach ($post_data['delete'] as $userid => $on) {
+					if (!$owner->deletePermission($userid, $perm)) return false;
 				}
 			}
 
-			// revoke inherited permissions
-			if (isset($_POST[$prefix.'_revoke_'.strtolower($title)])) {
-				foreach ($_POST[$prefix.'_revoke_'.strtolower($title)] as $userid => $on) {
-					$owner->revokeInheritedPermission($userid, $perm);
+			// revoke inherited permissions (really just setPermission with access denied)
+			if (!empty($post_data['revoke'])) {
+				foreach ($post_data['revoke'] as $userid => $on) {
+					if (!$owner->setPermission($userid, $perm, '0')) return false;
 				}
 			}
 
-			// grant/revoke public access?
-			if (isset($_POST[$prefix.'_old_public'][$perm])) {
-				if (isset($_POST[$prefix.'_public'][$perm])) {
-					if($_POST[$prefix.'_old_public'][$perm] === '0') {
-						$owner->grantPermission('0', $perm);
-					}
-				} else if ($_POST[$prefix.'_old_public'][$perm] === '1') {
-					$owner->revokePermission('0', $perm);
-				}
-			}
-		}
+		}// end foreach perms
 
 		return true;
 
@@ -1038,7 +1057,7 @@ class Asset_Edit_Interface extends Resolve_Object
 							?>
 							</td>
 						</tr>
-						
+
 						<?php
 						$has_conds = true;
 					}
@@ -1073,7 +1092,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		// this is the full list of workflows
 		$workflows = array_keys($users) + array_keys($inherits);
-		
+
 		$o->openField('Inherited');
 		ob_start();
 		?>
@@ -1091,13 +1110,13 @@ class Asset_Edit_Interface extends Resolve_Object
 		foreach ($workflows as $assetid) {
 			if ($assetid == $owner->id) continue;
 			if (!empty($revokes) && in_array($assetid, $revokes)) continue;
-			
+
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (!$asset->id) continue;
 
 			?>
 			<tr>
-				<td bgcolor="#F0F0F0" class="sq-form-field"><?php 
+				<td bgcolor="#F0F0F0" class="sq-form-field"><?php
 				echo 'Workflow inherited from '.$asset->name.' ['.$asset->type()." : $assetid]";
 				?></td><?php
 			if ($admin_access) {
@@ -1108,7 +1127,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			?></tr><?php
 			$inherited = true;
 		}
-		
+
 
 		if (!$inherited) {
 			ob_end_clean();
@@ -1127,7 +1146,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				<?php
 				if ($admin_access) {
 					?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Reinstate ?</b></td><?php
-				}	
+				}
 				?>
 			</tr>
 		<?php
@@ -1138,7 +1157,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				if (!$asset->id) continue;
 				?>
 				<tr>
-					<td bgcolor="#F0F0F0" class="sq-form-field"><?php 
+					<td bgcolor="#F0F0F0" class="sq-form-field"><?php
 					echo 'Workflow inherited from '.$asset->name.' ['.$asset->type()." : $assetid]";
 					?></td>
 				<?php
@@ -1167,7 +1186,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		$o->closeSection();
 		foreach ($wfm->steps as $stepid => $step_data) {
 			$o->openSection("Step $stepid");
-			
+
 			if ($admin_access) {
 				$o->openField('Delete?');
 				check_box($prefix.'_steps['.$stepid.'][delete]');
@@ -1307,7 +1326,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		if ($wfm->state == 'running') return false;
 
 		$prefix = $this->getPrefix($owner).'_workflow';
-		
+
 		// unrevoke inherited workflow
 		if (isset($_POST[$prefix.'_unrevoke'])) {
 			foreach ($_POST[$prefix.'_unrevoke'] as $assetid => $on) {
@@ -1326,7 +1345,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		if (isset($_POST[$prefix.'_create_step'])) {
 			$new_stepid = $wfm->addStep();
 		}
-	
+
 		if (isset($_POST[$prefix.'_steps'])) {
 			$deleted_steps = 0;
 			foreach ($_POST[$prefix.'_steps'] as $stepid => $step_data) {
@@ -1433,7 +1452,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		<?php
 
 		$o->closeSection();
-		
+
 		return true;
 	}//end paintLocking()
 
@@ -1486,7 +1505,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				<td class="sq-backend-data">
 					<table cellpadding="0" cellspacing="0" border="0">
 						<tr>
-							<?php 
+							<?php
 							for ($x = 0; $x < $depth; $x++) {
 								$stalk_bg = '';
 								if ($start_stalk_at && $x >= $start_stalk_at) $stalk_bg = $stalk;
@@ -1565,27 +1584,24 @@ class Asset_Edit_Interface extends Resolve_Object
 		$editable_link_types = Array(SQ_LINK_TYPE_1 => link_type_name(SQ_LINK_TYPE_1),
 									 SQ_LINK_TYPE_2 => link_type_name(SQ_LINK_TYPE_2)
 									);
-		
+
 		foreach ($asset_links as $link) $assetids[$link['majorid']] = Array();
 
 		$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
-		$sql = 'SELECT ct.treeid, cl.minorid, pt.treeid, a.name, a.assetid
+		$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, pt.treeid as parent_treeid, a.name, a.assetid
 				FROM sq_asset_link cl INNER JOIN sq_asset_link_tree ct ON cl.linkid = ct.linkid,
-					 sq_asset_link pl INNER JOIN sq_asset_link_tree pt ON pl.linkid = pt.linkid 
+					 sq_asset_link pl INNER JOIN sq_asset_link_tree pt ON pl.linkid = pt.linkid
 					 INNER JOIN sq_asset a ON a.assetid = pl.minorid
 				WHERE cl.minorid IN ('.implode(', ', array_keys($assetids)).')
 				  AND ct.treeid LIKE '.$concat.'
 				  AND pt.treeid <= ct.treeid
 				ORDER BY cl.linkid, ct.treeid, pt.treeid';
 
-		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
+		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC, true);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return Array();
 		}
-
-		foreach ($result as $assetid => $treeids) $assetids[$assetid] = $treeids;
-		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($assetids));
 
 		foreach ($asset_links as $link_data) $link_info[$link_data['majorid']] = $link_data;
 
@@ -1595,7 +1611,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 			// work out some values we are going to need
 			$parent_data = $link_tree[count($link_tree) -1];
-			$majorid = $parent_data[3];
+			$majorid = $parent_data['assetid'];
 			$link_type = $link_info[$majorid]['link_type'];
 			$linkid = $link_info[$majorid]['linkid'];
 
@@ -1606,12 +1622,13 @@ class Asset_Edit_Interface extends Resolve_Object
 			$can_edit = false;
 			if ($owner->writeAccess(Array(), true, false) && in_array($link_type, array_keys($editable_link_types)) && !in_array($linkid, $editing_linkids)) $can_edit = true;
 
-			$asset_lineage = '';
+			$asset_lineage = 'Root Folder > ';
 			foreach ($link_tree as $tree_data) {
-				if ($tree_data[2] == '/') continue;
-				if ($tree_data[3] == $majorid) continue;
-				$asset_lineage .= $tree_data[2].' > ';
+				if ($tree_data['name'] == '/') continue;
+				if ($tree_data['assetid'] == $majorid) continue;
+				$asset_lineage .= $tree_data['name'].' > ';
 			}
+			$asset_lineage .= '<b>'.$parent_data['name'].'</b>';
 			if (isset($output_lineages[$asset_lineage]) && !$can_edit) continue;
 
 			ob_start();
@@ -1629,7 +1646,7 @@ class Asset_Edit_Interface extends Resolve_Object
 					?>
 				</td>
 				<td class="sq-backend-data">]</td>
-				<td class="sq-backend-data">Root Folder > <?php echo $asset_lineage; ?><b><?php echo $asset_info[$majorid]['name']; ?></b></td>
+				<td class="sq-backend-data"><?php echo $asset_lineage; ?></td>
 			</tr>
 			<?php
 			$output_lineages[$asset_lineage] = ob_get_contents();
@@ -1638,7 +1655,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		}//end foreach result
 
 		if (!count($output_lineages)) {
-			echo 'None';
+			echo 'No Parentage';
 		} else {
 			?><table border="0"><?php
 			foreach ($output_lineages as $null => $lineage_data) echo $lineage_data;
@@ -1755,7 +1772,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			for($j = 0; $j < count($section->children); $j++) {
 				$field = &$section->children[$j];
 				if ($field->name != 'field') continue;
-				
+
 				if (!empty($field->attributes['attribute'])) {
 					$create_sections[$section->attributes['name']][] = $field->attributes['attribute'];
 				} else if ($field->children[1]->name == 'function_call') {
