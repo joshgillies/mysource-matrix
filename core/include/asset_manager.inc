@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.254 2004/12/20 03:23:32 rhoward Exp $
+* $Id: asset_manager.inc,v 1.255 2004/12/21 14:15:26 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.254 $
+* @version $Revision: 1.255 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4550,18 +4550,19 @@ class Asset_Manager extends MySource_Object
 	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
 	* 											Specify that links should be returned for assets the user has read,
 	* 											write, or admin access for. Leave NULL to ignore permissions.
+	* @param boolean		$inc_type_code		whether to include the type code in the SELECT or not
 	*
-	* @return Array(int => string)	returns an array of assetids and their type code
+	* @return Array()		returns an array of parts of the SQL statment
 	* @access public
 	* @see getChildren()
 	*/
-	function generateGetChildrenQuery(&$asset, $type_code='', $strict_type_code=true, $sort_by=null, $access=null)
+	function generateGetChildrenQuery(&$asset, $type_code='', $strict_type_code=true, $sort_by=null, $access=null, $inc_type_code=true)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// if we are the root folder then we just need to select from the asset table
 		if (get_class($asset) == 'root_folder') {
-			$select = 'SELECT a.assetid, a.type_code';
+			$select = 'SELECT a.assetid'.(($inc_type_code) ? ', a.type_code' : '');
 			$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a';
 			$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'a');
 			if (!empty($where) && (!empty($type_code) || !is_null($access))) $where .= ' AND ';
@@ -4578,7 +4579,7 @@ class Asset_Manager extends MySource_Object
 			$treeid = $db->getOne($sql);
 			assert_valid_db_result($treeid);
 
-			$select = 'SELECT DISTINCT l.minorid, a.type_code';
+			$select = 'SELECT DISTINCT l.minorid'.(($inc_type_code) ? ', a.type_code' : '');
 			$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
 					         INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
 					         INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.minorid = a.assetid
