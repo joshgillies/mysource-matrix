@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_job.inc,v 1.29 2003/10/07 02:41:25 brobertson Exp $
+* $Id: hipo_job.inc,v 1.30 2003/10/28 23:21:10 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -436,8 +436,8 @@ class HIPO_Job extends MySource_Object
 			$prev_step_per = ($step / count($this->_steps)) * 100;
 			$this_step_per = ($this->complete()) ? 0 : ((1 / count($this->_steps)) * $this->_steps[$step]['percent_done']);
 			$this->_hipo_vars['percent_done'] = round($prev_step_per + $this_step_per, 2);
-
-			if (!empty($this->_steps[$step]['complete'])) $this->_hipo_vars['current_step']++;
+		
+			if (!empty($this->_steps[$step]['complete'])) $this->getNextStep();
 
 		}// end if
 
@@ -616,6 +616,51 @@ class HIPO_Job extends MySource_Object
 	}//end auto_step()
 
 
+
+	/**
+	* returns the next step to be executed by the hipo job, 
+	*
+	* @access public
+	* @return integer 
+	*/
+	function getNextStep()
+	{
+		$this->_hipo_vars['current_step']++;
+		for ($i = $this->_hipo_vars['current_step']; $i < count($this->_steps); $i++) {
+			if (isset($this->_steps[$i]['skip_step']) && $this->_steps[$i]['skip_step']) {
+				$this->_steps[$i]['complete'] = true;
+				$this->_steps[$i]['percent_done'] = 100;
+				$this->_hipo_vars['current_step']++;
+
+				continue;
+			} else {
+				break;
+			}
+		}
+
+		return $this->_hipo_vars['current_step'];
+
+	} // end getNextStep()
+
+
+	/**
+	* called when a step in the hip job process needs to be skipped
+	*
+	* @param integer $stepid the array index of the step
+	*
+	* @access public
+	* @return boolean
+	*/
+	function skipStep($stepid=0)
+	{
+		if (!isset($this->_steps[$stepid])) return false;
+		$this->_steps[$stepid]['skip_step'] = true;
+		
+		return true;
+	
+	} // end skipStep()
+
+
 	/**
 	* Paint information about the process of the HIPO
 	*
@@ -700,6 +745,13 @@ class HIPO_Job extends MySource_Object
 	*/
 	function process()
 	{
+		if ($this->complete()) {
+			error_log('1 complete');
+		} else {
+			error_log('1 not complete');
+		}
+
+
 		if ($this->userid != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
 			trigger_error('You cannot process "'.$result['job_type'].'" HIPO job that you do not own', E_USER_WARNING);
 			return false;
