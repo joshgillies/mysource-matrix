@@ -1074,7 +1074,7 @@ speed_check('FINISHED');
 				<td valign="top"><?php security_key(8, 20, 2.5); ?></td>
 			</tr>
 			<tr>
-				<td class="sq-backend-data"><i>Can't read the security key? <a href="#" onClick="Javascript: document.location = '<?php echo $GLOBALS['HTTP_SERVER_VARS']['REQUEST_URI']?>'; return false;">Click here to get a new key</a>.</i></td>
+				<td class="sq-backend-data"><i>Can't read the security key? <a href="#" onClick="Javascript: document.location = '<?php echo $_SERVER['REQUEST_URI']?>'; return false;">Click here to get a new key</a>.</i></td>
 			</tr>
 		</table>
 		<?php
