@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.19 2005/02/16 13:39:44 brobertson Exp $
+* $Id: settings.inc,v 1.20 2005/02/16 22:12:33 amiller Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 */
 
@@ -380,8 +380,6 @@ function paintSettings(&$owner, &$o, &$ei)
 
 					// now add the blank one that they can customise
 					$our_designs['design::user::'] = 0;
-
-pre_echo($our_designs);
 
 					foreach ($our_designs as $design_name => $designid) {
 
