@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.44 2004/11/29 02:14:15 gsherwood Exp $
+* $Id: file_edit_fns.inc,v 1.45 2004/12/01 04:35:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -80,10 +80,28 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		$this->printExistingFileInfo($asset);
 		if ($asset->writeAccess('attributes')) {
 			$max_size = strtolower($GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_FILE_MAX_SIZE'));
-			if (substr($max_size, -1) == 'k') {
-				$max_size = $max_size * 1024;
-			} else if (substr($max_size, -1) == 'm') {
-				$max_size = $max_size * 1024 * 1024;
+			if ($max_size) {
+				if (substr($max_size, -1) == 'k') {
+					$max_size = $max_size * 1024;
+				} else if (substr($max_size, -1) == 'm') {
+					$max_size = $max_size * 1024 * 1024;
+				}
+			} else {
+				// work out the max file size that PHP is allowing
+				$post_size = strtolower(ini_get('post_max_size'));
+				if (substr($post_size, -1) == 'k') {
+					$post_size = $post_size * 1024;
+				} else if (substr($post_size, -1) == 'm') {
+					$post_size = $post_size * 1024 * 1024;
+				}
+				
+				$mem_limit_size = strtolower(ini_get('memory_limit'));
+				if (substr($mem_limit_size, -1) == 'k') {
+					$mem_limit_size = $mem_limit_size * 1024;
+				} else if (substr($mem_limit_size, -1) == 'm') {
+					$mem_limit_size = $mem_limit_size * 1024 * 1024;
+				}
+				$max_size = min($post_size, $mem_limit_size);
 			}
 			?><br/><span style="font-size: 10px;">You may only upload files no bigger than <?php echo strtoupper(easy_filesize($max_size)); ?></span><?php
 		}
@@ -310,7 +328,10 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	function getPreuploadOptions(&$asset)
 	{
 		$options = Array();
-		foreach (list_files(SQ_TEMP_PATH) as $filename) $options[$filename] = $filename;
+		foreach (list_files(SQ_TEMP_PATH) as $filename) {
+			if (substr($filename, 0, 1) == '.') continue;
+			$options[$filename] = $filename;
+		}
 		return $options;
 
 	}//end getPreuploadOptions()
