@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation_edit_fns.inc,v 1.25 2004/06/23 23:25:44 lwright Exp $
+* $Id: design_customisation_edit_fns.inc,v 1.26 2004/09/03 21:56:59 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -94,9 +94,9 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		$data = Array();
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
+		
 		foreach($_POST[$prefix.'_remove_customisation'] as $id_name) {
-			$parents_link = $parent_design->getDesignAreaLink($id_name);
+			$parents_link = $parent_design->getDesignAreaLink($id_name, 'design');
 			if (empty($parents_link)) continue;
 
 			$data[$id_name] = Array($parents_link['minorid'], $parents_link['minor_type_code']);
@@ -107,12 +107,19 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 			return false;
 		}// end if
 
+		// regenerate the design_file.php and css_file.php here (because the processBackend function 
+		// doesn't do it automatically any more
+		if (!$asset->updateFromParent($parent_design)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}// end if
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
 	}//end processCustomisedDesignAreas()
-
-
+	
+	
 	/**
 	* Paints the interface for customising the design areas
 	*
@@ -133,8 +140,8 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		}
 
 	}//end paintUnCustomisedDesignAreas()
-
-
+	
+	
 	/**
 	* Processes the customising of design areas
 	*
