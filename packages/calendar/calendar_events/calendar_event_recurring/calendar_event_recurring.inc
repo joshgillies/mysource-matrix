@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.35 2004/09/13 05:20:33 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.36 2004/09/13 05:50:25 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.35 $ - 1.0
+* @version $Revision: 1.36 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -762,31 +762,38 @@ class Calendar_Event_Recurring extends Calendar_Event
 				$end_dates_agree = ((($occurrence_end_date) && isset($_REQUEST['event_end_date_enabled']) && (sprintf('%04d-%02d-%02d', $_REQUEST['event_end_year'], $_REQUEST['event_end_month'], $_REQUEST['event_end_day']) == $occurrence_end_date)) || ((!$occurrence_end_date && (!isset($_REQUEST['event_end_date_enabled'])))));
 
 				$end_times_agree = ((($end_time = $this->getEndTime()) && isset($_REQUEST['event_end_time_enabled']) &&  (sprintf('%02d:%02d', $_REQUEST['event_end_hours'], $_REQUEST['event_end_minutes']) == $end_time)) || ((!$this->getEndTime()) && (!isset($_REQUEST['event_end_time_enabled']))));
-
 				//bam("start dates agree: $start_dates_agree; start times agree: $start_times_agree; end dates agree: $end_dates_agree; end times agree: $end_times_agree");
 				if ($start_dates_agree && $start_times_agree && $end_dates_agree && $end_times_agree) {
 					$this->addModification($_REQUEST['SQ_CALENDAR_DATE'], $_REQUEST['event_description']);
 					$res = '<p>Event instance modified</p>';
 				} else {
 					$cancellation_event = $this->addCancellation($_REQUEST['SQ_CALENDAR_DATE'], '(rescheduled)'); 
+
 					if (!isset($_REQUEST['event_start_time_enabled'])) {
 						$_REQUEST['event_start_hours'] = '--';
 						$_REQUEST['event_start_minutes'] = '--';
 					} else {
 						if ($_REQUEST['event_start_is_pm'] && ($_REQUEST['event_start_hours'] != 12)) $_REQUEST['event_start_hours'] += 12;
 					}
+					$start_date_string = sprintf('%04s-%02s-%02s %02s:%02s:--', $_REQUEST['event_start_year'], $_REQUEST['event_start_month'], $_REQUEST['event_start_day'],  $_REQUEST['event_start_hours'], $_REQUEST['event_start_minutes']);
+
+					
 					if (!isset($_REQUEST['event_end_time_enabled'])) {
 						$_REQUEST['event_end_hours'] = '--';
 						$_REQUEST['event_end_minutes'] = '--';
 					} else {
 						if ($_REQUEST['event_end_is_pm'] && ($_REQUEST['event_end_hours'] != 12)) $_REQUEST['event_end_hours'] += 12;				
 					}
-					if (!isset($_REQUEST['event_end_date_enabled'])) {
-						$_REQUEST['event_end_year'] = '----';
-						$_REQUEST['event_end_month'] = '--';
-						$_REQUEST['event_end_day'] = '--';
-					}
-					$cancellation_event->addReplacement(sprintf('%04s-%02s-%02s %02s:%02s:--', $_REQUEST['event_start_year'], $_REQUEST['event_start_month'], $_REQUEST['event_start_day'],  $_REQUEST['event_start_hours'], $_REQUEST['event_start_minutes']),  sprintf('%04s-%02s-%02s %02s:%02s:--', $_REQUEST['event_end_year'], $_REQUEST['event_end_month'], $_REQUEST['event_end_day'],  $_REQUEST['event_end_hours'], $_REQUEST['event_end_minutes']),  $_REQUEST['event_description']);
+					if (!isset($_REQUEST['event_end_enabled'])) {
+						$end_date_string = '---------- --:--:--';
+					} elseif (isset($_REQUEST['event_end_type']) && ($_REQUEST['event_end_type'] == 'date')) {
+						$end_date_string = sprintf('%04s-%02s-%02s %02s:%02s:--', $_REQUEST['event_end_year'], $_REQUEST['event_end_month'], $_REQUEST['event_end_day'],  $_REQUEST['event_end_hours'], $_REQUEST['event_end_minutes']);
+					} else {
+						$duration_secs = 60 * $_REQUEST['event_duration'] * (($_REQUEST['event_duration_type'] == 'i') ? 1 : 60);
+						$end_date_string = ts_iso8601(iso8601_ts($start_date_string + $duration_secs));
+					}						
+
+					$cancellation_event->addReplacement($start_date_string, $end_date_string ,  $_REQUEST['event_description']);
 					
 					$res = '<p>Event rescheduled</p>';
 				}
