@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.352 2005/01/25 00:27:27 lwright Exp $
+* $Id: asset.inc,v 1.353 2005/01/26 09:29:19 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.352 $
+* @version $Revision: 1.353 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2796,7 +2796,7 @@ class Asset extends MySource_Object
 	function effectiveUnrestricted()
 	{	
 		// This is not readAccess() because if this is false we don't refer to the writeAccess() setting
-		$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetidByName('public_user');
+		$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 		return ($this->status >= SQ_STATUS_LIVE && $this->_checkPermissionAccess(SQ_PERMISSION_READ, Array($public_userid)));
 
 	}//end effectiveUnrestricted()
