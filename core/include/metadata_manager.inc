@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.22 2004/01/13 05:56:04 diarandine Exp $
+* $Id: metadata_manager.inc,v 1.23 2004/01/19 00:53:04 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -122,31 +122,28 @@ class Metadata_Manager extends MySource_Object
 
 
 	/**
-	* This function returns an array of metatata fields IDs for a 
-	* metadata schema with supplied ID 
+	* Get an array of metatata fields IDs for a metadata schema
 	*
-	* @param int $schemaid	- ID of the schema which fields we need
+	* @param int $schemaid	the schema whos fields we are getting
+	*
+	* @return Array(int)
+	* @access public
 	*/
 	function getMetadataFields($schemaid)
 	{
-		$fields_array = Array(); // initializing array
-		$my_am = &$GLOBALS['SQ_SYSTEM'] -> am;
-		$sectionids = $my_am -> getChildren($schemaid, 'metadata_section', false);
+		$fields_array = Array();
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$sectionids = $am->getChildren($schemaid, 'metadata_section', false);
 
-		foreach ($sectionids as $sectionid) {
-			
-			$section = $my_am -> getAsset($sectionid);
-			$fieldids = $my_am -> getChildren($sectionid, 'metadata_field', false);
-
-			foreach ($fieldids as $fieldid) {
-				array_push($fields_array, $fieldid);
-			}
-
-		} // end outer foreach
+		foreach ($sectionids as $sectionid => $section_type) {
+			$section = $am->getAsset($sectionid, $section_type);
+			$fieldids = $am->getChildren($sectionid, 'metadata_field', false);
+			$fields_array = array_merge($fields_array, array_keys($fieldids));
+		}
 
 		return $fields_array;
-	}
-	///////////////////////////////////////////////////
+
+	}//end getMetadataFields()
 
 
 	/**
@@ -409,9 +406,9 @@ class Metadata_Manager extends MySource_Object
 		$im =& $GLOBALS['SQ_SYSTEM']->getIndexingManager();
 		foreach ($schemaids as $schemaid) {
 			$sectionids = $am->getChildren($schemaid, 'metadata_section', false);
-			foreach ($sectionids as $sectionid) {
+			foreach ($sectionids as $sectionid => $section_type) {
 				$fieldids = $am->getChildren($sectionid, 'metadata_field', false);
-				foreach ($fieldids as $fieldid) {
+				foreach ($fieldids as $fieldid => $field_type) {
 					$im->flushKeyData($assetid, 'metadata:'.$fieldid);
 				}
 			}
@@ -441,12 +438,12 @@ class Metadata_Manager extends MySource_Object
 			$sectionids = $am->getChildren($schemaid, 'metadata_section', false);
 			$metadata = $this->getSchemaMetadata($assetid, $schemaid);
 
-			foreach ($sectionids as $sectionid) {
-				$section =& $am->getAsset($sectionid);
+			foreach ($sectionids as $sectionid => $section_type) {
+				$section = &$am->getAsset($sectionid, $section_type);
 
 				$fieldids = $am->getChildren($sectionid, 'metadata_field', false);
-				foreach ($fieldids as $fieldid) {
-					$field =& $am->getAsset($fieldid);
+				foreach ($fieldids as $fieldid => $field_type) {
+					$field =& $am->getAsset($fieldid, $field_type);
 
 					if (isset($metadata['sections'][$section->name]['fields'][$field->name]['value'])) {
 						$value = $metadata['sections'][$section->name]['fields'][$field->name]['value'];

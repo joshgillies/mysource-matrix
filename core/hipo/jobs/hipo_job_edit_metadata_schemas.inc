@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_schemas.inc,v 1.10 2003/12/16 12:13:57 brobertson Exp $
+* $Id: hipo_job_edit_metadata_schemas.inc,v 1.11 2004/01/19 00:52:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -58,19 +58,19 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 						'message'		=> '',
 					),
 					Array(
-						'name'             => 'Updating Metadata Schemas',
-						'function_call'    => Array(
+						'name'			=> 'Updating Metadata Schemas',
+						'function_call'	=> Array(
 												'process_function' => 'processSchemas',
 												),
-						'running_mode'     => 'server',
-						'auto_step'        => true,
-						'percent_done'     => 0,
-						'complete'         => false,
-						'message'          => '',
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
 					),
 					Array(
 						'name'			=> 'Releasing Metadata Locks',
-						'function_call'    => Array(
+						'function_call'	=> Array(
 												'process_function' => 'releaseLocks',
 												),
 						'running_mode'	=> 'server',
@@ -146,7 +146,8 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 		} else {
 			// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
 			// we will be affecting out list of schema changes on
-			$child_assets = array_merge(Array($asset->id), $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id));
+			$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
+			$child_assets[$asset->id] = $asset->type();
 			$this->_running_vars['todo_assetids'] = $child_assets;
 		}
 
@@ -169,8 +170,10 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	function processSchemas(&$step_data, $prefix)
 	{
 		if (!empty($this->_running_vars['todo_assetids'])) {
-			$assetid = array_shift($this->_running_vars['todo_assetids']);
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));
+			$asset_type = $this->_running_vars['todo_assetids'][$assetid];
+			unset($this->_running_vars['todo_assetids'][$assetid]);
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 			if (!is_null($asset)) {

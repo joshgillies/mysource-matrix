@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.22 2003/12/16 12:13:57 brobertson Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.23 2004/01/19 00:52:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -159,7 +159,9 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 
 		// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
 		// we will be affecting out list of permission changes on
-		$this->_running_vars['todo_assetids'] = array_merge(Array($asset->id), $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id));
+		$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
+		$child_assets[$asset->id] = $asset->type();
+		$this->_running_vars['todo_assetids'] = $child_assets;
 		$this->_running_vars['done_assetids'] = Array();
 
 		unset($asset);
@@ -181,8 +183,10 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	function processPermissions(&$step_data, $prefix)
 	{
 		if (!empty($this->_running_vars['todo_assetids'])) {
-			$assetid = array_shift($this->_running_vars['todo_assetids']);
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));
+			$asset_type = $this->_running_vars['todo_assetids'][$assetid];
+			unset($this->_running_vars['todo_assetids'][$assetid]);
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if (!is_null($asset)) {
 				foreach ($this->_running_vars['permission_changes'] as $perm => $perm_data) {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.6 2003/12/16 12:13:57 brobertson Exp $
+* $Id: hipo_job_reindex.inc,v 1.7 2004/01/19 00:52:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -110,8 +110,16 @@ class HIPO_Job_ReIndex extends HIPO_Job
 			$this->_running_vars['root_assetid'] = 1;	// the root folder
 		}
 
-		$this->_running_vars['todo_assetids'] = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->_running_vars['root_assetid']);
-		array_push($this->_running_vars['todo_assetids'], $this->_running_vars['root_assetid']);
+		// so we have an assetid to start at, but make sure it is a valid assetid
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['root_assetid']);
+		if (is_null($asset)) {
+			trigger_error('Cannot initialise Search Reindexing HIPO, invalid root asset ID specified ('.$this->_running_vars['root_assetid'].')', E_USER_WARNING);
+			return false;
+		}
+
+		$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
+		$child_assets[$asset->id] = $asset->type();
+		$this->_running_vars['todo_assetids'] = $child_assets;
 		$this->_running_vars['done_assetids'] = Array();
 		
 		return parent::initialise($source_code_name);
@@ -135,8 +143,11 @@ class HIPO_Job_ReIndex extends HIPO_Job
 			$im = &$GLOBALS['SQ_SYSTEM']->getIndexingManager();
 
 			// get next asset to reindex
-			$assetid = array_shift($this->_running_vars['todo_assetids']);
-			$asset =& $am->getAsset($assetid);
+			$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));
+			$asset_type = $this->_running_vars['todo_assetids'][$assetid];
+			unset($this->_running_vars['todo_assetids'][$assetid]);
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
+
 			$step_data['message'] = 'Reindexing '. $asset->name;
 			$im->changed($assetid);
 

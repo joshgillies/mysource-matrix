@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_workflow_schemas.inc,v 1.7 2003/12/16 12:13:57 brobertson Exp $
+* $Id: hipo_job_edit_workflow_schemas.inc,v 1.8 2004/01/19 00:52:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -146,8 +146,8 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 		} else {
 			// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
 			// we will be affecting out list of schema changes on
-			$child_assets = Array();
-			$child_assets = array_merge(Array($asset->id), $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id));
+			$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
+			$child_assets[$asset->id] = $asset->type();
 			$this->_running_vars['todo_assetids'] = $child_assets;
 		}
 
@@ -170,8 +170,10 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 	function processSchemas(&$step_data, $prefix)
 	{
 		if (!empty($this->_running_vars['todo_assetids'])) {
-			$assetid = array_shift($this->_running_vars['todo_assetids']);
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));
+			$asset_type = $this->_running_vars['todo_assetids'][$assetid];
+			unset($this->_running_vars['todo_assetids'][$assetid]);
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if (!is_null($asset)) {
 				foreach ($this->_running_vars['schema_changes'] as $set_data) {

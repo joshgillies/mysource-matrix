@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_link.inc,v 1.9 2003/12/19 04:01:39 gsherwood Exp $
+* $Id: hipo_job_create_link.inc,v 1.10 2004/01/19 00:52:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -440,8 +440,6 @@ class HIPO_Job_Create_Link extends HIPO_Job
 			}
 
 			$this->_running_vars['assetid'] = $asset->id;
-			$this->_running_vars['todo_assetids'] = array_merge(Array($asset->id), $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id));
-			$this->_running_vars['done_assetids'] = Array();
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
