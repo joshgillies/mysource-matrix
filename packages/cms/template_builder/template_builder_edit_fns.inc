@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: template_builder_edit_fns.inc,v 1.3 2004/11/02 05:30:38 lwright Exp $
+* $Id: template_builder_edit_fns.inc,v 1.4 2004/11/02 22:25:16 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -66,7 +66,10 @@ class Template_Builder_Edit_Fns extends Page_Edit_Fns
 	function paintQuestionFields(&$asset, &$o, $prefix)
 	{
 		$fields = $asset->getQuestionFields();
-		?><table class="sq-backend-table">
+		
+		?><p>These questions are pulled from the fields defined in the Template Bodycopy contained underneath this asset. You need to <b><a href="<?php echo $asset->getBackendHref('contents') ?>">Edit the Template Bodycopy</a></b> to change the questions defined.</p>
+		
+		<table class="sq-backend-table">
 			<tr>
 				<td class="sq-backend-table-header">
 					Question Field Name
