@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.76 2005/01/25 00:27:27 lwright Exp $
+* $Id: user.inc,v 1.77 2005/02/11 03:24:19 amiller Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -138,6 +138,16 @@ class User extends Asset
 				trigger_error('Could not create user - "permissions" lock not released on '.ucwords($link['minor_type_code']).' asset of "'.$this->name.'"', E_USER_WARNING);
 				return false;
 			}
+		}
+		
+				// set an initial web path
+		$initial_path = strtolower($this->attr('username'));
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$valid_paths = make_valid_web_paths(Array($initial_path));
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($user_link['asset'], $valid_paths, $this->id, true);
+		if (!$this->saveWebPaths($good_paths)) {
+			trigger_error('Could not set an initial web path for "'.$this->name.'"', E_USER_WARNING);
+			return false;
 		}
 
 		return true;
