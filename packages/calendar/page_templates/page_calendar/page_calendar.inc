@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.86 2004/09/22 02:22:58 lwright Exp $
+* $Id: page_calendar.inc,v 1.87 2004/09/22 02:24:12 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.86 $ - 1.0
+* @version $Revision: 1.87 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -866,6 +866,19 @@ class Page_Calendar extends Page_Asset_Listing
 	* @return void
 	* @access private
 	*/
+	/**
+	* Print a table with times within the day-starts-at to day-ends-at range, and columns
+	* as specified.
+	*
+	* @param string		$table_id			The id to use for the HTML table element
+	* @param Array		$column_names		A column_id=>name array of the columns in the table
+	* @param Array		$column_links		A column_id=>href of places to link column headers to
+	* @param Array		$events				A column_id=>array(hhmm=>array(events)) array of events to show
+	* @param boolean	$show_event_links	Whether to link the event names to the event view
+	*
+	* @return void
+	* @access private
+	*/
 	function _printTimedTable($table_id, $column_names, $column_links, $events, $show_event_links=false)
 	{
 		$partition_time = intval($this->attr('day_partition_time'));
@@ -921,14 +934,14 @@ class Page_Calendar extends Page_Asset_Listing
 		list($current_hour, $current_mins) = explode(':', $this->attr('day_starts_at'));
 		list($end_hour, $end_mins) = explode(':', $this->attr('day_ends_at'));
 		?>
-			<tr style="height: <?php echo $partition_height; ?>ex;">
-			<th class="timeLabel">*</th>
+			<tr>
+			<th style="height: <?php echo $partition_height; ?>ex;" class="timeLabel">*</th>
 			<?php
 			// print the "all day" events
 			foreach ($column_names as $id => $name) {
 				$col_events = $events[$id];
 				$event_link_date = is_iso8601($id) ? $id : $_REQUEST['SQ_CALENDAR_DATE'];
-				echo '<td '.$mouseup_code.' id="'.$id.'_allday"'. (empty($col_events['all_day']) ? 'onclick="addEvent(\''.$event_link_date.'\', \'*\');"' : '').'>';
+				echo '<td style="height: '.$partition_height.'ex;" '.$mouseup_code.' id="'.$id.'_allday"'. (empty($col_events['all_day']) ? 'onclick="addEvent(\''.$event_link_date.'\', \'*\');"' : '').'>';
 				if (empty($col_events['all_day'])) echo '&nbsp;';
 				foreach($col_events['all_day'] as $assetid => $event) {
 					$assetid = strtok($assetid,':');
@@ -950,15 +963,15 @@ class Page_Calendar extends Page_Asset_Listing
 		<?php
 		while (($current_hour*60 + $current_mins) < ($end_hour*60 + $end_mins)) {
 			?>
-			<tr style="height: <?php echo $partition_height; ?>ex;">
-				<th class="timeLabel"><?php echo sprintf('%d:%02d', (($current_hour % 12 == 0) ? 12 : ($current_hour % 12)), $current_mins); ?></th>
+			<tr>
+				<th style="height: <?php echo $partition_height; ?>ex;" class="timeLabel"><?php echo sprintf('%d:%02d', (($current_hour % 12 == 0) ? 12 : ($current_hour % 12)), $current_mins); ?></th>
 			<?php
 			foreach ($column_names as $id => $name) {
 				$col_events = $events[$id];
 				$time_key = sprintf('%02d:%02d', $current_hour, $current_mins);
 				if ($show_event_links && is_iso8601($id)) $_REQUEST['SQ_CALENDAR_DATE'] = $id;
 				?>
-				<td <?php echo $mouseup_code; ?> id="<?php echo $id.'_'.$time_key ?>" <?php echo empty($col_events[$time_key]) ? 'onclick="addEvent(\''.$_REQUEST['SQ_CALENDAR_DATE'].'\', \''.$time_key.'\');"' : ''; ?> style="<?php echo $width; ?>ex">
+				<td style="height: <?php echo $partition_height; ?>ex;" <?php echo $mouseup_code; ?> id="<?php echo $id.'_'.$time_key ?>" <?php echo empty($col_events[$time_key]) ? 'onclick="addEvent(\''.$_REQUEST['SQ_CALENDAR_DATE'].'\', \''.$time_key.'\');"' : ''; ?> style="<?php echo $width; ?>ex">
 				<?php
 					echo $this->_getTimedTableCellContents($col_events[$time_key], $show_event_links, $root_nodes, ($current_mins + ($current_hour * 60)), $partition_time, $partition_height, $div_width, $mousedown_code);
 				?>
@@ -975,7 +988,7 @@ class Page_Calendar extends Page_Asset_Listing
 		</table>
 		<?php
 
-	}//end printTimedTable()
+	}//end _printTimedTable()
 
 
 	/**
