@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.8 2004/05/06 04:16:31 lwright Exp $
+* $Id: form_question_type_datetime.inc,v 1.9 2004/05/12 07:04:56 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -107,7 +107,9 @@ class Form_Question_Type_Datetime extends Form_Question
 			$parameters['null'] = Array();
 			$parameters['style'] = Array();
 			$parameters['min'] = $this->attr('minimum');
+			if ($parameters['min'] == '---------- --:--:--') $parameters['min'] = '1970-01-01 00:00:00';
 			$parameters['max'] = $this->attr('maximum');
+			if ($parameters['max'] == '---------- --:--:--') $parameters['max'] = '2030-12-31 23:59:59';
 
 			$show_params = $this->attr('show');
 			$text_params = $this->attr('text');
