@@ -5,8 +5,8 @@
 	<package>__core__</package>
 	<type_code>design_area_menu_stalks</type_code>
 	<version>0.1</version>
-	<name>Normal Menu Design Area</name>
-	<description>Most customisable menuing design area, used for majority of menus</description>
+	<name>Recursive Stalks Menu Design Area</name>
+	<description>Menuing design area used to allow the recursivly generate stalk/indenting menus</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>design_area_menu_recursive</parent_type>
