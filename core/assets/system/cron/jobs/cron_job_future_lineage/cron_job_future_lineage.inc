@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.7 2004/03/17 06:11:29 gsherwood Exp $
+* $Id: cron_job_future_lineage.inc,v 1.8 2004/05/26 23:41:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -146,7 +146,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 
 		// make sure that we can link to every asset
 		if (empty($links[SQ_LINK_NOTICE]['asset'])) {
-			$links[SQ_LINK_NOTICE]['asset'] = Array('card' => 1);
+			$links[SQ_LINK_NOTICE]['asset'] = Array('card' => 2);
 		}
 
 		return $links;
@@ -191,7 +191,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 
 		return parent::setAttrValue($name, $value);
 
-	}// end setAttrValue()
+	}//end setAttrValue()
 
 
 	/**
@@ -223,7 +223,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 			return true;
 		}
 
-	}// end setAssetInLink()
+	}//end setAssetInLink()
 
 
 	/**
@@ -251,7 +251,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		if (empty($link)) return $null;
 		return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 
-	}// end getAssetInLink()
+	}//end getAssetInLink()
 
 
 	/**
@@ -288,7 +288,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		
 		return $str;
 
-	}// readableDescription()
+	}//end readableDescription()
 
 
 	/**
@@ -358,52 +358,24 @@ class Cron_Job_Future_Lineage extends Cron_Job
 				return $failed_ret_val;
 			}
 
-		}// endif
+		}//end if
 
-
-		require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_update_lookups.inc';
-		$init_hipo = new HIPO_Job_Update_Lookups();
-		$init_hipo->setRunningVars(Array('assetids' => Array($minor->id)));
-		$code_name = $init_hipo->initialise();
-		if (!$code_name) {
-			trigger_error('Future Lineage of "'.$minor->name.'" (#'.$minor->id.') Failed, HIPO was not able to initialise', E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return $failed_ret_val;
-		} // end if
-
-		require_once 'XML/Tree.php';
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-
-		$attrs = Array(
-					'command' => 'start',
-					'userid'  => $GLOBALS['SQ_SYSTEM']->currentUserId(),
-					'source_code_name' => $code_name,
-				);
-		$input = new XML_Tree();
-		$input_root = &$input->addRoot('hipo_job', '', $attrs);
-		$output = new XML_Tree();
-		$output_root = &$output->addRoot('output');
-
-		if (!$hh->prepareProcessServer($input_root, $output_root, '')) {
-			if ($ack->root->name == 'error') {
-				trigger_error('HIPO Herder Error : '.$ack->root->content, E_USER_WARNING);
-			} else {
-				trigger_error('Unexpected return from the HIPO Server : '.$ack->get(), E_USER_WARNING);
-			}// end switch
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return $failed_ret_val;
-		}
-		if (!$hh->processServer()) {
+		$vars = Array('assetids' => Array($minor->id));
+		$lookup_errors = $hh->freestyleHipo('hipo_job_update_lookups', $vars);
+		if (!empty($lookup_errors)) {
+			trigger_error('Future Lineage of "'.$minor->name.'" (#'.$minor->id.') failed updating lookups', E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return $failed_ret_val;
 		}
 
 		$msg = "Successful in \n".$desc;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		// All OK, and we can be removed because we have done our one off task
+
+		// all OK, and we can be removed because we have done our one off task
 		return SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_REMOVE;
 
-	}// end _exec()
+	}//end _exec()
 
 
 	/**
@@ -446,8 +418,9 @@ class Cron_Job_Future_Lineage extends Cron_Job
 
 		return $assets_jobs;
 
-	}// end getActiveJobs()
+	}//end getActiveJobs()
 
 
 }//end class
+
 ?>
