@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2004/09/01 01:42:28 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2004/09/01 03:34:55 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -53,6 +53,12 @@
 		<field attribute="load_links">
 			<display_name>Replace Links</display_name>
 			<note>Select this option if you want links in the target page to open within the remote page.</note>
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+
+		<field attribute="allow_redirect">
+			<display_name>Allow Redirects</display_name>
+			<note>If enabled, this asset will redirect to the necessary location automatically. It is important to leave this YES in the general case because many sites do silent redirects. If a redirect is required and this is set to NO, you will get an Error Message</note>
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 
