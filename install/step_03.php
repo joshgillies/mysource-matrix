@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.55 2005/02/08 23:03:38 lwright Exp $
+* $Id: step_03.php,v 1.56 2005/02/08 23:30:25 lwright Exp $
 *
 */
 
@@ -43,7 +43,7 @@
 * would update all the asset types for core and cms only
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -115,6 +115,11 @@ if (!isset($package_list)) {
 uninstall_asset_types();
 uninstall_packages();
 
+// This has been changed so that the asset install is only done when search
+// manager is being installed for the first time (to initialise the weightings
+// of assets that are already installed - reconfigures do not need the second
+// pass once Search Manager is installed, as it picks default weightings up
+// automatically
 $run_install = true;
 
 while ($run_install) {
@@ -134,7 +139,7 @@ while ($run_install) {
 	}
 	
 	if (!$search_installed && $GLOBALS['SQ_SYSTEM']->am->installed('search_manager')) {
-		bam('Search manager was installed for the first time - need to restart asset install to initialise weightings...');
+		bam('Search manager was installed for the first time'."\n".'Need to restart asset install to initialise search weightings...');
 	} else {
 		$run_install = false;
 	}
