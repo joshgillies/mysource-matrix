@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_map.inc,v 1.86 2003/10/13 01:20:02 brobertson Exp $
+* $Id: asset_map.inc,v 1.87 2003/10/13 01:36:13 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -246,10 +246,8 @@ class Asset_Map
 	*/
 	function _send($output)
 	{
-#		error_log("XML OUT : \n".$output->get());
 		header("Content-Type: text/xml");
 		$output->dump();
-
 	}//end _send()
 
 
@@ -571,6 +569,10 @@ class Asset_Map
 	*/
 	function _getURL(&$input, &$backend)
 	{
+		$output = new XML_Tree();
+		$output->addRoot('responses');
+		$response_count = 0;
+
 		$link  = '';
 		$frame = '';
 
@@ -642,8 +644,9 @@ class Asset_Map
 			return;
 		}
 
-		$output = new XML_Tree();
-		$root = &$output->addRoot('url', $link, Array('frame' => $frame));
+		$urlTree = new XML_Tree();
+		$urlTree->addRoot('url', $link, Array('frame' => $frame));
+		$output->insertChild(Array('responses'), $response_count++, $urlTree);
 
 		$this->_send($output);
 
@@ -659,6 +662,10 @@ class Asset_Map
 	*/
 	function _moveAsset(&$input, &$backend)
 	{
+		$output = new XML_Tree();
+		$output->addRoot('responses');
+		$response_count = 0;
+
 		$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
 		if (is_null($old_parent)) {
 			$this->_error('Unable to Move Asset, existing parent (Asset #"'.$input->root->attributes['from_parent_assetid'].'") not found');
@@ -704,10 +711,9 @@ class Asset_Map
 				$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_SC_LINK_SIGNIFICANT, '', true, $link['linkid']);
 				if (!$num_other_links) {
 					$url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=delete_asset&assetid='.$asset->id.'&linkid='.$link['linkid'];
-					$output = new XML_Tree();
-					$root = &$output->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));
-					$this->_send($output);
-					return;
+					$urlTree = new XML_Tree();
+					$urlTree->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));
+					$output->insertChild(Array('responses'), $response_count++, $urlTree);
 				}
 			}
 
@@ -740,16 +746,16 @@ class Asset_Map
 			if (empty($url)) $url = $perm_url;
 
 			if (!empty($url)) {
-				$output = new XML_Tree();
-				$root = &$output->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));
-				$this->_send($output);
-				return;
+				$urlTree = new XML_Tree();
+				$urlTree->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));
+				$output->insertChild(Array('responses'), $response_count++, $urlTree);
 			}
 
 		}// end if
 
-		$output = new XML_Tree();
-		$root = &$output->addRoot('success', '', Array('linkid' => $linkid));
+		$successTree = new XML_Tree();
+		$successTree->addRoot('success', '', Array('linkid' => $linkid));
+		$output->insertChild(Array('responses'), $response_count++, $successTree);
 		$this->_send($output);
 
 	}// end _moveAsset()
@@ -764,6 +770,10 @@ class Asset_Map
 	*/
 	function _dupeAsset(&$input, &$backend)
 	{
+		$output = new XML_Tree();
+		$output->addRoot('responses');
+		$response_count = 0;
+
 		$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
 		if (is_null($old_parent)) {
 			$this->_error('Unable to Duplicate Asset, existing parent (Asset #"'.$input->root->attributes['from_parent_assetid'].'") not found');
@@ -792,8 +802,10 @@ class Asset_Map
 
 		$url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=duplicate&assetid='.$asset->id.'&to_parent_assetid='.$new_parent->id.'&to_parent_pos='.$input->root->attributes['to_parent_pos'];
 
-		$output = new XML_Tree();
-		$root = &$output->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));
+		$urlTree = new XML_Tree();
+		$urlTree->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));
+		$output->insertChild(Array('responses'), $response_count++, $urlTree);
+
 		$this->_send($output);
 
 	}// end _dupeAsset()
@@ -808,6 +820,10 @@ class Asset_Map
 	*/
 	function _newLink(&$input)
 	{
+		$output = new XML_Tree();
+		$root = &$output->addRoot('responses');
+		$response_count = 0;
+
 		$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
 		if (is_null($old_parent)) {
 			$this->_error('Unable to Create New Link, existing parent (Asset #"'.$input->root->attributes['from_parent_assetid'].'") not found');
@@ -841,7 +857,6 @@ class Asset_Map
 		// First let's try and create the new link, if there are any issues then it will cryout for us
 		$linkid = $new_parent->createLink($asset, $link['link_type'], '', $input->root->attributes['to_parent_pos']);
 		if (!$linkid) return;
-
 		//// START HIPO PROCESSING ////
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array('assetids' => Array($asset->id));
@@ -870,14 +885,14 @@ class Asset_Map
 		if (empty($url)) $url = $perm_url;
 
 		if (!empty($url)) {
-			$output = new XML_Tree();
-			$root = &$output->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));
-			$this->_send($output);
-			return;
+			$urlTree = new XML_Tree();
+			$urlTree->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));
+			$root =&$output->insertChild('responses', $response_count++, $urlTree);
 		}
 
-		$output = new XML_Tree();
-		$root = &$output->addRoot('success', '', Array('linkid' => $linkid));
+		$successTree = new XML_Tree();
+		$successTree->addRoot('success', '', Array('linkid' => $linkid));
+		$root = &$output->insertChild('responses', $response_count++, $successTree);
 		$this->_send($output);
 
 	}// end _newLink()
