@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.45 2004/09/02 04:34:00 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.46 2004/09/03 05:23:54 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.45 $ - 1.0
+* @version $Revision: 1.46 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -620,7 +620,7 @@ class Page_Calendar extends Page_Asset_Listing
 			// print the rest of the first week
 			while ($i < $week_length) {
 				$_REQUEST['SQ_CALENDAR_DATE'] = sprintf('%04d-%02d-%02d', $year, $month, $current_day);
-				$contents = $this->_getMonthCellContents($events[$current_day], $show_event_links, $root_nodes);
+				$contents = $this->_getMonthCellContents($events[$current_day], $show_event_links, $root_nodes, $column_width*0.99);
 				$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'weekend' : '';
 				$occupied_class = ($contents) ? 'eventDate' : '';
 				$onclick = ($contents && $drill_down_view) ? 'clickChild(this)' : '';
@@ -643,7 +643,7 @@ class Page_Calendar extends Page_Asset_Listing
 				echo '<tr style="height: '.$row_height.'ex">';
 				for ($i=0; $i < $week_length; $i++) {
 					$_REQUEST['SQ_CALENDAR_DATE'] = sprintf('%04d-%02d-%02d', $year, $month, $current_day);
-					$contents = $this->_getMonthCellContents($events[$current_day], $show_event_links, $root_nodes);
+					$contents = $this->_getMonthCellContents($events[$current_day], $show_event_links, $root_nodes, $column_width*0.99);
 					$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'weekend' : '';
 					$occupied_class = ($contents) ? 'eventDate' : '';
 					$onclick = ($contents && $drill_down_view) ? 'clickChild(this)' : '';
@@ -665,7 +665,7 @@ class Page_Calendar extends Page_Asset_Listing
 				echo '<tr style="height: '.$row_height.'ex">';
 				while ($current_day <= $month_length) {
 					$_REQUEST['SQ_CALENDAR_DATE'] = sprintf('%04d-%02d-%02d', $year, $month, $current_day);
-					$contents = $this->_getMonthCellContents($events[$current_day], $show_event_links, $root_nodes);
+					$contents = $this->_getMonthCellContents($events[$current_day], $show_event_links, $root_nodes, $column_width*0.99);
 					$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'weekend' : '';
 					$occupied_class = ($contents) ? 'eventDate' : '';
 					$onclick = ($contents && $drill_down_view) ? 'clickChild(this)' : '';
@@ -864,17 +864,18 @@ class Page_Calendar extends Page_Asset_Listing
 	/**
 	* Get the contents of a cell in the month table
 	*/
-	function _getMonthCellContents($events, $show_event_link, $root_nodes) 
+	function _getMonthCellContents($events, $show_event_link, $root_nodes, $width) 
 	{
 		$res = '';
 		foreach ($events as $assetid => $details) {
 			$event_class = (isset($root_nodes[$details['root_node']]['class_name'])) ? $root_nodes[$details['root_node']] ['class_name'] : '';
 			$onclick_code = $show_event_link ? ' onclick="clickChild(this); return false;"' : '';
-			$res .= '<div style="margin-bottom: 1px; '.($show_event_link ? 'cursor: pointer; cursor: hand; style="width: 100%" ' : '').'" class="event '.$event_class.'"'.$onclick_code.'>';
+			$cursor_code = $show_event_link ? 'cursor: pointer; cursor: hand;' : '';
+			$res .= '<div style="width: '.$width.'ex"><div style="width: auto; margin-bottom: 1px; '.$cursor_code.'" class="event '.$event_class.'"'.$onclick_code.'>';
 			if ($show_event_link) $res .= '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'&amp;SQ_CALENDAR_EVENT_ID='.$assetid.'" class="event '. $event_class.'">';
-
 			$res .= $details['name'];
-			$res .= $show_event_link ? '</a>' : '</div>';
+			if ($show_event_link) $res .= '</a>';
+			$res .= '</div></div>';
 		}
 		return $res;
 
@@ -966,7 +967,7 @@ class Page_Calendar extends Page_Asset_Listing
 			</tr>
 			<?php
 		}
-		$width = $width * 0.90;
+		$width = $width * 0.92;
 		list($current_hour, $current_mins) = explode(':', $this->attr('day_starts_at'));
 		list($end_hour, $end_mins) = explode(':', $this->attr('day_ends_at'));
 		?>
@@ -978,18 +979,18 @@ class Page_Calendar extends Page_Asset_Listing
 				?>
 				<td id="<?php echo $id.'_all_day'; ?>">
 				<?php
+					if (empty($col_events['all_day'])) echo '&nbsp;';
 					foreach($col_events['all_day'] as $assetid => $event) {
 						// get class to use for div
 						$event_class = $root_nodes[$event['root_node']]['class_name'];
-						echo '<div style="margin-bottom: 1px" class="'.$event_class.' event">';
+						echo '<div style="text-align: center; width: '.$width.'ex; margin-left: auto; margin-right: auto; margin-bottom: 1px; padding-left: 1px" class="'.$event_class.' event">';
 						echo $show_event_links ? '<a class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.strtok($assetid,':').'&amp;SQ_CALENDAR_DATE='.$event_link_date.'">' : '<span class="event '.$event_class.'">';
 						echo $event['name'];
 						echo $show_event_links ? '</a>' : '</span>';
-
 						echo '</div>';	
 					}
 				?>
-				&nbsp;
+				
 				</td>
 				<?php
 			}
@@ -1100,7 +1101,8 @@ class Page_Calendar extends Page_Asset_Listing
 		$recurring_events = $db->getAssoc($sql);
 		assert_valid_db_result($recurring_events);
 
-		return $single_events + $recurring_events;
+		$res = $single_events + $recurring_events;
+		return $res;
 
 	}//end getYearEvents()
 
@@ -1139,7 +1141,7 @@ class Page_Calendar extends Page_Asset_Listing
 				}
 			} else {
 				// recurring event
-				$stop_date = $details['stop_date'] ? $details['stop_date'] : sprintf('%04d-12-31', $year);
+				$stop_date = (int)$details['stop_date'] ? $details['stop_date'] : sprintf('%04d-12-31', $year);
 				$next_occurrence_date = Calendar_Event_Recurring::getFirstOccurrenceAfter(sprintf('%04d-01-01', $year), sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']), $details['frequency'], $details['period'], $stop_date);
 				while ($next_occurrence_date && (strtotime($next_occurrence_date.' 12:00:00 GMT') < $end_ts)) {
 					$real_date_comps = Calendar_Event::getDateComponents($next_occurrence_date, 'start_date_');
@@ -1188,7 +1190,7 @@ class Page_Calendar extends Page_Asset_Listing
 					}
 				} else {
 					// recurring event
-					$stop_date = $details['stop_date'] ? $details['stop_date'] : sprintf('%04d-12-31', $year);
+					$stop_date = (int)$details['stop_date'] ? $details['stop_date'] : sprintf('%04d-12-31', $year);
 					$next_occurrence_date = Calendar_Event_Recurring::getFirstOccurrenceAfter(sprintf('%04d-%02d-%02d', $year, $month_num, 1), sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']), $details['frequency'], $details['period'], $stop_date);
 					while ($next_occurrence_date && (strtotime($next_occurrence_date.' 12:00:00 GMT') < $end_ts)) {
 						$real_date_comps = Calendar_Event::getDateComponents($next_occurrence_date, 'start_date_');
@@ -1198,6 +1200,11 @@ class Page_Calendar extends Page_Asset_Listing
 						$next_occurrence_date = Calendar_Event_Recurring::getFirstOccurrenceAfter(sprintf('%04d-%02d-%02d', $ne_year, $ne_month, $ne_day), sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']), $details['frequency'], $details['period'], $stop_date);
 					}
 				}
+			}
+		}
+		foreach ($res as $month => $month_events) {
+			foreach ($month_events as $day => $events) {
+				$this->_processExceptions($res[$month][$day]);
 			}
 		}
 		return $res;
@@ -1238,12 +1245,14 @@ class Page_Calendar extends Page_Asset_Listing
 
 		// Get our recurring events
 		$date_sql = 'cd.start_date_ts < '.$db->quote($end_ts);
-		$sql = $this->_buildRecurringEventQuery(&$trees, 'month', "$year-$month")."\n AND (".$date_sql.")\n AND (".implode(' OR ', $tree_clauses).')';	
+		$sql = $this->_buildRecurringEventQuery(&$trees, 'month', "$year-$month")."\n AND (".implode(' OR ', $tree_clauses).')';	
 		$recurring_events = $db->getAssoc($sql);
 		//bam("Recurring SQL: $sql");
 		assert_valid_db_result($recurring_events);
 
-		return $single_events + $recurring_events;
+		$res = $single_events + $recurring_events;
+		bam(array_keys($res));
+		return $res;
 
 	}//end getMonthEvents
 
@@ -1286,7 +1295,7 @@ class Page_Calendar extends Page_Asset_Listing
 				}
 			} else {
 				// recurring event
-				$stop_date = $details['stop_date'] ? $details['stop_date'] : sprintf('%04d-%02d-%02d', $year, $month, $month_length);
+				$stop_date = (int)$details['stop_date'] ? $details['stop_date'] : sprintf('%04d-%02d-%02d', $year, $month, $month_length);
 				$next_occurrence_date = Calendar_Event_Recurring::getFirstOccurrenceAfter(sprintf('%04d-%02d-%02d', $year, $month, 1), sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']), $details['frequency'], $details['period'], $stop_date);
 				while ($next_occurrence_date && (strtotime($next_occurrence_date.' 12:00:00 GMT') < $month_end_ts)) {
 					$real_date_comps = Calendar_Event::getDateComponents($next_occurrence_date, 'start_date_');
@@ -1296,8 +1305,8 @@ class Page_Calendar extends Page_Asset_Listing
 					$next_occurrence_date = Calendar_Event_Recurring::getFirstOccurrenceAfter(sprintf('%04d-%02d-%02d', $ne_year, $ne_month, $ne_day), sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']), $details['frequency'], $details['period'], $stop_date);
 				}
 			}
-
 		}
+		foreach ($res as $date => $events) $this->_processExceptions($res[$date]);
 		return $res;
 
 	}//end getMonthEventsByDay
@@ -1319,6 +1328,7 @@ class Page_Calendar extends Page_Asset_Listing
 		
 		$single_result =& $this->_multipleDaySingleQuery($root_nodes, $cal_date, 7);		
 		$recur_result =& $this->_multipleDayRecurringQuery($root_nodes, $cal_date, 'week');
+		$res = Array();
 		
 		foreach(array_keys($single_result) as $key) {
 			$event =& $single_result[$key];
@@ -1409,8 +1419,6 @@ class Page_Calendar extends Page_Asset_Listing
 			}
 		}
 		
-		//$res = $single_result;
-
 		foreach(array_keys($recur_result) as $key) {
 			$event =& $recur_result[$key];
 			$event_start_date = sprintf('%04d-%02d-%02d', $event['start_date_year'], $event['start_date_mon'], $event['start_date_mday']);
@@ -1519,9 +1527,6 @@ class Page_Calendar extends Page_Asset_Listing
 				$next_occur = Calendar_Event_Recurring::getFirstOccurrenceAfter( increment_iso_by_days($next_occur, 1), $event_start_date, $event['frequency'], $event['period'], $event_last_day);
 			
 			}//end while
-			
-			
-			
 		}
 		return $res;
 
@@ -1577,6 +1582,7 @@ class Page_Calendar extends Page_Asset_Listing
 				}
 			}
 		}
+		foreach ($res as $day => $events) $this->_processExceptions($res[$day]);
 		return $res;
 
 	}//end getWeekEventsByDay()
@@ -1647,7 +1653,8 @@ class Page_Calendar extends Page_Asset_Listing
 		$recur_result =& $this->_multipleDayRecurringQuery($root_nodes, $date, 'day');
 		
 		$res = $single_result + $recur_result;
-				
+		$this->_processExceptions($res);
+
 		$date_stamp = floor(iso8601_ts($date.' 12:00:00') / 86400);
 		
 		// reset the results so that those which go over multiple days are appropriately
@@ -1767,6 +1774,39 @@ class Page_Calendar extends Page_Asset_Listing
 
 
 //--        HELPER FUNCTIONS FOR EVENT EXTRACTION        --//
+
+
+	/**
+	* Process exception events (cancellations and modifications) from the set of events passed
+	*
+	* When a cancellation or modification event is found in the set, its parent recurring event
+	* is removed from the set, and for cancellation events they themselves are removed too
+	*
+	* @param array	$res					a ($id => array(...)) array of events
+	*
+	* @return void
+	*/	
+	function _processExceptions(&$res) 
+	{
+		$exception_ids = Array();
+		foreach ($res as $id => $details) {
+			if (in_array($details['type_code'], Array('calendar_event_cancellation', 'calendar_event_modification'))) {
+				$id_bits = explode(':', $id);
+				$real_id = $id_bits[0];
+				$exception_ids[] = $GLOBALS['SQ_SYSTEM']->db->quote($real_id);
+				if ($details['type_code'] == 'calendar_event_cancellation') unset($res[$id]);
+			}
+		}
+		if (empty($exception_ids)) return false;
+		$exception_links = $GLOBALS['SQ_SYSTEM']->db->getAssoc('SELECT majorid, minorid FROM sq_asset_link WHERE minorid IN ('.implode(', ',	$exception_ids).')');
+		foreach ($res as $key => $details) {
+			$id = explode(':', $key);
+			$id = $id[0];
+			if (isset($exception_links[$id])) {
+				unset($res[$key]);
+			}
+		}
+	}
 
 
 	/**
@@ -2045,7 +2085,7 @@ class Page_Calendar extends Page_Asset_Listing
 				// all monthly views can be lumped together on this one
 				$sql_freqs[] = '(frequency LIKE '.$db->quote('M%').' AND MOD('.$db->quote($ms).' - start_date_ms,period) = 0)';
 
-				$iso = $year.'-'.sprintf('%02d', $month).'-'.days_in_month($month, $year);
+				$iso = $year.'-'.sprintf('%02d', $month).'-01';
 				
 			break;
 			

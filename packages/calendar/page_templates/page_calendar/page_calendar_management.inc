@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.12 2004/08/25 22:53:36 tbarrett Exp $
+* $Id: page_calendar_management.inc,v 1.13 2004/09/03 05:23:54 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.12 $ - 1.0
+* @version $Revision: 1.13 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -60,12 +60,12 @@ class Page_Calendar_Management extends Asset_Management
 		$this->vars['enabled_views']			= Array(
 														'added'     => '0.1',
 														'type'      => 'serialise',
-														'default'   => Array(	'year'=>'',
-																				'month'=>'',
-																				'week'=>'',
-																				'month'=>'',
-																				'day'=>'',
-																				'event'=>'')
+														'default'   => Array(	'year'=>'calendar',
+																				'month'=>'calendar',
+																				'week'=>'calendar',
+																				'month'=>'calendar',
+																				'day'=>'calendar',
+																				'event'=>'event')
 													);
 		$this->vars['initial_view'] = Array(
 													'added'			=> '0.1',
