@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_datetime_management.inc,v 1.6 2003/11/26 00:50:56 gsherwood Exp $
+* $Id: design_area_datetime_management.inc,v 1.7 2003/12/12 18:42:57 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,7 +51,7 @@ class Design_Area_DateTime_Management extends Asset_Management
 								'added'			=> '0.0.1',
 								'type'			=> 'text',
 								'default'		=> 'h:ia  d/m/Y',
-								'description'   => 'Format of the datetime field, see PHP\'s date fn for format specifications <a href="http://au2.php.net/date">http://au2.php.net/date</a>'
+								'description'   => 'Format of the datetime field, see PHP\'s date fn for format specifications <a href="http://www.php.net/date">http://www.php.net/date</a>'
 							),
 							'datetime' => Array(
 								'added'			=> '0.0.1',
