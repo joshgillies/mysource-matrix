@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.9 2004/07/23 07:09:45 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.10 2004/07/26 04:07:52 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH . '/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.9 $ - 1.0
+* @version $Revision: 1.10 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -208,32 +208,65 @@ class Calendar_Event extends Asset
 	}//end saveAttributes()
 	
 
+	/**
+	* Get the date component of the Start Date attribute
+	*
+	* @return mixed (string|boolean) the date component of the start date (ISO8601 fmt,
+	* 				yyyy-mm-dd) or boolean FALSE if the date component is empty
+	* @access public
+	*/
 	function getStartDate() 
 	{
 		$res = substr($this->attr('start_date'), 0, 10);
-		return ($res == '----------') ? false : $res;	
-	}
+		return ($res == '----------') ? false : $res;
+		
+	}//end getStartDate()
 
 
+	/**
+	* Get the date component of the End Date attribute
+	*
+	* @return mixed (string|boolean) the date component of the end date (ISO8601 fmt,
+	* 				yyyy-mm-dd) or boolean FALSE if the date component is empty
+	* @access public
+	*/
 	function getEndDate() 
 	{
 		$res = substr($this->attr('end_date'), 0, 10);
-		return ($res == '----------') ? false : $res;	
-	}
+		return ($res == '----------') ? false : $res;
+		
+	}//end getEndDate()
 
-
+	
+	/**
+	* Get the time component of the Start Date attribute
+	*
+	* @return mixed (string|boolean) the time component of the start date (hh:mm:ss)
+					or boolean FALSE if the time component is empty (--:--:--)
+	* @access public
+	*/
 	function getStartTime() 
 	{
 		$res = substr($this->attr('start_date'), 11);
 		return ($res == '--:--:--') ? false : $res;
-	}
+		
+	}//end getStartTime()
 
 
+	/**
+	* Get the time component of the End Date attribute
+	*
+	* @return mixed (string|boolean) the time component of the end date (hh:mm:ss)
+					or boolean FALSE if the time component is empty (--:--:--)
+	* @access public
+	*/
 	function getEndTime() 
 	{
 		$res = substr($this->attr('end_date'), 11);
 		return ($res == '--:--:--') ? false : $res;
-	}
+		
+	}//end getEndTime()
+	
 
 	/**
 	* Returns the duration between the start and end dates, if they are set
@@ -333,10 +366,16 @@ class Calendar_Event extends Asset
 	* If date components of Start Date and End Date attributes are the same, the date is not repeated,
 	* and the times are shown in abbreviated format (see example returns below).
 	*
-	* Example returns:
+	* Example returns (assuming date and time components specified):<PRE>
 	* if (start date != end date)		"23 Jul 2004 4:00pm - 25 Jul 2004 10:00am"
 	* if (start date == end date)		"23 Jul 2004 4:00pm-5:00pm"
 	* if (end date is empty)			"23 Jul 2004 4:00pm"
+	* </PRE>
+	* If only date components are specified:<PRE>
+	* if (start date != end date)		"23 Jul 2004 - 25 Jul 2004"
+	* if (start date == end date)
+	* 	OR (end date is empty)			"23 Jul 2004"
+	* </PRE>
 	*
 	* @return string
 	* @access public
