@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.120 2004/11/25 01:59:42 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.121 2004/11/25 23:11:44 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.120 $ - 1.0
+* @version $Revision: 1.121 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -233,7 +233,7 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function _createAdditional(&$link)
 	{
-		return true;
+		return Page::_createAdditional($link);
 
 	}//end _createAdditional()
 
