@@ -53,7 +53,7 @@ class Asset_Map
 			}
 			// Hook for Internet Explorer 
 			if (navigator.appName && navigator.appName.indexOf("Microsoft") != -1 && 
-				  navigator.userAgent.indexOf("Windows") != -1 && navigator.userAgent.indexOf("Windows 3.1") == -1) {
+				navigator.userAgent.indexOf("Windows") != -1 && navigator.userAgent.indexOf("Windows 3.1") == -1) {
 				document.write('<SCRIPT LANGUAGE=VBScript\> \n');
 				document.write('on error resume next \n');
 				document.write('Sub asset_map_FSCommand(ByVal command, ByVal args)\n');
