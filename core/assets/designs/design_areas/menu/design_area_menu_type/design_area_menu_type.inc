@@ -382,7 +382,9 @@ class Design_Area_Menu_Type extends Design_Area
 						     AND (l.link_type & \'.$db->quote(SQ_SC_LINK_FRONTEND_NAV).\') > 0 \';
 				$where  = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'a\');
 				$where  = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'l\');
-				$where  = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'p\');
+				if (!empty($USERIDS_COND)) {
+					$where  = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'p\');
+				}
 				$where  = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'pt\');
 				$where .= " $USERIDS_COND ";
 				$where .= \'
