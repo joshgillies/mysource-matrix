@@ -181,6 +181,10 @@ class Asset_Manager extends Resolve_Object
 			// we do not have cached, but keep the type_code array intact for
 			// looping through later
 			$tmp = $type_code;
+
+			// if there are multiple type_codes we need to select the type_code as well
+			// as the field from the database so we know what field belongs to what typecode
+			$columns = 'type_code, '.$field;
 			
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			for($i = 0; $i < count($type_code); $i++) {
@@ -202,6 +206,8 @@ class Asset_Manager extends Resolve_Object
 		
 		// just a single typecode
 		} else {
+			$columns = $field;
+
 			if (!isset($this->_asset_types[$type_code])) {
 				trigger_error('Asset "'.$type_code.'" is not installed on the system', E_USER_WARNING);
 				return ($field) ? null : Array();
@@ -215,15 +221,15 @@ class Asset_Manager extends Resolve_Object
 
 		if ($do_query) {
 
-			$sql = 'SELECT '.$field.'
+			$sql = 'SELECT '.$columns.'
 					FROM '.SQ_TABLE_PREFIX.'asset_type
 					WHERE type_code '.$type_code_cond;
 			$result = $db->getAll($sql);
 			
 			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 			if (is_array($type_code)) {
-				for ($i = 0; $i < count($type_code); $i++) {
-					$this->_asset_types[$type_code[$i]][$field] = $result[$i][$field];
+				for ($i = 0; $i < count($result); $i++) {
+					$this->_asset_types[$result[$i]['type_code']][$field] = $result[$i][$field];
 				}
 			} else {
 				$this->_asset_types[$type_code][$field] = $result;
