@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.169 2003/10/27 01:23:50 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.170 2003/10/27 02:29:27 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -263,7 +263,7 @@ class Asset_Edit_Interface extends MySource_Object
 						<?php
 						if (empty($lock)) {
 							$have_all_locks = false;
-							if ($full_write_access || $acquire_lock_access) {
+							if ($full_write_access && $acquire_lock_access) {
 								echo '<p class="sq-backend-unlocked">Currently not held.</p>';
 							} else {
 								echo 'You do not have access to edit "'.$owner->name.'".';
@@ -335,7 +335,7 @@ class Asset_Edit_Interface extends MySource_Object
 									hidden_field('sq_lock_acquire',      '0');
 									normal_button('sq_forceably_acquire_lock', 'Acquire Lock(s)', 'window.open(\''.$popup_url.'\', \'sq_forceably_acquire_lock_popup\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300\');');
 								}
-							} else if ($full_write_access || $acquire_lock_access) {
+							} else if ($full_write_access && $acquire_lock_access) {
 								hidden_field('sq_lock_acquire_by_force', '0');
 								submit_button('sq_lock_acquire', 'Lock');
 							} // end if

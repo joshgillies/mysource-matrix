@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.248 2003/10/27 01:23:50 gsherwood Exp $
+* $Id: asset.inc,v 1.249 2003/10/27 02:29:26 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2317,7 +2317,7 @@ class Asset extends MySource_Object
 	*/
 	function liveEditAccess($lock_type)
 	{
-		if ($this->canLiveEdit($lock_type)) return $this->checkAccess(SQ_PERMISSION_WRITE, $lock_type);
+		if (empty($lock_type) || $this->canLiveEdit($lock_type)) return $this->checkAccess(SQ_PERMISSION_WRITE, $lock_type);
 		return false;
 
 	}//end liveEditAccess()
@@ -2339,10 +2339,10 @@ class Asset extends MySource_Object
 		if ($this->status != SQ_STATUS_LIVE) return true;
 
 		if (!empty($lock_type)) {
-			$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, $lock_type, true);
-			if (!in_array('attributes', array_keys($locks))) return true;
-		} else {
-			return true;
+			if ($lock_type != 'attributes') {
+				$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, $lock_type, true);
+				if (!in_array('attributes', array_keys($locks))) return true;
+			}
 		}
 
 		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
@@ -2397,7 +2397,6 @@ class Asset extends MySource_Object
 		}
 
 		if ($lock_type == '') {
-
 			return $this->_checkPermissionAccess($perm, $assetids);
 
 		} else {
