@@ -253,6 +253,7 @@ class Site extends Folder
 		$design_link = $this->getLink(SQ_LINK_USES, 'design', false, 'design');
 		$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
 		$login_design_link = $this->getLink(SQ_LINK_USES, 'design', false, 'login_design');
+		pre_echo($login_design_link);
 		$login_designid = (is_null($login_design_link)) ? 0 : $login_design_link['minorid'];
 
 		$urls = $this->getSiteURLs();
@@ -284,6 +285,38 @@ class Site extends Folder
 		return true;
 
 	}// end _updateLookups()
+
+
+	/**
+	* Processes a backend submission from this asset, returns true if all OK
+	*
+	* @param object Backend_Outputter	$o
+	* @param array(string)				&$link	information used to create the initial link
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processBackend(&$o, &$link)
+	{
+		$this->_tmp['update_lookups'] = false;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		if (parent::processBackend($o, $link)) {
+			if ($this->_tmp['update_lookups']) {
+				if (!$this->_updateLookups()) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				} 
+			}
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			return true;
+
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}// end if
+
+	}// end processBackend()
 
 
 	/**

@@ -282,11 +282,9 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
-			if (!$asset->updateLookups()) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
 		}// end if
+
+		$asset->_tmp['update_lookups'] = true;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
