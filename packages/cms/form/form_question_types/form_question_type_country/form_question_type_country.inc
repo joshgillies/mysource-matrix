@@ -2,12 +2,15 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_type_country.inc,v 1.1 2003/09/28 22:47:46 mmcintyre Exp $
+* $Id: form_question_type_country.inc,v 1.2 2003/10/13 05:25:12 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
 require_once dirname(__FILE__).'/../form_question_type_select/form_question_type_select.inc';
+
+global $standards_lists_countries;
+require_once SQ_FUDGE_PATH.'/standards_lists/countries.inc';
 
 /**
 * Form_Question_Type_Country
@@ -44,14 +47,15 @@ class Form_Question_Type_Country extends Form_Question_Type_Select
 	*/
 	function getOptions()
 	{
-		$attr = &$this->getAttribute('countries');
+		global $standards_lists_countries;
+
 		if (count($this->attr('available'))) {
 			$options = Array();
 			foreach ($this->attr('available') as $code) {
-				$options[$code] = $attr->_params['options'][$code];
+				$options[$code] = $standards_lists_countries[$code];
 			}
 		} else {
-			$options = $attr->_params['options'];
+			$options = $standards_lists_countries;
 		}
 
 		return $options;
@@ -67,8 +71,8 @@ class Form_Question_Type_Country extends Form_Question_Type_Select
 	*/
 	function getCompleteOptions()
 	{
-		$attr = &$this->getAttribute('countries');
-		return $attr->_params['options'];
+		global $standards_lists_countries;
+		return $standards_lists_countries;
 		
 	} // end getCompleteOptions()
 
