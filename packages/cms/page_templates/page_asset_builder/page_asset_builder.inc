@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.42.2.1 2004/12/23 01:40:39 amiller Exp $
+* $Id: page_asset_builder.inc,v 1.42.2.2 2005/02/10 03:58:45 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -861,7 +861,7 @@ class Page_Asset_Builder extends Page
 								echo $type_name;
 								?>
 							</a>
-						</li
+						</li>
 					<?php
 					$i++;
 				}
