@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_search.inc,v 1.2 2004/05/13 04:01:22 lwright Exp $
+* $Id: package_manager_search.inc,v 1.3 2004/05/13 22:32:02 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -56,7 +56,7 @@ class Package_Manager_Search extends Package_Manager
 	* @return object Search_Manager
 	* @access public
 	*/
-	function &create_search_manager()
+	function &createSearchManager()
 	{
 		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['system_management_folder']);
 	
@@ -72,7 +72,7 @@ class Package_Manager_Search extends Package_Manager
 
 		return $search_manager;
 
-	}//end create_search_manager()
+	}//end createSearchManager()
 
 
 }//end class

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.42 2004/05/13 04:01:21 lwright Exp $
+* $Id: package_manager.inc,v 1.43 2004/05/13 22:32:01 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -672,7 +672,7 @@ class Package_Manager extends MySource_Object
 		$system_assets = $GLOBALS['SQ_SYSTEM_ASSETS'];
 		foreach (array_intersect($sys_asset_cfg->system_asset_types, array_keys($this->assets)) as $type) {
 			if (!isset($system_assets[$type])) {
-				$function = 'create_'.$type;
+				$function = 'create'.str_replace('_','',$type);
 				$new_system_asset = &$this->$function();
 				if (!is_null($new_system_asset)) {
 					if ($new_system_asset->id) $updated = true;

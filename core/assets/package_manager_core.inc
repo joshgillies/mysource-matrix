@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.3 2004/05/13 04:01:12 lwright Exp $
+* $Id: package_manager_core.inc,v 1.4 2004/05/13 22:31:57 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -62,6 +62,7 @@ class Package_Manager_Core extends Package_Manager
 
 	}//end constructor
 
+
 	/**
 	* Returns the name of the package that this management class is working for
 	*
@@ -73,8 +74,6 @@ class Package_Manager_Core extends Package_Manager
 		return '__core__';
 
 	}//end getPackageName()
-
-
 
 
 	/**
@@ -136,8 +135,8 @@ class Package_Manager_Core extends Package_Manager
 	}//end updatePackageDetails()
 
 
-
 	//--        FUNCTIONS TO CREATE SYSTEM ASSETS        --//
+
 
 	/**
 	* Create the root folder system asset
@@ -145,7 +144,7 @@ class Package_Manager_Core extends Package_Manager
 	* @return object Root_Folder
 	* @access public
 	*/
-	function &create_root_folder()
+	function &createRootFolder()
 	{
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('root_folder');
 		
@@ -157,7 +156,7 @@ class Package_Manager_Core extends Package_Manager
 		$GLOBALS['SQ_SYSTEM_ASSETS']['root_folder'] = $root_folder->id;
 		return $root_folder;
 
-	}//end create_root_folder()
+	}//end createRootFolder()
 
 
 	/**
@@ -166,7 +165,7 @@ class Package_Manager_Core extends Package_Manager
 	* @return object Trash_Folder
 	* @access public
 	*/
-	function &create_trash_folder()
+	function &createTrashFolder()
 	{
 		$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['root_folder']);
 		
@@ -180,7 +179,7 @@ class Package_Manager_Core extends Package_Manager
 		$GLOBALS['SQ_SYSTEM_ASSETS']['trash_folder'] = $trash_folder->id;
 		return $trash_folder;
 
-	}//end create_trash_folder()
+	}//end createTrashFolder()
 
 
 	/**
@@ -189,7 +188,7 @@ class Package_Manager_Core extends Package_Manager
 	* @return object System_Management_Folder
 	* @access public
 	*/
-	function &create_system_management_folder()
+	function &createSystemManagementFolder()
 	{
 		$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['root_folder']);
 		
@@ -202,7 +201,7 @@ class Package_Manager_Core extends Package_Manager
 		$GLOBALS['SQ_SYSTEM_ASSETS']['system_management_folder'] = $system_management_folder->id;
 		return $system_management_folder;
 
-	}//end create_system_management_folder()
+	}//end createSystemManagementFolder()
 
 
 	/**
@@ -211,7 +210,7 @@ class Package_Manager_Core extends Package_Manager
 	* @return object System_User_Group
 	* @access public
 	*/
-	function &create_system_user_group()
+	function &createSystemUserGroup()
 	{
 		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['system_management_folder']);
 		
@@ -224,7 +223,7 @@ class Package_Manager_Core extends Package_Manager
 		$GLOBALS['SQ_SYSTEM_ASSETS']['system_user_group'] = $system_user_group->id;
 		return $system_user_group;
 
-	}//end create_system_user_group()
+	}//end createSystemUserGroup()
 
 
 	/**
@@ -233,7 +232,7 @@ class Package_Manager_Core extends Package_Manager
 	* @return object Root_User
 	* @access public
 	*/
-	function &create_root_user()
+	function &createRootUser()
 	{
 		$system_user_group = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['system_user_group']);
 		
@@ -253,7 +252,7 @@ class Package_Manager_Core extends Package_Manager
 		$GLOBALS['SQ_SYSTEM_ASSETS']['root_user'] = $root_user->id;
 		return $root_user;
 
-	}//end create_root_user()
+	}//end createRootUser()
 
 
 	/**
@@ -262,7 +261,7 @@ class Package_Manager_Core extends Package_Manager
 	* @return object Cron_Manager
 	* @access public
 	*/
-	function &create_cron_manager()
+	function &createCronManager()
 	{
 		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['system_management_folder']);
 		
@@ -275,7 +274,7 @@ class Package_Manager_Core extends Package_Manager
 		$GLOBALS['SQ_SYSTEM_ASSETS']['cron_manager'] = $cron_manager->id;
 		return $cron_manager;
 
-	}//end create_cron_manager()
+	}//end createCronManager()
 
 
 	/**
@@ -284,7 +283,7 @@ class Package_Manager_Core extends Package_Manager
 	* @return object Layout_Manager
 	* @access public
 	*/
-	function &create_layout_manager()
+	function &createLayoutManager()
 	{
 		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['system_management_folder']);
 		
@@ -297,7 +296,7 @@ class Package_Manager_Core extends Package_Manager
 		$GLOBALS['SQ_SYSTEM_ASSETS']['layout_manager'] = $layout_manager->id;
 		return $layout_manager;
 
-	}//end create_layout_manager()
+	}//end createLayoutManager()
 
 
 	/**
@@ -306,7 +305,7 @@ class Package_Manager_Core extends Package_Manager
 	* @return object Remap_Manager
 	* @access public
 	*/
-	function &create_remap_manager()
+	function &createRemapManager()
 	{
 		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['system_management_folder']);
 		
@@ -319,7 +318,7 @@ class Package_Manager_Core extends Package_Manager
 		$GLOBALS['SQ_SYSTEM_ASSETS']['remap_manager'] = $remap_manager->id;
 		return $remap_manager;
 
-	}//end create_remap_manager()
+	}//end createRemapManager()
 
 
 	/**
@@ -328,7 +327,7 @@ class Package_Manager_Core extends Package_Manager
 	* @return object Designs_Folder
 	* @access public
 	*/
-	function &create_designs_folder()
+	function &createDesignsFolder()
 	{
 		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['system_management_folder']);
 		
@@ -341,7 +340,7 @@ class Package_Manager_Core extends Package_Manager
 		$GLOBALS['SQ_SYSTEM_ASSETS']['designs_folder'] = $designs_folder->id;
 		return $designs_folder;
 
-	}//end create_designs_folder()
+	}//end createDesignsFolder()
 
 
 	/**
@@ -350,7 +349,7 @@ class Package_Manager_Core extends Package_Manager
 	* @return object Authentication_Folder
 	* @access public
 	*/
-	function &create_authentication_folder()
+	function &createAuthenticationFolder()
 	{
 		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['system_management_folder']);
 		
@@ -363,7 +362,7 @@ class Package_Manager_Core extends Package_Manager
 		$GLOBALS['SQ_SYSTEM_ASSETS']['authentication_folder'] = $authentication_folder->id;
 		return $authentication_folder;
 
-	}//end create_authentication_folder()
+	}//end createAuthenticationFolder()
 
 
 	/**
@@ -372,7 +371,7 @@ class Package_Manager_Core extends Package_Manager
 	* @return object Login_Design
 	* @access public
 	*/
-	function &create_login_design()
+	function &createLoginDesign()
 	{
 		$designs_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['designs_folder']);
 	
@@ -386,7 +385,7 @@ class Package_Manager_Core extends Package_Manager
 		$GLOBALS['SQ_SYSTEM_ASSETS']['login_design'] = $login_design->id;
 		return $login_design;
 
-	}//end create_login_design()
+	}//end createLoginDesign()
 
 
 }//end class
