@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.40 2004/06/21 06:50:31 lwright Exp $
+* $Id: form.inc,v 1.41 2004/06/22 00:45:09 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -751,9 +751,13 @@ class Form extends Bridge
 				$output .='&nbsp;</td><td';
 				$output .= ($this->attr('answer_col_width')) ? ' 	width="'.$this->attr('answer_col_width').'">' 	: '>';
 			
-				$output .= $submit_button;		
+				$output .= $submit_button;
 	
-				$output .= '</td></tr></table>';
+				$output .= '</td></tr>';
+				if ($is_error) {
+					$output .= '<tr><td colspan="3">'.$err_output.'</td></tr>';
+				}
+				$output .= '</table>';
 
 				echo $output;
 			}
