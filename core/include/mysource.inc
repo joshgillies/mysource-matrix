@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mysource.inc,v 1.18 2003/11/10 02:57:17 mmcintyre Exp $
+* $Id: mysource.inc,v 1.19 2003/11/11 04:31:05 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -749,7 +749,7 @@ class MySource
 		}
 		return $this->em;
 
-	} // end getEvemtManager()
+	}//end getEvemtManager()
 
 
 //--        DATABASE        --//
@@ -1576,6 +1576,33 @@ class MySource
 		return (is_null($timestamp)) ? date('H:i:s') : date('H:i:s', $timestamp);
 
 	}//end time()
+
+
+//--        PACKAGES        --//
+
+
+	/**
+	* Returns some information about the currently installed packages.
+	*
+	* Returns the code name, version, name and description for each of the currently installed packages
+	*
+	* @return boolean
+	* @access public
+	*/
+	function getInstalledPackages()
+	{
+		$sql = 'SELECT code_name, version, name, description FROM '.SQ_TABLE_PREFIX.'package';
+		$packages = $this->db->getAll($sql);
+
+		if (DB::isError($packages)) {
+			trigger_error($packages->getMessage().'<br/>'.$packages->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		return $packages;
+	
+	}//end getInstalledPackages()
+
 
 }//end class
 
