@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.12 2004/11/05 05:00:45 gsherwood Exp $
+* $Id: text.inc,v 1.13 2004/11/30 01:17:13 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.13 $
 * @package Fudge
 * @subpackage Text
 */
@@ -102,7 +102,7 @@ function retrieve_keywords_replacements($text, $additional='')
 * @access public
 */
 
-function get_word_counts($text, $split_regexp="[^A-z0-9]+", $word_match_regexp="[A-z0-9]+",$min_length=3)
+function get_word_counts($text, $split_regexp="[^A-z0-9]+", $word_match_regexp="[A-z0-9]+",$min_length=1)
 {
 	$words = split($split_regexp, $text);
 	$word_counts = array_count_values($words);
