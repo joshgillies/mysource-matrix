@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.5 2004/01/23 04:38:11 gsherwood Exp $
+* $Id: page_asset_builder.inc,v 1.6 2004/01/23 06:17:42 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -293,7 +293,7 @@ class Page_Asset_Builder extends Page
 					$link = Array('asset'		=> &$parent,
 								  'link_type'	=> $this->attr('create_link_type'),
 								  'value'		=> '',
-								  'sort_order'	=> '');
+								  'sort_order'	=> -1);
 
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
