@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_show_if.inc,v 1.5 2004/12/06 14:38:08 brobertson Exp $
+* $Id: design_area_show_if.inc,v 1.6 2005/01/11 03:44:00 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Avi Miller <Avi Miller@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,7 +40,36 @@ class Design_Area_Show_If extends Design_Area
 {
 
 
-	/*
+	/**
+	* Queue the setting of the value of an attribute
+	*
+	* This function sets the value of the attribute locally, but does not database updating.
+	* The change is queued awaiting the call of saveAttributes()
+	*
+	* @param string		$name	the name of the attribute
+	* @param string		$value	the new value of the attribute
+	*
+	* @return boolean
+	* @access public
+	* @see asset:setAttrValue()
+	*/
+	function setAttrValue($name, $value)
+	{
+		if (substr($name, 0, 10) == 'condition_') {
+			// this is some condition data we need to save and pass to the
+			//  condition asset's evaluate() function
+			$data_key = substr($name, 10);
+
+			$condition_data = $this->attr('condition_data');
+			$condition_data[$data_key] = $value;
+			return parent::setAttrValue('condition_data', $condition_data);
+		}
+		return parent::setAttrValue($name, $value);
+
+	}//end setAttrValue()
+
+
+	/**
 	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented
 	*
 	* @param object Design	$design the design for which we are currently printing
@@ -54,9 +83,20 @@ class Design_Area_Show_If extends Design_Area
 		$then = $this->attr('then_contents');
 		$else = $this->attr('else_contents');
 
-		echo '<','?php
+		echo '<','?php';
+		
+		$condition_data = $this->attr('condition_data');
+		if (!empty($condition_data)) {
+			
+		}
+
+		$id_name = $this->attr('id_name');
+		echo '
+		$'.$id_name.'_condition_data = '.var_export($condition_data, true).';';
+		
+		echo '
 			$GLOBALS[\'SQ_SYSTEM\']->am->includeAsset(\'condition_'.$condition.'\');
-			if (condition_'.$condition.'::evaluate($ASSET)) {
+			if (condition_'.$condition.'::evaluate($ASSET, $'.$id_name.'_condition_data)) {
 		';
 
 		$then_contents = '';
@@ -70,8 +110,8 @@ class Design_Area_Show_If extends Design_Area
 			}
 
 			ob_start();
-			if (!$edit_fns->_outputElement($element, $asset, $design)) return false;
-			$then_contents .= ob_get_contents();
+				if (!$edit_fns->_outputElement($element, $asset, $design)) return false;
+				$then_contents .= ob_get_contents();
 			ob_end_clean();
 		}
 
@@ -83,8 +123,8 @@ class Design_Area_Show_If extends Design_Area
 			}
 
 			ob_start();
-			if (!$edit_fns->_outputElement($element, $asset, $design)) return false;
-			$else_contents .= ob_get_contents();
+				if (!$edit_fns->_outputElement($element, $asset, $design)) return false;
+				$else_contents .= ob_get_contents();
 			ob_end_clean();
 		}
 
@@ -114,6 +154,7 @@ class Design_Area_Show_If extends Design_Area
 		return true;
 
 	}//end printArea()
+
 
 }//end class
 
