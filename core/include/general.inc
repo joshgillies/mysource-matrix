@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.49 2004/06/29 00:12:49 gsherwood Exp $
+* $Id: general.inc,v 1.50 2004/07/08 00:47:43 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -357,14 +357,26 @@ function sq_web_path($path='base')
 */
 function current_url($inc_protocol=true, $strip_backend_suffix=false)
 {
-	if (SQ_PHP_CLI) return '';
+	if (SQ_PHP_CLI) {
+		$url = '';	// being called from eg. a squiz server HIPO
+	} else {
 
-	$url = (($inc_protocol) ? current_protocol().'://' : '').$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
-	// if we are in the backend remove the suffix
-	if ($strip_backend_suffix && (SQ_IN_BACKEND || SQ_IN_LIMBO)) {
-		$url = preg_replace('/'.SQ_CONF_BACKEND_SUFFIX.'\/?$/', '', $url);
-		$url = preg_replace('/'.SQ_CONF_LIMBO_SUFFIX.'\/?$/', '', $url);
+		$url = (($inc_protocol) ? current_protocol().'://' : '').$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
+		// if we are in the backend remove the suffix
+		if ($strip_backend_suffix && (SQ_IN_BACKEND || SQ_IN_LIMBO)) {
+			$url = preg_replace('/'.SQ_CONF_BACKEND_SUFFIX.'\/?$/', '', $url);
+			$url = preg_replace('/'.SQ_CONF_LIMBO_SUFFIX.'\/?$/', '', $url);
+		}
 	}
+
+	if (empty($url)) {	// url empty, just use the first system root url
+		if (!defined('SQ_CONF_SYSTEM_ROOT_URLS')) {
+			include_once SQ_DATA_PATH.'/private/conf/main.inc';
+		}
+		$root_urls = explode("\n",SQ_CONF_SYSTEM_ROOT_URLS);
+		$url = current_protocol().'://'.trim($root_urls[0]).'/';	// trim in case there's a /r in there
+	}
+
 	return $url;
 
 }//end current_url()
