@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_section_edit_fns.inc,v 1.9 2003/10/08 02:03:31 mmcintyre Exp $
+* $Id: form_section_edit_fns.inc,v 1.10 2003/10/08 03:32:16 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -104,7 +104,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	* @access public
 	*/
 	function paintQuestionLinks(&$asset, &$o, $prefix)
-	{	
+	{
 		$questions = &$asset->getQuestions();
 		
 		if (empty($questions)) {
@@ -177,7 +177,6 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 			$num[$i] = $i;
 		}
 		combo_box('num_questions', $num, false, '');
-		
 		return true;
 	
 	} // end paintAddQuestions()
@@ -227,9 +226,6 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		} // end if
 		
-		// regenerate the content file
-		$asset->fileRegeneration();
-
 		return true;
 
 	} // end processAddQuestions()

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_edit_fns.inc,v 1.9 2003/10/08 02:03:31 mmcintyre Exp $
+* $Id: form_edit_fns.inc,v 1.10 2003/10/08 03:32:16 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -22,12 +22,6 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 */
 class Form_Edit_Fns extends Asset_Edit_Fns
 {
-
-	/**
-	* Links to sections of this form
-	* @var Array
-	*/
-	var $section_links = Array();
 
 
 	/**

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_section.inc,v 1.9 2003/10/08 02:03:31 mmcintyre Exp $
+* $Id: form_section.inc,v 1.10 2003/10/08 03:32:16 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,13 +33,13 @@ class Form_Section extends Asset
 	* the width of the question name column (used when printing a generic section)
 	* @var integer
 	*/
-	var $question_col_width;
+	var $question_col_width = 0;
 
 	/**
-	* the width of the question name column (used when printing a generic section)
+	* the width of the answer column (used when printing a generic section)
 	* @var integer
 	*/
-	var $answer_col_width;
+	var $answer_col_width = 0;
 
 	/**
 	* the active submission object
@@ -228,11 +228,7 @@ class Form_Section extends Asset
 	*/
 	function getQuestionLinks() 
 	{
-		if (empty($this->tmp['question_links'])) {
-			$this->tmp['question_links'] = Array();
-			$this->tmp['question_links'] = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'form_question', false);
-		}
-		return (!empty($this->tmp['question_links'])) ? $this->tmp['question_links'] : Array();
+		return  $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'form_question', false);
 	
 	} // end getQuestionLinks()
 
