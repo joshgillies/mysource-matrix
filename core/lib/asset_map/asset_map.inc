@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.119 2004/03/02 04:14:03 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.120 2004/04/01 07:03:30 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -108,17 +108,10 @@ class Asset_Map
 		//-->
 		</script>
 
-		<object id="asset_map" width="100%" height="99%" classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=7,0,0,0">
-			<param name="movie"   value="<?php echo sq_web_path('lib'); ?>/asset_map/flash/asset_map.swf">
-			<param name="quality" value="high">
-			<param name="scale"   value="noscale">
-			<param name="salign"  value="lt">
-			<param name="bgcolor" value="#342939">
-			<param name="FlashVars" value="<?php echo $flash_vars; ?>">
-
-			<embed src="<?php echo sq_web_path('lib'); ?>/asset_map/flash/asset_map.swf" FlashVars="<?php echo $flash_vars; ?>" id="asset_map" name="asset_map" quality="high" scale="noscale" salign="lt" bgcolor="#342939" width="100%" height="99%" swliveconnect="true" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"></embed>
-		</object>
 		<?php
+			$this->embed_asset_map('complex', '100%', '99%');	
+	
+
 
 	}//end paint()
 
@@ -152,7 +145,7 @@ class Asset_Map
 
 		// create some vars to what jar file to include, and also the class name in the jar
 		// that has the main function
-		switch ($type) {
+		switch (strtolower($type)) {
 			case 'simple':
 				$classname = 'AssetMap';
 				$jarname = 'assetmap';
@@ -165,14 +158,27 @@ class Asset_Map
 		
 		// TODO: <embed> tags for moz and netscape
 
+		// we want to use current_url()
+		require_once SQ_INCLUDE_PATH."/general.inc";
 		?>
-			<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/asset_map.js';?>"></script>
-			<object id="sq_asset_map" width="<?php echo $width; ?>" height="<?php echo $height; ?>" classid="CLSID:8AD9C840-044E-11d1-B3E9-00805F499D93">
-				<param name="code" value="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" />
-				<param name="level" value="5" />
-				<param name="archive" value="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar, <?php echo sq_web_path('lib'); ?>/asset_map/java/crimson.jar" />
-				Java is not installed on your system
-			</object>
+		<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
+		<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/asset_map.js';?>"></script>
+
+		<object id="sq_asset_map" width="<?php echo $width; ?>" height="<?php echo $height; ?>" classid="CLSID:8AD9C840-044E-11d1-B3E9-00805F499D93">
+			<param name="code" value="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" />
+			<param name="level" value="5" />
+			<param name="archive" value="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar, <?php echo sq_web_path('lib'); ?>/asset_map/java/crimson.jar" />
+			<param name="BASE_URL" value="<?php echo clean_url(current_url(true, true)); ?>" />
+			<param name="BACKEND_SUFFIX" value="<?php echo SQ_CONF_BACKEND_SUFFIX; ?>" />
+			
+			<comment>
+				<embed id="sq_asset_map" type="application/x-java-applet;version=1.4" width="<?php echo $width; ?>" height="<?php echo $height; ?>" code="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar, <?php echo sq_web_path('lib'); ?>/asset_map/java/crimson.jar", <?php echo sq_web_path('lib'); ?>/asset_map/java/java40.jar" />
+					<noembed>
+						Java is not installed on your system
+					</noembed>
+				</embed>
+			</comment>
+		</object>
 		<?php
 
 	}//end embed_simple_asset_map()
@@ -223,6 +229,7 @@ class Asset_Map
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
+
 		$input = new XML_Tree('php://input');
 		$root  = &$input->getTreeFromFile();
 		if (PEAR::isError($root)) {
@@ -234,6 +241,7 @@ class Asset_Map
 			$this->_error('No action was defined, or the root node is not "command"');
 			return;
 		}
+
 
 		switch($root->attributes['action']) {
 			case 'initialise' :
@@ -252,7 +260,7 @@ class Asset_Map
 				$this->_getURL($input, $backend);
 				break;
 
-			case 'dupe' :
+			case 'clone' :
 				$this->_cloneAsset($input, $backend);
 				break;
 
@@ -287,21 +295,31 @@ class Asset_Map
 	function _doInitialise(&$input)
 	{
 		$output = new XML_Tree();
-		$root = &$output->addRoot('current_user', '', Array('assetid' => $GLOBALS['SQ_SYSTEM']->currentUserId()));
+
+		$current_user = &$GLOBALS['SQ_SYSTEM']->user;
+		$user_attrs = Array(
+			'assetid'   => $current_user->id,
+			'type_code' => $current_user->type(),
+			'name'		=> $current_user->name,
+		);
+		$root = &$output->addRoot('current_user', '', $user_attrs);
 
 		// just get the root's XML not the tree's, because it is part of bigger things and we dont want the version info
 		$current_user_xml = $root->get();
 
-		$root = &$output->addRoot('assets', '');
-		// Add the root folder
-		if (!$this->_addAssetToXML($root, 1, true)) {
-			return;
-		}
+		$attrs = Array(
+			'assetid'   => '1',
+			'type_code' => 'root_folder',
+			'name'      => 'Root Folder',
+		);
+		$root = &$output->addRoot('assets', '', $attrs);
 
-		// Add the Current User
-		if (!$this->_addAssetToXML($root, $GLOBALS['SQ_SYSTEM']->currentUserId(), false)) {
-			return;
-		}
+		$this->_getChildAssets($root, 1);
+
+		//// Add the root folder
+		//if (!$this->_addAssetToXML($root, 1, true)) {
+	//		return;
+	//	}
 
 		// just get the root's XML not the tree's, because it is part of bigger things and we dont want the version info
 		$assets_xml = $root->get();
@@ -332,6 +350,70 @@ class Asset_Map
 	}//end _doInitialise()
 
 
+
+	function _getChildAssets(&$root, $assetid) {
+
+
+		$output = new XML_Tree();
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = 'SELECT DISTINCT(a.assetid), a.short_name, a.type_code, a.status, l.linkid, l.sort_order,
+			lt.num_immediate_kids FROM '.SQ_TABLE_PREFIX.'asset a, '.SQ_TABLE_PREFIX.'asset_link l, '
+			.SQ_TABLE_PREFIX.'asset_link_tree lt
+ 			WHERE a.assetid = l.minorid 
+			AND l.linkid = lt.linkid 
+			AND l.majorid = '.$db->quote($assetid).'
+			AND l.link_type <= '.$db->quote(SQ_LINK_TYPE_2).'  ORDER BY sort_order DESC';
+
+		$result = $db->getAll($sql);
+
+		if (DB::isError($result)) {
+			return $this->_error('Could not load child assets for assetid '.$assetid.' '.$result->getMessage());
+		}
+
+		if (empty($result)) {
+			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
+			
+			foreach ($links as $link_data) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid'], $link_data['minor_type_code']);
+				$result[] = Array(
+									'assetid' => $link_data['minorid'],
+									'short_name' => $asset->short_name,
+									'name' => $asset->name,
+									'type_code' => $link_data['minor_type_code'],
+									'status' => $asset->status,
+									'linkid' => $link_data['linkid'],
+									'num_immediate_kids' => 1,
+									'sort_order' => $link_data['sort_order'],
+								);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}
+		}
+	
+		foreach ($result as $asset) {
+
+			if ($asset['num_immediate_kids'] == 0) {
+				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset['assetid'], SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
+				$asset['num_immediate_kids'] = count($links);
+			}
+
+			$attrs = Array(
+				'assetid'		=> urlencode($asset['assetid']),
+				'name'			=> urlencode($asset['short_name']),
+				'type_code'     => $asset['type_code'],
+//				'accessible'	=> $asset[''],
+				'status'        => $asset['status'],
+				'linkid'        => $asset['linkid'],
+				'child_count'   => $asset['num_immediate_kids'],
+				'sort_order'    => $asset['sort_order'],
+		//		'url'			=> $asset->getURL(),	
+	//			'web_paths'		=> implode(";", $asset['path']),
+			);
+
+			$root->addChild('asset', '', $attrs);
+		}
+	}
+
 	/**
 	* Processes the get assets request
 	*
@@ -341,44 +423,29 @@ class Asset_Map
 	*/
 	function _getAssets(&$input)
 	{
-		$load_new_links = !empty($input->root->attributes['load_new_links']);
+
+		if (!count($input->root->children)) {
+			$this->_error('No assets were returned for loading');
+		}
 
 		$output = new XML_Tree();
-		$root = &$output->addRoot('assets', '');
-		for($i = 0; $i < count($input->root->children); $i++) {
-			$asset_node =& $input->root->children[$i];
-			if (empty($asset_node->attributes['assetid'])) continue;
-//			if (empty($input->root->children[$i]->attributes['assetid'])) {
-//				if (empty($input->root->children[$i]->attributes['current_user'])) {
-//					continue;
-//				} else {
-//					$input->root->children[$i]->attributes['assetid'] = $GLOBALS['SQ_SYSTEM']->currentUserId();
-//				}
-//			}
 
-			$assetid = $asset_node->attributes['assetid'];
-
-			$kids = Array();
-			if ($load_new_links) {
-				$current_kids = Array();
-				for($j = 0; $j < count($asset_node->children); $j++) {
-					$child_node =& $asset_node->children[$j];
-					if (empty($child_node->attributes['assetid'])) continue;
-					$current_kids[] = $child_node->attributes['assetid'];
-				}
-
-				if (!$this->_addAssetToXML($root, $assetid, true, $current_kids)) {
-					return;
-				}
-
-			} else {
-				if (!$this->_addAssetToXML($root, $assetid)) {
-					return;
-				}
-
-			}// end if
-
-		}// end children for
+		if (count($input->root->children) == 1) {
+			$assetid = rawurldecode($input->root->children[0]->attributes['assetid']);
+			$root = &$output->addRoot('assets', '', Array('assetid' => $assetid));
+			$this->_getChildAssets($root, $assetid);
+		} else {
+			$root = &$output->addRoot('assets', '');
+			
+			for ($i = 0; $i < count($input->root->children); $i++){
+				$node = &$input->root->children[$i];
+				if (empty($node->attributes['assetid'])) continue;
+				$assetid = rawurlencode($node->attributes['assetid']);
+				$child = &$root->addChild('asset', '', Array('assetid' => $assetid));
+				$this->_getChildAssets($child, $assetid);
+			}
+		}
+		
 
 		$this->_send($output);
 
@@ -540,6 +607,7 @@ class Asset_Map
 	*/
 	function _getURL(&$input, &$backend)
 	{
+
 		$output = new XML_Tree();
 		$output->addRoot('responses');
 		$response_count = 0;
@@ -549,6 +617,7 @@ class Asset_Map
 
 		switch($input->root->attributes['cmd']) {
 			case 'add' :
+			
 				$attr = $input->root->attributes;
 				if (empty($attr['parent_assetid']) || !isset($attr['pos']) || empty($attr['type_code'])) {
 					$this->_error('Parent Asset Id, Relative Position and Asset Type need to be passed');
@@ -595,7 +664,7 @@ class Asset_Map
 				}
 
 				// if we get this far then it's all good
-				$link  = $backend->getBackendUrl()
+					$link  = current_url().'?SQ_BACKEND_PAGE=main'
 						.'&backend_section=am'
 						.'&am_section=add_asset'
 						.'&type_code='.rawurlencode($attr['type_code'])
@@ -603,6 +672,7 @@ class Asset_Map
 						.'&parent_assetid='.rawurlencode($attr['parent_assetid'])
 						.'&pos='.rawurlencode($attr['pos']);
 				$frame = 'sq_main';
+				
 				break;
 
 			default :
@@ -618,6 +688,7 @@ class Asset_Map
 		$urlTree = new XML_Tree();
 		$urlTree->addRoot('url', $link, Array('frame' => $frame));
 		$output->insertChild(Array('responses'), $response_count++, $urlTree);
+
 
 		$this->_send($output);
 
@@ -644,10 +715,13 @@ class Asset_Map
 		}
 
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($input->root->attributes['linkid'], $old_parent->id);
+
+
 		if (empty($link)) {
 			$this->_error('Unable to Move Asset, Link #"'.$input->root->attributes['linkid'].'") not found');
 			return;
 		}
+
 
 		$linkid = null;
 
@@ -692,6 +766,7 @@ class Asset_Map
 							'old_parentid'  => $old_parent->id,
 							'link_type'     => $link['link_type'],
 							'to_parent_pos' => $input->root->attributes['to_parent_pos']);
+			
 			$hh->queueHipo('hipo_job_create_link', $vars);
 			////  END HIPO PROCESSING  ////
 
@@ -706,6 +781,7 @@ class Asset_Map
 			}
 
 		}// end if
+
 
 		$this->_send($output);
 
