@@ -216,7 +216,7 @@ function security_key_image($word, $w, $h, $bg='FFFFFF', $text='000000', $border
 		}
 
 		// draw a border around the outside
-		imagerectangle($final_im, 0, 0, $w * $zoom -1, $h * $zoom -1, $border_colour);
+		imagerectangle($final_im, 0, 0, ($w * $zoom) -1, ($h * $zoom) -1, $border_colour);
 
 		// output the image
 		imagepng($final_im);
