@@ -92,12 +92,12 @@ class Form_Question_Type_Text extends Form_Question
 	*/
 	function _getAllowedLinks()
 	{
-		$links[SQ_LINK_TYPE_3]['question_rule_type_comparison'] = Array('card' => '1', 'exclusive' => true);
-		$links[SQ_LINK_TYPE_3]['question_rule_type_email'] = Array('card' => '1', 'exclusive' => true);
-		$links[SQ_LINK_TYPE_3]['question_rule_type_numeric'] = Array('card' => '1', 'exclusive' => true);
-		$links[SQ_LINK_TYPE_3]['question_rule_type_found_in'] = Array('card' => '1', 'exclusive' => true);
-		$links[SQ_LINK_TYPE_3]['question_rule_type_regexp'] = Array('card' => '1', 'exclusive' => true);
-		$links[SQ_LINK_TYPE_3]['question_rule_type_contain'] = Array('card' => '1', 'exclusive' => true);
+		$links[SQ_LINK_TYPE_3]['form_question_rule_type_comparison'] = Array('card' => '1', 'exclusive' => true);
+		$links[SQ_LINK_TYPE_3]['form_question_rule_type_email'] = Array('card' => '1', 'exclusive' => true);
+		$links[SQ_LINK_TYPE_3]['form_question_rule_type_numeric'] = Array('card' => '1', 'exclusive' => true);
+		$links[SQ_LINK_TYPE_3]['form_question_rule_type_found_in'] = Array('card' => '1', 'exclusive' => true);
+		$links[SQ_LINK_TYPE_3]['form_question_rule_type_regexp'] = Array('card' => '1', 'exclusive' => true);
+		$links[SQ_LINK_TYPE_3]['form_question_rule_type_contain'] = Array('card' => '1', 'exclusive' => true);
 		return $links;
 
 	}//end _getAllowedLinks()
@@ -124,7 +124,8 @@ class Form_Question_Type_Text extends Form_Question
 	*/
 	function printBody()
 	{
-	
+		return parent::printBody();
+
 	} // end printBody()
 
 
@@ -134,7 +135,7 @@ class Form_Question_Type_Text extends Form_Question
 	* @access public
 	* @return string
 	*/
-	function getAnswer()
+	function getAnswer($content_file=true, $value='')
 	{
 		$height = ($this->attr('height')) ? $this->attr('height') : 1;
 		$width  = $this->attr('width');
@@ -145,9 +146,12 @@ class Form_Question_Type_Text extends Form_Question
 
 		// generate some php for the value, which can be used for both
 		// auto-answer and returning to saved forms
-		
-		$html  = '<?php $q = &$am->getAsset('.$this->id.', \'form_question_type_text\'); ?>';
-		$value = '<?php echo $q->getValue($submission); ?>';
+		if ($content_file) {
+			$html  = '<?php $q = &$am->getAsset('.$this->id.', \'form_question_type_text\'); ?>';
+			$value = '<?php echo $q->getValue($submission); ?>';
+		} else {
+			$html = '';
+		}
 		
 		ob_start();
 		if ($height == 1) {
@@ -193,7 +197,8 @@ class Form_Question_Type_Text extends Form_Question
 		
 		if (isset($_POST[$this->id])) {
 			$val = $_POST[$this->id];
-			$submission->setAnswer($this->id, $this->attr('name'), $val);
+			$submission->setAnswer($this->id, $val);
+			$submission->setSummary($this->id, $this->attr('name'), $val, $this->section_id, $this->section_name);
 			parent::processForm($submission);
 		}
 		
