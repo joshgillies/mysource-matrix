@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.27 2004/08/09 10:19:37 brobertson Exp $
+* $Id: page_asset_listing.inc,v 1.28 2004/08/19 05:47:02 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 */
 class Page_Asset_Listing extends Page
 {
+
 
 	/**
 	* Constructor
@@ -189,8 +190,8 @@ class Page_Asset_Listing extends Page
 		}
 
 	}//end describeLink()
-	
-	
+
+
 	/**
 	* Returns TRUE if we can delete the passed link, or a string with the error msg
 	*
@@ -262,29 +263,234 @@ class Page_Asset_Listing extends Page
 	*/
 	function printBody()
 	{
-		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
-		if (empty($bodycopy_link)) return false;
+		// this is what we are grouping by
+		// grouping by number shows a certain number of results per page (eg. 10 assets per page)
+		// grouping by letter makes this template an A-Z listing of assets
+		$group_by = $this->attr('group_by');
 
-		$format_bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
-		if (is_null($format_bodycopy)) return false;
+		// we work out what screen we are on here so we can correctly cache the screen with a unique ID
+		// note that we never cache the results of a random asset listing for obvious reasons
+		$cache_key = '';
+		switch ($group_by) {
+			case 'number' :
+				$cache_key = (isset($_REQUEST['result_page'])) ? (int)$_REQUEST['result_page'] : 1;
+				if ($cache_key <= 0) $cache_key = 1;
+			break;
+
+			case 'letter' :
+				$cache_key = (isset($_REQUEST['result_page'])) ? $_REQUEST['result_page'] : 'A';
+			break;
+		}
 		
-		require_once SQ_FUDGE_PATH.'/general/text.inc';
-		$replacements = retrieve_keywords_replacements($format_bodycopy->getRawBodycopyContent());
-		if (!in_array('asset_listing', $replacements)) {
-			// there is no asset listing keyword in the contents, so we dont
-			// need to do all the extra processing for the listing
-			$format_bodycopy->printBody();
-			return;
+		$cached_contents = '';
+		if (!empty($cache_key)) {
+			$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+			$cached_contents = $cm->loadFromCache($this, $cache_key);
 		}
 
+		// if the cache is empty, go ahead and regenerate a new version
+		if (empty($cached_contents)) {
 
+			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents'); 
+			if (empty($bodycopy_link)) return false;
+
+			$format_bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+			if (is_null($format_bodycopy)) return false;
+
+			require_once SQ_FUDGE_PATH.'/general/text.inc';
+			$replacements = retrieve_keywords_replacements($format_bodycopy->getRawBodycopyContent());
+			if (!in_array('asset_listing', $replacements)) {
+				// there is no asset listing keyword in the contents, so we dont
+				// need to do all the extra processing for the listing
+				$format_bodycopy->printBody();
+				return;
+			}
+
+			$children = $this->getAssetList();
+			$this->filterAssetList($children);
+
+			// if there are no children available, just print the page bodycopy
+			if (empty($children)) {
+				$format_bodycopy->printBody();
+				return;
+			}
+
+			  /////////////////////////
+			 //  PAGINATING ASSETS  //
+			/////////////////////////
+			switch ($group_by) {
+				case 'number' :
+					$num_per_page = $this->attr('num_per_page');
+					$result_page = (isset($_REQUEST['result_page'])) ? (int)$_REQUEST['result_page'] : 1;
+					if ($result_page <= 0) $result_page = 1;
+	
+					// do it CHUNK Noris style
+					if ($num_per_page > 0) $chunks = array_chunk($children, $num_per_page, true);
+					else $chunks = Array('0' => $children);
+	
+					if ($result_page > count($chunks)) $result_page = count($chunks);
+					$todo = $chunks[($result_page-1)];
+	
+					// previous page link
+					if ($result_page <= 1) $replacements['previous_page'] = $this->attr('prev_page_text');
+					else $replacements['previous_page'] = '<a href="'.$this->getURL().'?result_page='.($result_page-1).'">'.$this->attr('prev_page_text').'</a>';
+	
+					// next page link
+					if ($result_page >= count($chunks)) $replacements['next_page'] = $this->attr('next_page_text');
+					else $replacements['next_page'] = '<a href="'.$this->getURL().'?result_page='.($result_page+1).'">'.$this->attr('next_page_text').'</a>';
+	
+					$replacements['current_page'] = (int)$result_page;
+					$replacements['total_pages'] = count($chunks);
+	
+					// list of pages and links to them
+					$page_list = '';
+					for ($i = 1; $i <= count($chunks); $i++) {
+						if ($i == $result_page) $page_list .= " $i ";
+						else $page_list .= ' <a href="'.$this->getURL().'?result_page='.$i.'">'.$i.'</a> ';
+					}
+					$replacements['page_list'] = $page_list;
+	
+					unset($chunks);
+				break;
+	
+				case 'letter' :
+					foreach ($children as $childid => $data) {
+						$todo[strtolower($data['first_letter'])][$childid] = $data['type_code'];
+					}
+
+					$result_page = (isset($_REQUEST['result_page'])) ? $_REQUEST['result_page'] : '';
+					if (empty($result_page)) {
+						for ($i = 65; $i <= 90; $i++) {
+							if (isset($todo[strtolower(chr($i))])) {
+								$result_page = chr($i);
+								break;
+							}
+						}
+					}
+	
+					// previous page link
+					$result_letter = ord(strtoupper($result_page));
+					$replacements['previous_page'] = 'Previous';
+					if ($result_letter > 65) {
+						for ($i = ($result_letter-1); $i >= 65; $i--) {
+							if (isset($todo[strtolower(chr($i))])) {
+								$replacements['previous_page'] = '<a href="'.$this->getURL().'?result_page='.chr($i).'">'.$this->attr('prev_page_text').'</a>';
+								break;
+							}
+						}
+					}
+	
+					// next page link
+					$replacements['next_page'] = 'Next';
+					if ($result_letter < 90) {
+						for ($i = ($result_letter+1); $i <= 90; $i++) {
+							if (isset($todo[strtolower(chr($i))])) {
+								$replacements['next_page'] = '<a href="'.$this->getURL().'?result_page='.chr($i).'">'.$this->attr('next_page_text').'</a>';
+								break;
+							}
+						}
+					}
+	
+					$replacements['current_page'] = strtoupper($result_page);
+					$replacements['total_pages'] = 26;
+	
+					// list of pages and links to them
+					$page_list = '';
+					for ($i = 65; $i <= 90; $i++) {
+						if (isset($todo[strtolower(chr($i))])) {
+							$page_list .= ' <a href="'.$this->getURL().'?result_page='.chr($i).'">'.chr($i).'</a> ';
+						} else {
+							$page_list .= ' '.chr($i).' ';
+						}
+					}
+					$replacements['page_list'] = $page_list;
+	
+					if (isset($todo[strtolower($result_page)])) $todo = $todo[strtolower($result_page)];
+					else $todo = Array();
+	
+				break;
+				
+				case 'random' :
+					// random does things differently, as there is no pagination. But this is a good place
+					// to grab the random asset
+					if ($this->attr('num_per_page') <= 1) {
+						// grab a single asset to display
+						$todo = Array();
+						$random_asset = array_rand($children);
+						$todo[$random_asset] = $children[$random_asset];
+					} else if ($this->attr('num_per_page') > count($children)) {
+						// if you try to use array_rand with a value higher than the number of elements
+						// in the array, it returns nothing. So, we check for that and return only the 
+						// maximum number of children available
+						$random_assets = array_rand($children, count($children));
+						foreach ($random_assets as $value) $todo[$value] = $children[$value];
+					} else {
+						// this will return a subset of the children, as defined by the num_per_page
+						// attribute. This occurs when the number is less than the total number of 
+						// children available.
+						$random_assets = array_rand($children, $this->attr('num_per_page'));
+						foreach ($random_assets as $value) $todo[$value] = $children[$value];
+					}
+				break;
+			}//end switch
+
+			ob_start();
+				$this->printAssetList($todo);
+				$global_contents = ob_get_contents();
+			ob_end_clean();
+
+			// if we have any blank keywords, replace them with nothing
+			$global_contents = preg_replace('|%[^%\W]+%|', '', $global_contents);
+			
+			// the global replacement to print the asset listing
+			$replacements['asset_listing'] = $global_contents;
+	
+			// print the contents of page - replacing the global keywords
+			$format_bodycopy->setKeywordReplacements($replacements);
+			ob_start();
+				$format_bodycopy->printBody();
+				if (!empty($cache_key)) $cm->saveToCache($this, $cache_key, ob_get_contents());
+			ob_end_flush();
+
+		} else {
+
+			// the contents have already been cached, so just output them
+			echo $cached_contents;
+
+		}//end if no cache
+
+		// clean up after ourselves
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
+
+	}//end printBody()
+
+
+	/**
+	* Get the list of asset that should be printed
+	*
+	* The return array is in the form Array(assetid => type_code) unless we are grouping by letter,
+	* in which case the return array is
+	* <pre>
+	* Array(assetid => Array(
+	*						'type_code' => type_code,
+	*						'firt_letter' => first_letter,
+	*						);
+	*		);
+	* </pre>
+	*
+	* @return array
+	* @access protected
+	*/
+	function getAssetList()
+	{
+		$group_by = $this->attr('group_by');
+		
 		// this is the list of all type codes that we are going to show
 		// we pass this list to the getLinks and getChildren functions (below) to narrow
 		// the query down a bit
 		// if there are no types to list, we cant list anything
 		$wanted_types = $this->attr('types');
-		if (empty($wanted_types)) return;
-
+		if (empty($wanted_types)) return Array();
 
 		// get the root asset whose sub-assets/children we are displaying
 		// if there is no root asset, we will use ourselves and print our children
@@ -293,9 +499,8 @@ class Page_Asset_Listing extends Page
 			$root_asset =& $this;
 		} else {
 			$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid'], $root_link['minor_type_code']);
-			if (is_null($root_asset)) return;
+			if (is_null($root_asset)) return Array();
 		}
-
 
 		// this is what we are going to sort the reults by (passed directly to the getLinks
 		// and getChildren functions)
@@ -304,20 +509,10 @@ class Page_Asset_Listing extends Page
 		if (empty($sort_by)) $sort_by = null;
 
 
-		// this is what we are grouping by
-		// grouping by number shows a certain number of results per page (eg. 10 assets per page)
-		// grouping by letter makes this template an A-Z listing of assets
-		$group_by = $this->attr('group_by');
-
-
 		// if we are showing an A-Z listing but the user has not selected a proper sort field,
 		// we will use the 'name' attribute of the asset to work out the listing
 		if ($group_by == 'letter' && $sort_by != 'name' && $sort_by != 'short_name') $sort_by = 'name';
 
-
-		  //////////////////////////////////////////////
-		 //  GET THE LIST OF ASSETS WE ARE PRINTING  //
-		//////////////////////////////////////////////
 		$children = Array();
 
 		if ($this->attr('subs_only')) {
@@ -331,14 +526,14 @@ class Page_Asset_Listing extends Page
 
 				case 'letter' :
 					$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, 'major', null, null, null, $sort_by);
-					if (empty($query)) return;
+					if (empty($query)) return Array();
 					$query['select'] .= ', SUBSTRING(a.'.$sort_by.', 1, 1) AS first_letter';
 
 					$db = &$GLOBALS['SQ_SYSTEM']->db;
 					$links = $db->getAll(implode(' ', $query));
 					if (DB::isError($children)) {
 						trigger_error($children->getMessage().'<br/>'.$children->getUserInfo(), E_USER_ERROR);
-						return;
+						return Array();
 					}
 					foreach ($links as $link_info) $children[$link_info['minorid']] = Array('type_code' => $link_info['minor_type_code'], 'first_letter' => $link_info['first_letter']);
 				break;
@@ -359,7 +554,7 @@ class Page_Asset_Listing extends Page
 
 				case 'letter' :
 					$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), false, $sort_by);
-					if (empty($query)) return;
+					if (empty($query)) return Array();
 					$query['select'] .= ', SUBSTRING(a.'.$sort_by.', 1, 1) AS first_letter';
 
 					$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -377,43 +572,119 @@ class Page_Asset_Listing extends Page
 
 		}//end if subs_only
 
-
 		// clean up after ourselves
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
 		
-		// if there are no children available, just print the page bodycopy
-		if (empty($children)) {
-			$format_bodycopy->printBody();
-			return;
-		}
+		return $children;
+
+	}//end getAssetList()
 
 
+	/**
+	* Remove unwanted assets from the todo list
+	*
+	* @param array	&$todo	an array of assets to list in the same format as the return
+	*						value of getAssetList()
+	*
+	* @return void
+	* @access protected
+	* @see getAssetList()
+	*/
+	function filterAssetList(&$todo)
+	{
+		$group_by = $this->attr('group_by');
+
+		  //////////////////////////////
+		 //  REMOVE NON-LIVE ASSETS  //
+		//////////////////////////////
+		if (!empty($todo)) $this->filterAssetStatuses($todo);
+
+		if (empty($todo)) return;
+			
 		  /////////////////////////////
 		 //  REMOVE UNWANTED TYPES  //
 		/////////////////////////////
+		switch ($group_by) {
+			case 'number' :
+			case 'random' :
+				$this->filterAssetTypes($todo);
+			break;
+		
+			case 'letter' :
+				$filtered_todo = Array();
+				for (reset($todo); null !== ($todo_id = key($todo)); next($todo)) {
+					$filtered_todo[$todo_id] =& $todo[$todo_id]['type_code'];
+				}
+				$this->filterAssetTypes($filtered_todo);
+				foreach ($filtered_todo as $todo_id => $type_code) {
+					$todo[$todo_id]['type_code'] = $type_code;
+				}
+				unset($filtered_todo);
+			break;
+		}
+
+	}//end filterAssetList()
+
+
+	/**
+	* Remove non-live assets from the list of assets to print
+	*
+	* @param array	&$todo	an array of assets to list in the same format as the return
+	*						value of getAssetList()
+	*
+	* @return void
+	* @access protected
+	* @see getAssetList()
+	*/
+	function filterAssetStatuses(&$todo)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$assetids = array_keys($todo);
+		
+		for (reset($assetids); null !== ($k = key($assetids)); next($assetids)) {
+			$assetids[$k] = $db->quote($assetids[$k]);
+		}
+		
+		$filtered_assets = $db->getCol('SELECT assetid
+										FROM '.SQ_TABLE_PREFIX.'asset
+										WHERE assetid IN ('.implode(',', $assetids).')
+										  AND status >= '.$db->quote(SQ_STATUS_LIVE)
+										);
+		assert_valid_db_result($filtered_assets);
+		
+		for (reset($todo); null !== ($assetid = key($todo)); ) {
+			if (!in_array($assetid, $filtered_assets)) {
+				unset($todo[$assetid]);
+			} else {
+				next($todo);
+			}
+		}
+
+	}//end filterAssetStatuses()
+
+
+	/**
+	* Remove assets of unwanted types from the list of assets to print
+	*
+	* @param array	&$todo	an array of assets to list in the same format as the return
+	*						value of getAssetList()
+	*
+	* @return void
+	* @access protected
+	* @see getAssetList()
+	*/
+	function filterAssetTypes(&$todo)
+	{
+		$wanted_types = $this->attr('types');
+		if (empty($wanted_types)) {
+			$todo = Array();
+			return;
+		}
+
 		$past_start = false;
-		for (reset($children); null !== ($child_id = key($children)); next($children)) {
-			$child_data =& $children[$child_id];
-			
-			switch ($group_by) {
-				case 'number' :
-					$type_code =& $child_data;
-				break;
+		for (reset($todo); null !== ($assetid = key($todo)); next($todo)) {
+			$type_code =& $todo[$assetid];
 
-				case 'letter' :
-					$type_code =& $child_data['type_code'];
-				break;
-				
-				case 'random' :
-					$type_code =& $child_data;
-				break;
-
-				default :
-					$past_start = true;
-					continue;
-				break;
-			}//end switch
-			
 			if (!isset($wanted_types[$type_code])) {
 				$new_type_code = null;
 				foreach ($wanted_types as $wt => $inherit) {
@@ -425,194 +696,46 @@ class Page_Asset_Listing extends Page
 
 				if (is_null($new_type_code) || !isset($wanted_types[$new_type_code])) {
 					// this type is not required in the results
-					unset($children[$child_id]);
-					if ($past_start) prev($children);
+					unset($todo[$assetid]);
+					if ($past_start) prev($todo);
 				} else {
 					$type_code = $new_type_code;
 				}
 			}
 
 			$past_start = true;
-		}
+
+		}//end for all todo list entries
+
+	}//end filterAssetTypes()
 
 
-		  //////////////////////////////
-		 //  REMOVE NON-LIVE ASSETS  //
-		//////////////////////////////
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$assetids = array_keys($children);
-		for (reset($assetids); null !== ($k = key($assetids)); next($assetids)) $assetids[$k] = $db->quote($assetids[$k]);
-		$live_assets = $db->getCol('	SELECT assetid
-								FROM sq_asset
-								WHERE assetid IN ('.implode(', ', $assetids).')
-								  AND status >= '.$db->quote(SQ_STATUS_LIVE)
-							  );
-		if (DB::isError($live_assets)) {
-			trigger_error($live_assets->getMessage().'<br/>'.$live_assets->getUserInfo(), E_USER_ERROR);
-			return;
-		}
-		
-		for (reset($children); null !== ($child_id = key($children)); ) {
-			if (!in_array($child_id, $live_assets)) {
-				unset($children[$child_id]);
-			} else {
-				next($children);
-			}
-		}
+	/**
+	* Print the list of assets that we are listing
+	*
+	* @param array	&$todo	an array of assets to list in the same format as the return
+	*						value of getAssetList()
+	*
+	* @return void
+	* @access protected
+	* @see getAssetList()
+	*/
+	function printAssetList($todo)
+	{
+		$wanted_types = $this->attr('types');
+		if (empty($wanted_types)) return;
 
+		$formats         = Array();
+		$is_default      = Array();
+		$folder          = &$this->getFolder('type_formats');
+		$type_folder_id  = $folder->id;
+		$default_format  = '';
+		$customised      = $this->attr('customised');
+		$keywords        = Array();
 
-		// check to see that we have at least one child left to print,
-		// otherwise, just return the page bodycopy
-		if (empty($children)) {
-			$format_bodycopy->printBody();
-			return;
-		}
-
-		
-		  ////////////////////////////////////////////////////////////
-		 //  STUFF WE ARE GOING TO NEED TO MAKE THIS MAGIC HAPPEN  //
-		////////////////////////////////////////////////////////////
-		$customised			= $this->attr('customised');			// the array of asset types with customised formats
-		$keywords			= Array();								// an array of keyword replacements per asset base
-		$formats			= Array();								// an array of customised format bodycopies
-		$default_format		= '';									// the default format html
-		$is_default			= Array();								// array of types using the default format
-		$folder				= &$this->getFolder('type_formats');	// the folder asset for type formats
-		$type_folder_id		= $folder->id;							// the format types folder id
-		$global_contents	= '';									// the entire contents of the SAL
-		$mm					= null;									// metadata manager
-		$replacements		= Array();								// global keyword replacements
-
-
-		  /////////////////////////
-		 //  PAGINATING ASSETS  //
-		/////////////////////////
-		switch ($group_by) {
-			case 'number' :
-				$num_per_page = $this->attr('num_per_page');
-				$result_page = (isset($_REQUEST['result_page'])) ? (int)$_REQUEST['result_page'] : 1;
-				if ($result_page <= 0) $result_page = 1;
-
-				// do it CHUNK Noris style
-				if ($num_per_page > 0) $chunks = array_chunk($children, $num_per_page, true);
-				else $chunks = Array('0' => $children);
-
-				if ($result_page > count($chunks)) $result_page = count($chunks);
-				$todo = $chunks[($result_page-1)];
-
-				// previous page link
-				if ($result_page <= 1) $replacements['previous_page'] = $this->attr('prev_page_text');
-				else $replacements['previous_page'] = '<a href="'.$this->getURL().'?result_page='.($result_page-1).'">'.$this->attr('prev_page_text').'</a>';
-
-				// next page link
-				if ($result_page >= count($chunks)) $replacements['next_page'] = $this->attr('next_page_text');
-				else $replacements['next_page'] = '<a href="'.$this->getURL().'?result_page='.($result_page+1).'">'.$this->attr('next_page_text').'</a>';
-
-				$replacements['current_page'] = (int)$result_page;
-				$replacements['total_pages'] = count($chunks);
-
-				// list of pages and links to them
-				$page_list = '';
-				for ($i = 1; $i <= count($chunks); $i++) {
-					if ($i == $result_page) $page_list .= " $i ";
-					else $page_list .= ' <a href="'.$this->getURL().'?result_page='.$i.'">'.$i.'</a> ';
-				}
-				$replacements['page_list'] = $page_list;
-
-				unset($chunks);
-			break;
-
-			case 'letter' :
-				foreach ($children as $childid => $data) {
-					$todo[strtolower($data['first_letter'])][$childid] = $data['type_code'];
-				}
-
-				$result_page = (isset($_REQUEST['result_page'])) ? $_REQUEST['result_page'] : '';
-				if (empty($result_page)) {
-					for ($i = 65; $i <= 90; $i++) {
-						if (isset($todo[strtolower(chr($i))])) {
-							$result_page = chr($i);
-							break;
-						}
-					}
-				}
-
-				// previous page link
-				$result_letter = ord(strtoupper($result_page));
-				$replacements['previous_page'] = 'Previous';
-				if ($result_letter > 65) {
-					for ($i = ($result_letter-1); $i >= 65; $i--) {
-						if (isset($todo[strtolower(chr($i))])) {
-							$replacements['previous_page'] = '<a href="'.$this->getURL().'?result_page='.chr($i).'">'.$this->attr('prev_page_text').'</a>';
-							break;
-						}
-					}
-				}
-
-				// next page link
-				$replacements['next_page'] = 'Next';
-				if ($result_letter < 90) {
-					for ($i = ($result_letter+1); $i <= 90; $i++) {
-						if (isset($todo[strtolower(chr($i))])) {
-							$replacements['next_page'] = '<a href="'.$this->getURL().'?result_page='.chr($i).'">'.$this->attr('next_page_text').'</a>';
-							break;
-						}
-					}
-				}
-
-				$replacements['current_page'] = strtoupper($result_page);
-				$replacements['total_pages'] = 26;
-
-				// list of pages and links to them
-				$page_list = '';
-				for ($i = 65; $i <= 90; $i++) {
-					if (isset($todo[strtolower(chr($i))])) {
-						$page_list .= ' <a href="'.$this->getURL().'?result_page='.chr($i).'">'.chr($i).'</a> ';
-					} else {
-						$page_list .= ' '.chr($i).' ';
-					}
-				}
-				$replacements['page_list'] = $page_list;
-
-				$todo = $todo[strtolower($result_page)];
-
-			break;
-			
-			case 'random' :
-				// random does things differently, as there is no pagination. But this is a good place
-				// to grab the random asset
-				if ($this->attr('num_per_page') <= 1)  {
-					// grab a single asset to display
-					$todo = Array();
-					$random_asset = array_rand($children);
-					$todo[$random_asset] = $children[$random_asset];
-				} else if ($this->attr('num_per_page') > count($children)) {
-					// if you try to use array_rand with a value higher than the number of elements
-					// in the array, it returns nothing. So, we check for that and return only the 
-					// maximum number of children available
-					$random_assets = array_rand($children, count($children));
-					foreach ($random_assets as $value) $todo[$value] = $children[$value];
-				} else {
-					// this will return a subset of the children, as defined by the num_per_page
-					// attribute. This occurs when the number is less than the total number of 
-					// children available.
-					$random_assets = array_rand($children, $this->attr('num_per_page'));
-					foreach ($random_assets as $value) $todo[$value] = $children[$value];
-				}
-			break;
-
-		}//end switch
-
-		// clean up after ourselves
-		unset($children);
-
-
-		  ////////////////////////////
-		 //  PRINT THE ASSET LIST  //
-		////////////////////////////
 		foreach ($todo as $assetid => $type_code) {
 
-			$contents = ''; // temp contents for this asset
+			$contents = '';
 
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (is_null($asset)) continue;
@@ -676,30 +799,14 @@ class Page_Asset_Listing extends Page
 				$contents = str_replace("%{$keyword}%", $info['value'], $contents);
 			}
 
-			$global_contents .= $contents;
+			echo $contents;
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			unset($asset);
 
-		}//end foreach
+		}//end foreach todo
 
-
-		// if we have any blank keywords, replace them with nothing
-		$global_contents = preg_replace('|%[^%\W]+%|', '', $global_contents);
-
-
-		// the global replacement to print the asset listing
-		$replacements['asset_listing'] = $global_contents;
-
-
-		// print the contents of page - replacing the global keywords
-		$format_bodycopy->setKeywordReplacements($replacements);
-		$format_bodycopy->printBody();
-
-		// clean up after ourselves
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
-
-	}//end printBody()
+	}//end printAssetList()
 
 
 	/**
