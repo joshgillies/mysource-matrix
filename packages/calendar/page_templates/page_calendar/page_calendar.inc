@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.38 2004/08/31 22:41:55 lwright Exp $
+* $Id: page_calendar.inc,v 1.39 2004/09/01 00:46:23 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.38 $ - 1.0
+* @version $Revision: 1.39 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -321,6 +321,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$cal_date = date('Y-m-d');
 		}
 		
+
 		// BUT, if the view is 'event' we want the eventid rather than the date
 		$event_id = false;
 		if ($cal_view == 'event') {
@@ -1072,6 +1073,7 @@ class Page_Calendar extends Page_Asset_Listing
 		foreach (range(1, 12) as $month_num) {
 			$res[$month_num] = Array();
 		}
+		
 		foreach ($all_events as $id => $details) {
 			if ($details['type_code'] == 'calendar_event_single') {
 				if ($details['start_date_year'] == $year) {
@@ -1089,11 +1091,13 @@ class Page_Calendar extends Page_Asset_Listing
 				}
 			} else {
 				// recurring event
-				$next_occurrence_ts = Calendar_Event_Recurring::getFirstOccurrenceAfter($start_ts, $details['start_date_ts'], $details['frequency'], $details['period']);
-				while ($next_occurrence_ts < $end_ts) {
-					$real_date_comps = Calendar_Event::getDateComponents(ts_iso8601($next_occurrence_ts), 'start_date_');
+				$next_occurrence_date = Calendar_Event_Recurring::getFirstOccurrenceAfter(sprintf('%04d-%02d-%02d', $year, 1, 1), sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']), $details['frequency'], $details['period']);
+				while (strtotime($next_occurrence_date) < $end_ts) {
+					$real_date_comps = Calendar_Event::getDateComponents($next_occurrence_date, 'start_date_');
 					$res[$real_date_comps['start_date_mon']][$id] = $details + $real_date_comps;
-					$next_occurrence_ts = Calendar_Event_Recurring::getFirstOccurrenceAfter($next_occurrence_ts+9000, $details['start_date_ts'], $details['frequency'], $details['period']);
+					list($ne_year, $ne_month, $ne_day) = explode('-', $next_occurrence_date);
+					increment_month($ne_month, $ne_year);				
+					$next_occurrence_date =  Calendar_Event_Recurring::getFirstOccurrenceAfter(sprintf('%04d-%02d-%02d', $ne_year, $ne_month, 1), sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']), $details['frequency'], $details['period']);
 				}
 			}
 		}
@@ -1108,7 +1112,7 @@ class Page_Calendar extends Page_Asset_Listing
 	function getYearEventsByMonthAndDay($year)
 	{
 		$res = Array();
-		$all_events = $this->getYearEventsByMonth($year);    
+		$all_events = $this->getYearEventsByMonth($year);  
 		foreach (range(1, 12) as $month_num) {
 			$res[$month_num] = Array();
 			foreach (range(1, days_in_month($month_num, $year)) as $day_num) $res[$month_num][$day_num] = Array();
@@ -1133,11 +1137,13 @@ class Page_Calendar extends Page_Asset_Listing
 					}
 				} else {
 					// recurring event
-					$next_occurrence_ts = Calendar_Event_Recurring::getFirstOccurrenceAfter($start_ts, $details['start_date_ts'], $details['frequency'], $details['period']);
-					while ($next_occurrence_ts < $end_ts) {
-						$real_date_comps = Calendar_Event::getDateComponents(ts_iso8601($next_occurrence_ts), 'start_date_');
+					$next_occurrence_date = Calendar_Event_Recurring::getFirstOccurrenceAfter(sprintf('%04d-%02d-%02d', $year, $month_num, 1), sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']), $details['frequency'], $details['period']);
+					while (strtotime($next_occurrence_date) < $end_ts) {
+						$real_date_comps = Calendar_Event::getDateComponents($next_occurrence_date, 'start_date_');
 						$res[$month_num][$real_date_comps['start_date_mday']][$id] = $details + $real_date_comps;
-						$next_occurrence_ts = Calendar_Event_Recurring::getFirstOccurrenceAfter($next_occurrence_ts+9000, $details['start_date_ts'], $details['frequency'], $details['period']);
+						list($ne_year, $ne_month, $ne_day) = explode('-', $next_occurrence_date);
+						increment_date($ne_day, $ne_month, $ne_year);
+						$next_occurrence_date = Calendar_Event_Recurring::getFirstOccurrenceAfter(sprintf('%04d-%02d-%02d', $ne_year, $ne_month, $ne_day), sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']), $details['frequency'], $details['period']);
 					}
 				}
 			}
@@ -1198,7 +1204,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$all_events = $this->getMonthEvents($year, $month);
 		$month_length = days_in_month($month, $year);
 		$month_start_ts = strtotime(sprintf('%04d-%02d-', $year, $month).'-01 00:00:00 ');
-		$month_end_ts = strtotime(sprintf('%04d-%02d-', (($month == 12) ? ($year+1) : $year), ($month+1)%12).'-01 00:00:00 GMT');
+		$month_end_ts = strtotime(sprintf('%04d-%02d-', (($month == 12) ? ($year+1) : $year), ($month+1)%12).'-01 00:00:00 GMT')-1;
 
 		$res = Array();
 		for ($i = 1; $i <= $month_length; $i++) {
@@ -1226,18 +1232,17 @@ class Page_Calendar extends Page_Asset_Listing
 				}
 			} else {
 				// recurring event
-				$next_occurrence_ts = Calendar_Event_Recurring::getFirstOccurrenceAfter($month_start_ts-1, $details['start_date_ts'], $details['frequency'], $details['period']);
-				while ($next_occurrence_ts < $month_end_ts) {
-					bam('Next occurrence of '.$details['name'].' is at '.gmdate('r', $next_occurrence_ts));
-					$real_date_comps = Calendar_Event::getDateComponents(ts_iso8601($next_occurrence_ts), 'start_date_');
-					bam($real_date_comps);
+				$next_occurrence_date = Calendar_Event_Recurring::getFirstOccurrenceAfter(sprintf('%04d-%02d-%02d', $year, $month, 1), sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']), $details['frequency'], $details['period']);
+				while (strtotime($next_occurrence_date.' GMT') < $month_end_ts) {
+					$real_date_comps = Calendar_Event::getDateComponents($next_occurrence_date, 'start_date_');
 					$res[$real_date_comps['start_date_mday']][$id] = $details + $real_date_comps;
-					$next_occurrence_ts = Calendar_Event_Recurring::getFirstOccurrenceAfter($next_occurrence_ts+9000, $details['start_date_ts'], $details['frequency'], $details['period']);
+					list($ne_year, $ne_month, $ne_day) = explode('-', $next_occurrence_date);
+					increment_date($ne_day, $ne_month, $ne_year);
+					$next_occurrence_date = Calendar_Event_Recurring::getFirstOccurrenceAfter(sprintf('%04d-%02d-%02d', $ne_year, $ne_month, $ne_day), sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']), $details['frequency'], $details['period']);
 				}
 			}
 
 		}
-
 		return $res;
 	}
 
