@@ -108,6 +108,20 @@ function easy_filesize($size)
 
 }// end easy_filesize()
 
+
+/**
+* Takes a timestamp and returns a human-friendly date/time string
+*
+* @param string	$then	the timestamp to convert
+*
+* @return string
+* @access public
+*/
+function readable_datetime($then='') {
+	return date('d M Y H:i', $then);
+}
+
+
 /**
 * Same as increment_name(), but preserves a filename extension
 * 
@@ -147,6 +161,9 @@ function list_files($dir='', $fullpath=false)
 		$restrict = basename(str_replace('*','',$dir));	// if we pass in *.inc, check for .inc
 		$dir = dirname($dir);
 	}
+
+	if (!is_dir($dir)) return Array();
+	
 	$files = array();
 	if ($handle = opendir($dir)) {
 		while (($file = readdir($handle)) !== false) {
