@@ -150,13 +150,6 @@ class Asset_Edit_Interface extends Resolve_Object
 		// if there are no screens or static screens, piss off
 		if (!count($this->_screens) && empty($this->_edit_fns->static_screens)) return;
 
-		// do we have write access?
-		$write_access = $owner->writeAccess();
-		$full_write_access = $owner->writeAccess(Array(), false);
-
-		// do we unlock this asset when committing?
-		$force_unlock_on_commit = true;
-
 		$current_location = $o->getCurrentLocation();
 		$current_location .= (strstr($current_location, '?')) ? '&' : '?';
 
@@ -187,7 +180,6 @@ class Asset_Edit_Interface extends Resolve_Object
 			$active_screen = $_GET['asset_ei_screen'];
 		}
 
-
 		$o->setCurrentScreen($current_location.'asset_ei_screen='.rawurlencode($active_screen));
 
 		// if we are creating open the create file to see which fields we are supposed to print out
@@ -198,6 +190,16 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		// make sure that we have the screen for next time
 		$o->addFormActionGetVar('asset_ei_screen', $active_screen);
+
+		// do we have write access?
+		$write_access = $owner->writeAccess();
+		$full_write_access = $owner->writeAccess(Array(), false);
+
+		// do we print the commit button (ie. have we printed an editable interface?)
+		$print_commit_button = false;
+
+		// do we unlock this asset when committing?
+		$force_unlock_on_commit = true;
 
 		if (!$creating) {
 			// lets tell the user if the asset is locked for editing
@@ -257,7 +259,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			// if we are not creating, paint the system defined bit of this tab
 			if (!$creating) {
 				$paint_function = 'paint'.ucfirst($active_screen);
-				$this->$paint_function($owner, $o);
+				$print_commit_button = $this->$paint_function($owner, $o);
 			}
 
 			$force_unlock_on_commit = $this->_edit_fns->static_screens[$active_screen]['force_unlock'];
@@ -370,15 +372,15 @@ class Asset_Edit_Interface extends Resolve_Object
 
 
 		$statii = Array();
-		if (!$write_access && $active_screen == 'details') $statii = $owner->getAvailableStatii();
+		if (!$write_access && !$print_commit_button && $active_screen == 'details') $statii = $owner->getAvailableStatii();
 
-		// if the user has write access or has the ability
-		// to alter the status of the asset, show the commit button
-		if ($write_access || !empty($statii)) {
+		// if the user has write access, has the ability to alter the status of the asset, 
+		// or we have printed an editable interface on a static screen - show the commit button
+		if ($write_access || $print_commit_button || !empty($statii)) {
 			$o->commitButton('Commit', $force_unlock_on_commit);
 		}
 
-	}// end paint();
+	}// end paint()
 
 
 	/**
@@ -554,6 +556,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	* @param object	Asset				$owner	the asset whose interface we are painting
 	* @param object	Backend_Outputter	$o		the outputter class
 	*
+	* @return boolean
 	* @access public
 	*/
 	function paintDetails(&$owner, &$o)
@@ -615,6 +618,8 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		}// end if file
 
+		return false;
+
 	}//end paintDetails()
 
 
@@ -637,6 +642,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		} else {
 			return false;
 		}
+
 	}//end processDetails()
 
 
@@ -648,6 +654,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	* @param object	Backend_Outputter	$o		the outputter class
 	*
 	* @access public
+	* @return boolean
 	*/
 	function paintSettings(&$owner, &$o)
 	{
@@ -762,6 +769,8 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		}// end if file
 
+		return false;
+
 	}//end paintSettings()
 
 
@@ -806,6 +815,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		}
 
 		return false;
+
 	}//end processSettings()
 
 
@@ -866,12 +876,13 @@ class Asset_Edit_Interface extends Resolve_Object
 	* @param object	Backend_Outputter	$o			the outputter class
 	*
 	* @access public
+	* @return boolean
 	*/
 	function paintPermissions(&$owner, &$o)
 	{
 		$prefix = $this->getPrefix($owner);
 		$perms = Array('Read' => SQ_PERMISSION_READ, 'Write' => SQ_PERMISSION_WRITE, 'Administrator' => SQ_PERMISSION_ADMIN);
-		$admin_access = $owner->adminAccess();
+		$admin_access = $owner->adminAccess(Array(), true, false);
 
 		foreach ($perms as $title => $perm) {
 			$o->openSection($title.' Access');
@@ -1054,6 +1065,8 @@ class Asset_Edit_Interface extends Resolve_Object
 			$o->closeSection();
 		}// end foreach $perms
 
+		return $admin_access;
+
 	}//end paintPermissions()
 
 
@@ -1075,8 +1088,8 @@ class Asset_Edit_Interface extends Resolve_Object
 			return false;
 		}
 
-		// if we dont have effective admin access, dont process anything
-		if (!$owner->adminAccess()) return false;
+		// if we dont have admin access, dont process anything
+		if (!$owner->adminAccess(Array(), true, false)) return false;
 
 		$prefix = $this->getPrefix($owner);
 		if (!isset($_POST[$prefix.'_permissions'])) return false;
@@ -1086,7 +1099,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			// we need to check for write access each time because
 			// we may actually be revoking write access and then
 			// trying to put it back
-			if (!$owner->adminAccess(Array(), false)) continue;
+			if (!$owner->adminAccess(Array(), true, false)) continue;
 
 			$post_data = $_POST[$prefix.'_permissions'][$perm];
 
@@ -1268,7 +1281,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			}// end foreach
 
 		} else {
-			$admin_access = $owner->adminAccess();
+			$admin_access = $owner->adminAccess(Array(), true, false);
 		}
 
 
@@ -1498,6 +1511,8 @@ class Asset_Edit_Interface extends Resolve_Object
 			$o->closeSection();
 		}// end for
 
+		return $admin_access;
+
 	}//end paintWorkflow()
 
 
@@ -1519,8 +1534,8 @@ class Asset_Edit_Interface extends Resolve_Object
 			return false;
 		}
 
-		// if we dont have effective admin access, dont process anything
-		if (!$owner->adminAccess()) return false;
+		// if we dont have admin access, dont process anything
+		if (!$owner->adminAccess(Array(), true, false)) return false;
 
 		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
 		$wfm = new Workflow_Manager($owner);
@@ -1654,7 +1669,8 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		$o->closeSection();
 
-		return true;
+		return false;
+
 	}//end paintLocking()
 
 
@@ -1757,6 +1773,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	function processDependants(&$owner, &$o)
 	{
 		return false;
+
 	}//end processLocking()
 
 
@@ -1869,6 +1886,8 @@ class Asset_Edit_Interface extends Resolve_Object
 		}
 
 		$o->closeSection();
+
+		return $owner->writeAccess(Array(), true, false);
 
 	}//end paintLinking()
 
