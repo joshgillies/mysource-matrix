@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.36 2004/06/28 05:29:56 gsherwood Exp $
+* $Id: asset_edit_fns.inc,v 1.37 2004/07/23 07:15:59 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -44,7 +44,7 @@ class Asset_Edit_Fns extends MySource_Object
 	var $static_screens = Array('details'			=> Array(
 														'name'			=> 'Details',
 														'force_unlock'	=> true,
-														'lock_type'		=> 'attributes',
+														'lock_type'		=> 'menu',
 													),
 								'permissions'		=> Array(
 														'name'			=> 'Permissions',
