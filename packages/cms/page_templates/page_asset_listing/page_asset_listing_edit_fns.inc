@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_edit_fns.inc,v 1.14 2005/01/27 05:20:21 lwright Exp $
+* $Id: page_asset_listing_edit_fns.inc,v 1.15 2005/02/03 15:57:25 brobertson Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -783,13 +783,16 @@ class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 		$new_position_pos = (int) array_get_index($_POST, $prefix.'_new_asset_position_pos', 0);
 		if ($new_position_pos > 0) {
 			$new_position_data = array_get_index($_POST, $prefix.'_new_asset_position_asset', Array());
-			$new_position_assetid = $new_position_data['assetid'];
-			$asset_positions[$new_position_pos] = $new_position_assetid;
+			if ($new_position_assetid = $new_position_data['assetid']) {
+				$asset_positions[$new_position_pos] = $new_position_assetid;
+			}
 		}
 		
 		$current_asset_positions = array_get_index($_POST, $prefix.'_asset_position', Array());
 		foreach ($current_asset_positions as $position => $data) {
-			$asset_positions[$position] = $data['assetid'];
+			if ($data['assetid']) {
+				$asset_positions[$position] = $data['assetid'];
+			}
 		}
 		
 		$delete_asset_position = array_get_index($_POST, $prefix.'_delete_asset_position', Array());

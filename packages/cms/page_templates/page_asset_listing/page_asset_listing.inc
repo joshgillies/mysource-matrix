@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.54 2005/02/03 04:14:13 amiller Exp $
+* $Id: page_asset_listing.inc,v 1.55 2005/02/03 15:57:25 brobertson Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -898,7 +898,7 @@ class Page_Asset_Listing extends Page
 			$key = key($original_todo);
 
 			for ($i = 1; $i <= count($original_todo) + count($asset_positions); $i++) {
-				if (isset($asset_positions[$i])) {
+				if (!empty($asset_positions[$i])) {
 					// this position in the list is to be filled by a specific asset
 
 					// we get the type code either from the $adjusted_type_code array
@@ -1148,7 +1148,7 @@ class Page_Asset_Listing extends Page
 
 		if ($this_needs_asset) {
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-			if (is_null($asset)) continue;
+			if (is_null($asset)) return;
 			$keywords = $asset->getAssetKeywords();
 
 			if (preg_match('|%asset_contents%|is', $contents)) {
