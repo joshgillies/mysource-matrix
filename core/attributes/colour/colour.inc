@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: colour.inc,v 1.15 2004/08/11 01:01:22 gsherwood Exp $
+* $Id: colour.inc,v 1.16 2004/09/08 04:17:47 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -82,7 +82,7 @@ class Asset_Attribute_Colour extends Asset_Attribute
 		}
 
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		colour_box($prefix.'_'.$this->name, $this->value);
+		colour_box($prefix, $this->value);
 
 	}//end paint()
 
@@ -96,8 +96,8 @@ class Asset_Attribute_Colour extends Asset_Attribute
 	*/
 	function process($prefix)
 	{
-		if (!isset($_POST[$prefix.'_'.$this->name])) return false;
-		$value = $_POST[$prefix.'_'.$this->name];
+		if (!isset($_POST[$prefix])) return false;
+		$value = $_POST[$prefix];
 		if ($this->value != $value && $this->setValue($value)) {
 			$this->processed = true;
 		} else {

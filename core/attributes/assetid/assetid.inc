@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: assetid.inc,v 1.4 2004/06/04 06:26:16 gsherwood Exp $
+* $Id: assetid.inc,v 1.5 2004/09/08 04:17:47 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -106,7 +106,7 @@ class Asset_Attribute_Assetid extends Asset_Attribute
 		}
 
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		asset_finder($prefix.'_'.$this->name, (int) $this->value, $this->_edit_params['type_codes']);
+		asset_finder($prefix, $this->value, $this->_edit_params['type_codes']);
 
 	}// end paint()
 
@@ -120,8 +120,8 @@ class Asset_Attribute_Assetid extends Asset_Attribute
 	*/
 	function process($prefix)
 	{
-		if (!isset($_POST[$prefix.'_'.$this->name]['assetid'])) return false;
-		$value = (int) $_POST[$prefix.'_'.$this->name]['assetid'];
+		if (!isset($_POST[$prefix]['assetid'])) return false;
+		$value = (int) $_POST[$prefix]['assetid'];
 		if ($this->value != $value && $this->setValue($value)) {
 			$this->processed = true;
 		} else {

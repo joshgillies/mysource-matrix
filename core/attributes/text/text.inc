@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.27 2004/09/01 01:21:45 arailean Exp $
+* $Id: text.inc,v 1.28 2004/09/08 04:17:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -109,22 +109,19 @@ class Asset_Attribute_Text extends Asset_Attribute
 	function processEditParams($prefix)
 	{
 		// reading submitted vars
-		if (!empty($_POST[$prefix.'_' . $this->name . '_width'])) {
-			$this->_edit_params['width'] = $_POST[$prefix.'_' . $this->name . '_width'];
+		if (!empty($_POST[$prefix.'_'.$this->name.'_width'])) {
+			$this->_edit_params['width'] = $_POST[$prefix.'_'.$this->name.'_width'];
 		}
 
-		if (!empty($_POST[$prefix.'_' . $this->name . '_height'])) {
-			$this->_edit_params['height'] = $_POST[$prefix.'_' . $this->name . '_height'];
+		if (!empty($_POST[$prefix.'_'.$this->name.'_height'])) {
+			$this->_edit_params['height'] = $_POST[$prefix.'_'.$this->name.'_height'];
 		}
 
 		$values = Array();
-		$values['width'] = $this->_edit_params['width'];
+		$values['width']  = $this->_edit_params['width'];
 		$values['height'] = $this->_edit_params['height'];
-
-		$result = Array();
-		$result[$this->name] = $values;
 		
-		return $result;
+		return $values;
 
 	}//end processEditParams()
 
@@ -168,7 +165,7 @@ class Asset_Attribute_Text extends Asset_Attribute
 
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
-		if($this->_edit_params['height'] > 1) {
+		if ($this->_edit_params['height'] > 1) {
 			text_area($prefix, $this->value, $this->_edit_params['width'], $this->_edit_params['height'], $this->_params['max_length']);
 		} else {
 			text_box($prefix, $this->value, $this->_edit_params['width'], $this->_params['max_length']);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_width.inc,v 1.3 2004/08/11 01:01:57 gsherwood Exp $
+* $Id: html_width.inc,v 1.4 2004/09/08 04:17:47 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -88,13 +88,13 @@ class Asset_Attribute_HTML_Width extends Asset_Attribute
 		$is_pct = (strpos($this->value, '%') !== false);
 
 		if ($read_only) {
-			echo (int) $this->value . ($is_pct ? ' Percent' : ' Pixels');
+			echo (int) $this->value.($is_pct ? ' Percent' : ' Pixels');
 			return;
 		}
 
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		text_box($prefix.'_'.$this->name, (int) $this->value, 4, 0, false, 'onFocus="javascript: this.__sq_init_value = this.value;" onChange="javascript: if (isNaN(parseInt(this.value))) { this.value = this.__sq_init_value; alert(\'This is an integer field.\\nUnable to accept non-digit characters in this field.\'); } else { this.value = parseInt(this.value); } "');
-		combo_box($prefix.'_'.$this->name.'_pct', Array(0 => 'Pixels', 1 => 'Percent'), false, $is_pct, 0, $extras='', $maxlength=0);
+		text_box($prefix, (int) $this->value, 4, 0, false, 'onFocus="javascript: this.__sq_init_value = this.value;" onChange="javascript: if (isNaN(parseInt(this.value))) { this.value = this.__sq_init_value; alert(\'This is an integer field.\\nUnable to accept non-digit characters in this field.\'); } else { this.value = parseInt(this.value); } "');
+		combo_box($prefix.'_pct', Array(0 => 'Pixels', 1 => 'Percent'), false, $is_pct, 0, $extras='', $maxlength=0);
 
 	}//end paint()
 
@@ -108,13 +108,12 @@ class Asset_Attribute_HTML_Width extends Asset_Attribute
 	*/
 	function process($prefix)
 	{
-		if (!isset($_POST[$prefix.'_'.$this->name])) return false;
+		if (!isset($_POST[$prefix])) return false;
 
-		// percent
-		if ($_POST[$prefix.'_'.$this->name.'_pct'] == 1) {
-			$value = (int) $_POST[$prefix.'_'.$this->name] . '%';
+		if ($_POST[$prefix.'_pct'] == 1) {
+			$value = (int) $_POST[$prefix].'%';
 		} else {
-			$value = (int) $_POST[$prefix.'_'.$this->name];
+			$value = (int) $_POST[$prefix];
 		}
 
 		if ((string)$this->value != $value && $this->setValue($value)) {

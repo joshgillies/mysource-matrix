@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: float.inc,v 1.16 2004/07/23 00:23:55 lwright Exp $
+* $Id: float.inc,v 1.17 2004/09/08 04:17:47 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -41,6 +41,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 */
 class Asset_Attribute_Float extends Asset_Attribute
 {
+
 
 	/**
 	* Constructor
@@ -93,7 +94,7 @@ class Asset_Attribute_Float extends Asset_Attribute
 		}
 
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		text_box($prefix.'_'.$this->name, $v, $this->_edit_params['width'], 0, false, 'onFocus="javascript: this.__sq_init_value = this.value;" onChange="javascript: if (isNaN(parseFloat(this.value))) { this.value = this.__sq_init_value; alert(\'This is an numerical field.\\nUnable to accept non-digit characters in this field.\'); } else { this.value = number_format(this.value, '.$this->_params['decimal_places'].', \'.\', \'\'); } "');
+		text_box($prefix, $v, $this->_edit_params['width'], 0, false, 'onFocus="javascript: this.__sq_init_value = this.value;" onChange="javascript: if (isNaN(parseFloat(this.value))) { this.value = this.__sq_init_value; alert(\'This is an numerical field.\\nUnable to accept non-digit characters in this field.\'); } else { this.value = number_format(this.value, '.$this->_params['decimal_places'].', \'.\', \'\'); } "');
 
 	}//end paint()
 
@@ -108,8 +109,8 @@ class Asset_Attribute_Float extends Asset_Attribute
 	*/
 	function process($prefix)
 	{
-		if (!isset($_POST[$prefix.'_'.$this->name])) return false;
-		$value = (float) $_POST[$prefix.'_'.$this->name];
+		if (!isset($_POST[$prefix])) return false;
+		$value = (float) $_POST[$prefix];
 		if ($this->value != $value && $this->setValue($value)) {
 			$this->processed = true;
 		} else {

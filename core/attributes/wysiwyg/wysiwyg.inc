@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.7 2004/09/07 02:35:24 tbarrett Exp $
+* $Id: wysiwyg.inc,v 1.8 2004/09/08 04:17:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -188,7 +188,6 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 			return;
 		}
 
-		$prefix = $prefix.'_'.$this->name;
 		$wysiwyg = $this->_createEditor($prefix);
 
 		if (!(SQ_IN_BACKEND || SQ_IN_LIMBO)) echo '<script type="text/javascript" language="javascript" src="'.sq_web_path('lib').'/js/edit.js"></script>';
@@ -223,7 +222,6 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 	*/
 	function process($prefix)
 	{
-		$prefix = $prefix.'_'.$this->name;
 		$wysiwyg = &$this->_createEditor($prefix);
 		$html = $wysiwyg->process();
 		if ($html != $this->value && $this->setValue($html)) $this->processed = true;

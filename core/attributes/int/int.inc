@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: int.inc,v 1.22 2004/09/01 15:16:04 brobertson Exp $
+* $Id: int.inc,v 1.23 2004/09/08 04:17:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -127,7 +127,7 @@ class Asset_Attribute_Int extends Asset_Attribute
 		';
 
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		text_box($prefix.'_'.$this->name, (int) $this->value, $this->_edit_params['width'], 0, false, $javascript);
+		text_box($prefix, (int) $this->value, $this->_edit_params['width'], 0, false, $javascript);
 
 	}//end paint()
 
@@ -141,8 +141,8 @@ class Asset_Attribute_Int extends Asset_Attribute
 	*/
 	function process($prefix)
 	{
-		if (!isset($_POST[$prefix.'_'.$this->name])) return false;
-		$value = (int) $_POST[$prefix.'_'.$this->name];
+		if (!isset($_POST[$prefix])) return false;
+		$value = (int) $_POST[$prefix];
 		if ($this->value != $value && $this->setValue($value)) {
 			$this->processed = true;
 		} else {

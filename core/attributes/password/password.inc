@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: password.inc,v 1.17 2004/08/11 01:02:39 gsherwood Exp $
+* $Id: password.inc,v 1.18 2004/09/08 04:17:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -95,9 +95,9 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 		// NOTE: we deliberatly don't set the value
-		password_box($prefix.'_'.$this->name.'_one', '', $this->_edit_params['width'], $this->_params['max_length']);
+		password_box($prefix.'_one', '', $this->_edit_params['width'], $this->_params['max_length']);
 		echo '<br />';
-		password_box($prefix.'_'.$this->name.'_two', '', $this->_edit_params['width'], $this->_params['max_length']);
+		password_box($prefix.'_two', '', $this->_edit_params['width'], $this->_params['max_length']);
 
 		return true;
 
@@ -113,11 +113,11 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 	*/
 	function process($prefix)
 	{
-		if (!isset($_POST[$prefix.'_'.$this->name.'_one']) && !isset($_POST[$prefix.'_'.$this->name.'_two'])) return false;
+		if (!isset($_POST[$prefix.'_one']) && !isset($_POST[$prefix.'_two'])) return false;
 		$this->processed = false;
 
-		$one = $_POST[$prefix.'_'.$this->name.'_one'];
-		$two = $_POST[$prefix.'_'.$this->name.'_two'];
+		$one = $_POST[$prefix.'_one'];
+		$two = $_POST[$prefix.'_two'];
 
 		$this->validateValue($one);
 		$this->validateValue($two);
