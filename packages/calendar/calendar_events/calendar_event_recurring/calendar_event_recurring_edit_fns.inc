@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring_edit_fns.inc,v 1.7 2004/08/02 06:41:34 lwright Exp $
+* $Id: calendar_event_recurring_edit_fns.inc,v 1.8 2004/08/02 07:04:22 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $ - 1.0
+* @version $Revision: 1.8 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -143,41 +143,41 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 	function processFrequencyField(&$asset, &$o, $prefix)
 	{
 		$res = true;
-		if (isset($_REQUEST[$prefix . '_stop_date_selected']) && ($_REQUEST[$prefix . '_stop_date_selected'])) {
-			$_REQUEST[$prefix . '_stop_year'] = (int)$_REQUEST[$prefix . '_stop_year'];
-			if (($_REQUEST[$prefix . '_stop_year'] < 1900) || ($_REQUEST[$prefix . '_stop_year'] > 2100)) {
+		if (isset($_REQUEST[$prefix.'_stop_date_selected']) && ($_REQUEST[$prefix.'_stop_date_selected'])) {
+			$_REQUEST[$prefix.'_stop_year'] = (int)$_REQUEST[$prefix.'_stop_year'];
+			if (($_REQUEST[$prefix.'_stop_year'] < 1900) || ($_REQUEST[$prefix.'_stop_year'] > 2100)) {
 				trigger_error('You entered an invalid year value in the stop date field', E_USER_WARNING);
 				return false;
 			}
-			$_REQUEST[$prefix . '_stop_month'] = (int)$_REQUEST[$prefix . '_stop_month'];
-			if (($_REQUEST[$prefix . '_stop_month'] < 1) || ($_REQUEST[$prefix . '_stop_month'] > 12)) {
+			$_REQUEST[$prefix.'_stop_month'] = (int)$_REQUEST[$prefix.'_stop_month'];
+			if (($_REQUEST[$prefix.'_stop_month'] < 1) || ($_REQUEST[$prefix.'_stop_month'] > 12)) {
 				trigger_error('You entered an invalid month value in the stop date field', E_USER_WARNING);
 				return false;
 			}
-			$_REQUEST[$prefix . '_stop_day'] = (int)$_REQUEST[$prefix . '_stop_day'];
-			if (($_REQUEST[$prefix . '_stop_day'] < 1) || ($_REQUEST[$prefix . '_stop_day'] > 31)) {
+			$_REQUEST[$prefix.'_stop_day'] = (int)$_REQUEST[$prefix.'_stop_day'];
+			if (($_REQUEST[$prefix.'_stop_day'] < 1) || ($_REQUEST[$prefix.'_stop_day'] > 31)) {
 				trigger_error('You entered an invalid day value in the stop date field', E_USER_WARNING);
 				return false;
 			}
-			$res &= $asset->setAttrValue('stop_date', $_REQUEST[$prefix . '_stop_year'] .'-' 
-					. sprintf("%02d", $_REQUEST[$prefix . '_stop_month']) .'-' 
-					. sprintf("%02d", $_REQUEST[$prefix . '_stop_day']) . ' --:--:--');
+			$res &= $asset->setAttrValue('stop_date', $_REQUEST[$prefix.'_stop_year'] .'-' 
+					. sprintf("%02d", $_REQUEST[$prefix.'_stop_month']) .'-' 
+					. sprintf("%02d", $_REQUEST[$prefix.'_stop_day']).' --:--:--');
 		}
 		$interval = '';
 		
 		// do this so it doesn't give undefined index errors in the switch if nothing is set
-		if(empty($_REQUEST[$prefix . '_frequency_type'])) $_REQUEST[$prefix . '_frequency_type'] = '';
+		if(empty($_REQUEST[$prefix.'_frequency_type'])) $_REQUEST[$prefix.'_frequency_type'] = '';
 		
-		switch ($_REQUEST[$prefix . '_frequency_type']) {
+		switch ($_REQUEST[$prefix.'_frequency_type']) {
 			case 'DED':
 			case 'DWD':
 			case 'WEW':
-				$frequency = $_REQUEST[$prefix . '_frequency_type'];
+				$frequency = $_REQUEST[$prefix.'_frequency_type'];
 			break;
 
 			case 'DEDx':
-				if ((($interval = (int)$_REQUEST[$prefix . '_num_days']) > 0)) {
-					$frequency = 'DED' . $interval;
+				if ((($interval = (int)$_REQUEST[$prefix.'_num_days']) > 0)) {
+					$frequency = 'DED'.$interval;
 				} else {
 					trigger_error('You entered an invalid number of days in the "every x days" field.  It must be between 1 and 30.', E_USER_WARNING);
 					return false;
@@ -185,8 +185,8 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 			break;
 
 			case 'WEWx':
-				if ((($interval = (int)$_REQUEST[$prefix . '_num_weeks']) > 0)) {
-					$frequency = 'WEW' . $interval;
+				if ((($interval = (int)$_REQUEST[$prefix.'_num_weeks']) > 0)) {
+					$frequency = 'WEW'.$interval;
 				} else {
 					trigger_error('You entered an invalid number of weeks in the "every x weeks" field.', E_USER_WARNING);
 					return false;
@@ -194,8 +194,8 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 			break;
 
 			case 'M':
-				if (isset($_REQUEST[$prefix . '_monthly_type']) && in_array($_REQUEST[$prefix . '_monthly_type'], Array('MFN', 'MFW', 'MRN', 'MRW'))) {
-					$frequency = $_REQUEST[$prefix . '_monthly_type'];
+				if (isset($_REQUEST[$prefix.'_monthly_type']) && in_array($_REQUEST[$prefix.'_monthly_type'], Array('MFN', 'MFW', 'MRN', 'MRW'))) {
+					$frequency = $_REQUEST[$prefix.'_monthly_type'];
 				} else {
 					trigger_error('You entered an invalid type of monthly frequency', E_USER_WARNING);
 					return false;
@@ -203,9 +203,9 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 			break;
 
 			case 'Mx':
-				if (in_array($_REQUEST[$prefix . '_monthly_type'], Array('MFN', 'MFW', 'MRN', 'MRW'))) {
-					if ((($interval = (int)$_REQUEST[$prefix . '_num_months']) > 0)) {
-						$frequency = $_REQUEST[$prefix . '_monthly_type'] . $interval;
+				if (in_array($_REQUEST[$prefix.'_monthly_type'], Array('MFN', 'MFW', 'MRN', 'MRW'))) {
+					if ((($interval = (int)$_REQUEST[$prefix.'_num_months']) > 0)) {
+						$frequency = $_REQUEST[$prefix.'_monthly_type'].$interval;
 					} else {
 						trigger_error('You entered an invalid number of months in the "every x months" field', E_USER_WARNING);
 						return false;

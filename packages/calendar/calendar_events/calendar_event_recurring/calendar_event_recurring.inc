@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.10 2004/08/02 06:29:03 lwright Exp $
+* $Id: calendar_event_recurring.inc,v 1.11 2004/08/02 07:04:22 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.10 $ - 1.0
+* @version $Revision: 1.11 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -121,7 +121,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 					$this->_addMonths($res_month, $res_year, $interval);
 				while (date('j', $start_ts) > days_in_month($res_month, $res_year))
 					$this->_addMonths($res_month, $res_year, $interval);
-				return strtotime($res_year . '-' . sprintf('%02d', $res_month) . date('-d', $start_ts));
+				return strtotime($res_year.'-'.sprintf('%02d', $res_month).date('-d', $start_ts));
 			break;
 
 			case 'MFW':
@@ -138,7 +138,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 				$res_day = ($target_week_of_month * 7) + 1;
 
 				$month_length = days_in_month($res_month, $res_year);
-				while ((date('w', strtotime($res_year . '-' . sprintf('%02d', $res_month) . '-' . $res_day))) != $day_of_week) {
+				while ((date('w', strtotime($res_year.'-'.sprintf('%02d', $res_month).'-'.$res_day))) != $day_of_week) {
 					$res_day++;
 					if ($res_day > $month_length) {
 						// run out of days, so we'll have to start again in the next valid month
@@ -147,7 +147,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 						$res_day = ($target_week_of_month * 7) + 1;
 					}
 				}
-				return strtotime($res_year . '-' . sprintf('%02d', $res_month) . date('-d', $start_ts));
+				return strtotime($res_year.'-'.sprintf('%02d', $res_month).date('-d', $start_ts));
 			break;
 
 			case 'MRN':
@@ -163,7 +163,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 				while ((days_in_month($res_month, $res_year) - $target_days_from_end) < 0)
 					$this->_addMonths($res_month, $res_year, $interval);
 
-				return strtotime($res_year . '-' . $res_month . sprintf('%02d', days_in_month($res_month, $res_year) - $target_days_from_end));
+				return strtotime($res_year.'-'.$res_month.sprintf('%02d', days_in_month($res_month, $res_year) - $target_days_from_end));
 			break;
 
 			case 'MRW':
@@ -179,7 +179,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 				$target_day_of_week = (date('w', $start_ts));
 				$res_day = days_in_month($res_month, $res_year) - ($target_weeks_from_end * 7);
 
-				while ((date('w', strtotime($res_year . '-' . $res_month . '-' . $res_day))) != $target_day_of_week) {
+				while ((date('w', strtotime($res_year.'-'.$res_month.'-'.$res_day))) != $target_day_of_week) {
 					$res_day--;
 					if ($res_day < 1) {
 						// this month doesn't have a nth-last xday, so go to the next valid month
@@ -187,7 +187,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 						$res_day = days_in_month($res_month, $res_year) - ($target_weeks_from_end * 7);
 					}
 				}
-				return strtotime($res_year . '-' . $res_month . date('-d', $start_ts));
+				return strtotime($res_year.'-'.$res_month.date('-d', $start_ts));
 			break;
 		}
 		return false;
@@ -341,14 +341,14 @@ class Calendar_Event_Recurring extends Calendar_Event
 			// every month (or x months) on the yth day of the month
 			case 'MFN':
 				$day = (int)substr($this->attr('start_date'), 8, 2);
-				$monthly_type = 'on the ' . add_ordinal_suffix($day) . ' day of the month';
+				$monthly_type = 'on the '.add_ordinal_suffix($day).' day of the month';
 			break;
 
 			// every month (or x months) on the yth weekday of the month
 			case 'MFW':
 				$day = (int)substr($this->attr('start_date'), 8, 2);
 				$day_of_week = date('l', iso8601_ts($this->attr('start_date')));
-				$monthly_type = 'on the ' . add_ordinal_suffix((int)((($day-1) / 7) + 1)) . ' ' . $day_of_week . ' of the month';
+				$monthly_type = 'on the '.add_ordinal_suffix((int)((($day-1) / 7) + 1)).' '.$day_of_week.' of the month';
 			break;
 
 			// every month (or x months) on the yth LAST day of the month
@@ -356,8 +356,8 @@ class Calendar_Event_Recurring extends Calendar_Event
 				$day = (int)substr($this->attr('start_date'), 8, 2);
 				$month = (int)substr($this->attr('start_date'), 5, 2);
 				$year = (int)substr($this->attr('start_date'), 0, 4);
-				$month_length = date('j', strtotime('yesterday', iso8601_ts($year . '-' . ($month+1) . '-01')));
-				$monthly_type = 'on the ' . add_reverse_ordinal_suffix($month_length - $day + 1) . ' last day of the month';
+				$month_length = date('j', strtotime('yesterday', iso8601_ts($year.'-'.($month+1).'-01')));
+				$monthly_type = 'on the '.add_reverse_ordinal_suffix($month_length - $day + 1).' last day of the month';
 			break;
 
 			// every month (or x months) on the yth LAST weekday of the month
@@ -366,13 +366,13 @@ class Calendar_Event_Recurring extends Calendar_Event
 				$day_of_week = date('l', iso8601_ts($this->attr('start_date')));
 				$month = (int)substr($this->attr('start_date'), 5, 2);
 				$year = (int)substr($this->attr('start_date'), 0, 4);
-				$month_length = date('j', strtotime('yesterday', iso8601_ts($year . '-' . ($month+1) . '-01')));
-				$monthly_type = 'on the ' . add_reverse_ordinal_suffix((int)((($month_length - $day + 1) / 7) + 1)) . ' last ' . $day_of_week . ' of the month';
+				$month_length = date('j', strtotime('yesterday', iso8601_ts($year.'-'.($month+1).'-01')));
+				$monthly_type = 'on the '.add_reverse_ordinal_suffix((int)((($month_length - $day + 1) / 7) + 1)).' last '.$day_of_week.' of the month';
 			break;
 
 			// unknown frequency
 			default:
-				$res = 'Unknown frequency type "' . $this->attr('frequency') . '"';
+				$res = 'Unknown frequency type "'.$this->attr('frequency').'"';
 		}
 		
 		// set up final display string for monthly types 
@@ -387,7 +387,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		if (($stop_timestamp = $stop_date_attr->getTimestamp()) == -1)
 			return "$res, until further notice";
 		else
-			return "$res, until " . readable_datetime($stop_timestamp);
+			return "$res, until ".readable_datetime($stop_timestamp);
 
 	}//end getFriendlyFrequency()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.6 2004/07/29 06:54:05 lwright Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.7 2004/08/02 07:04:22 lwright Exp $
 * $prefix:  $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $ - 1.0
+* @version $Revision: 1.7 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -70,10 +70,10 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 			<tr>
 				<td class="sq-backend-data" style="text-align: right">Occurs on&nbsp;&nbsp;</td>
 				<td class="sq-backend-data">
-					<?php $this->printDateChooser($prefix.'_start', "updateEndDate('" . $prefix . "'); " . $onchange_code, ($asset->getStartDate() ? iso8601_ts($asset->attr('start_date')) : 0)); ?>
+					<?php $this->printDateChooser($prefix.'_start', "updateEndDate('".$prefix."'); ".$onchange_code, ($asset->getStartDate() ? iso8601_ts($asset->attr('start_date')) : 0)); ?>
 				</td>
 				<td class="sq-backend-data">
-					&nbsp;&nbsp;<?php $this->printTimeChooser($prefix.'_start', "updateEndDate('" . $prefix . "'); " .  $onchange_code, "processStartTimeClick(this, '$prefix'); ", ($asset->getStartTime() ? iso8601_ts($asset->attr('start_date')) : false)); ?>
+					&nbsp;&nbsp;<?php $this->printTimeChooser($prefix.'_start', "updateEndDate('".$prefix."'); ". $onchange_code, "processStartTimeClick(this, '$prefix'); ", ($asset->getStartTime() ? iso8601_ts($asset->attr('start_date')) : false)); ?>
 				</td>
 			</tr>
 			<tr>
@@ -81,10 +81,10 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 					<input type="checkbox" value="1" <?php if ($asset->getEndDate()) echo ' checked="checked" '; ?> id="<?php echo $prefix; ?>_end_date_enabled" name="<?php echo $prefix; ?>_end_date_enabled" onclick="processEndEnabledClick(this, '<?php echo $prefix; ?>')" onkeypress="processEndEnabledClick(this, '<?php echo $prefix; ?>')" />runs until&nbsp;&nbsp;
 				</td>
 				<td class="sq-backend-data">
-					<?php $this->printDateChooser($prefix.'_end',"updateStartDate('" . $prefix . "'); " .  $onchange_code, ($asset->getEndDate() ? iso8601_ts($asset->attr('end_date')) : false)); ?>
+					<?php $this->printDateChooser($prefix.'_end',"updateStartDate('".$prefix."'); ". $onchange_code, ($asset->getEndDate() ? iso8601_ts($asset->attr('end_date')) : false)); ?>
 				</td>
 				<td class="sq-backend-data">
-					&nbsp;&nbsp;<?php $this->printTimeChooser($prefix.'_end', "updateStartDate('" . $prefix . "'); " .  $onchange_code, "processEndTimeClick(this, '$prefix'); ", ($asset->getEndTime() ? iso8601_ts($asset->attr('end_date')) : false)); ?>
+					&nbsp;&nbsp;<?php $this->printTimeChooser($prefix.'_end', "updateStartDate('".$prefix."'); ". $onchange_code, "processEndTimeClick(this, '$prefix'); ", ($asset->getEndTime() ? iso8601_ts($asset->attr('end_date')) : false)); ?>
 				</td>
 			</tr>
 		</table>
@@ -107,68 +107,68 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 	function processStartEndChooser(&$asset, &$o, $prefix) 
 	{
 		foreach (Array('_start', '_end') as $component) {
-			if (isset($_REQUEST[$prefix . $component . '_time_enabled'])) {
+			if (isset($_REQUEST[$prefix.$component.'_time_enabled'])) {
 				// interpret AM/PM values and covert to 24hr time
-				if ($_REQUEST[$prefix . $component . '_is_pm']) {
-					if ($_REQUEST[$prefix . $component . '_hours'] != 12) {
-						$_REQUEST[$prefix . $component . '_hours'] += 12;
+				if ($_REQUEST[$prefix.$component.'_is_pm']) {
+					if ($_REQUEST[$prefix.$component.'_hours'] != 12) {
+						$_REQUEST[$prefix.$component.'_hours'] += 12;
 					}
 				} else {
-					if ($_REQUEST[$prefix . $component . '_hours'] == 12) {
-						$_REQUEST[$prefix . $component . '_hours'] = 0;
+					if ($_REQUEST[$prefix.$component.'_hours'] == 12) {
+						$_REQUEST[$prefix.$component.'_hours'] = 0;
 					}
 				}
-				$_REQUEST[$prefix . $component . '_hours'] = (int)$_REQUEST[$prefix . $component . '_hours'];
-				if (($_REQUEST[$prefix . $component . '_hours'] < 0) || ($_REQUEST[$prefix . $component . '_hours'] > 23)) {
-					trigger_error('You entered an invalid hour: ' . $_REQUEST[$prefix . $component . '_hours'], E_USER_WARNING);
+				$_REQUEST[$prefix.$component.'_hours'] = (int)$_REQUEST[$prefix.$component.'_hours'];
+				if (($_REQUEST[$prefix.$component.'_hours'] < 0) || ($_REQUEST[$prefix.$component.'_hours'] > 23)) {
+					trigger_error('You entered an invalid hour: '.$_REQUEST[$prefix.$component.'_hours'], E_USER_WARNING);
 					return false;
 				}
-				$_REQUEST[$prefix . $component . '_minutes'] = (int)$_REQUEST[$prefix . $component . '_minutes'];
-				if (($_REQUEST[$prefix . $component . '_minutes'] < 0) || ($_REQUEST[$prefix . $component . '_minutes'] > 59)) {
+				$_REQUEST[$prefix.$component.'_minutes'] = (int)$_REQUEST[$prefix.$component.'_minutes'];
+				if (($_REQUEST[$prefix.$component.'_minutes'] < 0) || ($_REQUEST[$prefix.$component.'_minutes'] > 59)) {
 					trigger_error('You entered an invalid minute', E_USER_WARNING);
 					return false;
 				}
 			}
-			if (isset($_REQUEST[$prefix . $component . '_year'])) {
-				$_REQUEST[$prefix . $component . '_year'] = (int)$_REQUEST[$prefix . $component . '_year'];
-				if (($_REQUEST[$prefix . $component . '_year'] < 1900) || ($_REQUEST[$prefix . $component . '_year'] > 2100)) {
+			if (isset($_REQUEST[$prefix.$component.'_year'])) {
+				$_REQUEST[$prefix.$component.'_year'] = (int)$_REQUEST[$prefix.$component.'_year'];
+				if (($_REQUEST[$prefix.$component.'_year'] < 1900) || ($_REQUEST[$prefix.$component.'_year'] > 2100)) {
 					trigger_error('You entered an invalid year value', E_USER_WARNING);
 					return false;
 				}
-				$_REQUEST[$prefix . $component . '_month'] = (int)$_REQUEST[$prefix . $component . '_month'];
-				if (($_REQUEST[$prefix . $component . '_month'] < 1) || ($_REQUEST[$prefix . $component . '_month'] > 12)) {
+				$_REQUEST[$prefix.$component.'_month'] = (int)$_REQUEST[$prefix.$component.'_month'];
+				if (($_REQUEST[$prefix.$component.'_month'] < 1) || ($_REQUEST[$prefix.$component.'_month'] > 12)) {
 					trigger_error('You entered an invalid month value', E_USER_WARNING);
 					return false;
 				}
-				$_REQUEST[$prefix . $component . '_day'] = (int)$_REQUEST[$prefix . $component . '_day'];
-				if (($_REQUEST[$prefix . $component . '_day'] < 1) || ($_REQUEST[$prefix . $component . '_day'] > 31)) {
+				$_REQUEST[$prefix.$component.'_day'] = (int)$_REQUEST[$prefix.$component.'_day'];
+				if (($_REQUEST[$prefix.$component.'_day'] < 1) || ($_REQUEST[$prefix.$component.'_day'] > 31)) {
 					trigger_error('You entered an invalid day value', E_USER_WARNING);
 					return false;
 				}
 			}
 		}
 
-		$start_date_value = $_REQUEST[$prefix . '_start_year'] .'-' 
-			. sprintf("%02d", $_REQUEST[$prefix . '_start_month']) .'-' 
-			. sprintf("%02d", $_REQUEST[$prefix . '_start_day']) . ' ';
-		if (isset($_REQUEST[$prefix . '_start_time_enabled'])) {
-			$start_date_value .= sprintf("%02d", $_REQUEST[$prefix . '_start_hours']) . ':'
-									. sprintf("%02d", $_REQUEST[$prefix . '_start_minutes']) . ':--';
+		$start_date_value = $_REQUEST[$prefix.'_start_year'] .'-' 
+			. sprintf("%02d", $_REQUEST[$prefix.'_start_month']) .'-' 
+			. sprintf("%02d", $_REQUEST[$prefix.'_start_day']).' ';
+		if (isset($_REQUEST[$prefix.'_start_time_enabled'])) {
+			$start_date_value .= sprintf("%02d", $_REQUEST[$prefix.'_start_hours']).':'
+									. sprintf("%02d", $_REQUEST[$prefix.'_start_minutes']).':--';
 		} else {
 			$start_date_value .= '--:--:--';
 		}
 
-		if (isset($_REQUEST[$prefix . '_end_time_enabled'])) {
-			$end_date_value = $_REQUEST[$prefix . '_end_year'] .'-' 
-				. sprintf("%02d", $_REQUEST[$prefix . '_end_month']) .'-' 
-				. sprintf("%02d", $_REQUEST[$prefix . '_end_day']) . ' '
-				. sprintf("%02d", $_REQUEST[$prefix . '_end_hours']) . ':'
-				. sprintf("%02d", $_REQUEST[$prefix . '_end_minutes']) . ':--';
+		if (isset($_REQUEST[$prefix.'_end_time_enabled'])) {
+			$end_date_value = $_REQUEST[$prefix.'_end_year'] .'-' 
+				. sprintf("%02d", $_REQUEST[$prefix.'_end_month']) .'-' 
+				. sprintf("%02d", $_REQUEST[$prefix.'_end_day']).' '
+				. sprintf("%02d", $_REQUEST[$prefix.'_end_hours']).':'
+				. sprintf("%02d", $_REQUEST[$prefix.'_end_minutes']).':--';
 		} else {
-			if (isset($_REQUEST[$prefix . '_end_date_enabled'])) {
-				$end_date_value = $_REQUEST[$prefix . '_end_year'] .'-' 
-					. sprintf("%02d", $_REQUEST[$prefix . '_end_month']) .'-' 
-					. sprintf("%02d", $_REQUEST[$prefix . '_end_day']) . ' '
+			if (isset($_REQUEST[$prefix.'_end_date_enabled'])) {
+				$end_date_value = $_REQUEST[$prefix.'_end_year'] .'-' 
+					. sprintf("%02d", $_REQUEST[$prefix.'_end_month']) .'-' 
+					. sprintf("%02d", $_REQUEST[$prefix.'_end_day']).' '
 					. '--:--:--';
 			} else {
 				$end_date_value = '---------- --:--:--';
@@ -203,7 +203,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 		<?php
 		$currentMonth = date('n', $timestamp);
 		foreach(range(1, 12) as $monthNumber) {
-			echo '		<option ' . (($monthNumber == $currentMonth) ? ' selected="selected" ' : '') . 'value="' . $monthNumber . '">' . DateTime_Field::shortMonth($monthNumber) . "</option>\n";
+			echo '		<option '.(($monthNumber == $currentMonth) ? ' selected="selected" ' : '').'value="'.$monthNumber.'">'.DateTime_Field::shortMonth($monthNumber)."</option>\n";
 		}
 		?>
 		</select>

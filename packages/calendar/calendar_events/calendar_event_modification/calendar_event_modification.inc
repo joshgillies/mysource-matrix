@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification.inc,v 1.8 2004/08/02 06:29:03 lwright Exp $
+* $Id: calendar_event_modification.inc,v 1.9 2004/08/02 07:04:22 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * of a recurring event have changed for a particular instance of that event.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.8 $ - 1.0
+* @version $Revision: 1.9 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -91,7 +91,7 @@ class Calendar_Event_Modification extends Calendar_Event
 	*/
 	function _getName($short_name=false)
 	{
-		return $short_name ? 'Modified ' . date('d M Y', iso8601_ts($this->attr('start_date'))) : $this->attr('name');
+		return $short_name ? 'Modified '.date('d M Y', iso8601_ts($this->attr('start_date'))) : $this->attr('name');
 	
 	}//end _getName()
 
@@ -116,10 +116,10 @@ class Calendar_Event_Modification extends Calendar_Event
 		$sd = $this->getStartDate();
 		$st = $parent->getStartTime();
 		if ($st) {
-			$this->setAttrValue('start_date', $sd . ' ' . $st);
+			$this->setAttrValue('start_date', $sd.' '.$st);
 		}
 		if ($duration = $parent->getDuration()) {
-			$this->setAttrValue('end_date', date('Y-m-d', iso8601_ts($this->attr('start_date')) + $duration) . substr($parent->attr('end_date'), 10));
+			$this->setAttrValue('end_date', date('Y-m-d', iso8601_ts($this->attr('start_date')) + $duration).substr($parent->attr('end_date'), 10));
 		}
 
 		return true;
@@ -179,7 +179,7 @@ class Calendar_Event_Modification extends Calendar_Event
 				// get the parent recurring event asset
 				if ($recurring_events = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', false)) {
 					$recurring_event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_events[0]);
-					echo '<a href="' . $root_url . '?a=' . $recurring_events[0] . '">' . $recurring_event->attr('name') . '</a>';
+					echo '<a href="'.$root_url.'?a='.$recurring_events[0].'">'.$recurring_event->attr('name').'</a>';
 				}?></td>
 			</tr>
 			<tr>

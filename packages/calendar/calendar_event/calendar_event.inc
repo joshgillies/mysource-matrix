@@ -18,14 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.4 2004/08/02 06:29:03 lwright Exp $
+* $Id: calendar_event.inc,v 1.5 2004/08/02 07:04:22 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
-require_once SQ_FUDGE_PATH . '/general/datetime.inc';
+require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 
 /**
 * Calendar_Event
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH . '/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.4 $ - 1.0
+* @version $Revision: 1.5 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
