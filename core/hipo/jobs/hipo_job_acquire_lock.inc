@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_job_acquire_lock.inc,v 1.14 2003/10/21 00:14:18 gsherwood Exp $
+* $Id: hipo_job_acquire_lock.inc,v 1.15 2003/11/17 00:57:21 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -14,7 +14,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * <pre>
 * Initial Running Vars :
 *    int    assetid             -   the assetid with whose children we are going to attempt to lock
-*    string lock_type           -   the type of lock to get see Asset_Manager::acquireLock()
+*    Array(string)|string lock_type           -   the type of lock(s) to get see Asset_Manager::acquireLock()
 *    bool   [dependants_only]   -   whether dependants only or all children, defaults to 
 *    bool   [forceably_acquire] -   whether to attempt to forceably acquire the lock or not, defaults to false
 * </pre>
@@ -65,6 +65,19 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 
 
 	/**
+	* Sets some info about thresholds that this hipo requires.
+	*
+	* @return Array
+	* @access public
+	*/
+	function getConfigVars()
+	{
+		return Array(
+			'SQ_HIPO_ACQUIRE_LOCK_THRESHOLD' => Array('editable' => 0, 'default' => 0),
+		);
+	}//end getConfigVars()
+
+	/**
 	* Returns a unique codename the HIPO can use to ensure it is not being run twice
 	*
 	* The Acquire Lock HIPO appends the ID of the asset that the lock is being acquired on
@@ -92,14 +105,23 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 	*/
 	function setRunningVars($vars)
 	{
-		if (isset($vars['lock_type']) && isset($vars['lock_type'])) {
+		if (isset($vars['lock_type']) && isset($vars['assetid'])) {
 			// OK, the main reason that we are getting the lock types here is so that we don't end up 
 			// with lock types in a child being locked that the parent doesn't have, because if they do then
 			// we end up with a source lockid that is not actually creatable
 			// EG. 'mail' lock is available in 'Inbox', but not 'User' and when you locked the user you would end
 			//     up with a lock 'asset.5.mail' and a source lock 'asset.4.mail' which is not available
 			// -- If this doesn't make sense ask me -- BCR
-			$vars['lock_types'] = $GLOBALS['SQ_SYSTEM']->am->getLockTypes($vars['assetid'], $vars['lock_type']);
+			
+			if (is_array($vars['lock_type'])) {
+				$vars['lock_types'] = Array();
+				foreach ($vars['lock_type'] as $lock_type) {
+					$vars['lock_types'] = array_merge($vars['lock_types'], $GLOBALS['SQ_SYSTEM']->am->getLockTypes($vars['assetid'], $lock_type));
+					$vars['lock_types'] = array_unique($vars['lock_types']);
+				}
+			} else {
+				$vars['lock_types'] = $GLOBALS['SQ_SYSTEM']->am->getLockTypes($vars['assetid'], $vars['lock_type']);
+			}
 		}
 
 		return parent::setRunningVars($vars);
@@ -108,17 +130,44 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 
 
 	/**
-	* Set up vars and database information that the HIPO will need to run
+	* Returns the current Threshold.
 	*
-	* The Acquire Lock HIPO also checks that there is an assetid to start this action on
-	* (the top most parent). It also saves a list of assets to perform this action on in the running vars.
-	*
-	* @param string	$source_code_name	the code name of another job that wants to use this job
-	*
-	* @return string	returns the code_name for the new job
+	* Returns a value that represents the total percentage that this hipo would run in freestyle mode in its current state.
+	* 
+	* @return float
 	* @access public
 	*/
-	function initialise($source_code_name=null)
+	function getThreshold()
+	{
+		if (!isset($this->_running_vars['todo_assetids'])) return 0;
+		return ((count($this->_running_vars['todo_assetids']) / SQ_HIPO_ACQUIRE_LOCK_THRESHOLD) * 100);
+	
+	}//end getThreshold()
+
+
+	/**
+	* Performs the duties of this hipo, without showing any output on the frontend.
+	* 
+	* @return boolean
+	* @access public
+	*/
+	function freestyle()
+	{
+		while (!empty($this->_running_vars['todo_assetids'])) {
+			if (!$this->processLocking($this->_steps[0], get_class($this))) return false;
+		}
+		return true;
+
+	}//end freestyle()
+
+
+	/**
+	* Prepares the running vars and gets the children of the asset in question.
+	*
+	* @return boolean
+	* @access public
+	*/
+	function prepare()
 	{
 		// to start acquiring locks, we need to have an asset id to acquire a lock on
 		if (empty($this->_running_vars['assetid']) || empty($this->_running_vars['lock_type'])) {
@@ -167,7 +216,26 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 
 		unset($asset);
 
+		return true;
+	
+	}//end prepare()
+
+
+	/**
+	* Set up vars and database information that the HIPO will need to run
+	*
+	* The Acquire Lock HIPO also checks that there is an assetid to start this action on
+	* (the top most parent). It also saves a list of assets to perform this action on in the running vars.
+	*
+	* @param string		$source_code_name	the code name of another job that wants to use this job
+	*
+	* @return string	returns the code_name for the new job
+	* @access public
+	*/
+	function initialise($source_code_name=null)
+	{
 		return parent::initialise($source_code_name);
+		return true;
 
 	}//end initialise()
 

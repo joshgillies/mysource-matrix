@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_herder.inc,v 1.26 2003/11/04 05:41:22 gsherwood Exp $
+* $Id: hipo_herder.inc,v 1.27 2003/11/17 00:57:05 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,8 +30,18 @@ class HIPO_Herder extends MySource_Object
 	*/
 	var $_queued_jobs = Array();
 
+	/**
+	* @var &object Hipo_backend_Outputter
+	* Reference to the hipo backend outputter
+	*/
+	var $ho = null;
 
-	var $ho;
+
+	/**
+	* @var integer
+	* the current threshold value
+	*/
+	var $threshold = 0;
 
 	/**
 	* Constructor
@@ -39,12 +49,12 @@ class HIPO_Herder extends MySource_Object
 	*/
 	function HIPO_Herder()
 	{
-
+		
 	}//end constructor
 
 
 	/**
-	* backend outputter for hipos
+	* Backend outputter for hipos
 	*
 	* @return object Hipo_Backend_Outputter
 	* @access public
@@ -185,6 +195,7 @@ class HIPO_Herder extends MySource_Object
 	*/
 	function paintWeb()
 	{
+		//trigger_error('here', E_USER_ERROR);
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 		if (empty($_GET['hipo_source_code_name'])) {
@@ -529,8 +540,21 @@ class HIPO_Herder extends MySource_Object
 
 		require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/'.$job_type.'.inc';
 		$init_hipo = new $job_type();
-
 		$init_hipo->setRunningVars($vars);
+
+		// prepare() check the integrity of the the running vars
+		if (!$init_hipo->prepare()) return false;
+		$job_threshold = (float) $init_hipo->getThreshold();
+		
+		// if the job has not explictly asked to be run in hipo mode
+		// see if we can freestyle it
+		if ($job_threshold > 0) {
+			if (($this->threshold + $job_threshold) <= SQ_HIPO_TOTAL_THRESHOLD) {
+				$this->threshold += $job_threshold;
+				return $init_hipo->freestyle();
+			}
+		}
+
 		$init_hipo->setOption('on_complete_url', $on_complete_url);
 
 		// check if this hipo has already been queued up by this person
@@ -561,8 +585,8 @@ class HIPO_Herder extends MySource_Object
 	*/
 	function runQueuedJobs($on_complete_url='')
 	{
-		// note that we do not check rollback tables here becasue the
-		// hipo job table doesnt need one and doesnt want one!!
+		// note that we do not check rollback tables here because the
+		// hipo job table doesn't need one and doesn't want one!!
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT code_name, job_type

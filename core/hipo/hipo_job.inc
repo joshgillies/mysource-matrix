@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_job.inc,v 1.32 2003/11/04 05:41:22 gsherwood Exp $
+* $Id: hipo_job.inc,v 1.33 2003/11/17 00:57:06 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -365,6 +365,68 @@ class HIPO_Job extends MySource_Object
 		return $code_name;
 
 	}//end initialise()
+
+
+	/**
+	* Gets the config vars that this hipo requires.
+	*
+	* Config vars should be in the format:
+	* <PRE>
+	* Array(
+	*    'SQ_DEFINE_1'   => Array('editable' => 0, 'default' => false),
+	*    'SQ_DEFINE_2'   => Array('editable' => 1, 'default' => ''),
+	* );
+	* </PRE>
+	* This method is called statically.
+	* 
+	* @access public
+	* @return Array()
+	*/
+	function getConfigVars()
+	{
+		return Array();
+	
+	} //end getConfigVars()
+
+	/**
+	* Prepares the running vars of this hipo.
+	*
+	* @access public
+	* @return boolean
+	*/
+	function prepare()
+	{
+		return true;
+	
+	}//end prepare()
+
+
+	/**
+	* Returns the current Threshold.
+	*
+	* Returns a value that represents the total percentage that this hipo would run in freestyle mode in its current state.
+	* 
+	* @return float
+	* @access public
+	*/
+	function getThreshold()
+	{
+		return 0;
+	
+	}//end getThreshold()
+
+
+	/**
+	* Performs the duties of this hipo, without showing any output on the frontend, in the one execution cycle.
+	* 
+	* @return boolean
+	* @access public
+	*/
+	function freestyle()
+	{
+		return true;
+
+	}//end freestyle()
 
 
 	/**
