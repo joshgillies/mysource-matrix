@@ -1,6 +1,6 @@
 <?php
 
-require_once SQ_CORE_PACKAGE_PATH.'/backend_user/backend_user_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/system_user/system_user_edit_fns.inc';
 
 /**
 * Root_User_Edit_Fns
@@ -12,16 +12,16 @@ require_once SQ_CORE_PACKAGE_PATH.'/backend_user/backend_user_edit_fns.inc';
 * @version $Version$ - 1.0
 * @package Resolve::packages::__core__
 */
-class Root_User_Edit_Fns extends Backend_User_Edit_Fns
+class Root_User_Edit_Fns extends System_User_Edit_Fns
 {
 
 	/**
 	* Constructor
 	*
 	*/
-	function Root_User_Edit_Fns() 
+	function Root_User_Edit_Fns()
 	{
-		$this->User_Edit_Fns();
+		$this->System_User_Edit_Fns();
 	}
 
 }//end class

@@ -306,7 +306,7 @@ class Backend extends Resolve_Object
 	}//end _printFooter()
 
 
-	/*
+	/**
 	* Print out the Side Nav
 	*
 	* @access private
@@ -327,7 +327,8 @@ class Backend extends Resolve_Object
 
 	}//end _printSideNav()
 
-	/*
+
+	/**
 	* Print out the Main backend Page
 	*
 	* @access private

@@ -77,7 +77,7 @@ class Asset extends Resolve_Object
 	/**
 	* Constructor
 	*
-	* @param int    $assetid      the asset id to be loaded
+	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
 	function Asset($assetid=0)
@@ -118,11 +118,19 @@ class Asset extends Resolve_Object
 	/**
 	* Create this asset
 	*
+	* @param array(string)	$link	information used to create the initial link
+	*
 	* @return boolean
 	* @access public
 	*/
-	function create()
+	function create($link)
 	{
+
+		if (!empty($link)) {
+			// make sure the initial link information is passed in
+			if (!isset($link['asset']))     trigger_error('Cant create asset without an asset to link to', E_USER_ERROR);
+			if (!isset($link['link_type'])) trigger_error('Cant create asset without a link type', E_USER_ERROR);
+		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -153,7 +161,14 @@ class Asset extends Resolve_Object
 
 		$this->_loadVars();
 
-		return true;
+		if (!empty($link)) {
+			// create the initial link
+			if (!isset($link['value'])) $link['value'] = '';
+			if (!isset($link['position'])) $link['position'] = -1;
+			return $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['position']);
+		} else {
+			return true;
+		}
 
 	}//end create()
 
@@ -545,6 +560,18 @@ class Asset extends Resolve_Object
 
 
 	/**
+	* Get all asset ids that are above this asset in the various trees in which it exists
+	*
+	* @return array(int)
+	* @access public
+	*/
+	function getParents($type_code='', $strict_type_code=true)
+	{
+		return $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, $type_code, $strict_type_code);
+	}//end getParents()
+
+
+	/**
 	* Returns the link information for a specific link that this asset is the major asset in
 	*
 	* @param int	$linkid
@@ -756,6 +783,12 @@ class Asset extends Resolve_Object
 	function canCreateLink(&$minor, $link_type)
 	{
 		if (!$this->id) return false;
+
+		// if you dont have write access to this asset you cant create any links
+		if (!$this->writeAccess()) {
+			return 'Cannot create link, permission denied';
+		}
+
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		if (!is_a($minor, 'Asset')) {
@@ -875,7 +908,7 @@ class Asset extends Resolve_Object
 		$row = $db->getRow($sql);
 		if (DB::isError($row)) {
 			trigger_error($row->getMessage().'<br/>'.$row->getUserInfo(), E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return 0;
 		}
 
@@ -886,7 +919,7 @@ class Asset extends Resolve_Object
 		$linkid = $db->nextId('sq_sequence_asset_link');
 		if (DB::isError($linkid)) {
 			trigger_error($linkid->getMessage().'<br/>'.$linkid->getUserInfo(), E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return 0;
 		}
 
@@ -904,7 +937,7 @@ class Asset extends Resolve_Object
 			$existing_treeid = $db->getOne($sql);
 			if (DB::isError($existing_treeid)) {
 				trigger_error($existing_treeid->getMessage().'<br/>'.$existing_treeid->getUserInfo(), E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return 0;
 			}
 
@@ -912,7 +945,7 @@ class Asset extends Resolve_Object
 			// NOTE: exception to rule is root folder
 			if ((string) $existing_treeid == '' && $this->id != 1) {
 				trigger_error('Unable to create link, Asset "'.$this->name.'" (Asset #'.$this->id.') is not linked to anything itself', E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return 0;
 			}
 
@@ -929,7 +962,7 @@ class Asset extends Resolve_Object
 			$minor_treeid = $db->getOne($sql);
 			if (DB::isError($minor_treeid)) {
 				trigger_error($minor_treeid->getMessage().'<br/>'.$minor_treeid->getUserInfo(), E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return 0;
 			}
 #			pre_echo("Minor    Tree Id : ".$minor_treeid);
@@ -950,7 +983,7 @@ class Asset extends Resolve_Object
 			$free_childid = $db->getOne($sql);
 			if (DB::isError($free_childid)) {
 				trigger_error($free_childid->getMessage().'<br/>'.$free_childid->getUserInfo(), E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return 0;
 			}
 			// No free children ? generate one from the max value
@@ -964,13 +997,13 @@ class Asset extends Resolve_Object
 				$free_childid = $db->getOne($sql);
 				if (DB::isError($free_childid)) {
 					trigger_error($free_childid->getMessage().'<br/>'.$free_childid->getUserInfo(), E_USER_WARNING);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return 0;
 				}
 				// No max ? we must be the first
 				if ((string) $free_childid == '') {
 					if (($free_childid = asset_tree_base64_convert(0, true)) === false) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return 0;
 					}
 
@@ -980,11 +1013,11 @@ class Asset extends Resolve_Object
 					$free_childid = substr($free_childid, -1 * SQ_ASSET_TREE_SIZE);
 #					pre_echo("FREE CHILDID : ".$free_childid);
 					if (($child_num    = asset_tree_base64_convert($free_childid, false)) === false) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return 0;
 					}
 					if (($free_childid = asset_tree_base64_convert($child_num + 1, true)) === false)  {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return 0;
 					}
 				}// end if
@@ -1015,7 +1048,7 @@ class Asset extends Resolve_Object
 				$result = $db->query($sql);
 				if (DB::isError($result)) {
 					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return 0;
 				}
 
@@ -1033,7 +1066,7 @@ class Asset extends Resolve_Object
 				$result = $db->query($sql);
 				if (DB::isError($result)) {
 					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return 0;
 				}
 
@@ -1050,7 +1083,7 @@ class Asset extends Resolve_Object
 				$result = db_extras_insert_select($db, $insert, $select);
 				if (DB::isError($result)) {
 					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return 0;
 				}
 			}// end if
@@ -1060,7 +1093,7 @@ class Asset extends Resolve_Object
 
 				// so much for SQL standards...
 				$concat = ($db->phptype == 'mysql')
-							? 'CONCAT(pr.treeid, '.$db->quote($free_childid).', SUBSTRING(ct.treeid FROM '.$db->quote(strlen($minor_treeid) + 1).'))'
+							? 'CONCAT(pt.treeid, '.$db->quote($free_childid).', SUBSTRING(ct.treeid FROM '.$db->quote(strlen($minor_treeid) + 1).'))'
 							: 'pt.treeid || '.$db->quote($free_childid).' || SUBSTRING(ct.treeid FROM '.$db->quote(strlen($minor_treeid) + 1).')';
 
 				// the 'ct.treeid > ' line makes sure that we get only the children of the minor,
@@ -1074,7 +1107,7 @@ class Asset extends Resolve_Object
 				$result = db_extras_insert_select($db, $insert, $select);
 				if (DB::isError($result)) {
 					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return 0;
 				}
 
@@ -1093,7 +1126,7 @@ class Asset extends Resolve_Object
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return 0;
 		}
 
@@ -1109,11 +1142,11 @@ class Asset extends Resolve_Object
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return 0;
 		}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('commit');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		$GLOBALS['SQ_SYSTEM']->broadcastEvent('CreateLink', Array('assetid' => $this->id, 'linkid' => $linkid));
 		$this->_linksUpdated();
@@ -1610,6 +1643,194 @@ class Asset extends Resolve_Object
 
 	}//end getAttribute()
 
+
+	/**
+	* Grants a permission for the passed user or user_group
+	*
+	* @param int	$assetid	the id of the user or user_group to add the permission for
+	* @param string	$permission	the permission code you are adding (R, W, A)
+	*
+	* @return boolean
+	* @access public
+	*/
+	function grantPermission($assetid, $permission)
+	{
+
+		if (empty($assetid)) return false;
+
+		$current = &$this->getPermission($permission, false);
+		if (in_array($assetid, array_keys($current))) return false;
+
+		// check that the passed assetid is a user or user_group
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (!is_a($asset, 'user') && !is_a($asset, 'user_group')) {
+			trigger_error('Cannot grant permission for asset type "'.$asset->type().'", not a user or user group', E_USER_WARNING);
+			return false;
+		}
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// add the permission into the database
+		$sql = 'INSERT INTO sq_asset_permission
+				(assetid, userid, permission)
+				VALUES
+				('.$db->quote($this->id).','.$db->quote($assetid).', '.$db->quote($permission).')';
+
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		// add the permission to the cached version
+		$current[$assetid][] = $this->id;
+
+		return true;
+	}//end grantPermission()
+
+
+	/**
+	* Revokes a permission from the passed user or user_group
+	*
+	* @param int	$assetid	the id of the user or user_group to remove the permission from
+	* @param string	$permission	the permission code you are adding
+	*
+	* @return boolean
+	* @access public
+	*/
+	function revokePermission($assetid, $permission)
+	{
+		$permission = (int) $permission;
+
+		if (empty($assetid)) return false;
+
+		// make sure the permission is set before trying to delete
+		$current = &$this->getPermission($permission, false);
+		if (!in_array($assetid, array_keys($current))) return false;
+
+		// check that the passed assetid is a user or user_group
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (!is_a($asset, 'user') && !is_a($asset, 'user_group')) {
+			trigger_error('Cannot revoke permission for asset type "'.$asset->type().'", not a user or user group', E_USER_WARNING);
+			return false;
+		}
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// add the permission into the database
+		$sql = 'DELETE FROM sq_asset_permission
+				WHERE assetid = '.$db->quote($this->id).'
+				  AND userid = '.$db->quote($assetid).'
+				  AND permission = '.$db->quote($permission);
+
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		// remove the permission from the cached version
+		for (reset($current[$assetid]); null !== ($k = key($current[$assetid])); next($current[$assetid])) {
+			if ($current[$assetid][$k] == $this->id) unset($current[$assetid][$k]);
+		}
+
+		return true;
+	}//end revokePermission()
+
+
+	/**
+	* Returns an array of all user or user_group assets that have the passed permission for this asset
+	*
+	* @param string	$permission	the permission code you are getting
+	*
+	* @return array(int)
+	* @access public
+	*/
+	function getPermission($permission, $and_greater=true)
+	{
+		$permission = (int) $permission;
+
+		// return cached version if we can
+		if (isset($this->_tmp[(($and_greater) ? 'effective_' : '').'permissions'][$permission])) {
+			return $this->_tmp[(($and_greater) ? 'effective_' : '').'permissions'][$permission];
+		}
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$parents = $this->getParents();
+
+		// get the permissions
+		$in_string = '';
+		foreach ($parents as $parent) $in_string .= $db->quote($parent).', ';
+		$in_string .= $db->quote($this->id);
+
+		$sql = 'SELECT userid, assetid FROM sq_asset_permission
+				WHERE assetid IN ('.$in_string.')
+				AND permission '.(($and_greater) ? '>=' : '=').' '.$db->quote($permission);
+
+		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return Array();
+		}
+
+		$this->_tmp[(($and_greater) ? 'effective_' : '').'permissions'][$permission] = $result;
+		return $result;
+	}//end getPermission()
+
+
+	/**
+	* Returns true if the passed assetid has read access to this asset
+	*
+	* @param array $assetids An array of user_group and/or user ids to check for read access
+	*						 If the array is empty, the current user will be checked
+	*
+	* @return boolean
+	* @access public
+	*/
+	function readAccess($assetids=Array())
+	{
+		if (empty($assetids) && $GLOBALS['SQ_SYSTEM']->user->id) {
+			// if we are the root user, we can do anything
+			if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
+
+			// use the current user and their groups
+			$assetids = $GLOBALS['SQ_SYSTEM']->user->getParents(Array('user', 'user_group'));
+			$assetids[] = $GLOBALS['SQ_SYSTEM']->user->id;
+		}
+
+		$perms = array_keys($this->getPermission(SQ_PERMISSION_READ));
+		$common = array_intersect($assetids, $perms);
+		return (!empty($common));
+	}//end readAccess()
+
+
+	/**
+	* Returns true if the passed assetid has write access to this asset
+	*
+	* @param array $assetids An array of user_group and/or user ids to check for write access
+	*						 If the array is empty, the current user will be checked
+	*
+	* @return boolean
+	* @access public
+	*/
+	function writeAccess($assetids=Array())
+	{
+		if (empty($assetids) && $GLOBALS['SQ_SYSTEM']->user->id) {
+			// if we are the root user, we can do anything
+			if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
+
+			// use the current user and their groups
+			$assetids = $GLOBALS['SQ_SYSTEM']->user->getParents(Array('user', 'user_group'));
+			$assetids[] = $GLOBALS['SQ_SYSTEM']->user->id;
+		}
+		
+		$perms = array_keys($this->getPermission(SQ_PERMISSION_WRITE));
+		$common = array_intersect($assetids, $perms);
+		return (!empty($common));
+	}//end writeAccess()
+
+
 	/**
 	* Prints out the Frontend for this asset
 	* it's up to the kids to override
@@ -1652,7 +1873,7 @@ class Asset extends Resolve_Object
 	}// end printBody()
 
 	/**
-	* prints out the backend interface for the asset
+	* Prints out the backend interface for the asset
 	* it's up to the kids to override
 	*
 	* @param object Backend $backend
@@ -1667,12 +1888,14 @@ class Asset extends Resolve_Object
 	}// end paintBackend()
 
 	/**
-	* processes a backend submission from this asset, returns true if all OK
+	* Processes a backend submission from this asset, returns true if all OK
+	*
+	* @param array(string)	$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processBackend()
+	function processBackend($link)
 	{
 		$ei = &$this->getEI();
 		$processed = $ei->process($this, false);
@@ -1706,8 +1929,9 @@ class Asset extends Resolve_Object
 		return $this->_tmp['ei'];
 	}// end getEI()
 
+
 	/**
-	* returns a list of paths that this asset has
+	* Returns a list of paths that this asset has
 	*
 	* @return Array()
 	* @access public
@@ -1734,6 +1958,7 @@ class Asset extends Resolve_Object
 		return $this->_tmp['paths'];
 
 	}// end getWebPaths()
+
 
 	/**
 	* Attempts to override all current paths for this asset with those passed in the array
@@ -1850,8 +2075,9 @@ class Asset extends Resolve_Object
 
 	}// end saveWebPaths()
 
+
 	/**
-	* returns a list of lookup information associated with this asset
+	* Returns a list of lookup information associated with this asset
 	*
 	* @param string	$field	if only one field is required pass it's name through (url, root_urlid, designid)
 	*
@@ -1885,6 +2111,7 @@ class Asset extends Resolve_Object
 
 	}// end getLookups()
 
+
 	/**
 	* Called to force an update of this assets lookup information
 	*
@@ -1902,6 +2129,7 @@ class Asset extends Resolve_Object
 			return false;
 		}
 	}// end updateLookups
+
 
 	/**
 	* Fn that does the real processing of updateLookups(), separated to allow for the DB transaction stuff
@@ -1983,8 +2211,9 @@ class Asset extends Resolve_Object
 
 	}// end _updateLookups()
 
+
 	/**
-	* returns the Edit_Fns object appropriate for whatever asset type we are
+	* Returns the Edit_Fns object appropriate for whatever asset type we are
 	*
 	* @return object Asset_Edit_Fns
 	* @access public
@@ -1995,6 +2224,7 @@ class Asset extends Resolve_Object
 		require_once SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getInfo($this->type(), 'dir').'/'.$class_name.'.inc';
 		return new $class_name();
 	}// end getEditFns()
+
 
 	/**
 	* Returns the href for getting to the nearest backend for this asset
@@ -2007,6 +2237,7 @@ class Asset extends Resolve_Object
 	{
 		return sq_web_path('edit').'/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid='.$this->id.'&asset_ei_screen='.$screen;
 	}//end getBackendHref()
+
 
 	/**
 	* Returns the URL for this asset, closest to the current url
@@ -2055,6 +2286,7 @@ class Asset extends Resolve_Object
 		return $this->_tmp['url'];
 
 	}//end getURL()
+
 
 	/**
 	* Returns the relative href for this asset, closest to the current url

@@ -1,6 +1,6 @@
 <?php
 
-require_once SQ_CORE_PACKAGE_PATH.'/backend_user/backend_user.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/system_user/system_user.inc';
 
 
 /**
@@ -13,7 +13,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/backend_user/backend_user.inc';
 * @version $Version$ - 1.0
 * @package Resolve::packages::__core__
 */
-class Root_User extends Backend_User
+class Root_User extends System_User
 {
 
 	/**
@@ -33,19 +33,20 @@ class Root_User extends Backend_User
 	*/
 	function Root_User($assetid=0)
 	{
-		$this->User($assetid);
+		$this->System_User($assetid);
 	}
 
 
 	/**
 	* Create this asset
 	*
-	* @param string	$email
+	* @param array(string)	$link	information used to create the initial link
+	* @param string			$email
 	*
 	* @return boolean
 	* @access public
 	*/
-	function create($email='')
+	function create($link, $email='')
 	{
 
 		$this->_in_create = true;
@@ -61,7 +62,7 @@ class Root_User extends Backend_User
 			return false;
 		}
 		
-		$ret_val = parent::create('root', 'root', 'Root', 'User', $email);
+		$ret_val = parent::create($link, 'root', 'root', 'Root', 'User', $email);
 		$this->_in_create = false;
 		return $ret_val;
 

@@ -59,9 +59,10 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 	{
 		$full_type = "content_type_{$type}";
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($full_type);
+		$content_link = Array('asset' => &$table, 'link_type' => SQ_LINK_UNITE);
 		$content_type = new $full_type();
-		if (!$content_type->create('Row '.($rowid+1).' Cell '.($cellid+1))) return false;
-		$this->attributes['linkid'] = $table->createLink($content_type, SQ_LINK_UNITE);
+		$this->attributes['linkid'] = $content_type->create($content_link, 'Row '.($rowid+1).' Cell '.($cellid+1));
+		if (!$this->attributes['linkid']) return false;
 		$this->attributes['content_type'] = $type;
 		return true;
 	}
@@ -242,7 +243,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 		$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
 		$content_edit = $content_type->getEditFns();
 		$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
-		if ($content_edit->processBackend($content_type, $content_prefix)) $updated = true;
+		if ($content_edit->processBackend(Array(), $content_type, $content_prefix)) $updated = true;
 
 		if (isset($bodycopy_saved[$prefix][$tableid]['rows'][$rowid]['cells'][$cellid]['attributes'])) {
 			foreach($bodycopy_saved[$prefix][$tableid]['rows'][$rowid]['cells'][$cellid]['attributes'] as $name => $value) {

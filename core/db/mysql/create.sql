@@ -123,6 +123,16 @@ CREATE TABLE sq_asset_lookup (
   PRIMARY KEY  (url)
 );
 
+
+DROP TABLE IF EXISTS sq_asset_permission;
+CREATE TABLE sq_asset_permission (
+  assetid    INT      UNSIGNED NOT NULL,
+  userid     INT      UNSIGNED NOT NULL DEFAULT 0,
+  permission SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY(assetid, userid, permission)
+);
+
+
 DROP TABLE IF EXISTS sq_internal_message;
 CREATE TABLE sq_internal_message (
   messageid  INT UNSIGNED NOT NULL,

@@ -1,6 +1,7 @@
 <?php
 
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 /**
 * File_Edit_Fns
@@ -188,9 +189,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-		?>
-		<input type="text" name="<?php echo $prefix?>_thumbid" value="">
-		<?php
+		asset_finder($prefix.'_thumbid', ((isset($thumb->id)) ? $thumb->id : ''), Array('thumbnail'));
 	}//end paintThumbnail()
 
 

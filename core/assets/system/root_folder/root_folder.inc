@@ -37,10 +37,12 @@ class Root_Folder extends Folder
 	/*
 	* Create this asset
 	*
+	* @param array(string)	$link	information used to create the initial link
+	*
 	* @return boolean
 	* @access public
 	*/
-	function create()
+	function create($link)
 	{
 		$this->_in_create = true;
 
@@ -55,7 +57,7 @@ class Root_Folder extends Folder
 			return false;
 		}
 		
-		$ret_val = parent::create('/');
+		$ret_val = parent::create($link, '/');
 		$this->_in_create = false;
 		return $ret_val;
 

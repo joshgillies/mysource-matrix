@@ -183,10 +183,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			if (is_null($da)) {
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($design_area);
 				$da = new $design_area();
-				if ($da->create($id_name)) {
-					$GLOBALS['SQ_SYSTEM']->am->registerAsset($da);
-					$asset->createLink($da, SQ_LINK_USES, $id_name);
-				}// end if
+				$da_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_USES, 'value' => $id_name);
+				if ($da->create($da_link, $id_name)) $GLOBALS['SQ_SYSTEM']->am->registerAsset($da);
 			}// end if
 
 			$design_areas[$id_name] = &$da;

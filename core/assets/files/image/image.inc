@@ -38,12 +38,13 @@ class Image extends File
 	/**
 	* Create this asset
 	*
-	* @param string	$name	the name of this file
+	* @param string			$name	the name of this file
+	* @param array(string)	$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public
 	*/
-	function create($name)
+	function create($link, $name)
 	{
 		$name = trim($name);
 
@@ -52,7 +53,7 @@ class Image extends File
 			return false;
 		}
 
-		if (parent::create($name)) return true;
+		if (parent::create($link, $name)) return true;
 
 		return false;
 

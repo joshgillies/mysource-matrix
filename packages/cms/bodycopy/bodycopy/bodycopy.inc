@@ -29,12 +29,13 @@ class Bodycopy extends Asset
 	/*
 	* Create this asset
 	*
-	* @param string $name   the name of this folder
+	* @param array(string)	$link	information used to create the initial link
+	* @param string			$name	the name of this folder
 	*
 	* @return boolean
 	* @access public
 	*/
-	function create($name='BodyCopy')
+	function create($link, $name='BodyCopy')
 	{
 		$name = trim($name);
 
@@ -43,12 +44,12 @@ class Bodycopy extends Asset
 			return false;
 		}
 
-		if (parent::create()) {
+		if (parent::create($link)) {
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy_table');
 			$bodycopy_table =& new Bodycopy_Table();
-			if (!$bodycopy_table->create('Table 1')) die();
-			$this->createLink($bodycopy_table,SQ_LINK_UNITE,'',1);
+			$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_UNITE, 'value' => '', 'position' => 1);
+			if (!$bodycopy_table->create($copy_link, 'Table 1')) return false;
 			$this->setAttrValue('name', $name);
 			
 			return true;
@@ -72,24 +73,6 @@ class Bodycopy extends Asset
 					);
 
 	}#end _getAllowedLinks()
-
-
-	/**
-	* processes a backend submission from this asset, returns true if all OK
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processBackend()
-	{
-
-		switch($_POST['asset_action']) {
-			default :
-				return parent::processBackend();
-
-		}// end switch
-
-	}// end processBackend()
 
 
 	/**

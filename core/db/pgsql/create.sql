@@ -11,24 +11,24 @@ CREATE TABLE sq_package (
 
 DROP TABLE sq_asset;
 CREATE TABLE sq_asset (
-  assetid        INT    NOT NULL,
+  assetid        INT          NOT NULL,
   name           VARCHAR(255) NOT NULL DEFAULT '',
   short_name     VARCHAR(255) NOT NULL DEFAULT '',
   type_code      VARCHAR(100) NOT NULL,
   last_updated   TIMESTAMP    NOT NULL,
-  last_userid    INT    NOT NULL,
+  last_userid    INT          NOT NULL,
   PRIMARY KEY (assetid)
 );
 
 
 DROP TABLE sq_asset_link;
 CREATE TABLE sq_asset_link (
-  linkid        INT    NOT NULL,
-  majorid       INT    NOT NULL,
-  minorid       INT    NOT NULL,
-  link_type     INT    NOT NULL,
+  linkid        INT          NOT NULL,
+  majorid       INT          NOT NULL,
+  minorid       INT          NOT NULL,
+  link_type     INT          NOT NULL,
   value         VARCHAR(255) NOT NULL,
-  sort_order    INT    NOT NULL DEFAULT 0,
+  sort_order    INT          NOT NULL DEFAULT 0,
   last_updated  TIMESTAMP    NOT NULL,
   last_userid   INT          NOT NULL,
   PRIMARY KEY(linkid),
@@ -120,6 +120,16 @@ CREATE TABLE sq_asset_lookup (
   designid   INT NOT NULL DEFAULT 0,
   PRIMARY KEY  (url)
 );
+
+
+DROP TABLE IF EXISTS sq_asset_permission;
+CREATE TABLE sq_asset_permission (
+  assetid    INT NOT NULL,
+  userid     INT NOT NULL DEFAULT 0,
+  permission INT NOT NULL DEFAULT 0,
+  PRIMARY KEY(assetid, userid, permission)
+);
+
 
 DROP TABLE sq_internal_message;
 CREATE TABLE sq_internal_message (

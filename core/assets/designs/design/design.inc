@@ -66,6 +66,7 @@ class Design extends Design_Area
 	*/
 	function _linksUpdated()
 	{
+		if (!isset($this->_tmp['design_areas'])) return;
 		foreach(array_keys($this->_tmp['design_areas']) as $id_name) unset($this->_tmp['design_areas'][$id_name]);
 	}//end _linksUpdated()
 
@@ -110,12 +111,14 @@ class Design extends Design_Area
 
 
 	/**
-	* processes a backend submission from this asset, returns true if all OK
+	* Processes a backend submission from this asset, returns true if all OK
+	*
+	* @param array(string)	$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processBackend()
+	function processBackend($link)
 	{
 
 		switch($_POST['asset_action']) {
@@ -125,7 +128,7 @@ class Design extends Design_Area
 
 				$id_name = $this->getAttribute('id_name');
 				if ($id_name->processed) {
-					return $this->create($id_name->value);
+					return $this->create($link, $id_name->value);
 				} else {
 					return false;
 				}
@@ -134,7 +137,7 @@ class Design extends Design_Area
 			default :
 				$this->_tmp['regenerate_design'] = false;
 				$this->_tmp['update_customisations'] = false;
-				$processed = parent::processBackend();
+				$processed = parent::processBackend($link);
 				if ($processed) {
 
 					// regenerate the design, 

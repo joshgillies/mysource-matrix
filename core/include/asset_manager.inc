@@ -58,7 +58,7 @@ class Asset_Manager extends Resolve_Object
 		while (null !== ($row = $result->fetchRow())) {
 			$this->_asset_types[$row['type_code']] = $row;
 		}//end while
-		
+
 		$result->free();
 	}
 
@@ -184,7 +184,7 @@ class Asset_Manager extends Resolve_Object
 	* or for under the the passed asset type
 	*
 	* @param string	$base_type_code		the asset type's hierarchy to return
-	* @param bool	$ignore_system_only	
+	* @param bool	$ignore_system_only
 	*
 	* @return array
 	* @access public
@@ -290,10 +290,66 @@ class Asset_Manager extends Resolve_Object
 
 
 	/**
+	* Get all asset ids that are above the passed assetid in the various trees in which it exists
+	*
+	* @param int	$assetid	the id of the asset to get its parents for
+	*
+	* @access public
+	*/
+	function getParents($assetid, $type_code='', $strict_type_code=true)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
+		$sql = 'SELECT DISTINCT pl.minorid
+				FROM sq_asset_link cl INNER JOIN sq_asset_link_tree ct ON cl.linkid = ct.linkid,
+					 sq_asset_link pl INNER JOIN sq_asset_link_tree pt ON pl.linkid = pt.linkid ';
+if (!empty($type_code)) $sql .= 'INNER JOIN sq_asset pa ON pl.minorid = pa.assetid ';
+		$sql .= 'WHERE cl.minorid = '.$db->quote($assetid).'
+				  AND ct.treeid LIKE '.$concat.'
+				  AND pt.treeid < ct.treeid';
+
+		if (!empty($type_code)) {
+			if ($strict_type_code) {
+				if (is_array($type_code)) {
+					$types = '';
+					foreach ($type_code as $type) $types .= $db->quote($type).', ';
+					$sql .= ' AND pa.type_code IN ('.trim($types, ', ').')';
+				} else {
+					$sql .= ' AND pa.type_code = '.$db->quote($type_code);
+				}
+			} else {
+				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+				$sql .= ' AND (pa.type_code = '.$db->quote($type_code).' OR pa.type_code IN (~SQ0~))';
+				$sub = 'SELECT type_code
+								FROM sq_asset_type_inherited ';
+				if (is_array($type_code)) {
+					$types = '';
+					foreach ($type_code as $type) $types .= $db->quote($type).', ';
+					$sub .= ' WHERE inherited_type_code IN ('.trim($types, ', ').')';
+				} else {
+					$sub .= ' WHERE inherited_type_code = '.$db->quote($type_code);
+				}
+				$sql = db_extras_subquery($db, $sql, Array($sub));
+			}
+		}// end if
+bam($sql);
+		$parents = $db->getCol($sql);
+
+		if (DB::isError($parents)) {
+			trigger_error($parents->getMessage().'<br/>'.$parents->getUserInfo(), E_USER_ERROR);
+			return Array();
+		}
+
+		return $parents;
+	}
+
+
+	/**
 	* Returns a reference to the asset represented by the passed assetid
 	*
 	* @param int		$assetid		the asset id to be loaded
-	* @param string		$type_code		if this exists then this object is used to 
+	* @param string		$type_code		if this exists then this object is used to
 	*									load the asset, if not then the DB is queried to find out the asset type
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
@@ -310,7 +366,7 @@ class Asset_Manager extends Resolve_Object
 				if (empty($type_code)) {
 					if (!$mute_errors) trigger_error('Asset #'.$assetid.' does not exist', E_USER_WARNING);
 					$this->_assets[$assetid] = null; // do this because of return by reference
-					return $this->_assets[$assetid]; 
+					return $this->_assets[$assetid];
 				}
 			}//end if
 
@@ -383,8 +439,10 @@ class Asset_Manager extends Resolve_Object
 				return $this->getAsset(2);
 			case 'trash_folder' :
 				return $this->getAsset(3);
+			case 'system_user_group' :
+				return $this->getAsset(4);
 			default :
-				trigger_error('System Asset Name "'.$name.'" not known', E_USER_ERROR);				
+				trigger_error('System Asset Name "'.$name.'" not known', E_USER_ERROR);
 		}
 
 	}//end getSystemAsset()
@@ -394,11 +452,11 @@ class Asset_Manager extends Resolve_Object
 	*
 	* @param string		$type_code		if this exists then this object is used to load the asset,
 	*									if not then the DB is queried to find out the asset type
-	* @param boolean	$strict			whether we are finding assets that are just a $type_code 
+	* @param boolean	$strict			whether we are finding assets that are just a $type_code
 	*									or $type_code and any of it's sub-classes
 	* @param boolean	$include_type	if false returns Array(assetid, assetid, ...), if true
 	*									returns Array(assetid => asset_type, assetid => asset_type, ...)
-	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because 
+	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
 	*
 	* @access public
@@ -408,7 +466,7 @@ class Asset_Manager extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT assetid'.(($include_type) ? ', type_code' : '').'
-				FROM sq_asset 
+				FROM sq_asset
 				WHERE type_code = '.$db->quote($type_code);
 
 		if (!$strict) {
@@ -472,13 +530,18 @@ class Asset_Manager extends Resolve_Object
 				// if the form has been submitted then, process it
 				// and if that is successfull, then create the link to the parent asset
 				if (!empty($_POST['am_form_submitted'])) {
-					
+
 					// start the transaction to create the asset and initial link
+					$link = Array('asset'     => &$parent,
+								  'link_type' => $_GET['link_type'],
+								  'value'     => '',
+								  'position'  => $_GET['pos']);
+
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-					$success = $asset->processBackend();
-					
-					if ($success && $parent->createLink($asset, $_GET['link_type'], '', $_GET['pos'])) {
-					
+					$success = $asset->processBackend($link);
+
+					if ($success) {
+
 						$o->addMessage(SQ_BO_MSG_NOTICE, 'New '.$this->_asset_types[$_GET['type_code']]['name'].' "'.$asset->name.'" created');
 						$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" successfully linked to "'.$parent->name.'"');
 						$this->registerAsset($asset);
@@ -509,7 +572,7 @@ class Asset_Manager extends Resolve_Object
 				// if the form has been submitted then, process it
 				// and if that is successfull, then create the link to the parent asset
 				$old_name = $asset->name;
-				if (!empty($_POST['am_form_submitted']) && $asset->processBackend()) {
+				if (!empty($_POST['am_form_submitted']) && $asset->processBackend(Array())) {
 					$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" Updated');
 				}// end if
 
@@ -537,6 +600,7 @@ class Asset_Manager extends Resolve_Object
 	{
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
+		/*
 		if (!empty($_REQUEST['am_action'])) {
 
 			require_once SQ_INCLUDE_PATH.'/custom_asset_type.inc';
@@ -561,9 +625,9 @@ class Asset_Manager extends Resolve_Object
 					break;
 			}
 		}//end if
+		*/
 
-
-		$o->addCrummingLink('Asset Types', $o->getCurrentLocation());
+		//$o->addCrummingLink('Asset Types', $o->getCurrentLocation());
 		$o->setHeading('Assets Types', 'create');
 		$o->addHiddenField('am_action');
 		$o->addHiddenField('am_new_type_code');
@@ -734,7 +798,7 @@ class Asset_Manager extends Resolve_Object
 		$url_condition = '';
 		if ($exact_match) {
 			$url_condition = ' = '.$db->quote($url);
-		
+
 		} else {
 			$sections = explode('/', $url);
 			$option  = '';

@@ -31,12 +31,13 @@ class File extends Asset
 	/**
 	* Create this asset
 	*
-	* @param string	$name	the name of this file
+	* @param array(string)	$link	information used to create the initial link
+	* @param string			$name	the name of this file
 	*
 	* @return boolean
 	* @access public
 	*/
-	function create($name)
+	function create($link, $name)
 	{
 		$name = trim($name);
 
@@ -52,7 +53,7 @@ class File extends Asset
 			return false;
 		}
 
-		if (parent::create()) {
+		if (parent::create($link)) {
 
 			// short and long names are the same to begin with
 			$this->setAttrValue('short_name', $name);
@@ -87,10 +88,12 @@ class File extends Asset
 	/**
 	* Processes a backend submission from this asset, returns true if all OK
 	*
+	* @param array(string)	$link	information used to create the initial link
+	*
 	* @return boolean
 	* @access public
 	*/
-	function processBackend()
+	function processBackend($link)
 	{
 		switch($_POST['asset_action']) {
 			case 'create' :
@@ -98,14 +101,14 @@ class File extends Asset
 				$ei = &$this->getEI();
 				$ei->process($this, true);
 
-				if (!$this->create('temp')) return false;
+				if (!$this->create($link, 'temp')) return false;
 				$edit = $this->getEditFns();
 				unset($this->_tmp['uploading_file']);
 				return $edit->processFileUpload($this, 'new_file');
 				break;
 
 			default :
-				return parent::processBackend();
+				return parent::processBackend($link);
 
 		}// end switch
 

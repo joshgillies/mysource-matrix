@@ -3,7 +3,7 @@
 if (empty($_GET['SYSTEM_ROOT']) || !is_dir($_GET['SYSTEM_ROOT'])) {
 	?>
 		<div style="background-color: red; color: white; font-weight: bold;">
-			You need to supply the path to the Resolve System as a query string variable called SYSTEM_ROOT		
+			You need to supply the path to the Resolve System as a query string variable called SYSTEM_ROOT
 		</div>
 	<?php
 	exit(1);
@@ -20,6 +20,7 @@ $GLOBALS['SQ_SYSTEM']->db->createSequence('sq_sequence_asset');
 $GLOBALS['SQ_SYSTEM']->db->createSequence('sq_sequence_asset_link');
 $GLOBALS['SQ_SYSTEM']->db->createSequence('sq_sequence_asset_attribute');
 $GLOBALS['SQ_SYSTEM']->db->createSequence('sq_sequence_asset_url');
+$GLOBALS['SQ_SYSTEM']->db->createSequence('sq_sequence_internal_message');
 
 require_once(SQ_INCLUDE_PATH.'/package_manager.inc');
 $pm = new Package_Manager('__core__');
@@ -34,7 +35,7 @@ if (is_null($root_folder)) {
 
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('root_folder');
 	$root_folder = new Root_Folder();
-	if (!$root_folder->create()) die();
+	if (!$root_folder->create(Array())) die();
 	pre_echo('Root Folder Asset Id : '.$root_folder->id);
 	if ($root_folder->id != 1) {
 		trigger_error('Major Problem: The new Root Folder Asset was not given assetid #1. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
@@ -42,31 +43,47 @@ if (is_null($root_folder)) {
 
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('root_user');
 	$root_user = new Root_User();
+	$root_user->id = 2;
+
+	// set the current user object to the root user so we can finish
+	// the install process without permission denied errors
+	$GLOBALS['SQ_SYSTEM']->user = $root_user;
+
+	// Create some useful folders
+	$users_folder = new Folder();
+	$root_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_UNITE);
+	if (!$users_folder->create($root_link, 'Users')) die();
+	$users_folder->createLink($root_user, SQ_LINK_UNITE);
+
+
 	pre_echo('Root User Asset Id : '.$root_user->id);
 	if ($root_user->id != 2) {
-		trigger_error('Major Problem: The new Root Folder Asset was not given assetid #1. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
+		trigger_error('Major Problem: The new Root User Asset was not given assetid #2. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
 	}
-	if (!$root_user->create('root@'.$_SERVER['HTTP_HOST'])) die();
+	if (!$root_user->create(Array(), 'root@'.$_SERVER['HTTP_HOST'])) die();
 
 
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('trash_folder');
 	$trash_folder = new Trash_Folder();
-	if (!$trash_folder->create()) die();
+	$trash_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_EXCLUSIVE);
+	if (!$trash_folder->create($trash_link)) die();
 	pre_echo('Trash Asset Id : '.$trash_folder->id);
 	if ($trash_folder->id != 3) {
-		trigger_error('Major Problem: The new Root Folder Asset was not given assetid #1. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
+		trigger_error('Major Problem: The new Trash Asset was not given assetid #3. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
 	}
-	$root_folder->createLink($trash_folder, SQ_LINK_EXCLUSIVE);
 
-	// Now just create some useful folders 
-	$users_folder = new Folder();
-	if (!$users_folder->create('Users')) die();
-	$root_folder->createLink($users_folder, SQ_LINK_UNITE);
-	$users_folder->createLink($root_user,   SQ_LINK_UNITE);
+
+	$GLOBALS['SQ_SYSTEM']->am->includeAsset('system_user_group');
+	$system_group = new System_User_Group();
+	$system_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_EXCLUSIVE);
+	if (!$system_group->create($system_link)) die();
+	pre_echo('System Administrators User Group Asset Id : '.$system_group->id);
+	if ($system_group->id != 4) {
+		trigger_error('Major Problem: The new System Administrators User Group Asset was not given assetid #4. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
+	}
+	$system_group->grantPermission($root_user->id, 'A');
 
 }// end if
-
-exit();
 
 
 /* INSTALL PACKAGES */

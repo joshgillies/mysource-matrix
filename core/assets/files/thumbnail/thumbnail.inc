@@ -31,12 +31,13 @@ class Thumbnail extends Image
 	/**
 	* Create this asset
 	*
-	* @param string	$name	the name of this file
+	* @param array(string)	$link	information used to create the initial link
+	* @param string			$name	the name of this file
 	*
 	* @return boolean
 	* @access public
 	*/
-	function create($name)
+	function create($link, $name)
 	{
 		$name = trim($name);
 
@@ -45,7 +46,7 @@ class Thumbnail extends Image
 			return false;
 		}
 
-		if (parent::create($name)) return true;
+		if (parent::create($link, $name)) return true;
 
 		return false;
 

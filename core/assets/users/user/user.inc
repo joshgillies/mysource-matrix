@@ -30,19 +30,20 @@ class User extends Asset
 	/**
 	* Create this asset
 	*
-	* @param string $username   the unique username 
-	* @param string $password   
-	* @param string $first_name 
-	* @param string $last_name  
-	* @param string $email      
+	* @param array(string)	$link		information used to create the initial link
+	* @param string			$username	the unique username
+	* @param string			$password
+	* @param string			$first_name
+	* @param string			$last_name
+	* @param string			$email
 	*
 	* @return boolean
 	* @access public
 	*/
-	function create($username, $password, $first_name='', $last_name='', $email='')
+	function create($link, $username, $password, $first_name='', $last_name='', $email='')
 	{
 
-		if (parent::create()) {
+		if (parent::create($link)) {
 
 			$this->setAttrValue('username',   $username);
 			$this->setAttrValue('password',   $password);
@@ -53,8 +54,8 @@ class User extends Asset
 			// create an inbox
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('inbox');
 			$inbox = new Inbox();
-			$inbox->create();
-			$this->createLink($inbox, SQ_LINK_EXCLUSIVE);
+			$inbox_link = Array('asset' => &$this, 'link_type' => SQ_LINK_EXCLUSIVE);
+			if (!$inbox->create($inbox_link)) return false;
 
 			return true;
 
@@ -180,10 +181,12 @@ class User extends Asset
 	/**
 	* Processes a backend submission from this asset, returns true if all OK
 	*
+	* @param array(string)	$link	information used to create the initial link
+	*
 	* @return boolean
 	* @access public
 	*/
-	function processBackend() {
+	function processBackend($link) {
 
 		switch($_POST['asset_action']) {
 			case 'create' :
@@ -193,8 +196,8 @@ class User extends Asset
 				$username = $this->getAttribute('username');
 				$password = $this->getAttribute('password');
 				if ($username->processed && $password->processed) {
-					pre_echo('$this->create('.$username->value.', '.$password->value.')');
-					return $this->create($username->value, $password->value);
+#					pre_echo('$this->create('.$username->value.', '.$password->value.')');
+					return $this->create($link, $username->value, $password->value);
 				} else {
 					return false;
 				}
@@ -202,7 +205,7 @@ class User extends Asset
 				break;
 
 			default :
-				return parent::processBackend();
+				return parent::processBackend($link);
 
 		}// end switch
 

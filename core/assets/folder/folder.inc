@@ -31,11 +31,12 @@ class Folder extends Asset
 	* Create this asset
 	*
 	* @param string $name   the name of this folder
+	* @param array(string)	$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public
 	*/
-	function create($name)
+	function create($link, $name)
 	{
 		$name = trim($name);
 
@@ -44,7 +45,7 @@ class Folder extends Asset
 			return false;
 		}
 
-		if (parent::create()) {
+		if (parent::create($link)) {
 
 			return $this->setAttrValue('name',   $name);
 
@@ -86,12 +87,14 @@ class Folder extends Asset
 	}//end _getAllowedLinks()
 
 	/*
-	* processes a backend submission from this asset, returns true if all OK
+	* Processes a backend submission from this asset, returns true if all OK
+	*
+	* @param array(string)	$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processBackend() 
+	function processBackend($link)
 	{
 
 		switch($_POST['asset_action']) {
@@ -101,14 +104,14 @@ class Folder extends Asset
 
 				$name = $this->getAttribute('name');
 				if ($name->processed) {
-					return $this->create($name->value);
+					return $this->create($link, $name->value);
 				} else {
 					return false;
 				}
 				break;
 
 			default :
-				return parent::processBackend();
+				return parent::processBackend($link);
 
 		}// end switch
 

@@ -73,13 +73,14 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	/**
 	* Processes the backend interface for this WYSIWYG editor
 	*
+	* @param array(string)						$link	information used to create the initial link
 	* @param object Content_Type_Nest_Content	&$asset	the nest content content type object
 	* @param string								$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processBackend(&$asset, $prefix)
+	function processBackend($link, &$asset, $prefix)
 	{
 		$current_assetid = $asset->attr('nested_assetid');
 		$assetid = (isset($_POST[$prefix.'_nested_assetid'])) ? $_POST[$prefix.'_nested_assetid'] : 0;

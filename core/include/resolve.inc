@@ -184,6 +184,20 @@ class Resolve
 
 	}//end _processGlobalActions()
 
+
+	/**
+	* Is the current user the root user?
+	*
+	* @return boolean
+	* @access public
+	*/
+	function userRoot()
+	{
+		if (!$this->user->id) return false;
+		if (get_class($this->user) == 'root_user' && $this->user->id == 2) return true;
+		return false;
+	}
+
 	
 	/**
 	* Allows an object to listen to an event in the system and be notifies of it

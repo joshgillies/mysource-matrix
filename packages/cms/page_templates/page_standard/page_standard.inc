@@ -30,12 +30,13 @@ class Page_Standard extends Page
 	/**
 	* Create this asset
 	*
+	* @param array(string)	$link	information used to create the initial link
 	* @param string	$name	the name of this page
 	*
 	* @return boolean
 	* @access public
 	*/
-	function create($name)
+	function create($link, $name)
 	{
 		$name = trim($name);
 
@@ -44,13 +45,13 @@ class Page_Standard extends Page
 			return false;
 		}
 
-		if (parent::create($name)) {
+		if (parent::create($link, $name)) {
 			
 			// add a bodycopy to this page when creating
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 			$bodycopy = new Bodycopy();
-			if (!$bodycopy->create('Page Contents')) die();
-			$this->createLink($bodycopy,SQ_LINK_EXCLUSIVE);
+			$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_EXCLUSIVE);
+			if (!$bodycopy->create($copy_link, 'Page Contents')) return false;
 			
 			return true;
 
@@ -74,22 +75,6 @@ class Page_Standard extends Page
 		return $page_links;
 
 	}//end _getAllowedLinks()
-
-
-	/**
-	* Processes a backend submission from this asset, returns true if all OK
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processBackend()
-	{
-		switch($_POST['asset_action']) {
-			default :
-				return parent::processBackend();
-		}// end switch
-
-	}// end processBackend()
 
 
 	/**

@@ -38,10 +38,12 @@ class Trash_Folder extends Folder
 	/*
 	* Create this asset
 	*
+	* @param array(string)	$link	information used to create the initial link
+	*
 	* @return boolean
 	* @access public
 	*/
-	function create()
+	function create($link)
 	{
 
 		$this->_in_create = true;
@@ -57,7 +59,7 @@ class Trash_Folder extends Folder
 			return false;
 		}
 		
-		$ret_val = parent::create('Trash');
+		$ret_val = parent::create($link, 'Trash');
 		$this->_in_create = false;
 		return $ret_val;
 
@@ -128,6 +130,36 @@ class Trash_Folder extends Folder
 		trigger_error('You cannot move assets\'s around in the trash', E_USER_WARNING);
 		return false;
 	}//end moveLinkPos()
+
+
+	/**
+	* Returns true if the passed assetid has read access to this asset
+	*
+	* @param array $assetids An array of user_group and/or user ids to check for read access
+	*						 If the array is empty, the current user will be checked
+	*
+	* @return boolean
+	* @access public
+	*/
+	function readAccess($assetids=Array())
+	{
+		return true;
+	}//end readAccess()
+
+
+	/**
+	* Returns true if the passed assetid has write access to this asset
+	*
+	* @param array $assetids An array of user_group and/or user ids to check for write access
+	*						 If the array is empty, the current user will be checked
+	*
+	* @return boolean
+	* @access public
+	*/
+	function writeAccess($assetids=Array())
+	{
+		return true;
+	}//end writeAccess()
 
 }//end class
 ?>

@@ -9,10 +9,10 @@
 	<description>Root User - aka System God</description>
 	<instantiable>yes</instantiable>
 	<system_only>yes</system_only>
-	<parent_type>backend_user</parent_type>
+	<parent_type>system_user</parent_type>
 	<requirements>
 		<requirement type="asset">
-			<code>backend_user</code>
+			<code>system_user</code>
 			<version>0.1</version>
 		</requirement>
 	</requirements>

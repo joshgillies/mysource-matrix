@@ -32,15 +32,16 @@ class Bodycopy_Table extends Asset
 	/**
 	* Create this asset
 	*
-	* @param string $name		the name of this table
-	* @param int	$num_rows	the number of rows to create
-	* @param int	$num_cols	the number of columns to create
-	* @param array	$attributes	attributes to apply to the table
+	* @param array(string)	$link		information used to create the initial link
+	* @param string			$name		the name of this table
+	* @param int			$num_rows	the number of rows to create
+	* @param int			$num_cols	the number of columns to create
+	* @param array			$attributes	attributes to apply to the table
 	*
 	* @return boolean
 	* @access public
 	*/
-	function create($name, $num_rows=1, $num_cols=1, $attributes=Array())
+	function create($link, $name, $num_rows=1, $num_cols=1, $attributes=Array())
 	{
 		$name = trim($name);
 
@@ -49,7 +50,7 @@ class Bodycopy_Table extends Asset
 			return false;
 		}
 
-		if (parent::create()) {
+		if (parent::create($link)) {
 
 			for ($i = 0; $i < $num_rows; $i++) {
 				$rows[$i] = Array();
@@ -86,23 +87,6 @@ class Bodycopy_Table extends Asset
 		return Array(SQ_LINK_UNITE => Array('content_type' => 'M'));
 
 	}//end _getAllowedLinks()
-
-
-	/**
-	* Processes a backend submission from this asset, returns true if all OK
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processBackend()
-	{
-		switch($_POST['asset_action']) {
-			default :
-				return parent::processBackend();
-
-		}// end switch
-
-	}// end processBackend()
 
 
 	/**

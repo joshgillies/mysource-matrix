@@ -378,6 +378,8 @@ class Asset_Map
 				if (($err_msg = $parent->canLinkToType($attr['type_code'], SQ_LINK_UNITE)) !== true) {
 					$this->_error($err_msg);
 					return;
+				} else if (!$parent->writeAccess()) {
+					$this->_error('Cannot create link, permission denied');
 				}
 
 				// if we get this far then it's all good

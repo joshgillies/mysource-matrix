@@ -31,12 +31,13 @@ class Design_Area extends Asset
 	/**
 	* Create this asset
 	*
+	* @param array(string)	$link	information used to create the initial link
 	* @param string $id_name   the name of this design area
 	*
 	* @return boolean
 	* @access public
 	*/
-	function create($id_name)
+	function create($link, $id_name)
 	{
 		$id_name = trim($id_name);
 
@@ -45,9 +46,9 @@ class Design_Area extends Asset
 			return false;
 		}
 
-		if (parent::create()) {
+		if (parent::create($link)) {
 
-			return $this->setAttrValue('id_name',   $id_name);
+			return $this->setAttrValue('id_name', $id_name);
 
 		}//end if
 
@@ -69,15 +70,17 @@ class Design_Area extends Asset
 	}//end _getName();
 
 	/**
-	* processes a backend submission from this asset, returns true if all OK
+	* Processes a backend submission from this asset, returns true if all OK
+	*
+	* @param array(string)	$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processBackend()
+	function processBackend($link)
 	{
 		$this->_tmp['regenerate_design'] = false;
-		$processed = parent::processBackend();
+		$processed = parent::processBackend($link);
 		if ($processed && $this->_tmp['regenerate_design']) {
 			$designs = &$this->getDesigns();
 			for($i = 0, $max = count($designs); $i < $max; $i++) {

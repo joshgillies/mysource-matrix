@@ -71,13 +71,14 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	/**
 	* Processes the backend interface for this WYSIWYG editor
 	*
+	* @param array(string)					$link	information used to create the initial link
 	* @param object Content_Type_WYSIWYG	&$asset	the wysiwyg content type object
 	* @param string							$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processBackend(&$asset, $prefix)
+	function processBackend($link, &$asset, $prefix)
 	{
 		$current_html = $asset->attr('html');
 		$html = (isset($_POST[$prefix])) ? $_POST[$prefix] : '';

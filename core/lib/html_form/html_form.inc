@@ -500,4 +500,17 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 
 }//end commit_file_upload()
 
+
+/**
+* Prints an interface for getting an assetid from the flash menu
+*
+* @param string	$name	the form name to use for the field
+* @param string	$value	current value for this field
+* @param array	$types	limit assets displayed in flash to this type
+*/
+function asset_finder($name, $value, $types)
+{
+	text_box($name, $value);
+}//end asset_finder()
+
 ?>

@@ -65,6 +65,10 @@ class Backend_Outputter
 	var $_screens = Array();
 	var $_current_screen = '';
 
+	// edit tabs
+	var $_tabs = Array();
+	var $_current_tab = '';
+
 	// the contents of the page split into sections
 	var $_contents = Array();
 
@@ -230,6 +234,7 @@ class Backend_Outputter
 		$this->_hidden_fields[$name] = $value;
 	}//end addHiddenField()
 
+
 	/**
 	* Adds a screen options to the drop down
 	*
@@ -247,8 +252,9 @@ class Backend_Outputter
 		$this->_screens[$url] = $name;
 	}//end addScreen()
 
+
 	/**
-	* Set's the current screen, so the combo displays right
+	* Sets the current screen, so the combo displays right
 	*
 	* @param string $url
 	*
@@ -259,6 +265,38 @@ class Backend_Outputter
 		if (empty($url)) return;
 		$this->_current_screen = $url;
 	}//end setCurrentScreen()
+
+
+	/**
+	* Adds a tab for editing
+	*
+	* @param string $url
+	* @param string $name
+	*
+	* @access public
+	*/
+	function addTab($url, $name) 
+	{
+		if (empty($url)) return;
+		if (in_array($name, $this->_tabs)) {
+			trigger_error('Tab Code "'.$name.'" already in use', E_USER_ERROR);
+		}
+		$this->_tabs[$url] = $name;
+	}//end addTab()
+
+
+	/**
+	* Sets the current tab
+	*
+	* @param string $url
+	*
+	* @access public
+	*/
+	function setCurrentTab($url) 
+	{
+		if (empty($url)) return;
+		$this->_current_tab = $url;
+	}//end setCurrentTab()
 
 
 	 ////////////////////////////////////////////////////////////////////////////////////////
@@ -555,6 +593,22 @@ class Backend_Outputter
 						else combo_box('', $this->_screens, false, $this->_current_screen, 1, 'id="screen_menu" onChange="javascript: self.location = element_value(this);"'); 
 					?>
 					</td>
+				</tr>
+			</table>
+			<?php 
+		}// end if
+
+		if (count($this->_tabs)) {
+			?> 
+			<table cellpadding="3" cellspacing="0" border="1" bgcolor="#AAAAAA">
+				<tr>
+					<?php
+					foreach ($this->_tabs as $url => $name) {
+						?>
+						<td class="sq-backend-heading" bgcolor="#F0F0F0"><a href="<?php echo $url?>"><?php echo $name?></a></td>
+						<?php
+					}
+					?>
 				</tr>
 			</table>
 			<?php 

@@ -141,8 +141,8 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 #			pre_echo("CREATE SUB ....");
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($design_area);
 			$sub = new $design_area();
-			if (!$sub->create($asset->attr('id_name').'__sub_menu')) return false;
-			if (!$asset->createLink($sub, SQ_LINK_USES, 'sub_menu')) return false;
+			$sub_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_USES, 'value' => 'sub_menu');
+			if (!$sub->create($sub_link, $asset->attr('id_name').'__sub_menu')) return false;
 		}
 
 		// if the current sub is a different type of menu type then morph it to the correct one
