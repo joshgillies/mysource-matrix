@@ -152,7 +152,6 @@ class Asset extends Resolve_Object
 		$this->last_userid  = $userid;
 
 		$this->_loadVars();
-		$this->_updated();
 
 		return true;
 
@@ -162,7 +161,7 @@ class Asset extends Resolve_Object
 	/**
 	* Load the asset represented by the passed asset id
 	*
-	* @param int	$assetid	the asset id to be loaded
+	* @param int    $assetid      the asset id to be loaded
 	*
 	* @access public
 	*/
@@ -439,7 +438,7 @@ class Asset extends Resolve_Object
 
 		}// end if parent links
 
-		
+
 		$current_var_list = array_keys($this->vars);
 		$new_var_list     = array_keys($tmp->vars);
 
@@ -465,7 +464,7 @@ class Asset extends Resolve_Object
 				}
 			}
 		}// end if common var list
-		
+
 		// Get all the vars that aren't available in the new type and delete them
 		$deletes_var_list = array_diff($current_var_list, $new_var_list);
 
@@ -662,7 +661,7 @@ class Asset extends Resolve_Object
 				WHERE l.'.$other_side.'id   = a.assetid
 				  AND l.'.$side_of_link.'id = '.$db->quote($this->id).'
 				  AND (l.link_type & '.$db->quote($link_types).') > 0 ';
-		
+
 		if (!is_null($value)) $sql .= '  AND l.value = '.$db->quote($value);
 
 		if ($type_code) {
@@ -746,6 +745,87 @@ class Asset extends Resolve_Object
 	}//end countLinks()
 
 	/**
+	* Returns TRUE if the passed minor asset can be linked to this asset, or a string with the error msg
+	*
+	* @param object Asset $minor  the minor asset that we are linking to
+	* @param string $link_type    the type of link this is
+	*
+	* @return TRUE|string
+	* @access public
+	*/
+	function canCreateLink(&$minor, $link_type)
+	{
+		if (!$this->id) return false;
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+
+		if (!is_a($minor, 'Asset')) {
+			return 'Minor is not an asset';
+		}
+
+		// check if we are allowed to link to these type of assets
+		if (($err_msg = $this->canLinkToType($minor->type(), $link_type)) !== true) {
+			return $err_msg;
+		}
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// if this link is a significant link, then we need to make sure that this
+		// minor asset doesn't already have an exclusive link from anything
+		// and that we aren't moving under ourselves
+		if ($link_type & SQ_LINK_SIGNIFICANT) {
+			//// Check for exclusive ////
+			$sql = 'SELECT majorid
+					FROM sq_asset_link
+					WHERE minorid   = '.$db->quote($minor->id).'
+					  AND link_type = '.$db->quote(SQ_LINK_EXCLUSIVE);
+
+			$majorid = $db->getOne($sql);
+			if (DB::isError($majorid)) {
+				trigger_error($majorid->getMessage().'<br/>'.$majorid->getUserInfo(), E_USER_WARNING);
+				return 'Database Error';
+			}
+
+			if ($majorid) {
+				$major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($majorid);
+				return 'Asset "'.$minor->name.'" (Asset #'.$minor->id.') cannot be linked to "'.$this->name.'" (Asset #'.$this->id.') it is exclusively linked to Asset #'.$majorid.' ("'.$major->name.'")';
+			}
+
+			//// Check we aren't moving the minor asset under itself ////
+			// get all the links where the minor asset is a parent
+			// and check to see if our id is under it
+
+			// so much for SQL standards...
+			$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : '(pt.treeid || '.$db->quote('%').')';
+			$sql = 'SELECT COUNT(DISTINCT ct.linkid)
+					FROM sq_asset_link_tree pt,
+						sq_asset_link_tree ct INNER JOIN sq_asset_link cl ON ct.linkid = cl.linkid
+					WHERE ct.treeid LIKE '.$concat.'
+					  AND ct.treeid > pt.treeid
+					  AND pt.linkid IN (~SQ0~)
+					  AND cl.minorid = '.$db->quote($this->id);
+			$subs = Array('SELECT linkid
+							FROM sq_asset_link
+							WHERE minorid = '.$db->quote($minor->id));
+			$sql = db_extras_subquery($db, $sql, $subs);
+#			pre_echo($sql);
+			if (DB::isError($sql)) {
+				trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
+				return 'Database Error';
+			}
+			$moving_under = $db->getOne($sql);
+			if (DB::isError($moving_under)) {
+				trigger_error($moving_under->getMessage().'<br/>'.$moving_under->getUserInfo(), E_USER_WARNING);
+				return 'Database Error';
+			} else if ($moving_under) {
+				return 'You are not allowed to move asset "'.$minor->name.'" (ID : #'.$minor->id.') under  "'.$this->name.'" (ID : #'.$this->id.') because this will cause the asset to be nested under itself';
+			}// end if
+		}// end if
+
+		return true;
+
+	}// end canCreateLink()
+
+	/**
 	* Creates a link between this asset and the passed asset, of a certain type
 	* and returns the linkid of the created link
 	*
@@ -759,8 +839,8 @@ class Asset extends Resolve_Object
 	*/
 	function createLink(&$minor, $link_type, $value='', $sort_order=-1)
 	{
-
 		if (!$this->id) return 0;
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		if (!is_a($minor, 'Asset')) {
 			trigger_error('Minor is not an asset, unable to create link', E_USER_WARNING);
@@ -778,36 +858,15 @@ class Asset extends Resolve_Object
 			}
 		}//end for
 
+
 		// check if we are allowed to link to these type of assets
-		if (($err_msg = $this->canLinkToType($minor->type(), $link_type)) !== true) {
+		if (($err_msg = $this->canCreateLink($minor, $link_type)) !== true) {
 			trigger_error($err_msg, E_USER_WARNING);
 			return 0;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('begin');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		// if this link is a significant link, then we need to make sure that this
-		// minor asset doesn't already have an exclusive link from anything
-		if ($link_type & SQ_LINK_SIGNIFICANT) {
-			$sql = 'SELECT majorid
-					FROM sq_asset_link
-					WHERE minorid   = '.$db->quote($minor->id).'
-					  AND link_type = '.$db->quote(SQ_LINK_EXCLUSIVE);
-
-			$majorid = $db->getOne($sql);
-			if (DB::isError($majorid)) {
-				trigger_error($majorid->getMessage().'<br/>'.$majorid->getUserInfo(), E_USER_WARNING);
-				return 0;
-			}
-
-			if ($majorid) {
-				$major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($majorid);
-				trigger_error('Asset "'.$minor->name.'" (Asset #'.$minor->id.') cannot be linked to "'.$this->name.'" (Asset #'.$this->id.') it is exclusively linked to Asset #'.$majorid.' ("'.$major->name.'")', E_USER_WARNING);
-				return 0;
-			}
-
-		}//end if
-
 
 		// make sure the sort order is in a valid range
 		$sql = 'SELECT COUNT(*) as count, MAX(sort_order) as max
@@ -816,46 +875,248 @@ class Asset extends Resolve_Object
 		$row = $db->getRow($sql);
 		if (DB::isError($row)) {
 			trigger_error($row->getMessage().'<br/>'.$row->getUserInfo(), E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
 			return 0;
 		}
 
 		$max = ($row['count'] > 0) ? (int) $row['max'] + 1 : 0;
 		if ($sort_order > $max || $sort_order < 0) $sort_order = $max;
 
-
 		// sequences are cool, see the PEAR::DB docs for more info
 		$linkid = $db->nextId('sq_sequence_asset_link');
 		if (DB::isError($linkid)) {
 			trigger_error($linkid->getMessage().'<br/>'.$linkid->getUserInfo(), E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
 			return 0;
 		}
 
+		// if this is a significant link, then do stuff with the tree
+		if ($link_type & SQ_LINK_SIGNIFICANT) {
+			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+			//// UPDATE THE TREE TABLE ////
+
+			// Get one of the treeids that we have
+			$sql = 'SELECT t.treeid
+					FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid
+					WHERE l.minorid = '.$db->quote($this->id).'
+					LIMIT 1';
+#			pre_echo($sql);
+			$existing_treeid = $db->getOne($sql);
+			if (DB::isError($existing_treeid)) {
+				trigger_error($existing_treeid->getMessage().'<br/>'.$existing_treeid->getUserInfo(), E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+				return 0;
+			}
+
+			// if we aren't linked anywhere we can't be linked to, sorry
+			// NOTE: exception to rule is root folder
+			if ((string) $existing_treeid == '' && $this->id != 1) {
+				trigger_error('Unable to create link, Asset "'.$this->name.'" (Asset #'.$this->id.') is not linked to anything itself', E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+				return 0;
+			}
+
+#			pre_echo("Existing Tree Id : ".$existing_treeid);
+
+			// OK, what we are going to get a treeid and then do a "INSERT INTO ... SELECT FROM"
+			// into the tree table of all the links that are under the minor asset
+			$sql = 'SELECT t.treeid
+					FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid
+					WHERE l.minorid = '.$db->quote($minor->id).'
+					LIMIT 1';
+
+#			pre_echo($sql);
+			$minor_treeid = $db->getOne($sql);
+			if (DB::isError($minor_treeid)) {
+				trigger_error($minor_treeid->getMessage().'<br/>'.$minor_treeid->getUserInfo(), E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+				return 0;
+			}
+#			pre_echo("Minor    Tree Id : ".$minor_treeid);
+
+			$existing_treeid = (string) $existing_treeid;
+			$minor_treeid    = (string) $minor_treeid;
+
+			// when links are deleted their entries in the tree table are set to have a linkid of zero
+			// (see deleteLink()) so we can attempt to find unused treeid's that are forming gaps
+			$sql = 'SELECT ct.treeid
+					FROM sq_asset_link_tree ct
+					WHERE ct.treeid LIKE '.$db->quote($existing_treeid.'%').'
+					  AND ct.treeid > '.$db->quote($existing_treeid).'
+					  AND CHARACTER_LENGTH(ct.treeid) = '.(strlen($existing_treeid) + SQ_ASSET_TREE_SIZE).'
+					  AND ct.linkid = 0
+					LIMIT 1';
+#			pre_echo($sql);
+			$free_childid = $db->getOne($sql);
+			if (DB::isError($free_childid)) {
+				trigger_error($free_childid->getMessage().'<br/>'.$free_childid->getUserInfo(), E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+				return 0;
+			}
+			// No free children ? generate one from the max value
+			if ((string) $free_childid == '') {
+				$sql = 'SELECT MAX(ct.treeid)
+						FROM sq_asset_link_tree ct
+						WHERE ct.treeid LIKE '.$db->quote($existing_treeid.'%').'
+						  AND ct.treeid > '.$db->quote($existing_treeid).'
+						  AND CHARACTER_LENGTH(ct.treeid) = '.(strlen($existing_treeid) + SQ_ASSET_TREE_SIZE);
+#				pre_echo($sql);
+				$free_childid = $db->getOne($sql);
+				if (DB::isError($free_childid)) {
+					trigger_error($free_childid->getMessage().'<br/>'.$free_childid->getUserInfo(), E_USER_WARNING);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+					return 0;
+				}
+				// No max ? we must be the first
+				if ((string) $free_childid == '') {
+					if (($free_childid = asset_tree_base64_convert(0, true)) === false) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+						return 0;
+					}
+
+				// we found a max so increment it
+				} else {
+					// get only the child part
+					$free_childid = substr($free_childid, -1 * SQ_ASSET_TREE_SIZE);
+#					pre_echo("FREE CHILDID : ".$free_childid);
+					if (($child_num    = asset_tree_base64_convert($free_childid, false)) === false) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+						return 0;
+					}
+					if (($free_childid = asset_tree_base64_convert($child_num + 1, true)) === false)  {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+						return 0;
+					}
+				}// end if
+
+			// else there was a free entry
+			} else {
+
+				// get only the child part
+				$free_childid = substr($free_childid, -1 * SQ_ASSET_TREE_SIZE);
+
+				// remove the current zeroed entries in the tree table,
+				// as we will be inserting over the top of them
+				$concat = ($db->phptype == 'mysql')
+							? 'CONCAT(t.treeid, '.$db->quote($free_childid).')'
+							: 't.treeid || '.$db->quote($free_childid);
+
+				$sql = 'DELETE FROM sq_asset_link_tree
+						WHERE treeid IN (~SQ0~)';
+				$subs = Array('SELECT '.$concat.'
+								FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid
+								WHERE l.minorid = '.$db->quote($this->id));
+				$sql = db_extras_subquery($db, $sql, $subs);
+				if (DB::isError($sql)) {
+					trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
+					return 0;
+				}
+#				pre_echo($sql);
+				$result = $db->query($sql);
+				if (DB::isError($result)) {
+					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+					return 0;
+				}
+
+			}// end if
+
+#			pre_echo("Free Childid : ".$free_childid);
+
+			$insert = 'INSERT INTO sq_asset_link_tree (treeid, linkid)';
+
+			// if we don't have any existing tree entries then
+			// we are the root folder, so do a simple insert
+			if ((string) $existing_treeid == '') {
+				$sql = $insert.' VALUES ('.$db->quote($free_childid).', '.$db->quote($linkid).')';
+#				pre_echo($sql);
+				$result = $db->query($sql);
+				if (DB::isError($result)) {
+					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+					return 0;
+				}
+
+			// we have existing tree entries, do a insert..select to create entries for them all
+			} else {
+				// so much for SQL standards...
+				$concat = ($db->phptype == 'mysql')
+							? 'CONCAT(t.treeid, '.$db->quote($free_childid).')'
+							: 't.treeid || '.$db->quote($free_childid);
+				$select = 'SELECT '.$concat.', '.$db->quote($linkid).'
+							FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid
+							WHERE l.minorid = '.$db->quote($this->id);
+
+				$result = db_extras_insert_select($db, $insert, $select);
+				if (DB::isError($result)) {
+					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+					return 0;
+				}
+			}// end if
+
+			// if this minor has already been linked so do a select into
+			if ((string) $minor_treeid != '') {
+
+				// so much for SQL standards...
+				$concat = ($db->phptype == 'mysql')
+							? 'CONCAT(pr.treeid, '.$db->quote($free_childid).', SUBSTRING(ct.treeid FROM '.$db->quote(strlen($minor_treeid) + 1).'))'
+							: 'pt.treeid || '.$db->quote($free_childid).' || SUBSTRING(ct.treeid FROM '.$db->quote(strlen($minor_treeid) + 1).')';
+
+				// the 'ct.treeid > ' line makes sure that we get only the children of the minor,
+				// because we added the tree link to the minor above
+				$select = 'SELECT '.$concat.', ct.linkid
+							FROM sq_asset_link_tree pt INNER JOIN sq_asset_link pl ON pt.linkid = pl.linkid, sq_asset_link_tree ct
+							WHERE pl.minorid = '.$db->quote($this->id).'
+							  AND ct.treeid LIKE '.$db->quote($minor_treeid.'%').'
+							  AND ct.treeid > '.$db->quote($minor_treeid);
+
+				$result = db_extras_insert_select($db, $insert, $select);
+				if (DB::isError($result)) {
+					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+					return 0;
+				}
+
+			}// end if
+
+#			pre_echo("OK");
+
+		}// end if significant link
+
+		// move the sort_order for all the other assets up one
+		$sql = 'UPDATE sq_asset_link
+				SET sort_order = sort_order + 1
+				WHERE majorid     = '.$db->quote($this->id).'
+				  AND sort_order >= '.$db->quote($sort_order);
+
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
+			return 0;
+		}
+
+		// and finally insert the link
 		$sql = 'INSERT INTO sq_asset_link
 				(linkid, majorid, minorid, link_type, value, sort_order, last_updated, last_userid)
 				VALUES
 				('.$db->quote($linkid).', '.$db->quote($this->id).', '.$db->quote($minor->id).', '.$db->quote($link_type).', '
 				.$db->quote($value).', '.$db->quote($sort_order).', '.$db->quote(ts_iso8601(time())).', '.$db->quote($GLOBALS['SQ_SYSTEM']->currentUserId()).')';
 
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return 0;
-		}
-
-		// move the sort_order for all the other assets up one
-		$sql = 'UPDATE sq_asset_link
-				SET sort_order = sort_order + 1
-				WHERE majorid     = '.$db->quote($this->id).'
-				  AND sort_order >= '.$db->quote($sort_order).'
-				  AND linkid != '.$db->quote($linkid);
+#		pre_echo($sql);
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('rollback');
 			return 0;
 		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('commit');
 
 		$GLOBALS['SQ_SYSTEM']->broadcastEvent('CreateLink', Array('assetid' => $this->id, 'linkid' => $linkid));
+		$this->_linksUpdated();
 		return $linkid;
 
 	}//end createLink()
@@ -938,7 +1199,7 @@ class Asset extends Resolve_Object
 	}//end _getAllowedLinks()
 
 	/**
-	* Called whenever any type of link is changed, allows caching of objects, links and other stuff 
+	* Called whenever any type of link is changed, allows caching of objects, links and other stuff
 	* to occur but not cause integrity issues during script execution
 	*
 	* @access private
@@ -960,12 +1221,13 @@ class Asset extends Resolve_Object
 	function moveLinkPos($linkid, $sort_order=-1)
 	{
 		// open the transaction
-		$GLOBALS['SQ_SYSTEM']->db->query('BEGIN');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		if ($this->_updateLink($linkid, null, null, null, $sort_order)) {
-			$GLOBALS['SQ_SYSTEM']->db->query('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$this->_linksUpdated();
 			return true;
 		} else {
-			$GLOBALS['SQ_SYSTEM']->db->query('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
@@ -998,7 +1260,6 @@ class Asset extends Resolve_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-
 		$set_clauses = Array();
 
 		$minorid_changed	= (!is_null($minorid)		&& $link['minorid']		!= $minorid		);
@@ -1016,7 +1277,6 @@ class Asset extends Resolve_Object
 
 			$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset($minorid);
 			if (($err_msg = $this->canLinkToType($minor->type(), $link_type)) !== true) {
-				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 				trigger_error('Unable to update link #'.$linkid.' ('.$err_msg.')', E_USER_WARNING);
 				return false;
 			}
@@ -1047,7 +1307,6 @@ class Asset extends Resolve_Object
 
 		// dickhead check
 		if (empty($set_clauses)) return true;
-
 
 		$sql = 'UPDATE sq_asset_link
 				SET '.implode(', ', $set_clauses).',
@@ -1095,7 +1354,6 @@ class Asset extends Resolve_Object
 
 	}//end _updateLink()
 
-
 	/**
 	* Removes a link where this asset is the major player
 	*
@@ -1114,23 +1372,66 @@ class Asset extends Resolve_Object
 			return false;
 		}
 
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// open the transaction
-		$db->query('BEGIN');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$sql = 'DELETE FROM sq_asset_link
-				WHERE linkid    = '.$db->quote($linkid).'
-				  AND majorid   = '.$db->quote($this->id);
+		// if this is a significant link
+		if ($link['link_type'] & SQ_LINK_SIGNIFICANT) {
 
-#		error_log($sql);
+			$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+			if (is_null($minor)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
 
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			$db->query('ROLLBACK');
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
+			$num_other_links = $minor->countLinks('minor', SQ_LINK_SIGNIFICANT, '', true, $linkid);
+
+			// OK, if we are going to be deleting the last significant link 
+			// then we need to create a link to the trash for this 
+			if (!$num_other_links) {
+				$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
+				if (is_null($minor)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+				if (!$trash_folder->createLink($minor, SQ_LINK_UNITE)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+			}
+
+			//// UPDATE THE TREE ////
+
+			// set all the links that are under this 
+			$sql = 'UPDATE sq_asset_link_tree
+					   SET linkid = 0
+					WHERE treeid in (~SQ0~)';
+			$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
+			$subs = Array('SELECT ct.treeid
+							FROM sq_asset_link_tree pt, sq_asset_link_tree ct
+							WHERE pt.linkid = '.$db->quote($linkid).'
+							  AND ct.treeid LIKE '.$concat.'
+							  AND ct.treeid >= pt.treeid');
+
+			$sql = db_extras_subquery($db, $sql, $subs);
+			if (DB::isError($sql)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
+				return 0;
+			}
+#			pre_echo($sql);
+			$result = $db->query($sql);
+			if (DB::isError($result)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				return 0;
+			}
+
+		}// end if significant link
 
 		// move 'em up, higher
 		$sql = 'UPDATE sq_asset_link
@@ -1138,18 +1439,30 @@ class Asset extends Resolve_Object
 				WHERE majorid    = '.$db->quote($this->id).'
 				  AND sort_order > '.$db->quote($link['sort_order']);
 
-#		error_log($sql);
-
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
-			$db->query('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
-		$db->query('COMMIT');
+		$sql = 'DELETE FROM sq_asset_link
+				WHERE linkid  = '.$db->quote($linkid).'
+				  AND majorid = '.$db->quote($this->id);
+
+#		error_log($sql);
+
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		$GLOBALS['SQ_SYSTEM']->broadcastEvent('DeleteLink', Array('assetid' => $this->id, 'linkid' => $linkid));
+		$this->_linksUpdated();
 		return true;
 
 	}//end deleteLink()
@@ -1449,7 +1762,7 @@ class Asset extends Resolve_Object
 
 		// if there is no difference in the arrays (including in the sort order), then there is nothing to do
 		if (!array_diff_assoc($save_paths, $current_paths)) return;
-			
+
 		$db->query('BEGIN');
 
 		//// CHECK INSERTED PATHS ////
