@@ -40,7 +40,7 @@ class Backend extends Resolve_Object
 	function getBackendUrl($target='main')
 	{
 		return $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE='.$target;
-	}#end _printFrames()
+	}//end getBackendUrl()
 
 
 	/*
@@ -53,8 +53,10 @@ class Backend extends Resolve_Object
 		if (empty($_GET['SQ_BACKEND_PAGE']) || $_GET['SQ_BACKEND_PAGE'] == 'frames') {
 			$this->_printFrames();
 		
-		} else if ($_GET['SQ_BACKEND_PAGE'] == 'site_map_request') {
-			$this->_printSiteMapXML();
+		} else if ($_GET['SQ_BACKEND_PAGE'] == 'asset_map_request') {
+			include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
+			$asset_map = new Asset_Map();
+			$asset_map->process($this);
 		
 		} else {
 
@@ -81,13 +83,13 @@ class Backend extends Resolve_Object
 				default:
 					trigger_error('Backend Page "'.$_GET['SQ_BACKEND_PAGE'].'" unknown', E_USER_ERROR);
 
-			}#end switch
+			}//end switch
 
 			$this->out->paint();
 
-		}#end if
+		}//end if
 
-	}#end paint()
+	}//end paint()
 
 	/*
 	* Print out the frames page
@@ -104,15 +106,15 @@ class Backend extends Resolve_Object
 			</head>
 			<frameset rows="27,*,22" border="0" frameborder="0" framespacing="0">
 				<frame src="<?=$_SERVER['PHP_SELF']?>?SQ_BACKEND_PAGE=header" name="header" noresize scrolling="no" marginwidth="0" marginheight="0" border="0">
-				<frameset cols="300,*" border="0" framespacing="2" frameborder="0">
-					  <frame src="<?=$_SERVER['PHP_SELF']?>?SQ_BACKEND_PAGE=sidenav" name="sidenav" marginwidth="0" marginheight="0" frameborder="0" border="0" scrolling="yes">
+				<frameset cols="250,*" border="0" framespacing="2" frameborder="0">
+					  <frame src="<?=$_SERVER['PHP_SELF']?>?SQ_BACKEND_PAGE=sidenav" name="sidenav" marginwidth="0" marginheight="0" frameborder="0" border="0" scrolling="no">
 					  <frame src="<?=$_SERVER['PHP_SELF']?>?SQ_BACKEND_PAGE=main" name="main" marginwidth="0" marginheight="0" frameborder="0" border="0" scrolling="yes">
 				</frameset>
 				<frame noresize src="<?=$_SERVER['PHP_SELF']?>?SQ_BACKEND_PAGE=footer" name="footer" scrolling="no" marginwidth="0" marginheight="0" border="0">
 			</frameset>
 		</html>
 	<?
-	}#end _printFrames()
+	}//end _printFrames()
 
 
 
@@ -168,7 +170,7 @@ class Backend extends Resolve_Object
 
 		$this->out->closeRaw();
 
-	}#end _printHeader()
+	}//end _printHeader()
 
 	/*
 	* Print out the top nav page
@@ -201,7 +203,7 @@ class Backend extends Resolve_Object
 
 		$this->out->closeRaw();
 
-	}#end _printFooter()
+	}//end _printFooter()
 
 	/*
 	* Print out the Side Nav
@@ -211,158 +213,18 @@ class Backend extends Resolve_Object
 	function _printSideNav()
 	{
 
-		$this->out->setHeading('&nbsp;', 'create');
-		$this->out->openSection('<a href="'.$this->getBackendUrl('main').'&backend_section=asset_types" target="main">Asset Types</a>');
+//		$this->out->setHeading('&nbsp;', 'create');
+//		$this->out->openSection('<a href="'.$this->getBackendUrl('main').'&backend_section=asset_types" target="main">Asset Types</a>');
 
 		$this->out->openRaw();
 
-	?>
-		NOT DONE
-	<?
+		include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
+		$asset_map = new Asset_Map();
+		$asset_map->paint($this);
 
 		$this->out->closeRaw();
 
-	}#end _printSideNav()
-
-
-	/*
-	* Prints out, in XML, the children for the parent asset id passed in the GET string
-	*
-	* @access private
-	*/
-	function _printSiteMapXML()
-	{
-
-		header("Content-Type: text/xml");
-		include_once 'XML/Tree.php';
-		$err_msg = '';
-
-		$xml_in = new XML_Tree('php://input');
-		$root_in = &$xml_in->getTreeFromFile();
-
-		if (PEAR::isError($root_in)) {
-			$err_msg = $root_in->getMessage()."\n".$root_in->getUserInfo();
-
-		} else {
-			
-			if ($root_in->name != 'command' || empty($root_in->attributes['action'])) {
-				$err_msg = 'No action was defined, or the root node is not "command"';
-
-			} else  {
-
-				switch($root_in->attributes['action']) {
-					case 'get kids' :
-
-						if (empty($root_in->attributes['parent_assetid'])) {
-							$err_msg = 'No Parent Asset Id passed';
-							break;
-						} 
-						$parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($root_in->attributes['parent_assetid'], '', true);
-						if (is_null($parent)) {
-							$err_msg = 'Parent Asset #'.$root_in->attributes['parent_assetid'].' not found';
-							break;
-						}
-						// we only want EXCLUSIVE or UNITE links
-						$links = $parent->getLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE);
-						if (!count($links)) {
-							$err_msg = 'Asset "'.$parent->name().'" has no children';
-							break;
-						} 
-
-						$xml_out = new XML_Tree();
-						$root_out = &$xml_out->addRoot('assets', '');
-						for(reset($links); NULL !== ($type_code = key($links)); next($links)) {
-							for($i = 0; $i < count($links[$type_code]); $i++) {
-								$child = &$GLOBALS['SQ_RESOLVE']->am->getAsset($links[$type_code][$i]['minorid']);
-								if (!is_null($child)) {
-									$attrs = Array('assetid' => $child->id, 
-													'type_code' => get_class($child), 											
-													'has_kids'  => (int) ($child->countLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE) > 0)
-													);
-									$child = &$root_out->addChild('child', '[CS] '.$child->name(), $attrs);
-								}
-							}
-						}
-
-						$xml_out->dump();
-						return;
-
-					case 'menu items' :
-
-						$xml_out = new XML_Tree();
-						$root_out = &$xml_out->addRoot('options', '');
-
-						for($i = 0; $i < count($root_in->children); $i++) {
-							$name = $root_in->children[$i]->attributes['name'];
-							$top_level = &$root_out->addChild('item', '', Array('text' => $name, 'value'  => ''));
-							switch($name) {
-								case 'add' :
-									$hier = $GLOBALS['SQ_RESOLVE']->am->getAssetTypeHierarchy('', true);
-									$this->_recurseSiteMapXMLAddMenu($top_level, $hier);
-								break;
-
-								default :
-									$err_msg = 'Menu Item "'.$name.'" not defined';
-									break 3; // out of switch, loop and switch
-
-							}// end $name switch
-
-						}// end children for
-
-						$xml_out->dump();
-						return;
-
-					break;
-
-					default :
-						$err_msg = 'Action "'.$root_in->attributes['action'].'" not defined';
-
-				}// end switch
-
-			}// end if
-
-		}// end if
-
-		$xml_out = new XML_Tree();
-		$root_out = &$xml_out->addRoot('error', $err_msg);
-		$xml_out->dump();
-		return;
-
-
-	}//end _printSiteMapXML()
-
-	/*
-	* Creates the XML object recusivly for the site map menu
-	*
-	* @access private
-	*/
-	function _recurseSiteMapXMLAddMenu(&$parent_node, $heir)
-	{
-		for (reset($heir); NULL !== ($type_code = key($heir)); next($heir)) {
-			$inst     = $GLOBALS['SQ_RESOLVE']->am->getInfo($type_code, 'instantiable');
-			$has_kids = count($heir[$type_code]['subs']);
-			// no point, if you can't create an instance and there are no kids
-			if (!$inst && !$has_kids) continue;
-
-			$text  = $heir[$type_code]['name'];
-			$value = 'list/add/'.$type_code;
-
-			$child = &$parent_node->addChild('item', '', Array('text' => $text.(($has_kids) ? ' Types' : ''), 'value'  => (($has_kids) ? '' : $value)));
-
-			// if can instantiate and have kids
-			// then we need to add an entry into the kids array so it can be selected
-			if ($inst && $has_kids) {
-				$real_child   = &$child->addChild('item', '', Array('text' => $text, 'value'  => $value));
-			}
-
-			if ($has_kids) {
-				$this->_recurseSiteMapXMLAddMenu($child, $heir[$type_code]['subs']);
-			}
-
-		}
-
-	}// end _recurseSiteMapXMLAddMenu()
-
+	}//end _printSideNav()
 
 	/*
 	* Print out the Main backend Page
@@ -383,22 +245,20 @@ class Backend extends Resolve_Object
 				$cfg->printBackend($this);
 			break;
 
-			case 'asset_types' :
+			case 'am' :
 				$GLOBALS['SQ_RESOLVE']->am->printBackend($this);
 			break;
 
 			default :
 
 				$this->out->openRaw();
-				echo "NOT DONE";
+				echo "NOT DONE, slacker";
 				$this->out->closeRaw();
 
-		}#end switch
+		}//end switch
+
+	}//end _printMain()
 
 
-
-	}#end _printMain()
-
-
-}#end class
+}//end class
 ?>
