@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.16 2005/02/01 11:33:37 brobertson Exp $
+* $Id: user_group_edit_fns.inc,v 1.17 2005/02/07 22:56:59 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -92,11 +92,11 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 		$current = $this->getCurrentRestrictions($asset);
 
 		if (!$asset->adminAccess('security')) {
-			if (!$this->isRestricted($asset)) echo 'Unrestricted access has been granted. No security restrictions apply on this user group.';
+			if (!$this->isRestricted($asset, $prefix)) echo 'Unrestricted access has been granted. No security restrictions apply on this user group.';
 			else echo 'Unrestricted access has not been granted. Security restrictions do apply on this user group.';
 			return false;
 		} else {
-			check_box($prefix.'_unrestricted', '1', !$this->isRestricted($asset));
+			check_box($prefix.'_unrestricted', '1', !$this->isRestricted($asset, $prefix));
 			echo 'Grant Unrestricted Access';
 			echo '<br /><br />Check this box to give this user group unrestricted access to all assets';
 		}
@@ -118,7 +118,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function processUnrestricted(&$asset, &$o, $prefix)
 	{
-		$unrestricted = !$this->isRestricted($asset);
+		$unrestricted = !$this->isRestricted($asset, $prefix);
 		if (isset($_POST[$prefix.'_unrestricted']) && $_POST[$prefix.'_unrestricted'] && !$unrestricted) {
 			$values = Array('userid'    => $asset->id,
 							'type_code' => '0',
