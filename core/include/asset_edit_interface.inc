@@ -1320,6 +1320,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+			$designs_updated = false;
 			foreach ($_POST[$prefix.'_designs'] as $design_name => $design_data) {
 
 				$new_designid = $design_data['designid'];
@@ -1363,9 +1364,26 @@ class Asset_Edit_Interface extends Resolve_Object
 					}
 				}
 
-				trigger_error('Update Lookups');
+				$designs_updated = true;
 
 			}// end foreach
+
+			//// START HIPO PROCESSING ////
+			if ($designs_updated) { 
+				require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_update_lookups.inc';
+				$init_hipo = new HIPO_Job_Update_Lookups();
+
+				$init_hipo->setRunningVars(Array('assetid' => $owner->id));
+				$init_hipo->setOption('on_complete_url', $_SERVER['REQUEST_URI']);
+
+				$code_name = $init_hipo->initialise();
+				if ($code_name) {
+					$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+					if ($url = $hh->getProcessURL($code_name)) $o->setRedirect($url);
+				}
+			}// end if
+
+			////  END HIPO PROCESSING  ////
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
