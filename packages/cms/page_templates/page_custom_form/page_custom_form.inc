@@ -153,8 +153,8 @@ class Page_Custom_Form extends Page
 	*/
 	function printBody()
 	{
-		$form_link = $this->getLinks(SQ_LINK_TYPE_2, 'form_email', true, 'major', '', '1', '1');
-		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($form_link[0]['minorid'], 'form_email');
+		$form_link = $this->getLink(SQ_LINK_TYPE_2, 'form_email', true, '', 'major');
+		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($form_link['minorid'], $form_link['type_code']);
 
 		if (is_null($form)) {
 			trigger_error('Could not locate the form asset for Custom Form "'.$this->name.'"', E_USER_ERROR);
