@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table.inc,v 1.4 2004/02/18 18:19:16 brobertson Exp $
+* $Id: bodycopy_table.inc,v 1.5 2004/05/28 04:54:48 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -171,7 +171,7 @@ class Bodycopy_Table extends Bodycopy_Container
 			return true;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return true;
+			return false;
 		}
 
 	}//end remapAssetids()
