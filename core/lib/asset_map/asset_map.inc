@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.117 2004/02/10 22:03:44 gsherwood Exp $
+* $Id: asset_map.inc,v 1.118 2004/02/27 05:38:27 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -253,7 +253,7 @@ class Asset_Map
 				break;
 
 			case 'dupe' :
-				$this->_dupeAsset($input, $backend);
+				$this->_cloneAsset($input, $backend);
 				break;
 
 			case 'move asset' :
@@ -719,7 +719,7 @@ class Asset_Map
 	*
 	* @access private
 	*/
-	function _dupeAsset(&$input, &$backend)
+	function _cloneAsset(&$input, &$backend)
 	{
 		$output = new XML_Tree();
 		$output->addRoot('responses');
@@ -727,13 +727,13 @@ class Asset_Map
 
 		$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
 		if (is_null($old_parent)) {
-			$this->_error('Unable to Duplicate Asset, existing parent (Asset #"'.$input->root->attributes['from_parent_assetid'].'") not found');
+			$this->_error('Unable to Clone Asset, existing parent (Asset #"'.$input->root->attributes['from_parent_assetid'].'") not found');
 			return;
 		}
 
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($input->root->attributes['linkid'], $old_parent->id);
 		if (empty($link)) {
-			$this->_error('Unable to Duplicate Asset, Link #"'.$input->root->attributes['linkid'].'") not found');
+			$this->_error('Unable to Clone Asset, Link #"'.$input->root->attributes['linkid'].'") not found');
 			return;
 		}
 
@@ -741,25 +741,38 @@ class Asset_Map
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		if (is_null($asset)) {
-			$this->_error('Unable to Duplicate Asset, asset to be duplicated (Asset #"'.$link['minorid'].'") not found');
+			$this->_error('Unable to Clone Asset, asset to be duplicated (Asset #"'.$link['minorid'].'") not found');
 			return;
 		}
 
 		$new_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
 		if (is_null($new_parent)) {
-			$this->_error('Unable to Duplicate Asset, new parent (Asset #"'.$input->root->attributes['to_parent_assetid'].'") not found');
+			$this->_error('Unable to Clone Asset, new parent (Asset #"'.$input->root->attributes['to_parent_assetid'].'") not found');
 			return;
 		}
 
-		$url = '?SQ_BACKEND_PAGE=main&backend_section=am&ignore_frames=1&am_section=duplicate&assetid='.$asset->id.'&to_parent_assetid='.$new_parent->id.'&to_parent_pos='.$input->root->attributes['to_parent_pos'];
+		//// START HIPO PROCESSING ////
+		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$vars = Array(	'assetid'                => $asset->id,
+						'type_code'              => $asset->type(),
+						'to_parent_assetid'      => $new_parent->id,
+						'to_parent_pos'          => $input->root->attributes['to_parent_pos']);
+		$hh->queueHipo('hipo_job_clone_asset', $vars);
+		////  END HIPO PROCESSING  ////
 
-		$urlTree = new XML_Tree();
-		$urlTree->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));
-		$output->insertChild(Array('responses'), $response_count++, $urlTree);
+		// check for any HIPOs that have been queued
+		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$url = $hh->runQueuedJobs('Javascript: function closeWindow() { setTimeout(\'window.close()\', 500); } closeWindow();');
+
+		if (!empty($url)) {
+			$urlTree = new XML_Tree();
+			$urlTree->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));
+			$output->insertChild(Array('responses'), $response_count++, $urlTree);
+			}
 
 		$this->_send($output);
 
-	}//end _dupeAsset()
+	}//end _cloneAsset()
 
 
 	/**
