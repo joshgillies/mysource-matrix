@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.9 2004/09/10 07:10:23 gsherwood Exp $
+* $Id: email_format.inc,v 1.9.2.1 2004/11/07 23:11:41 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -162,7 +162,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$current_to_string = '';
 		$current_to = '';
 		foreach ($current_value['to'] as $email) {
-			$current_to_string .= '[ <a href="#" onclick="Javascript: emailFormatDeleteAddress(\''.$email.'\', \''.$prefix.'\', \'to\'); return false;">del</a> ] '.htmlspecialchars($email).'<br>';
+			$current_to_string .= '[ <a href="#" onclick="Javascript: emailFormatDeleteAddress(\''.str_replace($email,'"','\"').'\', \''.$prefix.'\', \'to\'); return false;">del</a> ] '.htmlspecialchars($email).'<br>';
 			$current_to .= $email.';';
 		}
 
