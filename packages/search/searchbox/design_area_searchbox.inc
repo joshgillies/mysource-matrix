@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox.inc,v 1.14 2004/06/30 05:56:58 tbarrett Exp $
+* $Id: design_area_searchbox.inc,v 1.14.4.1 2005/02/06 22:02:06 amiller Exp $
 * $Name: not supported by cvs2svn $
 *
 */
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.14 $ - 1.0
+* @version $Revision: 1.14.4.1 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -93,7 +93,7 @@ class Design_Area_Searchbox extends Design_Area
 
 			case 'form_start' :
 				echo '<'.'?php $asset = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$asset->id.', "'.$asset->type().'"); ?'.'>'."\n";
-				echo '<form method="get" action="<'.'?php echo $asset->getURL(); ?'.'>"><input type="hidden" name="mode" value="results" />';
+				echo '<form method="get" action="<'.'?php echo $asset->getURL(); ?'.'>">';
 			break;
 
 			case 'form_end' :
@@ -101,7 +101,7 @@ class Design_Area_Searchbox extends Design_Area
 			break;
 
 			case 'box' :
-				echo '
+				echo '<input type="hidden" name="mode" value="results" />
 				<'.'?php
 				$default_value = \''.$this->attr('default_text').'\';
 				$hide_default = true;
