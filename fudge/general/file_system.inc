@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.30 2005/02/21 19:33:42 brobertson Exp $
+* $Id: file_system.inc,v 1.31 2005/04/05 02:31:16 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Generic functions for the file system
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package Fudge
 * @subpackage General
 */
@@ -146,10 +146,15 @@ function string_to_file($string, $filename)
 */
 function easy_filesize($size)
 {
-	if		($size < 1500)			return $size.' bytes';
-	elseif	($size < 1500000)		return sprintf('%.1f kb', $size/1024.0);
-	elseif	($size < 1500000000)	return sprintf('%.1f mb',($size/1024.0)/1024.0);
-	else							return sprintf('%.1f gb',(($size/1024.0)/1024.0)/1024.0);
+	if ($size < 1500) {
+		return $size.' bytes';
+	} else if ($size < 1500000) {
+		return sprintf('%.1f kb', $size/1024.0);
+	} else if ($size < 1500000000) {
+		return sprintf('%.1f mb',($size/1024.0)/1024.0);
+	} else {
+		return sprintf('%.1f gb',(($size/1024.0)/1024.0)/1024.0);
+	}
 
 }//end easy_filesize()
 
@@ -277,7 +282,6 @@ function create_directory($path)
 }//end create_directory()
 
 
-
 /**
 * Recursively delete the contents of a directory without system calls
 *
@@ -402,7 +406,6 @@ function copy_directory($path, $new_path)
 }//end copy_directory()
 
 
-
 /**
 * Copies a file, creates any parent directories needed first
 *
@@ -438,6 +441,81 @@ function move_file($from, $to)
 	return true;
 
 }//end move_file()
+
+
+/**
+* Gets last N lines from a file as an array (last line last)
+* Ignores empty lines
+*
+* NOTE: Only works properly if line_ending is a single character
+*
+* @param string	$filepath	path of file to get lines from
+* @param int	$max_lines	number of lines to get
+*
+* @return array
+* @access public
+*/
+function get_last_lines_from_file($filepath, $max_lines=10, $line_ending="\n")
+{
+	$result = Array();
+	$max_lines = is_int($max_lines)?$max_lines:10;
+
+	if (!file_exists($filepath) || !is_readable($filepath)){
+		return false;
+	}
+
+	if (!$handle = fopen($filepath, 'r')) {
+		return false;
+	}
+
+	// move pointer before the last character
+	fseek($handle, -1, SEEK_END);
+	$pos = ftell($handle);
+	if ($pos === false) {
+		return false;
+	}
+
+	$chars = 0;
+	$current_word = null;
+	$lines = Array();
+	$line_count = 0;
+	$ok = true;
+
+	do {
+		$char = fgetc($handle);
+		if (0 != fseek($handle, -2, SEEK_CUR)) {
+			$ok = false;
+		}
+
+		if ($char == $line_ending) {
+			if (is_null($current_word)) {
+				continue;
+			} else {
+				array_unshift($lines, $current_word);
+				$line_count++;
+				$current_word = null;
+			}
+
+		} else if ($char === false) {
+			$ok = false;
+			continue;
+
+		} else {
+			$current_word = $char.$current_word;
+		}
+
+		$chars++;
+	} while ($max_lines > $line_count && $ok);
+
+	if (!is_null($current_word) && $max_lines > $line_count) {
+		array_unshift($lines, $current_word);
+	}
+
+	fclose($handle);
+
+	return $lines;
+
+}//end get_last_lines_from_file()
 
 
 ?>
