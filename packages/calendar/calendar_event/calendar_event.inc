@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.30 2004/10/05 02:35:18 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.31 2004/10/22 03:31:46 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.30 $ - 1.0
+* @version $Revision: 1.31 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -180,6 +180,13 @@ class Calendar_Event extends Asset
 
 		$keywords['event_start_datetime'] = Array('value'=>$this->getFriendlyStart());
 		$keywords['event_end_datetime'] = Array('value'=>$this->getFriendlyEnd());
+
+		$keywords['event_start_time_12h'] = Array('value'=>date('h:i a', iso8601_ts($this->attr('start_date'))));
+		$keywords['event_end_time_12h'] = Array('value'=>date('h:i a', iso8601_ts($this->attr('end_date'))));
+
+		$keywords['event_start_time_24h'] = Array('value'=>date('H:i', iso8601_ts($this->attr('start_date'))));
+		$keywords['event_end_time_24h'] = Array('value'=>date('H:i', iso8601_ts($this->attr('end_date'))));
+
 		$keywords['event_datetime_summary'] = Array('value'=>$this->getFriendlyDatesAndTimes());
 
 		// give useful info if no duration (single point in time) - easy_time_total returns empty string
@@ -192,6 +199,13 @@ class Calendar_Event extends Asset
 		if ($descriptions) {
 			$keywords['event_start_datetime']['description'] = 'Event start date/time';
 			$keywords['event_end_datetime']['description'] = 'Event end date/time';
+			
+			$keywords['event_start_time_12h']['description'] = 'Start time (12 hour)';
+			$keywords['event_end_time_12h']['description'] = 'End time (12 hour)';
+			
+			$keywords['event_start_time_24h']['description'] = 'Start time (24 hour)';
+			$keywords['event_end_time_24h']['description'] = 'End time (24 hour)';
+
 			$keywords['event_datetime_summary']['description'] = 'Friendly description of event dates and times';
 			$keywords['event_duration']['description'] = 'Duration of the Event';
 			$keywords['edit_link']['description'] = 'Link to edit this eveent in Limbo';

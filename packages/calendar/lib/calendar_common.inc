@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.5 2004/10/17 23:41:13 lwright Exp $
+* $Id: calendar_common.inc,v 1.6 2004/10/22 03:31:46 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -51,8 +51,12 @@ function build_single_event_query_base(&$trees)
 {
 	$db =& $GLOBALS['SQ_SYSTEM']->db;
 
+	$type_codes = quoted_descendants('calendar_event_single');
+	$type_codes = array_merge($type_codes, quoted_descendants('calendar_event_cancellation'));
+	$type_codes = array_merge($type_codes, quoted_descendants('calendar_event_modification'));
+	
 	return
-	'SELECT a.assetid, a.type_code, a.name, ('.build_case_statement('t.treeid',$trees).') as root_node, cd.* FROM '.build_join_statements().' WHERE a.type_code IN ( '.$db->quote('calendar_event_single').', '.$db->quote('calendar_event_modification').', '.$db->quote('calendar_event_cancellation').')';
+	'SELECT a.assetid, a.type_code, a.name, t.treeid, ('.build_case_statement('t.treeid',$trees).') as root_node, cd.* FROM '.build_join_statements().' WHERE a.type_code IN ( '.implode(',', $type_codes).')';
 
 }//end build_single_event_query_base()
 
@@ -91,8 +95,10 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null)
 
 	$db =& $GLOBALS['SQ_SYSTEM']->db;
 
+	$type_codes = quoted_descendants('calendar_event_recurring');
+
 	$sql =
-	'SELECT a.assetid, a.type_code, a.name, ('.build_case_statement('t.treeid',$trees).") as root_node, cd.* \nFROM (".SQ_TABLE_RUNNING_PREFIX.'asset a join ('.SQ_TABLE_RUNNING_PREFIX.'asset_link l join '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid) join '.SQ_TABLE_RUNNING_PREFIX."calendar_date_value cd on a.assetid = cd.assetid \nWHERE (a.type_code = ".$db->quote('calendar_event_recurring').") \nAND ";
+	'SELECT a.assetid, a.type_code, a.name, t.treeid, ('.build_case_statement('t.treeid',$trees).") as root_node, cd.* \nFROM (".SQ_TABLE_RUNNING_PREFIX.'asset a join ('.SQ_TABLE_RUNNING_PREFIX.'asset_link l join '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid) join '.SQ_TABLE_RUNNING_PREFIX."calendar_date_value cd on a.assetid = cd.assetid \nWHERE (a.type_code = ".implode(',', $type_codes).") \nAND ";
 
 	$sql_freqs = Array();
 
@@ -1027,3 +1033,28 @@ function get_date_components($iso, $prefix='')
 	return $res;	
 	
 }//end get_date_components()
+
+
+/**
+*
+*
+* @param string $type_code
+*
+* @return Array
+* @access public
+*/
+function quoted_descendants($type_code)
+{
+	// only needed because of quote()
+	$db =& $GLOBALS['SQ_SYSTEM']->db;
+	
+	$type_codes = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code);
+	$type_codes[] = $type_code;
+	
+	foreach($type_codes as $tc_key => $tc_value) {
+		$type_codes[$tc_key] = $db->quote($tc_value);
+	}
+	
+	return $type_codes;
+	
+}//end quoted_descendants()
