@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replicator.inc,v 1.1.2.7 2004/03/08 17:54:39 brobertson Exp $
+* $Id: replicator.inc,v 1.1.2.8 2004/03/09 18:09:40 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -249,18 +249,19 @@ class Replicator extends Replication_Object
 
 
 	/**
-	* The Replicate fn, called from the Squiz Server Process Object
+	* The serverConnection fn, called from the Squiz Server Process Object
+	* Basically if this is called it means that a remote system initated a connection to us.
 	*
-	* @param string		$systemid		the systemid of the system that we are replicating with
+	* @param string		$systemid		the systemid of the system that we are dealing with (to be authenticated)
 	* @param resource	$client_fd		the client socket resource
 	* 
 	* @return void
 	* @access public
 	* @abstract
 	*/
-	function replicate($systemid, $client_fd)
+	function serverConnection($systemid, $client_fd)
 	{
-	}// end replicate()
+	}// end serverConnection()
 
 
 	/**
