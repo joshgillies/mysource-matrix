@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.78 2003/11/25 21:16:56 gsherwood Exp $
+* $Id: backend.inc,v 1.79 2003/11/26 00:22:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -441,7 +441,7 @@ class Backend extends MySource_Object
 					// set the contents of the div
 					msgDiv.innerHTML = '<?php echo addslashes($html)?>';
 
-					setTimeout("showMsgDiv()", 200);
+					setTimeout("showMsgDiv()", 500);
 				} else {
 					REFRESH_UPDATE = 2;
 				}
