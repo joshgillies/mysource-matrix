@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.49.2.2 2004/11/03 23:52:57 gsherwood Exp $
+* $Id: workflow_manager.inc,v 1.49.2.3 2004/11/03 23:57:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -923,8 +923,6 @@ class Workflow_Manager extends MySource_Object
 
 		// send internal messages to everyone who can now publish the asset
 		$ms   = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
-		$asset_type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name');
 		$publishers = $this->whoCanPublish($asset->id);
 
 		if (!$this->silentWorkflowParty($asset->id)) {
