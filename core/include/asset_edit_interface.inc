@@ -315,7 +315,13 @@ class Asset_Edit_Interface extends Resolve_Object
 
 					// Loop over the fields
 					for($j = 0; $j < $num_fields; $j++) {
+
 						$field = &$section->children[$j];
+
+						if ($field->name != 'field') {
+							trigger_error('Expected "field" tag in section, found "'.$field->name.'"', E_USER_WARNING);
+							continue;
+						}
 
 						if ($field->children[0]->name != 'display_name') {
 							trigger_error('Display Name for "'.$field->attributes['attribute'].'" not found', E_USER_WARNING);
