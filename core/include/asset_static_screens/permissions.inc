@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.6 2004/06/21 23:47:56 gsherwood Exp $
+* $Id: permissions.inc,v 1.7 2004/09/19 23:53:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -187,7 +187,7 @@ function paintPermissions(&$owner, &$o, &$ei)
 						<?php
 						if ($admin_access) {
 							?><td align="center" width="100" class="sq-backend-table-cell"><?php
-							check_box($prefix.'_permissions['.$perm.'][delete]['.$userid.']');
+							check_box($prefix.'_permissions['.$perm.'][delete]['.rawurlencode($userid).']');
 							?></td><?php
 						}
 						?>
@@ -328,6 +328,7 @@ function processPermissions(&$owner, &$o, &$ei)
 		// revoke [delete] access (grant or deny can be revoked)
 		if (!empty($post_data['delete'])) {
 			foreach ($post_data['delete'] as $userid => $on) {
+				$userid = rawurldecode($userid);
 				if ($cascade_changes) {
 					$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, null, false, false, true);
 					$current_access = $current[$userid];
