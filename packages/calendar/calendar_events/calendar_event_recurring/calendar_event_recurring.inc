@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.33 2004/09/09 00:53:51 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.34 2004/09/13 00:48:34 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.33 $ - 1.0
+* @version $Revision: 1.34 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -808,7 +808,8 @@ class Calendar_Event_Recurring extends Calendar_Event
 	* @param string		$date	the date of the occurrence to cancel (YYYY-MM-DD)
 	* @param string		$reason	text to put in the description field of the cancellation event
 	*
-	* @return object|boolean	The Cancellation asset, or false on failure
+	* @return mixed	(object Calendar_Event_Cancellation|boolean)
+	*				the Cancellation asset, or false on failure
 	*/
 	function &addCancellation($date, $reason)
 	{
@@ -850,8 +851,11 @@ class Calendar_Event_Recurring extends Calendar_Event
 	*
 	* @param string		$date	the date of the occurrence to cancel (YYYY-MM-DD)
 	* @param string		$reason	text to put in the description field of the cancellation event
+	*
+	* @return mixed	(object Calendar_Event_Modification|boolean)
+	*				the Modification asset, or false on failure
 	*/
-	function addModification($date, $description)
+	function &addModification($date, $description)
 	{
 		if (!$this->writeAccess('')) {
 			trigger_error('You don\'t have sufficient access to create a modification for this event', SQ_USER_WARNING);
