@@ -56,33 +56,26 @@ CREATE TABLE sq_asset_type (
 
 DROP TABLE IF EXISTS sq_asset_attribute;
 CREATE TABLE sq_asset_attribute (
-  attributeid INT UNSIGNED NOT NULL,
-  type_code   VARCHAR(100) NOT NULL DEFAULT '',
-  name        VARCHAR(128), 
-  type        VARCHAR(128), /* There are different types of attributes.. classname */
-  parameters  LONGTEXT,     /* Definition of the attribute */
-  order_no    INT UNSIGNED NOT NULL DEFAULT 0, /* Order this atribute appears in relation to others in its context */
+  attributeid       INT UNSIGNED NOT NULL,
+  type_code         VARCHAR(100) NOT NULL DEFAULT '',
+  owning_type_code  VARCHAR(100) NOT NULL DEFAULT '',
+  name              VARCHAR(128), 
+  type              VARCHAR(128), /* There are different types of attributes.. classname */
+  parameters        LONGTEXT,     /* Definition of the attribute */
+  default_type_code VARCHAR(100) NOT NULL DEFAULT '',
+  default_value     TEXT NOT NULL DEFAULT '',
+  order_no          INT UNSIGNED NOT NULL DEFAULT 0, /* Order this atribute appears in relation to others in its context */
   PRIMARY KEY(attributeid),
   UNIQUE(type_code,name),
   KEY(type),
   KEY(order_no)
 );
 
-
-DROP TABLE IF EXISTS sq_asset_attribute_default;
-CREATE TABLE sq_asset_attribute_default (
-  attributeid  INT UNSIGNED NOT NULL,
-  type_code    VARCHAR(100) NOT NULL DEFAULT '',
-  value        TEXT         NOT NULL,
-  PRIMARY KEY(attributeid, type_code)
-);
-
-
 DROP TABLE IF EXISTS sq_asset_attribute_value;
 CREATE TABLE sq_asset_attribute_value (
-  assetid     INT UNSIGNED NOT NULL,
-  attributeid INT UNSIGNED NOT NULL,
-  value       TEXT         NOT NULL,
+  assetid       INT UNSIGNED NOT NULL,
+  attributeid   INT UNSIGNED NOT NULL,
+  custom_value  TEXT         NOT NULL,
   PRIMARY KEY(assetid, attributeid)
 );
 

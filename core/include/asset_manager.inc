@@ -231,7 +231,8 @@ class Asset_Manager extends Resolve_Object
 	function includeAsset($type_code) {
 
 		if (!isset($this->_asset_types[$type_code])) {
-			trigger_error('Asset "'.$type_code.'" is not installed on the system', E_USER_WARNING);
+			trigger_error('Asset "'.$type_code.'" is not installed on the system, unable to include it\'s Source File', E_USER_ERROR);
+			return false;
 		}
 
 		include_once(SQ_SYSTEM_ROOT.'/'.$this->_asset_types[$type_code]['dir'].'/'.$type_code.'.inc');
@@ -248,7 +249,7 @@ class Asset_Manager extends Resolve_Object
 	function getParentList($type_code) {
 
 		if (!isset($this->_asset_types[$type_code])) {
-			trigger_error('Asset Type "'.$type_code.'" is not installed on the system', E_USER_WARNING);
+			trigger_error('Asset Type "'.$type_code.'" is not installed on the system', E_USER_ERROR);
 			return Array();
 		}
 

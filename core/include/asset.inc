@@ -132,7 +132,6 @@ class Asset extends Resolve_Object
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
 
 		if (is_null($result)) {
-			trigger_error('Asset #'.$assetid.' does not exist', E_USER_WARNING);
 			return;
 		}
 
@@ -169,46 +168,15 @@ class Asset extends Resolve_Object
 		// Right, now we need to get any values that this asset has customised
 		$this->vars = Array();
 
-		$sql = 'SELECT a.attributeid, a.name, v.value
-				FROM sq_asset_attribute a, sq_asset_attribute_value v
-				WHERE a.attributeid = v.attributeid
-				  AND v.assetid = '.$db->quote($this->id);
+		$sql = 'SELECT atr.name, atr.attributeid, COALESCE(v.custom_value, atr.default_value) AS value
+				FROM (sq_asset a INNER JOIN sq_asset_attribute atr ON a.type_code = atr.type_code)
+				  LEFT OUTER JOIN sq_asset_attribute_value v ON atr.attributeid = v.attributeid AND a.assetid = v.assetid
+				WHERE a.assetid   = '.$db->quote($this->id);
 
-		$result = $db->query($sql);
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+		pre_echo($sql);
 
-
-		$vars_str = '';
-		while (NULL !== ($row = $result->fetchRow())) {
-			$vars_str .= (($vars_str) ? ',' : '').$db->quote($row['name']);
-			$this->vars[$row['name']] = Array('attributeid' => $row['attributeid'], 'value' => $row['value']);
-		}//end while
-		$result->free();
-
-		$parents = $this->getParentList();
-		$parents[] = $this->type();
-		// OK, because of the way things work we now need to get any vars that this asset has
-		// or has inherited but has not customised - ie the default values
-		// NOTE: we specifically don't get defaults for vars we have customised
-		$parents_str = '';
-		foreach($parents as $i) $parents_str .= (($parents_str) ? ',' : '').$db->quote($i);
-		$sql = 'SELECT a.attributeid, a.name, d.value
-				FROM sq_asset_attribute a, sq_asset_attribute_default d, sq_asset_type t
-				WHERE a.attributeid = d.attributeid
-				  AND d.type_code = t.type_code '
-				.(($parents_str) ? ' AND t.type_code IN ('.$parents_str.') ' : '')
-				.(($vars_str)    ? ' AND a.name  NOT IN ('.$vars_str.') '    : '')
-				.'ORDER BY a.attributeid, t.level';
-
-		//pre_echo($sql);
-
-		$result = $db->query($sql);
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
-
-		while (NULL !== ($row = $result->fetchRow())) {
-			$this->vars[$row['name']] = Array('attributeid' => $row['attributeid'], 'value' => $row['value']);
-		}//end while
-		$result->free();
+		$this->vars = $db->getAssoc($sql, false, array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
+		if (DB::isError($this->vars)) trigger_error($this->vars->getMessage().'<br>'.$this->vars->getUserInfo(), E_USER_ERROR);
 
 	}//end _loadVars()
 
@@ -860,7 +828,7 @@ class Asset extends Resolve_Object
 
 		// now insert new entry
 		$sql = 'INSERT INTO sq_asset_attribute_value
-				(assetid, attributeid, value)
+				(assetid, attributeid, custom_value)
 				VALUES
 				('.$db->quote($this->id).', '.$db->quote($attributeid).', '.$db->quote($value).')';
 
