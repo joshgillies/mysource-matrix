@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.292 2004/05/13 04:13:01 lwright Exp $
+* $Id: asset.inc,v 1.293 2004/05/14 06:27:17 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -585,14 +585,7 @@ class Asset extends MySource_Object
 	{
 		// check that we are in the trash
 		if (!$GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id)) {
-			trigger_error('Cannot delete asset, asset is not in the trash', E_USER_WARNING);
-			return false;
-		}
-		
-		// check that the trash link is the only significant link left
-		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'minor');
-		if (count($links) != 1) {
-			trigger_error('Cannot delete asset, asset must only be linked in the trash', E_USER_WARNING);
+			trigger_error('Cannot delete asset, asset "'.$this->name.'" [#'.$this->id.'] is not in the trash', E_USER_WARNING);
 			return false;
 		}
 
@@ -661,6 +654,7 @@ class Asset extends MySource_Object
 
 		$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 		$sm->flushKeyData($this->id);
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this, true);
 
 		return true;
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.8 2004/02/27 05:42:57 mmcintyre Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.9 2004/05/14 06:26:43 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -166,10 +166,23 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	*/
 	function freestyle()
 	{
-		while (!empty($this->_running_vars['todo_assetids'])) {
-			if (!$this->processTrash($this->_steps[0], get_class($this))) return false;
+		// acquire the locks before purging
+		$job_type = '';
+		$running_vars = Array();
+		$options = Array();
+		$this->getLockAssetDetails($job_type, $running_vars, $options);
+		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$errors = $hh->freestyleHipo($job_type, $running_vars);
+		if (!empty($errors)) {
+			$this->_hipo_vars['errors'] = $errors;
+			return false;
 		}
-		return true;
+		
+		while (!empty($this->_running_vars['todo_links'])) {
+			if (!$this->processTrash($this->_steps[1], $this->getCodeName())) return false;
+		}
+
+		return $this->releaseLocks($this->_steps[2], $this->getCodeName());
 
 	}//end freestyle()
 
@@ -262,75 +275,103 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 
 					$db = &$GLOBALS['SQ_SYSTEM']->db;
 					
-					$num_other_links = 0;
-					$outside_links = Array();
+					$sql = 'SELECT t2.treeid, l1.linkid, l2.minorid, l2.link_type, l2.dependant
+							FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l1 INNER JOIN 
+								 '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t1 ON l1.linkid = t1.linkid,
+								 '.SQ_TABLE_RUNNING_PREFIX.'asset_link l2 INNER JOIN
+								 '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t2 ON l2.linkid = t2.linkid,
+								 '.SQ_TABLE_RUNNING_PREFIX.'asset a 
+							WHERE l1.minorid = '.$db->quote($asset->id).'
+							  AND SUBSTRING(t1.treeid FROM 1 FOR CHAR_LENGTH(t2.treeid)) = t2.treeid
+							  AND a.assetid=l2.minorid
+							  AND t2.treeid <> \'\'
+							ORDER BY t2.treeid DESC';
 
-					// we are going to try and find out if this asset has any links
-					// outside the trash folder so we dont delete it if it is being used
-					// somewhere else outside the trash
-					$sql = 'SELECT l.linkid 
-							FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid ';
-					$where = 'l.minorid='.$db->quote($link_info['assetid']).' 
-							  AND t.treeid NOT LIKE '.$db->quote($this->_running_vars['trash_treeid'].'%').' 
-							  AND (l.link_type & '.$db->quote(SQ_SC_LINK_SIGNIFICANT).') > 0';
-					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
-					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-
-					$outside_links = $db->getCol($sql.$where);
-					if (DB::isError($outside_links)) {
-						trigger_error($outside_links->getMessage().'<br/>'.$outside_links->getUserInfo(), E_USER_WARNING);
+					$other_links = $db->getAll($sql);
+					if (DB::isError($other_links)) {
+						trigger_error($other_links->getMessage().'<br/>'.$other_links->getUserInfo(), E_USER_WARNING);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
 					}
-
-					// if the link we are deleting is also one of the outside
-					// links, then we leave this link alone
-					if (in_array($link_info['linkid'], $outside_links)) {
-						$step_data['message'] = 'Skipping link #'.$link_info['linkid'].' as it also exists outside of the trash';
-					} else {
-
-						// if there are outside links, we are not going to delete the asset
-						// but if there are not, then we need to check how many internal links
-						// there are before deciding if we should delete the asset or not
-						if (!count($outside_links)) {
-							$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_SC_LINK_SIGNIFICANT, '', true, $link_info['linkid']);
+					
+					$outside_links = Array();
+					$found_ourselves = false;
+					$inside_links = Array();
+					foreach ($other_links as $outside_link_info) {
+						if ($outside_link_info['minorid'] == $asset->id) $found_ourselves = true;
+						if (substr($outside_link_info['treeid'], 0, strlen($this->_running_vars['trash_treeid'])) == $this->_running_vars['trash_treeid']) {
+							if ($outside_link_info['minorid'] == $asset->id) $inside_links[] = $outside_link_info['linkid'];
+							continue;
 						}
+						if (!$found_ourselves) continue;
+						
+						// we dont care about dependant links because we want to
+						// go right to the top of the dependant tree
+						if ($outside_link_info['dependant']) continue;
+						if ($outside_link_info['link_type'] & SQ_SC_LINK_BACKEND_NAV) {
+							$outside_links[] = $outside_link_info['linkid'];
+						}
+						$found_ourselves = false;
+					}//end foreach
+					$inside_links = count(array_unique($inside_links));
 
-						if ($num_other_links || count($outside_links)) {
-							// this asset has more than one link,
-							// or has another link outside of the trash
-							// so just delete the link
-							$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($link_info['linkid'], $asset->id, 'minor');
-							
-							if (empty($link['majorid'])) {
-								// if the link does not exists it was probably deleted
-								// earlier, so we just skip this entry
-								$step_data['message'] = 'Skipping link #'.$link_info['linkid'].' as it has already been deleted';
+#bam("ASSET $assetid HAD $inside_links INSIDE LINKS");
+#bam($outside_links);				
+					// if there are no links inside the trash, chances are we already deleted them, so skip this asset
+					if (!$inside_links) {
+#bam("ASSET $assetid HAD NO INTERNAL LINKS");
+						$step_data['message'] = 'Skipping asset #'.$asset->id.' as it no longer has any links inside the trash';
+					} else {
+					
+						// if the link we are deleting is also one of the outside
+						// links, then we leave this link alone
+						if (in_array($link_info['linkid'], $outside_links)) {
+#bam("ASSET $assetid HAD OUTSIDE LINKS");
+							$step_data['message'] = 'Skipping link #'.$link_info['linkid'].' as it also exists outside of the trash';
+						} else {
+
+							// we need to check how many internal links
+							// there are before deciding if we should delete the asset or not
+							$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_SC_LINK_BACKEND_NAV, '', true, $link_info['linkid']);
+#bam("ASSET $assetid HAD $num_other_links OTHER LINKS");
+							if (count($outside_links) >= 1 || $num_other_links || $inside_links > 1) {
+#bam('DELETE LINK FOR ASSET '.$asset->id);
+								// this asset has more than one link, so just delete the link
+								$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($link_info['linkid'], $asset->id, 'minor');
+								
+								if (empty($link['majorid'])) {
+									// if the link does not exists it was probably deleted
+									// earlier, so we just skip this entry
+									$step_data['message'] = 'Skipping link #'.$link_info['linkid'].' as it has already been deleted';
+								} else {
+									$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
+									if (!$parent->deleteLink($link_info['linkid'])) {
+										trigger_error('Purge aborted, unable to delete link '.$link_info['linkid'].' between "'.$parent->name.'" and "'.$asset->name.'"', E_USER_WARNING);
+										return false;
+									}
+									$step_data['message'] = 'Deleting link #'.$link_info['linkid'];
+								}
+	
 							} else {
-								$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
-								if (!$parent->deleteLink($link_info['linkid'])) {
-									trigger_error('Purge aborted, unable to delete link '.$link_info['linkid'].' between "'.$parent->name.'" and "'.$asset->name.'"', E_USER_WARNING);
+#bam('PURGE ASSET '.$asset->id);
+								// we have an asset ready to delete, but we need to check with
+								// the asset manager that we are allowed to delete it
+								if (!$GLOBALS['SQ_SYSTEM']->am->canPurgeAsset($asset)) {
+									trigger_error('Purge aborted, unable to delete "'.$asset->name.'" ['.$asset->id.']', E_USER_WARNING);
 									return false;
 								}
-								$step_data['message'] = 'Deleting link #'.$link_info['linkid'];
+	
+								// this is the last link for this asset, so lets delete it for good
+								if (!$asset->delete(false)) {
+									trigger_error('Purge aborted, unable to delete "'.$asset->name.'" ['.$asset->id.']', E_USER_WARNING);
+									return false;
+								}
+								$step_data['message'] = 'Deleting "'.$asset->name.'" [#'.$assetid.']';
+								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 							}
-
-						} else {
-							// we have an asset ready to delete, but we need to check with
-							// the asset manager that we are allowed to delete it
-							if (!$GLOBALS['SQ_SYSTEM']->am->canPurgeAsset($asset)) {
-								trigger_error('Purge aborted, unable to delete "'.$asset->name.'" ['.$asset->id.']', E_USER_WARNING);
-								return false;
-							}
-
-							// this is the last link for this asset, so lets delete it for good
-							if (!$asset->delete(false)) {
-								trigger_error('Purge aborted, unable to delete "'.$asset->name.'" ['.$asset->id.']', E_USER_WARNING);
-								return false;
-							}
-							$step_data['message'] = 'Deleting "'.$asset->name.'" [#'.$assetid.']';
 						}
-					}
+
+					}//end if no inside links
 				}
 			}
 		}
