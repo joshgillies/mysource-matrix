@@ -390,10 +390,10 @@ class File extends Asset
 		}
 
 		foreach ($save_urls as $url => $url_data) {
-			$values = Array('url'        => $url,
-							'assetid'    => $this->id,
-							'root_urlid' => $url_data['root_urlid'],
-							'designid'   => '0');
+			$values = Array('url'               => $url,
+							'assetid'           => $this->id,
+							'root_urlid'        => $url_data['root_urlid'],
+							'frontend_designid' => '0');
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup', $values)) {
 				return false;
 			}

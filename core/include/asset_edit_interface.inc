@@ -786,45 +786,6 @@ class Asset_Edit_Interface extends Resolve_Object
 						}
 					break;
 
-					//// FRONTEND AND LOGIN DESIGN OPTIONS ////
-
-					case 'frontend_design' :
-					case 'login_design' :
-						$design_name = strtolower($field->attributes['code']);
-						
-						if ($field->children[0]->name != 'display_name') $display_name = ucwords(str_replace('_', ' ', $design_name));
-						else $display_name = $field->children[0]->content;
-						$o->openField($display_name);
-
-						$design_link = $owner->getLink(SQ_LINK_TYPE_3, 'design', false, $design_name);
-						$designid = (empty($design_link)) ? 0 : $design_link['minorid'];
-
-						if (!$owner->writeAccess()) {
-							echo '<i>';
-							if (!$designid) {
-								echo 'None';
-							} else {
-								$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($designid, '', true);
-								echo $design->name.' :: '.$design->id;
-							}
-							echo '</i>';
-
-						} else {
-
-							$designs = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('design', false, true);
-							$contents = Array('0' => '-- use inherited --');
-							foreach($designs as $id => $type_code) {
-								$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($id, $type_code, true);
-								if (is_null($design)) continue;
-								$contents[$design->id] = $design->name.' :: '.$design->id;
-							}
-
-							asort($contents);
-							combo_box($prefix.'_designs['.$design_name.']', $contents, false, $designid);
-						}
-
-					break;
-
 					default :
 						continue;
 					break;
@@ -927,54 +888,6 @@ class Asset_Edit_Interface extends Resolve_Object
 			}// end if
 
 		}//end if is null cron mgr
-
-
-		///// FRONTEND AND LOGIN DESIGN CHANGES ////
-
-		if ($owner->writeAccess()) {
-			if (isset($_POST[$prefix.'_designs'])) {
-				foreach ($_POST[$prefix.'_designs'] as $design_name => $new_designid) {
-					
-					$design_link = $owner->getLink(SQ_LINK_TYPE_3, 'design', false, $design_name);
-					$designid = (empty($design_link)) ? 0 : $design_link['minorid'];
-
-					// if they are the same then there is nothing to do.
-					if ($designid != $new_designid) {
-
-						$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-						// if there is an existing entry delete it
-						if ($designid) {
-							if (!$owner->deleteLink($design_link['linkid'])) {
-								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-								return false;
-							}
-						}
-
-						if ($new_designid) {
-							$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_designid);
-							if (is_null($design)) {
-								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-								return false;
-							}
-							if (!$owner->createLink($design, SQ_LINK_TYPE_3, $design_name)) {
-								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-								return false;
-							}
-						}
-
-						// fianlly, try updating the lookups
-						if (!$owner->_updateLookups()) {
-							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-							return false;
-						}
-
-						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-						$is_updated = true;
-					}
-				}
-			}
-		}
 
 		return ($is_updated);
 
@@ -1173,6 +1086,97 @@ class Asset_Edit_Interface extends Resolve_Object
 						}
 					break;
 
+					//// FRONTEND AND LOGIN DESIGN OPTIONS ////
+
+					case 'frontend_design' :
+					case 'login_design' :
+						$design_name = strtolower($field->attributes['code']);
+						
+						if ($field->children[0]->name != 'display_name') $display_name = ucwords(str_replace('_', ' ', $design_name));
+						else $display_name = $field->children[0]->content;
+						$o->openSection($display_name);
+						$o->openField('Current');
+
+						$design_link = $owner->getLink(SQ_LINK_TYPE_3, 'design', false, $design_name);
+						$designid = (empty($design_link)) ? 0 : $design_link['minorid'];
+
+						if (!$owner->writeAccess()) {
+							echo '<i>';
+							if (!$designid) {
+								echo 'None';
+							} else {
+								$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($designid, '', true);
+								echo $design->name.' :: '.$design->id;
+							}
+							echo '</i>';
+
+						} else {
+
+							$designs = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('design', false, true);
+							$contents = Array('0' => '-- use inherited --');
+							foreach($designs as $id => $type_code) {
+								$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($id, $type_code, true);
+								if (is_null($design)) continue;
+								$contents[$design->id] = $design->name.' :: '.$design->id;
+							}
+
+							asort($contents);
+							combo_box($prefix.'_designs['.$design_name.']', $contents, false, $designid);
+						}
+
+						
+						if ($field->children[1]->name == 'note' && $field->children[1]->content) {
+							$o->note($field->children[1]->content);
+						}
+						$print_note = false;
+						
+
+						$o->closeField();
+						$o->openField('Effective');
+
+						$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+						// check for inherited designs
+						$sql = 'SELECT l.url, a.name, l.'.$design_name.'id
+								FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l 
+								INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.'.$design_name.'id = a.assetid ';
+						$where = 'l.frontend_designid <> 0 AND l.assetid = '.$db->quote($owner->id);
+						$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+						$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+
+						$inherited_designs = $db->getAll($sql.$where);
+						if (DB::isError($inherited_designs)) {
+							trigger_error($inherited_designs->getMessage().'<br/>'.$inherited_designs->getUserInfo(), E_USER_WARNING);
+						} else {
+							if (!empty($inherited_designs)) {
+								?>
+								<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+									<tr>
+										<td bgcolor="#DDDDDD" class="sq-backend-field" style="font-weight: bold;">URL</td>
+										<td bgcolor="#DDDDDD" class="sq-backend-field" style="font-weight: bold;">Effective Design</td>
+									</tr>
+								<?php
+								foreach ($inherited_designs as $design_data) {
+									?>
+									<tr>
+										<td class="sq-backend-data"><?php echo $design_data['url']; ?></td>
+										<td class="sq-backend-data"><?php echo $design_data['name'].' :: '.$design_data[$design_name.'id']; ?></td>
+									</tr>
+									<?php
+								}
+								?>
+								</table>
+								<?php
+							} else {
+								echo 'There are no effective designs';
+							}
+						}
+
+						$o->closeField();
+						$o->closeSection();
+
+					break;
+
 					default :
 						continue;
 					break;
@@ -1217,6 +1221,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 
 		//// LANGUAGES ////
+
 		$current_langs = $owner->getLanguages();
 		$set_languages = Array();
 
@@ -1237,6 +1242,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 
 		//// CHARACTER SET ////
+
 		if (isset($_POST[$prefix.'_intl_character_set'])) {
 			$new_charset = $_POST[$prefix.'_intl_character_set'];
 			$owner->setCharset($new_charset);
@@ -1244,6 +1250,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 
 		//// MORPHING ////
+
 		if ($owner->adminAccess() && $owner->status == SQ_STATUS_UNDER_CONSTRUCTION) {
 			if (isset($_POST[$prefix.'_morph_new_type']) && !empty($_POST[$prefix.'_morph_new_type'])) {
 				// check that the security key was entered correctly
@@ -1252,6 +1259,54 @@ class Asset_Edit_Interface extends Resolve_Object
 					if ($owner->morph($_POST[$prefix.'_morph_new_type'])) return true;
 				} else {
 					trigger_error('The security key entered was incorrect. Asset type remains unchanged.', E_USER_WARNING);
+				}
+			}
+		}
+
+
+		///// FRONTEND AND LOGIN DESIGN CHANGES ////
+
+		if ($owner->writeAccess()) {
+			if (isset($_POST[$prefix.'_designs'])) {
+				foreach ($_POST[$prefix.'_designs'] as $design_name => $new_designid) {
+					
+					$design_link = $owner->getLink(SQ_LINK_TYPE_3, 'design', false, $design_name);
+					$designid = (empty($design_link)) ? 0 : $design_link['minorid'];
+
+					// if they are the same then there is nothing to do.
+					if ($designid != $new_designid) {
+
+						$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+						// if there is an existing entry delete it
+						if ($designid) {
+							if (!$owner->deleteLink($design_link['linkid'])) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								return false;
+							}
+						}
+
+						if ($new_designid) {
+							$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_designid);
+							if (is_null($design)) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								return false;
+							}
+							if (!$owner->createLink($design, SQ_LINK_TYPE_3, $design_name)) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								return false;
+							}
+						}
+
+						// fianlly, try updating the lookups
+						if (!$owner->_updateLookups()) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							return false;
+						}
+
+						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+						$is_updated = true;
+					}
 				}
 			}
 		}

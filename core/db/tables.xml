@@ -556,7 +556,7 @@
 				<default />
 				<description />
 			</column>
-			<column name="designid" allow_null="0">
+			<column name="frontend_designid" allow_null="0">
 				<type>INT</type>
 				<type_variations>
 					<mysql>INT UNSIGNED</mysql>

@@ -270,11 +270,11 @@ class Site extends Folder
 		$urls = $this->getSiteURLs();
 		// if we have urls then do some url inserting
 		for(reset($urls); null !== ($urlid = key($urls)); next($urls)) {
-			$values = Array('url'            => $urls[$urlid]['url'],
-							'assetid'        => $this->id,
-							'root_urlid'     => $urlid,
-							'designid'       => $designid,
-							'login_designid' => $login_designid
+			$values = Array('url'               => $urls[$urlid]['url'],
+							'assetid'           => $this->id,
+							'root_urlid'        => $urlid,
+							'frontend_designid' => $designid,
+							'login_designid'    => $login_designid
 							);
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup', $values)) {
 				return false;
@@ -328,9 +328,9 @@ class Site extends Folder
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$url = strip_url(current_url(false));
 
-		$sql = 'SELECT l.designid, a.type_code
+		$sql = 'SELECT l.frontend_designid, a.type_code
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l, '.SQ_TABLE_RUNNING_PREFIX.'asset a ';
-		$where = 'l.designid = a.assetid
+		$where = 'l.frontend_designid = a.assetid
 				  AND l.url     LIKE '.$db->quote($url.'%').'
 				  AND l.assetid    = '.$db->quote($index_page->id);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
@@ -344,7 +344,7 @@ class Site extends Folder
 
 		// we have found the design to use
 		if ($result) {
-			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
+			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['frontend_designid'], $result['type_code']);
 			$design->paint($this);
 		// shit we can't find a design, oh well let's just print out our body
 		} else {

@@ -836,11 +836,12 @@ class Asset extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// OK, the first thing to do is check we actually exist :)
+		$sql = 'SELECT assetid, version, name, short_name, status, languages, charset, type_code, last_updated, last_userid
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset ';
 		$where = 'assetid = '.$db->quote($assetid);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-		$sql = 'SELECT assetid, version, name, short_name, status, languages, charset, type_code, last_updated, last_userid
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where;
-		$result = $db->getRow($sql, null, DB_FETCHMODE_ORDERED);
+
+		$result = $db->getRow($sql.$where, null, DB_FETCHMODE_ORDERED);
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
 		if (is_null($result)) return;
@@ -4222,9 +4223,9 @@ class Asset extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$url = strip_url(current_url(false));
 
-		$sql = 'SELECT l.designid, a.type_code
+		$sql = 'SELECT l.frontend_designid, a.type_code
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l, '.SQ_TABLE_RUNNING_PREFIX.'asset a ';
-		$where = 'l.designid = a.assetid
+		$where = 'l.frontend_designid = a.assetid
 				  AND l.url        = '.$db->quote($url).'
 				  AND l.assetid    = '.$db->quote($this->id);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
@@ -4238,7 +4239,7 @@ class Asset extends Resolve_Object
 
 		// we have found the design to use
 		if ($result) {
-			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
+			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['frontend_designid'], $result['type_code']);
 			$design->paint($this);
 		// shit we can't find a design, oh well let's just print out our body
 		} else {
@@ -4552,7 +4553,7 @@ class Asset extends Resolve_Object
 	* Returns a list of lookup information associated with this asset
 	*
 	* @param string	$field	if only one field is required pass it's name through
-	*						(url, root_urlid, designid)
+	*						(url, root_urlid, frontend_designid)
 	*
 	* @return Array()
 	* @access public
@@ -4562,7 +4563,7 @@ class Asset extends Resolve_Object
 		if (!isset($this->_tmp['lookups'])) {
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-			$sql = 'SELECT url, root_urlid, designid, login_designid
+			$sql = 'SELECT url, root_urlid, frontend_designid, login_designid
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup ';
 			$where = 'assetid = '.$db->quote($this->id);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
@@ -4656,11 +4657,11 @@ class Asset extends Resolve_Object
 						$new_url = $parent_urls[$j]['url'].'/'.$paths[$k];
 						if (in_array($new_url, $done_urls)) continue;
 
-						$values = Array('url'            => $new_url,
-										'assetid'        => $this->id,
-										'root_urlid'     => $parent_urls[$j]['root_urlid'],
-										'designid'       => (($designid) ? $designid : $parent_urls[$j]['designid']),
-										'login_designid' => (($login_designid) ? $login_designid : $parent_urls[$j]['login_designid'])
+						$values = Array('url'              => $new_url,
+										'assetid'           => $this->id,
+										'root_urlid'        => $parent_urls[$j]['root_urlid'],
+										'frontend_designid' => (($designid) ? $designid : $parent_urls[$j]['frontend_designid']),
+										'login_designid'    => (($login_designid) ? $login_designid : $parent_urls[$j]['login_designid'])
 										);
 						if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup', $values)) {
 							return false;
