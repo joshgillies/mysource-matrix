@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.155 2004/08/17 02:17:07 gsherwood Exp $
+* $Id: asset_map.inc,v 1.156 2004/08/18 00:42:35 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -140,28 +140,28 @@ class Asset_Map
 			<param name="BACKEND_SUFFIX" value="<?php echo SQ_CONF_BACKEND_SUFFIX; ?>" />
 			<?php
 				if ($type == 'complex') {
-					$inbox_link = $GLOBALS['SQ_SYSTEM']->am->getLink($GLOBALS['SQ_SYSTEM']->user->id, SQ_LINK_TYPE_2, 'inbox', true, null, 'major', '1');
 					
+					$user = &$GLOBALS['SQ_SYSTEM']->user;
+					$inbox_link = $GLOBALS['SQ_SYSTEM']->am->getLink($user->id, SQ_LINK_TYPE_2, 'inbox', true, null, 'major', '1');
+
 					if (empty($inbox_link)) {
-						$inbox_url = &$GLOBALS['SQ_SYSTEM']->user->getBackendHref();
+						$inbox_url = $user->getBackendHref();
 					} else {
 						$inbox_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid'], $inbox_link['minor_type_code']);
 						$inbox_url = $inbox_asset->getBackendHref('details');
 					}
 					$inbox_url = str_replace('.', '', $inbox_url);
-					
+
 					$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-					$new_messages = count($ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), null, Array(SQ_MSG_UNREAD), Array(), null, null, 'short_name'));
-					
-					$user = &$GLOBALS['SQ_SYSTEM']->user;
+					$new_messages = count($ms->getMessages($user->id, null, Array(SQ_MSG_UNREAD), Array(), null, null, 'short_name'));
+
 					$details_url = $user->getBackendHref('details');
 					if ($details_url{0} == '.') $details_url = substr($details_url, 1);
-					
+
 					?><param name="INBOX_URL" value="<?php echo rawurlencode($inbox_url); ?>" />
 					  <param name="NEW_MSGS" value="<?php echo $new_messages; ?>" />
 					  <param name="DETAILS_URL" value="<?php echo rawurlencode($details_url); ?>" />
 					<?php
-					
 				}
 			?>
 
@@ -297,19 +297,21 @@ class Asset_Map
 		$current_user_xml = $root->get();
 		
 		$workspace = &$current_user->getWorkspace();
-		$workspace_link = $current_user->getWorkspaceLink();
-
-		$workspace_attrs = Array(
-			'assetid'    => $workspace->id,
-			'type_code'  => $workspace->type(),
-			'name'       => $workspace->name,
-			'status'     => $workspace->status,
-			'linkid'     => $workspace_link['linkid'], 
-			'sort_order' => $workspace_link['sort_order'],
-		);
-		$root = &$output->addRoot('workspace', '', $workspace_attrs);
-
-		$workspace_xml = $root->get();
+		$workspace_xml = '';
+		
+		if (!is_null($workspace)) {
+			$workspace_link = $current_user->getWorkspaceLink();
+			$workspace_attrs = Array(
+				'assetid'    => $workspace->id,
+				'type_code'  => $workspace->type(),
+				'name'       => $workspace->name,
+				'status'     => $workspace->status,
+				'linkid'     => $workspace_link['linkid'], 
+				'sort_order' => $workspace_link['sort_order'],
+			);
+			$root = &$output->addRoot('workspace', '', $workspace_attrs);
+			$workspace_xml = $root->get();
+		}
 		
 		$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 		$attrs = Array(
