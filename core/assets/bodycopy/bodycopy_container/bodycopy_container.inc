@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.11.2.1 2004/11/09 02:03:59 gsherwood Exp $
+* $Id: bodycopy_container.inc,v 1.11.2.2 2004/11/15 02:08:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -157,7 +157,7 @@ class Bodycopy_Container extends Asset
 		// Same thing goes cancelling a safe edit (going back to live)
 		if ($this->status == SQ_STATUS_LIVE && ($old_status & SQ_SC_STATUS_SAFE_EDITING)) {
 			$edit = $this->getEditFns();
-			if (!$edit->generateContentFile($this)) {
+			if (!$edit->createContentLinks($this)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
