@@ -2,7 +2,7 @@
 #/**
 #* Copyright (c) 2003 - Squiz Pty Ltd
 #*
-#* $Id: clean.sh,v 1.7 2003/09/26 05:26:24 brobertson Exp $
+#* $Id: clean.sh,v 1.8 2003/09/29 08:00:08 brobertson Exp $
 #* $Name: not supported by cvs2svn $
 #*/
 
@@ -24,28 +24,56 @@ rm -rf "${SYSTEM_ROOT}/cache" \
 
 cvs up -dP cache data/public data/private
 
-DB_DSN=`grep "SQ_CONF_DB_DSN" "${SYSTEM_ROOT}/data/private/conf/main.inc" | sed "s/^define('SQ_CONF_DB_DSN', '\([^']\+\)');$/\1/"`
-lines=`echo "${DB_DSN}" | wc -l`
-if [ "${lines}" -lt "1" ]; then
-	echo "ERROR: Database DSN Not Known" >&2;
-	exit 1;
-elif [ "${lines}" -gt "1" ]; then
-	echo "ERROR: Multiple Database DSN Entries Found" >&2;
-	exit 1;
-fi
-echo "DB DSN  : ${DB_DSN}";
-DB_TYPE=`echo "${DB_DSN}" | sed "s/^\([^:]\+\):\/\/.*$/\1/"`;
-echo "DB TYPE : ${DB_TYPE}";
-DB_NAME=`echo "${DB_DSN}" | sed "s/^.*\/\([^/]\+\)$/\1/"`;
-echo "DB NAME : ${DB_NAME}";
 
-case "${DB_TYPE}" in 
+# OK, what we are doing here is using PHP to do the parsing of the DSN for us (much less error prone :)
+# see the output of DB::parseDSN
+php_code="<?php
+require_once '${SYSTEM_ROOT}/data/private/conf/main.inc';
+require_once 'DB.php';
+\$dsn = DB::parseDSN(SQ_CONF_DB_DSN);
+foreach(\$dsn as \$k => \$v) {
+	echo 'DB_'.strtoupper(\$k).'=\"'.addslashes(\$v).'\";';
+}
+?>"
+eval `echo "${php_code}" | php`
+
+set | grep "^DB_"
+
+case "${DB_PHPTYPE}" in 
 	"mysql")
-		mysql -u root -e "SHOW TABLES;" -s -N "${DB_NAME}" | sed 's/^.*$/DROP TABLE &;/' | mysql -u root "${DB_NAME}"
+		args="";
+		if [ "${DB_USERNAME}" != "" ]; then
+			args="${args} -u ${DB_USERNAME}";
+		fi
+		if [ "${DB_PASSWORD}" != "" ]; then
+			args="${args} -p ${DB_PASSWORD}";
+		fi
+		if [ "${DB_HOSTSPEC}" != "" ]; then
+			args="${args} -h ${DB_HOSTSPEC}";
+		fi
+		if [ "${DB_PORT}" != "" ]; then
+			args="${args} -P ${DB_PORT}";
+		fi
+set -x;
+		mysql ${args} -e "SHOW TABLES;" -s -N "${DB_DATABASE}" | sed 's/^.*$/DROP TABLE &;/' | mysql ${args} "${DB_DATABASE}"
+set +x;
 	;;
 
 	"pgsql")
-		psql -d "${DB_NAME}" -c "\d" -t -q -A -X | awk -F\| '{ print "DROP " $3 " " $2 ";" }' | psql -d "${DB_NAME}" -X -q
+		args="";
+		if [ "${DB_USERNAME}" != "" ]; then
+			args="${args} -U ${DB_USERNAME}";
+		fi
+		if [ "${DB_PASSWORD}" != "" ]; then
+			args="${args} -W";
+		fi
+		if [ "${DB_HOSTSPEC}" != "" ]; then
+			args="${args} -h ${DB_HOSTSPEC}";
+		fi
+		if [ "${DB_PORT}" != "" ]; then
+			args="${args} -p ${DB_PORT}";
+		fi
+		psql ${args} -d "${DB_DATABASE}" -c "\d" -t -q -A -X | awk -F\| '{ print "DROP " $3 " " $2 ";" }' | psql ${args} -d "${DB_DATABASE}" -X -q
 	;;
 
 	*)
