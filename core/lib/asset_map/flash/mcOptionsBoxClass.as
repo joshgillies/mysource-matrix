@@ -13,12 +13,9 @@ function mcOptionsBoxClass()
 
 	this._visible = false;
 
-	this.bg_colour  = 0xC0C0C0;
-	this.fg_colour  = 0xFFFFFF;
+	this.bg_colour  = 0xEFEFEF;
+	this.fg_colour  = 0x000000;
 	this.full_width = 230;
-
-
-
 
 	// Set it so that the text boxes adjust depending on the size of the text
 	this.heading_text.autoSize = "center";
@@ -127,10 +124,9 @@ mcOptionsBoxClass.prototype.show = function()
 		this[opt_name]._x = 10;
 
 		this[opt_name]._y = ypos;
-		ypos += this[opt_name]._height + 5;
+		ypos += this[opt_name]._height + 10;
 		
 	}
-
 
 	this.ok_button._y     = ypos;
 	this.cancel_button._y = ypos;

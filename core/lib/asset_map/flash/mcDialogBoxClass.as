@@ -22,7 +22,7 @@ function mcDialogBoxClass()
 	this.heading_text.autoSize = "center";
 	this.summary_text.autoSize = "center";
 
-	this.close_button.onPress     = function () { this._parent.closePressed() };
+	this.close_button.onRelease	= function () { this._parent.closePressed() };
 
 	this.call_back_obj    = null;
 	this.call_back_fn     = null;
