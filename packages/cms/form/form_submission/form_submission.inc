@@ -143,6 +143,7 @@ class Form_Submission extends Asset
 
 	}// end getAnswer()
 	
+
 	/**
 	* returns the name of an question
 	*
@@ -171,11 +172,13 @@ class Form_Submission extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function setAnswer($id, $name, $value)
+	function setAnswer($id, $value)
 	{
 		$a = $this->attr('attributes');
-		$a['answers'][$id]['answer'] = $value;
-		$a['answers'][$id]['name']   = $name;
+		if (empty($a['answers'])) $a['answers'] = Array();
+		
+		$a['answers'][$id]['answer']    = $value;		
+		
 		if (!$this->setAttrValue('attributes', $a)) {
 			return false;
 		}
@@ -188,7 +191,7 @@ class Form_Submission extends Asset
 	/**
 	* set a form error into the error store
 	*
-	* @param string $error the error to set
+	* @param string		$error	the error to set
 	*
 	* @access public
 	* @return boolean
@@ -251,7 +254,7 @@ class Form_Submission extends Asset
 	function isError()
 	{
 		$a = $this->attr('attributes');
-		return ($a['is_error']) ? true : false;
+		return (isset($a['is_error']) && ($a['is_error'])) ? true : false;
 	
 	}//end isError()
 
@@ -263,6 +266,54 @@ class Form_Submission extends Asset
 	{
 		$a = $this->attr('attributes');
 		return $a['answers'];
+	}
+
+	function generateSummary()
+	{
+		
+	}
+
+
+	/**
+	* sets a summary about a question used to print a complete summary of the answers of this form
+	*
+	* @param integer	$question_id	the id of the question
+	* @param string		$name			the name of the question
+	* @param string		$value			the value of the question
+	* @param integer	$section_id		the id of the section that this question belongs to
+	* @param string		$section name	the name of the section that this question belongs to
+	*
+	* @access public
+	* @return boolean
+	*/
+	function setSummary($question_id, $name, $value, $section_id, $section_name)
+	{
+		$a = $this->attr('attributes');
+	
+		if (empty($a['summary'])) $a['summary'] = Array();
+
+		if (!isset($a['summary'][$section_id])) {
+			$a['summary'][$section_id] = Array(
+				'section_name'	=> $section_name,
+				'questions'		=> Array(),
+			);
+		}
+		
+		$a['summary'][$section_id]['questions'][$question_id]['answer']  = $value;		
+		$a['summary'][$section_id]['questions'][$question_id]['name']    = $name;
+		
+		if (!$this->setAttrValue('attributes', $a)) {
+			return false;
+		}
+
+		return true;
+	}
+
+	function getSummary()
+	{
+		$a = $this->attr('attributes');
+		if (!$a) return false;
+		return $a['summary'];
 	}
 
 }//end class
