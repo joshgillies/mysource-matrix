@@ -454,8 +454,8 @@ class Design extends Design_Area
 		$system_root_url = sq_web_path('root_url');
 		foreach ($file_link_info as $minorid => $file_info) {
 			$file_url = $file_link_urls[$minorid];
-			if ($file_url == '') $file_url = "Javascript: alert('This URL for \'".$file_info['name']."\' does not exist');";
-			$FILE_URLS[$file_info['name']] = $system_root_url.'/?a='.$minorid;
+			if ($file_url == '') $file_url = $system_root_url.'/?a='.$minorid;
+			$FILE_URLS[$file_info['name']] = $file_url;
 		}
 
 		$DATA_PATH = sq_web_path('data'); // this works because we know that all design areas are not going to be restricted
