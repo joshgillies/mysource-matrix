@@ -64,7 +64,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 
 		$days = Array('--' => '--');
 		if ($repeating) {
-			array_merge($days, $asset->weekly_names);
+			for($i = 0; $i <= 6; $i++) $days[(string) $i] = Cron_Job::whenWeekDayName($i);
 		}
 		for ($i = 1; $i <= 31; $i++) $days[str_pad($i, 2, '0', STR_PAD_LEFT)] = str_pad($i, 2, '0', STR_PAD_LEFT);
 		if ($asset->writeAccess()) {
@@ -183,7 +183,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 				}// end switch
 
 			} else if ($type_prefix) {
-				trigger_error('You cannot have a '.$asset->type_names[$type_prefix].' '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name').' without filling in the '.$field.' field', E_USER_WARNING);
+				trigger_error('You cannot have a '.Cron_Job::whenTypeName($type_prefix).' '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name').' without filling in the '.$field.' field', E_USER_WARNING);
 				return false;
 			}// end if
 
