@@ -78,16 +78,18 @@ class Root_Folder extends Folder
 
 			// Right we need to do some manipulation for the link table to put in some initial values
 			// so that the root folder, like everything else, has a link where it is a minor party
-			$values = Array('linkid'       => 1,
-							'majorid'      => 0,
-							'minorid'      => 1,
-							'link_type'    => SQ_LINK_TYPE_1,
-							'value'        => '',
-							'sort_order'   => 1,
-							'dependant'    => 1,
-							'exclusive'    => 1,
-							'last_updated' => ts_iso8601(time()),
-							'last_userid'  => 0
+			$values = Array('linkid'         => 1,
+							'majorid'        => 0,
+							'minorid'        => 1,
+							'link_type'      => SQ_LINK_TYPE_1,
+							'value'          => '',
+							'sort_order'     => 1,
+							'dependant'      => 1,
+							'exclusive'      => 1,
+							'created'        => ts_iso8601(time()),
+							'created_userid' => 0,
+							'updated'        => ts_iso8601(time()),
+							'updated_userid' => 0
 							);
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_link', $values)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
