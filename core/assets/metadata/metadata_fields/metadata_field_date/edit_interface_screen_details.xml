@@ -18,21 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2004/02/16 23:32:26 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2004/02/26 03:05:16 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <contents>
 	<section name="Details" write_access="write:attributes">
-		<field>
-			<display_name></display_name>
-			<note />
-			<function_call>
-				<paint_function   name="paintKeywordInstructions"   />
-				<process_function name="processKeywordInstructions" />
-			</function_call>
-		</field>
 		<field attribute="name">
 			<display_name>Field Name</display_name>
 			<note />
@@ -40,7 +32,7 @@
 		</field>
 		<field>
 			<display_name>Default</display_name>
-			<note>Value in this field is relevant only if you do not select a keyword replacement (below)</note>
+			<note></note>
 			<function_call>
 				<paint_function   name="paintEpoch" />
 				<process_function name="processEpoch" />
@@ -48,7 +40,7 @@
 		</field>
 		<field>
 			<display_name>Keyword Replacements</display_name>
-			<note>Selected keyword replacement will be used instead of any entered default date values</note>
+			<note></note>
 			<function_call>
 				<paint_function   name="paintRepKeys" />
 				<process_function name="processRepKeys" />
@@ -56,15 +48,23 @@
 		</field>
 		<field>
 			<display_name>Setup</display_name>
-			<note>Setup table above only affects how the field looks to the metadata editor, NOT how it is displayed in the META field of your web page.</note>
+			<note></note>
 			<function_call>
 				<paint_function   name="paintEpochSetup" />
 				<process_function name="processEpochSetup" />
 			</function_call>
 		</field>
+		<field>
+			<display_name></display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintDateFormatKeys" />
+				<process_function name="processDateFormatKeys" />
+			</function_call>
+		</field>
 		<field attribute="format">
 			<display_name>Format</display_name>
-			<note>Format string defines the look of the date in META fields of your web page.</note>
+			<note></note>
 			<text width="15" height="1" />
 		</field>
 		<field attribute="scheme">
