@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.20 2003/12/30 04:26:30 gsherwood Exp $
+* $Id: search_page.inc,v 1.21 2003/12/30 04:43:17 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@
 *
 * @author  Dominic Wong <dwong@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $ - 1.0
+* @version $Revision: 1.21 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -524,26 +524,21 @@ class Search_Page extends Page
 				break;
 
 				case 'asset_lineage':
-					$replacement = '';
-					$first = true;
-					$parentAssetIds = $am->getParents($asset->id);
-					foreach ($parentAssetIds as $parentAssetId) {
-						if (!$first) $replacement .= $this->attr('lineage_seperator');
-						$first = false;
-						$ancestorAsset =& $am->getAsset($parentAssetId);
-						$replacement .= $ancestorAsset->name;
-					}
-				break;
-
 				case 'asset_lineage_linked':
 					$replacement = '';
 					$first = true;
-					foreach ($am->getParents($asset->id) as $parentAssetId) {
-						if ($parentAssetId == 1) continue;
+					$found_root = false;
+					$parentAssetIds = $am->getParents($asset->id);
+					foreach ($parentAssetIds as $parentAssetId) {
+						if ($parentAssetId == $this->attr('root_assetid')) $found_root = true;
+						if (!$found_root) continue;
 						if (!$first) $replacement .= $this->attr('lineage_seperator');
 						$first = false;
-						$ancestorAsset =& $am->getAsset($parentAssetId);
-						$replacement .= "<a href=\"". $ancestorAsset->getUrl(). "\">". $ancestorAsset->name. "</a>";
+						$ancestorAsset = &$am->getAsset($parentAssetId);
+						if ($keyword == 'asset_lineage_linked') $replacement .= '<a href="'.$ancestorAsset->getUrl().'">';
+						$replacement .= $ancestorAsset->name;
+						if ($keyword == 'asset_lineage_linked') $replacement .= '</a>';
+						$am->forgetAsset($ancestorAsset);
 					}
 				break;
 			}
