@@ -31,10 +31,12 @@ define('SQ_PHP_CLI', (php_sapi_name() == 'cli'));
 * We mustn't forget to update this (until someone
 * comes up with an automated method)
 */
-define('SQ_SYSTEM_VERSION',       '0.1.1');
-define('SQ_SYSTEM_SHORT_NAME',    'Resolve FX');
-define('SQ_SYSTEM_LONG_NAME',     'Squiz Resolve FX v'.SQ_SYSTEM_VERSION);
-define('SQ_SYSTEM_URL',           'http://www.squiz.net/');
+define('SQ_SYSTEM_VERSION',        '0.1.1');
+define('SQ_SYSTEM_SHORT_NAME',     'Resolve FX');
+define('SQ_SYSTEM_LONG_NAME',      'Squiz Resolve FX v'.SQ_SYSTEM_VERSION);
+define('SQ_SYSTEM_URL',            'http://www.squiz.net/');
+define('SQ_TABLE_PREFIX',          'sq_');
+define('SQ_TABLE_ROLLBACK_PREFIX', 'sq_rollback_');
 
 define('SQ_REQUIRED_PHP_VERSION', '4.3.0');
 
@@ -72,7 +74,7 @@ if (SQ_IN_BACKEND && substr($_SERVER['PHP_SELF'], -1) != '/') {
 if (!isset($GLOBALS['SQ_OUTPUT_TYPE'])) $GLOBALS['SQ_OUTPUT_TYPE'] = (SQ_PHP_CLI) ? 'text' : 'html';
 
 // we are not installing anything
-$GLOBALS['SQ_INSTALL'] = false;
+if (!isset($GLOBALS['SQ_INSTALL'])) $GLOBALS['SQ_INSTALL'] = false;
 
 // we are not purging the trash
 $GLOBALS['SQ_PURGING_TRASH'] = false;
