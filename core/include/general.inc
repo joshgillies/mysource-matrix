@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.76 2005/03/31 03:07:06 arailean Exp $
+* $Id: general.inc,v 1.77 2005/04/04 23:12:46 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix
 */
 
@@ -215,6 +215,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 														alert_win.document.writeln("<?php echo str_replace("\n", '\\n', addslashes(htmlspecialchars($bt_str))); ?>");
 														alert_win.document.writeln("</pre></body></html>");
 														alert_win.document.close();
+														alert_win.focus();
 													}
 
 												// -->
@@ -495,7 +496,7 @@ function strip_url($url, $strip_protocol=false)
 function replace_query_string_vars($replacements, $base_url=null, $query_string=null)
 {
 	if (is_null($base_url)) $base_url = current_url();
-	if (is_null($query_string)) $query_string = $_SERVER['QUERY_STRING'];
+	if (is_null($query_string)) $query_string = stripslashes($_SERVER['QUERY_STRING']);
 
 	$url = $base_url.'?'.$query_string;
 
