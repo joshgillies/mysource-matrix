@@ -388,7 +388,7 @@ class wysiwyg {
 					var editor = this; // needed in nested functions
 					
 					this.focusEditor();
-					
+
 					var btn = this.config.btnList[txt];
 					if (!btn) {
 						alert("FIXME: Unconfigured button!");
@@ -546,7 +546,7 @@ class wysiwyg {
 
 			<?php $this->print_config()?>
 
-			<textarea id="<?php echo $this->name?>" name="<?php echo $this->name?>" <?php echo $this->textarea_extras?>><?php echo urlencode($this->contents)?></textarea>
+			<textarea id="<?php echo $this->name?>" name="<?php echo $this->name?>" <?php echo $this->textarea_extras?>><?php echo rawurlencode($this->contents)?></textarea>
 
 			<script type="text/javascript" language="Javascript">
 				editor_<?php echo $this->name?> = new HTMLArea("<?php echo $this->name?>");
