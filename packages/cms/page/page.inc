@@ -61,6 +61,9 @@ class Page extends Asset
 			return false;
 		}
 
+		// set an initial web path
+		$this->saveWebPaths(Array(strtolower($name)));
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
