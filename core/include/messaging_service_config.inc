@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: messaging_service_config.inc,v 1.3 2003/09/26 05:26:31 brobertson Exp $
+* $Id: messaging_service_config.inc,v 1.4 2003/10/02 05:45:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ class Messaging_Service_Config extends Config
 		'SQ_MS_LOG_TO_FILE_BLACK_LIST'   => Array('editable' => 1, 'default' => ''),
 		'SQ_MS_LOG_TO_DB_WHITE_LIST'     => Array('editable' => 1, 'default' => '*'),
 		'SQ_MS_LOG_TO_DB_BLACK_LIST'     => Array('editable' => 1, 'default' => ''),
-		'SQ_MS_SEND_MAIL_WHITE_LIST'     => Array('editable' => 1, 'default' => ''),
+		'SQ_MS_SEND_MAIL_WHITE_LIST'     => Array('editable' => 1, 'default' => 'config.*'),
 		'SQ_MS_SEND_MAIL_BLACK_LIST'     => Array('editable' => 1, 'default' => ''),
 	);
 
@@ -40,7 +40,8 @@ class Messaging_Service_Config extends Config
 	*/
 	function Messaging_Service_Config()
 	{
-		$this->Config(SQ_DATA_PATH.'/private/conf/messaging_service.inc');
+		$this->Config();
+		$this->config_file = SQ_DATA_PATH.'/private/conf/messaging_service.inc';
 	}
 
 }//end class
