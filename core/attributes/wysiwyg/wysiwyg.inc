@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.4 2004/04/07 22:57:10 lwright Exp $
+* $Id: wysiwyg.inc,v 1.5 2004/06/18 03:24:16 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -202,7 +202,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 			<tr>
 				<td style="border-left: 1px dashed #C0C0C0; border-right: 1px dashed #C0C0C0; border-bottom: 1px dashed #C0C0C0;">
 					<div style="display:none;" id="<?php echo $prefix?>_wysiwyg_div"><?php echo $wysiwyg->paint()?></div>
-					<div id="<?php echo $prefix?>_contents_div"><?php echo $this->value?></div>
+					<div id="<?php echo $prefix?>_contents_div" onclick="editDiv=document.getElementById('<?php echo $prefix ?>_wysiwyg_div'); if (editDiv.style.display == 'none') {switchEditingMode('<?php echo $prefix ?>_contents_div','<?php echo $prefix ?>_wysiwyg_div', editor_<?php echo $prefix ?>);}"><?php echo $this->value?></div>
 				</td>
 			</tr>
 		</table>

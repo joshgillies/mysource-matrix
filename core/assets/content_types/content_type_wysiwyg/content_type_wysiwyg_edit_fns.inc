@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.7 2004/04/07 22:57:10 lwright Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.8 2004/06/18 03:24:15 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -165,7 +165,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			$wysiwyg = &$this->_createEditor($asset, $prefix);
 			?>
 			<div style="display:none;" id="<?php echo $prefix?>_wysiwyg_div"><?php echo $wysiwyg->paint(); ?></div>
-			<div id="<?php echo $prefix?>_contents_div"><?php echo $wysiwyg->contents ?></div>
+			<div id="<?php echo $prefix?>_contents_div" onclick="editDiv=document.getElementById('<?php echo $prefix ?>_wysiwyg_div'); if (editDiv.style.display == 'none') {switchEditingMode('<?php echo $prefix ?>_contents_div','<?php echo $prefix ?>_wysiwyg_div', editor_<?php echo $prefix ?>);}"><?php echo $wysiwyg->contents ?></div>
 			<?php
 		}
 		return true;
