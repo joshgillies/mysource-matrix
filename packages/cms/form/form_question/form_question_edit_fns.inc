@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_edit_fns.inc,v 1.25 2004/07/15 05:23:50 gsherwood Exp $
+* $Id: form_question_edit_fns.inc,v 1.25.2.1 2004/10/12 03:38:02 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -253,7 +253,10 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		$type_codes = Array();
 
 		foreach	($rule_codes as $rule_code) {
-			$type_codes[] = 'form_question_rule_type_'.$rule_code;
+			$type_code = 'form_question_rule_type_'.$rule_code;
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+			$attributes = eval('return '.$type_code.'::getAttributes();');
+			if ($attributes['validation_rule']) $type_codes[] = $type_code;
 		}
 
 		$desc = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_codes, 'description');
