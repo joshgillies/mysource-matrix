@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_edit_fns.inc,v 1.10 2003/12/17 04:42:36 mmcintyre Exp $
+* $Id: search_manager_edit_fns.inc,v 1.11 2004/02/12 23:35:47 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,36 +32,36 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.10 $ - 1.0
+* @version $Revision: 1.11 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 {
 
+
 	/**
 	* Constructor
-	* 
+	*
 	* @see Asset_Edit_Fns::Asset_Edit_Fns
 	*/
 	function Search_Manager_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
+
 	}//end constructor
 
 
-	/** 
-	* Paint the interface for painting default weights for each registered asset type.
-	* 
-	* @access public
+	/**
+	* Paint the interface for painting default weights for each registered asset type
 	*
-	* @param Search_Mananger		&$asset The search manager asset.
-	* @param Backend_Outputter		&$o		The backend outputter.
-	* @param string					$prefix	The prefix for fields.
-	* 
-	* @return boolean 
+	* @param object Search_Mananger		&$asset		the search manager asset
+	* @param object Backend_Outputter	&$o			the backend outputter
+	* @param string						$prefix		the prefix for fields
+	*
+	* @return boolean
+	* @access public
 	*/
-
 	function paintWeights(&$asset, &$o, $prefix)
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
@@ -69,18 +69,19 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		$this->paintAssetTypeSection($asset, $o, $prefix, $typeHierarchy);
 		return true;
-	} // end paintWeights()
 
-	/** 
-	* Paint the interface for painting default weights for a particular asset type.
-	* 
-	* @access public
+	}//end paintWeights()
+
+
+	/**
+	* Paint the interface for painting default weights for a particular asset type
 	*
-	* @param Search_Mananger		&$asset The search manager asset.
-	* @param Backend_Outputter		&$o		The backend outputter.
-	* @param string					$prefix	The prefix for fields.
-	* 
-	* @return boolean 
+	* @param object Search_Mananger		&$asset		the search manager asset
+	* @param object Backend_Outputter	&$o			the backend outputter
+	* @param string						$prefix		the prefix for fields
+	*
+	* @return boolean
+	* @access public
 	*/
 	function paintAssetTypeSection(&$asset, &$o, $prefix, $typeHierarchy)
 	{
@@ -112,7 +113,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 							'1' => 'Do not include in searches',
 							'0' => 'Include in searches'
 						), false, $disabled);
-						
+
 						if (!$disabled) {
 							echo "&nbsp;Weight: ";
 							text_box ($prefix. "weights[$typeCode][$component]", $data['weighting'], 3);
@@ -128,20 +129,22 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 			if (!empty($assetType['subs'])) {
 				$this->paintAssetTypeSection($asset, $o, $prefix, $assetType['subs']);
 			}
-		}		
-	} // end paintAssetTypeSection()
+		}
 
-	/** 
+	}//end paintAssetTypeSection()
+
+
+	/**
 	* Processes the request for setting of default weights.
-	* 
-	* @param object Search_Manager		&$asset the search manager asset
-	* @param object	Backend_Outputter	&$o		the backend outputter object
-	* @param string						$prefix the prefix for field
 	*
+	* @param object Search_Manager		&$asset		the search manager asset
+	* @param object	Backend_Outputter	&$o			the backend outputter object
+	* @param string						$prefix		the prefix for field
+	*
+	* @return boolean
 	* @access public
-	* @returns boolean
 	*/
-	function processWeights (&$asset, &$o, $prefix)
+	function processWeights(&$asset, &$o, $prefix)
 	{
 		$weights = $_POST[$prefix. 'weights'];
 		$disabled = $_POST[$prefix. 'disable'];
@@ -155,35 +158,40 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 		return true;
-	} // end processWeights();
 
-	/** 
-	* Paints the interface for queuing a HIPO to reindex the system. 
-	* 
+	}//end processWeights();
+
+
+	/**
+	* Paint the interface for queuing a HIPO to reindex the system
 	*
-	* @param object Search_Manager		&$asset the search manager asset
-	* @param object	Backend_Outputter	&$o		the backend outputter object
-	* @param string						$prefix the prefix for field
+	* @param object Search_Manager		&$asset		the search manager asset
+	* @param object	Backend_Outputter	&$o			the backend outputter object
+	* @param string						$prefix		the prefix for field
 	*
+	* @return boolean
 	* @access public
-	* @returns void
 	*/
 	function paintReindexing(&$asset, &$o, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
-			asset_finder($prefix."_reindexing_root_assetid", '');
+			asset_finder($prefix.'_reindexing_root_assetid', '');
+			return true;
 		}
-	} //end paintReindexing()
+		return false;
 
-	/** 
-	* Processes the interface for queuing a HIPO to reindex the system. 
-	* 
+	}//end paintReindexing()
+
+
+	/**
+	* Process the interface for queuing a HIPO to reindex the system
 	*
-	* @param object Search_Manager		&$asset the search manager asset
-	* @param object	Backend_Outputter	&$o
+	* @param object Search_Manager		&$asset		the search manager asset
+	* @param object	Backend_Outputter	&$o			the backend outputter object
+	* @param string						$prefix		the prefix for field
 	*
+	* @return boolean
 	* @access public
-	* @returns boolean
 	*/
 	function processReindexing(&$asset, &$o, $prefix)
 	{
@@ -195,11 +203,11 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 				return true;
 			}
 		}
-
 		return false;
-	} // end processReindexing()
 
-	
+	}//end processReindexing()
+
 
 }//end class
+
 ?>
