@@ -127,19 +127,9 @@ class Resolve
 		// we are on the frontend
 		} else {
 
-//			speed_check('one');
 			$asset = &$this->am->getAssetFromURL(current_protocol());
 			if (is_null($asset)) exit(1);
-#			pre_echo("Active Asset : ".$asset->name);
-//			speed_check('two');
 			$asset->printFrontend();
-
-#			$asset = &$this->am->getAsset(4);
-#			pre_echo("Active Asset : ".$asset->name);
-#			$done = $asset->deleteWebPath('users');
-#			pre_echo('Success : '.$done);
-//			speed_check('total');
-			echo "\n\n\n";
 
 		}//end if
 
