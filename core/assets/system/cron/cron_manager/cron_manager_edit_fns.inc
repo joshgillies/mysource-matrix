@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.14 2004/01/14 15:21:47 brobertson Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.15 2004/06/08 04:19:59 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -399,44 +399,49 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	function paintDeadLockStatus(&$asset, &$o, $prefix)
 	{
 		// if we have a suspicion of being in DeadLock, then allow them to override
-		if ($GLOBALS['SQ_SYSTEM']->userRoot() && $asset->attr('running') && (int) $asset->attr('run_check') >= (int) $asset->attr('warn_after_num_run_checks')) {
+		if ($asset->attr('running') && (int) $asset->attr('run_check') >= (int) $asset->attr('warn_after_num_run_checks')) {
 			$o->openField('<div class="sq-backend-warning" style="text-align: center;">POTENTIAL CRON MANAGER DEAD LOCK DETECTED</div>', 'new_line');
-			if ($asset->writeAccess('all')) {
-				?>
-				<table border="0">
-					<tr>
-						<td class="sq-backend-data">
-							This is only a potential warning brought about because the cron manager has attempted to
-							run <?php echo $asset->attr('warn_after_num_run_checks'); ?> times, but has not been able
-							to. Two potential reasons for this are :
-							<ol class="sq-backend-data">
-								<li class="sq-backend-data">An existing cron manager instance is currently running an extremely long running job.</li>
-								<li class="sq-backend-data">Some thing has caused the cron manager to exit uncleanly when it was running and the lock wasn't able to be removed.</li>
-							</ol>
-							Check the cron error log (in [DATA DIR]/<?php echo $asset->error_log_path; ?>) for any information
-							<p class="sq-backend-data">
-							To remove the lock flag for the cron manager enter the 25 character string you see
-							below into the box supplied, then press the Commit button
-							</p>
-							<p class="sq-backend-data">
-							<b>ONLY REMOVE THE LOCK IF YOU KNOW FOR CERTAIN THAT THE CRON MANAGER IS NOT RUNNING</b>
-							</p>
-						</td>
-					</tr>
-					<tr>
-						<td valign="top" class="sq-backend-data">
-							<?php check_box($prefix.'_force_remove_lock'); ?> Force Removal of Lock
-						</td>
-					</tr>
-					<tr>
-						<td valign="top" class="sq-backend-data">
-							<?php security_key(25, 30, 2, true); ?>
-						</td>
-					</tr>
-				</table>
-				<?php
+			
+			if ($GLOBALS['SQ_SYSTEM']->userRoot()) {
+				if ($asset->writeAccess('all')) {
+					?>
+					<table border="0">
+						<tr>
+							<td class="sq-backend-data">
+								This is only a potential warning brought about because the cron manager has attempted to
+								run <?php echo $asset->attr('warn_after_num_run_checks'); ?> times, but has not been able
+								to. Two potential reasons for this are :
+								<ol class="sq-backend-data">
+									<li class="sq-backend-data">An existing cron manager instance is currently running an extremely long running job.</li>
+									<li class="sq-backend-data">Some thing has caused the cron manager to exit uncleanly when it was running and the lock wasn't able to be removed.</li>
+								</ol>
+								Check the cron error log (in [DATA DIR]/<?php echo $asset->error_log_path; ?>) for any information
+								<p class="sq-backend-data">
+								To remove the lock flag for the cron manager enter the 25 character string you see
+								below into the box supplied, then press the Commit button
+								</p>
+								<p class="sq-backend-data">
+								<b>ONLY REMOVE THE LOCK IF YOU KNOW FOR CERTAIN THAT THE CRON MANAGER IS NOT RUNNING</b>
+								</p>
+							</td>
+						</tr>
+						<tr>
+							<td valign="top" class="sq-backend-data">
+								<?php check_box($prefix.'_force_remove_lock'); ?> Force Removal of Lock
+							</td>
+						</tr>
+						<tr>
+							<td valign="top" class="sq-backend-data">
+								<?php security_key(25, 30, 2, true); ?>
+							</td>
+						</tr>
+					</table>
+					<?php
+				} else { 
+					echo 'You must acquire the lock in order resolve this issue';
+				}
 			} else {
-				echo 'You need to aquire the lock in order resolve this issue';
+				echo 'You must contact the root user to resolve this issue';
 			}// end if
 
 		// else everything is OK
