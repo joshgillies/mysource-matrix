@@ -133,9 +133,12 @@ require_once SQ_INCLUDE_PATH.'/general.inc';
 ini_set('display_errors', 1); // we'll manage whether to display the errors or not in the error_handler
 set_error_handler('sq_error_handler');
 
-// Now that we've got error reporting lets generate a few errors!
-if(version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
-	trigger_error('<i>'.SQ_SYSTEM_LONG_NAME.'</i> requires PHP Version '.SQ_REQUIRED_PHP_VERSION.'.<br/> You may need to upgrade.<br/> Your current version is '.phpversion().'.', E_USER_ERROR);
+// If there is magic quotes, strip them out
+if (get_magic_quotes_gpc()) {
+	require_once SQ_FUDGE_PATH.'/general/general.inc';
+	stripslashes_array($_GET, true);
+	stripslashes_array($_POST, true);
+	stripslashes_array($_REQUEST, true);
 }
 
 
