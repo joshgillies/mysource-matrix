@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit.js,v 1.11 2003/10/14 01:50:19 gsherwood Exp $
+* $Id: edit.js,v 1.12 2003/10/21 23:43:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,15 +38,3 @@ function sq_process_key_down() {
 	}//end switch
 
 }//end sq_process_key_down()
-
-
-// prints an icon using transparency in IE
-// ensures that PNGs have transparent background in IE and Mozilla
-function sq_print_icon(path, width, height, alt) {
-	if (document.all) {
-		// IE cant handle transparent PNGs
-		document.write ('<span style="height:'+height+'px;width:'+width+'px; filter:progid:DXImageTransform.Microsoft.AlphaImageLoader (src=\''+path+'\', sizingMethod=\'scale\')" title="' + alt + '"></span>');
-	} else {
-		document.write('<img src="'+path+'" width="'+width+'" height="'+height+'" border="0" alt="'+alt+'" />');
-	}
-}
