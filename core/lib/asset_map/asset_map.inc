@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.140 2004/05/07 05:53:09 gsherwood Exp $
+* $Id: asset_map.inc,v 1.141 2004/05/26 05:24:33 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -109,7 +109,7 @@ class Asset_Map
 		</script>
 
 		<?php
-			$this->embed_asset_map('complex', '100%', '99%');	
+			$this->embed_asset_map('complex', '95%', '99%');	
 	
 
 

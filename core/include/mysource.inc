@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.46 2004/05/03 23:45:35 lwright Exp $
+* $Id: mysource.inc,v 1.47 2004/05/26 05:24:33 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -498,8 +498,7 @@ class MySource
 
 			case 'hipo' :
 				$hh = &$this->getHipoHerder();
-				if (!$hh->processWeb()) trigger_error('HIPO failed to process', E_USER_ERROR);
-				$hh->paintWeb();
+				if ($hh->processWeb()) $hh->paintWeb();
 				exit();
 			break;
 
@@ -508,12 +507,10 @@ class MySource
 				unset($_GET['SQ_DESIGN_NAME']);
 			break;
 
-			case 'asset_map_request':
+			case 'asset_map_request' :
 				require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
 				$asset_map = new Asset_Map();
-				// the asset map is expecting the backend object
 				$asset_map->process($this->backend);
-				// dont forget to exit!
 				exit();
 			break;
 
