@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_edit_fns.inc,v 1.2 2004/01/15 05:16:34 gsherwood Exp $
+* $Id: page_account_manager_edit_fns.inc,v 1.3 2004/02/16 22:23:47 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,23 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 */
 class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 {
+
+	/**
+	* Messages used to provide info about the differnt types of create locations
+	* @var array(string => string)
+	*/
+	var $location_messages = Array(
+						'mandatory' => 'All new user accounts will be placed into these user groups',
+						'optional'  => 'When creating a new account, the user will have the option of placing themselves into one or more of these user groups',
+						'rules'     => 'These rules define where new user accounts should be created based on the values filled in by the user',
+										);
+
+	/**
+	* An array of asset types that can be passed to asset_finder to define what types of create locations are allowed
+	* @var array(string => string)
+	*/
+	var $location_types = Array('user_group' => 'D');
+
 
 	/**
 	* Constructor
@@ -79,79 +96,6 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		}
 
 	}//end paintCreateType()
-
-
-	/**
-	* Paint the interface for choosing the location to create new assets
-	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintCreateLocation(&$asset, &$o, $prefix)
-	{
-		$write_access = $asset->writeAccess('attributes');
-		$locations = $asset->attr('create_location');
-
-		echo '<p>';
-		if (empty($locations)) {
-			echo 'No user groups have been specified.';
-		} else if (count($locations) == 1) {
-			echo 'All new user accounts will be created in the user group ';
-			$locationid = array_pop($locations);
-			$location = &$GLOBALS['SQ_SYSTEM']->am->getAsset($locationid);
-			if (!is_null($location)) {
-				echo '"'.$location->name.'" [#'.$location->id.']';
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($location);
-			}
-			echo ' ';
-			check_box($prefix.'_delete_location['.$location->id.']');
-			echo ' Delete ?';
-		} else {
-			?>
-			<table class="sq-backend-table">
-				<tr>
-					<td class="sq-backend-table-header">Group Name</td>
-					<?php
-					if ($write_access) {
-						?><td class="sq-backend-table-header">Delete</td><?php
-					}
-					?>
-				</tr>
-				<?php
-				foreach ($locations as $locationid => $null) {
-					$location = &$GLOBALS['SQ_SYSTEM']->am->getAsset($locationid);
-					if (is_null($location)) continue;
-					?>
-					<tr>
-						<td class="sq-backend-table-cell"><?php echo $location->name; ?></td>
-						<?php
-						if ($write_access) {
-							?><td class="sq-backend-table-cell"><?php check_box($prefix.'_delete_location['.$location->id.']'); ?></td><?php
-						}
-						?>
-					</tr>
-					<?php
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($location);
-				}
-				?>
-			</table>
-			<?php
-		}
-		echo '</p>';
-
-		if ($write_access) {
-			$o->closeField();
-			$o->openField('Add New Group');
-			asset_finder($prefix.'_new_create_location', 0, Array('user_group' => 'D'));
-		}
-
-		return $write_access;
-
-	}//end paintCreateLocation()
 
 
 }//end class
