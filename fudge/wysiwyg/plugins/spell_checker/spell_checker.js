@@ -2,7 +2,7 @@
 * Copyright (c) 2002 - interactivetools.com, inc.
 * Portions Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: spell_checker.js,v 1.4 2003/10/23 23:57:58 gsherwood Exp $
+* $Id: spell_checker.js,v 1.5 2004/11/29 22:54:41 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -27,7 +27,7 @@ function makeCleanDoc(leaveFixed) {
 			el.parentNode.removeChild(el.nextSibling);
 		}
 	}
-	return window.opener.HTMLArea.getHTML(frame.contentWindow.document.body, leaveFixed);
+	return frame.contentWindow.document.body.innerHTML;
 };
 
 
