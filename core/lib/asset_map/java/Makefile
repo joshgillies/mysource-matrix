@@ -17,7 +17,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: Makefile,v 1.2 2004/04/04 23:48:35 mmcintyre Exp $
+#* $Id: Makefile,v 1.3 2004/11/02 03:19:40 mmcintyre Exp $
 #* $Name: not supported by cvs2svn $
 #*/
 
@@ -46,7 +46,7 @@ componentclassfiles = $(xmlclassfiles)# $(plafclassfiles) $(xmlfiles)
 
 #simple
 simplesourcefiles = src/net/squiz/matrix/assetmap/*.java
-simpleclassfiles = net/squiz/matrix/assetmap/* $(componentclassfiles) #META-INF/
+simpleclassfiles = net/squiz/matrix/assetmap/* $(componentclassfiles) META-INF/
 simplesourcepath = src/net/squiz/matrix/assetmap
 
 #complex
@@ -66,7 +66,7 @@ simple:
 
 # compiles the complexassetmap package
 complex: simple 
-	javac -sourcepath $(complexsourcepath) -classpath . -d . $(complexsourcefiles)
+	javac -sourcepath $(complexsourcepath) -classpath java40.jar:. -d . $(complexsourcefiles)
 	jar cvfm complexassetmap.jar complexmanifest $(complexclassfiles)
 
 # generates the documentation
