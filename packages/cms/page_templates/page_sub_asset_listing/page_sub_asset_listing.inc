@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_sub_asset_listing.inc,v 1.16 2004/01/14 04:23:38 gsherwood Exp $
+* $Id: page_sub_asset_listing.inc,v 1.17 2004/01/20 03:29:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -140,7 +140,7 @@ class Page_Sub_Asset_Listing extends Page
 	*
 	* @return int
 	* @access public
-	* @see Asset::creatLink();
+	* @see Asset::createLink();
 	*/
 	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0', $exclusive='0')
 	{
@@ -181,14 +181,16 @@ class Page_Sub_Asset_Listing extends Page
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return Array()
 	* @access private
+	* @see Asset::_getAllowedLinks()
 	*/
 	function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
 		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 1,   'exclusive' => true);
 		$page_links[SQ_LINK_TYPE_2]['folder']   = Array('card' => 'M', 'exclusive' => false);
+		$page_links[SQ_LINK_NOTICE]['asset']    = Array('card' => 'M', 'exclusive' => false);
 		return $page_links;
 
 	}//end _getAllowedLinks()
@@ -199,6 +201,7 @@ class Page_Sub_Asset_Listing extends Page
 	*
 	* @param object Backend_Outputter $o
 	*
+	* @access void
 	* @access public
 	*/
 	function paintBackend(&$o)
@@ -225,8 +228,8 @@ class Page_Sub_Asset_Listing extends Page
 	*
 	* @param string $type the value on the link for this folder
 	*
-	* @access public
 	* @return object Folder
+	* @access public
 	*/
 	function &getFolder($type='type_formats')
 	{
@@ -244,6 +247,7 @@ class Page_Sub_Asset_Listing extends Page
 	/**
 	* Called by the design to print the body of this asset
 	*
+	* @return void
 	* @access public
 	*/
 	function printBody()
@@ -251,38 +255,107 @@ class Page_Sub_Asset_Listing extends Page
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
 		if (empty($bodycopy_link)) return false;
 
-		$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
-		if (is_null($bodycopy)) return false;
-
-		$html = $bodycopy->getRawBodycopyContent();
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
-
-		$body = &$this->getBodyReplacement();
-		$html = str_replace('%sub_asset_listing%', $body, $html);
-
-		echo $html;
-
-	}//end printBody()
+		$format_bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+		if (is_null($format_bodycopy)) return false;
 
 
-	/**
-	* Return a replacement for the body keyword in the page contents bodycopy
-	*
-	* @access public
-	* @return &string
-	*/
-	function &getBodyReplacement()
-	{
+		// this is the list of all type codes that we are going to show
+		// we pass this list to the getLinks and getChildren functions (below) to narrow
+		// the query down a bit
+		// if there are no types to list, we cant list anything
 		$wanted_types = $this->attr('types');
-		// no types to display = nothing to display
 		if (empty($wanted_types)) return;
 
-		$children = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_BACKEND_NAV, $wanted_types, false);
-		$customised = $this->attr('customised');
 
+		// get the root asset whose sub-assets/children we are displaying
+		// if there is no root asset, we cant list anything
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
+		if (empty($root_link)) return;
+		$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid'], $root_link['minor_type_code']);
+		if (is_null($root_asset)) return;
+
+
+		// this is what we are going to sort the reults by (passed directly to the getLinks
+		// and getChildren functions)
+		// must be a column in the asset table (null = no sorting)
+		$sort_by = $this->attr('sort_by');
+		if (empty($sort_by)) $sort_by = null;
+
+
+		// this is what we are grouping by
+		// grouping by number shows a certain number of results per page (eg. 10 assets per page)
+		// grouping by letter makes this template an A-Z listing of assets
+		$group_by = $this->attr('group_by');
+
+
+		// if we are showing an A-Z listing but the user has not selected a proper sort field,
+		// we will use the 'name' attribute of the asset to work out the listing
+		if ($group_by == 'letter' && $sort_by != 'name' && $sort_by != 'short_name') $sort_by = 'name';
+
+
+		  //////////////////////////////////////////////
+		 //  GET THE LIST OF ASSETS WE ARE PRINTING  //
+		//////////////////////////////////////////////
+		$children = Array();
+
+		if ($this->attr('subs_only')) {
+
+			switch ($group_by) {
+				case 'number' :
+					$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset->id, SQ_SC_LINK_BACKEND_NAV, $wanted_types, false, 'major', null, null, null, $sort_by);
+					foreach ($links as $link_info) $children[$link_info['minorid']] = $link_info['minor_type_code'];
+				break;
+
+				case 'letter' :
+					$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset->id, SQ_SC_LINK_BACKEND_NAV, $wanted_types, false, 'major', null, null, null, $sort_by);
+					if (empty($query)) return;
+					$query['select'] .= ', SUBSTRING(a.'.$sort_by.', 1, 1) AS first_letter';
+
+					$db = &$GLOBALS['SQ_SYSTEM']->db;
+					$links = $db->getAll(implode(' ', $query));
+					if (DB::isError($children)) {
+						trigger_error($children->getMessage().'<br/>'.$children->getUserInfo(), E_USER_ERROR);
+						return;
+					}
+					foreach ($links as $link_info) $children[$link_info['minorid']] = Array('type_code' => $link_info['minor_type_code'], 'first_letter' => $link_info['first_letter']);
+				break;
+			}//end switch
+
+		} else {
+
+			switch ($group_by) {
+				case 'number' :
+					$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset->id, $wanted_types, false, $sort_by);
+					if ($this->attr('reverse_sort')) $children = array_reverse($children, true);
+				break;
+
+				case 'letter' :
+					$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset->id, $wanted_types, false, $sort_by);
+					if (empty($query)) return;
+					$query['select'] .= ', SUBSTRING(a.'.$sort_by.', 1, 1) AS first_letter';
+
+					$db = &$GLOBALS['SQ_SYSTEM']->db;
+					$children = $db->getAssoc(implode(' ', $query));
+					if (DB::isError($children)) {
+						trigger_error($children->getMessage().'<br/>'.$children->getUserInfo(), E_USER_ERROR);
+						return;
+					}
+				break;
+			}//end switch
+
+		}//end if subs_only
+
+
+		// clean up after ourselves
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
 		if (empty($children)) return false;
 
-		$keywords			= Array();								// an array of keywords/replacements per asset base
+
+		  ////////////////////////////////////////////////////////////
+		 //  STUFF WE ARE GOING TO NEED TO MAKE THIS MAGIC HAPPEN  //
+		////////////////////////////////////////////////////////////
+		$customised			= $this->attr('customised');			// the array of asset types with customised formats
+		$keywords			= Array();								// an array of keyword replacements per asset base
 		$formats			= Array();								// an array of customised format bodycopies
 		$default_format		= '';									// the default format html
 		$is_default			= Array();								// array of types using the default format
@@ -290,25 +363,122 @@ class Page_Sub_Asset_Listing extends Page
 		$type_folder_id		= $folder->id;							// the format types folder id
 		$global_contents	= '';									// the entire contents of the SAL
 		$mm					= null;									// metadata manager
+		$replacements		= Array();								// global keyword replacements
 
-		foreach ($children as $info) {
-			$assetid = $info['minorid'];
-			$type_code = $info['minor_type_code'];
+
+		  /////////////////////////
+		 //  PAGINATING ASSETS  //
+		/////////////////////////
+		switch ($group_by) {
+			case 'number' :
+				$num_per_page = $this->attr('num_per_page');
+				$result_page = (isset($_REQUEST['result_page'])) ? (int)$_REQUEST['result_page'] : 1;
+				if ($result_page <= 0) $result_page = 1;
+
+				// do it CHUNK Noris style
+				if ($num_per_page > 0) $chunks = array_chunk($children, $num_per_page, true);
+				else $chunks = Array('0' => $children);
+
+				if ($result_page > count($chunks)) $result_page = count($chunks);
+				$todo = $chunks[($result_page-1)];
+
+				// previous page link
+				if ($result_page <= 1) $replacements['previous_page'] = 'Previous';
+				else $replacements['previous_page'] = '<a href="'.$this->getURL().'?result_page='.($result_page-1).'">Previous</a>';
+
+				// next page link
+				if ($result_page >= count($chunks)) $replacements['next_page'] = 'Next';
+				else $replacements['next_page'] = '<a href="'.$this->getURL().'?result_page='.($result_page+1).'">Next</a>';
+
+				// list of pages and links to them
+				$page_list = '';
+				for ($i = 1; $i <= count($chunks); $i++) $page_list .= ' <a href="'.$this->getURL().'?result_page='.$i.'">'.$i.'</a> ';
+				//for ($i = 65; $i <= 90; $i++) $page0.2_list .= ' <a href="'.$this->getURL().'?result_page='.chr($i).'">'.chr($i).'</a> ';
+				$replacements['page_list'] = $page_list;
+
+				unset($chunks);
+			break;
+
+			case 'letter' :
+				foreach ($children as $childid => $child_data) {
+					$todo[strtolower($child_data['first_letter'])][$childid] = $child_data;
+				}
+
+				$result_page = (isset($_REQUEST['result_page'])) ? $_REQUEST['result_page'] : '';
+				if (empty($result_page)) {
+					for ($i = 65; $i <= 90; $i++) {
+						if (isset($todo[strtolower(chr($i))])) {
+							$result_page = chr($i);
+							break;
+						}
+					}
+				}
+
+				// previous page link
+				$result_letter = ord(strtoupper($result_page));
+				$replacements['previous_page'] = 'Previous';
+				if ($result_letter > 65) {
+					for ($i = ($result_letter-1); $i >= 65; $i--) {
+						if (isset($todo[strtolower(chr($i))])) {
+							$replacements['previous_page'] = '<a href="'.$this->getURL().'?result_page='.chr($i).'">Previous</a>';
+							break;
+						}
+					}
+				}
+
+				// next page link
+				$replacements['next_page'] = 'Next';
+				if ($result_letter < 90) {
+					for ($i = ($result_letter+1); $i <= 90; $i++) {
+						if (isset($todo[strtolower(chr($i))])) {
+							$replacements['next_page'] = '<a href="'.$this->getURL().'?result_page='.chr($i).'">Next</a>';
+							break;
+						}
+					}
+				}
+
+				// list of pages and links to them
+				$page_list = '';
+				for ($i = 65; $i <= 90; $i++) {
+					if (isset($todo[strtolower(chr($i))])) {
+						$page_list .= ' <a href="'.$this->getURL().'?result_page='.chr($i).'">'.chr($i).'</a> ';
+					} else {
+						$page_list .= ' '.chr($i).' ';
+					}
+				}
+				$replacements['page_list'] = $page_list;
+
+				$todo = $todo[strtolower($result_page)];
+
+			break;
+
+		}//end switch
+
+
+		// clean up after ourselves
+		unset($children);
+
+
+		  ////////////////////////////
+		 //  PRINT THE ASSET LIST  //
+		////////////////////////////
+		foreach ($todo as $assetid => $type_code) {
+
 			$contents = ''; // temp contents for this asset
 
-			// skip dependants assets that we created
-			if ($info['dependant']) continue;
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			if (is_null($asset)) continue;
 
 			// we need to work out if this child has an explicit format defined for it
 			// or if its relying on its ansestor's format
 			if (!in_array($type_code, $wanted_types)) {
 				foreach ($wanted_types as $wt) {
+					if (trim($wt) == '') continue;
 					$desc = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($wt);
 					if (in_array($type_code, $desc)) $type_code = $wt;
 				}
 			}
 
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			$keywords = $asset->getAssetKeywords();
 			if (!in_array($type_code, $formats)) {
 				if (in_array($type_code, $customised)) {
@@ -343,6 +513,7 @@ class Page_Sub_Asset_Listing extends Page
 			} else {
 				$contents = $formats[$type_code];
 			}
+
 			if (preg_match_all('|%asset_metadata_([^%]+)%|is', $contents, $matches)) {
 				if (is_null($mm)) $mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				// get all the metadata keywords for this asset
@@ -352,6 +523,7 @@ class Page_Sub_Asset_Listing extends Page
 					$keywords['asset_metadata_'.$field]['value'] = $value;
 				}
 			}
+
 			if (preg_match('|%asset_contents%|is', $contents)) {
 				ob_start();
 					$asset->printBody();
@@ -366,14 +538,28 @@ class Page_Sub_Asset_Listing extends Page
 
 			$global_contents .= $contents;
 
-		}// end foreach
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			unset($asset);
+
+		}//end foreach
+
 
 		// if we have any blank keywords, replace them with nothing
 		$global_contents = preg_replace('|%[^%\W]+%|', '', $global_contents);
 
-		return $global_contents;
 
-	}//end getBodyReplacement()
+		// the global replacement to print the asset listing
+		$replacements['sub_asset_listing'] = $global_contents;
+
+
+		// print the contents of page - replacing the global keywords
+		$format_bodycopy->setKeywordReplacements($replacements);
+		$format_bodycopy->printBody();
+
+		// clean up after ourselves
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
+
+	}//end printBody()
 
 
 	/**

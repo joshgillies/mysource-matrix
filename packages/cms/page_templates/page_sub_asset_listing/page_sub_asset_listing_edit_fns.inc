@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_sub_asset_listing_edit_fns.inc,v 1.12 2003/12/12 03:36:39 gsherwood Exp $
+* $Id: page_sub_asset_listing_edit_fns.inc,v 1.13 2004/01/20 03:29:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -50,9 +50,10 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 		$this->static_screens['details']['lock_type'] = 'content';
 
 	}//end constructor
-	
+
+
 	/**
-	* paints some information about replacing keywords
+	* Paint some information about replacing keywords
 	*
 	* @param object Form				&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
@@ -75,20 +76,20 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
-	* does nothing (yet)
+	* Does nothing
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processBodycopyInformation()
 	{
-		return true;
+		return false;
 
 	}//end processBodycopyInformation()
 
 
 	/**
-	* paints a link to the default format
+	* Paint a link to the default format
 	*
 	* @param object Form				&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
@@ -113,20 +114,100 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
-	* does nothing (yet)
+	* Does nothing
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processDefaultFormatLink()
 	{
-		return true;
+		return false;
 
 	}//end processDefaultFormatLink()
 
 
 	/**
-	* processes the current asset types
+	* Paints the root node selection box
+	*
+	* @param object	Asset				&$rootid	asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintRootNode(&$asset, &$o, $prefix)
+	{
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, 'root');
+		$write_access = $asset->writeAccess('links');
+
+		if (!$write_access) {
+			$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
+			if (!is_null($root_asset)) {
+				echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
+			} else {
+				echo 'No root node has been selected';
+			}
+		} else {
+			asset_finder($prefix.'_rootid', (!empty($root_link)) ? $root_link['minorid'] : '');
+		}
+
+		return $write_access;
+
+	}//end paintRootNode()
+
+
+	/**
+	* Processes the value input from root node selection box
+	*
+	* @param object	Asset				&$rootid	asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for the html doc element name
+	*
+	* @return void
+	* @access public
+	*/
+	function processRootNode(&$asset, &$o, $prefix)
+	{
+		if (!isset($_POST[$prefix.'_rootid']['assetid'])) return false;
+		$new_root  = $_POST[$prefix.'_rootid']['assetid'];
+
+		// getting existing root link
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, 'root');
+
+		// dont process anything if the root node has not changed
+		if (!empty($root_link) && $root_link['minorid'] == $new_root) return false;
+
+		$ok = true;
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// deleting old root link if any found...
+		if (!empty($root_link) && !$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
+			$ok = false;
+		} else if ($new_root) {
+			$root = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
+			if (!is_null($root)) {
+				if (!$asset->createLink($root, SQ_LINK_NOTICE, 'root')) {
+					$ok = false;
+					trigger_error('Failed adding new root node "'.$root->name.'" [#'.$root->id.']', E_USER_WARNING);
+				}
+			}
+		}
+
+		if ($ok) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			return true;
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+	}//end processRootNode()
+
+
+	/**
+	* Paint the current asset types that have been added
 	*
 	* @param object Form				&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
@@ -137,9 +218,9 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintCurrentAssetTypes(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('content')) return false;
+		$write_access = $asset->writeAccess('content');
 		$folder = &$asset->getFolder('type_formats');
-		
+
 		// do a check to see if any of the bodycopies have been removed manually
 		$customised = $asset->attr('customised');
 		if (!empty($customised)) {
@@ -163,56 +244,62 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 			echo 'There are no Types Defined';
 			return false;
 		}
-		
+
 		?>
 		<table class="sq-backend-table">
 		<tr>
-			<td class="sq-backend-table-header" width="33%">Asset Type</td>
-			<td class="sq-backend-table-header" width="33%">Edit Format</td>
-			<td class="sq-backend-table-header" width="33%">Customise</td>
-			<td class="sq-backend-table-header" width="33%">Remove?</td>
+			<td class="sq-backend-table-header">Asset Type</td>
+			<td class="sq-backend-table-header">Edit Format</td>
+			<?php
+			if ($write_access) {
+				?>
+				<td class="sq-backend-table-header">Customise</td>
+				<td class="sq-backend-table-header">Remove?</td>
+				<?php
+			}
+			?>
 		</tr>
 			<?php
 			foreach ($types as $type) {
 				?>
 				<tr>
 					<td class="sq-backend-table-cell">
-					
-					<?php
-					echo ucwords(str_replace('_',' ', $type));
-					?>
-					
+						<?php
+						echo ucwords(str_replace('_',' ', $type));
+						?>
 					</td>
 					<td class="sq-backend-table-cell">
-					<?php
-						$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $type);
-						$is_customised = false;
-						if (!empty($link)) {
-							$is_customised = true;
-							$info = Array($link['minorid'] => 'contents');
-							$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($info);
-							
-							$content = '<a href="'.$href[$link['minorid']].'">'.ucwords(str_replace('_',' ', $type)).' Format</a>';
-						} else {
-							$content = 'Default Format';
-						}
-						echo $content;
-					?>
+						<?php
+							$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $type);
+							$is_customised = false;
+							if (!empty($link)) {
+								$is_customised = true;
+								$info = Array($link['minorid'] => 'contents');
+								$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($info);
+
+								$content = '<a href="'.$href[$link['minorid']].'">'.ucwords(str_replace('_',' ', $type)).' Format</a>';
+							} else {
+								$content = 'Default Format';
+							}
+							echo $content;
+						?>
 					</td>
-					<td class="sq-backend-table-cell">
-					
 					<?php
-					check_box($prefix.'_customise[]', $type, $is_customised);
+					if ($write_access) {
+						?>
+						<td class="sq-backend-table-cell">
+							<?php
+							check_box($prefix.'_customise[]', $type, $is_customised);
+							?>
+						</td>
+						<td class="sq-backend-table-cell">
+							<?php
+							check_box($prefix.'_remove[]', $type, false);
+							?>
+						</td>
+						<?php
+					}
 					?>
-					
-					</td>
-					<td class="sq-backend-table-cell">
-					
-					<?php
-					check_box($prefix.'_remove[]', $type, false);
-					?>
-					
-					</td>
 				</tr>
 				<?php
 			}
@@ -220,11 +307,11 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 		</table>
 		<?php
 
-	}//end processCurrentAssetTypes()
+	}//end paintCurrentAssetTypes()
 
 
 	/**
-	* paints the current asset types that have been added
+	* Process the current asset types that have been added
 	*
 	* @param object Form				&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
@@ -260,19 +347,19 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 						$folder->deleteLink($link['linkid']);
 					}
 				}
-			}
+			}// end foreach
 			$asset->setAttrValue('types', $types);
- 		}
+		}
+
 		if (isset($_POST[$prefix.'_customise'])) {
-			
+
 			if (empty($_POST[$prefix.'_customise'])) return false;
-			
+
 			foreach ($_POST[$prefix.'_customise'] as $type) {
 				if (in_array($type, $customised)) continue;
-				
-				// dickhead check
+
 				if (isset($_POST[$prefix.'_remove']) && in_array($type, $_POST[$prefix.'_remove'])) continue;
-				
+
 				$customised[] = $type;
 
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -287,16 +374,15 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 					return false;
 				}
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			
-			} // end foreach
-		} // end if
+			}
+		}
+
 		if (!empty($customised)) {
 			foreach ($customised as $type) {
 				if (!isset($_POST[$prefix.'_customise']) || !in_array($type, $_POST[$prefix.'_customise'])) {
 
-					// another dickhead check
 					if (isset($_POST[$prefix.'_remove']) && in_array($type, $_POST[$prefix.'_remove'])) continue;
-					
+
 					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', false, $type);
 					$asset->deleteLink($link['linkid']);
 					$key = array_search($type, $customised, true);
@@ -304,14 +390,15 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 				}
 			}
 		}
+
 		$asset->setAttrValue('customised', $customised);
-		$asset->saveAttributes();
-	
-	}//end paintCurrentAssetTypes()
+		return true;
+
+	}//end processCurrentAssetTypes()
 
 
 	/**
-	* paints section to add an asset type
+	* Paint section to add an asset type
 	*
 	* @param object Form				&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
@@ -327,18 +414,16 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
 		$types = array_diff($types, $asset->attr('types'));
 		asort($types);
-		
-		$uc_types = Array();
-		foreach ($types as $type) {
-			$uc_types[$type] = ucwords(str_replace('_',' ', $type));
-		}
-		combo_box($prefix.'_types', $uc_types, true, '', 6);
+
+		$uc_types = Array('' => '');
+		foreach ($types as $type) $uc_types[$type] = ucwords(str_replace('_',' ', $type));
+		combo_box($prefix.'_new_type', $uc_types, false, '');
 
 	}//end paintAddAssetType()
 
 
 	/**
-	* paints section to add a new format for an asset
+	* Process the section to add a new format for an asset
 	*
 	* @param object Form				&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
@@ -349,23 +434,21 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processAddAssetType(&$asset, &$o, $prefix)
 	{
-		if (isset($_POST[$prefix.'_types'])) {
-			$new_types = $_POST[$prefix.'_types'];
-			if (empty($new_types)) return false;
-
+		if (isset($_POST[$prefix.'_new_type'])) {
+			$type = trim($_POST[$prefix.'_new_type']);
+			if (empty($type)) return false;
 			$types = $asset->attr('types');
-			
-			foreach ($new_types as $type) {
-				if (in_array($type, $types)) return false;
+			if (!in_array($type, $types)) {
 				$types[] = $type;
+				$asset->setAttrValue('types', $types);
+				return true;
 			}
-
-			$asset->setAttrValue('types', $types);
-			$asset->saveAttributes();
 		}
+		return false;
 
 	}//end paintAddFormat()
-	
+
+
 }//end class
 
 ?>

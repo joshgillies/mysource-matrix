@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_sub_asset_listing_management.inc,v 1.8 2003/12/12 03:37:07 gsherwood Exp $
+* $Id: page_sub_asset_listing_management.inc,v 1.9 2004/01/20 03:29:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,17 +46,67 @@ class Page_Sub_Asset_Listing_Management extends Page_Management
 	{
 		$this->Page_Management($pm);
 
-		$this->vars['types']      = Array(
+		$this->vars['types']		= Array(
 										'added'   => '0.0.1',
 										'type'    => 'serialise',
 										'default' => Array(),
 										);
 
-		$this->vars['customised'] = Array(
+		$this->vars['customised']	= Array(
 										'added'   => '0.0.1',
 										'type'    => 'serialise',
 										'default' => Array(),
 										);
+
+		$this->vars['subs_only']	= Array(
+										'added'     => '0.1',
+										'type'      => 'boolean',
+										'default'   => false,
+										);
+
+		$this->vars['sort_by']		= Array(
+										'added'	=> '0.0.1',
+										'type'	=> 'selection',
+										'parameters' => Array(
+											'options' => Array(
+												''				=> '-- No Sorting --',
+												'assetid'		=> 'ID',
+												'version'		=> 'Version',
+												'name'			=> 'Name',
+												'short_name'	=> 'Short Name',
+												'created'		=> 'Created Date',
+												'updated'		=> 'Last Updated Date',
+											),
+											'multiple' => false,
+										),
+										'default' => ''
+										);
+
+		$this->vars['group_by']		= Array(
+										'added'	=> '0.0.1',
+										'type'	=> 'selection',
+										'parameters' => Array(
+											'options' => Array(
+												'number'		=> 'Standard',
+												'letter'		=> 'A-Z listing',
+											),
+											'multiple' => false,
+										),
+										'default' => 'number'
+										);
+
+		$this->vars['reverse_sort']	= Array(
+										'added'     => '0.1',
+										'type'      => 'boolean',
+										'default'   => false,
+										);
+
+		$this->vars['num_per_page']	= Array(
+										'added'   => '0.0.1',
+										'type'    => 'int',
+										'default' => 0,
+										);
+	
 
 	}//end constructor
 

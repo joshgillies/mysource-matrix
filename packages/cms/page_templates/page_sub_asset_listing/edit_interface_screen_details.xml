@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.8 2003/11/26 01:06:30 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.9 2004/01/20 03:29:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -36,7 +36,7 @@
 			<text width="25" height="1" />
 		</field>
 	</section>
-	<section name="Body Keyword Replacement" read_access="write:content">
+	<section name="Body Keyword Replacement">
 		<field>
 			<display_name>Body Keyword Replacement</display_name>
 			<note></note>
@@ -56,7 +56,25 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Current Asset Types" write_access="write:content">
+	<section name="List Settings" write_access="write:content">
+		<field>
+			<display_name>Root Node</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintRootNode"  />
+				<process_function name="processRootNode" />
+			</function_call>
+		</field>
+		<field attribute="subs_only">
+			<display_name>Subs Only</display_name>
+			<note>If set to 'Yes', only the sub assets of the root node will be printed. Otherwise, all assets under the root node will be printed.</note>
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+		<field attribute="group_by">
+			<display_name>List Format</display_name>
+			<note>A standard list displays all assets on a single page or can be broken up into multiple pages.&lt;br/&gt;An A-Z listing displays assets grouped by the first letter of their name or short name (select 'Name' or 'Short Name' from the 'Sort By' list to define the name to use).</note>
+			<selection style="list" />
+		</field>
 		<field>
 			<display_name>Current Asset Types</display_name>
 			<note></note>
@@ -65,15 +83,30 @@
 				<process_function name="processCurrentAssetTypes" />
 			</function_call>
 		</field>
-	</section>
-	<section name="Add Asset Types" write_access="write:content" read_access="write:contents">
-		<field>
-			<display_name>Add Asset Types</display_name>
-			<note>Asset Types that the Asset Listing Will Show</note>
+		<field read_access="write:contents">
+			<display_name>Add Asset Type</display_name>
+			<note />
 			<function_call>
 				<paint_function   name="paintAddAssetType"   />
 				<process_function name="processAddAssetType" />
 			</function_call>
+		</field>
+	</section>
+	<section name="Sorting" write_access="write:attributes">
+		<field attribute="sort_by">
+			<display_name>Sort By</display_name>
+			<note>&lt;b&gt;NOTE:&lt;/b&gt; If using the A-Z listing format, please select only 'Name' or 'Short Name' from the list. Selecting another value for force sorting by 'Name'.</note>
+			<selection style="list" />
+		</field>
+		<field attribute="reverse_sort">
+			<display_name>Reverse Sort</display_name>
+			<note>&lt;b&gt;NOTE:&lt;/b&gt; This option is only valid when using the standard list format.</note>
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+		<field attribute="num_per_page">
+			<display_name>Assets Per Page</display_name>
+			<note>Set to '0' (zero) to list all assets on the same page.&lt;br/&gt;&lt;b&gt;NOTE:&lt;/b&gt; This option is only valid when using the standard list format.</note>
+			<int width="5" />
 		</field>
 	</section>
 </contents>
