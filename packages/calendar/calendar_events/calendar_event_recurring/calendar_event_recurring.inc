@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.8 2004/08/02 00:48:10 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.9 2004/08/02 00:53:24 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.8 $ - 1.0
+* @version $Revision: 1.9 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -53,6 +53,15 @@ class Calendar_Event_Recurring extends Calendar_Event
 	}//end Calendar_Event_Recurring()
 
 
+	/**
+	* Adds the specified number of months to the date supplied
+	*
+	* @param int	&$month	The month to add to
+	* @param int	&$year	The year to add to
+	* @param int	&$num	The number of months to add
+	*
+	* @access private
+	*/
 	function _addMonths(&$month, &$year, $num)
 	{
 		$month += $num;
@@ -61,6 +70,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			$month = 1;
 		}
 	}
+
 
 	/**
 	* Determines the next occurrence of an event after a certain time
@@ -79,6 +89,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		if (!$interval)	$interval = 1;
 		$seconds_per_day = 60 * 60 * 24;
 		$start_ts = iso8601_ts($this->attr('start_time'));
+
 		switch ($freq_type) {
 			case 'DED':
 				$interval_length = $seconds_per_day * $interval;
