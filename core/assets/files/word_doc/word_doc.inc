@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc.inc,v 1.4 2004/09/09 07:48:36 amiller Exp $
+* $Id: word_doc.inc,v 1.5 2004/09/23 22:13:35 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -117,10 +117,13 @@ class Word_Doc extends File
 		$tmp_file = $this->data_path . '/doc_'.time();
 		copy($file,$tmp_file);
 
-		// Run a program that converts Word doc to text, set environment variable of bin_path
-		$cmd = 'HOME='.$indexer_path.' '.SQ_TOOL_ANTIWORD_PATH.' '.$tmp_file;
+		$output = '';		
+		if (SQ_TOOL_ANTIWORD_ENABLED) {
+			// Run a program that converts Word doc to text, set environment variable of bin_path
+			$cmd = 'HOME='.$indexer_path.' '.SQ_TOOL_ANTIWORD_PATH.' '.$tmp_file;
+			$output =`$cmd`;
+		}
 		
-		$output =`$cmd`;
 		unlink($tmp_file);
 	
 		if(!$output) {

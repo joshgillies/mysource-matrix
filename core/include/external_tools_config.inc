@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.2 2004/09/08 23:39:56 gsherwood Exp $
+* $Id: external_tools_config.inc,v 1.3 2004/09/23 22:13:03 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,12 +49,15 @@ class External_Tools_Config extends Config
 		
 		// HTML Tidy - Used by WYSIWYG Plugin
 		'SQ_TOOL_HTML_TIDY_PATH'			=> Array('editable' => 1, 'default' => '/usr/bin/tidy'),
+		'SQ_TOOL_HTML_TIDY_ENABLED'			=> Array('editable' => 1, 'default' => false),
 		
 		// PDF to HTML - Used to extract keywords from PDF_File assets
 		'SQ_TOOL_PDFTOHTML_PATH'			=> Array('editable' => 1, 'default' => '/usr/bin/pdftohtml'),
+		'SQ_TOOL_PDFTOHTML_ENABLED'			=> Array('editable' => 1, 'default' => false),
 		
 		// Antiword - Used to extract keywords from Word_Doc assets
 		'SQ_TOOL_ANTIWORD_PATH'				=> Array('editable' => 1, 'default' => '/usr/bin/antiword'),
+		'SQ_TOOL_ANTIWORD_ENABLED'				=> Array('editable' => 1, 'default' => false),
 	);
 
 
@@ -167,16 +170,41 @@ class External_Tools_Config extends Config
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 
 		$class = get_class($this);
+		
+		$o->openSection('Activate External Tools');
+		
+			$o->openField('Enable HTML Tidy', '', '');
+			if($write_access && $is_root) {
+				combo_box($class.'[SQ_TOOL_HTML_TIDY_ENABLED]', Array('1' => 'Yes', '0' => 'No'), false, SQ_TOOL_HTML_TIDY_ENABLED);
+			} else {
+				echo (SQ_TOOL_HTML_TIDY_ENABLED) ? 'Yes' : 'No';
+			}
+			
+			$o->openField('Enable pdftohtml', '', '');
+			if($write_access && $is_root) {
+				combo_box($class.'[SQ_TOOL_PDFTOHTML_ENABLED]', Array('1' => 'Yes', '0' => 'No'), false, SQ_TOOL_PDFTOHTML_ENABLED);
+			} else {
+				echo (SQ_TOOL_PDFTOHTML_ENABLED) ? 'Yes' : 'No';
+			}
+			
+			$o->openField('Enable Antiword', '', '');
+			if($write_access && $is_root) {
+				combo_box($class.'[SQ_TOOL_ANTIWORD_ENABLED]', Array('1' => 'Yes', '0' => 'No'), false, SQ_TOOL_ANTIWORD_ENABLED);
+			} else {
+				echo (SQ_TOOL_ANTIWORD_ENABLED) ? 'Yes' : 'No';
+			}
+		
+		$o->closeSection();
 
 		$o->openSection('WYSIWYG Editor Tools');
-
+		
 			$o->openField('Path to HTML Tidy');
 			if ($write_access) {
 				text_box($class.'[SQ_TOOL_HTML_TIDY_PATH]', SQ_TOOL_HTML_TIDY_PATH, 30);
 			} else {
 				echo SQ_TOOL_HTML_TIDY_PATH;
 			}
-
+			
 			if (!is_file(SQ_TOOL_HTML_TIDY_PATH)) {
 				?><br /><span class="sq-backend-warning">The path to HTML Tidy is not valid</span><?php
 			} else if (!is_executable(SQ_TOOL_HTML_TIDY_PATH)) {
@@ -186,7 +214,7 @@ class External_Tools_Config extends Config
 		$o->closeSection();
 		
 		$o->openSection('Keyword Extraction Tools');
-			
+		
 			$o->openField('Path to pdftohtml');
 			if ($write_access) {
 				text_box($class.'[SQ_TOOL_PDFTOHTML_PATH]', SQ_TOOL_PDFTOHTML_PATH, 30);
@@ -199,7 +227,7 @@ class External_Tools_Config extends Config
 			} else if (!is_executable(SQ_TOOL_PDFTOHTML_PATH)) {
 				?><br /><span class="sq-backend-warning">The path to PDFTOHTML is not executable</span><?php
 			}
-
+			
 			$o->openField('Path to Antiword');
 			if ($write_access) {
 				text_box($class.'[SQ_TOOL_ANTIWORD_PATH]', SQ_TOOL_ANTIWORD_PATH, 30);
