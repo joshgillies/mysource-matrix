@@ -54,14 +54,9 @@ class File extends Asset
 		}
 
 		if (parent::create($link)) {
-
-			// short and long names are the same to begin with
-			$this->setAttrValue('short_name', $name);
 			$this->setAttrValue('name', $name);
-			
 			return true;
-
-		}//end if
+		}
 
 		return false;
 
