@@ -148,7 +148,7 @@ function restrict_data_path($restricted, $dir)
 * @param string|int		$value	The value to encode or decode
 * @param boolean		$encode	Whether to encode or decode
 *
-* @return string|int|NULL
+* @return mixed string if encoding, int if decoding and NULL on error
 */
 function asset_link_treeid_convert($value, $encode) 
 {

@@ -26,7 +26,7 @@
 * @param Array()	$subs			An array of the sub-queries to be performed
 * @param mixed		$default_value	The default value to use when no values are found in the sub-query and we have a non subquery compatible DB
 *
-* @return string | object DB_Error
+* @return mixed string or object DB_Error
 * @access public
 */
 function db_extras_subquery(&$db, $sql, $subs, $default_value=null)
@@ -85,7 +85,7 @@ function db_extras_subquery(&$db, $sql, $subs, $default_value=null)
 * @param string		$insert			the insert part of the statement
 * @param string		$select			An array of the sub-queries to be performed
 *
-* @return [TRUE | object DB_Error]
+* @return mixed TRUE or object DB_Error
 * @access public
 */
 function db_extras_insert_select(&$db, $insert, $select)

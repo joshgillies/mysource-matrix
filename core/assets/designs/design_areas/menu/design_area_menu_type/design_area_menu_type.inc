@@ -202,7 +202,7 @@ class Design_Area_Menu_Type extends Design_Area
 	/*
 	* Returns the sub menu for this menu (if any)
 	*
-	* @return Design_Area_Menu_Type | null
+	* @return mixed Design_Area_Menu_Type or null
 	* @access public
 	*/
 	function &getSubMenu() 
@@ -221,7 +221,7 @@ class Design_Area_Menu_Type extends Design_Area
 	/*
 	* Returns the parent menu for this menu (assuming it is a sub menu)
 	*
-	* @return Design_Area_Menu_Type | null
+	* @return mixed Design_Area_Menu_Type or null
 	* @access public
 	*/
 	function &getParentMenu()

@@ -34,7 +34,7 @@ class Page_Standard extends Page
 	* @param array()	&$link	information used to create the initial link
 	*
 	* @see Asset::create()
-	* @return int|false
+	* @return mixed int or false
 	* @access public
 	*/
 	function create(&$link)
@@ -91,7 +91,7 @@ class Page_Standard extends Page
 	*
 	* @param int	$linkid	the link id of the link to remove
 	*
-	* @return TRUE|string
+	* @return mixed TRUE or error msg string
 	* @access public
 	*/
 	function canDeleteLink($linkid)

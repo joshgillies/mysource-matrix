@@ -33,7 +33,8 @@ class Design_Area_Declared_Vars extends Design_Area
 		}
 	}//end attr();
 
-	/*
+
+	/**
 	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented
 	*
 	* @param object Design	$design the design for which we are currently printing
@@ -46,7 +47,8 @@ class Design_Area_Declared_Vars extends Design_Area
 		return true;
 	}//end printArea()
 
-	/*
+
+	/**
 	* Returns an array of Asset_Attribute object, one foreach declared var
 	*
 	* @return Array(object Asset_Attribute)

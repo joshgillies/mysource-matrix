@@ -43,7 +43,7 @@ class Designs_Folder extends Folder
 	* @param array()	&$link	information used to create the initial link
 	*
 	* @see Asset::create()
-	* @return int|false
+	* @return mixed int or false
 	* @access public
 	*/
 	function create(&$link)
@@ -78,7 +78,7 @@ class Designs_Folder extends Folder
 	*
 	* @param bool	$dupe_directory	whether or not to duplicate thia assets data directory
 	*
-	* @return object Asset | NULL
+	* @return mixed object Asset or NULL
 	* @access public
 	* @see Asset::duplicate()
 	*/

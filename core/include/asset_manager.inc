@@ -830,7 +830,7 @@ pre_echo($sql);
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because 
 	*									you can't use the '@' operator when returning by reference
 	*
-	* @return object Asset | null
+	* @return mixed object Asset or null
 	* @access public
 	*/
 	function &getAssetFromURL($protocol=null, $url=null, $exact_match=true, $mute_errors=false)
@@ -1027,7 +1027,7 @@ pre_echo($sql);
 	*										for a whole bunch of them
 	* @param string				$base_url	the url that we are want to match closest to
 	*
-	* @return string | array(int => string)
+	* @return mixed returns string if $assetids is an in and an array(int => string) if $assetids is an array
 	* @access public
 	*/
 	function getAssetURL($assetids, $base_url=null)
@@ -1114,7 +1114,7 @@ pre_echo($sql);
 	*										for a whole bunch of them
 	* @param string				$base_url	the url that we are want to match closest to
 	*
-	* @return string | array(int => string)
+	* @return mixed returns string if $assetids is an in and an array(int => string) if $assetids is an array
 	* @access public
 	*/
 	function getAssetHref($assetids, $base_url=null)

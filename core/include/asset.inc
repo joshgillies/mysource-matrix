@@ -47,13 +47,13 @@ class Asset extends Resolve_Object
 	* Current languages set for the asset
 	* @var string
 	*/
-	var $languages;
+	var $languages = '';
 
 	/**
 	* Current character set of the asset
 	* @var string
 	*/
-	var $charset;
+	var $charset = '';
 
 	/**
 	* Timestamp of when this asset was last updated
@@ -131,7 +131,7 @@ class Asset extends Resolve_Object
 	*						'sort_order' => [link sort order], 'dependant' = [0|1],
 	*						'exclusive' = [0|1])
 	*
-	* @return int|false
+	* @return mixed int or false
 	* @access public
 	*/
 	function create(&$link)
@@ -260,7 +260,7 @@ class Asset extends Resolve_Object
 	*									linked to this asset, only works if $link is not empty
 	* @param bool	$dupe_directory		whether or not to duplicate this assets data directory
 	*
-	* @return object Asset | NULL
+	* @return mixed object Asset or NULL
 	* @access public
 	*/
 	function &duplicate(&$link, &$dupe_map, $dupe_dependants=true, $dupe_directory=true)
@@ -1947,7 +1947,7 @@ class Asset extends Resolve_Object
 	* @param object Asset	$minor		the minor asset that we are linking to
 	* @param string			$link_type	the type of link this is
 	*
-	* @return TRUE|string
+	* @return mixed TRUE or error message string
 	* @access public
 	*/
 	function canCreateLink(&$minor, $link_type, $exclusive)
@@ -2047,7 +2047,7 @@ class Asset extends Resolve_Object
 	*								ignore the link represented by this link id
 	* @param int	$exclusive		the exclusive status of the link
 	*
-	* @return TRUE | string
+	* @return mixed TRUE or error message string
 	* @access public
 	*/
 	function canLinkToType($type_code, $link_type, $ignore_linkid=0, $exclusive=0)
@@ -2492,7 +2492,7 @@ class Asset extends Resolve_Object
 	*
 	* @param int	$linkid	the link id of the link to remove
 	*
-	* @return TRUE|string
+	* @return mixed TRUE or error msg string
 	* @access public
 	*/
 	function canDeleteLink($linkid)
@@ -3138,7 +3138,7 @@ class Asset extends Resolve_Object
 	*									because you can't use the '@' operator when
 	*									returning by reference
 	*
-	* @return object Asset_Attribute | NULL
+	* @return mixed object Asset_Attribute or NULL
 	* @access public
 	*/
 	function &getAttribute($name, $mute_errors=false)

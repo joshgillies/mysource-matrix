@@ -79,7 +79,7 @@ class Bodycopy extends Asset
 	* @param array()	&$link	information used to create the initial link
 	*
 	* @see Asset::create()
-	* @return int|false
+	* @return mixed int or false
 	* @access public
 	*/
 	function create(&$link)
@@ -143,7 +143,7 @@ class Bodycopy extends Asset
 	* @param object Asset	$minor		the minor asset that we are linking to
 	* @param string			$link_type	the type of link this is
 	*
-	* @return TRUE|string
+	* @return mixed TRUE or error message string 
 	* @access public
 	*/
 	function canCreateLink(&$minor, $link_type, $exclusive)

@@ -42,7 +42,7 @@ class Root_Folder extends Folder
 	* @param array()	&$link	information used to create the initial link
 	*
 	* @see Asset::create()
-	* @return int|false
+	* @return mixed int or false
 	* @access public
 	*/
 	function create(&$link)

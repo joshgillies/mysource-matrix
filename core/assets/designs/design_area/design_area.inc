@@ -34,7 +34,7 @@ class Design_Area extends Asset
 	* @param array()	&$link	information used to create the initial link
 	*
 	* @see Asset::create()
-	* @return int|false
+	* @return mixed int or false
 	* @access public
 	*/
 	function create(&$link)
@@ -96,7 +96,7 @@ class Design_Area extends Asset
 	/**
 	* Returns all the designs that this design area is used in
 	*
-	* @return Design_Area | null
+	* @return Array() array of Design objects
 	* @access public
 	*/
 	function &getDesigns()

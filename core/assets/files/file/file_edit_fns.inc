@@ -44,6 +44,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	{
 		$existing = $asset->_getExistingFile();
 		if (!empty($existing)) {
+			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 			?> 
 				<p style="font-size: 7pt">
 				<b><a href="<?php echo current_url().'?a='.$asset->id?>&now=<?php echo time()?>" target="_blank">Current File</a></b><br/>
@@ -172,6 +173,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			$thumb = &$GLOBALS['SQ_SYSTEM']->am->getAsset($thumb_link['minorid'], '', true);
 			$existing = $thumb->_getExistingFile();
 			if (!empty($existing)) {
+				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 				?> 
 					<p style="font-size: 7pt">
 					<b><a href="<?php echo current_url().'?a='.$thumb->id?>" target="_blank">Current Thumbnail</a></b><br/>

@@ -133,7 +133,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* @param int	$cur_pos		the current position in $file_contents that we are
 	* @param int	$cur_pos		the current position in $file_contents that we are
 	*
-	* @returns Array()
+	* @returns Array
 	* @access private
 	*/
 	function _parseStringContents(&$file_contents, &$cur_pos, &$nest_level)

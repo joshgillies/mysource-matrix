@@ -108,7 +108,7 @@ class Bodycopy_Table extends Asset
 	* @param int		$num_cols	the number of columns to create
 	*
 	* @see Asset::create()
-	* @return int|false
+	* @return mixed int or false
 	* @access public
 	*/
 	function create(&$link, $num_rows=1, $num_cols=1)

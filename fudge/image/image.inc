@@ -202,7 +202,7 @@ class Image
 	*
 	* @param string	$input		the input image file
 	*
-	* @return int | null
+	* @return mixed int or false
 	* @access public
 	*/
 	function fromFile($input) 
@@ -236,7 +236,7 @@ class Image
 	* @param string	$output			the output image file
 	* @param int	$jpeg_quality	number between 0 and 100
 	*
-	* @return int | null
+	* @return mixed int or false
 	* @access public
 	*/
 	function toFile($image, $output, $jpeg_quality=80) 

@@ -19,7 +19,7 @@ class Colour
 	*
 	* @param string	$name	a specific name to find in the palette
 	*
-	* @return Array() | string
+	* @return mixed Array() or string if a specific name is passed
 	* @access public
 	*/
 	function colourPalette($name=null) 

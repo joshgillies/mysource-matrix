@@ -64,12 +64,12 @@ class Design_Area_Nest_Content extends Design_Area
 
 
 	/**
-	* Returns the assetid that this nest content area is pointing to
+	* Returns the particular info for the nested assets
 	* Returns NULL if no link found
 	*
 	* @param boolean	$field	field in the link that is required (any valid field from getLink())
 	*
-	* @return mixed|NULL
+	* @return mixed NULL if no asset found or the field value
 	* @see Asset::getLink()
 	* @access private
 	*/

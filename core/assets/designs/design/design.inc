@@ -83,7 +83,7 @@ class Design extends Design_Area
 	*
 	* @param string	$id_name		the id of the design area to get, if blank returns links for all design areas
 	*
-	* @return Array | null
+	* @return mixed Array or null
 	* @access public
 	*/
 	function getDesignAreaLink($id_name='')
@@ -100,7 +100,7 @@ class Design extends Design_Area
 	*
 	* @param string	$id_name		the id of the design area to get
 	*
-	* @return object Design_Area | null
+	* @return mixed object Design_Area or null
 	* @access public
 	*/
 	function &getDesignArea($id_name)

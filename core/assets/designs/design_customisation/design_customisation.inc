@@ -44,10 +44,10 @@ class Design_Customisation extends Design
 		return true;
 	}//end _linksUpdated()
 
-	/*
+	/**
 	* Returns the parent design/design_customisation that this customisation is customising
 	*
-	* @return object Design | null
+	* @return mixed object Design or null
 	* @access public
 	*/
 	function &getParentDesign() 
@@ -60,7 +60,7 @@ class Design_Customisation extends Design
 	}//end getParentDesign()
 
 
-	/*
+	/**
 	* Returns an array of links for design areas that have been customised by this design
 	*
 	* @return Array(string)
@@ -101,7 +101,8 @@ class Design_Customisation extends Design
 
 	}// end getCustomisedAreas()
 
-	/*
+
+	/**
 	* Returns an array of links for design areas that have NOT been customised by this design
 	*
 	* @return Array(string)
@@ -118,9 +119,7 @@ class Design_Customisation extends Design
 	}// end getUnCustomisedAreas()
 
 
-
-
-	/*
+	/**
 	* Updates this customisation from our parent, 
 	* ie. Updates our contents array and the contents arrays for any customised but NOT specialised design areas
 	*     No need to do the uncustomised design areas because they would be done by our parent
