@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring_edit_fns.inc,v 1.1 2004/07/28 01:27:23 lwright Exp $
+* $Id: calendar_event_recurring_edit_fns.inc,v 1.2 2004/07/29 05:15:10 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -85,7 +85,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 				  <div id="<?php echo $prefix; ?>DailyOptions" style="display: <?php echo (($freq{0} == 'D') ? 'block' : 'none') ?>">
 					<input type="radio" <?php echo ((($freq == 'DED') || !$freq) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_DED" value="DED" />Every Day
 					<br /><input type="radio" <?php echo ((($freq != 'DED') && (substr($freq, 0, 3) == 'DED')) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_DEDx" value="DEDx" />Every <input type="text" size="2" value="<?php echo trim(substr($freq, 3)); ?>" name="<?php echo $prefix; ?>_num_days" onfocus="checkBox('<?php echo $prefix?>_frequency_type_DEDx');" /> Days
-					<br /><input type="radio" <?php echo (((substr($freq, 0, 3) == 'DWD')) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" value="DWD" />Every WeekDay
+					<br /><input type="radio" <?php echo (((substr($freq, 0, 3) == 'DWD')) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_DWD" value="DWD" />Every WeekDay
 				  </div>
 
 				  <div id="<?php echo $prefix; ?>WeeklyOptions" style="display: <?php echo (($freq{0} == 'W') ? 'block' : 'none') ?>">
