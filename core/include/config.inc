@@ -2,8 +2,17 @@
 
 require_once SQ_LIB_PATH.'/general/general.inc';
 
-
-
+/**
+* Config
+*
+* Purpose
+*
+*    Looks after the creation and editing of the system config
+*
+* @author  Blair Robertson <blair@squiz.net>
+* @version $Version$ - 1.0
+* @package Resolve
+*/
 class Config extends Resolve_Object 
 {
 

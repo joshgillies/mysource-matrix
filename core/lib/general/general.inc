@@ -1,4 +1,14 @@
 <?php
+/**
+* General Functions
+*
+* Purpose
+*     Generic functions that are useful, but don't fall into any other category
+*
+* @author  Blair Robertson <blair@squiz.net>
+* @version $Version$ - 1.0
+* @package Resolve::lib
+*/
 
 /*
 * Strips the slashes from a variable if magic quotes is set for GPC

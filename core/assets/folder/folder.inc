@@ -10,6 +10,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
+* @package Resolve::__core__
 */
 class Folder extends Asset
 {

@@ -1,9 +1,19 @@
 <?php
+/**
+* Dev
+*
+* Purpose
+*     Generic functions that are useful for developers
+*
+* @author  Blair Robertson <blair@squiz.net>
+* @version $Version$ - 1.0
+* @package Resolve::lib
+*/
+
    ########################################################
   # Recursively prints array contents - works goodly on
  # associative arrays
 #########################################################
-
 function array_contents(&$array, $max_depth=0, $depth=0, $ignore_ints=false) {
 	$string = $indent = "";
 	for ($i = 0; $i < $depth; $i++) $indent .= "\t";

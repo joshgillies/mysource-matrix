@@ -10,6 +10,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
+* @package Resolve::__core__
 */
 class Trash_Folder extends Folder
 {

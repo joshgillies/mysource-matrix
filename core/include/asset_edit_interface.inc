@@ -7,6 +7,7 @@ require_once 'XML/Tree.php';
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
+* @package Resolve
 */
 class Asset_Edit_Interface extends Resolve_Object
 {

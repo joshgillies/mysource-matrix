@@ -9,6 +9,7 @@
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
+* @package Resolve
 */
 class Custom_Asset_Type extends Resolve_Object
 {

@@ -1,4 +1,11 @@
 <?php
+/**
+* HTML Form Functions
+*
+* @author  Blair Robertson <blair@squiz.net>
+* @version $Version$ - 1.0
+* @package Resolve::lib
+*/
 
 
 /**

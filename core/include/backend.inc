@@ -12,6 +12,7 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
+* @package Resolve
 */
 class Backend extends Resolve_Object
 {

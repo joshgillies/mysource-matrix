@@ -9,8 +9,8 @@
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
+* @package Resolve::lib
 */
-
 
 
 /*
@@ -68,7 +68,7 @@ function db_extras_subquery(&$db, $sql, $subs, $default_value=null) {
 			$sql = str_replace($find, $replace, $sql);
 			return $sql;
 
-	}#end switch
+	}//end switch
 
 }// end db_extras_subquery
 

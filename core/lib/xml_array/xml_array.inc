@@ -1,6 +1,6 @@
 <?php
 
-# From PEAR
+// From PEAR
 require_once 'XML/Parser.php';
 
 /**
@@ -15,7 +15,7 @@ require_once 'XML/Parser.php';
 *
 * Example
 *
-*    $array_paths = Array('root/elem_two_list/elem_two_item'); # for more info on this see $array_paths var below
+*    $array_paths = Array('root/elem_two_list/elem_two_item'); // for more info on this see $array_paths var below
 *    $xml_arr = new XML_Array($array_paths);
 *    $array   = $xml_arr->getArrayFromFile($file);
 *    print_r($array);
@@ -171,41 +171,41 @@ class XML_Array extends XML_Parser
 	function startHandler($xp, $elem, &$attribs)
 	{
 
-		# root element ?
+		// root element ?
 		if (!count($this->_path)) {
 			$this->_path[]       = $elem;
 			$this->_path_ptrs[]  = &$this->_results;
 			$this->_path_types[] = 's';
 
-		# normal element
+		// normal element
 		} else {
 
-			# get a ref to the parent element
+			// get a ref to the parent element
 			$parent = &$this->_path_ptrs[count($this->_path_ptrs) - 1];
 
-			# we aren't going to deal with  mixed contents for the moment
+			// we aren't going to deal with  mixed contents for the moment
 			//if (!empty($this->cdata)) {
 			//  $parent_id = 'obj' . ($this->i - 1);
 			//  $parent    =& $this->$parent_id;
 			//  $parent->children[] = &new $this->_node_class(null, $this->cdata);
 			//}
 
-			# create this elements entry, need to check 
-			# if it exists here so that we don't overright multiple entry
-			# elements contents
+			// create this elements entry, need to check 
+			// if it exists here so that we don't overright multiple entry
+			// elements contents
 			if (!isset($parent[$elem]) || !is_array($parent[$elem])) {
 				$parent[$elem] = Array();
 			}
 
-			# OK, now because we have a parent, then that parent is a compound element, comprenday ?
+			// OK, now because we have a parent, then that parent is a compound element, comprenday ?
 			$this->_path_types[count($this->_path_types) - 1] = 'c';
 
 			$this->_path[]       = $elem;
-			$this->_path_types[] = 's'; # every element start's out simple :)
+			$this->_path_types[] = 's'; // every element start's out simple :)
 			$this->_path_ptrs[]  = &$parent[$elem];
 			
-			# OK, this element in one of possibly many with the same name
-			# so what we have to do is create an indexed array with each element under it
+			// OK, this element in one of possibly many with the same name
+			// so what we have to do is create an indexed array with each element under it
 			$path_str = implode('/', $this->_path);
 			if (in_array($path_str, $this->_array_paths)) {
 				$i = count($parent[$elem]);
@@ -217,8 +217,8 @@ class XML_Array extends XML_Parser
 
 		}
 
-		# Now add the attributes to the element, which is the one
-		# on the top of the ptrs stack
+		// Now add the attributes to the element, which is the one
+		// on the top of the ptrs stack
 		$i = count($this->_path_ptrs) - 1;
 		for(reset($attribs); null !== ($k = key($attribs)); next($attribs)) {
 			$this->_path_ptrs[$i]['@'.$k] = $attribs[$k];
@@ -240,16 +240,16 @@ class XML_Array extends XML_Parser
 	function endHandler($xp, $elem)
 	{
 
-		# if we aren't the root element, then add any data necessary
+		// if we aren't the root element, then add any data necessary
 		if (count($this->_path) > 1) {
 
 
-			# if this element is a simple element (is just data), add the value
+			// if this element is a simple element (is just data), add the value
 			if ($this->_path_types[count($this->_path_types) - 1] == 's' && $this->_cdata != '') {
 				$this->_path_ptrs[count($this->_path_ptrs) - 1]['value'] = $this->_cdata;
 			}
 
-			# mixed contents
+			// mixed contents
 			//if (count($node->children) > 0)   {
 			//  if (trim($this->cdata)) {
 			//      $node->children[] = &new $this->_node_class(null, $this->cdata);
@@ -258,11 +258,11 @@ class XML_Array extends XML_Parser
 			//  $node->set_content($this->cdata);
 			//}
 
-		}#end if
+		}//end if
 
-		# OK, this element in one of possibly many with the same name
-		# so what we need to pop 2 elements of the ptr's array 
-		# because we put 2 on in startHandler
+		// OK, this element in one of possibly many with the same name
+		// so what we need to pop 2 elements of the ptr's array 
+		// because we put 2 on in startHandler
 		$path_str = implode('/', $this->_path);
 		if (in_array($path_str, $this->_array_paths)) {
 			array_pop($this->_path_ptrs);

@@ -13,6 +13,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
+* @package Resolve::attributes
 */
 class Asset_Attribute_Text extends Asset_Attribute
 {

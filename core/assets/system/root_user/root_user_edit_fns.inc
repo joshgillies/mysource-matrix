@@ -10,6 +10,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/user/user_edit_fns.inc';
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
+* @package Resolve::__core__
 */
 class Root_User_Edit_Fns extends User_Edit_Fns
 {

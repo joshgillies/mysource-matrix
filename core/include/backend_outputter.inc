@@ -22,8 +22,8 @@ define('SQ_BO_MSG_ERROR',       3);
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
+* @package Resolve
 */
-
 class Backend_Outputter 
 {
 
