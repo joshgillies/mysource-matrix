@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.12 2004/12/06 14:38:11 brobertson Exp $
+* $Id: option_list.inc,v 1.13 2004/12/20 00:30:01 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -126,18 +126,21 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 				divX = div.firstChild;
 
 				while(divX != null) {
-					this_option = divX.firstChild.nextSibling.nextSibling.nextSibling.innerHTML;
-
-					// this is the one we want
-					if (divX.id == (box_name + "_" + index)) {
-						divX.style.display = 'none';
-					} else {
-						option_array[arrIndex] = this_option.replace('&lt;', '<').replace('&gt;', '>');
+					// already hidden?
+					if (divX.style.display != 'none') {
+						this_option = divX.firstChild.nextSibling.nextSibling.nextSibling.innerHTML;
+	
+						// this is the one we want
+						if (divX.id == (box_name + "_" + index)) {
+							divX.style.display = 'none';
+						} else {
+							option_array[arrIndex] = this_option.replace('&lt;', '<').replace('&gt;', '>');
+						}
+						arrIndex++;
 					}
-					arrIndex++;
 					divX = divX.nextSibling;
 				}
-
+				
 				var new_value_content = '';
 
 				for (var i = 0; i < option_array.length; i++) {
@@ -157,9 +160,9 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 
 		</script>
 			<?php text_box($prefix.'_new_options', '', 50); ?>
-			[ <a href="#" onclick="Javascript: optionListAddOption('<?php echo $prefix ?>', 'options'); return false;">add</a> ]<br/>
+			[ <a href="#" onclick="optionListAddOption('<?php echo $prefix ?>', 'options'); return false;">add</a> ]<br/>
 			<div id="<?php echo $prefix; ?>_current_options"><?php echo $current_to_string; ?></div>
-			<span style="display:none;"><?php text_area($prefix.'_options', $current_to, 5, 1); ?></span>
+			<span style="display:none"><?php text_area($prefix.'_options', $current_to, 50, 5); ?></span>
 		<?php
 		}
 
