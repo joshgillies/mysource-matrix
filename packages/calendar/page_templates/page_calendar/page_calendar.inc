@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.131 2004/12/13 21:44:11 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.132 2004/12/16 01:39:45 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.131 $
+* @version $Revision: 1.132 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -899,20 +899,52 @@ class Page_Calendar extends Page_Asset_Listing
 
 		$mousedown_code = $dragging_enabled ? 'onmousedown="'.($popups_enabled ? 'stopTrailingPopup(); ' : '').'startDragging(this)"' : '';
 		$mouseup_code = $dragging_enabled ? 'onmouseup="if (stopDragging()!=\'no_move\') { formSubmitted=true; setTimeout(\'formSubmitted=false\', 100)}"' : '';
-
 		?>
+		<style>
+			table#day tr td.sq-time-cell {
+				width: <?php echo $width; ?>px; 
+				height: <?php echo $partition_height; ?>px; 
+				padding: 0px 1px; 
+				border-width: 1px;
+			<?php
+			if ($click_to_add_ab) {
+				?>
+				cursor: pointer;
+				cursor: hand;
+				<?php
+			}
+			?>
+			}
+			/* CSS Hack to cope with the unusual situation of strict-mode IE being better
+			   than strict-mode Firefox.  The following rule will be picked up only by firefox
+			   and compensates for its td-height bug. */
+			html>body table#day tr td.sq-time-cell {
+				height: <?php echo $partition_height+1; ?>px;
+			}
+			td.sq-allday-cell {
+				<?php
+				if ($click_to_add_ab) {
+					?>
+					cursor: pointer;
+					cursor: hand;
+					<?php
+				}
+				?>
+			}
+		</style>
 		<table id="<?php echo $table_id; ?>" border="0" cellspacing="0" cellpadding="0" summary="events in this <?php echo $table_id ?>" style="width: <?php echo ($width * count($events)) + 65; ?>px">
 		<?php
-		// Print the column headers
+
+		// PRINT HEADER ROW
 		?>
 		<tr>
 			<th>Time</th>
 		<?php
-		foreach ($column_names as $date => $name) {
+		foreach ($column_names as $id => $name) {
 			?>
 			<th onclick="<?php echo (!empty($column_links)) ? 'clickChild(this); ' : ''; ?>" class="columnLabel" nowrap="nowrap" style="width: <?php echo $width; ?>px;  <?php echo (!empty($column_links)) ? 'cursor: pointer; cursor: hand' : ''; ?>">
 				<?php
-					if (!empty($column_links)) echo '<a href="'.$column_links[$date].'">';
+					if (!empty($column_links)) echo '<a href="'.$column_links[$id].'">';
 					echo str_replace(' ', '&nbsp;', $name);
 					if (!empty($column_links)) echo '</a>';
 				?>
@@ -925,22 +957,21 @@ class Page_Calendar extends Page_Asset_Listing
 		$div_width = $width * 0.99;
 		list($current_hour, $current_mins) = explode(':', $this->attr('day_starts_at'));
 		list($end_hour, $end_mins) = explode(':', $this->attr('day_ends_at'));
+
+		// PRINT THE 'ALL DAY' ROW
 		?>
 			<tr>
 			<th class="timeLabel">*</th>
 			<?php
-
-			// print the "all day" events
 			foreach ($column_names as $id => $name) {
 				$col_events = $events[$id];
 				$event_link_date = is_iso8601($id) ? $id : $_REQUEST['SQ_CALENDAR_DATE'];
-				$root_node_code = '';
 				$click_to_add_code = '';
 				if ($click_to_add_ab) {
 					$root_node_code = ($columns_are_assets && ($id != '*')) ? ', '.$id : '';
-					$click_to_add_code = ' onclick="addEvent(\''.$event_link_date.'\', \'*\''.$root_node_code.');" style="cursor: pointer; cursor: hand"';
+					$click_to_add_code = ' onclick="addEvent(\''.$_REQUEST['SQ_CALENDAR_DATE'].'\', \'*\''.$root_node_code.');"';
 				}
-				echo '<td id="'.$event_link_date.'_allday_'.($columns_are_assets ? $id : '').'"'.$click_to_add_code.'>';
+				echo '<td class="sq-allday-cell" id="'.$event_link_date.'_allday_'.($columns_are_assets ? $id : '').'"'.$click_to_add_code.'>';
 				if (empty($col_events['all_day'])) echo '&nbsp;';
 				foreach ($col_events['all_day'] as $assetid => $event) {
 					$assetid = strtok($assetid,':');
@@ -964,6 +995,8 @@ class Page_Calendar extends Page_Asset_Listing
 			?>
 			</tr>
 		<?php
+		
+		// PRINT THE ROWS WITH TIMES
 		while (($current_hour*60 + $current_mins) < ($end_hour*60 + $end_mins)) {
 			?>
 			<tr>
@@ -972,21 +1005,18 @@ class Page_Calendar extends Page_Asset_Listing
 			foreach ($column_names as $id => $name) {
 				$col_events = $events[$id];
 				$time_key = sprintf('%02d:%02d', $current_hour, $current_mins);
-				if (is_iso8601($id)) $_REQUEST['SQ_CALENDAR_DATE'] = $id;
-				$click_to_add_code = '';
-				$click_to_add_style = '';
 				if ($click_to_add_ab) {
 					$root_node_code = ($columns_are_assets && ($id != '*')) ? ', '.$id : '';
 					$click_to_add_code = ' onclick="addEvent(\''.$_REQUEST['SQ_CALENDAR_DATE'].'\', \''.$time_key.'\''.$root_node_code.');"';
-					$click_to_add_style = 'cursor: pointer; cursor: hand';
 				}
+				if (is_iso8601($id)) $_REQUEST['SQ_CALENDAR_DATE'] = $id;
 				?>
-				<td id="<?php echo $_REQUEST['SQ_CALENDAR_DATE'].'_'.$time_key.'_'.($columns_are_assets ? $id : ''); ?>" style="<?php echo $width; ?>px; height: <?php echo $partition_height; ?>px; padding-left: 1px; <?php echo $click_to_add_style; ?>" <?php echo $click_to_add_code; ?>>
-				<?php
-					$denominator = max($col_events['_overlap_'], $this->attr('column_capacity'));
-					echo $this->_getTimedTableCellContents($col_events[$time_key], $show_event_links, $root_nodes, ($current_mins + ($current_hour * 60)), $partition_time, $partition_height, $div_width / $denominator, $layout_maps[$id], $mousedown_code, $mouseup_code);
-				?>
-				&nbsp;
+				<td id="<?php echo $_REQUEST['SQ_CALENDAR_DATE'].'_'.$time_key.'_'.($columns_are_assets ? $id : ''); ?>" class="sq-time-cell" <?php echo $click_to_add_code; ?>>
+					<?php
+						$denominator = max($col_events['_overlap_'], $this->attr('column_capacity'));
+						echo $this->_getTimedTableCellContents($col_events[$time_key], $show_event_links, $root_nodes, ($current_mins + ($current_hour * 60)), $partition_time, $partition_height, $div_width / $denominator, $layout_maps[$id], $mousedown_code, $mouseup_code);
+					?>
+					<span style="font-size: 1px">&nbsp;</span>
 				</td>
 				<?php
 			}
@@ -1082,7 +1112,8 @@ class Page_Calendar extends Page_Asset_Listing
 			$inner_width = $event_width - 4;
 			$current_mouse_up_down_code = (($details['type_code'] != 'calendar_event_recurring') && (!isset($details['trimmed'])) && (!isset($details['expanded']))) ? $mousedown_code.' '.$mouseup_code : 'onmousedown="statusBarMsg(\'Recurring, multi-day and trimmed events cannot be dragged\')" onmouseup="statusBarMsg(\'\')"';
 			$current_mouse_over_out_code = '';
-			if (isset($details['description']) && !empty($details['description'])) {				$res .= '<div id="event_'.$assetid.'_description" class="popup">'.$details['description'].'</div>';
+			if (isset($details['description']) && !empty($details['description'])) {				
+				$res .= '<div id="event_'.$assetid.'_description" class="popup">'.$details['description'].'</div>';
 				$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')"  onmouseout="stopTrailingPopup()"';
 			}
 
