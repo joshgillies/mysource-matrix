@@ -23,7 +23,8 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	*/
 	function Content_Type_WYSIWYG_Edit_Fns()
 	{
-		$this->Asset_Edit_Fns();
+		$this->Content_Type_Edit_Fns();
+
 	}//end constructor
 
 	
@@ -59,6 +60,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			$wysiwyg->paint();
 		}
 		return true;
+
 	}//end paintBackend()
 
 
@@ -73,6 +75,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	function paint(&$asset, $generating=false)
 	{
 		echo $asset->attr('html');
+
 	}//end paint()
 
 
@@ -95,7 +98,9 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			if ($asset->setAttrValue('html', $html)) return true;
 		}
 		return false;
+
 	}//end processBackend()
 
 }//end class
+
 ?>

@@ -22,8 +22,9 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	*/
 	function Content_Type_Nest_Content_Edit_Fns()
 	{
-		$this->Asset_Edit_Fns();
-	}
+		$this->Content_Type_Edit_Fns();
+
+	}//end constructor
 
 	
 	/**
@@ -59,7 +60,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 
 		$this->paint($asset);
 		return true;
-	}
+
+	}//end paintBackend()
 
 
 	/**
@@ -105,7 +107,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$nested_asset->id]);
 
 		return true;
-	}
+
+	}//end paint()
 
 
 	/**
@@ -133,7 +136,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][<?php echo $nested_asset->id?>]);
 		<?php
 		echo '?>'."\n";
-	}
+
+	}//end paintGenerated()
 
 
 	/**
@@ -167,7 +171,9 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			}
 		}
 		return false;
-	}
+
+	}//end processBackend()
 
 }//end class
+
 ?>

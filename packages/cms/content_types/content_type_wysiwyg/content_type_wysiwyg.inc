@@ -22,10 +22,13 @@ class Content_Type_WYSIWYG extends Content_Type
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Content_Type_WYSIWYG($assetid=0) 
+	function Content_Type_WYSIWYG($assetid=0)
 	{
 		$this->Content_Type($assetid);
-	}
+
+	}//end constructor
+
 
 }//end class
+
 ?>

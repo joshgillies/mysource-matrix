@@ -36,7 +36,8 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 	function Content_Type_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
-	}
+
+	}//end constructor
 
 
 	/**
@@ -49,7 +50,9 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paint(&$asset, $generating=false)
 	{
-	}
+	}//end paint
+
 
 }//end class
+
 ?>

@@ -22,6 +22,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 	function BodyCopy_Table_Cell()
 	{
 		parent::Resolve_Object();
+
 	}//end constructor
 
 
@@ -42,6 +43,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 		if ($this->attributes[$name] == $value) return false;
 		$this->attributes[$name] = $value;
 		return true;
+
 	}//end setAttribute()
 
 
@@ -67,6 +69,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 		if (!$this->attributes['linkid']) return false;
 		$this->attributes['content_type'] = $type;
 		return true;
+
 	}//end setContentType()
 
 
@@ -89,6 +92,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 		if (!$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code'])) return false;
 		if (!$content_type->setAttrValue('name', 'Row '.($new_rowid+1).' Cell '.($new_cellid+1))) return false;
 		return true;
+
 	}//end updateContentType()
 
 
@@ -120,6 +124,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 	{
 		if (empty($this->attributes['colspan'])) return 1;
 		return ((int) $this->attributes['colspan'] > 0) ? (int) $this->attributes['colspan'] : 1;
+
 	}//end colspan()
 
 
@@ -133,6 +138,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 	{
 		if (empty($this->attributes['rowspan'])) return 1;
 		return ((int) $this->attributes['rowspan'] > 0) ? (int) $this->attributes['rowspan'] : 1;
+
 	}//end rowspan()
 
 
@@ -185,6 +191,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 			}
 		}
 		echo "\n\t\t</td>\n";
+
 	}//end paint()
 
 
@@ -295,6 +302,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 		$this->setAttribute('content_type', $new_type);
 
 		return true;
+
 	}//end _updateCellType()
 
 
@@ -314,6 +322,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 										retVal["attributes"] = '<?php echo var_serialise($this->attributes, true)?>';
 									break;
 		<?php
+
 	}//end print_backend_js_data()
 
 

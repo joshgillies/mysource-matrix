@@ -22,10 +22,12 @@ class Content_Type_Nest_Content extends Content_Type
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Content_Type_Nest_Content($assetid=0) 
+	function Content_Type_Nest_Content($assetid=0)
 	{
 		$this->Content_Type($assetid);
-	}
+
+	}//end constructor
 
 }//end class
+
 ?>

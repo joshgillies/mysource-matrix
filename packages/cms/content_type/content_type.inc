@@ -22,10 +22,11 @@ class Content_Type extends Asset
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Content_Type($assetid=0) 
+	function Content_Type($assetid=0)
 	{
 		$this->Asset($assetid);
-	}
+
+	}//end constructor
 
 
 	/**

@@ -22,10 +22,11 @@ class Page_Standard extends Page
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Page_Standard($assetid=0) 
+	function Page_Standard($assetid=0)
 	{
 		$this->Page($assetid);
-	}
+
+	}//end constructor
 
 
 	/**
@@ -102,6 +103,7 @@ class Page_Standard extends Page
 		if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the bodycopy and the standard page';
 
 		return parent::canDeleteLink($linkid);
+
 	}//end canDeleteLink()
 
 
@@ -142,6 +144,7 @@ class Page_Standard extends Page
 		} else {
 			parent::paintBackend($o);
 		}
+
 	}// end paintBackend()
 
 
@@ -160,6 +163,7 @@ class Page_Standard extends Page
 
 		$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['type_code']);
 		$bodycopy->printBody();
+
 	}// end printBody()
 
 
