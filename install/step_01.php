@@ -29,7 +29,7 @@ define('SQ_CONF_DEFAULT_EMAIL', 'gsherwood@squiz.net');
 define('SQ_CONF_TECH_EMAIL',    'techos@squiz.net');
 
 
-// Need to chmod cache and data directories
+trigger_error('Need to chmod cache and data directories', E_USER_NOTICE);
 
 $cfg = new Config();
 $cfg->save(Array(), true);
