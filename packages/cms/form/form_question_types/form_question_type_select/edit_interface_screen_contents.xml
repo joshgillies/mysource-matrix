@@ -31,7 +31,7 @@
 		<field attribute="multiple">
 			<display_name>Multiple?</display_name>
 			<note></note>
-			<selection style="list" />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="extra">
 			<display_name>Extras</display_name>
