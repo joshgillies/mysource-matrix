@@ -366,11 +366,11 @@ class Bodycopy_Table extends Asset
 	{
 		return $this->attr('name');
 
-	}//end _getName();
+	}//end _getName()
 
 
 	/**
-	* returns true if there is no content in the bodycopy
+	* Determine if there is no content in this table
 	*
 	* @access public
 	* @return boolean
@@ -386,8 +386,7 @@ class Bodycopy_Table extends Asset
 			}
 		}
 		return true;
-	} // end isEmpty()
-
+	}// end isEmpty()
 
 }//end class
 

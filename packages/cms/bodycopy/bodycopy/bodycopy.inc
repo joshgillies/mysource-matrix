@@ -158,6 +158,7 @@ class Bodycopy extends Asset
 		}
 
 		return parent::canCreateLink($minor, $link_type, $exclusive);
+
 	}//end canCreateLink()
 
 
@@ -169,8 +170,7 @@ class Bodycopy extends Asset
 	*/
 	function _getAllowedLinks() {
 
-		return Array(SQ_LINK_TYPE_2 => Array('bodycopy_table' => Array('card' => 'M', 'exclusive' => false))
-					);
+		return Array(SQ_LINK_TYPE_2 => Array('bodycopy_table' => Array('card' => 'M', 'exclusive' => false)));
 
 	}//end _getAllowedLinks()
 
@@ -201,6 +201,7 @@ class Bodycopy extends Asset
 	/**
 	* Called by the design to print the body of this asset
 	*
+	* @return boolean
 	* @access public
 	*/
 	function printBody()
@@ -233,25 +234,30 @@ class Bodycopy extends Asset
 				$table->printBody($table);
 			}
 		}
+
+		return true;
+
 	}// end printBody()
 
 
 	/**
-	* Returns name of the asset
+	* Get the name or short name of the asset
 	*
 	* @param bool	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
+	* @return string
 	* @access public
+	* @see Asset::_getName()
 	*/
 	function _getName($short_name=false)
 	{
 		return $this->attr('name');
-	}//end _getName();
+
+	}//end _getName()
 
 	
 	/**
-	* returns true if there is no content in the bodycopy
+	* Determine if there is no content in this bodycopy
 	*
 	* @access public
 	* @return boolean
@@ -267,8 +273,10 @@ class Bodycopy extends Asset
 			}
 		}
 		return true;
-	} //  isEmpty()
+
+	}//end isEmpty()
 
 
 }//end class
+
 ?>

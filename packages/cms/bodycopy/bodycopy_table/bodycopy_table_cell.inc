@@ -246,14 +246,13 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 	* @param integer				$tableid	the id of the table this cell is in
 	* @param integer				$rowid		the id of the row this cell is in
 	* @param integer				$cellid		the id of this cell
+	* @param array					$bc_saved	any saved changes that were performed without committing
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processCell(&$table, $prefix, $tableid, $rowid, $cellid)
+	function processCell(&$table, $prefix, $tableid, $rowid, $cellid, $bc_saved)
 	{
-		global $bodycopy_action, $bodycopy_name, $bodycopy_data, $bodycopy_saved;
-
 		$updated = false;
 
 		// update the contentType
@@ -265,8 +264,8 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 		if ($content_edit->processBackend(Array(), $content_type, $content_prefix)) $updated = true;
 		if (!$content_type->saveAttributes()) return false;
 
-		if (isset($bodycopy_saved[$prefix][$tableid]['rows'][$rowid]['cells'][$cellid]['attributes'])) {
-			foreach($bodycopy_saved[$prefix][$tableid]['rows'][$rowid]['cells'][$cellid]['attributes'] as $name => $value) {
+		if (isset($bc_saved[$prefix][$tableid]['rows'][$rowid]['cells'][$cellid]['attributes'])) {
+			foreach($bc_saved[$prefix][$tableid]['rows'][$rowid]['cells'][$cellid]['attributes'] as $name => $value) {
 				if ($name == 'type') {
 					// changing the content type of this cell
 					if ($this->_updateCellType($table, $value)) $updated = true;

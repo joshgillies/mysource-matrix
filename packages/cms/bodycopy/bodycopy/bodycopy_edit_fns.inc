@@ -63,7 +63,8 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	function Bodycopy_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
-	}
+
+	}//end constructor
 
 
 	/**
@@ -104,8 +105,6 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintBodycopy(&$asset, &$o, $prefix)
 	{
-		global $SQ_FUDGE_PATH;
-
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		
 		// get all the tables linked to this bodycopy
@@ -518,66 +517,62 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processBodycopy(&$asset, &$o, $prefix)
 	{
-		global $bodycopy_action, $bodycopy_name, $bodycopy_data, $bodycopy_saved;
-		global $_BODYCOPY;
-
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$updated = false;
 		
-		// do some thing for the first time we print a bodycopy on this page
-		if (empty($_BODYCOPY['update_initialised'])) {
-			$bodycopy_action = (empty($_POST['bodycopy_action'])) ? ''      : $_POST['bodycopy_action'];
-			$bodycopy_name   = (empty($_POST['bodycopy_name']))   ? ''      : $_POST['bodycopy_name'];
-			$bodycopy_data   = (empty($_POST['bodycopy_data']))   ? Array() : $_POST['bodycopy_data'];
-			$bodycopy_saved  = (empty($_POST['bodycopy_saved']))  ? Array() : $_POST['bodycopy_saved'];
+		// do some thing for the first time we process a bodycopy on this page
+		if (empty($this->_tmp['update_initialised'])) {
+			$bc_action = (empty($_POST['bodycopy_action'])) ? ''      : $_POST['bodycopy_action'];
+			$bc_name   = (empty($_POST['bodycopy_name']))   ? ''      : $_POST['bodycopy_name'];
+			$bc_data   = (empty($_POST['bodycopy_data']))   ? Array() : $_POST['bodycopy_data'];
+			$bc_saved  = (empty($_POST['bodycopy_saved']))  ? Array() : $_POST['bodycopy_saved'];
 	
-			if (empty($bodycopy_data) && empty($bodycopy_saved)) return false;
+			if (empty($bc_data) && empty($bc_saved)) return false;
 
-			// if there is some bodycopy data deserialise it into the arrays
+			// if there is some bodycopy data, deserialise it into the arrays
 			// so that everything else can use it
-			if ($bodycopy_data) $bodycopy_data = var_unserialise($bodycopy_data);
+			if ($bc_data) $bc_data = var_unserialise($bc_data);
 
-			for (reset($bodycopy_saved); NULL !== ($k = key($bodycopy_saved)); next($bodycopy_saved)) {
-				$tables = &$bodycopy_saved[$k];
+			for (reset($bc_saved); NULL !== ($k = key($bc_saved)); next($bc_saved)) {
+				$tables = &$bc_saved[$k];
 				for (reset($tables); NULL !== ($tableid = key($tables)); next($tables)) {
 					$tables[$tableid] = var_unserialise($tables[$tableid]);
 				}
 			}
 			unset($tables);
 
-			$_BODYCOPY['update_initialised'] = true;
+			$this->_tmp['update_initialised'] = true;
 		}
 
 		// get all the tables linked to this bodycopy
 		$tables = $asset->getLinks(SQ_LINK_TYPE_2, 'bodycopy_table');
 
+		// process each of the tables
 		foreach ($tables as $table_data) {
 			$table = &$am->getAsset($table_data['minorid'], $table_data['type_code']);
 			$table_edit = $table->getEditFns();
-			if ($table_edit->processTable($table, $o, $prefix)) {
+			if ($table_edit->processTable($table, $o, $prefix, $bc_action, $bc_name, $bc_data, $bc_saved)) {
 				if ($table->saveAttributes()) $updated = true;
 			}
 		}
 
 		// only update if we are the bodycopy that submitted the form
-		if ($bodycopy_name == $prefix || isset($bodycopy_saved[$prefix])) {
-
-			// update the tables
-			if ($bodycopy_name == $prefix) {
-				switch($bodycopy_action) {
-					
+		if ($bc_name == $prefix || isset($bc_saved[$prefix])) {
+			// perform some bodycopy level actions
+			if ($bc_name == $prefix) {
+				switch($bc_action) {
 					case 'insert_table' :
-							if ($this->insertTable($asset, $bodycopy_data['tableid'],	$bodycopy_data['num_rows'], 
-																						$bodycopy_data['num_cols'], 
-																						$bodycopy_data['before'],
-																						$bodycopy_data['attributes']
-							)) $updated = true;
-						break;
+						if ($this->insertTable($asset, $bc_data['tableid'],	$bc_data['num_rows'],
+																			$bc_data['num_cols'],
+																			$bc_data['before'],
+																			$bc_data['attributes']
+						)) $updated = true;
+					break;
 
 					case 'delete_table' :
-							if ($this->deleteTable($asset, $bodycopy_data['tableid'])) $updated = true;
-						break;
-				}
+						if ($this->deleteTable($asset, $bc_data['tableid'])) $updated = true;
+					break;
+				}//end switch
 			}
 		}
 
@@ -652,8 +647,9 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		return false;
+
 	}//end deleteTable()
 
-
 }//end class
+
 ?>

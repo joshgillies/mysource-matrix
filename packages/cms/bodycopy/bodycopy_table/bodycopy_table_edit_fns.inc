@@ -50,7 +50,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		$attributes[$name] = $value;
 		return true;
 
-	}//end aetAttribute()
+	}//end setAttribute()
 
 	
 	/**
@@ -347,23 +347,26 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the interface for editing this table
 	*
-	* @param object BodyCopy_Table		&$asset	the table whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object BodyCopy_Table		&$asset		the table whose interface we are painting
+	* @param object	Backend_Outputter	$o			the outputter class
+	* @param string						$prefix		prefix for the form element
+	* @param string						$bc_action	a global bodycopy action to perform (eg insert_table_row)
+	* @param string						$bc_name	the name of the bodycopy that submitted the action
+	* @param array						$bc_data	an array of data needed to perform the action
+	* @param array						$bc_saved	any saved changes that were performed without committing
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processTable(&$asset, &$o, $prefix)
+	function processTable(&$asset, &$o, $prefix, $bc_action, $bc_name, $bc_data, $bc_saved)
 	{
-		global $bodycopy_action, $bodycopy_name, $bodycopy_data, $bodycopy_saved;
 		$updated = false;
 
 		// save any changed table attributes
-		if (!empty($bodycopy_saved[$prefix][$asset->id]['attributes'])) {
+		if (!empty($bc_saved[$prefix][$asset->id]['attributes'])) {
 			$attributes_updated = false;
 			$attributes = $asset->attr('attributes');
-			foreach($bodycopy_saved[$prefix][$asset->id]['attributes'] as $name => $value) {
+			foreach($bc_saved[$prefix][$asset->id]['attributes'] as $name => $value) {
 				if ($name == 'table_name') {
 					if ($asset->setAttrValue('name', $value)) $updated = true;
 				} else {
@@ -380,9 +383,9 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		$rows_updated = false;
 		$rows = $asset->attr('rows');
 		for($rowid = 0; $rowid < count($rows); $rowid++) {
-			if (!empty($bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['attributes'])) {
+			if (!empty($bc_saved[$prefix][$asset->id]['rows'][$rowid]['attributes'])) {
 				// save any changed row attributes
-				foreach($bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['attributes'] as $name => $value) {
+				foreach($bc_saved[$prefix][$asset->id]['rows'][$rowid]['attributes'] as $name => $value) {
 					$name = strtolower($name);
 					if (!isset($rows[$rowid]['attributes'][$name]) || $rows[$rowid]['attributes'][$name] != $value) {
 						$rows[$rowid]['attributes'][$name] = $value;
@@ -392,14 +395,14 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			}
 
 			// only update if we are the table row that submitted the form
-			if ((!empty($bodycopy_data['rowid']) && $bodycopy_data['rowid'] == $rowid && $prefix == $bodycopy_name) || isset($bodycopy_saved[$prefix][$asset->id]['rows'][$rowid])) {
+			if ((!empty($bc_data['rowid']) && $bc_data['rowid'] == $rowid && $prefix == $bc_name) || isset($bc_saved[$prefix][$asset->id]['rows'][$rowid])) {
 
 				$counter = 0;
 				$colspan_todo = Array();
 
 				// check to see if any cells from this row need their colspans changed
-				if (isset($bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'])) {
-					foreach($bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'] as $cellid => $cell_data) {
+				if (isset($bc_saved[$prefix][$asset->id]['rows'][$rowid]['cells'])) {
+					foreach($bc_saved[$prefix][$asset->id]['rows'][$rowid]['cells'] as $cellid => $cell_data) {
 
 						if (isset($rows[$rowid]['cells'][$cellid])) {
 
@@ -413,13 +416,13 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 							// if the user left colspan blank, dont change anything
 							if (trim($colspaning) == '') {
 								$colspaning = $current_span; 
-								$bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = $current_span;
+								$bc_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = $current_span;
 							}
 							
 							// if the user entered a negative colspan - or '0', we can assume they want a colspan of '1'
 							if (intval($colspaning) <= 0) { 
 								$colspaning = 1; 
-								$bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = 1;
+								$bc_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = 1;
 							}
 						} else {
 							$colspaning = 0;
@@ -436,7 +439,6 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 					}
 
 					// doing the colspan thing
-
 					if (count($colspan_todo)) {
 
 						foreach ($colspan_todo as $colspan) {
@@ -452,13 +454,13 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 							// if the user left colspan blank, dont change anything
 							if (trim($colspaning) == '') {
 								$colspaning = $current_span; 
-								$bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = $current_span;
+								$bc_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = $current_span;
 							}
 							
 							// if the user entered a negative colspan - or '0', we can assume they want a colspan of '1'
 							if (intval($colspaning) <= 0) {
 								$colspaning = 1; 
-								$bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = 1;
+								$bc_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = 1;
 							}
 					
 							if ($colspaning != $current_span) {
@@ -469,7 +471,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 							
 								if ($spanable_cells < $needed_cells) {
 									// dont end up changing the colspan at all
-									$bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = $current_span;
+									$bc_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = $current_span;
 								} else {
 									if ($colspaning > $current_span && $spanable_cells >= 1) {
 										// check for more colspans first
@@ -484,13 +486,13 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 												} else {
 													// deleteCell failed
 													// dont end up changing the colspan at al
-													$bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = $current_span;
+													$bc_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = $current_span;
 												}
 											}
 										} else {
 											// we are trying to colspan into another colspan
 											// dont end up changing the colspan at all
-											$bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = $current_span;
+											$bc_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = $current_span;
 										}
 									} else if ($colspaning < $current_span) {
 										// decreasing the colspan
@@ -500,7 +502,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 											} else {
 												// insertCell failed
 												// dont end up changing the colspan at al
-												$bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = $current_span;
+												$bc_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = $current_span;
 											}
 										}
 									}
@@ -510,13 +512,15 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 
 						}//end foreach
 
-					}//end if
-				}
-			}
+					}//end if we have colspans todo
+
+				}//end if changing colspans
+
+			}//end if we are the row that submitted the form
 
 			// now update the cells
 			for($i = 0; $i < count($rows[$rowid]['cells']); $i++) {
-				if ($rows[$rowid]['cells'][$i]->processCell($asset, $prefix, $asset->id, $rowid, $i)) $rows_updated = true;
+				if ($rows[$rowid]['cells'][$i]->processCell($asset, $prefix, $asset->id, $rowid, $i, $bc_saved)) $rows_updated = true;
 			}
 
 			// only set the rows attributes if any of the rows (or cells within) have changed
@@ -525,37 +529,35 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 				$updated = true;
 			}
 
-		}
+		}//end for all rows
 
 
 		// process any special actions if we are the  table that submitted the form
-		if (!empty($bodycopy_data) && $bodycopy_data['tableid'] == $asset->id && $bodycopy_name == $prefix) {
-			switch($bodycopy_action) {
-				
+		if (!empty($bc_data) && $bc_data['tableid'] == $asset->id && $bc_name == $prefix) {
+			switch($bc_action) {
 				case 'insert_table_row' :
-					if ($this->insertRow($asset, $bodycopy_data['rowid'], $bodycopy_data['before'])) $updated = true;
+					if ($this->insertRow($asset, $bc_data['rowid'], $bc_data['before'])) $updated = true;
 				break;
 
 				case 'delete_table_row' :
-					if ($this->deleteRow($asset, $bodycopy_data['rowid'])) $updated = true;
+					if ($this->deleteRow($asset, $bc_data['rowid'])) $updated = true;
 				break;
 
 				case 'edit_table_row_order' :
-					if ($this->reorderRows($asset, $bodycopy_data['row_order'])) $updated = true;
+					if ($this->reorderRows($asset, $bc_data['row_order'])) $updated = true;
 				break;
 
 				case 'insert_table_column' :
-					if ($this->insertColumn($asset, $bodycopy_data['colid'], $bodycopy_data['before'])) $updated = true;
+					if ($this->insertColumn($asset, $bc_data['colid'], $bc_data['before'])) $updated = true;
 				break;
 
 				case 'delete_table_column' :
-					if ($this->deleteColumn($asset, $bodycopy_data['colid'])) $updated = true;
+					if ($this->deleteColumn($asset, $bc_data['colid'])) $updated = true;
 				break;
 
 				case 'edit_table_col_order' :
-					if ($this->reorderColumns($asset, $bodycopy_data['col_order'])) $updated = true;
+					if ($this->reorderColumns($asset, $bc_data['col_order'])) $updated = true;
 				break;
-
 			}
 		}
 
@@ -648,7 +650,6 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 	function insertRow(&$asset, $rowid, $before=true)
 	{
 		$rows = $asset->attr('rows');
-
 		$rowid = intval($rowid);
 
 		// if the row is greater than the number of rows we have set it to the last on
@@ -741,7 +742,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Re-orders the table rows
+	* Reorder the rows of this table
 	*
 	* @param object Asset	&$asset	the table object
 	* @param array			$row_order	an array of the structure (new_place => old_place)
@@ -780,7 +781,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Re-orders the table columns
+	* Reorder the columns of this table
 	*
 	* @param object Asset	&$asset	the table object
 	* @param array			$col_order	an array of the structure (new_place => old_place)
@@ -817,11 +818,11 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Insert a new column in all rows, before or after the passed columnid
+	* Insert a new column in all rows, before or after the passed columnID
 	*
 	* @param object BodyCopy_Table	&$asset	the table object
-	* @param int					$cellid	the id of the column that we are inserting before/after
-	* @param boolean				$before	insert before the passed cellid?
+	* @param int					$cellid	the ID of the column that we are inserting before/after
+	* @param boolean				$before	insert before the passed cellID?
 	*
 	* @return boolean
 	* @access public
@@ -843,10 +844,10 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Deletes a column from all rows, before or after the passed columnid
+	* Deletes a column from all rows, before or after the passed columnID
 	*
 	* @param object BodyCopy_Table	&$asset	the table object
-	* @param int					$cellid	the id of the column that we are deleting
+	* @param int					$cellid	the ID of the column that we are deleting
 	*
 	* @return boolean
 	* @access public
@@ -868,12 +869,12 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Insert a new table cell before or after the passed cellid
+	* Insert a new table cell before or after the passed cellID
 	*
 	* @param array		&$rows		a reference to the rows attribute of the table
-	* @param int		$rowid		the id of the row we are inserting into
-	* @param int		$cellid		the id of the cell we are inserting before/after
-	* @param boolean	$before		insert the cell before the passed cellid?
+	* @param int		$rowid		the ID of the row we are inserting into
+	* @param int		$cellid		the ID of the cell we are inserting before/after
+	* @param boolean	$before		insert the cell before the passed cellID?
 	* @param boolean	$colspan	ignore colspans in this row
 	*
 	* @return boolean
@@ -978,12 +979,12 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Delete the passed table cell from the array
+	* Delete the passed table cell from a row
 	*
 	* @param object BodyCopy_Table	&$asset	the table object
 	* @param array		&$rows		a reference to the rows attribute of the table
-	* @param int		$rowid		the id of the row we are deleting from
-	* @param int		$cellid		the id of the cell we are deleting
+	* @param int		$rowid		the ID of the row we are deleting from
+	* @param int		$cellid		the ID of the cell we are deleting
 	* @param boolean	$colspan	ignore colspans in this row
 	*
 	* @return boolean
@@ -1073,8 +1074,9 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			if ($max < $num) $max = $num; 
 		}
 		return (int)$max;
+
 	}//end maxCols()
 
-
 }//end class
+
 ?>
