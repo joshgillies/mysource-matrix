@@ -14,21 +14,30 @@ class Asset extends Resolve_Object
 
 	/**
 	* The unique ID for this asset
-	*
 	* @var Array()
 	*/
 	var $id;
 
 	/**
 	* String representation of this attribute
-	*
 	* @var string
 	*/
 	var $name;
 
 	/**
+	* Timestamp of when this asset was last updated
+	* @var int
+	*/
+	var $last_updated;
+
+	/**
+	* Assetid for the last user that updated this asset
+	* @var int
+	*/
+	var $last_userid;
+
+	/**
 	* The Vars that belong to this asset
-	*
 	* @var Array('var_name' => Array('attributeid' => $attributeid, 'value' = $value))
 	*/
 	var $vars;
@@ -186,27 +195,37 @@ class Asset extends Resolve_Object
 	}//end _loadVars()
 
 	/*
-	* Saves the name to the DB
+	* Set's the last updated info for this asset
 	*
 	* @access private
 	*/
-	function _saveName() 
+	function _updated() 
 	{
-		if ($this->name == $this->_getName()) return;
+
+		$now    = time();
+		$userid = $GLOBALS['SQ_RESOLVE']->currentUserId();
+		$name   = $this->_getName();
+
+
 
 		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
 		$sql = 'UPDATE sq_asset
-				SET name = '.$db->quote($this->_getName()).'
+				SET name         = '.$db->quote($name).',
+					last_updated = '.$db->quote($now).',
+					last_userid  = '.$db->quote($userid).'
 				WHERE assetid = '.$db->quote($this->id);
 		
 		$result = $db->query($sql);
-		if (DB::isError($result)) 
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+		
+		$this->name         = $name;
+		$this->last_updated = $now;
+		$this->last_userid  = $userid;
 
-		$this->name = $this->_getName();
-
-	}//end _saveName();
-
+	}//end _updated();
 
 	/*
 	* Returns a name to use to describe this instance of this asset
@@ -595,6 +614,10 @@ class Asset extends Resolve_Object
 
 
 		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+
+		// open the transaction
+		$db->query('BEGIN');
+
 		$attributeid = $this->vars[$name]['attributeid'];
 
 		// delete previous entry, if any
@@ -620,13 +643,20 @@ class Asset extends Resolve_Object
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
+			$db->query('ROLLBACK');
 			return false;
 		}
 
 		$this->vars[$name]['value'] = $value;
 
-		// save the name if it has changed
-		$this->_saveName();
+		// tell, the asset it has updated
+		if (!$this->_updated()) {
+			$db->query('ROLLBACK');
+			return false;
+		}
+
+		// If we get this far, then it's all OK
+		$db->query('COMMIT');
 
 		return true;
 
