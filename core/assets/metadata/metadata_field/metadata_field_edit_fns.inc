@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.27 2004/12/06 14:38:09 brobertson Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.28 2004/12/21 17:02:16 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -205,6 +205,10 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 			$new_vc = trim($_POST[$prefix.'_new_vc']);
 			if (isset($current_vc[$new_vc])) {
 				trigger_error('Value component "'.$new_vc.'" already exists for field "'.$asset->name.'"', E_USER_WARNING);
+			} else if (preg_match('/^[1-9][0-9]+$/', $new_vc)) {
+				// we are not allowing just numbers because we want to use array_merge() 
+				// and if there is only numbers it thinks the elements are in from an indexed array and it all goes bad.
+				trigger_error('Value components are can not allowed to contain only all numeric characters is the first character is zero', E_USER_WARNING);
 			} else {
 				$current_vc[$new_vc] = '';
 				$updated = true;
@@ -226,14 +230,15 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	*
 	* @param object Metadata_Field		&$asset			the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o				the outputter class
-	* @param array						$values			current metadata values set for this asset
+	* @param string						$value_str		the current value for this field in the asset (NOT $asset) 
+	*													NULL means that there is no current value set
 	* @param boolean					$write_access	does the current user have write access to the asset
 	*													that we are setting metadata for (NOT THE SAME AS $asset)
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintInlineValueInterface(&$asset, &$o, $values, $write_access)
+	function paintInlineValueInterface(&$asset, &$o, $value_str, $write_access)
 	{
 		return false;
 
@@ -243,13 +248,13 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the interface for filling in metadata values
 	*
-	* @param object Metadata_Field	&$asset			the asset whose interface we are painting
-	* @param array					&$new_values	an array we can store the new values in
+	* @param object Metadata_Field	&$asset				the asset whose interface we are processing
+	* @param string					&$new_value_str		a string by reference that we can store the new values in
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processInlineValueInterface(&$asset, &$new_values)
+	function processInlineValueInterface(&$asset, &$new_value_str)
 	{
 		return false;
 
@@ -315,32 +320,31 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	* Check if all required fields have been completed in the values supplied
 	*
 	* @param object Metadata_Field	&$asset		the asset whose metadata we are checking
-	* @param array					$values		the current metadata values
+	* @param string					$value_str	the current value for this field in the asset (NOT $asset) 
+	*											NULL means that there is no current value set
 	*
 	* @return boolean
 	* @access public
 	*/
-	function requiredFieldsComplete(&$asset, $values)
+	function requiredFieldsComplete(&$asset, $value_str)
 	{
 		// if this is not a required field then of course it doesnt break the rule
 		if (!$asset->attr('required')) return true;
 
-		// check for the main value being complete
-		if (isset($values['value'])) $default = $values['value'];
-		else $default = $asset->attr('default');
-		$default = trim($default);
-		if (!empty($default)) return true;
+		if (is_null($value_str)) {
+			$value = $asset->attr('default');
+			$value_components = $asset->attr('value_components');
+		} else {
+			$value='';
+			$value_components = $asset->attr('value_components');
+			Metadata_Field::decodeValueString($value_str, $value, $value_components);
+		}
+
+		if (trim($value) != '') return true;
 
 		// now check value components to see if they are complete
-		$current_vc = $asset->attr('value_components');
-		if (!empty($current_vc)) {
-			foreach ($current_vc as $vc_name => $vc_value) {
-				if (isset($values['value_components'][$vc_name])) {
-					$vc_value = $values['value_components'][$vc_name];
-				}
-				$vc_value = trim($vc_value);
-				if (!empty($vc_value)) return true;
-			}
+		foreach ($value_components as $vc_name => $vc_value) {
+			if (trim($vc_value) != '') return true;
 		}
 
 		return false;
@@ -352,14 +356,15 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	* Output the complete metadata tag for this field
 	*
 	* @param object Metadata_Field	&$asset		the asset whose interface we are painting
-	* @param array					$values		the current metadata values
+	* @param string					$value_str	the current value for this field in the asset (NOT $asset) 
+	*											NULL means that there is no current value set
 	* @param array					&$tag_value	the metadata tag value
 	* @param array					&$keywords	an array we can put keywords in that need replacing
 	*
 	* @return boolean
 	* @access public
 	*/
-	function generateMetadata(&$asset, &$values, &$tag_value, &$keywords)
+	function generateMetadata(&$asset, $value_str, &$tag_value, &$keywords)
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 
@@ -367,119 +372,40 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		// if we aren't printing this on the frontend then don't print anything
 		if ($frontend_option == 'hide') return true;
 
-		if (!isset($values['using_default'])) $values['using_default'] = false;
-		if (isset($values['value']) && !$values['using_default']) {
-			$default = $values['value'];
-			$values['using_default'] = false;
+		if (is_null($value_str)) {
+			$value = $asset->attr('default');
+			$value_components = $asset->attr('value_components');
+			$value_str = Metadata_Field::encodeValueString($value, $value_components);
+
 		} else {
-			$default = $asset->attr('default');
-			$values['value'] = $default;
-			$values['using_default'] = true;
+			$value='';
+			$value_components = $asset->attr('value_components');
+			Metadata_Field::decodeValueString($value_str, $value, $value_components);
 		}
 
-		$keywords = array_merge($keywords, retrieve_keywords_replacements($default, '.'));
-
-		$value_string = '';
-		$current_vc = $asset->attr('value_components');
+		$keywords = array_merge($keywords, retrieve_keywords_replacements($value_str, '.'));
 
 		$empty_vc = true;
 
-		if (!empty($current_vc)) {
-			foreach ($current_vc as $vc_name => $vc_value) {
-				if (!isset($values['value_components'][$vc_name])) {
-					// install the default value
-					$values['value_components'][$vc_name] = $vc_value;
-				}
-				// if any value component is not empty then the whole thing is not empty
-				if (!empty($values['value_components'][$vc_name])) $empty_vc = false;
-				$vc_value = $values['value_components'][$vc_name];
-				$keywords = array_merge($keywords, retrieve_keywords_replacements($vc_value, '.'));
-				$value_string .= $vc_name.'='.$vc_value.'; ';
-			}
+		foreach ($value_components as $vc_name => $vc_value) {
+			// if any value component is not empty then the whole thing is not empty
+			if ($vc_value != '') $empty_vc = false;
 		}
 
 		// if we are empty and it must be filled to be printed, then don't print anything
-		if (($frontend_option == 'fill') && $empty_vc) return true;
+		if (($frontend_option == 'fill') && $value == '' && $empty_vc) return true;
 
 		echo '<meta name="'.$asset->name.'"';
 		if (trim($asset->attr('language')) != '') echo ' lang="'.$asset->attr('language').'"';
-		if (trim($asset->attr('scheme')) != '') echo ' scheme="'.$asset->attr('scheme').'"';
+		if (trim($asset->attr('scheme'))   != '') echo ' scheme="'.$asset->attr('scheme').'"';
 
 		echo ' content="<?php echo $metadata_values[\''.$asset->name.'\']; ?>" />'."\n";
 
-		if (trim($default) != '') {
-			$tag_value = $default;
-			if (trim($value_string) != '') $tag_value .= '; ';
-		}
-		if (trim($value_string) != '') $tag_value .= trim($value_string);
+		$tag_value = $value_str;
 
 		return true;
 
 	}//end generateMetadata()
-
-
-	/**
-	* Generate an array of current values for the passed metadata field names
-	*
-	* @param object Asset			&$asset		the asset whose field values we are getting
-	* @param object Metadata_Field	&$field		the asset whose interface we are painting
-	* @param array					$values		the current metadata values
-	* @param array					&$fields	an array of field names that need replacing
-	*
-	* @access public
-	* @return boolean
-	*/
-	function getMetadataFieldValues(&$asset, &$field, $values, &$fields)
-	{
-		if (!isset($fields[$field->name])) return;
-
-		require_once SQ_FUDGE_PATH.'/general/text.inc';
-		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-
-		if (isset($values['value'])) $default = $values['value'];
-		else $default = $field->attr('default');
-
-		$used_keywords = retrieve_keywords_replacements($default, '.');
-
-		$value_string = '';
-		$current_vc = $field->attr('value_components');
-		if (!empty($current_vc)) {
-			foreach ($current_vc as $vc_name => $vc_value) {
-				if (isset($values['value_components'][$vc_name])) {
-					$vc_value = $values['value_components'][$vc_name];
-				}
-				$used_keywords = array_merge($used_keywords, retrieve_keywords_replacements($vc_value, '.'));
-				$value_string .= $vc_name.'='.$vc_value.'; ';
-			}
-		}
-
-		$used_keywords = $mm->generateKeywordReplacements($asset, $used_keywords, false);
-
-		$field_value = $default;
-		if (trim($value_string) != '') $field_value .= '; '.trim($value_string);
-		$fields[$field->name] = replace_keywords($field_value, $used_keywords);
-
-		return true;
-
-	}//end getMetadataFieldValues()
-
-
-	/**
-	* Get the default values for this field
-	*
-	* @param object Metadata_Field	&$asset	the asset whose values we are getting
-	*
-	* @return array
-	* @access public
-	*/
-	function getMetadataDefaultValues(&$field)
-	{
-		$values = Array();
-		$values['value'] = $field->attr('default');
-		$values['value_components'] = $field->attr('value_components');
-		return $values;
-
-	}//end getMetadataDefaultValues()
 
 
 }//end class
