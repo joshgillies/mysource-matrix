@@ -18,9 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.21.2.1 2004/10/06 03:09:14 lwright Exp $
+* $Id: datetime_field.inc,v 1.21.2.2 2004/12/02 22:51:15 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
+
+require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 /**
 * Date/Time Field
