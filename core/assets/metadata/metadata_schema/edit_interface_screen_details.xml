@@ -2,13 +2,13 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2003/10/03 01:16:34 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2003/10/13 06:01:17 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <contents>
-	<section name="Details">
+	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
 			<display_name>Schema Name</display_name>
 			<note />
@@ -25,7 +25,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Create New Section" read_access="write">
+	<section name="Create New Section" read_access="write:content" write_access="write:content">
 		<field>
 			<display_name></display_name>
 			<note />
@@ -35,7 +35,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Regenerate Metadata Files" read_access="write">
+	<section name="Regenerate Metadata Files" read_access="write:content" write_access="write:content">
 		<field>
 			<display_name></display_name>
 			<note />

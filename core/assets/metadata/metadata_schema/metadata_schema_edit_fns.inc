@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.11 2003/10/13 05:54:42 gsherwood Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.12 2003/10/13 06:01:17 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,6 +31,7 @@ class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
 	{
 		$this->Asset_Edit_Fns();
 		$this->static_screens['details']['force_unlock'] = false;
+		$this->static_screens['details']['lock_type'] = 'content';
 
 	}//end construtor()
 
@@ -97,7 +98,7 @@ class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
 	function paintRegenerate(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if ($asset->writeAccess('all')) {
+		if ($asset->writeAccess('')) {
 			?>
 			<p class="sq-backend-data">
 				Check the box below to regenerate the metadata for all assets that have currently applied this schema
@@ -127,7 +128,7 @@ class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
 	function processRegenerate(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess('all')) return false;
+		if (!$asset->writeAccess('')) return false;
 
 		if (isset($_POST[$prefix.'_regenerate']) && $_POST[$prefix.'_regenerate']) {
 			//// START HIPO PROCESSING ////
@@ -315,6 +316,7 @@ class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
 			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
+			if (!isset($values['sections'][$section->name])) continue;
 			if (!$edit_fns->generateMetadata($section, $values['sections'][$section->name], $keywords)) return false;
 		}
 
