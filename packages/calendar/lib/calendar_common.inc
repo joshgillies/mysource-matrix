@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.18 2004/12/13 05:40:48 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.19 2004/12/13 06:11:13 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -536,7 +536,6 @@ function build_case_statement($col_name, &$trees)
 */
 function &expand_event_list(&$events, $first_day, $last_day, $day_start_time='00:00', $day_end_time='23:59')
 {
-	bam("Expanding between $day_start_time and $day_end_time");
 	$res = Array();
 	foreach (array_keys($events) as $key) {
 		$event =& $events[$key];
