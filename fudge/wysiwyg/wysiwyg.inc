@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.37 2005/01/20 13:32:41 brobertson Exp $
+* $Id: wysiwyg.inc,v 1.38 2005/04/06 01:42:35 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -176,7 +176,7 @@ class wysiwyg {
     /**
     * Constructor
     *
-    * @param string	$name A unique name for this WYSIWYG
+    * @param string $name A unique name for this WYSIWYG
     *
     * @access public
     */
@@ -734,7 +734,44 @@ class wysiwyg {
                 // This function also handles key bindings.
                 HTMLArea.prototype._editorEvent = function(ev) {
                     var editor = this;
+
+                    // Make enter without shift add <p> tags in Moz as well as IE
+                    if (ev.type == "keypress") {
+                        var keyCode = ev.keyCode;
+                        if (keyCode == 13 && !ev.shiftKey && !HTMLArea.is_ie) {
+                            // get the stuff to put in the <p>
+                            var range = this._createTextRange(this._getSelection());
+                            var lastElt = range.commonAncestorContainer;
+                            var firstElt = lastElt;
+                            while ((firstElt.previousSibling != null) && ((firstElt.previousSibling.tagName == 'BR') || (firstElt.previousSibling.nodeType == 3))) {
+                                // keep going while our previous sibling is a <br> or a text node
+                                firstElt = firstElt.previousSibling;
+                            }
+
+                            // insert the <p> into the document tree
+                            var para = document.createElement('P');
+                            var parent = firstElt.parentNode;
+                            parent.insertBefore(para, firstElt);
+                            var movingElt = firstElt;
+                            var nextMovingElt = movingElt;
+                            while (nextMovingElt != lastElt) {
+                                nextMovingElt = movingElt.nextSibling;
+                                parent.removeChild(movingElt);
+                                para.appendChild(movingElt);
+                                movingElt = nextMovingElt;
+                            }
+                            parent.removeChild(lastElt);
+                            para.appendChild(lastElt);
+
+                            // get rid of extraneous <br>s
+                            while (para.nextSibling && (para.nextSibling.tagName == 'BR')) {
+                                parent.removeChild(para.nextSibling);
+                            }
+                        }
+                    }
+
 <?php $this->print_plugin_event_handlers()?>
+
                     var keyEvent = (HTMLArea.is_ie && ev.type == "keydown") || (ev.type == "keypress");
                     if (keyEvent && ev.ctrlKey) {
                         var key = String.fromCharCode(HTMLArea.is_ie ? ev.keyCode : ev.charCode).toLowerCase();
@@ -1218,7 +1255,7 @@ class wysiwyg {
     * plugin will be added to a new group, otherwise they will join the
     * currently open one.
     *
-    * @param string	$name	The unique name of this plugin
+    * @param string $name   The unique name of this plugin
     *
     * @return boolean
     * @access public
@@ -1283,7 +1320,7 @@ class wysiwyg {
     /**
     * Checks if a plugin has been loaded into the editor
     *
-    * @param string	$name	The unique name of the plugin
+    * @param string $name   The unique name of the plugin
     *
     * @return boolean
     * @access public
@@ -1299,7 +1336,7 @@ class wysiwyg {
     /**
     * Get a reference to a plugin object
     *
-    * @param string	$name	The unique name of the plugin to get
+    * @param string $name   The unique name of the plugin to get
     *
     * @return object | NULL
     * @access public
@@ -1315,7 +1352,7 @@ class wysiwyg {
     /**
     * Sets the body type of the WYSIWYG editor (iframe or div)
     *
-    * @param string	$type	The body type used to print/scale
+    * @param string $type   The body type used to print/scale
     *
     * @return void
     * @access public
@@ -1330,7 +1367,7 @@ class wysiwyg {
     /**
     * Sets weather the WYSIWYG initilises itself onLoad for the window
     *
-    * @param boolean	$init	Init or not
+    * @param boolean    $init   Init or not
     *
     * @return void
     * @access public
@@ -1345,7 +1382,7 @@ class wysiwyg {
     /**
     * Sets weather we should show the status bar or not
     *
-    * @param boolean	$show	Show or not
+    * @param boolean    $show   Show or not
     *
     * @return void
     * @access public
@@ -1360,7 +1397,7 @@ class wysiwyg {
     /**
     * Sets the width of the WYSIWYG editor
     *
-    * @param string	$width	The width of the editor
+    * @param string $width  The width of the editor
     *
     * @return void
     * @access public
@@ -1375,7 +1412,7 @@ class wysiwyg {
     /**
     * Sets the height of the WYSIWYG editor
     *
-    * @param string	$height	The height of the editor
+    * @param string $height The height of the editor
     *
     * @return void
     * @access public
@@ -1391,7 +1428,7 @@ class wysiwyg {
     * Sets extra HTML you want in the TEXTAREA tag
     * Usually would be used to set width and height
     *
-    * @param string	$extras	The extra HTML
+    * @param string $extras The extra HTML
     *
     * @return void
     * @access public
@@ -1406,7 +1443,7 @@ class wysiwyg {
     /**
     * Sets the initial contents of the WYSIWYG editor
     *
-    * @param string	$contents	Some HTML content
+    * @param string $contents   Some HTML content
     *
     * @return void
     * @access public
@@ -1426,7 +1463,7 @@ class wysiwyg {
     /**
     * Sets the stylesheet for the WYSIWYG editor to use
     *
-    * @param string	$stylesheet	The href of the stylesheet
+    * @param string $stylesheet The href of the stylesheet
     *
     * @return void
     * @access public
@@ -1441,8 +1478,8 @@ class wysiwyg {
     /**
     * Add a relative HREF check to the editor
     *
-    * @param string	$find		the pattern to match the absolute URL
-    * @param string	$replace	the replacement to make the relative HREF
+    * @param string $find       the pattern to match the absolute URL
+    * @param string $replace    the replacement to make the relative HREF
     *
     * @return void
     * @access public
@@ -1459,8 +1496,8 @@ class wysiwyg {
     /**
     * Add an absolute URL check to the editor
     *
-    * @param string	$find		the pattern to match the relative HREF
-    * @param string	$replace	the replacement to make the absolute URL
+    * @param string $find       the pattern to match the relative HREF
+    * @param string $replace    the replacement to make the absolute URL
     *
     * @return void
     * @access public
