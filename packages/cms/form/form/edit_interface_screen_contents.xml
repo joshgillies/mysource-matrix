@@ -1,0 +1,44 @@
+<contents>
+	<section name="Sections">
+		<field>
+			<display_name>Current Sections</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintSectionLinks"   />
+				<process_function name="processSectionLinks" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Add Sections</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintAddSections"   />
+				<process_function name="processAddSections" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Form Buttons">
+		<field attribute="submit_button">
+			<display_name>Submit Button</display_name>
+			<note>The text that will appear on the submit button</note>
+			<text width="8" height="1" />
+		</field>
+		<field attribute="next_button">
+			<display_name>Next Button</display_name>
+			<note>The text that will appear on the next button</note>
+			<text width="8" height="1" />
+		</field>
+		<field attribute="back_button">
+			<display_name>Back Button</display_name>
+			<note>The text that will appear on the back button</note>
+			<text width="8" height="1" />
+		</field>
+	</section>
+	<section name="Form Saving Parameters">
+		<field attribute="cookie_time">
+			<display_name>Cookie Expiry Time</display_name>
+			<note>Defines the time in which the cookie holding the infomation about a saved form expires</note>
+			<selection style="list" /> 
+		</field>
+	</section>
+</contents>

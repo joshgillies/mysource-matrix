@@ -1,0 +1,29 @@
+<contents>
+	<section name="Recipient Options">
+		<field attribute="recipient_emails">
+			<display_name>Recipient Emails</display_name>
+			<note>Enter in the email addresses that you want to receive the form submissions (1 address per line).</note>
+			<text width="40" height="10" />
+		</field>
+		<field attribute="recipient_body">
+			<display_name>Recipient Email Body</display_name>
+			<note>Defines the body of the recipient email</note>
+			<text width="40" height="10" />
+		</field>
+		<field attribute="recipient_allow_html">
+			<display_name>Allow HTML</display_name>
+			<note>Defines if HTML tags are allowed in the email body.</note>
+			<selection style="list" />
+		</field>
+		<field attribute="recipient_send_info">
+			<display_name>Send Form Information</display_name>
+			<note>Defines if the Information is sent along with the email. Information includes the form title, the date of submission, the URL from which it was sent, the site name (and ID), and the page name (and ID). </note>
+			<selection style="list" />
+		</field>
+		<field attribute="receipt_send_answers">
+			<display_name>Send Form Answers</display_name>
+			<note>Defines if the answers are sent along with the receipt.</note>
+			<selection style="list" />
+		</field>
+	</section>
+</contents>

@@ -1,0 +1,29 @@
+<contents>
+	<section name="Details">
+	    <field attribute="name">
+			<display_name>Name</display_name>
+			<note>Defines the name of the form</note>
+			<text width="12" height="1" />
+		</field>
+		<field attribute="wizard">
+			<display_name>Wizard</display_name>
+			<note>Defines if this form is a Wizard</note>
+			<selection style="list" />
+		</field>
+		<field attribute="validate">
+			<display_name>Validation Screen</display_name>
+			<note>Defines if a validation screen is shown before form submission</note>
+			<selection style="list" />
+		</field>
+		<field attribute="log_submissions">
+			<display_name>Log Submissions</display_name>
+			<note>Defines if form submissions are logged</note>
+			<selection style="list" />
+		</field>
+		<field attribute="hide_results">
+			<display_name>Hide Results</display_name>
+			<note>Defines if results are hidden after form submission</note>
+			<selection style="list" />
+		</field>
+	</section>
+</contents>

@@ -1,0 +1,177 @@
+<?php
+
+require_once  dirname(__FILE__).'/../form/form.inc';
+
+/**
+* Form_Email
+*
+* Purpose
+*
+*
+* @author  Marc Mcintyre <mmcintyre@squiz.net>
+* @version $Version$ - 1.0
+* @package Resolve_Packages
+* @subpackage cms
+*/
+class Form_Email extends Form
+{
+
+	/**
+	* Constructor
+	*
+	* @param int	$assetid	the asset id to be loaded
+	*
+	*/
+	function Form_Email($assetid=0) 
+	{
+		$this->Form($assetid);
+	}
+
+
+	/**
+	* Create this asset
+	*
+	* @param array()	&$link	information used to create the initial link
+	*
+	* @see Asset::create()
+	* @return mixed int or false
+	* @access public
+	*/
+	function create(&$link)
+	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$linkid = parent::create($link);
+		if (!$linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
+		}
+
+		// give a name to this form asset
+		$this->setAttrValue('name', 'Form Contents');
+
+		// create a section for them to start off with
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('form_section');
+		$section = new Form_Section();
+		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
+
+		$section->setAttrValue('name', 'Section 1');
+		if (!$section->create($copy_link)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
+		}
+		
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return $linkid;
+
+	} // end create()
+
+
+	/**
+	* Creates a link between this asset and the passed asset, of a certain type
+	* and returns the linkid of the created link
+	*
+	* @return int
+	* @access public
+	* @see Asset::creatLink();
+	*/
+	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0', $exclusive='0')
+	{
+		// if this is a bodycopy table then we need to make it a dependant link
+		if (is_a($minor, 'bodycopy')) {
+			$dependant = '1';
+		}
+
+		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
+
+	}// end createLink()
+
+
+	/**
+	* Returns TRUE if we can delete the passed link, or a string with the error msg
+	*
+	* @param int	$linkid	the link id of the link to remove
+	*
+	* @return mixed TRUE or error msg string
+	* @access public
+	*/
+	function canDeleteLink($linkid)
+	{
+		// the only reason why we would object to this link being
+		// deleted is if it is the bodycopy linked to us
+		$bodycopy_link = $this->getLinks(SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
+		if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the bodycopy and the standard page';
+
+		return parent::canDeleteLink($linkid);
+	}//end canDeleteLink()
+
+
+	/**
+	* Returns an array of all the permitted link type, the type asset and the cardinality
+	*
+	* @see Asset::_getAllowLinks()
+	* @access private
+	*/
+	function _getAllowedLinks()
+	{
+		$page_links = parent::_getAllowedLinks();
+		return $page_links;
+
+	}//end _getAllowedLinks()
+
+
+	/**
+	* Prints out the backend interface for the asset
+	*
+	* @param object Backend_Outputter $o
+	*
+	* @access public
+	*/
+	function paintBackend(&$o)
+	{
+		if (isset($_GET['sq_from_frontend'])) {
+			// get the bodycopy attached to us
+			$bodycopy_link = $this->getLinks(SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
+			$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link[0]['minorid'], 'bodycopy');
+			if (is_null($bodycopy)) {
+				trigger_error('Could not locate the bodycopy for standard page "'.$this->name.'"', E_USER_ERROR);
+				return false;
+			}
+			$o->addFormActionGetVar('assetid', $bodycopy->id);
+			$bodycopy->paintBackend($o);
+		} else {
+			parent::paintBackend($o);
+		}
+	}// end paintBackend()
+
+
+	/**
+	* Called by the design to print the body of this asset
+	* it's up to the kids to override
+	*
+	* @access public
+	*/
+	function printBody()
+	{
+		parent::printBody();
+			
+	}// end printBody()
+
+	/**
+	* Returns name of the asset
+	*
+	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	*
+	* @see Asset::_getName()
+	* @access public
+	*/
+	function _getName($short_name=false)
+	{
+		return $this->attr('name');
+	}//end _getName();
+
+
+}//end class
+?>
