@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.3 2004/06/18 06:25:37 gsherwood Exp $
+* $Id: search_folder.inc,v 1.4 2004/06/22 00:23:31 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -87,6 +87,7 @@ class Search_Folder extends Bridge
 			
 			$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 			$search_info = Array();
+			$search_info['limit'] = 100;
 			$search_info['logic'] = (isset($settings['logic'])) ? strtoupper($settings['logic']) : 'AND';
 			
 			if (empty($type_code)) {
@@ -152,6 +153,7 @@ class Search_Folder extends Bridge
 			
 			$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 			$search_info = Array();
+			$search_info['limit'] = 100;
 			$search_info['logic'] = (isset($settings['logic'])) ? strtoupper($settings['logic']) : 'AND';
 			$search_info['search_types'] = (isset($settings['types'])) ? $settings['types'] : Array();
 			$search_info['search_statuses'] = (isset($settings['statuses'])) ? $settings['statuses'] : Array();
