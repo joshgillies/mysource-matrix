@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.181 2004/03/01 15:11:05 brobertson Exp $
+* $Id: asset_manager.inc,v 1.182 2004/03/01 16:55:28 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2734,29 +2734,24 @@ class Asset_Manager extends MySource_Object
 				// remove the current zeroed entries in the tree table,
 				// as we will be inserting over the top of them
 
-				// because the root folder is not a minor party in any links we have
-				// to something special for it
-				$where_cond = '';
-				if ($major->id == 1) {
-					$where_cond = 'treeid = '.$db->quote($free_childid);
-				} else {
-					$where_cond = 'treeid IN (~SQ0~)';
+				$where_cond = 'treeid IN (~SQ0~)';
 
-					$concat = ($db->phptype == 'mysql')
-								? 'CONCAT(t.treeid, '.$db->quote($free_childid).')'
-								: 't.treeid || '.$db->quote($free_childid);
-					$sub_where = 'l.minorid = '.$db->quote($major->id);
-					$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 't');
-					$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'l');
-					$subs = Array(' SELECT '.$concat.'
-									FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid '.$sub_where);
-					$where_cond = db_extras_subquery($db, $where_cond, $subs);
-					if (DB::isError($where_cond)) {
-						trigger_error($where_cond->getMessage().'<br/>'.$where_cond->getUserInfo(), E_USER_WARNING);
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return 0;
-					}
+				$concat = ($db->phptype == 'mysql')
+							? 'CONCAT(t.treeid, '.$db->quote($free_childid).')'
+							: 't.treeid || '.$db->quote($free_childid);
+				$sub_where = 'l.minorid = '.$db->quote($major->id);
+				$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 't');
+				$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'l');
 
+				$subs = Array(' SELECT '.$concat.'
+								FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t 
+									INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid 
+								'.$sub_where);
+				$where_cond = db_extras_subquery($db, $where_cond, $subs);
+				if (DB::isError($where_cond)) {
+					trigger_error($where_cond->getMessage().'<br/>'.$where_cond->getUserInfo(), E_USER_WARNING);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return 0;
 				}
 
 				if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_link_tree', $where_cond)) {
