@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.16 2004/09/06 16:47:37 brobertson Exp $
+* $Id: page_account_manager.inc,v 1.17 2004/09/09 11:43:27 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -556,14 +556,13 @@ class Page_Account_Manager extends Page_Asset_Builder
 		$keywords = Array();
 		foreach ($this->_available_keywords as $keyword) {
 			$name = ucwords(str_replace('_', ' ', $keyword));
-			$type = 'inline';
+			$type = 'block';
 			if ($keyword == 'logout_form') {
 				$default = '<input style="border: 1px solid #5A5A5A; background-color: #F4F4EB;" type="button" value="Logout">';
 				$name = 'Logout Button';
 				$type = 'special';
 			} else if (substr($keyword, -5) == '_form') {
 				$default = $name;
-				$type = 'block';
 			} else {
 				$default = $this->attr($keyword);
 			}
