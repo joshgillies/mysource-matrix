@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list.inc,v 1.4 2004/12/06 14:44:15 brobertson Exp $
+* $Id: search_list.inc,v 1.5 2005/01/20 23:04:43 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -188,20 +188,34 @@ class Search_List extends Page_Asset_Listing
 		}
 		if (is_null($search_page)) return;
 
-		$format = $this->attr('default_format');
-		$search_url = $search_page->getURL().'?mode=results&queries_'.$this->_tmp['search_field_name'].'_query=';
+		$this->_tmp['search_url'] = $search_page->getURL().'?mode=results&queries_'.$this->_tmp['search_field_name'].'_query=';
 
-		foreach ($todo as $word => $data) {
-
-			$keywords = Array('search_term' => '<a href="'.$search_url.$word.'">'.$word.'</a>',
-							  'number_of_occurrences' => $this->_tmp['search_terms'][$word]['num_values']
-							 );
-
-			echo replace_keywords($format, $keywords);
-
-		}//end foreach todo
+		$this->_printAssetList($todo);
 
 	}//end printAssetList()
+
+
+	/**
+	* Print a single word from the list
+	*
+	* @param string	$word			the search term being printed
+	* @param string	$type_code		the type code of the asset we are printing
+	* @param int	$list_position	the position of this asset in the list
+	*
+	* @return void
+	* @access private
+	* @see printAssetList()
+	*/
+	function _printAsset($word, $type_code, $list_position)
+	{
+		$format = $this->attr('default_format');
+		$keywords = Array('search_term' => '<a href="'.$this->_tmp['search_url'].$word.'">'.$word.'</a>',
+						  'number_of_occurrences' => $this->_tmp['search_terms'][$word]['num_values']
+						 );
+
+		echo replace_keywords($format, $keywords);
+		
+	}//end _printAsset()
 
 
 }//end class

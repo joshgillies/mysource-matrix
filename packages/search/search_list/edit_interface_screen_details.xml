@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2005/01/20 13:22:57 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2005/01/20 23:04:43 gsherwood Exp $
 *
 */
 -->
@@ -36,17 +36,9 @@
 			<text width="25" height="1" />
 		</field>
 	</section>
-	<section name="Keyword Replacements">
-		<field>
-			<display_name>Body Keyword Replacement</display_name>
-			<note></note>
-			<function_call>
-				<paint_function   name="paintBodycopyInformation"  />
-				<process_function name="processBodycopyInformation" />
-			</function_call>
-		</field>
+	<section name="Search Term Format">
 		<field attribute="default_format" write_access="write:attributes">
-			<display_name>Search Term Format</display_name>
+			<display_name />
 			<note>
 			This is the format that will be used to print each search term. You can use the following keywords:&lt;br /&gt;
 			&lt;ul&gt;
