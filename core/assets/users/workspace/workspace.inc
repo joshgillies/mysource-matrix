@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workspace.inc,v 1.18 2003/11/26 00:51:04 gsherwood Exp $
+* $Id: workspace.inc,v 1.19 2003/12/08 05:58:31 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -123,6 +123,11 @@ class Workspace extends Folder
 	function _checkPermissionAccess($perm, $assetids=Array())
 	{
 		$user = &$this->_getUser();
+		
+		if (is_null($user)) {
+			return ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+		}
+
 		if (empty($assetids)) {
 			// root can do anything
 			if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
@@ -134,6 +139,7 @@ class Workspace extends Folder
 				// this is the workspace of a sysadmin so they need to
 				// be root or the sysadmin themselves
 				if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return false;
+
 				if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) return true;
 				return false;
 			} else {
@@ -141,8 +147,6 @@ class Workspace extends Folder
 				if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
 				if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) return true;
 			}
-
-			return false;
 		} else {
 			// a user always has full access to their own workspace
 			if (in_array($user->id, $assetids)) return true;
