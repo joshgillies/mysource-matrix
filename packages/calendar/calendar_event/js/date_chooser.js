@@ -205,7 +205,7 @@ function validateHours(elt) {
 
 
 function getDateFromField(name) {
-	d = new Date(document.getElementById(name+'_year').value, document.getElementById(name+'_month').value, document.getElementById(name+'_day').value);
+	d = new Date(document.getElementById(name+'_year').value, Number(document.getElementById(name+'_month').value)-1, document.getElementById(name+'_day').value);
 	hoursVal = parseInt(document.getElementById(name+'_hours').value);
 	if ((document.getElementById(name+'_is_pm').selectedIndex == 1) && (hoursVal < 12)) {
 		hoursVal += 12;
@@ -222,7 +222,7 @@ function getDateFromField(name) {
 
 function setDateField(fieldName, dateVal) {
 	document.getElementById(fieldName+'_year').value = dateVal.getFullYear();
-	document.getElementById(fieldName+'_month').value = dateVal.getMonth();
+	document.getElementById(fieldName+'_month').value = dateVal.getMonth()+1;
 	document.getElementById(fieldName+'_day').value = dateVal.getDate();
 	if ((hourElt = document.getElementById(fieldName+'_hours')) !== null) {
 		document.getElementById(fieldName+'_is_pm').selectedIndex = ((dateVal.getHours() >= 12) ? 1 : 0);
@@ -257,3 +257,16 @@ function updateStartDate(name) {
 	}
 	  
 }//end updateStartDate()
+
+function processKeyEvent(elt) {
+  key = window.event.keyCode; 
+  if ((key==43) && (elt.value==Number(elt.value))) { 
+    elt.value=(Number(elt.value))+1; 
+    window.event.keyCode=null;
+  } 
+  if ((key==45) && (elt.value==Number(elt.value))) { 
+    elt.value=(Number(elt.value))-1; 
+    window.event.keyCode=null;
+  }
+  return true
+}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.8 2004/08/03 02:44:38 tbarrett Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.9 2004/08/26 07:08:55 tbarrett Exp $
 * $prefix:  $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $ - 1.0
+* @version $Revision: 1.9 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -197,9 +197,9 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 		$disabled_text = ($timestamp === false) ? ' disabled="disabled" ' : '';
 		if (!$timestamp) $timestamp = time();
 		?>
-		<input class="sq-form-field" style="width: 5ex" type="text" name="<?php echo $prefix; ?>_day" id="<?php echo $prefix; ?>_day" size="2" value="<?php echo date('j', $timestamp); ?>" <?php echo $disabled_text; ?> onkeyup="if (dayOK(this)) { <?php echo $onkeyup_code?> }" onchange="if (validateDay(this)) { <?php echo $onchange_code; ?> }" onfocus="this.select()" />
+		<input class="sq-form-field" style="width: 5ex" type="text" name="<?php echo $prefix; ?>_day" id="<?php echo $prefix; ?>_day" size="2" value="<?php echo date('j', $timestamp); ?>" <?php echo $disabled_text; ?> onkeypress="return processKeyEvent(this);" onkeyup="if (dayOK(this)) { <?php echo $onkeyup_code?> }" onblur="if (validateDay(this)) { <?php echo $onchange_code; ?> }" onfocus="this.select()" />
 		
-		<select class="sq-form-field" name="<?php echo $prefix; ?>_month" id="<?php echo $prefix; ?>_month" <?php echo $disabled_text; ?> onchange="<?php echo $onchange_code; ?>">
+		<select class="sq-form-field" name="<?php echo $prefix; ?>_month" id="<?php echo $prefix; ?>_month" <?php echo $disabled_text; ?> onblur="<?php echo $onchange_code; ?>">
 		<?php
 		$currentMonth = date('n', $timestamp);
 		foreach(range(1, 12) as $monthNumber) {
@@ -208,7 +208,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 		?>
 		</select>
 		
-		<input class="sq-form-field" type="text" name="<?php echo $prefix; ?>_year" id="<?php echo $prefix; ?>_year" size="5" value="<?php echo date('Y', $timestamp); ?>" <?php echo $disabled_text; ?> onkeyup="if (yearOK(this)) { <?php echo $onkeyup_code; ?> }" onchange="if (validateYear(this)) { <?php echo $onchange_code; ?> }" onfocus="this.select()" />
+		<input class="sq-form-field" type="text" name="<?php echo $prefix; ?>_year" id="<?php echo $prefix; ?>_year" size="5" value="<?php echo date('Y', $timestamp); ?>" <?php echo $disabled_text; ?> onkeypress="return processKeyEvent(this);" onkeyup="if (yearOK(this)) { <?php echo $onkeyup_code; ?> }" onblur="if (validateYear(this)) { <?php echo $onchange_code; ?> }" onfocus="this.select()" />
 		<?php
 		return true;
 
@@ -235,11 +235,11 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 		?>
 		<input class="sq-form-field" type="checkbox" value="1" <?php echo $checked_text; ?> name="<?php echo $prefix; ?>_time_enabled" id="<?php echo $prefix; ?>_time_enabled" onclick="<?php echo $onclick_code; ?>; " onkeypress="<?php echo $onclick_code; ?>" />at
 		
-		<input class="sq-form-field" style="width: 5ex" type="text" name="<?php echo $prefix; ?>_hours" id="<?php echo $prefix; ?>_hours" size="2" maxlength="2" value="<?php echo date('g', $timestamp); ?>" onkeyup="if (hoursOK(this)) { <?php echo $onkeyup_code; ?> }" onchange="if (validateHours(this)) { <?php echo $onchange_code; ?> }" <?php echo $disabled_text; ?> onfocus="this.select()" /> :
+		<input class="sq-form-field" style="width: 5ex" type="text" name="<?php echo $prefix; ?>_hours" id="<?php echo $prefix; ?>_hours" size="2" maxlength="2" value="<?php echo date('g', $timestamp); ?>" onkeypress="return processKeyEvent(this);" onkeyup="if (hoursOK(this)) { <?php echo $onkeyup_code; ?> }" onblur="if (validateHours(this)) { <?php echo $onchange_code; ?> }" <?php echo $disabled_text; ?> onfocus="this.select()" /> :
 		
-		<input class="sq-form-field" style="width: 5ex" type="text" name="<?php echo $prefix; ?>_minutes" id="<?php echo $prefix; ?>_minutes" size="2" maxlength="2" value="<?php echo date('i', $timestamp); ?>" onkeyup="if (minutesOK(this)) { <?php echo $onkeyup_code; ?> }" onchange="if (validateMinutes(this)) { <?php echo $onchange_code; ?> }" <?php echo $disabled_text; ?> onfocus="this.select()" />
+		<input class="sq-form-field" style="width: 5ex" type="text" name="<?php echo $prefix; ?>_minutes" id="<?php echo $prefix; ?>_minutes" size="2" maxlength="2" value="<?php echo date('i', $timestamp); ?>" onkeypress="if (!processKeyEvent(this)) { this.value=make2digits(this.value); return false; } return true;" onkeyup="if (minutesOK(this)) { <?php echo $onkeyup_code; ?> }" onchange="if (validateMinutes(this)) { <?php echo $onchange_code; ?> }" <?php echo $disabled_text; ?> onfocus="this.select()" />
 		
-		<select class="sq-form-field" name="<?php echo $prefix; ?>_is_pm" id="<?php echo $prefix; ?>_is_pm" onchange="<?php echo $onchange_code; ?>" <?php echo $disabled_text; ?> >
+		<select class="sq-form-field" name="<?php echo $prefix; ?>_is_pm" id="<?php echo $prefix; ?>_is_pm" onblur="<?php echo $onchange_code; ?>" <?php echo $disabled_text; ?> >
 			<option value="0" <?php echo (date('a', $timestamp)=='am') ? ' selected="selected" ' : ''; ?>>am</option>
 			<option value="1" <?php echo (date('a', $timestamp)=='pm') ? ' selected="selected" ' : ''; ?>>pm</option>
 		</select>
