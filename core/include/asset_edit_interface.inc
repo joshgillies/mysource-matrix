@@ -311,7 +311,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				for($j = 0; $j < $num_fields; $j++) {
 					$field = &$section->children[$j];
 					// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
-					if ($field->name != 'field'  || ($creating && !in_array($field->attributes['attribute'], $create_sections[$section->attributes['name']]))) continue;
+					if ($field->name != 'field' || ($creating && (empty($field->attributes['attribute']) || !in_array($field->attributes['attribute'], $create_sections[$section->attributes['name']])))) continue;
 
 					if (!empty($field->attributes['attribute'])) {
 						$attr = &$owner->getAttribute($field->attributes['attribute']);
