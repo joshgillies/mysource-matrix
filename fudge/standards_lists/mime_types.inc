@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mime_types.inc,v 1.5 2003/11/26 00:51:19 gsherwood Exp $
+* $Id: mime_types.inc,v 1.6 2004/06/14 11:01:37 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -163,3 +163,5 @@ $standards_lists_mime_types = Array('hqx'		=> 'application/mac-binhex40',
 									'wmz'		=> 'application/x-ms-wmz',
 									'wmd'		=> 'application/x-ms-wmd'
 									);
+
+?>
