@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: header.php,v 1.6 2003/09/26 05:26:40 brobertson Exp $
+* $Id: header.php,v 1.7 2003/10/03 00:03:26 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -93,7 +93,7 @@
 	}
 	?>
 
-	<script language="JavaScript">
+	<script language="JavaScript" type="text/javascript">
 		if (is_ie4up || is_dom) {
 			var owner = parent;
 		} else {

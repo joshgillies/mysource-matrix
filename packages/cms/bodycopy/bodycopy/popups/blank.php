@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: blank.php,v 1.5 2003/09/26 05:26:40 brobertson Exp $
+* $Id: blank.php,v 1.6 2003/10/03 00:03:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -24,7 +24,7 @@ header("Expires: ". gmdate("D, d M Y H:i:s",time()-3600) . " GMT");
 
 require(dirname(__FILE__)."/header.php");
 ?> 
-<script language="JavaScript">
+<script language="JavaScript" type="text/javascript">
 	function popup_init() {
 		// do nothing, just here so that we overright the popup_init() fn 
 		// that may have been set by a previous pop-up

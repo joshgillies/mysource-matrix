@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: insert_table.php,v 1.5 2003/09/26 05:26:40 brobertson Exp $
+* $Id: insert_table.php,v 1.6 2003/10/03 00:03:26 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -18,7 +18,7 @@
 */
 include(dirname(__FILE__)."/header.php");
 ?> 
-<script language="JavaScript">
+<script language="JavaScript" type="text/javascript">
 
 	function popup_init() {
 		var f = document.main_form;

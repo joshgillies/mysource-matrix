@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_table_cell_props.php,v 1.8 2003/09/26 05:26:40 brobertson Exp $
+* $Id: edit_table_cell_props.php,v 1.9 2003/10/03 00:03:26 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -22,7 +22,7 @@ header("Expires: ". gmdate("D, d M Y H:i:s",time()-3600) . " GMT");
 
 include(dirname(__FILE__)."/header.php");
 ?> 
-<script language="JavaScript">
+<script language="JavaScript" type="text/javascript">
 
 	function popup_init() {
 

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: bodycopy_edit_fns.inc,v 1.33 2003/09/26 05:26:40 brobertson Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.34 2003/10/03 00:03:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 function print_bodycopy_icon($href, $heading, $desc, $icon, $extra='', $width='16', $height='16'){
 	?>
 	<a href="<?php echo $href?>" onmouseover="javascript: show_tooltip(event, '<?php echo addslashes(htmlspecialchars($heading))?>', '<?php echo addslashes(htmlspecialchars($desc))?>', null, 'bodycopyToolTipDiv'); return true;" onmouseout="javascript:hide_tooltip(); return true;" >
-	<script language="Javascript">sqPrintIcon("<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/<?php echo $icon?>.png", "<?php echo $width?>", "<?php echo $height?>", "");</script>
+	<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/<?php echo $icon?>.png", "<?php echo $width?>", "<?php echo $height?>", "");</script>
 	</a><?php
 }// end print_bodycopy_icon()
 
@@ -158,7 +158,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/tooltips.js';?>"					></script>
 		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/html_form/html_form.js';?>"			></script>
 		
-		<script language="JavaScript">
+		<script language="JavaScript" type="text/javascript">
 			// this is an array of data that each element (tables, rows, and cells)
 			// can place data for use in editing
 			var bodycopy_current_data = new Object();
@@ -436,7 +436,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		</div>
 		<!-- End Popup -->
 
-		<script language="JavaScript">
+		<script language="JavaScript" type="text/javascript">
 			bodycopy_current_data["<?php echo $prefix?>"] = new Object();
 			function get_bodycopy_<?php echo $prefix?>_current_data(tableid, rowid, cellid) {
 	
