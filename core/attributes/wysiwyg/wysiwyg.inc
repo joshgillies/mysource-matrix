@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.8 2004/09/08 04:17:48 gsherwood Exp $
+* $Id: wysiwyg.inc,v 1.9 2004/09/08 05:37:05 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -197,7 +197,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 			<tr>
 				<td align="left" width="4%" style="border: 1px dashed #C0C0C0;">
 					<a href="Javascript: switchEditingMode('<?php echo $prefix; ?>_contents_div','<?php echo $prefix; ?>_wysiwyg_div', editor_<?php echo $prefix; ?>);">
-					<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png", "16", "16", "");</script>
+					<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png", "16", "16", "Edit Contents");</script>
 					</a>
 				</td>
 			</tr>
