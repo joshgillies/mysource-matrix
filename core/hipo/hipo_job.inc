@@ -84,11 +84,11 @@ class HIPO_Job extends Resolve_Object
 	*									'init_details_function' => 'getJobDetails(&$job_type, &$running_vars, &$options)',
 	*								),
 	*		]
-	*			'running_mode'	   => [web|server],
-	*			'auto_step'		   => [true|false],
-	*			'percent_done'	   => 0,
-	*			'complete'		   => false,
-	*			'message'		   => '',
+	*			'running_mode'	=> [web|server],
+	*			'auto_step'		=> [true|false],
+	*			'percent_done'	=> 0,
+	*			'complete'		=> false,
+	*			'message'		=> '',
 	*		),
 	*		...
 	* );
