@@ -119,7 +119,6 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	function paintLookups(&$step_data, $prefix)
 	{
 		$this->paintProgressBar($step_data['percent_done'], '#412F49', $step_data['message']);
-		if ($this->_hipo_vars['running_mode'] == 'server') sleep(2);
 
 	}//end paintLookups()
 

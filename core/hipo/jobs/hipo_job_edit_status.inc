@@ -152,7 +152,6 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	function paintStatus(&$step_data, $prefix)
 	{
 		$this->paintProgressBar($step_data['percent_done'], '#412F49', $step_data['message']);
-		if ($this->_hipo_vars['running_mode'] == 'server') sleep(2);
 
 	}//end paintStatus()
 
