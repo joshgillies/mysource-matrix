@@ -12,7 +12,9 @@
     - In Asset have diff update case for diff types of attr
   - Unique Usernames (or attr values in general) across system
   - Flash Asset Tree
+  - Update Asset last updated when setting an attribute
   - Customising Asset's
+    - Have Ability to "cast" objects from parent class to custom asset class
   - Enable removing of attributes from asset types in Asset_Management
   - Permissions_Group Asset
     - Same form as windows directory permissions ? 
@@ -22,9 +24,10 @@
 
   - CMS Package
     - Page
+	  - the idea of a separated Page Template object has been scrapped, instead
+        we will be inheriting from, and extending, Page
     - Site
     - File
-    - Page Template
 
 +----------------------------------------------------------------------------------------+
 |                            MEDIUM TERM ( 3-7 weeks )                                   |
