@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.54 2004/11/18 04:39:52 gsherwood Exp $
+* $Id: asset_management.inc,v 1.55 2004/11/24 02:58:06 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -700,7 +700,7 @@ class Asset_Management extends MySource_Object
 				}
 
 				if ($parameters_type_code != $curr_attr['parameters_type_code'] || $parameters_value != $curr_attr['parameters_val']) {
-					if (!$this->_updateCustomAttribute($curr_attr['attriid'], $name, 'parameters', $curr_attr['parameters_type_code'], $parameters_type_code, $parameters_value)) return false;
+					if (!$this->_updateCustomAttribute($curr_attr['attrid'], $name, 'parameters', $curr_attr['parameters_type_code'], $parameters_type_code, $parameters_value)) return false;
 				}
 
 
