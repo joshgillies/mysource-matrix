@@ -263,10 +263,14 @@ function processKeyEvent(elt) {
   if ((key==43) && (elt.value==Number(elt.value))) { 
     elt.value=(Number(elt.value))+1; 
     window.event.keyCode=null;
+	elt.select();
   } 
   if ((key==45) && (elt.value==Number(elt.value))) { 
-    elt.value=(Number(elt.value))-1; 
-    window.event.keyCode=null;
+	  if (elt.value > 1) {
+		   elt.value=(Number(elt.value))-1; 
+	  }
+      window.event.keyCode=null;
+      elt.select();
   }
   return true
 }
