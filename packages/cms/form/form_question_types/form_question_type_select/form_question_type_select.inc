@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.27 2004/12/06 14:41:39 brobertson Exp $
+* $Id: form_question_type_select.inc,v 1.28 2004/12/09 22:04:09 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -167,7 +167,7 @@ class Form_Question_Type_Select extends Form_Question
 			}
 			return implode(', ', $ans_str);
 		}
-		bam($this->active_submission);
+
 		return $this->getAnswerByOffset($answer);
 
 	}//end getSummary()
