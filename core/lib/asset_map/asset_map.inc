@@ -527,7 +527,7 @@ class Asset_Map
 					return;
 				}
 
-				if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($attr['parent_assetid'])) {
+				if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($attr['parent_assetid'], true)) {
 					$this->_error('Unable to Add Asset, new parent (Asset #"'.$attr['parent_assetid'].'") is in the trash');
 					return;
 				}
