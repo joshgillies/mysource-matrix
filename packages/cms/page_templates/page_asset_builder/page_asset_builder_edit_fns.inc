@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.17 2004/09/23 04:28:31 tbarrett Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.18 2004/09/23 04:45:08 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -579,7 +579,6 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			echo 'No sets of selectable locations have been specified';
 		}
 
-
 		if ($write_access) {
 			echo '<p><b>Add New Set: </b> ';
 			text_box($prefix.'_new_set_name', '');
@@ -634,14 +633,16 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			if (is_array($new_options = array_values($_POST[$prefix.'_'.$code_name.'_new_location_options']))) {
 				foreach ($new_options as $option) {
 					if (($new_loc_id = $option['assetid']) && (!in_array($new_loc_id, array_keys($sets[$name]['locations'])))) {
-						$sets[$name]['locations'][$new_loc_id] = '';
+						$sets[$name]['locations'][$new_loc_id] = ''; // we'll get the name in a sec
 					} 
 				}
 			}
 
 			// make sure the names are up to date
-			$asset_infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($details['locations']));
-			foreach ($asset_infos as $assetid => $asset_info) $sets[$name]['locations'][$assetid] = $asset_info['name'];
+			$asset_infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($sets[$name]['locations']));
+			foreach ($asset_infos as $assetid => $asset_info) {
+				$sets[$name]['locations'][$assetid] = $asset_info['name'];
+			}
 
 			// update the other options
 			$sets[$name]['allow_empty'] = (int)isset($_POST[$prefix.'_'.$code_name.'_allow_empty']);
