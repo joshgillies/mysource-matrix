@@ -351,7 +351,6 @@ class Resolve
 				}
 
 				if (!$hipo->process()) {
-					$hipo->abort();
 					trigger_error('HIPO failed to process', E_USER_ERROR);
 				}
 
