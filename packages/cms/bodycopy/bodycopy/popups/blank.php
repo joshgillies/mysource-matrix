@@ -15,7 +15,7 @@ header("Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-ch
 header("Pragma: no-cache");
 header("Expires: ". gmdate("D, d M Y H:i:s",time()-3600) . " GMT");
 
-include(dirname(__FILE__)."/header.php");
+require(dirname(__FILE__)."/header.php");
 ?> 
 <script language="JavaScript">
 	function popup_init() {
@@ -24,4 +24,8 @@ include(dirname(__FILE__)."/header.php");
 		// needed for Netscape
 	}// end popup_init()
 </script>
-<?php include(dirname(__FILE__)."/footer.php"); ?>
+<?php 
+
+require(dirname(__FILE__)."/footer.php"); 
+
+?>
