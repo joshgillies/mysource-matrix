@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox.inc,v 1.13 2004/06/24 05:25:31 lwright Exp $
+* $Id: design_area_searchbox.inc,v 1.14 2004/06/30 05:56:58 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 *
 */
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.13 $ - 1.0
+* @version $Revision: 1.14 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -129,7 +129,7 @@ class Design_Area_Searchbox extends Design_Area
 					if ($submit_image_assetid > 0) {
 						$submit_image_asset =& $am->getAsset($submit_image_assetid);
 						echo '<'.'?php $submit_image_asset = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$submit_image_asset->id.', "'.$submit_image_asset->type().'"); ?'.'>';
-						echo '<input type="image"';
+						echo '<input alt="search" type="image"';
 						if (isset($args['class'])) {
 							echo ' class="'. $args['class'] .'"';
 						}
