@@ -154,10 +154,16 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 							}
 						} else {
 							// we need to have a permission set and the access level be the same
-							$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, $perm, (bool)$set_data['previous_access'], false);
-							if (empty($current)) {
+							$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, $perm, null, false, false, true);
+							if (!isset($current[$set_data['userid']])) {
+								continue;
+							} elseif ($current[$set_data['userid']] != $set_data['previous_access']) { 
+								$new_access     = ($set_data['previous_access']) ? 'grant'   : 'revoke';
+								$current_access = ($set_data['previous_access']) ? 'revoked' : 'granted';
+								$this->_addError('Could not '.$new_access.' '.$perm_name.' access for "'.$user_name.'" on "'.$asset->name.'" because this asset already has '.$current_access.' '.$perm_name.' access to "'.$user_name.'". The current permission for "'.$asset->name.'" has been retained.', true);
 								continue;
 							}
+
 						}
 
 						switch ($set_data['access']) {
