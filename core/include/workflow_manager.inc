@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.49 2004/09/15 04:30:03 gsherwood Exp $
+* $Id: workflow_manager.inc,v 1.49.2.1 2004/10/06 02:01:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -354,7 +354,7 @@ class Workflow_Manager extends MySource_Object
 				return false;
 			}
 
-			$this->_tmp['schema_workflows']['assetid'][$schemaid] = $workflow[$schema->name];
+			$this->_tmp['schema_workflows'][$assetid][$schemaid] = $workflow[$schema->name];
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -1078,7 +1078,14 @@ class Workflow_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$values = Array('workflow' => 'NULL');
 		$where = 'assetid = '.$db->quote($assetid);
-		return $GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_workflow', $values, $where);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_workflow', $values, $where)) {
+			trigger_error('Failed clearing workflow for asset #'.$assetid, E_USER_WARNING);
+			return false;
+		}
+		
+		unset($this->_tmp['schemas'][$assetid]);
+		unset($this->_tmp['schema_workflows'][$assetid]);
+		return true;
 
 	}//end cancelWorkflow()
 
