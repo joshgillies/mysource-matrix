@@ -18,7 +18,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: clean.sh,v 1.12 2003/11/26 00:50:54 gsherwood Exp $
+#* $Id: clean.sh,v 1.12.2.1 2004/02/21 13:24:49 brobertson Exp $
 #* $Name: not supported by cvs2svn $
 #*/
 
@@ -37,7 +37,8 @@ rm -rf "${SYSTEM_ROOT}/cache" \
 		"${SYSTEM_ROOT}/data/private/assets" \
 		"${SYSTEM_ROOT}/data/private/db" \
 		"${SYSTEM_ROOT}/data/private/events" \
-		"${SYSTEM_ROOT}/data/private/asset_map"
+		"${SYSTEM_ROOT}/data/private/asset_map" \
+		"${SYSTEM_ROOT}/data/private/replication"
 
 cvs up -dP cache data/public data/private
 
