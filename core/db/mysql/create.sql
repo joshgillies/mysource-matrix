@@ -108,9 +108,9 @@ CREATE TABLE sq_asset_path (
   PRIMARY KEY  (path, assetid)
 );
 
-DROP TABLE sq_asset_lookup;
+DROP TABLE IF EXISTS sq_asset_lookup;
 CREATE TABLE sq_asset_lookup (
-  url        TEXT NOT NULL DEFAULT '',
+  url        VARCHAR(255) NOT NULL DEFAULT '',
   linkid     INT UNSIGNED NOT NULL DEFAULT 0,
   assetid    INT NOT NULL,
   root_urlid SMALLINT NOT NULL,
