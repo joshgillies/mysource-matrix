@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.23 2004/06/25 09:22:25 lwright Exp $
+* $Id: form_email.inc,v 1.21 2004/06/28 02:22:59 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -173,7 +173,7 @@ class Form_Email extends Form
 
 			$reps = Array('receipt_address' => $address, 'form_summary_html' => $body, 'form_summary_text' => $body_text, 'form_info_html' => $info, 'form_info_text' => $info_text);
 
-			$email_format_attr = $this->getAttribute('receipt_emails_format');
+			$email_format = $this->attr('receipt_emails_format');
 
 			// append the 'To:' address with the address from the e-mail field
 			$current_value = @unserialize($email_format_attr->value);
@@ -205,16 +205,12 @@ class Form_Email extends Form
 	*/
 	function mailRecipients()
 	{
-		$email_format_attr = $this->getAttribute('receipt_emails_format');
+		$email_format = $this->attr('recipient_emails_format');
 
-		$current_value = @unserialize($email_format_attr->value);
+		$current_value = @unserialize($email_format->value);
 
 		// return false if there is no-one to send to
 		if (empty($current_value['to'])) return false;
-
-		// get the form info (in both formats)
-		$info = $this->getFormInfo(true);
-		$info_text = $this->getFormInfo(false);
 
 		// get the form summary
 		ob_start();
@@ -238,11 +234,11 @@ class Form_Email extends Form
 			Array('%form_info%', '%form_summary%'), 
 			Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
 
-		$email_format_attr->value = serialize($current_value);
+		$email_format->value = serialize($current_value);
 
-		$email_format_attr->sendMail($reps);
+		$email_format->sendMail($reps);
 
-		return true; 
+		return true;
 
 	}//end mailRecipients()
 
