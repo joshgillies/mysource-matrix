@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table.inc,v 1.2 2003/12/16 12:16:42 brobertson Exp $
+* $Id: bodycopy_table.inc,v 1.3 2004/01/22 06:04:40 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -91,7 +91,7 @@ class Bodycopy_Table extends Bodycopy_Container
 			for ($x = 0; $x < $num_cols; $x++) {
 				$rows[$i]['cells'][$x]	= new Bodycopy_Table_Cell();
 				// short and long names are the same to begin with
-				if (!$rows[$i]['cells'][$x]->setContentType($this, 'wysiwyg', $i, $x)) {
+				if (!$rows[$i]['cells'][$x]->setContentType($this, 'content_type_wysiwyg', $i, $x)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$this->id = 0;
 					return false;

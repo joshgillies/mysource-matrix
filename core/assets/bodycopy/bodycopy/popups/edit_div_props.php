@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_div_props.php,v 1.4 2004/01/20 23:55:04 gsherwood Exp $
+* $Id: edit_div_props.php,v 1.5 2004/01/22 06:04:40 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -44,6 +44,7 @@ include(dirname(__FILE__)."/header.php");
 	function popup_init() {
 
 		var data = owner.bodycopy_current_edit["data"]["attributes"];
+		available_types = owner.bodycopy_current_edit["data"]["available_types"];
 		var f = document.main_form;
 
 		f.identifier.value = (data['identifier'] == null) ? "" : data['identifier'];
@@ -53,6 +54,20 @@ include(dirname(__FILE__)."/header.php");
 		f.bodycopy_name.value = owner.bodycopy_current_edit["bodycopy_name"];
 		owner.highlight_combo_value(f.layout_type, data['layout_type']);
 
+		// remove the existing values
+		for(var i = f.content_type.options.length - 1; i >= 0; i--) {
+			f.content_type.options[i] = null;
+		}
+		var i = 0;
+		for(var key in available_types) {
+			if (available_types[key] == null) continue;
+			if(available_types[key]["name"] != null) {
+				f.content_type.options[i] = new Option(available_types[key]["name"], key);
+				i++;
+			}
+		}
+		owner.highlight_combo_value(f.content_type, data["content_type"]);
+
 	}// end popup_init()
 
 	function popup_save(f) {
@@ -60,6 +75,7 @@ include(dirname(__FILE__)."/header.php");
 		data["identifier"]   = owner.form_element_value(f.identifier);
 		data["css_class"]    = owner.form_element_value(f.css_class);
 		data["layout_type"]  = owner.form_element_value(f.layout_type);
+		data["content_type"] = owner.form_element_value(f.content_type);
 		owner.bodycopy_save_div_properties(data);
 	}
 
@@ -108,6 +124,25 @@ include(dirname(__FILE__)."/header.php");
 				</tr>
 			</table>
 		</fieldset>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<fieldset>
+			<legend><b>Content Type</b></legend>
+			<table style="width:100%">
+				<tr>
+					<td class="label">Content Type:</td>
+					<td>
+					<select name="content_type">
+						<option value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
+						<option value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
+						<option value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
+					</select>
+					</td>
+				</tr>
+			</table>
+			</fieldset>
 		</td>
 	</tr>
 	<tr>

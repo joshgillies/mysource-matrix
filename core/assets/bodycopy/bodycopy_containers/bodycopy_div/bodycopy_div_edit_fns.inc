@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.5 2004/01/20 23:55:04 gsherwood Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.6 2004/01/22 06:04:40 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -314,11 +314,50 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			}
 		}
 
+		if (isset($bc_saved[$prefix][$asset->id]['attributes']['content_type'])) {
+			if ($this->_updateCellType($asset, $bc_saved[$prefix][$asset->id]['attributes']['content_type'])) $updated = true;
+		}
+
 		if ($updated) $this->generateContentFile($asset);
 		$this->_contentsUpdated($asset);
 		return $updated;
 
 	}//end processContainer()
+
+
+	/**
+	* Change the type of this DIV's editing interface to the passed content type
+	*
+	* @param object BodyCopy_DIV	&$asset		the DIV object
+	* @param string					$new_type	the name of the new content type
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _updateCellType(&$asset, $new_type='') {
+
+		// dont change anything if the new type id blank
+		$new_type = trim($new_type);
+		if (empty($new_type)) return false;
+
+		// get the contentType
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'content_type', false, 'div_contents', 'major', true);
+		if (empty($link)) return false;
+		$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+
+		// if the new type is the same as the current, change nothing
+		$current_type = get_class($content_type);
+		if ($current_type == $new_type) return false;
+
+		// morph the content type to the new type
+		// first up
+		if (!$content_type->morph('content_type')) return false;
+		// then down
+		if (!$content_type->morph($new_type)) return false;
+
+		return true;
+
+	}//end _updateCellType()
 
 
 }//end class
