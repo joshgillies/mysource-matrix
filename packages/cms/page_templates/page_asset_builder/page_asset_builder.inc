@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.28 2004/09/06 15:53:16 brobertson Exp $
+* $Id: page_asset_builder.inc,v 1.29 2004/09/17 03:22:34 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -411,11 +411,11 @@ class Page_Asset_Builder extends Page
 
 								$link_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_parentid, '', true);
 								if (is_null($link_parent)) {
-									trigger_error('Asset $link_parentid was null', E_USER_WARNING);
+									trigger_error('Asset '.$link_parentid.' was null', E_USER_WARNING);
 									continue;
 								}
 								if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($link_parent, $new_asset, $link_type)) {
-									trigger_error('Failed to create link to asset $link_parent->id', E_USER_WARNING);
+									trigger_error('Failed to create link to asset '.$link_parent->id, E_USER_WARNING);
 									continue;
 								}
 							}
