@@ -841,13 +841,33 @@
 		</keys>
 		<indexes />
 	</table>
-	<table name="hipo_running_vars" require_rollback="0">
+	<table name="hipo_job" require_rollback="0">
 		<columns>
 			<column name="code_name" allow_null="0">
-				<type>VARCHAR(100)</type>
+				<type>VARCHAR(255)</type>
 				<type_variations />
 				<default>''</default>
 				<description>A unique ID that a HIPO object can use to determine if another HIPO is running</description>
+			</column>
+			<column name="job_type" allow_null="0">
+				<type>VARCHAR(255)</type>
+				<type_variations />
+				<default>''</default>
+				<description />
+			</column>
+			<column name="userid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description>ID of the user that this job is being run by</description>
+			</column>
+			<column name="source_code_name" allow_null="0">
+				<type>VARCHAR(255)</type>
+				<type_variations />
+				<default>''</default>
+				<description>The code_name of hipo job that started a chain of jobs running</description>
 			</column>
 			<column name="hipo_vars" allow_null="0">
 				<type>TEXT</type>
