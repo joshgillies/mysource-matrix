@@ -188,7 +188,7 @@ class HIPO_Job
 		$message   = '';
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'HIPO_running_vars 
+		$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'hipo_running_vars 
 				(code_name, hipo_vars, options, steps, running_vars)
 				VALUES ('.$db->quote($codename).',
 						'.$db->quote($hipo_vars).',
@@ -215,7 +215,7 @@ class HIPO_Job
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT code_name, hipo_vars, options, steps, running_vars
-				FROM '.SQ_TABLE_PREFIX.'HIPO_running_vars 
+				FROM '.SQ_TABLE_PREFIX.'hipo_running_vars 
 				WHERE code_name = '.$db->quote($codename);
 
 		$result = $db->getRow($sql);
@@ -243,13 +243,13 @@ class HIPO_Job
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		if ($this->_complete) {
-			$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'HIPO_running_vars WHERE code_name = '.$db->quote($this->_code_name);
+			$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'hipo_running_vars WHERE code_name = '.$db->quote($this->_code_name);
 		} else {
-			$sql = 'UPDATE '.SQ_TABLE_PREFIX.'HIPO_running_vars
+			$sql = 'UPDATE '.SQ_TABLE_PREFIX.'hipo_running_vars
 					SET hipo_vars    = '.$db->quote(serialize($this->_hipo_vars)).',
-					options          = '.$db->quote(serialize($this->_options)).',
-					steps            = '.$db->quote(serialize($this->_steps)).',
-					running_vars     = '.$db->quote(serialize($this->_running_vars)).'
+						options      = '.$db->quote(serialize($this->_options)).',
+						steps        = '.$db->quote(serialize($this->_steps)).',
+						running_vars = '.$db->quote(serialize($this->_running_vars)).'
 					WHERE code_name  = '.$db->quote($this->_code_name);
 		}
 		$result = $db->query($sql);
@@ -269,7 +269,7 @@ class HIPO_Job
 	function abort()
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'HIPO_running_vars WHERE code_name = '.$db->quote($this->_code_name);
+		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'hipo_running_vars WHERE code_name = '.$db->quote($this->_code_name);
 		$result = $db->query($sql);
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 		return true;
@@ -445,7 +445,11 @@ class HIPO_Job
 		$prefix = $this->getCodeName().'step'.$step;
 		
 		set_error_handler(Array(&$this, '_errorHandler'));
-		if (!$this->$fn($this->_steps[$step], $prefix)) return false;
+		if (!$this->$fn($this->_steps[$step], $prefix)) {
+			restore_error_handler();
+			$hipo->abort();
+			return false;
+		}
 		restore_error_handler();
 
 		$prev_step_per = (($step - 1) * 100) / count($this->_steps);
