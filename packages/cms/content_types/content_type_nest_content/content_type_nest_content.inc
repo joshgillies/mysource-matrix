@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content.inc,v 1.15 2003/12/08 05:47:50 gsherwood Exp $
+* $Id: content_type_nest_content.inc,v 1.16 2004/01/19 22:21:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -60,7 +60,7 @@ class Content_Type_Nest_Content extends Content_Type
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_3 => Array('asset' => Array('card' => 1, 'exclusive' => false)),
+		return Array(SQ_LINK_NOTICE => Array('asset' => Array('card' => 1, 'exclusive' => false)),
 					);
 
 	}//end _getAllowedLinks()
@@ -69,8 +69,8 @@ class Content_Type_Nest_Content extends Content_Type
 	/**
 	* Returns true if there is no nested assetid associated with this content type
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function isEmpty()
 	{
@@ -78,6 +78,25 @@ class Content_Type_Nest_Content extends Content_Type
 		return empty($id);
 
 	}//end isEmpty()
+
+
+	/**
+	* Return a human readable description of the passed link
+	*
+	* @param int	$linkid	the link ID of the link to describe
+	*
+	* @return string
+	* @access public
+	*/
+	function describeLink($linkid)
+	{
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
+		if ($link['value'] == 'nested_asset') {
+				return 'The asset being nested in a nest content cell';
+		}
+
+	}//end describeLink()
+
 
 }//end class
 

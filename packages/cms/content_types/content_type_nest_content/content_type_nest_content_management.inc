@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_management.inc,v 1.7 2003/11/26 00:51:26 gsherwood Exp $
+* $Id: content_type_nest_content_management.inc,v 1.8 2004/01/19 22:21:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 class Content_Type_Nest_Content_Management extends Asset_Management
 {
 
+
 	/**
 	* Constructor
 	*
@@ -46,14 +47,9 @@ class Content_Type_Nest_Content_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array('nested_assetid' => Array(
-											'added'     => '0.0.1',
-											'type'      => 'int',  'default'   => '',
-											'update_fn' => ''
-											)
-							);
-
 	}//end constructor
 
+
 }//end class
+
 ?>
