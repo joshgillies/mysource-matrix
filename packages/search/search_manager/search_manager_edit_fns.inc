@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_edit_fns.inc,v 1.2 2004/05/27 01:00:04 gsherwood Exp $
+* $Id: search_manager_edit_fns.inc,v 1.3 2004/05/27 01:21:57 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.2 $ - 1.0
+* @version $Revision: 1.3 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -148,14 +148,12 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		$weights = $_POST[$prefix. 'weights'];
 		$disabled = $_POST[$prefix. 'disable'];
-		$sm =& $GLOBALS['SQ_SYSTEM']->getSystemAsset('search_manager');
-		if (!$sm) return false;
 
 		foreach ($weights as $typeCode => $weightData) {
 			foreach ($weightData as $component => $weighting) {
 				if ($disabled[$typeCode][$component] || $weighting < 0)
 					$weighting = 0;
-				$sm->setComponentDefaultWeighting($typeCode, $component, $weighting);
+					$asset->setComponentDefaultWeighting($typeCode, $component, $weighting);
 			}
 		}
 		return true;
