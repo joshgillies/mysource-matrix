@@ -18,14 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.33 2004/12/06 14:38:11 brobertson Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.34 2005/02/18 06:07:37 mmcintyre Exp $
 *
 */
 
 require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 
 /**
-* Highly Intensive Processing Object (HIPO) to edit asset permissions
+* Highly Intensive Processing Object (HIPO) to edit the permissions of multiple assets
 *
 * <pre>
 * Initial Running Vars :
@@ -41,7 +41,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -156,17 +156,12 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	/**
 	* Returns a unique codename the HIPO can use to ensure it is not being run twice
 	*
-	* The Edit Permission HIPO appends the ID of the asset that the permissions are being set at
-	* (the top most parent) so that any other permission jobs on this asset do not start while it
-	* is running. Due to locking of the interface, nobody should be allowed to run this HIPO at
-	* the same time on the same parent asset.
-	*
 	* @return string
 	* @access public
 	*/
 	function getCodeName()
 	{
-		return parent::getCodeName().$this->_running_vars['assetid'];
+		return parent::getCodeName().'-'.md5(implode('-',array_keys($this->_running_vars['assets'])));
 
 	}//end getCodeName()
 
@@ -205,23 +200,15 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 
 
 	/**
-	* Prepares the running vars and gets the children of the asset in question.
+	* Prepares the running vars and gets the children of the assets in question.
 	*
 	* @return boolean
 	* @access public
 	*/
 	function prepare()
 	{
-		// to start editing permission, we need to have an asset id to start editing permission at
-		if (!isset($this->_running_vars['assetid'])) {
-			trigger_error('Cannot initialise Edit Permissions HIPO, no start asset ID specified', E_USER_WARNING);
-			return '';
-		}
-
-		// so we have an assetid to start at, but make sure it is a valid assetid
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
-		if (is_null($asset)) {
-			trigger_error('Cannot initialise Edit Permissions HIPO, invalid start asset ID specified ('.$this->_running_vars['assetid'].')', E_USER_WARNING);
+		if (empty($this->_running_vars['assets'])) {
+			trigger_error('Cannot initialise Edit Permissions HIPO, no asset(s) specified', E_USER_WARNING);
 			return '';
 		}
 
@@ -230,14 +217,22 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 			return '';
 		}
 
-		// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
-		// we will be affecting out list of permission changes on
-		$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
-		$child_assets[$asset->id] = $asset->type();
+		$assets = $this->_running_vars['assets'];
+		$child_assets = Array();
+		for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
+			$asset_info = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
+			if (empty($asset_info)) {
+				trigger_error('Cannot initialise Edit Permissions HIPO, invalid asset ID specified ('.$assetid.')', E_USER_WARNING);
+				return '';
+			}
+			$child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
+			$child_assets[$assetid] = $asset_info[$assetid]['type_code'];
+		}
+		$child_assets = array_unique($child_assets);
 		$this->_running_vars['todo_assetids'] = $child_assets;
 		$this->_running_vars['done_assetids'] = Array();
 
-		unset($asset);
+	//	$GLOBALS['SQ_SYSTEM']->setLastAction('system:edit_permission', 'Applying Permission', $this->_running_vars['assetid']);
 
 		return parent::prepare();
 
@@ -359,7 +354,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	* @return void
 	* @access public
 	*/
-	function getLockAssetDetails(&$job_type, &$running_vars, &$options)
+	/*function getLockAssetDetails(&$job_type, &$running_vars, &$options)
 	{
 		$job_type = 'hipo_job_acquire_lock';
 
@@ -369,6 +364,19 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 		$running_vars['lock_type']       = 'permissions';
 		$running_vars['dependants_only'] = false;
 
+	}//end getLockAssetDetails()*/
+
+	function getLockAssetDetails(&$job_type, &$running_vars, &$options)
+	{
+		$job_type = 'hipo_job_acquire_locks';
+
+		$options['auto_complete'] = true;
+
+		$running_vars = Array(
+							'assetids' => array_keys($this->_running_vars['assets']),
+							'lock_type' => Array('permissions'),
+							'forceably_acquire' => false,
+						);
 	}//end getLockAssetDetails()
 
 
@@ -381,7 +389,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	* @return boolean
 	* @access public
 	*/
-	function releaseLocks(&$step_data, $prefix)
+	/*function releaseLocks(&$step_data, $prefix)
 	{
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
 		if (!is_null($asset)) {
@@ -392,6 +400,40 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 		$step_data['complete']     = true;
 		return true;
 
+	}//end releaseLocks()*/
+
+	function releaseLocks(&$step_data, $prefix)
+	{
+		if (!isset($this->_running_vars['re_lock_assets']))
+			 $this->_running_vars['re_lock_assets'] = $this->_running_vars['assets'];
+
+		$assetid = key($this->_running_vars['re_lock_assets']);
+		unset($this->_running_vars['re_lock_assets'][$assetid]);
+
+		$children = &$GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid);
+
+		foreach ($children as $dep_child_id => $dep_child_type_code) {
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($dep_child_id, 'permissions');
+		}
+
+		$asset_info = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
+
+		$step_data['message'] = 'Releasing Lock on '.$asset_info[$assetid]['name'].' and it\'s dependant assets';
+
+		$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'all');
+
+		$this->_running_vars['done_assetids'][] = $assetid;
+
+		if (empty($this->_running_vars['re_lock_assets'])) {
+			unset($this->_running_vars['done_assetids']);
+			$step_data['percent_done'] = 100;
+			$step_data['complete']     = true;
+		} else {
+			$step_data['percent_done'] = (count($this->_running_vars['done_assetids']) / count($this->_running_vars['assets'])) * 100;
+			$step_data['complete']     = false;
+		}
+
+		return true;
 	}//end releaseLocks()
 
 
