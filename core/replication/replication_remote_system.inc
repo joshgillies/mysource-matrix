@@ -18,10 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_remote_system.inc,v 1.1.2.6 2004/02/27 16:37:14 brobertson Exp $
+* $Id: replication_remote_system.inc,v 1.1.2.7 2004/03/08 17:54:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
+require_once SQ_SYSTEM_ROOT.'/core/replication/replication_object.inc';
 
 /**
 * Replication_Remote_System
@@ -36,7 +37,7 @@
 * @package MySource_Matrix
 * @abstract
 */
-class Replication_Remote_System extends MySource_Object
+class Replication_Remote_System extends Replication_Object
 {
 	/**
 	* The uniq replication system id that has been given to this remote system
@@ -97,7 +98,7 @@ class Replication_Remote_System extends MySource_Object
 	*/
 	function Replication_Remote_System()
 	{
-		$this->MySource_Object();
+		$this->Replication_Object();
 
 	}//end constructor
 

@@ -18,9 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replicator.inc,v 1.1.2.6 2004/02/21 14:44:47 brobertson Exp $
+* $Id: replicator.inc,v 1.1.2.7 2004/03/08 17:54:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
+
+require_once SQ_SYSTEM_ROOT.'/core/replication/replication_object.inc';
 
 /**
 * Replicator
@@ -34,7 +36,7 @@
 * @package MySource_Matrix
 * @abstract
 */
-class Replicator extends MySource_Object
+class Replicator extends Replication_Object
 {
 
 	/**
@@ -44,20 +46,13 @@ class Replicator extends MySource_Object
 	var $_data_dir = '';
 
 	/**
-	* The path to the directory that we will put all our logs (because we can have diff types)
-	* @var string
-	*/
-	var $_log_dir = '';
-
-	/**
 	* Constructor
 	*
 	*/
 	function Replicator()
 	{
-		$this->MySource_Object();
+		$this->Replication_Object();
 		$this->_data_dir = SQ_DATA_PATH.'/private/replication';
-		$this->_log_dir  = SQ_DATA_PATH.'/private/logs/replication';
 
 	}//end constructor
 

@@ -18,10 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_authentication.inc,v 1.1.2.5 2004/02/26 16:38:21 brobertson Exp $
+* $Id: replication_system_authentication.inc,v 1.1.2.6 2004/03/08 17:54:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
+require_once SQ_SYSTEM_ROOT.'/core/replication/replication_object.inc';
 
 /**
 * Replication_System_Authentication
@@ -34,14 +35,14 @@
 * @version $Version$ - 1.0
 * @package MySource_Matrix
 */
-class Replication_System_Authentication extends MySource_Object
+class Replication_System_Authentication extends Replication_Object
 {
 	/**
 	* Constructor
 	*/
 	function Replication_System_Authentication()
 	{
-		$this->MySource_Object();
+		$this->Replication_Object();
 	}//end constructor
 
 
