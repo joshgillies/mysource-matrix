@@ -1,0 +1,200 @@
+<?php
+require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
+
+/**
+* Highly Intensive Processing Object (HIPO) to change the status of an asset
+*
+* @author  Greg Sherwood <greg@squiz.net>
+* @version $Version$ - 1.0
+* @package Resolve
+* @subpackage lib
+*/
+class HIPO_Job_Edit_Status extends HIPO_Job
+{
+
+	/**
+	* The name of this HIPO job (should not be modified by code)
+	* @var string
+	*/
+	var $_hipo_name = 'Edit Status';
+
+	/**
+	* Array of steps to perform in this HIPO
+	* @var Array
+	*/
+	var $_steps = Array(1 => Array( 'name'             => 'Editing Status',
+									'paint_function'   => 'paintStatus',
+									'process_function' => 'processStatus',
+									'running_mode'     => 'web',
+									'auto_step'        => true,
+									'percent_done'     => 0,
+									'complete'         => false,
+									'message'          => ''),
+						);
+
+
+	/**
+	* Constructor
+	*
+	* @param string	$codename		a unique codename the HIPO
+	* @param string	$display_mode	the mode this HIPO is being displayed in
+	*								(web = browser, server = HIPO server)
+	*/
+	function HIPO_Job_Edit_Status($codename='', $display_mode='web')
+	{
+		$this->HIPO_Job($codename, $display_mode);
+
+	}//end constructor
+
+
+	/**
+	* Returns a unique codename the HIPO can use to ensure it is not being run twice
+	*
+	* The Edit Status HIPO appends the ID of the asset that the status is being edited for
+	* (the top most parent) so that any other status jobs on this asset do not start while it
+	* is running. Due to locking of the interface, nobody should be allowed to run this HIPO at
+	* the same time on the same parent asset.
+	*
+	* @return string
+	* @access public
+	*/
+	function getCodeName()
+	{
+		return parent::getCodeName().$this->_running_vars['assetid'];
+
+	}//end getCodeName()
+
+
+	/**
+	* Set up vars and database information that the HIPO will need to run
+	*
+	* The Edit Status HIPO also checks that there is an assetid to start this action on
+	* (the top most parent). It also saves a list of assets to perform this action on in the running vars.
+	*
+	* @return boolean
+	* @access public
+	*/
+	function initialise()
+	{
+		// to start editing a status, we need to have an asset id to edit
+		if (!isset($this->_running_vars['assetid'])) {
+			trigger_error('Cannot initialise Acquire Locks HIPO, no start asset ID specified', E_USER_WARNING);
+			return false;
+		}
+
+		// so we have an assetid to start at, but make sure it is a valid assetid
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
+		if (is_null($asset)) {
+			trigger_error('Cannot initialise Acquire Locks HIPO, invalid start asset ID specified ('.$this->_running_vars['assetid'].')', E_USER_WARNING);
+			return false;
+		}
+
+		// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
+		// we will be edting the status of
+		$dep_assets = Array();
+		$dep_assets = array_merge(Array($asset->id), $asset->getDependantChildren());
+		$this->_running_vars['todo_assetids'] = $dep_assets;
+		$this->_running_vars['done_assetids'] = Array();
+
+		unset($asset);
+
+		return parent::initialise();
+
+	}//end initialise()
+
+
+	/**
+	* Process the current step of a HIPO in a server environment
+	*
+	* This function manages the message queue during the status changes
+	*
+	* @param array()	&$step_data	a reference to the array of information about the current step
+	* @param string		$prefix		prefix for form vars
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processServer(&$step_data, $prefix)
+	{
+		// we are probably going to be sending some internal messages during this
+		// process, so we'll open a new queue here
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms->openQueue();
+		
+		if (!parent::processServer($step_data, $prefix)) {
+			$ms->abortQueue();
+			return false;
+		}
+
+		// close the internal message queue and send the messages that
+		// were generated during this status change
+		$ms->closeQueue();
+
+		return true;
+
+	}//end processServer()
+
+
+	/**
+	* Paint a progress bar showing where we are up to
+	*
+	* @param array()	&$step_data	a reference to the array of information about the current step
+	* @param string		$prefix		prefix for form vars
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintStatus(&$step_data, $prefix)
+	{
+		$this->paintProgressBar($step_data['percent_done'], '#412F49', $step_data['message']);
+		if ($this->_hipo_vars['running_mode'] == 'server') sleep(2);
+
+	}//end paintStatus()
+
+
+	/**
+	* Edit the status of a single asset in the to-do list
+	*
+	* @param array()	&$step_data	a reference to the array of information about the current step
+	* @param string		$prefix		prefix for form vars
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processStatus(&$step_data, $prefix)
+	{
+		if (!empty($this->_running_vars['todo_assetids'])) {
+			$assetid = array_shift($this->_running_vars['todo_assetids']);
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
+			if (!is_null($asset)) {
+				$new_status = $this->_running_vars['new_status'];
+				$asset->processStatusChange($new_status);
+				$step_data['message'] = 'Editing status of "'.$asset->name.'"';
+				$GLOBALS['SQ_SYSTEM']->am->unregisterAsset($asset);
+				unset($asset);
+			} else {
+				$step_data['message'] = 'Skipping asset '.$assetid;
+				$this->_addError('Could not Edit Status for asset #'.$assetid.', asset does not exist');
+			}
+
+			// add this assetid to the done array so we dont do it again
+			$this->_running_vars['done_assetids'][] = $assetid;
+		}
+
+		if (empty($this->_running_vars['todo_assetids'])) {
+			$step_data['percent_done'] = 100;
+			$step_data['complete']     = true;
+		} else {
+			$total = count($this->_running_vars['todo_assetids']) + count($this->_running_vars['done_assetids']);
+			$step_data['percent_done'] =(count($this->_running_vars['done_assetids']) / $total) * 100;
+			$step_data['complete']     = false;
+		}
+
+		return true;
+
+	}//end processStatus()
+
+}//end class
+
+?>
