@@ -569,10 +569,7 @@ class Cron_Job extends Asset
 			$this->_tmp['terminate_error'] = true; // stop possible recursion
 
 			$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-			$link = $cm->getLinkByAsset($this);
-			if (!empty($link)) {
-				$cm->deleteLink($link['linkid']);
-			}// end if
+			$cm->removeJob($this);
 
 			$user       = &$this->getRunningUser();
 			$root_user  = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
