@@ -41,6 +41,15 @@ function print_bodycopy_icon($href, $heading, $desc, $icon, $extra='', $width='2
 class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 {
 
+	/**
+	* An array of tab code names and their display names
+	* @var Array()
+	*/
+	var $static_screens = Array('details'     => Array('name' => 'Details',
+													   'force_unlock' => true
+													  )
+								);
+
 
 	/**
 	* Constructor
@@ -100,8 +109,12 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		if (!$asset->writeAccess()) {
 			foreach ($tables as $table_data) {
 				$table = &$am->getAsset($table_data['minorid'], $table_data['type_code']);
-				$table_edit = $table->getEditFns();
-				$table_edit->paintTable($table, $o, $prefix);
+				if ($table->useSystemVersion()) {
+					$table->printBody();
+				} else {
+					$table_edit = $table->getEditFns();
+					$table_edit->paintTable($table, $o, $prefix);
+				}
 			}
 			return true;
 		}

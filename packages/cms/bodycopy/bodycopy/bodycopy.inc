@@ -27,6 +27,52 @@ class Bodycopy extends Asset
 		$this->Asset($assetid);
 	}
 
+
+	/**
+	* Saves a copy of this asset at this point in time
+	* This copy gets used when the asset is live and the user does not have write access
+	*
+	* @return boolean
+	* @access public
+	*/
+	function saveSystemVersion()
+	{
+		if (!parent::saveSystemVersion()) return false;
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
+		// save a version of the bodycopy as it appears now
+		$edit = $this->getEditFns();
+		ob_start();
+		$edit->paint($this);
+		$output = ob_get_contents();
+		ob_end_clean();
+
+		$e = '/\\.\\/\\?a=([0-9]+)/';
+		$matches = Array();
+		preg_match_all($e, $output, $matches);
+		$replace_assetids = $matches[1];
+
+		// replace all ./?a=xx links with php echo's
+		$e = "/?\./\\?a=([0-9]+)([^0-9]+)";
+		$with = '<?php echo $sq_asset_url_list[\\1]; ?>';
+		$output = ereg_replace($e, $with.'\\2', $output);
+
+		// save the contents of the bodycopy
+		if (!string_to_file($output, $this->data_path.'/.sq_system/content_file.php')) {
+			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create content file', E_USER_WARNING);
+			return false;
+		}
+
+		// save the links we currently use (./?a=xx)
+		if (!string_to_file(serialize($replace_assetids), $this->data_path.'/.sq_system/.notice_links')) {
+			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create notice links file', E_USER_WARNING);
+			return false;
+		}
+
+		return true;
+	}//end saveSystemVersion()
+
+
 	/**
 	* Create this asset
 	*
@@ -70,6 +116,7 @@ class Bodycopy extends Asset
 
 	}//end create()
 
+
 	/**
 	* Creates a link between this asset and the passed asset, of a certain type
 	* and returns the linkid of the created link
@@ -101,7 +148,7 @@ class Bodycopy extends Asset
 		return Array(SQ_LINK_TYPE_2 => Array('bodycopy_table' => Array('card' => 'M', 'exclusive' => false))
 					);
 
-	}#end _getAllowedLinks()
+	}//end _getAllowedLinks()
 
 
 	/**
@@ -133,15 +180,35 @@ class Bodycopy extends Asset
 	*/
 	function printBody()
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		if ($this->useSystemVersion()) {
+			if (file_exists($this->data_path.'/content_file.php')) {
+				// create an array of urls that the content file is
+				// going to try and use to work out file urls, link hrefs etc
+				$sq_asset_url_list = Array();
+				
+				$notice_links = unserialize(file_to_string($this->data_path.'/.notice_links'));
 
-		// get all the tables linked to this bodycopy
-		$tables = $this->getLinks(SQ_LINK_TYPE_2, 'bodycopy_table');
+				foreach ($notice_links as $assetid) {
+					$href = $GLOBALS['SQ_SYSTEM']->am->getAssetHref($assetid);
+					if ($href == '') $href = "Javascript: alert('This link does not exist');";
+					$sq_asset_url_list[$assetid] = $href;
+				}
 
-		// paint each table
-		foreach ($tables as $table_data) {
-			$table = &$am->getAsset($table_data['minorid'], $table_data['type_code']);
-			$table->printBody($table);
+				bam($sq_asset_url_list);
+
+				include($this->data_path.'/content_file.php');
+			}
+		} else {
+			$am = &$GLOBALS['SQ_SYSTEM']->am;
+
+			// get all the tables linked to this bodycopy
+			$tables = $this->getLinks(SQ_LINK_TYPE_2, 'bodycopy_table');
+
+			// paint each table
+			foreach ($tables as $table_data) {
+				$table = &$am->getAsset($table_data['minorid'], $table_data['type_code']);
+				$table->printBody($table);
+			}
 		}
 	}// end printBody()
 
