@@ -17,11 +17,11 @@
  * GENERAL RULES
  */
 div#calendarTable { width: 100%; text-align: center; }
-div#calendarTable table td { text-align: left; padding: 1px }
+div#calendarTable table td { text-align: left; padding: 0px }
 div#calendarTable table th { text-align: center; padding: 1px }
 #calendarTable table { margin-left: auto; margin-right: auto; } 
 #calendarTable div { margin: 0px }
-.eventText { line-height: 1.0; margin: 2px 2px 0px 2px; margin-left: auto; margin-right: auto; text-align: center; padding: 0px}
+#calendarTable td div.eventText { line-height: 1.0; margin: 2px 2px 0px 2px; margin-left: auto; margin-right: auto; text-align: center; padding: 0px}
 .calendarNavLink, a.calendarNavLink:hover, a.calendarNavLink:visited { text-decoration: none; font-weight: bold; color: blue }
 div#calendarList { text-align: left; width: 80ex; margin-left: auto; margin-right: auto}
 
@@ -117,7 +117,7 @@ table#month { border: 1px solid #173e57; background-color: #f8f8f8; border-colla
 
 table#week { border: 1px solid #173e57; background-color: white; border-collapse: collapse }
 #week td, #week th  { border: 1px solid #c0c0c0; font-family: sans-serif}
-#week td, #week th.timeLabel { vertical-align: top; }
+#week td, #week th.timeLabel { vertical-align: top; padding: 0px;}
 
 /* header cells */
 #week th { background-color: #41afe0; text-align: center; padding: 1px }
@@ -126,11 +126,10 @@ table#week { border: 1px solid #173e57; background-color: white; border-collapse
 #week th.columnLabel a, #week th.columnLabel a:visited, #week th.columnLabel a:hover { text-decoration: none; font-weight: bold; color: black }
 
 /* Event DIVs (root-node-specific classes will also apply) */
-#week td div { border: 1px solid black; }
+ #week td div.event { margin: 0px;}
 
 /* Event Links (root-node-specific classes will also apply) */
 #week .event, #week a.event:visited, #week a.event:hover { text-decoration: none } 
-
 
 
 /**
@@ -151,7 +150,7 @@ table#day { border: 1px solid #173e57; background-color: white; border-collapse:
 
 
 /* Event DIVs (root-node-specific classes will also apply) */
-#day td div { border: 1px solid black; }
+#day td div.event {  }
 
 /* Event Links (root-node-specific classes will also apply) */
 #day .event, #day a.event:visited, #day a.event:hover { text-decoration: none } 
