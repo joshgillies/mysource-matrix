@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_email_address.inc,v 1.11 2004/11/05 00:08:50 lwright Exp $
+* $Id: form_question_type_email_address.inc,v 1.12 2004/11/29 00:15:42 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -87,13 +87,17 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 			$form->active_submission->setAnswer($this->id, $val);
 			$form->active_submission->setSummary($this->id, $this->attr('name'), $val);
 
-			// borrow a 'valid email address' rule
-			$req_rule = Array('rule_code' => 'email', 'operator' => '1');
-			array_push($this->vars['rules']['value'], $req_rule);
+			// borrow a 'valid email address' rule, but only if the question is not blank
+			if (!empty($val)) {
+				$req_rule = Array('rule_code' => 'email', 'operator' => '1');
+				array_push($this->vars['rules']['value'], $req_rule);
+			}
 
 			parent::processForm();
 
-			array_pop($this->vars['rules']['value']);
+			if (!empty($val)) {
+				array_pop($this->vars['rules']['value']);
+			}
 		}
 		
 		return true;
