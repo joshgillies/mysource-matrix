@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.41 2005/02/22 16:57:23 mkeehan Exp $
+* $Id: form_email_edit_fns.inc,v 1.42 2005/02/25 10:09:37 mkeehan Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -306,18 +306,26 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$to->printField();
 
 		$o->closeField();
+		
+		
 
 		$o->openField('Format');
 
 		$options = Array('' => '------- Please Select -------',
-						 'psv' => 'Pipe Seperated Values',
 						 'csv' => 'Comma Separated Values (CSV)',
 						 'csv_nhr' => 'Comma Separated Values (CSV) - No Header Row',
 						 'xml' => 'XML Format');
-
+		
+		
+		
 		echo combo_box($prefix.'_export_format', $options, false, '');
 		echo hidden_field($prefix.'_export_switch', '0');
-
+		
+		$delimiter_text = ',';
+		echo ' &nbsp; Delimiter &nbsp;';
+		echo text_box($prefix.'_delimiter',$delimiter_text,1,1,true);
+		echo ' </p>';
+		
 		$o->closeField();
 
 		// explanation for onClick for the Download button, there is some trickery involved here >:)
@@ -354,17 +362,19 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	function processExport(&$asset, &$o, $prefix)
 	{
 		if (!$_POST[$prefix.'_export_switch']) return true;
+
+		$export_delimiter = isset($_POST[$prefix.'_delimiter']) ? $_POST[$prefix.'_delimiter'] : '';
+
 		$export_type = isset($_POST[$prefix.'_export_format']) ? $_POST[$prefix.'_export_format'] : '';
+
 		switch ($export_type) {
-			case 'psv':
-				$this->processExportCSV($asset, $o, $prefix, true, '|');
-			break;
+
 			case 'csv':
-				$this->processExportCSV($asset, $o, $prefix);
+				$this->processExportCSV($asset, $o, $prefix, true, $export_delimiter);
 			break;
 
 			case 'csv_nhr':
-				$this->processExportCSV($asset, $o, $prefix, false);
+				$this->processExportCSV($asset, $o, $prefix, false, $export_delimiter);
 			break;
 
 			case 'xml':
