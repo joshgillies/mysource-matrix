@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_fns.inc,v 1.21 2003/09/26 05:26:31 brobertson Exp $
+* $Id: asset_edit_fns.inc,v 1.22 2003/10/03 01:18:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -120,7 +120,15 @@ class Asset_Edit_Fns extends MySource_Object
 	function processPaths(&$asset, &$o, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_paths'])) return false;
-		return $asset->saveWebPaths(array_values($_POST[$prefix.'_paths']));
+		if (!$asset->saveWebPaths(array_values($_POST[$prefix.'_paths']))) return false;
+		
+		//// START HIPO PROCESSING ////
+		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$vars = Array('assetids' => Array($asset->id));
+		$hh->queueHipo('hipo_job_update_lookups', $vars);
+		////  END HIPO PROCESSING  ////
+
+		return true;
 
 	}// end processPaths()
 
