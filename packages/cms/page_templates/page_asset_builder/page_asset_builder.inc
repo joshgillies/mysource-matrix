@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.11 2004/03/02 22:49:22 gsherwood Exp $
+* $Id: page_asset_builder.inc,v 1.12 2004/05/07 01:29:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -355,31 +355,37 @@ class Page_Asset_Builder extends Page
 
 					// now check what rules dictate where the asset should be created
 					$location_rules = $this->attr('create_location_rules');
-					foreach ($location_rules as $rule_text => $locationids) {
-						if (empty($rule_text)) continue;
-						$bits = explode(' && ', $rule_text);
-
-						$valid_rule = true;
-						foreach ($bits as $bit) {
-							list($attr, $value) = explode('==', $bit);
-							$attr  = trim($attr, '$');
-							$value = trim($value, " '");
-							$attr_value = isset($_POST[$prefix.'_'.$attr]) ? $_POST[$prefix.'_'.$attr] : '';
-							if (trim(strtolower($attr_value)) != trim(strtolower($value))) {
-								$valid_rule = false;
-								break;
+					foreach ($location_rules as $i => $rules) {
+						foreach ($rules as $attr => $attr_rules) {
+							if ($attr == '_create_locations_') continue;
+							
+							$attr_value = isset($_POST[$prefix.'_'.$attr]) ? trim(strtolower($_POST[$prefix.'_'.$attr])) : '';
+							$valid_rule = true;
+							foreach ($attr_rules as $cond => $value) {
+								$value = trim(strtolower($value));
+	
+								switch ($cond) {
+									case 'equals' :
+										if ($attr_value != $value) $valid_rule = false;
+									break;
+									
+									case 'starts_with' :
+										if (!preg_match('|^'.$value.'.*$|', $attr_value)) $valid_rule = false;
+									break;
+									
+									case 'ends_with' :
+										if (!preg_match('|^.*'.$value.'$|', $attr_value)) $valid_rule = false;
+									break;
+								}
 							}
-
-
-						}//end foreach
-
-						if ($valid_rule) {
-							if (!is_array($create_locations)) $create_locations = Array($create_locations);
-							$create_locations = array_merge($create_locations, $locationids);
-							$create_locations = array_unique($create_locations);
+							
+							if ($valid_rule) {
+								if (!is_array($create_locations)) $create_locations = Array($create_locations);
+								$create_locations = array_merge($create_locations, $rules['_create_locations_']);
+							}
 						}
+					}
 
-					}//end foreach
 
 					// if we dont have any create locations, there is no point in continuing with this charade
 					// whoever set this up may think they want to build asset on the frontend, but they dont really

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.4 2004/02/17 05:02:02 gsherwood Exp $
+* $Id: page_asset_builder_management.inc,v 1.5 2004/05/07 01:29:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -147,6 +147,62 @@ class Page_Asset_Builder_Management extends Asset_Management
 		);
 
 	}//end getEventList()
+
+
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		if (!parent::_upgrade($current_version)) return false;
+
+		if ($current_version == '0.1') {
+			// this upgrade changed the attribute 'create_locations' to include additional
+			// rules that meant the create locations has to be stored in a different format
+			bam('STARTING ASSET BUILDER UPGRADE - VERSION 0.1');
+
+			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren(1, $this->getAssetType(), false);
+			foreach ($children as $assetid => $type) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type);
+				if (is_null($asset)) continue;
+
+				$new_locations = Array();
+				$old_locations = $asset->attr('create_location_rules');
+				
+				$i = 0;
+				foreach ($old_locations as $rule_text => $locations) {
+					if (empty($rule_text)) continue;
+					$bits = explode(' && ', $rule_text);
+	
+					foreach ($bits as $bit) {
+						list($attr, $value) = explode('==', $bit);
+						$attr  = trim($attr, '$');
+						$value = trim($value, " '");
+						$new_locations[$i][$attr]['equals'] = $value;
+					}
+					
+					$new_locations[$i]['_create_locations_'] = array_keys($locations);
+					
+					$i++;
+				}
+				
+				$asset->setAttrValue('create_location_rules', $new_locations);
+				$asset->saveAttributes();
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}
+			
+			bam('ASSET BUILDER UPGRADE COMPLETE - VERSION 0.1');
+		}//end version 0.1 upgrade
+
+		return true;
+
+	}//end upgrade()
 
 
 }//end class

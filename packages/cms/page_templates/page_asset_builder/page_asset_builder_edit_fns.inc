@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.6 2004/03/17 04:08:10 gsherwood Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.7 2004/05/07 01:29:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -391,51 +391,63 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 		if (!empty($current_rules)) ?><table class="sq-backend-table"><?php
 
-		$i = 1;
-		foreach ($current_rules as $rule_text => $locations) {
-			if (empty($rule_text)) continue;
-			// parse the rule text to work out how to display the interface
-			$bits = explode(' && ', $rule_text);
+		$i = -1;
+		foreach ($current_rules as $i => $attr_rules) {
 
-			$x = 1;
-			foreach ($bits as $bit) {
-				list($attr, $value) = explode('==', $bit);
-				$attr  = trim($attr, '$');
-				$value = trim($value, " '");
+			foreach ($attr_rules as $attr => $rule_conds) {
+				if ($attr == '_create_locations_') continue;
+			
+				$x = 0;
+				foreach ($rule_conds as $cond => $cond_value) {
+	
+					if ($write_access) {
+						require_once SQ_ATTRIBUTES_PATH.'/'.$attrs[$attr]['type'].'/'.$attrs[$attr]['type'].'.inc';
+						$attr_class = 'Asset_Attribute_'.$attrs[$attr]['type'];
+						$attribute = new $attr_class($attrs[$attr]['attributeid'], $cond_value);
+					}
+	
+					?>
+					<tr>
+						<td class="sq-backend-table-cell">the value of attribute </td>
+						<td class="sq-backend-table-cell">
+							<?php
+								if ($write_access) {
+									combo_box($prefix.'_rules['.$i.']['.$attr.'][attrs]['.$x.']', $attributes, false, $attr);
+								} else {
+									echo $attributes[$attr];
+								}
+							?>
+						</td>
+						<td class="sq-backend-table-cell">
+							<?php
+								$conditions = Array('equals'      => 'equals',
+													'starts_with' => 'starts with',
+													'ends_with'   => 'ends with'
+													);
 
-				if ($write_access) {
-					require_once SQ_ATTRIBUTES_PATH.'/'.$attrs[$attr]['type'].'/'.$attrs[$attr]['type'].'.inc';
-					$attr_class = 'Asset_Attribute_'.$attrs[$attr]['type'];
-					$attribute = new $attr_class($attrs[$attr]['attributeid'], $value);
-				}
-
-				?>
-				<tr>
-					<td class="sq-backend-table-cell">the value of attribute </td>
-					<td class="sq-backend-table-cell">
-						<?php
-							if ($write_access) {
-								combo_box($prefix.'_rules['.$i.'][attrs]['.$x.']', $attributes, false, $attr);
-							} else {
-								echo $attributes[$attr];
-							}
-						?>
-					</td>
-					<td class="sq-backend-table-cell"> is </td>
-					<td class="sq-backend-table-cell">
-						<?php
-							if ($write_access) {
-								$attribute->paint($prefix.'_rules['.$i.'][values]['.$x.']', false);
-							} else {
-								echo $value;
-							}
-						?>
-					</td>
-				</tr>
-				<?php
-
-				$x++;
-
+								if ($write_access) {
+									combo_box($prefix.'_rules['.$i.']['.$attr.'][condition]['.$x.']', $conditions, false, $cond);
+								} else {
+									echo $conditions[$cond];
+								}
+							?>
+						</td>
+						<td class="sq-backend-table-cell">
+							<?php
+								if ($write_access) {
+									$attribute->paint($prefix.'_rules['.$i.']['.$attr.'][values]['.$x.']', false);
+								} else {
+									echo $cond_value;
+								}
+							?>
+						</td>
+					</tr>
+					<?php
+	
+					$x++;
+	
+				}//end foreach
+				
 			}//end foreach
 
 
@@ -443,15 +455,16 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				?>
 				<tr>
 					<td class="sq-backend-table-cell"><b>New Attribute</b></td>
-					<td class="sq-backend-table-cell" colspan="3"><?php combo_box($prefix.'_rules['.$i.'][attrs]['.$x.']', $attributes, false, ''); ?></td>
+					<td class="sq-backend-table-cell" colspan="3"><?php combo_box($prefix.'_rules['.$i.'][new_attr]', $attributes, false, ''); ?></td>
 				</tr>
 				<?php
 			}
 			
 
 			$l = 1;
-			if (!$write_access) $location_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($locations));
-			foreach ($locations as $location => $on) {
+			$locations = $attr_rules['_create_locations_'];
+			if (!$write_access) $location_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_values($locations));
+			foreach ($locations as $location) {
 				?>
 				<tr>
 					<td class="sq-backend-table-cell"><?php echo ($l == 1) ? '<b>Location(s)</b>' : ''; ?></td>
@@ -483,15 +496,15 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			</tr>
 			<?php
 
-			$i++;
-
 		}//end foreach
 
 		if (!empty($current_rules)) ?></table><?php
 
 		if ($write_access) {
+			if ($i >=0) $i++;
+			else $i = 0;
 			echo '<b>New Rule:</b> ';
-			combo_box($prefix.'_rules['.$i.'][attrs][1]', $attributes, false, '');
+			combo_box($prefix.'_rules['.$i.'][new_attr]', $attributes, false, '');
 		}
 
 		return true;
@@ -512,23 +525,34 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	function processCreateLocationRules(&$asset, &$o, $prefix)
 	{
 		$rules = Array();
-		foreach ($_POST[$prefix.'_rules'] as $i => $rule) {
-			$rule_text = '';
-			foreach ($rule['attrs'] as $x => $attr) {
+		foreach ($_POST[$prefix.'_rules'] as $i => $rule_data) {
+
+			foreach ($rule_data as $attr => $rule) {
+
 				if ($attr == '') continue;
-				$value = (isset($rule['values'][$x])) ? $rule['values'][$x] : '';
-				$rule_text .= '$'.$attr.'$==\''.$value.'\' && ';
+				
+				if ($attr == 'new_attr') {
+					if (!empty($rule)) $rules[$i][$rule]['equals'] = '';
+					continue;
+				}
+
+				foreach ($rule['condition'] as $x => $condition) {
+					if (empty($rule['attrs'][$x])) continue;
+					$value = (isset($rule['values'][$x])) ? $rule['values'][$x] : '';
+					$rules[$i][$attr][$condition] = $value;
+				}
 			}
-			if (!empty($rule_text)) {
+
+			if (isset($rules[$i])) {
 				$locations = Array();
 				if (isset($_POST[$prefix.'_rule_location'][$i])) {
 					foreach ($_POST[$prefix.'_rule_location'][$i] as $loc) {
-						$locid = (int) $loc['assetid'];
+						$locid = $loc['assetid'];
 						if (!$locid) continue;
-						$locations[$locid] = $locid;
+						$locations[] = $locid;
 					}
 				}
-				$rules[substr($rule_text, 0, -4)] = $locations;
+				$rules[$i]['_create_locations_'] = array_unique($locations);
 			}
 		}
 
