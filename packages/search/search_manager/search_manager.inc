@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.5 2004/05/26 22:37:14 lwright Exp $
+* $Id: search_manager.inc,v 1.6 2004/06/10 03:44:55 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.5 $ - 0.1
+* @version $Revision: 1.6 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -501,8 +501,17 @@ class Search_Manager extends Asset
 							AND alt2.linkid = al2.linkid
 							AND ai.assetid  = al2.minorid
 							AND a.assetid   = ai.assetid
-							AND ap.assetid  = ai.assetid
-							AND a.status  >= '.$db->quote(SQ_STATUS_LIVE);
+							AND ap.assetid  = ai.assetid';
+
+		// add in status restrictions
+		if (isset($search_info['search_statuses']) && !empty($search_info['search_statuses'])) {
+			$statues = $search_info['search_statuses'];
+			for($i = 0; $i < count($statues); $i++) $statues[$i] = $db->quote($statues[$i]);
+			$start_sql .= ' AND a.status IN ('.implode(', ', $statues).')';
+		} else {
+			// if there are no status restrictions, default to LIVE assets only
+			$start_sql .= ' AND a.status  >= '.$db->quote(SQ_STATUS_LIVE);
+		}
 
 		if (!empty($search_info['search_types'])) {
 			for(reset($search_info['search_types']); NULL !== ($i = key($search_info['search_types'])); next($search_info['search_types'])) {
@@ -684,7 +693,7 @@ class Search_Manager extends Asset
 				}
 			}
 		}
-		
+
 		if (is_null($total_asset_scores)) $total_asset_scores = Array();
 		else arsort($total_asset_scores);
 		return $total_asset_scores;
