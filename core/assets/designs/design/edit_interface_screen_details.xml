@@ -1,7 +1,7 @@
 <contents>
 	<section name="Details">
 		<field attribute="id_name">
-			<display_name>Id Name</display_name>
+			<display_name>Design Name</display_name>
 			<note />
 			<text width="60" height="1" />
 		</field>
