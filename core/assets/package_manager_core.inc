@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.17 2005/02/17 06:15:16 rhoward Exp $
+* $Id: package_manager_core.inc,v 1.18 2005/02/24 22:57:04 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 */
 class Package_Manager_Core extends Package_Manager
@@ -183,6 +183,7 @@ class Package_Manager_Core extends Package_Manager
 					'cache_manager',
 					'designs_folder',
 					'login_design',
+					'cron_job_expired_workflow',
 					
 				);
 
@@ -589,6 +590,36 @@ class Package_Manager_Core extends Package_Manager
 
 	}//end createWebFolderUsers()
 
+
+	/**
+	* Create the expired workflow cron job
+	*
+	* @return object Cron_Job_Expired_Workflow
+	* @access public
+	*/
+	function &createCronJobExpiredWorkflow()
+	{
+		$cron_manager =& $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['cron_manager']);
+		if (!$cron_manager->id) {
+			trigger_error('Couldn\'t get cron manager, couldn\'t create expired workflow cron job');
+		}
+		$link =  Array ('asset'         => $cron_manager,
+						'link_type'     => SQ_LINK_TYPE_2,
+						'value'         => null,
+						'sort_order'    => 0,
+						'is_dependant'  => 0,
+						'is_exclusive'  => 1,
+						);
+		$job = new Cron_Job_Expired_WorkFlow();
+		if (!$job->create($link)) {
+				trigger_error('Expired Workflow Cron Job NOT CREATED', E_USER_ERROR);
+		}
+		pre_echo('Expired Workflow Cron Job Id: '.$job->id);
+		$job->setAttrValue('running_as', $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_user'));
+		$GLOBALS['SQ_SYSTEM_ASSETS']['cron_job_expired_worflow'] = $job->id;
+		return $job;
+
+	}
 
 }//end class
 

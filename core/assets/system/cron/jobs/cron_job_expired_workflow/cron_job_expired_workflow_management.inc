@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_expired_workflow_management.inc,v 1.1 2005/02/22 22:38:50 dbaranovskiy Exp $
+* $Id: cron_job_expired_workflow_management.inc,v 1.2 2005/02/24 22:57:04 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @see Asset_Management
 *
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,33 +47,9 @@ class Cron_Job_Expired_WorkFlow_Management extends Asset_Management
 
 		$this->vars['type']['default'] = 'repeating';
 		$this->vars['when']['default'] = 'ET=';
-		$this->vars['running_as']['default'] = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_user');
 
 	}//end constructor
 
-
-	/**
-	* Installs this asset
-	*
-	* @return boolean
-	* @access public
-	*/
-	function _install()
-	{
-		if (!parent::_install()) return false;
-		$cron_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-		$link =  Array ('asset'         => $cron_manager,
-						'link_type'     => SQ_LINK_TYPE_2,
-						'value'         => null,
-						'sort_order'    => 0,
-						'is_dependant'  => 0,
-						'is_exclusive'  => 1,
-						);
-		$job = new Cron_Job_Expired_WorkFlow();
-		$job->create($link);
-		return true;
-
-	}
 
 }//end class
 ?>

@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2005/02/22 22:38:50 dbaranovskiy Exp $
+* $Id: asset.xml,v 1.2 2005/02/24 22:57:04 tbarrett Exp $
 *
 */
 -->
@@ -35,6 +35,11 @@
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>cron_job</parent_type>
-	<requirements/>
+	<requirements>
+		<requirement type="asset">
+			<code>cron_manager</code>
+			<version>0.1</version>
+		</requirement>
+	</requirements>
 	<flash_menu_path>Cron</flash_menu_path>
 </asset_info>
