@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: maps.inc,v 1.9 2004/12/06 14:38:13 brobertson Exp $
+* $Id: maps.inc,v 1.10 2005/02/04 02:45:19 mnyeholt Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define('SQ_MAPS_INSTALLED'  , 'I');
 *    Looks aftet the automated patching of the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -234,6 +234,7 @@ class Maps extends MySource_Object
 									<tr>
 										<td class="sq-backend-table-header">Description</td>
 										<td class="sq-backend-table-header" width="120">Released</td>
+										<td class="sq-backend-table-header" width="50" align="center">Delete</td>
 										<td class="sq-backend-table-header" width="50" align="center">Install</td>
 									</tr>
 									<?php
@@ -243,6 +244,9 @@ class Maps extends MySource_Object
 											<td class="sq-backend-table-cell"><?php echo $patch_info['description']; ?></td>
 											<td class="sq-backend-table-cell" nowrap="nowrap">
 												<?php echo $patch_info['released']; ?>
+											</td>
+											<td class="sq-backend-table-cell" nowrap="nowrap" align="center">
+												<?php check_box('maps_delete_patch['.$patchid.']'); ?>
 											</td>
 											<td class="sq-backend-table-cell" nowrap="nowrap" align="center">
 												<?php check_box('maps_install_patch['.$patchid.']'); ?>
@@ -348,11 +352,28 @@ class Maps extends MySource_Object
 
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
+		// To avoid deleting and installing at the same time, record what was deleted
+		$deleted = Array();
+		// Delete marked patches. Note that if both install and delete are marked, DELETE takes preference
+		if (isset($_POST['maps_delete_patch'])) {
+			foreach ($_POST['maps_delete_patch'] as $patchid => $on) {
+				if ($on !== '1') continue;
+				if ($this->_deletePatch($patchid)) {
+					$deleted[$patchid] = 1;
+				} else {
+					trigger_error("Deletion of patch $patchid failed.");
+				}
+			}
+		}
+		
 		// install new patches
 		if (isset($_POST['maps_install_patch'])) {
 			foreach ($_POST['maps_install_patch'] as $patchid => $on) {
 				if ($on !== '1') continue;
-				$hh->queueHipo('hipo_job_install_patch', Array('patchid' => trim($patchid)), '', SQ_SYSTEM_ROOT.'/core/maps');
+				// Only install if it wasn't just deleted.
+				if (!isset($deleted[$patchid])) {
+					$hh->queueHipo('hipo_job_install_patch', Array('patchid' => trim($patchid)), '', SQ_SYSTEM_ROOT.'/core/maps');
+				}
 			}
 		}
 
@@ -368,7 +389,7 @@ class Maps extends MySource_Object
 		if (!empty($url)) $o->setRedirect($url);
 
 	}//end processPatches()
-
+	
 
 	/**
 	* Paint a list of active locks
@@ -513,6 +534,49 @@ class Maps extends MySource_Object
 	}//end processActiveLocks()
 
 
+	/**
+	* Deletes a MAPs patch from the server
+	*
+	* Checks if the patch is installed by querying the db. 
+	* If not, will delete its directory from the data/private/maps directory.
+	*
+	* @param 	int			$patchid	The id of the patch to be deleted.
+	* @access 	private
+	* @return 	void
+	*/
+	function _deletePatch($patchid)
+	{
+		// Check if the patch is in the database.
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$sql = "SELECT patchid, installed
+				FROM ".SQ_TABLE_PREFIX."patches WHERE patchid=".$db->quote($patchid);
+		$db_patches = $db->getOne($sql);
+		
+		if (strlen($db_patches)) {
+			trigger_error('You cannont delete an installed patch', E_USER_WARNING);
+			return false;
+		}
+		
+		// Just get the patch path and delete it.
+		$patch_path = SQ_DATA_PATH.'/private/maps/downloaded_patches/'.$patchid;
+		
+		if (!is_dir($patch_path)) {
+			trigger_error("Could not find patch path $patch_path", E_USER_WARNING);
+			return false;
+		}
+
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		
+		// Okay, now remove the directory
+		if (!delete_directory($patch_path)) {
+			trigger_error("Patch $patch_path could not be deleted.", E_USER_WARNING);
+			return false;
+		}
+		
+		return true;
+	}
+	
+	
 	/**
 	* Get details about a specific patch
 	*
