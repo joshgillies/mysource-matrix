@@ -118,7 +118,7 @@
     if (mouseOffset == null) {
         // we are just starting to drag, so figure out the offset
         eltPos = getEltPosition(movingElt);
-        mouseOffset = {x:(mousePosition.x - eltPos.x), y:(mousePosition.y - eltPos.y)};
+        mouseOffset = {x:(mousePosition.x - eltPos.x + parseInt(movingElt.style.marginLeft)), y:(mousePosition.y - eltPos.y + parseInt(movingElt.style.marginTop))};
     } else {
         movingElt.style.left = (mousePosition.x - mouseOffset.x) + "px";
         movingElt.style.top = (mousePosition.y - mouseOffset.y) + "px";
