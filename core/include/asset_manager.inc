@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.212 2004/05/27 23:41:59 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.213 2004/06/02 15:43:49 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2916,11 +2916,7 @@ class Asset_Manager extends MySource_Object
 		// if we are only allowed up to a certain number of these links
 		if ($allowed_links[$link_type][$type]['card'] != 'M') {
 
-			// default strict to false
-			$strict = isset($allowed_links[$link_type][$type]['strict']) ? $allowed_links[$link_type][$type]['strict'] : false;
-
-			// *** trial code 
-			$num_curr_links = $this->countLinks($major->id, 'major', $link_type, $type, $strict, $ignore_linkid);
+			$num_curr_links = $this->countLinks($major->id, 'major', $link_type, $type, true, $ignore_linkid);
 			//  and we already have our quota of links, bugger off
 			if ($num_curr_links >= (int) $allowed_links[$link_type][$type]['card']) {
 				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
