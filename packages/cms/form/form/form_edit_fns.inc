@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.40 2004/09/21 00:40:47 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.41 2004/10/11 06:44:38 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -50,7 +50,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		$this->static_screens['details']['force_unlock'] = false;
 
 	}//end Form_Edit_Fns()
-	
+
 
 	/**
 	* paints the current sections in the form
@@ -79,8 +79,8 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 			?>
 			<a href="<?php echo $href ?>"><?php echo $s->_getName() ?></a><br />
 			<?php
-		}		
-		
+		}
+
 		return true;
 
 	}//end paintSectionLinks()
@@ -99,7 +99,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 	function processSectionLinks(&$asset, &$o, $prefix)
 	{
 		return true;
-	
+
 	}//end processSectionLinks()
 
 
@@ -154,7 +154,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 			  currentElement.innerHTML = nextElement.innerHTML;
 			  nextElement.innerHTML = temp;
 
-				
+
 
 			  // switch the 'checked for deletion' parameters
 			  temp = form.elements['<?php echo $prefix ?>_order[delete][' + (currentOrder+1) + ']'].checked;
@@ -231,12 +231,12 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 				<?php
 				$questions = &$asset->getQuestions();
 				$sort_order = $asset->attr('sort_order');
-				if(!empty($sort_order)) {
+				if (!empty($sort_order)) {
 
-					// sort order is based upon shadow asset id (eg. '87:q1'), not just question id - this 	
+					// sort order is based upon shadow asset id (eg. '87:q1'), not just question id - this
 					// will allow sections to be sorted in later
 					$i = 0;
-					foreach($sort_order as $sort_id => $assetid) {
+					foreach ($sort_order as $sort_id => $assetid) {
 					$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					$href = $q->getBackendHref('details');
 					?>
@@ -245,7 +245,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 								<span name="<?php echo $prefix.'_order_o'.$sort_id ?>" id="<?php echo 	$prefix.'_order_o'.$sort_id ?>"><a href="<?php echo $href ?>"><?php	echo $q->attr('name')?></a></span><?php hidden_field($prefix.'_order[reorder]['.$sort_id.']', $assetid); ?>
 							</td>
 							<td class="sq-backend-table-cell">
-								<span name="<?php echo $prefix.'_order_t'.$sort_id ?>" id="<?php echo 	$prefix.'_order_t'.$sort_id ?>"><?php	
+								<span name="<?php echo $prefix.'_order_t'.$sort_id ?>" id="<?php echo 	$prefix.'_order_t'.$sort_id ?>"><?php
 									$q_type = str_replace('form_question_type', '', get_class($q));
 									$q_type = str_replace('_', ' ', $q_type);
 									$q_type = trim(ucwords($q_type));
@@ -257,7 +257,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 								?><td align="center" width="100" class="sq-backend-table-cell"><?php
 								check_box($prefix.'_order[delete]['.$sort_id.']');
 								?></td>
-								<td align="center" width="100" class="sq-backend-table-cell"><?php if ($sort_id != 0) { ?><a href="#" onclick="sortOrderMoveUp(<?php echo $sort_id ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a><?php } ?> 
+								<td align="center" width="100" class="sq-backend-table-cell"><?php if ($sort_id != 0) { ?><a href="#" onclick="sortOrderMoveUp(<?php echo $sort_id ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a><?php } ?>
 								<?php if ($sort_id != count($questions)-1) { ?><a href="#" onclick="sortOrderMoveDown(<?php echo $sort_id ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "Move Down");</script></a><?php } ?>
 							</td>
 							<?php
@@ -274,7 +274,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		return true;
 
 	}//end paintQuestionLinks()
-	
+
 
 	/**
 	* Process the links to the questions in this section
@@ -291,27 +291,27 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		$prefix = $asset->getPrefix();
 
 		if (isset($_POST[$prefix . '_order']['delete'])) {
-			foreach(array_keys($_POST[$prefix . '_order']['delete']) as $sort_order) {
+			foreach (array_keys($_POST[$prefix . '_order']['delete']) as $sort_order) {
 				$question = $asset->getQuestionByOrder($sort_order);
 				$asset->deleteQuestion($question);
 				unset($_POST[$prefix . '_order']['reorder'][$sort_order]);
 			}
 		}
-		
+
 		if (isset($_POST[$prefix . '_order']['reorder'])) {
 			$asset->setAttrValue('sort_order', $_POST[$prefix . '_order']['reorder']);
 			$asset->saveAttributes();
 		}
 
-		
+
 		// regen the content file
 		$asset->_updated();
 
 		return true;
-	
+
 	}//end processQuestionLinks()
-	
-	
+
+
 	/**
 	* Paint the dropdowns to add questions to this section
 	*
@@ -331,10 +331,10 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		check_box('use_bodycopy_thank_you', '1', $asset->attr('use_bodycopy_thank_you'));
 		echo 'Thank You<br/>';
 		return true;
-	
+
 	}//end paintUseBodycopy()
-	
-	
+
+
 	/**
 	* creates a new section if one was selected to be added
 	*
@@ -365,8 +365,8 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		return true;
 
 	}//end processUseBodycopy()
-	
-	
+
+
 	/**
 	* Paint the dropdowns to add questions to this section
 	*
@@ -385,16 +385,16 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		$question_types = $am->getTypeDescendants('form_question');
 		$questions = Array();
 
-		foreach	($question_types as $question) {
+		foreach ($question_types as $question) {
 			$q = str_replace('form_question_type', '', $question);
 			$q = str_replace('_', ' ', $q);
 			$q = trim(ucwords($q));
 			$questions[$question] = $q;
 		}
-			
+
 		combo_box('question_type', $questions, false, '');
 		echo '&nbsp;';
-		
+
 		// create a dropdown box with some numbers for the number of questions to add
 		// start at zero, so if the (l)user presses commit without selecting anything
 		// it doesn't add a question
@@ -405,7 +405,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		}
 		combo_box('num_questions', $num, false, '');
 		return true;
-	
+
 	}//end paintAddQuestions()
 
 
@@ -423,18 +423,18 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 	{
 		$type   = (isset($_POST['question_type'])) ? $_POST['question_type'] : '';
 		$number = (isset($_POST['num_questions'])) ? $_POST['num_questions'] : '';
-		
+
 		// get the number of questions in the system allready
-		// so when we create the new ones,  we can give them an 
+		// so when we create the new ones,  we can give them an
 		// appropriate name
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$curr_question_count = $asset->getQuestionCount() + 1;
-		
+
 		if ($type && $number) {
-			
+
 			$am->includeAsset($type);
-						
+
 			// create some questions
 			for ($i = 0; $i < $number; $i++) {
 				if (!$asset->attachQuestion($type)) {
@@ -443,12 +443,12 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 				$curr_question_count++;
 			}//end for
 		}//end if
-		
+
 		return true;
 
 	}//end processAddQuestions()
-	
-	
+
+
 	/**
 	* creates a checkbox to add a new Section
 	*
@@ -498,11 +498,11 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		for ($i = 0; $i < $number; $i++) {
 
 			$section_count = $asset->getSectionCount() + 1;
-			
+
 			$am->includeAsset('form_section');
 			$section = new Form_Section();
 			$copy_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 0, 'exclusive' => 0);
-		
+
 			$section->setAttrValue('name', 'Section '.$section_count);
 
 			if (!$section->create($copy_link)) {
@@ -569,7 +569,6 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 	{
 		// if there is no bodycopy contents, then just ask
 		// all the sections to print themselves
-		//$questions = &$asset->getQuestions();
 		$output = '<'.'?php $form_asset=$GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.'); ?'.'>'."\n";
 		if ($asset->attr('use_client_side')) {
 			ob_start();				// start vacumming up all the lovely ja code
@@ -577,7 +576,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 			function beforeSubmit_<?php echo $asset->getPrefix() ?>(form) {
 				var submission_errors = new Array();
 				i = 0;
-					<?php 
+					<?php
 					echo $asset->generateJSCode();
 				?>
 					if (submission_errors.length > 0) {
@@ -597,7 +596,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		} else {
 			$output .= '';
 		}
-		
+
 		$sections = &$asset->getSections();
 		$output .= $this->generateGenericSection($asset);
 		$i = 1; // used for indexing
@@ -614,10 +613,10 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 			// let the section know what its column widths are
 			$section->question_col_width = $asset->attr('question_col_width');
 			$section->answer_col_width = $asset->attr('answer_col_width');
-		
+
 			// let the section know what the current submission object is
 			$section->active_submission =& $asset->active_submission;
-			
+
 			$output .= '<'.'?php $active_form =& $this; ?'.'>';
 			// get the section to regen
 			$section->fileRegeneration(false);
@@ -625,19 +624,19 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 			$output .= '<'.'?php include_once('.str_replace(SQ_DATA_PATH, 'SQ_DATA_PATH."', $section->data_path).'/content_file.php'.'"); ?'.'>';
 		}
 
-		// if there are any tags left that haven't been replaced, 
+		// if there are any tags left that haven't been replaced,
 		// we want to strip them out
 		$output = preg_replace('/%[^<>%]+%/', '', $output);
-	
+
 		create_directory($asset->data_path);
 		return string_to_file($output, $asset->data_path.'/content_file.php');
-	
+
 	}//end generateStandardContentFile()
 
 
 	/**
 	* replaces section keywords with their appropriate content
-	* 
+	*
 	* @param &object Form $asset the form asset
 	* @param string $output the html output to search for replacements
 	*
@@ -651,20 +650,20 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 			$section_keywords = $matches[1];
 			foreach ($section_keywords as $section) {
 				$search = '%section_'.$section.'%';
-				
+
 				// get this section's body and plug it into the output
-				// if there is no section for the keyword replacement, 
+				// if there is no section for the keyword replacement,
 				// just strip out the keyword
-				
-				if($s = &$asset->getSectionByOrder($section)) {
-					
+
+				if ($s = &$asset->getSectionByOrder($section)) {
+
 					// tell the section what its question indexes are
 					$s->question_index = $this->attr('question_index');
 
 					// let the section know what its column widths are
 					$section->question_col_width = $asset->attr('question_col_width');
 					$section->answer_col_width = $asset->attr('answer_col_width');
-			
+
 					ob_start();
 					$s->printBody();
 					$replacement = ob_get_contents();
@@ -677,15 +676,15 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 				$output = str_replace($search, $replacement, $output);
 			}//end foreach
 			return $output;
-		} 
+		}
 		return false;
 
 	}//end processSectionReplacements()
 
-	
+
 	/**
 	* replaces question keywords with their appropriate content
-	* 
+	*
 	* @param &object Form $asset the form asset
 	* @param string $output the html output to search for replacements
 	*
@@ -700,9 +699,9 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 				$s = $matches[1][$i]; // section
 				$q = $matches[2][$i]; // question
 				$t = $matches[3][$i]; // type
-				
+
 				$search = '%section_'.$s.'_question_'.$q.'_'.$t.'%';
-				
+
 				// get the question asset based on the order. if there
 				// is no replacement for it, then just strip out the tag
 				// for that keyword
@@ -716,7 +715,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 				$output = str_replace($search, $replacement, $output);
 			}//end for
 			return $output;
-		}//end if			
+		}//end if
 		return false;
 
 	}//end processQuestionReplacements()
@@ -734,11 +733,11 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 	{
 		$output = '<table width="'.$asset->attr('form_width').'">';
 		$sort_order = $asset->attr('sort_order');
-		if(empty($sort_order)) return;
+		if (empty($sort_order)) return;
 
-		foreach($sort_order as $i => $assetid) {
+		foreach ($sort_order as $i => $assetid) {
 			$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-			
+
 			$output .= '<tr>';
 			$output .= '<td valign="top"';
 			$output .= ($asset->attr('question_col_width')) ? ' width="'.$asset->attr('question_col_width').'">' : '>';
@@ -796,8 +795,8 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		return false;
 
 	}//end processSimpleFormatting()
-	
-	
+
+
 	/**
 	* Paint a note giving instructions for complex formatting
 	*
@@ -820,7 +819,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 
 	}//end paintComplexFormatting()
 
-	
+
 	/**
 	* Process the note giving instructions for complex formatting
 	*
@@ -838,7 +837,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		return false;
 
 	}//end processComplexFormatting()
-	
-	
+
+
 }//end class
 ?>
