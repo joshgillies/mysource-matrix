@@ -11,7 +11,7 @@ Squiz.Net Open Source Licence Agreement
 -----------------------------------------------------------------------
 
 Squiz Pty Ltd (ABN 77 084 670 600) (Squiz.Net, Us or We) is the original creator
-of software known as "MySource" (or sometimes as ?MySource Matrix?) and promoter
+of software known as "MySource" (or sometimes as "MySource Matrix") and promoter
 of Modifications (Modifications are defined in Clause 4.2) which are created by
 Squiz.Net or assigned or licensed to Squiz.Net by the user under this Licence or
 any other user under a licence on these terms (the Software).
@@ -40,7 +40,7 @@ distribution (ie the terms of this Licence). Copyright thereby becomes a tool
 for Us to ensure all users of the Software comply with the open source
 objectives of this Licence. To make that apply to Modifications users create,
 this Licence causes intellectual property rights in Modifications to be assigned
-or licensed back to Squiz.Net ? which then become part of the "Software". That
+or licensed back to Squiz.Net - which then become part of the "Software". That
 is what Clause 2 of this Licence addresses.
 
 As the creator and copyright holder of the Software, Squiz.Net have the right to
@@ -175,7 +175,7 @@ to conditionally waive Your obligation to:
 For this Clause to operate, you must:
 
 (i)   have the written consent of Squiz.Net;
-(ii)  adhere to all of the conditions of Squiz.Net?s written consent; and
+(ii)  adhere to all of the conditions of Squiz.Net's written consent; and
 (iii) have paid the agreed consideration in full.
 
 4. General Terms and Conditions
@@ -206,8 +206,8 @@ Documentation, adaptations, translations and derivative works of that software
 (collectively called), whether in source or object code.
 
 To avoid doubt if You extend or enhance the Software through the creation of new
-functionality that may be optionally installed (commonly called ?modules? or
-?custom assets?), and these extensions or enhancements are specifically written
+functionality that may be optionally installed (commonly called "modules" or
+"custom assets"), and these extensions or enhancements are specifically written
 to operate primarily with the Software, then these extensions or enhancements
 are also to be considered Modifications and must therefore be covered by the
 terms of this Licence.
@@ -225,12 +225,12 @@ any Modifications You make. The notice must as a minimum:
 
 You must supply this notice to Squiz by one of the following methods:
 
-(i)   by mailing it to Squiz.Net?s registered office
+(i)   by mailing it to Squiz.Net's registered office
       (92 Jarrett Street Leichhardt 2040, Sydney NSW Australia at the time this
       licence was written);
-(ii)  by faxing it to Squiz.Net?s registered office (+61 2 9568 6733 at the time
+(ii)  by faxing it to Squiz.Net's registered office (+61 2 9568 6733 at the time
       this licence was written); or
-(iii) by submitting it through the form provided at Squiz?s website
+(iii) by submitting it through the form provided at Squiz's website
       (http://www.squiz.net).
 
 It is Your responsibility to ensure that the notice is received by Squiz.Net.
@@ -280,7 +280,7 @@ specifically and separately commissioned by You (and appropriately remunerated
 by You) to provide installation, support, development and/or warranty services.
 This Licence does not grant You any rights as to fitness of purpose.
 
-4.9 SOFTWARE PROVIDED ?AS IS?
+4.9 SOFTWARE PROVIDED "AS IS"
 
 YOU ACKNOWLEDGE THAT SQUIZ.NET PROVIDES THE SOFTWARE TO YOU "AS IS" AND, TO THE
 EXTENT PERMITTED BY LAW, SQUIZ.NET IS NOT LIABLE FOR YOUR USE OF THE SOFTWARE OR
