@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.11 2003/11/26 00:51:06 gsherwood Exp $
+* $Id: datetime.inc,v 1.12 2004/02/12 22:58:36 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -52,6 +52,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 class Asset_Attribute_DateTime extends Asset_Attribute
 {
 
+
 	/**
 	* Constructor
 	*
@@ -62,7 +63,14 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	function Asset_Attribute_DateTime($attributeid=0, $value=null) 
 	{
 		$this->Asset_Attribute($attributeid, $value);
-	}// end constructor
+
+		// default values
+		$this->_edit_params['max']          = '2030-12-31 23:59:59';
+		$this->_edit_params['min']          = '1970-01-01 00:00:00';
+		$this->_edit_params['allow_circa']  = '0';
+		$this->_edit_params['print_format'] = 'l, F jS, Y H:i:s';
+
+	}//end constructor
 
 
 	/**
@@ -78,13 +86,10 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	{
 		if (!parent::setEditParams($node)) return false;
 
-		$this->_edit_params['min'] = empty($node->attributes['min']) ? '1970-01-01 00:00:00' : $node->attributes['min'];
-		$this->_edit_params['max'] = empty($node->attributes['max']) ? '2030-12-31 23:59:59' : $node->attributes['max'];
-		
-		$this->_edit_params['allow_circa'] = empty($node->attributes['allow_circa']) ? '0' : $node->attributes['allow_circa'];
-		
-		// date formats for printing
-		$this->_edit_params['print_format'] = empty($node->attributes['print_format']) ? 'l, F jS, Y H:i:s' : $node->attributes['print_format'];
+		if (!empty($node->attributes['min'])) $this->_edit_params['min'] = $node->attributes['min'];
+		if (!empty($node->attributes['max'])) $this->_edit_params['max'] = $node->attributes['max'];
+		if (!empty($node->attributes['allow_circa'])) $this->_edit_params['allow_circa'] = $node->attributes['allow_circa'];
+		if (!empty($node->attributes['print_format'])) $this->_edit_params['print_format'] = $node->attributes['print_format'];
 		
 		// what to print and how to show it (textbox or select box)
 		// need to do some more intense looking around for these options :)
@@ -125,6 +130,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	*/
 	function paint($prefix, $read_only=false)
 	{
+		$this->_edit_params['print_format'] = $this->_params['print_format'];
 		$field = new Datetime_Field($prefix.'_'.$this->name, $this->value, $this->_edit_params);
 
 		if ($read_only) {
