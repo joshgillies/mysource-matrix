@@ -43,11 +43,11 @@ class User extends Asset
 
 		if (parent::create()) {
 
-			$this->setAttrValueValue('username',   $username);
-			$this->setAttrValueValue('password',   $password);
-			$this->setAttrValueValue('first_name', $first_name);
-			$this->setAttrValueValue('last_name',  $last_name);
-			$this->setAttrValueValue('email',      $email);
+			$this->setAttrValue('username',   $username);
+			$this->setAttrValue('password',   $password);
+			$this->setAttrValue('first_name', $first_name);
+			$this->setAttrValue('last_name',  $last_name);
+			$this->setAttrValue('email',      $email);
 			return true;
 
 		}//end if
@@ -97,7 +97,7 @@ class User extends Asset
 	* @access public
 	*/
 	function _getName() {
-		return $this->attr('first_name').' '.$this->attr('last_name');
+		return ($this->attr('first_name') || $this->attr('last_name')) ? $this->attr('first_name').' '.$this->attr('last_name') : $this->attr('username');
 	}//end _getName();
 
 	/*
@@ -143,22 +143,6 @@ class User extends Asset
 
 	}//end find();
 
-
-	/*
-	* handles the creation of this asset, including painting 
-	*
-	* @param object Backend $backend
-	*
-	* @access public
-	*/
-	function printBackend(&$backend) {
-
-		$ei = &$this->getEI();
-		$ei->paint($this, $backend->out);
-
-	}//end printBackend()
-
-
 	/*
 	* processes a backend submission from this asset, returns true if all OK
 	*
@@ -166,8 +150,28 @@ class User extends Asset
 	* @access public
 	*/
 	function processBackend() {
-		$ei = &$this->getEI();
-		return $ei->process($this);
+
+		switch($_POST['asset_action']) {
+			case 'create' :
+				$ei = &$this->getEI();
+				$ei->process($this, true);
+
+				$username = $this->getAttribute('username');
+				$password = $this->getAttribute('password');
+				if ($username->processed && $password->processed) {
+					pre_echo('$this->create('.$username->value.', '.$password->value.')');
+					return $this->create($username->value, $password->value);
+				} else {
+					return false;
+				}
+
+				break;
+
+			default :
+				return parent::processBackend();
+
+		}// end switch
+
 	}// end processBackend()
 
 

@@ -21,5 +21,10 @@
 			<note />
 			<text width="40" height="1" />
 		</field>
+		<field attribute="email">
+			<display_name>Email</display_name>
+			<note />
+			<email width="25" />
+		</field>
 	</section>
 </contents>

@@ -3,7 +3,7 @@
 require_once SQ_ATTRIBUTES_PATH.'/text/text.inc';
 
 /**
-* Text Asset Attribute
+* Password Text Asset Attribute
 *
 * 
 *
@@ -51,26 +51,28 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 	/*
 	* Prints the interface for filling in a value
 	*
-	* @param object Asset	$asset	the asset that owns the aprefix for the form element
 	* @param string	prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function process(&$asset, $prefix)
+	function process($prefix)
 	{
+		$this->processed = false;
+
 		$one = (string) $_POST[$prefix.'_'.$this->name.'_one'];
 		$two = (string) $_POST[$prefix.'_'.$this->name.'_two'];
 
-		if (!trim($one)) return false;
+		if (!trim($one)) return;
 
 		if ($one == $two) {
-			return $this->set($asset, $one);
+			$this->value = $one;
+			$this->processed = true;
+			return true;
 		} else {
 			trigger_error('Password and confirmation don\'t match', E_USER_WARNING);
-			return false;
 		}
-	}
+	}// end process()
 
 }//end class
 

@@ -54,11 +54,13 @@ class Asset extends Resolve_Object
 		$this->Resolve_Object();
 		if ($assetid) {
 			$this->load($assetid);
+		} else {
+			$this->_loadVars();
 		}
 	}
 
 	/*
-	* The type that this asset is
+	* The type that t\his asset is
 	*
 	* @return string
 	* @access public
@@ -104,7 +106,7 @@ class Asset extends Resolve_Object
 		$this->last_updated = $now;
 		$this->last_userid  = $userid;
 
-		$this->_loadVars($db);
+		$this->_loadVars();
 
 		return true;
 
@@ -148,34 +150,40 @@ class Asset extends Resolve_Object
 			return;
 		}
 
-		$this->_loadVars($db);
+		$this->_loadVars();
 
 	}//end load()
 
 
 	/*
-	* Loads the vars for this asset into the vars array
+	* Loads the vars for this asset/ asset type into the vars array
 	*
-	* @param object DB $db    a reference to the db object
-	*
-	* @access public
+	* @access private
 	*/
-	function _loadVars(&$db) 
+	function _loadVars() 
 	{
-
-		if (!$this->id) return;
 
 		// Right, now we need to get any values that this asset has customised
 		$this->vars = Array();
 
-		$sql = 'SELECT atr.name, atr.attributeid, atr.type, COALESCE(v.custom_value, atr.default_value) AS value
-				FROM (sq_asset a INNER JOIN sq_asset_attribute atr ON a.type_code = atr.type_code)
-				  LEFT OUTER JOIN sq_asset_attribute_value v ON atr.attributeid = v.attributeid AND a.assetid = v.assetid
-				WHERE a.assetid   = '.$db->quote($this->id);
+		$sql = '';
+		// if we have an id then we need to load with current vars
+		if ($this->id) {
+			$sql = 'SELECT atr.name, atr.attributeid, atr.type, COALESCE(v.custom_value, atr.default_value) AS value
+					FROM (sq_asset a INNER JOIN sq_asset_attribute atr ON a.type_code = atr.type_code)
+					  LEFT OUTER JOIN sq_asset_attribute_value v ON atr.attributeid = v.attributeid AND a.assetid = v.assetid
+					WHERE a.assetid   = '.$GLOBALS['SQ_RESOLVE']->db->quote($this->id);
+		// else just load all defaults
+		} else {
+			$sql = 'SELECT atr.name, atr.attributeid, atr.type, atr.default_value AS value
+					FROM sq_asset_attribute atr
+					WHERE atr.type_code   = '.$GLOBALS['SQ_RESOLVE']->db->quote($this->type());
+
+		}// end if
 
 #		pre_echo($sql);
 
-		$this->vars = $db->getAssoc($sql, false, array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
+		$this->vars = $GLOBALS['SQ_RESOLVE']->db->getAssoc($sql, false, array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
 		if (DB::isError($this->vars)) trigger_error($this->vars->getMessage().'<br>'.$this->vars->getUserInfo(), E_USER_ERROR);
 
 	}//end _loadVars()
@@ -814,22 +822,32 @@ class Asset extends Resolve_Object
 		$attributeid = $this->vars[$name]['attributeid'];
 
 		// delete previous entry, if any
-		$sql = 'DELETE FROM sq_asset_attribute_value
+		$sql = 'SELECT count(*) FROM sq_asset_attribute_value
 				WHERE assetid = '.$db->quote($this->id).'
 				  AND attributeid = '.$db->quote($attributeid);
 
 //		pre_echo($sql);
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
+		$count = $db->getOne($sql);
+		if (DB::isError($count)) {
+			trigger_error($count->getMessage().'<br>'.$count->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
-		// now insert new entry
-		$sql = 'INSERT INTO sq_asset_attribute_value
-				(assetid, attributeid, custom_value)
-				VALUES
-				('.$db->quote($this->id).', '.$db->quote($attributeid).', '.$db->quote($value).')';
+		if ($count) {
+			// now insert new entry
+			$sql = 'UPDATE sq_asset_attribute_value
+					SET custom_value = '.$db->quote($value).'
+					WHERE assetid = '.$db->quote($this->id).'
+					  AND attributeid = '.$db->quote($attributeid);
+
+		} else {
+			// now insert new entry
+			$sql = 'INSERT INTO sq_asset_attribute_value
+					(assetid, attributeid, custom_value)
+					VALUES
+					('.$db->quote($this->id).', '.$db->quote($attributeid).', '.$db->quote($value).')';
+
+		}// end if
 
 		pre_echo($sql);
 
@@ -865,20 +883,18 @@ class Asset extends Resolve_Object
 	*/
 	function attr($name) 
 	{
-
 		if (empty($this->vars[$name])) {
 			trigger_error('Attribute "'.$name.'" not found for Asset"'.$this->type().'"', E_USER_WARNING);
 			return null;
 		}
-
 		return $this->vars[$name]['value'];
-
 	}//end attr();
 
 	/*
 	* returns a reference to the actual attribute object, used for manipulting the object
 	*
-	* @param string	$name	the name of the attribute
+	* @param string		$name			the name of the attribute
+	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because you can't use the '@' operator when returning by reference
 	*
 	* @return object Asset_Attribute
 	* @access public
@@ -920,9 +936,9 @@ class Asset extends Resolve_Object
 	*/
 	function printBackend(&$backend) 
 	{
-		$backend->out->openRaw();
-		echo ucwords(str_replace('_', ' ', $this->type())).' Backend Interface Not Done';
-		$backend->out->closeRaw();
+		$backend->out->addHiddenField('asset_action', (($this->id) ? 'edit' : 'create'));
+		$ei = &$this->getEI();
+		$ei->paint($this, $backend->out, empty($this->id));
 	}// end printBackend()
 
 	/*
@@ -933,8 +949,21 @@ class Asset extends Resolve_Object
 	*/
 	function processBackend() 
 	{
-		// it's up to the kids
-		return false;
+		$ei = &$this->getEI();
+		$processed = $ei->process($this, false);
+
+		foreach($processed as $name) {
+			$attr = &$this->getAttribute($name, true);
+			if (is_null($attr)) continue;
+
+			if ($attr->processed) {
+				$this->setAttrValue($name, $attr->value);
+			}
+
+		}// end for
+
+		return true;
+		
 	}// end processBackend()
 
 	/*

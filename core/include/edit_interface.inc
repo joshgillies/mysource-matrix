@@ -100,13 +100,22 @@ class Edit_Interface extends Resolve_Object
 	/**
 	* Paint's out the interface for the currently selected frame
 	*
-	* @param object	Asset				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
+	* @param object	Asset				$owner		the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o			the outputter class
+	* @param boolean					$creating	whether we are creating or editing
 	*
 	* @access  public
 	*/
-	function paint(&$owner, &$o) 
+	function paint(&$owner, &$o, $creating) 
 	{
+		$create_sections = Array();
+		$active_tab = (empty($_GET['edit_interface_tab'])) ? $this->_default_tab : $_GET['edit_interface_tab'];
+
+		// if we are creating open the create file to see which fields we are supposed to print out
+		if ($creating) {
+			list($create_sections, $active_tab) = $this->_getCreateSections();
+			if (!count($create_sections)) return;
+		}// end if create
 
 		$active_tab = (empty($_GET['edit_interface_tab'])) ? $this->_default_tab : $_GET['edit_interface_tab'];
 
@@ -115,19 +124,8 @@ class Edit_Interface extends Resolve_Object
 			return;
 		}
 
-		$file = '';
-		for($i = 0; $i < count($this->_dirs); $i++) {
-			if (file_exists($this->_dirs[$i].'/edit_interface_tab_'.$active_tab.'.xml')) {
-				$file = $this->_dirs[$i].'/edit_interface_tab_'.$active_tab.'.xml';
-				break;
-			}
-		}
-
-		if(!$file) {
-			trigger_error('edit_interface_tabs.xml not found for Asset Type "'.$this->_type_code.'"', E_USER_WARNING);
-			return;
-		}
-
+		// try and find the file
+		if(!($file = $this->_findFile('tab_'.$active_tab))) return;
 
 		// make sure that we have the tab for next time
 		$o->addFormActionGetVar('edit_interface_tab', $active_tab);
@@ -147,13 +145,15 @@ class Edit_Interface extends Resolve_Object
 		// Loop over the sections
 		for($i = 0; $i < count($root->children); $i++) {
 			$section = &$root->children[$i];
-			if ($section->name != 'section') continue;
+			// if this ain't a section, or if we are printing the create interface and this section is not included in that, ignore it
+			if ($section->name != 'section' || ($creating && empty($create_sections[$section->attributes['name']]))) continue;
 
 			$o->openSection($section->attributes['name']);
 			// Loop over the fields
 			for($j = 0; $j < count($section->children); $j++) {
 				$field = &$section->children[$j];
-				if ($field->name != 'field') continue;
+				// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
+				if ($field->name != 'field'  || ($creating && !in_array($field->attributes['attribute'], $create_sections[$section->attributes['name']]))) continue;
 
 				$attr = &$owner->getAttribute($field->attributes['attribute']);
 				if (is_null($attr)) continue;
@@ -183,19 +183,31 @@ class Edit_Interface extends Resolve_Object
 
 
 	/**
-	* Processes the results of the form posting
+	* Processes the results of the form posting, returns an array of the attribute names that 
+	* where processed
 	*
-	* @param object	Asset				$owner	the asset whose interface we are painting
+	* @param object Asset	$owner		the asset whose interface we are painting
+	* @param boolean		$creating	whether we are creating or editing
 	*
-	* @return boolean
+	* @return Array()
 	* @access public
 	*/
-	function process(&$owner) 
+	function process(&$owner, $creating) 
 	{
+
+		$processed = Array();
+		$create_sections = Array();
 		$active_tab = (empty($_GET['edit_interface_tab'])) ? $this->_default_tab : $_GET['edit_interface_tab'];
+
+		// if we are creating open the create file to see which fields we are supposed to print out
+		if ($creating) {
+			list($create_sections, $active_tab) = $this->_getCreateSections();
+			if (!count($create_sections)) return $processed;
+		}// end if create
+
 		if (empty($_GET['edit_interface_tab']) || empty($this->_tabs[$_GET['edit_interface_tab']])) {
 			trigger_error('Active Tab unknown unable to process', E_USER_WARNING);
-			return false;
+			return $processed;
 		}
 
 		$file = '';
@@ -208,14 +220,14 @@ class Edit_Interface extends Resolve_Object
 
 		if(!$file) {
 			trigger_error('edit_interface_tabs.xml not found for Asset Type "'.$this->_type_code.'"', E_USER_WARNING);
-			return;
+			return $processed;
 		}
 
 		$input = new XML_Tree($file);
 		$root  = &$input->getTreeFromFile();
 		if (PEAR::isError($root)) {
 			trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
-			return;
+			return $processed;
 		}
 
 		// prefix for all the form vars
@@ -223,25 +235,99 @@ class Edit_Interface extends Resolve_Object
 		// Loop over the sections
 		for($i = 0; $i < count($root->children); $i++) {
 			$section = &$root->children[$i];
-			if ($section->name != 'section') continue;
+			// if this ain't a section, or if we are printing the create interface and this section is not included in that, ignore it
+			if ($section->name != 'section' || ($creating && empty($create_sections[$section->attributes['name']]))) continue;
 
 			// Loop over the fields
 			for($j = 0; $j < count($section->children); $j++) {
 				$field = &$section->children[$j];
-				if ($field->name != 'field') continue;
+				// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
+				if ($field->name != 'field'  || ($creating && !in_array($field->attributes['attribute'], $create_sections[$section->attributes['name']]))) continue;
 
 				$attr = &$owner->getAttribute($field->attributes['attribute']);
 				if (is_null($attr)) continue;
 				if (!$attr->setEditParams($field->children[2])) continue;
 
-				$attr->process($owner, $prefix);
+				$attr->process($prefix);
+				$processed[] = $attr->name;
 
 			}// end for
 
 		}// end for 
 
+		return $processed;
+
 	}// end process();
 
+
+	/**
+	* Takes the requested filename and searches back up the directory's to find the matching file
+	* closest to the type of the asset that we are creating
+	*
+	* @param string	$file_name	the file to find
+	*
+	* @return string
+	* @access public
+	*/
+	function _findFile($file_name) {
+
+		$file_name = 'edit_interface_'.$file_name.'.xml';
+
+		$file = '';
+		for($i = 0; $i < count($this->_dirs); $i++) {
+			if (file_exists($this->_dirs[$i].'/'.$file_name)) {
+				$file = $this->_dirs[$i].'/'.$file_name;
+				break;
+			}
+		}
+
+		if(!$file) {
+			trigger_error($file_name.' not found for Asset Type "'.$this->_type_code.'"', E_USER_WARNING);
+			return false;
+		}
+
+		return $file;
+	}// end _findFile()
+
+	/**
+	* Returns the Sections and fields that are to be used in a create interface 
+	* and the tab that these belong to
+	*
+	* @return Array
+	* @access public
+	*/
+	function _getCreateSections() {
+
+		$create_sections = Array();
+
+		if (!($create_file = $this->_findFile('create'))) return $create_sections;
+
+		$input = new XML_Tree($create_file);
+		$root  = &$input->getTreeFromFile();
+		if (PEAR::isError($root)) {
+			trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+			return $create_sections;
+		}
+
+		// Loop over the sections
+		for($i = 0; $i < count($root->children); $i++) {
+			$section = &$root->children[$i];
+			if ($section->name != 'section') continue;
+
+			$create_sections[$section->attributes['name']] = Array();
+			// Loop over the fields
+			for($j = 0; $j < count($section->children); $j++) {
+				$field = &$section->children[$j];
+				if ($field->name != 'field') continue;
+				$create_sections[$section->attributes['name']][] = $field->attributes['attribute'];
+
+			}// end for
+
+		}// end for 
+
+		return Array($create_sections, $root->attributes['tab']);
+
+	}// end _getCreateSections()
 
 }//end class
 

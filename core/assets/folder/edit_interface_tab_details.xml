@@ -1,6 +1,6 @@
 
 <contents>
-	<section name="Section One">
+	<section name="Details">
 		<field attribute="name">
 			<display_name>Folder Name</display_name>
 			<note />

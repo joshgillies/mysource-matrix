@@ -62,15 +62,15 @@ class Asset_Attribute_Int extends Asset_Attribute
 	/*
 	* Prints the interface for filling in a value
 	*
-	* @param object Asset	$asset	the asset that owns the aprefix for the form element
 	* @param string	prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function process(&$asset, $prefix)
+	function process($prefix)
 	{
-		return $this->set($asset, (int) $_POST[$prefix.'_'.$this->name]);
+		$this->value = (int) $_POST[$prefix.'_'.$this->name];
+		$this->processed = true;
 	}
 
 }//end class

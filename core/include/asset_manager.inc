@@ -276,9 +276,9 @@ class Asset_Manager extends Resolve_Object
 	/*
 	* returns a reference to the asset represented by the passed assetid
 	*
-	* @param int     $assetid      the asset id to be loaded
-	* @param string  $type_code    if this exists then this object is used to load the asset, if not then the DB is queried to find out the asset type
-	* @param boolean $mute_errors  stops the outputting of errors in this fn, needed because you can't use the '@' operator when returning by reference
+	* @param int		$assetid		the asset id to be loaded
+	* @param string		$type_code		if this exists then this object is used to load the asset, if not then the DB is queried to find out the asset type
+	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because you can't use the '@' operator when returning by reference
 	*
 	* @access public
 	*/
@@ -403,8 +403,14 @@ class Asset_Manager extends Resolve_Object
 
 				// if the form has been submitted then, process it
 				// and if that is successfull, then create the link to the parent asset
+				$old_name = $asset->name;
 				if (!empty($_POST['am_form_submitted']) && $asset->processBackend()) {
 					$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" Updated');
+					// if the name has changed inform the side nav
+					if ($old_name != $asset->name) {
+						$o->addOnLoad('top.sidenav.reload_asset("'.$asset->id.'");');
+					}
+
 				}// end if
 
 				$asset->printBackend($backend);

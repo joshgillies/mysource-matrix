@@ -49,6 +49,13 @@ class Asset_Attribute extends Resolve_Object
 	var $value = null;
 
 	/**
+	* Whether or not this attribute has processed the results of a form post successfully
+	* @var mixed
+	*/
+	var $processed = false;
+
+
+	/**
 	* Constructor
 	*
 	* @param int	$attributeid	the attribute id to be loaded
@@ -108,7 +115,6 @@ class Asset_Attribute extends Resolve_Object
 	*
 	* @param string	$prefix	prefix for the form element
 	*
-	* @return boolean
 	* @access public
 	*/
 	function paint($prefix)
@@ -120,35 +126,14 @@ class Asset_Attribute extends Resolve_Object
 	/*
 	* Prints the interface for filling in a value
 	*
-	* @param object Asset	$asset	the asset that owns the this attribute instance
 	* @param string	prefix	prefix for the form element
 	*
-	* @return boolean
 	* @access public
 	*/
-	function process(&$asset, $prefix)
+	function process($prefix)
 	{
-		return false;
+		$this->processed = false;
 	}
-
-	/*
-	* Set's the value back into the asset
-	*
-	* @param object Asset	$asset	the asset that owns the attribute
-	* @param mixed			$value	the new value
-	*
-	* @return boolean
-	* @access public
-	*/
-	function set(&$asset, $value)
-	{
-		if ($asset->setAttrValue($this->name, $value)) {
-			$this->value = $value;
-			return true;
-		}
-		return false;
-	}
-
 
 	/*
 	* Takes an XML_Tree_Node from an edit interface XML file and creates

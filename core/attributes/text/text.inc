@@ -42,8 +42,8 @@ class Asset_Attribute_Text extends Asset_Attribute
 	{
 		if (!parent::setEditParams($node)) return false;
 
-		$this->_edit_params['width']    = (int) $node->attributes['width'];
-		$this->_edit_params['height']   = (int) $node->attributes['height'];
+		$this->_edit_params['width']    = isset($node->attributes['width'])  ? (int) $node->attributes['width']  : 0;
+		$this->_edit_params['height']   = isset($node->attributes['height']) ? (int) $node->attributes['height'] : 1;
 
 		return true;
 	}
@@ -59,10 +59,10 @@ class Asset_Attribute_Text extends Asset_Attribute
 	{
 		include_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
-		if(empty($this->_edit_params['height']) || $this->_edit_params['height'] == 1) {
-			text_box($prefix.'_'.$this->name, $this->value, $this->_edit_params['width'], $this->_params['max_length']);
-		} else {
+		if($this->_edit_params['height'] > 1) {
 			text_area($prefix.'_'.$this->name, $this->value, $this->_edit_params['width'], $this->_edit_params['height'], $this->_params['max_length']);
+		} else {
+			text_box($prefix.'_'.$this->name, $this->value, $this->_edit_params['width'], $this->_params['max_length']);
 		}
 		return true;
 	}
@@ -70,15 +70,15 @@ class Asset_Attribute_Text extends Asset_Attribute
 	/*
 	* Prints the interface for filling in a value
 	*
-	* @param object Asset	$asset	the asset that owns the aprefix for the form element
 	* @param string	prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function process(&$asset, $prefix)
+	function process($prefix)
 	{
-		return $this->set($asset, (string) $_POST[$prefix.'_'.$this->name]);
+		$this->value = (string) $_POST[$prefix.'_'.$this->name];
+		$this->processed = true;
 	}
 
 }//end class

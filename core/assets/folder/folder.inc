@@ -45,13 +45,13 @@ class Folder extends Asset
 
 		if (parent::create()) {
 
-			return $this->setAttrValueValueValue('name',   $name);
+			return $this->setAttrValue('name',   $name);
 
-		}#end if
+		}//end if
 
 		return false;
 
-	}#end create()
+	}//end create()
 
 	/*
 	* Returns name of the asset
@@ -62,7 +62,7 @@ class Folder extends Asset
 	function _getName() 
 	{
 		return $this->attr('name');
-	}#end _getName();
+	}//end _getName();
 
 
 	/*
@@ -79,22 +79,7 @@ class Folder extends Asset
 					 SQ_LINK_NOTICE    => Array('asset' => 'M')
 					);
 
-	}#end _getAllowedLinks()
-
-
-	/*
-	* handles the creation of this asset, including painting 
-	*
-	* @param object Backend $backend
-	*
-	* @access public
-	*/
-	function printBackend(&$backend) 
-	{
-		$backend->out->addHiddenField('asset_action', (($this->id) ? 'edit' : 'create'));
-		$ei = &$this->getEI();
-		$ei->paint($this, $backend->out);
-	}//end printBackend()
+	}//end _getAllowedLinks()
 
 	/*
 	* processes a backend submission from this asset, returns true if all OK
@@ -107,12 +92,19 @@ class Folder extends Asset
 
 		switch($_POST['asset_action']) {
 			case 'create' :
-				return $this->create($_POST['name']);
+				$ei = &$this->getEI();
+				$ei->process($this, true);
+
+				$name = $this->getAttribute('name');
+				if ($name->processed) {
+					return $this->create($name->value);
+				} else {
+					return false;
+				}
 				break;
 
 			default :
-				$ei = &$this->getEI();
-				return $ei->process($this);
+				return parent::processBackend();
 
 		}// end switch
 
@@ -120,5 +112,5 @@ class Folder extends Asset
 
 
 
-}#end class
+}//end class
 ?>

@@ -69,9 +69,10 @@ class Asset_Attribute_Float extends Asset_Attribute
 	* @return boolean
 	* @access public
 	*/
-	function process(&$asset, $prefix)
+	function process($prefix)
 	{
-		return $this->set($asset, (float) $_POST[$prefix.'_'.$this->name]);
+		$this->value = (float) $_POST[$prefix.'_'.$this->name];
+		$this->processed = true;
 	}
 
 }//end class
