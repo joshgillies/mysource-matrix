@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.23 2004/09/20 01:24:17 gsherwood Exp $
+* $Id: search_manager.inc,v 1.23.2.1 2004/10/06 00:52:46 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.23 $ - 0.1
+* @version $Revision: 1.23.2.1 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -604,6 +604,8 @@ class Search_Manager extends Asset
 		///////////////////////////////////
 		$start_sql_array = $this->constructBaseSearchQuery($search_info);
 		$start_sql = implode(' ', $start_sql_array);
+		$group_by =  'GROUP BY ai.assetid';
+		if ($search_info['sort_by']) $group_by .= ', sort_by';
 
 
 		  ///////////////////////////////
@@ -635,8 +637,7 @@ class Search_Manager extends Asset
 							$sql = $start_sql.'
 									AND ai.type = '.$db->quote('datetime').'
 									AND ai.component = '.$db->quote('attr:'. $attr_info['params']['asset_type'].':'.$attribute->name).'
-									'.$where.'
-									GROUP BY ai.assetid';
+									'.$where.' '.$group_by;
 
 							$result = $db->getAssoc($sql);
 							assert_valid_db_result($result);
@@ -658,8 +659,7 @@ class Search_Manager extends Asset
 							if (empty($result)) {
 								$sql = $start_sql.'
 									AND ai.component = '.$db->quote('attr:'. $attr_info['params']['asset_type'].':'.$attribute->name).'
-									AND (ai.value LIKE '.$db->quote('%'.$word.'%').')
-									GROUP BY ai.assetid';
+									AND (ai.value LIKE '.$db->quote('%'.$word.'%').') '.$group_by;
 			
 								$result = $db->getAssoc($sql);
 								assert_valid_db_result($result);
@@ -709,8 +709,7 @@ class Search_Manager extends Asset
 					$sql = $start_sql.'
 							AND ai.type = '.$db->quote('datetime').'
 							AND ai.component = '.$db->quote('__'.$attr_info['params']['date_type'].'__').'
-							'.$where.'
-							GROUP BY ai.assetid';
+							'.$where.' '.$group_by;
 
 					$result = $db->getAssoc($sql);
 					assert_valid_db_result($result);
@@ -741,9 +740,8 @@ class Search_Manager extends Asset
 					$result = $cm->loadFromCache($this, $search_cache_key.'include_all'.$word);
 					if (empty($result)) {
 						$sql = $start_sql.'
-							AND (ai.value LIKE '.$db->quote('%'.$word.'%').')
-							GROUP BY ai.assetid';
-	
+							AND (ai.value LIKE '.$db->quote('%'.$word.'%').') '.$group_by;
+
 						$result = $db->getAssoc($sql);
 						assert_valid_db_result($result);
 						
@@ -793,8 +791,7 @@ class Search_Manager extends Asset
 							$sql = $start_sql.'
 									AND ai.type = '.$db->quote('datetime').'
 									AND ai.component = '.$db->quote('metadata:'.(int)$attr_info['params']['assetid']).'
-									'.$where.'
-									GROUP BY ai.assetid';
+									'.$where.' '.$group_by;
 
 							$result = $db->getAssoc($sql);
 							assert_valid_db_result($result);
@@ -818,8 +815,7 @@ class Search_Manager extends Asset
 								$sql = $start_sql.'
 										AND ai.type = '.$db->quote('text').'
 										AND ai.component = '.$db->quote('metadata:'.(int)$attr_info['params']['assetid']).'
-										AND ai.value LIKE '.$db->quote('%'.$word.'%').'
-										GROUP BY ai.assetid';
+										AND ai.value LIKE '.$db->quote('%'.$word.'%').' '.$group_by;
 			
 								$result = $db->getAssoc($sql);
 								assert_valid_db_result($result);
@@ -852,8 +848,7 @@ class Search_Manager extends Asset
 			foreach($search_info['exclude'] as $attr_name => $attr_info) {
 
 				$sql = $start_sql.'
-					AND (ai.value LIKE \'%'.implode("%' OR ai.value LIKE '%", $attr_info['words']).'%\')
-					GROUP BY ai.assetid';
+					AND (ai.value LIKE \'%'.implode("%' OR ai.value LIKE '%", $attr_info['words']).'%\') '.$group_by;
 
 				$result = $db->getAssoc($sql);
 				assert_valid_db_result($result);
