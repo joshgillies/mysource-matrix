@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.112.2.2 2004/03/02 16:00:41 brobertson Exp $
+* $Id: asset_map.inc,v 1.112.2.3 2004/03/02 18:36:53 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,6 +49,8 @@ class Asset_Map
 
 	}//end constructor
 
+	function stripSystemid($id) { return str_replace("0'", '', $id); } 
+	function replaceSystemid($id) { return "0'".$id; } 
 
 	/**
 	* Print out the code for the asset map
@@ -96,7 +98,7 @@ class Asset_Map
 
 
 
-			/** 
+			/**
 			* Open up a help window
 			*/
 			function open_legend(params)
@@ -127,7 +129,7 @@ class Asset_Map
 	* To create the tags that embed the simple asset map into the matrix system
 	*
 	* NB. this function does not attempt to print any form tags. It is up the the printing entity to do this.
-	* The form needs to be in the form: 
+	* The form needs to be in the form:
 	*
 	* &gt;form name="main_form"&lt;
 	*    ...
@@ -162,7 +164,7 @@ class Asset_Map
 				$jarname = 'complexassetmap';
 			break;
 		}
-		
+
 		// TODO: <embed> tags for moz and netscape
 
 		?>
@@ -187,6 +189,8 @@ class Asset_Map
 	*/
 	function _send($output)
 	{
+
+		error_log($output->get(), 3, SQ_DATA_PATH.'/assetmap.out');
 		header("Content-Type: text/xml");
 		$output->dump();
 
@@ -229,7 +233,7 @@ class Asset_Map
 			$this->_error($root->getMessage()."\n".$root->getUserInfo());
 			return;
 		}
-
+error_log($input->get(), 3, SQ_DATA_PATH.'/assetmap.in');
 		if ($root->name != 'command' || empty($root->attributes['action'])) {
 			$this->_error('No action was defined, or the root node is not "command"');
 			return;
@@ -287,14 +291,15 @@ class Asset_Map
 	function _doInitialise(&$input)
 	{
 		$output = new XML_Tree();
-		$root = &$output->addRoot('current_user', '', Array('assetid' => $GLOBALS['SQ_SYSTEM']->currentUserId()));
+		$root = &$output->addRoot('current_user', '', Array('assetid' => $this->stripSystemid($GLOBALS['SQ_SYSTEM']->currentUserId())));
 
 		// just get the root's XML not the tree's, because it is part of bigger things and we dont want the version info
 		$current_user_xml = $root->get();
 
 		$root = &$output->addRoot('assets', '');
 		// Add the root folder
-		if (!$this->_addAssetToXML($root, 1, true)) {
+		$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+		if (!$this->_addAssetToXML($root, $root_folder->id, true)) {
 			return;
 		}
 
@@ -327,6 +332,9 @@ class Asset_Map
 		echo "</initialisation>\n";
 		$out = ob_get_contents();
 		ob_end_clean();
+
+error_log($out."\n", 3, SQ_DATA_PATH.'/assetmap.out');
+
 		echo $out;
 
 	}//end _doInitialise()
@@ -356,7 +364,8 @@ class Asset_Map
 //				}
 //			}
 
-			$assetid = $asset_node->attributes['assetid'];
+			$assetid = $this->replaceSystemid($asset_node->attributes['assetid']);
+error_log($asset_node->attributes['assetid'].' --> '.$assetid."\n", 3, SQ_DATA_PATH.'/assetmap.log');
 
 			$kids = Array();
 			if ($load_new_links) {
@@ -364,7 +373,7 @@ class Asset_Map
 				for($j = 0; $j < count($asset_node->children); $j++) {
 					$child_node =& $asset_node->children[$j];
 					if (empty($child_node->attributes['assetid'])) continue;
-					$current_kids[] = $child_node->attributes['assetid'];
+					$current_kids[] = $this->replaceSystemid($child_node->attributes['assetid']);
 				}
 
 				if (!$this->_addAssetToXML($root, $assetid, true, $current_kids)) {
@@ -392,7 +401,7 @@ class Asset_Map
 	* @param int					$assetid		the assetid of the asset to add
 	* @param boolean				$load_new_links	whether or not to load the children of this
 	*												asset not in the $current_kids array
-	* @param Array(int)				$current_kids	the children that the flash currently has
+	* @param Array(string)			$current_kids	the children that the flash currently has
 	*
 	* @access private
 	*/
@@ -400,11 +409,10 @@ class Asset_Map
 	{
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', true);
 
-		if (is_null($asset))
-			return true;
+		if (is_null($asset)) return false;
 
 		$attrs = Array(
-			'assetid'		=> $asset->id,
+			'assetid'		=> $this->stripSystemid($asset->id),
 			'name'			=> $asset->short_name,
 			'type_code'		=> $asset->type(),
 			'accessible'	=> $asset->readAccess(),
@@ -418,11 +426,11 @@ class Asset_Map
 			$parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_SC_LINK_BACKEND_NAV, '', false, 'minor');
 			if (count($parent_links)) {
 				for($j = 0; $j < count($parent_links); $j++) {
-					$kid_node = &$asset_node->addChild('parent', '', 
+					$kid_node = &$asset_node->addChild('parent', '',
 						Array(
-							'linkid'		=> $parent_links[$j]['linkid'], 
-							'majorid'		=> $parent_links[$j]['majorid'],
-							'minorid'		=> $asset->id, 
+							'linkid'		=> $this->stripSystemid($parent_links[$j]['linkid']),
+							'majorid'		=> $this->stripSystemid($parent_links[$j]['majorid']),
+							'minorid'		=> $this->stripSystemid($asset->id),
 							'link_type'		=> $parent_links[$j]['link_type']
 						)
 					);
@@ -432,11 +440,11 @@ class Asset_Map
 			$child_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', true, 'major');
 			if (count($child_links)) {
 				for($j = 0; $j < count($child_links); $j++) {
-					$kid_node = &$asset_node->addChild('child', '', 
+					$kid_node = &$asset_node->addChild('child', '',
 						Array(
-							'linkid'		=> $child_links[$j]['linkid'], 
-							'majorid'		=> $asset->id,
-							'minorid'		=> $child_links[$j]['minorid'], 
+							'linkid'		=> $this->stripSystemid($child_links[$j]['linkid']),
+							'majorid'		=> $this->stripSystemid($asset->id),
+							'minorid'		=> $this->stripSystemid($child_links[$j]['minorid']),
 							'link_type'		=> $child_links[$j]['link_type']
 						)
 					);
@@ -555,6 +563,8 @@ class Asset_Map
 					return;
 				}
 
+$attr['parent_assetid'] = $this->replaceSystemid($attr['parent_assetid']);
+
 				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($attr['parent_assetid'], '', true);
 				if (is_null($parent)) {
 					$this->_error('Parent Asset #'.$attr['parent_assetid'].' not found');
@@ -568,7 +578,7 @@ class Asset_Map
 
 				$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 				if ($trash_folder->id == $attr['parent_assetid']) {
-					$this->_error('Unable to Add Asset, cant add an asset to the trash');
+					$this->_error('Unable to Add Asset, unable add an asset to the trash');
 					return;
 				}
 
@@ -637,6 +647,10 @@ class Asset_Map
 		$output->addRoot('responses');
 		$response_count = 0;
 
+$input->root->attributes['from_parent_assetid'] = $this->replaceSystemid($input->root->attributes['from_parent_assetid']);
+$input->root->attributes['to_parent_assetid'] = $this->replaceSystemid($input->root->attributes['to_parent_assetid']);
+$input->root->attributes['linkid'] = $this->replaceSystemid($input->root->attributes['linkid']);
+
 		$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
 		if (is_null($old_parent)) {
 			$this->_error('Unable to Move Asset, existing parent (Asset #"'.$input->root->attributes['from_parent_assetid'].'") not found');
@@ -662,7 +676,7 @@ class Asset_Map
 			$linkid = $link['linkid'];
 
 			$successTree = new XML_Tree();
-			$successTree->addRoot('success', '', Array('linkid' => $linkid));
+			$successTree->addRoot('success', '', Array('linkid' => $this->stripSystemid($linkid)));
 			$output->insertChild(Array('responses'), $response_count++, $successTree);
 
 		} else {
@@ -724,6 +738,9 @@ class Asset_Map
 		$output = new XML_Tree();
 		$output->addRoot('responses');
 		$response_count = 0;
+$input->root->attributes['from_parent_assetid'] = $this->replaceSystemid($input->root->attributes['from_parent_assetid']);
+$input->root->attributes['to_parent_assetid'] = $this->replaceSystemid($input->root->attributes['to_parent_assetid']);
+$input->root->attributes['linkid'] = $this->replaceSystemid($input->root->attributes['linkid']);
 
 		$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
 		if (is_null($old_parent)) {
@@ -792,6 +809,9 @@ class Asset_Map
 		$output = new XML_Tree();
 		$root = &$output->addRoot('responses');
 		$response_count = 0;
+$input->root->attributes['from_parent_assetid'] = $this->replaceSystemid($input->root->attributes['from_parent_assetid']);
+$input->root->attributes['to_parent_assetid'] = $this->replaceSystemid($input->root->attributes['to_parent_assetid']);
+$input->root->attributes['linkid'] = $this->replaceSystemid($input->root->attributes['linkid']);
 
 		$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
 		if (is_null($old_parent)) {
