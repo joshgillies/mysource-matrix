@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: www.inc,v 1.8 2003/11/26 00:51:18 gsherwood Exp $
+* $Id: www.inc,v 1.9 2004/04/01 03:58:34 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -88,7 +88,7 @@ function relative_href($from,$to)
 	// same last common directory
 	return str_replace('../'.$from_bits[$split_point - 1].'/', '', $href);
 
-}// end relative_href()
+}//end relative_href()
 
 
 /**
@@ -99,8 +99,11 @@ function relative_href($from,$to)
 * @return boolean
 * @access public
 */
-function valid_email($e) {
+function valid_email($e)
+{
 	return preg_match("|^[_\.0-9a-zA-Z-]+@([0-9a-zA-Z]([0-9A-Za-z-]*)+\.)+[a-zA-Z]{2,4}$|",$e);
-}
+	
+}//end valid_email()
+
 
 ?>
