@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.17 2004/09/08 23:53:46 lwright Exp $
+* $Id: page_calendar_management.inc,v 1.18 2004/09/09 23:25:01 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.17 $ - 1.0
+* @version $Revision: 1.18 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -102,15 +102,15 @@ class Page_Calendar_Management extends Asset_Management
 		$this->vars['day_partition_time']	= Array(
 													'added'			=> '0.1',
 													'type'			=> 'selection',
-													'default'		=> '60',
+													'default'		=> '60m',
 													'description'	=> 'The spacing of intervals in the calendar day view',
 													'parameters'	=> Array(
 														'options' => Array(
-															10	=> '10 mins', 
-															15	=> '15 mins', 
-															20	=> '20 mins', 
-															30	=> '30 mins', 
-															60	=> '1 hour')
+															'10m'	=> '10 mins', 
+															'15m'	=> '15 mins', 
+															'20m'	=> '20 mins', 
+															'30m'	=> '30 mins', 
+															'60m'	=> '1 hour')
 													 )
 											);
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.57 2004/09/09 06:49:17 lwright Exp $
+* $Id: page_calendar.inc,v 1.58 2004/09/09 23:25:01 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.57 $ - 1.0
+* @version $Revision: 1.58 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -945,7 +945,7 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function _printTimedTable($table_id, $column_names, $column_links, $events, $show_event_links=false)
 	{
-		$partition_time = $this->attr('day_partition_time');
+		$partition_time = intval($this->attr('day_partition_time'));
 		$partition_height = $this->attr('day_partition_height');
 		$root_nodes = $this->attr('root_nodes');
 		$this->_printClickChildScript();
