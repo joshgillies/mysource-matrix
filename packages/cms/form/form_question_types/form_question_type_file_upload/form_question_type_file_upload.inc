@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.2 2004/11/09 22:20:09 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.3 2004/11/09 22:50:44 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -109,8 +109,6 @@ class Form_Question_Type_File_Upload extends Form_Question
 		
 		$file = get_file_upload_info($this->id);
 		
-		$summary = $file['name'].', type '.$file['type'].', '.easy_filesize($file['size']);
-
 		// there was an error
 		if ($file === false) {
 			$form->active_submission->setError('There was an error uploading the file for File Upload question "'.$this->attr('name').'"');
@@ -190,6 +188,8 @@ class Form_Question_Type_File_Upload extends Form_Question
 			
 		}
 						
+		$summary = $file['name'].', type '.$file['type'].', '.easy_filesize($file['size']);
+
 		$form->active_submission->setAnswer($this->id, $file['name']);
 		$form->active_submission->setSummary($this->id,  $this->attr('name'), $summary);
 
