@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.5 2004/06/24 06:37:41 lwright Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.6 2004/07/19 00:48:08 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -115,9 +115,15 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	*/
 	function paintGenericBackend(&$bodycopy, &$o, $prefix)
 	{
-		// get all the containers linked to the bodycopy
-		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($bodycopy->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
-
+		// If the parent bodycopy class is itself, fudge the containers array
+		// so that the proper stuff gets drawn when putting out the javascript
+		// to edit.
+		if (is_a($bodycopy, 'bodycopy_table')) {
+			$containers = Array(Array('minorid'=>$bodycopy->id, 'minor_type_code'=>'bodycopy_table'));
+		} else {
+			$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($bodycopy->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
+		}
+		
 		?>
 		<script language="JavaScript" src="<?php echo sq_web_path('data').'/asset_types/bodycopy/js/bodycopy_edit_tables.js'?>"></script>
 
@@ -169,7 +175,6 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 
 		function get_bodycopy_<?php echo $prefix?>_current_table_data(tableid, rowid, cellid) {
-
 			retVal = new Object();
 
 			switch (tableid) {
@@ -341,6 +346,10 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			if ($colspans_in_row) break;
 		}
 
+		// require library functions needed for drawing the bodycopy 
+		$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');
+		require_once SQ_SYSTEM_ROOT.'/'.$type_info['dir'].'/files/lib.php';
+		
 		?>
 		<table<?php echo $attribute_list?> background="<?php echo $bgimage?>" border="0" cellpadding="0" cellspacing="0" style="width:100%;">
 			<tr> 
