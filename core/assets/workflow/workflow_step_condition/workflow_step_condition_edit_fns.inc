@@ -58,8 +58,10 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 				if (is_a($user, 'user')) {
 					echo '&nbsp;';
 				} else {
-					echo '<i>'.$wfm->_valid_cond_logic[$cond_logic];
-					if ($cond_logic_num) echo " $cond_logic_num group member".(($cond_logic_num > 1) ? 's' : '')." must approve</i>";
+					if (isset($wfm->_valid_cond_logic[$cond_logic])) {
+						echo '<i>'.$wfm->_valid_cond_logic[$cond_logic];
+						if ($cond_logic_num) echo " $cond_logic_num group member".(($cond_logic_num > 1) ? 's' : '')." must approve</i>";
+					}
 				}
 			} else {
 				if (is_a($user, 'user')) {

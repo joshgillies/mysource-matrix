@@ -23,6 +23,7 @@ class Workflow_Schema_Edit_Fns extends Asset_Edit_Fns
 	function Workflow_Schema_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
+		$this->static_screens['details']['force_unlock'] = false;
 
 	}//end construtor()
 
@@ -130,6 +131,7 @@ class Workflow_Schema_Edit_Fns extends Asset_Edit_Fns
 	{
 		// need to have write access to make any changes
 		if (!$asset->writeAccess()) return false;
+		$updated = false;
 
 		// process current steps
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'workflow_step', true, 'major', null, true, false);
@@ -137,7 +139,7 @@ class Workflow_Schema_Edit_Fns extends Asset_Edit_Fns
 			$step = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 			if (is_null($step)) continue;
 			$edit_fns = $step->getEditFns();
-			if (!$edit_fns->processInlineEditInterface($step, $o)) return false;
+			if($edit_fns->processInlineEditInterface($step, $o)) $updated = true;
 		}
 
 		// delete any steps that need deleting
@@ -148,7 +150,7 @@ class Workflow_Schema_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-		return true;
+		return $updated;
 
 	}//end processSteps()
 
