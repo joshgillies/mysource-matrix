@@ -27,7 +27,7 @@ class User extends Asset
 	}
 
 
-	/*
+	/**
 	* Create this asset
 	*
 	* @param string $username   the unique username 
@@ -57,8 +57,11 @@ class User extends Asset
 
 	}//end create()
 
-	/*
+
+	/**
 	* Set the value for the passed variable to the passed value
+	* Overwritten here to check inputs (username and password) and to
+	* encrypt password before setting value
 	*
 	* @access public
 	*/
@@ -74,12 +77,14 @@ class User extends Asset
 
 	}//end setAttrValue()
 
-	/*
-	* returns whether the passed password is this users
+
+	/**
+	* Returns whether the passed password matches this users' password
 	*
 	* @access public
 	*/
-	function comparePassword($entered_password) {
+	function comparePassword($entered_password)
+	{
 
 		$password = $this->attr('password');
 
@@ -91,7 +96,8 @@ class User extends Asset
 
 	}//end comparePassword()
 
-	/*
+
+	/**
 	* Returns name of the user
 	*
 	* @see Asset::_getName()
@@ -101,13 +107,14 @@ class User extends Asset
 		return ($this->attr('first_name') || $this->attr('last_name')) ? $this->attr('first_name').' '.$this->attr('last_name') : $this->attr('username');
 	}//end _getName();
 
-	/*
+
+	/**
 	* Attempts to find a user that matches the passed username and login, returning it's assetid
 	*
 	* @param string	$username
 	* @param string	$password
 	*
-	* @return int
+	* @return Array(int,string)
 	* @access public
 	*/
 	function find($username, $password) {
@@ -115,14 +122,13 @@ class User extends Asset
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT a.assetid
+		$sql = 'SELECT a.assetid, a.type_code
 				FROM sq_asset a, sq_asset_attribute at, sq_asset_attribute_value av
-				WHERE at.type_code = '.$db->quote('user').'
-				  AND a.type_code IN (~SQ0~) 
-				  AND at.name     = '.$db->quote('username').'
-				  AND at.attributeid = av.attributeid
-				  AND av.assetid  = a.assetid
-				  and av.value    = '.$db->quote($username);
+				WHERE a.type_code IN (~SQ0~) 
+				  AND at.name         = '.$db->quote('username').'
+				  AND at.attributeid  = av.attributeid
+				  AND av.assetid      = a.assetid
+				  and av.custom_value = '.$db->quote($username);
 
 		$subs = Array( 'SELECT type_code FROM sq_asset_type_inherited 
 						WHERE inherited_type_code = '.$db->quote('user').'
@@ -130,22 +136,23 @@ class User extends Asset
 
 		$sql = db_extras_subquery($db, $sql, $subs);
 
-		$result = $db->getOne($sql);
+		$result = $db->getRow($sql);
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
-		if (!$result) return 0;
+		if (!$result['assetid']) return array(0,'');
 
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result);
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['assetid']);
 		if (is_null($asset) || !$asset->comparePassword($password)) {
-			return 0;
+			return array(0,'');
 		}
 
-		return $result;
+		return array($result['assetid'], $result['type_code']);
 
 	}//end find();
 
-	/*
-	* processes a backend submission from this asset, returns true if all OK
+
+	/**
+	* Processes a backend submission from this asset, returns true if all OK
 	*
 	* @return boolean
 	* @access public

@@ -8,7 +8,6 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 * Resolve
 *
 * Purpose
-*
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
@@ -44,6 +43,7 @@ class Resolve
 	*/
 	var $_msgs;
 
+
 	/**
 	* Constructor
 	*
@@ -63,6 +63,7 @@ class Resolve
 
 	}// end constructor
 
+
 	/**
 	* From here is where everything else happens, it starts the ball rolling
 	*
@@ -70,7 +71,6 @@ class Resolve
 	*/
 	function start()
 	{
-
 		// initialise the asset manager as we are going to need it pretty much everywhere
 		$this->am = new Asset_Manager();
 
@@ -91,7 +91,7 @@ class Resolve
 		}//end if
 
 		if (SQ_IN_BACKEND) {
-			if (true || $this->user) {
+			if ($this->user) {
 				require_once SQ_INCLUDE_PATH.'/backend.inc';
 				$backend = new Backend();
 				$backend->paint();
@@ -123,6 +123,7 @@ class Resolve
 
 	}//end start()
 
+
 	/**
 	* Processes any global actions that need to be taken care of
 	*
@@ -130,13 +131,12 @@ class Resolve
 	*/
 	function _processGlobalActions()
 	{
-
 		switch($_GET['SQ_ACTION']) {
 			case 'login' :
 				if ($this->loginKey() == $_POST['SQ_LOGIN_KEY']) {
 					$this->am->includeAsset('user');
-					if ($userid = User::find($_POST['SQ_LOGIN_USERNAME'], $_POST['SQ_LOGIN_PASSWORD'])) {
-						$user = &$this->am->getAsset($userid);
+					if (list($userid, $user_type) = User::find($_POST['SQ_LOGIN_USERNAME'], $_POST['SQ_LOGIN_PASSWORD'])) {
+						$user = &$this->am->getAsset($userid, $user_type);
 						$_SESSION['userid']      = $userid;
 						$_SESSION['remote_addr'] = $_SERVER['REMOTE_ADDR'];
 						// generate a new login key so that when they try and login next
@@ -165,6 +165,7 @@ class Resolve
 
 	}//end _processGlobalActions()
 
+
 	/**
 	* returns a boolean if the passed user is the logged in user
 	*
@@ -174,6 +175,7 @@ class Resolve
 	{
 		return ($this->user && $this->user->id == $user->id);
 	}//end currentUser()
+
 
 	/**
 	* returns the userid of the current user, or zero if none present (ie frontend)
@@ -185,6 +187,7 @@ class Resolve
 		return ($this->user) ? $this->user->id : 0;
 	}//end currentUserId()
 
+
 	/**
 	* generates a new login key and returns it
 	*
@@ -194,7 +197,8 @@ class Resolve
 	{
 		require_once SQ_FUDGE_PATH.'/general/general.inc';
 		return $_SESSION['SQ_LOGIN_KEY'] = random_password(20);
-	}
+	}//end generateLoginKey()
+
 
 	/**
 	* returns the current login key
@@ -204,7 +208,8 @@ class Resolve
 	function loginKey()
 	{
 		return $_SESSION['SQ_LOGIN_KEY'];
-	}
+	}//end loginKey()
+
 
 	/**
 	* Add a system message
@@ -214,7 +219,8 @@ class Resolve
 	function addMessage($msg)
 	{
 		$this->_msgs[] = $msg;
-	}
+	}//addMessage()
+
 
 	/**
 	* returns the system messages
@@ -225,7 +231,8 @@ class Resolve
 	function messages()
 	{
 		return $this->_msgs;
-	}
+	}//end messages()
+
 
 	/**
 	* returns date time string for the passed timestamp
@@ -235,10 +242,12 @@ class Resolve
 	* @return string
 	* @access public
 	*/
-	function datetime($timestamp=null) {
+	function datetime($timestamp=null)
+	{
 		$f = 'd/m/Y H:i:s';
 		return (is_null($timestamp)) ? date($f) : date($f, $timestamp);
 	}//end datetime()
+
 
 	/**
 	* returns date string for the passed timestamp
@@ -248,10 +257,12 @@ class Resolve
 	* @return string
 	* @access public
 	*/
-	function date($timestamp=null) {
+	function date($timestamp=null)
+	{
 		$f = 'd/m/Y';
 		return (is_null($timestamp)) ? date($f) : date($f, $timestamp);
 	}//end date()
+
 
 	/**
 	* returns time string for the passed timestamp
@@ -261,10 +272,11 @@ class Resolve
 	* @return string
 	* @access public
 	*/
-	function time($timestamp=null) {
+	function time($timestamp=null)
+	{
 		$f = 'H:i:s';
 		return (is_null($timestamp)) ? date($f) : date($f, $timestamp);
-	}// end time()
+	}//end time()
 
 }//end class
 ?>
