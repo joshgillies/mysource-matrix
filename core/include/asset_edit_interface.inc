@@ -60,7 +60,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		$this->_edit_fns = new $class_name();
 
 		$this->_dirs = Array($asset_dir);
-		$parents = $GLOBALS['SQ_SYSTEM']->am->getParentList($this->_type_code, false);
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($this->_type_code, false);
 		foreach($parents as $parent_type) {
 			$this->_dirs[] = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getInfo($parent_type, 'dir');
 		}
@@ -473,7 +473,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 			if ($owner->writeAccess()) {
 				$o->openField('New?');
-				asset_finder($prefix.'_new_'.strtolower($title), ((isset($thumb->id)) ? $thumb->id : ''), Array('thumbnail'));
+				asset_finder($prefix.'_new_'.strtolower($title), 0, Array('root_user' => 'D', 'user_group' => 'D'));
 			}
 		}
 		

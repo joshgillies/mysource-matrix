@@ -79,7 +79,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 				$design_area = 'design_area_'.strtolower($sub_element['attributes']['design_area']);
 
 				// first let's make sure that we are actually going to create a menu section type
-				$design_area_parent_types = $GLOBALS['SQ_SYSTEM']->am->getParentList($design_area);
+				$design_area_parent_types = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($design_area);
 				if (!in_array('design_area_menu_type', $design_area_parent_types)) {
 					trigger_error('Only Design Area Menu Types can be used in the sub section of the menu section "'.$asset->name.'"', E_USER_WARNING);
 					return false;

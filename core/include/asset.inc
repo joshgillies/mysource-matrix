@@ -562,10 +562,10 @@ class Asset extends Resolve_Object
 	*
 	* @access public
 	*/
-	function getParentList()
+	function getTypeAncestors()
 	{
-		return $GLOBALS['SQ_SYSTEM']->am->getParentList($this->type());
-	}//end getParentList()
+		return $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($this->type());
+	}//end getTypeAncestors()
 
 
 	/**
@@ -1180,7 +1180,7 @@ class Asset extends Resolve_Object
 	{
 
 		// get the minor assets parents and add it's type to the front of the indexed array
-		$types = $GLOBALS['SQ_SYSTEM']->am->getParentList($type_code);
+		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
 		array_unshift($types, $type_code);
 
 		$allowed_links = $this->_getAllowedLinks();

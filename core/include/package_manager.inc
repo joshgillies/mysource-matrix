@@ -503,7 +503,7 @@ class Package_Manager extends Resolve_Object
 	*
 	* @access public
 	*/
-	function getParentList($type_code)
+	function getTypeAncestors($type_code)
 	{
 
 		if (!isset($this->assets[$type_code])) {
@@ -521,7 +521,7 @@ class Package_Manager extends Resolve_Object
 
 		// if we are inheriting from something else then go find it from the installed list
 		if ($this->assets[$type_code]['parent_type'] != 'asset') {
-			$new_arr = $GLOBALS['SQ_SYSTEM']->am->getParentList($this->assets[$type_code]['parent_type']);
+			$new_arr = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($this->assets[$type_code]['parent_type']);
 			foreach($new_arr as $type_code) $arr[] = $type_code;
 		} else {
 			$arr[] = 'asset';
@@ -531,7 +531,7 @@ class Package_Manager extends Resolve_Object
 
 		return $arr;
 
-	}//end getParentList()
+	}//end getTypeAncestors()
 
 
 	/**

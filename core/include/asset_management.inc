@@ -146,7 +146,7 @@ class Asset_Management extends Resolve_Object
 		$type_code   = $this->getAssetType();
 
 		// get how deep we are in the heirarchy
-		$level = count($this->_pm->getParentList($type_code));
+		$level = count($this->_pm->getTypeAncestors($type_code));
 		$info = $this->_pm->getInfo($type_code);
 
 		$sql = 'INSERT INTO sq_asset_type
@@ -191,7 +191,7 @@ class Asset_Management extends Resolve_Object
 	{
 
 		// get how deep we are in the heirarchy
-		$level = count($this->_pm->getParentList($this->getAssetType()));
+		$level = count($this->_pm->getTypeAncestors($this->getAssetType()));
 		$info = $this->_pm->getInfo($this->getAssetType());
 
 		$sql = 'UPDATE sq_asset_type
@@ -493,7 +493,7 @@ class Asset_Management extends Resolve_Object
 				} else if (!empty($curr_attr['parameters_value'])) {
 					// we have removed our customisation of parameters
 					// so get our parents parameters and set to that
-					$parents = $this->_pm->getParentList($type_code);
+					$parents = $this->_pm->getTypeAncestors($type_code);
 					$parent = array_shift($parents);
 					
 					$sql = 'SELECT parameters_value
@@ -516,7 +516,7 @@ class Asset_Management extends Resolve_Object
 				} else if (!empty($curr_attr['default_value'])) {
 					// we have removed our customisation of the default
 					// so get our parents default and set to that
-					$parents = $this->_pm->getParentList($type_code);
+					$parents = $this->_pm->getTypeAncestors($type_code);
 					$parent = array_shift($parents);
 					
 					$sql = 'SELECT default_value

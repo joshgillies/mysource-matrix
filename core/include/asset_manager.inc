@@ -88,7 +88,7 @@ class Asset_Manager extends Resolve_Object
 			$this->_asset_types[$result['type_code']] = $result;
 		}
 
-		$parents = $this->getParentList($type_code);
+		$parents = $this->getTypeAncestors($type_code);
 
 		$sql = 'SELECT inherited_type_code
 				FROM sq_asset_type_inherited
@@ -262,33 +262,50 @@ class Asset_Manager extends Resolve_Object
 	*
 	* @access public
 	*/
-	function getParentList($type_code, $include_asset=true)
+	function getTypeAncestors($type_code, $include_asset=true)
 	{
-
 		if (!isset($this->_asset_types[$type_code])) {
 			trigger_error('Asset Type "'.$type_code.'" is not installed on the system', E_USER_ERROR);
 			return Array();
 		}
-
-		$arr = Array();
-
-		while($this->_asset_types[$type_code]['parent_type'] != 'asset') {
-			// this should NEVER happen, if it does DIE
-			if (!isset($this->_asset_types[$this->_asset_types[$type_code]['parent_type']])) {
-				trigger_error('Asset "'.$this->_asset_types[$type_code]['parent_type'].'" is not installed on the system,<br/>'
-							 .'therefore we cannot get the parent type of Asset "'.$type_code.'".<br/>'
-							 .'Check that you got the Asset_Manager by reference', E_USER_ERROR);
-			}
-			$type_code = $this->_asset_types[$type_code]['parent_type'];
-			$arr[]     = $type_code;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$result = $db->getCol('SELECT inherited_type_code
+								FROM sq_asset_type_inherited 
+								WHERE type_code = '.$db->quote($type_code)
+								.(($include_asset) ? '' : ' AND inherited_type_code != '.$db->quote('asset'))
+								);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			return Array();
 		}
+		return $result;
+	}//end getTypeAncestors()
 
-		if ($include_asset) $arr[] = 'asset';
-
-		return $arr;
-
-	}//end getParentList()
-
+	/**
+	* Returns an array of all assets types that are descendants for the passed asset
+	*
+	* @param string		$type_code		the code name for the asset that you want to check
+	* @param boolean	$include_asset	when true adds the "Asset" type to the parent list,
+	*									even though it's an unistantiable object
+	*
+	* @access public
+	*/
+	function getTypeDescendants($type_code)
+	{
+		if (!isset($this->_asset_types[$type_code])) {
+			trigger_error('Asset Type "'.$type_code.'" is not installed on the system', E_USER_ERROR);
+			return Array();
+		}
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$result = $db->getCol('SELECT type_code
+								FROM sq_asset_type_inherited 
+								WHERE inherited_type_code = '.$db->quote($type_code));
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			return Array();
+		}
+		return $result;
+	}//end getTypeDescendants()
 
 	/**
 	* Get all asset ids that are above the passed assetid in the various trees in which it exists
