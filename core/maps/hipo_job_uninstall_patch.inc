@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_uninstall_patch.inc,v 1.4 2004/06/25 07:02:50 gsherwood Exp $
+* $Id: hipo_job_uninstall_patch.inc,v 1.4.2.1 2004/09/30 07:06:01 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -105,10 +105,10 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 						'message'		=> '',
 					),
 					Array(
-						'name'			=> 'Updating Database',
+						'name'			=> 'Reversing File Updates',
 						'function_call'		=> Array(
 												'paint_function'   => 'paintPleaseWait',
-												'process_function' => 'processDatabaseUpdates',
+												'process_function' => 'processInstallFiles',
 												),
 						'running_mode'	=> 'server',
 						'auto_step'		=> true,
@@ -118,10 +118,10 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 						'message'		=> '',
 					),
 					Array(
-						'name'			=> 'Reversing File Updates',
+						'name'			=> 'Updating Database',
 						'function_call'		=> Array(
 												'paint_function'   => 'paintPleaseWait',
-												'process_function' => 'processInstallFiles',
+												'process_function' => 'processDatabaseUpdates',
 												),
 						'running_mode'	=> 'server',
 						'auto_step'		=> true,
