@@ -17,6 +17,7 @@ class System_Config extends Config
 {
 	var $config_vars = Array(
 		'SQ_CONF_DB_DSN'					=> Array('editable' => 0, 'default' => ''),
+		'SQ_CONF_DB2_DSN'					=> Array('editable' => 0, 'default' => ''),
 		'SQ_CONF_PEAR_PATH'					=> Array('editable' => 0, 'default' => ''),
 		'SQ_CONF_BACKEND_SUFFIX'			=> Array('editable' => 0, 'default' => '_edit'),
 /*
