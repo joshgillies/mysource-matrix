@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.18 2004/02/02 03:13:30 gsherwood Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.19 2004/06/29 23:46:26 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -128,7 +128,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		// if we have already printed this asset, dont print again or we will end up in an endless loop
 		if (isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$nested_asset->id])) {
 			unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$nested_asset->id]);
-			echo '<font color="red"><b>[ ** RECURSION WARNING ** ]<br/>You are nesting the content of this page inside itself</b></font>';
+			echo '<span class="sq-backend-warning"><b>[ ** RECURSION WARNING ** ]<br/>You are nesting the content of this page inside itself</b></span>';
 			return true;
 		}
 
@@ -139,7 +139,24 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		$GLOBALS['SQ_NEST_CONTENT_PAINTED'][$nested_asset->id] = 1;
 
 		// and now actually print it
+
+		ob_start();
 		$nested_asset->printBody();
+		$asset_contents = ob_get_contents();
+		ob_end_clean();
+
+		$form_tags = Array('form', 'input' , 'select', 'option', 'textarea');
+		foreach($form_tags as $tag) {
+			if (stristr($asset_contents, '<'.$tag) !== FALSE) {
+			?>
+				<span class="sq-backend-warning">
+					<b>NOTE:</b> this nested asset contains form elements, therefore you cannot view its 
+					content in the backend.<br/>You can only view the nested content by previewing on the frontend.
+				</span>
+			<?
+				return;
+			}#end if
+		}#end for
 
 		unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$nested_asset->id]);
 
