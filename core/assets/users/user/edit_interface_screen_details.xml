@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.15 2003/11/26 00:51:04 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.16 2003/11/27 03:04:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -33,7 +33,7 @@
 		<field attribute="password">
 			<display_name>Password</display_name>
 			<note>Enter once, then again to confirm</note>
-			<password width="8" />
+			<password width="8" min_length="6" />
 		</field>
 		<field attribute="first_name">
 			<display_name>First Name</display_name>

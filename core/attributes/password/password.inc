@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: password.inc,v 1.13 2003/11/26 00:51:07 gsherwood Exp $
+* $Id: password.inc,v 1.14 2003/11/27 03:04:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -28,11 +28,11 @@ require_once SQ_ATTRIBUTES_PATH.'/text/text.inc';
 /**
 * Password Text Asset Attribute
 *
-* 
+*
 *
 *
 * <!-- Sample Edit Interface XML Node -->
-*    <password width="8" />
+*    <password width="8" min_length="6" />
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
@@ -49,10 +49,31 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 	* @param mixed	$value			the current value for the element
 	*
 	*/
-	function Asset_Attribute_Password($attributeid=0, $value=null) 
+	function Asset_Attribute_Password($attributeid=0, $value=null)
 	{
 		$this->Asset_Attribute_Text($attributeid, $value);
-	}// end constructor
+
+	}//end constructor
+
+
+	/**
+	* Takes an XML_Tree_Node from an edit interface XML file and creates
+	* the params array from it
+	*
+	* @param object XML_Tree_Node	$node
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setEditParams(&$node)
+	{
+		if (!parent::setEditParams($node)) return false;
+
+		$this->_edit_params['min_length'] = isset($node->attributes['min_length']) ? (int) $node->attributes['min_length'] : 0;
+
+		return true;
+
+	}//end setEditParams()
 
 
 	/**
@@ -69,7 +90,7 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 			echo '<i>Password not shown</i>';
 			return;
 		}
-		
+
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 		// NOTE: we deliberatly don't set the value
@@ -78,7 +99,8 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 		password_box($prefix.'_'.$this->name.'_two', '', $this->_edit_params['width'], $this->_params['max_length']);
 
 		return true;
-	}// end paint()
+
+	}//end paint()
 
 
 	/**
@@ -105,14 +127,19 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 			if ($this->setValue($one)) {
 				$this->processed = true;
 			} else {
-				trigger_error('Password validation failed', E_USER_WARNING);
+				$error_msg = 'Password validation failed';
+				if ($this->_edit_params['min_length']) {
+					$error_msg .= ' Please ensure your password is at least '.$this->_edit_params['min_length'].' characters long';
+				}
+				trigger_error($error_msg, E_USER_WARNING);
 				$this->processed = false;
 			}
 		} else {
 			trigger_error('Password and confirmation don\'t match', E_USER_WARNING);
 			$this->processed = false;
 		}
-	}// end process()
+
+	}//end process()
 
 
 	/**
@@ -128,8 +155,13 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 		$value = trim($value);
 		$new_value = (string)$value;
 		if ($new_value != $value) return false;
+		if ($this->_edit_params['min_length']) {
+			if (strlen($value) < $this->_edit_params['min_length']) return false;
+		}
 		return true;
+
 	}//end validateValue()
+
 
 }//end class
 
