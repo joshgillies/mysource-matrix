@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.78 2005/01/17 22:44:11 lwright Exp $
+* $Id: form.inc,v 1.79 2005/01/18 11:43:03 brobertson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -74,6 +74,21 @@ class Form extends Asset
 		$this->Asset($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Returns name of the asset
+	*
+	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	*
+	* @see Asset::_getName()
+	* @access private
+	*/
+	function _getName($short_name=false)
+	{
+		return $this->attr('name');
+
+	}//end _getName()
 
 
 	/**

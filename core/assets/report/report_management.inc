@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_management.inc,v 1.4 2005/01/17 18:35:31 brobertson Exp $
+* $Id: report_management.inc,v 1.5 2005/01/18 11:38:16 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,18 +48,22 @@ class Report_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-			'generated_date' => Array(
-				'added'     => '0.1',
-				'type'      => 'text',
-				'default'   => '-- Never --',
-			),
-
-			'generated_user' => Array(
-				'added'       => '0.1',
-				'type'      => 'text',
-				'default'   => '',
-			),
-		);
+							'name' => Array(
+								'added'		=> '0.2',
+								'type'		=> 'text',
+								'default'	=> ''
+							),
+							'generated_date' => Array(
+								'added'		=> '0.1',
+								'type'		=> 'text',
+								'default'	=> '-- Never --',
+							),
+							'generated_user' => Array(
+								'added'		=> '0.1',
+								'type'		=> 'text',
+								'default'	=> '',
+							),
+					);
 
 	}//end constructor
 

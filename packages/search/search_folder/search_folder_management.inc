@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_management.inc,v 1.2 2004/07/06 07:18:40 gsherwood Exp $
+* $Id: search_folder_management.inc,v 1.3 2005/01/18 11:40:17 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,7 +47,13 @@ class Search_Folder_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array('settings' => Array(
+		$this->vars = Array(
+							'name' => Array(
+											'added'     => '0.2',
+											'type'      => 'text',
+											'default'   => ''
+											),
+							'settings' => Array(
 											'added'     => '0.1',
 											'type'      => 'serialise',
 											'default'   => Array()
