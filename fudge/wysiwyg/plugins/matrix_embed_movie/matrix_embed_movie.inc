@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: matrix_embed_movie.inc,v 1.8 2003/10/03 06:53:16 gsherwood Exp $
+* $Id: matrix_embed_movie.inc,v 1.9 2003/10/07 00:29:41 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -240,7 +240,7 @@ class matrix_embed_movie extends wysiwyg_plugin {
 			ob_start();
 			
 			?>
-			<htmlarea_special <?php echo $match; ?>>
+			<sq_wysiwyg_embed_movie <?php echo $match; ?>>
 			<?php
 
 			switch (strtolower(get_file_type($filename))) {
@@ -295,13 +295,19 @@ class matrix_embed_movie extends wysiwyg_plugin {
 
 			}//end switch
 
-			?></htmlarea_special><?php
+			?></sq_wysiwyg_embed_movie><?php
 			$new_html = ob_get_contents();
 			ob_end_clean();
 
 			$html = str_replace($old_html, $new_html, $html);
 
 		}//end foreach $matches
+
+		// make sure the htmlTidy plugin knows about our special tag
+		if ($this->wysiwyg->plugin_loaded('html_tidy')) {
+			$html_tidy = &$this->wysiwyg->get_plugin('html_tidy');
+			$html_tidy->new_inline_tag('sq_wysiwyg_embed_movie');
+		}
 
 	}//end process()
 
@@ -316,7 +322,8 @@ class matrix_embed_movie extends wysiwyg_plugin {
 	*/
 	function set_contents(&$contents)
 	{
-		$contents = preg_replace('|(<htmlarea_special([^>]*)?>)(.*?)(</htmlarea_special>)|si', '<IMG src="'.$this->_img_url.'" $2>', $contents);
+		// replace the special embedded tags with standard img tags
+		$contents = preg_replace('|(<sq_wysiwyg_embed_movie([^>]*)?>)(.*?)(</sq_wysiwyg_embed_movie>)|si', '<IMG src="'.$this->_img_url.'" $2>', $contents);
 		$contents = preg_replace('|\s+|', ' ', $contents);
 
 	}//end set_contents()
