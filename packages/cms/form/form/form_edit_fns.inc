@@ -284,7 +284,10 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	function generateWizardContentFile(&$asset)
 	{
 		$bodycopy = &$asset->getBodycopy('format');
+		if (is_null($bodycopy)) return false;
+		
 		$output = '';
+
 		if (!$bodycopy->isEmpty()) {
 
 			// get the contents of the bodycopy
@@ -316,11 +319,14 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			
 			// replace any occurences of button keyword replacements with some php
 			// to print the buttons when they are needed
-			$output = $this->processButtonReplacements($asset, $output);
+			$this->processButtonReplacements($asset, $output);
 		
 		} else {
-			trigger_error('No Contents found in the Form Format Bodycopy (Wizard Mode)', E_USER_WARNING);
-			return false;
+			// only show this error on the frontend
+			if (!SQ_IN_BACKEND) {
+				trigger_error('No Contents found in the Form Format Bodycopy (Wizard Mode)', E_USER_WARNING);
+				return false;
+			}
 		}
 
 		create_directory($asset->data_path);
@@ -396,7 +402,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 				// is no replacement for it, then just strip out the tag
 				// for that keyword
 
-				if ($question = &$this->getQuestionByOrder($asset, $s, $q)) {
+				if ($question = &$asset->getQuestionByOrder($asset, $s, $q)) {
 					$replacement = $question->getVal($t);
 				} else {
 					$replacement = '';
@@ -417,9 +423,9 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	* @param string $output the html output to search for replacements
 	*
 	* @access public
-	* @return string
+	* @return boolean
 	*/
-	function processButtonReplacements(&$asset, $output)
+	function processButtonReplacements(&$asset, &$output)
 	{
 		// replace any occurences of the buttons
 		if (preg_match_all('/%(\w+)_button%/', $output, $matches)) {
@@ -432,10 +438,10 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		// if there are no buttons to replace, just put a button down the bottom
 		// of the form for good measure
 		} else {
-			$output .= $this->getButton($asset, 'submit');
+			$output .= $asset->getButton($asset, 'submit');
 		}
 
-		return $output;
+		return true;
 
 	} // processButtonReplacements()
 
