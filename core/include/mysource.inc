@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mysource.inc,v 1.14 2003/10/19 22:58:32 gsherwood Exp $
+* $Id: mysource.inc,v 1.15 2003/10/21 23:45:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -929,7 +929,7 @@ class MySource
 				<td bgcolor="#FFE5E8">
 					<table border="0" cellspacing="2" cellpadding="2" width="100%">
 						<tr>
-							<td class="sq-rollback-warning" align="right">Exit Rollback View <a href="#" onClick="Javascript: window.top.location='<?php echo $exit_url; ?>'; return false" target="top" class="sq-rollback-warning">[X]</a></u>
+							<td class="sq-rollback-warning" align="right">Exit Rollback View <a href="#" onClick="Javascript: window.top.location='<?php echo $exit_url; ?>'; return false" target="top" class="sq-rollback-warning" style="cursor: pointer;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/delete.png'; ?>", "16", "16", "Exit Rollback View");</script></a></u>
 							</td>
 						</tr>
 						<tr>
