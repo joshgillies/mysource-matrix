@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.43 2004/12/06 14:41:39 brobertson Exp $
+* $Id: page_asset_builder.inc,v 1.44 2004/12/23 01:40:03 amiller Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -848,24 +848,26 @@ class Page_Asset_Builder extends Page
 				<?php
 				$i = 0;
 				?>
-					<div class="sq-asset-builder-header">
+				<div id="sq-asset-builder-header">
+					<ul>
 				<?php
 				foreach ($create_types as $create_type) {
 					$prefix = $this->type().'_'.$this->id.'_type_'.$create_type;
 					?>
-						<div class="sq-asset-builder-tab<?php echo ($i == 0) ? '-active' : ''; ?>" id="<?php echo $prefix.'_tab'; ?>">
+						<li class="sq-asset-builder-tab<?php echo ($i == 0) ? '-active' : ''; ?>" id="<?php echo $prefix.'_tab'; ?>">
 							<a href="#" onClick="showAssetBuilderTab('<?php echo $create_type ?>'); return false;">
 								<?php
 								$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($create_type, 'name');
 								echo $type_name;
 								?>
 							</a>
-						</div>
+						</li>
 					<?php
 					$i++;
 				}
 				?>
-					</div>
+					</ul>
+				</div>
 				<?php
 				$this->_replacements['create_form'] = ob_get_contents().$this->_replacements['create_form'];
 			ob_end_clean();
