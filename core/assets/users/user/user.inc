@@ -21,7 +21,7 @@ class User extends Asset
 	* @param int    $assetid      the asset id to be loaded
 	*
 	*/
-	function User($assetid=0) 
+	function User($assetid=0)
 	{
 		$this->Asset($assetid);
 	}
@@ -89,7 +89,8 @@ class User extends Asset
 	*
 	* @access public
 	*/
-	function setAttrValue($name, $value) {
+	function setAttrValue($name, $value)
+	{
 
 		trigger_error('CHECK USER INPUTS FOR USERNAME, PASSWORD ETC', E_USER_NOTICE);
 
@@ -144,7 +145,8 @@ class User extends Asset
 	* @return Array(int,string)
 	* @access public
 	*/
-	function find($username, $password, $type_code='user') {
+	function find($username, $password, $type_code='user')
+	{
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -186,8 +188,8 @@ class User extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function processBackend($link) {
-
+	function processBackend($link)
+	{
 		switch($_POST['asset_action']) {
 			case 'create' :
 				$ei = &$this->getEI();
