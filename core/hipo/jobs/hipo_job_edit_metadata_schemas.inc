@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_job_edit_metadata_schemas.inc,v 1.6 2003/09/26 05:26:31 brobertson Exp $
+* $Id: hipo_job_edit_metadata_schemas.inc,v 1.7 2003/10/14 23:35:27 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,6 +31,17 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	*/
 	var $_steps = Array(
 					Array(
+						'name'			=> 'Acquiring Metadata Locks',
+						'hipo_job'		=> Array(
+												'init_details_function' => 'getLockAssetDetails',
+												),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
 						'name'             => 'Updating Metadata Schemas',
 						'function_call'    => Array(
 												'process_function' => 'processSchemas',
@@ -40,6 +51,17 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 						'percent_done'     => 0,
 						'complete'         => false,
 						'message'          => '',
+					),
+					Array(
+						'name'			=> 'Releasing Metadata Locks',
+						'function_call'    => Array(
+												'process_function' => 'releaseLocks',
+												),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
 					),
 				);
 
@@ -222,6 +244,53 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 		return true;
 
 	}//end processSchemas()
+
+
+	/**
+	* This function is used to set-up the details for the locking the assets by the nested HIPO_Job
+	*
+	* @param string		&$job_type
+	* @param Array()	&$running_vars
+	* @param Array()	&$options
+	*
+	* @return void
+	* @access public
+	*/
+	function getLockAssetDetails(&$job_type, &$running_vars, &$options)
+	{
+		$job_type = 'hipo_job_acquire_lock';
+
+		$options['auto_complete'] = true;
+
+		$running_vars['assetid']         = $this->_running_vars['assetid'];
+		$running_vars['lock_type']       = 'metadata';
+		$running_vars['dependants_only'] = false;
+
+	}//end getLockAssetDetails()
+
+
+	/**
+	* Release the locks we acquired while setting the schemas
+	*
+	* @param array()	&$step_data	a reference to the array of information about the current step
+	* @param string		$prefix		prefix for form vars
+	*
+	* @return boolean
+	* @access public
+	*/
+	function releaseLocks(&$step_data, $prefix)
+	{
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
+		if (!is_null($asset)) {
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'metadata');
+			$step_data['message'] = 'Releasing Locks';
+		}
+		$step_data['percent_done'] = 100;
+		$step_data['complete']     = true;
+		return true;
+
+	}//end releaseLocks()
+
 
 }//end class
 
