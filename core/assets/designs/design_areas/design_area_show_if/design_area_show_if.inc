@@ -1,0 +1,100 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: design_area_show_if.inc,v 1.1 2004/11/10 02:44:42 amiller Exp $
+* $Name: not supported by cvs2svn $
+*/
+
+
+require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
+
+/**
+* Design_Area_Show_If
+*
+* Purpose
+*
+*
+* @author  Avi Miller <Avi Miller@squiz.net>
+* @version $Revision: 1.1 $ - 1.0
+* @package MySource_Matrix_Packages
+* @subpackage __core__
+*/
+class Design_Area_Show_If extends Design_Area
+{
+
+
+	/*
+	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented
+	*
+	* @param object Design	$design the design for which we are currently printing
+	*
+	* @return boolean
+	* @access public
+	*/
+	function printArea(&$design)
+	{
+		$condition = $this->attr('condition');
+		$then = $this->attr('then_contents');
+		$else = $this->attr('else_contents');
+
+		echo '<','?php
+			$GLOBALS[\'SQ_SYSTEM\']->am->includeAsset(\'condition_'.$condition.'\');
+			if (condition_'.$condition.'::Evaluate($ASSET)) {
+		';
+		
+		$then_contents = '';
+		$else_contents = '';
+		foreach($then as $index => $element) {
+			$then_contents .= $element['contents'];
+		}
+
+		foreach($else as $index => $element) {
+			$else_contents .= $element['contents'];
+		}
+
+		// the multiple echo statements are required to get content to print at line 1,
+		// character 1 of the potential output (i.e. the DocType). Otherwise, it may get
+		// ignored		
+		if (!empty($then_contents)) {
+			echo '?', '>'."\n";
+			echo $then_contents;
+			echo '<', '?php ; '."\n"; 
+		} else {
+			echo 'echo \'\';'."\n"; 
+		}
+		
+		echo '} else {'."\n";
+
+		if (!empty($else_contents)) {
+			echo '?', '>'."\n";
+			echo $else_contents;
+			echo '<', '?php ; '; 
+		} else {
+			echo 'echo \'\';'; 
+		}
+
+		echo '}	?','>';
+		return true;
+
+	}//end printArea()
+
+}//end class
+
+?>

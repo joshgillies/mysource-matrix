@@ -1,0 +1,10 @@
+<!-- display different content depending on whether the user is logged in or not -->
+<mysource_area id_name="logon_box" design_area="show_if"> 
+  <mysource_set name="condition" value="logged_in" /> 
+  <mysource_then> 
+    You are NOT editing this asset.
+  </mysource_then>
+  <mysource_else>
+  	You are EDITING this asset.
+  </mysource_else>
+</mysource_area>
