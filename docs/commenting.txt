@@ -54,7 +54,7 @@ For arguments that are references, ensure you place a "&" before "$[NAME]"
 
 For arguments where the type is an object, the [TYPE] becomes: object [CLASS NAME]
 If the class of the object could be one of many, choose the class of a common base class.
-If there is no common base class, [TYPE] becomes: object mixed
+If there is no common base class, [TYPE] becomes: object
 
 <example>
 * @param object Asset	&$asset		the asset to link up
