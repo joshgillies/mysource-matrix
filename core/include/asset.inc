@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.289 2004/04/19 01:08:33 gsherwood Exp $
+* $Id: asset.inc,v 1.290 2004/04/19 01:11:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1455,6 +1455,8 @@ class Asset extends MySource_Object
 		  ///////////////////
 		 /// PERMISSIONS ///
 		///////////////////
+		// we need to clone permissions first (if we are cloning permissions) so that the user has
+		// access to save attributes, schemas etc later on
 
 		if (in_array('permissions', $components) || in_array('all', $components)) {
 			$GLOBALS['SQ_INSTALL'] = true;
