@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_01.php,v 1.31 2004/09/08 07:22:43 amiller Exp $
+* $Id: step_01.php,v 1.32 2004/09/28 03:47:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -45,8 +45,6 @@ $GLOBALS['SQ_INSTALL'] = true;
 require_once SQ_INCLUDE_PATH.'/mysource_object.inc';
 require_once SQ_INCLUDE_PATH.'/system_config.inc';
 
-#define('SQ_CONF_DB_DSN',  'mysql://username:password@localhost/database_name');
-#define('SQ_CONF_DB2_DSN', 'mysql://username_2:password@localhost/database_name');
 #define('SQ_CONF_DB_DSN',  'pgsql://username:password@unix()/database_name');
 #define('SQ_CONF_DB2_DSN', 'pgsql://username_2:password@unix()/database_name');
 define('SQ_CONF_SYSTEM_ROOT_URLS', 'www.example.com');
