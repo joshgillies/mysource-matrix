@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.73 2005/01/13 22:04:35 gsherwood Exp $
+* $Id: html_form.inc,v 1.74 2005/02/03 22:28:08 rhoward Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -145,6 +145,37 @@ function text_box($name, $value, $size='', $max='', $hide_value=false, $extras='
 			' />';
 
 }//end text_box()
+
+
+/**
+* Prints a single line text box that only accepts integers
+*
+* @param string		$name			the form name to use for the text box
+* @param string		$value			the text that should be pre-entered in the text box
+* @param boolean	$allow_negative	whether negative values are allowed
+* @param int		$size			the width of the text box
+* @param int		$max			the maximum number of characters allowed in the text box
+* @param boolean	$hide_value		use the default value as indicative text only (hide it onFocus and restore onBlur
+*									if needed) - useful if you want to use it as instructional text (as required by priority
+*									level 3 accessability standards)
+* @param string		$extras			any input field attributes that should be placed in the <input ... > tag
+*
+* @return void
+* @access public
+*/
+function int_text_box($name, $value, $allow_negative=true, $size='', $max='', $hide_value=false, $extras='')
+{
+		?><script type="text/javascript" src="<?php echo sq_web_path('lib')?>/html_form/html_form.js"></script><?php
+
+		$allow_negative = $allow_negative ? 'true' : 'false';
+		$javascript ='
+			onKeyUp="javascript: validate_numeric_text_field(this, '.$allow_negative.');"
+			onChange="javascript: validate_numeric_text_field(this, '.$allow_negative.');"
+		';
+
+		text_box($name, $value, $size, $max, $hide_value, $javascript.$extras);
+
+}//end int_text_box()
 
 
 /**

@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.32 2005/01/20 13:10:35 brobertson Exp $
+* $Id: html_form.js,v 1.33 2005/02/03 22:28:08 rhoward Exp $
 *
 */
 
@@ -89,6 +89,33 @@ function set_text_field(name, value, f)
 * @access public
 */
 set_button_value = set_hidden_field;
+
+
+/**
+* Ensures a field contains only numbers
+*
+* @param string $name				the name of the text field
+* @param string $allow_negative		allows negative values
+*
+* @access public
+*/
+function validate_numeric_text_field(name, allow_negative)
+{
+	// if the string is not a number, or if negatives aren't allowed and the first character is a '-'.
+	if (name.value * 1 != name.value || (name.value.length > 0 && allow_negative == false && name.value.charAt(0) == "-" ) ) {
+		var outstr = "";
+		for (ii = 0; ii < name.value.length ; ii++) {
+			// if a number, or if negatives are allowed, a '-' at the beginning of the string
+			if ((name.value.charAt(ii) * 1 == name.value.charAt(ii)) ||
+			(allow_negative == true && ii == 0 && name.value.charAt(ii) == "-") ){
+				outstr += name.value.charAt(ii);
+			}
+		}
+		name.value = outstr;
+		name.select();
+	}
+
+}
 
 
 /**
@@ -522,7 +549,7 @@ function createHiddenField(name, value)
 *
 * @access public
 * @return object
-*/	
+*/
 function createTextBox(name, value, size, maxLength, className, onFocus, onBlur)
 {
 	var newElt = document.createElement('INPUT');
@@ -548,7 +575,7 @@ function createTextBox(name, value, size, maxLength, className, onFocus, onBlur)
 *
 * @access public
 * @return object
-*/	
+*/
 function createButton(name, label, onClick)
 {
 	var newElt = document.createElement('INPUT');
@@ -575,7 +602,7 @@ function createButton(name, label, onClick)
 *
 * @access public
 * @return void
-*/	
+*/
 function addNewAssetFinder(moreButton, nameBase, safeNameBase, typeCodesString, mapFrame, doneFn, showClear)
 {
 	var next_index = 0;
