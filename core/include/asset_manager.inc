@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.194 2004/03/26 12:21:41 brobertson Exp $
+* $Id: asset_manager.inc,v 1.195 2004/03/30 07:09:05 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1953,6 +1953,11 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
 	{
+		if (!is_int($assetid) || !$assetid) {
+			trigger_error('Cannot get children, assetid is empty', E_USER_WARNING);
+			return Array();
+		}
+		
 		// check if we are getting children for a shadow asset, and palm the request off to the
 		// handler of the shadow asset if we are
 		$id_parts = explode(':', $assetid);
