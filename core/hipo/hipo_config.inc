@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.23 2005/02/24 05:27:17 dbaranovskiy Exp $
+* $Id: hipo_config.inc,v 1.24 2005/03/21 06:15:33 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the hipo config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 */
 class HIPO_Config extends Config
@@ -158,7 +158,8 @@ class HIPO_Config extends Config
 	function writeAccess()
 	{
 		if (!parent::writeAccess()) return false;
-		if (!empty($GLOBALS['SQ_INSTALL'])) return true;
+		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) return true;
+
 		// need to be root
 		return $GLOBALS['SQ_SYSTEM']->userRoot();
 

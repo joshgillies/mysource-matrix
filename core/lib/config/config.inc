@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.19 2005/03/20 23:11:16 arailean Exp $
+* $Id: config.inc,v 1.20 2005/03/21 06:15:33 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the creation of the config files that are in PHP code
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 */
 class Config extends MySource_Object
@@ -252,7 +252,9 @@ class Config extends MySource_Object
 	*/
 	function writeAccess()
 	{
-		if (!empty($GLOBALS['SQ_INSTALL'])) return true;
+		if (!isset($GLOBALS['SQ_SYSTEM'])) return true;
+		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) return true;
+
 		$lock_info = $this->getLockInfo();
 		if (!empty($lock_info) && $lock_info['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserId()) return true;
 		return false;
