@@ -1,8 +1,8 @@
 
-#include "mcMailMsgsMessageClass.as"
+#include "mcMailBoxMessageClass.as"
 
 /**
-* MailMsgs
+* MailBox
 *
 * Holds the the mail messages
 *
@@ -14,7 +14,7 @@
 */
 
 // Create the Class
-function mcMailMsgsClass()
+function mcMailBoxClass()
 {
 	this._x = 0;
 	this._y = 0;
@@ -22,7 +22,7 @@ function mcMailMsgsClass()
 
 	this.bg_colour = 0xC0C0C0;
 
-	this.col_gap = 10; // gap between columns
+	this.col_gap = 3; // gap between columns
 
 	this.msgs = new Array();
 
@@ -35,13 +35,13 @@ function mcMailMsgsClass()
 }// end constructor
 
 // Make it inherit from Nested Mouse Movements MovieClip
-mcMailMsgsClass.prototype = new NestedMouseMovieClip(false, NestedMouseMovieClip.NM_ON_PRESS);
+mcMailBoxClass.prototype = new NestedMouseMovieClip(false, NestedMouseMovieClip.NM_ON_PRESS);
 
 /**
 * Refreshes the msg box display, called when the tabs is resized
 *
 */
-mcMailMsgsClass.prototype.refresh = function()
+mcMailBoxClass.prototype.refresh = function()
 {
 
 	var w = this._parent.scroll_pane.getInnerPaneWidth();
@@ -72,7 +72,7 @@ mcMailMsgsClass.prototype.refresh = function()
 * Refreshes the mail list
 *
 */
-mcMailMsgsClass.prototype.refreshMail = function()
+mcMailBoxClass.prototype.refreshMail = function()
 {
 	var xml = new XML();
 	var cmd_elem = xml.createElement("command");
@@ -92,7 +92,7 @@ mcMailMsgsClass.prototype.refreshMail = function()
 * @param object XML xml   the xml object that contain the information that we need
 *
 */
-mcMailMsgsClass.prototype.loadMailFromXML = function(xml, exec_indentifier)
+mcMailBoxClass.prototype.loadMailFromXML = function(xml, exec_indentifier)
 {
 
 	var mc_name = null;
@@ -110,11 +110,11 @@ mcMailMsgsClass.prototype.loadMailFromXML = function(xml, exec_indentifier)
 		var mc_name = "msg_" + msg_node.attributes.messageid;
 		this.msgs.push(mc_name);
 
-		this.attachMovie("mcMailMsgsMessageId", mc_name, this.msgs.length);
+		this.attachMovie("mcMailBoxMessageId", mc_name, this.msgs.length);
 		this[mc_name].setInfo(	msg_node.attributes.messageid,
-								msg_node.attributes.userfrom,
-								msg_node.firstChild.firstChild.nodeValue, // subject
-								msg_node.lastChild.firstChild.nodeValue,  // body
+								msg_node.childNodes[0].firstChild.nodeValue, // subject
+								msg_node.childNodes[1].firstChild.nodeValue,  // from
+								msg_node.childNodes[2].firstChild.nodeValue,  // body
 								msg_node.attributes.sent,
 								msg_node.attributes.priority,
 								msg_node.attributes.status
@@ -139,6 +139,16 @@ mcMailMsgsClass.prototype.loadMailFromXML = function(xml, exec_indentifier)
 }// end loadMailFromXML()
 
 /**
+* Called when this item has been pressed and then released
+*/
+mcMailBoxMessageClass.prototype.onRelease = function()
+{
+	trace("MAIL BOX PRESSED");
+	return true;
+}// end onRelease()
+
+
+/**
 * Event fired whenever a command is made from outside the flash movie
 *
 * @param string	cmd		the command to perform
@@ -146,7 +156,7 @@ mcMailMsgsClass.prototype.loadMailFromXML = function(xml, exec_indentifier)
 *
 * @access public
 */
-mcMailMsgsClass.prototype.onExternalCall = function(cmd, params)
+mcMailBoxClass.prototype.onExternalCall = function(cmd, params)
 {
 	switch(cmd) {
 		case "refresh_mail" :
@@ -158,5 +168,5 @@ mcMailMsgsClass.prototype.onExternalCall = function(cmd, params)
 }// end onExternalCall()
 
 
-Object.registerClass("mcMailMsgsID", mcMailMsgsClass);
+Object.registerClass("mcMailBoxID", mcMailBoxClass);
 

@@ -1,13 +1,13 @@
 
 // Create the Class
-function mcMailMsgsMessageClass()
+function mcMailBoxMessageClass()
 {
 	this._x = 0;
 	this._visible = true;
 
 	this.messageid	= 0;
-	this.userfrom	= 0;
 	this.subject	= '';
+	this.from       = '';
 	this.body		= '';
 	this.sent		= 0;
 	this.priority	= ''; // 'H' - High, 'N' - Normal, 'L' - Low
@@ -33,15 +33,15 @@ function mcMailMsgsMessageClass()
 }// end constructor
 
 // Make it inherit from MovieClip
-mcMailMsgsMessageClass.prototype = new MovieClip();
+mcMailBoxMessageClass.prototype = new MovieClip();
 
 /**
 * Set's the information for the message
 */
-mcMailMsgsMessageClass.prototype.setInfo = function(messageid, userfrom, subject, body, sent, priority, status)
+mcMailBoxMessageClass.prototype.setInfo = function(messageid, subject, from, body, sent, priority, status)
 {
 
-//	trace("BLAH : " + messageid + ", " + userfrom + ", " + subject + ", " + body + ", " + sent + ", " + priority + ", " + status);
+//	trace("BLAH : " + messageid + ", " + from + ", " + subject + ", " + body + ", " + sent + ", " + priority + ", " + status);
 
 	priority = priority.toUpperCase();
 	if (priority != "H" && priority != "N" && priority != "L") {
@@ -54,8 +54,8 @@ mcMailMsgsMessageClass.prototype.setInfo = function(messageid, userfrom, subject
 	}// end if
 
 	this.messageid	= messageid;
-	this.userfrom	= userfrom;
 	this.subject	= subject;
+	this.from		= from;
 	this.body		= body;
 	this.sent		= sent;
 	this.priority	= priority;
@@ -63,7 +63,7 @@ mcMailMsgsMessageClass.prototype.setInfo = function(messageid, userfrom, subject
 
 	this.priority_field.text	= this.priority;
 	this.subject_field.text		= this.subject;
-	this.from_field.text		= this.userfrom;
+	this.from_field.text		= this.from;
 
 	this.text_format.bold = (this.status == "U");
 
@@ -76,7 +76,7 @@ mcMailMsgsMessageClass.prototype.setInfo = function(messageid, userfrom, subject
 /**
 * Set's the width of the msg
 */
-mcMailMsgsMessageClass.prototype.setWidth = function(w, subject_pos, from_pos, col_gap)
+mcMailBoxMessageClass.prototype.setWidth = function(w, subject_pos, from_pos, col_gap)
 {
 
 
@@ -109,5 +109,14 @@ mcMailMsgsMessageClass.prototype.setWidth = function(w, subject_pos, from_pos, c
 
 }// setWidth()
 
+/**
+* Called when this item has been pressed and then released
+*/
+mcMailBoxMessageClass.prototype.onRelease = function()
+{
+	trace("MAIL PRESSED");
+	return true;
+}// end onRelease()
 
-Object.registerClass("mcMailMsgsMessageID", mcMailMsgsMessageClass);
+
+Object.registerClass("mcMailBoxMessageID", mcMailBoxMessageClass);

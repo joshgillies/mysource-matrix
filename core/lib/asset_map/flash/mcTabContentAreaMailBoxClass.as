@@ -1,15 +1,15 @@
-#include "mcMailMsgsClass.as"
+#include "mcMailBoxClass.as"
 
 
 /**
-* TabContentAreaMailMsgs
+* TabContentAreaMailBox
 *
 * Looks after the displaying of the mail msgs
 *
 */
 
 // Create the Class
-function mcTabContentAreaMailMsgsClass()
+function mcTabContentAreaMailBoxClass()
 {
 	super();
 
@@ -20,7 +20,7 @@ function mcTabContentAreaMailMsgsClass()
 	this.scroll_pane._y = 0;
 
 	// Now the msgs container
-	this.attachMovie("mcMailMsgsID", "msgs_container", 2);
+	this.attachMovie("mcMailBoxID", "msgs_container", 2);
 
 	// Attach the container on to the scroll pane
 	this.scroll_pane.setScrollContent(this.msgs_container);
@@ -36,7 +36,7 @@ function mcTabContentAreaMailMsgsClass()
 }// end constructor()
 
 // Make it inherit from Tab Content Area
-mcTabContentAreaMailMsgsClass.prototype = new mcTabContentAreaClass();
+mcTabContentAreaMailBoxClass.prototype = new mcTabContentAreaClass();
 
 /**
 * Set the size of the tabs
@@ -45,7 +45,7 @@ mcTabContentAreaMailMsgsClass.prototype = new mcTabContentAreaClass();
 * @param int	h	the height of the tabs
 *
 */
-mcTabContentAreaMailMsgsClass.prototype.setSize = function(w, h)
+mcTabContentAreaMailBoxClass.prototype.setSize = function(w, h)
 {
 	super.setSize(w, h);
 	this.scroll_pane.setSize(w, h);
@@ -58,10 +58,11 @@ mcTabContentAreaMailMsgsClass.prototype.setSize = function(w, h)
 *
 * @access public
 */
-mcTabContentAreaMailMsgsClass.prototype.onRelease = function() 
+mcTabContentAreaMailBoxClass.prototype.onRelease = function() 
 {
+	trace('Mail Tab Released');
 	return super.onRelease(); // Fucking flash see SUPER_METHOD_EG.as
 }// end
 
 
-Object.registerClass("mcTabContentAreaMailMsgsID", mcTabContentAreaMailMsgsClass);
+Object.registerClass("mcTabContentAreaMailBoxID", mcTabContentAreaMailBoxClass);
