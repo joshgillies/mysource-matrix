@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.83 2005/02/11 04:59:03 gsherwood Exp $
+* $Id: file.inc,v 1.84 2005/02/11 05:39:31 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -290,7 +290,9 @@ class File extends Asset
 			}
 		}
 
+		// make the info array look like a result from getExistingFile()
 		if (!isset($info['path'])) $info['path'] = array_get_index($info, 'tmp_name', '');
+		if (!isset($info['filename'])) $info['filename'] = array_get_index($info, 'name', '');
 		if (!$this->validFile($info)) return false;
 
 		// check that we are not going to have web path conflicts
