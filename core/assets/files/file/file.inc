@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.65 2004/07/09 01:41:22 gsherwood Exp $
+* $Id: file.inc,v 1.66 2004/07/22 00:08:17 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -550,16 +550,13 @@ class File extends Asset
 	{
 		$keywords = parent::getAssetKeywords($descriptions);
 
+		$existing = $this->_getExistingFile();
+		$keywords['asset_file_size_in_bytes'] = Array('value' => $existing['size']);
+		$keywords['asset_file_size_readable'] = Array('value' => easy_filesize($existing['size']));
+		
 		if ($descriptions) {
-			$keywords['asset_file_size_in_bytes'] = Array('value' => 0);
-			$keywords['asset_file_size_readable'] = Array('value' => '0 bytes');
 			$keywords['asset_file_size_in_bytes']['description'] = 'File size (in bytes)';
 			$keywords['asset_file_size_readable']['description'] = 'Asset size (in human-friendly format)';
-		} else {
-			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-			$existing = $this->_getExistingFile();
-			$keywords['asset_file_size_in_bytes']['value'] = $existing['size'];
-			$keywords['asset_file_size_readable']['value'] = easy_filesize($existing['size']);
 		}
 
 		return $keywords;
