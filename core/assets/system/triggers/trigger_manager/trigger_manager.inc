@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.7 2005/03/14 23:53:25 arailean Exp $
+* $Id: trigger_manager.inc,v 1.8 2005/03/21 06:21:10 gsherwood Exp $
 *
 */
 
@@ -51,16 +51,20 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Trigger_Manager extends Asset
 {
 
-//--        MATRIX REQUIREMENTS        --//
 
-	// Constructor
+	/**
+	* Constructor
+	*
+	* @param int	$assetid	the asset id to be loaded
+	*
+	*/
 	function Trigger_Manager($assetid=0)
 	{
 		$this->Asset($assetid);
@@ -70,13 +74,13 @@ class Trigger_Manager extends Asset
 		$this->_loadComponent('trigger_action');
 		$this->_loadComponent('trigger_event');
 
-	}//end Trigger_Manager()
+	}//end constructor
 
 
 	/**
 	* Create this asset
 	*
-	* @param array  &$link  information used to create the initial link
+	* @param array	&$link	information used to create the initial link
 	*
 	* @see Asset::create()
 	* @return int|false
@@ -117,7 +121,8 @@ class Trigger_Manager extends Asset
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_1 => Array(),
+		return Array(
+					 SQ_LINK_TYPE_1 => Array(),
 					 SQ_LINK_TYPE_2 => Array(),
 					 SQ_LINK_TYPE_3 => Array(),
 					 SQ_LINK_NOTICE => Array(),
@@ -142,7 +147,7 @@ class Trigger_Manager extends Asset
 	/**
 	* Return a name to use to describe this instance of the asset
 	*
-	* @param bool   $short_name whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
 	* @see Asset::_getName()
 	* @access private
@@ -157,7 +162,7 @@ class Trigger_Manager extends Asset
 	/**
 	* Returns the name of a component (an action or a condition)
 	*
-	* @param string $type   component type_code
+	* @param string	$type	component type_code
 	*
 	* @access private
 	* @return string
@@ -173,7 +178,7 @@ class Trigger_Manager extends Asset
 	/**
 	* Returns the name of a component (an action or a condition)
 	*
-	* @param string $type   component type_code
+	* @param string	$type	component type_code
 	*
 	* @access private
 	* @return string
@@ -187,11 +192,12 @@ class Trigger_Manager extends Asset
 
 //--        TRIGGER EXECUTION        --//
 
+
 	/**
 	* Broadcasts an event, and run all the triggers associated with it
 	*
-	* @param string     $event_name     The name of the event to broadcast
-	* @param Asset      &$broadcaster   The firing asset
+	* @param string	$event_name		the name of the event to broadcast
+	* @param Asset	&$broadcaster	The firing asset
 	*
 	* @access public
 	* @return boolean
@@ -263,11 +269,11 @@ class Trigger_Manager extends Asset
 	/**
 	* Returns a state calculated from the event.
 	*
-	* @param string     $event_type     The name of the event to calculate the state from
-	* @param Asset      &$broadcaster   The firing asset
+	* @param string	$event_type		the name of the event to calculate the state from
+	* @param asset	&$broadcaster	the firing asset
 	*
 	* @access private
-	* @return Array(mixed)
+	* @return array
 	*/
 	function _calculateState($event_type, &$event_broadcaster, $parameters=null)
 	{
@@ -325,12 +331,12 @@ class Trigger_Manager extends Asset
 
 
 	/**
-	* Returns a state_hash calculated from the state.
+	* Returns a state_hash calculated from the state
 	*
-	* @param Array(mixed)   &$state     The state to calculate the hash from
+	* @param array	&$state	the state to calculate the hash from
 	*
 	* @access private
-	* @return Array(mixed)
+	* @return array
 	*/
 	function _calculateStateHash(&$state)
 	{
@@ -449,20 +455,23 @@ class Trigger_Manager extends Asset
 
 
 	/**
-	* Execute one trigger, using the passed trigger data and state info.
+	* Execute one trigger, using the passed trigger data and state info
 	*
-	* @param Array(mixed)   $trigger_data   The details (id, name, etc.) and data (actions, conditions) associated with the trigger
-	* @param Array(mixed)   $state_data     Data relating to the asset the trigger is running on
+	* Returns the status of the executed trigger
+	*
+	* @param array	$trigger_data	details (id, name, etc.) and data (actions, conditions)
+	* 								associated with the trigger
+	* @param array	$state_data		aata relating to the asset the trigger is running on
 	*
 	* @access private
-	* @return boolean       Status
+	* @return boolean
 	*/
 	function _executeTrigger($trigger_data, &$state_data)
 	{
 		$status = SQ_TRIG_RESULT_SUCCESS;
 
-		$conditions     = $trigger_data['conditions'];
-		$actions        = $trigger_data['actions'];
+		$conditions = $trigger_data['conditions'];
+		$actions    = $trigger_data['actions'];
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
@@ -511,15 +520,10 @@ class Trigger_Manager extends Asset
 
 			if ($ignore_permissions) {
 
-				$previous_install_status = array_get_index($GLOBALS, 'SQ_INSTALL', false);
-				$GLOBALS['SQ_INSTALL'] = true;
-
 				// execute action
+				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 				eval('$action_success = '.$action['type'].'::execute($action["data"], $state_data);');
-
-				if (!$previous_install_status) {
-					unset($GLOBALS['SQ_INSTALL']);
-				}
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 			} else {
 				$lock_success = true;
@@ -581,6 +585,7 @@ class Trigger_Manager extends Asset
 
 //--        TRIGGER CREATION        --//
 
+
 	/**
 	* Create and return an instance of hash object
 	*
@@ -598,7 +603,7 @@ class Trigger_Manager extends Asset
 	* Return a blank trigger in preparation for editing
 	*
 	* @access private
-	* @return Array(string=>mixed)
+	* @return array
 	*/
 	function _getEmptyTrigger()
 	{
@@ -616,10 +621,12 @@ class Trigger_Manager extends Asset
 	/**
 	* Prepare the trigger and state hash for saving, and ship them off to be saved
 	*
-	* @param Array(string=>mixed)   $trigger    The trigger to be saved
+	* Returns trigger ID on success or FALSE on failure
+	*
+	* @param array	$trigger	the trigger to be saved
 	*
 	* @access private
-	* @return int|false     trigger id or false
+	* @return int | FALSE
 	*/
 	function _saveTrigger($trigger)
 	{
@@ -689,10 +696,10 @@ class Trigger_Manager extends Asset
 	/**
 	* Saves the trigger hash in the database
 	*
-	* @param Hash           $hash   the Hash object
+	* @param Object Hash	$hash	the Hash object
 	*
 	* @access private
-	* @return boolean       Status
+	* @return boolean
 	*/
 	function _saveTriggerHash($hash=null)
 	{
@@ -710,8 +717,8 @@ class Trigger_Manager extends Asset
 
 		foreach ($hash_combinations as $combination) {
 
-			$field_array        = Array();
-			$value_array        = Array();
+			$field_array = Array();
+			$value_array = Array();
 
 			foreach ($combination as $hash_id => $hash_data) {
 				$field_array[] = $db->quoteIdentifier($hash_id);
@@ -730,7 +737,7 @@ class Trigger_Manager extends Asset
 				return false;
 			}
 
-		}
+		}//end foreach
 
 		return true;
 
@@ -738,12 +745,12 @@ class Trigger_Manager extends Asset
 
 
 	/**
-	* Formats the state_hash
+	* Format and return the state_hash
 	*
-	* @param Array(mixed)   $state_hash     The state_hash to check
+	* @param array	$state_hash	the state_hash to check
 	*
 	* @access private
-	* @return Array(mixed)  $state_hash     The formatted state_hash
+	* @return array
 	*/
 	function _prepareRawStateHash($state_hash)
 	{
@@ -754,13 +761,14 @@ class Trigger_Manager extends Asset
 		}
 
 		// define the defaults
-		$state_hash_defaults = Array('event'            => '',
-									 'assetid'          => '',
-									 'asset_type'       => '',
-									 'treeid'           => '',
-									 'tree_propagate'   => SQ_TRIG_TREE_NO_PROPAGATE,
-									 'triggerid'        => '',
-									 'active'           => SQ_TRIG_STATUS_ACTIVE
+		$state_hash_defaults = Array(
+									 'event'          => '',
+									 'assetid'        => '',
+									 'asset_type'     => '',
+									 'treeid'         => '',
+									 'tree_propagate' => SQ_TRIG_TREE_NO_PROPAGATE,
+									 'triggerid'      => '',
+									 'active'         => SQ_TRIG_STATUS_ACTIVE,
 									 );
 
 		// make sure every field has data, and that no fields are null
@@ -781,10 +789,10 @@ class Trigger_Manager extends Asset
 	/**
 	* Deletes the trigger from trigger table and clears the hash entries
 	*
-	* @param int $trigger_id    id of trigger to be deleted
+	* @param int	$trigger_id	id of trigger to be deleted
 	*
 	* @access private
-	* @return boolean   Status
+	* @return boolean
 	*/
 	function _deleteTrigger($trigger_id)
 	{
@@ -803,10 +811,10 @@ class Trigger_Manager extends Asset
 	/**
 	* Removes all hash entries for a particular trigger ID
 	*
-	* @param int $trigger_id    id of trigger whose hash is be deleted
+	* @param int	$trigger_id	id of trigger whose hash is be deleted
 	*
 	* @access private
-	* @return boolean   Status
+	* @return boolean
 	*/
 	function _deleteTriggerHash($trigger_id)
 	{
@@ -828,9 +836,10 @@ class Trigger_Manager extends Asset
 
 	/**
 	* Serialise a trigger in preparation for storing it in the database
-	* Quote the variables as requred by the database instance
 	*
-	* @param Array(mixed)   $trigger    the trigger to store
+	* Also quotes the variables as requred by the database instance
+	*
+	* @param array	$trigger	the trigger to store
 	*
 	* @access private
 	* @return string
@@ -847,9 +856,7 @@ class Trigger_Manager extends Asset
 
 		foreach ($trigger_db as $identifier => $value) {
 			$value = $db->quoteSmart($value);
-
 			$result_trigger[$identifier] = $value;
-
 		}
 
 		return $result_trigger;
@@ -860,14 +867,14 @@ class Trigger_Manager extends Asset
 	/**
 	* Unserialise a trigger retrieved from the database
 	*
-	* @param Array(mixed)   $trigger    the trigger to unserialise
+	* @param array	$trigger	the trigger to unserialise
 	*
 	* @access private
-	* @return Array(mixed)
+	* @return array
 	*/
 	function _db2trigger($trigger)
 	{
-		$trigger['data'] = isset($trigger['data'])?unserialize($trigger['data']):'';
+		$trigger['data'] = isset($trigger['data']) ? unserialize($trigger['data']) : '';
 		return $trigger;
 
 	}//end _db2trigger()
@@ -879,19 +886,19 @@ class Trigger_Manager extends Asset
 	/**
 	* Load Trigger Data
 	*
-	* @param integer    $id     the ID of the trigger to load
+	* @param integer	$id	the ID of the trigger to load
 	*
 	* @access private
-	* @return array(mixed)
+	* @return array
 	*/
 	function _loadTrigger($trigger_id=null)
 	{
 		if (!isset($trigger_id)) {
 			return null;
 		}
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		// compose sql query
 		$select = '
 			SELECT '.$db->quoteIdentifier('id').','.
 					 $db->quoteIdentifier('name').','.
@@ -905,8 +912,8 @@ class Trigger_Manager extends Asset
 
 		$query = $select.' '.$where;
 		$db_result = $GLOBALS['SQ_SYSTEM']->db->query($query);
-
 		assert_valid_db_result($db_result);
+
 		$trigger_db = $db_result->fetchRow(DB_FETCHMODE_ASSOC);
 
 		if (empty($trigger_db)) {
@@ -925,13 +932,12 @@ class Trigger_Manager extends Asset
 	* Obtain a list of trigger info
 	*
 	* @access private
-	* @return array(mixed)  Trigger info
+	* @return array
 	*/
 	function _getTriggerInfoList()
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		// compose sql query
 		$select = '
 			SELECT '.$db->quoteIdentifier('id').','.
 					 $db->quoteIdentifier('name').','.
@@ -953,10 +959,10 @@ class Trigger_Manager extends Asset
 	/**
 	* Returns a list of descendants of a certain type, along with type info
 	*
-	* @param string $type   the type_code to get the descendants of
+	* @param string	$type	the type_code to get the descendants of
 	*
 	* @access private
-	* @return array(mixed)
+	* @return array
 	*/
 	function _getComponentList($type=null)
 	{
@@ -978,7 +984,7 @@ class Trigger_Manager extends Asset
 	* Get A list of all installed events
 	*
 	* @access private
-	* @return array(mixed)
+	* @return array
 	*/
 	function _getEventList()
 	{
@@ -991,7 +997,7 @@ class Trigger_Manager extends Asset
 	* Get a list of installed conditions
 	*
 	* @access private
-	* @return array(mixed)
+	* @return array
 	*/
 	function _getConditionList()
 	{
@@ -1004,7 +1010,7 @@ class Trigger_Manager extends Asset
 	* Get a list of installed actions
 	*
 	* @access private
-	* @return array(mixed)
+	* @return array
 	*/
 	function _getActionList()
 	{
@@ -1022,7 +1028,7 @@ class Trigger_Manager extends Asset
 	* manager makes an assertion, which kills the system when trying to include
 	* something that is not installed
 	*
-	* @param string $type_code  the type_code of the component to load
+	* @param string	$type_code	the type_code of the component to load
 	*/
 	function _loadComponent($type_code)
 	{
@@ -1041,12 +1047,12 @@ class Trigger_Manager extends Asset
 	/**
 	* Returns a string containing the buffered output of a component's edit interface
 	*
-	* @param string         $type_code  the type_code of the component to get the interface of
-	* @param array(mixed)   $data       the components settings data
-	* @param string         $prefix     the temporary unique ID for the component
+	* @param string	$type_code	the type_code of the component to get the interface of
+	* @param array	$data		the components settings data
+	* @param string	$prefix		the temporary unique ID for the component
 	*
 	* @access private
-	* @return string    Interface
+	* @return string
 	*/
 	function _getComponentInterface($type_code, $data, $prefix, $write_access=false)
 	{
@@ -1064,7 +1070,7 @@ class Trigger_Manager extends Asset
 	/**
 	* Determines if more than one instance of a condition is allowed in the one trigger
 	*
-	* @param string $type_code  the type_code of the condition to check
+	* @param string	$type_code	the type_code of the condition to check
 	*
 	* @access private
 	* @return boolean
@@ -1077,7 +1083,7 @@ class Trigger_Manager extends Asset
 
 	}//end _isMultipleConditionAllowed()
 
-}//end class
 
+}//end class
 
 ?>

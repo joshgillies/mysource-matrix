@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_status.inc,v 1.1 2005/03/17 23:06:56 amiller Exp $
+* $Id: trigger_action_set_future_status.inc,v 1.2 2005/03/21 06:22:29 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,9 +45,9 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 	* The settings used by this action are in the form:
 	* <PRE>
 	* Array(
-	*       'status' => int,  // the status value to set the asset to
-	*		'when' => int	  // the time/date to set the cron job to
-	*       );
+	* 		'status' => int, // the status value to set the asset to
+	* 		'when'   => int, // the time/date to set the cron job to
+	* 		);
 	* </PRE>
 	*
 	* @param array	$settings	the stored settings for this action
@@ -82,10 +82,11 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 			$fs->setAttrValue('status', $settings['status']);
 			$fs->setAttrValue('when', $settings['when']);
 
-			if ($GLOBALS['SQ_INSTALL']) {
-				$user_for_status_change = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
+				$user_for_status_change = $GLOBALS['SQ_SYSTEM']->user;
 			} else {
-				 $user_for_status_change = $GLOBALS['SQ_SYSTEM']->user;
+				// not doing the whole "security" thing - so pretend we are root
+				$user_for_status_change = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 			}
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -110,7 +111,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			}
 
-		}// end is_null $cron_mgr
+		}//end is_null $cron_mgr
 
 		return $success;
 
@@ -120,9 +121,9 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 	/**
 	* Get the HTML editing interface for this action. Returns the string instead of printing it
 	*
-	* @param Array(string=>mixed)   $settings      settings that this condition saves in processInterface()
-	* @param string                 $prefix        unique prefix
-	* @param boolean                $write_access  determines whether the interface is editable
+	* @param array		$settings		settings that this condition saves in processInterface()
+	* @param string		$prefix			unique prefix
+	* @param boolean	$write_access	determines whether the interface is editable
 	*
 	* @access public
 	* @return boolean
@@ -168,9 +169,10 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 	* Function that handles the conversion of interface to settings
 	* together with settings it is expected to populate the hash object
 	*
-	* @param Array          $settings       a container for any data the action might want to save
-	* @param string         $prefix 		prefix for the form elements
-	* @param string         $request_data   array of data corresponding to this action as specified by the $prefix in getInterface.
+	* @param array	$settings		a container for any data the action might want to save
+	* @param string	$prefix			prefix for the form elements
+	* @param string	$request_data	array of data corresponding to this action as specified
+	* 								by the $prefix in getInterface
 	*
 	* @access public
 	* @return boolean
