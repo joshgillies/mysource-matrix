@@ -494,11 +494,17 @@ class File extends Asset
 
 		$existing = $this->_getExistingFile();
 		if (!empty($existing)) {
-			$stats = getimagesize($existing['path']);
+			require SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
+			$ext = strtolower(substr(strrchr($existing['filename'],'.'), 1));
+			if (!isset($standards_lists_mime_types[$ext])) {
+				$type = "text/plain";
+			} else {
+				$type = $standards_lists_mime_types[$ext];
+			}
 			header('Cache-Control:');
 			header('Pragma: cache');
 			header('Expires: '. gmdate('D, d M Y H:i:s',time()  +86400) . ' GMT');
-			header('Content-Type: ' . $stats['mime']);
+			header('Content-Type: ' . $type);
 			header('Content-Disposition: inline; filename='.$existing['filename'].';');
 			header('Last-Modified: ' . gmdate('D, d M Y H:i:s',$existing['modified']) . ' GMT');
 			header('Content-Length: '.$existing['size']);
@@ -526,7 +532,7 @@ class File extends Asset
 		if (is_file($path)) {
 			$existing['path'] = $path;
 			$existing['filename'] = $this->attr('name');
-			$existing['modified'] = filectime($existing['path']);
+			$existing['modified'] = filemtime($existing['path']);
 			$existing['size'] = filesize($existing['path']);
 			$size = getimagesize($path);
 			$existing['width'] = $size[0];
