@@ -1,14 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<?xml-stylesheet href="../../../packages/asset.xsl" type="text/xsl"?>
+
 <!--
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.xml,v 1.3 2003/09/26 05:26:29 brobertson Exp $
+* $Id: asset.xml,v 1.4 2003/09/26 06:41:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
-
-<?xml version='1.0' encoding='UTF-8' ?>
-<?xml-stylesheet href="../../../packages/asset.xsl" type="text/xsl"?>
 
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
 	<package>__core__</package>
