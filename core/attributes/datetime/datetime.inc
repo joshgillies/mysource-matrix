@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.12 2004/02/12 22:58:36 mmcintyre Exp $
+* $Id: datetime.inc,v 1.13 2004/02/16 00:39:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -117,7 +117,8 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 		}
 		
 		return true;
-	}// end setEditParams()
+
+	}//end setEditParams()
 
 
 	/**
@@ -140,7 +141,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 
 		$field->printField();
 		
-	}// end paint()
+	}//end paint()
 
 
 	/**
@@ -163,7 +164,32 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 		} else {
 			$this->processed = false;
 		}
-	}// end process()
+
+	}//end process()
+
+
+	/**
+	* Get the current value as a unix timestamp
+	*
+	* @return int
+	* @access public
+	*/
+	function getTimestamp()
+	{
+		$field = new Datetime_Field('blah', $this->value, $this->_edit_params);
+		$units = $field->strToUnitsArray($this->value);
+		foreach(Array('y', 'm', 'd') as $u) if ($units[$u] == -1) return -1;
+
+		// now we know that we can formulate a date
+		$strtotime = $units['m'].'/'.$units['d'].'/'.$units['y'];
+
+		$dotime = true;
+		foreach(Array('h', 'i', 's') as $u) if ($units[$u] == -1) $dotime = false;
+		if ($dotime) $strtotime .= ' '.$units['h'].':'.$units['i'].':'.$units['s'];
+
+		return strtotime($strtotime);
+
+	}//end getTimestamp()
 
 
 	/**
@@ -181,6 +207,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 		$field = new Datetime_Field('blah', $ref, $this->_edit_params);
 		$validated_value = $field->validateValue($value);
 		return ($orig_value == $validated_value);
+
 	}//end validateValue()
 
 
