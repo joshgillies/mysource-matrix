@@ -74,6 +74,25 @@ class Bodycopy_Table extends Asset
 
 	}//end create()
 
+	/**
+	* Creates a link between this asset and the passed asset, of a certain type
+	* and returns the linkid of the created link
+	*
+	* @return int
+	* @access public
+	* @see Asset::creatLink();
+	*/
+	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0')
+	{
+		// if this is a content type then we need to make it a dependant link
+		if (is_a($minor, 'content_type')) {
+			$dependant = '1';
+		}
+
+		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant);
+
+	}// end createLink()
+
 
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality

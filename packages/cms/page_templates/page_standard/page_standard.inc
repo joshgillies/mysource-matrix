@@ -50,7 +50,7 @@ class Page_Standard extends Page
 			// add a bodycopy to this page when creating
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 			$bodycopy = new Bodycopy();
-			$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_EXCLUSIVE);
+			$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_EXCLUSIVE, 'dependant' => 1);
 			if (!$bodycopy->create($copy_link, 'Page Contents')) return false;
 			
 			return true;
@@ -60,6 +60,26 @@ class Page_Standard extends Page
 		return false;
 
 	}//end create()
+
+	/**
+	* Creates a link between this asset and the passed asset, of a certain type
+	* and returns the linkid of the created link
+	*
+	* @return int
+	* @access public
+	* @see Asset::creatLink();
+	*/
+	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0')
+	{
+		// if this is a bodycopy table then we need to make it a dependant link
+		if (is_a($minor, 'bodycopy')) {
+			$dependant = '1';
+		}
+
+		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant);
+
+	}// end createLink()
+
 
 
 	/**
