@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replicator_master.inc,v 1.1.2.5 2004/02/14 19:46:10 brobertson Exp $
+* $Id: replicator_master.inc,v 1.1.2.6 2004/02/14 21:42:12 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -455,29 +455,49 @@ class Replicator_Master extends Replicator
 	*/
 	function replicate($systemid, $client_fd)
 	{
+		// now I don't know why this is but without the sleep I was getting 'Connection reset by peer' errors
+		sleep(1);
+
 		if(!SQ_REPLICATION_IS_MASTER) {
 			$this->_log('This System is NOT designated as a Master System, why are we using a '.__CLASS__.' object', 'error');
 			trigger_error('This System is NOT designated as a Master System, why are we using a '.__CLASS__.' object', E_USER_WARNING);
 			return;
 		}
 
-		// now because of the nature of server rep and it never really being seen we are 
+
+		// now because of the nature of server rep and it never really being seen we are
 		// going to force the issue with logging errors and set the error log file
 		$old_log_errors = ini_set('log_errors', 1);
-		$old_error_log  = ini_set('error_log', $this->_log_dir.'/error.log');
 
+		$this->_setErrorHandler();
 
-		$this->_log("IN REPLICATE FN : $systemid", 'debug');
+		$slave = &$this->getSlaveSystem($systemid);
+		if (is_null($slave)) {
+			trigger_error('Unable to get the Remote Slave System "'.$systemid.'"', E_USER_WARNING);
+			$this->_restoreErrorHandler();
+			return;
+		}
 
-		$this->_log("I AM THE MASTER, CHECK '$systemid' IS KNOWN TO US", 'debug');
+		$slave->transport->setSocketFd($client_fd);
 
-//		replicateMaster($systemid, $client_fd, true);
-#function replicateMaster($systemid, $client_fd, $received_connection);
+		$this->_log("AUTHENTICATE WITH MASTER SERVER", 'debug');
 
+		if (!$slave->auth->authenticate($slave->transport, false)) {
+			trigger_error('Unable to authenticate Slave Server', E_USER_WARNING);
+			$slave->transport->removeSocketFd(true);
+			$this->_restoreErrorHandler();
+			return;
+		}
+
+		$this->_log("AUTHENTICATED!!!!!!!!", 'debug');
+
+		$this->_log("ASK 'What do you want ?'", 'debug');
+
+		$slave->transport->removeSocketFd(true);
 		ini_set('log_errors', $old_log_errors);
-		ini_set('error_log', $old_error_log);
+		$this->_restoreErrorHandler();
 
-	}// end replicate()
+	}// replicate()
 
 }//end class
 
