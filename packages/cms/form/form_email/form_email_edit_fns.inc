@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.36 2004/11/05 00:08:47 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.37 2004/11/05 00:25:18 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -88,8 +88,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		$parameters['print_format'] = 'j M Y';
 
-		$from_value = isset($_POST[$prefix.'_fromvalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_fromvalue']['m'],$_POST[$prefix.'_fromvalue']['d'],$_POST[$prefix.'_fromvalue']['y'])) : '---------- --:--:--';
-		$to_value = isset($_POST[$prefix.'_tovalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_tovalue']['m'],$_POST[$prefix.'_tovalue']['d'],$_POST[$prefix.'_tovalue']['y'])) : '---------- --:--:--';
+		$from_value = isset($_POST[$prefix.'_fromvalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_fromvalue']['m'],$_POST[$prefix.'_fromvalue']['d'],$_POST[$prefix.'_fromvalue']['y'])) : date('Y-m-d',time()-7*86400).' --:--:--';
+		$to_value = isset($_POST[$prefix.'_tovalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_tovalue']['m'],$_POST[$prefix.'_tovalue']['d'],$_POST[$prefix.'_tovalue']['y'])) : date('Y-m-d').' --:--:--';
 
 		$from = new Datetime_Field($prefix.'_from', $from_value, $parameters);
 		$to = new Datetime_Field($prefix.'_to', $to_value, $parameters);
@@ -134,6 +134,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		// search in the sub-logs directory for files that fit in the date range				
 		$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_submission'));
 		$assetid_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids);
+		
+		?><p><i>There are <b><?php echo count($assetids) ?></b> submissions during the time period specified above</i></p><?php
 		
 		foreach ($assetids as $assetid) {
 				if (($assetid_info[$assetid]['created'] >= $from_value) && ($assetid_info[$assetid]['created'] <= $to_value)) {
@@ -283,8 +285,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		$parameters['print_format'] = 'j M Y';
 
-		$from_value = isset($_POST[$prefix.'_export_fromvalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_fromvalue']['m'],$_POST[$prefix.'_export_fromvalue']['d'],$_POST[$prefix.'_export_fromvalue']['y'])) : '---------- --:--:--';
-		$to_value = isset($_POST[$prefix.'_export_tovalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_tovalue']['m'],$_POST[$prefix.'_export_tovalue']['d'],$_POST[$prefix.'_export_tovalue']['y'])) : '---------- --:--:--';
+		$from_value = isset($_POST[$prefix.'_export_fromvalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_fromvalue']['m'],$_POST[$prefix.'_export_fromvalue']['d'],$_POST[$prefix.'_export_fromvalue']['y'])) : date('Y-m-d', time()-7*86400).' --:--:--';
+		$to_value = isset($_POST[$prefix.'_export_tovalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_tovalue']['m'],$_POST[$prefix.'_export_tovalue']['d'],$_POST[$prefix.'_export_tovalue']['y'])) : date('Y-m-d').' --:--:--';
 
 		$from = new Datetime_Field($prefix.'_export_from', $from_value, $parameters);
 		$to = new Datetime_Field($prefix.'_export_to', $to_value, $parameters);
