@@ -196,7 +196,7 @@ class Package_Manager extends Resolve_Object
 #			pre_echo('Updating : '.$type_code);
 			// now we simply call the management class for this object
 			$file = SQ_SYSTEM_ROOT.'/'.$this->assets[$type_code]['dir'].'/'.$type_code.'_management.inc';
-			@include_once($file);
+			@include_once $file;
 			$class = $type_code.'_management';
 			// make sure the class exists
 			if (class_exists($class)) {
@@ -381,7 +381,7 @@ class Package_Manager extends Resolve_Object
 			$str .= $type_node->get();
 
 		}// end for
-		include_once(SQ_LIB_PATH.'/general/general.inc');
+		include_once SQ_LIB_PATH.'/general/general.inc';
 		return string_to_file($str, SQ_DATA_PATH.'/asset_map/'.$this->package.'.xml');
 
 	}//end _createAssetMapScreensXML()

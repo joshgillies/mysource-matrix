@@ -55,7 +55,7 @@ class Backend extends Resolve_Object
 			$this->_printFrames();
 		
 		} else if ($_GET['SQ_BACKEND_PAGE'] == 'asset_map_request') {
-			include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
+			include_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
 			$asset_map = new Asset_Map();
 			$asset_map->process($this);
 		
@@ -222,7 +222,7 @@ class Backend extends Resolve_Object
 
 		$this->out->openRaw();
 
-		include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
+		include_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
 		$asset_map = new Asset_Map();
 		$asset_map->paint($this);
 
@@ -263,6 +263,8 @@ class Backend extends Resolve_Object
 					<script language="javascript">
 						function msg_test() {
 
+							top.sidenav.add_messages("<?xml version=\"1.0\"?>\n<messages>\n  <message type=\"ERROR\">New Folder &quot;acasdeqwef&quot; created</message>\n  <message type=\"WARNING\">&quot;acasdeqwef&quot; successfully linked to &quot;Root Folder #1&quot;</message>\n</messages>\n");
+							return;
 							var type = prompt('Enter the message type', 'error'); 
 							var msg = prompt('Enter the message', ''); 
 							if (msg == null) return;
