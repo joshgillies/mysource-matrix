@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 * 
-* $Id: install.inc,v 1.20 2004/10/25 23:36:55 mnyeholt Exp $
+* $Id: install.inc,v 1.21 2004/11/04 00:31:58 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -366,6 +366,8 @@ function install_packages($package_list=Array())
 	// right now that we have sorted all that out we can install the packages
 	$d = dir(SQ_PACKAGES_PATH);
 	
+	$deferred_packages = Array();
+	
 	// Do we only install named packages?
 	$limit_packages = count($package_list);
 	while (false !== ($entry = $d->read())) {
@@ -385,12 +387,16 @@ function install_packages($package_list=Array())
 					$assets = Array();
 				}
 			}
-			install_package($entry, $assets);
+			
+			$result = install_package($entry, $assets);
+			if (is_array($result)) {
+				$deferred_packages[$entry] = $result;
+			}
 		}
 	}
 	$d->close();
 	
-	return true;
+	return count($deferred_packages) ? $deferred_packages : true;
 	
 }//end install_packages()
 
@@ -400,7 +406,8 @@ function install_packages($package_list=Array())
 * 
 * @param Array $packageAssets	An array of asset types to install for this 
 *								package.
-* @return void
+* @return mixed					void on success, otherwise an array of type_codes
+* 								of assets that couldn't be installed yet.
 * @access public
 */
 function install_package($package, $package_assets=Array())
@@ -411,6 +418,13 @@ function install_package($package, $package_assets=Array())
 	$result = $pm->updatePackageDetails($package_assets);
 	
 	$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+	
+	if (is_array($result)) {
+		$message_body = strtoupper($package)." PACKAGE DEFERRED FOR DEPENDENCY RESOLUTION";
+		$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
+		$message->send();
+		return $result;
+	}
 	$message_body = strtoupper($package)." PACKAGE ".(($result) ? "DONE SUCCESSFULLY" : "FAILED");
 	$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
 	$message->send();
@@ -424,6 +438,7 @@ function install_package($package, $package_assets=Array())
 	}
 	if ($result == -1) exit(1);
 	unset($pm);
+	return true;
 }//end install_package()
 
 

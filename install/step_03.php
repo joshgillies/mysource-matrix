@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.44 2004/10/25 23:36:34 mnyeholt Exp $
+* $Id: step_03.php,v 1.45 2004/11/04 00:31:58 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -82,7 +82,15 @@ if (!isset($package_list)) {
 uninstall_asset_types();
 uninstall_packages();
 install_core($package_list);
-install_packages($package_list);
+$deferred = install_packages($package_list);
+// If there were deferred packages, try to reinstall them.
+if (is_array($deferred)) {
+	// try and install the deferred packages again.
+	$deferred = install_packages($deferred);
+	if (is_array($deferred)) {
+		trigger_error('The following assets could not be installed due to dependency failures (see previous warnings for details): '."\n".format_deferred($deferred), E_USER_ERROR);
+	}
+}
 install_authentication_types();
 generate_global_preferences();
 install_event_listeners();
@@ -92,4 +100,24 @@ install_packages($package_list);
 
 unset($GLOBALS['SQ_INSTALL']);
 
+
+/**
+* Format an array of packages=>Array(type_codes) for display
+* 
+* @param array $array the array of deferred types to format
+* @return string
+* @access public
+*/
+function format_deferred($array)
+{
+	$out = '';
+	foreach ($array as $package=>$types) {
+		$out .= "\n$package:\n";
+		foreach ($types as $type) {
+			$out .= "\t$type\n";
+		}
+	}
+	
+	return $out;
+}
 ?>
