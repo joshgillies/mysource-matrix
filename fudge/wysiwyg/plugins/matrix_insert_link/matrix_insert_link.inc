@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.24 2004/08/25 05:23:04 mnyeholt Exp $
+* $Id: matrix_insert_link.inc,v 1.24.2.1 2004/11/10 22:23:07 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -271,6 +271,22 @@ class matrix_insert_link extends wysiwyg_plugin {
 		<?php
 
 	}//end paint_generic()
+
+
+	/**
+	* Prints shortcuts for the buttons
+	*
+	* @returns void
+	* @access  public
+	*/
+	function print_plugin_shortcuts() {
+		?>
+		case 'k':
+			this._matrixInsertLink();
+		break;
+		<?php
+
+	}//end print_plugin_shortcuts()
 
 
 	/**
