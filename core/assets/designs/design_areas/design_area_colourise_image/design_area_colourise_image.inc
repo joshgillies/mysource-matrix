@@ -38,6 +38,8 @@ class Design_Area_Colourise_Image extends Design_Area
 			$value = $new_value;
 		}
 
+		if ($name == 'type' && $value != 'multiple_colours') $value = 'greyscale';
+
 		return parent::setAttrValue($name, $value);
 
 	}//end setAttrValue()

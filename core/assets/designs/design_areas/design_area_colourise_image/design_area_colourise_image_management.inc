@@ -44,7 +44,7 @@ class Design_Area_Colourise_Image_Management extends Asset_Management
 							),
 							'type' => Array(
 								'added'     => '0.0.1',
-								'type'      => 'selection',
+								'type'      => 'text',
 								'default'   => 'greyscale',
 								'options'   => Array(
 									'greyscale' => 'Greyscale', 
