@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.29 2005/02/15 13:18:37 brobertson Exp $
+* $Id: search_page_management.inc,v 1.30 2005/02/15 22:09:26 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -260,6 +260,12 @@ class Search_Page_Management extends Asset_Management
 
 				$type_formats = null;
 				foreach ($sub_assets as $name => $type) {
+					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, $type, true, $name);
+					if (!is_null($link)) {
+						trigger_error(ucwords(str_replace('_', ' ', $name.' '.$type)).' has already been created. Maybe the upgrade script is being run twice?', E_USER_WARNING);
+						continue;
+					}
+					
 					$sub_asset = new $type();
 					$copy_link = Array('asset' => &$asset, 'value' => $name ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		
@@ -276,19 +282,26 @@ class Search_Page_Management extends Asset_Management
 				// type format
 				$ri_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', false, 'result_element');
 				
-				$ri_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($ri_link['minorid']);
+				if (is_null($ri_link)) {
+					trigger_error('Result Element bodycopy no longer exists. Maybe the upgrade script is being run twice?', E_USER_WARNING);
+					continue;
+				} else {
 				
-				$ri_asset->setAttrValue('name', 'Default Format');
-				$ri_asset->saveAttributes();
-				
-				$updates = Array(
-								'majorid' => $db->quote($type_formats->id),
-								'value'   => $db->quote('default_format'),
-							);
-				
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_lnk', $updates, 'linkid = '.$db->quote($ri_link['linkid']))) {
-					trigger_error('Could not upgrade Search Page (to 0.8) - could not update link of default query', E_USER_WARNING);
-					return false;
+					$ri_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($ri_link['minorid']);
+					
+					$ri_asset->setAttrValue('name', 'Default Format');
+					$ri_asset->saveAttributes();
+					
+					$updates = Array(
+									'majorid' => $db->quote($type_formats->id),
+									'value'   => $db->quote('default_format'),
+								);
+					
+					if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_lnk', $updates, 'linkid = '.$db->quote($ri_link['linkid']))) {
+						trigger_error('Could not upgrade Search Page (to 0.8) - could not update link of default result element', E_USER_WARNING);
+						return false;
+					}
+					
 				}
 				
 				// now move search types if any are set
