@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_write_access.inc,v 1.2 2004/11/11 00:30:00 amiller Exp $
+* $Id: condition_write_access.inc,v 1.3 2004/12/01 11:47:07 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,11 +31,10 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.2 $ - 0.1
+* @version $Revision: 1.3 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-
 class Condition_Write_Access extends Condition
 {
 
@@ -60,11 +59,10 @@ class Condition_Write_Access extends Condition
 	* @return boolean
 	* @access public
 	*/
-	function Evaluate(&$asset)
+	function evaluate(&$asset)
 	{
 		// first, check if someone's logged in
-		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
-		if (!$userid) return false;
+		if (!$GLOBALS['SQ_SYSTEM']->currentUserId()) return false;
 
 		// next, check to see if the currently logged in user
 		// has write access
@@ -72,7 +70,7 @@ class Condition_Write_Access extends Condition
 		
 		return true;
 		
-	}//end Evaluate()
+	}//end evaluate()
 
 	
 }//end class

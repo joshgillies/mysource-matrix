@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_simple_edit_mode.inc,v 1.1 2004/11/10 02:41:55 amiller Exp $
+* $Id: condition_simple_edit_mode.inc,v 1.2 2004/12/01 11:45:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.1 $ - 0.1
+* @version $Revision: 1.2 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,7 +45,7 @@ class Condition_Simple_Edit_Mode extends Condition
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Condition_Logged_In($assetid=0)
+	function Condition_Simple_Edit_Mode($assetid=0)
 	{
 		$this->Condition($assetid);
 
@@ -58,15 +58,11 @@ class Condition_Simple_Edit_Mode extends Condition
 	* @return boolean
 	* @access public
 	*/
-	function Evaluate()
+	function evaluate()
 	{
-		if (!SQ_IN_LIMBO) { 
-			return false;
-		}
+		return SQ_IN_LIMBO;
 		
-		return true;
-		
-	}//end Evaluate()
+	}//end evaluate()
 
 	
 }//end class
