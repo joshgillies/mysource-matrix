@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: dev.inc,v 1.10 2003/11/26 00:51:18 gsherwood Exp $
+* $Id: dev.inc,v 1.11 2004/02/27 05:27:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -202,10 +202,7 @@ function speed_check($str="")
 
 
 /**
-* Returns or prints out the memory usage for hte current script
-* Only work in unixey systems
-*
-* Also see bcr_mem_fns php extension
+* Returns or prints out the memory usage for the current script
 *
 * @param bool	$return_value	whether to return the value or just print it
 *
@@ -214,34 +211,29 @@ function speed_check($str="")
 */
 function mem_check($return_value=false)
 {
-	global $MEM_CHECK_LAST_HIT;
-	#$status = `cat /proc/\$PPID/status`;
-	#echo "<pre>".array_contents(getrusage())."</pre>";
-	$f = fopen("/proc/self/status","r");
-	while($line = fgets($f,1024)) {
-		list($k,$v) = explode(":",$line);
-		if($k == "VmSize") {
-			$mem = trim($v);
-			break;
-		}
-	}
-	fclose($f);
-	$hit = (int) $mem;
+	global $MEM_CHECK_FIRST_HIT, $MEM_CHECK_LAST_HIT;
+	
+	$hit = (int) (memory_get_usage() / 1024);
+	$mem = $hit.' KB';
+
 	if($MEM_CHECK_LAST_HIT) {
-		if($hit > $MEM_CHECK_LAST_HIT) {
-			$mem .= " (+ ".($hit - $MEM_CHECK_LAST_HIT).")";
-		}
-		if($hit < $MEM_CHECK_LAST_HIT) {
-			$mem .= " (- ".($MEM_CHECK_LAST_HIT - $hit).")";
-		}
-		if (!$return_value) {
-			echo("<br><table cellpadding=0 cellspacing=0 border=0 bgcolor=#ffff88><tr><td><p style=\"color:red;font-weight:bold;font-family:sans-serif;font-size:13px;\">Mem: $mem</td></tr></table><br>");
-		}
+		if($hit > $MEM_CHECK_LAST_HIT) $mem .= " (+ ".($hit - $MEM_CHECK_LAST_HIT).")";
+		if($hit < $MEM_CHECK_LAST_HIT) $mem .= " (- ".($MEM_CHECK_LAST_HIT - $hit).")";
 	}
+
+	if($MEM_CHECK_FIRST_HIT) {
+		if($hit > $MEM_CHECK_FIRST_HIT) $mem .= " [+ ".($hit - $MEM_CHECK_FIRST_HIT)." TOTAL]";
+		if($hit < $MEM_CHECK_FIRST_HIT) $mem .= " [- ".($MEM_CHECK_FIRST_HIT - $hit)." TOTAL]";
+	} else {
+		$MEM_CHECK_FIRST_HIT = $hit;
+	}
+
+	if (!$return_value) {
+		echo("<br><table cellpadding=0 cellspacing=0 border=0 bgcolor=#ffff88><tr><td><p style=\"color:red;font-weight:bold;font-family:sans-serif;font-size:13px;\">Mem: $mem</td></tr></table><br>");
+	}
+
 	$MEM_CHECK_LAST_HIT = $hit;
-	if ($return_value) {
-		return $mem;
-	}
+	if ($return_value) return $mem;
 
 }// end mem_check()
 
