@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: metadata_manager.inc,v 1.10 2003/10/13 04:38:11 dwong Exp $
+* $Id: metadata_manager.inc,v 1.11 2003/10/13 05:54:42 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -569,21 +569,29 @@ class Metadata_Manager extends MySource_Object
 	* can be used to replace all the keywords with a PHP string to output the correct value
 	* from the $metadata_replacements array.
 	*
+	* This function can also return the values of the replacement values instead of the PHP code.
+	*
 	* @param object Asset	&$asset		the asset to use for replacment values
 	* @param array			$keywords	an array of keywords in
+	* @param boolean		$generating	generate the PHP code or not (which generates the value)
 	*
 	* @access public
 	* @return array(keyword => replacement)
 	*/
-	function generateKeywordReplacements(&$asset, $keywords)
+	function generateKeywordReplacements(&$metadata_asset, $keywords, $generating=true)
 	{
-		$replacements = Array();
+		$metadata_replacements = Array();
 		$keywords = array_unique($keywords);
 
-		if (!empty($keywords)) echo '$metadata_replacements = Array();';
+		if (!empty($keywords) && $generating) echo '$metadata_replacements = Array();';
 
 		foreach ($keywords as $keyword) {
-			$replacements[$keyword] = '<'.'?php echo $metadata_replacements[\''.$keyword.'\']; ?'.'>';
+			if ($generating) {
+				$metadata_replacements[$keyword] = '<'.'?php echo $metadata_replacements[\''.$keyword.'\']; ?'.'>';
+			} else {
+				ob_start();
+			}
+
 			switch ($keyword) {
 
 				case 'asset_name'       :
@@ -651,12 +659,68 @@ class Metadata_Manager extends MySource_Object
 
 			}//end switch
 
-			echo "\n";
+			if ($generating) {
+				echo "\n";
+			} else {
+				eval(ob_get_contents());
+				ob_end_clean();
+			}
 		}
 
-		return $replacements;
+		return $metadata_replacements;
 
 	}//end generateKeywordReplacements()
+
+
+	/**
+	* Generate an array of current values for the passed metadata field names
+	*
+	* @param int			$assetid	the ID of the asset to get field values for
+	* @param array(string)	$fields		an array of field names
+	*
+	* @access public
+	* @return array(field => value)
+	*/
+	function getMetadataFieldValues($assetid, $fields)
+	{
+		if (empty($fields)) return Array();
+
+		// the array of field values we are going to return
+		$field_values = Array();
+		foreach ($fields as $name) $field_values[$name] = '';
+
+		$assetid = (int) $assetid;
+
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (is_null($asset)) {
+			trigger_error('Failed generating keyword replacements, Asset #'.$assetid.' does not exist', E_USER_WARNING);
+			return $field_values;
+		}
+
+		$schemas = $this->getSchemas($asset->id, true);
+		if (empty($schemas)) return $field_values;
+
+		foreach ($schemas as $schemaid) {
+			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+			if (is_null($schema)) {
+				trigger_error('Failed generating keyword replacements, Schema #'.$schemaid.' does not exist', E_USER_WARNING);
+				return $field_values;
+			}
+
+			if (!is_a($schema, 'metadata_schema')) {
+				trigger_error('Failed generating keyword replacements, "'.$schema->name.'" (Asset #'.$schemaid.') is not a metadata schema', E_USER_WARNING);
+				return $field_values;
+			}
+
+			$values = $this->getSchemaMetadata($asset->id, $schema->id);
+			$edit_fns = $schema->getEditFns();
+			$edit_fns->getMetadataFieldValues($asset, $schema, $values, $field_values);
+		}
+
+		return $field_values;
+
+	}//end getMetadataFieldValues()
+
 
 }//end class
 

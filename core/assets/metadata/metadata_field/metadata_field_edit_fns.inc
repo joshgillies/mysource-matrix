@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: metadata_field_edit_fns.inc,v 1.10 2003/10/10 06:49:23 brobertson Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.11 2003/10/13 05:54:41 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -482,6 +482,53 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		return true;
 
 	}//end generateMetadata()
+
+
+	/**
+	* Generate an array of current values for the passed metadata field names
+	*
+	* @param object Asset			&$asset		the asset whose field values we are getting
+	* @param object Metadata_Field	&$field		the asset whose interface we are painting
+	* @param array					$values		the current metadata values
+	* @param array					&$fields	an array of field names that need replacing
+	*
+	* @access public
+	* @return boolean
+	*/
+	function getMetadataFieldValues(&$asset, &$field, $values, &$fields)
+	{
+		if (!isset($fields[$field->name])) return;
+
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
+		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+
+		if (isset($values['value'])) $default = $values['value'];
+		else $default = $field->attr('default');
+
+		$used_keywords = retrieve_keywords_replacements($default);
+
+		$value_string = '';
+		$current_vc = $field->attr('value_components');
+		if (!empty($current_vc)) {
+			foreach ($current_vc as $vc_name => $vc_value) {
+				if (isset($values['value_components'][$vc_name])) {
+					$vc_value = $values['value_components'][$vc_name];
+				}
+				$used_keywords = array_merge($used_keywords, retrieve_keywords_replacements($vc_value));
+				$value_string .= $vc_name.'='.$vc_value.'; ';
+			}
+		}
+
+		$used_keywords = $mm->generateKeywordReplacements($asset, $used_keywords, false);
+
+		$field_value = $default;
+		if (trim($value_string) != '') $field_value .= '; '.trim($value_string);
+		$fields[$field->name] = replace_keywords($field_value, $used_keywords);
+
+		return true;
+
+	}//end getMetadataFieldValues()
+
 
 }//end class
 

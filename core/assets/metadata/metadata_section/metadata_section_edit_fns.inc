@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: metadata_section_edit_fns.inc,v 1.8 2003/10/10 06:49:23 brobertson Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.9 2003/10/13 05:54:42 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -255,6 +255,34 @@ class Metadata_Section_Edit_Fns extends Asset_Edit_Fns
 		return true;
 
 	}//end generateMetadata()
+
+
+	/**
+	* Generate an array of current values for the passed metadata field names
+	*
+	* @param object Asset				&$asset		the asset whose field values we are gettings
+	* @param object Metadata_Section	&$section	the asset whose interface we are painting
+	* @param array						$values		the current metadata values
+	* @param array						&$fields	an array of field names that need replacing
+	*
+	* @access public
+	* @return boolean
+	*/
+	function getMetadataFieldValues(&$asset, &$section, $values, &$fields)
+	{
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($section->id, SQ_LINK_TYPE_2, 'metadata_field', true, 'major', null, true);
+		foreach ($current_links as $link) {
+			$field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			if (is_null($field)) continue;
+			$edit_fns = $field->getEditFns();
+			if (!isset($values['fields'][$field->name])) $values['fields'][$field->name] = Array();
+			if (!$edit_fns->getMetadataFieldValues($asset, $field, $values['fields'][$field->name], $fields)) return false;
+		}
+
+		return true;
+
+	}//end getMetadataFieldValues()
+
 
 }//end class
 
