@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.232 2004/09/14 05:25:55 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.233 2004/09/15 08:28:29 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2082,7 +2082,7 @@ class Asset_Manager extends MySource_Object
 	* 											Specify that links should be returned for assets the user has read,
 	* 											write, or admin access for. Leave NULL to ignore permissions.
 	*
-	* @return array(int => string)	returns an array of assetids and their type code
+	* @return array()		Array(int => string)	returns an array of assetids and their type code
 	* @access public
 	* @see generateGetChildrenQuery()
 	*/
