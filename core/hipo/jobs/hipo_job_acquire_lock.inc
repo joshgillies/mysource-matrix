@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_lock.inc,v 1.16 2003/11/18 15:37:32 brobertson Exp $
+* $Id: hipo_job_acquire_lock.inc,v 1.17 2003/11/18 17:39:34 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -89,7 +89,7 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 	function getConfigVars()
 	{
 		return Array(
-			'SQ_HIPO_ACQUIRE_LOCK_THRESHOLD' => Array('editable' => 0, 'default' => 0),
+			'SQ_HIPO_ACQUIRE_LOCK_THRESHOLD' => Array('editable' => 0, 'default' => 1),
 		);
 	}//end getConfigVars()
 
