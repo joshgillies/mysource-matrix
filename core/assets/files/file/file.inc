@@ -247,30 +247,33 @@ class File extends Asset
 		}
 
 		$existing = $this->_getExistingFile();
-		$restricted = $this->data_path.'/'.$existing['filename'];
-		$unrestricted = $this->data_path_unrestricted.'/'.$existing['filename'];
+		if (!empty($existing)) {
+			$restricted = $this->data_path.'/'.$existing['filename'];
+			$unrestricted = $this->data_path_unrestricted.'/'.$existing['filename'];
 
-		if ($this->effectiveUnrestricted()) {
-			// we should be storing our file in the unrestrcited
-			// data directory for all the world to see
-			// so if our file is in the restricted directory... we need to move it
-			if (is_file($restricted)) {
-				if (!move_file($restricted, $unrestricted)) {
-					trigger_error('Update failed moving file from restricted to unrestricted', E_USER_WARNING);
-					return false;
+			if ($this->effectiveUnrestricted()) {
+				// we should be storing our file in the unrestrcited
+				// data directory for all the world to see
+				// so if our file is in the restricted directory... we need to move it
+				if (is_file($restricted)) {
+					if (!move_file($restricted, $unrestricted)) {
+						trigger_error('Update failed moving file from restricted to unrestricted', E_USER_WARNING);
+						return false;
+					}
 				}
-			}
-		} else {
-			// need to make sure our file is in the restricted directory
-			if (is_file($unrestricted)) {
-				if (!move_file($unrestricted, $restricted)) {
-					trigger_error('Update failed moving file from unrestricted to restricted', E_USER_WARNING);
-					return false;
+			} else {
+				// need to make sure our file is in the restricted directory
+				if (is_file($unrestricted)) {
+					if (!move_file($unrestricted, $restricted)) {
+						trigger_error('Update failed moving file from unrestricted to restricted', E_USER_WARNING);
+						return false;
+					}
 				}
-			}
-		}//end if effectiveUnrestricted
+			}//end if effectiveUnrestricted
 
-		$this->_updateLookups();
+			$this->_updateLookups();
+
+		}// end if
 
 		return true;
 	}//end _updated()
