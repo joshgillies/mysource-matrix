@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_file_versioning.php,v 1.2 2004/11/16 03:49:57 lwright Exp $
+* $Id: upgrade_file_versioning.php,v 1.3 2004/11/16 03:53:38 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -92,11 +92,14 @@ foreach(Array('file_versioning_file', 'file_versioning_file_history', 'file_vers
 
 // "No Such Table" error = the renamed table doesn't exist
 printName('Drop repository field');
-$result = $db->query('ALTER TABLE '.SQ_TABLE_PREFIX.$table_name.' DROP COLUMN repository');
+$result = $db->query('ALTER TABLE '.SQ_TABLE_PREFIX.'file_versioning_file DROP COLUMN repository');
 	
-if (DB::isError($result) && ($result->getCode() == DB_ERROR_NOSUCHTABLE)) {
+if (DB::isError($result) && ($result->getCode() == DB_ERROR_NOSUCHFIELD)) {
 	// old table does not exist!!
-	printUpdateStatus('FAIL DNE');
+	printUpdateStatus('FAIL FIELD DNE');
+} else if (DB::isError($result) && ($result->getCode() == DB_ERROR_NOSUCHTABLE)) {
+	// old table does not exist!!
+	printUpdateStatus('FAIL TABLE DNE');
 } else if (DB::isError($result)) {
 	// miscellaneous error
 	printUpdateStatus('FAIL');
