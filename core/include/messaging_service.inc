@@ -404,6 +404,23 @@ class Messaging_Service extends MySource_Object
 
 	}//end getMessageById()
 
+
+	/**
+	* Sorts two messages based on the sent date (newest message first)
+	*
+	* @param array	$a	the first message to compare
+	* @param array	$b	the second message to compare
+	*
+	* @return int
+	* @access public
+	*/
+	function sortMessages($a, $b)
+	{
+		if ($a['sent'] == $b['sent']) return 0;
+		return ($a['sent'] > $b['sent']) ? -1 : 1;
+
+	}//end sortMessages()
+
 }//end class
 
 ?>
