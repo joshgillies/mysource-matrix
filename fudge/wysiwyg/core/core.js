@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: core.js,v 1.14 2003/10/03 05:14:29 brobertson Exp $
+* $Id: core.js,v 1.15 2003/11/07 01:37:27 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -151,7 +151,6 @@ HTMLArea.prototype.generate = function () {
 	};
 
 	function initDiv() {
-		editor._doc.innerHTML = editor._textArea.value;
 		editor._doc.style.width  = "100%";
 		editor._doc.style.height = "100%";
 		editor._doc.innerHTML = unescape(editor._textArea.value);
