@@ -39,7 +39,7 @@ class Workflow_Manager extends Resolve_Object
 	*
 	* @var array
 	*/
-	var $_inherited_workflows = Array();
+	var $inherited_workflows = Array();
 
 	/**
 	* An array of workflows that are currently in progress
@@ -129,7 +129,7 @@ class Workflow_Manager extends Resolve_Object
 				foreach ($inherited[0] as $assetid) {
 					if (!empty($revokes) && in_array($assetid, $revokes)) continue;
 					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-					$this->_inherited_workflows[$assetid] =& new Workflow_Manager($asset, true, false, false);
+					$this->inherited_workflows[$assetid] =& new Workflow_Manager($asset, true, false, false);
 				}
 			}
 		}
@@ -449,8 +449,8 @@ class Workflow_Manager extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		
 		$workflows_todo = Array();
-		if (!empty($this->_inherited_workflows)) {
-			foreach ($this->_inherited_workflows as $assetid => $workflow) {
+		if (!empty($this->inherited_workflows)) {
+			foreach ($this->inherited_workflows as $assetid => $workflow) {
 				if (empty($workflow->steps)) continue;
 				$workflows_todo[$assetid] = $workflow->steps;
 			}
