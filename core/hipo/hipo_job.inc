@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.52 2004/11/08 03:39:58 gsherwood Exp $
+* $Id: hipo_job.inc,v 1.53 2004/11/29 05:09:14 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.53 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -306,7 +306,7 @@ class HIPO_Job extends MySource_Object
 	* Get all the errors that have been produced by this running of this HIPO_Job
 	*
 	* @return Array()
-	* @access 
+	* @access
 	*/
 	function getErrors()
 	{
@@ -326,7 +326,7 @@ class HIPO_Job extends MySource_Object
 	{
 		$this->is_prepared = true;
 		return true;
-	
+
 	}//end prepare()
 
 
@@ -347,7 +347,7 @@ class HIPO_Job extends MySource_Object
 		if (!$this->is_prepared) {
 			if (!$this->prepare()) return false;
 		}
-		
+
 		$this->_hipo_vars['initialise_mode'] = $this->_current_mode;
 		$this->_hipo_vars['running_mode']    = $this->_current_mode;
 
@@ -360,8 +360,8 @@ class HIPO_Job extends MySource_Object
 			$source_initialise_mode = $source_job->getInitialiseMode();
 		}
 
-		for($i = 0; $i < count($this->_steps); $i++) {
-			// if we are starting from a server script but this job needs the web to run, 
+		for ($i = 0; $i < count($this->_steps); $i++) {
+			// if we are starting from a server script but this job needs the web to run,
 			// then we are fucked, so get out of here
 			if ($source_initialise_mode == 'server' && $this->_steps[$i]['running_mode'] == 'web') {
 				trigger_error('You can\'t run a hipo job that requires a "web" running mode when it\'s is being initialised from the server', E_USER_WARNING);
@@ -462,7 +462,7 @@ class HIPO_Job extends MySource_Object
 	* );
 	* </PRE>
 	* This method is called statically.
-	* 
+	*
 	* @access public
 	* @return Array()
 	* @static
@@ -470,7 +470,7 @@ class HIPO_Job extends MySource_Object
 	function getConfigVars()
 	{
 		return Array();
-	
+
 	}//end getConfigVars()
 
 
@@ -478,20 +478,20 @@ class HIPO_Job extends MySource_Object
 	* Returns the current Threshold.
 	*
 	* Returns a value that represents the total percentage that this hipo would run in freestyle mode in its current state.
-	* 
+	*
 	* @return float
 	* @access public
 	*/
 	function getThreshold()
 	{
 		return 0;
-	
+
 	}//end getThreshold()
 
 
 	/**
 	* Performs the duties of this hipo, without showing any output on the frontend, in the one execution cycle.
-	* 
+	*
 	* @return boolean
 	* @access public
 	*/
@@ -571,7 +571,7 @@ class HIPO_Job extends MySource_Object
 			$prev_step_per = ($step / count($this->_steps)) * 100;
 			$this_step_per = ($this->complete()) ? 0 : ((1 / count($this->_steps)) * $this->_steps[$step]['percent_done']);
 			$this->_hipo_vars['percent_done'] = round($prev_step_per + $this_step_per, 2);
-		
+
 			if (!empty($this->_steps[$step]['complete'])) $this->getNextStep();
 
 		}// end if
@@ -669,7 +669,7 @@ class HIPO_Job extends MySource_Object
 
 	}//end getInitialiseMode()
 
-	
+
 	/**
 	* Set the mode that we are running (ie processing) in
 	*
@@ -727,8 +727,11 @@ class HIPO_Job extends MySource_Object
 		$step = $this->_hipo_vars['current_step'];
 		if ($this->complete()) {
 			// if we are complete, but there are errors, we need to pause for them to be seen
-			if (!empty($this->_hipo_vars['errors'])) return false;
-			else return $this->_options['auto_complete'];
+			if (!empty($this->_hipo_vars['errors'])) {
+				return false;
+			} else {
+				return $this->_options['auto_complete'];
+			}
 
 		} elseif (!empty($this->_steps[$step]['function_call'])) {
 			return $this->_steps[$step]['auto_step'];
@@ -743,7 +746,7 @@ class HIPO_Job extends MySource_Object
 			// otherwise do what's set for this step
 			} else {
 				return $this->_steps[$step]['auto_step'];
-			
+
 			}// end if
 
 		}// end if
@@ -754,10 +757,10 @@ class HIPO_Job extends MySource_Object
 
 
 	/**
-	* Return the next step to be executed by the hipo job, 
+	* Return the next step to be executed by the hipo job,
 	*
 	* @access public
-	* @return integer 
+	* @return integer
 	*/
 	function getNextStep()
 	{
@@ -791,9 +794,9 @@ class HIPO_Job extends MySource_Object
 	{
 		if (!isset($this->_steps[$stepid])) return false;
 		$this->_steps[$stepid]['skip_step'] = true;
-		
+
 		return true;
-	
+
 	}//end skipStep()
 
 
@@ -823,8 +826,7 @@ class HIPO_Job extends MySource_Object
 				$status_msg = $this->_steps[$step]['name'];
 			} else {
 				// this step doesnt exist - probably reached the end of the HIPO
-				if ($this->complete()) $status_msg = 'Complete';
-				else                   $status_msg = 'Unknown Error Occured';
+				$status_msg = ($this->complete())?'Complete':'Unknown Error Occured';
 			}
 
 			$o->openSection($this->hipo_name);
@@ -880,7 +882,7 @@ class HIPO_Job extends MySource_Object
 			trigger_error('You cannot process a HIPO job that you do not own', E_USER_WARNING);
 			return false;
 		}
-		
+
 		// if we are is a display mode different from the running mode, we should not be
 		// doing any processing or saving - so just return true here
 		if ($this->_current_mode != $this->_hipo_vars['running_mode']) return true;
@@ -903,7 +905,7 @@ class HIPO_Job extends MySource_Object
 		// if we are using the server
 		} elseif (SQ_HIPO_USE_SERVER) {
 
-			switch($this->_steps[$step]['running_mode']) {
+			switch ($this->_steps[$step]['running_mode']) {
 				// We are currently running in a web script, but this step utilises server processing
 				// let's put a call through the HIPO phone to the server
 				case 'server' :
@@ -911,7 +913,7 @@ class HIPO_Job extends MySource_Object
 					require_once SQ_SYSTEM_ROOT.'/core/server/squiz_server_client_mysource3.inc';
 
 					$data = Array(
-								'command'			=> 'start', 
+								'command'			=> 'start',
 								'userid'			=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
 								'source_code_name'	=> $this->source_code_name,
 							);
@@ -942,7 +944,7 @@ class HIPO_Job extends MySource_Object
 
 					}// endif
 
-					// return here because we don't want to save and override the DB value now that it's running 
+					// return here because we don't want to save and override the DB value now that it's running
 					// on the server
 					return $ret_val;
 				break;
@@ -960,7 +962,7 @@ class HIPO_Job extends MySource_Object
 					trigger_error('Unknown Running Mode "'.$this->_steps[$step]['running_mode'].'"', E_USER_WARNING);
 					$this->abort();
 					return false;
-					
+
 			}//end switch
 
 		// if we aren't using the server this should never happen (because of what happens in initialise())
@@ -989,7 +991,7 @@ class HIPO_Job extends MySource_Object
 		if (!empty($step_data['function_call'])) {
 			$fn = $step_data['function_call']['process_function'];
 			$process_ok = $this->$fn($step_data, $prefix);
-			
+
 
 		} elseif (!empty($step_data['hipo_job'])) {
 			if (empty($step_data['hipo_job']['code_name']) || empty($step_data['hipo_job']['job_type'])) {
@@ -1007,7 +1009,7 @@ class HIPO_Job extends MySource_Object
 					$init_hipo = new $job_type();
 
 					$init_hipo->setRunningVars($running_vars);
-					foreach($options as $k => $v) {
+					foreach ($options as $k => $v) {
 						$init_hipo->setOption($k, $v);
 					}
 
@@ -1079,7 +1081,7 @@ class HIPO_Job extends MySource_Object
 			$init_hipo = new $job_type();
 
 			$init_hipo->setRunningVars($running_vars);
-			foreach($options as $k => $v) $init_hipo->setOption($k, $v);
+			foreach ($options as $k => $v) $init_hipo->setOption($k, $v);
 
 			$code_name = $init_hipo->initialise($this->source_code_name);
 			if (!$code_name) return false;
@@ -1139,7 +1141,7 @@ class HIPO_Job extends MySource_Object
 			require_once SQ_SYSTEM_ROOT.'/core/server/squiz_server_client_mysource3.inc';
 
 			$data = Array(
-						'command'			=> 'abort', 
+						'command'			=> 'abort',
 						'userid'			=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
 						'source_code_name'	=> $this->source_code_name,
 						'taskid'			=> $this->_hipo_vars['server_taskid'],
@@ -1204,8 +1206,8 @@ class HIPO_Job extends MySource_Object
 		return $this->save();
 
 	}//end jobAborted()
-	
-	
+
+
 	/**
 	* Paint a report of errors that were triggered during HIPO execution
 	*
@@ -1215,6 +1217,7 @@ class HIPO_Job extends MySource_Object
 	function _paintErrorReport()
 	{
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+
 		?>
 		<div align="center">
 		<table border="0" cellspacing="1" cellpadding="1" bgcolor="#000000" width="95%">
@@ -1222,10 +1225,7 @@ class HIPO_Job extends MySource_Object
 				<td bgcolor="#412F49" align="center" width="100%">
 					<span style="color: #FFFFFF;"><b><?php echo $this->hipo_name;?> HIPO Error Report</b><br />
 						<span style="font-size: 80%;">
-						<?php
-							if (!$this->complete()) echo '( HIPO job was not completed )';
-							else echo '( HIPO job was completed )';
-						?>
+						( HIPO job was <?php if (!$this->complete()) echo 'not '; ?>completed )
 						</span>
 					</span>
 				</td>
@@ -1235,14 +1235,12 @@ class HIPO_Job extends MySource_Object
 					<table border="0" width="100%" cellspacing="2" cellpadding="1">
 					<?php
 						foreach ($this->_hipo_vars['errors'] as $error) {
+							$err_type = ($error['warning'])?'WARNING: ':'ERROR: ';
 							?>
 							<tr>
 								<td align="left" valign="top">
 									<b>
-									<?php
-									if ($error['warning']) echo 'WARNING: ';
-									else                   echo 'ERROR: ';
-									?>
+									<?php echo $err_type; ?>
 									</b>
 									<?php echo $error['message']; ?>
 									<br/>
@@ -1288,7 +1286,7 @@ class HIPO_Job extends MySource_Object
 
 	}//end paintStepDefault()
 
-	
+
 	/**
 	* Paint a progress bar for a HIPO
 	*
@@ -1363,7 +1361,7 @@ class HIPO_Job extends MySource_Object
 			// send a report to the system error log
 			if (ini_get('log_errors')) {
 				$err_name = '';
-				switch($err_no) {
+				switch ($err_no) {
 					case E_USER_ERROR	: $err_name = SQ_SYSTEM_SHORT_NAME.' Error';	break;
 					case E_USER_WARNING	: $err_name = SQ_SYSTEM_SHORT_NAME.' Warning';	break;
 					case E_USER_NOTICE	: $err_name = SQ_SYSTEM_SHORT_NAME.' Notice';	break;
@@ -1383,10 +1381,9 @@ class HIPO_Job extends MySource_Object
 			$msg = str_replace('[SYSTEM_ROOT]', '', $msg);
 			$this->_addError($msg, !$terminate);
 
-		}// end error_reporting
+		}//end error_reporting
 
-	}// end _errorHandler()
+	}//end _errorHandler()
 
 }//end class
-
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.105 2004/11/25 04:34:03 gsherwood Exp $
+* $Id: backend.inc,v 1.106 2004/11/29 05:09:14 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.106 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -107,7 +107,7 @@ class Backend extends MySource_Object
 			if (is_null($printing_asset)) {
 				trigger_error('No Asset found for Id #'.$printing_assetid, E_USER_WARNING);
 				return;
-			} 
+			}
 			// lets ask the asset itself if we are allowed access to its backend (no dirty thoughts)
 			if (!$printing_asset->backendAccess()) {
 				$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access the backend for <i>'.$printing_asset->name.'</i>');
@@ -156,8 +156,8 @@ class Backend extends MySource_Object
 			if (isset($_REQUEST['SQ_BACKEND_PAGE'])) {
 				$this->out->addFormActionGetVar('SQ_BACKEND_PAGE', $_REQUEST['SQ_BACKEND_PAGE']);
 			}
-			
-			switch($_REQUEST['SQ_BACKEND_PAGE']) {
+
+			switch ($_REQUEST['SQ_BACKEND_PAGE']) {
 				case 'header':
 					$this->_printHeader();
 				break;
@@ -215,7 +215,7 @@ class Backend extends MySource_Object
 							'sidenav' => $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=sidenav',
 							'resizer' => $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=resizer',
 							);
-							
+
 		$limbo_hipo = SQ_IN_LIMBO && (strpos($main_url, 'SQ_ACTION=hipo') !== false);
 
 		?>
@@ -273,7 +273,7 @@ class Backend extends MySource_Object
 		if (isset($_GET['sq_popups_blocked'])) $_SESSION['sq_popups_blocked'] = (int) $_GET['sq_popups_blocked'];
 		$popups_blocked = (!isset($_SESSION['sq_popups_blocked']) || $_SESSION['sq_popups_blocked']);
 		$dhtml_messages = Array();
-				
+
 		$asset_search_default = 'Enter Asset Id/URL';
 
 		$this->out->openRaw();
@@ -342,7 +342,7 @@ class Backend extends MySource_Object
 			if (is_null($searched_asset)) {
 				// if we are in the backend use dhtml otherwise use js alert
 				if (!SQ_IN_LIMBO) {
-					
+
 					$html = '
 						<table class="sq-backend-search-failed-table">
 							<tr>
@@ -362,7 +362,7 @@ class Backend extends MySource_Object
 						alert("Search for \"'.addslashes($_POST['asset_search']).'\" found nothing. Try Again");
 					');
 				}// end if
-		
+
 			} else {
 				$this->out->addOnLoad('
 					if (parent.frames["sq_main"]) {
@@ -371,8 +371,8 @@ class Backend extends MySource_Object
 				');
 			}// end if
 		}// end if
-		
-		
+
+
 		// check for any new internal messages if we are not in LIMBO
 		if (!SQ_IN_LIMBO) {
 
@@ -400,9 +400,9 @@ class Backend extends MySource_Object
 			  //////////////////////////////
 			 //  INTERNAL MESSAGE POPUP  //
 			//////////////////////////////
-			
+
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-	
+
 			$msgs_from = (isset($_SESSION['backend_header_last_refresh'])) ? $_SESSION['backend_header_last_refresh'] : null;
 			$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, null, Array(SQ_MSG_UNREAD), Array());
 
@@ -430,17 +430,17 @@ class Backend extends MySource_Object
 					var msgDiv = null;
 					var screenMenu = null;
 					var screenMenuFiller = null;
-	
+
 					var delay = 30;     // milliseconds between movements
 					var myTimer = null;
 					var counter = null; // number of times to move the div
 					var messageIndex = 0;
-	
+
 					var divTop = 0;
 					var divLeft = 0;
 					var smTop = 0;
 					var smLeft = 0;
-	
+
 					function moveIt(x) {
 						divTop += x;
 						msgDiv.style.top = divTop + "px";
@@ -449,7 +449,7 @@ class Backend extends MySource_Object
 							setTimeout("cancelMsgDiv()", 6000);
 						}
 					}
-	
+
 					function showMsgDiv() {
 						if (screenMenu) {
 							if (window.navigator.userAgent.indexOf('MSIE') > 0) {
@@ -465,10 +465,10 @@ class Backend extends MySource_Object
 
 						divTop = (counter * -1) + parent.frames["sq_main"].document.body.scrollTop;
 						msgDiv.style.top = divTop + "px";
-	
+
 						myTimer = setInterval("moveIt(1)", delay);
 					}
-	
+
 					function cancelMsgDiv() {
 						clearInterval(myTimer);
 						msgDiv.style.display = "none";
@@ -489,11 +489,11 @@ class Backend extends MySource_Object
 						msgDiv.innerHTML = popupContents[messageIndex]['html'];
 						divLeft = parent.frames["sq_main"].document.body.offsetWidth + parent.frames["sq_main"].document.body.scrollLeft - popupContents[messageIndex]['width'] - 20;
 						msgDiv.style.left = divLeft + "px";
-						
+
 						setTimeout("showMsgDiv()", 500);
 						messageIndex++;
 					}
-					
+
 					var popupContents = new Array();
 					<?php
 					$i = 0;
@@ -507,7 +507,7 @@ class Backend extends MySource_Object
 						$i++;
 					}
 					?>
-	
+
 					if (parent.frames["sq_main"].document.body && parent.frames["sq_main"].SQ_DOCUMENT_LOADED) {
 
 						msgDiv = parent.frames["sq_main"].document.getElementById("new_message_popup");
@@ -552,11 +552,14 @@ class Backend extends MySource_Object
 				</script>
 				<?php
 			}// end if empty msgs
-			
-		}//end if not in LIMBO		
 
-		if (SQ_ROLLBACK_VIEW) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
-		else $now = time();
+		}//end if not in LIMBO
+
+		if (SQ_ROLLBACK_VIEW){
+			$now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
+		} else {
+			$now = time();
+		}
 
 		?>
 		<style type="text/css">
@@ -586,81 +589,79 @@ class Backend extends MySource_Object
 					$options = Array();
 					if (!SQ_IN_LIMBO) {
 						$options[] = Array(
-									'url'     => '#',
-									'onclick' => 'Javascript:
-									if (parent.frames["sq_main"] && parent.frames["sq_main"].get_form_element_value) {
-										var sq_preview_url = parent.frames["sq_main"].get_form_element_value("sq_preview_url") + "?no_cache=1";
-										if (sq_preview_url) {
-											window.open(sq_preview_url, "sq_preview_window");
-										} else {
-											alert("No preview is available");
-										}
-									}
-									return false;
-									',
-									'title'   => 'Preview on frontend',
-									'icon'    => 'preview.png',
-									'extras'  => 'accesskey="v"',
-									);
+							'url'     => '#',
+							'onclick' => 'Javascript:
+							if (parent.frames["sq_main"] && parent.frames["sq_main"].get_form_element_value) {
+								var sq_preview_url = parent.frames["sq_main"].get_form_element_value("sq_preview_url") + "?no_cache=1";
+								if (sq_preview_url) {
+									window.open(sq_preview_url, "sq_preview_window");
+								} else {
+									alert("No preview is available");
+								}
+							}
+							return false;
+							',
+							'title'   => 'Preview on frontend',
+							'icon'    => 'preview.png',
+							'extras'  => 'accesskey="v"',
+						);
 
 						if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 							$options[] = Array(
-											'url'    => $this->getBackendUrl('main').'&backend_section=config',
-											'target' => 'sq_main',
-											'title'  => 'System Configuration',
-											'icon'   => 'system_config.png',
-											);
+								'url'    => $this->getBackendUrl('main').'&backend_section=config',
+								'target' => 'sq_main',
+								'title'  => 'System Configuration',
+								'icon'   => 'system_config.png',
+							);
 						}
 
 						if ($GLOBALS['SQ_SYSTEM']->userRoot()) {
 							$options[] = Array(
-											'url'    => $this->getBackendUrl('main').'&backend_section=maps',
-											'target' => 'sq_main',
-											'title'  => 'Automated Patching System',
-											'icon'   => 'maps.png',
-											);
-						}
-
-						if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-							$options[] = Array(
-											'url'    => $this->getBackendUrl('main').'&backend_section=hipo_herder',
-											'target' => 'sq_main',
-											'title'  => 'HIPO Herder',
-											'icon'   => 'hipo_herder.png',
-											);
+								'url'    => $this->getBackendUrl('main').'&backend_section=maps',
+								'target' => 'sq_main',
+								'title'  => 'Automated Patching System',
+								'icon'   => 'maps.png',
+							);
 						}
 
 						$options[] = Array(
-										'url'     => $this->getBackendUrl('main').'&backend_section=am',
-										'target'  => 'sq_main',
-										'title'   => 'Asset Tree',
-										'icon'    => 'asset_tree.png',
-										);
+							'url'     => $this->getBackendUrl('main').'&backend_section=hipo_herder',
+							'target'  => 'sq_main',
+							'title'   => 'HIPO Herder',
+							'icon'    => 'hipo_herder.png',
+						);
 
 						$options[] = Array(
-									'url'     => $_SERVER['PHP_SELF'].'?SQ_ACTION=logout',
-									'target'  => '_top',
-									'title'   => 'Logout',
-									'icon'    => 'logout.png',
-									);
+							'url'     => $this->getBackendUrl('main').'&backend_section=am',
+							'target'  => 'sq_main',
+							'title'   => 'Asset Tree',
+							'icon'    => 'asset_tree.png',
+						);
+
+						$options[] = Array(
+							'url'     => $_SERVER['PHP_SELF'].'?SQ_ACTION=logout',
+							'target'  => '_top',
+							'title'   => 'Logout',
+							'icon'    => 'logout.png',
+						);
 
 					} else {
 
 						$options[] = Array(
-										'url'     => current_url(true, true),
-										'target'  => '_top',
-										'title'   => 'Exit Editing Mode',
-										'icon'    => 'exit_limbo.png',
-										);
+							'url'     => current_url(true, true),
+							'target'  => '_top',
+							'title'   => 'Exit Editing Mode',
+							'icon'    => 'exit_limbo.png',
+						);
 
 					}
-					
-					foreach($options as $option) {
+
+					foreach ($options as $option) {
 						?><a href="<?php echo $option['url'];?>"
 							 class="sq-backend-header-item"
 							 title="<?php echo htmlspecialchars($option['title']);?>"
 							 onMouseOver="window.status = '<?php echo htmlspecialchars($option['title']);?>'; return true;"
-							 onMouseOut = "window.status = ''; return true;" 
+							 onMouseOut = "window.status = ''; return true;"
 							 style="cursor: pointer;"
 							 <?php echo (isset($option['target'])) ? 'target="'.$option['target'].'"' : ''; ?>
 							 <?php echo (isset($option['onclick'])) ? 'onClick="'.htmlspecialchars($option['onclick']).'"' : ''; ?>
@@ -805,7 +806,7 @@ class Backend extends MySource_Object
 			$this->out->addOnLoad('if (!parent.frames["sq_header"]) { sq_redirect("'.$redirect_url.'"); }');
 		}
 
-		switch($_REQUEST['backend_section']) {
+		switch ($_REQUEST['backend_section']) {
 			case 'config' :
 				require_once SQ_INCLUDE_PATH.'/system_config_edit_interface.inc';
 				$cfg_ei = new System_Config_Edit_Interface();
