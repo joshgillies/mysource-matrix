@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_table.inc,v 1.5 2004/11/15 05:39:28 arailean Exp $
+* $Id: form_question_type_tickbox_table.inc,v 1.6 2004/11/23 05:43:05 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -66,7 +66,6 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	*/
 	function getAnswer($content_file=true, $value='')
 	{
-		$this->_tmp['submission'] = $value;
 		return $this->_getOutput('active');
 
 	}//end getAnswer()
@@ -82,7 +81,6 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	*/
 	function getSummary($answer)
 	{
-		$this->_tmp['submission'] = $answer;
 		return $this->_getOutput('plaintext');
 
 	}//end getSummary()
@@ -102,7 +100,9 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 
 		$question_contents = $this->attr('question_contents');
 		$datapath = sq_web_path('data').'/asset_types/form_question_type_tickbox_table/files';
-		$submission = array_get_index($this->_tmp, 'submission', false);
+		
+		$form =& $this->getMySection();
+		$submission = $this->getValue();
 
 		$to_output = '';
 

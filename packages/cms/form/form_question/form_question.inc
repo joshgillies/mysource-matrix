@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.38 2004/11/23 02:32:18 lwright Exp $
+* $Id: form_question.inc,v 1.39 2004/11/23 05:43:04 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.38 $ - 1.0
+* @version $Revision: 1.39 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -325,6 +325,8 @@ class Form_Question extends Asset
 		$rules = &$this->getRules();
 		$ok = true;						// We start as being all OK
 
+		$this->active_submission->setProcessed($this->id);
+
 		foreach ($rules as $k=>$rule) {
 			$type_code = 'form_question_rule_type_' . $rule['rule_code'];
 
@@ -364,7 +366,7 @@ class Form_Question extends Asset
 		if (!$form->active_submission) return false;
 		
 		if ($form->active_submission->isProcessed($this->id)) {
-			$answer = $form->active_submission->getValue($this->id);
+			$answer = $form->active_submission->getAnswer($this->id);
 			if ($answer) {
 				return $answer;
 			}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.24 2004/11/05 00:08:50 lwright Exp $
+* $Id: form_question_type_select.inc,v 1.25 2004/11/23 05:43:04 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -139,15 +139,9 @@ class Form_Question_Type_Select extends Form_Question
 		if (!$this->active_submission) return false;
 		$val = isset($_POST[$this->id]) ? $_POST[$this->id] : '';
 
-		if (is_array($val)) {
-			$value = implode(', ', $this->getAnswerByOffset($val));
-		} else {
-			$value = $this->getAnswerByOffset($val);
-		}
-
 		$form =& $this->getMySection();
-		$this->active_submission->setAnswer($this->id, $value);
-		$this->active_submission->setSummary($this->id, $this->attr('name'), $this->getSummary($value));
+		$this->active_submission->setAnswer($this->id, $val);
+		$this->active_submission->setSummary($this->id, $this->attr('name'), $this->getSummary($val));
 
 		parent::processForm();
 
@@ -173,6 +167,7 @@ class Form_Question_Type_Select extends Form_Question
 			}
 			return implode(', ', $ans_str);
 		}
+		bam($this->active_submission);
 		return $this->getAnswerByOffset($answer);
 
 	}//end getSummary()

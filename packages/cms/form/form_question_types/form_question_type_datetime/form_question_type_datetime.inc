@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.16 2004/11/05 00:08:50 lwright Exp $
+* $Id: form_question_type_datetime.inc,v 1.17 2004/11/23 05:43:04 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -84,7 +84,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		$name   = $this->id;
 
 		$html = '';
-		$value = $this->attr('default');
+		$value = $this->getValue();
 
 		if ($default) {
 			$parameters = $this->getDefaultParameters();
@@ -154,24 +154,6 @@ class Form_Question_Type_Datetime extends Form_Question
 
 	}//end getDefaultParameters()
 	
-
-	/**
-	* echos the current value
-	*
-	* @param &$object $submission the current submission object
-	*
-	* @access public
-	* @return void
-	*/
-	function getValue()
-	{
-		if ($this->active_submission) {
-			$answer = $this->active_submission->getAnswer($this->id);
-			if ($answer) echo $answer;
-		}
-	
-	}//end getValue()
-
 
 	/**
 	* returns an array of the types of rules that are allowed upon this asset

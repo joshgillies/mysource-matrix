@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_comparison.inc,v 1.19 2004/11/05 00:08:48 lwright Exp $
+* $Id: form_question_rule_type_comparison.inc,v 1.20 2004/11/23 05:43:04 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -112,10 +112,10 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 					$comparison = '"'.$options[(int)$comparison].'"';
 				}
 				// special case for "not equal to empty string" which is basically 'Is Required' rule
-				if (($operator == '!=') || ($comparison == '')) {
+				if (($operator == '!=') && ($comparison == '')) {
 					$error = $q_asset->name.' must be filled in';
 				} else {
-					$error = $q_asset->name.' '.$operators[$operator].' '.$comparison;
+					$error = $q_asset->name.' '.$operators[$operator].' "'.$comparison.'"';
 				}
 			}
 			$q_asset->active_submission->setError($error);

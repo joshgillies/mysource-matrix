@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_password.inc,v 1.12 2004/11/05 00:08:50 lwright Exp $
+* $Id: form_question_type_password.inc,v 1.13 2004/11/23 05:43:04 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -87,14 +87,7 @@ class Form_Question_Type_Password extends Form_Question
 
 		// generate some php for the value, which can be used for both
 		// auto-answer and returning to saved forms
-		if ($content_file) {
-			$html  = '<'.'?php $q = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('
-			.$this->id.', \'form_question_type_password\'); '
-			.' $q->active_submission =& $this->active_submission; ?'.'>';
-			$value = '<'.'?php echo $q->getValue(); ?'.'>';
-		} else {
-			$html = '';
-		}
+		$value = '';
 		
 		ob_start();
 		password_box($name, $value, $width, $max, $extras);
@@ -102,7 +95,7 @@ class Form_Question_Type_Password extends Form_Question
 			echo '<br />';
 			password_box($name2, $value, $width, $max, $extras);
 		}
-		$html .= ob_get_contents();
+		$html = ob_get_contents();
 		ob_end_clean();
 		
 		// calling text_box will convert the open and close php tags into their html counter-parts
@@ -113,25 +106,6 @@ class Form_Question_Type_Password extends Form_Question
 	}//end getAnswer()
 
 	
-	/**
-	* echos the current value
-	*
-	* @param &$object $submission the current submission object
-	*
-	* @access public
-	* @return void
-	*/
-	function getValue()
-	{
-		$form = &$this->getMySection();
-		if ($form->active_submission) {
-			$answer = $form->active_submission->getAnswer($this->id);
-			if ($answer) echo $answer;
-		}
-	
-	}//end getValue()
-
-
 	/**
 	* process this question
 	*
@@ -163,7 +137,7 @@ class Form_Question_Type_Password extends Form_Question
 				return false;
 			}
 
-			$form->active_submission->setValue($this->id, $val);
+			$form->active_submission->setAnswer($this->id, $val);
 			$form->active_submission->setSummary($this->id,  $this->attr('name'), $val);
 
 			parent::processForm();

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.28 2004/11/09 04:14:01 lwright Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.29 2004/11/23 05:43:05 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -105,8 +105,8 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		$html .= "<table>\n";
 		$html .= ($hor) ? "<tr>\n" : '';
 
-		$defaults = isset($this->active_submission) ? $this->active_submission->getAnswer($this->id) : $this->attr('default');
-		if (!is_array($defaults)) $defaults = Array();
+		$defaults = $this->getValue();
+		if (!is_array($defaults)) $defaults = Array($defaults);
 		foreach ($options as $key => $value) {
 			$html .= ($hor) ? "<td nowrap=\"nowrap\">\n" : "<tr><td>\n";
 			$html .= '<input type="'.$type.'" ';

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.65 2004/11/23 02:42:09 gsherwood Exp $
+* $Id: form.inc,v 1.66 2004/11/23 05:42:59 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -63,14 +63,9 @@ class Form extends Bridge
 
 	/**
 	* available bodycopy keywords
-	* @var Array(keyword => name)
+	* @var Array()
 	*/
-	var $_available_keywords = Array(
-										'form_contents' => 'Form Contents',
-										'form_errors'   => 'Form Errors',
-										'submit_button' => 'Submit Button',
-										'reset_button'  => 'Reset Button'
-									);
+	var $_available_keywords = Array('form_contents', 'form_errors', 'submit_button', 'reset_button');
 
 
 	/**
@@ -411,8 +406,7 @@ class Form extends Bridge
 	* @access public
 	* @return array
 	*/
-	function getQuestionAssets()
-	{
+	function getQuestionAssets() {
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$result = Array();
 
@@ -741,6 +735,34 @@ class Form extends Bridge
 	
 	
 	/**
+	* print out headers or HTML that the asset requires to be printed before the design
+	*
+	* @return void
+	* @access public
+	*/
+	function printFrontend()
+	{
+		$prefix = $this->getPrefix();
+		// try to get the form cookie and gather the active submission
+		if (isset($_COOKIE['SQ_FORM_'.$prefix])) {
+			$submissionid = $_COOKIE['SQ_FORM_'.$prefix];
+			if ($submissionid) {
+				$this->active_submission = &$GLOBALS['SQ_SYSTEM']->am->getAsset($submissionid, 'form_submission');
+			}
+		}
+		
+		// if the active submission does not yet exist, create it
+		if (!$this->active_submission) {
+			$this->active_submission = &$this->createSubmission();
+			$this->setFormCookie($this->active_submission->id, $this->attr('cookie_time'));
+		}
+	
+		return parent::printFrontend();
+		
+	}//end printFrontend()
+	
+	
+	/**
 	* Called by the design to print the body of this asset
 	*
 	* @access public
@@ -752,10 +774,16 @@ class Form extends Bridge
 
 		$clientside = ($this->attr('use_client_side'))?'onsubmit="return beforeSubmit_'.$prefix.'(this);"':'';
 
+		ob_start();
 		echo '<form name="'.$prefix.'" enctype="multipart/form-data" action="'.$_SERVER['PHP_SELF'].'" method="POST" '.$clientside.'>';
 
 		$this->printStandard();
 		echo '</form>';
+		
+		$result = ob_get_contents();
+		ob_end_clean();
+		
+		echo $result;
 
 	}//end printBody()
 
@@ -1033,11 +1061,7 @@ class Form extends Bridge
 	*/
 	function processForm()
 	{
-		// if the active submission does not yet exist, create it
-		if (!$this->active_submission) {
-			$this->active_submission = &$this->createSubmission();
-			//$this->setFormCookie($this->active_submission->id, $this->attr('cookie_time'));
-		}
+		$this->active_submission->flushErrors();		
 		
 		$questions = &$this->getQuestions();
 		foreach (array_keys($questions) as $key) {
@@ -1054,6 +1078,8 @@ class Form extends Bridge
 			$section->processForm();
 		}
 
+		// bam ($this->active_submission);
+		
 		// check to see if there is an error with the form
 		$this->_tmp['is_error'] = $this->active_submission->isError();
 
@@ -1072,6 +1098,10 @@ class Form extends Bridge
 	{
 		$tyb = &$this->getBodycopy('Thank You');
 
+		// we want delete the cookie, so that when they come back to fill
+		// this form on another day, they start fresh, so set the number of days to -1
+		$this->setFormCookie(0, -1);
+		
 		ob_start();
 		$this->printSummary(true);
 		$summary_info = ob_get_contents();
@@ -1213,12 +1243,6 @@ class Form extends Bridge
 	function printSummary($html = false)
 	{
 		echo ($html) ? '<table>' : '';
-		
-		// if the active submission does not yet exist, create it
-		if (!$this->active_submission) {
-			$this->active_submission = &$this->createSubmission();
-			//$this->setFormCookie($this->active_submission->id, $this->attr('cookie_time'));
-		}
 		
 		// unattached questions first
 		$sort_order = $this->attr('sort_order');
@@ -1412,10 +1436,11 @@ class Form extends Bridge
 		if (!isset($vars['keywords'])) return;
 
 		$keywords = Array();
-
 		// search for a bodycopies folder
 		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'bodycopies_folder');
+
 		$folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
+
 		if (is_null($folder)) return false;
 
 		// lets work out which bodycopy the WYSIWYG cell that wants our keywords
@@ -1435,53 +1460,56 @@ class Form extends Bridge
 		$sections = &$this->getSections();
 
 		foreach ($bodycopies as $bodycopy) {
-
 			if ($bodycopy == 'Page Contents') {
-
 				// work out the query replacements
-				foreach ($this->_available_keywords as $keyword => $name) {
-					$keywords[$keyword] = $name;
+				foreach ($this->_available_keywords as $keyword) {
+					$name = ucwords(str_replace('_', ' ', $keyword));
+					$type = 'inline';
+					if (array_search($keyword, Array('form_contents', 'form_errors')) !== 	false) {
+						$type = 'block';
+					}
+					$default = $name;
+					$keywords[$keyword] = Array('name' => $name, 'default' => $default, 'type' => $type);
 				}
 
 				foreach ($questions as $q_id => $question) {
 					$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 					$q_name = $q_asset->attr('name');
-					$keywords['question_field_'.$this->id.'_q'.$q_id] = 'Field: '.ellipsisize($q_name,30);
+					$keywords['question_field_'.$this->id.'_q'.$q_id] = Array('name' => 'Field: '.ellipsisize($q_name,30), 'default' => '[Question Field for '.$q_name.']', 'type' => 'inline');
 				}
 
 				foreach ($sections as $section) {
-					$keywords['section_title_'.$section->id] = 'Section Title: '.$section->attr('name');
+					$keywords['section_title_'.$section->id] = Array('name' => 'Section Title: '.$section->attr('name'), 'default' => $section->attr('name'), 'type' => 'inline');
 					$questions = &$section->getQuestions();
 					foreach ($questions as $q_id => $question) {
 						$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 						$q_name = $q_asset->attr('name');
-						$keywords['question_field_'.$section->id.'_q'.$q_id] = 'Field: '.ellipsisize($section->attr('name'), 20).': '.ellipsisize($q_name, 30);
+						$keywords['question_field_'.$section->id.'_q'.$q_id] = Array('name' => 'Field: '.ellipsisize($section->attr('name'),20).': '.ellipsisize($q_name,30), 'default' => '[Question Field for '.$q_name.']', 'type' => 'inline');
 					}
 				}
 
 			} else if ($bodycopy == 'Thank You') {
-
-				$keywords['form_summary'] = 'Form Summary';
+				$keywords['form_summary'] = Array('name' => 'Form Summary', 'default' => 'Summary of form results', 'type' => 'block');
 
 				foreach ($questions as $q_id => $question) {
 					$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 					$q_name = $q_asset->attr('name');
-					$keywords['response_'.$this->id.'_q'.$q_id] = 'Response: '.ellipsisize($q_name, 30);
+					$keywords['response_'.$this->id.'_q'.$q_id] = Array('name' => 'Response: '.ellipsisize($q_name,30), 'default' => '[Response for '.$q_name.']', 'type' => 'inline');
 				}
 
 				foreach ($sections as $section) {
-					$keywords['section_title_'.$section->id] = 'Section Title: '.$q_name;
+					$keywords['section_title_'.$section->id] = Array('name' => 'Section Title: '.$q_name, 'default' => $section->attr('name'), 'type' => 'inline');
 					$questions = &$section->getQuestions();
 					foreach ($questions as $q_id => $question) {
 						$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 						$q_name = $q_asset->attr('name');
-						$keywords['response_'.$section->id.'_q'.$q_id] = 'Response: '.ellipsisize($section->attr('name'), 20).': '.ellipsisize($q_name, 30);
+						$keywords['response_'.$section->id.'_q'.$q_id] = Array('name' => 'Response: '.ellipsisize($section->attr('name'),20).': '.ellipsisize($q_name,30), 'default' => '[Response for '.$section->attr('name').': '.$q_name.']', 'type' => 'inline');
 					}
 				}
+			}
 
-			}//end if
 
-		}//end foreach $bodycopies
+		}
 
 		$this->_available_keywords = array_keys($keywords);
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
