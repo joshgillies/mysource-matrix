@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.31 2003/11/18 15:43:35 brobertson Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.32 2003/11/24 03:58:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -70,8 +70,15 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		$wysiwyg->set_show_status_bar(false);
 		$wysiwyg->set_width('100%');
 		$wysiwyg->set_height('300');
-		$wysiwyg->add_relative_href_check('http[s]?://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'(\?a=[0-9]+)', './$1');
-		$wysiwyg->add_absolute_url_check('\./\?(a=[0-9]+)', 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?$1');
+
+		$base_php_self = str_replace('/'.SQ_CONF_BACKEND_SUFFIX, '', $_SERVER['PHP_SELF']);
+		$base_php_self = str_replace('/'.SQ_CONF_LIMBO_SUFFIX, '', $base_php_self);
+		$base_php_self = rtrim($base_php_self, '/ ');
+
+		$wysiwyg->add_relative_href_check('(http[s]?://'.$_SERVER['HTTP_HOST'].')'.$_SERVER['PHP_SELF'], '$1'.$base_php_self);
+		$wysiwyg->add_relative_href_check('http[s]?://'.$_SERVER['HTTP_HOST'].$base_php_self.'/?(\?a=[0-9]+)', './$1');
+		$wysiwyg->add_relative_href_check('([^.][^/])(\?a=[0-9]+)', '$1./$2');
+		$wysiwyg->add_absolute_url_check('\./\?(a=[0-9]+)', 'http://'.$_SERVER['HTTP_HOST'].$base_php_self.'/?$1');
 
 		$wysiwyg->open_group();
 			$wysiwyg->add_plugin('format_text');
