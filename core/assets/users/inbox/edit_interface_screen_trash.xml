@@ -1,7 +1,7 @@
 <contents>
-	<section name="Details">
+	<section name="Trash">
 		<field>
-			<display_name>Trash</display_name>
+			<display_name />
 			<note />
 			<function_call>
 				<paint_function   name="paintTrash"   />

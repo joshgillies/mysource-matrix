@@ -1,7 +1,7 @@
 <contents>
-	<section name="Details">
+	<section name="Inbox">
 		<field>
-			<display_name>Inbox</display_name>
+			<display_name />
 			<note />
 			<function_call>
 				<paint_function   name="paintMail"   />
