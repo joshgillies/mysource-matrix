@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.149 2005/03/22 03:37:32 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.150 2005/03/24 03:27:54 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.149 $
+* @version $Revision: 1.150 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -483,7 +483,7 @@ class Page_Calendar extends Page_Asset_Listing
 	{
 		$cal_view = $_REQUEST['SQ_CALENDAR_VIEW'];
 		$formats = $this->attr('enabled_views');
-		$format = $formats[$cal_view];
+		$format = array_get_index($formats, $cal_view, '');
 		$res = $this->_getGeneralScript();
 		if (strpos($format, 'list') === false) $res .= '<div id="calendarTable">';
 		$func = 'get'.ucfirst($cal_view).'View';
@@ -874,8 +874,8 @@ class Page_Calendar extends Page_Asset_Listing
 				}
 				$events = $this->getDayEventsByRootNodeAndTime($date);
 			} else {
-				$column_names[1] = ($this->attr('other_column_name') == '') ? 'Events' : $this->attr('other_column_name');
-				$events = Array(1 => $this->getDayEventsByTime($date));
+				$column_names['*'] = ($this->attr('other_column_name') == '') ? 'Events' : $this->attr('other_column_name');
+				$events = Array('*' => $this->getDayEventsByTime($date));
 			}
 			$enabled_views = $this->attr('enabled_views');
 			$this->_printTimedTable('day', $column_names, $column_links, $events, $enabled_views['event']);
