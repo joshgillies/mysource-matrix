@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.35 2004/12/23 22:02:05 tbarrett Exp $
+* $Id: selection.inc,v 1.36 2005/02/14 19:51:27 brobertson Exp $
 *
 */
 
@@ -36,11 +36,11 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *
 *
 * <!-- Sample Edit Interface XML Node -->
-*   <selection style="list"  height="1" empty_text="" />
-*   <selection style="boxes" columns="1" />
+*   <selection style="list"  height="1" empty_text="" extras="" />
+*   <selection style="boxes" columns="1" extras="" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -69,6 +69,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		$this->_edit_params['height']     = '';
 		$this->_edit_params['columns']    = '1';
 		$this->_edit_params['empty_text'] = '';
+		$this->_edit_params['extras']     = '';
 
 	}//end constructor
 
@@ -89,6 +90,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		if (isset($node->attributes['height'])) $this->_edit_params['height'] = $node->attributes['height'];
 		if (isset($node->attributes['columns'])) $this->_edit_params['columns'] = $node->attributes['columns'];
 		if (isset($node->attributes['empty_text'])) $this->_edit_params['empty_text'] = $node->attributes['empty_text'];
+		if (isset($node->attributes['extras'])) $this->_edit_params['extras'] = $node->attributes['extras'];
 
 		return true;
 
@@ -285,7 +287,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		hidden_field($prefix.'_posted', '1');
 
 		if ($this->_edit_params['style'] == 'list') {
-			combo_box($prefix, $options, !empty($this->_params['multiple']), $value, $this->_edit_params['height']);
+			combo_box($prefix, $options, !empty($this->_params['multiple']), $value, $this->_edit_params['height'], $this->_edit_params['extras']);
 		} else {
 			?>
 			<table cellpadding="0" cellspacing="0" border="0">
@@ -296,15 +298,15 @@ class Asset_Attribute_Selection extends Asset_Attribute
 						if (empty($this->_params['multiple'])) {
 							?>
 							<td>&nbsp;
-								<input type="radio" name="<?php echo $prefix; ?>" value="<?php echo $key; ?>"<?php echo (($key == $value) ? ' checked' : ''); ?>>
-								<?php echo $val?>
+								<?php radio_button($prefix, $key, ($key == $value), '', $this->_edit_params['extras']); ?>
+								<?php echo $val; ?>
 							</td>
 							<?php
 						} else {
 							?>
 							<td>&nbsp;
-								<input type="checkbox" name="<?php echo $prefix."[$i]"; ?>" value="<?php echo $key; ?>"<?php echo ((is_array($value) && in_array($key, $value)) ? ' checked' : ''); ?>>
-								<?php echo $val?>
+								<?php check_box($prefix.'['.$i.']', $key, (is_array($value) && in_array($key, $value)), '', $this->_edit_params['extras']); ?>
+								<?php echo $val; ?>
 							</td>
 							<?php
 
