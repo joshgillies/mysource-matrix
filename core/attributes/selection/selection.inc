@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.15 2004/02/12 04:01:16 gsherwood Exp $
+* $Id: selection.inc,v 1.16 2004/02/19 02:24:16 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -45,7 +45,6 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 */
 class Asset_Attribute_Selection extends Asset_Attribute
 {
-
 
 	/**
 	* Constructor
@@ -83,11 +82,96 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		if (!parent::setEditParams($node)) return false;
 
 		if (!empty($node->attributes['style'])) $this->_edit_params['style'] = $node->attributes['style'];
-		if (!empty($node->attributes['height'])) $this->_edit_params['style'] = $node->attributes['height'];
-		if (!empty($node->attributes['columns'])) $this->_edit_params['style'] = $node->attributes['style'];
+		if (!empty($node->attributes['height'])) $this->_edit_params['height'] = $node->attributes['height'];
+		if (!empty($node->attributes['columns'])) $this->_edit_params['columns'] = $node->attributes['columns'];
 		return true;
 
 	}//end setEditParams()
+
+
+	/**
+	* Print the interface for changing some params
+	*
+	* @param string		$prefix		prefix for the form element
+	*
+	* @access public
+	*/
+	function paintEditParams($prefix, $write_access=false)
+	{
+		$searchStyles = Array();
+		$searchStyles['list'] = 'List';
+		$searchStyles['checkbox'] = 'Checkbox';
+
+		// 1. _edit_params['style']
+		echo "Selection style: ";
+		if ($write_access) {
+			combo_box($prefix.'_selection_style', $searchStyles, false, $this->_edit_params['style']);
+		} else {
+			echo "<b>". $this->_edit_params['style'] ."</b>";
+		}
+		echo "<br />";
+
+		// 2. _edit_params['height']
+		echo "Selection height: ";
+		if ($write_access) {
+			text_box($prefix.'_selection_height', $this->_edit_params['height']);
+		} else {
+			echo "<b>". $this->_edit_params['height'] ."</b>";
+		}
+		echo "<br />";
+
+		// 3. _edit_params['columns']
+		echo "Selection columns: ";
+		if ($write_access) {
+			text_box($prefix.'_selection_columns', $this->_edit_params['columns']);
+		} else {
+			echo "<b>". $this->_edit_params['columns'] ."</b>";
+		}
+		echo "<br />";
+
+	}//end paintEditParams()
+
+
+	/**
+	* process the interface for changing some params
+	*
+	* @param string		$prefix		prefix for the form element
+	* @access public
+	*
+	* @return Array		structure of the return array must be:
+	*
+	*			attr_name => Array( key1 => value1,
+	*								key2 => value2,
+	*								key3 => value3
+	*						)
+	*
+	*/
+	function processEditParams($prefix)
+	{
+		// reading submitted vars
+		if (!empty($_POST[$prefix.'_selection_style'])) {
+			$this->_edit_params['style'] = $_POST[$prefix.'_selection_style'];
+		}
+
+		if (!empty($_POST[$prefix.'_selection_height'])) {
+			$this->_edit_params['height'] = $_POST[$prefix.'_selection_height'];
+		}
+
+		if (!empty($_POST[$prefix.'_selection_columns'])) {
+			$this->_edit_params['columns'] = $_POST[$prefix.'_selection_columns'];
+		}
+
+		$values = Array();
+		$values['style'] = $this->_edit_params['style'];
+		$values['height'] = $this->_edit_params['height'];
+		$values['columns'] = $this->_edit_params['columns'];
+
+		$result = Array();
+		$result[$this->name] = $values;
+
+		return $result;
+
+	}//end processEditParams()
 
 
 	/**
@@ -125,18 +209,19 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	*
 	* @param string		$prefix		prefix for the form element
 	* @param boolean	$read_only	are we just printing the value
+	* @param boolean	$add		if we should add the field name, or not (not - for search page)
 	*
 	* @access public
 	*/
-	function paint($prefix, $read_only=false)
+	function paint($prefix, $read_only=false, $add=true)
 	{
 		$options = $this->_params['options'];
-		if(!empty($this->_params['multiple'])) $this->value = $this->_str2ar($this->value);
+		if (!empty($this->_params['multiple']) && !is_array($this->value)) $this->value = $this->_str2ar($this->value);
 
 		if ($read_only) {
 			if (empty($this->value)) return;
 
-			if(empty($this->_params['multiple'])) {
+			if (empty($this->_params['multiple'])) {
 				if (!isset($options[$this->value])) {
 					// may have a value left over from when we
 					// were a mutiple selection field
@@ -162,21 +247,41 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		// just have this so that we can check whether this field was posted or not
 		// because checkboxes don't have an entry in the $_POST array when they are not selected
-		hidden_field($prefix.'_'.$this->name.'_posted', '1');
-		
+
+		// add the hidden field only if working in backend (i.e. not on search page itself)
+		if ($add) {
+			hidden_field($prefix.'_'.$this->name.'_posted', '1');
+		}
+
 		if($this->_edit_params['style'] == 'list') {
-			combo_box($prefix.'_'.$this->name, $options, !empty($this->_params['multiple']), $this->value, $this->_edit_params['height']);
+			if ($add) {
+				combo_box($prefix.'_'.$this->name, $options, !empty($this->_params['multiple']), $this->value, $this->_edit_params['height']);
+			} else {
+				combo_box($prefix, $options, !empty($this->_params['multiple']), $this->value, $this->_edit_params['height']);
+			}
 		} else {
 			echo ('<table cellpadding="0" cellspacing="0" border="0"><tr>');
 			reset($options);
 			$i = 0;
 			while(list($key,$val) = each($options)) {
 				if(empty($this->_params['multiple'])) {
-					?><td>&nbsp;<input type="radio" name="<?php echo $prefix.'_'.$this->name?>" value="<?php echo $key?>"<?php
+					?><td>&nbsp;<input type="radio" name="<?php 
+						if ($add) {
+							echo $prefix.'_'.$this->name;
+						} else {
+							echo $prefix;
+						}
+					?>" value="<?php echo $key?>"<?php
 					if($key == $this->value) echo ' checked';
 					?>><?php echo $val?></td><?php
 				} else {
-					?><td>&nbsp;<input type="checkbox" name="<?php echo $prefix.'_'.$this->name."[$i]"?>" value="<?php echo $key?>"<?php
+					?><td>&nbsp;<input type="checkbox" name="<?php 
+						if ($add) {
+							echo $prefix.'_'.$this->name."[$i]";
+						} else { 
+							echo $prefix . "[$i]";
+						}
+							?>" value="<?php echo $key?>"<?php
 					if(is_array($this->value) && in_array($key, $this->value)) echo ' checked';
 					?>><?php echo $val?></td><?php
 				}
@@ -247,6 +352,22 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		return true;
 
 	}//end validateValue()
+
+
+	/**
+	* Retrieve a list of indexable values from this attribute
+	*
+	* The return value not only contains the indexable values, but also the number of
+	* times they occur in this attributes value
+	*
+	* @return array(string => int)
+	* @access public
+	*/
+	function getKeyData()
+	{
+		return get_word_counts($this->value);
+
+	}//end getKeyData()
 
 
 }//end class
