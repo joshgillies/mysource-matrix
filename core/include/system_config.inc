@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.38 2004/08/05 03:43:16 gsherwood Exp $
+* $Id: system_config.inc,v 1.39 2004/09/03 15:56:48 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -314,7 +314,7 @@ class System_Config extends Config
 
 			$o->openField('System Root URLs');
 			if($write_access) {
-				text_area($class.'[SQ_CONF_SYSTEM_ROOT_URLS]', SQ_CONF_SYSTEM_ROOT_URLS, 40, 4);
+				text_area($class.'[SQ_CONF_SYSTEM_ROOT_URLS]', SQ_CONF_SYSTEM_ROOT_URLS, 80, 4);
 			} else {
 				echo nl2br(SQ_CONF_SYSTEM_ROOT_URLS);
 			}
