@@ -64,6 +64,7 @@ function random_password($length)
 	if (!$length) $length = 8;
 	$consonants = 'bcdfghjklmnpqrstvwyz';
 	$vowels     = 'aeiou';
+	$password   = '';
 	global $RANDOM_PASSWORD_SEED;
 	while($length > 0) {
 		$RANDOM_PASSWORD_SEED += $length;
