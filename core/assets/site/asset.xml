@@ -11,7 +11,4 @@
 	<system_only>no</system_only>
 	<parent_type>folder</parent_type>
 	<requirements />
-	<editing_options>
-		<option action="details">Edit Details</option>
-	</editing_options>
 </asset_info>
