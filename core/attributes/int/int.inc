@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: int.inc,v 1.19 2004/08/18 23:46:57 gsherwood Exp $
+* $Id: int.inc,v 1.20 2004/09/01 01:20:20 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -28,7 +28,9 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 /**
 * Integer Asset Attribute
 *
-*
+* parameters => Array(
+*                     'allow_negative' => [true|false]
+*               )
 *
 *
 * <!-- Sample Edit Interface XML Node -->
@@ -53,6 +55,7 @@ class Asset_Attribute_Int extends Asset_Attribute
 	function Asset_Attribute_Int($attributeid=0, $value=null)
 	{
 		$this->Asset_Attribute($attributeid, (int) $value);
+		if (!isset($this->_params['allow_negative'])) $this->_params['allow_negative'] = true;
 
 	}//end constructor
 
@@ -91,8 +94,33 @@ class Asset_Attribute_Int extends Asset_Attribute
 			return;
 		}
 
+		$allow_negative = array_get_index($this->_params,'allow_negative',true);
+		
+		$javascript ='
+			onFocus="javascript: this.__sq_init_value = this.value;" 
+			onChange="javascript:
+			my_value = parseInt(this.value, 10); 
+			if (isNaN(my_value)) {  
+				this.value = this.__sq_init_value; 
+				alert(\'This is an integer field.\\nUnable to accept non-digit characters in this field.\'); 
+			';
+
+		if (!$allow_negative) {
+			$javascript .= "
+			} else if (my_value < 0) {
+				alert('This field has to be non-negative.');
+			";
+
+		}
+
+		$javascript .= "
+			} else {
+				this.value = my_value; 
+			}
+		";
+
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		text_box($prefix.'_'.$this->name, (int) $this->value, $this->_edit_params['width'], 0, false, 'onFocus="javascript: this.__sq_init_value = this.value;" onChange="javascript: if (isNaN(parseInt(this.value, 10))) { this.value = this.__sq_init_value; alert(\'This is an integer field.\\nUnable to accept non-digit characters in this field.\'); } else { this.value = parseInt(this.value, 10); } "');
+		text_box($prefix.'_'.$this->name, (int) $this->value, $this->_edit_params['width'], 0, false, $javascript);
 
 	}//end paint()
 
@@ -128,6 +156,13 @@ class Asset_Attribute_Int extends Asset_Attribute
 	function validateValue(&$value)
 	{
 		$value = trim($value);
+
+		$allow_negative = array_get_index($this->_params, 'allow_negative', true);
+
+		if (!$allow_negative && $value < 0) {
+			$value = $this->_default_value;
+		}
+
 		$new_value = (int)$value;
 
 		// we are comparing by string here, reason is that passing in a string as $value
