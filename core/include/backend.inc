@@ -18,12 +18,10 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.74 2003/11/19 13:00:24 brobertson Exp $
+* $Id: backend.inc,v 1.75 2003/11/21 05:28:45 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
-
-require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 
 /**
 * Backend
@@ -76,10 +74,19 @@ class Backend extends MySource_Object
 	*
 	* @access public
 	*/
-	function paint() {
-
+	function paint()
+	{
 		// make sure we are a backend user
 		if (!is_a($GLOBALS['SQ_SYSTEM']->user, 'backend_user')) return;
+
+		// if we are in limbo, we are going to mix the frontend with the backend
+		// so we need to do things a little differently
+		if (SQ_IN_LIMBO && !isset($_GET['SQ_BACKEND_PAGE']) && !isset($_GET['sq_redirect_url'])) {
+			require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
+			$this->out =& new Limbo_Outputter();
+			$this->_printMain();
+			return;
+		}
 
 		if (isset($_GET['a'])) {
 			$frontend_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_GET['a']);
@@ -97,9 +104,12 @@ class Backend extends MySource_Object
 
 		} else {
 
+			require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 			$this->out =& new Backend_Outputter();
-			$this->out->addFormActionGetVar('SQ_BACKEND_PAGE', $_GET['SQ_BACKEND_PAGE']);
-
+			if (isset($_GET['SQ_BACKEND_PAGE'])) {
+				$this->out->addFormActionGetVar('SQ_BACKEND_PAGE', $_GET['SQ_BACKEND_PAGE']);
+			}
+			
 			switch($_GET['SQ_BACKEND_PAGE']) {
 				case 'header':
 					$this->_printHeader();
@@ -152,25 +162,43 @@ class Backend extends MySource_Object
 			$main_url = $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=main'.$main_extras;
 		}
 
+		$frame_urls = Array('header'  => $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=header',
+							'main'    => $main_url,
+							'sidenav' => $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=sidenav',
+							'resizer' => $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=resizer',
+							);
+
 		?>
 		<html>
 			<head>
 			<title><?php echo SQ_SYSTEM_LONG_NAME; ?> Backend</title>
 				<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 			</head>
-			<frameset rows="28,*" frameborder="0" border="0">
-				<frame src="<?php echo $_SERVER['PHP_SELF']; ?>?SQ_BACKEND_PAGE=header" name="header" scrolling="no" marginwidth="0" marginheight="0">
-				<frameset cols="250,10,*" frameborder="0" border="0" id ="main_frameset">
-					<frame src="<?php echo $_SERVER['PHP_SELF'];?>?SQ_BACKEND_PAGE=sidenav" name="sidenav" scrolling="no" marginwidth="0" marginheight="0">
-					<frame src="<?php echo $_SERVER['PHP_SELF'];?>?SQ_BACKEND_PAGE=resizer" name="resizer" scrolling="no" marginwidth="0" marginheight="0">
-					<frame src="<?php echo $main_url;?>" name="main" marginwidth="0" marginheight="0" scrolling="yes">
+			<?php
+			if (SQ_IN_LIMBO) {
+				?>
+				<frameset rows="28,*" frameborder="0" border="0">
+					<frame src="<?php echo $frame_urls['header']; ?>" name="header" scrolling="no" marginwidth="0" marginheight="0">
+					<frame src="<?php echo $frame_urls['main']; ?>" name="main" marginwidth="0" marginheight="0" scrolling="yes">
 				</frameset>
-			</frameset>
+				<?php
+			} else {
+				?>
+				<frameset rows="28,*" frameborder="0" border="0">
+					<frame src="<?php echo $frame_urls['header']; ?>" name="header" scrolling="no" marginwidth="0" marginheight="0">
+					<frameset cols="230,10,*" frameborder="0" border="0" id ="main_frameset">
+						<frame src="<?php echo $frame_urls['sidenav']; ?>" name="sidenav" scrolling="no" marginwidth="0" marginheight="0">
+						<frame src="<?php echo $frame_urls['resizer']; ?>" name="resizer" scrolling="no" marginwidth="0" marginheight="0">
+						<frame src="<?php echo $frame_urls['main']; ?>" name="main" marginwidth="0" marginheight="0" scrolling="yes">
+					</frameset>
+				</frameset>
+				<?php
+			}
+			?>
 		</html>
 		<?php
 
 	}//end _printFrames()
-
 
 
 	/**
@@ -198,14 +226,13 @@ class Backend extends MySource_Object
 									+ '&current_assetid=' + current_assetid
 									+ '&sq_lock_type=' + lock_type
 									+ '&last_messages_clicked=' + last_messages_clicked;
-				//alert(url);
 				document.location = url;
 			}
 		</script>
 		<?php
 		$this->out->addOnLoad('setTimeout("reloadHeader()", REFRESH_UPDATE * 1000);');
 
-		if (isset($_SESSION['backend_header_last_refresh'])) {
+		if (!SQ_IN_LIMBO && isset($_SESSION['backend_header_last_refresh'])) {
 
 			// check for updates to the asset tree
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -350,7 +377,7 @@ class Backend extends MySource_Object
 					}
 				}
 
-				if (top.main.document.body) {
+				function initMsgDiv() {
 					msgDiv = top.main.document.getElementById("new_message_popup");
 					screenMenu = top.main.document.getElementById("sq_screen_menu");
 					screenMenuFiller = top.main.document.getElementById("sq_screen_menu_filler");
@@ -369,6 +396,11 @@ class Backend extends MySource_Object
 					msgDiv.innerHTML = '<?php echo addslashes($html)?>';
 
 					setTimeout("showMsgDiv()", 200);
+				}
+
+
+				if (top.main.document.body) {
+					setTimeout("initMsgDiv()", 5000);
 				} else {
 					REFRESH_UPDATE = 2;
 				}
@@ -392,7 +424,8 @@ class Backend extends MySource_Object
 				<td align="right" width="100%">
 				<?php
 					$options = Array();
-					$options[] = Array(
+					if (!SQ_IN_LIMBO) {
+						$options[] = Array(
 									'url'     => '#',
 									'onclick' => 'Javascript:
 									if (top.main && top.main.get_form_element_value) {
@@ -407,7 +440,7 @@ class Backend extends MySource_Object
 									'icon'    => 'whereami.png',
 									);
 
-					$options[] = Array(
+						$options[] = Array(
 									'url'     => '#',
 									'onclick' => 'Javascript:
 									if (top.main && top.main.get_form_element_value) {
@@ -424,36 +457,48 @@ class Backend extends MySource_Object
 									'icon'    => 'preview.png',
 									);
 
-					if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-						$options[] = Array(
-										'url'    => $this->getBackendUrl('main').'&backend_section=config',
-										'target' => 'main',
-										'title'  => 'System Configuration',
-										'icon'   => 'system_config.png',
-										);
-					}
+						if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+							$options[] = Array(
+											'url'    => $this->getBackendUrl('main').'&backend_section=config',
+											'target' => 'main',
+											'title'  => 'System Configuration',
+											'icon'   => 'system_config.png',
+											);
+						}
 
-					if ($GLOBALS['SQ_SYSTEM']->userRoot()) {
-						$options[] = Array(
-										'url'    => $this->getBackendUrl('main').'&backend_section=hipo_herder',
-										'target' => 'main',
-										'title'  => 'HIPO Herder',
-										'icon'   => 'hipo_herder.png',
-										);
-					}
-					$options[] = Array(
-									'url'     => $this->getBackendUrl('main').'&backend_section=am',
-									'target'  => 'main',
-									'title'   => 'Asset Tree',
-									'icon'    => 'asset_tree.png',
-									);
+						if ($GLOBALS['SQ_SYSTEM']->userRoot()) {
+							$options[] = Array(
+											'url'    => $this->getBackendUrl('main').'&backend_section=hipo_herder',
+											'target' => 'main',
+											'title'  => 'HIPO Herder',
+											'icon'   => 'hipo_herder.png',
+											);
+						}
 
-					$options[] = Array(
+						$options[] = Array(
+										'url'     => $this->getBackendUrl('main').'&backend_section=am',
+										'target'  => 'main',
+										'title'   => 'Asset Tree',
+										'icon'    => 'asset_tree.png',
+										);
+
+						$options[] = Array(
 									'url'     => $_SERVER['PHP_SELF'].'?SQ_ACTION=logout',
 									'target'  => '_top',
 									'title'   => 'Logout',
 									'icon'    => 'logout.png',
 									);
+
+					} else {
+
+						$options[] = Array(
+										'url'     => current_url(true, true),
+										'target'  => '_top',
+										'title'   => 'Exit Editing Mode',
+										'icon'    => 'exit_limbo.png',
+										);
+
+					}
 
 					foreach($options as $option) {
 						?><a href="<?php echo $option['url'];?>"
@@ -466,7 +511,6 @@ class Backend extends MySource_Object
 						  ><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $this->out->filesPath('/images/icons/header/'.$option['icon']); ?>", "20", "20", "<?php echo htmlspecialchars($option['title']);?>");</script></a>
 						&nbsp;&nbsp;<?php
 					}
-
 				?>
 				</td>
 			</tr>
@@ -583,7 +627,6 @@ class Backend extends MySource_Object
 		if (empty($_GET['assetid']))         $_GET['assetid'] = '';
 
 		$this->out->addFormActionGetVar('backend_section', $_GET['backend_section']);
-		$this->out->addHiddenField('backend_assetid', $_GET['assetid']);
 
 		// if we are in rollback view, print a warning message
 		if (SQ_ROLLBACK_VIEW) {
@@ -595,7 +638,9 @@ class Backend extends MySource_Object
 		// add an onLoad event that checks if the current window is in the frameset
 		// and redirects the user to the frameset version if they are not
 		if (!isset($_GET['ignore_frames']) || !$_GET['ignore_frames']) {
-			$this->out->addOnLoad('if (!top.header) { sq_redirect("'.strip_url(current_url()).'/?sq_redirect_url='.urlencode(str_replace('SQ_ACTION=login', '', $_SERVER['REQUEST_URI'])).'"); } ');
+			$redirect_url = strip_url(current_url()).'/?sq_redirect_url='.urlencode($_SERVER['REQUEST_URI']);
+			if (SQ_IN_LIMBO) $redirect_url .= '&am_section=limbo';
+			$this->out->addOnLoad('if (!parent.top.header) { sq_redirect("'.$redirect_url.'"); } ');
 		}
 
 		switch($_GET['backend_section']) {

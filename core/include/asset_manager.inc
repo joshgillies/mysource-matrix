@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.152 2003/11/18 15:37:33 brobertson Exp $
+* $Id: asset_manager.inc,v 1.153 2003/11/21 05:28:45 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3382,7 +3382,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getLineageFromURL($protocol=null, $url=null, $name_type='name')
 	{
-		if (is_null($url)) $url = current_url(false);
+		if (is_null($url)) $url = current_url(false, true);
 		// remove any trailing slashes and double slashes
 		$url = strip_url($url);
 
@@ -3665,7 +3665,7 @@ class Asset_Manager extends MySource_Object
 
 		$return_hrefs = Array();
 		foreach ($asset_info as $assetid => $screen) {
-			$return_hrefs[$assetid] = sq_web_path('edit').'/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid='.$assetid.'&asset_ei_screen='.$screen;
+			$return_hrefs[$assetid] = sq_web_path('admin').'/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid='.$assetid.'&asset_ei_screen='.$screen;
 		}
 		return $return_hrefs;
 
@@ -3769,6 +3769,16 @@ class Asset_Manager extends MySource_Object
 		$edit_fns->paintBackend();
 
 	}//end paintBackend()
+
+
+
+	function paintLimbo(&$backend)
+	{
+		require_once SQ_INCLUDE_PATH.'/asset_manager_edit_fns.inc';
+		$edit_fns =& new Asset_Manager_Edit_Fns($this, $backend);
+		$edit_fns->paintLimbo();
+
+	}//end paintLimbo()
 
 
 }//end class

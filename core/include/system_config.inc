@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.15 2003/11/18 15:37:34 brobertson Exp $
+* $Id: system_config.inc,v 1.16 2003/11/21 05:28:45 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -42,7 +42,8 @@ class System_Config extends Config
 		'SQ_CONF_DB_DSN'					=> Array('editable' => 0, 'default' => ''),
 		'SQ_CONF_DB2_DSN'					=> Array('editable' => 0, 'default' => ''),
 		'SQ_CONF_PEAR_PATH'					=> Array('editable' => 0, 'default' => ''),
-		'SQ_CONF_BACKEND_SUFFIX'			=> Array('editable' => 0, 'default' => '_edit'),
+		'SQ_CONF_BACKEND_SUFFIX'			=> Array('editable' => 0, 'default' => '_admin'),
+		'SQ_CONF_LIMBO_SUFFIX'				=> Array('editable' => 0, 'default' => '_edit'),
 /*
 * Fixed Size of the number of digits that each link trees entry can be, run
 *   pow(SQ_CONF_ASSET_TREE_BASE, SQ_CONF_ASSET_TREE_SIZE)

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.43 2003/11/18 15:43:34 brobertson Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.44 2003/11/21 05:28:46 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -98,7 +98,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
-		if (isset($GLOBALS['sq_preview_url'])) {
+		if (isset($GLOBALS['sq_preview_url']) && !empty($GLOBALS['sq_preview_url'])) {
 			$url = $GLOBALS['sq_preview_url'];
 			$url = preg_replace('|^http[s]?://|', '', $url);
 
@@ -111,7 +111,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			if ($designid) {
 				if (DB::isError($designid)) {
 					trigger_error($designid->getMessage().'<br/>'.$designid->getUserInfo(), E_USER_ERROR);
-				} else {
+				} else if (!SQ_IN_LIMBO) {
 					$design = &$am->getAsset($designid);
 					$stylesheets = $design->getStylesheets();
 
@@ -144,7 +144,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			<p class="sq-backend-notice"><b>NOTE:</b> This asset does not have a preview URL or design applied to it in this context. No style information is available to use for content editing.</p>
 			<?php
 		}
-		
+
 		// get all the containers linked to this bodycopy
 		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
 
@@ -158,9 +158,9 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 					$container_edit->paintContainer($container, $o, $prefix);
 				}
 			}
-			return true;
+			return false;
 		}
-		
+
 		// the initial width and height to have the layer display created at;
 		$init_layer_width  = 500;
 		$init_layer_height = 500;
@@ -182,14 +182,14 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/debug.js';?>"						></script>
 		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/tooltips.js';?>"					></script>
 		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/html_form/html_form.js';?>"			></script>
-		
+
 		<script language="JavaScript" type="text/javascript">
 			// this is an array of data that each element (divs, tables, rows, and cells)
 			// can place data for use in editing
 			var bodycopy_current_data = new Object();
 			var bodycopy_saved        = new Object();
 
-			// this is an object that gets set everytime something is getting edited 
+			// this is an object that gets set everytime something is getting edited
 			// (as apposed to inserted or deleted) so that the pop-ups can get the info once
 			// they have loaded themselves
 			var bodycopy_current_edit = new Object();
@@ -219,7 +219,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 				form.bodycopy_action.value = bodycopy_action;
 				form.bodycopy_name.value   = bodycopy_name;
-				
+
 				// pack up the passed object
 				form.bodycopy_data.value = var_serialise(bodycopy_data);
 
@@ -301,7 +301,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				bodycopy_popup.hide();
 			}// end bodycopy_hide_popup()
 
-			// get the available cell types 
+			// get the available cell types
 			var BODYCOPY_AVAILABLE_CONTENT_TYPES = null;
 			function get_bodycopy_available_content_types() {
 				if (BODYCOPY_AVAILABLE_CONTENT_TYPES == null) {
@@ -350,7 +350,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 				if (editDiv.style.display == "none") { // the edit div is hidden
 					var setDesignMode = true;
-					
+
 					// initilise the wysiwg if this is the first time
 					// it is being shown - skip this otherwise
 					if (initialisedEditors[editor._uniqueID] == null) {
@@ -391,7 +391,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			bodycopy_current_data["<?php echo $prefix?>"] = new Object();
 		</script>
 
-		<?php 
+		<?php
 		// print JS functions for each of the container types we have installed
 		$container_types = $am->getAssetTypeHierarchy('bodycopy_container');
 		foreach ($container_types as $type => $type_data) {
@@ -414,18 +414,18 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		<style type="text/css">
 			#bodycopyPopupDiv {
 				color: #fffff;
-				position:absolute; 
-				left:100; 
-				top:120; 
-				width:<?php echo $init_layer_width?>; 
-				height:<?php echo $init_layer_height?>; 
+				position:absolute;
+				left:100;
+				top:120;
+				width:<?php echo $init_layer_width?>;
+				height:<?php echo $init_layer_height?>;
 				clip:rect(0,600,600,0);
 				visibility: hidden;
 			}
 			#bodycopyToolTipDiv {
-				position:absolute; 
-				width:  1px; 
-				height: 1px; 
+				position:absolute;
+				width:  1px;
+				height: 1px;
 				visibility: hidden;
 			}
 		</style>
@@ -441,7 +441,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		<!-- End Popup -->
 
 		<table border="0" cellspacing="0" cellpadding="0" width="100%" class="bodytext">
-		
+
 		<?php
 
 		// for each container, print it's editing interface
@@ -449,7 +449,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		foreach ($containers as $container_data) {
 			$container = &$am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
 			$container_edit = $container->getEditFns();
-		?> 
+		?>
 			<tr>
 				<td>
 					<input type="hidden" name="bodycopy_saved[<?php echo $prefix?>][<?php echo $container->id?>]" value="">
@@ -468,7 +468,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 							</td>
 						</tr>
 					</table>
-				</td> 
+				</td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
@@ -525,14 +525,14 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$updated = false;
-		
+
 		// do some thing for the first time we process a bodycopy on this page
 		if (empty($this->_tmp['update_initialised'])) {
 			$bc_action = (empty($_POST['bodycopy_action'])) ? ''      : $_POST['bodycopy_action'];
 			$bc_name   = (empty($_POST['bodycopy_name']))   ? ''      : $_POST['bodycopy_name'];
 			$bc_data   = (empty($_POST['bodycopy_data']))   ? Array() : $_POST['bodycopy_data'];
 			$bc_saved  = (empty($_POST['bodycopy_saved']))  ? Array() : $_POST['bodycopy_saved'];
-	
+
 			if (empty($bc_data) && empty($bc_saved)) return false;
 
 			// if there is some bodycopy data, deserialise it into the arrays

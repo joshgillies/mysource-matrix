@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.26 2003/11/18 15:37:37 brobertson Exp $
+* $Id: edit.css,v 1.27 2003/11/21 05:28:45 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -151,6 +151,35 @@ td.sq-backend-nav-history {
 .sq-backend-field {
 	color:				#000000;
 	background-color:	#ffffff;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			11px;
+	font-weight:		bold;
+	vertical-align:		top;
+}
+
+
+
+/* LIMBO OUTPUTTER - SECTIONS AND FIELDS */
+
+.sq-limbo-section-heading {
+	color:				#848479;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-weight:		bold;
+	font-size:			12px;
+	padding:			3px;
+	border: 1px solid black;
+}
+
+.sq-limbo-section-subheading {
+	color:				#33B9E6;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-weight:		bold;
+	font-size:			11px;
+	padding:			3px;
+}
+
+.sq-limbo-field {
+	color:				#000000;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-size:			11px;
 	font-weight:		bold;

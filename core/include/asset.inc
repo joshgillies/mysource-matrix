@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.258 2003/11/21 05:10:29 mmcintyre Exp $
+* $Id: asset.inc,v 1.259 2003/11/21 05:28:45 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2584,7 +2584,7 @@ class Asset extends MySource_Object
 		if($this->languages) header("Content-language: $this->languages");
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$url = strip_url(current_url(false));
+		$url = strip_url(current_url(false, true));
 
 		// Have they set a design name that they want to view ??
 		if (!empty($_GET['SQ_DESIGN_NAME'])) {
@@ -2646,6 +2646,26 @@ class Asset extends MySource_Object
 	{
 
 	}//end printBody()
+
+
+	/**
+	* Called by the design to print the body of this asset when in limbo
+	*
+	* By default, the normal backend is printed for the default screen
+	*
+	* @return void
+	* @access public
+	*/
+	function printLimbo()
+	{
+		$o = &$GLOBALS['SQ_SYSTEM']->backend->out;
+		$o->addHiddenField('asset_action', 'limbo');
+		$o->openRaw();
+		$this->paintBackend($o);
+		$o->closeRaw();
+		$o->paint();
+
+	}//end printLimbo()
 
 
 	/**

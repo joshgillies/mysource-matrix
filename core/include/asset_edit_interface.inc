@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.182 2003/11/18 15:58:52 brobertson Exp $
+* $Id: asset_edit_interface.inc,v 1.183 2003/11/21 05:28:45 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -176,7 +176,7 @@ class Asset_Edit_Interface extends MySource_Object
 		/////////////////////
 		$create_sections = Array();
 		if (empty($_GET['asset_ei_screen'])) {
-			if (isset($_GET['sq_from_frontend']) && !empty($this->_default_screen)) {
+			if ((SQ_IN_LIMBO || isset($_GET['sq_from_frontend'])) && !empty($this->_default_screen)) {
 				$active_screen = $this->_default_screen;
 			} else {
 				$active_screen = 'details';
@@ -220,146 +220,185 @@ class Asset_Edit_Interface extends MySource_Object
 			$acquire_lock_access = $owner->canLiveEdit($screen_lock_type);
 
 			$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($owner->id, $screen_lock_type, true);
-			
-			if (strtolower($screen_lock_type) != 'none') {
-				// lets tell the user if the asset is locked for editing
-				// or if they can lock it to edit it
-				$o->openSection('Locking / Editing');
-				$o->openField('&nbsp;');
-			?>
-				<table class="sq-backend-lock-table">
+
+			$have_any_locks    = false;
+			$have_all_locks    = true;
+			$do_the_limbo_lock = true;
+			foreach($locks as $lock_type => $lock) {
+
+				if (empty($lock)) {
+					$have_all_locks = false;
+				} else {
+					// this asset is currently locked
+					$user    = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+					$editing = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_assetid']);
+
+					if ($GLOBALS['SQ_SYSTEM']->currentUser($user)) {
+						$have_any_locks = true;
+					} else {
+						$have_all_locks = false;
+						$do_the_limbo_lock = false;
+					}
+				}// end if
+
+			}// end foreach lock types
+
+
+			if (SQ_IN_LIMBO && $do_the_limbo_lock) {
+
+				  /////////////////////
+				 //  LIMBO LOCKING  //
+				/////////////////////
+
+				// Limbo locking is special because we try to acquire the lock for them because we dont
+				// want to show them the complexity associated with the lock table.
+				// So lets go ahead now and try to acquire the default lock type for the screen we are on
+				if (!$have_all_locks) {
+					$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+					$vars = Array('assetid' => $owner->id, 'lock_type' => $screen_lock_type, 'forceably_acquire' => false);
+					$hh->queueHipo('hipo_job_acquire_lock', $vars);
+					$url = $hh->runQueuedJobs();
+					if (!empty($url)) $o->setRedirect(strip_url(current_url()).'/?sq_redirect_url='.urlencode($url));
+				}
+
+			} else {
+
+				if (strtolower($screen_lock_type) != 'none') {
+					// lets tell the user if the asset is locked for editing
+					// or if they can lock it to edit it
+					$o->openSection('Locking / Editing');
+					$o->openField('&nbsp;');
+				?>
+					<table class="sq-backend-lock-table">
+						<tr>
+							<td class="sq-backend-lock-table-header" style="width: 20px;">
+								<img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="1" border="0" alt="" />
+							</td>
+							<td class="sq-backend-lock-table-header" align="left" nowrap>
+								&nbsp;Lock Type
+							</td>
+							<td class="sq-backend-lock-table-header" width="100%">
+								&nbsp;
+							</td>
+						</tr>
+						<tr>
+							<td width="100%" colspan="3">
+								<table width="100%" cellspacing="1" cellpadding="0">
+					<?php
+				} else {
+					$o->openRaw('');
+				}
+
+				$need_force_locks = false;
+				$can_force_locks  = true;
+				$class = 'sq-backend-lock-table-cell-alt';
+				foreach($locks as $lock_type => $lock) {
+					if ($class == 'sq-backend-lock-table-cell') $class = 'sq-backend-lock-table-cell-alt';
+					else $class = 'sq-backend-lock-table-cell';
+
+				?>
 					<tr>
-						<td class="sq-backend-lock-table-header" style="width: 20px;">
-							<img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="1" border="0" alt="" />
+						<td class="<?php echo $class; ?>" style="width: 20px;" align="center">
+							<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/<?php echo ((empty($lock)) ? 'un' : ''); ?>locked.png", "16", "16", "");</script>
 						</td>
-						<td class="sq-backend-lock-table-header" align="left" nowrap>
-							&nbsp;Lock Type
+						<td class="<?php echo $class; ?>">
+							<?php echo ucwords(str_replace('_', ' ', $lock_type)); ?>
 						</td>
-						<td class="sq-backend-lock-table-header" width="100%">
-							&nbsp;
+						<td class="<?php echo $class; ?>">
+							<?php
+							if (empty($lock)) {
+								if ($full_write_access && $acquire_lock_access) {
+									echo '<p class="sq-backend-unlocked">Currently not held.</p>';
+								} else {
+									echo 'You do not have access to edit "'.$owner->name.'".';
+								}
+
+							} else {
+								// this asset is currently locked
+								// so display message to the user
+								$user    = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+								$editing = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_assetid']);
+
+								if (SQ_ROLLBACK_VIEW) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
+								else $now = time();
+
+								if (is_null($lock['expires'])) {
+									$expires_in = 'The lock is being held indefinitely and will not expire. The lock must be released manually or be forceably acquired by a System Administrator.';
+								} else {
+									require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+									$expires_in = easy_time_total(($lock['expires'] - $now), true);
+									if (!$expires_in) $expires_in = '1 second';
+									$expires_in = 'The lock is due to expire in '.$expires_in;
+								}
+
+								?>
+								<p class="sq-backend-locked-by-<?php echo ($GLOBALS['SQ_SYSTEM']->currentUser($user)) ? 'user' : 'someone-else'; ?>">
+									Held by user "<?php echo $user->name; ?>" at "<?php echo $editing->name; ?>".
+									<?php echo $expires_in; ?>
+								</p>
+								<?php
+
+								// if this lock is held by someone else, check if we can forceable acquire it
+								if (!$GLOBALS['SQ_SYSTEM']->currentUser($user)) {
+									$need_force_locks = true;
+									// does the current user has a high
+									// enough level of access to forceably acquire the lock
+									if (!$owner->canForceablyAcquireLock($lock_type)) {
+										$can_force_locks = false;
+									}
+								}
+
+							}// end if
+							?>
 						</td>
 					</tr>
-					<tr>
-						<td width="100%" colspan="3">
-							<table width="100%" cellspacing="1" cellpadding="0">
 				<?php
-			} else {
-				$o->openRaw('');
-			}
+				}// end foreach lock types
+				?>
+							</table>
+						</td>
+					</tr>
+				</table>
 
-			$have_any_locks  = false;
-			$have_all_locks  = true;
-			$need_force_locks = false;
-			$can_force_locks  = true;
-			$class = 'sq-backend-lock-table-cell-alt';
-			foreach($locks as $lock_type => $lock) {
-				if ($class == 'sq-backend-lock-table-cell') $class = 'sq-backend-lock-table-cell-alt';
-				else $class = 'sq-backend-lock-table-cell';
+				<?php
 
-			?>
-				<tr>
-					<td class="<?php echo $class; ?>" style="width: 20px;" align="center">
-						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/<?php echo ((empty($lock)) ? 'un' : ''); ?>locked.png", "16", "16", "");</script>
-					</td>
-					<td class="<?php echo $class; ?>">
-						<?php echo ucwords(str_replace('_', ' ', $lock_type)); ?>
-					</td>
-					<td class="<?php echo $class; ?>">
-						<?php
-						if (empty($lock)) {
-							$have_all_locks = false;
-							if ($full_write_access && $acquire_lock_access) {
-								echo '<p class="sq-backend-unlocked">Currently not held.</p>';
-							} else {
-								echo 'You do not have access to edit "'.$owner->name.'".';
-							}
+				if (!$have_all_locks || $have_any_locks) {
+					?><span style="float: right; margin-top: 2px; text-align: right;"><?php
+				}
 
-						} else {
-							// this asset is currently locked
-							// so display message to the user
-							$user    = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
-							$editing = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_assetid']);
+				if (!$have_all_locks) {
+					if ($need_force_locks) {
+						if ($can_force_locks) {
+							echo '<div class="sq-backend-locked-by-someone-else">You can forceably acquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself.<br>Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably acquired.</div>';
 
-							if (SQ_ROLLBACK_VIEW) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
-							else $now = time();
+							// they aren't going to do this without a fight though
+							// they'll have to go through our popup window first
+							$popup_url = '?SQ_BACKEND_PAGE=main&backend_section=am&ignore_frames=1&am_section=forceably_acquire_lock&assetid='.$owner->id.'&sq_lock_type='.$screen_lock_type;
 
-							if (is_null($lock['expires'])) {
-								$expires_in = 'The lock is being held indefinitely and will not expire. The lock must be released manually or be forceably acquired by a System Administrator.';
-							} else {
-								require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-								$expires_in = easy_time_total(($lock['expires'] - $now), true);
-								if (!$expires_in) $expires_in = '1 second';
-								$expires_in = 'The lock is due to expire in '.$expires_in;
-							}
-
-							?>
-							<p class="sq-backend-locked-by-<?php echo ($GLOBALS['SQ_SYSTEM']->currentUser($user)) ? 'user' : 'someone-else'; ?>">
-								Held by user "<?php echo $user->name; ?>" at "<?php echo $editing->name; ?>".
-								<?php echo $expires_in; ?>
-							</p>
-							<?php
-
-							// if this lock is held the current user
-							if ($GLOBALS['SQ_SYSTEM']->currentUser($user)) {
-								$have_any_locks = true;
-
-							// else it's held by someone else, check if we can forceable acquire it
-							} else {
-								$need_force_locks = true;
-								$have_all_locks   = false;
-								// does the current user has a high
-								// enough level of access to forceably acquire the lock
-								if (!$owner->canForceablyAcquireLock($lock_type)) {
-									$can_force_locks = false;
-								}
-							}
-
-						}// end if
-						?>
-					</td>
-				</tr>
-			<?php
-			}// end foreach lock types
-			?>
-						</table>
-					</td>
-				</tr>
-			</table>
-
-			<?php
-			hidden_field('sq_lock_type', $screen_lock_type);
-
-			if (!$have_all_locks || $have_any_locks) {
-				?><span style="float: right; margin-top: 2px; text-align: right;"><?php
-			}
-
-			if (!$have_all_locks) {
-				if ($need_force_locks) {
-					if ($can_force_locks) {
-						echo '<div class="sq-backend-locked-by-someone-else">You can forceably acquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself.<br>Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably acquired.</div>';
-
-						// they aren't going to do this without a fight though
-						// they'll have to go through our popup window first
-						$popup_url = '?SQ_BACKEND_PAGE=main&backend_section=am&ignore_frames=1&am_section=forceably_acquire_lock&assetid='.$owner->id.'&sq_lock_type='.$screen_lock_type;
-
+							hidden_field('sq_lock_acquire_by_force', '0');
+							hidden_field('sq_lock_acquire', '0');
+							normal_button('sq_forceably_acquire_lock', 'Acquire Lock(s)', "window.open('$popup_url', 'sq_forceably_acquire_lock_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300');");
+						}
+					} else if ($full_write_access && $acquire_lock_access) {
 						hidden_field('sq_lock_acquire_by_force', '0');
-						hidden_field('sq_lock_acquire', '0');
-						normal_button('sq_forceably_acquire_lock', 'Acquire Lock(s)', "window.open('$popup_url', 'sq_forceably_acquire_lock_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300');");
-					}
-				} else if ($full_write_access && $acquire_lock_access) {
-					hidden_field('sq_lock_acquire_by_force', '0');
-					submit_button('sq_lock_acquire', 'Lock');
-				}// end if
-			}
+						submit_button('sq_lock_acquire', 'Lock');
+					}// end if
+				}
 
-			if ($have_any_locks) submit_button('sq_lock_release_manual', 'Release Lock(s)');
+				if ($have_any_locks) submit_button('sq_lock_release_manual', 'Release Lock(s)');
 
-			if (!$have_all_locks || $have_any_locks) {
-				?></span><?php
-			}
+				if (!$have_all_locks || $have_any_locks) {
+					?></span><?php
+				}
 
-			if (strtolower($screen_lock_type) != 'none') $o->closeSection();
-			else $o->closeRaw();
+				if (strtolower($screen_lock_type) != 'none') $o->closeSection();
+				else $o->closeRaw();
+
+			}//end if
+
+			$o->openRaw();
+				hidden_field('sq_lock_type', $screen_lock_type);
+			$o->closeRaw();
 
 		}// end if
 
@@ -418,8 +457,16 @@ class Asset_Edit_Interface extends MySource_Object
 			// flash sends comma-separated assetids indicating the path
 			$asset_path = split(',', ($_GET['sq_asset_path']));
 		} else {
-			// flash didn't send one (e.g initial matrix loading) - pretend it did by making a singleton set of the owner
-			$asset_path = Array($owner->id);
+			if (SQ_IN_LIMBO) {
+				$url_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL();
+				foreach($url_lineage as $asset_info) {
+					$asset_path[] = $asset_info['assetid'];
+				}
+			} else {
+				// flash didn't send one (e.g initial matrix loading)
+				// pretend it did by making a singleton set of the owner
+				$asset_path = Array($owner->id);
+			}
 		}
 
 		$o->addFormActionGetVar('sq_asset_path', implode(',', $asset_path), true);

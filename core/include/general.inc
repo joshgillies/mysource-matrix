@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.41 2003/11/18 15:37:33 brobertson Exp $
+* $Id: general.inc,v 1.42 2003/11/21 05:28:45 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -275,9 +275,14 @@ function sq_web_path($path='base')
 			$paths[$path] = (SQ_IN_BACKEND) ? '..' : ((preg_match('/index.php$/', current_url())) ? './index.php' : '.');
 			break;
 
-		case 'edit' :
+		case 'admin' :
 			// preg bit is a check for the people who are using symlinked versions
 			$paths[$path] = (SQ_IN_BACKEND) ? '.'  : ((preg_match('/index.php$/', current_url())) ? './index.php' : '.').'/'.SQ_CONF_BACKEND_SUFFIX;
+			break;
+
+		case 'edit' :
+			// preg bit is a check for the people who are using symlinked versions
+			$paths[$path] = (SQ_IN_LIMBO) ? '.'  : ((preg_match('/index.php$/', current_url())) ? './index.php' : '.').'/'.SQ_CONF_LIMBO_SUFFIX;
 			break;
 
 		case 'root_url'  :
@@ -338,8 +343,9 @@ function current_url($inc_protocol=true, $strip_backend_suffix=false)
 
 	$url = (($inc_protocol) ? current_protocol().'://' : '').$hostname.$_SERVER['PHP_SELF'];
 	// if we are in the backend remove the suffix
-	if ($strip_backend_suffix && SQ_IN_BACKEND) {
+	if ($strip_backend_suffix && (SQ_IN_BACKEND || SQ_IN_LIMBO)) {
 		$url = preg_replace('/'.SQ_CONF_BACKEND_SUFFIX.'\/?$/', '', $url);
+		$url = preg_replace('/'.SQ_CONF_LIMBO_SUFFIX.'\/?$/', '', $url);
 	}
 	return $url;
 

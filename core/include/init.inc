@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.56 2003/11/18 15:37:34 brobertson Exp $
+* $Id: init.inc,v 1.57 2003/11/21 05:28:45 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -79,6 +79,7 @@ define('SQ_PACKAGES_PATH',		SQ_SYSTEM_ROOT.'/packages');
 define('SQ_WEB_PATH',			SQ_SYSTEM_ROOT.'/core/web');
 define('SQ_FUDGE_PATH',			SQ_SYSTEM_ROOT.'/fudge');
 
+
 // include the main system config file
 require_once SQ_DATA_PATH.'/private/conf/main.inc';
 
@@ -86,13 +87,19 @@ require_once SQ_DATA_PATH.'/private/conf/main.inc';
 // Load general everyday handy functions for developers
 require_once SQ_FUDGE_PATH.'/dev/dev.inc';
 
+
 // nice little boolean to use for testing whether we happen to be in the backend or not
 define('SQ_IN_BACKEND', (basename($_SERVER['PHP_SELF']) == SQ_CONF_BACKEND_SUFFIX));
+
+// nice little boolean to use for testing whether we happen to be in limbo (frontend editing) or not
+define('SQ_IN_LIMBO', (basename($_SERVER['PHP_SELF']) == SQ_CONF_LIMBO_SUFFIX));
+
 // make sure there is a trailing slash if we are in the backend
 if (SQ_IN_BACKEND && substr($_SERVER['PHP_SELF'], -1) != '/') {
 	header('Location: '.$_SERVER['PHP_SELF'].'/'.(($_SERVER['QUERY_STRING']) ? '?'.$_SERVER['QUERY_STRING'] : ''));
 	exit();
 }
+
 
 // the current output type for the system, can be changed during run-time (eg to XML)
 // main use is so that the error_reporter doesn't barf in HTML to something expecting XML
