@@ -156,68 +156,6 @@ class Asset_Edit_Interface extends Resolve_Object
 		// do we unlock this asset when committing?
 		$force_unlock_on_commit = true;
 
-		if (!$creating) {
-			// lets tell the user if the asset is locked for editing
-			// or if they can lock it to edit it
-			$o->openSection('Locking / Editing');
-			$o->openField('&nbsp;');
-
-			$lock = $owner->getLockInfo();
-
-			// firstly, if the current user does not have access to
-			// live edit then they cant do anything
-			if ($owner->status == SQ_STATUS_LIVE && !$owner->liveEditAccess(false)) {
-				$write_access = false;
-				if (!empty($lock)) {
-					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
-					if ($GLOBALS['SQ_SYSTEM']->currentUser($user)) {
-						echo '<b>NOTE: You currently have "'.$owner->name.'" locked for editing but you do not have access to live edit "'.$owner->name.'".</b>';
-					}
-				}
-			}
-
-			if (!empty($lock)) {
-				// this asset is currently locked
-				// so display message to the user
-				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
-				$editing = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_asset']);
-
-				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-				$expires_in = easy_time_total(($lock['expires'] - time()), true);
-				if (!$expires_in) $expires_in = '1 second';
-
-				echo '<p class="sq-form-field">"'.$owner->name.'" is currently locked for editing by user "'.$user->name.'" at "'.$editing->name.'". The lock is due to expire in '.$expires_in.'</p>';
-
-				if ($GLOBALS['SQ_SYSTEM']->currentUser($user)) {
-					submit_button('sq_manual_release_lock', 'Release Lock');
-				} else {
-					// does the current user has a high
-					// enough level of access to forceably aquire the lock
-					if ($owner->canForceablyAquireLock()) {
-						if ($owner->liveEditAccess()) {
-							echo '<p class="sq-form-field">You can forceably aquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself. Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably aquired.</p>';
-
-							submit_button('aquire_lock', 'Aquire Lock');
-						} else {
-							echo '<p class="sq-form-field">You cannot forceably aquire this lock at this time due as you do not have access to live edit "'.$owner->name.'".</p>';
-						}
-					}
-				}
-			} else if ($full_write_access) {
-				$write_access = false;
-				if ($owner->liveEditAccess(false)) {
-					submit_button('sq_aquire_lock', 'Aquire Lock');
-				} else {
-					echo 'You cannot aquire a lock at this time as you do not have access to live edit "'.$owner->name.'".';
-				}
-			} else {
-				echo 'You do not have access to edit "'.$owner->name.'".';
-			}
-
-			$o->closeSection();
-
-		}// end if
-
 		$current_location = $o->getCurrentLocation();
 		$current_location .= (strstr($current_location, '?')) ? '&' : '?';
 
@@ -249,6 +187,68 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		// make sure that we have the screen for next time
 		$o->addFormActionGetVar('asset_ei_screen', $active_screen);
+
+		if (!$creating) {
+			// lets tell the user if the asset is locked for editing
+			// or if they can lock it to edit it
+			$o->openSection('Locking / Editing');
+			$o->openField('&nbsp;');
+
+			$lock = $owner->getLockInfo();
+
+			// firstly, if the current user does not have access to
+			// live edit then they cant do anything
+			//if ($owner->status == SQ_STATUS_LIVE && !$owner->liveEditAccess(false)) {
+			//	$write_access = false;
+			//	if (!empty($lock)) {
+			//		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+			//		if ($GLOBALS['SQ_SYSTEM']->currentUser($user)) {
+			//			echo '<b>NOTE: You currently have "'.$owner->name.'" locked for editing but you do not have access to live edit "'.$owner->name.'".</b>';
+			//		}
+			//	}
+			//}
+
+			if (!empty($lock)) {
+				// this asset is currently locked
+				// so display message to the user
+				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+				$editing = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_asset']);
+
+				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+				$expires_in = easy_time_total(($lock['expires'] - time()), true);
+				if (!$expires_in) $expires_in = '1 second';
+
+				echo '<p class="sq-form-field">"'.$owner->name.'" is currently locked for editing by user "'.$user->name.'" at "'.$editing->name.'". The lock is due to expire in '.$expires_in.'</p>';
+
+				if ($GLOBALS['SQ_SYSTEM']->currentUser($user)) {
+					submit_button('sq_manual_release_lock', 'Release Lock');
+				} else {
+					// does the current user has a high
+					// enough level of access to forceably aquire the lock
+					if ($owner->canForceablyAquireLock()) {
+						if ($owner->liveEditAccess()) {
+							echo '<p class="sq-form-field">You can forceably aquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself. Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably aquired.</p>';
+
+							submit_button('aquire_lock', 'Aquire Lock');
+						} else {
+							echo '<p class="sq-form-field">You cannot forceably aquire this lock at this time due as you do not have access to live edit "'.$owner->name.'".</p>';
+						}
+					}
+				}
+			} else if ($full_write_access) {
+				$write_access = false;
+				//if ($owner->liveEditAccess(false)) {
+					submit_button('sq_aquire_lock', 'Aquire Lock');
+				//} else {
+				//	echo 'You cannot aquire a lock at this time as you do not have access to live edit "'.$owner->name.'".';
+				//}
+			} else {
+				echo 'You do not have access to edit "'.$owner->name.'".';
+			}
+
+			$o->closeSection();
+
+		}// end if
 
 		// check the active screen for special system defined static screens
 		$file = null;
@@ -653,7 +653,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		$prefix = $this->getPrefix($owner);
 		$perms = Array('Read' => SQ_PERMISSION_READ, 'Write' => SQ_PERMISSION_WRITE, 'Administrator' => SQ_PERMISSION_ADMIN);
 
-		$admin_access = $owner->adminAccess();
+		$admin_access = $owner->adminAccess(Array(), true, false);
 
 		foreach ($perms as $title => $perm) {
 			$inherited = false;
@@ -858,7 +858,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		}
 
 		// if we dont have effective admin access, dont process anything
-		if (!$owner->adminAccess()) return false;
+		if (!$owner->adminAccess(Array(), true, false)) return false;
 
 		$prefix = $this->getPrefix($owner);
 		$perms = Array('Administrator' => SQ_PERMISSION_ADMIN, 'Write' => SQ_PERMISSION_WRITE, 'Read' => SQ_PERMISSION_READ);
@@ -1057,7 +1057,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			}// end foreach
 
 		} else {
-			$admin_access = $owner->adminAccess();
+			$admin_access = $owner->adminAccess(Array(), true, false);
 		}
 
 
@@ -1300,7 +1300,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		}
 
 		// if we dont have effective admin access, dont process anything
-		if (!$owner->adminAccess()) return false;
+		if (!$owner->adminAccess(Array(), true, false)) return false;
 
 		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
 		$wfm = new Workflow_Manager($owner);
@@ -1604,7 +1604,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			if ($majorid == 1) continue;
 
 			$can_edit = false;
-			if ($owner->writeAccess() && in_array($link_type, array_keys($editable_link_types)) && !in_array($linkid, $editing_linkids)) $can_edit = true;
+			if ($owner->writeAccess(Array(), true, false) && in_array($link_type, array_keys($editable_link_types)) && !in_array($linkid, $editing_linkids)) $can_edit = true;
 
 			$asset_lineage = '';
 			foreach ($link_tree as $tree_data) {
@@ -1669,7 +1669,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		}
 
 		// if we dont have effective write access, dont process anything
-		if (!$owner->writeAccess()) return false;
+		if (!$owner->writeAccess(Array(), true, false)) return false;
 
 		// prefix for all the form vars
 		$prefix = $this->getPrefix($owner);
