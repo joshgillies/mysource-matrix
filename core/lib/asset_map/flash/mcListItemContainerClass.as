@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcListItemContainerClass.as,v 1.21 2003/10/20 00:27:29 dwong Exp $
+* $Id: mcListItemContainerClass.as,v 1.22 2003/10/26 23:11:26 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -704,9 +704,9 @@ mcListItemContainerClass.prototype.endMove = function(parent_item_name, parent_a
 		// if the parent has changed during the move or if they have pressed CONTROL
 		// then we need to ask what we want done
 		if (diff_parents || Key.isDown(Key.CONTROL)) {
-			_root.options_box.init("Move Type", "Are you moving this asset, or creating a new link ?", this, "moveConfirm", params);
-			if (diff_parents) _root.options_box.addOption("new link",   "New Link");
+			_root.options_box.init("Move Type", "Are you moving this asset, creating a new link or duplicating this asset?", this, "moveConfirm", params);
 			_root.options_box.addOption("move asset", "Moving");
+			if (diff_parents) _root.options_box.addOption("new link",   "New Link");
 			_root.options_box.addOption("dupe", "Duplicate");
 			_root.options_box.show();
 
