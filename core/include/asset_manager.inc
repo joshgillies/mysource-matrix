@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.193 2004/03/25 11:07:17 brobertson Exp $
+* $Id: asset_manager.inc,v 1.194 2004/03/26 12:21:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2007,7 +2007,7 @@ class Asset_Manager extends MySource_Object
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
-	* @return Array(int => string)	an array of assetids and their type code
+	* @return Array()	an array of the form Array([assetid] => [type_code])
 	* @access public
 	*/
 	function getDependantChildren($assetid, $type_code='', $strict_type_code=true)
@@ -2024,7 +2024,7 @@ class Asset_Manager extends MySource_Object
 				$children = $children + $this->getDependantChildren($dependant_links[$k]['minorid'],$type_code, $strict_type_code);
 			}
 
-			$this->forgetAsset($assetid);
+			$this->forgetAsset($asset);
 		}
 
 		unset($asset);
@@ -2044,7 +2044,7 @@ class Asset_Manager extends MySource_Object
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
-	* @return Array	returns an array of assetids
+	* @return Array()	returns an array of assetids
 	* @access public
 	*/
 	function getDependantParents($assetid, $type_code='', $strict_type_code=true)
@@ -2061,7 +2061,7 @@ class Asset_Manager extends MySource_Object
 				$parents = array_merge($parents, $this->getDependantParents($parentid, $type_code, $strict_type_code));
 			}
 
-			$this->forgetAsset($assetid);
+			$this->forgetAsset($asset);
 		}
 
 		unset($asset);
