@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.6 2004/08/11 01:07:50 gsherwood Exp $
+* $Id: linking.inc,v 1.7 2004/09/28 04:09:32 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -74,7 +74,6 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 		$result = Array();
 	} else {
 
-		$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
 		$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, pt.treeid as parent_treeid, a.name, a.assetid
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link cl
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct ON cl.linkid = ct.linkid,
@@ -83,7 +82,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON a.assetid = pl.minorid
 				';
 		$where = 'cl.minorid IN ('.implode(', ', array_keys($assetids)).')
-				  AND ct.treeid LIKE '.$concat.'
+				  AND ct.treeid LIKE pt.treeid || '.$db->quote('%').'
 				  AND pt.treeid <= ct.treeid';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
@@ -91,15 +90,10 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
-		$sql .= $where.'
-				ORDER BY cl.linkid, ct.treeid, pt.treeid';
-
+		$sql .= $where.' ORDER BY cl.linkid, ct.treeid, pt.treeid';
 
 		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC, true);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return Array();
-		}
+		assert_valid_db_result($result);
 	}
 
 	foreach ($asset_links as $link_data) $link_info[$link_data['majorid']][] = $link_data;
@@ -130,25 +124,25 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 			if (isset($output_lineages[$asset_lineage]) && !$can_edit) continue;
 
 			ob_start();
-			?>
-			<tr>
-				<td class="sq-backend-table-cell" style="text-align: center;">
-					<?php echo $linkid; ?>
-				</td>
-				<td class="sq-backend-table-cell" style="text-align: center;">
-					<?php
-					if (!$can_edit) {
-						echo link_type_name($link_type);
-					} else {
-						combo_box($prefix.'_link_type['.$linkid.']', $editable_link_types, false, $link_type);
-						$editing_linkids[] = $linkid;
-					}
-					?>
-				</td>
-				<td class="sq-backend-table-cell"><?php echo $asset_lineage; ?></td>
-			</tr>
-			<?php
-			$output_lineages[] = ob_get_contents();
+				?>
+				<tr>
+					<td class="sq-backend-table-cell" style="text-align: center;">
+						<?php echo $linkid; ?>
+					</td>
+					<td class="sq-backend-table-cell" style="text-align: center;">
+						<?php
+						if (!$can_edit) {
+							echo link_type_name($link_type);
+						} else {
+							combo_box($prefix.'_link_type['.$linkid.']', $editable_link_types, false, $link_type);
+							$editing_linkids[] = $linkid;
+						}
+						?>
+					</td>
+					<td class="sq-backend-table-cell"><?php echo $asset_lineage; ?></td>
+				</tr>
+				<?php
+				$output_lineages[] = ob_get_contents();
 			ob_end_clean();
 		}
 
@@ -159,17 +153,15 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 	} else {
 		?>
 		<table class="sq-backend-table">
-		<tr>
-			<td class="sq-backend-table-header" style="text-align: center; white-space: nowrap;">Link Id</td>
-			<td class="sq-backend-table-header" style="text-align: center;">Link Type</td>
-			<td class="sq-backend-table-header" width="100%">Lineage</td>
-		</tr>
-		<?php
-		foreach ($output_lineages as $null => $lineage_data) echo $lineage_data;
-		?>
+			<tr>
+				<td class="sq-backend-table-header" style="text-align: center; white-space: nowrap;">Link Id</td>
+				<td class="sq-backend-table-header" style="text-align: center;">Link Type</td>
+				<td class="sq-backend-table-header" width="100%">Lineage</td>
+			</tr>
+			<?php foreach ($output_lineages as $null => $lineage_data) echo $lineage_data; ?>
 		</table>
 		<?php
-	}// endif
+	}
 
 	$o->closeSection();
 
@@ -179,70 +171,73 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 	if (!empty($fl_jobs) || $write_access) {
 		$created = true;
 		$o->openSection('Future Linking');
-		if (!empty($fl_jobs)) {
-			$o->openField('', 'new_line');
-			?>
-			<table class="sq-backend-table">
-				<tr>
-					<td class="sq-backend-table-header">
-						Action
-					</td>
-					<td class="sq-backend-table-header">
-						When
-					</td>
-			<?php if ($write_access) {
-				$created = true;
-				?>
-					<td class="sq-backend-table-header" style="text-align: center;">
-						Delete ?
-					</td>
-			<?php } // end if ?>
-				</tr>
-			<?php
-
-			for($i = 0; $i < count($fl_jobs); $i++) {
-			?>
-				<tr>
-					<td class="sq-backend-table-cell">
-						<?php echo nl2br($fl_jobs[$i]->readableDescription()); ?>
-					</td>
-					<td class="sq-backend-table-cell">
-						<?php echo $fl_jobs[$i]->readableWhen(); ?>
-					</td>
-			<?php if ($write_access) {
-				$created = true;
-				?>
-					<td class="sq-backend-table-cell" style="text-align: center;">
-					<?php
-						if ($fl_jobs[$i]->canDelete()) {
-							check_box($prefix.'_remove_fl[]', $fl_jobs[$i]->id);
-						} else {
-							echo '&nbsp;';
-						}// end if
+			if (!empty($fl_jobs)) {
+				$o->openField('', 'new_line');
 					?>
-					</td>
-			<?php } // end if ?>
-				</tr>
-			<?php
-			}// end foreach
-
-			?>
-			</table>
-			<br/>
-			<?php
-
-		}// end if
-
-		if ($write_access) {
-			$created = true;
-			$fl = new Cron_Job_Future_Lineage();
-			$fl->setAssetInLink($owner, 'minor');
-			$edit_fns = $fl->getEditFns();
-			$edit_fns->paintInLineBackend($fl, $o, $prefix.'_new_fl');
-		}// end if
+					<table class="sq-backend-table">
+						<tr>
+							<td class="sq-backend-table-header">
+								Action
+							</td>
+							<td class="sq-backend-table-header">
+								When
+							</td>
+							<?php
+							if ($write_access) {
+								$created = true;
+								?>
+								<td class="sq-backend-table-header" style="text-align: center;">Delete ?</td>
+								<?php
+							}
+							?>
+						</tr>
+						<?php
+						for ($i = 0; $i < count($fl_jobs); $i++) {
+							?>
+							<tr>
+								<td class="sq-backend-table-cell">
+									<?php echo nl2br($fl_jobs[$i]->readableDescription()); ?>
+								</td>
+								<td class="sq-backend-table-cell">
+									<?php echo $fl_jobs[$i]->readableWhen(); ?>
+								</td>
+								<?php
+								if ($write_access) {
+									$created = true;
+									?>
+									<td class="sq-backend-table-cell" style="text-align: center;">
+										<?php
+										if ($fl_jobs[$i]->canDelete()) {
+											check_box($prefix.'_remove_fl[]', $fl_jobs[$i]->id);
+										} else {
+											echo '&nbsp;';
+										}
+										?>
+									</td>
+									<?php
+								}
+								?>
+							</tr>
+							<?php
+						}//end for
+						?>
+					</table>
+					<br/>
+					<?php
+				$o->closeField();
+			}//end if future lineage jobs
+	
+			if ($write_access) {
+				$created = true;
+				$fl = new Cron_Job_Future_Lineage();
+				$fl->setAssetInLink($owner, 'minor');
+				$edit_fns = $fl->getEditFns();
+				$edit_fns->paintInLineBackend($fl, $o, $prefix.'_new_fl');
+			}
 
 		$o->closeSection();
-	}// end if
+
+	}//end if future lineage jobs or write access
 
 	return $created;
 
