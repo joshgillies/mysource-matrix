@@ -1,0 +1,12 @@
+<contents>
+	<section name="Details">
+		<field>
+			<display_name>Trash</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintTrash"   />
+				<process_function name="processTrash" />
+			</function_call>
+		</field>
+	</section>
+</contents>

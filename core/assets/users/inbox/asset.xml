@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<?xml-stylesheet href="../../../packages/asset.xsl" type="text/xsl"?>
+
+<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
+	<package>__core__</package>
+	<type_code>inbox</type_code>
+	<version>0.1</version>
+	<name>Inbox</name>
+	<description>Check and manage the internal messages for a user</description>
+	<instantiable>yes</instantiable>
+	<system_only>yes</system_only>
+	<parent_type>asset</parent_type>
+	<requirements>
+		<requirement type="system">
+			<code>Resolve</code>
+			<version>0.1.0</version>
+		</requirement>
+	</requirements>
+</asset_info>

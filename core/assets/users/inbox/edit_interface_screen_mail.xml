@@ -1,0 +1,12 @@
+<contents>
+	<section name="Details">
+		<field>
+			<display_name>Inbox</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintMail"   />
+				<process_function name="processMail" />
+			</function_call>
+		</field>
+	</section>
+</contents>
