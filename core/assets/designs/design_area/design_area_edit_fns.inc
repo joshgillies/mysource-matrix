@@ -523,55 +523,22 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Outputs the PHP/HTML code that will hopefully form part of the creating the design file
 	*
+	* @param Array			$contents	the parse contents to use in the output
 	* @param object Asset	$asset		the asset to which we belong
 	* @param object Design	$design		the design object that is painting us
 	*
 	* @return boolean
 	* @access private
 	*/
-	function _createDesignFileOutput(&$asset, &$design)
+	function _createDesignFileOutput($contents, &$asset, &$design)
 	{
 		// firstly let's check to see if all the design areas have unique names
-		foreach($asset->vars['contents']['value'] as $index => $element) {
+		foreach($contents as $index => $element) {
 
 			if ($element['_type'] == 'HTML') {
 				echo $element['contents'];
 			} else {
-
-				switch($element['operation']) {
-					case 'print' :
-						unset($id_obj); // } unset, then set to null so that we don't kill
-						$id_obj = null; // } the object that we were previously referenced :)
-						// if there isn't a id_name we are using the current asset
-						if (empty($element['attributes']['id_name'])) {
-							$id_obj = &$asset;
-						// this is the global design var ?
-						} elseif ($element['attributes']['id_name'] == '__global__') {
-							$id_obj = &$design;
-						// otherwise we have to find the design area
-						} else {
-							$id_obj = &$design->getDesignArea($element['attributes']['id_name']);
-							if (is_null($id_obj)) {
-								trigger_error('Design Area "'.$element['attributes']['id_name'].'" not found, ignoring print operation', E_USER_WARNING);
-								continue;
-							}
-						}
-
-						if (empty($element['attributes']['var'])) {
-							$id_obj->printArea($design);
-						} else {
-							$args = $element['attributes'];
-							unset($args['id_name']);
-							unset($args['var']);
-							$id_obj->printVar($element['attributes']['var'], $args);
-						}// endif
-
-					break;
-
-					default :
-						trigger_error('Tag Operation "'.$element['operation'].'" unknown', E_USER_WARNING);
-				}
-
+				$this->_outputElement($element, $asset, $design);
 			}// end if
 
 		}// end foreach
@@ -579,6 +546,64 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		return true;
 
 	}// end _createDesignFileOutput()
+
+	/**
+	* Used by _createDesignFileOutput() to deal with a print tag
+	*
+	* @param array			$element	the print element tag
+	* @param object Asset	$asset		the asset to which we belong
+	* @param object Design	$design		the design object that is painting us
+	*
+	* @access private
+	* @see _createDesignFileOutput()
+	*/
+	function _outputElement($element, &$asset, &$design)
+	{
+		switch($element['operation']) {
+			case 'print' :
+				// if there isn't a id_name we are using the current asset
+				if (empty($element['attributes']['id_name']) && empty($element['attributes']['var'])) {
+					trigger_error('Print tag found without id_name or var attributes, ignoring print operation', E_USER_WARNING);
+					return;
+				}
+
+				// if there isn't a id_name we are using the current asset
+				if (empty($element['attributes']['id_name'])) {
+					$id_obj = &$asset;
+
+				// this is the global design var ?
+				} elseif ($element['attributes']['id_name'] == '__global__') {
+					$id_obj = &$design;
+
+				// otherwise we have to find the design area
+				} else {
+					$id_obj = &$design->getDesignArea($element['attributes']['id_name']);
+					if (is_null($id_obj)) {
+						trigger_error('Design Area "'.$element['attributes']['id_name'].'" not found, ignoring print operation', E_USER_WARNING);
+						return;
+					}
+				}
+
+				// if there is no var then print the asset
+				if (empty($element['attributes']['var'])) {
+					// we don't want recursion, so only print if the id_obj is not the asset
+					if ($id_obj !== $asset) {
+						$id_obj->printArea($design);
+					}
+				} else {
+					$args = $element['attributes'];
+					unset($args['id_name']);
+					unset($args['var']);
+					$id_obj->printVar($element['attributes']['var'], $args);
+				}// endif
+
+			break;
+
+			default :
+				trigger_error('Tag Operation "'.$element['operation'].'" unknown', E_USER_WARNING);
+		}// end switch
+
+	}// end _outputElement()
 
 	/**
 	* Creates a string that would be able to be parsed to recreate this design area in its current form

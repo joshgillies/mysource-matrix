@@ -256,11 +256,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$da->setVarReferenceValues($vars);
 		}// end foreach
 
-		$pre_str = '<?php $FILE_PREFIX = $DATA_PATH.\'/'.addslashes($asset->webFileSuffix('')).'\'; ?>';
+		$pre_str = '<?php 
+		$FILE_PREFIX = $DATA_PATH.\'/'.addslashes($asset->webFileSuffix('')).'\'; 
+		$am = &$GLOBALS[\'SQ_SYSTEM\']->am;
+		?>';
 
 		$str = '';
 		ob_start();
-		if ($this->_createDesignFileOutput($asset, $asset)) {
+		if ($this->_createDesignFileOutput($asset->attr('contents'), $asset, $asset)) {
 			$str = ob_get_contents();
 		}
 		ob_end_clean();
@@ -270,7 +273,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		pre_echo("STR EXISTS");
 
 
-		$str = $pre_str."\n\n".$str;
+		$str = $pre_str."\n".$str;
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		create_directory($asset->data_path);

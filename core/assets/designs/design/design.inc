@@ -162,6 +162,15 @@ class Design extends Design_Area
 	*/
 	function printVar($var, $args)
 	{
+
+		if (empty($args['escape']) || strtolower($args['escape']) == 'no') { 
+			$escape_start = '';
+			$escape_end = '';
+		} else {
+			$escape_start = 'addslashes(';
+			$escape_end = ')';
+		}
+
 		switch($var) {
 			case 'html_header' :
 				echo '
@@ -182,10 +191,18 @@ class Design extends Design_Area
 				break;
 
 			case 'site_name' :
-			case 'page_name' :
 			case 'page_title' :
 				echo '"', ucwords(str_replace('_', ' ', $var)), '" NOT PROGRAMMED YET';
 				break;
+
+			case 'page_link' :
+				echo '<?', 'php echo $ASSET->getHref(); ?', '>';
+				break;
+
+			case 'page_name' :
+				echo '<?', 'php echo ', $escape_start, '$ASSET->name', $escape_end, '; ?', '>';
+				break;
+
 
 			case 'file_path' :
 				echo '<?php echo $DATA_PATH;?>/'.$this->webFileSuffix($args['filename']);
@@ -193,6 +210,7 @@ class Design extends Design_Area
 
 			default :
 				parent::printVar($var);
+
 		}// end switch
 
 	}//end printVar()

@@ -143,6 +143,8 @@ class Design_Area extends Asset
 	*/
 	function printArea(&$design) 
 	{
+		$edit_fns = $this->getEditFns();
+		$edit_fns->_createDesignFileOutput($this->attr('contents'), $this, $design);
 	}//end printArea()
 
 	/*
