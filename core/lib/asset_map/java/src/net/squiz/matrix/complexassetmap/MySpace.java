@@ -107,16 +107,6 @@ class MySpace extends JPanel {
 		
 		entryPanel.add(filler2);
 		
-		JLabel workspaceLabel = 
-			new JLabel(MatrixToolkit.getAssetMapIcon("workspace_icon.png"));
-		
-		workspaceLabel.setText("<html><font color=\"" + textColour 
-				+ "\">Workspace</font></html>");
-		
-		initMyspaceEntry(workspaceLabel);
-		workspaceLabel.setHorizontalAlignment(SwingConstants.LEFT);
-	//	entryPanel.add(workspaceLabel);
-		
 		return entryPanel;
 	}
 
