@@ -52,7 +52,7 @@ class Asset extends Resolve_Object
 
 		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
 
-		# welcome to sequences, they are cool, see the PEAR::DB docs for more info
+		// welcome to sequences, they are cool, see the PEAR::DB docs for more info
 		$assetid = $db->nextid('sq_sequence_asset');
 
 		$sql = 'INSERT INTO sq_asset
@@ -74,7 +74,7 @@ class Asset extends Resolve_Object
 
 		return true;
 
-	}#end create()
+	}//end create()
 
 
 	/*
@@ -89,7 +89,7 @@ class Asset extends Resolve_Object
 
 		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
 
-		# OK, the first thing to do is check we actually exist :)
+		// OK, the first thing to do is check we actually exist :)
 
 		$sql = 'SELECT assetid, type_code, last_updated, last_userid
 				FROM sq_asset
@@ -105,7 +105,7 @@ class Asset extends Resolve_Object
 		list($this->id, $type_code, $this->last_updated, $this->last_userid) = $result;
 		unset($result);
 
-		# make sure the asset we are loading is of the same type as our class
+		// make sure the asset we are loading is of the same type as our class
 		if ($type_code != get_class($this)) {
 			trigger_error('Asset #'.$assetid.' is not a '.get_class($this), E_USER_WARNING);
 			$this->id   = null;
@@ -116,7 +116,7 @@ class Asset extends Resolve_Object
 
 		$this->_loadVars($db);
 
-	}#end load()
+	}//end load()
 
 
 	/*
@@ -130,7 +130,7 @@ class Asset extends Resolve_Object
 
 		if (!$this->id) return;
 
-		# Right, now we need to get any values that this asset has customised
+		// Right, now we need to get any values that this asset has customised
 		$this->vars = Array();
 
 		$sql = 'SELECT a.attributeid, a.name, v.value
@@ -146,14 +146,14 @@ class Asset extends Resolve_Object
 		while (NULL !== ($row = $result->fetchRow())) {
 			$vars_str .= (($vars_str) ? ',' : '').$db->quote($row['name']);
 			$this->vars[$row['name']] = Array('attributeid' => $row['attributeid'], 'value' => $row['value']);
-		}#end while
+		}//end while
 		$result->free();
 
 		$parents = $this->getParentList();
 		$parents[] = get_class($this);
-		# OK, because of the way things work we now need to get any vars that this asset has
-		# or has inherited but has not customised - ie the default values
-		# NOTE: we specifically don't get defaults for vars we have customised
+		// OK, because of the way things work we now need to get any vars that this asset has
+		// or has inherited but has not customised - ie the default values
+		// NOTE: we specifically don't get defaults for vars we have customised
 		$parents_str = '';
 		foreach($parents as $i) $parents_str .= (($parents_str) ? ',' : '').$db->quote($i);
 		$sql = 'SELECT a.attributeid, a.name, d.value
@@ -169,10 +169,10 @@ class Asset extends Resolve_Object
 
 		while (NULL !== ($row = $result->fetchRow())) {
 			$this->vars[$row['name']] = Array('attributeid' => $row['attributeid'], 'value' => $row['value']);
-		}#end while
+		}//end while
 		$result->free();
 
-	}#end _loadVars()
+	}//end _loadVars()
 
 	/*
 	* Returns an array of all assets types that this asset extends from
@@ -185,7 +185,7 @@ class Asset extends Resolve_Object
 
 		return $GLOBALS['SQ_RESOLVE']->am->getParentList(get_class($this));
 
-	}#end getParentList()
+	}//end getParentList()
 
 
 	/*
@@ -203,7 +203,7 @@ class Asset extends Resolve_Object
 		// OK, let's check what we already have cached, and only do a DB call for what we need
 		$search_link_types = 0;
 		foreach($elem_types as $link_type) {
-			# if we haven't got all the links yet or we have got the specific type of links
+			// if we haven't got all the links yet or we have got the specific type of links
 			if (empty($this->_tmp['links'][$link_type.'___GOT_ALL___'])
 				|| ($asset_type && !isset($this->_tmp['links'][$link_type][$asset_type]))) {
 				$search_link_types |= $link_type;
@@ -218,7 +218,7 @@ class Asset extends Resolve_Object
 					WHERE l.minorid   = a.assetid 
 					  AND l.majorid   = '.$db->quote($this->id).'
 					  AND (link_type & '.$db->quote($search_link_types).') > 0 '
-					.(empty($asset_type) ? 'ORDER BY a.type_code' : ' AND a.type_code = '.$db->quote($asset_type));
+					.(empty($asset_type) ? 'ORDER BY a.type_code, l.minorid' : ' AND a.type_code = '.$db->quote($asset_type));
 
 //			pre_echo($sql);
 
@@ -236,7 +236,7 @@ class Asset extends Resolve_Object
 				unset($row['type_code']);
 				$this->_tmp['links'][$link_type][$type_code][] = $row;
 
-			}#end while
+			}//end while
 			$result->free();
 
 			// a bit of integrity
@@ -253,7 +253,7 @@ class Asset extends Resolve_Object
 				}
 			}
 
-		}#end if
+		}//end if
 
 		$ret_arr = Array();
 		foreach($elem_types as $link_type) {
@@ -266,7 +266,7 @@ class Asset extends Resolve_Object
 
 		return $ret_arr;
 
-	}#end getLinks()
+	}//end getLinks()
 
 
 	/*
@@ -303,7 +303,7 @@ class Asset extends Resolve_Object
 			
 			return $result;
 
-	}#end countLinks()
+	}//end countLinks()
 	
 	/*
 	* Called when the links are changed for this asset so that the tmp cache can be cleared
@@ -318,14 +318,14 @@ class Asset extends Resolve_Object
 		if (empty($asset_type)) {
 			unset($this->_tmp['links'][$link_type]);
 		} else {
-			# only unset this specific type so calls for any other type 
-			# can used the cached version if it exists
+			// only unset this specific type so calls for any other type 
+			// can used the cached version if it exists
 			unset($this->_tmp['links'][$link_type][$asset_type]);
 		}
 		
 		unset($this->_tmp['links'][$link_type.'___GOT_ALL___']);
 
-	}#end _linkChanged()
+	}//end _linkChanged()
 
 	/*
 	* Creates a link between this asset and the passed asset, of a certain type
@@ -344,53 +344,26 @@ class Asset extends Resolve_Object
 			return false;
 		}
 
-
-		# get the minor assets parents and add it's type to the front of the indexed array
-		$types = $minor->getParentList();
-		array_unshift($types, get_class($minor));
-
-		$allowed_links = $this->_getAllowedLinks();
-
-		# we will be ascending up the parent tree from the current asset type.
-		# that way the major asset can have specific cardinality for different assets types
-		# EG, assets => 'M', user => '1' -> this means that many assets can be linked to this this asset
-		#     and only one user, but because 'user' is an 'asset' we need to check for any 'user' references
-		#     bfore we check for any 'asset' references
-		$type = '';
-		for($i = 0; $i < count($types); $i++) {
-			$type = $types[$i];
-			if (!empty($allowed_links[$link_type][$type])) break;
-		}
-
-		if (empty($allowed_links[$link_type][$type])) {
-			trigger_error('Assets of Type "'.$type.'" cannot be "'.$link_type.'" linked to a "'.get_class($this).'"', E_USER_WARNING);
-			return false;
-		}
-
+		// First, we should check that we don't already have a link of this type
 		$current_links = $this->getLinks($link_type, $type);
 		$num_curr_links = count($current_links);
-
-		# First, we should check that we don't already have a link of this type
 		for($i = 0; $i < $num_curr_links; $i++) {
-			# it already exists, so we don't need to do anything
+			// it already exists, so we don't need to do anything
 			if ($current_links[$i]['minorid'] == $minor->id && $current_links[$i]['value'] == $value) {
 				return true;
 			}
-		}#end for
+		}//end for
 
-		### Now we need to check that the cardinality is kept valid
-
-		# if we are only allowed one of these links and we already have our one link, bugger off
-		if ($allowed_links[$link_type][$type] == 1 && $num_curr_links > 0) {
-			trigger_error('Assets of Type "'.get_class($this).'" can only have one "'.$link_type.'" link to a "'.$type.'"', E_USER_WARNING);
+		// check if we are allowed to link to these type of assets
+		if (($err_msg = $this->canLinkToType($type_code, $link_type)) !== true) {
+			trigger_error($err_msg, E_USER_WARNING);
 			return false;
-		}#end if
+		}
 
 		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
 
-
-		# if this link is either an exclusive or a unite link, then we need to make sure that this
-		# minor asset doesn't already have an exclusive link from anything
+		// if this link is either an exclusive or a unite link, then we need to make sure that this
+		// minor asset doesn't already have an exclusive link from anything
 		if ($link_type & (SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE)) {
 			$sql = 'SELECT majorid
 					FROM sq_asset_link
@@ -411,7 +384,7 @@ class Asset extends Resolve_Object
 				return false;
 			}
 			
-		}#end if
+		}//end if
 
 		$sql = 'INSERT INTO sq_asset_link
 				(majorid, minorid, link_type, value, last_updated, last_userid)
@@ -430,7 +403,57 @@ class Asset extends Resolve_Object
 
 		return true;
 
-	}#end createLink()
+	}//end createLink()
+
+
+	/*
+	* Checks whether a link of a certain type can be made to this asset
+	* Returns TRUE if link allowed and a string containing the error if it is not
+	*
+	* @param string $type_code	the type code that we want to check
+	* @param string $link_type  the type of link to check
+	*
+	* @return mixed
+	* @access public
+	*/
+	function canLinkToType($type_code, $link_type) {
+
+
+		// get the minor assets parents and add it's type to the front of the indexed array
+		$types = $GLOBALS['SQ_RESOLVE']->am->getParentList($type_code);
+		array_unshift($types, $type_code);
+
+		$allowed_links = $this->_getAllowedLinks();
+
+		// we will be ascending up the parent tree from the current asset type.
+		// that way the major asset can have specific cardinality for different assets types
+		// EG, assets => 'M', user => '1' -> this means that many assets can be linked to this this asset
+		//     and only one user, but because 'user' is an 'asset' we need to check for any 'user' references
+		//     bfore we check for any 'asset' references
+		$type = '';
+		for($i = 0; $i < count($types); $i++) {
+			$type = $types[$i];
+			if (!empty($allowed_links[$link_type][$type])) break;
+		}
+
+		if (empty($allowed_links[$link_type][$type])) {
+			return 'Assets of Type "'.$type.'" cannot be "'.$link_type.'" linked to a "'.get_class($this).'"';
+		}
+
+
+		//// Now we need to check that the cardinality is kept valid ////
+		$current_links = $this->getLinks($link_type, $type);
+		$num_curr_links = count($current_links);
+
+		// if we are only allowed one of these links and we already have our one link, bugger off
+		if ($allowed_links[$link_type][$type] == 1 && $num_curr_links > 0) {
+			return 'Assets of Type "'.get_class($this).'" can only have one "'.$link_type.'" link to a "'.$type.'"';
+		}//end if
+
+		// if we get this far all is OK
+		return true;
+
+	}// canLinkToType()
 
 
 	/*
@@ -452,7 +475,7 @@ class Asset extends Resolve_Object
 					 SQ_LINK_NOTICE    => Array()
 					);
 
-	}#end _getAllowedLinks()
+	}//end _getAllowedLinks()
 
 
 	/*
@@ -477,7 +500,7 @@ class Asset extends Resolve_Object
 		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
 		$attributeid = $this->vars[$name]['attributeid'];
 
-		# delete previous entry, if any
+		// delete previous entry, if any
 		$sql = 'DELETE FROM sq_asset_attribute_value
 				WHERE assetid = '.$db->quote($this->id).'
 				  AND attributeid = '.$db->quote($attributeid);
@@ -489,7 +512,7 @@ class Asset extends Resolve_Object
 			return false;
 		}
 
-		# now insert new entry
+		// now insert new entry
 		$sql = 'INSERT INTO sq_asset_attribute_value
 				(assetid, attributeid, value)
 				VALUES
@@ -507,7 +530,7 @@ class Asset extends Resolve_Object
 
 		return true;
 
-	}#end setAttribute()
+	}//end setAttribute()
 
 	/*
 	* Returns a name to use to describe this instance of this asset
@@ -517,7 +540,7 @@ class Asset extends Resolve_Object
 	*/
 	function name() {
 		return ucwords(str_replace('_', ' ', get_class($this))).' #'.$this->id;
-	}#end name();
+	}//end name();
 
 	/*
 	* easy way to get the value of an attribute
@@ -533,7 +556,7 @@ class Asset extends Resolve_Object
 
 		return $this->vars[$name]['value'];
 
-	}#end attr();
+	}//end attr();
 
-}#end class
+}//end class
 ?>
