@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_map.inc,v 1.88 2003/10/14 03:27:52 gsherwood Exp $
+* $Id: asset_map.inc,v 1.89 2003/10/14 03:43:16 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -720,8 +720,9 @@ class Asset_Map
 			}
 
 			// Now let's move the link
-			$moved = $GLOBALS['SQ_SYSTEM']->am->moveLink($link['linkid'], $new_parent->id, $link['link_type'], $input->root->attributes['to_parent_pos']);
-			if (!$moved) return;
+			$linkid = $GLOBALS['SQ_SYSTEM']->am->moveLink($link['linkid'], $new_parent->id, $link['link_type'], $input->root->attributes['to_parent_pos']);
+			error_log("NEW LINKID IS $linkid");
+			if (!$linkid) return;
 
 			//// START HIPO PROCESSING ////
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();

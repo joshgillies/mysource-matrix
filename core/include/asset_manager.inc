@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.136 2003/10/14 01:32:09 brobertson Exp $
+* $Id: asset_manager.inc,v 1.137 2003/10/14 03:43:15 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2594,7 +2594,7 @@ class Asset_Manager extends MySource_Object
 	* @param int	$link_type		the type of the new link
 	* @param int	$to_parent_pos	the position under the new parent
 	*
-	* @return boolean
+	* @return int
 	* @access public
 	*/
 	function moveLink($linkid, $to_parentid, $link_type, $to_parent_pos)
@@ -2603,44 +2603,44 @@ class Asset_Manager extends MySource_Object
 		$link = $this->getLinkById($linkid);
 		if (empty($link)) {
 			trigger_error('Existing Link #'.$linkid.' not found, unable to move link', E_USER_WARNING);
-			return false;
+			return 0;
 		}
 
 		$old_parent = &$this->getAsset($link['majorid'], $link['major_type_code']);
 		if (is_null($old_parent)) {
-			return false;
+			return 0;
 		}
 
 		// now check that the new parent exists
 		$new_parent = &$this->getAsset($to_parentid);
 		if (is_null($new_parent)) {
 			trigger_error('Unable to Move Asset, new parent (Asset #"'.$to_parentid.'") not found', E_USER_WARNING);
-			return false;
+			return 0;
 		}
 
 		// cant link to the new parent if it is in the trash
 		if ($this->assetInTrash($new_parent->id, true)) {
 			trigger_error('Unable to Move Asset, new parent (Asset #"'.$new_parent->id.'") is in the trash');
-			return;
+			return 0;
 		}
 
 		// if you dont have write access to this asset you cant delete any links
 		if (!$old_parent->writeAccess('')) {
 			trigger_error('Unable to Move Asset, permission denied to old parent "'.$old_parent->name.'"', E_USER_WARNING);
-			return false;
+			return 0;
 		}
 
 		// if you dont have write access to the new parent asset you cant create any links
 		if (!$new_parent->writeAccess('')) {
 			trigger_error('Unable to Move Asset, permission denied to new parent "'.$new_parent->name.'"', E_USER_WARNING);
-			return false;
+			return 0;
 		}
 
 		// this is the asset we are moving
 		$minor = &$this->getAsset($link['minorid'], $link['minor_type_code']);
 		if (!$minor->id) {
 			trigger_error('Unable to Move Asset, minor (Asset #"'.$link['minorid'].'") not found', E_USER_WARNING);
-			return false;
+			return 0;
 		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -2651,19 +2651,19 @@ class Asset_Manager extends MySource_Object
 		$new_linkid = $new_parent->createLink($minor, $link_type, '', $to_parent_pos);
 		if (!$new_linkid) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return 0;
 		}
 
 		// Now let's try and delete the old link
 		$deleted = $old_parent->deleteLink($linkid);
 		if (!$deleted) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return 0;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		return true;
+		return $new_linkid;
 
 	}//end moveLink()
 
