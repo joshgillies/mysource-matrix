@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: history.inc,v 1.4 2004/11/18 04:48:01 gsherwood Exp $
+* $Id: history.inc,v 1.5 2005/01/13 22:07:06 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -67,87 +67,85 @@ function paintHistory(&$owner, &$o, &$ei)
 	}
 
 	$o->openSection('Version History');
-	$o->openField('');
-
-	if (SQ_ROLLBACK_VIEW) {
-		?><p class="sq-backend-data"><b><i>The highlighted row in the version history is the current version of "<?php echo $owner->name; ?>" being viewed in rollback mode</i></b></p>
-		<?php
-	}
-
-	hidden_field($prefix.'_rollback_version', '0');
-
-	?>
-	<table class="sq-backend-table">
-		<tr>
-			<td class="sq-backend-table-header">Version Duration</td>
-			<td class="sq-backend-table-header">Time Since Version</td>
-			<td class="sq-backend-table-header" align="center">Version</td>
-			<?php
-			if ($write_access) {
-				?>
-				<td class="sq-backend-table-header" align="center">View</td>
+		$o->openRaw();
+	
+			if (SQ_ROLLBACK_VIEW) {
+				?><p class="sq-backend-data"><b><i>The highlighted row in the version history is the current version of "<?php echo $owner->name; ?>" being viewed in rollback mode</i></b></p>
 				<?php
 			}
+	
+			hidden_field($prefix.'_rollback_version', '0');
+	
 			?>
-		</tr>
-	<?php
-
-	foreach ($result as $data) {
-		$from = $data['efrom'];
-		$to   = $data['eto'];
-
-		$class = 'sq-backend-table-cell';
-		$show_view_btn = true;
-		if (SQ_ROLLBACK_VIEW) {
-			$rollback_from = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
-			if ($rollback_from >= strtotime($from) && (empty($to) || strtotime($to) > $rollback_from)) {
-				$class .= '-alt';
-				$show_view_btn = false;
-			}
-		}
-
-		if (empty($to)) {
-			$to = 'present';
-			$ago = 'Most Recent';
-			$show_view_btn = false;
-		} else {
-			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-			$ago = easy_time_total(time() - strtotime($from), true);
-			list($fd, $ft) = explode(' ', $from);
-			list($td, $tt) = explode(' ', $to);
-			if ($fd == $td) $to = $tt;
-			else $to = date('d/m/Y H:i:s', strtotime($to));
-		}
-
-		?>
-		<tr>
-			<td class="<?php echo $class; ?>"><?php echo date('d/m/Y H:i:s', strtotime($from)); ?> - <?php echo $to; ?></td>
-			<td class="<?php echo $class; ?>"><?php echo $ago; ?></td>
-			<td class="<?php echo $class; ?>" align="center"><?php echo $data['version']; ?></td>
-			<?php
-			if ($write_access) {
-				?>
-				<td class="<?php echo $class; ?>" align="center">
+			<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-header">Version Duration</td>
+					<td class="sq-backend-table-header">Time Since Version</td>
+					<td class="sq-backend-table-header" align="center">Version</td>
 					<?php
-					if ($show_view_btn) {
-						echo submit_button($prefix.'_rollback_mode', ' View ', 'this.form.'.$prefix.'_rollback_version.value = \''.$data['version'].'\'');
-					} else {
-						echo '&nbsp;';
+					if ($write_access) {
+						?>
+						<td class="sq-backend-table-header" align="center">View</td>
+						<?php
 					}
 					?>
-				</td>
+				</tr>
+	
 				<?php
-			}
-			?>
-		</tr>
-		<?php
-	}
-
-	?>
-	</table>
-	<?php
-
-	$o->closeField();
+				foreach ($result as $data) {
+					$from = $data['efrom'];
+					$to   = $data['eto'];
+			
+					$class = 'sq-backend-table-cell';
+					$show_view_btn = true;
+					if (SQ_ROLLBACK_VIEW) {
+						$rollback_from = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
+						if ($rollback_from >= strtotime($from) && (empty($to) || strtotime($to) > $rollback_from)) {
+							$class .= '-alt';
+							$show_view_btn = false;
+						}
+					}
+			
+					if (empty($to)) {
+						$to = 'present';
+						$ago = 'Most Recent';
+						$show_view_btn = false;
+					} else {
+						require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+						$ago = easy_time_total(time() - strtotime($from), true);
+						list($fd, $ft) = explode(' ', $from);
+						list($td, $tt) = explode(' ', $to);
+						if ($fd == $td) $to = $tt;
+						else $to = date('d/m/Y H:i:s', strtotime($to));
+					}
+			
+					?>
+					<tr>
+						<td class="<?php echo $class; ?>"><?php echo date('d/m/Y H:i:s', strtotime($from)); ?> - <?php echo $to; ?></td>
+						<td class="<?php echo $class; ?>"><?php echo $ago; ?></td>
+						<td class="<?php echo $class; ?>" align="center"><?php echo $data['version']; ?></td>
+						<?php
+						if ($write_access) {
+							?>
+							<td class="<?php echo $class; ?>" align="center">
+								<?php
+								if ($show_view_btn) {
+									echo submit_button($prefix.'_rollback_mode', ' View ', 'this.form.'.$prefix.'_rollback_version.value = \''.$data['version'].'\'');
+								} else {
+									echo '&nbsp;';
+								}
+								?>
+							</td>
+							<?php
+						}
+						?>
+					</tr>
+					<?php
+				}//end foreach
+				?>
+			</table>
+			<?php
+		$o->closeRaw();
 	$o->closeSection();
 
 	return false;
