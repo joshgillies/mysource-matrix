@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: poll_question_edit_fns.inc,v 1.1 2004/12/23 04:04:42 dheppell Exp $
+* $Id: poll_question_edit_fns.inc,v 1.2 2004/12/23 23:07:51 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -89,6 +89,13 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 			  currentText.value = nextText.value;
 			  nextText.value = temp;
 
+			  // switch the votes values around
+			  var currentVotes = document.getElementById('<?php echo $prefix ?>_option_votes' + currentOrder);
+			  var prevVotes = document.getElementById('<?php echo $prefix ?>_option_votes' + (currentOrder + 1));
+			  temp = currentVotes.innerHTML;
+			  currentVotes.innerHTML = prevVotes.innerHTML;
+			  prevVotes.innerHTML = temp;
+
 			  // switch the delete checkboxes
 			  temp = form.elements['<?php echo $prefix ?>_order[delete][' + (currentOrder+1) + ']'].checked;
 			  form.elements['<?php echo $prefix ?>_order[delete][' + (currentOrder+1) + ']'].checked = form.elements['<?php echo $prefix ?>_order[delete][' + currentOrder + ']'].checked;
@@ -117,6 +124,13 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 			  currentText.value = prevText.value;
 			  prevText.value = temp;
 
+			  // switch the votes values around
+			  var currentVotes = document.getElementById('<?php echo $prefix ?>_option_votes' + currentOrder);
+			  var prevVotes = document.getElementById('<?php echo $prefix ?>_option_votes' + (currentOrder - 1));
+			  temp = currentVotes.innerHTML;
+			  currentVotes.innerHTML = prevVotes.innerHTML;
+			  prevVotes.innerHTML = temp;
+
 			  // switch the delete checkboxes
 			  temp = form.elements['<?php echo $prefix ?>_order[delete][' + (currentOrder-1) + ']'].checked;
 			  form.elements['<?php echo $prefix ?>_order[delete][' + (currentOrder-1) + ']'].checked = form.elements['<?php echo $prefix ?>_order[delete][' + currentOrder + ']'].checked;
@@ -133,6 +147,9 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 					<tr>
 						<td class="sq-backend-table-header">
 							Poll Option
+						</td>
+						<td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;">
+							Votes
 						</td>
 						<?php
 
@@ -160,8 +177,8 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 				foreach ($poll_options as $sort_id => $sort_data) {
 					?>
 						<tr>
+							<!-- Option Text -->
 							<td class="sq-backend-table-cell">
-								<!-- sort_id => assetid -->
 								<?php
 									if ($admin_access) {
 										text_box($prefix.'_option_text'.$sort_id,$sort_data['option_text'], 30);
@@ -172,6 +189,14 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 								<?php
 									hidden_field($prefix.'_order[reorder]['.$sort_id.']', $sort_id);
 								?>
+							</td>
+							<!-- No. of Votes -->
+							<td align="center" width="100" class="sq-backend-table-cell">
+								<span id="<?php echo $prefix.'_option_votes'.$sort_id; ?>">
+								<?php
+									echo $sort_data['votes'];
+								?>
+								</span>
 							</td>
 							<?php
 								if ($admin_access) {

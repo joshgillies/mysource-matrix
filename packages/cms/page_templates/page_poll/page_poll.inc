@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll.inc,v 1.1 2004/12/23 04:04:42 dheppell Exp $
+* $Id: page_poll.inc,v 1.2 2004/12/23 23:07:51 rhoward Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -139,9 +139,10 @@ class Page_Poll extends Page
 			// alias question to active_question
 			$question = &$active_question;
 
-			if (is_null($question)) {
+			if (is_null($question) || $question->status < SQ_STATUS_LIVE) {
 				$valid = false;
 			}
+
 		} else {
 			$valid = false;
 		}
@@ -183,7 +184,8 @@ class Page_Poll extends Page
 		// determine which method is used to check if a user can vote
 		switch ($this->attr('Vote_Behaviour')) {
 			case 'sessions':
-				if (array_get_index($_SESSION, 'SQ_PAGE_POLL_VOTE') == false) {
+				if (array_get_index($_SESSION, $prefix.'_VOTED') == false) {
+
 					$can_vote = true;
 				}
 				break;
@@ -294,7 +296,9 @@ class Page_Poll extends Page
 				unset($GLOBALS['SQ_INSTALL']);
 			}
 
-			$_SESSION['SQ_PAGE_POLL_VOTE'] = true;
+			if ($this->attr('Vote_Behaviour') == 'sessions') {
+				$_SESSION[$this->getPrefix().'_VOTED'] = true;
+			}
 
 		}//end if (isset($options[$option_id]))
 
@@ -646,6 +650,7 @@ class Page_Poll extends Page
 
 			// if the poll is the active poll, and they don't want to print
 			// the active poll, jump to the next iteration.
+			echo $info_index.' - '.$active_question_id;
 			if ($info_index == $active_question_id && $no_active) {
 				continue;
 			}
