@@ -1,72 +1,145 @@
-// Though "Dialog" looks like an object, it isn't really an object.  Instead
-// it's just namespace for protecting global symbols.
+//
+// An article about this code can be foudn at:
+// http://developer.netscape.com/viewsource/goodman_modal/goodman_modal.html
+//
 
-function Dialog(url, action, init) {
-	if (typeof init == "undefined") {
-		init = window;	// pass this window object by default
-	}
-	if (document.all) {	// here we hope that Mozilla will never support document.all
-		var value =
-			showModalDialog(url, init,
-//			window.open(url, '_blank',
-					"resizable: no; help: no; status: no; scroll: no");
-		if (action) {
-			action(value);
+/***************************
+  BEGIN MODAL DIALOG CODE 
+****************************/
+// Global for brower version branching.
+var Nav4 = ((navigator.appName == "Netscape") && (parseInt(navigator.appVersion) == 4))
+
+// One object tracks the current modal dialog opened from this window.
+var dialogWin = new Object()
+
+// Generate a modal dialog.
+// Parameters:
+//    url -- URL of the page/frameset to be loaded into dialog
+//    width -- pixel width of the dialog window
+//    height -- pixel height of the dialog window
+//    returnFunc -- reference to the function (on this page)
+//                  that is to act on the data returned from the dialog
+//    args -- [optional] any data you need to pass to the dialog
+function openDialog(url, width, height, returnFunc, args) {
+	if (!dialogWin.win || (dialogWin.win && dialogWin.win.closed)) {
+		// Initialize properties of the modal dialog object.
+		dialogWin.returnFunc = returnFunc
+		dialogWin.returnedValue = ""
+		dialogWin.args = args
+		dialogWin.url = url
+		dialogWin.width = width
+		dialogWin.height = height
+		// Keep name unique so Navigator doesn't overwrite an existing dialog.
+		dialogWin.name = (new Date()).getSeconds().toString()
+		// Assemble window attributes and try to center the dialog.
+		if (Nav4) {
+			// Center on the main window.
+			dialogWin.left = window.screenX + 
+			   ((window.outerWidth - dialogWin.width) / 2)
+			dialogWin.top = window.screenY + 
+			   ((window.outerHeight - dialogWin.height) / 2)
+			var attr = "screenX=" + dialogWin.left + 
+			   ",screenY=" + dialogWin.top + ",resizable=no,width=" + 
+			   dialogWin.width + ",height=" + dialogWin.height
+		} else {
+			// The best we can do is center in screen.
+			dialogWin.left = (screen.width - dialogWin.width) / 2
+			dialogWin.top = (screen.height - dialogWin.height) / 2
+			var attr = "left=" + dialogWin.left + ",top=" + 
+			   dialogWin.top + ",resizable=no,width=" + dialogWin.width + 
+			   ",height=" + dialogWin.height
 		}
+		
+		// Generate the dialog and make sure it has focus.
+		dialogWin.win=window.open(dialogWin.url, dialogWin.name, attr)
+		dialogWin.win.focus()
 	} else {
-		return Dialog._geckoOpenModal(url, action, init);
+		dialogWin.win.focus()
 	}
-};
+}
 
-Dialog._parentEvent = function(ev) {
-	if (Dialog._modal && !Dialog._modal.closed) {
-		Dialog._modal.focus();
-		// we get here in Mozilla only, anyway, so we can safely use
-		// the DOM version.
-		ev.preventDefault();
-		ev.stopPropagation();
+// Event handler to inhibit Navigator form element 
+// and IE link activity when dialog window is active.
+function deadend() {
+	if (dialogWin.win && !dialogWin.win.closed) {
+		dialogWin.win.focus()
+		return false
 	}
-};
+}
 
-// should be a function, the return handler of the currently opened dialog.
-Dialog._return = null;
+// Since links in IE4 cannot be disabled, preserve 
+// IE link onclick event handlers while they're "disabled."
+// Restore when re-enabling the main window.
+var IELinkClicks
 
-// constant, the currently opened dialog
-Dialog._modal = null;
-
-// the dialog will read it's args from this variable
-Dialog._arguments = null;
-
-Dialog._geckoOpenModal = function(url, action, init) {
-	var dlg = window.open(url, "ha_dialog",
-			      "toolbar=no,menubar=no,personalbar=no,width=10,height=10," +
-			      "scrollbars=no,resizable=no");
-	Dialog._modal = dlg;
-	Dialog._arguments = init;
-
-	// capture some window's events
-	function capwin(w) {
-		w.addEventListener("click", Dialog._parentEvent, true);
-		w.addEventListener("mousedown", Dialog._parentEvent, true);
-		w.addEventListener("focus", Dialog._parentEvent, true);
-	};
-	// release the captured events
-	function relwin(w) {
-		w.removeEventListener("focus", Dialog._parentEvent, true);
-		w.removeEventListener("mousedown", Dialog._parentEvent, true);
-		w.removeEventListener("click", Dialog._parentEvent, true);
-	};
-	capwin(window);
-	// capture other frames
-	for (var i = 0; i < window.frames.length; capwin(window.frames[i++]));
-	// make up a function to be called when the Dialog ends.
-	Dialog._return = function (val) {
-		if (val && action) {
-			action(val);
+// Disable form elements and links in all frames for IE.
+function disableForms() {
+	IELinkClicks = new Array()
+	for (var h = 0; h < frames.length; h++) {
+		for (var i = 0; i < frames[h].document.forms.length; i++) {
+			for (var j = 0; j < frames[h].document.forms[i].elements.length; j++) {
+				frames[h].document.forms[i].elements[j].disabled = true
+			}
 		}
-		relwin(window);
-		// capture other frames
-		for (var i = 0; i < window.frames.length; relwin(window.frames[i++]));
-		Dialog._modal = null;
-	};
-};
+		IELinkClicks[h] = new Array()
+		for (i = 0; i < frames[h].document.links.length; i++) {
+			IELinkClicks[h][i] = frames[h].document.links[i].onclick
+			frames[h].document.links[i].onclick = deadend
+		}
+	}
+}
+
+// Restore IE form elements and links to normal behavior.
+function enableForms() {
+	for (var h = 0; h < frames.length; h++) {
+		for (var i = 0; i < frames[h].document.forms.length; i++) {
+			for (var j = 0; j < frames[h].document.forms[i].elements.length; j++) {
+				frames[h].document.forms[i].elements[j].disabled = false
+			}
+		}
+		for (i = 0; i < frames[h].document.links.length; i++) {
+			frames[h].document.links[i].onclick = IELinkClicks[h][i]
+		}
+	}
+}
+
+// Grab all Navigator events that might get through to form
+// elements while dialog is open. For IE, disable form elements.
+function blockEvents() {
+	if (Nav4) {
+		window.captureEvents(Event.CLICK | Event.MOUSEDOWN | Event.MOUSEUP | Event.FOCUS)
+		window.onclick = deadend
+	} else {
+		disableForms()
+	}
+	window.onfocus = checkModal
+}
+// As dialog closes, restore the main window's original
+// event mechanisms.
+function unblockEvents() {
+	if (Nav4) {
+		window.releaseEvents(Event.CLICK | Event.MOUSEDOWN | Event.MOUSEUP | Event.FOCUS)
+		window.onclick = null
+		window.onfocus = null
+	} else {
+		enableForms()
+	}
+}
+
+// Invoked by onFocus event handler of EVERY frame,
+// return focus to dialog window if it's open.
+function checkModal() {
+	setTimeout("finishChecking()", 50)
+	return true
+}
+
+function finishChecking() {
+	if (dialogWin.win && !dialogWin.win.closed) {
+		dialogWin.win.focus()
+	}
+}
+
+
+/**************************
+  END MODAL DIALOG CODE
+**************************/

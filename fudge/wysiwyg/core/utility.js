@@ -68,6 +68,22 @@ HTMLArea.prototype._createRange = function(sel) {
 };
 
 
+// returns a range for the current selection
+HTMLArea.prototype._createTextRange = function(sel) {
+	if (HTMLArea.is_ie) {
+		//return sel.createTextRange();
+		return this._doc.body.createTextRange();
+	} else {
+		this.focusEditor();
+		if (sel) {
+			return sel.getRangeAt(0);
+		} else {
+			return this._doc.body.createTextRange();
+		}
+	}
+};
+
+
 // event handling
 
 HTMLArea._addEvent = function(el, evname, func) {
@@ -286,18 +302,15 @@ HTMLArea._colorToRgb = function(v) {
 };
 
 
-// modal dialogs for Mozilla (for IE we're using the showModalDialog() call).
-
 // receives an URL to the popup dialog and a function that receives one value;
 // this function will get called after the dialog is closed, with the return
 // value of the dialog.
 HTMLArea.prototype._popupDialog = function(url, action, init) {
-	Dialog(this.pluginURL(url), action, init);
+	openDialog(this.pluginURL(url), 400, 400, action);
 };
 
 
 // paths
-
 HTMLArea.prototype.imgURL = function(file) {
 	return this.config.editorURL + this.config.imgURL + file;
 };

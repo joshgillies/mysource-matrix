@@ -27,10 +27,13 @@
 
 			function Set(string) { // select color
 				var color = ValidateColor(string);
-				if (color == null) { alert("Invalid color code: " + string); } // invalid color
-				else {                                                         // valid color
-				View(color);                          // show selected color
-				__dlg_close(color);
+				if (color == null) { 
+					 // invalid color
+					alert("Invalid color code: " + string); 
+				} else {
+					// valid color
+					View(color); // show selected color
+					__dlg_close(color);
 				}
 			}
 
@@ -41,17 +44,17 @@
 				var chars = '0123456789ABCDEF';
 				var out  = '';
 
-			for (var i=0; i<string.length; i++) { // remove invalid color chars
-				var schar = string.charAt(i);
-				if (chars.indexOf(schar) != -1) { out += schar; }
-			}
+				for (var i=0; i<string.length; i++) { // remove invalid color chars
+					var schar = string.charAt(i);
+					if (chars.indexOf(schar) != -1) { out += schar; }
+				}
 
-			if (out.length != 6) { return null; } // check length
-			return out;
+				if (out.length != 6) { return null; } // check length
+				return out;
 			}
 		</script>
 	</head>
-	<body style="background:ButtonFace; margin:0px; padding:0px" onload="Init()">
+	<body style="background:ButtonFace; margin:0px; padding:0px" onLoad="Init(); if (opener) opener.blockEvents()" onUnload="if (opener) opener.unblockEvents()">
 
 		<form method="get" style="margin:0px; padding:0px" onSubmit="Set(document.getElementById('ColorHex').value); return false;">
 			<table border="0px" cellspacing="0px" cellpadding="4" width="100%">
