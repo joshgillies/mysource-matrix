@@ -1,0 +1,241 @@
+<!--
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: help.html,v 1.1 2004/10/21 04:49:05 dbaranovskiy Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" style="width:700px; height:550px;">
+	<head>
+		<title>WYSIWYG Help</title>
+		<style>
+			body {margin:0px}
+			h1 {font:bold 14pt "Lucida Grande", Tahoma; background: #402F48; color: #FFFFFF; height:30px; text-align:center}
+			h2 {font:bold 12pt "Lucida Grande", Tahoma}
+			h3 {font:bold 11pt "Lucida Grande", Tahoma}
+			div.tip {font:bold 10pt "Lucida Grande", Tahoma; background: #FFFFCC; color:#003366; border-left:solid 2px #003366; padding-left:5px; text-align:justify; margin-top:5px; margin-bottom:5px}
+			td {font:10pt "Lucida Grande", Tahoma; color:#000000; background:#FFFFFF;}
+			th {font:bold 10pt "Lucida Grande", Tahoma; color:#000000; background:#C0C0C0;}
+			table.visible {border:solid 1px #000000;border-collapse:collapse; width:100%}
+			table.visible td {border:solid 1px #000000;border-collapse:collapse; height: 40px; text-align:justify}
+			table.visible th {border:solid 1px #000000;border-collapse:collapse; height: 30px; text-align:center}
+			table.visible td.icon {text-align:center}
+			img {border:solid 1px #CCCCCC}
+			li {text-align:justify}
+		</style>
+	</head>
+	<body onload="window.focus(); window.scroll(0,0);">
+		<table align="center" border="0" cellpadding="0" cellspacing="0" width="600">
+			<tr>
+				<td>
+					<h1>Welcome to&nbsp;MySource Matrix WYSIWYG Editor Help</h1>
+					If&nbsp;you set the content type for a&nbsp;division to&nbsp;WYSIWYG, the Edit Contents icon is&nbsp;displayed. Click this icon to&nbsp;switch into the WYSIWYG editor.<br />
+					You can now enter your content.<br />
+					<div class="tip">TIP: Many of&nbsp;the icons are the same as&nbsp;those used in&nbsp;Microsoft Office applications. Hold your mouse over the icon to&nbsp;show help on&nbsp;the function of&nbsp;that icon.</div>
+					The non-standard buttons have the following functions:<br />
+					<table class="visible" class="icon" cellpadding="5" cellspacing="0" title="WYSIWYG Non-Standard Buttons">
+						<tr>
+							<th>Icon</th>
+							<th>Function</th>
+							<th>Description</th>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Table Functions" src="../../images/blank.gif" style="background: url(../../images/toolbar.png) scroll 0px -140px; width:18px; height:20px" /></td>
+							<td nowrap="nowrap">Table Functions</td>
+							<td>Allows you to insert a new table, edit table properties or remove the cell borders.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Row Functions" src="../../images/blank.gif" style="background: url(../../images/toolbar.png) scroll -54px -140px; width:18px; height:20px" /></td>
+							<td nowrap="nowrap">Row Functions</td>
+							<td>Allows you to edit the properties of a row in a nested table, insert, delete, split or merge a row.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Column Functions" src="../../images/blank.gif" style="background: url(../../images/toolbar.png) scroll -72px -160px; width:18px; height:20px" /></td>
+							<td nowrap="nowrap">Column Functions</td>
+							<td>Allows you to insert, delete or split a column in a nested table.	</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Cell Functions" src="../../images/blank.gif" style="background: url(../../images/toolbar.png) scroll -36px -180px; width:18px; height:20px" /></td>
+							<td nowrap="nowrap">Cell Functions</td>
+							<td>Allows you to edit the properties of a cell in a nested table, insert, delete, split or merge a cell.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Font Colour" src="../../images/blank.gif" style="background: url(../../images/toolbar.png) scroll 0px -80px; width:18px; height:20px" /></td>
+							<td nowrap="nowrap">Font Colour</td>
+							<td>Allows you to change the font colour.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Background Colour" src="../../images/blank.gif" style="background: url(../../images/toolbar.png) scroll -18px -80px; width:18px; height:20px" /></td>
+							<td nowrap="nowrap">Background Colour</td>
+							<td>Allows you to change the background colour.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Insert Link" src="../../images/blank.gif" style="background: url(../../images/toolbar.png) scroll -36px -120px; width:18px; height:20px" /></td>
+							<td nowrap="nowrap">Insert Link</td>
+							<td>Allows you to insert a link to an external site or any asset.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Remove Link" src="../../images/blank.gif" style="background: url(../../images/toolbar.png) scroll -54px -120px; width:18px; height:20px" /></td>
+							<td nowrap="nowrap">Remove Link</td>
+							<td>Removes a link.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Insert Anchor" src="../../images/blank.gif" style="background: url(../../images/toolbar.png) scroll 0px -120px; width:18px; height:20px" /></td>
+							<td nowrap="nowrap">Insert Anchor</td>
+							<td>Allows you to insert an anchor.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Embed Movie" src="../../images/blank.gif" style="background: url(../../images/toolbar.png) scroll -54px -200px; width:18px; height:20px" /></td>
+							<td nowrap="nowrap">Embed Movie</td>
+							<td>Allows you to embed a movie file.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Insert Image" src="../../images/blank.gif" style="background: url(../../images/toolbar.png) scroll -72px -120px; width:18px; height:20px" /></td>
+							<td nowrap="nowrap">Insert Image</td>
+							<td>Allows you to embed an image file.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Check Spelling" src="../../images/blank.gif" style="background: url(../../images/toolbar.png) scroll -72px -200px; width:18px; height:20px" /></td>
+							<td nowrap="nowrap">Check Spelling</td>
+							<td>Check the spelling of the text on the page.</td>
+						</tr>
+						<tr>
+							<td class="icon"><img alt="Toggle HTML Source" src="../../images/blank.gif" style="background: url(../../images/toolbar.png) scroll -54px 0px; width:18px; height:20px" /></td>
+							<td nowrap="nowrap">Toggle HTML Source</td>
+							<td>Toggles between the HTML source view and the WYSIWYG view.</td>
+						</tr>
+					</table>
+					<p>We will now discuss <em>Insert Table</em>, <em>Table Properties</em>, <em>Row Properties</em>, <em>Cell Properties</em>, <em>Insert Link</em> and <em>Insert Image</em> in more detail.</p>
+					<h2>Insert Table</h2>
+					<p>Click on the <em>Table Functions</em> icon <img alt="Table Functions" src="../../images/blank.gif" style="background: url(../../images/toolbar.png) scroll 0px -140px; width:18px; height:20px" />, followed by <em>Insert Table</em> on the drop down menu.  The following pop-up window is displayed:</p>
+					<div align="center"><img alt="Insert Table Window" src="../../images/help/insert-table.png" /></div>
+					<p>
+						<ul>
+							<li><b>Rows:</b> enter the number of&nbsp;rows for your new table.</li>
+							<li><b>Cols:</b> enter the number of&nbsp;columns for your table.</li>
+							<li><b>Spacing:</b> this attribute defines the amount of&nbsp;space between the cells in&nbsp;the table. Enter a&nbsp;pixel value for the desired amount of&nbsp;cell spacing.</li>
+							<li><b>Padding:</b> this attribute defines the amount of&nbsp;space between the edges of&nbsp;the cells and the contents of&nbsp;the cell. Enter a&nbsp;pixel value for the desired amount of&nbsp;cell padding.</li>
+							<li><b>Width:</b> this attribute defines the width of&nbsp;the table on&nbsp;the page. You can enter a&nbsp;value that is&nbsp;either the exact width of&nbsp;the table (in&nbsp;pixels), or&nbsp;a&nbsp;percentage of&nbsp;the current screen width, by&nbsp;adding &ldquo;%&rdquo; at&nbsp;the end of&nbsp;the width.</li>
+							<div class="tip">TIP: If&nbsp;you enter a&nbsp;percentage of&nbsp;the current screen width, the width of&nbsp;the table will change if&nbsp;the window is&nbsp;resized.</div>
+							<li><b>Borders:</b> this attribute indicates the width of&nbsp;the table border in&nbsp;pixels. You can set the value to&nbsp;0&nbsp;to&nbsp;display the table with no&nbsp;border.</li>
+							<div class="tip">TIP: If&nbsp;no&nbsp;border setting is&nbsp;entered, newer browsers will display a&nbsp;one-pixel border by&nbsp;default.</div>
+						</ul>
+					</p>
+					<h2>Table Properties</h2>
+					<p>Click on the Table Functions icon <img alt="Table Functions" src="../../images/blank.gif" style="background: url(../../images/toolbar.png) scroll -18px -140px; width:18px; height:20px" />, followed by Table Properties on the drop down menu.  The following pop-up window is displayed:</p>
+					<div align="center"><img alt="Table Properties Window" src="../../images/help/table.png" /></div>
+					<p>
+						<ul>
+							<li><b>Width:</b> this attribute defines the width of&nbsp;the table on&nbsp;the page. You can enter a&nbsp;value that is&nbsp;either the exact width of&nbsp;the table (in&nbsp;pixels), or&nbsp;a&nbsp;percentage of&nbsp;the current screen width, by&nbsp;adding &ldquo;%&rdquo; at&nbsp;the end of&nbsp;the width.</li>
+							<div class="tip">TIP: If&nbsp;you enter a&nbsp;percentage of&nbsp;the current screen width, the width of&nbsp;the table will change if&nbsp;the window is&nbsp;resized.</div>
+							<li><b>Height:</b> enter the height of&nbsp;the table in&nbsp;pixels or&nbsp;as&nbsp;a&nbsp;percentage of&nbsp;the current screen height, by&nbsp;adding &ldquo;%&rdquo; at&nbsp;the end of&nbsp;the height.</li>
+							<li><b>Spacing:</b> this attribute defines the amount of&nbsp;space between the cells in&nbsp;the table. Enter a&nbsp;pixel value for the desired amount of&nbsp;cell spacing.</li>
+							<li><b>Padding:</b> this attribute defines the amount of&nbsp;space between the edges of&nbsp;the cells and the contents of&nbsp;the cell. Enter a&nbsp;pixel value for the desired amount of&nbsp;cell padding.</li>
+							<li><b>Borders:</b> this attribute indicates the width of&nbsp;the table border in&nbsp;pixels. You can set the value to&nbsp;0&nbsp;to&nbsp;display the table with no&nbsp;border, or&nbsp;select the <em>Table Properties</em> icon followed by&nbsp;the <em>Show 0&nbsp;Borders</em> menu option.</li>
+							<div class="tip">TIP: If&nbsp;no&nbsp;border setting is&nbsp;entered, newer browsers will display a&nbsp;one-pixel border by&nbsp;default.</div>
+							<li><b>Frames:</b> this attribute allows you to&nbsp;set frames for any of&nbsp;the sides of&nbsp;the cells within the nested table.</li>
+							<li><b>Rules:</b> this attribute allows you to&nbsp;set a&nbsp;rule between rows, columns or&nbsp;between both rows and columns.</li>
+							<li><b>Background:</b> select a&nbsp;background colour to&nbsp;apply to&nbsp;the whole table. Click on&nbsp;the &ldquo;x&rdquo; to&nbsp;bring up&nbsp;the colour picker.</li>
+							<li><b>Foreground:</b> select a&nbsp;foreground colour to&nbsp;apply to&nbsp;the whole table. Click on&nbsp;the &ldquo;x&rdquo; to&nbsp;bring up&nbsp;the colour picker.</li>
+							<li><b>Border:</b> select a&nbsp;colour to&nbsp;apply to&nbsp;the table border. Click on&nbsp;the &ldquo;x&rdquo; to&nbsp;bring up&nbsp;the colour picker, and set style and the width of&nbsp;the border (in&nbsp;pixels).</li>
+							<div class="tip">TIP: To&nbsp;set the horizontal alignment of&nbsp;your table on&nbsp;the page, use the WYSIWYG icons for justifying
+								<img alt="Justify Left" src="../../images/blank.gif" style="background: url(../../images/toolbar.png) scroll -36px -80px; width:18px; height:20px" />
+								<img alt="Justify Centre" src="../../images/blank.gif" style="background: url(../../images/toolbar.png) scroll -54px -80px; width:18px; height:20px" />
+								<img alt="Justify Right" src="../../images/blank.gif" style="background: url(../../images/toolbar.png) scroll -72px -80px; width:18px; height:20px" />
+								<img alt="Justify Both" src="../../images/blank.gif" style="background: url(../../images/toolbar.png) scroll 0px -100px; width:18px; height:20px" />.<br />
+							For example, to&nbsp;centre your table on&nbsp;the page, select the <em>Justify Centre</em> icon <img alt="Justify Centre" src="../../images/blank.gif" style="background: url(../../images/toolbar.png) scroll -54px -80px; width:18px; height:20px" />.</div>
+						</ul>
+					</p>
+					<h2>Row Properties</h2>
+					<p>Edit the row properties as&nbsp;required on&nbsp;the <em>Row Properties</em> pop-up window shown below:</p>
+					<div align="center"><img alt="Row Properties Window" src="../../images/help/row.png" /></div>
+					<p>
+						<ul>
+							<li>Width: this attribute defines the width of&nbsp;the row on&nbsp;the page. You can enter a&nbsp;value that is&nbsp;either the exact width of&nbsp;the row (in&nbsp;pixels), or&nbsp;a&nbsp;percentage of&nbsp;the current screen width, by&nbsp;adding &ldquo;%&rdquo; at&nbsp;the end of&nbsp;the width.</li>
+							<div class="tip">TIP: If&nbsp;you enter a&nbsp;percentage of&nbsp;the current screen width, the width of&nbsp;the row will change if&nbsp;the window is&nbsp;resized.</div>
+							<li><b>Height:</b> enter the height of&nbsp;the row in&nbsp;pixels or&nbsp;as&nbsp;a&nbsp;percentage of&nbsp;the current screen height, by&nbsp;adding &ldquo;%&rdquo; at&nbsp;the end of&nbsp;the height.</li>
+							<li><b>Padding:</b> this attribute defines the amount of&nbsp;space between the edges of&nbsp;the cells and the contents of&nbsp;the cell. Enter a&nbsp;pixel value for the desired amount of&nbsp;cell padding.</li>
+							<li><b>Horizontal Alignment:</b> select from Left, Centre or&nbsp;Right to&nbsp;align the text in&nbsp;the cells in&nbsp;this row horizontally. By&nbsp;default, text is&nbsp;aligned to&nbsp;the left.</li>
+							<li><b>Vertical Alignment:</b> select from Top, Middle or&nbsp;Bottom to&nbsp;align the text in&nbsp;the cells in&nbsp;this row vertically. By&nbsp;default, text is&nbsp;aligned to&nbsp;the centre.</li>
+							<li><b>Background:</b> select a&nbsp;background colour to&nbsp;apply to&nbsp;the whole row. Click on&nbsp;the &ldquo;x&rdquo; to&nbsp;bring up&nbsp;the colour picker.</li>
+							<li><b>Foreground:</b> select a&nbsp;foreground colour to&nbsp;apply to&nbsp;the whole row. Click on&nbsp;the &ldquo;x&rdquo; to&nbsp;bring up&nbsp;the colour picker.</li>
+							<li><b>Border:</b> select a&nbsp;colour to&nbsp;apply to&nbsp;the row border. Click on&nbsp;the &ldquo;x&rdquo; to&nbsp;bring up&nbsp;the colour picker, and set style and the width of&nbsp;the border (in&nbsp;pixels).</li>
+						</ul>
+					</p>
+					<h2>Cell Properties</h2>
+					<div align="center"><img alt="Cell Properties Window" src="../../images/help/cell.png" /></div>
+					<p>The cell properties are the same as&nbsp;the row properties, but apply to&nbsp;the selected cell only.</p>
+					<h2>Insert Link</h2>
+					<p>To&nbsp;add a&nbsp;hyperlink, select a&nbsp;piece of&nbsp;text and then the Insert Link icon. The following pop-up window is&nbsp;displayed:</p>
+					<div align="center"><img alt="Insert Link Window" src="../../images/help/link.png" /></div>
+					<p>You can insert a&nbsp;link to&nbsp;any external URL, or&nbsp;any internal asset. The options are as&nbsp;follows:</p>
+					<h3>General</h3>
+					<p>
+						<ul>
+							<li><b>Protocol:</b> select the protocol from the following options:
+								<ul type="circle">
+									<li><b>http://</b> Used to&nbsp;create a&nbsp;link to&nbsp;a&nbsp;web page with a&nbsp;normal connection</li>
+									<li><b>https://</b> Used to&nbsp;create a&nbsp;link to&nbsp;a&nbsp;web page with a&nbsp;secure connection using SSL</li>
+									<li><b>ftp://</b> Used to&nbsp;create a&nbsp;link to&nbsp;an&nbsp;ftp server</li>
+									<li><b>mailto:</b> Used to&nbsp;create a&nbsp;link to&nbsp;an&nbsp;email address</li>
+								</ul>
+							</li>
+							<li><b>Link:</b> enter the address of&nbsp;the link as&nbsp;appropriate for the protocol you select. E. g. if&nbsp;the protocol is&nbsp;http:// the link might be&nbsp;<a href="http://www.squiz.net">http://www.squiz.net</a>. If&nbsp;the protocol you select is&nbsp;mailto: the link might be&nbsp;<a href="mailto:person@yoursite.com">person@yoursite.com</a></li>
+							<li><b>Select Asset:</b> you can select a&nbsp;MySource Matrix asset to&nbsp;which to&nbsp;link. Move your cursor over to&nbsp;the asset tree to&nbsp;select the appropriate asset&nbsp;&mdash; only relevant asset types are now selectable (for example, you cannot link to&nbsp;a&nbsp;user). Hold the right mouse button down on&nbsp;the name of&nbsp;the asset you wish to&nbsp;select, and right click on&nbsp;the Use Me&nbsp;menu option. The Name and Asset ID&nbsp;of&nbsp;this asset now appear in&nbsp;the text box.</li>
+							<li><b>Anchor Name:</b> type the name of&nbsp;an&nbsp;anchor on&nbsp;the linked external page, or&nbsp;MySource Matrix page asset.</li>
+						</ul>
+					</p>
+					<h3>Options</h3>
+					<p>
+						<ul>
+							<li><b>Status Bar Text:</b> enter optional text to&nbsp;be&nbsp;displayed in&nbsp;the status bar at&nbsp;the bottom of&nbsp;the window.</li>
+						</ul>
+					</p>
+					<h3>New Window Options</h3>
+					<p>Select whether to&nbsp;show the linked asset or&nbsp;URL in&nbsp;a&nbsp;new window or&nbsp;the current one. If&nbsp;you select Yes to&nbsp;show a&nbsp;new window, you can select whether or&nbsp;not to&nbsp;show the tool bar, menu bars, location bar, status bar or&nbsp;scroll bars and whether the window is&nbsp;resizable or&nbsp;not. You can determine the exact size of&nbsp;the new browser window by&nbsp;specifying the height and width in&nbsp;pixels.</p>
+					<div class="tip">TIP: It&nbsp;is&nbsp;good practice to&nbsp;open your file in&nbsp;a&nbsp;new window rather than in&nbsp;the same browser window as&nbsp;the one displaying the web page. This allows users to&nbsp;resize and in&nbsp;particular print the document separately.</div>
+					<h2>Insert Image</h2>
+					<p>If&nbsp;you select the <em>Insert Image</em> icon, the following pop-up window is&nbsp;displayed:</p>
+					<div align="center"><img alt="Insert Image Window" src="../../images/help/image.png" /></div>
+					<div class="tip">TIP: In&nbsp;order to&nbsp;insert an&nbsp;image into your page content, you must firstly add the image to&nbsp;MySource Matrix. You do&nbsp;this by&nbsp;selecting <em>Add &rarr; Files &rarr; Image</em>.</div>
+					<p>The options when inserting an&nbsp;image are as&nbsp;follows:</p>
+					<h3>General</h3>
+						<ul>
+							<li><b>Image URL:</b> to&nbsp;select an&nbsp;image file to&nbsp;embed, move your cursor over to&nbsp;the asset tree to&nbsp;select the appropriate image&nbsp;&mdash; only images are selectable. Hold the right mouse button down on&nbsp;the name of&nbsp;the image you wish to&nbsp;insert, and right click on&nbsp;the Use Me&nbsp;menu option. The Name and Asset ID&nbsp;of&nbsp;this image asset now appear in&nbsp;the text box.</li>
+							<li><b>Alternate Text:</b> enter the alternate text for the image into this box.</li>
+						</ul>
+					<h3>Layout</h3>
+						<ul>
+							<li><b>Alignment:</b> enter the width in&nbsp;pixels of&nbsp;the movie.</li>
+							<li><b>Border Thickness:</b> enter the height in&nbsp;pixels of&nbsp;the movie.</li>
+							<li><b>Horizontal:</b> enter the spacing to&nbsp;be&nbsp;applied to&nbsp;the left and right of&nbsp;the image.</li>
+							<li><b>Vertical:</b> enter the spacing to&nbsp;be&nbsp;applied to&nbsp;the top and bottom of&nbsp;the image.</li>
+						</ul>
+					<h3>Size</h3>
+						<ul>
+							<li><b>Width:</b> enter the width of&nbsp;the image in&nbsp;pixels.</li>
+							<li><b>Height:</b> enter the height of&nbsp;the image in&nbsp;pixels.</li>
+						</ul>
+					</p>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

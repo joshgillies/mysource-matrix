@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: help.inc,v 1.7 2004/01/20 23:55:50 gsherwood Exp $
+* $Id: help.inc,v 1.8 2004/10/21 04:49:05 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -63,7 +63,7 @@ class Help extends WYSIWYG_Plugin {
 	{
 		?>
 		case "showhelp":
-			alert("Help not implemented");
+			this._popupDialog("help", "<?php echo $this->get_popup_href('help.html')?>", 700, 550, true, function() {}, 0);
 		break;
 		<?php
 
