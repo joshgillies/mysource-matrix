@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager.inc,v 1.2 2003/12/03 04:53:41 gsherwood Exp $
+* $Id: layout_manager.inc,v 1.3 2004/01/18 23:38:05 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.2 $ - 0.1
+* @version $Revision: 1.3 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -139,15 +139,7 @@ class Layout_Manager extends Asset
 		// if there are no layouts directly applied for this type code will
 		// will check the type ancestors to look for one
 		if (!isset($layouts[$type_code])) {
-			$orig_type_code = $type_code;
-			$ancestors = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, false);
-			foreach ($ancestors as $type) {
-				if (isset($layouts[$type])) {
-					$type_code = $type;
-					break;
-				}
-			}
-			if ($type_code == $orig_type_code) return $null;
+			if(null === ($type_code = $this->getAncestorLayoutTypeCode($type_code))) return $null;
 		}
 
 		// no layouts defined for this type_code's screens
@@ -173,6 +165,30 @@ class Layout_Manager extends Asset
 
 
 	/**
+	* Returns the layout type code of ancestor for a given type code, or null if none exits
+	*
+	* @param string $type_code the type_code to find an ancestor type code for
+	*
+	* @return string the type_code of the ancestor, or null if there is not one
+	* @access public
+	*/
+	function getAncestorLayoutTypeCode($type_code) {
+		$layouts = $this->attr('layouts');
+		$ancestor_type_code = '';
+		
+		$ancestors = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, false);
+		foreach ($ancestors as $type) {
+			if (isset($layouts[$type])) {
+				$ancestor_type_code = $type;
+				break;
+			}
+		}
+		return (!empty($ancestor_type_code)) ? $ancestor_type_code : null;
+	
+	}//end getAncestorLayoutTypeCode()
+
+
+	/**
 	* Returns TRUE if a layout is defined for a particualt type_code and screen
 	*
 	* @param string $type_code the type_code to check
@@ -184,7 +200,13 @@ class Layout_Manager extends Asset
 	function hasLayout($type_code, $screen='details')
 	{
 		$layouts = $this->attr('layouts');
-		return (isset($layouts[$type_code][$screen])) ? true : false;
+		if (!isset($layouts[$type_code][$screen])) {
+			// if there is no screen defined for this type_code, check to see if there is
+			// a layout defined for its ancestor
+			if (null === ($type_code = $this->getAncestorLayoutTypeCode($type_code))) return false;
+			if (!isset($layouts[$type_code][$screen])) return false;
+		}
+		return true;
 	
 	}//end hasLayout()
 
