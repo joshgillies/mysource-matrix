@@ -18,14 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.29 2004/08/04 23:42:19 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.30 2004/08/05 00:01:24 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
 require_once dirname(__FILE__).'/../form/form_edit_fns.inc';
 require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
-require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 
 /**
 * Form_Email_Edit_Fns

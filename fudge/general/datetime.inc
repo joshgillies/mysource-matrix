@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.16 2004/08/04 00:15:31 tbarrett Exp $
+* $Id: datetime.inc,v 1.17 2004/08/05 00:01:42 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -306,92 +306,6 @@ function days_in_month($month, $year)
 
 
 /**
-* Increments the given date by the specified number of days
-*
-* Months and years are rolled over as necessary
-*
-* @param int	&$day			day component of the date to increment (1-31)
-* @param int	&$month			month component of the date to increment (1-12)
-* @param int	&$year			year component of the date to increment (YYYY)
-* @param int	$days_to_add	number of days to add to the date
-*
-* @access public
-*/
-function increment_date(&$day, &$month, &$year, $days_to_add=1) 
-{
-	$day += $days_to_add;
-	while ($day > days_in_month($month, $year)) {
-		$day = $day - days_in_month($month, $year);
-		increment_month($month, $year);
-	}
-}
-
-
-/**
-* Increments the given month by the specified number
-*
-* Years are rolled over as necessary
-*
-* @param int	&$month			month component of the date to increment (1-12)
-* @param int	&$year			year component of the date to increment (YYYY)
-* @param int	$months_to_add	number of months to add to the date
-*
-* @access public
-*/
-function increment_month(&$month, &$year, $months_to_add=1) 
-{
-	$month += $months_to_add;
-	while ($month > 12) {
-		$month = $month - 12;
-		$year++;
-	}
-}
-
-
-/**
-* Decrements the given date by the specified number of days
-*
-* Months and years are rolled over as necessary
-*
-* @param int	&$day			day component of the date to decrement (1-31)
-* @param int	&$month			month component of the date to decrement (1-12)
-* @param int	&$year			year component of the date to decrement (YYYY)
-* @param int	$days_to_add	number of days to subtract from the date
-*
-* @access public
-*/
-function decrement_date(&$day, &$month, &$year, $days_to_sub=1)
-{
-	$day = $day - $days_to_sub;
-	while ($day < 1) {
-		decrement_month($month, $year);
-		$day = days_in_month($month, $year) + $day;
-	}
-}
-
-
-/**
-* Decrements the given month by the specified number
-*
-* Years are rolled over as necessary
-*
-* @param int	&$month			month component of the date to increment (1-12)
-* @param int	&$year			year component of the date to increment (YYYY)
-* @param int	$months_to_sub	number of months to subtract from the date
-*
-* @access public
-*/
-function decrement_month(&$month, &$year, $months_to_sub=1) 
-{
-	$month = $month - $months_to_sub;
-	while ($month < 1) {
-		$month = 12 + $month;
-		$year--;
-	}
-}
-
-
-/**
 * converts a integer into its roman numeral counterpart
 *
 * @param integer $num the number to convert
@@ -467,5 +381,52 @@ function weekday_dates_in_month($weekday, $month, $year)
 }//end weekday_dates_in_month()
 
 
+/**
+* Returns the date component of an ISO8601 format date  
+*
+* @param string	$iso8601	The date string to strip the date part from
+*
+* @return mixed (string|boolean)	the date part (still in ISO format, YYYY-MM-DD)
+*									OR false if date passed is not valid ISO date
+* @access public
+*/
+function iso8601_date_component($iso8601)
+{
+	if (!is_iso8601($iso8601)) return false;	
+	return substr($iso8601,0,10); 
+	
+}//end iso8601_date_component()
+
+
+/**
+* Returns the time component of an ISO8601 format date  
+*
+* @param string	$iso8601	The date to strip the time from
+*
+* @return mixed (string|boolean)	the time from the ISO date (HH:MM:SS)
+*									OR false if invalid date or does not have time part
+* @access public
+*/
+function iso8601_time_component($iso8601)
+{
+	if (!is_iso8601($iso8601)) return false;
+	if (strlen($iso8601) < 13) return false;	
+	return substr($iso8601,11); 
+	
+}//end iso8601_time_component()
+
+
+/**
+* Returns true if passed string is a valid ISO8601 time with at least a full date  
+*
+* @param string	$iso8601	The date that we are going to check
+*
+* @return boolean
+* @access public
+*/
+function is_iso8601($iso8601) {
+	return (boolean)preg_match("/^[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2}([ T]([0-9\-]{2}\:?){3})?$/",$iso8601);
+	
+}//end is_iso8601()
 
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.16 2004/08/04 23:42:18 lwright Exp $
+* $Id: calendar_event_recurring.inc,v 1.17 2004/08/05 00:01:23 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.16 $ - 1.0
+* @version $Revision: 1.17 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -236,8 +236,6 @@ class Calendar_Event_Recurring extends Calendar_Event
 	* @access public
 	*/
 	function hasOccurrenceOnDate($date=null) {
-		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		
 		if (is_null($date)) $date = date('Y-m-d'); 
 		
 		$seconds_per_day = 60 * 60 * 24;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.34 2004/08/04 23:37:05 lwright Exp $
+* $Id: general_occasional.inc,v 1.35 2004/08/05 00:01:41 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -342,53 +342,5 @@ function merge_preferences($prefs1, $prefs2)
 
 }//end merge_preferences()
 
-
-/**
-* Returns the date component of an ISO8601 format date  
-*
-* @param string	$iso8601	The date string to strip the date part from
-*
-* @return mixed (string|boolean)	the date part (still in ISO format, YYYY-MM-DD)
-*									OR false if date passed is not valid ISO date
-* @access public
-*/
-function iso8601_date_component($iso8601)
-{
-	if (!is_iso8601($iso8601)) return false;	
-	return substr($iso8601,0,10); 
-	
-}//end iso8601_date_component()
-
-
-/**
-* Returns the time component of an ISO8601 format date  
-*
-* @param string	$iso8601	The date to strip the time from
-*
-* @return mixed (string|boolean)	the time from the ISO date (HH:MM:SS)
-*									OR false if invalid date or does not have time part
-* @access public
-*/
-function iso8601_time_component($iso8601)
-{
-	if (!is_iso8601($iso8601)) return false;
-	if (strlen($iso8601) < 13) return false;	
-	return substr($iso8601,11); 
-	
-}//end iso8601_time_component()
-
-
-/**
-* Returns true if passed string is a valid ISO8601 time with at least a full date  
-*
-* @param string	$iso8601	The date that we are going to check
-*
-* @return boolean
-* @access public
-*/
-function is_iso8601($iso8601) {
-	return (boolean)preg_match("/^[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2}([ T]([0-9\-]{2}\:?){3})?$/",$iso8601);
-	
-}//end is_iso8601()
 
 ?>
