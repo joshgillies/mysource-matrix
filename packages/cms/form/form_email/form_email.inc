@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.16 2004/06/11 04:20:44 lwright Exp $
+* $Id: form_email.inc,v 1.17 2004/06/15 05:02:50 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -157,22 +157,37 @@ class Form_Email extends Form
 			$email_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($email_field_assetid);
 			$address = $email_field->getValue();
 
-			// get the form info
+			// get the form info (in both formats)
 			$info = $this->getFormInfo(true);
+			$info_text = $this->getFormInfo(false);
 
-			// get the form summary
+			// get the form summary (both formats)
 			ob_start();
 			$this->printSummary(true);
 			$body = ob_get_contents();
 			ob_end_clean();
 
-			$reps = Array('receipt_address' => $address, 'form_summary' => $body, 'form_info' => $info);
+			ob_start();
+			$this->printSummary(false);
+			$body_text = ob_get_contents();
+			ob_end_clean();
+
+			$reps = Array('receipt_address' => $address, 'form_summary_html' => $body, 'form_summary_text' => $body_text, 'form_info_html' => $info, 'form_info_text' => $info_text);
 
 			$email_format_attr = $this->getAttribute('receipt_emails_format');
 
 			// append the 'To:' address with the address from the e-mail field
 			$current_value = @unserialize($email_format_attr->value);
 			$current_value['to'][] = $address;
+
+			// substitute generic keywords with email format-specific keywords
+			$current_value['html_format'] = str_replace(
+				Array('%form_info%', '%form_summary%'), 
+				Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
+			$current_value['text_format'] = str_replace(
+				Array('%form_info%', '%form_summary%'), 
+				Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
+
 			$email_format_attr->value = serialize($current_value);
 
 			$email_format_attr->sendMail($reps);
@@ -198,6 +213,7 @@ class Form_Email extends Form
 
 		// get the form info
 		$info = $this->getFormInfo(true);
+		$info_text = $this->getFormInfo(false);
 
 		// get the form summary
 		ob_start();
@@ -205,10 +221,27 @@ class Form_Email extends Form
 		$body = ob_get_contents();
 		ob_end_clean();
 
+		ob_start();
+		$this->printSummary(false);
+		$body_text = ob_get_contents();
+		ob_end_clean();
 
-		$reps = Array('form_summary' => $body, 'form_info' => $info);
+
+		$reps = Array('form_summary_html' => $body, 'form_summary_text' => $body_text, 'form_info_html' => $info, 'form_info_text' => $info_text);
 
 		$email_format = $this->getAttribute('recipient_emails_format');
+
+		// substitute generic keywords with email format-specific keywords
+		$current_value = @unserialize($email_format->value);
+		$current_value['html_format'] = str_replace(
+			Array('%form_info%', '%form_summary%'), 
+			Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
+		$current_value['text_format'] = str_replace(
+			Array('%form_info%', '%form_summary%'), 
+			Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
+
+		$email_format->value = serialize($current_value);
+
 		$email_format->sendMail($reps);
 
 		return true;
@@ -236,6 +269,7 @@ class Form_Email extends Form
 
 			// get the form info
 			$info = $this->getFormInfo(true);
+			$info_text = $this->getFormInfo(false);
 
 			// get the form summary
 			ob_start();
@@ -243,13 +277,27 @@ class Form_Email extends Form
 			$body = ob_get_contents();
 			ob_end_clean();
 
-			$reps = Array('form_summary' => $body, 'form_info' => $info);
+			ob_start();
+			$this->printSummary(false);
+			$body_text = ob_get_contents();
+			ob_end_clean();
+
+			$reps = Array('form_summary_html' => $body, 'form_summary_text' => $body_text, 'form_info_html' => $info, 'form_info_text' => $info_text);
 
 			$email_format_attr = $this->getAttribute('staf_format');
 
 			// append the 'To:' address with the address from the e-mail field
 			$current_value = @unserialize($email_format_attr->value);
 			$current_value['to'] = array_merge($current_value['to'], $addresses);
+
+			// substitute generic keywords with email format-specific keywords
+			$current_value['html_format'] = str_replace(
+				Array('%form_info%', '%form_summary%'), 
+				Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
+			$current_value['text_format'] = str_replace(
+				Array('%form_info%', '%form_summary%'), 
+				Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
+
 			$email_format_attr->value = serialize($current_value);
 
 			$email_format_attr->sendMail($reps);
@@ -259,6 +307,6 @@ class Form_Email extends Form
 
 	}//end sendToFriends()
 
-	
+
 }//end class
 ?>
