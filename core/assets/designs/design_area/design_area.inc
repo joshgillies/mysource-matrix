@@ -14,7 +14,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 */
 class Design_Area extends Asset
 {
-	/*
+	/**
 	* Constructor
 	*
 	* @param int    $assetid      the asset id to be loaded
@@ -22,13 +22,13 @@ class Design_Area extends Asset
 	*/
 	function Design_Area($assetid=0)
 	{
-		$this->_arr_atrs   = true; // we have array type vars
+		$this->_ser_atrs   = true; // we have serialize type vars
 		// No design area is going to be restricted
 		$this->_restricted = false;
 		$this->Asset($assetid);
 	}
 
-	/*
+	/**
 	* Create this asset
 	*
 	* @param string $id_name   the name of this design area
@@ -55,7 +55,7 @@ class Design_Area extends Asset
 
 	}//end create()
 
-	/*
+	/**
 	* Returns name of the asset
 	*
 	* @param bool	$short_name	whether or not we are after the shortname or the full name
@@ -68,7 +68,7 @@ class Design_Area extends Asset
 		return $this->attr('id_name');
 	}//end _getName();
 
-	/*
+	/**
 	* processes a backend submission from this asset, returns true if all OK
 	*
 	* @return boolean
@@ -91,7 +91,7 @@ class Design_Area extends Asset
 	}// end processBackend()
 
 
-	/*
+	/**
 	* Returns all the designs that this design area is used in
 	*
 	* @return Design_Area | null
@@ -136,7 +136,7 @@ class Design_Area extends Asset
 		}
 	}//end attr();
 
-	/*
+	/**
 	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented
 	*
 	* @param object Design	$design the design for which we are currently printing
@@ -149,7 +149,7 @@ class Design_Area extends Asset
 		$edit_fns->_createDesignFileOutput($this->attr('contents'), $this, $design);
 	}//end printArea()
 
-	/*
+	/**
 	* Outputs the var either as straight HTML or PHP code, depending on the type
 	*
 	* @param string	$var	the name of the var to print out

@@ -29,13 +29,13 @@ class Design_Area_Management extends Asset_Management
 								),
 							'contents' => Array(
 								'added'     => '0.0.1',
-								'type'      => 'array',
+								'type'      => 'serialise',
 								'default'   => '',
 								'description' => 'Holds the processed contents array'
 								),
 							'var_references' => Array(
 								'added'     => '0.0.1',
-								'type'      => 'array',
+								'type'      => 'serialise',
 								'default'   => '',
 								'description' => 'Holds the names for all variables that are "references" to values in other'
 								),

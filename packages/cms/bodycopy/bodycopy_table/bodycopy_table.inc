@@ -24,7 +24,7 @@ class Bodycopy_Table extends Asset
 	*/
 	function Bodycopy_Table($assetid=0)
 	{
-		$this->_arr_atrs = true;
+		$this->_ser_atrs = true;
 		$this->Asset($assetid);
 	}
 
