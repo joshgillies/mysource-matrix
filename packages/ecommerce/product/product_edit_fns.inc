@@ -18,7 +18,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: product_edit_fns.inc,v 1.3 2005/01/26 09:49:21 brobertson Exp $
+ * $Id: product_edit_fns.inc,v 1.4 2005/02/01 11:38:18 brobertson Exp $
  * $Name: not supported by cvs2svn $
  */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -65,7 +65,7 @@ class Product_Edit_Fns extends Page_Edit_Fns
 	{
 		$price_obj = $asset->attr('price_obj');
 		$wa = $asset->writeAccess('attributes');
-		$price_obj->paintBackend($o, $prefix, $wa);
+		$price_obj->paintBackend($o, $prefix.'_'.$asset->vars['price_obj']['attrid'], $wa);
 		return $wa;
 
 	}//end paintProductPrice()
@@ -84,7 +84,7 @@ class Product_Edit_Fns extends Page_Edit_Fns
 	function processProductPrice(&$asset, &$o, $prefix)
 	{
 		$price_obj = $asset->attr('price_obj');
-		if (!$price_obj->processBackend($o, $prefix)) return false;
+		if (!$price_obj->processBackend($o, $prefix.'_'.$asset->vars['price_obj']['attrid'])) return false;
 		return $asset->setAttrValue('price_obj', $price_obj);
 
 	}// end processProductPrice()
