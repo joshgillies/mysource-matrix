@@ -392,7 +392,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			return;
 		}
 
-		$contents = Array();
+		$contents = Array('' => '');
 		foreach($pages as $info) {
 			$page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($info['minorid'], $info['type_code'], true);
 			if (is_null($page)) continue;
@@ -433,11 +433,12 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			}// end if
 		}// end if
 
-		if (empty($_POST[$prefix.'_'.$page_type])) return false;
-		$page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_'.$page_type]);
-		if (!$asset->createLink($page, SQ_LINK_TYPE_3, $page_type)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+		if (!empty($_POST[$prefix.'_'.$page_type])) {
+			$page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_'.$page_type]);
+			if (!$asset->createLink($page, SQ_LINK_TYPE_3, $page_type)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}// end if
 		}// end if
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
