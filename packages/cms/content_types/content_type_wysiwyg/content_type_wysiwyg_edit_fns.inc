@@ -53,7 +53,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		$wysiwyg->add_plugin('indenting');
 		$wysiwyg->add_plugin('listing');
 		$wysiwyg->add_plugin('general');
-		$wysiwyg->add_plugin('history');
+		//$wysiwyg->add_plugin('history');
 		$wysiwyg->add_plugin('table_editing');
 		$wysiwyg->add_plugin('select_color');
 		$wysiwyg->add_plugin('matrix_embed_movie');
@@ -61,7 +61,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		$wysiwyg->add_plugin('matrix_insert_image');
 		$wysiwyg->add_plugin('view_source');
 		$wysiwyg->set_contents($html);
-		//$wysiwyg->add_plugin('popup_editor');
+		$wysiwyg->add_plugin('popup_editor');
 		return $wysiwyg;
 
 	}//end _createEditor()
