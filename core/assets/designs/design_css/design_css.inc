@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.4 2004/09/03 21:56:06 amiller Exp $
+* $Id: design_css.inc,v 1.5 2004/09/07 10:52:21 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 

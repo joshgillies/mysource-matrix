@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_customisation_edit_fns.inc,v 1.1 2004/08/30 03:52:05 amiller Exp $
+* $Id: design_css_customisation_edit_fns.inc,v 1.2 2004/09/07 10:52:21 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 

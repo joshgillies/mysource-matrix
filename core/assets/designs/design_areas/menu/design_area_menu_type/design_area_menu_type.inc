@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.48 2004/08/02 00:17:50 amiller Exp $
+* $Id: design_area_menu_type.inc,v 1.49 2004/09/07 10:52:20 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 

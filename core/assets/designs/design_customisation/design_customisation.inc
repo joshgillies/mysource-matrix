@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.28 2004/08/23 00:15:25 amiller Exp $
+* $Id: design_customisation.inc,v 1.29 2004/09/07 10:52:21 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
