@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.11 2004/05/13 04:02:39 lwright Exp $
+* $Id: event_manager.inc,v 1.12 2004/05/27 01:01:07 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -240,6 +240,7 @@ class Event_Manager extends MySource_Object
 
 		// no point continuing if this object does not inherit from asset
 		if (!is_a($broadcaster, 'asset')) return true;
+		if (!$broadcaster->id) return;
 
 		// create a temp entry for the event listeners (runtime wide as event_manager is cached)
 		if (!isset($this->_tmp['event_listeners'])) {
