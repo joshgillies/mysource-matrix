@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.203 2004/04/08 11:46:54 brobertson Exp $
+* $Id: asset_edit_interface.inc,v 1.204 2004/04/16 02:33:26 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -811,25 +811,27 @@ class Asset_Edit_Interface extends MySource_Object
 
 			// if there are other screens used by the layout, then we need to acquire locks on those
 			// screens as well
-			if (isset($keywords['screens']) && !empty($keywords['screens'])) {
-				foreach (array_keys($keywords['screens']) as $screen) {
-					// default to 'all', so if lock type is left out a lock can still be gotten and the asset edited
-					$screen_lock_type = 'all';
-					if (isset($this->_edit_fns->static_screens[$screen])) {
-						if (!empty($this->_edit_fns->static_screens[$screen]['lock_type'])) {
-							$screen_lock_type = $this->_edit_fns->static_screens[$screen]['lock_type'];
-						}
-					} else {
-						// must be a normal screen
-						if (!empty($this->_screens[$screen]['lock_type'])) {
-							$screen_lock_type = $this->_screens[$screen]['lock_type'];
-						}
-					}// end if
+			$screens = array_merge(array_keys($keywords['screens']), array_keys($keywords['entire_screens']));
+			$screens = array_unique($screens);
 
-					$locks[] = $screen_lock_type;
+			foreach ($screens as $screen) {
+				// default to 'all', so if lock type is left out a lock can still be gotten and the asset edited
+				$screen_lock_type = 'all';
+				if (isset($this->_edit_fns->static_screens[$screen])) {
+					if (!empty($this->_edit_fns->static_screens[$screen]['lock_type'])) {
+						$screen_lock_type = $this->_edit_fns->static_screens[$screen]['lock_type'];
+					}
+				} else {
+					// must be a normal screen
+					if (!empty($this->_screens[$screen]['lock_type'])) {
+						$screen_lock_type = $this->_screens[$screen]['lock_type'];
+					}
+				}// end if
 
-				}//end foreach
-			}//end if
+				$locks[] = $screen_lock_type;
+
+			}//end foreach
+			
 		}//end if hasLayout
 
 		$locks = array_unique($locks);
@@ -940,8 +942,8 @@ class Asset_Edit_Interface extends MySource_Object
 		// we have printed an editable interface on a static screen - show the commit button
 		if ($print_commit_button) {
 			ob_start();
-			$o->commitButton('Commit', false);
-			$this->_tmp['layout_keyword_replacements']['commit_button'] = ob_get_contents();
+				$o->commitButton('Commit', false);
+				$this->_tmp['layout_keyword_replacements']['commit_button'] = ob_get_contents();
 			ob_end_clean();
 		}
 
@@ -975,13 +977,18 @@ class Asset_Edit_Interface extends MySource_Object
 	*/
 	function _getStaticScreenKeywordReplacements(&$owner, &$o, $screen, $static_keywords, $get_screen=false)
 	{
-		$paint_function = 'paint'.$screen;
 		$this->includeStaticScreen($screen);
 		$print_commit_button = false;
-
+		
 		ob_start();
-		if ($paint_function($owner, $o, $this, $static_keywords)) $print_commit_button = true;
-		if ($get_screen) $this->_tmp['layout_keyword_replacements'][$screen.'-'] = ob_get_contents();
+			if (isset($_POST['am_form_submitted']) && $_POST['am_form_submitted']) {
+				// the form was submitted, so we need to process the static screen as well
+				$process_function = 'process'.$screen;
+				$process_function($owner, $o, $this, $static_keywords);
+			}
+			$paint_function = 'paint'.$screen;
+			if ($paint_function($owner, $o, $this, $static_keywords)) $print_commit_button = true;
+			if ($get_screen) $this->_tmp['layout_keyword_replacements'][$screen.'-'] = ob_get_contents();
 		ob_end_clean();
 
 		return $print_commit_button;
