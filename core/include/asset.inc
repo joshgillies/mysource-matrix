@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.291 2004/04/21 05:36:13 gsherwood Exp $
+* $Id: asset.inc,v 1.292 2004/05/13 04:13:01 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -659,8 +659,8 @@ class Asset extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		$im =& $GLOBALS['SQ_SYSTEM']->getIndexingManager();
-		$im->flushKeyData($this->id);
+		$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+		$sm->flushKeyData($this->id);
 
 		return true;
 
@@ -3359,10 +3359,8 @@ class Asset extends MySource_Object
 	*/
 	function informChanges()
 	{
-		if (!SQ_CONF_INDEXING_ENABLED) return;
-
-		$im =& $GLOBALS['SQ_SYSTEM']->getIndexingManager();
-		$im->changed($this->id);
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em->broadcastEvent($this, 'requestReindex');
 
 	}//end informChanges()
 
@@ -3377,7 +3375,8 @@ class Asset extends MySource_Object
 	*/
 	function saveComponentWeightings($new_weightings)
 	{
-		$im =& $GLOBALS['SQ_SYSTEM']->getIndexingManager();
+		$sm =& $GLOBALS['SQ_SYSTEM']->getSystemAsset('search_manager');
+		if (!$sm) return false;
 		$dirty = false;
 		$weightings =& $this->getWeightings();
 
@@ -3390,7 +3389,7 @@ class Asset extends MySource_Object
 				$weightings[$component]['default'] = $weighting_data['default'];
 				if (!$dirty) $weightings[$component]['weighting'] = $weighting;
 			}
-			$im->setComponentWeighting($this->id, $component, $weighting);
+			$sm->setComponentWeighting($this->id, $component, $weighting);
 		}
 
 		if ($dirty) {
@@ -3442,37 +3441,10 @@ class Asset extends MySource_Object
 	*/
 	function &getWeightings()
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		if (is_null($this->_weightings)) {
-			// load the weightings
-			$sql = 'SELECT wd.component, wd.description, (w.weighting IS NULL) as def, COALESCE(w.weighting, wd.weighting) as weighting
-					FROM
-						'. SQ_TABLE_PREFIX .'asset_indexing_weightings_default wd
-							LEFT OUTER JOIN '. SQ_TABLE_PREFIX. 'asset a
-								ON wd.type_code = a.type_code
-							LEFT OUTER JOIN '.SQ_TABLE_PREFIX .'asset_indexing_weightings w
-								ON w.component = wd.component AND
-								a.assetid = w.assetid
-					WHERE
-						a.assetid = ' . $db->quote($this->id) ;
+		$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+		if (!$sm) return false;
 
-			$results = $db->getAll($sql);
-			if (DB::isError($results)) {
-				trigger_error($results->getMessage().'<br/>'.$results->getUserInfo(), E_USER_ERROR);
-				return false;
-			}
-
-			$this->_weightings = Array();
-			foreach ($results as $result) {
-				$this->_weightings[$result['component']] =
-					Array(
-						'default'     => ($result['def'] == 't') ? 1 : 0,
-						'weighting'   => $result['weighting'],
-						'description' => $result['description'],
-					);
-			}
-		}
-		return $this->_weightings;
+		return $sm->getAssetWeightings($this->id);
 
 	}// end getWeightings()
 
