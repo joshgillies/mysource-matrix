@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.40 2004/12/03 15:33:23 brobertson Exp $
+* $Id: system_config.inc,v 1.41 2004/12/06 01:55:37 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -92,6 +92,9 @@ class System_Config extends Config
 		
 		// Allow IP to fluctuate ?
 		'SQ_CONF_ALLOW_IP_CHANGE'			=> Array('editable' => 1, 'default' => '0'),
+		
+		// Commit Button Text
+		'SQ_CONF_COMMIT_BUTTON_TEXT'		=> Array('editable' => 1, 'default' => 'Commit'),
 	);
 
 
@@ -482,7 +485,18 @@ class System_Config extends Config
 
 		$o->closeSection();
 
-		if ($write_access) $o->commitButton('Commit', true);
+		$o->openSection('Editing Interface Settings');
+
+			$o->openField('Commit Button Text', '', 'This setting renames the button used to commit edited information into the MySource Matrix system - default is \'Commit\'');
+			if($write_access) {
+				text_box($class.'[SQ_CONF_COMMIT_BUTTON_TEXT]', SQ_CONF_COMMIT_BUTTON_TEXT, 30);
+			} else {
+				echo SQ_CONF_COMMIT_BUTTON_TEXT;
+			}
+
+		$o->closeSection();
+		
+		if ($write_access) $o->commitButton(SQ_CONF_COMMIT_BUTTON_TEXT, true);
 
 	}//end paintBackend()
 

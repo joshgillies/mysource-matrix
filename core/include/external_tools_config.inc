@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.5 2004/12/03 15:33:23 brobertson Exp $
+* $Id: external_tools_config.inc,v 1.6 2004/12/06 01:55:37 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -243,7 +243,7 @@ class External_Tools_Config extends Config
 
 		$o->closeSection();
 		
-		if ($write_access) $o->commitButton('Commit', true);
+		if ($write_access) $o->commitButton(SQ_CONF_COMMIT_BUTTON_TEXT, true);
 
 	}//end paintBackend()
 

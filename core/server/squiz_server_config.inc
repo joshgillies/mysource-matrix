@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: squiz_server_config.inc,v 1.6 2004/12/03 15:33:23 brobertson Exp $
+* $Id: squiz_server_config.inc,v 1.7 2004/12/06 01:56:24 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -146,7 +146,7 @@ class Squiz_Server_Config extends Config
 
 		$o->closeSection();
 
-		if ($write_access) $o->commitButton('Commit', true);
+		if ($write_access) $o->commitButton(SQ_CONF_COMMIT_BUTTON_TEXT, true);
 
 
 	}//end paintBackend()
