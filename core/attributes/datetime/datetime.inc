@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.16 2004/05/09 22:54:58 lwright Exp $
+* $Id: datetime.inc,v 1.17 2004/07/14 14:48:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -65,6 +65,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 		$this->Asset_Attribute($attributeid, $value);
 
 		// default values
+		$this->_edit_params['allow_null']   = true;
 		$this->_edit_params['max']          = '2030-12-31 23:59:59';
 		$this->_edit_params['min']          = '1970-01-01 00:00:00';
 		$this->_edit_params['allow_circa']  = '0';
@@ -131,7 +132,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	*/
 	function paint($prefix, $read_only=false)
 	{
-		if (isset($this->_params['print_format']) && !empty($this->_params['print_format'])) {
+		if (!empty($this->_params['print_format'])) {
 			$this->_edit_params['print_format'] = $this->_params['print_format'];
 		}
 		$field = new Datetime_Field($prefix.'_'.$this->name, $this->value, $this->_edit_params);
@@ -204,6 +205,10 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	*/
 	function validateValue(&$value)
 	{
+		// specific check for null because Datetime_Field() will attempt to use the min and max values
+		if (!empty($this->_params['allow_null']) && $value == '---------- --:--:--') {
+			return true;
+		}
 		$ref = '';
 		$orig_value = $value;
 		$field = new Datetime_Field('blah', $ref, $this->_edit_params);
