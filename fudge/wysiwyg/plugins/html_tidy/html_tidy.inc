@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: html_tidy.inc,v 1.5 2003/10/03 07:05:50 gsherwood Exp $
+* $Id: html_tidy.inc,v 1.6 2003/10/07 00:29:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -25,6 +25,15 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 class HTML_Tidy extends Wysiwyg_Plugin {
 
 	/**
+	* Speical inline tags that HTMLTidy needs to know about
+	*
+	* @var array
+	* @see new_inline_tag()
+	*/
+	var $_new_inline_tags = Array();
+
+
+	/**
 	* Constructor
 	*
 	* @return object HTML_Tidy
@@ -37,9 +46,26 @@ class HTML_Tidy extends Wysiwyg_Plugin {
 
 
 	/**
+	* Let HTMLTidy known about a special inline tag during cleaning
+	*
+	* @param string	$tag_name	the name of the new tag
+	*
+	* @return boolean
+	* @access public
+	*/
+	function new_inline_tag($tag_name)
+	{
+		if (in_array($tag_name, $this->_new_inline_tags)) return true;
+		$this->_new_inline_tags[] = $tag_name;
+		return true;
+
+	}//end new_inline_tag()
+
+
+	/**
 	* Cleans the submitted HTML using HTML Tidy
 	*
-	* @param string	&html	the HTML that was submitted by the editor
+	* @param string	&$html	the HTML that was submitted by the editor
 	*
 	* @return string
 	* @access public
@@ -48,7 +74,10 @@ class HTML_Tidy extends Wysiwyg_Plugin {
 	{
 		$tidy = Array();
 		$path_to_tidy = '/home/gsherwood/mysource_matrix/tidy';
-		$command = "/bin/echo ".escapeshellarg($html)." | $path_to_tidy -iq --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --word-2000 1 --force-output 1 --new-blocklevel-tags \"htmlarea_special\"";
+		$command = "/bin/echo ".escapeshellarg($html)." | $path_to_tidy -iq --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --word-2000 1 --force-output 1";
+
+		if (!empty($this->_new_inline_tags)) $command .= ' --new-inline-tags "'.implode('","',$this->_new_inline_tags).'"';
+
 		exec($command, $tidy);
 		if (empty($tidy)) return;
 		$html = implode("\n", $tidy);
