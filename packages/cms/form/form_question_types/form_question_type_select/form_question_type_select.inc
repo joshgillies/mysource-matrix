@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.16 2004/05/06 04:41:18 lwright Exp $
+* $Id: form_question_type_select.inc,v 1.17 2004/05/10 00:27:00 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -63,7 +63,7 @@ class Form_Question_Type_Select extends Form_Question
 	* @return Array(string => string)
 	*/
 	function getAllowedRules() {
-		return Array('comparison');
+		return Array('comparison', 'select_limit');
 	
 	}//end getAllowedRules()
 	
