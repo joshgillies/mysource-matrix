@@ -493,21 +493,19 @@ class File extends Asset
 		$existing = $this->_getExistingFile();
 		if (!empty($existing)) {
 			require SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
-			$ext = strtolower(substr(strrchr($existing['filename'],'.'), 1));
-			if (!isset($standards_lists_mime_types[$ext])) {
-				$type = "text/plain";
-			} else {
-				$type = $standards_lists_mime_types[$ext];
-			}
+			require SQ_FUDGE_PATH.'/general/file_system.inc';
+			$ext = get_file_type($existing['filename']);
+			$type = (empty($standards_lists_mime_types[$ext])) ? 'text/plain' : $standards_lists_mime_types[$ext];
 			header('Cache-Control:');
 			header('Pragma: cache');
-			header('Expires: '. gmdate('D, d M Y H:i:s',time()  +86400) . ' GMT');
+			header('Expires: '. gmdate('D, d M Y H:i:s', (time() + 86400)) . ' GMT');
 			header('Content-Type: ' . $type);
 			header('Content-Disposition: inline; filename='.$existing['filename'].';');
 			header('Last-Modified: ' . gmdate('D, d M Y H:i:s',$existing['modified']) . ' GMT');
 			header('Content-Length: '.$existing['size']);
 			readfile($existing['path']);
 		}
+
 	}// end printFrontend()
 
 
