@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.40 2004/11/26 05:59:34 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.41 2004/11/30 03:30:16 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -263,7 +263,7 @@ class Page_Asset_Builder extends Page
 	{
 		?>
 		<script type="text/javascript" language="javascript" src="<?php echo sq_web_path('lib');?>/html_form/html_form.js"></script>
-		<form name="asset_builder_<?php echo $this->id; ?>" method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>" enctype="multipart/form-data">
+		<form name="asset_builder_<?php echo $this->id; ?>" method="POST" action="<?php echo replace_query_string_vars(Array()); ?>" enctype="multipart/form-data">
 			<?php
 			hidden_field('ASSET_BUILDER_ACTION', $this->_default_state);
 			$parameter_map = &$this->getAttribute('parameter_map');
