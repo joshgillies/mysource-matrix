@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.78 2004/04/20 00:06:42 gsherwood Exp $
+* $Id: backend_outputter.inc,v 1.79 2004/04/28 00:35:50 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1040,7 +1040,7 @@ class Backend_Outputter
 		</head>
 		<body bgcolor="#FFFFFF" onLoad="javascript: page_on_load();" marginwidth="0" marginheight="0" topmargin="0" leftmargin="0">
 
-		<form action="<?php echo $this->_action.$this->_anchor;?>" name="main_form" method="post" enctype="multipart/form-data" onSubmit="javascript: return form_on_submit();">
+		<form action="<?php echo $this->_action.$this->_anchor;?>" id="main_form" name="main_form" method="post" enctype="multipart/form-data" onSubmit="javascript: return form_on_submit();">
 	<?php
 		hidden_field('process_form', '1');
 		foreach($this->_hidden_fields as $name => $value) hidden_field($name, $value);

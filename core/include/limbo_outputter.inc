@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.8 2004/03/30 04:21:02 gsherwood Exp $
+* $Id: limbo_outputter.inc,v 1.9 2004/04/28 00:35:50 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -485,7 +485,7 @@ class Limbo_Outputter extends Backend_Outputter
 			}
 		</style>
 
-		<form action="<?php echo $this->_action.$this->_anchor;?>" name="main_form" method="post" enctype="multipart/form-data" onSubmit="javascript: return form_on_submit();">
+		<form action="<?php echo $this->_action.$this->_anchor;?>" id="main_form" name="main_form" method="post" enctype="multipart/form-data" onSubmit="javascript: return form_on_submit();">
 		<?php
 
 		hidden_field('process_form', '1');
