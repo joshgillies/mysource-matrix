@@ -18,10 +18,9 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.10 2004/08/09 00:46:41 lwright Exp $
+* $Id: page_calendar.inc,v 1.11 2004/08/18 07:07:18 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
-
 
 require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset_listing.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
@@ -33,14 +32,43 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * Purpose
 *
-*
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.10 $ - 1.0
+* @author  Tom Barrett <tbarrett@squiz.net>
+* @version $Revision: 1.11 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Page_Calendar extends Page_Asset_Listing
 {
+	// All the view options available
+	var $view_options = Array(	
+		'year'	=> Array(
+			'list_without_headings'	=>'List without Headings', 
+			'list_with_headings'	=>'List with Headings', 
+			'calendar_format'		=>'Calendar Format'),
+		'month' => Array(
+			'list_without_headings'	=>'List without Headings',
+			'list_with_headings'=>'List with Headings',
+			'calendar_format'=>'Calendar Format'),
+		'week' => Array(	
+			'list_without_headings'=>'List without Headings',
+			'list_with_headings'=>'List with Headings',
+			'calendar_format'=>'Calendar Format'),
+		'day' => Array(
+			'list_without_headings'=>'List without Headings',
+			'calendar_format'=>'Calendar Format'),
+		'event' => Array(	
+			'single_event'=>'Single Event Display')
+	);
+
+	// Day name constants
+	var $day_names_full = Array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
+	var $day_names_short = Array('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat');
+	var $day_names_very_short = Array('S', 'M', 'T', 'W', 'T', 'F', 'S');
+
+	// Month name constants
+	var $month_names_full = Array('', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
+	var $month_names_short = Array('', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
 
 
 	/**
@@ -58,46 +86,285 @@ class Page_Calendar extends Page_Asset_Listing
 
 	/**
 	* Called by the design to print the body of this asset
-	*
-	* @return void
+	* 
+	* @return boolean
 	* @access public
 	*/
 	function printBody()
 	{
-		$cal_view = $_REQUEST['SQ_CALENDAR_VIEW'];
+		// If we get a valid and available view type in the request, use it; otherwise use the initial view attribute.
+		$enabled_views = $this->attr('enabled_views');
+		$cal_view = (isset($_REQUEST['SQ_CALENDAR_VIEW']) && !empty($enabled_views[$_REQUEST['SQ_CALENDAR_VIEW']])) ? $_REQUEST['SQ_CALENDAR_VIEW'] : $this->attr('initial_view');
 
-		switch($cal_view) {
-			case 'day':
-				$this->printDayView(2004,8,2);
-			break;
+		// If we get a valid date in the request, use it; otherwise use today's date
+		$cal_date = (isset($_REQUEST['SQ_CALENDAR_DATE']) && preg_match("(\d\d\d\d-\d\d-\d\d)", $_REQUEST['SQ_CALENDAR_DATE'])) ? $_REQUEST['SQ_CALENDAR_DATE'] : date('Y-m-d');
+		list($year, $month, $day) = explode('-', $cal_date);
+		if (!checkdate($month, $day, $year)) $cal_date = date('Y-m-d');
 
-			case 'week':
-				$this->printWeekView(2004,7,27);
-				//printWeekView();
-			break;
-
-			case 'month':
-				$this->printMonthView(2004,7);
-			break;
-
-			case 'year':
-				//$this->printYearView(2004);
-			break;
-
-			case 'list':
-				//printListView();
-			break;
-
-			case 'resource':
-				//printResourceView();
-			break;
-
-			default:
-				trigger_error('Unrecognised calendar view type "'.$cal_view.'".', E_USER_NOTICE);
-			break;
+		// BUT, if the view is 'event' we want the eventid rather than the date
+		if ($cal_view == 'event') {
+			if (isset($_REQUEST['SQ_CALENDAR_EVENT_ID'])) {
+				$cal_date = (int)$_REQUEST['SQ_CALENDAR_EVENT_ID'];
+			} else {
+				trigger_error('Event View requested but no Event ID supplied', E_USER_WARNING);
+				return false;
+			}
 		}
 
-	}//end printBody()
+		eval('$this->print'.ucfirst($cal_view).'View(\''.$cal_date.'\');');
+		return true;
+
+	}//end printBody() 
+
+
+
+//--        FUNCTIONS TO PRINT CALENDAR VIEWS        --//
+
+
+	/**
+	* print a yearly view for the year containing the specified day
+	*
+	* @return void
+	* @access public
+	*/
+	function printYearView($date)
+	{
+
+		list($year, $month, $day) = explode('-', $date);
+		echo "<h2>Year View for $year</h2>";
+		$week_start_day = $this->attr('week_starts_on');
+		$enabled_views = $this->attr('enabled_views');
+		$drill_down_views = Array('month', 'week', 'year');
+		$drill_down_view = current($drill_down_views);
+		while (empty($enabled_views[$drill_down_view]) && ($drill_down_view !== FALSE)) $drill_down_view = next($drill_down_views);
+
+		$this->_printClickChildScript();
+		?>
+		<table id="year" border="0" cellspacing="0" cellpadding="0" style="width: 118ex">
+			<tr>
+				<th class="dayLabel" style="width: 6ex">&nbsp;</th>
+		<?php
+		for ($i = $week_start_day; $i < $week_start_day + 37; $i++) {
+			?>
+				<th class="dayLabel<?php echo (($i%7)==0 || ($i%7)==6) ? ' dayLabelWeekend' : ''; ?>" style="width: 3ex; text-align: center"><b><?php echo $this->day_names_very_short[$i % 7]; ?></b></th>
+			<?php
+		}
+		?>
+			</tr>
+		<?php
+		for ($current_month=1; $current_month<13; $current_month++) {
+		?>
+			<tr>
+				<th class="monthLabel">
+				<?php
+					// print the month name, linked to month view if it's available
+					if ($enabled_views['month']) {
+						echo '<a href="'.$this->getHref().'SQ_CALENDAR_VIEW=month&SQ_CALENDAR_DATE='.$year.'-'.sprintf('%02d', $current_month).'-01">';
+					}
+					echo $this->month_names_short[$current_month];
+					if ($enabled_views['month']) {
+						echo '</a>';
+					}
+				?>
+				</th>
+
+			<?php
+			// print blank days of week before the day our month starts on
+			$blank_days = (date('w', strtotime("$year-".sprintf('%02d', $current_month).'-01')) + 7 - $week_start_day) % 7;
+			for ($i = 0; $i < $blank_days; $i++) {
+			?>
+				<td class="dateNull<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' dateNullWeekend' : ''; ?>">&nbsp;</td>
+			<?php
+			}
+
+			// print the days of the month
+			for ($current_day = 1; $current_day < days_in_month($current_month, $year); $current_day++) {
+				$i++;
+				$occupied = (bool)(rand(0,100) < 5); // GET DATA FROM DB HERE
+				$weekend_class = in_array(date('D', strtotime("$year-$current_month-$current_day")), Array('Sat', 'Sun')) ? 'dateWeekend' : '';
+				$occupied_class = ($occupied) ? 'dateOccupied' : 'dateEmpty';
+				$onclick = $occupied ? 'clickChild(this)' : '';
+				echo '<td onclick="'.$onclick.'" class="'.$occupied_class.' '.$weekend_class.' date">';
+
+				if ($occupied) echo '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view."&SQ_CALENDAR_DATE=$year-".sprintf('%02d', $current_month).'-'.sprintf('%02d', $current_day).'">';
+				echo $current_day;
+				if ($occupied) echo '</a>';
+				echo '</td>';
+
+			}
+
+			// print blank days after the end of our month
+			while ($i < 37) {
+			?>
+				<td class="dateNull<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' dateNullWeekend' : ''; ?>">&nbsp</td>
+			<?php
+			$i++;
+			}
+
+			?>
+			</tr>
+		<?php
+		}
+		?>
+		</table>
+		<?
+		
+	}//end printYearView()
+
+
+	/**
+	* print a monthly view with for the month containing the specified day
+	*
+	* @return void
+	* @access public
+	*/
+	function printMonthView($date)
+	{
+		list($year, $month, $day) = explode('-', $date);
+		echo "<h2>Month View for $date</h2>";
+		$week_start_day = $this->attr('week_starts_on');
+		$week_length = 7;
+		$month_length = days_in_month($month, $year);
+		$current_day = 1;
+		$enabled_views = $this->attr('enabled_views');
+		$drill_down_views = Array('week', 'day');
+		$drill_down_view = current($drill_down_views);
+		while (empty($enabled_views[$drill_down_view]) && ($drill_down_view !== FALSE)) $drill_down_view = next($drill_down_views);
+
+		$this->_printClickChildScript();
+		?>
+		<table id="month" border="0" cellspacing="0" cellpadding="0">
+			<tr>
+		<?php
+			// print the day headings
+			for ($i=0; $i < $week_length; $i++) {
+				$day_name = $this->day_names_full[($week_start_day + $i) % 7];
+		?>
+				<th class="dayLabel <?php echo (($day_name == 'Saturday') || ($day_name == 'Sunday')) ? 'dayLabelWeekend' : ''; ?>"><?php echo $day_name; ?></th>
+		<?php
+			}
+		?>
+			</tr>
+			<tr>
+		<?php
+
+		// print blank days if necessrary
+		$blank_days = (date('w', strtotime("$year-".sprintf('%02d', $month).'-01')) + 7 - $week_start_day) % 7;
+		for ($i = 0; $i < $blank_days; $i++) {
+		?>
+				<td class="dateNull<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' dateNullWeekend' : ''; ?>">&nbsp;</td>
+		<?php
+		}
+		
+		// print the rest of the first week
+		while ($i < $week_length) {
+			$occupied = (bool)(rand(0,100) < 5); // GET DATA FROM DB HERE
+			$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'dateWeekend' : '';
+			$occupied_class = ($occupied) ? 'dateOccupied' : 'dateEmpty';
+			$onclick = $occupied ? 'clickChild(this)' : '';
+			echo '<td onclick="'.$onclick.'" class="'.$occupied_class.' '.$weekend_class.' date">';
+			if ($occupied && $drill_down_view) echo '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&SQ_CALENDAR_DATE='.$year.'-'.$month.'-'.sprintf('%02d', $current_day).'">';
+			echo $current_day;
+			if ($occupied && $drill_down_view) echo '</a>';
+			echo '</td>';
+			$current_day++;
+			$i++;
+		}
+
+		echo '</tr>';
+
+		// print the full weeks
+		$num_full_weeks = floor(($month_length - $current_day) / 7);
+		for ($w = 0; $w < $num_full_weeks; $w++) {
+			echo '<tr>';
+			for ($i=0; $i < $week_length; $i++) {
+				$occupied = (bool)(rand(0,100) < 5); // GET DATA FROM DB HERE
+				$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'dateWeekend' : '';
+				$occupied_class = ($occupied) ? 'dateOccupied' : 'dateEmpty';
+				$onclick = $occupied ? 'clickChild(this)' : '';
+				echo '<td onclick="'.$onclick.'" class="'.$occupied_class.' '.$weekend_class.' date">';
+				if ($occupied && $drill_down_view) echo '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&SQ_CALENDAR_DATE='.$year.'-'.$month.'-'.sprintf('%02d', $current_day).'">';
+				echo $current_day;
+				if ($occupied && $drill_down_view) echo '</a>';
+				echo '</td>';
+				$current_day++;
+			}
+			echo '</tr>';
+			echo '<!-- end of normal weeks -!>';
+
+		}
+
+		// print the final week, if necessary
+		if ($current_day < $month_length) {
+			$i = 0;
+			echo '<tr>';
+			while ($current_day <= $month_length) {
+				$occupied = (bool)(rand(0,100) < 5); // GET DATA FROM DB HERE
+				$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'dateWeekend' : '';
+				$occupied_class = ($occupied) ? 'dateOccupied' : 'dateEmpty';
+				$onclick = $occupied ? 'clickChild(this)' : '';
+				echo '<td onclick="'.$onclick.'" class="'.$occupied_class.' '.$weekend_class.' date">';
+				if ($occupied && $drill_down_view) echo '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&SQ_CALENDAR_DATE='.$year.'-'.$month.'-'.sprintf('%02d', $current_day).'">';
+				echo $current_day;
+				if ($occupied && $drill_down_view) echo '</a>';
+				echo "</td>\n";
+				$current_day++;
+				$i++;
+			}
+
+			// print blank days, if necessary
+			while ($i < $week_length) {
+			?>
+				<td class="dateNull<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' dateNullWeekend' : ''; ?>">&nbsp;</td>
+			<?php
+				$i++;
+			}
+
+			echo '</tr>';
+		}
+		echo '</table>';
+		
+	}//end printMonthView()
+
+
+	/**
+	* print a weekly view for the week containing the specified day
+	*
+	* @return void
+	* @access public
+	*/
+	function printWeekView($date)
+	{
+		list($year, $month, $day) = explode('-', $date);
+		echo "<h2>Week View for $date</h2>";
+
+		// get the list of columns using the week-starts-on and week-days-to-show attributes
+		$week_start_day = $this->attr('week_starts_on');
+		$enabled_days = $this->attr('week_view_show_days');
+		$columns = Array();
+		$ordered_days = Array();
+		for ($i = $week_start_day; $i < $week_start_day + 7; $i++) {
+			if ($enabled_days[$i%7]) $columns[$i%7] = $this->day_names_full[$i%7];
+			$ordered_days[] = $i%7;
+		}
+		
+		// if day view is enabled, figure out where the day headings should link to, 
+		// bearing in mind that the 'now' date could be anywhere in the week, including
+		// a hidden day.
+		$column_links = Array();
+		$enabled_views = $this->attr('enabled_views');
+		if ($enabled_views['day']) {
+			$ordered_days = array_flip($ordered_days);
+			$today_index = $ordered_days[date('w', strtotime($date))];
+			foreach ($columns as $id => $name) {
+				$target_date = date('Y-m-d', strtotime((($ordered_days[$id] < $today_index) ? 'last ' : '') . $name));
+				$column_links[$id] = $this->getHref().'?SQ_CALENDAR_VIEW=day&SQ_CALENDAR_DATE='.$target_date;
+			}
+		}
+
+		$this->_printTimedTable('week', Array(), $columns, $column_links, $enabled_views['event']);
+		
+	}//end printWeekView()
 
 
 	/**
@@ -106,420 +373,172 @@ class Page_Calendar extends Page_Asset_Listing
 	* @return void
 	* @access public
 	*/
-	function printDayView($year, $month, $day)
+	function printDayView($date)
 	{
-		/* pseudo-code version of this method...
-		 * get all events that lie underneath the selected root nodes, using a search matching
-		 * the front part of the tree id with the root node
-		 *
-		 * OR, if reverse lookup option turned on, it must be the minor
-		 * [LIMIT:(?) only use immediate links for reverse lookup]
-		 *
-		 * [FOR SINGLE EVENTS - IGNORE TIME COMPONENTS:]
-		 * ... that have a start date of 'today' (nb: by 'today' I mean the passed date)
-		 *     and no end date
-		 * ... OR, have a start date earlier than or equal to today AND
-		 * ... have an end date later than or equal to today
-		 *     (ie. between start date and end date, inclusive)
-		 *
-		 * [FOR MULTIPLE EVENTS:]
-		 * ... that have a start date later than or equal to today
-		 * ... if it has an STOP date, it must be before that
-		 *     (ie. between start date and any STOP date, inclusive)
-		 * ... beyond that, stuffed if I know how to do all of the things I want in a database
-		 *     query >_<
-		 *	   except ... DED [every day] is always included
-		 *            ... DWD [every weekday] is included if date passed is a Mon-Fri
-		 *            ... 'Every week' could be easy enough if there is a SQL function that can
-		 *                handle returning of weekday indices
-		 *
-		 * Grab an attribute for start time of the day view (eg. 08.30)
-		 * Grab an attribute for end time of the day view (eg. 17.00)
-		 * Grab an attribute for the length of each viewable time slot (eg. 1 hour, 30 minutes
-		 * 15 minutes)
-		 * Grab display format (eg. is 'RESOURCE VIEW/ONE COLUMN PER NODE' enabled?)
-		 *
-		 * Work out final list of events in an array which includes all relevant information,
-		 * including start and end times (if it rolls over to another day then use 00.00 and
-		 * 24.00 if necessary), including style/colour information
-		 *
-		 * Print the bastard =D (one column per node if that is specified, otherwise
-		 * just one column straight down)
-		 */
-		 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		
 		$root_nodes = $this->attr('root_nodes');
-		if (empty($root_nodes)) {
-			$result = Array();
-		
-		} else {
-			
-			// this query to get the treeids of the root nodes to plug into the main query/ies
-			$sql = 'select t.treeid from sq_asset a join (sq_asset_link l join sq_asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid where a.assetid in (';
-			
-			$quoted_root_nodes = array_keys($root_nodes);
-			
-			// quote the root nodes manually before we implode the thing		
-			foreach($quoted_root_nodes as $k => $root_node) {
-				$quoted_root_nodes[$k] = $db->quote($quoted_root_nodes[$k]);
-			}	
-			
-			$sql .= implode(', ', $quoted_root_nodes).')';
-			
-			
-			$trees = $db->getCol($sql);
-			assert_valid_db_result($trees);
-			
-			$date_sql = '((substring(v.custom_value from 1 for 10) = '.$db->quote($this->_buildDate($year,$month,$day)).' and v1.custom_value IS NULL) OR (substring(v.custom_value from 1 for 10) <= '.$db->quote($this->_buildDate($year,$month,$day)).' and substring(v1.custom_value from 1 for 10) >= '.$db->quote($this->_buildDate($year,$month,$day)).'))';
-			
-			// base sql query FOR SINGLE EVENTS (holy crap... O_O')
-			$sql = $this->_buildSingleEventQuery().' and '.$date_sql;
-			
-			$tree_sql = Array();
-			foreach($trees as $tree) {
-				$tree_sql[] = 'substring(t.treeid from 1 for '.strlen($tree).') LIKE '.$db->quote($tree.'%');
-			}
-			$sql .= ' AND '.implode(' OR ', $tree_sql);
-			
-			$result = $db->getAll($sql);
-			assert_valid_db_result($result);
-			
-			foreach($result as $key => $result_item) {
-				$start_time = (iso8601_time_component($result_item['start_date']) === false ? '00:00:00' : str_replace('-','0',iso8601_time_component($result_item['start_date'])));
-				$end_time = (iso8601_time_component($result_item['end_date']) === false ? (iso8601_time_component($result_item['start_date']) === false ? '24:00:00' : $start_time) : str_replace('-','0',iso8601_time_component($result_item['end_date'])));
-				$result[$key] = array_merge($result_item, Array(
-													'start_date' => $start_time,
-													'end_date' => $end_time,));
-			}
-		}//end if root nodes exist
-		
-		list($start_time_h, $start_time_m) = explode(':', $this->attr('day_view_start_time'));
-		list($end_time_h, $end_time_m) = explode(':', $this->attr('day_view_end_time'));
-		$appt_spacing = intval($this->attr('appointment_spacing'));
-		
-		foreach($result as $result_item) {
-					
-			echo '<br/><b>'.$result_item['name'].'</b> running ';
-			if (($result_item['start_date'] == '00:00:00') && ($result_item['end_date'] == '24:00:00')) {
-				echo 'all day';
-			} else {
-				echo $result_item['start_date'].' to '.$result_item['end_date'];
-			}
-					
-		}?>
-			<table>
-			<?php for($i = $start_time_h * 60 + $start_time_m; $i < $end_time_h * 60 + $end_time_m; $i += $appt_spacing) { ?>
-				<tr>
-					<td align="right"><?php echo intval($i/60).':'.(($i % 60) < 10 ? '0' : '').intval($i % 60) ?></td>
-					<td>&nbsp;</td>
-				</tr>
-			<?php } ?>
-			</table>
+		$columns = ((count($root_nodes > 1) && $this->attr('columnise_day_view_by_root_node'))) ? array_keys($root_nodes) : Array();
+		if (!empty($columns)) {
+			$location_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($columns);
+			$new_cols = Array();
+			foreach ($columns as $id) $new_cols[$id] = $location_info[$id]['name'];
+		}
+
+		list($year, $month, $day) = explode('-', $date);
+		?>
+		<h2>Day View for <?php echo $date; ?></h2>
 		<?php
-		
+		$enabled_views = $this->attr('enabled_views');
+		$this->_printTimedTable('day', Array(), $new_cols, Array(), $enabled_views['event']);
+
 	}//end printDayView()
 
-	
+
 	/**
-	* print a weekly view starting from the specified day
+	* print the details of the specified event by itself
 	*
 	* @return void
 	* @access public
 	*/
-	function printWeekView($year, $month, $day)
+	function printEventView($event_id)
 	{
-		/* pseudo-code version of this method...
-		
-		 * first bit as for day, yada yada yada
-		 *
-		 * [FOR SINGLE EVENTS - IGNORE TIME COMPONENTS:]
-		 * ... that have a start date of  and no end date
-		 * ... OR, have a start date earlier than or equal to starting day AND
-		 * ... have an end date later than or equal to ending day
-		 *     (ie. between start date and end date, inclusive)
-		 *
-		 * [FOR MULTIPLE EVENTS:]
-		 * ... that have a start date later than or equal to today
-		 * ... if it has an STOP date, it must be before that
-		 *     (ie. between start date and any STOP date, inclusive)
-		 * ... beyond that...
-		 *	   ... DED [every day] is always included
-		 *     ... DEDx [every x days] is included if x <= 7
-		 *     ... DWD [every weekday] is always included as it will likely occur 5 times :-)
-		 *     ... WEW [every week] is always included
-		 *
-		 * Grab an attribute for start time of the day view (eg. 08.30)
-		 * Grab an attribute for end time of the day view (eg. 17.00)
-		 * Grab an attribute for the length of each viewable time slot (eg. 1 hour, 30 minutes
-		 * 15 minutes)
-		 * Grab an attribute for first day of week (eg. Monday or Sunday, or another day)
-		 * Grab display formats (not likely to have a resource/node view here)
-		 *
-		 * Work out final list of events in an array which includes all relevant information,
-		 * including start and end times FOR EACH DAY (this is for simplicity when printing
-		 * the calendar out), including style/colour information
-		 *
-		 * Print the bastard =D, one column for each day
-		 */
-		 
-	
-		
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		
-		$root_nodes = $this->attr('root_nodes');
-		if (empty($root_nodes)) {
-			// no root nodes = display the calendar but don't display any events
-			$final_result = Array();
-			
-		} else {
-		
-			// this query to get the treeids of the root nodes to plug into the main query/ies
-			$sql = 'select t.treeid from sq_asset a join (sq_asset_link l join sq_asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid where a.assetid in (';
-			
-			$quoted_root_nodes = array_keys($root_nodes);
-			
-			// quote the root nodes manually before we implode the thing		
-			foreach($quoted_root_nodes as $k => $root_node) {
-				$quoted_root_nodes[$k] = $db->quote($quoted_root_nodes[$k]);
-			}	
-			
-			$sql .= implode(', ', $quoted_root_nodes).')';
-			
-			$trees = $db->getCol($sql);
-			assert_valid_db_result($trees);
-					
-			$date_sql = '(((substring(v.custom_value from 1 for 10) BETWEEN '.$db->quote($this->_buildDate($year,$month,$day)).' AND '.$db->quote($this->_buildDate($year,$month,$day + 6)).') and v1.custom_value IS NULL) OR (substring(v.custom_value from 1 for 10) < '.$db->quote($this->_buildDate($year,$month,$day + 7)).' and substring(v1.custom_value from 1 for 10) >= '.$db->quote($this->_buildDate($year,$month,$day)).'))';
-					
-			// base sql query FOR SINGLE EVENTS; downward root nodes taken into account (holy crap O_O')
-			$sql = $this->_buildSingleEventQuery().' and '.$date_sql;
-			
-			$tree_sql = Array();
-			foreach($trees as $tree) {
-				$tree_sql[] = 'substring(t.treeid from 1 for '.strlen($tree).') LIKE '.$db->quote($tree.'%');
-			}
-			$sql .= ' AND '.implode(' OR ', $tree_sql);
-			
-			//print_r($sql);
-			
-			$result = $db->getAll($sql);
-			assert_valid_db_result($result);
-			$final_result = Array();
-				
-			foreach($result as $result_item) {
-				for($loop_day = $day; $loop_day < $day + 7; $loop_day++) {
-					$iso_date = $this->_buildDate($year,$month,$loop_day);
-					if(empty($final_result[$iso_date])) $final_result[$iso_date] = Array();
-					if ((iso8601_date_component($result_item['start_date']) == $iso_date && is_null($result_item['end_date'])) || (iso8601_date_component($result_item['start_date']) <= $iso_date && iso8601_date_component($result_item['end_date']) >= $iso_date)) {	
-						$start_time = (iso8601_time_component($result_item['start_date']) === false ? '00:00:00' : str_replace('-','0',iso8601_time_component($result_item['start_date'])));
-						$end_time = (iso8601_time_component($result_item['end_date']) === false ? (iso8601_time_component($result_item['start_date']) === false ? '24:00:00' : $start_time) : str_replace('-','0',iso8601_time_component($result_item['end_date'])));
-						$final_result[$iso_date][] = array_merge($result_item, Array(
-															'start_date' => $start_time,
-															'end_date' => $end_time,));
-					}
-				}	
-			}			
-			
-			// base sql query For Recurring Events
-			$sql = $this->_buildRecurringEventQuery().' and '.$date_sql;
-		
-			$tree_sql = Array();
-			foreach($trees as $tree) {
-				$tree_sql[] = 'substring(t.treeid from 1 for '.strlen($tree).') LIKE '.$db->quote($tree.'%');
-			}
-			$sql .= ' AND '.implode(' OR ', $tree_sql);
-			
-			print_r($sql);
-			
-			$result = $db->getAll($sql);
-			assert_valid_db_result($result);
-			
-		}//end if root nodes exist
-		
-		list($start_time_h, $start_time_m) = explode(':', $this->attr('day_view_start_time'));
-		list($end_time_h, $end_time_m) = explode(':', $this->attr('day_view_end_time'));
-		$start_time = $start_time_h * 60 + $start_time_m;
-		$end_time   = $end_time_h   * 60 + $end_time_m;
-		$appt_spacing = intval($this->attr('appointment_spacing'));
-				
-		$days_of_week = Array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
-		$first_day = mktime(0,0,0,$month,$day,$year);
-		$date_info = getdate($first_day);
-		$first_wday = $date_info['wday'];
-		?>
-		<table style="width:98%" width="100%" cellspacing="0" cellpadding="0" border="0">
-		<tr>
-		<th>Time</th>
-		<?php for($i = $first_wday; $i < $first_wday + 7; $i++) { 	
-		?><th align="center" width="<?php echo intval(100 / 7) ?>%"><?php echo $days_of_week[$i % 7]; ?> <?php echo date('jS', mktime(0,0,0,$month,$day + $i - $first_wday,$year)) ?><br/>
-		<?php // pre_echo($final_result[$this->_buildDate($year,$month,$day + $i - $first_wday)]) ?></th><?php } ?>
-		</tr>
-		<tr>
-			<td width="2%" valign="top" align="right">
-		<?php for($i = $start_time_h * 60 + $start_time_m; $i < $end_time_h * 60 + $end_time_m; $i += $appt_spacing) { ?>
-			<div style="height:<?php echo number_format(100/$this->_numPeriodsBetweenTimes($this->attr('day_view_start_time'), $this->attr('day_view_end_time'), $this->attr('appointment_spacing'))) ?> %"><?php echo intval($i/60).':'.(($i % 60) < 10 ? '0' : '').intval($i % 60) ?></div>
-			
-		<?php } ?>
-		</td>
-		<?php for($i = $first_wday; $i < $first_wday + 7; $i++) {
-		?><td valign="top" width="<?php echo intval(98 / 7) - 1 ?>%">
-		<?php $x = 0;
-		foreach($final_result[$this->_buildDate($year,$month,$day + $i - $first_wday)] as $result_item) {
-			list($item_start_h, $item_start_m) = explode(':', $result_item['start_date']);
-			list($item_end_h, $item_end_m) = explode(':', $result_item['end_date']);
-			$item_start = $item_start_h * 60 + $item_start_m;
-			$item_end   = $item_end_h   * 60 + $item_end_m;
-			
-			// DIV properties for this asset
-			$div_props = Array(
-				't' => ($item_start - $start_time) / ($end_time - $start_time) * 100,
-				'h' => ($item_end - $item_start) / ($end_time - $start_time) * 100,
-			);
-			
-			$overlaps = $this->_maxOverlappingEvents($final_result[$this->_buildDate($year,$month,$day + $i - $first_wday)], $result_item['start_date'], $result_item['end_date'], $this->attr('appointment_spacing'))
-			?><div style="position:relative;float:left;display:block;background:white;border:1px solid black;top:<?php echo $div_props['t'] ?>%;height:<?php echo $div_props['h'] ?>%;width:<?php echo intval(100/max(1,$overlaps)) - 3 ?>%;"><?php
-				echo '<b>'.$result_item['name'].'</b> running ';
-			if (($result_item['start_date'] == '00:00:00') && ($result_item['end_date'] == '24:00:00')) {
-				echo 'all day';
-			} else {
-				echo $result_item['start_date'].' to '.$result_item['end_date'];
-			}
-			
-			$x++; ?></div><?php }?></td><?php } ?>
-			</tr>
-		</table><?php
-		
-	}//end printWeekView()
+		echo "<h2>Event View for Event $event_id</h2>";
+
+	}//end printEventView
+
+
+//--        HELPER FUNCTIONS FOR VIEW PRINTING FUNCTIONS        --//
 
 
 	/**
-	* print a monthly view with for the specified month
+	* Print a table with times within the day-starts-at to day-ends-at range, and columns
+	* as specified.
+	*
+	* @param string		$id					The id to use for the HTML table element
+	* @param Array		$data				The event data to put in the table
+	* @param Array		$columns			An id=>name array of the columns in the table
+	* @param Array		$column_links		An id=>href array of things to link the column headers to
+	* @param boolean	$show_event_links	Whether to link the event names to the event view
 	*
 	* @return void
-	* @access public
+	* @access private
 	*/
-	function printMonthView($year, $month)
+	function _printTimedTable($id, $data, $columns=Array(1=>'Events'), $column_links=Array(), $show_event_links=false)
 	{
-		/* pseudo-code version of this method...
-		 * first bit as for day, yada yada yada
-		 *
-		 * [FOR SINGLE EVENTS - IGNORE TIME COMPONENTS:]
-		 * ... that have a start date the same month as today and no end date
-		 * ... OR, have a start date earlier than or equal to 1st of today's month AND
-		 * ... have an end date later than or equal to last of today's month
-		 *     (ie. between start date and end date, inclusive)
-		 *
-		 * [FOR MULTIPLE EVENTS:]
-		 * ... that have a start date later than or equal to today
-		 * ... if it has an STOP date, it must be before that
-		 *     (ie. between start date and any STOP date, inclusive)
-		 * ... beyond that...
-		 *	   ... DED [every day] is always included
-		 *     ... DEDx [every x days] is included if x <= 28 (substitute # of days in month)
-		 *     ... DWD [every weekday] is always included
-		 *     ... WEW [every week] is always included
-		 *     ... WEWx [every x weeks] is definitely included if x <= 3, maybe if x = 4
-		 *     ... M** [every month] is always included
-		 *
-		 * Grab an attribute for first day of week (eg. Monday or Sunday, or another day)
-		 * Grab display formats (not likely to have a resource/node view here)
-		 *
-		 * Work out final list of events in an array which includes all relevant information,
-		 * including start and end times FOR EACH DAY (this is for simplicity when printing
-		 * the calendar out), including style/colour information
-		 *
-		 * Print the bastard =D, in a monthly calendar format (duh!)
-		 */
-		 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-
-		$root_nodes = $this->attr('root_nodes');
-		if (empty($root_nodes)) return;
-		
-		// this query to get the treeids of the root nodes to plug into the main query/ies
-		$sql = 'select t.treeid from sq_asset a join (sq_asset_link l join sq_asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid where a.assetid in (';
-		
-		$quoted_root_nodes = array_keys($root_nodes);
-		
-		// quote the root nodes manually before we implode the thing		
-		foreach($quoted_root_nodes as $k => $root_node) {
-			$quoted_root_nodes[$k] = $db->quote($quoted_root_nodes[$k]);
-		}	
-		
-		$sql .= implode(', ', $quoted_root_nodes).')';
-		
-		$trees = $db->getCol($sql);
-		assert_valid_db_result($trees);
-		
-		// base sql query FOR SINGLE EVENTS (holy crap... O_O')
-		$sql = 'select a.name, a.assetid, v.custom_value as start_date, v1.custom_value as end_date from (((('.SQ_TABLE_RUNNING_PREFIX.'asset a join ('.SQ_TABLE_RUNNING_PREFIX.'asset_link l join '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid) join '.SQ_TABLE_PREFIX.'asset_attribute atr on a.type_code = atr.type_code) join '.SQ_TABLE_PREFIX.'asset_attribute atr1 on a.type_code = atr1.type_code) left join '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v on atr.attributeid = v.attributeid and a.assetid = v.assetid) left join '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v1 on atr1.attributeid = v1.attributeid and a.assetid = v1.assetid where atr.name = '.$db->quote('start_date').' and atr1.name = '.$db->quote('end_date').' and a.type_code = '.$db->quote('calendar_event_single').' and ((substring(v.custom_value from 1 for 7) = '.$db->quote($year.'-'.str_pad($month, 2, '0', STR_PAD_LEFT)).' and v1.custom_value IS NULL) OR (substring(v.custom_value from 1 for 7) <= '.$db->quote($this->_buildDate($year,$month)).' and substring(v1.custom_value from 1 for 7) >= '.$db->quote($this->_buildDate($year,$month)).'))';
-		
-		$tree_sql = Array();
-		foreach($trees as $tree) {
-			$tree_sql[] = 'substring(t.treeid from 1 for '.strlen($tree).') LIKE '.$db->quote($tree.'%');
-		}
-		$sql .= ' AND '.implode(' OR ', $tree_sql);
-				
-		$result = $db->getAll($sql);
-		
-		// print calendar
-		$days_of_week = Array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
-		$first_wday = $this->attr('week_starts_on');
-		$first_wday = 4;
+		$partition_time = $this->attr('day_partition_time');
+		$partition_height = $this->attr('day_partition_height');
+		$this->_printClickChildScript();
+		$width = $this->attr('table_column_width');
 		?>
-		<table width="100%">
-		<tr>
-		<?php for($i = $first_wday; $i < $first_wday + 7; $i++) { ?><th align="center" width="<?php echo intval(100 / 7) ?>%"><?php echo $days_of_week[$i % 7]; ?></th><?php } ?>
-		</tr>
+		<table id="<?php echo $id; ?>" border="0" cellspacing="0" cellpadding="0">
 		<?php
-		$first_mday = getdate(mktime(0,0,0,$month,1,$year));
-		
-		
-		// find the number of blank days to print - note that we add 7 to this so
-		// the numerator is always positive and % then gives a meaningful result if
-		// 1st of the month is earlier in the week than the Week Starts On attrib
-		$gap = ($first_mday['wday'] - $first_wday + 7) % 7;
-		
-		$weeks_required = ceil((days_in_month($month, $year) + $gap) / 7);
-				
-		$print_day = 0;
-		for($day = 1-$gap; $day <= ($weeks_required*7)-$gap; $day++) {
-			if ($print_day % 7 == 0) echo '<tr>';
-			
-			echo '<td>';
-			if (($day >= 1) && ($day <= days_in_month($month, $year))) {
-				echo $day;
-				$date_value = ts_iso8601(mktime(0,0,0,$month,$day,$year));
-				foreach($result as $result_item) {
-					if (((iso8601_date_component($date_value) == iso8601_date_component($result_item['start_date'])) && is_null($result_item['end_date'])) || ((iso8601_date_component($date_value) >= iso8601_date_component($result_item['start_date'])) && ((iso8601_date_component($date_value) <= iso8601_date_component($result_item['end_date'])) )) ) {
-						echo '<br/><b>'.$result_item['name'].'</b>';
-					}
-				}
-			} else {
-				echo '&nbsp;';
+		if (count($columns) > 1) {
+			// if we have several columns, print the column headers
+			?>
+			<tr>
+				<th>Time</td>
+			<?php
+			foreach ($columns as $id => $name) {
+				?>
+				<th onclick="<?php echo (!empty($column_links)) ? 'clickChild(this); ' : ''; ?>" class="columnLabel" style="width: <?php echo $width; ?>ex">
+					<?php 
+						if (!empty($column_links)) echo '<a href="'.$column_links[$id].'">';
+						echo $name;
+						if (!empty($column_links)) echo '</a>';
+					?>
+				</th>
+				<?php
 			}
-			echo '</td>';
-			
-			$print_day++;
-			if ($print_day % 7 == 0) echo '</tr>';
-		}?></table><?php
+			?>
+			</tr>
+			<?php
+		}
+		$left_margin = $width * 0.02;
+		$width = $width * 0.94;
+		list($current_hour, $current_mins) = explode(':', $this->attr('day_starts_at'));
+		list($end_hour, $end_mins) = explode(':', $this->attr('day_ends_at'));
+		while (($current_hour < $end_hour) || ($current_mins < $end_mins)) {
+			?>
+			<tr style="height: <?php echo $partition_height; ?>ex">
+				<th class="timeLabel"><?php echo $current_hour.':'.sprintf('%02d', $current_mins); ?></th>
+			<?php
+			foreach ($columns as $id => $name) {
+				?>
+				<td>
+				<?php
+					/* Randomised generation of events */
+					$event_start_time = rand(0, 3);
+					$event_length = rand(10, 120);
+					$event_id = rand(1, 256);
+					if (rand(0, 100) < 15) {
+						/* End randomised generation of events */
+						$event_margin_top = ($event_start_time / 4) * $partition_height;
+						$event_height = number_format($partition_height * ($event_length / $partition_time), 2);
+						$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand; ' : '';
+						echo "<div style=\"position: absolute; width: {$width}ex; margin-left: {$left_margin}ex; margin-top: {$event_margin_top}ex; height: {$event_height}ex; $cursor_code; \"".($show_event_links ? ' onclick="clickChild(this)"' : '').'><div class="eventText" style="position: absolute; width: '.($width*0.94).'ex; border: none; background-color: transparent">';
+
+						if ($show_event_links) echo '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&SQ_EVENT_ID='.$event_id.'">';
+						
+						echo "$event_length minute Event";
+
+						if ($show_event_links) echo '</a>';
+
+						echo '</div></div>';
+					}
+				?>
+				&nbsp;
+				</td>
+				<?php
+			}
+			?>
+			</tr>
+			<?php
+			$this->_addMinutes($current_hour, $current_mins, $partition_time);
+		}
+		?>
+		</table>
+		<?php
 		
-	}//end printMonthView()
+	}//end printTimedTable()
 
 
 	/**
-	* print a standard list view
+	* Add the specified number of minutes to the time given
 	*
-	* Should this just be called from our printBody() ?
-	*
-	* @see Asset_Listing::printBody()
 	* @return void
-	* @access public
+	* @access private
 	*/
-	function printListView()
-	{
+	function _addMinutes(&$current_hour, &$current_mins, $add_mins) {
+		$current_mins += $add_mins;
+		$current_hour += floor($current_mins / 60);
+		$current_mins = $current_mins % 60;
 
-	}//end printListView()
+	}//end _addMinutes()
+
+
+	/**
+	* Print the javascript function used to make DIVs clickable
+	*
+	* @return void
+	*/
+	function _printClickChildScript()
+	{
+		?>
+		<script language="JavaScript">
+		<!--
+		  function clickChild(elt) {
+			 linkChildren = elt.getElementsByTagName("A");
+			 if (linkChildren.length > 0) {
+		         document.location = linkChildren.item(0).href;
+		      }
+		  }
+		//-->
+		</script>
+		<?php
+
+	}//end _printClickChildScript
+
+
+//--        FUNCTIONS TO RETRIEVE EVENTS FROM THE DB        --//
 
 
 	/**

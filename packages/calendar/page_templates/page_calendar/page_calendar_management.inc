@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.3 2004/08/04 23:39:07 lwright Exp $
+* $Id: page_calendar_management.inc,v 1.4 2004/08/18 07:07:18 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.4 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -54,45 +54,114 @@ class Page_Calendar_Management extends Asset_Management
 														'type'      => 'serialise',
 														'default'   => Array(),
 														);
+
 		
-		// spacing of the day view calendar
-		// (should this be enforced to be a factor of 60, like 60 30 20 15 10 6 5?)
-		$this->vars['appointment_spacing']	= Array(
+		// the view types enabled for this calendar page
+		$this->vars['enabled_views']			= Array(
 														'added'     => '0.1',
-														'type'      => 'int',
-														'default'   => 30,
-														);
-		
+														'type'      => 'serialise',
+														'default'   => Array(	'year'=>'',
+																				'month'=>'',
+																				'week'=>'',
+																				'month'=>'',
+																				'day'=>'',
+																				'event'=>'')
+													);
+		$this->vars['initial_view'] = Array(
+													'added'			=> '0.1',
+													'type'			=> 'selection',
+													'default'		=> 'year',
+													'description'	=> 'The first view the user sees',
+													'parameters'	=> Array(
+														'options' => Array(
+															'year'	=> 'Year', 
+															'month'	=> 'Month',
+															'week'  => 'Week',
+															'day'   => 'Day')
+													 )
+											);
+
 		// These are stored as strings, 'hh:mm' because I want '24:00' to represent the
 		// latest possible end time (ie. end of the day) but that will be rejected by a
 		// datetime field as out of the range
-		$this->vars['day_view_start_time']	= Array(
+		$this->vars['day_starts_at']	= Array(
 														'added'     => '0.1',
 														'type'      => 'text',
 														'default'   => '00:00',
 														);
 		
-		$this->vars['day_view_end_time']	= Array(
+		$this->vars['day_ends_at']	= Array(
 														'added'     => '0.1',
 														'type'      => 'text',
 														'default'   => '24:00',
 														);
 														
-		// currently applies to both week and month views
-		$this->vars['week_starts_on']		= Array(
-														'added'     => '0.1',
-														'type'      => 'int',
-														'default'   => 1,	// Monday
+		
+		// spacing of the day view calendar, in minutes
+		$this->vars['day_partition_time']	= Array(
+													'added'			=> '0.1',
+													'type'			=> 'selection',
+													'default'		=> '60',
+													'description'	=> 'The spacing of intervals in the calendar day view',
+													'parameters'	=> Array(
+														'options' => Array(
+															10	=> '10 mins', 
+															15	=> '15 mins', 
+															20	=> '20 mins', 
+															30	=> '30 mins', 
+															60	=> '1 hour')
+													 )
+											);
+
+		$this->vars['day_partition_height'] = Array(
+													'added'			=> '0.1',
+													'type'			=> 'float',
+													'default'		=> '4.0',
+													'description'   => 'The height of each day interval\'s row in the table, in \'ex\'es',
+													'parameters'	=> Array('decimal_places' => 2)
+												   );	
+
+		$this->vars['table_column_width'] = Array(
+													'added'			=> '0.1',
+													'type'			=> 'float',
+													'default'		=> '8.0',
+													'description'   => 'The width of each column in the day and week display tables, in \'ex\'es',
+													'parameters'	=> Array('decimal_places' => 2)
+												   );	
+										
+
+		$this->vars['columnise_day_view_by_root_node'] = Array(
+																'added'		=> '0.1',
+																'type'		=> 'boolean',
+																'default'	=> 'true',
+																'description' => 'whether to split the day view into columns according to the root node the event came from'
 														);
+
+		$this->vars['week_starts_on']		= Array(
+													'added'			=> '0.1',
+													'type'			=> 'selection',
+													'default'		=> '1',
+													'description'	=> 'The first view the user sees',
+													'parameters'	=> Array(
+														'options' => Array(
+															0 => 'Sunday',
+															1 => 'Monday',
+															2 => 'Tuesday',
+															3 => 'Wednesday',
+															4 => 'Thursday',
+															5 => 'Friday',
+															6 => 'Saturday')
+													 )
+											);
 														
 		// currently applies to week view, to display a selective day view
 		// defaults to working week (Monday..Friday)
 		$this->vars['week_view_show_days']			= Array(
 														'added'     => '0.1',
 														'type'      => 'serialise',
-														'default'   => range(1,5),	//Mo-Fr
-														);
-		
+														'default'   => Array(1, 1, 1, 1, 1, 1, 1)
+													);
+
 		
 	}//end Page_Calendar_Management()
 
