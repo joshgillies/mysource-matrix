@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.19 2004/04/02 16:00:24 brobertson Exp $
+* $Id: page_asset_listing.inc,v 1.20 2004/04/05 05:07:27 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -410,14 +410,13 @@ class Page_Asset_Listing extends Page
 			trigger_error($live_assets->getMessage().'<br/>'.$live_assets->getUserInfo(), E_USER_ERROR);
 			return;
 		}
-
-		$past_start = false;
-		for (reset($children); null !== ($child_id = key($children)); next($children)) {
+		
+		for (reset($children); null !== ($child_id = key($children)); ) {
 			if (!in_array($child_id, $live_assets)) {
 				unset($children[$child_id]);
-				if ($past_start) prev($children);
+			} else {
+				next($children);
 			}
-			$past_start = true;
 		}
 
 
