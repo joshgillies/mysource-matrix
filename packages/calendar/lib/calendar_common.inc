@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.14 2004/12/06 17:31:33 brobertson Exp $
-*
+* $Id: calendar_common.inc,v 1.15 2004/12/10 03:53:21 tbarrett Exp $
+* $Name: not supported by cvs2svn $
 */
 
 /*
@@ -30,7 +30,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -539,7 +539,7 @@ function &expand_event_list(&$events, $first_day, $last_day, $day_start_time='00
 	$res = Array();
 	foreach (array_keys($events) as $key) {
 		$event =& $events[$key];
-		if ($event['type_code'] == 'calendar_event_recurring') {
+		if (($event['type_code'] == 'calendar_event_recurring') || in_array($event['type_code'], $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('calendar_event_recurring'))) {
 			expand_recurring_event($res, $event, $key, $first_day, $last_day, $day_start_time, $day_end_time);
 		} else {
 			expand_single_event($res, $event, $key, $first_day, $last_day, $day_start_time, $day_end_time);
@@ -1083,5 +1083,3 @@ function quoted_descendants($type_code)
 	return $type_codes;
 
 }//end quoted_descendants()
-
-?>
