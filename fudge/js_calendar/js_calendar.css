@@ -17,20 +17,19 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_calendar.css,v 1.3 2005/01/20 13:33:11 brobertson Exp $
+* $Id: js_calendar.css,v 1.4 2005/03/11 05:52:15 tbarrett Exp $
 *
 */
 
 
 /* whole calendar table */
 .cal {
-	border:				1px solid #000000;
+	border:				1px solid #000;
 	background:			#F0F0F0
 }
 
 .cal td {
-	font:					Tahoma;
-	font-size:			9px;
+	font:				9px Tahoma;
 }
 
 
@@ -38,85 +37,85 @@
 .cal_week {
 	background:			#F0F0F0;
 	text-align:			center;
-	vertical-align:	middle;
+	vertical-align:		middle;
 	cursor:				pointer;
 }
 
 
 /* top week day cells */
 .cal_week_day {
-	background:			#CCCCCC;
+	background:			#CCC;
 	text-align:			center;
-	vertical-align:	middle;
+	vertical-align:		middle;
 	cursor:				default;
 }
 
 
 /* previous and next month dates */
 .cal_empty {
-	background:			#EEEEEE;
-	color:					#999999;
+	background:			#EEE;
+	color:				#999;
 	text-align:			center;
-	vertical-align:	middle;
+	vertical-align:		middle;
 	cursor:				pointer;
 }
 
 
 /* weekdays */
 .cal_day {
-	background:			#FFFFFF;
-	color:					#000000;
+	background:			#FFF;
+	color:				#000;
 	text-align:			center;
-	vertical-align:	middle;
+	vertical-align:		middle;
 	cursor:				pointer;
 }
 
 /* weekends (sat & sun) */
 .cal_hol {
-	background:			#DDDDDD;
-	color:					#000000;
+	background:			#DDD;
+	color:				#000;
 	text-align:			center;
-	vertical-align:	middle;
+	vertical-align:		middle;
 	cursor:				pointer;
 }
 
 
 /* mouse over the day */
 .cal_ovr {
-	background:			#AAAAAA;
-	color:					#FFFFFF;
+	background:			#AAA;
+	color:				#FFF;
 	text-align:			center;
-	vertical-align:	middle;
+	vertical-align:		middle;
 	cursor:				pointer;
 }
 
 
 /* mouse over the week */
 .cal_ovr td {
-	background:			#AAAAAA;
-	color:					#FFFFFF;
+	background:			#AAA;
+	color:				#FFF;
 	text-align:			center;
-	vertical-align:	middle;
+	vertical-align:		middle;
 	cursor:				pointer;
 }
 
 
 /* selected weekday */
 .cal_day_sel {
-	background:			#FFCC99;
-	color:					#000000;
+	background:			#FC9;
+	color:				#000;
 	text-align:			center;
-	vertical-align:	middle;
+	vertical-align:		middle;
 	cursor:				pointer;
 }
 
 
 /* selected weekend */
 .cal_hol_sel {
-	background:			#DDAA77;
-	color:					#FFFFFF;
+	background:			#DA7;
+	color:				#FFF;
 	text-align:			center;
-	vertical-align:	middle;
+	vertical-align:		middle;
 	cursor:				pointer;
 }
 
@@ -124,8 +123,8 @@
 /* next, prev month & year arrows */
 .cal_arrow {
 	background:			#F0F0F0;
-	color:					#000000;
-	vertical-align:	middle;
+	color:				#000;
+	vertical-align:		middle;
 	cursor:				pointer;
 }
 
@@ -134,9 +133,9 @@
 .cal_month
 {
 	background:			#F0F0F0;
-	color:					#000000;
+	color:				#000000;
 	text-align:			center;
-	vertical-align:	top;
+	vertical-align:		top;
 	cursor:				pointer;
 }
 
@@ -144,9 +143,9 @@
 /* year caption */
 .cal_year {
 	background:			#F0F0F0;
-	color:					#000000;
+	color:				#000000;
 	text-align:			center;
-	vertical-align:	top;
+	vertical-align:		top;
 	cursor:				pointer;
 }
 
@@ -154,19 +153,19 @@
 /* today */
 .cal_today {
 	background:			#99CCFF;
-	color:					#000000;
+	color:				#000000;
 	text-align:			center;
-	vertical-align:	middle;
+	vertical-align:		middle;
 	cursor:				pointer;
 }
 
 
 /* close button */
 .cal_close {
-	color:					#FF0000;
+	color:				#FF0000;
 	text-align:			center;
-	vertical-align:	middle;
+	vertical-align:		middle;
 	cursor:				pointer;
-	width: 					10px;
-	height: 				10px;
+	width: 				10px;
+	height: 			10px;
 }
