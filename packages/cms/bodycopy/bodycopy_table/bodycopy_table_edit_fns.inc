@@ -26,6 +26,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 	function Bodycopy_Table_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
+
 	}//end constructor
 
 
@@ -48,7 +49,8 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		if ($attributes[$name] == $value) return false;
 		$attributes[$name] = $value;
 		return true;
-	}
+
+	}//end aetAttribute()
 
 	
 	/**
