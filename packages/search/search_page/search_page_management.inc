@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.13 2004/06/18 01:33:21 lwright Exp $
+* $Id: search_page_management.inc,v 1.14 2004/06/18 01:48:25 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -117,11 +117,12 @@ class Search_Page_Management extends Asset_Management
 	{
 		if (!parent::_upgrade($current_version)) return false;
 
-		if ($current_version == '0.2') {
-			// this upgrade changed the root assetid from storing an assetid to storing a NOTICE link
+		if ($current_version == '0.1') {
+			// version 0.1->0.2
+			// changed the root assetid from storing an assetid to storing a NOTICE link
 			// to the root assetid - that way if the root asset is purged it automatically deletes
 			// the association
-			bam('STARTING SEARCH PAGE UPGRADE - VERSION 0.2');
+			bam('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.1');
 			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren(1, $this->getAssetType(), false);
 			foreach ($children as $assetid => $type) {
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -142,8 +143,8 @@ class Search_Page_Management extends Asset_Management
 
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			}
-			bam('SEARCH PAGE UPGRADE COMPLETE - VERSION 0.2');
-		}//end version 0.2 upgrade
+			bam('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.1');
+		}//end version 0.1 upgrade
 
 		return true;
 
