@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_static_screen_settings.xml,v 1.8 2003/11/26 00:51:02 gsherwood Exp $
+* $Id: edit_interface_static_screen_settings.xml,v 1.8.8.1 2005/01/16 22:21:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -36,15 +36,5 @@
 	</section>
 	<section name="Designs">
 		<field code="designs" />
-	</section>
-	<section name="Internationalisation">
-		<field code="intl_languages">
-			<display_name>Languages</display_name>
-			<note />
-		</field>
-		<field code="intl_character_set">
-			<display_name>Character Set</display_name>
-			<note />
-		</field>
 	</section>
 </contents>
