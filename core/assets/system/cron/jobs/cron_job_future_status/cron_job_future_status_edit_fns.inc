@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status_edit_fns.inc,v 1.8 2003/11/26 00:51:00 gsherwood Exp $
+* $Id: cron_job_future_status_edit_fns.inc,v 1.9 2004/12/15 05:28:46 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 {
 
+
 	/**
 	* Constructor
 	*
@@ -46,6 +47,7 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 	function Cron_Job_Future_Status_Edit_Fns()
 	{
 		$this->Cron_Job_Edit_Fns();
+
 	}//end constructor
 
 
@@ -71,6 +73,7 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 		echo ' at ';
 		$this->_paintWhenBox($asset, $o, $prefix);
 		return true;
+
 	}//end paintInLineBackend()
 
 
@@ -95,4 +98,5 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 
 
 }//end class
+
 ?>
