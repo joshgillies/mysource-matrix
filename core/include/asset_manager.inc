@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.203 2004/04/19 01:08:00 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.204 2004/04/19 11:43:38 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1069,11 +1069,13 @@ class Asset_Manager extends MySource_Object
 	* @param boolean		$clone_dependants	if TRUE the dependants of the source asset will be cloned
 	*												and will have their sources components cloned
 	*
-	* @return &object Asset the clone of the source
+	* @return &object Asset		the clone of the source, NULL on error
 	* @access public
 	*/
 	function &cloneAsset(&$source, &$link, &$clone_map, $components, $clone_dependants=true)
 	{
+		$null = null;
+
 		// make sure this type of asset can be cloned
 		if (!$source->canClone()) {
 			trigger_error($source->type().' asset types cannot be cloned', E_USER_WARNING);
