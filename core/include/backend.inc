@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.81 2003/11/26 01:59:17 mmcintyre Exp $
+* $Id: backend.inc,v 1.82 2004/01/05 21:49:46 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -685,9 +685,9 @@ class Backend extends MySource_Object
 
 		switch($_REQUEST['backend_section']) {
 			case 'config' :
-				require_once SQ_INCLUDE_PATH.'/system_config.inc';
-				$cfg = new System_Config();
-				$cfg->paintBackend($this);
+				require_once SQ_INCLUDE_PATH.'/system_config_edit_interface.inc';
+				$cfg_ei = new System_Config_Edit_Interface();
+				$cfg_ei->paint($this);
 			break;
 
 			case 'hipo_herder' :
