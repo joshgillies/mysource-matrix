@@ -325,28 +325,13 @@ class Site extends Folder
 		// we have found the design to use
 		if ($result) {
 			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['frontend_designid'], $result['type_code']);
-			$design->paint($this);
+			$design->paint($index_page);
 		// shit we can't find a design, oh well let's just print out our body
 		} else {
 			$index_page->printBody();
 		}
 
 	}// end printFrontend()
-
-
-	/**
-	* Called by the design to print the body of this asset
-	* it's up to the kids to override
-	*
-	* @access public
-	*/
-	function printBody()
-	{
-		$index_page = &$this->getSpecialPage('index');
-		if (is_null($index_page)) return;
-		$index_page->printBody();
-
-	}// end printBody()
 
 
 	/**
