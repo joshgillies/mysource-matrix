@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.29 2004/11/18 05:10:22 gsherwood Exp $
+* $Id: search_manager.inc,v 1.30 2004/11/25 11:37:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,11 +31,10 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.29 $ - 0.1
+* @version $Revision: 1.30 $ - 0.1
 * @package MySource_Matrix_Packages
-* @subpackage __core__
+* @subpackage search
 */
-
 class Search_Manager extends Asset
 {
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_edit_fns.inc,v 1.6 2004/11/18 05:10:22 gsherwood Exp $
+* $Id: search_manager_edit_fns.inc,v 1.7 2004/11/25 11:37:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,9 +32,9 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.6 $ - 1.0
+* @version $Revision: 1.7 $ - 1.0
 * @package MySource_Matrix_Packages
-* @subpackage __core__
+* @subpackage search
 */
 class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 {
