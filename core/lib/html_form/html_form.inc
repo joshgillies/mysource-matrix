@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.57 2004/06/03 04:15:04 lwright Exp $
+* $Id: html_form.inc,v 1.58 2004/06/11 06:41:51 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -225,7 +225,7 @@ function radio_button($name, $value='1', $checked=false, $on_click='', $extras='
 	echo	'<input type="radio" ',
 			'name="', htmlspecialchars($name), '" ',
 			'value="', htmlspecialchars($value), '" ',
-			(($checked) ? 'checked ' : ''),
+			(($checked) ? 'checked="checked" ' : ''),
 			$extras,
 			' />';
 
@@ -252,7 +252,7 @@ function check_box($name, $value='1', $checked=false, $on_click='', $extras='')
 			'name="', htmlspecialchars($name), '" ',
 			'id="', htmlspecialchars($name), '" ',
 			'value="', htmlspecialchars($value), '" ',
-			(($checked) ? 'checked ' : ''),
+			(($checked) ? 'checked="checked" ' : ''),
 			$extras,
 			' />';
 
@@ -284,7 +284,7 @@ function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras=''
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 
 	if ($multiple) {
-		$extras .= ' multiple';
+		$extras .= ' multiple="multiple"';
 		$name .= '[]';
 	}
 
@@ -303,7 +303,7 @@ function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras=''
 		}
 		$value = str_replace('&nbsp;', ' ', htmlspecialchars($value));
 		echo	'<option value="', htmlspecialchars($key), '"',
-				((in_array((string) $key, $defaults)) ? ' selected' : ''),
+				((in_array((string) $key, $defaults)) ? ' selected="selected"' : ''),
 				'>',
 				$value,
 				'</option>';
