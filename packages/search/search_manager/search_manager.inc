@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.21 2004/09/14 01:48:21 gsherwood Exp $
+* $Id: search_manager.inc,v 1.22 2004/09/14 05:14:13 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.21 $ - 0.1
+* @version $Revision: 1.22 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -646,11 +646,13 @@ class Search_Manager extends Asset
 							$result = unserialize($result);
 						}
 	
-						if (is_null($field_asset_scores)) $field_asset_scores = $result;
-						else $field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, 'AND');
+						$field_asset_scores = $result;
 					break;
 
 					default :
+						$field_search_logic = array_get_index($attr_info, 'search_logic', 'AND');
+						if ($field_search_logic != 'AND' && $field_search_logic != 'OR') $field_search_logic = 'AND';
+
 						foreach ($attr_info['words'] as $word) {
 							$result = $cm->loadFromCache($this, $search_cache_key.'asset_attrib'.$word);
 							if (empty($result)) {
@@ -661,14 +663,17 @@ class Search_Manager extends Asset
 			
 								$result = $db->getAssoc($sql);
 								assert_valid_db_result($result);
-								
+
 								$cm->saveToCache($this, $search_cache_key.'asset_attrib'.$word, serialize($result));
 							} else {
 								$result = unserialize($result);
 							}
-		
-							if (is_null($field_asset_scores)) $field_asset_scores = $result;
-							else $field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, 'AND');
+
+							if (is_null($field_asset_scores)) {
+								$field_asset_scores = $result;
+							} else {
+								$field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, $field_search_logic);
+							}
 						}
 					break;
 				}//end switch attribute type
@@ -727,6 +732,9 @@ class Search_Manager extends Asset
 		if (isset($search_info['include_all'])) {
 
 			foreach($search_info['include_all'] as $attr_name => $attr_info) {
+				
+				$field_search_logic = array_get_index($attr_info, 'search_logic', 'AND');
+				if ($field_search_logic != 'AND' && $field_search_logic != 'OR') $field_search_logic = 'AND';
 
 				$field_asset_scores = null;
 				foreach ($attr_info['words'] as $word) {
@@ -744,8 +752,11 @@ class Search_Manager extends Asset
 						$result = unserialize($result);
 					}
 
-					if (is_null($field_asset_scores)) $field_asset_scores = $result;
-					else $field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, 'AND');
+					if (is_null($field_asset_scores)) {
+						$field_asset_scores = $result;
+					} else {
+						$field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, $field_search_logic);
+					}
 				}
 
 				if (is_null($total_asset_scores)) $total_asset_scores = $field_asset_scores;
@@ -798,6 +809,9 @@ class Search_Manager extends Asset
 					break;
 
 					default :
+						$field_search_logic = array_get_index($attr_info, 'search_logic', 'AND');
+						if ($field_search_logic != 'AND' && $field_search_logic != 'OR') $field_search_logic = 'AND';
+
 						foreach ($attr_info['words'] as $word) {
 							$result = $cm->loadFromCache($this, $search_cache_key.'metadata'.$word);
 							if (empty($result)) {
@@ -815,8 +829,11 @@ class Search_Manager extends Asset
 								$result = unserialize($result);
 							}
 		
-							if (is_null($field_asset_scores)) $field_asset_scores = $result;
-							else $field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, 'AND');
+							if (is_null($field_asset_scores)) {
+								$field_asset_scores = $result;
+							} else {
+								$field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, $field_search_logic);
+							}
 						}//end foreach word
 					break;
 				}
@@ -850,6 +867,12 @@ class Search_Manager extends Asset
 		if (is_null($total_asset_scores)) {
 			$total_asset_scores = Array();
 		} else {
+			if (empty($search_inof['sort_by'])) {
+				// sorting by relevance, so ensure the sort_by score is the same as the actual search score
+				for (reset($total_asset_scores); null !== ($assetid = key($total_asset_scores)); next($total_asset_scores)) {
+					$total_asset_scores[$assetid]['sort_by'] = $total_asset_scores[$assetid]['search_score'];
+				}
+			}
 			$sorted_scores = Array();
 			foreach ($total_asset_scores as $assetid => $search_data) {
 				$sorted_scores[strtolower($search_data['sort_by'])][$assetid] = $search_data['search_score'];
@@ -1112,15 +1135,21 @@ class Search_Manager extends Asset
 			foreach ($removed_assets as $assetid) unset ($out_asset_scores[$assetid]);
 
 			foreach ($common_assets as $assetid) {
-				if (isset($out_asset_scores[$assetid])) $out_asset_scores[$assetid]['search_score'] += $asset_scores2[$assetid]['search_score'];
-				else $out_asset_scores[$assetid]['search_score'] = $asset_scores2[$assetid]['search_score'];
+				if (isset($out_asset_scores[$assetid])) {
+					$out_asset_scores[$assetid]['search_score'] += $asset_scores2[$assetid]['search_score'];
+				} else {
+					$out_asset_scores[$assetid] = $asset_scores2[$assetid];
+				}
 			}
 
 		} else if ($logic == 'OR') {
 
 			foreach ($asset_scores2 as $assetid => $data) {
-				if (isset($out_asset_scores[$assetid])) $out_asset_scores[$assetid]['search_score'] += $asset_scores2[$assetid]['search_score'];
-				else $out_asset_scores[$assetid]['search_score'] = $asset_scores2[$assetid]['search_score'];
+				if (isset($out_asset_scores[$assetid])) {
+					$out_asset_scores[$assetid]['search_score'] += $asset_scores2[$assetid]['search_score'];
+				} else {
+					$out_asset_scores[$assetid] = $asset_scores2[$assetid];
+				}
 			}
 
 		}
