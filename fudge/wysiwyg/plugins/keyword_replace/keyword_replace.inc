@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: keyword_replace.inc,v 1.3 2004/01/21 22:43:59 gsherwood Exp $
+* $Id: keyword_replace.inc,v 1.4 2004/01/23 04:42:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -258,9 +258,12 @@ class Keyword_Replace extends WYSIWYG_Plugin {
 		$pieces = Array();
 		$new_contents = '';
 		preg_match_all('|(<[^>]+?>)([^<]+)|', $contents, $pieces);
-		foreach ($pieces[1] as $key => $value) $new_contents .= $value.preg_replace($search, $replace, $pieces[2][$key]);
-
-		$contents = $new_contents;
+		if (empty($pieces[0])) {
+			return;
+		} else {
+			foreach ($pieces[1] as $key => $value) $new_contents .= $value.preg_replace($search, $replace, $pieces[2][$key]);
+			$contents = $new_contents;
+		}
 
 	}//end set_contents()
 
