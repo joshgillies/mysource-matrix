@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.32 2004/06/21 04:25:00 mnyeholt Exp $
+* $Id: system_config.inc,v 1.33 2004/06/28 04:25:13 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -81,9 +81,12 @@ class System_Config extends Config
 		'SQ_CONF_REFRESH_INTERVAL'			=> Array('editable' => 1, 'default' => 120),
 		'SQ_CONF_LOCK_LENGTH'				=> Array('editable' => 1, 'default' => 600),
 
+		// mnyeholt - Log file now set by installer.
+		'SQ_CONF_LOG_FILE'					=> Array('editable' => 1, 'default' => ''),
 		// Error Settings
 		'SQ_CONF_LOG_ERRORS'				=> Array('editable' => 1, 'default' => true),
 		'SQ_CONF_ERRORS_HIDE_FRONTEND'		=> Array('editable' => 1, 'default' => false),
+		
 
 		// Internationalisation Settings
 		'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'	=> Array('editable' => 1, 'default' => 'en'),
@@ -203,7 +206,15 @@ class System_Config extends Config
 				//       them with whatever their PHP settings are
 				if ($value) {
 					echo "ini_set('log_errors', '1');\n";
-					echo "ini_set('error_log',  SQ_DATA_PATH.'/private/logs/error.log');\n";
+				}
+				return true;
+				break;
+			
+			case 'SQ_CONF_LOG_FILE' :
+				if (!parent::_paintConfigVar($var_name, $value)) return false;
+				// if the value isn't empty, set the php error_log to the set value
+				if ($value != '') {
+					echo "ini_set('error_log',  '$value');\n";
 				}
 				return true;
 				break;
