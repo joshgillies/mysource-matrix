@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.132 2003/10/10 06:49:25 brobertson Exp $
+* $Id: asset_manager.inc,v 1.133 2003/10/13 01:27:01 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2436,15 +2436,11 @@ class Asset_Manager extends MySource_Object
 				$perms = Array(SQ_PERMISSION_ADMIN, SQ_PERMISSION_WRITE, SQ_PERMISSION_READ);
 				foreach ($perms as $perm) {
 					$all_permissions = $this->getPermission($minor->id, $perm, null, false, false, true);
-					foreach($all_permissions as $userid => $data) {
-						if (empty($data)) continue;
-						foreach($data as $assetid => $access) {
-							if($assetid == $minor->id) continue;
-							// we are deliberatly not checking for the return value here
-							// because if for some reason the permission can't be set that is really just
-							// bad luck
-							@$this->setPermission($minor->id, $userid, $perm, $access);
-						}
+					foreach($all_permissions as $userid => $access) {
+						// we are deliberatly not checking for the return value here
+						// because if for some reason the permission can't be set that is really just
+						// bad luck
+						@$this->setPermission($minor->id, $userid, $perm, $access);
 					}
 				}
 
@@ -2900,7 +2896,7 @@ class Asset_Manager extends MySource_Object
 	* @param boolean	$all_info		when false fn just returns an array of userids for
 	*									those that have permission
 	*									When true fn returns all info about the permission in the form of
-	*									Array(userid => Array(assetid => access))
+	*									Array(userid => access)
 	*									(NOTE: TRUE is only valid if $and_greater and
 	*									$expand_groups are false)
 	*
@@ -2954,8 +2950,7 @@ class Asset_Manager extends MySource_Object
 
 			// return all info
 			if ($all_info) {
-				if (!isset($ret_val[$data['userid']][$data['assetid']])) $ret_val[$data['userid']][$data['assetid']] = Array();
-				$ret_val[$data['userid']][$data['assetid']] = $data['access'];
+				$ret_val[$data['userid']] = $data['access'];
 
 			// else we just want user ids
 			} else {
