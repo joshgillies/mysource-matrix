@@ -301,6 +301,23 @@ class Asset_Manager extends Resolve_Object
 
 
 	/**
+	* Checks the passed attribute type is valid type or not
+	*
+	* @param string	$attr_type		the type of asset represented by the id
+	*
+	* @return boolean
+	* @access public
+	*/
+	function validAttributeType($attr_type)
+	{
+		$file = SQ_ATTRIBUTES_PATH.'/'.$attr_type.'/'.$attr_type.'.inc';
+		if (!is_file($file)) return false;
+		require_once($file);
+		return class_exists('Asset_Attribute_'.$attr_type);
+	}// end _validateAttributeType()
+
+
+	/**
 	* Includes the class file for the passed asset
 	*
 	* @param string	$type_code	the code name for the asset that you want to check
