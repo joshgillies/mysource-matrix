@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.46 2005/02/22 23:19:58 arailean Exp $
+* $Id: edit.css,v 1.47 2005/03/01 00:09:56 tbarrett Exp $
 *
 */
 
@@ -117,7 +117,7 @@ td.sq-backend-nav-history {
 	font-size:			11px;
 	font-weight:		normal;
 	padding:			5px;
-	background: #f5f5f5;
+	background:			#f5f5f5;
 	border:				1px dotted black;
 }
 
@@ -232,7 +232,7 @@ td.sq-backend-nav-history {
 	border-collapse:	collapse;
 }
 
-td.sq-backend-table-header, td.sq-backend-table-cell, td.sq-backend-table-cell-alt {
+td.sq-backend-table-header, td.sq-backend-table-cell, td.sq-backend-table-cell-alt, .sq-backend-table th, .sq-backend-table td {
 	background-color:	#F5F5F5;
 	vertical-align:		top;
 	color:				#333333;
@@ -242,23 +242,25 @@ td.sq-backend-table-header, td.sq-backend-table-cell, td.sq-backend-table-cell-a
 	border-bottom:		1px dotted #CCCCCC;
 }
 
-td.sq-backend-table-header {
+td.sq-backend-table-header, .sq-backend-table th {
 	font-size:			11px;
 	font-weight:		bold;
 	background-color:	#EEEEEE;
+	text-align:			left;
 }
 
-td.sq-backend-table-cell-alt {
+td.sq-backend-table-cell-alt, .sq-backend-table tr.alt td {
 	background-color:	#D1E6FC;
 }
 
 td.sq-backend-table-cell a:link, td.sq-backend-table-cell a:hover, td.sq-backend-table-cell a:visited,
-td.sq-backend-table-cell-alt a:link, td.sq-backend-table-cell-alt a:hover, td.sq-backend-table-cell-alt a:visited {
+td.sq-backend-table-cell-alt a:link, td.sq-backend-table-cell-alt a:hover, td.sq-backend-table-cell-alt a:visited,
+.sq-backend-table td a:link, .sq-backend-table td a:hover, .sq-backend-table td a:visited {
 	color:				#333333;
 	text-decoration:	none;
 }
 
-td.sq-backend-table-cell a:hover, td.sq-backend-table-cell-alt a:hover {
+td.sq-backend-table-cell a:hover, td.sq-backend-table-cell-alt a:hover, .sq-backend-table td a:hover {
 	text-decoration:	underline;
 }
 
