@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.4 2004/12/03 15:37:19 brobertson Exp $
+* $Id: form_question_type_file_upload.inc,v 1.4.2.1 2005/02/15 23:06:13 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -121,9 +121,15 @@ class Form_Question_Type_File_Upload extends Form_Question
 			return false;
 		}
 
-		if (!parent::processForm()) return false;
-		
+		// no create location set!!
 		$create_loc = $this->attr('create_location');
+		if (empty($create_loc)) {
+			$form->active_submission->setError('No create location has been set for File Upload question "'.$this->attr('name').'"');
+			return false;
+		}
+
+		if (!parent::processForm()) return false;
+
 		$create_loc_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($create_loc);
 		
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
