@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.16 2005/03/04 13:00:21 mkeehan Exp $
+* $Id: page_site_map.inc,v 1.17 2005/03/10 12:24:46 mkeehan Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -115,6 +115,7 @@ class Page_Site_Map extends Page
 	*/
 	function printBody()
 	{
+		
 		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$cached_contents = $cm->loadFromCache($this, 'site_map');
 
@@ -140,7 +141,7 @@ class Page_Site_Map extends Page
 
 			$levels = ($this->attr('levels') != 0) ? $this->attr('levels') : null;
 
-			$page_data =   $GLOBALS['SQ_SYSTEM']->am->getAssetTree($siteid, $levels, array_keys($this->attr('exclude_list')), $this->attr('show_type_2') ? 3 : SQ_SC_LINK_FRONTEND_NAV);
+			$page_data =   $GLOBALS['SQ_SYSTEM']->am->getAssetTree($siteid, $levels, array_keys($this->attr('exclude_list')), $this->attr('show_type_2') ? SQ_SC_LINK_BACKEND_NAV : SQ_SC_LINK_FRONTEND_NAV);
 			
 			$assetids = Array();
 
@@ -167,6 +168,7 @@ class Page_Site_Map extends Page
 				$chunks = array_chunk($page_data[$siteid], $num_chunks, true);
 				unset($page_data[$siteid]);
 				?>
+				
 				<table cellpadding="0" cellspacing="0" border="0">
 					<tr>
 						<?php
@@ -190,7 +192,7 @@ class Page_Site_Map extends Page
 		}//end if cached
 
 		echo $cached_contents;
-
+		
 	}//end printBody()
 
 
