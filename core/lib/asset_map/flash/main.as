@@ -40,6 +40,7 @@ FScrollPaneClass.prototype.getInnerPaneHeight = function()
 #include "mcMenuItemClass.as"
 #include "mcPlusMinus.as"
 #include "mcListContainerClass.as"
+#include "mcListItemContainerClass.as"
 #include "mcListItemClass.as"
 #include "mcMsgsBarClass.as"
 #include "mcMsgsBarMessageClass.as"

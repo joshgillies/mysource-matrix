@@ -131,6 +131,7 @@ mcActionsBarButtonClass.prototype.btnRollover = function()
 mcActionsBarButtonClass.prototype.onPress = function() 
 {
 	this.btnDown();
+	return true;
 }
 
 /**
@@ -141,6 +142,7 @@ mcActionsBarButtonClass.prototype.onPress = function()
 mcActionsBarButtonClass.prototype.onDragOut = function() 
 {
 	this.btnUp();
+	return true;
 }
 /**
 * Fired when the button is pressed
@@ -150,6 +152,7 @@ mcActionsBarButtonClass.prototype.onDragOut = function()
 mcActionsBarButtonClass.prototype.onDragOver = function() 
 {
 	this.btnRollover();
+	return true;
 }
 
 /**
@@ -167,6 +170,7 @@ mcActionsBarButtonClass.prototype.onRelease = function()
 
 	this._parent.buttonPressed(this.code_name);
 
+	return true;
 }
 
 

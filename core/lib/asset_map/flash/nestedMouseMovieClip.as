@@ -58,8 +58,7 @@ NestedMouseMovieClip.prototype.__execMCEvent__ = function (event)
 	if (mc_name === null) {
 		return false;
 	} else {
-		this[mc_name].event();
-		return true;
+		return this[mc_name][event]();
 	}
 }// end __execMCEvent__()
 

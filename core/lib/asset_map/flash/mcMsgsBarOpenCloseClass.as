@@ -100,6 +100,7 @@ mcMsgsBarOpenCloseClass.prototype.btnUp = function()
 mcMsgsBarOpenCloseClass.prototype.onPress = function() 
 {
 	this.btnDown();
+	return true;
 }
 
 /**
@@ -110,6 +111,7 @@ mcMsgsBarOpenCloseClass.prototype.onPress = function()
 mcMsgsBarOpenCloseClass.prototype.onDragOut = function() 
 {
 	this.btnUp();
+	return true;
 }
 /**
 * Fired when the button is pressed
@@ -119,6 +121,7 @@ mcMsgsBarOpenCloseClass.prototype.onDragOut = function()
 mcMsgsBarOpenCloseClass.prototype.onDragOver = function() 
 {
 	this.btnDown();
+	return true;
 }
 
 /**
@@ -135,7 +138,7 @@ mcMsgsBarOpenCloseClass.prototype.onRelease = function()
 	_root.system_events.screenPress(this);
 
 	this._parent.buttonPressed(this.action);
-
+	return true;
 }
 
 

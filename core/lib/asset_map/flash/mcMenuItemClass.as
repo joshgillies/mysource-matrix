@@ -65,10 +65,10 @@ mcMenuItemClass.prototype.onRelease = function()
 	_root.system_events.screenPress(this);
 
 	// check if something else is modal
-	if (_root.system_events.inModal(this)) return false;
+	if (_root.system_events.inModal(this)) return true;
 
 	// if there is a dialog box up do nothing
-	if (_root.pop_up) return;
+	if (_root.pop_up) return true;
 
 	if (this.kids.length) {
 		this._parent.itemOpen(this);
@@ -76,6 +76,9 @@ mcMenuItemClass.prototype.onRelease = function()
 	} else {
 		this._parent.itemPress(this);
 	}
+
+	return true;
+
 }// end onRelease()
 
 
