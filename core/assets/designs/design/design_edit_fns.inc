@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_edit_fns.inc,v 1.49 2003/10/17 01:35:17 brobertson Exp $
+* $Id: design_edit_fns.inc,v 1.50 2003/10/17 07:04:29 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -716,22 +716,43 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function _processUploadedFile(&$asset, $info=Array())
 	{
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
-		$new_file =& new File();
-
-		$new_file->_tmp['uploading_file'] = true;
-		$new_file->setAttrValue('name', $info['name']);
-		$design_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => 1, 'dependant' => 1);
-
-		if ($new_file->create($design_link, $info)) {
-			$GLOBALS['SQ_SYSTEM']->am->acquireLock($new_file->id, 'attributes');
-			$edit_fns = $new_file->getEditFns();
-			if ($edit_fns->processFileUpload($new_file, $o, $new_file->getPrefix(), $info)) {
-				$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_file->id, 'attributes');
-				return true;
+		$existing_ids = Array();
+		$existing = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'file', false);
+		foreach ($existing as $link) $existing_ids[$link['minorid']] = $link['linkid'];
+		$existing_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($existing_ids));
+		
+		$existing_fileid = 0;
+		foreach ($existing_info as $existing_info) {
+			// if the name is the same, delete the link
+			if ($existing_info['name'] == $info['name']) {
+				$existing_fileid = $existing_info['assetid'];
+				break;
 			}
-			$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_file->id, 'attributes');
 		}
+
+		if (!$existing_fileid) {
+
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
+			$new_file =& new File();
+			$new_file->_tmp['uploading_file'] = true;
+			$new_file->setAttrValue('name', $info['name']);
+			$design_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => 1, 'dependant' => 1);
+
+			if (!$new_file->create($design_link, $info)) return false;
+
+		} else {
+
+			// we already have a design file with the same name, so just upload over the top of it
+			$new_file = &$GLOBALS['SQ_SYSTEM']->am->getAsset($existing_fileid);
+		}
+
+		$GLOBALS['SQ_SYSTEM']->am->acquireLock($new_file->id, 'attributes');
+		$edit_fns = $new_file->getEditFns();
+		if ($edit_fns->processFileUpload($new_file, $o, $new_file->getPrefix(), $info)) {
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_file->id, 'attributes');
+			return true;
+		}
+		$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_file->id, 'attributes');
 
 		return false;
 
