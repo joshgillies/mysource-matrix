@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.12 2003/11/26 00:51:26 gsherwood Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.13 2003/12/08 03:44:41 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -77,7 +77,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 						<td class="sq-backend-table-cell"><b>The nested content is printed below</b></td>
 					</tr>
 					<tr>
-						<td style="border-top: 1px solid black"><br/><?php $this->paint($asset);?><br/></td>
+						<td style="border-top: 1px solid black"><br/><?php $this->paint($asset, $prefix);?><br/></td>
 					</tr>
 				</table>
 				<?php
@@ -103,12 +103,14 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	/**
 	* Just calls printBody on the nested asset and lets it take care of things
 	*
-	* @param object Content_Type_Nest_Content	&$asset	the nest content content type object
+	* @param object Content_Type_Nest_Content	&$asset		the nest content content type object
+	* @param string								$prefix		prefix for form elements
+	* @param boolean							$generating	are we genenerating the cache file
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paint(&$asset, $generating=false)
+	function paint(&$asset, $prefix, $generating=false)
 	{
 		// get the asset - we cant pass the type in because it could be anything
 		// we also mute errors because we check later on
@@ -219,9 +221,9 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				// we change the type of the cell later - other content
 				// types can use the html
 				ob_start();
-				$this->paint($asset);
-				$html = ob_get_contents();
-				$asset->setAttrValue('html', $html);
+					$this->paint($asset, $prefix);
+					$html = ob_get_contents();
+					$asset->setAttrValue('html', $html);
 				ob_end_clean();
 
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
