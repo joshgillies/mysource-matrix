@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mcTabContentAreaTreeClass.as,v 1.18 2003/12/17 04:53:48 mmcintyre Exp $
+* $Id: mcTabContentAreaTreeClass.as,v 1.19 2004/01/16 00:43:14 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -138,33 +138,13 @@ mcTabContentAreaTreeClass.prototype.onRollOver = function()
 */
 mcTabContentAreaTreeClass.prototype.onExternalCall = function(cmd, params) 
 {
+
 	switch(cmd) {
 		case "asset_finder" :
 			switch (params.action) {
 				case 'start' :
-					if (params.type_codes_xml == null || params.type_codes_xml.length <= 0) return;
-					var xml  = new XML(params.type_codes_xml);
-
-					// something buggered up with the connection
-					if (xml.status != 0) {
-						_root.dialog_box.show("XML Error, unable to use asset finder", "XML Status '" + xml.status + "'\nPlease Try Again");
-						return;
-
-					// we got an unexpected root node
-					} else if (xml.firstChild.nodeName != "type_codes") {
-						_root.dialog_box.show("XML Error, unable to print messages", "Unexpected Root XML Node '" + xml.firstChild.nodeName + '"');
-						return;
-					}// end if
-
-					// everything went well, load 'em up
-					var type_codes = new Array();
-					for (var i = 0; i < xml.firstChild.childNodes.length; i++) {
-						// get a reference to the child node
-						var node = xml.firstChild.childNodes[i];
-						if (node.nodeName.toLowerCase() == "type_code" && node.attributes.name !== undefined) {
-							type_codes.push(node.attributes.name); 
-						}//end if
-					}//end for
+					if (params.type_codes == null || params.type_codes.length <= 0) return;
+					var type_codes = params.type_codes.split('|');
 					this.startAssetFinder(type_codes);
 
 					break;
