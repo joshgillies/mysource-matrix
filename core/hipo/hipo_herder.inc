@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.36 2004/04/16 02:13:38 gsherwood Exp $
+* $Id: hipo_herder.inc,v 1.37 2004/05/18 23:13:15 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -479,8 +479,10 @@ class HIPO_Herder extends MySource_Object
 			return false;
 		}
 
+		if ($source_job->uses_trans) {	// only encase in a transaction if source job wants it
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$this->_tmp['processing_server'] = true;
 
 		$ret_val = true;
@@ -494,13 +496,15 @@ class HIPO_Herder extends MySource_Object
 		unset($this->_tmp['prepared_server']);
 		unset($this->_tmp['processing_server']);
 
-		if ($ret_val) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return true;
-		} else {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+		if ($source_job->uses_trans) {	// complete transaction - only if desired by job
+			if ($ret_val) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			} else {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			}
 		}
+
+		return $ret_val;
 
 	}//end processServer()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.42 2004/04/28 00:33:12 lwright Exp $
+* $Id: hipo_job.inc,v 1.43 2004/05/18 23:13:15 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -72,6 +72,15 @@ class HIPO_Job extends MySource_Object
 	* @var boolean
 	*/
 	var $is_prepared = false;
+
+	/**
+	* Flag which determines whether HIPO Herder wraps the whole job in a transaction
+	*
+	* If this is turned OFF (false), we rely on this job to manage its own transactions!
+	*
+	* @var boolean
+	*/
+	var $uses_trans = true;
 
 	/**
 	* Array that stores some variables that the HIPO steps use
@@ -169,7 +178,7 @@ class HIPO_Job extends MySource_Object
 
 
 	/**
-	* Returns a unique code_name the HIPO can use to ensure it is not being run twice
+	* Determines whether the HIPO job has finished its run (ie. is complete or was aborted)
 	*
 	* @return boolean
 	* @access public

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.9 2004/05/14 06:26:43 gsherwood Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.10 2004/05/18 23:13:15 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -94,6 +94,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	*/
 	function HIPO_Job_Purge_Trash($code_name='')
 	{
+		$this->uses_trans = false;			// we'll do our own transactions thanks
 		$this->HIPO_Job($code_name);
 
 	}//end constructor
@@ -258,6 +259,8 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 		// let everyone know we are purging the trash
 		$GLOBALS['SQ_PURGING_TRASH'] = true;
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		if (!empty($this->_running_vars['todo_links'])) {
 
 			$link_info = array_shift($this->_running_vars['todo_links']);
@@ -347,6 +350,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 									$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 									if (!$parent->deleteLink($link_info['linkid'])) {
 										trigger_error('Purge aborted, unable to delete link '.$link_info['linkid'].' between "'.$parent->name.'" and "'.$asset->name.'"', E_USER_WARNING);
+										$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 										return false;
 									}
 									$step_data['message'] = 'Deleting link #'.$link_info['linkid'];
@@ -358,12 +362,14 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 								// the asset manager that we are allowed to delete it
 								if (!$GLOBALS['SQ_SYSTEM']->am->canPurgeAsset($asset)) {
 									trigger_error('Purge aborted, unable to delete "'.$asset->name.'" ['.$asset->id.']', E_USER_WARNING);
+									$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 									return false;
 								}
 	
 								// this is the last link for this asset, so lets delete it for good
 								if (!$asset->delete(false)) {
 									trigger_error('Purge aborted, unable to delete "'.$asset->name.'" ['.$asset->id.']', E_USER_WARNING);
+									$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 									return false;
 								}
 								$step_data['message'] = 'Deleting "'.$asset->name.'" [#'.$assetid.']';
@@ -389,6 +395,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 			$step_data['complete']     = false;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
 	}//end processTrash()
