@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.10 2003/11/26 00:51:18 gsherwood Exp $
+* $Id: datetime_field.inc,v 1.11 2004/02/03 03:27:43 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -67,12 +67,13 @@ class DateTime_Field {
 	* @param array	&$parameters	settings for this field (min, max, show etc)
 	*
 	*/
-	function DateTime_Field($prefix='',&$value,&$parameters)
+	function DateTime_Field($prefix='', &$value, &$parameters)
 	{
 		$this->prefix     =  $prefix;
 		$this->value      = &$value;
 		$this->parameters = &$parameters;
-	}// end contructor
+
+	}//end contructor
 
 
 	/**
@@ -86,7 +87,8 @@ class DateTime_Field {
 	function setValue(&$value)
 	{
 		$this->value = &$value;
-	}// end setValue()
+
+	}//end setValue()
 
 
 	/**
@@ -100,7 +102,8 @@ class DateTime_Field {
 	function setParameters(&$parameters)
 	{
 		$this->parameters = &$parameters;
-	}// end setParameters()
+
+	}//end setParameters()
 
 
 	/**
@@ -115,7 +118,8 @@ class DateTime_Field {
 	{
 		if(isset($this->parameters[$code])) return $this->parameters[$code];
 		return;
-	}// end getParam()
+
+	}//end getParam()
 
 
 	/**
@@ -146,7 +150,8 @@ class DateTime_Field {
 			if($t == 'h' && in_array('h',$show) && in_array('i',$show)) echo ':';
 			if($t == 'i' && in_array('i',$show) && in_array('s',$show)) echo ':';
 		}
-	}// end printField()
+
+	}//end printField()
 
 
 	/**
@@ -173,8 +178,11 @@ class DateTime_Field {
 			$value = (int) $value;
 		}
 
-		$increment = $increments[$u];
-		if (!$increment) $increment = 1;
+		$increment = 1;
+
+		if (!empty($increments)) {
+			$increment = $increments[$u];
+		}
 
 		if($input_style[$u] == 's') { // select box
 			if($allow_null) $options = array('--' => '--');
@@ -212,7 +220,8 @@ class DateTime_Field {
 			}
 		}
 		echo '<input type="hidden" name="'.$prefix.'['.$u.']" value="'.$value.'" '.$extras[$u].' />';
-	}// end inputBox()
+
+	}//end inputBox()
 
 
 	/**
@@ -247,7 +256,8 @@ class DateTime_Field {
 		$s = (isset($ar_time[2])) ? $ar_time[2] : '';
 
 		return $$unit;
-	}// end getUnit()
+
+	}//end getUnit()
 
 
 	/**
@@ -267,7 +277,8 @@ class DateTime_Field {
 			$m = ucfirst($m);
 		}
 		return $months[$m];
-	}// end shortMonth()
+
+	}//end shortMonth()
 
 
 	/**
@@ -287,7 +298,8 @@ class DateTime_Field {
 			$m = ucfirst($m);
 		}
 		return $months[$m];
-	}// end longMonth()
+
+	}//end longMonth()
 
 
 	/**
@@ -302,10 +314,10 @@ class DateTime_Field {
 		$input = $_REQUEST[$this->prefix.'value'];
 		$input = $this->unitsArrayToStr($input);
 		$validated_value = $this->validateValue($input);
-		if($this->value == $validated_value) return false;
 		$this->value = $validated_value;
 		return true;
-	}// end processField()
+
+	}//end processField()
 
 
 	/**
@@ -462,6 +474,7 @@ class DateTime_Field {
 			$r['c'] = (substr($value,20,1)?1:0);
 		}
 		return $r;
+
 	}//end strToUnitsArray()
 
 
@@ -483,6 +496,7 @@ class DateTime_Field {
 			.(($v['s'] < 0 || !strlen($v['s']) || $v['s'][0] == '-') ?  '--'  : sprintf('%02d', $v['s']));
 		if($this->getParam('allow_circa')) $r .= ' '.(isset($v['c']) && $v['c'] ? '1' : '0');
 		return $r;
+
 	}//end unitsArrayToStr()
 
 
@@ -543,7 +557,242 @@ class DateTime_Field {
 		$format = str_replace('~','circa.',$format);
 
 		return $format;
+
 	}//end format()
+
+
+	/**
+	* Prints fields for inputting the min value
+	*
+	* @param string	$prefix		field prefix for the HTML form
+	*
+	* @access public
+	* @return string
+	*/
+	function printMinField($prefix='') 
+	{
+		$p = array(
+			'min'       => '0000-01-01 00:00:00',
+			'max'       => '9999-12-31 23:59:59',
+			'show'      => array('y','m','d','h','i','s'),
+			'increment' => array(),
+			'style'     => $this->getParam('style')
+		);
+		$p['style']['y'] = 't';
+		$d = new DateTime_Field("{$this->prefix}_min",$this->getParam('min'),$p);
+		$d->printField();
+
+	}//end printMinField()
+
+
+	/**
+	* Processing the min value
+	*
+	* @param string	$prefix		field prefix for the HTML form
+	*
+	* @access public
+	* @return string
+	*/
+	function processMinField($prefix='') 
+	{
+		$p = array(
+			'min'       => '0000-01-01 00:00:00',
+			'max'       => '9999-12-31 23:59:59',
+			'show'      => array('y','m','d','h','i','s'),
+			'increment' => array(),
+			'style'     => $this->getParam('style')
+		);
+		$d = new DateTime_Field("{$this->prefix}_min",$this->getParam('min'),$p);
+		$d->processField();
+
+	}//end processMinField()
+
+
+	/**
+	* Prints fields for inputting the max value
+	*
+	* @param string	$prefix		field prefix for the HTML form
+	*
+	* @access public
+	* @return string
+	*/
+	function printMaxField($prefix='') 
+	{
+		$p = array(
+			'min'       => '0000-01-01 00:00:00',
+			'max'       => '9999-12-31 23:59:59',
+			'show'      => array('y','m','d','h','i','s'),
+			'increment' => array(),
+			'style'     => $this->getParam('style')
+		);
+		$p['style']['y'] = 't';
+		$d = new DateTime_Field("{$this->prefix}_max",$this->getParam('max'),$p);
+		$d->printField();
+
+	}//end printMaxField()
+
+
+	/**
+	* Processing the max value
+	*
+	* @param string	$prefix		field prefix for the HTML form
+	*
+	* @access public
+	* @return string
+	*/
+	function processMaxField($prefix='') 
+	{
+		$p = array(
+			'min'       => '0000-01-01 00:00:00',
+			'max'       => '9999-12-31 23:59:59',
+			'show'      => array('y','m','d','h','i','s'),
+			'increment' => array(),
+			'style'     => $this->getParam('style')
+		);
+		$d = new DateTime_Field("{$this->prefix}_max",$this->getParam('max'),$p);
+		$d->processField();
+
+	}//end processMaxValue()
+
+
+	/**
+	* Prints the edit options form
+	*
+	* @param Array	$show		an array of keys telling which parts of the interface must be printed
+	*
+	* @access public
+	* @return string
+	*/
+	function printEditOptions($show=Array()) 
+	{
+		if (empty($show)) {
+			$show = Array('s','n','c','t'); // default set of fields to show
+		}
+
+		$us = array('d'=>'Day','m'=>'Month','y'=>'Year','h'=>'Hour','i'=>'Min.','s'=>'Sec.');
+		$s = &$this->getParam('show');
+		$n = &$this->getParam('null');
+		$y = &$this->getParam('style');
+		$c = &$this->getParam('allow_circa');
+		$t = &$this->getParam('standard');
+		?>
+		
+		<table cellspacing="0" cellpadding="2" border="1">
+			<tr><td>
+				<?php
+					if (in_array('c', $show)) {
+						combo_box($this->prefix.'_allow_circa',array(''=>'','1'=>'Allow "circa."'),$c,'class=smallprint');
+						echo "<br />";
+					}
+					if (in_array('t', $show)) {
+						combo_box($this->prefix.'_standard',array('int'=>'Intl. (dd/mm/yyyy)','us'=>'US (mm/dd/yyyy)'),$t,'class=fineprint');
+					}
+				?>
+			</td>
+			<?php	
+				foreach($us as $k=>$v) { 
+				?>
+					<td align=center><b><?php echo $v; ?></b></td>
+			<?php } // end foreach
+			?>
+			</tr>
+
+			<?php
+					// checking if we should show field selection checkboxes
+					if (in_array('s', $show)) {
+			?>
+			<tr>
+				<td><b>Show</b></td>
+			<?php
+				foreach($us as $k => $v) {
+			?>
+				<td align=center><input type=checkbox name="<?php echo $this->prefix; ?>_show[]" value=<?php echo $k; ?> <?php echo ((in_array($k,$s))?'checked':''); ?>></b>
+				</td>
+			<?php } // end foreach 
+			?>
+			</tr>
+			<?php } // end if in_array
+			?>
+
+			<?php
+					// checking if we should show blank-allowed checkboxes
+					if (in_array('n', $show)) {
+			?>
+			<tr>
+				<td><b>Allow blank</b></td>
+				<?php
+					foreach($us as $k=>$v) {
+				?><td align=center><input type=checkbox name="<?echo $this->prefix; ?>_null[]" value=<?php echo $k; ?> <?php echo ((in_array($k,$n))?'checked':''); ?>></b>
+				</td>
+			<?php } // end foreach
+			?>
+			</tr>
+			<?php } // end if in_array
+			?>
+
+			<tr>
+				<td><b>Select box</b></td>
+			<?php 
+				foreach($us as $k=>$v) { ?>
+				<td align=center>
+					<input type=radio name="<?php echo $this->prefix; ?>_style[<?php echo $k; ?>]" value=s <?php echo (($y[$k]=='s')?'checked':''); ?>></b>
+				</td>
+			<?php } ?>
+			</tr>
+
+			<tr>
+				<td><b>Text box</b></td>
+			<?php 
+				foreach($us as $k=>$v) { ?>
+				<td align=center>
+					<input type=radio name="<?php echo $this->prefix; ?>_style[<?=$k?>]" value=t <?php echo (($y[$k]=='t')?'checked':''); ?>></b>
+				</td>
+			<?php } ?>
+			</tr>
+
+			<tr>
+				<td><b>Min</b></td>
+				<td colspan="6"><?php $this->printMinField(); ?></td>
+			</tr>
+
+			<tr>
+				<td><b>Max</b></td>
+				<td colspan="6"><?php $this->printMaxField(); ?></td>
+			</tr>
+
+		</table>
+
+		<?
+	} //end printEditOptions()
+
+
+	/**
+	* Processes the input in edit options form
+	*
+	* @access public
+	* @return string
+	*/	
+	function processEditOptions() 
+	{
+		$s = isset($_REQUEST[$this->prefix.'_show']) ? $_REQUEST[$this->prefix.'_show'] : Array();
+		$n = isset($_REQUEST[$this->prefix.'_null']) ? $_REQUEST[$this->prefix.'_null'] : Array();
+		$y = $_REQUEST[$this->prefix.'_style'];
+		$c = $_REQUEST[$this->prefix.'_allow_circa'];
+		$t = isset($_REQUEST[$this->prefix.'_standard']) ? $_REQUEST[$this->prefix.'_standard'] : Array();
+
+		$this->parameters['show']        = $s;
+		$this->parameters['null']        = $n;
+		$this->parameters['style']       = $y;
+		$this->parameters['allow_circa'] = $c;
+		$this->parameters['standard']    = $t;
+
+		$this->processMinField();
+		$this->processMaxField();
+	
+	return true;
+
+	}//end processEditOptions()
+
 
 }// end class
 

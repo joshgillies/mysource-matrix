@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.24 2004/01/20 01:30:56 diarandine Exp $
+* $Id: metadata_manager.inc,v 1.25 2004/02/03 03:27:42 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -460,7 +460,7 @@ class Metadata_Manager extends MySource_Object
 
 					$word_counts = get_word_counts($value);
 
-					$force_processing = 1; // TEST: will tell the function to process values in any case
+					$force_processing = 1; //will tell the function to process values in any case
 
 					foreach ($word_counts as $word => $count) {
 						$asset->buildKeyData($keydata, $word, 'text', 'metadata:'. $field->id, $field->attr('weighting') * $count, $force_processing);
@@ -562,9 +562,13 @@ class Metadata_Manager extends MySource_Object
 				return false;
 			}
 
+			$values = Array();
 			$values = $this->getSchemaMetadata($asset->id, $schema->id);
 			$edit_fns = $schema->getEditFns();
 			$edit_fns->generateMetadata($schema, $values, $keywords);
+			unset($values);
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($schema);
+			unset($schema);
 		}
 
 		$metadata = ob_get_contents();
@@ -572,11 +576,11 @@ class Metadata_Manager extends MySource_Object
 
 		if (!empty($keywords)) {
 			ob_start();
-			echo '<'.'?php'."\n";
-			echo '$metadata_asset = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$asset->id.');'."\n\n";
-			$replacements = $this->generateKeywordReplacements($asset, $keywords);
-			echo '?'.'>';
-			$php = ob_get_contents();
+				echo '<'.'?php'."\n";
+				echo '$metadata_asset = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$asset->id.');'."\n\n";
+				$replacements = $this->generateKeywordReplacements($asset, $keywords);
+				echo '?'.'>';
+				$php = ob_get_contents();
 			ob_end_clean();
 			require_once SQ_FUDGE_PATH."/general/text.inc";
 			$metadata = replace_keywords($metadata, $replacements);
@@ -616,6 +620,7 @@ class Metadata_Manager extends MySource_Object
 		if (!empty($keywords) && $generating) echo '$metadata_replacements = Array();';
 
 		foreach ($keywords as $keyword) {
+
 			if ($generating) {
 				$metadata_replacements[$keyword] = '<'.'?php echo $metadata_replacements[\''.$keyword.'\']; ?'.'>';
 			} else {
@@ -692,11 +697,28 @@ class Metadata_Manager extends MySource_Object
 					echo '$metadata_replacements[\''.$keyword.'\'] = SQ_CONF_'.strtoupper($keyword).';'."\n";
 				break;
 
-				default :
-					echo '$metadata_replacements[\''.$keyword.'\'] = \'\';'."\n";
+				default : // searching for special ones...
+
+					$key = substr($keyword, 0, 13); // returns the key name
+					$format = substr($keyword, 14); // should return format, skipping '_' separator
+					$format = str_replace("-", " ", $format); // preparing our date format...
+
+					switch ($key) {
+
+						case 'asset_created':
+						case 'asset_updated':
+							echo '$metadata_replacements[\''.$keyword.'\'] = date(\''. $format .'\', $metadata_asset->'.substr($key,6).');'."\n";
+						break;
+
+						default:
+							echo '$metadata_replacements[\''.$keyword.'\'] = \'\';'."\n";
+						break;
+					} // end another switch...
+
 				break;
 
 			}//end switch
+
 
 			if ($generating) {
 				echo "\n";

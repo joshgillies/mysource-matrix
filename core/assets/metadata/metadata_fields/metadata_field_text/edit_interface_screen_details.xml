@@ -1,0 +1,92 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.1 2004/02/03 03:27:42 diarandine Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<contents>
+	<section name="Details" write_access="write:attributes">
+		<field>
+			<display_name></display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintKeywordInstructions"   />
+				<process_function name="processKeywordInstructions" />
+			</function_call>
+		</field>
+		<field attribute="name">
+			<display_name>Field Name</display_name>
+			<note />
+			<text width="30" height="1" />
+		</field>
+		<field attribute="default">
+			<display_name>Default</display_name>
+			<note />
+			<text width="30" height="5" />
+		</field>
+		<field attribute="scheme">
+			<display_name>Scheme</display_name>
+			<note />
+			<text width="30" height="1" />
+		</field>
+		<field attribute="language">
+			<display_name>Language</display_name>
+			<note />
+			<text width="30" height="1" />
+		</field>
+	</section>
+	<section name="Value Components" write_access="write:attributes">
+		<field>
+			<display_name>New?</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintValueComponents"   />
+				<process_function name="processValueComponents" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Options" write_access="write:attributes">
+		<field attribute="multi_line">
+			<display_name>Multi Line</display_name>
+			<note />
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+		<field attribute="editable">
+			<display_name>Editable</display_name>
+			<note />
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+		<field attribute="required">
+			<display_name>Required</display_name>
+			<note />
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+		<field>
+			<display_name>Relevance Weighting</display_name>
+			<note />
+			<function_call>
+				<paint_function		name="paintWeighting" />
+				<process_function	name="processWeighting" />
+			</function_call>
+		</field>
+	</section>
+</contents>

@@ -18,83 +18,42 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_management.inc,v 1.8 2004/02/03 03:27:42 diarandine Exp $
+* $Id: metadata_field_text_management.inc,v 1.1 2004/02/03 03:27:42 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
-require_once SQ_INCLUDE_PATH.'/asset_management.inc';
+require_once dirname(__FILE__).'/../../metadata_field/metadata_field_management.inc';
 
 /**
-* Metadata_Field_Management
+* Metadata_Field_Text_Management
 *
 * @see Asset_Management
 *
-* @author  Greg Sherwood <greg@squiz.net>
+* @author  Dmitri Iarandine <diarandine@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Metadata_Field_Management extends Asset_Management
+class Metadata_Field_Text_Management extends Metadata_Field_Management
 {
 
 	/**
 	* Constructor
 	*
 	*/
-	function Metadata_Field_Management(&$pm)
+	function Metadata_Field_Text_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
-
-		$this->vars = Array('name'				=> Array(
-													'added' => '0.1',
-													'type'  => 'text', 'default'   => ''
-													),
-							'default'			 => Array(
-													'added' => '0.1',
-													'type'  => 'text', 'default'   => ''
-													),
-							'scheme'			=> Array(
-													'added' => '0.1',
-													'type'  => 'text', 'default'   => ''
-													),
-							'language'			=> Array(
-													'added' => '0.1',
-													'type'  => 'text', 'default'   => ''
-													),
-							'value_components'	=> Array(
-													'added' => '0.0.1',
-													'type'  => 'serialise', 'default' => Array()
-													),
-							'editable'			=> Array(
-													'added' => '0.1',
-													'type'  => 'boolean', 'default'   => true
-													),
-							'required'			=> Array(
+		
+		// additional attrs., that were not defined in parent
+		$this->vars = Array('multi_line'		=> Array(
 													'added' => '0.1',
 													'type'  => 'boolean', 'default'   => false
-													),
-							'weighting'			=> Array(
-													'added' => '0.1',
-													'type'	=> 'int', 'default' => '-1'
 													),
 							);
 	}//end constructor
 
-
-	/**
-	* Gets a list of all metadata files that we want web accessable
-	*
-	* @access private
-	* @return array(string)
-	*/
-	function _getFileList()
-	{
-		return Array(
-					 'popups/keywords.html',
-					 );
-
-	}//end _getFileList()
 
 }//end class
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.15 2003/11/26 00:50:58 gsherwood Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.16 2004/02/03 03:27:42 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -477,6 +477,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 		$value_string = '';
 		$current_vc = $asset->attr('value_components');
+
 		if (!empty($current_vc)) {
 			foreach ($current_vc as $vc_name => $vc_value) {
 				if (isset($values['value_components'][$vc_name])) {
