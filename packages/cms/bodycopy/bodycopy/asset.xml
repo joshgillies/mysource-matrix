@@ -3,12 +3,12 @@
 
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>cms</package>
-	<type_code>page</type_code>
+	<type_code>bodycopy_table</type_code>
 	<version>0.1</version>
-	<name>Page</name>
-	<description>Page Object, the base class for creating content</description>
+	<name>Bodycopy Table</name>
+	<description>BodyCopy Table Object, create rows and cells to format content</description>
 	<instantiable>yes</instantiable>
-	<system_only>no</system_only>
+	<system_only>yes</system_only>
 	<parent_type>asset</parent_type>
 	<requirements>
 		<requirement type="system">
