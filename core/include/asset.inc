@@ -382,8 +382,8 @@ class Asset extends Resolve_Object
 		// dont change if we already have this status
 		if ($this->status == $new_status) return false;
 
-		$wfm = null;
 		$old_status = $this->status;
+		$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserid();
 		$pending_statii = Array(SQ_STATUS_PENDING_APPROVAL, SQ_STATUS_EDITING_APPROVAL);
 
 		switch ($new_status) {
@@ -409,33 +409,85 @@ class Asset extends Resolve_Object
 				if (in_array($this->status, $pending_statii)) {
 					// we are doing a workflow and someone has just
 					// approved the asset, so record this
-					if (!$wfm->recordPublish($GLOBALS['SQ_SYSTEM']->currentUserId())) {
-						trigger_error('Approval by user '.$GLOBALS['SQ_SYSTEM']->currentUserId().' not set in processStatusChange', E_USER_WARNING);
+					if (!$wfm->recordPublish($current_userid)) {
+						trigger_error('Approval by user '.$current_userid.' not set in processStatusChange', E_USER_WARNING);
+						$this->status = $old_status;
+						return false;
 					}
+
+					// send an internal message
+					$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
+					$body = 'User "'.$user->name.'" has approved '.$this->type().' "'.$this->name.'" to go live.';
+					$to_list = $this->getPermission(SQ_PERMISSION_ADMIN, true, true, true);
+					foreach ($to_list as $userid) $ms->sendMessage($userid, 0, 'Asset Changes Approved', $body);
 
 					if ($wfm->state == 'complete') {
 						// all workflows are done so we
 						// can go ahead and make this live
 						$this->status = SQ_STATUS_LIVE;
+
+						// send an internal message
+						$body = 'The workflow process for '.$this->type().' "'.$this->name.'" has been completed. "'.$this->name.'" is now live.';
+						foreach ($to_list as $userid) $ms->sendMessage($userid, 0, 'Workflow Completed', $body);
 					}
 
-				} else if ($this->status == SQ_STATUS_UNDER_CONSTRUCTION) {
-					// we are going to make this asset live
-					// by starting the workflow process
-					$wfm->start();
-					$this->status = SQ_STATUS_PENDING_APPROVAL;
+				} else {
+					if (!$this->writeAccess()) return false;
 
-				} else if ($this->status == SQ_STATUS_EDITING) {
-					// asset is currently safe editing
-					// so we need to start the workflow process
-					$wfm->start();
-					$this->status = SQ_STATUS_EDITING_APPROVAL;
+					if ($this->status == SQ_STATUS_UNDER_CONSTRUCTION) {
+						// we are going to make this asset live
+						// by starting the workflow process
+						$status = $wfm->testPublish($current_userid);
+						if ($status == 'complete') {
+							$this->status = SQ_STATUS_LIVE;
+						} else {
+							if (!$wfm->start()) {
+								trigger_error('Workflow failed to start for "'.$this->name.'"', E_USER_WARNING);
+								$this->status = $old_status;
+								return false;
+							}
+
+							$this->status = SQ_STATUS_PENDING_APPROVAL;
+
+							// send an internal message
+							$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
+							$to_list = $this->getPermission(SQ_PERMISSION_ADMIN, true, true, true);
+							$body = 'User "'.$user->name.'" has requested '.$this->type().' "'.$this->name.'" to go live from Under Construction.';
+							foreach ($to_list as $userid) $ms->sendMessage($userid, 0, 'Workflow Started', $body);
+						}
+
+					} else if ($this->status == SQ_STATUS_EDITING) {
+						// asset is currently safe editing
+						// so we need to start the workflow process
+						$status = $wfm->testPublish($current_userid);
+						if ($status == 'complete') {
+							$this->status = SQ_STATUS_LIVE;
+						} else {
+							if (!$wfm->start()) {
+								trigger_error('Workflow failed to start for "'.$this->name.'"', E_USER_WARNING);
+								$this->status = $old_status;
+								return false;
+							}
+
+							$this->status = SQ_STATUS_EDITING_APPROVAL;
+
+							// send an internal message
+							$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
+							$to_list = $this->getPermission(SQ_PERMISSION_ADMIN, true, true, true);
+							$body = 'User "'.$user->name.'" has requested '.$this->type().' "'.$this->name.'" to go live from Safe Editing.';
+							foreach ($to_list as $userid) $ms->sendMessage($userid, 0, 'Workflow Started', $body);
+						}
+					}
 				}
 
 				$wfm->save();
 				break;
 
 			case SQ_STATUS_EDITING :
+				if (!$this->writeAccess()) return false;
 				if ($this->status == SQ_STATUS_LIVE) {
 					// we are safe editing
 					$this->status = SQ_STATUS_EDITING;
@@ -446,17 +498,18 @@ class Asset extends Resolve_Object
 				break;
 
 			case SQ_STATUS_UNDER_CONSTRUCTION :
-				if ($this->status == SQ_STATUS_LIVE) {
+				include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
+				$wfm = new Workflow_Manager($this);
+
+				$publishers = $wfm->whoCanPublish();
+
+				if ($this->status == SQ_STATUS_LIVE && $this->adminAccess()) {
 					// if we are currently live, we can set to
 					// under construction without problems
 					$this->status = SQ_STATUS_UNDER_CONSTRUCTION;
-				} else if (in_array($this->status, $pending_statii)) {
+				} else if (in_array($this->status, $pending_statii) && in_array($current_userid, $publishers)) {
 					// we are currently in workflow and someone has decide
 					// to reject the changes and cancel the workflow
-					if ($wfm === null) {
-						include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
-						$wfm = new Workflow_Manager($this);
-					}
 					
 					if ($this->status == SQ_STATUS_EDITING_APPROVAL) $this->status = SQ_STATUS_EDITING;
 					else $this->status = SQ_STATUS_UNDER_CONSTRUCTION;
@@ -464,6 +517,13 @@ class Asset extends Resolve_Object
 					if (!$wfm->cancel()) {
 						trigger_error('Workflow cancel failed', E_USER_WARNING);
 						$this->status = $old_status;
+					} else {
+						// send an internal message
+						$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+						$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
+						$body = 'User "'.$user->name.'" has rejected the changes made to '.$this->type().' "'.$this->name.'". The status of "'.$this->name.'" has reverted to '.$this->getStatusDescription();
+						$to_list = $this->getPermission(SQ_PERMISSION_ADMIN, true, true, true);
+						foreach ($to_list as $userid) $ms->sendMessage($userid, 0, 'Asset Changes Rejected', $body);
 					}
 				}
 				break;
@@ -2277,84 +2337,101 @@ class Asset extends Resolve_Object
 	* @param string		$permission		the permission code you are getting
 	* @param boolean	$and_greater	get effective permission (eg read access = read or write or admin)
 	* @param boolean	$and_inherited	get permission from parents as well
+	* @param boolean	$expand_groups	expand user groups so only user ids get returned
 	*
 	* @return array(int)
 	* @access public
 	*/
-	function getPermission($permission, $and_greater=true, $and_inherited=true)
+	function getPermission($permission, $and_greater=true, $and_inherited=true, $expand_groups=false)
 	{
 		$permission = (int) $permission;
 
 		// return cached version if we can
 		$storage_name =(($and_greater) ? 'effective_' : '').'permissions'.(($and_inherited) ? '_inherited' : '');
 		if (isset($this->_tmp['permission_cache'][$storage_name][$permission])) {
-			return $this->_tmp['permission_cache'][$storage_name][$permission];
-		}
+			$result = $this->_tmp['permission_cache'][$storage_name][$permission];
+		} else {
 
-		// work out the max_limit if needed
-		// we will need this if checking permission below workflow
-		// so we dont interperate workflow as admin access
-		$max_limit = 0;
-		if ($permission < SQ_PERMISSION_WORKFLOW) $max_limit = SQ_PERMISSION_WORKFLOW;
+			// work out the max_limit if needed
+			// we will need this if checking permission below workflow
+			// so we dont interperate workflow as admin access
+			$max_limit = 0;
+			if ($permission < SQ_PERMISSION_WORKFLOW) $max_limit = SQ_PERMISSION_WORKFLOW;
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		// get the permissions
-		if ($and_inherited) {
-			// getting all permissions taking note of revoked permissions
-			// anywhere up the trees this asset is in
-			$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
-			$concat_userid = ($db->phptype == 'mysql') 
-					? 'CONCAT(p.userid, '.$db->quote('~').', p.permission, '.$db->quote('~').', t.treeid)' 
-					: 'p.userid || '.$db->quote('~').' || p.permission || '.$db->quote('~').' || t.treeid';
-			$concat_userid_sub = ($db->phptype == 'mysql') 
-					? 'CONCAT(pp.userid, '.$db->quote('~').', pp.permission, '.$db->quote('~').', MAX(pt.treeid))' 
-					: 'pp.userid || '.$db->quote('~').' || pp.permission || '.$db->quote('~').' || MAX(pt.treeid)';
+			// get the permissions
+			if ($and_inherited) {
+				// getting all permissions taking note of revoked permissions
+				// anywhere up the trees this asset is in
+				$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
+				$concat_userid = ($db->phptype == 'mysql') 
+						? 'CONCAT(p.userid, '.$db->quote('~').', p.permission, '.$db->quote('~').', t.treeid)' 
+						: 'p.userid || '.$db->quote('~').' || p.permission || '.$db->quote('~').' || t.treeid';
+				$concat_userid_sub = ($db->phptype == 'mysql') 
+						? 'CONCAT(pp.userid, '.$db->quote('~').', pp.permission, '.$db->quote('~').', MAX(pt.treeid))' 
+						: 'pp.userid || '.$db->quote('~').' || pp.permission || '.$db->quote('~').' || MAX(pt.treeid)';
 
-			$sql = 'SELECT DISTINCT p.userid, p.assetid
-					FROM sq_asset_link l
-					  INNER JOIN sq_asset_link_tree t ON l.linkid = t.linkid 
-					  INNER JOIN sq_asset_permission p ON l.minorid = p.assetid
-					WHERE '.$concat_userid.' IN (~SQ0~)
-					  AND p.permission '.(($and_greater) ? '>=' : '=').' '.$db->quote($permission).'
-					GROUP BY p.userid, p.assetid
-					HAVING MIN(p.revoked) = 0';
+				$sql = 'SELECT DISTINCT p.userid, p.assetid
+						FROM sq_asset_link l
+						  INNER JOIN sq_asset_link_tree t ON l.linkid = t.linkid 
+						  INNER JOIN sq_asset_permission p ON l.minorid = p.assetid
+						WHERE '.$concat_userid.' IN (~SQ0~)
+						  AND p.permission '.(($and_greater) ? '>=' : '=').' '.$db->quote($permission).'
+						GROUP BY p.userid, p.assetid
+						HAVING MIN(p.revoked) = 0';
 
-			$subs = Array( 'SELECT DISTINCT '.$concat_userid_sub.'
-							FROM sq_asset_link cl
-							  INNER JOIN sq_asset_link_tree ct ON cl.linkid = ct.linkid,
-							  sq_asset_link pl INNER JOIN sq_asset_link_tree pt ON pl.linkid = pt.linkid 
-							  INNER JOIN sq_asset_permission pp ON pl.minorid = pp.assetid
-							WHERE cl.minorid = '.$db->quote($this->id).'
-							  AND ct.treeid LIKE '.$concat.'
-							  AND pt.treeid <= ct.treeid
-							  AND pp.permission '.(($and_greater) ? '>=' : '=').' '.$db->quote($permission).' '
-							.(($max_limit) ? 'AND pp.permission < '.$db->quote($max_limit) : '').'
-							GROUP BY ct.treeid, pp.userid, pp.permission');
+				$subs = Array( 'SELECT DISTINCT '.$concat_userid_sub.'
+								FROM sq_asset_link cl
+								  INNER JOIN sq_asset_link_tree ct ON cl.linkid = ct.linkid,
+								  sq_asset_link pl INNER JOIN sq_asset_link_tree pt ON pl.linkid = pt.linkid 
+								  INNER JOIN sq_asset_permission pp ON pl.minorid = pp.assetid
+								WHERE cl.minorid = '.$db->quote($this->id).'
+								  AND ct.treeid LIKE '.$concat.'
+								  AND pt.treeid <= ct.treeid
+								  AND pp.permission '.(($and_greater) ? '>=' : '=').' '.$db->quote($permission).' '
+								.(($max_limit) ? 'AND pp.permission < '.$db->quote($max_limit) : '').'
+								GROUP BY ct.treeid, pp.userid, pp.permission');
 
-			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-			$sql = db_extras_subquery($db, $sql, $subs);
-			if (DB::isError($sql)) {
-				trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
+				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+				$sql = db_extras_subquery($db, $sql, $subs);
+				if (DB::isError($sql)) {
+					trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
+					return Array();
+				}
+
+			} else {
+				// just get the permissions set for this asset
+				$sql = 'SELECT userid, assetid
+						FROM sq_asset_permission
+						WHERE assetid = '.$db->quote($this->id).'
+						  AND permission '.(($and_greater) ? '>=' : '=').' '.$db->quote($permission).'
+						  AND revoked = 0';
+			}
+
+			$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
+			if (DB::isError($result)) {
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 				return Array();
 			}
 
-		} else {
-			// just get the permissions set for this asset
-			$sql = 'SELECT userid, assetid
-					FROM sq_asset_permission
-					WHERE assetid = '.$db->quote($this->id).'
-					  AND permission '.(($and_greater) ? '>=' : '=').' '.$db->quote($permission).'
-					  AND revoked = 0';
+			// cache the result for next time
+			$this->_tmp['permission_cache'][$storage_name][$permission] = $result;
 		}
 
-		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return Array();
+		if ($expand_groups) {
+			$return_result = Array();
+			foreach ($result as $assetid => $locs) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				if ($asset->id && is_a($asset, 'user_group')) {
+					$return_result = array_merge($return_result, $asset->getChildren(Array('user'), false));
+				} else {
+					$return_result[] = $assetid;
+				}
+			}
+			$result = array_unique($return_result);
 		}
 
-		$this->_tmp['permission_cache'][$storage_name][$permission] = $result;
 		return $result;
 	}//end getPermission()
 

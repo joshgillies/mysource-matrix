@@ -473,9 +473,15 @@ class Asset_Edit_Interface extends Resolve_Object
 								$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
 							}
 						} else {
-							// no workflows are currently being
-							// run on this asset, so we can publish
-							$statii[SQ_STATUS_LIVE] = 'Make Live';
+							// so we have workflows, but none of them are running
+							// so lets see what will happen if this user approves
+							// to determine if they can live edit
+							$status = $wfm->testPublish($GLOBALS['SQ_SYSTEM']->currentUserId());
+							if ($status == 'complete') {
+								$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
+							} else {
+								$statii[SQ_STATUS_LIVE] = 'Make Live';
+							}
 						}
 					} else {
 						$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Place Under Construction';
@@ -496,7 +502,12 @@ class Asset_Edit_Interface extends Resolve_Object
 				if (in_array($userid, $publishers)) {
 					// the current user can approve this asset
 					// to keep the workflow going
-					$statii[SQ_STATUS_LIVE] = 'Approve Changes';
+					$status = $wfm->testPublish($GLOBALS['SQ_SYSTEM']->currentUserId());
+					if ($status == 'complete') {
+						$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
+					} else {
+						$statii[SQ_STATUS_LIVE] = 'Approve Changes';
+					}
 					$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Reject Changes';
 				}
 				break;
@@ -809,7 +820,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 			foreach ($wfm->current_workflows['complete'] + $wfm->current_workflows['running'] as $workflowid => $workflow) {
 				list($assetid, $inheritid) = explode('~', $workflowid);
-				$workflow_title = 'Workflow set at ';
+				$workflow_title = 'Running workflow set at ';
 				if ($assetid == $inheritid) {
 					$workflow_title .= 'this asset';
 				} else {
@@ -907,8 +918,6 @@ class Asset_Edit_Interface extends Resolve_Object
 					}
 				}
 			}
-			
-			$o->openSection('Workflow set for this asset');
 		} else {
 			$write_access = $owner->writeAccess();
 		}
@@ -1013,6 +1022,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 
 		//// now print the direct workflow for this asset ////
+		$o->openSection('Workflow set for this asset');
 		foreach ($wfm->steps as $stepid => $step_data) {
 			$o->openSection("Step $stepid");
 			
@@ -1130,6 +1140,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	*
 	* @param object	Asset	$owner	the asset whose interface we are painting
 	*
+	* @return boolean
 	* @access public
 	*/
 	function processWorkflow(&$owner)
@@ -1140,6 +1151,10 @@ class Asset_Edit_Interface extends Resolve_Object
 			print_login('Login', 'You do not have permission to edit <i>'.$owner->name.'</i>');
 			return false;
 		}
+
+		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
+		$wfm = new Workflow_Manager($owner);
+		if ($wfm->state == 'running') return false;
 
 		$prefix = $owner->type().'_'.$owner->id.'_workflow';
 
@@ -1159,9 +1174,6 @@ class Asset_Edit_Interface extends Resolve_Object
 				}
 			}
 		}
-
-		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
-		$wfm = new Workflow_Manager($owner, true, false, false);
 
 		// create a new step?
 		if (isset($_POST[$prefix.'_create_step'])) {
@@ -1199,7 +1211,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			}
 		}
 
-		$wfm->save();
+		return $wfm->save();
 
 	}//end processWorkflow()
 
