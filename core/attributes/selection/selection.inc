@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.13 2003/11/26 00:51:07 gsherwood Exp $
+* $Id: selection.inc,v 1.14 2004/01/09 05:46:31 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,6 +46,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 class Asset_Attribute_Selection extends Asset_Attribute
 {
 
+
 	/**
 	* Constructor
 	*
@@ -60,12 +61,12 @@ class Asset_Attribute_Selection extends Asset_Attribute
 			// Set Some default params for when we are loaded without an ID
 			$this->_params = Array('options'  => Array(), 'multiple' => false);
 		}
-	}// end constructor
+
+	}//end constructor
 
 
 	/**
-	* Takes an XML_Tree_Node from an edit interface XML file and creates
-	* the params array from it
+	* Take an XML_Tree_Node from an edit interface XML file and create the params array from it
 	*
 	* @param object XML_Tree_Node	$node
 	*
@@ -80,11 +81,12 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		$this->_edit_params['height']    = empty($node->attributes['height'])    ? ''      : $node->attributes['height'];
 		$this->_edit_params['columns']   = empty($node->attributes['columns'])   ? '1'     : $node->attributes['columns'];
 		return true;
-	}// end setEditParams()
+
+	}//end setEditParams()
 
 
 	/**
-	* Converts an array to a | seperated string
+	* Convert an array to a | seperated string
 	*
 	* @param array	$array	the array to be converted
 	*
@@ -94,11 +96,12 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	function _ar2str($array)
 	{
 		return implode('|',array_intersect(array_keys($this->_params['options']),$array));
-	}// end _ar2str()
+
+	}//end _ar2str()
 
 
 	/**
-	* Converts a | seperated string to an array
+	* Convert a | seperated string to an array
 	*
 	* @param string	$string	the string to be converted
 	*
@@ -108,11 +111,12 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	function _str2ar($string)
 	{
 		return array_intersect(array_keys($this->_params['options']),explode('|',$string));
-	}// end _str2ar()
+
+	}//end _str2ar()
 
 
 	/**
-	* Prints the interface for filling in a value
+	* Print the interface for filling in a value
 	*
 	* @param string		$prefix		prefix for the form element
 	* @param boolean	$read_only	are we just printing the value
@@ -177,12 +181,12 @@ class Asset_Attribute_Selection extends Asset_Attribute
 			}
 			echo "</tr></table>" ;
 		}
-		
-	}// end paint()
+
+	}//end paint()
 
 
 	/**
-	* Prints the interface for filling in a value
+	* Print the interface for filling in a value
 	*
 	* @param string	prefix	prefix for the form element
 	*
@@ -203,7 +207,8 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		} else {
 			$this->processed = false;
 		}
-	}// end process()
+
+	}//end process()
 
 
 	/**
@@ -235,6 +240,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		}
 		
 		return true;
+
 	}//end validateValue()
 
 

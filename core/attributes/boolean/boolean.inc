@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: boolean.inc,v 1.10 2003/11/26 00:51:05 gsherwood Exp $
+* $Id: boolean.inc,v 1.11 2004/01/09 05:46:31 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 /**
 * Boolean Asset Attribute
 *
-* 
+*
 *
 *
 * <!-- Sample Edit Interface XML Node -->
@@ -42,6 +42,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 class Asset_Attribute_Boolean extends Asset_Attribute
 {
 
+
 	/**
 	* Constructor
 	*
@@ -49,10 +50,11 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	* @param mixed	$value			the current value for the element
 	*
 	*/
-	function Asset_Attribute_Boolean($attributeid=0, $value=null) 
+	function Asset_Attribute_Boolean($attributeid=0, $value=null)
 	{
 		$this->Asset_Attribute($attributeid, (($value) ? 1 : 0));
-	}// end constructor
+
+	}//end constructor
 
 
 	/**
@@ -70,7 +72,8 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 		$this->_edit_params['true_text']  = empty($node->attributes['true_text'])  ? 'True' : $node->attributes['true_text'];
 		$this->_edit_params['false_text'] = empty($node->attributes['false_text']) ? 'False' : $node->attributes['false_text'];
 		return true;
-	}// end setEditParams()
+
+	}//end setEditParams()
 
 
 	/**
@@ -84,7 +87,7 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	function paint($prefix, $read_only=false)
 	{
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		$options = Array(0 => $this->_edit_params['false_text'], 
+		$options = Array(0 => $this->_edit_params['false_text'],
 						 1 => $this->_edit_params['true_text']);
 
 		if ($read_only) {
@@ -93,7 +96,8 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 		}
 
 		combo_box($prefix.'_'.$this->name, $options, false, $this->value, 0, $extras='', $maxlength=0);
-	}// end paint()
+
+	}//end paint()
 
 
 	/**
@@ -112,7 +116,8 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 		} else {
 			$this->processed = false;
 		}
-	}// end process()
+
+	}//end process()
 
 
 	/**
@@ -146,7 +151,9 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 		}
 		$value = (empty($new_value)) ? 0 : 1;
 		return true;
+
 	}//end validateValue()
+
 
 }//end class
 
