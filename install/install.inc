@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 * 
-* $Id: install.inc,v 1.7 2004/06/29 02:07:02 mnyeholt Exp $
+* $Id: install.inc,v 1.8 2004/06/29 02:37:27 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -195,6 +195,7 @@ function uninstall_asset_types()
 	
 	}//end if asset types not empty
 	
+	return true;
 }//end uninstall_asset_types()
 
 
@@ -255,6 +256,8 @@ function uninstall_packages()
 
 	}//end if installed packages not empty
 	
+	return true;
+	
 }//end uninstall_packages()
 
 
@@ -284,7 +287,6 @@ function install_core()
 	
 	if (file_exists($sys_asset_cfg->config_file)) {
 		require $sys_asset_cfg->config_file;
-		print(file_get_contents($sys_asset_cfg->config_file));
 	
 		$GLOBALS['SQ_SYSTEM_ASSETS'] = $system_assets;
 	
@@ -308,6 +310,8 @@ function install_core()
 	// set the current user object to the root user so we can finish
 	// the install process without permission denied errors
 	$GLOBALS['SQ_SYSTEM']->setCurrentUser($GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user'));
+	
+	return true;
 	
 }//end install_core()
 
@@ -350,6 +354,8 @@ function install_packages()
 	}
 	$d->close();
 	
+	return true;
+	
 }//end install_packages()
 
 
@@ -389,6 +395,8 @@ function install_authentication_types()
 		}
 	}
 	$GLOBALS['SQ_INSTALL'] = false;
+	
+	return true;
 
 }//end install_authentication_types()
 
@@ -429,6 +437,8 @@ function generate_global_preferences()
 	$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
 	$message->send();
 	
+	return true;
+	
 }//end generate_global_preferences()
 
 
@@ -464,6 +474,8 @@ function install_event_listeners()
 	$message_body = 'Event Listeners Done';
 	$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
 	$message->send();
+	
+	return true;
 	
 }//end install_event_listeners()
 
