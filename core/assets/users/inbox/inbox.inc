@@ -70,26 +70,33 @@ class Inbox extends Asset
 	*/
 	function _checkPermissionAccess($perm, $assetids=Array())
 	{
-		// root can do anything
-		if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
-
 		$user = &$this->_getUser();
-		if ($GLOBALS['SQ_SYSTEM']->userRoot($user)) {
-			// we have to be root to view root's inbox
-			return false;
-		} else if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin($user)) {
-			// this is the inbox of a sysadmin so they need to
-			// be root or the sysadmin themselves
-			if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return false;
-			if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) return true;
+		if (empty($assetids)) {
+			// root can do anything
+			if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
+
+			if ($GLOBALS['SQ_SYSTEM']->userRoot($user)) {
+				// we have to be root to view root's inbox
+				return false;
+			} else if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin($user)) {
+				// this is the inbox of a sysadmin so they need to
+				// be root or the sysadmin themselves
+				if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return false;
+				if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) return true;
+				return false;
+			} else {
+				// any other user's inbox
+				if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
+				if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) return true;
+			}
+
 			return false;
 		} else {
-			// any other user's inbox
-			if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
-			if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) return true;
-		}
+			// a user always has full access to their own inbox
+			if (in_array($user->id, $assetids)) return true;
 
-		return false;
+			return parent::_checkPermissionAccess($perm, $assetids);
+		}
 
 	}//end checkAccess()
 

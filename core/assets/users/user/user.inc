@@ -58,12 +58,6 @@ class User extends Asset
 
 		$user_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
 
-		if (!$this->setPermission($this->id, SQ_PERMISSION_ADMIN, '1')) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
-
 		// create an inbox
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('inbox');
 		$inbox = new Inbox();
@@ -112,24 +106,20 @@ class User extends Asset
 	*
 	* @param string		$name				the name of the attribute
 	* @param string		$value				the new value of the attribute
-	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
-	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value, $dont_run_updated=false)
+	function setAttrValue($name, $value)
 	{
-		if ($this->id) {
-			// if this is the password, encrypt it
-			// BUT not if we have been created,
-			// otherwise when we try and save to DB in create() it encrypts the encrypted version
-			if ($name == 'password') {
-				$value = crypt($value); // let salt be generated
-			}
+		// if this is the password, encrypt it
+		// BUT not if we have been created,
+		// otherwise when we try and save to DB in create() it encrypts the encrypted version
+		if ($name == 'password') {
+			$value = crypt($value); // let salt be generated
 		}
 
-		return parent::setAttrValue($name, $value, $dont_run_updated);
+		return parent::setAttrValue($name, $value);
 
 	}//end setAttrValue()
 
@@ -250,6 +240,9 @@ class User extends Asset
 
 			return false;
 		} else {
+			// a user always has full access to themselves
+			if (in_array($this->id, $assetids)) return true;
+
 			return parent::_checkPermissionAccess($perm, $assetids);
 		}
 
