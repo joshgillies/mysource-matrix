@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_link.inc,v 1.15 2004/02/11 18:47:49 brobertson Exp $
+* $Id: hipo_job_create_link.inc,v 1.16 2004/02/27 03:35:16 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -280,7 +280,7 @@ class HIPO_Job_Create_Link extends HIPO_Job
 
 					if ($new_parent->id == $trash_folder->id) {
 						echo '<p>When "'.$asset->name.'" is moved to the trash, any URLs that it currently has will be broken. Use the asset finder below to select another asset to remap the URLs of "'.$asset->name.'" to. If you do not want to remap the URLs, just leave the field empty.</p>';
-						asset_finder($prefix.'_remap_new_url', $asset->id, Array(), '');
+						asset_finder($prefix.'_remap_new_url', null, Array(), '');
 						?>
 								</td>
 							</tr>
