@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.312 2004/07/15 05:23:31 gsherwood Exp $
+* $Id: asset.inc,v 1.313 2004/07/23 07:12:23 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1785,16 +1785,22 @@ class Asset extends MySource_Object
 	*/
 	function lockTypes()
 	{
-		return Array(
+		$lock_types =  Array(
 					'settings'		=>  1,
-					'attributes'	=>  2,
-					'permissions'	=>  4,
+					'attributes'		=>  2,
+					'permissions'		=>  4,
 					'links'			=>  8,
 					'workflow'		=> 16,
 					'metadata'		=> 32,
 					'lookups'		=> 64,
 					'weights'		=> 128,
 				);
+				
+		// a menu lock allows editing of both attributes (such as name etc)
+		// and links (such as position in menu)
+		$lock_types['menu'] = $lock_types['attributes'] | $lock_types['links'];
+		
+		return $lock_types;
 
 	}//end lockTypes()
 
@@ -1872,10 +1878,10 @@ class Asset extends MySource_Object
 	function _getAllowedLinks()
 	{
 		return Array(SQ_LINK_TYPE_1 => Array(),
-					 SQ_LINK_TYPE_2 => Array(),
-					 SQ_LINK_TYPE_3 => Array('design' => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_NOTICE => Array()
-					);
+		   	     SQ_LINK_TYPE_2 => Array(),
+			     SQ_LINK_TYPE_3 => Array('design' => Array('card' => 'M', 'exclusive' => false)),
+			     SQ_LINK_NOTICE => Array('thumbnail' => Array('card' => 1, 'exclusive' => false))
+			);
 
 	}//end _getAllowedLinks()
 
@@ -2387,23 +2393,24 @@ class Asset extends MySource_Object
 	{
 		$keywords = Array();
 		$default_keywords = Array(	'asset_name',
-									'asset_short_name',
-									'asset_version',
-									'asset_created',
-									'asset_updated',
-									'asset_created_short',
-									'asset_updated_short',
-									'asset_created_readable',
-									'asset_updated_readable',
-									'asset_created_by_name',
-									'asset_updated_by_name',
-									'asset_published',
-									'asset_published_short',
-									'asset_published_readable',
-									'asset_published_by_name',
-									'asset_url',
-									'asset_href',
-									);
+						'asset_short_name',
+						'asset_version',
+						'asset_created',
+						'asset_updated',
+						'asset_created_short',
+						'asset_updated_short',
+						'asset_created_readable',
+						'asset_updated_readable',
+						'asset_created_by_name',
+						'asset_updated_by_name',
+						'asset_published',
+						'asset_published_short',
+						'asset_published_readable',
+						'asset_published_by_name',
+						'asset_url',
+						'asset_href',
+						'asset_thumbnail'
+						);
 
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$mm_keywords = $mm->generateKeywordReplacements($this, $default_keywords, false);
@@ -2420,23 +2427,24 @@ class Asset extends MySource_Object
 		}
 
 		if ($descriptions) {
-			$keywords['asset_name']['description']				= 'Full name of the asset';
-			$keywords['asset_short_name']['description']		= 'Short name of the asset';
-			$keywords['asset_version']['description']			= 'Version of the asset being displayed';
-			$keywords['asset_created']['description']			= 'The date and time the asset was created (yyyy-mm-dd hh:mm:ss)';
-			$keywords['asset_updated']['description']			= 'The date and time the asset was last updated (yyyy-mm-dd hh:mm:ss)';
-			$keywords['asset_published']['description']			= 'The date and time the asset was last published (yyyy-mm-dd hh:mm:ss)';
-			$keywords['asset_created_short']['description']		= 'The date when the asset was created (yyyy-mm-dd)';
-			$keywords['asset_updated_short']['description']		= 'The date when the asset was last updated (yyyy-mm-dd)';
-			$keywords['asset_published_short']['description']	= 'The date when the asset was last published (yyyy-mm-dd)';
-			$keywords['asset_created_readable']['description']	= 'The date when the asset was created (dd m yyyy h:mm[am pm])';
-			$keywords['asset_updated_readable']['description']	= 'The date when the asset was last updated (dd m yyyy h:mm[am pm])';
-			$keywords['asset_published_readable']['description'] = 'The date when the asset was last published (dd m yyyy h:mm[am pm])';
-			$keywords['asset_created_by_name']['description']	= 'The name of the user who created this asset';
-			$keywords['asset_updated_by_name']['description']	= 'The name of the user who last updated this asset';
-			$keywords['asset_published_by_name']['description']	= 'The name of the user who last published this asset';
-			$keywords['asset_url']['description']				= 'The absolute url to the asset';
-			$keywords['asset_href']['description']				= 'The relative href to the asset';
+			$keywords['asset_name']['description']                  = 'Full name of the asset';
+			$keywords['asset_short_name']['description']            = 'Short name of the asset';
+			$keywords['asset_version']['description']               = 'Version of the asset being displayed';
+			$keywords['asset_created']['description']               = 'The date and time the asset was created (yyyy-mm-dd hh:mm:ss)';
+			$keywords['asset_updated']['description']               = 'The date and time the asset was last updated (yyyy-mm-dd hh:mm:ss)';
+			$keywords['asset_published']['description']             = 'The date and time the asset was last published (yyyy-mm-dd hh:mm:ss)';
+			$keywords['asset_created_short']['description']         = 'The date when the asset was created (yyyy-mm-dd)';
+			$keywords['asset_updated_short']['description']         = 'The date when the asset was last updated (yyyy-mm-dd)';
+			$keywords['asset_published_short']['description']       = 'The date when the asset was last published (yyyy-mm-dd)';
+			$keywords['asset_created_readable']['description']      = 'The date when the asset was created (dd m yyyy h:mm[am pm])';
+			$keywords['asset_updated_readable']['description']      = 'The date when the asset was last updated (dd m yyyy h:mm[am pm])';
+			$keywords['asset_published_readable']['description']    = 'The date when the asset was last published (dd m yyyy h:mm[am pm])';
+			$keywords['asset_created_by_name']['description']       = 'The name of the user who created this asset';
+			$keywords['asset_updated_by_name']['description']       = 'The name of the user who last updated this asset';
+			$keywords['asset_published_by_name']['description']     = 'The name of the user who last published this asset';
+			$keywords['asset_url']['description']                   = 'The absolute url to the asset';
+			$keywords['asset_href']['description']                  = 'The relative href to the asset';
+			$keywords['asset_thumbnail']['description']             = 'The thumbnail attached to the asset';
 		}
 		
 		return $keywords;
