@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.42 2004/06/18 03:41:19 gsherwood Exp $
+* $Id: search_page.inc,v 1.43 2004/06/21 04:12:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc'; // for the meda
 * @author  Dominic Wong <dwong@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.42 $ - 1.0
+* @version $Revision: 1.43 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -711,22 +711,22 @@ class Search_Page extends Page
 					$replacement = '';
 					$first = true;
 					$found_root = false;
-					$parentAssetIds = $am->getParents($asset->id);
+					$parent_asset_ids = $am->getParents($asset->id);
 
 					// searching for the root asset
 					$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
 					$root_assetid = empty($root_link) ? 0 : $root_link['minorid'];
 
-					foreach ($parentAssetIds as $parentAssetId) {
-						if ($parentAssetId == $root_assetid) $found_root = true;
+					foreach ($parent_asset_ids as $parent_asset_id) {
+						if ($parent_asset_id == $root_assetid) $found_root = true;
 						if (!$found_root) continue;
 						if (!$first) $replacement .= $this->attr('lineage_seperator');
 						$first = false;
-						$ancestorAsset = &$am->getAsset($parentAssetId);
-						if ($keyword == 'asset_lineage_linked') $replacement .= '<a href="'.$ancestorAsset->getUrl().'">';
-						$replacement .= $ancestorAsset->name;
+						$ancestor_asset = &$am->getAsset($parent_asset_id);
+						if ($keyword == 'asset_lineage_linked') $replacement .= '<a href="'.$ancestor_asset->getUrl().'">';
+						$replacement .= $ancestor_asset->name;
 						if ($keyword == 'asset_lineage_linked') $replacement .= '</a>';
-						$am->forgetAsset($ancestorAsset);
+						$am->forgetAsset($ancestor_asset);
 					}
 				break;
 			}
