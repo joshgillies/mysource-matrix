@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item.inc,v 1.3 2004/06/24 06:08:27 amiller Exp $
+* $Id: news_item.inc,v 1.4 2004/06/24 06:11:34 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -224,9 +224,11 @@ class News_Item extends Page
 		$keywords = parent::getAssetKeywords($descriptions);
 		
 		$link_asset = &$this->getLinkAsset();
-
+		$url = '';
 		if (is_null($link_asset)) {
-			$url = 'http://'.$this->attr('link_url').'?'.$this->attr('url_suffix');
+			if(!$this->attr('link_url') == '') {
+				$url = 'http://'.$this->attr('link_url').'?'.$this->attr('url_suffix');
+				}
 		} else {
 			$url = $link_asset->getURL();
 			if ($url == '') {
