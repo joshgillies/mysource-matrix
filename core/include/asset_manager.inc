@@ -801,8 +801,6 @@ class Asset_Manager extends Resolve_Object
 		$result = $db->getAll($sql);
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
-		pre_echo($result);
-
 		// No urls found or we only found some of the parents, but not the passed url
 		if (empty($result) || $result[count($result) - 1]['url'] != $url) {
 			$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
