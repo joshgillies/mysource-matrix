@@ -1766,7 +1766,7 @@ class Asset extends Resolve_Object
 						return 0;
 					}
 				}
-pre_echo($sql);
+#pre_echo($sql);
 				$result = $db->query($sql);
 				if (DB::isError($result)) {
 					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
@@ -2215,7 +2215,7 @@ pre_echo($select);
 				trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
 				return false;
 			}
-pre_echo($sql);
+#pre_echo($sql);
 			$result = $db->query($sql);
 			if (DB::isError($result)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
