@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live.inc,v 1.18 2004/09/15 04:30:03 gsherwood Exp $
+* $Id: asset_status_live.inc,v 1.19 2004/11/03 23:57:06 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -133,7 +133,19 @@ class Asset_Status_Live extends Asset_Status
 
 				$schemas = $wfm->getSchemas($this->owner->id, true);
 				if (!empty($schemas)) {
-					if (!$wfm->startWorkflow($this->owner->id)) {
+					$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+					$msg = $ms->newMessage();
+					$msg->subject = 'Asset Up For Review';
+	
+					$msg->body = 'User "'.$user->name.'" has placed '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" up for review.'."\n".'You are now required to approve or reject the review of "'.$this->owner->name.'" so the workflow process can continue.';
+					// create a link for navigation to the workflow screen for this asset
+					$msg->body .= "\n\n".'A full report for the Workflow of "'.$this->owner->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>';
+					$asset_url = $this->owner->getURL();
+					if (!empty($asset_url)) {
+						$msg->body .= ' You can also <SQ_MSG_LINK href="'.$asset_url.'">preview this asset.</SQ_MSG_LINK>';
+					}
+				
+					if (!$wfm->startWorkflow($this->owner->id, $msg)) {
 						trigger_error('Workflow failed to start for "'.$this->owner->name.'"', E_USER_WARNING);
 						return false;
 					}
@@ -149,7 +161,7 @@ class Asset_Status_Live extends Asset_Status
 						$log->body .= "\n\n".'<SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Click here for the Workflow Screen for this asset</SQ_MSG_LINK>.';
 						$asset_url = $this->owner->getURL();
 						if (!empty($asset_url)) {
-							$log->body .= "\n".'You can also <SQ_MSG_LINK href="'.$asset_url.'">preview this asset.</SQ_MSG_LINK>';
+							$log->body .= ' You can also <SQ_MSG_LINK href="'.$asset_url.'">preview this asset.</SQ_MSG_LINK>';
 						}
 					}
 					$log->type = 'asset.workflow';

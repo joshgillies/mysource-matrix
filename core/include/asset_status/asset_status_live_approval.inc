@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live_approval.inc,v 1.28 2004/10/07 05:42:13 gsherwood Exp $
+* $Id: asset_status_live_approval.inc,v 1.29 2004/11/03 23:57:06 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -156,8 +156,22 @@ class Asset_Status_Live_Approval extends Asset_Status
 
 			$running_schemas = $wfm->getSchemas($this->owner->id, true, true);
 			if (!empty($running_schemas)) {
-				// someone has rejected the changes, so we need to cancel the workflow
-				if (!$wfm->cancelWorkflow($this->owner->id)) {
+				// someone has rejected the approval, so we need to cancel the workflow
+				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+
+				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$msg = $ms->newMessage();
+				$msg->subject = 'Asset Review Cancelled';
+
+				$msg->body = 'User "'.$user->name.'" has started a safe edit of '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" during a review. The review has been cancelled and the status of "'.$this->owner->name.'" is now '.get_status_description($new_status);
+				// create a link for navigation to the workflow screen for this asset
+				$msg->body .= "\n\n".'A full report for the Workflow of "'.$this->owner->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>.';
+				$asset_url = $this->owner->getURL();
+				if (!empty($asset_url)) {
+					$msg->body .= ' You can also <SQ_MSG_LINK href="'.$asset_url.'">preview this asset.</SQ_MSG_LINK>';
+				}
+
+				if (!$wfm->cancelWorkflow($this->owner->id, $msg)) {
 					trigger_error('Workflow cancel failed', E_USER_WARNING);
 					return false;
 				}
@@ -246,7 +260,7 @@ class Asset_Status_Live_Approval extends Asset_Status
 						$log->body .= "\n\n".'A full report for the Workflow of "'.$this->owner->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>.';
 						$asset_url = $this->owner->getURL();
 						if (!empty($asset_url)) {
-							$log->body .= "\n".'You can also <SQ_MSG_LINK href="'.$asset_url.'">preview this asset.</SQ_MSG_LINK>';
+							$log->body .= ' You can also <SQ_MSG_LINK href="'.$asset_url.'">preview this asset.</SQ_MSG_LINK>';
 						}
 						$log->parameters['assetid'] = $this->owner->id;
 						$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
