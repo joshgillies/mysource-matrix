@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.18 2004/04/01 03:59:20 gsherwood Exp $
+* $Id: general.inc,v 1.19 2004/07/26 06:39:29 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -196,7 +196,7 @@ function ellipsisize($string, $length)
 * The option spacer only works if no int is already present - good for starting a trend
 *
 * @param string	$name	the original name of the file
-* @param string $spacer	the char(s) to put between the end of the name and the numeral
+* @param string $spacer	the char(s) to put between the end of the name and the $numeral
 *
 * @return string
 * @access public
@@ -319,5 +319,49 @@ function security_key_image($word, $w, $h, $bg='FFFFFF', $text='000000', $border
 
 }//end security_key_image()
 
+/**
+* Return the supplied number with ordinal suffix added
+*
+* @param int	$num	the number to add the suffix to
+*
+* @return the supplied number with the appropriate suffix - 'th', 'st', 'rd' or 'nd'
+* @access public
+*/
+function add_ordinal_suffix($num) {
+	if ((10 < ($num % 100)) && (($num % 100) < 20))
+		return $num + 'th';
+	else
+		switch ($num % 10) {
+
+			case 1:
+				return $num . 'st';
+
+			case 2:
+				return $num . 'nd';
+
+			case 3:
+				return $num . 'rd';
+
+			default:
+				return $num . 'th';
+}
+
+/**
+* Return the supplied number with ordinal suffix as it would be used in a backwards count
+* 
+* If the number is 1, an empty string is returned because you don't want to print
+* "the 1st last day of the month" for example.
+*
+* @param int	$num	the number to add the suffix to
+*
+* @return the supplied number with the appropriate suffix - 'th', 'st', 'rd' or 'nd'
+* @access public
+*/
+function add_reverse_ordinal_suffix($num) {
+	if ($num == 1)
+		return '';
+	else 
+		return add_ordinal_suffix($num);
+}
 
 ?>
