@@ -193,6 +193,27 @@ class HIPO_Herder extends Resolve_Object
 
 		} // end if
 
+		$hipo = Array(
+		"            _,..,_ (, )         ",
+		"         .,'      `,./          ",
+		"       .' :`.----.': `,         ",
+		"      :   : ^    ^ :   ;        ",
+		"     :   :  6    6  :   ;       ",
+		"     :   :          :   ;       ",
+		"     :   :    __    :   ;       ",
+		"      :   `:'.--.`:'   ;        ",
+		"       `.  : o  o :  .'         ",
+		"        :   `----'   :          ",
+		"        : .  :'`:  . :          ",
+		"        `.:.'    `.:.'          ",
+		"   Powered by HIPO Technology   ",
+		"    ( packed with ::Fudge:: )   ",
+		);
+
+		$lines_done = floor(count($hipo) * $source_job->percentDone() / 100);
+		$done_hipo = array_slice($hipo, 0, $lines_done);
+		$todo_hipo = ($lines_done < count($hipo)) ? array_slice($hipo, $lines_done) : Array();
+
 		?>
 		<html>
 			<head>
@@ -250,103 +271,90 @@ class HIPO_Herder extends Resolve_Object
 				</script>
 			</head>
 			<body bgcolor="#FFFFFF" onLoad="javascript: init();" class="sq-hipo-normal">
+				<table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%"><tr><td valign="middle" align="center">
 				<form name="<?php echo $form_name; ?>" method="post" action="<?php echo $url; ?>">
-				<table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%">
+				<table border="0" cellspacing="2" cellpadding="0" width="90%" bgcolor="#000000">
 					<tr>
-						<td valign="middle" align="center">
-						<table border="0" cellspacing="2" cellpadding="0" width="90%" bgcolor="#000000">
+						<td align="center" valign="top" bgcolor="#E0E0E0" nowrap>
+						<table>
 							<tr>
-								<td valign="top" bgcolor="#E0E0E0" nowrap>
-								<table>
-									<tr>
-										<td>
-<pre style="color:#412F49; font-size:11px;">
-<b>
-            _,..,_ (, )
-         .,'      `,./
-       .' :`.----.': `,
-      :   : ^    ^ :   ;
-     :   :  6    6  :   ;
-     :   :          :   ;
-     :   :    __    :   ;
-      :   `:'.--.`:'   ;
-       `.  : o  o :  .'
-        :   `----'   :
-        : .  :'`:  . :
-        `.:.'    `.:.'
-   Powered by HIPO Technology
-    ( packed with ::Fudge:: )
-</b>
+								<td>
+<pre style="font-size:11px;">
+<?php
+if (!empty($done_hipo)) { 
+	echo '<span style="color:#000000;">'.implode("\n", $done_hipo)."</span>\n";
+}
+if (!empty($todo_hipo)) { 
+	echo '<span style="color:#C0C0C0;">'.implode("\n", $todo_hipo)."</span>\n";
+}
+?>
 </pre>
-										</td>
-									</tr>
-								</table>
 								</td>
-								<td valign="top" width="100%" bgcolor="#735B7D">
-								<table border="0" cellspacing="2" cellpadding="2" width="100%" height="100%">
-									<tr>
-										<td>
-									<?php
+							</tr>
+						</table>
+						</td>
+						<td valign="top" width="100%" bgcolor="#735B7D">
+						<table border="0" cellspacing="2" cellpadding="2" width="100%" height="100%">
+							<tr>
+								<td>
+							<?php
 
-									// if we aren't waiting for an abort, print the progress stuff
-									if (empty($_POST['aborting_hipo'])) {
+							// if we aren't waiting for an abort, print the progress stuff
+							if (empty($_POST['aborting_hipo'])) {
 
-										// Paint the source job, this will take care of any sub jobs if needed
-										$source_job->paint();
+								// Paint the source job, this will take care of any sub jobs if needed
+								$source_job->paint();
 
-										$buttons_to_print = Array();
-										if (!$source_job->complete()) {
-											// basically what happens here is that if cancel has already been pressed we increment the counter
-											// this means that the cancel button only get's pressed once
-											hidden_field('cancel_hipo', (empty($_POST['cancel_hipo'])) ? 0 : ((int) $_POST['cancel_hipo'] + 1));
-											$buttons_to_print['cancel'] = Array('value' => 'Cancel', 'action' => 'send_abort();');
-										}
+								$buttons_to_print = Array();
+								if (!$source_job->complete()) {
+									// basically what happens here is that if cancel has already been pressed we increment the counter
+									// this means that the cancel button only get's pressed once
+									hidden_field('cancel_hipo', (empty($_POST['cancel_hipo'])) ? 0 : ((int) $_POST['cancel_hipo'] + 1));
+									$buttons_to_print['cancel'] = Array('value' => 'Cancel', 'action' => 'send_abort();');
+								}
 
-										// print the NEXT or FINISH button if we are not auto stepping through the HIPO
-										if (!$auto_step) {
-											// they dont want us to refresh automatically, so we need to provide a manual NEXT button
-											$button_text = ($source_job->complete()) ? 'Finish' : 'Next >>';
-											$buttons_to_print['next'] = Array('value' => $button_text, 'action' => 'next_page();');
-										}
+								// print the NEXT or FINISH button if we are not auto stepping through the HIPO
+								if (!$auto_step) {
+									// they dont want us to refresh automatically, so we need to provide a manual NEXT button
+									$button_text = ($source_job->complete()) ? 'Finish' : 'Next >>';
+									$buttons_to_print['next'] = Array('value' => $button_text, 'action' => 'next_page();');
+								}
 
-										if (count($buttons_to_print)) {
-											?>
-											<p>
-											<table border="0" width="100%" cellspacing="2" cellpadding="1">
-												<tr>
-													<td width="100%">&nbsp;</td>
-												<?php
-												foreach ($buttons_to_print as $btn_code => $btn_data) {
-													?><td valign="top" align="center"><?php
-													normal_button($btn_code, $btn_data['value'], $btn_data['action']);
-													?></td><?php
-												}
-												?>
-												</tr>
-											</table>
-											</p>
-											<?php
-										}// end if
-
-									// we are aborting from the server
-									} else {
-
-										hidden_field('aborting_hipo',     $_POST['aborting_hipo']);
-										hidden_field('aborting_hipo_url', $_POST['aborting_hipo_url']);
-
-										// if the source job is null it means that an abort finally finished
-										// (we couldn't get here otherwise) so print that and get out of here
-										if (is_null($source_job)) {
-											echo 'Abort Complete';
-										} else {
-											echo 'Aborting...';
-										}
-
-									}// end if
+								if (count($buttons_to_print)) {
 									?>
-										</td>
-									</tr>
-								</table>
+									<p>
+									<table border="0" width="100%" cellspacing="2" cellpadding="1">
+										<tr>
+											<td width="100%">&nbsp;</td>
+										<?php
+										foreach ($buttons_to_print as $btn_code => $btn_data) {
+											?><td valign="top" align="center"><?php
+											normal_button($btn_code, $btn_data['value'], $btn_data['action']);
+											?></td><?php
+										}
+										?>
+										</tr>
+									</table>
+									</p>
+									<?php
+								}// end if
+
+							// we are aborting from the server
+							} else {
+
+								hidden_field('aborting_hipo',     $_POST['aborting_hipo']);
+								hidden_field('aborting_hipo_url', $_POST['aborting_hipo_url']);
+
+								// if the source job is null it means that an abort finally finished
+								// (we couldn't get here otherwise) so print that and get out of here
+								if (is_null($source_job)) {
+									echo 'Abort Complete';
+								} else {
+									echo 'Aborting...';
+								}
+
+							}// end if
+							?>
 								</td>
 							</tr>
 						</table>
@@ -354,6 +362,7 @@ class HIPO_Herder extends Resolve_Object
 					</tr>
 				</table>
 				</form>
+				</td></tr></table>
 			</body>
 		</html>
 		<?php
