@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.65 2004/04/08 02:19:53 gsherwood Exp $
+* $Id: design_edit_fns.inc,v 1.66 2004/04/13 02:29:13 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 */
 class Design_Edit_Fns extends Design_Area_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -129,7 +130,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		return $changes;
 
-	}// end processParseFile()
+	}//end processParseFile()
 
 
 	/**
@@ -156,7 +157,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		}
 		return false;
 
-	}// end paintReparseFile()
+	}//end paintReparseFile()
 
 
 	/**
@@ -179,7 +180,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		}
 		return false;
 
-	}// end processReparseFile()
+	}//end processReparseFile()
 
 
 	/**
@@ -211,7 +212,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		}
 		return false;
 
-	}// end paintEditParseFile()
+	}//end paintEditParseFile()
 
 
 	/**
@@ -273,7 +274,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		return false;
 
-	}// end processEditParseFile()
+	}//end processEditParseFile()
 
 
 	/**
@@ -292,7 +293,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$contents = $this->_parseString($str);
 		return (!is_null($contents) && $this->_processContents($asset, $contents) && $asset->saveAttributes());
 
-	}// end parseAndProcessFile()
+	}//end parseAndProcessFile()
 
 
 	/**
@@ -500,7 +501,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			return false;
 		}
 
-	}// end _processContents()
+	}//end _processContents()
 
 
 	/**
@@ -632,7 +633,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		return true;
 
-	}// end createDesignFile()
+	}//end createDesignFile()
 
 
 	/**
@@ -652,7 +653,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			echo "<br>\n";
 		}
 
-	}// end paintParseFile()
+	}//end paintParseFile()
 
 
 	/**
@@ -735,7 +736,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		return $changes;
 
-	}// end processNewFiles()
+	}//end processNewFiles()
 
 
 	/**
@@ -807,7 +808,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		text_box($prefix.'_new_customisation_name', $asset->name.' - Customisation', 40);
 		return true;
 
-	}// end paintNewCustomisation()
+	}//end paintNewCustomisation()
 
 
 	/**
@@ -908,7 +909,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		return true;
 
-	}// end processNewCustomisation()
+	}//end processNewCustomisation()
 
 
 	/**
@@ -936,7 +937,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			?> No Customisations Created <?php
 		}
 
-	}// end paintCurrentCustomisations()
+	}//end paintCurrentCustomisations()
 
 
 }//end class
