@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.157 2003/12/12 03:34:21 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.158 2003/12/16 16:37:21 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -138,16 +138,34 @@ class Asset_Manager extends MySource_Object
 
 		$inserts = array_diff($parents, $db_parents);
 		$deletes = array_diff($db_parents, $parents);
+		$updates = array_intersect($parents, $db_parents);
+
+		$type_code_level = (int) $this->getTypeInfo($type_code, 'level');
 
 		foreach($inserts as $inherited_type_code) {
-			$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'asset_type_inherited (inherited_type_code, type_code)
-					VALUES ('.$db->quote($inherited_type_code).', '.$db->quote($type_code).')';
+			$inherited_type_code_level = ($inherited_type_code == 'asset') ? 0 : (int) $this->getTypeInfo($inherited_type_code, 'level');
+			$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'asset_type_inherited
+					(inherited_type_code, type_code, inherited_type_code_level, type_code_level)
+					VALUES
+					('.$db->quote($inherited_type_code).', '.$db->quote($type_code).',
+					'.$db->quote($inherited_type_code_level).', '.$db->quote($type_code_level).')';
 			$result = $db->query($sql);
 			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 		}
 
 		foreach($deletes as $inherited_type_code) {
 			$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
+					WHERE inherited_type_code = '.$db->quote($inherited_type_code).'
+					  AND type_code = '.$db->quote($type_code);
+			$result = $db->query($sql);
+			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+		}
+
+		foreach($updates as $inherited_type_code) {
+			$inherited_type_code_level = ($inherited_type_code == 'asset') ? 0 : (int) $this->getTypeInfo($inherited_type_code, 'level');
+			$sql = 'UPDATE '.SQ_TABLE_PREFIX.'asset_type_inherited
+					SET inherited_type_code_level = '.$db->quote($inherited_type_code_level).',
+						type_code_level = '.$db->quote($type_code_level).'
 					WHERE inherited_type_code = '.$db->quote($inherited_type_code).'
 					  AND type_code = '.$db->quote($type_code);
 			$result = $db->query($sql);
@@ -188,8 +206,8 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns an array of asset information or a specific piece of information
 	*
-	* @param string	$type_code	the code name for the asset that you want to check
-	* @param string	$field		if exists, returns this information from the array for this specific field
+	* @param Array|string	$type_code	the code name (or array of code names) for the asset that you want to check
+	* @param string			$field		if exists, returns this information from the array for this specific field
 	*
 	* @return mixed
 	* @access public
@@ -251,14 +269,13 @@ class Asset_Manager extends MySource_Object
 					FROM '.SQ_TABLE_PREFIX.'asset_type
 					WHERE type_code '.$type_code_cond;
 			$result = $db->getAll($sql);
-
 			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 			if (is_array($type_code)) {
 				for ($i = 0; $i < count($result); $i++) {
 					$this->_asset_types[$result[$i]['type_code']][$field] = $result[$i][$field];
 				}
 			} else {
-				$this->_asset_types[$type_code][$field] = $result;
+				$this->_asset_types[$type_code][$field] = $result[0][$field];
 			}
 
 		}// end if
@@ -266,9 +283,7 @@ class Asset_Manager extends MySource_Object
 		if (is_array($type_code)) {
 			$type_codes = Array();
 			foreach ($type_code as $code) {
-				($field)
-					? $type_codes[$code] = $this->_asset_types[$code][$field]
-					: $type_codes[$code] = $this->_asset_types[$code];
+				$type_codes[$code] = ($field) ? $this->_asset_types[$code][$field] : $this->_asset_types[$code];
 			}
 			return $type_codes;
 		}
@@ -289,7 +304,7 @@ class Asset_Manager extends MySource_Object
 			// load the weightings
 			$sql = 'SELECT type_code, dw.component, dw.weighting, dw.description
 					FROM '.
-						SQ_TABLE_PREFIX. 'asset_type at JOIN '. SQ_TABLE_PREFIX .'asset_indexing_weightings_default dw 
+						SQ_TABLE_PREFIX. 'asset_type at JOIN '. SQ_TABLE_PREFIX .'asset_indexing_weightings_default dw
 							ON at.type_code = dw.type_code
 					WHERE
 						at.type_code IN (';
@@ -309,7 +324,7 @@ class Asset_Manager extends MySource_Object
 			$default_weightings = Array();
 			foreach ($results as $result) {
 				$default_weightings[$result['type_code']] = Array();
-				$default_weightings[$result['type_code']][$result['component']] = 
+				$default_weightings[$result['type_code']][$result['component']] =
 					Array('default' => 1, 'weighting' => $result['weighting'], 'description' => $result['description']);
 			}
 		} else {
@@ -317,17 +332,17 @@ class Asset_Manager extends MySource_Object
 				// load the weightings for this type code only
 				$sql = 'SELECT dw.component, dw.weighting, dw.description
 						FROM '.
-							SQ_TABLE_PREFIX. 'asset_type at JOIN '. SQ_TABLE_PREFIX .'asset_indexing_weightings_default dw 
+							SQ_TABLE_PREFIX. 'asset_type at JOIN '. SQ_TABLE_PREFIX .'asset_indexing_weightings_default dw
 								ON at.type_code = dw.type_code
 						WHERE
 							at.type_code = '. $db->quote($type_code);
 
 				$results = $db->getAll($sql);
 				foreach ($results as $result) {
-					$default_weightings[$result['component']] = 
+					$default_weightings[$result['component']] =
 						Array('default' => 1, 'weighting' => $result['weighting'], 'description' => $result['description']);
 				}
-				
+
 			}
 		}
 
@@ -471,6 +486,7 @@ class Asset_Manager extends MySource_Object
 
 	/**
 	* Returns an array of all assets types that are parents for the passed asset
+	* in the order Array ('parent', 'grand-parent', 'great-grand-parent', ..., 'asset')
 	*
 	* @param string		$type_code		the code name for the asset that you want to check
 	* @param boolean	$include_asset	when true adds the "Asset" type to the parent list,
@@ -489,7 +505,8 @@ class Asset_Manager extends MySource_Object
 								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 								WHERE type_code = '.$db->quote($type_code).'
 								  AND inherited_type_code <> '.$db->quote($type_code).'
-								'.(($include_asset) ? '' : ' AND inherited_type_code <> '.$db->quote('asset'))
+								'.(($include_asset) ? '' : ' AND inherited_type_code <> '.$db->quote('asset')).'
+								ORDER BY inherited_type_code_level DESC'
 								);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
@@ -502,6 +519,7 @@ class Asset_Manager extends MySource_Object
 
 	/**
 	* Returns an array of all assets types that are descendants for the passed asset
+	* in the order Array ('type_code_sub_class_one', 'type_code_sub_class_two', ..., 'type_code_sub_class_one_sub_class_one', ...)
 	*
 	* @param string		$type_code		the code name for the asset that you want to check
 	*
@@ -517,7 +535,8 @@ class Asset_Manager extends MySource_Object
 		$result = $db->getCol('SELECT type_code
 								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 								WHERE inherited_type_code = '.$db->quote($type_code).'
-								  AND type_code <> '.$db->quote($type_code)
+								  AND type_code <> '.$db->quote($type_code).'
+								ORDER BY type_code_level ASC'
 								);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
@@ -549,7 +568,7 @@ class Asset_Manager extends MySource_Object
 	* Retrieves the attributes (with null values) for the asset type
 	*
 	* @param string $type_code		the type of asset
-	* @return array		an array of Asset_Attribute's 
+	* @return array		an array of Asset_Attribute's
 	*
 	* @access public
 	*/
@@ -557,7 +576,7 @@ class Asset_Manager extends MySource_Object
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		require_once SQ_INCLUDE_PATH."/asset_attribute.inc";
-		
+
 		$sql = "SELECT attributeid FROM ". SQ_TABLE_PREFIX . "asset_attribute
 				WHERE type_code = '".addslashes($type_code)."'";
 
@@ -834,14 +853,14 @@ class Asset_Manager extends MySource_Object
 	* Acquires a lock on an asset
 	*
 	* @param int		$assetid		the assetid of the asset that we want to lock
-	* @param string		$lock_type		any valid lock type for the passed asset's type, 
+	* @param string		$lock_type		any valid lock type for the passed asset's type,
 	*									plus 'all' which will attempt to acquire all locks that this asset has
 	* @param int		$source_assetid	the id of the asset that started this locking process
 	* @param boolean	$force			attempt to forcibly acquire (if allowed)
 	* @param int|NULL	$expires		when the lock expires (timestamp or NULL)
 	*									If expires is set to NULL, the lock will be acquired indefinitely (ie. it will never expire).
 	*
-	* @return int		zero on failue, non-zero on success (1 on success and all lock types reqeusted had to be acquired, 
+	* @return int		zero on failue, non-zero on success (1 on success and all lock types reqeusted had to be acquired,
 	*					2 on any lock was updated [ie at least one lock type was already held])
 	* @access public
 	*/
@@ -927,7 +946,7 @@ class Asset_Manager extends MySource_Object
 
 			$lockid = 'asset.'.$assetid.'.'.$lock_type;
 			$source_lockid = ($source_assetid) ? 'asset.'.$source_assetid.'.'.$lock_type : '';
-			if (true !== ($err_msg = $GLOBALS['SQ_SYSTEM']->acquireLock($lockid, $source_lockid, $expires))) { 
+			if (true !== ($err_msg = $GLOBALS['SQ_SYSTEM']->acquireLock($lockid, $source_lockid, $expires))) {
 				trigger_error('Cannot acquire "'.$lock_type.'" lock on "'.$asset->name.'", '.$err_msg, E_USER_NOTICE);
 				$success = false;
 				break;
@@ -974,7 +993,7 @@ class Asset_Manager extends MySource_Object
 				continue;
 			}
 
-			if (true !== ($err_msg = $GLOBALS['SQ_SYSTEM']->releaseLock('asset.'.$assetid.'.'.$lock_type))) { 
+			if (true !== ($err_msg = $GLOBALS['SQ_SYSTEM']->releaseLock('asset.'.$assetid.'.'.$lock_type))) {
 				trigger_error('Cannot release "'.$lock_type.'" lock on "'.$asset->name.'", '.$err_msg, E_USER_NOTICE);
 				$success = false;
 				continue;
@@ -1012,7 +1031,7 @@ class Asset_Manager extends MySource_Object
 
 		foreach($current_locks as $lock_type => $lock) {
 
-			if (true !== ($err_msg = $GLOBALS['SQ_SYSTEM']->updateLock('asset.'.$assetid.'.'.$lock_type, $expires))) { 
+			if (true !== ($err_msg = $GLOBALS['SQ_SYSTEM']->updateLock('asset.'.$assetid.'.'.$lock_type, $expires))) {
 				trigger_error('Cannot update lock on "'.$asset->name.'", '.$err_msg, E_USER_NOTICE);
 				$success = false;
 				break;
@@ -1643,7 +1662,7 @@ class Asset_Manager extends MySource_Object
 		if (!is_array($majorids)) $majorids = Array($majorids);
 		$this->_getAssetTree($majorids, $tree_data, $levels, $exclude_list, $link_type);
 		return $tree_data;
-	
+
 	}// end getAssetTree()
 
 
@@ -1676,7 +1695,7 @@ class Asset_Manager extends MySource_Object
 				}
 			}
 		}
-		
+
 		if (empty($majorids_str)) return $assetids;
 		static $USERIDS_COND = null;
 
@@ -1737,7 +1756,7 @@ class Asset_Manager extends MySource_Object
 			if (!($row['status'] & (SQ_STATUS_LIVE | SQ_STATUS_LIVE_APPROVAL))) {
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($row['assetid']);
 				$read_access = $asset->readAccess();
-				
+
 				$row['name'] = $asset->name;
 				$row['short_name'] = $asset->short_name;
 
@@ -1762,7 +1781,7 @@ class Asset_Manager extends MySource_Object
 			$this->_getAssetTree($assetids, $tree_data, $levels, $exclude_list, $link_type);
 		}
 		return true;
-	
+
 	}// end _getAssetTree
 
 
@@ -3537,7 +3556,7 @@ class Asset_Manager extends MySource_Object
 
 			$where = 'l.assetid '.$assetid_cond;
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-			$sql = 'SELECT l.assetid, l.url, 
+			$sql = 'SELECT l.assetid, l.url,
 				CASE WHEN l.'.$protocol.' = '.$db->quote(1).' THEN '.$db->quote($protocol).' ELSE '.$db->quote(($protocol == 'https') ? 'http' : 'https').' END as protocol,
 			(
 				(CASE WHEN l.'.$protocol.' = '.$db->quote(1).' THEN 1 ELSE 0 END)';
