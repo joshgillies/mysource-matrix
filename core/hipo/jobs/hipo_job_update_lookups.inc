@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_job_update_lookups.inc,v 1.11 2003/10/10 06:49:24 brobertson Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.12 2003/10/15 23:42:27 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -99,11 +99,36 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 		}
 
 		$todo_assetids = $this->_running_vars['assetids'];
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		
 		foreach($this->_running_vars['assetids'] as $assetid) {
-			$todo_assets[] = $assetid;
-			$todo_assets = array_merge($todo_assets, $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid));
-		}
+			
+			$where = 'l.minorid = '.$db->quote($assetid);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+			$sql = 'SELECT t.treeid
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid
+					'.$where.' LIMIT 1';
 
+			$treeid = $db->getOne($sql);
+			if (DB::isError($treeid)) {
+				trigger_error($treeid->getMessage().'<br/>'.$treeid->getUserInfo(), E_USER_ERROR);
+			}
+
+			$sql = 'SELECT l.minorid, MAX(CHAR_LENGTH(t.treeid)) as length
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t
+					         INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid
+					';
+			$where = 't.treeid LIKE '.$db->quote($treeid.'%').'
+					  GROUP BY l.minorid ORDER BY length';
+
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+			
+			$todo_assets = $db->getCol($sql.$where);
+		
+		} // end foreach
+		
 		$this->_running_vars['todo_assetids'] = array_unique($todo_assets);
 		$this->_running_vars['done_assetids'] = Array();
 
