@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.18 2004/12/06 14:41:39 brobertson Exp $
+* $Id: form_submission.inc,v 1.19 2004/12/13 03:52:03 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -58,8 +58,6 @@ class Form_Submission extends Asset
 		if (!($linkid = parent::create($link))) {
 			return 0;
 		}
-
-		$this->saveAttributes();
 
 		return $linkid;
 
@@ -245,7 +243,6 @@ class Form_Submission extends Asset
 		if (!$this->setAttrValue('attributes', $a)) {
 			return false;
 		}
-		$this->saveAttributes();
 
 		return true;
 
@@ -287,7 +284,6 @@ class Form_Submission extends Asset
 		if (!$this->setAttrValue('attributes', $a)) {
 			return false;
 		}
-		$this->saveAttributes();
 
 		return true;
 
@@ -325,9 +321,9 @@ class Form_Submission extends Asset
 	*/
 	function saveAttributes($dont_run_updated=false)
 	{
-		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) return false;
+		$GLOBALS['SQ_INSTALL'] = true;
 		$val = parent::saveAttributes($dont_run_updated);
-		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
+		$GLOBALS['SQ_INSTALL'] = false;
 
 		return $val;
 
