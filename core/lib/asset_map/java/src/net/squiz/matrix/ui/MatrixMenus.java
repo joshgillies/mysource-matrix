@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixMenus.java,v 1.1 2005/02/18 05:26:24 mmcintyre Exp $
+* $Id: MatrixMenus.java,v 1.2 2005/02/21 04:27:31 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -145,7 +145,7 @@ public class MatrixMenus implements MatrixConstants {
 				String command = evt.getActionCommand();
 		
 				String assetPath = MatrixToolkit.rawUrlEncode(node.getAssetPath(), true);
-				String linkPath = MatrixToolkit.rawUrlEncode(node.getLinkPath(), true);
+				String linkPath  = MatrixToolkit.rawUrlEncode(node.getLinkPath(), true);
 
 				String screenUrl = getScreenUrl(
 					asset.getId(),
@@ -180,8 +180,15 @@ public class MatrixMenus implements MatrixConstants {
 			return url;
 	}
 	
-	/////// USE ME MENU //////
+	// }}}
+	// {{{ Use Me Menu
 	
+	/**
+	 * Returns the use me menu for and adds an action listener to fire for 
+	 * specified node if the menu is selected.
+	 * @param node the node to fire the event for if the menu is selected.
+	 * @return the use me menu
+	 */
 	public static JPopupMenu getUseMeMenu(final MatrixTreeNode node) {
 		JPopupMenu menu = new JPopupMenu();
 		
@@ -207,16 +214,29 @@ public class MatrixMenus implements MatrixConstants {
 		return menu;
 	}
 	
-	
-	
-	////// ADD MENU //////
+	// }}}
+	// {{{ Add Menu
 
+	/**
+	 * Returns the popup add menu use to add assets to the matrix system. Use this
+	 * method in favour of explicitly obtaining the popup menu by using 
+	 * <code>addMenu.getPopupMenu()</code> as this method handles loading of images
+	 * for the add menu.
+	 * @param listener the action listener used to trigger events to
+	 * @return the popup add menu
+	 * @see getAddMenu(ActionListener)
+	 */
 	public static JPopupMenu getPopupAddMenu(ActionListener listener) {
-		return getAddMenu(listener).getPopupMenu();
+		JPopupMenu popupAddMenu = getAddMenu(listener).getPopupMenu();
+		popupAddMenu.addPopupMenuListener(loader);
+		return popupAddMenu;
 	}
 	
 	/**
+	* Returns the add menu to add assets to the matrix system.
+	* @param listener the action listener used to trigger events to
 	 * @return the addmenu
+	 * @see getPopupAddMenu(ActionListener)
 	 */
 	public static JMenu getAddMenu(ActionListener listener) {
 		
@@ -356,7 +376,7 @@ public class MatrixMenus implements MatrixConstants {
 		newItem.getAccessibleContext().setAccessibleName(type.getTypeCode());
 		// add single com menu items down the bottom
 		int index = getMenuIndex(type.getName(),
-			parentMenu, 
+			parentMenu,
 			newItem.getClass()
 		);
 		addNewItem(parentMenu, newItem, index, listener);
@@ -368,14 +388,23 @@ public class MatrixMenus implements MatrixConstants {
 	 * @param item the item to add to the parent
 	 * @param index the index where the item should be added
 	 */
-	private static void addNewItem(MenuElement parent, JMenuItem item, int index, ActionListener listener) {
-		if (parent instanceof JPopupMenu)
-			((JPopupMenu) parent).add(item, index);
-		else 
-			((JMenu) parent).add(item, index);
-		item.addActionListener(listener);
+	private static void addNewItem(
+		MenuElement parent,
+		JMenuItem item,
+		int index,
+		ActionListener listener) {
+			if (parent instanceof JPopupMenu)
+				((JPopupMenu) parent).add(item, index);
+			else 
+				((JMenu) parent).add(item, index);
+			item.addActionListener(listener);
 	}
 	
+	/**
+	 * Returns the type code from that was fired from the add menu for
+	 * the specified Event evt.
+	 * @return the type code fired from the add menu
+	 */
 	public static String getTypeCodeFromEvent(ActionEvent evt) {
 		JMenuItem item = (JMenuItem) evt.getSource();
 		return item.getAccessibleContext().getAccessibleName();
@@ -386,7 +415,7 @@ public class MatrixMenus implements MatrixConstants {
 	 * that the individual menu items represent.
 	 * @author Marc McIntyre <mmcintyre@squiz.net>
 	 */
-	static class ImageLoader implements MenuListener {
+	static class ImageLoader implements MenuListener, PopupMenuListener {
 	
 		/**
 		 * loads the images for the specfied parent menu element
@@ -403,33 +432,48 @@ public class MatrixMenus implements MatrixConstants {
 					// because the way that popups work, there may be some menus
 					// whose only child is a popupmenu, in that case, we want
 					// the children of the popup menu to be processed
-					if (elements[i] instanceof JPopupMenu)
+					if (elements[i] instanceof JPopupMenu) {
 						loadImages(elements[i]);
-					else {
+					} else {
 						final JMenuItem nextItem = (JMenuItem) elements[i];
-						Runnable runner = new Runnable() {
-							public void run() {
+						//TODO: (MM) get a loading icon and disply it first
+						// while the other icon loads. check that it isn't already
+						// loaded first before using a SwingWorker
+				//		SwingWorker worker = new SwingWorker() {
+				//			public Object construct() {
 								Icon icon = type.getIcon();
 								nextItem.setIcon(icon);
-							}
-						};
-						SwingUtilities.invokeLater(runner);
+				//				return null;
+				//			}
+				//		};
+				//		worker.start();
 					}
-				}
+				}//end if
 			}//end for
 		}
 		
 		/**
 		 * Loads the images for the source of the menu when it is selected
-		 * @param evt the mouse event
+		 * @param evt the menu event
 		 */
 		public void menuSelected(MenuEvent evt) {
 			JMenu menu = (JMenu) evt.getSource();
 			loadImages(menu);
 		}
 		
+		/**
+		 * Loads the images for the source of the menu when it is selected
+		 * @param evt the menu event
+		 */
+		public void popupMenuWillBecomeVisible(PopupMenuEvent evt) {
+			JPopupMenu menu = (JPopupMenu) evt.getSource();
+			loadImages(menu);
+		}
+		
 		public void menuCanceled(MenuEvent evt) {}
 		public void menuDeselected(MenuEvent evt) {}
-
+		public void popupMenuCanceled(PopupMenuEvent evt) {}
+		public void popupMenuWillBecomeInvisible(PopupMenuEvent evt) {}
+		
 	}//end class ImageLoader
 }
