@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: step_02.php,v 1.40 2003/09/29 00:49:24 brobertson Exp $
+* $Id: step_02.php,v 1.41 2003/10/16 05:19:40 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -55,6 +55,22 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 // check if we have already created the database by looking for the
 // table column cache file
 if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
+
+	// If this is MySQL we need to make sure that the table type is innodb
+	if ($db->phptype == 'mysql') {
+
+		$sql = 'SET table_type=innodb';
+
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+		}
+
+		pre_echo("MYSQL TABLE TYPE SET");
+
+	}// end if
+
 
 	// Create database tables
 	$input = new XML_Tree(SQ_SYSTEM_ROOT.'/core/db/tables.xml');
@@ -299,6 +315,11 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 		pre_echo("PGSQL SECONDARY USER PERMISSIONS FIXED");
 
 	}// end if
+
+	require_once SQ_FUDGE_PATH.'/file_versioning/file_versioning.inc';
+	if (!File_Versioning::initRepository(SQ_DATA_PATH.'/file_repository', $db)) {
+		trigger_error('Unable to initialise File Versioning Repository', E_USER_ERROR);
+	}
 
 }//end if table column cache file does not exist
 

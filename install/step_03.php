@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: step_03.php,v 1.15 2003/10/15 11:07:32 brobertson Exp $
+* $Id: step_03.php,v 1.16 2003/10/16 05:19:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -77,11 +77,6 @@ pre_echo("CORE PACKAGE DONE");
 $root_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset(1, 'root_folder', true);
 // if there is no root folder assume that this section hasn't been run
 if (is_null($root_folder)) {
-
-	require_once SQ_FUDGE_PATH.'/file_versioning/file_versioning.inc';
-	if (!File_Versioning::initRepository(SQ_DATA_PATH.'/file_repository', $GLOBALS['SQ_SYSTEM']->db)) {
-		trigger_error('Unable to initialise File Versioning Repository', E_USER_ERROR);
-	}
 
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('root_folder');
 	$root_folder = new Root_Folder();
