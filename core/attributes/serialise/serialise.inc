@@ -42,7 +42,7 @@ class Asset_Attribute_Serialise extends Asset_Attribute
 		// cant serilise scalar variables
 		if (is_scalar($value)) {
 			// see if it is already serilised
-			$unser = unserialize(trim((string) $value));
+			$unser = @unserialize(trim((string) $value));
 			if (is_scalar($unser)) return false;
 			else $value = $unser;
 		}
