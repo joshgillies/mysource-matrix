@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.37 2004/09/15 04:36:18 lwright Exp $
+* $Id: calendar_event_recurring.inc,v 1.38 2004/09/16 04:44:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.37 $ - 1.0
+* @version $Revision: 1.38 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -69,11 +69,14 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 
 	/**
-	* Determines the next occurrence of an event after a certain time.
+	* Determines the next occurrence of an event on or after a certain time
 	*
 	* This function can be called on an object (with just the first parameter) or
 	* statically (with all the parameters). If only $after is specified the object's
 	* attributes are used.
+	* If $after falls ON the date of one of the event's instances, that instance will be
+	* returned. If $after falls after the first day of an instance, the next instance will be
+	* returned.
 	*
 	* @param string	$after		the earliest date (YYYY-MM-DD) we are interested in
 	* @param string	$start		The date (YYYY-MM-DD) on which the event's first instance started 
@@ -101,6 +104,8 @@ class Calendar_Event_Recurring extends Calendar_Event
 			if (!$interval)	$interval = 1;
 			$start = substr($this->attr('start_date'),0,10);
 			$stop = $this->attr('stop_date');
+			// null stop date attribute?
+			if ($stop == '---------- --:--:--') $stop = null;
 		}
 
 		$seconds_per_day = 60 * 60 * 24;
@@ -219,18 +224,20 @@ class Calendar_Event_Recurring extends Calendar_Event
 				while (date('w', iso8601_ts($result)) != $target_day_of_week) {					
 					//if ($res_month - $start_month > 2) die;
 					$res_day -= (7 + date('w', iso8601_ts($result)) - $target_day_of_week)  % 7;
-					if (($res_day <= $min_day) || ($result < $after)) {
+									
+					if (($res_day < $min_day) || ($result < $after)) {						
 						// can't get the nth-last xday in this month, either because
 						// it's already passed or because it doesn't exist, so goto next month
 						increment_month($res_month, $res_year, $interval);
 						$res_day = days_in_month($res_month, $res_year) - ($target_weeks_from_end * 7);
 						$min_day = 1;
+						
 					}
 					$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,$res_day);
 				}
 			break;
 		}
-				
+		
 		if (!empty($stop) && ($result > $stop)) {
 			return false;
 		} else {
@@ -391,6 +398,21 @@ class Calendar_Event_Recurring extends Calendar_Event
 	}//end hasOccurrenceOnDate()
 
 
+	/**
+	* Returns the start and end dates/times of the instance containing a specified ISO date
+	*
+	* If the $date falls within the range of a certain event, it will return that date
+	* range. If $date does NOT fall within a recurrence it will return the dates of the NEXT
+	* instance that starts after $date.
+	*
+	* Return value is Array('start' => start date/time of instance,
+	*						'end' => end date/time of instance) 
+	*
+	* @param string	$date	The date to find an instance with
+	*
+	* @return array
+	* @access public
+	*/
 	function getInstanceDates($date) 
 	{
 		$res = Array();
@@ -420,9 +442,9 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 		return $res;
 
-	}//end getOccurrenceDates()
+	}//end getInstanceDates()
 	
-
+	
 	/**
 	* Returns this event's frequency in an easy-to-understand format
 	*
@@ -805,7 +827,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		}
 		return $res;
 
-	}//end processEventAction();
+	}//end processEventAction()
 
 	
 
