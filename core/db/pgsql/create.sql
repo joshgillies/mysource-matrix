@@ -55,16 +55,17 @@ CREATE TABLE sq_asset_type (
 
 DROP TABLE sq_asset_attribute;
 CREATE TABLE sq_asset_attribute (
-  attributeid       INT NOT NULL,
-  type_code         VARCHAR(100) NOT NULL DEFAULT '',
-  owning_type_code  VARCHAR(100) NOT NULL DEFAULT '',
-  name              VARCHAR(128), 
-  type              VARCHAR(128),           /* There are different types of attributes.. classname */
-  parameters        TEXT,                   /* Definition of the attribute */
-  default_type_code VARCHAR(100) NOT NULL DEFAULT '',
-  default_value     TEXT NOT NULL DEFAULT '',
-  order_no          INT  NOT NULL DEFAULT 0, /* Order this atribute appears in relation to others in its context */
-  description       TEXT NOT NULL DEFAULT '',
+  attributeid            INT NOT NULL,
+  type_code              VARCHAR(100) NOT NULL DEFAULT '',
+  owning_type_code       VARCHAR(100) NOT NULL DEFAULT '',
+  name                   VARCHAR(128), 
+  type                   VARCHAR(128),           /* There are different types of attributes.. classname */
+  parameters_type_code   VARCHAR(100) NOT NULL DEFAULT '',
+  parameters_value       LONGTEXT,
+  default_type_code      VARCHAR(100) NOT NULL DEFAULT '',
+  default_value          TEXT NOT NULL DEFAULT '',
+  order_no               INT  NOT NULL DEFAULT 0, /* Order this atribute appears in relation to others in its context */
+  description            TEXT NOT NULL DEFAULT '',
   PRIMARY KEY(attributeid),
   UNIQUE(type_code,name)
 );
