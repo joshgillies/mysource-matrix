@@ -204,11 +204,11 @@ mcMenuItemClass.prototype._drawBackground = function(width, height, alpha)
 	with (this._bg) {
 		clear();
 		beginFill (this._rollOverColour, alpha);
-		moveTo (1, 1);
-		lineTo (width, 1);
-		lineTo (width, height + 1);
-		lineTo (1, height + 1);
-		lineTo (1, 1);
+		moveTo (1, 0);
+		lineTo (width, 0);
+		lineTo (width, height);
+		lineTo (1, height);
+		lineTo (1, 0);
 		endFill();
 	}
 }

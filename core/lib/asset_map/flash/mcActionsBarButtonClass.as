@@ -28,8 +28,8 @@ function mcActionsBarButtonClass()
 // Make it inherit from MovieClip
 mcActionsBarButtonClass.prototype = new MovieClip();
 mcActionsBarButtonClass.prototype.colours = {
-												normal:   { fg: 0xFFFFFF, bg: 0x606060 },
-												rollover: { fg: 0x000000, bg: 0xC0C0C0 }
+												normal:   { fg: 0x000000, bg: 0x606060, alpha: 0 },
+												rollover: { fg: 0xFFFFFF, bg: 0x50607F, alpha: 80 }
 											 };
 
 /**
@@ -84,7 +84,7 @@ mcActionsBarButtonClass.prototype._setStyle = function(style)
 	this.label_text.setTextFormat(this.text_format);
 
 	this.clear();
-	this.beginFill(this.colours[style].bg, 100);
+	this.beginFill(this.colours[style].bg, this.colours[style].alpha);
 	// This is commented out because when we try and explicitly set it, 
 	// an extra 2 pixels gets added to the width of the MC for no f!@#$ing reason
 //	this.lineStyle();

@@ -120,8 +120,8 @@ _root.attachMovie ("mcHeaderID", "header", 1);
 // Now attach the Tabs
 _root.attachMovie("mcTabsID", "tabs", 2);
 _root.tabs.addTab("mcTabContentAreaTreeID", "tree",  "Tree", "mc_tree_tab_icon");
-_root.tabs.addTab("mcTabContentAreaMailBoxID", "mail",  "Mail Messages", "mc_messages_tab_icon");
-_root.tabs.addTab("mcTabContentAreaLogMsgsID", "log",  "Log Messages", "mc_log_tab_icon");
+_root.tabs.addTab("mcTabContentAreaMailBoxID", "mail",  "Mail", "mc_messages_tab_icon");
+_root.tabs.addTab("mcTabContentAreaLogMsgsID", "log",  "Log", "mc_log_tab_icon");
 
 // Initialise stage resize listener
 _root.stage_resize = new StageResize();

@@ -11,10 +11,12 @@
 // Create the Class
 function mcActionsBarClass()
 {
-	this._visible = false;
-	this._x = 0;
-	this.bg_colour     = 0x606060;
-	this.border_gap    = 2;
+	this._visible		= false;
+	this._bgColour		= 0xEFEFEF;
+	this._bgAlpha		= 80;
+	this.border_gap		= 2;
+
+	this.createEmptyMovieClip ('_bg', 1);
 
 	this.current_assetid = 0;
 	this.buttons = new Array();
@@ -50,8 +52,8 @@ mcActionsBarClass.prototype.show = function(actions, labels, x, y)
 
 			var btn_name = "btn_" + actions[i];
 			this.buttons.push(btn_name);
-			this.attachMovie("mcActionsBarButtonID", btn_name, this.buttons.length);
-			this[btn_name].setInfo(actions[i], labels[i]);
+			this.attachMovie("mcActionsBarButtonID", btn_name, this.buttons.length + 1);
+			this[btn_name].setInfo(actions[i], "- " + labels[i]);
 
 			max_width = Math.max(max_width, Math.ceil(this[btn_name].textWidth()));
 
@@ -80,6 +82,7 @@ mcActionsBarClass.prototype.show = function(actions, labels, x, y)
 	this.setSize(max_width + (this.border_gap * 2), ypos + this.border_gap);
 	this._visible = true;
 
+
 }// end show()
 
 /**
@@ -101,16 +104,7 @@ mcActionsBarClass.prototype.hide = function()
 */
 mcActionsBarClass.prototype.setSize = function(w, h)
 {
-	this.clear();
-	this.beginFill(this.bg_colour, 100);
-	this.lineStyle();
-	this.moveTo(0, 0);
-	this.lineTo(w, 0);
-	this.lineTo(w, h);
-	this.lineTo(0, h);
-	this.lineTo(0, 0);
-	this.endFill();
-
+	this._refreshBackground(w, h);
 }// end setSize()
 
 /**
@@ -209,3 +203,58 @@ mcActionsBarClass.prototype.onReleaseOutside = function()
 
 
 Object.registerClass("mcActionsBarID", mcActionsBarClass);
+
+mcActionsBarClass.prototype._refreshBackground = function(width, height)
+{
+	this._bg.clear();
+
+	this._drawShadow (width, height);
+	this._drawBackground (width, height);
+	this._drawBorder (width, height);
+}
+
+mcActionsBarClass.prototype._drawBackground = function(width, height)
+{
+	with (this._bg) {
+		beginFill (this._bgColour, this._bgAlpha);
+		moveTo (0, 0);
+		lineTo (width, 0);
+		lineTo (width, height);
+		lineTo (0, height);
+		lineTo (0, 0);
+		endFill();
+	}
+}
+
+mcActionsBarClass.prototype._drawShadow = function(width, height)
+{
+	if (this.isRoot())
+		return;
+	
+	var dist = 4;
+
+	with (this._bg) {
+		beginFill (0x000000, 20);
+		moveTo (dist, dist);
+		lineTo (width + dist, dist);
+		lineTo (width + dist, height + dist);
+		lineTo (dist, height + dist);
+		lineTo (dist, dist);
+		endFill();
+	}
+}
+
+mcActionsBarClass.prototype._drawBorder = function(width, height)
+{
+	if (this.isRoot())
+		return;
+	
+	with (this._bg) {
+		lineStyle (0);
+		moveTo (0, 0);
+		lineTo (width, 0);
+		lineTo (width, height);
+		lineTo (0, height);
+		lineTo (0, 0);
+	}		
+}
