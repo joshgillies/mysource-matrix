@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.75 2004/09/13 05:43:33 lwright Exp $
+* $Id: page_calendar.inc,v 1.76 2004/09/14 00:08:00 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.75 $ - 1.0
+* @version $Revision: 1.76 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1853,7 +1853,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		return
-		'SELECT a.assetid, a.type_code, a.name, ('.$this->_treeCaseQuery('t.treeid',$trees).') as root_node, cd.* FROM ('.SQ_TABLE_RUNNING_PREFIX.'asset a join ('.SQ_TABLE_RUNNING_PREFIX.'asset_link l join '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid) join '.SQ_TABLE_RUNNING_PREFIX.'calendar_date_value cd on a.assetid = cd.assetid WHERE a.type_code IN ( '.$db->quote('calendar_event_single').', '.$db->quote('calendar_event_modification').', '.$db->quote('calendar_event_cancellation').')';
+		'SELECT a.assetid, a.type_code, a.name, t.treeid,  ('.$this->_treeCaseQuery('t.treeid',$trees).') as root_node, cd.* FROM ('.SQ_TABLE_RUNNING_PREFIX.'asset a join ('.SQ_TABLE_RUNNING_PREFIX.'asset_link l join '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid) join '.SQ_TABLE_RUNNING_PREFIX.'calendar_date_value cd on a.assetid = cd.assetid WHERE a.type_code IN ( '.$db->quote('calendar_event_single').', '.$db->quote('calendar_event_modification').', '.$db->quote('calendar_event_cancellation').')';
 
 	}//end _buildSingleEventQuery()
 
@@ -1891,7 +1891,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql =
-		'SELECT a.assetid, a.type_code, a.name, ('.$this->_treeCaseQuery('t.treeid',$trees).") as root_node, cd.* \nFROM (".SQ_TABLE_RUNNING_PREFIX.'asset a join ('.SQ_TABLE_RUNNING_PREFIX.'asset_link l join '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid) join '.SQ_TABLE_RUNNING_PREFIX."calendar_date_value cd on a.assetid = cd.assetid \nWHERE (a.type_code = ".$db->quote('calendar_event_recurring').") \nAND ";
+		'SELECT a.assetid, a.type_code, a.name, t.treeid ('.$this->_treeCaseQuery('t.treeid',$trees).") as root_node, cd.* \nFROM (".SQ_TABLE_RUNNING_PREFIX.'asset a join ('.SQ_TABLE_RUNNING_PREFIX.'asset_link l join '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid) join '.SQ_TABLE_RUNNING_PREFIX."calendar_date_value cd on a.assetid = cd.assetid \nWHERE (a.type_code = ".$db->quote('calendar_event_recurring').") \nAND ";
 
 		$sql_freqs = Array();
 
@@ -2193,13 +2193,16 @@ class Page_Calendar extends Page_Asset_Listing
 
 		// this query to get the treeids of the root nodes to plug into the main query/ies
 		$sql = 'case';
-
+		
+		// order the tree array in decreasing order of tree length - ie. most specific first
+		uasort($trees, create_function('$a,$b','return strlen($b) - strlen($a);'));		
+		
 		foreach($trees as $root_node => $treeid) {
 			$sql .= ' when '.$comparison.' LIKE '.$db->quote($treeid.'%').' THEN '.$db->quote($root_node);
 		}
 		$sql .= ' ELSE 0';
 		$sql .= ' END';
-
+		
 		return $sql;
 
 	}//end _treeCaseQuery()
@@ -2212,7 +2215,14 @@ class Page_Calendar extends Page_Asset_Listing
 	* 'assetid:instance' where instance is a 0-based index of how many times an instance
 	* the event has occurred previously.
 	*
+	* @param array	&$events		The non-expanded events list
+	* @param string	$cal_date		The first day to expand recurring events for (specified
+	*								in ISO8601 date-only format, ie. YYYY-MM-DD)
+	* @param string $last_day		The last day to expand recurring events for (specified in
+	*								ISO8601 date-only format)
 	*
+	* @return array	the expanded event list	
+	* @access private
 	*/
 	function &_expandEventList(&$events, $cal_date, $last_day) {
 		$res = Array();
@@ -2349,7 +2359,7 @@ class Page_Calendar extends Page_Asset_Listing
 	* @param string	$cal_date		The first day to expand recurring events for (specified
 	*								in ISO8601 date-only format, ie. YYYY-MM-DD)
 	* @param string $last_day		The last day to expand recurring events for (specified in
-	*								ISOO8601 date-only format)
+	*								ISO8601 date-only format)
 	*
 	* @return boolean	always true
 	* @access private
