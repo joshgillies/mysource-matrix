@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_management.inc,v 1.4 2004/10/25 06:49:54 lwright Exp $
+* $Id: bodycopy_container_management.inc,v 1.5 2005/01/15 16:32:07 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,16 +46,22 @@ class Bodycopy_Container_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array('name' => Array(
-												'added'     => '0.0.1',
-												'type'      => 'text',  'default'   => '',
-												'update_fn' => ''
-												),
-							'attributes' => Array(
-												'added'     => '0.0.1',
-												'type'      => 'serialise',  'default'   => Array(),
-												'update_fn' => ''
-												)
+		$this->vars = Array('name'			=> Array(
+												'added'		=> '0.0.1',
+												'type'		=> 'text',
+												'default'	=> '',
+											),
+							'attributes'	=> Array(
+												'added'		=> '0.0.1',
+												'type'		=> 'serialise',
+												'default'	=> Array(),
+											),
+							'shadow_links'	=> Array(
+												'added'			=> '0.3',
+												'type'			=> 'serialise',
+												'default'		=> Array(),
+												'description'	=> 'Array holding the assetids belonging to shadow assets that are used within the content. Needed because they cannot be notice linked like normal assets can.',
+											),
 							);
 	}//end constructor
 

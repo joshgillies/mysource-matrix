@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.23 2004/12/09 02:56:14 gsherwood Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.24 2005/01/15 16:32:07 brobertson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -220,9 +220,24 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 		if (!$this->createContentLinks($asset, $output)) return false;
 
-		$e = "(/?\./\\?a=)([0-9]+)([^0-9])";
-		$with = '<'.'?php echo $sq_asset_url_list[\\2]; ?'.'>';
-		$output = ereg_replace($e, $with.'\\3', $output);
+		// replacing normal assetids is simple because they can only be numerical chars :)
+		$e = '|\\./\\?a=([0-9]+)([^0-9:])|';
+		$r = '<'.'?php echo $sq_asset_url_list[$1]; ?'.'>$2';
+		$output = preg_replace($e, $r, $output);
+
+		// replacing shadow assetids isn't so simple because they can have any characters...and therefore need to be escaped
+		$e = '|\\./\\?a=([0-9]+:[^!]*)!|';
+		if (preg_match_all($e, $output, $matches=Array(), PREG_PATTERN_ORDER)) {
+
+			$replacements = Array();
+			foreach($matches[1] as $shadow_assetid) {
+				// if this is a shadow asset, then we need to escape the shadow part (as it is plain text)
+				$replacements[] = '<'.'?php echo $sq_asset_url_list['.var_export($shadow_assetid, 1).']; ?'.'>';
+			}
+
+			$output = str_replace($matches[0], $replacements, $output);
+
+		}// end if
 
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$keywords = retrieve_keywords_replacements($output);
@@ -242,6 +257,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 	/**
 	* Creates and deletes NOTICE links based on the assets being linked to within the contents of this container
+	* For shadow assets it 
 	*
 	* @param object Bodycopy_Container	&$asset		the container
 	* @param string | NULL				$ouytput	the content of the bodycopy container,
@@ -259,14 +275,13 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			ob_end_clean();
 		}
 
-		$existing_links = Array();
+		$existing_links = $asset->attr('shadow_links');
 		$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE);
 		foreach ($notice_links as $link_data) $existing_links[] = $link_data['minorid'];
 
-		$e = '/\\.\\/\\?a=([0-9]+)/';
-		$matches = Array();
-		preg_match_all($e, $output, $matches);
-		$replace_assetids = $matches[1];
+		$e = '|\\./\\?a=([0-9]+(?::[^!]*)?)|';
+		preg_match_all($e, $output, $matches=Array());
+		$replace_assetids = &$matches[1];
 
 		if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) {
 			// this container currently has a system version floating around
@@ -279,6 +294,8 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 		if (!empty($replace_assetids) || !empty($notice_links)) {
 
+			$replace_assetids = array_unique($replace_assetids);
+
 			// delete existing notice links that are no longer being used
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			foreach ($notice_links as $link_data) {
@@ -289,22 +306,38 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 					}
 				}
 			}
+
+			$shadow_links = array_values(array_intersect($asset->attr('shadow_links'), $replace_assetids));
+			foreach ($replace_assetids as $assetid) {
+				if (!assert_valid_assetid($assetid, '', false, false)) continue;
+				if (in_array($assetid, $existing_links)) continue;
+
+				$ereg_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				if (is_null($ereg_asset)) continue;
+
+				if (strpos($ereg_asset->id, ':') !== false) {
+					$shadow_links[] = $ereg_asset->id;
+
+				} else {
+
+					// dont show errors here if the link already exists
+					// as we rely on the fact that this ereg_asset cant be notice linked
+					// to asset mutiple times to stop redunant links from
+					// being created (eg same image on a page 10 times should only
+					// produce one notice link)
+					$asset->createLink($ereg_asset, SQ_LINK_NOTICE);
+				}
+
+			}//end foreach
+
+			if (!$asset->setAttrValue('shadow_links', $shadow_links) || !$asset->saveAttributes()) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-			foreach ($replace_assetids as $assetid) {
-				if (!in_array($assetid, $existing_links)) {
-					$ereg_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-					if ($ereg_asset->id) {
 
-						// dont show errors here if the link already exists
-						// as we rely on the fact that this ereg_asset cant be notice linked
-						// to asset mutiple times to stop redunant links from
-						// being created (eg same image on a page 10 times should only
-						// produce one notice link)
-						@$asset->createLink($ereg_asset, SQ_LINK_NOTICE);
-					}
-				}
-			}
 		}//end if replace_assetids or notice_links
 
 		return true;

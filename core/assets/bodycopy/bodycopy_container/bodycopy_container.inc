@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.19 2004/12/09 02:56:14 gsherwood Exp $
+* $Id: bodycopy_container.inc,v 1.20 2005/01/15 16:32:07 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -223,6 +223,7 @@ class Bodycopy_Container extends Asset
 			$output = ob_get_contents();
 		ob_end_clean();
 
+		// NOTE: don't need to worry about shadow assets here because we never link to them anyway
 		$e = '/\\.\\/\\?a=([0-9]+)/';
 		$matches = Array();
 		preg_match_all($e, $output, $matches);
@@ -295,16 +296,14 @@ class Bodycopy_Container extends Asset
 
 		// create an array of urls that the content file is
 		// going to try and use to work out file urls, link hrefs etc
-		$sq_asset_url_list = Array();
 
 		$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE);
-		$get_href_ids = Array();
+		$get_href_ids = $this->attr('shadow_links');
 		foreach ($notice_links as $link) $get_href_ids[] = $link['minorid'];
 
-		$hrefs = $GLOBALS['SQ_SYSTEM']->am->getAssetHref(array_unique($get_href_ids));
-		foreach ($hrefs as $minorid => $href) {
-			if ($href == '') $href = './?a='.$minorid;
-			$sq_asset_url_list[$minorid] = $href;
+		$sq_asset_url_list = $GLOBALS['SQ_SYSTEM']->am->getAssetHref(array_unique($get_href_ids));
+		for(reset($sq_asset_url_list); NULL !== ($minorid = key($sq_asset_url_list)); next($sq_asset_url_list)) {
+			if ($sq_asset_url_list[$minorid] == '') $sq_asset_url_list[$minorid] = './?a='.$minorid;
 		}
 
 		if (SQ_ROLLBACK_VIEW) {
@@ -316,8 +315,13 @@ class Bodycopy_Container extends Asset
 
 			// replace ./?a=xxx style links within the content
 			foreach ($sq_asset_url_list as $assetid => $href) {
-				$e = "(/?\./\\?a=$assetid)([^0-9]+)";
-				$output = ereg_replace($e, $href.'\\2', $output);
+				if (strpos($assetid, ':') !== false) {
+					$s = './?a='.$assetid.'!';
+					$output = str_replace($s, $href, $output);
+				} else {
+					$e = "(/?\./\\?a=$assetid)([^0-9:])";
+					$output = ereg_replace($e, $href.'\\2', $output);
+				}
 			}
 
 			// replace keywords in the content
