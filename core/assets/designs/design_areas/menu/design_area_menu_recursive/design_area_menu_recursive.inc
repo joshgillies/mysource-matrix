@@ -217,6 +217,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 				$'.$this->attr('id_name').'_data[$'.$this->attr('id_name').'_row[\'majorid\']][] = $'.$this->attr('id_name').'_row;
 
 			}
+			$'.$this->attr('id_name').'_result->free();
 #				pre_echo($'.$this->attr('id_name').'_assetids);
 		}// end for '.$this->attr('id_name').'_i
 #pre_echo($'.$this->attr('id_name').'_data);

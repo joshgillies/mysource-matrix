@@ -74,6 +74,7 @@ class Design_Area_Menu_Normal extends Design_Area_Menu_Type
 			if (!isset($'.$this->attr('id_name').'_data[$'.$this->attr('id_name').'_row[\'majorid\']])) $'.$this->attr('id_name').'_data[$'.$this->attr('id_name').'_row[\'majorid\']] = Array();
 			$'.$this->attr('id_name').'_data[$'.$this->attr('id_name').'_row[\'majorid\']][] = $'.$this->attr('id_name').'_row;
 		}
+		$'.$this->attr('id_name').'_result->free();
 		';
 
 		$sub_menu = &$this->getSubMenu();
