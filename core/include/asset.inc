@@ -833,7 +833,7 @@ class Asset extends Resolve_Object
 					FROM sq_asset_link_tree pt,
 						sq_asset_link_tree ct INNER JOIN sq_asset_link cl ON ct.linkid = cl.linkid
 					WHERE ct.treeid LIKE '.$concat.'
-					  AND ct.treeid > pt.treeid
+					  AND ct.treeid >= pt.treeid
 					  AND pt.linkid IN (~SQ0~)
 					  AND cl.minorid = '.$db->quote($this->id);
 			$subs = Array('SELECT linkid
