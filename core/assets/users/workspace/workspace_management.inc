@@ -1,6 +1,6 @@
 <?php
 
-require_once SQ_INCLUDE_PATH.'/asset_management.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_management.inc';
 
 /**
 * Workspace_Management
@@ -11,16 +11,16 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @version $Version$ - 1.0
 * @package Resolve::packages::__core__
 */
-class Workspace_Management extends Asset_Management
+class Workspace_Management extends Folder_Management
 {
 
 	/**
 	* Constructor
 	*
 	*/
-	function File_Management(&$pm)
+	function Workspace_Management(&$pm)
 	{
-		$this->Asset_Management($pm);
+		$this->Folder_Management($pm);
 	}//end constructor
 
 }//end class
