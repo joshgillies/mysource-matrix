@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.218 2004/09/02 04:43:47 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.219 2004/09/08 05:57:26 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -625,7 +625,8 @@ class Asset_Edit_Interface extends MySource_Object
 		} else {
 			$page_heading = 'Create new '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name');
 		}
-		$page_heading .= '&nbsp;&nbsp;|&nbsp;&nbsp;'.$active_screen_name.'&nbsp;&nbsp;<a class="sq_asset_info_toggle" href="#" onclick="Javascript: sq_toggle_asset_info();"><span id="sq_asset_info_toggle">[ more info ]</span></a>';
+		$page_heading .= '&nbsp;&nbsp;|&nbsp;&nbsp;'.$active_screen_name;
+		if (!$creating) $page_heading .= '&nbsp;&nbsp;<a class="sq_asset_info_toggle" href="#" onclick="Javascript: sq_toggle_asset_info();"><span id="sq_asset_info_toggle">[ more info ]</span></a>';
 
 		$o->setHeading($page_heading, '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($this->_type_code).'", "16", "16", "");</script>');
 
