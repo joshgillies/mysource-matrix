@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.9 2004/08/02 06:07:18 mnyeholt Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.10 2004/08/04 00:41:43 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -334,7 +334,8 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			}
 		}
 
-		$max_cols = $this->maxCols($table_rows);
+		// need to find out if there's any colspans used at all. We can't handle
+		// column reshuffles if there is.
 		$colspans_in_row = false;
 		for($i = 0; $i < count($table_rows); $i++) {
 			for($x = 0; $x < count($table_rows[$i]['cells']); $x++) {
@@ -345,7 +346,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			}
 			if ($colspans_in_row) break;
 		}
-
+		
 		// require library functions needed for drawing the bodycopy 
 		$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');
 		require_once SQ_SYSTEM_ROOT.'/'.$type_info['dir'].'/files/bodycopy_general.inc';
@@ -353,171 +354,38 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		?>
 		<table<?php echo $attribute_list?> background="<?php echo $bgimage?>" border="0" cellpadding="0" cellspacing="0" style="width:100%;">
 			
-			<tr> 
-				<td align="center" background="" id="<?php echo $prefix.'_table_'.$asset->id;?>" width="4%" style="border-top: 1px dashed #C0C0C0; border-right: 1px dashed #C0C0C0; border-left: 1px dashed #C0C0C0;">
-				<?php
-				print_bodycopy_icon("Javascript: bodycopy_edit_table_properties('$prefix', $asset->id, ".(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').");", 'Edit '.$asset->attr('name').'\'s Properties', (($popup_attribute_list) ? 'Current Properties :<br>'.$popup_attribute_list : ''), 'table_properties');
-				?>
-				</td>
-		<?php
-			
-			for($i = 0; $i < $max_cols; $i++) {
-				// because a column might be spanned, have to make sure there's something
-				// to print out before printing.
-				if (!isset($table_rows[0]['cells'][$i])) {
-					continue;
-				}
-			?>
-				
-				<td align="center" background="" valign="middle" style="border-top: 1px dashed #C0C0C0; border-right: 1px dashed #C0C0C0; border-bottom: 1px dashed #C0C0C0;" id="<?php echo $prefix.'_cell_'.$asset->id.'_0_'.$i; ?>">
-					<table border="0" cellspacing="0" cellpadding="0" width="100%">
-						<tr>
-							<td align="left" nowrap>
-							<?php
-							print_bodycopy_icon("Javascript: bodycopy_insert_table_col('$prefix', $asset->id, $i, true);", 'Insert New Column on Left', '', 'add');
-							?>
-							</td>
-							<td nowrap>
-							<?php
-							
-							$table_rows[0]['cells'][$i]->paintCell($asset, $prefix, $asset->id, 0, $i);
-							
-							?>
-							</td>
-							<td width="100%" align="right" nowrap>
-							<?php
-							if ($i == 0) {
-								if ($max_cols > 1 && (!$colspans_in_row || count($table_rows) == 1)) {
-									print_bodycopy_icon("Javascript: bodycopy_edit_table_col_order('$prefix', $asset->id);", 'Reorder '.$asset->attr('name').'\'s Columns ?', '', 'reorder');
-								}
-							}
-							if ($max_cols > 1) {
-								print_bodycopy_icon("Javascript: bodycopy_delete_table_col('$prefix', $asset->id, $i);", 'Delete Column '.($i + 1).' ?', '', 'delete');
-							}
-							?>
-							</td>
-							<td align="right" nowrap>
-							<?php
-							print_bodycopy_icon("Javascript: bodycopy_insert_table_col('$prefix', $asset->id, $i, false);", 'Insert New Column on Right', '', 'add');
-							?>
-							</td>
-						</tr>
-					</table>
-				</td>
-			<?php
-				if ($i < ($max_cols-1)) {
-					?><td style="border-right: 1px dashed #C0C0C0" width="1%"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="10" height="1"></td><?php
-				}
-			}
-			?>
-			</tr>
 		<?php
 		
+		// For each defined cell, we're going to draw a special cell table
+		// with all the extra stuff around it. This lets each cell have 
+		// proper row and colspan stuff in the editing interface.
 		$num_rows = count($table_rows);
 		for($i = 0; $i < $num_rows; $i++) {
-			if ($i > 0) {
-				?>
-				
-				<tr>
-					<td style="border-left: 1px dashed #C0C0C0; border-right: 1px dashed #C0C0C0; border-bottom: 1px dashed #C0C0C0;">&nbsp;</td>
-					<?php
-					for($x = 0; $x < count($table_rows[$i]['cells']); $x++) {
-						?>
-						<td style="border-right: 1px dashed #C0C0C0; border-bottom: 1px dashed #C0C0C0;" id="<?php echo $prefix.'_cell_'.$asset->id.'_'.$i.'_'.$x; ?>">
-							<table border="0" cellspacing="0" cellpadding="0" width="100%">
-								<tr>
-									<td align="left" nowrap>
-									<?php
-									print_bodycopy_icon("Javascript: bodycopy_insert_table_col('$prefix', $asset->id, $x, true);", 'Insert New Column on Left', '', 'add');
-									?>
-									</td>
-									<td nowrap>
-									<?php
-									$table_rows[$i]['cells'][$x]->paintCell($asset, $prefix, $asset->id, $i, $x);
-									?>
-									</td>
-									<td align="right" width="100%" nowrap>
-									<?php
-									print_bodycopy_icon("Javascript: bodycopy_insert_table_col('$prefix', $asset->id, $x, false);", 'Insert New Column on Right', '', 'add');
-									?>
-									</td>
-								</tr>
-							</table>
-						</td>
-						<?php
-						if ($x < count($table_rows[$i]['cells'])-1) {
-							?><td style="border-right: 1px dashed #C0C0C0" width="1%"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="10" height="1"></td><?php
-						}
-					}//end for (each cell)
-					?>
-				</tr>
-				<?php
-			}
-
-
 			$attribute_list = '';
 			foreach($table_rows[$i]['attributes'] as $name => $val) {
 				if ($val == '') continue;
 				$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 			}
 			?>
-
+			
 			<tr<?php echo $attribute_list?>>
-				<td align="center" background="" id="<?php echo $prefix.'_row_'.$asset->id.'_'.$i?>" height="100%" style="border-left: 1px dashed #C0C0C0; border-right: 1px dashed #C0C0C0; border-bottom: 1px dashed #C0C0C0;" >
-					<table border="0" cellspacing="0" cellpadding="0" height="100%">
+				<?php
+				$num_cols = count($table_rows[$i]['cells']);
+				for($x = 0; $x < $num_cols; $x++) {
+					$cell = $table_rows[$i]['cells'][$x];
+					?>
+					<td valign="top" colspan="<?php echo $cell->colspan(); ?>" style="border: 1px dashed #C0C0C0;">
 						<?php
-						if ($i == 0) {
-							# can't reorder if only one row
-							if ($num_rows > 1) {
-								?>
-								<tr height="1%">
-									<td valign="top" nowrap>
-										<?php
-										print_bodycopy_icon("Javascript: bodycopy_edit_table_row_order('$prefix', $asset->id);", 'Reorder '.$asset->attr('name').'\'s Rows ?', '', 'reorder');
-										?>
-									</td>
-								</tr>
-								<?php
-							}
-						}
+						// when painting a cell, it needs to know if there's more than 1 row or column too for drawing
+						// the delete row/col buttons
+						$this->_paintEditingCell($asset, $prefix, $x, $i, $table_rows[$i]['cells'][$x], $num_cols > 1, $num_rows > 1, !$colspans_in_row); 
 						?>
-						<tr height="1%">
-							<td valign="top">
-							<?php
-							print_bodycopy_icon("Javascript: bodycopy_insert_table_row('$prefix', $asset->id, $i, true);", 'Insert a New Row Above', '', 'add');
-							?>
-							</td>
-						</tr>
-						<tr height="100%">
-							<td valign="middle" nowrap>
-							<?php
-							print_bodycopy_icon("Javascript: bodycopy_edit_table_row_properties('$prefix', $asset->id, $i);", 'Edit Row '.($i + 1).'\'s Properties', (($attribute_list) ? 'Current Properties :<br>'.$attribute_list : ''), 'row_properties');
-							if ($num_rows > 1) {
-								echo '<br>';
-								print_bodycopy_icon("Javascript: bodycopy_delete_table_row('$prefix', $asset->id, $i);", 'Delete Row '.($i + 1).' ?', '', 'delete');
-							}
-							?>
-							</td>
-						</tr>
-						<tr height="1%">
-							<td valign="bottom" nowrap>
-							<?php
-							print_bodycopy_icon("Javascript: bodycopy_insert_table_row('$prefix', $asset->id, $i, false);", 'Insert a New Row Below', '', 'add'); 
-							?>
-							</td>
-						</tr>
-					</table>
-				</td>
-			<?php
-				// now print the cell contents
-				for($x = 0; $x < count($table_rows[$i]['cells']); $x++) {
-					$table_rows[$i]['cells'][$x]->paint($asset, $prefix);
-					if ($x < count($table_rows[$i]['cells'])-1) {
-						?><td style="border-right: 1px dashed #C0C0C0" width="1%"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="10" height="1"></td><?php
-					}
-				}
-			?>
+					</td>
+					<?php
+				}//end for (each cell)
+				?>
 			</tr>
+			
 			<?php
 		}//end for
 
@@ -528,6 +396,138 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		return true;
 
 	}//end paintContainer()
+	
+	
+	/**
+	* Output a single cell from the table. Checks the cell's position in the
+	* table and draws extra icons as needed (ie the reorder columns/rows, 
+	* table properties etc).
+	* 
+	* the editing cells are made up of 4 regions; 
+		- Top left that is blank except for the first cell which contains a 
+		  table editing icon
+		- Top right which contains editing icons for the cell and column
+		- Bottom left which contains row editing icons
+		- Bottom right which contains the actual cell contents.
+	* 
+	* @param object 	$asset 		The parent table asset being edited
+	* @param string 	$prefix 	The prefix for this asset in a form
+	* @param int 		$x 			The x coordinate of this cell
+	* @param int 		$y 			The y coordinate of this cell
+	* @param int		$cell		The cell being drawn.
+	* @param boolean 	$multiRow	Are there more than 1 rows in the table?
+	* @param boolean 	$multiCol	Are there more than 1 cols in the table?
+	* @param boolean 	$colReorder	Are we allowed to reorder columns? (colspan issues).
+	* @return void
+	* @access private
+	*/
+	function _paintEditingCell(&$asset, $prefix, $x, $i, &$cell, $multiCol, $multiRow, $colReorder)
+	{
+		$attribute_list = '';
+		$table_rows = $asset->attr('rows');
+		
+		foreach($table_rows[$i]['attributes'] as $name => $val) {
+			if ($val == '') continue;
+			$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
+		}
+		
+		
+		?>
+		<table cellspacing="0" cellpadding="0" width="100%" height="100%">
+		<tbody valign="top">
+		<tr style="background-color: White; height: 20px;">
+		<?php
+		// only print out the table prop edit icons if this is the first cell in the
+		// row and first row..
+		if ($x == 0) {
+		?>
+			<td id="<?php echo $prefix.'_table_'.$asset->id;?>" style="width: 20px;border-bottom: 1px dashed #C0C0C0;border-right: 1px dashed #C0C0C0;">
+		<?php
+			if (($x+$i) == 0) {
+				$popup_attribute_list = '';
+				$table_attributes = $asset->attr('attributes');
+				if (!empty($table_attributes)) {
+					foreach ($table_attributes as $name => $val) {
+						if ($val == '') continue;
+						if ($name == 'background') {
+							continue;
+						}
+						$popup_attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
+						
+					}
+				}
+				print_bodycopy_icon("Javascript: bodycopy_edit_table_properties('$prefix', $asset->id, ".(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').");", 'Edit '.$asset->attr('name').'\'s Properties', (($popup_attribute_list) ? 'Current Properties :<br>'.$popup_attribute_list : ''), 'table_properties');
+			} else {
+				echo '&nbsp;';
+			}
+		?>
+		</td>
+		<?php
+		} 
+		?>
+		
+		<td style="border-bottom: 1px dashed #C0C0C0;" id="<?php echo $prefix.'_cell_'.$asset->id.'_'.$i.'_'.$x; ?>">
+		<!-- These next 3 icons float across to the right side -->
+		<span style="float: right;">
+		<?php
+		
+		if ($i==0) {
+			if (($x+$i) == 0 && $multiCol && $colReorder) {
+				print_bodycopy_icon("Javascript: bodycopy_edit_table_col_order('$prefix', $asset->id);", 'Reorder '.$asset->attr('name').'\'s Columns ?', '', 'reorder');
+				
+			}
+		
+			// if there's more than one row, and we're on the first row, let the col be deleted.
+			if ($multiRow) {
+				print_bodycopy_icon("Javascript: bodycopy_delete_table_col('$prefix', $asset->id, $x);", 'Delete Column '.($x + 1).' ?', '', 'delete');
+			}
+			
+			print_bodycopy_icon("Javascript: bodycopy_insert_table_col('$prefix', $asset->id, $x, false);", 'Insert New Column on Right', '', 'add');
+		}
+		
+		?> </span> <?php
+			
+		if ($i==0) {
+			print_bodycopy_icon("Javascript: bodycopy_insert_table_col('$prefix', $asset->id, $x, true);", 'Insert New Column on Left', '', 'add');
+		}
+		$cell->paintCell($asset, $prefix, $asset->id, $i, $x);
+		 
+		?>
+		</td>
+		</tr>
+		<tr valign="top" height="100%" style="height: 100%;" <?php echo $attribute_list?>>
+		<?php
+		if ($x == 0) {
+			?>
+			<td style="width: 20px;border-right: 1px dashed #C0C0C0;" id="<?php echo $prefix.'_row_'.$asset->id.'_'.$i?>" >
+			<?php
+			if ($i == 0 && $multiRow) {
+				print_bodycopy_icon("Javascript: bodycopy_edit_table_row_order('$prefix', $asset->id);", 'Reorder '.$asset->attr('name').'\'s Rows ?', '', 'reorder');
+			}
+			echo '<br/>';
+			print_bodycopy_icon("Javascript: bodycopy_insert_table_row('$prefix', $asset->id,$i, true);", 'Insert a New Row Above', '', 'add');
+			
+			echo '<br/>';
+			print_bodycopy_icon("Javascript: bodycopy_edit_table_row_properties('$prefix', $asset->id,$i);", 'Edit Row '.($i + 1).'\'s Properties', (($attribute_list) ? 'Current Properties :<br>'.$attribute_list : ''), 'row_properties');
+			if ($multiRow > 1) {
+				echo '<br/>';
+				print_bodycopy_icon("Javascript: bodycopy_delete_table_row('$prefix', $asset->id, $i);", 'Delete Row '.($i + 1).' ?', '', 'delete');
+			}
+			echo '<br/>';
+			print_bodycopy_icon("Javascript: bodycopy_insert_table_row('$prefix', $asset->id, $i, false);", 'Insert a New Row Below', '', 'add'); 
+			?>
+		</td>
+		<?php
+		}
+		// a cell paints its own <td> tag
+			$cell->paint($asset, $prefix);
+		?>
+		</tr>
+		</tbody>
+		</table>
+		
+		<?php 
+	}
 
 
 	/**
