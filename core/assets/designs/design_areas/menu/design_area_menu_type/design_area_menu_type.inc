@@ -3,7 +3,7 @@
 require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 
 /**
-* Design_Area_Menu_Type
+* Design_Area_Menu2_Type
 *
 * Purpose
 *
@@ -13,7 +13,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 * @package Resolve_Packages
 * @subpackage __core__
 */
-class Design_Area_Menu_Type extends Design_Area
+class Design_Area_Menu2_Type extends Design_Area
 {
 
 	/*
@@ -27,7 +27,7 @@ class Design_Area_Menu_Type extends Design_Area
 		return Array(SQ_LINK_EXCLUSIVE	=> Array(),
 					 SQ_LINK_TYPE_1		=> Array(),
 					 SQ_LINK_TYPE_2		=> Array(),
-					 SQ_LINK_TYPE_3		=> Array('design_area_menu_type' => 'M'),
+					 SQ_LINK_TYPE_3		=> Array('design_area_menu2_type' => 'M'),
 					 SQ_LINK_NOTICE		=> Array()
 					);
 
@@ -84,10 +84,6 @@ class Design_Area_Menu_Type extends Design_Area
 				default :
 					$value = max(0, (int) $value);
 			}// end switch
-
-		// if they are trying to set the type_codes, split the string
-		} else if ($name == 'type_codes' && !is_array($value)) {
-			$value = preg_split('/[ ,]+/', $value);
 
 		}// end if
 
@@ -192,18 +188,22 @@ class Design_Area_Menu_Type extends Design_Area
 	/*
 	* Returns the link to the sub menu for this menu (if any)
 	*
-	* @return Design_Area_Menu_Type | null
+	* @return Array()
 	* @access public
 	*/
 	function getSubMenuLink() 
 	{
-		return $this->getLink(SQ_LINK_TYPE_3, 'design_area_menu_type', false, 'sub_menu');
+		if (!isset($this->_tmp['sub_menu_link'])) {
+			$this->_tmp['sub_menu_link'] = $this->getLink(SQ_LINK_TYPE_3, 'design_area_menu2_type', false, 'sub_menu');
+		}
+		return $this->_tmp['sub_menu_link'];
 	}//end getSubMenuLink()
+
 
 	/*
 	* Returns the sub menu for this menu (if any)
 	*
-	* @return Design_Area_Menu_Type | null
+	* @return Design_Area_Menu2_Type | null
 	* @access public
 	*/
 	function &getSubMenu() 
@@ -212,25 +212,50 @@ class Design_Area_Menu_Type extends Design_Area
 		if (empty($link)) {
 			$null = null;
 			return $null;
+		} else {
+			return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code'], true);
 		}
-		return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code'], true);
+
 	}//end getSubMenu()
+
 
 	/*
 	* Returns the parent menu for this menu (assuming it is a sub menu)
 	*
-	* @return Design_Area_Menu_Type | null
+	* @return Design_Area_Menu2_Type | null
 	* @access public
 	*/
 	function &getParentMenu()
 	{
-		$link = $this->getLink(SQ_LINK_TYPE_3, 'design_area_menu_type', false, 'sub_menu', 'minor');
-		if (empty($link)) {
+		if (!isset($this->_tmp['parent_menu_link'])) {
+			$this->_tmp['parent_menu_link'] = $this->getLink(SQ_LINK_TYPE_3, 'design_area_menu2_type', false, 'sub_menu', 'minor');
+		}
+		if (empty($this->_tmp['parent_menu_link'])) {
 			$null = null;
 			return $null;
+		} else {
+			return $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_tmp['parent_menu_link']['majorid'], $this->_tmp['parent_menu_link']['type_code'], true);
 		}
-		return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['type_code'], true);
+
 	}//end getParentMenu()
+
+
+	/**
+	* Called whenever any type of link is changed, allows caching of objects, links and other stuff 
+	* to occur but not cause integrity issues during script execution
+	* returns true it it's successfull
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _linksUpdated()
+	{
+		if (!parent::_linksUpdated()) return false;
+		unset($this->_tmp['sub_menu_link']);
+		unset($this->_tmp['parent_menu_link']);
+		return true;
+	}//end _linksUpdated()
+
 
 	/*
 	* Returns whether the passed setting exists or not
@@ -243,6 +268,137 @@ class Design_Area_Menu_Type extends Design_Area
 		$settings = $this->attr('settings'); // do like this to take into account var refs
 		return !empty($settings[$name]);
 	}//end settingExists()
+
+
+	/**
+	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented
+	*
+	* @param object Design	$design the design for which we are currently printing
+	*
+	* @return boolean
+	* @access public
+	*/
+	function printArea(&$design)
+	{
+		echo '<', '?php
+		';
+		$this->printStaticInitOutput($design);
+
+		$parent_menu = &$this->getParentMenu();
+		// if we aren't a sub menu
+		if (is_null($parent_menu)) {
+			$this->printInitOutput($design);
+			echo '
+		if (!empty($PAGE_LINEAGE) && !empty($PAGE_LINEAGE[$'.$this->attr('id_name').'_level])) {
+			';
+			$this->printDataCollection($design);
+			$parent_assetid_name = '$PAGE_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\']';
+		} else {
+			$parent_assetid_name = '$'.$parent_menu->attr('id_name').'_row[\'assetid\']';
+		}// end if
+
+		echo '
+			$'.$this->attr('id_name').'_settings = '.var_export($this->_getSettingsArray(), true).';
+			if (!empty($'.$this->attr('id_name').'_data['.$parent_assetid_name.'])) {
+		?', '>';
+		if (!parent::printArea($design)) return false;
+		echo '<', '?php
+			}// end if subs '.$this->attr('id_name').'
+		';
+		// if we aren't a sub menu
+		if (is_null($parent_menu)) {
+			echo '
+		}// end if found in PAGE_LINEAGE
+			';
+		}// end if
+
+		echo '
+		?', '>';
+
+		return true;
+
+	}//end printArea()
+
+
+	/**
+	* Performs any outputting needed to by all design areas of this menu type
+	* NOTE: assumes PHP tags are open
+	*
+	* @param object Design	$design			the design for which we are currently printing
+	*
+	* @access public
+	*/
+	function printStaticInitOutput(&$design)
+	{
+
+		// Stuff that is only needed once per design file
+		if (empty($GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$design->id])) {
+			echo '
+			$db = &$GLOBALS[\'SQ_SYSTEM\']->db;
+			$PAGE_LINEAGE = $am->getLineageFromURL(null, null, \'short_name\');
+			';
+			$GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$design->id] = true;
+		}
+
+		$sub_menu = &$this->getSubMenu();
+		if (!is_null($sub_menu)) {
+			$sub_menu->printStaticInitOutput($design);
+		}
+
+	} // printStaticInitOutput()
+
+
+	/**
+	* Performs any outputting needed to intialise this instance of the menu type
+	*
+	* @param object Design	$design			the design for which we are currently printing
+	*
+	* @access public
+	*/
+	function printInitOutput(&$design)
+	{
+
+		echo '
+		$'.$this->attr('id_name').'_level = '.((int) $this->attr('level')).';';
+
+		$sub_menu = &$this->getSubMenu();
+		if (!is_null($sub_menu)) {
+			$sub_menu->printInitOutput($design);
+		}
+
+	} // printInitOutput()
+
+
+	/**
+	* Outputs the way for this menu type to get their information and place it in the
+	* $'.$this->attr('id_name').'_data array
+	*
+	* @param object Design	$design the design for which we are currently printing
+	*
+	* @access public
+	*/
+	function printDataCollection(&$design)
+	{
+		//// SHOULD BE OVERRIDDEN ////
+
+		echo '
+		$'.$this->attr('id_name').'_data = Array();
+		';
+
+		// the _assetids array holds all assetids that the sub level (if any) will printing kids of
+		// if the show_subs is only on_current the asset for the kids level in the page lineage is used
+		if ($this->attr('show_subs') == 'always') {
+			echo '
+		$'.$this->attr('id_name').'_assetids = Array();
+		';
+		}// end if
+
+		$sub_menu = &$this->getSubMenu();
+		if (!is_null($sub_menu)) {
+			$sub_menu->printDataCollection($design);
+		}
+
+	}//end printDataCollection()
 
 
 	/*
@@ -283,16 +439,20 @@ class Design_Area_Menu_Type extends Design_Area
 		} else {
 
 			switch($var) {
+				case 'assetid' :
+					echo '<', '?php echo $'.$this->attr('id_name').'_row[\'assetid\']; ?', '>';
+					break;
+
 				case 'page_link' :
-					echo '<', '?php echo $'.$this->attr('id_name').'_kid->getHref($'.$this->attr('id_name').'_base_url); ?', '>';
+					echo '<', '?php echo $'.$this->attr('id_name').'_base_url.\'/\'.$'.$this->attr('id_name').'_row[\'path\']; ?', '>';
 					break;
 
 				case 'page_short_name' :
-					echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$'.$this->attr('id_name').'_kid->short_name'.$value_suffix, $args), '; ?', '>';
+					echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$'.$this->attr('id_name').'_row[\'short_name\']'.$value_suffix, $args), '; ?', '>';
 					break;
 
 				case 'page_name' :
-					echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$'.$this->attr('id_name').'_kid->name'.$value_suffix, $args), '; ?', '>';
+					echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$'.$this->attr('id_name').'_row[\'name\']'.$value_suffix, $args), '; ?', '>';
 					break;
 
 				default :
@@ -331,7 +491,7 @@ class Design_Area_Menu_Type extends Design_Area
 		// OK we need out find out if any of the values for this setting have PHP code that needs to be 
 		$names = array_keys($settings);
 		foreach($names as $setting_name) {
-			// we know that this will be the long format because only our design areas have put this in
+			// we don't want any of the settings that need to be processed
 			if ($this->_settingHasPHPCode($setting_name)) {
 				unset($settings[$setting_name]);
 			}

@@ -3,7 +3,7 @@
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
-* Design_Area_Menu_Type_Management
+* Design_Area_Menu2_Type_Management
 *
 * @see Asset_Management
 *
@@ -12,13 +12,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @package Resolve_Packages
 * @subpackage __core__
 */
-class Design_Area_Menu_Type_Management extends Asset_Management
+class Design_Area_Menu2_Type_Management extends Asset_Management
 {
 	/**
 	* Constructor
 	*
 	*/
-	function Design_Area_Menu_Type_Management(&$pm)
+	function Design_Area_Menu2_Type_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
 
@@ -32,13 +32,43 @@ class Design_Area_Menu_Type_Management extends Asset_Management
 								'added'			=> '0.0.1',
 								'type'			=> 'serialise',
 								'default'		=> Array()
-
 							),
-							'type_codes' => Array(
+							'page_contents' => Array(
 								'added'			=> '0.0.1',
 								'type'			=> 'serialise',
 								'default'		=> Array(),
-								'description'   => 'Comma or space separated list of type codes to restrict the menu to display, these types are not strict however so any sub-types of these will also be valid'
+								'description'   => 'The contents that prints the page info in the output',
+							),
+							'divider_contents' => Array(
+								'added'			=> '0.0.1',
+								'type'			=> 'serialise',
+								'default'		=> Array(),
+								'description'   => 'The contents that divides the pages in the output',
+							),
+							'prefix_with_divider' => Array(
+								'added'			=> '0.0.1',
+								'type'			=> 'boolean',
+								'default'		=> false,
+								'description'	=> 'whether or not to start the list with a divider'
+							),
+							'suffix_with_divider' => Array(
+								'added'			=> '0.0.1',
+								'type'			=> 'boolean',
+								'default'		=> true,
+								'description'	=> 'whether or not to end the list with a divider'
+							),
+							'show_subs' => Array(
+								'added'			=> '0.0.1',
+								'type'			=> 'selection',
+								'type'			=> 'selection',
+								'default'		=> 'on_current',
+								'parameters'	=> Array(
+									'options' => Array(
+											'on_current'	=> 'Only if in current lineage',
+											'always'		=> 'Always',
+									),
+								),
+								'description'   => 'When and how to display any sub menus that this menu might have'
 							),
 						);
 
