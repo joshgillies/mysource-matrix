@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.8 2004/10/22 06:51:03 arailean Exp $
+* $Id: page_remote_content.inc,v 1.9 2004/10/25 04:23:32 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once 'HTTP/Client/CookieManager.php';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -112,12 +112,10 @@ class Page_Remote_Content extends Page
 
 		if (!$fetch_url) return;
 
-		$fetch_url	= urldecode($fetch_url);
-
 		$Fetch_URL	= &new Net_URL($fetch_url);
 
 		// let's see if we're getting any variables in the get string
-		// so we can pass them back to the  original page ..
+		// so we can pass them back to the  original page .
 		unset($_GET['sq_remote_page_action']);
 		unset($_GET['sq_remote_page_url']);
 		unset($_POST['sq_remote_page_action']);
@@ -129,15 +127,14 @@ class Page_Remote_Content extends Page
 			}
 		}
 
-
 		////// Remote Communication Section. Using HTTP_Request PEAR package
 
 		// parameters for HTTP_Request. See Package for description.
 		$request_parameters = Array(
-									'timeout'			=> $this->attr('timeout'),
-									'allowRedirects'	=> $this->attr('allow_redirect'),
-									'maxRedirects'		=> 10,
-									);
+			'timeout'			=> $this->attr('timeout'),
+			'allowRedirects'	=> $this->attr('allow_redirect'),
+			'maxRedirects'		=> 10,
+		);
 
 		// set HTTP authentication
 		$user = $this->attr('username');
