@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.33 2005/02/01 11:33:37 brobertson Exp $
+* $Id: image_edit_fns.inc,v 1.34 2005/02/11 17:19:43 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -255,12 +255,16 @@ class Image_Edit_Fns extends File_Edit_Fns
 				$variety = &$asset->getAsset($varid);
 				if (is_null($variety)) continue;
 				$edit_fns = $variety->getEditFns();
-				$edit_fns->paintInlineInterface($variety, $o, $prefix.'_'.$variety->id);
-				if ($wa) {
-					$o->openField('Delete '.$variety->name.'?');
-						check_box($prefix.'_delete[]', $variety->id);
-					$o->closeField();
-				}
+
+				$o->openSection($variety->name);
+					$edit_fns->paintInlineInterface($variety, $o, $prefix.'_'.$variety->id);
+					if ($wa) {
+						$o->openField('Delete ?');
+							check_box($prefix.'_delete[]', $variety->id);
+						$o->closeField();
+					}
+				$o->closeSection();
+
 			}// end foreach
 		}// endif
 
@@ -322,14 +326,17 @@ class Image_Edit_Fns extends File_Edit_Fns
 		$wa = $asset->writeAccess('attributes');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('image_variety');
-		$variety = new Image_Variety();
+		$variety = new Image_Variety($asset->id.':v0');
 
 		$edit_fns = $variety->getEditFns();
-		$edit_fns->paintInlineInterface($variety, $o, $prefix.'_new');
+
+		$o->openSection('New Variety');
+			$edit_fns->paintInlineInterface($variety, $o, $prefix.'_new');
+		$o->closeSection();
 
 		return $wa;
 
-	}//end paintNewVarieties()
+	}//end paintNewVariety()
 
 
 	/**
@@ -347,7 +354,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 		if (!$asset->writeAccess('attributes')) return false;
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('image_variety');
-		$variety = new Image_Variety();
+		$variety = new Image_Variety($asset->id.':v0');
 
 		$edit_fns = $variety->getEditFns();
 		if (!$edit_fns->processInlineInterface($variety, $o, $prefix.'_new')) return false;
