@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.35 2004/12/06 23:19:28 dbaranovskiy Exp $
+* $Id: wysiwyg.inc,v 1.36 2004/12/07 04:05:19 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -422,6 +422,7 @@ class wysiwyg {
                             var btnTop = Math.floor(btn[3] / 5);
                             var btnLeft = ((btn[3] - (btnTop * 5)) * 18);
                             el.style.background = "url(" + editor.imgURL("toolbar.png") + ") scroll -" + btnLeft + "px -" + (btnTop * 20) + "px";
+                            el.innerHTML = '<img src="' + editor.imgURL("blank.gif") + '" width="17" height="19" />';
 
                         } else if (!el) {
                             el = createSelect(txt);
