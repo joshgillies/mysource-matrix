@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_option_list_management.inc,v 1.3 2004/05/19 05:55:58 lwright Exp $
+* $Id: form_question_type_option_list_management.inc,v 1.4 2004/09/08 01:23:36 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -67,11 +67,17 @@ class Form_Question_Type_Option_List_Management extends Asset_Management
 									'added'		=> '0.0.1',
 									'type'		=> 'boolean',
 									'default'	=> false,
+									'parameters' => Array(
+															'allow_empty' => false
+														),
 						),
 							'required'	=> Array(
 									'added'     => '0.0.1',
 									'type'      => 'boolean',  
 									'default'   => false,
+									'parameters' => Array(
+															'allow_empty' => false
+														),
 									),
 								
 			);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_custom_image_management.inc,v 1.7 2003/12/12 18:45:43 brobertson Exp $
+* $Id: design_area_custom_image_management.inc,v 1.8 2004/09/08 01:25:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -76,11 +76,14 @@ class Design_Area_Custom_Image_Management extends Asset_Management
 								'default'   => '',
 								'description' => 'Any extra HTML that you want to end up in the img tag',
 							),
-							'filename_only' => Array(
-								'added'     => '0.0.1',
-								'type'      => 'boolean',
-								'default'   => 0,
+							'filename_only'   => Array(
+								'added'       => '0.0.1',
+								'type'        => 'boolean',
+								'default'     => 0,
 								'description' => 'whether to print just the filename or the full img tag',
+								'parameters'  => Array(
+															'allow_empty' => false
+														),
 							),
 						);
 

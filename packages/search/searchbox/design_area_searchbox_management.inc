@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox_management.inc,v 1.6 2004/06/02 00:26:32 gsherwood Exp $
+* $Id: design_area_searchbox_management.inc,v 1.7 2004/09/08 01:23:39 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.6 $ - 1.0
+* @version $Revision: 1.7 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -57,7 +57,10 @@ class Design_Area_SearchBox_Management extends Asset_Management
 				'added'			=> '0.1',
 				'type'			=> 'boolean',
 				'default'		=> true,
-				'description'	=> 'Whether the search button is a button or an image.'
+				'description'	=> 'Whether the search button is a button or an image.',
+				'parameters' => Array(
+									'allow_empty' => false
+									),
 			),
 			'submit_image_assetid' => Array(
 				'added'			=> '0.1',

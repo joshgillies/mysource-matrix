@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_management.inc,v 1.15 2004/02/25 00:34:58 gsherwood Exp $
+* $Id: design_area_menu_type_management.inc,v 1.16 2004/09/08 01:25:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -74,12 +74,18 @@ class Design_Area_Menu_Type_Management extends Asset_Management
 								'type'			=> 'boolean',
 								'default'		=> false,
 								'description'	=> 'whether or not to start the list with a divider',
+								'parameters' 	=> Array(
+															'allow_empty' => false
+														),
 							),
 							'suffix_with_divider' => Array(
 								'added'			=> '0.0.1',
 								'type'			=> 'boolean',
 								'default'		=> true,
 								'description'	=> 'whether or not to end the list with a divider',
+								'parameters' 	=> Array(
+															'allow_empty' => false
+														),
 							),
 							'show_subs' => Array(
 								'added'			=> '0.0.1',

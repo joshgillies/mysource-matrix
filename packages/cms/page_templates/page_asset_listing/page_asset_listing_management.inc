@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_management.inc,v 1.8 2004/08/19 05:47:02 gsherwood Exp $
+* $Id: page_asset_listing_management.inc,v 1.9 2004/09/08 01:23:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -62,6 +62,9 @@ class Page_Asset_Listing_Management extends Asset_Management
 										'added'     => '0.1',
 										'type'      => 'boolean',
 										'default'   => false,
+										'parameters' => Array(
+															'allow_empty' => false
+														),
 										);
 
 		$this->vars['sort_by']		= Array(
@@ -101,6 +104,9 @@ class Page_Asset_Listing_Management extends Asset_Management
 										'added'     => '0.1',
 										'type'      => 'boolean',
 										'default'   => false,
+										'parameters' => Array(
+															'allow_empty' => false
+														),
 										);
 
 		$this->vars['num_per_page']	= Array(

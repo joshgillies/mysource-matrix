@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_constant_button_management.inc,v 1.10 2003/12/12 18:44:48 brobertson Exp $
+* $Id: design_area_constant_button_management.inc,v 1.11 2004/09/08 01:25:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -64,6 +64,9 @@ class Design_Area_Constant_Button_Management extends Asset_Management
 								'type'			=> 'boolean',
 								'default'		=> false,
 								'description'	=> 'Whether to open in a new window or not',
+								'parameters' 	=> Array(
+															'allow_empty' => false
+														),
 							),
 							'new_window_width' => Array(
 								'added'			=> '0.0.1',

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form_management.inc,v 1.5 2003/11/26 00:50:56 gsherwood Exp $
+* $Id: design_area_login_form_management.inc,v 1.6 2004/09/08 01:25:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -63,12 +63,18 @@ class Design_Area_Login_Form_Management extends Asset_Management
 								'type'			=> 'boolean',
 								'default'		=> false,
 								'description'	=> 'Whether to give the username input box focus on load of the page',
+								'parameters' 	=> Array(
+															'allow_empty' => false
+														),
 							),
 							'forward_www_vars' => Array(
 								'added'			=> '0.0.1',
 								'type'			=> 'boolean',
 								'default'		=> false,
 								'description'	=> 'When true will attempt to forward all the GET and POST vars (unable to files)',
+								'parameters' 	=> Array(
+															'allow_empty' => false
+														),
 							),
 						);
 

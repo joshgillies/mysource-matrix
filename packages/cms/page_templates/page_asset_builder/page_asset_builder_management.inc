@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.13 2004/09/02 03:43:44 gsherwood Exp $
+* $Id: page_asset_builder_management.inc,v 1.14 2004/09/08 01:23:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -202,9 +202,9 @@ class Page_Asset_Builder_Management extends Asset_Management
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes');
 			
 			}
-		}								
-				
-		
+		}
+
+
 		if (!parent::_upgrade($current_version)) return false;
 
 		if ($current_version == '0.1') {

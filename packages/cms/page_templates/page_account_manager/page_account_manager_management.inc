@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_management.inc,v 1.13 2004/09/03 17:49:04 brobertson Exp $
+* $Id: page_account_manager_management.inc,v 1.14 2004/09/08 01:23:36 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -88,6 +88,9 @@ class Page_Account_Manager_Management extends Asset_Management
 														'added'     => '0.1',
 														'type'      => 'boolean',
 														'default'   => false,
+														'parameters' => Array(
+															'allow_empty' => false
+														),
 													);
 
 		$this->vars['validation_email_format']	= Array(

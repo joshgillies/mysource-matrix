@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map_management.inc,v 1.6 2004/02/10 16:32:41 brobertson Exp $
+* $Id: page_site_map_management.inc,v 1.7 2004/09/08 01:23:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,41 +47,50 @@ class Page_Site_Map_Management extends Asset_Management
 
 		
 		$this->vars = Array(
-							'name' => Array (
-									'added'		=> '0.0.1',
-									'type'		=> 'text',
-									'default'	=> '',
-							), // end name
-							'stalks' => Array(
-									'added'		=> '0.0.1',
-									'type'		=> 'boolean',
-									'default'	=> true,
-							), // end stalks
-							'top_level'	=> Array(
-									'added'		=> '0.0.1',
-									'type'		=> 'boolean',
-									'default'	=> false,
-							), // end top_level
-							'columns' => Array(
-									'added'		=> '0.0.1',
-									'type'		=> 'int',
-									'default'	=> 1,
-							), // end levels
-							'levels' => Array(
-									'added'		=> '0.0.1',
-									'type'		=> 'int',
-									'default'	=> 0,
-							),
+							'name'			=> Array (
+												'added'		=> '0.0.1',
+												'type'		=> 'text',
+												'default'	=> '',
+												),
+							'stalks'		=> Array(
+												'added'		=> '0.0.1',
+												'type'		=> 'boolean',
+												'default'	=> true,
+												'parameters' => Array(
+													'allow_empty' => false
+													),
+												),
+							'top_level'		=> Array(
+												'added'		=> '0.0.1',
+												'type'		=> 'boolean',
+												'default'	=> false,
+												'parameters' => Array(
+													'allow_empty' => false
+													),
+												),
+							'columns'		=> Array(
+												'added'		=> '0.0.1',
+												'type'		=> 'int',
+												'default'	=> 1,
+												),
+							'levels' 		=> Array(
+												'added'		=> '0.0.1',
+												'type'		=> 'int',
+												'default'	=> 0,
+												),
 							'exclude_list'	=>	Array(
-									'added'		=> '0.0.1',
-									'type'		=> 'serialise',
-									'default'	=> Array(),
-							),
+												'added'		=> '0.0.1',
+												'type'		=> 'serialise',
+												'default'	=> Array(),
+												),
 							'icons'		=> Array(
-								'added'		=> '0.0.1',
-								'type'		=> 'boolean',
-								'default'	=> false,
-							),
+												'added'		=> '0.0.1',
+												'type'		=> 'boolean',
+												'default'	=> false,
+												'parameters' => Array(
+													'allow_empty' => false
+													),
+												),
 						);
 
 	}//end constructor

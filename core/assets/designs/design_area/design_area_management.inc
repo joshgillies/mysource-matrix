@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_management.inc,v 1.10 2003/11/26 00:50:54 gsherwood Exp $
+* $Id: design_area_management.inc,v 1.11 2004/09/08 01:25:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -64,9 +64,12 @@ class Design_Area_Management extends Asset_Management
 								'description' => 'Holds the names for all variables that are "references" to values in other'
 								),
 							'specialised' => Array(
-								'added'     => '0.0.1',
-								'type'      => 'boolean',
-								'default'   => 0
+								'added'      => '0.0.1',
+								'type'       => 'boolean',
+								'default'    => false,
+								'parameters' => Array(
+														'allow_empty' => false
+													),
 								)
 							);
 

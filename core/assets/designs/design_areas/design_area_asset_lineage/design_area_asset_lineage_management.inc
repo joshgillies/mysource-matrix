@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage_management.inc,v 1.5 2004/02/16 05:18:50 gsherwood Exp $
+* $Id: design_area_asset_lineage_management.inc,v 1.6 2004/09/08 01:25:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -62,31 +62,46 @@ class Design_Area_Asset_Lineage_Management extends Asset_Management
 								'added'			=> '0.0.1',
 								'type'			=> 'boolean',
 								'default'		=> false,
-								'description'	=> 'whether or not to start the list with a link to the site\'s index'
+								'description'	=> 'whether or not to start the list with a link to the site\'s index',
+								'parameters' 	=> Array(
+															'allow_empty' => false
+														),
 							),
 							'suffix_with_current_link' => Array(
 								'added'			=> '0.0.1',
 								'type'			=> 'boolean',
 								'default'		=> false,
-								'description'	=> 'whether or not to end the list with a link to the current page'
+								'description'	=> 'whether or not to end the list with a link to the current page',
+								'parameters' 	=> Array(
+															'allow_empty' => false
+														),
 							),
 							'prefix_with_divider' => Array(
 								'added'			=> '0.0.1',
 								'type'			=> 'boolean',
 								'default'		=> false,
-								'description'	=> 'whether or not to start the list with a divider'
+								'description'	=> 'whether or not to start the list with a divider',
+								'parameters' 	=> Array(
+															'allow_empty' => false
+														),
 							),
 							'suffix_with_divider' => Array(
 								'added'			=> '0.0.1',
 								'type'			=> 'boolean',
 								'default'		=> true,
-								'description'	=> 'whether or not to end the list with a divider'
+								'description'	=> 'whether or not to end the list with a divider',
+								'parameters' 	=> Array(
+															'allow_empty' => false
+														),
 							),
 							'show_hidden_links' => Array(
 								'added'			=> '0.0.1',
 								'type'			=> 'boolean',
 								'default'		=> true,
-								'description'	=> 'whether or not to show TYPE_2 links as well as TYPE_1'
+								'description'	=> 'whether or not to show TYPE_2 links as well as TYPE_1',
+								'parameters'	=> Array(
+															'allow_empty' => false
+														),
 							),
 							'levels_to_print' => Array(
 								'added'			=> '0.0.1',

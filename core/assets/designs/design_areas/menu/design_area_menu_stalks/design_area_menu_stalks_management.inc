@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_stalks_management.inc,v 1.7 2003/12/16 18:19:51 brobertson Exp $
+* $Id: design_area_menu_stalks_management.inc,v 1.8 2004/09/08 01:25:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -69,7 +69,10 @@ class Design_Area_Menu_Stalks_Management extends Asset_Management
 								'added'			=> '0.0.1',
 								'type'			=> 'boolean',
 								'default'		=> 1,
-								'description'	=> 'Whether to allow the wrapping of the text in the entry or not'
+								'description'	=> 'Whether to allow the wrapping of the text in the entry or not',
+								'parameters'	=> Array(
+															'allow_empty' => false
+														),
 							),
 							'indent' => Array(
 								'added'			=> '0.0.1',
@@ -87,7 +90,10 @@ class Design_Area_Menu_Stalks_Management extends Asset_Management
 								'added'			=> '0.0.1',
 								'type'			=> 'boolean',
 								'default'		=> 1,
-								'description'	=> 'Show or hide the stalks - text still indents even if not shown'
+								'description'	=> 'Show or hide the stalks - text still indents even if not shown',
+								'parameters' 	=> Array(
+															'allow_empty' => false
+														),
 							),
 							'stalk_fg_colour' => Array(
 								'added'			=> '0.0.1',

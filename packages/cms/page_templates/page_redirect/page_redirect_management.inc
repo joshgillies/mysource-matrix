@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect_management.inc,v 1.10 2004/04/01 05:02:43 gsherwood Exp $
+* $Id: page_redirect_management.inc,v 1.11 2004/09/08 01:23:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -61,6 +61,9 @@ class Page_Redirect_Management extends Asset_Management
 											'added'     => '0.0.1',
 											'type'      => 'boolean',
 											'default'   => false,
+											'parameters' => Array(
+															'allow_empty' => false
+														),
 											),
 						'new_window_options' => Array(
 											'added'      => '0.0.1',

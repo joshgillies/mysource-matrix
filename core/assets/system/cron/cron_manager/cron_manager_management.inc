@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_management.inc,v 1.10 2003/11/26 00:50:59 gsherwood Exp $
+* $Id: cron_manager_management.inc,v 1.11 2004/09/08 01:25:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -70,6 +70,9 @@ class Cron_Manager_Management extends Asset_Management
 								'type'			=> 'boolean',
 								'default'		=> false,
 								'description'	=> 'Are we currently running ?',
+								'parameters' 	=> Array(
+														'allow_empty' => false
+													),
 							),
 							'run_check' => Array(
 								'added'			=> '0.1',

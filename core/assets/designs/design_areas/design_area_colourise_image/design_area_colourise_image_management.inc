@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_colourise_image_management.inc,v 1.15 2003/12/12 16:58:11 brobertson Exp $
+* $Id: design_area_colourise_image_management.inc,v 1.16 2004/09/08 01:25:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -59,11 +59,14 @@ class Design_Area_Colourise_Image_Management extends Asset_Management
 								'default'     => Array(),
 								'description' => 'Associative Array of colours that are going to be used in the converison process',
 							),
-							'filename_only' => Array(
-								'added'     => '0.0.1',
-								'type'      => 'boolean',
-								'default'   => 0,
+							'filename_only'   => Array(
+								'added'       => '0.0.1',
+								'type'        => 'boolean',
+								'default'     => 0,
 								'description' => 'whether to print just the filename or the full img tag',
+								'parameters'  => Array(
+															'allow_empty' => false
+														),
 							),
 							'type' => Array(
 								'added'			=> '0.0.1',

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_management.inc,v 1.6 2004/07/07 04:24:36 lwright Exp $
+* $Id: metadata_section_management.inc,v 1.7 2004/09/08 01:25:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -48,11 +48,16 @@ class Metadata_Section_Management extends Asset_Management
 
 		$this->vars = Array('name' => Array(
 											'added'     => '0.1',
-											'type'      => 'text', 'default'   => ''
+											'type'      => 'text',
+											'default'   => ''
 											),
 							'frontend' => Array(
-											'added' => '0.1',
-											'type'  => 'boolean', 'default'   => true
+											'added'      => '0.1',
+											'type'       => 'boolean',
+											'default'    => true,
+											'parameters' => Array(
+															'allow_empty' => false
+														),
 											),
 							);
 	}//end constructor

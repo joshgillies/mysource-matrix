@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content_management.inc,v 1.3 2004/09/06 02:05:11 arailean Exp $
+* $Id: page_remote_content_management.inc,v 1.4 2004/09/08 01:23:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -57,18 +57,27 @@ class Page_Remote_Content_Management extends Asset_Management
 											'added'       => '0.1',
 											'type'      => 'boolean',
 											'default'   => true,
+											'parameters' => Array(
+															'allow_empty' => false
+														),
 											),
 
 						'only_local_links' => Array(
 											'added'       => '0.1',
 											'type'      => 'boolean',
 											'default'   => false,
+											'parameters' => Array(
+															'allow_empty' => false
+														),
 											),
 
 						'allow_redirect' => Array(
 											'added'       => '0.1',
 											'type'      => 'boolean',
 											'default'   => true,
+											'parameters' => Array(
+															'allow_empty' => false
+														),
 											),
 
 						'username' => Array(
@@ -114,6 +123,9 @@ class Page_Remote_Content_Management extends Asset_Management
 											'added'       => '0.1',
 											'type'      => 'boolean',
 											'default'   => true,
+											'parameters' => Array(
+															'allow_empty' => false
+														),
 											),
 
 						'binary_message' => Array(

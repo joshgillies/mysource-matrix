@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_management.inc,v 1.2 2004/02/03 04:29:43 gsherwood Exp $
+* $Id: metadata_field_text_management.inc,v 1.3 2004/09/08 01:25:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -48,8 +48,12 @@ class Metadata_Field_Text_Management extends Asset_Management
 		
 		// additional attrs., that were not defined in parent
 		$this->vars = Array('multi_line'		=> Array(
-													'added' => '0.1',
-													'type'  => 'boolean', 'default'   => false
+													'added'      => '0.1',
+													'type'       => 'boolean',
+													'default'    => false,
+													'parameters' => Array(
+															'allow_empty' => false
+														),
 													),
 							);
 	}//end constructor

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_management.inc,v 1.1 2004/08/19 05:42:41 gsherwood Exp $
+* $Id: cache_manager_management.inc,v 1.2 2004/09/08 01:25:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $ - 0.1
+* @version $Revision: 1.2 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,25 +50,37 @@ class Cache_Manager_Management extends Asset_Management
 				'added'			=> '0.1',
 				'type'			=> 'boolean',
 				'default'		=> false,
-				'description'	=> 'Turns caching on or off'
+				'description'	=> 'Turns caching on or off',
+				'parameters' 	=> Array(
+										'allow_empty' => false
+									),
 			),
 			'public_caching' => Array (
 				'added'			=> '0.1',
 				'type'			=> 'boolean',
 				'default'		=> false,
-				'description'	=> 'Turns caching on or off for not logged in users'
+				'description'	=> 'Turns caching on or off for not logged in users',
+				'parameters' 	=> Array(
+										'allow_empty' => false
+									),
 			),
 			'permission_caching' => Array (
 				'added'			=> '0.1',
 				'type'			=> 'boolean',
 				'default'		=> false,
-				'description'	=> 'Turns read/write/admin level caching on or off'
+				'description'	=> 'Turns read/write/admin level caching on or off',
+				'parameters' 	=> Array(
+										'allow_empty' => false
+									),
 			),
 			'group_caching' => Array (
 				'added'			=> '0.1',
 				'type'			=> 'boolean',
 				'default'		=> false,
-				'description'	=> 'Turns group level caching on or off'
+				'description'	=> 'Turns group level caching on or off',
+				'parameters' 	=> Array(
+											'allow_empty' => false
+										),
 			),
 			'num_cache_dirs' => Array(
 					'added'		=> '0.1',

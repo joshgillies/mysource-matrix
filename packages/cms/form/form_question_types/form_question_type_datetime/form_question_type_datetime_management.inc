@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime_management.inc,v 1.8 2004/07/14 14:49:24 brobertson Exp $
+* $Id: form_question_type_datetime_management.inc,v 1.9 2004/09/08 01:23:36 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -64,6 +64,9 @@ class Form_Question_Type_Datetime_Management extends Asset_Management
 										'added'     => '0.0.1',
 										'type'      => 'boolean',  
 										'default'   => false,
+										'parameters' => Array(
+															'allow_empty' => false
+														),
 									),
 							'show'	=> Array(
 										'added'     => '0.0.1',

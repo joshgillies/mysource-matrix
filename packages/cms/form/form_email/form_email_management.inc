@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_management.inc,v 1.15 2004/07/07 01:05:29 lwright Exp $
+* $Id: form_email_management.inc,v 1.16 2004/09/08 01:23:36 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -100,12 +100,18 @@ class Form_Email_Management extends Asset_Management
 													'added'		=> '0.0.1',
 													'type'		=> 'boolean',
 													'default'	=> false,
+													'parameters' => Array(
+															'allow_empty' => false
+														),
 									),//end receipt_allow_html
 							
 							'receipt_send_answers' => Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'boolean',
 													'default'	=> false,
+													'parameters' => Array(
+															'allow_empty' => false
+														),
 									),//end receipt_send_answers
 							
 							'recipient_emails_format' => Array(
@@ -140,18 +146,27 @@ class Form_Email_Management extends Asset_Management
 													'added'		=> '0.0.1',
 													'type'		=> 'boolean',
 													'default'	=> false,
+													'parameters' => Array(
+															'allow_empty' => false
+														),
 									),//end recipient_allow_html
 
 							'recipient_send_info' => Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'boolean',
 													'default'	=> false,
+													'parameters' => Array(
+															'allow_empty' => false
+														),
 									),//end recipient_send_info
 
 							'recipient_send_answers' => Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'boolean',
 													'default'	=> false,
+													'parameters' => Array(
+															'allow_empty' => false
+														),
 									),//end recipient_send_answers
 
 								/// STAF (Send To A Friend) ///
@@ -198,6 +213,9 @@ class Form_Email_Management extends Asset_Management
 													'added'		=> '0.0.1',
 													'type'		=> 'boolean',
 													'default'	=> false,
+													'parameters' => Array(
+															'allow_empty' => false
+														),
 											),
 							);
 	}//end constructor

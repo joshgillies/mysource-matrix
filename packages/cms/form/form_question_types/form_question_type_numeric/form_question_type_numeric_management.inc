@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_numeric_management.inc,v 1.2 2004/04/28 02:42:03 lwright Exp $
+* $Id: form_question_type_numeric_management.inc,v 1.3 2004/09/08 01:23:36 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -76,11 +76,17 @@ class Form_Question_Type_Numeric_Management extends Asset_Management
 									'added'     => '0.0.1',
 									'type'      => 'boolean',  
 									'default'   => false,
+									'parameters' => Array(
+															'allow_empty' => false
+														),
 									),
 							'is_int'			=> Array(
 									'added'     => '0.0.1',
 									'type'      => 'boolean',
-									'default'   => null,
+									'default'   => false,
+									'parameters' => Array(
+															'allow_empty' => false
+														),
 									),
 								
 			);
