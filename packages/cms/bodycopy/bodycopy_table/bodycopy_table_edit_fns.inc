@@ -571,18 +571,30 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		$this->paint($asset, true);
 		$output = ob_get_contents();
 		ob_end_clean();
-		
-		$existing_links = $asset->getLinks(SQ_LINK_NOTICE);
+
+		$existing_links = Array();
+		$notice_links = $asset->getLinks(SQ_LINK_NOTICE);
+		foreach ($notice_links as $link_data) $existing_links[] = $link_data['minorid'];
 
 		$e = '/\\.\\/\\?a=([0-9]+)/';
 		$matches = Array();
 		preg_match_all($e, $output, $matches);
 		$replace_assetids = $matches[1];
-		if (!empty($replace_assetids) || !empty($existing_links)) {
+
+		if ($asset->status & SQ_STATUS_SAFE_EDITING) {
+			// this table currently has a system version floating around
+			// so we have to be careful not to delete notice links that are
+			// still being used in this system version
+			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+			$system_assetids = unserialize(file_to_string($asset->data_path.'/.sq_system/.notice_links'));
+			$replace_assetids = array_merge($replace_assetids, $system_assetids);
+		}
+
+		if (!empty($replace_assetids) || !empty($notice_links)) {
 
 			// delete existing notice links that are no longer being used
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			foreach($existing_links as $link_data) {
+			foreach($notice_links as $link_data) {
 				if (!in_array($link_data['minorid'], $replace_assetids)) {
 					$asset->deleteLink($link_data['linkid']);
 				}
@@ -590,26 +602,27 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 			foreach($replace_assetids as $assetid) {
-				$ereg_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				if ($ereg_asset->id) {
+				if (!in_array($assetid, $existing_links)) {
+					$ereg_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					if ($ereg_asset->id) {
 					
-					// dont show errors here if the link already exists
-					// as we rely on the fact that this ereg_asset cant be notice linked
-					// to asset mutiple times to step redunant links from
-					// being created (eg same image on page 10 times should only
-					// produce one notice link)
-					@$asset->createLink($ereg_asset, SQ_LINK_NOTICE);
-
-					$e = "(/?\./\\?a={$assetid})([^0-9]+)";
-					$with = '<?php echo $sq_asset_url_list['.$assetid.']; ?>';
-					$output = ereg_replace($e, $with.'\\2', $output);
+						// dont show errors here if the link already exists
+						// as we rely on the fact that this ereg_asset cant be notice linked
+						// to asset mutiple times to step redunant links from
+						// being created (eg same image on page 10 times should only
+						// produce one notice link)
+						@$asset->createLink($ereg_asset, SQ_LINK_NOTICE);
+					}
 				}
+
+				$e = "(/?\./\\?a={$assetid})([^0-9]+)";
+				$with = '<?php echo $sq_asset_url_list['.$assetid.']; ?>';
+				$output = ereg_replace($e, $with.'\\2', $output);
 			}
 		}
 
 		create_directory($asset->data_path);
-		if (string_to_file($output, $asset->data_path.'/content_file.php')) return true;
-		return false;
+		return string_to_file($output, $asset->data_path.'/content_file.php');
 	}//end generateContentFile()
 
 

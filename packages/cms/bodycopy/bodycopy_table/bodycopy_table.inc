@@ -31,6 +31,76 @@ class Bodycopy_Table extends Asset
 
 
 	/**
+	* Saves a copy of this asset at this point in time
+	* This copy gets used when the asset is live and the user does not have write access
+	*
+	* @return boolean
+	* @access public
+	*/
+	function saveSystemVersion()
+	{
+		if (!parent::saveSystemVersion()) return false;
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
+		// save a version of the table as it appears now
+		$edit = $this->getEditFns();
+		if (!$edit->generateContentFile($this)) {
+			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create content file', E_USER_WARNING);
+			return false;
+		}
+
+		// save the current notice links
+		$replace_assetids = Array();
+		$notice_links = $this->getLinks(SQ_LINK_NOTICE);
+		foreach ($notice_links as $link) $replace_assetids[] = $link['minorid'];
+
+		// save the links we currently use (./?a=xx)
+		if (!string_to_file(serialize($replace_assetids), $this->data_path.'/.sq_system/.notice_links')) {
+			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create notice links file', E_USER_WARNING);
+			return false;
+		}
+
+		return true;
+	}//end saveSystemVersion()
+
+
+	/**
+	* Processes the changes required when a new status is set
+	*
+	* @param int	$new_status		the new status to set for this asset
+	* @param int	$real_status	the new status is not always the status that gets
+	*								set because of workflow and other things, so this
+	*								status represents the actual status that will be set
+	*								if know (will only be know if this function was called
+	*								from a dependant parent)
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processStatusChange($new_status, $real_status=0)
+	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		if (!parent::processStatusChange($new_status, $real_status=0)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		// if we have just gone live from safe editing, we need to
+		// create our notice links again so we dont have leftovers from
+		// when we were safe editing and thus not deleting links we removed
+		$edit = $this->getEditFns();
+		if (!$edit->generateContentFile($this)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
+	}
+
+
+	/**
 	* Create this asset
 	*
 	* @param array()	&$link		information used to create the initial link
@@ -225,12 +295,15 @@ class Bodycopy_Table extends Asset
 			// create an array of urls that the content file is
 			// going to try and use to work out file urls, link hrefs etc
 			$sq_asset_url_list = Array();
-			
+
 			$notice_links = $this->getLinks(SQ_LINK_NOTICE);
-			foreach ($notice_links as $link) {
-				$href = $GLOBALS['SQ_SYSTEM']->am->getAssetHref($link['minorid']);
+			$get_href_ids = Array();
+			foreach ($notice_links as $link) $get_href_ids[] = $link['minorid'];
+
+			$hrefs = $GLOBALS['SQ_SYSTEM']->am->getAssetHref(array_unique($get_href_ids));
+			foreach ($hrefs as $minorid => $href) {
 				if ($href == '') $href = "Javascript: alert('This link does not exist');";
-				$sq_asset_url_list[$link['minorid']] = $href;
+				$sq_asset_url_list[$minorid] = $href;
 			}
 
 			include($this->data_path.'/content_file.php');
