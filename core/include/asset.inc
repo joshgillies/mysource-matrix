@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.362 2005/02/17 01:37:40 lwright Exp $
+* $Id: asset.inc,v 1.363 2005/02/17 06:08:30 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.362 $
+* @version $Revision: 1.363 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -131,7 +131,7 @@ class Asset extends MySource_Object
 	* @var int
 	*/
 	var $status_changed_userid;
-	
+
 	/**
 	* Is this asset type able to be cached automatically by the system?
 	* @var boolean
@@ -402,6 +402,10 @@ class Asset extends MySource_Object
 		unset($this->_tmp['__creating__']);
 		if (!$this->_updated()) return $this->_abortCreate();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		// Fire the 'Asset Created' event
+		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_created', &$this);
+
 		$ms->closeLog();
 
 		if (!empty($link)) {
@@ -475,8 +479,8 @@ class Asset extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// OK, the first thing to do is check we actually exist :)
-		$sql = 'SELECT assetid, type_code, version, name, short_name, status, languages, 
-				charset, force_secure, created, created_userid, updated, updated_userid, 
+		$sql = 'SELECT assetid, type_code, version, name, short_name, status, languages,
+				charset, force_secure, created, created_userid, updated, updated_userid,
 				published, published_userid, status_changed, status_changed_userid
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast ';
 		$where = 'assetid = '.$db->quote($assetid);
@@ -961,7 +965,7 @@ class Asset extends MySource_Object
 	* version number for the asset.
 	*
 	* @param boolean	$update_parents	should we go through an update all our dependant parents as well ?
-	*									NOTE: this is passed to incrementVersion to let it know that 
+	*									NOTE: this is passed to incrementVersion to let it know that
 	*									the parents should have their versions updated as well.
 	*
 	* @return boolean
@@ -1573,8 +1577,11 @@ class Asset extends MySource_Object
 				}
 			}//end foreach
 			unset($this->_tmp[__CLASS__.'_in_create_cascading']);
-			if (is_null($old_sq_install)) unset($GLOBALS['SQ_INSTALL']);
-			else $GLOBALS['SQ_INSTALL'] = $old_sq_install;
+			if (is_null($old_sq_install)) {
+				unset($GLOBALS['SQ_INSTALL']);
+			} else {
+				$GLOBALS['SQ_INSTALL'] = $old_sq_install;
+			}
 		}//end if permissions
 
 
@@ -1783,7 +1790,7 @@ class Asset extends MySource_Object
 
 			$this->status = $new_status;
 			unset($this->_tmp['status_object']);
-			
+
 			$this->_updated();
 
 			// if we have just made this asset live, we update its minor version
@@ -2692,7 +2699,7 @@ class Asset extends MySource_Object
 	function readAccess($assetids=Array())
 	{
 		if (!$this->id) return true;
-		
+
 		// if the asset is in the middle of workflow and the current user
 		// can approve the asset, we really need to give them read access to it
 		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
@@ -2920,7 +2927,7 @@ class Asset extends MySource_Object
 				// use the current user and their groups
 				$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->currentUserId(), Array('user', 'user_group'), false));
 				$assetids[] = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
-			} 
+			}
 			$assetids[] = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		}
 
@@ -3741,7 +3748,7 @@ class Asset extends MySource_Object
 
 	}//end getWeightings()
 
-	
+
 }//end class
 
 
