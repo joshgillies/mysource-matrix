@@ -23,12 +23,24 @@ class Form_Question_Rule_Type_Comparison_Edit_Fns extends Form_Question_Rule_Edi
 	function Form_Question_Rule_Type_Comparison_Edit_Fns()
 	{
 		$this->Form_Question_Rule_Edit_Fns();
-	}
+
+	} // end Form_Question_Rule_Type_Comparison_Edit_Fns()
 	
+
+	/**
+	* paints a section in the question to change the options of this rule
+	* 
+	* @param object Form				&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @access public
+	* @return boolean
+	*/
 	function paintInlineBackend(&$asset, &$o, $prefix)
 	{
-
 		$contents = $asset->getOperators();
+		if (empty($contents)) return false;
 
 		// table tags are printed in caller (form_question_edit_fns::printRules())
 		?>
@@ -44,9 +56,21 @@ class Form_Question_Rule_Type_Comparison_Edit_Fns extends Form_Question_Rule_Edi
 			</td>
 		</tr>
 		<?php
+		return true;
 	
 	} // end paintInlineBackend()
 
+
+	/**
+	* processes the section in the question to change the options of this rule
+	* 
+	* @param object Form				&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @access public
+	* @return boolean
+	*/
 	function processInlineBackend(&$asset, &$o, $prefix)
 	{
 		if ($this->processDelete()) return true;
@@ -57,7 +81,7 @@ class Form_Question_Rule_Type_Comparison_Edit_Fns extends Form_Question_Rule_Edi
 		if (isset($_POST[$prefix.'_value'])) {
 			$asset->setAttrValue('value', $_POST[$prefix.'_value']);
 		}
-
+		bam($_POST[$prefix.'_value']);
 		return $asset->saveAttributes();
 
 	}// end processInlineBackend()
