@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.135 2003/10/13 09:53:53 brobertson Exp $
+* $Id: asset_manager.inc,v 1.136 2003/10/14 01:32:09 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1040,8 +1040,14 @@ class Asset_Manager extends MySource_Object
 			}
 			return $lock_types;
 		} else {
-			return array_keys($this->_tmp['lock_types'][$assetid]);
-		}
+			$lock_types = Array();
+			foreach($this->_tmp['lock_types'][$assetid] as $lock_type => $bit) {
+				if (preg_match('/^0*10*$/', decbin($bit))) {
+					$lock_types[] = $lock_type;
+				}
+			}
+			return $lock_types;
+		}// end if
 
 	}// end getLockTypes()
 
