@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.10 2004/01/15 14:42:13 brobertson Exp $
+* $Id: user_group_edit_fns.inc,v 1.11 2004/02/05 05:57:30 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -59,7 +59,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	* @return Array()
 	* @access public
 	*/
-	function getCurrentValues(&$asset)
+	function getCurrentRestrictions(&$asset)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -75,7 +75,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 
 		return $result;
 
-	}//end getCurrentValues()
+	}//end getCurrentRestrictions()
 
 
 	/**
@@ -90,7 +90,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function paintUnrestricted(&$asset, &$o, $prefix)
 	{
-		$current = $this->getCurrentValues($asset);
+		$current = $this->getCurrentRestrictions($asset);
 
 		if (!$asset->adminAccess('security')) {
 			if (!$this->isRestricted($asset)) echo 'Unrestricted access has been granted. No security restrictions apply on this user group.';
@@ -158,7 +158,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function isRestricted(&$asset)
 	{
-		$current = $this->getCurrentValues($asset);
+		$current = $this->getCurrentRestrictions($asset);
 		return !isset($current['0']['0']);
 
 	}//end isRestricted()
@@ -176,7 +176,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function paintTypeRestrictions(&$asset, &$o, $prefix)
 	{
-		$current = $this->getCurrentValues($asset);
+		$current = $this->getCurrentRestrictions($asset);
 		$admin_access = $asset->adminAccess('security');
 
 		foreach ($current as $type_code => $type_data) {
@@ -278,7 +278,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function processTypeRestrictions(&$asset, &$o, $prefix)
 	{
-		$current = $this->getCurrentValues($asset);
+		$current = $this->getCurrentRestrictions($asset);
 
 		  //////////////////////////////////////
 		 //  ADD ACCESS FOR NEW ASSET TYPES  //
@@ -297,7 +297,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 					return false;
 				}
 			}
-		}
+		}//end if
 
 
 		  ////////////////////////////////
@@ -333,7 +333,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 					}
 				}
 			}
-		}
+		}//end if
 
 
 		  ///////////////////////////////
@@ -352,7 +352,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 					return false;
 				}
 			}
-		}
+		}//end if
 
 	}//end processTypeRestrictions()
 
