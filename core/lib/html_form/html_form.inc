@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.60 2004/06/30 06:37:28 tbarrett Exp $
+* $Id: html_form.inc,v 1.61 2004/07/04 23:26:39 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -196,6 +196,7 @@ function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
 	$max  = (int) $max;
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo	'<textarea name="', htmlspecialchars($name), '" ',
+			'id="', htmlspecialchars($name), '" ',
 			(($cols)  ? 'cols="'.$cols.'" ' : ''),
 			(($rows)  ? 'rows="'.$rows.'" ' : ''),
 			(($max)   ? 'onkeypress="if (this.value.length > '.$max.') { this.value = this.value.substr(0,'.$max.'); alert(\'This field can contain no more than '.$max.' characters.\'); this.focus()}" ' : ''),
