@@ -124,7 +124,6 @@ class Asset_Attribute extends Resolve_Object
 	function paint($prefix)
 	{
 		echo 'Interface for '.ucwords(str_replace('_', ' ', $this->type())).' Not Done';
-		return true;
 	}
 
 	/*
@@ -154,20 +153,6 @@ class Asset_Attribute extends Resolve_Object
 			trigger_error('XML Tree Node type "'.$node->name.'" not compatible with attribute type "'.$this->type().'<br/>Full Node Contents :<br/><pre>'.$node->get().'</pre>', E_USER_WARNING);
 			return false;
 		}
-		return true;
-	}
-
-	/*
-	* Basically the reverse of setEditParams(), takes the edit params and adds the details to the 
-	* passed XML_Tree_Node
-	*
-	* @param object XML_Tree_Node	$node
-	*
-	* @return boolean
-	* @access public
-	*/
-	function getEditParams(&$node)
-	{
 		return true;
 	}
 
