@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.38 2004/11/18 05:12:48 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.39 2004/11/23 02:42:09 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -74,8 +74,6 @@ class Page_Asset_Listing extends Page
 			$this->id = 0;
 			return false;
 		}
-
-		
 
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 		unset($asset);
@@ -943,25 +941,21 @@ class Page_Asset_Listing extends Page
 				// special case for the default format where we dont
 				// have to do as much processing
 				$dummy_asset = new Asset();
-				$type_keywords = $dummy_asset->getAssetKeywords(true);
+				$type_keywords = $dummy_asset->getAssetKeywords(false);
 				unset($dummy_asset);
 			} else {
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 				$dummy_asset = new $type_code();
-				$type_keywords = $dummy_asset->getAssetKeywords(true);
+				$type_keywords = $dummy_asset->getAssetKeywords(false);
 				unset($dummy_asset);
 			}
 
 			foreach ($type_keywords as $keyword => $info) {
-				if (empty($info['description'])) $info['description'] = ucfirst(str_replace('_', ' ', $keyword));
 				$name = ucwords(str_replace('_', ' ', $keyword));
-				$keywords[$keyword] = Array('name' => $name, 'default' => $info['description'], 'type' => 'inline');
+				$keywords[$keyword] = $name;
 			}
 		}
-		$keywords['asset_contents'] = Array('name'    => 'Asset Contents',
-											'default' => 'Asset Contents',
-											'type'    => 'block'
-											);
+		$keywords['asset_contents'] = 'Asset Contents';
 
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 
@@ -974,42 +968,23 @@ class Page_Asset_Listing extends Page
 	* The return value is in the form:
 	* <pre>
 	* Array(
-	*     'keyword' => Array (
-	*					'name'	=> '(name of the keyword)',
-	*				    'default' => '(default value)',
-	*					'type' => 'block' | 'inline'
-	*                  )
+	*     'keyword' => 'name',
 	* )
 	* </pre>
 	*
-	* @param boolean $descriptions if TRUE descriptions will be included in the array
-	*
 	* @access public
-	* @return Array(mixed)
+	* @return array(string => string)
 	*/
 	function getContentsKeywords()
 	{
-		$keywords = Array();
+		$keywords = Array(
+							'asset_listing' => 'Asset Lsting',
+							'previous_page' => 'Previous Page Link',
+							'next_page'     => 'Next Page Link',
+							'page_list'     => 'Page List',
+		
+						);
 
-		$keywords['asset_listing'] =	Array(
-											'name'=>'Asset Listing',
-											'default'=>'The Listing of Assets',
-											'type'=>'block');
-
-		$keywords['previous_page'] =	Array(
-											'name'=>'Previous Page Link',
-											'default'=>'Link to the previous page of the listing',
-											'type'=>'inline');
-
-		$keywords['next_page'] =		Array(
-											'name'=>'Next Page Link',
-											'default'=>'Link to the next page of the listing',
-											'type'=>'inline');
-
-		$keywords['page_list'] =		Array(
-											'name'=>'Page List',
-											'default'=>'List of pages in the listing',
-											'type'=>'inline');
 		return $keywords;
 
 	}//end getContentsKeywords()

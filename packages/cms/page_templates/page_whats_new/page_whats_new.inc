@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.7 2004/11/10 03:18:15 gsherwood Exp $
+* $Id: page_whats_new.inc,v 1.8 2004/11/23 02:42:09 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -305,32 +305,18 @@ class Page_Whats_New extends Page_Asset_Listing
 	* The return value is in the form:
 	* <pre>
 	* Array(
-	*     'keyword' => Array (
-	*             'name'    => '(name of the keyword)',
-	*             'default' => '(default value)',
-	*             'type'    => 'block' | 'inline'
-	*         )
+	*     'keyword' => 'name',
 	* )
 	* </pre>
 	*
-	* @param boolean $descriptions if TRUE descriptions will be included in the array
-	*
 	* @access public
-	* @return Array(mixed)
+	* @return array(string => string)
 	*/
 	function getContentsKeywords()
 	{
 		$keywords = parent::getContentsKeywords();
-		$keywords['date_range_list'] = Array(
-					'name'    => 'Date Range List',
-					'default' => 'Date Range List', 
-					'type'    => 'inline'
-				);
-		$keywords['date_range_list_linked'] = Array(
-					'name'    => 'Date Range List Linked',
-					'default' => 'Date Range List Linked', 
-					'type'    => 'inline'
-				);
+		$keywords['date_range_list'] = 'Date Range List';
+		$keywords['date_range_list_linked'] = 'Date Range List Linked';
 
 		return $keywords;
 

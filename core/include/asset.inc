@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.335 2004/11/18 04:39:52 gsherwood Exp $
+* $Id: asset.inc,v 1.336 2004/11/23 02:45:15 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -134,7 +134,7 @@ class Asset extends MySource_Object
 
 	/**
 	* An array of keywords that this asset makes available for use along with a default replacement
-	* @var Array(keyword => Array('name' => short description, 'default' => default replacement, 'type' => '[inline|block]'))
+	* @var Array(keyword => name)
 	*/
 	var $_available_keywords = Array();
 

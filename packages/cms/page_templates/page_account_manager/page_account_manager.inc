@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.19 2004/11/18 05:12:48 gsherwood Exp $
+* $Id: page_account_manager.inc,v 1.20 2004/11/23 02:42:09 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -43,25 +43,25 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 	/**
 	* An array of keywords that this asset makes available for use along with a default replacement
-	* @var Array(keyword => Array('name' => short description, 'default' => default replacement))
+	* @var array(keyword => name)
 	*/
 	var $_available_keywords = Array(
-								'login_invite',
-								'login_form',
-								'login_error',
-								'create_invite',
-								'create_form',
-								'create_error',
-								'edit_details_invite',
-								'edit_details_form',
-								'edit_details_success',
-								'edit_details_lock_error',
-								'logout_form',
+								'login_invite'            => 'Login Invite',
+								'login_form'              => 'Login Form',
+								'login_error'             => 'Login Error Message',
+								'create_invite'           => 'Create Account Invite',
+								'create_form'             => 'Create Account Form',
+								'create_error'            => 'Create Error Message',
+								'edit_details_invite'     => 'Edit Details Invite',
+								'edit_details_form'       => 'Edit Details Form',
+								'edit_details_success'    => 'Edit Details Success Message',
+								'edit_details_lock_error' => 'Lock Error Message',
+								'logout_form'             => 'Logout Form',
 								);
 
 	/**
 	* An array of bodycopies that need to be created
-	* @var Array()
+	* @var array
 	*/
 	var $_bodycopies = Array( 'Not Logged In'    => 'not_logged_in',
 							  'Created Not Live' => 'create_no_login',
@@ -539,24 +539,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 	function onRequestKeywords(&$broadcaster, $vars=Array())
 	{
 		if (!isset($vars['keywords'])) return;
-
-		$keywords = Array();
-		foreach ($this->_available_keywords as $keyword) {
-			$name = ucwords(str_replace('_', ' ', $keyword));
-			$type = 'block';
-			if ($keyword == 'logout_form') {
-				$default = '<input style="border: 1px solid #5A5A5A; background-color: #F4F4EB;" type="button" value="Logout">';
-				$name = 'Logout Button';
-				$type = 'special';
-			} else if (substr($keyword, -5) == '_form') {
-				$default = $name;
-			} else {
-				$default = $this->attr($keyword);
-			}
-			$keywords[$keyword] = Array('name' => $name, 'default' => $default, 'type' => $type);
-		}
-		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
-
+		$vars['keywords'] = array_merge($vars['keywords'], $this->_available_keywords);
 		$vars['keywords'] = array_merge($vars['keywords'], $this->getSelectableLocationKeywords());
 
 	}//end onRequestKeywords()

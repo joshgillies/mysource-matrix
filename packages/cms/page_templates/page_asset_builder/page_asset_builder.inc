@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.36 2004/11/23 02:35:01 lwright Exp $
+* $Id: page_asset_builder.inc,v 1.37 2004/11/23 02:42:09 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,27 +53,27 @@ class Page_Asset_Builder extends Page
 
 	/**
 	* An array of errors reported during execution
-	* @var Array()
+	* @var array
 	*/
 	var $_errors = Array();
 
 	/**
 	* An array of keyword replacements to make
-	* @var Array()
+	* @var array
 	*/
 	var $_replacements = Array();
 
 	/**
 	* An array of keywords that this asset makes available for use along with a default replacements
-	* @var Array()
+	* @var array(keyword => name)
 	*/
 	var $_available_keywords = Array(
-								'login_invite',
-								'login_form',
-								'login_error',
-								'create_invite',
-								'create_form',
-								'create_error',
+								'login_invite' => 'Login Invite',
+								'login_form' => 'Login Form',
+								'login_error' => 'Login Error Message',
+								'create_invite' => 'Create Asset Invite',
+								'create_form' => 'Create Asset Form',
+								'create_error' => 'Create Asset Error Message',
 								);
 
 	/**
@@ -511,7 +511,8 @@ class Page_Asset_Builder extends Page
 			}
 		}
 		return $res;
-	}
+
+	}//end getAllSelectableCreateLocations()
 
 
 	/**
@@ -594,7 +595,8 @@ class Page_Asset_Builder extends Page
 			}
 		}
 		return $all_rule_match_locations;
-	}
+
+	}//end getRuleMatchCreateLocations()
 
 	
 	/**
@@ -613,17 +615,27 @@ class Page_Asset_Builder extends Page
 				+ $this->getRuleMatchCreateLocations($create_type)
 				+ $this->getAdditionalCreateLocations();
 		} else {
-			return false; // failed to select some compulsory selectable locations
+			// failed to select some compulsory selectable locations
+			return false;
 		}
 	
 	}//end _getAllCreateLocations()
 
 
+	/**
+	* Get a list of additional create locations from the REQUEST var
+	*
+	* Also ensures the passed additional locations are valid by checking the allowed
+	* additional create locations that have been set in the asset
+	*
+	* @return array(parentid => link_type)
+	* @access protected
+	*/
 	function getAdditionalCreateLocations()
 	{
 		$res = Array();
 		if (isset($_REQUEST['ASSET_BUILDER_ADDITIONAL_LOCATIONS']) && !empty($_REQUEST['ASSET_BUILDER_ADDITIONAL_LOCATIONS'])) {
-			// Get the assetids and link types from the query
+			// set the assetids and link types from the query
 			foreach (explode(';', $_REQUEST['ASSET_BUILDER_ADDITIONAL_LOCATIONS']) as $loc_code) {
 				if (false === strpos($loc_code, '-')) {
 					$link_type = SQ_LINK_TYPE_1;
@@ -645,7 +657,8 @@ class Page_Asset_Builder extends Page
 					if (empty($matches)) {
 						unset($res[$assetid]);
 					} else {
-						$valid_types[] = $info['type_code']; // save us looking it up again
+						// save us looking it up again
+						$valid_types[] = $info['type_code'];
 					}
 				}
 				if (!in_array($assetid, $valid_parents)) {
@@ -656,7 +669,8 @@ class Page_Asset_Builder extends Page
 			}
 		}
 		return $res;
-	}
+
+	}//end getAdditionalCreateLocations()
 
 
 	/**
@@ -669,6 +683,8 @@ class Page_Asset_Builder extends Page
 	*/
 	function _modifyCreateLink(&$link)
 	{
+		return;
+
 	}//end _modifyCreateLink()
 
 
@@ -740,10 +756,10 @@ class Page_Asset_Builder extends Page
 	*/
 	function _loadAssetReplacements()
 	{
-		$this->_replacements['created_assetid'] = $this->_tmp['created_asset']->id;
-		$this->_replacements['created_asset_name'] = $this->_tmp['created_asset']->name;
+		$this->_replacements['created_assetid']          = $this->_tmp['created_asset']->id;
+		$this->_replacements['created_asset_name']       = $this->_tmp['created_asset']->name;
 		$this->_replacements['created_asset_short_name'] = $this->_tmp['created_asset']->short_name;
-		$this->_replacements['created_asset_url'] = $this->_tmp['created_asset']->getURL();
+		$this->_replacements['created_asset_url']        = $this->_tmp['created_asset']->getURL();
 		
 	}//end _loadAssetReplacements()
 
@@ -794,7 +810,6 @@ class Page_Asset_Builder extends Page
 			hidden_field('asset_action', 'create');
 			$contents = ob_get_contents();
 			$this->_replacements['create_form'] = $contents;
-
 		ob_end_clean();
 
 		if (count($create_types) > 1) {
@@ -848,43 +863,43 @@ class Page_Asset_Builder extends Page
 			$options = $data['locations'];
 
 			ob_start();
-			switch ($data['input_style']) {
-
-				case 'dropdown':
-					if ($data['allow_empty'] && !$data['allow_multiple']) {
-						$options = Array(''=>'') + $options;
-					}
-					$default = $data['allow_empty'] ? Array() : key($options);
-					$height = $data['allow_multiple'] ? 4 : 1;
-					combo_box($code_name, $options, $data['allow_multiple'], $default,  $height);
-				break;
-
-				case 'radio':
-					if ($data['allow_multiple']) {
-						// print checkboxes
-						$checked = !$data['allow_empty'];
-						$i = 0;
-						foreach ($data['locations'] as $id => $name) {
-							check_box($code_name."[$i]", $id, $checked);
-							echo '&nbsp;' . $name . '<br />';
-							$checked = false;
-							$i++;
+				switch ($data['input_style']) {
+	
+					case 'dropdown':
+						if ($data['allow_empty'] && !$data['allow_multiple']) {
+							$options = Array(''=>'') + $options;
 						}
-					} else {
-						$checked = !$data['allow_empty'];
-						foreach ($data['locations'] as $id => $name) {
-							radio_button($code_name, $id, $checked);
-							echo '&nbsp;' . $name . '<br />';
-							$checked = false;
+						$default = $data['allow_empty'] ? Array() : key($options);
+						$height = $data['allow_multiple'] ? 4 : 1;
+						combo_box($code_name, $options, $data['allow_multiple'], $default,  $height);
+					break;
+	
+					case 'radio':
+						if ($data['allow_multiple']) {
+							// print checkboxes
+							$checked = !$data['allow_empty'];
+							$i = 0;
+							foreach ($data['locations'] as $id => $name) {
+								check_box($code_name."[$i]", $id, $checked);
+								echo '&nbsp;' . $name . '<br />';
+								$checked = false;
+								$i++;
+							}
+						} else {
+							$checked = !$data['allow_empty'];
+							foreach ($data['locations'] as $id => $name) {
+								radio_button($code_name, $id, $checked);
+								echo '&nbsp;' . $name . '<br />';
+								$checked = false;
+							}
 						}
-					}
-				break;
-
-				default:
-					echo '(UNDEFINED INPUT STYLE ' . $data['input_style'] . ')';
-				break;
-			}
-			$this->_replacements[$code_name.'_field'] = ob_get_contents();
+					break;
+	
+					default:
+						echo '(UNDEFINED INPUT STYLE ' . $data['input_style'] . ')';
+					break;
+				}
+				$this->_replacements[$code_name.'_field'] = ob_get_contents();
 			ob_end_clean();
 
 		}
@@ -907,7 +922,6 @@ class Page_Asset_Builder extends Page
 		if (is_null($bodycopy)) return;
 
 		$bodycopy->setKeywordReplacements($this->_replacements);
-
 		$bodycopy->printBody();
 
 	}//end _printContents()
@@ -980,26 +994,13 @@ class Page_Asset_Builder extends Page
 	{
 		if (!isset($vars['keywords'])) return;
 
-		$keywords = Array();
-		foreach ($this->_available_keywords as $keyword) {
-			$name = ucwords(str_replace('_', ' ', $keyword));
-			$type = 'inline';
-			if (substr($keyword, -5) == '_form') {
-				$default = $name;
-				$type = 'block';
-			} else {
-				$default = $this->attr($keyword);
-			}
-			$keywords[$keyword] = Array('name' => $name, 'default' => $default, 'type' => $type);
-		}
-		
-		$keywords['created_assetid'] = Array('name' => 'Created Asset ID', 'default' => 'Created Asset ID', 'type' => 'inline');
-		$keywords['created_asset_name'] = Array('name' => 'Created Asset Name', 'default' => 'Created Asset Name', 'type' => 'inline');
-		$keywords['created_asset_short_name'] = Array('name' => 'Created Asset Short Name', 'default' => 'Created Asset Short Name', 'type' => 'inline');
-		$keywords['created_asset_url'] = Array('name' => 'Created Asset URL', 'default' => 'Created Asset URL', 'type' => 'inline');
+		$keywords = $this->_available_keywords;
+		$keywords['created_assetid']          = 'Created Asset ID';
+		$keywords['created_asset_name']       = 'Created Asset Name';
+		$keywords['created_asset_short_name'] = 'Created Asset Short Name';
+		$keywords['created_asset_url']        = 'Created Asset URL';
 
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
-
 		$vars['keywords'] = array_merge($vars['keywords'], $this->getSelectableLocationKeywords());
 
 	}//end onRequestKeywords()
@@ -1009,22 +1010,18 @@ class Page_Asset_Builder extends Page
 	* Get the keyword replacements used to select selectable create locations
 	*
 	* @access protected
-	* @return array		(keyword => replacement)
+	* @return array(keyword => replacement)
 	*/
 	function getSelectableLocationKeywords()
 	{
 		$keywords = Array();
-		$dropdown_default = '<select><option>%name% Option 1</option><option>%name% Option 2</option></select>';
-		$radio_default = '<input type="radio" />%name% Option 1 <br /><input type="radio" />%name% Option 2 <br />';
 		foreach ($this->attr('create_location_optional') as $name => $data) {
-			$kw_name = str_replace(' ', '_', strtolower($name)).'_field';
-			$keywords[$kw_name] = Array('name' => $name.' Field',
-									'default' => str_replace('%name%', $name, (($data['input_style'] == 'dropdown') ? $dropdown_default : $radio_default)),
-									'type' => 'special');
+			$keyword_name = str_replace(' ', '_', strtolower($name)).'_field';
+			$keywords[$keyword_name] = $name.' Field';
 		}
 		return $keywords;
-	}
 
+	}//end getSelectableLocationKeywords()
 
 
 }//end class

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.117 2004/11/22 23:48:46 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.118 2004/11/23 02:43:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.117 $ - 1.0
+* @version $Revision: 1.118 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -97,17 +97,12 @@ class Page_Calendar extends Page_Asset_Listing
 
 	/**
 	* An array of keywords that this asset makes available for use along with a default replacement
-	* @var Array(keyword => Array('name' => short description, 'default' => default replacement, 'type' => '[inline|block]'))
+	* @var Array(keyword => name)
 	*/
-	var $_available_keywords = Array('calendar_contents' => Array(
-										'name' => 'The calendar content for the current view',
-										'default' => '(calendar content)',
-										'type' => 'block'),
-									 'calendar_title' => Array(
-										'name' => 'The calendar title for the current view',
-										'default' => 'Calendar Title',
-										'type' => 'inline')
-									);
+	var $_available_keywords = Array(
+								'calendar_contents' => 'Calendar Contents',
+								'calendar_title'    => 'Calendar Title',
+								);
 
 
 	/**
@@ -243,42 +238,24 @@ class Page_Calendar extends Page_Asset_Listing
 	* The return value is in the form:
 	* <pre>
 	* Array(
-	*     'keyword' => Array (
-	*					'name'	=> '(name of the keyword)',
-	*				    'default' => '(default value)',
-	*					'type' => 'block' | 'inline'
-	*                  )
+	*     'keyword' => 'name',
 	* )
 	* </pre>
 	*
-	* @param boolean $descriptions if TRUE descriptions will be included in the array
-	*
 	* @access public
-	* @return Array(mixed)
+	* @return array(string => string)
 	*/
 	function getContentsKeywords()
 	{
-		$keywords = Array();
-		$keywords['calendar_contents'] = Array(
-										'name'=>'Calendar Contents',
-										'default'=>'The contents of the current view',
-										'type'=>'block');
-		$keywords['calendar_title'] = Array(
-										'name'=>'Calendar Title',
-										'default'=>'The title of the current calendar view',
-										'type'=>'inline');
-		$keywords['up_link'] = Array(
-										'name'=>'Up Link',
-										'default'=>'Link to the next-broadest view',
-										'type'=>'inline');
-		$keywords['prev_link'] = Array(
-										'name'=>'Previous Link',
-										'default'=>'Link to the previous period',
-										'type'=>'inline');
-		$keywords['next_link'] = Array(
-										'name'=>'Next Link',
-										'default'=>'Link to the next period',
-										'type'=>'inline');
+		$keywords = Array(
+							'calendar_contents' => 'Calendar Contents',
+							'calendar_title'    => 'Calendar Title',
+							'up_link'           => 'Up Link',
+							'prev_link'         => 'Previous Link',
+							'next_link'         => 'Next Link',
+		
+						);
+
 		return $keywords;
 
 	}//end getContentsKeywords()
