@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.19 2004/08/20 06:56:49 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.20 2004/08/23 00:55:34 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.19 $ - 1.0
+* @version $Revision: 1.20 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -227,7 +227,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 		$this->_printClickChildScript();
 		?>
-		<table id="year" border="0" cellspacing="0" cellpadding="0" style="width: 118ex; font-size: 80%">
+		<table id="year" border="0" cellspacing="0" cellpadding="0" style="width: 118ex; font-size: 90%">
 			<tr>
 				<th class="dayLabel" style="width: 6ex">&nbsp;</th>
 		<?php
@@ -614,7 +614,7 @@ class Page_Calendar extends Page_Asset_Listing
 			<?php
 			foreach ($columns as $date => $name) {
 				?>
-				<td style="width: <?php echo $width; ?>ex">
+				<td>
 				<?php
 					/* Randomised generation of events */
 					$event_start_time = rand(0, 3);
@@ -627,7 +627,8 @@ class Page_Calendar extends Page_Asset_Listing
 						$event_margin_top = ($event_start_time / 4) * $partition_height;
 						$event_height = number_format($partition_height * ($event_length / $partition_time), 2);
 						$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand; ' : '';
-						echo "<div class=\"{$event_class} event\" style=\"position: absolute; width: {$width}ex; margin-left: {$left_margin}ex; margin-top: {$event_margin_top}ex; height: {$event_height}ex; $cursor_code; \"".($show_event_links ? ' onclick="clickChild(this)"' : '').'><div class="eventText" style="position: absolute; width: '.($width*0.94).'ex; border: none; background-color: transparent">';
+						echo "<div class=\"{$event_class} event\" style=\"position: absolute; width: {$width}ex; margin-left: {$left_margin}ex; margin-top: {$event_margin_top}ex; height: {$event_height}ex; $cursor_code; \"".($show_event_links ? ' onclick="clickChild(this)"' : '').'><div class="eventText" style="position: absolute; width: '.($width*0.94).'ex; border: none;
+						background-color: transparent">';
 
 						echo $show_event_links ? '<a class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&SQ_CALENDAR_DATE='.$date.'&SQ_CALENDAR_EVENT_ID='.$event_id.'">' : '<span class="event '.$event_class.'">';
 						

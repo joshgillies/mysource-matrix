@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.8 2004/08/20 06:56:49 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.9 2004/08/23 00:55:34 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -39,7 +39,7 @@
 	<section name="Root Nodes" write_access="write:attributes">
 		<field>
 			<display_name />
-			<note />
+			<note></note>
 			<function_call>
 				<paint_function   name="paintRootNodes"   />
 				<process_function name="processRootNodes" />

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.10 2004/08/20 04:31:15 tbarrett Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.11 2004/08/23 00:55:34 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.10 $ - 1.0
+* @version $Revision: 1.11 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -111,7 +111,10 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			</tr>
 			<?php
 		}
-		?></table><?php
+		?></table>
+		<p style="width: 60ex; margin-left: 15ex">For each root node you can give the name of a CSS class you have defined, OR one of the CSS named colours to use when displaying events from that location.  (The CSS named colours are black, blue, fuchsia, gray, green, lime, maroon, navy, olive, purple, red, silver, teal, white, and yellow). </p>
+		
+		<?php
 		return true;
 		
 	}//end paintRootNodes()
@@ -474,10 +477,10 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	function paintLookAndFeel(&$asset, &$o, $prefix)
 	{
 		?>
-		<p style="width: 80ex; margin-left: 15ex">The Calendar Page has a default CSS file that controls the look and feel of the Calendar views.  A link to this CSS file is automatically 
+		<p style="width: 60ex; margin-left: 15ex">The Calendar Page has a default CSS file that controls the look and feel of the Calendar views.  A link to this CSS file is automatically 
 		inserted into the head of the generated HTML document.</p>
 
-		<p style="width: 80ex; margin-left: 15ex">If you want to customise some or all of the style rules you can <a href="<?php echo sq_web_path('data')?>/asset_types/page_calendar/css/calendar_default.css">download the default CSS file</a> and modify it.  Put a link to your modified version in the parse file of
+		<p style="width: 60ex; margin-left: 15ex">If you want to customise some or all of the style rules you can <a href="<?php echo sq_web_path('data')?>/asset_types/page_calendar/css/calendar_default.css">download the default CSS file</a> and modify it.  Put a link to your modified version in the parse file of
 		the design that applies to this page, <i>after</i> the "head" design area tag.</p>
 		<?php
 

@@ -17,8 +17,10 @@
  * GENERAL RULES
  */
 div#calendarContents { width: 100%; text-align: center; }
-div#calendarContents td { text-align: left }
+div#calendarContents table td { text-align: left; padding: 1px }
+div#calendarContents table th { text-align: center; padding: 1px }
 #calendarContents table { margin-left: auto; margin-right: auto; }
+#calendarContents div { margin: 0px }
 .eventText { line-height: 1.0; margin: 2px 2px 0px 1px; text-align: center; }
 .calendarNavLink, a.calendarNavLink:hover, a.calendarNavLink:visited { text-decoration: none; font-weight: bold; color: blue }
 
@@ -84,7 +86,7 @@ table#month { border: 2px solid purple; background-color: #eeeeee; border-collap
 #month td.eventDate a.dateLink, #month td.eventDate a.dateLink:visited, #month td.eventDate a.dateLink:hover { color: white; font-weight: bold; text-decoration: none; } 
 
 /* Linked event names in cells (root-node-specific classes will also apply) */
-#month .event, #month a.event:visited, #month a.event:hover { display: block; font-size: 70%; font-weight: bold; text-decoration: none; }
+#month .event, #month a.event:visited, #month a.event:hover { display: block; font-size: 85%; font-weight: bold; text-decoration: none; }
 
 
 
@@ -135,14 +137,33 @@ table#day { border: 2px solid purple; background-color: #eeeeee; border-collapse
 
 
 /**
- * ROOT-NODE SPECIFIC RULES
+ * PRESET ROOT NODE RULES
+ * These rules will be applied to all A and DIV elements that represent
+ * events drawn from the relevant root nodes
+ */
+.aqua { background-color: aqua; color: black; }
+.black { background-color: black; color: white; }
+.blue { background-color: blue; color: white; }
+.fuchsia { background-color: fuchsia; color: black; }
+.gray { background-color: gray; color: white; }
+.green { background-color: green; color: white; }
+.lime { background-color: lime; color: black; }
+.maroon { background-color: maroon; color: white; }
+.navy { background-color: navy; color: white; }
+.olive { background-color: olive; color: white; }
+.purple { background-color: purple; color: white; }
+.red { background-color: red; color: white; }
+.silver { background-color: silver; color: black; }
+.teal { background-color: teal; color: white; }
+.white { background-color: white; color: black; }
+.yellow { background-color: yellow; color: black; }
+
+/**
+ * USER-DEFINED ROOT NODE RULES
  * These rules will be applied to all A and DIV elements that represent
  * events drawn from the relevant root nodes
  * If you want these to be view-specific you can define them for each of the
  * #year, #month, #week, #day IDs
  */
-.special { color: fuchsia; background-color: yellow }
-.mine { color: lime; background-color: blue }
-
 
 
