@@ -18,11 +18,9 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.220 2004/06/18 07:19:20 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.221 2004/06/29 14:00:30 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
-
-require_once SQ_INCLUDE_PATH.'/system_asset_config.inc';
 
 
 /**
@@ -743,11 +741,10 @@ class Asset_Manager extends MySource_Object
 			return $null;
 		}
 
-		// safer to call this via 
-		$sys_asset_cfg = new System_Asset_Config();
-
 		static $system_assets = null;
 		if (is_null($system_assets)) {
+			require_once SQ_INCLUDE_PATH.'/system_asset_config.inc';
+			$sys_asset_cfg = new System_Asset_Config();
 			// include the system asset config file
 			if (!file_exists($sys_asset_cfg->config_file)) {
 				return $null;		// we called this too early
@@ -758,11 +755,7 @@ class Asset_Manager extends MySource_Object
 		if (isset($system_assets[$name])) {
 			return $this->getAsset($system_assets[$name], $name);
 		} else {
-			// the system asset is not installed - but this may be because a package isn't installed
-			// find out whether this is meant to be a system asset at all
-			if (array_search($name, $sys_asset_cfg->system_asset_types) === false) {
-				trigger_error('System asset name "'.$name.'" not known', E_USER_WARNING);
-			}
+			trigger_error('System asset name "'.$name.'" not installed or not known', E_USER_WARNING);
 			return $null;
 		}
 
