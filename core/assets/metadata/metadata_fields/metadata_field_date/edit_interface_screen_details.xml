@@ -1,0 +1,93 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.2 2004/02/16 23:32:26 gsherwood Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<contents>
+	<section name="Details" write_access="write:attributes">
+		<field>
+			<display_name></display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintKeywordInstructions"   />
+				<process_function name="processKeywordInstructions" />
+			</function_call>
+		</field>
+		<field attribute="name">
+			<display_name>Field Name</display_name>
+			<note />
+			<text width="30" height="1" />
+		</field>
+		<field>
+			<display_name>Default</display_name>
+			<note>Value in this field is relevant only if you do not select a keyword replacement (below)</note>
+			<function_call>
+				<paint_function   name="paintEpoch" />
+				<process_function name="processEpoch" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Keyword Replacements</display_name>
+			<note>Selected keyword replacement will be used instead of any entered default date values</note>
+			<function_call>
+				<paint_function   name="paintRepKeys" />
+				<process_function name="processRepKeys" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Setup</display_name>
+			<note>Setup table above only affects how the field looks to the metadata editor, NOT how it is displayed in the META field of your web page.</note>
+			<function_call>
+				<paint_function   name="paintEpochSetup" />
+				<process_function name="processEpochSetup" />
+			</function_call>
+		</field>
+		<field attribute="format">
+			<display_name>Format</display_name>
+			<note>Format string defines the look of the date in META fields of your web page.</note>
+			<text width="15" height="1" />
+		</field>
+		<field attribute="scheme">
+			<display_name>Scheme</display_name>
+			<note />
+			<text width="30" height="1" />
+		</field>
+		<field attribute="language">
+			<display_name>Language</display_name>
+			<note />
+			<text width="30" height="1" />
+		</field>
+	</section>
+	<section name="Options" write_access="write:attributes">
+		<field attribute="editable">
+			<display_name>Editable</display_name>
+			<note>If this field is not editable, the user will always see the default value</note>
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+		<field attribute="required">
+			<display_name>Required</display_name>
+			<note />
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+	</section>
+</contents>
