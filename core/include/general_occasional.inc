@@ -48,7 +48,7 @@ function link_type_name($type)
 */
 function permission_type_name($type)
 {
-	$name = get_bit_names('SQ_PERMISSION_', $type);
+	$name = get_bit_names('SQ_PERMISSION_', $type, false, true);
 	if (is_array($name)) return 'Unknown';
 	return ucwords(strtolower($name));
 
@@ -62,12 +62,15 @@ function permission_type_name($type)
 * @param string	$prefix			the constants prefix (eg SQ_LINK_)
 * @param int	$bit_value		the bit value to check
 * @param bool	$force_array	force the return of an array even if only one name found
+* @param bool	$exact_value	find a match for $bit_value exactly - not an array of constants that
+*								that comprise it (ie 3 == 3 NOT 3 == 1|2)
 *
 * @return string
 */
-function get_bit_names($prefix, $bit_value, $force_array=false)
+function get_bit_names($prefix, $bit_value, $force_array=false, $exact_value=false)
 {
-	$bit_values = bit_elements($bit_value);
+	if ($exact_value) $bit_values = Array($bit_value);
+	else $bit_values = bit_elements($bit_value);
 
 	$constants = get_defined_constants();
 
