@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.22 2005/03/08 22:14:44 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.23 2005/03/11 00:56:02 gsherwood Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1038,7 +1038,7 @@ class Listing_Engine extends Page
 				$first = false;
 				$ancestor_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parent_asset_id);
 				$linked_lineage .= '<a href="'.$ancestor_asset->getUrl().'">'.$ancestor_asset->name.'</a>';
-				$lineage .= $ancestor_asset->name;
+				$lineage .= $ancestor_asset->short_name;
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($ancestor_asset);
 			}
 			$keywords['asset_lineage'] = $lineage;
