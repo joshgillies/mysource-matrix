@@ -85,7 +85,7 @@ class Custom_Asset_Type extends Resolve_Object
 		pre_echo($sql);
 		$result = $this->_db->query($sql);
 		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
@@ -114,7 +114,7 @@ class Custom_Asset_Type extends Resolve_Object
 				FROM sq_asset
 				WHERE assetid = '.$db->quote($assetid);
 		$result = $db->getRow($sql, null, DB_FETCHMODE_ORDERED);
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
 		if (is_null($result)) {
 			trigger_error('Asset #'.$assetid.' does not exist', E_USER_WARNING);
@@ -158,7 +158,7 @@ class Custom_Asset_Type extends Resolve_Object
 				  AND v.assetid = '.$db->quote($this->id);
 
 		$result = $db->query($sql);
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
 
 		$vars_str = '';
@@ -184,7 +184,7 @@ class Custom_Asset_Type extends Resolve_Object
 				.'ORDER BY a.attributeid, t.level';
 
 		$result = $db->query($sql);
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
 		while (null !== ($row = $result->fetchRow())) {
 			$this->vars[$row['name']] = Array('attributeid' => $row['attributeid'], 'value' => $row['value']);

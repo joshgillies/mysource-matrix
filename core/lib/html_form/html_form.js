@@ -9,9 +9,9 @@
 
 ######################################################################################
 # $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/html_form/html_form.js,v $
-# $Revision: 1.1.1.1 $
+# $Revision: 1.2 $
 # $Author: brobertson $
-# $Date: 2003/01/23 06:25:36 $
+# $Date: 2003/03/11 03:02:14 $
 ######################################################################################
 */
 
@@ -118,6 +118,10 @@ function element_value(element) {
 			} else {
 				return element.value;
 			}
+		break;
+
+		case "checkbox" :
+			 return (element.checked) ? element[i].value : "";
 		break;
 
 		default :

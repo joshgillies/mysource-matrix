@@ -87,19 +87,29 @@ CREATE TABLE sq_asset_type_inherited (
   PRIMARY KEY(inherited_type_code, type_code)
 );
 
+DROP TABLE IF EXISTS sq_asset_url;
+CREATE TABLE sq_asset_url (
+  urlid       SMALLINT UNSIGNED NOT NULL,
+  assetid     INT UNSIGNED NOT NULL,
+  url         VARCHAR(255) NOT NULL DEFAULT '',
+  http        CHAR(1) NOT NULL DEFAULT '0',
+  https       CHAR(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY  (urlid),
+  UNIQUE (url)
+);
 
-DROP TABLE IF EXISTS sq_asset_paths; 
-CREATE TABLE sq_asset_paths (
+DROP TABLE IF EXISTS sq_asset_path; 
+CREATE TABLE sq_asset_path (
   path       VARCHAR(255) NOT NULL DEFAULT '',
   assetid    INT UNSIGNED NOT NULL,
   sort_order INT UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY  (path)
 );
 
-
-DROP TABLE IF EXISTS sq_asset_urls; 
-CREATE TABLE sq_asset_urls (
-  url     TEXT NOT NULL DEFAULT '',
-  assetid INT UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS sq_asset_url_lookup;
+CREATE TABLE sq_asset_url_lookup (
+  url        VARCHAR(255) NOT NULL DEFAULT '',
+  assetid    INT UNSIGNED NOT NULL,
+  root_urlid SMALLINT UNSIGNED NOT NULL,
   PRIMARY KEY  (url)
 );

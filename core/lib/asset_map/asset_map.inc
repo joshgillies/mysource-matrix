@@ -35,7 +35,7 @@ class Asset_Map
 		$backend->out->addJsInclude(SQ_WWW_LIB_DIR.'/asset_map/flashExternalCall.js');
 
 		$flash_vars = 'server_exec_path='.rawurlencode($backend->getBackendUrl('asset_map_request')).
-					  '&action_bar_path='.rawurlencode($backend->getBackendUrl().'&backend_section=am&am_section=edit_asset&assetid=%assetid%&action=%action%').
+					  '&action_bar_path='.rawurlencode($backend->getBackendUrl().'&backend_section=am&am_section=edit_asset&assetid=%assetid%&asset_ei_screen=%action%').
 					  '&action_bar_frame='.rawurlencode('main');
 
 		?> 

@@ -130,7 +130,7 @@ class User extends Asset
 		$sql = db_extras_subquery($db, $sql, $subs);
 
 		$result = $db->getOne($sql);
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
 		if (!$result) return 0;
 

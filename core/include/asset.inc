@@ -83,10 +83,7 @@ class Asset extends Resolve_Object
 
 		// welcome to sequences, they are cool, see the PEAR::DB docs for more info
 		$assetid = $db->nextId('sq_sequence_asset');
-		if (DB::isError($assetid)) {
-			trigger_error($assetid->getMessage().'<br>'.$assetid->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
+		if (DB::isError($assetid)) trigger_error($assetid->getMessage().'<br/>'.$assetid->getUserInfo(), E_USER_ERROR);
 
 		$name   = ucwords(str_replace('_', ' ', $this->type())).' #'.$assetid;
 		$now    = time();
@@ -101,7 +98,7 @@ class Asset extends Resolve_Object
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
@@ -135,7 +132,7 @@ class Asset extends Resolve_Object
 				FROM sq_asset
 				WHERE assetid = '.$db->quote($assetid);
 		$result = $db->getRow($sql, null, DB_FETCHMODE_ORDERED);
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
 		if (is_null($result)) {
 			return;
@@ -188,7 +185,7 @@ class Asset extends Resolve_Object
 #		pre_echo($sql);
 
 		$this->vars = $GLOBALS['SQ_RESOLVE']->db->getAssoc($sql, false, array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
-		if (DB::isError($this->vars)) trigger_error($this->vars->getMessage().'<br>'.$this->vars->getUserInfo(), E_USER_ERROR);
+		if (DB::isError($this->vars)) trigger_error($this->vars->getMessage().'<br/>'.$this->vars->getUserInfo(), E_USER_ERROR);
 
 	}//end _loadVars()
 
@@ -215,7 +212,7 @@ class Asset extends Resolve_Object
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 		
@@ -274,7 +271,7 @@ class Asset extends Resolve_Object
 
 		$result = $db->getRow($sql);
 		if (DB::isError($result)) 
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
 		return $result;
 			
@@ -329,7 +326,7 @@ class Asset extends Resolve_Object
 
 			$result = $db->query($sql);
 			if (DB::isError($result)) 
-				trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
 			$this->_tmp['links'][$side_of_link][$link_type] = Array();
 			while (null !== ($row = $result->fetchRow())) {
@@ -430,7 +427,7 @@ class Asset extends Resolve_Object
 
 		$result = $db->getOne($sql);
 		if (DB::isError($result)) 
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 		
 		return $result;
 
@@ -513,7 +510,7 @@ class Asset extends Resolve_Object
 
 			$majorid = $db->getOne($sql);
 			if (DB::isError($majorid)) {
-				trigger_error($majorid->getMessage().'<br>'.$majorid->getUserInfo(), E_USER_WARNING);
+				trigger_error($majorid->getMessage().'<br/>'.$majorid->getUserInfo(), E_USER_WARNING);
 				return false;
 			}
 
@@ -532,7 +529,7 @@ class Asset extends Resolve_Object
 				WHERE majorid = '.$db->quote($this->id);
 		$row = $db->getRow($sql);
 		if (DB::isError($row)) {
-			trigger_error($row->getMessage().'<br>'.$row->getUserInfo(), E_USER_WARNING);
+			trigger_error($row->getMessage().'<br/>'.$row->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
@@ -543,7 +540,7 @@ class Asset extends Resolve_Object
 		// sequences are cool, see the PEAR::DB docs for more info
 		$linkid = $db->nextId('sq_sequence_asset_link');
 		if (DB::isError($linkid)) {
-			trigger_error($linkid->getMessage().'<br>'.$linkid->getUserInfo(), E_USER_WARNING);
+			trigger_error($linkid->getMessage().'<br/>'.$linkid->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
@@ -557,7 +554,7 @@ class Asset extends Resolve_Object
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
@@ -571,7 +568,7 @@ class Asset extends Resolve_Object
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
@@ -691,8 +688,8 @@ class Asset extends Resolve_Object
 				WHERE majorid = '.$db->quote($this->id);
 		$row = $db->getRow($sql);
 		if (DB::isError($row)) {
-			trigger_error($row->getMessage().'<br>'.$row->getUserInfo(), E_USER_WARNING);
 			$db->query('ROLLBACK');
+			trigger_error($row->getMessage().'<br/>'.$row->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 		$max = ($row['count'] > 0) ? (int) $row['max'] : 0;
@@ -709,8 +706,8 @@ class Asset extends Resolve_Object
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
 			$db->query('ROLLBACK');
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
@@ -736,8 +733,8 @@ class Asset extends Resolve_Object
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
 			$db->query('ROLLBACK');
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
@@ -781,8 +778,8 @@ class Asset extends Resolve_Object
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
 			$db->query('ROLLBACK');
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
@@ -796,8 +793,8 @@ class Asset extends Resolve_Object
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
 			$db->query('ROLLBACK');
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
@@ -845,7 +842,7 @@ class Asset extends Resolve_Object
 //		pre_echo($sql);
 		$count = $db->getOne($sql);
 		if (DB::isError($count)) {
-			trigger_error($count->getMessage().'<br>'.$count->getUserInfo(), E_USER_WARNING);
+			trigger_error($count->getMessage().'<br/>'.$count->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
@@ -869,8 +866,8 @@ class Asset extends Resolve_Object
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
 			$db->query('ROLLBACK');
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
@@ -998,156 +995,179 @@ class Asset extends Resolve_Object
 	}// end getEI()
 
 	/**
-	* returns a list of either paths that this asset has or an array of urls that point to this asset
-	*
-	* @param boolean	$url	whether to return URLs or paths
+	* returns a list of paths that this asset has
 	*
 	* @return Array()
 	* @access public
 	*/
-	function getWebPaths($url=false) 
+	function getWebPaths() 
 	{
-		$type = ($url) ? 'url' : 'path';
-		$plural = $type.'s';
-		if (!isset($this->_tmp[$plural])) {
+		if (!isset($this->_tmp['paths'])) {
 			$db = &$GLOBALS['SQ_RESOLVE']->db;
-			$sql = 'SELECT '.$type.'
-					FROM sq_asset_'.$plural.'
+			$sql = 'SELECT path
+					FROM sq_asset_path
 					WHERE assetid = '.$db->quote($this->id);
 
 			$result = $db->getCol($sql);
 			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
-				$this->_tmp[$plural] = Array();
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+				$this->_tmp['paths'] = Array();
 			} else {
-				$this->_tmp[$plural] = $result;
+				$this->_tmp['paths'] = $result;
 			}
 
 		}// end if
 
-		return $this->_tmp[$plural];
+		return $this->_tmp['paths'];
 
 	}// end getWebPaths()
 
 	/**
-	* Attempts to add a path to this asset
+	* Attempts to override all current paths for this asset with those passed in the array
 	*
-	* @param string	$path	the path to add to this asset's list
+	* @param Array	$paths	array of paths to give this asset
 	*
 	* @return boolean
 	* @access public
 	*/
-	function addWebPath($path) 
+	function saveWebPaths($paths) 
 	{
-		$path = preg_replace('/\\s+/', '_', $path);
-		// Taken (in part) from info here -> http://www.w3.org/Addressing/URL/5_URI_BNF.html
-		$path = preg_replace('/[^a-zA-Z0-9\-$_@.&!*(),]/', '',  $path);
-
-		$paths = $this->getWebPaths();
-
-		// does it exist already ?
-		if (in_array($path, $paths)) return true;
-
 		$db = &$GLOBALS['SQ_RESOLVE']->db;
 		$db->query('BEGIN');
 
-		// now we need to check that none of our parents have 
-		// any nav kids that are also using this path name
-		$kidids = Array();
-		$parents = $this->getLinks(SQ_LINK_NAV, '', 'S', 'minor');
-		for($i = 0; $i < count($parents); $i++) {
-			$parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
-			if (is_null($parent)) continue;
-			// get all the nav kids
-			$parent_kids = $parent->getLinks(SQ_LINK_NAV, '', 'S', 'major');
-			for($j = 0; $j < count($parent_kids); $j++) {
-				$kidids[] = $db->quote($parent_kids[$j]['minorid']);
-			}
+		$current_paths = $this->getWebPaths();
+		$save_paths = Array();
+
+		// make sure these paths are compliant
+		for($i = 0; $i < count($paths); $i++) {
+			$path = preg_replace('/\\s+/', '_', $paths[$i]);
+			// Taken (in part) from info here -> http://www.w3.org/Addressing/URL/5_URI_BNF.html
+			$path = preg_replace('/[^a-zA-Z0-9\-$_@.&!*(),]/', '',  $path);
+			$path = trim($path);
+			// ignore blanks
+			if ($path) $save_paths[] = $path;
 		}
 
-		if (count($kidids)) {
-			$sql = 'SELECT COUNT(*)
-					FROM sq_asset_paths
-					WHERE assetid IN ('.implode(',', $kidids).')
-					  AND path = '.$db->quote($path);
 
-			$result = $db->getOne($sql);
+		//// INSERT ANY NEW PATHS ////
+		$inserts = array_values(array_diff($save_paths, $current_paths));
+
+		if (count($inserts)) {
+			
+			// now we need to check that none of our parents have 
+			// any nav kids that are also using this path name
+			$siblingids = Array();
+			$parents = $this->getLinks(SQ_LINK_NAV, '', 'S', 'minor');
+			for($i = 0; $i < count($parents); $i++) {
+				$parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
+				if (is_null($parent)) continue;
+				// get all the nav siblings
+				$parent_kids = $parent->getLinks(SQ_LINK_NAV, '', 'S', 'major');
+				for($j = 0; $j < count($parent_kids); $j++) {
+					$siblingids[] = $db->quote($parent_kids[$j]['minorid']);
+				}
+			}
+
+			$sibling_paths = Array();
+
+			if (count($siblingids)) {
+				$db_quote_inserts = Array();
+				foreach($inserts as $k => $v) $db_quote_inserts[$k] = $db->quote($v);
+				$sql = 'SELECT path
+						FROM sq_asset_path
+						WHERE assetid IN ('.implode(',', $siblingids).')
+						  AND path    IN ('.implode(',', $db_quote_inserts).')';
+
+				$sibling_paths = $db->getCol($sql);
+				if (DB::isError($sibling_paths)) {
+					trigger_error($sibling_paths->getMessage().'<br/>'.$sibling_paths->getUserInfo(), E_USER_ERROR);
+					return false;
+				} 
+
+			}// end if
+
+			foreach($inserts as $path) {
+
+				if (in_array($path, $sibling_paths)) {
+					trigger_error('Path "'.$path.'" already in use for one of the siblings of "'.$this->name.'"', E_USER_WARNING);
+					return false;
+				}
+				$sql = 'INSERT INTO sq_asset_path
+						(path, assetid)
+						VALUES
+						('.$db->quote($path).', '.$db->quote($this->id).')';
+				$result = $db->query($sql);
+				if (DB::isError($result)) {
+					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+					return false;
+				}
+
+			}// end foreach
+
+		}// end if
+
+		//// NOW DELETE ANY OLD PATHS ////
+		$deletes = array_diff($current_paths, $save_paths);
+
+		foreach($deletes as $path) {
+			// Remove all the old URLs
+			$sql = 'DELETE FROM sq_asset_path
+					WHERE path    = '.$db->quote($path).'
+					  AND assetid = '.$db->quote($this->id);
+			$result = $db->query($sql);
 			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 				return false;
-			} 
+			}
+		}// end if
 
-			if ($result) {
-				trigger_error('Path "'.$path.'" already in use for one of the siblings of "'.$this->name.'"', E_USER_WARNING);
-				return false;
+		unset($this->_tmp['paths']);
+		unset($this->_tmp['urls']);
+
+		if ($this->_updateWebURLs()) {
+			$GLOBALS['SQ_RESOLVE']->db->query('COMMIT');
+			return true;
+		} else {
+			$GLOBALS['SQ_RESOLVE']->db->query('ROLLBACK');
+			return false;
+		}
+
+	}// end saveWebPath()
+
+	/**
+	* returns a list of urls that point to this asset
+	*
+	* @param boolean	$inc_urlid	return the root urlid with the url
+	*
+	* @return Array()
+	* @access public
+	*/
+	function getWebURLs($inc_urlid=false) 
+	{
+		if (!isset($this->_tmp['urls'])) {
+			$db = &$GLOBALS['SQ_RESOLVE']->db;
+			$sql = 'SELECT url, root_urlid
+					FROM sq_asset_url_lookup
+					WHERE assetid = '.$db->quote($this->id);
+			$result = $db->getAll($sql);
+			if (DB::isError($result)) {
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+				$this->_tmp['urls'] = Array();
+			} else {
+				$this->_tmp['urls'] = $result;
 			}
 
 		}// end if
 
-		// Remove all the old URLs
-		$sql = 'INSERT INTO sq_asset_paths
-				(path, assetid)
-				VALUES
-				('.$db->quote($path).', '.$db->quote($this->id).')';
-		pre_echo($sql);
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
-			return false;
-		}
-
-		unset($this->_tmp['paths']);
-
-		if ($this->_updateWebURLs()) {
-			$GLOBALS['SQ_RESOLVE']->db->query('COMMIT');
-			return true;
+		if ($inc_urlid) {
+			return $this->_tmp['urls'];
 		} else {
-			$GLOBALS['SQ_RESOLVE']->db->query('ROLLBACK');
-			return false;
+			$ret_val = Array();
+			for($i = 0; $i < count($this->_tmp['urls']); $i++) $ret_val[] = $this->_tmp['urls'][$i]['url'];
+			return $ret_val;
 		}
 
-	}// end addWebPath()
-
-	/**
-	* Attempts to add a path to this asset
-	*
-	* @param string	$path	the path to add to this asset's list
-	*
-	* @return boolean
-	* @access public
-	*/
-	function deleteWebPath($path) 
-	{
-		$paths = $this->getWebPaths();
-		// doesn't it exist already ? dickhead
-		if (!in_array($path, $paths)) return true;
-
-		$db = &$GLOBALS['SQ_RESOLVE']->db;
-		$db->query('BEGIN');
-
-		// Remove all the old URLs
-		$sql = 'DELETE FROM sq_asset_paths
-				WHERE path    = '.$db->quote($path).'
-				  AND assetid = '.$db->quote($this->id);
-		pre_echo($sql);
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
-			return false;
-		}
-
-		unset($this->_tmp['paths']);
-
-		if ($this->_updateWebURLs()) {
-			$GLOBALS['SQ_RESOLVE']->db->query('COMMIT');
-			return true;
-		} else {
-			$GLOBALS['SQ_RESOLVE']->db->query('ROLLBACK');
-			return false;
-		}
-
-	}// end deleteWebPath()
-
+	}// end getWebURLs()
 
 	/**
 	* Called to force an update of this assets URLs
@@ -1179,20 +1199,16 @@ class Asset extends Resolve_Object
 	{
 
 		$paths = $this->getWebPaths();
-		pre_echo("PATHS : ");
-		pre_echo($paths);
-
 		$db = &$GLOBALS['SQ_RESOLVE']->db;
 
 		unset($this->_tmp['urls']);
 
 		// Remove all the old URLs
-		$sql = 'DELETE FROM sq_asset_urls
+		$sql = 'DELETE FROM sq_asset_url_lookup
 				WHERE assetid = '.$db->quote($this->id);
-		pre_echo($sql);
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 			return false;
 		}
 
@@ -1200,24 +1216,21 @@ class Asset extends Resolve_Object
 		if (count($paths)) {
 
 			$parents = $this->getLinks(SQ_LINK_NAV, '', 'S', 'minor');
-			pre_echo($parents);
 			for($i = 0; $i < count($parents); $i++) {
 				$parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
 				if (is_null($parent)) continue;
 
-				$parent_urls = $parent->getWebPaths(true);
+				$parent_urls = $parent->getWebURLs(true);
 
 				for($j = 0; $j < count($parent_urls); $j++) {
 					for($k = 0; $k < count($paths); $k++) {
-						// Remove all the old URLs
-						$sql = 'INSERT INTO sq_asset_urls
-								(url, assetid)
+						$sql = 'INSERT INTO sq_asset_url_lookup
+								(url, assetid, root_urlid)
 								VALUES
-								('.$db->quote($parent_urls[$j].'/'.$paths[$k]).', '.$db->quote($this->id).')';
-						pre_echo($sql);
+								('.$db->quote($parent_urls[$j]['url'].'/'.$paths[$k]).', '.$db->quote($this->id).', '.$db->quote($parent_urls[$j]['urlid']).')';
 						$result = $db->query($sql);
 						if (DB::isError($result)) {
-							trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+							trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 							return false;
 						}
 					}// end for paths
@@ -1228,8 +1241,6 @@ class Asset extends Resolve_Object
 		}// end if count paths
 
 		$kids = $this->getLinks(SQ_LINK_NAV, '', 'S', 'major');
-		pre_echo("KIDS : ");
-		pre_echo($kids);
 		for($i = 0; $i < count($kids); $i++) {
 			$kid = &$GLOBALS['SQ_RESOLVE']->am->getAsset($kids[$i]['minorid'], $kids[$i]['type_code']);
 			if (is_null($kid)) continue;

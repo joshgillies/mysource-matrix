@@ -432,7 +432,7 @@ class Config extends Resolve_Object
 		} else {
 			echo (($this->backend_message_box_focus)?'On':'Off');
 		}
-		echo('<span class=smallprint><br>This determines whether the message box in the backend pops up over the current window or not</span>');
+		echo('<span class=smallprint><br/>This determines whether the message box in the backend pops up over the current window or not</span>');
 
 		$backend->open_field('Backend Log Messages','one_liner');
 		if (trim(strtolower(getenv('MySource_BackendLogMessages'))) != 'on') {
@@ -443,7 +443,7 @@ class Config extends Resolve_Object
 			} else {
 				echo $this->backend_log_messages;
 			}
-			echo '<span class=smallprint><br>/path/to/log/file or leave blank for no logging.</span>';
+			echo '<span class=smallprint><br/>/path/to/log/file or leave blank for no logging.</span>';
 		}
 
 		$backend->open_field('Backend Brand Image','one_liner');
@@ -455,7 +455,7 @@ class Config extends Resolve_Object
 
 		$backend->open_field('JUpload Path','one_liner');
 		echo text_box('jupload_path',$this->jupload_path,40,100);
-		echo '<span class=smallprint><br>If you have configured tomcat or another Java Servlet handler on your server and have enabled the squizlib/jupload directory, enter the appropriate path here (from the browsers POV).<br>E.g. <i>http://beta.squiz.net/agi_test_jupload/</i><br><b>Leave this field blank if you cannot or do not wish to use the Java uploader.</b></span>';
+		echo '<span class=smallprint><br/>If you have configured tomcat or another Java Servlet handler on your server and have enabled the squizlib/jupload directory, enter the appropriate path here (from the browsers POV).<br/>E.g. <i>http://beta.squiz.net/agi_test_jupload/</i><br/><b>Leave this field blank if you cannot or do not wish to use the Java uploader.</b></span>';
 		 
 		 ##############
 		# super-users
@@ -474,7 +474,7 @@ class Config extends Resolve_Object
 				$users_system->display_users_table(array_keys($superusers), ((user_root())?'delete_superuser_ids':''), 'Delete?','super_page_counter');
 			}#end if count(superusers)
 		
-			$backend->open_field('Add Super Users:<br><span class=smallprint>(logins/emails)</span>');
+			$backend->open_field('Add Super Users:<br/><span class=smallprint>(logins/emails)</span>');
 			echo text_area(superuser_search,'',30,3,3000,'class=backend_data');
 
 		}#end if user_root
@@ -506,7 +506,7 @@ class Config extends Resolve_Object
 			} else {
 				echo (($this->log_visitors) ? 'Yes' : 'No');
 			}
-			echo('<span class=smallprint><br>Turning on this setting, enables logging of sessions, page hits and file hits.<br><i>NOTE: On high traffic sites enabling this option can cause the database server to crash due to the huge amounts of data being stored</i></span>');
+			echo('<span class=smallprint><br/>Turning on this setting, enables logging of sessions, page hits and file hits.<br/><i>NOTE: On high traffic sites enabling this option can cause the database server to crash due to the huge amounts of data being stored</i></span>');
 		}
 
 		$backend->open_field('Log Remote Hosts','one_liner');
@@ -515,7 +515,7 @@ class Config extends Resolve_Object
 		} else {
 			echo (($this->log_remote_hosts)?'Yes':'No');
 		}
-		echo('<span class=smallprint><br>If pages sometimes take a very long time to load at the beginning of a session, turn this option off. If on, the <i>hostname</i> of the user is logged, which can be used to figure out their ISP and country of origin.<br>Only effective if Log Visitors in enabled</span>');
+		echo('<span class=smallprint><br/>If pages sometimes take a very long time to load at the beginning of a session, turn this option off. If on, the <i>hostname</i> of the user is logged, which can be used to figure out their ISP and country of origin.<br/>Only effective if Log Visitors in enabled</span>');
 */
 
 /*
@@ -533,7 +533,7 @@ class Config extends Resolve_Object
 		#if(superuser() && $this->virtual_paths) {
 		echo '<span class=backend_data>/</span>';
 		echo text_box('backend_suffix',$this->backend_suffix,15,255,'class=backend_data');
-		echo ('<span class=smallprint><br>This must correspond with your web server configuration.</span>');
+		echo ('<span class=smallprint><br/>This must correspond with your web server configuration.</span>');
 		#} else {
 		#	echo "<span class=backend_data>/$this->backend_suffix</span>";
 		#}
@@ -544,7 +544,7 @@ class Config extends Resolve_Object
 		} else {
 			echo (($this->batch_delete)?$this->batch_delete:'10');
 		}
-		echo ('<span class=smallprint><br>The number of pages to delete at a time when deleting a page or site. Set this to a low number if your deleting is timing out.</span>');
+		echo ('<span class=smallprint><br/>The number of pages to delete at a time when deleting a page or site. Set this to a low number if your deleting is timing out.</span>');
 
 		$backend->open_field('Batch Page Dupe','one_liner');
 		if(superuser()) {
@@ -552,7 +552,7 @@ class Config extends Resolve_Object
 		} else {
 			echo (($this->batch_dupe)?$this->batch_dupe:'10');
 		}
-		echo ('<span class=smallprint><br>The number of pages to dupe at a time when duping a page or site. Set this to a low number if your duping is timing out.</span>');
+		echo ('<span class=smallprint><br/>The number of pages to dupe at a time when duping a page or site. Set this to a low number if your duping is timing out.</span>');
 
 		$backend->open_field('Strict URL Matching','one_liner');	
 		if (superuser()) {
@@ -560,7 +560,7 @@ class Config extends Resolve_Object
 		} else {
 			echo (($this->strict_url_matching)?'On':'Off');
 		}
-		echo ('<span class=smallprint><br>This decides whether the system will try to match the closest URL for or display the \'Page Not Found\'.</span>');
+		echo ('<span class=smallprint><br/>This decides whether the system will try to match the closest URL for or display the \'Page Not Found\'.</span>');
 
 		$backend->open_field('Moderate Caching','one_liner');	
 		if (superuser()) {
@@ -568,7 +568,7 @@ class Config extends Resolve_Object
 		} else {
 			echo (($this->moderate_caching)?'On':'Off');
 		}
-		echo ('<span class=smallprint><br>MySource can attempt to control web caching in browsers and proxies using HTTP headers. You may switch this off to use the PHP defaults, however, but these tend to discourage caching which can lead to increased traffic and download time.</span>');
+		echo ('<span class=smallprint><br/>MySource can attempt to control web caching in browsers and proxies using HTTP headers. You may switch this off to use the PHP defaults, however, but these tend to discourage caching which can lead to increased traffic and download time.</span>');
 
 		$backend->open_field('Illegal Filetypes','one_liner');	
 		if (superuser()) {
@@ -576,7 +576,7 @@ class Config extends Resolve_Object
 		} else {
 			echo $this->illegal_filetypes;
 		}
-		echo ('<span class=smallprint><br>List the file extensions that you do not want MySource users to be able to upload, and use to potentially exploit your server. (all lower-case - uppercase files will also be rejected)</span>');
+		echo ('<span class=smallprint><br/>List the file extensions that you do not want MySource users to be able to upload, and use to potentially exploit your server. (all lower-case - uppercase files will also be rejected)</span>');
 
 		# DEFAULT TABLE CELL TYPE
 		if (superuser('web')) {
@@ -589,13 +589,13 @@ class Config extends Resolve_Object
 		$languages_config = &get_config('languages');
 		if(superuser()) {
 			if($this->default_language) {
-				echo $languages_config->name_list($this->default_language).'<br>';
+				echo $languages_config->name_list($this->default_language).'<br/>';
 			}
 			echo multiple_combo_box('default_language',$languages_config->languages,explode(',',$this->default_language),'class=backend_data', '', 4);
 		} else {
 			echo '<span class=backend_data>'.$languages_config->name_list($this->default_language).'</span>';
 		}		
-		echo('<span class=smallprint><br>This is the default language used on the frontend. It may be overridden by individual sites and pages.</span>');
+		echo('<span class=smallprint><br/>This is the default language used on the frontend. It may be overridden by individual sites and pages.</span>');
 
 		# CHARACTER SETS
 		$backend->open_field('Character Set','one_liner');
@@ -606,9 +606,9 @@ class Config extends Resolve_Object
 			$languages_config = &get_config('charsets');
 			echo "<span class=backend_data>{$charsets_config->charsets[$this->default_charset]}</span>";
 		}		
-		echo('<span class=smallprint><br>This is the default character set used in the backend and the frontend. It may be overridden by individual sites and pages.</span>');
-		echo('<span class=smallprint><br><input type=checkbox name=check_db_mbstrings[] value=web '.((in_array('web',$this->check_db_mbstrings))?'checked':'').'> Validate data coming out of the <b>web</b> database is in this character set and uncorrupted.<br><input type=checkbox name=check_db_mbstrings[] value=users '.((in_array('users',$this->check_db_mbstrings))?'checked':'').'> Validate data coming out of the <b>users</b> database is in this character set and uncorrupted.</span>');
-		echo('<span class=warning style="font-size: 10px;"><br><b>Warning: These settings are only necessary for multi-byte character sets.</b> You must have the <i>mbstring</i> module for PHP installed for these two options to work correctly. Only a few character sets are supported (generally Japanese ones).</span>');
+		echo('<span class=smallprint><br/>This is the default character set used in the backend and the frontend. It may be overridden by individual sites and pages.</span>');
+		echo('<span class=smallprint><br/><input type=checkbox name=check_db_mbstrings[] value=web '.((in_array('web',$this->check_db_mbstrings))?'checked':'').'> Validate data coming out of the <b>web</b> database is in this character set and uncorrupted.<br/><input type=checkbox name=check_db_mbstrings[] value=users '.((in_array('users',$this->check_db_mbstrings))?'checked':'').'> Validate data coming out of the <b>users</b> database is in this character set and uncorrupted.</span>');
+		echo('<span class=warning style="font-size: 10px;"><br/><b>Warning: These settings are only necessary for multi-byte character sets.</b> You must have the <i>mbstring</i> module for PHP installed for these two options to work correctly. Only a few character sets are supported (generally Japanese ones).</span>');
 
 		$backend->open_field('Site Backend DHTML Navigation','one_liner');
 		if (superuser('web')) {
@@ -634,7 +634,7 @@ class Config extends Resolve_Object
 
 				$users_system->display_users_table(array_keys($webmasters), 'delete_webmaster_ids','Delete?','web_page_counter');
 			}#end if count(webmasters)
-			$backend->open_field('Add Web Masters:<br><span class=smallprint>(logins/emails)</span>',  'top');
+			$backend->open_field('Add Web Masters:<br/><span class=smallprint>(logins/emails)</span>',  'top');
 			echo text_area(webmaster_search,'',30,3,3000,'class=backend_data');
 		}#end if superuser
 */

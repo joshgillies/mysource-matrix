@@ -125,6 +125,8 @@ class Asset_Edit_Interface extends Resolve_Object
 		$create_sections = Array();
 		$active_screen = (empty($_GET['asset_ei_screen'])) ? $this->_default_screen : $_GET['asset_ei_screen'];
 
+		$o->setCurrentScreen($current_location.'asset_ei_screen='.rawurlencode($active_screen));
+
 		// if we are creating open the create file to see which fields we are supposed to print out
 		if ($creating) {
 			list($create_sections, $active_screen) = $this->_getCreateSections();
@@ -187,7 +189,7 @@ class Asset_Edit_Interface extends Resolve_Object
 					$paint_node = &$field->children[2]->children[0];
 
 					if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
-						echo 'Function not found for paintingfor';
+						echo 'Function not found for painting';
 					} else {
 						$this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix);
 					}
@@ -271,12 +273,29 @@ class Asset_Edit_Interface extends Resolve_Object
 				// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
 				if ($field->name != 'field'  || ($creating && !in_array($field->attributes['attribute'], $create_sections[$section->attributes['name']]))) continue;
 
-				$attr = &$owner->getAttribute($field->attributes['attribute']);
-				if (is_null($attr)) continue;
-				if (!$attr->setEditParams($field->children[2])) continue;
+				if (!empty($field->attributes['attribute'])) {
+					$attr = &$owner->getAttribute($field->attributes['attribute']);
+					if (is_null($attr)) continue;
+					if (!$attr->setEditParams($field->children[2])) continue;
 
-				$attr->process($prefix);
-				$processed[] = $attr->name;
+					$attr->process($prefix);
+					$processed[] = $attr->name;
+
+				} else if ($field->children[2]->name == 'function_call') {
+
+					$process_node = &$field->children[2]->children[1];
+
+					// if there is nothing declared there is nothing for use to do
+					if (empty($process_node->attributes['name'])) {
+						continue;
+					// There is something declared but the bloody thing doesn't exist - inform the Idiot
+					} elseif (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
+						trigger_error('Function not found for processing field "'.$field->children[0]->content.'"', E_USER_WARNING);
+					} else {
+						$this->_edit_fns->{$process_node->attributes['name']}($owner, $o, $prefix);
+					}
+
+				}// end if
 
 			}// end for
 

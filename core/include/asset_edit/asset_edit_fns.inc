@@ -38,14 +38,30 @@ class Asset_Edit_Fns extends Resolve_Object
 		$paths = $asset->getWebPaths();
 
 		foreach($paths as $path) {
-			$o->text_box($prefix.'_path[]', $path, 25);
-			echo '<br>';
+			$o->text_box($prefix.'_paths[]', $path, 25);
+			echo '<br/>';
 		}
 
-		$o->text_box($prefix.'_path[]', '', 25);
-		echo '<br>';
+		$o->text_box($prefix.'_paths[]', '', 25);
+		echo '<br/>';
 		
 	}// end paintPaths()
+
+	/**
+	* Processes the Paths posted from the paintPaths fn above
+	*
+	* @param object Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processPaths(&$asset, &$o, $prefix) 
+	{
+		$asset->saveWebPaths(array_values($_POST[$prefix.'_paths']));
+	}// end processPaths()
+
 
 	/**
 	* Paint the interface for the asset paths
@@ -59,10 +75,9 @@ class Asset_Edit_Fns extends Resolve_Object
 	*/
 	function paintURLs(&$asset, &$o, $prefix) 
 	{
-
-		$urls = $asset->getWebPaths(true);
+		$urls = $asset->getWebURLs();
 		foreach($urls as $url) {
-			echo '<a target="_blank" href="'.$url.'">'.$url.'</a><br>';
+			echo '<a target="_blank" href="'.$url.'">'.$url.'</a><br/>';
 		}
 		
 	}// end paintURLs()

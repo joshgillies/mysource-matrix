@@ -104,7 +104,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 
 		?>
-			</script></table></table></table></table><br>
+			</script></table></table></table></table><br/>
 			<table bgcolor="#c0c0c0" cellspacing="0" border="1" bordercolor="#ff0000">
 				<tr>
 					<td style="<?php echo $error_title; ?>">
@@ -127,7 +127,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 						</table>
 					</td>
 				</tr>
-			</table><br>
+			</table><br/>
 		<?php
 
 	}// end if

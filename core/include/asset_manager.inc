@@ -51,7 +51,7 @@ class Asset_Manager extends Resolve_Object
 		$sql = 'SELECT type_code, version, name, instantiable, system_only, parent_type, dir, customisation
 				FROM sq_asset_type';
 		$result = $db->query($sql);
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
 		$this->_asset_types = Array();
 		while (null !== ($row = $result->fetchRow())) {
@@ -76,7 +76,7 @@ class Asset_Manager extends Resolve_Object
 				FROM sq_asset_type
 				WHERE type_code = '.$db->quote($type_code);
 		$result = $db->getRow($sql);
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
 		if (empty($result)) {
 			trigger_error('Asset "'.$type_code.'" is not installed on the system', E_USER_WARNING);
@@ -91,7 +91,7 @@ class Asset_Manager extends Resolve_Object
 				FROM sq_asset_type_inherited
 				WHERE type_code = '.$db->quote($type_code);
 		$db_parents = $db->getCol($sql);
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
 		$inserts = array_diff($parents, $db_parents);
 		$deletes = array_diff($db_parents, $parents);
@@ -100,7 +100,7 @@ class Asset_Manager extends Resolve_Object
 			$sql = 'INSERT INTO sq_asset_type_inherited (inherited_type_code, type_code)
 					VALUES ('.$db->quote($inherited_type_code).', '.$db->quote($type_code).')';
 			$result = $db->query($sql);
-			if (DB::isError($result)) trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 		}
 
 		foreach($deletes as $inherited_type_code) {
@@ -108,7 +108,7 @@ class Asset_Manager extends Resolve_Object
 					WHERE inherited_type_code = '.$db->quote($inherited_type_code).'
 					  AND type_code = '.$db->quote($type_code);
 			$result = $db->query($sql);
-			if (DB::isError($result)) trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 		}
 
 	}//end refreshAssetType()
@@ -162,7 +162,7 @@ class Asset_Manager extends Resolve_Object
 					FROM sq_asset_type
 					WHERE type_code = '.$db->quote($type_code);
 			$result = $db->getOne($sql);
-			if (DB::isError($result)) trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
 			$this->_asset_types[$type_code][$field] = ($field == 'editing_options') ? unserialize($result) : $result;
 
@@ -194,7 +194,7 @@ class Asset_Manager extends Resolve_Object
 					FROM sq_asset_type
 					WHERE system_only != 1';
 			$type_codes = $db->getCol($sql);
-			if (DB::isError($type_codes)) trigger_error($type_codes->getMessage().'<br>'.$type_codes->getUserInfo(), E_USER_ERROR);
+			if (DB::isError($type_codes)) trigger_error($type_codes->getMessage().'<br/>'.$type_codes->getUserInfo(), E_USER_ERROR);
 		} else {
 			$type_codes = array_keys($this->_asset_types);
 		}
@@ -266,8 +266,8 @@ class Asset_Manager extends Resolve_Object
 		while($this->_asset_types[$type_code]['parent_type'] != 'asset') {
 			// this should NEVER happen, if it does DIE
 			if (!isset($this->_asset_types[$this->_asset_types[$type_code]['parent_type']])) {
-				trigger_error('Asset "'.$this->_asset_types[$type_code]['parent_type'].'" is not installed on the system,<br>'
-							 .'therefore we cannot get the parent type of Asset "'.$type_code.'".<br>'
+				trigger_error('Asset "'.$this->_asset_types[$type_code]['parent_type'].'" is not installed on the system,<br/>'
+							 .'therefore we cannot get the parent type of Asset "'.$type_code.'".<br/>'
 							 .'Check that you got the Asset_Manager by reference', E_USER_ERROR);
 			}
 			$type_code = $this->_asset_types[$type_code]['parent_type'];
@@ -398,12 +398,12 @@ class Asset_Manager extends Resolve_Object
 
 				$o->addFormActionGetVar('assetid', $_GET['assetid']);
 
-				$o->openRaw();
-					pre_echo('GET  : ');
-					pre_echo($_GET);
-					pre_echo('POST : ');
-					pre_echo($_POST);
-				$o->closeRaw();
+#				$o->openRaw();
+#					pre_echo('GET  : ');
+#					pre_echo($_GET);
+#					pre_echo('POST : ');
+#					pre_echo($_POST);
+#				$o->closeRaw();
 
 				$asset = &$this->getAsset($_GET['assetid']);
 				if (is_null($asset)) {
@@ -622,59 +622,59 @@ class Asset_Manager extends Resolve_Object
 	* if no url is passed the current (aka PHP_SELF) one is used
 	*
 	* @param string		$url			the urls to check for
+	* @param string		$protocol		the protocol to match
 	* @param boolean	$exact_match	when true only returns an asset if there is an exact match on the url, if false searches back along the URL path for the asset that matches
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because you can't use the '@' operator when returning by reference
 	*
 	* @access public
 	*/
-	function &getAssetFromURL($url='', $exact_match=true, $mute_errors=false)
+	function &getAssetFromURL($url, $protocol='', $exact_match=true, $mute_errors=false)
 	{
-
-		if (trim((string) $url) == '') {
-			$url = $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
-		}
-
+		// remove any trailing slashes
 		$url = preg_replace('/\/+$/', '', $url);
+		if ($protocol != 'https') $protocol = 'http';
 
-		pre_echo($url);
+		$db = &$GLOBALS['SQ_RESOLVE']->db;
 
-		if (!isset($this->_tmp['url_lookup'])) $this->_tmp['url_lookup'] = Array();
-		if (!isset($this->_tmp['url_lookup'][$url])) {
-
-			$sections = explode('/', $url);
-			$option  = '';
-			$in_str  = '';
-			foreach($sections as $piece) {
-				$in_str .= (($in_str) ? ',' : '').$GLOBALS['SQ_RESOLVE']->db->quote($option.$piece);
-				$option .= $piece.'/';
-			}
-
-			$sql = 'SELECT url, assetid
-					FROM sq_asset_urls
-					WHERE url IN ('.$in_str.')
-					ORDER BY CHARACTER_LENGTH(url) DESC
-					LIMIT 1';
-#			pre_echo($sql);
-			$row = $GLOBALS['SQ_RESOLVE']->db->getRow($sql);
-
-			if (empty($row)) {
-				$this->_tmp['url_lookup'][$url] = 0;
-			} else {
-				$this->_tmp['url_lookup'][$url] = Array('assetid' => $row['assetid'], 'exact' => ($url == $row['url']));
-			}
-
-		}//end if
-
-		if (empty($this->_tmp['url_lookup'][$url])) {
-			if (!$mute_errors) trigger_error('Unable to find an Asset for the URL "'.$url.'"', E_USER_WARNING);
-			return null;
-
-		} elseif ($exact_match && !$this->_tmp['url_lookup'][$url]['exact']) {
-			if (!$mute_errors) trigger_error('Unable to find an exact match for any Asset for the URL "'.$url.'"', E_USER_WARNING);
-			return null;
-		} else {
-			return $this->getAsset($this->_tmp['url_lookup'][$url]['assetid'], '', $mute_errors);
+		$sections = explode('/', $url);
+		$option  = '';
+		$in_str  = '';
+		foreach($sections as $piece) {
+			$in_str .= (($in_str) ? ',' : '').$db->quote($option.$piece);
+			$option .= $piece.'/';
 		}
+
+		$extra_table = '';
+		$extra_where = '';
+		if ($protocol) {
+			$extra_table = 'INNER JOIN sq_asset_url u ON l.root_urlid = u.urlid';
+			if ($protocol) $extra_where .= ' AND u.'.$protocol.' = '.$db->quote(1);
+		}
+
+		$sql = 'SELECT l.url, l.assetid
+				FROM sq_asset_url_lookup l '.$extra_table.'
+				WHERE l.url IN ('.$in_str.')
+				'.$extra_where.'
+				ORDER BY CHARACTER_LENGTH(l.url) DESC
+				LIMIT 1';
+		pre_echo($sql);
+		$row = $db->getRow($sql);
+		if (DB::isError($row)) trigger_error($row->getMessage().'<br/>'.$row->getUserInfo(), E_USER_ERROR);
+
+		// URL not found
+		if (empty($row)) {
+			$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
+			if (!$mute_errors) trigger_error('Unable to find an Asset for the URL "'.$fancy_url.'"', E_USER_WARNING);
+			return null;
+
+		} elseif ($exact_match && $url != $row['url']) {
+			$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
+			if (!$mute_errors) trigger_error('Unable to find an exact match for any Asset for the URL "'.$fancy_url.'"', E_USER_WARNING);
+			return null;
+
+		} else {
+			return $this->getAsset($row['assetid'], '', $mute_errors);
+		}// end if
 
 	}//end getAssetFromURL()
 

@@ -49,7 +49,7 @@ class Trash_Folder extends Folder
 
 		$sql = 'SELECT count(*) FROM sq_asset WHERE type_code = '.$db->quote($this->type());
 		$exists = $db->getOne($sql);
-		if (DB::isError($exists)) trigger_error($exists->getMessage().'<br>'.$exists->getUserInfo(), E_USER_ERROR);
+		if (DB::isError($exists)) trigger_error($exists->getMessage().'<br/>'.$exists->getUserInfo(), E_USER_ERROR);
 
 		if ($exists) {
 			trigger_error('Unable to create another Trash Folder, you are only allowed one', E_USER_WARNING);
@@ -150,14 +150,14 @@ class Trash_Folder extends Folder
 
 		$sql = db_extras_subquery($db, $sql, $subs);
 		if (DB::isError($sql)) 
-			trigger_error($sql->getMessage().'<br>'.$sql->getUserInfo(), E_USER_ERROR);
+			trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_ERROR);
 
 #		pre_echo($sql);
 #		error_log("\n".$sql);
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) 
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
 		$ret_arr = Array();
 		$by_type = ($ret_type == 'T');
@@ -215,13 +215,13 @@ class Trash_Folder extends Folder
 
 		$sql = db_extras_subquery($db, $sql, $subs);
 		if (DB::isError($sql)) 
-			trigger_error($sql->getMessage().'<br>'.$sql->getUserInfo(), E_USER_ERROR);
+			trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_ERROR);
 
 #		error_log($sql);
 
 		$result = $db->getOne($sql);
 		if (DB::isError($result)) 
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 		
 		return $result;
 

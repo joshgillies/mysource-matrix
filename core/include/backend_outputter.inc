@@ -62,6 +62,7 @@ class Backend_Outputter
 
 	// edit screens
 	var $_screens = Array();
+	var $_current_screen = '';
 
 	// the contents of the page split into sections
 	var $_contents = Array();
@@ -239,6 +240,20 @@ class Backend_Outputter
 		}
 		$this->_screens[$url] = $name;
 	}//end addScreen()
+
+	/**
+	* Set's the current screen, so the combo displays right
+	*
+	* @param string $url
+	*
+	* @access public
+	*/
+	function setCurrentScreen($url) 
+	{
+		if (empty($url)) return;
+		$this->_current_screen = $url;
+	}//end setCurrentScreen()
+
 
 	 ////////////////////////////////////////////////////////////////////////////////////////
 	// adds a preload image
@@ -522,7 +537,7 @@ class Backend_Outputter
 						<?php echo $this->_heading;?>
 					</td>
 					<td class="sq-backend-heading" style="text-align: right;">
-						<?php $this->combo_box('', $this->_screens, '', 'onChange="javascript: self.location = element_value(this);"', 0, 1); ?>
+						<?php $this->combo_box('', $this->_screens, $this->_current_screen, 'onChange="javascript: self.location = element_value(this);"', 0, 1); ?>
 					</td>
 				</tr>
 			</table>

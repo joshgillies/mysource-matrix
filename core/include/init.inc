@@ -71,7 +71,7 @@ set_error_handler('sq_error_handler');
 
 // Now that we've got error reporting lets generate a few errors!
 if(version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
-	trigger_error('<i>'.SQ_RESOLVE_LONG_NAME.'</i> requires PHP Version '.SQ_REQUIRED_PHP_VERSION.'.<br> You may need to upgrade.<br> Your current version is '.phpversion().'.', E_USER_ERROR);
+	trigger_error('<i>'.SQ_RESOLVE_LONG_NAME.'</i> requires PHP Version '.SQ_REQUIRED_PHP_VERSION.'.<br/> You may need to upgrade.<br/> Your current version is '.phpversion().'.', E_USER_ERROR);
 }
 
 /*

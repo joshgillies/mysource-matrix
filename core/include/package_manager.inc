@@ -115,7 +115,7 @@ class Package_Manager extends Resolve_Object
 			list($result, $req) = $this->checkRequirementsFromFile($file, true);
 
 			if (!$result) {
-				trigger_error('Asset "'.$type_code.'" fails the <b>'.$req['type'].'</b> requirement for <b>'.$req['code'].' v'.$req['version'].'</b><br>As specified by '.$file, E_USER_WARNING);
+				trigger_error('Asset "'.$type_code.'" fails the <b>'.$req['type'].'</b> requirement for <b>'.$req['code'].' v'.$req['version'].'</b><br/>As specified by '.$file, E_USER_WARNING);
 				return false;
 			}//endif
 
@@ -123,7 +123,7 @@ class Package_Manager extends Resolve_Object
 			// or that the type is in this package that we are checking
 			$parent_type = $this->assets[$type_code]['parent_type'];
 			if ($parent_type != 'asset' && !$am->installed($parent_type) && !isset($this->assets[$parent_type])) {
-				trigger_error('Asset "'.$type_code.'" attempts to inherit from the unknown type "'.$parent_type.'"<br>As specified by '.$file, E_USER_WARNING);
+				trigger_error('Asset "'.$type_code.'" attempts to inherit from the unknown type "'.$parent_type.'"<br/>As specified by '.$file, E_USER_WARNING);
 				return false;
 			}//endif
 
@@ -164,7 +164,7 @@ class Package_Manager extends Resolve_Object
 #		$db->query('BEGIN');
 
 		$exists = $db->getOne('SELECT code_name FROM sq_package WHERE code_name = '.$db->quote($this->package));
-		if (DB::isError($exists)) trigger_error($exists->getMessage().'<br>'.$exists->getUserInfo(), E_USER_ERROR);
+		if (DB::isError($exists)) trigger_error($exists->getMessage().'<br/>'.$exists->getUserInfo(), E_USER_ERROR);
 
 		if ($exists) {
 			$sql = 'UPDATE sq_package
@@ -185,7 +185,7 @@ class Package_Manager extends Resolve_Object
 		if (DB::isError($result)) {
 			// Abort Transaction
 			$db->query('ROLLBACK');
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return;
 		}
 
@@ -326,7 +326,7 @@ class Package_Manager extends Resolve_Object
 			}//end for
 
 			if ($last_count == count($asset_types)) {
-				trigger_error('There seems to be the possibility of recursive inheriting for this <b>'.$this->package.'</b> package.<br>The install order for these assets could not be established: <b>'.implode(', ', $asset_types).'</b>', E_USER_WARNING);
+				trigger_error('There seems to be the possibility of recursive inheriting for this <b>'.$this->package.'</b> package.<br/>The install order for these assets could not be established: <b>'.implode(', ', $asset_types).'</b>', E_USER_WARNING);
 				return Array();
 			}
 
@@ -370,7 +370,7 @@ class Package_Manager extends Resolve_Object
 			switch($req['@type']) {
 				case 'package' :
 					$installed_version = $GLOBALS['SQ_RESOLVE']->db->getOne('SELECT version FROM sq_package WHERE code_name = '.$GLOBALS['SQ_RESOLVE']->db->quote($req['code']['value']));
-					if (DB::isError($installed_version)) trigger_error($installed_version->getMessage().'<br>'.$installed_version->getUserInfo(), E_USER_ERROR);
+					if (DB::isError($installed_version)) trigger_error($installed_version->getMessage().'<br/>'.$installed_version->getUserInfo(), E_USER_ERROR);
 
 					if ($installed_version) {
 						$ok = version_compare($installed_version, $req['version']['value'], '>=');

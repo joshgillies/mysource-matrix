@@ -74,7 +74,7 @@ class Asset_Attribute extends Resolve_Object
 				WHERE attributeid = '.$db->quote($attributeid);
 
 		$result = $db->getRow($sql, null, DB_FETCHMODE_ORDERED);
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
 		if (is_null($result)) return;
 
@@ -147,7 +147,7 @@ class Asset_Attribute extends Resolve_Object
 	function setEditParams(&$node)
 	{
 		if (strtolower($node->name) != strtolower($this->type())) {
-			trigger_error('XML Tree Node type "'.$node->name.'" not compatible with attribute type "'.$this->type().'<br>Full Node Contents :<br><pre>'.$node->get().'</pre>', E_USER_WARNING);
+			trigger_error('XML Tree Node type "'.$node->name.'" not compatible with attribute type "'.$this->type().'<br/>Full Node Contents :<br/><pre>'.$node->get().'</pre>', E_USER_WARNING);
 			return false;
 		}
 		return true;

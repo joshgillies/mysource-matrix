@@ -1,8 +1,8 @@
 <?php
 
 ini_set('memory_limit', '8M');
-
 require_once '../include/init.inc';
+
 $GLOBALS['SQ_RESOLVE']->start();
 //$GLOBALS['SQ_RESOLVE']->am = new Asset_Manager();
 //

@@ -107,8 +107,13 @@ class Resolve
 		//	$GLOBALS['SQ_FRONTEND']->paint();
 			echo "FRONT END";
 			speed_check();
-			$asset = &$this->am->getAssetFromURL();
+
+			$url      = $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
+			$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http';
+
+			$asset = &$this->am->getAssetFromURL($_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'], $protocol, true, false);
 			pre_echo("Active Asset : ".$asset->name);
+			echo '<a href="http://beta.squiz.net/blair_resolve/_edit/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=6&asset_ei_screen=paths">click</a>';
 
 //			$asset = &$this->am->getAsset(4);
 //			pre_echo("Active Asset : ".$asset->name);

@@ -118,7 +118,7 @@ class Asset_Management extends Resolve_Object
 #		pre_echo($sql);
 		$result = $this->_db->query($sql);
 		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
@@ -168,7 +168,7 @@ class Asset_Management extends Resolve_Object
 #		pre_echo($sql);
 		$result = $this->_db->query($sql);
 		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
@@ -288,7 +288,7 @@ class Asset_Management extends Resolve_Object
 
 		$parent_info = $this->_db->getRow($sql);
 		if (DB::isError($parent_info)) {
-			trigger_error($parent_info->getMessage().'<br>'.$parent_info->getUserInfo(), E_USER_WARNING);
+			trigger_error($parent_info->getMessage().'<br/>'.$parent_info->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
@@ -303,7 +303,7 @@ class Asset_Management extends Resolve_Object
 					  AND a.name = '.$this->_db->quote($name);
 			$children = $this->_db->getCol($sql);
 			if (DB::isError($children)) {
-				trigger_error($children->getMessage().'<br>'.$children->getUserInfo(), E_USER_WARNING);
+				trigger_error($children->getMessage().'<br/>'.$children->getUserInfo(), E_USER_WARNING);
 				return false;
 			}
 			if (count($children)) {
@@ -340,7 +340,7 @@ class Asset_Management extends Resolve_Object
 			$min_sql = $sql.$this->_db->quote($parent_info['min']);
 			$attr_owner = $this->_db->getRow($min_sql);
 			if (DB::isError($attr_owner)) {
-				trigger_error($attr_owner->getMessage().'<br>'.$attr_owner->getUserInfo(), E_USER_WARNING);
+				trigger_error($attr_owner->getMessage().'<br/>'.$attr_owner->getUserInfo(), E_USER_WARNING);
 				return false;
 			}
 
@@ -357,7 +357,7 @@ class Asset_Management extends Resolve_Object
 				$max_sql = $sql.$this->_db->quote($parent_info['max']);
 				$attr_default = $this->_db->getRow($max_sql);
 				if (DB::isError($attr_default)) {
-					trigger_error($attr_default->getMessage().'<br>'.$attr_default->getUserInfo(), E_USER_WARNING);
+					trigger_error($attr_default->getMessage().'<br/>'.$attr_default->getUserInfo(), E_USER_WARNING);
 					return false;
 				}
 
@@ -372,7 +372,7 @@ class Asset_Management extends Resolve_Object
 
 		$attributeid = $this->_db->nextId('sq_sequence_asset_attribute');
 		if (DB::isError($attributeid)) {
-			trigger_error($attributeid->getMessage().'<br>'.$attributeid->getUserInfo(), E_USER_WARNING);
+			trigger_error($attributeid->getMessage().'<br/>'.$attributeid->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
@@ -391,7 +391,7 @@ class Asset_Management extends Resolve_Object
 #		pre_echo($sql);
 		$result = $this->_db->query($sql);
 		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
@@ -432,7 +432,7 @@ class Asset_Management extends Resolve_Object
 
 			$curr_attr = $this->_db->getRow($sql);
 			if (DB::isError($curr_attr)) {
-				trigger_error($curr_attr->getMessage().'<br>'.$curr_attr->getUserInfo(), E_USER_WARNING);
+				trigger_error($curr_attr->getMessage().'<br/>'.$curr_attr->getUserInfo(), E_USER_WARNING);
 				return false;
 			}
 
@@ -478,7 +478,7 @@ class Asset_Management extends Resolve_Object
 #		pre_echo($sql);
 		$result = $this->_db->query($sql);
 		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
@@ -492,7 +492,7 @@ class Asset_Management extends Resolve_Object
 #		pre_echo($sql);
 		$result = $this->_db->query($sql);
 		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
@@ -533,14 +533,14 @@ class Asset_Management extends Resolve_Object
 
 		$sql = db_extras_subquery($this->_db, $sql, $subs);
 		if (DB::isError($sql)) {
-			trigger_error($sql->getMessage().'<br>'.$sql->getUserInfo(), E_USER_WARNING);
+			trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
 #		pre_echo($sql);
 		$result = $this->_db->query($sql);
 		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
@@ -571,7 +571,7 @@ class Asset_Management extends Resolve_Object
 
 			$info = $xml_array->getArrayFromFile($file);
 			if (PEAR::isError($info)) {
-				trigger_error($info->error_message_prefix.$info->message.'<br>In File:'.$file, E_USER_WARNING);
+				trigger_error($info->error_message_prefix.$info->message.'<br/>In File:'.$file, E_USER_WARNING);
 				return Array();
 			}
 
