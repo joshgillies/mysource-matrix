@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_object.inc,v 1.1.2.1 2004/03/08 17:54:39 brobertson Exp $
+* $Id: replication_object.inc,v 1.1.2.2 2004/03/18 16:10:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,19 +37,12 @@
 class Replication_Object extends MySource_Object
 {
 	/**
-	* The path to the directory that we will put all our logs (because we can have diff types)
-	* @var string
-	*/
-	var $_log_dir = '';
-
-	/**
 	* Constructor
 	*
 	*/
 	function Replication_Object()
 	{
 		$this->MySource_Object();
-		$this->_log_dir  = SQ_DATA_PATH.'/private/logs/replication';
 
 	}//end constructor
 
@@ -60,11 +53,12 @@ class Replication_Object extends MySource_Object
 	* @param string	$msg		the msg to add to log
 	* @param string	$log_type	the log to put the msg  in
 	*
-	* @access	private
+	* @access private
+	* @static
 	*/
 	function _log($msg, $log_type='general')
 	{
-		error_log(date('[d-M-Y H:i:s] ').$msg."\n", 3, $this->_log_dir.'/'.$log_type.'.log');
+		error_log(date('[d-M-Y H:i:s] ').$msg."\n", 3, SQ_DATA_PATH.'/private/logs/replication/'.$log_type.'.log');
 
 	}// end _log()
 

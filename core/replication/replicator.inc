@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replicator.inc,v 1.1.2.8 2004/03/09 18:09:40 brobertson Exp $
+* $Id: replicator.inc,v 1.1.2.9 2004/03/18 16:10:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -55,20 +55,6 @@ class Replicator extends Replication_Object
 		$this->_data_dir = SQ_DATA_PATH.'/private/replication';
 
 	}//end constructor
-
-	/**
-	* Appends something to the log
-	*
-	* @param string	$msg		the msg to add to log
-	* @param string	$log_type	the log to put the msg  in
-	*
-	* @access	private
-	*/
-	function _log($msg, $log_type='general')
-	{
-		error_log(date('[d-M-Y H:i:s] ').$msg."\n", 3, $this->_log_dir.'/'.$log_type.'.log');
-
-	}// end _log()
 
 
 	/**
