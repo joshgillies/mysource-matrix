@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.101 2004/10/13 23:22:06 lwright Exp $
+* $Id: page_calendar.inc,v 1.102 2004/10/14 01:49:09 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.101 $ - 1.0
+* @version $Revision: 1.102 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1041,7 +1041,7 @@ class Page_Calendar extends Page_Asset_Listing
 			uasort($root_node_treeids, create_function('$a,$b', 'return strlen($b)-strlen($a);'));
 
 			foreach($root_node_treeids as $root_node_assetid => $root_node_treeid) {
-				if (substr($details['treeid'], 0, strlen($root_node_treeid)) == $root_node_treeid) {				
+				if (substr($details['treeid'], 0, strlen($root_node_treeid)) === $root_node_treeid) {				
 					// if this root node has a formatting style, use it and shove off
 					if ($root_nodes[$root_node_assetid]['class_name'] != '') {
 						$event_class = $root_nodes[$root_node_assetid]['class_name'];
@@ -1705,7 +1705,7 @@ class Page_Calendar extends Page_Asset_Listing
 							$details['start_date_minutes'] = $mins;
 						}
 						if (($event_ts < $end_ts) && ($event_end_ts > $end_ts)) {
-							$event_ts = $start_ts;
+							$event_end_ts = $end_ts;
 							$details['end_date_hours'] = $e_hour;
 							$details['end_date_minutes'] = $e_mins;
 						}
@@ -1831,7 +1831,7 @@ class Page_Calendar extends Page_Asset_Listing
 						$details['start_date_minutes'] = $mins;
 					}
 					if (($event_ts < $end_ts) && ($event_end_ts > $end_ts)) {
-						$event_ts = $start_ts;
+						$event_end_ts = $end_ts;
 						$details['end_date_hours'] = $e_hour;
 						$details['end_date_minutes'] = $e_mins;
 					}
@@ -1878,13 +1878,30 @@ class Page_Calendar extends Page_Asset_Listing
 		$events = &$this->getDayEvents($date);
 		$res = Array();
 		
-		foreach ($this->attr('columnise_day_view_by_root_node') as $node_id) {
+		$columnise_by_root = $this->attr('columnise_day_view_by_root_node');
+		
+		foreach ($columnise_by_root as $node_id) {
 			$res[$node_id] = $partitions;
 		}
 		
+		$root_node_treeids = get_treeids(array_flip($root_nodes));
+		uasort($root_node_treeids, create_function('$a,$b', 'return strlen($b)-strlen($a);'));
+
 		foreach ($events as $id => $details) {
 			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
-			$col = (isset($res[$details['root_node']])) ? $details['root_node'] : (isset($res['other']) ? 'other' : false);
+
+			// get class to use for root node
+			$col = (isset($res['other']) ? 'other' : false);
+
+			foreach($root_node_treeids as $root_node_assetid => $root_node_treeid) {
+				if (substr($details['treeid'], 0, strlen($root_node_treeid)) === $root_node_treeid) {
+					if (in_array($root_node_assetid, $columnise_by_root)) {
+						$col = $root_node_assetid;
+						break;
+					}
+				}
+			}
+
 			if ($col) {
 				if (empty($details['start_date_hours'])) {
 					$res[$col]['all_day'][$id] = $details;
@@ -1900,7 +1917,7 @@ class Page_Calendar extends Page_Asset_Listing
 						$details['start_date_minutes'] = $mins;
 					}
 					if (($event_ts < $end_ts) && ($event_end_ts > $end_ts)) {
-						$event_ts = $start_ts;
+						$event_end_ts = $end_ts;
 						$details['end_date_hours'] = $e_hour;
 						$details['end_date_minutes'] = $e_mins;
 					}
@@ -1913,9 +1930,21 @@ class Page_Calendar extends Page_Asset_Listing
 				}
 			}
 		}
-		foreach ($res as $root_node => $null) {		
-			$res[$root_node]['_overlap_'] = $this->_countOverlappingEvents($events, $first_time, $last_time, $time_partition);
+
+		foreach ($res as $root_node => $null) {
+			$max_events = 1;
+			$rrn = Array();
+			foreach($res[$root_node] as $key => $null) {
+				foreach($res[$root_node][$key] as $id => $null) {
+					$rrn[] = &$res[$root_node][$key][$id];
+				}
+			}
+
+			$max_events = max($max_events, $this->_countOverlappingEvents($rrn, $first_time, $last_time, $time_partition));
+
+			$res[$root_node]['_overlap_'] = $max_events;
 		}
+
 		return $res;
 
 	}//end getDayEventsByRootNodeAndTime()
