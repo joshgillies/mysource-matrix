@@ -19,7 +19,7 @@ function InputTable(id, varname)
 	this.tb = new Table(id);
 	this.varname = varname;
 	this.tb.addCol('<table cellspacing="0" cellpadding="0" border="0" class="insidetabletop"><tr><td><input name="' + id + '[1][1]" id="' + id + '[1][1]" onkeyup="' + varname + '.rebuild()" class="titleCell" style="width:100px"></td></tr></table>');
-	this.tb.addCol('<table cellspacing="0" cellpadding="0" border="0" class="insidetabletop"><tr><td><input name="' + id + '[1][2]" id="' + id + '[1][2]" onkeyup="' + varname + '.rebuild()" class="titleCell"></td><td><img id="img_' + id + '1_2" src="' + this.datapath +'/cross.PNG" onclick="' + this.varname + '.delCol(this.parentNode.parentNode.parentNode.parentNode.parentNode.id)" width="15" height="15"></td></tr></table>');
+	this.tb.addCol('<table cellspacing="0" cellpadding="0" border="0" class="insidetabletop"><tr><td><input name="' + id + '[1][2]" id="' + id + '[1][2]" onkeyup="' + varname + '.rebuild()" class="titleCell"></td><td><img id="img_' + id + '1_2" src="' + this.datapath +'/cross.png" onclick="' + this.varname + '.delCol(this.parentNode.parentNode.parentNode.parentNode.parentNode.id)" width="15" height="15"></td></tr></table>');
 
 	this.addRow = it_addRow;
 	this.addCol = it_addCol;
@@ -80,7 +80,7 @@ function it_input(row, col)
 function it_addRow()
 {
 	this.tb.addRow();
-	this.tb.setCell(this.tb.rows,1,'<table cellspacing="0" cellpadding="0" border="0" class="insidetable"><tr><td><input name="' + this.id + '['+this.tb.rows+']['+1+']" id="' + this.id + '['+this.tb.rows+']['+1+']" onkeyup="' + this.varname + '.rebuild()" class="titleCell"></td><td><img id="img_' + this.id + this.tb.rows + '_1" src="' + this.datapath + '/cross.PNG" onclick="' + this.varname + '.delRow(this.parentNode.parentNode.parentNode.parentNode.parentNode.id)"></td></tr></table>');
+	this.tb.setCell(this.tb.rows,1,'<table cellspacing="0" cellpadding="0" border="0" class="insidetable"><tr><td><input name="' + this.id + '['+this.tb.rows+']['+1+']" id="' + this.id + '['+this.tb.rows+']['+1+']" onkeyup="' + this.varname + '.rebuild()" class="titleCell"></td><td><img id="img_' + this.id + this.tb.rows + '_1" src="' + this.datapath + '/cross.png" onclick="' + this.varname + '.delRow(this.parentNode.parentNode.parentNode.parentNode.parentNode.id)"></td></tr></table>');
 	for (var i=2; i<=this.tb.cols; i++)
 		this.tb.setCell(this.tb.rows,i,'<input name="' + this.id + '['+this.tb.rows+']['+i+']" id="' + this.id + '['+this.tb.rows+']['+i+']" onkeyup="' + this.varname + '.rebuild()" class="basicCell">');
 
@@ -96,7 +96,7 @@ function it_addRow()
 function it_addCol()
 {
 	this.tb.addCol();
-	this.tb.setCell(1,this.tb.cols,'<table cellspacing="0" cellpadding="0" border="0" class="insidetabletop"><tr><td><input name="' + this.id + '['+1+']['+this.tb.cols+']" id="' + this.id + '['+1+']['+this.tb.cols+']" onkeyup="' + this.varname + '.rebuild()" class="titleCell"></td><td><img id="img_' + this.id + '1_'+this.tb.cols+'" src="' + this.datapath +'/cross.PNG" onclick="' + this.varname + '.delCol(this.parentNode.parentNode.parentNode.parentNode.parentNode.id)"></td></tr></table>');
+	this.tb.setCell(1,this.tb.cols,'<table cellspacing="0" cellpadding="0" border="0" class="insidetabletop"><tr><td><input name="' + this.id + '['+1+']['+this.tb.cols+']" id="' + this.id + '['+1+']['+this.tb.cols+']" onkeyup="' + this.varname + '.rebuild()" class="titleCell"></td><td><img id="img_' + this.id + '1_'+this.tb.cols+'" src="' + this.datapath +'/cross.png" onclick="' + this.varname + '.delCol(this.parentNode.parentNode.parentNode.parentNode.parentNode.id)"></td></tr></table>');
 	for (var j=2; j<=this.tb.rows; j++)
 		this.tb.setCell(j,this.tb.cols,'<input name="' + this.id + '['+j+']['+this.tb.cols+']" id="' + this.id + '['+j+']['+this.tb.cols+']" onkeyup="' + this.varname + '.rebuild()" class="basicCell">');
 
@@ -199,11 +199,11 @@ function it_rebuild()
 				this.input(j, i).disabled = true;
 				this.input(j, i).className = "disabledCell";
 			}
-			if (document.getElementById("img_" + this.id + j + "_1") != null) document.getElementById("img_" + this.id + j + "_1").src = this.datapath +"/cross.PNG";
-			if (document.getElementById("img_" + this.id + "1_" + i) != null) document.getElementById("img_" + this.id + "1_" + i).src = this.datapath +"/cross.PNG";
+			if (document.getElementById("img_" + this.id + j + "_1") != null) document.getElementById("img_" + this.id + j + "_1").src = this.datapath +"/cross.png";
+			if (document.getElementById("img_" + this.id + "1_" + i) != null) document.getElementById("img_" + this.id + "1_" + i).src = this.datapath +"/cross.png";
 		}
-		if (document.getElementById("img_" + this.id + "1_" + this.tb.cols) != null) document.getElementById("img_" + this.id + "1_" + this.tb.cols).src = this.datapath +"/cross2.PNG";
-		if (document.getElementById("img_" + this.id + this.tb.rows + "_1") != null) document.getElementById("img_" + this.id + this.tb.rows + "_1").src = this.datapath +"/cross2.PNG";
+		if (document.getElementById("img_" + this.id + "1_" + this.tb.cols) != null) document.getElementById("img_" + this.id + "1_" + this.tb.cols).src = this.datapath +"/cross2.png";
+		if (document.getElementById("img_" + this.id + this.tb.rows + "_1") != null) document.getElementById("img_" + this.id + this.tb.rows + "_1").src = this.datapath +"/cross2.png";
 
 }//end it_rebuild
 
