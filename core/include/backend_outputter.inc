@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.86 2004/10/07 01:53:52 lwright Exp $
+* $Id: backend_outputter.inc,v 1.87 2004/11/10 21:34:33 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1145,7 +1145,7 @@ class Backend_Outputter
 
 		?>
 			<a name="section_<?php echo $section['section_count']; ?>"></a>
-			<table width="100%" cellpadding="0" cellspacing="1" border="0">
+			<table id="backend_section_<?php echo $section['section_count']; ?>" width="100%" cellpadding="0" cellspacing="1" border="0">
 			<?php
 			if ($section['heading']) {
 				if ($depth > 0) {
@@ -1526,6 +1526,10 @@ class Backend_Outputter
 
 	}//end onAssetStatusUpdate()
 
+	function getCurrentSectionNumber()
+	{
+		return $this->_section_count;
+	}
 
 }//end class
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.241 2004/10/15 06:05:55 lwright Exp $
+* $Id: asset_manager.inc,v 1.242 2004/11/10 21:34:33 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -739,7 +739,7 @@ class Asset_Manager extends MySource_Object
 					if (!$mute_errors) trigger_error('Asset Type "'.$type_code.'" is not installed on this system', E_USER_WARNING);
 				} else {
 					$this->includeAsset($type_code);
-					$this->_assets[$assetid]['object'] = new $type_code($assetid);
+					$this->_assets[$assetid]['object'] = @new $type_code($assetid);
 					if (empty($this->_assets[$assetid]['object']->id)) $this->_assets[$assetid]['object'] = null;
 				}
 
@@ -3920,7 +3920,7 @@ class Asset_Manager extends MySource_Object
 	function getRootURL($url=null)
 	{
 
-		if (is_null($url)) $url = current_url(false);
+		if (is_null($url)) $url = current_url(false, true);
 		// remove any trailing slashes and double slashes
 		$url = strip_url($url);
 
@@ -3936,7 +3936,6 @@ class Asset_Manager extends MySource_Object
 				LIMIT 1';
 		$result = $db->getRow($sql);
 		assert_valid_db_result($result);
-
 		return $result;
 
 	}//end getRootURL()
@@ -4105,7 +4104,9 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
-		if (is_null($base_url)) $base_url = current_url(false);
+		if (is_null($base_url)) $base_url = current_url(false, true);
+
+		//bam("Set base URL to $base_url");
 
 		$matches = Array();
 		if (!preg_match('/^(([a-z]+):\/\/)?(.*)$/', strip_url($base_url), $matches)) return ($return_array) ? Array() : '';
