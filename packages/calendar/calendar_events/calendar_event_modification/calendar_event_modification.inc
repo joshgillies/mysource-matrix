@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification.inc,v 1.11 2004/08/04 04:22:53 tbarrett Exp $
+* $Id: calendar_event_modification.inc,v 1.12 2004/09/02 01:09:25 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * of a recurring event have changed for a particular instance of that event.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.11 $ - 1.0
+* @version $Revision: 1.12 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -72,6 +72,12 @@ class Calendar_Event_Modification extends Calendar_Event
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$parent = &$link['asset'];
+		if (!($link['value'] = $this->getStartDate())) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			trigger_error('You need to specify a start date before you can call create() for a modification event', E_USER_ERROR);
+			return false;
+		}
+
 		if ($parent->type() != 'calendar_event_recurring') {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			trigger_error('Recurring Event Cancellations can only be created underneath recurring events', E_USER_ERROR);

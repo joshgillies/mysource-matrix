@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.26 2004/09/01 23:41:14 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.27 2004/09/02 01:09:25 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.26 $ - 1.0
+* @version $Revision: 1.27 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -475,7 +475,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		if (($stop_timestamp = $stop_date_attr->getTimestamp()) == -1) {
 			return "$res, until further notice";
 		} else {
-			return "$res, until ".readable_datetime($stop_timestamp);
+			return "$res, until ".date('jS M Y', $stop_timestamp);
 		}
 
 	}//end getFriendlyFrequency()
@@ -561,6 +561,13 @@ class Calendar_Event_Recurring extends Calendar_Event
 	*/
 	function getAssetKeywords($descriptions=false)
 	{
+		$child_links = ($GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($this->id));
+		foreach ($child_links as $treeid => $details) {
+			if ($details['value'] == $_REQUEST['SQ_CALENDAR_DATE']) {
+				bam("SPECIAL CASE: This asset has a ".$details['type_code']);
+				break;
+			}
+		}
 		$keywords = parent::getAssetKeywords($descriptions);
 		$keywords['event_frequency'] = Array('value'=> $this->getFriendlyFrequency());
 		$write_access = $this->writeAccess('');
@@ -620,7 +627,9 @@ class Calendar_Event_Recurring extends Calendar_Event
 					trigger_error('Attempt to create a cancellation with no date', E_USER_WARNING);
 					return '';
 				}
-				$res = '<form method="POST" action="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=cancel2&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'">Reason for cancellation: <textarea rows="4" cols="40" name="event_cancellation_reason"></textarea><input type="submit" /></form>';
+				$res = '<form method="POST" action="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=cancel2&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'"><table cellpadding="4" border="0">';
+				$res .= '<tr><td style="vertical-align: top">Reason for<br />cancellation: </td><td><textarea rows="4" cols="40" name="event_cancellation_reason"></textarea></td></tr>';
+				$res .= '<tr><td colspan="2"><input type="submit" value="Add Cancellation" />&nbsp;&nbsp;<input type="button" value="Go Back" onclick="document.location=\''.$_SERVER['HTTP_REFERER'].'\'" /></td></tr></table></form>';
 			break;
 
 			case 'cancel2':
@@ -629,11 +638,11 @@ class Calendar_Event_Recurring extends Calendar_Event
 					return '';
 				}
 
-				$this->addCancellation($_REQUEST['SQ_CALENDAR_DATE'], $_REQUEST['event_cancellation_reason']);
+				$cancel_event = $this->addCancellation($_REQUEST['SQ_CALENDAR_DATE'], $_REQUEST['event_cancellation_reason']);
 
 				$res = '<p>The recurring event <i>'.$this->attr('name').'</i> has been cancelled on '.date('jS M Y', strtotime($_REQUEST['SQ_CALENDAR_DATE'].' 12:00:00 GMT')).' only.</p>';
 				$res .= '<p style="margin: 0px; ">Would you like to create a replacement for the cancelled event?<p>';
-				$res .= '<form style="margin: 0px; float: left" method="POST" action="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=addreplacement&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'"><input type="submit" value="Yes" /></form><form style="margin: 0px 1ex; float: left" method="POST" action="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'"><input type="submit" value="No" /></form>';
+				$res .= '<form style="margin: 0px; float: left" method="POST" action="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$cancel_event->id.'&amp;SQ_CALENDAR_EVENT_ACTION=addreplacement&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'"><input type="submit" value="Yes" /></form><form style="margin: 0px 1ex; float: left" method="POST" action="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'"><input type="submit" value="No" /></form>';
 			break;
 
 			case 'modify1':
@@ -641,16 +650,22 @@ class Calendar_Event_Recurring extends Calendar_Event
 					trigger_error('Attempt to create a modification with no date', E_USER_WARNING);
 					return '';
 				}
-				$res = '<form method="POST" action="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=modify2&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'">';
-				$res .= 'Date and Time: ';
+				$res = '<form method="POST" action="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=modify2&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'"><table cellpadding="4" border="0">';
+				
+				$res .= '<tr><td style="vertical-align: top">Start and End: </td><td>';
 				ob_start();
 					$edit_fns = $this->getEditFns();
 					$edit_fns->paintStartEndChooser($this, 'event', '');
 					$res .= ob_get_contents();
 				ob_end_clean();
-				$res .= '<br />Description: <textarea name="event_description">';
+				$res .= '</td></tr>';
+
+				$res .= '<tr><td style="vertical-align: top">Description: </td><td><textarea name="event_description">';
 				$res .= $this->attr('description');
-				$res .= '</textarea><input type="submit" /></form>';
+				$res .= '</textarea></td></tr>';
+				
+				$res .= '<tr><td colspan="2"><input type="submit" value="Add Modification" />&nbsp;&nbsp;<input type="button" value="Cancel" onclick="document.location=\''.$_SERVER['HTTP_REFERER'].'\'" /></td></tr></table></form>';
+
 			break;
 
 			case 'modify2':
@@ -726,7 +741,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		$cancellation_event = new Calendar_Event_Cancellation();
 		$cancellation_event->setAttrValue('start_date', $date.' --:--:--');
 		$cancellation_event->setAttrValue('description', $reason);
-		$link = Array('asset' => &$this, 'name' => $date, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 0);
+		$link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 0, 'value' => $date);
 		$cancellation_event->create($link);
 		return $cancellation_event;
 
@@ -749,7 +764,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		$modification_event = new Calendar_Event_Modification();
 		$modification_event->setAttrValue('start_date', $date.' --:--:--');
 		$modification_event->setAttrValue('description', $description);
-		$link = Array('asset' => &$this, 'name' => $date, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 0);
+		$link = Array('asset' => &$this, 'value' => $date, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 0);
 		$modification_event->create($link);
 		return $modification_event;
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation.inc,v 1.7 2004/09/01 07:17:25 tbarrett Exp $
+* $Id: calendar_event_cancellation.inc,v 1.8 2004/09/02 01:09:25 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * which replaces the cancelled instance may be linked to it.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.7 $ - 1.0
+* @version $Revision: 1.8 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -73,6 +73,11 @@ class Calendar_Event_Cancellation extends Calendar_Event
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$parent = &$link['asset'];
+		if (!($link['value'] = $this->getStartDate())) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			trigger_error('You need to specify a start date before you can call create() for a modification event', E_USER_ERROR);
+			return false;
+		}
 		if ($parent->type() != 'calendar_event_recurring') {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			trigger_error('Recurring Event Cancellations can only be created underneath recurring events', E_USER_ERROR);
@@ -151,7 +156,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 		}
 
 		// set our name based on the parent
-		$this->setAttrValue('name', $parent->attr('name').' - Cancelled '.date('d M Y', iso8601_ts($this->attr('start_date'))));
+		$this->setAttrValue('name', 'Cancelled '.date('d M Y', iso8601_ts($this->attr('start_date'))).': '.  $parent->attr('name'));
 
 		return true;
 
@@ -176,6 +181,64 @@ class Calendar_Event_Cancellation extends Calendar_Event
 		return $replacement_event;
 
 	}// end addCancellation()
+
+
+	/**
+	* Process the specified action on this event, and return whatever html the action wants to show
+	*
+	* @param string	$action_name	The action to perform, eg 'cancel'
+	*
+	* @return string	HTML to show as the result of this action
+	* @access public
+	*/	
+	function processEventAction($action_name) 
+	{
+		$res = '';
+		switch ($action_name) {
+			case 'addreplacement':
+				$parent_assetids = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring');
+				$parent_object = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetids[0]);
+
+				$res = '<form method="POST" action="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=addreplacement2&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'"><table cellpadding="4" border="0">';
+				$res .= '<tr><td style="vertical-align: top">Start and End: </td><td>';
+				ob_start();
+					$edit_fns = $this->getEditFns();
+					$edit_fns->paintStartEndChooser($this, 'event', '');
+					$res .= ob_get_contents();
+				ob_end_clean();
+				$res .= '</td></tr>';
+
+				$res .= '<tr><td style="vertical-align: top">Description: </td><td><textarea name="event_description">';
+				$res .= $parent_object->attr('description');
+				$res .= '</textarea></td></tr>';
+				$res .= '<tr><td colspan="2"><input type="submit" value="Add Replacement" />&nbsp;&nbsp;<input type="button" value="Cancel" onclick="document.location=\''.$_SERVER['PHP_SELF'].'?SQ_CALENDAR_EVENT_ID='.$parent_object->id.'&SQ_CALENDAR_VIEW=event&SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'\'" /></td></tr></table></form>';
+			break;
+
+			case 'addreplacement2':
+				if (!isset($_REQUEST['event_start_time_enabled'])) {
+					$_REQUEST['event_start_hours'] = '--';
+					$_REQUEST['event_start_minutes'] = '--';
+				}
+				if (!isset($_REQUEST['event_end_time_enabled'])) {
+					$_REQUEST['event_end_hours'] = '--';
+					$_REQUEST['event_end_minutes'] = '--';
+				}
+				if (!isset($_REQUEST['event_end_date_enabled'])) {
+					$_REQUEST['event_end_year'] = '----';
+					$_REQUEST['event_end_month'] = '--';
+					$_REQUEST['event_end_day'] = '--';
+				}
+				$replacement_event = $this->addReplacement(sprintf('%04s-%02s-%02s %02s:%02s:--', $_REQUEST['event_start_year'], $_REQUEST['event_start_month'], $_REQUEST['event_start_day'],  $_REQUEST['event_start_hours'], $_REQUEST['event_start_minutes']),  sprintf('%04s-%02s-%02s %02s:%02s:--', $_REQUEST['event_end_year'], $_REQUEST['event_end_month'], $_REQUEST['event_end_day'],  $_REQUEST['event_end_hours'], $_REQUEST['event_end_minutes']),  $_REQUEST['event_description']);
+				$res = '<p>Replacement event added</p>';
+			break;
+
+			default:
+				$res = parent::processEventAction($action_name);
+			break;
+		}
+		return $res;
+
+	}//end processEventAction();
 
 
 	/**
