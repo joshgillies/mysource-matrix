@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.20 2004/11/22 05:39:29 lwright Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.21 2004/12/03 15:08:38 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.20 $ - 1.0
+* @version $Revision: 1.21 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -400,7 +400,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	*/
 	function paintDayEnd(&$asset, &$o, $prefix)
 	{
-		if ($asset->writeAccess('attributes'))	if ($asset->writeAccess('attributes')) {
+		if ($asset->writeAccess('attributes')) {
 			list($hour,$minute) = sscanf($asset->attr('day_ends_at'),'%02d:%02d');
 			$is_pm = false;
 			if ($hour >= 12) {
@@ -411,9 +411,8 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			
 			$this->_paint5MinTimeField($prefix.'_day_end_time', $hour, $minute, $is_pm);
 		} else {
-			echo $asset->attr('day_starts_at');
+			echo $asset->attr('day_ends_at');
 		}
-		else echo $asset->attr('day_ends_at');
 
 	}//end paintDayEnd()
 
