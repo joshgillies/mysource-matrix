@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_management.inc,v 1.42 2003/09/26 05:26:31 brobertson Exp $
+* $Id: asset_management.inc,v 1.43 2003/10/21 06:22:51 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -59,6 +59,17 @@ class Asset_Management extends MySource_Object
 
 
 	/**
+	* @var array
+	* Holds all the searchable components for this assets. 
+	* Array (component_name => Array(
+	*				'description'		=> 'description',
+	*				'default_weighting' => '1'
+	*			)
+	* )
+	*/
+	var $components;
+
+	/**
 	* Constructor
 	*
 	*/
@@ -69,6 +80,12 @@ class Asset_Management extends MySource_Object
 		$this->_db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$this->vars = Array();
+		$this->components = Array(
+			'name' => Array (
+				'description'		=> 'Name',
+				'default_weighting'	=> '-1',
+			), 	
+		);
 
 	}//end constructor
 
@@ -204,6 +221,9 @@ class Asset_Management extends MySource_Object
 			$name =& $all_vars[$k];
 			if (!$this->_addAttribute($name)) return false;
 		}
+		
+		// now add the component weightings
+		$this->_setComponentWeightings($this->components);
 
 		return true;
 
@@ -261,7 +281,6 @@ class Asset_Management extends MySource_Object
 				if (!$this->_addAttribute($name)) return false;
 			}
 		}//end for
-
 		return true;
 
 	}//end upgrade()
@@ -713,6 +732,40 @@ class Asset_Management extends MySource_Object
 
 	}//end _updateCustomAttribute()
 
+	/**
+	*  Sets the default weightings for this asset type's components
+	* 
+	* @param array The component weightings.
+	* 
+	* @access private
+	* @return void
+	*/
+	function _setComponentWeightings($componentWeightings)
+	{
+		$typeCode = $this->getAssetType();
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		// clear all weightings for this typecode
+		$sql = 'DELETE FROM '. SQ_TABLE_PREFIX .'asset_indexing_weightings_default 
+				WHERE type_code = ' . $db->quote($typeCode) ;
+
+		$db->query($sql);
+		foreach ($componentWeightings as $component => $weighting) {
+			if (strlen($component) == 0)
+				continue;
+
+			$sql = 'INSERT INTO '. SQ_TABLE_PREFIX .'asset_indexing_weightings_default
+					(type_code, component, description, weighting)
+					VALUES (' . 
+						$db->quote($typeCode)					. ', ' .
+						$db->quote($component)					. ', ' .
+						$db->quote($weighting['description'])	. ', ' .
+						$db->quote($weighting['default_weighting']) . 
+					')';
+			$db->query($sql);
+
+		}
+	} // end _setComponentWeighting()
 
 	/**
 	* Checks an attributes default value to make sure that it is valid
