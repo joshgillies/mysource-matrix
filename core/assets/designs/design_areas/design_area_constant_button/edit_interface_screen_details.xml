@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2003/09/26 05:26:24 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2003/10/14 05:07:56 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -17,7 +17,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Link">
+	<section name="Link" write_access="write:attributes">
 		<field>
 			<display_name>Asset</display_name>
 			<note>The asset that this button is to link to</note>
@@ -32,7 +32,7 @@
 			<text width="30" height="1" />
 		</field>
 	</section>
-	<section name="Settings">
+	<section name="Settings" write_access="write:attributes">
 		<field attribute="text">
 			<display_name>Text</display_name>
 			<note>The text that forms the link if there is no image</note>

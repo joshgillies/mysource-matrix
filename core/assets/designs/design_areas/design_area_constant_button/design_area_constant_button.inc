@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_constant_button.inc,v 1.9 2003/09/29 05:16:52 gsherwood Exp $
+* $Id: design_area_constant_button.inc,v 1.10 2003/10/14 05:07:56 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -22,28 +22,6 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 */
 class Design_Area_Constant_Button extends Design_Area
 {
-
-	/**
-	* Set the value for the passed variable to the passed value
-	*
-	* @param string		$name				the name of the attribute
-	* @param string		$value				the new value of the attribute
-	*
-	* @return boolean
-	* @access public
-	*/
-	function setAttrValue($name, $value)
-	{
-		// if they are trying to set the type_codes, split the string
-		if ($name == 'type_codes' && !is_array($value)) {
-			$value = preg_split('/[ ,]+/', (string) $value);
-
-		}// end if
-
-		return parent::setAttrValue($name, $value);
-
-	}//end setAttrValue()
-
 
 	/*
 	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented

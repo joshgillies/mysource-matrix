@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_edit_fns.inc,v 1.47 2003/10/14 01:00:43 gsherwood Exp $
+* $Id: design_edit_fns.inc,v 1.48 2003/10/14 05:07:56 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,6 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		$this->Design_Area_Edit_Fns();
 		$this->static_screens['details']['force_unlock'] = false;
-		$this->static_screens['details']['lock_type']    = 'parsing';
 
 	}//end constructor
 
@@ -802,7 +801,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-		if (!$dupe->setAttrValue('id_name', $new_name)) {
+		if (!($dupe->setAttrValue('id_name', $new_name) && $dupe->saveAttributes())) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}

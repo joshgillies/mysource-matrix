@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_asset_lineage_edit_fns.inc,v 1.1 2003/10/13 09:53:10 brobertson Exp $
+* $Id: design_area_asset_lineage_edit_fns.inc,v 1.2 2003/10/14 05:07:56 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -22,6 +22,25 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 */
 class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 {
+
+	/**
+	* Returns an array of vars that are setable, used to create the parseString
+	*
+	* @param object Asset	$asset	the asset whose interface we are painting
+	*
+	* @return Array
+	* @access public
+	* @see createParseString()
+	*/
+	function _getSetableVars(&$asset)
+	{
+		$vars = parent::_getSetableVars($asset);
+		unset($vars['asset_contents']);
+		unset($vars['divider_contents']);
+		return $vars;
+
+	}// end _getSetableVars()
+
 
 	/**
 	* Loops through the contents array and creates the necessary objects

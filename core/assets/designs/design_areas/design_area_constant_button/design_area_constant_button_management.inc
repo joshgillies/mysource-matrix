@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_constant_button_management.inc,v 1.5 2003/09/29 05:16:52 gsherwood Exp $
+* $Id: design_area_constant_button_management.inc,v 1.6 2003/10/14 05:07:56 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,8 +33,8 @@ class Design_Area_Constant_Button_Management extends Asset_Management
 		$this->vars = Array(
 							'type_codes' => Array(
 								'added'			=> '0.0.1',
-								'type'			=> 'serialise',
-								'default'		=> Array(),
+								'type'			=> 'text',
+								'default'		=> '',
 								'description'   => 'Comma or space separated list of type codes to restrict the menu to display, these types are not strict however so any sub-types of these will also be valid'
 							),
 							'image' => Array(

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_edit_fns.inc,v 1.25 2003/10/13 09:51:25 brobertson Exp $
+* $Id: design_area_edit_fns.inc,v 1.26 2003/10/14 05:07:56 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,6 +32,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function Design_Area_Edit_Fns()
 	{
+		$this->static_screens['details']['lock_type'] = 'parsing';
 		$this->tag_name = preg_replace('/[[:space:]]/', '', SQ_SYSTEM_SHORT_NAME);
 
 	}//end constructor
@@ -749,6 +750,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 			if (!empty($asset->vars['var_references']['value'][$name])) {
 				$text .= ' id_name="'.htmlentities($asset->vars['var_references']['value'][$name]['id_name']).'" var="'.htmlentities($asset->vars['var_references']['value'][$name]['var']).'"';
 			} else {
+			pre_echo($name.':'.gettype($data['value']));
 				$text .= ' value="'.htmlentities($data['value']).'"';
 			}
 			$text .= " />\n";
@@ -766,6 +768,8 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 					break;
 			}// end switch
 		}// end foreach
+
+		pre_echo($text);
 
 		return $text;
 
@@ -805,6 +809,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintSpecialisation(&$asset, &$o, $prefix)
 	{
+		if (!$asset->writeAccess('parsing')) return;
 		$text = $this->createParseString($asset);
 		hidden_field($prefix.'_specialisation_orig', $text);
 		text_area($prefix.'_specialisation', $text, 75, 20, 0, 'wrap="off" style="font-family: courier new, courier, monospace; font-size: 9pt;"');
