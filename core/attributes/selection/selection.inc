@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.26 2004/07/24 15:24:37 brobertson Exp $
+* $Id: selection.inc,v 1.27 2004/07/24 15:27:47 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -220,8 +220,6 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		$value = (!empty($this->_params['multiple']) && !is_array($this->value)) ? $this->_str2ar($this->value) : $this->value;
 
 		if ($read_only) {
-			if (empty($value)) return;
-
 			if (empty($this->_params['multiple'])) {
 				if (!isset($options[$value])) {
 					// may have a value left over from when we
