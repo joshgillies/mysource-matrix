@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.74 2004/09/07 10:52:20 brobertson Exp $
+* $Id: design_edit_fns.inc,v 1.75 2004/11/04 03:51:17 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -202,7 +202,17 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	function paintEditParseFile(&$asset, &$o, $prefix)
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		$parse_file = $asset->data_path.'/parse.txt';
+		
+		if (SQ_ROLLBACK_VIEW) {
+			// get an older version of the parse file
+			$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+			$rep_file = $asset->data_path_suffix.'/parse.txt';
+			$then = iso8601_ts($_SESSION['sq_rollback_view']['rollback_time']);
+			$info = @$fv->_checkOutCheck($rep_file, null, $then);
+			$parse_file = $info['source_file'];
+		} else {
+			$parse_file = $asset->data_path.'/parse.txt';
+		}
 		if (!is_file($parse_file)) {
 			echo 'You need to upload a parse file before you can edit it';
 			return true;

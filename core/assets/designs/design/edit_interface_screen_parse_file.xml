@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_parse_file.xml,v 1.7 2003/11/26 00:50:54 gsherwood Exp $
+* $Id: edit_interface_screen_parse_file.xml,v 1.8 2004/11/04 03:51:17 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <contents>
-	<section name="Edit Parse File" write_access="write:parsing" read_access="write:">
+	<section name="Edit Parse File" write_access="write:parsing">
 		<field>
 			<display_name />
 			<note />
