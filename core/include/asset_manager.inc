@@ -1587,7 +1587,8 @@ class Asset_Manager extends MySource_Object
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$sql = 'SELECT COUNT(*)
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l'.$extra_table.' '.$where;
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l '.$extra_table.'
+				'.$where;
 		$result = $db->getOne($sql);
 
 		if (DB::isError($result))
@@ -2974,18 +2975,14 @@ class Asset_Manager extends MySource_Object
 
 		$where = 'l.url '.$url_condition;
 
-		$extra_table = '';
-		$extra_where = '';
 		if (!is_null($protocol)) {
-			$extra_table = ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_url u ON l.root_urlid = u.urlid';
-			$extra_where = ' AND u.'.$protocol.' = '.$db->quote(1);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'u');
+			$where .= ' AND l.'.$protocol.' = '.$db->quote(1);
 		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$sql = 'SELECT l.url, l.assetid
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l '.$extra_table.'
-				'.$where.$extra_where.'
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
+				'.$where.'
 				ORDER BY CHARACTER_LENGTH(l.url) DESC
 				LIMIT 1';
 
@@ -3067,26 +3064,23 @@ class Asset_Manager extends MySource_Object
 		// get the root(site) url for this url
 		$root_url = $this->getRootURL($url);
 		if (empty($root_url)) {
+			$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
 			trigger_error('Unable to find an lineage for the URL "'.$fancy_url.'", no root url was found', E_USER_WARNING);
 			return Array();
 		}
 
 		$concat = ($db->phptype == 'mysql') ? 'CONCAT(l.url, '.$db->quote('%').')' : '(l.url || '.$db->quote('%').')';
 		$where = 'l.root_urlid = '.$db->quote((int) $root_url['urlid']).'
-				  AND '.$db->quote($url).' LIKE '.$concat;
+				 AND '.$db->quote($url).' LIKE '.$concat;
 
-		$extra_table = '';
 		if (!is_null($protocol)) {
-			$extra_table = ', '.SQ_TABLE_RUNNING_PREFIX.'asset_url u';
-			$where .= ' AND l.root_urlid = u.urlid AND u.'.$protocol.' = '.$db->quote(1);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'u');
+			$where .= ' AND l.'.$protocol.' = '.$db->quote('1');
 		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$sql = 'SELECT l.url, l.assetid, a.'.$name_type.', a.type_code
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.assetid = a.assetid
-				'.$extra_table.'
 				'.$where.'
 				ORDER BY l.url ASC';
 
@@ -3134,11 +3128,13 @@ class Asset_Manager extends MySource_Object
 	* @param string				$base_url			the url that we are want to match closest to
 	* @param boolean			$ignore_rollback	ignore rollback checks
 	*
-	* @return mixed returns string if $assetids is an in and an array(int => string) if $assetids is an array
+	* @return mixed returns string if $assetids is an int and an array(int => string) if $assetids is an array
 	* @access public
 	*/
 	function getAssetURL($assetids, $base_url=null, $ignore_rollback=false)
 	{
+		if (!isset($this->_tmp['urls'])) $this->_tmp['urls'] = Array();
+
 		$return_array = true;
 		$in_assetid = 0;
 		if (!is_array($assetids)) {
@@ -3166,7 +3162,10 @@ class Asset_Manager extends MySource_Object
 		}
 
 		if (is_null($base_url)) $base_url = current_url(false);
-		$base_url = strip_url($base_url, true);
+
+		if (!preg_match('/^(([a-z]+):\/\/)?(.*)$/', strip_url($base_url), $matches)) return ($return_array) ? Array() : '';
+		$protocol = ($matches[2] == '') ? current_protocol() : (($matches[2] == 'https') ? 'https' : 'http');
+		$base_url = $matches[3];
 
 		// work out if any of these are cached
 		foreach ($assetids as $assetid) {
@@ -3193,34 +3192,36 @@ class Asset_Manager extends MySource_Object
 			$where = 'l.assetid '.$assetid_cond;
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'u');
-			$sql = 'SELECT l.assetid, l.url, u.http, (';
+			$sql = 'SELECT l.assetid, l.url, 
+				CASE WHEN l.'.$protocol.' = '.$db->quote(1).' THEN '.$db->quote($protocol).' ELSE '.$db->quote(($protocol == 'https') ? 'http' : 'https').' END as protocol,
+			(
+				(CASE WHEN l.'.$protocol.' = '.$db->quote(1).' THEN 1 ELSE 0 END)';
 
 			$str = '';
 			// so much for SQL standards...
 			$concat = ($db->phptype == 'mysql') ? 'CONCAT(l.url, '.$db->quote('/').')' : 'l.url || '.$db->quote('/');
 			foreach($url_bits as $i => $bit) {
 				$str .= $bit.'/';
-				$sql .= (($i) ? '+' : '').'
+				$sql .= ' +
 				(CASE WHEN SUBSTRING('.$concat.' FROM 1 FOR '.strlen($str).') = '.$db->quote($str).' THEN 1 ELSE 0 END)';
 			}
 
 			$sql .= '
 			) as weighting
-			FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_url u ON l.root_urlid = u.urlid
+			FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
 			'.$where.'
 			ORDER BY weighting DESC, l.url';
 
-			$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
+			$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC, true);
 			if (DB::isError($result)) {
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 				return '';
 			}
-
 			foreach ($the_rest as $assetid) {
 				if (!isset($result[$assetid])) {
 					$this->_tmp['urls'][$assetid][$base_url] = '';
 				} else {
-					$this->_tmp['urls'][$assetid][$base_url] = (($result[$assetid][0][1]) ? 'http' : 'https').'://'.$result[$assetid][0][0];
+					$this->_tmp['urls'][$assetid][$base_url] = $result[$assetid][0]['protocol'].'://'.$result[$assetid][0]['url'];
 				}
 				$return_urls[$assetid] = $this->_tmp['urls'][$assetid][$base_url];
 			}
