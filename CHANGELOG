@@ -129,6 +129,10 @@ Core
 * Fixed bug: bodycopy tooltips don't work
 * Fixed bug: create container buttons on bodycopy contents screen shown when user doesn't have write access
 * Fixed bug: bodycopy status section on details screen does not work
+* Fixed bug: a FIXME error is sometimes displayed when approving workflow after completing metadata
+* Fixed bug: an error is displayed when entering metadata if the search manager is not installed
+* Fixed bug: approval during safe edit does not check for incomplete metadata
+* Fixed bug: incomplete metadata causes bodycopy and div assets to break during approval
 * Fixed bug #35: asset map gets new session when using Firefox on OS X, causing asset map to not display
 * Fixed bug #70: asset map stays in asset finder mode when page refreshes
 * Fixed bug #74: layout asset has incorrect allow_access flag set, so it does not appear in the asset map add menu
