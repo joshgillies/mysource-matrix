@@ -250,6 +250,18 @@ class Asset extends Resolve_Object
 			// because other assets may have changed what happens in createLink)
 			$new_link = $this->getLinkById($linkid, 'minor');
 
+			// set permission on this asset that the parent has
+			foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
+				$set_perms = $link['asset']->getPermission($perm, null, false, false, true);
+				foreach ($set_perms as $userid => $access) {
+					if (!$this->setPermission($userid, $perm, $access)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$this->id = 0;
+						return false;
+					}
+				}
+			}
+
 			// release locks depending on if the parent was locked before we were created
 			if (!$parent_was_locked) {
 				// parent was not locked, so unlock both the parent and us
@@ -2649,26 +2661,25 @@ class Asset extends Resolve_Object
 					return 0;
 				}
 
-				//// PULL ACROSS MINOR ASSET'S PERMISSIONS LOOKUP'S ////
+//// PULL ACROSS MINOR ASSET'S PERMISSIONS LOOKUP'S ////
 
-				
-				// note that we dont prep this query for rollback because its getting run
-				// by the rollback query functions already
-				$select_from = SQ_TABLE_PREFIX.'asset_link_tree pt 
-							   INNER JOIN '.SQ_TABLE_PREFIX.'asset_link pl ON pt.linkid = pl.linkid,
-							   '.SQ_TABLE_PREFIX.'asset_permission ctp';
-				$where       = 'pl.minorid = '.$db->quote($this->id).'
-							   AND pt.treeid LIKE '.$db->quote($minor_tree['treeid'].'%');
-				
-				$values = Array('assetid'    => $db->quote($this->id),
-								'userid'     => 'ctp.userid',
-								'permission' => 'ctp.permission',
-								'access'     => 'ctp.access'
-								);
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsertSelect('asset_permission', $select_from, $values, $where)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return 0;
-				}
+// note that we dont prep this query for rollback because its getting run
+// by the rollback query functions already
+#$select_from = SQ_TABLE_PREFIX.'asset_link_tree pt 
+#			   INNER JOIN '.SQ_TABLE_PREFIX.'asset_link pl ON pt.linkid = pl.linkid,
+#			   '.SQ_TABLE_PREFIX.'asset_permission ctp';
+#$where       = 'pl.minorid = '.$db->quote($this->id).'
+#			   AND pt.treeid LIKE '.$db->quote($minor_tree['treeid'].'%');
+#
+#$values = Array('assetid'    => $db->quote($this->id),
+#				'userid'     => 'ctp.userid',
+#				'permission' => 'ctp.permission',
+#				'access'     => 'ctp.access'
+#				);
+#if (!$GLOBALS['SQ_SYSTEM']->rollbackInsertSelect('asset_permission', $select_from, $values, $where)) {
+#	$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+#	return 0;
+#}
 
 // so much for SQL standards...
 #$concat_start_treeid = ($db->phptype == 'mysql')
@@ -2851,30 +2862,6 @@ class Asset extends Resolve_Object
 					return false;
 				}
 			}
-
-//// UPDATE PERMISSIONS LOOKUP TABLE ////
-#$where_cond_string = 'start_treeid in (~SQ0~)';
-#$concat = ($db->phptype == 'mysql') ? 'CONCAT(t.treeid, '.$db->quote('%').')' : 't.treeid || '.$db->quote('%');
-#$sub_where = 't.linkid = '.$db->quote($linkid).' AND pl.start_treeid LIKE '.$concat;
-#$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 't');
-#$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'pl');
-#$subs = Array('SELECT pl.start_treeid
-#				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t,
-#				'.SQ_TABLE_RUNNING_PREFIX.'asset_permission_lookup pl
-#				'.$sub_where);
-#$where_cond = db_extras_subquery($db, $where_cond_string, $subs);
-#if (DB::isError($where_cond)) {
-#	$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-#	trigger_error($where_cond->getMessage().'<br/>'.$where_cond->getUserInfo(), E_USER_WARNING);
-#	return false;
-#}
-
-// Remove all lookup references to the permissions that occured below this link
-#if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_permission_lookup', $where_cond)) {
-#	$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-#	return false;
-#}
-
 
 			//// UPDATE THE TREE ////
 
@@ -3484,9 +3471,8 @@ class Asset extends Resolve_Object
 
 			// return all info
 			if ($all_info) {
-				if(!isset($ret_val[$data['userid']])) $ret_val[$data['userid']] = Array();
-				$ret_val[$data['userid']][$data['assetid']] = $data['access'];
-
+				$ret_val[$data['userid']] = $data['access'];
+			
 			// else we just want user ids
 			} else {
 				
