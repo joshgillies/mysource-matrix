@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: internal_message.inc,v 1.24 2003/10/20 01:12:40 gsherwood Exp $
+* $Id: internal_message.inc,v 1.25 2003/10/27 23:37:16 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -302,8 +302,21 @@ class Internal_Message extends MySource_Object
 		///////////////////////////
 		if ($send_mail) {
 
+			require_once 'Mail.php';
+			require_once 'Mail/mime.php';
+
 			$send_to = $this->expandUsersTo();
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+			// new line is \n
+			$crlf = "\n";
+			$mime = new Mail_mime($crlf);
+			$mail =& Mail::factory('mail', "-f$from_email");
+			
+			$hdrs = array(
+				'From'    => $from_string,
+				'Subject' => $this->subject
+			);
 
 			// send each user a message - via email and into their internal message inbox
 			foreach ($send_to as $userid) {
@@ -320,7 +333,21 @@ class Internal_Message extends MySource_Object
 						$to_email .= $tech;
 					}
 
-					if (!empty($to_email)) mail($to_email, $this->subject, $this->body, "From: ".$from_string, "-f$from_email");
+					// get the body with a header and a footer attached
+					$owner = SQ_CONF_SYSTEM_OWNER;
+					$text_body = $this->formatEmail($this->body, $owner, 'text');
+					$html_body = $this->formatEmail($this->body, $owner, 'html');
+		
+					$mime->setTXTBody(strip_tags($text_body));
+					$mime->setHTMLBody($html_body);
+					
+					// get() must be called before headers()
+					$body = $mime->get();
+					$hdrs = $mime->headers($hdrs);
+					
+					if (!empty($to_email)) {
+						$mail->send($to_email, $hdrs, $body);
+					}
 
 					continue;
 				}
@@ -357,8 +384,20 @@ class Internal_Message extends MySource_Object
 				// now send an email as well
 				require_once SQ_FUDGE_PATH.'/general/www.inc';
 				$to_email = trim($user->attr('email'));
+				
+				// get the body with a header and a footer attached
+				$text_body = $this->formatEmail($body, $user, 'text');
+				$html_body = $this->formatEmail($body, $user, 'html');
+
+				$mime->setTXTBody(strip_tags($text_body));
+				$mime->setHTMLBody($html_body);
+				
+				// get() must be called before headers()
+				$body = $mime->get();
+				$hdrs = $mime->headers($hdrs);
+				
 				if (!empty($to_email) && valid_email($to_email)) {
-					mail($to_email, $this->subject, $body, "From: ".$from_string, "-f$from_email");
+					$msg = $mail->send($to_email, $hdrs, $body);
 				}
 
 			}//end foreach
@@ -370,6 +409,38 @@ class Internal_Message extends MySource_Object
 		return true;
 
 	}//end send()
+
+
+	/**
+	* formats the body of an email with a header and a footer
+	*
+	* @param object user	$user	the user that the email is intended for 
+	* @param string			$body	the email body
+	*
+	* @access public
+	* @return string the body
+	*/
+	function formatEmail($body, &$user, $type='text')
+	{
+		$term = ($type=='text') ? "\n" : '<br />';
+
+		$header = '';
+		if (!is_null($user)) {
+			$header = $user->name.','.$term.$term;
+		} elseif (is_string($user) && $user != '') {
+			$header = $user.','.$term.$term;
+		}
+		$line = ($type == 'text') ? str_repeat('-', 20) : '<hr />';
+
+		$footer = $term.$term.$line.'This is an automated message from '.SQ_CONF_SYSTEM_NAME.' running '.SQ_SYSTEM_LONG_NAME.$term;
+		$footer .= 'Contact '.SQ_CONF_SYSTEM_OWNER.' ('.SQ_CONF_TECH_EMAIL.') for support.';
+		
+		$body = $header.$body;
+		$body .= $footer;
+		
+		return $body;
+
+	} // end formatEmail()
 
 
 	/**
