@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.14 2004/01/16 00:51:17 mmcintyre Exp $
+* $Id: insert_link.php,v 1.15 2004/01/16 01:06:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -60,7 +60,7 @@ if (!isset($_GET['new_window'])) {
 
 ?>
 
-<html>
+<html style="width: 650px; height: 440px;">
 	<head>
 		<title>Insert Link</title>
 

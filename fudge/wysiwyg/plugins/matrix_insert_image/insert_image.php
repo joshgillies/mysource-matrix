@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.14 2004/01/16 00:53:38 mmcintyre Exp $
+* $Id: insert_image.php,v 1.15 2004/01/16 01:06:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 ?>
 
-<html>
+<html style="width: 630px; height: 480px;">
 	<head>
 		<title>Insert Image</title>
 

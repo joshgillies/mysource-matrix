@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.10 2004/01/16 00:56:43 mmcintyre Exp $
+* $Id: embed_movie.php,v 1.11 2004/01/16 01:06:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 ?>
 
-<html>
+<html style="width: 600px; height: 480px;">
 	<head>
 		<title>Embed Movie</title>
 

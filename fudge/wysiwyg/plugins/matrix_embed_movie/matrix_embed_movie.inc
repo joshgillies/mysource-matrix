@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_embed_movie.inc,v 1.15 2004/01/13 01:39:30 mmcintyre Exp $
+* $Id: matrix_embed_movie.inc,v 1.16 2004/01/16 01:06:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -138,7 +138,7 @@ class matrix_embed_movie extends wysiwyg_plugin {
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 				strPage = "<?php echo $this->get_popup_href('embed_movie.php')?>?f_fileid=" + escape(fileid) + "&f_width=" + escape(width) + "&f_height=" + escape(height) + "&f_auto_start=" + escape(auto_start) + "&f_show_controls=" + escape(show_controls) + "&f_embed_loop=" + escape(embed_loop) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
-				this._popupDialog("matrixEmbedMovie", strPage, 600, 500, true, function(param) {
+				this._popupDialog("matrixEmbedMovie", strPage, 600, 480, true, function(param) {
 					if (!param) { 
 						// user must have pressed Cancel
 						return false;
