@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.111 2003/12/18 04:47:18 gsherwood Exp $
+* $Id: asset_map.inc,v 1.112 2004/01/16 00:46:38 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,13 +53,13 @@ class Asset_Map
 	/**
 	* Print out the code for the asset map
 	*
-	* @param object Backend
+	* @param object Backend the backend object
 	*
 	* @access public
 	*/
 	function paint(&$backend)
 	{
-		$backend->out->addJsInclude(sq_web_path('lib').'/asset_map/flashExternalCall.js');
+		$backend->out->addJsInclude(sq_web_path('lib').'/asset_map/asset_map.js');
 
 		$inbox_link = $GLOBALS['SQ_SYSTEM']->am->getLink($GLOBALS['SQ_SYSTEM']->user->id, SQ_LINK_TYPE_2, 'inbox', true, null, 'major', '1');
 		if (empty($inbox_link)) {
@@ -82,201 +82,78 @@ class Asset_Map
 		?>
 		<script language="JavaScript" type="text/javascript">
 		<!--
-			var ASSET_MAP_FLASH_CHECKED = false;
-			var IE_FLASH_VERSION  = 6;
-			var MOZ_FLASH_VERSION = 7;
-			if (matches = navigator.userAgent.match(/MSIE ([0-9.]+)/)) {
-				if (matches[1] < '6.0') {
-					alert('You need to use Internet Explorer 6.0 or above for the communication between the Asset Map and the Javascript');
-				} else {
-					document.write('<SCR' + 'IPT LANGUAGE=VBScript\> \n'); //FS hide this from IE4.5 Mac by splitting the tag
-					document.write('on error resume next \n');
-					document.write('ASSET_MAP_FLASH_CHECKED = ( IsObject(CreateObject("ShockwaveFlash.ShockwaveFlash.' + IE_FLASH_VERSION + '")))\n');
-					document.write('</SCR' + 'IPT\> \n');
-					if (!ASSET_MAP_FLASH_CHECKED) {
-						alert('You need to use to have version ' + IE_FLASH_VERSION + ' of Flash installed for the communication between the Asset Map and the Javascript');
-					}
-				}
-
-			} else {
-
-				var firebird_re = /(Firebird)\/([0-9.]+)/;
-				var moz_re      = /^Mozilla\/5\.0.*rv:([^)]+)\)/;
-
-				if ((matches = navigator.userAgent.match(firebird_re)) || (matches = navigator.userAgent.match(moz_re))) {
-					if (matches[1] == 'Firebird' && matches[2] < '0.6.1') {
-						alert('You need to use Firebird 0.6.1 or above for the communication between the Asset Map and the Javascript');
-
-					} else if (matches[1] == 'Mozilla' && matches[2] < '1.4') {
-						alert('You need to use Mozilla 1.4 or above for the communication between the Asset Map and the Javascript');
-
-					} else {
-
-						var plugin = (navigator.mimeTypes && navigator.mimeTypes["application/x-shockwave-flash"]) ? navigator.mimeTypes["application/x-shockwave-flash"].enabledPlugin : 0;
-						if (plugin) {
-							var words = navigator.plugins["Shockwave Flash"].description.split(" ");
-							for (var i = 0; i < words.length; ++i)
-							{
-								if (isNaN(parseInt(words[i]))) continue;
-								var MM_PluginVersion = words[i]; 
-							}
-							ASSET_MAP_FLASH_CHECKED = (MM_PluginVersion >= MOZ_FLASH_VERSION);
-						}
-
-						if (!ASSET_MAP_FLASH_CHECKED) {
-							alert('You need to use to have version ' + MOZ_FLASH_VERSION + ' of Flash installed for the communication between the Asset Map and the Javascript');
-						}
-
-					}// end if
-
-				// we don't know about this browser, ah well may as well give it a go ...
-				} else {
-					alert('You are using an untested browser there is no guarantee that the communication between the Asset Map and the Javascript will be successful');
-					ASSET_MAP_FLASH_CHECKED = true;
-
-				}// end if
-
-			}// end if
-
-
-			var flash_InternetExplorer = navigator.appName.indexOf("Microsoft") != -1;
-			// Handle all the the FSCommand messages in a Flash movie
-			function asset_map_DoFSCommand(command, args)
-			{
-				//var asset_mapObj = flash_InternetExplorer ? asset_map : document.asset_map;
-				if (command == "flashToJsCall") {
-					flashToJsCall(args);
-				}
-			}
-			// Hook for Internet Explorer
-			if (navigator.appName && navigator.appName.indexOf("Microsoft") != -1 &&
-				navigator.userAgent.indexOf("Windows") != -1 && navigator.userAgent.indexOf("Windows 3.1") == -1) {
-				document.write('<SCRIPT LANGUAGE="VBScript"\> \n');
-				document.write('on error resume next \n');
-				document.write('Sub asset_map_FSCommand(ByVal command, ByVal args)\n');
-				document.write('  call asset_map_DoFSCommand(command, args)\n');
-				document.write('end sub\n');
-				document.write('</SCRIPT\> \n');
-			}
-
-			// Reload the passed assetid in the flash
-			function reload_asset(assetid)
-			{
-				var asset_mapObj = document.asset_map;
-				//alert("Reload Assetid : " + assetid);
-				jsToFlashCall(asset_mapObj, 'reload_asset', {assetid: assetid});
-			}
-
-			// Reload the assetids represented in the flash
-			function reload_assets(assetids_xml)
-			{
-				var asset_mapObj = document.asset_map;
-				jsToFlashCall(asset_mapObj, 'reload_assets', {assetids_xml: assetids_xml});
-			}
-
-			// Reload the passed assetid in the flash
-			function refresh_internal_messages()
-			{
-				var asset_mapObj = document.asset_map;
-				jsToFlashCall(asset_mapObj, 'refresh_mail', {});
-			}
-			
-			// highlight the link path
-			function select_path(link_path)
-			{
-				var asset_mapObj = document.asset_map;
-				jsToFlashCall(asset_mapObj, 'select_path', {link_path: link_path});
-			}
-
-			// Reload the passed assetid in the flash
-			function add_messages(xml)
-			{
-				var asset_mapObj = document.asset_map;
-				//alert("Add Message : " + xml);
-				jsToFlashCall(asset_mapObj, 'add_message', {msgs_xml: xml});
-			}
-
-			/*
-			* Initialises the asset finder in the flash
-			*
-			* @param Function	fn		the call-back function to with the results
-			* @param string		xml		xml content holding the type codes that are allowed to selected
-			*
-			*/
-			var ASSET_FINDER_CALL_BACK = null;
-			function asset_finder_start(fn, xml)
-			{
-				if (ASSET_FINDER_CALL_BACK !== null) return;
-				ASSET_FINDER_CALL_BACK = fn;
-				var asset_mapObj = document.asset_map;
-				//alert("Asset Finder : " + xml);
-				registerFlashToJsCall('asset_finder_done', asset_finder_done)
-				jsToFlashCall(asset_mapObj, 'asset_finder', {action: 'start', type_codes_xml: xml});
-			}
-
-			/*
-			* Informs the flash that we want to cancel the asset finder
-			*
-			*/
-			function asset_finder_cancel()
-			{
-				if (ASSET_FINDER_CALL_BACK === null) return;
-				var asset_mapObj = document.asset_map;
-				jsToFlashCall(asset_mapObj, 'asset_finder', {action: 'cancel'});
-				ASSET_FINDER_CALL_BACK = null;
-			}
-
-			/*
-			* Called by the flash with the results of the asset finder
-			*
-			* @param Array	params		array of params from the flash
-			*
-			*/
-			function asset_finder_done(params)
-			{
-				if (ASSET_FINDER_CALL_BACK === null) return;
-				//alert("ASSET FINDER DONE : " + params.assetid + );
-				ASSET_FINDER_CALL_BACK(params.assetid, params.label, params.url);
-				ASSET_FINDER_CALL_BACK = null;
-			}
-
-
-			// Reload the passed assetid in the flash
-			function asset_map_popup(params)
-			{
-				var popup_win = window.open(params.url, 'sq_asset_map_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=650,height=400');
-			}
-			registerFlashToJsCall('asset_map_popup', asset_map_popup);
-
-			// Open up a help window
-			function open_help(params)
-			{
-				var popup_win = window.open("<?php echo sq_web_path('lib'); ?>/web/asset_map_help.php", 'sq_asset_map_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=180');
-			}
-			registerFlashToJsCall('open_help', open_help);
-
-			// Open up a help window
-			function open_legend(params)
-			{
-				var popup_win = window.open("<?php echo sq_web_path('lib'); ?>/web/asset_map_key.php", 'sq_asset_map_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=350,height=300');
-			}
-			registerFlashToJsCall('open_legend', open_legend);
+			init_asset_map();
 		//-->
 		</script>
 
 		<object id="asset_map" width="100%" height="99%" classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=7,0,0,0">
-			 <param name="movie"   value="<?php echo sq_web_path('lib'); ?>/asset_map/flash/asset_map.swf">
-			 <param name="quality" value="high">
-			 <param name="scale"   value="noscale">
-			 <param name="salign"  value="lt">
-			 <param name="bgcolor" value="#342939">
-			 <param name="FlashVars" value="<?php echo $flash_vars; ?>">
+			<param name="movie"   value="<?php echo sq_web_path('lib'); ?>/asset_map/flash/asset_map.swf">
+			<param name="quality" value="high">
+			<param name="scale"   value="noscale">
+			<param name="salign"  value="lt">
+			<param name="bgcolor" value="#342939">
+			<param name="FlashVars" value="<?php echo $flash_vars; ?>">
 
 			<embed src="<?php echo sq_web_path('lib'); ?>/asset_map/flash/asset_map.swf" FlashVars="<?php echo $flash_vars; ?>" id="asset_map" name="asset_map" quality="high" scale="noscale" salign="lt" bgcolor="#342939" width="100%" height="99%" swliveconnect="true" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"></embed>
 		</object>
 		<?php
 
 	}//end paint()
+
+
+	/**
+	* To create the tags that embed the simple asset map into the matrix system
+	*
+	* NB. this function does not attempt to print any form tags. It is up the the printing entity to do this.
+	* The form needs to be in the form: 
+	*
+	* &gt;form name="main_form"&lt;
+	*    ...
+	* &gt;/form&lt;
+	*
+	* The form name needs to be 'main_form'.
+	*
+	* @param string	$type		the type of asset map to embed, eg. simple, complex, etc. (there could be more later)
+	* @param int	$width		the width of the asset map
+	* @param int	$height		the height of the asset map
+	*
+	* @return void
+	* @access public
+	*/
+	function embed_asset_map($type='simple', $width=200, $height=350)
+	{
+		$classname = '';
+		$jarname = '';
+
+		// notice that the package name (the directory) should be the same as the jar name, so no need for
+		// another variable
+
+		// create some vars to what jar file to include, and also the class name in the jar
+		// that has the main function
+		switch ($type) {
+			case 'simple':
+				$classname = 'AssetMap';
+				$jarname = 'assetmap';
+			break;
+			case 'complex':
+				$classname = 'ComplexAssetMap';
+				$jarname = 'complexassetmap';
+			break;
+		}
+		
+		// TODO: <embed> tags for moz and netscape
+
+		?>
+			<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/asset_map.js';?>"></script>
+			<object id="sq_asset_map" width="<?php echo $width; ?>" height="<?php echo $height; ?>" classid="CLSID:8AD9C840-044E-11d1-B3E9-00805F499D93">
+				<param name="code" value="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" />
+				<param name="level" value="5" />
+				<param name="archive" value="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar" />
+				Java is not installed on your system
+			</object>
+		<?php
+
+	}//end embed_simple_asset_map()
 
 
 	/**
