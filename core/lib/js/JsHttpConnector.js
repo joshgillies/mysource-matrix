@@ -17,67 +17,30 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: XMLHttp.js,v 1.2 2005/01/13 04:00:50 tbarrett Exp $
+* $Id: JsHttpConnector.js,v 1.1 2005/01/13 04:00:50 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
-
 /**
-* Constructor of the XMLHttp object
+* Constructor of the JsHttpConnector object
 *
-* This object enables communication between web pages and servers using JavaScript.
+* This object wraps around the browser's JsHttpConnectorRequest object and enables
+* communication between web pages and servers using JavaScript.
+*
+* JsHttpConnectorRequest has a number of functions that support XML parsing of the
+* server's response; you can get to these by using 
+* JsHttpConnector.request().xmlFunctionBlah()
+*
 * Works in Mozilla 1.0, Safari 1.2 and Internet Explorer 5.0+
 *
-* Usage Examples:
-*
-*   * To submit a form without refreshing the browser:
-*
-*        <form id="quiet_form" method="POST" action="http://www.example.com">
-*          <!-- form contents -->
-*          <input type="button" value="submit" onclick="submitQuietForm()" />
-*        </form>
-*        <script type="text/javscript" src="XMLHttp.js"></script>
-*        <script type="text/javascript">
-*           function showOK() {
-*              window.status = 'Form submitted';
-*              setTimeout("window.status='';", 2000);
-*           }
-*           function submitQuietForm()
-*           {
-*              // Tell XMLHttp to submit the form and use the showOK function
-*              // to process the response from the server
-*              XMLHttp.submitForm("quiet_form", showOK);
-*           }
-*        </script>
-*
-*   * To get some content from the server and put it in the document:
-*
-*        <div id="dynamic_content"></div>
-*        <input type="button" value="Get the Latest" onclick="updateDynamicDiv()" />
-*        <script type="text/javscript" src="XMLHttp.js"></script>
-*        <script type="text/javascript">
-
-*           // override XMLHttp's process function to do what we want
-*           XMLHttp.process = function() {
-*              document.getElementById('dynamic_content').innerHTML = this.getXML();
-*           }
-*
-*           function updateDynamicDiv()
-*           {
-*              // tell XMLHttp to retrieve a document, which will be processed
-*              // by XMLHttp.process() when it arrives
-*              XMLHttp.loadXMLDoc('http://www.timeanddate.com/worldclock/');
-*           }
-*
-*        </script>
-*         
+* See matrix_root/docs/example_code/JsHttpConnectorDemo.html for usage
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
 *
 * @return object
 * @access public
 */
-TXMLHttp = function()
+TJsHttpConnector = function()
 {
 
 	this.isIE = false;
@@ -86,9 +49,55 @@ TXMLHttp = function()
 
 
 	/**
+	* Submit a form using JsHttpConnector
+	*
+	* @param	formid		ID of the form to send
+	* @param	func		Function to call to process the response
+	*
+	* @return void
+	* @access public
+	*/
+	this.submitForm = function(formid, func)
+	{
+		var form = document.getElementById(formid);
+		var post = "";
+		for (var i = 0; i < form.length; i++) {
+			post += form.elements[i].name + "=" + form.elements[i].value + "&";
+		}
+
+		if (typeof func == "function") {
+			this.temp = this.process;
+			this.process = func;
+		}		
+		this.loadXMLDoc(form.action, post, form.method);
+
+	}//end submitForm()
+
+
+	/**
+	* Send a simple GET request 
+	*
+	* @param	url		Server to send request to
+	* @param	func	Function to call to process response
+	*
+	* @return void
+	* @access public
+	*/
+	this.submitRequest = function(url, func)
+	{
+		if (typeof func == "function") {
+			this.temp = this.process;
+			this.process = func;
+		}
+		this.loadXMLDoc(url);
+	}
+
+
+	/**
 	* Send request to specified URL using specified method
 	*
-	* ??? Content should have type "text/xml" ???
+	* If you want to parse the result as XML, the server response must have
+	* Content-type: text/xml
 	*
 	* @param	url				URL to send request to
 	* @param	parameters		parameters of the request ['var1=value1&var2=value2&var3=...']
@@ -136,25 +145,27 @@ TXMLHttp = function()
 
 
 	/**
-	* Find out if the browser supports the XMLHttp object
+	* See if the browser supports HttpRequest
 	*
 	* @return boolean
 	* @access public
 	*/
 	this.isBrowserOk = function()
 	{
-		try {
-			return (window.XMLHttpRequest || window.ActiveXObject)
-		}
-		catch(e) {
-			return false;
-		}
+	   try {
+		   if (window.JsHttpConnectorRequest) return true;
+		   if (window.ActiveXObject) return true;
+		   return false;
+	   }
+	   catch(e) {
+		   return false;
+	   }
 
-	}//end isBrowserOk
+	}//end isBrowserOk 
 
 
 	/**
-	* Get the XMLHttpRequest object
+	* Get the JsHttpConnectorRequest object
 	*
 	* @return object
 	* @access public
@@ -172,56 +183,11 @@ TXMLHttp = function()
 	* @return void
 	* @access public
 	*/
-	this.process = function()
+	this.process = function(responseText)
 	{
-		alert(this.getXML());
+		return;
 
 	}//end process
-
-
-	/**
-	* Get value of the specified tag in the response document
-	*
-	* @param	tag		tag name
-	*
-	* @return DOMString
-	* @access public
-	*/
-	this.getTagValue = function(tag)
-	{
-		return this.responseXML.getElementsByTagName(tag)[0].firstChild.nodeValue;
-
-	}//end getTagValue
-
-
-	/**
-	* Get list of nodes in the response with the given tag name
-	*
-	* @param	tag		tag name
-	*
-	* @return NodeList
-	* @access public
-	*/
-	this.getTagValues = function(tag)
-	{
-		return this.responseXML.getElementsByTagName(tag);
-
-	}//end getTagValues
-
-
-	/**
-	* Get value of Element
-	*
-	* @param	element		DOM element
-	*
-	* @return String
-	* @access public
-	*/
-	this.valueOf = function(element)
-	{
-		return element.firstChild.nodeValue;
-
-	}//end valueOf()
 
 
 	/**
@@ -230,11 +196,11 @@ TXMLHttp = function()
 	* @return String
 	* @access public
 	*/
-	this.getXML = function()
+	this.getResponseText = function()
 	{
 		return Global_XMLHttp_Request.responseText;
 
-	}//end getXML()
+	}//end getResponseText()
 
 
 	/**
@@ -271,34 +237,7 @@ TXMLHttp = function()
 
 	}//end receiveError()
 
-
-	/**
-	* Send form data via XMLHttp
-	*
-	* @param	formid		form id
-	* @param	func		handler
-	*
-	* @return void
-	* @access public
-	*/
-	this.submitForm = function(formid, func)
-	{
-		var form = document.getElementById(formid);
-		var post = "";
-		for (var i = 0; i < form.length; i++) {
-			post += form.elements[i].id + "=" + form.elements[i].value + "&";
-		}
-
-		if (typeof func == "function") {
-			this.temp = this.process;
-			this.process = func;
-		}
-
-		this.loadXMLDoc(form.action, post, form.method);
-
-	}//end submitForm()
-
-}//end of constructor for class XMLHttp
+}//end of constructor for class JsHttpConnector
 
 
 /**
@@ -313,19 +252,19 @@ function processReqChange()
 	if (Global_XMLHttp_Request.readyState == 4) {
 		// only if "OK"
 		if (Global_XMLHttp_Request.status == 200) {
-			XMLHttp.responseXML = Global_XMLHttp_Request.responseXML;
+			JsHttpConnector.responseXML = Global_XMLHttp_Request.responseXML;
 			try {
-				XMLHttp.process();
-				if (XMLHttp.temp != null) {
-					XMLHttp.process	= XMLHttp.temp;
-					XMLHttp.temp	= null;
+				JsHttpConnector.process(JsHttpConnector.getResponseText());
+				if (JsHttpConnector.temp != null) {
+					JsHttpConnector.process	= JsHttpConnector.temp;
+					JsHttpConnector.temp	= null;
 				}
 			}
 			catch (e) {
-				XMLHttp.processError(e.message);
+				JsHttpConnector.processError(e.message);
 			}
 		 } else {
-			 XMLHttp.receiveError(Global_XMLHttp_Request.statusText, Global_XMLHttp_Request.status);
+			 JsHttpConnector.receiveError(Global_XMLHttp_Request.statusText, Global_XMLHttp_Request.status);
 		 }
 	}
 
@@ -335,5 +274,5 @@ function processReqChange()
 // global request and XML document objects
 var Global_XMLHttp_Request = null;
 
-// if no XMLHttp variable created, create it.
-if (typeof XMLHttp == "undefined") var XMLHttp = new TXMLHttp();
+// if no JsHttpConnector variable created, create it.
+if (typeof JsHttpConnector == "undefined") var JsHttpConnector = new TJsHttpConnector();
