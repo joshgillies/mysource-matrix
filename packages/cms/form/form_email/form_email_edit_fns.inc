@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.10 2003/11/26 00:51:27 gsherwood Exp $
+* $Id: form_email_edit_fns.inc,v 1.11 2004/01/19 00:57:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -55,7 +55,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		
 		// get all the questions of this form
-		$qids = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_question', false);
+		$qids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_question', false));
 		if (empty($qids)) return false;
 		
 		$asset_info = $am->getAssetInfo($qids);
