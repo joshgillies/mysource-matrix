@@ -165,7 +165,7 @@ class Cron_Job extends Asset
 
 
 			// if this is a one off job
-			// then we need to make sure that it is happening on or before the 
+			// then we need to make sure that it is happening on or before the
 			// next time that the cron job is getting run
 			if ($this->attr('type') == 'one_off') {
 
@@ -229,7 +229,7 @@ class Cron_Job extends Asset
 
 	}//end canDelete()
 
-	
+
 	/**
 	* Sets the user that this cron job is to run as while executing
 	*
@@ -428,7 +428,8 @@ class Cron_Job extends Asset
 		$this->_tmp['running_errors'] = '';
 		set_error_handler(Array(&$this, '_errorHandler'));
 
-		$result = 0;
+		$exec_result = 0;
+		$exec_msg = '';
 
 		// First leet's see if we can find someone to run as
 		$user = &$this->getRunningUser();
@@ -439,7 +440,7 @@ class Cron_Job extends Asset
 
 				if ($GLOBALS['SQ_SYSTEM']->setCurrentUser($user)) {
 
-					$result = $this->_exec();
+					$exec_result = $this->_exec($exec_msg);
 
 					// reset the system user to who it was originally
 					$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
@@ -448,7 +449,7 @@ class Cron_Job extends Asset
 				} else {
 					trigger_error('Unable to run "'.$this->name.'" (#'.$this->id.'), couldn\'t set the current system user to "'.$user->name.'" (#'.$user->id.')', E_USER_WARNING);
 					// we can retry because the user may have just been being edited, or something
-					$result = SQ_CRON_JOB_ERROR | SQ_CRON_JOB_RETRY;
+					$exec_result = SQ_CRON_JOB_ERROR | SQ_CRON_JOB_RETRY;
 				}
 
 				$this->releaseLock();
@@ -457,7 +458,7 @@ class Cron_Job extends Asset
 			} else {
 				trigger_error('Unable to run "'.$this->name.'" (#'.$this->id.'), couldn\'t acquire lock', E_USER_WARNING);
 				// we can retry because the lock might be free by the time that we try again
-				$result = SQ_CRON_JOB_ERROR | SQ_CRON_JOB_RETRY;
+				$exec_result = SQ_CRON_JOB_ERROR | SQ_CRON_JOB_RETRY;
 
 			}// end if
 
@@ -465,7 +466,7 @@ class Cron_Job extends Asset
 		} else {
 			trigger_error('Unable to run "'.$this->name.'" (#'.$this->id.'), couldn\'t find user to run as', E_USER_WARNING);
 			// we can be removed because without the running user we can't do anything
-			$result = SQ_CRON_JOB_ERROR | SQ_CRON_JOB_REMOVE;
+			$exec_result = SQ_CRON_JOB_ERROR | SQ_CRON_JOB_REMOVE;
 
 		}// end if
 
@@ -488,26 +489,26 @@ class Cron_Job extends Asset
 		}
 
 		$msg->body = $this->name."\n"
-					.'Scheduled as : '.$this->readableWhen()."\n";
+					.'Scheduled : '.$this->readableWhen()."\n";
 
 		// Exec failed
-		if ($result & SQ_CRON_JOB_ERROR) {
+		if ($exec_result & SQ_CRON_JOB_ERROR) {
 			$msg->subject .= 'Failure';
 			$msg->body    .= 'Failed';
 
 		// Exec successful and completed
-		} elseif ($result & SQ_CRON_JOB_COMPLETED) {
+		} elseif ($exec_result & SQ_CRON_JOB_COMPLETED) {
 			$msg->subject .= 'Success';
 			$msg->body    .= 'Completed Successfully';
 
 			// If we are a one off type and we aren't yet being removed do so
-			if ($this->attr('type') == 'one_off' && !($result & SQ_CRON_JOB_REMOVE)) {
-				if ($result & SQ_CRON_JOB_RETRY) $result -= SQ_CRON_JOB_RETRY; // delete any retry attempts
-				$result += SQ_CRON_JOB_REMOVE;
+			if ($this->attr('type') == 'one_off' && !($exec_result & SQ_CRON_JOB_REMOVE)) {
+				if ($exec_result & SQ_CRON_JOB_RETRY) $exec_result &= ~SQ_CRON_JOB_RETRY; // delete any retry attempts
+				$exec_result |= SQ_CRON_JOB_REMOVE;
 			}
 
 		// Exec successful and but still more to do
-		} elseif ($result & SQ_CRON_JOB_NOT_COMPLETE) {
+		} elseif ($exec_result & SQ_CRON_JOB_NOT_COMPLETE) {
 			$msg->subject .= 'Success';
 			$msg->body    .= 'Successful, but there is still more work to do';
 
@@ -517,16 +518,21 @@ class Cron_Job extends Asset
 			$msg->subject .= 'ERROR';
 			$msg->body    .= '###################################################################'."\n"
 							.'#  RETURNED AN INVALID RESULT FROM _exec()'."\n"
-							.'#  Returned Value : '.$result."\n"
-							.'#  (Transated : '.implode(', ', get_bit_names('SQ_CRON_JOB_', $result, true)).')'."\n"
+							.'#  Returned Value : '.$exec_result."\n"
+							.'#  (Transated : '.implode(', ', get_bit_names('SQ_CRON_JOB_', $exec_result, true)).')'."\n"
 							.'###################################################################';
 
 			$root_user  = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 			$sys_admins = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
+			$msg->to[] = 0; // default and tech email
 			$msg->to[] = $root_user->id;
 			$msg->to[] = $sys_admins->id;
 
 		}// end if
+
+		if (!empty($exec_msg)) {
+			$msg->body .= "\n".$exec_msg."\n";
+		}
 
 		if (!empty($this->_tmp['running_errors'])) {
 			$msg->body .= "\nError Messages :\n".$this->_tmp['running_errors'];
@@ -536,7 +542,7 @@ class Cron_Job extends Asset
 		$ms->closeQueue();
 
 
-		return $result;
+		return $exec_result;
 
 	}// end run()
 
@@ -643,6 +649,8 @@ class Cron_Job extends Asset
 	/**
 	* Actually executes the functionality for this job, called by run()
 	*
+	* @param string	$msg	accepted by reference, used to return any messages about completion etc from _exec
+	*
 	* @return int	bitmask of the SQ_CRON_JOB_* constants to tell the cron manager what to do
 	*				eg: SQ_CRON_JOB_ERROR | SQ_CRON_JOB_RETRY means an error occured, but can I please be re-tried,
 	*					SQ_CRON_JOB_COMPLETED means everything is done correctly, but I can't be removed,
@@ -650,7 +658,7 @@ class Cron_Job extends Asset
 	* @see run()
 	* @access private
 	*/
-	function _exec()
+	function _exec(&$msg)
 	{
 		trigger_error('Unable to run "'.$this->name.'" (#'.$this->id.'), _exec() not done', E_USER_WARNING);
 		// we can be removed because we haven't been done
