@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.154 2004/08/06 04:58:31 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.155 2004/08/17 02:17:07 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -365,7 +365,6 @@ class Asset_Map
 	*/
 	function _getChildAssets(&$root, $assetid, $include_parent=false)
 	{
-		$output = new XML_Tree();
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		
 		$userid_cond = '';
@@ -523,7 +522,7 @@ class Asset_Map
 
 			$root->addChild('asset', '', $attrs);
 		}
-		
+
 	}//end _getChildAssets()
 
 	
