@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: start_hipo_server.php,v 1.5 2003/09/29 04:30:11 brobertson Exp $
+* $Id: start_hipo_server.php,v 1.6 2003/10/22 03:26:48 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -19,6 +19,7 @@
 
 
 error_reporting(E_ALL);
+ini_set('memory_limit', '8M');
 
 define('SQ_HIPO_CONF_PEAR_PATH', dirname(__FILE__).'/../php_includes');
 $sep = (substr(PHP_OS, 0, 3) == 'WIN') ? ';' : ':';
