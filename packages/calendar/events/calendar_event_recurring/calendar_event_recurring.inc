@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.1.1.1 2004/07/21 04:31:53 lwright Exp $
+* $Id: calendar_event_recurring.inc,v 1.2 2004/07/27 00:49:57 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once  dirname(__FILE__).'/../calendar_event/calendar_event.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1.1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -69,69 +69,88 @@ class Calendar_Event_Recurring extends Calendar_Event
 			$after = time();
 		}
 
-		// try and work out what the frequency actually means
-
-		$cron_line = $this->attr('frequency');
-		$cron_array = Array();
-		list($cron_array['i'], $cron_array['h'], $cron_array['d'], $cron_array['m'], $cron_array['w'], $cron_array['y']) =
-			preg_split("/\s/", $cron_line, 6);
-
-		// expand the cron values to a list of valid values fitting star criteria
-		$cron_min = Array('y' => 1970, 'm' => 1,  'd' => 1);
-		$cron_max = Array('y' => 2038, 'm' => 12, 'd' => 31);
-
-		foreach(array_keys($cron_array) as $key) {
-			$cron_array[$key] = $this->_parseCronLineComponent($cron_array[$key], $cron_min[$key], $cron_max[$key]);
-		}
-
-
+		// interpret frequency etc
+		
 
 	}//end getFirstOccurrenceAfter()
 	
 
 	/**
-	* Parses an individual cron line component and returns a list of valid scalar values which match
+	* Returns this event's frequency in an easy-to-understand format
 	*
-	* @param int	$min	Lowest value that is valid for this component. Default=0
-	* @param int	$max	Highest value that is valid for this component. Default=59
-
-	* @return array(int)	a list of values which match the criteria given
-	* @access protected
+	* @return string	this event's frequency in an easy-to-understand format
+	* @access public
 	*/
-	function _parseCronLineComponent($cron_value, $min=0, $max=59)
-	{
-		// replace stars with min-to-max lists
-		//$cron_value = str_replace('*', $min.'-'.$max, $cron_value);
+	function getFriendlyFrequency() {
+		$freq_type = substr($this->attr('frequency'), 0, 3);
+		$interval = substr($this->attr('frequency'), 3);
+		$monthly_type = '';
+		switch ($freq_type) {
+			case 'DED':
+				if ($interval) 
+					$res = "every $interval days";
+				else
+					$res = 'every day';
+			break;
 
-		// now replace ranges (eg. 1-5) with comma-separated lists (1,2,3,4,5)
-		preg_match_all('|(\d+)\-(\d+)|', $cron_value, $matches, PREG_SET_ORDER);
+			case 'DWD':
+				if ($interval)
+					$res = "every $interval weekdays";
+				else
+					$res = 'every weekday';
+			break;
 
-		foreach($matches as $match) {
-			$cron_value = str_replace($match[1].'-'.$match[2],
-				implode(',', range($match[1], $match[2])), $cron_value);
+			case 'WEW':
+				if ($interval)
+					$res = "every $interval weeks";
+				else
+					$res = 'every week';
+			break;
+
+			case 'MFN':
+				$day = (int)substr($this->attr('start_date'), 8, 2);
+				$monthly_type = 'on the ' . add_ordinal_suffix($day) . ' day of the month';
+			break;
+
+			case 'MFW':
+				$day = (int)substr($this->attr('start_date'), 8, 2);
+				$day_of_week = date('l', iso8601_ts($this->attr('start_date')));
+				$monthly_type = 'on the ' . add_ordinal_suffix((int)(($day / 7) + 1)) . ' ' . $day_of_week . ' of the month';
+			break;
+
+			case 'MRN':
+				$day = (int)substr($this->attr('start_date'), 8, 2);
+				$month = (int)substr($this->attr('start_date'), 5, 2);
+				$year = (int)substr($this->attr('start_date'), 0, 4);
+				$month_length = date('j', strtotime('yesterday', iso8601_ts($year . '-' . ($month+1) . '-01')));
+				$monthly_type = 'on the ' . add_reverse_ordinal_suffix($month_length - $day + 1) . ' last day of the month';
+			break;
+
+			case 'MRW':
+				$day = (int)substr($this->attr('start_date'), 8, 2);
+				$day_of_week = date('l', iso8601_ts($this->attr('start_date')));
+				$month = (int)substr($this->attr('start_date'), 5, 2);
+				$year = (int)substr($this->attr('start_date'), 0, 4);
+				$month_length = date('j', strtotime('yesterday', iso8601_ts($year . '-' . ($month+1) . '-01')));
+				$monthly_type = 'on the ' . add_reverse_ordinal_suffix((int)((($month_length - $day + 1) / 7) + 1)) . ' last ' . $day_of_week . ' of the month';
+			break;
+
+			default:
+				$res = 'ERROR:  freq is ' . $this->attr('frequency');
 		}
-
-		// split the cron value up on a slash, if there is any
-		// even if there isn't, there'll still be one member of the array (a comma list)
-		// which we want to explode into an array of its own
-		$split_cron_value = explode('/', $split_cron_value);
-		$split_cron_value[0] = explode(',', $split_cron_value[0]);
-
-		// if there is no slash, we can skip this, there is no problem
-		// but... if there is a slash, weed out those that match the 'every X minutes' rule
-		if (count($split_cron_value) > 1) {
-			// 
-			foreach($split_cron_value[0] as $key => $value) {
-				if ($value % $split_cron_value[1] != 0) {
-					unset($split_cron_value[0][$key]);
-				}
-			}
+		if ($monthly_type) {
+			if ($interval)
+				$res = "every $interval months, $monthly_type";
+			else
+				$res = "every month, $monthly_type";
 		}
+		$stop_date_attr = $this->getAttribute('stop_date');
+		if (($stop_timestamp = $stop_date_attr->getTimestamp()) == -1)
+			return "$res, until further notice";
+		else
+			return "$res, until " . readable_datetime($stop_timestamp);
 
-		return $split_cron_value[0];
-		
-
-	}//end _parseCronLineComponent()
+	}//end getFriendlyFrequency()
 
 
 }//end class

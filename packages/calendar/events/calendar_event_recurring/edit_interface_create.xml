@@ -18,13 +18,28 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_create.xml,v 1.1.1.1 2004/07/21 04:31:53 lwright Exp $
+* $Id: edit_interface_create.xml,v 1.2 2004/07/27 00:49:57 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <contents screen="details">
-	<section name="Details">
+	<section name="Details" >
 		<field attribute="name" />
+		<field attribute="description" />
+		<field>
+			<display_name>First Instance</display_name>
+			<function_call>
+				<paint_function   name="paintRecurringStartEndChooser"  />
+				<process_function name="processRecurringStartEndChooser" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Recurrence</display_name>
+			<function_call>
+				<paint_function   name="paintFrequencyField"  />
+				<process_function name="processFrequencyField" />
+			</function_call>
+		</field>
 	</section>
 </contents>

@@ -18,11 +18,10 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1.1.1 2004/07/21 04:31:53 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2004/07/27 00:49:57 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
-
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
@@ -35,52 +34,21 @@
 			<note />
 			<text width="40" height="3" />
 		</field>
-		<field attribute="start_date">
-			<display_name>Start Date of First Instance</display_name>
+		<field>
+			<display_name>First Instance</display_name>
 			<note />
-			<datetime min="1970-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="0" allow_null="0">
-				<show>
-					<y style="s" allow_null="0" />
-					<m style="s" allow_null="0" />
-					<d style="s" allow_null="0" />
-					<h style="s" allow_null="1" />
-					<i style="s" allow_null="1" />
-					<s style="s" allow_null="1" />
-				</show>
-			</datetime>
+			<function_call>
+				<paint_function   name="paintRecurringStartEndChooser"  />
+				<process_function name="processRecurringStartEndChooser" />
+			</function_call>
 		</field>
-		<field attribute="end_date">
-			<display_name>End Date of First Instance</display_name>
-			<note>Dates for future instances of this event will be determined by the frequency of recurrence</note>
-			<datetime min="1970-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="0" allow_null="1">
-				<show>
-					<y style="s" allow_null="1" />
-					<m style="s" allow_null="1" />
-					<d style="s" allow_null="1" />
-					<h style="s" allow_null="1" />
-					<i style="s" allow_null="1" />
-					<s style="s" allow_null="1" />
-				</show>
-			</datetime>
-		</field>
-		<field attribute="stop_date">
-			<display_name>Stop Date for Recurrence</display_name>
-			<note>No instances of this event will occur after this stop date</note>
-			<datetime min="1970-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="0" allow_null="1">
-				<show>
-					<y style="s" allow_null="1" />
-					<m style="s" allow_null="1" />
-					<d style="s" allow_null="1" />
-					<h style="s" allow_null="1" />
-					<i style="s" allow_null="1" />
-					<s style="s" allow_null="1" />
-				</show>
-			</datetime>
-		</field>
-		<field attribute="frequency">
-			<display_name>Frequency of Recurrence</display_name>
+		<field>
+			<display_name>Recurs</display_name>
 			<note />
-			<text width="20" height="1" />
+			<function_call>
+				<paint_function	name="paintFrequencyField" />
+				<process_function name="processFrequencyField" />
+			</function_call>
 		</field>
 	</section>
 </contents>
