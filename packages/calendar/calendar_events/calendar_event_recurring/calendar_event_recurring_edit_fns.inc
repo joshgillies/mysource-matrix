@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring_edit_fns.inc,v 1.5 2004/07/30 05:33:38 lwright Exp $
+* $Id: calendar_event_recurring_edit_fns.inc,v 1.6 2004/07/30 05:37:03 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $ - 1.0
+* @version $Revision: 1.6 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -219,6 +219,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 			case '':
 				trigger_error('You did not select a  frequency type', E_USER_WARNING);
 				return false;
+			break;
 				
 			default:
 				trigger_error('You entered an invalid frequency type', E_USER_WARNING);
