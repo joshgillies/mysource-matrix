@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcListItemClass.as,v 1.30 2003/10/28 04:21:47 dwong Exp $
+* $Id: mcListItemClass.as,v 1.31 2003/10/28 04:45:34 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -76,9 +76,17 @@ mcListItemClass.prototype.getParentAssetid = function()
 }//end getParentAssetid()
 
 
+/** 
+* Sets the link for which the asset for this item is the minor asset
+* 
+* @param Link link The link
+*
+* @access public
+*
+*/
 mcListItemClass.prototype.setLink = function(link) 
 {
-//	trace (this + "::mcListItemClass.setLink(" + link.linkid + " type=" + link.link_type + ")");
+	trace (this + "::mcListItemClass.setLink(" + link.linkid + " type=" + link.link_type + ")");
 //	trace("asset id: " + this.assetid);
 	this.linkid = link.linkid;
 	this.link_type = link.link_type;
@@ -264,15 +272,7 @@ mcListItemClass.prototype.getMouseButton = function()
 */
 mcListItemClass.prototype.onAssetChange = function(asset) 
 {
-	var link;
-
-	for (var i = 0; i < asset.links.length; i++) {
-		var linkid = asset.links[i];
-		if (linkid == this.linkid) {
-			link = _root.asset_manager.asset_links[linkid];
-		}
-	}
-
+	var link = _root.asset_manager.asset_links[this.linkid];
 	this.setInfo(asset, link, this.parent_item_name);
 
 }
