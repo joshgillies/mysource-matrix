@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox.inc,v 1.12 2004/02/24 01:56:19 gsherwood Exp $
+* $Id: design_area_searchbox.inc,v 1.13 2004/06/24 05:25:31 lwright Exp $
 * $Name: not supported by cvs2svn $
 *
 */
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.12 $ - 1.0
+* @version $Revision: 1.13 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -105,14 +105,14 @@ class Design_Area_Searchbox extends Design_Area
 				<'.'?php
 				$default_value = \''.$this->attr('default_text').'\';
 				$hide_default = true;
-				if (isset($_REQUEST[\'queries\'][\''. $this->attr('field_name'). '_query\'])) {
-					$default_value = $_REQUEST[\'queries\'][\''. $this->attr('field_name'). '_query\'];
+				if (isset($_REQUEST[\'queries_'. $this->attr('field_name'). '_query\'])) {
+					$default_value = $_REQUEST[\'queries_'. $this->attr('field_name'). '_query\'];
 					$hide_default = false;
 				}
 				$class = \''.((isset($args['class'])) ? $args['class'] : '').'\';
 
 				require_once SQ_LIB_PATH.\'/html_form/html_form.inc\';
-				text_box(\'queries['. $this->attr('field_name').'_query]\', $default_value, \''.$this->attr('querybox_width').'\', \'\', $hide_default, (empty($class)) ? \'\' : \'class="\'.$class.\'"\');
+				text_box(\'queries_'. $this->attr('field_name').'_query\', $default_value, \''.$this->attr('querybox_width').'\', \'\', $hide_default, (empty($class)) ? \'\' : \'class="\'.$class.\'"\');
 				?'.'>
 				';
 			break;

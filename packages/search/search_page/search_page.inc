@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.43 2004/06/21 04:12:37 gsherwood Exp $
+* $Id: search_page.inc,v 1.44 2004/06/24 05:25:31 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc'; // for the meda
 * @author  Dominic Wong <dwong@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.43 $ - 1.0
+* @version $Revision: 1.44 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -448,7 +448,15 @@ class Search_Page extends Page
 		$current_results_page = $_REQUEST['current_result_page'];
 
 		$fields = $this->attr('fields');
-		$queries =& $_REQUEST['queries'];
+
+		$queries_prefix = 'queries_';
+		$queries = Array();
+		foreach($_REQUEST as $key => $value) {
+			if (substr($key,0,strlen($queries_prefix)) == $queries_prefix) {
+				$suffix = substr($key,strlen($queries_prefix));
+				$queries[$suffix] = $_REQUEST[$key];
+			}
+		}
 
 		foreach ($keywords as $keyword) {
 
@@ -479,11 +487,11 @@ class Search_Page extends Page
 							$field->printField();
 						} else if (isset($params['multi_line'])) { // normal metadata TEXT field
 							// using same defintion as for a simple field, but will have to revise later...
-							text_box("queries[$query_var]", $query, $this->defaults['query_width']);
+							text_box("queries_$query_var", $query, $this->defaults['query_width']);
 						} else if (isset($params['select_options'])) { // metadata dropdown selection
 							$select_options = $params['select_options']['value'];
 							$select_options[''] = "- Please select -";
-							combo_box("queries[$query_var]", $select_options, false, $query);
+							combo_box("queries_$query_var", $select_options, false, $query);
 						}
 
 				} else if ($fields[$test_ind]['type'] == 'asset_attrib') {
@@ -509,12 +517,12 @@ class Search_Page extends Page
 						}
 					}
 
-					$attribute->paint("queries[$query_var]", false, false); 
+					$attribute->paint("queries_$query_var", false, false); 
 
 				} else {
 
 					// not a metadata field, just a normal text field
-					text_box("queries[$query_var]", $query, $this->defaults['query_width']);
+					text_box("queries_$query_var", $query, $this->defaults['query_width']);
 
 				}
 
@@ -533,7 +541,7 @@ class Search_Page extends Page
 					break;
 
 					case 'results_per_page':
-						$replacement = '<input type=text onchange="
+						$replacement = '<input type="text" onchange="
 							document.search_form.results_per_page.value = this.value;
 						" value="'.$results_per_page .'" />';
 					break;
@@ -570,7 +578,18 @@ class Search_Page extends Page
 		$total_pages = ceil(count($results) / $results_per_page);
 
 		$queries = '';
-		foreach ($_REQUEST['queries'] as $q_name => $q_value) {
+
+		$queries_prefix = 'queries_';
+
+		$queries_array = Array();
+		foreach($_REQUEST as $key => $value) {
+			if (substr($key,0,strlen($queries_prefix)) == $queries_prefix) {
+				$suffix = substr($key,strlen($queries_prefix));
+				$queries_array[$suffix] = $_REQUEST[$key];
+			}
+		}
+
+		foreach ($queries_array as $q_name => $q_value) {
 			$queries .= '&queries%5B'.urlencode($q_name).'%5D='.urlencode($q_value);
 		}
 
@@ -756,7 +775,15 @@ class Search_Page extends Page
 		$fields = $this->attr('fields');
 		if (is_scalar($fields)) $fields = unserialize($fields);
 
-		$queries = $_REQUEST['queries'];
+		$queries_prefix = 'queries_';
+
+		$queries = Array();
+		foreach($_REQUEST as $key => $value) {
+			if (substr($key,0,strlen($queries_prefix)) == $queries_prefix) {
+				$suffix = substr($key,strlen($queries_prefix));
+				$queries[$suffix] = $_REQUEST[$key];
+			}
+		}
 
 		// check if there are medatadata date fields
 		foreach (array_keys($_REQUEST) as $req_key) {
