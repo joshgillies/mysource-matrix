@@ -57,7 +57,7 @@ if (is_null($root_folder)) {
 
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('trash_folder');
 	$trash_folder = new Trash_Folder();
-	$trash_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_EXCLUSIVE);
+	$trash_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
 	if (!$trash_folder->create($trash_link)) die('TRASH FOLDER NOT CREATED');
 	pre_echo('Trash Asset Id : '.$trash_folder->id);
 	if ($trash_folder->id != 2) {
@@ -67,7 +67,7 @@ if (is_null($root_folder)) {
 
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('system_user_group');
 	$system_group = new System_User_Group();
-	$system_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_EXCLUSIVE);
+	$system_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
 	if (!$system_group->create($system_link)) die('SYSTEM ADMIN GROUP NOT CREATED');
 	pre_echo('System Administrators User Group Asset Id : '.$system_group->id);
 	if ($system_group->id != 3) {
@@ -88,7 +88,7 @@ if (is_null($root_folder)) {
 	// Create the designs folder
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('designs_folder');
 	$designs_folder = new Designs_Folder();
-	$designs_folder_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_EXCLUSIVE);
+	$designs_folder_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
 	if (!$designs_folder->create($designs_folder_link)) die('Designs Folder NOT CREATED');
 	pre_echo('Design Folder Asset Id : '.$designs_folder->id);
 	if ($designs_folder->id != 7) {
@@ -98,7 +98,7 @@ if (is_null($root_folder)) {
 	// Create the login design
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('login_design');
 	$login_design = new Login_Design();
-	$login_design_link = Array('asset' => &$designs_folder, 'link_type' => SQ_LINK_EXCLUSIVE);
+	$login_design_link = Array('asset' => &$designs_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
 	$login_design->setAttrValue('id_name', 'login_design');
 	if (!$login_design->create($login_design_link)) die('Login Design NOT CREATED');
 	pre_echo('Login Design Asset Id : '.$login_design->id);

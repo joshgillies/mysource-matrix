@@ -94,13 +94,13 @@ class Bodycopy_Table extends Asset
 	* @access public
 	* @see Asset::creatLink();
 	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0')
+	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0', $exclusive='0')
 	{
 		// if this is a content type then we need to make it a dependant link
 		if (is_a($minor, 'content_type')) {
 			$dependant = '1';
 		}
-		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant);
+		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
 	}// end createLink()
 
 
@@ -199,8 +199,8 @@ class Bodycopy_Table extends Asset
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_EXCLUSIVE => Array('content_type' => 'M'),
-					 SQ_LINK_NOTICE    => Array('asset' => 'M')
+		return Array(SQ_LINK_TYPE_2 => Array('content_type' => Array('card' => 'M', 'exclusive' => false)),
+					 SQ_LINK_NOTICE => Array('asset' => Array('card' => 'M', 'exclusive' => false))
 					 );
 
 	}//end _getAllowedLinks()

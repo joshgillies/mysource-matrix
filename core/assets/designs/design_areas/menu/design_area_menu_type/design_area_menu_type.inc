@@ -24,11 +24,10 @@ class Design_Area_Menu_Type extends Design_Area
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_EXCLUSIVE	=> Array(),
-					 SQ_LINK_TYPE_1		=> Array(),
-					 SQ_LINK_TYPE_2		=> Array(),
-					 SQ_LINK_TYPE_3		=> Array('design_area_menu_type' => 'M'),
-					 SQ_LINK_NOTICE		=> Array()
+		return Array(SQ_LINK_TYPE_1 => Array(),
+					 SQ_LINK_TYPE_2 => Array(),
+					 SQ_LINK_TYPE_3 => Array('design_area_menu_type' => Array('card' => 'M', 'exclusive' => false)),
+					 SQ_LINK_NOTICE => Array()
 					);
 
 	}//end _getAllowedLinks()

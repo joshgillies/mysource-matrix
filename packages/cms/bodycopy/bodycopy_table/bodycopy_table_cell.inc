@@ -60,7 +60,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 	{
 		$full_type = 'content_type_'.$type;
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($full_type);
-		$content_link = Array('asset' => &$table, 'link_type' => SQ_LINK_EXCLUSIVE, 'dependant' => 1);
+		$content_link = Array('asset' => &$table, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
 		$content_type = new $full_type();
 		$content_type->setAttrValue('name', 'Row '.($rowid+1).' Cell '.($cellid+1));
 		$this->attributes['linkid'] = $content_type->create($content_link);

@@ -31,6 +31,7 @@ CREATE TABLE sq_asset_link (
   value         VARCHAR(255) NOT NULL,
   sort_order    INT UNSIGNED NOT NULL DEFAULT 0,
   dependant     CHAR(1)      NOT NULL DEFAULT '0',
+  exclusive     CHAR(1)      NOT NULL DEFAULT '0',
   last_updated  DATETIME     NOT NULL,
   last_userid   INT UNSIGNED NOT NULL,
   PRIMARY KEY(linkid),

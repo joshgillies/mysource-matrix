@@ -51,7 +51,7 @@ class Page_Standard extends Page
 		// add a bodycopy to this page when creating
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 		$bodycopy = new Bodycopy();
-		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_EXCLUSIVE, 'dependant' => 1);
+		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
 
 		$bodycopy->setAttrValue('name', 'Page Contents');
 		if (!$bodycopy->create($copy_link)) {
@@ -74,14 +74,14 @@ class Page_Standard extends Page
 	* @access public
 	* @see Asset::creatLink();
 	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0')
+	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0', $exclusive='0')
 	{
 		// if this is a bodycopy table then we need to make it a dependant link
 		if (is_a($minor, 'bodycopy')) {
 			$dependant = '1';
 		}
 
-		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant);
+		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
 
 	}// end createLink()
 
@@ -98,7 +98,7 @@ class Page_Standard extends Page
 	{
 		// the only reason why we would object to this link being
 		// deleted is if it is the bodycopy linked to us
-		$bodycopy_link = $this->getLinks(SQ_LINK_EXCLUSIVE, 'bodycopy', true, 'major', '', 1);
+		$bodycopy_link = $this->getLinks(SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
 		if ($bodycopy_link[0]['linkid'] == $linkid) return 'You cant delete the link between the bodycopy and the standard page';
 
 		return parent::canDeleteLink($linkid);
@@ -114,7 +114,7 @@ class Page_Standard extends Page
 	function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_EXCLUSIVE]['bodycopy'] = 'M';
+		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => '1', 'exclusive' => true);
 		return $page_links;
 
 	}//end _getAllowedLinks()
@@ -130,7 +130,7 @@ class Page_Standard extends Page
 	{
 		// get the bodycopy attached to us
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-		$bodycopy_data = $this->getLink(SQ_LINK_EXCLUSIVE, 'bodycopy');
+		$bodycopy_data = $this->getLink(SQ_LINK_TYPE_2, 'bodycopy', true, null, 'major', '1');
 		$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['type_code']);
 		$bodycopy->printBody();
 	}// end printBody()

@@ -45,7 +45,7 @@ class Design_Area_Nest_Content extends Design_Area
 	*
 	*    Array('[link_type]' => Array('[type_code]' => '[cardinality]));
 	* Where:
-	*   link_type   = SQ_LINK_EXCLUSIVE|SQ_LINK_UNITE|SQ_LINK_USES|SQ_LINK_NOTICE
+	*   link_type   = SQ_LINK_UNITE|SQ_LINK_USES|SQ_LINK_NOTICE
 	*   cardinality = 1|M
 	*
 	* @return Array()
@@ -54,11 +54,10 @@ class Design_Area_Nest_Content extends Design_Area
 	function _getAllowedLinks()
 	{
 
-		return Array(SQ_LINK_EXCLUSIVE	=> Array(),
-					 SQ_LINK_TYPE_1		=> Array(),
-					 SQ_LINK_TYPE_2		=> Array(),
-					 SQ_LINK_TYPE_3		=> Array(),
-					 SQ_LINK_NOTICE		=> Array('asset' => '1')
+		return Array(SQ_LINK_TYPE_1 => Array(),
+					 SQ_LINK_TYPE_2 => Array(),
+					 SQ_LINK_TYPE_3 => Array(),
+					 SQ_LINK_NOTICE => Array('asset' => Array('card' => '1', 'exclusive' => false))
 					);
 
 	}//end _getAllowedLinks()

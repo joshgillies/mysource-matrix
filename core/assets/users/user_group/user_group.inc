@@ -19,7 +19,7 @@ class User_Group extends Folder
 	/**
 	* Constructor
 	*
-	* @param int    $assetid      the asset id to be loaded
+	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
 	function User_Group($assetid=0) 
@@ -36,11 +36,11 @@ class User_Group extends Folder
 	*/
 	function _getAllowedLinks() 
 	{
-		return Array(SQ_LINK_EXCLUSIVE	=> Array(),
-					 SQ_LINK_TYPE_1		=> Array('user_group' => 'M', 'user' => 'M'),
-					 SQ_LINK_TYPE_2		=> Array(),
-					 SQ_LINK_TYPE_3		=> Array(),
-					 SQ_LINK_NOTICE		=> Array()
+		return Array(SQ_LINK_TYPE_1 => Array('user_group' => Array('card' => 'M', 'exclusive' => false),
+											 'user'       => Array('card' => 'M', 'exclusive' => false)),
+					 SQ_LINK_TYPE_2 => Array(),
+					 SQ_LINK_TYPE_3 => Array(),
+					 SQ_LINK_NOTICE => Array()
 					);
 
 	}//end _getAllowedLinks()

@@ -36,11 +36,10 @@ class Thumbnail extends Image
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_EXCLUSIVE	=> Array(),
-					 SQ_LINK_TYPE_1		=> Array(),
-					 SQ_LINK_TYPE_2		=> Array(),
-					 SQ_LINK_TYPE_3		=> Array(),
-					 SQ_LINK_NOTICE		=> Array()
+		return Array(SQ_LINK_TYPE_1 => Array(),
+					 SQ_LINK_TYPE_2 => Array(),
+					 SQ_LINK_TYPE_3 => Array(),
+					 SQ_LINK_NOTICE => Array()
 					);
 
 	}//end _getAllowedLinks()

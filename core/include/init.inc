@@ -91,15 +91,14 @@ if(version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
 * LINK TYPES - used with bitwise operators
 */
 define('SQ_LINK_TYPE_1',        1); // minor asset is a child of the major asset, link is displayed on frontend and backend navigation systems
-define('SQ_LINK_EXCLUSIVE',     2); // TYPE_1 link but the minor asset can only linked (as a child) to the one major asset
-define('SQ_LINK_TYPE_2',        4); // same power/rank as a TYPE_1 link, but is only displayed on backend navigation systems
-define('SQ_LINK_TYPE_3',        8); // same power/rank as a TYPE_1 link, but is not displayed on any navigation systems
-define('SQ_LINK_NOTICE',       16); // for information purposes only, (eg used to register href's from one asset to another) so that deletions can warn of impending issues
+define('SQ_LINK_TYPE_2',        2); // same power/rank as a TYPE_1 link, but is only displayed on backend navigation systems
+define('SQ_LINK_TYPE_3',        4); // same power/rank as a TYPE_1 link, but is not displayed on any navigation systems
+define('SQ_LINK_NOTICE',        8); // for information purposes only, (eg used to register href's from one asset to another) so that deletions can warn of impending issues
 
-define('SQ_LINK_ALL',          31); // what all the main link types add up to
-define('SQ_LINK_FRONTEND_NAV',  3); // short hand for EXCLUSIVE | TYPE_1
-define('SQ_LINK_BACKEND_NAV',   7); // short hand for EXCLUSIVE | TYPE_1 | TYPE_2
-define('SQ_LINK_SIGNIFICANT',  15); // short hand for EXCLUSIVE | TYPE_1 | TYPE_2 | TYPE_3
+define('SQ_LINK_ALL',          15); // what all the main link types add up to
+define('SQ_LINK_FRONTEND_NAV',  1); // short hand for TYPE_1
+define('SQ_LINK_BACKEND_NAV',   3); // short hand for TYPE_1 | TYPE_2
+define('SQ_LINK_SIGNIFICANT',   7); // short hand for TYPE_1 | TYPE_2 | TYPE_3
 
 
 /*

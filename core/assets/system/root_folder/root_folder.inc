@@ -84,11 +84,11 @@ class Root_Folder extends Folder
 			// Right we need to do some manipulation for the link table to put in some initial values 
 			// so that the root folder, like everything else, has a link where it is a minor party
 			$sql = 'INSERT INTO sq_asset_link 
-					(linkid, majorid, minorid, link_type, value, sort_order, dependant, last_updated, last_userid) 
+					(linkid, majorid, minorid, link_type, value, sort_order, dependant, exclusive, last_updated, last_userid) 
 					VALUES 
 					(1, 0, 1, 
-					'.$db->quote(SQ_LINK_EXCLUSIVE).', '.$db->quote('').', 1, '.$db->quote('1').', 
-					'.$db->quote(ts_iso8601(time())).', 0);';
+					'.$db->quote(SQ_LINK_TYPE_1).', '.$db->quote('').', 1, '.$db->quote('1').', 
+					'.$db->quote('1').', '.$db->quote(ts_iso8601(time())).', 0);';
 			$result = $db->query($sql);
 			if (DB::isError($result)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');

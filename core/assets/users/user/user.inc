@@ -56,7 +56,7 @@ class User extends Asset
 			return false;
 		}
 
-		$user_link = Array('asset' => &$this, 'link_type' => SQ_LINK_EXCLUSIVE, 'dependant' => 1);
+		$user_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
 
 		// create an inbox
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('inbox');
@@ -98,11 +98,11 @@ class User extends Asset
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_EXCLUSIVE	=> Array('inbox' => '1', 'workspace' => '1'),
-					 SQ_LINK_TYPE_1		=> Array(),
-					 SQ_LINK_TYPE_2		=> Array(),
-					 SQ_LINK_TYPE_3		=> Array(),
-					 SQ_LINK_NOTICE		=> Array()
+		return Array(SQ_LINK_TYPE_1 => Array(),
+					 SQ_LINK_TYPE_2 => Array('inbox'     => Array('card' => '1', 'exclusive' => true),
+											 'workspace' => Array('card' => '1', 'exclusive' => true)),
+					 SQ_LINK_TYPE_3 => Array(),
+					 SQ_LINK_NOTICE => Array()
 					);
 	}//end _getAllowedLinks()
 
@@ -271,13 +271,13 @@ class User extends Asset
 				break;
 			case 'workspace' :
 				// get the workspace attached to us
-				$workspace_data = $this->getLink(SQ_LINK_EXCLUSIVE, 'workspace');
+				$workspace_data = $this->getLink(SQ_LINK_TYPE_2, 'workspace', true, null, 'major', '1');
 				$workspace = &$GLOBALS['SQ_SYSTEM']->am->getAsset($workspace_data['minorid'], $workspace_data['type_code']);
 				$workspace->printBody();
 				break;
 			case 'messages'  :
 				// get the inbox attached to us
-				$inbox_data = $this->getLink(SQ_LINK_EXCLUSIVE, 'inbox');
+				$inbox_data = $this->getLink(SQ_LINK_TYPE_2, 'inbox', true, null, 'major', '1');
 				$inbox = &$GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_data['minorid'], $inbox_data['type_code']);
 				$inbox->printBody();
 				break;

@@ -78,14 +78,14 @@ class Bodycopy extends Asset
 	* @access public
 	* @see Asset::creatLink();
 	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0')
+	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0', $exclusive='0')
 	{
 		// if this is a bodycopy table then we need to make it a dependant link
 		if (is_a($minor, 'bodycopy_table')) {
 			$dependant = '1';
 		}
 
-		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant);
+		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
 
 	}// end createLink()
 
@@ -98,13 +98,14 @@ class Bodycopy extends Asset
 	*/
 	function _getAllowedLinks() {
 
-		return Array(SQ_LINK_TYPE_2     => Array('bodycopy_table' => 'M')
+		return Array(SQ_LINK_TYPE_2 => Array('bodycopy_table' => Array('card' => 'M', 'exclusive' => false))
 					);
 
 	}#end _getAllowedLinks()
 
+
 	/**
-	* prints out the backend interface for the asset
+	* Prints out the backend interface for the asset
 	* it's up to the kids to override
 	*
 	* @param object Backend $backend

@@ -74,11 +74,10 @@ class Folder extends Asset
 	function _getAllowedLinks()
 	{
 
-		return Array(SQ_LINK_EXCLUSIVE	=> Array('asset' => 'M'),
-					 SQ_LINK_TYPE_1		=> Array('asset' => 'M'),
-					 SQ_LINK_TYPE_2		=> Array('asset' => 'M'),
-					 SQ_LINK_TYPE_3		=> Array('asset' => 'M'),
-					 SQ_LINK_NOTICE		=> Array('asset' => 'M')
+		return Array(SQ_LINK_TYPE_1 => Array('asset' => Array('card' => 'M', 'exclusive' => false)),
+					 SQ_LINK_TYPE_2 => Array('asset' => Array('card' => 'M', 'exclusive' => false)),
+					 SQ_LINK_TYPE_3 => Array('asset' => Array('card' => 'M', 'exclusive' => false)),
+					 SQ_LINK_NOTICE => Array('asset' => Array('card' => 'M', 'exclusive' => false))
 					);
 
 	}//end _getAllowedLinks()

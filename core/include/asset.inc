@@ -119,7 +119,8 @@ class Asset extends Resolve_Object
 	* @param Array	&$link	information used to create the initial link, 
 	*						Array ('asset' => [ref major asset to create link under], 
 	*						'link_type' => SQ_LINK_?, 'value' => [link value], 
-	*						'sort_order' => [link sort order], 'dependant' = [0|1])
+	*						'sort_order' => [link sort order], 'dependant' = [0|1],
+	*						'exclusive' = [0|1])
 	*
 	* @return int|false
 	* @access public
@@ -190,9 +191,10 @@ class Asset extends Resolve_Object
 
 		if (!empty($link)) {
 			// create the initial link
-			if (!isset($link['value']))	     $link['value']      = '';
+			if (!isset($link['value']))      $link['value']      = '';
 			if (!isset($link['sort_order'])) $link['sort_order'] = -1;
-			if (!isset($link['dependant']))	 $link['dependant']  = 0;
+			if (!isset($link['dependant']))  $link['dependant']  = 0;
+			if (!isset($link['exclusive']))  $link['exclusive']  = 0;
 
 			if (!$link['asset']->aquireLock()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -211,7 +213,7 @@ class Asset extends Resolve_Object
 				$this->id = 0;
 			}
 
-			$linkid = $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['sort_order'], $link['dependant']);
+			$linkid = $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['sort_order'], $link['dependant'], $link['exclusive']);
 
 			// dont need to release the lock when creating
 			// because chances are they want to edit it anyway
@@ -723,7 +725,8 @@ class Asset extends Resolve_Object
 	* @param Array	&$link				information used to create the initial link, 
 	*									Array ('asset' => [ref major asset to create link under], 
 	*									'link_type' => SQ_LINK_?, 'value' => [link value], 
-	*									'sort_order' => [link sort order], 'dependant' = [boolean])
+	*									'sort_order' => [link sort order], 'dependant' = [boolean],
+										'exclusive' = [boolean])
 	* @param Array	&$dupe_map			a map for that can be used for re-indexing data held in 
 	*									assets of the form Array([old asset id] => [new asset id]);
 	* @param bool	$dupe_dependants	whether or not to duplicate any assets that are dependantly 
@@ -790,7 +793,8 @@ class Asset extends Resolve_Object
 			if (!isset($link['value']))	     $link['value']      = '';
 			if (!isset($link['sort_order'])) $link['sort_order'] = -1;
 			if (!isset($link['dependant']))	 $link['dependant']  = 0;
-			$linkid = $link['asset']->createLink($dupe, $link['link_type'], $link['value'], $link['sort_order'], $link['dependant']);
+			if (!isset($link['exclusive']))	 $link['exclusive']  = 0;
+			$linkid = $link['asset']->createLink($dupe, $link['link_type'], $link['value'], $link['sort_order'], $link['dependant'], $link['exclusive']);
 			if(empty($linkid)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return $null;
@@ -802,11 +806,12 @@ class Asset extends Resolve_Object
 				$dependant_links = $this->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'major', null, 1);
 
 				if (!empty($dependant_links)) {
-					$create_link = Array('asset'		=> &$dupe, 
-										'link_type'		=> null, 
-										'value'			=> null,
-										'sort_order'	=> -1,
-										'dependant'		=> '1');
+					$create_link = Array('asset'      => &$dupe,
+										 'link_type'  => null,
+										 'value'      => null,
+										 'sort_order' => -1,
+										 'dependant'  => '1',
+										 'exclusive'  => '0');
 					$am = &$GLOBALS['SQ_SYSTEM']->am;
 					foreach($dependant_links as $data) {
 						// If this asset has already been duplicated in this duplication run
@@ -819,7 +824,7 @@ class Asset extends Resolve_Object
 								return $null;
 							}// end if
 
-							$linkid = $dupe->createLink($duped_child, $data['link_type'], $data['value'], $data['sort_order'], '1');
+							$linkid = $dupe->createLink($duped_child, $data['link_type'], $data['value'], $data['sort_order'], '1', $data['exclusive']);
 							if (!$linkid) {
 								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 								return $null;
@@ -832,6 +837,7 @@ class Asset extends Resolve_Object
 							$create_link['link_type']	= $data['link_type'];
 							$create_link['value']		= $data['value'];
 							$create_link['sort_order']	= $data['sort_order'];
+							$create_link['exclusive']	= $data['exclusive'];
 							$duped_child = &$child->duplicate($create_link, $dupe_map, true, $dupe_directory);
 							if (is_null($duped_child)) {
 								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -1061,8 +1067,10 @@ class Asset extends Resolve_Object
 	/**
 	* Get all asset ids that are above this asset in the various trees in which it exists
 	*
-	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc)
-	*											if an array returns link if matches any of the array values
+	* @param string|array	$type_code			the type of asset that is linked 
+	*											(eg 'Page', 'File', etc)
+	*											if an array returns link if matches any 
+	*											of the array values
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code 
 	*											or $type_code and any of it's sub-classes
 	*
@@ -1078,8 +1086,10 @@ class Asset extends Resolve_Object
 	/**
 	* Get all asset ids that are below this asset in the various trees in which it exists
 	*
-	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc) 
-	*											if an array returns link if matches any of the array values
+	* @param string|array	$type_code			the type of asset that is linked 
+	*											(eg 'Page', 'File', etc) 
+	*											if an array returns link if matches any 
+	*											of the array values
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code 
 	*											or $type_code and any of it's sub-classes
 	*
@@ -1383,10 +1393,11 @@ class Asset extends Resolve_Object
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT l.linkid, l.'.$other_side.'id, l.value, l.link_type, a.type_code, l.sort_order, l.dependant
+		$sql = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type, 
+						a.type_code, l.sort_order, l.dependant, l.exclusive
 				FROM sq_asset_link l, sq_asset a
 				WHERE l.linkid = '.$db->quote($linkid).'
-				  AND l.'.$other_side.'id   = a.assetid';
+				  AND l.'.$other_side.'id = a.assetid';
 
 		if (!$ignore_this) $sql .= ' AND l.'.$side_of_link.'id = '.$db->quote($this->id);
 
@@ -1402,18 +1413,25 @@ class Asset extends Resolve_Object
 	/**
 	* Returns information for a link that this asset is the major asset in
 	*
-	* @param int			$link_type			integer that should be a single integer of the SQ_LINK_* constants
-	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc) 
-	*											if an array returns link if matches any of the array values
-	* @param bool			$strict_type_code	whether we are finding an asset that are just a $type_code 
+	* @param int			$link_type			integer that should be a single integer of 
+	*											the SQ_LINK_* constants
+	* @param string|array	$type_code			the type of asset that is linked 
+	*											(eg 'Page', 'File', etc) 
+	*											if an array returns link if matches any 
+	*											of the array values
+	* @param bool			$strict_type_code	whether we are finding an asset that 
+	*											are just a $type_code 
 	*											or $type_code and any of it's sub-classes
 	* @param string			$value				the value that is associated with this link
-	* @param string			$side_of_link		Which side of the link this (the current) asset is on ('major' or 'minor')
+	* @param string			$side_of_link		Which side of the link this (the current) asset 
+	*											is on ('major' or 'minor')
+	* @param boolean		$exclusive			The exclusive status for the link must be 
+	*											this (if not null)
 	*
 	* @return Array()
 	* @access public
 	*/
-	function getLink($link_type, $type_code='', $strict_type_code=true, $value=null, $side_of_link='major')
+	function getLink($link_type, $type_code='', $strict_type_code=true, $value=null, $side_of_link='major', $exclusive=null)
 	{
 		if ($side_of_link != 'major' && $side_of_link != 'minor')
 			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
@@ -1423,11 +1441,14 @@ class Asset extends Resolve_Object
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT l.linkid, l.'.$other_side.'id, l.value, l.link_type, a.type_code, l.sort_order, l.dependant
+		$sql = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type, 
+						a.type_code, l.sort_order, l.dependant, l.exclusive
 				FROM sq_asset_link l, sq_asset a
 				WHERE l.'.$side_of_link.'id = '.$db->quote($this->id).'
-				  AND l.'.$other_side.'id   = a.assetid
+				  AND l.'.$other_side.'id  = a.assetid
 				  AND l.link_type = '.$db->quote($link_type);
+
+		if (!is_null($exclusive)) $sql .= '  AND l.exclusive = '.$db->quote(($exclusive) ? '1' : '0');
 
 		if ($type_code) {
 
@@ -1473,18 +1494,24 @@ class Asset extends Resolve_Object
 	*
 	* @param int			$link_types			integer that can be the product of bitwise operations 
 	*											on the SQ_LINK_* constants
-	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc) 
-	*											if an array returns link if matches any of the array values
+	* @param string|array	$type_code			the type of asset that is linked 
+	*											(eg 'Page', 'File', etc) 
+	*											if an array returns link if matches any 
+	*											of the array values
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code 
 	*											or $type_code and any of it's sub-classes
-	* @param string			$side_of_link		Which side of the link this (the current) asset is on ('major' or 'minor')
+	* @param string			$side_of_link		Which side of the link this (the current) asset 
+	*											is on ('major' or 'minor')
 	* @param string			$value				The value for all the links must equal this (if not null)
-	* @param boolean		$dependant			The dependant status for all the links must be this (if not null)
+	* @param boolean		$dependant			The dependant status for all the links must be 
+	*											this (if not null)
+	* @param boolean		$exclusive			The exclusive status for all the links must be 
+	*											this (if not null)
 	*
 	* @return Array()
 	* @access public
 	*/
-	function getLinks($link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $value=null, $dependant=null)
+	function getLinks($link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $value=null, $dependant=null, $exclusive=null)
 	{
 		if ($side_of_link != 'major' && $side_of_link != 'minor')
 			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
@@ -1494,14 +1521,16 @@ class Asset extends Resolve_Object
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT l.linkid, l.'.$other_side.'id, l.value, l.link_type, a.type_code, l.sort_order, l.dependant
+		$sql = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type, 
+						a.type_code, l.sort_order, l.dependant, l.exclusive
 				FROM sq_asset_link l, sq_asset a
-				WHERE l.'.$other_side.'id   = a.assetid
+				WHERE l.'.$other_side.'id = a.assetid
 				  AND l.'.$side_of_link.'id = '.$db->quote($this->id).'
 				  AND (l.link_type & '.$db->quote($link_types).') > 0 ';
 
 		if (!is_null($value))		$sql .= '  AND l.value     = '.$db->quote($value);
 		if (!is_null($dependant))	$sql .= '  AND l.dependant = '.$db->quote(($dependant) ? '1' : '0');
+		if (!is_null($exclusive))	$sql .= '  AND l.exclusive = '.$db->quote(($exclusive) ? '1' : '0');
 
 		if (!empty($type_code)) {
 			
@@ -1542,14 +1571,17 @@ class Asset extends Resolve_Object
 	* Returns the number of links that this asset has as either a major or minor party,
 	* can be restricted by either link type and/or asset type code
 	*
-	* @param string			$side_of_link		Which side of the link this (the current) asset is on ('major' or 'minor')
+	* @param string			$side_of_link		Which side of the link this (the current) asset 
+	*											is on ('major' or 'minor')
 	* @param int			$link_types			integer that can be the product of bitwise operations 
 	*											on the SQ_LINK_* constants
 	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc) 
-	*											if an array returns link if matches any of the array values
+	*											if an array returns link if matches any 
+	*											of the array values
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code 
 	*											or $type_code and any of it's sub-classes
-	* @param int			$ignore_linkid		ignore the link represented by this link id when returning the count
+	* @param int			$ignore_linkid		ignore the link represented by this link 
+	*											id when returning the count
 	*
 	* @return int
 	* @access public
@@ -1618,7 +1650,7 @@ class Asset extends Resolve_Object
 	* @return TRUE|string
 	* @access public
 	*/
-	function canCreateLink(&$minor, $link_type)
+	function canCreateLink(&$minor, $link_type, $exclusive)
 	{
 		if (!$this->id) return false;
 
@@ -1634,7 +1666,7 @@ class Asset extends Resolve_Object
 		}
 
 		// check if we are allowed to link to these type of assets
-		if (($err_msg = $this->canLinkToType($minor->type(), $link_type)) !== true) {
+		if (($err_msg = $this->canLinkToType($minor->type(), $link_type, 0, $exclusive)) !== true) {
 			return $err_msg;
 		}
 
@@ -1648,7 +1680,7 @@ class Asset extends Resolve_Object
 			$sql = 'SELECT majorid
 					FROM sq_asset_link
 					WHERE minorid   = '.$db->quote($minor->id).'
-					  AND link_type = '.$db->quote(SQ_LINK_EXCLUSIVE);
+					  AND exclusive = '.$db->quote('1');
 
 			$majorid = $db->getOne($sql);
 			if (DB::isError($majorid)) {
@@ -1707,11 +1739,13 @@ class Asset extends Resolve_Object
 	*									if null or less than zero places at end of list
 	* @param string			$dependant	'0' / '1' on whether the this asset is dependant on the 
 	*									asset that will be linked by this new link
+	* @param string			$exclusive	'0' / '1' on whether the this asset is linked exclusivly 
+	*									to the asset that will be linked by this new link
 	*
 	* @return int
 	* @access public
 	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0')
+	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0')
 	{
 
 		if (!$this->id) return 0;
@@ -1726,6 +1760,11 @@ class Asset extends Resolve_Object
 
 		if (!($link_type & SQ_LINK_SIGNIFICANT) && $dependant) {
 			trigger_error('In order for a link to be dependant it must also be a significant link', E_USER_WARNING);
+			return 0;
+		}
+
+		if (!($link_type & SQ_LINK_SIGNIFICANT) && $exclusive) {
+			trigger_error('In order for a link to be exclusive it must also be a significant link', E_USER_WARNING);
 			return 0;
 		}
 
@@ -1747,7 +1786,7 @@ class Asset extends Resolve_Object
 
 
 		// check if we are allowed to link to these type of assets
-		if (($err_msg = $this->canCreateLink($minor, $link_type)) !== true) {
+		if (($err_msg = $this->canCreateLink($minor, $link_type, $exclusive)) !== true) {
 			trigger_error($err_msg, E_USER_WARNING);
 			return 0;
 		}
@@ -1802,8 +1841,6 @@ class Asset extends Resolve_Object
 				return 0;
 			}
 
-#			pre_echo("Existing Tree Id : ".$existing_treeid);
-
 			// OK, what we are going to get a treeid and then do a "INSERT INTO ... SELECT FROM"
 			// into the tree table of all the links that are under the minor asset
 			$sql = 'SELECT t.treeid
@@ -1816,7 +1853,6 @@ class Asset extends Resolve_Object
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return 0;
 			}
-#			pre_echo("Minor    Tree Id : ".$minor_treeid);
 
 			$existing_treeid = (string) $existing_treeid;
 			$minor_treeid    = (string) $minor_treeid;
@@ -1836,6 +1872,7 @@ class Asset extends Resolve_Object
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return 0;
 			}
+
 			// No free children ? generate one from the max value
 			if ((string) $free_childid == '') {
 				$sql = 'SELECT MAX(ct.treeid)
@@ -1860,7 +1897,7 @@ class Asset extends Resolve_Object
 				} else {
 					// get only the child part
 					$free_childid = substr($free_childid, -1 * SQ_CONF_ASSET_TREE_SIZE);
-#					pre_echo("FREE CHILDID : ".$free_childid);
+
 					if (($child_num    = asset_link_treeid_convert($free_childid, false)) === false) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return 0;
@@ -1880,7 +1917,8 @@ class Asset extends Resolve_Object
 				// remove the current zeroed entries in the tree table,
 				// as we will be inserting over the top of them
 
-				// because the root folder is not a minor party in any links we have to something special for it
+				// because the root folder is not a minor party in any links we have 
+				// to something special for it
 				if ($this->id == 1) {
 					$sql = 'DELETE FROM sq_asset_link_tree
 							WHERE treeid LIKE '.$db->quote($free_childid);
@@ -1900,7 +1938,7 @@ class Asset extends Resolve_Object
 						return 0;
 					}
 				}
-#pre_echo($sql);
+
 				$result = $db->query($sql);
 				if (DB::isError($result)) {
 					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
@@ -1982,10 +2020,10 @@ class Asset extends Resolve_Object
 
 		// and finally insert the link
 		$sql = 'INSERT INTO sq_asset_link
-				(linkid, majorid, minorid, link_type, value, sort_order, dependant, last_updated, last_userid)
+				(linkid, majorid, minorid, link_type, value, sort_order, dependant, exclusive, last_updated, last_userid)
 				VALUES
 				('.$db->quote($linkid).', '.$db->quote($this->id).', '.$db->quote($minor->id).', '.$db->quote($link_type).', '
-				.$db->quote($value).', '.$db->quote($sort_order).', '.$db->quote(($dependant) ? '1' : '0').', '.$db->quote(ts_iso8601(time())).', 
+				.$db->quote($value).', '.$db->quote($sort_order).', '.$db->quote(($dependant) ? '1' : '0').', '.$db->quote(($exclusive) ? '1' : '0').', '.$db->quote(ts_iso8601(time())).', 
 				'.$db->quote($GLOBALS['SQ_SYSTEM']->currentUserId()).')';
 
 
@@ -2002,15 +2040,13 @@ class Asset extends Resolve_Object
 			return 0;
 		}
 
-
 		// if this is a frontend nav link, then we need to inform the asset to update it's lookups
-		if ($link_type & SQ_LINK_FRONTEND_NAV) {
+		if ($link_type & SQ_LINK_SIGNIFICANT) {
 			if (!$minor->updateLookups()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return 0;
 			}
 		}
-
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->broadcastEvent('CreateLink', Array('assetid' => $this->id, 'linkid' => $linkid));
@@ -2028,11 +2064,12 @@ class Asset extends Resolve_Object
 	* @param string $link_type		the type of link to check
 	* @param int	$ignore_linkid	if it gets down to the checking of the cardinality,
 	*								ignore the link represented by this link id
+	* @param int	$exclusive		the exclusive status of the link
 	*
 	* @return TRUE | string
 	* @access public
 	*/
-	function canLinkToType($type_code, $link_type, $ignore_linkid=0)
+	function canLinkToType($type_code, $link_type, $ignore_linkid=0, $exclusive=0)
 	{
 
 		// get the minor assets parents and add it's type to the front of the indexed array
@@ -2057,10 +2094,15 @@ class Asset extends Resolve_Object
 			return 'Assets of Type "'.$type_code.'" cannot be "'.link_type_name($link_type).'" linked to a "'.$this->type().'"';
 		}
 
+		if (!$exclusive && $allowed_links[$link_type][$type]['exclusive']) {
+			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+			return 'Assets of Type "'.$type_code.'" must be "'.link_type_name($link_type).'" exclusivly linked to a "'.$this->type().'"';
+		}
+
 		//// Now we need to check that the cardinality is kept valid ////
 
 		// if we are only allowed one of these links
-		if ($allowed_links[$link_type][$type] == 1) {
+		if ($allowed_links[$link_type][$type]['card'] == 1) {
 			$num_curr_links = $this->countLinks('major', $link_type, $type, true, $ignore_linkid);
 			//  and we already have our one link, bugger off
 			if ($num_curr_links > 0) {
@@ -2081,7 +2123,7 @@ class Asset extends Resolve_Object
 	*
 	*    Array('[link_type]' => Array('[type_code]' => '[cardinality]));
 	* Where:
-	*   link_type   = SQ_LINK_EXCLUSIVE|SQ_LINK_TYPE_1|SQ_LINK_TYPE_2|SQ_LINK_TYPE_3|SQ_LINK_NOTICE
+	*   link_type   = SQ_LINK_TYPE_1|SQ_LINK_TYPE_2|SQ_LINK_TYPE_3|SQ_LINK_NOTICE
 	*   cardinality = 1|M
 	*
 	* @return Array()
@@ -2090,11 +2132,10 @@ class Asset extends Resolve_Object
 	function _getAllowedLinks()
 	{
 
-		return Array(SQ_LINK_EXCLUSIVE	=> Array(),
-					 SQ_LINK_TYPE_1		=> Array(),
-					 SQ_LINK_TYPE_2		=> Array(),
-					 SQ_LINK_TYPE_3		=> Array(),
-					 SQ_LINK_NOTICE		=> Array()
+		return Array(SQ_LINK_TYPE_1 => Array(),
+					 SQ_LINK_TYPE_2 => Array(),
+					 SQ_LINK_TYPE_3 => Array(),
+					 SQ_LINK_NOTICE => Array()
 					);
 
 	}//end _getAllowedLinks()
@@ -2163,8 +2204,6 @@ class Asset extends Resolve_Object
 			trigger_error('Existing Link #'.$linkid.' not found, unable to update link', E_USER_WARNING);
 			return false;
 		}
-#		pre_echo("SORT ORDER : ".$sort_order);
-#		pre_echo(array_contents($link));
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -2235,7 +2274,7 @@ class Asset extends Resolve_Object
 
 		if ($link_type_changed) { 
 			// if this is a frontend nav link or if the old link type was, then we need to inform the asset to update it's lookups
-			if (($link_type & SQ_LINK_FRONTEND_NAV) || ((int) $link['link_type'] & SQ_LINK_FRONTEND_NAV)) {
+			if (($link_type & SQ_LINK_SIGNIFICANT) || ((int) $link['link_type'] & SQ_LINK_SIGNIFICANT)) {
 				if (!$minor->updateLookups()) {
 					return false;
 				}
@@ -2388,7 +2427,6 @@ class Asset extends Resolve_Object
 				return false;
 			}
 
-
 			$result = $db->query($sql);
 			if (DB::isError($result)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -2441,13 +2479,12 @@ class Asset extends Resolve_Object
 		}
 
 		// if this is a frontend nav link, then we need to inform the asset to update it's lookups
-		if ($link['link_type'] & SQ_LINK_FRONTEND_NAV) {
+		if ($link['link_type'] & SQ_LINK_SIGNIFICANT) {
 			if (!$minor->updateLookups()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 		}
-
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->broadcastEvent('DeleteLink', Array('assetid' => $this->id, 'linkid' => $linkid));
@@ -2544,7 +2581,8 @@ class Asset extends Resolve_Object
 	*
 	* @param string		$name				the name of the attribute
 	* @param string		$value				the new value of the attribute
-	* @param boolean	$dont_run_updated	if true this->_updated() won't be run (THIS IS ONLY EVER CALLED FROM Asset::create())
+	* @param boolean	$dont_run_updated	if true this->_updated() won't be run 
+	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
@@ -2669,7 +2707,8 @@ class Asset extends Resolve_Object
 	*
 	* @param string		$name			the name of the attribute
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed
-	*									because you can't use the '@' operator when returning by reference
+	*									because you can't use the '@' operator when 
+	*									returning by reference
 	*
 	* @return object Asset_Attribute | NULL
 	* @access public
@@ -2940,7 +2979,8 @@ class Asset extends Resolve_Object
 	* Returns an array of all user or user_group assets that have the passed permission for this asset
 	*
 	* @param string		$permission		the permission code you are getting
-	* @param boolean	$and_greater	get effective permission (eg read access = read or write or admin)
+	* @param boolean	$and_greater	get effective permission (eg read access = read 
+	*									or write or admin)
 	* @param boolean	$and_inherited	get permission from parents as well
 	* @param boolean	$expand_groups	expand user groups so only user ids get returned
 	*
@@ -3052,7 +3092,8 @@ class Asset extends Resolve_Object
 	* Returns an array of all user or user_group assets that have the passed permission for this asset
 	*
 	* @param string		$permission		the permission code you are getting
-	* @param boolean	$and_greater	get effective permission (eg read access = read or write or admin)
+	* @param boolean	$and_greater	get effective permission (eg read access = read 
+	*									or write or admin)
 	* @param boolean	$and_inherited	get permission from parents as well
 	*
 	* @return array(int)
@@ -3500,12 +3541,12 @@ class Asset extends Resolve_Object
 			// now we need to check that none of our parents have
 			// any nav kids that are also using this path name
 			$siblingids = Array();
-			$parents = $this->getLinks(SQ_LINK_FRONTEND_NAV, '', null, 'minor');
+			$parents = $this->getLinks(SQ_LINK_SIGNIFICANT, '', null, 'minor');
 			for($i = 0; $i < count($parents); $i++) {
 				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
 				if (is_null($parent)) continue;
 				// get all the nav siblings
-				$parent_kids = $parent->getLinks(SQ_LINK_FRONTEND_NAV, '', null, 'major');
+				$parent_kids = $parent->getLinks(SQ_LINK_SIGNIFICANT, '', null, 'major');
 				for($j = 0; $j < count($parent_kids); $j++) {
 					$siblingids[] = $db->quote($parent_kids[$j]['minorid']);
 				}
@@ -3667,7 +3708,7 @@ class Asset extends Resolve_Object
 			$design_link = $this->getLink(SQ_LINK_TYPE_3, 'design', false);
 			$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
 
-			$parents = $this->getLinks(SQ_LINK_FRONTEND_NAV, '', null, 'minor');
+			$parents = $this->getLinks(SQ_LINK_SIGNIFICANT, '', null, 'minor');
 			for($i = 0; $i < count($parents); $i++) {
 				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
 				if (is_null($parent)) continue;
@@ -3694,7 +3735,7 @@ class Asset extends Resolve_Object
 
 		}// end if count paths
 
-		$kids = $this->getLinks(SQ_LINK_FRONTEND_NAV, '', null, 'major');
+		$kids = $this->getLinks(SQ_LINK_SIGNIFICANT, '', null, 'major');
 		for($i = 0; $i < count($kids); $i++) {
 			$kid = &$GLOBALS['SQ_SYSTEM']->am->getAsset($kids[$i]['minorid'], $kids[$i]['type_code']);
 			if (is_null($kid)) continue;

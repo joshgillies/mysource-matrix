@@ -37,7 +37,7 @@ class Asset_Map
 	{
 		$backend->out->addJsInclude(sq_web_path('lib').'/asset_map/flashExternalCall.js');
 
-		$inbox_link = $GLOBALS['SQ_SYSTEM']->user->getLink(SQ_LINK_EXCLUSIVE, 'inbox');
+		$inbox_link = $GLOBALS['SQ_SYSTEM']->user->getLink(SQ_LINK_TYPE_2, 'inbox', true, null, 'major', '1');
 		if (empty($inbox_link)) {
 			$inbox_url = &$GLOBALS['SQ_SYSTEM']->user->getBackendHref();
 		} else {
@@ -406,7 +406,7 @@ class Asset_Map
 		$asset_node = &$root->addChild('asset', '', $attrs);
 
 		if ($asset->readAccess()) {
-			// we only want EXCLUSIVE or UNITE links
+			// we only want links that appear in the backend
 			$links = $asset->getLinks(SQ_LINK_BACKEND_NAV, '', null);
 			if (count($links)) {
 				for($j = 0; $j < count($links); $j++) {

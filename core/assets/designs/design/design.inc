@@ -34,11 +34,10 @@ class Design extends Design_Area
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_EXCLUSIVE	=> Array(),
-					 SQ_LINK_TYPE_1		=> Array(),
-					 SQ_LINK_TYPE_2		=> Array('design_customisation' => 'M'),
-					 SQ_LINK_TYPE_3		=> Array('design_area'          => 'M'),
-					 SQ_LINK_NOTICE		=> Array()
+		return Array(SQ_LINK_TYPE_1 => Array(),
+					 SQ_LINK_TYPE_2 => Array('design_customisation' => Array('card' => 'M', 'exclusive' => false)),
+					 SQ_LINK_TYPE_3 => Array('design_area'          => Array('card' => 'M', 'exclusive' => false)),
+					 SQ_LINK_NOTICE => Array()
 					);
 
 	}//end _getAllowedLinks()

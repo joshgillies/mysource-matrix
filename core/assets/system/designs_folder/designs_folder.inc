@@ -139,18 +139,20 @@ class Designs_Folder extends Folder
 	*									if null or less than zero places at end of list
 	* @param string			$dependant	'0' / '1' on whether the this asset is dependant on the 
 	*									asset that will be linked by this new link
+	* @param string			$exclusive	'0' / '1' on whether the this asset is linked exclusivly 
+	*									to the asset that will be linked by this new link
 	*
 	* @return int
 	* @access public
 	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0')
+	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0')
 	{
 		if (empty($GLOBALS['SQ_INSTALL'])) {
 			trigger_error('You cannot create a new link to the designs folder', E_USER_WARNING);
 			return 0;
 		
 		} else {
-			return parent::createLink($minor, $link_type, $value, $sort_order, $dependant);
+			return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
 		}
 
 	}//end createLink()
@@ -179,7 +181,7 @@ class Designs_Folder extends Folder
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_EXCLUSIVE => Array('design' => 'M'));
+		return Array(SQ_LINK_TYPE_1 => Array('design' => Array('card' => 'M', 'exclusive' => true)));
 
 	}//end _getAllowedLinks()
 
