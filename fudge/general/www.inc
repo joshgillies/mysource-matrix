@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: www.inc,v 1.9 2004/04/01 03:58:34 gsherwood Exp $
+* $Id: www.inc,v 1.10 2004/09/01 01:38:40 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -104,6 +104,59 @@ function valid_email($e)
 	return preg_match("|^[_\.0-9a-zA-Z-]+@([0-9a-zA-Z]([0-9A-Za-z-]*)+\.)+[a-zA-Z]{2,4}$|",$e);
 	
 }//end valid_email()
+
+
+/*
+* Convert POST or GET array into raw string
+*
+* @param array $data	post or get array
+*
+* @return string
+* @access public
+**/
+function make_raw_post_data($data)
+{
+	$val_array = null;
+
+	if (!empty($data) && is_array($data)) {
+		foreach ($data as $name => $value) {
+			$val_array[] = recursive_make_raw_post_data($name, $value);
+		}
+	}
+
+	if (!empty($val_array)) {
+		$result = implode('&', $val_array);
+	} else {
+		$result = '';
+	}
+
+	return $result;
+
+}//end make_raw_post_data()
+
+
+/*
+* Convert POST or GET array into raw string recursive
+*
+* @param string $name	name of the variable
+* @param mixed $data	value
+*
+* @return string
+* @access public
+**/
+function recursive_make_raw_post_data($name, $data)
+{
+	if (!is_array($data)) {
+		return $name.'='.urlencode($data);
+	} else {
+		$val_array=Array();
+		foreach ($data as $key => $value) {
+			$val_array[] = recursive_make_raw_post_data($name.'['.$key.']', $value);
+		}
+		return implode('&', $val_array);
+	}
+
+}//end recursive_make_raw_post_data()
 
 
 ?>
