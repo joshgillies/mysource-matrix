@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.35 2004/04/15 03:58:59 lwright Exp $
+* $Id: hipo_herder.inc,v 1.36 2004/04/16 02:13:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -240,7 +240,6 @@ class HIPO_Herder extends MySource_Object
 		$onload = '';
 		$delay  = false;
 		$auto_step = false;
-		$fatal_errors = false;
 		$form_name = 'main_form';
 
 		// if the source job is null it means that an abort finally finished
@@ -531,7 +530,6 @@ class HIPO_Herder extends MySource_Object
 					}
 				}// end if
 				exit();
-				break;
 			default:
 				trigger_error('Signal '.$signo.' not handled', E_USER_NOTICE);
 				break;
@@ -634,7 +632,6 @@ class HIPO_Herder extends MySource_Object
 			$job_codes[] = $db->quote($job_data['code_name']);
 
 			if (isset($queued_jobs[($i+1)])) {
-				$url = $this->getProcessURL($job_data['code_name']);
 				$next_url = $this->getProcessURL($queued_jobs[($i+1)]['code_name']);
 				$job->setOption('on_complete_url', $next_url);
 				if (!$job->save()) {
