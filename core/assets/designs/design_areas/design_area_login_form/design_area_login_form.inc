@@ -76,12 +76,12 @@ class Design_Area_Login_Form extends Design_Area
 
 				// open login form
 				if ($this->_tmp['painting_section'] == 'login') {
-					echo '<form action="<', '?php echo $_SERVER[\'PHP_SELF\']; ?','>?SQ_ACTION=login'.$qry_str_extra.'" name="login_prompt" method="POST" onSubmit="javascript: return (this.elements[\'SQ_LOGIN_USERNAME\'].value.length > 0 && this.elements[\'SQ_LOGIN_PASSWORD\'].value.length > 1);">
+					echo '<form action="<', '?php echo $_SERVER[\'PHP_SELF\']; ?','>?SQ_ACTION=login'.$qry_str_extra.'" name="'.$this->attr('id_name').'_login_prompt" method="POST" onSubmit="javascript: return (this.elements[\'SQ_LOGIN_USERNAME\'].value.length > 0 && this.elements[\'SQ_LOGIN_PASSWORD\'].value.length > 1);">
 					<input type="hidden" name="SQ_LOGIN_KEY"      value="<', '?php echo $GLOBALS[\'SQ_SYSTEM\']->generateLoginKey(); ?', '>">
 					<input type="hidden" name="SQ_LOGIN_REFERER"  value="<', '?php echo htmlspecialchars('.$referer.'); ?', '>">';
 				// open logout form
 				} else {
-					echo '<form action="<', '?php echo $_SERVER[\'PHP_SELF\']; ?','>?SQ_ACTION=logout'.$qry_str_extra.'" name="login_prompt" method="POST">
+					echo '<form action="<', '?php echo $_SERVER[\'PHP_SELF\']; ?','>?SQ_ACTION=logout'.$qry_str_extra.'" name="'.$this->attr('id_name').'_login_prompt" method="POST">
 					<input type="hidden" name="SQ_LOGIN_REFERER"  value="<', '?php echo htmlspecialchars('.$referer.'); ?', '>">';
 				}
 
@@ -118,6 +118,18 @@ class Design_Area_Login_Form extends Design_Area
 					$extras .= ' '.$k.'="'.htmlspecialchars($v).'"';
 				}
 				text_box('SQ_LOGIN_USERNAME', '', empty($args['size']) ? 10 : $args['size'], 0, $extras);
+				if ($this->attr('give_username_focus')) {
+					echo '<script language="javascript" type="text/javascript">
+						function set_'.$this->attr('id_name').'_username_box_focus() {
+							'.$this->attr('id_name').'_username_box_other_onload();
+							document.'.$this->attr('id_name').'_login_prompt.elements[\'SQ_LOGIN_USERNAME\'].focus();
+						}
+						var '.$this->attr('id_name').'_username_box_other_onload = (window.onload) ? window.onload : new Function;
+						window.onload = set_'.$this->attr('id_name').'_username_box_focus;
+						</script>';
+				}
+
+
 				break;
 
 			case 'password_box' :
