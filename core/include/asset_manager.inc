@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.158 2003/12/16 16:37:21 brobertson Exp $
+* $Id: asset_manager.inc,v 1.159 2003/12/18 04:32:07 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1270,8 +1270,8 @@ class Asset_Manager extends MySource_Object
 	*
 	* @param int		$assetid			id of the the $side_of_link asset
 	* @param int		$other_assetid		the asset of the other $side_of_link
-	* @param int		$link_type			integer that should be a single integer of
-	*										the SQ_LINK_* constants
+	* @param int		$link_types		integer that can be the product of bitwise operations
+	*										on the SQ_LINK_* constants
 	* @param string		$value				the value that is associated with this link
 	* @param string		$side_of_link		Which side of the link this (the current) asset
 	*										is on ('major' or 'minor')
@@ -1282,7 +1282,7 @@ class Asset_Manager extends MySource_Object
 	*                   array of arrays of link info otherwise
 	* @access public
 	*/
-	function getLinkByAsset($assetid, $other_assetid, $link_type=null, $value=null, $side_of_link='major', $force_array=false)
+	function getLinkByAsset($assetid, $other_assetid, $link_types=null, $value=null, $side_of_link='major', $force_array=false)
 	{
 		if ($side_of_link != 'major' && $side_of_link != 'minor')
 			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
@@ -1300,7 +1300,7 @@ class Asset_Manager extends MySource_Object
 
 		$where = 'l.'.$side_of_link.'id = '.$db->quote($assetid).'
 				  AND l.'.$other_side.'id  = '.$db->quote($other_assetid);
-		if (!is_null($link_type)) $where .= '  AND l.link_type = '.$db->quote($link_type);
+		if (!is_null($link_types)) $where .= '  AND (l.link_type & '.$db->quote($link_types).') > 0 ';
 		if (!is_null($value))     $where .= '  AND l.value = '.$db->quote($value);
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
@@ -1786,7 +1786,8 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Returns true if the passed assetid is in the trash, false otherwise
+	* Return true if the passed assetid is in the trash, false otherwise
+	*
 	* Note that if the passed assetid is the id of the trash folder, false will be returned
 	*
 	* @param int		$assetid		the asset id to check the trash for
@@ -1794,6 +1795,7 @@ class Asset_Manager extends MySource_Object
 	*									(ie. does it have no other significant links
 	*									outside the trash?)
 	*
+	* @return boolean
 	* @access public
 	*/
 	function assetInTrash($assetid, $exclusively=false)
@@ -1843,8 +1845,9 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Returns the number of links that this asset has as either a major or minor party,
-	* can be restricted by either link type afnd/or asset type code
+	* Return the number of links that this asset has as either a major or minor party
+	*
+	* Can be restricted by either link type afnd/or asset type code
 	*
 	* @param int			$assetid			id of the the $side_of_link asset
 	* @param string			$side_of_link		Which side of the link this (the current) asset
@@ -1924,7 +1927,6 @@ class Asset_Manager extends MySource_Object
 
 	/**
 	* Creates a link between this asset and the passed asset, of a certain type
-	* and returns the linkid of the created link
 	*
 	* @param object Asset	&$major		the major asset that we are linking from
 	* @param object Asset	&$minor		the minor asset that we are linking to
@@ -1937,7 +1939,7 @@ class Asset_Manager extends MySource_Object
 	* @param string			$exclusive	'0' / '1' on whether the this asset is linked exclusivly
 	*									to the asset that will be linked by this new link
 	*
-	* @return int
+	* @return int the linkid of the created link
 	* @access public
 	*/
 	function createAssetLink(&$major, &$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0')
@@ -1966,7 +1968,7 @@ class Asset_Manager extends MySource_Object
 				// if we are trashing the asset and it is already in the trash, just
 				// pretend that we created the link
 				$trash = &$this->getSystemAsset('trash_folder');
-				if ($trash->id == $major->id) return true;
+				if ($trash->id == $major->id) return $current_links[$i]['linkid'];
 
 				trigger_error('Link Already Exists', E_USER_WARNING);
 				return $current_links[$i]['linkid'];
@@ -2737,6 +2739,7 @@ class Asset_Manager extends MySource_Object
 
 		$old_parent = &$this->getAsset($link['majorid'], $link['major_type_code']);
 		if (is_null($old_parent)) {
+			trigger_error('Unable to Move Asset, old parent (Asset #"'.$link['majorid'].'") not found', E_USER_WARNING);
 			return 0;
 		}
 
