@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.9.2.2 2004/11/08 03:40:51 lwright Exp $
+* $Id: option_list.inc,v 1.9.2.2.2.1 2004/12/20 00:32:43 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -126,15 +126,19 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 				divX = div.firstChild;
 				
 				while(divX != null) {
-					this_option = divX.firstChild.nextSibling.nextSibling.nextSibling.innerHTML;
-				
-					// this is the one we want
-					if (divX.id == (box_name + "_" + index)) {
-						divX.style.display = 'none';
-					} else {
-						option_array[arrIndex] = this_option.replace('&lt;', '<').replace('&gt;', '>');
+					// already hidden?
+					if (divX.style.display != 'none') {
+						this_option = divX.firstChild.nextSibling.nextSibling.nextSibling.innerHTML;
+					
+						// this is the one we want
+						if (divX.id == (box_name + "_" + index)) {
+							divX.style.display = 'none';
+						} else {
+							option_array[arrIndex] = this_option.replace('&lt;', '<').replace('&gt;', '>');
+						}
+						arrIndex++;
 					}
-					arrIndex++;
+					
 					divX = divX.nextSibling;
 				}
 				
