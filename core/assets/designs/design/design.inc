@@ -236,7 +236,6 @@ class Design extends Design_Area
 
 				$file_link_ids = Array();
 				$file_links = $customisation->getLinks(SQ_LINK_TYPE_3, 'file', false);
-				foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
 
 				foreach ($file_links as $link) {
 					if ($link['minorid'] == $delete_link['minorid']) {
