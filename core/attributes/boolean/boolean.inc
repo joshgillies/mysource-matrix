@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: boolean.inc,v 1.11 2004/01/09 05:46:31 gsherwood Exp $
+* $Id: boolean.inc,v 1.12 2004/02/23 05:59:10 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -42,7 +42,6 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 class Asset_Attribute_Boolean extends Asset_Attribute
 {
 
-
 	/**
 	* Constructor
 	*
@@ -53,6 +52,10 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	function Asset_Attribute_Boolean($attributeid=0, $value=null)
 	{
 		$this->Asset_Attribute($attributeid, (($value) ? 1 : 0));
+		
+		// set default edit parameters
+		$this->_edit_params['true_text']  = 'True';
+		$this->_edit_params['false_text'] = 'False';
 
 	}//end constructor
 
@@ -84,10 +87,11 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	*
 	* @access public
 	*/
-	function paint($prefix, $read_only=false)
+	function paint($prefix, $read_only=false, $add=true)
 	{
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		$options = Array(0 => $this->_edit_params['false_text'],
+		$options = Array('_' => '-- Do not include into search --',
+						 0 => $this->_edit_params['false_text'],
 						 1 => $this->_edit_params['true_text']);
 
 		if ($read_only) {
@@ -95,7 +99,11 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 			return;
 		}
 
-		combo_box($prefix.'_'.$this->name, $options, false, $this->value, 0, $extras='', $maxlength=0);
+		if ($add) {
+			combo_box($prefix.'_'.$this->name, $options, false, $this->value, 0, $extras='', $maxlength=0);
+		} else {
+			combo_box($prefix, $options, false, $this->value, 0, $extras='', $maxlength=0);
+		}
 
 	}//end paint()
 
@@ -153,6 +161,28 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 		return true;
 
 	}//end validateValue()
+
+
+	/**
+	* Retrieve a list of indexable values from this attribute
+	*
+	* The return value not only contains the indexable values, but also the number of
+	* times they occur in this attributes value
+	*
+	* @return array(string => int)
+	* @access public
+	*/
+	function getKeyData()
+	{
+		//return get_word_counts($this->value); // -- NOTE: int values never get indexed, only 'words' !!!
+
+		if ($this->value == 0) {
+			return get_word_counts('false');
+		} else {
+			return get_word_counts('true');
+		}
+
+	}//end getKeyData()
 
 
 }//end class
