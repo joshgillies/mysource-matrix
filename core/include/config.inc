@@ -12,6 +12,7 @@ class Config extends Resolve_Object
 	var $config_vars = Array(
 							'SQ_CONF_DB_DSN'                     => Array('editable' => 0, 'default' => ''),
 							'SQ_CONF_PEAR_PATH'                  => Array('editable' => 0, 'default' => ''),
+							'SQ_CONF_BACKEND_SUFFIX'             => Array('editable' => 0, 'default' => '_edit'),
 							'SQ_CONF_SYSTEM_NAME'                => Array('editable' => 1, 'default' => 'Resolve System'),
 							'SQ_CONF_SYSTEM_OWNER'               => Array('editable' => 1, 'default' => ''),
 							'SQ_CONF_SYSTEM_ADMIN_EMAIL'         => Array('editable' => 1, 'default' => ''),
@@ -20,7 +21,6 @@ class Config extends Resolve_Object
 							'SQ_CONF_MAX_LOGIN_ATTEMPTS'         => Array('editable' => 1, 'default' => '3'),
 							'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'  => Array('editable' => 1, 'default' => 'en'),
 							'SQ_CONF_DEFAULT_CHARACTER_SET'      => Array('editable' => 1, 'default' => 'iso-8859-1'),
-							'SQ_CONF_BACKEND_SUFFIX'             => Array('editable' => 1, 'default' => '_edit'),
 							'SQ_CONF_ERRORS_HIDE_FRONTEND'       => Array('editable' => 1, 'default' => '0'),
 							'SQ_CONF_ERRORS_LOG'                 => Array('editable' => 1, 'default' => '0')
 							);
