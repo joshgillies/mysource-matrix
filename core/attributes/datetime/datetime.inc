@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.20 2004/09/10 07:10:11 gsherwood Exp $
+* $Id: datetime.inc,v 1.21 2004/09/14 00:26:26 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * <!-- Sample Edit Interface XML Node -->
-*    <datetime min="1970-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="1" allow_period="1">
+*    <datetime min="1970-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="1" allow_period="1" use_picker="1">
 *      <show>
 *        <y style="t" allow_null="1" />
 *        <m style="s" allow_null="1" />
@@ -92,6 +92,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 		$this->_edit_params['allow_circa']  = '0';
 		$this->_edit_params['print_format'] = 'l, F jS, Y H:i:s';
 		$this->_edit_params['allow_period'] = false;
+		$this->_edit_params['use_picker']   = false;
 
 	}//end constructor
 
@@ -133,6 +134,10 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 
 		if (isset($node->attributes['allow_period']) && $node->attributes['allow_period']) {
 			$this->_edit_params['allow_period'] = true;
+		}
+
+		if (isset($node->attributes['use_picker']) && $node->attributes['use_picker']) {
+			$this->_edit_params['use_picker'] = true;
 		}
 
 		// if nothing was found, define some defaults of our own
@@ -204,7 +209,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 		if (!empty($this->_params['print_format'])) {
 			$this->_edit_params['print_format'] = $this->_params['print_format'];
 		}
-		$field = new Datetime_Field($prefix.'_'.$this->name, $date_field_value, $this->_edit_params);
+		$field = new Datetime_Field($prefix, $date_field_value, $this->_edit_params);
 		
 		if ($using_single_date) {
 			if ($read_only) {
@@ -232,7 +237,19 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 					]
 				</legend>
 				<div id="<?php echo $prefix; ?>_date_field" style="display: <?php echo ($using_single_date) ? 'block' : 'none'; ?>;">
-					<?php $field->printField(); ?>
+					<?php
+						$field->printField();
+
+						if ($this->_edit_params['use_picker']) {
+							// print the JS calendar popup date selecta
+							require_once SQ_LIB_PATH.'/js_calendar/js_calendar.inc';
+				
+							$calendar = new JS_Calendar();
+							$calendar->changeSetting('onDayClick', 'datetime_set_date');
+							$calendar->paint($prefix, $prefix.'_cal_picker', true);
+						}
+					?>
+					<span id="<?php echo $prefix; ?>_cal_picker"></span>
 					<br /><br /><i>Select a single date using the boxes above</i>
 				</div>
 				<div id="<?php echo $prefix; ?>_period_field" style="display: <?php echo ($using_single_date) ? 'none' : 'block'; ?>;">
@@ -250,6 +267,14 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 			hidden_field($prefix.'_setting_single_date', ($using_single_date) ? 'true' : 'false');
 		} else {
 			$field->printField();
+			if ($this->_edit_params['use_picker']) {
+				// print the JS calendar popup date selecta
+				require_once SQ_LIB_PATH.'/js_calendar/js_calendar.inc';
+	
+				$calendar = new JS_Calendar();
+				$calendar->changeSetting('onDayClick', 'datetime_set_date');
+				$calendar->paint($prefix, '', true);
+			}
 		}
 
 	}//end paint()
@@ -275,7 +300,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 			$field_value = $this->value;
 			if (!$using_single_date) $field_value = '---------- --:--:--';
 
-			$field = new Datetime_Field($prefix.'_'.$this->name, $field_value, $this->_edit_params);
+			$field = new Datetime_Field($prefix, $field_value, $this->_edit_params);
 			if ($field->processField()) {
 				if ($this->value != $field_value && $this->setValue($field_value)) {
 					$this->processed = true;
