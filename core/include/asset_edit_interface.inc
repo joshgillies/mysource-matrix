@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.201 2004/03/15 01:15:30 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.202 2004/03/25 11:04:15 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -488,10 +488,10 @@ class Asset_Edit_Interface extends MySource_Object
 		 //  PREVIEW URL  //
 		///////////////////
 		// get the asset tree lineage
+		$asset_path = Array();
 		if (isset($_REQUEST['sq_asset_path'])) {
 			// flash sends comma-separated assetids indicating the path
 			$matches = preg_split('|,([0-9]+:?),?|', ($_REQUEST['sq_asset_path']), 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-			$asset_path = Array();
 			for (reset($matches); null !== ($k = key($matches)); next($matches)) {
 				// the first match is always fine
 				if ($k == 0) {
@@ -518,7 +518,7 @@ class Asset_Edit_Interface extends MySource_Object
 			} else {
 				// flash didn't send one (e.g initial matrix loading)
 				// pretend it did by making a singleton set of the owner
-				$asset_path = Array($owner->id);
+				if ($owner->id) $asset_path[] = $owner->id;
 			}
 		}
 
@@ -527,8 +527,8 @@ class Asset_Edit_Interface extends MySource_Object
 		$preview_url = '';
 		$closest_parentid = $owner->id;
 		foreach ($asset_path as $assetid) {
-			if ($assetid != $owner->id) $ancestor =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-			else $ancestor =& $owner;
+			if ($assetid != $owner->id) $ancestor = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			else $ancestor = &$owner;
 
 			if (is_null($ancestor)) {
 				$preview_url = '';
