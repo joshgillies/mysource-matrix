@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.12 2005/01/20 23:58:29 lwright Exp $
+* $Id: form_ecommerce.inc,v 1.13 2005/02/23 00:47:10 mnyeholt Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -542,7 +542,7 @@ class Form_Ecommerce extends Form_Email
 					// if it is not a question with options, we get the submission directly
 					// we assume that it is a numeric question
 					$ecom_item['name']  = $question_title;
-					$ecom_item['price'] = $this->active_submission[$id];
+					$ecom_item['price'] = $this->active_submission->getAnswer($id);
 
 					$ecom_items[] = $ecom_item;
 					$total += $ecom_item['price'];
