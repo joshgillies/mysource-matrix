@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.69 2004/09/13 00:33:26 arailean Exp $
+* $Id: page_calendar.inc,v 1.70 2004/09/13 01:14:24 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.69 $ - 1.0
+* @version $Revision: 1.70 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -319,9 +319,10 @@ class Page_Calendar extends Page_Asset_Listing
 	function printBody()
 	{
 		$res = '';
-		if (isset($_REQUEST['SQ_CALENDAR_EVENT_ACTION'])) {
+		$action = array_get_index($_REQUEST,'SQ_CALENDAR_EVENT_ACTION',false);
+		if ($action) {
 			$event_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset((int)$_REQUEST['SQ_CALENDAR_EVENT_ID']);
-			$res = $event_asset->processEventAction($_REQUEST['SQ_CALENDAR_EVENT_ACTION']);
+			$res = $event_asset->processEventAction($action);
 			echo $res;
 		}
 		if (!$res) {
@@ -337,39 +338,34 @@ class Page_Calendar extends Page_Asset_Listing
 
 			// If we get a valid and available view type in the request, use it; otherwise use the initial view attribute.
 			$enabled_views = $this->attr('enabled_views');
-			if (isset($_REQUEST['SQ_CALENDAR_VIEW']) && !empty($enabled_views[$_REQUEST['SQ_CALENDAR_VIEW']])) {
-				$cal_view = $_REQUEST['SQ_CALENDAR_VIEW'];
-			} else {
+			$cal_view = array_get_index($_REQUEST,'SQ_CALENDAR_VIEW',false);
+			if (!$cal_view || empty($enabled_views[$cal_view])) {
 				$cal_view = $this->attr('initial_view');
 				$_REQUEST['SQ_CALENDAR_VIEW'] = $cal_view;
 			}
 
 
-			// If we get a valid date in the request, use it; otherwise use today's date
-			if (isset($_REQUEST['SQ_CALENDAR_DATE']) && is_iso8601($_REQUEST['SQ_CALENDAR_DATE'])) {
-				$cal_date = $_REQUEST['SQ_CALENDAR_DATE'];
-			} else if (isset($_REQUEST['SQ_CALENDAR_DATE'])) {
-				// set but incomplete, might be valid for month and year if abbreviated
-				// (accepted for month: eg. 2004-09, accepted for year: eg. 2006)
-				if (($_REQUEST['SQ_CALENDAR_VIEW'] == 'month') && (strlen($_REQUEST['SQ_CALENDAR_DATE']) >= 7)) {
-					list($year, $month) = sscanf($_REQUEST['SQ_CALENDAR_DATE'], '%04d-%02d');
+			$cal_date = array_get_index($_REQUEST,'SQ_CALENDAR_DATE', date('Y-m-d'));
+
+			// if the date is set but incomplete, might be valid for month and year if abbreviated
+			// (accepted for month: eg. 2004-09, accepted for year: eg. 2006)
+			if (!is_iso8601($cal_date)) {
+				if (($cal_view == 'month') && (strlen($cal_date) >= 7)) {
+					list($year, $month) = sscanf($cal_date, '%04d-%02d');
 					$cal_date = sprintf('%04d-%02d-%02d', $year, $month, 1);
-					$_REQUEST['SQ_CALENDAR_DATE'] = $cal_date;
-				} else if (($_REQUEST['SQ_CALENDAR_VIEW'] == 'year') && (strlen($_REQUEST['SQ_CALENDAR_DATE']) >= 4)) {
+				} else if (($cal_view == 'year') && (strlen($cal_date) >= 4)) {
 					// still need list() here because sscanf returns array, no exceptions
-					list($year) = sscanf($_REQUEST['SQ_CALENDAR_DATE'], '%04d');
+					list($year) = sscanf($cal_date, '%04d');
 					$cal_date = sprintf('%04d-%02d-%02d', $year, 1, 1);
-					$_REQUEST['SQ_CALENDAR_DATE'] = $cal_date;
 				} else {
 					// no good
 					$cal_date = date('Y-m-d');
-					$_REQUEST['SQ_CALENDAR_DATE'] = $cal_date;
 				}
 
-			} else {
-				$cal_date = date('Y-m-d');
 				$_REQUEST['SQ_CALENDAR_DATE'] = $cal_date;
 			}
+
+
 			list($year, $month, $day) = explode('-', $cal_date);
 			if (!checkdate($month, $day, $year)) {
 				trigger_error('Date passed to calendar page is not valid, using today\'s date as fallback', E_USER_WARNING);
