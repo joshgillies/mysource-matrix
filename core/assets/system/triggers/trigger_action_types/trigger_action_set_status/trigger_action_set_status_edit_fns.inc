@@ -18,17 +18,17 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_status_edit_fns.inc,v 1.2 2005/03/01 00:25:31 arailean Exp $
+* $Id: trigger_action_set_status_edit_fns.inc,v 1.3 2005/03/22 04:42:37 gsherwood Exp $
 *
 */
 
 
 /**
-* Trigger_Condition_Set_Status_Edit_Fns
+* Trigger_Action_Set_Status_Edit_Fns
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
