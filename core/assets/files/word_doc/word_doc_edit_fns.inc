@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc_edit_fns.inc,v 1.1 2004/07/09 01:54:28 lwright Exp $
+* $Id: word_doc_edit_fns.inc,v 1.2 2004/07/23 07:10:26 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -90,8 +90,9 @@ class Word_Doc_Edit_Fns extends File_Edit_Fns
 			?><br/><span style="font-size: 10px"><b>Note:</b> You may only upload files of type <?php echo $this->_getExtensionString($asset->allowed_extensions)?></span><?php
 		}
 
-		$this->_printExistingFileInfo($asset);
+		$this->printExistingFileInfo($asset);
 		return true;
+	
 	}//end paintFileUpload()
 
 

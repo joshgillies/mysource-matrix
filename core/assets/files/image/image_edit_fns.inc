@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.17 2003/11/26 00:50:57 gsherwood Exp $
+* $Id: image_edit_fns.inc,v 1.18 2004/07/23 07:09:59 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -79,15 +79,15 @@ class Image_Edit_Fns extends File_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function _printExistingFileInfo(&$asset)
+	function printExistingFileInfo(&$asset)
 	{
-		parent::_printExistingFileInfo($asset);
+		parent::printExistingFileInfo($asset);
 		$existing = $asset->_getExistingFile();
 		if (!empty($existing)) {
 			?><b>Dimensions:</b> <?php echo $existing['width'].' x '.$existing['height']?> pixels<br/><?php
 		}
 
-	}//end _printExistingFileInfo()
+	}//end printExistingFileInfo()
 
 
 	/**
@@ -108,8 +108,9 @@ class Image_Edit_Fns extends File_Edit_Fns
 			?><br/><span style="font-size: 7pt"><b>Note:</b> You may only upload files of type <?php echo $this->_getExtensionString($asset->allowed_extensions)?></span><?php
 		}
 
-		$this->_printExistingFileInfo($asset);
+		$this->printExistingFileInfo($asset);
 		return true;
+	
 	}//end paintFileUpload()
 
 
