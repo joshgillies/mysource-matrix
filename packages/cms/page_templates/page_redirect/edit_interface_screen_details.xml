@@ -2,13 +2,13 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2003/09/26 05:26:42 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2003/11/13 21:08:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <contents>
-	<section name="Details">
+	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
 			<display_name>Page Name</display_name>
 			<note />
@@ -20,7 +20,7 @@
 			<text width="12" height="1" />
 		</field>
 	</section>
-	<section name="Location">
+	<section name="Location" write_access="write:attributes">
 		<field attribute="redirect_url">
 			<display_name>URL</display_name>
 			<note />
@@ -40,7 +40,7 @@
 			<text width="80" height="1" />
 		</field>
 	</section>
-	<section name="New Window">
+	<section name="New Window" write_access="write:attributes">
 		<field attribute="new_window">
 			<display_name>New Window?</display_name>
 			<note />
