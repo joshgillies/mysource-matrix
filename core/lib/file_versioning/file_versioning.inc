@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.1 2004/11/16 03:45:16 lwright Exp $
+* $Id: file_versioning.inc,v 1.2 2004/11/17 13:01:54 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -403,7 +403,7 @@ class File_Versioning
 
 		// if there is no current file we need to insert the new DB record
 		if (empty($current_info)) {
-			$fileid = $this->_db->nextId(SQ_TABLE_PREFIX.'_sequence_file_versioning_file');
+			$fileid = $this->_db->nextId(SQ_TABLE_PREFIX.'sequence_file_versioning_file');
 			if (DB::isError($fileid)) {
 				trigger_error($fileid->getMessage().'<br/>'.$fileid->getUserInfo(), E_USER_WARNING);
 				return false;
