@@ -18,17 +18,12 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_batching.xml,v 1.1 2005/02/25 01:21:35 rhoward Exp $
+* $Id: edit_interface_screen_batching.xml,v 1.2 2005/02/25 04:58:17 rhoward Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <contents>
-	<section name="Debug">
-		<function_call>
-			<paint_function   name="paintDebug" />
-		</function_call>
-	</section>
 	<section name="Batching" write_access="all" >
 		<function_call>
 			<paint_function   name="paintBatching" />
