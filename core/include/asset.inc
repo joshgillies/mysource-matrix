@@ -388,7 +388,7 @@ class Asset extends Resolve_Object
 	*
 	*    Array('[link_type]' => Array('[asset_type]' => '[cardinality]));
 	* Where:
-	*   link_type   = SQ_LINK_EXCLUSIVE|SQ_LINK_UNITE|SQ_LINK_HREF
+	*   link_type   = SQ_LINK_EXCLUSIVE|SQ_LINK_UNITE|SQ_LINK_NOTICE
 	*   cardinality = 1|M
 	*
 	* @return Array()
@@ -398,7 +398,7 @@ class Asset extends Resolve_Object
 
 		return Array(SQ_LINK_EXCLUSIVE => Array(),
 					 SQ_LINK_UNITE     => Array(),
-					 SQ_LINK_HREF      => Array()
+					 SQ_LINK_NOTICE    => Array()
 					);
 
 	}#end _getAllowedLinks()
