@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.37 2004/08/31 06:57:30 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.38 2004/08/31 22:41:55 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.37 $ - 1.0
+* @version $Revision: 1.38 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -860,8 +860,6 @@ class Page_Calendar extends Page_Asset_Listing
 			$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand;' : '';
 			$inner_margin_top = $event_height ? 1 : 0;
 			$onclick_code = $show_event_links ? 'onclick="clickChild(this);"' : '';
-			pre_echo($event_ts);
-			pre_echo($end_ts);
 			$this_event_width = $event_width / $this->_maxOverlappingEvents($events, gmdate('H:i', $event_ts*60), gmdate('H:i', $end_ts*60), $partition_time);
 			
 			$res .= '<div class='.$event_class.' event" style="float:left; position: absolute; width: '.$this_event_width.'ex; margin-left: '.$event_left_margin.'ex; margin-top: '.$event_top_margin.'ex; height: '.$event_height.'ex; '.$cursor_code.' '.$zero_length_code.'" '.$onclick_code.'><div class="eventText" style="position: absolute; width: '.$inner_width.'ex; border: none; margin-top: '.$inner_margin_top.'px background-color: transparent">';
