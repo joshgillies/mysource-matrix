@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ComplexAssetMap.java,v 1.2 2004/08/18 00:37:03 mmcintyre Exp $
+* $Id: ComplexAssetMap.java,v 1.3 2004/09/24 04:26:25 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -89,9 +89,17 @@ public class ComplexAssetMap extends AssetMap /*implements KeyListener*/
 		JPanel treePanel = new JPanel(new BorderLayout());
 		treePanel.add(new AssetMapMenuPanel((ComplexAssetTree) tree), BorderLayout.NORTH);
 		treePanel.add(new JScrollPane(tree));
+		
+		StatusKey key = new StatusKey();
+		key.setSize(500, 500);
+		
+		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, treePanel, key);
+		splitPane.setResizeWeight(1.0);
+		splitPane.setDividerLocation(Integer.MAX_VALUE);
+		splitPane.setOneTouchExpandable(true);
 	
 		tp.setFont(TAB_FONT);
-		tp.addTab("Asset Map", treeIcon, treePanel);
+		tp.addTab("Asset Map", treeIcon, splitPane);
 
 		String workspaceId = AssetManager.INSTANCE.getWorkspaceId();
 
