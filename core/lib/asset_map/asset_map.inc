@@ -75,11 +75,8 @@ class Asset_Map
 			// Reload the assetids represented in the flash
 			function reload_assets(assetids_xml) 
 			{
-				//alert(assetids_xml);
-				return;
 				//var asset_mapObj = flash_InternetExplorer ? asset_map : document.asset_map;
 				var asset_mapObj = document.asset_map;
-				//alert("Reload Assetid : " + assetid);
 				jsToFlashCall(asset_mapObj, 'reload_assets', {assetids_xml: assetids_xml});
 			}
 

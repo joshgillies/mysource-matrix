@@ -337,7 +337,38 @@ AssetManager.prototype.onExternalCall = function(cmd, params)
 				this.reloadAssets([params.assetid]);
 			}
 		break;
-	}
+
+		case "reload_assets" :
+			if (params.assetids_xml == null || params.assetids_xml.length <= 0) return;
+			var xml  = new XML(params.assetids_xml);
+
+			// something buggered up with the connection
+			if (xml.status != 0) {
+				_root.dialog_box.show("XML Error, unable to reload assets", "XML Status '" + xml.status + "'\nPlease Try Again");
+				return;
+
+			// we got an unexpected root node
+			} else if (xml.firstChild.nodeName != "assets") {
+				_root.dialog_box.show("XML Error, unable to reload assets", "Unexpected Root XML Node '" + xml.firstChild.nodeName + '"');
+				return;
+
+			}// end if
+
+			// everything went well, load 'em up
+			var assetids = new Array();
+			for (var i = 0; i < xml.firstChild.childNodes.length; i++) {
+				// get a reference to the child node
+				var assetid_node = xml.firstChild.childNodes[i];
+				if (assetid_node.nodeName.toLowerCase() == "asset") {
+					assetids.push(assetid_node.attributes.assetid); 
+				}//end if
+			}//end for
+
+			if (assetids.length) {
+				this.reloadAssets(assetids);
+			}
+		break;
+	}// end switch
 
 }// end onExternalCall()
 
