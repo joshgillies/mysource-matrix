@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.56 2004/11/18 04:39:52 gsherwood Exp $
+* $Id: workflow_manager.inc,v 1.57 2004/11/23 01:07:35 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -348,7 +348,7 @@ class Workflow_Manager extends MySource_Object
 
 			$values = Array('wflow' => $db->quote(serialize($workflow[$schema->name])));
 			$where = 'assetid = '.$db->quote($asset->id).'
-					    AND schemaid = '.$db->quote($schema->id);
+						AND schemaid = '.$db->quote($schema->id);
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_wflow', $values, $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -911,7 +911,7 @@ class Workflow_Manager extends MySource_Object
 
 			$values = Array('wflow' => $db->quote($workflow));
 			$where = 'assetid = '.$db->quote($assetid).'
-					    AND schemaid = '.$db->quote($schemaid);
+						AND schemaid = '.$db->quote($schemaid);
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_wflow', $values, $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -1123,7 +1123,7 @@ class Workflow_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$where_cond = 'assetid='.$db->quote($assetid);
 
-		return $GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_workflow', $where_cond);
+		return $GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_wflow', $where_cond);
 
 	}//end purgeWorkflow()
 
