@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.243 2003/10/21 23:48:03 gsherwood Exp $
+* $Id: asset.inc,v 1.244 2003/10/22 00:12:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -61,13 +61,13 @@ class Asset extends MySource_Object
 	* @var string
 	*/
 	var $charset = '';
-	
+
 	/**
 	* Whether this asset should only have secure URL lookups
 	* @var boolean
 	*/
 	var $force_secure = 0;
-	
+
 	/**
 	* Timestamp of when this asset was created
 	* @var int
@@ -98,7 +98,7 @@ class Asset extends MySource_Object
 	*/
 	var $vars = Array();
 
-	/** 
+	/**
 	* The weightings for this asset's components
 	* @var Array($component => Array('default' => [true|false], 'weighting => $weighting))
 	*/
@@ -338,7 +338,7 @@ class Asset extends MySource_Object
 				$this->id = 0;
 				return false;
 			}
-			
+
 
 			// release locks depending on if the parent was locked before we were created
 			if (!$parent_was_locked) {
@@ -1628,7 +1628,7 @@ class Asset extends MySource_Object
 
 //--        LOCKING        --//
 
-	
+
 	/**
 	* Returns a list of lock types available for this asset type
 	*
@@ -1654,7 +1654,7 @@ class Asset extends MySource_Object
 	/**
 	* Can the current user forceably acquire the current lock on this asset?
 	*
-	* @param string		$lock_type		any valid lock type for this asset's type, 
+	* @param string		$lock_type		any valid lock type for this asset's type,
 	*									plus 'all' which will attempt to acquire all locks that this asset has
 	* @return boolean
 	* @access public
@@ -1757,7 +1757,7 @@ class Asset extends MySource_Object
 		if (!$this->id) return 'Asset Not Created';
 		return $GLOBALS['SQ_SYSTEM']->am->canCreateLink($this, $minor, $link_type, $exclusive);
 
-	}// end canCreateLink()
+	}//end canCreateLink()
 
 
 	/**
@@ -2171,7 +2171,7 @@ class Asset extends MySource_Object
 	function getAssetKeywords($descriptions=false)
 	{
 		$keywords = Array();
-		
+
 		$keywords['asset_name']['value']			= $this->name;
 		$keywords['asset_short_name']['value']		= $this->short_name;
 		$keywords['asset_version']['value']			= $this->version;
@@ -2185,7 +2185,7 @@ class Asset extends MySource_Object
 		foreach ($this->vars as $name => $info) {
 			if ($info['type'] == 'serialise') continue;
 			$keywords['asset_attribute_'.$name]['value'] = $info['value'];
-			
+
 			if ($descriptions) {
 				$attr = &$this->getAttribute($name);
 				$keywords['asset_attribute_'.$name]['description'] = $attr->description;
@@ -2203,7 +2203,7 @@ class Asset extends MySource_Object
 			$keywords['asset_url']['description']			= 'The absolute url to the asset';
 			$keywords['asset_href']['description']			= 'The relative href to the asset';
 		}
-		
+
 		return $keywords;
 
 	}// end getAssetKeywords()
@@ -2250,7 +2250,7 @@ class Asset extends MySource_Object
 	* Returns true if at least one of the passed assetids has write access to this asset
 	*
 	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
-	*							permissions set for this asset, otherwise returns effective access based on locking 
+	*							permissions set for this asset, otherwise returns effective access based on locking
 	*							and status
 	* @param Array	$assetids	An array of user_group and/or user ids to check for write access
 	*							If the array is empty, the current user will be checked
@@ -2272,7 +2272,7 @@ class Asset extends MySource_Object
 	* Returns true if at least one of the passed assetids has admin access to this asset
 	*
 	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
-	*							permissions set for this asset, otherwise returns effective access based on locking 
+	*							permissions set for this asset, otherwise returns effective access based on locking
 	*							and status
 	* @param array	$assetids	an array of user_group and/or user ids to check for write access
 	*							If the array is empty, the current user will be checked
@@ -2326,7 +2326,7 @@ class Asset extends MySource_Object
 
 	/**
 	* Returns true if this asset is effectivly readable by everyone
-	* 
+	*
 	*
 	* @return boolean
 	* @access public
@@ -2346,7 +2346,7 @@ class Asset extends MySource_Object
 	*
 	* @param int	$perm		the permission to check access for
 	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
-	*							permissions set for this asset, otherwise returns effective access based on locking 
+	*							permissions set for this asset, otherwise returns effective access based on locking
 	*							and status
 	* @param array	$assetids	An array of user_group and/or user ids to check for permission
 	*							If the array is empty, the current user will be checked
@@ -2368,7 +2368,7 @@ class Asset extends MySource_Object
 			if (!empty($assetids)) return false;
 
 			$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, $lock_type, true);
-			// if there is no lock or 
+			// if there is no lock or
 			if (empty($locks)) return false;
 			foreach($locks as $lock) {
 				// if any one of these locks is not owned by the current user they can't edit
@@ -2452,14 +2452,15 @@ class Asset extends MySource_Object
 
 	/**
 	* Called when the any permission is updated for this asset
-
+	*
 	* @return boolean	whether everything is OK
 	* @access public
 	*/
 	function permissionsUpdated()
 	{
 		return true;
-	}// end permissionsUpdated()
+
+	}//end permissionsUpdated()
 
 
 //--        PAINTING        --//
@@ -2474,7 +2475,6 @@ class Asset extends MySource_Object
 	*/
 	function printFrontend()
 	{
-
 		if (!$this->readAccess()) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$this->name.'</i>');
 			return;
@@ -2494,7 +2494,7 @@ class Asset extends MySource_Object
 		} else {
 			$design_name = 'system_design::frontend';
 		}
-		
+
 		do {
 
 			$sql = 'SELECT ld.designid, a.type_code
@@ -2533,7 +2533,7 @@ class Asset extends MySource_Object
 			$this->printBody();
 		}
 
-	}// end printFrontend()
+	}//end printFrontend()
 
 
 	/**
@@ -2545,7 +2545,7 @@ class Asset extends MySource_Object
 	function printBody()
 	{
 
-	}// end printBody()
+	}//end printBody()
 
 
 	/**
@@ -2563,7 +2563,7 @@ class Asset extends MySource_Object
 		$ei = &$this->getEI();
 		$ei->paint($this, $o, empty($this->id));
 
-	}// end paintBackend()
+	}//end paintBackend()
 
 
 	/**
@@ -2609,7 +2609,7 @@ class Asset extends MySource_Object
 
 		}// end switch
 
-	}// end processBackend()
+	}//end processBackend()
 
 
 	/**
@@ -2626,7 +2626,7 @@ class Asset extends MySource_Object
 		}
 		return $this->_tmp['ei'];
 
-	}// end getEI()
+	}//end getEI()
 
 
 	/**
@@ -2641,7 +2641,7 @@ class Asset extends MySource_Object
 		require_once SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'dir').'/'.$class_name.'.inc';
 		return new $class_name();
 
-	}// end getEditFns()
+	}//end getEditFns()
 
 
 //--        URL's & HREF's        --//
@@ -2739,7 +2739,7 @@ class Asset extends MySource_Object
 
 		return $this->_tmp['paths'];
 
-	}// end getWebPaths()
+	}//end getWebPaths()
 
 
 	/**
@@ -2820,7 +2820,7 @@ class Asset extends MySource_Object
 			return false;
 		}
 
-	}// end saveWebPaths()
+	}//end saveWebPaths()
 
 
 //--        LOOKUPS        --//
@@ -2863,7 +2863,7 @@ class Asset extends MySource_Object
 			return $ret_val;
 		}
 
-	}// end getLookups()
+	}//end getLookups()
 
 
 	/**
@@ -2880,7 +2880,7 @@ class Asset extends MySource_Object
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 			$sql = 'SELECT l.url, ld.name, ld.designid
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l 
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
 							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_design ld ON l.url = ld.url
 					';
 			$where = 'l.assetid = '.$db->quote($this->id);
@@ -2902,7 +2902,7 @@ class Asset extends MySource_Object
 
 		return $this->_tmp['design_lookups'];
 
-	}// end getDesignLookups()
+	}//end getDesignLookups()
 
 
 	/**
@@ -3030,28 +3030,34 @@ class Asset extends MySource_Object
 
 	}// end updateLookups()
 
+
 //--        INDEXING        --//
 
-	/** 
+
+	/**
 	* Retrieves a list of key data from this asset (used by the indexing service).
 	* Subclasses override this to give the content they want to make searchable.
-	* 
+	*
+	* @param mixed $component	If it is not false, then it is assumed to be the name of a
+	*							component of this asset (defined and controlled by subclasses).
+	* @return array				An array of all the keydata for this asset. Keydata is of the form
+	* <pre>
+	* array (
+	*	array (
+	*		'value' => ...,
+	*		'type' => ..., (text, date, number, etc.)
+	*		'component' => ..., (whatever you want, just as long as this asset
+	*							 knows how to deal with it if it needs to)
+	*		), ...
+	* )
+	* </pre>
 	* @access public
-	* @param mixed $component If it is not false, then it is assumed to be the name of a component of this asset (defined and controlled by subclasses).
-	* @return array An array of all the keydata for this asset. Keydata is of the form
-	*				array (
-	*					array (
-	*						'value' => ...,
-	*						'type' => ..., (text, date, number, etc.)
-	*						'component' => ..., (whatever you want, just as long as this asset knows how to deal with it if it needs to)
-	*					), ...
-	*				)
 	*/
-	function &getKeyData($component = false) 
+	function &getKeyData($component = false)
 	{
 		// supply metadata
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-		$schemaids = $mm->getSchemas($this->id, 1); 
+		$schemaids = $mm->getSchemas($this->id, 1);
 
 		$keyData = $mm->getMetadataKeyData($this->id, $schemaids);
 
@@ -3065,14 +3071,16 @@ class Asset extends MySource_Object
 		}
 
 		return $keyData;
-	} // end getKeyData()
+
+	}//end getKeyData()
+
 
 	/**
-	* Informs the indexing service that this asset's contents have changed, and 
+	* Informs the indexing service that this asset's contents have changed, and
 	* that it should reflect this by retrieving new key data.
-	* 
-	* @access protected
+	*
 	* @return void
+	* @access protected
 	*/
 	function informChanges()
 	{
@@ -3081,13 +3089,17 @@ class Asset extends MySource_Object
 
 		$im =& $GLOBALS['SQ_SYSTEM']->getIndexingManager();
 		$im->changed($this->id);
-	} // end informChanges()
 
-	/** 
-	* Saves component weightings to the database.
+	}//end informChanges()
+
+
+	/**
+	* Save component weightings to the database
 	*
-	* @access public
+	* @param Array	$newWeightings	the component wieghtings to save
+	*
 	* @return void
+	* @access public
 	*/
 	function saveComponentWeightings($newWeightings)
 	{
@@ -3115,20 +3127,21 @@ class Asset extends MySource_Object
 			unset($this->_weightings);
 			$this->_weightings = null;
 		}
-	} // end saveComponentWeightings()
+
+	}//end saveComponentWeightings()
+
 
 	/**
 	* Adds a piece of keydata to the array to be passed to the indexing service.
-	* 
-	* @access protected
 	*
 	* @param array ref $keydata A reference to the keydata array being built
 	* @param string $value The key data value
 	* @param string $type The key data type, defaults to 'text' (e.g. text, date, number, etc.)
-	* @param string $component The component to which this data pertains to 
-	* @returns void
+	* @param string $component The component to which this data pertains to
+	*
+	* @return void
+	* @access protected
 	*/
-
 	function buildKeyData(&$keydata, $value, $type = 'text', $component = false, $score = 1)
 	{
 		if (!is_array($keydata))
@@ -3137,18 +3150,21 @@ class Asset extends MySource_Object
 			return false;
 
 		array_push($keydata, array (
-			'value'		=> $value, 
-			'type'		=> $type, 
+			'value'		=> $value,
+			'type'		=> $type,
 			'component' => $component,
 			'score'		=> $score,
 		));
 
 		return true;
-	} // end buildKeyData()
 
-	/** 
+	}//end buildKeyData()
+
+
+	/**
 	* Retrieves weightings for this asset and its components - loads on demand.
-	* 
+	*
+	* @return Array
 	* @access public
 	*/
 	function &getWeightings()
@@ -3157,12 +3173,12 @@ class Asset extends MySource_Object
 		if (is_null($this->_weightings)) {
 			// load the weightings
 			$sql = 'SELECT wd.component, wd.description, (w.weighting IS NULL) as default, COALESCE(w.weighting, wd.weighting) as weighting
-					FROM 
-						'. SQ_TABLE_PREFIX .'asset_indexing_weightings_default wd 
-							LEFT OUTER JOIN '. SQ_TABLE_PREFIX. 'asset a 
+					FROM
+						'. SQ_TABLE_PREFIX .'asset_indexing_weightings_default wd
+							LEFT OUTER JOIN '. SQ_TABLE_PREFIX. 'asset a
 								ON wd.type_code = a.type_code
-							LEFT OUTER JOIN '.SQ_TABLE_PREFIX .'asset_indexing_weightings w 
-								ON w.component = wd.component AND 
+							LEFT OUTER JOIN '.SQ_TABLE_PREFIX .'asset_indexing_weightings w
+								ON w.component = wd.component AND
 								a.assetid = w.assetid
 					WHERE
 						a.assetid = ' . $db->quote($this->id) ;
@@ -3170,16 +3186,17 @@ class Asset extends MySource_Object
 
 			$this->_weightings = Array();
 			foreach ($results as $result) {
-				$this->_weightings[$result['component']] = 
+				$this->_weightings[$result['component']] =
 					Array(
-						'default' => ($result['default'] == 't')?1:0, 
-						'weighting' => $result['weighting'], 
+						'default' => ($result['default'] == 't')?1:0,
+						'weighting' => $result['weighting'],
 						'description' => $result['description'],
 					);
 			}
 		}
 		return $this->_weightings;
-	} // end getWeightings()
+
+	}// end getWeightings()
 
 }//end class
 
