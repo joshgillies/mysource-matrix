@@ -211,14 +211,8 @@ class Asset_Edit_Interface extends MySource_Object
 			?>
 			<table border="0" cellspacing="3" cellpadding="1">
 				<tr>
-					<td valign="top">
-					<?php
-					if (!empty($lock)) {
-						?><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/locked.png" width="16" height="16"><?php
-					} else {
-						?><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/unlocked.png" width="16" height="16"><?php
-					}
-					?>
+					<td valign="top" width="30">
+						<script language="Javascript">sqPrintIcon("<?php echo sq_web_path('lib'); ?>/web/images/icons/<?php echo ((empty($lock)) ? 'un' : ''); ?>locked.png", "16", "16", "");</script>
 					</td>
 					<td valign="top">
 						<?php
@@ -757,18 +751,20 @@ class Asset_Edit_Interface extends MySource_Object
 					break;
 
 					case 'change' :
-						$statii = $owner->getAvailableStatii();
-
-						if (!empty($statii)) {
-							$print_commit_button = true;
-							$statii = array_reverse($statii, true);
-							$statii[0] = '';
-							$statii = array_reverse($statii, true);
-							if ($field->children[0]->name != 'display_name') $display_name = 'Change ?';
-							else $display_name = $field->children[0]->content;
-							$o->openField($display_name);
-							combo_box($prefix.'_change_status', $statii, false, 0);
-						}
+						if ($field->children[0]->name != 'display_name') $display_name = 'Change ?';
+						else $display_name = $field->children[0]->content;
+						$o->openField($display_name);
+							// if this asset is in workflow we do not let the change the status here
+							// because they need to go off to the workflow screen
+							$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+							$running_schemas = $wfm->getSchemas($owner->id, true, true);
+							if (!empty($running_schemas)) {
+								?><i>This asset is currently in workflow. Approval or rejection of the changes must be done on the <a href="<?php echo $owner->getBackendHref('workflow'); ?>">asset workflow screen</a></i><?php
+							} else {
+								$print_commit_button = true;
+								$this->_paintStatusChange($owner, $o, $prefix);
+							}
+						$o->closeField();
 					break;
 
 					case 'future_status' :
@@ -851,23 +847,41 @@ class Asset_Edit_Interface extends MySource_Object
 
 
 	/**
-	* Processes the interface for editing details
-	* returns true if there is a change
+	* Paints the interface for editing the status of an asset
 	*
 	* @param object	Asset				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o			the outputter class
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for form vars
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
-	function processDetails(&$owner, &$o)
+	function _paintStatusChange(&$owner, &$o, $prefix)
 	{
-		$prefix = $owner->getPrefix();
+		$statii = $owner->getAvailableStatii();
 
-		$is_updated = false;
+		if (!empty($statii)) {
+			$statii = array_reverse($statii, true);
+			$statii[0] = '';
+			$statii = array_reverse($statii, true);
+			combo_box($prefix.'_change_status', $statii, false, 0);
+		}
 
-		///// IMMEDIATE STATUS CHANGES ////
+	}//end _paintStatusChange()
 
+
+	/**
+	* Processes the interface for editing the status of an asset
+	*
+	* @param object	Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for form vars
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _processStatusChange(&$owner, &$o, $prefix)
+	{
 		if (isset($_POST[$prefix.'_change_status']) && (int) $_POST[$prefix.'_change_status'] > 0) {
 
 			//// START HIPO PROCESSING ////
@@ -890,6 +904,32 @@ class Asset_Edit_Interface extends MySource_Object
 
 			////  END HIPO PROCESSING  ////
 		}
+
+	}//end _processStatusChange()
+
+
+	/**
+	* Processes the interface for editing details
+	* returns true if there is a change
+	*
+	* @param object	Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o			the outputter class
+	*
+	* @access public
+	* @return boolean
+	*/
+	function processDetails(&$owner, &$o)
+	{
+		$prefix = $owner->getPrefix();
+
+		$is_updated = false;
+
+		///// IMMEDIATE STATUS CHANGES ////
+
+		// process a status change on this screen if workflow is NOT running
+		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$running_schemas = $wfm->getSchemas($owner->id, true, true);
+		if (empty($running_schemas)) $this->_processStatusChange($owner, $o, $prefix);
 
 
 		///// FUTURE STATUS CHANGES ////
@@ -1696,12 +1736,22 @@ class Asset_Edit_Interface extends MySource_Object
 			$admin_access = false;
 
 			$o->openSection('Current Workflow Progress');
-			$o->openField('Note');
-				?>
-				<p class="sq-backend-data">Workflow for this asset is currently in progress. You can not edit the workflow for this asset at this time. The currently running workflows are displayed below followed by the workflows set for this asset.</p>
-				<p class="sq-backend-data"><a href="<?php echo $owner->getBackendHref('logs'); ?>&sq_backend_log_type=asset.workflow&sq_workflow_log_version=<?php echo substr($owner->version, 0, strrpos($owner->version, '.'));?>">Click here for workflow message logs</a><br/>This will show all messages logged by the system since the last time this asset was made live.</p>
-				<?php
-			$o->closeField();
+				$o->openField('Note');
+					?>
+					<p class="sq-backend-data">Workflow for this asset is currently in progress. To approve or reject the changes use the <i>Change Status</i> drop down below. You may also enter a log message in the box below.
+					<?php
+				$o->closeField();
+				$o->openField('Change Status?');
+					$this->_paintStatusChange($owner, $o, $prefix);
+				$o->closeField();
+				$o->openField('Log Message');
+					text_area($prefix.'_workflow_new_log_message', '', 60, 6);
+					echo '&nbsp;';
+					normal_button($prefix.'_workflow_status_update', 'Commit', 'sqSubmitEditForm()');
+					?>
+					<br/><a href="<?php echo $owner->getBackendHref('logs'); ?>&sq_backend_log_type=asset.workflow&sq_workflow_log_version=<?php echo substr($owner->version, 0, strrpos($owner->version, '.'));?>">Click here to view workflow message logs</a>
+					<?php
+				$o->closeField();
 			$o->closeSection();
 
 			$schema_workflows = $wfm->getSchemaWorkflows($owner->id);
@@ -1710,21 +1760,45 @@ class Asset_Edit_Interface extends MySource_Object
 
 				$schema_title = "Running Workflow - ".$workflow['schema_name'];
 				if (isset($workflow['complete']) && $workflow['complete']) {
-					$schema_title .= ' [<span style="color:#008800">Completed</span>]';
+					$schema_title .= ' <span style="color:#008800">[Completed]</span>';
 				} else {
-					$schema_title .= ' [<span style="color:#880000">Not Completed</span>]';
+					$schema_title .= ' <span style="color:#880000">[Not Completed]</span>';
 				}
 				$o->openSection($schema_title);
+
+				$o->openField('Workflow Started');
+					echo $GLOBALS['SQ_SYSTEM']->datetime($workflow['started']);
+				$o->closeField();
+				$o->openField('Time Running');
+					require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+					echo easy_time_total(time() - $workflow['started'], true);
+				$o->closeField();
 
 				foreach ($workflow['steps'] as $stepid => $step_data) {
 					$section_title = "Step $stepid - ".$step_data['step_name'];
 					if (!$workflow['current_step'] || $workflow['current_step'] > $stepid) {
-						$section_title .= ' [<span style="color:#008800">Completed</span>]';
+						$section_title .= ' <span style="color:#008800">[Completed]</span>';
 					} else {
-						$section_title .= ' [<span style="color:#880000">Not Completed</span>]';
+						$section_title .= ' <span style="color:#880000">[Not Completed]</span>';
 					}
 
 					$o->openSection($section_title);
+
+					if ($step_data['started']) {
+						$o->openField('Step Duration');
+							echo $GLOBALS['SQ_SYSTEM']->datetime($step_data['started']);
+							echo ' - ';
+						if ($step_data['completed']) echo $GLOBALS['SQ_SYSTEM']->datetime($step_data['completed']);
+						else echo '??';
+						echo ' (<i>';
+						require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+						if ($step_data['completed']) {
+							echo easy_time_total($step_data['completed'] - $step_data['started'], true);
+						} else {
+							echo easy_time_total(time() - $step_data['started'], true);
+						}
+						echo '</i>)';
+					}
 
 					$o->openField('Step Logic');
 					if (isset($wfm->_valid_cond_logic[$step_data['logic']])) {
@@ -1950,17 +2024,41 @@ class Asset_Edit_Interface extends MySource_Object
 	*/
 	function processWorkflow(&$owner, &$o)
 	{
-		// if we dont have admin access, piss off
+		$updated = false;
+		$prefix = $owner->getPrefix();
+
+		// process a status change on this screen if workflow is running
+		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$running_schemas = $wfm->getSchemas($owner->id, true, true);
+		if (!empty($running_schemas)) $this->_processStatusChange($owner, $o, $prefix);
+
+		// first we need to process any messages that may have been submitted
+		if (isset($_POST[$prefix.'_workflow_new_log_message'])) {
+			$message_body = $_POST[$prefix.'_workflow_new_log_message'];
+			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$message = $ms->newMessage(Array(), 'Workflow User Log', $message_body, 'asset.workflow.userlog');
+			$message->parameters['assetid'] = $owner->id;
+			$message->parameters['version'] = substr($owner->version, 0, strrpos($owner->version, '.'));
+			$message->send();
+
+			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
+			$log_body = 'Workflow log message by "'.$user->name.'" added successfully to asset "'.$owner->name.'"';
+			$log = $ms->newMessage(Array(), 'User Log Message Added', $log_body, 'backend');
+			$log->parameters['assetid'] = $owner->id;
+			$log->send();
+			$updated = true;
+		}
+
+		// from here on in, if we dont have admin access - piss off
 		if ($owner->id && !$owner->adminAccess(Array(), false)) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit the workflow schemas for <i>'.$owner->name.'</i>');
-			return false;
+			return $updated;
 		}
 
 		// if we dont have admin access, dont process anything
-		if (!$owner->adminAccess(Array(), true, false)) return false;
+		if (!$owner->adminAccess(Array(), true, false)) return $updated;
 
-		$prefix = $owner->getPrefix();
-		if (!isset($_POST[$prefix.'_workflow'])) return false;
+		if (!isset($_POST[$prefix.'_workflow'])) return $updated;
 
 		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 
@@ -1986,7 +2084,7 @@ class Asset_Edit_Interface extends MySource_Object
 										   );
 				} else {
 					// lets do this ourselves
-					if (!$wfm->setSchema($owner->id, (int)$post_data['new']['schemaid'], (int)$post_data['new']['access'])) return false;
+					if (!$wfm->setSchema($owner->id, (int)$post_data['new']['schemaid'], (int)$post_data['new']['access'])) return $updated;
 				}
 			}
 		}
@@ -2003,7 +2101,7 @@ class Asset_Edit_Interface extends MySource_Object
 										   'previous_access' => $current_access,
 										   );
 				} else {
-					if (!$wfm->deleteSchema($owner->id, $schemaid)) return false;
+					if (!$wfm->deleteSchema($owner->id, $schemaid)) return $updated;
 				}
 			}
 		}
@@ -3038,18 +3136,27 @@ class Asset_Edit_Interface extends MySource_Object
 				$minor_logs = $ms->getLogs($active_log_type, Array('minorid' => $owner->id));
 				$major_logs = $ms->getLogs($active_log_type, Array('majorid' => $owner->id));
 				$logs = array_merge($minor_logs, $major_logs);
+				usort($logs, Array('Messaging_Service', 'sortMessages'));
 			break;
 
 			case 'asset.workflow' :
+				// for workflow we want to show the user log messages as well
 				if (isset($_REQUEST['sq_workflow_log_version'])) {
 					$o->addFormActionGetVar('sq_workflow_log_version', $_REQUEST['sq_workflow_log_version']);
 					$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id, 
 																 'version' => $_REQUEST['sq_workflow_log_version']
 																 )
 								);
+					$user_logs = $ms->getLogs($active_log_type.'.userlog', Array('assetid' => $owner->id, 
+																			   'version' => $_REQUEST['sq_workflow_log_version']
+																				)
+								);
 				} else {
 					$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id));
+					$user_logs = $ms->getLogs($active_log_type.'.userlog', Array('assetid' => $owner->id));
 				}
+				$logs = array_merge($logs, $user_logs);
+				usort($logs, Array('Messaging_Service', 'sortMessages'));
 			break;
 
 			default :
