@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.13 2005/01/14 17:54:26 brobertson Exp $
+* $Id: page_redirect.inc,v 1.14 2005/01/15 16:07:55 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -192,12 +192,6 @@ class Page_Redirect extends Page
 		if ($this->attr('append_querystring') && !empty($_SERVER['QUERY_STRING'])) {
 			$url .= ((strpos($url, '?') === false) ? '?' : '&').$_SERVER['QUERY_STRING'];
 		}
-
-pre_echo($url);
-
-
-
-die();
 
 		if ($this->attr('new_window')) {
 
