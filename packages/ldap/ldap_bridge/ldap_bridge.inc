@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.25 2005/01/18 11:45:59 brobertson Exp $
+* $Id: ldap_bridge.inc,v 1.26 2005/02/20 22:07:00 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -463,13 +463,13 @@ class LDAP_Bridge extends Asset
 					break;
 				}
 				$group_data = $ldap->getEntries($result);
-				if ($group_data['count'] > 0) $parents[] = Array($this->id.':'.$group_data[0]['dn'], 'ldap_user_group');
+				if ($group_data['count'] > 0) $parents[$this->id.':'.$group_data[0]['dn']] = 'ldap_user_group';
 			}
 
 			foreach ($ou_groups as $group_name => $group_dn) {
 				$result = $ldap->search($attrs['ou'].'='.$group_name.','.$group_dn,'(&(objectClass=organizationalUnit)('.$attrs['ou'].'='.$group_name.'))');
 				$group_data = $ldap->getEntries($result);
-				if ($group_data['count'] > 0) $parents[] = Array($this->id.':'.$group_data[0]['dn'], 'ldap_user_group');
+				if ($group_data['count'] > 0) $parents[$this->id.':'.$group_data[0]['dn']] = 'ldap_user_group';
 			}
 
 			$ldap->disconnect();
