@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.23 2004/09/17 06:43:51 gsherwood Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.24 2004/11/07 22:40:42 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -143,7 +143,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 						$num_done++;
 					}
 					if ($num_done && $num_done != $num_per_row) {
-						for ($i = ($num_per_row - $num_done); $i > 0; $i--) echo'<td width="200" class="sq-backend-table-cell-alt">&nbsp;</td>';
+						for ($i = ($num_per_row - $num_done); $i > 0; $i--) echo'<td width="200" class="sq-backend-table-cell">&nbsp;</td>';
 					}
 					?>
 				</tr>
