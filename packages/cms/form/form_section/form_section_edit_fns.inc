@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.15 2004/04/23 07:28:08 lwright Exp $
+* $Id: form_section_edit_fns.inc,v 1.16 2004/04/26 23:30:28 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -339,13 +339,10 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 		if ($type && $number) {
 			
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			$am->includeAsset($type);
 						
 			// create some questions
 			for ($i = 0; $i < $number; $i++) {
-				$question  = new $type($asset->id, Array('questionid' => 0, 'attributes' => Array()));
-				$question->setAttrValue('name', 'Question '.$curr_question_count);
-				if (!$asset->attachQuestion($question)) {
+				if (!$asset->attachQuestion($type)) {
 					return false;
 				}
 				$curr_question_count++;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_management.inc,v 1.6 2004/04/23 07:28:08 lwright Exp $
+* $Id: form_section_management.inc,v 1.7 2004/04/26 23:30:28 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -52,6 +52,11 @@ class Form_Section_Management extends Asset_Management
 												'default'   => '',
 												),
 							'sort_order' => Array(
+											'added'     => '0.0.1',
+											'type'      => 'serialise',
+											'default'   => Array(),
+												),
+							'questions' => Array(
 											'added'     => '0.0.1',
 											'type'      => 'serialise',
 											'default'   => Array(),

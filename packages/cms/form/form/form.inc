@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.18 2004/04/23 07:28:07 lwright Exp $
+* $Id: form.inc,v 1.19 2004/04/26 23:30:19 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -304,29 +304,7 @@ class Form extends Bridge
 	*/
 	function &getQuestions($force=false)
 	{
-		//if ($force || empty($this->tmp['questions'])) {
-			$this->tmp['questions'] = Array();
-
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-			$sql = 'SELECT *
-					FROM '.SQ_TABLE_PREFIX.'asset_form_question
-					WHERE assetid = '.$db->quote($this->id);
-
-			$result = $db->getAll($sql);
-			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-
-			if (is_null($result)) return Array();
-
-			for($i = 0; $i < count($result); $i++) {
-				$this->tmp['questions'][$result[$i]['questionid']] = Array(
-					'question_type_code' => $result[$i]['question_type_code'],
-					'attributes' => unserialize($result[$i]['attributes']),
-				);
-			}
-		//}
-
-		return (!empty($this->tmp['questions'])) ? $this->tmp['questions'] : Array();
+		return $this->attr('questions');
 
 	} // end getQuestions()
 	
@@ -339,32 +317,23 @@ class Form extends Bridge
 	* @access public
 	* @return boolean false if database problem or question already attached, true if sucessful
 	*/
-	function attachQuestion(&$question)
+	function attachQuestion($type_code)
 	{
-		if ($question->_questionid != 0) return false;
-
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$values = Array('questionid'         => $db->nextId('sq_sequence_asset_form_question'),
-							'assetid'            => $this->id,
-							'question_type_code' => get_class($question),
-							'attributes'	     => serialize(Array()),
-							);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_form_question', $values)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+		$questions = &$this->getQuestions();
+		if (empty($questions)) {
+		  $new_key = 1;
+		} else {
+		  $new_key = max(array_keys($questions)) + 1;
 		}
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		$question->_questionid = $values['questionid'];
-		$question->_formid = $values['assetid'];
-		$question->id = $question->_formid.':q'.$question->_questionid;
+		$questions[$new_key] = Array('question_type_code' => $type_code,
+							'attributes'	     => Array('name' => 'Question '.(count($questions)+1)));
 
-		if (!$question->saveAttributes()) {
-			return false;
-		}
+		$this->setAttrValue('questions', $questions);
 
 		$sort_order = $this->attr('sort_order');
 
@@ -373,12 +342,14 @@ class Form extends Bridge
 		} else {
 			$new_index = max(array_keys($sort_order))+1;
 		}
-		$sort_order[$new_index] = $question->id;
+		$sort_order[$new_index] = $this->id . ':q' . $new_key;
 		$this->setAttrValue('sort_order', $sort_order);
 
 		if (!$this->saveAttributes()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return true;
 
@@ -398,14 +369,11 @@ class Form extends Bridge
 		if ($question->_questionid == 0) return false;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$questions = &$this->getQuestions();
 
-		$where = 'questionid = ' . $question->_questionid;
+		unset($questions[$question->_questionid]);
 
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_form_question', $where)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$this->setAttrValue('questions', $questions);
 
 		$sort_order = $this->attr('sort_order');
 
@@ -419,8 +387,10 @@ class Form extends Bridge
 		$this->setAttrValue('sort_order', $sort_order);
 
 		if (!$this->saveAttributes()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return true;
 
@@ -452,9 +422,9 @@ class Form extends Bridge
 	function getQuestionByID($questionid)
 	{
 		//if (empty($this->tmp['questions'])) {
-			$this->getQuestions(true);
+		$questions = &$this->getQuestions();
 		//}
-		return (isset($this->tmp['questions'][$questionid])) ? $this->tmp['questions'][$questionid] : Array();
+		return (isset($questions[$questionid])) ? $questions[$questionid] : Array();
 
 	} // end getQuestionById()
 	

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.17 2004/04/23 07:28:07 lwright Exp $
+* $Id: form_question.inc,v 1.18 2004/04/26 23:30:28 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -194,11 +194,14 @@ class Form_Question extends Asset
 			$saved_vars_ser[$attr_id] = (($saved_vars[$attr_id]['type'] == 'serialise') ? serialize($saved_vars[$attr_id]['value']) : $saved_vars[$attr_id]['value']);
 		}
 		
-		$saved_vars_ser = serialize($saved_vars_ser);
 
-		$where = 'questionid = '.$db->quote($this->_questionid);
-		$values = Array('attributes' => $db->quote($saved_vars_ser));
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_form_question', $values, $where)) {
+		$questions = &$form->getQuestions();
+		$questions[$this->_questionid]['attributes'] = $saved_vars_ser;
+
+		$where = 'assetid = '.$db->quote($this->_formid).' and attributeid = '.$db->quote($form->vars['questions']['attributeid']);
+		print $where;
+		$values = Array('custom_value' => $db->quote(serialize($questions)));
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_attribute_value', $values, $where)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$ms->abortLog();
 			return false;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.15 2004/04/23 07:28:07 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.16 2004/04/26 23:30:20 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -380,9 +380,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 						
 			// create some questions
 			for ($i = 0; $i < $number; $i++) {
-				$question  = new $type($asset->id, Array('questionid' => 0, 'attributes' => Array()));
-				$question->setAttrValue('name', 'Question '.$curr_question_count);
-				if (!$asset->attachQuestion($question)) {
+				if (!$asset->attachQuestion($type)) {
 					return false;
 				}
 				$curr_question_count++;
