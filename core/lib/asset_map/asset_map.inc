@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_map.inc,v 1.87 2003/10/13 01:36:13 dwong Exp $
+* $Id: asset_map.inc,v 1.88 2003/10/14 03:27:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -714,6 +714,8 @@ class Asset_Map
 					$urlTree = new XML_Tree();
 					$urlTree->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));
 					$output->insertChild(Array('responses'), $response_count++, $urlTree);
+					$this->_send($output);
+					return;
 				}
 			}
 
