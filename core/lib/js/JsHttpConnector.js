@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: JsHttpConnector.js,v 1.3 2005/02/28 00:31:38 tbarrett Exp $
+* $Id: JsHttpConnector.js,v 1.4 2005/03/24 00:48:46 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * communication between web pages and servers using JavaScript.
 *
 * XMLHttpRequest has a number of functions that support XML parsing of the
-* server's response; you can get to these by using 
+* server's response; you can get to these by using
 * JsHttpConnector.request().xmlFunctionBlah()
 *
 * Works in Mozilla 1.0, Safari 1.2 and Internet Explorer 5.0+
@@ -68,14 +68,14 @@ TJsHttpConnector = function()
 		if (typeof func == "function") {
 			this.temp = this.process;
 			this.process = func;
-		}		
+		}
 		this.loadXMLDoc(form.action, post, form.method);
 
 	}//end submitForm()
 
 
 	/**
-	* Send a simple GET request 
+	* Send a simple GET request using JsHttpConnector
 	*
 	* @param	url		Server to send request to
 	* @param	func	Function to call to process response
@@ -96,7 +96,7 @@ TJsHttpConnector = function()
 	/**
 	* Send request to specified URL using specified method
 	*
-	* If you want to parse the result as XML, the server response must have
+	* If you want to parse the result as XML, the server response must include header
 	* Content-type: text/xml
 	*
 	* @param	url				URL to send request to
@@ -117,27 +117,18 @@ TJsHttpConnector = function()
 			parameters = null;
 		}
 
-		if (window.XMLHttpRequest) {
-			Global_XMLHttp_Request = new XMLHttpRequest();
-			Global_XMLHttp_Request.onreadystatechange = processReqChange;
+		if (Global_XMLHttp_Request) {
 			Global_XMLHttp_Request.open(method, url, true);
 			if (method == "POST") {
 				Global_XMLHttp_Request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 			}
-			Global_XMLHttp_Request.send(parameters);
-		} else if (window.ActiveXObject) {
-			this.isIE = true;
-			Global_XMLHttp_Request = new ActiveXObject("Microsoft.XMLHTTP");
-			if (Global_XMLHttp_Request) {
-				Global_XMLHttp_Request.onreadystatechange = processReqChange;
-				Global_XMLHttp_Request.open(method, url, true);
-				if (method == "POST") {
-					Global_XMLHttp_Request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-				}
+			if (this.isIE) {
 				if (parameters == null) {
 					Global_XMLHttp_Request.send();
 				}
 				else Global_XMLHttp_Request.send(parameters);
+			} else {
+				Global_XMLHttp_Request.send(parameters);
 			}
 		}
 
@@ -152,20 +143,20 @@ TJsHttpConnector = function()
 	*/
 	this.isBrowserOk = function()
 	{
-	   try {
-		   if (window.JsHttpConnectorRequest) return true;
-		   if (window.ActiveXObject) return true;
-		   return false;
-	   }
-	   catch(e) {
-		   return false;
-	   }
+		try {
+			if (window.JsHttpConnectorRequest) return true;
+			if (window.ActiveXObject) return true;
+			return false;
+		}
+		catch(e) {
+			return false;
+		}
 
-	}//end isBrowserOk 
+	}//end isBrowserOk
 
 
 	/**
-	* Get the JsHttpConnectorRequest object
+	* Get the native XMLHttp_Request object
 	*
 	* @return object
 	* @access public
@@ -237,6 +228,21 @@ TJsHttpConnector = function()
 
 	}//end receiveError()
 
+
+	this.initGlobal = function()
+	{
+		if (window.XMLHttpRequest) {
+			Global_XMLHttp_Request = new XMLHttpRequest();
+			Global_XMLHttp_Request.onreadystatechange = processJsHttpStateChange;
+		} else if (window.ActiveXObject) {
+			this.isIE = true;
+			Global_XMLHttp_Request = new ActiveXObject("Microsoft.XMLHTTP");
+			Global_XMLHttp_Request.onreadystatechange = processJsHttpStateChange;
+		}
+	}//end initGlobal()
+
+	this.initGlobal();
+
 }//end of constructor for class JsHttpConnector
 
 
@@ -246,7 +252,7 @@ TJsHttpConnector = function()
 * @return void
 * @access public
 */
-function processReqChange() 
+function processJsHttpStateChange()
 {
 	// only if req shows "loaded"
 	if (Global_XMLHttp_Request.readyState == 4) {
@@ -268,10 +274,9 @@ function processReqChange()
 		 }
 	}
 
-}//end processReqChange()
+}//end processJsHttpStateChange()
 
-
-// global request and XML document objects
+// global request and XML document object
 var Global_XMLHttp_Request = null;
 
 // if no JsHttpConnector variable created, create it.
