@@ -197,12 +197,13 @@ class Asset_Manager extends Resolve_Object
 	/*
 	* returns a reference to the asset represented by the passed assetid
 	*
-	* @param int    $assetid     the asset id to be loaded
-	* @param string $type_code   if this exists then this object is used to load the asset, if not then the DB is queried to find out the asset type
+	* @param int     $assetid      the asset id to be loaded
+	* @param string  $type_code    if this exists then this object is used to load the asset, if not then the DB is queried to find out the asset type
+	* @param boolean $mute_errors  stops the outputting of errors in this fn, needed because you can't use the '@' operator when returning by reference
 	*
 	* @access public
 	*/
-	function &getAsset($assetid, $type_code='') {
+	function &getAsset($assetid, $type_code='', $mute_errors=false) {
 
 		if (!isset($this->_assets[$assetid]) || !is_object($this->_assets[$assetid])) {
 
@@ -212,12 +213,12 @@ class Asset_Manager extends Resolve_Object
 			}#end if
 
 			if (empty($type_code)) {
-				trigger_error('Asset #'.$assetid.' does not exist', E_USER_WARNING);
+				if (!$mute_errors) trigger_error('Asset #'.$assetid.' does not exist', E_USER_WARNING);
 				$this->_assets[$assetid] = null;
 			} else {
 
 				if (!isset($this->_asset_types[$type_code])) {
-					trigger_error('Asset Type "'.$type_code.'" is not installed on this system', E_USER_WARNING);
+					if (!$mute_errors) trigger_error('Asset Type "'.$type_code.'" is not installed on this system', E_USER_WARNING);
 					$this->_assets[$assetid] = null;
 				} else {
 					$this->includeAsset($type_code);
