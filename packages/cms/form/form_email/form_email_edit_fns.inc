@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.43 2005/02/25 13:07:46 mkeehan Exp $
+* $Id: form_email_edit_fns.inc,v 1.44 2005/02/25 13:33:42 mkeehan Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -425,62 +425,64 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$headers = Array('__time__' => 'Submission Time', '__user__' => 'User Submitting Form');
 
 		// search submission logs directory for files in the date range
-		if ($handle = opendir($log_path)) {
-			while (false !== ($file = readdir($handle))) {
-				if ($file == '.' || $file == '..') continue;
-				$log_file = $log_path.'/'.$file;
-				$sub_id = (int)substr($file,4,strpos($file,'.')-4);
+		if (is_dir($log_path)){
+			if ($handle = opendir($log_path)) {
+				while (false !== ($file = readdir($handle))) {
+					if ($file == '.' || $file == '..') continue;
+					$log_file = $log_path.'/'.$file;
+					$sub_id = (int)substr($file,4,strpos($file,'.')-4);
 
-				$file_ts = filemtime($log_file);
+					$file_ts = filemtime($log_file);
 
-				if (($file_ts >= $from_ts) && ($file_ts <= $to_ts)) {
-					// time is good; load me up
-					$tree = new XML_Tree($log_file);
-					$root  = &$tree->getTreeFromFile();
-					$logs[$sub_id] = Array();
-					if (PEAR::isError($root)) {
-						pre_echo($root->getMessage()."\n".$root->getUserInfo());
-						return;
-					}
-
-					$sub_time = str_replace('T',' ',$root->getAttribute('time'));
-					$sub_user = $root->getAttribute('user');
-					$logs[$sub_id]['__time__'] = $sub_time;
-					if (!is_null($sub_user)) {
-						$sub_user_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($sub_user);
-						$logs[$sub_id]['__user__'] = $sub_user_asset->name . ' (Id: #'.$sub_user.')';
-					} else {
-						$logs[$sub_id]['__user__'] = '';
-					}
-
-					$elements = &$this->_generateSubmissionList($root);
-
-					foreach ($elements as $element) {
-						$logs[$sub_id][$element['id']] = $element['content'];
-						if (!isset($headers[$element['id']])) {
-							$headers[$element['id']] = $element['name'];
+					if (($file_ts >= $from_ts) && ($file_ts <= $to_ts)) {
+						// time is good; load me up
+						$tree = new XML_Tree($log_file);
+						$root  = &$tree->getTreeFromFile();
+						$logs[$sub_id] = Array();
+						if (PEAR::isError($root)) {
+							pre_echo($root->getMessage()."\n".$root->getUserInfo());
+							return;
 						}
-					}
 
-					$kids =& $root->children;
+						$sub_time = str_replace('T',' ',$root->getAttribute('time'));
+						$sub_user = $root->getAttribute('user');
+						$logs[$sub_id]['__time__'] = $sub_time;
+						if (!is_null($sub_user)) {
+							$sub_user_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($sub_user);
+							$logs[$sub_id]['__user__'] = $sub_user_asset->name . ' (Id: #'.$sub_user.')';
+						} else {
+							$logs[$sub_id]['__user__'] = '';
+						}
 
-					for (reset($kids); null !== ($k = key($kids)); next($kids)) {
-						$this_child =& $kids[$k];
-						if ($this_child->name == 'section') {
-							$elements = &$this->_generateSubmissionList($this_child);
-							foreach ($elements as $element) {
-								$logs[$sub_id][$element['id']] = $element['content'];
-								if (!isset($headers[$element['id']])) {
-									$headers[$element['id']] = $element['name'];
+						$elements = &$this->_generateSubmissionList($root);
+
+						foreach ($elements as $element) {
+							$logs[$sub_id][$element['id']] = $element['content'];
+							if (!isset($headers[$element['id']])) {
+								$headers[$element['id']] = $element['name'];
+							}
+						}
+
+						$kids =& $root->children;
+
+						for (reset($kids); null !== ($k = key($kids)); next($kids)) {
+							$this_child =& $kids[$k];
+							if ($this_child->name == 'section') {
+								$elements = &$this->_generateSubmissionList($this_child);
+								foreach ($elements as $element) {
+									$logs[$sub_id][$element['id']] = $element['content'];
+									if (!isset($headers[$element['id']])) {
+										$headers[$element['id']] = $element['name'];
+									}
 								}
 							}
 						}
-					}
 
-				}//end if file's datestamp in range
+					}//end if file's datestamp in range
 
-			}//end while reading directories
-		closedir($handle);
+				}//end while reading directories
+			closedir($handle);
+			}//end if directory exists
 		}//end if handle opened
 		
 
