@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.204 2004/04/19 11:43:38 brobertson Exp $
+* $Id: asset_manager.inc,v 1.205 2004/04/22 04:01:56 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -4170,9 +4170,17 @@ class Asset_Manager extends MySource_Object
 	{
 		if (empty($asset_info)) return Array();
 
+		$current_url_complete = substr(current_url(), -1) == '/';
 		$return_hrefs = Array();
 		foreach ($asset_info as $assetid => $screen) {
-			$return_hrefs[$assetid] = sq_web_path('admin').'/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid='.$assetid.'&asset_ei_screen='.$screen;
+			$href = '';
+			if (SQ_IN_LIMBO) {
+				$href = sq_web_path('edit').'/?asset_ei_screen='.$screen;
+			} else {
+				$href = sq_web_path('admin').'/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid='.$assetid.'&asset_ei_screen='.$screen;
+			}
+			if (!$current_url_complete && strpos($href, './') === 0) $href = substr($href, 2);
+			$return_hrefs[$assetid] = $href;
 		}
 		return $return_hrefs;
 
