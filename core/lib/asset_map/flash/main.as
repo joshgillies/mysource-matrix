@@ -43,6 +43,8 @@ XML.prototype.ignoreWhite = true;
 #include "externalCall.as"
 #include "serverExec.as"
 #include "assetManager.as"
+#include "mcTabsClass.as"
+#include "mcTabContentAreaTreeClass.as"
 #include "mcMenuContainerClass.as"
 #include "mcListContainerClass.as"
 #include "mcMsgsBarClass.as"
@@ -56,8 +58,6 @@ XML.prototype.ignoreWhite = true;
 
 // the height of the messages bar at the bottom of the screen
 _root.MSG_BAR_HEIGHT = 130;
-// the width of a scroll page
-_root.SCROLL_PANE_SCROLL_WIDTH = 16;
 
 // this indent needs to set to the offset of the text box in a list item
 // from the LHS of a list items background
@@ -87,9 +87,7 @@ if (_root.action_bar_frame == undefined) {
 }
 
 
-
 _root.system_events = new SystemEvents();
-
 
 // Add the dialog box
 _root.attachMovie("mcDialogBoxID", "dialog_box", 21);
@@ -99,24 +97,28 @@ _root.dialog_box.hide();
 _root.attachMovie("mcProgressBarID", "progress_bar", 20);
 _root.progress_bar.hide();
 
-
+// Now the dialog options box
+_root.attachMovie("mcOptionsBoxID", "options_box", 22);
 
 _root.server_exec = new ServerExec(_root.server_exec_path);
 
 _root.asset_manager = new AssetManager();
 
 
-// Now attach the menu
-_root.attachMovie("mcMenuContainerID", "menu_container", 2);
-// Now the list container
-_root.attachMovie("mcListContainerID", "list_container", 1);
+// Now attach the Tabs
+_root.attachMovie("mcTabsID", "tabs", 1);
+_root.tabs.addTab("mcTabContentAreaTreeID", "tree",  "Tree");
+_root.tabs.addTab("mcTabContentAreaID", "mail",  "Mail Messages");
+_root.tabs.addTab("mcTabContentAreaID", "log",  "Log Messages");
+
+
+/*
+
 // Now the messagess bar
 _root.attachMovie("mcMsgsBarID", "msgs_bar", 3);
 
-// Now the dialog options box
-_root.attachMovie("mcOptionsBoxID", "options_box", 22);
-
-
+*/
 // Initialise stage resize listener
-_root.state_resize = new StageResize();
+_root.stage_resize = new StageResize();
+
 _root.asset_manager.init();

@@ -4,7 +4,7 @@
 * By default it just returns a reference to the object
 * Should be overridden if the need to clone is found for an object
 */
-Object.prototype.clone = function() 
+Object.prototype.clone = function()
 {
 	return this;
 }
@@ -16,7 +16,7 @@ Object.prototype.clone = function()
 *
 * @return boolean
 */
-Object.prototype.equals = function(other_obj) 
+Object.prototype.equals = function(other_obj)
 {
 	return (this == other_obj);
 }
@@ -29,7 +29,7 @@ Object.prototype.equals = function(other_obj)
 *
 * @return boolean
 */
-Array.prototype.equals = function(other_obj) 
+Array.prototype.equals = function(other_obj)
 {
 	return (this == other_obj);
 }
@@ -37,8 +37,10 @@ Array.prototype.equals = function(other_obj)
 
 /**
 * Recursively creates a new clone of the array
+*
+* @return Array()
 */
-Array.prototype.clone = function() 
+Array.prototype.clone = function()
 {
 	var new_arr = new Array();
 	for (var i = 0; i < this.length; i++) {
@@ -49,14 +51,15 @@ Array.prototype.clone = function()
 
 /**
 * Takes an array and a value returns the first index
-* in the array that matches the passed value, 
+* in the array that matches the passed value,
 * returns null if not found
 *
 * @param mixed val	the value to match
 *
 * @return int
 */
-Array.prototype.search = function (val) {
+Array.prototype.search = function (val)
+{
 
     for (var i = 0; i < this.length; i++) {
 		if (typeof this[i] == "object") {
@@ -74,7 +77,7 @@ Array.prototype.search = function (val) {
 *
 * @param mixed val	the value to match
 */
-Array.prototype.remove_element = function(val) 
+Array.prototype.removeElement = function(val)
 {
 
 	var i = this.search(val);
@@ -82,10 +85,10 @@ Array.prototype.remove_element = function(val)
 		this.splice(i, 1);
 	}// end if
 
-}// end Array.remove_element()
+}// end Array.removeElement()
 
 /**
-* Returns an array of all values that are in the current array 
+* Returns an array of all values that are in the current array
 * but not in passed array
 *
 * @param Array arr
@@ -113,7 +116,8 @@ Array.prototype.diff = function(arr)
 *
 * @return Array
 */
-Array.prototype.unique = function() {
+Array.prototype.unique = function()
+{
 
 	var old_arr = this.clone();
 	var new_arr = new Array();
@@ -142,7 +146,8 @@ Array.prototype.unique = function() {
 *
 * @return string
 */
-String.prototype.replace = function(search_str, replace_str) {
+String.prototype.replace = function(search_str, replace_str)
+{
 	if (search_str == replace_str) return this.toString();
 
 	// take a copy

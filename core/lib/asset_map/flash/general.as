@@ -1,6 +1,34 @@
 
 /**
-* Returns an array of all values that are in arr1 but not in arr2
+* Creates a background box for the passed mc
+*
+* @param object MovieClip	mc		the movie clip to set the bg on
+* @param int				w		the width of the background
+* @param int				h		the height of the background
+* @param hex				colour	the colour of the background
+* @param int				alpha	the transperancy level of the background (0 - 100) DEFAULT: 100
+*
+*/
+function set_background_box(mc, w, h, colour, alpha) 
+{
+	if (alpha == undefined) alpha = 100;
+
+	mc.clear();
+	mc.beginFill(colour, alpha);
+	// This is commented out because when we try and explicitly set it, 
+	// an extra 2 pixels gets added to the width of the MC for no f!@#$ing reason
+//	mc.lineStyle();
+	mc.moveTo(0, 0);
+	mc.lineTo(w, 0);
+	mc.lineTo(w, h);
+	mc.lineTo(0, h);
+	mc.lineTo(0, 0);
+	mc.endFill();
+
+}
+
+/**
+* Prints a 3D border on the passed dialog
 *
 */
 function dialog_border(dialog, x, y, w, h, internal, depressed) 

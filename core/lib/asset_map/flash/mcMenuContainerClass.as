@@ -28,8 +28,8 @@ function mcMenuContainerClass()
 	this.num_items  = 0;
 
 	this.open_items = new Array();
-	this._x = 0;
-	this._y = 0;
+
+	this.setWidth(10);
 
 	// Set ourselves up as a listener on the asset types, so we know when they have been loaded
 	_root.asset_manager.addListener(this);
@@ -77,6 +77,17 @@ mcMenuContainerClass.prototype.create = function()
 	this.show();
 
 }// loadItems();
+
+/**
+* Set the width of the menu
+*
+* @param int	w	the width of the tabs
+*
+*/
+mcMenuContainerClass.prototype.setWidth = function(w)
+{
+	set_background_box(this, w, 20, 0x000000, 0);
+}// setWidth()
 
 mcMenuContainerClass.prototype._recurseCreateAddMenu = function(kids, depth)
 {

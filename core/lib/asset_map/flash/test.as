@@ -3,10 +3,14 @@ _root.test_pressed_count = 0;
 
 function testOnClick1(component)
 { 
+	trace("LABEL SIZE : " + _root.tab.label_text._width + " x " + _root.tab.label_text._height);
+	trace("TAG   SIZE : " + _root.tab._width + " x " + _root.tab._height);
+	_root.tab.setWidth(_root.tab.textWidth());
+
 //	_root.asset_manager.reloadAssets([1]);
 //	_root.asset_manager.reloadAsset(3);
 //	_root.dialog_box.show("TEst, Test", "Lorem "ipsum dolor" sit \"amet\", consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.  Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. ");
-	_root.msgs_bar.addMessages([{type: "notice", text: "12/3/2003 17:22\nTHIS IS AN ERROR"}]);
+//	_root.msgs_bar.addMessages([{type: "notice", text: "12/3/2003 17:22\nTHIS IS AN ERROR"}]);
 
 //	var w = 100;
 //	var h = 50;
@@ -53,12 +57,19 @@ function testOnClick2 (component)
 //		}
 //	}
 
-	for(var i in _root.list_container.list) {
-		if (_root.list_container.list[i] instanceof MovieClip) {
-			trace(i + " :\t" + _root.list_container.list[i].text_field.text);
+//	for(var i in _root.list_container.list) {
+//		if (_root.list_container.list[i] instanceof MovieClip) {
+//			trace(i + " :\t" + _root.list_container.list[i].text_field.text);
+//		}
+//	}
+
+	trace("TABS MCs:");
+
+	for(var i in _root.tabs) {
+		if (_root.tabs[i] instanceof MovieClip) {
+			trace(i + " :\t" + _root.tabs[i]._name);
 		}
 	}
-
 
 }
 

@@ -206,7 +206,7 @@ mcListItemContainerClass.prototype._deleteItem = function(item_name)
 		this._deleteItem(item_name + "_" + links[j]);
 	}// end for
 
-	this.asset_list_items[this[item_name].assetid].remove_element(item_name);
+	this.asset_list_items[this[item_name].assetid].removeElement(item_name);
 	this._removeItem(item_name);
 	this[item_name].removeMovieClip();
 

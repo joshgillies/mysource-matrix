@@ -88,7 +88,7 @@ mcProgressBarClass.prototype.show = function(desc)
 mcProgressBarClass.prototype.hide = function(id) 
 {
 	delete this.descs[id];
-	this.order.remove_element(id);
+	this.order.removeElement(id);
 
 	if (this.order.length > 0) {
 		if (this.descs.length < 2) {

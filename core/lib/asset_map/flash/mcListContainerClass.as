@@ -9,14 +9,6 @@ function mcListContainerClass()
 	this.move_indicator_on = false;
 	this.action      = "";
 
-	// create an empty clip that fills out this container to be at least
-	// the size of the scroller, so that the onPress event can fired 
-	// from anywhere in the scroller
-	this.createEmptyMovieClip("filler", 1);
-	this.filler._x = 0;
-	this.filler._y = 0;
-	this.filler._visible = true;
-
 	// Create the container to hold all the list items
 	this.attachMovie("mcListItemContainerID", "list", 2);
 	this.list._x = 0;
@@ -36,11 +28,8 @@ function mcListContainerClass()
 	// a temp object that can hold any run-time data
 	this.tmp = new Object();
 
-	// Attach the container on to the "scroller"
-	_root.scroller.setScrollContent(this);
-
 	// Set ourselves up as a listener on the menu, so we know when an item is pressed
-	_root.menu_container.addListener(this);
+	this._parent.menu_container.addListener(this);
 
 }// end constructor
 
@@ -59,7 +48,7 @@ mcListContainerClass.prototype.refresh = function()
 	// now ourselves
 	this.refreshDisplay();
 
-}// end refreshDisplay()
+}// end refresh()
 
 
 /**
@@ -69,24 +58,16 @@ mcListContainerClass.prototype.refresh = function()
 */
 mcListContainerClass.prototype.refreshDisplay = function() 
 {
-
 	// Now make sure that the filler is big enough for all the content
-	var xpos = Math.max(_root.scroller.getPaneWidth(),  this.list._width);
-	var ypos = Math.max(_root.scroller.getPaneHeight(), this.list._height + _root.LIST_ITEM_END_BRANCH_GAP);
+	var w = Math.max(this._parent.scroll_pane.getInnerPaneWidth(),  this.list._width);
+	var h = Math.max(this._parent.scroll_pane.getInnerPaneHeight(), this.list._height + _root.LIST_ITEM_END_BRANCH_GAP);
 
-	this.filler.beginFill(0xFF0000, 0); // alpha = 0 -> transparent
-	// This is commented out because when we try and explicitly set it, 
-	// an extra 2 pixels gets added to the width of the MC for no f!@#$ing reason
-	//this.filler.lineStyle();
-	this.filler.moveTo(0, 0);
-	this.filler.lineTo(xpos, 0);
-	this.filler.lineTo(xpos, ypos);
-	this.filler.lineTo(0, ypos);
-	this.filler.lineTo(0, 0);
-	this.filler.endFill();
+	set_background_box(this, w - 2, h - 2, 0xFF0000, 50);
+	trace("THIS WIDTH  : " + this._width);
+	trace("THIS HEIGHT : " + this._height);
 
-	// refresh the scroller
-	_root.scroller.refreshPane();
+	// force a refresh of the scroller
+	this._parent.scroll_pane.refreshPane();
 
 }// end refreshDisplay()
 
@@ -203,7 +184,7 @@ mcListContainerClass.prototype.processAddAsset = function(parent_item_name, pare
 
 
 /**
-* call back fn used by the execAction*() fns to after they sedn their urls requests to the server
+* call back fn used by the execAction*() fns to after they send their urls requests to the server
 *
 * @param object xml	the xml object returned
 *
