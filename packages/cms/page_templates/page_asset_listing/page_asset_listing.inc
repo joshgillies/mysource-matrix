@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.6 2004/02/02 00:32:51 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.7 2004/02/10 22:05:43 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -378,7 +378,7 @@ class Page_Asset_Listing extends Page
 
 			case 'letter' :
 				foreach ($children as $childid => $child_data) {
-					$todo[strtolower($child_data['first_letter'])][$childid] = $child_data;
+					$todo[strtolower($child_data['first_letter'])][$childid] = $child_data['type_code'];
 				}
 
 				$result_page = (isset($_REQUEST['result_page'])) ? $_REQUEST['result_page'] : '';
