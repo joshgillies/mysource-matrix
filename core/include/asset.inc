@@ -376,6 +376,7 @@ class Asset extends Resolve_Object
 		// dont change if we already have this status
 		if ($this->status == $new_status) return false;
 
+		$wfm = null;
 		$old_status = $this->status;
 
 		switch ($new_status) {
@@ -413,10 +414,24 @@ class Asset extends Resolve_Object
 				break;
 
 			case SQ_STATUS_UNDER_CONSTRUCTION :
-				// if we are currently live, we can set to
-				// under construction without problems
 				if ($this->status == SQ_STATUS_LIVE) {
+					// if we are currently live, we can set to
+					// under construction without problems
 					$this->status = SQ_STATUS_UNDER_CONSTRUCTION;
+				} else if ($this->status == SQ_STATUS_PENDING_APPROVAL) {
+					// we are currently in workflow and someone has decide
+					// to reject the changes and cancel the workflow
+					if ($wfm === null) {
+						include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
+						$wfm = new Workflow_Manager($this);
+					}
+					
+					$this->status = SQ_STATUS_UNDER_CONSTRUCTION;
+
+					if (!$wfm->cancel()) {
+						trigger_error('Workflow cancel failed', E_USER_WARNING);
+						$this->status = SQ_STATUS_PENDING_APPROVAL;
+					}
 				}
 				break;
 
@@ -428,7 +443,7 @@ class Asset extends Resolve_Object
 		if ($old_status != $this->status) {
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'UPDATE sq_asset
-					SET status       = '.$db->quote($this->status).'
+					SET status    = '.$db->quote($this->status).'
 					WHERE assetid = '.$db->quote($this->id);
 
 			$result = $db->query($sql);
@@ -2085,7 +2100,7 @@ class Asset extends Resolve_Object
 		// make sure the permission is set before trying to delete
 		$current = &$this->getPermission($permission, false, false);
 		if (!in_array($assetid, array_keys($current))) return false;
-
+		
 		// if we dont have an assetid, we are revoking public access
 		if (!empty($assetid)) {
 			// check that the passed assetid is a user or user_group
@@ -2138,12 +2153,14 @@ class Asset extends Resolve_Object
 		if (!empty($assetid)) {
 			// check that the passed assetid is a user or user_group
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', true);
-			if (!$asset->id) {
-				trigger_error('Cannot revoke inherited permission for an asset that does not exist', E_USER_WARNING);
-				return false;
-			} else if (!is_a($asset, 'user') && !is_a($asset, 'user_group')) {
-				trigger_error('Cannot revoke inherited permission for asset type "'.$asset->type().'", not a user or user group', E_USER_WARNING);
-				return false;
+			if ($permission != SQ_PERMISSION_WORKFLOW) {
+				if (!$asset->id) {
+					trigger_error('Cannot revoke inherited permission for an asset that does not exist', E_USER_WARNING);
+					return false;
+				} else if (!is_a($asset, 'user') && !is_a($asset, 'user_group')) {
+					trigger_error('Cannot revoke inherited permission for asset type "'.$asset->type().'", not a user or user group', E_USER_WARNING);
+					return false;
+				}
 			}
 		}
 
@@ -2184,16 +2201,18 @@ class Asset extends Resolve_Object
 		$current = &$this->getRevokedPermission($permission);
 		if (!in_array($assetid, array_keys($current))) return false;
 
-		// if we dont have an assetid, we are revoking public access
-		if (!empty($assetid)) {
-			// check that the passed assetid is a user or user_group
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', true);
-			if (!$asset->id) {
-				trigger_error('Cannot reinstate revoked permission for an asset that does not exist', E_USER_WARNING);
-				return false;
-			} else if (!is_a($asset, 'user') && !is_a($asset, 'user_group')) {
-				trigger_error('Cannot reinstate revoked permission for asset type "'.$asset->type().'", not a user or user group', E_USER_WARNING);
-				return false;
+		if ($permission != SQ_PERMISSION_WORKFLOW) {
+			// if we dont have an assetid, we are reinstating public access
+			if (!empty($assetid)) {
+				// check that the passed assetid is a user or user_group
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', true);
+				if (!$asset->id) {
+					trigger_error('Cannot reinstate revoked permission for an asset that does not exist', E_USER_WARNING);
+					return false;
+				} else if (!is_a($asset, 'user') && !is_a($asset, 'user_group')) {
+					trigger_error('Cannot reinstate revoked permission for asset type "'.$asset->type().'", not a user or user group', E_USER_WARNING);
+					return false;
+				}
 			}
 		}
 
