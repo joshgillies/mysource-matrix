@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.4 2004/03/17 05:15:34 gsherwood Exp $
+* $Id: settings.inc,v 1.5 2004/03/17 05:30:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -279,13 +279,14 @@ function paintSettings(&$owner, &$o, &$ei)
 
 					foreach($our_designs as $design_name => $designid) {
 
+						$matches = Array();
 						preg_match('/^(system|user)_design::(.*)$/', $design_name, $matches);
 						$system_design   = ($matches[1] == 'system');
 						$new_user_design = (!$system_design && $design_name == 'user_design::' && !$designid && $owner->writeAccess('links'));
 						if (!$system_design && $design_name == 'user_design::' && !$new_user_design) continue;
 
 						if (!$new_user_design) {
-							$display_name = ucwords($matches[1]).' Defined - '.ucwords($matches[2]).' Design';
+							$display_name = ucwords($matches[1]).' Defined - '.ucwords(str_replace('_', ' ', $matches[2])).' Design';
 						} else {
 							$display_name = 'Create New User Defined Design';
 						}
@@ -296,6 +297,11 @@ function paintSettings(&$owner, &$o, &$ei)
 							text_box($prefix.'_designs['.$design_name.'][name]', '', 20, 30);
 						} else {
 							hidden_field($prefix.'_designs['.$design_name.'][name]', $design_name);
+							if ($matches[1] == 'user') {
+								$o->openField('Design Code');
+									echo $matches[2];
+								$o->closeField();
+							}
 						}
 
 						if (!$new_user_design) {
@@ -305,7 +311,6 @@ function paintSettings(&$owner, &$o, &$ei)
 								if (empty($designs[$design_name])) continue;
 								$effective_designs[$url] = $designs[$design_name];
 							}
-
 
 							$o->openField('Current');
 
