@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_edit_fns.inc,v 1.1.2.1 2004/02/18 12:30:09 brobertson Exp $
+* $Id: page_asset_listing_edit_fns.inc,v 1.1.2.2 2004/02/21 12:27:59 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -250,6 +250,7 @@ class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 		<table class="sq-backend-table">
 		<tr>
 			<td class="sq-backend-table-header">Asset Type</td>
+			<td class="sq-backend-table-header">Inherit Types</td>
 			<td class="sq-backend-table-header">Edit Format</td>
 			<?php
 			if ($write_access) {
@@ -261,12 +262,21 @@ class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 			?>
 		</tr>
 			<?php
-			foreach ($types as $type) {
+			foreach ($types as $type => $inherit) {
 				?>
 				<tr>
 					<td class="sq-backend-table-cell">
 						<?php
 						echo ucwords(str_replace('_',' ', $type));
+						?>
+					</td>
+					<td class="sq-backend-table-cell">
+						<?php
+						if ($write_access) {
+							check_box($prefix.'_inherit_types[]', $type, $inherit);
+						} else {
+							echo ($inherit) ? 'Yes' : 'No';
+						}
 						?>
 					</td>
 					<td class="sq-backend-table-cell">
@@ -329,6 +339,7 @@ class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 
 		// we are looking to see if any types have been removed
 		if (isset($_POST[$prefix.'_remove'])) {
+
 			foreach ($_POST[$prefix.'_remove'] as $type) {
 				if (in_array($type, $types)) {
 					$key = array_search($type, $types, true);
@@ -348,9 +359,16 @@ class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 						$folder->deleteLink($link['linkid']);
 					}
 				}
-			}// end foreach
-			$asset->setAttrValue('types', $types);
+			}
 		}
+
+
+		if (!isset($_POST[$prefix.'_inherit_types'])) $_POST[$prefix.'_inherit_types'] = Array();
+		for (reset($types); null !== ($k = key($types)); next($types)) {
+			$types[$k] = (in_array($k, $_POST[$prefix.'_inherit_types'])) ? true : false;
+		}
+		$asset->setAttrValue('types', $types);
+
 
 		if (isset($_POST[$prefix.'_customise'])) {
 
@@ -439,8 +457,8 @@ class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 			$type = trim($_POST[$prefix.'_new_type']);
 			if (empty($type)) return false;
 			$types = $asset->attr('types');
-			if (!in_array($type, $types)) {
-				$types[] = $type;
+			if (!isset($types[$type])) {
+				$types[$type] = true;
 				$asset->setAttrValue('types', $types);
 				return true;
 			}

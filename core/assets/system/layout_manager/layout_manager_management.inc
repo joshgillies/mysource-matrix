@@ -2,7 +2,8 @@
 
 /**
 * +--------------------------------------------------------------------+
-* | MySource 3 - MySource Matrix                                       |
+* | Squiz.net Open Source Licence                                      |
+
 * +--------------------------------------------------------------------+
 * | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
 * +--------------------------------------------------------------------+
@@ -19,7 +20,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager_management.inc,v 1.2 2003/12/16 12:19:31 brobertson Exp $
+* $Id: layout_manager_management.inc,v 1.2.2.1 2004/02/21 12:25:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.2 $ - 0.1
+* @version $Revision: 1.2.2.1 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

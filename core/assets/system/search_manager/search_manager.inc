@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.7 2003/11/26 00:51:02 gsherwood Exp $
+* $Id: search_manager.inc,v 1.7.2.1 2004/02/21 12:25:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -26,17 +26,18 @@
 /**
 * Search_Manager
 *
-* Manages searching and relevance weights for attributes of asset types. 
+* Manages searching and relevance weights for attributes of asset types.
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.7 $ - 0.1
+* @version $Revision: 1.7.2.1 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 
 class Search_Manager extends Asset
 {
+
 
 	/**
 	* Constructor
@@ -47,7 +48,8 @@ class Search_Manager extends Asset
 	function Search_Manager($assetid=0)
 	{
 		$this->Asset($assetid);
-	} // end constructor
+
+	}// end constructor
 
 
 	/**
@@ -93,7 +95,8 @@ class Search_Manager extends Asset
 	function _getName($short_name=false)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
-	}//end _getName();
+
+	}//end _getName()
 
 
 	/**
@@ -109,6 +112,338 @@ class Search_Manager extends Asset
 	}//end canDelete()
 
 
+	/**
+	* Processes a search request
+	*
+	* Formulates search query and returns the results
+	*
+	* @return Array()
+	* @access private
+	*/
+	function processSearch($search_info)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$total_asset_scores = null;
+
+
+		  ///////////////////////////////////
+		 //  CONSTRUCT BASE SEARCH QUERY  //
+		///////////////////////////////////
+		$concat = ($db->phptype == 'mysql') ? 'CONCAT(alt1.treeid, '.$db->quote('%').')' : '(alt1.treeid || '.$db->quote('%').')';
+
+		$start_sql = 'SELECT DISTINCT(ai.assetid), SUM(ai.score)
+						FROM
+							'.SQ_TABLE_PREFIX.'asset_indexing ai,
+							'.SQ_TABLE_PREFIX.'asset_link_tree alt1,
+							'.SQ_TABLE_PREFIX.'asset_link_tree alt2,
+							'.SQ_TABLE_PREFIX.'asset_link al1,
+							'.SQ_TABLE_PREFIX.'asset_link al2,
+							'.SQ_TABLE_PREFIX.'asset_permission ap,
+							'.SQ_TABLE_PREFIX.'asset a
+						WHERE
+							al1.majorid = '.$db->quote((int)$search_info['root_assetid']).'
+							AND al1.linkid = alt1.linkid
+							AND alt2.treeid LIKE '.$concat.'
+							AND alt2.linkid = al2.linkid
+							AND ai.assetid  = al2.minorid
+							AND a.assetid   = ai.assetid
+							AND ap.assetid  = ai.assetid
+							AND a.status  >= '.$db->quote(SQ_STATUS_LIVE);
+
+		$userid_cond = '';
+		if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
+			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+				$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
+				array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
+				$userid_cond = ' AND ap.userid  IN ('.implode(',', $userids).')';
+			}
+		} else {
+			// public users
+			$userid_cond = ' AND ap.userid = 0';
+		}
+
+		if (!empty($userid_cond)) {
+			$start_sql .= $userid_cond;
+			$start_sql .= ' AND ap.permission >= '.$db->quote(SQ_PERMISSION_READ).'
+							AND ap.access = 1';
+		}
+
+
+		  ///////////////////////////////
+		 //  SEARCH ASSET ATTRIBUTES  //
+		///////////////////////////////
+		if (isset($search_info['asset_attrib'])) {
+
+			foreach($search_info['asset_attrib'] as $attr_name => $attr_info) {
+
+				if ($attr_info['params']['searchtype'] == '') continue;
+				$attr_parts = explode('__', $attr_info['params']['type_attr']); // exploding the name
+				$field_asset_scores = null;
+
+				foreach ($attr_info['words'] as $word) {
+					$sql = $start_sql.'
+						AND ai.component = '.$db->quote('attr:'. $attr_info['params']['searchtype'].':'.$attr_parts[0]).'
+						AND (ai.value LIKE '.$db->quote('%'.$word.'%').')
+						GROUP BY ai.assetid';
+
+					$result = $db->getAssoc($sql);
+					if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+
+					if (is_null($field_asset_scores)) $field_asset_scores = $result;
+					else $field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, 'AND');
+				}
+
+				if (is_null($total_asset_scores)) $total_asset_scores = $field_asset_scores;
+				else $total_asset_scores = $this->combineAssetScores($total_asset_scores, $field_asset_scores, $search_info['logic']);
+			}
+		}
+
+
+		  /////////////////////////////////
+		 //  SEARCH INCLUDE ALL FIELDS  //
+		/////////////////////////////////
+		if (isset($search_info['include_all'])) {
+
+			foreach($search_info['include_all'] as $attr_name => $attr_info) {
+
+				$field_asset_scores = null;
+				foreach ($attr_info['words'] as $word) {
+					$sql = $start_sql.'
+						AND (ai.value LIKE '.$db->quote('%'.$word.'%').')
+						GROUP BY ai.assetid';
+
+					$result = $db->getAssoc($sql);
+					if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+
+					if (is_null($field_asset_scores)) $field_asset_scores = $result;
+					else $field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, 'AND');
+				}
+
+				if (is_null($total_asset_scores)) $total_asset_scores = $field_asset_scores;
+				else $total_asset_scores = $this->combineAssetScores($total_asset_scores, $field_asset_scores, $search_info['logic']);
+			}
+		}
+
+
+		  ///////////////////////
+		 //  SEARCH METADATA  //
+		///////////////////////
+		if (isset($search_info['metadata'])) {
+
+			foreach($search_info['metadata'] as $attr_name => $attr_info) {
+
+				if ($attr_info['params']['metadata_field']['assetid'] <= 0) continue;
+
+				$field_asset_scores = null;
+				foreach ($attr_info['words'] as $word) {
+
+					if (!is_array($word)) {
+
+						$like = $db->quote('%'.$word.'%');
+
+					} else {
+
+						// we are processing a date field
+						$value = $word;
+
+						$myday = $value['d'];
+						if (strlen($myday) == 1) $myday = '0'.$myday;
+						if (empty($myday) || $myday == '--') $myday = '__';
+
+						$mymonth = $value['m'];
+						if (strlen($mymonth) == 1) $mymonth = '0'.$mymonth;
+						if (empty($mymonth) || $mymonth == '--') $mymonth = '__';
+
+						$myyear = $value['y'];
+						if (empty($myyear) || $myyear == '--') $myyear = '__';
+
+						$myhour = $value['h'];
+						if (strlen($myhour) == 1) $myhour = '0'.$myhour;
+						if (empty($myhour) || $myhour == '--') $myhour = '__';
+
+						$myminute = $value['i'];
+						if (strlen($myminute) == 1) $myminute = '0'.$myminute;
+						if (empty($myminute) || $myminute == '--') $myminute = '__';
+
+						$mysecond = $value['s'];
+						if (strlen($mysecond) == 1) $mysecond = '0'.$mysecond;
+						if (empty($mysecond) || $mysecond == '--') $mysecond = '__';
+
+						$like = $myday.':'.$mymonth.':'.$myyear.':'.$myhour.':'.$myminute.':'.$mysecond;
+						if ($like == '__:__:__:__:__:__') continue;
+						$like = $db->quote($like);
+					}
+
+					$sql = $start_sql.'
+							AND ai.type = '.$db->quote('text').'
+							AND ai.component = '.$db->quote('metadata:'.(int)$attr_info['params']['metadata_field']['assetid']).'
+							AND ai.value LIKE '.$like.'
+							GROUP BY ai.assetid';
+
+					$result = $db->getAssoc($sql);
+					if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+
+					if (is_null($field_asset_scores)) $field_asset_scores = $result;
+					else $field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, 'AND');
+				
+				}
+
+				if (is_null($total_asset_scores)) $total_asset_scores = $field_asset_scores;
+				else $total_asset_scores = $this->combineAssetScores($total_asset_scores, $field_asset_scores, $search_info['logic']);
+			}
+		}
+
+		  /////////////////////////////
+		 //  SEARCH EXCLUDE FIELDS  //
+		/////////////////////////////
+		if (isset($search_info['exclude'])) {
+
+			foreach($search_info['exclude'] as $attr_name => $attr_info) {
+
+				$sql = $start_sql.'
+					AND (ai.value LIKE \'%'.implode ("%' OR ai.value LIKE '%", $attr_info['words']).'%\')
+					GROUP BY ai.assetid';
+
+				$result = $db->getAssoc($sql);
+				if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+
+				foreach (array_keys($results) as $exclude_assetid) {
+					if (isset($total_asset_scores[$exclude_assetid])) unset($total_asset_scores[$exclude_assetid]);
+				}
+			}
+		}
+
+
+		return $this->_climbToAssetTypes($total_asset_scores, $search_info['search_types'], $search_info['root_assetid']);
+
+	}//end processSearch()
+
+
+	/**
+	* Combines asset scores according to the passed logic
+	*
+	* @param array	$asset_scores1		a mapping from assetids to scores
+	* @param array	$asset_scores2		a mapping from assetids to scores
+	* @param string	$logic				either 'AND' or 'OR'
+	*
+	* @return Array a mapping from assetids to combined scores
+	* @access private
+	*/
+	function combineAssetScores($asset_scores1, $asset_scores2, $logic='AND')
+	{
+		if (!is_array($asset_scores1) && !is_array($asset_scores2)) return Array();
+		else if (!is_array($asset_scores2)) return $asset_scores1;
+		else if (!is_array($asset_scores1)) return $asset_scores2;
+
+		// find the intersection/union (depending on logic) of the assetids in field_asset_scores and results
+		$assets1 = array_keys($asset_scores1);
+		$assets2 = array_keys($asset_scores2);
+
+		$out_asset_scores = $asset_scores1;
+
+		if ($logic == 'AND') {
+
+			$common_assets = array_intersect($assets1, $assets2);
+
+			// get the assets that are to be removed in field_asset_scores
+			$removed_assets = array_diff($assets1, $assets2);
+			foreach ($removed_assets as $assetid) unset ($out_asset_scores[$assetid]);
+
+			foreach ($common_assets as $assetid) {
+				if (isset($out_asset_scores[$assetid])) $out_asset_scores[$assetid] += $asset_scores2[$assetid];
+				else $out_asset_scores[$assetid] = $asset_scores2[$assetid];
+			}
+
+		} else if ($logic == 'OR') {
+
+			foreach ($asset_scores2 as $assetid => $score) {
+				if (isset($out_asset_scores[$assetid])) $out_asset_scores[$assetid] += $asset_scores2[$assetid];
+				else $out_asset_scores[$assetid] = $asset_scores2[$assetid];
+			}
+
+		}
+
+		return $out_asset_scores;
+
+	}//end combineAssetScores()
+
+
+	/**
+	* Resolves a result array to an array where the assets are elements and are one of the types specified.
+	*
+	* @param string		$matches		matches returned from processSearch()
+	* @param Array		$assetTypes		types allowed
+	*
+	* @return Array
+	* @access private
+	* @see Search_Page::processSearch()
+	*/
+	function _climbToAssetTypes($matches, $assetTypes, $root_assetid)
+	{
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$unsorted = Array();
+
+		// expand out asset types to include each asset type's descendants
+		$newDescendantTypes = Array();
+		foreach ($assetTypes as $assetType) {
+			$descendantTypes = $am->getTypeDescendants($assetType);
+			foreach($descendantTypes as $descendantAssetType) $newDescendantTypes[] = $descendantAssetType;
+		}
+
+		$assetTypes = array_merge($assetTypes, $newDescendantTypes);
+
+		$asset_info = $am->getAssetInfo(array_keys($matches));
+
+		// use matches as a queue, take head match if it is one of the asset types then add to out
+		// otherwise get parent links and add it to the end of the queue
+
+		$scores = Array(); // for sorting
+
+		while (count($matches)) {
+			// get next asset => score mapping
+			$assetids = array_keys($matches);
+			$nextAssetId = $assetids[0];
+			$nextScore = $matches[$nextAssetId];
+			unset ($matches[$nextAssetId]);
+			if (!isset($asset_info[$nextAssetId])) {
+				$info = $am->getAssetInfo(Array($nextAssetId));
+				$asset_info[$nextAssetId] = $info[$nextAssetId];
+			}
+
+			$nextAssetInfo = $asset_info[$nextAssetId];
+			if (in_array($nextAssetInfo['type_code'], $assetTypes)) {
+				
+				// could be added twice - check
+				if (isset($unsorted[$nextAssetId])) $unsorted[$nextAssetId] += $nextScore;
+				else $unsorted[$nextAssetId] = $nextScore;
+
+				$scores[$nextAssetId] = $nextScore;
+
+			} else {
+
+				// doesn't match one of the types, go up
+
+				// if we are the root asset for this search, then stop
+				if ($nextAssetId == $root_assetid) continue;
+
+				$parentLinks = $am->getLinks($nextAssetId, SQ_SC_LINK_ALL, '', false, 'minor', null, true);
+
+				foreach ($parentLinks as $parentLink) {
+					$parentAssetId = $parentLink['majorid'];
+
+					// does the parent already have a match - if so add scores
+					if (isset($matches[$parentAssetId])) $matches[$parentAssetId] += $nextScore;
+					else $matches[$parentAssetId] = $nextScore;
+				}
+			}
+		}
+
+		arsort($scores);
+		return $scores;
+
+	}//end _climbToAssetTypes()
+
 
 }//end class
+
 ?>

@@ -1,7 +1,8 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | MySource 3 - MySource Matrix                                       |
+* | Squiz.net Open Source Licence                                      |
+
 * +--------------------------------------------------------------------+
 * | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
 * +--------------------------------------------------------------------+
@@ -18,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.3.2.1 2004/02/18 11:39:05 brobertson Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.3.2.2 2004/02/21 12:25:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3.2.1 $ - 1.0
+* @version $Revision: 1.3.2.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.22.2.1 2004/02/18 11:39:06 brobertson Exp $
+* $Id: metadata_manager.inc,v 1.22.2.2 2004/02/21 12:25:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -262,6 +262,8 @@ class Metadata_Manager extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
+
+		$this->indexMetaData($asset->id, Array($schemaid));
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;

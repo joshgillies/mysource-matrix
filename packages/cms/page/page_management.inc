@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_management.inc,v 1.12.2.1 2004/02/18 12:30:08 brobertson Exp $
+* $Id: page_management.inc,v 1.12.2.2 2004/02/21 12:27:59 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -62,6 +62,10 @@ class Page_Management extends Asset_Management
 
 		$this->components = Array(
 								'__name__' => Array(
+									'default_weighting' => '1',
+								),
+								'name' => Array (
+									'description'       => 'Asset name',
 									'default_weighting' => '1',
 								),
 								'short_name' => Array (

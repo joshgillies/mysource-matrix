@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.23.2.1 2004/02/18 11:39:06 brobertson Exp $
+* $Id: asset_attribute.inc,v 1.23.2.2 2004/02/21 12:25:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -190,11 +190,41 @@ class Asset_Attribute extends MySource_Object
 	*
 	* @access public
 	*/
-	function paint($prefix, $read_only=false)
+	function paint($prefix, $read_only=false, $add=true)
 	{
-		echo 'Interface for '.ucwords(str_replace('_', ' ', $this->type())).' Not Done';
+		echo 'Interface for '.ucwords(str_replace('_', ' ', $this->type())).' Not Done<br />';
 
 	}//end paint()
+
+
+	/**
+	* Print the interface for changing some params
+	* Attributes must override this function
+	*
+	* @param string		$prefix		prefix for the form element
+	*
+	* @access public
+	*/
+	function paintEditParams($prefix, $write_access=false)
+	{
+		return true;
+
+	}//end paintEditParams()
+
+
+	/**
+	* Process the interface for changing some params
+	* Attributes must override this function
+	*
+	* @param string		$prefix		prefix for the form element
+	*
+	* @access public
+	*/
+	function processEditParams($prefix)	
+	{
+		return true;
+
+	}//end processEditParams()
 
 
 	/**

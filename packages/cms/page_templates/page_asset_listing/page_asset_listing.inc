@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.11.2.1 2004/02/18 12:30:09 brobertson Exp $
+* $Id: page_asset_listing.inc,v 1.11.2.2 2004/02/21 12:27:59 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -292,13 +292,13 @@ class Page_Asset_Listing extends Page
 
 			switch ($group_by) {
 				case 'number' :
-					$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset->id, SQ_SC_LINK_BACKEND_NAV, $wanted_types, false, 'major', null, null, null, $sort_by);
+					$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, 'major', null, null, null, $sort_by);
 					foreach ($links as $link_info) $children[$link_info['minorid']] = $link_info['minor_type_code'];
 					if ($this->attr('reverse_sort')) $children = array_reverse($children, true);
 				break;
 
 				case 'letter' :
-					$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset->id, SQ_SC_LINK_BACKEND_NAV, $wanted_types, false, 'major', null, null, null, $sort_by);
+					$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, 'major', null, null, null, $sort_by);
 					if (empty($query)) return;
 					$query['select'] .= ', SUBSTRING(a.'.$sort_by.', 1, 1) AS first_letter';
 
@@ -316,12 +316,12 @@ class Page_Asset_Listing extends Page
 
 			switch ($group_by) {
 				case 'number' :
-					$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset->id, $wanted_types, false, $sort_by);
+					$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset->id, array_keys($wanted_types), false, $sort_by);
 					if ($this->attr('reverse_sort')) $children = array_reverse($children, true);
 				break;
 
 				case 'letter' :
-					$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset->id, $wanted_types, false, $sort_by);
+					$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset->id, array_keys($wanted_types), false, $sort_by);
 					if (empty($query)) return;
 					$query['select'] .= ', SUBSTRING(a.'.$sort_by.', 1, 1) AS first_letter';
 
@@ -340,6 +340,49 @@ class Page_Asset_Listing extends Page
 		// clean up after ourselves
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
 		if (empty($children)) return false;
+
+		
+		
+		
+
+		  /////////////////////////////
+		 //  REMOVE UNWANTED TYPES  //
+		/////////////////////////////
+		for (reset($children); null !== ($child_id = key($children)); next($children)) {
+			$child_data =& $children[$child_id];
+
+			switch ($group_by) {
+				case 'number' :
+					$type_code =& $child_data;
+				break;
+
+				case 'letter' :
+					$type_code =& $child_data['type_code'];
+				break;
+
+				default :
+					continue;
+				break;
+			}//end switch
+
+			if (!isset($wanted_types[$type_code])) {
+				$new_type_code = null;
+				foreach ($wanted_types as $wt => $inherit) {
+					if (!$inherit) continue;
+					if (trim($wt) == '') continue;
+					$desc = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($wt);
+					if (in_array($type_code, $desc)) $new_type_code = $wt;
+				}
+
+				if (is_null($new_type_code) || !isset($wanted_types[$new_type_code])) {
+					// this type is not required in the results
+					unset($children[$child_id]);
+					prev($children);
+				} else {
+					$type_code = $new_type_code;
+				}
+			}
+		}
 
 
 		  ////////////////////////////////////////////////////////////
@@ -453,9 +496,9 @@ class Page_Asset_Listing extends Page
 
 		}//end switch
 
-
 		// clean up after ourselves
 		unset($children);
+
 
 		  ////////////////////////////
 		 //  PRINT THE ASSET LIST  //
@@ -467,15 +510,7 @@ class Page_Asset_Listing extends Page
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (is_null($asset)) continue;
 
-			// we need to work out if this child has an explicit format defined for it
-			// or if its relying on its ansestor's format
-			if (!in_array($type_code, $wanted_types)) {
-				foreach ($wanted_types as $wt) {
-					if (trim($wt) == '') continue;
-					$desc = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($wt);
-					if (in_array($type_code, $desc)) $type_code = $wt;
-				}
-			}
+			if (!isset($wanted_types[$type_code])) continue;
 
 			$keywords = $asset->getAssetKeywords();
 			if (!in_array($type_code, $formats)) {

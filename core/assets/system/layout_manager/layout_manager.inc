@@ -1,7 +1,8 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | MySource 3 - MySource Matrix                                       |
+* | Squiz.net Open Source Licence                                      |
+
 * +--------------------------------------------------------------------+
 * | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
 * +--------------------------------------------------------------------+
@@ -18,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager.inc,v 1.2.2.1 2004/02/18 11:39:05 brobertson Exp $
+* $Id: layout_manager.inc,v 1.2.2.2 2004/02/21 12:25:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +31,7 @@
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.2.2.1 $ - 0.1
+* @version $Revision: 1.2.2.2 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
