@@ -56,6 +56,9 @@
     - RollBack
 	- Caching
 	- System Replication
+      - Maybe we have master/copy relationship for assets where they can 
+        only be updated on the server that they were created and all other
+        servers get copies of this asset which are uneditable on them
 	- Workflow ?
 
   - XML Exporter/Importer for Assets
