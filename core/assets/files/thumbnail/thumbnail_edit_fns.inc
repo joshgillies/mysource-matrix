@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thumbnail_edit_fns.inc,v 1.19 2004/11/29 02:14:16 gsherwood Exp $
+* $Id: thumbnail_edit_fns.inc,v 1.19.2.1 2004/12/23 23:14:45 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -58,7 +58,6 @@ class Thumbnail_Edit_Fns extends Image_Edit_Fns
 			<span style="font-size: 10px;">Image size is restricted to a maximum of <?php echo $asset->max_width.' x '.$asset->max_height?> pixels</span><?php
 		}
 
-		$this->printExistingFileInfo($asset);
 		return true;
 
 	}//end paintFileUpload()
