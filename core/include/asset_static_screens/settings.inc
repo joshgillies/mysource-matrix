@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.11 2004/09/14 01:01:11 gsherwood Exp $
+* $Id: settings.inc,v 1.12 2004/09/14 04:32:26 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -579,7 +579,7 @@ function processSettings(&$owner, &$o, &$ei)
 				// the timestamp will be -1 if the date exceeds a 32bit integer
 				if ($timestamp === -1) continue;
 
-				$owner->setDate($timestamp, $userid, $date_type);
+				$owner->setDate($date_type, $timestamp, $userid);
 			}
 		}//end foreach
 	}
