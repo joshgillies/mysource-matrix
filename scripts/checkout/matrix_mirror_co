@@ -1,0 +1,129 @@
+#!/bin/bash
+#
+# +--------------------------------------------------------------------+
+# | Squiz.net Open Source Licence                                      |
+# +--------------------------------------------------------------------+
+# | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+# +--------------------------------------------------------------------+
+# | This source file may be used subject to, and only in accordance    |
+# | with, the Squiz Open Source Licence Agreement found at             |
+# | http://www.squiz.net/licence.                                      |
+# | Make sure you have read and accept the terms of that licence,      |
+# | including its limitations of liability and disclaimers, before     |
+# | using this software in any way. Your use of this software is       |
+# | deemed to constitute agreement to be bound by that licence. If you |
+# | modify, adapt or enhance this software, you agree to assign your   |
+# | intellectual property rights in the modification, adaptation and   |
+# | enhancement to Squiz Pty Ltd for use and distribution under that   |
+# | licence.                                                           |
+# +--------------------------------------------------------------------+
+#
+# $Id: matrix_mirror_co,v 1.1 2005/04/01 13:27:54 brobertson Exp $
+#
+# Script used to checkout MySource v3 (Matrix) from one of the CVS mirrors
+#
+# Usage: matrix_mirror_co [-d checkout_directory]
+#
+
+# Hard-code these...they don't change very often and it saves having to setup some sort of public web interface to get the list
+FUDGE_MODULES="colour csv datetime_field db_extras dev file_versioning general image image_editor js_calendar ldap standards_lists var_serialise wysiwyg"
+
+if [ ! `which cvs 2> /dev/null` ]; then
+	echo "'cvs' command not in path";
+	exit 1;
+fi
+
+if [ ! `which fudge_co 2> /dev/null` ]; then
+	echo "'fudge_co' command not in path";
+	exit 1;
+fi
+
+if [ "$CVS_RSH" = "" ]; then
+	echo "No CVS_RSH environment variable set";
+	exit 1;
+fi
+
+args="$@";
+
+if [ "$1" = "-d" ]; then
+	if [ "$2" != `basename "$2"` ]; then
+		echo "Directory needs to be in the current directory";
+		exit 1;
+	fi
+	DIR_NAME=`basename "$2"`;
+else
+	DIR_NAME="mysource_matrix";
+fi;
+if [ "${DIR_NAME}" = "" ]; then
+	echo "Unable to figure out the module name";
+	exit 1;
+fi;
+if [ -e "${DIR_NAME}" ]; then
+	echo "File/directory '${DIR_NAME}' already exists, refusing to replace";
+	exit 1;
+fi;
+
+echo -n "Enter the address of the mirror : "
+read MIRROR_ADDR
+
+echo -n "Enter the username to use : "
+read USERNAME
+
+CVS_PREFIX=":ext:${USERNAME}@${MIRROR_ADDR}:";
+MYSOURCE_MATRIX_CVSROOT="$CVS_PREFIX/cvs/mysource_matrix/core";
+PACKAGES_BASEDIR="$CVS_PREFIX/cvs/mysource_matrix/packages";
+FUDGE_CVSROOT="$CVS_PREFIX/cvs/fudge";
+
+echo -n "Enter the CVS Tag (if any) : "
+read CVS_TAG
+
+if [ -n "${CVS_TAG}" ]; then
+	cvs_tag_arg="-r ${CVS_TAG}"
+else
+	cvs_tag_arg=""
+fi
+
+cvs -d "${MYSOURCE_MATRIX_CVSROOT}" checkout -P ${cvs_tag_arg} -d ${DIR_NAME} mysource_matrix;
+# if it didn't barf, do the packages and fudge entries
+if [ "$?" = "0" ]; then
+
+	##### PACKAGES #####
+	packages_dir="./${DIR_NAME}/packages";
+	if [ ! -d "$packages_dir" ]; then
+		echo "$packages_dir does not exist, exiting";
+		exit 1;
+	fi
+
+	# go to the packages directory
+	pushd "$packages_dir" > /dev/null;
+
+	echo "------- Checking out Packages --------";
+
+	echo -n "Enter list of packages that you want to use (space separated) : "
+	read package_list
+
+	for entry in $package_list;
+	do
+		valid=`echo "$PACKAGES" | grep -c "$entry"`
+		package_cvs_dir="$PACKAGES_BASEDIR/$entry";
+		echo "--- Checking Out $entry Package ---";
+		cvs -d "$package_cvs_dir" co ${cvs_tag_arg} "$entry";
+
+	done;
+
+	popd > /dev/null;
+
+	##### FUDGE #####
+
+	fudge_dir="./${DIR_NAME}/fudge";
+	# go to the fudge directory
+	pushd "$fudge_dir" > /dev/null;
+
+	entries=`wget -q -O - "http://${BETA_ADDR}/fudge_modules.php"`; 
+
+	echo "------- Checking out Fudge Modules --------";
+	cvs -d "${FUDGE_CVSROOT}" co -P ${cvs_tag_arg} ${FUDGE_MODULES};
+
+	popd > /dev/null;
+
+fi
