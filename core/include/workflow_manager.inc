@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: workflow_manager.inc,v 1.38 2003/10/24 02:44:08 mmcintyre Exp $
+* $Id: workflow_manager.inc,v 1.39 2003/10/24 03:10:52 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -620,7 +620,7 @@ class Workflow_Manager extends MySource_Object
 					$msg->subject = 'Workflow Approval Required';
 					$msg->body    = "%user_name%,\n\n".$asset_type.' "'.$asset->name.'" is currently in workflow and has progressed from step '.(int)$steps_before[$schemaid].' to step '.(int)$step.'.'."\n".'You are now required to approve or reject the changes made to "'.$asset->name.'" so the workflow process can continue.';
 					// create a link for navigation to the workflow screen for this asset
-					$log->body .= "\n\n".'A full report for the Workflow of "'.$asset->name.'" can be found on the <a href="#" onClick="self.parent.location=\''.$asset->getBackendHref('workflow').'\'; return false;">Workflow Screen.</a>';
+					$msg->body .= "\n\n".'A full report for the Workflow of "'.$asset->name.'" can be found on the <a href="#" onClick="self.parent.location=\''.$asset->getBackendHref('workflow').'\'; return false;">Workflow Screen.</a>';
 					$msg->type    = 'asset.workflow.invitation';
 					$msg->parameters['assetid'] = $asset->id;
 					$msg->send();
@@ -929,7 +929,7 @@ class Workflow_Manager extends MySource_Object
 			$msg->subject = 'Asset Changes Rejected';
 			$msg->body    = "%user_name%,\n\n".'User "'.$user->name.'" has rejected the changes made to '.$asset_type.' "'.$asset->name.'". The workflow process has been cancelled.';
 			// create a link for navigation to the workflow screen for this asset
-			$log->body .= "\n\n".'A full report for the Workflow of "'.$asset->name.'" can be found on the <a href="#" onClick="self.parent.location=\''.$asset->getBackendHref('workflow').'\'; return false;">Workflow Screen.</a>';
+			$msg->body .= "\n\n".'A full report for the Workflow of "'.$asset->name.'" can be found on the <a href="#" onClick="self.parent.location=\''.$asset->getBackendHref('workflow').'\'; return false;">Workflow Screen.</a>';
 			$msg->type    = 'asset.workflow.announce';
 			$msg->parameters['assetid'] = $asset->id;
 			$msg->send();
