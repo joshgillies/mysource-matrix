@@ -1,0 +1,244 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: tables.xml,v 1.1 2004/11/16 03:40:58 lwright Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<schema>
+<tables>
+	<table name="calendar_date_value" require_rollback="1">
+		<columns>
+			<column name="assetid" allow_null="0">
+				<type>VARCHAR(15)</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="frequency" allow_null="1">
+				<type>CHAR(3)</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="period" allow_null="0">
+				<type>SMALLINT</type>
+				<type_variations />
+				<default>1</default>
+				<description />
+			</column>
+			<column name="start_date_seconds" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="start_date_minutes" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="start_date_hours" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="start_date_mday" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="start_date_rmday" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="start_date_wday" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="start_date_wdom" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="start_date_rwdom" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="start_date_mon" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="start_date_year" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="start_date_yday" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="start_date_ryday" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="start_date_ts" allow_null="1">
+				<type>INT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="start_date_ds" allow_null="1">
+				<type>INT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="start_date_ms" allow_null="1">
+				<type>INT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="end_date_seconds" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="end_date_minutes" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="end_date_hours" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="end_date_mday" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="end_date_rmday" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="end_date_wday" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="end_date_wdom" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="end_date_rwdom" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="end_date_mon" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="end_date_year" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="end_date_yday" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="end_date_ryday" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="end_date_ts" allow_null="1">
+				<type>INT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="end_date_ds" allow_null="1">
+				<type>INT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="end_date_ms" allow_null="1">
+				<type>INT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="stop_date" allow_null="0">
+				<type>CHAR(10)</type>
+				<type_variations />
+				<default>'----------'</default>
+				<description />
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="assetid" />
+			</primary_key>
+		</keys>
+		<indexes />
+	</table>
+</tables>
+<sequences />
+</schema>

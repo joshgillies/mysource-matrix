@@ -18,11 +18,12 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.54 2004/10/05 00:11:01 lwright Exp $
+* $Id: tables.xml,v 1.1 2004/11/16 03:40:56 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
+<schema>
 <tables>
 	<table name="package" require_rollback="0">
 		<columns>
@@ -494,220 +495,6 @@
 				<column name="assetid" />
 			</index>
 		</indexes>
-	</table>
-	<table name="calendar_date_value" require_rollback="1">
-		<columns>
-			<column name="assetid" allow_null="0">
-				<type>VARCHAR(15)</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="frequency" allow_null="1">
-				<type>CHAR(3)</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="period" allow_null="0">
-				<type>SMALLINT</type>
-				<type_variations />
-				<default>1</default>
-				<description />
-			</column>
-			<column name="start_date_seconds" allow_null="1">
-				<type>SMALLINT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="start_date_minutes" allow_null="1">
-				<type>SMALLINT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="start_date_hours" allow_null="1">
-				<type>SMALLINT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="start_date_mday" allow_null="1">
-				<type>SMALLINT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="start_date_rmday" allow_null="1">
-				<type>SMALLINT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="start_date_wday" allow_null="1">
-				<type>SMALLINT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="start_date_wdom" allow_null="1">
-				<type>SMALLINT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="start_date_rwdom" allow_null="1">
-				<type>SMALLINT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="start_date_mon" allow_null="1">
-				<type>SMALLINT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="start_date_year" allow_null="1">
-				<type>SMALLINT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="start_date_yday" allow_null="1">
-				<type>SMALLINT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="start_date_ryday" allow_null="1">
-				<type>SMALLINT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="start_date_ts" allow_null="1">
-				<type>INT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="start_date_ds" allow_null="1">
-				<type>INT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="start_date_ms" allow_null="1">
-				<type>INT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="end_date_seconds" allow_null="1">
-				<type>SMALLINT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="end_date_minutes" allow_null="1">
-				<type>SMALLINT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="end_date_hours" allow_null="1">
-				<type>SMALLINT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="end_date_mday" allow_null="1">
-				<type>SMALLINT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="end_date_rmday" allow_null="1">
-				<type>SMALLINT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="end_date_wday" allow_null="1">
-				<type>SMALLINT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="end_date_wdom" allow_null="1">
-				<type>SMALLINT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="end_date_rwdom" allow_null="1">
-				<type>SMALLINT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="end_date_mon" allow_null="1">
-				<type>SMALLINT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="end_date_year" allow_null="1">
-				<type>SMALLINT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="end_date_yday" allow_null="1">
-				<type>SMALLINT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="end_date_ryday" allow_null="1">
-				<type>SMALLINT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="end_date_ts" allow_null="1">
-				<type>INT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="end_date_ds" allow_null="1">
-				<type>INT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="end_date_ms" allow_null="1">
-				<type>INT</type>
-				<type_variations />
-				<default />
-				<description />
-			</column>
-			<column name="stop_date" allow_null="0">
-				<type>CHAR(10)</type>
-				<type_variations />
-				<default>'----------'</default>
-				<description />
-			</column>
-		</columns>
-		<keys>
-			<primary_key>
-				<column name="assetid" />
-			</primary_key>
-		</keys>
-		<indexes />
 	</table>
 	<table name="asset_attribute_unique_value" require_rollback="1">
 		<columns>
@@ -1261,96 +1048,6 @@
 		</keys>
 		<indexes />
 	</table>
-	<table name="asset_indexing" require_rollback="0">
-		<columns>
-			<column name="value" allow_null="0">
-				<type>VARCHAR(255)</type>
-				<type_variations />
-				<default />
-				<description>Value of the keydata.</description>
-			</column>
-			<column name="assetid" allow_null="0">
-				<type>VARCHAR(15)</type>
-				<type_variations />
-				<default />
-				<description>ID of the asset to which this keydata applies to.</description>
-			</column>
-			<column name="component" allow_null="1">
-				<type>VARCHAR(255)</type>
-				<type_variations />
-				<default>''</default>
-				<description>Which component of the asset this keydata applies to (e.g. attribute:23) </description>
-			</column>
-			<column name="type" allow_null="0">
-				<type>VARCHAR(255)</type>
-				<type_variations />
-				<default>'word'</default>
-				<description>The type of the keydata (e.g. 'date', 'word', 'number').</description>
-			</column>
-			<column name="score" allow_null="0">
-				<type>INT</type>
-				<type_variations />
-				<default>0</default>
-			</column>
-		</columns>
-		<keys>
-			<primary_key>
-				<column name="value" />
-				<column name="assetid" />
-				<column name="component" />
-				<column name="type" />
-				<column name="score" />
-			</primary_key>
-		</keys>
-		<indexes>
-			<index>
-				<column name="value" />
-			</index>
-			<index>
-				<column name="assetid" />
-			</index>
-			<index>
-				<column name="type" />
-			</index>
-			<index>
-				<column name="component" />
-			</index>
-		</indexes>
-	</table>
-	<table name="asset_indexing_weightings" require_rollback="0">
-		<columns>
-			<column name="assetid" allow_null="0">
-				<type>VARCHAR(15)</type>
-				<type_variations />
-				<default />
-				<description>ID of the asset to which this component-weighting applies to.</description>
-			</column>
-			<column name="component" allow_null="1">
-				<type>VARCHAR(255)</type>
-				<type_variations />
-				<default>''</default>
-				<description>The component.</description>
-			</column>
-			<column name="weighting" allow_null="0">
-				<type>INT</type>
-				<type_variations />
-				<default>0</default>
-				<description>The weighting. </description>
-			</column>
-		</columns>
-		<keys>
-			<primary_key>
-				<column name="assetid" />
-				<column name="component" />
-			</primary_key>
-		</keys>
-		<indexes>
-			<index>
-				<column name="assetid" />
-				<column name="component" />
-			</index>
-		</indexes>
-	</table>
 	<table name="asset_indexing_weightings_default" require_rollback="0">
 		<columns>
 			<column name="type_code" allow_null="0">
@@ -1452,3 +1149,11 @@
 		</keys>
 	</table>
 </tables>
+<sequences>
+	<sequence name="sequence_asset" />
+	<sequence name="sequence_asset_link" />
+	<sequence name="sequence_asset_attribute" />
+	<sequence name="sequence_asset_url" />
+	<sequence name="sequence_internal_message" />
+</sequences>
+</schema>

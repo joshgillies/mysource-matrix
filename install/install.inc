@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 * 
-* $Id: install.inc,v 1.22 2004/11/04 01:18:06 mnyeholt Exp $
+* $Id: install.inc,v 1.23 2004/11/16 03:40:57 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -413,6 +413,7 @@ function install_packages($package_list=Array())
 function install_package($package, $package_assets=Array())
 {
 	require_once SQ_PACKAGES_PATH.'/'.$package.'/package_manager_'.$package.'.inc';
+	require_once SQ_LIB_PATH.'/db_install/db_install.inc';
 	$class = 'package_manager_'.$package;
 	$pm = new $class();
 	$result = $pm->updatePackageDetails($package_assets);
@@ -425,6 +426,14 @@ function install_package($package, $package_assets=Array())
 		$message->send();
 		return $result;
 	}
+	
+	if (file_exists(SQ_PACKAGES_PATH.'/'.$package.'/tables.xml')) {
+		if (!db_install(SQ_PACKAGES_PATH.'/'.$package.'/tables.xml')) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			trigger_error('PACKAGE TABLE INSTALL FAILURE', E_USER_ERROR);
+		}
+	}
+	
 	$message_body = strtoupper($package)." PACKAGE ".(($result) ? "DONE SUCCESSFULLY" : "FAILED");
 	$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
 	$message->send();
@@ -439,6 +448,7 @@ function install_package($package, $package_assets=Array())
 	if ($result == -1) exit(1);
 	unset($pm);
 	return true;
+	
 }//end install_package()
 
 
