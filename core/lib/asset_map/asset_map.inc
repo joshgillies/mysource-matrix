@@ -315,7 +315,7 @@ class Asset_Map
 	*/
 	function _recurseAddMenu(&$parent_node, $heir)
 	{
-		for (reset($heir); NULL !== ($type_code = key($heir)); next($heir)) {
+		for (reset($heir); null !== ($type_code = key($heir)); next($heir)) {
 			$inst     = $GLOBALS['SQ_RESOLVE']->am->getInfo($type_code, 'instantiable');
 			$has_kids = count($heir[$type_code]['subs']);
 			// no point, if you can't create an instance and there are no kids

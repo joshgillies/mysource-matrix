@@ -220,7 +220,7 @@ class XML_Array extends XML_Parser
 		# Now add the attributes to the element, which is the one
 		# on the top of the ptrs stack
 		$i = count($this->_path_ptrs) - 1;
-		for(reset($attribs); NULL !== ($k = key($attribs)); next($attribs)) {
+		for(reset($attribs); null !== ($k = key($attribs)); next($attribs)) {
 			$this->_path_ptrs[$i]['@'.$k] = $attribs[$k];
 		}
 
