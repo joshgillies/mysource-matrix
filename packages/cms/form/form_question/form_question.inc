@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.26 2004/06/21 06:54:06 lwright Exp $
+* $Id: form_question.inc,v 1.27 2004/06/22 00:49:02 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.26 $ - 1.0
+* @version $Revision: 1.27 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -319,31 +319,32 @@ class Form_Question extends Asset
 	*/
 	function processForm()
 	{
+		trigger_error(print_r($this->vars['rules']['value'],true), E_USER_NOTICE);
 		$rules = &$this->getRules();
-		$errors = false;						// blank sheet of code to start with
+		$ok = true;						// We start as being all OK
 
 		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
 			$rule =& $rules[$k];
 			$type_code = 'form_question_rule_type_' . $rule['rule_code'];
 
-			if (!empty($rule['comparison_question_id'])) {
-				$comparison = &$GLOBALS['SQ_SYSTEM']->am->getAsset($rule['comparison_question_id']);
-			} else {
-				$comparison = $rule['value'];
-			}
-
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 			$attributes = eval('return '.$type_code.'::getAttributes();');
 
 			if (!$attributes['no_comparison']) {		// comparison value required!
-				$errors = $errors || eval('return '.$type_code.'::processForm($this, $rule["operator"], $comparison);');
+				if (!empty($rule['comparison_question_id'])) {
+					$comparison = &$GLOBALS['SQ_SYSTEM']->am->getAsset($rule['comparison_question_id']);
+				} else {
+					$comparison = $rule['value'];
+				}
+
+				$ok = eval('return '.$type_code.'::processForm($this, $rule["operator"], $comparison);') && $ok;
 			} else {
-				$errors = $errors || eval('return '.$type_code.'::processForm($this, $rule["operator"]);');
+				$ok = eval('return '.$type_code.'::processForm($this, $rule["operator"]);') && $ok;
 			}
 
 		}
 
-		if ($errors) return false;
+		if (!$ok) return false;
 
 		return true;
 	
