@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: justify_text.inc,v 1.4 2003/09/26 05:26:37 brobertson Exp $
+* $Id: justify_text.inc,v 1.5 2003/11/07 01:37:47 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -21,7 +21,8 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 * @package Fudge
 * @subpackage wysiwyg
 */
-class justify_text extends wysiwyg_plugin {
+class Justify_Text extends WYSIWYG_Plugin {
+
 
 	/**
 	* Constructor
@@ -30,21 +31,24 @@ class justify_text extends wysiwyg_plugin {
 	* @returns object Justify_Text
 	* @access  public
 	*/
-	function justify_text() {
+	function justify_text()
+	{
 		$this->_add_button('justifyleft','JustifyLeft','Justify Left','false','22');
 		$this->_add_button('justifycenter','JustifyCenter','Justify Center','false','23');
 		$this->_add_button('justifyright','JustifyRight','Justify Right','false','24');
 		$this->_add_button('justifyfull','JustifyFull','Justify Full','false','25');
-	}
+
+	}//end consturctor
 
 	
 	/**
 	* Print keyboard shortcuts to align text
 	*
-	* @returns void
-	* @access  public
+	* @return void
+	* @access public
 	*/
-	function print_plugin_shortcuts() {
+	function print_plugin_shortcuts()
+	{
 		?>
 		case 'l':     // KEY justify left
 			cmd = "justifyleft";
@@ -59,7 +63,10 @@ class justify_text extends wysiwyg_plugin {
 			cmd = "justifyfull";
 		break;
 		<?php
-	}
-}
+
+	}//end print_plugin_shortcuts()
+
+
+}//end class
 
 ?>
