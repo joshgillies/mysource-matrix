@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.70 2004/09/13 01:14:24 arailean Exp $
+* $Id: page_calendar.inc,v 1.71 2004/09/13 04:38:36 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.70 $ - 1.0
+* @version $Revision: 1.71 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -346,7 +346,6 @@ class Page_Calendar extends Page_Asset_Listing
 
 
 			$cal_date = array_get_index($_REQUEST,'SQ_CALENDAR_DATE', date('Y-m-d'));
-
 			// if the date is set but incomplete, might be valid for month and year if abbreviated
 			// (accepted for month: eg. 2004-09, accepted for year: eg. 2006)
 			if (!is_iso8601($cal_date)) {
@@ -361,9 +360,8 @@ class Page_Calendar extends Page_Asset_Listing
 					// no good
 					$cal_date = date('Y-m-d');
 				}
-
-				$_REQUEST['SQ_CALENDAR_DATE'] = $cal_date;
 			}
+			$_REQUEST['SQ_CALENDAR_DATE'] = $cal_date;
 
 
 			list($year, $month, $day) = explode('-', $cal_date);
@@ -1579,8 +1577,6 @@ class Page_Calendar extends Page_Asset_Listing
 			$descriptions = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('description', 'calendar_event', array_keys($res));
 			foreach ($descriptions as $assetid => $description) $res[$assetid]['description'] = $description;
 		}
-		$res =& $this->_expandEventList($res, $date, $date);
-
 
 		$this->_processExceptions($res);
 
@@ -1669,7 +1665,12 @@ class Page_Calendar extends Page_Asset_Listing
 		$partitions['all_day'] = Array();
 
 		$plain_events = $this->getDayEvents($date);
+		$events = $plain_events;
 		$events =& $this->_expandEventList($plain_events, $date, $date);
+
+		foreach ($events as $id => $details) {
+			bam("$id - ".$details['name']);
+		}
 
 		$res = Array();
 
@@ -1678,9 +1679,11 @@ class Page_Calendar extends Page_Asset_Listing
 		foreach ($events as $id => $details) {
 			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
 			if (($event_date == $date)) {
-				if (is_null($details['start_date_hours'])) {
+				if (empty($details['start_date_hours'])) {
+					bam("Event $id has no time");
 					$res[$details['root_node']]['all_day'][$id] = $details;
 				} else {
+					bam("Event $id has time");
 					$event_ts = $details['start_date_hours'] * 60 + $details['start_date_minutes'];
 					if ($event_ts < $start_ts) continue;
 					foreach ($partition_keys as $partition_ts => $key) {
