@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.28 2004/12/29 00:33:18 tbarrett Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.29 2004/12/29 00:49:29 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -48,7 +48,6 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 	{
 		$this->Asset_Edit_Fns();
 		$this->static_screens['details']['force_unlock'] = false;
-		$this->static_screens['details']['lock_type'] = 'attributes';
 
 	}//end constructor
 
