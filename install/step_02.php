@@ -271,6 +271,7 @@ if (empty($cached_table_columns)) {
 $cached_table_columns_string = '';
 ob_start();
 
+echo "<?php\n";
 echo '$tables = Array('."\n";
 foreach ($cached_table_columns as $table_name => $columns) {
 	echo "\t'$table_name' => Array(\n";
@@ -279,7 +280,8 @@ foreach ($cached_table_columns as $table_name => $columns) {
 	}
 	echo "\t),\n";
 }
-echo ');';
+echo ");\n";
+echo '?>';
 
 $cached_table_columns_string = ob_get_contents();
 ob_end_clean();
