@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.144 2005/01/14 06:00:38 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.145 2005/02/17 00:26:48 dbaranovskiy Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.144 $
+* @version $Revision: 1.145 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -286,7 +286,7 @@ class Page_Calendar extends Page_Asset_Listing
 				ob_end_flush();
 
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($format_bodycopy);
-				
+
 			}
 		}
 
@@ -303,7 +303,7 @@ class Page_Calendar extends Page_Asset_Listing
 	function _validateRequest()
 	{
 		// Validate View:
-		// If we get a valid and available view type in the request, use it; 
+		// If we get a valid and available view type in the request, use it;
 		// otherwise use the initial view attribute.
 		$enabled_views = $this->attr('enabled_views');
 		$enabled_views['edit'] = 1;
@@ -511,9 +511,7 @@ class Page_Calendar extends Page_Asset_Listing
 			if ($list_entry_types['year'] == 'title') {
 				echo $this->_getTitleList($events, $enabled_views['event']);
 			} else {
-				// hack for now until we mod asset listing
-				foreach ($events as $id => $details) $events[$id] = $details['type_code'];
-				$this->filterAssetList($events);
+				$this->filterAssetStatuses($events);
 				$this->printAssetList($events);
 			}
 		} elseif ($format == 'list_with_headings') {
@@ -529,9 +527,7 @@ class Page_Calendar extends Page_Asset_Listing
 				if ($list_entry_types['year'] == 'title') {
 					echo $this->_getTitleList($events[$month_num], $enabled_views['event']);
 				} else {
-					// hack for now until we mod asset listing
-					foreach ($events[$month_num] as $id => $details) $events[$month_num][$id] = $details['type_code'];
-					$this->filterAssetList($events);
+					$this->filterAssetStatuses($events[$month_num]);
 					$this->printAssetList($events[$month_num]);
 				}
 			}
@@ -636,9 +632,7 @@ class Page_Calendar extends Page_Asset_Listing
 			if ($list_entry_types['month'] == 'title') {
 				echo $this->_getTitleList($events, $enabled_views['event']);
 			} else {
-				// hack for now until we mod asset listing
-				foreach ($events as $id => $details) $events[$id] = $details['type_code'];
-				$this->filterAssetList($events);
+				$this->filterAssetStatuses($events);
 				$this->printAssetList($events);
 			}
 		} elseif ($format == 'list_with_headings') {
@@ -654,10 +648,8 @@ class Page_Calendar extends Page_Asset_Listing
 				if ($list_entry_types['month'] == 'title') {
 					echo $this->_getTitleList($events[$current_day], $enabled_views['event']);
 				} else {
-					// hack for now until we mod asset listing
-					foreach ($events[$current_day] as $id => $details) $events[$id] = $details['type_code'];
-					$this->filterAssetList($events);
-					$this->printAssetList($events);
+					$this->filterAssetStatuses($events[$current_day]);
+					$this->printAssetList($events[$current_day]);
 				}
 			}
 		} else {
@@ -807,9 +799,7 @@ class Page_Calendar extends Page_Asset_Listing
 			if ($list_entry_types['week'] == 'title') {
 				echo $this->_getTitleList($events, $enabled_views['event']);
 			} else {
-				// hack for now until we mod asset listing
-				foreach ($events as $id => $details) $events[$id] = $details['type_code'];
-				$this->filterAssetList($events);
+				$this->filterAssetStatuses($events);
 				$this->printAssetList($events);
 			}
 		} elseif ($format == 'list_with_headings') {
@@ -822,10 +812,8 @@ class Page_Calendar extends Page_Asset_Listing
 				if ($list_entry_types['week'] == 'title') {
 					echo $this->_getTitleList($events[$day_date], $enabled_views['event']);
 				} else {
-					// hack for now until we mod asset listing
-					foreach ($events[$day_date] as $id => $details) $events[$day_date][$id] = $details['type_code'];
-					$this->filterAssetList($events);
-					$this->printAssetList($events);
+					$this->filterAssetStatuses($events[$day_date]);
+					$this->printAssetList($events[$day_date]);
 				}
 			}
 		} else {
@@ -864,11 +852,8 @@ class Page_Calendar extends Page_Asset_Listing
 			if ($list_entry_types['day'] == 'title') {
 				echo $this->_getTitleList($events, $enabled_views['event']);
 			} else {
-				$new_events = Array();
-				foreach ($events as $id => $details) $new_events[strtok($id, ':')] = $details['type_code'];
-				$this->filterAssetList($new_events);
-
-				$this->printAssetList($new_events);
+				$this->filterAssetStatuses($events);
+				$this->printAssetList($events);
 			}
 		} else {
 			$column_names = Array();
@@ -914,8 +899,13 @@ class Page_Calendar extends Page_Asset_Listing
 		ob_start();
 			$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($event_id));
 			$asset_list = Array($event_id => $info[$event_id]['type_code']);
-			$this->filterAssetList($asset_list);
-			$this->printAssetList($asset_list);
+			$this->filterAssetStatuses($asset_list);
+			$type_folder = &$this->getFolder('type_formats');
+			$this->_tmp['type_folder_id']	= $type_folder->id;
+			$this->_tmp['is_default']		= Array();
+			if (!empty($asset_list)) {
+				$this->_printAsset($event_id, $info[$event_id]['type_code'], null);
+			}
 			$res = ob_get_contents();
 		ob_end_clean();
 		return $res;
@@ -923,8 +913,8 @@ class Page_Calendar extends Page_Asset_Listing
 	}//end getEventView()
 
 
-	/**	
-	* Get the edit form for the specified event, or process form and redirect to event view 
+	/**
+	* Get the edit form for the specified event, or process form and redirect to event view
 	*
 	* If the form has been submitted it is processed, and if the processing was successful
 	* event view is returned
@@ -957,7 +947,7 @@ class Page_Calendar extends Page_Asset_Listing
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			}
 		}
-		
+
 		// Acquire the lock and print the interface
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($event_id, 'attributes')) {
 			trigger_error("Couldn't acquire lock", E_USER_WARNING);
@@ -980,7 +970,7 @@ class Page_Calendar extends Page_Asset_Listing
 		return $res;
 
 	}//end getEditView()
-	
+
 
 //--        HELPER FUNCTIONS FOR CONTENTS-GETTING FUNCTIONS        --//
 
@@ -1050,9 +1040,9 @@ class Page_Calendar extends Page_Asset_Listing
 		?>
 		<style>
 			table#day tr td.sq-time-cell, table#week tr td.sq-time-cell {
-				width: <?php echo $width; ?>px; 
-				height: <?php echo $partition_height; ?>px; 
-				padding: 0px 1px; 
+				width: <?php echo $width; ?>px;
+				height: <?php echo $partition_height; ?>px;
+				padding: 0px 1px;
 				border-width: 1px;
 			<?php
 			if ($click_to_add_ab) {
@@ -1137,7 +1127,7 @@ class Page_Calendar extends Page_Asset_Listing
 						$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')" onmouseout="stopTrailingPopup()"';
 					}
 					echo '<div id="'.$assetid.'" '.$current_mouse_up_down_code.' '.$current_mouse_over_out_code.' style="margin: 0px 0px 1px 0px; text-align: center; padding: 0px; width: '.($width-2).'px;'.$cursor_code.'" class="'.$event_class.' event"'.$onclick_code.'>';
-					
+
 					// if drag-n-drop is enabled, click-through-to-event-view is supported
 					// via javascript only, because otherwise the link elements cause trouble
 					// with the dragging
@@ -1156,7 +1146,7 @@ class Page_Calendar extends Page_Asset_Listing
 			?>
 			</tr>
 		<?php
-		
+
 		// PRINT THE ROWS WITH TIMES
 		while (($current_hour*60 + $current_mins) < ($end_hour*60 + $end_mins)) {
 			?>
@@ -1278,7 +1268,7 @@ class Page_Calendar extends Page_Asset_Listing
 				$current_mouse_up_down_code = 'onmousedown="statusBarMsg(\'Recurring, multi-day and trimmed events cannot be dragged\')" onmouseup="statusBarMsg(\'\');"';
 			}
 			$current_mouse_over_out_code = '';
-			if (isset($details['description']) && !empty($details['description'])) {				
+			if (isset($details['description']) && !empty($details['description'])) {
 				$res .= '<div id="event_'.$assetid.'_description" class="popup">'.$details['description'].'</div>';
 				$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')"  onmouseout="stopTrailingPopup()"';
 			}
@@ -1286,11 +1276,11 @@ class Page_Calendar extends Page_Asset_Listing
 			// other special CSS for cursors and zero-length events
 			$zero_length_code = $event_height ? '' : 'border-style: dashed; border-bottom: 0px; border-left: 0px; border-right: 0px; padding-top: 0px; background-color: transparent;';
 			$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand;' : '';
-			
+
 			// showtime!
 			$res .= '<div id="'.$assetid.'" '.$current_mouse_up_down_code.' '.$current_mouse_over_out_code.' class="'.$event_class.' event" style="float: left; position: absolute; width: '.($event_width-3).'px; margin-left: '.$event_left_margin.'px; margin-top: '.$event_top_margin.'px; height: '.$event_height.'px; border-width: 1px; '.$cursor_code.' '.$zero_length_code.'" '.$onclick_code.'>';
 			$res .= '<div class="eventText" style="z-index: 30; position: absolute; width: '.($event_width-4).'px; border: none;  background-color: transparent">';
-	
+
 			// if drag-n-drop is enabled, click-through-to-event-view is supported
 			// via javascript only, because otherwise the link elements cause trouble
 			// with the dragging
@@ -1439,7 +1429,7 @@ class Page_Calendar extends Page_Asset_Listing
 			<script type="text/javascript">
 			<!--
 
-					destinationTableId = '<?php echo $table_id; ?>'; 
+					destinationTableId = '<?php echo $table_id; ?>';
 					columnNames = new Array(<?php echo count($columns); ?>);
 					<?php
 					if (!is_null($columns)) {
@@ -1475,7 +1465,7 @@ class Page_Calendar extends Page_Asset_Listing
 						}
 						toggleFlashing(movingElt.id);
 						var locationName = (new_loc != '') ? columnNames[String(new_loc)] + ' on ' : '';
-						if (!confirm('Move this event to ' + locationName + new_date 
+						if (!confirm('Move this event to ' + locationName + new_date
 							+ ((new_time != 'allday') ? (' at ' + new_time) : '') + '?')) {
 							toggleFlashing(movingElt.id);
 							return false;
@@ -1514,7 +1504,6 @@ class Page_Calendar extends Page_Asset_Listing
 			  <input type="hidden" name="SQ_CALENDAR_DATE" id="SQ_CALENDAR_DATE" />
 			  <input type="hidden" name="SQ_CALENDAR_TIME" id="SQ_CALENDAR_TIME" />
 			  <input type="hidden" name="SQ_CALENDAR_EVENT_ACTION" id="SQ_CALENDAR_EVENT_ACTION" value="move" />
-			  <input type="hidden" name="SQ_CALENDAR_VIEW" value="<?php echo $_REQUEST['SQ_CALENDAR_VIEW']; ?>" />
 			</form>
 		<!-- /DRAG AND DROP SUPPORT -->
 
@@ -2196,7 +2185,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 		$root_node_treeids = get_treeids(array_flip($root_nodes));
 		uasort($root_node_treeids, create_function('$a,$b', 'return strlen($b)-strlen($a);'));
-		
+
 		foreach ($events as $id => $details) {
 			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
 
@@ -2245,6 +2234,34 @@ class Page_Calendar extends Page_Asset_Listing
 		return $res;
 
 	}//end getDayEventsByRootNodeAndTime()
+
+
+	/**
+	* Print the list of assets that we are listing
+	*
+	* @param array	&$assets	an array of assets to print, assetid => Array(details), NB different to listing engine function
+	*
+	* @return void
+	* @access public
+	*/
+	function printAssetList(&$assets)
+	{
+		$this->_tmp['formats']        = Array();
+		$this->_tmp['default_format'] = '';
+		$this->_tmp['is_default']     = Array();
+		$this->_tmp['needs_asset']    = Array();
+		$this->_tmp['assets_info']    = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($assets));
+
+		$type_folder = &$this->getFolder('type_formats');
+		$this->_tmp['type_folder_id'] = $type_folder->id;
+
+		$this->_tmp['position_formats'] = Array();
+
+		foreach ($assets as $assetid => $details) {
+			$this->_printAsset(strtok($assetid, ':'), $details['type_code'], null);
+		}
+
+	}//end printAssetList()
 
 
 }//end class
