@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.4 2005/03/03 12:12:06 brobertson Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.5 2005/03/11 04:31:30 gsherwood Exp $
 *
 */
 
@@ -40,15 +40,19 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 {
-	
+
+
+	/**
+	* Constructor
+	*/
 	function Listing_Engine_Edit_Fns($assetid=0)
-{
+	{
 		$this->Page_Edit_Fns($assetid);
 		
 	}//end Listing_Engine_Edit_Fns()
@@ -193,6 +197,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		$type_options = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($types, 'name');
 		asort($type_options);
+		$type_options = Array('' => '- Select asset type -') + $type_options;
 		combo_box($prefix.'_new_type', $type_options, false, '');
 
 	}//end paintAddAssetType()
