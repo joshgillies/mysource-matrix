@@ -109,6 +109,7 @@ class Resolve
 
 			speed_check('one');
 			$asset = &$this->am->getAssetFromURL($_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'], $protocol, true, false);
+			if (is_null($asset)) exit(1);
 #			pre_echo("Active Asset : ".$asset->name);
 			speed_check('two');
 			$asset->printFrontend();
