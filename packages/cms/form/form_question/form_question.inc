@@ -18,9 +18,16 @@ class Form_Question extends Asset
 
 
 	/**
-	* @var $section_name the name of the section that this question belongs to
+	* the name of the section that this question belongs to
+	* @var string
 	*/
 	var $section_name = '';
+
+
+	/**
+	* the section_id that this question belongs to
+	* @var integer
+	*/
 	var $section_id   = 0;
 
 
@@ -33,7 +40,8 @@ class Form_Question extends Asset
 	function Form_Question($assetid=0) 
 	{
 		$this->Asset($assetid);
-	}
+
+	} // end Form_Question()
 
 
 	/**
@@ -59,77 +67,7 @@ class Form_Question extends Asset
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $linkid;
 
-	}//end create()
-
-
-	/**
-	* Creates a link between this asset and the passed asset, of a certain type
-	* and returns the linkid of the created link
-	*
-	* @return int
-	* @access public
-	* @see Asset::creatLink();
-	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0', $exclusive='0')
-	{
-		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
-
-	}// end createLink()
-
-
-	/**
-	* Returns TRUE if we can delete the passed link, or a string with the error msg
-	*
-	* @param int	$linkid	the link id of the link to remove
-	*
-	* @return mixed TRUE or error msg string
-	* @access public
-	*/
-	function canDeleteLink($linkid)
-	{
-		return parent::canDeleteLink($linkid);
-	
-	}//end canDeleteLink()
-
-
-	/**
-	* Returns an array of all the permitted link type, the type asset and the cardinality
-	*
-	* @see Asset::_getAllowLinks()
-	* @access private
-	*/
-	function _getAllowedLinks()
-	{
-		$page_links = parent::_getAllowedLinks();
-		return $page_links;
-
-	}//end _getAllowedLinks()
-
-
-	/**
-	* Prints out the backend interface for the asset
-	*
-	* @param object Backend_Outputter $o
-	*
-	* @access public
-	*/
-	function paintBackend(&$o)
-	{
-		return parent::paintBackend($o);
-
-	}// end paintBackend()
-
-
-	/**
-	* Called by the design to print the body of this asset
- 	*
-	* @access public
-	*/
-	function printBody()
-	{
-		return parent::printBody();
-
-	}// end printBody()
+	} // end create()
 
 
 	/**
@@ -152,7 +90,8 @@ class Form_Question extends Asset
 			return $section->fileRegeneration();
 		}
 		return true;
-	}
+
+	} // end _updated()
 
 
 
@@ -179,20 +118,29 @@ class Form_Question extends Asset
 			case 'value' :
 				return $this->getValue();
 		}
-	}
+	} // end getVal()
+
 
 	/**
-	* 
+	* process itself in the form 
+	*
+	* @param &object $submission the submission object
+	*
+	* @access public
+	* @return boolean
 	*/
 	function processForm(&$submission)
 	{
 		$rules = &$this->getRules();
-		
+		if (!count($rules)) return false;
+
 		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
 			$rule =& $rules[$k];
 			$rule->processForm($submission, $this->id, $this->attr('name')); 
 		}
-	}
+		return true;
+	
+	} // end processForm()
 
 
 	/**
@@ -201,7 +149,8 @@ class Form_Question extends Asset
 	function getValue()
 	{
 		return true;
-	}
+	
+	} // end getValue()
 
 
 	/**
@@ -210,7 +159,8 @@ class Form_Question extends Asset
 	function getAnswer($content_file=true, $value='')
 	{
 		return true;
-	}
+
+	} // end getAnswer()
 
 
 	/**
@@ -304,7 +254,7 @@ class Form_Question extends Asset
 	*/
 	function getRuleCount()
 	{
-		return count($this->getRuleLinks());
+		return $GLOBALS['SQ_SYSTEM']->am->countLinks($this->id, 'major', SQ_LINK_TYPE_3, 'form_question_rule', false);
 	
 	}// end getRuleCount()
 
@@ -348,17 +298,38 @@ class Form_Question extends Asset
 		$this->section_name = $name;
 		$this->section_id   = $id;
 		return true;
-	}
+	
+	} // end setSection()
 
+
+	/**
+	* return the name of this question
+	*
+	* @param boolean $short_name if TRUE, returns the short name
+	* 
+	* @access private
+	* @return string
+	*/
 	function _getName($short_name = false)
 	{
 		return $this->attr('name');
-	}
+	
+	} // end _getName()
 
+
+	/**
+	* returns the answer for this question for the summary, generally overriden by children
+	*
+	* @param $answer the answer of the question
+	*
+	* @access public
+	* @return string
+	*/
 	function getSummary($answer)
 	{
 		return $answer;
-	}
+	
+	} // end getSummary
 
 }//end class
 ?>
