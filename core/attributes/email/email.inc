@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email.inc,v 1.15 2004/02/10 04:16:42 gsherwood Exp $
+* $Id: email.inc,v 1.16 2004/02/17 02:35:02 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 /**
 * Email Asset Attribute
 *
-* 
+*
 *
 *
 * <!-- Sample Edit Interface XML Node -->
@@ -43,6 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 class Asset_Attribute_Email extends Asset_Attribute_Text
 {
 
+
 	/**
 	* Constructor
 	*
@@ -50,11 +51,12 @@ class Asset_Attribute_Email extends Asset_Attribute_Text
 	* @param mixed	$value			the current value for the element
 	*
 	*/
-	function Asset_Attribute_Email($attributeid=0, $value=null) 
+	function Asset_Attribute_Email($attributeid=0, $value=null)
 	{
 		$this->Asset_Attribute_Text($attributeid, $value);
 		$this->_params['max_length'] = 0; // can't have a max length for an email address
-	}// end constructor
+
+	}//end constructor
 
 
 	/**
@@ -72,6 +74,7 @@ class Asset_Attribute_Email extends Asset_Attribute_Text
 		if (!parent::setEditParams($node)) return false;
 		$this->_edit_params['height'] = 1; // can only ever be one line high
 		return true;
+
 	}//end setEditParams()
 
 
@@ -94,7 +97,7 @@ class Asset_Attribute_Email extends Asset_Attribute_Text
 			$this->processed = false;
 		}
 
-	}// end process()
+	}//end process()
 
 
 	/**
