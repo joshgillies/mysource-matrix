@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_js_calendar_navigator.inc,v 1.2 2004/09/14 02:00:17 arailean Exp $
+* $Id: design_area_js_calendar_navigator.inc,v 1.3 2004/10/20 06:25:44 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -65,27 +65,52 @@ class Design_Area_JS_Calendar_Navigator extends Design_Area
 				// generate javascript even handlers
 				?>
 				<script language="Javascript" type="text/javascript">
+					function frameRedirect(url) 
+					{
+					    basetags = document.getElementsByTagName(\'base\');
+						if (basetags.length != 0) {
+							switch (basetags[0].target) {
+								case \'_parent\':
+									window.parent.location = url;
+								  break;
+								case \'_top\':
+									window.top.location = url;
+									break;
+								case \'_self\':
+									document.location.href = url;
+									break;
+								case \'_blank\':
+									window.open(url, \'new\', \'\');
+									break;
+								default:
+									window.top.frames[basetags[0].target].location = url;
+							}
+						} else {
+							document.location.href = url;
+						}
+					}								
 					function onDayClick(day, mon, year)
 					{
-						document.location.href = "<?php echo($target_url);?>?SQ_CALENDAR_VIEW=day&SQ_CALENDAR_DATE=" + DateConvert2MySQL(day, mon, year);
+						frameRedirect("<?php echo($target_url);?>?SQ_CALENDAR_VIEW=day&SQ_CALENDAR_DATE=" + DateConvert2MySQL(day, mon, year));
 					}
 
 					function onWeekClick(day, mon, year)
 					{
-						document.location.href = "<?php echo($target_url);?>?SQ_CALENDAR_VIEW=week&SQ_CALENDAR_DATE=" + DateConvert2MySQL(day, mon, year);
+						frameRedirect("<?php echo($target_url);?>?SQ_CALENDAR_VIEW=week&SQ_CALENDAR_DATE=" + DateConvert2MySQL(day, mon, year));
 					}
 
 					function onMonthClick(day, mon, year)
 					{
-						document.location.href = "<?php echo($target_url);?>?SQ_CALENDAR_VIEW=month&SQ_CALENDAR_DATE=" + DateConvert2MySQL(day, mon, year);
+						frameRedirect("<?php echo($target_url);?>?SQ_CALENDAR_VIEW=month&SQ_CALENDAR_DATE=" + DateConvert2MySQL(day, mon, year));
 					}
 
 					function onYearClick(day, mon, year)
 					{
-						document.location.href = "<?php echo($target_url);?>?SQ_CALENDAR_VIEW=year&SQ_CALENDAR_DATE=" + DateConvert2MySQL(day, mon, year);
+						frameRedirect("<?php echo($target_url);?>?SQ_CALENDAR_VIEW=year&SQ_CALENDAR_DATE=" + DateConvert2MySQL(day, mon, year));
 					}
 				</script>
 				<?php
+
 
 			};
 
