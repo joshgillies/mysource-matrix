@@ -126,6 +126,7 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 		if (!empty($this->_running_vars['todo_assetids'])) {
 			$assetid = array_shift($this->_running_vars['todo_assetids']);
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 			if (!is_null($asset)) {
 				// if this asset does not allow the user to set metadata values then
