@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.128 2004/04/05 00:41:15 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.129 2004/04/05 02:00:47 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -376,13 +376,24 @@ class Asset_Map
 			// public users
 			$userid_cond = ' AND p.userid = 0';
 		}
+		
+		// work out what protocol we are using to get here so we can get the most
+		// relevent protocol for the preview urls
+		$primary_protocol = current_protocol();
+		if (empty($primary_protocol)) $primary_protocol = 'http';
+		if ($primary_protocol == 'http') $secondary_protocol = 'https';
+		else $secondary_protocol = 'http';
 
 		$sql  = 'SELECT DISTINCT(a.assetid), a.short_name, a.type_code, a.status,
-					   l.linkid, l.link_type, l.sort_order,
-					   lt.num_immediate_kids';
+					l.linkid, l.link_type, l.sort_order, lt.num_immediate_kids, u.url, ap.path,
+					CASE u.'.$primary_protocol.'
+						WHEN '.$db->quote('1').' THEN '.$db->quote($primary_protocol).'
+						WHEN '.$db->quote('0').' THEN '.$db->quote($secondary_protocol).'
+					END AS protocol';
 		if (!empty($userid_cond)) $sql .= ', MAX(p.permission) AS accessible';
 		
-		$sql .= ' FROM '.SQ_TABLE_PREFIX.'asset a';
+		$sql .= ' FROM (('.SQ_TABLE_PREFIX.'asset a LEFT JOIN '.SQ_TABLE_PREFIX.'asset_url u ON a.assetid = u.assetid)
+				  LEFT JOIN sq_asset_path ap ON a.assetid = ap.assetid)';
 		if (!empty($userid_cond)) {
 			$sql .= ' LEFT JOIN sq_asset_permission p ON (
 							a.assetid = p.assetid AND
@@ -394,14 +405,12 @@ class Asset_Map
  				WHERE a.assetid = l.minorid AND
 					  l.linkid = lt.linkid AND
 					  l.majorid = '.$db->quote($assetid).' AND
-					  l.link_type <= '.$db->quote(SQ_LINK_TYPE_2);
-		if (!empty($userid_cond)) {
-			$sql .= ' GROUP BY a.assetid, a.short_name, a.type_code, a.status,
+					  l.link_type <= '.$db->quote(SQ_LINK_TYPE_2).'
+				GROUP BY a.assetid, a.short_name, a.type_code, a.status,
 					   l.linkid, l.link_type, l.sort_order,
-					   lt.num_immediate_kids, l.sort_order';
-		}
-		$sql .=	' ORDER BY sort_order DESC';
-		error_log($sql);
+					   lt.num_immediate_kids, u.url, protocol, ap.path
+				ORDER BY sort_order DESC';
+
 		$result = $db->getAll($sql);
 		if (DB::isError($result)) {
 			return $this->_error('Could not load child assets for assetid '.$assetid.' '.$result->getMessage());
@@ -411,43 +420,50 @@ class Asset_Map
 			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
 			
 			foreach ($links as $link_data) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid'], $link_data['minor_type_code']);
-				$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
+				$link_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid'], $link_data['minor_type_code']);
+				$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($link_asset->id, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
 				$result[] = Array(
 									'assetid'            => $link_data['minorid'],
-									'short_name'         => $asset->short_name,
-									'name'               => $asset->name,
+									'short_name'         => $link_asset->short_name,
+									'name'               => $link_asset->name,
 									'accessible'    	 => 1,
 									'type_code'          => $link_data['minor_type_code'],
-									'status'             => $asset->status,
+									'status'             => $link_asset->status,
 									'linkid'             => $link_data['linkid'],
 									'link_type'          => $link_data['link_type'],
 									'num_immediate_kids' => count($asset_links),
 									'sort_order'         => $link_data['sort_order'],
+									'url'          		 => $link_asset->getURL(),
+									'path'				 => '',
 								);
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($link_asset);
 			}
 		}
-	
-		foreach ($result as $asset) {
 
+		foreach ($result as $asset) {
 			if ($asset['num_immediate_kids'] == 0) {
 				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset['assetid'], SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
 				$asset['num_immediate_kids'] = count($links);
 			}
-			if (!isset($asset['accessible'])) $asset['accessible'] = 1;
+			
+			if (!in_array('accessible', array_keys($asset))) $asset['accessible'] = 1;
+			if (empty($asset['accessible']) || $asset['accessible'] < 1) $asset['accessible'] = 0;
+			if ($asset['accessible'] > 1) $asset['accessible'] = 1;
+			
+			if (!empty($asset['url'])) $asset['url'] = $asset['protocol'].'://'.$asset['url'];
+
 			$attrs = Array(
 				'assetid'       => urlencode($asset['assetid']),
 				'name'          => urlencode($asset['short_name']),
 				'type_code'     => $asset['type_code'],
 				'link_type'     => $asset['link_type'],
-				'accessible'    => (int) ($asset['accessible'] >= 1),
+				'accessible'    => $asset['accessible'],
 				'status'        => $asset['status'],
 				'linkid'        => $asset['linkid'],
 				'child_count'   => $asset['num_immediate_kids'],
 				'sort_order'    => $asset['sort_order'],
-//				'url'           => $asset->getURL(),	
-//				'web_paths'     => implode(";", $asset['path']),
+				'url'           => $asset['url'],
+				'web_path'      => $asset['path'],
 			);
 			if (!$attrs['accessible']) $attrs['child_count'] = 0;
 
@@ -491,85 +507,6 @@ class Asset_Map
 		$this->_send($output);
 
 	}//end _getAssets()
-
-
-	/**
-	* Adds an asset to the XML root passed
-	*
-	* @param object XML_Tree_Node	$root			the root node to add the asset to
-	* @param int					$assetid		the assetid of the asset to add
-	* @param boolean				$load_new_links	whether or not to load the children of this
-	*												asset not in the $current_kids array
-	* @param Array(int)				$current_kids	the children that the flash currently has
-	*
-	* @access private
-	*/
-	function _addAssetToXML(&$root, $assetid, $load_new_links=false, $current_kids=Array())
-	{
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', true);
-
-		if (is_null($asset))
-			return true;
-
-		$attrs = Array(
-			'assetid'		=> $asset->id,
-			'name'			=> $asset->short_name,
-			'type_code'		=> $asset->type(),
-			'accessible'	=> $asset->readAccess(),
-			'status'		=> $asset->status,
-			'url'			=> $asset->getURL(),
-			'web_paths'		=> implode(";", $asset->getWebPaths()),
-		);
-		$asset_node = &$root->addChild('asset', '', $attrs);
-
-		if ($asset->readAccess()) {
-			$parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_SC_LINK_BACKEND_NAV, '', false, 'minor');
-			if (count($parent_links)) {
-				for($j = 0; $j < count($parent_links); $j++) {
-					$kid_node = &$asset_node->addChild('parent', '', 
-						Array(
-							'linkid'		=> $parent_links[$j]['linkid'], 
-							'majorid'		=> $parent_links[$j]['majorid'],
-							'minorid'		=> $asset->id, 
-							'link_type'		=> $parent_links[$j]['link_type']
-						)
-					);
-				}
-			}
-			// we only want links that appear in the backend
-			$child_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', true, 'major');
-			if (count($child_links)) {
-				for($j = 0; $j < count($child_links); $j++) {
-					$kid_node = &$asset_node->addChild('child', '', 
-						Array(
-							'linkid'		=> $child_links[$j]['linkid'], 
-							'majorid'		=> $asset->id,
-							'minorid'		=> $child_links[$j]['minorid'], 
-							'link_type'		=> $child_links[$j]['link_type']
-						)
-					);
-				}
-
-				if ($load_new_links) {
-					$kids = Array();
-					for($j = 0; $j < count($child_links); $j++) $kids[] = $child_links[$j]['minorid'];
-					$new_kids = array_values(array_diff($kids, $current_kids)); // array_values to get indexed array
-					for($j = 0; $j < count($new_kids); $j++) {
-						if (!$this->_addAssetToXML($root, $new_kids[$j], false)) {
-							return false;
-						}
-					}// end for
-
-				}// end if
-			}// end if
-
-
-
-		}// end if
-
-		return true;
-
-	}//end _assAssetToXML()
 
 
 	/**
