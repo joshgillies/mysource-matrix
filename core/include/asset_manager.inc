@@ -468,10 +468,8 @@ if (!empty($type_code)) $sql .= 'INNER JOIN sq_asset pa ON pl.minorid = pa.asset
 				return $this->getAsset(2);
 			case 'system_user_group' :
 				return $this->getAsset(3);
-			case 'user_folder' :
-				return $this->getAsset(4);
 			case 'root_user' :
-				return $this->getAsset(5);
+				return $this->getAsset(4);
 			default :
 				trigger_error('System Asset Name "'.$name.'" not known', E_USER_ERROR);
 		}
