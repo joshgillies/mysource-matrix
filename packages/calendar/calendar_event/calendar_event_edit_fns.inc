@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.26 2004/12/10 04:24:47 tbarrett Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.27 2004/12/23 22:06:43 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -96,11 +96,11 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 				</td>
 				<td colspan="2" class="sq-backend-data">
 					<?php text_box($prefix.'_duration', (isset($_REQUEST['SQ_CALENDAR_DURATION']) ? strtok($_REQUEST['SQ_CALENDAR_DURATION'], '_') : ''), 2, 0, 0, 'onclick="checkBox(\''.$prefix.'_duration_enabled\'); checkBox(\''.$prefix.'_start_time_enabled\'); enableTimeField(\''.$prefix.'_start\');"  onblur="updateDurationValues(\''.$prefix.'\')" '.$end_disabled_code);
-					combo_box($prefix.'_duration_units', Array('i' => 'Minutes', 'h' => 'Hours'), false, Array('i'), 0,  'onclick="checkBox(\''.$prefix.'_duration_enabled\'); checkBox(\''.$prefix.'_start_time_enabled\'); enableTimeField(\''.$prefix.'_start\');" onblur="updateDurationValues(\''.$prefix.'\')" '.$end_disabled_code); ?>
+					combo_box($prefix.'_duration_units', Array('i' => 'Minutes', 'h' => 'Hours', 'd' => 'Days'), false, Array('i'), 0,  'onclick="checkBox(\''.$prefix.'_duration_enabled\'); checkBox(\''.$prefix.'_start_time_enabled\'); enableTimeField(\''.$prefix.'_start\');" onblur="updateDurationValues(\''.$prefix.'\')" '.$end_disabled_code); ?>
 				</td>
 			</tr>
 			<tr>
-				<td>&nbsp</td>
+				<td>&nbsp;</td>
 				<!-- end date -->
 				<td class="sq-backend-data">
 					<input type="radio"  <?php if ($asset->id) echo 'checked="checked"'; ?> value="date" id="<?php echo $prefix; ?>_end_date_enabled" name="<?php echo $prefix; ?>_end_type" <?php echo $end_disabled_code; ?>  /> until &nbsp;
@@ -109,7 +109,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 					<?php $this->printDateChooser($prefix.'_end', $occurrence_end_ts ? $occurrence_end_ts : ($asset->getEndDate() ? iso8601_ts($asset->attr('end_date')) : false), $attributes+Array('onclick'=>'checkBox(\''.$prefix.'_end_date_enabled\');', 'onkeypress'=>'processKeyEvent(this)', 'onfocus'=>'currentField=this', 'onblur'=>'currentField=null; oldField=this; setTimeout(\'processEndDateBlur(oldField, \\\''.$prefix.'\\\')\', 10);')+$end_disabled_array); ?>
 				</td>
 				<td class="sq-backend-data">
-					&nbsp;&nbsp;<?php $this->printTimeChooser($prefix.'_end', ($asset->getEndTime() ? iso8601_ts($asset->attr('end_date')) : ($asset->getStartTime() ? 0 : false)), $attributes+Array('onkeypress'=>'processKeyEvent(this)', 'onfocus'=>'currentField=this', 'onblur'=>'currentField=null; oldField=this; setTimeout(\'processEndDateBlur(oldField, \\\''.$prefix.'\\\')\', 10);')+$end_disabled_array, Array('onclick'=>'if (this.checked) { checkBox(\''.$prefix.'_end_date_enabled\'); enableTimeField(\''.$prefix.'_start\'); } else disableTimeField(\''.$prefix.'_start\');')+$end_disabled_array); ?>
+					&nbsp;&nbsp;<?php $this->printTimeChooser($prefix.'_end', ($asset->getEndTime() ? iso8601_ts($asset->attr('end_date')) : ($asset->getStartTime() ? 0 : false)), $attributes+Array('onclick'=>'checkBox(\''.$prefix.'_end_date_enabled\');', 'onkeypress'=>'processKeyEvent(this)', 'onfocus'=>'currentField=this', 'onblur'=>'currentField=null; oldField=this; setTimeout(\'processEndDateBlur(oldField, \\\''.$prefix.'\\\')\', 10);')+$end_disabled_array, Array('onclick'=>'if (this.checked) { checkBox(\''.$prefix.'_end_date_enabled\'); enableTimeField(\''.$prefix.'_start\'); } else disableTimeField(\''.$prefix.'_start\');')+$end_disabled_array); ?>
 				</td>
 			</tr>
 		</table>
