@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: Asset.java,v 1.4 2004/06/30 01:39:49 mmcintyre Exp $
+* $Id: Asset.java,v 1.5 2004/09/26 23:14:59 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -119,7 +119,7 @@ public class Asset {
 	public static final Color ARCHIVED_COLOUR = new Color(0x655240);
 
 	/** The Under Construction colour */
-	public static final Color UNDER_CONSTRUCTION_COLOUR = new Color(0xBCE2F5);
+	public static final Color UNDER_CONSTRUCTION_COLOUR = new Color(0xAACCDD);
 
 	/** The Pending Approval colour */
 	public static final Color PENDING_APPROVAL_COLOUR = new Color(0xDCD2E6);
@@ -131,18 +131,18 @@ public class Asset {
 	public static final Color LIVE_COLOUR = new Color(0xDBF18A);
 
 	/** The Live Approval colour */
-	public static final Color LIVE_APPROVAL_COLOUR = new Color(0xDCD2E6);
+	public static final Color LIVE_APPROVAL_COLOUR = new Color(0x50D000);
 
 	/** The Editing Colour */
 	public static final Color EDITING_COLOUR = new Color(0xF25C86);
 
 	/** The Editing Approval Colour */
-	public static final Color EDITING_APPROVAL_COLOUR = new Color(0xCCCCCC);
+	public static final Color EDITING_APPROVAL_COLOUR = new Color(0xCC7CC7);
 
 	/** The Editing Approved Colour */
 	public static final Color EDITING_APPROVED_COLOUR = new Color(0xFF9A00);
 	
-	/** A colour that will be used if the status colout is unknown */
+	/** A colour that will be used if the status colour is unknown */
 	public static final Color UNKNOWN_STATUS_COLOUR = new Color(0xFF0000);
 	
 	
