@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.37 2004/06/24 01:27:49 lwright Exp $
+* $Id: step_03.php,v 1.38 2004/06/24 02:18:43 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -122,7 +122,14 @@ if (!empty($asset_types)) {
 			if ($assetid_count > 0) {
 				// file gone but there are still assets depending on it!
 				trigger_error('The files for the asset type \''.$asset_type.'\' has been removed from its location ([SYSTEM_ROOT]/'.$type_info['dir'].'), but '.$assetid_count.' assets exist which depend on this type. The system may be broken until you restore the necessary files to this location', E_USER_WARNING);
-				$dependant_assets = true;
+				$missing_files = true;
+
+			} elseif(substr(SQ_SYSTEM_ROOT.'/'.$type_info['dir'], 0, strlen(SQ_CORE_PACKAGE_PATH)) == SQ_CORE_PACKAGE_PATH) {
+				// we're not friggin' touching anything in the core -- if it's not there then we have
+				// a problem!!
+				trigger_error('Cannot uninstall asset type \''.$asset_type.'\' as it is in the core. The system may be broken until you restore this asset type\'s files to its original location.', E_USER_WARNING);
+				$missing_files = true;
+
 			} else {
 				// safe to delete - save the type code so we can delete it later
 				$types_to_delete[] = $asset_type;
