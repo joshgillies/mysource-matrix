@@ -28,12 +28,12 @@ define('SQ_INIT_OB_LEVEL', ob_get_level());
 * We mustn't forget to update this (until someone
 * comes up with an automated method)
 */
-define('SQ_SYSTEM_VERSION',		'0.1.1');
-define('SQ_SYSTEM_SHORT_NAME',	'Resolve');
-define('SQ_SYSTEM_LONG_NAME',	'Squiz Resolve v'.SQ_SYSTEM_VERSION);
-define('SQ_SYSTEM_URL',			'http://www.squiz.net/');
+define('SQ_SYSTEM_VERSION',       '0.1.1');
+define('SQ_SYSTEM_SHORT_NAME',    'Resolve FX');
+define('SQ_SYSTEM_LONG_NAME',     'Squiz Resolve FX v'.SQ_SYSTEM_VERSION);
+define('SQ_SYSTEM_URL',           'http://www.squiz.net/');
 
-define('SQ_REQUIRED_PHP_VERSION',   '4.3.0');
+define('SQ_REQUIRED_PHP_VERSION', '4.3.0');
 
 /*
 * Let's get our bearings as to where everything is from here.
@@ -115,10 +115,10 @@ define('SQ_PERMISSION_WORKFLOW', 4); // workflow
 * It is very important that the statii stay in the order they are defined
 * as they are compared to eachother when changing the status of an asset
 */
-define('SQ_STATUS_UNDER_CONSTRUCTION', 1); // asset is under construction
-define('SQ_STATUS_PENDING_APPROVAL',   2); // asset is currently in workflow
-define('SQ_STATUS_LIVE',               4); // asset is live
-define('SQ_STATUS_EDITING',            8); // asset is currently safe editing
+define('SQ_STATUS_UNDER_CONSTRUCTION',  1); // asset is under construction
+define('SQ_STATUS_PENDING_APPROVAL',    2); // asset is currently in workflow
+define('SQ_STATUS_LIVE',                4); // asset is live
+define('SQ_STATUS_EDITING',             8); // asset is currently safe editing
 define('SQ_STATUS_EDITING_APPROVAL',   16); // asset is currently in workflow from safe edit
 
 define('SQ_STATUS_CAN_APPROVE',   9); // short hand for SQ_STATUS_UNDER_CONSTRUCTION | SQ_STATUS_EDITING
