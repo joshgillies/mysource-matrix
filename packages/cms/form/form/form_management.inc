@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.25 2004/09/08 04:00:00 gsherwood Exp $
+* $Id: form_management.inc,v 1.26 2004/09/21 00:40:06 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -255,5 +255,21 @@ class Form_Management extends Asset_Management
 	}//end getEventList()
 
 
+	/**
+	* Gets a list of all metadata files that we want web accessable
+	*
+	* @access private
+	* @return array(string)
+	*/
+	function _getFileList()
+	{
+		return Array(
+					 'popups/page_contents_keywords.php',
+					 'popups/thank_you_keywords.php',
+					 );
+
+	}//end _getFileList()
+	
+	
 }//end class
 ?>
