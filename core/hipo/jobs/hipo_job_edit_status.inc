@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.13 2003/12/16 12:13:57 brobertson Exp $
+* $Id: hipo_job_edit_status.inc,v 1.14 2004/01/19 23:59:07 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -113,9 +113,9 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 
 		// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
 		// we will be edting the status of
-		$dep_assets = Array();
-		$dep_assets = array_merge(Array($asset->id), $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($asset->id));
-		$this->_running_vars['todo_assetids'] = $dep_assets;
+		$child_assets = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($asset->id);
+		$child_assets[$asset->id] = $asset->type();
+		$this->_running_vars['todo_assetids'] = $child_assets;
 		$this->_running_vars['done_assetids'] = Array();
 
 		unset($asset);
@@ -206,8 +206,10 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	function processStatus(&$step_data, $prefix)
 	{
 		if (!empty($this->_running_vars['todo_assetids'])) {
-			$assetid = array_shift($this->_running_vars['todo_assetids']);
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));
+			$asset_type = $this->_running_vars['todo_assetids'][$assetid];
+			unset($this->_running_vars['todo_assetids'][$assetid]);
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if (!is_null($asset)) {
 				$new_status = $this->_running_vars['new_status'];
