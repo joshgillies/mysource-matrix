@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_edit_fns.inc,v 1.2 2004/10/25 01:37:42 arailean Exp $
+* $Id: report_edit_fns.inc,v 1.3 2004/11/01 04:52:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,7 +66,7 @@ class Report_Edit_Fns extends Bridge_Edit_Fns
 	{
 		$report_path = $asset->data_path.'/report.xml';
 		if (!is_file($report_path)) {
-			echo 'This report has not yet been genereted<br />';
+			echo 'This report has not yet been generated<br />';
 		} else {
 			echo '<b>This report has been generated</b><br />';
 		}
