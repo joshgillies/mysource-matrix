@@ -92,4 +92,34 @@ function random_password($length)
 	return $password;
 }
 
+/**
+* Chops a string at a certain maximum length and appends an ellipsis
+* ignores HTML tags
+*
+* @param string	$string    the string to manipulate
+* @param int	$length    the length of the password
+*
+* @return string
+*/
+function ellipsisize($string, $length)
+{
+	$full_length = strlen($string);
+	$length += 2; // add 2 because an elipsis is 3 chars long
+	$on = true;
+	$j = 0;
+	for($i = 0; $i < $full_length; $i++) {
+		if ($j == $length - 2)	$chophere = $i;
+		if ($on) {
+			if ($string[$i] == '<') $on = false;
+			else $j++;
+		} else {
+			if ($string[$i] == '>') $on = true;
+		}
+	}
+	if ($length < $j) {
+		$string = substr($string, 0, $chophere)."...";
+	}
+	return $string;
+}// end ellipsisize()
+
 ?>
