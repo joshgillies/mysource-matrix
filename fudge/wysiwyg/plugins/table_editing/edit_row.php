@@ -181,6 +181,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 											<td class="label">Horiz:</td>
 											<td>
 											<select id="f_align">
+												<option value="">none</option>
 												<option value="left"   <?php echo ($_GET['f_align'] == 'left')   ? 'selected' : ''; ?>>left</option>
 												<option value="center" <?php echo ($_GET['f_align'] == 'center') ? 'selected' : ''; ?>>center</option>
 												<option value="rigth"  <?php echo ($_GET['f_align'] == 'right')  ? 'selected' : ''; ?>>right</option>
@@ -191,6 +192,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 											<td class="label">Vert:</td>
 											<td>
 											<select id="f_valign">
+												<option value="">none</option>
 												<option value="top"    <?php echo ($_GET['f_valign'] == 'top')    ? 'selected' : ''; ?>>top</option>
 												<option value="middle" <?php echo ($_GET['f_valign'] == 'middle') ? 'selected' : ''; ?>>middle</option>
 												<option value="bottom" <?php echo ($_GET['f_valign'] == 'bottom') ? 'selected' : ''; ?>>bottom</option>
