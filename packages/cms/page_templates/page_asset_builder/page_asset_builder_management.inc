@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.5 2004/05/07 01:29:00 gsherwood Exp $
+* $Id: page_asset_builder_management.inc,v 1.6 2004/05/19 10:12:57 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -166,10 +166,16 @@ class Page_Asset_Builder_Management extends Asset_Management
 			// rules that meant the create locations has to be stored in a different format
 			bam('STARTING ASSET BUILDER UPGRADE - VERSION 0.1');
 
-			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren(1, $this->getAssetType(), false);
+			$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), false);
 			foreach ($children as $assetid => $type) {
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type);
 				if (is_null($asset)) continue;
+
+				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) { 
+					trigger_error('Asset Builder Upgrade Failed - Unable to Acquire Lock on "'.$asset->name.'" (#'.$asset->id.')', E_USER_WARNING);
+					return false;
+				}
 
 				$new_locations = Array();
 				$old_locations = $asset->attr('create_location_rules');
@@ -192,8 +198,11 @@ class Page_Asset_Builder_Management extends Asset_Management
 				}
 				
 				$asset->setAttrValue('create_location_rules', $new_locations);
-				$asset->saveAttributes();
-
+				if (!$asset->saveAttributes()) { 
+					trigger_error('Asset Builder Upgrade Failed', E_USER_WARNING);
+					return false;
+				}
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes'); 
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			}
 			
