@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.184 2003/11/23 21:56:16 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.185 2003/11/25 21:11:57 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -748,19 +748,6 @@ class Asset_Edit_Interface extends MySource_Object
 			if (!$creating) {
 				$process_function = 'process'.ucfirst($active_screen);
 				if ($this->$process_function($owner, $o)) $ret_val = true;
-			}
-
-			if ($old_status != $owner->status) {
-				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-				// the status changed, so they might want to know
-				// how the operation went...
-				?>
-				<script language="Javascript" type="text/javascript">
-					if (confirm("The status of '<?php echo $owner->name; ?>' has changed from <?php echo get_status_description($old_status); ?> to <?php echo getStatusDescription($owner->status); ?>. Do you want to view a dependant links report to view the status of the dependant assets below '<?php echo $owner->name; ?>'?")) {
-						document.location = '<?php echo $owner->getBackendHref('dependants'); ?>';
-					}
-				</script>
-				<?php
 			}
 
 			// try and find the file to print user defined
