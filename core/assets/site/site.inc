@@ -26,7 +26,7 @@ class Site extends Folder
 		$this->Folder($assetid);
 	}
 
-	/*
+	/**
 	* returns the urls for this site
 	*
 	* @see Asset::updateLookups()
@@ -37,7 +37,7 @@ class Site extends Folder
 		return Array();
 	}// end getWebPaths()
 
-	/*
+	/**
 	* Attempts to add a url to this site, site's don't have paths, only URLs
 	*
 	* @param string	$url	the url to assign to this site
@@ -51,7 +51,7 @@ class Site extends Folder
 		return false;
 	}// end addWebPath()
 
-	/*
+	/**
 	* Attempts to delete a path to this asset
 	*
 	* @param string	$path	the path to add to this asset's list
@@ -95,7 +95,7 @@ class Site extends Folder
 
 	}// end getSiteURLs()
 
-	/*
+	/**
 	* Attempts to add a url to this site, site's don't have paths, only URLs
 	*
 	* @param Array $save_urls		an Array($urlid => Array(url => '', http => boolean, https => boolean)

@@ -11,7 +11,7 @@
 * @package Fudge::general
 */
 
-/*
+/**
 * Strips the slashes from a variable if magic quotes is set for GPC
 * Handle normal variables and arrays 
 *
@@ -31,7 +31,7 @@ function gpc_stripslashes($var)
 	return $var;
 }
 
-/*
+/**
 * Strips the slashes from an entire associative array
 *
 * @param array $array           the array to stripslash
@@ -63,7 +63,7 @@ function stripslashes_array(&$array, $strip_keys=false)
 }
 
 
-/*
+/**
 * Generates a random password from letters/digits
 *
 * @param int $length    the length of the password

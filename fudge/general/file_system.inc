@@ -49,7 +49,7 @@ function is_image($filename)
 }//end is_image()
 
 
-/*
+/**
 * Reads a file into a string
 *
 * @param string $file    the filename whose contents to return 
@@ -70,7 +70,7 @@ function file_to_string($filename)
 	return $s;
 }// end file_to_string()
 
-/*
+/**
 * Writes a string to a file.. overwrites current file
 *
 * @param string	$string	the string to write
@@ -164,7 +164,7 @@ function list_files($dir='', $fullpath=false)
 	return $files;
 }// end list_files()
 
-/*
+/**
 * Creates a directory, including any parent directories needed to get to that directory
 *
 * @param string	$path	the path to create
@@ -193,7 +193,7 @@ function create_directory($path)
 
 
 
-/*
+/**
 * Recursively delete the contents of a directory without system calls 
 *
 * @param string	$path	the path to delete
@@ -224,7 +224,7 @@ function delete_directory($path)
 }// end delete_directory()
 
 
-/*
+/**
 * Deletes all contents of a directory without system calls 
 *
 * @param string	$path	the directory whose contents to delete
@@ -260,7 +260,7 @@ function clear_directory($path)
 }// end clear_directory()
 
 
-/*
+/**
 * Recursively copies the contents of a directory without system calls
 *
 * @param string	$path		the directory to copy
