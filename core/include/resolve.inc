@@ -74,6 +74,10 @@ class Resolve
 		// initialise the asset manager as we are going to need it pretty much everywhere
 		$this->am = new Asset_Manager();
 
+		// initiailise event listeners
+		$GLOBALS['SQ_EVENT_LISTENER_OBJECTS'] = array();
+		$GLOBALS['SQ_EVENT_LISTENERS'] = array();
+
 #		error_log("PATH : ".$_SERVER['REQUEST_URI'].", SESSION : ".array_contents($_SESSION).", COOKIE : ".array_contents($_COOKIE));
 
 		// If there is a userid in the session then someone is logged in,
@@ -165,6 +169,50 @@ class Resolve
 		$_GET['SQ_ACTION'] = '';
 
 	}//end _processGlobalActions()
+
+	
+	/**
+	* Allows an object to listen to an event in the system and be notifies of it
+	* Internally, classes boradcast events which the objects listening get
+	* notified of
+	*
+	* @param object	&$object	the object that is listening (use $this for yourself)
+	* @param array	$events		an array of events that the object wants to listen to
+	*
+	* @return boolean
+	* @access public
+	*/
+	function addEventListener(&$object, $events=Array())
+	{
+		if (empty($events)) return;
+		$GLOBALS['SQ_EVENT_LISTENER_OBJECTS'][] = &$object;
+		$obj_index = count($GLOBALS['SQ_EVENT_LISTENER_OBJECTS']) -1;
+		foreach ($events as $event) $GLOBALS['SQ_EVENT_LISTENERS'][trim($event)][$obj_index] = true;
+		return true;
+	}
+
+
+	/**
+	* Returns date time string for the passed timestamp
+	* Object listening have their onEVENT functions called
+	*
+	* @param string	$event		the event to boradcast for
+	* @param array	$event_data	some data that event functions can use
+	*
+	* @return boolean
+	* @access public
+	*/
+	function broadcastEvent($event, $event_data=Array())
+	{
+		$function_name = 'on'.$event;
+		if (empty($GLOBALS['SQ_EVENT_LISTENERS'][trim($event)])) return;
+		foreach ($GLOBALS['SQ_EVENT_LISTENERS'][trim($event)] as $obj_index => $true) {
+			$object = &$GLOBALS['SQ_EVENT_LISTENER_OBJECTS'][$obj_index];
+			if (!method_exists($object,$function_name)) continue;
+			$object->$function_name($event_data);
+		}
+		return true;
+	}
 
 
 	/**
