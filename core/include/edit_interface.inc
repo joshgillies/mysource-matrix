@@ -63,18 +63,7 @@ class Edit_Interface extends Resolve_Object
 	function _loadTabs() 
 	{
 
-		$file = '';
-		for($i = 0; $i < count($this->_dirs); $i++) {
-			if (file_exists($this->_dirs[$i].'/edit_interface_tabs.xml')) {
-				$file = $this->_dirs[$i].'/edit_interface_tabs.xml';
-				break;
-			}
-		}
-
-		if(!$file) {
-			trigger_error('edit_interface_tabs.xml not found for Asset Type "'.$this->_type_code.'"', E_USER_WARNING);
-			return;
-		}
+		if(!($file = $this->_findFile('tabs'))) return;
 
 		$input = new XML_Tree($file);
 		$root  = &$input->getTreeFromFile();
@@ -108,6 +97,10 @@ class Edit_Interface extends Resolve_Object
 	*/
 	function paint(&$owner, &$o, $creating) 
 	{
+		// if there are no tabs, piss off
+		if (!count($this->_tabs)) return;
+
+
 		$create_sections = Array();
 		$active_tab = (empty($_GET['edit_interface_tab'])) ? $this->_default_tab : $_GET['edit_interface_tab'];
 
@@ -194,6 +187,8 @@ class Edit_Interface extends Resolve_Object
 	*/
 	function process(&$owner, $creating) 
 	{
+		// if there are no tabs, piss off
+		if (!count($this->_tabs)) return;
 
 		$processed = Array();
 		$create_sections = Array();
