@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.5 2003/11/18 15:37:33 brobertson Exp $
+* $Id: event_manager.inc,v 1.6 2003/11/20 22:35:17 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -254,7 +254,7 @@ class Event_Manager extends MySource_Object
 			$this->_tmp['event_listeners'] = $cached_event_listeners_array;
 		}
 
-		// if we don't have an entry for this event, then gtfo
+		// if we don't have an entry for this event, then g.t.f.o
 		if (!isset($this->_tmp['event_listeners'][$broadcaster->type()][$event_name])) return false;
 		$listeners = Array();
 
@@ -278,11 +278,11 @@ class Event_Manager extends MySource_Object
 				}
 
 			} else {
-				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2);
+				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($broadcaster->id, $options['link_type'], $listener_type_code, true, $options['side_of_link'], $options['value'], $options['dependant'], $options['exclusive']);
 				if (empty($links)) return false;
 
 				$assetids = Array();
-				foreach ($links as $link) $assetids[] = $link[$side_of_link];
+				foreach ($links as $link) $assetids[] = $link[$side_of_link.'id'];
 			}// end if
 
 			foreach ($assetids as $assetid) {
@@ -293,7 +293,6 @@ class Event_Manager extends MySource_Object
 
 		}// end foreach
 
-		// no events... fuck off
 		if (empty($listeners)) return false;
 
 		for (reset($listeners); null !== ($key = key($listeners)); next($listeners)) {
@@ -429,8 +428,6 @@ class Event_Manager extends MySource_Object
 			}
 
 			// if they have been lazy, do some cleanup
-			if (!isset($info['options']['dependant'])) $info['options']['dependant'] = false;
-			if (!isset($info['options']['exclusive'])) $info['options']['exclusive'] = false;
 			if (!isset($info['options']['value'])) $info['options']['value'] = '';
 
 			if (!is_array($info['options'])) {
