@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_constant_button.inc,v 1.10 2003/10/14 05:07:56 brobertson Exp $
+* $Id: design_area_constant_button.inc,v 1.11 2003/11/12 18:02:27 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,12 +39,8 @@ class Design_Area_Constant_Button extends Design_Area
 		// return true because it just means that they haven't set anything yet
 		if (empty($assetid) && empty($url)) return true;
 
-		// if there is no assetid then just send the url along the way
-		if (empty($assetid)) {
-			$url_code = $url;
-
-		} else {
-			$url_code = '<'.'?php echo $constant_btn_'.$this->attr('id_name').'_url; ?'.'>';
+		// if there is an assetid then do some prep work before printing the area
+		if (!empty($assetid)) {
 			echo '<', '?php
 			$constant_btn_'.$this->attr('id_name').'_asset = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$assetid.');
 			if (is_null($constant_btn_'.$this->attr('id_name').'_asset)) {
@@ -55,62 +51,54 @@ class Design_Area_Constant_Button extends Design_Area
 			?', '>';
 		}// end if
 
-		$class    = ($this->attr('class')) ? 'class="'.$this->attr('class').'"' : '';
-		$a_tag    = $class;
-		$contents = '';
-
-		// if we are poping up in a new window, adjust the vars accordingly
-		if ($this->attr('new_window')) {
-			$width  = (int) $this->attr('new_window_width');
-			$height = (int) $this->attr('new_window_height');
-			 // some defaults just in case
-			if ($width  <= 0) $width  = 640;
-			if ($height <= 0) $height = 600;
-			$a_tag .= ' onClick="Javascript: new_window = window.open(\''.$url_code.'\', \'constant_btn_'.$this->attr('id_name').'\', \'toolbar=no,width='.$width.',height='.$height.',titlebar=false,scrollbars=yes\');new_window.focus(); return false;" ';
-			$url_code = '#';
-
-		// if we have a target set it up
-		} else if ($this->attr('target')) {
-			$a_tag .= ' target="'.$this->attr('target').'" ';
-
-		}// end if
-
-		// if there is an image then use it
-		if ($image = $this->attr('image')) {
-
-			$name = 'constant_btn_'.$this->attr('id_name');
-
-			$data_suffix = $this->type().'/'.$this->id;
-
-			$mouseover  = '';
-			$mouseout   = '';
-
-			// if this is a rollover 
-			if ($image_rollover = $this->attr('image_rollover')) { 
-				$a_tag .= ' onMouseOver="javascript: imgRoll("'.$name.'"); return true;" onMouseOut="javascript: imgRoll("'.$name.'"); return true;"';
-				echo '<script language="javascript" type="text/javascript"> AddRollover("'.$name.'", "<'.'?php echo $DATA_PATH;?'.'>/'.$data_suffix.'/'.$image_rollover.'"); </script>';
-			}//end if
-
-			// if there is a current button and we are the current page
-			if (!empty($assetid) && ($image_current = $this->attr('image_current'))) { 
-				$image = '<'.'?php echo (($ASSET->id == '.$assetid.') ? '.var_export($image_current, true).' : '.var_export($image, true).'; ?'.'>';
-			}//end if
-
-			$contents = '<img src="<'.'?php echo $DATA_PATH; ?'.'>/'.$data_suffix.'/'.$image.'" '.$class.' name="'.$name.'" id="'.$name.'" border="0" '.$this->attr('img_extra').'>';
-
-		// else there is text
-		} else {
-			$contents = $this->attr('text');
-			if (empty($contents)) $contents = $url_code;
-
-		}//end if
-
-		$a_tag .= ' '.$this->attr('a_extra');
-		echo '<a href="', $url_code, '" ', $a_tag, '>', $contents, '</a>';
-
-		return true;
+		return parent::printArea($design);
 
 	}//end printArea()
+
+
+	/*
+	* Outputs the var either as straight HTML or PHP code, depending on the type
+	*
+	* @param string	$var			the name of the var to print out
+	* @param Array	$args			array of any extra arguments that existed in the print command
+	* @param string	$value_prefix	PHP code to wrap put before the value before outputting it
+	* @param string	$value_suffix	PHP code to wrap put after  the value before outputting it
+	*
+	* @access public
+	*/
+	function printVar($var, $args, $value_prefix='', $value_suffix='')
+	{
+		switch($var) {
+			case 'href' :
+				$assetid = (int) $this->attr('assetid');
+
+				if (empty($assetid)) {
+					$url_code = $this->attr('url');
+				} else {
+					$url_code = '<'.'?php echo $constant_btn_'.$this->attr('id_name').'_url; ?'.'>';
+				}
+
+				// if we are poping up in a new window, adjust the vars accordingly
+				if ($this->attr('new_window')) {
+					$width  = (int) $this->attr('new_window_width');
+					$height = (int) $this->attr('new_window_height');
+					 // some defaults just in case
+					if ($width  <= 0) $width  = 640;
+					if ($height <= 0) $height = 600;
+					$url_code = 'Javascript: new_window = window.open(\''.$url_code.'\', \'constant_btn_'.$this->attr('id_name').'\', \'toolbar=no,width='.$width.',height='.$height.',titlebar=false,scrollbars=yes\');new_window.focus();';
+				}// end if
+
+				echo 'href="'.$url_code.'"';
+				break;
+
+			default :
+				parent::printVar($var, $args);
+
+		}// end switch
+
+	}//end printVar()
+
+
 
 }//end class
 
