@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.124 2004/04/02 07:10:24 gsherwood Exp $
+* $Id: asset_map.inc,v 1.125 2004/04/02 07:19:15 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -396,10 +396,12 @@ class Asset_Map
 					  l.majorid = '.$db->quote($assetid).' AND
 					  l.link_type <= '.$db->quote(SQ_LINK_TYPE_2);
 		if (!empty($userid_cond)) {
-			$sql .= ' GROUP BY a.assetid';
+			$sql .= ' GROUP BY a.assetid, a.short_name, a.type_code, a.status,
+					   l.linkid, l.link_type, l.sort_order,
+					   lt.num_immediate_kids, l.sort_order';
 		}
 		$sql .=	' ORDER BY sort_order DESC';
-		
+		error_log($sql);
 		$result = $db->getAll($sql);
 		if (DB::isError($result)) {
 			return $this->_error('Could not load child assets for assetid '.$assetid.' '.$result->getMessage());
