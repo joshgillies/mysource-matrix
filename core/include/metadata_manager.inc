@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.41 2004/05/26 22:37:13 lwright Exp $
+* $Id: metadata_manager.inc,v 1.42 2004/06/18 04:29:06 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -723,8 +723,15 @@ class Metadata_Manager extends MySource_Object
 
 				case 'asset_created_by_name' :
 				case 'asset_updated_by_name' :
-					echo 'if (!isset($metadata_'.substr($keyword,6,7).'_by_user)) $metadata_'.substr($keyword,6,7).'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.substr($keyword,6,7).'_userid);'."\n";
+					echo 'if (!isset($metadata_'.substr($keyword,6,7).'_by_user)) { 
+					$asset_info = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetInfo(Array($metadata_asset->'.substr($keyword,6,7).'_userid));
+					if (!empty($asset_info)) {
+					$metadata_'.substr($keyword,6,7).'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.substr($keyword,6,7).'_userid);'."\n}\n}\n";
+					echo 'if (!empty($metadata_'.substr($keyword,6,7).'_by_user)) { ';
 					echo '$metadata_replacements[\''.$keyword.'\'] = $metadata_'.substr($keyword,6,7).'_by_user->name;'."\n";
+					echo '} else {'."\n";
+					echo '$metadata_replacements[\''.$keyword.'\'] = \'System\';'."\n";
+					echo '}'."\n";
 				break;
 
 				case 'asset_created_by_first_name' :
@@ -733,8 +740,16 @@ class Metadata_Manager extends MySource_Object
 				case 'asset_updated_by_first_name' :
 				case 'asset_updated_by_last_name'  :
 				case 'asset_updated_by_email'      :
-					echo 'if (!isset($metadata_'.substr($keyword,6,7).'_by_user)) $metadata_'.substr($keyword,6,7).'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.substr($keyword,6,7).'_userid);'."\n";
-					echo '$metadata_replacements[\''.$keyword.'\'] = $metadata_'.substr($keyword,6,7).'_by_user->attr(\''.substr($keyword,17).'\');'."\n";
+					echo 'if (!isset($metadata_'.substr($keyword,6,7).'_by_user)) { 
+					$asset_info = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetInfo(Array($metadata_asset->'.substr($keyword,6,7).'_userid));
+					if (!empty($asset_info)) {
+					$metadata_'.substr($keyword,6,7).'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.substr($keyword,6,7).'_userid);'."\n}\n}\n";
+					echo 'if (!empty($metadata_'.substr($keyword,6,7).'_by_user)) { ';
+					echo '$metadata_'.substr($keyword,6,7).'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.substr($keyword,6,7).'_userid);'."\n";
+					echo '} else {'."\n";
+					echo '$metadata_replacements[\''.$keyword.'\'] = \'\';'."\n";
+					echo '}'."\n";
+
 				break;
 
 				case 'asset_read_permission'  :
