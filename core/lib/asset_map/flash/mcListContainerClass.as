@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mcListContainerClass.as,v 1.45 2003/11/26 00:51:12 gsherwood Exp $
+* $Id: mcListContainerClass.as,v 1.46 2003/12/17 04:54:50 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -164,7 +164,7 @@ mcListContainerClass.prototype.actionsBarPressed = function(action)
 //		trace("Finding Asset");
 		if (action == 'use_me') {
 //			trace("finish asset finder");
-			this._parent.finishAssetFinder(this.list.selected_item.assetid);
+			this._parent.finishAssetFinder(this.list.selected_item.assetid, this.list.selected_item.preview_url);
 		}
 	} else {
 		if (action == 'preview') {
