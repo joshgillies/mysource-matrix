@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.40.2.1 2004/12/06 03:22:02 lwright Exp $
+* $Id: system_config.inc,v 1.40.2.2 2005/03/11 03:56:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -160,7 +160,10 @@ class System_Config extends Config
 			if (isset($vars['SQ_CONF_SYSTEM_ROOT_URLS'])) {
 				$vars['SQ_CONF_SYSTEM_ROOT_URLS'] = str_replace("\r", '', $vars['SQ_CONF_SYSTEM_ROOT_URLS']);
 			}
-			foreach (Array('SQ_CONF_MAX_IDLE_TIME', 'SQ_CONF_REFRESH_INTERVAL', 'SQ_CONF_LOCK_LENGTH') as $var_name) {
+			if (isset($vars['SQ_CONF_MAX_IDLE_TIME']) && $vars['SQ_CONF_MAX_IDLE_TIME'] != '0') {
+				$vars['SQ_CONF_MAX_IDLE_TIME'] = max(60, (int) $vars['SQ_CONF_MAX_IDLE_TIME']);
+			}
+			foreach (Array('SQ_CONF_REFRESH_INTERVAL', 'SQ_CONF_LOCK_LENGTH') as $var_name) {
 				if (isset($vars[$var_name])) {
 					$vars[$var_name] = max(60, (int) $vars[$var_name]);
 				}
@@ -372,7 +375,7 @@ class System_Config extends Config
 				echo SQ_CONF_MAX_LOGIN_ATTEMPTS;
 			}
 
-			$o->openField('Max Idle Time', '', 'In seconds - Min: 60 or zero (0) for unlimited idle time');
+			$o->openField('Max Idle Time', '', 'In seconds - minimum 60 or zero (0) for unlimited idle time');
 
 			if ($write_access && $is_root) {
 				text_box($class.'[SQ_CONF_MAX_IDLE_TIME]', SQ_CONF_MAX_IDLE_TIME, 10, 10);

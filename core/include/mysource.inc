@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.60.2.2 2005/03/07 20:33:47 brobertson Exp $
+* $Id: mysource.inc,v 1.60.2.3 2005/03/11 03:56:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -216,10 +216,13 @@ class MySource
 			// but make sure that the person is coming from the same machine as they logged in on
 			// so get a reference to them
 			$this->user = null;
-			if (!empty($_SESSION['user_last_access']) 
-				&& time() < ((int) $_SESSION['user_last_access'] + SQ_CONF_MAX_IDLE_TIME)
-				&& !empty($_SESSION['userid'])) {
-				
+
+			$timed_out = false;
+			if (SQ_CONF_MAX_IDLE_TIME > 0) {
+				$timed_out = time() >= ((int) $_SESSION['user_last_access'] + SQ_CONF_MAX_IDLE_TIME);
+			}
+			if (!empty($_SESSION['user_last_access']) && !empty($_SESSION['userid']) && !$timed_out) {
+
 				// check to see if we are allowing fluctuating ip addresses
 				if (SQ_CONF_ALLOW_IP_CHANGE || ($_SESSION['remote_addr'] == $_SERVER['REMOTE_ADDR'])) {
 					// we mute errors trying to get the user because we will handle this gracefully later
