@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.9 2004/09/08 05:37:05 lwright Exp $
+* $Id: wysiwyg.inc,v 1.10 2004/10/25 05:38:18 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -158,7 +158,6 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 			if ($iap || in_array('spell_checker', $ap))  $wysiwyg->add_plugin('spell_checker');
 			if ($iap || in_array('text_indicator', $ap)) $wysiwyg->add_plugin('text_indicator');
 			if ($iap || in_array('view_source', $ap))    $wysiwyg->add_plugin('view_source');
-			if ($iap || in_array('popup_editor', $ap))   $wysiwyg->add_plugin('popup_editor');
 			if ($iap || in_array('help', $ap))           $wysiwyg->add_plugin('help');
 		$wysiwyg->close_group();
 
