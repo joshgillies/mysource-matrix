@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.67 2004/05/27 23:41:59 gsherwood Exp $
+* $Id: init.inc,v 1.68 2004/06/23 00:03:13 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -79,6 +79,19 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 // include the main system config file
 require_once SQ_DATA_PATH.'/private/conf/main.inc';
 
+// To be able to use symlinks without matrix tripping over the index.php, strip
+// it out of the PHP_SELF variable (pretend we're someone we're not). When
+// the symlinked directory gets redirected by the .htaccess file, it has 
+// the index.php appended to the url, which causes all sorts of problems for
+// the system as it expects php_self to be just a name, as it is normally 
+// aliased to the index.php directly. This will
+// quite probably need to be changed to a function like get_real_self()
+
+// if there's a index.php/ that's not at the end (ie it has a trailing slash) in the 
+// php_self variable, remove it as it breaks everything (symlinks only).
+if (strrpos($_SERVER['PHP_SELF'], 'index.php/')) {
+	$_SERVER['PHP_SELF'] = str_replace('index.php/','', $_SERVER['PHP_SELF']);
+}
 
 // Load general everyday handy functions for developers
 require_once SQ_FUDGE_PATH.'/dev/dev.inc';
