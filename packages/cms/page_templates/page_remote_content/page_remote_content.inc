@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.6.2.2 2004/11/03 05:09:17 arailean Exp $
+* $Id: page_remote_content.inc,v 1.6.2.3 2004/12/03 03:13:34 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once 'HTTP/Client/CookieManager.php';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6.2.2 $
+* @version $Revision: 1.6.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -112,6 +112,7 @@ class Page_Remote_Content extends Page
 
 		if (!$fetch_url) return;
 
+		$fetch_url = undo_htmlspecialchars($fetch_url);
 		$Fetch_URL	= &new Net_URL($fetch_url);
 
 		// let's see if we're getting any variables in the get string
