@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replicator_master.inc,v 1.1.2.8 2004/02/26 16:47:47 brobertson Exp $
+* $Id: replicator_master.inc,v 1.1.2.9 2004/03/03 18:58:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -69,34 +69,13 @@ class Replicator_Master extends Replicator
 			return false;
 		}
 
-		trigger_error('CREATE TABLES HERE FROM AN XML FILE NOT HARD-CODED');
-
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'CREATE TABLE '.SQ_TABLE_PREFIX.'replication_remote_slave_system (
-					systemid INT          NOT NULL,
-					name     VARCHAR(100) NOT NULL,
-					created  TIMESTAMP    NOT NULL,
-					retired  TIMESTAMP    DEFAULT NULL,
-					PRIMARY KEY (systemid),
-					UNIQUE (name)
-				)';
-
-		pre_echo($sql);
-
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
+		require_once SQ_LIB_PATH.'/db_install/db_install.inc';
+		if (!db_install(dirname(__FILE__).'/tables.xml')) {
+			trigger_error('Unable to initialise Master Replicator System : Database Table Install Failure', E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
-
-		$result = $db->createSequence(SQ_TABLE_PREFIX.'sequence_replication_slave');
-		if (DB::isError($result)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 

@@ -1,0 +1,75 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: tables.xml,v 1.1.2.1 2004/03/03 18:58:22 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<schema>
+	<tables>
+		<table name="replication_remote_slave_system" require_rollback="0">
+			<columns>
+				<column name="systemid" allow_null="0">
+					<type>INT</type>
+					<type_variations>
+						<mysql>INT UNSIGNED</mysql>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+				<column name="name" allow_null="0">
+					<type>VARCHAR(100)</type>
+					<type_variations />
+					<default>''</default>
+					<description>Plain text name for remote slave system</description>
+				</column>
+				<column name="created" allow_null="0">
+					<type>TIMESTAMP</type>
+					<type_variations>
+						<mysql>DATETIME</mysql>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+				<column name="retired" allow_null="1">
+					<type>TIMESTAMP</type>
+					<type_variations>
+						<mysql>DATETIME</mysql>
+					</type_variations>
+					<default>NULL</default>
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="systemid" />
+				</primary_key>
+				<unique_key>
+					<column name="name" />
+				</unique_key>
+			</keys>
+			<indexes />
+		</table>
+	</tables>
+	<sequences>
+		<sequence name="sequence_replication_slave" />
+	</sequences>
+</schema>
