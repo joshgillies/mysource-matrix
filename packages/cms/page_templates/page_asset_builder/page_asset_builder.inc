@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.30 2004/10/15 05:30:30 amiller Exp $
+* $Id: page_asset_builder.inc,v 1.31 2004/10/18 23:21:52 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -275,7 +275,7 @@ class Page_Asset_Builder extends Page
 	{
 		?>
 		<script type="text/javascript" language="javascript" src="<?php echo sq_web_path('lib');?>/html_form/html_form.js"></script>
-		<form name="asset_builder_<?php echo $this->id; ?>" method="POST" action="<?php echo $_SERVER['../../../../../../matrix_stable/mysource_matrix/packages/cms/page_templates/page_asset_builder/PHP_SELF']; ?>" enctype="multipart/form-data">
+		<form name="asset_builder_<?php echo $this->id; ?>" method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>" enctype="multipart/form-data">
 			<?php
 			echo hidden_field('ASSET_BUILDER_ACTION', $this->_default_state);
 			$this->_printContents();
