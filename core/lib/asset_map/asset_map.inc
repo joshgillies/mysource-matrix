@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.125 2004/04/02 07:19:15 gsherwood Exp $
+* $Id: asset_map.inc,v 1.126 2004/04/02 07:25:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -422,7 +422,7 @@ class Asset_Map
 									'status'             => $asset->status,
 									'linkid'             => $link_data['linkid'],
 									'link_type'          => $link_data['link_type'],
-									'child_count' 		 => count($asset_links),
+									'num_immediate_kids' => count($asset_links),
 									'sort_order'         => $link_data['sort_order'],
 								);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
