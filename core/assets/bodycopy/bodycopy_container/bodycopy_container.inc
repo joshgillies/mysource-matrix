@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.3 2003/12/19 04:02:46 gsherwood Exp $
+* $Id: bodycopy_container.inc,v 1.4 2004/01/15 05:45:36 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -260,8 +260,6 @@ class Bodycopy_Container extends Asset
 			if ($href == '') $href = './?a='.$minorid;
 			$sq_asset_url_list[$minorid] = $href;
 		}
-		// create an array of keywords that the content file is 
-		// going to try and use to replace them
 
 		if(SQ_ROLLBACK_VIEW) {
 			$edit = $this->getEditFns();
@@ -279,13 +277,13 @@ class Bodycopy_Container extends Asset
 		}
 
 		if (!file_exists($this->data_path.'/content_file.php')) {
-			// generate the contents file
+			// generate the content file
 			$edit = $this->getEditFns();
 			$edit->generateContentFile($this);
 		}
 
 		if (!file_exists($this->data_path.'/content_file.php')) {
-			trigger_error('Contents file failed to generate for bodycopy container '.$this->name, E_USER_WARNING);
+			trigger_error('Content file failed to generate for bodycopy container '.$this->name, E_USER_WARNING);
 		} else {
 			include($this->data_path.'/content_file.php');
 		}
