@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mysource.inc,v 1.13 2003/10/19 22:54:17 gsherwood Exp $
+* $Id: mysource.inc,v 1.14 2003/10/19 22:58:32 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -320,6 +320,7 @@ class MySource
 							$log_body = 'User "'.$user->name.'" logged in';
 							$log = $ms->newMessage(Array(), 'User Logged In', $log_body, 'system.security.login');
 							$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
+							$log->parameters['sessionid'] = session_id();
 							$log->send();
 
 							// generate a new login key so that when they try and login next
@@ -358,6 +359,7 @@ class MySource
 										$log_body = 'User "'.$username.'" has had their account locked after '.(int)SQ_CONF_MAX_LOGIN_ATTEMPTS.' unsuccessful login attempts';
 										$log = $ms->newMessage(Array(), 'User Account Locked', $log_body, 'system.security.login');
 										$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
+										$log->parameters['sessionid'] = session_id();
 										$log->send();
 									}
 								}
@@ -381,6 +383,7 @@ class MySource
 					$log_body = 'User "'.$this->user->name.'" logged out';
 					$log = $ms->newMessage(Array(), 'User Logged Out', $log_body, 'system.security.login');
 					$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
+					$log->parameters['sessionid'] = session_id();
 					$log->send();
 				}
 
