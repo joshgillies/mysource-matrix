@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_edit_fns.inc,v 1.48 2003/10/14 05:07:56 brobertson Exp $
+* $Id: design_edit_fns.inc,v 1.49 2003/10/17 01:35:17 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -549,7 +549,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$pre_str = '
 		<?php
 		$am = &$GLOBALS[\'SQ_SYSTEM\']->am;
-		$ASSET_LINEAGE = $am->getLineageFromURL(null, null, \'short_name\');
+		$ASSET_LINEAGE = @$am->getLineageFromURL(null, null, \'short_name\');
 		?>
 		';
 
