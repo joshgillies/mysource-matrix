@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.22 2005/03/03 00:42:02 gsherwood Exp $
+* $Id: package_manager_core.inc,v 1.23 2005/03/23 03:00:01 arailean Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 */
 class Package_Manager_Core extends Package_Manager
@@ -44,23 +44,23 @@ class Package_Manager_Core extends Package_Manager
 	*
 	*/
 	var $default_components = Array(
-									'__name__' => Array (
-										'description'		=> 'Asset Name',
-										'default_weighting'	=> '1',
-									),
-									'__created__' => Array (
-										'description'		=> 'Created Date',
-										'default_weighting'	=> '1',
-									),
-									'__updated__' => Array (
-										'description'		=> 'Updated Date',
-										'default_weighting'	=> '1',
-									),
-									'__published__' => Array (
-										'description'		=> 'Published Date',
-										'default_weighting'	=> '1',
-									),
-								);
+									'__name__'      => Array(
+															 'description'       => 'Asset Name',
+															 'default_weighting' => '1',
+															 ),
+									'__created__'   => Array(
+															 'description'       => 'Created Date',
+															 'default_weighting' => '1',
+															 ),
+									'__updated__'   => Array(
+															 'description'       => 'Updated Date',
+															 'default_weighting' => '1',
+															 ),
+									'__published__' => Array(
+															 'description'       => 'Published Date',
+															 'default_weighting' => '1',
+															 ),
+									);
 
 
 	/**
@@ -166,25 +166,26 @@ class Package_Manager_Core extends Package_Manager
 	function getSystemAssetTypes()
 	{
 		return Array(
-					'root_folder',
-					'system_management_folder',
-					'web_folder_designs',
-					'web_folder_media',
-					'web_folder_users',
-					'public_user',
-					'trash_folder',
-					'system_user_group',
-					'root_user',
-					'authentication_folder',
-					'cron_manager',
-					'trigger_manager',
-					'layout_manager',
-					'remap_manager',
-					'cache_manager',
-					'designs_folder',
-					'login_design',
-					'cron_job_expired_workflow',
-				);
+					 'root_folder',
+					 'system_management_folder',
+					 'log_manager',
+					 'web_folder_designs',
+					 'web_folder_media',
+					 'web_folder_users',
+					 'public_user',
+					 'trash_folder',
+					 'system_user_group',
+					 'root_user',
+					 'authentication_folder',
+					 'cron_manager',
+					 'trigger_manager',
+					 'layout_manager',
+					 'remap_manager',
+					 'cache_manager',
+					 'designs_folder',
+					 'login_design',
+					 'cron_job_expired_workflow',
+					 );
 
 	}//end getSystemAssetTypes()
 
@@ -386,6 +387,30 @@ class Package_Manager_Core extends Package_Manager
 		return $trigger_manager;
 
 	}//end createTriggerManager()
+
+
+	/**
+	* Create the log manager system asset
+	*
+	* @return object Log_Manager
+	* @access public
+	*/
+	function &createLogManager()
+	{
+		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['system_management_folder']);
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('log_manager');
+		$log_manager = new Log_Manager();
+		$log_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
+		if (!$log_manager->create($log_manager_link)) {
+			trigger_error('Trigger Manager NOT CREATED', E_USER_ERROR);
+		}
+		pre_echo('Log Manager Asset Id : '.$log_manager->id);
+
+		$GLOBALS['SQ_SYSTEM_ASSETS']['log_manager'] = $log_manager->id;
+		return $log_manager;
+
+	}//end createLogManager()
 
 
 	/**
@@ -619,6 +644,7 @@ class Package_Manager_Core extends Package_Manager
 		return $cron_job;
 
 	}//end createCronJobExpiredWorkflow()
+
 
 }//end class
 
