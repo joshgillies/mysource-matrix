@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: file_system.inc,v 1.16 2003/09/30 02:23:59 brobertson Exp $
+* $Id: file_system.inc,v 1.17 2003/10/16 03:02:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,8 @@
 function get_file_type($filename)
 {
 	return strtolower(  substr( strrchr($filename,'.') , 1)  );
-}
+}//end get_file_type()
+
 
 /**
 * Takes a filename and returns true if it is considdered and image
@@ -68,6 +69,7 @@ function is_image($filename)
 function file_to_string($filename)
 {
 	return file_get_contents($filename);
+
 }// end file_to_string()
 
 
@@ -145,7 +147,8 @@ function increment_filename($name,$spacer='') {
 	} else {
 		return increment_name($name, $spacer);
 	}
-}
+
+}//end increment_filename()
 
 
 /**
@@ -187,7 +190,8 @@ function list_files($dir='', $fullpath=false)
 		closedir($handle);
 	}
 	return $files;
-}// end list_files()
+
+}//end list_files()
 
 
 /**
@@ -215,7 +219,8 @@ function create_directory($path)
 	umask($old_umask);
 	clearstatcache();
 	return true;
-}// end create_directory()
+
+}//end create_directory()
 
 
 
@@ -247,7 +252,8 @@ function delete_directory($path)
 	}
 	clearstatcache();
 	return false;
-}// end delete_directory()
+
+}//end delete_directory()
 
 
 /**
@@ -283,7 +289,8 @@ function clear_directory($path)
 	closedir($dir);
 	clearstatcache();
 	return true;
-}// end clear_directory()
+
+}//end clear_directory()
 
 
 /**
@@ -337,7 +344,8 @@ function copy_directory($path, $new_path)
 	closedir($dir);
 	clearstatcache();
 	return true;
-}// end copy_directory()
+
+}//end copy_directory()
 
 
 
@@ -356,7 +364,8 @@ function copy_file($from, $to)
 
 	if (!copy($from, $to)) return false;
 	return true;
-}// end copy_file()
+
+}//end copy_file()
 
 
 /**
@@ -373,7 +382,8 @@ function move_file($from, $to)
 	if (!copy_file($from, $to)) return false;
 	if (!unlink($from)) return false;
 	return true;
-}// end move_file()
+
+}//end move_file()
 
 
 ?>

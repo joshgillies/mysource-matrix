@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: text.inc,v 1.3 2003/10/07 07:08:45 dwong Exp $
+* $Id: text.inc,v 1.4 2003/10/16 03:02:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -69,12 +69,12 @@ function retrieve_keywords_replacements($text)
 
 
 /**
-* Extracts word counts for a given string. 
-* 
-* Takes a text string, splits it into words (according to $split_regexp), and extracts words 
-* from each split element (according to $word_match_regexp). 
-* Words must be larger than or equal to $min_length to be output. 
-* 
+* Extracts word counts for a given string.
+*
+* Takes a text string, splits it into words (according to $split_regexp), and extracts words
+* from each split element (according to $word_match_regexp).
+* Words must be larger than or equal to $min_length to be output.
+*
 * @param string $text
 * @param string $split_regexp		Regular expression delineating words
 * @param string $word_match_regexp	Regular expression for matching valid words
@@ -94,6 +94,7 @@ function get_word_counts($text, $split_regexp="[^A-z0-9]+", $word_match_regexp="
 		}
 	}
 	return $word_counts;
-}
+
+}//end get_word_counts()
 
 ?>
