@@ -91,7 +91,7 @@ class Asset_Attribute_Colour extends Asset_Attribute
 	function validateValue(&$value)
 	{
 		$value = trim($value);
-		$new_value = preg_replace('/[^0-9a-f]/', '0', (string) $value);
+		$new_value = preg_replace('/[^0-9a-f]/i', '0', (string) $value);
 		// only valid if the values are the same and there are six chars
 		// or if we can allow blanks then no chars
 		return ($new_value == $value && 
