@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.63 2004/03/29 06:27:03 mmcintyre Exp $
+* $Id: design_edit_fns.inc,v 1.64 2004/03/30 04:20:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -578,8 +578,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$pre_str = '<?php
 		global $ASSET_LINEAGE;
 		$am = &$GLOBALS[\'SQ_SYSTEM\']->am;
-		
 		if (!isset($ASSET_LINEAGE) || empty($ASSET_LINEAGE)) $ASSET_LINEAGE = @$am->getLineageFromURL(null, null);
+		define(\'SQ_LIMBO_EDITING\', (SQ_IN_LIMBO && (!isset($_REQUEST[\'ignore_frames\']) || !$_REQUEST[\'ignore_frames\'])));
 		?>';
 
 		$str = '';

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.41 2004/02/25 00:34:58 gsherwood Exp $
+* $Id: design_area_menu_type.inc,v 1.42 2004/03/30 04:20:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -593,7 +593,7 @@ class Design_Area_Menu_Type extends Design_Area
 
 				case 'asset_link' :
 					if ($id_name) { 
-						echo '<', '?php echo $'.$id_name.'_urls[$'.$id_name.'_row[\'assetid\']]; ?', '>';
+						echo '<', '?php echo $'.$id_name.'_urls[$'.$id_name.'_row[\'assetid\']].((SQ_LIMBO_EDITING) ? \'/_edit\' : \'\'); ?', '>';
 					}
 					break;
 
