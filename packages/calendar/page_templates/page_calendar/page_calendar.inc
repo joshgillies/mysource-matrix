@@ -18,13 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.2 2004/07/30 06:36:17 lwright Exp $
+* $Id: page_calendar.inc,v 1.3 2004/08/04 23:41:16 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
 require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset_listing.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
+require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 /**
@@ -34,7 +35,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $ - 1.0
+* @version $Revision: 1.3 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -67,15 +68,20 @@ class Page_Calendar extends Page_Asset_Listing
 
 		switch($cal_view) {
 			case 'day':
-				//printDayView();
+				$this->printDayView(2004,8,2);
 			break;
 
 			case 'week':
+				$this->printWeekView(2004,2,26);
 				//printWeekView();
 			break;
 
 			case 'month':
-				//printMonthView();
+				$this->printMonthView(2004,7);
+			break;
+
+			case 'year':
+				//$this->printYearView(2004);
 			break;
 
 			case 'list':
@@ -88,6 +94,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 			default:
 				trigger_error('Unrecognised calendar view type "'.$cal_view.'".', E_USER_NOTICE);
+			break;
 		}
 
 	}//end printBody()
@@ -101,6 +108,13 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function printDayView($year, $month, $day)
 	{
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		
+		// base sql query FOR SINGLE EVENTS (holy crap... O_O')
+		$sql = 'select a.name, a.assetid, v.custom_value as start_date, v1.custom_value as end_date from ((('.SQ_TABLE_RUNNING_PREFIX.'asset a join '.SQ_TABLE_PREFIX.'asset_attribute atr on a.type_code = atr.type_code) join '.SQ_TABLE_PREFIX.'asset_attribute atr1 on a.type_code = atr1.type_code) left join '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v on atr.attributeid = v.attributeid and a.assetid = v.assetid) left join '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v1 on atr1.attributeid = v1.attributeid and a.assetid = v1.assetid where atr.name = '.$db->quote('start_date').' and atr1.name = '.$db->quote('end_date').' and a.type_code = '.$db->quote('calendar_event_single').' and ((substring(v.custom_value from 1 for 10) = '.$db->quote().' and v1.custom_value IS NULL) OR (substring(v.custom_value from 1 for 10) <= '.$db->quote($this->_buildDate($year,$month,$day)).' and substring(v1.custom_value from 1 for 10) >= '.$db->quote($this->_buildDate($year,$month,$day))';
+		
+		$result = $db->getAll($sql);
+		pre_echo($result);
 		/* pseudo-code version of this method...
 		 * get all events that lie underneath the selected root nodes, using a search matching
 		 * the front part of the tree id with the root node
@@ -139,7 +153,24 @@ class Page_Calendar extends Page_Asset_Listing
 		 * Print the bastard =D (one column per node if that is specified, otherwise
 		 * just one column straight down)
 		 */
+		list($start_time_h, $start_time_m) = explode(':', $this->attr('day_view_start_time'));
+		list($end_time_h, $end_time_m) = explode(':', $this->attr('day_view_end_time'));
+		$appt_spacing = intval($this->attr('appointment_spacing'));
 		
+				foreach($result as $result_item) {
+					
+						echo '<br/><b>'.$result_item['name'].'</b>';
+					
+				}?>
+			<table>
+			<?php for($i = $start_time_h * 60 + $start_time_m; $i < $end_time_h * 60 + $end_time_m; $i += $appt_spacing) { ?>
+				<tr>
+					<td align="right"><?php echo intval($i/60).':'.(($i % 60) < 10 ? '0' : '').intval($i % 60) ?></td>
+					<td>&nbsp;</td>
+				</tr>
+			<?php } ?>
+			</table>
+		<?php
 	}//end printDayView()
 
 	
@@ -184,6 +215,31 @@ class Page_Calendar extends Page_Asset_Listing
 		 * Print the bastard =D, one column for each day
 		 */
 		 
+	
+		list($start_time_h, $start_time_m) = explode(':', $this->attr('day_view_start_time'));
+		$start_time_h = 8; $start_time_m = 30;
+		list($end_time_h, $end_time_m) = explode(':', $this->attr('day_view_end_time'));
+		$end_time_h = 17; $end_time_m = 0;
+		$appt_spacing = intval($this->attr('appointment_spacing'));
+		
+		
+		$days_of_week = Array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
+		$first_day = mktime(0,0,0,$month,$day,$year);
+		$date_info = getdate($first_day);
+		$first_wday = $date_info['wday'];
+		?>
+		<table width="100%">
+		<tr>
+		<th>Time</th>
+		<?php for($i = $first_wday; $i < $first_wday + 7; $i++) { ?><th align="center" width="<?php echo intval(100 / 7) ?>%"><?php echo $days_of_week[$i % 7]; ?> <?php echo date('jS', mktime(0,0,0,$month,$day + $i - $first_wday,$year)) ?></th><?php } ?>
+		</tr>
+		<?php for($i = $start_time_h * 60 + $start_time_m; $i < $end_time_h * 60 + $end_time_m; $i += $appt_spacing) { ?>
+			<tr>
+			<td align="right"><?php echo intval($i/60).':'.(($i % 60) < 10 ? '0' : '').intval($i % 60) ?></td>
+			<td>&nbsp;</td>
+			</tr>
+		<?php } ?>
+		</table><?php
 	}//end printWeekView()
 
 
@@ -195,6 +251,8 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function printMonthView($year, $month)
 	{
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		
 		/* pseudo-code version of this method...
 		 * first bit as for day, yada yada yada
 		 *
@@ -228,8 +286,54 @@ class Page_Calendar extends Page_Asset_Listing
 		 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-		// base sql query
-		$sql = 'select aav.assetid, aav.custom_value from sq_asset_attribute_value aav join sq_asset_attribute atr on aav.attributeid = atr.attributeid where type_code = '.$db->quote('calendar_event').' and name = '.$db->quote('start_date').';';
+		// base sql query FOR SINGLE EVENTS (holy crap... O_O')
+		$sql = 'select a.name, a.assetid, v.custom_value as start_date, v1.custom_value as end_date from ((('.SQ_TABLE_RUNNING_PREFIX.'asset a join '.SQ_TABLE_PREFIX.'asset_attribute atr on a.type_code = atr.type_code) join '.SQ_TABLE_PREFIX.'asset_attribute atr1 on a.type_code = atr1.type_code) left join '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v on atr.attributeid = v.attributeid and a.assetid = v.assetid) left join '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v1 on atr1.attributeid = v1.attributeid and a.assetid = v1.assetid where atr.name = '.$db->quote('start_date').' and atr1.name = '.$db->quote('end_date').' and a.type_code = '.$db->quote('calendar_event_single').' and ((substring(v.custom_value from 1 for 7) = '.$db->quote($year.'-'.str_pad($month, 2, '0', STR_PAD_LEFT)).' and v1.custom_value IS NULL) OR (substring(v.custom_value from 1 for 7) <= '.$db->quote($this->_buildDate($year,$month)).' and substring(v1.custom_value from 1 for 7) >= '.$db->quote($this->_buildDate($year,$month)).'))';
+		
+		
+		$result = $db->getAll($sql);
+		pre_echo($result);
+		
+		// print calendar
+		$days_of_week = Array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
+		$first_wday = $this->attr('week_starts_on');
+		$first_wday = 4;
+		?>
+		<table width="100%">
+		<tr>
+		<?php for($i = $first_wday; $i < $first_wday + 7; $i++) { ?><th align="center" width="<?php echo intval(100 / 7) ?>%"><?php echo $days_of_week[$i % 7]; ?></th><?php } ?>
+		</tr>
+		<?php
+		$first_mday = getdate(mktime(0,0,0,$month,1,$year));
+		
+		
+		// find the number of blank days to print - note that we add 7 to this so
+		// the numerator is always positive and % then gives a meaningful result if
+		// 1st of the month is earlier in the week than the Week Starts On attrib
+		$gap = ($first_mday['wday'] - $first_wday + 7) % 7;
+		
+		$weeks_required = ceil((days_in_month($month, $year) + $gap) / 7);
+				
+		$print_day = 0;
+		for($day = 1-$gap; $day <= ($weeks_required*7)-$gap; $day++) {
+			if ($print_day % 7 == 0) echo '<tr>';
+			
+			echo '<td>';
+			if (($day >= 1) && ($day <= days_in_month($month, $year))) {
+				echo $day;
+				$date_value = ts_iso8601(mktime(0,0,0,$month,$day,$year));
+				foreach($result as $result_item) {
+					if (((iso8601_date_component($date_value) == iso8601_date_component($result_item['start_date'])) && is_null($result_item['end_date'])) || ((iso8601_date_component($date_value) >= iso8601_date_component($result_item['start_date'])) && ((iso8601_date_component($date_value) <= iso8601_date_component($result_item['end_date'])) )) ) {
+						echo '<br/><b>'.$result_item['name'].'</b>';
+					}
+				}
+			} else {
+				echo '&nbsp;';
+			}
+			echo '</td>';
+			
+			$print_day++;
+			if ($print_day % 7 == 0) echo '</tr>';
+		}?></table><?php
 		
 	}//end printMonthView()
 
@@ -249,6 +353,28 @@ class Page_Calendar extends Page_Asset_Listing
 	}//end printListView()
 
 
+	/**
+	* Builds a full or partial ISO8601 format date (for use in database searching)
+	*
+	* @param int	$year	year of date
+	* @param int	$month  the month
+	* @param int	$day	the day (optional)
+	*
+	* @return string	YYYY-MM if $day omitted, YYYY-MM-DD if $day included
+	* @access private
+	*/
+	function _buildDate($year, $month, $day=null)
+	{
+		$str = str_pad($year, 4, '0', STR_PAD_LEFT).'-'.str_pad($month, 2, '0', STR_PAD_LEFT);
+		if (!is_null($day)) {
+			$str .= '-'.str_pad($day, 2, '0', STR_PAD_LEFT);
+		}
+		return $str;
+		
+	}//end _buildDate()
+	
+	
 }//end class
 
 ?>
+
