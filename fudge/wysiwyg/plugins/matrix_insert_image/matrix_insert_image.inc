@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: matrix_insert_image.inc,v 1.13 2003/10/24 01:40:55 gsherwood Exp $
+* $Id: matrix_insert_image.inc,v 1.14 2003/11/05 01:36:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -111,8 +111,11 @@ class matrix_insert_image extends wysiwyg_plugin {
 					imageid = imageid.replace(re, "$3");
 				}
 
+				var in_popup = '0';
+				if (this._inPopup == true) { in_popup = '1'; }
+
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
-				strPage = "<?php echo $this->get_popup_href('insert_image.php')?>?f_imageid=" + escape(imageid) + "&f_align=" + escape(align) + "&f_width=" + escape(width) + "&f_height=" + escape(height) + "&f_alt=" + escape(alt) + "&f_horiz=" + escape(hspace) + "&f_vert=" + escape(vspace) + "&f_border=" + escape(border) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>");
+				strPage = "<?php echo $this->get_popup_href('insert_image.php')?>?f_imageid=" + escape(imageid) + "&f_align=" + escape(align) + "&f_width=" + escape(width) + "&f_height=" + escape(height) + "&f_alt=" + escape(alt) + "&f_horiz=" + escape(hspace) + "&f_vert=" + escape(vspace) + "&f_border=" + escape(border) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
 				this._popupDialog("matrixInsertImage", strPage, 400, 300, false, function(param) {
 					if (!param) {

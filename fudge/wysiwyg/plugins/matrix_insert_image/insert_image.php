@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: insert_image.php,v 1.8 2003/10/20 05:14:36 gsherwood Exp $
+* $Id: insert_image.php,v 1.9 2003/11/05 01:36:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -58,11 +58,13 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 					param[id] = el.value;
 				}
 				__dlg_close("matrixInsertImage", param);
+				window.opener.focus();
 				return false;
 			};
 
 			function onCancel() {
 				__dlg_close("matrixInsertImage", null);
+				window.opener.focus();
 				return false;
 			};
 		</script>
@@ -153,7 +155,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 										<tr>
 											<td class="label">Image URL:</td>
 											<td>
-											<?php asset_finder('f_imageid', $_GET['f_imageid'], Array('image' => 'D'), 'window.opener.top', 'getFocus'); ?>
+											<?php asset_finder('f_imageid', $_GET['f_imageid'], Array('image' => 'D'), (($_GET['in_popup']) ? 'opener.opener.top' : 'opener.top'), 'getFocus'); ?>
 											</td>
 										</tr>
 										<tr>

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: fullscreen.php,v 1.8 2003/10/16 01:06:39 gsherwood Exp $
+* $Id: fullscreen.php,v 1.9 2003/11/05 01:36:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,20 +31,25 @@ include_once('../../wysiwyg.inc');
 
 			function resize_editor() {
 				var newHeight;
+				var newWidth;
 				if (document.all) {
 					// IE
 					newHeight = document.body.offsetHeight - editor_popup._toolbar.offsetHeight;
 					if (newHeight < 0) { newHeight = 0; }
+					newWidth = document.body.offsetWidth;
+					if (newWidth < 0) { newWidth = 0; }
 				} else {
 					// Gecko
 					newHeight = window.innerHeight - editor_popup._toolbar.offsetHeight;
+					newWidth  = window.innerWidth;
 				}
 				editor_popup._textArea.style.height = editor_popup._iframe.style.height = newHeight + "px";
+				editor_popup._textArea.style.width = editor_popup._iframe.style.width = newWidth + "px";
 			}
 
 			function init() {
-				resize_editor();
 				setTimeout(function() {
+					editor_popup._inPopup = true;
 					editor_popup.setMode(parent_object._editMode);
 					var html = parent_object.getHTML();
 					html = editor_popup.make_absolute_urls(html);
@@ -55,6 +60,7 @@ include_once('../../wysiwyg.inc');
 
 					// setup event handlers
 					window.onresize = resize_editor;
+					resize_editor();
 				}, 333); // give it some time to meet the new frame
 			}
 		</script>
@@ -63,8 +69,10 @@ include_once('../../wysiwyg.inc');
 		<form style="margin: 0px; border: 1px solid; border-color: threedshadow threedhighlight threedhighlight threedshadow;">
 			<?php
 			$wysiwyg = new wysiwyg('popup', $_REQUEST['editor_web_path']);
-			$wysiwyg->set_width('100%');
-			$wysiwyg->set_height('100%');
+			$wysiwyg->set_width('500');
+			$wysiwyg->set_height('300');
+			$wysiwyg->set_body_type('iframe');
+			$wysiwyg->set_show_status_bar(false);
 
 			$wysiwyg->add_relative_href_check('http[s]?://'.$_SERVER['HTTP_HOST'].str_replace('fullscreen.php', '', $_SERVER['PHP_SELF']).'(\?a=[0-9]+)', './$1');
 			$rhc = unserialize(rawurldecode($_REQUEST['rhc']));

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: insert_link.php,v 1.8 2003/10/20 05:21:48 gsherwood Exp $
+* $Id: insert_link.php,v 1.9 2003/11/05 01:36:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -94,11 +94,13 @@ if (!isset($_GET['new_window'])) {
 				}
 
 				__dlg_close("matrixInsertLink", param);
+				window.opener.focus();
 				return false;
 			};
 
 			function onCancel() {
 				__dlg_close("matrixInsertLink", null);
+				window.opener.focus();
 				return false;
 			};
 
@@ -228,7 +230,7 @@ if (!isset($_GET['new_window'])) {
 										</tr>
 										<tr>
 											<td class="label">Select Asset:</td>
-											<td colspan="3"><?php asset_finder('assetid', $_GET['assetid'], Array(), 'window.opener.top', 'setUrl'); ?></td>
+											<td colspan="3"><?php asset_finder('assetid', $_GET['assetid'], Array(), (($_GET['in_popup']) ? 'opener.opener.top' : 'opener.top'), 'setUrl'); ?></td>
 										</tr>
 									</table>
 									</fieldset>

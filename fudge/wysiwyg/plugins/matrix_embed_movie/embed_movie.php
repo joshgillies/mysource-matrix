@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: embed_movie.php,v 1.4 2003/10/21 23:40:51 gsherwood Exp $
+* $Id: embed_movie.php,v 1.5 2003/11/05 01:36:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -57,11 +57,13 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 					}
 				}
 				__dlg_close("matrixEmbedMovie", param);
+				window.opener.focus();
 				return false;
 			};
 
 			function onCancel() {
 				__dlg_close("matrixEmbedMovie", null);
+				window.opener.focus();
 				return false;
 			};
 		</script>
@@ -152,7 +154,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 										<tr>
 											<td class="label">Movie URL:</td>
 											<td>
-											<?php asset_finder('f_fileid', $_GET['f_fileid'], Array('file' => 'I'), 'window.opener.top', 'getFocus'); ?>
+											<?php asset_finder('f_fileid', $_GET['f_fileid'], Array('file' => 'I'), (($_GET['in_popup']) ? 'opener.opener.top' : 'opener.top'), 'getFocus'); ?>
 											</td>
 										</tr>
 									</table>

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: matrix_embed_movie.inc,v 1.9 2003/10/07 00:29:41 gsherwood Exp $
+* $Id: matrix_embed_movie.inc,v 1.10 2003/11/05 01:36:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -118,9 +118,12 @@ class matrix_embed_movie extends wysiwyg_plugin {
 					if (!height) { height = "" }
 					
 				}
-				
+
+				var in_popup = '0';
+				if (this._inPopup == true) { in_popup = '1'; }
+
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
-				strPage = "<?php echo $this->get_popup_href('embed_movie.php')?>?f_fileid=" + escape(fileid) + "&f_width=" + escape(width) + "&f_height=" + escape(height) + "&f_auto_start=" + escape(auto_start) + "&f_show_controls=" + escape(show_controls) + "&f_embed_loop=" + escape(embed_loop) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>");
+				strPage = "<?php echo $this->get_popup_href('embed_movie.php')?>?f_fileid=" + escape(fileid) + "&f_width=" + escape(width) + "&f_height=" + escape(height) + "&f_auto_start=" + escape(auto_start) + "&f_show_controls=" + escape(show_controls) + "&f_embed_loop=" + escape(embed_loop) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
 				this._popupDialog("matrixEmbedMovie", strPage, 400, 300, false, function(param) {
 					if (!param) { 

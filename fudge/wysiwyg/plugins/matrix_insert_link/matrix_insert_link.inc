@@ -2,13 +2,14 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: matrix_insert_link.inc,v 1.12 2003/10/20 04:37:56 gsherwood Exp $
+* $Id: matrix_insert_link.inc,v 1.13 2003/11/05 01:36:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
 global $ROOT_PATH;
 include_once($ROOT_PATH.'wysiwyg_plugin.inc');
+require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 
 /**
 * WYSIWYG Plugin - Matrix Insert Link
@@ -50,6 +51,7 @@ class matrix_insert_link extends wysiwyg_plugin {
 	function paint_generic()
 	{
 		?>
+		<script type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
 		<script type="text/javascript" language="Javascript">
 			var wysiwyg_editing = true; // just so that onclick link's don't execute in wysiwyg
 
@@ -183,8 +185,11 @@ class matrix_insert_link extends wysiwyg_plugin {
 
 				}// end if existing link
 
+				var in_popup = '0';
+				if (this._inPopup == true) { in_popup = '1'; }
+
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
-				var strPage = "<?php echo $this->get_popup_href('insert_link.php')?>?assetid=" + escape(currArgs["assetid"]) + "&url=" + escape(currArgs["url"]) + "&status_text=" + escape(currArgs["status_text"]) + "&new_window=" + escape(currArgs["new_window"]) + "&new_window_options=" + escape(var_serialise(currArgs["new_window_options"])) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>");
+				var strPage = "<?php echo $this->get_popup_href('insert_link.php')?>?assetid=" + escape(currArgs["assetid"]) + "&url=" + escape(currArgs["url"]) + "&status_text=" + escape(currArgs["status_text"]) + "&new_window=" + escape(currArgs["new_window"]) + "&new_window_options=" + escape(var_serialise(currArgs["new_window_options"])) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
 				this._popupDialog("matrixInsertLink", strPage, 400, 350, false, function(param) {
 					if (param && param["url"] != "") {
