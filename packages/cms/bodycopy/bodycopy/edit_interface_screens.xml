@@ -1,0 +1,4 @@
+<screens>
+	<screen code_name="details"  display_name="Edit Details"  icon="create" default="1" />
+	<screen code_name="contents" display_name="Edit Contents" icon="create" />
+</screens>
