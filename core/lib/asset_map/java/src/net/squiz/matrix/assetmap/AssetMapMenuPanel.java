@@ -1,3 +1,26 @@
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: AssetMapMenuPanel.java,v 1.2 2005/02/21 05:26:25 mmcintyre Exp $
+*
+*/
+
 package net.squiz.matrix.assetmap;
 
 import net.squiz.matrix.matrixtree.*;
@@ -12,6 +35,11 @@ import java.awt.*;
 import java.util.*;
 
 
+/**
+ * The AssetMapMenuPanel hold various tools to be used with MatrixTrees
+ * and InspectorGadgets
+ * @author Marc McIntyre <mmcintyre@squiz.net>
+ */
 public class AssetMapMenuPanel extends JPanel {
 
 	private JMenuBar menuBar;
@@ -22,28 +50,31 @@ public class AssetMapMenuPanel extends JPanel {
 	public static final Color BG_COLOUR = new Color(0xF5F5F5);
 	public static final int ICON_GAP = 1;
 	
+	/**
+	 * Constructs an AssetMapMenuPanel and adds the tools to it.
+	 * @return the new AssetMapMenuPanel
+	 */
 	public AssetMapMenuPanel(MatrixTree tree, InspectorGadget inspector) {
 		this.tree = tree;
 		this.inspector = inspector;
-	//	toolBar = new JToolBar();
-	//	toolBar.setFloatable(false);
-	//	toolBar.setBorderPainted(false);
-	//	toolBar.setBorder(null);
 	
-		setLayout(new FlowLayout(FlowLayout.TRAILING));
+		setLayout(new BorderLayout());
+	
+		JPanel leftPanel  = new JPanel(new FlowLayout(FlowLayout.LEADING));
+		JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.TRAILING));
 		
-		add(createRefreshAssetsButton());
-		add(createRestoreRootButton());
-		add(createCollapseAllButton());
-		add(createPaintStatusesButton());
+		rightPanel.add(createRefreshAssetsButton());
+		rightPanel.add(createRestoreRootButton());
+		rightPanel.add(createCollapseAllButton());
+		rightPanel.add(createPaintStatusesButton());
+		
+		leftPanel.add(createAddMenuButton());
 	
-	//	JPanel toolPanel = new JPanel();
-	//	toolPanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
-	//	toolPanel.add(toolBar);
-	//	toolPanel.setBackground(BG_COLOUR);
+		add(leftPanel, BorderLayout.WEST);
+		add(rightPanel, BorderLayout.EAST);
 
-	//	add(toolPanel);
-
+		leftPanel.setBackground(BG_COLOUR);
+		rightPanel.setBackground(BG_COLOUR);
 		setBackground(BG_COLOUR);
 	}
 	
@@ -84,8 +115,7 @@ public class AssetMapMenuPanel extends JPanel {
 		button.setBackground(BG_COLOUR);
 		button.setBorderPainted(false);
 		
-		button.setPreferredSize(new Dimension(icon.getIconWidth()/* + ICON_GAP*/, 
-			icon.getIconHeight()));
+		button.setPreferredSize(new Dimension(icon.getIconWidth(), icon.getIconHeight()));
 		
 		button.setPressedIcon(pressedIcon);
 		button.addActionListener(listener);
@@ -98,7 +128,6 @@ public class AssetMapMenuPanel extends JPanel {
 	 * Creates the refresh button.
 	 * This button refreshes all assets
 	 * that have been expanded during this session.
-	 *   
 	 * @return the refresh button.
 	 */
 	private JButton createRefreshAssetsButton() {
@@ -124,11 +153,10 @@ public class AssetMapMenuPanel extends JPanel {
 	}
 
 	/**
-	* Creates a button to restore the root node 
-	* back to the Root Folder (#assetid 1)
-	*
-	* @return the restore button
-	*/
+	 * Creates a button to restore the root node 
+	 * back to the Root Folder (#assetid 1)
+	 * @return the restore button
+	 */
 	private JButton createRestoreRootButton() {
 
 		ActionListener restoreListener = new ActionListener() {
@@ -149,7 +177,6 @@ public class AssetMapMenuPanel extends JPanel {
 	 * Creates the collapse button. Any assets
 	 * that are exapanded will be collapsed when this
 	 * button is pressed
-	 * 
 	 * @return the collapse button
 	 */
 	private JButton createCollapseAllButton() {
@@ -173,7 +200,6 @@ public class AssetMapMenuPanel extends JPanel {
 	 * All assets will have their background colour changed
 	 * to display the status colour of the status that the
 	 * assets are currently in.
-	 * 
 	 * @return the paint status button 
 	 */
 	private JButton createPaintStatusesButton() {
@@ -193,5 +219,27 @@ public class AssetMapMenuPanel extends JPanel {
 			= createButton("status", statusListener, toolTip);
 		
 		return paintStatusButton;
+	}
+	
+	/**
+	 * Creates the button for the add menu.
+	 * @return the button for the add menu
+	 */
+	private JButton createAddMenuButton() {
+		
+		final JButton addButton = createButton("add", null, "Add New Asset");
+		
+		ActionListener createButtonListener = new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				ActionListener listener = MatrixMenus.getMatrixTreeAddMenuListener(tree);
+				JPopupMenu addMenu = MatrixMenus.getPopupAddMenu(listener);
+				Rectangle bounds = addButton.getBounds();
+				addMenu.show(AssetMapMenuPanel.this, bounds.x, bounds.y + bounds.height);
+			}
+		};
+		
+		addButton.addActionListener(createButtonListener);
+		
+		return addButton;
 	}
 }
