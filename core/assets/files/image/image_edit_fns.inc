@@ -71,16 +71,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 		?><br/><span style="font-size: 7pt"><b>Note:</b> You may only upload files of type <?php echo $this->_getExtensionString($asset->allowed_extensions)?></span><?php
 
-		$existing = $asset->_getExistingFile();
-		if (!empty($existing)) {
-			?> 
-				<p style="font-size: 7pt">
-				<b>Current File</b><br/>
-				<b>Size:</b> <?php echo easy_filesize($existing['size'])?><br/>
-				<b>Updated:</b> <?php echo readable_datetime($existing['modified'])?><br/>
-				</p>
-			<?php
-		}
+		$this->_printExistingFileInfo($asset);
 		return true;
 	}//end paintFileUpload()
 

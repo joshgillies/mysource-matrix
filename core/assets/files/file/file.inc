@@ -137,6 +137,11 @@ class File extends Asset
 		}
 
 		if (parent::setAttrValue($name, $value) && $name == 'name' && !$uploading_file) {
+			if (!@$this->saveWebPaths(Array($value))) {
+				trigger_error('Failed updating web path. Path already exists?', E_USER_WARNING);
+				parent::setAttrValue($name, $old_filename);
+				return false;
+			}
 			if (!rename($this->data_path.'/'.$old_filename, $this->data_path.'/'.$value)) {
 				trigger_error('Failed renaming file, try again.', E_USER_WARNING);
 				parent::setAttrValue($name, $old_filename);
@@ -188,6 +193,9 @@ class File extends Asset
 			$existing['filename'] = $this->attr('name');
 			$existing['modified'] = filectime($existing['path']);
 			$existing['size'] = filesize($existing['path']);
+			$size = getimagesize($path);
+			$existing['width'] = $size[0];
+			$existing['height'] = $size[1];
 		}
 
 		return $existing;

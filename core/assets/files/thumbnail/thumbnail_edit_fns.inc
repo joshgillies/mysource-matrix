@@ -57,16 +57,7 @@ class Thumbnail_Edit_Fns extends Image_Edit_Fns
 		<br/><b>Note:</b> Image size is restricted to a maximum of <?php echo $this->max_width.' x '.$this->max_height?> pixels</span>
 		<?php
 
-		$existing = $asset->_getExistingFile();
-		if (!empty($existing)) {
-			?> 
-				<p style="font-size: 7pt">
-				<b>Current File</b><br/>
-				<b>Size:</b> <?php echo easy_filesize($existing['size'])?><br/>
-				<b>Updated:</b> <?php echo readable_datetime($existing['modified'])?><br/>
-				</p>
-			<?php
-		}
+		$this->_printExistingFileInfo($asset);
 		return true;
 	}//end paintFileUpload()
 

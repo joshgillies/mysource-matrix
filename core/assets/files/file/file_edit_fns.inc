@@ -31,6 +31,26 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	}//end constructor
 
 
+	function _printExistingFileInfo(&$asset)
+	{
+		$existing = $asset->_getExistingFile();
+		if (!empty($existing)) {
+			?> 
+				<p style="font-size: 7pt">
+				<b><a href="<?php echo $asset->getURL()?>" target="_blank">Current File</a></b><br/>
+				<b>Size:</b> <?php echo easy_filesize($existing['size'])?><br/>
+				<?php
+				if ($existing['width'] && $existing['height']) {
+					?><b>Dimensions:</b> <?php echo $existing['width'].' x '.$existing['height']?> pixels<br/><?php
+				}
+				?>
+				<b>Updated:</b> <?php echo readable_datetime($existing['modified'])?><br/>
+				</p>
+			<?php
+		}
+
+	}//end _printExistingFileInfo()
+
 	/**
 	* Prints the interface for uploading a file
 	*
@@ -44,17 +64,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	function paintFileUpload(&$asset, &$o, $prefix)
 	{
 		file_upload($prefix);
-
-		$existing = $asset->_getExistingFile();
-		if (!empty($existing)) {
-			?> 
-				<p style="font-size: 7pt">
-				<b>Current File</b><br>
-				<b>Size:</b> <?php echo easy_filesize($existing['size'])?><br>
-				<b>Updated:</b> <?php echo readable_datetime($existing['modified'])?><br>
-				</p>
-			<?php
-		}
+		$this->_printExistingFileInfo($asset);
 		return true;
 	}//end paintFileUpload()
 
@@ -88,6 +98,12 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			return false;
 		}
 
+		// make sure the new web path is not already is use
+		if (!@$asset->saveWebPaths(Array($name))) {
+			trigger_error('Failed updating web path, file not uploaded. Path already exists?', E_USER_WARNING);
+			return false;
+		}
+
 		// create the destination directory, if necessary
 		$dest = $asset->data_path;
 		create_directory($dest);
@@ -96,6 +112,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		if (is_file($asset->data_path.'/'.$asset->attr('name'))) {
 			if (!unlink($asset->data_path.'/'.$asset->attr('name'))) {
 				trigger_error('Failed deleting existing file', E_USER_WARNING);
+				$asset->saveWebPaths(Array($asset->attr('name')));
 				return false;
 			}
 		}
@@ -103,6 +120,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		// copy over the new uploaded file
 		if (!copy($info['tmp_name'], $dest.'/'.$name)) {
 			trigger_error('Failed copying uploaded file to destination directory', E_USER_WARNING);
+			$asset->saveWebPaths(Array($asset->attr('name')));
 			return false;
 		}
 
@@ -125,17 +143,18 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			if (!empty($existing)) {
 				?> 
 					<p style="font-size: 7pt">
-					<b>Current Thumbnail</b><br>
-					<b>Filename:</b> <?php echo $thumb->attr('name')?><br>
-					<b>Size:</b> <?php echo easy_filesize($existing['size'])?><br>
-					<b>Updated:</b> <?php echo readable_datetime($existing['modified'])?><br>
+					<b><a href="<?php echo $thumb->getURL()?>" target="_blank">Current Thumbnail</a></b><br/>
+					<b>Filename:</b> <?php echo $thumb->attr('name')?><br/>
+					<b>Size:</b> <?php echo easy_filesize($existing['size'])?><br/>
+					<b>Dimensions:</b> <?php echo $existing['width'].' x '.$existing['height']?><br/>
+					<b>Updated:</b> <?php echo readable_datetime($existing['modified'])?><br/>
 					</p>
 				<?php
 			} else {
 				?> 
 					<p style="font-size: 7pt">
-					<b>Current Thumbnail</b><br>
-					<b>Filename:</b> <?php echo $thumb->attr('name')?><br>
+					<b>Current Thumbnail</b><br/>
+					<b>Filename:</b> <?php echo $thumb->attr('name')?><br/>
 					<b>Note:</b> <i>No file has been uploaded for this thumbnail</i>
 					</p>
 				<?php
