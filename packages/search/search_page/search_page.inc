@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.81 2005/02/15 02:41:11 lwright Exp $
+* $Id: search_page.inc,v 1.82 2005/03/02 04:07:52 arailean Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -276,7 +276,7 @@ class Search_Page extends Listing_Engine
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 
 		$current_result_page = array_get_index($_REQUEST, 'current_result_page', 0);
-		$results_per_page    = array_get_index($_REQUEST, 'results_per_page', $this->attr('results_per_page'));
+		$results_per_page    = array_get_index($_REQUEST, 'results_per_page', $this->attr('num_per_page'));
 
 		?>
 		<form name="search_form" method="get" action="<?php echo replace_query_string_vars(Array()); ?>">
@@ -1118,7 +1118,7 @@ class Search_Page extends Listing_Engine
 		$current_result_page = array_get_index($_REQUEST, 'current_result_page', '0');
 		$results_per_page    = array_get_index($_REQUEST, 'results_per_page', $this->attr('num_per_page'));
 		$this->_tmp['start_element'] = $current_result_page * $results_per_page;
-		
+
 		$total_pages = ceil(count($results) / $results_per_page);
 
 		$queries = '';
@@ -1131,18 +1131,18 @@ class Search_Page extends Listing_Engine
 			// construct the new query string
 			$queries .= '&'.$query_string;
 		}
-		
+
 		// if we are to use the listing engine stuff then we need to change
 		// to a getAssetList() style format
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($results), 'asset', false, 'type_code');
-		
+
 		if ($this->attr('sort_by') == '__attr__') {
 			$asset_info = $this->sortAssetList($asset_info, '__attr__');
 		}
-		
+
 		$this->filterAssetList($asset_info);
 		$this->_tmp['asset_info'] = $asset_info;
-		
+
 		foreach ($keywords as $keyword) {
 			$replacement = "%$keyword%";
 
@@ -1155,7 +1155,7 @@ class Search_Page extends Listing_Engine
 							$result_list[$resultid] = $results[$resultid];
 						}
 					}
-				
+
 					// print the asset list from the listing engine
 					ob_start();
 					$this->printAssetList($result_list);
@@ -1376,7 +1376,7 @@ class Search_Page extends Listing_Engine
 			}//end switch
 
 			$replaces[$keyword] = $replacement;
-			
+
 		}//end foreach
 
 		return $replaces;
@@ -1420,7 +1420,7 @@ class Search_Page extends Listing_Engine
 		}
 
 		foreach ($keywords as $keyword) {
-			
+
 			$replacement =& $replaces[$keyword];
 			switch ($keyword) {
 				case 'asset_id':
@@ -1588,7 +1588,7 @@ class Search_Page extends Listing_Engine
 			}
 		}
 
-		
+
 		return $sm->processSearch($search_info);
 
 	}//end processSearch()
@@ -1823,7 +1823,7 @@ class Search_Page extends Listing_Engine
 	* the listing engine.
 	*
 	* @param string	$assetid		The assetid of the asset we are printing
-	* @param string $score			The score of the 
+	* @param string $score			The score of the
 	* @param string $list_position
 	*
 	* @return void
@@ -1841,16 +1841,16 @@ class Search_Page extends Listing_Engine
 			ob_end_clean();
 			$cm->saveToCache($this, $assetid, $element_contents);
 		}
-		
+
 		$element_replacements = Array('score'         => $score,
 										  'result_number' => $this->_tmp['start_element'] + $list_position
 										);
 		$element_contents = replace_keywords($element_contents, $element_replacements);
-		
+
 		echo $element_contents;
-		
+
 	}//end _printAsset()
-	
+
 
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
@@ -1865,27 +1865,27 @@ class Search_Page extends Listing_Engine
 	function onRequestKeywords(&$broadcaster, $vars=Array())
 	{
 		$keywords = parent::onRequestKeywords($broadcaster, $vars);
-		
+
 		if (!isset($vars['keywords'])) $vars['keywords'] = Array();
 
 		// lets work out which bodycopy the WYSIWYG cell that wants our keywords
 		// is in so we can return the correct keywords for the screen
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
 		$bodycopy_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy');
-		
+
 		$bodycopies = Array();
 		$type_formats = Array();
-		
+
 		foreach ($bodycopy_links as $link_info) {
 			if (isset($parents[$link_info['minorid']])) {
 				$bodycopies[] = $link_info['value'];
 			}
 		}
-		
-		
+
+
 		// type folder links
 		$folder = &$this->getFolder();
-		
+
 		if (!is_null($folder)) {
 			$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
 
@@ -1895,7 +1895,7 @@ class Search_Page extends Listing_Engine
 				}
 			}
 		}
-		
+
 		if (empty($bodycopies) && empty($type_formats)) return;
 
 		// work out if forms are customised
@@ -1903,7 +1903,7 @@ class Search_Page extends Listing_Engine
 		$sis_bodycopy_link    = &$this->getFormatBodycopyLink('sis_form'); //search in search
 		$search_customised    = !empty($search_bodycopy_link) && $search_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
 		$sis_customised       = !empty($sis_bodycopy_link) && $sis_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
-				
+
 		foreach ($bodycopies as $bodycopy) {
 			if ($bodycopy == 'initial') {
 				// work out the query replacements
@@ -1912,11 +1912,11 @@ class Search_Page extends Listing_Engine
 					$keywords[$field.'_query'] = 'Search Field ('.$field.')';
 				}
 			}
-			
+
 			foreach ($this->keywords[$bodycopy] as $keyword) {
 				$keywords[$keyword] = ucwords(str_replace('_', ' ', $keyword));
 			}
-			
+
 			// customised forms
 			if ($search_customised) $keywords['search_form'] = 'Search Form';
 			if ($sis_customised) {
@@ -1925,12 +1925,12 @@ class Search_Page extends Listing_Engine
 				$keywords['search_in_search_button'] = 'Search in Search Button';
 			}
 		}
-		
+
 		foreach($type_formats as $type_format) {
 			$keywords['result_number'] = 'Result Number';
 			$keywords['score'] = 'Search Score';
 		}
-		
+
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 
 	}//end onRequestKeywords()
