@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.18 2004/08/05 01:58:40 lwright Exp $
+* $Id: datetime.inc,v 1.19 2004/08/09 10:00:49 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -237,8 +237,7 @@ function easy_time_total($secs=0, $full_format=false)
 */
 function readable_datetime($then=null)
 {
-	$format = 'jS M Y g:ia';
-	return (is_null($then)) ? date($format) : date($format, $then);
+	return (is_null($then)) ? date('jS M Y g:ia') : date('jS M Y g:ia', $then);
 
 }//end readable_datetime()
 
