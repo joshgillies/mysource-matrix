@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.52 2004/09/07 00:53:55 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.53 2004/09/07 23:02:08 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.52 $ - 1.0
+* @version $Revision: 1.53 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -931,6 +931,21 @@ class Page_Calendar extends Page_Asset_Listing
 		$this->_printClickChildScript();
 		$width = $this->attr('table_column_width');
 		?>
+		<script type="text/javascript">
+		<!--
+		  function addEvent(date, time) {
+			<?php 
+			if ($ab_id = $this->attr('asset_builder_page')) {
+			?>
+				  loc = "<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetHref($this->attr('asset_builder_page')); ?>?SQ_CALENDAR_DATE="+date;
+				  if (time != '*') loc += '&amp;SQ_CALENDAR_TIME='+time+'&amp;SQ_CALENDAR_DURATION=<?php echo $this->attr('day_partition_time');?>_min';
+				  document.location = loc;
+			<?php
+			}
+			?>
+		  }
+		//-->
+		</script>
 		<table id="<?php echo $table_id; ?>" border="0" cellspacing="0" cellpadding="0" summary="events in this <?php echo $table_id ?>" style="width: <?php echo ($width * count($column_names))+6; ?>ex">
 		<?php
 		if (!empty($column_names)) {
@@ -965,7 +980,7 @@ class Page_Calendar extends Page_Asset_Listing
 			foreach ($events as $id => $col_events) {
 				$event_link_date = is_iso8601($id) ? $id : $_REQUEST['SQ_CALENDAR_DATE'];
 				?>
-				<td id="<?php echo $id.'_all_day'; ?>">
+				<td id="<?php echo $id.'_all_day'; ?>" <?php echo empty($col_events['all_day']) ? 'onclick="addEvent(\''.$event_link_date.'\', \'*\');"' : ''; ?>>
 				<?php
 					if (empty($col_events['all_day'])) echo '&nbsp;';
 					foreach($col_events['all_day'] as $assetid => $event) {
@@ -991,11 +1006,12 @@ class Page_Calendar extends Page_Asset_Listing
 				<th class="timeLabel"><?php echo sprintf('%d:%02d', (($current_hour % 12 == 0) ? 12 : ($current_hour % 12)), $current_mins); ?></th>
 			<?php
 			foreach ($events as $id => $col_events) {
+				$time_key = sprintf('%02d:%02d', $current_hour, $current_mins);
 				if ($show_event_links && is_iso8601($id)) $_REQUEST['SQ_CALENDAR_DATE'] = $id;
 				?>
-				<td id="<?php echo $id.'_'.sprintf('%02d:%02d', $current_hour, $current_mins) ?>">
+				<td id="<?php echo $id.'_'.$time_key ?>" <?php echo empty($col_events[$time_key]) ? 'onclick="addEvent(\''.$_REQUEST['SQ_CALENDAR_DATE'].'\', \''.$time_key.'\');"' : ''; ?>>
 				<?php
-					echo $this->_getTimedTableCellContents($col_events[sprintf('%02d:%02d', $current_hour, $current_mins)], $show_event_links, $root_nodes, ($current_mins + ($current_hour * 60)), $partition_time, $partition_height, $width);
+					echo $this->_getTimedTableCellContents($col_events[$time_key], $show_event_links, $root_nodes, ($current_mins + ($current_hour * 60)), $partition_time, $partition_height, $width);
 				?>
 				&nbsp;
 				</td>

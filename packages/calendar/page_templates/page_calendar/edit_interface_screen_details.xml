@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.9 2004/08/23 00:55:34 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.10 2004/09/07 23:02:08 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -179,6 +179,11 @@
 			<display_name>Width of columns (ex)</display_name>
 			<note />
 			<float width="6" />
+		</field>
+		<field attribute="asset_builder_page">
+			<display_name>Event Input Page</display_name>
+			<note>If you choose an asset builder page for this field, users will be able to click on empty cells in the calendar display to go to the asset builder page and add an event for that timeslot </note>
+			<assetid type_codes="page_asset_builder:I" />
 		</field>
 	</section>
 
