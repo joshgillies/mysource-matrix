@@ -212,10 +212,11 @@ class Backend extends MySource_Object
 			<table class="sq-backend-new-message-table">
 				<tr>
 					<td rowspan="2" valign="middle" class="sq-backend-new-message-cell"><img src="'.$this->out->filesPath('/images/icons/mail.gif').'" width="31" height="33" border="0" alt="" /></td>
-					<td class="sq-backend-new-message-heading">New Messages</td>
+					<td class="sq-backend-new-message-heading" nowrap>New Messages</td>
+					<td class="sq-backend-new-message-heading" align="right">[<a class="sq-backend-new-message-body" href="#" onClick="Javascript: parent.top.header.cancelMsgDiv(); return false;">x</a>]</td>
 				</tr>
 				<tr>
-					<td class="sq-backend-new-message-body" nowrap><a class="sq-backend-new-message-body" href="#" onClick="Javascript: if (parent.top.sidenav.top.sidenav && parent.top.sidenav.top.sidenav.refresh_internal_messages) { parent.top.sidenav.top.sidenav.refresh_internal_messages(); }; return false;">'.$GLOBALS['SQ_SYSTEM']->user->name.' has '.count($messages).' new message'.((count($messages) > 1) ? 's' : '').'</a></td>
+					<td class="sq-backend-new-message-body" nowrap colspan="2"><a class="sq-backend-new-message-body" href="#" onClick="Javascript: if (parent.top.sidenav && parent.top.sidenav.refresh_internal_messages) { parent.top.sidenav.refresh_internal_messages(); }; return false;">'.$GLOBALS['SQ_SYSTEM']->user->name.' has '.count($messages).' new message'.((count($messages) > 1) ? 's' : '').'</a></td>
 				</tr>
 			</table>
 			';
@@ -224,9 +225,12 @@ class Backend extends MySource_Object
 			<script language="Javascript" type="text/javascript">
 				var msgDiv = null;
 				var screenMenu = null;
+				var screenMenuFiller = null;
+
 				var delay = 30;     // milliseconds between movements.
 				var myTimer = null;
 				var counter = null; // number of times to move the div
+				
 				var divTop = 0;
 				var divLeft = 0;
 				var smTop = 0;
@@ -256,18 +260,18 @@ class Backend extends MySource_Object
 					if (screenMenu) screenMenu.style.MozOpacity = moz + (100 - counter);
 
 					if (--counter < 0 && myTimer != null) {
-						clearInterval(myTimer);
-						msgDiv.style.display = "none";
-						if (screenMenu) {
-							if (window.navigator.userAgent.indexOf('MSIE') > 0) { screenMenu.style.display = "block"; }
-							screenMenu.style.MozOpacity = "1";
-						}
+						cancelMsgDiv();
 					}
 				}
 
 				function showMsgDiv() {
 					if (screenMenu) {
-						if (window.navigator.userAgent.indexOf('MSIE') > 0) { screenMenu.style.display = "none"; }
+						if (window.navigator.userAgent.indexOf('MSIE') > 0) {
+							screenMenuFiller.style.width = screenMenu.offsetWidth;
+							screenMenuFiller.style.height = screenMenu.offsetHeight;
+							screenMenuFiller.style.display = "block";
+							screenMenu.style.display = "none";
+						}
 						screenMenu.style.MozOpacity = "0";
 					}
 					msgDiv.style.display = "block";
@@ -288,9 +292,24 @@ class Backend extends MySource_Object
 					myTimer = setInterval("hideIt()", delay);
 				}
 
+				function cancelMsgDiv() {
+					clearInterval(myTimer);
+					msgDiv.style.display = "none";
+					if (screenMenu) {
+						if (window.navigator.userAgent.indexOf('MSIE') > 0) {
+							screenMenu.style.display = "block";
+							screenMenuFiller.width = "0px";
+							screenMenuFiller.height = "0px";
+							screenMenuFiller.style.display = "none";
+						}
+						screenMenu.style.MozOpacity = "1";
+					}
+				}
+
 				if (top.main.document.body) {
 					msgDiv = top.main.document.getElementById("new_message_popup");
 					screenMenu = top.main.document.getElementById("sq_screen_menu");
+					screenMenuFiller = top.main.document.getElementById("sq_screen_menu_filler");
 					if (msgDiv == null) {
 						msgDiv = top.main.document.createElement("div");
 						msgDiv.id = "new_message_popup";
@@ -325,8 +344,11 @@ class Backend extends MySource_Object
 		<table cellpadding="2" border="0" cellspacing="2">
 			<tr>
 				<td nowrap class="sq-backend-header-item" valign="middle" height="99%">
-				<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1">
-				Logged in as: <b><?php echo $GLOBALS['SQ_SYSTEM']->user->name; ?> - <?php echo date('d M Y g:i a', $now); ?></b>
+					<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1">
+					Logged in as: <b><?php echo $GLOBALS['SQ_SYSTEM']->user->name; ?> - <?php echo date('d M Y g:i a', $now); ?></b>
+				</td>
+				<td align="right" width="100%">
+					<a target="main" href="<?php echo $url;?>"><img src="<?php echo $this->out->filesPath('/images/icons/swish.gif'); ?>" width="20" height="20" border="0" alt="" /></a>
 				</td>
 			</tr>
 		</table>
@@ -366,7 +388,7 @@ class Backend extends MySource_Object
 				<td>
 					<table border="0" cellpadding="2" cellspacing="0">
 						<tr>
-							<td><a href="<?php echo SQ_SYSTEM_URL;?>" class="sq-backend-header-item" target="_blank" style="text-decoration:none;"><?php echo SQ_SYSTEM_LONG_NAME;?></a></td>
+							<td class="sq-backend-header-item"><a href="<?php echo SQ_SYSTEM_URL;?>" class="sq-backend-header-item" target="_blank" style="text-decoration:none;"><?php echo SQ_SYSTEM_LONG_NAME;?></a></td>
 						</tr>
 					</table>
 				</td>

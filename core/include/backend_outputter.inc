@@ -671,8 +671,9 @@ class Backend_Outputter
 			?>
 			<table width="100%" cellpadding="3" cellspacing="0" border="0">
 				<tr>
-					<td class="sq-backend-main-heading" valign="middle"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1"><?php echo $this->_heading;?></td>
+					<td class="sq-backend-main-heading" valign="middle"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1"/><?php echo $this->_heading;?></td>
 					<td class="sq-backend-main-heading" style="text-align: right;">
+					<div id="sq_screen_menu_filler" style="display: none"></div>
 					<div id="sq_screen_menu">
 					<?php
 						if (empty($this->_screens) && empty($this->_static_screens)) {
