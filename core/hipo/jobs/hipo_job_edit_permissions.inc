@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.26 2004/02/11 18:47:49 brobertson Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.27 2004/06/16 23:55:21 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -286,9 +286,16 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 
 					foreach ($perm_data as $set_data) {
 						if ($set_data['userid']) {
-							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($set_data['userid']);
-							if (is_null($user)) $user_name = 'Unknown User';
-							else                $user_name = $user->name;
+							// LTW[17-06-2004] - use getAssetInfo() instead because deleting permissions
+							// held by deleted users (eg.LDAP) will cause an assertion
+							$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($set_data['userid']), 'user', false);
+	
+							// check that the passed userid is a user or user_group
+							if (empty($user_info)) {
+								$user_name = 'Unknown User';
+							} else {
+								$user_name = $user_info[$set_data['userid']]['name'];
+							}
 						} else {
 							$user_name = 'General Public';
 						}
