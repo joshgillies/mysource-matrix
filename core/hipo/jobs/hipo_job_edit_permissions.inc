@@ -143,7 +143,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 
 			if (!is_null($asset)) {
 				foreach ($this->_running_vars['permission_changes'] as $perm => $perm_data) {
-					include_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 					$perm_name = permission_type_name($perm);
 
 					foreach ($perm_data as $set_data) {

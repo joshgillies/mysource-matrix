@@ -1,5 +1,4 @@
 <?php
-include_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 /**
 * Highly Intensive Processing Object (HIPO)
@@ -303,6 +302,7 @@ class HIPO_Job
 	*/
 	function paint()
 	{
+		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		$step = $this->_hipo_vars['current_step'];
 
 		$form_name = 'HIPO_'.$this->getCodeName();
@@ -399,7 +399,6 @@ class HIPO_Job
 										}
 
 										if (count($buttons_to_print)) {
-											include_once SQ_LIB_PATH.'/html_form/html_form.inc';
 											?>
 											<p>
 											<table border="0" width="100%" cellspacing="2" cellpadding="1">
