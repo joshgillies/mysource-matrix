@@ -6,7 +6,8 @@ function print_login($heading, $message) {
 
 	header("HTTP/1.0 403 Forbidden");
 
-	$qry_string = '?SQ_ACTION=login'.preg_replace('/SQ_ACTION=[^\&]+/', '', $_SERVER['QUERY_STRING']);
+	$qry_string = preg_replace('/SQ_ACTION=[^\&]+/', '', $_SERVER['QUERY_STRING']);
+	$qry_string = '?SQ_ACTION=login'.((!empty($qry_string)) ? '&' : '').$qry_string;
 
 	?>
 	<html>
@@ -32,73 +33,77 @@ function print_login($heading, $message) {
 	?>
 	<table height="100%" width="100%"><tr><td align="center" valign="middle">
 
-	<table width="400" cellpadding="1" cellspacing="0" border="0" align="center">
+	<table width="400" cellpadding="1" cellspacing="1" border="0" align="center" bgcolor="#000000">
 		<tr>
-			<td class="sq-backend-heading">
+			<td class="sq-backend-heading" bgcolor="#FFFFFF">
 				<img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/swish.gif" width="20" height="20" border="0" align="left" alt="<?php echo $heading; ?>" />
 				<?php echo $heading; ?>
 			</td>
 		</tr>
 		<tr>
-			<td>
-				<table cellpadding="3" cellspacing="0" border="0" width="100%">
-				<?php if ($msgs = $GLOBALS['SQ_SYSTEM']->messages()) { ?>
+			<td bgcolor="#FFFFFF">
+				<table border="0" width="100%" cellspacing="0" cellpadding="0">
 					<tr>
-						<td valign="top" class="sq-backend-warning">
-							<?php echo implode("<br/>", $msgs); ?>
-						</td>
-					</tr>
-				<?php } ?>
-					<tr>
-						<td valign="top" class="sq-backend-sectionheading" style="font-weight: bold;">
-					<?php if ($GLOBALS['SQ_SYSTEM']->currentUserId()) { ?>
-							Currently logged in as: <?php echo $GLOBALS['SQ_SYSTEM']->user->name; ?>
-					<?php } else { ?>
-							Not currently logged in.
-					<?php } ?>
-						</td>
-					</tr>
-					<tr>
-						<td valign="top" class="sq-backend-data">
-							<br/>
-							<?php echo $message ; ?>
-							<br/><br/>
-						</td>
-					</tr>
-					<tr>
-						<td valign="top" class="sq-backend-field">
-							<table width="100%" border="0" cellspacing="0" cellpadding="3">
+						<td>
+							<table cellpadding="3" cellspacing="0" border="0" width="100%">
+							<?php if ($msgs = $GLOBALS['SQ_SYSTEM']->messages()) { ?>
 								<tr>
-									<td rowspan="3" valign="bottom" class="sq-backend-field">
-										<input type="button" class="sq-backend-data" value="&lt;- Back" onclick="javascript: <?php echo (($referer) ? 'window.location=\''.addslashes($referer).'\'' : 'alert(\'Unable to derive where you came from\');'); ?>">&nbsp;
+									<td valign="top" class="sq-backend-warning">
+										<?php echo implode("<br/>", $msgs); ?>
 									</td>
-									<td nowrap valign="top" class="sq-backend-field">
-										Login: 
-									</td>
-									<td width="100%" valign="top" class="sq-backend-data">
-										<input type="text" name="SQ_LOGIN_USERNAME" value="" size="10" maxlength="64" class="sq-backend-data" onfocus="javascript: this.select();">
-									</td>
-									<td rowspan="2" valign="bottom" align="right" class="sq-backend-field">
-										&nbsp;
+								</tr>
+							<?php } ?>
+								<tr>
+									<td valign="top" class="sq-backend-sectionheading" style="font-weight: bold;">
+								<?php if ($GLOBALS['SQ_SYSTEM']->currentUserId()) { ?>
+										Currently logged in as: <?php echo $GLOBALS['SQ_SYSTEM']->user->name; ?>
+								<?php } else { ?>
+										Not currently logged in.
+								<?php } ?>
 									</td>
 								</tr>
 								<tr>
-									<td nowrap valign="top" class="sq-backend-field">
-										Password: 
-									</td>
-									<td width="100%" valign="top" class="sq-backend-data">
-										<input type="password" name="SQ_LOGIN_PASSWORD" value="" size="10" maxlength="64"  class="sq-backend-data" onfocus="javascript: this.select();">
+									<td valign="top" class="sq-backend-data">
+										<?php echo $message ; ?>
 									</td>
 								</tr>
 								<tr>
-									<td class="sq-backend-field">
-										&nbsp;
-									</td>
-									<td class="sq-backend-field">
-										&nbsp;
-									</td>
-									<td valign="bottom" align="right" class="sq-backend-field">
-										&nbsp;<input type="submit" class="sq-backend-data" value="Login -&gt;">
+									<td valign="top" class="sq-backend-field">
+										<table width="100%" border="0" cellspacing="0" cellpadding="3">
+											<tr>
+												<td rowspan="3" valign="bottom" class="sq-backend-field">
+													<input type="button" class="sq-backend-data" value="&lt;- Back" onclick="javascript: <?php echo (($referer) ? 'window.location=\''.addslashes($referer).'\'' : 'alert(\'Unable to derive where you came from\');'); ?>">&nbsp;
+												</td>
+												<td nowrap valign="top" class="sq-backend-field">
+													Login: 
+												</td>
+												<td width="100%" valign="top" class="sq-backend-data">
+													<input type="text" name="SQ_LOGIN_USERNAME" value="" size="10" maxlength="64" class="sq-backend-data" onfocus="javascript: this.select();">
+												</td>
+												<td rowspan="2" valign="bottom" align="right" class="sq-backend-field">
+													&nbsp;
+												</td>
+											</tr>
+											<tr>
+												<td nowrap valign="top" class="sq-backend-field">
+													Password: 
+												</td>
+												<td width="100%" valign="top" class="sq-backend-data">
+													<input type="password" name="SQ_LOGIN_PASSWORD" value="" size="10" maxlength="64"  class="sq-backend-data" onfocus="javascript: this.select();">
+												</td>
+											</tr>
+											<tr>
+												<td class="sq-backend-field">
+													&nbsp;
+												</td>
+												<td class="sq-backend-field">
+													&nbsp;
+												</td>
+												<td valign="bottom" align="right" class="sq-backend-field">
+													&nbsp;<input type="submit" class="sq-backend-data" value="Login -&gt;">
+												</td>
+											</tr>
+										</table>
 									</td>
 								</tr>
 							</table>
