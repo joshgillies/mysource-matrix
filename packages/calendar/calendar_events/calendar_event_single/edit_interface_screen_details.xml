@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2004/09/07 04:14:20 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6 2004/09/10 01:46:25 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -27,7 +27,7 @@
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
 			<display_name>Name</display_name>
-			<note>You can leave this blank if this event is replacing a cancelled instance of a recurring event</note>
+			<note />
 			<text width="30" height="1" />
 		</field>
 		<field attribute="description">
