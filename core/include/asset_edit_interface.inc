@@ -461,12 +461,22 @@ class Asset_Edit_Interface extends Resolve_Object
 		$statii = Array();
 
 		switch ($wfm->state) {
+			case 'new' :
 			case 'idle' :
 				if ($owner->writeAccess()) {
-					// no workflows are currently being
-					// run on this asset, so we can publish
 					if ($owner->status != SQ_STATUS_LIVE) {
-						$statii[SQ_STATUS_LIVE] = 'Make Live';
+						if (empty($wfm->steps) && empty($wfm->inherited_workflows)) {
+							// no direct workflows are set and
+							// no inherited workflows are set
+							// so anyone with admin access can publish
+							if ($owner->adminAccess()) {
+								$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
+							}
+						} else {
+							// no workflows are currently being
+							// run on this asset, so we can publish
+							$statii[SQ_STATUS_LIVE] = 'Make Live';
+						}
 					} else {
 						$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Place Under Construction';
 						$statii[SQ_STATUS_EDITING] = 'Safe Edit';

@@ -391,6 +391,15 @@ class Asset extends Resolve_Object
 				include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
 				$wfm = new Workflow_Manager($this);
 
+				if ($wfm->state == 'new' && empty($wfm->steps) && empty($wfm->inherited_workflows)) {
+					// no direct workflow, no inherited, and no running
+					// so anyone with admin access can make this live
+					if ($this->adminAccess()) {
+						$this->status = SQ_STATUS_LIVE;
+						break;
+					}
+				}
+
 				// if the workflow is running, check to make sure
 				// our current status reflects this
 				if ($wfm->state == 'running') {
