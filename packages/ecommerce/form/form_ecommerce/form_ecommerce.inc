@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.5 2004/10/15 03:30:19 arailean Exp $
+* $Id: form_ecommerce.inc,v 1.6 2004/10/17 23:31:34 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -292,6 +292,10 @@ class Form_Ecommerce extends Form_Email
 				<tr>
 					<td>Transaction Statis:</td>
 					<td>{$response['STATUS']}</td>
+				</tr>
+				<tr>
+					<td>Credit Card:</td>
+					<td>{$response['CARDNO']}</td>
 				</tr>
 				<tr>
 					<td>Date:</td>
