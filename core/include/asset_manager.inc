@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.153 2003/11/21 05:28:45 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.154 2003/11/25 21:12:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -717,7 +717,7 @@ class Asset_Manager extends MySource_Object
 	* @param array(string)	$type_code			an array of types codes to limit the results to
 	* @param boolean		$strict_type_code	ensure returned assets are of the passed type codes
 	*
-	* @return mixed
+	* @return Array( int => Array() )
 	* @access public
 	*/
 	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=true)
