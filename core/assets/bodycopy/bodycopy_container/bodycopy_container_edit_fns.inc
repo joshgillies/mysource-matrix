@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.1 2003/12/02 03:31:47 mmcintyre Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.2 2003/12/03 04:51:32 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -209,7 +209,8 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		$replace_assetids = $matches[1];
 
 		$e = '/%([^%]+)%/';
-		preg_match_all($e, $output, $matches);
+		$stripped_output = strip_tags($output);
+		preg_match_all($e, $stripped_output, $matches);
 		$keywords = $matches[1];
 
 		if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) {
