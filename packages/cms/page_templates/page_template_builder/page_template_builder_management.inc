@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: template_builder_management.inc,v 1.1 2004/11/02 00:04:54 lwright Exp $
+* $Id: page_template_builder_management.inc,v 1.1 2004/11/18 00:49:24 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -26,7 +26,7 @@
 require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
-* Template_Builder_Management
+* Page_Template_Builder_Management
 *
 * @see Asset_Management
 *
@@ -35,14 +35,14 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Template_Builder_Management extends Asset_Management
+class Page_Template_Builder_Management extends Asset_Management
 {
 
 	/**
 	* Constructor
 	*
 	*/
-	function Template_Builder_Management(&$pm)
+	function Page_Template_Builder_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
 
@@ -57,7 +57,7 @@ class Template_Builder_Management extends Asset_Management
 									
 							);//end vars
 
-	}//end Template_Builder_Management()
+	}//end Page_Template_Builder_Management()
 
 
 	/**

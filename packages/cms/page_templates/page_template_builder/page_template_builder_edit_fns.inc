@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: template_builder_edit_fns.inc,v 1.4 2004/11/02 22:25:16 lwright Exp $
+* $Id: page_template_builder_edit_fns.inc,v 1.1 2004/11/18 00:49:24 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -28,17 +28,17 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 
 /**
-* Template_Builder_Edit_Fns
+* Page_Template_Builder_Edit_Fns
 *
 * Purpose
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Template_Builder_Edit_Fns extends Page_Edit_Fns
+class Page_Template_Builder_Edit_Fns extends Page_Edit_Fns
 {
 	
 
@@ -46,11 +46,11 @@ class Template_Builder_Edit_Fns extends Page_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Template_Builder_Edit_Fns()
+	function Page_Template_Builder_Edit_Fns()
 	{
 		$this->Page_Edit_Fns();
 
-	}//end Template_Builder_Edit_Fns()
+	}//end Page_Template_Builder_Edit_Fns()
 
 	
 	/**

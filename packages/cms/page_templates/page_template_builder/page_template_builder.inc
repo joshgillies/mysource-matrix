@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: template_builder.inc,v 1.3 2004/11/02 23:16:08 lwright Exp $
+* $Id: page_template_builder.inc,v 1.1 2004/11/18 00:49:24 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,11 +34,11 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Template_Builder extends Page
+class Page_Template_Builder extends Page
 {
 
 
@@ -48,12 +48,12 @@ class Template_Builder extends Page
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Template_Builder($assetid=0)
+	function Page_Template_Builder($assetid=0)
 	{
 		$this->_ser_attrs = true;
 		$this->Page($assetid);
 
-	}//end Template_Builder()
+	}//end Page_Template_Builder()
 
 	
 	/**

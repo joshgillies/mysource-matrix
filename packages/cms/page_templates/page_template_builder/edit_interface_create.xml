@@ -18,20 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_create_locs.xml,v 1.2 2004/11/02 05:03:37 lwright Exp $
+* $Id: edit_interface_create.xml,v 1.1 2004/11/18 00:49:24 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
-<contents>
-	<section name="Fixed Create Locations" write_access="write:attributes">
-		<field>
-			<display_name />
-			<note />
-			<function_call>
-				<paint_function   name="paintFixedCreateLocations"   />
-				<process_function name="processFixedCreateLocations" />
-			</function_call>
-		</field>
+<contents screen="details">
+	<section name="Details">
+		<field attribute="name" />
 	</section>
 </contents>
