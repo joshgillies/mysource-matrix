@@ -92,7 +92,7 @@ class Resolve
 
 		if (SQ_IN_BACKEND) {
 			if (true || $this->user) {
-				include_once(SQ_INCLUDE_PATH.'/backend.inc');
+				include_once SQ_INCLUDE_PATH.'/backend.inc';
 				$backend = new Backend();
 				$backend->paint();
 			} else {
@@ -232,6 +232,45 @@ class Resolve
 	{
 		return $this->_msgs;
 	}
+
+	/**
+	* returns date time string for the passed timestamp
+	*
+	* @param int	$timestamp	timestamp to format, if null uses current timestamp
+	*
+	* @return string
+	* @access public
+	*/
+	function datetime($timestamp=null) {
+		$f = 'd/m/Y H:i:s';
+		return ($timestamp == null) ? date($f) : date($f, $timestamp);
+	}//end datetime()
+
+	/**
+	* returns date string for the passed timestamp
+	*
+	* @param int	$timestamp	timestamp to format, if null uses current timestamp
+	*
+	* @return string
+	* @access public
+	*/
+	function date($timestamp=null) {
+		$f = 'd/m/Y';
+		return ($timestamp == null) ? date($f) : date($f, $timestamp);
+	}//end date()
+
+	/**
+	* returns time string for the passed timestamp
+	*
+	* @param int	$timestamp	timestamp to format, if null uses current timestamp
+	*
+	* @return string
+	* @access public
+	*/
+	function time($timestamp=null) {
+		$f = 'H:i:s';
+		return ($timestamp == null) ? date($f) : date($f, $timestamp);
+	}// end time()
 
 }//end class
 ?>
