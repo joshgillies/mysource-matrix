@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_management.inc,v 1.3 2004/09/15 00:44:10 mmcintyre Exp $
+* $Id: page_whats_new_management.inc,v 1.4 2004/09/15 01:24:33 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -87,6 +87,32 @@ class Page_Whats_New_Management extends Asset_Management
 		
 		
 	}//end constructor
+	
+	/**
+	* Return an array with information about the events that the what new asset is listening for
+	*
+	* @access public
+	* @return boolean
+	*/
+	function getEventList()
+	{
+		return Array(
+				Array(
+					'event_name'				 => 'requestKeywords',
+					'broadcast_type_code'		 => 'content_type_wysiwyg',
+					'broadcast_strict_type_code' => true,
+					'options'	=> Array(
+						'side_of_link'		=> 'major',
+						'indirect'			=> true,
+						'exclusive'			=> null,
+						'dependant'			=> 1,
+						'value'				=> '',
+						'link_type'			=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
+					),
+				),
+		);
+
+	}//end getEventList()
 
 
 }//end class
