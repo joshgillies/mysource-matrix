@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.221 2004/06/29 14:00:30 brobertson Exp $
+* $Id: asset_manager.inc,v 1.222 2004/07/05 18:44:38 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -543,7 +543,9 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getTypeDescendants($type_code)
 	{
-		assert_isset_array_index($this->_asset_types, $type_code, 'Asset Type "'.$type_code.'" is not installed on the system');
+		if ($type_code != 'asset') {
+			assert_isset_array_index($this->_asset_types, $type_code, 'Asset Type "'.$type_code.'" is not installed on the system');
+		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$result = $db->getCol('SELECT type_code
@@ -3970,7 +3972,7 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns the URL for an asset, closest to the $base_url
 	*
-	* @param int | array(int)	$assetids			the id of the asset you want the url for or an array
+	* @param int|array(int)		$assetids			the id of the asset you want the url for or an array
 	*												for a whole bunch of them
 	* @param string				$base_url			the url that we are want to match closest to
 	* @param boolean			$ignore_rollback	ignore rollback checks
@@ -4086,7 +4088,7 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns the href for an asset closest to the $base_url, but relative to the current url
 	*
-	* @param int | array(int)	$assetids			the id of the asset you want the href for or an array
+	* @param int|array(int)		$assetids			the id of the asset you want the href for or an array
 	*												for a whole bunch of them
 	* @param string				$base_url			the url that we are want to match closest to
 	* @param boolean			$ignore_rollback	ignore rollback checks
