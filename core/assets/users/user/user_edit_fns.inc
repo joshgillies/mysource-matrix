@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_edit_fns.inc,v 1.9 2003/11/26 00:51:04 gsherwood Exp $
+* $Id: user_edit_fns.inc,v 1.10 2003/11/27 03:03:26 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -43,12 +43,15 @@ class User_Edit_Fns extends Asset_Edit_Fns
 	* Constructor
 	*
 	*/
-	function User_Edit_Fns() 
+	function User_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
 
 		$this->static_screens['details']['lock_type'] = 'attributes';
-	}
+
+	}//end constructor
+
 
 }//end class
+
 ?>
