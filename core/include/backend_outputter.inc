@@ -111,7 +111,8 @@ class Backend_Outputter
 		// register that we want to listen to link update events
 		$GLOBALS['SQ_SYSTEM']->addEventListener($this, array('CreateLink',
 															 'DeleteLink',
-															 'AssetUpdate'
+															 'AssetUpdate',
+															 'AssetTypeUpdate'
 															));
 	}//end constructor
 
@@ -914,6 +915,7 @@ class Backend_Outputter
 		?>
 			<link rel="stylesheet" type="text/css" href="<?php echo $file;?>" />
 		<?php
+
 	}//end _paintCssInclude()
 
 
@@ -927,6 +929,7 @@ class Backend_Outputter
 		?>
 			<script type="text/javascript" language="javascript" src="<?php echo $file;?>"></script>
 		<?php
+
 	}//end _paintJsInclude()
 
 
@@ -938,6 +941,7 @@ class Backend_Outputter
 	function note($str)
 	{
 		echo '<div class="sq-backend-smallprint">'.$str.'</div>';
+
 	}//end note()
 
 
@@ -946,36 +950,83 @@ class Backend_Outputter
 	*
 	* @access public
 	*/
-	function commitButton($value='Commit', $release_lock=1) {
+	function commitButton($value='Commit', $release_lock=1)
+	{
 		$release_lock = (int)$release_lock;
 		$this->openField('', 'commit');
 		hidden_field('sq_release_lock', 0);
 		submit_button('commit', $value, 'this.form.sq_release_lock.value = \''.$release_lock.'\';');
-	}
+
+	}//end commitButton()
 
 
-	function onCreateLink($event_data=Array()) {
+	/**
+	* Event handler to refresh the asset map if a new link has been created
+	*
+	* @return void
+	* @access public
+	*/
+	function onCreateLink($event_data=Array())
+	{
 		if (!in_array($event_data['assetid'], $this->_refreshing_assets)) {
 			$this->addOnLoad('if (top.sidenav && top.sidenav.reload_asset) top.sidenav.reload_asset("'.$event_data['assetid'].'");');
 			$this->_refreshing_assets[] = $event_data['assetid'];
 		}
-	}
-	function onDeleteLink($event_data=Array()) {
+
+	}//end onCreateLink()
+
+
+	/**
+	* Event handler to refresh the asset map if a link has been deleted
+	*
+	* @return void
+	* @access public
+	*/
+	function onDeleteLink($event_data=Array())
+	{
 		if (!in_array($event_data['assetid'], $this->_refreshing_assets)) {
 			$this->addOnLoad('if (top.sidenav && top.sidenav.reload_asset) top.sidenav.reload_asset("'.$event_data['assetid'].'");');
 			$this->_refreshing_assets[] = $event_data['assetid'];
 		}
-	}
-	function onAssetUpdate($event_data=Array()) {
+
+	}//end onDeleteLink()
+
+
+	/**
+	* Event handler to refresh the asset map if the short name of an asset has changed
+	*
+	* @return void
+	* @access public
+	*/
+	function onAssetUpdate($event_data=Array())
+	{
 		if (!in_array($event_data['assetid'], $this->_refreshing_assets)) {
 			if ($event_data['old_short_name'] != $event_data['new_short_name']) {
 				$this->addOnLoad('if (top.sidenav && top.sidenav.reload_asset) top.sidenav.reload_asset("'.$event_data['assetid'].'");');
 				$this->_refreshing_assets[] = $event_data['assetid'];
 			}
 		}
-	}
+
+	}//end onAssetUpdate()
+
+
+	/**
+	* Event handler to refresh the asset map if an asset has been morphed to a new type
+	*
+	* @return void
+	* @access public
+	*/
+	function onAssetTypeUpdate($event_data=Array())
+	{
+		if (!in_array($event_data['assetid'], $this->_refreshing_assets)) {
+			if ($event_data['old_type'] != $event_data['new_type']) {
+				$this->addOnLoad('if (top.sidenav && top.sidenav.reload_asset) top.sidenav.reload_asset("'.$event_data['assetid'].'");');
+				$this->_refreshing_assets[] = $event_data['assetid'];
+			}
+		}
+
+	}//end onAssetTypeUpdate()
 
 }//end class
-
 
 ?>
