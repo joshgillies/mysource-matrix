@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.113 2004/01/20 03:16:29 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.114 2004/01/23 00:02:04 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -148,7 +148,7 @@ class Asset_Map
 			<object id="sq_asset_map" width="<?php echo $width; ?>" height="<?php echo $height; ?>" classid="CLSID:8AD9C840-044E-11d1-B3E9-00805F499D93">
 				<param name="code" value="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" />
 				<param name="level" value="5" />
-				<param name="archive" value="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar" />
+				<param name="archive" value="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar, <?php echo sq_web_path('lib'); ?>/asset_map/java/xerces.jar" />
 				Java is not installed on your system
 			</object>
 		<?php
