@@ -5,7 +5,7 @@ function Asset()
 	this.assetid    = 0;
 	this.type_code  = "";
 	this.name       = "";
-	this.links      = new Array(); // array of AssetLinks
+	this.links      = new Array(); // array of linkids
 
 
 	// We need to define our own instance of this here for the broadcasting,

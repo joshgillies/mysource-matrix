@@ -11,34 +11,18 @@ function mcMoveIndicatorClass()
 	this.active		= false;
 	this.on_end_obj	= null;
 	this.on_end_fn	= '';
-	this.pos		= -1
-	this.where		= "";
+
+	this.parent_item_name	= '';
+	this.parent_assetid		= 0;
+	this.relative_pos		= -1;
 
 }// end constructor
 
 // Make it inherit from MovieClip
 mcMoveIndicatorClass.prototype = new MovieClip();
 
-/**
-* Set the background size for this bar
-*/
-//mcMoveIndicatorClass.prototype.setSize = function(w, h)
-//{
-//	this.clear();
-//	this.beginFill(this.bg_colour, 100);
-//	this.lineStyle();
-//	this.moveTo(0, 0);
-//	this.lineTo(w, 0);
-//	this.lineTo(w, h);
-//	this.lineTo(0, h);
-//	this.lineTo(0, 0);
-//	this.endFill();
-//
-//}// end setSize()
-
 mcMoveIndicatorClass.prototype.startIndicator = function(on_end_obj, on_end_fn) 
 {
-	trace('Active : ' + this.active);
 	if (this.active) return false;
 	// attempt to get the modal status
 	if (!_root.system_events.startModal(this)) return false;
@@ -47,8 +31,9 @@ mcMoveIndicatorClass.prototype.startIndicator = function(on_end_obj, on_end_fn)
 
 	this.on_end_obj = on_end_obj;
 	this.on_end_fn  = on_end_fn;
-	this.pos   = -1;
-	this.where = "";
+	this.parent_item_name	= '';
+	this.parent_assetid		= 0;
+	this.relative_pos		= -1;
 
 	return true;
 
@@ -59,14 +44,19 @@ mcMoveIndicatorClass.prototype.stopIndicator = function()
 	if (!this.active) return;
 	_root.system_events.stopModal(this);
 
+//	trace("<------- END MOVE INDICATOR ---------->");
+//	trace("PARENT NAME    : " + this.parent_item_name);
+//	trace("PARENT ASSETID : " + this.parent_assetid);
+//	trace("RELATIVE POS   : " + this.relative_pos);
+
 	// call back to the end fn for whoever called us
-	this.on_end_obj[this.on_end_fn](this.pos, this.where);
+	this.on_end_obj[this.on_end_fn](this.parent_item_name, this.parent_assetid, this.relative_pos);
 
 	// clear the move indicator
 	this.active   = false;
 	this._visible = false;
 
-}// end endMoveIndicator()
+}// end endIndicator()
 
 
 mcMoveIndicatorClass.prototype.onMouseMove = function() 
@@ -85,39 +75,67 @@ mcMoveIndicatorClass.prototype.onMouseMove = function()
 
 		// if we are past the end of the list then we are really at the last pos, in the gap
 		if (pos.pos == list.items_order.length) {
-			pos.pos    = list.items_order.length - 1;
-			pos.in_gap = true;
-		}
 
-		// if we are past the end of the list, improvise
-		var item_name = list.items_order[pos.pos].name;
+			var item_name = list.items_order[list.items_order.length - 1].name;
+			var end_pos = list[item_name]._y + _root.LIST_ITEM_POS_INCREMENT;
+			var space_from_end = ym - end_pos;
 
-		this.pos = pos.pos;
+			// Find out how many branch gaps past the end we are
+			var gaps_from_end = Math.floor(space_from_end / _root.LIST_ITEM_END_BRANCH_GAP);
+			// make sure this isn't higher than the number of indents in the last item is
+			gaps_from_end = Math.min(list[item_name].indent, gaps_from_end);
+			// get the new indent based upon how many gaps from the end we are
+			var indent = list[item_name].indent - gaps_from_end;
 
-		if (pos.in_gap) {
+			// Go back up through the parents to find the right one
+			this.parent_item_name = item_name;
+			for(var i = 0; i < gaps_from_end + 1; i++) {
+				this.parent_assetid = list[this.parent_item_name].getParentAssetid();
+				this.parent_item_name = list[this.parent_item_name].parent_item_name;
+			}
+			this.relative_pos = _root.asset_manager.assets[this.parent_assetid].links.length;
+
+			// Now finally set the indicator pos
 			this.gotoAndStop("normal");
-			this._x  = list[item_name]._x;
-			this._y  = list[item_name]._y + _root.LIST_ITEM_POS_INCREMENT;
-			this.where = "after";
+			this._x  = indent * _root.LIST_ITEM_INDENT_SPACE;
+			this._y  = end_pos + (_root.LIST_ITEM_END_BRANCH_GAP * gaps_from_end);
 
 		} else {
+			var item_name = list.items_order[pos.pos].name;
 
-			var percentile = ((ym - list[item_name]._y) / _root.LIST_ITEM_POS_INCREMENT);
-
-			if (percentile < 0.45) {
+			if (pos.in_gap) {
 				this.gotoAndStop("normal");
-				this._x    = list[item_name]._x;
-				this._y    = list[item_name]._y;
-				this.where = "before";
+				this._x  = list[item_name]._x;
+				this._y  = list[item_name]._y + _root.LIST_ITEM_POS_INCREMENT;
+
+				this.parent_item_name = list[item_name].parent_item_name;
+				this.parent_assetid   = list[item_name].getParentAssetid();
+				this.relative_pos = _root.asset_manager.assets[list[item_name].getParentAssetid()].links.length;
 
 			} else {
-				this.gotoAndStop("new_child");
-				this._x    = list[item_name]._x + _root.LIST_ITEM_INDENT_SPACE;
-				this._y    = list[item_name]._y + _root.LIST_ITEM_POS_INCREMENT;
-				this.where = "child";
 
-			}
-		}
+				var percentile = ((ym - list[item_name]._y) / _root.LIST_ITEM_POS_INCREMENT);
+
+				if (percentile < 0.45) {
+					this.gotoAndStop("normal");
+					this._x    = list[item_name]._x;
+					this._y    = list[item_name]._y;
+
+					this.parent_item_name = list[item_name].parent_item_name;
+					this.parent_assetid   = list[item_name].getParentAssetid();
+					this.relative_pos     = _root.asset_manager.assets[this.parent_assetid].linkPos(list[item_name].linkid);
+
+				} else {
+					this.gotoAndStop("new_child");
+					this._x    = list[item_name]._x + _root.LIST_ITEM_INDENT_SPACE;
+					this._y    = list[item_name]._y + _root.LIST_ITEM_POS_INCREMENT;
+					this.parent_item_name = item_name;
+					this.parent_assetid   = list[item_name].assetid;
+					this.relative_pos     = 0;
+
+				}
+			}// end if
+		}// end if
 
 		this._visible = true;
 
@@ -134,7 +152,6 @@ mcMoveIndicatorClass.prototype.onMouseMove = function()
 */
 mcMoveIndicatorClass.prototype.onRelease = function() 
 {
-	trace('Move On Release');
 	this.stopIndicator();
 	return true;
 }// end onRelease()

@@ -30,9 +30,9 @@ function testOnClick1(component)
 
 function testOnClick2 (component)
 {
-	for(var i in _root.asset_manager.types) {
-		trace(i + " :\t" + _root.asset_manager.types[i]);
-	}
+//	for(var i in _root.asset_manager.types) {
+//		trace(i + " :\t" + _root.asset_manager.types[i]);
+//	}
 //	trace("-------------------------------------------------------------------------------------------------------------------------");
 //	for(var i = 0; i < _root.list_container.items_order.length; i++) {
 //		trace(i + " :\t" + _root.list_container.items_order[i].end_branch + " :\t" + _root.list_container.items_order[i].name);
@@ -52,6 +52,13 @@ function testOnClick2 (component)
 //			trace(i + " :\t" + _root.msgs_bar.scroll_content[i]._x + ", " + _root.msgs_bar.scroll_content[i]._y + " \t :\t" + (_root.msgs_bar.scroll_content[i]._x + _root.msgs_bar.scroll_content[i]._width) + ", " + (_root.msgs_bar.scroll_content[i]._y + _root.msgs_bar.scroll_content[i]._height));
 //		}
 //	}
+
+	for(var i in _root.list_container.list) {
+		if (_root.list_container.list[i] instanceof MovieClip) {
+			trace(i + " :\t" + _root.list_container.list[i].text_field.text);
+		}
+	}
+
 
 }
 

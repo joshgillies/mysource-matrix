@@ -100,7 +100,6 @@ mcListContainerClass.prototype.onPress = function()
 	// if one of our kids has modal status, only execute onPress for them
 	if (modal & SystemEvents.KID_MODAL) {
 		var kid = _root.system_events.getModalChildName(this);
-		trace("KID : " + kid);
 		this[kid].onPress();
 	} else {
 		return super.onPress();
@@ -173,22 +172,22 @@ mcListContainerClass.prototype.onMenuItemPress = function(action, info)
 /**
 * Attempt to add the asset
 *
-* @param int		pos	the	position in the item_order array that the move indicator came to it's final rest
-* @param boolean	in_gap	whether the indicator finished up in the gap at the end of the list
+* @param string	parent_item_name	the name of the item that the pos is to be under
+* @param int	parent_assetid		the	assetid of the item that the pos is to be under
+* @param int	relative_pos		the relative in the parent_asset's links array that the asset is to be placed
 *
 */
-mcListContainerClass.prototype.processAddAsset = function(pos, where) 
+mcListContainerClass.prototype.processAddAsset = function(parent_item_name, parent_assetid, relative_pos) 
 {
-	trace("Add an asset of type '" + this.tmp.exec_action.type_code + "' to pos " + pos + ". Where ? " + where);
-	var info = this.list.posToAssetInfo(pos, where);
+	trace("Add an asset of type '" + this.tmp.exec_action.type_code + "' to pos " + parent_assetid + ". Where ? " + relative_pos);
 
 	var xml = new XML();
 	var cmd_elem = xml.createElement("command");
 	cmd_elem.attributes.action  = "get url";
 	cmd_elem.attributes.cmd     = "add";
 	cmd_elem.attributes.type_code      = this.tmp.exec_action.type_code;
-	cmd_elem.attributes.parent_assetid = info.parent_assetid;
-	cmd_elem.attributes.pos            = info.pos;
+	cmd_elem.attributes.parent_assetid = parent_assetid;
+	cmd_elem.attributes.pos            = pos;
 	xml.appendChild(cmd_elem);
 
 	trace(xml);

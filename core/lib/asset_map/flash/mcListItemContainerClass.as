@@ -1,5 +1,5 @@
 #include "mcListItemClass.as"
- 
+
  /////////////////////////////////////////////////////////////////////////////
 // NOTE: the list items in this container are just stored as
 // normal attributes and not in there own array (as I would have liked)
@@ -57,11 +57,11 @@ mcListItemContainerClass.prototype.onAssetTypesLoaded = function()
 *
 * @access public
 */
-mcListItemContainerClass.prototype.init = function() 
+mcListItemContainerClass.prototype.init = function()
 {
-	
+
 	_root.asset_manager.loadAssets([1], this, "initLoaded", {}, true);
-	
+
 }// end init()
 
 
@@ -70,7 +70,7 @@ mcListItemContainerClass.prototype.init = function()
 *
 * @access private
 */
-mcListItemContainerClass.prototype.initLoaded = function(params, new_assets, old_assets) 
+mcListItemContainerClass.prototype.initLoaded = function(params, new_assets, old_assets)
 {
 	this.showKids('1', this.item_prefix);
 }// end initLoaded()
@@ -78,7 +78,7 @@ mcListItemContainerClass.prototype.initLoaded = function(params, new_assets, old
 
 /**
 * Called by the mcListItem's on the pressing of the plus button
-* Calls the root getAssetKids() which gets the XML data then 
+* Calls the root getAssetKids() which gets the XML data then
 * calls displayKids() below
 *
 * @param int		parent_assetid	the assetid of the asset who's kids to show
@@ -86,7 +86,7 @@ mcListItemContainerClass.prototype.initLoaded = function(params, new_assets, old
 * @param boolean	dont_refresh	prevent the refreshing of the list
 *
 */
-mcListItemContainerClass.prototype.showKids = function(parent_assetid, parent_name, dont_refresh) 
+mcListItemContainerClass.prototype.showKids = function(parent_assetid, parent_name, dont_refresh)
 {
 
 	if (dont_refresh != true) dont_refresh = false;
@@ -103,12 +103,10 @@ mcListItemContainerClass.prototype.showKids = function(parent_assetid, parent_na
 /**
 * A continuation of showKids() after the assets have been loaded
 */
-mcListItemContainerClass.prototype.showKidsLoaded = function(params) 
+mcListItemContainerClass.prototype.showKidsLoaded = function(params)
 {
 	var parent_assetid = params.parent_assetid;
 	var parent_name	   = params.parent_name;
-
-//	trace('Show Kids Loaded    : ' + parent_assetid + ', ' + parent_name);
 
 	// Now create the kids list items, if they don't already exist
 	for(var j = 0; j < _root.asset_manager.assets[parent_assetid].links.length; j++) {
@@ -139,13 +137,12 @@ mcListItemContainerClass.prototype.showKidsLoaded = function(params)
 * Splices the items order array recursively, adding the kids of the passed parent
 *
 */
-mcListItemContainerClass.prototype._recurseDisplayKids = function(parent_assetid, parent_name, parent_i) 
+mcListItemContainerClass.prototype._recurseDisplayKids = function(parent_assetid, parent_name, parent_i)
 {
 
 	var i = parent_i + 1;
 
 	// Now add the kids into the items order array in the correct spot
-//	trace('Kids of ' + parent_assetid + ' : ' + _root.asset_manager.assets[parent_assetid].links);
 	for(var j = 0; j < _root.asset_manager.assets[parent_assetid].links.length; j++) {
 		var name = parent_name + "_" + _root.asset_manager.assets[parent_assetid].links[j];
 		if (this[name] == undefined) continue;
@@ -170,7 +167,7 @@ mcListItemContainerClass.prototype._recurseDisplayKids = function(parent_assetid
 * @param int		linkid			The linkid for which this item is the minor party
 *
 */
-mcListItemContainerClass.prototype._createItem = function(parent_name, item_name, linkid) 
+mcListItemContainerClass.prototype._createItem = function(parent_name, item_name, linkid)
 {
 	if (this[item_name] == undefined) {
 
@@ -199,9 +196,15 @@ mcListItemContainerClass.prototype._createItem = function(parent_name, item_name
 * @param string		item_name		The item name for the new item
 *
 */
-mcListItemContainerClass.prototype._deleteItem = function(item_name) 
+mcListItemContainerClass.prototype._deleteItem = function(item_name)
 {
 	if (this[item_name] == undefined) return;
+
+	// Delete any of our kids that exist
+	var links = _root.asset_manager.assets[this[item_name].assetid].links;
+	for(var j = 0; j < links.length; j++) {
+		this._deleteItem(item_name + "_" + links[j]);
+	}// end for
 
 	this.asset_list_items[this[item_name].assetid].remove_element(item_name);
 	this._removeItem(item_name);
@@ -217,7 +220,7 @@ mcListItemContainerClass.prototype._deleteItem = function(item_name)
 * @param boolean	end_branch	Whether this is an end branch or not
 *
 */
-mcListItemContainerClass.prototype._insertItem = function(pos, name, end_branch) 
+mcListItemContainerClass.prototype._insertItem = function(pos, name, end_branch)
 {
 	this.items_order.splice(pos, 0, {name: name, branch_count: 0, end_branch: end_branch});
 }// end _insertItem()
@@ -228,7 +231,7 @@ mcListItemContainerClass.prototype._insertItem = function(pos, name, end_branch)
 * @param string		item_name		The name of the list item
 *
 */
-mcListItemContainerClass.prototype._removeItem = function(item_name) 
+mcListItemContainerClass.prototype._removeItem = function(item_name)
 {
 	if (this[item_name] == undefined) return;
 
@@ -248,19 +251,19 @@ mcListItemContainerClass.prototype._removeItem = function(item_name)
 
 /**
 * Called by the mcListItem's on the pressing of the minus button
-* Hiding the children of the passed 
+* Hiding the children of the passed
 *
 * @param int		parent_assetid	the assetid of the asset who's kids to hide
 * @param string		parent_name		the list item name of the parent that the kids are attached to
 * @param boolean	dont_refresh	prevent the refreshing of the list
 *
 */
-mcListItemContainerClass.prototype.hideKids = function(parent_assetid, parent_name, dont_refresh) 
+mcListItemContainerClass.prototype.hideKids = function(parent_assetid, parent_name, dont_refresh)
 {
 	if (dont_refresh != true) dont_refresh = false;
 
 	var parent_i = (parent_assetid > 1) ? this[parent_name].pos : -1;
-	
+
 	var num_to_remove = this._recurseHideKids(parent_assetid, parent_name);
 
 	// Now remove the kids from the items order
@@ -278,11 +281,11 @@ mcListItemContainerClass.prototype.hideKids = function(parent_assetid, parent_na
 
 }// end hideKids()
 
-mcListItemContainerClass.prototype._recurseHideKids = function(parent_assetid, parent_name) 
+mcListItemContainerClass.prototype._recurseHideKids = function(parent_assetid, parent_name)
 {
 
 	var num_kids = _root.asset_manager.assets[parent_assetid].links.length;
-	
+
 	// loop through all the kids and make them invisible, also recursivly remove their kids
 	for(var j = 0; j < _root.asset_manager.assets[parent_assetid].links.length; j++) {
 		var name = parent_name + "_" + _root.asset_manager.assets[parent_assetid].links[j];
@@ -306,7 +309,7 @@ mcListItemContainerClass.prototype._recurseHideKids = function(parent_assetid, p
 *
 * @access public
 */
-mcListItemContainerClass.prototype.onAssetsReload = function(assetids, new_assets, old_assets) 
+mcListItemContainerClass.prototype.onAssetsReload = function(assetids, new_assets, old_assets)
 {
 
 	for(var j = 0; j < assetids.length; j++) {
@@ -325,15 +328,13 @@ mcListItemContainerClass.prototype.onAssetsReload = function(assetids, new_asset
 
 			for(var i = 0; i < this.asset_list_items[assetid].length; i++) {
 				var item_name = this.asset_list_items[assetid][i];
-				// we need to the get the pos this way because the this[item_name].pos will be out 
+				// we need to the get the pos this way because the this[item_name].pos will be out
 				// of wack until we call the refresh below
 				var pos  = 0; // outside for scope reasons
 				for(; pos < this.items_order.length; pos++) {
 					if (this.items_order[pos].name == item_name) break;
 				}
 				if (pos >= this.items_order.length) continue; // we didn't find it
-
-				trace("Reload List Item : " + item_name + ", expanded : " + this[item_name].expanded());
 
 				this._reloadAssetListItem(assetid, item_name, pos, this[item_name].expanded(), deletes, inserts, new_assets[assetid].links);
 
@@ -345,14 +346,14 @@ mcListItemContainerClass.prototype.onAssetsReload = function(assetids, new_asset
 
 
 	// OK to make sure that every thing is in the correct order we hide everything
-	// but DON'T refresh, then we show every thing again will all expanded assets 
+	// but DON'T refresh, then we show every thing again will all expanded assets
 	// being displayed
 	this.hideKids(1, this.item_prefix, true);
 	this.showKids(1, this.item_prefix);
 
 	// Now if there has been a asset move and we know where to select, then do so
 	if (this.tmp.move_asset.new_select_name != undefined) {
-		this.select(this[this.tmp.move_asset.new_select_name]);
+		this.selectItem(this[this.tmp.move_asset.new_select_name]);
 		delete this.tmp.move_asset.new_select_name;
 	}
 
@@ -372,7 +373,7 @@ mcListItemContainerClass.prototype.onAssetsReload = function(assetids, new_asset
 *
 * @access private
 */
-mcListItemContainerClass.prototype._reloadAssetListItem = function(assetid, item_name, pos, expanded, deletes, inserts, all_kids) 
+mcListItemContainerClass.prototype._reloadAssetListItem = function(assetid, item_name, pos, expanded, deletes, inserts, all_kids)
 {
 
 	// delete any child items that aren't needed any more
@@ -383,8 +384,6 @@ mcListItemContainerClass.prototype._reloadAssetListItem = function(assetid, item
 
 	// the reset of this is only relevant if the item is expanded
 	if (expanded) {
-		trace("EXPANDED -> " + all_kids);
-
 		// insert any child items that have just been added
 		for(var j = 0; j < inserts.length; j++) {
 			var kid_name = item_name + "_" + inserts[j];
@@ -402,25 +401,25 @@ mcListItemContainerClass.prototype._reloadAssetListItem = function(assetid, item
 * Refreshes the display of this container's items, and inform the list container (our parent)
 * of the refresh
 *
-* @param int start_i   the index in the items_order array to start the refresh from 
+* @param int start_i   the index in the items_order array to start the refresh from
 *
 * @access public
 */
-mcListItemContainerClass.prototype.refresh = function(start_i) 
+mcListItemContainerClass.prototype.refresh = function(start_i)
 {
 	this.refreshDisplay(start_i);
 	this._parent.refreshDisplay();
 }
-	
+
 /**
 * Refreshes the display of the items, from a certain position onwards
 * don't inform our parent
 *
-* @param int start_i   the index in the items_order array to start the refresh from 
+* @param int start_i   the index in the items_order array to start the refresh from
 *
 * @access public
 */
-mcListItemContainerClass.prototype.refreshDisplay = function(start_i) 
+mcListItemContainerClass.prototype.refreshDisplay = function(start_i)
 {
 
 	if (start_i == undefined || start_i < 0) start_i = 0;
@@ -450,21 +449,21 @@ mcListItemContainerClass.prototype.refreshDisplay = function(start_i)
 }// end refreshDisplay()
 
 /**
-* Returns the position of the item in the items_order array that is under the 
+* Returns the position of the item in the items_order array that is under the
 * x,y co-ordinates passed into the fn. These co-ords MUST be relative to
 * this containers axis, not the Stage's
 *
-* Returns -1 if the y co-ord is before any clips 
+* Returns -1 if the y co-ord is before any clips
 * and the length of the items array if after all clips
 *
-* @param float x 
+* @param float x
 * @param float y
 * @param boolean [bleed_gaps] default=false, if the co-ords are over a branch gap returns the pos above the gap
 *
 * @return int | Object
 * @access public
 */
-mcListItemContainerClass.prototype.getItemPos = function(x, y, bleed_gaps) 
+mcListItemContainerClass.prototype.getItemPos = function(x, y, bleed_gaps)
 {
 
 	if (bleed_gaps != true) bleed_gaps = false;
@@ -491,7 +490,7 @@ mcListItemContainerClass.prototype.getItemPos = function(x, y, bleed_gaps)
 				return -1;
 			} else if (max_pos >= this.items_order.length) {
 				max_pos = this.items_order.length - 1;
-			} 
+			}
 
 			// Now we get a minimum position number, by using the branch count at the max pos
 			var min_pos = max_pos - this.items_order[max_pos].branch_count;
@@ -511,7 +510,7 @@ mcListItemContainerClass.prototype.getItemPos = function(x, y, bleed_gaps)
 				} else if (y > end_y) {
 					min_pos = i + 1;
 
-				// else mouse is in this element 
+				// else mouse is in this element
 				} else {
 					pos    = i;
 					if (bleed_gaps) {
@@ -532,64 +531,7 @@ mcListItemContainerClass.prototype.getItemPos = function(x, y, bleed_gaps)
 
 }// end getItemPos()
 
-
-/**
-* Returns the assetid and the position in it's kids array that a pos in the items_order array refers to
-*
-* @param int	pos
-* @param string	where	where in relation to pos are we talking about (before | after | child)
-*
-* @return Object
-* @access public
-*/
-mcListItemContainerClass.prototype.posToAssetInfo = function(pos, where) 
-{
-
-	trace('posToAssetInfo(' + pos + ', ' + where + ')');
-	trace('Items Order : ' + this.items_order[pos].name);
-	trace('Parent  : ' + this[this.items_order[pos].name].parent_item_name);
-
-	var pos_item = this[this.items_order[pos].name];
-	var parent_assetid = 0;
-	var relative_pos   = 0;
-
-	// if we are after a child pos, then this is easy, the parent is the current item 
-	// and the relative pos is the top of the list
-	if (where == "child") {
-		parent_assetid = pos_item.assetid;
-		relative_pos   = 0;
-
-	} else {
-
-		parent_assetid = pos_item.getParentAssetid();
-
-		// if we are after this pos (and this pos is an end branch)
-		// then our pos is the length of the kids array
-		if (where == "after" && this.items_order[pos].end_branch) {
-			relative_pos = _root.asset_manager.assets[parent_assetid].links.length;
-
-		// else we must cycle through our parents kids until we find ourselves
-		} else {
-			for(var j = 0; j < _root.asset_manager.assets[parent_assetid].links.length; j++) {
-				if (_root.asset_manager.assets[parent_assetid].links[j] == pos_item.linkid) {
-					relative_pos = j;
-					break;
-				}
-
-			}// end for
-
-		}// end if
-
-	}// end if
-
-	trace('Parent Assetid : ' + parent_assetid);
-	trace('Relative Pos   : ' + relative_pos);
-
-	return {parent_assetid: parent_assetid, pos: relative_pos};
-
-}// end posToAssetInfo()
-
-mcListItemContainerClass.prototype.selectItem = function(item) 
+mcListItemContainerClass.prototype.selectItem = function(item)
 {
 	// if we in any action we don't want to select anything
 	if (this.action != "") return false;
@@ -609,20 +551,23 @@ mcListItemContainerClass.prototype.selectItem = function(item)
 
 }
 
-mcListItemContainerClass.prototype.unselectItem = function() 
+mcListItemContainerClass.prototype.unselectItem = function()
 {
 	this.selected_item.unselect();
 	this.selected_item = null;
 //	this.broadcastMessage("onListItemUnSelection");
 }
 
-mcListItemContainerClass.prototype.selected = function(item) 
+mcListItemContainerClass.prototype.selected = function(item)
 {
 	return (this.selected_item == item);
 }
 
 
-mcListItemContainerClass.prototype.startMove = function() 
+/**
+* Called to start the moving of an asset
+*/
+mcListItemContainerClass.prototype.startMove = function()
 {
 	if (this.action != "") return false;
 
@@ -634,52 +579,39 @@ mcListItemContainerClass.prototype.startMove = function()
 
 }// end startMove()
 
-mcListItemContainerClass.prototype.endMove = function(pos, where) 
+/**
+* Called after the move position has been selected
+*
+* @param string	parent_item_name	the name of the item that the pos is to be under
+* @param int	parent_assetid		the	assetid of the item that the pos is to be under
+* @param int	relative_pos		the relative in the parent_asset's links array that the asset is to be placed
+*
+*/
+mcListItemContainerClass.prototype.endMove = function(parent_item_name, parent_assetid, relative_pos)
 {
 	if (this.action != "move") return;
 
-//	trace("End Item Move");
-
 	var do_move = false;
+	var diff_parents = (this.selected_item.getParentAssetid() != parent_assetid);
+	var curr_relative_pos = _root.asset_manager.assets[this.selected_item.getParentAssetid()].linkPos(this.selected_item.linkid);
+
+	// if we are staying under the same parent
+	// AND if we are moving the asset down the list
+	if (!diff_parents && curr_relative_pos < relative_pos) {
+		// then we need to decrement the pos - see me for a demo of why (BCR)
+		relative_pos -= 1;
+	}
 
 	// if we actually moved
-	if (pos != this.selected_item.pos) {
-		// if the pos is the item after the selected 
-		// then only move if the indicator is after that item
-		if (pos == this.selected_item.pos + 1) {
-			do_move = (where == "after" || where == "child");
-		} else {
-			do_move = true;
-		}
-	}// end if
-
-	if (do_move) {
-
-		var moved_to_item = this[this.items_order[pos].name];
-
-		// if the indicator was before the position
-		if (where == "before") {
-			// AND if we are staying under the same parent 
-			if (this.selected_item.getParentAssetid() == moved_to_item.getParentAssetid()) {
-				var parent_asset = _root.asset_manager.assets[this.selected_item.getParentAssetid()];
-				// AND if we are moving the asset down the list
-				if (parent_asset.linkPos(this.selected_item.linkid) < parent_asset.linkPos(moved_to_item.linkid)) {
-					// then we need to decrement the pos - see me for a demo of why (BCR)
-					pos -= 1;
-				}
-			}
-		}
+	if (diff_parents || curr_relative_pos != relative_pos) {
 
 		var params = new Object();
-		params.moved_info           = this.posToAssetInfo(pos, where);
-		params.moved_to_parent_name = moved_to_item.parent_item_name;
-		
-		trace("Move to Pos : " + pos + ", where : " + where);
-		trace("Move Info   : " + params.moved_info.parent_assetid + ", pos : " + params.moved_info.pos);
-
+		params.parent_item_name	= parent_item_name; // we save this to highlight it's new kid when it appears
+		params.parent_assetid	= parent_assetid;
+		params.relative_pos		= relative_pos;
 
 		// if the parent has changed during the move then we need to ask what we want done
-		if (this.selected_item.getParentAssetid() != moved_to_item.getParentAssetid()) {
+		if (diff_parents) {
 			_root.options_box.init("Move Type", "Are you moving this asset, or creating a new link ?", this, "moveConfirm", params);
 			_root.options_box.addOption("new link",   "New Link");
 			_root.options_box.addOption("move asset", "Moving");
@@ -699,21 +631,20 @@ mcListItemContainerClass.prototype.endMove = function(pos, where)
 }// end endMove()
 
 
-mcListItemContainerClass.prototype.moveConfirm = function(move_type, params) 
+mcListItemContainerClass.prototype.moveConfirm = function(move_type, params)
 {
 	if (this.action != "move") return;
 
 	// if they didn't hit cancel
-	if (move_type != null) { 
-		trace("End Item Move : move_type -> " + move_type);
+	if (move_type != null) {
 
 		var xml = new XML();
 		var cmd_elem = xml.createElement("command");
 		cmd_elem.attributes.action              = move_type;
 		cmd_elem.attributes.from_parent_assetid = this.selected_item.getParentAssetid();
 		cmd_elem.attributes.linkid              = this.selected_item.linkid;
-		cmd_elem.attributes.to_parent_assetid   = params.moved_info.parent_assetid;
-		cmd_elem.attributes.to_parent_pos       = params.moved_info.pos;
+		cmd_elem.attributes.to_parent_assetid   = params.parent_assetid;
+		cmd_elem.attributes.to_parent_pos       = params.relative_pos;
 		xml.appendChild(cmd_elem);
 
 		trace(xml);
@@ -738,12 +669,10 @@ mcListItemContainerClass.prototype.xmlMoveItem = function(xml, exec_identifier)
 
 	// OK let's save the pos of that we were dragged to so that we can select the correct
 	// list item later after the parents have been reloaded
-	this.tmp.move_asset.new_select_name = this.tmp.move_asset[exec_identifier].moved_to_parent_name + "_" + select_linkid;
-
-	trace("#### New Select Name : " + this.tmp.move_asset.new_select_name);
+	this.tmp.move_asset.new_select_name = this.tmp.move_asset[exec_identifier].parent_item_name + "_" + select_linkid;
 
 	// get the asset manager to reload the assets
-	_root.asset_manager.reloadAssets([this.selected_item.getParentAssetid(), this.tmp.move_asset[exec_identifier].moved_info.parent_assetid]);
+	_root.asset_manager.reloadAssets([this.selected_item.getParentAssetid(), this.tmp.move_asset[exec_identifier].parent_assetid]);
 
 }// end xmlMoveItem()
 
