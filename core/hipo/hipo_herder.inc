@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.41 2004/06/25 04:05:59 gsherwood Exp $
+* $Id: hipo_herder.inc,v 1.42 2004/06/25 04:30:02 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -282,13 +282,6 @@ class HIPO_Herder extends MySource_Object
 
 		$o = &$this->getBackendOutputter();
 		$o->setFormData($form_name, $url);
-		if ($auto_step) {
-			if ($delay) {
-				$o->addOnLoad('ON_LOAD_TIME_OUT = setTimeout("next_page();", 2000)');
-			} else {
-				$o->addOnLoad('next_page()');
-			}
-		}
 
 		$o->openRaw();
 		?>
@@ -407,8 +400,17 @@ class HIPO_Herder extends MySource_Object
 				</td>
 			</tr>
 		</table>
+		<script language="JavaScript" type="text/javascript"><!--
 		<?php
-
+		if ($auto_step) {
+			if ($delay) {
+				?>ON_LOAD_TIME_OUT = setTimeout("next_page();", 2000);<?php
+			} else {
+				?>next_page();<?php
+			}
+		}
+		?>
+		// --></script><?php
 		$o->closeRaw();
 		$o->paint();
 
