@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.174 2003/10/30 04:47:00 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.175 2003/10/30 23:44:58 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -341,7 +341,6 @@ class Asset_Edit_Interface extends MySource_Object
 
 		}// end if
 
-
 		// check the active screen for special system defined static screens
 		$file = null;
 		if (isset($this->_edit_fns->static_screens[$active_screen])) {
@@ -376,6 +375,16 @@ class Asset_Edit_Interface extends MySource_Object
 
 		}// end if
 
+		  ///////////////////
+		 //  WHERE AM I   //
+		///////////////////
+		if (isset($_GET['sq_link_path'])) {
+			$link_path = $_GET['sq_link_path'];
+		} else {
+			$link_path = '';
+		}
+		$o->addFormActionGetVar('sq_link_path', $link_path, true);
+		$o->addHiddenField('sq_link_path', $link_path);
 
 		  ///////////////////
 		 //  PREVIEW URL  //
@@ -423,7 +432,6 @@ class Asset_Edit_Interface extends MySource_Object
 			}
 		}
 		$o->addHiddenField('sq_preview_url', $preview_url);
-
 
 		  //////////////////////////
 		 //  Navigation History  //
@@ -1763,7 +1771,7 @@ class Asset_Edit_Interface extends MySource_Object
 		return true;
 	
 	}// end paintInlinePermissions()
-	
+
 
 	/**
 	* Paint the interface for managing permissions
