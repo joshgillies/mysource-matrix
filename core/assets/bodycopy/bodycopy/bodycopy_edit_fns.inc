@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.11 2004/08/17 04:39:41 gsherwood Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.12 2004/08/19 05:18:43 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -73,6 +73,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	function paintBodycopy(&$asset, &$o, $prefix)
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$write_access = $asset->writeAccess('content');
 
 		if (isset($GLOBALS['sq_preview_url']) && !empty($GLOBALS['sq_preview_url'])) {
 			$url = $GLOBALS['sq_preview_url'];
@@ -128,14 +129,9 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		// get all the containers linked to this bodycopy
 		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
 
-		
-		if (!$asset->writeAccess('content')) {
+		if (!$write_access) {
 			foreach ($containers as $container_data) {
 				$container = &$am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
-				// make sure all child containers have had their locks released too so there's no 
-				// strange behaviour in this editing interface where 1 container can 
-				// be edited but others (and the overall bodycopy) can't
-				$GLOBALS['SQ_SYSTEM']->am->releaseLock($container->id, 'all');
 				if ($container->useSystemVersion()) {
 					$container->printBody();
 				} else {
@@ -392,51 +388,59 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		foreach ($containers as $container_data) {
 			$container = &$am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
 			$container_edit = $container->getEditFns();
-		?>
-			<tr>
-				<td>
-					<input type="hidden" name="bodycopy_saved[<?php echo $prefix?>][<?php echo $container->id?>]" value="">
-					<table border="0" cellspacing="0" cellpadding="0">
-						<tr>
-							<?php
-							if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) { 
-								?>
-								<td colspan="2"><span class="sq-backend-warning"><b>NOTE:</b> You cannot insert a new Div or Table while in Safe Edit mode</span></td>
+			
+			if ($write_access) {
+				?>
+				<tr>
+					<td>
+						<input type="hidden" name="bodycopy_saved[<?php echo $prefix?>][<?php echo $container->id?>]" value="">
+						<table border="0" cellspacing="0" cellpadding="0">
+							<tr>
+								<?php
+								if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) { 
+									?>
+									<td colspan="2"><span class="sq-backend-warning"><b>NOTE:</b> You cannot insert a new Div or Table while in Safe Edit mode</span></td>
+									<?php 
+								} else {
+									?>
+									<td>
+										<?php
+										print_bodycopy_icon("Javascript: document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_before_{$i}.value; bodycopy_insert_container('$prefix', $i, true)", 'Insert Container', 'Select the type of container you want to create before clicking here', 'create_container');
+										?>
+									</td>
+									<td class="sq-backend-data" valign="top">
+										<?php
+										echo '&nbsp;&nbsp;Create New ';
+										echo combo_box($prefix.'_insert_container_type_before_'.$i, $container_type_options, false, '');
+										?>
+									</td>
 								<?php 
-							} else {
+								} 
 								?>
-								<td>
-									<?php
-									print_bodycopy_icon("Javascript: document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_before_{$i}.value; bodycopy_insert_container('$prefix', $i, true)", 'Insert Container', 'Select the type of container you want to create before clicking here', 'create_container');
-									?>
-								</td>
-								<td class="sq-backend-data" valign="top">
-									<?php
-									echo '&nbsp;&nbsp;Create New ';
-									echo combo_box($prefix.'_insert_container_type_before_'.$i, $container_type_options, false, '');
-									?>
-								</td>
-							<?php 
-							} 
-							?>
-						</tr>
-					</table>
-				</td>
-			</tr>
-			<tr>
-				<td>&nbsp;</td>
-			</tr>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td>&nbsp;</td>
+				</tr>
+				<?php
+			}//end if write access
+			
+			?>
 			<tr>
 				<td><?php $container_edit->paintContainer($container, $o, $prefix); ?></td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
 			</tr>
-		<?php
+			<?php
+			
 			$i++;
-		}// end foreach container
-		?>
-
+		}//end foreach container
+		
+		if ($write_access) {
+			?>
 			<tr>
 				<td>
 					<table border="0" cellspacing="0" cellpadding="0">
@@ -466,10 +470,14 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 					</table>
 				</td>
 			</tr>
+			<?php
+		}//end if write access
+
+		?>
 		</table>
 		<?php
 
-		return true;
+		return $write_access;
 
 	}//end paintBodycopy()
 
