@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: spell_parser.inc,v 1.3 2003/10/10 00:51:45 gsherwood Exp $
+* $Id: spell_parser.inc,v 1.4 2003/10/10 02:18:24 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -117,7 +117,19 @@ Class Spell_Parser {
 	*/
 	function dataHandler(&$parser, $data)
 	{
-		echo preg_replace_callback('|(\w+)([^;\w])|',Array($this, 'spellCallback'), $data);
+		$matches = preg_match('|[^\w]|', $data);
+		if ($matches) {
+			// we add an extra character to the end (which we strip out later)
+			// to make sure the regular expression matches the last word in the line
+			$data .= '-';
+			ob_start();
+			echo preg_replace_callback('|(\w+)([^;\w])|', Array($this, 'spellCallback'), $data);
+			$contents = ob_get_contents();
+			ob_end_clean();
+			echo substr($contents, 0, -1);
+		} else {
+			echo $this->spellCallback(Array($data, $data, ''));
+		}
 		return true;
 
 	}// end dataHandler()

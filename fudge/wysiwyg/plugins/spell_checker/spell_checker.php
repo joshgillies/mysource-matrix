@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: spell_checker.php,v 1.3 2003/10/10 00:51:45 gsherwood Exp $
+* $Id: spell_checker.php,v 1.4 2003/10/10 02:18:24 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -89,7 +89,6 @@ header("Content-type: text/html; charset: utf-8");
 
 		$parser =& new XML_HTMLSax();
 		$parser->set_object($handler);
-		$parser->set_option('XML_OPTION_TRIM_DATA_NODES');
 		$parser->set_element_handler('openHandler', 'closeHandler');
 		$parser->set_data_handler('dataHandler');
 
