@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.39 2004/03/12 05:15:27 mmcintyre Exp $
+* $Id: mysource.inc,v 1.40 2004/03/16 16:31:56 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1123,11 +1123,11 @@ class MySource
 	*							to limit the rows have rollback entries created for
 	*
 	* @return boolean
-	* @access public
+	* @access private
 	*/
-	function addRollbackEntry($table_name, $where_cond)
+	function _addRollbackEntry($table_name, $where_cond)
 	{
-		// if we are in rollback view, pretend e did our job but really just slack off
+		// if we are in rollback view, pretend we did our job but really just slack off
 		if (SQ_ROLLBACK_VIEW) return true;
 
 		if (!SQ_CONF_ROLLBACK_ENABLED) {
@@ -1158,7 +1158,6 @@ class MySource
 		$delete = ' DELETE FROM '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.'
 					WHERE '.SQ_TABLE_PREFIX.'effective_from = '.$this->db->quote(ts_iso8601($from_time)).'
 					  AND '.$where_cond;
-
 		// set the effective_to time of the latest rollback entry to the
 		// effective_from of the new entry
 		$update = ' UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.'
@@ -1205,7 +1204,7 @@ class MySource
 		$this->doTransaction('COMMIT');
 		return true;
 
-	}//end addRollbackEntry()
+	}//end _addRollbackEntry()
 
 
 	/**
@@ -1224,29 +1223,55 @@ class MySource
 	*/
 	function rollbackUpdate($table_name, $update_values, $where_cond)
 	{
-		// if we are in rollback view, pretend e did our job but really just slack off
+		// if we are in rollback view, pretend we did our job but really just slack off
 		if (SQ_ROLLBACK_VIEW) return true;
 
 		$this->doTransaction('BEGIN');
 
-		// construct the update query
-		$update_sql = 'UPDATE '.SQ_TABLE_PREFIX.$table_name.' SET ';
-		foreach ($update_values as $column => $value) {
-			$update_sql .= $column.' = '.$value.', ';
-		}
-		$update_sql = trim($update_sql, ', ');
-		if (!empty($where_cond)) $update_sql .= ' WHERE '.$where_cond;
+		// We need to add the rollback entries first, then actually update them as well as the live table 
+		// because otherwise there can be issues where part of the where condition is actually modified by the 
+		// set commands, and therefore is not found by the insert-select in _addRollbackEntry().
+		// eg an update like this causes problems :
+		//       UPDATE sq_asset_link SET sort_order = sort_order - 1 
+		//       WHERE majorid = '1' AND sort_order > '2'
 
-		$result = $this->db->query($update_sql);
+		// construct the update queries
+		$live_sql     = 'UPDATE '.SQ_TABLE_PREFIX.$table_name.' SET ';
+		$rollback_sql = 'UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.' SET ';
+		foreach ($update_values as $column => $value) {
+			$live_sql     .= $column.' = '.$value.', ';
+			$rollback_sql .= $column.' = '.$value.', ';
+		}
+		$live_sql     = trim($live_sql,     ', ');
+		$rollback_sql = trim($rollback_sql, ', ');
+		if (!empty($where_cond)) {
+			$live_sql     .= ' WHERE '.$where_cond;
+			$rollback_sql .= ' WHERE '.$where_cond;
+		} else {
+			$rollback_sql .= ' WHERE ';
+		}
+		$rollback_sql .= ' AND '.SQ_TABLE_PREFIX.'effective_to IS NULL';
+
+		// add the rollback entries for the rows are going to update
+		if (!$this->_addRollbackEntry($table_name, $where_cond)) {
+			$this->doTransaction('ROLLBACK');
+			return false;
+		}
+
+
+		// update the live data
+		$result = $this->db->query($live_sql);
 		if (DB::isError($result)) {
 			$this->doTransaction('ROLLBACK');
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
-		// add the rollback entries for the rows we updated
-		if (!$this->addRollbackEntry($table_name, $where_cond)) {
+		// update the rollback entries we added
+		$result = $this->db->query($rollback_sql);
+		if (DB::isError($result)) {
 			$this->doTransaction('ROLLBACK');
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
@@ -1270,7 +1295,7 @@ class MySource
 	*/
 	function rollbackInsert($table_name, $insert_values)
 	{
-		// if we are in rollback view, pretend e did our job but really just slack off
+		// if we are in rollback view, pretend we did our job but really just slack off
 		if (SQ_ROLLBACK_VIEW) return true;
 
 		// we work out the primary key fields for the table we are inserting into
@@ -1312,7 +1337,7 @@ class MySource
 		}
 
 		// add the rollback entries for the inserted rows
-		if (!$this->addRollbackEntry($table_name, $where_cond)) {
+		if (!$this->_addRollbackEntry($table_name, $where_cond)) {
 			$this->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -1342,7 +1367,7 @@ class MySource
 	*/
 	function rollbackInsertSelect($table_name, $select_from, $insert_values, $where_cond)
 	{
-		// if we are in rollback view, pretend e did our job but really just slack off
+		// if we are in rollback view, pretend we did our job but really just slack off
 		if (SQ_ROLLBACK_VIEW) return true;
 
 		// we work out the primary key fields for the table we are inserting into
@@ -1414,7 +1439,7 @@ class MySource
 		}
 
 		// add the rollback entries for the inserted rows
-		if (!$this->addRollbackEntry($table_name, $where_clause)) {
+		if (!$this->_addRollbackEntry($table_name, $where_clause)) {
 			$this->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -1439,13 +1464,13 @@ class MySource
 	*/
 	function rollbackDelete($table_name, $where_cond)
 	{
-		// if we are in rollback view, pretend e did our job but really just slack off
+		// if we are in rollback view, pretend we did our job but really just slack off
 		if (SQ_ROLLBACK_VIEW) return true;
 
 		$this->doTransaction('BEGIN');
 
 		// add the rollback entries for the rows we are going to delete
-		if (!$this->addRollbackEntry($table_name, $where_cond)) {
+		if (!$this->_addRollbackEntry($table_name, $where_cond)) {
 			$this->doTransaction('ROLLBACK');
 			return false;
 		}
