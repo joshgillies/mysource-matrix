@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.43 2004/12/06 14:38:12 brobertson Exp $
+* $Id: system_config.inc,v 1.44 2005/01/06 12:36:29 brobertson Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -177,16 +177,22 @@ class System_Config extends Config
 	* Paint's out the code for the config file for the passed config
 	* This allows extra things to be added for special cases
 	*
-	* @param string $name	the config var name
-	* @param mixed  $value	the value that the config var has
+	* @param string		$name	the config var name
+	* @param mixed		$value	the value that the config var has
+	* @param boolean	$var_export	whether to run the value through var_export or not
 	*
 	* @return boolean	whether the value is valid or not
 	*/
-	function _paintConfigVar($var_name, $value)
+	function _paintConfigVar($var_name, $value, $var_export=true)
 	{
 		switch ($var_name) {
 			case 'SQ_CONF_PEAR_PATH' :
-				if (!parent::_paintConfigVar($var_name, $value)) return false;
+				// if this looks like a plain value and it starts with the system root, then put the system root constant in
+				if ($var_export && substr($value, 0, strlen(SQ_SYSTEM_ROOT)) == SQ_SYSTEM_ROOT) {
+					if (!parent::_paintConfigVar($var_name, 'SQ_SYSTEM_ROOT.'.var_export(substr($value, strlen(SQ_SYSTEM_ROOT)), true), false)) return false;
+				} else {
+					if (!parent::_paintConfigVar($var_name, $value, $var_export)) return false;
+				}
 				if ($value) {
 					$sep = (substr(PHP_OS, 0, 3) == 'WIN') ? ';' : ':';
 
@@ -201,7 +207,7 @@ class System_Config extends Config
 			break;
 
 			case 'SQ_CONF_LOG_ERRORS' :
-				if (!parent::_paintConfigVar($var_name, $value)) return false;
+				if (!parent::_paintConfigVar($var_name, $value, $var_export)) return false;
 				// NOTE: if they don't want to log errors we will leave
 				//       them with whatever their PHP settings are
 				if ($value) {
@@ -211,7 +217,7 @@ class System_Config extends Config
 			break;
 
 			case 'SQ_CONF_LOG_FILE' :
-				if (!parent::_paintConfigVar($var_name, $value)) return false;
+				if (!parent::_paintConfigVar($var_name, $value, $var_export)) return false;
 				// if the value isn't empty, set the php error_log to the set value
 				if (trim($value) != '') {
 					if (!file_exists($value)) {
@@ -235,11 +241,11 @@ class System_Config extends Config
 				$lines = explode("\n", $value);
 				$value = '';
 				foreach ($lines as $line) if (trim($line) != '') $value .= trim($line)."\n";
-				return parent::_paintConfigVar($var_name, trim($value));
+				return parent::_paintConfigVar($var_name, trim($value), $var_export);
 			break;
 
 			default :
-				return parent::_paintConfigVar($var_name, $value);
+				return parent::_paintConfigVar($var_name, $value, $var_export);
 
 		}//end switch
 
