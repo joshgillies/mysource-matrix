@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.36 2004/06/16 04:35:25 mmcintyre Exp $
+* $Id: edit.css,v 1.37 2004/07/23 04:29:58 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,7 +53,6 @@ td.sq-backend-main-heading {
 	font-weight:		bold;
 	font-size:		12px;
 	padding:		4px;
-	border-bottom:		1px solid #342939;
 }
 
 .sq-backend-sub-heading {
@@ -62,6 +61,7 @@ td.sq-backend-main-heading {
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-size:		9px;
 	padding:		0px;
+	border-bottom:		1px solid #342939;
 }
 
 
@@ -77,6 +77,21 @@ td.sq-backend-nav-history, a.sq-backend-nav-history {
 
 td.sq-backend-nav-history {
 	border-bottom:		1px solid #342939;
+}
+
+.sq-backend-asset-info {
+	border:			1px solid #FFFFFF;
+	padding:		3px;
+	margin-top:		3px;
+	background-color:	#725B7D;
+	color:			#FFFFFF;
+	font-size:		10px;
+}
+
+.sq_asset_info_toggle {
+	color:			#FFFFFF;
+	text-decoration:	none;
+	font-size:		10px;
 }
 
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.214 2004/06/08 02:35:29 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.215 2004/07/23 04:29:58 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -625,16 +625,41 @@ class Asset_Edit_Interface extends MySource_Object
 		} else {
 			$page_heading = 'Create new '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name');
 		}
-		$page_heading .= '&nbsp;&nbsp;|&nbsp;&nbsp;'.$active_screen_name;
+		$page_heading .= '&nbsp;&nbsp;|&nbsp;&nbsp;'.$active_screen_name.'&nbsp;&nbsp;<a class="sq_asset_info_toggle" href="#" onclick="Javascript: sq_toggle_asset_info();"><span id="sq_asset_info_toggle">[ more info ]</span></a>';
 
 		$o->setHeading($page_heading, '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($this->_type_code).'", "16", "16", "");</script>');
 
+		$sub_heading = '';
 		if ($closest_parentid != $owner->id) {
 			$closest_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($closest_parentid);
 			if (!is_null($closest_parent)) {
-				$o->setSubHeading('Currently editing '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($closest_parent->type(), 'name').' "'.$closest_parent->name.'"');
+				$sub_heading = 'Currently editing '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($closest_parent->type(), 'name').' "'.$closest_parent->name.'"<br/>';
 			}
 		}
+		
+		if (!$creating) {
+			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+			$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($owner->created_userid, $owner->updated_userid, $owner->published_userid), 'user', false);
+			$created_by_name = (isset($user_info[$owner->created_userid])) ? $user_info[$owner->created_userid]['short_name'] : '&lt;unknown&gt;';
+			$updated_by_name = (isset($user_info[$owner->updated_userid])) ? $user_info[$owner->updated_userid]['short_name'] : '&lt;unknown&gt;';
+			$published_by_name = (isset($user_info[$owner->published_userid])) ? $user_info[$owner->published_userid]['short_name'] : '&lt;unknown&gt;';
+	
+			$sub_heading .= '<div id="sq_asset_info" style="display: none;">
+							<table>
+								<tr>
+									<td valign="top">
+										<script language="JavaScript" type="text/javascript">sq_print_icon("'.sq_web_path('lib').'/web/images/icons/info.png", "16", "16", "");</script>
+									</td>
+									<td class="sq-backend-asset-info" nowrap="nowrap">
+									Created by '.$created_by_name.' on '.readable_datetime($owner->created).'<br/>
+									Last updated by '.$updated_by_name.' on '.readable_datetime($owner->updated).'<br/>'.
+									((!is_null($owner->published)) ? 'Last published by '.$published_by_name.' on '.readable_datetime($owner->published) : 'This asset has never been published').'
+									</td>
+								</tr>
+							</table>
+							<div>';
+		}
+		$o->setSubHeading($sub_heading);
 
 
 		  ///////////////////

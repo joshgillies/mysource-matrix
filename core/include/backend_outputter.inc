@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.79 2004/04/28 00:35:50 lwright Exp $
+* $Id: backend_outputter.inc,v 1.80 2004/07/23 04:29:58 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1049,22 +1049,26 @@ class Backend_Outputter
 			?>
 			<table width="100%" cellpadding="3" cellspacing="0" border="0">
 				<tr>
-				<?php if ($this->_heading_icon) { ?>
-					<td rowspan="2" class="sq-backend-main-heading" style="vertical-align: top; white-space: nowrap;"><?php echo $this->_heading_icon; ?></td>
-				<?php } else { ?>
-					<td class="sq-backend-main-heading" style="vertical-align: top; white-space: nowrap;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1"/></td>
-				<?php } // end if ?>
-					<td class="sq-backend-main-heading" style="vertical-align: top; white-space: nowrap;">
-					<?php echo $this->_heading; ?>
-					<?php if ($this->_sub_heading) echo '</br><span class="sq-backend-sub-heading">'.$this->_sub_heading.'</span>'; ?>
-					</td>
-					<td class="sq-backend-main-heading" style="vertical-align: middle; text-align: right;" width="100%">
-					<div id="sq_screen_menu_filler" style="display: none"></div>
-					<div id="sq_screen_menu">
 					<?php
-						$this->printScreenMenu();
+					if ($this->_heading_icon) { 
+						?>
+						<td class="sq-backend-main-heading" style="vertical-align: top; white-space: nowrap;"><?php echo $this->_heading_icon; ?></td>
+						<?php 
+					} else {
+						?>
+						<td class="sq-backend-main-heading" style="vertical-align: top; white-space: nowrap;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1"/></td>
+						<?php
+					}
 					?>
-					</div>
+					<td class="sq-backend-main-heading" style="vertical-align: top; white-space: nowrap;">
+						<?php echo $this->_heading; ?>
+						<?php if ($this->_sub_heading) echo '</br><span class="sq-backend-sub-heading">'.$this->_sub_heading.'</span>'; ?>
+					</td>
+					<td class="sq-backend-main-heading" style="vertical-align: top; text-align: right;" width="100%">
+						<div id="sq_screen_menu_filler" style="display: none"></div>
+						<div id="sq_screen_menu">
+							<?php $this->printScreenMenu(); ?>
+						</div>
 					</td>
 				</tr>
 			</table>
