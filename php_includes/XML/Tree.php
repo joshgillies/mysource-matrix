@@ -19,7 +19,7 @@
 // |          Michele Manzato <michele.manzato@verona.miz.it>             |
 // +----------------------------------------------------------------------+
 //
-// $Id: Tree.php,v 1.3 2003/08/30 03:46:36 brobertson Exp $
+// $Id: Tree.php,v 1.4 2003/08/30 03:49:03 brobertson Exp $
 //
 
 require_once 'XML/Parser.php';
@@ -317,7 +317,7 @@ class XML_Tree extends XML_Parser
                     $node->children[] = &new XML_Tree_Node(null, $this->cdata);
                 }
             } else {
-                $node->set_content($this->cdata);
+                $node->setContent($this->cdata);
             }
             $parent_id = 'obj' . ($this->i - 1);
             $parent    =& $this->$parent_id;
