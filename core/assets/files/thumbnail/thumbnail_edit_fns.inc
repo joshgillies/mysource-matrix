@@ -75,7 +75,7 @@ class Thumbnail_Edit_Fns extends Image_Edit_Fns
 		}
 
 		// check that the image dimensions are not greater than our limits
-		if (!$this->validFile($info['tmp_name'])) return false;
+		if (!$asset->validFile($info['tmp_name'])) return false;
 
 		return parent::processFileUpload($asset, $o, $prefix, $info);
 

@@ -104,7 +104,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 		}
 
 		// check that the extension is allowed
-		if (!$this->validFile($info['name'])) return false;
+		if (!$asset->validFile($info['name'])) return false;
 
 		return parent::processFileUpload($asset, $o, $prefix, $info);
 
