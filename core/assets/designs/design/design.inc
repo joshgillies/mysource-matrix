@@ -66,6 +66,7 @@ class Design extends Design_Area
 	*/
 	function _linksUpdated()
 	{
+		parent::_linksUpdated();
 		if (!isset($this->_tmp['design_areas'])) return;
 		foreach(array_keys($this->_tmp['design_areas']) as $id_name) unset($this->_tmp['design_areas'][$id_name]);
 	}//end _linksUpdated()

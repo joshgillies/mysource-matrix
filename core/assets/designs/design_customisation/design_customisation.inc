@@ -34,6 +34,7 @@ class Design_Customisation extends Design
 	*/
 	function _linksUpdated()
 	{
+		parent::_linksUpdated();
 		unset($this->_tmp['parent_design']);
 		unset($this->_tmp['customised_areas']);
 		unset($this->_tmp['uncustomised_areas']);
