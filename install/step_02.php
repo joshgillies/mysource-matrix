@@ -78,7 +78,7 @@ if (is_null($root_folder)) {
 	// Create the root user
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('root_user');
 	$root_user = new Root_User();
-	$user_link = Array('asset' => &$users_folder, 'link_type' => SQ_LINK_UNITE);
+	$user_link = Array('asset' => &$system_group, 'link_type' => SQ_LINK_UNITE);
 	if (!$root_user->create($user_link, 'root@'.$_SERVER['HTTP_HOST'])) die('ROOT USER NOT CREATED');
 	pre_echo('Root User Asset Id : '.$root_user->id);
 	if ($root_user->id != 5) {
@@ -92,9 +92,7 @@ if (is_null($root_folder)) {
 	// the install process without permission denied errors
 	$GLOBALS['SQ_SYSTEM']->user = $root_user;
 
-	// move the root user into the users folder
-	#if (!$root_folder->deleteLink($root_user_linkid)) die ('ROOT USER MOVE FAILED');
-	#if (!$users_folder->createLink($root_user, SQ_LINK_UNITE)) die ('ROOT USER MOVE FAILED');
+	if (!$users_folder->createLink($root_user, SQ_LINK_UNITE)) die ('ROOT USER LINK FAILED');
 
 }// end if
 
