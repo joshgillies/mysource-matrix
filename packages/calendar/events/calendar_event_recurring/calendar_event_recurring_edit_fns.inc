@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring_edit_fns.inc,v 1.4 2004/07/27 02:22:55 tbarrett Exp $
+* $Id: calendar_event_recurring_edit_fns.inc,v 1.5 2004/07/27 02:30:09 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../../event/calendar_event_edit_fns.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $ - 1.0
+* @version $Revision: 1.5 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -176,8 +176,8 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 				  </div>
 
 				  <div id="<?php echo $prefix; ?>WeeklyOptions" style="display: <?php echo (($freq{0} == 'W') ? 'block' : 'none') ?>">
-					<input type="radio" <?php echo ((($freq == 'WEW') || !$freq) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_WEW" value="WEW" />Every week on <span id="<?php echo $prefix ?>_week_day"></span> 
-					<br /><input type="radio" <?php echo ((($freq != 'WEW') && (substr($freq,0,3) == 'WEW')) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_WEWx" value="WEWx" />Every <input type="text" size="2" value="<?php echo substr($freq, 3); ?>" name="<?php echo $prefix ?>_num_weeks" onfocus="checkBox('<?php echo $prefix?>_frequency_type_WEWx');" /> weeks on <span id="<?php echo $prefix ?>_week_day_4"></span> 
+					<input type="radio" <?php echo ((($freq == 'WEW') || !$freq) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_WEW" value="WEW" />Every week on <a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix ?>_week_day"></a> 
+					<br /><input type="radio" <?php echo ((($freq != 'WEW') && (substr($freq,0,3) == 'WEW')) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_WEWx" value="WEWx" />Every <input type="text" size="2" value="<?php echo substr($freq, 3); ?>" name="<?php echo $prefix ?>_num_weeks" onfocus="checkBox('<?php echo $prefix?>_frequency_type_WEWx');" /> weeks on <a id="<?php echo $prefix ?>_week_day_4" href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();"></a> 
 				  </div>
 
 				  <table border="0" cellpadding="0" cellspacing="0" id="<?php echo $prefix; ?>MonthlyOptions" style="display: <?php echo (($freq{0} == 'M') ? 'block' : 'none') ?>"><tr>
@@ -323,7 +323,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 	function paintRecurringStartEndChooser(&$asset, &$o, $prefix)
 	{
 		if ($asset->writeAccess('attributes'))
-			$this->paintStartEndChooser($asset, $prefix, '');
+			$this->paintStartEndChooser($asset, $prefix, "updateValues('$prefix');");
 		else
 			echo $asset->getFriendlyDatesAndTimes();
 
