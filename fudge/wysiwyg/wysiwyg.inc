@@ -546,7 +546,7 @@ class wysiwyg {
 					var e  = '';
 					var re = null;
 
-					// now firstly remove any references to this pop-ups url
+					// remove any references to this pop-up's url
 					var current_location = document.location.toString();
 
 					// escape any special reg exp chars in the location
@@ -554,20 +554,22 @@ class wysiwyg {
 					re = new RegExp(current_location, "gi");
 					html = html.replace(re, "");
 
-					// now replace any ampersands with '&amp;' as IE seems to some times for some reason (even in href's)
+					// now replace any ampersands with '&amp;' as IE seems to anyway sometimes (even in href's)
 					current_location = current_location.replace(/\&/gi, "&amp;");
 					re = new RegExp(current_location, "gi");
 					html = html.replace(re, "");
 
-					// links to assets in the backend
+					// links to assets in the backend (./?a=xxx style links)
 					e = 'http[s]?://<?php echo $_SERVER['HTTP_HOST'].$_SERVER["PHP_SELF"]?>?(\\?a=[0-9]+)';
-
 					re = new RegExp(e, "gi");
 					html = html.replace(re, "./$1");
 
-					// links to stuff in the backend directory
-					e = 'http[s]?://<?php echo $_SERVER['HTTP_HOST'].$_SERVER["PHP_SELF"]?>';
+					e = '([^\\.])/(\\?a=[0-9]+)';
+					re = new RegExp(e, "gi");
+					html = html.replace(re, "$1./$2");
 
+					// any other links
+					e = 'http[s]?://<?php echo $_SERVER['HTTP_HOST'].$_SERVER["PHP_SELF"]?>';
 					re = new RegExp(e, "gi");
 					html = html.replace(re, "");
 
