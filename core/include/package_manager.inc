@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.51 2004/09/23 00:01:32 lwright Exp $
+* $Id: package_manager.inc,v 1.52 2004/09/28 04:11:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -149,7 +149,7 @@ class Package_Manager extends MySource_Object
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
-		for(reset($this->assets); null !== ($type_code = key($this->assets)); next($this->assets)) {
+		for (reset($this->assets); null !== ($type_code = key($this->assets)); next($this->assets)) {
 
 			if (!isset($install_reqs[$type_code])) $install_reqs[$type_code] = Array();
 
@@ -160,7 +160,7 @@ class Package_Manager extends MySource_Object
 			if (!$result) {
 				trigger_error('Asset "'.$type_code.'" fails the "'.$req['type'].'" requirement for "'.$req['code'].' v'.$req['version'].'"'."\n".'As specified by '.$file, E_USER_WARNING);
 				return false;
-			}//endif
+			}
 
 			// OK, let's check that this asset is of an available type,
 			// or that the type is in this package that we are checking
@@ -168,7 +168,7 @@ class Package_Manager extends MySource_Object
 			if ($parent_type != 'asset' && !$am->installed($parent_type) && !isset($this->assets[$parent_type])) {
 				trigger_error('Asset "'.$type_code.'" attempts to inherit from the unknown type "'.$parent_type.'"'."\n".'As specified by '.$file, E_USER_WARNING);
 				return false;
-			}//endif
+			}
 
 		}//end for
 

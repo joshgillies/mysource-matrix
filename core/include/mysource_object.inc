@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource_object.inc,v 1.4 2003/11/26 00:51:11 gsherwood Exp $
+* $Id: mysource_object.inc,v 1.5 2004/09/28 04:10:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,20 +51,23 @@ class MySource_Object
 	function MySource_Object()
 	{
 		$this->_tmp = Array();
+
 	}//end constructor
 
 
 	/**
 	* Returns an array of var names in the object that are to saved if this object get's serialised
+	*
 	* Removes the _tmp array as promised above
 	*
-	* @returns array string
+	* @return array
 	*/
 	function __sleep()
 	{
 		$object_vars = get_object_vars($this);
 		unset($object_vars['_tmp']);
 		return array_keys($object_vars);
+
 	}//end __sleep()
 
 
@@ -77,10 +80,10 @@ class MySource_Object
 	function __wakeup()
 	{
 		$this->_tmp = Array();
+
 	}//end __wakeup()
 
 
 }//end class
-
 
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.3 2004/09/23 22:13:03 amiller Exp $
+* $Id: external_tools_config.inc,v 1.4 2004/09/28 04:10:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -57,7 +57,7 @@ class External_Tools_Config extends Config
 		
 		// Antiword - Used to extract keywords from Word_Doc assets
 		'SQ_TOOL_ANTIWORD_PATH'				=> Array('editable' => 1, 'default' => '/usr/bin/antiword'),
-		'SQ_TOOL_ANTIWORD_ENABLED'				=> Array('editable' => 1, 'default' => false),
+		'SQ_TOOL_ANTIWORD_ENABLED'			=> Array('editable' => 1, 'default' => false),
 	);
 
 
