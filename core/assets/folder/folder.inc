@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: folder.inc,v 1.31 2004/05/28 03:37:45 gsherwood Exp $
+* $Id: folder.inc,v 1.32 2004/06/02 00:25:47 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -77,15 +77,20 @@ class Folder extends Asset
 			return false;
 		}
 
-		// set an initial web path
-		$initial_path = strtolower($name);
-		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		$valid_paths = make_valid_web_paths(Array($initial_path));
-		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, true);
-		if (!$this->saveWebPaths($good_paths)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
+		// set a web path if we are linking this folder somewhere
+		// NOTE: the only time we wont want to do this is if we are creating
+		// the root folder as it is not linked anywhere
+		if (isset($link['asset'])) {
+			// set an initial web path
+			$initial_path = strtolower($name);
+			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+			$valid_paths = make_valid_web_paths(Array($initial_path));
+			$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, true);
+			if (!$this->saveWebPaths($good_paths)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$this->id = 0;
+				return false;
+			}
 		}
 
 		return $linkid;
