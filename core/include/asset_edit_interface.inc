@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.210 2004/05/06 01:38:04 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.211 2004/05/26 15:30:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1610,13 +1610,13 @@ class Asset_Edit_Interface extends MySource_Object
 	{
 		$create_sections = Array();
 
-		if (!($create_file = $this->_findFile('create'))) return $create_sections;
+		if (!($create_file = $this->_findFile('create'))) return Array($create_sections, '');
 
 		$input = new XML_Tree($create_file);
 		$root  = &$input->getTreeFromFile();
 		if (PEAR::isError($root)) {
 			trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
-			return $create_sections;
+			return Array($create_sections, '');
 		}
 
 		// Loop over the sections
