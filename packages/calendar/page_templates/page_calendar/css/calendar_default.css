@@ -16,13 +16,17 @@
 /** 
  * GENERAL RULES
  */
-div#calendarContents { width: 100%; text-align: center; }
-div#calendarContents table td { text-align: left; padding: 1px }
-div#calendarContents table th { text-align: center; padding: 1px }
-#calendarContents table { margin-left: auto; margin-right: auto; }
-#calendarContents div { margin: 0px }
+div#calendarTable { width: 100%; text-align: center; }
+div#calendarTable table td { text-align: left; padding: 1px }
+div#calendarTable table th { text-align: center; padding: 1px }
+#calendarTable table { margin-left: auto; margin-right: auto; } 
+#calendarTable div { margin: 0px }
 .eventText { line-height: 1.0; margin: 2px 2px 0px 2px; margin-left: auto; margin-right: auto; text-align: center; padding: 0px}
 .calendarNavLink, a.calendarNavLink:hover, a.calendarNavLink:visited { text-decoration: none; font-weight: bold; color: blue }
+div#calendarList { text-align: left; width: auto; margin-left: auto; margin-right: auto}
+#calendarList * { width: auto }
+#calendarList div { width: auto }
+#div_content { width: auto }
 
 /**
  * YEAR TABLE RULES

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.11 2004/08/23 00:55:34 tbarrett Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.12 2004/08/25 22:53:36 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.11 $ - 1.0
+* @version $Revision: 1.12 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -161,6 +161,8 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$current_views = $asset->attr('enabled_views');
+		$listing_entry_options = Array('title'=>'show title only', 'bodycopy'=>'use type format bodycopy');
+		$current_list_entry_types = $asset->attr('list_entry_types');
 		?><table class="sq-backend-table"><?php
 		foreach ($asset->view_options as $category => $options) {
 			?>
@@ -169,15 +171,25 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 					<b><label for="<?php echo $prefix.'_enabled_views['.$category.']'; ?>"><?php echo ucwords($category); ?> View</label></b>
 				</td>
 				<td class="sq-backend-table-cell"><?php
-			if ($write_access) {
-				combo_box($prefix.'_enabled_views['.$category.']', $options, 0,  $current_views[$category], 0, 'style="width: 25ex"');
-			} else {
-				echo $asset->view_options[$category][$current_views[$category]];
-			}
-			?></td>
+					if ($write_access) {
+						combo_box($prefix.'_enabled_views['.$category.']', $options, 0,  $current_views[$category], 0, 'style="width: 25ex"');
+					} else {
+						echo $asset->view_options[$category][$current_views[$category]];
+					}?>
+				</td>
+				<td class="sq-backend-table-cell"><?php
+					if ($write_access && (strpos($current_views[$category], 'list') !== FALSE)) {
+						echo 'For each list entry, ';
+						combo_box($prefix.'_list_entry_types['.$category.']', $listing_entry_options, 0,  $current_list_entry_types[$category], 0);
+					} elseif (strpos($current_views[$category], 'list') !== FALSE) {
+						echo 'foo';
+					} else {
+						echo '&nbsp;';
+					}?>
+				</td>
 			</tr><?php
-		}
-		?></table><?php
+		}?>
+		</table><?php
 		return true;
 		
 	}//end paintViewsChooser()
@@ -195,6 +207,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	*/
 	function processViewsChooser(&$asset, &$o, $prefix)
 	{
+		$list_entry_types = $asset->attr('list_entry_types');
 		$unwanted_elts = array_diff(array_keys($_POST[$prefix.'_enabled_views']), array_keys($asset->view_options));
 		if (empty($unwanted_elts)) {
 			$asset->setAttrValue('enabled_views', $_POST[$prefix.'_enabled_views']);
@@ -218,6 +231,12 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 					}
 				}
 			}
+			foreach ($list_entry_types as $key => $value) {
+				if (isset($_POST[$prefix.'_list_entry_types'][$key]) && in_array($_POST[$prefix.'_list_entry_types'][$key], Array('title', 'bodycopy'))) {
+					$list_entry_types[$key] = $_POST[$prefix.'_list_entry_types'][$key];
+				}
+			}
+			$asset->setAttrValue('list_entry_types', $list_entry_types);
 
 			return true;
 		}
@@ -705,9 +724,12 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	function _paintTitleFormat($view, &$asset, &$o, $prefix)
 	{
 		$title_formats = $asset->attr('view_title_formats');
-		//bam($title_formats);
-		text_box($prefix.'_title_format_'.$view, $title_formats[$view]);
-		?><div class="sq-backend-smallprint">The date format to use in this view's title, expressed using the date format symbols from the <a target="_blank" href="http://au.php.net/manual/en/function.date.php">PHP date function</a><?php
+		if ($asset->writeAccess('attributes')) {
+			text_box($prefix.'_title_format_'.$view, $title_formats[$view]);
+			?><div class="sq-backend-smallprint">The date format to use in this view's title, expressed using the date format symbols from the <a target="_blank" href="http://au.php.net/manual/en/function.date.php">PHP date function</a><?php
+		} else {
+			echo $title_formats[$view].'  ("'.date($title_formats[$view], ((($view == 'week') && (date('D') != 'Mon')) ? strtotime('last Monday') : time())).'")';
+		}
 		return true;
 
 	}//end _paintTitleFormat()

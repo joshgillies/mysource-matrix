@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.11 2004/08/24 00:27:49 tbarrett Exp $
+* $Id: page_calendar_management.inc,v 1.12 2004/08/25 22:53:36 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.11 $ - 1.0
+* @version $Revision: 1.12 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -176,7 +176,7 @@ class Page_Calendar_Management extends Asset_Management
 													'default'   => Array(
 																		'year'	=> 'Y',
 																		'month'	=> 'F Y',
-																		'week'	=> 'F Y',
+																		'week'	=> '\W\e\e\k \o\f l j F Y',
 																		'day'	=> 'jS F Y',
 																		'event'	=> 't'
 																	)
@@ -216,6 +216,16 @@ class Page_Calendar_Management extends Asset_Management
 												'default'   => '<< Previous %v%'
 											);
 											
+		$this->vars['list_entry_types'] = Array(
+													'added'     => '0.1',
+													'type'      => 'serialise',
+													'default'   => Array(
+																		'year'	=> 'title',
+																		'month'	=> 'title',
+																		'week'	=> 'title',
+																		'day'	=> 'bodycopy',
+																	)
+												  );
 		
 	}//end Page_Calendar_Management()
 
