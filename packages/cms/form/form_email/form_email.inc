@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.29 2004/09/21 00:38:11 lwright Exp $
+* $Id: form_email.inc,v 1.30 2004/10/14 05:48:36 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -509,6 +509,26 @@ class Form_Email extends Form
 						'form_info_text'    => $info_text
 						);
 
+		// replacements of question responses
+		$questions = &$this->getQuestions();
+		$sections = &$this->getSections();
+		
+		foreach ($questions as $q_id => $question) {
+			$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
+			$q_name = $q_asset->attr('name');
+			$reps['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary($this->active_submission[$q_asset->id]);
+		}
+
+		foreach ($sections as $section) {
+			$reps['section_title_'.$section->id] = $section->attr('name');
+			$questions = &$section->getQuestions();
+			foreach ($questions as $q_id => $question) {
+				$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
+				$q_name = $section->attr('name').': '.$q_asset->attr('name');
+				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary($this->active_submission[$q_asset->id]);
+			}
+		}
+		
 		// recipient emails
 		if (!empty($recipients)) {
 			// only send one of each type of email to each recipient
