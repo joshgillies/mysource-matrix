@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.21 2004/04/07 22:57:11 lwright Exp $
+* $Id: matrix_insert_link.inc,v 1.22 2004/08/02 05:53:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -87,6 +87,7 @@ class matrix_insert_link extends wysiwyg_plugin {
 				currArgs["url"] = "http://";
 				currArgs["anchor"] = "";
 				currArgs["status_text"] = "";
+				currArgs["target"] = "";
 				currArgs["new_window"]  = 0;
 
 				currArgs["new_window_options"] = new Object();
@@ -117,12 +118,7 @@ class matrix_insert_link extends wysiwyg_plugin {
 				var inside_html = '';
 				var current_a = this.getClosest("a");
 				if (current_a) {
-					if (HTMLArea.is_ie) {
-						inside_html = current_a.innerHTML;
-					} else {
-						this.selectNodeContents(current_a);
-						inside_html = editor.getSelectedHTML();
-					}
+					inside_html = current_a.innerHTML;
 					this.selectNodeContents(current_a);
 				} else {
 					inside_html = editor.getSelectedHTML();
@@ -131,12 +127,12 @@ class matrix_insert_link extends wysiwyg_plugin {
 				sel = this._getSelection();
 				range = this._createRange(sel);
 
-				// Is this aready a link?
+				// is this aready a link?
 				if (current_a) {
 
 					var e = '^(\<a [^\>]+>)(.*)</a>$';
 					var re = new RegExp(e, "i");
-					var tag_html = editor.getSelectedHTML().replace(re, "$1");
+					var tag_html = HTMLArea.getHTML(current_a, true).replace(re, "$1");
 
 					var re = new RegExp("\n", "gi");
 					var tag_html = tag_html.replace(re, "");
@@ -148,7 +144,7 @@ class matrix_insert_link extends wysiwyg_plugin {
 
 					if (results != null) {
 						currArgs["url"] = results[1];
-						currArgs["new_window"] = 1;
+						currArgs["new_window"] = 2;
 						var options_str = results[2];
 
 						for(var i=0; i < NEW_WINDOW_OPTIONS.length; i++) {
@@ -159,8 +155,7 @@ class matrix_insert_link extends wysiwyg_plugin {
 						}
 					}// end if
 
-
-					// OK, let's try and get the window.status text if any
+					// let's try and get the window.status text if any
 					re = new RegExp('onmouseover="([^"]+)"', "gi");
 					results = re.exec(tag_html);
 					if (results != null) {
@@ -171,6 +166,14 @@ class matrix_insert_link extends wysiwyg_plugin {
 							currArgs["status_text"] = rev_htmlspecialchars(results[1]).replace(/\\\'/gi, "\'");
 						}
 					}// end if
+
+					// let's try and get the target if any
+					re = new RegExp('target="([^"]+)"', "gi");
+					results = re.exec(tag_html);
+					if (results != null) {
+						currArgs["target"] = rev_htmlspecialchars(results[1]).replace(/\\\'/gi, "\'");
+					}
+					if (currArgs["target"] == "_blank") { currArgs["new_window"] = 1; }
 
 					// it seems that the make_relative_hrefs() fn will take out the hash and think that a lone
 					// anchor is actually the url link. Work out here whether it might need to be added on...
@@ -188,10 +191,13 @@ class matrix_insert_link extends wysiwyg_plugin {
 						currArgs["url"] = '#' + currArgs["url"];
 					}
 
-					// Get the assetid for the link if there is one
+					// get the assetid for the link if there is one
 					e = '(.*)(\\?a=)([0-9]+)(.*)';
 					re = new RegExp(e, "gi");
-					currArgs["assetid"] = currArgs["url"].replace(re, "$3");
+					results = re.exec(currArgs["url"]);
+					if (results != null) {
+						currArgs["assetid"] = currArgs["url"].replace(re, "$3");
+					}
 
 				// else not a link so check for paragraphs
 				} else {
@@ -219,15 +225,16 @@ class matrix_insert_link extends wysiwyg_plugin {
 				if (this._inPopup == true) { in_popup = '1'; }
 
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
-				var strPage = "<?php echo $this->get_popup_href('insert_link.php')?>?assetid=" + escape(currArgs["assetid"]) + "&url=" + escape(currArgs["url"]) + "&status_text=" + escape(currArgs["status_text"]) + "&new_window=" + escape(currArgs["new_window"]) + "&new_window_options=" + escape(var_serialise(currArgs["new_window_options"])) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
+				var strPage = "<?php echo $this->get_popup_href('insert_link.php')?>?assetid=" + escape(currArgs["assetid"]) + "&url=" + escape(currArgs["url"]) + "&status_text=" + escape(currArgs["status_text"]) + "&target=" + escape(currArgs["target"]) +  "&new_window=" + escape(currArgs["new_window"]) + "&new_window_options=" + escape(var_serialise(currArgs["new_window_options"])) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
 				this._popupDialog("matrixInsertLink", strPage, 650, 440, true, function(param) {
 					if (param && param["url"] != "") {
 		
 						var html = '';
 
-						// if we have a new window, generate the new javascript url string
-						if (param["new_window"] == "1") {
+						// if we have an advanced new window, generate the new javascript url string
+						if (param["new_window"] == "1") { param["target"] = "_blank"; }
+						if (param["new_window"] == "2") {
 							var now = new Date();
 							var option_string = "";
 							for(var i=0; i < NEW_WINDOW_OPTIONS.length; i++) {
@@ -236,9 +243,13 @@ class matrix_insert_link extends wysiwyg_plugin {
 							}
 
 							param["onClick"] = "javascript: if (!window.wysiwyg_editing) { window.open('" + param["url"] + "', '" + now.getTime() + "', '" + option_string + "'); } return false;";
+							param["target"] = "";
 						}
 
 						html += '<a href="' + param["url"] + '"';
+						if (param["target"] != "") {
+							html += ' target="' + htmlspecialchars(param["target"]).replace(/\'/gi, "\\'") + '"';
+						}
 						if (param["status_text"] != "") {
 							html += ' onMouseOver="javascript: window.status=\'' + htmlspecialchars(param["status_text"]).replace(/\'/gi, "\\'") + '\'; return true;" onMouseOut="javascript: window.status=\'\'; return true;"';
 						}

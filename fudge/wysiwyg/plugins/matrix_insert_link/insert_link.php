@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.20 2004/04/21 06:32:21 gsherwood Exp $
+* $Id: insert_link.php,v 1.21 2004/08/02 05:53:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -55,6 +55,7 @@ if (!isset($_GET['assetid']))     $_GET['assetid'] = 0;
 if (!isset($_GET['url']))         $_GET['url'] = 0;
 if (!isset($_GET['protocol']))    $_GET['protocol'] = 0;
 if (!isset($_GET['status_text'])) $_GET['status_text'] = '';
+if (!isset($_GET['target']))      $_GET['target'] = '';
 if (!isset($_GET['new_window']))  $_GET['new_window'] = 0;
 
 // If we have an anchor, it will have been stuck in the URL, so break it away
@@ -115,6 +116,7 @@ if (!isset($_GET['new_window'])) {
 				  param["url"]         = form_element_value(f.url_protocol) + form_element_value(f.url_link) + (form_element_value(f.anchor) == '' ? '' : '#' + form_element_value(f.anchor));
 				}
 				param["status_text"] = form_element_value(f.status_text);
+				param["target"]      = form_element_value(f.target);
 				param["new_window"]  = form_element_value(f.new_window);
 
 				param["new_window_options"] = new Object();
@@ -151,12 +153,14 @@ if (!isset($_GET['new_window'])) {
 			};
 
 			function enable_new_window(f, enable) {
-				var bg_colour = '#' + ((enable == 1) ? 'ffffff' : 'c0c0c0');
-				var disable = (enable != 1);
+				var bg_colour = '#' + ((enable == 2) ? 'ffffff' : 'c0c0c0');
 
 				// make sure that the new window box says what it's supposed to
 				highlight_combo_value(f.new_window, enable);
 
+				f.target.disabled  = (enable != 0);
+
+				var disable = (enable != 2);
 				f.width.disabled  = disable;
 				f.height.disabled = disable;
 				f.width.style.backgroundColor  = bg_colour;
@@ -308,8 +312,12 @@ if (!isset($_GET['new_window'])) {
 														<legend>New Window Options</legend>
 														<table style="width:100%">
 															<tr>
+																<td class="label" valign="top">Target:</td>
+																<td><?php text_box('target', $_GET['target']); ?></td>
+															</tr>
+															<tr>
 																<td class="label" rowspan="2" valign="top">New Window:</td>
-																<td><?php combo_box('new_window', Array('0' => 'No', '1' => 'Yes'), false, $_GET['new_window'], 1, 'onChange="javascript: enable_new_window(this.form, form_element_value(this));"'); ?></td>
+																<td><?php combo_box('new_window', Array('0' => 'No', '1' => 'Yes', '2' => 'Advanced'), false, $_GET['new_window'], 1, 'onChange="javascript: enable_new_window(this.form, form_element_value(this));"'); ?></td>
 															</tr>
 															<tr>
 																<td>
