@@ -17,13 +17,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetManager.java,v 1.2 2005/03/01 00:48:52 mmcintyre Exp $
+* $Id: AssetManager.java,v 1.3 2005/03/06 22:51:33 mmcintyre Exp $
 *
 */
 
 package net.squiz.matrix.core;
 
 import net.squiz.matrix.matrixtree.*;
+import net.squiz.matrix.debug.*;
 import java.util.*;
 import org.w3c.dom.*;
 import java.io.IOException;
@@ -48,19 +49,24 @@ public class AssetManager {
 	private static String currentUserid;
 	private static String currentUserType = "root_user";
 	private static String workspaceid;
-	// MM: thinking of a better way to do this stuff with initialisiation
+	private static boolean isInited = false;
+	//TODO: MM: thinking of a better way to do this stuff with initialisiation
 	private static EventListenerList listenerList = new EventListenerList();
 
 	// cannot instantiate
 	private AssetManager() {}
-
+	
 	/**
 	 * Initialises the information needed for the Asset Map.
 	 * An xml request is made to the matrix system, which returns xml.
 	 * @return the root folder node of the matrix system.
-	 * @throws IOException if the request fails
+	 * @throws IOException if the request to matrix fails
 	 */
 	public static MatrixTreeNode init() throws IOException {
+		
+		if (isInited)
+			throw new IllegalStateException("Already Inited");
+		
 		Document response = null;
 		response = Matrix.doRequest("<command action=\"initialise\" />");
 		NodeList children = response.getDocumentElement().getChildNodes();
@@ -77,8 +83,9 @@ public class AssetManager {
 				root = processAssetsXML(childElement);
 			}
 		}
-
 		fireInitialisationComplete(root);
+		isInited = true;
+	
 		return root;
 	}
 
@@ -102,11 +109,6 @@ public class AssetManager {
 					initialisationComplete(evt);
 			}
 		}
-	}
-
-	public static void refreshAssets(String assetidsStr) {
-		String[] assetids = assetidsStr.split(",");
-		refreshAssets(assetids);
 	}
 
 	/**
@@ -226,46 +228,59 @@ public class AssetManager {
 				else
 					asset.processAssetXML(assetElement, parent, index);
 			}
+			
 			return asset;
 	}
 
 	/*
 	 * Processes the current user XML element at init time
 	 * @param xmlNodes the xmlNodes that represent the current user
-	 */
+	 etTypes*/
 	private static void processCurrentUserXML(Element xmlNodes) {
 		currentUserid = getIdFromElement(xmlNodes);
 		currentUserType = xmlNodes.getAttribute("type_code");
 		String name = xmlNodes.getAttribute("name");
 	}
 
-
-	public static void refreshAsset(Asset parent) {
-		refreshAssets(new Asset[] { parent });
+	public static void refreshAsset(MatrixTreeNode parent) throws IOException {
+		String[] assetids = new String[] { parent.getAsset().getId() };
+		Element element = makeRefreshRequest(assetids);
+		processAssetsXML(element, parent);
 	}
+	
 
-	public static void refreshAssets(Asset[] parents) {
-		String[] assetids = new String[parents.length];
-		for (int i = 0; i < parents.length; i++) {
-			assetids[i] = parents[i].getId();
-		}
-		refreshAssets(assetids);
-	}
+//	public static void refreshAsset(Asset parent) throws IOException {
+//		refreshAssets(new Asset[] { parent });
+//	}
 
-	public static void refreshAssets(String[] assetids) {
+//	public static void refreshAsset(String assetid) throws IOException {
+//		refreshAssets(new String[] { assetid });
+//	}
+	
+	
+
+//	public static void refreshAssets(Asset[] parents) throws IOException {
+//		String[] assetids = new String[parents.length];
+//		for (int i = 0; i < parents.length; i++) {
+//			assetids[i] = parents[i].getId();
+//		}
+//		refreshAssets(assetids);
+//	}
+	
+	
+	public static Element makeRefreshRequest(String[] assetids) throws IOException {
 		StringBuffer xml = new StringBuffer("<command action=\"get assets\">");
 		for (int i = 0; i < assetids.length; i++) {
 			MatrixToolkit.addAssetToXML(xml, assetids[i]);
 		}
 		xml.append("</command>");
-		Document response = null;
-
-		try {
-			response = Matrix.doRequest(xml.toString());
-		} catch(IOException ioe) {
-			ioe.printStackTrace();
-		}
-		NodeList childNodes = (NodeList) response.getDocumentElement().getChildNodes();
+		Document doc = Matrix.doRequest(xml.toString());
+		
+		return doc.getDocumentElement();
+	}
+	
+	public static void refreshAssets(Element element) {
+		NodeList childNodes = (NodeList) element.getChildNodes();
 		for (int i = 0; i < childNodes.getLength(); i++) {
 			if (!(childNodes.item(i) instanceof Element))
 				continue;
@@ -274,31 +289,9 @@ public class AssetManager {
 		}
 	}
 
-	public static void refreshAsset(MatrixTreeNode parent) {
-		StringBuffer xml = new StringBuffer("<command action=\"get assets\">");
-		MatrixToolkit.addAssetToXML(xml, parent.getAsset());
-		xml.append("</command>");
-		Document response = null;
-		try {
-			response = Matrix.doRequest(xml.toString());
-		} catch (IOException ioe) {
-			GUIUtilities.error(
-				ioe.getMessage(),
-				"Could not load assets"
-			);
-			ioe.printStackTrace();
-			MatrixStatusBar.setStatusAndClear("Request Failed!", 1000);
-		}
-		processAssetsXML(response.getDocumentElement(), parent);
-	}
-
-	public static boolean isShadowAsset(Asset asset) {
-		return (asset.getId().indexOf(":") != -1) ? true : false;
-	}
-
-	public static void refreshAllKnownAssets() {
+	public static String[] getAllRefreshableAssetids() {
 		Iterator iterator = assets.values().iterator();
-		List parents = new ArrayList();
+		List assetids = new ArrayList();
 
 		while (iterator.hasNext()) {
 			Asset asset = (Asset) iterator.next();
@@ -307,15 +300,15 @@ public class AssetManager {
 			while(nodes.hasNext()) {
 				MatrixTreeNode node = (MatrixTreeNode) nodes.next();
 				if (node.getAsset().childrenLoaded()) {
-					parents.add(node.getAsset());
+					assetids.add(node.getAsset().getId());
 					break;
 				}
 			}
 		}
-		refreshAssets((Asset[]) parents.toArray(new Asset[parents.size()]));
+		return (String[]) assetids.toArray(new String[assetids.size()]);
 	}
 
-	private static void updateAsset(Element childElement) {
+	public static void updateAsset(Element childElement) {
 		String assetid = getIdFromElement(childElement);
 		// if we dont have this asset then we can't update it or its children
 		if (!assets.containsKey(assetid))
@@ -324,10 +317,14 @@ public class AssetManager {
 		updateAsset(childElement, asset);
 	}
 
-
-
+	/**
+	 * Updates an asset and its children using the information from the specified
+	 * xml element. Calling this method may make changes to the tree structure
+	 * and therefore  must be executed within the Event Dispach Thread.
+	 * @param childElement the xml element to process
+	 * @param parent the parent asset of the xml element.
+	 */
 	public static void updateAsset(Element childElement, Asset parent) {
-
 		NodeList childNodes = (NodeList) childElement.getChildNodes();
 
 		// get the parent to update its information also
@@ -335,31 +332,40 @@ public class AssetManager {
 
 		// create a set of linkids so that we can remove any nodes
 		// that are no longer children of this asset
-		List linkids = null;
+		List linkids = new ArrayList();
+		
+		// assets in the xml are in the correct order. We dont use the sort
+		// order because notice links and design links have a sort order, but
+		// are not shown in the tree.
+		int index = 0;
+		
 		for (int i = 0; i < childNodes.getLength(); i++) {
 			if (!(childNodes.item(i) instanceof Element))
 				continue;
 			Element assetElement = (Element) childNodes.item(i);
 
 			String assetid = getIdFromElement(assetElement);
-			int index      = Integer.parseInt(assetElement.getAttribute("sort_order"));
 			String linkid  = assetElement.getAttribute("linkid");
+			int linkType   = Integer.parseInt(assetElement.getAttribute("link_type"));
 			Asset asset    = loadAsset(assetid, assetElement, null, index);
 
-			// lazily create
-			if (linkids == null)
-				linkids = new ArrayList();
 			linkids.add(linkid);
 			// this node might be new so we need to give
 			// a parent a chance to add it
-			parent.propagateNode(asset, linkid, index);
+			parent.propagateNode(asset, linkid, linkType, index);
 			parent.setChildrenLoaded(true);
+		
+			index++;
 		}
 
-		if (linkids != null) {
-			parent.removeDiffChildNodes(
-				(String[]) linkids.toArray(new String[linkids.size()]));
-		}
+		// remove the children that are not currently in the matrix system
+		// if there were no nodes in the xml, this will remove all children
+		parent.removeDiffChildNodes(
+			(String[]) linkids.toArray(new String[linkids.size()]));
+	}
+	
+	public static boolean isShadowAsset(Asset asset) {
+		return (asset.getId().indexOf(":") != -1) ? true : false;
 	}
 
 	private static String getIdFromElement(Element element) {
