@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.228 2004/11/23 06:03:59 arailean Exp $
+* $Id: asset_edit_interface.inc,v 1.229 2004/11/23 22:17:23 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.228 $
+* @version $Revision: 1.229 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -753,7 +753,7 @@ class Asset_Edit_Interface extends MySource_Object
 									// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
 									if ($field->name != 'field' || ($creating && (empty($field->attributes['attribute']) || !in_array($field->attributes['attribute'], $create_sections[$section->attributes['name']])))) continue;
 
-									$o->openField($field->children[0]->content, $field->attributes['format']);
+									$o->openField($field->children[0]->content, $field->attributes['format'], '', isset($field->attributes['hidden']));
 
 									$attr = &$owner->getAttribute($field->attributes['attribute']);
 									if (is_null($attr)) continue;
@@ -771,7 +771,7 @@ class Asset_Edit_Interface extends MySource_Object
 									// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
 									if ($field->name != 'field' || ($creating && !in_array($paint_node->attributes['name'], $create_sections[$section->attributes['name']]))) continue;
 
-									$o->openField($field->children[0]->content, $field->attributes['format']);
+									$o->openField($field->children[0]->content, $field->attributes['format'], '', isset($field->attributes['hidden']));
 
 									if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
 										echo 'Function "'.$paint_node->attributes['name'].'" not found for painting';
@@ -1162,7 +1162,7 @@ class Asset_Edit_Interface extends MySource_Object
 						if (!$get_field && !$get_section && !$get_screen) continue;
 
 						if ($field->name != 'field') continue;
-						$o->openField($field->children[0]->content, $field->attributes['format']);
+						$o->openField($field->children[0]->content, $field->attributes['format'], '', isset($field->attributes['hidden']));
 
 						$attr = &$owner->getAttribute($field->attributes['attribute']);
 						if (is_null($attr)) continue;
@@ -1201,7 +1201,7 @@ class Asset_Edit_Interface extends MySource_Object
 						// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
 						if ($field->name != 'field') continue;
 
-						$o->openField($field->children[0]->content, $field->attributes['format']);
+						$o->openField($field->children[0]->content, $field->attributes['format'], '', isset($field->attributes['hidden']));
 
 						if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
 							echo 'Function not found for painting';
