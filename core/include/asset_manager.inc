@@ -1091,13 +1091,15 @@ class Asset_Manager extends Resolve_Object
 			if (empty($assetids)) return Array();
 		}
 
+		$return_urls = Array();
+
 		if (!$ignore_rollback && SQ_ROLLBACK_VIEW) {
 			if ($return_array) {
 				foreach ($assetids as $assetid) {
 					$asset = &$this->getAsset($assetid);
-					$return_hrefs[$assetid] = $asset->getURL($base_url, true);
+					$return_urls[$assetid] = $asset->getURL($base_url, true);
 				}
-				return $return_hrefs;
+				return $return_urls;
 			} else {
 				$asset = &$this->getAsset($assetids[0]);
 				return $asset->getURL($base_url, true);
@@ -1106,8 +1108,6 @@ class Asset_Manager extends Resolve_Object
 
 		if (is_null($base_url)) $base_url = current_url(false);
 		$base_url = strip_url($base_url, true);
-
-		$return_urls = Array();
 
 		// work out if any of these are cached
 		foreach ($assetids as $assetid) {
