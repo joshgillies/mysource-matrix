@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.5 2004/09/02 04:44:03 gsherwood Exp $
+* $Id: page_standard.inc,v 1.5.2.1 2004/11/12 00:05:41 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -291,6 +291,21 @@ class Page_Standard extends Page
 
 
 	/**
+	* Returns a list of lock types available for this asset type
+	*
+	* @return array
+	* @access public
+	*/
+	function lockTypes()
+	{
+		$lock_types = parent::lockTypes();
+		$lock_types['content'] = ($lock_types['attributes'] | $lock_types['links']);
+		return $lock_types;
+
+	}//end lockTypes()
+
+
+	/**
 	* Return any locks that are needed for editing, based on a set of custom keywords
 	*
 	* @param array	$keywords	the keywords to govern what locks are required
@@ -302,7 +317,7 @@ class Page_Standard extends Page
 	{
 		$locks = Array();
 		if (!is_array($keywords) || empty($keywords)) return Array();
-		if (!in_array('content', $keywords)) return Array();
+		if (!in_array('contents', $keywords)) return Array();
 		return Array('content');
 
 	}//end getEditingLocks()
