@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item_edit_fns.inc,v 1.2 2004/11/17 23:22:39 amiller Exp $
+* $Id: news_item_edit_fns.inc,v 1.3 2004/11/18 00:09:29 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -103,110 +103,6 @@ class News_Item_Edit_Fns extends Page_Edit_Fns
 
 	}// end processLinkAssetid()
 
-
-	/**
-	* Paints the interface for editing the contents of the page
-	*
-	* @param object	Asset				&$rootid	asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for the html doc element name
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintContents(&$asset, &$o, $prefix)
-	{
-		$write_access = $asset->writeAccess('attributes');
-		?>
-		<table class="sq_backend_table" width="100%">
-			<tr>
-				<td class="sq-backend-table-header" width="100%">Summary</td>
-			</tr>
-			<tr>
-				<td width="100%">
-		<?php
-			if ($write_access) {
-				require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
-				$wysiwyg = new Asset_Attribute_WYSIWYG();
-				$wysiwyg->value = $asset->attr('summary');
-				$wysiwyg->name = 'attr_summary';
-				$wysiwyg->paint($prefix.'_summary_');
-			} else {
-				echo $asset->attr('summary');
-			}
-		?>
-			</td>
-		</tr>
-		<tr>
-			<td>&nbsp;</td>
-		</tr>
-		<tr>
-				<td class="sq-backend-table-header" width="100%">Full contents</td>
-		</tr>
-		<tr>
-				<td width="100%">
-		<?php
-			if ($write_access) {
-				require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
-				$wysiwyg = new Asset_Attribute_WYSIWYG();
-				$wysiwyg->value = $asset->attr('body');
-				$wysiwyg->name = 'attr_body';
-				$wysiwyg->paint($prefix.'_body_');
-			} else {
-				echo $asset->attr('body');
-			}
-		?>
-			</td>
-		</tr>
-		</table>
-		<?php
-		
-		return $write_access;
-		} // End paintContents()
-		
-	/**
-	* Processes the interface for editing the contents of the page
-	*
-	* @param object	Asset				&$rootid	asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for the html doc element name
-	*
-	* @return void
-	* @access public
-	*/
-	function processContents(&$asset, &$o, $prefix)
-	{
-		$proc_summary = false;
-		$proc_body = false;
-		
-		if (!$asset->writeAccess('attributes')) return false;
-
-		require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
-		$wysiwyg = new Asset_Attribute_WYSIWYG();
-
-		$wysiwyg->name = 'attr_summary';
-		$wysiwyg->process($prefix.'_summary_');
-
-		if ($asset->setAttrValue('summary', $wysiwyg->value)) {
-			$proc_summary = true;
-		}
-
-		$wysiwyg->name = 'attr_body';
-		$wysiwyg->process($prefix.'_body_');
-
-		if ($asset->setAttrValue('body', $wysiwyg->value)) {
-			$proc_body = true;
-		}
-			
-		if ($proc_summary && $proc_body) {
-			return true;
-		} else {
-			return false;
-		}
-
-	}//end processContents()
-
-		
 }//end class
 
 ?>
