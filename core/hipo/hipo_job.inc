@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.35 2003/11/23 21:53:32 gsherwood Exp $
+* $Id: hipo_job.inc,v 1.36 2003/11/26 00:26:25 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -66,6 +66,12 @@ class HIPO_Job extends MySource_Object
 	* @var string
 	*/
 	var $_hipo_name = '';
+
+	/**
+	* Flag to see if we are prepared or not
+	* @var boolean
+	*/
+	var $is_prepared = false;
 
 	/**
 	* Array that stores some variables that the HIPO steps use
@@ -171,6 +177,7 @@ class HIPO_Job extends MySource_Object
 	function complete()
 	{
 		return ($this->_hipo_vars['current_step'] >= count($this->_steps) || $this->_hipo_vars['aborted']);
+
 	}//end complete()
 
 
@@ -183,6 +190,7 @@ class HIPO_Job extends MySource_Object
 	function percentDone()
 	{
 		return (int) $this->_hipo_vars['percent_done'];
+
 	}//end percentDone()
 
 
@@ -235,7 +243,7 @@ class HIPO_Job extends MySource_Object
 		}
 		$this->_options[$name] = $value;
 
-	}// end setOption()
+	}//end setOption()
 
 
 	/**
@@ -254,7 +262,7 @@ class HIPO_Job extends MySource_Object
 		}
 		return $this->_options[$name];
 
-	}// end getOption()
+	}//end getOption()
 
 
 	/**
@@ -352,7 +360,6 @@ class HIPO_Job extends MySource_Object
 			return '';
 		}
 
-
 		$now = time();
 
 		$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'hipo_job
@@ -402,7 +409,8 @@ class HIPO_Job extends MySource_Object
 	{
 		return Array();
 	
-	} //end getConfigVars()
+	}//end getConfigVars()
+
 
 	/**
 	* Prepares the running vars of this hipo.
@@ -412,6 +420,7 @@ class HIPO_Job extends MySource_Object
 	*/
 	function prepare()
 	{
+		$this->is_prepared = true;
 		return true;
 	
 	}//end prepare()

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.10 2003/11/18 15:37:32 brobertson Exp $
+* $Id: hipo_job_edit_status.inc,v 1.11 2003/11/26 00:26:26 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -91,17 +91,12 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 
 
 	/**
-	* Set up vars and database information that the HIPO will need to run
+	* Prepares the running vars and gets the children of the asset in question.
 	*
-	* The Edit Status HIPO also checks that there is an assetid to start this action on
-	* (the top most parent). It also saves a list of assets to perform this action on in the running vars.
-	*
-	* @param string	$source_code_name	the code name of another job that wants to use this job
-	*
-	* @return string	returns the code_name for the new job
+	* @return boolean
 	* @access public
 	*/
-	function initialise($source_code_name=null)
+	function prepare()
 	{
 		// to start editing a status, we need to have an asset id to edit
 		if (!isset($this->_running_vars['assetid'])) {
@@ -125,9 +120,46 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 
 		unset($asset);
 
+		return parent::prepare();
+	
+	}//end prepare()
+
+
+	/**
+	* Set up vars and database information that the HIPO will need to run
+	*
+	* The Edit Status HIPO also checks that there is an assetid to start this action on
+	* (the top most parent). It also saves a list of assets to perform this action on in the running vars.
+	*
+	* @param string	$source_code_name	the code name of another job that wants to use this job
+	*
+	* @return string	returns the code_name for the new job
+	* @access public
+	*/
+	function initialise($source_code_name=null)
+	{
+		if (!$this->is_prepared) {
+			$this->prepare();
+		}
 		return parent::initialise($source_code_name);
 
 	}//end initialise()
+
+
+	/**
+	* Performs the duties of this hipo, without showing any output on the frontend.
+	* 
+	* @return boolean
+	* @access public
+	*/
+	function freestyle()
+	{
+		while (!empty($this->_running_vars['todo_assetids'])) {
+			if (!$this->processStatus($this->_steps[0], get_class($this))) return false;
+		}
+		return true;
+
+	}//end freestyle()
 
 
 	/**
