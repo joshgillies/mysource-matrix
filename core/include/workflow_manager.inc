@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.52 2004/11/03 23:57:06 gsherwood Exp $
+* $Id: workflow_manager.inc,v 1.53 2004/11/08 00:03:25 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -215,7 +215,7 @@ class Workflow_Manager extends MySource_Object
 			trigger_error('Cannot delete workflow schema for "'.$asset->name.'", permission denied', E_USER_WARNING);
 			return false;
 		}
-		
+
 		// check for any running schemas - because if the asset is in workflow we cant do anything
 		$running_schemas = $this->getSchemas($assetid, true, true);
 		if (!empty($running_schemas)) {
@@ -268,7 +268,7 @@ class Workflow_Manager extends MySource_Object
 				$this->_tmp['schema_workflows'][$assetid][$schemaid] = $this->_tmp['schema_workflows'][$assetid]['all'][$schemaid];
 			}
 		}
-		
+
 		if (!isset($this->_tmp['schema_workflows'][$assetid][$schemaid])) {
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -279,7 +279,7 @@ class Workflow_Manager extends MySource_Object
 						AND access = 1';
 			if ($schemaid != 'all') $where .= ' AND schemaid = '.$db->quote($schemaid);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-			
+
 			$workflows = $db->getAssoc($sql.$where, false, Array(), DB_FETCHMODE_ASSOC);
 			if (DB::isError($workflows)) {
 				trigger_error($workflows->getMessage().'<br />'.$workflows->getUserInfo(), E_USER_WARNING);
@@ -381,7 +381,7 @@ class Workflow_Manager extends MySource_Object
 		// if there are no current workflows running, we are not waiting for anyone
 		$running_schemas = $this->getSchemas($assetid, true, true);
 		if (empty($running_schemas)) return Array();
-		
+
 		// these will be the people who can approve this asset
 		// at this point in the workflow
 		$can_publish = Array();
@@ -395,7 +395,7 @@ class Workflow_Manager extends MySource_Object
 				$can_publish = array_merge($can_publish, $this->_whoCanPublishWorkflow($assetid, $sid));
 			}
 		}
-		
+
 		if (!$group) $can_publish = array_unique($can_publish);
 		return $can_publish;
 
@@ -415,7 +415,7 @@ class Workflow_Manager extends MySource_Object
 	{
 		// we dont have to notify people for silent workflow assets
 		if ($this->silentWorkflowParty($assetid)) return true;
-		
+
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_error('Failed to notify, asset #'.$assetid.' does not exist', E_USER_WARNING);
@@ -425,7 +425,7 @@ class Workflow_Manager extends MySource_Object
 		// if there are no workflows, we dont notify anyone
 		$schemas = $this->getSchemas($assetid, true);
 		if (empty($schemas)) return true;
-		
+
 		// these will be the people who to notify (some may be groups)
 		$notify = Array();
 
@@ -449,7 +449,7 @@ class Workflow_Manager extends MySource_Object
 			$msg->subject = 'Asset Made Live';
 			$msg->type    = 'asset.status.notify';
 			$msg->body    = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name').' "'.$asset->name.'" has gone live from '.get_status_description($old_status);
-			
+
 			// create a link for navigation to the workflow screen for this asset
 			$asset_url = $asset->getURL();
 			if (!empty($asset_url)) {
@@ -459,7 +459,7 @@ class Workflow_Manager extends MySource_Object
 			$msg->parameters['assetid'] = $asset->id;
 			$ms->enqueueMessage($msg);
 		}
-		
+
 		return true;
 
 	}//end notifyOnLive()
@@ -527,7 +527,7 @@ class Workflow_Manager extends MySource_Object
 				}
 			}
 		}
-		
+
 		return array_unique($can_publish);
 
 	}//end _whoCanPublishWorkflow()
@@ -684,7 +684,7 @@ class Workflow_Manager extends MySource_Object
 		$user       = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
 		$ms         = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 
-		$log = $ms->newMessage(); 
+		$log = $ms->newMessage();
 		$log->subject = 'Asset Changes Approved';
 		$log->body    = 'User "'.$user->name.'" has approved '.$asset_type.' "'.$asset->name.'" to go live.';
 		// create a link for navigation to the workflow screen for this asset
@@ -1032,7 +1032,7 @@ class Workflow_Manager extends MySource_Object
 		if (!$this->silentWorkflowParty($asset->id)) {
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$publishers = $this->whoCanPublish($asset->id);
-			
+
 			// create a new internal message if we have not been supplied with one
 			if (is_null($msg)) $msg = $ms->newMessage();
 			// added the publishers to the list of people that are to be notified
@@ -1053,7 +1053,7 @@ class Workflow_Manager extends MySource_Object
 				}
 			}
 			if (empty($msg->type)) $msg->type = 'asset.workflow.announce';
-			
+
 			$msg->parameters['assetid'] = $asset->id;
 			$ms->enqueueMessage($msg);
 		}
@@ -1102,12 +1102,30 @@ class Workflow_Manager extends MySource_Object
 			trigger_error('Failed clearing workflow for asset #'.$assetid, E_USER_WARNING);
 			return false;
 		}
-		
+
 		unset($this->_tmp['schemas'][$assetid]);
 		unset($this->_tmp['schema_workflows'][$assetid]);
 		return true;
 
 	}//end cancelWorkflow()
+
+
+	/**
+	* Deletes any workflow entries that this asset has
+	*
+	* @param string	$assetid	the asset id
+	*
+	* @return boolean
+	* @access public
+	*/
+	function purgeWorkflow($assetid)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$where_cond = 'assetid='.$db->quote($assetid);
+
+		return $GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_workflow', $where_cond);
+
+	}//end deleteWorkflow()
 
 
 	/**
