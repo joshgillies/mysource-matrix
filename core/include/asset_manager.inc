@@ -242,7 +242,7 @@ class Asset_Manager extends Resolve_Object
 			return false;
 		}
 
-		include_once(SQ_SYSTEM_ROOT.'/'.$this->_asset_types[$type_code]['dir'].'/'.$type_code.'.inc');
+		include_once SQ_SYSTEM_ROOT.'/'.$this->_asset_types[$type_code]['dir'].'/'.$type_code.'.inc';
 
 	}//end includeAsset()
 
@@ -338,6 +338,45 @@ class Asset_Manager extends Resolve_Object
 
 	}//end registerAsset();
 
+
+	/**
+	* returns list of all assetids of a certain type
+	*
+	* @param string		$type_code		if this exists then this object is used to load the asset, if not then the DB is queried to find out the asset type
+	* @param boolean	$strict			whether we are finding assets that are just a $type_code or $type_code and any of it's sub-classes
+	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because you can't use the '@' operator when returning by reference
+	*
+	* @access public
+	*/
+	function getTypeAssetids($type_code, $strict=false, $mute_errors=false)
+	{
+		include_once SQ_LIB_PATH.'/db_extras/db_extras.inc';
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = 'SELECT assetid
+				FROM sq_asset 
+				WHERE type_code = '.$db->quote($type_code);
+
+		if (!$strict) {
+			$sql .= '   OR type_code IN (~SQ0~)';
+			$subs = Array( 'SELECT type_code
+							FROM sq_asset_type_inherited
+							WHERE inherited_type_code = '.$db->quote($type_code));
+			$sql = db_extras_subquery($db, $sql, $subs);
+		}
+
+		$result = $db->getCol($sql);
+		if (DB::isError($result)) {
+			if (!$mute_errors) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return Array();
+		}
+
+		return $result;
+
+	}//end getTypeAssetids()
+
+
 	/**
 	* prints out the interface for viewing and customising asset types
 	*
@@ -385,7 +424,10 @@ class Asset_Manager extends Resolve_Object
 						$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" successfully linked to "'.$parent->name.'"');
 						$o->addOnLoad('top.sidenav.reload_asset("'.$_GET['parent_assetid'].'");');
 					} else {
-						$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" was not able to be linked to "'.$parent->name.'", it can be found in the trash folder');
+						$o->addMessage(SQ_BO_MSG_WARNING, '"'.$asset->name.'" was not able to be linked to "'.$parent->name.'", it can be found in the trash folder');
+						list($trashid) = $this->getTypeAssetids('trash_folder', true);
+						// reload the trash folder
+						$o->addOnLoad('top.sidenav.reload_asset("'.$trashid.'");');
 					}
 
 				} else {
@@ -398,13 +440,6 @@ class Asset_Manager extends Resolve_Object
 			case 'edit_asset' :
 
 				$o->addFormActionGetVar('assetid', $_GET['assetid']);
-
-#				$o->openRaw();
-#					pre_echo('GET  : ');
-#					pre_echo($_GET);
-#					pre_echo('POST : ');
-#					pre_echo($_POST);
-#				$o->closeRaw();
 
 				$asset = &$this->getAsset($_GET['assetid']);
 				if (is_null($asset)) {
