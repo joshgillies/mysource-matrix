@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design.inc,v 1.48 2003/09/29 22:58:59 gsherwood Exp $
+* $Id: design.inc,v 1.49 2003/09/29 23:04:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -409,7 +409,7 @@ class Design extends Design_Area
 				  Page generated: <?php echo date(\'d F Y\'); ?>
 				-->
 				<script language="javascript" type="text/javascript"  src="<?php echo sq_web_path(\'lib\'); ?>/js/general.js"></script>
-				<link rel="stylesheet" type="text/css"  href="<?php echo sq_web_path(\'lib\'); ?>/web/css/general.css" />
+				<link rel="stylesheet" type="text/css"  href="<?php echo sq_web_path(\'lib\'); ?>/web/css/general.css">
 
 				<?php if (SQ_ROLLBACK_VIEW) $GLOBALS[\'SQ_SYSTEM\']->printRollbackWarning(); ?>
 				';
