@@ -454,7 +454,7 @@ class Asset extends Resolve_Object
 		return $statii;
 	}// end getAvailableStatii()
 
-	
+
 	/**
 	* Returns a description representing the passed or current status
 	*
@@ -466,28 +466,9 @@ class Asset extends Resolve_Object
 	*/
 	function getStatusDescription($status=0)
 	{
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		if (!$status) $status = $this->status;
-		$description = '';
-
-		switch ($status) {
-			case SQ_STATUS_LIVE :
-				$description = 'Live';
-				break;
-			case SQ_STATUS_EDITING :
-				$description = 'Safe Editing';
-				break;
-			case SQ_STATUS_PENDING_APPROVAL   :
-				$description = 'Pending Approval';
-				break;
-			case SQ_STATUS_EDITING_APPROVAL   :
-				$description = 'Safe Editing Pending Approval';
-				break;
-			case SQ_STATUS_UNDER_CONSTRUCTION :
-				$description = 'Under Construction';
-				break;
-		}
-
-		return $description;
+		return getStatusDescription($status);
 	}//end getStatusDescription()
 
 
