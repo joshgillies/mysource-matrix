@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.33.2.3 2004/10/24 22:28:48 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.33.2.3.2.1 2005/02/21 15:39:27 gnoel Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -166,10 +166,20 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 							<?php echo $sub_time ?>
 						</td>
 						<td class="sq-backend-table-cell-alt" colspan="2">
-							<?php if (!is_null($sub_user)) {									
-								$sub_user_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($sub_user);
-								echo $sub_user_asset->name . ' (Id: #'.$sub_user.')';
-							} ?>
+							<?php 
+								$valid_user = false;
+								if (!empty($sub_user)) {									
+									$sub_user_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($sub_user);
+									if (!empty($sub_user_asset)) {
+										echo $sub_user_asset->name . ' (Id: #'.$sub_user.')';
+										$valid_user = true;
+									}
+								} 
+								
+								if (!$valid_user) { 
+									?><i>No logged in user</i><?php
+								} 
+							?>
 						</td>
 						<td class="sq-backend-table-cell-alt">
 							<input type="checkbox" name="<?php echo $prefix ?>_viewsub[<?php echo $sub_id ?>]" value="1" <?php if ($sub_expanded) echo ' checked="checked"' ?>>
