@@ -94,7 +94,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 					if ($success) {
 						$o->addMessage(SQ_BO_MSG_NOTICE, 'New '.$this->am->_asset_types[$_GET['type_code']]['name'].' "'.$asset->name.'" created');
 						$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" was successfully linked to "'.$parent->name.'"');
-						$this->am->registerAsset($asset);
+						$this->am->rememberAsset($asset);
 						$o->addFormActionGetVar('am_section', 'edit_asset');
 						$o->addFormActionGetVar('assetid', $asset->id);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
