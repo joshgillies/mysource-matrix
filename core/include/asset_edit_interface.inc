@@ -3,6 +3,14 @@
 require_once 'XML/Tree.php';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
+
+/*
+* Used by both paint() and process() to determine the access that the current user
+* has - set in _getAccess()
+*/
+define('SQ_EI_READ', 1);
+define('SQ_EI_WRITE', 2);
+
 /**
 * Asset_Edit_Interface
 *
@@ -178,7 +186,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		$o->addFormActionGetVar('asset_ei_screen', $active_screen);
 
 		// do we have write access?
-		$write_access = $owner->writeAccess();
+		$write_access      = $owner->writeAccess();
 		$full_write_access = $owner->writeAccess(Array(), false);
 
 		// do we print the commit button (ie. have we printed an editable interface?)
@@ -296,6 +304,9 @@ class Asset_Edit_Interface extends Resolve_Object
 				// if this ain't a section, or if we are printing the create interface and this section is not included in that, ignore it
 				if ($section->name != 'section' || ($creating && empty($create_sections[$section->attributes['name']]))) continue;
 
+				$section_access = $this->_getAccess($owner, $section);
+				if (!($section_access & SQ_EI_READ)) continue;
+
 				$o->openSection($section->attributes['name']);
 
 				if (!($num_fields = count($section->children))) continue;
@@ -328,6 +339,9 @@ class Asset_Edit_Interface extends Resolve_Object
 							continue;
 						}
 
+						$field_access = $this->_getAccess($owner, $field, $section_access);
+						if (!($field_access & SQ_EI_READ)) continue;
+
 						if (!isset($field->attributes['format'])) $field->attributes['format'] = '';
 
 						if (!empty($field->attributes['attribute'])) {
@@ -339,7 +353,11 @@ class Asset_Edit_Interface extends Resolve_Object
 							$attr = &$owner->getAttribute($field->attributes['attribute']);
 							if (is_null($attr)) continue;
 							if (!$attr->setEditParams($field->children[2])) continue;
-							$attr->paint($prefix, !$write_access);
+							$attr->paint($prefix, !($field_access & SQ_EI_WRITE));
+
+							if ($field->children[1]->name == 'note' && $field->children[1]->content) {
+								$field->children[1]->content = str_replace('%description%', $attr->description, $field->children[1]->content);
+							}
 
 						} else if ($field->children[2]->name == 'function_call') {
 
@@ -481,6 +499,9 @@ class Asset_Edit_Interface extends Resolve_Object
 				if ($section->name != 'section' || ($creating && empty($create_sections[$section->attributes['name']]))) continue;
 				if (!($num_fields = count($section->children))) continue;
 
+				$section_access = $this->_getAccess($owner, $section);
+				if (!($section_access & SQ_EI_READ)) continue;
+
 				// if this is section only has function call, then process accordingly
 				if ($section->children[0]->name == 'function_call') {
 
@@ -501,6 +522,9 @@ class Asset_Edit_Interface extends Resolve_Object
 					// Loop over the fields
 					for($j = 0; $j < $num_fields; $j++) {
 						$field = &$section->children[$j];
+
+						$field_access = $this->_getAccess($owner, $field, $section_access);
+						if (!($field_access & SQ_EI_WRITE)) continue;
 
 						if (!empty($field->attributes['attribute'])) {
 							// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
@@ -550,6 +574,90 @@ class Asset_Edit_Interface extends Resolve_Object
 		return $ret_val;
 
 	}// end process();
+
+
+	/**
+	* Reads the write_access and read_access attributes of the passed node and returns 
+	* at bitmask that can be used with the SQ_EI_READ and SQ_EI_WRITE constants
+	*
+	* @param object Asset			$owner			the asset whose interface we are painting
+	* @param object	XML_Tree_Node	$node			the xml node to check for 'write_access' and 'read_access' attrs
+	* @param int					$inherit_access	used if an access is not specified
+	*
+	* @return int
+	* @access private
+	*/
+	function _getAccess(&$owner, $node, $inherit_access=null)
+	{
+		$access = 0;
+
+		// got to have writeAccess at least (this checks for locks as well)
+		if ($owner->writeAccess()) {
+			// if there is nothing specified, and if an inherited access was specified we must use that
+			if (empty($node->attributes['write_access']) && !is_null($inherit_access)) {
+					if ($inherit_access & SQ_EI_WRITE)  $access |= SQ_EI_WRITE;
+
+			// otherwise attempt to find write access
+			} else {
+				$wa = (empty($node->attributes['write_access'])) ? 'write' : $node->attributes['write_access'];
+				switch($wa) {
+					case 'root' :
+						if ($GLOBALS['SQ_SYSTEM']->userRoot()) $access |= SQ_EI_WRITE;
+						break;
+					case 'sys_admin' :
+						if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) $access |= SQ_EI_WRITE;
+						break;
+					case 'admin' :
+						if ($owner->adminAccess()) $access |= SQ_EI_WRITE;
+						break;
+					case 'write' :
+						$access |= SQ_EI_WRITE; // this was checked above
+						break;
+
+					case 'none' :
+						// meaning that this attribute is not to be written
+						break;
+
+				}// end switch
+			}// end if
+		}// end if
+
+		// if they have write access they have read access by definition
+		if ($access & SQ_EI_WRITE) {
+			$access |= SQ_EI_READ;
+		} else {
+
+			// if there is nothing specified, and if an inherited access was specified we must use that
+			if (empty($node->attributes['read_access']) && !is_null($inherit_access)) {
+					if ($inherit_access & SQ_EI_READ)  $access |= SQ_EI_READ;
+
+			// otherwise attempt to find read access
+			} else {
+				$ra = (empty($node->attributes['read_access'])) ? 'write' : $node->attributes['read_access'];
+				switch($ra) {
+					case 'root' :
+						if ($GLOBALS['SQ_SYSTEM']->userRoot()) $access |= SQ_EI_READ;
+						break;
+					case 'sys_admin' :
+						if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) $access |= SQ_EI_READ;
+						break;
+					case 'admin' :
+						if ($owner->adminAccess()) $access |= SQ_EI_READ;
+						break;
+					case 'write' :
+						if ($owner->writeAccess()) $access |= SQ_EI_READ;
+					case 'read' :
+						if ($owner->readAccess()) $access |= SQ_EI_READ;
+						break;
+
+				}// end switch
+			}// end if
+
+		}// end if
+
+		return $access;
+
+	}// end _getAccess()
 
 
 	/**
@@ -609,7 +717,6 @@ class Asset_Edit_Interface extends Resolve_Object
 							$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
 							$fs_jobs = &Cron_Job_Future_Status::getActiveJobs($owner);
 							if (!empty($fs_jobs)) {
-								#pre_echo($fs_links);
 								$o->openField('Future Statuses', 'new_line');
 								?>
 								<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
@@ -620,15 +727,9 @@ class Asset_Edit_Interface extends Resolve_Object
 										<td bgcolor="#DDDDDD" class="sq-backend-field" style="font-weight: bold;">
 											When
 										</td>
-									<?php
-										if ($owner->adminAccess()) {
-										?>
-										<td bgcolor="#DDDDDD" align="center" width="100" class="sq-backend-field" style="font-weight: bold;">
+										<td bgcolor="#DDDDDD" align="center" class="sq-backend-field" style="font-weight: bold;">
 											Delete ?
 										</td>
-										<?php
-										}// end if
-									?>
 									</tr>
 								<?php
 
@@ -641,15 +742,15 @@ class Asset_Edit_Interface extends Resolve_Object
 										<td class="sq-backend-data">
 											<?php echo $fs_jobs[$i]->readableWhen(); ?>
 										</td>
+										<td align="center" class="sq-backend-data">
 									<?php
-										if ($owner->adminAccess()) {
-										?>
-										<td align="center" width="100" class="sq-backend-data">
-											<?php check_box($prefix.'_remove_fs[]', $fs_jobs[$i]->id); ?>
-										</td>
-										<?php
+										if ($fs_jobs[$i]->canDelete()) {
+											check_box($prefix.'_remove_fs[]', $fs_jobs[$i]->id);
+										} else {
+											echo '&nbsp;';
 										}// end if
 									?>
+										</td>
 									</tr>
 								<?php
 								}// end foreach
@@ -660,7 +761,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 							}// end if
 
-							if ($owner->writeAccess()) {
+							if ($owner->writeAccess(Array(), false)) {
 								$o->openField('New Future Statuses', 'new_line');
 								$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
 								$fs = new Cron_Job_Future_Status();
@@ -726,19 +827,23 @@ class Asset_Edit_Interface extends Resolve_Object
 			}// end if
 
 
-			$fs = new Cron_Job_Future_Status();
-			$edit_fns = $fs->getEditFns();
-			if ($edit_fns->processOneLineBackend($fs, $o, $prefix.'_new_fs')) {
-				if (!is_null($cron_mgr)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-					if ($cron_mgr->addJob($fs, $GLOBALS['SQ_SYSTEM']->user) && $fs->setAssetToUpdate($owner)) {
-						$fs->releaseLock();
-						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-						$future_status_processed = true;
-					} else {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			if ($owner->writeAccess(Array(), false)) {
+
+				$fs = new Cron_Job_Future_Status();
+				$edit_fns = $fs->getEditFns();
+				if ($edit_fns->processOneLineBackend($fs, $o, $prefix.'_new_fs')) {
+					if (!is_null($cron_mgr)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+						if ($cron_mgr->addJob($fs, $GLOBALS['SQ_SYSTEM']->user) && $fs->setAssetToUpdate($owner)) {
+							$fs->releaseLock();
+							$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+							$future_status_processed = true;
+						} else {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						}
 					}
-				}
+				}// end if
+
 			}// end if
 
 		}//end if is null cron mgr
