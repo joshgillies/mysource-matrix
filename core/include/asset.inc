@@ -207,10 +207,20 @@ class Asset extends MySource_Object
 		$this->updated        = $now;
 		$this->updated_userid = $userid;
 
+		// log what happened
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms->openLog();
+
+		$message_body = 'New '.$this->type().' "'.$this->name.'" created';
+		$message = $ms->newMessage(Array(), 'Asset Created', $message_body, 'asset');
+		$message->parameters['assetid'] = $this->id;
+		$message->send();
+
 		// set the attribute values that have been stored temporarily
 		if (!$this->saveAttributes(true)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$this->id = 0;
+			$ms->abortLog();
 			return false;
 		}
 
@@ -218,6 +228,7 @@ class Asset extends MySource_Object
 
 		if (!$this->_updated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$ms->abortLog();
 			return false;
 		}
 
@@ -233,6 +244,7 @@ class Asset extends MySource_Object
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($link['asset']->id)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$this->id = 0;
+				$ms->abortLog();
 				return false;
 			}
 
@@ -246,6 +258,7 @@ class Asset extends MySource_Object
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, $source_assetid)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$this->id = 0;
+				$ms->abortLog();
 				return false;
 			}
 
@@ -262,6 +275,7 @@ class Asset extends MySource_Object
 					if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $userid, $perm, $access)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$this->id = 0;
+						$ms->abortLog();
 						return false;
 					}
 				}
@@ -273,6 +287,7 @@ class Asset extends MySource_Object
 				if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($link['asset']->id)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$this->id = 0;
+					$ms->abortLog();
 					return false;
 				}
 			}
@@ -280,6 +295,7 @@ class Asset extends MySource_Object
 				if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$this->id = 0;
+					$ms->abortLog();
 					return false;
 				}
 			}
@@ -287,12 +303,15 @@ class Asset extends MySource_Object
 			if (!$linkid) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$this->id = 0;
+				$ms->abortLog();
 				return false;
 			}
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$ms->closeLog();
 			return (int) $linkid;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$ms->closeLog();
 			return true;
 		}
 
@@ -1675,6 +1694,10 @@ class Asset extends MySource_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
+		// open a queue for all messages we are going to be logging
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms->openLog();
+
 		foreach($this->_tmp['vars_set'] as $var_name => $var_data) {
 			$attr_id = $this->vars[$var_name]['attributeid'];
 
@@ -1702,6 +1725,12 @@ class Asset extends MySource_Object
 			$save_vars[$attr_id]['name']  = $var_name;
 			$save_vars[$attr_id]['owning_attrid']  = $owning_attributeid;
 			$attr_ids[] = $attr_id;
+
+			// log a message for the asset - this wont get logged until we close the queue
+			$message_body = 'The value of attribute "'.$attribute->name.'" for asset "'.$this->name.'" has been changed from "'.$var_data['old_value'].'" to "'.$attr_value.'"';
+			$message = $ms->newMessage(Array(), 'Asset Attribute Updated', $message_body, 'asset.attributes');
+			$message->parameters['assetid'] = $this->id;
+			$ms->logMessage($message);
 		}
 
 		// open the transaction
@@ -1718,6 +1747,7 @@ class Asset extends MySource_Object
 		if (DB::isError($existing)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			trigger_error($existing->getMessage().'<br/>'.$existing->getUserInfo(), E_USER_WARNING);
+			$ms->abortLog();
 			return false;
 		}
 		$new = array_diff($attr_ids, $existing);
@@ -1744,6 +1774,7 @@ class Asset extends MySource_Object
 					if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_attribute_unique_value', $values, $where)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$attribute->setValue($this->_tmp['vars_set'][$save_vars[$attr_id]['name']]['old_value']);
+						$ms->abortLog();
 						return false;
 					}
 
@@ -1760,6 +1791,7 @@ class Asset extends MySource_Object
 			$values = Array('custom_value' => $value_cases);
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_attribute_value', $values, $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$ms->abortLog();
 				return false;
 			}
 
@@ -1788,6 +1820,7 @@ class Asset extends MySource_Object
 						if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_attribute_unique_value', $values)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							$attribute->setValue($this->_tmp['vars_set'][$save_vars[$attr_id]['name']]['old_value']);
+							$ms->abortLog();
 							return false;
 						}
 
@@ -1806,6 +1839,7 @@ class Asset extends MySource_Object
 							);
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsertSelect('asset_attribute_value', $select_from, $values, $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$ms->abortLog();
 				return false;
 			}
 
@@ -1815,6 +1849,7 @@ class Asset extends MySource_Object
 		// tell, the asset it has updated
 		if (!$dont_run_updated && !$this->_updated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$ms->abortLog();
 			return false;
 		}
 
@@ -1822,6 +1857,7 @@ class Asset extends MySource_Object
 
 		// If we get this far, then it's all OK
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$ms->closeLog();
 
 		return true;
 

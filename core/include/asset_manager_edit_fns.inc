@@ -91,15 +91,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$success = $asset->processBackend($this->backend->out, $link);
 
-					if ($success) {
-						$o->addMessage(SQ_BO_MSG_NOTICE, 'New '.$this->am->getTypeInfo($_GET['type_code'], 'name').' "'.$asset->name.'" created');
-						$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" was successfully linked to "'.$parent->name.'"');
-						$this->am->rememberAsset($asset);
-						$o->addFormActionGetVar('am_section', 'edit_asset');
-						$o->addFormActionGetVar('assetid', $asset->id);
-						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
-					} else {
+					if (!$success) {
 						// the asset was not created fully or linking failed
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					}
@@ -158,8 +150,6 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 					}
 
 					if ($do_process_backend && $asset->processBackend($this->backend->out, $link)) {
-
-						$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" Updated');
 
 						$lock = $this->am->getLockInfo($asset->id);
 						if (!empty($lock)) {

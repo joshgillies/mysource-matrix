@@ -1173,7 +1173,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 							preg_match('/^(system|user)_design::(.*)$/', $design_name, $matches);
 							$system_design   = ($matches[1] == 'system');
-							$new_user_design = (!$system_design && $design_name == 'user_design::' && !$designid);
+							$new_user_design = (!$system_design && $design_name == 'user_design::' && !$designid && $owner->writeAccess());
 
 							$display_name = ucwords($matches[1]).' Defined - '.$matches[2];
 							$o->openSection($display_name);
@@ -2805,11 +2805,7 @@ class Asset_Edit_Interface extends MySource_Object
 			if (!isset($_POST[$prefix.'_link_type'][$link['linkid']])) continue;
 			$new_type = $_POST[$prefix.'_link_type'][$link['linkid']];
 			if ($link['link_type'] == $new_type) continue;
-
-			$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid']);
-			if (!$parent->id) continue;
-			if (!$parent->_updateLink($link['linkid'], $new_type)) continue;
-
+			if (!$GLOBALS['SQ_SYSTEM']->am->_updateLink($link['linkid'], $new_type)) continue;
 			$done_something = true;
 		}
 

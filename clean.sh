@@ -10,6 +10,7 @@ rm -rf "${SYSTEM_ROOT}/cache" \
 		"${SYSTEM_ROOT}/data/file_repository" \
 		"${SYSTEM_ROOT}/data/public/assets" \
 		"${SYSTEM_ROOT}/data/public/asset_types" \
+		"${SYSTEM_ROOT}/data/private/logs" \
 		"${SYSTEM_ROOT}/data/private/assets" \
 		"${SYSTEM_ROOT}/data/private/db" \
 		"${SYSTEM_ROOT}/data/private/asset_map"
@@ -53,4 +54,5 @@ fi
 
 chmod 775 cache
 find data -type d -exec chmod 2775 {} \; 2> /dev/null
+find data -type f -exec chmod 664 {} \; 2> /dev/null
 

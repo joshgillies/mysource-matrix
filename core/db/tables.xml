@@ -893,6 +893,12 @@
 				<default>''</default>
 				<description />
 			</column>
+			<column name="type" allow_null="0">
+				<type>VARCHAR(255)</type>
+				<type_variations />
+				<default />
+				<description>The type of the message as a path eg. asset.workflow OR asset.permissions</description>
+			</column>
 			<column name="sent" allow_null="0">
 				<type>TIMESTAMP</type>
 				<type_variations>
@@ -920,8 +926,8 @@
 				<type_variations>
 					<mysql>LONGTEXT</mysql>
 				</type_variations>
-				<default>''</default>
-				<description />
+				<default />
+				<description>Any params needed for search or jut making sense of the message in the form "key:value;key:value" eg. assetid:4;attributeid:12</description>
 			</column>
 		</columns>
 		<keys>

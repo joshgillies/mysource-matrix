@@ -33,6 +33,12 @@ class Internal_Message extends MySource_Object
 	var $from = 0;
 
 	/**
+	* Type of the message eg. asset.workflow
+	* @var string
+	*/
+	var $type = '';
+
+	/**
 	* When the message was sent (if it has been sent)
 	* @var string
 	*/
@@ -63,8 +69,8 @@ class Internal_Message extends MySource_Object
 	var $status = SQ_MSG_UNREAD;
 
 	/**
-	* An array of parameters to use for special messages
-	* @var Array()
+	* An array of params that may be used by the message depending on its type
+	* @var array
 	*/
 	var $parameters = Array();
 
@@ -83,7 +89,7 @@ class Internal_Message extends MySource_Object
 	/**
 	* Loads the information about this message
 	*
-	* @param int	$messageid		id of the message the you want to get
+	* @param int	$messageid	id of the message the you want to get
 	*
 	* @return boolean
 	* @access public
@@ -93,12 +99,12 @@ class Internal_Message extends MySource_Object
 		if (!$messageid) return false;
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
+		$sql   = 'SELECT messageid, userto, userfrom, subject, body, type, sent, priority, status, parameters
+				    FROM '.SQ_TABLE_RUNNING_PREFIX.'internal_message ';
 		$where = 'messageid = '.$db->quote($messageid);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-		$sql = 'SELECT messageid, userto, userfrom, subject, body, sent, priority, status, parameters 
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'internal_message '.$where;
 		
-		$result = $db->getRow($sql);
+		$result = $db->getRow($sql.$where);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
@@ -109,6 +115,7 @@ class Internal_Message extends MySource_Object
 		$this->from       = $result['userfrom'];
 		$this->subject    = $result['subject'];
 		$this->body       = $result['body'];
+		$this->type       = $result['type'];
 		$this->sent       = iso8601_ts($result['sent']);
 		$this->priority   = $result['priority'];
 		$this->status     = $result['status'];
@@ -127,79 +134,225 @@ class Internal_Message extends MySource_Object
 	*/
 	function send()
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		// lets work out what action should be conducted on this type of message
+		// ie. should it be sent to the flash, logged, mailed etc
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		foreach (Array('show_in_flash', 'log_to_file', 'log_to_db', 'send_mail') as $main_type_code) {
 
-		$now = time();
-		$parameters = serialize($this->parameters);
+			if (!isset($ms->_tmp['message_type_logs'][$main_type_code][$this->type])) {
+				$def_name_w = 'SQ_MS_'.strtoupper($main_type_code).'_WHITE_LIST';
+				$def_name_b = 'SQ_MS_'.strtoupper($main_type_code).'_BLACK_LIST';
+				$types_w = explode("\n", constant($def_name_w));
+				$types_b = explode("\n", constant($def_name_b));
+				$type_code_list = explode('.', $this->type);
 
-		$send_to = $this->expandUsersTo();
+				if (in_array($this->type, $types_w)) {
+					// this exact type is white listed
+					$allow_log = true;
+				} else if (in_array($this->type, $types_b)) {
+					// this exact type is black listed
+					$allow_log = false;
+				} else {
+					$check_code = '';
+					$allow_log = false;
+					foreach ($type_code_list as $type_code) {
+						if (!empty($check_code)) {
+							$check_code .= '.'.$type_code.'*';
+							$check_code = trim($check_code, '. ');
+						} else {
+							$check_code = '*';
+						}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+						if (in_array($check_code, $types_w) && !in_array($check_code, $types_b)) {
+							// this virtual type is is white listed and not black listed
+							$allow_log = true;
+							break;
+						}
+					}
+				}
 
-		$from_email = SQ_CONF_DEFAULT_EMAIL;
-		$from_string = '';
+				// cache this for this script execution
+				$ms->_tmp['message_type_logs'][$main_type_code][$this->type] = $allow_log;
+			}
+
+			$$main_type_code = $ms->_tmp['message_type_logs'][$main_type_code][$this->type];
+
+		}//end foreach
+
+
+		$user_from = null;
+		$from_name = '';
 		if ($this->from) {
 			$user_from = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->from);
 			if (!is_null($user_from)) {
-				$from_string = $user_from->name.' <'.$user_from->attr('email').'>';
-				$from_email = $user_from->attr('email');
+				$from_name = $user_from->name;
+			} else {
+				$from_name = 'Unkown User #'.$this->from;
 			}
+		} else {
+			// message from the system
+			$from_name = SQ_SYSTEM_SHORT_NAME.' System';
 		}
-		if (empty($from_email)) $from_email = 'webmaster@'.((SQ_PHP_CLI) ? $_SERVER['HOSTNAME'] : $_SERVER['HTTP_HOST']);
-		if (empty($from_string)) $from_string = '"'.SQ_SYSTEM_SHORT_NAME.' System" <'.$from_email.'>';
 
-		foreach ($send_to as $userid) {
-			if (!$userid) {
-				// if the userid is empty, we are sending a message to the system
-				// so we send to the default email and tech email
-				$default = SQ_CONF_DEFAULT_EMAIL;
-				$tech = SQ_CONF_TECH_EMAIL;
-				$to_email = '';
+		$param_string = '';
+		foreach ($this->parameters as $key => $value) $param_string .= "$key:$value;";
+		$param_string = trim($param_string, '; ');
 
-				if (!empty($default)) $to_email .= $default;
-				if (!empty($tech)) {
-					if (!empty($to_email)) $to_email .= ',';
-					$to_email .= $tech;
-				}
 
-				if (!empty($to_email)) mail($to_email, $this->subject, $this->body, "From: ".$from_string, "-f$from_email");
+		  ///////////////////////////
+		 // LOG MESSAGES TO FLASH //
+		///////////////////////////
+		if ($show_in_flash) {
 
-				continue;
+			// we require the file to use the message constants that are defined at the top
+			require_once(SQ_INCLUDE_PATH.'/backend_outputter.inc');
+
+			// add the message to the session so the backend outputter picks it up next time
+			// it prints the messages - we cant reply on the backend outputter being us=
+			$_SESSION['backend_outputter_msgs'][] = Array('type' => SQ_BO_MSG_NOTICE, 'msg' => $this->body);
+
+		}//end if logging message to flash
+
+
+		  //////////////////////////////
+		 // LOG MESSAGES TO LOG FILE //
+		//////////////////////////////
+		if ($log_to_file) {
+
+			if (!$fp = fopen (SQ_DATA_PATH.'/private/logs/system.log', 'a')) {
+				trigger_error('Unable to open log file for writing ['.SQ_DATA_PATH.'/private/logs/system.log'.']', E_USER_WARNING);
 			}
 
-			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
-			if (is_null($user)) continue;
+			$log_line = '['.$this->sent.'] ['.$this->from.':'.$from_name.'] ['.$this->type.' - '.$param_string.'] ('.$this->subject.') - '.str_replace("\n", '<newline/>', $this->body)."\n";
 
-			// log the internal message
+			if (!fwrite($fp, $log_line)) {
+				trigger_error('Unable to write log to file ['.SQ_DATA_PATH.'/private/logs/system.log'.']', E_USER_WARNING);
+			}
+
+		}//end if logging message to file
+
+
+		if ($log_to_db || $send_mail) {
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+			// work out the email address the the email will be sent from
+			$from_email = SQ_CONF_DEFAULT_EMAIL;
+			$from_string = '';
+			if ($this->from) {
+				if (!is_null($user_from)) {
+					$from_string = $user_from->name.' <'.$user_from->attr('email').'>';
+					$from_email = $user_from->attr('email');
+				}
+			}
+			if (empty($from_email)) $from_email = 'webmaster@'.((SQ_PHP_CLI) ? $_SERVER['HOSTNAME'] : $_SERVER['HTTP_HOST']);
+			if (empty($from_string)) $from_string = '"'.SQ_SYSTEM_SHORT_NAME.' System" <'.$from_email.'>';
+		}
+
+
+		  //////////////////////////////
+		 // LOG MESSAGES TO DATABASE //
+		//////////////////////////////
+		if ($log_to_db) {
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+			// log a message for the system so it is not deleted
 			$messageid = $db->nextId('sq_sequence_internal_message');
 			if (DB::isError($messageid)) {
 				trigger_error($messageid->getMessage().'<br/>'.$messageid->getUserInfo(), E_USER_ERROR);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
 			}
 
 			$values = Array('messageid'  => $messageid,
-							'userto'     => $userid,
+							'userto'     => 0,
 							'userfrom'   => $this->from,
 							'subject'    => $this->subject,
 							'body'       => $this->body,
+							'type'       => $this->type,
 							'priority'   => $this->priority,
 							'status'     => $this->status,
-							'sent'       => ts_iso8601($now),
-							'parameters' => $parameters);
+							'sent'       => $this->sent,
+							'parameters' => $param_string
+							);
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('internal_message', $values)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 
-			// now send an email as well
-			require_once SQ_FUDGE_PATH.'/general/www.inc';
-			$to_email = trim($user->attr('email'));
-			if (!empty($to_email) && valid_email($to_email)) {
-				mail($to_email, $this->subject, $this->body, "From: ".$from_string, "-f$from_email");
-			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		}//end foreach
+		}//end if logging message to db
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		  ///////////////////////////
+		 // SEND MESSAGE TO USERS //
+		///////////////////////////
+		if ($send_mail) {
+
+			$send_to = $this->expandUsersTo();
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+			// send each user a message - via email and into their internal message inbox
+			foreach ($send_to as $userid) {
+				if (!$userid) {
+					// if the userid is empty, we are sending a message to the system
+					// so we send to the default email and tech email
+					$default = SQ_CONF_DEFAULT_EMAIL;
+					$tech = SQ_CONF_TECH_EMAIL;
+					$to_email = '';
+
+					if (!empty($default)) $to_email .= $default;
+					if (!empty($tech)) {
+						if (!empty($to_email)) $to_email .= ',';
+						$to_email .= $tech;
+					}
+
+					if (!empty($to_email)) mail($to_email, $this->subject, $this->body, "From: ".$from_string, "-f$from_email");
+
+					continue;
+				}
+
+				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+				if (is_null($user)) continue;
+
+				// log the internal message
+				$messageid = $db->nextId('sq_sequence_internal_message');
+				if (DB::isError($messageid)) {
+					trigger_error($messageid->getMessage().'<br/>'.$messageid->getUserInfo(), E_USER_ERROR);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+
+				$values = Array('messageid'  => $messageid,
+								'userto'     => $userid,
+								'userfrom'   => $this->from,
+								'subject'    => $this->subject,
+								'body'       => $this->body,
+								'type'       => $this->type,
+								'priority'   => $this->priority,
+								'status'     => $this->status,
+								'sent'       => $this->sent,
+								'parameters' => $param_string
+								);
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('internal_message', $values)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+
+				// now send an email as well
+				require_once SQ_FUDGE_PATH.'/general/www.inc';
+				$to_email = trim($user->attr('email'));
+				if (!empty($to_email) && valid_email($to_email)) {
+					mail($to_email, $this->subject, $this->body, "From: ".$from_string, "-f$from_email");
+				}
+
+			}//end foreach
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		}//end if sending message via email
+
 		return true;
 
 	}//end send()
@@ -269,6 +422,51 @@ class Internal_Message extends MySource_Object
 	*/
 	function expandUsersTo()
 	{
+		if (empty($this->to)) {
+			// this message is not going to anyone so lets see if the type
+			// can shead some light on who this is supposed to be going to
+			$type = explode('.', $this->type);
+			switch ($type[0]) {
+
+				case 'asset' :
+					if (isset($type[1])) {
+						switch ($type[1]) {
+							case 'linking' :
+								if (!isset($this->parameters['majorid'])) {
+									trigger_error('Failed sending internal message, no majorid specified (type: '.$this->type.')', E_USER_WARNING);
+								}
+								if (!isset($this->parameters['minorid'])) {
+									trigger_error('Failed sending internal message, no minorid specified (type: '.$this->type.')', E_USER_WARNING);
+								}
+
+								$major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['majorid']);
+								if (is_null($major)) {
+									trigger_error('Failed sending internal message, invalid majorid ['.$this->parameters['majorid'].'] specified (type: '.$this->type.')', E_USER_WARNING);
+								}
+								$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['minorid']);
+								if (is_null($minor)) {
+									trigger_error('Failed sending internal message, invalid minorid ['.$this->parameters['minorid'].'] specified (type: '.$this->type.')', E_USER_WARNING);
+								}
+							break(2);
+						}
+					}
+					if (!isset($this->parameters['assetid'])) {
+						// cant send an asset message if we dont know which asset is affected
+						trigger_error('Failed sending internal message, no assetid specified (type: '.$this->type.')', E_USER_WARNING);
+					}
+					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['assetid']);
+					if (is_null($asset)) {
+						// cant send an asset message if we dont know which asset is affected
+						trigger_error('Failed sending internal message, invalid assetid ['.$this->parameters['assetid'].'] specified (type: '.$this->type.')', E_USER_WARNING);
+					}
+
+					$this->to = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, SQ_PERMISSION_ADMIN, true, false);
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				break;
+
+			}//end switch
+		}
+
 		$send_to = Array();
 		if (in_array('0', $this->to)) {
 			// this message is being sent to the system

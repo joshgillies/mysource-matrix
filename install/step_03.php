@@ -42,6 +42,11 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_config.inc';
 $hipo_cfg = new HIPO_Config();
 $hipo_cfg->save(Array(), false);
 
+// Re-generate the Messaging Service Config to make sure that we get any new defines that may have been issued
+require_once SQ_SYSTEM_ROOT.'/core/include/messaging_service_config.inc';
+$ms_cfg = new Messaging_Service_Config();
+$ms_cfg->save(Array(), false);
+
 
 $db = &$GLOBALS['SQ_SYSTEM']->db;
 

@@ -733,7 +733,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function acquireLock($assetid, $source=0, $force=false, $expires=0)
 	{
-
 		$current_lock = $this->getLockInfo($assetid);
 
 		if (!empty($current_lock) && $current_lock['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
@@ -772,6 +771,8 @@ class Asset_Manager extends MySource_Object
 			// send an internal message
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$ms->openQueue();
+			$ms->openLog();
+
 			$current_user = &$this->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
 			$user = &$this->getAsset($current_lock['userid']);
 
@@ -783,16 +784,25 @@ class Asset_Manager extends MySource_Object
 				$message = $ms->newMessage();
 				$message->subject = 'Asset Lock Forceably Acquired';
 				$message->body = 'User "'.$current_user->name.'" has forceably acquired the lock on '.$this->getTypeInfo($locked_asset->type(), 'name').' "'.$locked_asset->name.'", formally held by user "'.$user->name.'".';
-				$message->to   = $this->getPermission($locked_asset->id, SQ_PERMISSION_ADMIN, true);
 				$message->to[] = $user->id;
 				$message->from = 0; // a system message
 
+				// we also need to log this message for anyone else who needs
+				// to get it
+				$log = $ms->newMessage();
+				$log->subject = $message->subject;
+				$log->body    = $message->body;
+				$log->type    = 'asset.locking';
+
 				$ms->enqueueMessage($message);
+				$ms->logMessage($log);
+
 				$this->forgetAsset($locked_asset);
 			}
 
 			// close the queue of messages we opened, which sends all the messages in the queue
 			$ms->closeQueue();
+			$ms->closeLog();
 
 			// refresh the lock info
 			$current_lock = $this->getLockInfo($assetid);
@@ -1631,7 +1641,7 @@ class Asset_Manager extends MySource_Object
 			if ($current_links[$i]['minorid'] == $minor->id && $current_links[$i]['value'] == $value) {
 				// if we are trashing the asset and it is already in the trash, just
 				// pretend that we created the link
-				$trash = $this->getSystemAsset('trash_folder');
+				$trash = &$this->getSystemAsset('trash_folder');
 				if ($trash->id == $major->id) return true;
 
 				trigger_error('Link Already Exists', E_USER_WARNING);
@@ -1984,6 +1994,14 @@ class Asset_Manager extends MySource_Object
 			return 0;
 		}
 
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$message_body = '"'.$minor->name.'" was successfully linked to "'.$major->name.'"';
+		$message = $ms->newMessage(Array(), 'Asset Link Created', $message_body, 'asset.linking');
+		$message->parameters['majorid'] = $major->id;
+		$message->parameters['minorid'] = $minor->id;
+		$message->parameters['linkid']  = $linkid;
+		$message->send();
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->broadcastEvent('CreateLink', Array('assetid' => $major->id, 'linkid' => $linkid));
 
@@ -2303,6 +2321,14 @@ class Asset_Manager extends MySource_Object
 			return 0;
 		}
 
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$message_body = '"'.$minor->name.'" was successfully unlinked from "'.$major->name.'"';
+		$message = $ms->newMessage(Array(), 'Asset Link Deleted', $message_body, 'asset.linking');
+		$message->parameters['majorid'] = $major->id;
+		$message->parameters['minorid'] = $minor->id;
+		$message->parameters['linkid']  = $linkid;
+		$message->send();
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->broadcastEvent('DeleteLink', Array('assetid' => $major->id, 'linkid' => $linkid));
 
@@ -2478,6 +2504,9 @@ class Asset_Manager extends MySource_Object
 		$major = &$this->getAsset((int) $link['majorid'], $link['major_type_code']);
 		$minor = &$this->getAsset((int) $link['minorid'], $link['minor_type_code']);
 
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms->openLog();
+
 		if ($link_type_changed) {
 
 			// We need to make sure that we aren't going to have to be fucking
@@ -2488,11 +2517,13 @@ class Asset_Manager extends MySource_Object
 			$new_is_sig     = (bool) ($link_type & SQ_SC_LINK_SIGNIFICANT);
 			if ($current_is_sig !== $new_is_sig) {
 				trigger_error('Unable to update link #'.$linkid.' , you cannot change a link from being a significant link to a non-significant link or vice versa', E_USER_WARNING);
+				$ms->abortLog();
 				return false;
 			}
 
 			if (($err_msg = $this->canLinkToType($major, $minor->type(), $link_type)) !== true) {
 				trigger_error('Unable to update link #'.$linkid.' ('.$err_msg.')', E_USER_WARNING);
+				$ms->abortLog();
 				return false;
 			}
 
@@ -2503,15 +2534,39 @@ class Asset_Manager extends MySource_Object
 				$bad_paths = $this->webPathsInUse($major, $paths, $minor->id);
 				if (!empty($bad_paths)) {
 					trigger_error('Cannot update link #'.$linkid.', path(s) "'.implode('", "', $bad_paths).'" already in use by one of the chlidren of "'.$major->name.'"', U_USER_WARNING);
+					$ms->abortLog();
 					return false;
 				}
 			}
 
 			$set_clauses['link_type'] = $db->quote($link_type);
 
+			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+			$message_body = 'The type of link #'.$linkid.' (between "'.$major->name.'" and "'.$minor->name.'") was successfully changed from '.link_type_name($link['link_type']).' to '.link_type_name($link_type);
+			$message = $ms->newMessage(Array(), 'Asset Link Type Updated', $message_body, 'asset.linking.type');
+			$message->parameters['majorid']  = $major->id;
+			$message->parameters['minorid']  = $minor->id;
+			$message->parameters['linkid']   = $linkid;
+			$message->parameters['old_type'] = $link['link_type'];
+			$message->parameters['new_type'] = $link_type;
+			$ms->logMessage($message);
+
 		}// end if link_type_changed
 
-		if ($value_changed) $set_clauses['value'] = $db->quote($value);
+		if ($value_changed) {
+
+			$set_clauses['value'] = $db->quote($value);
+
+			$message_body = 'The value on link #'.$linkid.' (between "'.$major->name.'" and "'.$minor->name.'") was successfully changed from '.$link['value'].' to '.$value;
+			$message = $ms->newMessage(Array(), 'Asset Link Value Updated', $message_body, 'asset.linking.value');
+			$message->parameters['majorid']   = $major->id;
+			$message->parameters['minorid']   = $minor->id;
+			$message->parameters['linkid']    = $linkid;
+			$message->parameters['old_value'] = $link['value'];
+			$message->parameters['new_value'] = $value;
+			$ms->logMessage($message);
+
+		}// end if value_changed
 
 		if ($sort_order_changed) {
 			$where = 'majorid = '.$db->quote($major->id);
@@ -2521,16 +2576,29 @@ class Asset_Manager extends MySource_Object
 			$row = $db->getRow($sql);
 			if (DB::isError($row)) {
 				trigger_error($row->getMessage().'<br/>'.$row->getUserInfo(), E_USER_WARNING);
+				$ms->abortLog();
 				return false;
 			}
 			$max = ($row['count'] > 0) ? (int) $row['max'] : 0;
 			if ($sort_order > $max || $sort_order < 0) $sort_order = $max;
 
 			$set_clauses['sort_order'] = $db->quote($sort_order);
+
+			$message_body = 'The sort order of link #'.$linkid.' (between "'.$major->name.'" and "'.$minor->name.'") was successfully changed from '.$link['sort_order'].' to '.$sort_order;
+			$message = $ms->newMessage(Array(), 'Asset Link Sort Order Updated', $message_body, 'asset.linking.order');
+			$message->parameters['majorid']   = $major->id;
+			$message->parameters['minorid']   = $minor->id;
+			$message->parameters['linkid']    = $linkid;
+			$message->parameters['old_order'] = $link['sort_order'];
+			$message->parameters['new_order'] = $sort_order;
+			$ms->logMessage($message);
 		}
 
 		// dickhead check
-		if (empty($set_clauses)) return true;
+		if (empty($set_clauses)) {
+			$ms->abortLog();
+			return true;
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -2540,6 +2608,7 @@ class Asset_Manager extends MySource_Object
 					AND majorid = '.$db->quote($major->id);
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link', $set_clauses, $where)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$ms->abortLog();
 			return false;
 		}
 
@@ -2549,6 +2618,7 @@ class Asset_Manager extends MySource_Object
 			if (($link_type & SQ_SC_LINK_WEB_PATHS) || ((int) $link['link_type'] & SQ_SC_LINK_WEB_PATHS)) {
 				if (!$minor->updateLookups()) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$ms->abortLog();
 					return false;
 				}
 			}
@@ -2564,6 +2634,7 @@ class Asset_Manager extends MySource_Object
 				$values = Array('sort_order' => 'sort_order + 1');
 				if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link', $values, $where)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$ms->abortLog();
 					return false;
 				}
 
@@ -2575,6 +2646,7 @@ class Asset_Manager extends MySource_Object
 				$values = Array('sort_order' => 'sort_order - 1');
 				if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link', $values, $where)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$ms->abortLog();
 					return false;
 				}
 			}
@@ -2584,14 +2656,16 @@ class Asset_Manager extends MySource_Object
 		// tell, the asset it has updated
 		if (!$major->linksUpdated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$ms->abortLog();
 			return false;
 		}
 		if (!$minor->linksUpdated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$ms->abortLog();
 			return false;
 		}
 
-
+		$ms->closeLog();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
@@ -2738,7 +2812,7 @@ class Asset_Manager extends MySource_Object
 				return false;
 			}
 			$user_name = $user->name;
-		} else if ($permission != SQ_PERMISSION_WORKFLOW) {
+		} else if ($permission == SQ_PERMISSION_WORKFLOW) {
 			$user_name = 'Asset Workflow';
 		} else {
 			$user_name = 'General Public';
@@ -2776,6 +2850,14 @@ class Asset_Manager extends MySource_Object
 		// clear the permission cache
 		unset($this->_tmp['permission_cache'][$assetid]);
 
+		// log the action
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$message_body = permission_type_name($permission).' permission has been '.(($access) ? 'granted' : 'denied').' on asset "'.$asset->name.'" for "'.$user_name.'"';
+		$message = $ms->newMessage(Array(), 'Asset Permission Set', $message_body, 'asset.permissions');
+		$message->parameters['assetid'] = $asset->id;
+		$message->send();
+
 		return true;
 
 	}//end setPermission()
@@ -2797,17 +2879,32 @@ class Asset_Manager extends MySource_Object
 		$userid     = (int) $userid;
 		$permission = (int) $permission;
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$asset = &$this->getAsset($assetid);
+		if (is_null($asset)) return false;
+		if (!$asset->adminAccess(Array(), true, false)) {
+			trigger_error('Cannot delete permission for "'.$asset->name.'", permission denied', E_USER_WARNING);
+			return false;
+		}
 
 		// if we dont have an userid, we are deleting public access
 		if ($permission != SQ_PERMISSION_WORKFLOW && !empty($userid)) {
 			// check that the passed userid is a user or user_group
-			$user = &$this->getAsset($userid);
-			if (!is_a($user, 'user') && !is_a($user, 'user_group')) {
+			$user = &$this->getAsset($userid, '', true);
+			if (!$user->id) {
+				trigger_error('Cannot delete permission for an asset that does not exist', E_USER_WARNING);
+				return false;
+			} else if (!is_a($user, 'user') && !is_a($user, 'user_group')) {
 				trigger_error('Cannot delete permission for asset type "'.$user->type().'", not a user or user group', E_USER_WARNING);
 				return false;
 			}
+			$user_name = $user->name;
+		} else if ($permission == SQ_PERMISSION_WORKFLOW) {
+			$user_name = 'Asset Workflow';
+		} else {
+			$user_name = 'General Public';
 		}
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -2823,6 +2920,14 @@ class Asset_Manager extends MySource_Object
 
 		// clear the permission cache
 		unset($this->_tmp['permission_cache'][$assetid]);
+
+		// log the action
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$message_body = permission_type_name($permission).' permission has been deleted on asset "'.$asset->name.'" for "'.$user_name.'"';
+		$message = $ms->newMessage(Array(), 'Asset Permission Deleted', $message_body, 'asset.permissions');
+		$message->parameters['assetid'] = $asset->id;
+		$message->send();
 
 		return true;
 

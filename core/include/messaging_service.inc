@@ -1,5 +1,7 @@
 <?php
 
+require_once(SQ_DATA_PATH.'/private/conf/messaging_service.inc');
+
 define('SQ_MSG_UNREAD' , 'U');
 define('SQ_MSG_READ'   , 'R');
 define('SQ_MSG_DELETED', 'D');
@@ -23,12 +25,13 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 class Messaging_Service extends MySource_Object
 {
 	/**
-	* Temporary holder for messages added to each level of a queue, 
-	* also adds as the counter for how many levels deep we are
+	* Temporary holder for messages added to queues and logs
 	*
 	* @var Array()
 	*/
-	var $_levels = Array();
+	var $_levels = Array(	'queues' => Array(),
+							'logs'   => Array()
+						);
 
 
 	/**
@@ -42,19 +45,7 @@ class Messaging_Service extends MySource_Object
 	}//end constructor
 
 
-	/**
-	* Creates and returns a new internal message
-	*
-	* @return object Interal_Message
-	* @access public
-	*/
-	function newMessage()
-	{
-		require_once SQ_INCLUDE_PATH.'/internal_message.inc';
-		$new_message = new Internal_Message();
-		return $new_message;
-
-	}//end newMessage()
+//--        QUEUES        --//
 
 
 	/**
@@ -66,7 +57,7 @@ class Messaging_Service extends MySource_Object
 	*/
 	function openQueue()
 	{
-		array_push($this->_levels, Array());
+		array_push($this->_levels['queues'], Array());
 
 	}//end openQueue()
 
@@ -81,16 +72,16 @@ class Messaging_Service extends MySource_Object
 	function closeQueue()
 	{
 		// remove the current levels messages
-		$msgs = array_pop($this->_levels);
+		$msgs = array_pop($this->_levels['queues']);
 
 		// add them to the level above or the main queue
-		if (empty($this->_levels)) {
+		if (empty($this->_levels['queues'])) {
 			// this is the last queue
 			return $this->send($msgs);
 
 		} else {
 			foreach($msgs as $msg) {
-				array_push($this->_levels[count($this->_levels) - 1], $msg);
+				array_push($this->_levels['queues'][count($this->_levels['queues']) - 1], $msg);
 			}
 			return true;
 
@@ -101,8 +92,6 @@ class Messaging_Service extends MySource_Object
 
 	/**
 	* Aborts a queue or nested queue, and removes it's messages from the queue
-	* Closes a queue or nested queue
-	* If the last queue is closed, the messages in the queue are sent
 	*
 	* @return boolean
 	* @access public
@@ -110,7 +99,7 @@ class Messaging_Service extends MySource_Object
 	function abortQueue()
 	{
 		// remove the current levels messages
-		array_pop($this->_levels);
+		array_pop($this->_levels['queues']);
 		return true;
 
 	}//end abortQueue()
@@ -126,8 +115,124 @@ class Messaging_Service extends MySource_Object
 	*/
 	function enqueueMessage($message)
 	{
-		array_push($this->_levels[count($this->_levels) - 1], $message);
+		array_push($this->_levels['queues'][count($this->_levels['queues']) - 1], $message);
+
 	}//end enqueueMessage()
+
+
+//--        LOGS        --//
+
+
+	/**
+	* Opens a new log or nested log
+	* Note that this function really just updates how many logs are open
+	*
+	* @return boolean
+	* @access public
+	*/
+	function openLog()
+	{
+		array_push($this->_levels['logs'], Array());
+
+	}//end openLog()
+
+
+	/**
+	* Closes a log or nested log, and add's it messages to the main log
+	* If the last log is closed, the messages in the log are sent
+	*
+	* @return boolean
+	* @access public
+	*/
+	function closeLog()
+	{
+		// remove the current logs messages
+		$msgs = array_pop($this->_levels['logs']);
+
+		// add them to the level above or the main queue
+		if (empty($this->_levels['logs'])) {
+			// this is the last queue
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			foreach ($msgs as $msg) {
+				if (!$msg->send()) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			return true;
+
+		} else {
+			foreach($msgs as $msg) {
+				array_push($this->_levels['logs'][count($this->_levels['logs']) - 1], $msg);
+			}
+			return true;
+
+		}// end if
+
+	}//end closeLog()
+
+
+	/**
+	* Aborts a log or nested log, and removes it's messages from the log
+	*
+	* @return boolean
+	* @access public
+	*/
+	function abortLog()
+	{
+		// remove the current levels messages
+		array_pop($this->_levels['logs']);
+		return true;
+
+	}//end abortLog()
+
+
+	/**
+	* Adds an internal message into the queue
+	*
+	* @param object Internal_Message	$message	the message to add to the queue
+	*
+	* @return void
+	* @access public
+	*/
+	function logMessage($message)
+	{
+		array_push($this->_levels['logs'][count($this->_levels['logs']) - 1], $message);
+
+	}//end enqueueMessage()
+
+
+//--        MESSAGES        --//
+
+
+	/**
+	* Creates and returns a new internal message
+	*
+	* Some variables of a message can be passed in for simple messages
+	* but messages that want to utilise other options need to set these manually
+	* so as to not clutter this functions
+	*
+	* @param Array(int)	$to			an array of user or group IDs to send this message to
+	* @param string		$subject	the subject of the message (keep it short)
+	* @param string		$body		the main body of the message
+	*
+	* @return object Interal_Message
+	* @access public
+	*/
+	function newMessage($to=Array(), $subject='', $body='', $type='')
+	{
+		require_once SQ_INCLUDE_PATH.'/internal_message.inc';
+		$new_message = new Internal_Message();
+		$new_message->sent    = ts_iso8601(time());
+		$new_message->from    = $GLOBALS['SQ_SYSTEM']->currentUserId();
+		$new_message->to      = $to;
+		$new_message->subject = $subject;
+		$new_message->body    = $body;
+		$new_message->type    = $type;
+		return $new_message;
+
+	}//end newMessage()
 
 
 	/**
@@ -142,18 +247,18 @@ class Messaging_Service extends MySource_Object
 	{
 		// lets try and work out if any of the messages to be
 		// sent can actually be amalgamated based on who the message is being
-		// sent to, who it is from, and the subject line of the message
+		// sent to, who it is from, the message type, and the subject line of the message
 		$send_queue = Array();
 		foreach ($msgs as $msg) {
 			$to_ids = $msg->expandUsersTo();
 			foreach ($to_ids as $assetid) {
-				$send_queue[$assetid][$msg->subject][$msg->from]['bodies'][] = $msg->body;
+				$send_queue[$assetid][$msg->type][$msg->subject][$msg->from]['bodies'][] = $msg->body;
 				// make sure we set the highest priority in the group
-				if (!isset($send_queue[$assetid][$msg->subject][$msg->from]['priority'])) {
-					$send_queue[$assetid][$msg->subject][$msg->from]['priority'] = $msg->priority;
+				if (!isset($send_queue[$assetid][$msg->type][$msg->subject][$msg->from]['priority'])) {
+					$send_queue[$assetid][$msg->type][$msg->subject][$msg->from]['priority'] = $msg->priority;
 				} else {
-					if ($msg->priority > $send_queue[$assetid][$msg->subject][$msg->from]['priority']) {
-						$send_queue[$assetid][$msg->subject][$msg->from]['priority'] = $msg->priority;
+					if ($msg->priority > $send_queue[$assetid][$msg->type][$msg->subject][$msg->from]['priority']) {
+						$send_queue[$assetid][$msg->type][$msg->subject][$msg->from]['priority'] = $msg->priority;
 					}
 				}
 			}
@@ -162,14 +267,16 @@ class Messaging_Service extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		foreach ($send_queue as $userid => $message_data) {
-			foreach ($message_data as $subject => $subject_data) {
-				foreach ($subject_data as $from => $from_data) {
-					$message = $this->newMessage();
-					$message->to = Array($userid);
-					$message->from = $from;
-					$message->subject = $subject;
-					$message->body = implode("\n\n".str_repeat('-', 50)."\n\n", $from_data['bodies']);
-					$message->send();
+			foreach ($message_data as $type => $type_data) {
+				foreach ($type_data as $subject => $subject_data) {
+					foreach ($subject_data as $from => $from_data) {
+						$message = $this->newMessage();
+						$message->to = Array($userid);
+						$message->from = $from;
+						$message->subject = $subject;
+						$message->body = implode("\n\n".str_repeat('-', 50)."\n\n", $from_data['bodies']);
+						$message->send();
+					}
 				}
 			}
 		}
