@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.221 2004/10/06 23:51:35 mmcintyre Exp $
+* $Id: asset_edit_interface.inc,v 1.222 2004/10/17 23:08:24 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.222 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -502,7 +502,7 @@ class Asset_Edit_Interface extends MySource_Object
 					next($matches);
 					continue;
 				}
-		
+
 				$asset_path[] = $matches[$k];
 			}
 		} else {
@@ -637,14 +637,14 @@ class Asset_Edit_Interface extends MySource_Object
 				$sub_heading = 'Currently editing '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($closest_parent->type(), 'name').' "'.$closest_parent->name.'"<br/>';
 			}
 		}
-		
+
 		if (!$creating) {
 			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 			$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($owner->created_userid, $owner->updated_userid, $owner->published_userid), 'user', false);
 			$created_by_name = (isset($user_info[$owner->created_userid])) ? $user_info[$owner->created_userid]['short_name'] : '&lt;unknown&gt;';
 			$updated_by_name = (isset($user_info[$owner->updated_userid])) ? $user_info[$owner->updated_userid]['short_name'] : '&lt;unknown&gt;';
 			$published_by_name = (isset($user_info[$owner->published_userid])) ? $user_info[$owner->published_userid]['short_name'] : '&lt;unknown&gt;';
-	
+
 			$sub_heading .= '<div id="sq_asset_info" style="display: none;">
 							<table>
 								<tr>
@@ -832,10 +832,10 @@ class Asset_Edit_Interface extends MySource_Object
 
 			$layout = &$lm->getLayout($owner->type(), $active_screen);
 			if (is_null($layout)) return false;
-			
+
 			$keywords = $layout->getLayoutKeywords();
 			if (empty($keywords)) return false;
-			
+
 			if (isset($keywords['custom']) && !empty($keywords['custom'])) {
 				// acquire any locks that the owner needs to paint the layout
 				$locks = array_merge($locks, $owner->getEditingLocks($keywords['custom']));
@@ -862,7 +862,7 @@ class Asset_Edit_Interface extends MySource_Object
 				$locks[] = $screen_lock_type;
 
 			}//end foreach
-			
+
 		}//end if hasLayout
 
 		$locks = array_unique($locks);
@@ -911,7 +911,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		// let the backend outputter know that we want buffering turned off
 		$o->setBuffering(false);
-		
+
 		// loop over the screens and get the xml file for each screen
 		// generate some keywords for each screen
 		foreach ($screens as $screen) {
@@ -920,7 +920,7 @@ class Asset_Edit_Interface extends MySource_Object
 			$entire_screen = false;
 			if (in_array($screen, array_keys($keywords['entire_screens']))) $entire_screen = true;
 
-			// if we have a static screen on our hands, then we want to 
+			// if we have a static screen on our hands, then we want to
 			// call the function to paint it
 			if (isset($this->_edit_fns->static_screens[$screen])) {
 				$static_keywords = (isset($keywords['screens'][$screen])) ? $keywords['screens'][$screen] : null;
@@ -939,7 +939,7 @@ class Asset_Edit_Interface extends MySource_Object
 			if ($file) {
 				$input = new XML_Tree($file);
 				$root  = &$input->getTreeFromFile();
-				
+
 				if (PEAR::isError($root)) {
 					trigger_error('Unable to Read File : '.$file."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
 					continue;
@@ -956,12 +956,12 @@ class Asset_Edit_Interface extends MySource_Object
 		// if there are some custom keywords, get some replacements from the owner
 		if (isset($keywords['custom']) && !empty($keywords['custom'])) {
 			$custom_replacements = $owner->getCustomKeywordReplacements($keywords['custom']);
-			
+
 			if (!empty($custom_replacements)) {
 				assert_isset_array_index($custom_replacements, 'replacements');
 				assert_isset_array_index($custom_replacements, 'print_commit_button');
 				$replacements = Array();
-				
+
 				// rebuild the keyword so the bodycopy can properly replace it
 				foreach ($custom_replacements['replacements'] as $keyword => $replacement) {
 					$replacements['__custom-'.$keyword] = $replacement;
@@ -982,13 +982,13 @@ class Asset_Edit_Interface extends MySource_Object
 				$this->_tmp['layout_keyword_replacements']['commit_button'] = ob_get_contents();
 			ob_end_clean();
 		}
-		
+
 		// show the screen selection menu
 		if (in_array('screen_menu', $keywords['layout'])) {
 			$lm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
 			$current_location = $o->getCurrentLocation();
 			$current_location .= (strstr($current_location, '?')) ? '&' : '?';
-			
+
 			for(reset($this->_screens); null !== ($code = key($this->_screens)); next($this->_screens)) {
 				if (!$lm->hasLayout($owner->type(), $code)) continue;
 				$o->addScreen($current_location.'asset_ei_screen='.rawurlencode($code), $this->_screens[$code]['name']);
@@ -998,7 +998,7 @@ class Asset_Edit_Interface extends MySource_Object
 				$url = $current_location.'asset_ei_screen='.rawurlencode($code_name);
 				$o->addStaticScreen($url, $data['name']);
 			}
-			
+
 			ob_start();
 				$o->printScreenMenu();
 				$this->_tmp['layout_keyword_replacements']['screen_menu'] = ob_get_contents();
@@ -1037,7 +1037,7 @@ class Asset_Edit_Interface extends MySource_Object
 	{
 		$this->includeStaticScreen($screen);
 		$print_commit_button = false;
-		
+
 		ob_start();
 			if (isset($_POST['am_form_submitted']) && $_POST['am_form_submitted']) {
 				// the form was submitted, so we need to process the static screen as well
@@ -1174,7 +1174,7 @@ class Asset_Edit_Interface extends MySource_Object
 						$o->closeField();
 
 					} else if ($field->children[2]->name == 'function_call') {
-						
+
 						if (!isset($field->attributes['keyword'])) continue;
 
 						// find out what we need to get in this loop
