@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.19 2004/08/19 05:23:54 gsherwood Exp $
+* $Id: datetime_field.inc,v 1.20 2004/09/14 00:12:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -94,9 +94,9 @@ class DateTime_Field {
 	/**
 	* Constructor
 	*
-	* @param int	$prefix			prefix for form elements
-	* @param string	&$value			current value of the field
-	* @param array	&$parameters	settings for this field (min, max, show etc)
+	* @param int		$prefix			prefix for form elements
+	* @param string		&$value			current value of the field
+	* @param array		&$parameters	settings for this field (min, max, show etc)
 	*
 	*/
 	function DateTime_Field($prefix, &$value, &$parameters)
@@ -168,20 +168,20 @@ class DateTime_Field {
 		if (!is_array($null)) $null = Array();
 		echo '<input type="hidden" name="'.$this->prefix.'show" value="'.implode('',$show).'" />';
 		$this->prefix .= 'value';
-		if($this->getParam('allow_circa')) {
-			combo_box($this->prefix.'[c]', array('0'=>'','1'=>'circa.'), false, $this->getUnit('c'));
+		if ($this->getParam('allow_circa')) {
+			combo_box($this->prefix.'[c]', Array('0'=>'','1'=>'circa.'), false, $this->getUnit('c'));
 		}
-		foreach(array('d','m','y','h','i','s') as $t) {
+		foreach (Array('d','m','y','h','i','s') as $t) {
 			$u = $this->getUnit($t);
 
-			if(in_array($t,$show)) {
+			if (in_array($t,$show)) {
 				$this->inputBox($t,$this->prefix,$u,in_array($t,$null));
 			} else {
 				echo '<input type="hidden" name="'.$this->prefix.'['.$t.']" value="'.$u.'" />';
 			}
-			if($t == 'y') echo ' ';
-			if($t == 'h' && in_array('h',$show) && in_array('i',$show)) echo ':';
-			if($t == 'i' && in_array('i',$show) && in_array('s',$show)) echo ':';
+			if ($t == 'y') echo ' ';
+			if ($t == 'h' && in_array('h',$show) && in_array('i',$show)) echo ':';
+			if ($t == 'i' && in_array('i',$show) && in_array('s',$show)) echo ':';
 		}
 
 	}//end printField()
@@ -909,6 +909,19 @@ class DateTime_Field {
 	return true;
 
 	}//end processEditOptions()
+
+
+	/**
+	* Returns TRUE if the datetime field is blank, FALSE otherwise
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isEmpty()
+	{
+		return ($this->value == '---------- --:--:--');
+
+	}//end isEmpty()
 
 
 }// end class
