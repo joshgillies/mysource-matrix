@@ -25,7 +25,8 @@ class Site extends Folder
 	function Site($assetid=0)
 	{
 		$this->Folder($assetid);
-	}
+
+	}//end constructor
 
 
 	/**
@@ -150,16 +151,15 @@ class Site extends Folder
 				if ($current_urls[$save_urlid]['url']   != $save_urls[$save_urlid]['url'] ||
 					$current_urls[$save_urlid]['http']  != $save_urls[$save_urlid]['http'] ||
 					$current_urls[$save_urlid]['https'] != $save_urls[$save_urlid]['https']) {
-					$sql = 'UPDATE sq_asset_url
-							SET url   = '.$db->quote($save_urls[$save_urlid]['url']).',
-								http  = '.$db->quote($save_urls[$save_urlid]['http']).',
-								https = '.$db->quote($save_urls[$save_urlid]['https']).'
-							WHERE urlid   = '.$db->quote($save_urlid).'
+					
+					$where = 'urlid       = '.$db->quote($save_urlid).'
 							  AND assetid = '.$db->quote($this->id);
-					$result = $db->query($sql);
-					if (DB::isError($result)) {
+					$values = Array('url'   => $db->quote($save_urls[$save_urlid]['url']),
+									'http'  => $db->quote($save_urls[$save_urlid]['http']),
+									'https' => $db->quote($save_urls[$save_urlid]['https'])
+									);
+					if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_url', $values, $where)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 						return false;
 					}
 					$updated = true;
@@ -173,17 +173,14 @@ class Site extends Folder
 					trigger_error($curr_urlid->getMessage().'<br/>'.$new_urlid->getUserInfo(), E_USER_ERROR);
 				}
 
-				$sql = 'INSERT INTO sq_asset_url
-						(urlid, assetid, url, http, https)
-						VALUES
-						('.$db->quote($curr_urlid).', '.$db->quote($this->id).',
-						'.$db->quote($save_urls[$save_urlid]['url']).',
-						'.$db->quote($save_urls[$save_urlid]['http']).',
-						'.$db->quote($save_urls[$save_urlid]['https']).')';
-				$result = $db->query($sql);
-				if (DB::isError($result)) {
+				$values = Array('urlid'   => $curr_urlid,
+								'assetid' => $this->id,
+								'url'     => $save_urls[$save_urlid]['url'],
+								'http'    => $save_urls[$save_urlid]['http'],
+								'https'   => $save_urls[$save_urlid]['https']
+								);
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_url', $values)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 					return false;
 				}
 
@@ -200,12 +197,9 @@ class Site extends Folder
 
 		foreach($delete_urlids as $urlid) {
 			// Remove all the old URLs
-			$sql = 'DELETE FROM sq_asset_url
-					WHERE urlid = '.$db->quote($urlid);
-			$result = $db->query($sql);
-			if (DB::isError($result)) {
+			$where_cond = 'urlid = '.$db->quote($urlid);
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_url', $where_cond)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 				return false;
 			}
 			$updated = true;
@@ -263,12 +257,8 @@ class Site extends Folder
 		unset($this->_tmp['href']);
 
 		// Remove all the old URLs
-
-		$sql = 'DELETE FROM sq_asset_lookup
-				WHERE assetid = '.$db->quote($this->id);
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+		$where_cond = 'assetid = '.$db->quote($this->id);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup', $where_cond)) {
 			return false;
 		}
 
@@ -280,17 +270,13 @@ class Site extends Folder
 		$urls = $this->getSiteURLs();
 		// if we have urls then do some url inserting
 		for(reset($urls); null !== ($urlid = key($urls)); next($urls)) {
-			$sql = 'INSERT INTO sq_asset_lookup
-					(url, assetid, root_urlid, designid, login_designid)
-					VALUES
-					('.$db->quote($urls[$urlid]['url']).',
-					'.$db->quote($this->id).',
-					'.$db->quote($urlid).',
-					'.$db->quote($designid).',
-					'.$db->quote($login_designid).')';
-			$result = $db->query($sql);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			$values = Array('url'            => $urls[$urlid]['url'],
+							'assetid'        => $this->id,
+							'root_urlid'     => $urlid,
+							'designid'       => $designid,
+							'login_designid' => $login_designid
+							);
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup', $values)) {
 				return false;
 			}
 		}// end for urls
@@ -421,4 +407,5 @@ class Site extends Folder
 
 
 }//end class
+
 ?>

@@ -26,6 +26,7 @@ class File extends Asset
 	function File($assetid=0)
 	{
 		$this->Asset($assetid);
+
 	}//end constructor
 
 
@@ -82,6 +83,7 @@ class File extends Asset
 		}
 
 		return true;
+
 	}//end saveSystemVersion()
 
 
@@ -320,6 +322,7 @@ class File extends Asset
 		}// end if
 
 		return true;
+
 	}//end _updated()
 
 
@@ -351,11 +354,8 @@ class File extends Asset
 		unset($this->_tmp['href']);
 
 		// Remove all the old URLs
-		$sql = 'DELETE FROM sq_asset_lookup
-				WHERE assetid = '.$db->quote($this->id);
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+		$where = 'assetid = '.$db->quote($this->id);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup', $where)) {
 			return false;
 		}
 
@@ -398,21 +398,17 @@ class File extends Asset
 		}
 
 		foreach ($save_urls as $url => $url_data) {
-			$sql = 'INSERT INTO sq_asset_lookup
-					(url, assetid, root_urlid, designid)
-					VALUES
-					('.$db->quote($url).',
-					'.$db->quote($this->id).',
-					'.$db->quote($url_data['root_urlid']).',
-					'.$db->quote('0').')';
-			$result = $db->query($sql);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			$values = Array('url'        => $url,
+							'assetid'    => $this->id,
+							'root_urlid' => $url_data['root_urlid',
+							'designid'   => '0');
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup', $values)) {
 				return false;
 			}
 		}
 
 		return true;
+
 	}//end _updateLookups()
 
 
@@ -585,6 +581,7 @@ class File extends Asset
 		}
 
 		return $existing;
+
 	}//end _getExistingFile()
 
 
@@ -600,8 +597,9 @@ class File extends Asset
 	{
 		return $this->attr('name');
 
-	}//end _getName();
+	}//end _getName()
 
 
 }//end class
+
 ?>

@@ -305,14 +305,12 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 		// now we need to release all locks we acquired
 		$vars = $pb->getRunningVars();
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'DELETE FROM sq_asset_lock WHERE source_asset = '.$db->quote($vars['trash_id']);
 
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+		$where_cond = 'source_asset = '.$db->quote($vars['trash_id']);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lock', $where_cond)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$pb->abort();
-			return;
+			return false;
 		}
 
 		$pb->setStatusMsg('');

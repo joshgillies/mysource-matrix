@@ -15,21 +15,24 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 */
 class Root_Folder extends Folder
 {
+
 	/**
 	* Constructor
 	*
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Root_Folder($assetid=0) 
+	function Root_Folder($assetid=0)
 	{
 		$this->Folder($assetid);
-	}
+
+	}//end constructor
+
 
 	/**
 	* Create this asset
 	*
-	* @param array()	&$link	information used to create the initial link
+	* @param array	&$link	information used to create the initial link
 	*
 	* @see Asset::create()
 	* @return mixed int or false
@@ -49,7 +52,7 @@ class Root_Folder extends Folder
 			trigger_error('Unable to create another Root Folder, you are only allowed one', E_USER_WARNING);
 			return false;
 		}
-		
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$this->setAttrValue('name', '/');
 		$ret_val = parent::create($link);
@@ -71,27 +74,29 @@ class Root_Folder extends Folder
 				trigger_error('The new Root Folder Asset was not given linkid #1. This needs to be fixed by YOU, consider this system corrupted', E_USER_ERROR);
 			}
 
-			// Right we need to do some manipulation for the link table to put in some initial values 
+			// Right we need to do some manipulation for the link table to put in some initial values
 			// so that the root folder, like everything else, has a link where it is a minor party
-			$sql = 'INSERT INTO sq_asset_link 
-					(linkid, majorid, minorid, link_type, value, sort_order, dependant, exclusive, last_updated, last_userid) 
-					VALUES 
-					(1, 0, 1, 
-					'.$db->quote(SQ_LINK_TYPE_1).', '.$db->quote('').', 1, '.$db->quote('1').', 
-					'.$db->quote('1').', '.$db->quote(ts_iso8601(time())).', 0);';
-			$result = $db->query($sql);
-			if (DB::isError($result)) {
+			$values = Array('linkid'       => 1,
+							'majorid'      => 0,
+							'minorid'      => 1,
+							'link_type'    => SQ_LINK_TYPE_1,
+							'value'        => '',
+							'sort_order'   => 1,
+							'dependant'    => 1,
+							'exclusive'    => 1,
+							'last_updated' => ts_iso8601(time()),
+							'last_userid'  => 0
+							);
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_link', $values)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 			}
 
-			$sql = 'INSERT INTO sq_asset_link_tree 
-					(treeid, linkid, num_immediate_kids) 
-					VALUES ('.$db->quote('').', 1, 0);';
-			$result = $db->query($sql);
-			if (DB::isError($result))  {
+			$values = Array('treeid'             => '',
+							'linkid'             => 1,
+							'num_immediate_kids' => 0
+						);
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_link_tree', $values)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 			}
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -117,6 +122,7 @@ class Root_Folder extends Folder
 	function canDelete()
 	{
 		return false;
+
 	}//end canDelete()
 
 
@@ -132,6 +138,7 @@ class Root_Folder extends Folder
 	function readAccess($assetids=Array())
 	{
 		return true;
+
 	}//end readAccess()
 
 
@@ -174,6 +181,7 @@ class Root_Folder extends Folder
 		} else {
 			return parent::_checkPermissionAccess($perm, $assetids);
 		}
+
 	}//end checkAccess()
 
 
@@ -182,7 +190,8 @@ class Root_Folder extends Folder
 	*
 	* @param string		$name				the name of the attribute
 	* @param string		$value				the new value of the attribute
-	* @param boolean	$dont_run_updated	if true this->_updated() won't be run (THIS IS ONLY EVER CALLED FROM Asset::create())
+	* @param boolean	$dont_run_updated	if true this->_updated() won't be run 
+	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
@@ -199,4 +208,5 @@ class Root_Folder extends Folder
 	}//end setAttrValue()
 
 }//end class
+
 ?>

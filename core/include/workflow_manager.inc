@@ -85,6 +85,7 @@ class Workflow_Manager extends Resolve_Object
 			// so we can determine publish access
 			$this->loadRunning();
 		}
+
 	}//end constructor
 
 
@@ -131,6 +132,7 @@ class Workflow_Manager extends Resolve_Object
 		}
 
 		return true;
+
 	}//end load()
 
 
@@ -147,7 +149,7 @@ class Workflow_Manager extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT * FROM sq_asset_running_workflow
-					WHERE workflowid LIKE '.$db->quote($this->_asset->id.'~%');
+				WHERE workflowid LIKE '.$db->quote($this->_asset->id.'~%');
 
 		$result = $db->getAll($sql);
 		if (DB::isError($result)) {
@@ -190,6 +192,7 @@ class Workflow_Manager extends Resolve_Object
 		if (empty($this->current_workflows['running'])) $this->state = 'complete';
 
 		return true;
+
 	}//end loadRunning()
 
 
@@ -284,6 +287,7 @@ class Workflow_Manager extends Resolve_Object
 		}
 
 		if ($continue) $workflow['current_step'] = 0;
+
 	}//end _loadCurrentStep()
 
 
@@ -317,6 +321,7 @@ class Workflow_Manager extends Resolve_Object
 
 		if (!$group) $can_publish = array_unique($can_publish);
 		return $can_publish;
+
 	}//end whoCanPublish()
 
 
@@ -382,6 +387,7 @@ class Workflow_Manager extends Resolve_Object
 		}
 
 		return array_unique($can_publish);
+
 	}//end _whoCanPublishWorkflow()
 
 
@@ -457,6 +463,7 @@ class Workflow_Manager extends Resolve_Object
 		}
 
 		return $updated;
+
 	}//end recordPublish()
 
 
@@ -505,6 +512,7 @@ class Workflow_Manager extends Resolve_Object
 		$this->state = $old_state;
 
 		return $new_state;
+
 	}//end testPublish()
 
 
@@ -535,6 +543,7 @@ class Workflow_Manager extends Resolve_Object
 		}
 
 		return array_unique($return_result);
+
 	}//end getRunningInheriting()
 
 
@@ -563,19 +572,17 @@ class Workflow_Manager extends Resolve_Object
 			if (empty($steps)) continue;
 			$workflowid = "{$this->_asset->id}~{$assetid}";
 			$workflow = serialize($steps);
-			$sql = 'INSERT INTO sq_asset_running_workflow
-					(workflowid, complete, workflow)
-					VALUES
-					('.$db->quote($workflowid).', 0, '.$db->quote($workflow).')';
 
-			$result = $db->query($sql);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			$values = Array('workflowid' => $workflowid,
+							'complete'   => 0,
+							'workflow'   => $workflow);
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_running_workflow', $values)) {
 				return false;
 			}
 		}
 
 		return true;
+
 	}//end start()
 
 
@@ -595,13 +602,10 @@ class Workflow_Manager extends Resolve_Object
 			case 'new' :
 				if (!empty($this->steps)) {
 					// a brand new direct workflow to save
-					$sql = 'INSERT INTO sq_asset_workflow
-							(assetid, workflow)
-							VALUES ('.$db->quote($this->_asset->id).', '.$db->quote($steps).')';
-
-					$result = $db->query($sql);
-					if (DB::isError($result)) {
-						trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+					$values = Array('assetid'  => $this->_asset->id,
+									'workflow' => $steps
+									);
+					if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_workflow', $values)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
 					}
@@ -612,16 +616,13 @@ class Workflow_Manager extends Resolve_Object
 						return false;
 					}
 				}
-				break;
+			break;
+
 			case 'idle' :
 				if (empty($this->steps)) {
 					// workflow is no more
-					$sql = 'DELETE FROM sq_asset_workflow
-							WHERE assetid = '.$db->quote($this->_asset->id);
-
-					$result = $db->query($sql);
-					if (DB::isError($result)) {
-						trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+					$where_cond = 'assetid = '.$db->quote($this->_asset->id);
+					if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_workflow', $where_cond)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
 					}
@@ -633,31 +634,26 @@ class Workflow_Manager extends Resolve_Object
 					}
 				} else {
 					// updating an existing direct workflow
-					$sql = 'UPDATE sq_asset_workflow
-							SET workflow = '.$db->quote($steps).'
-							WHERE assetid = '.$db->quote($this->_asset->id);
-
-					$result = $db->query($sql);
-					if (DB::isError($result)) {
-						trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+					$where = 'assetid = '.$db->quote($this->_asset->id);
+					$values = Array('workflow' => $db->quote($steps));
+					if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_workflow', $values, $where)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
 					}
 				}
-				break;
+			break;
+
 			case 'running' :
 				// updating existing running workflows
 				if (!empty($this->current_workflows['running'])) {
 					foreach ($this->current_workflows['running'] as $workflowid => $workflow) {
 						$steps = serialize($workflow['steps']);
-						$sql = 'UPDATE sq_asset_running_workflow
-								SET complete = 0, workflow = '.$db->quote($steps).'
-								WHERE workflowid = '.$db->quote($workflowid);
-
-						$result = $db->query($sql);
-						if (DB::isError($result)) {
-							trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						
+						$where = 'workflowid = '.$db->quote($workflowid);
+						$values = Array('complete' => 0,
+										'workflow' => $db->quote($steps)
+										);
+						if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_running_workflow', $values, $where)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							return false;
 						}
@@ -666,39 +662,37 @@ class Workflow_Manager extends Resolve_Object
 				if (!empty($this->current_workflows['complete'])) {
 					foreach ($this->current_workflows['complete'] as $workflowid => $workflow) {
 						$steps = serialize($workflow['steps']);
-						$sql = 'UPDATE sq_asset_running_workflow
-								SET complete = 1, workflow = '.$db->quote($steps).'
-								WHERE workflowid = '.$db->quote($workflowid);
 
-						$result = $db->query($sql);
-						if (DB::isError($result)) {
-							trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+						$where = 'workflowid = '.$db->quote($workflowid);
+						$values = Array('complete' => 1,
+										'workflow' => $db->quote($steps)
+										);
+						if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_running_workflow', $values, $where)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							return false;
 						}
 					}
 				}
-				break;
+			break;
+
 			case 'complete' :
 				// all workflows are completed
-				$sql = 'DELETE FROM sq_asset_running_workflow
-						WHERE workflowid LIKE '.$db->quote($this->_asset->id.'~%');
-
-				$result = $db->query($sql);
-				if (DB::isError($result)) {
-					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				$where_cond = 'workflowid LIKE '.$db->quote($this->_asset->id.'~%');
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_running_workflow', $where_cond)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
-				break;
+			break;
+
 			default :
 				return false;
-				break;
+			break;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return true;
+
 	}//end save()
 
 
@@ -712,16 +706,14 @@ class Workflow_Manager extends Resolve_Object
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'DELETE FROM sq_asset_running_workflow
-				WHERE workflowid LIKE '.$db->quote($this->_asset->id.'~%');
-
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+		$where_cond = 'workflowid LIKE '.$db->quote($this->_asset->id.'~%');
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_running_workflow', $where_cond)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
 		return true;
+
 	}//end cancel()
 
 
@@ -744,6 +736,7 @@ class Workflow_Manager extends Resolve_Object
 		$this->addCondition($stepid, $GLOBALS['SQ_SYSTEM']->currentUserid());
 
 		return $stepid;
+
 	}//end addStep()
 
 
@@ -777,6 +770,7 @@ class Workflow_Manager extends Resolve_Object
 		$this->steps = $new_steps;
 
 		return true;
+
 	}//end deleteStep()
 
 

@@ -157,17 +157,17 @@ class Internal_Message extends Resolve_Object
 				trigger_error($messageid->getMessage().'<br/>'.$messageid->getUserInfo(), E_USER_ERROR);
 			}
 
-			$sql = 'INSERT INTO sq_internal_message
-					(messageid, userto, userfrom, subject, body, priority, status, sent, parameters)
-					VALUES
-					('.$db->quote($messageid).','.$userid.', '.$this->from.', '.$db->quote($this->subject).', 
-					 '.$db->quote($this->body).', '.$db->quote($this->priority).', '.$db->quote($this->status).', 
-					 '.$db->quote(ts_iso8601($now)).', '.$db->quote($parameters).')';
-
-			$result = $db->query($sql);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->db->query('ROLLBACK');
+			$values = Array('messageid'  => $messageid,
+							'userto'     => $userid,
+							'userfrom'   => $this->from,
+							'subject'    => $this->subject,
+							'body'       => $this->body,
+							'priority'   => $this->priority,
+							'status'     => $this->status,
+							'sent'       => ts_iso8601($now),
+							'parameters' => $parameters);
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('internal_message', $values)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 
@@ -178,7 +178,7 @@ class Internal_Message extends Resolve_Object
 				mail($to_email, $this->subject, $this->body, "From: ".$from_string, "-f$from_email");
 			}
 
-		}
+		}//end foreach
 
 		$GLOBALS['SQ_SYSTEM']->db->query('COMMIT');
 		return true;
@@ -219,17 +219,9 @@ class Internal_Message extends Resolve_Object
 	function delete()
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$sql = 'DELETE FROM sq_internal_message WHERE messageid='.$db->quote($this->id);
-
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
-
-		return true;
-
+		$where_cond = 'messageid='.$db->quote($this->id);
+		return $GLOBALS['SQ_SYSTEM']->rollbackDelete('internal_message', $where_cond);
+		
 	}//end delete()
 
 
@@ -246,15 +238,9 @@ class Internal_Message extends Resolve_Object
 		if (!$this->id) return false;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$sql = 'UPDATE sq_internal_message SET status='.$db->quote($status).' WHERE messageid='.$db->quote($this->id);
-
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
-		return true;
+		$where = 'messageid='.$db->quote($this->id);
+		$values = Array('status' => $db->quote($status));
+		return $GLOBALS['SQ_SYSTEM']->rollbackUpdate('internal_message', $values, $where);
 
 	}//end updateStatus()
 
