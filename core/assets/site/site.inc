@@ -209,7 +209,8 @@ class Site extends Folder
 
 		if ($this->_updateLookups()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return $updated;
+			if ($updated) return $this->_updated();
+			else return false;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
