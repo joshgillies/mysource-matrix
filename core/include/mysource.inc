@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.86 2005/03/21 06:13:50 gsherwood Exp $
+* $Id: mysource.inc,v 1.87 2005/03/22 05:29:41 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.87 $
 * @package MySource_Matrix
 */
 class MySource
@@ -883,6 +883,10 @@ class MySource
 
 	/**
 	* Is the passed/current user a system administrator?
+	*
+	* NOTE: This function will return false if the classname of $user is not exactly
+	* equal to system_user - ie root user and any users that inherit from system_user
+	* will return false.
 	*
 	* @param object User	$user	the user object you want to test for sysadmin access
 	*
