@@ -141,7 +141,7 @@ class HIPO_Job extends Resolve_Object
 	*/
 	function complete()
 	{
-		return ($this->_hipo_vars['current_step'] > count($this->_steps) || $this->_hipo_vars['aborted']);
+		return ($this->_hipo_vars['current_step'] >= count($this->_steps) || $this->_hipo_vars['aborted']);
 	}//end complete()
 
 
@@ -366,7 +366,6 @@ class HIPO_Job extends Resolve_Object
 
 		// First let's make sure that everything is in order with the hipo vars and our complete status
 		$step = $this->_hipo_vars['current_step'];
-		if ($this->_steps[$step]['complete']) $this->_hipo_vars['current_step']++;
 
 		$prev_step_per = ($step / count($this->_steps)) * 100;
 		$this_step_per = ($this->complete()) ? 0 : ((1 / count($this->_steps)) * $this->_steps[$step]['percent_done']);
@@ -490,27 +489,27 @@ class HIPO_Job extends Resolve_Object
 			else                   $status_msg = 'Unknown Error Occured';
 		}
 
-		if ($this->complete()) {
-			echo '<p><b>'.$status_msg.'</b></p>';
-			// print the error report if there are errors
-			if (!empty($this->_hipo_vars['errors'])) {
-				echo '<p>';
-				$this->_paintErrorReport();
-				echo '</p>';
-			}
-		} else {
-			echo '<p>';
+		echo '<p>';
+		// if we have more than one step we need to "total" progress bar
+		if (count($this->_steps) > 1) {
 			$this->paintProgressBar($this->_hipo_vars['percent_done'], '#412F49', 'Total HIPO Progress - '.$status_msg);
+		} else {
+			echo '<b>'.$status_msg.'</b>';
+		}
+		echo '</p>';
+
+		// print the error report if there are errors
+		if ($this->complete() && !empty($this->_hipo_vars['errors'])) {
+			echo '<p>';
+			$this->_paintErrorReport();
 			echo '</p>';
 		}
-		?>
 
-		<p>
-		<?php
+		echo '<p>';
 		if ($step_data) {
 
 			if (!empty($this->_steps[$step]['function_call'])) {
-				$fn = $this->_steps[$step]['function_call']['process_function'];
+				$fn = $this->_steps[$step]['function_call']['paint_function'];
 				$prefix = $this->code_name.'step'.$step;
 				$this->$fn($this->_steps[$step], $prefix);
 
@@ -531,9 +530,7 @@ class HIPO_Job extends Resolve_Object
 			}// end if
 
 		}// end if
-		?>
-		</p>
-		<?php
+		echo '</p>';
 
 	}//end paint()
 
