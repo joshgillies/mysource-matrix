@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.28 2004/10/17 23:15:10 lwright Exp $
+* $Id: form_section_edit_fns.inc,v 1.29 2004/10/19 22:48:59 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -208,7 +208,7 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 								?><td align="center" width="100" class="sq-backend-table-cell"><?php
 								check_box($prefix.'_order[delete]['.$sort_id.']');
 								?></td>
-								<td align="center" width="100" class="sq-backend-table-cell"><?php if ($sort_id != 0) { ?><a href="#" onclick="sortOrderMoveUp(<?php echo $sort_id ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web.images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a><?php } ?>
+								<td align="center" width="100" class="sq-backend-table-cell"><?php if ($sort_id != 0) { ?><a href="#" onclick="sortOrderMoveUp(<?php echo $sort_id ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a><?php } ?>
 								<?php if ($sort_id != count($questions)-1) { ?><a href="#" onclick="sortOrderMoveDown(<?php echo $sort_id ?>); return false;"><img src="<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>" width="16" height="16" border="0"alt="Move Down" /></a><?php } ?>
 							</td>
 							<?php
