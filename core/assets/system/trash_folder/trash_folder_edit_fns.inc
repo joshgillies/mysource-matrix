@@ -48,10 +48,10 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function paintPurgeTrash(&$asset, &$o, $prefix)
 	{
-		if ($asset->writeAccess()) {
+		if ($asset->purgeAccess()) {
 			combo_box($prefix.'_purge_trash', Array(0 => 'No', 1 => 'Yes'), false, 0, 0, "onChange=\"Javascript: if (this.value == 1) { if(!confirm('Are you sure you want to purge all assets currently in the trash?')) { this.value = 0; } } \"");
 		} else {
-			'You not not have access to purge the trash';
+			echo '<b><i>You not not have access to purge the trash</i></b>';
 		}
 		return true;
 	}//end paintPurgeTrash()
@@ -88,6 +88,8 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function _purgeTrash(&$asset, &$o, $prefix)
 	{
+		if (!$asset->purgeAccess()) return;
+
 		require_once SQ_LIB_PATH.'/progress_bar/progress_bar.inc';
 		$pb = new Progress_Bar($o->getCurrentLocation(), $this);
 		if (!$pb->loaded) {

@@ -233,5 +233,19 @@ class Trash_Folder extends Folder
 		return true;
 	}//end writeAccess()
 
+
+	/**
+	* Returns true if the current user can purge the trash
+	*
+	* @return boolean
+	* @access public
+	*/
+	function purgeAccess()
+	{
+		if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
+		if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
+		return false;
+	}//end purgeAccess()
+
 }//end class
 ?>
