@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_screen_details.xml,v 1.3 2003/10/14 05:07:56 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.4 2003/11/13 00:28:54 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -33,11 +33,6 @@
 		</field>
 	</section>
 	<section name="Settings" write_access="write:attributes">
-		<field attribute="text">
-			<display_name>Text</display_name>
-			<note>The text that forms the link if there is no image</note>
-			<text width="30" height="1" />
-		</field>
 		<field attribute="new_window">
 			<display_name>New Window</display_name>
 			<note />

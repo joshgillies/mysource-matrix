@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_constant_button_edit_fns.inc,v 1.9 2003/11/12 18:02:27 brobertson Exp $
+* $Id: design_area_constant_button_edit_fns.inc,v 1.10 2003/11/13 00:28:54 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,10 +37,7 @@ class Design_Area_Constant_Button_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		if ($asset->writeAccess('attributes')) {
 			// if they are trying to set the type_codes, split the string
-			$type_codes = preg_split('/[ ,]+/', (string) $asset->attr('type_codes'), -1, PREG_SPLIT_NO_EMPTY);
-			$type_code_restrictions = Array();
-			foreach($type_codes as $type_code) $type_code_restrictions[$type_code] = 'D';
-			asset_finder($prefix.'_assetid', $asset->attr('assetid'), $type_code_restrictions);
+			asset_finder($prefix.'_assetid', $asset->attr('assetid'));
 
 		} elseif ($asset->attr('assetid')) {
 			$link_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset->attr('assetid'));
