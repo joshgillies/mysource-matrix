@@ -228,11 +228,13 @@ function sq_web_path($path='base')
 
 	switch($path) {
 		case 'base' : 
-			$paths[$path] = (SQ_IN_BACKEND) ? '..' : '.';
+			// preg bit is a check for the people who are using symlinked versions
+			$paths[$path] = (SQ_IN_BACKEND) ? '..' : ((preg_match('/index.php$/', current_url())) ? './index.php' : '.');
 			break;
 
 		case 'edit' :
-			$paths[$path] = (SQ_IN_BACKEND) ? '.'  : './'.SQ_CONF_BACKEND_SUFFIX;
+			// preg bit is a check for the people who are using symlinked versions
+			$paths[$path] = (SQ_IN_BACKEND) ? '.'  : ((preg_match('/index.php$/', current_url())) ? './index.php' : '.').'/'.SQ_CONF_BACKEND_SUFFIX;
 			break;
 
 		case 'root_url'  : 
@@ -245,7 +247,8 @@ function sq_web_path($path='base')
 					$tmp = $root_urls[$i];
 				}
 			}
-			$paths[$path] = $tmp;
+			// if we are in the symlink system remove the URL
+			$paths[$path] = preg_replace('/\/index.php$/', '', $tmp);
 			break;
 
 		case 'lib'  : 
