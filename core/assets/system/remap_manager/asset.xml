@@ -3,7 +3,8 @@
 <!--
 /**
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-* | MySource 3 - MySource Matrix                                       |
+* | Squiz.net Open Source Licence                                      |
+
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 * | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
@@ -20,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2003/12/18 04:34:35 gsherwood Exp $
+* $Id: asset.xml,v 1.2 2004/02/18 18:19:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->

@@ -1,7 +1,8 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | MySource 3 - MySource Matrix                                       |
+* | Squiz.net Open Source Licence                                      |
+
 * +--------------------------------------------------------------------+
 * | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
 * +--------------------------------------------------------------------+
@@ -18,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.2 2004/01/08 15:52:51 brobertson Exp $
+* $Id: remap_manager.inc,v 1.3 2004/02/18 18:19:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +31,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $ - 0.1
+* @version $Revision: 1.3 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
