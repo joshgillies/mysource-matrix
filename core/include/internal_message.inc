@@ -135,7 +135,7 @@ class Internal_Message extends Resolve_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$from_email = SQ_SYSTEM_EMAIL;
+		$from_email = SQ_CONF_DEFAULT_EMAIL;
 		$from_string = '';
 		if ($this->from) {
 			$user_from = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->from);
@@ -144,6 +144,7 @@ class Internal_Message extends Resolve_Object
 				$from_email = $user_from->attr('email');
 			}
 		}
+		if (empty($from_email)) $from_email = 'webmaster@'.$GLOBALS['HTTP_SERVER_VARS']['HTTP_HOST'];
 		if (empty($from_string)) $from_string = '"'.SQ_SYSTEM_SHORT_NAME.' System" <'.$from_email.'>';
 
 		foreach ($send_to as $userid) {
