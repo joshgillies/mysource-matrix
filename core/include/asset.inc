@@ -77,7 +77,7 @@ class Asset extends Resolve_Object
 	*
 	* @var bool
 	*/
-	var $_set_attrs = false;
+	var $_ser_attrs = false;
 
 
 	/**
@@ -252,7 +252,7 @@ class Asset extends Resolve_Object
 		$this->vars = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
 		if (DB::isError($this->vars)) trigger_error($this->vars->getMessage().'<br/>'.$this->vars->getUserInfo(), E_USER_ERROR);
 
-		if ($this->_set_attrs && $this->vars) {
+		if ($this->_ser_attrs && $this->vars) {
 			for(reset($this->vars); NULL !== ($name = key($this->vars)); next($this->vars)) {
 				if ($this->vars[$name]['type'] != 'serialise') continue;
 				$this->vars[$name]['value'] = @unserialize($this->vars[$name]['value']);
@@ -3036,6 +3036,7 @@ class Asset extends Resolve_Object
 
 	/**
 	* Processes a backend submission from this asset, returns true if all OK
+	* Put's the array of processed attributes into $this->_tmp['process_attributes']
 	*
 	* @param object Backend_Outputter	$o
 	* @param array(string)				&$link	information used to create the initial link
@@ -3046,9 +3047,9 @@ class Asset extends Resolve_Object
 	function processBackend(&$o, &$link)
 	{
 		$ei = &$this->getEI();
-		$processed = $ei->process($this, $o, false);
+		$this->_tmp['process_attributes'] = $ei->process($this, $o, false);
 
-		foreach($processed as $name) {
+		foreach($this->_tmp['process_attributes'] as $name) {
 			$attr = &$this->getAttribute($name, true);
 			if (is_null($attr)) continue;
 
