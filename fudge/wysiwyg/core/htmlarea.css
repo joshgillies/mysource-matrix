@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: htmlarea.css,v 1.9 2003/09/26 05:26:37 brobertson Exp $
+* $Id: htmlarea.css,v 1.10 2003/11/07 01:37:07 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -83,13 +83,11 @@
 
 /* Toolbar Select Boxes */
 
-htmlarea-select {
-	font:			11px Tahoma, Verdana ,sans-serif;
-}
-
-htmlarea-select, htmlarea-select:hover, htmlarea-select:active {
-	background:		FieldFace;
-	color:			#000000;
+.htmlarea-select {
+	font-size:			9px;
+	font-family:		Verdana, sans-serif;
+	background-color:	#5A5A5A;
+	color:				#FFFFFF;
 }
 
 
