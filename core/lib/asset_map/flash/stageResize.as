@@ -17,7 +17,7 @@ function StageResize()
 StageResize.prototype.onResize = function() {
 
 	var menu_height = 20;
-	var scroller_height = Stage.height - menu_height - _root.msgs_bar._height;
+	var scroller_height = Stage.height - menu_height - _root.msgs_bar.height();
 
 	_root.scroller.setSize(Stage.width, scroller_height);
 	_root.msgs_bar._y = scroller_height + menu_height;
@@ -30,13 +30,13 @@ StageResize.prototype.onResize = function() {
 /**
 * Event fired when the Msg Bar is opened
 */
-StageResize.prototype.onMsgBarOpen = function() {
+StageResize.prototype.onMsgsBarOpen = function() {
 	this.onResize();
 }
 
 /**
 * Event fired when the Msg Bar is closed
 */
-StageResize.prototype.onMsgBarClose = function() {
+StageResize.prototype.onMsgsBarClose = function() {
 	this.onResize();
 }

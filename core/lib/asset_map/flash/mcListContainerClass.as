@@ -422,6 +422,9 @@ mcListContainerClass.prototype._reloadAssetListItem = function(assetid, item_nam
 mcListContainerClass.prototype.refreshList = function(start_i) 
 {
 
+	// clear so our filler background content doesn't take up space in the _width and _height
+	this.filler.clear();
+
 	if (start_i == undefined || start_i < 0) start_i = 0;
 
 	// now cycle through every item from the parent down and reset their positions
@@ -429,7 +432,6 @@ mcListContainerClass.prototype.refreshList = function(start_i)
 	for(var i = start_i; i < this.items_order.length; i++) {
 		// set for future use
 		this.items_order[i].branch_count = branch_count;
-//trace("SetPos : " + this.items_order[i].name + " : " + i);
 		this[this.items_order[i].name].setPos(i);
 		this[this.items_order[i].name]._visible = true;
 
@@ -449,11 +451,12 @@ mcListContainerClass.prototype.refreshList = function(start_i)
 
 	// Now make sure that the filler is big enough for all the content
 	var xpos = Math.max(_root.scroller.getPaneWidth(),  this._width);
-	var ypos = Math.max(_root.scroller.getPaneHeight(), this[this.items_order[this.items_order.length - 1].name]._y + _root.LIST_ITEM_POS_INCREMENT + _root.LIST_ITEM_END_BRANCH_GAP);
+	var ypos = Math.max(_root.scroller.getPaneHeight(), this._height + _root.LIST_ITEM_END_BRANCH_GAP);
 
-	this.filler.clear();
 	this.filler.beginFill(0xFF0000, 0); // alpha = 0 -> transparent
-	this.filler.lineStyle();
+	// This is commented out because when we try and explicitly set it, 
+	// an extra 2 pixels gets added to the width of the MC for no f!@#$ing reason
+	//this.filler.lineStyle();
 	this.filler.moveTo(0, 0);
 	this.filler.lineTo(xpos, 0);
 	this.filler.lineTo(xpos, ypos);

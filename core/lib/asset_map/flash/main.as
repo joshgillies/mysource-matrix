@@ -21,6 +21,7 @@ Stage.align = "TL";
 #include "mcPlusMinus.as"
 #include "mcListItemClass.as"
 #include "mcMsgsBarClass.as"
+#include "mcMsgsBarMessageClass.as"
 #include "mcOptionsBoxClass.as"
 #include "mcDialogBoxClass.as"
 #include "mcProgressBarClass.as"
