@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.12 2004/12/06 14:39:53 brobertson Exp $
+* $Id: image.inc,v 1.13 2005/01/12 17:13:41 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../general/file_system.inc';
 * Image manipulation functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package Fudge
 * @subpackage Image
 */
@@ -49,7 +49,7 @@ class Image
 	* @param string	$colour_b	hex string or html colour name
 	*
 	* @access public
-	*
+	* @static
 	*/
 	function gradientPalette($input, $output, $colour_a, $colour_b)
 	{
@@ -91,6 +91,7 @@ class Image
 
 	}//end gradientPalette()
 
+
 	/**
 	* Takes a link to an image file with an (assumed) greyscale palette
 	* $colour_map is an associative array whose 'key' colour in the image and replaces if with the 'value' colour.
@@ -102,7 +103,7 @@ class Image
 	* @param float	$tolerance
 	*
 	* @access public
-	*
+	* @static
 	*/
 	function remapColour($input, $output, $colour_map, $tolerance=0.2)
 	{
@@ -135,6 +136,7 @@ class Image
 
 	}//end remapColour()
 
+
 	/**
 	* Resizes an image
 	*
@@ -145,88 +147,37 @@ class Image
 	*
 	* @return bool
 	* @access public
-	*
+	* @static
 	*/
 	function resize($input, $output, $w, $h)
 	{
+		// NOTE: $s_* = source image vars, $d_* = destination image vars
+		$s_img = Image::fromFile($input);
 
-		$scaler  = 'pnmscale';
-		$decoder = '';
-		$encoder = '';
-
-		// Check we have the right decoder
-		switch (get_file_type($input)) {
-			case 'gif':
-				$decoder = 'giftopnm';
-				$encoder = 'pnmtogif';
-				break;
-			case 'png':
-				$decoder = 'pngtopnm';
-				$encoder = 'pnmtopng';
-				break;
-			case 'jpg':
-			case 'jpeg':
-				$decoder = 'djpeg';
-				$encoder = 'cjpeg';
-				break;
-			default:
-				trigger_error('Unable to open unknown image type for resizing: '.$input, E_USER_WARNING);
-				return false;
+		// can't use true colour for gif's
+		if (get_file_type($output) == 'gif') {
+			$d_img = ImageCreate($w, $h);
+		} else {
+			$d_img = ImageCreateTrueColor($w, $h);
 		}
 
-		$needed_programs[] = $encoder;
-		$needed_programs[] = $decoder;
-
-		foreach ($needed_programs as $p) {
-			$code = 0;
-			system("$p /? 2> /dev/null",$code);
-			if ($code != 1) {
-				trigger_error('Unable to resize image, required external program could not be found: '.$p, E_USER_WARNING);
-				$die = true;
-			}
-		}
-		if ($die) return false;
-
-		$options = '';
-
-		if ($w) $options .= ' -w $w';
-		if ($h) $options .= ' -h $h';
-
-		$err = `(cat $input | $decoder | $scaler $options | $encoder > $output) 2>&1; echo $?`;
-		if ($err > 0) {
-			trigger_error("There seem to have been problems resizing the image\n\n$input\n\nto\n\n$output:\n\n".htmlspecialchars($err));
-			unlink($output);
+		if (!ImageCopyResampled($d_img, $s_img, 0, 0, 0, 0, $w, $h, ImageSx($s_img), ImageSy($s_img))) {
 			return false;
 		}
-		return true;
+
+		return Image::toFile($d_img, $output);
+
 	}//end resize()
 
-//	 ########################################################
-//	# Resizes an image using bicubic interpolation inside PHP
-//	# this doesn't appear to work without GD 2.0 or later
-//	function new_image_resize($input, $output, $new_w, $new_h) {
-//
-//		list($old_w, $old_h) = getimagesize($input);
-//
-//		if ($new_w <= 0) $new_w = $old_w;
-//		if ($new_h <= 0) $new_h = $old_h;
-//
-//		$old_image = image_from_file($input);
-//		$new_image = ImageCreateTrueColor($new_w, $new_h);
-//
-//		imagecopyresampled($new_image,$old_image, 0, 0, 0, 0, $new_w, $new_h, $old_w, $old_h);
-//
-//		image_to_file($new_image, $output);
-//
-//	}
 
 	/**
 	* returns the image resource for the passed image file
 	*
 	* @param string	$input		the input image file
 	*
-	* @return mixed int or false
+	* @return mixed image resource or false
 	* @access public
+	* @static
 	*/
 	function fromFile($input)
 	{
@@ -252,22 +203,24 @@ class Image
 
 	}//end fromFile()
 
+
 	/**
 	* Write the image into the output file
 	*
-	* @param string	$input			the input image file
-	* @param string	$output			the output image file
-	* @param int	$jpeg_quality	number between 0 and 100
+	* @param resource	$image			the image resource to output
+	* @param string		$output			the output image file
+	* @param int		$jpeg_quality	number between 0 and 100
 	*
-	* @return mixed int or false
+	* @return boolean
 	* @access public
+	* @static
 	*/
 	function toFile($image, $output, $jpeg_quality=80)
 	{
 		// Output result to file
 		switch (get_file_type($output)) {
 			case 'gif' :
-				if (imageGif ($image, $output)) return true;
+				if (imageGif($image, $output)) return true;
 				break;
 			case 'png' :
 				if (imagePNG($image, $output)) return true;
