@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.222 2004/07/05 18:44:38 brobertson Exp $
+* $Id: asset_manager.inc,v 1.223 2004/07/08 23:18:45 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -934,7 +934,7 @@ class Asset_Manager extends MySource_Object
 		$lock = $this->getLockInfo($source->id, 'all');
 		foreach ($lock as $lock_type => $lock_info) {
 			if (empty($lock_info)) {
-				trigger_error('You need to acquire all locks on this asset before it can be cloned', E_USER_WARNING);
+				trigger_error('You need to acquire all locks on this asset (#'.$source->id.') before it can be cloned. Failed on lock type "'.$lock_type.'"', E_USER_WARNING);
 				return $null;
 			}
 		}
