@@ -187,8 +187,6 @@ class Asset_Edit_Interface extends Resolve_Object
 				// Loop over the fields
 				for($j = 0; $j < $num_fields; $j++) {
 					$field = &$section->children[$j];
-					// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
-					if ($field->name != 'field' || ($creating && (empty($field->attributes['attribute']) || !in_array($field->attributes['attribute'], $create_sections[$section->attributes['name']])))) continue;
 
 					if ($field->children[0]->name != 'display_name') {
 						trigger_error('Display Name for "'.$field->attributes['attribute'].'" not found', E_USER_WARNING);
@@ -196,9 +194,13 @@ class Asset_Edit_Interface extends Resolve_Object
 					}
 
 					if (!isset($field->attributes['format'])) $field->attributes['format'] = '';
-					$o->openField($field->children[0]->content, $field->attributes['format']);
 
 					if (!empty($field->attributes['attribute'])) {
+						// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
+						if ($field->name != 'field' || ($creating && (empty($field->attributes['attribute']) || !in_array($field->attributes['attribute'], $create_sections[$section->attributes['name']])))) continue;
+
+						$o->openField($field->children[0]->content, $field->attributes['format']);
+
 						$attr = &$owner->getAttribute($field->attributes['attribute']);
 						if (is_null($attr)) continue;
 						if (!$attr->setEditParams($field->children[2])) continue;
@@ -207,6 +209,11 @@ class Asset_Edit_Interface extends Resolve_Object
 					} else if ($field->children[2]->name == 'function_call') {
 
 						$paint_node = &$field->children[2]->children[0];
+
+						// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
+						if ($field->name != 'field' || ($creating && !in_array($paint_node->attributes['name'], $create_sections[$section->attributes['name']]))) continue;
+
+						$o->openField($field->children[0]->content, $field->attributes['format']);
 
 						if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
 							echo 'Function not found for painting';
@@ -310,10 +317,11 @@ class Asset_Edit_Interface extends Resolve_Object
 				// Loop over the fields
 				for($j = 0; $j < $num_fields; $j++) {
 					$field = &$section->children[$j];
-					// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
-					if ($field->name != 'field' || ($creating && (empty($field->attributes['attribute']) || !in_array($field->attributes['attribute'], $create_sections[$section->attributes['name']])))) continue;
 
 					if (!empty($field->attributes['attribute'])) {
+						// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
+						if ($field->name != 'field' || ($creating && (empty($field->attributes['attribute']) || !in_array($field->attributes['attribute'], $create_sections[$section->attributes['name']])))) continue;
+
 						$attr = &$owner->getAttribute($field->attributes['attribute']);
 						if (is_null($attr)) continue;
 						if (!$attr->setEditParams($field->children[2])) continue;
@@ -324,6 +332,9 @@ class Asset_Edit_Interface extends Resolve_Object
 					} else if ($field->children[2]->name == 'function_call') {
 
 						$process_node = &$field->children[2]->children[1];
+
+						// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
+						if ($field->name != 'field' || ($creating && !in_array($process_node->attributes['name'], $create_sections[$section->attributes['name']]))) continue;
 
 						// if there is nothing declared there is nothing for use to do
 						if (empty($process_node->attributes['name'])) {
@@ -409,7 +420,13 @@ class Asset_Edit_Interface extends Resolve_Object
 			for($j = 0; $j < count($section->children); $j++) {
 				$field = &$section->children[$j];
 				if ($field->name != 'field') continue;
-				if (isset($field->attributes['attribute'])) $create_sections[$section->attributes['name']][] = $field->attributes['attribute'];
+				
+				if (!empty($field->attributes['attribute'])) {
+					$create_sections[$section->attributes['name']][] = $field->attributes['attribute'];
+				} else if ($field->children[1]->name == 'function_call') {
+					$process_node = &$field->children[1]->children[0];
+					$create_sections[$section->attributes['name']][] = $process_node->attributes['name'];
+				}// end if
 
 			}// end for
 
