@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: indexing_manager.inc,v 1.10 2004/02/10 04:14:20 gsherwood Exp $
+* $Id: indexing_manager.inc,v 1.11 2004/02/10 15:51:03 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@
 * Handles requests for indexing keydata from searchable assets, and handles search requests.
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.10 $ - 1.0
+* @version $Revision: 1.11 $ - 1.0
 * @package MySource_Matrix
 */
 class Indexing_Manager extends MySource_Object
@@ -51,12 +51,11 @@ class Indexing_Manager extends MySource_Object
 	* Signify that the keydata should be flushed and freshly retrieved
 	*
 	* @param int		$assetid	ID of the asset
-	* @param string		$component	the component to which the keydata pertains (e.g. metadata or attribute)
 	*
 	* @return void
 	* @access public
 	*/
-	function changed($assetid, $component=null)
+	function changed($assetid)
 	{
 		if (!$assetid) return;
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
@@ -66,10 +65,10 @@ class Indexing_Manager extends MySource_Object
 		$changed_assetids[] = $assetid;
 
 		foreach ($changed_assetids as $assetid) {
-			$this->flushKeyData($assetid, $component);
+			$this->flushKeyData($assetid);
 
 			$asset = &$am->getAsset($assetid);
-			$new_key_data = $asset->getKeyData($component);
+			$new_key_data = $asset->getKeyData();
 
 			$this->addKeyData($assetid, $new_key_data);
 		}
@@ -81,20 +80,15 @@ class Indexing_Manager extends MySource_Object
 	* Flush the keydata for an asset
 	*
 	* @param int		$assetid	ID of the asset
-	* @param boolean	$component	the component to which the keydata pertains (e.g. metadata or attribute)
 	*
 	* @return void
 	* @access public
 	*/
-	function flushKeyData($assetid, $component=false)
+	function flushKeyData($assetid)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'asset_indexing
 				WHERE assetid = '.$db->quote($assetid);
-
-		if ($component !== false) {
-			$sql .= ' AND component = '.$db->quote($component);
-		}
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
@@ -160,7 +154,7 @@ class Indexing_Manager extends MySource_Object
 	* @return void
 	* @access public
 	*/
-	function addKeyDatum($assetid, $value, $type = 'text', $component = '')
+	function addKeyDatum($assetid, $value, $type='text', $component='')
 	{
 		if (!$assetid || !$value) return;
 		if (is_null($type)) $type = 'text';
