@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #/**
 #* +--------------------------------------------------------------------+
 #* | Squiz.net Open Source Licence                                      |
@@ -18,7 +18,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.10 2005/02/14 13:59:39 brobertson Exp $
+#* $Id: backup.sh,v 1.11 2005/03/08 20:18:13 brobertson Exp $
 #* $Name: not supported by cvs2svn $
 #*/
 
