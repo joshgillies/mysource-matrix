@@ -29,12 +29,12 @@ class Bodycopy_Table_Management extends Asset_Management
 												),
 							'rows' => Array(
 												'added'     => '0.0.1',
-												'type'      => 'serialise',  'default'   => '',
+												'type'      => 'serialise',  'default'   => Array(),
 												'update_fn' => ''
 												),
 							'attributes' => Array(
 												'added'     => '0.0.1',
-												'type'      => 'serialise',  'default'   => '',
+												'type'      => 'serialise',  'default'   => Array(),
 												'update_fn' => ''
 												)
 							);
