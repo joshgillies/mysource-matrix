@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap.inc,v 1.6 2005/01/20 13:32:23 brobertson Exp $
+* $Id: ldap.inc,v 1.7 2005/02/27 21:43:52 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     To provide an interface to an LDAP directory server for basic functionality
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package Fudge
 * @subpackage ldap
 */
@@ -169,8 +169,9 @@ class Ldap
 	*/
 	function connectAsUser($bdn, $pass)
 	{
-		$conn_result = $this->connect($this->host, $this->port, $pass, $bdn);
-		return $conn_result;
+		$conn_result = $this->connect($this->host, $this->port);
+		if (!$conn_result) return false;
+		return $this->bind($bdn, $pass);
 
 	}//end connectAsUser()
 
