@@ -74,6 +74,13 @@ class Asset extends Resolve_Object
 	var $vars = Array();
 
 	/**
+	* The suffix for the data path to be used for public, private, and file versioning
+	*
+	* @var string
+	*/
+	var $data_path_suffix = '';
+	
+	/**
 	* The current data path for this asset
 	* This always points to the restricted directory but may also
 	* point to the .sq_system directory within it
@@ -835,14 +842,15 @@ class Asset extends Resolve_Object
 
 	/**
 	* Sets up the data paths for this asset
-	* Also takes into account if we are using a cached version
+	* Also takes into account if we are using a system version
 	*
 	* @access private
 	*/
 	function _loadDataPaths()
 	{
-		$this->data_path = SQ_DATA_PATH.'/private/assets/'.$this->type().'/'.$this->id;
-		$this->data_path_public = SQ_DATA_PATH.'/public/assets/'.$this->type().'/'.$this->id;
+		$this->data_path_suffix = 'assets/'.$this->type().'/'.$this->id;
+		$this->data_path = SQ_DATA_PATH.'/private/'.$this->data_path_suffix;
+		$this->data_path_public = SQ_DATA_PATH.'/public/'.$this->data_path_suffix;
 		if ($this->useSystemVersion()) $this->data_path .= '/.sq_system';
 
 	}//end _loadDataPaths()
