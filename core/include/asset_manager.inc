@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.195 2004/03/30 07:09:05 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.196 2004/03/30 10:16:30 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1953,7 +1953,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
 	{
-		if (!is_int($assetid) || !$assetid) {
+		if (!$assetid) {
 			trigger_error('Cannot get children, assetid is empty', E_USER_WARNING);
 			return Array();
 		}
