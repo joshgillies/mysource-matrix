@@ -39,10 +39,9 @@ mcMoveIndicatorClass.prototype.startIndicator = function(on_end_obj, on_end_fn)
 	this.parent_assetid		= 0;
 	this.relative_pos		= -1;
 
-	this.drawLine();
-
 	this.onMouseMove		= this.checkPositions;
 	this.refresh			= this.drawLine;
+	this.drawLine();
 	return true;
 
 }// end startIndicator()
@@ -149,6 +148,7 @@ mcMoveIndicatorClass.prototype.checkPositions = function()
 		}// end if
 
 		this._visible = true;
+		this.refresh();
 
 	}// end if action
 
@@ -184,7 +184,8 @@ mcMoveIndicatorClass.prototype.drawLine = function()
 	this.clear();
 	this.lineStyle(1, this.line_colour, 100);
 	this.moveTo(0, 0);
-	this.lineTo(this._parent._width - this._x, 0);
+	
+	this.lineTo(this._parent._parent.scroll_pane.getInnerPaneWidth() - this._x, 0);
 
 }
 
