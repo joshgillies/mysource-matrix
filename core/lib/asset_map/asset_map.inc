@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.164 2004/12/06 15:55:55 brobertson Exp $
+* $Id: asset_map.inc,v 1.165 2005/01/13 22:23:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.164 $
+* @version $Revision: 1.165 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -390,7 +390,7 @@ class Asset_Map
 		$userid_cond = '';
 		if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-				$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
+				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
 				array_push($userids, 0, $GLOBALS['SQ_SYSTEM']->user->id);
 				for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
 					$userids[$k] = $db->quote($userids[$k]);
@@ -523,7 +523,7 @@ class Asset_Map
 			if (empty($asset['accessible']) || $asset['accessible'] < 1) $asset['accessible'] = 0;
 			if ($asset['accessible'] > 1) $asset['accessible'] = 1;
 
-			if (!empty($asset['url'])) $asset['url'] = $asset['protocol'].'://'.$asset['url'];
+			if (!empty($asset['url']) && isset($asset['protocol'])) $asset['url'] = $asset['protocol'].'://'.$asset['url'];
 
 			$attrs = Array(
 				'assetid'       => urlencode($asset['assetid']),
