@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.70 2004/08/20 06:46:18 amiller Exp $
+* $Id: design_edit_fns.inc,v 1.71 2004/08/21 08:18:53 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1015,6 +1015,18 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			return false;
 		}
 		
+		// no ampersands in css file name
+		$new_name = str_replace('&', '_and_',  $new_name);
+
+		// no spaces in css file name
+		$new_name = preg_replace('/\\s+/', '_', $new_name);
+		
+		// Taken (in part) from info here -> http://www.w3.org/Addressing/URL/5_URI_BNF.html
+		$new_name = preg_replace('/[^a-zA-Z0-9\-$_@.!*~(),]/', '',  $new_name);
+		
+		// ensure a virtual .css file extension
+		if (substr($new_name, -4) != '.css') $new_name = $new_name.'.css';
+		
 		$existing_ids = Array();
 		$existing = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3, 'design_css', false);
 		foreach ($existing as $link) $existing_ids[$link['minorid']] = $link['linkid'];
@@ -1066,8 +1078,22 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			} 
-
 		}
+		
+		// link up all the files from this design to the new CSS file
+		$file_link_ids = Array();
+		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', false);
+
+		foreach ($file_links as $link) {
+			$minor = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			if (!$css_file->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
+				trigger_error('Failed creating file link to CSS file', E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($minor);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+		}
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($minor);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 

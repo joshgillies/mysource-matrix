@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_edit_fns.inc,v 1.1 2004/08/20 06:48:30 amiller Exp $
+* $Id: design_css_edit_fns.inc,v 1.2 2004/08/21 08:18:53 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -91,6 +91,53 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		return parent::_parseString($asset, $file_contents);
 
 	}//end _parseString()
+	
+	
+	/**
+	* Creates a new file asset, populates it, and links it to $asset
+	* @param object Asset	$asset	the asset to link the file to
+	* @param array			$info	info about the uploaded file
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _processUploadedFile(&$asset, $info=Array())
+	{
+		// if we already have a file with the same name TYPE_3 linked to us,
+		// delete this link so we link up this new file
+		$existing_ids = Array();
+		$existing = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3, 'file', false);
+		foreach ($existing as $link) $existing_ids[$link['minorid']] = $link['linkid'];
+		$existing_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($existing_ids));
+		foreach ($existing_info as $existing_info) {
+			// if the name is the same, delete the link
+			if ($existing_info['name'] == $info['name']) {
+				$linkid = $existing_ids[$existing_info['assetid']];
+				$asset->deleteExistingLink($linkid);
+				$asset->updateLookups();
+			}
+		}
+
+		return parent::_processUploadedFile($asset, $info);
+
+	}//end _processUploadedFile()
+	
+	
+	/**
+	* Paint the interface for the virtual path to the current css file
+	*
+	* @param object Asset				$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintVirtualPath(&$asset, &$o, $prefix)
+	{
+		echo 'mysource_css/'.$asset->attr('id_name');
+		return false;
+	}//end paintVirtualPath()
 	
 	
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.1 2004/08/20 06:48:30 amiller Exp $
+* $Id: design_css.inc,v 1.2 2004/08/21 08:18:53 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -66,13 +66,113 @@ class Design_Css extends Design
 		return Array(SQ_LINK_TYPE_1 => Array(),
 					 SQ_LINK_TYPE_2 => Array('design_customisation' => Array('card' => 'M', 'exclusive' => false),
 											 'file'                 => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_TYPE_3 => Array('design_area'          => Array('card' => 'M', 'exclusive' => false)),
+					 SQ_LINK_TYPE_3 => Array('design_area'          => Array('card' => 'M', 'exclusive' => false),
+											 'file'                 => Array('card' => 'M', 'exclusive' => false)),
 					 SQ_LINK_NOTICE => Array()
 					);
 
 	}//end _getAllowedLinks()
 
 
+	/**
+	* Removes a link where this asset is the major player
+	*
+	* @param int	$linkid	the link id of the link to remove
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteLink($linkid)
+	{
+		// first, we should try and find the link
+		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
+		if (empty($delete_link)) {
+			trigger_error('Existing Link #'.$linkid.' not found, unable to delete link', E_USER_WARNING);
+			return false;
+		}
+
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$minor = &$am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		if (!$this->deleteExistingLink($linkid)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		// special processing if we are deleting a TYPE_2 linked file (a file overridding a design file)
+		if ($delete_link['link_type'] == SQ_LINK_TYPE_2 && is_a($minor, 'file')) {
+
+			$design =& $this->getParentDesign();
+
+			// go through all the links of the design we are customisaing and find a file
+			// linked to it with the same name as the one we just deleted so it can take its place
+			$file_link_ids = Array();
+			$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($design->id, SQ_LINK_TYPE_2, 'file', false);
+			foreach ($file_links as $link) $file_link_ids[$link['minorid']] = $link['linkid'];
+			$file_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($file_link_ids));
+
+			foreach ($file_link_info as $info) {
+				if ($info['name'] == $minor->name) {
+					// found the link to create
+					$new_minor = &$am->getAsset($info['assetid']);
+					if (!$this->createLink($new_minor, SQ_LINK_TYPE_3, '', null, '1')) {
+						trigger_error('Failed creating file link to CSS file', E_USER_WARNING);
+						$am->forgetAsset($design);
+						$am->forgetAsset($new_minor);
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
+					}
+					$am->forgetAsset($new_minor);
+				}
+			}// end foreach $file_links
+
+			$am->forgetAsset($design);
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
+
+	}//end deleteLink()
+
+
+	/**
+	* Does the actual removing of the link for the customisation
+	*
+	* The default deleteLink() replaces the (Type-2) links of any customised design files with a Type-3
+	* to the uncustomised version. This screws things around when creating the customised versions in
+	* the first place.
+	*
+	* @param int	$linkid	the link id of the link to remove
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteExistingLink($linkid) {
+		// first, we should try and find the link
+		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
+		if (empty($delete_link)) {
+			trigger_error('Existing Link #'.$linkid.' not found, unable to delete link', E_USER_WARNING);
+			return false;
+		}
+
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$minor = &$am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		if (!parent::deleteLink($linkid)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return true;
+
+	}//end deleteExistingLink()
+	
+	
 	/**
 	* Prints out the Frontend for this asset
 	* it's up to the kids to override
@@ -170,7 +270,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 	{
 		// generate an array of all the URLs we are going to need for the files in this design
 		$file_link_ids = Array();
-		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'file', false);
+		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', false);
 
 		foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
 
