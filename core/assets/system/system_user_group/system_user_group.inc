@@ -140,14 +140,16 @@ class System_User_Group extends User_Group
 
 	/**
 	* Returns true if at least one of the passed assetids has the passed permission
+	* Does not check current status of lock
 	*
-	* @param array $assetids An array of user_group and/or user ids to check for permission
-	*						 If the array is empty, the current user will be checked
+	* @param int	$perm		the permission to check access for
+	* @param array	$assetids	An array of user_group and/or user ids to check for permission
+	*							If the array is empty, the current user will be checked
 	*
 	* @return boolean
 	* @access public
 	*/
-	function checkAccess($perm, $assetids=Array())
+	function _checkPermissionAccess($perm, $assetids=Array())
 	{
 		// we have to be root to do anything in here
 		if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
