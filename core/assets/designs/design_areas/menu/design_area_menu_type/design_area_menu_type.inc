@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.46 2004/04/08 02:19:53 gsherwood Exp $
+* $Id: design_area_menu_type.inc,v 1.47 2004/08/02 00:04:22 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -622,6 +622,18 @@ class Design_Area_Menu_Type extends Design_Area
 				case 'asset_name' :
 					if ($id_name) {
 						echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$'.$id_name.'_row[\'name\']'.$value_suffix, $args), '; ?', '>';
+					}
+					break;
+					
+				case 'asset_thumbnail' :
+					if ($id_name) {
+						echo '<', '?php ';
+						echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($'.$id_name.'_row[\'assetid\'], SQ_LINK_NOTICE, \'thumbnail\', true, \'thumbnail\');'."\n";
+						echo 'if (!empty($link)) {'."\n";
+						echo '$thumbnail = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
+						echo 'echo $thumbnail->printImageTag($'.$id_name.'_row[\'name\'], true);'."\n";
+						echo '}'."\n";
+						echo '?', '>';
 					}
 					break;
 
