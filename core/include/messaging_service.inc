@@ -22,19 +22,13 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 */
 class Messaging_Service extends Resolve_Object
 {
-
 	/**
-	* An array of message objects to send
-	* @var Array(Internal_Message)
-	*/
-	var $message_queue;
-
-	/**
-	* How many levels of queues we are deep
+	* Temporary holder for messages added to each level of a queue, 
+	* also adds as the counter for how many levels deep we are
 	*
-	* @var string()
+	* @var Array()
 	*/
-	var $_levels;
+	var $_levels = Array();
 
 
 	/**
@@ -44,8 +38,6 @@ class Messaging_Service extends Resolve_Object
 	function Messaging_Service()
 	{
 		$this->Resolve_Object();
-		$this->message_queue = Array();
-		$this->_levels = 0;
 
 	}//end constructor
 
@@ -74,13 +66,13 @@ class Messaging_Service extends Resolve_Object
 	*/
 	function openQueue()
 	{
-		return $this->_levels++;
+		array_push($this->_levels, Array());
 
 	}//end openQueue()
 
 
 	/**
-	* Closes a queue or nested queue
+	* Closes a queue or nested queue, and add's it messages to the main queue
 	* If the last queue is closed, the messages in the queue are sent
 	*
 	* @return boolean
@@ -88,14 +80,40 @@ class Messaging_Service extends Resolve_Object
 	*/
 	function closeQueue()
 	{
-		$this->_levels--;
-		if ($this->_levels == 0) {
+		// remove the current levels messages
+		$msgs = array_pop($this->_levels);
+
+		// add them to the level above or the main queue
+		if (empty($this->_levels)) {
 			// this is the last queue
-			return $this->sendAll();
-		}
-		return true;
+			return $this->send($msgs);
+
+		} else {
+			foreach($msgs as $msg) {
+				array_push($this->_levels[count($this->_levels) - 1], $msg);
+			}
+			return true;
+
+		}// end if
 
 	}//end closeQueue()
+
+
+	/**
+	* Aborts a queue or nested queue, and removes it's messages from the queue
+	* Closes a queue or nested queue
+	* If the last queue is closed, the messages in the queue are sent
+	*
+	* @return boolean
+	* @access public
+	*/
+	function abortQueue()
+	{
+		// remove the current levels messages
+		array_pop($this->_levels);
+		return true;
+
+	}//end abortQueue()
 
 
 	/**
@@ -103,29 +121,30 @@ class Messaging_Service extends Resolve_Object
 	*
 	* @param object Internal_Message	$message	the message to add to the queue
 	*
-	* @return boolean
+	* @return void
 	* @access public
 	*/
 	function enqueueMessage($message)
 	{
-		return $this->message_queue[] = $message;
-
+		array_push($this->_levels[count($this->_levels) - 1], $message);
 	}//end enqueueMessage()
 
 
 	/**
-	* Sends all messages waiting in the queue
+	* Sends all messages passed in, doing some amalgamation of msg bodies for same user and same subject
 	*
-	* @return object Interal_Message
+	* @param Array()	$msgs	an array of Internal_Message to send
+	*
+	* @return void
 	* @access public
 	*/
-	function sendAll()
+	function send($msgs)
 	{
 		// lets try and work out if any of the messages to be
 		// sent can actually be amalgamated based on who the message is being
 		// sent to, who it is from, and the subject line of the message
 		$send_queue = Array();
-		foreach ($this->message_queue as $msg) {
+		foreach ($msgs as $msg) {
 			$to_ids = $msg->expandUsersTo();
 			foreach ($to_ids as $assetid) {
 				$send_queue[$assetid][$msg->subject][$msg->from]['bodies'][] = $msg->body;
@@ -157,12 +176,7 @@ class Messaging_Service extends Resolve_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		// clean out the message queue
-		$this->message_queue = Array();
-
-		return true;
-
-	}//end sendAll()
+	}//end send()
 
 
 	/**
