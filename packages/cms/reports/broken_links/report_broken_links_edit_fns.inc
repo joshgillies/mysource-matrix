@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_broken_links_edit_fns.inc,v 1.4 2004/07/06 07:19:06 gsherwood Exp $
+* $Id: report_broken_links_edit_fns.inc,v 1.5 2004/07/06 07:39:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -69,7 +69,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 		$owner = &$GLOBALS['SQ_SYSTEM']->am->getAsset($job->_running_vars['assetid'], 'report_broken_links');
 
 		if (!isset($job->_running_vars['results'])) {
-			$job->_running_vars['todo'] = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->getRootAssetid($owner), 'content_type_wysiwyg', false);
+			$job->_running_vars['todo'] = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->getRootAssetid($owner), 'content_type', false);
 			$job->_running_vars['done'] = Array();
 			$job->_running_vars['results'] = Array();
 
@@ -98,61 +98,67 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 			$assetid = array_shift(array_keys($job->_running_vars['todo']));
 			$asset_type = $job->_running_vars['todo'][$assetid];
 			unset($job->_running_vars['todo'][$assetid]);
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
-
-			if (!is_null($asset)) {
-				$step_data['message'] = 'Generating broken links report...';
-				
-				$wysiwyg_html = $asset->attr('html');
-				
-				$master_matches = Array();
-				preg_match_all('%(href|src)=[\'"]([^\'\s"]*)%', $wysiwyg_html, $master_matches);
-				$matches = $master_matches[2];
-			
-				foreach ($matches as $match) {
-					// skip keywords
-					$keywords = retrieve_keywords_replacements($match);
-					if (count($keywords) == 1 && $match == '%'.$keywords[0].'%') continue;
-					
-					if (!$match) continue;
-					$link_valid = '0';
-					$link_description = '';
-					$link_type = '';
-
-					$results = Array();
-					preg_match('|\./\?a=([0-9]+)|',$match, $results);
-
-					$validated_results = false;
-					if (!empty($results)) {
-						$link_type = 'internal';
-						$validated_results = $this->validateInternalLink($results[1]);
-					} else {
-						if (strpos(strtolower($match), 'mailto') === 0) {
-							$link_type = 'mailto';
-							$match = preg_replace('/mailto:/i','',$match);
-							list($match) = explode('?',$match);
-							$match = trim($match);
-							$validated_results = $this->validateEmailLink($match);
-						} else {
-							$link_type = 'external';
-							$validated_results = $this->validateExternalLink($match);
-						}
-					}
-					
-					if ($validated_results === false) continue;
-					
-					fwrite($temp_file, "\t<link assetid=\"".$asset->id."\" type=\"$link_type\" valid=\"".$validated_results['valid']."\">\n");
-					fwrite($temp_file, "\t\t<html>$match</html>\n");
-					fwrite($temp_file, "\t\t<description>".$validated_results['description']."</description>\n");
-					fwrite($temp_file, "\t</link>\n");
-				}//end foreach
-
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-				unset($asset);
+			if ($asset_type == 'content_type_nest_content') {
+				$step_data['message'] = 'Skipping nest content cell '.$assetid;
 			} else {
-				$step_data['message'] = 'Skipping asset '.$assetid;
-				$job->_addError('Could not generate broken links report for assetd #'.$assetid.', asset does not exist');
-			}
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
+	
+				if (!is_null($asset)) {
+					$step_data['message'] = 'Generating broken links report...';
+					
+					$wysiwyg_html = $asset->attr('html');
+					
+					$master_matches = Array();
+					preg_match_all('%(href|src)=[\'"]([^\'\s"]*)%', $wysiwyg_html, $master_matches);
+					$matches = $master_matches[2];
+				
+					foreach ($matches as $match) {
+						// skip keywords
+						$keywords = retrieve_keywords_replacements($match);
+						if (count($keywords) == 1 && $match == '%'.$keywords[0].'%') continue;
+						
+						if (!$match) continue;
+						$link_valid = '0';
+						$link_description = '';
+						$link_type = '';
+	
+						$results = Array();
+						preg_match('|\./\?a=([0-9]+)|',$match, $results);
+	
+						$validated_results = false;
+						if (!empty($results)) {
+							$link_type = 'internal';
+							$validated_results = $this->validateInternalLink($results[1]);
+						} else {
+							if (strpos(strtolower($match), 'mailto') === 0) {
+								$link_type = 'mailto';
+								$match = preg_replace('/mailto:/i','',$match);
+								list($match) = explode('?',$match);
+								$match = trim($match);
+								$validated_results = $this->validateEmailLink($match);
+							} else {
+								$link_type = 'external';
+								$validated_results = $this->validateExternalLink($match);
+							}
+						}
+						
+						if ($validated_results === false) continue;
+						
+						fwrite($temp_file, "\t<link assetid=\"".$asset->id."\" type=\"$link_type\" valid=\"".$validated_results['valid']."\">\n");
+						fwrite($temp_file, "\t\t<html>$match</html>\n");
+						fwrite($temp_file, "\t\t<description>".$validated_results['description']."</description>\n");
+						fwrite($temp_file, "\t</link>\n");
+					}//end foreach
+	
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+					unset($asset);
+
+				} else {
+					$step_data['message'] = 'Skipping asset '.$assetid;
+					$job->_addError('Could not generate broken links report for assetd #'.$assetid.', asset does not exist');
+				}
+
+			}//end if nest content cell
 
 			// add this assetid to the done array so we dont do it again
 			$job->_running_vars['done'][] = $assetid;
