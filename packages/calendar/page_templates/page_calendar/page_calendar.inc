@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.82 2004/09/14 23:58:26 lwright Exp $
+* $Id: page_calendar.inc,v 1.83 2004/09/15 00:14:45 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,9 +36,9 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.82 $ - 1.0
+* @version $Revision: 1.83 $ - 1.0
 * @package MySource_Matrix_Packages
-* @subpackage cms
+* @subpackage calendar
 */
 class Page_Calendar extends Page_Asset_Listing
 {
@@ -548,7 +548,7 @@ class Page_Calendar extends Page_Asset_Listing
 		ob_end_clean();
 		return $res;
 
-	}//end getYearView();
+	}//end getYearView()
 
 
 	/**
@@ -865,6 +865,7 @@ class Page_Calendar extends Page_Asset_Listing
 		}
 		$res .= '</ul>';
 		return $res;
+    
 	}//end _getTitleList()
 
 
@@ -1166,7 +1167,7 @@ class Page_Calendar extends Page_Asset_Listing
 		</form>
 	<?php
 
-	}//end _printEventDraggingScript
+	}//end _printEventDraggingScript()
 
 
 	function _printPopupsScript()
@@ -1586,7 +1587,6 @@ class Page_Calendar extends Page_Asset_Listing
 		$this->_processExceptions($res);
 
 		return $res;
-
 
 	}//end getDayEvents()
 
