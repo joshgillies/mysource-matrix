@@ -1651,7 +1651,12 @@ class Asset_Edit_Interface extends Resolve_Object
 						$step_logic = $step_data['logic'];
 						$step_logic_num = '';
 					} else {
-						list($step_logic, $step_logic_num) = explode(' ', $step_data['logic']);
+						if ($step_data['logic'] != '') {
+							list($step_logic, $step_logic_num) = explode(' ', $step_data['logic']);
+						} else {
+							$step_logic = '';
+							$step_logic_num = '';
+						}
 					}
 
 					echo '<i>'.$wfm->_valid_step_logic[$step_logic];
