@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.9 2004/05/12 07:04:56 lwright Exp $
+* $Id: form_question_type_datetime.inc,v 1.10 2004/05/17 05:13:11 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -257,5 +257,36 @@ class Form_Question_Type_Datetime extends Form_Question
 	}//end getSummary()
 
 
+	/**
+	* returns an answer summary in XML format (suitable for submission logs)
+	* 
+	* @access public
+	* @return string
+	*/
+	function getXML($answer)
+	{
+		$allow_circa = false;
+
+		$show_params = $this->attr('show');
+		if ($show_params['c']) {
+			$allow_circa = true;
+		}
+
+		if ($allow_circa) {
+			list($date, $time, $circa) = explode(' ', $answer);
+		} else {
+			list($date, $time) = explode(' ', $answer);
+			$circa = 0;
+		}
+
+		echo '<datetime_q id="'.addslashes($this->id).'"  name="'.addslashes($this->attr('name')).'"'.($circa ? ' circa="1"' : '').'>';
+
+		$iso = $date . 'T' . $time;
+		print $iso;
+
+		echo '</datetime_q>';
+	}//end getXML()
+	
+	
 }//end class
 ?>

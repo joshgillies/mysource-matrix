@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text.inc,v 1.19 2004/05/12 06:43:42 lwright Exp $
+* $Id: form_question_type_text.inc,v 1.20 2004/05/17 05:13:11 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -152,5 +152,21 @@ class Form_Question_Type_Text extends Form_Question
 
 	}//end getAllowedRules()
 
+
+	/**
+	* returns an answer summary in XML format (suitable for submission logs)
+	* 
+	* @access public
+	* @return string
+	*/
+	function getXML($answer)
+	{
+		echo '<text_q id="'.addslashes($this->id).'"  name="'.addslashes($this->attr('name')).'">';
+		echo htmlspecialchars($answer);
+		echo '</text_q>';
+
+	}//end getXML()
+	
+	
 }//end class
 ?>

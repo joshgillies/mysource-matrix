@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_password.inc,v 1.8 2004/05/05 07:10:14 lwright Exp $
+* $Id: form_question_type_password.inc,v 1.9 2004/05/17 05:13:11 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -193,5 +193,21 @@ class Form_Question_Type_Password extends Form_Question
 	}//end answeredCorrectly()
 
 
+	/**
+	* returns an answer summary in XML format (suitable for submission logs)
+	* 
+	* @access public
+	* @return string
+	*/
+	function getXML($answer)
+	{
+		// save as a text question for now, we may need a better idea here
+		echo '<text_q id="'.addslashes($this->id).'"  name="'.addslashes($this->attr('name')).'">';
+		echo htmlspecialchars($answer);
+		echo '</text_q>';
+
+	}//end getXML()
+	
+	
 }//end class
 ?>
