@@ -1,3 +1,4 @@
+
 <?php
 /**
 * +--------------------------------------------------------------------+
@@ -18,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_edit_fns.inc,v 1.2 2004/02/06 05:54:02 gsherwood Exp $
+* $Id: ldap_bridge_edit_fns.inc,v 1.3 2004/02/10 16:35:43 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +37,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge_edit_fns.inc';
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
-class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
+class LDAP_Bridge_Edit_Fns extends Bridge_Edit_Fns
 {
 
 
@@ -46,7 +47,7 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function LDAP_Bridge_Edit_Fns()
 	{
-		$this->Asset_Edit_Fns();
+		$this->Bridge_Edit_Fns();
 
 		$this->static_screens = Array(	'details'		=> Array(
 															'name'			=> 'Details',
