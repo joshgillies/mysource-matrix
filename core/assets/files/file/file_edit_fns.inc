@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.46 2004/12/03 15:29:22 brobertson Exp $
+* $Id: file_edit_fns.inc,v 1.46.2.1 2005/02/11 05:43:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -142,7 +142,10 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			// return on failed or no upload
 			if ($info === false || empty($info)) return false;
 		}
-		
+
+		// make the info array look like a result from getExistingFile()
+		if (!isset($info['path'])) $info['path'] = array_get_index($info, 'tmp_name', '');
+		if (!isset($info['filename'])) $info['filename'] = array_get_index($info, 'name', '');
 		if (!$asset->validFile($info)) return false;
 
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thumbnail.inc,v 1.15 2004/11/29 02:14:16 gsherwood Exp $
+* $Id: thumbnail.inc,v 1.15.2.1 2005/02/11 05:43:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -78,7 +78,7 @@ class Thumbnail extends Image
 		if (!parent::validFile($info)) return false;
 
 		// check that the image dimensions are not greater than our limits
-		$size = @getimagesize($info['tmp_name']);
+		$size = @getimagesize($info['filename']);
 		if (!empty($size) && ($size[0] > $this->max_width || $size[1] > $this->max_height)) {
 			trigger_error('Uploaded file is too large. Thumbnails must be no more than '.$this->max_width.' x '.$this->max_height.' pixels', E_USER_WARNING);
 			return false;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc.inc,v 1.8 2004/12/03 15:29:22 brobertson Exp $
+* $Id: word_doc.inc,v 1.8.2.1 2005/02/11 05:43:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -75,7 +75,7 @@ class Word_Doc extends File
 
 		// check that the extension is allowed
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		$ext = get_file_type($info['name']);
+		$ext = get_file_type($info['filename']);
 		if (!in_array($ext, $this->allowed_extensions)) {
 			trigger_error('Uploaded file is not an MS Word document. Word doc files must be of type doc or dot', E_USER_WARNING);
 			return false;

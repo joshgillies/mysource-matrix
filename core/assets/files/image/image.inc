@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.16 2004/11/29 02:14:15 gsherwood Exp $
+* $Id: image.inc,v 1.16.2.1 2005/02/11 05:43:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -73,7 +73,7 @@ class Image extends File
 
 		// check that the extension is allowed
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		$ext = get_file_type($info['name']);
+		$ext = get_file_type($info['filename']);
 		if (!in_array($ext, $this->allowed_extensions)) {
 			$edit_fns = $this->getEditFns();
 			trigger_error('Uploaded file is not an image. Image files must be of type '.$edit_fns->_getExtensionString($this->allowed_extensions, 'or').'. The uploaded file is of type "'.strtoupper($ext).'"', E_USER_WARNING);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.75 2004/12/03 15:29:22 brobertson Exp $
+* $Id: file.inc,v 1.75.2.1 2005/02/11 05:43:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -212,7 +212,7 @@ class File extends Asset
 			$tmp = new $new_type_code();
 			$existing = $this->_getExistingFile();
 			if (!empty($existing)) {
-				if (!$tmp->validFile($existing['path'])) {
+				if (!$tmp->validFile($existing)) {
 					trigger_error('Cannot morph "'.$this->name.'" to type "'.$new_type_code.'", currently uploaded file "'.$existing['filename'].'" is not a valid '.$new_type_code.' file (see above error)', E_USER_WARNING);
 					return false;
 				}
@@ -288,7 +288,10 @@ class File extends Asset
 				return false;
 			}
 		}
-		
+
+		// make the info array look like a result from getExistingFile()
+		if (!isset($info['path'])) $info['path'] = array_get_index($info, 'tmp_name', '');
+		if (!isset($info['filename'])) $info['filename'] = array_get_index($info, 'name', '');
 		if (!$this->validFile($info)) return false;
 
 		// check that we are not going to have web path conflicts
@@ -750,7 +753,7 @@ class File extends Asset
 	function validFile($info)
 	{
 		// check the file size to ensure we are not violating any restrictions
-		$size = filesize($info['tmp_name']);
+		$size = filesize($info['path']);
 		$max_size = strtolower($GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_FILE_MAX_SIZE'));
 		if (!$max_size) return true;
 
