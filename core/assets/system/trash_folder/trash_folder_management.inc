@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: trash_folder_management.inc,v 1.8 2003/09/26 05:26:29 brobertson Exp $
+* $Id: trash_folder_management.inc,v 1.9 2003/10/15 11:05:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,6 +29,11 @@ class Trash_Folder_Management extends Asset_Management
 	function Trash_Folder_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
+		$this->vars =	Array(
+							'name' => Array(
+								'default' => 'Trash',
+							),
+						);
 
 	}//end constructor
 

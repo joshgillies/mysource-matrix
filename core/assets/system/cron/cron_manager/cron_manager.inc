@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: cron_manager.inc,v 1.22 2003/10/10 06:49:23 brobertson Exp $
+* $Id: cron_manager.inc,v 1.23 2003/10/15 11:05:14 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,25 +51,23 @@ class Cron_Manager extends Asset
 	*/
 	function create(&$link)
 	{
+		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
+		if (!system_asset_fns_create_pre_check($this)) return false;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$this->_tmp[__CLASS__.'_in_create'] = true;
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$where = 'type_code = '.$db->quote($this->type());
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-		$sql = 'SELECT COUNT(*) FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where;
-		$exists = $db->getOne($sql);
-		if (DB::isError($exists)) trigger_error($exists->getMessage().'<br/>'.$exists->getUserInfo(), E_USER_ERROR);
-
-		if ($exists) {
-			trigger_error('Unable to create another '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').', you are only allowed one', E_USER_WARNING);
-			return false;
+		if ($linkid = parent::create($link)) {
+			if (!system_asset_fns_create_cleanup($this))  {
+				$linkid = false;
+			}
 		}
 
-		$ret_val = parent::create($link);
-		unset($this->_tmp[__CLASS__.'_in_create']);
-		return $ret_val;
+		if ($linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
+
+		return $linkid;
 
 	}//end create()
 

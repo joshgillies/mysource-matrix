@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: root_folder_management.inc,v 1.9 2003/09/26 05:26:28 brobertson Exp $
+* $Id: root_folder_management.inc,v 1.10 2003/10/15 11:05:15 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,12 @@ class Root_Folder_Management extends Asset_Management
 
 		// only need to have the default here because the other information will be 
 		// gleaned from the 'folder' type
-		$this->vars = Array('name' => Array('default' => '/'));
+		$this->vars =	Array(
+							'name' => Array(
+								'default' => 'Root Folder',
+							),
+						);
+
 
 	}//end constructor
 

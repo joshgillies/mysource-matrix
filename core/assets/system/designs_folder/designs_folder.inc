@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: designs_folder.inc,v 1.14 2003/10/10 06:49:24 brobertson Exp $
+* $Id: designs_folder.inc,v 1.15 2003/10/15 11:05:15 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -45,27 +45,23 @@ class Designs_Folder extends Folder
 	*/
 	function create(&$link)
 	{
+		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
+		if (!system_asset_fns_create_pre_check($this)) return false;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$this->_tmp[__CLASS__.'_in_create'] = true;
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$where = 'type_code = '.$db->quote($this->type());
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-		$sql = 'SELECT COUNT(*) FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where;
-		$exists = $db->getOne($sql);
-		if (DB::isError($exists)) trigger_error($exists->getMessage().'<br/>'.$exists->getUserInfo(), E_USER_ERROR);
-
-		if ($exists) {
-			trigger_error('Unable to create another System Designs Folder, you are only allowed one', E_USER_WARNING);
-			return false;
+		if ($linkid = parent::create($link)) {
+			if (!system_asset_fns_create_cleanup($this))  {
+				$linkid = false;
+			}
 		}
 
-		$this->setAttrValue('name', 'System Designs');
+		if ($linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
 
-		$ret_val = parent::create($link);
-		unset($this->_tmp[__CLASS__.'_in_create']);
-		return $ret_val;
+		return $linkid;
 
 	}//end create()
 
@@ -83,7 +79,7 @@ class Designs_Folder extends Folder
 	*/
 	function &duplicate($dupe_directory=true)
 	{
-		trigger_error('Unable to duplicate Systems Designs Folder, you are only allowed one', E_USER_WARNING);
+		trigger_error('Unable to duplicate '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').', you are only allowed one', E_USER_WARNING);
 		$null = NULL; // 'cause we need to return by reference :)
 		return $null;
 	}//end duplicate()
@@ -101,7 +97,7 @@ class Designs_Folder extends Folder
 	*/
 	function morph($new_type_code)
 	{
-		trigger_error('Unable to morph Designs Folder', E_USER_WARNING);
+		trigger_error('Unable to morph '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
 		return false;
 	}//end morph()
 
@@ -117,8 +113,8 @@ class Designs_Folder extends Folder
 	*/
 	function setAttrValue($name, $value)
 	{
-		if ($name == 'name' && empty($this->_tmp[__CLASS__.'_in_create'])) {
-			trigger_error('You are not able to alter the name for the designs folder', E_USER_WARNING);
+		if ($name == 'name') {
+			trigger_error('You are not able to alter the name for the '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
 			return false;
 		}
 
@@ -147,7 +143,7 @@ class Designs_Folder extends Folder
 	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0')
 	{
 		if (empty($GLOBALS['SQ_INSTALL'])) {
-			trigger_error('You cannot create a new link to the designs folder', E_USER_WARNING);
+			trigger_error('You cannot create a new link to the '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
 			return 0;
 		
 		} else {
@@ -167,10 +163,23 @@ class Designs_Folder extends Folder
 	*/
 	function deleteLink($linkid)
 	{
-		trigger_error('You cannot delete anything from the designs folder', E_USER_WARNING);
+		trigger_error('You cannot delete anything from the '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
 		return false;
 
 	}// end deleteLink()
+
+
+	/**
+	* Can this asset have its last significant link removed (putting it in the trash)?
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canDelete()
+	{
+		return false;
+
+	}//end canDelete()
 
 
 	/*

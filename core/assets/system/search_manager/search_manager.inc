@@ -2,9 +2,10 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: search_manager.inc,v 1.3 2003/10/13 06:41:53 dwong Exp $
+* $Id: search_manager.inc,v 1.4 2003/10/15 11:05:15 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
+
 
 /**
 * Search_Manager
@@ -13,12 +14,10 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.3 $ - 0.1
+* @version $Revision: 1.4 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-
-require_once SQ_INCLUDE_PATH."/asset.inc";
 class Search_Manager extends Asset
 {
 
@@ -45,23 +44,23 @@ class Search_Manager extends Asset
 	*/
 	function create(&$link)
 	{
+		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
+		if (!system_asset_fns_create_pre_check($this)) return false;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$where = 'type_code = '.$db->quote($this->type());
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-		$sql = 'SELECT COUNT(*) FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where;
-		$exists = $db->getOne($sql);
-		if (DB::isError($exists)) trigger_error($exists->getMessage().'<br/>'.$exists->getUserInfo(), E_USER_ERROR);
-
-		if ($exists) {
-			trigger_error('Unable to create another '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').', you are only allowed one', E_USER_WARNING);
-			return false;
+		if ($linkid = parent::create($link)) {
+			if (!system_asset_fns_create_cleanup($this))  {
+				$linkid = false;
+			}
 		}
 
-		$ret_val = parent::create($link);
+		if ($linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
 
-		return $ret_val;
+		return $linkid;
 
 	}//end create()
 
@@ -78,6 +77,19 @@ class Search_Manager extends Asset
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 	}//end _getName();
+
+
+	/**
+	* Can this asset have its last significant link removed (putting it in the trash)?
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canDelete()
+	{
+		return false;
+
+	}//end canDelete()
 
 
 	/**

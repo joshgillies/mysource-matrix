@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: system_user_group.inc,v 1.19 2003/10/13 05:20:57 brobertson Exp $
+* $Id: system_user_group.inc,v 1.20 2003/10/15 11:05:15 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,25 +47,23 @@ class System_User_Group extends User_Group
 	*/
 	function create(&$link)
 	{
-		$this->_tmp[__CLASS__.'_in_create'] = true;
+		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
+		if (!system_asset_fns_create_pre_check($this)) return false;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$where = 'type_code = '.$db->quote($this->type());
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-		$sql = 'SELECT COUNT(*) FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where;
-		$exists = $db->getOne($sql);
-		if (DB::isError($exists)) trigger_error($exists->getMessage().'<br/>'.$exists->getUserInfo(), E_USER_ERROR);
-
-		if ($exists) {
-			trigger_error('Unable to create another System User Group, you are only allowed one', E_USER_WARNING);
-			return false;
+		if ($linkid = parent::create($link)) {
+			if (!system_asset_fns_create_cleanup($this))  {
+				$linkid = false;
+			}
 		}
 
-		$this->setAttrValue('name', 'System Administrators');
-		$ret_val = parent::create($link);
-		unset($this->_tmp[__CLASS__.'_in_create']);
-		return $ret_val;
+		if ($linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
+
+		return $linkid;
 
 	}//end create()
 
@@ -82,7 +80,7 @@ class System_User_Group extends User_Group
 	*/
 	function &duplicate($dupe_directory=true)
 	{
-		trigger_error('Unable to duplicate System User Group, you are only allowed one', E_USER_WARNING);
+		trigger_error('Unable to duplicate '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').', you are only allowed one', E_USER_WARNING);
 		$null = NULL; // 'cause we need to return by reference :)
 		return $null;
 
@@ -101,7 +99,7 @@ class System_User_Group extends User_Group
 	*/
 	function morph($new_type_code)
 	{
-		trigger_error('Unable to morph System User Group', E_USER_WARNING);
+		trigger_error('Unable to morph '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
 		return false;
 
 	}//end morph()
@@ -119,8 +117,8 @@ class System_User_Group extends User_Group
 	function setAttrValue($name, $value)
 	{
 
-		if ($name == 'name' && empty($this->_tmp[__CLASS__.'_in_create'])) {
-			trigger_error('You are not able to alter the name for the System Administrators User Group', E_USER_WARNING);
+		if ($name == 'name') {
+			trigger_error('You are not able to alter the name for the '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
 			return false;
 		}
 

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: root_folder.inc,v 1.36 2003/10/14 05:28:46 brobertson Exp $
+* $Id: root_folder.inc,v 1.37 2003/10/15 11:05:15 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,23 +47,13 @@ class Root_Folder extends Folder
 	*/
 	function create(&$link)
 	{
+		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		$this->_tmp[__CLASS__.'_in_create'] = true;
 
+		if (!system_asset_fns_create_pre_check($this)) return false;
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$where = 'type_code = '.$db->quote($this->type());
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-		$sql = 'SELECT COUNT(*) FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where;
-		$exists = $db->getOne($sql);
-		if (DB::isError($exists)) trigger_error($exists->getMessage().'<br/>'.$exists->getUserInfo(), E_USER_ERROR);
-
-		if ($exists) {
-			trigger_error('Unable to create another Root Folder, you are only allowed one', E_USER_WARNING);
-			return false;
-		}
-
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$this->setAttrValue('name', 'Root Folder');
 		$ret_val = parent::create($link);
 		if ($ret_val) {
 			if ($this->id != 1) {
@@ -111,6 +101,12 @@ class Root_Folder extends Folder
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
+
+			if (!system_asset_fns_create_cleanup($this))  {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 

@@ -2,9 +2,11 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: search_manager_edit_fns.inc,v 1.3 2003/10/13 06:41:53 dwong Exp $
+* $Id: search_manager_edit_fns.inc,v 1.4 2003/10/15 11:05:15 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
+
+require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 
 /**
 * Search_Manager_Edit_Fns
@@ -14,13 +16,10 @@
 * @see Asset_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.4 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-
-require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
-
 class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 {
 
