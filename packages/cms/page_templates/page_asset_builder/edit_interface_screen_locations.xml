@@ -18,47 +18,51 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2004/02/16 00:34:08 gsherwood Exp $
+* $Id: edit_interface_screen_locations.xml,v 1.1 2004/02/16 00:34:08 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes">
-		<field attribute="name">
-			<display_name>Page Name</display_name>
+	<section name="Mandatory Create Locations" write_access="write:attributes">
+		<field>
+			<display_name />
 			<note />
-			<text width="35" height="1" />
-		</field>
-		<field attribute="short_name">
-			<display_name>Page Short Name</display_name>
-			<note />
-			<text width="25" height="1" />
+			<function_call>
+				<paint_function   name="paintCreateLocation"   />
+				<process_function name="processCreateLocation" />
+			</function_call>
 		</field>
 	</section>
-	<section name="Asset Builder Settings" write_access="write:attributes">
+	<section name="Optional Create Locations" write_access="write:attributes">
 		<field>
-			<display_name>Type of Asset</display_name>
-			<note>Select what type of asset you would like to create</note>
-			<function_call>
-				<paint_function   name="paintCreateType"   />
-				<process_function name="processCreateType" />
-			</function_call>
-		</field>
-		<field>
-			<display_name>Create Status</display_name>
+			<display_name />
 			<note />
 			<function_call>
-				<paint_function   name="paintCreateStatus"   />
-				<process_function name="processCreateStatus" />
+				<paint_function   name="paintCreateLocationOptional"   />
+				<process_function name="processCreateLocationOptional" />
 			</function_call>
 		</field>
+	</section>
+	<section name="Optional Create Locations (Options)" write_access="write:attributes" show_if="definesMultipleLocations">
+		<field attribute="create_location_multiple">
+			<display_name>Allow Multiple</display_name>
+			<note>Selecting 'Yes' here will allow the asset to be created under multiple optional locations (above). Selecting 'No' will restrict the asset to being created under a single optional location.</note>
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+		<field attribute="create_location_type">
+			<display_name>Selection Type</display_name>
+			<note>Select the interface you would like to present for selecting the location to create the asset</note>
+			<selection style="list" />
+		</field>
+	</section>
+	<section name="Create Location Rules" write_access="write:attributes">
 		<field>
-			<display_name>Type Of Link</display_name>
+			<display_name />
 			<note />
 			<function_call>
-				<paint_function   name="paintCreateLink"   />
-				<process_function name="processCreateLink" />
+				<paint_function   name="paintCreateLocationRules"   />
+				<process_function name="processCreateLocationRules" />
 			</function_call>
 		</field>
 	</section>

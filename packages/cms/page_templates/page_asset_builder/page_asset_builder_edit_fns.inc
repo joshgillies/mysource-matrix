@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.2 2004/01/15 09:31:39 brobertson Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.3 2004/02/16 00:34:08 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -164,23 +164,13 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintCreateLocation(&$asset, &$o, $prefix)
 	{
+		echo '<i><b>All new assets will be placed into these locations</b></i><br/>';
+
 		$write_access = $asset->writeAccess('attributes');
 		$locations = $asset->attr('create_location');
 
-		echo '<p>';
 		if (empty($locations)) {
-			echo 'No create locations have been specified. The user creating the asset will be able to select the location manually.';
-		} else if (count($locations) == 1) {
-			echo 'All new assets will be created under ';
-			$locationid = array_pop($locations);
-			$location = &$GLOBALS['SQ_SYSTEM']->am->getAsset($locationid);
-			if (!is_null($location)) {
-				echo '"'.$location->name.'" [#'.$location->id.']';
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($location);
-			}
-			echo ' ';
-			check_box($prefix.'_delete_location['.$location->id.']');
-			echo ' Delete ?';
+			echo 'No create locations have been specified';
 		} else {
 			?>
 			<table class="sq-backend-table">
@@ -214,11 +204,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			</table>
 			<?php
 		}
-		echo '</p>';
 
 		if ($write_access) {
-			$o->closeField();
-			$o->openField('Add New Location');
+			echo '<br/><b>Add Location:</b> ';
 			asset_finder($prefix.'_new_create_location');
 		}
 
@@ -258,6 +246,105 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		}
 
 		if ($old_locations != $new_locations) return $asset->setAttrValue('create_location', $new_locations);
+		return false;
+
+	}//end processCreateLocation()
+
+
+	/**
+	* Paint the interface for choosing the location to create new assets
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCreateLocationOptional(&$asset, &$o, $prefix)
+	{
+		echo '<i><b>When creating a new asset, the user will have the option of placing the asset into one or more of these locations</b></i><br/>';
+
+		$write_access = $asset->writeAccess('attributes');
+		$locations = $asset->attr('create_location_optional');
+
+		if (empty($locations)) {
+			echo 'No create locations have been specified';
+		} else {
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-header">ID</td>
+					<td class="sq-backend-table-header">Name</td>
+					<?php
+					if ($write_access) {
+						?><td class="sq-backend-table-header">Delete</td><?php
+					}
+					?>
+				</tr>
+				<?php
+				foreach ($locations as $locationid => $null) {
+					$location = &$GLOBALS['SQ_SYSTEM']->am->getAsset($locationid);
+					if (is_null($location)) continue;
+					?>
+					<tr>
+						<td class="sq-backend-table-cell"><?php echo $location->id; ?></td>
+						<td class="sq-backend-table-cell"><?php echo $location->name; ?></td>
+						<?php
+						if ($write_access) {
+							?><td class="sq-backend-table-cell"><?php check_box($prefix.'_delete_location_optional['.$location->id.']'); ?></td><?php
+						}
+						?>
+					</tr>
+					<?php
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($location);
+				}
+				?>
+			</table>
+			<?php
+		}
+
+		if ($write_access) {
+			echo '<br/><b>Add Location:</b> ';
+			asset_finder($prefix.'_new_create_location_optional');
+		}
+
+		return $write_access;
+
+	}//end paintCreateLocation()
+
+
+	/**
+	* Processes the interface for choosing the location to create new assets
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processCreateLocationOptional(&$asset, &$o, $prefix)
+	{
+		$old_locations = $asset->attr('create_location_optional');
+		$new_locations = $old_locations;
+
+		// add a new create location
+		if (isset($_POST[$prefix.'_new_create_location_optional'])) {
+			$new_location =(int) $_POST[$prefix.'_new_create_location_optional']['assetid'];
+			if ($new_location && !isset($new_locations[$new_location])) {
+				$new_locations[$new_location] = $new_location;
+			}
+		}
+
+		// delete existing create locations
+		if (isset($_POST[$prefix.'_delete_location_optional'])) {
+			foreach ($_POST[$prefix.'_delete_location_optional'] as $locationid => $on) {
+				if (isset($new_locations[$locationid])) unset($new_locations[$locationid]);
+			}
+		}
+
+		if ($old_locations != $new_locations) return $asset->setAttrValue('create_location_optional', $new_locations);
 		return false;
 
 	}//end processCreateLocation()
@@ -310,7 +397,178 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
-	* Returns true if the asset builder allows multiple create locations
+	* Paint the interface for setting up create location rules
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCreateLocationRules(&$asset, &$o, $prefix)
+	{
+		echo '<i><b>These rules define where new assets should be created based on the values filled in by the user</b></i><br/>';
+
+		$write_access = $asset->writeAccess('attributes');
+		$current_rules = $asset->attr('create_location_rules');
+
+		$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($asset->attr('create_type'), Array('name', 'attributeid', 'type'));
+		foreach ($attrs as $name => $data) $attributes[$name] = ucwords(str_replace('_', ' ', $name));
+		$attributes = array_reverse($attributes, true);
+		$attributes[''] = '-- select attribute --';
+		$attributes = array_reverse($attributes, true);
+
+		if (!empty($current_rules)) ?><table class="sq-backend-table"><?php
+
+		$i = 1;
+		foreach ($current_rules as $rule_text => $locations) {
+			if (empty($rule_text)) continue;
+			// parse the rule text to work out how to display the interface
+			$bits = explode(' && ', $rule_text);
+
+			$x = 1;
+			foreach ($bits as $bit) {
+				list($attr, $value) = explode('==', $bit);
+				$attr  = trim($attr, '$');
+				$value = trim($value, " '");
+
+				if ($write_access) {
+					require_once SQ_ATTRIBUTES_PATH.'/'.$attrs[$attr]['type'].'/'.$attrs[$attr]['type'].'.inc';
+					$attr_class = 'Asset_Attribute_'.$attrs[$attr]['type'];
+					$attribute = new $attr_class($attrs[$attr]['attributeid'], $value);
+				}
+
+				?>
+				<tr>
+					<td class="sq-backend-table-cell">the value of attribute </td>
+					<td class="sq-backend-table-cell">
+						<?php
+							if ($write_access) {
+								combo_box($prefix.'_rules['.$i.'][attrs]['.$x.']', $attributes, false, $attr);
+							} else {
+								echo $attributes[$attr];
+							}
+						?>
+					</td>
+					<td class="sq-backend-table-cell"> is </td>
+					<td class="sq-backend-table-cell">
+						<?php
+							if ($write_access) {
+								$attribute->paint($prefix.'_rules['.$i.'][values]['.$x.']', false);
+							} else {
+								echo $value;
+							}
+						?>
+					</td>
+				</tr>
+				<?php
+
+				$x++;
+
+			}//end foreach
+
+
+			if ($write_access) {
+				?>
+				<tr>
+					<td class="sq-backend-table-cell"><b>New Attribute</b></td>
+					<td class="sq-backend-table-cell" colspan="3"><?php combo_box($prefix.'_rules['.$i.'][attrs]['.$x.']', $attributes, false, ''); ?></td>
+				</tr>
+				<?php
+			}
+			
+
+			$l = 1;
+			if (!$write_access) $location_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($locations));
+			foreach ($locations as $location => $on) {
+				?>
+				<tr>
+					<td class="sq-backend-table-cell"><?php echo ($l == 1) ? '<b>Location(s)</b>' : ''; ?></td>
+					<td class="sq-backend-table-cell" colspan="3">
+						<?php
+							if ($write_access) {
+								asset_finder($prefix.'_rule_location['.$i.']['.$l.']', $location);
+							} else {
+								echo $location_info[$location]['name'].' [# '.$location.']';
+							}
+						?>
+					</td>
+				</tr>
+				<?php
+				$l++;
+			}//end foreach
+
+			if ($write_access) {
+				?>
+				<tr>
+					<td class="sq-backend-table-cell"><b>New Location</b></td>
+					<td class="sq-backend-table-cell" colspan="3"><?php asset_finder($prefix.'_rule_location['.$i.']['.$l.']'); ?></td>
+				</tr>
+				<?php
+			}
+			?>
+			<tr>
+				<td class="sq-backend-table-cell" colspan="4"><hr/></td>
+			</tr>
+			<?php
+
+			$i++;
+
+		}//end foreach
+
+		if (!empty($current_rules)) ?></table><?php
+
+		if ($write_access) {
+			echo '<b>New Rule:</b> ';
+			combo_box($prefix.'_rules['.$i.'][attrs][1]', $attributes, false, '');
+		}
+
+		return true;
+
+	}//end paintCreateLocationRules()
+
+
+	/**
+	* Processes the interface for setting up create location rules
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processCreateLocationRules(&$asset, &$o, $prefix)
+	{
+		$rules = Array();
+		foreach ($_POST[$prefix.'_rules'] as $i => $rule) {
+			$rule_text = '';
+			foreach ($rule['attrs'] as $x => $attr) {
+				if ($attr == '') continue;
+				$value = (isset($rule['values'][$x])) ? $rule['values'][$x] : '';
+				$rule_text .= '$'.$attr.'$==\''.$value.'\' && ';
+			}
+			if (!empty($rule_text)) {
+				$locations = Array();
+				if (isset($_POST[$prefix.'_rule_location'][$i])) {
+					foreach ($_POST[$prefix.'_rule_location'][$i] as $loc) {
+						$locid = (int) $loc['assetid'];
+						if (!$locid) continue;
+						$locations[$locid] = $locid;
+					}
+				}
+				$rules[substr($rule_text, 0, -4)] = $locations;
+			}
+		}
+
+		return $asset->setAttrValue('create_location_rules', $rules);
+
+	}//end processCreateLocationRules()
+
+
+	/**
+	* Returns true if the asset builder allows the user to select multiple create locations
 	*
 	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
 	*
@@ -319,7 +577,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	*/
 	function definesMultipleLocations(&$asset)
 	{
-		return (count($asset->attr('create_location')) > 1);
+		return (count($asset->attr('create_location_optional')) > 1);
 
 	}//end definesMultipleLocations()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.2 2004/02/10 16:32:41 brobertson Exp $
+* $Id: page_asset_builder_management.inc,v 1.3 2004/02/16 00:34:08 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,6 +46,16 @@ class Page_Asset_Builder_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars['create_location']			= Array(
+														'added'     => '0.1',
+														'type'      => 'serialise',
+														'default'   => Array(),
+														);
+		$this->vars['create_location_optional']	= Array(
+														'added'     => '0.1',
+														'type'      => 'serialise',
+														'default'   => Array(),
+														);
+		$this->vars['create_location_rules']	= Array(
 														'added'     => '0.1',
 														'type'      => 'serialise',
 														'default'   => Array(),

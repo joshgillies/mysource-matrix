@@ -18,11 +18,12 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.1 2004/01/15 05:15:22 gsherwood Exp $
+* $Id: edit_interface_screens.xml,v 1.2 2004/02/16 00:34:08 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <screens>
+	<screen code_name="locations" display_name="Create Locations" icon="edit" lock_type="attributes" force_unlock="0" />
 	<screen code_name="messages" display_name="Messages" icon="edit" lock_type="attributes" />
 </screens>

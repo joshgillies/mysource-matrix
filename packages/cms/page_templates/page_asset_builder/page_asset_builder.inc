@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.6 2004/01/23 06:17:42 gsherwood Exp $
+* $Id: page_asset_builder.inc,v 1.7 2004/02/16 00:34:08 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -264,19 +264,59 @@ class Page_Asset_Builder extends Page
 
 				case 'create' :
 
-					if (!isset($_POST['asset_create_location'])) {
+					// work out where the user wanted the asset created
+					$create_locations = $this->attr('create_location');
+					if (isset($_POST['asset_create_location'])) {
+						$create_locations = array_merge($create_locations, $_POST['asset_create_location']);
+					}
+
+					// now check what rules dictate where the asset should be created
+					$location_rules = $this->attr('create_location_rules');
+					$prefix = $this->attr('create_type').'_0_';
+					foreach ($location_rules as $rule_text => $locationids) {
+						if (empty($rule_text)) continue;
+						$bits = explode(' && ', $rule_text);
+
+						$valid_rule = true;
+						foreach ($bits as $bit) {
+							list($attr, $value) = explode('==', $bit);
+							$attr  = trim($attr, '$');
+							$value = trim($value, " '");
+							$attr_value = isset($_POST[$prefix.$attr]) ? $_POST[$prefix.$attr] : '';
+							if (trim(strtolower($attr_value)) != trim(strtolower($value))) {
+								$valid_rule = false;
+								break;
+							}
+
+							
+						}//end foreach
+
+						if ($valid_rule) {
+							if (!is_array($create_locations)) $create_locations = Array($create_locations);
+							$create_locations = array_merge($create_locations, $locationids);
+							$create_locations = array_unique($create_locations);
+						}
+
+					}//end foreach
+
+
+					// if we dont have any create locations, there is no point in continuing with this charade
+					// whoever set this up may think they want to build asset on the frontend, but they dont really
+					// know what they want - let them get back to us with something we can use
+					if (empty($create_locations)) {
 						trigger_error('No asset create location specified', E_USER_WARNING);
 						break;
 					}
+
 
 					// we'll just use a limbo outputter to do the outputting for us
 					require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
 					$o = new Limbo_Outputter();
 
-					if (is_array($_POST['asset_create_location'])) {
-						$create_parentid = array_shift(array_values($_POST['asset_create_location']));
+					if (is_array($create_locations)) {
+						$create_parentid = array_shift(array_values($create_locations));
 					} else {
-						$create_parentid = (int)$_POST['asset_create_location'];
+						$create_parentid = (int)$create_locations;
 					}
 
 					$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($create_parentid);
@@ -311,8 +351,8 @@ class Page_Asset_Builder extends Page
 
 							// if we have multiple locations to create this asset under, create
 							// the new links to all the other parents
-							if (is_array($_POST['asset_create_location'])) {
-								foreach (array_values($_POST['asset_create_location']) as $link_parentid) {
+							if (is_array($create_locations)) {
+								foreach (array_values($create_locations) as $link_parentid) {
 									$link_parentid = (int)$link_parentid;
 
 									// skip the orginal parent we linked the new asset to
@@ -432,7 +472,7 @@ class Page_Asset_Builder extends Page
 		ob_end_clean();
 
 		ob_start();
-			$create_locations = $this->attr('create_location');
+			$create_locations = $this->attr('create_location_optional');
 			if (empty($create_locations)) {
 				bam('EMBEDDED ASSET MAP WILL GO HERE WITH AN ASSET FINDER');
 			} else if (count($create_locations) == 1) {
