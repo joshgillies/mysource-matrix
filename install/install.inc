@@ -18,10 +18,9 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 * 
-* $Id: install.inc,v 1.6 2004/06/28 17:38:13 brobertson Exp $
+* $Id: install.inc,v 1.7 2004/06/29 02:07:02 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
-
 
 /**
 * Install functions
@@ -188,8 +187,10 @@ function uninstall_asset_types()
 	
 		// report if we did uninstall some asset types
 		if (!empty($types_to_delete)) {
-			pre_echo('UNINSTALLED the following asset types as their files no longer exist:');
-			pre_echo($types_to_delete);
+			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$message_body = 'UNINSTALLED the following asset types as their files no longer exist:'."\n".implode("\n", $types_to_delete);
+			$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
+			$message->send();
 		}
 	
 	}//end if asset types not empty
@@ -241,7 +242,10 @@ function uninstall_packages()
 					exit(1);
 				}
 	
-				pre_echo(strtoupper($package).' PACKAGE UNINSTALLED');
+				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$message_body = 'Uninstalled '.$package;
+				$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
+				$message->send();
 
 			}//end if exists
 
@@ -265,7 +269,13 @@ function install_core()
 	require_once SQ_CORE_PACKAGE_PATH.'/package_manager_core.inc';
 	$pm = new Package_Manager_Core();
 	$result = $pm->updatePackageDetails();
-	pre_echo("CORE PACKAGE ".(($result) ? "DONE SUCCESSFULLY" : "FAILED"));
+	
+	
+	$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+	$message_body = 'Core Package '.(($result) ? 'done successfully' : 'FAILED');
+	$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
+	$message->send();
+	
 	if (!$result) exit(1);
 	
 	// Firstly let's create some Assets that we require to run
@@ -287,7 +297,11 @@ function install_core()
 	
 	// 0 (zero) indicates success, but no system assets were created - suppress in this case
 	if ($result != 0) {
-		pre_echo("CORE SYSTEM ASSET CREATION ".(($result == -1) ? "FAILED" : (": ".$result." NEW ASSETS CREATED")));
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$message_body = 'Core System Asset '.(($result == -1) ? 'FAILED' : (': '.$result.' new assets created'));
+		$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
+		$message->send();
+		
 	}
 	if ($result == -1) exit(1);
 	
@@ -316,11 +330,19 @@ function install_packages()
 			$class = 'package_manager_'.$entry;
 			$pm = new $class();
 			$result = $pm->updatePackageDetails();
-			pre_echo(strtoupper($entry)." PACKAGE ".(($result) ? "DONE SUCCESSFULLY" : "FAILED"));
+			
+			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$message_body = strtoupper($entry)." PACKAGE ".(($result) ? "DONE SUCCESSFULLY" : "FAILED");
+			$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
+			$message->send();
+			
 			if (!$result) exit(1);
 			$result = $pm->installSystemAssets();
 			if ($result != 0) {	// 0 indicates success, but no system assets were created - suppress in this case
-				pre_echo(strtoupper($entry)." SYSTEM ASSET CREATION ".(($result == -1) ? "FAILED" : (": ".$result." NEW ASSETS CREATED")));
+				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$message_body = strtoupper($entry)." SYSTEM ASSET CREATION ".(($result == -1) ? "FAILED" : (": ".$result." NEW ASSETS CREATED"));
+				$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
+				$message->send();
 			}
 			if ($result == -1) exit(1);
 			unset($pm);
@@ -359,7 +381,11 @@ function install_authentication_types()
 		if (!$auth->create($folder_link)) {
 			trigger_error('AUTHENTICATION TYPE "'.strtoupper($type_code).'" NOT CREATED', E_USER_WARNING);
 		} else {
-			pre_echo('AUTHENTICATION TYPE "'.strtoupper($type_code).'" CREATED: '.$auth->id);
+			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$message_body = 'AUTHENTICATION TYPE "'.strtoupper($type_code).'" CREATED: '.$auth->id;
+			$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
+			$message->send();
+
 		}
 	}
 	$GLOBALS['SQ_INSTALL'] = false;
@@ -398,7 +424,10 @@ function generate_global_preferences()
 	$str = '<'.'?php $preferences = '.var_export($preferences, true).'; ?'.'>';
 	if (!string_to_file($str, SQ_DATA_PATH.'/private/conf/preferences.inc')) return false;
 	
-	pre_echo('GLOBAL PREFERENCES DONE');
+	$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+	$message_body = 'Global Preferences Done';
+	$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
+	$message->send();
 	
 }//end generate_global_preferences()
 
@@ -431,7 +460,10 @@ function install_event_listeners()
 	$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 	$em->writeStaticEventsCacheFile();
 	
-	pre_echo('EVENT LISTENERS DONE');
+	$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+	$message_body = 'Event Listeners Done';
+	$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
+	$message->send();
 	
 }//end install_event_listeners()
 
