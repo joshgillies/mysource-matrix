@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form.inc,v 1.13 2005/01/20 13:07:32 brobertson Exp $
+* $Id: design_area_login_form.inc,v 1.14 2005/04/01 02:25:04 amiller Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -94,18 +94,16 @@ class Design_Area_Login_Form extends Design_Area
 
 				$qry_str_extra = '';
 				if ($this->attr('forward_www_vars')) {
-					$qry_str_extra = '&<'.'?php echo preg_replace(\'/SQ_ACTION=[^\&]+\&?/\', \'\', $_SERVER[\'QUERY_STRING\']); ?'.'>';
+					$qry_str_extra = '&amp;<'.'?php echo preg_replace(\'/SQ_ACTION=[^\&]+\&?/\', \'\', $_SERVER[\'QUERY_STRING\']); ?'.'>';
 				}
 
 				// open login form
 				if ($this->_tmp['painting_section'] == 'login') {
-					echo '<form action="<', '?php echo $_SERVER[\'PHP_SELF\']; ?','>?SQ_ACTION=login'.$qry_str_extra.'" name="'.$this->attr('id_name').'_login_prompt" method="POST" onSubmit="javascript: return (this.elements[\'SQ_LOGIN_USERNAME\'].value.length > 0 && this.elements[\'SQ_LOGIN_PASSWORD\'].value.length > 1);">
-					<input type="hidden" name="SQ_LOGIN_KEY"      value="<', '?php echo $GLOBALS[\'SQ_SYSTEM\']->generateLoginKey(); ?', '>">
-					<input type="hidden" name="SQ_LOGIN_REFERER"  value="<', '?php echo htmlspecialchars('.$referer.'); ?', '>">';
+					echo '<form action="<', '?php echo $_SERVER[\'PHP_SELF\']; ?','>?SQ_ACTION=login'.$qry_str_extra.'" id="'.$this->attr('id_name').'_login_prompt" method="post" onsubmit="return checkEntry();">';
 				// open logout form
 				} else {
-					echo '<form action="<', '?php echo $_SERVER[\'PHP_SELF\']; ?','>?SQ_ACTION=logout'.$qry_str_extra.'" name="'.$this->attr('id_name').'_login_prompt" method="POST">
-					<input type="hidden" name="SQ_LOGIN_REFERER"  value="<', '?php echo htmlspecialchars('.$referer.'); ?', '>">';
+					echo '<form action="<', '?php echo $_SERVER[\'PHP_SELF\']; ?','>?SQ_ACTION=logout'.$qry_str_extra.'" name="'.$this->attr('id_name').'_login_prompt" method="post">
+					<input type="hidden" name="SQ_LOGIN_REFERER"  value="<', '?php echo htmlspecialchars('.$referer.'); ?', '>" />';
 				}
 
 				if ($this->attr('forward_www_vars')) {
@@ -125,7 +123,16 @@ class Design_Area_Login_Form extends Design_Area
 				break;
 
 			case 'form_close' :
-				echo '</form>';
+				echo '</form>
+				<script type="text/javascript"><!--
+				//<![CDATA[
+				var loginForm = document.forms[\''.$this->attr('id_name').'_login_prompt\'];
+					function checkEntry() {
+						return (loginForm.SQ_LOGIN_USERNAME.value.length > 0 && loginForm.SQ_LOGIN_PASSWORD.value.length > 1);
+					}
+				//]]> -->
+				</script>
+				';
 				break;
 
 			case 'system_messages' :
@@ -134,20 +141,27 @@ class Design_Area_Login_Form extends Design_Area
 
 			case 'username_box' :
 				require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-				$extras = 'onFocus="javascript: this.select();"';
+				$extras = 'onfocus="javascript: this.select();"';
 				foreach ($args As $k => $v) {
 					if ($k = 'size') continue;
 					$extras .= ' '.$k.'="'.htmlspecialchars($v).'"';
 				}
+				echo '<input type="hidden" name="SQ_LOGIN_KEY"      value="<', '?php echo $GLOBALS[\'SQ_SYSTEM\']->generateLoginKey(); ?', '>" />
+					  <input type="hidden" name="SQ_LOGIN_REFERER"  value="<', '?php echo htmlspecialchars('.$referer.'); ?', '>" />';
+					  
 				text_box('SQ_LOGIN_USERNAME', '', empty($args['size']) ? 10 : $args['size'], 0, false, $extras);
 				if ($this->attr('give_username_focus')) {
-					echo '<script language="javascript" type="text/javascript">
+					echo '<script type="text/javascript">
+						<!--
+						<![CDATA[
 						function set_'.$this->attr('id_name').'_username_box_focus() {
 							'.$this->attr('id_name').'_username_box_other_onload();
 							document.'.$this->attr('id_name').'_login_prompt.elements[\'SQ_LOGIN_USERNAME\'].focus();
 						}
 						var '.$this->attr('id_name').'_username_box_other_onload = (window.onload) ? window.onload : new Function;
 						window.onload = set_'.$this->attr('id_name').'_username_box_focus;
+						]]>
+						-->
 						</script>';
 				}
 
@@ -156,7 +170,7 @@ class Design_Area_Login_Form extends Design_Area
 
 			case 'password_box' :
 				require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-				$extras = 'onFocus="javascript: this.select();"';
+				$extras = 'onfocus="javascript: this.select();"';
 				foreach ($args As $k => $v) {
 					if ($k = 'size') continue;
 					$extras .= ' '.$k.'="'.htmlspecialchars($v).'"';
