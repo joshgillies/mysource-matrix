@@ -18,11 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_management.inc,v 1.2 2003/12/16 12:16:42 brobertson Exp $
+* $Id: bodycopy_table_management.inc,v 1.3 2004/02/10 16:26:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
-require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_container_management.inc';
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
 * Bodycopy_Table_Management
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Bodycopy_Table_Management extends Bodycopy_Container_Management
+class Bodycopy_Table_Management extends Asset_Management
 {
 
 	/**
@@ -43,7 +43,7 @@ class Bodycopy_Table_Management extends Bodycopy_Container_Management
 	*/
 	function Bodycopy_Table_Management(&$pm)
 	{
-		$this->Bodycopy_Container_Management($pm);
+		$this->Asset_Management($pm);
 
 		$this->vars = Array('rows' => Array(
 												'added'     => '0.0.1',

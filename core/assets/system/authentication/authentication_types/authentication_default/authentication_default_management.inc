@@ -18,12 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_default_management.inc,v 1.1 2004/02/06 03:09:53 gsherwood Exp $
+* $Id: authentication_default_management.inc,v 1.2 2004/02/10 16:21:55 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
-
-require_once SQ_CORE_PACKAGE_PATH.'/system/authentication/authentication/authentication_management.inc';
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
 * Authentication_Default_Management
@@ -35,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/authentication/authentication/authent
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Authentication_Default_Management extends Authentication_Management
+class Authentication_Default_Management extends Asset_Management
 {
 
 
@@ -45,7 +44,7 @@ class Authentication_Default_Management extends Authentication_Management
 	*/
 	function Authentication_Default_Management(&$pm)
 	{
-		$this->Authentication_Management($pm);
+		$this->Asset_Management($pm);
 		$this->vars =	Array(
 							'name' => Array(
 								'default' => 'Default Authentication',

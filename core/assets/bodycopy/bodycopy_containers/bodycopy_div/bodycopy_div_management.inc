@@ -18,11 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_management.inc,v 1.3 2004/01/20 23:55:14 gsherwood Exp $
+* $Id: bodycopy_div_management.inc,v 1.4 2004/02/10 16:26:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
-require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_container_management.inc';
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
 * Bodycopy_Div_Management
@@ -34,20 +34,17 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Bodycopy_Div_Management extends Bodycopy_Container_Management
+class Bodycopy_Div_Management extends Asset_Management
 {
-
-
 	/**
 	* Constructor
 	*
 	*/
 	function Bodycopy_Div_Management(&$pm)
 	{
-		$this->Bodycopy_Container_Management($pm);
+		$this->Asset_Management($pm);
 
 	}//end constructor
-
 
 }//end class
 
