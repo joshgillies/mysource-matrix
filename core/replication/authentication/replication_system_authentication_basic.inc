@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_authentication_basic.inc,v 1.1.2.6 2004/02/14 20:53:57 brobertson Exp $
+* $Id: replication_system_authentication_basic.inc,v 1.1.2.7 2004/02/14 21:09:47 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -157,7 +157,7 @@ pre_echo("ALL OK");
 			trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : Data Write Error', E_USER_WARNING);
 			return false;
 		}
-		if (!$transport->read($data=null,$headers=null)) {
+		if (!$transport->readVar($data=null,$headers=null)) {
 			trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : Data Read Error', E_USER_WARNING);
 			return false;
 		}
@@ -191,7 +191,7 @@ pre_echo("ALL OK");
 	{
 		$our_phrase   = (SQ_REPLICATION_IS_MASTER) ? $this->master_to_slave_phrase : $this->slave_to_master_phrase;
 
-		if (!$transport->read($data=null,$headers=null)) {
+		if (!$transport->readVar($data=null,$headers=null)) {
 			trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : Data Read Error', E_USER_WARNING);
 			return false;
 		}
@@ -203,7 +203,7 @@ pre_echo("ALL OK");
 			trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : Data Write Error', E_USER_WARNING);
 			return false;
 		}
-		if (!$transport->read($data=null,$headers=null)) {
+		if (!$transport->readVar($data=null,$headers=null)) {
 			trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : Data Read Error', E_USER_WARNING);
 			return false;
 		}
