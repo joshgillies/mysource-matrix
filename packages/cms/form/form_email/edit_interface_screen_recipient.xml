@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_recipient.xml,v 1.13 2004/09/21 00:38:11 lwright Exp $
+* $Id: edit_interface_screen_recipient.xml,v 1.14 2004/10/05 06:10:42 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -34,10 +34,10 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Recipient Options">
+	<section name="Recipient Email Options">
 		<field attribute="recipient_emails_format">
-			<display_name>Recipient Emails</display_name>
-			<note>If the 'To' field is empty then no e-mails will be sent. In addition to the keyword replacements pointed to at the top of this screen, you may use the following keywords in any of the above fields:&lt;br /&gt;
+			<display_name>Recipient Email Format</display_name>
+			<note>If the 'To' field is empty then no Recipient e-mails will be sent. In addition to the keyword replacements pointed to at the top of this screen, you may use the following keywords in any of the above fields:&lt;br /&gt;
 			&lt;ul&gt;
 			&lt;li&gt;%form_info% - a list of form information including the asset id, name and URL of the form, and the name and asset id of the site&lt;/li&gt;
 			&lt;li&gt;%form_summary% - a list of responses received from this submission&lt;/li&gt;
@@ -46,17 +46,17 @@
 			<email_format />
 		</field>
 	</section>
-	<section name="Receipt Options">
+	<section name="Receipt Email Options">
 		<field>
-			<display_name>Receipt Email Field</display_name>
-			<note>The address entered in this field will be used to send receipt e-mails. You may select from fields of E-mail Address type only. If this field is empty no receipt e-mails will be sent.</note>
+			<display_name>Receipt Recipient Question</display_name>
+			<note>The address entered in response to this question will always receive Receipt e-mails. You may select from questions of Email Address type only. If this attribute is not filled no Receipt e-mails will be sent.</note>
 			<function_call>
 				<paint_function   name="paintReceiptField"   />
 				<process_function name="processReceiptField" />
 			</function_call>
 		</field>
 		<field attribute="receipt_emails_format">
-			<display_name>Receipt Emails</display_name>
+			<display_name>Receipt Email Format</display_name>
 			<note>Note that the receipt will always be sent to the address entered in the e-mail field specified above. You can use the 'To' address to specify additional email addresses that the receipt should also be sent to. In addition to the keyword replacements pointed to at the top of this screen, you may use the following keywords in any of the above fields:&lt;br /&gt;
 			&lt;ul&gt;
 			&lt;li&gt;%form_info% - a list of form information including the asset id, name and URL of the form, and the name and asset id of the site&lt;/li&gt;
@@ -66,18 +66,18 @@
 			<email_format />
 		</field>
 	</section>
-	<section name="Send To A Friend">
+	<section name="Send To A Friend Email Options">
 		<field>
-			<display_name>Email Source</display_name>
-			<note>Any text field (preferably a multiple-line one) can be used for this field. It will be expected to contain e-mail addresses, separated by white space (ie. a space or a newline), a comma or a semi-colon. If this field is empty no friend e-mails will be sent.</note>
+			<display_name>STAF Recipient Question</display_name>
+			<note>The email address(es) entered in response to the question selected will always receive Send to a Friend emails. This question can either be of Email Address type or a standard Text field - multi-line Text fields are acceptable and can be used to specify multiple e-mail addresses on each line. If this attribute is not filled no Send to a Friend emails will be sent.</note>
 			<function_call>
 				<paint_function   name="paintSTAFField"   />
 				<process_function name="processSTAFField" />
 			</function_call>
 		</field>
 		<field attribute="staf_format">
-			<display_name>Email Format</display_name>
-			<note>Note that the receipt will always be sent to the addresses entered in the e-mail field specified above. You can use the 'To' address to specify additional email addresses that the receipt should also be sent to. In addition to the keyword replacements pointed to at the top of this screen, you may use the following keywords in any of the above fields:&lt;br /&gt;
+			<display_name>STAF Email Format</display_name>
+			<note>You can use the 'To' address to specify additional email addresses that the email should be sent to, in addition to what is entered in the question specified above. In addition to the keyword replacements pointed to at the top of this screen, you may use the following keywords in any of the above fields:&lt;br /&gt;
 			&lt;ul&gt;
 			&lt;li&gt;%form_info% - a list of form information including the asset id, name and URL of the form, and the name and asset id of the site&lt;/li&gt;
 			&lt;li&gt;%form_summary% - a list of responses received from this submission&lt;/li&gt;
